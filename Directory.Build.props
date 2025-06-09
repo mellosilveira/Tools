@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project>
+	<PropertyGroup>
+		<!-- Product information -->
+		<Product>MelloSilveira Tools</Product>
+		<AssemblyTitle>MelloSilveira Tools</AssemblyTitle>
+		<Description>NuGet package with helpers for .NET system development, providing extensions, utilities, and reusable patterns to speed up building clean and robust applications.</Description>
+		<Company>MelloSilveira</Company>
+		<Copyright>MelloSilveira - Copyright © 2025</Copyright>
+		<NeutralLanguage>en-us</NeutralLanguage>
+		<RepositoryType>git</RepositoryType>
+		<RepositoryUrl>https://github.com/mellosilveira/Tools</RepositoryUrl>
+		<VersionPrefix>0.0.0</VersionPrefix>
+
+		<!-- Setup initial variables if not defined. -->
+		<Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+		<Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+		<ProjectRootDir Condition=" '$(ProjectRootDir)' == '' ">$(MSBuildThisFileDirectory)</ProjectRootDir>
+		<NuGetPackagesRootDir Condition=" '$(NuGetPackagesRootDir)' == '' ">$(UserProfile)\.nuget\packages\</NuGetPackagesRootDir>
+
+		<!-- Path definitions. -->
+		<BaseIntermediateOutputPath>$(MSBuildThisFileDirectory)\build\tmp\$(MSBuildProjectName)</BaseIntermediateOutputPath>
+		<IntermediateOutputPath>$(BaseIntermediateOutputPath)</IntermediateOutputPath>
+		<OutputPath>$(MSBuildThisFileDirectory)\build\bin\$(Configuration)\$(MSBuildProjectName)</OutputPath>
+
+		<!-- Variable and compile-time constant for the framework. -->
+		<FrameworkIdentifier>$(TargetFramework.TrimEnd('.0123456789'))</FrameworkIdentifier>
+		<DefineConstants>$(DefineConstants);$(FrameworkIdentifier.ToUpper())</DefineConstants>
+		<TargetFramework>net9.0</TargetFramework>
+
+		<!-- Additional informations. -->
+		<ImplicitUsings>enable</ImplicitUsings>
+		<GenerateDocumentationFile>True</GenerateDocumentationFile>
+
+		<!-- Docker settings. -->
+		<DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
+	</PropertyGroup>
+
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+		<DocumentationFile>..\$(MSBuildProjectName)\$(MSBuildProjectName).xml</DocumentationFile>
+	</PropertyGroup>
+
+</Project>
