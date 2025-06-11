@@ -18,6 +18,7 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "workflows", "workflows", "{17CB7414-9986-45D8-B2C1-39F91DC5D7A5}"
 	ProjectSection(SolutionItems) = preProject
 		.github\workflows\publish_nuget_package.yml = .github\workflows\publish_nuget_package.yml
+		.github\workflows\publish_release_candidate_nuget_package.yml = .github\workflows\publish_release_candidate_nuget_package.yml
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".github", ".github", "{AB86B74C-9BD3-4C03-BCE4-5315C04666BB}"
