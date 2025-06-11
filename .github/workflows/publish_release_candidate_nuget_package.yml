@@ -1,0 +1,97 @@
+# This workflow will build and publish .NET nuget package
+
+name: Build and publish .NET nuget package (release candidate)
+
+on:
+  pull_request:
+    paths:
+      - '**/Directory.Build.props'
+      - '**/*.cs'
+      - '**/*.csproj'
+      - '**/*.sln'
+      - '.github/workflows/**'
+
+env:
+  CONFIGURATION: Release
+  DOTNET_CORE_VERSION: 9.x
+  ARTIFACT_NAME: MelloSilveiraTools_nugetpackages_artifact
+  UPLOAD_PATH: build/bin/Release/
+  # ATTENTION: The path for GitHub actions runner is hard codded since it was not possible to use GITHUB_ACTION_PATH.
+  TARGET_PATH: /home/runner/work/MelloSilveiraTools/MelloSilveiraTools
+      
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    outputs: 
+      Version: ${{ steps.tag.outputs.version }}
+
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        fetch-depth: 0 #fetch-depth is needed for GitVersion
+        
+    # Check if version contains "rc"
+    - name: Check if version contains "rc"
+      id: check_version
+      run: |
+        version=$(grep -oPm1 "(?<=<VersionPrefix>)[^<]+" Directory.Build.props)
+        echo "Detected version: $version"
+        if [[ "$version" == *rc* ]]; then
+          echo "RC version detected, proceeding..."
+        else
+          echo "Version does not contain 'rc'. Stopping workflow."
+          exit 1
+        fi
+
+    #Install and calculate the new version with GitVersion  
+    - name: Install GitVersion
+      uses: gittools/actions/gitversion/setup@v0
+      with:
+        versionSpec: 5.x
+    - name: Get latest tag
+      id: tag
+      run: |
+        latest_tag=$(git describe --abbrev=0 --tags)
+        echo "version=$latest_tag" >> $GITHUB_OUTPUT
+    - name: Display tag
+      run: echo "The tag value is ${{ steps.tag.outputs.version }}"
+    
+    #Build/pack the project
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: ${{ env.DOTNET_CORE_VERSION }}
+    - name: Build project
+      run: dotnet build src/MelloSilveiraTools/MelloSilveiraTools.csproj --configuration ${{ env.CONFIGURATION }}
+    - name: Pack NuGet package
+      run: dotnet pack src/MelloSilveiraTools/MelloSilveiraTools.csproj --configuration ${{ env.CONFIGURATION }} --output ${{ env.UPLOAD_PATH }}
+    - name: Upload NuGet package to GitHub
+      uses: actions/upload-artifact@v4
+      with:
+        name: ${{ env.ARTIFACT_NAME }}
+        path: ${{ env.UPLOAD_PATH }}
+        
+  release:
+    environment: production_pakages
+    runs-on: ubuntu-latest    
+    needs: build
+    
+    steps:  
+    #Push NuGet package to GitHub packages
+    - name: Download nuget package artifact
+      uses: actions/download-artifact@v4
+      with:
+        name: ${{ env.ARTIFACT_NAME }}
+        path: ${{ env.TARGET_PATH }}
+    - name: Publish to nuget.org
+      run: dotnet nuget push "${{ env.TARGET_PATH }}/*.nupkg" --api-key ${{ secrets.NUGET_ORG_API_KEY }} --source https://api.nuget.org/v3/index.json
+    
+    #Create release
+    - name: Create Release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: ${{ needs.build.outputs.Version }}
+        release_name: Release ${{ needs.build.outputs.Version }}
+        
