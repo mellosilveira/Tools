@@ -12,11 +12,11 @@
 		<NeutralLanguage>en-us</NeutralLanguage>
 		<RepositoryType>git</RepositoryType>
 		<RepositoryUrl>https://github.com/mellosilveira/Tools</RepositoryUrl>
-		<PackageProjectUrl>https://github.com/MelloSilveira/MelloSilveiraTools</PackageProjectUrl>
+		<PackageProjectUrl>https://github.com/mellosilveira/Tools</PackageProjectUrl>
 		<PublishRepositoryUrl>true</PublishRepositoryUrl>
 		<PackageLicenseExpression>MIT</PackageLicenseExpression>
 		<PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
-		<VersionPrefix>1.0.1</VersionPrefix>
+		<VersionPrefix>1.0.</VersionPrefix>
 
 		<!-- Setup initial variables if not defined. -->
 		<Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
