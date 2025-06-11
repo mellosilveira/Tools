@@ -71,12 +71,3 @@ jobs:
         path: ${{ env.TARGET_PATH }}
     - name: Publish to nuget.org
       run: dotnet nuget push "${{ env.TARGET_PATH }}/*.nupkg" --api-key ${{ secrets.NUGET_ORG_API_KEY }} --source https://api.nuget.org/v3/index.json
-    
-    #Create release
-    - name: Create Release
-      uses: actions/create-release@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        tag_name: ${{ needs.build.outputs.Version }}
-        release_name: Release ${{ needs.build.outputs.Version }}
