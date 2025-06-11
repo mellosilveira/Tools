@@ -8,9 +8,9 @@ using System.Threading.RateLimiting;
 namespace MelloSilveiraTools.Infrastructure.ResiliencePipelines;
 
 /// <summary>
-/// Base resilience to automatically retry and log each attempt.
+/// Base resilience pipeline to automatically retry and log each attempt.
 /// </summary>
-public class BaseResiliencePipeline
+public class DefaultResiliencePipeline
 {
     private static readonly ResiliencePropertyKey<string> CallerFileNamePropertyKey = new("CallerFileName");
     private static readonly ResiliencePropertyKey<string> CallerMemberNamePropertyKey = new("CallerMemberName");
@@ -19,13 +19,12 @@ public class BaseResiliencePipeline
     private readonly ResiliencePipeline _pipeline;
 
     /// <summary>
-    /// Initializes a new instance of <see cref="BaseResiliencePipeline"/>.
+    /// Initializes a new instance of <see cref="DefaultResiliencePipeline"/>.
     /// </summary>
     /// <param name="logger">See reference at <see cref="ILogger"/>.</param>
-    /// <param name="shouldHandle">Predicate that determines whether the retry should be executed for a given outcome.</param>
     /// <param name="settings">See reference at <see cref="ResiliencePipelineSettings"/>.</param>
-    /// <exception cref="ArgumentNullException"></exception>
-    public BaseResiliencePipeline(ILogger logger, Func<RetryPredicateArguments<object>, ValueTask<bool>> shouldHandle, ResiliencePipelineSettings settings)
+    /// <param name="shouldHandle">Predicate that determines whether the retry should be executed for a given outcome.</param>
+    public DefaultResiliencePipeline(ILogger logger, ResiliencePipelineSettings settings, Func<RetryPredicateArguments<object>, ValueTask<bool>> shouldHandle)
     {
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
 

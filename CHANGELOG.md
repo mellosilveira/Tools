@@ -6,7 +6,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## UNRELEASED
 ### Added
-- Base resilience pipeline to automatically retry and log each attempt.
+- Resilience pipeline for default cases and PostgreSQL repositories.
 - Logger.
 
 ## [1.0.3] - 2025-06-11
