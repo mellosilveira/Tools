@@ -18,7 +18,7 @@ using System.Reflection;
     "lities, and reusable patterns to speed up building clean and robust applications" +
     ".")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("0.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("0.0.0+4be5ea54b0b0731d5855ba70b1a66b4e62f9f1a6")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("0.0.0+899b5e0fe862857e348667439af05562e6c2d86f")]
 [assembly: System.Reflection.AssemblyProductAttribute("MelloSilveira Tools")]
 [assembly: System.Reflection.AssemblyTitleAttribute("MelloSilveira Tools")]
 [assembly: System.Reflection.AssemblyVersionAttribute("0.0.0.0")]
