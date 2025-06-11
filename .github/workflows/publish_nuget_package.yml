@@ -10,7 +10,8 @@ env:
   DOTNET_CORE_VERSION: 9.x
   ARTIFACT_NAME: MelloSilveiraTools_nugetpackages_artifact
   UPLOAD_PATH: build/bin/Release/
-  TARGET_PATH: build/bin/Release/
+  # ATTENTION: The path for GitHub actions runner is hard codded since it was not possible to use GITHUB_ACTION_PATH.
+  TARGET_PATH: /home/runner/work/MelloSilveiraTools/MelloSilveiraTools
       
 jobs:
   build:
@@ -41,8 +42,12 @@ jobs:
       uses: actions/setup-dotnet@v4
       with:
         dotnet-version: ${{ env.DOTNET_CORE_VERSION }}
+    - name: Listar arquivos para debug
+      run: ls -R src/
+    - name: Build project
+      run: dotnet build src/MelloSilveiraTools/MelloSilveiraTools.csproj --configuration ${{ env.CONFIGURATION }}
     - name: Pack NuGet package
-      run: dotnet pack "src/MelloSilveiraTools" --configuration ${{ env.CONFIGURATION }} --output ${{ env.UPLOAD_PATH }}
+      run: dotnet pack src/MelloSilveiraTools/MelloSilveiraTools.csproj --configuration ${{ env.CONFIGURATION }} --output ${{ env.UPLOAD_PATH }}
     - name: Upload NuGet package to GitHub
       uses: actions/upload-artifact@v4
       with:
