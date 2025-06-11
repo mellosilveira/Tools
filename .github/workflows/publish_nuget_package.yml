@@ -1,0 +1,77 @@
+# This workflow will build and publish .NET nuget package
+
+name: Build and publish .NET nuget package to GitHub package registry
+
+on:
+  push:
+    branches: [main]
+env:
+  CONFIGURATION: Release
+  DOTNET_CORE_VERSION: 9.x
+  ARTIFACT_NAME: MelloSilveiraTools_nugetpackages_artifact
+  UPLOAD_PATH: build/bin/Release/
+  # ATTENTION: The path for GitHub actions runner is hard codded since it was not possible to use GITHUB_ACTION_PATH.
+  TARGET_PATH: /home/runner/work/MelloSilveiraTools/MelloSilveiraTools
+      
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    outputs: 
+      Version: ${{ steps.tag.outputs.version }}
+
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        fetch-depth: 0 #fetch-depth is needed for GitVersion
+        
+    #Install and calculate the new version with GitVersion  
+    - name: Install GitVersion
+      uses: gittools/actions/gitversion/setup@v0
+      with:
+        versionSpec: 5.x
+    - name: Get latest tag
+      id: tag
+      run: |
+        latest_tag=$(git describe --abbrev=0 --tags)
+        echo "version=$latest_tag" >> $GITHUB_OUTPUT
+    - name: Display tag
+      run: echo "The tag value is ${{ steps.tag.outputs.version }}"
+    
+    #Build/pack the project
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: ${{ env.DOTNET_CORE_VERSION }}
+    - name: Pack NuGet package
+      run: dotnet pack "src/MelloSilveiraTools" --configuration ${{ env.CONFIGURATION }} --output ${{ env.UPLOAD_PATH }} /p:PackageVersion=${{ steps.tag.outputs.version }}
+    - name: Upload NuGet package to GitHub
+      uses: actions/upload-artifact@v4
+      with:
+        name: ${{ env.ARTIFACT_NAME }}
+        path: ${{ env.UPLOAD_PATH }}
+        
+  release:
+    environment: production_pakages
+    runs-on: ubuntu-latest    
+    needs: build
+    
+    steps:  
+    #Push NuGet package to GitHub packages
+    - name: Download nuget package artifact
+      uses: actions/download-artifact@v4
+      with:
+        name: ${{ env.ARTIFACT_NAME }}
+        path: ${{ env.TARGET_PATH }}
+    - name: Prepare packages
+      run: dotnet nuget add source --username ${{ secrets.NUGET_PACKAGE_USERNAME }} --password ${{ secrets.NUGET_PACKAGE_TOKEN }} --store-password-in-clear-text --name github "https://nuget.pkg.github.com/MelloSilveira/index.json"
+    - name: Push package to GitHub packages 
+      run: dotnet nuget push "${{ env.TARGET_PATH }}/MelloSilveiraTools/*.nupkg" --api-key ${{ secrets.NUGET_PACKAGE_TOKEN }} --source "github"
+    
+    #Create release
+    - name: Create Release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: ${{ needs.build.outputs.Version }}
+        release_name: Release ${{ needs.build.outputs.Version }}
