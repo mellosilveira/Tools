@@ -40,11 +40,10 @@ public static class NpgsqlCommandExtensions
     /// <summary>
     /// Sets the parameter for sql command.
     /// </summary>
-    /// <typeparam name="TEntity"></typeparam>
     /// <param name="command"></param>
     /// <param name="parameters"></param>
     /// <returns></returns>
-    public static NpgsqlCommand SetCommandParameters<TEntity>(this NpgsqlCommand command, IEnumerable<NpgsqlParameter> parameters)
+    public static NpgsqlCommand SetCommandParameters(this NpgsqlCommand command, IEnumerable<NpgsqlParameter> parameters)
     {
         if (parameters.IsNullOrEmpty())
             return command;
