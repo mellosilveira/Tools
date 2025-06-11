@@ -2,14 +2,20 @@
 <Project>
 	<PropertyGroup>
 		<!-- Product information -->
+		<Authors>MelloSilveira</Authors>
+		<Company>MelloSilveira</Company>
 		<Product>MelloSilveira Tools</Product>
+		<PackageId>MelloSilveiraTools</PackageId>
 		<AssemblyTitle>MelloSilveira Tools</AssemblyTitle>
 		<Description>NuGet package with helpers for .NET system development, providing extensions, utilities, and reusable patterns to speed up building clean and robust applications.</Description>
-		<Company>MelloSilveira</Company>
 		<Copyright>MelloSilveira - Copyright © 2025</Copyright>
 		<NeutralLanguage>en-us</NeutralLanguage>
 		<RepositoryType>git</RepositoryType>
 		<RepositoryUrl>https://github.com/mellosilveira/Tools</RepositoryUrl>
+		<PackageProjectUrl>https://github.com/MelloSilveira/MelloSilveiraTools</PackageProjectUrl>
+		<PublishRepositoryUrl>true</PublishRepositoryUrl>
+		<PackageLicenseExpression>MIT</PackageLicenseExpression>
+		<PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
 		<VersionPrefix>0.0.0</VersionPrefix>
 
 		<!-- Setup initial variables if not defined. -->
@@ -32,8 +38,6 @@
 		<ImplicitUsings>enable</ImplicitUsings>
 		<GenerateDocumentationFile>True</GenerateDocumentationFile>
 
-		<!-- Docker settings. -->
-		<DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
