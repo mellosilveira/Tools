@@ -18,7 +18,7 @@ public static class NpgsqlCommandExtensions
     /// <param name="command"></param>
     /// <param name="entity"></param>
     /// <returns></returns>
-    public static NpgsqlCommand SetCommandParameters<TEntity>(this NpgsqlCommand command, TEntity entity)
+    public static NpgsqlCommand SetCommandParametersFromEntity<TEntity>(this NpgsqlCommand command, TEntity entity)
     {
         if (entity is null)
             return command;
