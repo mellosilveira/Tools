@@ -1,6 +1,7 @@
 ﻿using Dapper;
 using MelloSilveiraTools.Infrastructure.Database.Attributes;
 using MelloSilveiraTools.Infrastructure.Database.Models;
+using Npgsql;
 using System.Reflection;
 
 namespace MelloSilveiraTools.ExtensionMethods;
@@ -79,6 +80,29 @@ public static class ClassExtensions
         }
 
         return propertyNameAndValues;
+    }
+
+    /// <summary>
+    /// Builds an enumerable with <see cref="NpgsqlParameter"/>.
+    /// </summary>
+    /// <typeparam name="T">The type of <paramref name="obj"/>.</typeparam>
+    /// <param name="obj"></param>
+    /// <returns>A <see cref="IEnumerable{T}"/> with <see cref="NpgsqlParameter"/>.</returns>
+    public static IEnumerable<NpgsqlParameter> BuildParameters<T>(this T obj)
+    {
+        if (obj is null)
+            yield break;
+
+        PropertyInfo[] properties = obj.GetType().GetPropertiesInHierarchy();
+        foreach (var property in properties)
+        {
+            var attribute = property.GetCustomAttribute<ColumnAttribute>();
+            if (attribute != null)
+            {
+                object? value = property.GetValue(obj);
+                yield return new NpgsqlParameter(property.Name, property.PropertyType.GetDbTypeFromPropertyType()) { Value = value ?? DBNull.Value };
+            }
+        }
     }
 
     /// <summary>
