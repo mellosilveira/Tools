@@ -42,8 +42,8 @@ jobs:
       uses: actions/setup-dotnet@v4
       with:
         dotnet-version: ${{ env.DOTNET_CORE_VERSION }}
-    - name: Pack NuGet package
-      run: dotnet pack "src/MelloSilveiraTools" --configuration ${{ env.CONFIGURATION }} --output ${{ env.UPLOAD_PATH }} /p:PackageVersion=${{ steps.tag.outputs.version }}
+    - name: Build NuGet package
+      run: dotnet build "src/MelloSilveiraTools" --configuration ${{ env.CONFIGURATION }}
     - name: Upload NuGet package to GitHub
       uses: actions/upload-artifact@v4
       with:
@@ -62,10 +62,8 @@ jobs:
       with:
         name: ${{ env.ARTIFACT_NAME }}
         path: ${{ env.TARGET_PATH }}
-    - name: Prepare packages
-      run: dotnet nuget add source --username ${{ secrets.NUGET_PACKAGE_USERNAME }} --password ${{ secrets.NUGET_PACKAGE_TOKEN }} --store-password-in-clear-text --name github "https://nuget.pkg.github.com/MelloSilveira/index.json"
-    - name: Push package to GitHub packages 
-      run: dotnet nuget push "${{ env.TARGET_PATH }}/MelloSilveiraTools/*.nupkg" --api-key ${{ secrets.NUGET_PACKAGE_TOKEN }} --source "github"
+    - name: Publish to nuget.org
+      run: dotnet nuget push "${{ env.TARGET_PATH }}/*.nupkg" --api-key ${{ secrets.NUGET_ORG_API_KEY }} --source https://api.nuget.org/v3/index.json
     
     #Create release
     - name: Create Release
@@ -75,3 +73,4 @@ jobs:
       with:
         tag_name: ${{ needs.build.outputs.Version }}
         release_name: Release ${{ needs.build.outputs.Version }}
+        
