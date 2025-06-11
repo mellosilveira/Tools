@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Added
 - Resilience pipeline for default cases and PostgreSQL repositories.
 - Logger.
+- GetDeleteByPrimaryKeyQuery, GetSelectByPrimaryKeyQuery and GetUpdateByPrimaryKeyQuery methods on ISqlProvider.
 
 ## [1.0.3] - 2025-06-11
 ### Added
