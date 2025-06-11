@@ -10,8 +10,7 @@ env:
   DOTNET_CORE_VERSION: 9.x
   ARTIFACT_NAME: MelloSilveiraTools_nugetpackages_artifact
   UPLOAD_PATH: build/bin/Release/
-  # ATTENTION: The path for GitHub actions runner is hard codded since it was not possible to use GITHUB_ACTION_PATH.
-  TARGET_PATH: /home/runner/work/MelloSilveiraTools/MelloSilveiraTools
+  TARGET_PATH: build/bin/Release/
       
 jobs:
   build:
