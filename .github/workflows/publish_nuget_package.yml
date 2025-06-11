@@ -1,6 +1,6 @@
 # This workflow will build and publish .NET nuget package
 
-name: Build and publish .NET nuget package to GitHub package registry
+name: Build and publish .NET nuget package
 
 on:
   push:
