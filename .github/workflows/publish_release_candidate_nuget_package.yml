@@ -36,25 +36,11 @@ jobs:
       run: |
         version=$(grep -oPm1 "(?<=<VersionPrefix>)[^<]+" Directory.Build.props)
         echo "Detected version: $version"
-        if [[ "$version" == *rc* ]]; then
-          echo "RC version detected, proceeding..."
-        else
+        echo "version=$version" >> $GITHUB_OUTPUT
+        if [[ "$version" != *rc* ]]; then
           echo "Version does not contain 'rc'. Stopping workflow."
           exit 1
         fi
-
-    #Install and calculate the new version with GitVersion  
-    - name: Install GitVersion
-      uses: gittools/actions/gitversion/setup@v0
-      with:
-        versionSpec: 5.x
-    - name: Get latest tag
-      id: tag
-      run: |
-        latest_tag=$(git describe --abbrev=0 --tags)
-        echo "version=$latest_tag" >> $GITHUB_OUTPUT
-    - name: Display tag
-      run: echo "The tag value is ${{ steps.tag.outputs.version }}"
     
     #Build/pack the project
     - name: Setup .NET
@@ -94,4 +80,3 @@ jobs:
       with:
         tag_name: ${{ needs.build.outputs.Version }}
         release_name: Release ${{ needs.build.outputs.Version }}
-        
