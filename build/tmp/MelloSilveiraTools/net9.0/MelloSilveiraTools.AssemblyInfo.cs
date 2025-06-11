@@ -17,11 +17,11 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyDescriptionAttribute("NuGet package with helpers for .NET system development, providing extensions, uti" +
     "lities, and reusable patterns to speed up building clean and robust applications" +
     ".")]
-[assembly: System.Reflection.AssemblyFileVersionAttribute("0.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("0.0.0+17108805d66db139ff728c6fc2230b22a2aa6664")]
+[assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+7413814b18a72ca3c3035b5fb66c8e22ad5df498")]
 [assembly: System.Reflection.AssemblyProductAttribute("MelloSilveira Tools")]
 [assembly: System.Reflection.AssemblyTitleAttribute("MelloSilveira Tools")]
-[assembly: System.Reflection.AssemblyVersionAttribute("0.0.0.0")]
+[assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
 [assembly: System.Reflection.AssemblyMetadataAttribute("RepositoryUrl", "https://github.com/mellosilveira/Tools")]
 [assembly: System.Resources.NeutralResourcesLanguageAttribute("en-us")]
 
