@@ -1,0 +1,553 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>MelloSilveiraTools</name>
+    </assembly>
+    <members>
+        <member name="T:MelloSilveiraTools.ExtensionMethods.ClassExtensions">
+            <summary>
+            Contains extension methods for class.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.ExtensionMethods.ClassExtensions.GetValuesInHierarchy``1(``0)">
+            <summary>
+            Gets the values from object which is following the hierarchy order from parent to child.
+            </summary>
+            <typeparam name="T">The type of <paramref name="obj"/>.</typeparam>
+            <param name="obj"></param>
+            <returns>A <see cref="T:System.Collections.Generic.List`1"/> containing the values from object which is following the hierarchy order from parent to child.</returns>
+        </member>
+        <member name="M:MelloSilveiraTools.ExtensionMethods.ClassExtensions.GetValues``1(``0,System.Collections.Generic.IEnumerable{System.Reflection.PropertyInfo})">
+            <summary>
+            Gets the values from object using an <see cref="T:System.Collections.Generic.IEnumerable`1"/> of properties as reference.
+            </summary>
+            <typeparam name="T">The type of <paramref name="obj"/>.</typeparam>
+            <param name="obj"></param>
+            <param name="properties">Properties to be used as reference to get the values from object.</param>
+            <returns></returns>
+        </member>
+        <member name="M:MelloSilveiraTools.ExtensionMethods.ClassExtensions.SetValues``1(System.Object,System.Type,System.Collections.Generic.IDictionary{System.String,``0})">
+            <summary>
+            Sets the values in objects using reflection.
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="obj"></param>
+            <param name="type"></param>
+            <param name="valuesGroupedByPropertyName"></param>
+        </member>
+        <member name="M:MelloSilveiraTools.ExtensionMethods.ClassExtensions.GetPropertyNamesAndValuesInHierarchy``2(``0)">
+            <summary>
+            Gets the name and value of properties from object which is following the hierarchy order from parent to child.
+            It is also possible to filter by a custom attribute.
+            </summary>
+            <typeparam name="T">The type of <paramref name="obj"/>.</typeparam>
+            <typeparam name="TCustomAttribute">The type of custom attribute to be used in search.</typeparam>
+            <param name="obj"></param>
+            <returns>
+            A <see cref="T:System.Collections.Generic.Dictionary`2"/> which the key is the property name and the value is the property value.
+            </returns>
+        </member>
+        <member name="M:MelloSilveiraTools.ExtensionMethods.ClassExtensions.BuildWhereClauseAndParameters``1(``0)">
+            <summary>
+            Builds a SQL WHERE clause and a <see cref="T:Dapper.DynamicParameters"/> based on filter.
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="obj"></param>
+            <returns></returns>
+        </member>
+        <member name="T:MelloSilveiraTools.ExtensionMethods.DbDataReaderExtensions">
+            <summary>
+            Constains extension methods for <see cref="T:System.Data.Common.DbDataReader"/>.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.ExtensionMethods.DbDataReaderExtensions.ToObject``1(System.Data.Common.DbDataReader)">
+            <summary>
+            Converts a <see cref="T:System.Data.Common.DbDataReader"/> to an object.
+            </summary>
+            <typeparam name="T">Type of <see cref="T:System.Data.Common.DbDataReader"/> must be converted.</typeparam>
+            <param name="reader"></param>
+            <returns></returns>
+        </member>
+        <member name="M:MelloSilveiraTools.ExtensionMethods.DbDataReaderExtensions.ToObject``1(System.Data.Common.DbDataReader,System.Collections.Generic.Dictionary{System.String,System.Reflection.PropertyInfo})">
+            <summary>
+            Converts a <see cref="T:System.Data.Common.DbDataReader"/> to an object using a cache to store property info of object.
+            </summary>
+            <typeparam name="T">Type of <see cref="T:System.Data.Common.DbDataReader"/> must be converted.</typeparam>
+            <param name="reader"></param>
+            <param name="propertyInfoCache"></param>
+            <returns></returns>
+        </member>
+        <member name="T:MelloSilveiraTools.ExtensionMethods.DictionaryExtensions">
+            <summary>
+            Contains extension methods for <see cref="T:System.Collections.Generic.Dictionary`2"/>
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.ExtensionMethods.DictionaryExtensions.ConvertTo``1(System.Data.IDataReader)">
+            <summary>
+            Converts the <see cref="T:System.Data.IDataReader"/> to an object.
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="sqlDataReader"></param>
+            <returns></returns>
+        </member>
+        <member name="T:MelloSilveiraTools.ExtensionMethods.DoubleExtensions">
+            <summary>
+            Contains the extension methods to double.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.ExtensionMethods.DoubleExtensions.ToDegrees(System.Double)">
+            <summary>
+            Converts the value from radians to degrees.
+            </summary>
+            <param name="value"></param>
+            <returns></returns>
+        </member>
+        <member name="M:MelloSilveiraTools.ExtensionMethods.DoubleExtensions.RelativeDifference(System.Double,System.Double)">
+            <summary>
+            Calculates the relative difference between two values.
+            </summary>
+            <param name="value1"></param>
+            <param name="value2"></param>
+            <returns></returns>
+        </member>
+        <member name="M:MelloSilveiraTools.ExtensionMethods.DoubleExtensions.RelativeAbsolutDifference(System.Double,System.Double)">
+            <summary>
+            Calculates the relative absolut difference between two values.
+            </summary>
+            <param name="value1"></param>
+            <param name="value2"></param>
+            <returns></returns>
+        </member>
+        <member name="M:MelloSilveiraTools.ExtensionMethods.DoubleExtensions.EqualsWithTolerance(System.Double,System.Double,System.Double)">
+            <summary>
+            Indicates if two values are equals considering the application tolerance. 
+            </summary>
+            <param name="value1"></param>
+            <param name="value2"></param>
+            <param name="tolerance"></param>
+            <returns></returns>
+        </member>
+        <member name="M:MelloSilveiraTools.ExtensionMethods.DoubleExtensions.IsPositive(System.Double)">
+            <summary>
+            Indicates if a value is positive and is not zero.
+            </summary>
+            <param name="value"></param>
+            <returns></returns>
+        </member>
+        <member name="M:MelloSilveiraTools.ExtensionMethods.DoubleExtensions.IsPositive(System.Nullable{System.Double})">
+            <summary>
+            Indicates if a value is positive and is not zero.
+            </summary>
+            <param name="value"></param>
+            <returns></returns>
+        </member>
+        <member name="M:MelloSilveiraTools.ExtensionMethods.DoubleExtensions.IsNegative(System.Double)">
+            <summary>
+            Indicates if a value is negative and is not zero.
+            </summary>
+            <param name="value"></param>
+            <returns></returns>
+        </member>
+        <member name="M:MelloSilveiraTools.ExtensionMethods.DoubleExtensions.IsNegativeOrZero(System.Double)">
+            <summary>
+            Indicates if a value is negative or zero.
+            </summary>
+            <param name="value"></param>
+            <returns></returns>
+        </member>
+        <member name="M:MelloSilveiraTools.ExtensionMethods.DoubleExtensions.IsNegative(System.Nullable{System.Double})">
+            <summary>
+            Indicates if a value is negative and is not zero.
+            </summary>
+            <param name="value"></param>
+            <returns></returns>
+        </member>
+        <member name="T:MelloSilveiraTools.ExtensionMethods.EnumerableExtensions">
+            <summary>
+            Contains extension methods for <see cref="T:System.Linq.Enumerable"/>.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.ExtensionMethods.EnumerableExtensions.FirstOrDefaultWithoutValidate``1(System.Collections.Generic.IEnumerable{``0},System.Func{``0,System.Boolean},``0)">
+            <summary>
+            Returns the first element of the sequence that satisfies a condition or a default value if no such element is found.
+            </summary>
+            <typeparam name="TSource">The type of the elements of <paramref name="sources" />.</typeparam>
+            <param name="sources">An <see cref="T:System.Collections.Generic.IEnumerable`1" /> to return an element from.</param>
+            <param name="predicate">A function to test each element for a condition.</param>
+            <param name="defaultValue">The default value to return if the sequence is empty.</param>
+            <returns><paramref name="defaultValue" /> if <paramref name="sources" /> is empty or if no element passes the test specified by <paramref name="predicate" />; otherwise, the first element in <paramref name="sources" /> that passes the test specified by <paramref name="predicate" />.</returns>
+        </member>
+        <member name="M:MelloSilveiraTools.ExtensionMethods.EnumerableExtensions.FirstWithoutValidate``1(System.Collections.Generic.IEnumerable{``0},System.Func{``0,System.Boolean})">
+            <summary>
+            Returns the first element of the sequence that satisfies a condition or a default value if no such element is found.
+            </summary>
+            <typeparam name="TSource">The type of the elements of <paramref name="sources" />.</typeparam>
+            <param name="sources">An <see cref="T:System.Collections.Generic.IEnumerable`1" /> to return an element from.</param>
+            <param name="predicate">A function to test each element for a condition.</param>
+            <returns>The first element in <paramref name="sources" /> that passes the test specified by <paramref name="predicate" />.</returns>
+        </member>
+        <member name="M:MelloSilveiraTools.ExtensionMethods.EnumerableExtensions.IsEmpty``1(System.Collections.Generic.IEnumerable{``0})">
+            <summary>
+            Indicates if <paramref name="sources"/> is empty.
+            </summary>
+            <typeparam name="TSource">The type of the elements of <paramref name="sources" />.</typeparam>
+            <param name="sources">An <see cref="T:System.Collections.Generic.IEnumerable`1" /> to check if is empty.</param>
+            <returns>True, if <paramref name="sources"/> is empty. False, otherwise.</returns>
+        </member>
+        <member name="M:MelloSilveiraTools.ExtensionMethods.EnumerableExtensions.IsNullOrEmpty``1(System.Collections.Generic.IEnumerable{``0})">
+            <summary>
+            Indicates if <paramref name="sources"/> is null or empty.
+            </summary>
+            <typeparam name="TSource">The type of the elements of <paramref name="sources" />.</typeparam>
+            <param name="sources">An <see cref="T:System.Collections.Generic.IEnumerable`1" /> to check if is null or empty.</param>
+            <returns>True, if <paramref name="sources"/> is null or empty. False, otherwise.</returns>
+        </member>
+        <member name="M:MelloSilveiraTools.ExtensionMethods.EnumerableExtensions.FluentAddIfNotNull(System.Collections.Generic.List{System.Double},System.Nullable{System.Double})">
+            <summary>
+            If <paramref name="element"/> is not null, adds it in <paramref name="sources"/>
+            </summary>
+            <param name="sources">A list of double to add an <paramref name="element"/>.</param>
+            <param name="element">The element to be added in <paramref name="sources"/> if not null.</param>
+            <returns>The <paramref name="sources"/> received to add an <paramref name="element"/>.</returns>
+        </member>
+        <member name="M:MelloSilveiraTools.ExtensionMethods.EnumerableExtensions.FluentAddRangeIfNotNull``1(System.Collections.Generic.List{``0},System.Collections.Generic.IEnumerable{``0})">
+            <summary>
+            If <paramref name="collection"/> is not null, adds the <paramref name="collection"/> of the given collection to the end of this <paramref name="sources"/>. 
+            If required, the capacity of the list is increased to twice the previous capacity or the new size, whichever is larger.
+            </summary>
+            <typeparam name="TSource">The type of the elements of <paramref name="sources" />.</typeparam>
+            <param name="sources">An <see cref="T:System.Collections.Generic.List`1" /> to add an <paramref name="collection"/>.</param>
+            <param name="collection">The object to add to the <see cref="T:System.Collections.Generic.List`1"/>.</param>
+            <returns>The <paramref name="sources"/> received to add an <paramref name="collection"/>.</returns>
+            <exception cref="T:System.ArgumentNullException">The <see cref="T:System.Collections.Generic.List`1" /> is null.</exception>
+        </member>
+        <member name="M:MelloSilveiraTools.ExtensionMethods.EnumerableExtensions.FluentAdd``1(System.Collections.Generic.List{``0},``0)">
+            <summary>
+            Adds an item to the <see cref="T:System.Collections.Generic.ICollection`1"/>.
+            </summary>
+            <typeparam name="TSource">The type of the elements of <paramref name="sources" />.</typeparam>
+            <param name="sources">An <see cref="T:System.Collections.Generic.ICollection`1" /> to add an <paramref name="element"/>.</param>
+            <param name="element">The object to add to the <see cref="T:System.Collections.Generic.ICollection`1"/>.</param>
+            <returns>The <paramref name="sources"/> received to add an <paramref name="element"/>.</returns>
+            <exception cref="T:System.NotSupportedException">The <see cref="T:System.Collections.Generic.ICollection`1" /> is read-only.</exception>
+        </member>
+        <member name="M:MelloSilveiraTools.ExtensionMethods.EnumerableExtensions.FluentAddRange``1(System.Collections.Generic.List{``0},System.Collections.Generic.IEnumerable{``0})">
+            <summary>
+            Adds the <paramref name="collection"/> of the given collection to the end of this <paramref name="sources"/>. 
+            If required, the capacity of the list is increased to twice the previous capacity or the new size, whichever is larger.
+            </summary>
+            <typeparam name="TSource">The type of the elements of <paramref name="sources" />.</typeparam>
+            <param name="sources">An <see cref="T:System.Collections.Generic.List`1" /> to add an <paramref name="collection"/>.</param>
+            <param name="collection">The object to add to the <see cref="T:System.Collections.Generic.List`1"/>.</param>
+            <returns>The <paramref name="sources"/> received to add an <paramref name="collection"/>.</returns>
+            <exception cref="T:System.ArgumentNullException">The <see cref="T:System.Collections.Generic.List`1" /> is null.</exception>
+        </member>
+        <member name="M:MelloSilveiraTools.ExtensionMethods.EnumerableExtensions.GetSourceType``1(System.Collections.Generic.IEnumerable{``0})">
+            <summary>
+            Gets the <see cref="T:System.Type"/> of <typeparamref name="TSource"/>.
+            </summary>
+            <typeparam name="TSource"></typeparam>
+            <param name="sources"></param>
+            <returns></returns>
+        </member>
+        <member name="M:MelloSilveiraTools.ExtensionMethods.EnumerableExtensions.SemaphoreSlimForeachAsync``1(System.Collections.Generic.IEnumerable{``0},System.Func{``0,System.Threading.Tasks.Task},System.Int32)">
+            <summary>
+            Performs an async iteration with <see cref="T:System.Threading.SemaphoreSlim"/>.
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="source"></param>
+            <param name="asyncAction"></param>
+            <param name="maxDegreeOfParallelism"></param>
+            <returns></returns>
+        </member>
+        <member name="M:MelloSilveiraTools.ExtensionMethods.EnumerableExtensions.SemaphoreSlimForeachAsync``1(System.Collections.Generic.IEnumerable{``0},System.Action{``0},System.Int32)">
+            <summary>
+            Performs an async iteration with <see cref="T:System.Threading.SemaphoreSlim"/>.
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="source"></param>
+            <param name="action"></param>
+            <param name="maxDegreeOfParallelism"></param>
+            <returns></returns>
+        </member>
+        <member name="M:MelloSilveiraTools.ExtensionMethods.EnumerableExtensions.GetCombinations``1(System.Collections.Generic.IEnumerable{System.Collections.Generic.List{``0}})">
+            <summary>
+            Gets all possible combinations from an <see cref="T:System.Collections.Generic.IEnumerable`1"/> of list.
+            </summary>
+            <param name="lists"></param>
+            <returns>List of double array with all possible combinations.</returns>
+        </member>
+        <member name="M:MelloSilveiraTools.ExtensionMethods.EnumerableExtensions.GetCombinationsRecursive``1(System.Collections.Generic.List{System.Collections.Generic.List{``0}},``0[],System.Int32)">
+            <summary>
+            Gets all possible combinations from a list using recursion.
+            </summary>
+            <param name="lists"></param>
+            <param name="current"></param>
+            <param name="depth"></param>
+            <returns>List of double array with all possible combinations.</returns>
+        </member>
+        <member name="T:MelloSilveiraTools.ExtensionMethods.NpgsqlCommandExtensions">
+            <summary>
+            Contains extension methods for <see cref="T:Npgsql.NpgsqlCommand"/>.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.ExtensionMethods.NpgsqlCommandExtensions.SetCommandParameters``1(Npgsql.NpgsqlCommand,``0)">
+            <summary>
+            Sets the parameter for sql command.
+            </summary>
+            <typeparam name="TEntity"></typeparam>
+            <param name="command"></param>
+            <param name="entity"></param>
+            <returns></returns>
+        </member>
+        <member name="M:MelloSilveiraTools.ExtensionMethods.NpgsqlCommandExtensions.GetDbTypeFromPropertyType(System.Type)">
+            <summary>
+            Returns the <see cref="T:NpgsqlTypes.NpgsqlDbType"/> from property type.
+            </summary>
+            <param name="type"></param>
+            <returns></returns>
+            <exception cref="T:System.Exception"></exception>
+        </member>
+        <member name="T:MelloSilveiraTools.ExtensionMethods.NpgsqlConnectionExtensions">
+            <summary>
+            Contains extension methods for <see cref="T:Npgsql.NpgsqlConnection"/>.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.ExtensionMethods.NpgsqlConnectionExtensions.QueryFirstOrDefaultAsync``1(Npgsql.NpgsqlConnection,System.String,Dapper.DynamicParameters,System.Threading.CancellationToken)">
+            <summary>
+            Executes a query, returning the data typed as <typeparamref name="T"/>.
+            </summary>
+            <typeparam name="T">Type of results to return.</typeparam>
+            <param name="connection">Connection to query on.</param>
+            <param name="sql">Text query to be executed.</param>
+            <param name="parameters">The parameters for this command.</param>
+            <param name="cancellationToken">Cancellation token for this command.</param>
+            <returns>
+            A single or null instance of the supplied type; if a basic type (int, string, etc) is queried then the data from the first column is assumed,
+            otherwise an instance is created per row, and a direct column-name === member-name mapping is assumed (case insensitive).
+            </returns>
+        </member>
+        <member name="M:MelloSilveiraTools.ExtensionMethods.NpgsqlConnectionExtensions.QueryAsync``1(Npgsql.NpgsqlConnection,System.String,Dapper.DynamicParameters,System.Threading.CancellationToken)">
+            <summary>
+            Execute a query asynchronously using Task.
+            </summary>
+            <typeparam name="T">Type of results to return.</typeparam>
+            <param name="connection">Connection to query on.</param>
+            <param name="sql">Text query to be executed.</param>
+            <param name="parameters">The parameters for this command.</param>
+            <param name="cancellationToken">Cancellation token for this command.</param>
+            <returns>
+            A sequence of data of <typeparamref name="T"/>; if a basic type (int, string, etc) is queried then the data from the first column is assumed, otherwise an instance is
+            created per row, and a direct column-name===member-name mapping is assumed (case insensitive).
+            </returns>
+        </member>
+        <member name="T:MelloSilveiraTools.ExtensionMethods.StringExtensions">
+            <summary>
+            Contains extension methods for <see cref="T:System.String"/>>.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.ExtensionMethods.StringExtensions.AddSpaceBeforeUpperCase(System.String)">
+            <summary>
+            Adds spaces before upper case.
+            </summary>
+            <param name="input"></param>
+            <returns></returns>
+        </member>
+        <member name="M:MelloSilveiraTools.ExtensionMethods.StringExtensions.ToSnakeCase(System.String)">
+            <summary>
+            Converts a string from PascalCase or camelCase to snake_case.
+            </summary>
+            <param name="input"></param>
+            <returns></returns>
+        </member>
+        <member name="M:MelloSilveiraTools.ExtensionMethods.StringExtensions.FromSnakeCaseToCamelCase(System.String)">
+            <summary>
+            Converts a string from snake_case to camelCase.
+            </summary>
+            <param name="input"></param>
+            <returns></returns>
+        </member>
+        <member name="M:MelloSilveiraTools.ExtensionMethods.StringExtensions.FromSnakeCaseToPascalCase(System.String)">
+            <summary>
+            Converts a string from snake_case to PascalCase.
+            </summary>
+            <param name="input"></param>
+            <returns></returns>
+        </member>
+        <member name="T:MelloSilveiraTools.ExtensionMethods.TypeExtensions">
+            <summary>
+            Contains extension methods for <see cref="T:System.Type"/>.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.ExtensionMethods.TypeExtensions.GetPropertiesInHierarchy(System.Type)">
+            <summary>
+            Gets the properties from a <see cref="T:System.Type"/> in following the hierarchy order from parent to child.
+            </summary>
+            <param name="type"></param>
+            <returns>A <see cref="T:System.Collections.Generic.List`1"/> with the properties of the <paramref name="type"/>.</returns>
+        </member>
+        <member name="M:MelloSilveiraTools.ExtensionMethods.TypeExtensions.GetPropertyNamesInHierarchy(System.Type)">
+            <summary>
+            Gets the properties name defined in the <see cref="T:System.Type"/>.
+            </summary>
+            <param name="type"></param>
+            <returns></returns>
+        </member>
+        <member name="M:MelloSilveiraTools.ExtensionMethods.TypeExtensions.GetDeclaredProperties(System.Type)">
+            <summary>
+            Gets the properties defined in the <see cref="T:System.Type"/>.
+            </summary>
+            <param name="type"></param>
+            <returns></returns>
+        </member>
+        <member name="M:MelloSilveiraTools.ExtensionMethods.TypeExtensions.GetDeclaredPropertyNames(System.Type)">
+            <summary>
+            Gets the properties name defined in the <see cref="T:System.Type"/>.
+            </summary>
+            <param name="type"></param>
+            <returns></returns>
+        </member>
+        <member name="M:MelloSilveiraTools.ExtensionMethods.TypeExtensions.IsEnumerable(System.Type)">
+            <summary>
+            Checks if the type is an <see cref="T:System.Collections.IEnumerable"/> excluding the <see cref="T:System.String"/>.
+            </summary>
+            <param name="type"></param>
+            <returns></returns>
+        </member>
+        <member name="T:MelloSilveiraTools.Infrastructure.Database.Attributes.ColumnAttribute">
+            <summary>
+            Specifies if a column is a primary key of table.
+            </summary>
+        </member>
+        <member name="T:MelloSilveiraTools.Infrastructure.Database.Attributes.FilterAttribute">
+            <summary>
+            Specifies if the class is a filter for a table.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Infrastructure.Database.Attributes.FilterAttribute.#ctor(System.Type)">
+            <summary>
+            Initializes a new instance of the <see cref="T:MelloSilveiraTools.Infrastructure.Database.Attributes.FilterColumnAttribute" /> class.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Infrastructure.Database.Attributes.FilterAttribute.TableDefinition">
+            <summary>
+            Definition of main table.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Infrastructure.Database.Attributes.FilterAttribute.JoinTablesDefinition">
+            <summary>
+            Dictionary which key is the name of table in JOIN clause and value its definition.
+            </summary>
+        </member>
+        <member name="T:MelloSilveiraTools.Infrastructure.Database.Attributes.FilterColumnAttribute">
+            <summary>
+            Specifies if the property is a filter for a column on table.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Infrastructure.Database.Attributes.FilterColumnAttribute.#ctor(System.String,System.String,System.String)">
+            <summary>
+            Specifies if the property is a filter for a column on table.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Infrastructure.Database.Attributes.FilterColumnAttribute.FilterClause">
+            <summary>
+            Clause to be used on filter. Example: equal, less, greater, LIKE, etc.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Infrastructure.Database.Attributes.FilterColumnAttribute.PropertyName">
+            <summary>
+            Name of table property to be filtered.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Infrastructure.Database.Attributes.FilterColumnAttribute.TableName">
+            <summary>
+            Name of table. If not informed, correspond to main table.
+            </summary>
+        </member>
+        <member name="T:MelloSilveiraTools.Infrastructure.Database.Attributes.ForeignKeyColumnAttribute">
+            <summary>
+            Specifies if the property correspond to foreign key column of table.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Infrastructure.Database.Attributes.ForeignKeyColumnAttribute.#ctor(System.Type,System.String,MelloSilveiraTools.Infrastructure.Database.Models.JoinType)">
+            <summary>
+            Specifies if the property correspond to foreign key column of table.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Infrastructure.Database.Attributes.ForeignKeyColumnAttribute.JoinType">
+            <inheritdoc cref="T:MelloSilveiraTools.Infrastructure.Database.Models.JoinType"/>
+        </member>
+        <member name="P:MelloSilveiraTools.Infrastructure.Database.Attributes.ForeignKeyColumnAttribute.ReferencedPropertyName">
+            <summary>
+            Name of property which foreign key column is referenced.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Infrastructure.Database.Attributes.ForeignKeyColumnAttribute.ReferencedTableType">
+            <summary>
+            Type of table which foreign key is referenced.
+            </summary>
+        </member>
+        <member name="T:MelloSilveiraTools.Infrastructure.Database.Attributes.PrimaryKeyColumnAttribute">
+            <summary>
+            Specifies if a column is a primary key of table.
+            </summary>
+        </member>
+        <member name="T:MelloSilveiraTools.Infrastructure.Database.Attributes.TableAttribute">
+            <summary>
+            Specifies the database table that a class is mapped to.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Infrastructure.Database.Attributes.TableAttribute.#ctor(System.String)">
+            <summary>
+            Specifies the database table that a class is mapped to.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Infrastructure.Database.Attributes.TableAttribute.Name">
+            <summary>
+            Name of table.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Infrastructure.Database.Attributes.TableAttribute.Alias">
+            <summary>
+            Alias of table.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Infrastructure.Database.Attributes.TableAttribute.GetAliasName(System.String)">
+            <summary>
+            Gets alias from table name.
+            </summary>
+            <param name="tableName"></param>
+            <returns></returns>
+        </member>
+        <member name="T:MelloSilveiraTools.Infrastructure.Database.Attributes.UniqueColumnAttribute">
+            <summary>
+            Specifies if a column is a primary key of table.
+            </summary>
+        </member>
+        <member name="T:MelloSilveiraTools.Infrastructure.Database.Models.EntityBase">
+            <summary>
+            Represents the base entity for database.
+            </summary>
+        </member>
+        <member name="T:MelloSilveiraTools.Infrastructure.Database.Models.JoinType">
+            <summary>
+            JOIN is an SQL clause used to query and access data from multiple tables, based on logical relationships between those tables.
+            </summary>
+        </member>
+        <member name="F:MelloSilveiraTools.Infrastructure.Database.Models.JoinType.Inner">
+            <summary>
+            Returns records that have matching values in both tables.
+            </summary>
+        </member>
+        <member name="F:MelloSilveiraTools.Infrastructure.Database.Models.JoinType.Left">
+            <summary>
+            Returns all records from the left table, and the matched records from the right table.
+            </summary>
+        </member>
+        <member name="F:MelloSilveiraTools.Infrastructure.Database.Models.JoinType.Right">
+            <summary>
+            Returns all records from the right table, and the matched records from the left table.
+            </summary>
+        </member>
+    </members>
+</doc>
