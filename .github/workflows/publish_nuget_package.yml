@@ -43,7 +43,7 @@ jobs:
       with:
         dotnet-version: ${{ env.DOTNET_CORE_VERSION }}
     - name: Pack NuGet package
-      run: dotnet pack src/MelloSilveiraTools/MelloSilveiraTools.csproj --configuration ${{ env.CONFIGURATION }} --output ${{ env.UPLOAD_PATH }}
+      run: dotnet pack "src/MelloSilveiraTools" --configuration ${{ env.CONFIGURATION }} --output ${{ env.UPLOAD_PATH }}
     - name: Upload NuGet package to GitHub
       uses: actions/upload-artifact@v4
       with:
