@@ -10,6 +10,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Logger.
 - GetDeleteByPrimaryKeyQuery, GetSelectByPrimaryKeyQuery and GetUpdateByPrimaryKeyQuery methods on ISqlProvider.
 - Extension methods evolving NPGSQL classes.
+### Removed
+- ReferencedPropertyName property from ForeignKeyColumnAttribute.
 
 ## [1.0.3] - 2025-06-11
 ### Added
