@@ -20,5 +20,5 @@ public record ResiliencePipelineSettings
     public int MaxRetryAttempts { get; init; }
 
     /// <inheritdoc cref="RetryStrategyOptions{Object}.UseJitter"/>
-    public bool UseJitter { get; internal set; }
+    public bool UseJitter { get; init; }
 }
