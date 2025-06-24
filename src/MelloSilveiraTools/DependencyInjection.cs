@@ -1,6 +1,13 @@
-﻿using MelloSilveiraTools.Infrastructure.Database.Sql.Provider;
+﻿using MelloSilveiraTools.Authentication;
+using MelloSilveiraTools.Authentication.Services;
+using MelloSilveiraTools.Infrastructure.Database.Sql.Provider;
 using MelloSilveiraTools.Infrastructure.ResiliencePipelines;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.OpenApi.Models;
+using Swashbuckle.AspNetCore.SwaggerGen;
+using System.Reflection;
 
 namespace MelloSilveiraTools;
 
@@ -25,5 +32,92 @@ public static class DependencyInjection
             .AddSingleton<PostgresResiliencePipeline>()
             // Register SQL providers.
             .AddSingleton<ISqlProvider, PostgresSqlProvider>();
+    }
+
+    /// <summary>
+    /// Registers the authentication for AdmMaster users using JWT.
+    /// </summary>
+    /// <param name="services"></param>
+    /// <param name="jwtSettings"></param>
+    /// <returns></returns>
+    public static IServiceCollection AddJweAuthentication(this IServiceCollection services, JwtSettings jwtSettings)
+    {
+        services
+            .AddSingleton(jwtSettings)
+            .AddScoped<IAuthenticationTokenService, AuthenticationJweTokenService>()
+            .AddAuthentication(options =>
+            {
+                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+            })
+            .AddJwtBearer(options =>
+            {
+                options.RequireHttpsMetadata = false;
+                options.SaveToken = true;
+                options.TokenValidationParameters = AuthenticationJweTokenService.BuildTokenValidationParameters(jwtSettings);
+            });
+
+        return services;
+    }
+
+    /// <summary>
+    /// Configures the documentation file for Swagger User Interface using JWT authentication.
+    /// </summary>
+    public static IServiceCollection AddSwaggerDocsWithJwtAuthentication(this IServiceCollection services)
+    {
+        Assembly assembly = Assembly.GetExecutingAssembly();
+        string assemblyTitle = assembly.GetCustomAttribute<AssemblyTitleAttribute>()!.Title;
+        string assemblyDescription = assembly.GetCustomAttribute<AssemblyDescriptionAttribute>()!.Description;
+        string assemblyLocation = Path.GetDirectoryName(assembly.Location)!;
+
+        return services
+            .AddSwaggerGen(options =>
+            {
+                options.SwaggerDoc(assemblyTitle, new OpenApiInfo
+                {
+                    Title = assemblyTitle,
+                    Description = assemblyDescription,
+                    Version = "v1"
+                });
+
+                options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+                {
+                    Description = "Please enter into your token",
+                    Name = "Authorization",
+                    In = ParameterLocation.Header,
+                    Type = SecuritySchemeType.ApiKey,
+                    Scheme = "Bearer",
+                    BearerFormat = "JWT",
+                });
+
+                options.AddSecurityRequirement(new OpenApiSecurityRequirement
+                {
+                    {
+                        new OpenApiSecurityScheme { Reference = new OpenApiReference { Type = ReferenceType.SecurityScheme, Id = "Bearer" } },
+                        new List<string>()
+                    }
+                });
+
+                string[] xmlFiles = Directory.GetFiles(assemblyLocation, "*.xml");
+                foreach (string xmlFile in xmlFiles)
+                {
+                    options.IncludeXmlComments(xmlFile);
+                }
+            })
+            .AddSwaggerGenNewtonsoftSupport();
+    }
+
+    public static IApplicationBuilder UseSwaggerDocs(this IApplicationBuilder app)
+    {
+        string assemblyTitle = Assembly.GetExecutingAssembly().GetCustomAttribute<AssemblyTitleAttribute>()!.Title;
+
+        return app
+            .UseSwagger()
+            .UseSwaggerUI(c =>
+            {
+                c.SwaggerEndpoint($"/swagger/{assemblyTitle}/swagger.json", $"{assemblyTitle} API");
+                c.EnableValidator(null);
+            });
     }
 }

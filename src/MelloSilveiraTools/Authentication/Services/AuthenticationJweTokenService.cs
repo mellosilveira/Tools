@@ -1,6 +1,7 @@
 ﻿using Microsoft.IdentityModel.JsonWebTokens;
 using Microsoft.IdentityModel.Tokens;
 using System.Security.Claims;
+using System.Text;
 using JwtRegisteredClaimNames = Microsoft.IdentityModel.JsonWebTokens.JwtRegisteredClaimNames;
 
 namespace MelloSilveiraTools.Authentication.Services;
@@ -23,9 +24,9 @@ public class AuthenticationJweTokenService(JwtSettings settings) : IAuthenticati
                 new Claim(JwtRegisteredClaimNames.Iat, utcNow.ToUnixTimeSeconds().ToString(), ClaimValueTypes.Integer64)
             ]),
             Expires = expires.UtcDateTime,
-            SigningCredentials = new SigningCredentials(settings.SigningSecurityKey, SecurityAlgorithms.HmacSha256),
+            SigningCredentials = new SigningCredentials(CreateSecurityKey(settings.SigningKey, settings.SecurityKeyType), SecurityAlgorithms.HmacSha256),
             EncryptingCredentials = new EncryptingCredentials(
-                key: settings.EncryptionSecurityKey,
+                key: CreateSecurityKey(settings.EncryptionKey, settings.SecurityKeyType),
                 alg: SecurityAlgorithms.Aes256KW,
                 enc: SecurityAlgorithms.Aes256CbcHmacSha512
             )
@@ -39,7 +40,7 @@ public class AuthenticationJweTokenService(JwtSettings settings) : IAuthenticati
     {
         TokenValidationResult result = await ValidateTokenAsync(token).ConfigureAwait(false);
         if (!result.IsValid)
-            throw new SecurityTokenException($"Invalid token during refresh.");
+            throw new SecurityTokenException("Invalid token during refresh.");
 
         var jwt = result.SecurityToken as JsonWebToken;
         string? userIdentifier = jwt?.Subject;
@@ -58,17 +59,27 @@ public class AuthenticationJweTokenService(JwtSettings settings) : IAuthenticati
 
     private Task<TokenValidationResult> ValidateTokenAsync(string token)
     {
-        TokenValidationParameters validationParameters = new()
-        {
-            ValidateIssuer = true,
-            ValidateAudience = true,
-            RequireExpirationTime = true,
-            ValidateLifetime = true,
-            ValidateIssuerSigningKey = true,
-            ClockSkew = TimeSpan.FromSeconds(30),
-            TokenDecryptionKey = settings.EncryptionSecurityKey,
-            IssuerSigningKey = settings.SigningSecurityKey,
-        };
+        TokenValidationParameters validationParameters = BuildTokenValidationParameters(settings);
         return new JsonWebTokenHandler().ValidateTokenAsync(token, validationParameters);
     }
+
+    public static TokenValidationParameters BuildTokenValidationParameters(JwtSettings jwtSettings) => new()
+    {
+        ValidateIssuer = true,
+        ValidIssuer = jwtSettings.Issuer,
+        ValidateAudience = true,
+        ValidAudience = jwtSettings.Audience,
+        RequireExpirationTime = true,
+        ValidateLifetime = true,
+        ValidateIssuerSigningKey = true,
+        ClockSkew = TimeSpan.FromSeconds(jwtSettings.ClockSkewInSeconds),
+        TokenDecryptionKey = CreateSecurityKey(jwtSettings.EncryptionKey, jwtSettings.SecurityKeyType),
+        IssuerSigningKey = CreateSecurityKey(jwtSettings.SigningKey, jwtSettings.SecurityKeyType),
+    };
+
+    private static SecurityKey CreateSecurityKey(string key, SecurityKeyType securityKeyType) => securityKeyType switch
+    {
+        SecurityKeyType.Symmetric => new SymmetricSecurityKey(Encoding.UTF8.GetBytes(key)),
+        _ => throw new ArgumentOutOfRangeException(nameof(securityKeyType))
+    };
 }

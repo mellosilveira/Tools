@@ -1,7 +1,4 @@
-﻿using Microsoft.IdentityModel.Tokens;
-using System.Text;
-
-namespace MelloSilveiraTools.Authentication;
+﻿namespace MelloSilveiraTools.Authentication;
 
 /// <summary>
 /// Settings to deal with JSON Web Tokens (JWT).
@@ -16,10 +13,9 @@ public record JwtSettings
 
     public string SigningKey { get; init; }
 
-    public SymmetricSecurityKey SigningSecurityKey => new(Encoding.UTF8.GetBytes(SigningKey));
+    public int ClockSkewInSeconds { get; init; }
 
-    public SymmetricSecurityKey EncryptionSecurityKey => new(Encoding.UTF8.GetBytes(EncryptionKey));
-
+    public SecurityKeyType SecurityKeyType { get; init; }
 
     /// <summary>
     /// Expiration time in minutes for access token.
