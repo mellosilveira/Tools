@@ -1,6 +1,4 @@
-﻿using MelloSilveiraTools.DataContracts.Operations;
-using System.Diagnostics;
-using System.Globalization;
+﻿using System.Globalization;
 
 namespace MelloSilveiraTools.UseCases.Operations;
 
@@ -31,15 +29,12 @@ public abstract class OperationBase<TRequest, TResponse>
         }
         catch (Exception ex)
         {
-            TResponse response = new();
 #if DEBUG
             string message = $"{ex}";
 #else
             string message = "An internal server occurred while processing the request.";
 #endif
-            response.SetInternalServerError(message);
-
-            return response;
+            return OperationResponse.CreateWithInternalServerError<TResponse>(message);
         }
     }
 
@@ -79,10 +74,6 @@ public abstract class OperationBaseWithoutRequest<TResponse> where TResponse : O
         // Sets the current culture like invariant.
         CultureInfo.CurrentCulture = CultureInfo.InvariantCulture;
 
-        // Instantiate the stopwatch to check the time spent at operation.
-        Stopwatch stopwatch = new();
-        stopwatch.Start();
-
         TResponse response;
 
         try
@@ -91,18 +82,15 @@ public abstract class OperationBaseWithoutRequest<TResponse> where TResponse : O
         }
         catch (Exception ex)
         {
-            response = new TResponse();
 #if DEBUG
             string message = $"{ex}";
 #else
             string message = "An internal server occurred while processing the request.";
 #endif
-            response.SetInternalServerError(message);
+
+            return OperationResponse.CreateWithInternalServerError<TResponse>(message);
         }
 
-        stopwatch.Stop();
-
-        response.TimeSpent = stopwatch.Elapsed;
         return response;
     }
 

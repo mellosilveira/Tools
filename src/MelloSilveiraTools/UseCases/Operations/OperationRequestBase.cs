@@ -1,4 +1,4 @@
-﻿namespace MelloSilveiraTools.DataContracts.Operations
+﻿namespace MelloSilveiraTools.UseCases.Operations
 {
     /// <summary>
     /// Request content to all operations.

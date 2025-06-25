@@ -1,6 +1,6 @@
 ﻿using System.Net;
 
-namespace MelloSilveiraTools.DataContracts.Operations;
+namespace MelloSilveiraTools.UseCases.Operations;
 
 /// <summary>
 /// Response content for all operations.
@@ -10,26 +10,20 @@ public record OperationResponse
     /// <summary>
     /// Initializes a new instance of <see cref="OperationResponse"/>.
     /// </summary>
-    protected OperationResponse()
+    public OperationResponse()
     {
         ErrorMessages = [];
-    }
-
-    protected OperationResponse(HttpStatusCode statusCode, bool success) : this()
-    {
-        HttpStatusCode = statusCode;
-        Success = success;
     }
 
     /// <summary>
     /// The success status of operation.
     /// </summary>
-    public bool Success { get; init; }
+    public bool Success { get; private set; }
 
     /// <summary>
     /// The HTTP status code.
     /// </summary>
-    public HttpStatusCode HttpStatusCode { get; init; }
+    public HttpStatusCode HttpStatusCode { get; private set; }
 
     /// <summary>
     /// The list of error message.
@@ -301,9 +295,8 @@ public record OperationResponse
     /// This method sets Sucess to true.
     /// </summary>
     /// <param name="httpStatusCode"></param>
-    protected static OperationResponse SetSuccess(HttpStatusCode httpStatusCode)
+    protected void SetSuccess(HttpStatusCode httpStatusCode)
     {
-        
         HttpStatusCode = httpStatusCode;
         Success = true;
     }
@@ -375,6 +368,19 @@ public record OperationResponse
     }
 
     #endregion
+
+    public static T CreateWithSuccessOk<T>() where T : OperationResponse, new() => new()
+    {
+        HttpStatusCode = HttpStatusCode.OK,
+        Success = true
+    };
+
+    public static T CreateWithInternalServerError<T>(string message) where T : OperationResponse, new() => new()
+    {
+        HttpStatusCode = HttpStatusCode.InternalServerError,
+        Success = false,
+        ErrorMessages = [message]
+    };
 }
 
 /// <summary>
