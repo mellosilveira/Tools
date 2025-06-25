@@ -369,10 +369,23 @@ public record OperationResponse
 
     #endregion
 
+    public static OperationResponse CreateWithSuccessOk() => new()
+    {
+        HttpStatusCode = HttpStatusCode.OK,
+        Success = true
+    };
+
     public static T CreateWithSuccessOk<T>() where T : OperationResponse, new() => new()
     {
         HttpStatusCode = HttpStatusCode.OK,
         Success = true
+    };
+
+    public static OperationResponse CreateWithInternalServerError(string message) => new()
+    {
+        HttpStatusCode = HttpStatusCode.InternalServerError,
+        Success = false,
+        ErrorMessages = [message]
     };
 
     public static T CreateWithInternalServerError<T>(string message) where T : OperationResponse, new() => new()
