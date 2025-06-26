@@ -52,7 +52,7 @@ public class PostgresSqlProvider : ISqlProvider
 
         (string baseSql, string sqlValues) = createQueryMethod(type);
         queriesDictionary[fullTypeName] = (baseSql, sqlValues);
-        return baseSql.Replace("#VALUES", string.Join(',', Enumerable.Repeat(sqlValues, batchSize))); ;
+        return baseSql.Replace("#VALUES", string.Join(",\r\n\t", Enumerable.Repeat(sqlValues, batchSize))); ;
     }
 
     private static string GetQuery<T>(Dictionary<string, string> queriesDictionary, Func<Type, string> createQueryMethod)
