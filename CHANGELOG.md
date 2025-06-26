@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Extension methods evolving NPGSQL classes and IFormFile.
 - JWE authentication.
 - Methods to enable Swagger using v1.
+- Service for encryption.
 ### Removed
 - ReferencedPropertyName property from ForeignKeyColumnAttribute.
 
