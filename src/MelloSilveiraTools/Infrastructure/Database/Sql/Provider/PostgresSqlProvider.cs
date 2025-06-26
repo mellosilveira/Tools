@@ -1,5 +1,7 @@
 ﻿using MelloSilveiraTools.ExtensionMethods;
 using MelloSilveiraTools.Infrastructure.Database.Attributes;
+using Newtonsoft.Json.Linq;
+using System.Linq;
 using System.Reflection;
 
 namespace MelloSilveiraTools.Infrastructure.Database.Sql.Provider;
@@ -14,6 +16,7 @@ public class PostgresSqlProvider : ISqlProvider
     private readonly Dictionary<string, string> _selectByPrimaryKeyQueries = [];
     private readonly Dictionary<string, string> _updateQueries = [];
     private readonly Dictionary<string, string> _updateByPrimaryKeyQueries = [];
+    private readonly Dictionary<string, (string BaseSql, string SqlValues)> _batchInsertQueries = [];
 
     /// <inheritdoc/>
     public string GetDeleteQuery<T>() => GetQuery<T>(_deleteQueries, CreateDeleteQuery);
@@ -23,6 +26,9 @@ public class PostgresSqlProvider : ISqlProvider
 
     /// <inheritdoc/>
     public string GetInsertQuery<T>() => GetQuery<T>(_insertQueries, CreateInsertQuery);
+
+    /// <inheritdoc/>
+    public string GetBatchInsertQuery<T>(int batchSize) => GetBatchQuery<T>(_batchInsertQueries, CreateBatchInsertQuery, batchSize);
 
     /// <inheritdoc/>
     public string GetSelectQuery<T>() => GetQuery<T>(_selectQueries, CreateSelectQuery);
@@ -36,13 +42,26 @@ public class PostgresSqlProvider : ISqlProvider
     /// <inheritdoc/>
     public string GetUpdateByPrimaryKeyQuery<T>() => GetQuery<T>(_updateByPrimaryKeyQueries, CreateUpdateByPrimaryKeyQuery);
 
+    private static string GetBatchQuery<T>(Dictionary<string, (string BaseSql, string SqlValues)> queriesDictionary, Func<Type, (string BaseSql, string SqlValues)> createQueryMethod, int batchSize)
+    {
+        Type type = typeof(T);
+        string fullTypeName = type.FullName!;
+
+        if (queriesDictionary.TryGetValue(fullTypeName, out var storedTuple))
+            return storedTuple.BaseSql.Replace("#VALUES", string.Join(',', Enumerable.Repeat(storedTuple.SqlValues, batchSize)));
+
+        (string baseSql, string sqlValues) = createQueryMethod(type);
+        queriesDictionary[fullTypeName] = (baseSql, sqlValues);
+        return baseSql.Replace("#VALUES", string.Join(',', Enumerable.Repeat(sqlValues, batchSize))); ;
+    }
+
     private static string GetQuery<T>(Dictionary<string, string> queriesDictionary, Func<Type, string> createQueryMethod)
     {
         Type type = typeof(T);
         string fullTypeName = type.FullName!;
 
-        if (queriesDictionary.TryGetValue(fullTypeName, out var deleteQuery))
-            return deleteQuery;
+        if (queriesDictionary.TryGetValue(fullTypeName, out var storedQuery))
+            return storedQuery;
 
         string query = createQueryMethod(type);
         queriesDictionary[fullTypeName] = query;
@@ -126,6 +145,30 @@ public class PostgresSqlProvider : ISqlProvider
             .Replace("#COLUMNS", string.Join("\r\n\t,", columnsToInsert))
             .Replace("#PARAMETER_NAMES", string.Join("\r\n\t,", parameterNames))
             .Replace("#PRIMARY_KEY", primaryKeyProperty.Name.ToSnakeCase());
+    }
+
+    private static (string BaseSql, string SqlValues) CreateBatchInsertQuery(Type type)
+    {
+        TableAttribute tableAttribute = type.GetCustomAttribute<TableAttribute>()!;
+        PropertyInfo[] columnProperties = type.GetPropertiesInHierarchy<ColumnAttribute>();
+        PropertyInfo primaryKeyProperty = columnProperties.Single(p => p.GetCustomAttribute<PrimaryKeyColumnAttribute>() != null);
+
+        List<string> columnsToInsert = [];
+        List<string> parameterNames = [];
+
+        foreach (PropertyInfo columnProperty in columnProperties)
+        {
+            string propertyName = columnProperty.Name;
+            columnsToInsert.Add(propertyName.ToSnakeCase());
+            parameterNames.Add($"@{propertyName}");
+        }
+
+        string baseSql = SqlResource.InsertTemplate
+            .Replace("#TABLE_NAME", tableAttribute.Name)
+            .Replace("#COLUMNS", string.Join("\r\n\t,", columnsToInsert))
+            .Replace("#PRIMARY_KEY", primaryKeyProperty.Name.ToSnakeCase());
+        string sqlValues = "(" + string.Join("\r\n\t,", parameterNames) + ")";
+        return (baseSql, sqlValues);
     }
 
     private static string CreateUpdateQuery(TableAttribute tableAttribute, PropertyInfo[] columnProperties)

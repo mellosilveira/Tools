@@ -4,17 +4,56 @@
         <name>MelloSilveiraTools</name>
     </assembly>
     <members>
+        <member name="T:MelloSilveiraTools.Authentication.JwtSettings">
+            <summary>
+            Settings to deal with JSON Web Tokens (JWT).
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Authentication.JwtSettings.TokenExperitationTimeInMinutes">
+            <summary>
+            Expiration time in minutes for access token.
+            </summary>
+        </member>
+        <member name="T:MelloSilveiraTools.Authentication.Services.AuthenticationJweTokenService">
+            <summary>
+            Service that handles an encrypted and signed JSON Web token for authentication.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Authentication.Services.AuthenticationJweTokenService.#ctor(MelloSilveiraTools.Authentication.JwtSettings)">
+            <summary>
+            Service that handles an encrypted and signed JSON Web token for authentication.
+            </summary>
+        </member>
+        <member name="T:MelloSilveiraTools.Authentication.Services.IAuthenticationTokenService">
+            <summary>
+            Service that handles an authentication token.
+            </summary>
+        </member>
         <member name="T:MelloSilveiraTools.DependencyInjection">
             <summary>
             Provides extension methods to dependency injection of Tools project.
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.DependencyInjection.AddToolsServices(Microsoft.Extensions.DependencyInjection.IServiceCollection)">
+        <member name="M:MelloSilveiraTools.DependencyInjection.AddToolsServices(Microsoft.Extensions.DependencyInjection.IServiceCollection,MelloSilveiraTools.Infrastructure.ResiliencePipelines.ResiliencePipelineSettings)">
             <summary>
             Registers the services of Tools project.
             </summary>
             <param name="services"></param>
+            <param name="resiliencePipelineSettings"></param>
             <returns></returns>
+        </member>
+        <member name="M:MelloSilveiraTools.DependencyInjection.AddJweAuthentication(Microsoft.Extensions.DependencyInjection.IServiceCollection,MelloSilveiraTools.Authentication.JwtSettings)">
+            <summary>
+            Registers the authentication for AdmMaster users using JWT.
+            </summary>
+            <param name="services"></param>
+            <param name="jwtSettings"></param>
+            <returns></returns>
+        </member>
+        <member name="M:MelloSilveiraTools.DependencyInjection.AddSwaggerDocsWithJwtAuthentication(Microsoft.Extensions.DependencyInjection.IServiceCollection)">
+            <summary>
+            Configures the documentation file for Swagger User Interface using JWT authentication.
+            </summary>
         </member>
         <member name="T:MelloSilveiraTools.ExtensionMethods.ClassExtensions">
             <summary>
@@ -306,6 +345,11 @@
             <param name="depth"></param>
             <returns>List of double array with all possible combinations.</returns>
         </member>
+        <member name="T:MelloSilveiraTools.ExtensionMethods.FormFileExtensions">
+            <summary>
+            Contains extension methods for <see cref="T:Microsoft.AspNetCore.Http.IFormFile"/>.
+            </summary>
+        </member>
         <member name="T:MelloSilveiraTools.ExtensionMethods.NpgsqlCommandExtensions">
             <summary>
             Contains extension methods for <see cref="T:Npgsql.NpgsqlCommand"/>.
@@ -588,6 +632,9 @@
         <member name="M:MelloSilveiraTools.Infrastructure.Database.Sql.Provider.PostgresSqlProvider.GetInsertQuery``1">
             <inheritdoc/>
         </member>
+        <member name="M:MelloSilveiraTools.Infrastructure.Database.Sql.Provider.PostgresSqlProvider.GetBatchInsertQuery``1(System.Int32)">
+            <inheritdoc/>
+        </member>
         <member name="M:MelloSilveiraTools.Infrastructure.Database.Sql.Provider.PostgresSqlProvider.GetSelectQuery``1">
             <inheritdoc/>
         </member>
@@ -622,6 +669,17 @@
             #WHERE.
              </summary>
         </member>
+        <member name="P:MelloSilveiraTools.Infrastructure.Database.Sql.Provider.SqlResource.InsertInBatchTemplate">
+             <summary>
+               Looks up a localized string similar to INSERT INTO #TABLE_NAME
+            (	
+            	#COLUMNS
+            )
+            VALUES
+            	#VALUES
+            RETURNING #PRIMARY_KEY;.
+             </summary>
+        </member>
         <member name="P:MelloSilveiraTools.Infrastructure.Database.Sql.Provider.SqlResource.InsertTemplate">
              <summary>
                Looks up a localized string similar to INSERT INTO #TABLE_NAME
@@ -642,9 +700,9 @@
             FROM #TABLE_NAME AS #TABLE_ALIAS
             #JOIN
             #WHERE
-            --#ORDERBY
-            --#OFFSET
-            --#LIMIT.
+            #ORDERBY
+            #OFFSET
+            #LIMIT.
              </summary>
         </member>
         <member name="P:MelloSilveiraTools.Infrastructure.Database.Sql.Provider.SqlResource.UpdateTemplate">
@@ -714,6 +772,331 @@
         </member>
         <member name="P:MelloSilveiraTools.Infrastructure.ResiliencePipelines.ResiliencePipelineSettings.BackoffType">
             <inheritdoc cref="T:Polly.DelayBackoffType"/>
+        </member>
+        <member name="P:MelloSilveiraTools.Infrastructure.ResiliencePipelines.ResiliencePipelineSettings.DelayInMilliseconds">
+            <summary>
+            Delay between retries in milliseconds.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Infrastructure.ResiliencePipelines.ResiliencePipelineSettings.MaxRetryAttempts">
+            <inheritdoc cref="P:Polly.Retry.RetryStrategyOptions`1.MaxRetryAttempts"/>
+        </member>
+        <member name="P:MelloSilveiraTools.Infrastructure.ResiliencePipelines.ResiliencePipelineSettings.UseJitter">
+            <inheritdoc cref="P:Polly.Retry.RetryStrategyOptions`1.UseJitter"/>
+        </member>
+        <member name="T:MelloSilveiraTools.UseCases.Operations.OperationBase`2">
+            <summary>
+            Represents the base for all operations in the application.
+            </summary>
+            <typeparam name="TRequest"></typeparam>
+            <typeparam name="TResponse"></typeparam>
+        </member>
+        <member name="M:MelloSilveiraTools.UseCases.Operations.OperationBase`2.ProcessAsync(`0)">
+            <summary>
+            The main method of all operations.
+            Asynchronously, orchestrates and validates the operations.
+            </summary>
+            <param name="request">The operation request content.</param>
+            <returns>The operation response.</returns>
+        </member>
+        <member name="M:MelloSilveiraTools.UseCases.Operations.OperationBase`2.ProcessOperationAsync(`0)">
+            <summary>
+            Asynchronously, processes the operation.
+            </summary>
+            <param name="request"></param>
+            <returns></returns>
+        </member>
+        <member name="M:MelloSilveiraTools.UseCases.Operations.OperationBase`2.ValidateOperationAsync(`0)">
+            <summary>
+            Asynchronously, validates the request sent to operation.
+            </summary>
+            <param name="request"></param>
+            <returns></returns>
+        </member>
+        <member name="T:MelloSilveiraTools.UseCases.Operations.OperationBaseWithDefaultResponse`1">
+            <summary>
+            Represents the base for all operations that uses the default response (<see cref="T:MelloSilveiraTools.UseCases.Operations.OperationResponse"/>).
+            </summary>
+        </member>
+        <member name="T:MelloSilveiraTools.UseCases.Operations.OperationBaseWithoutRequest`1">
+            <summary>
+            Represents the base for all operations that does not use a request.
+            </summary>
+            <typeparam name="TResponse"></typeparam>
+        </member>
+        <member name="M:MelloSilveiraTools.UseCases.Operations.OperationBaseWithoutRequest`1.ProcessAsync">
+            <summary>
+            The main method of all operations.
+            Asynchronously, orchestrates and validates the operations.
+            </summary>
+            <returns>The operation response.</returns>
+        </member>
+        <member name="M:MelloSilveiraTools.UseCases.Operations.OperationBaseWithoutRequest`1.ProcessOperationAsync">
+            <summary>
+            Asynchronously, processes the operation.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="T:MelloSilveiraTools.UseCases.Operations.OperationRequestBase">
+            <summary>
+            Request content to all operations.
+            </summary>
+        </member>
+        <member name="T:MelloSilveiraTools.UseCases.Operations.OperationResponse">
+            <summary>
+            Response content for all operations.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.UseCases.Operations.OperationResponse.#ctor">
+            <summary>
+            Initializes a new instance of <see cref="T:MelloSilveiraTools.UseCases.Operations.OperationResponse"/>.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.UseCases.Operations.OperationResponse.Success">
+            <summary>
+            The success status of operation.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.UseCases.Operations.OperationResponse.HttpStatusCode">
+            <summary>
+            The HTTP status code.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.UseCases.Operations.OperationResponse.ErrorMessages">
+            <summary>
+            The list of error message.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.UseCases.Operations.OperationResponse.AddError(System.String,System.Net.HttpStatusCode)">
+            <summary>
+            This method adds an error message to response.
+            </summary>
+            <param name="errorMessage"></param>
+            <param name="httpStatusCode"></param>
+        </member>
+        <member name="M:MelloSilveiraTools.UseCases.Operations.OperationResponse.AddErrors(System.Collections.Generic.List{System.String},System.Net.HttpStatusCode)">
+            <summary>
+            This method adds multiple error messages.
+            </summary>
+            <param name="errorMessages"></param>
+            <param name="httpStatusCode"></param>
+        </member>
+        <member name="M:MelloSilveiraTools.UseCases.Operations.OperationResponse.AddErrors(MelloSilveiraTools.UseCases.Operations.OperationResponse)">
+            <summary>
+            This method adds multiple error messages.
+            </summary>
+            <param name="response"></param>
+        </member>
+        <member name="M:MelloSilveiraTools.UseCases.Operations.OperationResponse.AddErrorIf(System.Func{System.Boolean},System.String,System.Net.HttpStatusCode)">
+            <summary>
+            This method adds error by a condition expression.
+            </summary>
+            <param name="expression"></param>
+            <param name="errorMessage"></param>
+            <param name="httpStatusCode"></param>
+            <returns></returns>
+        </member>
+        <member name="M:MelloSilveiraTools.UseCases.Operations.OperationResponse.AddErrorIfNull(System.Object,System.String,System.Net.HttpStatusCode)">
+            <summary>
+            This method adds error if the object is null.
+            </summary>
+            <param name="value"></param>
+            <param name="parameterName"></param>
+            <param name="httpStatusCode"></param>
+            <returns></returns>
+        </member>
+        <member name="M:MelloSilveiraTools.UseCases.Operations.OperationResponse.AddErrorIfNotNull(System.Object,System.String,System.Net.HttpStatusCode)">
+            <summary>
+            This method adds error if the object is null.
+            </summary>
+            <param name="value"></param>
+            <param name="parameterName"></param>
+            <param name="httpStatusCode"></param>
+            <returns></returns>
+        </member>
+        <member name="M:MelloSilveiraTools.UseCases.Operations.OperationResponse.AddErrorIfNullOrEmpty(System.String,System.String,System.Net.HttpStatusCode)">
+            <summary>
+            This method adds error if the value is null or empty.
+            </summary>
+            <param name="parameter"></param>
+            <param name="parameterName"></param>
+            <param name="httpStatusCode"></param>
+            <returns></returns>
+        </member>
+        <member name="M:MelloSilveiraTools.UseCases.Operations.OperationResponse.AddErrorIfNullOrEmpty``1(System.Collections.Generic.IEnumerable{``0},System.String,System.Net.HttpStatusCode)">
+            <summary>
+            This method adds error if the value is negative or equal to zero.
+            </summary>
+            <param name="parameters"></param>
+            <param name="parametersName"></param>
+            <param name="httpStatusCode"></param>
+            <returns></returns>
+        </member>
+        <member name="M:MelloSilveiraTools.UseCases.Operations.OperationResponse.AddErrorIfZero(System.Double,System.String,System.String,System.Net.HttpStatusCode)">
+            <summary>
+            This method adds error if the value is zero.
+            </summary>
+            <param name="parameter"></param>
+            <param name="parameterName"></param>
+            <param name="additionalMessage"></param>
+            <param name="httpStatusCode"></param>
+            <returns></returns>
+        </member>
+        <member name="M:MelloSilveiraTools.UseCases.Operations.OperationResponse.AddErrorIfNegative(System.Double,System.String,System.String,System.Net.HttpStatusCode)">
+            <summary>
+            This method adds error if the value is negative.
+            </summary>
+            <param name="parameter"></param>
+            <param name="parameterName"></param>
+            <param name="additionalMessage"></param>
+            <param name="httpStatusCode"></param>
+            <returns></returns>
+        </member>
+        <member name="M:MelloSilveiraTools.UseCases.Operations.OperationResponse.AddErrorIfNegativeOrZero(System.Double,System.String,System.String,System.Net.HttpStatusCode)">
+            <summary>
+            This method adds error if the value is negative or equal to zero.
+            </summary>
+            <param name="parameter"></param>
+            <param name="parameterName"></param>
+            <param name="additionalMessage"></param>
+            <param name="httpStatusCode"></param>
+            <returns></returns>
+        </member>
+        <member name="M:MelloSilveiraTools.UseCases.Operations.OperationResponse.AddErrorIfNegativeOrZero(System.Collections.Generic.List{System.Double},System.String,System.Net.HttpStatusCode)">
+            <summary>
+            This method adds error if the value is negative or equal to zero.
+            </summary>
+            <param name="parameters"></param>
+            <param name="parametersName"></param>
+            <param name="httpStatusCode"></param>
+            <returns></returns>
+        </member>
+        <member name="M:MelloSilveiraTools.UseCases.Operations.OperationResponse.AddErrorIfInvalidEnum``1(``0,System.String,System.Net.HttpStatusCode)">
+            <summary>
+            This method adds error if the enum is invalid.
+            </summary>
+            <param name="value"></param>
+            <param name="message"></param>
+            <param name="httpStatusCode"></param>
+            <returns></returns>
+        </member>
+        <member name="M:MelloSilveiraTools.UseCases.Operations.OperationResponse.AddErrorIfFileNotExist(System.String,System.String,System.Net.HttpStatusCode)">
+            <summary>
+            This method adds error if the file does not exist.
+            </summary>
+            <param name="fullFileName"></param>
+            <param name="parameterName"></param>
+            <param name="httpStatusCode"></param>
+            <returns></returns>
+        </member>
+        <member name="M:MelloSilveiraTools.UseCases.Operations.OperationResponse.AddErrorIfFileExist(System.String,System.Net.HttpStatusCode)">
+            <summary>
+            This method adds error if the file already exists.
+            </summary>
+            <param name="fullFileName"></param>
+            <param name="httpStatusCode"></param>
+            <returns></returns>
+        </member>
+        <member name="M:MelloSilveiraTools.UseCases.Operations.OperationResponse.AddErrorIfDirectoryNotExist(System.String,System.String,System.Net.HttpStatusCode)">
+            <summary>
+            This method adds error if the directory does not exist.
+            </summary>
+            <param name="fullDirectoryName"></param>
+            <param name="parameterName"></param>
+            <param name="httpStatusCode"></param>
+            <returns></returns>
+        </member>
+        <member name="M:MelloSilveiraTools.UseCases.Operations.OperationResponse.SetSuccessOk">
+            <summary>
+            This method sets Success to true and the HttpStatusCode to 200 (OK).
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.UseCases.Operations.OperationResponse.SetSuccessCreated">
+            <summary>
+            This method sets Success to true and the HttpStatusCode to 201 (Created).
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.UseCases.Operations.OperationResponse.SetSuccessAccepted">
+            <summary>
+            This method sets Success to true and the HttpStatusCode to 202 (Accepted).
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.UseCases.Operations.OperationResponse.SetSuccessPartialContent">
+            <summary>
+            This method sets Success to true and the HttpStatusCode to 206 (PartialContent).
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.UseCases.Operations.OperationResponse.SetSuccess(System.Net.HttpStatusCode)">
+            <summary>
+            This method sets Sucess to true.
+            </summary>
+            <param name="httpStatusCode"></param>
+        </member>
+        <member name="M:MelloSilveiraTools.UseCases.Operations.OperationResponse.SetBadRequestError(System.String)">
+            <summary>
+            This method sets Success to false and the HttpStatusCode to 400 (BadRequest).
+            </summary>
+            <param name="errorMessage"></param>
+        </member>
+        <member name="M:MelloSilveiraTools.UseCases.Operations.OperationResponse.SetUnauthorizedError(System.String)">
+            <summary>
+            This method sets Success to false and the HttpStatusCode to 401 (Unauthorized).
+            </summary>
+            <param name="errorMessage"></param>
+        </member>
+        <member name="M:MelloSilveiraTools.UseCases.Operations.OperationResponse.SetNotFoundError(System.String)">
+            <summary>
+            This method sets Success to false and the HttpStatusCode to 404 (NotFound).
+            </summary>
+            <param name="errorMessage"></param>
+        </member>
+        <member name="M:MelloSilveiraTools.UseCases.Operations.OperationResponse.SetConflictError(System.String)">
+            <summary>
+            This method sets Success to false and the HttpStatusCode to 409 (Conflict).
+            </summary>
+            <param name="errorMessage"></param>
+        </member>
+        <member name="M:MelloSilveiraTools.UseCases.Operations.OperationResponse.SetRequestEntityTooLargeError(System.String)">
+            <summary>
+            This method sets Success to false and the HttpStatusCode to 413 (RequestEntityTooLarge).
+            </summary>
+            <param name="errorMessage"></param>
+        </member>
+        <member name="M:MelloSilveiraTools.UseCases.Operations.OperationResponse.SetUnprocessableEntityError(System.String)">
+            <summary>
+            This method sets Success to false and the HttpStatusCode to 422 (UnprocessableEntity).
+            </summary>
+            <param name="errorMessage"></param>
+        </member>
+        <member name="M:MelloSilveiraTools.UseCases.Operations.OperationResponse.SetInternalServerError(System.String)">
+            <summary>
+            This method sets Success to false and the HttpStatusCode to 500 (InternalServerError).
+            </summary>
+            <param name="errorMessage"></param>
+        </member>
+        <member name="M:MelloSilveiraTools.UseCases.Operations.OperationResponse.SetNotImplementedError(System.String)">
+            <summary>
+            This method sets Success to false and the HttpStatusCode to 501 (NotImplemented).
+            </summary>
+            <param name="errorMessage"></param>
+        </member>
+        <member name="M:MelloSilveiraTools.UseCases.Operations.OperationResponse.SetError(System.Net.HttpStatusCode,System.String)">
+            <summary>
+            This method sets Success to false.
+            </summary>
+            <param name="httpStatusCode"></param>
+            <param name="errorMessage"></param>
+        </member>
+        <member name="T:MelloSilveiraTools.UseCases.Operations.OperationResponseBase`1">
+            <summary>
+            Response content for all operations.
+            </summary>
+            <typeparam name="TResponseData"></typeparam>
+        </member>
+        <member name="P:MelloSilveiraTools.UseCases.Operations.OperationResponseBase`1.Data">
+            <summary>
+            Data content of all operation response.
+            </summary>
         </member>
     </members>
 </doc>
