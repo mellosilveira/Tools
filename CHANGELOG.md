@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Resilience pipeline for default cases and PostgreSQL repositories.
 - Logger.
 - GetDeleteByPrimaryKeyQuery, GetSelectByPrimaryKeyQuery and GetUpdateByPrimaryKeyQuery methods on ISqlProvider.
-- Extension methods evolving NPGSQL classes.
+- Extension methods evolving NPGSQL classes and IFormFile.
 - JWE authentication.
 - Methods to enable Swagger using v1.
 ### Removed
