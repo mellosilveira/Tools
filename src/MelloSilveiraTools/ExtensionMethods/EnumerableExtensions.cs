@@ -124,10 +124,7 @@ public static class EnumerableExtensions
     /// <typeparam name="TSource"></typeparam>
     /// <param name="sources"></param>
     /// <returns></returns>
-    public static Type GetSourceType<TSource>(this IEnumerable<TSource> sources)
-    {
-        return sources.FirstOrDefault()?.GetType() ?? typeof(TSource);
-    }
+    public static Type GetSourceType<TSource>(this IEnumerable<TSource> sources) => sources.FirstOrDefault()?.GetType() ?? typeof(TSource);
 
     /// <summary>
     /// Performs an async iteration with <see cref="SemaphoreSlim"/>.

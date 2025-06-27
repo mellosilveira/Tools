@@ -68,7 +68,7 @@ public static class ClassExtensions
 
         Dictionary<string, object?> propertyNameAndValues = [];
 
-        PropertyInfo[] properties = obj.GetType().GetPropertiesInHierarchy();
+        PropertyInfo[] properties = typeof(T).GetPropertiesInHierarchy();
         foreach (var property in properties)
         {
             var attribute = property.GetCustomAttribute<TCustomAttribute>();
@@ -85,6 +85,36 @@ public static class ClassExtensions
     /// <summary>
     /// Builds an enumerable with <see cref="NpgsqlParameter"/>.
     /// </summary>
+    /// <typeparam name="T">The type of <paramref name="collection"/>.</typeparam>
+    /// <param name="collection"></param>
+    /// <returns>A <see cref="IEnumerable{T}"/> with <see cref="NpgsqlParameter"/>.</returns>
+    public static IEnumerable<NpgsqlParameter> BuildParametersFromCollection<T>(this ICollection<T> collection)
+    {
+        if (collection.IsNullOrEmpty())
+            yield break;
+
+        int index = 0;
+
+        PropertyInfo[] properties = typeof(T).GetPropertiesInHierarchy();
+        foreach (var obj in collection)
+        {
+            index++;
+
+            foreach (var property in properties)
+            {
+                var attribute = property.GetCustomAttribute<ColumnAttribute>();
+                if (attribute != null)
+                {
+                    object? value = property.GetValue(obj);
+                    yield return new NpgsqlParameter($"{property.Name}_{index}", property.PropertyType.GetDbTypeFromPropertyType()) { Value = value ?? DBNull.Value };
+                }
+            }
+        }
+    }
+
+    /// <summary>
+    /// Builds an enumerable with <see cref="NpgsqlParameter"/>.
+    /// </summary>
     /// <typeparam name="T">The type of <paramref name="obj"/>.</typeparam>
     /// <param name="obj"></param>
     /// <returns>A <see cref="IEnumerable{T}"/> with <see cref="NpgsqlParameter"/>.</returns>
@@ -93,7 +123,7 @@ public static class ClassExtensions
         if (obj is null)
             yield break;
 
-        PropertyInfo[] properties = obj.GetType().GetPropertiesInHierarchy();
+        PropertyInfo[] properties = typeof(T).GetPropertiesInHierarchy();
         foreach (var property in properties)
         {
             var attribute = property.GetCustomAttribute<ColumnAttribute>();
@@ -117,7 +147,7 @@ public static class ClassExtensions
             return (null, null);
 
         // Step 1. Gets the attribute for filter.
-        var type = obj.GetType();
+        Type type = typeof(T);
         FilterAttribute? filterAttribute = type.GetCustomAttribute<FilterAttribute>();
         if (filterAttribute is null)
             return (null, null);

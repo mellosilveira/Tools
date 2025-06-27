@@ -16,7 +16,7 @@ public class PostgresSqlProvider : ISqlProvider
     private readonly Dictionary<string, string> _selectByPrimaryKeyQueries = [];
     private readonly Dictionary<string, string> _updateQueries = [];
     private readonly Dictionary<string, string> _updateByPrimaryKeyQueries = [];
-    private readonly Dictionary<string, (string BaseSql, string SqlValues)> _batchInsertQueries = [];
+    private readonly Dictionary<string, string> _batchInsertQueries = [];
 
     /// <inheritdoc/>
     public string GetDeleteQuery<T>() => GetQuery<T>(_deleteQueries, CreateDeleteQuery);
@@ -42,17 +42,17 @@ public class PostgresSqlProvider : ISqlProvider
     /// <inheritdoc/>
     public string GetUpdateByPrimaryKeyQuery<T>() => GetQuery<T>(_updateByPrimaryKeyQueries, CreateUpdateByPrimaryKeyQuery);
 
-    private static string GetBatchQuery<T>(Dictionary<string, (string BaseSql, string SqlValues)> queriesDictionary, Func<Type, (string BaseSql, string SqlValues)> createQueryMethod, int batchSize)
+    private static string GetBatchQuery<T>(Dictionary<string, string> queriesDictionary, Func<Type, int, string> createQueryMethod, int batchSize)
     {
         Type type = typeof(T);
         string fullTypeName = type.FullName!;
 
-        if (queriesDictionary.TryGetValue(fullTypeName, out var storedTuple))
-            return storedTuple.BaseSql.Replace("#VALUES", string.Join(',', Enumerable.Repeat(storedTuple.SqlValues, batchSize)));
+        if (queriesDictionary.TryGetValue(fullTypeName, out var storedQuery))
+            return storedQuery;
 
-        (string baseSql, string sqlValues) = createQueryMethod(type);
-        queriesDictionary[fullTypeName] = (baseSql, sqlValues);
-        return baseSql.Replace("#VALUES", string.Join(",\r\n\t", Enumerable.Repeat(sqlValues, batchSize))); ;
+        string query = createQueryMethod(type, batchSize);
+        queriesDictionary[fullTypeName] = query;
+        return query;
     }
 
     private static string GetQuery<T>(Dictionary<string, string> queriesDictionary, Func<Type, string> createQueryMethod)
@@ -147,7 +147,7 @@ public class PostgresSqlProvider : ISqlProvider
             .Replace("#PRIMARY_KEY", primaryKeyProperty.Name.ToSnakeCase());
     }
 
-    private static (string BaseSql, string SqlValues) CreateBatchInsertQuery(Type type)
+    private static string CreateBatchInsertQuery(Type type, int batchSize)
     {
         TableAttribute tableAttribute = type.GetCustomAttribute<TableAttribute>()!;
         PropertyInfo[] columnProperties = type.GetPropertiesInHierarchy<ColumnAttribute>();
@@ -163,12 +163,12 @@ public class PostgresSqlProvider : ISqlProvider
             parameterNames.Add($"@{propertyName}");
         }
 
-        string baseSql = SqlResource.InsertTemplate
+        IEnumerable<string> sqlValues = Enumerable.Repeat("(" + string.Join("\r\n\t,", parameterNames) + ")", batchSize);
+        return SqlResource.InsertTemplate
             .Replace("#TABLE_NAME", tableAttribute.Name)
             .Replace("#COLUMNS", string.Join("\r\n\t,", columnsToInsert))
-            .Replace("#PRIMARY_KEY", primaryKeyProperty.Name.ToSnakeCase());
-        string sqlValues = "(" + string.Join("\r\n\t,", parameterNames) + ")";
-        return (baseSql, sqlValues);
+            .Replace("#PRIMARY_KEY", primaryKeyProperty.Name.ToSnakeCase())
+            .Replace("#VALUES", string.Join(",\r\n\t", sqlValues));
     }
 
     private static string CreateUpdateQuery(TableAttribute tableAttribute, PropertyInfo[] columnProperties)
