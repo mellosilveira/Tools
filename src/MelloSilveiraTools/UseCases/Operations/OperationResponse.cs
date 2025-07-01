@@ -1,4 +1,5 @@
-﻿using System.Net;
+﻿using MelloSilveiraTools.ExtensionMethods;
+using System.Net;
 
 namespace MelloSilveiraTools.UseCases.Operations;
 
@@ -18,12 +19,12 @@ public record OperationResponse
     /// <summary>
     /// The success status of operation.
     /// </summary>
-    public bool Success { get; init; }
+    public bool Success => ErrorMessages.IsEmpty();
 
     /// <summary>
     /// The HTTP status code.
     /// </summary>
-    public HttpStatusCode HttpStatusCode { get; init; }
+    public HttpStatusCode HttpStatusCode { get; protected set; }
 
     /// <summary>
     /// The list of error message.
@@ -130,29 +131,223 @@ public record OperationResponse
 
     #endregion
 
-    public static OperationResponse CreateWithSuccessOk() => new()
-    {
-        HttpStatusCode = HttpStatusCode.OK,
-        Success = true
-    };
+    #region Methods to add error based on a condition.
 
-    public static T CreateWithSuccessOk<T>() where T : OperationResponse, new() => new()
+    /// <summary>
+    /// This method adds error if the object is null.
+    /// </summary>
+    /// <param name="value"></param>
+    /// <param name="parameterName"></param>
+    /// <param name="httpStatusCode"></param>
+    /// <returns></returns>
+    public OperationResponse AddErrorIfNull(object value, string parameterName, HttpStatusCode httpStatusCode = HttpStatusCode.BadRequest)
     {
-        HttpStatusCode = HttpStatusCode.OK,
-        Success = true
-    };
+        return AddErrorIf(() => value is null, $"'{parameterName}' cannot be null.", httpStatusCode);
+    }
+
+    /// <summary>
+    /// This method adds error if the object is null.
+    /// </summary>
+    /// <param name="value"></param>
+    /// <param name="parameterName"></param>
+    /// <param name="httpStatusCode"></param>
+    /// <returns></returns>
+    public OperationResponse AddErrorIfNotNull(object value, string parameterName, HttpStatusCode httpStatusCode = HttpStatusCode.BadRequest)
+    {
+        return AddErrorIf(() => value != null, $"'{parameterName}' must be null.", httpStatusCode);
+    }
+
+    /// <summary>
+    /// This method adds error if the value is null or empty.
+    /// </summary>
+    /// <param name="parameter"></param>
+    /// <param name="parameterName"></param>
+    /// <param name="httpStatusCode"></param>
+    /// <returns></returns>
+    public OperationResponse AddErrorIfNullOrEmpty(string parameter, string parameterName, HttpStatusCode httpStatusCode = HttpStatusCode.BadRequest)
+    {
+        return AddErrorIf(() => string.IsNullOrEmpty(parameter), $"'{parameterName}' cannot be null or empty.", httpStatusCode);
+    }
+
+    /// <summary>
+    /// This method adds error if the value is negative or equal to zero.
+    /// </summary>
+    /// <param name="parameters"></param>
+    /// <param name="parametersName"></param>
+    /// <param name="httpStatusCode"></param>
+    /// <returns></returns>
+    public OperationResponse AddErrorIfNullOrEmpty<T>(IEnumerable<T> parameters, string parametersName, HttpStatusCode httpStatusCode = HttpStatusCode.BadRequest)
+    {
+        return AddErrorIf(() => parameters is null || !parameters.Any(), $"'{parametersName}' cannot be null or empty.", httpStatusCode);
+    }
+
+    /// <summary>
+    /// This method adds error if the value is zero.
+    /// </summary>
+    /// <param name="parameter"></param>
+    /// <param name="parameterName"></param>
+    /// <param name="additionalMessage"></param>
+    /// <param name="httpStatusCode"></param>
+    /// <returns></returns>
+    public OperationResponse AddErrorIfZero(double parameter, string parameterName, string additionalMessage = null, HttpStatusCode httpStatusCode = HttpStatusCode.BadRequest)
+    {
+        string errorMessage = $"The '{parameterName}' cannot be zero.";
+
+        if (additionalMessage != null)
+            errorMessage = $"{additionalMessage} {errorMessage}";
+
+        return AddErrorIf(() => parameter == 0, errorMessage, httpStatusCode);
+    }
+
+    /// <summary>
+    /// This method adds error if the value is negative.
+    /// </summary>
+    /// <param name="parameter"></param>
+    /// <param name="parameterName"></param>
+    /// <param name="additionalMessage"></param>
+    /// <param name="httpStatusCode"></param>
+    /// <returns></returns>
+    public OperationResponse AddErrorIfNegative(double parameter, string parameterName, string additionalMessage = null, HttpStatusCode httpStatusCode = HttpStatusCode.BadRequest)
+    {
+        string errorMessage = $"The '{parameterName}' cannot be negative.";
+
+        if (additionalMessage != null)
+            errorMessage = $"{additionalMessage} {errorMessage}";
+
+        return AddErrorIf(() => parameter < 0, errorMessage, httpStatusCode);
+    }
+
+    /// <summary>
+    /// This method adds error if the value is negative or equal to zero.
+    /// </summary>
+    /// <param name="parameter"></param>
+    /// <param name="parameterName"></param>
+    /// <param name="additionalMessage"></param>
+    /// <param name="httpStatusCode"></param>
+    /// <returns></returns>
+    public OperationResponse AddErrorIfNegativeOrZero(double parameter, string parameterName, string additionalMessage = null, HttpStatusCode httpStatusCode = HttpStatusCode.BadRequest)
+    {
+        string errorMessage = $"The '{parameterName}' cannot be negative or equal to zero.";
+        if (additionalMessage != null)
+            errorMessage = $"{additionalMessage} {errorMessage}";
+
+        return AddErrorIf(() => parameter <= 0, errorMessage, httpStatusCode);
+    }
+
+    /// <summary>
+    /// This method adds error if the value is negative or equal to zero.
+    /// </summary>
+    /// <param name="parameters"></param>
+    /// <param name="parametersName"></param>
+    /// <param name="httpStatusCode"></param>
+    /// <returns></returns>
+    public OperationResponse AddErrorIfNegativeOrZero(List<double> parameters, string parametersName, HttpStatusCode httpStatusCode = HttpStatusCode.BadRequest)
+    {
+        AddErrorIfNullOrEmpty(parameters, parametersName, httpStatusCode);
+        if (!Success)
+            return this;
+
+        foreach (double parameter in parameters)
+        {
+            AddErrorIfNegativeOrZero(parameter, parametersName, $"Index {parameters.IndexOf(parameter)}.", httpStatusCode);
+        }
+
+        return this;
+    }
+
+    /// <summary>
+    /// This method adds error if the enum is invalid.
+    /// </summary>
+    /// <param name="value"></param>
+    /// <param name="message"></param>
+    /// <param name="httpStatusCode"></param>
+    /// <returns></returns>
+    public OperationResponse AddErrorIfInvalidEnum<TEnum>(TEnum value, string message, HttpStatusCode httpStatusCode = HttpStatusCode.BadRequest)
+        where TEnum : struct, Enum
+    {
+        return AddErrorIf(() => !Enum.IsDefined(value), message, httpStatusCode);
+    }
+
+    /// <summary>
+    /// This method adds error if the file does not exist.
+    /// </summary>
+    /// <param name="fullFileName"></param>
+    /// <param name="parameterName"></param>
+    /// <param name="httpStatusCode"></param>
+    /// <returns></returns>
+    public OperationResponse AddErrorIfFileNotExist(string fullFileName, string parameterName, HttpStatusCode httpStatusCode = HttpStatusCode.BadRequest)
+    {
+        AddErrorIfNullOrEmpty(fullFileName, parameterName, httpStatusCode);
+        if (!Success)
+            return this;
+
+        FileInfo fileInfo = new(fullFileName);
+        return AddErrorIf(() => !fileInfo.Exists, $"File '{fullFileName}' does not exist.", httpStatusCode);
+    }
+
+    /// <summary>
+    /// This method adds error if the file already exists.
+    /// </summary>
+    /// <param name="fullFileName"></param>
+    /// <param name="httpStatusCode"></param>
+    /// <returns></returns>
+    public OperationResponse AddErrorIfFileExist(string fullFileName, HttpStatusCode httpStatusCode = HttpStatusCode.BadRequest)
+    {
+        FileInfo fileInfo = new(fullFileName);
+        return AddErrorIf(() => fileInfo.Exists, $"File '{fullFileName}' already exists.", httpStatusCode);
+    }
+
+    /// <summary>
+    /// This method adds error if the directory does not exist.
+    /// </summary>
+    /// <param name="fullDirectoryName"></param>
+    /// <param name="parameterName"></param>
+    /// <param name="httpStatusCode"></param>
+    /// <returns></returns>
+    public OperationResponse AddErrorIfDirectoryNotExist(string fullDirectoryName, string parameterName, HttpStatusCode httpStatusCode = HttpStatusCode.BadRequest)
+    {
+        AddErrorIfNullOrEmpty(fullDirectoryName, parameterName, httpStatusCode);
+        if (!Success)
+            return this;
+
+        DirectoryInfo directoryInfo = new(fullDirectoryName);
+        return AddErrorIf(() => !directoryInfo.Exists, $"Directory '{fullDirectoryName}' does not exist.", httpStatusCode);
+    }
+
+    /// <summary>
+    /// This method adds error by a condition expression.
+    /// </summary>
+    /// <param name="expression"></param>
+    /// <param name="errorMessage"></param>
+    /// <param name="httpStatusCode"></param>
+    /// <returns></returns>
+    public OperationResponse AddErrorIf(Func<bool> expression, string errorMessage, HttpStatusCode httpStatusCode = HttpStatusCode.BadRequest)
+    {
+        if (expression())
+        {
+            ErrorMessages.Add(errorMessage);
+            HttpStatusCode = httpStatusCode;
+        }
+
+        return this;
+    }
+
+    #endregion
+
+
+    public static OperationResponse CreateWithSuccessOk() => new() { HttpStatusCode = HttpStatusCode.OK };
+
+    public static T CreateWithSuccessOk<T>() where T : OperationResponse, new() => new() { HttpStatusCode = HttpStatusCode.OK };
 
     public static OperationResponse CreateWithInternalServerError(string message) => new()
     {
         HttpStatusCode = HttpStatusCode.InternalServerError,
-        Success = false,
         ErrorMessages = [message]
     };
 
     public static T CreateWithInternalServerError<T>(string message) where T : OperationResponse, new() => new()
     {
         HttpStatusCode = HttpStatusCode.InternalServerError,
-        Success = false,
         ErrorMessages = [message]
     };
 }
