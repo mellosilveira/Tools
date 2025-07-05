@@ -33,17 +33,17 @@ public record OperationResponse
 
     public void SetStatusCode(HttpStatusCode statusCode) => StatusCode = statusCode;
 
-    public static OperationResponse CreateWithSuccessOk() => new() { StatusCode = HttpStatusCode.OK };
+    public static OperationResponse CreateSuccessOk() => new() { StatusCode = HttpStatusCode.OK };
 
-    public static T CreateWithSuccessOk<T>() where T : OperationResponse, new() => new() { StatusCode = HttpStatusCode.OK };
+    public static T CreateSuccessOk<T>() where T : OperationResponse, new() => new() { StatusCode = HttpStatusCode.OK };
 
-    public static OperationResponse CreateWithInternalServerError(string message) => new()
+    public static OperationResponse CreateInternalServerError(string message) => new()
     {
         StatusCode = HttpStatusCode.InternalServerError,
         ErrorMessages = [message]
     };
 
-    public static T CreateWithInternalServerError<T>(string message) where T : OperationResponse, new() => new()
+    public static T CreateInternalServerError<T>(string message) where T : OperationResponse, new() => new()
     {
         StatusCode = HttpStatusCode.InternalServerError,
         ErrorMessages = [message]
@@ -54,10 +54,18 @@ public record OperationResponse
 /// Response content for all operations.
 /// </summary>
 /// <typeparam name="TResponseData"></typeparam>
-public record OperationResponseBase<TResponseData> : OperationResponse
+public record OperationResponseBase<TResponseData> : OperationResponse where TResponseData : class
 {
     /// <summary>
     /// Data content of all operation response.
     /// </summary>
-    public TResponseData Data { get; set; }
+    public TResponseData? Data { get; protected set; }
+
+    public void SetData(TResponseData data) => Data = data;
+
+    public static TResponse CreateSuccessOk<TResponse>(TResponseData? data = null) where TResponse : OperationResponseBase<TResponseData>, new() => new()
+    {
+         Data = data,
+        StatusCode = HttpStatusCode.OK,
+    };
 }

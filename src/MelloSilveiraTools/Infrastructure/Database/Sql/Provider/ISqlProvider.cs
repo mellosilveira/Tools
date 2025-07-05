@@ -2,12 +2,14 @@
 
 public interface ISqlProvider
 {
-    string GetDeleteQuery<T>();
-    string GetDeleteByPrimaryKeyQuery<T>();
-    string GetInsertQuery<T>();
-    string GetBatchInsertQuery<T>(int batchSize);
-    string GetSelectQuery<T>();
-    string GetSelectByPrimaryKeyQuery<T>();
-    string GetUpdateQuery<T>();
-    string GetUpdateByPrimaryKeyQuery<T>();
+    string GetBulkInsertSql<T>(int batchSize);
+    string GetCountSql<T>();
+    string GetDeleteSql<T>();
+    string GetDeleteByPrimaryKeySql<T>();
+    string GetExistByPrimaryKeySql<T>();
+    string GetInsertSql<T>();
+    string GetSelectSql<T>();
+    string GetSelectByPrimaryKeySql<T>();
+    string GetUpdateSql<T>();
+    string GetUpdateByPrimaryKeySql<T>();
 }

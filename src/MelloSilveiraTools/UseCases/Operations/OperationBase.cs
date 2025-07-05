@@ -34,7 +34,7 @@ public abstract class OperationBase<TRequest, TResponse>
 #else
             string message = "An internal server occurred while processing the request.";
 #endif
-            return OperationResponse.CreateWithInternalServerError<TResponse>(message);
+            return OperationResponse.CreateInternalServerError<TResponse>(message);
         }
     }
 
@@ -88,7 +88,7 @@ public abstract class OperationBaseWithoutRequest<TResponse> where TResponse : O
             string message = "An internal server occurred while processing the request.";
 #endif
 
-            return OperationResponse.CreateWithInternalServerError<TResponse>(message);
+            return OperationResponse.CreateInternalServerError<TResponse>(message);
         }
 
         return response;

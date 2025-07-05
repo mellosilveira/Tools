@@ -19,55 +19,55 @@ public static class OperationResponseExtensions
         return response;
     }
 
-    public static T AddErrorIfNull<T>(this T response, object value, string parameterName, HttpStatusCode httpStatusCode = HttpStatusCode.BadRequest) where T : OperationResponse
+    public static T AddErrorIfNull<T>(this T response, object value, string message, HttpStatusCode httpStatusCode = HttpStatusCode.BadRequest) where T : OperationResponse
     {
-        return response.AddErrorIf(value is null, $"'{parameterName}' cannot be null.", httpStatusCode);
+        return response.AddErrorIf(value is null, message, httpStatusCode);
     }
 
-    public static T AddErrorIfNotNull<T>(this T response, object value, string parameterName, HttpStatusCode httpStatusCode = HttpStatusCode.BadRequest) where T : OperationResponse
+    public static T AddErrorIfNotNull<T>(this T response, object value, string message, HttpStatusCode httpStatusCode = HttpStatusCode.BadRequest) where T : OperationResponse
     {
-        return response.AddErrorIf(value is not null, $"'{parameterName}' must be null.", httpStatusCode);
+        return response.AddErrorIf(value is not null, message, httpStatusCode);
     }
 
-    public static T AddErrorIfNullOrEmpty<T>(this T response, string parameter, string parameterName, HttpStatusCode httpStatusCode = HttpStatusCode.BadRequest) where T : OperationResponse
+    public static T AddErrorIfNullOrEmpty<T>(this T response, string parameter, string message, HttpStatusCode httpStatusCode = HttpStatusCode.BadRequest) where T : OperationResponse
     {
-        return response.AddErrorIf(string.IsNullOrEmpty(parameter), $"'{parameterName}' cannot be null or empty.", httpStatusCode);
+        return response.AddErrorIf(string.IsNullOrEmpty(parameter), message, httpStatusCode);
     }
 
-    public static T AddErrorIfNullOrWhiteSpace<T>(this T response, string parameter, string parameterName, HttpStatusCode httpStatusCode = HttpStatusCode.BadRequest) where T : OperationResponse
+    public static T AddErrorIfNullOrWhiteSpace<T>(this T response, string parameter, string message, HttpStatusCode httpStatusCode = HttpStatusCode.BadRequest) where T : OperationResponse
     {
-        return response.AddErrorIf(string.IsNullOrWhiteSpace(parameter), $"'{parameterName}' cannot be null, empty or white space.", httpStatusCode);
+        return response.AddErrorIf(string.IsNullOrWhiteSpace(parameter), message, httpStatusCode);
     }
 
-    public static T AddErrorIfNullOrEmpty<T, TSource>(this T response, IEnumerable<TSource> parameters, string parametersName, HttpStatusCode httpStatusCode = HttpStatusCode.BadRequest) where T : OperationResponse
+    public static T AddErrorIfNullOrEmpty<T, TSource>(this T response, IEnumerable<TSource> parameters, string message, HttpStatusCode httpStatusCode = HttpStatusCode.BadRequest) where T : OperationResponse
     {
-        return response.AddErrorIf(parameters.IsNullOrEmpty(), $"'{parametersName}' cannot be null or empty.", httpStatusCode);
+        return response.AddErrorIf(parameters.IsNullOrEmpty(), message, httpStatusCode);
     }
 
-    public static T AddErrorIfZero<T>(this T response, double parameter, string parameterName, HttpStatusCode httpStatusCode = HttpStatusCode.BadRequest) where T : OperationResponse
+    public static T AddErrorIfZero<T>(this T response, double parameter, string message, HttpStatusCode httpStatusCode = HttpStatusCode.BadRequest) where T : OperationResponse
     {
-        return response.AddErrorIf(parameter == 0, $"The '{parameterName}' cannot be zero.", httpStatusCode);
+        return response.AddErrorIf(parameter == 0, message, httpStatusCode);
     }
 
-    public static T AddErrorIfNegative<T>(this T response, double parameter, string parameterName, HttpStatusCode httpStatusCode = HttpStatusCode.BadRequest) where T : OperationResponse
+    public static T AddErrorIfNegative<T>(this T response, double parameter, string message, HttpStatusCode httpStatusCode = HttpStatusCode.BadRequest) where T : OperationResponse
     {
-        return response.AddErrorIf(parameter < 0, $"The '{parameterName}' cannot be negative.", httpStatusCode);
+        return response.AddErrorIf(parameter < 0, message, httpStatusCode);
     }
 
-    public static T AddErrorIfNegativeOrZero<T>(this T response, double parameter, string parameterName, HttpStatusCode httpStatusCode = HttpStatusCode.BadRequest) where T : OperationResponse
+    public static T AddErrorIfNegativeOrZero<T>(this T response, double parameter, string message, HttpStatusCode httpStatusCode = HttpStatusCode.BadRequest) where T : OperationResponse
     {
-        return response.AddErrorIf(parameter <= 0, $"The '{parameterName}' cannot be negative or equal to zero.", httpStatusCode);
+        return response.AddErrorIf(parameter <= 0, message, httpStatusCode);
     }
 
-    public static T AddErrorIfNegativeOrZero<T>(this T response, List<double> parameters, string parametersName, HttpStatusCode httpStatusCode = HttpStatusCode.BadRequest) where T : OperationResponse
+    public static T AddErrorIfNegativeOrZero<T>(this T response, List<double> parameters, string message, HttpStatusCode httpStatusCode = HttpStatusCode.BadRequest) where T : OperationResponse
     {
-        response.AddErrorIfNullOrEmpty(parameters, parametersName, httpStatusCode);
+        response.AddErrorIfNullOrEmpty(parameters, message, httpStatusCode);
         if (!response.Success)
             return response;
 
         foreach (double parameter in parameters)
         {
-            response.AddErrorIfNegativeOrZero(parameter, parametersName, httpStatusCode);
+            response.AddErrorIfNegativeOrZero(parameter, message, httpStatusCode);
         }
 
         return response;
@@ -79,14 +79,14 @@ public static class OperationResponseExtensions
         return response.AddErrorIf(!Enum.IsDefined(value), message, httpStatusCode);
     }
 
-    public static T AddErrorIfFileNotExist<T>(this T response, string fullFileName, string parameterName, HttpStatusCode httpStatusCode = HttpStatusCode.BadRequest) where T : OperationResponse
+    public static T AddErrorIfFileNotExist<T>(this T response, string fullFileName, string message, HttpStatusCode httpStatusCode = HttpStatusCode.BadRequest) where T : OperationResponse
     {
-        response.AddErrorIfNullOrWhiteSpace(fullFileName, parameterName, httpStatusCode);
+        response.AddErrorIfNullOrWhiteSpace(fullFileName, message, httpStatusCode);
         if (!response.Success)
             return response;
 
         FileInfo fileInfo = new(fullFileName);
-        return response.AddErrorIf(!fileInfo.Exists, $"File '{fullFileName}' does not exist.", httpStatusCode);
+        return response.AddErrorIf(!fileInfo.Exists, message, httpStatusCode);
     }
 
     public static T AddErrorIfFileExist<T>(this T response, string fullFileName, HttpStatusCode httpStatusCode = HttpStatusCode.BadRequest) where T : OperationResponse
