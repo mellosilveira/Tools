@@ -67,6 +67,57 @@ public class PostgresSqlProvider : ISqlProvider
         return lazy.Value;
     }
 
+    private static string CreateBatchInsertSql(Type type, int batchSize)
+    {
+        TableAttribute tableAttribute = type.GetCustomAttribute<TableAttribute>()!;
+        PropertyInfo[] columnProperties = type.GetPropertiesInHierarchy<ColumnAttribute>();
+        PropertyInfo primaryKeyProperty = columnProperties.Single(p => p.GetCustomAttribute<PrimaryKeyColumnAttribute>() != null);
+
+        List<string> columnsToInsert = [];
+        List<string> parameterNames = [];
+        List<PropertyInfo> uniqueColumnProperties = [];
+
+        foreach (PropertyInfo columnProperty in columnProperties)
+        {
+            if (columnProperty.GetCustomAttribute<UniqueColumnAttribute>() is not null)
+                uniqueColumnProperties.Add(columnProperty);
+
+            string propertyName = columnProperty.Name;
+            columnsToInsert.Add(propertyName.ToSnakeCase());
+            parameterNames.Add($"@{propertyName}");
+        }
+
+        string sql;
+        if (uniqueColumnProperties.IsNullOrEmpty())
+        {
+            sql = SqlResource.InsertTemplate;
+        }
+        else
+        {
+            List<string> uniqueColumns = [];
+            List<string> uniqueKeyFilters = [];
+            foreach (PropertyInfo uniqueColumnProperty in uniqueColumnProperties)
+            {
+                string propertyName = uniqueColumnProperty.Name;
+                string columnName = propertyName.ToSnakeCase();
+
+                uniqueColumns.Add(columnName);
+                uniqueKeyFilters.Add($"{tableAttribute.Alias}.{columnName} = ANY(@{propertyName})");
+            }
+
+            sql = SqlResource.InsertWithUniqueKeyTemplate
+                .Replace("#UNIQUE_KEYS", string.Join(',', uniqueColumns))
+                .Replace("#UNIQUE_KEY_FILTERS", string.Join(" AND ", uniqueKeyFilters));
+        }
+
+        IEnumerable<string> sqlValues = Enumerable.Repeat("(" + string.Join("\r\n\t,", parameterNames) + ")", batchSize);
+        return sql
+            .Replace("#TABLE_NAME", tableAttribute.Name)
+            .Replace("#COLUMNS", string.Join("\r\n\t,", columnsToInsert))
+            .Replace("#PRIMARY_KEY", primaryKeyProperty.Name.ToSnakeCase())
+            .Replace("#VALUES", string.Join(",\r\n\t", sqlValues));
+    }
+
     private static string CreateCountSql(Type type) => CreateBaseSelectSql(type)
         .Replace("#COLUMNS", "COUNT(1)")
         .Remove("#ORDERBY")
@@ -210,43 +261,46 @@ public class PostgresSqlProvider : ISqlProvider
 
         List<string> columnsToInsert = [];
         List<string> parameterNames = [];
+        List<PropertyInfo> uniqueColumnProperties = [];
 
         foreach (PropertyInfo columnProperty in columnProperties)
         {
+            if (columnProperty.GetCustomAttribute<UniqueColumnAttribute>() is not null)
+                uniqueColumnProperties.Add(columnProperty);
+
             string propertyName = columnProperty.Name;
             columnsToInsert.Add(propertyName.ToSnakeCase());
             parameterNames.Add($"@{propertyName}");
         }
 
-        return SqlResource.InsertTemplate
+        string sql;
+        if (uniqueColumnProperties.IsNullOrEmpty())
+        {
+            sql = SqlResource.InsertTemplate;
+        }
+        else
+        {
+            List<string> uniqueColumns = [];
+            List<string> uniqueKeyFilters = [];
+            foreach (PropertyInfo uniqueColumnProperty in uniqueColumnProperties)
+            {
+                string propertyName = uniqueColumnProperty.Name;
+                string columnName = propertyName.ToSnakeCase();
+
+                uniqueColumns.Add(columnName);
+                uniqueKeyFilters.Add($"{tableAttribute.Alias}.{columnName} = @{propertyName}");
+            }
+
+            sql = SqlResource.InsertWithUniqueKeyTemplate
+                .Replace("#UNIQUE_KEYS", string.Join(',', uniqueColumns))
+                .Replace("#UNIQUE_KEY_FILTERS", string.Join(" AND ", uniqueKeyFilters));
+        }
+
+        return sql
             .Replace("#TABLE_NAME", tableAttribute.Name)
             .Replace("#COLUMNS", string.Join("\r\n\t,", columnsToInsert))
             .Replace("#PARAMETER_NAMES", string.Join("\r\n\t,", parameterNames))
             .Replace("#PRIMARY_KEY", primaryKeyProperty.Name.ToSnakeCase());
-    }
-
-    private static string CreateBatchInsertSql(Type type, int batchSize)
-    {
-        TableAttribute tableAttribute = type.GetCustomAttribute<TableAttribute>()!;
-        PropertyInfo[] columnProperties = type.GetPropertiesInHierarchy<ColumnAttribute>();
-        PropertyInfo primaryKeyProperty = columnProperties.Single(p => p.GetCustomAttribute<PrimaryKeyColumnAttribute>() != null);
-
-        List<string> columnsToInsert = [];
-        List<string> parameterNames = [];
-
-        foreach (PropertyInfo columnProperty in columnProperties)
-        {
-            string propertyName = columnProperty.Name;
-            columnsToInsert.Add(propertyName.ToSnakeCase());
-            parameterNames.Add($"@{propertyName}");
-        }
-
-        IEnumerable<string> sqlValues = Enumerable.Repeat("(" + string.Join("\r\n\t,", parameterNames) + ")", batchSize);
-        return SqlResource.InsertTemplate
-            .Replace("#TABLE_NAME", tableAttribute.Name)
-            .Replace("#COLUMNS", string.Join("\r\n\t,", columnsToInsert))
-            .Replace("#PRIMARY_KEY", primaryKeyProperty.Name.ToSnakeCase())
-            .Replace("#VALUES", string.Join(",\r\n\t", sqlValues));
     }
 
     private static string CreateUpdateSql(TableAttribute tableAttribute, PropertyInfo[] columnProperties)

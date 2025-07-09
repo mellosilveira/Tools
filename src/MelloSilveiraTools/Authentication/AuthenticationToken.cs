@@ -1,8 +1,8 @@
 ﻿namespace MelloSilveiraTools.Authentication;
 
-public readonly struct AuthenticationToken(string value, DateTimeOffset expires)
+public readonly struct AuthenticationToken(string value, DateTimeOffset expiresOn)
 {
     public string Value { get; } = value;
 
-    public DateTimeOffset Expires { get; } = expires;
+    public DateTimeOffset ExpiresOn { get; } = expiresOn;
 }

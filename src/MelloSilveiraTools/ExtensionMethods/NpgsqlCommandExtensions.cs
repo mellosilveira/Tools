@@ -1,7 +1,5 @@
 ﻿using MelloSilveiraTools.Infrastructure.Database.Attributes;
 using Npgsql;
-using NpgsqlTypes;
-using System.Collections;
 using System.Reflection;
 
 namespace MelloSilveiraTools.ExtensionMethods;

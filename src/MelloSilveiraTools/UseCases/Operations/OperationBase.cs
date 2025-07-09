@@ -1,4 +1,4 @@
-﻿using System.Globalization;
+﻿using MelloSilveiraTools.Infrastructure.Logger;
 
 namespace MelloSilveiraTools.UseCases.Operations;
 
@@ -7,7 +7,7 @@ namespace MelloSilveiraTools.UseCases.Operations;
 /// </summary>
 /// <typeparam name="TRequest"></typeparam>
 /// <typeparam name="TResponse"></typeparam>
-public abstract class OperationBase<TRequest, TResponse>
+public abstract class OperationBase<TRequest, TResponse>(ILogger logger)
     where TRequest : OperationRequestBase, new()
     where TResponse : OperationResponse, new()
 {
@@ -32,9 +32,15 @@ public abstract class OperationBase<TRequest, TResponse>
 #if DEBUG
             string message = $"{ex}";
 #else
-            string message = "An internal server occurred while processing the request.";
+            string message = "Ocorreu um erro interno durante o processamento da solicitação.";
 #endif
-            return OperationResponse.CreateInternalServerError<TResponse>(message);
+            
+            Dictionary<string, object> logAdditionalData = new() { { "Request", request } };
+            logger.Error(message, ex, logAdditionalData);
+
+            TResponse response = new();
+            response.SetInternalServerError(message);
+            return response;
         }
     }
 
@@ -56,13 +62,13 @@ public abstract class OperationBase<TRequest, TResponse>
 /// <summary>
 /// Represents the base for all operations that uses the default response (<see cref="OperationResponse"/>).
 /// </summary>
-public abstract class OperationBaseWithDefaultResponse<TRequest> : OperationBase<TRequest, OperationResponse> where TRequest : OperationRequestBase, new();
+public abstract class OperationBaseWithDefaultResponse<TRequest>(ILogger logger) : OperationBase<TRequest, OperationResponse>(logger) where TRequest : OperationRequestBase, new();
 
 /// <summary>
 /// Represents the base for all operations that does not use a request.
 /// </summary>
 /// <typeparam name="TResponse"></typeparam>
-public abstract class OperationBaseWithoutRequest<TResponse> where TResponse : OperationResponse, new()
+public abstract class OperationBaseWithoutRequest<TResponse>(ILogger logger) where TResponse : OperationResponse, new()
 {
     /// <summary>
     /// The main method of all operations.
@@ -71,27 +77,24 @@ public abstract class OperationBaseWithoutRequest<TResponse> where TResponse : O
     /// <returns>The operation response.</returns>
     public async Task<TResponse> ProcessAsync()
     {
-        // Sets the current culture like invariant.
-        CultureInfo.CurrentCulture = CultureInfo.InvariantCulture;
-
-        TResponse response;
-
         try
         {
-            response = await ProcessOperationAsync().ConfigureAwait(false);
+            return await ProcessOperationAsync().ConfigureAwait(false);
         }
         catch (Exception ex)
         {
 #if DEBUG
             string message = $"{ex}";
 #else
-            string message = "An internal server occurred while processing the request.";
+            string message = "Ocorreu um erro interno durante o processamento da solicitação.";
 #endif
 
-            return OperationResponse.CreateInternalServerError<TResponse>(message);
-        }
+            logger.Error(message, ex);
 
-        return response;
+            TResponse response = new();
+            response.SetInternalServerError(message);
+            return response;
+        }
     }
 
     /// <summary>

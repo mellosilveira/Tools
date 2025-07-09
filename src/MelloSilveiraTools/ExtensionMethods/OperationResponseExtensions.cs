@@ -1,4 +1,5 @@
 ﻿using MelloSilveiraTools.UseCases.Operations;
+using Microsoft.AspNetCore.Mvc;
 using System.Net;
 
 namespace MelloSilveiraTools.ExtensionMethods;
@@ -8,15 +9,25 @@ namespace MelloSilveiraTools.ExtensionMethods;
 /// </summary>
 public static class OperationResponseExtensions
 {
+    public static T AddError<T>(this T response, string errorMessage, HttpStatusCode httpStatusCode = HttpStatusCode.BadRequest) where T : OperationResponse
+    {
+        response.ErrorMessages.Add(errorMessage);
+        response.SetStatusCode(httpStatusCode);
+        return response;
+    }
+
     public static T AddErrorIf<T>(this T response, bool condition, string errorMessage, HttpStatusCode httpStatusCode = HttpStatusCode.BadRequest) where T : OperationResponse
     {
-        if (condition)
-        {
-            response.ErrorMessages.Add(errorMessage);
-            response.SetStatusCode(httpStatusCode);
-        }
+        return condition
+            ? response.AddError<T>(errorMessage, httpStatusCode)
+            : response;
+    }
 
-        return response;
+    public static async Task<T> AddErrorIf<T>(this T response, Task<bool> condition, string errorMessage, HttpStatusCode httpStatusCode = HttpStatusCode.BadRequest) where T : OperationResponse
+    {
+        return await condition
+            ? response.AddError<T>(errorMessage, httpStatusCode)
+            : response;
     }
 
     public static T AddErrorIfNull<T>(this T response, object value, string message, HttpStatusCode httpStatusCode = HttpStatusCode.BadRequest) where T : OperationResponse
@@ -104,4 +115,7 @@ public static class OperationResponseExtensions
         DirectoryInfo directoryInfo = new(fullDirectoryName);
         return response.AddErrorIf(!directoryInfo.Exists, $"Directory '{fullDirectoryName}' does not exist.", httpStatusCode);
     }
+
+    public static JsonResult BuildHttpResponse<T>(this T response) where T : OperationResponse
+        => new(response) { StatusCode = (int)response.StatusCode };
 }

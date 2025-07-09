@@ -1,6 +1,7 @@
 ﻿using Dapper;
 using MelloSilveiraTools.Infrastructure.Database.Attributes;
 using MelloSilveiraTools.Infrastructure.Database.Models;
+using Newtonsoft.Json.Linq;
 using Npgsql;
 using System.Reflection;
 
@@ -181,6 +182,60 @@ public static class ClassExtensions
 
                 propertyValue = filterColumnAttribute.FilterClause.Equals(FilterClause.Like) ? $"%{propertyValue}%" : propertyValue;
                 parameters.Add(property.Name, propertyValue);
+            }
+        }
+
+        // Step 4. Creates the SQL WHERE clause and returns it and parameters.
+        string? whereClause = whereClauses.IsNullOrEmpty() ? null : $"WHERE {string.Join("\r\n\tAND ", whereClauses)}";
+        return (whereClause, parameters);
+    }
+
+    /// <summary>
+    /// Builds a SQL WHERE clause and a <see cref="DynamicParameters"/> based on filter.
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <param name="obj"></param>
+    /// <returns></returns>
+    public static (string? SqlWhereClause, List<NpgsqlParameter> Parameters) BuildWhereClauseAndNpgsqlParameters<T>(this T obj)
+    {
+        if (obj is null)
+            return (null, []);
+
+        // Step 1. Gets the attribute for filter.
+        Type type = typeof(T);
+        FilterAttribute? filterAttribute = type.GetCustomAttribute<FilterAttribute>();
+        if (filterAttribute is null)
+            return (null, []);
+
+        // Step 2. Initializes the variables to be used.
+        List<NpgsqlParameter> parameters = [];
+        List<string> whereClauses = [];
+
+        // Step 3. Gets the properties of type according to its hierarchy of classes and for each property:
+        // 3.1. Gets the filter column attribute and create the line for WHERE statement.
+        var properties = type.GetPropertiesInHierarchy();
+        foreach (PropertyInfo property in properties)
+        {
+            // 3.1.
+            var filterColumnAttribute = property.GetCustomAttribute<FilterColumnAttribute>();
+            if (filterColumnAttribute != null)
+            {
+                object? propertyValue = property.GetValue(obj);
+                if (propertyValue is null || propertyValue is string str && string.IsNullOrWhiteSpace(str))
+                    continue;
+
+                string tableAlias = filterColumnAttribute.TableName is null
+                    ? filterAttribute.TableDefinition!.Alias
+                    : filterAttribute.JoinTablesDefinition[filterColumnAttribute.TableName].Alias;
+
+                string columnName = (filterColumnAttribute.PropertyName ?? property.Name).ToSnakeCase();
+                whereClauses.Add($"{tableAlias}.{columnName} {filterColumnAttribute.FilterClause} @{property.Name}");
+
+                if (propertyValue is Enum)
+                    propertyValue = (int)propertyValue;
+
+                propertyValue = filterColumnAttribute.FilterClause.Equals(FilterClause.Like) ? $"%{propertyValue}%" : propertyValue;
+                parameters.Add(new NpgsqlParameter(property.Name, property.PropertyType.GetDbTypeFromPropertyType()) { Value = propertyValue });
             }
         }
 

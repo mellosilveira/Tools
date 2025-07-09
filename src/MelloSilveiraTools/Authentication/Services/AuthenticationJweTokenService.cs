@@ -14,7 +14,7 @@ public class AuthenticationJweTokenService(JwtSettings settings) : IAuthenticati
     public AuthenticationToken Generate(string userIdentifier)
     {
         var utcNow = DateTimeOffset.UtcNow;
-        DateTimeOffset expires = utcNow.AddMinutes(settings.TokenExperitationTimeInMinutes);
+        DateTimeOffset expiresOn = utcNow.AddMinutes(settings.TokenExperitationTimeInMinutes);
 
         SecurityTokenDescriptor descriptor = new()
         {
@@ -23,7 +23,7 @@ public class AuthenticationJweTokenService(JwtSettings settings) : IAuthenticati
                 new Claim(JwtRegisteredClaimNames.Sub, userIdentifier),
                 new Claim(JwtRegisteredClaimNames.Iat, utcNow.ToUnixTimeSeconds().ToString(), ClaimValueTypes.Integer64)
             ]),
-            Expires = expires.UtcDateTime,
+            Expires = expiresOn.UtcDateTime,
             SigningCredentials = new SigningCredentials(CreateSecurityKey(settings.SigningKey, settings.SecurityKeyType), SecurityAlgorithms.HmacSha256),
             EncryptingCredentials = new EncryptingCredentials(
                 key: CreateSecurityKey(settings.EncryptionKey, settings.SecurityKeyType),
@@ -33,7 +33,7 @@ public class AuthenticationJweTokenService(JwtSettings settings) : IAuthenticati
         };
 
         string token = new JsonWebTokenHandler().CreateToken(descriptor);
-        return new AuthenticationToken(token, expires);
+        return new AuthenticationToken(token, expiresOn);
     }
 
     public async Task<AuthenticationToken> RefreshAsync(string token)
