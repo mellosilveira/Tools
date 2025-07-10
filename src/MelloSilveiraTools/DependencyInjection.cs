@@ -24,13 +24,18 @@ public static class DependencyInjection
     /// </summary>
     /// <param name="services"></param>
     /// <param name="databaseSettings"></param>
+    /// <param name="encryptionSettings"></param>
     /// <param name="resiliencePipelineSettings"></param>
     /// <returns></returns>
-    public static IServiceCollection AddToolsServices(this IServiceCollection services, DatabaseSettings databaseSettings, ResiliencePipelineSettings resiliencePipelineSettings)
+    public static IServiceCollection AddToolsServices(this IServiceCollection services, 
+        DatabaseSettings databaseSettings,
+        EncryptionSettings encryptionSettings,
+        ResiliencePipelineSettings resiliencePipelineSettings)
     {
         return services
             // Register settings.
             .AddSingleton(databaseSettings)
+            .AddSingleton(encryptionSettings)
             .AddSingleton(resiliencePipelineSettings)
             // Register resilience pipelines.
             .AddSingleton<PostgresResiliencePipeline>()
