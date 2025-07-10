@@ -34,11 +34,13 @@
             Provides extension methods to dependency injection of Tools project.
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.DependencyInjection.AddToolsServices(Microsoft.Extensions.DependencyInjection.IServiceCollection,MelloSilveiraTools.Infrastructure.ResiliencePipelines.ResiliencePipelineSettings)">
+        <member name="M:MelloSilveiraTools.DependencyInjection.AddToolsServices(Microsoft.Extensions.DependencyInjection.IServiceCollection,MelloSilveiraTools.Infrastructure.Database.Settings.DatabaseSettings,MelloSilveiraTools.Infrastructure.Services.Encryption.EncryptionSettings,MelloSilveiraTools.Infrastructure.ResiliencePipelines.ResiliencePipelineSettings)">
             <summary>
             Registers the services of Tools project.
             </summary>
             <param name="services"></param>
+            <param name="databaseSettings"></param>
+            <param name="encryptionSettings"></param>
             <param name="resiliencePipelineSettings"></param>
             <returns></returns>
         </member>
