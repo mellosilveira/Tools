@@ -5,6 +5,7 @@ using MelloSilveiraTools.Infrastructure.Database.Settings;
 using MelloSilveiraTools.Infrastructure.Database.Sql.Provider;
 using MelloSilveiraTools.Infrastructure.Logger;
 using MelloSilveiraTools.Infrastructure.ResiliencePipelines;
+using MelloSilveiraTools.Infrastructure.Services.Encryption;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
@@ -38,7 +39,9 @@ public static class DependencyInjection
             // Register repositories.
             .AddSingleton<IDatabaseRepository, PostgresRepository>()
             // Register logger.
-            .AddSingleton<ILogger, LocalFileLogger>();
+            .AddSingleton<ILogger, LocalFileLogger>()
+            // Register services.
+            .AddScoped< IEncryptionService, EncryptionService>();
     }
 
     /// <summary>
