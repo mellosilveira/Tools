@@ -32,7 +32,6 @@ public static class DependencyInjection
             .AddSingleton(databaseSettings)
             .AddSingleton(resiliencePipelineSettings)
             // Register resilience pipelines.
-            .AddSingleton<DefaultResiliencePipeline>()
             .AddSingleton<PostgresResiliencePipeline>()
             // Register SQL providers.
             .AddSingleton<ISqlProvider, PostgresSqlProvider>()
