@@ -1,12 +1,14 @@
 ﻿using MelloSilveiraTools.Authentication;
 using MelloSilveiraTools.Authentication.Services;
+using MelloSilveiraTools.Infrastructure.Database.Repositories;
+using MelloSilveiraTools.Infrastructure.Database.Settings;
 using MelloSilveiraTools.Infrastructure.Database.Sql.Provider;
+using MelloSilveiraTools.Infrastructure.Logger;
 using MelloSilveiraTools.Infrastructure.ResiliencePipelines;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.OpenApi.Models;
-using Swashbuckle.AspNetCore.SwaggerGen;
 using System.Reflection;
 
 namespace MelloSilveiraTools;
@@ -20,18 +22,24 @@ public static class DependencyInjection
     /// Registers the services of Tools project.
     /// </summary>
     /// <param name="services"></param>
+    /// <param name="databaseSettings"></param>
     /// <param name="resiliencePipelineSettings"></param>
     /// <returns></returns>
-    public static IServiceCollection AddToolsServices(this IServiceCollection services, ResiliencePipelineSettings resiliencePipelineSettings)
+    public static IServiceCollection AddToolsServices(this IServiceCollection services, DatabaseSettings databaseSettings, ResiliencePipelineSettings resiliencePipelineSettings)
     {
         return services
             // Register settings.
+            .AddSingleton(databaseSettings)
             .AddSingleton(resiliencePipelineSettings)
             // Register resilience pipelines.
             .AddSingleton<DefaultResiliencePipeline>()
             .AddSingleton<PostgresResiliencePipeline>()
             // Register SQL providers.
-            .AddSingleton<ISqlProvider, PostgresSqlProvider>();
+            .AddSingleton<ISqlProvider, PostgresSqlProvider>()
+            // Register repositories.
+            .AddSingleton<IDatabaseRepository, PostgresRepository>()
+            // Register logger.
+            .AddSingleton<ILogger, LocalFileLogger>();
     }
 
     /// <summary>
