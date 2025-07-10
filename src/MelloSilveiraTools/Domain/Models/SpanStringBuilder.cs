@@ -140,6 +140,16 @@ public ref struct SpanStringBuilder : IDisposable
     }
 
     /// <summary>
+    /// Appends a character followed by environment-specific newline
+    /// </summary>
+    /// <param name="value">Character to append</param>
+    /// <returns>Chainable reference</returns>
+    /// <remarks>
+    /// Newline sequence matches Environment.NewLine (CRLF on Windows, LF on Unix)
+    /// </remarks>
+    public SpanStringBuilder AppendLine(char value) => Append(value).Append(Environment.NewLine);
+
+    /// <summary>
     /// Appends a character sequence followed by environment-specific newline
     /// </summary>
     /// <param name="value">Character sequence to append</param>

@@ -46,7 +46,7 @@ public class DefaultResiliencePipeline
                     int attempt = args.AttemptNumber + 1;
 
                     List<string> tags = [className, methodName];
-                    var additionalData = new Dictionary<string, object?>
+                    Dictionary<string, object?> additionalData = new()
                     {
                         { "Attempt", attempt },
                         { nameof(args.Duration), args.Duration },
@@ -54,7 +54,7 @@ public class DefaultResiliencePipeline
                         { nameof(args.Outcome.Result), args.Outcome.Result },
                     };
 
-                    _logger.Warn($"Attempt '{attempt}' on '{methodName}' of '{className}'.", args.Outcome.Exception, tags, additionalData);
+                    _logger.Warn($"Attempt '{attempt}' on '{methodName}' of '{className}'.", args.Outcome.Exception, additionalData);
                     return default;
                 }
             })
