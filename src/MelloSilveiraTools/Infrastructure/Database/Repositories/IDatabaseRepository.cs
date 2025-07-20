@@ -21,6 +21,8 @@ public interface IDatabaseRepository
         where TEntity : class, new()
         where TFilter : FilterBase;
 
+    Task DeleteAllAsync<TEntity>();
+
     Task DeleteAsync<TEntity>(long id);
 
     Task DeleteAsync<TEntity, TFilter>(TFilter filter);

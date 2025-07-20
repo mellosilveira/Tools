@@ -1,18 +1,17 @@
-﻿namespace MelloSilveiraTools.UseCases.Services.ApiServiceAgent.Settings
+﻿namespace MelloSilveiraTools.UseCases.Services.ApiServiceAgent.Settings;
+
+/// <summary>
+/// General settings for an endpoint.
+/// </summary>
+public class EndpointSettings
 {
     /// <summary>
-    /// General settings for an endpoint.
+    /// Endpoint URI.
     /// </summary>
-    public class EndpointSettings
-    {
-        /// <summary>
-        /// Endpoint URI.
-        /// </summary>
-        public string Uri { get; set; }
+    public string Uri { get; set; }
 
-        /// <summary>
-        /// Timeout in miliseconds for endpoint.
-        /// </summary>
-        public int TimeoutInMiliseconds { get; set; }
-    }
+    /// <summary>
+    /// Timeout in miliseconds for endpoint.
+    /// </summary>
+    public int TimeoutInMiliseconds { get; set; }
 }

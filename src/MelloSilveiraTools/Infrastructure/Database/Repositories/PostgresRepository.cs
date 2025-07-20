@@ -54,6 +54,21 @@ public class PostgresRepository(ISqlProvider sqlProvider, PostgresResiliencePipe
     }
 
     /// <inheritdoc/>
+    public async Task DeleteAllAsync<TEntity>()
+    {
+        string sql = sqlProvider.GetDeleteSql<TEntity>().Replace("#WHERE", null);
+
+        await resiliencePipeline.ExecuteAsync(async _ =>
+        {
+            CancellationToken cancellationToken = GetCancellationToken(databaseSettings.UnitOperationTimeoutInMilliseconds);
+
+            await using NpgsqlConnection connection = await GetNewOpenedConnectionAsync(cancellationToken).ConfigureAwait(false);
+            await using NpgsqlCommand command = new(sql, connection);
+            await command.ExecuteNonQueryAsync(cancellationToken).ConfigureAwait(false);
+        });
+    }
+
+    /// <inheritdoc/>
     public async Task DeleteAsync<TEntity>(long id)
     {
         string sql = sqlProvider.GetDeleteByPrimaryKeySql<TEntity>();

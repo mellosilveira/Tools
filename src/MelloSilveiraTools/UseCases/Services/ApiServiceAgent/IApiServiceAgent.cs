@@ -1,13 +1,12 @@
-﻿namespace MelloSilveiraTools.UseCases.Services.ApiServiceAgent
+﻿namespace MelloSilveiraTools.UseCases.Services.ApiServiceAgent;
+
+/// <summary>
+/// Contains the base implementations for integrations with an API.
+/// </summary>
+public interface IApiServiceAgent : IDisposable
 {
     /// <summary>
-    /// Contains the base implementations for integrations with an API.
+    /// Name of service agent.
     /// </summary>
-    public interface IApiServiceAgent : IDisposable
-    {
-        /// <summary>
-        /// Name of service agent.
-        /// </summary>
-        string ServiceName { get; }
-    }
+    string ServiceName { get; }
 }

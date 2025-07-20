@@ -39,50 +39,78 @@ public record OperationResponse
         ErrorMessages.Add(message);
     }
 
+    public static OperationResponse CreateSuccess(HttpStatusCode statusCode) => new() { StatusCode = statusCode };
+
+    public static OperationResponse CreateError(HttpStatusCode statusCode, string message) => new()
+    {
+        StatusCode = statusCode,
+        ErrorMessages = [message]
+    };
+
+    public static OperationResponse CreateError(HttpStatusCode statusCode, List<string> messages) => new()
+    {
+        StatusCode = statusCode,
+        ErrorMessages = messages
+    };
+
     public static OperationResponse CreateSuccessOk() => new() { StatusCode = HttpStatusCode.OK };
 
-    public static OperationResponse CreateInternalServerError(string message) => new()
-    {
-        StatusCode = HttpStatusCode.InternalServerError,
-        ErrorMessages = [message]
-    };
+    public static OperationResponse CreateNotFound(string message) => CreateError(HttpStatusCode.NotFound, message);
 
-    public static OperationResponse CreateNotFound(string message) => new()
-    {
-        StatusCode = HttpStatusCode.NotFound,
-        ErrorMessages = [message]
-    };
+    public static OperationResponse CreateRequestTimeout(string message) => CreateError(HttpStatusCode.RequestTimeout, message);
 
-    public static OperationResponse CreateUnprocessableEntity(string message) => new()
-    {
-        StatusCode = HttpStatusCode.UnprocessableEntity,
-        ErrorMessages = [message]
-    };
+    public static OperationResponse CreateUnprocessableEntity(string message) => CreateError(HttpStatusCode.UnprocessableEntity, message);
 
-    protected static T CreateSuccessOk<T>() where T : OperationResponse, new() => new() { StatusCode = HttpStatusCode.OK };
+    public static OperationResponse CreateUnprocessableEntity(List<string> messages) => CreateError(HttpStatusCode.UnprocessableEntity, messages);
 
-    protected static T CreateInternalServerError<T>(string message) where T : OperationResponse, new() => new()
-    {
-        StatusCode = HttpStatusCode.InternalServerError,
-        ErrorMessages = [message]
-    };
+    public static OperationResponse CreateInternalServerError(string message) => CreateError(HttpStatusCode.InternalServerError, message);
 
-    protected static T CreateNotFound<T>(string message) where T : OperationResponse, new() => new ()
-    {
-        StatusCode = HttpStatusCode.NotFound,
-        ErrorMessages = [message]
-    };
+    public static OperationResponse CreateServiceUnavailable(string message) => CreateError(HttpStatusCode.ServiceUnavailable, message);
 
-    protected static TResponse CreateSuccessOk<TResponse, TResponseData>(TResponseData? data = null)
+    public static TResponse CreateSuccess<TResponse, TResponseData>(HttpStatusCode statusCode, TResponseData? data = null)
         where TResponse : OperationResponseBase<TResponseData>, new()
         where TResponseData : class
     {
         return new()
         {
             Data = data,
-            StatusCode = HttpStatusCode.OK,
+            StatusCode = statusCode,
         };
     }
+
+    public static TResponse CreateListSuccess<TResponse, TResponseData>(HttpStatusCode statusCode, TResponseData[]? data = null)
+        where TResponse : OperationListResponseBase<TResponseData>, new()
+        where TResponseData : class
+    {
+        return new()
+        {
+            Data = data,
+            StatusCode = statusCode,
+        };
+    }
+
+    public static TResponse CreateSuccessOk<TResponse>() where TResponse : OperationResponse, new() => new() { StatusCode = HttpStatusCode.OK };
+
+    public static TResponse CreateSuccessOk<TResponse, TResponseData>(TResponseData? data = null)
+        where TResponse : OperationResponseBase<TResponseData>, new()
+        where TResponseData : class
+    {
+        return CreateSuccess<TResponse, TResponseData>(HttpStatusCode.OK, data);
+    }
+
+    public static TResponse CreateError<TResponse>(HttpStatusCode statusCode, string message) where TResponse : OperationResponse, new() => new()
+    {
+        StatusCode = statusCode,
+        ErrorMessages = [message]
+    };
+
+    public static TResponse CreateNotFound<TResponse>(string message) where TResponse : OperationResponse, new() => CreateError<TResponse>(HttpStatusCode.NotFound, message);
+
+    public static TResponse CreateRequestTimeout<TResponse>(string message) where TResponse : OperationResponse, new() => CreateError<TResponse>(HttpStatusCode.RequestTimeout, message);
+
+    public static TResponse CreateInternalServerError<TResponse>(string message) where TResponse : OperationResponse, new() => CreateError<TResponse>(HttpStatusCode.InternalServerError, message);
+
+    public static TResponse CreateServiceUnavailable<TResponse>(string message) where TResponse : OperationResponse, new() => CreateError<TResponse>(HttpStatusCode.ServiceUnavailable, message);
 }
 
 /// <summary>
@@ -95,4 +123,9 @@ public record OperationResponseBase<TResponseData> : OperationResponse where TRe
     /// Data content of all operation response.
     /// </summary>
     public TResponseData? Data { get; init; }
+}
+
+public record OperationListResponseBase<TResponseData> : OperationResponseBase<TResponseData[]> where TResponseData : class
+{
+    public long Count => Data?.LongLength ?? 0;
 }
