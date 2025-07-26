@@ -118,13 +118,14 @@ public static class ClassExtensions
     /// </summary>
     /// <typeparam name="T">The type of <paramref name="obj"/>.</typeparam>
     /// <param name="obj"></param>
+    /// <param name="useDeclaredProperties"></param>
     /// <returns>A <see cref="IEnumerable{T}"/> with <see cref="NpgsqlParameter"/>.</returns>
-    public static IEnumerable<NpgsqlParameter> BuildParameters<T>(this T obj)
+    public static IEnumerable<NpgsqlParameter> BuildParameters<T>(this T obj, bool useDeclaredProperties = false)
     {
         if (obj is null)
             yield break;
 
-        PropertyInfo[] properties = typeof(T).GetPropertiesInHierarchy();
+        PropertyInfo[] properties = useDeclaredProperties ? typeof(T).GetDeclaredProperties() : typeof(T).GetPropertiesInHierarchy();
         foreach (var property in properties)
         {
             var attribute = property.GetCustomAttribute<ColumnAttribute>();

@@ -14,14 +14,4 @@ public abstract class ApiServiceAgentSettings
     /// Default timeout in seconds for conection with API.
     /// </summary>
     public int DefaultTimeoutInSeconds { get; set; }
-
-    /// <summary>
-    /// Default number of retries.
-    /// </summary>
-    public int DefaultRetryCount { get; set; }
-
-    /// <summary>
-    /// Default interval in miliseconds for retries.
-    /// </summary>
-    public int DefaultRetryIntervalInMiliseconds { get; set; }
 }

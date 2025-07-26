@@ -110,9 +110,14 @@ public static class TypeExtensions
     public static NpgsqlDbType GetDbTypeFromPropertyType(this Type type)
     {
         if (type == typeof(string)) return NpgsqlDbType.Text;
+        if (type == typeof(short)) return NpgsqlDbType.Smallint;
+        if (type == typeof(int) || type == typeof(int?)) return NpgsqlDbType.Integer;
+        if (type == typeof(long) || type == typeof(long?)) return NpgsqlDbType.Bigint;
         if (type == typeof(double)) return NpgsqlDbType.Double;
-        if (type == typeof(long)) return NpgsqlDbType.Bigint;
-        if (type == typeof(DateTime) || type == typeof(DateTimeOffset)) return NpgsqlDbType.Timestamp;
+        if (type == typeof(byte[])) return NpgsqlDbType.Bytea;
+        if (type == typeof(string[])) return NpgsqlDbType.Text | NpgsqlDbType.Array;
+        if (type == typeof(DateTime)) return NpgsqlDbType.Timestamp;
+        if (type == typeof(DateTimeOffset)) return NpgsqlDbType.TimestampTz;
         if (type == typeof(IList) || type == typeof(IEnumerable) || type == typeof(IEnumerator)) return NpgsqlDbType.Array;
         throw new ArgumentOutOfRangeException(nameof(type), $"Invalid type: '{type.FullName}'.");
     }

@@ -24,7 +24,7 @@ public record OperationResponse
     /// <summary>
     /// The HTTP status code.
     /// </summary>
-    public HttpStatusCode StatusCode { get; protected set; }
+    public HttpStatusCode StatusCode { get; set; }
 
     /// <summary>
     /// The list of error message.
@@ -55,6 +55,8 @@ public record OperationResponse
 
     public static OperationResponse CreateSuccessOk() => new() { StatusCode = HttpStatusCode.OK };
 
+    public static OperationResponse CreateNoContent() => new() { StatusCode = HttpStatusCode.NoContent };
+
     public static OperationResponse CreateNotFound(string message) => CreateError(HttpStatusCode.NotFound, message);
 
     public static OperationResponse CreateRequestTimeout(string message) => CreateError(HttpStatusCode.RequestTimeout, message);
@@ -66,17 +68,6 @@ public record OperationResponse
     public static OperationResponse CreateInternalServerError(string message) => CreateError(HttpStatusCode.InternalServerError, message);
 
     public static OperationResponse CreateServiceUnavailable(string message) => CreateError(HttpStatusCode.ServiceUnavailable, message);
-
-    public static TResponse CreateSuccess<TResponse, TResponseData>(HttpStatusCode statusCode, TResponseData? data = null)
-        where TResponse : OperationResponseBase<TResponseData>, new()
-        where TResponseData : class
-    {
-        return new()
-        {
-            Data = data,
-            StatusCode = statusCode,
-        };
-    }
 
     public static TResponse CreateListSuccess<TResponse, TResponseData>(HttpStatusCode statusCode, TResponseData[]? data = null)
         where TResponse : OperationListResponseBase<TResponseData>, new()
@@ -90,13 +81,6 @@ public record OperationResponse
     }
 
     public static TResponse CreateSuccessOk<TResponse>() where TResponse : OperationResponse, new() => new() { StatusCode = HttpStatusCode.OK };
-
-    public static TResponse CreateSuccessOk<TResponse, TResponseData>(TResponseData? data = null)
-        where TResponse : OperationResponseBase<TResponseData>, new()
-        where TResponseData : class
-    {
-        return CreateSuccess<TResponse, TResponseData>(HttpStatusCode.OK, data);
-    }
 
     public static TResponse CreateError<TResponse>(HttpStatusCode statusCode, string message) where TResponse : OperationResponse, new() => new()
     {
@@ -123,9 +107,21 @@ public record OperationResponseBase<TResponseData> : OperationResponse where TRe
     /// Data content of all operation response.
     /// </summary>
     public TResponseData? Data { get; init; }
+
+    public static OperationResponseBase<TResponseData> CreateSuccess(HttpStatusCode statusCode, TResponseData? data = null)
+        => new() { Data = data, StatusCode = statusCode };
 }
 
 public record OperationListResponseBase<TResponseData> : OperationResponseBase<TResponseData[]> where TResponseData : class
 {
     public long Count => Data?.LongLength ?? 0;
+}
+
+public record OperationPagedResponseBase<TResponseData> : OperationListResponseBase<TResponseData> where TResponseData : class
+{
+    public long TotalCount { get; init; }
+
+    public int PageNumber { get; init; }
+
+    public long PageSize { get; init; }
 }

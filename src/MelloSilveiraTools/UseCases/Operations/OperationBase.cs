@@ -1,4 +1,5 @@
 ﻿using MelloSilveiraTools.Infrastructure.Logger;
+using System.Net;
 
 namespace MelloSilveiraTools.UseCases.Operations;
 
@@ -34,8 +35,8 @@ public abstract class OperationBase<TRequest, TResponse>(ILogger logger)
 #else
             string message = "Ocorreu um erro interno durante o processamento da solicitação.";
 #endif
-            
-            Dictionary<string, object> logAdditionalData = new() { { "Request", request } };
+
+            Dictionary<string, object?> logAdditionalData = new() { { "Request", request } };
             logger.Error(message, ex, logAdditionalData);
 
             TResponse response = new();
@@ -58,6 +59,65 @@ public abstract class OperationBase<TRequest, TResponse>(ILogger logger)
     /// <returns></returns>
     protected abstract Task<TResponse> ValidateOperationAsync(TRequest request);
 }
+
+public abstract class OperationBaseWithData<TRequest, TResponseData>(ILogger logger) : OperationBase<TRequest, OperationResponseBase<TResponseData>>(logger)
+    where TRequest : OperationRequestBase, new()
+    where TResponseData : class
+{
+    protected OperationResponseBase<TResponseData> CreateSuccess(HttpStatusCode statusCode, TResponseData? data = null)
+        => new() { StatusCode = statusCode, Data = data };
+
+    protected OperationResponseBase<TResponseData> CreateSuccessOk(TResponseData? data = null) => CreateSuccess(HttpStatusCode.OK, data);
+
+    protected OperationResponseBase<TResponseData> CreateError(HttpStatusCode statusCode, string message)
+        => new() { StatusCode = statusCode, ErrorMessages = [message] };
+
+    protected OperationResponseBase<TResponseData> CreateNotFound(string message) => CreateError(HttpStatusCode.NotFound, message);
+
+    protected OperationResponseBase<TResponseData> CreateUnauthorized(string message) => CreateError(HttpStatusCode.Unauthorized, message);
+}
+
+public abstract class OperationBaseWithDataList<TRequest, TResponseData>(ILogger logger) : OperationBase<TRequest, OperationListResponseBase<TResponseData>>(logger)
+    where TRequest : OperationRequestBase, new()
+    where TResponseData : class
+{
+    protected OperationListResponseBase<TResponseData> CreateSuccess(HttpStatusCode statusCode, TResponseData[]? data = null)
+        => new() { StatusCode = statusCode, Data = data };
+
+    protected OperationListResponseBase<TResponseData> CreateSuccessOk() => CreateSuccess(HttpStatusCode.OK);
+
+    protected async Task<OperationListResponseBase<TResponseData>> CreateSuccessOkAsync(IAsyncEnumerable<TResponseData> dataAsAsyncEnumberable)
+    {
+        List<TResponseData> data = [];
+        await foreach (var item in dataAsAsyncEnumberable)
+        {
+            data.Add(item); 
+        }
+
+        return CreateSuccess(HttpStatusCode.OK, [.. data]);
+    }
+
+    protected OperationListResponseBase<TResponseData> CreateError(HttpStatusCode statusCode, string message)
+        => new() { StatusCode = statusCode, ErrorMessages = [message] };
+
+    protected OperationListResponseBase<TResponseData> CreateInternalServerError(string message) => CreateError(HttpStatusCode.InternalServerError, message);
+}
+
+public abstract class PagedOperationBase<TRequest, TResponseData>(ILogger logger) : OperationBase<TRequest, OperationPagedResponseBase<TResponseData>>(logger)
+    where TRequest : OperationRequestBase, new()
+    where TResponseData : class
+{
+    protected OperationPagedResponseBase<TResponseData> CreateSuccess(HttpStatusCode statusCode, TResponseData[]? data = null)
+        => new() { StatusCode = statusCode, Data = data };
+
+    protected OperationPagedResponseBase<TResponseData> CreateSuccessOk(TResponseData[]? data = null) => CreateSuccess(HttpStatusCode.OK, data);
+
+    protected OperationPagedResponseBase<TResponseData> CreateError(HttpStatusCode statusCode, string message)
+        => new() { StatusCode = statusCode, ErrorMessages = [message] };
+
+    protected OperationPagedResponseBase<TResponseData> CreateNotFound(string message) => CreateError(HttpStatusCode.NotFound, message);
+}
+
 
 /// <summary>
 /// Represents the base for all operations that uses the default response (<see cref="OperationResponse"/>).

@@ -1,5 +1,6 @@
 ﻿using MelloSilveiraTools.ExtensionMethods;
 using MelloSilveiraTools.Infrastructure.Database.Attributes;
+using MelloSilveiraTools.Infrastructure.Database.Models.Entities;
 using System.Collections.Concurrent;
 using System.Reflection;
 
@@ -15,39 +16,43 @@ public class PostgresSqlProvider : ISqlProvider
     private readonly ConcurrentDictionary<Type, Lazy<string>> _existSqls = [];
     private readonly ConcurrentDictionary<Type, Lazy<string>> _insertSqls = [];
     private readonly ConcurrentDictionary<Type, Lazy<string>> _selectSqls = [];
+    private readonly ConcurrentDictionary<Type, Lazy<string>> _selectDistinctSqls = [];
     private readonly ConcurrentDictionary<Type, Lazy<string>> _selectByPrimaryKeySqls = [];
     private readonly ConcurrentDictionary<Type, Lazy<string>> _updateSqls = [];
     private readonly ConcurrentDictionary<Type, Lazy<string>> _updateByPrimaryKeySqls = [];
 
     /// <inheritdoc/>
-    public string GetBulkInsertSql<T>(int batchSize) => GetBulkSql<T>(_bulkInsertSqls, CreateBatchInsertSql, batchSize);
+    public string GetBulkInsertSql<T>(int batchSize) where T : EntityBase => GetBulkSql<T>(_bulkInsertSqls, CreateBatchInsertSql, batchSize);
 
     /// <inheritdoc/>
-    public string GetCountSql<T>() => GetSql<T>(_countSqls, CreateCountSql);
+    public string GetCountSql<T>() where T : EntityBase => GetSql<T>(_countSqls, CreateCountSql);
 
     /// <inheritdoc/>
-    public string GetDeleteSql<T>() => GetSql<T>(_deleteSqls, CreateDeleteSql);
+    public string GetDeleteSql<T>() where T : EntityBase => GetSql<T>(_deleteSqls, CreateDeleteSql);
 
     /// <inheritdoc/>
-    public string GetDeleteByPrimaryKeySql<T>() => GetSql<T>(_deleteByPrimaryKeySqls, CreateDeleteByPrimaryKeySql);
+    public string GetDeleteByPrimaryKeySql<T>() where T : EntityBase => GetSql<T>(_deleteByPrimaryKeySqls, CreateDeleteByPrimaryKeySql);
 
     /// <inheritdoc/>
-    public string GetExistByPrimaryKeySql<T>() => GetSql<T>(_existSqls, CreateExistByPrimaryKeySql);
+    public string GetExistByPrimaryKeySql<T>() where T : EntityBase => GetSql<T>(_existSqls, CreateExistByPrimaryKeySql);
 
     /// <inheritdoc/>
-    public string GetInsertSql<T>() => GetSql<T>(_insertSqls, CreateInsertSql);
+    public string GetInsertSql<T>() where T : EntityBase => GetSql<T>(_insertSqls, CreateInsertSql);
 
     /// <inheritdoc/>
-    public string GetSelectSql<T>() => GetSql<T>(_selectSqls, CreateSelectSql);
+    public string GetSelectSql<T>() where T : EntityBase => GetSql<T>(_selectSqls, CreateSelectSql);
 
     /// <inheritdoc/>
-    public string GetSelectByPrimaryKeySql<T>() => GetSql<T>(_selectByPrimaryKeySqls, CreateSelectByPrimaryKeySql);
+    public string GetSelectDistinctSql<T>() where T : EntityBase => GetSql<T>(_selectDistinctSqls, CreateDistinctSelectSql);
 
     /// <inheritdoc/>
-    public string GetUpdateSql<T>() => GetSql<T>(_updateSqls, CreateUpdateSql);
+    public string GetSelectByPrimaryKeySql<T>() where T : EntityBase => GetSql<T>(_selectByPrimaryKeySqls, CreateSelectByPrimaryKeySql);
 
     /// <inheritdoc/>
-    public string GetUpdateByPrimaryKeySql<T>() => GetSql<T>(_updateByPrimaryKeySqls, CreateUpdateByPrimaryKeySql);
+    public string GetUpdateSql<T>() where T : EntityBase => GetSql<T>(_updateSqls, CreateUpdateSql);
+
+    /// <inheritdoc/>
+    public string GetUpdateByPrimaryKeySql<T>() where T : EntityBase => GetSql<T>(_updateByPrimaryKeySqls, CreateUpdateByPrimaryKeySql);
 
     private static string GetBulkSql<T>(ConcurrentDictionary<(Type Type, int BatchSize), Lazy<string>> cache, Func<Type, int, string> createSqlMethod, int batchSize)
     {
@@ -70,8 +75,8 @@ public class PostgresSqlProvider : ISqlProvider
     private static string CreateBatchInsertSql(Type type, int batchSize)
     {
         TableAttribute tableAttribute = type.GetCustomAttribute<TableAttribute>()!;
-        PropertyInfo[] columnProperties = type.GetPropertiesInHierarchy<ColumnAttribute>();
-        PropertyInfo primaryKeyProperty = columnProperties.Single(p => p.GetCustomAttribute<PrimaryKeyColumnAttribute>() != null);
+        PropertyInfo[] columnProperties = type.GetDeclaredProperties<ColumnAttribute>();
+        PropertyInfo primaryKeyProperty = type.GetPropertiesInHierarchy<PrimaryKeyColumnAttribute>().Single();
 
         List<string> columnsToInsert = [];
         List<string> parameterNames = [];
@@ -161,6 +166,43 @@ public class PostgresSqlProvider : ISqlProvider
             .Remove("#OFFSET");
     }
 
+    private static string CreateDistinctSelectSql(Type type)
+    {
+        TableAttribute tableAttribute = type.GetCustomAttribute<TableAttribute>()!;
+        PropertyInfo[] columnProperties = type.GetDeclaredProperties<ColumnAttribute>();
+
+        string tableName = tableAttribute.Name;
+        string tableAlias = tableAttribute.Alias;
+
+        List<string> columnsToSelect = [];
+        List<string> joins = [];
+
+        foreach (PropertyInfo columnProperty in columnProperties)
+        {
+            string propertyName = columnProperty.Name;
+            string columnName = propertyName.ToSnakeCase();
+            columnsToSelect.Add($"{tableAlias}.{columnName} AS \"{propertyName}\"");
+
+            var foreignKeyAttribute = columnProperty.GetCustomAttribute<ForeignKeyColumnAttribute>();
+            if (foreignKeyAttribute != null)
+            {
+                Type referencedTableType = foreignKeyAttribute.ReferencedTableType;
+                TableAttribute referencedTableDefinitionAttribute = referencedTableType.GetCustomAttribute<TableAttribute>()!;
+                string referencedTableName = referencedTableDefinitionAttribute.Name;
+                string referencedTableAlias = referencedTableDefinitionAttribute.Alias;
+                string referencedTablePrimaryKeyColumnName = referencedTableType
+                    .GetPropertiesInHierarchy()
+                    .Single(p => p.GetCustomAttribute<PrimaryKeyColumnAttribute>() != null)
+                    .Name
+                    .ToSnakeCase();
+
+                joins.Add($"{foreignKeyAttribute.JoinType} JOIN {referencedTableDefinitionAttribute.Name} AS {referencedTableDefinitionAttribute.Alias} ON {referencedTableAlias}.{referencedTablePrimaryKeyColumnName} = {tableAlias}.{columnName}");
+            }
+        }
+
+        return CreateBaseSelectSql(type).Replace("#COLUMNS", string.Join("\r\n\t,", columnsToSelect));
+    }
+
     private static string CreateSelectSql(Type type)
     {
         TableAttribute tableAttribute = type.GetCustomAttribute<TableAttribute>()!;
@@ -195,7 +237,9 @@ public class PostgresSqlProvider : ISqlProvider
             }
         }
 
-        return CreateBaseSelectSql(type).Replace("#COLUMNS", string.Join("\r\n\t,", columnsToSelect));
+        return CreateBaseSelectSql(type)
+            .Remove("DISTINCT")
+            .Replace("#COLUMNS", string.Join("\r\n\t,", columnsToSelect));
     }
 
     private static string CreateSelectByPrimaryKeySql(Type type)
@@ -256,8 +300,8 @@ public class PostgresSqlProvider : ISqlProvider
     private static string CreateInsertSql(Type type)
     {
         TableAttribute tableAttribute = type.GetCustomAttribute<TableAttribute>()!;
-        PropertyInfo[] columnProperties = type.GetPropertiesInHierarchy<ColumnAttribute>();
-        PropertyInfo primaryKeyProperty = columnProperties.Single(p => p.GetCustomAttribute<PrimaryKeyColumnAttribute>() != null);
+        PropertyInfo[] columnProperties = type.GetDeclaredProperties<ColumnAttribute>();
+        PropertyInfo primaryKeyProperty = type.GetPropertiesInHierarchy<PrimaryKeyColumnAttribute>().Single();
 
         List<string> columnsToInsert = [];
         List<string> parameterNames = [];
@@ -292,6 +336,7 @@ public class PostgresSqlProvider : ISqlProvider
             }
 
             sql = SqlResource.InsertWithUniqueKeyTemplate
+                .Replace("#TABLE_ALIAS", tableAttribute.Alias)
                 .Replace("#UNIQUE_KEYS", string.Join(',', uniqueColumns))
                 .Replace("#UNIQUE_KEY_FILTERS", string.Join(" AND ", uniqueKeyFilters));
         }

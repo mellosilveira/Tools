@@ -279,12 +279,13 @@
             <param name="collection"></param>
             <returns>A <see cref="T:System.Collections.Generic.IEnumerable`1"/> with <see cref="T:Npgsql.NpgsqlParameter"/>.</returns>
         </member>
-        <member name="M:MelloSilveiraTools.ExtensionMethods.ClassExtensions.BuildParameters``1(``0)">
+        <member name="M:MelloSilveiraTools.ExtensionMethods.ClassExtensions.BuildParameters``1(``0,System.Boolean)">
             <summary>
             Builds an enumerable with <see cref="T:Npgsql.NpgsqlParameter"/>.
             </summary>
             <typeparam name="T">The type of <paramref name="obj"/>.</typeparam>
             <param name="obj"></param>
+            <param name="useDeclaredProperties"></param>
             <returns>A <see cref="T:System.Collections.Generic.IEnumerable`1"/> with <see cref="T:Npgsql.NpgsqlParameter"/>.</returns>
         </member>
         <member name="M:MelloSilveiraTools.ExtensionMethods.ClassExtensions.BuildWhereClauseAndParameters``1(``0)">
@@ -856,6 +857,9 @@
         <member name="M:MelloSilveiraTools.Infrastructure.Database.Repositories.PostgresRepository.ExistAsync``2(``1)">
             <inheritdoc/>
         </member>
+        <member name="M:MelloSilveiraTools.Infrastructure.Database.Repositories.PostgresRepository.DeleteAllAsync``1">
+            <inheritdoc/>
+        </member>
         <member name="M:MelloSilveiraTools.Infrastructure.Database.Repositories.PostgresRepository.DeleteAsync``1(System.Int64)">
             <inheritdoc/>
         </member>
@@ -869,6 +873,9 @@
             <inheritdoc/>
         </member>
         <member name="M:MelloSilveiraTools.Infrastructure.Database.Repositories.PostgresRepository.GetAsync``2(``1)">
+            <inheritdoc/>
+        </member>
+        <member name="M:MelloSilveiraTools.Infrastructure.Database.Repositories.PostgresRepository.GetDistinctAsync``2(``1)">
             <inheritdoc/>
         </member>
         <member name="M:MelloSilveiraTools.Infrastructure.Database.Repositories.PostgresRepository.InsertAsync``1(``0)">
@@ -905,6 +912,9 @@
             <inheritdoc/>
         </member>
         <member name="M:MelloSilveiraTools.Infrastructure.Database.Sql.Provider.PostgresSqlProvider.GetSelectSql``1">
+            <inheritdoc/>
+        </member>
+        <member name="M:MelloSilveiraTools.Infrastructure.Database.Sql.Provider.PostgresSqlProvider.GetSelectDistinctSql``1">
             <inheritdoc/>
         </member>
         <member name="M:MelloSilveiraTools.Infrastructure.Database.Sql.Provider.PostgresSqlProvider.GetSelectByPrimaryKeySql``1">
@@ -1026,6 +1036,26 @@
         </member>
         <member name="M:MelloSilveiraTools.Infrastructure.Logger.LoggerBase.Warn(System.String,System.Exception,System.Collections.Generic.IDictionary{System.String,System.Object},System.Collections.Generic.IList{System.String})">
             <inheritdoc/>
+        </member>
+        <member name="T:MelloSilveiraTools.Infrastructure.ResiliencePipelines.ApiServiceAgentResiliencePipeline">
+            <summary>
+            Resilience pipeline for PostgreSQL repositories that provides a strategy to handle retriable exceptions.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Infrastructure.ResiliencePipelines.ApiServiceAgentResiliencePipeline.#ctor(MelloSilveiraTools.Infrastructure.Logger.ILogger,MelloSilveiraTools.Infrastructure.ResiliencePipelines.ResiliencePipelineSettings)">
+            <summary>
+            Initialize a new instance of <see cref="T:MelloSilveiraTools.Infrastructure.ResiliencePipelines.PostgresResiliencePipeline"/>.
+            </summary>
+            <param name="logger"></param>
+            <param name="settings"></param>
+        </member>
+        <member name="M:MelloSilveiraTools.Infrastructure.ResiliencePipelines.ApiServiceAgentResiliencePipeline.#ctor(MelloSilveiraTools.Infrastructure.Logger.ILogger,MelloSilveiraTools.Infrastructure.ResiliencePipelines.ResiliencePipelineSettings,System.Func{Polly.Retry.RetryPredicateArguments{System.Object},System.Threading.Tasks.ValueTask{System.Boolean}})">
+            <summary>
+            Initializes a new instance of <see cref="T:MelloSilveiraTools.Infrastructure.ResiliencePipelines.PostgresResiliencePipeline"/>.
+            </summary>
+            <param name="logger">See reference at <see cref="T:MelloSilveiraTools.Infrastructure.Logger.ILogger"/>.</param>
+            <param name="settings">See reference at <see cref="T:MelloSilveiraTools.Infrastructure.ResiliencePipelines.ResiliencePipelineSettings"/>.</param>
+            <param name="shouldHandle">Predicate that determines whether the retry should be executed for a given outcome.</param>
         </member>
         <member name="T:MelloSilveiraTools.Infrastructure.ResiliencePipelines.DefaultResiliencePipeline">
             <summary>
@@ -1222,6 +1252,67 @@
             Data content of all operation response.
             </summary>
         </member>
+        <member name="T:MelloSilveiraTools.UseCases.Services.ApiServiceAgent.ApiServiceAgentBase">
+            <inheritdoc cref="T:MelloSilveiraTools.UseCases.Services.ApiServiceAgent.IApiServiceAgent"/>
+        </member>
+        <member name="P:MelloSilveiraTools.UseCases.Services.ApiServiceAgent.ApiServiceAgentBase.ServiceName">
+            <inheritdoc/>
+        </member>
+        <member name="P:MelloSilveiraTools.UseCases.Services.ApiServiceAgent.ApiServiceAgentBase.JsonSerializerOptions">
+            <summary>
+            Custom options to be used with <see cref="T:System.Text.Json.JsonSerializer"/>.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.UseCases.Services.ApiServiceAgent.ApiServiceAgentBase.Logger">
+            <inheritdoc cref="T:MelloSilveiraTools.Infrastructure.Logger.ILogger"/>
+        </member>
+        <member name="P:MelloSilveiraTools.UseCases.Services.ApiServiceAgent.ApiServiceAgentBase.HttpClient">
+            <summary>
+            HTTP client to be used on integration with API.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.UseCases.Services.ApiServiceAgent.ApiServiceAgentBase.Settings">
+            <summary>
+            Settings for integrations with an API.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.UseCases.Services.ApiServiceAgent.ApiServiceAgentBase.ResiliencePipeline">
+            <inheritdoc cref="T:MelloSilveiraTools.Infrastructure.ResiliencePipelines.ApiServiceAgentResiliencePipeline"/>
+        </member>
+        <member name="M:MelloSilveiraTools.UseCases.Services.ApiServiceAgent.ApiServiceAgentBase.#ctor(MelloSilveiraTools.Infrastructure.Logger.ILogger,MelloSilveiraTools.UseCases.Services.ApiServiceAgent.Settings.ApiServiceAgentSettings,MelloSilveiraTools.Infrastructure.ResiliencePipelines.ApiServiceAgentResiliencePipeline)">
+            <summary>
+            Initializes a new instance of <see cref="T:MelloSilveiraTools.UseCases.Services.ApiServiceAgent.ApiServiceAgentBase"/>.
+            </summary>
+            <param name="logger"></param>
+            <param name="settings"></param>
+            <param name="resiliencePipeline"></param>
+        </member>
+        <member name="M:MelloSilveiraTools.UseCases.Services.ApiServiceAgent.ApiServiceAgentBase.GetAsync``2(System.String,System.Int32,System.String)">
+            <summary>
+            Sends a GET request to the specified URI.
+            </summary>
+            <param name="requestUri"></param>
+            <param name="timeoutInMiliseconds"></param>
+            <param name="methodName"></param>
+            <returns></returns>
+        </member>
+        <member name="M:MelloSilveiraTools.UseCases.Services.ApiServiceAgent.ApiServiceAgentBase.Dispose(System.Boolean)">
+            <summary>
+            See reference <see cref="M:MelloSilveiraTools.UseCases.Services.ApiServiceAgent.ApiServiceAgentBase.Dispose"/>.
+            </summary>
+            <param name="disposing">
+            Indicates whether the method call comes from a Dispose method (its value is true) or from a finalizer 
+            (its value is false).
+            </param>
+        </member>
+        <member name="M:MelloSilveiraTools.UseCases.Services.ApiServiceAgent.ApiServiceAgentBase.Dispose">
+            <inheritdoc/>
+        </member>
+        <member name="M:MelloSilveiraTools.UseCases.Services.ApiServiceAgent.ApiServiceAgentBase.Finalize">
+            <summary>
+            Finalizes the current instance of <see cref="T:MelloSilveiraTools.UseCases.Services.ApiServiceAgent.ApiServiceAgentBase"/>.
+            </summary>
+        </member>
         <member name="T:MelloSilveiraTools.UseCases.Services.ApiServiceAgent.DataContract.AsyncOperationResponse`1">
             <summary>
             Response content for async operations.
@@ -1255,16 +1346,6 @@
         <member name="P:MelloSilveiraTools.UseCases.Services.ApiServiceAgent.Settings.ApiServiceAgentSettings.DefaultTimeoutInSeconds">
             <summary>
             Default timeout in seconds for conection with API.
-            </summary>
-        </member>
-        <member name="P:MelloSilveiraTools.UseCases.Services.ApiServiceAgent.Settings.ApiServiceAgentSettings.DefaultRetryCount">
-            <summary>
-            Default number of retries.
-            </summary>
-        </member>
-        <member name="P:MelloSilveiraTools.UseCases.Services.ApiServiceAgent.Settings.ApiServiceAgentSettings.DefaultRetryIntervalInMiliseconds">
-            <summary>
-            Default interval in miliseconds for retries.
             </summary>
         </member>
         <member name="T:MelloSilveiraTools.UseCases.Services.ApiServiceAgent.Settings.EndpointSettings">

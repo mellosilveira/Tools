@@ -1,4 +1,5 @@
-﻿using MelloSilveiraTools.Infrastructure.Database.Models.Filters;
+﻿using MelloSilveiraTools.Infrastructure.Database.Models.Entities;
+using MelloSilveiraTools.Infrastructure.Database.Models.Filters;
 
 namespace MelloSilveiraTools.Infrastructure.Database.Repositories;
 
@@ -7,31 +8,35 @@ namespace MelloSilveiraTools.Infrastructure.Database.Repositories;
 /// </summary>
 public interface IDatabaseRepository
 {
-    Task<bool> ExistAsync<TEntity>(long id);
+    Task<bool> ExistAsync<TEntity>(long id) where TEntity : EntityBase;
 
-    Task<bool> ExistAsync<TEntity, TFilter>(TFilter filter);
+    Task<bool> ExistAsync<TEntity, TFilter>(TFilter filter) where TEntity : EntityBase;
 
     Task<TEntity?> GetFirstOrDefaultAsync<TEntity, TFilter>(TFilter filter)
-        where TEntity : class, new()
+        where TEntity : EntityBase, new()
         where TFilter : FilterBase;
 
-    Task<TEntity?> GetAsync<TEntity>(long id);
+    Task<TEntity?> GetAsync<TEntity>(long id) where TEntity : EntityBase;
 
     IAsyncEnumerable<TEntity> GetAsync<TEntity, TFilter>(TFilter filter)
-        where TEntity : class, new()
+        where TEntity : EntityBase, new()
         where TFilter : FilterBase;
 
-    Task DeleteAllAsync<TEntity>();
+    IAsyncEnumerable<TEntity> GetDistinctAsync<TEntity, TFilter>(TFilter filter)
+        where TEntity : EntityBase, new()
+        where TFilter : FilterBase;
 
-    Task DeleteAsync<TEntity>(long id);
+    Task DeleteAllAsync<TEntity>() where TEntity : EntityBase;
 
-    Task DeleteAsync<TEntity, TFilter>(TFilter filter);
+    Task DeleteAsync<TEntity>(long id) where TEntity : EntityBase;
 
-    Task<long> InsertAsync<TEntity>(TEntity entity);
+    Task DeleteAsync<TEntity, TFilter>(TFilter filter) where TEntity : EntityBase;
 
-    Task<long[]> InsertAsync<TEntity>(TEntity[] entity);
+    Task<long> InsertAsync<TEntity>(TEntity entity) where TEntity : EntityBase;
 
-    Task<long[]> UpsertAsync<TEntity, TFilter>(TEntity[] entity, TFilter filter);
+    Task<long[]> InsertAsync<TEntity>(TEntity[] entity) where TEntity : EntityBase;
 
-    Task UpdateAsync<TEntity>(TEntity entity);
+    Task<long[]> UpsertAsync<TEntity, TFilter>(TEntity[] entity, TFilter filter) where TEntity : EntityBase;
+
+    Task UpdateAsync<TEntity>(TEntity entity) where TEntity : EntityBase;
 }

@@ -78,7 +78,7 @@ public abstract class ApiServiceAgentBase : IApiServiceAgent
         return await ResiliencePipeline.ExecuteAsync(async _ =>
         {
             CancellationTokenSource cts = new(timeoutInMiliseconds);
-            return await ExecuteAsync<TResponse, TResponseData>(this.HttpClient.DeleteAsync(requestUri, cts.Token), methodName, cts.Token);
+            return await ExecuteAsync<TResponse, TResponseData>(HttpClient.GetAsync(requestUri, cts.Token), methodName, cts.Token);
         });
     }
 
@@ -91,15 +91,15 @@ public abstract class ApiServiceAgentBase : IApiServiceAgent
             HttpResponseMessage result = await httpTask.ConfigureAwait(false);
             if (result.Content != null)
             {
+                string content = await result.Content.ReadAsStringAsync(cancellationToken).ConfigureAwait(false);
+
                 if (result.IsSuccessStatusCode)
                 {
-                    using Stream responseDataStream = await result.Content.ReadAsStreamAsync(cancellationToken).ConfigureAwait(false);
-                    TResponseData[]? responseData = await JsonSerializer.DeserializeAsync<TResponseData[]>(responseDataStream, JsonSerializerOptions, cancellationToken).ConfigureAwait(false);
+                    TResponseData[]? responseData = JsonSerializer.Deserialize<TResponseData[]>(content, JsonSerializerOptions);
                     return OperationResponse.CreateListSuccess<TResponse, TResponseData>(result.StatusCode, responseData);
                 }
 
                 string message = $"Failed on '{methodName.Remove("Async")}'.";
-                string content = await result.Content.ReadAsStringAsync();
 
                 Dictionary<string, object?> logAdditionalData = new() { { "Content", content } };
                 Logger.Error(message, null, logAdditionalData);

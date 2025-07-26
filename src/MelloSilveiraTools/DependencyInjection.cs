@@ -38,6 +38,7 @@ public static class DependencyInjection
             .AddSingleton(encryptionSettings)
             .AddSingleton(resiliencePipelineSettings)
             // Register resilience pipelines.
+            .AddSingleton<ApiServiceAgentResiliencePipeline>()
             .AddSingleton<PostgresResiliencePipeline>()
             // Register SQL providers.
             .AddSingleton<ISqlProvider, PostgresSqlProvider>()
