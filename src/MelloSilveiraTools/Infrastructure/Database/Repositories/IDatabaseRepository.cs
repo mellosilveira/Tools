@@ -8,6 +8,10 @@ namespace MelloSilveiraTools.Infrastructure.Database.Repositories;
 /// </summary>
 public interface IDatabaseRepository
 {
+    Task<long> CountAsync<TEntity, TFilter>(TFilter filter)
+        where TEntity : EntityBase, new()
+        where TFilter : FilterBase;
+
     Task<bool> ExistAsync<TEntity>(long id) where TEntity : EntityBase;
 
     Task<bool> ExistAsync<TEntity, TFilter>(TFilter filter) where TEntity : EntityBase;

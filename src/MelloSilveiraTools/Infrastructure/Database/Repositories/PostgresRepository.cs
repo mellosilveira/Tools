@@ -10,6 +10,7 @@ using Npgsql;
 using NpgsqlTypes;
 using System.Data;
 using System.Data.Common;
+using static Dapper.SqlMapper;
 
 namespace MelloSilveiraTools.Infrastructure.Database.Repositories;
 
@@ -18,6 +19,23 @@ namespace MelloSilveiraTools.Infrastructure.Database.Repositories;
 /// </summary>
 public class PostgresRepository(ISqlProvider sqlProvider, PostgresResiliencePipeline resiliencePipeline, DatabaseSettings databaseSettings) : IDatabaseRepository
 {
+    /// <inheritdoc/>
+    public async Task<long> CountAsync<TEntity, TFilter>(TFilter filter)
+        where TEntity : EntityBase, new()
+        where TFilter : FilterBase
+    {
+        (string? sqlWhereClause, DynamicParameters? parameters) = filter.BuildWhereClauseAndParameters();
+        string sql = sqlProvider.GetCountSql<TEntity>().Replace("#WHERE", sqlWhereClause);
+
+        return await resiliencePipeline.ExecuteAsync(async _ =>
+        {
+            await using NpgsqlConnection connection = await GetNewOpenedConnectionAsync().ConfigureAwait(false);
+            return await connection
+                .ExecuteScalarAsync<long>(sql, parameters, commandTimeout: databaseSettings.ConnectionTimeoutInMilliseconds)
+                .ConfigureAwait(false);
+        });
+    }
+
     /// <inheritdoc/>
     public async Task<bool> ExistAsync<TEntity>(long id) where TEntity : EntityBase
     {

@@ -851,6 +851,9 @@
             Repository that contains methods to deal with Postgres database.
             </summary>
         </member>
+        <member name="M:MelloSilveiraTools.Infrastructure.Database.Repositories.PostgresRepository.CountAsync``2(``1)">
+            <inheritdoc/>
+        </member>
         <member name="M:MelloSilveiraTools.Infrastructure.Database.Repositories.PostgresRepository.ExistAsync``1(System.Int64)">
             <inheritdoc/>
         </member>

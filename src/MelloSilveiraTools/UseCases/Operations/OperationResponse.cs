@@ -1,4 +1,5 @@
 ﻿using MelloSilveiraTools.ExtensionMethods;
+using Microsoft.AspNetCore.Mvc;
 using System.Net;
 
 namespace MelloSilveiraTools.UseCases.Operations;
@@ -54,6 +55,8 @@ public record OperationResponse
     };
 
     public static OperationResponse CreateSuccessOk() => new() { StatusCode = HttpStatusCode.OK };
+
+    public static OperationResponse CreateSuccessCreated() => new() { StatusCode = HttpStatusCode.Created };
 
     public static OperationResponse CreateNoContent() => new() { StatusCode = HttpStatusCode.NoContent };
 
@@ -121,7 +124,7 @@ public record OperationPagedResponseBase<TResponseData> : OperationListResponseB
 {
     public long TotalCount { get; init; }
 
-    public int PageNumber { get; init; }
+    public long PageNumber { get; init; }
 
     public long PageSize { get; init; }
 }

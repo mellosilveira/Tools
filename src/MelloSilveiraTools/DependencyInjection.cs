@@ -69,7 +69,6 @@ public static class DependencyInjection
             })
             .AddJwtBearer(options =>
             {
-                options.RequireHttpsMetadata = false;
                 options.SaveToken = true;
                 options.TokenValidationParameters = AuthenticationJweTokenService.BuildTokenValidationParameters(jwtSettings);
             });
