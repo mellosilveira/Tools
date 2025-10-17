@@ -4,6 +4,118 @@
         <name>MelloSilveiraTools</name>
     </assembly>
     <members>
+        <member name="T:MelloSilveiraTools.Application.Operations.OperationBase`2">
+            <summary>
+            Represents the base for all operations in the application.
+            </summary>
+            <typeparam name="TRequest"></typeparam>
+            <typeparam name="TResponse"></typeparam>
+        </member>
+        <member name="M:MelloSilveiraTools.Application.Operations.OperationBase`2.#ctor(MelloSilveiraTools.Infrastructure.Logger.ILogger)">
+            <summary>
+            Represents the base for all operations in the application.
+            </summary>
+            <typeparam name="TRequest"></typeparam>
+            <typeparam name="TResponse"></typeparam>
+        </member>
+        <member name="M:MelloSilveiraTools.Application.Operations.OperationBase`2.ProcessAsync(`0)">
+            <summary>
+            The main method of all operations.
+            Asynchronously, orchestrates and validates the operations.
+            </summary>
+            <param name="request">The operation request content.</param>
+            <returns>The operation response.</returns>
+        </member>
+        <member name="M:MelloSilveiraTools.Application.Operations.OperationBase`2.ProcessOperationAsync(`0)">
+            <summary>
+            Asynchronously, processes the operation.
+            </summary>
+            <param name="request"></param>
+            <returns></returns>
+        </member>
+        <member name="M:MelloSilveiraTools.Application.Operations.OperationBase`2.ValidateOperationAsync(`0)">
+            <summary>
+            Asynchronously, validates the request sent to operation.
+            </summary>
+            <param name="request"></param>
+            <returns></returns>
+        </member>
+        <member name="T:MelloSilveiraTools.Application.Operations.OperationBaseWithDefaultResponse`1">
+            <summary>
+            Represents the base for all operations that uses the default response (<see cref="T:MelloSilveiraTools.Application.Operations.OperationResponse"/>).
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Application.Operations.OperationBaseWithDefaultResponse`1.#ctor(MelloSilveiraTools.Infrastructure.Logger.ILogger)">
+            <summary>
+            Represents the base for all operations that uses the default response (<see cref="T:MelloSilveiraTools.Application.Operations.OperationResponse"/>).
+            </summary>
+        </member>
+        <member name="T:MelloSilveiraTools.Application.Operations.OperationBaseWithoutRequest`1">
+            <summary>
+            Represents the base for all operations that does not use a request.
+            </summary>
+            <typeparam name="TResponse"></typeparam>
+        </member>
+        <member name="M:MelloSilveiraTools.Application.Operations.OperationBaseWithoutRequest`1.#ctor(MelloSilveiraTools.Infrastructure.Logger.ILogger)">
+            <summary>
+            Represents the base for all operations that does not use a request.
+            </summary>
+            <typeparam name="TResponse"></typeparam>
+        </member>
+        <member name="M:MelloSilveiraTools.Application.Operations.OperationBaseWithoutRequest`1.ProcessAsync">
+            <summary>
+            The main method of all operations.
+            Asynchronously, orchestrates and validates the operations.
+            </summary>
+            <returns>The operation response.</returns>
+        </member>
+        <member name="M:MelloSilveiraTools.Application.Operations.OperationBaseWithoutRequest`1.ProcessOperationAsync">
+            <summary>
+            Asynchronously, processes the operation.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="T:MelloSilveiraTools.Application.Operations.OperationRequestBase">
+            <summary>
+            Request content to all operations.
+            </summary>
+        </member>
+        <member name="T:MelloSilveiraTools.Application.Operations.OperationResponse">
+            <summary>
+            Response content for all operations.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Application.Operations.OperationResponse.#ctor">
+            <summary>
+            Initializes a new instance of <see cref="T:MelloSilveiraTools.Application.Operations.OperationResponse"/>.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Application.Operations.OperationResponse.Success">
+            <summary>
+            The success status of operation.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Application.Operations.OperationResponse.StatusCode">
+            <summary>
+            The HTTP status code.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Application.Operations.OperationResponse.ErrorMessages">
+            <summary>
+            The list of error message.
+            </summary>
+        </member>
+        <member name="T:MelloSilveiraTools.Application.Operations.OperationResponseBase`1">
+            <summary>
+            Response content for all operations.
+            </summary>
+            <typeparam name="TResponseData"></typeparam>
+        </member>
+        <member name="P:MelloSilveiraTools.Application.Operations.OperationResponseBase`1.Data">
+            <summary>
+            Data content of all operation response.
+            </summary>
+        </member>
         <member name="T:MelloSilveiraTools.Authentication.JwtSettings">
             <summary>
             Settings to deal with JSON Web Tokens (JWT).
@@ -605,7 +717,7 @@
         </member>
         <member name="T:MelloSilveiraTools.ExtensionMethods.OperationResponseExtensions">
             <summary>
-            Contains extension methods for <see cref="T:MelloSilveiraTools.UseCases.Operations.OperationResponse"/>.
+            Contains extension methods for <see cref="T:MelloSilveiraTools.Application.Operations.OperationResponse"/>.
             </summary>
         </member>
         <member name="T:MelloSilveiraTools.ExtensionMethods.StringExtensions">
@@ -875,10 +987,10 @@
         <member name="M:MelloSilveiraTools.Infrastructure.Database.Repositories.PostgresRepository.GetAsync``1(System.Int64)">
             <inheritdoc/>
         </member>
-        <member name="M:MelloSilveiraTools.Infrastructure.Database.Repositories.PostgresRepository.GetAsync``2(``1)">
+        <member name="M:MelloSilveiraTools.Infrastructure.Database.Repositories.PostgresRepository.GetAsync``2(``1,MelloSilveiraTools.Infrastructure.Database.Models.Filters.Pagination)">
             <inheritdoc/>
         </member>
-        <member name="M:MelloSilveiraTools.Infrastructure.Database.Repositories.PostgresRepository.GetDistinctAsync``2(``1)">
+        <member name="M:MelloSilveiraTools.Infrastructure.Database.Repositories.PostgresRepository.GetDistinctAsync``2(``1,MelloSilveiraTools.Infrastructure.Database.Models.Filters.Pagination)">
             <inheritdoc/>
         </member>
         <member name="M:MelloSilveiraTools.Infrastructure.Database.Repositories.PostgresRepository.InsertAsync``1(``0)">
@@ -1131,6 +1243,117 @@
         <member name="P:MelloSilveiraTools.Infrastructure.ResiliencePipelines.ResiliencePipelineSettings.UseJitter">
             <inheritdoc cref="P:Polly.Retry.RetryStrategyOptions`1.UseJitter"/>
         </member>
+        <member name="T:MelloSilveiraTools.Infrastructure.Services.ApiServiceAgent.ApiServiceAgentBase">
+            <inheritdoc cref="T:MelloSilveiraTools.Infrastructure.Services.ApiServiceAgent.IApiServiceAgent"/>
+        </member>
+        <member name="P:MelloSilveiraTools.Infrastructure.Services.ApiServiceAgent.ApiServiceAgentBase.ServiceName">
+            <inheritdoc/>
+        </member>
+        <member name="P:MelloSilveiraTools.Infrastructure.Services.ApiServiceAgent.ApiServiceAgentBase.JsonSerializerOptions">
+            <summary>
+            Custom options to be used with <see cref="T:System.Text.Json.JsonSerializer"/>.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Infrastructure.Services.ApiServiceAgent.ApiServiceAgentBase.Logger">
+            <inheritdoc cref="T:MelloSilveiraTools.Infrastructure.Logger.ILogger"/>
+        </member>
+        <member name="P:MelloSilveiraTools.Infrastructure.Services.ApiServiceAgent.ApiServiceAgentBase.HttpClient">
+            <summary>
+            HTTP client to be used on integration with API.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Infrastructure.Services.ApiServiceAgent.ApiServiceAgentBase.Settings">
+            <summary>
+            Settings for integrations with an API.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Infrastructure.Services.ApiServiceAgent.ApiServiceAgentBase.ResiliencePipeline">
+            <inheritdoc cref="T:MelloSilveiraTools.Infrastructure.ResiliencePipelines.ApiServiceAgentResiliencePipeline"/>
+        </member>
+        <member name="M:MelloSilveiraTools.Infrastructure.Services.ApiServiceAgent.ApiServiceAgentBase.#ctor(MelloSilveiraTools.Infrastructure.Logger.ILogger,MelloSilveiraTools.Infrastructure.Services.ApiServiceAgent.Settings.ApiServiceAgentSettings,MelloSilveiraTools.Infrastructure.ResiliencePipelines.ApiServiceAgentResiliencePipeline)">
+            <summary>
+            Initializes a new instance of <see cref="T:MelloSilveiraTools.Infrastructure.Services.ApiServiceAgent.ApiServiceAgentBase"/>.
+            </summary>
+            <param name="logger"></param>
+            <param name="settings"></param>
+            <param name="resiliencePipeline"></param>
+        </member>
+        <member name="M:MelloSilveiraTools.Infrastructure.Services.ApiServiceAgent.ApiServiceAgentBase.GetAsync``2(System.String,System.Int32,System.String)">
+            <summary>
+            Sends a GET request to the specified URI.
+            </summary>
+            <param name="requestUri"></param>
+            <param name="timeoutInMiliseconds"></param>
+            <param name="methodName"></param>
+            <returns></returns>
+        </member>
+        <member name="M:MelloSilveiraTools.Infrastructure.Services.ApiServiceAgent.ApiServiceAgentBase.Dispose(System.Boolean)">
+            <summary>
+            See reference <see cref="M:MelloSilveiraTools.Infrastructure.Services.ApiServiceAgent.ApiServiceAgentBase.Dispose"/>.
+            </summary>
+            <param name="disposing">
+            Indicates whether the method call comes from a Dispose method (its value is true) or from a finalizer 
+            (its value is false).
+            </param>
+        </member>
+        <member name="M:MelloSilveiraTools.Infrastructure.Services.ApiServiceAgent.ApiServiceAgentBase.Dispose">
+            <inheritdoc/>
+        </member>
+        <member name="M:MelloSilveiraTools.Infrastructure.Services.ApiServiceAgent.ApiServiceAgentBase.Finalize">
+            <summary>
+            Finalizes the current instance of <see cref="T:MelloSilveiraTools.Infrastructure.Services.ApiServiceAgent.ApiServiceAgentBase"/>.
+            </summary>
+        </member>
+        <member name="T:MelloSilveiraTools.Infrastructure.Services.ApiServiceAgent.DataContract.AsyncOperationResponse`1">
+            <summary>
+            Response content for async operations.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Infrastructure.Services.ApiServiceAgent.DataContract.AsyncOperationResponse`1.Data">
+            <summary>
+            Data content of response.
+            </summary>
+        </member>
+        <member name="T:MelloSilveiraTools.Infrastructure.Services.ApiServiceAgent.IApiServiceAgent">
+            <summary>
+            Contains the base implementations for integrations with an API.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Infrastructure.Services.ApiServiceAgent.IApiServiceAgent.ServiceName">
+            <summary>
+            Name of service agent.
+            </summary>
+        </member>
+        <member name="T:MelloSilveiraTools.Infrastructure.Services.ApiServiceAgent.Settings.ApiServiceAgentSettings">
+            <summary>
+            Settings for integrations with an API.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Infrastructure.Services.ApiServiceAgent.Settings.ApiServiceAgentSettings.BaseAddress">
+            <summary>
+            Base address for integration with an API.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Infrastructure.Services.ApiServiceAgent.Settings.ApiServiceAgentSettings.DefaultTimeoutInSeconds">
+            <summary>
+            Default timeout in seconds for conection with API.
+            </summary>
+        </member>
+        <member name="T:MelloSilveiraTools.Infrastructure.Services.ApiServiceAgent.Settings.EndpointSettings">
+            <summary>
+            General settings for an endpoint.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Infrastructure.Services.ApiServiceAgent.Settings.EndpointSettings.Uri">
+            <summary>
+            Endpoint URI.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Infrastructure.Services.ApiServiceAgent.Settings.EndpointSettings.TimeoutInMiliseconds">
+            <summary>
+            Timeout in miliseconds for endpoint.
+            </summary>
+        </member>
         <member name="T:MelloSilveiraTools.Infrastructure.Services.Encryption.EncryptionService">
             <inheritdoc cref="T:MelloSilveiraTools.Infrastructure.Services.Encryption.IEncryptionService"/>
         </member>
@@ -1142,229 +1365,6 @@
         </member>
         <member name="M:MelloSilveiraTools.Infrastructure.Services.Encryption.EncryptionService.IsPasswordValid(System.String,System.String)">
             <inheritdoc/>
-        </member>
-        <member name="T:MelloSilveiraTools.UseCases.Operations.OperationBase`2">
-            <summary>
-            Represents the base for all operations in the application.
-            </summary>
-            <typeparam name="TRequest"></typeparam>
-            <typeparam name="TResponse"></typeparam>
-        </member>
-        <member name="M:MelloSilveiraTools.UseCases.Operations.OperationBase`2.#ctor(MelloSilveiraTools.Infrastructure.Logger.ILogger)">
-            <summary>
-            Represents the base for all operations in the application.
-            </summary>
-            <typeparam name="TRequest"></typeparam>
-            <typeparam name="TResponse"></typeparam>
-        </member>
-        <member name="M:MelloSilveiraTools.UseCases.Operations.OperationBase`2.ProcessAsync(`0)">
-            <summary>
-            The main method of all operations.
-            Asynchronously, orchestrates and validates the operations.
-            </summary>
-            <param name="request">The operation request content.</param>
-            <returns>The operation response.</returns>
-        </member>
-        <member name="M:MelloSilveiraTools.UseCases.Operations.OperationBase`2.ProcessOperationAsync(`0)">
-            <summary>
-            Asynchronously, processes the operation.
-            </summary>
-            <param name="request"></param>
-            <returns></returns>
-        </member>
-        <member name="M:MelloSilveiraTools.UseCases.Operations.OperationBase`2.ValidateOperationAsync(`0)">
-            <summary>
-            Asynchronously, validates the request sent to operation.
-            </summary>
-            <param name="request"></param>
-            <returns></returns>
-        </member>
-        <member name="T:MelloSilveiraTools.UseCases.Operations.OperationBaseWithDefaultResponse`1">
-            <summary>
-            Represents the base for all operations that uses the default response (<see cref="T:MelloSilveiraTools.UseCases.Operations.OperationResponse"/>).
-            </summary>
-        </member>
-        <member name="M:MelloSilveiraTools.UseCases.Operations.OperationBaseWithDefaultResponse`1.#ctor(MelloSilveiraTools.Infrastructure.Logger.ILogger)">
-            <summary>
-            Represents the base for all operations that uses the default response (<see cref="T:MelloSilveiraTools.UseCases.Operations.OperationResponse"/>).
-            </summary>
-        </member>
-        <member name="T:MelloSilveiraTools.UseCases.Operations.OperationBaseWithoutRequest`1">
-            <summary>
-            Represents the base for all operations that does not use a request.
-            </summary>
-            <typeparam name="TResponse"></typeparam>
-        </member>
-        <member name="M:MelloSilveiraTools.UseCases.Operations.OperationBaseWithoutRequest`1.#ctor(MelloSilveiraTools.Infrastructure.Logger.ILogger)">
-            <summary>
-            Represents the base for all operations that does not use a request.
-            </summary>
-            <typeparam name="TResponse"></typeparam>
-        </member>
-        <member name="M:MelloSilveiraTools.UseCases.Operations.OperationBaseWithoutRequest`1.ProcessAsync">
-            <summary>
-            The main method of all operations.
-            Asynchronously, orchestrates and validates the operations.
-            </summary>
-            <returns>The operation response.</returns>
-        </member>
-        <member name="M:MelloSilveiraTools.UseCases.Operations.OperationBaseWithoutRequest`1.ProcessOperationAsync">
-            <summary>
-            Asynchronously, processes the operation.
-            </summary>
-            <returns></returns>
-        </member>
-        <member name="T:MelloSilveiraTools.UseCases.Operations.OperationRequestBase">
-            <summary>
-            Request content to all operations.
-            </summary>
-        </member>
-        <member name="T:MelloSilveiraTools.UseCases.Operations.OperationResponse">
-            <summary>
-            Response content for all operations.
-            </summary>
-        </member>
-        <member name="M:MelloSilveiraTools.UseCases.Operations.OperationResponse.#ctor">
-            <summary>
-            Initializes a new instance of <see cref="T:MelloSilveiraTools.UseCases.Operations.OperationResponse"/>.
-            </summary>
-        </member>
-        <member name="P:MelloSilveiraTools.UseCases.Operations.OperationResponse.Success">
-            <summary>
-            The success status of operation.
-            </summary>
-        </member>
-        <member name="P:MelloSilveiraTools.UseCases.Operations.OperationResponse.StatusCode">
-            <summary>
-            The HTTP status code.
-            </summary>
-        </member>
-        <member name="P:MelloSilveiraTools.UseCases.Operations.OperationResponse.ErrorMessages">
-            <summary>
-            The list of error message.
-            </summary>
-        </member>
-        <member name="T:MelloSilveiraTools.UseCases.Operations.OperationResponseBase`1">
-            <summary>
-            Response content for all operations.
-            </summary>
-            <typeparam name="TResponseData"></typeparam>
-        </member>
-        <member name="P:MelloSilveiraTools.UseCases.Operations.OperationResponseBase`1.Data">
-            <summary>
-            Data content of all operation response.
-            </summary>
-        </member>
-        <member name="T:MelloSilveiraTools.UseCases.Services.ApiServiceAgent.ApiServiceAgentBase">
-            <inheritdoc cref="T:MelloSilveiraTools.UseCases.Services.ApiServiceAgent.IApiServiceAgent"/>
-        </member>
-        <member name="P:MelloSilveiraTools.UseCases.Services.ApiServiceAgent.ApiServiceAgentBase.ServiceName">
-            <inheritdoc/>
-        </member>
-        <member name="P:MelloSilveiraTools.UseCases.Services.ApiServiceAgent.ApiServiceAgentBase.JsonSerializerOptions">
-            <summary>
-            Custom options to be used with <see cref="T:System.Text.Json.JsonSerializer"/>.
-            </summary>
-        </member>
-        <member name="P:MelloSilveiraTools.UseCases.Services.ApiServiceAgent.ApiServiceAgentBase.Logger">
-            <inheritdoc cref="T:MelloSilveiraTools.Infrastructure.Logger.ILogger"/>
-        </member>
-        <member name="P:MelloSilveiraTools.UseCases.Services.ApiServiceAgent.ApiServiceAgentBase.HttpClient">
-            <summary>
-            HTTP client to be used on integration with API.
-            </summary>
-        </member>
-        <member name="P:MelloSilveiraTools.UseCases.Services.ApiServiceAgent.ApiServiceAgentBase.Settings">
-            <summary>
-            Settings for integrations with an API.
-            </summary>
-        </member>
-        <member name="P:MelloSilveiraTools.UseCases.Services.ApiServiceAgent.ApiServiceAgentBase.ResiliencePipeline">
-            <inheritdoc cref="T:MelloSilveiraTools.Infrastructure.ResiliencePipelines.ApiServiceAgentResiliencePipeline"/>
-        </member>
-        <member name="M:MelloSilveiraTools.UseCases.Services.ApiServiceAgent.ApiServiceAgentBase.#ctor(MelloSilveiraTools.Infrastructure.Logger.ILogger,MelloSilveiraTools.UseCases.Services.ApiServiceAgent.Settings.ApiServiceAgentSettings,MelloSilveiraTools.Infrastructure.ResiliencePipelines.ApiServiceAgentResiliencePipeline)">
-            <summary>
-            Initializes a new instance of <see cref="T:MelloSilveiraTools.UseCases.Services.ApiServiceAgent.ApiServiceAgentBase"/>.
-            </summary>
-            <param name="logger"></param>
-            <param name="settings"></param>
-            <param name="resiliencePipeline"></param>
-        </member>
-        <member name="M:MelloSilveiraTools.UseCases.Services.ApiServiceAgent.ApiServiceAgentBase.GetAsync``2(System.String,System.Int32,System.String)">
-            <summary>
-            Sends a GET request to the specified URI.
-            </summary>
-            <param name="requestUri"></param>
-            <param name="timeoutInMiliseconds"></param>
-            <param name="methodName"></param>
-            <returns></returns>
-        </member>
-        <member name="M:MelloSilveiraTools.UseCases.Services.ApiServiceAgent.ApiServiceAgentBase.Dispose(System.Boolean)">
-            <summary>
-            See reference <see cref="M:MelloSilveiraTools.UseCases.Services.ApiServiceAgent.ApiServiceAgentBase.Dispose"/>.
-            </summary>
-            <param name="disposing">
-            Indicates whether the method call comes from a Dispose method (its value is true) or from a finalizer 
-            (its value is false).
-            </param>
-        </member>
-        <member name="M:MelloSilveiraTools.UseCases.Services.ApiServiceAgent.ApiServiceAgentBase.Dispose">
-            <inheritdoc/>
-        </member>
-        <member name="M:MelloSilveiraTools.UseCases.Services.ApiServiceAgent.ApiServiceAgentBase.Finalize">
-            <summary>
-            Finalizes the current instance of <see cref="T:MelloSilveiraTools.UseCases.Services.ApiServiceAgent.ApiServiceAgentBase"/>.
-            </summary>
-        </member>
-        <member name="T:MelloSilveiraTools.UseCases.Services.ApiServiceAgent.DataContract.AsyncOperationResponse`1">
-            <summary>
-            Response content for async operations.
-            </summary>
-        </member>
-        <member name="P:MelloSilveiraTools.UseCases.Services.ApiServiceAgent.DataContract.AsyncOperationResponse`1.Data">
-            <summary>
-            Data content of response.
-            </summary>
-        </member>
-        <member name="T:MelloSilveiraTools.UseCases.Services.ApiServiceAgent.IApiServiceAgent">
-            <summary>
-            Contains the base implementations for integrations with an API.
-            </summary>
-        </member>
-        <member name="P:MelloSilveiraTools.UseCases.Services.ApiServiceAgent.IApiServiceAgent.ServiceName">
-            <summary>
-            Name of service agent.
-            </summary>
-        </member>
-        <member name="T:MelloSilveiraTools.UseCases.Services.ApiServiceAgent.Settings.ApiServiceAgentSettings">
-            <summary>
-            Settings for integrations with an API.
-            </summary>
-        </member>
-        <member name="P:MelloSilveiraTools.UseCases.Services.ApiServiceAgent.Settings.ApiServiceAgentSettings.BaseAddress">
-            <summary>
-            Base address for integration with an API.
-            </summary>
-        </member>
-        <member name="P:MelloSilveiraTools.UseCases.Services.ApiServiceAgent.Settings.ApiServiceAgentSettings.DefaultTimeoutInSeconds">
-            <summary>
-            Default timeout in seconds for conection with API.
-            </summary>
-        </member>
-        <member name="T:MelloSilveiraTools.UseCases.Services.ApiServiceAgent.Settings.EndpointSettings">
-            <summary>
-            General settings for an endpoint.
-            </summary>
-        </member>
-        <member name="P:MelloSilveiraTools.UseCases.Services.ApiServiceAgent.Settings.EndpointSettings.Uri">
-            <summary>
-            Endpoint URI.
-            </summary>
-        </member>
-        <member name="P:MelloSilveiraTools.UseCases.Services.ApiServiceAgent.Settings.EndpointSettings.TimeoutInMiliseconds">
-            <summary>
-            Timeout in miliseconds for endpoint.
-            </summary>
         </member>
     </members>
 </doc>

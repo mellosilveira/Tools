@@ -1,12 +1,12 @@
-﻿using MelloSilveiraTools.ExtensionMethods;
+﻿using MelloSilveiraTools.Application.Operations;
+using MelloSilveiraTools.ExtensionMethods;
 using MelloSilveiraTools.Infrastructure.Logger;
 using MelloSilveiraTools.Infrastructure.ResiliencePipelines;
-using MelloSilveiraTools.UseCases.Operations;
-using MelloSilveiraTools.UseCases.Services.ApiServiceAgent.Settings;
+using MelloSilveiraTools.Infrastructure.Services.ApiServiceAgent.Settings;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace MelloSilveiraTools.UseCases.Services.ApiServiceAgent;
+namespace MelloSilveiraTools.Infrastructure.Services.ApiServiceAgent;
 
 /// <inheritdoc cref="IApiServiceAgent"/>
 public abstract class ApiServiceAgentBase : IApiServiceAgent

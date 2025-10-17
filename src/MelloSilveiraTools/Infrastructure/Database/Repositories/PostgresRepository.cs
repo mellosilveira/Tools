@@ -165,47 +165,47 @@ public class PostgresRepository(ISqlProvider sqlProvider, PostgresResiliencePipe
     }
 
     /// <inheritdoc/>
-    public async IAsyncEnumerable<TEntity> GetAsync<TEntity, TFilter>(TFilter filter)
+    public async IAsyncEnumerable<TEntity> GetAsync<TEntity, TFilter>(TFilter filter, Pagination? pagination = null, CancellationToken? cancellationToken = null)
          where TEntity : EntityBase, new()
         where TFilter : FilterBase
     {
         (string? sqlWhereClause, DynamicParameters? parameters) = filter.BuildWhereClauseAndParameters();
         string sql = sqlProvider.GetSelectSql<TEntity>()
             .Replace("#WHERE", sqlWhereClause)
-            .Replace("#ORDERBY", filter?.SortOrder is null ? null : $"ORDER BY 1 {filter.SortOrder.ToString()!.ToUpperInvariant()}")
-            .Replace("#LIMIT", filter?.Limit is null ? null : $"LIMIT {filter?.Limit}")
-            .Replace("#OFFSET", filter?.Offset is null ? null : $"OFFSET {filter?.Offset}");
+            .Replace("#ORDERBY", pagination?.SortOrder is null ? null : $"ORDER BY 1 {pagination.SortOrder.ToString()!.ToUpperInvariant()}")
+            .Replace("#LIMIT", pagination?.Limit is null ? null : $"LIMIT {pagination.Limit}")
+            .Replace("#OFFSET", pagination?.Offset is null ? null : $"OFFSET {pagination.Offset}");
 
-        CancellationToken cancellationToken = GetCancellationToken(databaseSettings.ConnectionTimeoutInMilliseconds);
+        CancellationToken localCancellationToken = cancellationToken ?? GetCancellationToken(databaseSettings.ConnectionTimeoutInMilliseconds);
 
-        await using NpgsqlConnection connection = await GetNewOpenedConnectionAsync(cancellationToken).ConfigureAwait(false);
+        await using NpgsqlConnection connection = await GetNewOpenedConnectionAsync(localCancellationToken).ConfigureAwait(false);
         await using DbDataReader dataReader = await connection.ExecuteReaderAsync(sql, parameters, commandTimeout: databaseSettings.ConnectionTimeoutInMilliseconds).ConfigureAwait(false);
-        while (await dataReader.ReadAsync(cancellationToken).ConfigureAwait(false))
+        while (await dataReader.ReadAsync(localCancellationToken).ConfigureAwait(false))
         {
-            if (!await dataReader.IsDBNullAsync(0, cancellationToken).ConfigureAwait(false))
+            if (!await dataReader.IsDBNullAsync(0, localCancellationToken).ConfigureAwait(false))
                 yield return dataReader.ConvertTo<TEntity>();
         }
     }
 
     /// <inheritdoc/>
-    public async IAsyncEnumerable<TEntity> GetDistinctAsync<TEntity, TFilter>(TFilter filter)
+    public async IAsyncEnumerable<TEntity> GetDistinctAsync<TEntity, TFilter>(TFilter filter, Pagination? pagination = null, CancellationToken? cancellationToken = null)
          where TEntity : EntityBase, new()
         where TFilter : FilterBase
     {
         (string? sqlWhereClause, DynamicParameters? parameters) = filter.BuildWhereClauseAndParameters();
         string sql = sqlProvider.GetSelectDistinctSql<TEntity>()
             .Replace("#WHERE", sqlWhereClause)
-            .Replace("#ORDERBY", filter?.SortOrder is null ? null : $"ORDER BY 1 {filter.SortOrder.ToString()!.ToUpperInvariant()}")
-            .Replace("#LIMIT", filter?.Limit is null ? null : $"LIMIT {filter?.Limit}")
-            .Replace("#OFFSET", filter?.Offset is null ? null : $"OFFSET {filter?.Offset}");
+            .Replace("#ORDERBY", pagination?.SortOrder is null ? null : $"ORDER BY 1 {pagination.SortOrder.ToString()!.ToUpperInvariant()}")
+            .Replace("#LIMIT", pagination?.Limit is null ? null : $"LIMIT {pagination.Limit}")
+            .Replace("#OFFSET", pagination?.Offset is null ? null : $"OFFSET {pagination.Offset}");
 
-        CancellationToken cancellationToken = GetCancellationToken(databaseSettings.ConnectionTimeoutInMilliseconds);
+        CancellationToken localCancellationToken = cancellationToken ?? GetCancellationToken(databaseSettings.ConnectionTimeoutInMilliseconds);
 
-        await using NpgsqlConnection connection = await GetNewOpenedConnectionAsync(cancellationToken).ConfigureAwait(false);
+        await using NpgsqlConnection connection = await GetNewOpenedConnectionAsync(localCancellationToken).ConfigureAwait(false);
         await using DbDataReader dataReader = await connection.ExecuteReaderAsync(sql, parameters, commandTimeout: databaseSettings.ConnectionTimeoutInMilliseconds).ConfigureAwait(false);
-        while (await dataReader.ReadAsync(cancellationToken).ConfigureAwait(false))
+        while (await dataReader.ReadAsync(localCancellationToken).ConfigureAwait(false))
         {
-            if (!await dataReader.IsDBNullAsync(0, cancellationToken).ConfigureAwait(false))
+            if (!await dataReader.IsDBNullAsync(0, localCancellationToken).ConfigureAwait(false))
                 yield return dataReader.ConvertTo<TEntity>();
         }
     }

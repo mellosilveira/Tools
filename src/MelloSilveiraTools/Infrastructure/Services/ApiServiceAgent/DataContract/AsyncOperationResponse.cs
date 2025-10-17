@@ -1,6 +1,6 @@
-﻿using MelloSilveiraTools.UseCases.Operations;
+﻿using MelloSilveiraTools.Application.Operations;
 
-namespace MelloSilveiraTools.UseCases.Services.ApiServiceAgent.DataContract;
+namespace MelloSilveiraTools.Infrastructure.Services.ApiServiceAgent.DataContract;
 
 /// <summary>
 /// Response content for async operations.

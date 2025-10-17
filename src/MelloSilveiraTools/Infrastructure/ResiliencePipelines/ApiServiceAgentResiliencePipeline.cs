@@ -1,5 +1,5 @@
-﻿using MelloSilveiraTools.Infrastructure.Logger;
-using MelloSilveiraTools.UseCases.Operations;
+﻿using MelloSilveiraTools.Application.Operations;
+using MelloSilveiraTools.Infrastructure.Logger;
 using Polly;
 using Polly.Retry;
 using System.Net;

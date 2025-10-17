@@ -35,7 +35,10 @@ public class TableAttribute : Attribute
     /// <returns></returns>
     private static string GetAliasName(string tableName)
     {
-        char[] firstCharacters = tableName.Split('_').Select(s => s[0]).ToArray();
+        if (!tableName.Contains('_'))
+            return tableName;
+
+        char[] firstCharacters = [.. tableName.Split('_').Select(s => s[0])];
         return new string(firstCharacters);
     }
 }

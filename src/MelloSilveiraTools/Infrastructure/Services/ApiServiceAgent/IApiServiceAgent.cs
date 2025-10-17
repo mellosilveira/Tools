@@ -1,4 +1,4 @@
-﻿namespace MelloSilveiraTools.UseCases.Services.ApiServiceAgent;
+﻿namespace MelloSilveiraTools.Infrastructure.Services.ApiServiceAgent;
 
 /// <summary>
 /// Contains the base implementations for integrations with an API.

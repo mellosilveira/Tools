@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using System.Net;
 
-namespace MelloSilveiraTools.UseCases.Operations;
+namespace MelloSilveiraTools.Application.Operations;
 
 /// <summary>
 /// Response content for all operations.

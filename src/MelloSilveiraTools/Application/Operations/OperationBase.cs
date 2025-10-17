@@ -1,7 +1,7 @@
 ﻿using MelloSilveiraTools.Infrastructure.Logger;
 using System.Net;
 
-namespace MelloSilveiraTools.UseCases.Operations;
+namespace MelloSilveiraTools.Application.Operations;
 
 /// <summary>
 /// Represents the base for all operations in the application.

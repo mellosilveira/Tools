@@ -1,4 +1,4 @@
-﻿namespace MelloSilveiraTools.UseCases.Services.ApiServiceAgent.Settings;
+﻿namespace MelloSilveiraTools.Infrastructure.Services.ApiServiceAgent.Settings;
 
 /// <summary>
 /// General settings for an endpoint.

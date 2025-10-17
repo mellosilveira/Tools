@@ -22,11 +22,11 @@ public interface IDatabaseRepository
 
     Task<TEntity?> GetAsync<TEntity>(long id) where TEntity : EntityBase;
 
-    IAsyncEnumerable<TEntity> GetAsync<TEntity, TFilter>(TFilter filter)
+    IAsyncEnumerable<TEntity> GetAsync<TEntity, TFilter>(TFilter filter, Pagination? pagination = null, CancellationToken? cancellationToken = null)
         where TEntity : EntityBase, new()
         where TFilter : FilterBase;
 
-    IAsyncEnumerable<TEntity> GetDistinctAsync<TEntity, TFilter>(TFilter filter)
+    IAsyncEnumerable<TEntity> GetDistinctAsync<TEntity, TFilter>(TFilter filter, Pagination? pagination = null, CancellationToken? cancellationToken = null)
         where TEntity : EntityBase, new()
         where TFilter : FilterBase;
 
