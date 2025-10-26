@@ -244,4 +244,6 @@ public static class ClassExtensions
         string? whereClause = whereClauses.IsNullOrEmpty() ? null : $"WHERE {string.Join("\r\n\tAND ", whereClauses)}";
         return (whereClause, parameters);
     }
+
+    public static Task<T> ToTask<T>(this T obj) => Task.FromResult(obj);
 }

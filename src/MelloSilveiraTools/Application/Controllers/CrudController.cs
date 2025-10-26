@@ -183,6 +183,8 @@ public abstract class CrudController<TEntity, TFilter>(ILogger logger) : Control
             {
                 await Response.WriteLineAsNdJsonAsync(entity, HttpContext.RequestAborted);
             }
+
+            Response.AppendTrailer(ApplicationConstants.StreamStatusTrailerName, ApplicationConstants.StreamSuccessfullyStatus);
         }
         catch (OperationCanceledException ex)
         {

@@ -12,6 +12,8 @@ public abstract class OperationBase<TRequest, TResponse>(ILogger logger)
     where TRequest : OperationRequestBase, new()
     where TResponse : OperationResponse, new()
 {
+    protected ILogger Logger { get; } = logger;
+
     /// <summary>
     /// The main method of all operations.
     /// Asynchronously, orchestrates and validates the operations.
@@ -37,7 +39,7 @@ public abstract class OperationBase<TRequest, TResponse>(ILogger logger)
 #endif
 
             Dictionary<string, object?> logAdditionalData = new() { { "Request", request } };
-            logger.Error(message, ex, logAdditionalData);
+            Logger.Error(message, ex, logAdditionalData);
 
             TResponse response = new();
             response.SetInternalServerError(message);

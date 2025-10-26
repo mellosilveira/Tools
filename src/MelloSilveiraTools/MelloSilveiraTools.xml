@@ -987,10 +987,10 @@
         <member name="M:MelloSilveiraTools.Infrastructure.Database.Repositories.PostgresRepository.GetAsync``1(System.Int64)">
             <inheritdoc/>
         </member>
-        <member name="M:MelloSilveiraTools.Infrastructure.Database.Repositories.PostgresRepository.GetAsync``2(``1,MelloSilveiraTools.Infrastructure.Database.Models.Filters.Pagination)">
+        <member name="M:MelloSilveiraTools.Infrastructure.Database.Repositories.PostgresRepository.GetAsync``2(``1,MelloSilveiraTools.Infrastructure.Database.Models.Filters.Pagination,System.Nullable{System.Threading.CancellationToken})">
             <inheritdoc/>
         </member>
-        <member name="M:MelloSilveiraTools.Infrastructure.Database.Repositories.PostgresRepository.GetDistinctAsync``2(``1,MelloSilveiraTools.Infrastructure.Database.Models.Filters.Pagination)">
+        <member name="M:MelloSilveiraTools.Infrastructure.Database.Repositories.PostgresRepository.GetDistinctAsync``2(``1,MelloSilveiraTools.Infrastructure.Database.Models.Filters.Pagination,System.Nullable{System.Threading.CancellationToken})">
             <inheritdoc/>
         </member>
         <member name="M:MelloSilveiraTools.Infrastructure.Database.Repositories.PostgresRepository.InsertAsync``1(``0)">
