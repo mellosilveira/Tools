@@ -23,6 +23,8 @@ public class AuthenticationJweTokenService(JwtSettings settings) : IAuthenticati
                 new Claim(JwtRegisteredClaimNames.Sub, userIdentifier),
                 new Claim(JwtRegisteredClaimNames.Iat, utcNow.ToUnixTimeSeconds().ToString(), ClaimValueTypes.Integer64)
             ]),
+            Audience = settings.Audience,
+            Issuer = settings.Issuer,
             Expires = expiresOn.UtcDateTime,
             SigningCredentials = new SigningCredentials(CreateSecurityKey(settings.SigningKey, settings.SecurityKeyType), SecurityAlgorithms.HmacSha256),
             EncryptingCredentials = new EncryptingCredentials(
