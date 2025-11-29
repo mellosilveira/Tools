@@ -1,7 +1,5 @@
 ﻿using MelloSilveiraTools.Infrastructure.Database.Attributes;
 using Npgsql;
-using NpgsqlTypes;
-using System.Collections;
 using System.Reflection;
 
 namespace MelloSilveiraTools.ExtensionMethods;
@@ -18,7 +16,7 @@ public static class NpgsqlCommandExtensions
     /// <param name="command"></param>
     /// <param name="entity"></param>
     /// <returns></returns>
-    public static NpgsqlCommand SetCommandParameters<TEntity>(this NpgsqlCommand command, TEntity entity)
+    public static NpgsqlCommand SetCommandParametersFromEntity<TEntity>(this NpgsqlCommand command, TEntity entity)
     {
         if (entity is null)
             return command;
@@ -30,7 +28,7 @@ public static class NpgsqlCommandExtensions
             if (attribute != null)
             {
                 object? value = property.GetValue(entity);
-                command.Parameters.AddWithValue(property.Name, GetDbTypeFromPropertyType(property.PropertyType), value ?? DBNull.Value);
+                command.Parameters.AddWithValue(property.Name, property.PropertyType.GetDbTypeFromPropertyType(), value ?? DBNull.Value);
             }
         }
 
@@ -38,18 +36,21 @@ public static class NpgsqlCommandExtensions
     }
 
     /// <summary>
-    /// Returns the <see cref="NpgsqlDbType"/> from property type.
+    /// Sets the parameter for sql command.
     /// </summary>
-    /// <param name="type"></param>
+    /// <param name="command"></param>
+    /// <param name="parameters"></param>
     /// <returns></returns>
-    /// <exception cref="Exception"></exception>
-    private static NpgsqlDbType GetDbTypeFromPropertyType(Type type)
+    public static NpgsqlCommand SetCommandParameters(this NpgsqlCommand command, IEnumerable<NpgsqlParameter> parameters)
     {
-        if (type == typeof(string)) return NpgsqlDbType.Text;
-        if (type == typeof(double)) return NpgsqlDbType.Double;
-        if (type == typeof(long)) return NpgsqlDbType.Bigint;
-        if (type == typeof(DateTime) || type == typeof(DateTimeOffset)) return NpgsqlDbType.Timestamp;
-        if (type == typeof(IList) || type == typeof(IEnumerable) || type == typeof(IEnumerator)) return NpgsqlDbType.Array;
-        throw new ArgumentOutOfRangeException(nameof(type), $"Invalid type: '{type.FullName}'.");
+        if (parameters.IsNullOrEmpty())
+            return command;
+
+        foreach (NpgsqlParameter parameter in parameters)
+        {
+            command.Parameters.Add(parameter);
+        }
+
+        return command;
     }
 }

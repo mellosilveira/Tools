@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using MelloSilveiraTools.Domain.Models;
+using System.Text;
 
 namespace MelloSilveiraTools.ExtensionMethods;
 
@@ -17,7 +18,7 @@ public static class StringExtensions
         if (string.IsNullOrEmpty(input))
             return input;
 
-        StringBuilder result = new();
+        SpanStringBuilder result = new();
         for (int i = 0; i < input.Length; i++)
         {
             if (i > 0 && char.IsUpper(input[i]) && !char.IsWhiteSpace(input[i - 1]))
@@ -94,5 +95,22 @@ public static class StringExtensions
         }
 
         return result.ToString();
+    }
+
+    /// <summary>
+    /// Removes a string frmo another.
+    /// </summary>
+    /// <param name="input"></param>
+    /// <param name="valuesToRemove"></param>
+    /// <returns></returns>
+    public static string Remove(this string input, params string[] valuesToRemove)
+    {
+        string result = input;
+        foreach (string valueToRemove in valuesToRemove)
+        {
+            result = input.Replace(valueToRemove, null);
+        }
+
+        return result;
     }
 }

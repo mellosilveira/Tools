@@ -1,6 +1,8 @@
 ﻿using Dapper;
 using MelloSilveiraTools.Infrastructure.Database.Attributes;
 using MelloSilveiraTools.Infrastructure.Database.Models;
+using Newtonsoft.Json.Linq;
+using Npgsql;
 using System.Reflection;
 
 namespace MelloSilveiraTools.ExtensionMethods;
@@ -67,7 +69,7 @@ public static class ClassExtensions
 
         Dictionary<string, object?> propertyNameAndValues = [];
 
-        PropertyInfo[] properties = obj.GetType().GetPropertiesInHierarchy();
+        PropertyInfo[] properties = typeof(T).GetPropertiesInHierarchy();
         foreach (var property in properties)
         {
             var attribute = property.GetCustomAttribute<TCustomAttribute>();
@@ -82,6 +84,60 @@ public static class ClassExtensions
     }
 
     /// <summary>
+    /// Builds an enumerable with <see cref="NpgsqlParameter"/>.
+    /// </summary>
+    /// <typeparam name="T">The type of <paramref name="collection"/>.</typeparam>
+    /// <param name="collection"></param>
+    /// <returns>A <see cref="IEnumerable{T}"/> with <see cref="NpgsqlParameter"/>.</returns>
+    public static IEnumerable<NpgsqlParameter> BuildParametersFromCollection<T>(this ICollection<T> collection)
+    {
+        if (collection.IsNullOrEmpty())
+            yield break;
+
+        int index = 0;
+
+        PropertyInfo[] properties = typeof(T).GetPropertiesInHierarchy();
+        foreach (var obj in collection)
+        {
+            index++;
+
+            foreach (var property in properties)
+            {
+                var attribute = property.GetCustomAttribute<ColumnAttribute>();
+                if (attribute != null)
+                {
+                    object? value = property.GetValue(obj);
+                    yield return new NpgsqlParameter($"{property.Name}_{index}", property.PropertyType.GetDbTypeFromPropertyType()) { Value = value ?? DBNull.Value };
+                }
+            }
+        }
+    }
+
+    /// <summary>
+    /// Builds an enumerable with <see cref="NpgsqlParameter"/>.
+    /// </summary>
+    /// <typeparam name="T">The type of <paramref name="obj"/>.</typeparam>
+    /// <param name="obj"></param>
+    /// <param name="useDeclaredProperties"></param>
+    /// <returns>A <see cref="IEnumerable{T}"/> with <see cref="NpgsqlParameter"/>.</returns>
+    public static IEnumerable<NpgsqlParameter> BuildParameters<T>(this T obj, bool useDeclaredProperties = false)
+    {
+        if (obj is null)
+            yield break;
+
+        PropertyInfo[] properties = useDeclaredProperties ? typeof(T).GetDeclaredProperties() : typeof(T).GetPropertiesInHierarchy();
+        foreach (var property in properties)
+        {
+            var attribute = property.GetCustomAttribute<ColumnAttribute>();
+            if (attribute != null)
+            {
+                object? value = property.GetValue(obj);
+                yield return new NpgsqlParameter(property.Name, property.PropertyType.GetDbTypeFromPropertyType()) { Value = value ?? DBNull.Value };
+            }
+        }
+    }
+
+    /// <summary>
     /// Builds a SQL WHERE clause and a <see cref="DynamicParameters"/> based on filter.
     /// </summary>
     /// <typeparam name="T"></typeparam>
@@ -93,7 +149,7 @@ public static class ClassExtensions
             return (null, null);
 
         // Step 1. Gets the attribute for filter.
-        var type = obj.GetType();
+        Type type = typeof(T);
         FilterAttribute? filterAttribute = type.GetCustomAttribute<FilterAttribute>();
         if (filterAttribute is null)
             return (null, null);
@@ -134,4 +190,60 @@ public static class ClassExtensions
         string? whereClause = whereClauses.IsNullOrEmpty() ? null : $"WHERE {string.Join("\r\n\tAND ", whereClauses)}";
         return (whereClause, parameters);
     }
+
+    /// <summary>
+    /// Builds a SQL WHERE clause and a <see cref="DynamicParameters"/> based on filter.
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <param name="obj"></param>
+    /// <returns></returns>
+    public static (string? SqlWhereClause, List<NpgsqlParameter> Parameters) BuildWhereClauseAndNpgsqlParameters<T>(this T obj)
+    {
+        if (obj is null)
+            return (null, []);
+
+        // Step 1. Gets the attribute for filter.
+        Type type = typeof(T);
+        FilterAttribute? filterAttribute = type.GetCustomAttribute<FilterAttribute>();
+        if (filterAttribute is null)
+            return (null, []);
+
+        // Step 2. Initializes the variables to be used.
+        List<NpgsqlParameter> parameters = [];
+        List<string> whereClauses = [];
+
+        // Step 3. Gets the properties of type according to its hierarchy of classes and for each property:
+        // 3.1. Gets the filter column attribute and create the line for WHERE statement.
+        var properties = type.GetPropertiesInHierarchy();
+        foreach (PropertyInfo property in properties)
+        {
+            // 3.1.
+            var filterColumnAttribute = property.GetCustomAttribute<FilterColumnAttribute>();
+            if (filterColumnAttribute != null)
+            {
+                object? propertyValue = property.GetValue(obj);
+                if (propertyValue is null || propertyValue is string str && string.IsNullOrWhiteSpace(str))
+                    continue;
+
+                string tableAlias = filterColumnAttribute.TableName is null
+                    ? filterAttribute.TableDefinition!.Alias
+                    : filterAttribute.JoinTablesDefinition[filterColumnAttribute.TableName].Alias;
+
+                string columnName = (filterColumnAttribute.PropertyName ?? property.Name).ToSnakeCase();
+                whereClauses.Add($"{tableAlias}.{columnName} {filterColumnAttribute.FilterClause} @{property.Name}");
+
+                if (propertyValue is Enum)
+                    propertyValue = (int)propertyValue;
+
+                propertyValue = filterColumnAttribute.FilterClause.Equals(FilterClause.Like) ? $"%{propertyValue}%" : propertyValue;
+                parameters.Add(new NpgsqlParameter(property.Name, property.PropertyType.GetDbTypeFromPropertyType()) { Value = propertyValue });
+            }
+        }
+
+        // Step 4. Creates the SQL WHERE clause and returns it and parameters.
+        string? whereClause = whereClauses.IsNullOrEmpty() ? null : $"WHERE {string.Join("\r\n\tAND ", whereClauses)}";
+        return (whereClause, parameters);
+    }
+
+    public static Task<T> AsTask<T>(this T obj) => Task.FromResult(obj);
 }

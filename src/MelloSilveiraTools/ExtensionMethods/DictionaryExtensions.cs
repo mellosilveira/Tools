@@ -15,6 +15,7 @@ namespace MelloSilveiraTools.ExtensionMethods
         /// <returns></returns>
         public static T ConvertTo<T>(this IDataReader sqlDataReader) where T : class, new()
         {
+            // TODO: ISSO É CUSTOSO POR USAR REFLECTION, DEDVE SER OTIMIZADO.
             Type type = typeof(T);
             var obj = new T();
 

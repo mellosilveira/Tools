@@ -4,6 +4,342 @@
         <name>MelloSilveiraTools</name>
     </assembly>
     <members>
+        <member name="T:MelloSilveiraTools.Application.Operations.OperationBase`2">
+            <summary>
+            Represents the base for all operations in the application.
+            </summary>
+            <typeparam name="TRequest"></typeparam>
+            <typeparam name="TResponse"></typeparam>
+        </member>
+        <member name="M:MelloSilveiraTools.Application.Operations.OperationBase`2.#ctor(MelloSilveiraTools.Infrastructure.Logger.ILogger)">
+            <summary>
+            Represents the base for all operations in the application.
+            </summary>
+            <typeparam name="TRequest"></typeparam>
+            <typeparam name="TResponse"></typeparam>
+        </member>
+        <member name="M:MelloSilveiraTools.Application.Operations.OperationBase`2.ProcessAsync(`0)">
+            <summary>
+            The main method of all operations.
+            Asynchronously, orchestrates and validates the operations.
+            </summary>
+            <param name="request">The operation request content.</param>
+            <returns>The operation response.</returns>
+        </member>
+        <member name="M:MelloSilveiraTools.Application.Operations.OperationBase`2.ProcessOperationAsync(`0)">
+            <summary>
+            Asynchronously, processes the operation.
+            </summary>
+            <param name="request"></param>
+            <returns></returns>
+        </member>
+        <member name="M:MelloSilveiraTools.Application.Operations.OperationBase`2.ValidateOperationAsync(`0)">
+            <summary>
+            Asynchronously, validates the request sent to operation.
+            </summary>
+            <param name="request"></param>
+            <returns></returns>
+        </member>
+        <member name="T:MelloSilveiraTools.Application.Operations.OperationBaseWithDefaultResponse`1">
+            <summary>
+            Represents the base for all operations that uses the default response (<see cref="T:MelloSilveiraTools.Application.Operations.OperationResponse"/>).
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Application.Operations.OperationBaseWithDefaultResponse`1.#ctor(MelloSilveiraTools.Infrastructure.Logger.ILogger)">
+            <summary>
+            Represents the base for all operations that uses the default response (<see cref="T:MelloSilveiraTools.Application.Operations.OperationResponse"/>).
+            </summary>
+        </member>
+        <member name="T:MelloSilveiraTools.Application.Operations.OperationBaseWithoutRequest`1">
+            <summary>
+            Represents the base for all operations that does not use a request.
+            </summary>
+            <typeparam name="TResponse"></typeparam>
+        </member>
+        <member name="M:MelloSilveiraTools.Application.Operations.OperationBaseWithoutRequest`1.#ctor(MelloSilveiraTools.Infrastructure.Logger.ILogger)">
+            <summary>
+            Represents the base for all operations that does not use a request.
+            </summary>
+            <typeparam name="TResponse"></typeparam>
+        </member>
+        <member name="M:MelloSilveiraTools.Application.Operations.OperationBaseWithoutRequest`1.ProcessAsync">
+            <summary>
+            The main method of all operations.
+            Asynchronously, orchestrates and validates the operations.
+            </summary>
+            <returns>The operation response.</returns>
+        </member>
+        <member name="M:MelloSilveiraTools.Application.Operations.OperationBaseWithoutRequest`1.ProcessOperationAsync">
+            <summary>
+            Asynchronously, processes the operation.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="T:MelloSilveiraTools.Application.Operations.OperationRequestBase">
+            <summary>
+            Request content to all operations.
+            </summary>
+        </member>
+        <member name="T:MelloSilveiraTools.Application.Operations.OperationResponse">
+            <summary>
+            Response content for all operations.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Application.Operations.OperationResponse.#ctor">
+            <summary>
+            Initializes a new instance of <see cref="T:MelloSilveiraTools.Application.Operations.OperationResponse"/>.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Application.Operations.OperationResponse.Success">
+            <summary>
+            The success status of operation.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Application.Operations.OperationResponse.StatusCode">
+            <summary>
+            The HTTP status code.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Application.Operations.OperationResponse.ErrorMessages">
+            <summary>
+            The list of error message.
+            </summary>
+        </member>
+        <member name="T:MelloSilveiraTools.Application.Operations.OperationResponseBase`1">
+            <summary>
+            Response content for all operations.
+            </summary>
+            <typeparam name="TResponseData"></typeparam>
+        </member>
+        <member name="P:MelloSilveiraTools.Application.Operations.OperationResponseBase`1.Data">
+            <summary>
+            Data content of all operation response.
+            </summary>
+        </member>
+        <member name="T:MelloSilveiraTools.Authentication.JwtSettings">
+            <summary>
+            Settings to deal with JSON Web Tokens (JWT).
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Authentication.JwtSettings.TokenExperitationTimeInMinutes">
+            <summary>
+            Expiration time in minutes for access token.
+            </summary>
+        </member>
+        <member name="T:MelloSilveiraTools.Authentication.Services.AuthenticationJweTokenService">
+            <summary>
+            Service that handles an encrypted and signed JSON Web token for authentication.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Authentication.Services.AuthenticationJweTokenService.#ctor(MelloSilveiraTools.Authentication.JwtSettings)">
+            <summary>
+            Service that handles an encrypted and signed JSON Web token for authentication.
+            </summary>
+        </member>
+        <member name="T:MelloSilveiraTools.Authentication.Services.IAuthenticationTokenService">
+            <summary>
+            Service that handles an authentication token.
+            </summary>
+        </member>
+        <member name="T:MelloSilveiraTools.DependencyInjection">
+            <summary>
+            Provides extension methods to dependency injection of Tools project.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.DependencyInjection.AddToolsServices(Microsoft.Extensions.DependencyInjection.IServiceCollection,MelloSilveiraTools.Infrastructure.Database.Settings.DatabaseSettings,MelloSilveiraTools.Infrastructure.Services.Encryption.EncryptionSettings,MelloSilveiraTools.Infrastructure.ResiliencePipelines.ResiliencePipelineSettings)">
+            <summary>
+            Registers the services of Tools project.
+            </summary>
+            <param name="services"></param>
+            <param name="databaseSettings"></param>
+            <param name="encryptionSettings"></param>
+            <param name="resiliencePipelineSettings"></param>
+            <returns></returns>
+        </member>
+        <member name="M:MelloSilveiraTools.DependencyInjection.AddJweAuthentication(Microsoft.Extensions.DependencyInjection.IServiceCollection,MelloSilveiraTools.Authentication.JwtSettings)">
+            <summary>
+            Registers the authentication for AdmMaster users using JWT.
+            </summary>
+            <param name="services"></param>
+            <param name="jwtSettings"></param>
+            <returns></returns>
+        </member>
+        <member name="M:MelloSilveiraTools.DependencyInjection.AddSwaggerDocsWithJwtAuthentication(Microsoft.Extensions.DependencyInjection.IServiceCollection)">
+            <summary>
+            Configures the documentation file for Swagger User Interface using JWT authentication.
+            </summary>
+        </member>
+        <member name="T:MelloSilveiraTools.Domain.Models.SpanStringBuilder">
+            <summary>
+            Provides a high-performance, allocation-free string builder using pooled buffers and stack allocation optimizations.
+            Designed for critical path operations where minimal memory allocation and maximum performance are required.
+            </summary>
+            <remarks>
+            <para>
+            Key features:
+            <list type="bullet">
+            <item>Uses <see cref="T:System.Buffers.ArrayPool`1"/> for buffer management to reduce GC pressure</item>
+            <item>Aggressive inlining of hot-path methods for near-native performance</item>
+            <item>Efficient bounds checking using unsigned integer comparisons</item>
+            <item>Growth strategy optimized for both small and large string scenarios</item>
+            <item>Ref struct implementation ensures stack-only semantics</item>
+            </list>
+            </para>
+            <para>
+            ⚠️ Important structural constraints:
+            <list type="bullet">
+            <item>Cannot be used as a field in classes or non-ref structs</item>
+            <item>Cannot be boxed or stored in heap-allocated collections</item>
+            <item>Cannot cross async method boundaries (including lambda captures)</item>
+            <item>Must be disposed after use to return buffers to the pool</item>
+            </list>
+            </para>
+            <para>
+            Performance characteristics:
+            <list type="bullet">
+            <item>Append(char): ~2-3 CPU cycles (inlined fast path)</item>
+            <item>Append(ReadOnlySpan): ~1 cycle per character (vectorized)</item>
+            <item>Growth operations: O(n) but minimized by growth strategy</item>
+            </list>
+            </para>
+            </remarks>
+        </member>
+        <member name="M:MelloSilveiraTools.Domain.Models.SpanStringBuilder.#ctor(System.Int32)">
+            <summary>
+            Initializes a new instance with optimized initial capacity
+            </summary>
+            <param name="initialCapacity">
+            Expected capacity requirement. Default 32 balances memory usage and growth operations.
+            For known large strings, set higher to minimize reallocations.
+            </param>
+            <remarks>
+            The actual allocated capacity may be larger than requested due to pool bucket sizes.
+            </remarks>
+        </member>
+        <member name="P:MelloSilveiraTools.Domain.Models.SpanStringBuilder.Item(System.Int32)">
+            <summary>
+            Direct character access to the underlying buffer
+            </summary>
+            <param name="index">Zero-based character position</param>
+            <exception cref="T:System.IndexOutOfRangeException">
+            Thrown when index is outside [0, Length-1] range
+            </exception>
+        </member>
+        <member name="M:MelloSilveiraTools.Domain.Models.SpanStringBuilder.Append(System.Char)">
+            <summary>
+            Appends a single character using optimized path
+            </summary>
+            <param name="value">Character to append</param>
+            <returns>Chainable reference</returns>
+            <remarks>
+            Uses <see cref="F:System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining"/> for near-zero overhead.
+            Bounds check optimized using unsigned integer comparison (single branch).
+            </remarks>
+        </member>
+        <member name="M:MelloSilveiraTools.Domain.Models.SpanStringBuilder.Append(System.ReadOnlySpan{System.Char})">
+            <summary>
+            Appends a character span using memory-copy optimizations
+            </summary>
+            <param name="value">Character sequence to append</param>
+            <returns>Chainable reference</returns>
+            <remarks>
+            <para>
+            Optimization strategy:
+            <list type="number">
+            <item>Early exit for empty spans</item>
+            <item>Pre-calculates required size</item>
+            <item>Uses Span.CopyTo for block copying</item>
+            <item>Separate handling for growth scenarios</item>
+            </list>
+            </para>
+            <para>
+            Uses <see cref="M:System.Span`1.Slice(System.Int32,System.Int32)"/> with explicit length for better bounds elision.
+            </para>
+            </remarks>
+        </member>
+        <member name="M:MelloSilveiraTools.Domain.Models.SpanStringBuilder.AppendLine(System.Char)">
+            <summary>
+            Appends a character followed by environment-specific newline
+            </summary>
+            <param name="value">Character to append</param>
+            <returns>Chainable reference</returns>
+            <remarks>
+            Newline sequence matches Environment.NewLine (CRLF on Windows, LF on Unix)
+            </remarks>
+        </member>
+        <member name="M:MelloSilveiraTools.Domain.Models.SpanStringBuilder.AppendLine(System.ReadOnlySpan{System.Char})">
+            <summary>
+            Appends a character sequence followed by environment-specific newline
+            </summary>
+            <param name="value">Character sequence to append</param>
+            <returns>Chainable reference</returns>
+            <remarks>
+            Newline sequence matches Environment.NewLine (CRLF on Windows, LF on Unix)
+            </remarks>
+        </member>
+        <member name="M:MelloSilveiraTools.Domain.Models.SpanStringBuilder.ToString">
+            <summary>
+            Constructs string from current buffer contents
+            </summary>
+            <remarks>
+            Creates a new string instance. For zero-allocation alternatives, consider 
+            using the Span directly in downstream APIs.
+            </remarks>
+        </member>
+        <member name="M:MelloSilveiraTools.Domain.Models.SpanStringBuilder.Dispose">
+            <summary>
+            Returns buffer to pool and resets state
+            </summary>
+            <remarks>
+            Critical for preventing pool memory leaks. Safe to call multiple times.
+            After disposal:
+            <list type="bullet">
+            <item>All buffer accesses become invalid</item>
+            <item>Append operations will fail</item>
+            <item>ToString returns empty string</item>
+            </list>
+            </remarks>
+        </member>
+        <member name="M:MelloSilveiraTools.Domain.Models.SpanStringBuilder.GrowAndAppend(System.Char)">
+            <summary>
+            Handle buffer growth and append for single character
+            </summary>
+            <remarks>
+            Marked <see cref="F:System.Runtime.CompilerServices.MethodImplOptions.NoInlining"/> to:
+            <list type="bullet">
+            <item>Keep hot path compact in Append()</item>
+            <item>Reduce register pressure in common case</item>
+            <item>Isolate rare growth operations</item>
+            </list>
+            </remarks>
+        </member>
+        <member name="M:MelloSilveiraTools.Domain.Models.SpanStringBuilder.GrowAndAppend(System.ReadOnlySpan{System.Char},System.Int32,System.Int32)">
+            <summary>
+            Handle buffer growth and append for character span
+            </summary>
+            <param name="value"></param>
+            <param name="length">Precomputed span length</param>
+            <param name="requiredCapacity">Total required capacity</param>
+            <remarks>
+            Avoids recalculating length during growth. Separated from hot path
+            to prevent code bloat in frequently executed methods.
+            </remarks>
+        </member>
+        <member name="M:MelloSilveiraTools.Domain.Models.SpanStringBuilder.Grow(System.Int32)">
+            <summary>
+            Grows internal buffer to required capacity
+            </summary>
+            <param name="requiredCapacity">Minimum new capacity</param>
+            <remarks>
+            Growth strategy:
+            <list type="number">
+            <item>Double current size (capped at Array.MaxLength)</item>
+            <item>Or requiredCapacity if larger than doubled size</item>
+            <item>Copies existing data to new buffer</item>
+            <item>Returns old buffer to pool</item>
+            </list>
+            </remarks>
+        </member>
         <member name="T:MelloSilveiraTools.ExtensionMethods.ClassExtensions">
             <summary>
             Contains extension methods for class.
@@ -47,7 +383,32 @@
             A <see cref="T:System.Collections.Generic.Dictionary`2"/> which the key is the property name and the value is the property value.
             </returns>
         </member>
+        <member name="M:MelloSilveiraTools.ExtensionMethods.ClassExtensions.BuildParametersFromCollection``1(System.Collections.Generic.ICollection{``0})">
+            <summary>
+            Builds an enumerable with <see cref="T:Npgsql.NpgsqlParameter"/>.
+            </summary>
+            <typeparam name="T">The type of <paramref name="collection"/>.</typeparam>
+            <param name="collection"></param>
+            <returns>A <see cref="T:System.Collections.Generic.IEnumerable`1"/> with <see cref="T:Npgsql.NpgsqlParameter"/>.</returns>
+        </member>
+        <member name="M:MelloSilveiraTools.ExtensionMethods.ClassExtensions.BuildParameters``1(``0,System.Boolean)">
+            <summary>
+            Builds an enumerable with <see cref="T:Npgsql.NpgsqlParameter"/>.
+            </summary>
+            <typeparam name="T">The type of <paramref name="obj"/>.</typeparam>
+            <param name="obj"></param>
+            <param name="useDeclaredProperties"></param>
+            <returns>A <see cref="T:System.Collections.Generic.IEnumerable`1"/> with <see cref="T:Npgsql.NpgsqlParameter"/>.</returns>
+        </member>
         <member name="M:MelloSilveiraTools.ExtensionMethods.ClassExtensions.BuildWhereClauseAndParameters``1(``0)">
+            <summary>
+            Builds a SQL WHERE clause and a <see cref="T:Dapper.DynamicParameters"/> based on filter.
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="obj"></param>
+            <returns></returns>
+        </member>
+        <member name="M:MelloSilveiraTools.ExtensionMethods.ClassExtensions.BuildWhereClauseAndNpgsqlParameters``1(``0)">
             <summary>
             Builds a SQL WHERE clause and a <see cref="T:Dapper.DynamicParameters"/> based on filter.
             </summary>
@@ -202,6 +563,14 @@
             <param name="sources">An <see cref="T:System.Collections.Generic.IEnumerable`1" /> to check if is null or empty.</param>
             <returns>True, if <paramref name="sources"/> is null or empty. False, otherwise.</returns>
         </member>
+        <member name="M:MelloSilveiraTools.ExtensionMethods.EnumerableExtensions.IsNotNullOrEmpty``1(System.Collections.Generic.IEnumerable{``0})">
+            <summary>
+            Indicates if <paramref name="sources"/> is not null nor empty.
+            </summary>
+            <typeparam name="TSource">The type of the elements of <paramref name="sources" />.</typeparam>
+            <param name="sources">An <see cref="T:System.Collections.Generic.IEnumerable`1" /> to check if is not null nor empty.</param>
+            <returns>True, if <paramref name="sources"/> is not null nor empty. False, otherwise.</returns>
+        </member>
         <member name="M:MelloSilveiraTools.ExtensionMethods.EnumerableExtensions.FluentAddIfNotNull(System.Collections.Generic.List{System.Double},System.Nullable{System.Double})">
             <summary>
             If <paramref name="element"/> is not null, adds it in <paramref name="sources"/>
@@ -286,12 +655,17 @@
             <param name="depth"></param>
             <returns>List of double array with all possible combinations.</returns>
         </member>
+        <member name="T:MelloSilveiraTools.ExtensionMethods.FormFileExtensions">
+            <summary>
+            Contains extension methods for <see cref="T:Microsoft.AspNetCore.Http.IFormFile"/>.
+            </summary>
+        </member>
         <member name="T:MelloSilveiraTools.ExtensionMethods.NpgsqlCommandExtensions">
             <summary>
             Contains extension methods for <see cref="T:Npgsql.NpgsqlCommand"/>.
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.ExtensionMethods.NpgsqlCommandExtensions.SetCommandParameters``1(Npgsql.NpgsqlCommand,``0)">
+        <member name="M:MelloSilveiraTools.ExtensionMethods.NpgsqlCommandExtensions.SetCommandParametersFromEntity``1(Npgsql.NpgsqlCommand,``0)">
             <summary>
             Sets the parameter for sql command.
             </summary>
@@ -300,13 +674,13 @@
             <param name="entity"></param>
             <returns></returns>
         </member>
-        <member name="M:MelloSilveiraTools.ExtensionMethods.NpgsqlCommandExtensions.GetDbTypeFromPropertyType(System.Type)">
+        <member name="M:MelloSilveiraTools.ExtensionMethods.NpgsqlCommandExtensions.SetCommandParameters(Npgsql.NpgsqlCommand,System.Collections.Generic.IEnumerable{Npgsql.NpgsqlParameter})">
             <summary>
-            Returns the <see cref="T:NpgsqlTypes.NpgsqlDbType"/> from property type.
+            Sets the parameter for sql command.
             </summary>
-            <param name="type"></param>
+            <param name="command"></param>
+            <param name="parameters"></param>
             <returns></returns>
-            <exception cref="T:System.Exception"></exception>
         </member>
         <member name="T:MelloSilveiraTools.ExtensionMethods.NpgsqlConnectionExtensions">
             <summary>
@@ -341,6 +715,11 @@
             created per row, and a direct column-name===member-name mapping is assumed (case insensitive).
             </returns>
         </member>
+        <member name="T:MelloSilveiraTools.ExtensionMethods.OperationResponseExtensions">
+            <summary>
+            Contains extension methods for <see cref="T:MelloSilveiraTools.Application.Operations.OperationResponse"/>.
+            </summary>
+        </member>
         <member name="T:MelloSilveiraTools.ExtensionMethods.StringExtensions">
             <summary>
             Contains extension methods for <see cref="T:System.String"/>>.
@@ -374,12 +753,27 @@
             <param name="input"></param>
             <returns></returns>
         </member>
+        <member name="M:MelloSilveiraTools.ExtensionMethods.StringExtensions.Remove(System.String,System.String[])">
+            <summary>
+            Removes a string frmo another.
+            </summary>
+            <param name="input"></param>
+            <param name="valuesToRemove"></param>
+            <returns></returns>
+        </member>
         <member name="T:MelloSilveiraTools.ExtensionMethods.TypeExtensions">
             <summary>
             Contains extension methods for <see cref="T:System.Type"/>.
             </summary>
         </member>
         <member name="M:MelloSilveiraTools.ExtensionMethods.TypeExtensions.GetPropertiesInHierarchy(System.Type)">
+            <summary>
+            Gets the properties from a <see cref="T:System.Type"/> in following the hierarchy order from parent to child.
+            </summary>
+            <param name="type"></param>
+            <returns>A <see cref="T:System.Collections.Generic.List`1"/> with the properties of the <paramref name="type"/>.</returns>
+        </member>
+        <member name="M:MelloSilveiraTools.ExtensionMethods.TypeExtensions.GetPropertiesInHierarchy``1(System.Type)">
             <summary>
             Gets the properties from a <see cref="T:System.Type"/> in following the hierarchy order from parent to child.
             </summary>
@@ -400,6 +794,13 @@
             <param name="type"></param>
             <returns></returns>
         </member>
+        <member name="M:MelloSilveiraTools.ExtensionMethods.TypeExtensions.GetDeclaredProperties``1(System.Type)">
+            <summary>
+            Gets the properties defined in the <see cref="T:System.Type"/>.
+            </summary>
+            <param name="type"></param>
+            <returns></returns>
+        </member>
         <member name="M:MelloSilveiraTools.ExtensionMethods.TypeExtensions.GetDeclaredPropertyNames(System.Type)">
             <summary>
             Gets the properties name defined in the <see cref="T:System.Type"/>.
@@ -413,6 +814,14 @@
             </summary>
             <param name="type"></param>
             <returns></returns>
+        </member>
+        <member name="M:MelloSilveiraTools.ExtensionMethods.TypeExtensions.GetDbTypeFromPropertyType(System.Type)">
+            <summary>
+            Returns the <see cref="T:NpgsqlTypes.NpgsqlDbType"/> from property type.
+            </summary>
+            <param name="type"></param>
+            <returns></returns>
+            <exception cref="T:System.Exception"></exception>
         </member>
         <member name="T:MelloSilveiraTools.Infrastructure.Database.Attributes.ColumnAttribute">
             <summary>
@@ -469,18 +878,13 @@
             Specifies if the property correspond to foreign key column of table.
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.Infrastructure.Database.Attributes.ForeignKeyColumnAttribute.#ctor(System.Type,System.String,MelloSilveiraTools.Infrastructure.Database.Models.JoinType)">
+        <member name="M:MelloSilveiraTools.Infrastructure.Database.Attributes.ForeignKeyColumnAttribute.#ctor(System.Type,MelloSilveiraTools.Infrastructure.Database.Models.JoinType)">
             <summary>
             Specifies if the property correspond to foreign key column of table.
             </summary>
         </member>
         <member name="P:MelloSilveiraTools.Infrastructure.Database.Attributes.ForeignKeyColumnAttribute.JoinType">
             <inheritdoc cref="T:MelloSilveiraTools.Infrastructure.Database.Models.JoinType"/>
-        </member>
-        <member name="P:MelloSilveiraTools.Infrastructure.Database.Attributes.ForeignKeyColumnAttribute.ReferencedPropertyName">
-            <summary>
-            Name of property which foreign key column is referenced.
-            </summary>
         </member>
         <member name="P:MelloSilveiraTools.Infrastructure.Database.Attributes.ForeignKeyColumnAttribute.ReferencedTableType">
             <summary>
@@ -493,11 +897,6 @@
             </summary>
         </member>
         <member name="T:MelloSilveiraTools.Infrastructure.Database.Attributes.TableAttribute">
-            <summary>
-            Specifies the database table that a class is mapped to.
-            </summary>
-        </member>
-        <member name="M:MelloSilveiraTools.Infrastructure.Database.Attributes.TableAttribute.#ctor(System.String)">
             <summary>
             Specifies the database table that a class is mapped to.
             </summary>
@@ -524,7 +923,7 @@
             Specifies if a column is a primary key of table.
             </summary>
         </member>
-        <member name="T:MelloSilveiraTools.Infrastructure.Database.Models.EntityBase">
+        <member name="T:MelloSilveiraTools.Infrastructure.Database.Models.Entities.EntityBase">
             <summary>
             Represents the base entity for database.
             </summary>
@@ -548,6 +947,427 @@
             <summary>
             Returns all records from the right table, and the matched records from the left table.
             </summary>
+        </member>
+        <member name="T:MelloSilveiraTools.Infrastructure.Database.Repositories.IDatabaseRepository">
+            <summary>
+            Repository that contains methods to deal with database.
+            </summary>
+        </member>
+        <member name="T:MelloSilveiraTools.Infrastructure.Database.Repositories.PostgresRepository">
+            <summary>
+            Repository that contains methods to deal with Postgres database.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Infrastructure.Database.Repositories.PostgresRepository.#ctor(MelloSilveiraTools.Infrastructure.Database.Sql.Provider.ISqlProvider,MelloSilveiraTools.Infrastructure.ResiliencePipelines.PostgresResiliencePipeline,MelloSilveiraTools.Infrastructure.Database.Settings.DatabaseSettings)">
+            <summary>
+            Repository that contains methods to deal with Postgres database.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Infrastructure.Database.Repositories.PostgresRepository.CountAsync``2(``1)">
+            <inheritdoc/>
+        </member>
+        <member name="M:MelloSilveiraTools.Infrastructure.Database.Repositories.PostgresRepository.ExistAsync``1(System.Int64)">
+            <inheritdoc/>
+        </member>
+        <member name="M:MelloSilveiraTools.Infrastructure.Database.Repositories.PostgresRepository.ExistAsync``2(``1)">
+            <inheritdoc/>
+        </member>
+        <member name="M:MelloSilveiraTools.Infrastructure.Database.Repositories.PostgresRepository.DeleteAllAsync``1">
+            <inheritdoc/>
+        </member>
+        <member name="M:MelloSilveiraTools.Infrastructure.Database.Repositories.PostgresRepository.DeleteAsync``1(System.Int64)">
+            <inheritdoc/>
+        </member>
+        <member name="M:MelloSilveiraTools.Infrastructure.Database.Repositories.PostgresRepository.DeleteAsync``2(``1)">
+            <inheritdoc/>
+        </member>
+        <member name="M:MelloSilveiraTools.Infrastructure.Database.Repositories.PostgresRepository.GetFirstOrDefaultAsync``2(``1)">
+            <inheritdoc/>
+        </member>
+        <member name="M:MelloSilveiraTools.Infrastructure.Database.Repositories.PostgresRepository.GetAsync``1(System.Int64)">
+            <inheritdoc/>
+        </member>
+        <member name="M:MelloSilveiraTools.Infrastructure.Database.Repositories.PostgresRepository.GetAsync``2(``1,MelloSilveiraTools.Infrastructure.Database.Models.Filters.Pagination,System.Nullable{System.Threading.CancellationToken})">
+            <inheritdoc/>
+        </member>
+        <member name="M:MelloSilveiraTools.Infrastructure.Database.Repositories.PostgresRepository.GetDistinctAsync``2(``1,MelloSilveiraTools.Infrastructure.Database.Models.Filters.Pagination,System.Nullable{System.Threading.CancellationToken})">
+            <inheritdoc/>
+        </member>
+        <member name="M:MelloSilveiraTools.Infrastructure.Database.Repositories.PostgresRepository.InsertAsync``1(``0)">
+            <inheritdoc/>
+        </member>
+        <member name="M:MelloSilveiraTools.Infrastructure.Database.Repositories.PostgresRepository.InsertAsync``1(``0[])">
+            <inheritdoc/>
+        </member>
+        <member name="M:MelloSilveiraTools.Infrastructure.Database.Repositories.PostgresRepository.UpsertAsync``2(``0[],``1)">
+            <inheritdoc/>
+        </member>
+        <member name="M:MelloSilveiraTools.Infrastructure.Database.Repositories.PostgresRepository.TryUpdateAsync``1(``0)">
+            <inheritdoc/>
+        </member>
+        <member name="T:MelloSilveiraTools.Infrastructure.Database.Sql.Provider.PostgresSqlProvider">
+            <inheritdoc cref="T:MelloSilveiraTools.Infrastructure.Database.Sql.Provider.ISqlProvider"/>
+        </member>
+        <member name="M:MelloSilveiraTools.Infrastructure.Database.Sql.Provider.PostgresSqlProvider.GetBulkInsertSql``1(System.Int32)">
+            <inheritdoc/>
+        </member>
+        <member name="M:MelloSilveiraTools.Infrastructure.Database.Sql.Provider.PostgresSqlProvider.GetCountSql``1">
+            <inheritdoc/>
+        </member>
+        <member name="M:MelloSilveiraTools.Infrastructure.Database.Sql.Provider.PostgresSqlProvider.GetDeleteSql``1">
+            <inheritdoc/>
+        </member>
+        <member name="M:MelloSilveiraTools.Infrastructure.Database.Sql.Provider.PostgresSqlProvider.GetDeleteByPrimaryKeySql``1">
+            <inheritdoc/>
+        </member>
+        <member name="M:MelloSilveiraTools.Infrastructure.Database.Sql.Provider.PostgresSqlProvider.GetExistByPrimaryKeySql``1">
+            <inheritdoc/>
+        </member>
+        <member name="M:MelloSilveiraTools.Infrastructure.Database.Sql.Provider.PostgresSqlProvider.GetInsertSql``1">
+            <inheritdoc/>
+        </member>
+        <member name="M:MelloSilveiraTools.Infrastructure.Database.Sql.Provider.PostgresSqlProvider.GetSelectSql``1">
+            <inheritdoc/>
+        </member>
+        <member name="M:MelloSilveiraTools.Infrastructure.Database.Sql.Provider.PostgresSqlProvider.GetSelectDistinctSql``1">
+            <inheritdoc/>
+        </member>
+        <member name="M:MelloSilveiraTools.Infrastructure.Database.Sql.Provider.PostgresSqlProvider.GetSelectByPrimaryKeySql``1">
+            <inheritdoc/>
+        </member>
+        <member name="M:MelloSilveiraTools.Infrastructure.Database.Sql.Provider.PostgresSqlProvider.GetUpdateSql``1">
+            <inheritdoc/>
+        </member>
+        <member name="M:MelloSilveiraTools.Infrastructure.Database.Sql.Provider.PostgresSqlProvider.GetUpdateByPrimaryKeySql``1">
+            <inheritdoc/>
+        </member>
+        <member name="T:MelloSilveiraTools.Infrastructure.Database.Sql.Provider.SqlResource">
+            <summary>
+              A strongly-typed resource class, for looking up localized strings, etc.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Infrastructure.Database.Sql.Provider.SqlResource.ResourceManager">
+            <summary>
+              Returns the cached ResourceManager instance used by this class.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Infrastructure.Database.Sql.Provider.SqlResource.Culture">
+            <summary>
+              Overrides the current thread's CurrentUICulture property for all
+              resource lookups using this strongly typed resource class.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Infrastructure.Database.Sql.Provider.SqlResource.DeleteTemplate">
+             <summary>
+               Looks up a localized string similar to DELETE FROM #TABLE_NAME AS #TABLE_ALIAS
+            #WHERE.
+             </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Infrastructure.Database.Sql.Provider.SqlResource.InsertInBatchTemplate">
+             <summary>
+               Looks up a localized string similar to INSERT INTO #TABLE_NAME
+            (	
+            	#COLUMNS
+            )
+            VALUES
+            	#VALUES
+            RETURNING #PRIMARY_KEY;.
+             </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Infrastructure.Database.Sql.Provider.SqlResource.InsertTemplate">
+             <summary>
+               Looks up a localized string similar to INSERT INTO #TABLE_NAME
+            (	
+            	#COLUMNS
+            )
+            VALUES
+            (
+            	#PARAMETER_NAMES
+            )
+            RETURNING #PRIMARY_KEY;.
+             </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Infrastructure.Database.Sql.Provider.SqlResource.InsertWithUniqueKeyTemplate">
+             <summary>
+               Looks up a localized string similar to WITH CTE AS (
+            	INSERT INTO #TABLE_NAME
+            	(	
+            		#COLUMNS
+            	)
+            	VALUES
+            	(
+            		#PARAMETER_NAMES
+            	)
+            	RETURNING #PRIMARY_KEY
+            )
+            SELECT #PRIMARY_KEY FROM CTE
+             UNION ALL
+            SELECT #PRIMARY_KEY FROM #TABLE_NAME #TABLE_ALIAS WHERE #UNIQUE_KEY_FILTERS;.
+             </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Infrastructure.Database.Sql.Provider.SqlResource.SelectTemplate">
+             <summary>
+               Looks up a localized string similar to SELECT
+            	#COLUMNS
+            FROM #TABLE_NAME AS #TABLE_ALIAS
+            #JOIN
+            #WHERE
+            #ORDERBY
+            #OFFSET
+            #LIMIT.
+             </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Infrastructure.Database.Sql.Provider.SqlResource.UpdateTemplate">
+             <summary>
+               Looks up a localized string similar to UPDATE #TABLE_NAME
+            SET
+            	#VALUES_TO_UPDATE
+            #WHERE.
+             </summary>
+        </member>
+        <member name="T:MelloSilveiraTools.Infrastructure.Logger.LoggerBase">
+            <inheritdoc cref="T:MelloSilveiraTools.Infrastructure.Logger.ILogger"/>
+        </member>
+        <member name="M:MelloSilveiraTools.Infrastructure.Logger.LoggerBase.Error(System.String,System.String,System.String)">
+            <inheritdoc/>
+        </member>
+        <member name="M:MelloSilveiraTools.Infrastructure.Logger.LoggerBase.Error(System.String,System.Exception,System.String,System.String)">
+            <inheritdoc/>
+        </member>
+        <member name="M:MelloSilveiraTools.Infrastructure.Logger.LoggerBase.Error(System.String,System.Exception,System.Collections.Generic.IDictionary{System.String,System.Object},System.String,System.String)">
+            <inheritdoc/>
+        </member>
+        <member name="M:MelloSilveiraTools.Infrastructure.Logger.LoggerBase.Error(System.String,System.Exception,System.Collections.Generic.IList{System.String},System.Collections.Generic.IDictionary{System.String,System.Object})">
+            <inheritdoc/>
+        </member>
+        <member name="M:MelloSilveiraTools.Infrastructure.Logger.LoggerBase.Warn(System.String,System.String,System.String)">
+            <inheritdoc/>
+        </member>
+        <member name="M:MelloSilveiraTools.Infrastructure.Logger.LoggerBase.Warn(System.String,System.Exception,System.String,System.String)">
+            <inheritdoc/>
+        </member>
+        <member name="M:MelloSilveiraTools.Infrastructure.Logger.LoggerBase.Warn(System.String,System.Exception,System.Collections.Generic.IDictionary{System.String,System.Object},System.String,System.String)">
+            <inheritdoc/>
+        </member>
+        <member name="M:MelloSilveiraTools.Infrastructure.Logger.LoggerBase.Warn(System.String,System.Exception,System.Collections.Generic.IDictionary{System.String,System.Object},System.Collections.Generic.IList{System.String})">
+            <inheritdoc/>
+        </member>
+        <member name="T:MelloSilveiraTools.Infrastructure.ResiliencePipelines.ApiServiceAgentResiliencePipeline">
+            <summary>
+            Resilience pipeline for PostgreSQL repositories that provides a strategy to handle retriable exceptions.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Infrastructure.ResiliencePipelines.ApiServiceAgentResiliencePipeline.#ctor(MelloSilveiraTools.Infrastructure.Logger.ILogger,MelloSilveiraTools.Infrastructure.ResiliencePipelines.ResiliencePipelineSettings)">
+            <summary>
+            Initialize a new instance of <see cref="T:MelloSilveiraTools.Infrastructure.ResiliencePipelines.PostgresResiliencePipeline"/>.
+            </summary>
+            <param name="logger"></param>
+            <param name="settings"></param>
+        </member>
+        <member name="M:MelloSilveiraTools.Infrastructure.ResiliencePipelines.ApiServiceAgentResiliencePipeline.#ctor(MelloSilveiraTools.Infrastructure.Logger.ILogger,MelloSilveiraTools.Infrastructure.ResiliencePipelines.ResiliencePipelineSettings,System.Func{Polly.Retry.RetryPredicateArguments{System.Object},System.Threading.Tasks.ValueTask{System.Boolean}})">
+            <summary>
+            Initializes a new instance of <see cref="T:MelloSilveiraTools.Infrastructure.ResiliencePipelines.PostgresResiliencePipeline"/>.
+            </summary>
+            <param name="logger">See reference at <see cref="T:MelloSilveiraTools.Infrastructure.Logger.ILogger"/>.</param>
+            <param name="settings">See reference at <see cref="T:MelloSilveiraTools.Infrastructure.ResiliencePipelines.ResiliencePipelineSettings"/>.</param>
+            <param name="shouldHandle">Predicate that determines whether the retry should be executed for a given outcome.</param>
+        </member>
+        <member name="T:MelloSilveiraTools.Infrastructure.ResiliencePipelines.DefaultResiliencePipeline">
+            <summary>
+            Base resilience pipeline to automatically retry and log each attempt.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Infrastructure.ResiliencePipelines.DefaultResiliencePipeline.#ctor(MelloSilveiraTools.Infrastructure.Logger.ILogger,MelloSilveiraTools.Infrastructure.ResiliencePipelines.ResiliencePipelineSettings,System.Func{Polly.Retry.RetryPredicateArguments{System.Object},System.Threading.Tasks.ValueTask{System.Boolean}})">
+            <summary>
+            Initializes a new instance of <see cref="T:MelloSilveiraTools.Infrastructure.ResiliencePipelines.DefaultResiliencePipeline"/>.
+            </summary>
+            <param name="logger">See reference at <see cref="T:MelloSilveiraTools.Infrastructure.Logger.ILogger"/>.</param>
+            <param name="settings">See reference at <see cref="T:MelloSilveiraTools.Infrastructure.ResiliencePipelines.ResiliencePipelineSettings"/>.</param>
+            <param name="shouldHandle">Predicate that determines whether the retry should be executed for a given outcome.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.Infrastructure.ResiliencePipelines.DefaultResiliencePipeline.ExecuteAsync``1(System.Func{Polly.ResilienceContext,System.Threading.Tasks.ValueTask{``0}},System.String,System.String)">
+            <summary>
+            Encapsulates a function with a strategy that covers retriable scenarios.
+            </summary>
+            <typeparam name="T">Type returned by callback function.</typeparam>
+            <param name="callback">Function which will be encapsulated by the retry strategy.</param>
+            <param name="callerMemberName">Member name of the caller which will be logged when a retry is performed.</param>
+            <param name="callerFilePath">Path of the caller which will be used to get the class name to be logged when a retry is performed.</param>
+            <returns>The instance of <see cref="T:System.Threading.Tasks.ValueTask"/> that represents the asynchronous execution.</returns>
+        </member>
+        <member name="M:MelloSilveiraTools.Infrastructure.ResiliencePipelines.DefaultResiliencePipeline.ExecuteAsync(System.Func{Polly.ResilienceContext,System.Threading.Tasks.ValueTask},System.String,System.String)">
+            <summary>
+            Encapsulates a function with a strategy that covers retriable scenarios.
+            </summary>
+            <param name="callback">Function which will be encapsulated by the retry strategy.</param>
+            <param name="callerMemberName">Member name of the caller which will be logged when a retry is performed.</param>
+            <param name="callerFilePath">Path of the caller which will be used to get the class name to be logged when a retry is performed.</param>
+            <returns>The instance of <see cref="T:System.Threading.Tasks.ValueTask"/> that represents the asynchronous execution.</returns>
+        </member>
+        <member name="T:MelloSilveiraTools.Infrastructure.ResiliencePipelines.PostgresResiliencePipeline">
+            <summary>
+            Resilience pipeline for PostgreSQL repositories that provides a strategy to handle retriable exceptions.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Infrastructure.ResiliencePipelines.PostgresResiliencePipeline.#ctor(MelloSilveiraTools.Infrastructure.Logger.ILogger,MelloSilveiraTools.Infrastructure.ResiliencePipelines.ResiliencePipelineSettings)">
+            <summary>
+            Initialize a new instance of <see cref="T:MelloSilveiraTools.Infrastructure.ResiliencePipelines.PostgresResiliencePipeline"/>.
+            </summary>
+            <param name="logger"></param>
+            <param name="settings"></param>
+        </member>
+        <member name="M:MelloSilveiraTools.Infrastructure.ResiliencePipelines.PostgresResiliencePipeline.#ctor(MelloSilveiraTools.Infrastructure.Logger.ILogger,MelloSilveiraTools.Infrastructure.ResiliencePipelines.ResiliencePipelineSettings,System.Func{Polly.Retry.RetryPredicateArguments{System.Object},System.Threading.Tasks.ValueTask{System.Boolean}})">
+            <summary>
+            Initializes a new instance of <see cref="T:MelloSilveiraTools.Infrastructure.ResiliencePipelines.PostgresResiliencePipeline"/>.
+            </summary>
+            <param name="logger">See reference at <see cref="T:MelloSilveiraTools.Infrastructure.Logger.ILogger"/>.</param>
+            <param name="settings">See reference at <see cref="T:MelloSilveiraTools.Infrastructure.ResiliencePipelines.ResiliencePipelineSettings"/>.</param>
+            <param name="shouldHandle">Predicate that determines whether the retry should be executed for a given outcome.</param>
+        </member>
+        <member name="T:MelloSilveiraTools.Infrastructure.ResiliencePipelines.ResiliencePipelineSettings">
+            <summary>
+            Settings for <see cref="T:Polly.ResiliencePipeline"/>.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Infrastructure.ResiliencePipelines.ResiliencePipelineSettings.BackoffType">
+            <inheritdoc cref="T:Polly.DelayBackoffType"/>
+        </member>
+        <member name="P:MelloSilveiraTools.Infrastructure.ResiliencePipelines.ResiliencePipelineSettings.DelayInMilliseconds">
+            <summary>
+            Delay between retries in milliseconds.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Infrastructure.ResiliencePipelines.ResiliencePipelineSettings.MaxRetryAttempts">
+            <inheritdoc cref="P:Polly.Retry.RetryStrategyOptions`1.MaxRetryAttempts"/>
+        </member>
+        <member name="P:MelloSilveiraTools.Infrastructure.ResiliencePipelines.ResiliencePipelineSettings.UseJitter">
+            <inheritdoc cref="P:Polly.Retry.RetryStrategyOptions`1.UseJitter"/>
+        </member>
+        <member name="T:MelloSilveiraTools.Infrastructure.Services.ApiServiceAgent.ApiServiceAgentBase">
+            <inheritdoc cref="T:MelloSilveiraTools.Infrastructure.Services.ApiServiceAgent.IApiServiceAgent"/>
+        </member>
+        <member name="P:MelloSilveiraTools.Infrastructure.Services.ApiServiceAgent.ApiServiceAgentBase.ServiceName">
+            <inheritdoc/>
+        </member>
+        <member name="P:MelloSilveiraTools.Infrastructure.Services.ApiServiceAgent.ApiServiceAgentBase.JsonSerializerOptions">
+            <summary>
+            Custom options to be used with <see cref="T:System.Text.Json.JsonSerializer"/>.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Infrastructure.Services.ApiServiceAgent.ApiServiceAgentBase.Logger">
+            <inheritdoc cref="T:MelloSilveiraTools.Infrastructure.Logger.ILogger"/>
+        </member>
+        <member name="P:MelloSilveiraTools.Infrastructure.Services.ApiServiceAgent.ApiServiceAgentBase.HttpClient">
+            <summary>
+            HTTP client to be used on integration with API.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Infrastructure.Services.ApiServiceAgent.ApiServiceAgentBase.Settings">
+            <summary>
+            Settings for integrations with an API.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Infrastructure.Services.ApiServiceAgent.ApiServiceAgentBase.ResiliencePipeline">
+            <inheritdoc cref="T:MelloSilveiraTools.Infrastructure.ResiliencePipelines.ApiServiceAgentResiliencePipeline"/>
+        </member>
+        <member name="M:MelloSilveiraTools.Infrastructure.Services.ApiServiceAgent.ApiServiceAgentBase.#ctor(MelloSilveiraTools.Infrastructure.Logger.ILogger,MelloSilveiraTools.Infrastructure.Services.ApiServiceAgent.Settings.ApiServiceAgentSettings,MelloSilveiraTools.Infrastructure.ResiliencePipelines.ApiServiceAgentResiliencePipeline)">
+            <summary>
+            Initializes a new instance of <see cref="T:MelloSilveiraTools.Infrastructure.Services.ApiServiceAgent.ApiServiceAgentBase"/>.
+            </summary>
+            <param name="logger"></param>
+            <param name="settings"></param>
+            <param name="resiliencePipeline"></param>
+        </member>
+        <member name="M:MelloSilveiraTools.Infrastructure.Services.ApiServiceAgent.ApiServiceAgentBase.GetAsync``2(System.String,System.Int32,System.String)">
+            <summary>
+            Sends a GET request to the specified URI.
+            </summary>
+            <param name="requestUri"></param>
+            <param name="timeoutInMiliseconds"></param>
+            <param name="methodName"></param>
+            <returns></returns>
+        </member>
+        <member name="M:MelloSilveiraTools.Infrastructure.Services.ApiServiceAgent.ApiServiceAgentBase.Dispose(System.Boolean)">
+            <summary>
+            See reference <see cref="M:MelloSilveiraTools.Infrastructure.Services.ApiServiceAgent.ApiServiceAgentBase.Dispose"/>.
+            </summary>
+            <param name="disposing">
+            Indicates whether the method call comes from a Dispose method (its value is true) or from a finalizer 
+            (its value is false).
+            </param>
+        </member>
+        <member name="M:MelloSilveiraTools.Infrastructure.Services.ApiServiceAgent.ApiServiceAgentBase.Dispose">
+            <inheritdoc/>
+        </member>
+        <member name="M:MelloSilveiraTools.Infrastructure.Services.ApiServiceAgent.ApiServiceAgentBase.Finalize">
+            <summary>
+            Finalizes the current instance of <see cref="T:MelloSilveiraTools.Infrastructure.Services.ApiServiceAgent.ApiServiceAgentBase"/>.
+            </summary>
+        </member>
+        <member name="T:MelloSilveiraTools.Infrastructure.Services.ApiServiceAgent.DataContract.AsyncOperationResponse`1">
+            <summary>
+            Response content for async operations.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Infrastructure.Services.ApiServiceAgent.DataContract.AsyncOperationResponse`1.Data">
+            <summary>
+            Data content of response.
+            </summary>
+        </member>
+        <member name="T:MelloSilveiraTools.Infrastructure.Services.ApiServiceAgent.IApiServiceAgent">
+            <summary>
+            Contains the base implementations for integrations with an API.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Infrastructure.Services.ApiServiceAgent.IApiServiceAgent.ServiceName">
+            <summary>
+            Name of service agent.
+            </summary>
+        </member>
+        <member name="T:MelloSilveiraTools.Infrastructure.Services.ApiServiceAgent.Settings.ApiServiceAgentSettings">
+            <summary>
+            Settings for integrations with an API.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Infrastructure.Services.ApiServiceAgent.Settings.ApiServiceAgentSettings.BaseAddress">
+            <summary>
+            Base address for integration with an API.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Infrastructure.Services.ApiServiceAgent.Settings.ApiServiceAgentSettings.DefaultTimeoutInSeconds">
+            <summary>
+            Default timeout in seconds for conection with API.
+            </summary>
+        </member>
+        <member name="T:MelloSilveiraTools.Infrastructure.Services.ApiServiceAgent.Settings.EndpointSettings">
+            <summary>
+            General settings for an endpoint.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Infrastructure.Services.ApiServiceAgent.Settings.EndpointSettings.Uri">
+            <summary>
+            Endpoint URI.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Infrastructure.Services.ApiServiceAgent.Settings.EndpointSettings.TimeoutInMiliseconds">
+            <summary>
+            Timeout in miliseconds for endpoint.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Infrastructure.Services.Email.SmtpEmailService.SendAsync(System.String,System.String,System.String,System.Boolean)">
+            <inheritdoc/>
+        </member>
+        <member name="T:MelloSilveiraTools.Infrastructure.Services.Encryption.EncryptionService">
+            <inheritdoc cref="T:MelloSilveiraTools.Infrastructure.Services.Encryption.IEncryptionService"/>
+        </member>
+        <member name="M:MelloSilveiraTools.Infrastructure.Services.Encryption.EncryptionService.#ctor(MelloSilveiraTools.Infrastructure.Services.Encryption.EncryptionSettings)">
+            <inheritdoc cref="T:MelloSilveiraTools.Infrastructure.Services.Encryption.IEncryptionService"/>
+        </member>
+        <member name="M:MelloSilveiraTools.Infrastructure.Services.Encryption.EncryptionService.GeneratePasswordHash(System.String)">
+            <inheritdoc/>
+        </member>
+        <member name="M:MelloSilveiraTools.Infrastructure.Services.Encryption.EncryptionService.IsPasswordValid(System.String,System.String)">
+            <inheritdoc/>
         </member>
     </members>
 </doc>
