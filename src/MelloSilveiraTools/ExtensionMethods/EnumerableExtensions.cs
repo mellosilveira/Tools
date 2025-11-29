@@ -56,7 +56,15 @@ public static class EnumerableExtensions
     /// <typeparam name="TSource">The type of the elements of <paramref name="sources" />.</typeparam>
     /// <param name="sources">An <see cref="IEnumerable{T}" /> to check if is null or empty.</param>
     /// <returns>True, if <paramref name="sources"/> is null or empty. False, otherwise.</returns>
-    public static bool IsNullOrEmpty<TSource>(this IEnumerable<TSource> sources) => sources is null || sources.IsEmpty();
+    public static bool IsNullOrEmpty<TSource>(this IEnumerable<TSource>? sources) => sources is null || sources.IsEmpty();
+
+    /// <summary>
+    /// Indicates if <paramref name="sources"/> is not null nor empty.
+    /// </summary>
+    /// <typeparam name="TSource">The type of the elements of <paramref name="sources" />.</typeparam>
+    /// <param name="sources">An <see cref="IEnumerable{T}" /> to check if is not null nor empty.</param>
+    /// <returns>True, if <paramref name="sources"/> is not null nor empty. False, otherwise.</returns>
+    public static bool IsNotNullOrEmpty<TSource>(this IEnumerable<TSource> sources) => sources is not null && sources.Any();
 
     /// <summary>
     /// If <paramref name="element"/> is not null, adds it in <paramref name="sources"/>
@@ -124,10 +132,7 @@ public static class EnumerableExtensions
     /// <typeparam name="TSource"></typeparam>
     /// <param name="sources"></param>
     /// <returns></returns>
-    public static Type GetSourceType<TSource>(this IEnumerable<TSource> sources)
-    {
-        return sources.FirstOrDefault()?.GetType() ?? typeof(TSource);
-    }
+    public static Type GetSourceType<TSource>(this IEnumerable<TSource> sources) => sources.FirstOrDefault()?.GetType() ?? typeof(TSource);
 
     /// <summary>
     /// Performs an async iteration with <see cref="SemaphoreSlim"/>.

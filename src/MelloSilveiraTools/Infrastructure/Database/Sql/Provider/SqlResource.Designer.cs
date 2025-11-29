@@ -76,6 +76,21 @@ namespace MelloSilveiraTools.Infrastructure.Database.Sql.Provider {
         ///	#COLUMNS
         ///)
         ///VALUES
+        ///	#VALUES
+        ///RETURNING #PRIMARY_KEY;.
+        /// </summary>
+        internal static string InsertInBatchTemplate {
+            get {
+                return ResourceManager.GetString("InsertInBatchTemplate", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to INSERT INTO #TABLE_NAME
+        ///(	
+        ///	#COLUMNS
+        ///)
+        ///VALUES
         ///(
         ///	#PARAMETER_NAMES
         ///)
@@ -88,14 +103,36 @@ namespace MelloSilveiraTools.Infrastructure.Database.Sql.Provider {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to WITH CTE AS (
+        ///	INSERT INTO #TABLE_NAME
+        ///	(	
+        ///		#COLUMNS
+        ///	)
+        ///	VALUES
+        ///	(
+        ///		#PARAMETER_NAMES
+        ///	)
+        ///	RETURNING #PRIMARY_KEY
+        ///)
+        ///SELECT #PRIMARY_KEY FROM CTE
+        /// UNION ALL
+        ///SELECT #PRIMARY_KEY FROM #TABLE_NAME #TABLE_ALIAS WHERE #UNIQUE_KEY_FILTERS;.
+        /// </summary>
+        internal static string InsertWithUniqueKeyTemplate {
+            get {
+                return ResourceManager.GetString("InsertWithUniqueKeyTemplate", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to SELECT
         ///	#COLUMNS
         ///FROM #TABLE_NAME AS #TABLE_ALIAS
         ///#JOIN
         ///#WHERE
-        ///--#ORDERBY
-        ///--#OFFSET
-        ///--#LIMIT.
+        ///#ORDERBY
+        ///#OFFSET
+        ///#LIMIT.
         /// </summary>
         internal static string SelectTemplate {
             get {
