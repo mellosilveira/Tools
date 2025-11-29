@@ -1,6 +1,4 @@
-﻿using DataContract = MudRunner.Commons.DataContracts.Models.Profiles;
-using System;
-using MelloSilveiraTools.MechanicsOfMaterials.Models.Profiles;
+﻿using MelloSilveiraTools.MechanicsOfMaterials.Models.Profiles;
 
 namespace MelloSilveiraTools.MechanicsOfMaterials.GeometricProperties
 {

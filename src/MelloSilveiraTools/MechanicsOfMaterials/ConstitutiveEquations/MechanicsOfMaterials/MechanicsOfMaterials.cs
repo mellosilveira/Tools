@@ -1,5 +1,4 @@
 ﻿using MelloSilveiraTools.MechanicsOfMaterials.Models.Enums;
-using MudRunner.Commons.Core.GeometricProperties;
 
 namespace MelloSilveiraTools.MechanicsOfMaterials.ConstitutiveEquations.MechanicsOfMaterials
 {
@@ -15,19 +14,11 @@ namespace MelloSilveiraTools.MechanicsOfMaterials.ConstitutiveEquations.Mechanic
         }
 
         /// <inheritdoc/>
-        public double CalculateNormalStress(double normalForce, double area)
-        {
-            GeometricProperty.Validate(area, nameof(area));
-
-            return normalForce / area;
-        }
+        public double CalculateNormalStress(double normalForce, double area) => normalForce / area;
 
         /// <inheritdoc/>
         public double CalculateCriticalBucklingForce(double youngModulus, double momentOfInertia, double length, FasteningType fasteningType = FasteningType.BothEndPinned)
         {
-            GeometricProperty.Validate(momentOfInertia, nameof(momentOfInertia));
-            GeometricProperty.Validate(length, nameof(length));
-
             // It was necessary to multiply the result by 10^-6 to convert it to Newton.
             return Math.Pow(Math.PI, 2) * youngModulus * momentOfInertia / Math.Pow(length * CalculateColumnEffectiveLengthFactor(fasteningType), 2) * Math.Pow(10, -6);
         }
