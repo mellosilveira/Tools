@@ -19,6 +19,8 @@ namespace MelloSilveiraTools.Infrastructure.Database.Repositories;
 /// </summary>
 public class PostgresRepository(ISqlProvider sqlProvider, PostgresResiliencePipeline resiliencePipeline, DatabaseSettings databaseSettings) : IDatabaseRepository
 {
+    protected DatabaseSettings DatabaseSettings { get; } = databaseSettings;
+
     /// <inheritdoc/>
     public async Task<long> CountAsync<TEntity, TFilter>(TFilter filter)
         where TEntity : EntityBase, new()
@@ -31,7 +33,7 @@ public class PostgresRepository(ISqlProvider sqlProvider, PostgresResiliencePipe
         {
             await using NpgsqlConnection connection = await GetNewOpenedConnectionAsync().ConfigureAwait(false);
             return await connection
-                .ExecuteScalarAsync<long>(sql, parameters, commandTimeout: databaseSettings.ConnectionTimeoutInMilliseconds)
+                .ExecuteScalarAsync<long>(sql, parameters, commandTimeout: DatabaseSettings.ConnectionTimeoutInMilliseconds)
                 .ConfigureAwait(false);
         });
     }
@@ -48,7 +50,7 @@ public class PostgresRepository(ISqlProvider sqlProvider, PostgresResiliencePipe
         {
             await using NpgsqlConnection connection = await GetNewOpenedConnectionAsync().ConfigureAwait(false);
             long count = await connection
-                .ExecuteScalarAsync<long>(sql, parameters, commandTimeout: databaseSettings.ConnectionTimeoutInMilliseconds)
+                .ExecuteScalarAsync<long>(sql, parameters, commandTimeout: DatabaseSettings.ConnectionTimeoutInMilliseconds)
                 .ConfigureAwait(false);
 
             return count > 0;
@@ -65,7 +67,7 @@ public class PostgresRepository(ISqlProvider sqlProvider, PostgresResiliencePipe
         {
             await using NpgsqlConnection connection = await GetNewOpenedConnectionAsync().ConfigureAwait(false);
             long count = await connection
-                .ExecuteScalarAsync<long>(sql, parameters, commandTimeout: databaseSettings.ConnectionTimeoutInMilliseconds)
+                .ExecuteScalarAsync<long>(sql, parameters, commandTimeout: DatabaseSettings.ConnectionTimeoutInMilliseconds)
                 .ConfigureAwait(false);
 
             return count > 0;
@@ -79,7 +81,7 @@ public class PostgresRepository(ISqlProvider sqlProvider, PostgresResiliencePipe
 
         await resiliencePipeline.ExecuteAsync(async _ =>
         {
-            CancellationToken cancellationToken = GetCancellationToken(databaseSettings.UnitOperationTimeoutInMilliseconds);
+            CancellationToken cancellationToken = GetCancellationToken(DatabaseSettings.UnitOperationTimeoutInMilliseconds);
 
             await using NpgsqlConnection connection = await GetNewOpenedConnectionAsync(cancellationToken).ConfigureAwait(false);
             await using NpgsqlCommand command = new(sql, connection);
@@ -94,7 +96,7 @@ public class PostgresRepository(ISqlProvider sqlProvider, PostgresResiliencePipe
 
         await resiliencePipeline.ExecuteAsync(async _ =>
         {
-            CancellationToken cancellationToken = GetCancellationToken(databaseSettings.UnitOperationTimeoutInMilliseconds);
+            CancellationToken cancellationToken = GetCancellationToken(DatabaseSettings.UnitOperationTimeoutInMilliseconds);
 
             await using NpgsqlConnection connection = await GetNewOpenedConnectionAsync(cancellationToken).ConfigureAwait(false);
             await using NpgsqlCommand command = new(sql, connection);
@@ -112,7 +114,7 @@ public class PostgresRepository(ISqlProvider sqlProvider, PostgresResiliencePipe
 
         await resiliencePipeline.ExecuteAsync(async _ =>
         {
-            CancellationToken cancellationToken = GetCancellationToken(databaseSettings.UnitOperationTimeoutInMilliseconds);
+            CancellationToken cancellationToken = GetCancellationToken(DatabaseSettings.UnitOperationTimeoutInMilliseconds);
 
             await using NpgsqlConnection connection = await GetNewOpenedConnectionAsync(cancellationToken).ConfigureAwait(false);
             await using NpgsqlCommand command = new(sql, connection);
@@ -142,7 +144,7 @@ public class PostgresRepository(ISqlProvider sqlProvider, PostgresResiliencePipe
         {
             await using NpgsqlConnection connection = await GetNewOpenedConnectionAsync().ConfigureAwait(false);
             return await connection
-                .QueryFirstOrDefaultAsync<TEntity>(sql, parameters, commandTimeout: databaseSettings.ConnectionTimeoutInMilliseconds)
+                .QueryFirstOrDefaultAsync<TEntity>(sql, parameters, commandTimeout: DatabaseSettings.ConnectionTimeoutInMilliseconds)
                 .ConfigureAwait(false);
         });
     }
@@ -159,13 +161,13 @@ public class PostgresRepository(ISqlProvider sqlProvider, PostgresResiliencePipe
         {
             await using NpgsqlConnection connection = await GetNewOpenedConnectionAsync().ConfigureAwait(false);
             return await connection
-                .QueryFirstOrDefaultAsync<TEntity>(sql, parameters, commandTimeout: databaseSettings.ConnectionTimeoutInMilliseconds)
+                .QueryFirstOrDefaultAsync<TEntity>(sql, parameters, commandTimeout: DatabaseSettings.ConnectionTimeoutInMilliseconds)
                 .ConfigureAwait(false);
         });
     }
 
     /// <inheritdoc/>
-    public async IAsyncEnumerable<TEntity> GetAsync<TEntity, TFilter>(TFilter filter, Pagination? pagination = null, CancellationToken? cancellationToken = null)
+    public IAsyncEnumerable<TEntity> GetAsync<TEntity, TFilter>(TFilter filter, Pagination? pagination = null, CancellationToken? cancellationToken = null)
          where TEntity : EntityBase, new()
         where TFilter : FilterBase
     {
@@ -176,19 +178,11 @@ public class PostgresRepository(ISqlProvider sqlProvider, PostgresResiliencePipe
             .Replace("#LIMIT", pagination?.Limit is null ? null : $"LIMIT {pagination.Limit}")
             .Replace("#OFFSET", pagination?.Offset is null ? null : $"OFFSET {pagination.Offset}");
 
-        CancellationToken localCancellationToken = cancellationToken ?? GetCancellationToken(databaseSettings.ConnectionTimeoutInMilliseconds);
-
-        await using NpgsqlConnection connection = await GetNewOpenedConnectionAsync(localCancellationToken).ConfigureAwait(false);
-        await using DbDataReader dataReader = await connection.ExecuteReaderAsync(sql, parameters, commandTimeout: databaseSettings.ConnectionTimeoutInMilliseconds).ConfigureAwait(false);
-        while (await dataReader.ReadAsync(localCancellationToken).ConfigureAwait(false))
-        {
-            if (!await dataReader.IsDBNullAsync(0, localCancellationToken).ConfigureAwait(false))
-                yield return dataReader.ConvertTo<TEntity>();
-        }
+        return GetAsync<TEntity>(sql, parameters, cancellationToken);
     }
 
     /// <inheritdoc/>
-    public async IAsyncEnumerable<TEntity> GetDistinctAsync<TEntity, TFilter>(TFilter filter, Pagination? pagination = null, CancellationToken? cancellationToken = null)
+    public IAsyncEnumerable<TEntity> GetDistinctAsync<TEntity, TFilter>(TFilter filter, Pagination? pagination = null, CancellationToken? cancellationToken = null)
          where TEntity : EntityBase, new()
         where TFilter : FilterBase
     {
@@ -199,15 +193,7 @@ public class PostgresRepository(ISqlProvider sqlProvider, PostgresResiliencePipe
             .Replace("#LIMIT", pagination?.Limit is null ? null : $"LIMIT {pagination.Limit}")
             .Replace("#OFFSET", pagination?.Offset is null ? null : $"OFFSET {pagination.Offset}");
 
-        CancellationToken localCancellationToken = cancellationToken ?? GetCancellationToken(databaseSettings.ConnectionTimeoutInMilliseconds);
-
-        await using NpgsqlConnection connection = await GetNewOpenedConnectionAsync(localCancellationToken).ConfigureAwait(false);
-        await using DbDataReader dataReader = await connection.ExecuteReaderAsync(sql, parameters, commandTimeout: databaseSettings.ConnectionTimeoutInMilliseconds).ConfigureAwait(false);
-        while (await dataReader.ReadAsync(localCancellationToken).ConfigureAwait(false))
-        {
-            if (!await dataReader.IsDBNullAsync(0, localCancellationToken).ConfigureAwait(false))
-                yield return dataReader.ConvertTo<TEntity>();
-        }
+        return GetAsync<TEntity>(sql, parameters, cancellationToken);
     }
 
     /// <inheritdoc/>
@@ -218,7 +204,7 @@ public class PostgresRepository(ISqlProvider sqlProvider, PostgresResiliencePipe
 
         return await resiliencePipeline.ExecuteAsync(async _ =>
         {
-            CancellationToken cancellationToken = GetCancellationToken(databaseSettings.UnitOperationTimeoutInMilliseconds);
+            CancellationToken cancellationToken = GetCancellationToken(DatabaseSettings.UnitOperationTimeoutInMilliseconds);
 
             await using NpgsqlConnection connection = await GetNewOpenedConnectionAsync(cancellationToken).ConfigureAwait(false);
             await using NpgsqlCommand command = new(sql, connection);
@@ -239,7 +225,7 @@ public class PostgresRepository(ISqlProvider sqlProvider, PostgresResiliencePipe
 
         return await resiliencePipeline.ExecuteAsync(async _ =>
         {
-            CancellationToken cancellationToken = GetCancellationToken(databaseSettings.UnitOperationTimeoutInMilliseconds);
+            CancellationToken cancellationToken = GetCancellationToken(DatabaseSettings.UnitOperationTimeoutInMilliseconds);
 
             await using NpgsqlConnection connection = await GetNewOpenedConnectionAsync(cancellationToken).ConfigureAwait(false);
             await using NpgsqlCommand command = new(sql, connection);
@@ -269,7 +255,7 @@ public class PostgresRepository(ISqlProvider sqlProvider, PostgresResiliencePipe
 
         return await resiliencePipeline.ExecuteAsync(async _ =>
         {
-            CancellationToken cancellationToken = GetCancellationToken(databaseSettings.UnitOperationTimeoutInMilliseconds);
+            CancellationToken cancellationToken = GetCancellationToken(DatabaseSettings.UnitOperationTimeoutInMilliseconds);
 
             await using NpgsqlConnection connection = await GetNewOpenedConnectionAsync(cancellationToken).ConfigureAwait(false);
             await using NpgsqlCommand command = new(sql, connection);
@@ -284,27 +270,42 @@ public class PostgresRepository(ISqlProvider sqlProvider, PostgresResiliencePipe
     }
 
     /// <inheritdoc/>
-    public async Task UpdateAsync<TEntity>(TEntity entity) where TEntity : EntityBase
+    public async Task<bool> TryUpdateAsync<TEntity>(TEntity entity) where TEntity : EntityBase
     {
         string sql = sqlProvider.GetUpdateByPrimaryKeySql<TEntity>();
         IEnumerable<NpgsqlParameter> parameters = entity.BuildParameters();
 
-        await resiliencePipeline.ExecuteAsync(async _ =>
+        return await resiliencePipeline.ExecuteAsync(async _ =>
         {
-            CancellationToken cancellationToken = GetCancellationToken(databaseSettings.UnitOperationTimeoutInMilliseconds);
+            CancellationToken cancellationToken = GetCancellationToken(DatabaseSettings.UnitOperationTimeoutInMilliseconds);
 
             await using NpgsqlConnection connection = await GetNewOpenedConnectionAsync(cancellationToken).ConfigureAwait(false);
             await using NpgsqlCommand command = new(sql, connection);
-            await command
+            int affectedRows = await command
                 .SetCommandParameters(parameters)
                 .ExecuteNonQueryAsync(cancellationToken)
                 .ConfigureAwait(false);
+            return affectedRows > 0;
         });
+    }
+
+    protected async IAsyncEnumerable<TEntity> GetAsync<TEntity>(string sql, DynamicParameters? parameters, CancellationToken? cancellationToken = null)
+         where TEntity : EntityBase, new()
+    {
+        CancellationToken localCancellationToken = cancellationToken ?? GetCancellationToken(DatabaseSettings.ConnectionTimeoutInMilliseconds);
+
+        await using NpgsqlConnection connection = await GetNewOpenedConnectionAsync(localCancellationToken).ConfigureAwait(false);
+        await using DbDataReader dataReader = await connection.ExecuteReaderAsync(sql, parameters, commandTimeout: DatabaseSettings.ConnectionTimeoutInMilliseconds).ConfigureAwait(false);
+        while (await dataReader.ReadAsync(localCancellationToken).ConfigureAwait(false))
+        {
+            if (!await dataReader.IsDBNullAsync(0, localCancellationToken).ConfigureAwait(false))
+                yield return dataReader.ConvertTo<TEntity>();
+        }
     }
 
     protected async Task<NpgsqlConnection> GetNewOpenedConnectionAsync(CancellationToken cancellationToken = default)
     {
-        NpgsqlConnection connection = new(databaseSettings.ConnectionString);
+        NpgsqlConnection connection = new(DatabaseSettings.ConnectionString);
         await connection.OpenAsync(cancellationToken).ConfigureAwait(false);
         return connection;
     }

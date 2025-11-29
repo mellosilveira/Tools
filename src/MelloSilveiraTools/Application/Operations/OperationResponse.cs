@@ -1,5 +1,4 @@
 ﻿using MelloSilveiraTools.ExtensionMethods;
-using Microsoft.AspNetCore.Mvc;
 using System.Net;
 
 namespace MelloSilveiraTools.Application.Operations;
@@ -42,6 +41,8 @@ public record OperationResponse
 
     public static OperationResponse CreateSuccess(HttpStatusCode statusCode) => new() { StatusCode = statusCode };
 
+    public static OperationResponse CreateError(HttpStatusCode statusCode) => new() { StatusCode = statusCode };
+
     public static OperationResponse CreateError(HttpStatusCode statusCode, string message) => new()
     {
         StatusCode = statusCode,
@@ -59,6 +60,10 @@ public record OperationResponse
     public static OperationResponse CreateSuccessCreated() => new() { StatusCode = HttpStatusCode.Created };
 
     public static OperationResponse CreateNoContent() => new() { StatusCode = HttpStatusCode.NoContent };
+
+    public static OperationResponse CreateUnauthorized() => CreateError(HttpStatusCode.Unauthorized);
+
+    public static OperationResponse CreateUnauthorized(string message) => CreateError(HttpStatusCode.Unauthorized, message);
 
     public static OperationResponse CreateNotFound(string message) => CreateError(HttpStatusCode.NotFound, message);
 

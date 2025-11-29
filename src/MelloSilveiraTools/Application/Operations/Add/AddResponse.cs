@@ -1,5 +1,4 @@
-﻿using MelloSilveiraTools.Application.Operations;
-using System.Net;
+﻿using System.Net;
 
 namespace MelloSilveiraTools.Application.Operations.Add;
 

@@ -1002,7 +1002,7 @@
         <member name="M:MelloSilveiraTools.Infrastructure.Database.Repositories.PostgresRepository.UpsertAsync``2(``0[],``1)">
             <inheritdoc/>
         </member>
-        <member name="M:MelloSilveiraTools.Infrastructure.Database.Repositories.PostgresRepository.UpdateAsync``1(``0)">
+        <member name="M:MelloSilveiraTools.Infrastructure.Database.Repositories.PostgresRepository.TryUpdateAsync``1(``0)">
             <inheritdoc/>
         </member>
         <member name="T:MelloSilveiraTools.Infrastructure.Database.Sql.Provider.PostgresSqlProvider">
@@ -1353,6 +1353,9 @@
             <summary>
             Timeout in miliseconds for endpoint.
             </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Infrastructure.Services.Email.SmtpEmailService.SendAsync(System.String,System.String,System.String,System.Boolean)">
+            <inheritdoc/>
         </member>
         <member name="T:MelloSilveiraTools.Infrastructure.Services.Encryption.EncryptionService">
             <inheritdoc cref="T:MelloSilveiraTools.Infrastructure.Services.Encryption.IEncryptionService"/>

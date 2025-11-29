@@ -245,5 +245,5 @@ public static class ClassExtensions
         return (whereClause, parameters);
     }
 
-    public static Task<T> ToTask<T>(this T obj) => Task.FromResult(obj);
+    public static Task<T> AsTask<T>(this T obj) => Task.FromResult(obj);
 }

@@ -1,0 +1,30 @@
+﻿namespace MelloSilveiraTools.MechanicsOfMaterials.Models;
+
+/// <summary>
+/// It contains the constants used in the project.
+/// </summary>
+public class Constants
+{
+    /// <summary>
+    /// The invalid values for double parameters.
+    /// </summary>
+    public static List<double> InvalidValues => new()
+    { 
+        double.NaN, 
+        double.PositiveInfinity, 
+        double.NegativeInfinity, 
+        double.MaxValue, 
+        double.MinValue 
+    };
+
+    /// <summary>
+    /// Unit: m/s² (meter per squared second).
+    /// </summary>
+    public const double GravityAcceleration = 9.80665;
+
+    /// <summary>
+    /// The initial time that must be used in all analyzes and operations.
+    /// Unit: s (second).
+    /// </summary>
+    public const double InitialTime = 0;
+}

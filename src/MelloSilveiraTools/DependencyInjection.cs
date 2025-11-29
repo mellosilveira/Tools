@@ -123,6 +123,9 @@ public static class DependencyInjection
             .AddSwaggerGenNewtonsoftSupport();
     }
 
+    /// <summary>
+        /// Adds Swagger documentations to ApplicationBuilder.
+        /// </summary>
     public static IApplicationBuilder UseSwaggerDocs(this IApplicationBuilder app)
     {
         string assemblyTitle = Assembly.GetExecutingAssembly().GetCustomAttribute<AssemblyTitleAttribute>()!.Title;

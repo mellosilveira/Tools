@@ -10,13 +10,11 @@ public static class FormFileExtensions
 {
     public static async Task<byte[]> ToCompressedContentAsync(this IFormFile formFile)
     {
-        await using var stream = formFile.OpenReadStream();
+        await using Stream stream = formFile.OpenReadStream();
         await using MemoryStream memoryStream = new();
-        await using (GZipStream gzipStream = new(memoryStream, CompressionMode.Compress, leaveOpen: true))
-        {
-            await stream.CopyToAsync(gzipStream);
-        }
+        await using GZipStream gzipStream = new(memoryStream, CompressionMode.Compress, leaveOpen: true);
 
+        await stream.CopyToAsync(gzipStream);
         return memoryStream.ToArray();
     }
 }

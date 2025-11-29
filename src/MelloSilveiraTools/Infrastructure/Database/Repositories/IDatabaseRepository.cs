@@ -42,5 +42,5 @@ public interface IDatabaseRepository
 
     Task<long[]> UpsertAsync<TEntity, TFilter>(TEntity[] entity, TFilter filter) where TEntity : EntityBase;
 
-    Task UpdateAsync<TEntity>(TEntity entity) where TEntity : EntityBase;
+    Task<bool> TryUpdateAsync<TEntity>(TEntity entity) where TEntity : EntityBase;
 }
