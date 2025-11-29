@@ -1,5 +1,4 @@
 ﻿using MelloSilveiraTools.MechanicsOfMaterials.Models.Fatigue;
-using MudRunner.Commons.DataContracts.Models.Profiles;
 
 namespace MelloSilveiraTools.MechanicsOfMaterials.ConstitutiveEquations.Fatigue;
 
