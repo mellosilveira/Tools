@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Method for Mechanics of Materials dependencies.
 - CurveType enum.
 - CreateSuccessOk method for OperationResponseBase with response data.
+- CreateConflict method for OperationResponse.
 ### Renamed
 - Fatigue to FatigueCalculator.
 - GeometricProperty to GeometricPropertyCalculator.
