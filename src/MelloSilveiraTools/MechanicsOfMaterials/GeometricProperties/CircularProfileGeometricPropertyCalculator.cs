@@ -5,7 +5,7 @@ namespace MelloSilveiraTools.MechanicsOfMaterials.GeometricProperties
     /// <summary>
     /// It is responsible to calculate the geometric properties to circular profile.
     /// </summary>
-    public class CircularProfileGeometricProperty : IGeometricProperty<CircularProfile>
+    public class CircularProfileGeometricPropertyCalculator : IGeometricProperty<CircularProfile>
     {
         /// <inheritdoc/>
         public double CalculateArea(CircularProfile profile)

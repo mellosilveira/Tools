@@ -1,9 +1,9 @@
-﻿namespace MelloSilveiraTools.MechanicsOfMaterials.Models.Enums
+﻿namespace MelloSilveiraTools.Domain.Models
 {
     /// <summary>
     /// It contains the available numerical methods for differential equations.
     /// </summary>
-    public enum DifferentialEquationMethodEnum
+    public enum DifferentialEquationMethodType
     {
         /// <summary>
         /// Newmark numerical method.

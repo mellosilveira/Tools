@@ -4,6 +4,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [1.1.1] - 2025-11-XX
+### Added
+- DifferentialEquationMethodFactory.
+- Method for Mechanics of Materials dependencies.
+- CurveType enum.
+### Renamed
+- Fatigue to FatigueCalculator.
+- GeometricProperty to GeometricPropertyCalculator.
+- MechanicsOfMaterials to ConstitutiveEquationsCalculator.
+
 ## [1.1.0] - 2025-11-29
 ### Added
 - Logger.

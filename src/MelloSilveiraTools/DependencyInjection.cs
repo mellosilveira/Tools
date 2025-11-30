@@ -1,11 +1,16 @@
 ﻿using MelloSilveiraTools.Authentication;
 using MelloSilveiraTools.Authentication.Services;
+using MelloSilveiraTools.Domain.NumericalMethods.DifferentialEquation;
 using MelloSilveiraTools.Infrastructure.Database.Repositories;
 using MelloSilveiraTools.Infrastructure.Database.Settings;
 using MelloSilveiraTools.Infrastructure.Database.Sql.Provider;
 using MelloSilveiraTools.Infrastructure.Logger;
 using MelloSilveiraTools.Infrastructure.ResiliencePipelines;
 using MelloSilveiraTools.Infrastructure.Services.Encryption;
+using MelloSilveiraTools.MechanicsOfMaterials.ConstitutiveEquations;
+using MelloSilveiraTools.MechanicsOfMaterials.Fatigue;
+using MelloSilveiraTools.MechanicsOfMaterials.GeometricProperties;
+using MelloSilveiraTools.MechanicsOfMaterials.Models.Profiles;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
@@ -48,6 +53,33 @@ public static class DependencyInjection
             .AddSingleton<ILogger, LocalFileLogger>()
             // Register services.
             .AddScoped< IEncryptionService, EncryptionService>();
+    }
+
+    public static IServiceCollection AddMechanicalOfMaterialsServices(this IServiceCollection services)
+    {
+        // Register constitutive equations.
+        services.AddScoped<IFatigueCalculator, FatigueCalculator>();
+        services.AddScoped<IConstitutiveEquationsCalculator, MechanicsOfMaterials>();
+
+        // Register geometric properties.
+        services.AddScoped<ICircularProfileGeometricProperty, CircularProfileGeometricPropertyCalculator>();
+        services.AddScoped<IRectangularProfileGeometricProperty, RectangularProfileGeometricPropertyCalculator>();
+
+        // Register numerical methods.
+        services.AddScoped<INewmarkMethod, NewmarkMethod>();
+        services.AddScoped<INewmarkBetaMethod, NewmarkBetaMethod>();
+
+        // Register factories.
+        services.AddScoped<IDifferentialEquationMethodFactory, DifferentialEquationMethodFactory>(
+            provider => new DifferentialEquationMethodFactory(new Dictionary<DifferentialEquationMethodEnum, IDifferentialEquationMethod>
+            {
+                    { DifferentialEquationMethodEnum.Newmark, provider.GetRequiredService<INewmarkMethod>() },
+                    { DifferentialEquationMethodEnum.NewmarkBeta, provider.GetRequiredService<INewmarkBetaMethod>() },
+            }));
+
+        return services;
+
+        return services;
     }
 
     /// <summary>

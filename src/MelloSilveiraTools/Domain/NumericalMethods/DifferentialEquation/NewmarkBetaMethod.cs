@@ -1,4 +1,5 @@
-﻿using MelloSilveiraTools.ExtensionMethods;
+﻿using MelloSilveiraTools.Domain.Models;
+using MelloSilveiraTools.ExtensionMethods;
 using MelloSilveiraTools.MechanicsOfMaterials.Models.NumericalMethods;
 
 namespace MelloSilveiraTools.Domain.NumericalMethods.DifferentialEquation;
@@ -12,6 +13,8 @@ public class NewmarkBetaMethod : IDifferentialEquationMethod
     private const double Beta = (double)1 / 6;
     private const double A3 = Gama / Beta;
     private const double A4 = 1 / (2 * Beta);
+
+    public DifferentialEquationMethodType Type => DifferentialEquationMethodType.NewmarkBeta;
 
     /// <inheritdoc/>
     public NumericalMethodResult CalculateResult(NumericalMethodInput input, NumericalMethodResult previousResult, double time)
