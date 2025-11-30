@@ -55,29 +55,27 @@ public static class DependencyInjection
             .AddScoped< IEncryptionService, EncryptionService>();
     }
 
+    /// <summary>
+    /// Register services for Mechanical of Materials.
+    /// </summary>
+    /// <param name="services"></param>
+    /// <returns></returns>
     public static IServiceCollection AddMechanicalOfMaterialsServices(this IServiceCollection services)
     {
         // Register constitutive equations.
-        services.AddScoped<IFatigueCalculator, FatigueCalculator>();
-        services.AddScoped<IConstitutiveEquationsCalculator, MechanicsOfMaterials>();
+        services.AddSingleton<IFatigueCalculator, FatigueCalculator>();
+        services.AddSingleton<IConstitutiveEquationsCalculator, ConstitutiveEquationsCalculator>();
 
         // Register geometric properties.
-        services.AddScoped<ICircularProfileGeometricProperty, CircularProfileGeometricPropertyCalculator>();
-        services.AddScoped<IRectangularProfileGeometricProperty, RectangularProfileGeometricPropertyCalculator>();
+        services.AddSingleton<IGeometricPropertyCalculator<CircularProfile>, CircularProfileGeometricPropertyCalculator>();
+        services.AddSingleton<IGeometricPropertyCalculator<RectangularProfile>, RectangularProfileGeometricPropertyCalculator>();
 
         // Register numerical methods.
-        services.AddScoped<INewmarkMethod, NewmarkMethod>();
-        services.AddScoped<INewmarkBetaMethod, NewmarkBetaMethod>();
+        services.AddSingleton<IDifferentialEquationMethod, NewmarkMethod>();
+        services.AddSingleton<IDifferentialEquationMethod, NewmarkBetaMethod>();
 
         // Register factories.
-        services.AddScoped<IDifferentialEquationMethodFactory, DifferentialEquationMethodFactory>(
-            provider => new DifferentialEquationMethodFactory(new Dictionary<DifferentialEquationMethodEnum, IDifferentialEquationMethod>
-            {
-                    { DifferentialEquationMethodEnum.Newmark, provider.GetRequiredService<INewmarkMethod>() },
-                    { DifferentialEquationMethodEnum.NewmarkBeta, provider.GetRequiredService<INewmarkBetaMethod>() },
-            }));
-
-        return services;
+        services.AddSingleton<DifferentialEquationMethodFactory>();
 
         return services;
     }

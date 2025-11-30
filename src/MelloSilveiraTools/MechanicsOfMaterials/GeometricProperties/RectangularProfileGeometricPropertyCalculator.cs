@@ -5,7 +5,7 @@ namespace MelloSilveiraTools.MechanicsOfMaterials.GeometricProperties
     /// <summary>
     /// It is responsible to calculate the geometric properties to rectangular profile.
     /// </summary>
-    public class RectangularProfileGeometricPropertyCalculator : IGeometricProperty<RectangularProfile>
+    public class RectangularProfileGeometricPropertyCalculator : IGeometricPropertyCalculator<RectangularProfile>
     {
         /// <inheritdoc/>
         public double CalculateArea(RectangularProfile profile)
