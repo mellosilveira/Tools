@@ -32,12 +32,8 @@ public static class DependencyInjection
     /// <param name="encryptionSettings"></param>
     /// <param name="resiliencePipelineSettings"></param>
     /// <returns></returns>
-    public static IServiceCollection AddToolsServices(this IServiceCollection services, 
-        DatabaseSettings databaseSettings,
-        EncryptionSettings encryptionSettings,
-        ResiliencePipelineSettings resiliencePipelineSettings)
-    {
-        return services
+    public static IServiceCollection AddToolsServices(this IServiceCollection services, DatabaseSettings databaseSettings, EncryptionSettings encryptionSettings, ResiliencePipelineSettings resiliencePipelineSettings)
+        => services
             // Register settings.
             .AddSingleton(databaseSettings)
             .AddSingleton(encryptionSettings)
@@ -52,8 +48,7 @@ public static class DependencyInjection
             // Register logger.
             .AddSingleton<ILogger, LocalFileLogger>()
             // Register services.
-            .AddScoped< IEncryptionService, EncryptionService>();
-    }
+            .AddScoped<IEncryptionService, EncryptionService>();
 
     /// <summary>
     /// Register services for Mechanical of Materials.
@@ -61,24 +56,17 @@ public static class DependencyInjection
     /// <param name="services"></param>
     /// <returns></returns>
     public static IServiceCollection AddMechanicalOfMaterialsServices(this IServiceCollection services)
-    {
-        // Register constitutive equations.
-        services.AddSingleton<IFatigueCalculator, FatigueCalculator>();
-        services.AddSingleton<IConstitutiveEquationsCalculator, ConstitutiveEquationsCalculator>();
-
-        // Register geometric properties.
-        services.AddSingleton<IGeometricPropertyCalculator<CircularProfile>, CircularProfileGeometricPropertyCalculator>();
-        services.AddSingleton<IGeometricPropertyCalculator<RectangularProfile>, RectangularProfileGeometricPropertyCalculator>();
-
-        // Register numerical methods.
-        services.AddSingleton<IDifferentialEquationMethod, NewmarkMethod>();
-        services.AddSingleton<IDifferentialEquationMethod, NewmarkBetaMethod>();
-
-        // Register factories.
-        services.AddSingleton<DifferentialEquationMethodFactory>();
-
-        return services;
-    }
+        => services
+            .AddSingleton<IConstitutiveEquationsCalculator, ConstitutiveEquationsCalculator>()
+            .AddSingleton<IFatigueCalculator, FatigueCalculator>()
+            // Register geometric properties.
+            .AddSingleton<IGeometricPropertyCalculator<CircularProfile>, CircularProfileGeometricPropertyCalculator>()
+            .AddSingleton<IGeometricPropertyCalculator<RectangularProfile>, RectangularProfileGeometricPropertyCalculator>()
+            // Register numerical methods.
+            .AddSingleton<IDifferentialEquationMethod, NewmarkMethod>()
+            .AddSingleton<IDifferentialEquationMethod, NewmarkBetaMethod>()
+            // Register factories.
+            .AddSingleton<DifferentialEquationMethodFactory>();
 
     /// <summary>
     /// Registers the authentication for AdmMaster users using JWT.
@@ -154,8 +142,8 @@ public static class DependencyInjection
     }
 
     /// <summary>
-        /// Adds Swagger documentations to ApplicationBuilder.
-        /// </summary>
+    /// Adds Swagger documentations to ApplicationBuilder.
+    /// </summary>
     public static IApplicationBuilder UseSwaggerDocs(this IApplicationBuilder app)
     {
         string assemblyTitle = Assembly.GetExecutingAssembly().GetCustomAttribute<AssemblyTitleAttribute>()!.Title;
