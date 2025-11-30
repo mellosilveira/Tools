@@ -16,7 +16,7 @@ public class NewmarkMethod : IDifferentialEquationMethod
     public DifferentialEquationMethodType Type => DifferentialEquationMethodType.Newmark;
     
     /// <inheritdoc/>
-    public NumericalMethodResult CalculateResult(NumericalMethodInput input, NumericalMethodResult previousResult, double time)
+    public NumericalMethodResult CalculateResult(NumericalMethodInput input, double time, NumericalMethodResult previousResult)
     {
         if (time < Constants.InitialTime)
             throw new ArgumentOutOfRangeException(nameof(time), $"The time cannot be less than the initial time: {Constants.InitialTime}.");

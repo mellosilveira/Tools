@@ -14,8 +14,8 @@ public interface IDifferentialEquationMethod
     /// Calculates the results for a numeric analysis.
     /// </summary>
     /// <param name="input"></param>
-    /// <param name="previousResult"></param>
     /// <param name="time"></param>
+    /// <param name="previousResult"></param>
     /// <returns></returns>
-    NumericalMethodResult CalculateResult(NumericalMethodInput input, NumericalMethodResult previousResult, double time);
+    NumericalMethodResult CalculateResult(NumericalMethodInput input, double time, NumericalMethodResult previousResult);
 }
