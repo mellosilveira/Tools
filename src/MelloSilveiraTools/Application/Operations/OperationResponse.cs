@@ -90,6 +90,9 @@ public record OperationResponse
 
     public static TResponse CreateSuccessOk<TResponse>() where TResponse : OperationResponse, new() => new() { StatusCode = HttpStatusCode.OK };
 
+    public static OperationResponseBase<TResponseData> CreateSuccessOk<TResponseData>(TResponseData responseData) where TResponseData : class
+        => new() { StatusCode = HttpStatusCode.OK, Data = responseData };
+
     public static TResponse CreateError<TResponse>(HttpStatusCode statusCode, string message) where TResponse : OperationResponse, new() => new()
     {
         StatusCode = statusCode,
