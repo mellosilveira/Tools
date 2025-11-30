@@ -8,7 +8,6 @@ public record AddResponse : OperationResponseBase<AddResponseData>
 
     public static AddResponse CreateSuccessOk() => CreateSuccessOk<AddResponse>();
 
-
     public static AddResponse CreateInternalServerError(string message) => CreateInternalServerError<AddResponse>(message);
 
     public static AddResponse CreateSuccessCreated(long id) => new()
