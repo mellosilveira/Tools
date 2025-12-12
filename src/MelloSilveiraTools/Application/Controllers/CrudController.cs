@@ -22,10 +22,8 @@ public abstract class CrudController<TEntity, TFilter>(ILogger logger) : CustomC
     [HttpPost]
     public Task<ActionResult<AddResponse>> Create(
         [FromServices] IDatabaseRepository repository,
-        [FromBody] TEntity entity)
-    {
-        return Create(repository, entity, ResourceName);
-    }
+        [FromBody] TEntity entity) 
+        => Create(repository, entity, ResourceName);
 
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]

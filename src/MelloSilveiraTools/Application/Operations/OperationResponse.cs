@@ -90,6 +90,9 @@ public record OperationResponse
 
     public static TResponse CreateSuccessOk<TResponse>() where TResponse : OperationResponse, new() => new() { StatusCode = HttpStatusCode.OK };
 
+    public static OperationResponseBase<TResponseData> CreateSuccessOk<TResponseData>(TResponseData responseData) where TResponseData : class
+        => new() { StatusCode = HttpStatusCode.OK, Data = responseData };
+
     public static TResponse CreateError<TResponse>(HttpStatusCode statusCode, string message) where TResponse : OperationResponse, new() => new()
     {
         StatusCode = statusCode,
@@ -97,9 +100,13 @@ public record OperationResponse
     };
 
     public static TResponse CreateNotFound<TResponse>(string message) where TResponse : OperationResponse, new() => CreateError<TResponse>(HttpStatusCode.NotFound, message);
-
+    
     public static TResponse CreateRequestTimeout<TResponse>(string message) where TResponse : OperationResponse, new() => CreateError<TResponse>(HttpStatusCode.RequestTimeout, message);
 
+    public static TResponse CreateConflict<TResponse>(string message) where TResponse : OperationResponse, new() => CreateError<TResponse>(HttpStatusCode.Conflict, message);
+
+    public static TResponse CreateUnprocessableEntity<TResponse>(string message) where TResponse : OperationResponse, new() => CreateError<TResponse>(HttpStatusCode.UnprocessableEntity, message);
+    
     public static TResponse CreateInternalServerError<TResponse>(string message) where TResponse : OperationResponse, new() => CreateError<TResponse>(HttpStatusCode.InternalServerError, message);
 
     public static TResponse CreateServiceUnavailable<TResponse>(string message) where TResponse : OperationResponse, new() => CreateError<TResponse>(HttpStatusCode.ServiceUnavailable, message);

@@ -1,4 +1,5 @@
-﻿using MelloSilveiraTools.ExtensionMethods;
+﻿using MelloSilveiraTools.Domain.Models;
+using MelloSilveiraTools.ExtensionMethods;
 using MelloSilveiraTools.MechanicsOfMaterials.Models;
 using MelloSilveiraTools.MechanicsOfMaterials.Models.NumericalMethods;
 
@@ -12,8 +13,10 @@ public class NewmarkMethod : IDifferentialEquationMethod
     private const double Gama = (double)1 / 2;
     private const double Beta = (double)1 / 4;
 
+    public DifferentialEquationMethodType Type => DifferentialEquationMethodType.Newmark;
+    
     /// <inheritdoc/>
-    public NumericalMethodResult CalculateResult(NumericalMethodInput input, NumericalMethodResult previousResult, double time)
+    public NumericalMethodResult CalculateResult(NumericalMethodInput input, double time, NumericalMethodResult previousResult)
     {
         if (time < Constants.InitialTime)
             throw new ArgumentOutOfRangeException(nameof(time), $"The time cannot be less than the initial time: {Constants.InitialTime}.");
