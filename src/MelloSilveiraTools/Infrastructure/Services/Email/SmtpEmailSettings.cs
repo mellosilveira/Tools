@@ -1,6 +1,6 @@
 ﻿namespace MelloSilveiraTools.Infrastructure.Services.Email;
 
-public record SftpEmailSettings
+public record SmtpEmailSettings
 {
     public string ApplicationEmail { get; init; }
 

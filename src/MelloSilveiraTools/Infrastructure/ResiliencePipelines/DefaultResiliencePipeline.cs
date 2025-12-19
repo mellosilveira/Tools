@@ -15,7 +15,6 @@ public class DefaultResiliencePipeline
     private static readonly ResiliencePropertyKey<string> CallerFileNamePropertyKey = new("CallerFileName");
     private static readonly ResiliencePropertyKey<string> CallerMemberNamePropertyKey = new("CallerMemberName");
 
-    private readonly ILogger _logger;
     private readonly ResiliencePipeline _pipeline;
 
     /// <summary>
@@ -26,8 +25,6 @@ public class DefaultResiliencePipeline
     /// <param name="shouldHandle">Predicate that determines whether the retry should be executed for a given outcome.</param>
     public DefaultResiliencePipeline(ILogger logger, ResiliencePipelineSettings settings, Func<RetryPredicateArguments<object>, ValueTask<bool>> shouldHandle)
     {
-        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-
         _pipeline = new ResiliencePipelineBuilder()
             .AddRetry(new RetryStrategyOptions
             {
@@ -54,7 +51,7 @@ public class DefaultResiliencePipeline
                         { nameof(args.Outcome.Result), args.Outcome.Result },
                     };
 
-                    _logger.Warn($"Attempt '{attempt}' on '{methodName}' of '{className}'.", args.Outcome.Exception, additionalData);
+                    logger.Warn($"Attempt '{attempt}' on '{methodName}' of '{className}'.", args.Outcome.Exception, additionalData);
                     return default;
                 }
             })

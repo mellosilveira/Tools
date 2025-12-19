@@ -1506,6 +1506,26 @@
         <member name="P:MelloSilveiraTools.Infrastructure.ResiliencePipelines.ResiliencePipelineSettings.UseJitter">
             <inheritdoc cref="P:Polly.Retry.RetryStrategyOptions`1.UseJitter"/>
         </member>
+        <member name="T:MelloSilveiraTools.Infrastructure.ResiliencePipelines.SmtpResiliencePipeline">
+            <summary>
+            Resilience pipeline for SMTP communications that provides a strategy to handle retriable exceptions.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Infrastructure.ResiliencePipelines.SmtpResiliencePipeline.#ctor(MelloSilveiraTools.Infrastructure.Logger.ILogger,MelloSilveiraTools.Infrastructure.ResiliencePipelines.ResiliencePipelineSettings)">
+            <summary>
+            Initialize a new instance of <see cref="T:MelloSilveiraTools.Infrastructure.ResiliencePipelines.PostgresResiliencePipeline"/>.
+            </summary>
+            <param name="logger"></param>
+            <param name="settings"></param>
+        </member>
+        <member name="M:MelloSilveiraTools.Infrastructure.ResiliencePipelines.SmtpResiliencePipeline.#ctor(MelloSilveiraTools.Infrastructure.Logger.ILogger,MelloSilveiraTools.Infrastructure.ResiliencePipelines.ResiliencePipelineSettings,System.Func{Polly.Retry.RetryPredicateArguments{System.Object},System.Threading.Tasks.ValueTask{System.Boolean}})">
+            <summary>
+            Initializes a new instance of <see cref="T:MelloSilveiraTools.Infrastructure.ResiliencePipelines.SmtpResiliencePipeline"/>.
+            </summary>
+            <param name="logger">See reference at <see cref="T:MelloSilveiraTools.Infrastructure.Logger.ILogger"/>.</param>
+            <param name="settings">See reference at <see cref="T:MelloSilveiraTools.Infrastructure.ResiliencePipelines.ResiliencePipelineSettings"/>.</param>
+            <param name="shouldHandle">Predicate that determines whether the retry should be executed for a given outcome.</param>
+        </member>
         <member name="T:MelloSilveiraTools.Infrastructure.Services.ApiServiceAgent.ApiServiceAgentBase">
             <inheritdoc cref="T:MelloSilveiraTools.Infrastructure.Services.ApiServiceAgent.IApiServiceAgent"/>
         </member>

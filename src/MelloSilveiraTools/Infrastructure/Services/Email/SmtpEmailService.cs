@@ -1,5 +1,6 @@
 ﻿using MelloSilveiraTools.Domain.Services;
 using MelloSilveiraTools.Infrastructure.Logger;
+using MelloSilveiraTools.Infrastructure.ResiliencePipelines;
 using System.Net;
 using System.Net.Mail;
 
@@ -7,24 +8,25 @@ namespace MelloSilveiraTools.Infrastructure.Services.Email;
 
 public class SmtpEmailService(
     ILogger logger,
-    SftpEmailSettings emailSettings)
+    SmtpResiliencePipeline smtpResiliencePipeline,
+    SmtpEmailSettings emailSettings)
     : IEmailService
 {
     /// <inheritdoc/>
     public async Task<bool> SendAsync(string recipient, string subject, string body, bool isBodyHtml = true)
     {
-        using SmtpClient smtpClient = new(emailSettings.Host, emailSettings.Port)
-        {
-            EnableSsl = true,
-            Credentials = new NetworkCredential(emailSettings.ApplicationEmail, emailSettings.ApplicationPassword)
-        };
-
         try
         {
-            MailMessage mailMessage = new(emailSettings.ApplicationEmail, recipient, subject, body) { IsBodyHtml = isBodyHtml };
-            await smtpClient.SendMailAsync(mailMessage).ConfigureAwait(false);
+            return await smtpResiliencePipeline.ExecuteAsync(async _ =>
+            {
+                NetworkCredential credentials = new(emailSettings.ApplicationEmail, emailSettings.ApplicationPassword);
+                using SmtpClient smtpClient = new(emailSettings.Host, emailSettings.Port) { EnableSsl = true, Credentials = credentials };
 
-            return true;
+                MailMessage mailMessage = new(emailSettings.ApplicationEmail, recipient, subject, body) { IsBodyHtml = isBodyHtml };
+                await smtpClient.SendMailAsync(mailMessage).ConfigureAwait(false);
+
+                return true;
+            }).ConfigureAwait(false);
         }
         catch (Exception ex)
         {
