@@ -16,6 +16,12 @@ public record AddResponse : OperationResponseBase<AddResponseData>
         StatusCode = HttpStatusCode.Created,
     };
 
+    public static AddResponse CreateConflict(string message) => new()
+    {
+        ErrorMessages = [message],
+        StatusCode = HttpStatusCode.Conflict
+    };
+
     public static AddResponse CreateConflict(long id, string message) => new()
     {
         Data = new AddResponseData(id),
