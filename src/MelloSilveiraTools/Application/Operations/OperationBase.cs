@@ -75,11 +75,15 @@ public abstract class OperationBaseWithData<TRequest, TResponseData>(ILogger log
 
     protected OperationResponseBase<TResponseData> CreateError(HttpStatusCode statusCode, string message) => new() { StatusCode = statusCode, ErrorMessages = [message] };
 
+    protected OperationResponseBase<TResponseData> CreateError(HttpStatusCode statusCode, TResponseData data, string message) => new() { StatusCode = statusCode, Data = data, ErrorMessages = [message] };
+
     protected OperationResponseBase<TResponseData> CreateNotFound(string message) => CreateError(HttpStatusCode.NotFound, message);
 
     protected OperationResponseBase<TResponseData> CreateUnauthorized() => CreateError(HttpStatusCode.Unauthorized);
     
     protected OperationResponseBase<TResponseData> CreateUnauthorized(string message) => CreateError(HttpStatusCode.Unauthorized, message);
+
+    protected OperationResponseBase<TResponseData> CreateUnauthorized(TResponseData data, string message) => CreateError(HttpStatusCode.Unauthorized, data, message);
 }
 
 public abstract class OperationBaseWithDataList<TRequest, TResponseData>(ILogger logger) : OperationBase<TRequest, OperationListResponseBase<TResponseData>>(logger)

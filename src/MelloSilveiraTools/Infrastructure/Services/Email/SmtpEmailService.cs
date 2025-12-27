@@ -9,7 +9,7 @@ namespace MelloSilveiraTools.Infrastructure.Services.Email;
 public class SmtpEmailService(
     ILogger logger,
     SmtpResiliencePipeline smtpResiliencePipeline,
-    SmtpEmailSettings emailSettings)
+    EmailSettings emailSettings)
     : IEmailService
 {
     /// <inheritdoc/>
@@ -20,7 +20,7 @@ public class SmtpEmailService(
             return await smtpResiliencePipeline.ExecuteAsync(async _ =>
             {
                 NetworkCredential credentials = new(emailSettings.ApplicationEmail, emailSettings.ApplicationPassword);
-                using SmtpClient smtpClient = new(emailSettings.Host, emailSettings.Port) { EnableSsl = true, Credentials = credentials };
+                using SmtpClient smtpClient = new(emailSettings.SmtpHost, emailSettings.SmtpPort) { EnableSsl = true, Credentials = credentials };
 
                 MailMessage mailMessage = new(emailSettings.ApplicationEmail, recipient, subject, body) { IsBodyHtml = isBodyHtml };
                 await smtpClient.SendMailAsync(mailMessage).ConfigureAwait(false);
