@@ -41,9 +41,7 @@ public abstract class OperationBase<TRequest, TResponse>(ILogger logger)
             Dictionary<string, object?> logAdditionalData = new() { { "Request", request } };
             Logger.Error(message, ex, logAdditionalData);
 
-            TResponse response = new();
-            response.SetInternalServerError(message);
-            return response;
+            return (TResponse)OperationResponse.CreateInternalServerError(message);
         }
     }
 
@@ -67,7 +65,7 @@ public abstract class OperationBaseWithData<TRequest, TResponseData>(ILogger log
     where TResponseData : class
 {
     protected OperationResponseBase<TResponseData> CreateSuccess(HttpStatusCode statusCode, TResponseData? data = null)
-        => new() { StatusCode = statusCode, Data = data };
+        => new() { StatusCode = statusCode, Data = data, Success = true };
 
     protected OperationResponseBase<TResponseData> CreateSuccessOk(TResponseData? data = null) => CreateSuccess(HttpStatusCode.OK, data);
 
@@ -160,9 +158,7 @@ public abstract class OperationBaseWithoutRequest<TResponse>(ILogger logger) whe
 
             logger.Error(message, ex);
 
-            TResponse response = new();
-            response.SetInternalServerError(message);
-            return response;
+            return (TResponse)OperationResponse.CreateInternalServerError(message);
         }
     }
 

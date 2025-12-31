@@ -5,6 +5,8 @@
 /// </summary>
 public interface IAuthenticationTokenService
 {
+    AuthenticationToken Generate(long userIdentifier);
+
     AuthenticationToken Generate(string userIdentifier);
 
     Task<AuthenticationToken> RefreshAsync(string token);

@@ -12,21 +12,20 @@ public static class OperationResponseExtensions
     public static T AddError<T>(this T response, string errorMessage, HttpStatusCode httpStatusCode = HttpStatusCode.BadRequest) where T : OperationResponse
     {
         response.ErrorMessages.Add(errorMessage);
-        response.SetStatusCode(httpStatusCode);
-        return response;
+        return response with { StatusCode = httpStatusCode, Success = false };
     }
 
     public static T AddErrorIf<T>(this T response, bool condition, string errorMessage, HttpStatusCode httpStatusCode = HttpStatusCode.BadRequest) where T : OperationResponse
     {
         return condition
-            ? response.AddError<T>(errorMessage, httpStatusCode)
+            ? response.AddError(errorMessage, httpStatusCode)
             : response;
     }
 
     public static async Task<T> AddErrorIf<T>(this T response, Task<bool> condition, string errorMessage, HttpStatusCode httpStatusCode = HttpStatusCode.BadRequest) where T : OperationResponse
     {
         return await condition
-            ? response.AddError<T>(errorMessage, httpStatusCode)
+            ? response.AddError(errorMessage, httpStatusCode)
             : response;
     }
 
