@@ -41,7 +41,7 @@ public abstract class OperationBase<TRequest, TResponse>(ILogger logger)
             Dictionary<string, object?> logAdditionalData = new() { { "Request", request } };
             Logger.Error(message, ex, logAdditionalData);
 
-            return (TResponse)OperationResponse.CreateInternalServerError(message);
+            return OperationResponse.CreateInternalServerError<TResponse>(message);
         }
     }
 
@@ -158,7 +158,7 @@ public abstract class OperationBaseWithoutRequest<TResponse>(ILogger logger) whe
 
             logger.Error(message, ex);
 
-            return (TResponse)OperationResponse.CreateInternalServerError(message);
+            return OperationResponse.CreateInternalServerError<TResponse>(message);
         }
     }
 
