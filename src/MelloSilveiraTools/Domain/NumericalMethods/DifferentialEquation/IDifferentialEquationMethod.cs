@@ -1,19 +1,21 @@
-﻿using MelloSilveiraTools.MechanicsOfMaterials.Models.NumericalMethods;
+﻿using MelloSilveiraTools.Domain.Models;
+using MelloSilveiraTools.MechanicsOfMaterials.Models.NumericalMethods;
 
-namespace MelloSilveiraTools.Domain.NumericalMethods.DifferentialEquation
+namespace MelloSilveiraTools.Domain.NumericalMethods.DifferentialEquation;
+
+/// <summary>
+/// Executes numerical method to solve Differential Equation
+/// </summary>
+public interface IDifferentialEquationMethod
 {
+    DifferentialEquationMethodType Type { get; } 
+
     /// <summary>
-    /// Executes numerical method to solve Differential Equation
+    /// Calculates the results for a numeric analysis.
     /// </summary>
-    public interface IDifferentialEquationMethod
-    {
-        /// <summary>
-        /// Calculates the results for a numeric analysis.
-        /// </summary>
-        /// <param name="input"></param>
-        /// <param name="previousResult"></param>
-        /// <param name="time"></param>
-        /// <returns></returns>
-        NumericalMethodResult CalculateResult(NumericalMethodInput input, NumericalMethodResult previousResult, double time);
-    }
+    /// <param name="input"></param>
+    /// <param name="time"></param>
+    /// <param name="previousResult"></param>
+    /// <returns></returns>
+    NumericalMethodResult CalculateResult(NumericalMethodInput input, double time, NumericalMethodResult previousResult);
 }

@@ -1,4 +1,5 @@
-﻿using MelloSilveiraTools.ExtensionMethods;
+﻿using MelloSilveiraTools.Domain.Models;
+using MelloSilveiraTools.ExtensionMethods;
 using MelloSilveiraTools.MechanicsOfMaterials.Models.NumericalMethods;
 
 namespace MelloSilveiraTools.Domain.NumericalMethods.DifferentialEquation;
@@ -13,8 +14,10 @@ public class NewmarkBetaMethod : IDifferentialEquationMethod
     private const double A3 = Gama / Beta;
     private const double A4 = 1 / (2 * Beta);
 
+    public DifferentialEquationMethodType Type => DifferentialEquationMethodType.NewmarkBeta;
+
     /// <inheritdoc/>
-    public NumericalMethodResult CalculateResult(NumericalMethodInput input, NumericalMethodResult previousResult, double time)
+    public NumericalMethodResult CalculateResult(NumericalMethodInput input, double time, NumericalMethodResult previousResult)
     {
         if (time < 0)
             throw new ArgumentOutOfRangeException(nameof(time), "The time cannot be negative.");
@@ -24,7 +27,7 @@ public class NewmarkBetaMethod : IDifferentialEquationMethod
 
         #region Step 1 - Calculates the inversed equivalent stiffness and equivalent force.
         double[,] inversedEquivalentStiffness = CalculateEquivalentStiffness(input).InverseMatrix();
-        double[] equivalentForce = CalculateEquivalentForce(input, previousResult, time);
+        double[] equivalentForce = CalculateEquivalentForce(input, previousResult);
         #endregion
 
         #region Step 2 - Calculates the displacement.
@@ -86,9 +89,8 @@ public class NewmarkBetaMethod : IDifferentialEquationMethod
     /// </summary>
     /// <param name="input"></param>
     /// <param name="previousResult"></param>
-    /// <param name="time"></param>
     /// <returns></returns>
-    private double[] CalculateEquivalentForce(NumericalMethodInput input, NumericalMethodResult previousResult, double time)
+    private double[] CalculateEquivalentForce(NumericalMethodInput input, NumericalMethodResult previousResult)
     {
         #region Calculates the equivalent damping and equivalent mass.
         double[,] equivalentDamping = CalculateEquivalentDamping(input);

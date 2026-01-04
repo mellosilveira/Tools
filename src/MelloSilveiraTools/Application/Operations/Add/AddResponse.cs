@@ -8,13 +8,18 @@ public record AddResponse : OperationResponseBase<AddResponseData>
 
     public static AddResponse CreateSuccessOk() => CreateSuccessOk<AddResponse>();
 
-
     public static AddResponse CreateInternalServerError(string message) => CreateInternalServerError<AddResponse>(message);
 
     public static AddResponse CreateSuccessCreated(long id) => new()
     {
         Data = new AddResponseData(id),
         StatusCode = HttpStatusCode.Created,
+    };
+
+    public new static AddResponse CreateConflict(string message) => new()
+    {
+        ErrorMessages = [message],
+        StatusCode = HttpStatusCode.Conflict
     };
 
     public static AddResponse CreateConflict(long id, string message) => new()

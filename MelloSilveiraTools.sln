@@ -23,6 +23,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "workflows", "workflows", "{
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".github", ".github", "{AB86B74C-9BD3-4C03-BCE4-5315C04666BB}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MelloSilveiraTools.MechanicsOfMaterials", "src\MelloSilveiraTools.MechanicsOfMaterials\MelloSilveiraTools.MechanicsOfMaterials.csproj", "{4C3FD7CF-CE29-4C8A-AFBA-005CE576CF7E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -33,6 +35,10 @@ Global
 		{283B10E1-B737-4CEB-8E28-1DFED72A4CC4}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{283B10E1-B737-4CEB-8E28-1DFED72A4CC4}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{283B10E1-B737-4CEB-8E28-1DFED72A4CC4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4C3FD7CF-CE29-4C8A-AFBA-005CE576CF7E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4C3FD7CF-CE29-4C8A-AFBA-005CE576CF7E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4C3FD7CF-CE29-4C8A-AFBA-005CE576CF7E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4C3FD7CF-CE29-4C8A-AFBA-005CE576CF7E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -40,5 +46,9 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{283B10E1-B737-4CEB-8E28-1DFED72A4CC4} = {92D89A6E-7E8A-4E65-955F-ECAC80987E27}
 		{17CB7414-9986-45D8-B2C1-39F91DC5D7A5} = {AB86B74C-9BD3-4C03-BCE4-5315C04666BB}
+		{4C3FD7CF-CE29-4C8A-AFBA-005CE576CF7E} = {92D89A6E-7E8A-4E65-955F-ECAC80987E27}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {6138CFB8-82E9-45F6-B28F-BF93F657D839}
 	EndGlobalSection
 EndGlobal

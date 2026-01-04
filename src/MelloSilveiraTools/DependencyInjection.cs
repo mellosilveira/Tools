@@ -1,5 +1,6 @@
 ﻿using MelloSilveiraTools.Authentication;
 using MelloSilveiraTools.Authentication.Services;
+using MelloSilveiraTools.Domain.NumericalMethods.DifferentialEquation;
 using MelloSilveiraTools.Infrastructure.Database.Repositories;
 using MelloSilveiraTools.Infrastructure.Database.Settings;
 using MelloSilveiraTools.Infrastructure.Database.Sql.Provider;
@@ -27,19 +28,16 @@ public static class DependencyInjection
     /// <param name="encryptionSettings"></param>
     /// <param name="resiliencePipelineSettings"></param>
     /// <returns></returns>
-    public static IServiceCollection AddToolsServices(this IServiceCollection services, 
-        DatabaseSettings databaseSettings,
-        EncryptionSettings encryptionSettings,
-        ResiliencePipelineSettings resiliencePipelineSettings)
-    {
-        return services
+    public static IServiceCollection AddToolsServices(this IServiceCollection services, DatabaseSettings databaseSettings, EncryptionSettings encryptionSettings, ResiliencePipelineSettings resiliencePipelineSettings)
+        => services
             // Register settings.
             .AddSingleton(databaseSettings)
             .AddSingleton(encryptionSettings)
             .AddSingleton(resiliencePipelineSettings)
             // Register resilience pipelines.
-            .AddSingleton<ApiServiceAgentResiliencePipeline>()
-            .AddSingleton<PostgresResiliencePipeline>()
+            .AddSingleton(provider => new ApiServiceAgentResiliencePipeline(provider.GetRequiredService<ILogger>(), resiliencePipelineSettings))
+            .AddSingleton(provider => new PostgresResiliencePipeline(provider.GetRequiredService<ILogger>(), resiliencePipelineSettings))
+            .AddSingleton(provider => new SmtpResiliencePipeline(provider.GetRequiredService<ILogger>(), resiliencePipelineSettings))
             // Register SQL providers.
             .AddSingleton<ISqlProvider, PostgresSqlProvider>()
             // Register repositories.
@@ -47,8 +45,20 @@ public static class DependencyInjection
             // Register logger.
             .AddSingleton<ILogger, LocalFileLogger>()
             // Register services.
-            .AddScoped< IEncryptionService, EncryptionService>();
-    }
+            .AddScoped<IEncryptionService, EncryptionService>();
+
+    /// <summary>
+    /// Register numerical methods.
+    /// </summary>
+    /// <param name="services"></param>
+    /// <returns></returns>
+    public static IServiceCollection AddNumericalMethods(this IServiceCollection services)
+        => services
+            // Register numerical methods.
+            .AddSingleton<IDifferentialEquationMethod, NewmarkMethod>()
+            .AddSingleton<IDifferentialEquationMethod, NewmarkBetaMethod>()
+            // Register factories.
+            .AddSingleton<DifferentialEquationMethodFactory>();
 
     /// <summary>
     /// Registers the authentication for AdmMaster users using JWT.
@@ -124,8 +134,8 @@ public static class DependencyInjection
     }
 
     /// <summary>
-        /// Adds Swagger documentations to ApplicationBuilder.
-        /// </summary>
+    /// Adds Swagger documentations to ApplicationBuilder.
+    /// </summary>
     public static IApplicationBuilder UseSwaggerDocs(this IApplicationBuilder app)
     {
         string assemblyTitle = Assembly.GetExecutingAssembly().GetCustomAttribute<AssemblyTitleAttribute>()!.Title;
