@@ -7,10 +7,6 @@ using MelloSilveiraTools.Infrastructure.Database.Sql.Provider;
 using MelloSilveiraTools.Infrastructure.Logger;
 using MelloSilveiraTools.Infrastructure.ResiliencePipelines;
 using MelloSilveiraTools.Infrastructure.Services.Encryption;
-using MelloSilveiraTools.MechanicsOfMaterials.ConstitutiveEquations;
-using MelloSilveiraTools.MechanicsOfMaterials.Fatigue;
-using MelloSilveiraTools.MechanicsOfMaterials.GeometricProperties;
-using MelloSilveiraTools.MechanicsOfMaterials.Models.Profiles;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
@@ -52,17 +48,12 @@ public static class DependencyInjection
             .AddScoped<IEncryptionService, EncryptionService>();
 
     /// <summary>
-    /// Register services for Mechanical of Materials.
+    /// Register numerical methods.
     /// </summary>
     /// <param name="services"></param>
     /// <returns></returns>
-    public static IServiceCollection AddMechanicalOfMaterialsServices(this IServiceCollection services)
+    public static IServiceCollection AddNumericalMethods(this IServiceCollection services)
         => services
-            .AddSingleton<IConstitutiveEquationsCalculator, ConstitutiveEquationsCalculator>()
-            .AddSingleton<IFatigueCalculator, FatigueCalculator>()
-            // Register geometric properties.
-            .AddSingleton<IGeometricPropertyCalculator<CircularProfile>, CircularProfileGeometricPropertyCalculator>()
-            .AddSingleton<IGeometricPropertyCalculator<RectangularProfile>, RectangularProfileGeometricPropertyCalculator>()
             // Register numerical methods.
             .AddSingleton<IDifferentialEquationMethod, NewmarkMethod>()
             .AddSingleton<IDifferentialEquationMethod, NewmarkBetaMethod>()

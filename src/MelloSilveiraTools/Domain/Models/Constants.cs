@@ -8,14 +8,14 @@ public class Constants
     /// <summary>
     /// The invalid values for double parameters.
     /// </summary>
-    public static List<double> InvalidValues => new()
-    { 
+    public static List<double> InvalidValues =>
+    [
         double.NaN, 
         double.PositiveInfinity, 
         double.NegativeInfinity, 
         double.MaxValue, 
         double.MinValue 
-    };
+    ];
 
     /// <summary>
     /// Unit: m/s² (meter per squared second).

@@ -13,6 +13,7 @@ public class NewmarkMethod : IDifferentialEquationMethod
     private const double Gama = (double)1 / 2;
     private const double Beta = (double)1 / 4;
 
+    /// <inheritdoc/>
     public DifferentialEquationMethodType Type => DifferentialEquationMethodType.Newmark;
     
     /// <inheritdoc/>
