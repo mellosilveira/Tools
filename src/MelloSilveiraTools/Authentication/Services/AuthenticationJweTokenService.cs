@@ -11,6 +11,8 @@ namespace MelloSilveiraTools.Authentication.Services;
 /// </summary>
 public class AuthenticationJweTokenService(JwtSettings settings) : IAuthenticationTokenService
 {
+    public AuthenticationToken Generate(long userIdentifier) => Generate(userIdentifier.ToString());
+
     public AuthenticationToken Generate(string userIdentifier)
     {
         var utcNow = DateTimeOffset.UtcNow;

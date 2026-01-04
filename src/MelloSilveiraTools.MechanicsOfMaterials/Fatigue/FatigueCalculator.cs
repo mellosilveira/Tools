@@ -2,12 +2,12 @@
 using MelloSilveiraTools.MechanicsOfMaterials.Models.Fatigue;
 using MelloSilveiraTools.MechanicsOfMaterials.Models.Profiles;
 
-namespace MelloSilveiraTools.MechanicsOfMaterials.ConstitutiveEquations.Fatigue;
+namespace MelloSilveiraTools.MechanicsOfMaterials.Fatigue;
 
 /// <summary>
 /// It contains the Mechanical Fatigue constitutive equations.
 /// </summary>
-public class Fatigue : IFatigue
+public class FatigueCalculator : IFatigueCalculator
 {
     /// <summary>
     /// This method calculates the result for fatigue analysis.
