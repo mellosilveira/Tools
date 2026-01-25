@@ -69,6 +69,10 @@ public record OperationResponse
 
     public static OperationResponse CreateServiceUnavailable(string message) => CreateError(HttpStatusCode.ServiceUnavailable, message);
 
+    public static OperationListResponseBase<TResponseData> CreateListSuccessOk<TResponseData>(TResponseData[]? data = null)
+        where TResponseData : class
+        => new() { Data = data, StatusCode = HttpStatusCode.OK, Success = true };
+
     public static TResponse CreateListSuccess<TResponse, TResponseData>(HttpStatusCode statusCode, TResponseData[]? data = null)
         where TResponse : OperationListResponseBase<TResponseData>, new()
         where TResponseData : class

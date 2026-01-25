@@ -89,7 +89,7 @@ public abstract class OperationBaseWithDataList<TRequest, TResponseData>(ILogger
     where TResponseData : class
 {
     protected OperationListResponseBase<TResponseData> CreateSuccess(HttpStatusCode statusCode, TResponseData[]? data = null)
-        => new() { StatusCode = statusCode, Data = data };
+        => new() { StatusCode = statusCode, Data = data, Success = true };
 
     protected OperationListResponseBase<TResponseData> CreateSuccessOk() => CreateSuccess(HttpStatusCode.OK);
 

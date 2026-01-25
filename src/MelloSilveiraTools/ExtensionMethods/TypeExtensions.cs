@@ -83,7 +83,7 @@ public static class TypeExtensions
     {
         return type
             .GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.DeclaredOnly)
-            .Where(p => p.GetCustomAttribute<TAttribute>() != null)
+            .Where(p => p.GetCustomAttributes<TAttribute>().IsNotNullOrEmpty())
             .ToArray();
     }
 
