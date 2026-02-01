@@ -22,37 +22,37 @@ public class PostgresSqlProvider : ISqlProvider
     private readonly ConcurrentDictionary<Type, Lazy<string>> _updateByPrimaryKeySqls = [];
 
     /// <inheritdoc/>
-    public string GetBulkInsertSql<T>(int batchSize) where T : EntityBase => GetBulkSql<T>(_bulkInsertSqls, CreateBatchInsertSql, batchSize);
+    public string GetBulkInsertSql<T>(int batchSize) => GetBulkSql<T>(_bulkInsertSqls, CreateBatchInsertSql, batchSize);
 
     /// <inheritdoc/>
-    public string GetCountSql<T>() where T : EntityBase => GetSql<T>(_countSqls, CreateCountSql);
+    public string GetCountSql<T>() => GetSql<T>(_countSqls, CreateCountSql);
 
     /// <inheritdoc/>
-    public string GetDeleteSql<T>() where T : EntityBase => GetSql<T>(_deleteSqls, CreateDeleteSql);
+    public string GetDeleteSql<T>() => GetSql<T>(_deleteSqls, CreateDeleteSql);
 
     /// <inheritdoc/>
-    public string GetDeleteByPrimaryKeySql<T>() where T : EntityBase => GetSql<T>(_deleteByPrimaryKeySqls, CreateDeleteByPrimaryKeySql);
+    public string GetDeleteByPrimaryKeySql<T>() => GetSql<T>(_deleteByPrimaryKeySqls, CreateDeleteByPrimaryKeySql);
 
     /// <inheritdoc/>
-    public string GetExistByPrimaryKeySql<T>() where T : EntityBase => GetSql<T>(_existSqls, CreateExistByPrimaryKeySql);
+    public string GetExistByPrimaryKeySql<T>() => GetSql<T>(_existSqls, CreateExistByPrimaryKeySql);
 
     /// <inheritdoc/>
-    public string GetInsertSql<T>() where T : EntityBase => GetSql<T>(_insertSqls, CreateInsertSql);
+    public string GetInsertSql<T>() => GetSql<T>(_insertSqls, CreateInsertSql);
 
     /// <inheritdoc/>
-    public string GetSelectSql<T>() where T : EntityBase => GetSql<T>(_selectSqls, CreateSelectSql);
+    public string GetSelectSql<T>() => GetSql<T>(_selectSqls, CreateSelectSql);
 
     /// <inheritdoc/>
-    public string GetSelectDistinctSql<T>() where T : EntityBase => GetSql<T>(_selectDistinctSqls, CreateDistinctSelectSql);
+    public string GetSelectDistinctSql<T>() => GetSql<T>(_selectDistinctSqls, CreateDistinctSelectSql);
 
     /// <inheritdoc/>
-    public string GetSelectByPrimaryKeySql<T>() where T : EntityBase => GetSql<T>(_selectByPrimaryKeySqls, CreateSelectByPrimaryKeySql);
+    public string GetSelectByPrimaryKeySql<T>() => GetSql<T>(_selectByPrimaryKeySqls, CreateSelectByPrimaryKeySql);
 
     /// <inheritdoc/>
-    public string GetUpdateSql<T>() where T : EntityBase => GetSql<T>(_updateSqls, CreateUpdateSql);
+    public string GetUpdateSql<T>() => GetSql<T>(_updateSqls, CreateUpdateSql);
 
     /// <inheritdoc/>
-    public string GetUpdateByPrimaryKeySql<T>() where T : EntityBase => GetSql<T>(_updateByPrimaryKeySqls, CreateUpdateByPrimaryKeySql);
+    public string GetUpdateByPrimaryKeySql<T>() => GetSql<T>(_updateByPrimaryKeySqls, CreateUpdateByPrimaryKeySql);
 
     private static string GetBulkSql<T>(ConcurrentDictionary<(Type Type, int BatchSize), Lazy<string>> cache, Func<Type, int, string> createSqlMethod, int batchSize)
     {
@@ -169,7 +169,7 @@ public class PostgresSqlProvider : ISqlProvider
     private static string CreateDistinctSelectSql(Type type)
     {
         TableAttribute tableAttribute = type.GetCustomAttribute<TableAttribute>()!;
-        PropertyInfo[] columnProperties = type.GetDeclaredProperties<ColumnAttribute>();
+        PropertyInfo[] columnProperties = type.GetPropertiesInHierarchy<ColumnAttribute>();
 
         string tableName = tableAttribute.Name;
         string tableAlias = tableAttribute.Alias;

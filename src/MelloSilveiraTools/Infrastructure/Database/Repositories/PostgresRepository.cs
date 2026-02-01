@@ -23,7 +23,6 @@ public class PostgresRepository(ISqlProvider sqlProvider, PostgresResiliencePipe
 
     /// <inheritdoc/>
     public async Task<long> CountAsync<TEntity, TFilter>(TFilter filter)
-        where TEntity : EntityBase, new()
         where TFilter : FilterBase
     {
         (string? sqlWhereClause, DynamicParameters? parameters) = filter.BuildWhereClauseAndParameters();
@@ -39,7 +38,7 @@ public class PostgresRepository(ISqlProvider sqlProvider, PostgresResiliencePipe
     }
 
     /// <inheritdoc/>
-    public async Task<bool> ExistAsync<TEntity>(long id) where TEntity : EntityBase
+    public async Task<bool> ExistAsync<TEntity>(long id)
     {
         string sql = sqlProvider.GetExistByPrimaryKeySql<TEntity>();
 
@@ -58,7 +57,7 @@ public class PostgresRepository(ISqlProvider sqlProvider, PostgresResiliencePipe
     }
 
     /// <inheritdoc/>
-    public async Task<bool> ExistAsync<TEntity, TFilter>(TFilter filter) where TEntity : EntityBase
+    public async Task<bool> ExistAsync<TEntity, TFilter>(TFilter filter)
     {
         (string? sqlWhereClause, DynamicParameters? parameters) = filter.BuildWhereClauseAndParameters();
         string sql = sqlProvider.GetCountSql<TEntity>().Replace("#WHERE", sqlWhereClause);
@@ -75,7 +74,7 @@ public class PostgresRepository(ISqlProvider sqlProvider, PostgresResiliencePipe
     }
 
     /// <inheritdoc/>
-    public async Task DeleteAllAsync<TEntity>() where TEntity : EntityBase
+    public async Task DeleteAllAsync<TEntity>()
     {
         string sql = sqlProvider.GetDeleteSql<TEntity>().Replace("#WHERE", null);
 
@@ -90,7 +89,7 @@ public class PostgresRepository(ISqlProvider sqlProvider, PostgresResiliencePipe
     }
 
     /// <inheritdoc/>
-    public async Task DeleteAsync<TEntity>(long id) where TEntity : EntityBase
+    public async Task DeleteAsync<TEntity>(long id)
     {
         string sql = sqlProvider.GetDeleteByPrimaryKeySql<TEntity>();
 
@@ -107,7 +106,7 @@ public class PostgresRepository(ISqlProvider sqlProvider, PostgresResiliencePipe
     }
 
     /// <inheritdoc/>
-    public async Task DeleteAsync<TEntity, TFilter>(TFilter filter) where TEntity : EntityBase
+    public async Task DeleteAsync<TEntity, TFilter>(TFilter filter)
     {
         (string? sqlWhereClause, List<NpgsqlParameter>? parameters) = filter.BuildWhereClauseAndNpgsqlParameters();
         string sql = sqlProvider.GetDeleteSql<TEntity>().Replace("#WHERE", sqlWhereClause);
@@ -130,7 +129,6 @@ public class PostgresRepository(ISqlProvider sqlProvider, PostgresResiliencePipe
 
     /// <inheritdoc/>
     public async Task<TEntity?> GetFirstOrDefaultAsync<TEntity, TFilter>(TFilter filter)
-         where TEntity : EntityBase, new()
         where TFilter : FilterBase
     {
         (string? sqlWhereClause, DynamicParameters? parameters) = filter.BuildWhereClauseAndParameters();
@@ -150,7 +148,7 @@ public class PostgresRepository(ISqlProvider sqlProvider, PostgresResiliencePipe
     }
 
     /// <inheritdoc/>
-    public async Task<TEntity?> GetAsync<TEntity>(long id) where TEntity : EntityBase
+    public async Task<TEntity?> GetAsync<TEntity>(long id)
     {
         string sql = sqlProvider.GetSelectByPrimaryKeySql<TEntity>();
 
@@ -168,7 +166,7 @@ public class PostgresRepository(ISqlProvider sqlProvider, PostgresResiliencePipe
 
     /// <inheritdoc/>
     public IAsyncEnumerable<TEntity> GetAsync<TEntity, TFilter>(TFilter filter, Pagination? pagination = null, CancellationToken? cancellationToken = null)
-         where TEntity : EntityBase, new()
+        where TEntity : class, new()
         where TFilter : FilterBase
     {
         (string? sqlWhereClause, DynamicParameters? parameters) = filter.BuildWhereClauseAndParameters();
@@ -183,7 +181,7 @@ public class PostgresRepository(ISqlProvider sqlProvider, PostgresResiliencePipe
 
     /// <inheritdoc/>
     public IAsyncEnumerable<TEntity> GetDistinctAsync<TEntity, TFilter>(TFilter filter, Pagination? pagination = null, CancellationToken? cancellationToken = null)
-         where TEntity : EntityBase, new()
+        where TEntity : class, new()
         where TFilter : FilterBase
     {
         (string? sqlWhereClause, DynamicParameters? parameters) = filter.BuildWhereClauseAndParameters();
@@ -197,7 +195,7 @@ public class PostgresRepository(ISqlProvider sqlProvider, PostgresResiliencePipe
     }
 
     /// <inheritdoc/>
-    public async Task<long> InsertAsync<TEntity>(TEntity entity) where TEntity : EntityBase
+    public async Task<long> InsertAsync<TEntity>(TEntity entity)
     {
         string sql = sqlProvider.GetInsertSql<TEntity>();
         IEnumerable<NpgsqlParameter> parameters = entity.BuildParameters(useDeclaredProperties: true);
@@ -218,7 +216,7 @@ public class PostgresRepository(ISqlProvider sqlProvider, PostgresResiliencePipe
     }
 
     /// <inheritdoc/>
-    public async Task<long[]> InsertAsync<TEntity>(TEntity[] entities) where TEntity : EntityBase
+    public async Task<long[]> InsertAsync<TEntity>(TEntity[] entities)
     {
         string sql = sqlProvider.GetBulkInsertSql<TEntity>(entities.Length);
         IEnumerable<NpgsqlParameter> parameters = entities.BuildParametersFromCollection();
@@ -239,7 +237,7 @@ public class PostgresRepository(ISqlProvider sqlProvider, PostgresResiliencePipe
     }
 
     /// <inheritdoc/>
-    public async Task<long[]> UpsertAsync<TEntity, TFilter>(TEntity[] entities, TFilter filter) where TEntity : EntityBase
+    public async Task<long[]> UpsertAsync<TEntity, TFilter>(TEntity[] entities, TFilter filter)
     {
         (string? sqlWhereClause, List<NpgsqlParameter> deleteParameters) = filter.BuildWhereClauseAndNpgsqlParameters();
         string deleteSql = sqlProvider.GetDeleteSql<TEntity>().Replace("#WHERE", sqlWhereClause);
@@ -270,7 +268,7 @@ public class PostgresRepository(ISqlProvider sqlProvider, PostgresResiliencePipe
     }
 
     /// <inheritdoc/>
-    public async Task<bool> TryUpdateAsync<TEntity>(TEntity entity) where TEntity : EntityBase
+    public async Task<bool> TryUpdateAsync<TEntity>(TEntity entity)
     {
         string sql = sqlProvider.GetUpdateByPrimaryKeySql<TEntity>();
         IEnumerable<NpgsqlParameter> parameters = entity.BuildParameters();
@@ -290,7 +288,7 @@ public class PostgresRepository(ISqlProvider sqlProvider, PostgresResiliencePipe
     }
 
     protected async IAsyncEnumerable<TEntity> GetAsync<TEntity>(string sql, DynamicParameters? parameters, CancellationToken? cancellationToken = null)
-         where TEntity : EntityBase, new()
+        where TEntity : class, new()
     {
         CancellationToken localCancellationToken = cancellationToken ?? GetCancellationToken(DatabaseSettings.ConnectionTimeoutInMilliseconds);
 

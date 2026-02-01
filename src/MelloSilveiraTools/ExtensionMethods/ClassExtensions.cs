@@ -128,8 +128,8 @@ public static class ClassExtensions
         PropertyInfo[] properties = useDeclaredProperties ? typeof(T).GetDeclaredProperties() : typeof(T).GetPropertiesInHierarchy();
         foreach (var property in properties)
         {
-            var attribute = property.GetCustomAttribute<ColumnAttribute>();
-            if (attribute != null)
+            var attribute = property.GetCustomAttributes<ColumnAttribute>();
+            if (attribute.IsNotNullOrEmpty())
             {
                 object? value = property.GetValue(obj);
                 yield return new NpgsqlParameter(property.Name, property.PropertyType.GetDbTypeFromPropertyType()) { Value = value ?? DBNull.Value };

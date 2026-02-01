@@ -1,5 +1,4 @@
 ﻿using MelloSilveiraTools.Infrastructure.Database.Attributes;
-using Newtonsoft.Json;
 
 namespace MelloSilveiraTools.Infrastructure.Database.Models.Entities;
 
@@ -8,7 +7,6 @@ namespace MelloSilveiraTools.Infrastructure.Database.Models.Entities;
 /// </summary>
 public abstract record EntityBase
 {
-    [JsonIgnore]
     [PrimaryKeyColumn]
     public long Id { get; init; }
 

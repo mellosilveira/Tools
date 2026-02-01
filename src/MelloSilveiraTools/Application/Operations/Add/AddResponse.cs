@@ -14,18 +14,21 @@ public record AddResponse : OperationResponseBase<AddResponseData>
     {
         Data = new AddResponseData(id),
         StatusCode = HttpStatusCode.Created,
+        Success = true,
     };
 
     public new static AddResponse CreateConflict(string message) => new()
     {
         ErrorMessages = [message],
-        StatusCode = HttpStatusCode.Conflict
+        StatusCode = HttpStatusCode.Conflict,
+        Success = true,
     };
 
     public static AddResponse CreateConflict(long id, string message) => new()
     {
         Data = new AddResponseData(id),
         ErrorMessages = [message],
-        StatusCode = HttpStatusCode.Conflict
+        StatusCode = HttpStatusCode.Conflict,
+        Success = true,
     };
 }

@@ -6,4 +6,5 @@ VALUES
 (
 	#PARAMETER_NAMES
 )
+ON CONFLICT(unique_hash) DO UPDATE SET unique_hash = EXCLUDED.unique_hash
 RETURNING #PRIMARY_KEY;

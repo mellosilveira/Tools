@@ -15,7 +15,7 @@ namespace MelloSilveiraTools.ExtensionMethods
         /// <returns></returns>
         public static T ConvertTo<T>(this IDataReader sqlDataReader) where T : class, new()
         {
-            // TODO: ISSO É CUSTOSO POR USAR REFLECTION, DEDVE SER OTIMIZADO.
+            // TODO: ISSO É CUSTOSO POR USAR REFLECTION, DEVE SER OTIMIZADO.
             Type type = typeof(T);
             var obj = new T();
 
@@ -32,9 +32,17 @@ namespace MelloSilveiraTools.ExtensionMethods
                 var propertyType = Nullable.GetUnderlyingType(propertyInfo.PropertyType) ?? propertyInfo.PropertyType;
                 object fieldValue = sqlDataReader.GetValue(i);
                 if (fieldValue is not null)
-                    propertyInfo.SetValue(obj, propertyInfo.PropertyType.IsEnum
-                        ? Enum.Parse(propertyInfo.PropertyType, fieldValue.ToString()!)
-                        : Convert.ChangeType(fieldValue, propertyType));
+                {
+                    object propertyValue;
+                    if (propertyInfo.PropertyType == typeof(DateTimeOffset))
+                        propertyValue = DateTimeOffset.Parse(fieldValue.ToString()!);
+                    else if (propertyInfo.PropertyType.IsEnum)
+                        propertyValue = Enum.Parse(propertyInfo.PropertyType, fieldValue.ToString()!);
+                    else
+                        propertyValue = Convert.ChangeType(fieldValue, propertyType);
+
+                    propertyInfo.SetValue(obj, propertyValue);
+                }
             }
 
             return obj;
