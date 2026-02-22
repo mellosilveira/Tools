@@ -1,4 +1,4 @@
-﻿namespace MelloSilveiraTools.MechanicsOfMaterials.Models.NumericalMethods
+﻿namespace MelloSilveiraTools.Domain.NumericalMethods
 {
     /// <summary>
     /// It contains the input data for a numerical method.

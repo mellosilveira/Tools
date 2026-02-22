@@ -3,8 +3,6 @@
 public record DatabaseSettings
 {
     public string ConnectionString { get; init; }
-
-    public int ConnectionTimeoutInMilliseconds { get; init; }
-
     public int UnitOperationTimeoutInMilliseconds { get; init; }
+    public int BulkOperationTimeoutInMilliseconds { get; init; }
 }

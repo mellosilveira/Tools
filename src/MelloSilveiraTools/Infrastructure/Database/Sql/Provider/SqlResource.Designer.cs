@@ -61,6 +61,21 @@ namespace MelloSilveiraTools.Infrastructure.Database.Sql.Provider {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to INSERT INTO #TABLE_NAME
+        ///(	
+        ///	#COLUMNS
+        ///)
+        ///VALUES
+        ///	#VALUES
+        ///RETURNING #PRIMARY_KEY;.
+        /// </summary>
+        internal static string BulkInsertTemplate {
+            get {
+                return ResourceManager.GetString("BulkInsertTemplate", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to DELETE FROM #TABLE_NAME AS #TABLE_ALIAS
         ///#WHERE.
         /// </summary>
@@ -76,24 +91,10 @@ namespace MelloSilveiraTools.Infrastructure.Database.Sql.Provider {
         ///	#COLUMNS
         ///)
         ///VALUES
-        ///	#VALUES
-        ///RETURNING #PRIMARY_KEY;.
-        /// </summary>
-        internal static string InsertInBatchTemplate {
-            get {
-                return ResourceManager.GetString("InsertInBatchTemplate", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to INSERT INTO #TABLE_NAME
-        ///(	
-        ///	#COLUMNS
-        ///)
-        ///VALUES
         ///(
         ///	#PARAMETER_NAMES
         ///)
+        ///ON CONFLICT(unique_hash) DO UPDATE SET unique_hash = EXCLUDED.unique_hash
         ///RETURNING #PRIMARY_KEY;.
         /// </summary>
         internal static string InsertTemplate {
@@ -112,6 +113,7 @@ namespace MelloSilveiraTools.Infrastructure.Database.Sql.Provider {
         ///	(
         ///		#PARAMETER_NAMES
         ///	)
+        ///	ON CONFLICT DO NOTHING
         ///	RETURNING #PRIMARY_KEY
         ///)
         ///SELECT #PRIMARY_KEY FROM CTE
@@ -125,7 +127,7 @@ namespace MelloSilveiraTools.Infrastructure.Database.Sql.Provider {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to SELECT
+        ///   Looks up a localized string similar to SELECT DISTINCT
         ///	#COLUMNS
         ///FROM #TABLE_NAME AS #TABLE_ALIAS
         ///#JOIN

@@ -1,6 +1,5 @@
 ﻿using MelloSilveiraTools.Domain.Models;
 using MelloSilveiraTools.ExtensionMethods;
-using MelloSilveiraTools.MechanicsOfMaterials.Models.NumericalMethods;
 
 namespace MelloSilveiraTools.Domain.NumericalMethods.DifferentialEquation;
 

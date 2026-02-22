@@ -181,105 +181,26 @@
             Adds Swagger documentations to ApplicationBuilder.
             </summary>
         </member>
-        <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Models.Constants">
+        <member name="T:MelloSilveiraTools.Domain.Models.Constants">
             <summary>
             It contains the constants used in the project.
             </summary>
         </member>
-        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Models.Constants.InvalidValues">
+        <member name="P:MelloSilveiraTools.Domain.Models.Constants.InvalidValues">
             <summary>
             The invalid values for double parameters.
             </summary>
         </member>
-        <member name="F:MelloSilveiraTools.MechanicsOfMaterials.Models.Constants.GravityAcceleration">
+        <member name="F:MelloSilveiraTools.Domain.Models.Constants.GravityAcceleration">
             <summary>
             Unit: m/s² (meter per squared second).
             </summary>
         </member>
-        <member name="F:MelloSilveiraTools.MechanicsOfMaterials.Models.Constants.InitialTime">
+        <member name="F:MelloSilveiraTools.Domain.Models.Constants.InitialTime">
             <summary>
             The initial time that must be used in all analyzes and operations.
             Unit: s (second).
             </summary>
-        </member>
-        <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Models.NumericalMethods.NumericalMethodInput">
-            <summary>
-            It contains the input data for a numerical method.
-            </summary>
-        </member>
-        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Models.NumericalMethods.NumericalMethodInput.TimeStep">
-            <summary>
-            Unit: s (second).
-            </summary>
-        </member>
-        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Models.NumericalMethods.NumericalMethodInput.Mass">
-            <summary>
-            Unit: kg (kilogram).
-            </summary>
-        </member>
-        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Models.NumericalMethods.NumericalMethodInput.Stiffness">
-            <summary>
-            Unit: N/m (Newton per meter).
-            </summary>
-        </member>
-        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Models.NumericalMethods.NumericalMethodInput.Damping">
-            <summary>
-            Unit: N.s/m (Newston-second per meter).
-            </summary>
-        </member>
-        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Models.NumericalMethods.NumericalMethodInput.EquivalentForce">
-            <summary>
-            Unit: N (Newton).
-            </summary>
-        </member>
-        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Models.NumericalMethods.NumericalMethodInput.NumberOfBoundaryConditions">
-            <summary>
-            Dimensionless.
-            </summary>
-        </member>
-        <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Models.NumericalMethods.NumericalMethodResult">
-            <summary>
-            It contains the finite element analysis results to a specific time.
-            </summary>
-        </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Models.NumericalMethods.NumericalMethodResult.#ctor">
-            <summary>
-            Basic constructor.
-            </summary>
-        </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Models.NumericalMethods.NumericalMethodResult.#ctor(System.UInt32)">
-            <summary>
-            Class constructor.
-            </summary>
-            <param name="numberOfBoundaryConditions"></param>
-        </member>
-        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Models.NumericalMethods.NumericalMethodResult.Time">
-            <summary>
-            Unit: s (second).
-            </summary>
-        </member>
-        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Models.NumericalMethods.NumericalMethodResult.Displacement">
-            <summary>
-            Unit: m (meter).
-            </summary>
-        </member>
-        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Models.NumericalMethods.NumericalMethodResult.Velocity">
-            <summary>
-            Unit: m/s (meter per second).
-            </summary>
-        </member>
-        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Models.NumericalMethods.NumericalMethodResult.Acceleration">
-            <summary>
-            Unit: m/s² (meter per squared second).
-            </summary>
-        </member>
-        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Models.NumericalMethods.NumericalMethodResult.EquivalentForce">
-            <summary>
-            Unit: N (Newton).
-            </summary>
-        </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Models.NumericalMethods.NumericalMethodResult.ToString">
-            <inheritdoc/>
         </member>
         <member name="T:MelloSilveiraTools.Domain.Models.CurveType">
             <summary>
@@ -496,7 +417,7 @@
             Executes numerical method to solve Differential Equation
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.Domain.NumericalMethods.DifferentialEquation.IDifferentialEquationMethod.CalculateResult(MelloSilveiraTools.MechanicsOfMaterials.Models.NumericalMethods.NumericalMethodInput,System.Double,MelloSilveiraTools.MechanicsOfMaterials.Models.NumericalMethods.NumericalMethodResult)">
+        <member name="M:MelloSilveiraTools.Domain.NumericalMethods.DifferentialEquation.IDifferentialEquationMethod.CalculateResult(MelloSilveiraTools.Domain.NumericalMethods.NumericalMethodInput,System.Double,MelloSilveiraTools.Domain.NumericalMethods.NumericalMethodResult)">
             <summary>
             Calculates the results for a numeric analysis.
             </summary>
@@ -510,17 +431,17 @@
             Execute the Newmark-Beta numerical method to solve Differential Equation.
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.Domain.NumericalMethods.DifferentialEquation.NewmarkBetaMethod.CalculateResult(MelloSilveiraTools.MechanicsOfMaterials.Models.NumericalMethods.NumericalMethodInput,System.Double,MelloSilveiraTools.MechanicsOfMaterials.Models.NumericalMethods.NumericalMethodResult)">
+        <member name="M:MelloSilveiraTools.Domain.NumericalMethods.DifferentialEquation.NewmarkBetaMethod.CalculateResult(MelloSilveiraTools.Domain.NumericalMethods.NumericalMethodInput,System.Double,MelloSilveiraTools.Domain.NumericalMethods.NumericalMethodResult)">
             <inheritdoc/>
         </member>
-        <member name="M:MelloSilveiraTools.Domain.NumericalMethods.DifferentialEquation.NewmarkBetaMethod.CalculateEquivalentStiffness(MelloSilveiraTools.MechanicsOfMaterials.Models.NumericalMethods.NumericalMethodInput)">
+        <member name="M:MelloSilveiraTools.Domain.NumericalMethods.DifferentialEquation.NewmarkBetaMethod.CalculateEquivalentStiffness(MelloSilveiraTools.Domain.NumericalMethods.NumericalMethodInput)">
             <summary>
             Calculates the equivalent stiffness to calculate the displacement in Newmark-Beta method.
             </summary>
             <param name="input"></param>
             <returns></returns>
         </member>
-        <member name="M:MelloSilveiraTools.Domain.NumericalMethods.DifferentialEquation.NewmarkBetaMethod.CalculateEquivalentForce(MelloSilveiraTools.MechanicsOfMaterials.Models.NumericalMethods.NumericalMethodInput,MelloSilveiraTools.MechanicsOfMaterials.Models.NumericalMethods.NumericalMethodResult)">
+        <member name="M:MelloSilveiraTools.Domain.NumericalMethods.DifferentialEquation.NewmarkBetaMethod.CalculateEquivalentForce(MelloSilveiraTools.Domain.NumericalMethods.NumericalMethodInput,MelloSilveiraTools.Domain.NumericalMethods.NumericalMethodResult)">
             <summary>
             Calculates the equivalent force to calculate the displacement in Newmark-Beta method.
             </summary>
@@ -528,14 +449,14 @@
             <param name="previousResult"></param>
             <returns></returns>
         </member>
-        <member name="M:MelloSilveiraTools.Domain.NumericalMethods.DifferentialEquation.NewmarkBetaMethod.CalculateEquivalentDamping(MelloSilveiraTools.MechanicsOfMaterials.Models.NumericalMethods.NumericalMethodInput)">
+        <member name="M:MelloSilveiraTools.Domain.NumericalMethods.DifferentialEquation.NewmarkBetaMethod.CalculateEquivalentDamping(MelloSilveiraTools.Domain.NumericalMethods.NumericalMethodInput)">
             <summary>
             Calculates the equivalent damping to be used in Newmark-Beta method.
             </summary>
             <param name="input"></param>
             <returns></returns>
         </member>
-        <member name="M:MelloSilveiraTools.Domain.NumericalMethods.DifferentialEquation.NewmarkBetaMethod.CalculateEquivalentMass(MelloSilveiraTools.MechanicsOfMaterials.Models.NumericalMethods.NumericalMethodInput)">
+        <member name="M:MelloSilveiraTools.Domain.NumericalMethods.DifferentialEquation.NewmarkBetaMethod.CalculateEquivalentMass(MelloSilveiraTools.Domain.NumericalMethods.NumericalMethodInput)">
             <summary>
             Calculates the equivalent mass to be used in Newmark-Beta method.
             </summary>
@@ -550,17 +471,17 @@
         <member name="P:MelloSilveiraTools.Domain.NumericalMethods.DifferentialEquation.NewmarkMethod.Type">
             <inheritdoc/>
         </member>
-        <member name="M:MelloSilveiraTools.Domain.NumericalMethods.DifferentialEquation.NewmarkMethod.CalculateResult(MelloSilveiraTools.MechanicsOfMaterials.Models.NumericalMethods.NumericalMethodInput,System.Double,MelloSilveiraTools.MechanicsOfMaterials.Models.NumericalMethods.NumericalMethodResult)">
+        <member name="M:MelloSilveiraTools.Domain.NumericalMethods.DifferentialEquation.NewmarkMethod.CalculateResult(MelloSilveiraTools.Domain.NumericalMethods.NumericalMethodInput,System.Double,MelloSilveiraTools.Domain.NumericalMethods.NumericalMethodResult)">
             <inheritdoc/>
         </member>
-        <member name="M:MelloSilveiraTools.Domain.NumericalMethods.DifferentialEquation.NewmarkMethod.CalculateEquivalentStiffness(MelloSilveiraTools.MechanicsOfMaterials.Models.NumericalMethods.NumericalMethodInput)">
+        <member name="M:MelloSilveiraTools.Domain.NumericalMethods.DifferentialEquation.NewmarkMethod.CalculateEquivalentStiffness(MelloSilveiraTools.Domain.NumericalMethods.NumericalMethodInput)">
             <summary>
             Calculates the equivalent stiffness to calculate the displacement in Newmark method.
             </summary>
             <param name="input"></param>
             <returns></returns>
         </member>
-        <member name="M:MelloSilveiraTools.Domain.NumericalMethods.DifferentialEquation.NewmarkMethod.CalculateEquivalentForce(MelloSilveiraTools.MechanicsOfMaterials.Models.NumericalMethods.NumericalMethodInput,System.Double[],System.Double[],System.Double[])">
+        <member name="M:MelloSilveiraTools.Domain.NumericalMethods.DifferentialEquation.NewmarkMethod.CalculateEquivalentForce(MelloSilveiraTools.Domain.NumericalMethods.NumericalMethodInput,System.Double[],System.Double[],System.Double[])">
             <summary>
             Calculates the equivalent force to calculate the displacement to Newmark method.
             </summary>
@@ -570,7 +491,7 @@
             <param name="previousAcceleration"></param>
             <returns></returns>
         </member>
-        <member name="M:MelloSilveiraTools.Domain.NumericalMethods.DifferentialEquation.NewmarkMethod.CalculateEquivalentAcceleration(MelloSilveiraTools.MechanicsOfMaterials.Models.NumericalMethods.NumericalMethodInput,System.Double[],System.Double[],System.Double[])">
+        <member name="M:MelloSilveiraTools.Domain.NumericalMethods.DifferentialEquation.NewmarkMethod.CalculateEquivalentAcceleration(MelloSilveiraTools.Domain.NumericalMethods.NumericalMethodInput,System.Double[],System.Double[],System.Double[])">
             <summary>
             Calculates the equivalent aceleration to calculate the equivalent force.
             </summary>
@@ -580,7 +501,7 @@
             <param name="previousAcceleration"></param>
             <returns></returns>
         </member>
-        <member name="M:MelloSilveiraTools.Domain.NumericalMethods.DifferentialEquation.NewmarkMethod.CalculateEquivalentVelocity(MelloSilveiraTools.MechanicsOfMaterials.Models.NumericalMethods.NumericalMethodInput,System.Double[],System.Double[],System.Double[])">
+        <member name="M:MelloSilveiraTools.Domain.NumericalMethods.DifferentialEquation.NewmarkMethod.CalculateEquivalentVelocity(MelloSilveiraTools.Domain.NumericalMethods.NumericalMethodInput,System.Double[],System.Double[],System.Double[])">
             <summary>
             Calculates the equivalent velocity to calculate the equivalent force.
             </summary>
@@ -589,6 +510,85 @@
             <param name="previousVelocity"></param>
             <param name="previousAcceleration"></param>
             <returns></returns>
+        </member>
+        <member name="T:MelloSilveiraTools.Domain.NumericalMethods.NumericalMethodInput">
+            <summary>
+            It contains the input data for a numerical method.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Domain.NumericalMethods.NumericalMethodInput.TimeStep">
+            <summary>
+            Unit: s (second).
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Domain.NumericalMethods.NumericalMethodInput.Mass">
+            <summary>
+            Unit: kg (kilogram).
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Domain.NumericalMethods.NumericalMethodInput.Stiffness">
+            <summary>
+            Unit: N/m (Newton per meter).
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Domain.NumericalMethods.NumericalMethodInput.Damping">
+            <summary>
+            Unit: N.s/m (Newston-second per meter).
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Domain.NumericalMethods.NumericalMethodInput.EquivalentForce">
+            <summary>
+            Unit: N (Newton).
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Domain.NumericalMethods.NumericalMethodInput.NumberOfBoundaryConditions">
+            <summary>
+            Dimensionless.
+            </summary>
+        </member>
+        <member name="T:MelloSilveiraTools.Domain.NumericalMethods.NumericalMethodResult">
+            <summary>
+            It contains the finite element analysis results to a specific time.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Domain.NumericalMethods.NumericalMethodResult.#ctor">
+            <summary>
+            Basic constructor.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Domain.NumericalMethods.NumericalMethodResult.#ctor(System.UInt32)">
+            <summary>
+            Class constructor.
+            </summary>
+            <param name="numberOfBoundaryConditions"></param>
+        </member>
+        <member name="P:MelloSilveiraTools.Domain.NumericalMethods.NumericalMethodResult.Time">
+            <summary>
+            Unit: s (second).
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Domain.NumericalMethods.NumericalMethodResult.Displacement">
+            <summary>
+            Unit: m (meter).
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Domain.NumericalMethods.NumericalMethodResult.Velocity">
+            <summary>
+            Unit: m/s (meter per second).
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Domain.NumericalMethods.NumericalMethodResult.Acceleration">
+            <summary>
+            Unit: m/s² (meter per squared second).
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Domain.NumericalMethods.NumericalMethodResult.EquivalentForce">
+            <summary>
+            Unit: N (Newton).
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Domain.NumericalMethods.NumericalMethodResult.ToString">
+            <inheritdoc/>
         </member>
         <member name="T:MelloSilveiraTools.ExtensionMethods.ArrayExtension">
             <summary>
@@ -1032,6 +1032,21 @@
             otherwise an instance is created per row, and a direct column-name === member-name mapping is assumed (case insensitive).
             </returns>
         </member>
+        <member name="M:MelloSilveiraTools.ExtensionMethods.NpgsqlConnectionExtensions.QueryFirstOrDefaultAsync``1(Npgsql.NpgsqlConnection,System.String,Dapper.DynamicParameters,System.Int32,System.Threading.CancellationToken)">
+            <summary>
+            Executes a query, returning the data typed as <typeparamref name="T"/>.
+            </summary>
+            <typeparam name="T">Type of results to return.</typeparam>
+            <param name="connection">Connection to query on.</param>
+            <param name="sql">Text query to be executed.</param>
+            <param name="parameters">The parameters for this command.</param>
+            <param name="commandTimeout">Number of seconds before command execution timeout.</param>
+            <param name="cancellationToken">Cancellation token for this command.</param>
+            <returns>
+            A single or null instance of the supplied type; if a basic type (int, string, etc) is queried then the data from the first column is assumed,
+            otherwise an instance is created per row, and a direct column-name === member-name mapping is assumed (case insensitive).
+            </returns>
+        </member>
         <member name="M:MelloSilveiraTools.ExtensionMethods.NpgsqlConnectionExtensions.QueryAsync``1(Npgsql.NpgsqlConnection,System.String,Dapper.DynamicParameters,System.Threading.CancellationToken)">
             <summary>
             Execute a query asynchronously using Task.
@@ -1045,6 +1060,42 @@
             A sequence of data of <typeparamref name="T"/>; if a basic type (int, string, etc) is queried then the data from the first column is assumed, otherwise an instance is
             created per row, and a direct column-name===member-name mapping is assumed (case insensitive).
             </returns>
+        </member>
+        <member name="M:MelloSilveiraTools.ExtensionMethods.NpgsqlConnectionExtensions.ExecuteScalarAsync``1(Npgsql.NpgsqlConnection,System.String,Dapper.DynamicParameters,System.Threading.CancellationToken)">
+            <summary>
+            Execute parameterized SQL that selects a single value.
+            </summary>
+            <typeparam name="T">The type to return.</typeparam>
+            <param name="connection">The connection to execute on.</param>
+            <param name="sql">The SQL to execute.</param>
+            <param name="parameters">The parameters to use for this command.</param>
+            <param name="cancellationToken">Cancellation token for this command.</param>
+            <returns>The first cell returned, as <typeparamref name="T"/>.</returns>
+        </member>
+        <member name="M:MelloSilveiraTools.ExtensionMethods.NpgsqlConnectionExtensions.ExecuteReaderAsync(Npgsql.NpgsqlConnection,System.String,Dapper.DynamicParameters,System.Threading.CancellationToken)">
+            <summary>
+            Execute parameterized SQL and return an <see cref="T:System.Data.IDataReader"/>.
+            </summary>
+            <param name="connection">The connection to execute on.</param>
+            <param name="sql">The SQL to execute.</param>
+            <param name="parameters">The parameters to use for this command.</param>
+            <param name="cancellationToken">Cancellation token for this command.</param>
+            <returns>An <see cref="T:System.Data.IDataReader"/> that can be used to iterate over the results of the SQL query.</returns>
+            <remarks>
+            This is typically used when the results of a query are not processed by Dapper, for example, used to fill a <see cref="T:System.Data.DataTable"/>
+            or <see cref="T:DataSet"/>.
+            </remarks>
+            <example>
+            <code>
+            <![CDATA[
+            DataTable table = new DataTable("MyTable");
+            using (var reader = ExecuteReader(cnn, sql, param))
+            {
+                table.Load(reader);
+            }
+            ]]>
+            </code>
+            </example>
         </member>
         <member name="T:MelloSilveiraTools.ExtensionMethods.OperationResponseExtensions">
             <summary>
@@ -1279,11 +1330,6 @@
             Returns all records from the right table, and the matched records from the left table.
             </summary>
         </member>
-        <member name="T:MelloSilveiraTools.Infrastructure.Database.Repositories.IDatabaseRepository">
-            <summary>
-            Repository that contains methods to deal with database.
-            </summary>
-        </member>
         <member name="T:MelloSilveiraTools.Infrastructure.Database.Repositories.PostgresRepository">
             <summary>
             Repository that contains methods to deal with Postgres database.
@@ -1294,46 +1340,46 @@
             Repository that contains methods to deal with Postgres database.
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.Infrastructure.Database.Repositories.PostgresRepository.CountAsync``2(``1)">
+        <member name="M:MelloSilveiraTools.Infrastructure.Database.Repositories.PostgresRepository.CountAsync``2(``1,System.Threading.CancellationToken)">
             <inheritdoc/>
         </member>
-        <member name="M:MelloSilveiraTools.Infrastructure.Database.Repositories.PostgresRepository.ExistAsync``1(System.Int64)">
+        <member name="M:MelloSilveiraTools.Infrastructure.Database.Repositories.PostgresRepository.ExistAsync``1(System.Int64,System.Threading.CancellationToken)">
             <inheritdoc/>
         </member>
-        <member name="M:MelloSilveiraTools.Infrastructure.Database.Repositories.PostgresRepository.ExistAsync``2(``1)">
+        <member name="M:MelloSilveiraTools.Infrastructure.Database.Repositories.PostgresRepository.ExistAsync``2(``1,System.Threading.CancellationToken)">
             <inheritdoc/>
         </member>
-        <member name="M:MelloSilveiraTools.Infrastructure.Database.Repositories.PostgresRepository.DeleteAllAsync``1">
+        <member name="M:MelloSilveiraTools.Infrastructure.Database.Repositories.PostgresRepository.DeleteAllAsync``1(System.Threading.CancellationToken)">
             <inheritdoc/>
         </member>
-        <member name="M:MelloSilveiraTools.Infrastructure.Database.Repositories.PostgresRepository.DeleteAsync``1(System.Int64)">
+        <member name="M:MelloSilveiraTools.Infrastructure.Database.Repositories.PostgresRepository.DeleteAsync``1(System.Int64,System.Threading.CancellationToken)">
             <inheritdoc/>
         </member>
-        <member name="M:MelloSilveiraTools.Infrastructure.Database.Repositories.PostgresRepository.DeleteAsync``2(``1)">
+        <member name="M:MelloSilveiraTools.Infrastructure.Database.Repositories.PostgresRepository.DeleteAsync``2(``1,System.Threading.CancellationToken)">
             <inheritdoc/>
         </member>
-        <member name="M:MelloSilveiraTools.Infrastructure.Database.Repositories.PostgresRepository.GetFirstOrDefaultAsync``2(``1)">
+        <member name="M:MelloSilveiraTools.Infrastructure.Database.Repositories.PostgresRepository.GetFirstOrDefaultAsync``2(``1,MelloSilveiraTools.Infrastructure.Database.Models.Filters.SortOrder,System.Threading.CancellationToken)">
             <inheritdoc/>
         </member>
-        <member name="M:MelloSilveiraTools.Infrastructure.Database.Repositories.PostgresRepository.GetAsync``1(System.Int64)">
+        <member name="M:MelloSilveiraTools.Infrastructure.Database.Repositories.PostgresRepository.GetAsync``1(System.Int64,System.Threading.CancellationToken)">
             <inheritdoc/>
         </member>
-        <member name="M:MelloSilveiraTools.Infrastructure.Database.Repositories.PostgresRepository.GetAsync``2(``1,MelloSilveiraTools.Infrastructure.Database.Models.Filters.Pagination,System.Nullable{System.Threading.CancellationToken})">
+        <member name="M:MelloSilveiraTools.Infrastructure.Database.Repositories.PostgresRepository.GetAsync``2(``1,MelloSilveiraTools.Infrastructure.Database.Models.Filters.Pagination,System.Threading.CancellationToken)">
             <inheritdoc/>
         </member>
-        <member name="M:MelloSilveiraTools.Infrastructure.Database.Repositories.PostgresRepository.GetDistinctAsync``2(``1,MelloSilveiraTools.Infrastructure.Database.Models.Filters.Pagination,System.Nullable{System.Threading.CancellationToken})">
+        <member name="M:MelloSilveiraTools.Infrastructure.Database.Repositories.PostgresRepository.GetDistinctAsync``2(``1,MelloSilveiraTools.Infrastructure.Database.Models.Filters.Pagination,System.Threading.CancellationToken)">
             <inheritdoc/>
         </member>
-        <member name="M:MelloSilveiraTools.Infrastructure.Database.Repositories.PostgresRepository.InsertAsync``1(``0)">
+        <member name="M:MelloSilveiraTools.Infrastructure.Database.Repositories.PostgresRepository.InsertAsync``1(``0,System.Threading.CancellationToken)">
             <inheritdoc/>
         </member>
-        <member name="M:MelloSilveiraTools.Infrastructure.Database.Repositories.PostgresRepository.InsertAsync``1(``0[])">
+        <member name="M:MelloSilveiraTools.Infrastructure.Database.Repositories.PostgresRepository.InsertAsync``1(``0[],System.Threading.CancellationToken)">
             <inheritdoc/>
         </member>
-        <member name="M:MelloSilveiraTools.Infrastructure.Database.Repositories.PostgresRepository.UpsertAsync``2(``0[],``1)">
+        <member name="M:MelloSilveiraTools.Infrastructure.Database.Repositories.PostgresRepository.UpsertAsync``2(``0[],``1,System.Threading.CancellationToken)">
             <inheritdoc/>
         </member>
-        <member name="M:MelloSilveiraTools.Infrastructure.Database.Repositories.PostgresRepository.TryUpdateAsync``1(``0)">
+        <member name="M:MelloSilveiraTools.Infrastructure.Database.Repositories.PostgresRepository.TryUpdateAsync``1(``0,System.Threading.CancellationToken)">
             <inheritdoc/>
         </member>
         <member name="T:MelloSilveiraTools.Infrastructure.Database.Sql.Provider.PostgresSqlProvider">
@@ -1388,13 +1434,7 @@
               resource lookups using this strongly typed resource class.
             </summary>
         </member>
-        <member name="P:MelloSilveiraTools.Infrastructure.Database.Sql.Provider.SqlResource.DeleteTemplate">
-             <summary>
-               Looks up a localized string similar to DELETE FROM #TABLE_NAME AS #TABLE_ALIAS
-            #WHERE.
-             </summary>
-        </member>
-        <member name="P:MelloSilveiraTools.Infrastructure.Database.Sql.Provider.SqlResource.InsertInBatchTemplate">
+        <member name="P:MelloSilveiraTools.Infrastructure.Database.Sql.Provider.SqlResource.BulkInsertTemplate">
              <summary>
                Looks up a localized string similar to INSERT INTO #TABLE_NAME
             (	
@@ -1403,6 +1443,12 @@
             VALUES
             	#VALUES
             RETURNING #PRIMARY_KEY;.
+             </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Infrastructure.Database.Sql.Provider.SqlResource.DeleteTemplate">
+             <summary>
+               Looks up a localized string similar to DELETE FROM #TABLE_NAME AS #TABLE_ALIAS
+            #WHERE.
              </summary>
         </member>
         <member name="P:MelloSilveiraTools.Infrastructure.Database.Sql.Provider.SqlResource.InsertTemplate">
@@ -1415,6 +1461,7 @@
             (
             	#PARAMETER_NAMES
             )
+            ON CONFLICT(unique_hash) DO UPDATE SET unique_hash = EXCLUDED.unique_hash
             RETURNING #PRIMARY_KEY;.
              </summary>
         </member>
@@ -1429,6 +1476,7 @@
             	(
             		#PARAMETER_NAMES
             	)
+            	ON CONFLICT DO NOTHING
             	RETURNING #PRIMARY_KEY
             )
             SELECT #PRIMARY_KEY FROM CTE
@@ -1438,7 +1486,7 @@
         </member>
         <member name="P:MelloSilveiraTools.Infrastructure.Database.Sql.Provider.SqlResource.SelectTemplate">
              <summary>
-               Looks up a localized string similar to SELECT
+               Looks up a localized string similar to SELECT DISTINCT
             	#COLUMNS
             FROM #TABLE_NAME AS #TABLE_ALIAS
             #JOIN

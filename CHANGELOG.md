@@ -15,7 +15,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - CreateSuccessOk method for OperationResponseBase with response data.
 - CreateConflict and CreateUnprocessableEntity methods for OperationResponse.
 - Mechanics of Materials project.
-### Renamed
+### Renamed\
 - Fatigue to FatigueCalculator.
 - GeometricProperty to GeometricPropertyCalculator.
 - MechanicsOfMaterials to ConstitutiveEquationsCalculator.

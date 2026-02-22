@@ -1,4 +1,4 @@
-﻿namespace MelloSilveiraTools.MechanicsOfMaterials.Models;
+﻿namespace MelloSilveiraTools.Domain.Models;
 
 /// <summary>
 /// It contains the constants used in the project.

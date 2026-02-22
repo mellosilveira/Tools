@@ -1,6 +1,5 @@
 ﻿using MelloSilveiraTools.ExtensionMethods;
 using MelloSilveiraTools.Infrastructure.Database.Attributes;
-using MelloSilveiraTools.Infrastructure.Database.Models.Entities;
 using System.Collections.Concurrent;
 using System.Reflection;
 

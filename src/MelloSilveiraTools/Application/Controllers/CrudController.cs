@@ -1,9 +1,9 @@
 ﻿using MelloSilveiraTools.Application.Operations;
 using MelloSilveiraTools.Application.Operations.Add;
+using MelloSilveiraTools.Domain.Repositories;
 using MelloSilveiraTools.ExtensionMethods;
 using MelloSilveiraTools.Infrastructure.Database.Models.Entities;
 using MelloSilveiraTools.Infrastructure.Database.Models.Filters;
-using MelloSilveiraTools.Infrastructure.Database.Repositories;
 using MelloSilveiraTools.Infrastructure.Logger;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -21,7 +21,7 @@ public abstract class CrudController<TEntity, TFilter>(ILogger logger) : CustomC
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [HttpPost]
     public Task<ActionResult<AddResponse>> Create(
-        [FromServices] IDatabaseRepository repository,
+        [FromServices] IRepository repository,
         [FromBody] TEntity entity) 
         => Create(repository, entity, ResourceName);
 
@@ -31,7 +31,7 @@ public abstract class CrudController<TEntity, TFilter>(ILogger logger) : CustomC
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [HttpGet("{id:long}")]
     public async Task<ActionResult<OperationResponse>> Read(
-        [FromServices] IDatabaseRepository repository,
+        [FromServices] IRepository repository,
         [FromRoute] long id)
     {
         try
@@ -58,14 +58,14 @@ public abstract class CrudController<TEntity, TFilter>(ILogger logger) : CustomC
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [HttpGet]
     public async Task<ActionResult<OperationPagedResponseBase<TEntity>>> Read(
-        [FromServices] IDatabaseRepository repository,
+        [FromServices] IRepository repository,
         [FromQuery] TFilter filter,
         [FromQuery] Pagination pagination)
     {
         try
         {
             long totalCount = await repository.CountAsync<TEntity, TFilter>(filter).ConfigureAwait(false);
-            TEntity[] entities = await repository.GetAsync<TEntity, TFilter>(filter, pagination).ToArrayAsync().ConfigureAwait(false);
+            TEntity[] entities = await repository.GetAsync<TEntity, TFilter>(filter, pagination).ToArrayAsync(CancellationToken.None).ConfigureAwait(false);
 
             OperationPagedResponseBase<TEntity> pagedResponse = new()
             {
@@ -94,7 +94,7 @@ public abstract class CrudController<TEntity, TFilter>(ILogger logger) : CustomC
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [HttpPut("{id:long}")]
     public async Task<ActionResult<OperationResponse>> Update(
-        [FromServices] IDatabaseRepository repository,
+        [FromServices] IRepository repository,
         [FromRoute] long id,
         [FromBody] TEntity entity)
     {
@@ -122,7 +122,7 @@ public abstract class CrudController<TEntity, TFilter>(ILogger logger) : CustomC
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [HttpDelete("{id:long}")]
     public async Task<ActionResult<OperationResponse>> Delete(
-        [FromServices] IDatabaseRepository repository,
+        [FromServices] IRepository repository,
         [FromRoute] long id)
     {
         try
@@ -145,7 +145,7 @@ public abstract class CrudController<TEntity, TFilter>(ILogger logger) : CustomC
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [HttpGet("stream")]
     public async Task Stream(
-        [FromServices] IDatabaseRepository repository,
+        [FromServices] IRepository repository,
         [FromQuery] TFilter filter)
     {
         var entities = repository.GetAsync<TEntity, TFilter>(filter, cancellationToken: HttpContext.RequestAborted);

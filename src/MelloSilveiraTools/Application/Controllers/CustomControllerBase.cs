@@ -1,8 +1,8 @@
 ﻿using MelloSilveiraTools.Application.Models;
 using MelloSilveiraTools.Application.Operations.Add;
+using MelloSilveiraTools.Domain.Repositories;
 using MelloSilveiraTools.ExtensionMethods;
 using MelloSilveiraTools.Infrastructure.Database.Models.Entities;
-using MelloSilveiraTools.Infrastructure.Database.Repositories;
 using MelloSilveiraTools.Infrastructure.Logger;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -14,7 +14,7 @@ public class CustomControllerBase(ILogger logger) : Controller
 {
     protected ILogger Logger { get; } = logger;
 
-    protected async Task<ActionResult<AddResponse>> Create<TEntity>(IDatabaseRepository repository, TEntity entity, string resourceName) where TEntity : EntityBase
+    protected async Task<ActionResult<AddResponse>> Create<TEntity>(IRepository repository, TEntity entity, string resourceName) where TEntity : EntityBase
     {
         try
         {

@@ -1,6 +1,7 @@
 ﻿using MelloSilveiraTools.Authentication;
 using MelloSilveiraTools.Authentication.Services;
 using MelloSilveiraTools.Domain.NumericalMethods.DifferentialEquation;
+using MelloSilveiraTools.Domain.Repositories;
 using MelloSilveiraTools.Infrastructure.Database.Repositories;
 using MelloSilveiraTools.Infrastructure.Database.Settings;
 using MelloSilveiraTools.Infrastructure.Database.Sql.Provider;
@@ -10,7 +11,7 @@ using MelloSilveiraTools.Infrastructure.Services.Encryption;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.OpenApi.Models;
+using Microsoft.OpenApi;
 using System.Reflection;
 
 namespace MelloSilveiraTools;
@@ -41,7 +42,7 @@ public static class DependencyInjection
             // Register SQL providers.
             .AddSingleton<ISqlProvider, PostgresSqlProvider>()
             // Register repositories.
-            .AddSingleton<IDatabaseRepository, PostgresRepository>()
+            .AddSingleton<IRepository, PostgresRepository>()
             // Register logger.
             .AddSingleton<ILogger, LocalFileLogger>()
             // Register services.
@@ -116,12 +117,9 @@ public static class DependencyInjection
                     BearerFormat = "JWT",
                 });
 
-                options.AddSecurityRequirement(new OpenApiSecurityRequirement
+                options.AddSecurityRequirement(_ => new OpenApiSecurityRequirement
                 {
-                    {
-                        new OpenApiSecurityScheme { Reference = new OpenApiReference { Type = ReferenceType.SecurityScheme, Id = "Bearer" } },
-                        new List<string>()
-                    }
+                    { new OpenApiSecuritySchemeReference("Bearer"), [] }
                 });
 
                 string[] xmlFiles = Directory.GetFiles(assemblyLocation, "*.xml");

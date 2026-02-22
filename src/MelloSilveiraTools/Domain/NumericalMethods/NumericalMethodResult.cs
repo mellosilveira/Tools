@@ -1,6 +1,6 @@
 ﻿using System.Globalization;
 
-namespace MelloSilveiraTools.MechanicsOfMaterials.Models.NumericalMethods
+namespace MelloSilveiraTools.Domain.NumericalMethods
 {
     /// <summary>
     /// It contains the finite element analysis results to a specific time.
