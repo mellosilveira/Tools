@@ -131,11 +131,6 @@
             Service that handles an encrypted and signed JSON Web token for authentication.
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.Authentication.Services.AuthenticationJweTokenService.#ctor(MelloSilveiraTools.Authentication.JwtSettings)">
-            <summary>
-            Service that handles an encrypted and signed JSON Web token for authentication.
-            </summary>
-        </member>
         <member name="T:MelloSilveiraTools.Authentication.Services.IAuthenticationTokenService">
             <summary>
             Service that handles an authentication token.
@@ -171,7 +166,7 @@
             <param name="jwtSettings"></param>
             <returns></returns>
         </member>
-        <member name="M:MelloSilveiraTools.DependencyInjection.AddSwaggerDocsWithJwtAuthentication(Microsoft.Extensions.DependencyInjection.IServiceCollection)">
+        <member name="M:MelloSilveiraTools.DependencyInjection.AddSwaggerDocsWithJwtAuthentication(Microsoft.Extensions.DependencyInjection.IServiceCollection,System.Reflection.Assembly)">
             <summary>
             Configures the documentation file for Swagger User Interface using JWT authentication.
             </summary>
@@ -741,7 +736,7 @@
         </member>
         <member name="M:MelloSilveiraTools.ExtensionMethods.ClassExtensions.BuildWhereClauseAndNpgsqlParameters``1(``0)">
             <summary>
-            Builds a SQL WHERE clause and a <see cref="T:Dapper.DynamicParameters"/> based on filter.
+            Builds a SQL WHERE clause and a list of <see cref="T:Npgsql.NpgsqlParameter"/> based on filter.
             </summary>
             <typeparam name="T"></typeparam>
             <param name="obj"></param>
@@ -950,7 +945,7 @@
             <param name="sources"></param>
             <returns></returns>
         </member>
-        <member name="M:MelloSilveiraTools.ExtensionMethods.EnumerableExtensions.SemaphoreSlimForeachAsync``1(System.Collections.Generic.IEnumerable{``0},System.Func{``0,System.Threading.Tasks.Task},System.Int32)">
+        <member name="M:MelloSilveiraTools.ExtensionMethods.EnumerableExtensions.ForeachAsync``1(System.Collections.Generic.IEnumerable{``0},System.Func{``0,System.Threading.Tasks.Task},System.Int32)">
             <summary>
             Performs an async iteration with <see cref="T:System.Threading.SemaphoreSlim"/>.
             </summary>
@@ -960,7 +955,7 @@
             <param name="maxDegreeOfParallelism"></param>
             <returns></returns>
         </member>
-        <member name="M:MelloSilveiraTools.ExtensionMethods.EnumerableExtensions.SemaphoreSlimForeachAsync``1(System.Collections.Generic.IEnumerable{``0},System.Action{``0},System.Int32)">
+        <member name="M:MelloSilveiraTools.ExtensionMethods.EnumerableExtensions.ForeachAsync``1(System.Collections.Generic.IEnumerable{``0},System.Action{``0},System.Int32)">
             <summary>
             Performs an async iteration with <see cref="T:System.Threading.SemaphoreSlim"/>.
             </summary>
@@ -1072,6 +1067,18 @@
             <param name="cancellationToken">Cancellation token for this command.</param>
             <returns>The first cell returned, as <typeparamref name="T"/>.</returns>
         </member>
+        <member name="M:MelloSilveiraTools.ExtensionMethods.NpgsqlConnectionExtensions.ExecuteScalarAsync``1(Npgsql.NpgsqlConnection,System.String,Dapper.DynamicParameters,System.Int32,System.Threading.CancellationToken)">
+            <summary>
+            Execute parameterized SQL that selects a single value.
+            </summary>
+            <typeparam name="T">The type to return.</typeparam>
+            <param name="connection">The connection to execute on.</param>
+            <param name="sql">The SQL to execute.</param>
+            <param name="parameters">The parameters to use for this command.</param>
+            <param name="commandTimeout">Number of seconds before command execution timeout.</param>
+            <param name="cancellationToken">Cancellation token for this command.</param>
+            <returns>The first cell returned, as <typeparamref name="T"/>.</returns>
+        </member>
         <member name="M:MelloSilveiraTools.ExtensionMethods.NpgsqlConnectionExtensions.ExecuteReaderAsync(Npgsql.NpgsqlConnection,System.String,Dapper.DynamicParameters,System.Threading.CancellationToken)">
             <summary>
             Execute parameterized SQL and return an <see cref="T:System.Data.IDataReader"/>.
@@ -1085,17 +1092,6 @@
             This is typically used when the results of a query are not processed by Dapper, for example, used to fill a <see cref="T:System.Data.DataTable"/>
             or <see cref="T:DataSet"/>.
             </remarks>
-            <example>
-            <code>
-            <![CDATA[
-            DataTable table = new DataTable("MyTable");
-            using (var reader = ExecuteReader(cnn, sql, param))
-            {
-                table.Load(reader);
-            }
-            ]]>
-            </code>
-            </example>
         </member>
         <member name="T:MelloSilveiraTools.ExtensionMethods.OperationResponseExtensions">
             <summary>
@@ -1137,7 +1133,7 @@
         </member>
         <member name="M:MelloSilveiraTools.ExtensionMethods.StringExtensions.Remove(System.String,System.String[])">
             <summary>
-            Removes a string frmo another.
+            Removes a string from another.
             </summary>
             <param name="input"></param>
             <param name="valuesToRemove"></param>
@@ -1435,13 +1431,14 @@
             </summary>
         </member>
         <member name="P:MelloSilveiraTools.Infrastructure.Database.Sql.Provider.SqlResource.BulkInsertTemplate">
+            <summary>
+              Looks up a localized string similar to INSERT INTO #TABLE_NAME (#COLUMNS) VALUES #VALUES RETURNING #PRIMARY_KEY;.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Infrastructure.Database.Sql.Provider.SqlResource.BulkInsertWithUniqueKeyTemplate">
              <summary>
-               Looks up a localized string similar to INSERT INTO #TABLE_NAME
-            (	
-            	#COLUMNS
-            )
-            VALUES
-            	#VALUES
+               Looks up a localized string similar to INSERT INTO #TABLE_NAME (#COLUMNS) VALUES #VALUES
+            ON CONFLICT (unique_hash) DO UPDATE SET unique_hash = EXCLUDED.unique_hash
             RETURNING #PRIMARY_KEY;.
              </summary>
         </member>
@@ -1454,34 +1451,21 @@
         <member name="P:MelloSilveiraTools.Infrastructure.Database.Sql.Provider.SqlResource.InsertTemplate">
              <summary>
                Looks up a localized string similar to INSERT INTO #TABLE_NAME
-            (	
+            (
             	#COLUMNS
             )
             VALUES
             (
             	#PARAMETER_NAMES
             )
-            ON CONFLICT(unique_hash) DO UPDATE SET unique_hash = EXCLUDED.unique_hash
             RETURNING #PRIMARY_KEY;.
              </summary>
         </member>
         <member name="P:MelloSilveiraTools.Infrastructure.Database.Sql.Provider.SqlResource.InsertWithUniqueKeyTemplate">
              <summary>
-               Looks up a localized string similar to WITH CTE AS (
-            	INSERT INTO #TABLE_NAME
-            	(	
-            		#COLUMNS
-            	)
-            	VALUES
-            	(
-            		#PARAMETER_NAMES
-            	)
-            	ON CONFLICT DO NOTHING
-            	RETURNING #PRIMARY_KEY
-            )
-            SELECT #PRIMARY_KEY FROM CTE
-             UNION ALL
-            SELECT #PRIMARY_KEY FROM #TABLE_NAME #TABLE_ALIAS WHERE #UNIQUE_KEY_FILTERS;.
+               Looks up a localized string similar to INSERT INTO #TABLE_NAME (#COLUMNS) VALUES (#PARAMETER_NAMES)
+            ON CONFLICT (unique_hash) DO UPDATE SET unique_hash = EXCLUDED.unique_hash
+            RETURNING #PRIMARY_KEY;.
              </summary>
         </member>
         <member name="P:MelloSilveiraTools.Infrastructure.Database.Sql.Provider.SqlResource.SelectTemplate">
@@ -1529,6 +1513,364 @@
             <inheritdoc/>
         </member>
         <member name="M:MelloSilveiraTools.Infrastructure.Logger.LoggerBase.Warn(System.String,System.Exception,System.Collections.Generic.IDictionary{System.String,System.Object},System.Collections.Generic.IList{System.String})">
+            <inheritdoc/>
+        </member>
+        <member name="T:MelloSilveiraTools.Infrastructure.Plugins.Caching.IMetadataCache">
+            <summary>
+            Centralized cache for reflection-derived type metadata and other expensive computations.
+            Implementations may use in-memory storage or distributed cache (e.g. Redis).
+            </summary>
+        </member>
+        <member name="T:MelloSilveiraTools.Infrastructure.Plugins.Caching.InMemoryMetadataCache">
+            <summary>
+            Thread-safe in-memory implementation of <see cref="T:MelloSilveiraTools.Infrastructure.Plugins.Caching.IMetadataCache"/>.
+            Suitable for single-instance deployments. For distributed scenarios, replace
+            with a Redis-backed implementation registered in the DI container.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Infrastructure.Plugins.Caching.InMemoryMetadataCache.TryGet``1(System.String,``0@)">
+            <inheritdoc/>
+        </member>
+        <member name="M:MelloSilveiraTools.Infrastructure.Plugins.Caching.InMemoryMetadataCache.Get``1(System.String)">
+            <inheritdoc/>
+        </member>
+        <member name="M:MelloSilveiraTools.Infrastructure.Plugins.Caching.InMemoryMetadataCache.GetOrAdd``1(System.String,System.Func{``0})">
+            <inheritdoc/>
+        </member>
+        <member name="M:MelloSilveiraTools.Infrastructure.Plugins.Caching.InMemoryMetadataCache.Add``1(System.String,``0)">
+            <inheritdoc/>
+        </member>
+        <member name="M:MelloSilveiraTools.Infrastructure.Plugins.Caching.InMemoryMetadataCache.Remove(System.String)">
+            <inheritdoc/>
+        </member>
+        <member name="T:MelloSilveiraTools.Infrastructure.Plugins.IPlugin">
+            <summary>
+            Represents a discoverable plugin loaded dynamically at runtime.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Infrastructure.Plugins.IPlugin.Name">
+            <summary>
+            Unique name identifying this plugin.
+            </summary>
+        </member>
+        <member name="T:MelloSilveiraTools.Infrastructure.Plugins.IPluginTypeProcessor">
+            <summary>
+            Domain-specific processor for a plugin type. Handles DI registration logic
+            that differs between startup (static IServiceCollection) and runtime (IDynamicServiceProvider).
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Infrastructure.Plugins.IPluginTypeProcessor.Process(System.Type,MelloSilveiraTools.Infrastructure.Plugins.Models.PluginRegistrationContext)">
+            <summary>
+            Processes a plugin for service registration based on the given context.
+            </summary>
+        </member>
+        <member name="T:MelloSilveiraTools.Infrastructure.Plugins.Models.CacheStage">
+            <summary>
+            Identifies a stage in the plugin processing pipeline.
+            Clearing a stage also clears all subsequent stages.
+            </summary>
+        </member>
+        <member name="T:MelloSilveiraTools.Infrastructure.Plugins.Models.PluginAssemblyInfo">
+            <summary>
+            Holds a loaded assembly and the types extracted from it that implement the plugin interface.
+            </summary>
+            <param name="Descriptor">The plugin descriptor this assembly was loaded from.</param>
+            <param name="ProcessableTypes">Types found in the assembly that implement the plugin interface.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.Infrastructure.Plugins.Models.PluginAssemblyInfo.#ctor(MelloSilveiraTools.Infrastructure.Plugins.Models.PluginDescriptor,System.Type[])">
+            <summary>
+            Holds a loaded assembly and the types extracted from it that implement the plugin interface.
+            </summary>
+            <param name="Descriptor">The plugin descriptor this assembly was loaded from.</param>
+            <param name="ProcessableTypes">Types found in the assembly that implement the plugin interface.</param>
+        </member>
+        <member name="P:MelloSilveiraTools.Infrastructure.Plugins.Models.PluginAssemblyInfo.Descriptor">
+            <summary>The plugin descriptor this assembly was loaded from.</summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Infrastructure.Plugins.Models.PluginAssemblyInfo.ProcessableTypes">
+            <summary>Types found in the assembly that implement the plugin interface.</summary>
+        </member>
+        <member name="T:MelloSilveiraTools.Infrastructure.Plugins.Models.PluginDescriptor">
+            <summary>
+            Metadata about a discovered plugin DLL, parsed from the filename pattern: {name}.v{major}.{minor}.{patch}.dll.
+            </summary>
+            <param name="Name">Plugin name without version (e.g., "SoftTissue.Plugins").</param>
+            <param name="Version">Parsed semantic version.</param>
+            <param name="FullPath">Absolute path to the DLL file.</param>
+            <param name="DiscoveredAt">Timestamp when the plugin was first discovered.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.Infrastructure.Plugins.Models.PluginDescriptor.#ctor(System.String,MelloSilveiraTools.Infrastructure.Plugins.Models.PluginVersion,System.String,System.DateTimeOffset)">
+            <summary>
+            Metadata about a discovered plugin DLL, parsed from the filename pattern: {name}.v{major}.{minor}.{patch}.dll.
+            </summary>
+            <param name="Name">Plugin name without version (e.g., "SoftTissue.Plugins").</param>
+            <param name="Version">Parsed semantic version.</param>
+            <param name="FullPath">Absolute path to the DLL file.</param>
+            <param name="DiscoveredAt">Timestamp when the plugin was first discovered.</param>
+        </member>
+        <member name="P:MelloSilveiraTools.Infrastructure.Plugins.Models.PluginDescriptor.Name">
+            <summary>Plugin name without version (e.g., "SoftTissue.Plugins").</summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Infrastructure.Plugins.Models.PluginDescriptor.Version">
+            <summary>Parsed semantic version.</summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Infrastructure.Plugins.Models.PluginDescriptor.FullPath">
+            <summary>Absolute path to the DLL file.</summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Infrastructure.Plugins.Models.PluginDescriptor.DiscoveredAt">
+            <summary>Timestamp when the plugin was first discovered.</summary>
+        </member>
+        <member name="T:MelloSilveiraTools.Infrastructure.Plugins.Models.PluginEntry`1">
+            <summary>
+            Represents a discovered plugin with its descriptor, metadata, and loaded state.
+            </summary>
+            <typeparam name="TPlugin">The plugin contract type.</typeparam>
+            <param name="Descriptor">Plugin metadata (name, version, path).</param>
+            <param name="Plugin">The plugin instance.</param>
+            <param name="Loaded">Whether the plugin has been loaded into the application.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.Infrastructure.Plugins.Models.PluginEntry`1.#ctor(MelloSilveiraTools.Infrastructure.Plugins.Models.PluginDescriptor,`0,System.Boolean)">
+            <summary>
+            Represents a discovered plugin with its descriptor, metadata, and loaded state.
+            </summary>
+            <typeparam name="TPlugin">The plugin contract type.</typeparam>
+            <param name="Descriptor">Plugin metadata (name, version, path).</param>
+            <param name="Plugin">The plugin instance.</param>
+            <param name="Loaded">Whether the plugin has been loaded into the application.</param>
+        </member>
+        <member name="P:MelloSilveiraTools.Infrastructure.Plugins.Models.PluginEntry`1.Descriptor">
+            <summary>Plugin metadata (name, version, path).</summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Infrastructure.Plugins.Models.PluginEntry`1.Plugin">
+            <summary>The plugin instance.</summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Infrastructure.Plugins.Models.PluginEntry`1.Loaded">
+            <summary>Whether the plugin has been loaded into the application.</summary>
+        </member>
+        <member name="T:MelloSilveiraTools.Infrastructure.Plugins.Models.PluginRegistrationContext">
+            <summary>
+            Context passed to <see cref="T:MelloSilveiraTools.Infrastructure.Plugins.IPluginTypeProcessor"/> to indicate whether registration should 
+            target the static DI container (startup) or the dynamic provider (runtime).
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Infrastructure.Plugins.Models.PluginRegistrationContext.Services">
+            <summary>
+            Non-null during application startup. Used to register services in the static DI container.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Infrastructure.Plugins.Models.PluginRegistrationContext.DynamicProvider">
+            <summary>
+            Non-null during runtime. Used to register services in the dynamic provider.
+            </summary>
+        </member>
+        <member name="T:MelloSilveiraTools.Infrastructure.Plugins.Models.PluginVersion">
+            <summary>
+            Represents a semantic version parsed from a plugin DLL filename.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Infrastructure.Plugins.Models.PluginVersion.#ctor(System.Int32,System.Int32,System.Int32)">
+            <summary>
+            Represents a semantic version parsed from a plugin DLL filename.
+            </summary>
+        </member>
+        <member name="T:MelloSilveiraTools.Infrastructure.Plugins.Persistences.IPluginCachePersistence">
+            <summary>
+            Persists and restores plugin cache state to/from non-volatile storage.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Infrastructure.Plugins.Persistences.IPluginCachePersistence.SaveAsync(System.Collections.Generic.IReadOnlyDictionary{System.String,MelloSilveiraTools.Infrastructure.Plugins.Models.PluginDescriptor},System.Collections.Generic.IReadOnlyDictionary{System.String,MelloSilveiraTools.Infrastructure.Plugins.Models.PluginTypeInfo})">
+            <summary>
+            Saves the current plugin descriptors and state.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Infrastructure.Plugins.Persistences.IPluginCachePersistence.LoadAsync">
+            <summary>
+            Loads previously saved state. Returns null if no data exists.
+            </summary>
+        </member>
+        <member name="T:MelloSilveiraTools.Infrastructure.Plugins.Persistences.JsonFilePluginCachePersistence">
+            <summary>
+            Persists plugin cache to a JSON file in the plugins directory.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Infrastructure.Plugins.Persistences.JsonFilePluginCachePersistence.#ctor(MelloSilveiraTools.Infrastructure.Plugins.PluginSettings)">
+            <summary>
+            Persists plugin cache to a JSON file in the plugins directory.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Infrastructure.Plugins.Persistences.JsonFilePluginCachePersistence.SaveAsync(System.Collections.Generic.IReadOnlyDictionary{System.String,MelloSilveiraTools.Infrastructure.Plugins.Models.PluginDescriptor},System.Collections.Generic.IReadOnlyDictionary{System.String,MelloSilveiraTools.Infrastructure.Plugins.Models.PluginTypeInfo})">
+            <inheritdoc/>
+        </member>
+        <member name="M:MelloSilveiraTools.Infrastructure.Plugins.Persistences.JsonFilePluginCachePersistence.LoadAsync">
+            <inheritdoc/>
+        </member>
+        <member name="T:MelloSilveiraTools.Infrastructure.Plugins.PluginCache">
+            <summary>
+            Multi-stage, two-level cache for the plugin processing pipeline.
+            Level 1: plugin name (<see langword="string"/>). Level 2: <see cref="T:MelloSilveiraTools.Infrastructure.Plugins.Models.PluginVersion"/> struct.
+            All hot-path lookups are O(1).
+            Generic processed-type lists are stored in the underlying <see cref="T:MelloSilveiraTools.Infrastructure.Plugins.Caching.IMetadataCache"/> because
+            their value type is open — only their keys are tracked here for cleanup.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Infrastructure.Plugins.PluginCache.#ctor(MelloSilveiraTools.Infrastructure.Logger.ILogger,MelloSilveiraTools.Infrastructure.Plugins.Caching.IMetadataCache)">
+            <summary>
+            Multi-stage, two-level cache for the plugin processing pipeline.
+            Level 1: plugin name (<see langword="string"/>). Level 2: <see cref="T:MelloSilveiraTools.Infrastructure.Plugins.Models.PluginVersion"/> struct.
+            All hot-path lookups are O(1).
+            Generic processed-type lists are stored in the underlying <see cref="T:MelloSilveiraTools.Infrastructure.Plugins.Caching.IMetadataCache"/> because
+            their value type is open — only their keys are tracked here for cleanup.
+            </summary>
+        </member>
+        <member name="T:MelloSilveiraTools.Infrastructure.Plugins.PluginScanner">
+            <summary>
+            Discovers plugin DLLs in a directory, parses version from filename, and manages file relocation.
+            Expected filename pattern: {name}.v{major}.{minor}.{patch}.dll.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Infrastructure.Plugins.PluginScanner.#ctor(MelloSilveiraTools.Infrastructure.Plugins.PluginCache,MelloSilveiraTools.Infrastructure.Plugins.PluginSettings)">
+            <summary>
+            Discovers plugin DLLs in a directory, parses version from filename, and manages file relocation.
+            Expected filename pattern: {name}.v{major}.{minor}.{patch}.dll.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Infrastructure.Plugins.PluginScanner.Scan">
+            <summary>
+            Scans the plugins directory (and loaded/ subfolder) for DLL files and returns their descriptors.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Infrastructure.Plugins.PluginScanner.Scan(System.String)">
+            <summary>
+            Scans the plugins directory (and loaded/ subfolder) for DLL files and returns their descriptors.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Infrastructure.Plugins.PluginScanner.MoveToLoaded(MelloSilveiraTools.Infrastructure.Plugins.Models.PluginDescriptor)">
+            <summary>
+            Moves a plugin DLL from the plugins directory to the loaded/ subfolder.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Infrastructure.Plugins.PluginScanner.ReplaceInLoaded(MelloSilveiraTools.Infrastructure.Plugins.Models.PluginDescriptor)">
+            <summary>
+            Replaces an existing DLL in the loaded/ subfolder with one from the plugins directory.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Infrastructure.Plugins.PluginScanner.ExistsInLoaded(MelloSilveiraTools.Infrastructure.Plugins.Models.PluginDescriptor)">
+            <summary>
+            Checks whether a DLL with the same name and version exists in the loaded/ subfolder.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Infrastructure.Plugins.PluginScanner.ParseDescriptor(System.String)">
+            <summary>
+            Parses a DLL file path into a <see cref="T:MelloSilveiraTools.Infrastructure.Plugins.Models.PluginDescriptor"/>.
+            Expected pattern: {name}.v{major}.{minor}.{patch}.dll.
+            Falls back to version 0.0.0 if pattern does not match.
+            </summary>
+        </member>
+        <member name="T:MelloSilveiraTools.Infrastructure.Plugins.PluginSettings">
+            <summary>
+            Configuration settings for the plugin system.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Infrastructure.Plugins.PluginSettings.Directory">
+            <summary>
+            Path to the directory where plugin DLLs are stored.
+            </summary>
+        </member>
+        <member name="T:MelloSilveiraTools.Infrastructure.Plugins.Providers.DynamicServiceProvider">
+            <summary>
+            Thread-safe implementation of <see cref="T:MelloSilveiraTools.Infrastructure.Plugins.Providers.IDynamicServiceProvider"/> using
+            <see cref="T:System.Lazy`1"/> for deferred instantiation and <see cref="T:System.Collections.Concurrent.ConcurrentDictionary`2"/>
+            for thread-safe storage.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Infrastructure.Plugins.Providers.DynamicServiceProvider.#ctor(System.IServiceProvider)">
+            <summary>
+            Thread-safe implementation of <see cref="T:MelloSilveiraTools.Infrastructure.Plugins.Providers.IDynamicServiceProvider"/> using
+            <see cref="T:System.Lazy`1"/> for deferred instantiation and <see cref="T:System.Collections.Concurrent.ConcurrentDictionary`2"/>
+            for thread-safe storage.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Infrastructure.Plugins.Providers.DynamicServiceProvider.Add(System.Type,System.Type)">
+            <inheritdoc/>
+        </member>
+        <member name="M:MelloSilveiraTools.Infrastructure.Plugins.Providers.DynamicServiceProvider.AddKeyed(System.String,System.Object)">
+            <inheritdoc/>
+        </member>
+        <member name="M:MelloSilveiraTools.Infrastructure.Plugins.Providers.DynamicServiceProvider.GetService(System.Type)">
+            <inheritdoc/>
+        </member>
+        <member name="M:MelloSilveiraTools.Infrastructure.Plugins.Providers.DynamicServiceProvider.GetKeyed``1(System.String)">
+            <inheritdoc/>
+        </member>
+        <member name="T:MelloSilveiraTools.Infrastructure.Plugins.Providers.IDynamicServiceProvider">
+            <summary>
+            Provides dynamic service registration and resolution at runtime.
+            Used for services that cannot be registered statically in the DI container,
+            such as plugin-provided implementations discovered after application startup.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Infrastructure.Plugins.Providers.IDynamicServiceProvider.Add(System.Type,System.Type)">
+            <summary>
+            Registers a service type with its implementation type for lazy instantiation.
+            </summary>
+            <param name="serviceType">The service interface type.</param>
+            <param name="implementationType">The concrete implementation type.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.Infrastructure.Plugins.Providers.IDynamicServiceProvider.AddKeyed(System.String,System.Object)">
+            <summary>
+            Registers a named instance directly.
+            </summary>
+            <param name="key">A unique key identifying the registration.</param>
+            <param name="instance">The instance to register.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.Infrastructure.Plugins.Providers.IDynamicServiceProvider.GetService(System.Type)">
+            <summary>
+            Resolves a service by its type. Returns null if not registered.
+            </summary>
+            <param name="serviceType">The service type to resolve.</param>
+            <returns>The resolved instance, or null.</returns>
+        </member>
+        <member name="M:MelloSilveiraTools.Infrastructure.Plugins.Providers.IDynamicServiceProvider.GetKeyed``1(System.String)">
+            <summary>
+            Resolves a named instance by its key. Returns null if not registered.
+            </summary>
+            <typeparam name="T">The expected return type.</typeparam>
+            <param name="key">The registration key.</param>
+            <returns>The resolved instance cast to <typeparamref name="T"/>, or default.</returns>
+        </member>
+        <member name="T:MelloSilveiraTools.Infrastructure.Plugins.Services.IPluginService">
+            <summary>
+            High-level orchestrator for plugin discovery, loading, reload, and cache management.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Infrastructure.Plugins.Services.IPluginService.LoadPlugins(System.String,MelloSilveiraTools.Infrastructure.Plugins.Models.PluginRegistrationContext)">
+            <summary>
+            Loads a specific plugin by name, registering it via the type processor.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Infrastructure.Plugins.Services.IPluginService.LoadPlugins(MelloSilveiraTools.Infrastructure.Plugins.Models.PluginRegistrationContext)">
+            <summary>
+            Loads all discovered plugins that have not been loaded yet.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Infrastructure.Plugins.Services.IPluginService.ReloadPlugins(System.String,MelloSilveiraTools.Infrastructure.Plugins.Models.PluginRegistrationContext)">
+            <summary>
+            Reloads a plugin: clears its cache, replaces the DLL in loaded/, and re-runs the full pipeline.
+            </summary>
+        </member>
+        <member name="T:MelloSilveiraTools.Infrastructure.Plugins.Services.PluginService">
+            <inheritdoc cref="T:MelloSilveiraTools.Infrastructure.Plugins.Services.IPluginService"/>
+        </member>
+        <member name="M:MelloSilveiraTools.Infrastructure.Plugins.Services.PluginService.#ctor(MelloSilveiraTools.Infrastructure.Plugins.PluginScanner,MelloSilveiraTools.Infrastructure.Plugins.PluginAssemblyProcessor,MelloSilveiraTools.Infrastructure.Plugins.PluginCache,MelloSilveiraTools.Infrastructure.Plugins.Persistences.IPluginCachePersistence)">
+            <inheritdoc cref="T:MelloSilveiraTools.Infrastructure.Plugins.Services.IPluginService"/>
+        </member>
+        <member name="M:MelloSilveiraTools.Infrastructure.Plugins.Services.PluginService.LoadPlugins(System.String,MelloSilveiraTools.Infrastructure.Plugins.Models.PluginRegistrationContext)">
+            <inheritdoc/>
+        </member>
+        <member name="M:MelloSilveiraTools.Infrastructure.Plugins.Services.PluginService.LoadPlugins(MelloSilveiraTools.Infrastructure.Plugins.Models.PluginRegistrationContext)">
+            <inheritdoc/>
+        </member>
+        <member name="M:MelloSilveiraTools.Infrastructure.Plugins.Services.PluginService.ReloadPlugins(System.String,MelloSilveiraTools.Infrastructure.Plugins.Models.PluginRegistrationContext)">
             <inheritdoc/>
         </member>
         <member name="T:MelloSilveiraTools.Infrastructure.ResiliencePipelines.ApiServiceAgentResiliencePipeline">
@@ -1648,7 +1990,7 @@
         <member name="P:MelloSilveiraTools.Infrastructure.Services.ApiServiceAgent.ApiServiceAgentBase.ServiceName">
             <inheritdoc/>
         </member>
-        <member name="P:MelloSilveiraTools.Infrastructure.Services.ApiServiceAgent.ApiServiceAgentBase.JsonSerializerOptions">
+        <member name="F:MelloSilveiraTools.Infrastructure.Services.ApiServiceAgent.ApiServiceAgentBase.JsonSerializerOptions">
             <summary>
             Custom options to be used with <see cref="T:System.Text.Json.JsonSerializer"/>.
             </summary>
@@ -1697,11 +2039,6 @@
         </member>
         <member name="M:MelloSilveiraTools.Infrastructure.Services.ApiServiceAgent.ApiServiceAgentBase.Dispose">
             <inheritdoc/>
-        </member>
-        <member name="M:MelloSilveiraTools.Infrastructure.Services.ApiServiceAgent.ApiServiceAgentBase.Finalize">
-            <summary>
-            Finalizes the current instance of <see cref="T:MelloSilveiraTools.Infrastructure.Services.ApiServiceAgent.ApiServiceAgentBase"/>.
-            </summary>
         </member>
         <member name="T:MelloSilveiraTools.Infrastructure.Services.ApiServiceAgent.DataContract.AsyncOperationResponse`1">
             <summary>

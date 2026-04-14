@@ -16,7 +16,7 @@ public static class ResultExtensions
         return Results.Ok(responseData);
     }
 
-    public static async Task<IResult> ToCreatedResultAsync(this Task operation, string uri = "")
+    public static async Task<IResult> ToCreatedResultAsync(this Task operation)
     {
         await operation.ConfigureAwait(false);
         return Results.Created();
@@ -28,5 +28,6 @@ public static class ResultExtensions
         return Results.Created(uri, responseData);
     }
 
-    public static async Task<IResult> ToNdjsonResultAsync<T>(this IAsyncEnumerable<T> data, string uri = "") => Results.Extensions.Ndjson(data);
+    public static Task<IResult> ToNdjsonResultAsync<T>(this IAsyncEnumerable<T> data)
+        => Task.FromResult(Results.Extensions.Ndjson(data));
 }

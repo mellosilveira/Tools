@@ -61,6 +61,53 @@
             <param name="fasteningType">The fastening type of component.</param>
             <returns>The effective length factor. Dimensionless.</returns>
         </member>
+        <member name="T:MelloSilveiraTools.MechanicsOfMaterials.DependencyInjection">
+            <summary>
+            Provides extension methods to dependency injection of Tools project.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.DependencyInjection.AddMechanicsOfMaterialsServices(Microsoft.Extensions.DependencyInjection.IServiceCollection)">
+            <summary>
+            Register services for Mechanics of Materials.
+            </summary>
+            <param name="services"></param>
+            <returns></returns>
+        </member>
+        <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Extensions.Vector3DExtension">
+            <summary>
+            It contains the extension methods to Vector3D.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Extensions.Vector3DExtension.Normalize(MelloSilveiraTools.MechanicsOfMaterials.Models.Vector3D)">
+            <summary>
+            This method normalizes the vector.
+            </summary>
+            <param name="vector"></param>
+            <returns></returns>
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Extensions.Vector3DExtension.CrossProduct(MelloSilveiraTools.MechanicsOfMaterials.Models.Vector3D,MelloSilveiraTools.MechanicsOfMaterials.Models.Vector3D)">
+            <summary>
+            This method calculates the cross product between two vectors.
+            </summary>
+            <param name="vector1"></param>
+            <param name="vector2"></param>
+            <returns></returns>
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Extensions.Vector3DExtension.DotProduct(MelloSilveiraTools.MechanicsOfMaterials.Models.Vector3D,MelloSilveiraTools.MechanicsOfMaterials.Models.Vector3D)">
+            <summary>
+            This method calculates the dot product between two vectors.
+            </summary>
+            <param name="vector1"></param>
+            <param name="vector2"></param>
+            <returns></returns>
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Extensions.Vector3DExtension.IsZero(MelloSilveiraTools.MechanicsOfMaterials.Models.Vector3D)">
+            <summary>
+            This method returns true if all axis of vector is equals to zero and false, otherwise.
+            </summary>
+            <param name="vector"></param>
+            <returns></returns>
+        </member>
         <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Fatigue.FatigueCalculator">
             <summary>
             It contains the Mechanical Fatigue constitutive equations.
@@ -677,53 +724,6 @@
         <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Models.Vector3D.Create(System.String)">
             <summary>
             This method creates a <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Models.Vector3D"/> based on a string.
-            </summary>
-            <param name="vector"></param>
-            <returns></returns>
-        </member>
-        <member name="T:MelloSilveiraTools.DependencyInjection">
-            <summary>
-            Provides extension methods to dependency injection of Tools project.
-            </summary>
-        </member>
-        <member name="M:MelloSilveiraTools.DependencyInjection.AddMechanicsOfMaterialsServices(Microsoft.Extensions.DependencyInjection.IServiceCollection)">
-            <summary>
-            Register services for Mechanics of Materials.
-            </summary>
-            <param name="services"></param>
-            <returns></returns>
-        </member>
-        <member name="T:MelloSilveiraTools.ExtensionMethods.Vector3DExtension">
-            <summary>
-            It contains the extension methods to Vector3D.
-            </summary>
-        </member>
-        <member name="M:MelloSilveiraTools.ExtensionMethods.Vector3DExtension.Normalize(MelloSilveiraTools.MechanicsOfMaterials.Models.Vector3D)">
-            <summary>
-            This method normalizes the vector.
-            </summary>
-            <param name="vector"></param>
-            <returns></returns>
-        </member>
-        <member name="M:MelloSilveiraTools.ExtensionMethods.Vector3DExtension.CrossProduct(MelloSilveiraTools.MechanicsOfMaterials.Models.Vector3D,MelloSilveiraTools.MechanicsOfMaterials.Models.Vector3D)">
-            <summary>
-            This method calculates the cross product between two vectors.
-            </summary>
-            <param name="vector1"></param>
-            <param name="vector2"></param>
-            <returns></returns>
-        </member>
-        <member name="M:MelloSilveiraTools.ExtensionMethods.Vector3DExtension.DotProduct(MelloSilveiraTools.MechanicsOfMaterials.Models.Vector3D,MelloSilveiraTools.MechanicsOfMaterials.Models.Vector3D)">
-            <summary>
-            This method calculates the dot product between two vectors.
-            </summary>
-            <param name="vector1"></param>
-            <param name="vector2"></param>
-            <returns></returns>
-        </member>
-        <member name="M:MelloSilveiraTools.ExtensionMethods.Vector3DExtension.IsZero(MelloSilveiraTools.MechanicsOfMaterials.Models.Vector3D)">
-            <summary>
-            This method returns true if all axis of vector is equals to zero and false, otherwise.
             </summary>
             <param name="vector"></param>
             <returns></returns>

@@ -4,5 +4,17 @@
         <name>UnitTests</name>
     </assembly>
     <members>
+        <member name="T:UnitTests.DomainEntitySqlSmokeTests">
+            <summary>
+            Smoke tests using the original domain entity graph (user / district / join table).
+            These verify that the SQL provider handles FK-heavy schemas end-to-end.
+            </summary>
+        </member>
+        <member name="T:UnitTests.FakeDataReader">
+            <summary>
+            Minimal IDataReader backed by an in-memory column array.
+            Supports a single row; subsequent Read() calls return false.
+            </summary>
+        </member>
     </members>
 </doc>

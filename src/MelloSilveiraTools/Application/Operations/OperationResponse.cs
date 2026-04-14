@@ -78,6 +78,11 @@ public record OperationResponse
         where TResponseData : class
         => new() { Data = data, StatusCode = statusCode, Success = true };
 
+    public static TResponse CreateListSuccessOk<TResponse, TResponseData>(TResponseData[]? data = null)
+        where TResponse : OperationListResponseBase<TResponseData>, new()
+        where TResponseData : class
+        => CreateListSuccess<TResponse, TResponseData>(HttpStatusCode.OK, data);
+
     public static TResponse CreateSuccessOk<TResponse>() where TResponse : OperationResponse, new() => new() { StatusCode = HttpStatusCode.OK, Success = true };
 
     public static OperationResponseBase<TResponseData> CreateSuccessOk<TResponseData>(TResponseData responseData) where TResponseData : class

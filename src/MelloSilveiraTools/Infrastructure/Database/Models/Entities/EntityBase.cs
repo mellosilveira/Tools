@@ -11,5 +11,5 @@ public abstract record EntityBase
     public long Id { get; init; }
 
     [Column]
-    public DateTimeOffset CreationTimestamp { get; init; }
+    public DateTimeOffset CreationTimestamp { get; init; } = DateTimeOffset.UtcNow;
 }

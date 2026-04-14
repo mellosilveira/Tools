@@ -65,7 +65,7 @@ public abstract class CrudController<TEntity, TFilter>(ILogger logger) : CustomC
         try
         {
             long totalCount = await repository.CountAsync<TEntity, TFilter>(filter).ConfigureAwait(false);
-            TEntity[] entities = await repository.GetAsync<TEntity, TFilter>(filter, pagination).ToArrayAsync(CancellationToken.None).ConfigureAwait(false);
+            TEntity[] entities = await repository.GetAsync<TEntity, TFilter>(filter, pagination).ToArrayAsync(HttpContext.RequestAborted).ConfigureAwait(false);
 
             OperationPagedResponseBase<TEntity> pagedResponse = new()
             {
@@ -73,7 +73,7 @@ public abstract class CrudController<TEntity, TFilter>(ILogger logger) : CustomC
                 Data = entities,
                 TotalCount = totalCount,
                 PageSize = entities.LongLength,
-                PageNumber = (pagination.Offset ?? 0) / entities.LongLength + 1,
+                PageNumber = entities.LongLength > 0 ? (pagination.Offset ?? 0) / entities.LongLength + 1 : 1,
             };
             return pagedResponse.BuildHttpResponse();
         }

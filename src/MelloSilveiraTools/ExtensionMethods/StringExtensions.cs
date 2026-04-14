@@ -18,7 +18,7 @@ public static class StringExtensions
         if (string.IsNullOrEmpty(input))
             return input;
 
-        SpanStringBuilder result = new();
+        using SpanStringBuilder result = new();
         for (int i = 0; i < input.Length; i++)
         {
             if (i > 0 && char.IsUpper(input[i]) && !char.IsWhiteSpace(input[i - 1]))
@@ -98,7 +98,7 @@ public static class StringExtensions
     }
 
     /// <summary>
-    /// Removes a string frmo another.
+    /// Removes a string from another.
     /// </summary>
     /// <param name="input"></param>
     /// <param name="valuesToRemove"></param>
@@ -108,7 +108,7 @@ public static class StringExtensions
         string result = input;
         foreach (string valueToRemove in valuesToRemove)
         {
-            result = input.Replace(valueToRemove, null);
+            result = result.Replace(valueToRemove, null);
         }
 
         return result;

@@ -1,4 +1,6 @@
-﻿namespace MelloSilveiraTools.ExtensionMethods;
+﻿using System.Threading;
+
+namespace MelloSilveiraTools.ExtensionMethods;
 
 /// <summary>
 /// Contains extension methods for <see cref="Enumerable"/>.
@@ -142,7 +144,7 @@ public static class EnumerableExtensions
     /// <param name="asyncAction"></param>
     /// <param name="maxDegreeOfParallelism"></param>
     /// <returns></returns>
-    public static async Task SemaphoreSlimForeachAsync<T>(this IEnumerable<T> source, Func<T, Task> asyncAction, int maxDegreeOfParallelism)
+    public static async Task ForeachAsync<T>(this IEnumerable<T> source, Func<T, Task> asyncAction, int maxDegreeOfParallelism)
     {
         using SemaphoreSlim semaphoreSlim = new(maxDegreeOfParallelism, maxDegreeOfParallelism);
 
@@ -179,7 +181,7 @@ public static class EnumerableExtensions
     /// <param name="action"></param>
     /// <param name="maxDegreeOfParallelism"></param>
     /// <returns></returns>
-    public static async Task SemaphoreSlimForeachAsync<T>(this IEnumerable<T> source, Action<T> action, int maxDegreeOfParallelism)
+    public static async Task ForeachAsync<T>(this IEnumerable<T> source, Action<T> action, int maxDegreeOfParallelism)
     {
         using SemaphoreSlim semaphoreSlim = new(maxDegreeOfParallelism, maxDegreeOfParallelism);
 
@@ -208,12 +210,31 @@ public static class EnumerableExtensions
         await Task.WhenAll(tasks).ConfigureAwait(false);
     }
 
+    public static void Foreach<T>(this IEnumerable<T> source, Action<T> action)
+    {
+        foreach (T item in source)
+        {
+            try
+            {
+                action(item);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Failed on loop. " + ex.Message);
+            }
+        }
+    }
+
     /// <summary>
     /// Gets all possible combinations from an <see cref="IEnumerable{T}"/> of list.
     /// </summary>
     /// <param name="lists"></param>
     /// <returns>List of double array with all possible combinations.</returns>
-    public static IEnumerable<T[]> GetCombinations<T>(this IEnumerable<List<T>> lists) => GetCombinationsRecursive(lists.ToList(), new T[lists.Count()]);
+    public static IEnumerable<T[]> GetCombinations<T>(this IEnumerable<List<T>> lists)
+    {
+        var materialized = lists.ToList();
+        return GetCombinationsRecursive(materialized, new T[materialized.Count]);
+    }
 
     /// <summary>
     /// Gets all possible combinations from a list using recursion.

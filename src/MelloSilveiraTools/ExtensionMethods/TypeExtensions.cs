@@ -1,5 +1,6 @@
-﻿using NpgsqlTypes;
+using NpgsqlTypes;
 using System.Collections;
+using System.Collections.Concurrent;
 using System.Reflection;
 
 namespace MelloSilveiraTools.ExtensionMethods;
@@ -9,6 +10,10 @@ namespace MelloSilveiraTools.ExtensionMethods;
 /// </summary>
 public static class TypeExtensions
 {
+    private static readonly ConcurrentDictionary<Type, PropertyInfo[]> _hierarchyCache = new();
+    private static readonly ConcurrentDictionary<(Type Type, Type Attr), PropertyInfo[]> _hierarchyAttrCache = new();
+    private static readonly ConcurrentDictionary<Type, string[]> _propertyNamesCache = new();
+
     /// <summary>
     /// Gets the properties from a <see cref="Type"/> in following the hierarchy order from parent to child.
     /// </summary>
@@ -16,16 +21,19 @@ public static class TypeExtensions
     /// <returns>A <see cref="List{T}"/> with the properties of the <paramref name="type"/>.</returns>
     public static PropertyInfo[] GetPropertiesInHierarchy(this Type type)
     {
-        Type? localType = type;
-        List<PropertyInfo> properties = [];
-
-        while (localType != null)
+        return _hierarchyCache.GetOrAdd(type, static t =>
         {
-            properties.InsertRange(0, localType.GetDeclaredProperties());
-            localType = localType.BaseType;
-        }
+            Type? localType = t;
+            List<PropertyInfo> properties = [];
 
-        return [.. properties];
+            while (localType != null)
+            {
+                properties.InsertRange(0, localType.GetDeclaredProperties());
+                localType = localType.BaseType;
+            }
+
+            return [.. properties];
+        });
     }
 
 
@@ -36,16 +44,19 @@ public static class TypeExtensions
     /// <returns>A <see cref="List{T}"/> with the properties of the <paramref name="type"/>.</returns>
     public static PropertyInfo[] GetPropertiesInHierarchy<TAttribute>(this Type type) where TAttribute : Attribute
     {
-        Type? localType = type;
-        List<PropertyInfo> properties = [];
-
-        while (localType != null)
+        return _hierarchyAttrCache.GetOrAdd((type, typeof(TAttribute)), static key =>
         {
-            properties.InsertRange(0, localType.GetDeclaredProperties<TAttribute>());
-            localType = localType.BaseType;
-        }
+            Type? localType = key.Type;
+            List<PropertyInfo> properties = [];
 
-        return [.. properties];
+            while (localType != null)
+            {
+                properties.InsertRange(0, localType.GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.DeclaredOnly).Where(p => p.GetCustomAttribute(key.Attr) != null));
+                localType = localType.BaseType;
+            }
+
+            return [.. properties];
+        });
     }
 
     /// <summary>
@@ -55,16 +66,7 @@ public static class TypeExtensions
     /// <returns></returns>
     public static string[] GetPropertyNamesInHierarchy(this Type type)
     {
-        Type? localType = type;
-        List<string> propertyNames = [];
-
-        while (localType != null)
-        {
-            propertyNames.InsertRange(0, localType.GetDeclaredPropertyNames());
-            localType = localType.BaseType;
-        }
-
-        return [.. propertyNames];
+        return _propertyNamesCache.GetOrAdd(type, static t => t.GetPropertiesInHierarchy().Select(p => p.Name).ToArray());
     }
 
     /// <summary>
@@ -83,7 +85,7 @@ public static class TypeExtensions
     {
         return type
             .GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.DeclaredOnly)
-            .Where(p => p.GetCustomAttributes<TAttribute>().IsNotNullOrEmpty())
+            .Where(p => p.GetCustomAttribute<TAttribute>() != null)
             .ToArray();
     }
 
@@ -110,14 +112,17 @@ public static class TypeExtensions
     public static NpgsqlDbType GetDbTypeFromPropertyType(this Type type)
     {
         if (type == typeof(string)) return NpgsqlDbType.Text;
-        if (type == typeof(short)) return NpgsqlDbType.Smallint;
+        if (type == typeof(bool) || type == typeof(bool?)) return NpgsqlDbType.Boolean;
+        if (type == typeof(short) || type == typeof(short?)) return NpgsqlDbType.Smallint;
         if (type == typeof(int) || type == typeof(int?)) return NpgsqlDbType.Integer;
         if (type == typeof(long) || type == typeof(long?)) return NpgsqlDbType.Bigint;
-        if (type == typeof(double)) return NpgsqlDbType.Double;
+        if (type == typeof(float) || type == typeof(float?)) return NpgsqlDbType.Real;
+        if (type == typeof(double) || type == typeof(double?)) return NpgsqlDbType.Double;
+        if (type == typeof(decimal) || type == typeof(decimal?)) return NpgsqlDbType.Numeric;
         if (type == typeof(byte[])) return NpgsqlDbType.Bytea;
         if (type == typeof(string[])) return NpgsqlDbType.Text | NpgsqlDbType.Array;
-        if (type == typeof(DateTime)) return NpgsqlDbType.Timestamp;
-        if (type == typeof(DateTimeOffset)) return NpgsqlDbType.TimestampTz;
+        if (type == typeof(DateTime) || type == typeof(DateTime?)) return NpgsqlDbType.Timestamp;
+        if (type == typeof(DateTimeOffset) || type == typeof(DateTimeOffset?)) return NpgsqlDbType.TimestampTz;
         if (type == typeof(IList) || type == typeof(IEnumerable) || type == typeof(IEnumerator)) return NpgsqlDbType.Array;
         throw new ArgumentOutOfRangeException(nameof(type), $"Invalid type: '{type.FullName}'.");
     }

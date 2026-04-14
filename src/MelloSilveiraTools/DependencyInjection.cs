@@ -90,12 +90,13 @@ public static class DependencyInjection
     /// <summary>
     /// Configures the documentation file for Swagger User Interface using JWT authentication.
     /// </summary>
-    public static IServiceCollection AddSwaggerDocsWithJwtAuthentication(this IServiceCollection services)
+    public static IServiceCollection AddSwaggerDocsWithJwtAuthentication(this IServiceCollection services, Assembly callingAssembly)
     {
-        Assembly assembly = Assembly.GetExecutingAssembly();
-        string assemblyTitle = assembly.GetCustomAttribute<AssemblyTitleAttribute>()!.Title;
-        string assemblyDescription = assembly.GetCustomAttribute<AssemblyDescriptionAttribute>()!.Description;
-        string assemblyLocation = Path.GetDirectoryName(assembly.Location)!;
+        string assemblyTitle = callingAssembly.GetCustomAttribute<AssemblyTitleAttribute>()?.Title
+            ?? callingAssembly.GetName().Name
+            ?? "API";
+        string assemblyDescription = callingAssembly.GetCustomAttribute<AssemblyDescriptionAttribute>()?.Description ?? string.Empty;
+        string assemblyLocation = Path.GetDirectoryName(callingAssembly.Location)!;
 
         return services
             .AddSwaggerGen(options =>
@@ -136,7 +137,9 @@ public static class DependencyInjection
     /// </summary>
     public static IApplicationBuilder UseSwaggerDocs(this IApplicationBuilder app)
     {
-        string assemblyTitle = Assembly.GetExecutingAssembly().GetCustomAttribute<AssemblyTitleAttribute>()!.Title;
+        string assemblyTitle = Assembly.GetCallingAssembly().GetCustomAttribute<AssemblyTitleAttribute>()?.Title
+            ?? Assembly.GetCallingAssembly().GetName().Name
+            ?? "API";
 
         return app
             .UseSwagger()

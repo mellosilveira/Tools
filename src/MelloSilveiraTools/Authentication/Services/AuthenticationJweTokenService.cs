@@ -1,4 +1,4 @@
-﻿using Microsoft.IdentityModel.JsonWebTokens;
+using Microsoft.IdentityModel.JsonWebTokens;
 using Microsoft.IdentityModel.Tokens;
 using System.Security.Claims;
 using System.Text;
@@ -9,14 +9,31 @@ namespace MelloSilveiraTools.Authentication.Services;
 /// <summary>
 /// Service that handles an encrypted and signed JSON Web token for authentication.
 /// </summary>
-public class AuthenticationJweTokenService(JwtSettings settings) : IAuthenticationTokenService
+public class AuthenticationJweTokenService : IAuthenticationTokenService
 {
+    private static readonly JsonWebTokenHandler _handler = new();
+
+    private readonly JwtSettings _settings;
+    private readonly SigningCredentials _signingCredentials;
+    private readonly EncryptingCredentials _encryptingCredentials;
+    private readonly TokenValidationParameters _validationParameters;
+
+    public AuthenticationJweTokenService(JwtSettings settings)
+    {
+        _settings = settings;
+        var signingKey = CreateSecurityKey(settings.SigningKey, settings.SecurityKeyType);
+        var encryptionKey = CreateSecurityKey(settings.EncryptionKey, settings.SecurityKeyType);
+        _signingCredentials = new SigningCredentials(signingKey, SecurityAlgorithms.HmacSha256);
+        _encryptingCredentials = new EncryptingCredentials(encryptionKey, SecurityAlgorithms.Aes256KW, SecurityAlgorithms.Aes256CbcHmacSha512);
+        _validationParameters = BuildTokenValidationParameters(settings);
+    }
+
     public AuthenticationToken Generate(long userIdentifier) => Generate(userIdentifier.ToString());
 
     public AuthenticationToken Generate(string userIdentifier)
     {
         var utcNow = DateTimeOffset.UtcNow;
-        DateTimeOffset expiresOn = utcNow.AddMinutes(settings.TokenExperitationTimeInMinutes);
+        DateTimeOffset expiresOn = utcNow.AddMinutes(_settings.TokenExperitationTimeInMinutes);
 
         SecurityTokenDescriptor descriptor = new()
         {
@@ -25,18 +42,14 @@ public class AuthenticationJweTokenService(JwtSettings settings) : IAuthenticati
                 new Claim(JwtRegisteredClaimNames.Sub, userIdentifier),
                 new Claim(JwtRegisteredClaimNames.Iat, utcNow.ToUnixTimeSeconds().ToString(), ClaimValueTypes.Integer64)
             ]),
-            Audience = settings.Audience,
-            Issuer = settings.Issuer,
+            Audience = _settings.Audience,
+            Issuer = _settings.Issuer,
             Expires = expiresOn.UtcDateTime,
-            SigningCredentials = new SigningCredentials(CreateSecurityKey(settings.SigningKey, settings.SecurityKeyType), SecurityAlgorithms.HmacSha256),
-            EncryptingCredentials = new EncryptingCredentials(
-                key: CreateSecurityKey(settings.EncryptionKey, settings.SecurityKeyType),
-                alg: SecurityAlgorithms.Aes256KW,
-                enc: SecurityAlgorithms.Aes256CbcHmacSha512
-            )
+            SigningCredentials = _signingCredentials,
+            EncryptingCredentials = _encryptingCredentials
         };
 
-        string token = new JsonWebTokenHandler().CreateToken(descriptor);
+        string token = _handler.CreateToken(descriptor);
         return new AuthenticationToken(token, expiresOn);
     }
 
@@ -62,10 +75,7 @@ public class AuthenticationJweTokenService(JwtSettings settings) : IAuthenticati
     }
 
     private Task<TokenValidationResult> ValidateTokenAsync(string token)
-    {
-        TokenValidationParameters validationParameters = BuildTokenValidationParameters(settings);
-        return new JsonWebTokenHandler().ValidateTokenAsync(token, validationParameters);
-    }
+        => _handler.ValidateTokenAsync(token, _validationParameters);
 
     public static TokenValidationParameters BuildTokenValidationParameters(JwtSettings jwtSettings) => new()
     {

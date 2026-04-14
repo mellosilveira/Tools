@@ -1,4 +1,5 @@
 ﻿using MelloSilveiraTools.Application.Models;
+using MelloSilveiraTools.Infrastructure.Logger;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Net;
@@ -6,7 +7,7 @@ using System.Net.Mime;
 
 namespace MelloSilveiraTools.Application.Middlewares;
 
-public class ExceptionHandlingMiddleware(RequestDelegate next)
+public class ExceptionHandlingMiddleware(RequestDelegate next, ILogger logger)
 {
     public async Task InvokeAsync(HttpContext context)
     {
@@ -16,7 +17,11 @@ public class ExceptionHandlingMiddleware(RequestDelegate next)
         }
         catch (Exception ex)
         {
-            if (ex is NdjsonException) return;
+            if (ex is NdjsonException)
+            {
+                logger.Error("Error occurred while streaming NDJSON data.", ex);
+                return;
+            }
 
             var statusCode = ex switch
             {

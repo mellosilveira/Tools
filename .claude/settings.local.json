@@ -1,0 +1,27 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(dotnet build:*)",
+      "Bash(dotnet test:*)",
+      "Bash(Select-String -Pattern \"error|warning\")",
+      "Bash(dotnet restore:*)",
+      "Bash(dir \"D:\\\\Mello Silveira Serviços LTDA\\\\Projetos\\\\Tools\\\\test\\\\UnitTests\")",
+      "Bash(dotnet nuget:*)",
+      "Read(//c/Users/bruno/.nuget/packages/**)",
+      "Bash(find 'D:\\\\Mello Silveira Serviços LTDA\\\\Projetos\\\\Tools' -name *.nupkg)",
+      "Read(//d/Mello Silveira Serviços LTDA/Projetos/**)",
+      "Read(//c/Users/bruno/**)",
+      "Bash(curl -s https://api.nuget.org/v3-flatcontainer/mellosilveiratools/index.json)",
+      "Bash(\"D:\\\\Mello Silveira:*)",
+      "Bash(Get-ChildItem -Path \"D:\\\\Mello Silveira Serviços LTDA\\\\Projetos\\\\Tools\\\\src\" -Recurse -Filter \"*.cs\")",
+      "Bash(Where-Object { $_ame -ne \"*.Designer.cs\" })",
+      "Bash(Select-Object FullName)",
+      "Bash(ForEach-Object { $_ullName })",
+      "Bash(Sort-Object)",
+      "Bash(grep -E \"\\\\.cs$|\\\\.json$\")",
+      "Bash(xargs grep:*)",
+      "Bash(find 'D:/Mello Silveira Serviços LTDA/Projetos/PraJah/prajah-api/src' -name *.cs -type f)",
+      "Bash(find 'D:\\\\Mello Silveira Serviços LTDA\\\\Projetos\\\\ResourceTrackingSystem.Backend' -name *Column* -type f)"
+    ]
+  }
+}

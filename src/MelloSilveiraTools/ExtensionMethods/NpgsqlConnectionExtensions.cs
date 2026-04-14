@@ -1,5 +1,4 @@
 ﻿using Dapper;
-using MelloSilveiraTools.ExtensionMethods;
 using Npgsql;
 using System.Data;
 using System.Data.Common;
@@ -66,8 +65,21 @@ public static class NpgsqlConnectionExtensions
     /// <param name="parameters">The parameters to use for this command.</param>
     /// <param name="cancellationToken">Cancellation token for this command.</param>
     /// <returns>The first cell returned, as <typeparamref name="T"/>.</returns>
-    public static Task<T?> ExecuteScalarAsync<T>(this NpgsqlConnection connection, string sql, DynamicParameters? parameters, CancellationToken cancellationToken) 
+    public static Task<T?> ExecuteScalarAsync<T>(this NpgsqlConnection connection, string sql, DynamicParameters? parameters, CancellationToken cancellationToken)
         => connection.ExecuteScalarAsync<T>(new CommandDefinition(sql, parameters, cancellationToken: cancellationToken));
+
+    /// <summary>
+    /// Execute parameterized SQL that selects a single value.
+    /// </summary>
+    /// <typeparam name="T">The type to return.</typeparam>
+    /// <param name="connection">The connection to execute on.</param>
+    /// <param name="sql">The SQL to execute.</param>
+    /// <param name="parameters">The parameters to use for this command.</param>
+    /// <param name="commandTimeout">Number of seconds before command execution timeout.</param>
+    /// <param name="cancellationToken">Cancellation token for this command.</param>
+    /// <returns>The first cell returned, as <typeparamref name="T"/>.</returns>
+    public static Task<T?> ExecuteScalarAsync<T>(this NpgsqlConnection connection, string sql, DynamicParameters? parameters, int commandTimeout, CancellationToken cancellationToken)
+        => connection.ExecuteScalarAsync<T>(new CommandDefinition(sql, parameters, commandTimeout: commandTimeout, cancellationToken: cancellationToken));
 
     /// <summary>
     /// Execute parameterized SQL and return an <see cref="IDataReader"/>.
@@ -81,17 +93,6 @@ public static class NpgsqlConnectionExtensions
     /// This is typically used when the results of a query are not processed by Dapper, for example, used to fill a <see cref="DataTable"/>
     /// or <see cref="T:DataSet"/>.
     /// </remarks>
-    /// <example>
-    /// <code>
-    /// <![CDATA[
-    /// DataTable table = new DataTable("MyTable");
-    /// using (var reader = ExecuteReader(cnn, sql, param))
-    /// {
-    ///     table.Load(reader);
-    /// }
-    /// ]]>
-    /// </code>
-    /// </example>
-    public static async Task<DbDataReader> ExecuteReaderAsync(this NpgsqlConnection connection, string sql, DynamicParameters? parameters, CancellationToken cancellationToken)
-        => await connection.ExecuteReaderAsync(new CommandDefinition(sql, parameters, cancellationToken: cancellationToken)).ConfigureAwait(false);
+    public static Task<DbDataReader> ExecuteReaderAsync(this NpgsqlConnection connection, string sql, DynamicParameters? parameters, CancellationToken cancellationToken)
+        => connection.ExecuteReaderAsync(new CommandDefinition(sql, parameters, cancellationToken: cancellationToken));
 }

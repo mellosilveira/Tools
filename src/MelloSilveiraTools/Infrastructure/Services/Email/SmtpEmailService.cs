@@ -22,7 +22,7 @@ public class SmtpEmailService(
                 NetworkCredential credentials = new(emailSettings.ApplicationEmail, emailSettings.ApplicationPassword);
                 using SmtpClient smtpClient = new(emailSettings.SmtpHost, emailSettings.SmtpPort) { EnableSsl = true, Credentials = credentials };
 
-                MailMessage mailMessage = new(emailSettings.ApplicationEmail, recipient, subject, body) { IsBodyHtml = isBodyHtml };
+                using MailMessage mailMessage = new(emailSettings.ApplicationEmail, recipient, subject, body) { IsBodyHtml = isBodyHtml };
                 await smtpClient.SendMailAsync(mailMessage).ConfigureAwait(false);
 
                 return true;

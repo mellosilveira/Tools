@@ -4,7 +4,7 @@ using MelloSilveiraTools.MechanicsOfMaterials.GeometricProperties;
 using MelloSilveiraTools.MechanicsOfMaterials.Models.Profiles;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace MelloSilveiraTools;
+namespace MelloSilveiraTools.MechanicsOfMaterials;
 
 /// <summary>
 /// Provides extension methods to dependency injection of Tools project.

@@ -19,14 +19,14 @@ public abstract class ApiServiceAgentBase : IApiServiceAgent
     /// <summary>
     /// Custom options to be used with <see cref="JsonSerializer"/>.
     /// </summary>
-    protected static JsonSerializerOptions JsonSerializerOptions
+    protected static readonly JsonSerializerOptions JsonSerializerOptions;
+
+    static ApiServiceAgentBase()
     {
-        get
-        {
-            JsonSerializerOptions options = new() { PropertyNameCaseInsensitive = true };
-            options.Converters.Add(new JsonStringEnumConverter());
-            return options;
-        }
+        JsonSerializerOptions options = new() { PropertyNameCaseInsensitive = true };
+        options.Converters.Add(new JsonStringEnumConverter());
+        options.MakeReadOnly();
+        JsonSerializerOptions = options;
     }
 
     /// <inheritdoc cref="ILogger"/>
@@ -77,7 +77,7 @@ public abstract class ApiServiceAgentBase : IApiServiceAgent
     {
         return await ResiliencePipeline.ExecuteAsync(async _ =>
         {
-            CancellationTokenSource cts = new(timeoutInMiliseconds);
+            using CancellationTokenSource cts = new(timeoutInMiliseconds);
             return await ExecuteAsync<TResponse, TResponseData>(HttpClient.GetAsync(requestUri, cts.Token), methodName, cts.Token);
         });
     }
@@ -192,12 +192,4 @@ public abstract class ApiServiceAgentBase : IApiServiceAgent
         GC.SuppressFinalize(this);
     }
 
-    /// <summary>
-    /// Finalizes the current instance of <see cref="ApiServiceAgentBase"/>.
-    /// </summary>
-    ~ApiServiceAgentBase()
-    {
-        // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method.
-        Dispose(disposing: false);
-    }
 }

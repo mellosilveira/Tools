@@ -1,6 +1,6 @@
 ﻿using MelloSilveiraTools.MechanicsOfMaterials.Models;
 
-namespace MelloSilveiraTools.ExtensionMethods
+namespace MelloSilveiraTools.MechanicsOfMaterials.Extensions
 {
     /// <summary>
     /// It contains the extension methods to Vector3D.

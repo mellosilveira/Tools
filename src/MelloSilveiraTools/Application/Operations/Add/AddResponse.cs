@@ -21,7 +21,6 @@ public record AddResponse : OperationResponseBase<AddResponseData>
     {
         ErrorMessages = [message],
         StatusCode = HttpStatusCode.Conflict,
-        Success = true,
     };
 
     public static AddResponse CreateConflict(long id, string message) => new()
@@ -29,6 +28,5 @@ public record AddResponse : OperationResponseBase<AddResponseData>
         Data = new AddResponseData(id),
         ErrorMessages = [message],
         StatusCode = HttpStatusCode.Conflict,
-        Success = true,
     };
 }

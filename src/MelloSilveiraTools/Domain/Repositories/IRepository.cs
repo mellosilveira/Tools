@@ -9,7 +9,8 @@ public interface IRepository
 
     Task<bool> ExistAsync<TEntity>(long id, CancellationToken cancellationToken = default);
 
-    Task<bool> ExistAsync<TEntity, TFilter>(TFilter filter, CancellationToken cancellationToken = default);
+    Task<bool> ExistAsync<TEntity, TFilter>(TFilter filter, CancellationToken cancellationToken = default)
+        where TFilter : FilterBase;
 
     Task<TEntity?> GetFirstOrDefaultAsync<TEntity, TFilter>(TFilter filter, SortOrder sortOrder = SortOrder.Asc, CancellationToken cancellationToken = default)
         where TFilter : FilterBase;
