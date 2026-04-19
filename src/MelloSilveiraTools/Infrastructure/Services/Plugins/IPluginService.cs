@@ -15,7 +15,9 @@ public interface IPluginService
 
     void ReloadPluginsOnRuntime(bool forceLoad, string pluginName = "", PluginVersion? version = null);
 
-    IEnumerable<PluginTypeInfo> GetPlugins(string pluginName, PluginVersion? version);
+    void Clear();
+
+    IEnumerable<PluginInfo> GetPlugins(string pluginName, PluginVersion? version);
 
     ///// <summary>
     ///// Clears the cache from the specified stage onward.

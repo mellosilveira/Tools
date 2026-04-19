@@ -137,6 +137,8 @@ public abstract class OperationBaseWithDefaultResponse<TRequest>(ILogger logger)
 /// <typeparam name="TResponse"></typeparam>
 public abstract class OperationBaseWithoutRequest<TResponse>(ILogger logger) where TResponse : OperationResponse, new()
 {
+    protected ILogger Logger { get; } = logger;
+
     /// <summary>
     /// The main method of all operations.
     /// Asynchronously, orchestrates and validates the operations.
@@ -156,7 +158,7 @@ public abstract class OperationBaseWithoutRequest<TResponse>(ILogger logger) whe
             string message = "Ocorreu um erro interno durante o processamento da solicitação.";
 #endif
 
-            logger.Error(message, ex);
+            Logger.Error(message, ex);
 
             return OperationResponse.CreateInternalServerError<TResponse>(message);
         }

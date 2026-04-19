@@ -71,12 +71,9 @@ public class PluginController : ControllerBase
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [HttpDelete("cache")]
-    public async Task<ActionResult<OperationResponse>> ClearCache(
-        [FromServices] ClearPluginCache operation,
-        [FromQuery] string stage)
+    public async Task<ActionResult<OperationResponse>> ClearCache([FromServices] ClearPluginCache operation)
     {
-        ClearPluginCacheRequest request = new() { Stage = stage };
-        OperationResponse response = await operation.ProcessAsync(request).ConfigureAwait(false);
+        OperationResponse response = await operation.ProcessAsync().ConfigureAwait(false);
         return response.BuildHttpResponse();
     }
 

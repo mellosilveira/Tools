@@ -9,19 +9,9 @@ public class GetPlugins(ILogger logger, IPluginService pluginService) : Operatio
 {
     protected override Task<GetPluginsResponse> ProcessOperationAsync(GetPluginsRequest request)
         => OperationResponse
-            .CreateListSuccessOk<GetPluginsResponse, GetPluginsResponseData>(pluginService
+            .CreateListSuccessOk<GetPluginsResponse, PluginInfo>(pluginService
                 .GetPlugins(request.Name, PluginVersion.SafeParse(request.Version))
                 .Where(ti => request.FullyLoaded is null || ti.IsFullyLoaded == request.FullyLoaded)
-                .Select(ti => new GetPluginsResponseData
-                {
-                    Name = ti.Descriptor.Name,
-                    Version = ti.Descriptor.Version.Name,
-                    FullPath = ti.Descriptor.FullPath,
-                    DiscoveredAt = ti.Descriptor.DiscoveredAt,
-                    TypesLoadedStatus = ti.TypesLoadedStatus.ToDictionary(tls => tls.Key.Name, tls => tls.Value),
-                    IsFullyLoaded = ti.IsFullyLoaded,
-                    FullyLoadedAt = ti.FullyLoadedAt,
-                })
                 .ToArray())
             .AsTask();
 

@@ -17,4 +17,6 @@ public interface IMetadataCache
     void Update<T>(string key, T value);
 
     void Remove(string key);
+
+    void Clear();
 }

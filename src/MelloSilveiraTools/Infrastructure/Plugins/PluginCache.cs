@@ -15,11 +15,17 @@ namespace MelloSilveiraTools.Infrastructure.Plugins;
 // TODO: PENSAR NUMA ESTRUTURA MELHOR DE CACHE COM DOIS NÍVEIS DE CHAVE
 public class PluginCache(ILogger logger, IMetadataCache cache)
 {
-    public void Add(string name, PluginVersion version, PluginDescriptor pluginDescriptor)
-        => Add<PluginDescriptor>(GetDescriptorKey(name), version, pluginDescriptor);
+    private readonly ConcurrentDictionary<string, bool> _registeredNames = new();
+
+    public void Add(string name, PluginVersion version, PluginBaseInfo pluginBaseInfo)
+    {
+        _registeredNames.TryAdd(name, true);
+        Add<PluginBaseInfo>(GetDescriptorKey(name), version, pluginBaseInfo);
+    }
 
     public PluginAssemblyInfo GetOrAdd(string name, PluginVersion version, Func<PluginAssemblyInfo> factory)
     {
+        _registeredNames.TryAdd(name, true);
         var assemblyInfo = GetOrAdd<PluginAssemblyInfo>(GetAssemblyInfoKey(name), version, factory);
 
         try
@@ -40,9 +46,10 @@ public class PluginCache(ILogger logger, IMetadataCache cache)
         return assemblyInfo;
     }
 
-    public PluginTypeInfo GetOrAdd(string name, PluginVersion version, Func<PluginTypeInfo> factory)
+    public PluginInfo GetOrAdd(string name, PluginVersion version, Func<PluginInfo> factory)
     {
-        var state = GetOrAdd<PluginTypeInfo>(GetStateKey(name), version, factory);
+        _registeredNames.TryAdd(name, true);
+        var state = GetOrAdd<PluginInfo>(GetStateKey(name), version, factory);
 
         try
         {
@@ -62,17 +69,65 @@ public class PluginCache(ILogger logger, IMetadataCache cache)
         return state;
     }
 
-    public bool TryGetPluginState(string name, PluginVersion version, out PluginTypeInfo state)
+    public bool TryGetPluginState(string name, PluginVersion version, out PluginInfo state)
         => TryGet(GetStateKey(name), version, out state);
 
-    public void UpdateState(string name, PluginVersion version, PluginTypeInfo state)
+    public void UpdateState(string name, PluginVersion version, PluginInfo state)
     {
         var key = GetStateKey(name);
 
-        var statesPerVersion = cache.Get<ConcurrentDictionary<string, PluginTypeInfo>>(key);
+        var statesPerVersion = cache.Get<ConcurrentDictionary<string, PluginInfo>>(key);
         statesPerVersion[version.Name] = state;
 
         cache.Update(key, statesPerVersion);
+    }
+
+    public void Clear() => cache.Clear();
+
+    /// <summary>
+    /// Clears all cache entries for the given plugin name.
+    /// When <paramref name="version"/> is <see langword="null"/>, all versions are removed;
+    /// otherwise only the specified version is evicted from each cache stage.
+    /// </summary>
+    public void Clear(string name, PluginVersion? version)
+    {
+        if (version is null)
+        {
+            cache.Remove(GetDescriptorKey(name));
+            cache.Remove(GetAssemblyInfoKey(name));
+            cache.Remove(GetStateKey(name));
+            _registeredNames.Remove(name, out _);
+            return;
+        }
+
+        RemoveVersioned<PluginBaseInfo>(GetDescriptorKey(name), version.Value);
+        RemoveVersioned<PluginAssemblyInfo>(GetAssemblyInfoKey(name), version.Value);
+        RemoveVersioned<PluginInfo>(GetStateKey(name), version.Value);
+    }
+
+    /// <summary>
+    /// Returns all <see cref="PluginBaseInfo"/>, <see cref="PluginAssemblyInfo"/> and
+    /// <see cref="PluginInfo"/> entries currently held across all cache stages.
+    /// </summary>
+    public (IReadOnlyList<PluginBaseInfo> Descriptors, IReadOnlyList<PluginAssemblyInfo> AssemblyInfos, IReadOnlyList<PluginInfo> PluginInfos) GetAll()
+    {
+        var descriptors = new List<PluginBaseInfo>();
+        var assemblyInfos = new List<PluginAssemblyInfo>();
+        var pluginInfos = new List<PluginInfo>();
+
+        foreach (var name in _registeredNames.Keys)
+        {
+            if (cache.TryGet(GetDescriptorKey(name), out ConcurrentDictionary<string, PluginBaseInfo>? descriptorsByVersion))
+                descriptors.AddRange(descriptorsByVersion!.Values);
+
+            if (cache.TryGet(GetAssemblyInfoKey(name), out ConcurrentDictionary<string, PluginAssemblyInfo>? assemblyInfosByVersion))
+                assemblyInfos.AddRange(assemblyInfosByVersion!.Values);
+
+            if (cache.TryGet(GetStateKey(name), out ConcurrentDictionary<string, PluginInfo>? infosByVersion))
+                pluginInfos.AddRange(infosByVersion!.Values);
+        }
+
+        return (descriptors, assemblyInfos, pluginInfos);
     }
 
     private void Add<T>(string name, PluginVersion version, T value)
@@ -110,6 +165,17 @@ public class PluginCache(ILogger logger, IMetadataCache cache)
         }
     }
 
+    private void RemoveVersioned<T>(string key, PluginVersion version)
+    {
+        if (cache.TryGet(key, out ConcurrentDictionary<string, T>? cachePerVersion))
+        {
+            cachePerVersion!.Remove(version.Name, out _);
+
+            if (cachePerVersion.IsEmpty)
+                cache.Remove(key);
+        }
+    }
+
     private static string GetDescriptorKey(string name)
     {
         const string prefix = "Plugin:Descriptor:";
@@ -127,8 +193,6 @@ public class PluginCache(ILogger logger, IMetadataCache cache)
         const string prefix = "Plugin:State:";
         return $"{prefix}{name}";
     }
-
-
 
 
     //// Two-level registries — name → version → value.

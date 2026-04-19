@@ -14,7 +14,7 @@ public class JsonFilePluginCachePersistence(PluginSettings settings) : IPluginCa
     private string FilePath => Path.Combine(settings.Directory, "plugin-cache.json");
 
     /// <inheritdoc/>
-    public async Task SaveAsync(IReadOnlyDictionary<string, PluginDescriptor> descriptors, IReadOnlyDictionary<string, PluginTypeInfo> states)
+    public async Task SaveAsync(IReadOnlyDictionary<string, PluginBaseInfo> descriptors, IReadOnlyDictionary<string, PluginInfo> states)
     {
         string directory = settings.Directory;
         if (!string.IsNullOrEmpty(directory) && !Directory.Exists(directory))
@@ -28,15 +28,15 @@ public class JsonFilePluginCachePersistence(PluginSettings settings) : IPluginCa
     }
 
     /// <inheritdoc/>
-    public async Task<(Dictionary<string, PluginDescriptor> Descriptors, Dictionary<string, PluginTypeInfo> States)> LoadAsync()
+    public async Task<(Dictionary<string, PluginBaseInfo> Descriptors, Dictionary<string, PluginInfo> States)> LoadAsync()
     {
         if (!File.Exists(FilePath))
             return ([], []);
 
         string json = await File.ReadAllTextAsync(FilePath).ConfigureAwait(false);
         using JsonDocument doc = JsonDocument.Parse(json);
-        var descriptors = JsonSerializer.Deserialize<Dictionary<string, PluginDescriptor>>(doc.RootElement.GetProperty("descriptors").GetRawText());
-        var states = JsonSerializer.Deserialize<Dictionary<string, PluginTypeInfo>>(doc.RootElement.GetProperty("states").GetRawText());
+        var descriptors = JsonSerializer.Deserialize<Dictionary<string, PluginBaseInfo>>(doc.RootElement.GetProperty("descriptors").GetRawText());
+        var states = JsonSerializer.Deserialize<Dictionary<string, PluginInfo>>(doc.RootElement.GetProperty("states").GetRawText());
         return (descriptors ?? [], states ?? []);
     }
 }

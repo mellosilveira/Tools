@@ -1,4 +1,6 @@
-﻿namespace MelloSilveiraTools.Application.Operations.Plugins.Get
+﻿using MelloSilveiraTools.Infrastructure.Plugins.Models;
+
+namespace MelloSilveiraTools.Application.Operations.Plugins.Get
 {
-    public record GetPluginsResponse : OperationListResponseBase<GetPluginsResponseData>;
+    public record GetPluginsResponse : OperationListResponseBase<PluginInfo>;
 }

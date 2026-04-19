@@ -1,33 +1,14 @@
-using SoftTissue.DataContracts.Operations;
-using SoftTissue.DataContracts.Operations.Plugins.Cache;
-using SoftTissue.Framework.Plugins.Models;
-using SoftTissue.Framework.Plugins.Services;
-using SoftTissue.Infrastructure.Plugins;
+using MelloSilveiraTools.ExtensionMethods;
+using MelloSilveiraTools.Infrastructure.Logger;
+using MelloSilveiraTools.Infrastructure.Services.Plugins;
 
 namespace MelloSilveiraTools.Application.Operations.Plugins.Cache;
 
-public class ClearPluginCache(IPluginService<IMechanicalModelPlugin> pluginService)
-    : OperationBaseWithDefaultResponse<ClearPluginCacheRequest>
+public class ClearPluginCache(ILogger logger, IPluginService pluginService) : OperationBaseWithoutRequest<OperationResponse>(logger)
 {
-    protected override Task<OperationResponse> ProcessOperationAsync(ClearPluginCacheRequest request)
+    protected override Task<OperationResponse> ProcessOperationAsync()
     {
-        OperationResponse response = new();
-
-        if (string.IsNullOrWhiteSpace(request.Stage))
-        {
-            pluginService.ClearCache(CacheStage.Discovery);
-        }
-        else if (Enum.TryParse<CacheStage>(request.Stage, ignoreCase: true, out var stage))
-        {
-            pluginService.ClearCache(stage);
-        }
-        else
-        {
-            response.SetBadRequestError($"'{request.Stage}' is not a valid cache stage. Valid values: {string.Join(", ", Enum.GetNames<CacheStage>())}.");
-            return Task.FromResult(response);
-        }
-
-        response.SetSuccessOk();
-        return Task.FromResult(response);
+        pluginService.Clear();
+        return OperationResponse.CreateSuccessOk().AsTask();
     }
 }

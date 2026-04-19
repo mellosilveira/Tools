@@ -1,3 +1,5 @@
+using MelloSilveiraTools.Infrastructure.Services.Plugins;
+
 namespace MelloSilveiraTools.Application.Operations.Plugins.Cache;
 
 public class PersistPluginCache(

@@ -28,8 +28,12 @@ public class InMemoryMetadataCache : IMetadataCache
     /// <inheritdoc/>
     public void Add<T>(string key, T value) => _cache[key] = value;
 
+    /// <inheritdoc/>
     public void Update<T>(string key, T value) => _cache[key] = value;
 
     /// <inheritdoc/>
     public void Remove(string key) => _cache.Remove(key, out _);
+
+    /// <inheritdoc/>
+    public void Clear() => _cache.Clear();
 }

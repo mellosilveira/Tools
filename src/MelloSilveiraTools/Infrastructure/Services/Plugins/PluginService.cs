@@ -9,14 +9,14 @@ namespace MelloSilveiraTools.Infrastructure.Services.Plugins;
 
 public static class PluginServiceExtensions
 {
-    public static PluginAssemblyInfo LoadAssembly(this PluginDescriptor descriptor, PluginAssemblyProcessor assemblyProcessor)
+    public static PluginAssemblyInfo LoadAssembly(this PluginBaseInfo descriptor, PluginAssemblyProcessor assemblyProcessor)
         => assemblyProcessor.Load(descriptor);
 
-    public static PluginTypeInfo ProcessTypes(this PluginAssemblyInfo assemblyInfo, PluginAssemblyProcessor assemblyProcessor, PluginRegistrationContext context)
+    public static PluginInfo ProcessTypes(this PluginAssemblyInfo assemblyInfo, PluginAssemblyProcessor assemblyProcessor, PluginRegistrationContext context)
         => assemblyProcessor.ProcessTypes(assemblyInfo, context);
 
-    public static PluginTypeInfo GetTypes(this PluginAssemblyInfo assemblyInfo, PluginAssemblyProcessor assemblyProcessor)
-        => assemblyProcessor.GetTypes(assemblyInfo);
+    public static PluginInfo GetInfo(this PluginAssemblyInfo assemblyInfo, PluginAssemblyProcessor assemblyProcessor)
+        => assemblyProcessor.GetInfo(assemblyInfo);
 }
 
 /// <inheritdoc cref="IPluginService"/>
@@ -41,19 +41,19 @@ public class PluginService(
     public void ReloadPluginsOnRuntime(bool forceLoad, string pluginName = "", PluginVersion? version = null)
         => ReloadPlugins(PluginRegistrationContext.ForRuntime(dynamicServiceProvider), forceLoad, pluginName, version);
 
-    public IEnumerable<PluginTypeInfo> GetPlugins(string pluginName, PluginVersion? version)
+    public IEnumerable<PluginInfo> GetPlugins(string pluginName, PluginVersion? version)
         => fileProcessor
             .Scan(pluginName, version)
             .Select(descriptor => descriptor
                 .LoadAssembly(assemblyProcessor)
-                .GetTypes(assemblyProcessor));
+                .GetInfo(assemblyProcessor));
 
     private void LoadPlugins(PluginRegistrationContext context, string pluginName = "", PluginVersion? version = null)
         => fileProcessor
             .Scan(pluginName, version)
             .Foreach(descriptor => LoadPlugin(context, descriptor));
 
-    private void LoadPlugin(PluginRegistrationContext context, PluginDescriptor descriptor)
+    private void LoadPlugin(PluginRegistrationContext context, PluginBaseInfo descriptor)
     {
         if (!cache.TryGetPluginState(descriptor.Name, descriptor.Version, out var state) || !state.IsFullyLoaded)
         {
@@ -78,6 +78,8 @@ public class PluginService(
                     LoadPlugin(context, descriptor);
                 }
             });
+
+    public void Clear() => cache.Clear();
 
     ///// <inheritdoc/>
     //private IReadOnlyList<PluginEntry<TPlugin>> DiscoverPlugins()

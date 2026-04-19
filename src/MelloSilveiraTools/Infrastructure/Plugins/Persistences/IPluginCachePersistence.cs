@@ -10,10 +10,10 @@ public interface IPluginCachePersistence
     /// <summary>
     /// Saves the current plugin descriptors and state.
     /// </summary>
-    Task SaveAsync(IReadOnlyDictionary<string, PluginDescriptor> descriptors, IReadOnlyDictionary<string, PluginTypeInfo> states);
+    Task SaveAsync(IReadOnlyDictionary<string, PluginBaseInfo> descriptors, IReadOnlyDictionary<string, PluginInfo> states);
 
     /// <summary>
     /// Loads previously saved state. Returns null if no data exists.
     /// </summary>
-    Task<(Dictionary<string, PluginDescriptor> Descriptors, Dictionary<string, PluginTypeInfo> States)> LoadAsync();
+    Task<(Dictionary<string, PluginBaseInfo> Descriptors, Dictionary<string, PluginInfo> States)> LoadAsync();
 }

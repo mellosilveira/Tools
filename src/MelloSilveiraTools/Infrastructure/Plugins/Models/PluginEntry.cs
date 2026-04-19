@@ -7,4 +7,4 @@ namespace MelloSilveiraTools.Infrastructure.Plugins.Models;
 /// <param name="Descriptor">Plugin metadata (name, version, path).</param>
 /// <param name="Plugin">The plugin instance.</param>
 /// <param name="Loaded">Whether the plugin has been loaded into the application.</param>
-public record PluginEntry<TPlugin>(PluginDescriptor Descriptor, TPlugin Plugin, bool Loaded) where TPlugin : IPlugin;
+public record PluginEntry<TPlugin>(PluginBaseInfo Descriptor, TPlugin Plugin, bool Loaded) where TPlugin : IPlugin;
