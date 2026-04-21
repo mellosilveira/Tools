@@ -21,7 +21,9 @@
       "Bash(grep -E \"\\\\.cs$|\\\\.json$\")",
       "Bash(xargs grep:*)",
       "Bash(find 'D:/Mello Silveira Serviços LTDA/Projetos/PraJah/prajah-api/src' -name *.cs -type f)",
-      "Bash(find 'D:\\\\Mello Silveira Serviços LTDA\\\\Projetos\\\\ResourceTrackingSystem.Backend' -name *Column* -type f)"
+      "Bash(find 'D:\\\\Mello Silveira Serviços LTDA\\\\Projetos\\\\ResourceTrackingSystem.Backend' -name *Column* -type f)",
+      "Bash(del \"D:\\\\Mello Silveira Serviços LTDA\\\\Projetos\\\\Tools\\\\src\\\\MelloSilveiraTools\\\\Infrastructure\\\\Caching\\\\IMetadataCache.cs\")",
+      "Bash(del \"D:\\\\Mello Silveira Serviços LTDA\\\\Projetos\\\\Tools\\\\src\\\\MelloSilveiraTools\\\\Infrastructure\\\\Caching\\\\InMemoryMetadataCache.cs\")"
     ]
   }
 }

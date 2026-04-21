@@ -123,8 +123,8 @@ public class PostgresSqlProvider : ISqlProvider
 
         if (meta.UniqueColumns.Count != 0)
         {
-            var uniqueCols = string.Join(", ", meta.UniqueColumns.Select(c => c.ColName));
-            var uniqueUpdates = string.Join(", ", meta.UniqueColumns.Select(c => $"{c.ColName} = EXCLUDED.{c.ColName}"));
+            var uniqueCols    = string.Join(", ", meta.UniqueColumns.Select(c => c.ColName));
+            var uniqueUpdates = BuildUniqueUpdates(meta);
             sql = sql
                 .Replace("#UNIQUE_COLUMNS", uniqueCols)
                 .Replace("#UNIQUE_UPDATES", uniqueUpdates);
@@ -201,8 +201,8 @@ public class PostgresSqlProvider : ISqlProvider
 
         if (meta.UniqueColumns.Count != 0)
         {
-            var uniqueCols = string.Join(", ", meta.UniqueColumns.Select(c => c.ColName));
-            var uniqueUpdates = string.Join(", ", meta.UniqueColumns.Select(c => $"{c.ColName} = EXCLUDED.{c.ColName}"));
+            var uniqueCols    = string.Join(", ", meta.UniqueColumns.Select(c => c.ColName));
+            var uniqueUpdates = BuildUniqueUpdates(meta);
             sql = sql
                 .Replace("#UNIQUE_COLUMNS", uniqueCols)
                 .Replace("#UNIQUE_UPDATES", uniqueUpdates);
@@ -241,6 +241,22 @@ public class PostgresSqlProvider : ISqlProvider
         var meta = GetMetadata(type);
         return CreateDeleteSql(type)
             .Replace("#WHERE", $"WHERE {meta.Alias}.{meta.PrimaryKeyCol} = @{meta.PrimaryKey.Name};");
+    }
+
+    /// <summary>
+    /// Builds the DO UPDATE SET clause for ON CONFLICT.
+    /// Updates payload columns (non-PK, non-unique); falls back to unique columns if no payload exists.
+    /// </summary>
+    private static string BuildUniqueUpdates(EntityMetadata meta)
+    {
+        var payloadCols = meta.AllColumns
+            .Where(c => c.Prop.GetCustomAttribute<PrimaryKeyColumnAttribute>() == null &&
+                        c.Prop.GetCustomAttribute<UniqueColumnAttribute>()    == null)
+            .ToList();
+
+        return payloadCols.Count > 0
+            ? string.Join(", ", payloadCols.Select(c => $"{c.ColName} = EXCLUDED.{c.ColName}"))
+            : string.Join(", ", meta.UniqueColumns.Select(c => $"{c.ColName} = EXCLUDED.{c.ColName}"));
     }
 
     #endregion

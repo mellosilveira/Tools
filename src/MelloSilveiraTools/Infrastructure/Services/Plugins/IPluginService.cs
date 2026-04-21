@@ -17,20 +17,9 @@ public interface IPluginService
 
     void Clear();
 
-    IEnumerable<PluginInfo> GetPlugins(string pluginName, PluginVersion? version);
+    IEnumerable<RegisteredPlugin> GetPlugins(string pluginName, PluginVersion? version);
 
-    ///// <summary>
-    ///// Clears the cache from the specified stage onward.
-    ///// </summary>
-    //void ClearCache(CacheStage stage);
+    Task PersistCacheAsync(string name = "", PluginVersion? version = null, CancellationToken cancellationToken = default);
 
-    ///// <summary>
-    ///// Persists the current cache to non-volatile storage.
-    ///// </summary>
-    //Task PersistCacheAsync();
-
-    ///// <summary>
-    ///// Restores cache from non-volatile storage.
-    ///// </summary>
-    //Task RestoreCacheAsync();
+    Task RestoreCacheAsync(string name = "", PluginVersion? version = null, CancellationToken cancellationToken = default);
 }

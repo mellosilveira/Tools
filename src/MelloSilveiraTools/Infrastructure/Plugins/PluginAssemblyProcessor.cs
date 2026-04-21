@@ -8,31 +8,29 @@ public class PluginAssemblyProcessor(
     Dictionary<Type, IPluginTypeProcessor> typeProcessors,
     PluginCache cache)
 {
-    public PluginAssemblyInfo Load(PluginBaseInfo descriptor)
-        => cache.GetOrAdd(descriptor.Name, descriptor.Version, () =>
+    public LoadedPlugin Load(DiscoveredPlugin discovered)
+        => cache.GetOrAdd(discovered.Name, discovered.Version, () =>
         {
-            Assembly assembly = AssemblyLoadContext.Default.LoadFromAssemblyPath(descriptor.FullPath);
+            Assembly assembly = AssemblyLoadContext.Default.LoadFromAssemblyPath(discovered.FullPath);
             Type[] processableTypes = [.. assembly.GetTypes().Where(t => typeProcessors.Keys.Any(processableType => processableType.IsAssignableFrom(t)) && !t.IsInterface && !t.IsAbstract)];
-            return new PluginAssemblyInfo(descriptor, processableTypes);
+            return new LoadedPlugin(discovered, processableTypes);
         });
 
-    public PluginInfo GetInfo(PluginAssemblyInfo assemblyInfo)
-        => cache.GetOrAdd(assemblyInfo.Name, assemblyInfo.Version, () => new(assemblyInfo));
+    public RegisteredPlugin GetInfo(LoadedPlugin loaded)
+        => cache.GetOrAdd(loaded.Name, loaded.Version, () => new(loaded));
 
-    public PluginInfo ProcessTypes(PluginAssemblyInfo assemblyInfo, PluginRegistrationContext context)
+    public RegisteredPlugin ProcessTypes(LoadedPlugin loaded, PluginRegistrationContext context)
     {
-        string name = assemblyInfo.Name;
-        PluginVersion version = assemblyInfo.Version;
-        PluginInfo typeInfo = cache.GetOrAdd(name, version, () => new(assemblyInfo));
+        RegisteredPlugin registered = cache.GetOrAdd(loaded.Name, loaded.Version, () => new(loaded));
 
-        foreach (Type type in assemblyInfo.ProcessableTypes)
+        foreach (Type type in loaded.ProcessableTypes)
         {
             typeProcessors[type].Process(type, context);
 
-            typeInfo.MarkTypeLoaded(type);
-            cache.UpdateState(name, version, typeInfo);
+            registered.MarkTypeLoaded(type);
+            cache.Update(loaded.Name, loaded.Version, registered);
         }
 
-        return typeInfo;
+        return registered;
     }
 }

@@ -9,9 +9,9 @@ public class GetPlugins(ILogger logger, IPluginService pluginService) : Operatio
 {
     protected override Task<GetPluginsResponse> ProcessOperationAsync(GetPluginsRequest request)
         => OperationResponse
-            .CreateListSuccessOk<GetPluginsResponse, PluginInfo>(pluginService
+            .CreateListSuccessOk<GetPluginsResponse, RegisteredPlugin>(pluginService
                 .GetPlugins(request.Name, PluginVersion.SafeParse(request.Version))
-                .Where(ti => request.FullyLoaded is null || ti.IsFullyLoaded == request.FullyLoaded)
+                .Where(registered => request.FullyLoaded is null || registered.IsFullyLoaded == request.FullyLoaded)
                 .ToArray())
             .AsTask();
 

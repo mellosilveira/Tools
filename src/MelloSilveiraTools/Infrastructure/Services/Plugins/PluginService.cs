@@ -1,3 +1,4 @@
+using System.Runtime.CompilerServices;
 using MelloSilveiraTools.ExtensionMethods;
 using MelloSilveiraTools.Infrastructure.Plugins;
 using MelloSilveiraTools.Infrastructure.Plugins.Models;
@@ -9,14 +10,14 @@ namespace MelloSilveiraTools.Infrastructure.Services.Plugins;
 
 public static class PluginServiceExtensions
 {
-    public static PluginAssemblyInfo LoadAssembly(this PluginBaseInfo descriptor, PluginAssemblyProcessor assemblyProcessor)
-        => assemblyProcessor.Load(descriptor);
+    public static LoadedPlugin LoadAssembly(this DiscoveredPlugin discovered, PluginAssemblyProcessor assemblyProcessor)
+        => assemblyProcessor.Load(discovered);
 
-    public static PluginInfo ProcessTypes(this PluginAssemblyInfo assemblyInfo, PluginAssemblyProcessor assemblyProcessor, PluginRegistrationContext context)
-        => assemblyProcessor.ProcessTypes(assemblyInfo, context);
+    public static RegisteredPlugin ProcessTypes(this LoadedPlugin loaded, PluginAssemblyProcessor assemblyProcessor, PluginRegistrationContext context)
+        => assemblyProcessor.ProcessTypes(loaded, context);
 
-    public static PluginInfo GetInfo(this PluginAssemblyInfo assemblyInfo, PluginAssemblyProcessor assemblyProcessor)
-        => assemblyProcessor.GetInfo(assemblyInfo);
+    public static RegisteredPlugin GetInfo(this LoadedPlugin loaded, PluginAssemblyProcessor assemblyProcessor)
+        => assemblyProcessor.GetInfo(loaded);
 }
 
 /// <inheritdoc cref="IPluginService"/>
@@ -41,94 +42,60 @@ public class PluginService(
     public void ReloadPluginsOnRuntime(bool forceLoad, string pluginName = "", PluginVersion? version = null)
         => ReloadPlugins(PluginRegistrationContext.ForRuntime(dynamicServiceProvider), forceLoad, pluginName, version);
 
-    public IEnumerable<PluginInfo> GetPlugins(string pluginName, PluginVersion? version)
+    public IEnumerable<RegisteredPlugin> GetPlugins(string pluginName, PluginVersion? version)
         => fileProcessor
             .Scan(pluginName, version)
-            .Select(descriptor => descriptor
+            .Select(discovered => discovered
                 .LoadAssembly(assemblyProcessor)
                 .GetInfo(assemblyProcessor));
+
+    public void Clear() => cache.Clear();
+
+    /// <inheritdoc/>
+    public Task PersistCacheAsync(string name = "", PluginVersion? version = null, CancellationToken cancellationToken = default)
+        => persistence.SaveAsync(
+            cache
+                .StreamAll(name, version, cancellationToken)
+                .Select(plugin => new PluginCacheEntry(plugin.Name, plugin.Version.Name, plugin)), 
+            cancellationToken);
+
+    /// <inheritdoc/>
+    public async Task RestoreCacheAsync(string name = "", PluginVersion? version = null, CancellationToken cancellationToken = default)
+    {
+        await foreach (PluginCacheEntry entry in persistence.LoadAsync(name, version, cancellationToken))
+        {
+            cache.Update(entry.Name, PluginVersion.Parse(entry.Version), entry.State);
+        }
+    }
 
     private void LoadPlugins(PluginRegistrationContext context, string pluginName = "", PluginVersion? version = null)
         => fileProcessor
             .Scan(pluginName, version)
-            .Foreach(descriptor => LoadPlugin(context, descriptor));
+            .Foreach(discovered => LoadPlugin(context, discovered));
 
-    private void LoadPlugin(PluginRegistrationContext context, PluginBaseInfo descriptor)
+    private void LoadPlugin(PluginRegistrationContext context, DiscoveredPlugin discovered)
     {
-        if (!cache.TryGetPluginState(descriptor.Name, descriptor.Version, out var state) || !state.IsFullyLoaded)
+        if (!cache.TryGet<RegisteredPlugin>(discovered.Name, discovered.Version, out var registered) || registered is null || !registered.IsFullyLoaded)
         {
-            descriptor
+            discovered
                 .LoadAssembly(assemblyProcessor)
                 .ProcessTypes(assemblyProcessor, context);
         }
 
-        fileProcessor.MoveToLoadedFolder(descriptor);
+        fileProcessor.MoveToLoadedFolder(discovered);
     }
 
     private void ReloadPlugins(PluginRegistrationContext context, bool forceLoad, string pluginName = "", PluginVersion? version = null)
         => fileProcessor
             .ScanLoaded(pluginName, version)
-            .Foreach(descriptor =>
+            .Foreach(discovered =>
             {
-                fileProcessor.MoveToMainFolder(descriptor);
+                fileProcessor.MoveToMainFolder(discovered);
 
                 if (forceLoad)
                 {
                     cache.Clear(pluginName, version);
-                    LoadPlugin(context, descriptor);
+                    LoadPlugin(context, discovered);
                 }
             });
-
-    public void Clear() => cache.Clear();
-
-    ///// <inheritdoc/>
-    //private IReadOnlyList<PluginEntry<TPlugin>> DiscoverPlugins()
-    //{
-    //    var entries = new List<PluginEntry<TPlugin>>();
-    //    foreach (PluginDescriptor descriptor in scanner.Scan())
-    //    {
-    //        PluginAssemblyInfo assemblyInfo = cache.GetOrAddAssemblyInfo(descriptor.Name, descriptor.Version, () => assemblyProcessor.LoadAndExtract(descriptor, typeProcessors.Keys));
-    //        IReadOnlyList<TPlugin> plugins = cache.GetOrAddProcessedTypes(descriptor.Name, descriptor.Version, () => assemblyInfo.ProcessableTypes.Select(t => (TPlugin)Activator.CreateInstance(t)).ToList());
-    //        PluginTypeInfo state = cache.GetOrCreateState(descriptor.Name, descriptor.Version);
-
-    //        foreach (TPlugin plugin in plugins)
-    //        {
-    //            state.RegisterType(plugin.Name);
-    //            entries.Add(new PluginEntry<TPlugin>(descriptor, plugin, state.IsFullyLoaded));
-    //        }
-    //    }
-
-    //    return entries;
-    //}
-
-    ///// <inheritdoc/>
-    //public IReadOnlyList<PluginEntry<TPlugin>> GetPlugins(string name = null, bool? loaded = null)
-    //{
-    //    var entries = DiscoverPlugins();
-
-    //    if (name is not null)
-    //        entries = entries.Where(e => e.Descriptor.Name == name).ToList();
-
-    //    if (loaded is not null)
-    //        entries = entries.Where(e => e.Loaded == loaded.Value).ToList();
-
-    //    return entries;
-    //}
-
-    ///// <inheritdoc/>
-    //public void ClearCache(CacheStage stage) => cache.Clear(stage);
-
-    ///// <inheritdoc/>
-    //public async Task PersistCacheAsync()
-    //{
-    //    var descriptors = cache.GetAllAssemblyInfos().ToDictionary(kv => kv.Key, kv => kv.Value.Descriptor);
-    //    await persistence.SaveAsync(descriptors, cache.GetAllStates()).ConfigureAwait(false);
-    //}
-
-    ///// <inheritdoc/>
-    //public async Task RestoreCacheAsync()
-    //{
-    //    var (descriptors, states) = await persistence.LoadAsync().ConfigureAwait(false);
-    //    cache.RestoreFrom(descriptors, states);
-    //}
 }

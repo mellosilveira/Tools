@@ -215,6 +215,25 @@ public class PostgresRepository(ISqlProvider sqlProvider, PostgresResiliencePipe
     }
 
     /// <inheritdoc/>
+    public async Task<long> UpsertAsync<TEntity>(TEntity entity, CancellationToken cancellationToken = default)
+    {
+        string sql = sqlProvider.GetInsertSql<TEntity>();
+        IEnumerable<NpgsqlParameter> parameters = entity.BuildParameters(useDeclaredProperties: true);
+
+        return await resiliencePipeline.ExecuteAsync(async _ =>
+        {
+            await using NpgsqlConnection connection = await GetNewOpenedConnectionAsync(cancellationToken).ConfigureAwait(false);
+            await using NpgsqlCommand command = new(sql, connection) { CommandTimeout = DatabaseSettings.UnitOperationTimeoutInSeconds };
+            object? upsertedId = await command
+                .SetCommandParameters(parameters)
+                .ExecuteScalarAsync(cancellationToken)
+                .ConfigureAwait(false);
+
+            return Convert.ToInt64(upsertedId!);
+        });
+    }
+
+    /// <inheritdoc/>
     public async Task<long[]> UpsertAsync<TEntity, TFilter>(TEntity[] entities, TFilter filter, CancellationToken cancellationToken = default)
     {
         (string? sqlWhereClause, List<NpgsqlParameter> deleteParameters) = filter.BuildWhereClauseAndNpgsqlParameters();

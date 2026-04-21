@@ -4,16 +4,22 @@ namespace MelloSilveiraTools.Infrastructure.Plugins.Persistences;
 
 /// <summary>
 /// Persists and restores plugin cache state to/from non-volatile storage.
+/// Operates on the two-level structure of <see cref="Infrastructure.Plugins.PluginCache"/>:
+/// level 1 is the plugin name, level 2 is the version.
 /// </summary>
 public interface IPluginCachePersistence
 {
     /// <summary>
-    /// Saves the current plugin descriptors and state.
+    /// Saves the provided cache entries to non-volatile storage.
+    /// Entries are consumed lazily from <paramref name="entries"/> as they are written.
+    /// Existing entries with the same (name, version) are overwritten.
     /// </summary>
-    Task SaveAsync(IReadOnlyDictionary<string, PluginBaseInfo> descriptors, IReadOnlyDictionary<string, PluginInfo> states);
+    Task SaveAsync(IAsyncEnumerable<PluginCacheEntry> entries, CancellationToken cancellationToken = default);
 
     /// <summary>
-    /// Loads previously saved state. Returns null if no data exists.
+    /// Streams previously saved entries from non-volatile storage.
+    /// When <paramref name="name"/> is non-empty, only entries for that plugin are returned.
+    /// When <paramref name="version"/> is non-null, the result is further narrowed to that version.
     /// </summary>
-    Task<(Dictionary<string, PluginBaseInfo> Descriptors, Dictionary<string, PluginInfo> States)> LoadAsync();
+    IAsyncEnumerable<PluginCacheEntry> LoadAsync(string name = "", PluginVersion? version = null, CancellationToken cancellationToken = default);
 }

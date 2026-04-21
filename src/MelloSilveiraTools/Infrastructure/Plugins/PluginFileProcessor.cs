@@ -11,77 +11,69 @@ public class PluginFileProcessor(
     private readonly string _pluginsDirectory = settings.Directory;
     private readonly string _loadedDirectory = Path.Combine(settings.Directory, "loaded");
 
-    public IEnumerable<PluginBaseInfo> Scan(string pluginName = "", PluginVersion? version = null)
+    public IEnumerable<DiscoveredPlugin> Scan(string pluginName = "", PluginVersion? version = null)
     {
         foreach (string file in Directory.GetFiles(_pluginsDirectory, $"{pluginName}{version?.Name ?? string.Empty}*.dll"))
-            yield return ParseDescriptor(file);
+            yield return Parse(file);
     }
 
-    public IEnumerable<PluginBaseInfo> ScanLoaded(string pluginName = "", PluginVersion? version = null)
+    public IEnumerable<DiscoveredPlugin> ScanLoaded(string pluginName = "", PluginVersion? version = null)
     {
         foreach (string file in Directory.GetFiles(_loadedDirectory, $"{pluginName}{version?.Name ?? string.Empty}*.dll"))
-            yield return ParseDescriptor(file);
+            yield return Parse(file);
     }
 
-    public void MoveToMainFolder(PluginBaseInfo descriptor)
+    public void MoveToMainFolder(DiscoveredPlugin plugin)
     {
-        string destination = Path.Combine(_loadedDirectory, Path.GetFileName(descriptor.FullPath));
-        File.Move(descriptor.FullPath, destination, overwrite: false);
+        string destination = Path.Combine(_loadedDirectory, Path.GetFileName(plugin.FullPath));
+        File.Move(plugin.FullPath, destination, overwrite: false);
     }
 
-    /// <summary>
-    /// Moves a plugin DLL from the plugins directory to the loaded/ subfolder.
-    /// </summary>
-    public void MoveToLoadedFolder(PluginBaseInfo descriptor)
+    /// <summary>Moves a plugin DLL from the plugins directory to the loaded/ subfolder.</summary>
+    public void MoveToLoadedFolder(DiscoveredPlugin plugin)
     {
-        string destination = Path.Combine(_loadedDirectory, Path.GetFileName(descriptor.FullPath));
-        File.Move(descriptor.FullPath, destination, overwrite: false);
+        string destination = Path.Combine(_loadedDirectory, Path.GetFileName(plugin.FullPath));
+        File.Move(plugin.FullPath, destination, overwrite: false);
     }
 
-    /// <summary>
-    /// Replaces an existing DLL in the loaded/ subfolder with one from the plugins directory.
-    /// </summary>
-    public void ReplaceInLoadedFolder(PluginBaseInfo descriptor)
+    /// <summary>Replaces an existing DLL in the loaded/ subfolder with one from the plugins directory.</summary>
+    public void ReplaceInLoadedFolder(DiscoveredPlugin plugin)
     {
-        string destination = Path.Combine(_loadedDirectory, Path.GetFileName(descriptor.FullPath));
+        string destination = Path.Combine(_loadedDirectory, Path.GetFileName(plugin.FullPath));
 
         if (File.Exists(destination))
             File.Delete(destination);
 
-        File.Move(descriptor.FullPath, destination);
+        File.Move(plugin.FullPath, destination);
     }
 
-    /// <summary>
-    /// Checks whether a DLL with the same name and version exists in the loaded/ subfolder.
-    /// </summary>
-    public bool ExistsInLoadedFolder(PluginBaseInfo descriptor)
+    /// <summary>Checks whether a DLL with the same name and version exists in the loaded/ subfolder.</summary>
+    public bool ExistsInLoadedFolder(DiscoveredPlugin plugin)
     {
-        string loadedPath = Path.Combine(_loadedDirectory, Path.GetFileName(descriptor.FullPath));
+        string loadedPath = Path.Combine(_loadedDirectory, Path.GetFileName(plugin.FullPath));
         return File.Exists(loadedPath);
     }
 
     /// <summary>
-    /// Parses a DLL file path into a <see cref="PluginBaseInfo"/>.
+    /// Parses a DLL file path into a <see cref="DiscoveredPlugin"/>.
     /// Expected pattern: {name}.v{major}.{minor}.{patch}.dll.
-    /// Falls back to version 0.0.0 if pattern does not match.
     /// </summary>
-    private PluginBaseInfo ParseDescriptor(string dllFilePath)
+    private DiscoveredPlugin Parse(string dllFilePath)
     {
         string fileName = Path.GetFileNameWithoutExtension(dllFilePath);
         Match match = PluginFileRegex.Match(fileName);
+
         if (match.Success)
         {
-            var name = match.Groups["name"].Value;
-            var version = new PluginVersion(
+            string name = match.Groups["name"].Value;
+            PluginVersion version = new(
                 int.Parse(match.Groups["major"].Value),
                 int.Parse(match.Groups["minor"].Value),
                 int.Parse(match.Groups["patch"].Value));
 
-            PluginBaseInfo descriptor = new(name, version, Path.GetFullPath(dllFilePath), DateTimeOffset.UtcNow);
-            cache.Add(name, version, descriptor);
-            return descriptor;
+            return cache.GetOrAdd(name, version, () => new(name, version, Path.GetFullPath(dllFilePath), DateTimeOffset.UtcNow));
         }
 
-        throw new InvalidOperationException("File does not match to plugin pattern.");
+        throw new InvalidOperationException("File does not match the plugin filename pattern.");
     }
 }

@@ -26,7 +26,7 @@ public readonly record struct PluginVersion(int Major, int Minor, int Patch) : I
 
     public static PluginVersion Parse(string version)
     {
-        string[] parts = version.Split('.');
+        string[] parts = version.TrimStart('v').Split('.');
         return new PluginVersion(int.Parse(parts[0]), int.Parse(parts[1]), int.Parse(parts[2]));
     }
 

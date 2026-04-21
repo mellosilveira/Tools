@@ -35,6 +35,8 @@ public interface IRepository
 
     Task<long[]> InsertAsync<TEntity>(TEntity[] entity, CancellationToken cancellationToken = default);
 
+    Task<long> UpsertAsync<TEntity>(TEntity entity, CancellationToken cancellationToken = default);
+
     Task<long[]> UpsertAsync<TEntity, TFilter>(TEntity[] entity, TFilter filter, CancellationToken cancellationToken = default);
 
     Task<bool> TryUpdateAsync<TEntity>(TEntity entity, CancellationToken cancellationToken = default);
