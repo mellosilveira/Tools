@@ -61,6 +61,26 @@ namespace MelloSilveiraTools.Infrastructure.Database.Sql.Provider {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to INSERT INTO #TABLE_NAME (#COLUMNS) VALUES #VALUES RETURNING #PRIMARY_KEY;.
+        /// </summary>
+        internal static string BulkInsertTemplate {
+            get {
+                return ResourceManager.GetString("BulkInsertTemplate", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to INSERT INTO #TABLE_NAME (#COLUMNS) VALUES #VALUES
+        ///ON CONFLICT (unique_hash) DO UPDATE SET unique_hash = EXCLUDED.unique_hash
+        ///RETURNING #PRIMARY_KEY;.
+        /// </summary>
+        internal static string BulkInsertWithUniqueKeyTemplate {
+            get {
+                return ResourceManager.GetString("BulkInsertWithUniqueKeyTemplate", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to DELETE FROM #TABLE_NAME AS #TABLE_ALIAS
         ///#WHERE.
         /// </summary>
@@ -72,22 +92,7 @@ namespace MelloSilveiraTools.Infrastructure.Database.Sql.Provider {
         
         /// <summary>
         ///   Looks up a localized string similar to INSERT INTO #TABLE_NAME
-        ///(	
-        ///	#COLUMNS
-        ///)
-        ///VALUES
-        ///	#VALUES
-        ///RETURNING #PRIMARY_KEY;.
-        /// </summary>
-        internal static string InsertInBatchTemplate {
-            get {
-                return ResourceManager.GetString("InsertInBatchTemplate", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to INSERT INTO #TABLE_NAME
-        ///(	
+        ///(
         ///	#COLUMNS
         ///)
         ///VALUES
@@ -103,20 +108,9 @@ namespace MelloSilveiraTools.Infrastructure.Database.Sql.Provider {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to WITH CTE AS (
-        ///	INSERT INTO #TABLE_NAME
-        ///	(	
-        ///		#COLUMNS
-        ///	)
-        ///	VALUES
-        ///	(
-        ///		#PARAMETER_NAMES
-        ///	)
-        ///	RETURNING #PRIMARY_KEY
-        ///)
-        ///SELECT #PRIMARY_KEY FROM CTE
-        /// UNION ALL
-        ///SELECT #PRIMARY_KEY FROM #TABLE_NAME #TABLE_ALIAS WHERE #UNIQUE_KEY_FILTERS;.
+        ///   Looks up a localized string similar to INSERT INTO #TABLE_NAME (#COLUMNS) VALUES (#PARAMETER_NAMES)
+        ///ON CONFLICT (unique_hash) DO UPDATE SET unique_hash = EXCLUDED.unique_hash
+        ///RETURNING #PRIMARY_KEY;.
         /// </summary>
         internal static string InsertWithUniqueKeyTemplate {
             get {
@@ -125,7 +119,7 @@ namespace MelloSilveiraTools.Infrastructure.Database.Sql.Provider {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to SELECT
+        ///   Looks up a localized string similar to SELECT DISTINCT
         ///	#COLUMNS
         ///FROM #TABLE_NAME AS #TABLE_ALIAS
         ///#JOIN

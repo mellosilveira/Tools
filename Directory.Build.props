@@ -1,22 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project>
 	<PropertyGroup>
-		<!-- Product information -->
+		<!-- Product information (common to every package in the solution). -->
 		<Authors>MelloSilveira</Authors>
 		<Company>MelloSilveira</Company>
 		<Product>MelloSilveira Tools</Product>
-		<PackageId>MelloSilveiraTools</PackageId>
-		<AssemblyTitle>MelloSilveira Tools</AssemblyTitle>
-		<Description>NuGet package with helpers for .NET system development, providing extensions, utilities, and reusable patterns to speed up building clean and robust applications.</Description>
 		<Copyright>MelloSilveira - Copyright © 2025</Copyright>
 		<NeutralLanguage>en-us</NeutralLanguage>
+
+		<!-- Repository / license (common). -->
 		<RepositoryType>git</RepositoryType>
 		<RepositoryUrl>https://github.com/mellosilveira/Tools</RepositoryUrl>
 		<PackageProjectUrl>https://github.com/mellosilveira/Tools</PackageProjectUrl>
 		<PublishRepositoryUrl>true</PublishRepositoryUrl>
-		<PackageLicenseExpression>MIT</PackageLicenseExpression>
+		<PackageLicenseFile>LICENSE</PackageLicenseFile>
 		<PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
-		<VersionPrefix>1.2.1</VersionPrefix>
+
+		<!-- Versioning (common). -->
+		<VersionPrefix>1.2.2-rc002</VersionPrefix>
+		<PackageReleaseNotes>See CHANGELOG.md for the full list of changes.</PackageReleaseNotes>
 
 		<!-- Setup initial variables if not defined. -->
 		<Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
@@ -32,16 +34,36 @@
 		<!-- Variable and compile-time constant for the framework. -->
 		<FrameworkIdentifier>$(TargetFramework.TrimEnd('.0123456789'))</FrameworkIdentifier>
 		<DefineConstants>$(DefineConstants);$(FrameworkIdentifier.ToUpper())</DefineConstants>
-		<TargetFramework>net9.0</TargetFramework>
+		<TargetFramework>net10.0</TargetFramework>
 
-		<!-- Additional informations. -->
+		<!-- Compiler / language behavior (common). -->
 		<ImplicitUsings>enable</ImplicitUsings>
-		<GenerateDocumentationFile>True</GenerateDocumentationFile>
+		<Nullable>enable</Nullable>
 
+		<!-- Packaging / documentation behavior (common). -->
+		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+		<GenerateDocumentationFile>true</GenerateDocumentationFile>
+		<IncludeSymbols>true</IncludeSymbols>
+		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
+		<PackageReadmeFile>README.md</PackageReadmeFile>
+		<!-- Suppress CS1591 on generated resources and other deliberately undocumented internals. -->
+		<NoWarn>$(NoWarn);CS1591</NoWarn>
+	</PropertyGroup>
+
+	<!-- Deterministic build on CI. -->
+	<PropertyGroup Condition="'$(ContinuousIntegrationBuild)' == '' and '$(CI)' == 'true'">
+		<ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
 		<DocumentationFile>..\$(MSBuildProjectName)\$(MSBuildProjectName).xml</DocumentationFile>
 	</PropertyGroup>
+
+	<!-- README, CHANGELOG and LICENSE are packed into every NuGet produced from this repository. -->
+	<ItemGroup>
+		<None Include="$(MSBuildThisFileDirectory)README.md" Pack="true" PackagePath="\" Visible="false" />
+		<None Include="$(MSBuildThisFileDirectory)CHANGELOG.md" Pack="true" PackagePath="\" Visible="false" />
+		<None Include="$(MSBuildThisFileDirectory)LICENSE" Pack="true" PackagePath="\" Visible="false" />
+	</ItemGroup>
 
 </Project>

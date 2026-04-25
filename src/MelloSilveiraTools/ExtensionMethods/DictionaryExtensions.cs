@@ -1,43 +1,77 @@
-﻿using System.Data;
+﻿using System.Collections.Concurrent;
+using System.Data;
+using System.Linq.Expressions;
+using System.Reflection;
 
-namespace MelloSilveiraTools.ExtensionMethods
+namespace MelloSilveiraTools.ExtensionMethods;
+
+/// <summary>
+/// Contains extension methods for <see cref="Dictionary{TKey, TValue}"/>
+/// </summary>
+public static class DictionaryExtensions
 {
+    private static readonly ConcurrentDictionary<Type, Dictionary<string, (Action<object, object> Setter, Type PropertyType)>> _typeCache = [];
+
     /// <summary>
-    /// Contains extension methods for <see cref="Dictionary{TKey, TValue}"/>
+    /// Converts the <see cref="IDataReader"/> to an object.
     /// </summary>
-    public static class DictionaryExtensions
+    /// <typeparam name="T"></typeparam>
+    /// <param name="sqlDataReader"></param>
+    /// <returns></returns>
+    public static T ConvertTo<T>(this IDataReader sqlDataReader) where T : class, new()
     {
-        /// <summary>
-        /// Converts the <see cref="IDataReader"/> to an object.
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="sqlDataReader"></param>
-        /// <returns></returns>
-        public static T ConvertTo<T>(this IDataReader sqlDataReader) where T : class, new()
+        var setters = _typeCache.GetOrAdd(typeof(T), BuildSetters);
+        var obj = new T();
+
+        for (int i = 0; i < sqlDataReader.FieldCount; i++)
         {
-            // TODO: ISSO É CUSTOSO POR USAR REFLECTION, DEDVE SER OTIMIZADO.
-            Type type = typeof(T);
-            var obj = new T();
+            if (sqlDataReader.IsDBNull(i))
+                continue;
 
-            for (int i = 0; i < sqlDataReader.FieldCount; i++)
-            {
-                if (sqlDataReader.IsDBNull(i))
-                    continue;
+            var fieldName = sqlDataReader.GetName(i);
+            if (!setters.TryGetValue(fieldName, out var entry))
+                continue;
 
-                var fieldName = sqlDataReader.GetName(i);
-                var propertyInfo = type.GetProperty(fieldName);
-                if (propertyInfo is null)
-                    continue;
+            object fieldValue = sqlDataReader.GetValue(i);
+            var underlyingType = Nullable.GetUnderlyingType(entry.PropertyType) ?? entry.PropertyType;
 
-                var propertyType = Nullable.GetUnderlyingType(propertyInfo.PropertyType) ?? propertyInfo.PropertyType;
-                object fieldValue = sqlDataReader.GetValue(i);
-                if (fieldValue is not null)
-                    propertyInfo.SetValue(obj, propertyInfo.PropertyType.IsEnum
-                        ? Enum.Parse(propertyInfo.PropertyType, fieldValue.ToString()!)
-                        : Convert.ChangeType(fieldValue, propertyType));
-            }
+            object propertyValue;
+            if (underlyingType == typeof(DateTimeOffset) && fieldValue is DateTime dt)
+                propertyValue = new DateTimeOffset(dt);
+            else if (underlyingType == typeof(DateTimeOffset))
+                propertyValue = (DateTimeOffset)fieldValue;
+            else if (underlyingType.IsEnum)
+                propertyValue = Enum.ToObject(underlyingType, fieldValue);
+            else
+                propertyValue = Convert.ChangeType(fieldValue, underlyingType);
 
-            return obj;
+            entry.Setter(obj, propertyValue);
         }
+
+        return obj;
+    }
+
+    private static Dictionary<string, (Action<object, object> Setter, Type PropertyType)> BuildSetters(Type type)
+    {
+        var result = new Dictionary<string, (Action<object, object>, Type)>(StringComparer.Ordinal);
+
+        foreach (var prop in type.GetProperties(BindingFlags.Instance | BindingFlags.Public))
+        {
+            if (!prop.CanWrite)
+                continue;
+
+            var instance = Expression.Parameter(typeof(object), "instance");
+            var value = Expression.Parameter(typeof(object), "value");
+
+            var setter = Expression.Lambda<Action<object, object>>(
+                Expression.Assign(
+                    Expression.Property(Expression.Convert(instance, type), prop),
+                    Expression.Convert(value, prop.PropertyType)),
+                instance, value).Compile();
+
+            result[prop.Name] = (setter, prop.PropertyType);
+        }
+
+        return result;
     }
 }

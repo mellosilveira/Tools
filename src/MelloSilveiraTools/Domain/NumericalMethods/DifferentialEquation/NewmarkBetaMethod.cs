@@ -1,6 +1,5 @@
 ﻿using MelloSilveiraTools.Domain.Models;
 using MelloSilveiraTools.ExtensionMethods;
-using MelloSilveiraTools.MechanicsOfMaterials.Models.NumericalMethods;
 
 namespace MelloSilveiraTools.Domain.NumericalMethods.DifferentialEquation;
 
@@ -14,6 +13,7 @@ public class NewmarkBetaMethod : IDifferentialEquationMethod
     private const double A3 = Gama / Beta;
     private const double A4 = 1 / (2 * Beta);
 
+    /// <inheritdoc/>
     public DifferentialEquationMethodType Type => DifferentialEquationMethodType.NewmarkBeta;
 
     /// <inheritdoc/>
@@ -66,10 +66,11 @@ public class NewmarkBetaMethod : IDifferentialEquationMethod
     }
 
     /// <summary>
-    /// Calculates the equivalent stiffness to calculate the displacement in Newmark-Beta method.
+    /// Builds the effective stiffness matrix [K̂] = a₀[M] + a₁[C] + [K] used to solve for the
+    /// displacement increment Δx at the current step.
     /// </summary>
-    /// <param name="input"></param>
-    /// <returns></returns>
+    /// <param name="input">System input providing the mass, damping and stiffness matrices and the time step Δt.</param>
+    /// <returns>The effective stiffness matrix.</returns>
     private double[,] CalculateEquivalentStiffness(NumericalMethodInput input)
     {
         double[,] equivalentStiffness = new double[input.NumberOfBoundaryConditions, input.NumberOfBoundaryConditions];
@@ -85,11 +86,14 @@ public class NewmarkBetaMethod : IDifferentialEquationMethod
     }
 
     /// <summary>
-    /// Calculates the equivalent force to calculate the displacement in Newmark-Beta method.
+    /// Builds the effective force vector ΔF̂ used to solve for the displacement increment in the
+    /// Newmark-Beta incremental formulation. The vector combines the change in applied force
+    /// (F(t) − F(t−Δt)) with the equivalent damping and equivalent mass contributions evaluated
+    /// from the previous step.
     /// </summary>
-    /// <param name="input"></param>
-    /// <param name="previousResult"></param>
-    /// <returns></returns>
+    /// <param name="input">System input providing the matrices and current applied force.</param>
+    /// <param name="previousResult">State at t−Δt (displacement, velocity, acceleration and applied force).</param>
+    /// <returns>The effective force vector at the current step, in Newtons.</returns>
     private double[] CalculateEquivalentForce(NumericalMethodInput input, NumericalMethodResult previousResult)
     {
         #region Calculates the equivalent damping and equivalent mass.
@@ -108,10 +112,11 @@ public class NewmarkBetaMethod : IDifferentialEquationMethod
     }
 
     /// <summary>
-    /// Calculates the equivalent damping to be used in Newmark-Beta method.
+    /// Builds the equivalent damping matrix [Ĉ] = a₂[M] + A₃[C] used to multiply the previous
+    /// velocity when assembling the effective force vector.
     /// </summary>
-    /// <param name="input"></param>
-    /// <returns></returns>
+    /// <param name="input">System input providing the mass and damping matrices and the time step Δt.</param>
+    /// <returns>The equivalent damping matrix.</returns>
     private double[,] CalculateEquivalentDamping(NumericalMethodInput input)
     {
         double[,] equivalentDamping = new double[input.NumberOfBoundaryConditions, input.NumberOfBoundaryConditions];
@@ -127,10 +132,11 @@ public class NewmarkBetaMethod : IDifferentialEquationMethod
     }
 
     /// <summary>
-    /// Calculates the equivalent mass to be used in Newmark-Beta method.
+    /// Builds the equivalent mass matrix [M̂] = A₄[M] + a₅[C] used to multiply the previous
+    /// acceleration when assembling the effective force vector.
     /// </summary>
-    /// <param name="input"></param>
-    /// <returns></returns>
+    /// <param name="input">System input providing the mass and damping matrices and the time step Δt.</param>
+    /// <returns>The equivalent mass matrix.</returns>
     private double[,] CalculateEquivalentMass(NumericalMethodInput input)
     {
         double[,] equivalentMass = new double[input.NumberOfBoundaryConditions, input.NumberOfBoundaryConditions];

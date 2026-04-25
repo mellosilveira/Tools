@@ -1,6 +1,5 @@
 ﻿using MelloSilveiraTools.Infrastructure.Database.Attributes;
 using Npgsql;
-using System.Reflection;
 
 namespace MelloSilveiraTools.ExtensionMethods;
 
@@ -21,15 +20,10 @@ public static class NpgsqlCommandExtensions
         if (entity is null)
             return command;
 
-        PropertyInfo[] properties = entity.GetType().GetPropertiesInHierarchy();
-        foreach (var property in properties)
+        foreach (var property in entity.GetType().GetPropertiesInHierarchy<ColumnAttribute>())
         {
-            var attribute = property.GetCustomAttribute<ColumnAttribute>();
-            if (attribute != null)
-            {
-                object? value = property.GetValue(entity);
-                command.Parameters.AddWithValue(property.Name, property.PropertyType.GetDbTypeFromPropertyType(), value ?? DBNull.Value);
-            }
+            object? value = property.GetValue(entity);
+            command.Parameters.AddWithValue(property.Name, property.PropertyType.GetDbTypeFromPropertyType(), value ?? DBNull.Value);
         }
 
         return command;

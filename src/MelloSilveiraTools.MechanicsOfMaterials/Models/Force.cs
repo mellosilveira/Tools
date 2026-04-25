@@ -1,176 +1,164 @@
-﻿namespace MelloSilveiraTools.MechanicsOfMaterials.Models
+namespace MelloSilveiraTools.MechanicsOfMaterials.Models
 {
     /// <summary>
     /// It represents the force.
     /// </summary>
+    /// <remarks>
+    /// A <see cref="Force"/> is immutable after construction. The Cartesian components
+    /// <see cref="X"/>, <see cref="Y"/>, <see cref="Z"/> and the magnitude
+    /// <see cref="AbsoluteValue"/> are set only by the constructors and the static factory
+    /// methods, all of which compute the magnitude as the Euclidean norm of the components.
+    /// Operations such as <see cref="Sum"/>, <see cref="Subtract"/>, <see cref="Round"/>,
+    /// <see cref="Divide"/> and <see cref="Abs"/> always return a new <see cref="Force"/>
+    /// whose <see cref="AbsoluteValue"/> is recomputed from the resulting components, so the
+    /// magnitude is guaranteed to stay consistent with the components.
+    /// </remarks>
     public class Force
     {
         /// <summary>
-        /// Basic constructor.
+        /// Creates an empty force whose components and magnitude are all zero.
         /// </summary>
         public Force() { }
 
         /// <summary>
-        /// Class constructor.
+        /// Creates a force from its Cartesian components and computes its magnitude (absolute value).
         /// </summary>
-        /// <param name="x"></param>
-        /// <param name="y"></param>
-        /// <param name="z"></param>
+        /// <param name="x">Component of the force along the X axis, in N (Newton).</param>
+        /// <param name="y">Component of the force along the Y axis, in N (Newton).</param>
+        /// <param name="z">Component of the force along the Z axis, in N (Newton).</param>
         public Force(double x, double y, double z)
         {
-            AbsolutValue = Math.Sqrt(Math.Pow(x, 2) + Math.Pow(y, 2) + Math.Pow(z, 2));
             X = x;
             Y = y;
             Z = z;
+            AbsoluteValue = CalculateAbsoluteValue(x, y, z);
         }
 
         /// <summary>
-        /// the absolut value to force.
+        /// The magnitude (Euclidean norm) of the force vector, in N (Newton).
         /// </summary>
-        public double AbsolutValue { get; set; }
+        public double AbsoluteValue { get; private set; }
 
         /// <summary>
-        /// The force at axis X.
+        /// Component of the force along the X axis, in N (Newton).
         /// </summary>
-        public double X { get; set; }
+        public double X { get; private set; }
 
         /// <summary>
-        /// The force at axis Y.
+        /// Component of the force along the Y axis, in N (Newton).
         /// </summary>
-        public double Y { get; set; }
+        public double Y { get; private set; }
 
         /// <summary>
-        /// The force at axis Z.
+        /// Component of the force along the Z axis, in N (Newton).
         /// </summary>
-        public double Z { get; set; }
+        public double Z { get; private set; }
 
         /// <summary>
-        /// This method rounds each value at <see cref="Force"/> to a specified number of fractional
-        /// digits, and rounds midpoint values to the nearest even number.
+        /// Rounds every component of this <see cref="Force"/> to a specified
+        /// number of fractional digits using banker's rounding (midpoints go to the nearest even number).
+        /// The magnitude of the resulting force is recomputed from the rounded components so it stays consistent.
         /// </summary>
-        /// <param name="decimals"></param>
-        /// <returns></returns>
+        /// <param name="decimals">Number of fractional digits to keep in each component.</param>
+        /// <returns>A new <see cref="Force"/> with every component rounded.</returns>
         public Force Round(int decimals)
         {
-            return new Force
-            {
-                AbsolutValue = Math.Round(AbsolutValue, decimals),
-                X = Math.Round(X, decimals),
-                Y = Math.Round(Y, decimals),
-                Z = Math.Round(Z, decimals)
-            };
+            return new Force(
+                Math.Round(X, decimals),
+                Math.Round(Y, decimals),
+                Math.Round(Z, decimals));
         }
 
         /// <summary>
-        /// This method sums two forces.
+        /// Performs the vector addition between this force and the supplied one.
         /// </summary>
-        /// <param name="force"></param>
-        /// <returns></returns>
+        /// <param name="force">The force to be added component-wise to this instance.</param>
+        /// <returns>A new <see cref="Force"/> equal to the vector sum, with its magnitude recomputed.</returns>
         public Force Sum(Force force)
         {
-            Force result = new()
-            {
-                X = X + force.X,
-                Y = Y + force.Y,
-                Z = Z + force.Z
-            };
-            result.AbsolutValue = CalculateAbsolutValue(result);
-
-            return result;
+            return new Force(
+                X + force.X,
+                Y + force.Y,
+                Z + force.Z);
         }
 
         /// <summary>
-        /// This method subtracts two forces.
+        /// Performs the vector subtraction of the supplied force from this one.
         /// </summary>
-        /// <param name="force"></param>
-        /// <returns></returns>
+        /// <param name="force">The force to subtract component-wise from this instance.</param>
+        /// <returns>A new <see cref="Force"/> equal to the vector difference, with its magnitude recomputed.</returns>
         public Force Subtract(Force force)
         {
-            Force result = new()
-            {
-                X = X - force.X,
-                Y = Y - force.Y,
-                Z = Z - force.Z
-            };
-            result.AbsolutValue = CalculateAbsolutValue(result);
-
-            return result;
+            return new Force(
+                X - force.X,
+                Y - force.Y,
+                Z - force.Z);
         }
 
         /// <summary>
-        /// This method subtracts two forces.
+        /// Divides every component of this force by a scalar value. Useful, for
+        /// instance, to split a resultant load evenly among several supports. The magnitude
+        /// of the resulting force is recomputed from the divided components.
         /// </summary>
-        /// <param name="value"></param>
-        /// <returns></returns>
+        /// <param name="value">The scalar divisor.</param>
+        /// <returns>A new <see cref="Force"/> whose components have been divided by <paramref name="value"/>.</returns>
         public Force Divide(int value)
         {
-            return new()
-            {
-                AbsolutValue = AbsolutValue / value,
-                X = X / value,
-                Y = Y / value,
-                Z = Z / value
-            };
+            return new Force(X / value, Y / value, Z / value);
         }
 
         /// <summary>
-        /// This method returns a new force with the ablsolute value of each axis.
+        /// Returns a new force whose Cartesian components are the absolute value of this force's
+        /// components. The magnitude is recomputed (and equals the original magnitude, since it is
+        /// already non-negative and depends only on squared components).
         /// </summary>
-        /// <returns></returns>
+        /// <returns>A <see cref="Force"/> with non-negative X, Y and Z components.</returns>
         public Force Abs()
         {
-            return new()
-            {
-                X = Math.Abs(X),
-                Y = Math.Abs(Y),
-                Z = Math.Abs(Z),
-                AbsolutValue = AbsolutValue
-            };
+            return new Force(Math.Abs(X), Math.Abs(Y), Math.Abs(Z));
         }
 
         /// <summary>
-        /// This method creates the <see cref="Force"/> based on the absolut value and the normalized direction.
+        /// Creates a <see cref="Force"/> from its magnitude and a unit direction vector. Each
+        /// Cartesian component is computed as the magnitude multiplied by the corresponding component
+        /// of the normalized direction. The resulting <see cref="AbsoluteValue"/> is recomputed from
+        /// the components, which equals <paramref name="absoluteValue"/> when
+        /// <paramref name="normalizedDirection"/> is truly a unit vector.
         /// </summary>
-        /// <param name="absolutValue"></param>
-        /// <param name="normalizedDirection"></param>
-        /// <returns></returns>
-        public static Force Create(double absolutValue, Vector3D normalizedDirection)
+        /// <param name="absoluteValue">The force magnitude in N (Newton).</param>
+        /// <param name="normalizedDirection">The unit direction vector along which the force acts.</param>
+        /// <returns>A new <see cref="Force"/> with the requested magnitude and direction.</returns>
+        public static Force Create(double absoluteValue, Vector3D normalizedDirection)
         {
-            return new Force
-            {
-                AbsolutValue = absolutValue,
-                X = absolutValue * normalizedDirection.X,
-                Y = absolutValue * normalizedDirection.Y,
-                Z = absolutValue * normalizedDirection.Z
-            };
+            return new Force(
+                absoluteValue * normalizedDirection.X,
+                absoluteValue * normalizedDirection.Y,
+                absoluteValue * normalizedDirection.Z);
         }
 
         /// <summary>
-        /// This method creates the <see cref="Force"/> based on a string.
+        /// Parses a comma-separated string of three numeric values into a <see cref="Force"/>,
+        /// setting the magnitude equal to the Euclidean length of the parsed vector.
         /// </summary>
-        /// <param name="force"></param>
-        /// <returns></returns>
+        /// <param name="force">String in the form "x,y,z" containing the three force components.</param>
+        /// <returns>The <see cref="Force"/> represented by the string.</returns>
         public static Force Create(string force)
         {
             var vector3D = Vector3D.Create(force);
 
-            return new Force
-            {
-                AbsolutValue = vector3D.Length,
-                X = vector3D.X,
-                Y = vector3D.Y,
-                Z = vector3D.Z
-            };
+            return new Force(vector3D.X, vector3D.Y, vector3D.Z);
         }
 
         /// <summary>
-        /// This method calculates the absolut value based on axis x, y and z.
+        /// Calculates the absolute value (Euclidean norm) from the supplied components.
         /// </summary>
-        /// <param name="force"></param>
-        /// <returns></returns>
-        private double CalculateAbsolutValue(Force force)
+        /// <param name="x">Component along the X axis.</param>
+        /// <param name="y">Component along the Y axis.</param>
+        /// <param name="z">Component along the Z axis.</param>
+        /// <returns>The Euclidean norm of <c>(x, y, z)</c>.</returns>
+        private static double CalculateAbsoluteValue(double x, double y, double z)
         {
-            return Math.Sqrt(Math.Pow(force.X, 2) + Math.Pow(force.Y, 2) + Math.Pow(force.Z, 2));
+            return Math.Sqrt(Math.Pow(x, 2) + Math.Pow(y, 2) + Math.Pow(z, 2));
         }
     }
 }

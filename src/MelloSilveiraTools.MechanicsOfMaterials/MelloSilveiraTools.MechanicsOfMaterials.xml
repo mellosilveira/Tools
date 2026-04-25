@@ -61,6 +61,56 @@
             <param name="fasteningType">The fastening type of component.</param>
             <returns>The effective length factor. Dimensionless.</returns>
         </member>
+        <member name="T:MelloSilveiraTools.MechanicsOfMaterials.DependencyInjection">
+            <summary>
+            Provides extension methods to dependency injection of Tools project.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.DependencyInjection.AddMechanicsOfMaterialsServices(Microsoft.Extensions.DependencyInjection.IServiceCollection)">
+            <summary>
+            Registers the Mechanics of Materials services (constitutive equations, fatigue and
+            geometric property calculators) as singletons into the dependency injection container.
+            </summary>
+            <param name="services">The service collection used to register the dependencies.</param>
+            <returns>The same service collection so additional registrations can be chained.</returns>
+        </member>
+        <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Extensions.Vector3DExtension">
+            <summary>
+            It contains the extension methods to Vector3D.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Extensions.Vector3DExtension.Normalize(MelloSilveiraTools.MechanicsOfMaterials.Models.Vector3D)">
+            <summary>
+            Returns the unit vector that shares the direction of <paramref name="vector"/> (each
+            component is divided by the vector's length).
+            </summary>
+            <param name="vector">The vector to be normalized.</param>
+            <returns>A <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Models.Vector3D"/> with unit length pointing in the same direction.</returns>
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Extensions.Vector3DExtension.CrossProduct(MelloSilveiraTools.MechanicsOfMaterials.Models.Vector3D,MelloSilveiraTools.MechanicsOfMaterials.Models.Vector3D)">
+            <summary>
+            Computes the cross product vector1 x vector2, producing a vector perpendicular to both
+            operands whose magnitude equals the area of the parallelogram they span.
+            </summary>
+            <param name="vector1">The left-hand vector of the cross product.</param>
+            <param name="vector2">The right-hand vector of the cross product.</param>
+            <returns>The cross-product <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Models.Vector3D"/>.</returns>
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Extensions.Vector3DExtension.DotProduct(MelloSilveiraTools.MechanicsOfMaterials.Models.Vector3D,MelloSilveiraTools.MechanicsOfMaterials.Models.Vector3D)">
+            <summary>
+            Computes the scalar (dot) product between two vectors: vector1 · vector2.
+            </summary>
+            <param name="vector1">The first operand.</param>
+            <param name="vector2">The second operand.</param>
+            <returns>The scalar value of the dot product.</returns>
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Extensions.Vector3DExtension.IsZero(MelloSilveiraTools.MechanicsOfMaterials.Models.Vector3D)">
+            <summary>
+            Determines whether every component of the supplied vector is exactly zero.
+            </summary>
+            <param name="vector">The vector to test.</param>
+            <returns><c>true</c> when X, Y and Z are all zero; otherwise <c>false</c>.</returns>
+        </member>
         <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Fatigue.FatigueCalculator">
             <summary>
             It contains the Mechanical Fatigue constitutive equations.
@@ -68,55 +118,73 @@
         </member>
         <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Fatigue.FatigueCalculator.CalculateFatigueResult(MelloSilveiraTools.MechanicsOfMaterials.Models.Fatigue.FatigueInput)">
             <summary>
-            This method calculates the result for fatigue analysis.
+            Performs a high-cycle fatigue analysis on the supplied input. The method computes the
+            stress amplitude, mean stress, the Goodman-equivalent stress, the estimated fatigue life
+            (number of cycles, capped at 1e6) and the Modified Goodman safety factor.
             </summary>
-            <param name="input"></param>
-            <returns></returns>
+            <param name="input">The fatigue analysis input (applied stresses, material data, profile and correction factors).</param>
+            <returns>The <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Models.Fatigue.FatigueResult"/> containing stress amplitude, mean stress, equivalent stress, expected life and safety factor.</returns>
         </member>
         <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Fatigue.FatigueCalculator.CalculateModifiedFatigueStress(MelloSilveiraTools.MechanicsOfMaterials.Models.Fatigue.FatigueInput)">
             <summary>
-            This method calculates the modified fatigue stress (Se).
+            Calculates the modified (corrected) fatigue endurance limit Se by applying the Marin
+            correction factors — surface, size, loading, temperature and reliability — to the
+            uncorrected fatigue limit Se'.
             </summary>
-            <param name="input"></param>
-            <returns></returns>
+            <param name="input">The fatigue analysis input providing the uncorrected fatigue limit and the parameters required to evaluate every Marin factor.</param>
+            <returns>The modified fatigue endurance limit Se in MPa.</returns>
         </member>
         <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Fatigue.FatigueCalculator.CalculateSurfaceFactor(System.Double,MelloSilveiraTools.MechanicsOfMaterials.Models.Enums.SurfaceFinish)">
             <summary>
-            This method calculates the fatigue surface factor.
+            Calculates the Marin surface factor k_a using the empirical correlation k_a = a · S_ut^b,
+            where the (a, b) pair is selected from the surface finish (rectified, machined/cold-rolled,
+            hot-rolled or as-forged/wrought). Reference: Shigley's Mechanical Engineering Design,
+            Table 6-2.
             </summary>
-            <param name="tensileStress"></param>
-            <param name="surfaceFinish"></param>
-            <returns></returns>
+            <param name="tensileStress">The ultimate tensile strength S_ut of the material, in MPa.</param>
+            <param name="surfaceFinish">The manufacturing surface finish of the part.</param>
+            <returns>The dimensionless surface factor k_a.</returns>
         </member>
         <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Fatigue.FatigueCalculator.CalculateSizeFactor(MelloSilveiraTools.MechanicsOfMaterials.Models.Profiles.Profile,MelloSilveiraTools.MechanicsOfMaterials.Models.Fatigue.LoadingType,System.Boolean)">
             <summary>
-            This method calculates the fatigue size factor.
+            Calculates the Marin size factor k_b. Returns 1 for purely axial loading. For bending or
+            torsion the factor depends on the equivalent diameter d_e of the cross-section: for circular
+            sections d_e = D when the section rotates about its axis or 0.37·D otherwise; for
+            rectangular sections d_e = h when rotating or 0.808·√(b·h) otherwise. The piecewise
+            correlation comes from Shigley's Mechanical Engineering Design (k_b = (d_e/7.62)^-0.107 for
+            2.79 ≤ d_e ≤ 51 mm and k_b = 1.51·d_e^-0.157 for 51 &lt; d_e ≤ 254 mm).
             </summary>
-            <param name="profile"></param>
-            <param name="loadingType"></param>
-            <param name="isRotativeSection"></param>
-            <returns></returns>
+            <param name="profile">The cross-section profile (circular or rectangular). Linear dimensions are expected in millimeters.</param>
+            <param name="loadingType">The loading type applied to the part.</param>
+            <param name="isRotativeSection">True when the section rotates relative to the load direction (e.g. a rotating shaft); false otherwise.</param>
+            <returns>The dimensionless size factor k_b.</returns>
         </member>
         <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Fatigue.FatigueCalculator.CalculateLoadingFactor(MelloSilveiraTools.MechanicsOfMaterials.Models.Fatigue.LoadingType)">
             <summary>
-            This method calculates the loading factor.
+            Calculates the Marin loading factor k_c using the standard discrete values from Shigley's
+            Mechanical Engineering Design: 1 for bending, 0.85 for axial loads and 0.59 for torsion.
             </summary>
-            <param name="loadingType"></param>
-            <returns></returns>
+            <param name="loadingType">The loading type applied to the part.</param>
+            <returns>The dimensionless loading factor k_c.</returns>
         </member>
         <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Fatigue.FatigueCalculator.CalculateTemperatureFactor(System.Double)">
             <summary>
-            This method calculates the temperature factor.
+            Calculates the Marin temperature factor k_d. The current implementation always returns 1
+            because the operating temperature window for Baja SAE structural analyses does not vary
+            enough to meaningfully reduce the endurance limit. Reference: Shigley's Mechanical
+            Engineering Design.
             </summary>
-            <param name="temperature"></param>
-            <returns></returns>
+            <param name="temperature">The operating temperature of the part, in degrees Celsius. Currently unused.</param>
+            <returns>The dimensionless temperature factor k_d (always 1 in this implementation).</returns>
         </member>
         <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Fatigue.FatigueCalculator.CalculateReliabilityFactor(MelloSilveiraTools.MechanicsOfMaterials.Models.Enums.Reliability)">
             <summary>
-            This method calculates the reliability factor.
+            Calculates the Marin reliability factor k_e using the standard discrete values from
+            Shigley's Mechanical Engineering Design (Table 6-5): 1.000 (50%), 0.897 (90%), 0.868 (95%),
+            0.814 (99%), 0.753 (99.9%).
             </summary>
-            <param name="reliability"></param>
-            <returns></returns>
+            <param name="reliability">The desired reliability level for the fatigue analysis.</param>
+            <returns>The dimensionless reliability factor k_e.</returns>
         </member>
         <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Fatigue.IFatigueCalculator">
             <summary>
@@ -125,17 +193,38 @@
         </member>
         <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Fatigue.IFatigueCalculator.CalculateFatigueResult(MelloSilveiraTools.MechanicsOfMaterials.Models.Fatigue.FatigueInput)">
             <summary>
-            This method calculates the result for fatigue analysis.
+            Runs a complete high-cycle fatigue analysis and returns stress amplitude, mean stress,
+            the Goodman-equivalent stress, the estimated fatigue life and the Modified Goodman safety factor.
             </summary>
-            <param name="input"></param>
-            <returns></returns>
+            <param name="input">The fatigue analysis input (applied stresses, material data, profile and correction factors).</param>
+            <returns>The <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Models.Fatigue.FatigueResult"/> containing every computed fatigue quantity.</returns>
+            <example>
+            <code>
+            var input = new FatigueInput
+            {
+                MinimumAppliedStress = -50,
+                MaximumAppliedStress = 200,
+                TensileStress = 700,
+                FatigueLimit = 350,
+                FatigueLimitFraction = 0.9,
+                IsRotativeSection = true,
+                Reliability = Reliability.NinetyNinePercent,
+                SurfaceFinish = SurfaceFinish.Machined,
+                LoadingType = LoadingType.Bending,
+                Temperature = 25,
+                Profile = new CircularProfile { /* ... */ },
+            };
+            FatigueResult result = fatigueCalculator.CalculateFatigueResult(input);
+            </code>
+            </example>
         </member>
         <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Fatigue.IFatigueCalculator.CalculateModifiedFatigueStress(MelloSilveiraTools.MechanicsOfMaterials.Models.Fatigue.FatigueInput)">
             <summary>
-            This method calculates the modified fatigue stress.
+            Calculates the modified (corrected) fatigue endurance limit Se by multiplying the uncorrected
+            fatigue limit Se' by the applicable Marin factors (surface, size, loading, temperature and reliability).
             </summary>
-            <param name="input"></param>
-            <returns></returns>
+            <param name="input">The fatigue analysis input providing the uncorrected fatigue limit and the parameters required to evaluate every Marin factor.</param>
+            <returns>The modified fatigue endurance limit Se in MPa.</returns>
         </member>
         <member name="T:MelloSilveiraTools.MechanicsOfMaterials.GeometricProperties.CircularProfileGeometricPropertyCalculator">
             <summary>
@@ -150,25 +239,26 @@
         </member>
         <member name="T:MelloSilveiraTools.MechanicsOfMaterials.GeometricProperties.IGeometricPropertyCalculator`1">
             <summary>
-            It is responsible to calculate the geometric properties to a profile.
+            Calculates the cross-sectional geometric properties (area, moment of inertia, etc.) of a
+            structural profile used in Mechanics of Materials analyses.
             </summary>
-            <typeparam name="TProfile"></typeparam>
+            <typeparam name="TProfile">The concrete <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Models.Profiles.Profile"/> type whose geometric properties are evaluated.</typeparam>
         </member>
         <member name="M:MelloSilveiraTools.MechanicsOfMaterials.GeometricProperties.IGeometricPropertyCalculator`1.CalculateArea(`0)">
             <summary>
-            This method calculates the area.
-            Unit: mm² (millimeters squared). 
+            Calculates the cross-sectional area of the supplied profile. If the profile defines a
+            wall thickness the hollow-section area is returned; otherwise the solid-section area is used.
             </summary>
-            <param name="profile"></param>
-            <returns></returns>
+            <param name="profile">The profile whose cross-sectional area is to be computed.</param>
+            <returns>The cross-sectional area in mm² (millimeters squared).</returns>
         </member>
         <member name="M:MelloSilveiraTools.MechanicsOfMaterials.GeometricProperties.IGeometricPropertyCalculator`1.CalculateMomentOfInertia(`0)">
             <summary>
-            This method calculates the moment of inertia.
-            Unit: mm^4 (milimeters raised by four).
+            Calculates the second moment of area (area moment of inertia) of the supplied profile
+            about its neutral axis. Hollow-section inertia is returned when a wall thickness is defined.
             </summary>
-            <param name="profile"></param>
-            <returns></returns>
+            <param name="profile">The profile whose moment of inertia is to be computed.</param>
+            <returns>The moment of inertia in mm^4 (millimeters to the fourth power).</returns>
         </member>
         <member name="T:MelloSilveiraTools.MechanicsOfMaterials.GeometricProperties.RectangularProfileGeometricPropertyCalculator">
             <summary>
@@ -264,6 +354,31 @@
         <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Models.Enums.SurfaceFinish">
             <summary>
             It contain the surface finish for fatigue analysis.
+            </summary>
+        </member>
+        <member name="F:MelloSilveiraTools.MechanicsOfMaterials.Models.Enums.SurfaceFinish.Rectified">
+            <summary>
+            Ground/rectified surface. Produces the highest surface factor (least reduction of the endurance limit).
+            </summary>
+        </member>
+        <member name="F:MelloSilveiraTools.MechanicsOfMaterials.Models.Enums.SurfaceFinish.Machined">
+            <summary>
+            Machined or cold-drawn surface.
+            </summary>
+        </member>
+        <member name="F:MelloSilveiraTools.MechanicsOfMaterials.Models.Enums.SurfaceFinish.ColdRolled">
+            <summary>
+            Cold-rolled surface (treated identically to machined/cold-drawn in the Marin surface factor).
+            </summary>
+        </member>
+        <member name="F:MelloSilveiraTools.MechanicsOfMaterials.Models.Enums.SurfaceFinish.HotRolled">
+            <summary>
+            Hot-rolled surface. Produces a lower surface factor than machined due to its rougher finish and oxide scale.
+            </summary>
+        </member>
+        <member name="F:MelloSilveiraTools.MechanicsOfMaterials.Models.Enums.SurfaceFinish.Wrought">
+            <summary>
+            As-forged / wrought surface. Produces the lowest surface factor (largest endurance-limit reduction).
             </summary>
         </member>
         <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Models.Fatigue.FatigueInput">
@@ -392,96 +507,118 @@
             <summary>
             It represents the force.
             </summary>
+            <remarks>
+            A <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Models.Force"/> is immutable after construction. The Cartesian components
+            <see cref="P:MelloSilveiraTools.MechanicsOfMaterials.Models.Force.X"/>, <see cref="P:MelloSilveiraTools.MechanicsOfMaterials.Models.Force.Y"/>, <see cref="P:MelloSilveiraTools.MechanicsOfMaterials.Models.Force.Z"/> and the magnitude
+            <see cref="P:MelloSilveiraTools.MechanicsOfMaterials.Models.Force.AbsoluteValue"/> are set only by the constructors and the static factory
+            methods, all of which compute the magnitude as the Euclidean norm of the components.
+            Operations such as <see cref="M:MelloSilveiraTools.MechanicsOfMaterials.Models.Force.Sum(MelloSilveiraTools.MechanicsOfMaterials.Models.Force)"/>, <see cref="M:MelloSilveiraTools.MechanicsOfMaterials.Models.Force.Subtract(MelloSilveiraTools.MechanicsOfMaterials.Models.Force)"/>, <see cref="M:MelloSilveiraTools.MechanicsOfMaterials.Models.Force.Round(System.Int32)"/>,
+            <see cref="M:MelloSilveiraTools.MechanicsOfMaterials.Models.Force.Divide(System.Int32)"/> and <see cref="M:MelloSilveiraTools.MechanicsOfMaterials.Models.Force.Abs"/> always return a new <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Models.Force"/>
+            whose <see cref="P:MelloSilveiraTools.MechanicsOfMaterials.Models.Force.AbsoluteValue"/> is recomputed from the resulting components, so the
+            magnitude is guaranteed to stay consistent with the components.
+            </remarks>
         </member>
         <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Models.Force.#ctor">
             <summary>
-            Basic constructor.
+            Creates an empty force whose components and magnitude are all zero.
             </summary>
         </member>
         <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Models.Force.#ctor(System.Double,System.Double,System.Double)">
             <summary>
-            Class constructor.
+            Creates a force from its Cartesian components and computes its magnitude (absolute value).
             </summary>
-            <param name="x"></param>
-            <param name="y"></param>
-            <param name="z"></param>
+            <param name="x">Component of the force along the X axis, in N (Newton).</param>
+            <param name="y">Component of the force along the Y axis, in N (Newton).</param>
+            <param name="z">Component of the force along the Z axis, in N (Newton).</param>
         </member>
-        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Models.Force.AbsolutValue">
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Models.Force.AbsoluteValue">
             <summary>
-            the absolut value to force.
+            The magnitude (Euclidean norm) of the force vector, in N (Newton).
             </summary>
         </member>
         <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Models.Force.X">
             <summary>
-            The force at axis X.
+            Component of the force along the X axis, in N (Newton).
             </summary>
         </member>
         <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Models.Force.Y">
             <summary>
-            The force at axis Y.
+            Component of the force along the Y axis, in N (Newton).
             </summary>
         </member>
         <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Models.Force.Z">
             <summary>
-            The force at axis Z.
+            Component of the force along the Z axis, in N (Newton).
             </summary>
         </member>
         <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Models.Force.Round(System.Int32)">
             <summary>
-            This method rounds each value at <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Models.Force"/> to a specified number of fractional
-            digits, and rounds midpoint values to the nearest even number.
+            Rounds every component of this <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Models.Force"/> to a specified
+            number of fractional digits using banker's rounding (midpoints go to the nearest even number).
+            The magnitude of the resulting force is recomputed from the rounded components so it stays consistent.
             </summary>
-            <param name="decimals"></param>
-            <returns></returns>
+            <param name="decimals">Number of fractional digits to keep in each component.</param>
+            <returns>A new <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Models.Force"/> with every component rounded.</returns>
         </member>
         <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Models.Force.Sum(MelloSilveiraTools.MechanicsOfMaterials.Models.Force)">
             <summary>
-            This method sums two forces.
+            Performs the vector addition between this force and the supplied one.
             </summary>
-            <param name="force"></param>
-            <returns></returns>
+            <param name="force">The force to be added component-wise to this instance.</param>
+            <returns>A new <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Models.Force"/> equal to the vector sum, with its magnitude recomputed.</returns>
         </member>
         <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Models.Force.Subtract(MelloSilveiraTools.MechanicsOfMaterials.Models.Force)">
             <summary>
-            This method subtracts two forces.
+            Performs the vector subtraction of the supplied force from this one.
             </summary>
-            <param name="force"></param>
-            <returns></returns>
+            <param name="force">The force to subtract component-wise from this instance.</param>
+            <returns>A new <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Models.Force"/> equal to the vector difference, with its magnitude recomputed.</returns>
         </member>
         <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Models.Force.Divide(System.Int32)">
             <summary>
-            This method subtracts two forces.
+            Divides every component of this force by a scalar value. Useful, for
+            instance, to split a resultant load evenly among several supports. The magnitude
+            of the resulting force is recomputed from the divided components.
             </summary>
-            <param name="value"></param>
-            <returns></returns>
+            <param name="value">The scalar divisor.</param>
+            <returns>A new <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Models.Force"/> whose components have been divided by <paramref name="value"/>.</returns>
         </member>
         <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Models.Force.Abs">
             <summary>
-            This method returns a new force with the ablsolute value of each axis.
+            Returns a new force whose Cartesian components are the absolute value of this force's
+            components. The magnitude is recomputed (and equals the original magnitude, since it is
+            already non-negative and depends only on squared components).
             </summary>
-            <returns></returns>
+            <returns>A <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Models.Force"/> with non-negative X, Y and Z components.</returns>
         </member>
         <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Models.Force.Create(System.Double,MelloSilveiraTools.MechanicsOfMaterials.Models.Vector3D)">
             <summary>
-            This method creates the <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Models.Force"/> based on the absolut value and the normalized direction.
+            Creates a <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Models.Force"/> from its magnitude and a unit direction vector. Each
+            Cartesian component is computed as the magnitude multiplied by the corresponding component
+            of the normalized direction. The resulting <see cref="P:MelloSilveiraTools.MechanicsOfMaterials.Models.Force.AbsoluteValue"/> is recomputed from
+            the components, which equals <paramref name="absoluteValue"/> when
+            <paramref name="normalizedDirection"/> is truly a unit vector.
             </summary>
-            <param name="absolutValue"></param>
-            <param name="normalizedDirection"></param>
-            <returns></returns>
+            <param name="absoluteValue">The force magnitude in N (Newton).</param>
+            <param name="normalizedDirection">The unit direction vector along which the force acts.</param>
+            <returns>A new <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Models.Force"/> with the requested magnitude and direction.</returns>
         </member>
         <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Models.Force.Create(System.String)">
             <summary>
-            This method creates the <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Models.Force"/> based on a string.
+            Parses a comma-separated string of three numeric values into a <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Models.Force"/>,
+            setting the magnitude equal to the Euclidean length of the parsed vector.
             </summary>
-            <param name="force"></param>
-            <returns></returns>
+            <param name="force">String in the form "x,y,z" containing the three force components.</param>
+            <returns>The <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Models.Force"/> represented by the string.</returns>
         </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Models.Force.CalculateAbsolutValue(MelloSilveiraTools.MechanicsOfMaterials.Models.Force)">
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Models.Force.CalculateAbsoluteValue(System.Double,System.Double,System.Double)">
             <summary>
-            This method calculates the absolut value based on axis x, y and z.
+            Calculates the absolute value (Euclidean norm) from the supplied components.
             </summary>
-            <param name="force"></param>
-            <returns></returns>
+            <param name="x">Component along the X axis.</param>
+            <param name="y">Component along the Y axis.</param>
+            <param name="z">Component along the Z axis.</param>
+            <returns>The Euclidean norm of <c>(x, y, z)</c>.</returns>
         </member>
         <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Models.Material">
             <summary>
@@ -535,10 +672,11 @@
         </member>
         <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Models.Material.Create(MelloSilveiraTools.MechanicsOfMaterials.Models.Enums.MaterialType)">
             <summary>
-            Creates an instance of class <seealso cref="T:MelloSilveiraTools.MechanicsOfMaterials.Models.Material"/>.
+            Returns the predefined <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Models.Material"/> (Young's modulus, yield strength, ultimate
+            tensile strength and density) associated with the supplied <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Models.Enums.MaterialType"/>.
             </summary>
-            <param name="materialType"></param>
-            <returns></returns>
+            <param name="materialType">The enumeration value identifying the material.</param>
+            <returns>The matching <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Models.Material"/> instance.</returns>
         </member>
         <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Models.Point3D">
             <summary>
@@ -565,10 +703,12 @@
         </member>
         <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Models.Point3D.Create(System.String)">
             <summary>
-            This method creates a <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Models.Point3D"/> based on a string.
+            Parses a comma-separated string of three numeric values (in millimeters) into a
+            <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Models.Point3D"/>. Each component is divided by 1000 so the resulting point is
+            expressed in meters.
             </summary>
-            <param name="point">The points in string at milimeters.</param>
-            <returns></returns>
+            <param name="point">String in the form "x,y,z" with coordinates in millimeters.</param>
+            <returns>The <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Models.Point3D"/> in meters represented by the string.</returns>
         </member>
         <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Models.Profiles.CircularProfile">
             <summary>
@@ -616,17 +756,17 @@
         </member>
         <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Models.UnitConverter.FromKmhToMs(System.Double)">
             <summary>
-            This method converts a velocity from kilometers per hour to meters per second.
+            Converts a linear velocity from kilometers per hour to meters per second.
             </summary>
-            <param name="valueInKmh"></param>
-            <returns></returns>
+            <param name="valueInKmh">The velocity expressed in km/h.</param>
+            <returns>The equivalent velocity in m/s.</returns>
         </member>
         <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Models.UnitConverter.FromRpmToRads(System.Double)">
             <summary>
-            This method converts a frequency from revolutions per minute to radian per second.
+            Converts an angular frequency from revolutions per minute to radians per second.
             </summary>
-            <param name="valueInRpm"></param>
-            <returns></returns>
+            <param name="valueInRpm">The angular frequency expressed in RPM.</param>
+            <returns>The equivalent angular frequency in rad/s.</returns>
         </member>
         <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Models.Vector3D">
             <summary>
@@ -635,11 +775,11 @@
         </member>
         <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Models.Vector3D.#ctor(System.Double,System.Double,System.Double)">
             <summary>
-            Class constructor.
+            Creates a 3D vector from its Cartesian components.
             </summary>
-            <param name="x"></param>
-            <param name="y"></param>
-            <param name="z"></param>
+            <param name="x">Component along the X axis.</param>
+            <param name="y">Component along the Y axis.</param>
+            <param name="z">Component along the Z axis.</param>
         </member>
         <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Models.Vector3D.X">
             <summary>
@@ -663,70 +803,24 @@
         </member>
         <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Models.Vector3D.LengthSquared">
             <summary>
-            The lenght squared of vector.
+            The length squared of vector.
             </summary>
         </member>
         <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Models.Vector3D.Create(MelloSilveiraTools.MechanicsOfMaterials.Models.Point3D,MelloSilveiraTools.MechanicsOfMaterials.Models.Point3D)">
             <summary>
-            This method creates a <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Models.Vector3D"/> based on two <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Models.Point3D"/>.
+            Builds the vector that goes from <paramref name="point1"/> to <paramref name="point2"/>
+            (computed component-wise as point2 - point1).
             </summary>
-            <param name="point1"></param>
-            <param name="point2"></param>
-            <returns></returns>
+            <param name="point1">The start point (tail of the vector).</param>
+            <param name="point2">The end point (head of the vector).</param>
+            <returns>The <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Models.Vector3D"/> connecting the two points.</returns>
         </member>
         <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Models.Vector3D.Create(System.String)">
             <summary>
-            This method creates a <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Models.Vector3D"/> based on a string.
+            Parses a comma-separated string of three numeric values into a <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Models.Vector3D"/>.
             </summary>
-            <param name="vector"></param>
-            <returns></returns>
-        </member>
-        <member name="T:MelloSilveiraTools.DependencyInjection">
-            <summary>
-            Provides extension methods to dependency injection of Tools project.
-            </summary>
-        </member>
-        <member name="M:MelloSilveiraTools.DependencyInjection.AddMechanicsOfMaterialsServices(Microsoft.Extensions.DependencyInjection.IServiceCollection)">
-            <summary>
-            Register services for Mechanics of Materials.
-            </summary>
-            <param name="services"></param>
-            <returns></returns>
-        </member>
-        <member name="T:MelloSilveiraTools.ExtensionMethods.Vector3DExtension">
-            <summary>
-            It contains the extension methods to Vector3D.
-            </summary>
-        </member>
-        <member name="M:MelloSilveiraTools.ExtensionMethods.Vector3DExtension.Normalize(MelloSilveiraTools.MechanicsOfMaterials.Models.Vector3D)">
-            <summary>
-            This method normalizes the vector.
-            </summary>
-            <param name="vector"></param>
-            <returns></returns>
-        </member>
-        <member name="M:MelloSilveiraTools.ExtensionMethods.Vector3DExtension.CrossProduct(MelloSilveiraTools.MechanicsOfMaterials.Models.Vector3D,MelloSilveiraTools.MechanicsOfMaterials.Models.Vector3D)">
-            <summary>
-            This method calculates the cross product between two vectors.
-            </summary>
-            <param name="vector1"></param>
-            <param name="vector2"></param>
-            <returns></returns>
-        </member>
-        <member name="M:MelloSilveiraTools.ExtensionMethods.Vector3DExtension.DotProduct(MelloSilveiraTools.MechanicsOfMaterials.Models.Vector3D,MelloSilveiraTools.MechanicsOfMaterials.Models.Vector3D)">
-            <summary>
-            This method calculates the dot product between two vectors.
-            </summary>
-            <param name="vector1"></param>
-            <param name="vector2"></param>
-            <returns></returns>
-        </member>
-        <member name="M:MelloSilveiraTools.ExtensionMethods.Vector3DExtension.IsZero(MelloSilveiraTools.MechanicsOfMaterials.Models.Vector3D)">
-            <summary>
-            This method returns true if all axis of vector is equals to zero and false, otherwise.
-            </summary>
-            <param name="vector"></param>
-            <returns></returns>
+            <param name="vector">String in the form "x,y,z" containing the three components.</param>
+            <returns>The <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Models.Vector3D"/> represented by the string.</returns>
         </member>
     </members>
 </doc>

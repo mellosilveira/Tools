@@ -4,7 +4,7 @@ using MelloSilveiraTools.MechanicsOfMaterials.GeometricProperties;
 using MelloSilveiraTools.MechanicsOfMaterials.Models.Profiles;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace MelloSilveiraTools;
+namespace MelloSilveiraTools.MechanicsOfMaterials;
 
 /// <summary>
 /// Provides extension methods to dependency injection of Tools project.
@@ -12,10 +12,11 @@ namespace MelloSilveiraTools;
 public static class DependencyInjection
 {
     /// <summary>
-    /// Register services for Mechanics of Materials.
+    /// Registers the Mechanics of Materials services (constitutive equations, fatigue and
+    /// geometric property calculators) as singletons into the dependency injection container.
     /// </summary>
-    /// <param name="services"></param>
-    /// <returns></returns>
+    /// <param name="services">The service collection used to register the dependencies.</param>
+    /// <returns>The same service collection so additional registrations can be chained.</returns>
     public static IServiceCollection AddMechanicsOfMaterialsServices(this IServiceCollection services)
         => services
             .AddSingleton<IConstitutiveEquationsCalculator, ConstitutiveEquationsCalculator>()

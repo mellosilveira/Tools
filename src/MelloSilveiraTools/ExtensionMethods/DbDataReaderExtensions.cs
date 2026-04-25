@@ -14,6 +14,7 @@ namespace MelloSilveiraTools.ExtensionMethods
         /// <typeparam name="T">Type of <see cref="DbDataReader"/> must be converted.</typeparam>
         /// <param name="reader"></param>
         /// <returns></returns>
+        [Obsolete("Use DictionaryExtensions.ConvertTo<T>() instead, which uses cached compiled setters for better performance.")]
         public static T ToObject<T>(this DbDataReader reader) where T : new()
         {
             T obj = new();
@@ -42,6 +43,7 @@ namespace MelloSilveiraTools.ExtensionMethods
         /// <param name="reader"></param>
         /// <param name="propertyInfoCache"></param>
         /// <returns></returns>
+        [Obsolete("Use DictionaryExtensions.ConvertTo<T>() instead, which uses cached compiled setters for better performance.")]
         public static T ToObject<T>(this DbDataReader reader, Dictionary<string, PropertyInfo?> propertyInfoCache) where T : new()
         {
             T obj = new();
