@@ -20,41 +20,24 @@ public class DatabasePluginCachePersistence(IRepository repository) : IPluginCac
     }
 
     /// <inheritdoc/>
-    public IAsyncEnumerable<PluginCacheEntry> LoadAsync(
-        string name = "",
-        PluginVersion? version = null,
-        CancellationToken cancellationToken = default)
-    {
-        PluginCacheFilter filter = new()
-        {
-            PluginName    = string.IsNullOrEmpty(name) ? null : name,
-            PluginVersion = version?.Name
-        };
-
-        return repository
-            .GetAsync<PluginCacheEntity, PluginCacheFilter>(filter, cancellationToken: cancellationToken)
-            .Select(ToEntry)
-            .Where(static entry => entry is not null)
-            .Select(static entry => entry!);
-    }
+    public IAsyncEnumerable<PluginCacheEntry> LoadAsync(string name = "", PluginVersion? version = null, CancellationToken cancellationToken = default) 
+        => repository
+            .GetAsync<PluginCacheEntity, PluginCacheFilter>(new() { PluginName = name, PluginVersion = version?.Name }, cancellationToken: cancellationToken)
+            .Select(ToEntry);
 
     private static PluginCacheEntity ToEntity(PluginCacheEntry entry) => new()
     {
-        PluginName    = entry.Name,
+        PluginName = entry.Name,
         PluginVersion = entry.Version,
-        StateType     = entry.State.GetType().Name,
-        StateJson     = JsonSerializer.Serialize(entry.State, entry.State.GetType(), JsonOptions)
+        StateType = entry.State.GetType().Name,
+        StateJson = JsonSerializer.Serialize(entry.State, entry.State.GetType(), JsonOptions)
     };
 
-    private static PluginCacheEntry? ToEntry(PluginCacheEntity entity)
+    private static PluginCacheEntry ToEntry(PluginCacheEntity entity) => new(entity.PluginName, entity.PluginVersion, entity.StateType switch
     {
-        DiscoveredPlugin? state = entity.StateType switch
-        {
-            nameof(RegisteredPlugin) => JsonSerializer.Deserialize<RegisteredPlugin>(entity.StateJson, JsonOptions),
-            nameof(LoadedPlugin)     => JsonSerializer.Deserialize<LoadedPlugin>(entity.StateJson, JsonOptions),
-            _                        => JsonSerializer.Deserialize<DiscoveredPlugin>(entity.StateJson, JsonOptions)
-        };
-
-        return state is null ? null : new PluginCacheEntry(entity.PluginName, entity.PluginVersion, state);
-    }
+        nameof(RegisteredPlugin) => JsonSerializer.Deserialize<RegisteredPlugin>(entity.StateJson, JsonOptions)!,
+        nameof(LoadedPlugin) => JsonSerializer.Deserialize<LoadedPlugin>(entity.StateJson, JsonOptions)!,
+        nameof(DiscoveredPlugin) => JsonSerializer.Deserialize<DiscoveredPlugin>(entity.StateJson, JsonOptions)!,
+        _ => throw new NotSupportedException($"Invalid state type: {entity.StateType}.")
+    });
 }

@@ -4,15 +4,17 @@ using System.Text;
 namespace MelloSilveiraTools.ExtensionMethods;
 
 /// <summary>
-/// Contains extension methods for <see cref="string"/>>.
+/// Contains extension methods for <see cref="string"/>.
 /// </summary>
 public static class StringExtensions
 {
     /// <summary>
-    /// Adds spaces before upper case.
+    /// Inserts a space character before every uppercase letter (except at the start of the string,
+    /// or when the previous character is already whitespace). Useful for converting an identifier
+    /// such as <c>"MyClassName"</c> into the human-readable form <c>"My Class Name"</c>.
     /// </summary>
-    /// <param name="input"></param>
-    /// <returns></returns>
+    /// <param name="input">The source string. If <see langword="null"/> or empty, it is returned unchanged.</param>
+    /// <returns>The input string with a space inserted before each uppercase letter that does not already follow whitespace.</returns>
     public static string AddSpaceBeforeUpperCase(this string input)
     {
         if (string.IsNullOrEmpty(input))
@@ -33,8 +35,8 @@ public static class StringExtensions
     /// <summary>
     /// Converts a string from PascalCase or camelCase to snake_case.
     /// </summary>
-    /// <param name="input"></param>
-    /// <returns></returns>
+    /// <param name="input">The source identifier in PascalCase or camelCase. If <see langword="null"/> or empty, it is returned unchanged.</param>
+    /// <returns>The snake_case representation of <paramref name="input"/> (all lowercase, with underscores inserted before each original uppercase boundary).</returns>
     public static string ToSnakeCase(this string input)
     {
         if (string.IsNullOrEmpty(input))
@@ -62,8 +64,8 @@ public static class StringExtensions
     /// <summary>
     /// Converts a string from snake_case to camelCase.
     /// </summary>
-    /// <param name="input"></param>
-    /// <returns></returns>
+    /// <param name="input">The source string in snake_case. The first segment is kept as-is (lowercase by convention) and every subsequent underscore-separated segment has its first letter uppercased.</param>
+    /// <returns>The camelCase representation of <paramref name="input"/>.</returns>
     public static string FromSnakeCaseToCamelCase(this string input)
     {
         string[] parts = input.Split('_');
@@ -81,8 +83,8 @@ public static class StringExtensions
     /// <summary>
     /// Converts a string from snake_case to PascalCase.
     /// </summary>
-    /// <param name="input"></param>
-    /// <returns></returns>
+    /// <param name="input">The source string in snake_case. Each underscore-separated segment has its first letter uppercased and the remainder lowercased.</param>
+    /// <returns>The PascalCase representation of <paramref name="input"/>.</returns>
     public static string FromSnakeCaseToPascalCase(this string input)
     {
         string[] parts = input.Split('_');
@@ -98,11 +100,13 @@ public static class StringExtensions
     }
 
     /// <summary>
-    /// Removes a string from another.
+    /// Removes every occurrence of each supplied substring from <paramref name="input"/>. The substrings
+    /// are removed sequentially in the order they are provided, so a later argument operates on the
+    /// result of the previous removal (this matters when one substring may be produced by another's removal).
     /// </summary>
-    /// <param name="input"></param>
-    /// <param name="valuesToRemove"></param>
-    /// <returns></returns>
+    /// <param name="input">The source string from which substrings will be removed.</param>
+    /// <param name="valuesToRemove">The substrings to remove. All occurrences of each value are removed; the order of arguments defines the order of removals.</param>
+    /// <returns>A new string with every occurrence of each value in <paramref name="valuesToRemove"/> stripped out.</returns>
     public static string Remove(this string input, params string[] valuesToRemove)
     {
         string result = input;

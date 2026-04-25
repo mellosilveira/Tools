@@ -7,6 +7,24 @@ using System.Text;
 namespace MelloSilveiraTools.Infrastructure.Database.Sql.Provider;
 
 /// <inheritdoc cref="ISqlProvider"/>
+/// <remarks>
+/// <para>
+/// Generated SQL strings are memoized in a process-wide static <see cref="ConcurrentDictionary{TKey, TValue}"/>
+/// keyed by <c>(Type, Operation, BatchSize)</c>. Entries are never evicted: the cache lives for the entire
+/// application lifetime. Memory growth is therefore bounded by the number of entity types multiplied by the
+/// number of supported operations (and, for bulk inserts, by the number of distinct batch sizes used).
+/// </para>
+/// <para>
+/// Reads and writes to the cache are thread-safe via <see cref="ConcurrentDictionary{TKey, TValue}"/>;
+/// concurrent first-time generation of the same key may execute the factory more than once, but the result
+/// is deterministic for a given type and only one instance is retained.
+/// </para>
+/// <para>
+/// This provider is NOT multi-tenant safe when different tenants map the same CLR type to different schemas
+/// or table names: the cached SQL is keyed only by <see cref="Type"/>, not by tenant context. Use a separate
+/// provider instance (or distinct entity types per tenant) when schema isolation is required.
+/// </para>
+/// </remarks>
 public class PostgresSqlProvider : ISqlProvider
 {
     // Metadados por tipo cacheados estaticamente — calculados uma vez por tipo por toda a vida da aplicação.

@@ -8,6 +8,9 @@ namespace MelloSilveiraTools.Infrastructure.Plugins;
 /// </summary>
 public interface IPluginTypeProcessor
 {
+    /// <summary>
+    /// The base type (interface or class) that this processor knows how to register.
+    /// </summary>
     Type ProcessableType { get; }
 
     /// <summary>

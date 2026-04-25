@@ -5,8 +5,12 @@ using MelloSilveiraTools.Infrastructure.Services.Plugins;
 
 namespace MelloSilveiraTools.Application.Operations.Plugins.Load;
 
+/// <summary>
+/// Operation that loads plugins into the runtime based on the supplied name/version filter.
+/// </summary>
 public class LoadPlugins(ILogger logger, IPluginService pluginService) : OperationBaseWithDefaultResponse<LoadPluginsRequest>(logger)
 {
+    /// <inheritdoc />
     protected override Task<OperationResponse> ProcessOperationAsync(LoadPluginsRequest request)
     {
         try
@@ -22,6 +26,7 @@ public class LoadPlugins(ILogger logger, IPluginService pluginService) : Operati
         }
     }
 
+    /// <inheritdoc />
     protected override Task<OperationResponse> ValidateOperationAsync(LoadPluginsRequest request)
         => OperationResponse
             .CreateSuccessOk()

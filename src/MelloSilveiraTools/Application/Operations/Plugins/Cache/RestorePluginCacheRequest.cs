@@ -1,9 +1,9 @@
-namespace MelloSilveiraTools.Application.Operations.Plugins.Load;
+namespace MelloSilveiraTools.Application.Operations.Plugins.Cache;
 
 /// <summary>
-/// Request used by the <c>LoadPlugins</c> operation to identify which plugins should be loaded at runtime.
+/// Request used by the <c>RestorePluginCache</c> operation to identify which plugins should have their cache restored.
 /// </summary>
-public record LoadPluginsRequest : OperationRequestBase
+public record RestorePluginCacheRequest : OperationRequestBase
 {
     /// <summary>
     /// Optional plugin name. When omitted, all plugins are considered.

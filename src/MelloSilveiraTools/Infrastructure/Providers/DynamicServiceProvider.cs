@@ -28,14 +28,14 @@ public class DynamicServiceProvider(IServiceProvider serviceProvider) : IDynamic
     }
 
     /// <inheritdoc/>
-    public object GetService(Type serviceType)
+    public object? GetService(Type serviceType)
     {
-        return _serviceInstances.TryGetValue(serviceType, out Lazy<object> lazy) ? lazy.Value : null;
+        return _serviceInstances.TryGetValue(serviceType, out Lazy<object>? lazy) ? lazy.Value : null;
     }
 
     /// <inheritdoc/>
-    public T GetKeyed<T>(string key) where T : class
+    public T? GetKeyed<T>(string key) where T : class
     {
-        return _keyedInstances.TryGetValue(key, out object instance) ? (T)instance : null;
+        return _keyedInstances.TryGetValue(key, out object? instance) ? (T)instance : null;
     }
 }

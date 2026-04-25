@@ -27,12 +27,13 @@ public static class EnumerableExtensions
     }
 
     /// <summary>
-    /// Returns the first element of the sequence that satisfies a condition or a default value if no such element is found.
+    /// Returns the first element of the sequence that satisfies a condition.
     /// </summary>
     /// <typeparam name="TSource">The type of the elements of <paramref name="sources" />.</typeparam>
     /// <param name="sources">An <see cref="IEnumerable{T}" /> to return an element from.</param>
     /// <param name="predicate">A function to test each element for a condition.</param>
     /// <returns>The first element in <paramref name="sources" /> that passes the test specified by <paramref name="predicate" />.</returns>
+    /// <exception cref="InvalidOperationException">Thrown when no element in the source matches the predicate.</exception>
     public static TSource FirstWithoutValidate<TSource>(this IEnumerable<TSource> sources, Func<TSource, bool> predicate)
     {
         foreach (TSource element in sources)
@@ -41,7 +42,7 @@ public static class EnumerableExtensions
                 return element;
         }
 
-        throw new InvalidOperationException("No elements were match with predicate.");
+        throw new InvalidOperationException("No element matched the predicate.");
     }
 
     /// <summary>
@@ -129,21 +130,30 @@ public static class EnumerableExtensions
     }
 
     /// <summary>
-    /// Gets the <see cref="Type"/> of <typeparamref name="TSource"/>.
+    /// Gets the runtime <see cref="Type"/> of the actual elements stored in <paramref name="sources"/>.
+    /// When the sequence has at least one element, the runtime type of that element is returned
+    /// (useful for polymorphic collections where <typeparamref name="TSource"/> may be a base type
+    /// or interface). When the sequence is empty, the static <typeparamref name="TSource"/> is
+    /// returned as a fallback.
     /// </summary>
-    /// <typeparam name="TSource"></typeparam>
-    /// <param name="sources"></param>
-    /// <returns></returns>
+    /// <typeparam name="TSource">The static element type of the sequence.</typeparam>
+    /// <param name="sources">The sequence whose element type should be inspected.</param>
+    /// <returns>The runtime type of the first element, or <c>typeof(<typeparamref name="TSource"/>)</c> when the sequence is empty.</returns>
     public static Type GetSourceType<TSource>(this IEnumerable<TSource> sources) => sources.FirstOrDefault()?.GetType() ?? typeof(TSource);
 
     /// <summary>
-    /// Performs an async iteration with <see cref="SemaphoreSlim"/>.
+    /// Iterates over <paramref name="source"/> launching <paramref name="asyncAction"/> for every item,
+    /// while limiting concurrency through a <see cref="SemaphoreSlim"/> bounded by <paramref name="maxDegreeOfParallelism"/>.
+    /// Items are dispatched in source order, but their actual completion order is non-deterministic
+    /// because they execute in parallel. Exceptions raised inside <paramref name="asyncAction"/> are
+    /// logged to <see cref="Console"/> and swallowed so the iteration continues; cancellation is not
+    /// observed by this overload.
     /// </summary>
-    /// <typeparam name="T"></typeparam>
-    /// <param name="source"></param>
-    /// <param name="asyncAction"></param>
-    /// <param name="maxDegreeOfParallelism"></param>
-    /// <returns></returns>
+    /// <typeparam name="T">The element type of the sequence.</typeparam>
+    /// <param name="source">The sequence to iterate. Must not be <see langword="null"/>.</param>
+    /// <param name="asyncAction">The asynchronous delegate invoked for each item.</param>
+    /// <param name="maxDegreeOfParallelism">Maximum number of <paramref name="asyncAction"/> invocations allowed to run concurrently. Must be greater than zero.</param>
+    /// <returns>A task that completes when every dispatched <paramref name="asyncAction"/> has finished.</returns>
     public static async Task ForeachAsync<T>(this IEnumerable<T> source, Func<T, Task> asyncAction, int maxDegreeOfParallelism)
     {
         using SemaphoreSlim semaphoreSlim = new(maxDegreeOfParallelism, maxDegreeOfParallelism);
@@ -174,13 +184,18 @@ public static class EnumerableExtensions
     }
 
     /// <summary>
-    /// Performs an async iteration with <see cref="SemaphoreSlim"/>.
+    /// Iterates over <paramref name="source"/> dispatching <paramref name="action"/> for every item on
+    /// the thread pool, while limiting concurrency through a <see cref="SemaphoreSlim"/> bounded by
+    /// <paramref name="maxDegreeOfParallelism"/>. Items are scheduled in source order but completion
+    /// order is non-deterministic. Exceptions raised inside <paramref name="action"/> are logged to
+    /// <see cref="Console"/> and swallowed so the iteration continues; cancellation is not observed
+    /// by this overload.
     /// </summary>
-    /// <typeparam name="T"></typeparam>
-    /// <param name="source"></param>
-    /// <param name="action"></param>
-    /// <param name="maxDegreeOfParallelism"></param>
-    /// <returns></returns>
+    /// <typeparam name="T">The element type of the sequence.</typeparam>
+    /// <param name="source">The sequence to iterate. Must not be <see langword="null"/>.</param>
+    /// <param name="action">The synchronous delegate invoked for each item on the thread pool.</param>
+    /// <param name="maxDegreeOfParallelism">Maximum number of <paramref name="action"/> invocations allowed to run concurrently. Must be greater than zero.</param>
+    /// <returns>A task that completes when every scheduled invocation of <paramref name="action"/> has finished.</returns>
     public static async Task ForeachAsync<T>(this IEnumerable<T> source, Action<T> action, int maxDegreeOfParallelism)
     {
         using SemaphoreSlim semaphoreSlim = new(maxDegreeOfParallelism, maxDegreeOfParallelism);
@@ -210,6 +225,10 @@ public static class EnumerableExtensions
         await Task.WhenAll(tasks).ConfigureAwait(false);
     }
 
+    /// <summary>
+    /// Iterates synchronously over <paramref name="source"/> invoking <paramref name="action"/> for each item.
+    /// Exceptions thrown by <paramref name="action"/> are logged and swallowed so the iteration continues.
+    /// </summary>
     public static void Foreach<T>(this IEnumerable<T> source, Action<T> action)
     {
         foreach (T item in source)
@@ -226,10 +245,12 @@ public static class EnumerableExtensions
     }
 
     /// <summary>
-    /// Gets all possible combinations from an <see cref="IEnumerable{T}"/> of list.
+    /// Builds the Cartesian product of the supplied lists, yielding every possible combination
+    /// formed by picking exactly one element from each list, in list order. The number of
+    /// combinations produced equals the product of the sizes of the inner lists.
     /// </summary>
-    /// <param name="lists"></param>
-    /// <returns>List of double array with all possible combinations.</returns>
+    /// <param name="lists">The collection of lists to combine. Each emitted array has one element per inner list, ordered to match the order of <paramref name="lists"/>.</param>
+    /// <returns>A lazy sequence of arrays where each array is one combination drawn from <paramref name="lists"/>.</returns>
     public static IEnumerable<T[]> GetCombinations<T>(this IEnumerable<List<T>> lists)
     {
         var materialized = lists.ToList();
@@ -237,12 +258,14 @@ public static class EnumerableExtensions
     }
 
     /// <summary>
-    /// Gets all possible combinations from a list using recursion.
+    /// Recursive worker that walks <paramref name="lists"/> depth-first, fixing one element of
+    /// <paramref name="current"/> per level until <paramref name="depth"/> reaches the number of
+    /// lists, at which point a clone of <paramref name="current"/> is yielded.
     /// </summary>
-    /// <param name="lists"></param>
-    /// <param name="current"></param>
-    /// <param name="depth"></param>
-    /// <returns>List of double array with all possible combinations.</returns>
+    /// <param name="lists">The lists being combined.</param>
+    /// <param name="current">The reusable buffer holding the partial combination at the current recursion level.</param>
+    /// <param name="depth">The zero-based index of the list currently being expanded; recursion stops when it equals <c>lists.Count</c>.</param>
+    /// <returns>A lazy sequence of arrays, each one a complete combination drawn from <paramref name="lists"/>.</returns>
     private static IEnumerable<T[]> GetCombinationsRecursive<T>(List<List<T>> lists, T[] current, int depth = 0)
     {
         if (depth == lists.Count)

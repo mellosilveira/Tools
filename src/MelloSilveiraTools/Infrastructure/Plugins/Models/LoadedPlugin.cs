@@ -6,6 +6,10 @@ namespace MelloSilveiraTools.Infrastructure.Plugins.Models;
 /// </summary>
 public record LoadedPlugin : DiscoveredPlugin
 {
+    /// <summary>
+    /// Initializes a new <see cref="LoadedPlugin"/> by wrapping a <paramref name="discovered"/> entry
+    /// with the set of <paramref name="processableTypes"/> found in the loaded assembly.
+    /// </summary>
     public LoadedPlugin(DiscoveredPlugin discovered, Type[] processableTypes) : base(discovered)
     {
         ProcessableTypes = processableTypes;

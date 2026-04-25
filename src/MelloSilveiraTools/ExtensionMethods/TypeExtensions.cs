@@ -15,10 +15,12 @@ public static class TypeExtensions
     private static readonly ConcurrentDictionary<Type, string[]> _propertyNamesCache = new();
 
     /// <summary>
-    /// Gets the properties from a <see cref="Type"/> in following the hierarchy order from parent to child.
+    /// Gets every public instance property declared anywhere in the type hierarchy of <paramref name="type"/>,
+    /// ordered from the topmost base class down to the most derived type. Properties declared in a base
+    /// class appear before those declared in its descendants. Results are cached per <see cref="Type"/>.
     /// </summary>
-    /// <param name="type"></param>
-    /// <returns>A <see cref="List{T}"/> with the properties of the <paramref name="type"/>.</returns>
+    /// <param name="type">The type whose hierarchy should be walked.</param>
+    /// <returns>The properties of <paramref name="type"/> ordered from base to derived.</returns>
     public static PropertyInfo[] GetPropertiesInHierarchy(this Type type)
     {
         return _hierarchyCache.GetOrAdd(type, static t =>
@@ -38,10 +40,13 @@ public static class TypeExtensions
 
 
     /// <summary>
-    /// Gets the properties from a <see cref="Type"/> in following the hierarchy order from parent to child.
+    /// Gets every public instance property declared in the type hierarchy of <paramref name="type"/>
+    /// that is decorated with <typeparamref name="TAttribute"/>, ordered from the topmost base class
+    /// down to the most derived type. Results are cached per (type, attribute) pair.
     /// </summary>
-    /// <param name="type"></param>
-    /// <returns>A <see cref="List{T}"/> with the properties of the <paramref name="type"/>.</returns>
+    /// <typeparam name="TAttribute">The attribute used to filter properties.</typeparam>
+    /// <param name="type">The type whose hierarchy should be walked.</param>
+    /// <returns>The matching properties ordered from base to derived.</returns>
     public static PropertyInfo[] GetPropertiesInHierarchy<TAttribute>(this Type type) where TAttribute : Attribute
     {
         return _hierarchyAttrCache.GetOrAdd((type, typeof(TAttribute)), static key =>
@@ -60,27 +65,32 @@ public static class TypeExtensions
     }
 
     /// <summary>
-    /// Gets the properties name defined in the <see cref="Type"/>.
+    /// Gets the names of every public instance property declared in the hierarchy of <paramref name="type"/>,
+    /// ordered from the topmost base class down to the most derived type (same order as
+    /// <see cref="GetPropertiesInHierarchy(Type)"/>). Results are cached per <see cref="Type"/>.
     /// </summary>
-    /// <param name="type"></param>
-    /// <returns></returns>
+    /// <param name="type">The type whose hierarchy should be walked.</param>
+    /// <returns>The property names of <paramref name="type"/> ordered from base to derived.</returns>
     public static string[] GetPropertyNamesInHierarchy(this Type type)
     {
         return _propertyNamesCache.GetOrAdd(type, static t => t.GetPropertiesInHierarchy().Select(p => p.Name).ToArray());
     }
 
     /// <summary>
-    /// Gets the properties defined in the <see cref="Type"/>.
+    /// Gets only the public instance properties declared directly on <paramref name="type"/>,
+    /// excluding those inherited from base classes.
     /// </summary>
-    /// <param name="type"></param>
-    /// <returns></returns>
+    /// <param name="type">The type whose declared properties should be returned.</param>
+    /// <returns>The public instance properties declared on <paramref name="type"/>.</returns>
     public static PropertyInfo[] GetDeclaredProperties(this Type type) => type.GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.DeclaredOnly);
 
     /// <summary>
-    /// Gets the properties defined in the <see cref="Type"/>.
+    /// Gets the public instance properties declared directly on <paramref name="type"/> (no inherited
+    /// members) that are decorated with <typeparamref name="TAttribute"/>.
     /// </summary>
-    /// <param name="type"></param>
-    /// <returns></returns>
+    /// <typeparam name="TAttribute">The attribute used to filter properties.</typeparam>
+    /// <param name="type">The type whose declared properties should be inspected.</param>
+    /// <returns>The matching declared properties.</returns>
     public static PropertyInfo[] GetDeclaredProperties<TAttribute>(this Type type) where TAttribute : Attribute
     {
         return type
@@ -90,25 +100,31 @@ public static class TypeExtensions
     }
 
     /// <summary>
-    /// Gets the properties name defined in the <see cref="Type"/>.
+    /// Gets the names of the public instance properties declared directly on <paramref name="type"/>,
+    /// excluding inherited members.
     /// </summary>
-    /// <param name="type"></param>
-    /// <returns></returns>
+    /// <param name="type">The type whose declared property names should be returned.</param>
+    /// <returns>The names of the public instance properties declared on <paramref name="type"/>.</returns>
     public static string[] GetDeclaredPropertyNames(this Type type) => type.GetDeclaredProperties().Select(property => property.Name).ToArray();
 
     /// <summary>
-    /// Checks if the type is an <see cref="IEnumerable"/> excluding the <see cref="string"/>.
+    /// Indicates whether <paramref name="type"/> is an enumerable collection — that is, whether it
+    /// implements <see cref="IEnumerable"/>. <see cref="string"/> is treated as a non-enumerable
+    /// special case and always returns <see langword="false"/>.
     /// </summary>
-    /// <param name="type"></param>
-    /// <returns></returns>
+    /// <param name="type">The type to test.</param>
+    /// <returns><see langword="true"/> if <paramref name="type"/> implements <see cref="IEnumerable"/> and is not <see cref="string"/>; otherwise <see langword="false"/>.</returns>
     public static bool IsEnumerable(this Type type) => typeof(IEnumerable).IsAssignableFrom(type) && type != typeof(string);
 
     /// <summary>
     /// Returns the <see cref="NpgsqlDbType"/> from property type.
     /// </summary>
-    /// <param name="type"></param>
-    /// <returns></returns>
-    /// <exception cref="Exception"></exception>
+    /// <param name="type">The CLR property type to be mapped to its corresponding <see cref="NpgsqlDbType"/>.</param>
+    /// <returns>The <see cref="NpgsqlDbType"/> matching <paramref name="type"/>.</returns>
+    /// <exception cref="ArgumentOutOfRangeException">
+    /// Thrown when <paramref name="type"/> is not handled by this mapping (i.e. it is not one of the supported
+    /// primitive, nullable primitive, array or generic enumerable types).
+    /// </exception>
     public static NpgsqlDbType GetDbTypeFromPropertyType(this Type type)
     {
         if (type == typeof(string)) return NpgsqlDbType.Text;

@@ -14,8 +14,8 @@ public class PostgresResiliencePipeline : DefaultResiliencePipeline
     /// <summary>
     /// Initialize a new instance of <see cref="PostgresResiliencePipeline"/>.
     /// </summary>
-    /// <param name="logger"></param>
-    /// <param name="settings"></param>
+    /// <param name="logger">Logger used to record retry attempts and failures while executing operations through the pipeline.</param>
+    /// <param name="settings">Resilience pipeline settings (max retries, base delay, jitter, etc.) that drive the retry strategy.</param>
     public PostgresResiliencePipeline(ILogger logger, ResiliencePipelineSettings settings)
         : base(logger, settings, new PredicateBuilder()
             .Handle<PostgresException>(ex => ex.IsTransient || ex.SqlState == PostgresErrorCodes.ProtocolViolation /* PgBouncer error */)

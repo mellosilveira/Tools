@@ -6,12 +6,21 @@
 [AttributeUsage(AttributeTargets.Class, AllowMultiple = false)]
 public class TableAttribute : Attribute
 {
+    /// <summary>
+    /// Initializes a new instance of the <see cref="TableAttribute"/> class with an explicit table alias.
+    /// </summary>
+    /// <param name="name">Name of the database table.</param>
+    /// <param name="alias">Alias used to qualify the table in SQL statements.</param>
     public TableAttribute(string name, string alias)
     {
         Name = name;
         Alias = alias;
     }
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="TableAttribute"/> class, deriving the alias from the table name.
+    /// </summary>
+    /// <param name="name">Name of the database table.</param>
     public TableAttribute(string name)
     {
         Name = name;

@@ -5,8 +5,12 @@ using MelloSilveiraTools.Infrastructure.Services.Plugins;
 
 namespace MelloSilveiraTools.Application.Operations.Plugins.Reload;
 
+/// <summary>
+/// Operation that reloads plugins into the runtime based on the supplied name/version filter and force flag.
+/// </summary>
 public class ReloadPlugins(ILogger logger, IPluginService pluginService) : OperationBaseWithDefaultResponse<ReloadPluginsRequest>(logger)
 {
+    /// <inheritdoc />
     protected override Task<OperationResponse> ProcessOperationAsync(ReloadPluginsRequest request)
     {
         try
@@ -22,6 +26,7 @@ public class ReloadPlugins(ILogger logger, IPluginService pluginService) : Opera
         }
     }
 
+    /// <inheritdoc />
     protected override Task<OperationResponse> ValidateOperationAsync(ReloadPluginsRequest request)
         => OperationResponse
             .CreateSuccessOk()

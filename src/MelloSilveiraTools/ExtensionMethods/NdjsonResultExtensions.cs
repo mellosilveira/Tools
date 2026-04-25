@@ -1,9 +1,15 @@
-﻿using MelloSilveiraTools.Application.Models;
+using MelloSilveiraTools.Application.Models;
 using Microsoft.AspNetCore.Http;
 
 namespace MelloSilveiraTools.ExtensionMethods;
 
+/// <summary>
+/// Contains extension methods for <see cref="IResultExtensions"/> that produce NDJSON results.
+/// </summary>
 public static class NdjsonResultExtensions
 {
+    /// <summary>
+    /// Builds an <see cref="IResult"/> that streams the supplied asynchronous sequence as newline-delimited JSON.
+    /// </summary>
     public static IResult Ndjson<T>(this IResultExtensions _, IAsyncEnumerable<T> data) => new NdjsonResult<T>(data);
 }

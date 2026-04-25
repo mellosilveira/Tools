@@ -16,8 +16,34 @@ namespace MelloSilveiraTools.Infrastructure.Database.Repositories;
 /// <summary>
 /// Repository that contains methods to deal with Postgres database.
 /// </summary>
+/// <remarks>
+/// <para>
+/// All database operations are wrapped by <see cref="PostgresResiliencePipeline"/>, which transparently
+/// retries transient failures (connection drops, deadlocks, timeouts) according to its configured policy.
+/// </para>
+/// <para>
+/// Per-command timeouts are taken from <see cref="DatabaseSettings"/>:
+/// <see cref="DatabaseSettings.UnitOperationTimeoutInSeconds"/> applies to single-row operations
+/// (insert, update, delete-by-id, get-by-id, exists) and
+/// <see cref="DatabaseSettings.BulkOperationTimeoutInSeconds"/> applies to batch operations
+/// (bulk insert, bulk upsert).
+/// </para>
+/// <para>
+/// SQL is generated through the injected <see cref="ISqlProvider"/>; the provider implementation memoizes
+/// SQL strings per CLR type so the cost of reflection-based generation is paid only once per type for the
+/// lifetime of the application.
+/// </para>
+/// <para>
+/// SELECT queries automatically include <c>JOIN</c> clauses for every property decorated with
+/// <see cref="MelloSilveiraTools.Infrastructure.Database.Attributes.ForeignKeyColumnAttribute"/>, using the
+/// join type configured on the attribute and the metadata of the referenced entity type.
+/// </para>
+/// </remarks>
 public class PostgresRepository(ISqlProvider sqlProvider, PostgresResiliencePipeline resiliencePipeline, DatabaseSettings databaseSettings) : IRepository
 {
+    /// <summary>
+    /// Database settings used to configure connections and command timeouts.
+    /// </summary>
     protected DatabaseSettings DatabaseSettings { get; } = databaseSettings;
 
     /// <inheritdoc/>
@@ -283,6 +309,12 @@ public class PostgresRepository(ISqlProvider sqlProvider, PostgresResiliencePipe
         });
     }
 
+    /// <summary>
+    /// Streams rows returned by <paramref name="sql"/> and materializes each of them into a <typeparamref name="TEntity"/>.
+    /// </summary>
+    /// <param name="sql">SQL statement to execute.</param>
+    /// <param name="parameters">Parameters to bind to the statement, if any.</param>
+    /// <param name="cancellationToken">Token used to cancel the streaming operation.</param>
     protected async IAsyncEnumerable<TEntity> GetAsync<TEntity>(string sql, DynamicParameters? parameters, CancellationToken cancellationToken = default)
         where TEntity : class, new()
     {
@@ -302,6 +334,11 @@ public class PostgresRepository(ISqlProvider sqlProvider, PostgresResiliencePipe
         return ssb.ToString();
     }
 
+    /// <summary>
+    /// Creates and opens a new Npgsql connection using the configured connection string.
+    /// </summary>
+    /// <param name="cancellationToken">Token used to cancel the asynchronous open operation.</param>
+    /// <returns>An opened <see cref="NpgsqlConnection"/>.</returns>
     protected async Task<NpgsqlConnection> GetNewOpenedConnectionAsync(CancellationToken cancellationToken = default)
     {
         NpgsqlConnection connection = new(DatabaseSettings.ConnectionString);

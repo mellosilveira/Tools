@@ -32,10 +32,11 @@ public readonly record struct Material(double YoungModulus, double YieldStrength
     public static readonly Material Aluminum6061T6 = new(70e3, 310, 290, 2710);
 
     /// <summary>
-    /// Creates an instance of class <seealso cref="Material"/>.
+    /// Returns the predefined <see cref="Material"/> (Young's modulus, yield strength, ultimate
+    /// tensile strength and density) associated with the supplied <see cref="MaterialType"/>.
     /// </summary>
-    /// <param name="materialType"></param>
-    /// <returns></returns>
+    /// <param name="materialType">The enumeration value identifying the material.</param>
+    /// <returns>The matching <see cref="Material"/> instance.</returns>
     public static Material Create(MaterialType materialType) => materialType switch
     {
         MaterialType.Steel1020 => Steel1020,

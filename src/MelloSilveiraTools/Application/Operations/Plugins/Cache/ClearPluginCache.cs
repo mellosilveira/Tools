@@ -4,8 +4,12 @@ using MelloSilveiraTools.Infrastructure.Services.Plugins;
 
 namespace MelloSilveiraTools.Application.Operations.Plugins.Cache;
 
-public class ClearPluginCache(ILogger logger, IPluginService pluginService) : OperationBaseWithoutRequest<OperationResponse>(logger)
+/// <summary>
+/// Operation that clears the plugin cache managed by <see cref="IPluginService"/>.
+/// </summary>
+public class ClearPluginCache(ILogger logger, IPluginService pluginService) : DefaultOperationBase(logger)
 {
+    /// <inheritdoc />
     protected override Task<OperationResponse> ProcessOperationAsync()
     {
         pluginService.Clear();

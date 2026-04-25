@@ -1,4 +1,3 @@
-using System.Runtime.CompilerServices;
 using MelloSilveiraTools.ExtensionMethods;
 using MelloSilveiraTools.Infrastructure.Plugins;
 using MelloSilveiraTools.Infrastructure.Plugins.Models;
@@ -8,19 +7,47 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace MelloSilveiraTools.Infrastructure.Services.Plugins;
 
+/// <summary>
+/// Extension methods that streamline plugin processing pipelines on top of <see cref="PluginAssemblyProcessor"/>.
+/// </summary>
 public static class PluginServiceExtensions
 {
+    /// <summary>
+    /// Loads the assembly of a discovered plugin using the provided processor.
+    /// </summary>
+    /// <param name="discovered">Plugin found on disk by the file processor.</param>
+    /// <param name="assemblyProcessor">Processor responsible for loading plugin assemblies.</param>
+    /// <returns>The loaded plugin, with its assembly available for inspection.</returns>
     public static LoadedPlugin LoadAssembly(this DiscoveredPlugin discovered, PluginAssemblyProcessor assemblyProcessor)
         => assemblyProcessor.Load(discovered);
 
-    public static RegisteredPlugin ProcessTypes(this LoadedPlugin loaded, PluginAssemblyProcessor assemblyProcessor, PluginRegistrationContext context)
+    /// <summary>
+    /// Processes the types of a loaded plugin and registers its services inside the provided registration context.
+    /// </summary>
+    /// <param name="loaded">Plugin whose assembly has been loaded.</param>
+    /// <param name="assemblyProcessor">Processor responsible for scanning and registering plugin types.</param>
+    /// <param name="context">Registration context that determines how services are wired up.</param>
+    /// <returns>The plugin after its types have been processed and registered.</returns>
+    public static RegisteredPlugin RegisterTypes(this LoadedPlugin loaded, PluginAssemblyProcessor assemblyProcessor, PluginRegistrationContext context)
         => assemblyProcessor.ProcessTypes(loaded, context);
 
-    public static RegisteredPlugin GetInfo(this LoadedPlugin loaded, PluginAssemblyProcessor assemblyProcessor)
+    /// <summary>
+    /// Retrieves registry information for a loaded plugin without registering its services.
+    /// </summary>
+    /// <param name="loaded">Plugin whose assembly has been loaded.</param>
+    /// <param name="assemblyProcessor">Processor responsible for extracting plugin metadata.</param>
+    /// <returns>The registry information for the plugin.</returns>
+    public static RegisteredPlugin GetRegistry(this LoadedPlugin loaded, PluginAssemblyProcessor assemblyProcessor)
         => assemblyProcessor.GetInfo(loaded);
 }
 
 /// <inheritdoc cref="IPluginService"/>
+/// <param name="fileProcessor">Processor that scans the file system for plugin assemblies.</param>
+/// <param name="assemblyProcessor">Processor that loads and inspects plugin assemblies.</param>
+/// <param name="cache">Cache that keeps track of plugin registration state.</param>
+/// <param name="persistence">Persistence used to save and restore the plugin cache.</param>
+/// <param name="services">Root service collection used to register plugin services at startup.</param>
+/// <param name="dynamicServiceProvider">Service provider used to register plugin services at runtime.</param>
 public class PluginService(
     PluginFileProcessor fileProcessor,
     PluginAssemblyProcessor assemblyProcessor,
@@ -30,33 +57,37 @@ public class PluginService(
     IDynamicServiceProvider dynamicServiceProvider)
     : IPluginService
 {
+    /// <inheritdoc/>
     public void LoadPluginsOnStartup(string pluginName = "", PluginVersion? version = null)
         => LoadPlugins(PluginRegistrationContext.ForStartup(services), pluginName, version);
 
+    /// <inheritdoc/>
     public void LoadPluginsOnRuntime(string pluginName = "", PluginVersion? version = null)
         => LoadPlugins(PluginRegistrationContext.ForRuntime(dynamicServiceProvider), pluginName, version);
 
+    /// <inheritdoc/>
     public void ReloadPluginsOnStartup(bool forceLoad, string pluginName = "", PluginVersion? version = null)
         => ReloadPlugins(PluginRegistrationContext.ForStartup(services), forceLoad, pluginName, version);
 
+    /// <inheritdoc/>
     public void ReloadPluginsOnRuntime(bool forceLoad, string pluginName = "", PluginVersion? version = null)
         => ReloadPlugins(PluginRegistrationContext.ForRuntime(dynamicServiceProvider), forceLoad, pluginName, version);
 
+    /// <inheritdoc/>
     public IEnumerable<RegisteredPlugin> GetPlugins(string pluginName, PluginVersion? version)
         => fileProcessor
             .Scan(pluginName, version)
             .Select(discovered => discovered
                 .LoadAssembly(assemblyProcessor)
-                .GetInfo(assemblyProcessor));
+                .GetRegistry(assemblyProcessor));
 
+    /// <inheritdoc/>
     public void Clear() => cache.Clear();
 
     /// <inheritdoc/>
     public Task PersistCacheAsync(string name = "", PluginVersion? version = null, CancellationToken cancellationToken = default)
         => persistence.SaveAsync(
-            cache
-                .StreamAll(name, version, cancellationToken)
-                .Select(plugin => new PluginCacheEntry(plugin.Name, plugin.Version.Name, plugin)), 
+            cache.Stream(name, version, cancellationToken),
             cancellationToken);
 
     /// <inheritdoc/>
@@ -79,12 +110,23 @@ public class PluginService(
         {
             discovered
                 .LoadAssembly(assemblyProcessor)
-                .ProcessTypes(assemblyProcessor, context);
+                .RegisterTypes(assemblyProcessor, context);
         }
 
         fileProcessor.MoveToLoadedFolder(discovered);
     }
 
+    /// <summary>
+    /// Iterates over the plugins matched by the supplied filter that are currently in the loaded folder,
+    /// moves each one back to the main plugin folder, and — when <paramref name="forceLoad"/> is
+    /// <see langword="true"/> — evicts only that specific (name, version) entry from the cache and
+    /// reloads it through the registration pipeline.
+    /// </summary>
+    /// <remarks>
+    /// Earlier revisions of this method evicted the cache using the original <c>pluginName</c>/<c>version</c>
+    /// filter on every iteration, which meant a wildcard reload erased the entire cache repeatedly. The
+    /// per-iteration eviction now targets only the discovered plugin currently being reloaded.
+    /// </remarks>
     private void ReloadPlugins(PluginRegistrationContext context, bool forceLoad, string pluginName = "", PluginVersion? version = null)
         => fileProcessor
             .ScanLoaded(pluginName, version)
@@ -94,7 +136,7 @@ public class PluginService(
 
                 if (forceLoad)
                 {
-                    cache.Clear(pluginName, version);
+                    cache.Clear(discovered.Name, discovered.Version);
                     LoadPlugin(context, discovered);
                 }
             });

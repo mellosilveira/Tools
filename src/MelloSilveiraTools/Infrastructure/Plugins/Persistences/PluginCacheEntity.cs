@@ -13,20 +13,20 @@ public record PluginCacheEntity : EntityBase
 {
     /// <summary>Plugin name — two-level cache level 1 key. Part of the (name, version) unique constraint.</summary>
     [UniqueColumn]
-    public string PluginName { get; init; } = string.Empty;
+    public string PluginName { get; init; }
 
     /// <summary>Version string (e.g. "v1.2.3") — two-level cache level 2 key. Part of the (name, version) unique constraint.</summary>
     [UniqueColumn]
-    public string PluginVersion { get; init; } = string.Empty;
+    public string PluginVersion { get; init; }
 
     /// <summary>
     /// Simple name of the concrete <see cref="DiscoveredPlugin"/> subtype stored in <see cref="StateJson"/>
     /// (e.g. "LoadedPlugin", "RegisteredPlugin"). Used as a discriminator during deserialization.
     /// </summary>
     [Column]
-    public string StateType { get; init; } = string.Empty;
+    public string StateType { get; init; }
 
     /// <summary>JSON-serialized representation of the cache state.</summary>
     [Column]
-    public string StateJson { get; init; } = string.Empty;
+    public string StateJson { get; init; }
 }

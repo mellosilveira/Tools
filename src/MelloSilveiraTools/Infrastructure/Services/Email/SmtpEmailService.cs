@@ -6,6 +6,13 @@ using System.Net.Mail;
 
 namespace MelloSilveiraTools.Infrastructure.Services.Email;
 
+/// <summary>
+/// Implementation of <see cref="IEmailService"/> that sends messages through an SMTP server
+/// using the provided <see cref="EmailSettings"/> and the SMTP resilience pipeline.
+/// </summary>
+/// <param name="logger">Logger used to record failures while sending e-mails.</param>
+/// <param name="smtpResiliencePipeline">Resilience pipeline applied to the SMTP send operation.</param>
+/// <param name="emailSettings">SMTP server configuration and sender credentials.</param>
 public class SmtpEmailService(
     ILogger logger,
     SmtpResiliencePipeline smtpResiliencePipeline,

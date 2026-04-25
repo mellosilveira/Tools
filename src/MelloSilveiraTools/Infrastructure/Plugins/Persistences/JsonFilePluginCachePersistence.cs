@@ -10,6 +10,7 @@ namespace MelloSilveiraTools.Infrastructure.Plugins.Persistences;
 /// Each entry is stored with a type discriminator so the correct
 /// <see cref="DiscoveredPlugin"/> subtype is restored.
 /// </summary>
+/// <param name="settings">Plugin settings providing the directory in which the <c>plugin-cache.json</c> file is created and read.</param>
 public class JsonFilePluginCachePersistence(PluginSettings settings) : IPluginCachePersistence
 {
     private static readonly JsonSerializerOptions JsonOptions = new()

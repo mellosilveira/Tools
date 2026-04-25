@@ -54,16 +54,27 @@ public class InMemoryTwoLevelCache : ITwoLevelCache
         => _cache.SelectMany(kvp => kvp.Value.Keys.Select(k => (kvp.Key, k)));
 
     /// <inheritdoc/>
-    public async IAsyncEnumerable<(string Group, string Key, T Value)> StreamAll<T>([EnumeratorCancellation] CancellationToken cancellationToken = default)
+    public IAsyncEnumerable<(string Group, string Key, T Value)> StreamAll<T>(CancellationToken cancellationToken = default)
+        => StreamAll<T>(null, null, cancellationToken);
+
+    /// <inheritdoc/>
+    public async IAsyncEnumerable<(string Group, string Key, T Value)> StreamAll<T>(
+        string? group,
+        string? key,
+        [EnumeratorCancellation] CancellationToken cancellationToken = default)
     {
-        foreach (var (group, byKey) in _cache)
+        foreach (var (g, byKey) in _cache)
         {
-            foreach (var (key, obj) in byKey)
+            if (group is not null && g != group) continue;
+
+            foreach (var (k, obj) in byKey)
             {
+                if (key is not null && k != key) continue;
+
                 cancellationToken.ThrowIfCancellationRequested();
 
                 if (obj is T typed)
-                    yield return (group, key, typed);
+                    yield return (g, k, typed);
             }
         }
 

@@ -48,9 +48,9 @@ public abstract class ApiServiceAgentBase : IApiServiceAgent
     /// <summary>
     /// Initializes a new instance of <see cref="ApiServiceAgentBase"/>.
     /// </summary>
-    /// <param name="logger"></param>
-    /// <param name="settings"></param>
-    /// <param name="resiliencePipeline"></param>
+    /// <param name="logger">Logger used to record execution details and errors.</param>
+    /// <param name="settings">Settings controlling the connection with the external API.</param>
+    /// <param name="resiliencePipeline">Resilience pipeline applied to outbound HTTP requests.</param>
     protected ApiServiceAgentBase(ILogger logger, ApiServiceAgentSettings settings, ApiServiceAgentResiliencePipeline resiliencePipeline)
     {
         Logger = logger;
@@ -65,12 +65,12 @@ public abstract class ApiServiceAgentBase : IApiServiceAgent
     }
 
     /// <summary>
-    /// Sends a GET request to the specified URI.
+    /// Sends a GET request to the specified URI and maps the JSON payload into a list-style operation response.
     /// </summary>
-    /// <param name="requestUri"></param>
-    /// <param name="timeoutInMiliseconds"></param>
-    /// <param name="methodName"></param>
-    /// <returns></returns>
+    /// <param name="requestUri">Relative or absolute URI of the endpoint to call.</param>
+    /// <param name="timeoutInMiliseconds">Per-request timeout, in milliseconds.</param>
+    /// <param name="methodName">Name of the caller method used to enrich log and error messages.</param>
+    /// <returns>An operation response carrying the deserialized data or the failure reason.</returns>
     protected async Task<TResponse> GetAsync<TResponse, TResponseData>(string requestUri, int timeoutInMiliseconds, string methodName)
         where TResponse : OperationListResponseBase<TResponseData>, new()
         where TResponseData : class, new()

@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http;
 using System.IO.Compression;
 
 namespace MelloSilveiraTools.ExtensionMethods;
@@ -8,6 +8,9 @@ namespace MelloSilveiraTools.ExtensionMethods;
 /// </summary>
 public static class FormFileExtensions
 {
+    /// <summary>
+    /// Reads the entire <paramref name="formFile"/> content and returns it compressed using GZip.
+    /// </summary>
     public static async Task<byte[]> ToCompressedContentAsync(this IFormFile formFile)
     {
         await using Stream stream = formFile.OpenReadStream();

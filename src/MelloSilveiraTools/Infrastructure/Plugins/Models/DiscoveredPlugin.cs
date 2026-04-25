@@ -6,8 +6,14 @@ namespace MelloSilveiraTools.Infrastructure.Plugins.Models;
 /// </summary>
 public record DiscoveredPlugin
 {
+    /// <summary>
+    /// Parameterless constructor required for deserialization.
+    /// </summary>
     public DiscoveredPlugin() { }
 
+    /// <summary>
+    /// Initializes a new <see cref="DiscoveredPlugin"/> with the given metadata.
+    /// </summary>
     public DiscoveredPlugin(string name, PluginVersion version, string fullPath, DateTimeOffset discoveredAt)
     {
         Name = name;
@@ -16,6 +22,9 @@ public record DiscoveredPlugin
         DiscoveredAt = discoveredAt;
     }
 
+    /// <summary>
+    /// Copy constructor used by derived records to carry over the discovery metadata.
+    /// </summary>
     protected DiscoveredPlugin(DiscoveredPlugin other)
     {
         Name = other.Name;

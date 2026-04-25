@@ -1,32 +1,25 @@
+using MelloSilveiraTools.ExtensionMethods;
+using MelloSilveiraTools.Infrastructure.Logger;
+using MelloSilveiraTools.Infrastructure.Plugins.Models;
 using MelloSilveiraTools.Infrastructure.Services.Plugins;
 
 namespace MelloSilveiraTools.Application.Operations.Plugins.Cache;
 
-public class PersistPluginCache(
-    IPluginService pluginService,
-    JsonFilePluginCachePersistence jsonPersistence,
-    DatabasePluginCachePersistence databasePersistence)
-    : OperationBaseWithDefaultResponse<PersistPluginCacheRequest>
+/// <summary>
+/// Operation that persists the plugin cache to the configured target (file, database, etc.) for the supplied plugin filter.
+/// </summary>
+public class PersistPluginCache(ILogger logger, IPluginService pluginService) : OperationBaseWithDefaultResponse<PersistPluginCacheRequest>(logger)
 {
+    /// <inheritdoc />
     protected override async Task<OperationResponse> ProcessOperationAsync(PersistPluginCacheRequest request)
     {
-        OperationResponse response = new();
-
-        IPluginCachePersistence persistence = request.Target?.ToLowerInvariant() switch
-        {
-            "json" or null => jsonPersistence,
-            "database" => databasePersistence,
-            _ => null
-        };
-
-        if (persistence is null)
-        {
-            response.SetBadRequestError($"'{request.Target}' is not a valid persistence target. Valid values: json, database.");
-            return response;
-        }
-
-        await pluginService.PersistCacheAsync(persistence).ConfigureAwait(false);
-        response.SetSuccessOk();
-        return response;
+        await pluginService.PersistCacheAsync(request.Name, PluginVersion.SafeParse(request.Version)).ConfigureAwait(false);
+        return OperationResponse.CreateSuccessOk();
     }
+
+    /// <inheritdoc />
+    protected override Task<OperationResponse> ValidateOperationAsync(PersistPluginCacheRequest request) => OperationResponse
+        .CreateSuccessOk()
+        .AddErrorIf(!string.IsNullOrWhiteSpace(request.Version) && PluginVersion.TryParse(request.Version, out _), "Invalid version.")
+        .AsTask();
 }

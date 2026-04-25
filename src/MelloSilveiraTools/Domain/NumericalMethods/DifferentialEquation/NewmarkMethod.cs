@@ -53,10 +53,11 @@ public class NewmarkMethod : IDifferentialEquationMethod
     }
 
     /// <summary>
-    /// Calculates the equivalent stiffness to calculate the displacement in Newmark method.
+    /// Builds the effective stiffness matrix [K̂] = a₀[M] + a₁[C] + [K] used to solve for
+    /// the displacement vector at the current step.
     /// </summary>
-    /// <param name="input"></param>
-    /// <returns></returns>
+    /// <param name="input">System input providing the mass, damping and stiffness matrices and the time step Δt.</param>
+    /// <returns>The effective stiffness matrix, with the same dimensions as the system matrices.</returns>
     private double[,] CalculateEquivalentStiffness(NumericalMethodInput input)
     {
         double[,] equivalentStiffness = new double[input.NumberOfBoundaryConditions, input.NumberOfBoundaryConditions];
@@ -72,13 +73,15 @@ public class NewmarkMethod : IDifferentialEquationMethod
     }
 
     /// <summary>
-    /// Calculates the equivalent force to calculate the displacement to Newmark method.
+    /// Builds the effective force vector F̂ = F + [C]·v_eq + [M]·a_eq, where v_eq and a_eq are
+    /// the equivalent velocity and acceleration extrapolated from the previous step. The result
+    /// is used together with the effective stiffness to solve for the new displacement.
     /// </summary>
-    /// <param name="input"></param>
-    /// <param name="previousDisplacement"></param>
-    /// <param name="previousVelocity"></param>
-    /// <param name="previousAcceleration"></param>
-    /// <returns></returns>
+    /// <param name="input">System input providing the mass and damping matrices and the current applied force.</param>
+    /// <param name="previousDisplacement">Displacement vector x(t−Δt), in meters.</param>
+    /// <param name="previousVelocity">Velocity vector ẋ(t−Δt), in m/s.</param>
+    /// <param name="previousAcceleration">Acceleration vector ẍ(t−Δt), in m/s².</param>
+    /// <returns>The effective force vector F̂ at the current step, in Newtons.</returns>
     private double[] CalculateEquivalentForce(NumericalMethodInput input, double[] previousDisplacement, double[] previousVelocity, double[] previousAcceleration)
     {
         #region Calculates the equivalent velocity and equivalent acceleration.
@@ -95,13 +98,13 @@ public class NewmarkMethod : IDifferentialEquationMethod
     }
 
     /// <summary>
-    /// Calculates the equivalent aceleration to calculate the equivalent force.
+    /// Computes a_eq = a₀·x(t−Δt) + a₂·ẋ(t−Δt) + a₃·ẍ(t−Δt), the equivalent acceleration term that enters the effective force vector.
     /// </summary>
-    /// <param name="input"></param>
-    /// <param name="previousDisplacement"></param>
-    /// <param name="previousVelocity"></param>
-    /// <param name="previousAcceleration"></param>
-    /// <returns></returns>
+    /// <param name="input">System input providing the time step Δt.</param>
+    /// <param name="previousDisplacement">Displacement vector at t−Δt, in meters.</param>
+    /// <param name="previousVelocity">Velocity vector at t−Δt, in m/s.</param>
+    /// <param name="previousAcceleration">Acceleration vector at t−Δt, in m/s².</param>
+    /// <returns>The equivalent acceleration vector used to assemble the effective force.</returns>
     private double[] CalculateEquivalentAcceleration(NumericalMethodInput input, double[] previousDisplacement, double[] previousVelocity, double[] previousAcceleration)
     {
         double[] equivalentAcceleration = new double[input.NumberOfBoundaryConditions];
@@ -114,13 +117,14 @@ public class NewmarkMethod : IDifferentialEquationMethod
     }
 
     /// <summary>
-    /// Calculates the equivalent velocity to calculate the equivalent force.
+    /// Computes v_eq = a₁·x(t−Δt) + a₄·ẋ(t−Δt) + a₅·ẍ(t−Δt), the equivalent velocity term
+    /// that enters the effective force vector.
     /// </summary>
-    /// <param name="input"></param>
-    /// <param name="previousDisplacement"></param>
-    /// <param name="previousVelocity"></param>
-    /// <param name="previousAcceleration"></param>
-    /// <returns></returns>
+    /// <param name="input">System input providing the time step Δt.</param>
+    /// <param name="previousDisplacement">Displacement vector at t−Δt, in meters.</param>
+    /// <param name="previousVelocity">Velocity vector at t−Δt, in m/s.</param>
+    /// <param name="previousAcceleration">Acceleration vector at t−Δt, in m/s².</param>
+    /// <returns>The equivalent velocity vector used to assemble the effective force.</returns>
     private double[] CalculateEquivalentVelocity(NumericalMethodInput input, double[] previousDisplacement, double[] previousVelocity, double[] previousAcceleration)
     {
         double[] equivalentVelocity = new double[input.NumberOfBoundaryConditions];

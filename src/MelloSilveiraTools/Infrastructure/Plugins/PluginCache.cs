@@ -1,6 +1,6 @@
-using System.Runtime.CompilerServices;
 using MelloSilveiraTools.Infrastructure.Caching;
 using MelloSilveiraTools.Infrastructure.Plugins.Models;
+using MelloSilveiraTools.Infrastructure.Plugins.Persistences;
 
 namespace MelloSilveiraTools.Infrastructure.Plugins;
 
@@ -12,21 +12,39 @@ namespace MelloSilveiraTools.Infrastructure.Plugins;
 /// </summary>
 public class PluginCache(ITwoLevelCache cache)
 {
+    /// <summary>
+    /// Returns the cached <see cref="DiscoveredPlugin"/> for (<paramref name="name"/>, <paramref name="version"/>) or adds the one produced by <paramref name="factory"/>.
+    /// </summary>
     public DiscoveredPlugin GetOrAdd(string name, PluginVersion version, Func<DiscoveredPlugin> factory)
         => cache.GetOrAdd(name, version.Name, factory);
 
+    /// <summary>
+    /// Returns the cached <see cref="LoadedPlugin"/> for (<paramref name="name"/>, <paramref name="version"/>) or adds the one produced by <paramref name="factory"/>.
+    /// </summary>
     public LoadedPlugin GetOrAdd(string name, PluginVersion version, Func<LoadedPlugin> factory)
         => cache.GetOrAdd(name, version.Name, factory);
 
+    /// <summary>
+    /// Returns the cached <see cref="RegisteredPlugin"/> for (<paramref name="name"/>, <paramref name="version"/>) or adds the one produced by <paramref name="factory"/>.
+    /// </summary>
     public RegisteredPlugin GetOrAdd(string name, PluginVersion version, Func<RegisteredPlugin> factory)
         => cache.GetOrAdd(name, version.Name, factory);
 
+    /// <summary>
+    /// Attempts to retrieve the cached plugin state for (<paramref name="name"/>, <paramref name="version"/>) as <typeparamref name="T"/>.
+    /// </summary>
     public bool TryGet<T>(string name, PluginVersion version, out T? value) where T : DiscoveredPlugin
         => cache.TryGet(name, version.Name, out value);
 
+    /// <summary>
+    /// Replaces the cached state for (<paramref name="name"/>, <paramref name="version"/>) with <paramref name="plugin"/>.
+    /// </summary>
     public void Update(string name, PluginVersion version, DiscoveredPlugin plugin)
         => cache.Set(name, version.Name, plugin);
 
+    /// <summary>
+    /// Removes every cached plugin entry.
+    /// </summary>
     public void Clear() => cache.Clear();
 
     /// <summary>
@@ -43,44 +61,25 @@ public class PluginCache(ITwoLevelCache cache)
     }
 
     /// <summary>
-    /// Returns all entries currently held in cache, regardless of pipeline stage.
-    /// </summary>
-    public IReadOnlyList<DiscoveredPlugin> GetAll()
-    {
-        var result = new List<DiscoveredPlugin>();
-
-        foreach (var (name, versionName) in cache.GetKeys())
-            if (cache.TryGet<DiscoveredPlugin>(name, versionName, out var plugin))
-                result.Add(plugin!);
-
-        return result;
-    }
-
-    /// <summary>
     /// Streams all entries currently held in cache, regardless of pipeline stage.
     /// </summary>
-    public async IAsyncEnumerable<DiscoveredPlugin> StreamAll(
-        [EnumeratorCancellation] CancellationToken cancellationToken = default)
-    {
-        await foreach (var (_, _, plugin) in cache.StreamAll<DiscoveredPlugin>(cancellationToken))
-            yield return plugin;
-    }
+    public IAsyncEnumerable<PluginCacheEntry> Stream(CancellationToken cancellationToken = default)
+        => cache.StreamAll<DiscoveredPlugin>(cancellationToken).Select(MapToEntry);
 
     /// <summary>
     /// Streams entries filtered by <paramref name="name"/> and optionally <paramref name="version"/>.
-    /// When <paramref name="name"/> is empty all names are included.
     /// </summary>
-    public async IAsyncEnumerable<DiscoveredPlugin> StreamAll(
-        string name,
-        PluginVersion? version,
-        [EnumeratorCancellation] CancellationToken cancellationToken = default)
-    {
-        await foreach (var (group, key, plugin) in cache.StreamAll<DiscoveredPlugin>(cancellationToken))
-        {
-            if (!string.IsNullOrEmpty(name) && group != name) continue;
-            if (version is not null && key != version.Value.Name) continue;
+    /// <remarks>
+    /// A <see langword="null"/> or empty <paramref name="name"/> means "match all names";
+    /// a <see langword="null"/> <paramref name="version"/> means "match all versions".
+    /// The empty-string sentinel is normalized to <see langword="null"/> before being forwarded
+    /// to the underlying <see cref="ITwoLevelCache"/>, whose filtering semantics treat
+    /// <see langword="null"/> as "match all" for that level.
+    /// </remarks>
+    public IAsyncEnumerable<PluginCacheEntry> Stream(string name, PluginVersion? version, CancellationToken cancellationToken = default)
+        => cache.StreamAll<DiscoveredPlugin>(NormalizeFilter(name), version?.Name, cancellationToken).Select(MapToEntry);
 
-            yield return plugin;
-        }
-    }
+    private static string? NormalizeFilter(string? value) => string.IsNullOrEmpty(value) ? null : value;
+
+    private static PluginCacheEntry MapToEntry((string Group, string Key, DiscoveredPlugin Plugin) tuple) => new(tuple.Group, tuple.Key, tuple.Plugin);
 }

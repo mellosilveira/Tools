@@ -4,6 +4,7 @@ using System.Security.Cryptography;
 namespace MelloSilveiraTools.Infrastructure.Services.Encryption;
 
 /// <inheritdoc cref="IEncryptionService"/>
+/// <param name="settings">Settings that control the salt size, hash size and iteration count.</param>
 public class EncryptionService(EncryptionSettings settings) : IEncryptionService
 {
     private const char Separator = ':';

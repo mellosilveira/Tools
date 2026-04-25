@@ -23,7 +23,18 @@
       "Bash(find 'D:/Mello Silveira Serviços LTDA/Projetos/PraJah/prajah-api/src' -name *.cs -type f)",
       "Bash(find 'D:\\\\Mello Silveira Serviços LTDA\\\\Projetos\\\\ResourceTrackingSystem.Backend' -name *Column* -type f)",
       "Bash(del \"D:\\\\Mello Silveira Serviços LTDA\\\\Projetos\\\\Tools\\\\src\\\\MelloSilveiraTools\\\\Infrastructure\\\\Caching\\\\IMetadataCache.cs\")",
-      "Bash(del \"D:\\\\Mello Silveira Serviços LTDA\\\\Projetos\\\\Tools\\\\src\\\\MelloSilveiraTools\\\\Infrastructure\\\\Caching\\\\InMemoryMetadataCache.cs\")"
+      "Bash(del \"D:\\\\Mello Silveira Serviços LTDA\\\\Projetos\\\\Tools\\\\src\\\\MelloSilveiraTools\\\\Infrastructure\\\\Caching\\\\InMemoryMetadataCache.cs\")",
+      "Bash(grep -E \"\\\\.cs$|Program\")",
+      "Bash(find \"D:\\\\Mello Silveira Serviços LTDA\\\\Projetos\\\\Tools\" -name \"*.cs\" -type f -exec grep -l \"IPluginService\\\\|PersistPluginCache\" {} \\\\;)",
+      "Bash(xargs -I {} sh -c 'if grep -q \"AddScoped\\\\|AddTransient\\\\|AddSingleton\" \"$1\"; then echo \"$1\"; fi' _ {})",
+      "Bash(find . -name \"*.cs\" -path \"*/Plugins/*\" -exec grep -l \"Extensions\\\\|ServiceCollection\" {} \\\\;)",
+      "Bash(xargs cat *)",
+      "Bash(find . -name \"*.csproj\" -exec grep -l \"Web\\\\|Mvc\\\\|Api\" {} \\\\;)",
+      "Bash(find . -type f -name \"*.csproj\" -exec sh -c 'echo \"=== $1 ===\" && head -20 \"$1\"' _ {} \\\\;)",
+      "Bash(unzip -l build/bin/Debug/MelloSilveiraTools/MelloSilveiraTools.1.2.2.nupkg)",
+      "Bash(unzip -l build/bin/Debug/MelloSilveiraTools.MechanicsOfMaterials/MelloSilveiraTools.MechanicsOfMaterials.1.2.2.nupkg)",
+      "Bash(unzip -l build/bin/Debug/MelloSilveiraTools/MelloSilveiraTools.1.2.2-rc002.nupkg)",
+      "Bash(unzip -p build/bin/Debug/MelloSilveiraTools/MelloSilveiraTools.1.2.2-rc002.nupkg MelloSilveiraTools.nuspec)"
     ]
   }
 }

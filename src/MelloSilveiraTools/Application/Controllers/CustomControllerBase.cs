@@ -1,4 +1,4 @@
-﻿using MelloSilveiraTools.Application.Models;
+using MelloSilveiraTools.Application.Models;
 using MelloSilveiraTools.Application.Operations.Add;
 using MelloSilveiraTools.Domain.Repositories;
 using MelloSilveiraTools.ExtensionMethods;
@@ -10,10 +10,22 @@ using Microsoft.Net.Http.Headers;
 
 namespace MelloSilveiraTools.Application.Controllers;
 
+/// <summary>
+/// Base controller providing shared behavior (logging, entity creation, NDJSON streaming) for the project's controllers.
+/// </summary>
 public class CustomControllerBase(ILogger logger) : Controller
 {
+    /// <summary>
+    /// Logger used to report failures and diagnostics from controller actions.
+    /// </summary>
     protected ILogger Logger { get; } = logger;
 
+    /// <summary>
+    /// Creates a new entity through the provided repository and maps the outcome to an HTTP response.
+    /// </summary>
+    /// <param name="repository">Repository used to persist the entity.</param>
+    /// <param name="entity">Entity instance to be inserted.</param>
+    /// <param name="resourceName">Human-readable resource name used when building error messages.</param>
     protected async Task<ActionResult<AddResponse>> Create<TEntity>(IRepository repository, TEntity entity, string resourceName) where TEntity : EntityBase
     {
         try
@@ -33,6 +45,11 @@ public class CustomControllerBase(ILogger logger) : Controller
         }
     }
 
+    /// <summary>
+    /// Streams a sequence of entities to the response as newline-delimited JSON (NDJSON).
+    /// </summary>
+    /// <param name="entities">Asynchronous sequence of items to be streamed.</param>
+    /// <param name="resourceName">Human-readable resource name used when reporting streaming failures.</param>
     protected async Task Stream<T>(IAsyncEnumerable<T> entities, string resourceName)
     {
         // The nosniff directive within the X-Content-Type-Options HTTP response header is a security measure designed to

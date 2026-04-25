@@ -14,16 +14,13 @@ namespace MelloSilveiraTools.ExtensionMethods;
 public static class ClassExtensions
 {
     // (EntityType, declaredOnly) → (PropertyInfo, NpgsqlDbType)[] for [Column]-annotated props
-    private static readonly ConcurrentDictionary<(Type Type, bool DeclaredOnly), (PropertyInfo Prop, NpgsqlDbType DbType)[]>
-        _columnMetaCache = new();
+    private static readonly ConcurrentDictionary<(Type Type, bool DeclaredOnly), (PropertyInfo Prop, NpgsqlDbType DbType)[]> _columnMetaCache = new();
 
     // FilterType → (PropertyInfo, FilterColumnAttribute)[] for [FilterColumn]-annotated props
-    private static readonly ConcurrentDictionary<Type, (PropertyInfo Prop, FilterColumnAttribute Attr)[]>
-        _filterColumnMetaCache = new();
+    private static readonly ConcurrentDictionary<Type, (PropertyInfo Prop, FilterColumnAttribute Attr)[]> _filterColumnMetaCache = new();
 
     // FilterType → FilterAttribute? (class-level attribute, cached to avoid repeated GetCustomAttribute)
-    private static readonly ConcurrentDictionary<Type, FilterAttribute?>
-        _filterAttributeCache = new();
+    private static readonly ConcurrentDictionary<Type, FilterAttribute?> _filterAttributeCache = new();
 
     /// <summary>
     /// Gets the values from object which is following the hierarchy order from parent to child.
@@ -151,6 +148,9 @@ public static class ClassExtensions
         return (whereClause, parameters);
     }
 
+    /// <summary>
+    /// Wraps the supplied instance in a completed <see cref="Task{T}"/>.
+    /// </summary>
     public static Task<T> AsTask<T>(this T obj) => Task.FromResult(obj);
 
     private static (PropertyInfo Prop, NpgsqlDbType DbType)[] GetColumnMeta<T>(bool declaredOnly)
