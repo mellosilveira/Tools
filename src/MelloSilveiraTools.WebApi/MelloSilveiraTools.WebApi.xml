@@ -7,6 +7,8 @@
         <member name="T:MelloSilveiraTools.WebApi.Application.Controllers.CrudController`2">
             <summary>
             Generic controller exposing standard CRUD and streaming endpoints for an entity and its filter.
+            All HTTP-agnostic logic lives in the <c>MelloSilveiraTools.WebApi.Application.Operations.Crud</c> operations,
+            which are also consumed by the equivalent minimal-API extensions in <see cref="T:MelloSilveiraTools.WebApi.Application.Endpoints.CrudEndpoints"/>.
             </summary>
             <typeparam name="TEntity">The entity type handled by the controller.</typeparam>
             <typeparam name="TFilter">The filter type used to query the entity.</typeparam>
@@ -15,6 +17,8 @@
         <member name="M:MelloSilveiraTools.WebApi.Application.Controllers.CrudController`2.#ctor(MelloSilveiraTools.Core.Infrastructure.Logger.ILogger)">
             <summary>
             Generic controller exposing standard CRUD and streaming endpoints for an entity and its filter.
+            All HTTP-agnostic logic lives in the <c>MelloSilveiraTools.WebApi.Application.Operations.Crud</c> operations,
+            which are also consumed by the equivalent minimal-API extensions in <see cref="T:MelloSilveiraTools.WebApi.Application.Endpoints.CrudEndpoints"/>.
             </summary>
             <typeparam name="TEntity">The entity type handled by the controller.</typeparam>
             <typeparam name="TFilter">The filter type used to query the entity.</typeparam>
@@ -25,41 +29,41 @@
             Human-readable name of the resource, used when building log and error messages.
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.WebApi.Application.Controllers.CrudController`2.Create(MelloSilveiraTools.Database.Domain.Repositories.IRepository,`0)">
+        <member name="M:MelloSilveiraTools.WebApi.Application.Controllers.CrudController`2.Add(MelloSilveiraTools.WebApi.Application.Operations.Add.AddEntity{`0},`0)">
             <summary>
-            Creates a new entity.
+            Persists a new entity.
             </summary>
-            <param name="repository">Repository used to persist the entity.</param>
-            <param name="entity">Entity instance to be created.</param>
+            <param name="operation">Operation that performs the insert.</param>
+            <param name="entity">Entity instance to be persisted.</param>
         </member>
-        <member name="M:MelloSilveiraTools.WebApi.Application.Controllers.CrudController`2.Read(MelloSilveiraTools.Database.Domain.Repositories.IRepository,System.Int64)">
+        <member name="M:MelloSilveiraTools.WebApi.Application.Controllers.CrudController`2.Read(MelloSilveiraTools.WebApi.Application.Operations.Crud.ReadEntityById{`0},System.Int64)">
             <summary>
             Retrieves a single entity by its identifier.
             </summary>
-            <param name="repository">Repository used to load the entity.</param>
+            <param name="operation">Operation that loads the entity.</param>
             <param name="id">Identifier of the entity to be returned.</param>
         </member>
-        <member name="M:MelloSilveiraTools.WebApi.Application.Controllers.CrudController`2.Read(MelloSilveiraTools.Database.Domain.Repositories.IRepository,`1,MelloSilveiraTools.Database.Infrastructure.Database.Models.Filters.Pagination)">
+        <member name="M:MelloSilveiraTools.WebApi.Application.Controllers.CrudController`2.Read(MelloSilveiraTools.WebApi.Application.Operations.Crud.ReadEntityPaged{`0,`1},`1,MelloSilveiraTools.Database.Infrastructure.Database.Models.Filters.Pagination)">
             <summary>
             Retrieves a paginated list of entities that match the supplied filter.
             </summary>
-            <param name="repository">Repository used to query the entities.</param>
+            <param name="operation">Operation that queries the entities.</param>
             <param name="filter">Filter criteria applied to the query.</param>
             <param name="pagination">Pagination parameters (offset and limit).</param>
         </member>
-        <member name="M:MelloSilveiraTools.WebApi.Application.Controllers.CrudController`2.Update(MelloSilveiraTools.Database.Domain.Repositories.IRepository,System.Int64,`0)">
+        <member name="M:MelloSilveiraTools.WebApi.Application.Controllers.CrudController`2.Update(MelloSilveiraTools.WebApi.Application.Operations.Crud.UpdateEntity{`0},System.Int64,`0)">
             <summary>
             Updates an existing entity identified by the route parameter.
             </summary>
-            <param name="repository">Repository used to persist changes.</param>
+            <param name="operation">Operation that persists the changes.</param>
             <param name="id">Identifier of the entity to be updated.</param>
             <param name="entity">Updated entity payload.</param>
         </member>
-        <member name="M:MelloSilveiraTools.WebApi.Application.Controllers.CrudController`2.Delete(MelloSilveiraTools.Database.Domain.Repositories.IRepository,System.Int64)">
+        <member name="M:MelloSilveiraTools.WebApi.Application.Controllers.CrudController`2.Delete(MelloSilveiraTools.WebApi.Application.Operations.Crud.DeleteEntity{`0},System.Int64)">
             <summary>
             Deletes an entity by its identifier.
             </summary>
-            <param name="repository">Repository used to delete the entity.</param>
+            <param name="operation">Operation that deletes the entity.</param>
             <param name="id">Identifier of the entity to be deleted.</param>
         </member>
         <member name="M:MelloSilveiraTools.WebApi.Application.Controllers.CrudController`2.Stream(MelloSilveiraTools.Database.Domain.Repositories.IRepository,`1)">
@@ -71,12 +75,12 @@
         </member>
         <member name="T:MelloSilveiraTools.WebApi.Application.Controllers.CustomControllerBase">
             <summary>
-            Base controller providing shared behavior (logging, entity creation, NDJSON streaming) for the project's controllers.
+            Base controller providing shared behavior (logging, generic add helper, NDJSON streaming) for the project's controllers.
             </summary>
         </member>
         <member name="M:MelloSilveiraTools.WebApi.Application.Controllers.CustomControllerBase.#ctor(MelloSilveiraTools.Core.Infrastructure.Logger.ILogger)">
             <summary>
-            Base controller providing shared behavior (logging, entity creation, NDJSON streaming) for the project's controllers.
+            Base controller providing shared behavior (logging, generic add helper, NDJSON streaming) for the project's controllers.
             </summary>
         </member>
         <member name="P:MelloSilveiraTools.WebApi.Application.Controllers.CustomControllerBase.Logger">
@@ -84,19 +88,92 @@
             Logger used to report failures and diagnostics from controller actions.
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.WebApi.Application.Controllers.CustomControllerBase.Create``1(MelloSilveiraTools.Database.Domain.Repositories.IRepository,``0,System.String)">
+        <member name="M:MelloSilveiraTools.WebApi.Application.Controllers.CustomControllerBase.Add``1(MelloSilveiraTools.WebApi.Application.Operations.Add.AddEntity{``0},``0,System.String)">
             <summary>
-            Creates a new entity through the provided repository and maps the outcome to an HTTP response.
+            Persists <paramref name="entity"/> through the supplied <see cref="T:MelloSilveiraTools.WebApi.Application.Operations.Add.AddEntity`1"/> operation and
+            projects the result onto an <see cref="T:Microsoft.AspNetCore.Mvc.ActionResult`1"/>. Available to every controller that derives
+            from <see cref="T:MelloSilveiraTools.WebApi.Application.Controllers.CustomControllerBase"/> — not only the generic <c>CrudController</c>.
             </summary>
-            <param name="repository">Repository used to persist the entity.</param>
-            <param name="entity">Entity instance to be inserted.</param>
-            <param name="resourceName">Human-readable resource name used when building error messages.</param>
+            <typeparam name="TEntity">Entity type being persisted.</typeparam>
+            <param name="operation">Operation that performs the insert (resolved from DI).</param>
+            <param name="entity">Entity payload received from the request.</param>
+            <param name="resourceName">Human-readable resource name used to build localized error messages.</param>
         </member>
         <member name="M:MelloSilveiraTools.WebApi.Application.Controllers.CustomControllerBase.Stream``1(System.Collections.Generic.IAsyncEnumerable{``0},System.String)">
             <summary>
             Streams a sequence of entities to the response as newline-delimited JSON (NDJSON).
+            Delegates to <see cref="M:MelloSilveiraTools.WebApi.Application.Endpoints.StreamEndpoints.WriteNdjsonAsync``1(System.Collections.Generic.IAsyncEnumerable{``0},Microsoft.AspNetCore.Http.HttpContext,MelloSilveiraTools.Core.Infrastructure.Logger.ILogger,System.String)"/> so controllers and minimal-API endpoints
+            share the exact same writer (headers, trailers, cancellation handling).
             </summary>
             <param name="entities">Asynchronous sequence of items to be streamed.</param>
+            <param name="resourceName">Human-readable resource name used when reporting streaming failures.</param>
+        </member>
+        <member name="T:MelloSilveiraTools.WebApi.Application.Endpoints.AddEndpoints">
+            <summary>
+            Maps a single insert (POST) endpoint backed by the <see cref="T:MelloSilveiraTools.WebApi.Application.Operations.Add.AddEntity`1"/> operation.
+            Available standalone (for hosts that only need the create path) or composed by <c>CrudEndpoints.MapCrud</c>.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.WebApi.Application.Endpoints.AddEndpoints.MapAdd``1(Microsoft.AspNetCore.Routing.IEndpointRouteBuilder,System.String,System.String)">
+            <summary>
+            Maps a <c>POST</c> endpoint at <paramref name="pattern"/> that delegates to <see cref="T:MelloSilveiraTools.WebApi.Application.Operations.Add.AddEntity`1"/>.
+            </summary>
+            <typeparam name="TEntity">The entity type to be inserted.</typeparam>
+            <param name="builder">Endpoint route builder used to register the endpoint.</param>
+            <param name="pattern">Route pattern (e.g. <c>"/"</c> when called from a route group, or a full path).</param>
+            <param name="resourceName">Human-readable resource name used to build localized error messages.</param>
+            <returns>The <see cref="T:Microsoft.AspNetCore.Builder.RouteHandlerBuilder"/> so the caller can chain metadata (<c>.RequireAuthorization()</c>, <c>.WithTags(...)</c>, etc.).</returns>
+        </member>
+        <member name="T:MelloSilveiraTools.WebApi.Application.Endpoints.CrudEndpoints">
+            <summary>
+            Maps the same CRUD + NDJSON-streaming surface as <see cref="T:MelloSilveiraTools.WebApi.Application.Controllers.CrudController`2"/>
+            onto a minimal-API <see cref="T:Microsoft.AspNetCore.Routing.RouteGroupBuilder"/>. Hosts can choose between inheriting from the controller
+            and calling <see cref="M:MelloSilveiraTools.WebApi.Application.Endpoints.CrudEndpoints.MapCrud``2(Microsoft.AspNetCore.Routing.IEndpointRouteBuilder,System.String,System.String)"/> — both delegate to the same operations under
+            <c>MelloSilveiraTools.WebApi.Application.Operations.Add</c> and <c>...Operations.Crud</c>.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.WebApi.Application.Endpoints.CrudEndpoints.MapCrud``2(Microsoft.AspNetCore.Routing.IEndpointRouteBuilder,System.String,System.String)">
+            <summary>
+            Maps the standard CRUD endpoints (add, read by id, paged read, update, delete and NDJSON stream)
+            for the supplied entity / filter pair under <paramref name="pattern"/>. The add and stream endpoints
+            are delegated to <see cref="M:MelloSilveiraTools.WebApi.Application.Endpoints.AddEndpoints.MapAdd``1(Microsoft.AspNetCore.Routing.IEndpointRouteBuilder,System.String,System.String)"/> and <see cref="M:MelloSilveiraTools.WebApi.Application.Endpoints.StreamEndpoints.MapStream``2(Microsoft.AspNetCore.Routing.IEndpointRouteBuilder,System.String,System.String)"/>
+            so hosts can also use those individually.
+            </summary>
+            <typeparam name="TEntity">The entity type handled by the endpoints.</typeparam>
+            <typeparam name="TFilter">The filter type used to query the entity.</typeparam>
+            <param name="builder">Endpoint route builder used to register the endpoints.</param>
+            <param name="pattern">Route prefix (e.g. <c>"/api/v1/things"</c>).</param>
+            <param name="resourceName">Human-readable resource name used when building log and error messages.</param>
+            <returns>The created <see cref="T:Microsoft.AspNetCore.Routing.RouteGroupBuilder"/> so callers can chain <c>.RequireAuthorization(...)</c>, <c>.WithTags(...)</c>, etc.</returns>
+        </member>
+        <member name="T:MelloSilveiraTools.WebApi.Application.Endpoints.StreamEndpoints">
+            <summary>
+            Helpers that expose the same NDJSON streaming behavior as <see cref="T:MelloSilveiraTools.WebApi.Application.Controllers.CustomControllerBase"/>
+            so minimal-API endpoints can write newline-delimited JSON responses without inheriting from a controller.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.WebApi.Application.Endpoints.StreamEndpoints.MapStream``2(Microsoft.AspNetCore.Routing.IEndpointRouteBuilder,System.String,System.String)">
+            <summary>
+            Maps a <c>GET</c> endpoint at <paramref name="pattern"/> that streams entities matching <typeparamref name="TFilter"/>
+            as NDJSON. Available standalone (for hosts that only need the streaming path) or composed by <c>CrudEndpoints.MapCrud</c>.
+            </summary>
+            <typeparam name="TEntity">The entity type being streamed.</typeparam>
+            <typeparam name="TFilter">The filter type used to query the entity.</typeparam>
+            <param name="builder">Endpoint route builder used to register the endpoint.</param>
+            <param name="pattern">Route pattern (e.g. <c>"/stream"</c> when called from a route group, or a full path).</param>
+            <param name="resourceName">Human-readable resource name used when reporting streaming failures.</param>
+            <returns>The <see cref="T:Microsoft.AspNetCore.Builder.RouteHandlerBuilder"/> so the caller can chain metadata.</returns>
+        </member>
+        <member name="M:MelloSilveiraTools.WebApi.Application.Endpoints.StreamEndpoints.WriteNdjsonAsync``1(System.Collections.Generic.IAsyncEnumerable{``0},Microsoft.AspNetCore.Http.HttpContext,MelloSilveiraTools.Core.Infrastructure.Logger.ILogger,System.String)">
+            <summary>
+            Writes <paramref name="entities"/> to the response body as newline-delimited JSON (NDJSON).
+            Sets the proper content-type, the <c>X-Content-Type-Options: nosniff</c> header, and reports
+            the final status through the <see cref="F:MelloSilveiraTools.WebApi.Application.Models.ApplicationConstants.StreamStatusTrailerName"/> trailer.
+            </summary>
+            <typeparam name="T">Type of the items being streamed.</typeparam>
+            <param name="context">HTTP context that owns the response stream.</param>
+            <param name="entities">Asynchronous sequence of items to be streamed.</param>
+            <param name="logger">Logger used to record warnings (client cancellation) and errors.</param>
             <param name="resourceName">Human-readable resource name used when reporting streaming failures.</param>
         </member>
         <member name="T:MelloSilveiraTools.WebApi.Application.Middlewares.ExceptionHandlingMiddleware">
@@ -209,6 +286,40 @@
             </summary>
             <param name="httpContext">The HTTP context to which the NDJSON payload will be written.</param>
         </member>
+        <member name="T:MelloSilveiraTools.WebApi.Application.Operations.Add.AddEntity`1">
+            <summary>
+            Generic operation that inserts an entity through <see cref="T:MelloSilveiraTools.Database.Domain.Repositories.IRepository"/> and returns an <see cref="T:MelloSilveiraTools.WebApi.Application.Operations.Add.AddResponse"/>
+            carrying the assigned identifier. Shared between <c>CrudController</c>/<c>CustomControllerBase</c> and the
+            <c>AddEndpoints.MapAdd</c> minimal-API extension so the create path is implemented in exactly one place.
+            </summary>
+            <typeparam name="TEntity">Entity type being persisted.</typeparam>
+        </member>
+        <member name="M:MelloSilveiraTools.WebApi.Application.Operations.Add.AddEntity`1.#ctor(MelloSilveiraTools.Core.Infrastructure.Logger.ILogger,MelloSilveiraTools.Database.Domain.Repositories.IRepository)">
+            <summary>
+            Generic operation that inserts an entity through <see cref="T:MelloSilveiraTools.Database.Domain.Repositories.IRepository"/> and returns an <see cref="T:MelloSilveiraTools.WebApi.Application.Operations.Add.AddResponse"/>
+            carrying the assigned identifier. Shared between <c>CrudController</c>/<c>CustomControllerBase</c> and the
+            <c>AddEndpoints.MapAdd</c> minimal-API extension so the create path is implemented in exactly one place.
+            </summary>
+            <typeparam name="TEntity">Entity type being persisted.</typeparam>
+        </member>
+        <member name="M:MelloSilveiraTools.WebApi.Application.Operations.Add.AddEntity`1.ValidateOperationAsync(MelloSilveiraTools.WebApi.Application.Operations.Add.AddEntityRequest{`0})">
+            <inheritdoc />
+        </member>
+        <member name="M:MelloSilveiraTools.WebApi.Application.Operations.Add.AddEntity`1.ProcessOperationAsync(MelloSilveiraTools.WebApi.Application.Operations.Add.AddEntityRequest{`0})">
+            <inheritdoc />
+        </member>
+        <member name="T:MelloSilveiraTools.WebApi.Application.Operations.Add.AddEntityRequest`1">
+            <summary>
+            Request consumed by <see cref="T:MelloSilveiraTools.WebApi.Application.Operations.Add.AddEntity`1"/>.
+            </summary>
+            <typeparam name="TEntity">Entity type being persisted.</typeparam>
+        </member>
+        <member name="P:MelloSilveiraTools.WebApi.Application.Operations.Add.AddEntityRequest`1.Entity">
+            <summary>Entity to insert.</summary>
+        </member>
+        <member name="P:MelloSilveiraTools.WebApi.Application.Operations.Add.AddEntityRequest`1.ResourceName">
+            <summary>Human-readable resource name used to build localized error messages.</summary>
+        </member>
         <member name="T:MelloSilveiraTools.WebApi.Application.Operations.Add.AddResponse">
             <summary>
             Response produced by add/create operations, optionally exposing the identifier of the newly created resource.
@@ -241,6 +352,145 @@
         </member>
         <member name="P:MelloSilveiraTools.WebApi.Application.Operations.Add.AddResponseData.Id">
             <summary>Identifier assigned to the newly created resource.</summary>
+        </member>
+        <member name="T:MelloSilveiraTools.WebApi.Application.Operations.Crud.DeleteEntity`1">
+            <summary>
+            Generic operation that deletes an entity by its identifier through <see cref="T:MelloSilveiraTools.Database.Domain.Repositories.IRepository"/>.
+            Shared between <c>CrudController</c> and <c>CrudEndpoints</c>.
+            </summary>
+            <typeparam name="TEntity">Entity type being deleted.</typeparam>
+        </member>
+        <member name="M:MelloSilveiraTools.WebApi.Application.Operations.Crud.DeleteEntity`1.#ctor(MelloSilveiraTools.Core.Infrastructure.Logger.ILogger,MelloSilveiraTools.Database.Domain.Repositories.IRepository)">
+            <summary>
+            Generic operation that deletes an entity by its identifier through <see cref="T:MelloSilveiraTools.Database.Domain.Repositories.IRepository"/>.
+            Shared between <c>CrudController</c> and <c>CrudEndpoints</c>.
+            </summary>
+            <typeparam name="TEntity">Entity type being deleted.</typeparam>
+        </member>
+        <member name="M:MelloSilveiraTools.WebApi.Application.Operations.Crud.DeleteEntity`1.ValidateOperationAsync(MelloSilveiraTools.WebApi.Application.Operations.Crud.DeleteEntityRequest)">
+            <inheritdoc />
+        </member>
+        <member name="M:MelloSilveiraTools.WebApi.Application.Operations.Crud.DeleteEntity`1.ProcessOperationAsync(MelloSilveiraTools.WebApi.Application.Operations.Crud.DeleteEntityRequest)">
+            <inheritdoc />
+        </member>
+        <member name="T:MelloSilveiraTools.WebApi.Application.Operations.Crud.DeleteEntityRequest">
+            <summary>
+            Request consumed by <see cref="T:MelloSilveiraTools.WebApi.Application.Operations.Crud.DeleteEntity`1"/>.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.WebApi.Application.Operations.Crud.DeleteEntityRequest.Id">
+            <summary>Identifier of the entity to delete.</summary>
+        </member>
+        <member name="P:MelloSilveiraTools.WebApi.Application.Operations.Crud.DeleteEntityRequest.ResourceName">
+            <summary>Human-readable resource name used to build localized error messages.</summary>
+        </member>
+        <member name="T:MelloSilveiraTools.WebApi.Application.Operations.Crud.ReadEntityById`1">
+            <summary>
+            Generic operation that loads a single entity by its identifier through <see cref="T:MelloSilveiraTools.Database.Domain.Repositories.IRepository"/>.
+            Shared between <c>CrudController</c> and <c>CrudEndpoints</c>.
+            </summary>
+            <typeparam name="TEntity">Entity type being read.</typeparam>
+        </member>
+        <member name="M:MelloSilveiraTools.WebApi.Application.Operations.Crud.ReadEntityById`1.#ctor(MelloSilveiraTools.Core.Infrastructure.Logger.ILogger,MelloSilveiraTools.Database.Domain.Repositories.IRepository)">
+            <summary>
+            Generic operation that loads a single entity by its identifier through <see cref="T:MelloSilveiraTools.Database.Domain.Repositories.IRepository"/>.
+            Shared between <c>CrudController</c> and <c>CrudEndpoints</c>.
+            </summary>
+            <typeparam name="TEntity">Entity type being read.</typeparam>
+        </member>
+        <member name="M:MelloSilveiraTools.WebApi.Application.Operations.Crud.ReadEntityById`1.ValidateOperationAsync(MelloSilveiraTools.WebApi.Application.Operations.Crud.ReadEntityByIdRequest)">
+            <inheritdoc />
+        </member>
+        <member name="M:MelloSilveiraTools.WebApi.Application.Operations.Crud.ReadEntityById`1.ProcessOperationAsync(MelloSilveiraTools.WebApi.Application.Operations.Crud.ReadEntityByIdRequest)">
+            <inheritdoc />
+        </member>
+        <member name="T:MelloSilveiraTools.WebApi.Application.Operations.Crud.ReadEntityByIdRequest">
+            <summary>
+            Request consumed by <see cref="T:MelloSilveiraTools.WebApi.Application.Operations.Crud.ReadEntityById`1"/>.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.WebApi.Application.Operations.Crud.ReadEntityByIdRequest.Id">
+            <summary>Identifier of the entity to load.</summary>
+        </member>
+        <member name="P:MelloSilveiraTools.WebApi.Application.Operations.Crud.ReadEntityByIdRequest.ResourceName">
+            <summary>Human-readable resource name used to build localized error messages.</summary>
+        </member>
+        <member name="T:MelloSilveiraTools.WebApi.Application.Operations.Crud.ReadEntityPaged`2">
+            <summary>
+            Generic operation that returns a paginated list of entities matching the supplied filter.
+            Shared between <c>CrudController</c> and <c>CrudEndpoints</c>.
+            </summary>
+            <typeparam name="TEntity">Entity type being queried.</typeparam>
+            <typeparam name="TFilter">Filter type used to query the entity.</typeparam>
+        </member>
+        <member name="M:MelloSilveiraTools.WebApi.Application.Operations.Crud.ReadEntityPaged`2.#ctor(MelloSilveiraTools.Core.Infrastructure.Logger.ILogger,MelloSilveiraTools.Database.Domain.Repositories.IRepository)">
+            <summary>
+            Generic operation that returns a paginated list of entities matching the supplied filter.
+            Shared between <c>CrudController</c> and <c>CrudEndpoints</c>.
+            </summary>
+            <typeparam name="TEntity">Entity type being queried.</typeparam>
+            <typeparam name="TFilter">Filter type used to query the entity.</typeparam>
+        </member>
+        <member name="M:MelloSilveiraTools.WebApi.Application.Operations.Crud.ReadEntityPaged`2.ValidateOperationAsync(MelloSilveiraTools.WebApi.Application.Operations.Crud.ReadEntityPagedRequest{`1})">
+            <inheritdoc />
+        </member>
+        <member name="M:MelloSilveiraTools.WebApi.Application.Operations.Crud.ReadEntityPaged`2.ProcessOperationAsync(MelloSilveiraTools.WebApi.Application.Operations.Crud.ReadEntityPagedRequest{`1})">
+            <inheritdoc />
+        </member>
+        <member name="T:MelloSilveiraTools.WebApi.Application.Operations.Crud.ReadEntityPagedRequest`1">
+            <summary>
+            Request consumed by <see cref="T:MelloSilveiraTools.WebApi.Application.Operations.Crud.ReadEntityPaged`2"/>.
+            </summary>
+            <typeparam name="TFilter">Filter type used to query the entity.</typeparam>
+        </member>
+        <member name="P:MelloSilveiraTools.WebApi.Application.Operations.Crud.ReadEntityPagedRequest`1.Filter">
+            <summary>Filter criteria applied to the query.</summary>
+        </member>
+        <member name="P:MelloSilveiraTools.WebApi.Application.Operations.Crud.ReadEntityPagedRequest`1.Pagination">
+            <summary>Pagination parameters (offset, limit, sort).</summary>
+        </member>
+        <member name="P:MelloSilveiraTools.WebApi.Application.Operations.Crud.ReadEntityPagedRequest`1.ResourceName">
+            <summary>Human-readable resource name used to build localized error messages.</summary>
+        </member>
+        <member name="P:MelloSilveiraTools.WebApi.Application.Operations.Crud.ReadEntityPagedRequest`1.CancellationToken">
+            <summary>Cancellation token (typically <c>HttpContext.RequestAborted</c>).</summary>
+        </member>
+        <member name="T:MelloSilveiraTools.WebApi.Application.Operations.Crud.UpdateEntity`1">
+            <summary>
+            Generic operation that updates an existing entity through <see cref="T:MelloSilveiraTools.Database.Domain.Repositories.IRepository"/>.
+            Returns 201 Created when the row was modified or 204 No Content when no row matched the identifier.
+            Shared between <c>CrudController</c> and <c>CrudEndpoints</c>.
+            </summary>
+            <typeparam name="TEntity">Entity type being updated.</typeparam>
+        </member>
+        <member name="M:MelloSilveiraTools.WebApi.Application.Operations.Crud.UpdateEntity`1.#ctor(MelloSilveiraTools.Core.Infrastructure.Logger.ILogger,MelloSilveiraTools.Database.Domain.Repositories.IRepository)">
+            <summary>
+            Generic operation that updates an existing entity through <see cref="T:MelloSilveiraTools.Database.Domain.Repositories.IRepository"/>.
+            Returns 201 Created when the row was modified or 204 No Content when no row matched the identifier.
+            Shared between <c>CrudController</c> and <c>CrudEndpoints</c>.
+            </summary>
+            <typeparam name="TEntity">Entity type being updated.</typeparam>
+        </member>
+        <member name="M:MelloSilveiraTools.WebApi.Application.Operations.Crud.UpdateEntity`1.ValidateOperationAsync(MelloSilveiraTools.WebApi.Application.Operations.Crud.UpdateEntityRequest{`0})">
+            <inheritdoc />
+        </member>
+        <member name="M:MelloSilveiraTools.WebApi.Application.Operations.Crud.UpdateEntity`1.ProcessOperationAsync(MelloSilveiraTools.WebApi.Application.Operations.Crud.UpdateEntityRequest{`0})">
+            <inheritdoc />
+        </member>
+        <member name="T:MelloSilveiraTools.WebApi.Application.Operations.Crud.UpdateEntityRequest`1">
+            <summary>
+            Request consumed by <see cref="T:MelloSilveiraTools.WebApi.Application.Operations.Crud.UpdateEntity`1"/>.
+            </summary>
+            <typeparam name="TEntity">Entity type being updated.</typeparam>
+        </member>
+        <member name="P:MelloSilveiraTools.WebApi.Application.Operations.Crud.UpdateEntityRequest`1.Id">
+            <summary>Identifier of the entity to update (overrides any value already on <see cref="P:MelloSilveiraTools.WebApi.Application.Operations.Crud.UpdateEntityRequest`1.Entity"/>).</summary>
+        </member>
+        <member name="P:MelloSilveiraTools.WebApi.Application.Operations.Crud.UpdateEntityRequest`1.Entity">
+            <summary>Updated entity payload.</summary>
+        </member>
+        <member name="P:MelloSilveiraTools.WebApi.Application.Operations.Crud.UpdateEntityRequest`1.ResourceName">
+            <summary>Human-readable resource name used to build localized error messages.</summary>
         </member>
         <member name="T:MelloSilveiraTools.WebApi.Application.Operations.OperationBase`2">
             <summary>
@@ -1085,6 +1335,22 @@
             <summary>
             Projects the operation response into a <see cref="T:Microsoft.AspNetCore.Mvc.JsonResult"/> carrying the same HTTP status code.
             </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.WebApi.ExtensionMethods.OperationResponseExtensions.ToHttpResultAsync``1(System.Threading.Tasks.Task{``0})">
+            <summary>
+            Projects the operation response into an <see cref="T:Microsoft.AspNetCore.Http.IResult"/> suitable for minimal-API endpoints,
+            preserving the response payload and HTTP status code.
+            </summary>
+            <param name="responseTask">The task containing the operation response to be returned.</param>
+            <returns>An <see cref="T:Microsoft.AspNetCore.Http.IResult"/> that serializes operation response as JSON with the response status code.</returns>
+        </member>
+        <member name="M:MelloSilveiraTools.WebApi.ExtensionMethods.OperationResponseExtensions.ToHttpResult``1(``0)">
+            <summary>
+            Projects the operation response into an <see cref="T:Microsoft.AspNetCore.Http.IResult"/> suitable for minimal-API endpoints,
+            preserving the response payload and HTTP status code.
+            </summary>
+            <param name="response">The operation response to be returned.</param>
+            <returns>An <see cref="T:Microsoft.AspNetCore.Http.IResult"/> that serializes <paramref name="response"/> as JSON with the response status code.</returns>
         </member>
         <member name="T:MelloSilveiraTools.WebApi.ExtensionMethods.ResultExtensions">
             <summary>

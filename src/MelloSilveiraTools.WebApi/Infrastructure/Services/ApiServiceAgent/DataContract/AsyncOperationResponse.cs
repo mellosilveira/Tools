@@ -11,5 +11,5 @@ public record AsyncOperationResponse<TResponseData> : OperationResponse
     /// <summary>
     /// Data content of response.
     /// </summary>
-    public IAsyncEnumerable<TResponseData> Data { get; set; }
+    public required IAsyncEnumerable<TResponseData> Data { get; set; }
 }

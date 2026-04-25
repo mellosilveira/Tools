@@ -5,6 +5,7 @@
 		<AssemblyTitle>MelloSilveira Tools - Mathematics</AssemblyTitle>
 		<Description>Mathematics toolkit: differential equation solvers (Newmark, Newmark-β), expressions, functions, derivatives, integrals and supporting numerical primitives.</Description>
 		<PackageTags>dotnet;mathematics;numerical-methods;newmark;differential-equations;expressions;functions;engineering;math</PackageTags>
+		<IsAotCompatible>true</IsAotCompatible>
 	</PropertyGroup>
 
 	<ItemGroup>

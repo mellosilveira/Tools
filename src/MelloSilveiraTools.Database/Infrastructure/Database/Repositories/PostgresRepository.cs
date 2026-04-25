@@ -1,4 +1,4 @@
-﻿using Dapper;
+using Dapper;
 using MelloSilveiraTools.Core.Domain.Models;
 using MelloSilveiraTools.Core.ExtensionMethods;
 using MelloSilveiraTools.Database.Domain.Repositories;

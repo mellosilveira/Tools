@@ -1,4 +1,4 @@
-﻿using MelloSilveiraTools.Core.ExtensionMethods;
+using MelloSilveiraTools.Core.ExtensionMethods;
 using MelloSilveiraTools.Core.Infrastructure.Logger;
 using MelloSilveiraTools.WebApi.Application.Operations;
 using MelloSilveiraTools.WebApi.Infrastructure.ResiliencePipelines;
@@ -191,5 +191,4 @@ public abstract class ApiServiceAgentBase : IApiServiceAgent
         Dispose(disposing: true);
         GC.SuppressFinalize(this);
     }
-
 }

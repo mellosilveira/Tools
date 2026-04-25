@@ -1,4 +1,4 @@
-﻿using MelloSilveiraTools.Core.ExtensionMethods;
+using MelloSilveiraTools.Core.ExtensionMethods;
 using MelloSilveiraTools.Database.Infrastructure.Database.Attributes;
 using Npgsql;
 

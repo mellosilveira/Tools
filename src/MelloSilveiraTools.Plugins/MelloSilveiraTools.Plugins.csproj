@@ -4,6 +4,8 @@
     <AssemblyTitle>MelloSilveira Tools Plugins</AssemblyTitle>
     <Description>Plugin runtime: file-based discovery, two-level cache, dynamic DI, persistence (file/database), HTTP-friendly operations and a background orchestrator that hot-swaps assemblies at runtime.</Description>
     <PackageTags>dotnet;aspnetcore;plugins;hot-reload;dynamic-di;background-service</PackageTags>
+    <IsAotCompatible>true</IsAotCompatible>
+    <EnableRequestDelegateGenerator>true</EnableRequestDelegateGenerator>
   </PropertyGroup>
   <ItemGroup>
     <FrameworkReference Include="Microsoft.AspNetCore.App" />

@@ -1,3 +1,5 @@
+using System.Diagnostics.CodeAnalysis;
+
 namespace MelloSilveiraTools.Plugins.Infrastructure.Providers;
 
 /// <summary>
@@ -12,7 +14,7 @@ public interface IDynamicServiceProvider
     /// </summary>
     /// <param name="serviceType">The service interface type.</param>
     /// <param name="implementationType">The concrete implementation type.</param>
-    void Add(Type serviceType, Type implementationType);
+    void Add(Type serviceType, [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)] Type implementationType);
 
     /// <summary>
     /// Registers a named instance directly.

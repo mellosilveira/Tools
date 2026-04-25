@@ -62,6 +62,20 @@
             <param name="operation">Operation that restores the plugin cache.</param>
             <param name="request">Filter identifying the plugins to restore.</param>
         </member>
+        <member name="T:MelloSilveiraTools.Plugins.Application.Endpoints.PluginEndpoints">
+            <summary>
+            Maps the same surface as <see cref="T:MelloSilveiraTools.Plugins.Application.Controllers.PluginController"/> using minimal APIs.
+            Hosts that don't wire <c>app.MapControllers()</c> can reach the plugin runtime through this extension instead.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Plugins.Application.Endpoints.PluginEndpoints.MapPluginEndpoints(Microsoft.AspNetCore.Routing.IEndpointRouteBuilder,System.String)">
+            <summary>
+            Maps every plugin-management endpoint (list, load, reload, cache lifecycle) under <paramref name="pattern"/>.
+            </summary>
+            <param name="builder">Endpoint route builder used to register the endpoints.</param>
+            <param name="pattern">Route prefix; defaults to <c>"/api/v1/plugins"</c>.</param>
+            <returns>The created <see cref="T:Microsoft.AspNetCore.Routing.RouteGroupBuilder"/> so callers can chain <c>.RequireAuthorization(...)</c>, <c>.WithTags(...)</c>, etc.</returns>
+        </member>
         <member name="T:MelloSilveiraTools.Plugins.Application.Operations.Cache.ClearPluginCache">
             <summary>
             Operation that clears the plugin cache managed by <see cref="T:MelloSilveiraTools.Plugins.Infrastructure.Services.IPluginService"/>.

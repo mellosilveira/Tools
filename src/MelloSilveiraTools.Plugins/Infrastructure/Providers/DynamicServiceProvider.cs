@@ -1,5 +1,6 @@
 using Microsoft.Extensions.DependencyInjection;
 using System.Collections.Concurrent;
+using System.Diagnostics.CodeAnalysis;
 
 namespace MelloSilveiraTools.Plugins.Infrastructure.Providers;
 
@@ -16,7 +17,7 @@ public class DynamicServiceProvider(IServiceProvider serviceProvider) : IDynamic
     private readonly ConcurrentDictionary<string, object> _keyedInstances = [];
 
     /// <inheritdoc/>
-    public void Add(Type serviceType, Type implementationType)
+    public void Add(Type serviceType, [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)] Type implementationType)
     {
         _serviceInstances[serviceType] = new Lazy<object>(() => ActivatorUtilities.CreateInstance(_serviceProvider, implementationType));
     }

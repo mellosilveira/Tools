@@ -2,8 +2,9 @@
   <PropertyGroup>
     <PackageId>MelloSilveiraTools.Core</PackageId>
     <AssemblyTitle>MelloSilveira Tools Core</AssemblyTitle>
-    <Description>Core helpers for .NET: extension methods, file logger, in-memory caches, Polly resilience pipelines, encryption, SMTP email and numerical methods (Newmark / Newmark-β).</Description>
+    <Description>Core helpers for .NET: extension methods, file logger, in-memory caches, Polly resilience pipelines, encryption, SMTP email and numerical methods (Newmark / Newmark-Î²).</Description>
     <PackageTags>dotnet;extensions;logger;cache;polly;resilience;encryption;email;numerical-methods</PackageTags>
+    <IsAotCompatible>true</IsAotCompatible>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Cryptography.KeyDerivation" Version="10.0.0" />

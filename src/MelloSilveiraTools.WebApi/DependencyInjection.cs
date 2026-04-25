@@ -1,5 +1,7 @@
 using MelloSilveiraTools.Core.Infrastructure.Logger;
 using MelloSilveiraTools.Core.Infrastructure.ResiliencePipelines;
+using MelloSilveiraTools.WebApi.Application.Operations.Add;
+using MelloSilveiraTools.WebApi.Application.Operations.Crud;
 using MelloSilveiraTools.WebApi.Authentication;
 using MelloSilveiraTools.WebApi.Authentication.Services;
 using MelloSilveiraTools.WebApi.Infrastructure.ResiliencePipelines;
@@ -25,7 +27,15 @@ public static class WebApiDependencyInjection
     public static IServiceCollection AddWebApiServices(this IServiceCollection services,
         ResiliencePipelineSettings resiliencePipelineSettings)
         => services
-            .AddSingleton(provider => new ApiServiceAgentResiliencePipeline(provider.GetRequiredService<ILogger>(), resiliencePipelineSettings));
+            .AddSingleton(provider => new ApiServiceAgentResiliencePipeline(provider.GetRequiredService<ILogger>(), resiliencePipelineSettings))
+            // Register generic CRUD operations as open generics so any TEntity / TFilter pair resolves
+            // through DI without per-entity registrations. Both CrudController<TEntity, TFilter> and
+            // the MapCrud<TEntity, TFilter> minimal-API extension consume them.
+            .AddScoped(typeof(AddEntity<>))
+            .AddScoped(typeof(ReadEntityById<>))
+            .AddScoped(typeof(ReadEntityPaged<,>))
+            .AddScoped(typeof(UpdateEntity<>))
+            .AddScoped(typeof(DeleteEntity<>));
 
     /// <summary>
     /// Registers the authentication for AdmMaster users using JWT.
@@ -111,9 +121,13 @@ public static class WebApiDependencyInjection
     private static (string Title, string Description, string Location) GetAssemblyAttributes()
     {
         var callingAssembly = Assembly.GetCallingAssembly();
+        // AppContext.BaseDirectory is preferred over Assembly.Location which returns an empty string for
+        // assemblies embedded in single-file (and AOT-published) apps. Falls back to Assembly.Location for
+        // edge cases where the assembly is loaded from a side-loaded path.
+        string location = !string.IsNullOrEmpty(callingAssembly.Location) ? Path.GetDirectoryName(callingAssembly.Location)! : AppContext.BaseDirectory;
         return (
             callingAssembly.GetCustomAttribute<AssemblyTitleAttribute>()?.Title ?? callingAssembly.GetName().Name ?? "API",
             callingAssembly.GetCustomAttribute<AssemblyDescriptionAttribute>()?.Description ?? string.Empty,
-            Path.GetDirectoryName(callingAssembly.Location)!);
+            location);
     }
 }

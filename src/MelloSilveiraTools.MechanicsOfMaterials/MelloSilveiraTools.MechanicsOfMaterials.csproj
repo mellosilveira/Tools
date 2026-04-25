@@ -5,6 +5,7 @@
 		<AssemblyTitle>MelloSilveira Tools - Mechanics of Materials</AssemblyTitle>
 		<Description>Mechanics of Materials toolkit: fatigue (Goodman/Marin) analysis, constitutive equations, geometric properties (circular and rectangular profiles), 3D vector/force models, and supporting unit conversions.</Description>
 		<PackageTags>mechanics-of-materials;engineering;fatigue;goodman;marin;constitutive-equations;geometric-properties;dotnet</PackageTags>
+		<IsAotCompatible>true</IsAotCompatible>
 	</PropertyGroup>
 
 	<ItemGroup>

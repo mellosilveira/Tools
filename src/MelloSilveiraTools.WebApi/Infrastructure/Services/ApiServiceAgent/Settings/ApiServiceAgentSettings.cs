@@ -8,7 +8,7 @@ public abstract class ApiServiceAgentSettings
     /// <summary>
     /// Base address for integration with an API.
     /// </summary>
-    public string BaseAddress { get; set; }
+    public required string BaseAddress { get; set; }
 
     /// <summary>
     /// Default timeout in seconds for conection with API.

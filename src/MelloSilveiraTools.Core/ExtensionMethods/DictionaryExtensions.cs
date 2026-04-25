@@ -1,5 +1,6 @@
 ﻿using System.Collections.Concurrent;
 using System.Data;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq.Expressions;
 using System.Reflection;
 
@@ -51,7 +52,7 @@ public static class DictionaryExtensions
         return obj;
     }
 
-    private static Dictionary<string, (Action<object, object> Setter, Type PropertyType)> BuildSetters(Type type)
+    private static Dictionary<string, (Action<object, object> Setter, Type PropertyType)> BuildSetters([DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicProperties)] Type type)
     {
         var result = new Dictionary<string, (Action<object, object>, Type)>(StringComparer.Ordinal);
 

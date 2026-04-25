@@ -32,22 +32,22 @@ namespace MelloSilveiraTools.Mathematics.Domain.NumericalMethods
         /// <summary>
         /// Unit: m (meter).
         /// </summary>
-        public double[] Displacement { get; set; }
+        public double[] Displacement { get; set; } = [];
 
         /// <summary>
         /// Unit: m/s (meter per second).
         /// </summary>
-        public double[] Velocity { get; set; }
+        public double[] Velocity { get; set; } = [];
 
         /// <summary>
         /// Unit: m/s² (meter per squared second).
         /// </summary>
-        public double[] Acceleration { get; set; }
+        public double[] Acceleration { get; set; } = [];
 
         /// <summary>
         /// Unit: N (Newton).
         /// </summary>
-        public double[] EquivalentForce { get; set; }
+        public double[] EquivalentForce { get; set; } = [];
 
         /// <inheritdoc/>
         public override string ToString()

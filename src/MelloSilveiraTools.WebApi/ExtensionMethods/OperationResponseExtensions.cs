@@ -1,5 +1,6 @@
 using MelloSilveiraTools.Core.ExtensionMethods;
 using MelloSilveiraTools.WebApi.Application.Operations;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Net;
 
@@ -170,4 +171,25 @@ public static class OperationResponseExtensions
     /// </summary>
     public static JsonResult BuildHttpResponse<T>(this T response) where T : OperationResponse
         => new(response) { StatusCode = (int)response.StatusCode };
+
+    /// <summary>
+    /// Projects the operation response into an <see cref="IResult"/> suitable for minimal-API endpoints,
+    /// preserving the response payload and HTTP status code.
+    /// </summary>
+    /// <param name="responseTask">The task containing the operation response to be returned.</param>
+    /// <returns>An <see cref="IResult"/> that serializes operation response as JSON with the response status code.</returns>
+    public static async Task<IResult> ToHttpResultAsync<T>(this Task<T> responseTask) where T : OperationResponse
+    {
+        var response = await responseTask.ConfigureAwait(false);
+        return response.ToHttpResult();
+    }
+
+    /// <summary>
+    /// Projects the operation response into an <see cref="IResult"/> suitable for minimal-API endpoints,
+    /// preserving the response payload and HTTP status code.
+    /// </summary>
+    /// <param name="response">The operation response to be returned.</param>
+    /// <returns>An <see cref="IResult"/> that serializes <paramref name="response"/> as JSON with the response status code.</returns>
+    public static IResult ToHttpResult<T>(this T response) where T : OperationResponse
+        => Results.Json(response, statusCode: (int)response.StatusCode);
 }

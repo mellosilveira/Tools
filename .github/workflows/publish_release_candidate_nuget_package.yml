@@ -1,6 +1,6 @@
-# This workflow will build and publish .NET nuget package
+# This workflow builds and publishes RC packages on every PR that touches sources / project files.
 
-name: Build and publish .NET nuget package (release candidate)
+name: Build and publish .NET nuget packages (release candidate)
 
 on:
   pull_request:
@@ -13,24 +13,24 @@ on:
 
 env:
   CONFIGURATION: Release
-  DOTNET_CORE_VERSION: 9.x
+  DOTNET_CORE_VERSION: 10.x
   ARTIFACT_NAME: MelloSilveiraTools_nugetpackages_artifact
-  UPLOAD_PATH: build/bin/Release/
-  # ATTENTION: The path for GitHub actions runner is hard codded since it was not possible to use GITHUB_ACTION_PATH.
+  UPLOAD_PATH: build/nupkgs/
   TARGET_PATH: /home/runner/work/MelloSilveiraTools/MelloSilveiraTools
-      
+
 jobs:
   build:
     runs-on: ubuntu-latest
-    outputs: 
-      Version: ${{ steps.tag.outputs.version }}
+    outputs:
+      Version: ${{ steps.check_version.outputs.version }}
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
       with:
-        fetch-depth: 0 #fetch-depth is needed for GitVersion
-        
-    # Check if version contains "rc"
+        fetch-depth: 0
+
+    # All packages share the same VersionPrefix in Directory.Build.props (lockstep release).
+    # Only run the RC pipeline when that version contains "rc".
     - name: Check if version contains "rc"
       id: check_version
       run: |
@@ -41,33 +41,37 @@ jobs:
           echo "Version does not contain 'rc'. Stopping workflow."
           exit 1
         fi
-    
-    #Build/pack the project
+
     - name: Setup .NET
       uses: actions/setup-dotnet@v4
       with:
         dotnet-version: ${{ env.DOTNET_CORE_VERSION }}
-    - name: Build project
-      run: dotnet build src/MelloSilveiraTools/MelloSilveiraTools.csproj --configuration ${{ env.CONFIGURATION }}
-    - name: Pack NuGet package
-      run: dotnet pack src/MelloSilveiraTools/MelloSilveiraTools.csproj --configuration ${{ env.CONFIGURATION }} --output ${{ env.UPLOAD_PATH }}
-    - name: Upload NuGet package to GitHub
+    - name: Restore solution
+      run: dotnet restore MelloSilveiraTools.sln
+    - name: Build solution
+      run: dotnet build MelloSilveiraTools.sln --configuration ${{ env.CONFIGURATION }} --no-restore
+    - name: Pack every NuGet package
+      run: dotnet pack MelloSilveiraTools.sln --configuration ${{ env.CONFIGURATION }} --no-build --output ${{ env.UPLOAD_PATH }}
+    - name: List produced packages
+      run: ls -la ${{ env.UPLOAD_PATH }}
+    - name: Upload NuGet packages artifact
       uses: actions/upload-artifact@v4
       with:
         name: ${{ env.ARTIFACT_NAME }}
         path: ${{ env.UPLOAD_PATH }}
-        
+
   release:
     environment: production_pakages
-    runs-on: ubuntu-latest    
+    runs-on: ubuntu-latest
     needs: build
-    
-    steps:  
-    #Push NuGet package to GitHub packages
-    - name: Download nuget package artifact
+
+    steps:
+    - name: Download nuget packages artifact
       uses: actions/download-artifact@v4
       with:
         name: ${{ env.ARTIFACT_NAME }}
         path: ${{ env.TARGET_PATH }}
-    - name: Publish to nuget.org
+    - name: List downloaded packages
+      run: ls -la ${{ env.TARGET_PATH }}
+    - name: Publish all RC packages to nuget.org
       run: dotnet nuget push "${{ env.TARGET_PATH }}/*.nupkg" --api-key ${{ secrets.NUGET_ORG_API_KEY }} --source https://api.nuget.org/v3/index.json

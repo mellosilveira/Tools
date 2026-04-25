@@ -1,34 +1,31 @@
-# This workflow will build and publish .NET nuget package
+# This workflow builds and publishes every MelloSilveiraTools NuGet package on push to main.
 
-name: Build and publish .NET nuget package
+name: Build and publish .NET nuget packages
 
 on:
   push:
     branches: [main]
+
 env:
   CONFIGURATION: Release
-  DOTNET_CORE_VERSION: 9.x
+  DOTNET_CORE_VERSION: 10.x
   ARTIFACT_NAME: MelloSilveiraTools_nugetpackages_artifact
-  UPLOAD_PATH: build/bin/Release/
+  UPLOAD_PATH: build/nupkgs/
   # ATTENTION: The path for GitHub actions runner is hard codded since it was not possible to use GITHUB_ACTION_PATH.
   TARGET_PATH: /home/runner/work/MelloSilveiraTools/MelloSilveiraTools
-      
+
 jobs:
   build:
     runs-on: ubuntu-latest
-    outputs: 
+    outputs:
       Version: ${{ steps.tag.outputs.version }}
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
       with:
-        fetch-depth: 0 #fetch-depth is needed for GitVersion
-        
-    #Install and calculate the new version with GitVersion  
-    - name: Install GitVersion
-      uses: gittools/actions/gitversion/setup@v0
-      with:
-        versionSpec: 5.x
+        fetch-depth: 0 # fetch-depth is needed for GitVersion
+
+    # Read the latest tag and expose it as the release version.
     - name: Get latest tag
       id: tag
       run: |
@@ -36,43 +33,51 @@ jobs:
         echo "version=$latest_tag" >> $GITHUB_OUTPUT
     - name: Display tag
       run: echo "The tag value is ${{ steps.tag.outputs.version }}"
-    
-    #Build/pack the project
+
+    # Restore + build the whole solution. Each csproj has GeneratePackageOnBuild=true, but we
+    # explicitly run dotnet pack on the solution to guarantee every contextual package and the
+    # meta-package are produced together with consistent metadata.
     - name: Setup .NET
       uses: actions/setup-dotnet@v4
       with:
         dotnet-version: ${{ env.DOTNET_CORE_VERSION }}
-    - name: Build project
-      run: dotnet build src/MelloSilveiraTools/MelloSilveiraTools.csproj --configuration ${{ env.CONFIGURATION }}
-    - name: Pack NuGet package
-      run: dotnet pack src/MelloSilveiraTools/MelloSilveiraTools.csproj --configuration ${{ env.CONFIGURATION }} --output ${{ env.UPLOAD_PATH }}
-    - name: Upload NuGet package to GitHub
+    - name: Restore solution
+      run: dotnet restore MelloSilveiraTools.sln
+    - name: Build solution
+      run: dotnet build MelloSilveiraTools.sln --configuration ${{ env.CONFIGURATION }} --no-restore
+    - name: Pack every NuGet package
+      run: dotnet pack MelloSilveiraTools.sln --configuration ${{ env.CONFIGURATION }} --no-build --output ${{ env.UPLOAD_PATH }}
+    - name: List produced packages
+      run: ls -la ${{ env.UPLOAD_PATH }}
+    - name: Upload NuGet packages artifact
       uses: actions/upload-artifact@v4
       with:
         name: ${{ env.ARTIFACT_NAME }}
         path: ${{ env.UPLOAD_PATH }}
-        
+
   release:
     environment: production_pakages
-    runs-on: ubuntu-latest    
+    runs-on: ubuntu-latest
     needs: build
-    
-    steps:  
-    #Push NuGet package to GitHub packages
-    - name: Download nuget package artifact
+
+    steps:
+    - name: Download nuget packages artifact
       uses: actions/download-artifact@v4
       with:
         name: ${{ env.ARTIFACT_NAME }}
         path: ${{ env.TARGET_PATH }}
-    - name: Publish to nuget.org
+    - name: List downloaded packages
+      run: ls -la ${{ env.TARGET_PATH }}
+    # The wildcard publishes every .nupkg (and .snupkg) produced by dotnet pack — Core, Database,
+    # WebApi, Plugins, Mathematics, MechanicsOfMaterials and the meta-package.
+    - name: Publish all packages to nuget.org
       run: dotnet nuget push "${{ env.TARGET_PATH }}/*.nupkg" --api-key ${{ secrets.NUGET_ORG_API_KEY }} --source https://api.nuget.org/v3/index.json
-    
-    #Create release
+
     - name: Create Release
-      uses: actions/create-release@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      uses: softprops/action-gh-release@v2
       with:
         tag_name: ${{ needs.build.outputs.Version }}
-        release_name: Release ${{ needs.build.outputs.Version }}
-        
+        name: Release ${{ needs.build.outputs.Version }}
+        generate_release_notes: true
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

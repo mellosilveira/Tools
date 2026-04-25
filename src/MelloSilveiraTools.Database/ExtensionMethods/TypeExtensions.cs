@@ -1,6 +1,7 @@
 using NpgsqlTypes;
 using System.Collections;
 using System.Collections.Concurrent;
+using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 
 namespace MelloSilveiraTools.Database.ExtensionMethods;
@@ -82,7 +83,8 @@ public static class TypeExtensions
     /// </summary>
     /// <param name="type">The type whose declared properties should be returned.</param>
     /// <returns>The public instance properties declared on <paramref name="type"/>.</returns>
-    public static PropertyInfo[] GetDeclaredProperties(this Type type) => type.GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.DeclaredOnly);
+    public static PropertyInfo[] GetDeclaredProperties([DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicProperties)] this Type type)
+        => type.GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.DeclaredOnly);
 
     /// <summary>
     /// Gets the public instance properties declared directly on <paramref name="type"/> (no inherited
@@ -91,7 +93,7 @@ public static class TypeExtensions
     /// <typeparam name="TAttribute">The attribute used to filter properties.</typeparam>
     /// <param name="type">The type whose declared properties should be inspected.</param>
     /// <returns>The matching declared properties.</returns>
-    public static PropertyInfo[] GetDeclaredProperties<TAttribute>(this Type type) where TAttribute : Attribute
+    public static PropertyInfo[] GetDeclaredProperties<TAttribute>([DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicProperties)] this Type type) where TAttribute : Attribute
     {
         return type
             .GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.DeclaredOnly)
@@ -105,7 +107,8 @@ public static class TypeExtensions
     /// </summary>
     /// <param name="type">The type whose declared property names should be returned.</param>
     /// <returns>The names of the public instance properties declared on <paramref name="type"/>.</returns>
-    public static string[] GetDeclaredPropertyNames(this Type type) => type.GetDeclaredProperties().Select(property => property.Name).ToArray();
+    public static string[] GetDeclaredPropertyNames([DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicProperties)] this Type type)
+        => type.GetDeclaredProperties().Select(property => property.Name).ToArray();
 
     /// <summary>
     /// Indicates whether <paramref name="type"/> is an enumerable collection — that is, whether it

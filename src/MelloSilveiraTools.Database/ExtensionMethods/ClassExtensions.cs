@@ -5,6 +5,7 @@ using MelloSilveiraTools.Database.Infrastructure.Database.Models;
 using Npgsql;
 using NpgsqlTypes;
 using System.Collections.Concurrent;
+using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 
 namespace MelloSilveiraTools.Database.ExtensionMethods;
@@ -54,7 +55,9 @@ public static class ClassExtensions
     /// <param name="obj"></param>
     /// <param name="type"></param>
     /// <param name="valuesGroupedByPropertyName"></param>
-    public static void SetValues<T>(this object obj, Type type, IDictionary<string, T> valuesGroupedByPropertyName)
+    public static void SetValues<T>(this object obj,
+        [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicProperties)] Type type,
+        IDictionary<string, T> valuesGroupedByPropertyName)
     {
         foreach (KeyValuePair<string, T> propertyNameAndValue in valuesGroupedByPropertyName)
         {

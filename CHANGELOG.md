@@ -21,6 +21,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - `Infrastructure.Logger.LocalFileLogger` is now a working implementation: appends one JSON entry per line, rolls daily and by size, retains the last N files. Configurable via the new `LoggerSettings` record (directory, file name prefix, daily roll, max file size, max retained files). `AddToolsServices` accepts an optional `LoggerSettings` parameter and falls back to `new LoggerSettings()` when omitted.
 - `<example>` snippets to `OperationBase.ProcessAsync`, `IRepository.GetAsync` and `IFatigueCalculator.CalculateFatigueResult`.
 - `<exception>` documentation across public surfaces that throw (`IAuthenticationTokenService.RefreshAsync`, `EnumerableExtensions.FirstWithoutValidate`, `TypeExtensions.GetDbTypeFromPropertyType`, `IRepository`).
+- Minimal-API endpoint extensions (`MapCrud<TEntity, TFilter>`, `MapPluginEndpoints`, `WriteNdjsonAsync`) added alongside the existing controllers. Both styles are supported; controllers remain for backward compatibility.
 ### Fixed
 - Postgres repository now honors the configured `CommandTimeout` on every command path (previously defaulted on some repositories).
 - `unique_hash` computation for filter clauses is now stable across process restarts.

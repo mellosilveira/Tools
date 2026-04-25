@@ -4,6 +4,7 @@
     <AssemblyTitle>MelloSilveira Tools Database</AssemblyTitle>
     <Description>PostgreSQL repository with attribute-driven SQL generation, filter clauses, Npgsql/Dapper extensions and a dedicated Polly resilience pipeline.</Description>
     <PackageTags>dotnet;postgres;npgsql;dapper;repository;sql;polly</PackageTags>
+    <IsAotCompatible>true</IsAotCompatible>
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\MelloSilveiraTools.Core\MelloSilveiraTools.Core.csproj" />

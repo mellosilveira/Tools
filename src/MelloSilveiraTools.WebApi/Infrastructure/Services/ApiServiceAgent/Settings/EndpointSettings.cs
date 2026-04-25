@@ -8,7 +8,7 @@ public class EndpointSettings
     /// <summary>
     /// Endpoint URI.
     /// </summary>
-    public string Uri { get; set; }
+    public required string Uri { get; set; }
 
     /// <summary>
     /// Timeout in miliseconds for endpoint.

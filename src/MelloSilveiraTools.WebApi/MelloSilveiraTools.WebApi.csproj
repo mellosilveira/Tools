@@ -4,6 +4,8 @@
     <AssemblyTitle>MelloSilveira Tools WebApi</AssemblyTitle>
     <Description>ASP.NET Core helpers: CRUD/Custom controllers, exception middleware, NDJSON streaming, JWE bearer authentication, Swagger bootstrap, API service agent and use-case operations.</Description>
     <PackageTags>aspnetcore;jwt;jwe;swagger;crud;controllers;middleware;ndjson</PackageTags>
+    <IsAotCompatible>true</IsAotCompatible>
+    <EnableRequestDelegateGenerator>true</EnableRequestDelegateGenerator>
   </PropertyGroup>
   <ItemGroup>
     <FrameworkReference Include="Microsoft.AspNetCore.App" />

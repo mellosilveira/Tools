@@ -1,4 +1,4 @@
-﻿using MelloSilveiraTools.Database.ExtensionMethods;
+using MelloSilveiraTools.Database.ExtensionMethods;
 using System.Reflection;
 
 namespace MelloSilveiraTools.Database.Infrastructure.Database.Attributes;

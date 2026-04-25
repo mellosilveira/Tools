@@ -1,4 +1,4 @@
-﻿using MelloSilveiraTools.Database.Infrastructure.Database.Repositories;
+using MelloSilveiraTools.Database.Infrastructure.Database.Repositories;
 
 namespace MelloSilveiraTools.Database.Infrastructure.Database.Sql.Provider;
 
