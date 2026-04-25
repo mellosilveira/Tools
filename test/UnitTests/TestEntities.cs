@@ -1,5 +1,5 @@
+using MelloSilveiraTools.Database.Infrastructure.Database.Attributes;
 using MelloSilveiraTools.Database.Infrastructure.Database.Models.Entities;
-using MelloSilveiraTools.Infrastructure.Database.Attributes;
 
 namespace UnitTests;
 

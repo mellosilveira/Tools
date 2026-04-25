@@ -11,7 +11,7 @@ namespace MelloSilveiraTools.Core.Infrastructure.ResiliencePipelines;
 public class SmtpResiliencePipeline : DefaultResiliencePipeline
 {
     /// <summary>
-    /// Initialize a new instance of <see cref="PostgresResiliencePipeline"/>.
+    /// Initialize a new instance of <see cref="SmtpResiliencePipeline"/>.
     /// </summary>
     /// <param name="logger"></param>
     /// <param name="settings"></param>

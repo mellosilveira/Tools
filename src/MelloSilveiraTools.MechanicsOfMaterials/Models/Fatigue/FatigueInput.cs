@@ -66,6 +66,6 @@ namespace MelloSilveiraTools.MechanicsOfMaterials.Models.Fatigue
         /// <summary>
         /// The profile.
         /// </summary>
-        public Profile Profile { get; set; }
+        public required Profile Profile { get; set; }
     }
 }

@@ -4,58 +4,58 @@
         <name>MelloSilveiraTools.Plugins</name>
     </assembly>
     <members>
-        <member name="T:MelloSilveiraTools.Application.Controllers.PluginController">
+        <member name="T:MelloSilveiraTools.Plugins.Application.Controllers.PluginController">
             <summary>
             Exposes HTTP endpoints for inspecting and managing the plugin runtime (discovery, loading, reloading and cache management).
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.Application.Controllers.PluginController.Get(MelloSilveiraTools.Plugins.Application.Operations.Get.GetPlugins,MelloSilveiraTools.Plugins.Application.Operations.Get.GetPluginsRequest)">
+        <member name="M:MelloSilveiraTools.Plugins.Application.Controllers.PluginController.Get(MelloSilveiraTools.Plugins.Application.Operations.Get.GetPlugins,MelloSilveiraTools.Plugins.Application.Operations.Get.GetPluginsRequest)">
             <summary>
             Returns the plugins currently known to the host, optionally filtered by name, version and load state.
             </summary>
             <param name="operation">Operation that resolves the matching plugins.</param>
             <param name="request">Filter criteria applied to the plugin lookup.</param>
         </member>
-        <member name="M:MelloSilveiraTools.Application.Controllers.PluginController.Load(MelloSilveiraTools.Plugins.Application.Operations.Load.LoadPlugins,MelloSilveiraTools.Plugins.Application.Operations.Load.LoadPluginsRequest)">
+        <member name="M:MelloSilveiraTools.Plugins.Application.Controllers.PluginController.Load(MelloSilveiraTools.Plugins.Application.Operations.Load.LoadPlugins,MelloSilveiraTools.Plugins.Application.Operations.Load.LoadPluginsRequest)">
             <summary>
             Loads the plugins that match the supplied name and/or version.
             </summary>
             <param name="operation">Operation that performs the plugin load.</param>
             <param name="request">Filter identifying the plugins to load.</param>
         </member>
-        <member name="M:MelloSilveiraTools.Application.Controllers.PluginController.LoadAll(MelloSilveiraTools.Plugins.Application.Operations.Load.LoadPlugins)">
+        <member name="M:MelloSilveiraTools.Plugins.Application.Controllers.PluginController.LoadAll(MelloSilveiraTools.Plugins.Application.Operations.Load.LoadPlugins)">
             <summary>
             Loads every plugin known to the host.
             </summary>
             <param name="operation">Operation that performs the plugin load.</param>
         </member>
-        <member name="M:MelloSilveiraTools.Application.Controllers.PluginController.Reload(MelloSilveiraTools.Plugins.Application.Operations.Reload.ReloadPlugins,MelloSilveiraTools.Plugins.Application.Operations.Reload.ReloadPluginsRequest)">
+        <member name="M:MelloSilveiraTools.Plugins.Application.Controllers.PluginController.Reload(MelloSilveiraTools.Plugins.Application.Operations.Reload.ReloadPlugins,MelloSilveiraTools.Plugins.Application.Operations.Reload.ReloadPluginsRequest)">
             <summary>
             Reloads plugins that match the supplied name and/or version, optionally forcing a reload.
             </summary>
             <param name="operation">Operation that performs the plugin reload.</param>
             <param name="request">Filter identifying the plugins to reload.</param>
         </member>
-        <member name="M:MelloSilveiraTools.Application.Controllers.PluginController.ReloadAll(MelloSilveiraTools.Plugins.Application.Operations.Reload.ReloadPlugins)">
+        <member name="M:MelloSilveiraTools.Plugins.Application.Controllers.PluginController.ReloadAll(MelloSilveiraTools.Plugins.Application.Operations.Reload.ReloadPlugins)">
             <summary>
             Reloads every plugin known to the host.
             </summary>
             <param name="operation">Operation that performs the plugin reload.</param>
         </member>
-        <member name="M:MelloSilveiraTools.Application.Controllers.PluginController.ClearCache(MelloSilveiraTools.Plugins.Application.Operations.Cache.ClearPluginCache)">
+        <member name="M:MelloSilveiraTools.Plugins.Application.Controllers.PluginController.ClearCache(MelloSilveiraTools.Plugins.Application.Operations.Cache.ClearPluginCache)">
             <summary>
             Clears the plugin cache.
             </summary>
             <param name="operation">Operation that clears the plugin cache.</param>
         </member>
-        <member name="M:MelloSilveiraTools.Application.Controllers.PluginController.PersistCache(MelloSilveiraTools.Plugins.Application.Operations.Cache.PersistPluginCache,MelloSilveiraTools.Plugins.Application.Operations.Cache.PersistPluginCacheRequest)">
+        <member name="M:MelloSilveiraTools.Plugins.Application.Controllers.PluginController.PersistCache(MelloSilveiraTools.Plugins.Application.Operations.Cache.PersistPluginCache,MelloSilveiraTools.Plugins.Application.Operations.Cache.PersistPluginCacheRequest)">
             <summary>
             Persists the plugin cache to the target identified by the {target} route segment (e.g. file or database).
             </summary>
             <param name="operation">Operation that persists the plugin cache.</param>
             <param name="request">Filter identifying the plugins to persist.</param>
         </member>
-        <member name="M:MelloSilveiraTools.Application.Controllers.PluginController.RestoreCache(MelloSilveiraTools.Plugins.Application.Operations.Cache.RestorePluginCache,MelloSilveiraTools.Plugins.Application.Operations.Cache.RestorePluginCacheRequest)">
+        <member name="M:MelloSilveiraTools.Plugins.Application.Controllers.PluginController.RestoreCache(MelloSilveiraTools.Plugins.Application.Operations.Cache.RestorePluginCache,MelloSilveiraTools.Plugins.Application.Operations.Cache.RestorePluginCacheRequest)">
             <summary>
             Restores the plugin cache from the target identified by the {target} route segment (e.g. file or database).
             </summary>
@@ -67,7 +67,7 @@
             Operation that clears the plugin cache managed by <see cref="T:MelloSilveiraTools.Plugins.Infrastructure.Services.IPluginService"/>.
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.Plugins.Application.Operations.Cache.ClearPluginCache.#ctor(MelloSilveiraTools.Infrastructure.Logger.ILogger,MelloSilveiraTools.Plugins.Infrastructure.Services.IPluginService)">
+        <member name="M:MelloSilveiraTools.Plugins.Application.Operations.Cache.ClearPluginCache.#ctor(MelloSilveiraTools.Core.Infrastructure.Logger.ILogger,MelloSilveiraTools.Plugins.Infrastructure.Services.IPluginService)">
             <summary>
             Operation that clears the plugin cache managed by <see cref="T:MelloSilveiraTools.Plugins.Infrastructure.Services.IPluginService"/>.
             </summary>
@@ -80,7 +80,7 @@
             Operation that persists the plugin cache to the configured target (file, database, etc.) for the supplied plugin filter.
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.Plugins.Application.Operations.Cache.PersistPluginCache.#ctor(MelloSilveiraTools.Infrastructure.Logger.ILogger,MelloSilveiraTools.Plugins.Infrastructure.Services.IPluginService)">
+        <member name="M:MelloSilveiraTools.Plugins.Application.Operations.Cache.PersistPluginCache.#ctor(MelloSilveiraTools.Core.Infrastructure.Logger.ILogger,MelloSilveiraTools.Plugins.Infrastructure.Services.IPluginService)">
             <summary>
             Operation that persists the plugin cache to the configured target (file, database, etc.) for the supplied plugin filter.
             </summary>
@@ -111,7 +111,7 @@
             Operation that restores the plugin cache from the configured target (file, database, etc.) for the supplied plugin filter.
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.Plugins.Application.Operations.Cache.RestorePluginCache.#ctor(MelloSilveiraTools.Infrastructure.Logger.ILogger,MelloSilveiraTools.Plugins.Infrastructure.Services.IPluginService)">
+        <member name="M:MelloSilveiraTools.Plugins.Application.Operations.Cache.RestorePluginCache.#ctor(MelloSilveiraTools.Core.Infrastructure.Logger.ILogger,MelloSilveiraTools.Plugins.Infrastructure.Services.IPluginService)">
             <summary>
             Operation that restores the plugin cache from the configured target (file, database, etc.) for the supplied plugin filter.
             </summary>
@@ -142,7 +142,7 @@
             Operation that retrieves registered plugins matching the supplied name, version and load-state filters.
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.Plugins.Application.Operations.Get.GetPlugins.#ctor(MelloSilveiraTools.Infrastructure.Logger.ILogger,MelloSilveiraTools.Plugins.Infrastructure.Services.IPluginService)">
+        <member name="M:MelloSilveiraTools.Plugins.Application.Operations.Get.GetPlugins.#ctor(MelloSilveiraTools.Core.Infrastructure.Logger.ILogger,MelloSilveiraTools.Plugins.Infrastructure.Services.IPluginService)">
             <summary>
             Operation that retrieves registered plugins matching the supplied name, version and load-state filters.
             </summary>
@@ -183,7 +183,7 @@
             Operation that loads plugins into the runtime based on the supplied name/version filter.
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.Plugins.Application.Operations.Load.LoadPlugins.#ctor(MelloSilveiraTools.Infrastructure.Logger.ILogger,MelloSilveiraTools.Plugins.Infrastructure.Services.IPluginService)">
+        <member name="M:MelloSilveiraTools.Plugins.Application.Operations.Load.LoadPlugins.#ctor(MelloSilveiraTools.Core.Infrastructure.Logger.ILogger,MelloSilveiraTools.Plugins.Infrastructure.Services.IPluginService)">
             <summary>
             Operation that loads plugins into the runtime based on the supplied name/version filter.
             </summary>
@@ -214,7 +214,7 @@
             Operation that reloads plugins into the runtime based on the supplied name/version filter and force flag.
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.Plugins.Application.Operations.Reload.ReloadPlugins.#ctor(MelloSilveiraTools.Infrastructure.Logger.ILogger,MelloSilveiraTools.Plugins.Infrastructure.Services.IPluginService)">
+        <member name="M:MelloSilveiraTools.Plugins.Application.Operations.Reload.ReloadPlugins.#ctor(MelloSilveiraTools.Core.Infrastructure.Logger.ILogger,MelloSilveiraTools.Plugins.Infrastructure.Services.IPluginService)">
             <summary>
             Operation that reloads plugins into the runtime based on the supplied name/version filter and force flag.
             </summary>
@@ -234,6 +234,19 @@
             <summary>
             When <c>true</c>, plugins are reloaded even if they are already up to date.
             </summary>
+        </member>
+        <member name="T:MelloSilveiraTools.Plugins.PluginsDependencyInjection">
+            <summary>
+            Provides extension methods to register services from the MelloSilveiraTools.Plugins package.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Plugins.PluginsDependencyInjection.AddPluginServices(Microsoft.Extensions.DependencyInjection.IServiceCollection,MelloSilveiraTools.Plugins.Infrastructure.PluginSettings)">
+            <summary>
+            Registers plugin infrastructure, caching, providers, and plugin operations.
+            </summary>
+            <param name="services">Service collection that receives the registrations.</param>
+            <param name="pluginSettings">Settings that describe plugin folders and behavior.</param>
+            <returns>The same <paramref name="services"/> instance to allow call chaining.</returns>
         </member>
         <member name="T:MelloSilveiraTools.Plugins.Infrastructure.IPlugin">
             <summary>
@@ -319,7 +332,7 @@
             when <see cref="P:MelloSilveiraTools.Plugins.Infrastructure.Models.PluginRegistrationContext.IsStartup"/> is <see langword="true"/>, <see cref="P:MelloSilveiraTools.Plugins.Infrastructure.Models.PluginRegistrationContext.Services"/> is non-null and
             <see cref="P:MelloSilveiraTools.Plugins.Infrastructure.Models.PluginRegistrationContext.DynamicProvider"/> is <see langword="null"/>; otherwise <see cref="P:MelloSilveiraTools.Plugins.Infrastructure.Models.PluginRegistrationContext.DynamicProvider"/> is
             non-null and <see cref="P:MelloSilveiraTools.Plugins.Infrastructure.Models.PluginRegistrationContext.Services"/> is <see langword="null"/>.
-            Use the <see cref="M:MelloSilveiraTools.Plugins.Infrastructure.Models.PluginRegistrationContext.ForStartup(Microsoft.Extensions.DependencyInjection.IServiceCollection)"/> and <see cref="M:MelloSilveiraTools.Plugins.Infrastructure.Models.PluginRegistrationContext.ForRuntime(MelloSilveiraTools.Infrastructure.Providers.IDynamicServiceProvider)"/> factory methods to construct
+            Use the <see cref="M:MelloSilveiraTools.Plugins.Infrastructure.Models.PluginRegistrationContext.ForStartup(Microsoft.Extensions.DependencyInjection.IServiceCollection)"/> and <see cref="M:MelloSilveiraTools.Plugins.Infrastructure.Models.PluginRegistrationContext.ForRuntime(MelloSilveiraTools.Plugins.Infrastructure.Providers.IDynamicServiceProvider)"/> factory methods to construct
             instances that satisfy this invariant.
             </remarks>
         </member>
@@ -346,7 +359,7 @@
             Creates a context that targets the static DI container during application startup.
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.Plugins.Infrastructure.Models.PluginRegistrationContext.ForRuntime(MelloSilveiraTools.Infrastructure.Providers.IDynamicServiceProvider)">
+        <member name="M:MelloSilveiraTools.Plugins.Infrastructure.Models.PluginRegistrationContext.ForRuntime(MelloSilveiraTools.Plugins.Infrastructure.Providers.IDynamicServiceProvider)">
             <summary>
             Creates a context that targets the dynamic service provider for runtime plugin registration.
             </summary>
@@ -440,13 +453,13 @@
         <member name="T:MelloSilveiraTools.Plugins.Infrastructure.Persistences.DatabasePluginCachePersistence">
             <summary>
             Persists plugin cache to a database table (<see cref="T:MelloSilveiraTools.Plugins.Infrastructure.Persistences.PluginCacheEntity"/>)
-            via <see cref="T:MelloSilveiraTools.Domain.Repositories.IRepository"/>.
+            via <see cref="T:MelloSilveiraTools.Database.Domain.Repositories.IRepository"/>.
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.Plugins.Infrastructure.Persistences.DatabasePluginCachePersistence.#ctor(MelloSilveiraTools.Domain.Repositories.IRepository)">
+        <member name="M:MelloSilveiraTools.Plugins.Infrastructure.Persistences.DatabasePluginCachePersistence.#ctor(MelloSilveiraTools.Database.Domain.Repositories.IRepository)">
             <summary>
             Persists plugin cache to a database table (<see cref="T:MelloSilveiraTools.Plugins.Infrastructure.Persistences.PluginCacheEntity"/>)
-            via <see cref="T:MelloSilveiraTools.Domain.Repositories.IRepository"/>.
+            via <see cref="T:MelloSilveiraTools.Database.Domain.Repositories.IRepository"/>.
             </summary>
         </member>
         <member name="M:MelloSilveiraTools.Plugins.Infrastructure.Persistences.DatabasePluginCachePersistence.SaveAsync(System.Collections.Generic.IAsyncEnumerable{MelloSilveiraTools.Plugins.Infrastructure.Persistences.PluginCacheEntry},System.Threading.CancellationToken)">
@@ -597,7 +610,7 @@
             <see cref="T:MelloSilveiraTools.Plugins.Infrastructure.Models.DiscoveredPlugin"/>, <see cref="T:MelloSilveiraTools.Plugins.Infrastructure.Models.LoadedPlugin"/> or <see cref="T:MelloSilveiraTools.Plugins.Infrastructure.Models.RegisteredPlugin"/>.
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.Plugins.Infrastructure.PluginCache.#ctor(MelloSilveiraTools.Infrastructure.Caching.ITwoLevelCache)">
+        <member name="M:MelloSilveiraTools.Plugins.Infrastructure.PluginCache.#ctor(MelloSilveiraTools.Core.Infrastructure.Caching.ITwoLevelCache)">
             <summary>
             Two-level cache for plugin state.
             Level 1: plugin name. Level 2: <see cref="T:MelloSilveiraTools.Plugins.Infrastructure.Models.PluginVersion"/>.
@@ -655,7 +668,7 @@
             A <see langword="null"/> or empty <paramref name="name"/> means "match all names";
             a <see langword="null"/> <paramref name="version"/> means "match all versions".
             The empty-string sentinel is normalized to <see langword="null"/> before being forwarded
-            to the underlying <see cref="T:MelloSilveiraTools.Infrastructure.Caching.ITwoLevelCache"/>, whose filtering semantics treat
+            to the underlying <see cref="T:MelloSilveiraTools.Core.Infrastructure.Caching.ITwoLevelCache"/>, whose filtering semantics treat
             <see langword="null"/> as "match all" for that level.
             </remarks>
         </member>
@@ -771,6 +784,68 @@
             Defaults to <see cref="F:MelloSilveiraTools.Plugins.Infrastructure.Persistences.PluginCacheTargets.File"/>.
             </remarks>
         </member>
+        <member name="T:MelloSilveiraTools.Plugins.Infrastructure.Providers.DynamicServiceProvider">
+            <summary>
+            Thread-safe implementation of <see cref="T:MelloSilveiraTools.Plugins.Infrastructure.Providers.IDynamicServiceProvider"/> using
+            <see cref="T:System.Lazy`1"/> for deferred instantiation and <see cref="T:System.Collections.Concurrent.ConcurrentDictionary`2"/>
+            for thread-safe storage.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Plugins.Infrastructure.Providers.DynamicServiceProvider.#ctor(System.IServiceProvider)">
+            <summary>
+            Thread-safe implementation of <see cref="T:MelloSilveiraTools.Plugins.Infrastructure.Providers.IDynamicServiceProvider"/> using
+            <see cref="T:System.Lazy`1"/> for deferred instantiation and <see cref="T:System.Collections.Concurrent.ConcurrentDictionary`2"/>
+            for thread-safe storage.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Plugins.Infrastructure.Providers.DynamicServiceProvider.Add(System.Type,System.Type)">
+            <inheritdoc/>
+        </member>
+        <member name="M:MelloSilveiraTools.Plugins.Infrastructure.Providers.DynamicServiceProvider.AddKeyed(System.String,System.Object)">
+            <inheritdoc/>
+        </member>
+        <member name="M:MelloSilveiraTools.Plugins.Infrastructure.Providers.DynamicServiceProvider.GetService(System.Type)">
+            <inheritdoc/>
+        </member>
+        <member name="M:MelloSilveiraTools.Plugins.Infrastructure.Providers.DynamicServiceProvider.GetKeyed``1(System.String)">
+            <inheritdoc/>
+        </member>
+        <member name="T:MelloSilveiraTools.Plugins.Infrastructure.Providers.IDynamicServiceProvider">
+            <summary>
+            Provides dynamic service registration and resolution at runtime.
+            Used for services that cannot be registered statically in the DI container,
+            such as plugin-provided implementations discovered after application startup.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Plugins.Infrastructure.Providers.IDynamicServiceProvider.Add(System.Type,System.Type)">
+            <summary>
+            Registers a service type with its implementation type for lazy instantiation.
+            </summary>
+            <param name="serviceType">The service interface type.</param>
+            <param name="implementationType">The concrete implementation type.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.Plugins.Infrastructure.Providers.IDynamicServiceProvider.AddKeyed(System.String,System.Object)">
+            <summary>
+            Registers a named instance directly.
+            </summary>
+            <param name="key">A unique key identifying the registration.</param>
+            <param name="instance">The instance to register.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.Plugins.Infrastructure.Providers.IDynamicServiceProvider.GetService(System.Type)">
+            <summary>
+            Resolves a service by its type.
+            </summary>
+            <param name="serviceType">The service type to resolve.</param>
+            <returns>The resolved instance, or <see langword="null"/> when the service is not registered.</returns>
+        </member>
+        <member name="M:MelloSilveiraTools.Plugins.Infrastructure.Providers.IDynamicServiceProvider.GetKeyed``1(System.String)">
+            <summary>
+            Resolves a named instance by its key.
+            </summary>
+            <typeparam name="T">The expected return type.</typeparam>
+            <param name="key">The registration key.</param>
+            <returns>The resolved instance cast to <typeparamref name="T"/>, or <see langword="null"/> when the service is not registered.</returns>
+        </member>
         <member name="T:MelloSilveiraTools.Plugins.Infrastructure.Services.IPluginService">
             <summary>
             High-level orchestrator for plugin discovery, loading, reload, and cache management.
@@ -853,7 +928,7 @@
             cached versions according to <see cref="P:MelloSilveiraTools.Plugins.Infrastructure.PluginSettings.PreviousVersionRetention"/>.
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.Plugins.Infrastructure.Services.PluginOrchestratorBackgroundService.#ctor(MelloSilveiraTools.Infrastructure.Logger.ILogger,Microsoft.Extensions.DependencyInjection.IServiceScopeFactory,MelloSilveiraTools.Plugins.Infrastructure.PluginFileProcessor,MelloSilveiraTools.Plugins.Infrastructure.PluginCache,MelloSilveiraTools.Plugins.Infrastructure.PluginSettings)">
+        <member name="M:MelloSilveiraTools.Plugins.Infrastructure.Services.PluginOrchestratorBackgroundService.#ctor(MelloSilveiraTools.Core.Infrastructure.Logger.ILogger,Microsoft.Extensions.DependencyInjection.IServiceScopeFactory,MelloSilveiraTools.Plugins.Infrastructure.PluginFileProcessor,MelloSilveiraTools.Plugins.Infrastructure.PluginCache,MelloSilveiraTools.Plugins.Infrastructure.PluginSettings)">
             <summary>
             Periodically inspects the plugin folder, loads newer plugin versions through
             <see cref="M:MelloSilveiraTools.Plugins.Infrastructure.Services.IPluginService.LoadPluginsOnRuntime(System.String,System.Nullable{MelloSilveiraTools.Plugins.Infrastructure.Models.PluginVersion})"/> and evicts obsolete
@@ -902,7 +977,7 @@
             <param name="services">Root service collection used to register plugin services at startup.</param>
             <param name="dynamicServiceProvider">Service provider used to register plugin services at runtime.</param>
         </member>
-        <member name="M:MelloSilveiraTools.Plugins.Infrastructure.Services.PluginService.#ctor(MelloSilveiraTools.Plugins.Infrastructure.PluginFileProcessor,MelloSilveiraTools.Plugins.Infrastructure.PluginAssemblyProcessor,MelloSilveiraTools.Plugins.Infrastructure.PluginCache,MelloSilveiraTools.Plugins.Infrastructure.Persistences.IPluginCachePersistence,Microsoft.Extensions.DependencyInjection.IServiceCollection,MelloSilveiraTools.Infrastructure.Providers.IDynamicServiceProvider)">
+        <member name="M:MelloSilveiraTools.Plugins.Infrastructure.Services.PluginService.#ctor(MelloSilveiraTools.Plugins.Infrastructure.PluginFileProcessor,MelloSilveiraTools.Plugins.Infrastructure.PluginAssemblyProcessor,MelloSilveiraTools.Plugins.Infrastructure.PluginCache,MelloSilveiraTools.Plugins.Infrastructure.Persistences.IPluginCachePersistence,Microsoft.Extensions.DependencyInjection.IServiceCollection,MelloSilveiraTools.Plugins.Infrastructure.Providers.IDynamicServiceProvider)">
             <inheritdoc cref="T:MelloSilveiraTools.Plugins.Infrastructure.Services.IPluginService"/>
             <param name="fileProcessor">Processor that scans the file system for plugin assemblies.</param>
             <param name="assemblyProcessor">Processor that loads and inspects plugin assemblies.</param>
@@ -947,81 +1022,6 @@
             filter on every iteration, which meant a wildcard reload erased the entire cache repeatedly. The
             per-iteration eviction now targets only the discovered plugin currently being reloaded.
             </remarks>
-        </member>
-        <member name="T:MelloSilveiraTools.PluginsDependencyInjection">
-            <summary>
-            Provides extension methods to register services from the MelloSilveiraTools.Plugins package.
-            </summary>
-        </member>
-        <member name="M:MelloSilveiraTools.PluginsDependencyInjection.AddPluginServices(Microsoft.Extensions.DependencyInjection.IServiceCollection,MelloSilveiraTools.Plugins.Infrastructure.PluginSettings)">
-            <summary>
-            Registers plugin infrastructure, caching, providers, and plugin operations.
-            </summary>
-            <param name="services">Service collection that receives the registrations.</param>
-            <param name="pluginSettings">Settings that describe plugin folders and behavior.</param>
-            <returns>The same <paramref name="services"/> instance to allow call chaining.</returns>
-        </member>
-        <member name="T:MelloSilveiraTools.Infrastructure.Providers.DynamicServiceProvider">
-            <summary>
-            Thread-safe implementation of <see cref="T:MelloSilveiraTools.Infrastructure.Providers.IDynamicServiceProvider"/> using
-            <see cref="T:System.Lazy`1"/> for deferred instantiation and <see cref="T:System.Collections.Concurrent.ConcurrentDictionary`2"/>
-            for thread-safe storage.
-            </summary>
-        </member>
-        <member name="M:MelloSilveiraTools.Infrastructure.Providers.DynamicServiceProvider.#ctor(System.IServiceProvider)">
-            <summary>
-            Thread-safe implementation of <see cref="T:MelloSilveiraTools.Infrastructure.Providers.IDynamicServiceProvider"/> using
-            <see cref="T:System.Lazy`1"/> for deferred instantiation and <see cref="T:System.Collections.Concurrent.ConcurrentDictionary`2"/>
-            for thread-safe storage.
-            </summary>
-        </member>
-        <member name="M:MelloSilveiraTools.Infrastructure.Providers.DynamicServiceProvider.Add(System.Type,System.Type)">
-            <inheritdoc/>
-        </member>
-        <member name="M:MelloSilveiraTools.Infrastructure.Providers.DynamicServiceProvider.AddKeyed(System.String,System.Object)">
-            <inheritdoc/>
-        </member>
-        <member name="M:MelloSilveiraTools.Infrastructure.Providers.DynamicServiceProvider.GetService(System.Type)">
-            <inheritdoc/>
-        </member>
-        <member name="M:MelloSilveiraTools.Infrastructure.Providers.DynamicServiceProvider.GetKeyed``1(System.String)">
-            <inheritdoc/>
-        </member>
-        <member name="T:MelloSilveiraTools.Infrastructure.Providers.IDynamicServiceProvider">
-            <summary>
-            Provides dynamic service registration and resolution at runtime.
-            Used for services that cannot be registered statically in the DI container,
-            such as plugin-provided implementations discovered after application startup.
-            </summary>
-        </member>
-        <member name="M:MelloSilveiraTools.Infrastructure.Providers.IDynamicServiceProvider.Add(System.Type,System.Type)">
-            <summary>
-            Registers a service type with its implementation type for lazy instantiation.
-            </summary>
-            <param name="serviceType">The service interface type.</param>
-            <param name="implementationType">The concrete implementation type.</param>
-        </member>
-        <member name="M:MelloSilveiraTools.Infrastructure.Providers.IDynamicServiceProvider.AddKeyed(System.String,System.Object)">
-            <summary>
-            Registers a named instance directly.
-            </summary>
-            <param name="key">A unique key identifying the registration.</param>
-            <param name="instance">The instance to register.</param>
-        </member>
-        <member name="M:MelloSilveiraTools.Infrastructure.Providers.IDynamicServiceProvider.GetService(System.Type)">
-            <summary>
-            Resolves a service by its type.
-            </summary>
-            <param name="serviceType">The service type to resolve.</param>
-            <returns>The resolved instance, or <see langword="null"/> when the service is not registered.</returns>
-        </member>
-        <member name="M:MelloSilveiraTools.Infrastructure.Providers.IDynamicServiceProvider.GetKeyed``1(System.String)">
-            <summary>
-            Resolves a named instance by its key.
-            </summary>
-            <typeparam name="T">The expected return type.</typeparam>
-            <param name="key">The registration key.</param>
-            <returns>The resolved instance cast to <typeparamref name="T"/>, or <see langword="null"/> when the service is not registered.</returns>
         </member>
     </members>
 </doc>

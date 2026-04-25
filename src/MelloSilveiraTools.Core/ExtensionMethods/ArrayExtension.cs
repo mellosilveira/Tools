@@ -40,7 +40,7 @@ namespace MelloSilveiraTools.Core.ExtensionMethods
         /// <returns>The inversed matrix using the Gauss-Jordan method.</returns>
         public static double[,] InverseMatrix(this double[,] matrix)
         {
-            double[,] matrixCopy = matrix.Clone() as double[,];
+            double[,] matrixCopy = (double[,])matrix.Clone();
 
             int n = matrixCopy.GetLength(0);
             double[,] matrizInv = new double[n, n];

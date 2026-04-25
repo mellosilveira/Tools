@@ -8,7 +8,7 @@ public record DatabaseSettings
     /// <summary>
     /// Connection string used to reach the database server.
     /// </summary>
-    public string ConnectionString { get; init; }
+    public required string ConnectionString { get; init; }
 
     /// <summary>
     /// Timeout, in milliseconds, applied to single-row (unit) operations.

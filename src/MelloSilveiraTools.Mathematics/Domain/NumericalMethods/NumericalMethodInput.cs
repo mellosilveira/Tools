@@ -8,31 +8,31 @@
         /// <summary>
         /// Unit: s (second).
         /// </summary>
-        public double TimeStep { get; set; }
+        public required double TimeStep { get; set; }
 
         /// <summary>
         /// Unit: kg (kilogram).
         /// </summary>
-        public double[,] Mass { get; set; }
+        public required double[,] Mass { get; set; }
 
         /// <summary>
         /// Unit: N/m (Newton per meter).
         /// </summary>
-        public double[,] Stiffness { get; set; }
+        public required double[,] Stiffness { get; set; }
 
         /// <summary>
         /// Unit: N.s/m (Newston-second per meter).
         /// </summary>
-        public double[,] Damping { get; set; }
+        public required double[,] Damping { get; set; }
 
         /// <summary>
         /// Unit: N (Newton).
         /// </summary>
-        public double[] EquivalentForce { get; set; }
+        public required double[] EquivalentForce { get; set; }
 
         /// <summary>
         /// Dimensionless.
         /// </summary>
-        public uint NumberOfBoundaryConditions { get; set; }
+        public required uint NumberOfBoundaryConditions { get; set; }
     }
 }

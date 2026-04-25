@@ -1,7 +1,6 @@
+using MelloSilveiraTools.Database.Infrastructure.Database.Attributes;
 using MelloSilveiraTools.Database.Infrastructure.Database.Models.Entities;
 using MelloSilveiraTools.Database.Infrastructure.Database.Sql.Provider;
-using MelloSilveiraTools.Infrastructure.Database.Attributes;
-using MelloSilveiraTools.Infrastructure.Database.Sql.Provider;
 
 namespace UnitTests;
 

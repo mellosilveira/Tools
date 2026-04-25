@@ -975,7 +975,7 @@
         </member>
         <member name="M:MelloSilveiraTools.Core.Infrastructure.ResiliencePipelines.SmtpResiliencePipeline.#ctor(MelloSilveiraTools.Core.Infrastructure.Logger.ILogger,MelloSilveiraTools.Core.Infrastructure.ResiliencePipelines.ResiliencePipelineSettings)">
             <summary>
-            Initialize a new instance of <see cref="!:PostgresResiliencePipeline"/>.
+            Initialize a new instance of <see cref="T:MelloSilveiraTools.Core.Infrastructure.ResiliencePipelines.SmtpResiliencePipeline"/>.
             </summary>
             <param name="logger"></param>
             <param name="settings"></param>

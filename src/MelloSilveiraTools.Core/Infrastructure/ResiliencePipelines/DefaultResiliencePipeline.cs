@@ -42,7 +42,7 @@ public class DefaultResiliencePipeline
                     // The attempt number from resilience pipeline arguments is zero-based.
                     int attempt = args.AttemptNumber + 1;
 
-                    List<string> tags = [className, methodName];
+                    List<string?> tags = [className, methodName];
                     Dictionary<string, object?> additionalData = new()
                     {
                         { "Attempt", attempt },

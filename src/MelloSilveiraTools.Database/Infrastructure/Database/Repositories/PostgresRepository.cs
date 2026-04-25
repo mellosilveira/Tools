@@ -11,6 +11,7 @@ using Npgsql;
 using NpgsqlTypes;
 using System.Data;
 using System.Data.Common;
+using System.Runtime.CompilerServices;
 
 namespace MelloSilveiraTools.Database.Infrastructure.Database.Repositories;
 
@@ -316,7 +317,7 @@ public class PostgresRepository(ISqlProvider sqlProvider, PostgresResiliencePipe
     /// <param name="sql">SQL statement to execute.</param>
     /// <param name="parameters">Parameters to bind to the statement, if any.</param>
     /// <param name="cancellationToken">Token used to cancel the streaming operation.</param>
-    protected async IAsyncEnumerable<TEntity> GetAsync<TEntity>(string sql, DynamicParameters? parameters, CancellationToken cancellationToken = default)
+    protected async IAsyncEnumerable<TEntity> GetAsync<TEntity>(string sql, DynamicParameters? parameters, [EnumeratorCancellation] CancellationToken cancellationToken = default)
         where TEntity : class, new()
     {
         await using NpgsqlConnection connection = await GetNewOpenedConnectionAsync(cancellationToken).ConfigureAwait(false);

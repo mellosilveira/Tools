@@ -9,7 +9,7 @@
             Provides extension methods to dependency injection of Tools project (meta-package).
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.DependencyInjection.AddToolsServices(Microsoft.Extensions.DependencyInjection.IServiceCollection,MelloSilveiraTools.Infrastructure.Database.Settings.DatabaseSettings,MelloSilveiraTools.Infrastructure.Services.Encryption.EncryptionSettings,MelloSilveiraTools.Infrastructure.ResiliencePipelines.ResiliencePipelineSettings,MelloSilveiraTools.Plugins.Infrastructure.PluginSettings,MelloSilveiraTools.Infrastructure.Logger.LoggerSettings)">
+        <member name="M:MelloSilveiraTools.DependencyInjection.AddToolsServices(Microsoft.Extensions.DependencyInjection.IServiceCollection,MelloSilveiraTools.Database.Infrastructure.Database.Settings.DatabaseSettings,MelloSilveiraTools.Core.Infrastructure.Services.Encryption.EncryptionSettings,MelloSilveiraTools.Core.Infrastructure.ResiliencePipelines.ResiliencePipelineSettings,MelloSilveiraTools.Plugins.Infrastructure.PluginSettings,MelloSilveiraTools.Core.Infrastructure.Logger.LoggerSettings)">
             <summary>
             Registers the services of every contextual MelloSilveiraTools package
             (Core, Database, WebApi and Plugins).
