@@ -68,7 +68,8 @@ public static class DependencyInjection
     /// <param name="pluginSettings">Settings that describe plugin folders and behavior.</param>
     /// <returns>The same <paramref name="services"/> instance to allow call chaining.</returns>
     public static IServiceCollection AddPluginServices(this IServiceCollection services, PluginSettings pluginSettings)
-        => services
+    {
+        services
             // Register settings.
             .AddSingleton(pluginSettings)
             // Required so plugin cache operations can read the {target} route value.
@@ -97,7 +98,11 @@ public static class DependencyInjection
             .AddScoped(serviceProvider =>
             {
                 var accessor = serviceProvider.GetRequiredService<IHttpContextAccessor>();
-                object? target = accessor.HttpContext?.Request.RouteValues["target"];
+                var settings = serviceProvider.GetRequiredService<PluginSettings>();
+                // Outside an HTTP request (e.g. inside the plugin orchestrator background service)
+                // there is no {target} route value; fall back to the configured default so that
+                // IPluginService can still be resolved and call LoadPluginsOnRuntime.
+                object target = accessor.HttpContext?.Request.RouteValues["target"] ?? settings.DefaultCacheTarget;
                 return serviceProvider.GetRequiredKeyedService<IPluginCachePersistence>(target);
             })
             // Plugin cache operations run inside an HTTP request, so the scoped
@@ -111,7 +116,27 @@ public static class DependencyInjection
             .AddScoped<ReloadPlugins>()
             .AddScoped<ClearPluginCache>()
             .AddScoped<PersistPluginCache>()
-            .AddScoped<RestorePluginCache>();
+            .AddScoped<RestorePluginCache>()
+            // Background orchestrator: polls the plugin folder, promotes newer versions at runtime
+            // and evicts obsolete cached versions according to the configured retention policy.
+            .AddHostedService<PluginOrchestratorBackgroundService>();
+
+        // Eagerly load plugins discovered on disk into the same IServiceCollection that the host
+        // is being built with. This must happen here — not from an IApplicationBuilder hook —
+        // because LoadPluginsOnStartup registers plugin types via PluginRegistrationContext.ForStartup
+        // which mutates IServiceCollection. Once the host is built (services.BuildServiceProvider()
+        // is called by the framework), the collection is sealed and any later registration is a no-op.
+        //
+        // We build a temporary ServiceProvider from the current registrations, resolve the services
+        // needed by PluginService, run the startup load (which writes back into `services`) and
+        // dispose the temporary provider. The runtime container the host eventually builds will
+        // observe every registration the plugins added.
+        using ServiceProvider bootstrapProvider = services.BuildServiceProvider();
+        using IServiceScope bootstrapScope = bootstrapProvider.CreateScope();
+        bootstrapScope.ServiceProvider.GetRequiredService<IPluginService>().LoadPluginsOnStartup();
+
+        return services;
+    }
 
     /// <summary>
     /// Register numerical methods.

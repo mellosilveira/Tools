@@ -4021,6 +4021,35 @@
             Path to the directory where plugin DLLs are stored.
             </summary>
         </member>
+        <member name="P:MelloSilveiraTools.Infrastructure.Plugins.PluginSettings.PollInterval">
+            <summary>
+            Interval between plugin-folder inspections performed by the orchestrator background service.
+            Defaults to 30 seconds.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Infrastructure.Plugins.PluginSettings.PreviousVersionRetention">
+            <summary>
+            Grace period that the version immediately below the newly-loaded one is kept in cache after a
+            higher version is promoted. Once this period elapses, the previous version is also evicted
+            on the next orchestrator pass. Defaults to 24 hours.
+            </summary>
+            <remarks>
+            Example: while versions <c>1.0</c>, <c>1.1</c> and <c>1.2</c> are loaded and <c>1.3</c> is
+            detected, the orchestrator loads <c>1.3</c>, evicts <c>1.0</c> and <c>1.1</c> immediately,
+            and keeps <c>1.2</c> until this retention period is exceeded.
+            </remarks>
+        </member>
+        <member name="P:MelloSilveiraTools.Infrastructure.Plugins.PluginSettings.DefaultCacheTarget">
+            <summary>
+            Key of the <c>IPluginCachePersistence</c> implementation used when no <c>{target}</c> route
+            value is available (e.g. inside the plugin orchestrator background service, which runs
+            outside an HTTP request).
+            </summary>
+            <remarks>
+            Must match a key registered with <c>AddKeyedSingleton&lt;IPluginCachePersistence&gt;(key, ...)</c>.
+            Defaults to <see cref="F:MelloSilveiraTools.Infrastructure.Plugins.Persistences.PluginCacheTargets.File"/>.
+            </remarks>
+        </member>
         <member name="T:MelloSilveiraTools.Infrastructure.Providers.DynamicServiceProvider">
             <summary>
             Thread-safe implementation of <see cref="T:MelloSilveiraTools.Infrastructure.Providers.IDynamicServiceProvider"/> using
@@ -4474,6 +4503,23 @@
             <param name="name">Optional plugin name filter. When empty, all plugins are considered.</param>
             <param name="version">Optional version filter. When <c>null</c>, all versions are considered.</param>
             <param name="cancellationToken">Token used to cancel the operation.</param>
+        </member>
+        <member name="T:MelloSilveiraTools.Infrastructure.Services.Plugins.PluginOrchestratorBackgroundService">
+            <summary>
+            Periodically inspects the plugin folder, loads newer plugin versions through
+            <see cref="M:MelloSilveiraTools.Infrastructure.Services.Plugins.IPluginService.LoadPluginsOnRuntime(System.String,System.Nullable{MelloSilveiraTools.Infrastructure.Plugins.Models.PluginVersion})"/> and evicts obsolete
+            cached versions according to <see cref="P:MelloSilveiraTools.Infrastructure.Plugins.PluginSettings.PreviousVersionRetention"/>.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Infrastructure.Services.Plugins.PluginOrchestratorBackgroundService.#ctor(MelloSilveiraTools.Infrastructure.Logger.ILogger,Microsoft.Extensions.DependencyInjection.IServiceScopeFactory,MelloSilveiraTools.Infrastructure.Plugins.PluginFileProcessor,MelloSilveiraTools.Infrastructure.Plugins.PluginCache,MelloSilveiraTools.Infrastructure.Plugins.PluginSettings)">
+            <summary>
+            Periodically inspects the plugin folder, loads newer plugin versions through
+            <see cref="M:MelloSilveiraTools.Infrastructure.Services.Plugins.IPluginService.LoadPluginsOnRuntime(System.String,System.Nullable{MelloSilveiraTools.Infrastructure.Plugins.Models.PluginVersion})"/> and evicts obsolete
+            cached versions according to <see cref="P:MelloSilveiraTools.Infrastructure.Plugins.PluginSettings.PreviousVersionRetention"/>.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Infrastructure.Services.Plugins.PluginOrchestratorBackgroundService.ExecuteAsync(System.Threading.CancellationToken)">
+            <inheritdoc/>
         </member>
         <member name="T:MelloSilveiraTools.Infrastructure.Services.Plugins.PluginServiceExtensions">
             <summary>

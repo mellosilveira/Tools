@@ -59,7 +59,7 @@ public interface IPluginService
     /// <param name="name">Optional plugin name filter. When empty, all plugins are considered.</param>
     /// <param name="version">Optional version filter. When <c>null</c>, all versions are considered.</param>
     /// <returns>The registered plugins discovered on disk.</returns>
-    IEnumerable<RegisteredPlugin> GetPlugins(string name, PluginVersion? version);
+    IEnumerable<RegisteredPlugin> GetPlugins(string? name, PluginVersion? version);
 
     /// <summary>
     /// Persists the current plugin cache entries matching the provided filters through the configured persistence.

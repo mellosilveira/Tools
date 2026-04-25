@@ -74,7 +74,7 @@ public class PluginService(
         => ReloadPlugins(PluginRegistrationContext.ForRuntime(dynamicServiceProvider), forceLoad, name, version);
 
     /// <inheritdoc/>
-    public IEnumerable<RegisteredPlugin> GetPlugins(string name, PluginVersion? version)
+    public IEnumerable<RegisteredPlugin> GetPlugins(string? name, PluginVersion? version)
         => fileProcessor
             .Scan(name, version)
             .Select(discovered => discovered

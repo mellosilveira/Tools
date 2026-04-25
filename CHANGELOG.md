@@ -5,9 +5,7 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
-
-## [1.2.2] - 2026-04-25
+## [1.3.0] - 2026-04-25
 ### Fixed
 - Postgres repository now honors the configured `CommandTimeout` on every command path (previously defaulted on some repositories).
 - `unique_hash` computation for filter clauses is now stable across process restarts.
@@ -28,6 +26,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Added `<exception>` documentation across public surfaces that throw (`IAuthenticationTokenService.RefreshAsync`, `PluginFileProcessor.*`, `EnumerableExtensions.FirstWithoutValidate`, `TypeExtensions.GetDbTypeFromPropertyType`, `IRepository`).
 ### Added
 - `Infrastructure.Logger.LocalFileLogger` is now a working implementation: appends one JSON entry per line, rolls daily and by size, retains the last N files. Configurable via the new `LoggerSettings` record (directory, file name prefix, daily roll, max file size, max retained files). `AddToolsServices` registers a default `LoggerSettings` via `TryAddSingleton`, so consumers can override by calling `services.AddSingleton(new LoggerSettings { ... })` before `AddToolsServices`.
+- `AddPluginServices` now eagerly loads every plugin discovered in the configured plugin directory before returning, by building a bootstrap `ServiceProvider`, resolving `IPluginService` and calling `LoadPluginsOnStartup`. This guarantees plugin-registered services land in the same `IServiceCollection` the host is being built from (a separate `IApplicationBuilder` hook would be too late — the collection is sealed once the host is built).
+- `Infrastructure.Services.Plugins.PluginOrchestratorBackgroundService`: periodically (see `PluginSettings.PollInterval`) scans the plugin directory, promotes newer versions through `IPluginService.LoadPluginsOnRuntime`, logs a warning and ignores files older than the currently-loaded version, and evicts obsolete cached versions keeping the immediately-previous one until `PluginSettings.PreviousVersionRetention` elapses. Registered automatically by `AddPluginServices`.
+- `PluginSettings.PollInterval` (default 30 s), `PluginSettings.PreviousVersionRetention` (default 24 h) and `PluginSettings.DefaultCacheTarget` (default `PluginCacheTargets.File`) configure the orchestrator and the fallback cache persistence used outside of an HTTP request.
 ### Breaking
 - `MelloSilveiraTools.MechanicsOfMaterials.Models.Force.AbsolutValue` renamed to `AbsoluteValue` (typo fix).
 - `Force` `X`/`Y`/`Z`/`AbsoluteValue` setters are now `private`; `Force` instances are immutable after construction. Use `Sum`/`Subtract`/`Round`/`Divide`/`Abs`/`Create` to derive new instances.
