@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <PackageId>MelloSilveiraTools.WebApi</PackageId>
+    <AssemblyTitle>MelloSilveira Tools WebApi</AssemblyTitle>
+    <Description>ASP.NET Core helpers: CRUD/Custom controllers, exception middleware, NDJSON streaming, JWE bearer authentication, Swagger bootstrap, API service agent and use-case operations.</Description>
+    <PackageTags>aspnetcore;jwt;jwe;swagger;crud;controllers;middleware;ndjson</PackageTags>
+  </PropertyGroup>
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\MelloSilveiraTools.Core\MelloSilveiraTools.Core.csproj" />
+    <ProjectReference Include="..\MelloSilveiraTools.Database\MelloSilveiraTools.Database.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="10.0.7" />
+    <PackageReference Include="Microsoft.IdentityModel.JsonWebTokens" Version="8.17.0" />
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="10.1.7" />
+    <PackageReference Include="Swashbuckle.AspNetCore.Newtonsoft" Version="10.1.7" />
+  </ItemGroup>
+</Project>

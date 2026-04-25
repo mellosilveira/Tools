@@ -1,0 +1,1246 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>MelloSilveiraTools.WebApi</name>
+    </assembly>
+    <members>
+        <member name="T:MelloSilveiraTools.Application.Controllers.CrudController`2">
+            <summary>
+            Generic controller exposing standard CRUD and streaming endpoints for an entity and its filter.
+            </summary>
+            <typeparam name="TEntity">The entity type handled by the controller.</typeparam>
+            <typeparam name="TFilter">The filter type used to query the entity.</typeparam>
+            <param name="logger">Logger used to record failures raised while handling CRUD requests.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.Application.Controllers.CrudController`2.#ctor(MelloSilveiraTools.Infrastructure.Logger.ILogger)">
+            <summary>
+            Generic controller exposing standard CRUD and streaming endpoints for an entity and its filter.
+            </summary>
+            <typeparam name="TEntity">The entity type handled by the controller.</typeparam>
+            <typeparam name="TFilter">The filter type used to query the entity.</typeparam>
+            <param name="logger">Logger used to record failures raised while handling CRUD requests.</param>
+        </member>
+        <member name="P:MelloSilveiraTools.Application.Controllers.CrudController`2.ResourceName">
+            <summary>
+            Human-readable name of the resource, used when building log and error messages.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Application.Controllers.CrudController`2.Create(MelloSilveiraTools.Domain.Repositories.IRepository,`0)">
+            <summary>
+            Creates a new entity.
+            </summary>
+            <param name="repository">Repository used to persist the entity.</param>
+            <param name="entity">Entity instance to be created.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.Application.Controllers.CrudController`2.Read(MelloSilveiraTools.Domain.Repositories.IRepository,System.Int64)">
+            <summary>
+            Retrieves a single entity by its identifier.
+            </summary>
+            <param name="repository">Repository used to load the entity.</param>
+            <param name="id">Identifier of the entity to be returned.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.Application.Controllers.CrudController`2.Read(MelloSilveiraTools.Domain.Repositories.IRepository,`1,MelloSilveiraTools.Infrastructure.Database.Models.Filters.Pagination)">
+            <summary>
+            Retrieves a paginated list of entities that match the supplied filter.
+            </summary>
+            <param name="repository">Repository used to query the entities.</param>
+            <param name="filter">Filter criteria applied to the query.</param>
+            <param name="pagination">Pagination parameters (offset and limit).</param>
+        </member>
+        <member name="M:MelloSilveiraTools.Application.Controllers.CrudController`2.Update(MelloSilveiraTools.Domain.Repositories.IRepository,System.Int64,`0)">
+            <summary>
+            Updates an existing entity identified by the route parameter.
+            </summary>
+            <param name="repository">Repository used to persist changes.</param>
+            <param name="id">Identifier of the entity to be updated.</param>
+            <param name="entity">Updated entity payload.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.Application.Controllers.CrudController`2.Delete(MelloSilveiraTools.Domain.Repositories.IRepository,System.Int64)">
+            <summary>
+            Deletes an entity by its identifier.
+            </summary>
+            <param name="repository">Repository used to delete the entity.</param>
+            <param name="id">Identifier of the entity to be deleted.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.Application.Controllers.CrudController`2.Stream(MelloSilveiraTools.Domain.Repositories.IRepository,`1)">
+            <summary>
+            Streams entities that match the supplied filter as newline-delimited JSON (NDJSON).
+            </summary>
+            <param name="repository">Repository used to source the entities.</param>
+            <param name="filter">Filter criteria applied to the query.</param>
+        </member>
+        <member name="T:MelloSilveiraTools.Application.Controllers.CustomControllerBase">
+            <summary>
+            Base controller providing shared behavior (logging, entity creation, NDJSON streaming) for the project's controllers.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Application.Controllers.CustomControllerBase.#ctor(MelloSilveiraTools.Infrastructure.Logger.ILogger)">
+            <summary>
+            Base controller providing shared behavior (logging, entity creation, NDJSON streaming) for the project's controllers.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Application.Controllers.CustomControllerBase.Logger">
+            <summary>
+            Logger used to report failures and diagnostics from controller actions.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Application.Controllers.CustomControllerBase.Create``1(MelloSilveiraTools.Domain.Repositories.IRepository,``0,System.String)">
+            <summary>
+            Creates a new entity through the provided repository and maps the outcome to an HTTP response.
+            </summary>
+            <param name="repository">Repository used to persist the entity.</param>
+            <param name="entity">Entity instance to be inserted.</param>
+            <param name="resourceName">Human-readable resource name used when building error messages.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.Application.Controllers.CustomControllerBase.Stream``1(System.Collections.Generic.IAsyncEnumerable{``0},System.String)">
+            <summary>
+            Streams a sequence of entities to the response as newline-delimited JSON (NDJSON).
+            </summary>
+            <param name="entities">Asynchronous sequence of items to be streamed.</param>
+            <param name="resourceName">Human-readable resource name used when reporting streaming failures.</param>
+        </member>
+        <member name="T:MelloSilveiraTools.Application.Middlewares.ExceptionHandlingMiddleware">
+            <summary>
+            Middleware that converts unhandled exceptions raised by the pipeline into a standard <see cref="T:Microsoft.AspNetCore.Mvc.ProblemDetails"/> JSON response.
+            </summary>
+            <remarks>
+            Exception-to-status mapping performed by <see cref="M:MelloSilveiraTools.Application.Middlewares.ExceptionHandlingMiddleware.InvokeAsync(Microsoft.AspNetCore.Http.HttpContext)"/>:
+            <list type="bullet">
+              <item><description><see cref="T:System.UnauthorizedAccessException"/> → <see cref="F:System.Net.HttpStatusCode.Unauthorized"/> (401).</description></item>
+              <item><description><see cref="T:System.ArgumentException"/> or <see cref="T:System.InvalidOperationException"/> → <see cref="F:System.Net.HttpStatusCode.BadRequest"/> (400).</description></item>
+              <item><description><see cref="T:System.Collections.Generic.KeyNotFoundException"/> → <see cref="F:System.Net.HttpStatusCode.NotFound"/> (404).</description></item>
+              <item><description>Any other exception → <see cref="F:System.Net.HttpStatusCode.InternalServerError"/> (500).</description></item>
+            </list>
+            <see cref="T:MelloSilveiraTools.Application.Models.NdjsonException"/> receives special handling: it is logged via <paramref name="logger"/>
+            and the middleware returns without writing any response body, since NDJSON streaming may already
+            have sent partial output to the client and rewriting the response would corrupt the stream.
+            </remarks>
+            <param name="next">The next middleware in the request pipeline.</param>
+            <param name="logger">Logger used to record handled streaming exceptions.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.Application.Middlewares.ExceptionHandlingMiddleware.#ctor(Microsoft.AspNetCore.Http.RequestDelegate,MelloSilveiraTools.Infrastructure.Logger.ILogger)">
+            <summary>
+            Middleware that converts unhandled exceptions raised by the pipeline into a standard <see cref="T:Microsoft.AspNetCore.Mvc.ProblemDetails"/> JSON response.
+            </summary>
+            <remarks>
+            Exception-to-status mapping performed by <see cref="M:MelloSilveiraTools.Application.Middlewares.ExceptionHandlingMiddleware.InvokeAsync(Microsoft.AspNetCore.Http.HttpContext)"/>:
+            <list type="bullet">
+              <item><description><see cref="T:System.UnauthorizedAccessException"/> → <see cref="F:System.Net.HttpStatusCode.Unauthorized"/> (401).</description></item>
+              <item><description><see cref="T:System.ArgumentException"/> or <see cref="T:System.InvalidOperationException"/> → <see cref="F:System.Net.HttpStatusCode.BadRequest"/> (400).</description></item>
+              <item><description><see cref="T:System.Collections.Generic.KeyNotFoundException"/> → <see cref="F:System.Net.HttpStatusCode.NotFound"/> (404).</description></item>
+              <item><description>Any other exception → <see cref="F:System.Net.HttpStatusCode.InternalServerError"/> (500).</description></item>
+            </list>
+            <see cref="T:MelloSilveiraTools.Application.Models.NdjsonException"/> receives special handling: it is logged via <paramref name="logger"/>
+            and the middleware returns without writing any response body, since NDJSON streaming may already
+            have sent partial output to the client and rewriting the response would corrupt the stream.
+            </remarks>
+            <param name="next">The next middleware in the request pipeline.</param>
+            <param name="logger">Logger used to record handled streaming exceptions.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.Application.Middlewares.ExceptionHandlingMiddleware.InvokeAsync(Microsoft.AspNetCore.Http.HttpContext)">
+            <summary>
+            Invokes the next middleware in the pipeline and translates any unhandled exception into an HTTP error response.
+            </summary>
+            <param name="context">The current HTTP context.</param>
+        </member>
+        <member name="T:MelloSilveiraTools.Application.Models.ApplicationConstants">
+            <summary>
+            Provides constants used by the application layer.
+            </summary>
+        </member>
+        <member name="F:MelloSilveiraTools.Application.Models.ApplicationConstants.NdjsonContentType">
+            <summary>
+            Content type for newline-delimited JSON streaming responses.
+            </summary>
+        </member>
+        <member name="F:MelloSilveiraTools.Application.Models.ApplicationConstants.NoSniffHeaderValue">
+            <summary>
+            Value used for the X-Content-Type-Options header to prevent MIME sniffing.
+            </summary>
+        </member>
+        <member name="F:MelloSilveiraTools.Application.Models.ApplicationConstants.StreamStatusTrailerName">
+            <summary>
+            Name of the HTTP trailer used to report the final status of a stream.
+            </summary>
+        </member>
+        <member name="F:MelloSilveiraTools.Application.Models.ApplicationConstants.StreamSuccessfullyStatus">
+            <summary>
+            Value written to the stream status trailer when streaming completes successfully.
+            </summary>
+        </member>
+        <member name="T:MelloSilveiraTools.Application.Models.NdjsonException">
+            <summary>
+            Exception raised when an error occurs while writing a newline-delimited JSON stream.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Application.Models.NdjsonException.#ctor">
+            <summary>
+            Initializes a new instance of the <see cref="T:MelloSilveiraTools.Application.Models.NdjsonException"/> class.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Application.Models.NdjsonException.#ctor(System.String,System.Exception)">
+            <summary>
+            Initializes a new instance of the <see cref="T:MelloSilveiraTools.Application.Models.NdjsonException"/> class with a specific message and inner exception.
+            </summary>
+            <param name="message">The error message describing the failure.</param>
+            <param name="innerException">The original exception captured during streaming.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.Application.Models.NdjsonException.#ctor(System.Exception)">
+            <summary>
+            Initializes a new instance of the <see cref="T:MelloSilveiraTools.Application.Models.NdjsonException"/> class with a default message and the provided inner exception.
+            </summary>
+            <param name="innerException">The original exception captured during streaming.</param>
+        </member>
+        <member name="T:MelloSilveiraTools.Application.Models.NdjsonResult`1">
+            <summary>
+            An <see cref="T:Microsoft.AspNetCore.Http.IResult"/> implementation that streams a sequence of items as newline-delimited JSON to the HTTP response.
+            </summary>
+            <typeparam name="T">The type of each item written to the response stream.</typeparam>
+        </member>
+        <member name="M:MelloSilveiraTools.Application.Models.NdjsonResult`1.#ctor(System.Collections.Generic.IAsyncEnumerable{`0})">
+            <summary>
+            An <see cref="T:Microsoft.AspNetCore.Http.IResult"/> implementation that streams a sequence of items as newline-delimited JSON to the HTTP response.
+            </summary>
+            <typeparam name="T">The type of each item written to the response stream.</typeparam>
+        </member>
+        <member name="M:MelloSilveiraTools.Application.Models.NdjsonResult`1.ExecuteAsync(Microsoft.AspNetCore.Http.HttpContext)">
+            <summary>
+            Executes the result, writing each item of the source sequence as an NDJSON line to the response body.
+            </summary>
+            <param name="httpContext">The HTTP context to which the NDJSON payload will be written.</param>
+        </member>
+        <member name="T:MelloSilveiraTools.Application.Operations.Add.AddResponse">
+            <summary>
+            Response produced by add/create operations, optionally exposing the identifier of the newly created resource.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Application.Operations.Add.AddResponse.CreateSuccessCreated(System.Int64)">
+            <summary>
+            Creates a successful 201 Created response that returns the identifier assigned to the new resource.
+            </summary>
+            <param name="id">Identifier of the newly created resource.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.Application.Operations.Add.AddResponse.CreateConflict(System.Int64,System.String)">
+            <summary>
+            Creates a 409 Conflict response that also exposes the identifier of the conflicting resource.
+            </summary>
+            <param name="id">Identifier of the existing resource that conflicts with the request.</param>
+            <param name="message">Error message describing the conflict.</param>
+        </member>
+        <member name="T:MelloSilveiraTools.Application.Operations.Add.AddResponseData">
+            <summary>
+            Data payload returned by add/create operations, carrying the identifier of the new resource.
+            </summary>
+            <param name="Id">Identifier assigned to the newly created resource.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.Application.Operations.Add.AddResponseData.#ctor(System.Int64)">
+            <summary>
+            Data payload returned by add/create operations, carrying the identifier of the new resource.
+            </summary>
+            <param name="Id">Identifier assigned to the newly created resource.</param>
+        </member>
+        <member name="P:MelloSilveiraTools.Application.Operations.Add.AddResponseData.Id">
+            <summary>Identifier assigned to the newly created resource.</summary>
+        </member>
+        <member name="T:MelloSilveiraTools.Application.Operations.OperationBase`2">
+            <summary>
+            Represents the base for all operations in the application.
+            </summary>
+            <typeparam name="TRequest">Request type consumed by the operation.</typeparam>
+            <typeparam name="TResponse">Response type produced by the operation.</typeparam>
+            <param name="logger">Logger used to record failures raised while processing the operation.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.Application.Operations.OperationBase`2.#ctor(MelloSilveiraTools.Infrastructure.Logger.ILogger)">
+            <summary>
+            Represents the base for all operations in the application.
+            </summary>
+            <typeparam name="TRequest">Request type consumed by the operation.</typeparam>
+            <typeparam name="TResponse">Response type produced by the operation.</typeparam>
+            <param name="logger">Logger used to record failures raised while processing the operation.</param>
+        </member>
+        <member name="P:MelloSilveiraTools.Application.Operations.OperationBase`2.Logger">
+            <summary>
+            Logger used to report failures raised while processing the operation.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Application.Operations.OperationBase`2.ProcessAsync(`0)">
+            <summary>
+            The main method of all operations.
+            Asynchronously, orchestrates and validates the operations.
+            </summary>
+            <param name="request">The operation request content.</param>
+            <returns>The operation response.</returns>
+            <example>
+            <code>
+            var operation = serviceProvider.GetRequiredService&lt;CreateUserOperation&gt;();
+            var response = await operation.ProcessAsync(new CreateUserRequest { Email = "user@example.com" });
+            if (!response.Success)
+                return BadRequest(response.ErrorMessages);
+            return StatusCode((int)response.StatusCode);
+            </code>
+            </example>
+        </member>
+        <member name="M:MelloSilveiraTools.Application.Operations.OperationBase`2.ProcessOperationAsync(`0)">
+            <summary>
+            Asynchronously executes the use-case domain logic for this operation. Implementations should
+            rely on <see cref="P:MelloSilveiraTools.Application.Operations.OperationBase`2.Logger"/> (inherited from this base class) for diagnostic logging and
+            build their response using the <see cref="T:MelloSilveiraTools.Application.Operations.OperationResponse"/> factory helpers
+            (<c>CreateSuccessOk</c>, <c>CreateNotFound</c>, <c>CreateInternalServerError</c>, etc.) for
+            expected outcomes. Unexpected exceptions should be allowed to propagate — they are caught by
+            <see cref="M:MelloSilveiraTools.Application.Operations.OperationBase`2.ProcessAsync(`0)"/> and translated into a 500 Internal Server Error response.
+            </summary>
+            <param name="request">The validated request payload. <see cref="M:MelloSilveiraTools.Application.Operations.OperationBase`2.ValidateOperationAsync(`0)"/> has already returned a successful result by the time this method runs.</param>
+            <returns>The operation response, populated with the outcome of the domain logic.</returns>
+        </member>
+        <member name="M:MelloSilveiraTools.Application.Operations.OperationBase`2.ValidateOperationAsync(`0)">
+            <summary>
+            Asynchronously validates the inbound <paramref name="request"/> before
+            <see cref="M:MelloSilveiraTools.Application.Operations.OperationBase`2.ProcessOperationAsync(`0)"/> runs. Contract: return a response with
+            <see cref="P:MelloSilveiraTools.Application.Operations.OperationResponse.Success"/> set to <see langword="false"/> (typically built via
+            <c>CreateError</c>/<c>CreateNotFound</c>/<c>CreateUnauthorized</c>) to abort the pipeline and
+            short-circuit the response back to the caller; return a successful response (or one whose
+            <c>Success</c> property is <see langword="true"/>) to allow <see cref="M:MelloSilveiraTools.Application.Operations.OperationBase`2.ProcessOperationAsync(`0)"/>
+            to execute.
+            </summary>
+            <param name="request">The raw request payload received from the caller.</param>
+            <returns>A response carrying the validation outcome.</returns>
+        </member>
+        <member name="T:MelloSilveiraTools.Application.Operations.OperationBaseWithData`2">
+            <summary>
+            Base class for operations that return an <see cref="T:MelloSilveiraTools.Application.Operations.OperationResponseBase`1"/> carrying a single data payload.
+            </summary>
+            <typeparam name="TRequest">Request type consumed by the operation.</typeparam>
+            <typeparam name="TResponseData">Type of the data payload returned by the operation.</typeparam>
+        </member>
+        <member name="M:MelloSilveiraTools.Application.Operations.OperationBaseWithData`2.#ctor(MelloSilveiraTools.Infrastructure.Logger.ILogger)">
+            <summary>
+            Base class for operations that return an <see cref="T:MelloSilveiraTools.Application.Operations.OperationResponseBase`1"/> carrying a single data payload.
+            </summary>
+            <typeparam name="TRequest">Request type consumed by the operation.</typeparam>
+            <typeparam name="TResponseData">Type of the data payload returned by the operation.</typeparam>
+        </member>
+        <member name="M:MelloSilveiraTools.Application.Operations.OperationBaseWithData`2.CreateSuccess(System.Net.HttpStatusCode,`1)">
+            <summary>
+            Builds a successful response with the supplied status code and optional data.
+            </summary>
+            <param name="statusCode">The HTTP status code returned to the caller.</param>
+            <param name="data">Optional data payload.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.Application.Operations.OperationBaseWithData`2.CreateSuccessOk(`1)">
+            <summary>
+            Builds a successful 200 OK response with optional data.
+            </summary>
+            <param name="data">Optional data payload.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.Application.Operations.OperationBaseWithData`2.CreateError(System.Net.HttpStatusCode)">
+            <summary>
+            Builds an error response with the supplied status code.
+            </summary>
+            <param name="statusCode">The HTTP status code returned to the caller.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.Application.Operations.OperationBaseWithData`2.CreateError(System.Net.HttpStatusCode,System.String)">
+            <summary>
+            Builds an error response with the supplied status code and message.
+            </summary>
+            <param name="statusCode">The HTTP status code returned to the caller.</param>
+            <param name="message">Error message describing the failure.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.Application.Operations.OperationBaseWithData`2.CreateError(System.Net.HttpStatusCode,`1,System.String)">
+            <summary>
+            Builds an error response that also carries a data payload (e.g. partial result or context).
+            </summary>
+            <param name="statusCode">The HTTP status code returned to the caller.</param>
+            <param name="data">Data payload returned with the error.</param>
+            <param name="message">Error message describing the failure.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.Application.Operations.OperationBaseWithData`2.CreateNotFound(System.String)">
+            <summary>
+            Builds a 404 Not Found error response.
+            </summary>
+            <param name="message">Error message describing the failure.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.Application.Operations.OperationBaseWithData`2.CreateUnauthorized">
+            <summary>
+            Builds a 401 Unauthorized error response.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Application.Operations.OperationBaseWithData`2.CreateUnauthorized(System.String)">
+            <summary>
+            Builds a 401 Unauthorized error response with the supplied message.
+            </summary>
+            <param name="message">Error message describing the failure.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.Application.Operations.OperationBaseWithData`2.CreateUnauthorized(`1,System.String)">
+            <summary>
+            Builds a 401 Unauthorized error response carrying a data payload and message.
+            </summary>
+            <param name="data">Data payload returned with the error.</param>
+            <param name="message">Error message describing the failure.</param>
+        </member>
+        <member name="T:MelloSilveiraTools.Application.Operations.OperationBaseWithDataList`2">
+            <summary>
+            Base class for operations that return a list of items through <see cref="T:MelloSilveiraTools.Application.Operations.OperationListResponseBase`1"/>.
+            </summary>
+            <typeparam name="TRequest">Request type consumed by the operation.</typeparam>
+            <typeparam name="TResponseData">Type of each item returned by the operation.</typeparam>
+        </member>
+        <member name="M:MelloSilveiraTools.Application.Operations.OperationBaseWithDataList`2.#ctor(MelloSilveiraTools.Infrastructure.Logger.ILogger)">
+            <summary>
+            Base class for operations that return a list of items through <see cref="T:MelloSilveiraTools.Application.Operations.OperationListResponseBase`1"/>.
+            </summary>
+            <typeparam name="TRequest">Request type consumed by the operation.</typeparam>
+            <typeparam name="TResponseData">Type of each item returned by the operation.</typeparam>
+        </member>
+        <member name="M:MelloSilveiraTools.Application.Operations.OperationBaseWithDataList`2.CreateSuccess(System.Net.HttpStatusCode,`1[])">
+            <summary>
+            Builds a successful list response with the supplied status code and items.
+            </summary>
+            <param name="statusCode">The HTTP status code returned to the caller.</param>
+            <param name="data">Items to include in the response payload.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.Application.Operations.OperationBaseWithDataList`2.CreateSuccessOk">
+            <summary>
+            Builds a successful 200 OK list response with no items.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Application.Operations.OperationBaseWithDataList`2.CreateSuccessOkAsync(System.Collections.Generic.IAsyncEnumerable{`1})">
+            <summary>
+            Materialises an async sequence into a successful 200 OK list response.
+            </summary>
+            <param name="dataAsAsyncEnumberable">Async sequence of items to include in the response.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.Application.Operations.OperationBaseWithDataList`2.CreateError(System.Net.HttpStatusCode,System.String)">
+            <summary>
+            Builds a list error response with the supplied status code and message.
+            </summary>
+            <param name="statusCode">The HTTP status code returned to the caller.</param>
+            <param name="message">Error message describing the failure.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.Application.Operations.OperationBaseWithDataList`2.CreateInternalServerError(System.String)">
+            <summary>
+            Builds a 500 Internal Server Error list response with the supplied message.
+            </summary>
+            <param name="message">Error message describing the failure.</param>
+        </member>
+        <member name="T:MelloSilveiraTools.Application.Operations.PagedOperationBase`2">
+            <summary>
+            Base class for operations that return a paginated list of items through <see cref="T:MelloSilveiraTools.Application.Operations.OperationPagedResponseBase`1"/>.
+            </summary>
+            <typeparam name="TRequest">Request type consumed by the operation.</typeparam>
+            <typeparam name="TResponseData">Type of each item returned in the page.</typeparam>
+        </member>
+        <member name="M:MelloSilveiraTools.Application.Operations.PagedOperationBase`2.#ctor(MelloSilveiraTools.Infrastructure.Logger.ILogger)">
+            <summary>
+            Base class for operations that return a paginated list of items through <see cref="T:MelloSilveiraTools.Application.Operations.OperationPagedResponseBase`1"/>.
+            </summary>
+            <typeparam name="TRequest">Request type consumed by the operation.</typeparam>
+            <typeparam name="TResponseData">Type of each item returned in the page.</typeparam>
+        </member>
+        <member name="M:MelloSilveiraTools.Application.Operations.PagedOperationBase`2.CreateSuccess(System.Net.HttpStatusCode,`1[])">
+            <summary>
+            Builds a successful paged response with the supplied status code and items.
+            </summary>
+            <param name="statusCode">The HTTP status code returned to the caller.</param>
+            <param name="data">Items to include in the current page.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.Application.Operations.PagedOperationBase`2.CreateSuccessOk(`1[])">
+            <summary>
+            Builds a successful 200 OK paged response with the supplied items.
+            </summary>
+            <param name="data">Items to include in the current page.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.Application.Operations.PagedOperationBase`2.CreateError(System.Net.HttpStatusCode,System.String)">
+            <summary>
+            Builds a paged error response with the supplied status code and message.
+            </summary>
+            <param name="statusCode">The HTTP status code returned to the caller.</param>
+            <param name="message">Error message describing the failure.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.Application.Operations.PagedOperationBase`2.CreateNotFound(System.String)">
+            <summary>
+            Builds a 404 Not Found paged response with the supplied message.
+            </summary>
+            <param name="message">Error message describing the failure.</param>
+        </member>
+        <member name="T:MelloSilveiraTools.Application.Operations.OperationBaseWithDefaultResponse`1">
+            <summary>
+            Represents the base for all operations that uses the default response (<see cref="T:MelloSilveiraTools.Application.Operations.OperationResponse"/>).
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Application.Operations.OperationBaseWithDefaultResponse`1.#ctor(MelloSilveiraTools.Infrastructure.Logger.ILogger)">
+            <summary>
+            Represents the base for all operations that uses the default response (<see cref="T:MelloSilveiraTools.Application.Operations.OperationResponse"/>).
+            </summary>
+        </member>
+        <member name="T:MelloSilveiraTools.Application.Operations.OperationBaseWithoutRequest`1">
+            <summary>
+            Represents the base for all operations that does not use a request.
+            </summary>
+            <typeparam name="TResponse">Response type produced by the operation.</typeparam>
+            <param name="logger">Logger used to record failures raised while processing the operation.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.Application.Operations.OperationBaseWithoutRequest`1.#ctor(MelloSilveiraTools.Infrastructure.Logger.ILogger)">
+            <summary>
+            Represents the base for all operations that does not use a request.
+            </summary>
+            <typeparam name="TResponse">Response type produced by the operation.</typeparam>
+            <param name="logger">Logger used to record failures raised while processing the operation.</param>
+        </member>
+        <member name="P:MelloSilveiraTools.Application.Operations.OperationBaseWithoutRequest`1.Logger">
+            <summary>
+            Logger used to report failures raised while processing the operation.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Application.Operations.OperationBaseWithoutRequest`1.ProcessAsync">
+            <summary>
+            The main method of all operations.
+            Asynchronously, orchestrates and validates the operations.
+            </summary>
+            <returns>The operation response.</returns>
+        </member>
+        <member name="M:MelloSilveiraTools.Application.Operations.OperationBaseWithoutRequest`1.ProcessOperationAsync">
+            <summary>
+            Asynchronously executes the use-case domain logic for this request-less operation.
+            Implementations should use <see cref="P:MelloSilveiraTools.Application.Operations.OperationBaseWithoutRequest`1.Logger"/> for diagnostics and the
+            <see cref="T:MelloSilveiraTools.Application.Operations.OperationResponse"/> factory helpers to build expected outcomes. Unexpected
+            exceptions should propagate — they are caught by <see cref="M:MelloSilveiraTools.Application.Operations.OperationBaseWithoutRequest`1.ProcessAsync"/> and translated
+            into a 500 Internal Server Error response.
+            </summary>
+            <returns>The operation response carrying the outcome of the domain logic.</returns>
+        </member>
+        <member name="T:MelloSilveiraTools.Application.Operations.DefaultOperationBase">
+            <summary>
+            Represents the base for all operations that does not use a request.
+            </summary>
+            <param name="logger">Logger used to record failures raised while processing the operation.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.Application.Operations.DefaultOperationBase.#ctor(MelloSilveiraTools.Infrastructure.Logger.ILogger)">
+            <summary>
+            Represents the base for all operations that does not use a request.
+            </summary>
+            <param name="logger">Logger used to record failures raised while processing the operation.</param>
+        </member>
+        <member name="P:MelloSilveiraTools.Application.Operations.DefaultOperationBase.Logger">
+            <summary>
+            Logger used to report failures raised while processing the operation.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Application.Operations.DefaultOperationBase.ProcessAsync">
+            <summary>
+            The main method of all operations.
+            Asynchronously, orchestrates and validates the operations.
+            </summary>
+            <returns>The operation response.</returns>
+        </member>
+        <member name="M:MelloSilveiraTools.Application.Operations.DefaultOperationBase.ProcessOperationAsync">
+            <summary>
+            Asynchronously executes the use-case domain logic for this default operation.
+            Implementations should use <see cref="P:MelloSilveiraTools.Application.Operations.DefaultOperationBase.Logger"/> for diagnostics and the
+            <see cref="T:MelloSilveiraTools.Application.Operations.OperationResponse"/> factory helpers to build expected outcomes. Unexpected
+            exceptions should propagate — they are caught by <see cref="M:MelloSilveiraTools.Application.Operations.DefaultOperationBase.ProcessAsync"/> and translated
+            into a 500 Internal Server Error response.
+            </summary>
+            <returns>The operation response carrying the outcome of the domain logic.</returns>
+        </member>
+        <member name="T:MelloSilveiraTools.Application.Operations.OperationRequestBase">
+            <summary>
+            Request content to all operations.
+            </summary>
+        </member>
+        <member name="T:MelloSilveiraTools.Application.Operations.OperationResponse">
+            <summary>
+            Response content for all operations.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Application.Operations.OperationResponse.#ctor">
+            <summary>
+            Initializes a new instance of <see cref="T:MelloSilveiraTools.Application.Operations.OperationResponse"/>.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Application.Operations.OperationResponse.Success">
+            <summary>
+            The success status of operation.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Application.Operations.OperationResponse.StatusCode">
+            <summary>
+            The HTTP status code.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Application.Operations.OperationResponse.ErrorMessages">
+            <summary>
+            The list of error messages.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Application.Operations.OperationResponse.CreateSuccess(System.Net.HttpStatusCode)">
+            <summary>
+            Creates a successful response with the supplied status code.
+            </summary>
+            <param name="statusCode">The HTTP status code returned to the caller.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.Application.Operations.OperationResponse.CreateError(System.Net.HttpStatusCode)">
+            <summary>
+            Creates an error response with the supplied status code and no error messages.
+            </summary>
+            <param name="statusCode">The HTTP status code returned to the caller.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.Application.Operations.OperationResponse.CreateError(System.Net.HttpStatusCode,System.String)">
+            <summary>
+            Creates an error response with a single error message.
+            </summary>
+            <param name="statusCode">The HTTP status code returned to the caller.</param>
+            <param name="message">Error message describing the failure.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.Application.Operations.OperationResponse.CreateError(System.Net.HttpStatusCode,System.Collections.Generic.List{System.String})">
+            <summary>
+            Creates an error response with a collection of error messages.
+            </summary>
+            <param name="statusCode">The HTTP status code returned to the caller.</param>
+            <param name="messages">Error messages describing the failures.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.Application.Operations.OperationResponse.CreateSuccessOk">
+            <summary>
+            Creates a successful 200 OK response.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Application.Operations.OperationResponse.CreateSuccessCreated">
+            <summary>
+            Creates a successful 201 Created response.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Application.Operations.OperationResponse.CreateNoContent">
+            <summary>
+            Creates a successful 204 No Content response.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Application.Operations.OperationResponse.CreateUnauthorized">
+            <summary>
+            Creates a 401 Unauthorized error response without a message.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Application.Operations.OperationResponse.CreateUnauthorized(System.String)">
+            <summary>
+            Creates a 401 Unauthorized error response with the supplied message.
+            </summary>
+            <param name="message">Error message describing the failure.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.Application.Operations.OperationResponse.CreateNotFound(System.String)">
+            <summary>
+            Creates a 404 Not Found error response with the supplied message.
+            </summary>
+            <param name="message">Error message describing the failure.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.Application.Operations.OperationResponse.CreateRequestTimeout(System.String)">
+            <summary>
+            Creates a 408 Request Timeout error response with the supplied message.
+            </summary>
+            <param name="message">Error message describing the failure.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.Application.Operations.OperationResponse.CreateUnprocessableEntity(System.String)">
+            <summary>
+            Creates a 422 Unprocessable Entity error response with the supplied message.
+            </summary>
+            <param name="message">Error message describing the failure.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.Application.Operations.OperationResponse.CreateUnprocessableEntity(System.Collections.Generic.List{System.String})">
+            <summary>
+            Creates a 422 Unprocessable Entity error response with the supplied messages.
+            </summary>
+            <param name="messages">Error messages describing the failures.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.Application.Operations.OperationResponse.CreateInternalServerError(System.String)">
+            <summary>
+            Creates a 500 Internal Server Error response with the supplied message.
+            </summary>
+            <param name="message">Error message describing the failure.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.Application.Operations.OperationResponse.CreateServiceUnavailable(System.String)">
+            <summary>
+            Creates a 503 Service Unavailable error response with the supplied message.
+            </summary>
+            <param name="message">Error message describing the failure.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.Application.Operations.OperationResponse.CreateListSuccessOk``1(``0[])">
+            <summary>
+            Creates a successful 200 OK list response containing the supplied items.
+            </summary>
+            <param name="data">Items to include in the response payload.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.Application.Operations.OperationResponse.CreateListSuccess``2(System.Net.HttpStatusCode,``1[])">
+            <summary>
+            Creates a successful list response of a specific type with the supplied items.
+            </summary>
+            <param name="statusCode">The HTTP status code returned to the caller.</param>
+            <param name="data">Items to include in the response payload.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.Application.Operations.OperationResponse.CreateListSuccessOk``2(``1[])">
+            <summary>
+            Creates a successful 200 OK list response of a specific type with the supplied items.
+            </summary>
+            <param name="data">Items to include in the response payload.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.Application.Operations.OperationResponse.CreateSuccessOk``1">
+            <summary>
+            Creates a successful 200 OK response of a specific response type.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Application.Operations.OperationResponse.CreateSuccessOk``1(``0)">
+            <summary>
+            Creates a successful 200 OK response carrying the supplied data payload.
+            </summary>
+            <param name="responseData">Data returned to the caller.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.Application.Operations.OperationResponse.CreateError``1(System.Net.HttpStatusCode,System.String)">
+            <summary>
+            Creates a typed error response with the supplied status code and message.
+            </summary>
+            <param name="statusCode">The HTTP status code returned to the caller.</param>
+            <param name="message">Error message describing the failure.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.Application.Operations.OperationResponse.CreateNotFound``1(System.String)">
+            <summary>
+            Creates a typed 404 Not Found error response.
+            </summary>
+            <param name="message">Error message describing the failure.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.Application.Operations.OperationResponse.CreateRequestTimeout``1(System.String)">
+            <summary>
+            Creates a typed 408 Request Timeout error response.
+            </summary>
+            <param name="message">Error message describing the failure.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.Application.Operations.OperationResponse.CreateConflict``1(System.String)">
+            <summary>
+            Creates a typed 409 Conflict error response.
+            </summary>
+            <param name="message">Error message describing the failure.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.Application.Operations.OperationResponse.CreateUnprocessableEntity``1(System.String)">
+            <summary>
+            Creates a typed 422 Unprocessable Entity error response.
+            </summary>
+            <param name="message">Error message describing the failure.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.Application.Operations.OperationResponse.CreateInternalServerError``1(System.String)">
+            <summary>
+            Creates a typed 500 Internal Server Error response.
+            </summary>
+            <param name="message">Error message describing the failure.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.Application.Operations.OperationResponse.CreateServiceUnavailable``1(System.String)">
+            <summary>
+            Creates a typed 503 Service Unavailable error response.
+            </summary>
+            <param name="message">Error message describing the failure.</param>
+        </member>
+        <member name="T:MelloSilveiraTools.Application.Operations.OperationResponseBase`1">
+            <summary>
+            Response content for all operations.
+            </summary>
+            <typeparam name="TResponseData"></typeparam>
+        </member>
+        <member name="P:MelloSilveiraTools.Application.Operations.OperationResponseBase`1.Data">
+            <summary>
+            Data content of all operation response.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Application.Operations.OperationResponseBase`1.CreateSuccess(System.Net.HttpStatusCode,`0)">
+            <summary>
+            Creates a successful response carrying the supplied data payload.
+            </summary>
+            <param name="statusCode">The HTTP status code returned to the caller.</param>
+            <param name="data">Data returned to the caller.</param>
+        </member>
+        <member name="T:MelloSilveiraTools.Application.Operations.OperationListResponseBase`1">
+            <summary>
+            Base response for operations that return an array of items.
+            </summary>
+            <typeparam name="TResponseData">Type of each item in the returned list.</typeparam>
+        </member>
+        <member name="P:MelloSilveiraTools.Application.Operations.OperationListResponseBase`1.Count">
+            <summary>
+            Number of items returned in <see cref="P:MelloSilveiraTools.Application.Operations.OperationResponseBase`1.Data"/>.
+            </summary>
+        </member>
+        <member name="T:MelloSilveiraTools.Application.Operations.OperationPagedResponseBase`1">
+            <summary>
+            Base response for operations that return a paginated list of items.
+            </summary>
+            <typeparam name="TResponseData">Type of each item in the returned page.</typeparam>
+        </member>
+        <member name="P:MelloSilveiraTools.Application.Operations.OperationPagedResponseBase`1.TotalCount">
+            <summary>
+            Total number of items that match the query across all pages.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Application.Operations.OperationPagedResponseBase`1.PageNumber">
+            <summary>
+            One-based number of the current page.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Application.Operations.OperationPagedResponseBase`1.PageSize">
+            <summary>
+            Number of items in the current page.
+            </summary>
+        </member>
+        <member name="T:MelloSilveiraTools.Authentication.AuthenticationToken">
+            <summary>
+            Represents an issued authentication token along with its expiration timestamp.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Authentication.AuthenticationToken.#ctor(System.String,System.DateTimeOffset)">
+            <summary>
+            Represents an issued authentication token along with its expiration timestamp.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Authentication.AuthenticationToken.Value">
+            <summary>
+            The serialized token value that clients must send on subsequent authenticated requests.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Authentication.AuthenticationToken.ExpiresOn">
+            <summary>
+            The instant (in UTC offset) at which the token stops being valid.
+            </summary>
+        </member>
+        <member name="T:MelloSilveiraTools.Authentication.JwtSettings">
+            <summary>
+            Settings to deal with JSON Web Tokens (JWT).
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Authentication.JwtSettings.Issuer">
+            <summary>
+            The expected issuer (iss claim) of the token.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Authentication.JwtSettings.Audience">
+            <summary>
+            The expected audience (aud claim) of the token.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Authentication.JwtSettings.EncryptionKey">
+            <summary>
+            Symmetric key used to encrypt the token payload (JWE).
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Authentication.JwtSettings.SigningKey">
+            <summary>
+            Symmetric key used to sign the token (JWS).
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Authentication.JwtSettings.ClockSkewInSeconds">
+            <summary>
+            Clock skew, in seconds, tolerated when validating token lifetime claims.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Authentication.JwtSettings.SecurityKeyType">
+            <summary>
+            The kind of security key used by <see cref="P:MelloSilveiraTools.Authentication.JwtSettings.EncryptionKey"/> and <see cref="P:MelloSilveiraTools.Authentication.JwtSettings.SigningKey"/>.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Authentication.JwtSettings.TokenExperitationTimeInMinutes">
+            <summary>
+            Expiration time in minutes for access token.
+            </summary>
+        </member>
+        <member name="T:MelloSilveiraTools.Authentication.SecurityKeyType">
+            <summary>
+            Enumerates the supported key types used by the authentication services.
+            </summary>
+        </member>
+        <member name="F:MelloSilveiraTools.Authentication.SecurityKeyType.Symmetric">
+            <summary>
+            A symmetric key shared between the issuer and the validator.
+            </summary>
+        </member>
+        <member name="T:MelloSilveiraTools.Authentication.Services.AuthenticationJweTokenService">
+            <summary>
+            Service that handles an encrypted and signed JSON Web token for authentication.
+            </summary>
+            <remarks>
+            The configured <see cref="P:MelloSilveiraTools.Authentication.JwtSettings.EncryptionKey"/> is consumed as UTF-8 bytes and used to wrap the
+            content-encryption key with AES-256 KW. The underlying AES-256 algorithm therefore requires a key of
+            exactly 32 bytes (256 bits) in UTF-8. A shorter or longer encryption key will cause the constructor
+            to throw when the underlying cryptographic provider rejects the key length.
+            </remarks>
+        </member>
+        <member name="M:MelloSilveiraTools.Authentication.Services.AuthenticationJweTokenService.#ctor(MelloSilveiraTools.Authentication.JwtSettings)">
+            <summary>
+            Initializes the service with the provided JWT settings, building the signing and encrypting credentials
+            along with the token validation parameters used to validate incoming tokens.
+            </summary>
+            <param name="settings">JWT settings carrying the signing key, encryption key, issuer, audience and lifetime configuration.</param>
+            <exception cref="T:System.ArgumentException">
+            Thrown when <see cref="P:MelloSilveiraTools.Authentication.JwtSettings.EncryptionKey"/> or <see cref="P:MelloSilveiraTools.Authentication.JwtSettings.SigningKey"/> has a length
+            that is not compatible with the underlying symmetric algorithms (AES-256 KW requires 32 UTF-8 bytes for the encryption key).
+            </exception>
+            <exception cref="T:System.Security.Cryptography.CryptographicException">
+            Thrown when the cryptographic provider rejects the supplied key material while building the encrypting credentials.
+            </exception>
+            <exception cref="T:System.ArgumentOutOfRangeException">
+            Thrown when <see cref="P:MelloSilveiraTools.Authentication.JwtSettings.SecurityKeyType"/> is not a supported value.
+            </exception>
+        </member>
+        <member name="M:MelloSilveiraTools.Authentication.Services.AuthenticationJweTokenService.Generate(System.Int64)">
+            <inheritdoc/>
+        </member>
+        <member name="M:MelloSilveiraTools.Authentication.Services.AuthenticationJweTokenService.Generate(System.String)">
+            <inheritdoc/>
+        </member>
+        <member name="M:MelloSilveiraTools.Authentication.Services.AuthenticationJweTokenService.RefreshAsync(System.String)">
+            <inheritdoc/>
+        </member>
+        <member name="M:MelloSilveiraTools.Authentication.Services.AuthenticationJweTokenService.IsValidAsync(System.String)">
+            <inheritdoc/>
+        </member>
+        <member name="M:MelloSilveiraTools.Authentication.Services.AuthenticationJweTokenService.BuildTokenValidationParameters(MelloSilveiraTools.Authentication.JwtSettings)">
+            <summary>
+            Builds the <see cref="T:Microsoft.IdentityModel.Tokens.TokenValidationParameters"/> used to validate tokens based on the supplied settings.
+            </summary>
+        </member>
+        <member name="T:MelloSilveiraTools.Authentication.Services.IAuthenticationTokenService">
+            <summary>
+            Service that handles an authentication token.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Authentication.Services.IAuthenticationTokenService.Generate(System.Int64)">
+            <summary>
+            Generates a new authentication token for the supplied numeric user identifier.
+            </summary>
+            <param name="userIdentifier">Numeric identifier of the subject the token is being issued for.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.Authentication.Services.IAuthenticationTokenService.Generate(System.String)">
+            <summary>
+            Generates a new authentication token for the supplied user identifier.
+            </summary>
+            <param name="userIdentifier">Identifier of the subject the token is being issued for.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.Authentication.Services.IAuthenticationTokenService.RefreshAsync(System.String)">
+            <summary>
+            Validates the given token and, if valid, issues a new token for the same subject.
+            </summary>
+            <param name="token">The previously issued token to be validated and refreshed.</param>
+            <exception cref="T:Microsoft.IdentityModel.Tokens.SecurityTokenException">
+            Thrown when <paramref name="token"/> is invalid, expired, tampered with, or does not contain a usable subject claim.
+            </exception>
+        </member>
+        <member name="M:MelloSilveiraTools.Authentication.Services.IAuthenticationTokenService.IsValidAsync(System.String)">
+            <summary>
+            Returns whether the supplied token passes all validation parameters.
+            </summary>
+            <param name="token">The token to be validated.</param>
+            <remarks>
+            This method does not throw on validation failure: any validation error is captured and the method returns <c>false</c>.
+            </remarks>
+        </member>
+        <member name="T:MelloSilveiraTools.WebApiDependencyInjection">
+            <summary>
+            Provides extension methods to register services from the MelloSilveiraTools.WebApi package.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.WebApiDependencyInjection.AddWebApiServices(Microsoft.Extensions.DependencyInjection.IServiceCollection,MelloSilveiraTools.Infrastructure.ResiliencePipelines.ResiliencePipelineSettings)">
+            <summary>
+            Registers Web API services: API service agent resilience pipeline.
+            </summary>
+            <param name="services">Service collection that receives the registrations.</param>
+            <param name="resiliencePipelineSettings">Settings that parameterize the resilience pipelines.</param>
+            <returns>The same <paramref name="services"/> instance to allow call chaining.</returns>
+        </member>
+        <member name="M:MelloSilveiraTools.WebApiDependencyInjection.AddJweAuthentication(Microsoft.Extensions.DependencyInjection.IServiceCollection,MelloSilveiraTools.Authentication.JwtSettings)">
+            <summary>
+            Registers the authentication for AdmMaster users using JWT.
+            </summary>
+            <param name="services">Service collection that receives the registrations.</param>
+            <param name="jwtSettings">Settings used to build and validate JWT tokens.</param>
+            <returns>The same <paramref name="services"/> instance to allow call chaining.</returns>
+        </member>
+        <member name="M:MelloSilveiraTools.WebApiDependencyInjection.AddSwaggerWithBearerSecurity(Microsoft.Extensions.DependencyInjection.IServiceCollection)">
+            <summary>
+            Configures the documentation file for Swagger User Interface using bearer authentication.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.WebApiDependencyInjection.UseSwaggerDocs(Microsoft.AspNetCore.Builder.IApplicationBuilder)">
+            <summary>
+            Adds Swagger documentations to ApplicationBuilder.
+            </summary>
+        </member>
+        <member name="T:MelloSilveiraTools.ExtensionMethods.FormFileExtensions">
+            <summary>
+            Contains extension methods for <see cref="T:Microsoft.AspNetCore.Http.IFormFile"/>.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.ExtensionMethods.FormFileExtensions.ToCompressedContentAsync(Microsoft.AspNetCore.Http.IFormFile)">
+            <summary>
+            Reads the entire <paramref name="formFile"/> content and returns it compressed using GZip.
+            </summary>
+        </member>
+        <member name="T:MelloSilveiraTools.ExtensionMethods.HttpResponseExtensions">
+            <summary>
+            Contains extension methods for <see cref="T:Microsoft.AspNetCore.Http.HttpResponse"/>.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.ExtensionMethods.HttpResponseExtensions.WriteLineAsNdJsonAsync``1(Microsoft.AspNetCore.Http.HttpResponse,``0,System.Threading.CancellationToken)">
+            <summary>
+            Serializes the supplied object as JSON, writes it to the response followed by a newline delimiter (NDJSON),
+            and flushes the response body so the caller receives the chunk immediately.
+            </summary>
+        </member>
+        <member name="T:MelloSilveiraTools.ExtensionMethods.NdjsonResultExtensions">
+            <summary>
+            Contains extension methods for <see cref="T:Microsoft.AspNetCore.Http.IResultExtensions"/> that produce NDJSON results.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.ExtensionMethods.NdjsonResultExtensions.Ndjson``1(Microsoft.AspNetCore.Http.IResultExtensions,System.Collections.Generic.IAsyncEnumerable{``0})">
+            <summary>
+            Builds an <see cref="T:Microsoft.AspNetCore.Http.IResult"/> that streams the supplied asynchronous sequence as newline-delimited JSON.
+            </summary>
+        </member>
+        <member name="T:MelloSilveiraTools.ExtensionMethods.OperationResponseExtensions">
+            <summary>
+            Contains extension methods for <see cref="T:MelloSilveiraTools.Application.Operations.OperationResponse"/>.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.ExtensionMethods.OperationResponseExtensions.AddError``1(``0,System.String,System.Net.HttpStatusCode)">
+            <summary>
+            Appends <paramref name="errorMessage"/> to the response and marks it as failed with the given status code.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.ExtensionMethods.OperationResponseExtensions.AddErrorIf``1(``0,System.Boolean,System.String,System.Net.HttpStatusCode)">
+            <summary>
+            Appends <paramref name="errorMessage"/> to the response only when <paramref name="condition"/> is <c>true</c>.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.ExtensionMethods.OperationResponseExtensions.AddErrorIf``1(``0,System.Threading.Tasks.Task{System.Boolean},System.String,System.Net.HttpStatusCode)">
+            <summary>
+            Awaits the condition task and, when it resolves to <c>true</c>, appends <paramref name="errorMessage"/> to the response.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.ExtensionMethods.OperationResponseExtensions.AddErrorIfNull``1(``0,System.Object,System.String,System.Net.HttpStatusCode)">
+            <summary>
+            Appends <paramref name="message"/> when <paramref name="value"/> is <c>null</c>.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.ExtensionMethods.OperationResponseExtensions.AddErrorIfNotNull``1(``0,System.Object,System.String,System.Net.HttpStatusCode)">
+            <summary>
+            Appends <paramref name="message"/> when <paramref name="value"/> is not <c>null</c>.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.ExtensionMethods.OperationResponseExtensions.AddErrorIfNullOrEmpty``1(``0,System.String,System.String,System.Net.HttpStatusCode)">
+            <summary>
+            Appends <paramref name="message"/> when <paramref name="parameter"/> is <c>null</c> or empty.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.ExtensionMethods.OperationResponseExtensions.AddErrorIfNullOrWhiteSpace``1(``0,System.String,System.String,System.Net.HttpStatusCode)">
+            <summary>
+            Appends <paramref name="message"/> when <paramref name="parameter"/> is <c>null</c>, empty, or whitespace.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.ExtensionMethods.OperationResponseExtensions.AddErrorIfNullOrEmpty``2(``0,System.Collections.Generic.IEnumerable{``1},System.String,System.Net.HttpStatusCode)">
+            <summary>
+            Appends <paramref name="message"/> when <paramref name="parameters"/> is <c>null</c> or contains no elements.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.ExtensionMethods.OperationResponseExtensions.AddErrorIfZero``1(``0,System.Double,System.String,System.Net.HttpStatusCode)">
+            <summary>
+            Appends <paramref name="message"/> when <paramref name="parameter"/> equals zero.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.ExtensionMethods.OperationResponseExtensions.AddErrorIfNegative``1(``0,System.Double,System.String,System.Net.HttpStatusCode)">
+            <summary>
+            Appends <paramref name="message"/> when <paramref name="parameter"/> is strictly negative.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.ExtensionMethods.OperationResponseExtensions.AddErrorIfNegativeOrZero``1(``0,System.Double,System.String,System.Net.HttpStatusCode)">
+            <summary>
+            Appends <paramref name="message"/> when <paramref name="parameter"/> is negative or zero.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.ExtensionMethods.OperationResponseExtensions.AddErrorIfNegativeOrZero``1(``0,System.Collections.Generic.List{System.Double},System.String,System.Net.HttpStatusCode)">
+            <summary>
+            Validates each element of <paramref name="parameters"/> and appends <paramref name="message"/> when any value is negative or zero,
+            or when the list itself is <c>null</c> or empty.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.ExtensionMethods.OperationResponseExtensions.AddErrorIfInvalidEnum``2(``0,``1,System.String,System.Net.HttpStatusCode)">
+            <summary>
+            Appends <paramref name="message"/> when <paramref name="value"/> is not a defined member of the enum type.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.ExtensionMethods.OperationResponseExtensions.AddErrorIfFileNotExist``1(``0,System.String,System.String,System.Net.HttpStatusCode)">
+            <summary>
+            Appends <paramref name="message"/> when the file does not exist or when <paramref name="fullFileName"/> is blank.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.ExtensionMethods.OperationResponseExtensions.AddErrorIfFileExist``1(``0,System.String,System.Net.HttpStatusCode)">
+            <summary>
+            Appends an error when the file at <paramref name="fullFileName"/> already exists.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.ExtensionMethods.OperationResponseExtensions.AddErrorIfDirectoryNotExist``1(``0,System.String,System.String,System.Net.HttpStatusCode)">
+            <summary>
+            Appends an error when the directory does not exist or when <paramref name="fullDirectoryName"/> is blank.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.ExtensionMethods.OperationResponseExtensions.BuildHttpResponse``1(``0)">
+            <summary>
+            Projects the operation response into a <see cref="T:Microsoft.AspNetCore.Mvc.JsonResult"/> carrying the same HTTP status code.
+            </summary>
+        </member>
+        <member name="T:MelloSilveiraTools.ExtensionMethods.ResultExtensions">
+            <summary>
+            Provides extension methods that convert operation <see cref="T:System.Threading.Tasks.Task"/> results into minimal API <see cref="T:Microsoft.AspNetCore.Http.IResult"/> values.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.ExtensionMethods.ResultExtensions.ToOkResultAsync(System.Threading.Tasks.Task)">
+            <summary>
+            Awaits the operation and returns an empty HTTP 200 OK result.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.ExtensionMethods.ResultExtensions.ToOkResultAsync``1(System.Threading.Tasks.Task{``0})">
+            <summary>
+            Awaits the operation and returns an HTTP 200 OK result wrapping the produced value.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.ExtensionMethods.ResultExtensions.ToCreatedResultAsync(System.Threading.Tasks.Task)">
+            <summary>
+            Awaits the operation and returns an empty HTTP 201 Created result.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.ExtensionMethods.ResultExtensions.ToCreatedResultAsync``1(System.Threading.Tasks.Task{``0},System.String)">
+            <summary>
+            Awaits the operation and returns an HTTP 201 Created result pointing at <paramref name="uri"/> and wrapping the produced value.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.ExtensionMethods.ResultExtensions.ToNdjsonResultAsync``1(System.Collections.Generic.IAsyncEnumerable{``0})">
+            <summary>
+            Wraps the supplied asynchronous sequence in an NDJSON streaming result.
+            </summary>
+        </member>
+        <member name="T:MelloSilveiraTools.Infrastructure.ResiliencePipelines.ApiServiceAgentResiliencePipeline">
+            <summary>
+            Resilience pipeline for PostgreSQL repositories that provides a strategy to handle retriable exceptions.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Infrastructure.ResiliencePipelines.ApiServiceAgentResiliencePipeline.#ctor(MelloSilveiraTools.Infrastructure.Logger.ILogger,MelloSilveiraTools.Infrastructure.ResiliencePipelines.ResiliencePipelineSettings)">
+            <summary>
+            Initialize a new instance of <see cref="T:MelloSilveiraTools.Infrastructure.ResiliencePipelines.PostgresResiliencePipeline"/>.
+            </summary>
+            <param name="logger"></param>
+            <param name="settings"></param>
+        </member>
+        <member name="M:MelloSilveiraTools.Infrastructure.ResiliencePipelines.ApiServiceAgentResiliencePipeline.#ctor(MelloSilveiraTools.Infrastructure.Logger.ILogger,MelloSilveiraTools.Infrastructure.ResiliencePipelines.ResiliencePipelineSettings,System.Func{Polly.Retry.RetryPredicateArguments{System.Object},System.Threading.Tasks.ValueTask{System.Boolean}})">
+            <summary>
+            Initializes a new instance of <see cref="T:MelloSilveiraTools.Infrastructure.ResiliencePipelines.PostgresResiliencePipeline"/>.
+            </summary>
+            <param name="logger">See reference at <see cref="T:MelloSilveiraTools.Infrastructure.Logger.ILogger"/>.</param>
+            <param name="settings">See reference at <see cref="T:MelloSilveiraTools.Infrastructure.ResiliencePipelines.ResiliencePipelineSettings"/>.</param>
+            <param name="shouldHandle">Predicate that determines whether the retry should be executed for a given outcome.</param>
+        </member>
+        <member name="T:MelloSilveiraTools.Infrastructure.Services.ApiServiceAgent.ApiServiceAgentBase">
+            <inheritdoc cref="T:MelloSilveiraTools.Infrastructure.Services.ApiServiceAgent.IApiServiceAgent"/>
+        </member>
+        <member name="P:MelloSilveiraTools.Infrastructure.Services.ApiServiceAgent.ApiServiceAgentBase.ServiceName">
+            <inheritdoc/>
+        </member>
+        <member name="F:MelloSilveiraTools.Infrastructure.Services.ApiServiceAgent.ApiServiceAgentBase.JsonSerializerOptions">
+            <summary>
+            Custom options to be used with <see cref="T:System.Text.Json.JsonSerializer"/>.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Infrastructure.Services.ApiServiceAgent.ApiServiceAgentBase.Logger">
+            <inheritdoc cref="T:MelloSilveiraTools.Infrastructure.Logger.ILogger"/>
+        </member>
+        <member name="P:MelloSilveiraTools.Infrastructure.Services.ApiServiceAgent.ApiServiceAgentBase.HttpClient">
+            <summary>
+            HTTP client to be used on integration with API.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Infrastructure.Services.ApiServiceAgent.ApiServiceAgentBase.Settings">
+            <summary>
+            Settings for integrations with an API.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Infrastructure.Services.ApiServiceAgent.ApiServiceAgentBase.ResiliencePipeline">
+            <inheritdoc cref="T:MelloSilveiraTools.Infrastructure.ResiliencePipelines.ApiServiceAgentResiliencePipeline"/>
+        </member>
+        <member name="M:MelloSilveiraTools.Infrastructure.Services.ApiServiceAgent.ApiServiceAgentBase.#ctor(MelloSilveiraTools.Infrastructure.Logger.ILogger,MelloSilveiraTools.Infrastructure.Services.ApiServiceAgent.Settings.ApiServiceAgentSettings,MelloSilveiraTools.Infrastructure.ResiliencePipelines.ApiServiceAgentResiliencePipeline)">
+            <summary>
+            Initializes a new instance of <see cref="T:MelloSilveiraTools.Infrastructure.Services.ApiServiceAgent.ApiServiceAgentBase"/>.
+            </summary>
+            <param name="logger">Logger used to record execution details and errors.</param>
+            <param name="settings">Settings controlling the connection with the external API.</param>
+            <param name="resiliencePipeline">Resilience pipeline applied to outbound HTTP requests.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.Infrastructure.Services.ApiServiceAgent.ApiServiceAgentBase.GetAsync``2(System.String,System.Int32,System.String)">
+            <summary>
+            Sends a GET request to the specified URI and maps the JSON payload into a list-style operation response.
+            </summary>
+            <param name="requestUri">Relative or absolute URI of the endpoint to call.</param>
+            <param name="timeoutInMiliseconds">Per-request timeout, in milliseconds.</param>
+            <param name="methodName">Name of the caller method used to enrich log and error messages.</param>
+            <returns>An operation response carrying the deserialized data or the failure reason.</returns>
+        </member>
+        <member name="M:MelloSilveiraTools.Infrastructure.Services.ApiServiceAgent.ApiServiceAgentBase.Dispose(System.Boolean)">
+            <summary>
+            See reference <see cref="M:MelloSilveiraTools.Infrastructure.Services.ApiServiceAgent.ApiServiceAgentBase.Dispose"/>.
+            </summary>
+            <param name="disposing">
+            Indicates whether the method call comes from a Dispose method (its value is true) or from a finalizer 
+            (its value is false).
+            </param>
+        </member>
+        <member name="M:MelloSilveiraTools.Infrastructure.Services.ApiServiceAgent.ApiServiceAgentBase.Dispose">
+            <inheritdoc/>
+        </member>
+        <member name="T:MelloSilveiraTools.Infrastructure.Services.ApiServiceAgent.DataContract.AsyncOperationResponse`1">
+            <summary>
+            Response content for async operations.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Infrastructure.Services.ApiServiceAgent.DataContract.AsyncOperationResponse`1.Data">
+            <summary>
+            Data content of response.
+            </summary>
+        </member>
+        <member name="T:MelloSilveiraTools.Infrastructure.Services.ApiServiceAgent.IApiServiceAgent">
+            <summary>
+            Contains the base implementations for integrations with an API.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Infrastructure.Services.ApiServiceAgent.IApiServiceAgent.ServiceName">
+            <summary>
+            Name of service agent.
+            </summary>
+        </member>
+        <member name="T:MelloSilveiraTools.Infrastructure.Services.ApiServiceAgent.Settings.ApiServiceAgentSettings">
+            <summary>
+            Settings for integrations with an API.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Infrastructure.Services.ApiServiceAgent.Settings.ApiServiceAgentSettings.BaseAddress">
+            <summary>
+            Base address for integration with an API.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Infrastructure.Services.ApiServiceAgent.Settings.ApiServiceAgentSettings.DefaultTimeoutInSeconds">
+            <summary>
+            Default timeout in seconds for conection with API.
+            </summary>
+        </member>
+        <member name="T:MelloSilveiraTools.Infrastructure.Services.ApiServiceAgent.Settings.EndpointSettings">
+            <summary>
+            General settings for an endpoint.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Infrastructure.Services.ApiServiceAgent.Settings.EndpointSettings.Uri">
+            <summary>
+            Endpoint URI.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Infrastructure.Services.ApiServiceAgent.Settings.EndpointSettings.TimeoutInMiliseconds">
+            <summary>
+            Timeout in miliseconds for endpoint.
+            </summary>
+        </member>
+    </members>
+</doc>

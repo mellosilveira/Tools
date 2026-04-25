@@ -1,4 +1,5 @@
-using MelloSilveiraTools.ExtensionMethods;
+using MelloSilveiraTools.Database.ExtensionMethods;
+using MelloSilveiraTools.Database.Infrastructure.Database.Attributes;
 using NpgsqlTypes;
 
 namespace UnitTests;
@@ -82,7 +83,7 @@ public sealed class TypeExtensionsTests
     public void GetPropertiesInHierarchyWithAttribute_FiltersToAttributedPropertiesOnly()
     {
         var names = typeof(CategoryEntity)
-            .GetPropertiesInHierarchy<MelloSilveiraTools.Infrastructure.Database.Attributes.UniqueColumnAttribute>()
+            .GetPropertiesInHierarchy<UniqueColumnAttribute>()
             .Select(p => p.Name)
             .ToArray();
 

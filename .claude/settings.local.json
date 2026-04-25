@@ -34,7 +34,10 @@
       "Bash(unzip -l build/bin/Debug/MelloSilveiraTools/MelloSilveiraTools.1.2.2.nupkg)",
       "Bash(unzip -l build/bin/Debug/MelloSilveiraTools.MechanicsOfMaterials/MelloSilveiraTools.MechanicsOfMaterials.1.2.2.nupkg)",
       "Bash(unzip -l build/bin/Debug/MelloSilveiraTools/MelloSilveiraTools.1.2.2-rc002.nupkg)",
-      "Bash(unzip -p build/bin/Debug/MelloSilveiraTools/MelloSilveiraTools.1.2.2-rc002.nupkg MelloSilveiraTools.nuspec)"
+      "Bash(unzip -p build/bin/Debug/MelloSilveiraTools/MelloSilveiraTools.1.2.2-rc002.nupkg MelloSilveiraTools.nuspec)",
+      "Bash(find . -type d -empty -delete)",
+      "Bash(dotnet sln *)",
+      "PowerShell($p = \"D:\\\\Mello Silveira Serviços LTDA\\\\Projetos\\\\Tools\\\\src\\\\MelloSilveiraTools.NumericalMethods\"; Get-ChildItem $p -Force -ErrorAction SilentlyContinue | Format-Table Name, Mode; \\(Get-Item $p\\).GetType\\(\\).Name; try { [System.IO.Directory]::Delete\\($p, $true\\); \"deleted\" } catch { $_.Exception.Message })"
     ]
   }
 }

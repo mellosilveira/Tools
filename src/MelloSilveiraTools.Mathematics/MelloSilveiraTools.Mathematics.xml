@@ -1,0 +1,299 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>MelloSilveiraTools.Mathematics</name>
+    </assembly>
+    <members>
+        <member name="T:MelloSilveiraTools.Mathematics.MathematicsDependencyInjection">
+            <summary>
+            Provides extension methods to register services from the MelloSilveiraTools.Mathematics package.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Mathematics.MathematicsDependencyInjection.AddMathematicsServices(Microsoft.Extensions.DependencyInjection.IServiceCollection)">
+            <summary>
+            Register numerical methods (Newmark, Newmark-β) and the differential-equation method factory.
+            </summary>
+            <param name="services">Service collection that receives the registrations.</param>
+            <returns>The same <paramref name="services"/> instance to allow call chaining.</returns>
+        </member>
+        <member name="T:MelloSilveiraTools.Mathematics.Domain.Models.CurveType">
+            <summary>
+            It contains the accepted curve types for curve fitting.
+            </summary>
+        </member>
+        <member name="F:MelloSilveiraTools.Mathematics.Domain.Models.CurveType.Polinomial">
+            <summary>
+            Equation: f(x) = a_0 + a_1 * x + a_2 * x^2 + ... + a_n * x^n
+            </summary>
+        </member>
+        <member name="F:MelloSilveiraTools.Mathematics.Domain.Models.CurveType.Exponencial">
+            <summary>
+            Equation: f(x) = a_0 * exp(a_1 * x) + a_2 * exp(a_3 * x) + ... + a_n-1 * exp(a_n * x)
+            </summary>
+        </member>
+        <member name="F:MelloSilveiraTools.Mathematics.Domain.Models.CurveType.Cosine">
+            <summary>
+            Equation: 
+                f(x) = (a_0 / 2) * (a_1 + a_2 * cos(w * x)), with x = [t_0, t_1]
+                f(x) = (a_3 / 2) * (a_4 + a_5 * cos(w * x)), with x = [t_2, t_3]
+                ...
+                f(x) = (a_n-2 / 2) * (a_n-1 + a_n * cos(w * x)), with x = [t_m-1, t_m]
+            </summary>
+        </member>
+        <member name="T:MelloSilveiraTools.Mathematics.Domain.Models.DifferentialEquationMethodType">
+            <summary>
+            It contains the available numerical methods for differential equations.
+            </summary>
+        </member>
+        <member name="F:MelloSilveiraTools.Mathematics.Domain.Models.DifferentialEquationMethodType.Newmark">
+            <summary>
+            Newmark numerical method.
+            </summary>
+        </member>
+        <member name="F:MelloSilveiraTools.Mathematics.Domain.Models.DifferentialEquationMethodType.NewmarkBeta">
+            <summary>
+            Newmark-Beta numerical method.
+            </summary>
+        </member>
+        <member name="T:MelloSilveiraTools.Mathematics.Domain.NumericalMethods.DifferentialEquation.DifferentialEquationMethodFactory">
+            <summary>
+            Resolves the appropriate <see cref="T:MelloSilveiraTools.Mathematics.Domain.NumericalMethods.DifferentialEquation.IDifferentialEquationMethod"/> implementation based on the
+            requested <see cref="T:MelloSilveiraTools.Mathematics.Domain.Models.DifferentialEquationMethodType"/>. The factory matches by the
+            <see cref="P:MelloSilveiraTools.Mathematics.Domain.NumericalMethods.DifferentialEquation.IDifferentialEquationMethod.Type"/> property of every implementation registered in the
+            DI container, picking the single one whose type equals the requested value (e.g. it returns
+            <see cref="T:MelloSilveiraTools.Mathematics.Domain.NumericalMethods.DifferentialEquation.NewmarkMethod"/> for <see cref="F:MelloSilveiraTools.Mathematics.Domain.Models.DifferentialEquationMethodType.Newmark"/> and
+            <see cref="T:MelloSilveiraTools.Mathematics.Domain.NumericalMethods.DifferentialEquation.NewmarkBetaMethod"/> for <see cref="F:MelloSilveiraTools.Mathematics.Domain.Models.DifferentialEquationMethodType.NewmarkBeta"/>).
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Mathematics.Domain.NumericalMethods.DifferentialEquation.DifferentialEquationMethodFactory.#ctor(System.Collections.Generic.IEnumerable{MelloSilveiraTools.Mathematics.Domain.NumericalMethods.DifferentialEquation.IDifferentialEquationMethod})">
+            <summary>
+            Resolves the appropriate <see cref="T:MelloSilveiraTools.Mathematics.Domain.NumericalMethods.DifferentialEquation.IDifferentialEquationMethod"/> implementation based on the
+            requested <see cref="T:MelloSilveiraTools.Mathematics.Domain.Models.DifferentialEquationMethodType"/>. The factory matches by the
+            <see cref="P:MelloSilveiraTools.Mathematics.Domain.NumericalMethods.DifferentialEquation.IDifferentialEquationMethod.Type"/> property of every implementation registered in the
+            DI container, picking the single one whose type equals the requested value (e.g. it returns
+            <see cref="T:MelloSilveiraTools.Mathematics.Domain.NumericalMethods.DifferentialEquation.NewmarkMethod"/> for <see cref="F:MelloSilveiraTools.Mathematics.Domain.Models.DifferentialEquationMethodType.Newmark"/> and
+            <see cref="T:MelloSilveiraTools.Mathematics.Domain.NumericalMethods.DifferentialEquation.NewmarkBetaMethod"/> for <see cref="F:MelloSilveiraTools.Mathematics.Domain.Models.DifferentialEquationMethodType.NewmarkBeta"/>).
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Mathematics.Domain.NumericalMethods.DifferentialEquation.DifferentialEquationMethodFactory.Get(MelloSilveiraTools.Mathematics.Domain.Models.DifferentialEquationMethodType)">
+            <summary>
+            Gets the <see cref="T:MelloSilveiraTools.Mathematics.Domain.NumericalMethods.DifferentialEquation.IDifferentialEquationMethod"/> registered for the supplied <paramref name="type"/>.
+            </summary>
+            <param name="type">The numerical method to resolve.</param>
+            <returns>The single registered implementation whose <see cref="P:MelloSilveiraTools.Mathematics.Domain.NumericalMethods.DifferentialEquation.IDifferentialEquationMethod.Type"/> equals <paramref name="type"/>.</returns>
+        </member>
+        <member name="T:MelloSilveiraTools.Mathematics.Domain.NumericalMethods.DifferentialEquation.IDifferentialEquationMethod">
+            <summary>
+            Executes numerical method to solve Differential Equation
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Mathematics.Domain.NumericalMethods.DifferentialEquation.IDifferentialEquationMethod.Type">
+            <summary>
+            The method type identifying this implementation.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Mathematics.Domain.NumericalMethods.DifferentialEquation.IDifferentialEquationMethod.CalculateResult(MelloSilveiraTools.Mathematics.Domain.NumericalMethods.NumericalMethodInput,System.Double,MelloSilveiraTools.Mathematics.Domain.NumericalMethods.NumericalMethodResult)">
+            <summary>
+            Advances the dynamic system by one time step, computing the state (displacement, velocity,
+            acceleration and equivalent force) at the requested instant <paramref name="time"/>.
+            </summary>
+            <param name="input">
+            The system data: time step Δt (s), mass matrix [M] (kg), stiffness matrix [K] (N/m),
+            damping matrix [C] (N·s/m), the equivalent force vector at <paramref name="time"/> (N) and the
+            number of boundary conditions. Δt is read from <c>input.TimeStep</c> and must be consistent
+            across calls so that the integration constants remain valid.
+            </param>
+            <param name="time">The current instant, in seconds, at which the result must be evaluated. Must be greater than or equal to the configured initial time.</param>
+            <param name="previousResult">
+            The state at the previous instant <c>time − Δt</c>. Must not be <see langword="null"/> for any
+            step beyond the initial one. At the initial instant the implementation returns the initial
+            state directly and ignores this argument.
+            </param>
+            <returns>The numerical state of the system at <paramref name="time"/>.</returns>
+            <remarks>
+            Implementations integrate a second-order ODE of the form [M]ẍ + [C]ẋ + [K]x = F(t).
+            The classic <see cref="T:MelloSilveiraTools.Mathematics.Domain.NumericalMethods.DifferentialEquation.NewmarkMethod"/> uses γ = 1/2, β = 1/4 (constant-average-acceleration)
+            which is unconditionally stable and second-order accurate. The <see cref="T:MelloSilveiraTools.Mathematics.Domain.NumericalMethods.DifferentialEquation.NewmarkBetaMethod"/>
+            variant uses γ = 1/2, β = 1/6 (linear-acceleration), which is conditionally stable
+            (Δt must be small relative to the highest natural period) but provides better phase accuracy.
+            </remarks>
+        </member>
+        <member name="T:MelloSilveiraTools.Mathematics.Domain.NumericalMethods.DifferentialEquation.NewmarkBetaMethod">
+            <summary>
+            Execute the Newmark-Beta numerical method to solve Differential Equation.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Mathematics.Domain.NumericalMethods.DifferentialEquation.NewmarkBetaMethod.Type">
+            <inheritdoc/>
+        </member>
+        <member name="M:MelloSilveiraTools.Mathematics.Domain.NumericalMethods.DifferentialEquation.NewmarkBetaMethod.CalculateResult(MelloSilveiraTools.Mathematics.Domain.NumericalMethods.NumericalMethodInput,System.Double,MelloSilveiraTools.Mathematics.Domain.NumericalMethods.NumericalMethodResult)">
+            <inheritdoc/>
+        </member>
+        <member name="M:MelloSilveiraTools.Mathematics.Domain.NumericalMethods.DifferentialEquation.NewmarkBetaMethod.CalculateEquivalentStiffness(MelloSilveiraTools.Mathematics.Domain.NumericalMethods.NumericalMethodInput)">
+            <summary>
+            Builds the effective stiffness matrix [K̂] = a₀[M] + a₁[C] + [K] used to solve for the
+            displacement increment Δx at the current step.
+            </summary>
+            <param name="input">System input providing the mass, damping and stiffness matrices and the time step Δt.</param>
+            <returns>The effective stiffness matrix.</returns>
+        </member>
+        <member name="M:MelloSilveiraTools.Mathematics.Domain.NumericalMethods.DifferentialEquation.NewmarkBetaMethod.CalculateEquivalentForce(MelloSilveiraTools.Mathematics.Domain.NumericalMethods.NumericalMethodInput,MelloSilveiraTools.Mathematics.Domain.NumericalMethods.NumericalMethodResult)">
+            <summary>
+            Builds the effective force vector ΔF̂ used to solve for the displacement increment in the
+            Newmark-Beta incremental formulation. The vector combines the change in applied force
+            (F(t) − F(t−Δt)) with the equivalent damping and equivalent mass contributions evaluated
+            from the previous step.
+            </summary>
+            <param name="input">System input providing the matrices and current applied force.</param>
+            <param name="previousResult">State at t−Δt (displacement, velocity, acceleration and applied force).</param>
+            <returns>The effective force vector at the current step, in Newtons.</returns>
+        </member>
+        <member name="M:MelloSilveiraTools.Mathematics.Domain.NumericalMethods.DifferentialEquation.NewmarkBetaMethod.CalculateEquivalentDamping(MelloSilveiraTools.Mathematics.Domain.NumericalMethods.NumericalMethodInput)">
+            <summary>
+            Builds the equivalent damping matrix [Ĉ] = a₂[M] + A₃[C] used to multiply the previous
+            velocity when assembling the effective force vector.
+            </summary>
+            <param name="input">System input providing the mass and damping matrices and the time step Δt.</param>
+            <returns>The equivalent damping matrix.</returns>
+        </member>
+        <member name="M:MelloSilveiraTools.Mathematics.Domain.NumericalMethods.DifferentialEquation.NewmarkBetaMethod.CalculateEquivalentMass(MelloSilveiraTools.Mathematics.Domain.NumericalMethods.NumericalMethodInput)">
+            <summary>
+            Builds the equivalent mass matrix [M̂] = A₄[M] + a₅[C] used to multiply the previous
+            acceleration when assembling the effective force vector.
+            </summary>
+            <param name="input">System input providing the mass and damping matrices and the time step Δt.</param>
+            <returns>The equivalent mass matrix.</returns>
+        </member>
+        <member name="T:MelloSilveiraTools.Mathematics.Domain.NumericalMethods.DifferentialEquation.NewmarkMethod">
+            <summary>
+            Execute the Newmark numerical method to solve Differential Equation.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Mathematics.Domain.NumericalMethods.DifferentialEquation.NewmarkMethod.Type">
+            <inheritdoc/>
+        </member>
+        <member name="M:MelloSilveiraTools.Mathematics.Domain.NumericalMethods.DifferentialEquation.NewmarkMethod.CalculateResult(MelloSilveiraTools.Mathematics.Domain.NumericalMethods.NumericalMethodInput,System.Double,MelloSilveiraTools.Mathematics.Domain.NumericalMethods.NumericalMethodResult)">
+            <inheritdoc/>
+        </member>
+        <member name="M:MelloSilveiraTools.Mathematics.Domain.NumericalMethods.DifferentialEquation.NewmarkMethod.CalculateEquivalentStiffness(MelloSilveiraTools.Mathematics.Domain.NumericalMethods.NumericalMethodInput)">
+            <summary>
+            Builds the effective stiffness matrix [K̂] = a₀[M] + a₁[C] + [K] used to solve for
+            the displacement vector at the current step.
+            </summary>
+            <param name="input">System input providing the mass, damping and stiffness matrices and the time step Δt.</param>
+            <returns>The effective stiffness matrix, with the same dimensions as the system matrices.</returns>
+        </member>
+        <member name="M:MelloSilveiraTools.Mathematics.Domain.NumericalMethods.DifferentialEquation.NewmarkMethod.CalculateEquivalentForce(MelloSilveiraTools.Mathematics.Domain.NumericalMethods.NumericalMethodInput,System.Double[],System.Double[],System.Double[])">
+            <summary>
+            Builds the effective force vector F̂ = F + [C]·v_eq + [M]·a_eq, where v_eq and a_eq are
+            the equivalent velocity and acceleration extrapolated from the previous step. The result
+            is used together with the effective stiffness to solve for the new displacement.
+            </summary>
+            <param name="input">System input providing the mass and damping matrices and the current applied force.</param>
+            <param name="previousDisplacement">Displacement vector x(t−Δt), in meters.</param>
+            <param name="previousVelocity">Velocity vector ẋ(t−Δt), in m/s.</param>
+            <param name="previousAcceleration">Acceleration vector ẍ(t−Δt), in m/s².</param>
+            <returns>The effective force vector F̂ at the current step, in Newtons.</returns>
+        </member>
+        <member name="M:MelloSilveiraTools.Mathematics.Domain.NumericalMethods.DifferentialEquation.NewmarkMethod.CalculateEquivalentAcceleration(MelloSilveiraTools.Mathematics.Domain.NumericalMethods.NumericalMethodInput,System.Double[],System.Double[],System.Double[])">
+            <summary>
+            Computes a_eq = a₀·x(t−Δt) + a₂·ẋ(t−Δt) + a₃·ẍ(t−Δt), the equivalent acceleration term that enters the effective force vector.
+            </summary>
+            <param name="input">System input providing the time step Δt.</param>
+            <param name="previousDisplacement">Displacement vector at t−Δt, in meters.</param>
+            <param name="previousVelocity">Velocity vector at t−Δt, in m/s.</param>
+            <param name="previousAcceleration">Acceleration vector at t−Δt, in m/s².</param>
+            <returns>The equivalent acceleration vector used to assemble the effective force.</returns>
+        </member>
+        <member name="M:MelloSilveiraTools.Mathematics.Domain.NumericalMethods.DifferentialEquation.NewmarkMethod.CalculateEquivalentVelocity(MelloSilveiraTools.Mathematics.Domain.NumericalMethods.NumericalMethodInput,System.Double[],System.Double[],System.Double[])">
+            <summary>
+            Computes v_eq = a₁·x(t−Δt) + a₄·ẋ(t−Δt) + a₅·ẍ(t−Δt), the equivalent velocity term
+            that enters the effective force vector.
+            </summary>
+            <param name="input">System input providing the time step Δt.</param>
+            <param name="previousDisplacement">Displacement vector at t−Δt, in meters.</param>
+            <param name="previousVelocity">Velocity vector at t−Δt, in m/s.</param>
+            <param name="previousAcceleration">Acceleration vector at t−Δt, in m/s².</param>
+            <returns>The equivalent velocity vector used to assemble the effective force.</returns>
+        </member>
+        <member name="T:MelloSilveiraTools.Mathematics.Domain.NumericalMethods.NumericalMethodInput">
+            <summary>
+            It contains the input data for a numerical method.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Mathematics.Domain.NumericalMethods.NumericalMethodInput.TimeStep">
+            <summary>
+            Unit: s (second).
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Mathematics.Domain.NumericalMethods.NumericalMethodInput.Mass">
+            <summary>
+            Unit: kg (kilogram).
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Mathematics.Domain.NumericalMethods.NumericalMethodInput.Stiffness">
+            <summary>
+            Unit: N/m (Newton per meter).
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Mathematics.Domain.NumericalMethods.NumericalMethodInput.Damping">
+            <summary>
+            Unit: N.s/m (Newston-second per meter).
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Mathematics.Domain.NumericalMethods.NumericalMethodInput.EquivalentForce">
+            <summary>
+            Unit: N (Newton).
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Mathematics.Domain.NumericalMethods.NumericalMethodInput.NumberOfBoundaryConditions">
+            <summary>
+            Dimensionless.
+            </summary>
+        </member>
+        <member name="T:MelloSilveiraTools.Mathematics.Domain.NumericalMethods.NumericalMethodResult">
+            <summary>
+            It contains the finite element analysis results to a specific time.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Mathematics.Domain.NumericalMethods.NumericalMethodResult.#ctor">
+            <summary>
+            Basic constructor.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Mathematics.Domain.NumericalMethods.NumericalMethodResult.#ctor(System.UInt32)">
+            <summary>
+            Class constructor.
+            </summary>
+            <param name="numberOfBoundaryConditions"></param>
+        </member>
+        <member name="P:MelloSilveiraTools.Mathematics.Domain.NumericalMethods.NumericalMethodResult.Time">
+            <summary>
+            Unit: s (second).
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Mathematics.Domain.NumericalMethods.NumericalMethodResult.Displacement">
+            <summary>
+            Unit: m (meter).
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Mathematics.Domain.NumericalMethods.NumericalMethodResult.Velocity">
+            <summary>
+            Unit: m/s (meter per second).
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Mathematics.Domain.NumericalMethods.NumericalMethodResult.Acceleration">
+            <summary>
+            Unit: m/s² (meter per squared second).
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Mathematics.Domain.NumericalMethods.NumericalMethodResult.EquivalentForce">
+            <summary>
+            Unit: N (Newton).
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Mathematics.Domain.NumericalMethods.NumericalMethodResult.ToString">
+            <inheritdoc/>
+        </member>
+    </members>
+</doc>

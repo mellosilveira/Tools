@@ -1,3 +1,4 @@
+using MelloSilveiraTools.Database.Infrastructure.Database.Sql.Provider;
 using MelloSilveiraTools.Infrastructure.Database.Sql.Provider;
 
 namespace UnitTests;

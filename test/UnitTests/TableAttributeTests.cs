@@ -1,4 +1,4 @@
-using MelloSilveiraTools.Infrastructure.Database.Attributes;
+using MelloSilveiraTools.Database.Infrastructure.Database.Attributes;
 
 namespace UnitTests;
 
