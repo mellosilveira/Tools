@@ -47,7 +47,7 @@ public class JsonFilePluginCachePersistence(PluginSettings settings) : IPluginCa
 
     /// <inheritdoc/>
     public async IAsyncEnumerable<PluginCacheEntry> LoadAsync(
-        string name = "",
+        string? name = null,
         PluginVersion? version = null,
         [EnumeratorCancellation] CancellationToken cancellationToken = default)
     {

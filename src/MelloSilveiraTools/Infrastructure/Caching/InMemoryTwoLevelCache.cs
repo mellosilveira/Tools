@@ -65,11 +65,11 @@ public class InMemoryTwoLevelCache : ITwoLevelCache
     {
         foreach (var (g, byKey) in _cache)
         {
-            if (group is not null && g != group) continue;
+            if (!string.IsNullOrWhiteSpace(group) && g != group) continue;
 
             foreach (var (k, obj) in byKey)
             {
-                if (key is not null && k != key) continue;
+                if (!string.IsNullOrWhiteSpace(key) && k != key) continue;
 
                 cancellationToken.ThrowIfCancellationRequested();
 

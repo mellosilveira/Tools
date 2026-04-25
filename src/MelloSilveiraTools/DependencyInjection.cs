@@ -38,13 +38,16 @@ public static class DependencyInjection
     /// <param name="databaseSettings">Database connection and behavior settings.</param>
     /// <param name="encryptionSettings">Settings used by the encryption service.</param>
     /// <param name="resiliencePipelineSettings">Settings that parameterize the resilience pipelines.</param>
+    /// <param name="loggerSettings">Settings used by logger service.</param>
     /// <returns>The same <paramref name="services"/> instance to allow call chaining.</returns>
-    public static IServiceCollection AddToolsServices(this IServiceCollection services, DatabaseSettings databaseSettings, EncryptionSettings encryptionSettings, ResiliencePipelineSettings resiliencePipelineSettings)
+    public static IServiceCollection AddToolsServices(this IServiceCollection services, DatabaseSettings databaseSettings,
+        EncryptionSettings encryptionSettings, ResiliencePipelineSettings resiliencePipelineSettings, LoggerSettings? loggerSettings = null) 
         => services
             // Register settings.
             .AddSingleton(databaseSettings)
             .AddSingleton(encryptionSettings)
             .AddSingleton(resiliencePipelineSettings)
+            .AddSingleton(loggerSettings ?? new LoggerSettings())
             // Register resilience pipelines.
             .AddSingleton(provider => new ApiServiceAgentResiliencePipeline(provider.GetRequiredService<ILogger>(), resiliencePipelineSettings))
             .AddSingleton(provider => new PostgresResiliencePipeline(provider.GetRequiredService<ILogger>(), resiliencePipelineSettings))
@@ -150,9 +153,9 @@ public static class DependencyInjection
     }
 
     /// <summary>
-    /// Configures the documentation file for Swagger User Interface using JWT authentication.
+    /// Configures the documentation file for Swagger User Interface using bearer authentication.
     /// </summary>
-    public static IServiceCollection AddSwaggerDocsWithJwtAuthentication(this IServiceCollection services)
+    public static IServiceCollection AddSwaggerWithBearerSecurity(this IServiceCollection services)
     {
         (string assemblyTitle, string assemblyDescription, string assemblyLocation) = GetAssemblyAttributes();
         return services

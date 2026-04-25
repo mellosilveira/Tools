@@ -27,7 +27,7 @@ public class PluginFileProcessor(
     /// <exception cref="UnauthorizedAccessException">Thrown when the caller does not have permission to read the plugins directory.</exception>
     /// <exception cref="IOException">Thrown when an I/O error occurs while enumerating files in the plugins directory.</exception>
     /// <exception cref="InvalidOperationException">Thrown by the iterator when a discovered file does not match the expected plugin filename pattern.</exception>
-    public IEnumerable<DiscoveredPlugin> Scan(string pluginName = "", PluginVersion? version = null)
+    public IEnumerable<DiscoveredPlugin> Scan(string? pluginName = null, PluginVersion? version = null)
     {
         foreach (string file in Directory.GetFiles(_pluginsDirectory, $"{pluginName}{version?.Name ?? string.Empty}*.dll"))
             yield return Parse(file);
@@ -42,7 +42,7 @@ public class PluginFileProcessor(
     /// <exception cref="UnauthorizedAccessException">Thrown when the caller does not have permission to read the <c>loaded/</c> subfolder.</exception>
     /// <exception cref="IOException">Thrown when an I/O error occurs while enumerating files in the <c>loaded/</c> subfolder.</exception>
     /// <exception cref="InvalidOperationException">Thrown by the iterator when a discovered file does not match the expected plugin filename pattern.</exception>
-    public IEnumerable<DiscoveredPlugin> ScanLoaded(string pluginName = "", PluginVersion? version = null)
+    public IEnumerable<DiscoveredPlugin> ScanLoaded(string? pluginName = null, PluginVersion? version = null)
     {
         foreach (string file in Directory.GetFiles(_loadedDirectory, $"{pluginName}{version?.Name ?? string.Empty}*.dll"))
             yield return Parse(file);

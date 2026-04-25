@@ -26,8 +26,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Documented contracts that were previously implicit: `ISqlProvider` template placeholders (`#TABLE_NAME`, `#COLUMNS`, `#WHERE`, `#ORDERBY`, `#LIMIT`, `#OFFSET`, `#JOIN`, etc.); `PostgresSqlProvider` static cache lifetime and thread-safety; `PostgresRepository` resilience pipeline / timeout behavior; `ExceptionHandlingMiddleware` exception→status mapping; `AuthenticationJweTokenService` 32-byte UTF-8 key requirement; Newmark / Newmark-β stability characteristics in `IDifferentialEquationMethod`.
 - Added `<example>` snippets to `OperationBase.ProcessAsync`, `IRepository.GetAsync`, `IPluginService.LoadPluginsOnStartup` and `IFatigueCalculator.CalculateFatigueResult`.
 - Added `<exception>` documentation across public surfaces that throw (`IAuthenticationTokenService.RefreshAsync`, `PluginFileProcessor.*`, `EnumerableExtensions.FirstWithoutValidate`, `TypeExtensions.GetDbTypeFromPropertyType`, `IRepository`).
-### Deprecated
-- `Infrastructure.Logger.LocalFileLogger` marked `[Obsolete]` — it is a no-op placeholder. Consumers must register their own `ILogger` implementation before relying on it in production.
+### Added
+- `Infrastructure.Logger.LocalFileLogger` is now a working implementation: appends one JSON entry per line, rolls daily and by size, retains the last N files. Configurable via the new `LoggerSettings` record (directory, file name prefix, daily roll, max file size, max retained files). `AddToolsServices` registers a default `LoggerSettings` via `TryAddSingleton`, so consumers can override by calling `services.AddSingleton(new LoggerSettings { ... })` before `AddToolsServices`.
 ### Breaking
 - `MelloSilveiraTools.MechanicsOfMaterials.Models.Force.AbsolutValue` renamed to `AbsoluteValue` (typo fix).
 - `Force` `X`/`Y`/`Z`/`AbsoluteValue` setters are now `private`; `Force` instances are immutable after construction. Use `Sum`/`Subtract`/`Round`/`Divide`/`Abs`/`Create` to derive new instances.

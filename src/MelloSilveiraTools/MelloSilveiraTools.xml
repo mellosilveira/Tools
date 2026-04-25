@@ -139,7 +139,7 @@
         </member>
         <member name="M:MelloSilveiraTools.Application.Controllers.PluginController.ClearCache(MelloSilveiraTools.Application.Operations.Plugins.Cache.ClearPluginCache)">
             <summary>
-            Clears the in-memory plugin cache.
+            Clears the plugin cache.
             </summary>
             <param name="operation">Operation that clears the plugin cache.</param>
         </member>
@@ -272,33 +272,11 @@
             Response produced by add/create operations, optionally exposing the identifier of the newly created resource.
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.Application.Operations.Add.AddResponse.Create">
-            <summary>
-            Creates an empty <see cref="T:MelloSilveiraTools.Application.Operations.Add.AddResponse"/> instance.
-            </summary>
-        </member>
-        <member name="M:MelloSilveiraTools.Application.Operations.Add.AddResponse.CreateSuccessOk">
-            <summary>
-            Creates a successful 200 OK <see cref="T:MelloSilveiraTools.Application.Operations.Add.AddResponse"/>.
-            </summary>
-        </member>
-        <member name="M:MelloSilveiraTools.Application.Operations.Add.AddResponse.CreateInternalServerError(System.String)">
-            <summary>
-            Creates a 500 Internal Server Error <see cref="T:MelloSilveiraTools.Application.Operations.Add.AddResponse"/> with the supplied message.
-            </summary>
-            <param name="message">Error message describing the failure.</param>
-        </member>
         <member name="M:MelloSilveiraTools.Application.Operations.Add.AddResponse.CreateSuccessCreated(System.Int64)">
             <summary>
             Creates a successful 201 Created response that returns the identifier assigned to the new resource.
             </summary>
             <param name="id">Identifier of the newly created resource.</param>
-        </member>
-        <member name="M:MelloSilveiraTools.Application.Operations.Add.AddResponse.CreateConflict(System.String)">
-            <summary>
-            Creates a 409 Conflict response with the supplied message.
-            </summary>
-            <param name="message">Error message describing the conflict.</param>
         </member>
         <member name="M:MelloSilveiraTools.Application.Operations.Add.AddResponse.CreateConflict(System.Int64,System.String)">
             <summary>
@@ -865,12 +843,12 @@
         </member>
         <member name="T:MelloSilveiraTools.Application.Operations.Plugins.Cache.ClearPluginCache">
             <summary>
-            Operation that clears the in-memory plugin cache managed by <see cref="T:MelloSilveiraTools.Infrastructure.Services.Plugins.IPluginService"/>.
+            Operation that clears the plugin cache managed by <see cref="T:MelloSilveiraTools.Infrastructure.Services.Plugins.IPluginService"/>.
             </summary>
         </member>
         <member name="M:MelloSilveiraTools.Application.Operations.Plugins.Cache.ClearPluginCache.#ctor(MelloSilveiraTools.Infrastructure.Logger.ILogger,MelloSilveiraTools.Infrastructure.Services.Plugins.IPluginService)">
             <summary>
-            Operation that clears the in-memory plugin cache managed by <see cref="T:MelloSilveiraTools.Infrastructure.Services.Plugins.IPluginService"/>.
+            Operation that clears the plugin cache managed by <see cref="T:MelloSilveiraTools.Infrastructure.Services.Plugins.IPluginService"/>.
             </summary>
         </member>
         <member name="M:MelloSilveiraTools.Application.Operations.Plugins.Cache.ClearPluginCache.ProcessOperationAsync">
@@ -1191,7 +1169,7 @@
             Provides extension methods to dependency injection of Tools project.
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.DependencyInjection.AddToolsServices(Microsoft.Extensions.DependencyInjection.IServiceCollection,MelloSilveiraTools.Infrastructure.Database.Settings.DatabaseSettings,MelloSilveiraTools.Infrastructure.Services.Encryption.EncryptionSettings,MelloSilveiraTools.Infrastructure.ResiliencePipelines.ResiliencePipelineSettings)">
+        <member name="M:MelloSilveiraTools.DependencyInjection.AddToolsServices(Microsoft.Extensions.DependencyInjection.IServiceCollection,MelloSilveiraTools.Infrastructure.Database.Settings.DatabaseSettings,MelloSilveiraTools.Infrastructure.Services.Encryption.EncryptionSettings,MelloSilveiraTools.Infrastructure.ResiliencePipelines.ResiliencePipelineSettings,MelloSilveiraTools.Infrastructure.Logger.LoggerSettings)">
             <summary>
             Registers the services of Tools project.
             </summary>
@@ -1199,6 +1177,7 @@
             <param name="databaseSettings">Database connection and behavior settings.</param>
             <param name="encryptionSettings">Settings used by the encryption service.</param>
             <param name="resiliencePipelineSettings">Settings that parameterize the resilience pipelines.</param>
+            <param name="loggerSettings">Settings used by logger service.</param>
             <returns>The same <paramref name="services"/> instance to allow call chaining.</returns>
         </member>
         <member name="M:MelloSilveiraTools.DependencyInjection.AddPluginServices(Microsoft.Extensions.DependencyInjection.IServiceCollection,MelloSilveiraTools.Infrastructure.Plugins.PluginSettings)">
@@ -1224,9 +1203,9 @@
             <param name="jwtSettings">Settings used to build and validate JWT tokens.</param>
             <returns>The same <paramref name="services"/> instance to allow call chaining.</returns>
         </member>
-        <member name="M:MelloSilveiraTools.DependencyInjection.AddSwaggerDocsWithJwtAuthentication(Microsoft.Extensions.DependencyInjection.IServiceCollection)">
+        <member name="M:MelloSilveiraTools.DependencyInjection.AddSwaggerWithBearerSecurity(Microsoft.Extensions.DependencyInjection.IServiceCollection)">
             <summary>
-            Configures the documentation file for Swagger User Interface using JWT authentication.
+            Configures the documentation file for Swagger User Interface using bearer authentication.
             </summary>
         </member>
         <member name="M:MelloSilveiraTools.DependencyInjection.UseSwaggerDocs(Microsoft.AspNetCore.Builder.IApplicationBuilder)">
@@ -1607,8 +1586,7 @@
         </member>
         <member name="M:MelloSilveiraTools.Domain.NumericalMethods.DifferentialEquation.NewmarkMethod.CalculateEquivalentAcceleration(MelloSilveiraTools.Domain.NumericalMethods.NumericalMethodInput,System.Double[],System.Double[],System.Double[])">
             <summary>
-            Computes a_eq = a₀·x(t−Δt) + a₂·ẋ(t−Δt) + a₃·ẍ(t−Δt), the equivalent acceleration term
-            that enters the effective force vector.
+            Computes a_eq = a₀·x(t−Δt) + a₂·ẋ(t−Δt) + a₃·ẍ(t−Δt), the equivalent acceleration term that enters the effective force vector.
             </summary>
             <param name="input">System input providing the time step Δt.</param>
             <param name="previousDisplacement">Displacement vector at t−Δt, in meters.</param>
@@ -1715,11 +1693,9 @@
              <see cref="T:System.OperationCanceledException"/> when cancellation is signalled.
             
              Transient database failures (connection drops, broken protocol, network blips, command timeouts caused by
-             transient conditions) are absorbed and retried by the
-             <see cref="T:MelloSilveiraTools.Infrastructure.ResiliencePipelines.PostgresResiliencePipeline"/>. Once the
-             pipeline budget is exhausted the underlying exceptions are re-thrown to the caller. Non-transient failures
-             — for example unique-constraint violations, permission errors, or definitive command timeouts — are not
-             retried and are propagated as <see cref="T:Npgsql.PostgresException"/> or <see cref="T:System.TimeoutException"/>.
+             transient conditions) are absorbed and retried resilience pipeline. Once the pipeline budget is exhausted 
+             the underlying exceptions are re-thrown to the caller. Non-transient failures — for example unique-constraint 
+             violations, permission errors, or definitive command timeouts — are not retried and are propagated as <see cref="T:System.TimeoutException"/>.
              </remarks>
         </member>
         <member name="M:MelloSilveiraTools.Domain.Repositories.IRepository.CountAsync``2(``1,System.Threading.CancellationToken)">
@@ -1751,16 +1727,6 @@
             <summary>
             Streams all entities matching the supplied filter, optionally paginated.
             </summary>
-            <example>
-            <code>
-            var filter = new UserFilter { IsActive = true };
-            var pagination = new Pagination { Limit = 50, Offset = 0, SortOrder = SortOrder.Asc };
-            await foreach (var user in repository.GetAsync&lt;User, UserFilter&gt;(filter, pagination, cancellationToken))
-            {
-                Console.WriteLine(user.Email);
-            }
-            </code>
-            </example>
         </member>
         <member name="M:MelloSilveiraTools.Domain.Repositories.IRepository.GetDistinctAsync``2(``1,MelloSilveiraTools.Infrastructure.Database.Models.Filters.Pagination,System.Threading.CancellationToken)">
             <summary>
@@ -3422,15 +3388,49 @@
         </member>
         <member name="T:MelloSilveiraTools.Infrastructure.Logger.LocalFileLogger">
             <summary>
-            Default <see cref="T:MelloSilveiraTools.Infrastructure.Logger.ILogger"/> implementation intended to write log entries to a local file.
+            <see cref="T:MelloSilveiraTools.Infrastructure.Logger.ILogger"/> implementation that appends one JSON-encoded entry per line to a local file,
+            rolling the file by UTC day and/or by size.
             </summary>
             <remarks>
-            <b>Placeholder no-op implementation.</b> All log writes are silently discarded. Provide your
-            own <see cref="T:MelloSilveiraTools.Infrastructure.Logger.ILogger"/> registration before relying on it in production.
+            <para>
+            Thread-safe via an internal lock. Suitable for low-to-medium throughput. For high-throughput production
+            workloads, prefer a logger backed by an asynchronous queue or a structured logging framework
+            (Serilog, NLog, OpenTelemetry).
+            </para>
+            <para>Each entry has the shape (newlines added for readability — actual output is a single line):</para>
+            <code>
+            {
+              "timestamp": "2026-04-25T10:30:15.1234567Z",
+              "level": "Error",
+              "tags": ["MyController", "DoSomething"],
+              "message": "Something failed.",
+              "exception": { "type": "...", "message": "...", "stackTrace": "...", "inner": { ... } },
+              "data": { "userId": 42, "correlationId": "..." }
+            }
+            </code>
+            <para>Rotation:</para>
+            <list type="bullet">
+              <item>If <see cref="P:MelloSilveiraTools.Infrastructure.Logger.LoggerSettings.RollDaily"/> is <c>true</c>, a new file is opened on the first write of each UTC day with name <c>{FileNamePrefix}-{yyyy-MM-dd}.log</c>.</item>
+              <item>If <see cref="P:MelloSilveiraTools.Infrastructure.Logger.LoggerSettings.MaxFileSizeBytes"/> is set, the file is rolled to a time-suffixed copy when the size threshold is reached.</item>
+              <item><see cref="P:MelloSilveiraTools.Infrastructure.Logger.LoggerSettings.MaxRetainedFiles"/> controls how many files are kept in the directory; older files are deleted on roll.</item>
+            </list>
             </remarks>
+        </member>
+        <member name="M:MelloSilveiraTools.Infrastructure.Logger.LocalFileLogger.#ctor(MelloSilveiraTools.Infrastructure.Logger.LoggerSettings)">
+            <summary>
+            Creates a new logger and opens the file for the current UTC day. The target directory is created if missing.
+            </summary>
+            <param name="settings">Logger configuration. Use <see cref="T:MelloSilveiraTools.Infrastructure.Logger.LoggerSettings"/> defaults for a quick start.</param>
+            <exception cref="T:System.UnauthorizedAccessException">Thrown when the process cannot create the directory or open the file.</exception>
+            <exception cref="T:System.IO.IOException">Thrown when the directory cannot be created or the file cannot be opened.</exception>
         </member>
         <member name="M:MelloSilveiraTools.Infrastructure.Logger.LocalFileLogger.WriteLog(System.String,Microsoft.Extensions.Logging.LogLevel,System.Exception,System.Collections.Generic.IList{System.String},System.Collections.Generic.IDictionary{System.String,System.Object})">
             <inheritdoc/>
+        </member>
+        <member name="M:MelloSilveiraTools.Infrastructure.Logger.LocalFileLogger.Dispose">
+            <summary>
+            Flushes and releases the underlying file. Subsequent writes are silently dropped.
+            </summary>
         </member>
         <member name="T:MelloSilveiraTools.Infrastructure.Logger.LoggerBase">
             <inheritdoc cref="T:MelloSilveiraTools.Infrastructure.Logger.ILogger"/>
@@ -3472,6 +3472,46 @@
         <member name="M:MelloSilveiraTools.Infrastructure.Logger.LoggerBase.BuildTags(System.String,System.String)">
             <summary>
             Builds the default tag set — the caller file name (without extension) and the caller member name.
+            </summary>
+        </member>
+        <member name="T:MelloSilveiraTools.Infrastructure.Logger.LoggerSettings">
+            <summary>
+            Configuration for <see cref="T:MelloSilveiraTools.Infrastructure.Logger.LocalFileLogger"/>: target directory, file naming, rotation policy and retention.
+            </summary>
+            <remarks>
+            Register a configured instance with <c>services.AddSingleton(new LoggerSettings { ... })</c> before calling
+            <c>AddToolsServices</c>; otherwise <c>AddToolsServices</c> registers an instance with default values via
+            <see cref="M:Microsoft.Extensions.DependencyInjection.Extensions.ServiceCollectionDescriptorExtensions.TryAddSingleton``1(Microsoft.Extensions.DependencyInjection.IServiceCollection)"/>.
+            </remarks>
+        </member>
+        <member name="P:MelloSilveiraTools.Infrastructure.Logger.LoggerSettings.Directory">
+            <summary>
+            Directory where log files are written. Created on logger startup if missing.
+            Defaults to <c>{AppContext.BaseDirectory}/logs</c>.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Infrastructure.Logger.LoggerSettings.FileNamePrefix">
+            <summary>
+            File name prefix (without extension). Defaults to <c>"log"</c>.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Infrastructure.Logger.LoggerSettings.RollDaily">
+            <summary>
+            When <c>true</c>, the active file rolls every UTC day and the date is embedded in the file name as
+            <c>{FileNamePrefix}-yyyy-MM-dd.log</c>. Defaults to <c>true</c>.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Infrastructure.Logger.LoggerSettings.MaxFileSizeBytes">
+            <summary>
+            Maximum size, in bytes, after which the active file is rolled to a new suffixed file
+            (<c>{FileNamePrefix}-yyyy-MM-dd-HHmmssfff.log</c>). Set to <c>null</c> to disable size-based rolling.
+            Defaults to 10&#160;MB.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Infrastructure.Logger.LoggerSettings.MaxRetainedFiles">
+            <summary>
+            Maximum number of log files to retain in <see cref="P:MelloSilveiraTools.Infrastructure.Logger.LoggerSettings.Directory"/>. Older files are deleted on every roll.
+            Set to <c>0</c> or negative to disable retention cleanup. Defaults to 30.
             </summary>
         </member>
         <member name="T:MelloSilveiraTools.Infrastructure.Plugins.IPlugin">
@@ -4369,7 +4409,7 @@
              <summary>
              Discovers plugins and registers their services at application startup, using the root service collection.
              </summary>
-             <param name="pluginName">Optional plugin name filter. When empty, all plugins are considered.</param>
+             <param name="name">Optional plugin name filter. When empty, all plugins are considered.</param>
              <param name="version">Optional version filter. When <c>null</c>, all versions are considered.</param>
              <example>
              <code>
@@ -4387,7 +4427,7 @@
             <summary>
             Discovers plugins and registers their services at runtime through the dynamic service provider.
             </summary>
-            <param name="pluginName">Optional plugin name filter. When empty, all plugins are considered.</param>
+            <param name="name">Optional plugin name filter. When empty, all plugins are considered.</param>
             <param name="version">Optional version filter. When <c>null</c>, all versions are considered.</param>
         </member>
         <member name="M:MelloSilveiraTools.Infrastructure.Services.Plugins.IPluginService.ReloadPluginsOnStartup(System.Boolean,System.String,System.Nullable{MelloSilveiraTools.Infrastructure.Plugins.Models.PluginVersion})">
@@ -4395,7 +4435,7 @@
             Reloads plugins previously moved to the loaded folder, optionally forcing a fresh load, at startup time.
             </summary>
             <param name="forceLoad">When <c>true</c>, clears the cache for the matching plugins and loads them again.</param>
-            <param name="pluginName">Optional plugin name filter. When empty, all plugins are considered.</param>
+            <param name="name">Optional plugin name filter. When empty, all plugins are considered.</param>
             <param name="version">Optional version filter. When <c>null</c>, all versions are considered.</param>
         </member>
         <member name="M:MelloSilveiraTools.Infrastructure.Services.Plugins.IPluginService.ReloadPluginsOnRuntime(System.Boolean,System.String,System.Nullable{MelloSilveiraTools.Infrastructure.Plugins.Models.PluginVersion})">
@@ -4403,7 +4443,7 @@
             Reloads plugins previously moved to the loaded folder, optionally forcing a fresh load, at runtime.
             </summary>
             <param name="forceLoad">When <c>true</c>, clears the cache for the matching plugins and loads them again.</param>
-            <param name="pluginName">Optional plugin name filter. When empty, all plugins are considered.</param>
+            <param name="name">Optional plugin name filter. When empty, all plugins are considered.</param>
             <param name="version">Optional version filter. When <c>null</c>, all versions are considered.</param>
         </member>
         <member name="M:MelloSilveiraTools.Infrastructure.Services.Plugins.IPluginService.Clear">
@@ -4415,7 +4455,7 @@
             <summary>
             Lists plugins available on disk that match the provided filters, returning registry information for each one.
             </summary>
-            <param name="pluginName">Optional plugin name filter. When empty, all plugins are considered.</param>
+            <param name="name">Optional plugin name filter. When empty, all plugins are considered.</param>
             <param name="version">Optional version filter. When <c>null</c>, all versions are considered.</param>
             <returns>The registered plugins discovered on disk.</returns>
         </member>
@@ -4515,7 +4555,7 @@
             reloads it through the registration pipeline.
             </summary>
             <remarks>
-            Earlier revisions of this method evicted the cache using the original <c>pluginName</c>/<c>version</c>
+            Earlier revisions of this method evicted the cache using the original <c>name</c>/<c>version</c>
             filter on every iteration, which meant a wildcard reload erased the entire cache repeatedly. The
             per-iteration eviction now targets only the discovered plugin currently being reloaded.
             </remarks>

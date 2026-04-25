@@ -20,7 +20,7 @@ public class DatabasePluginCachePersistence(IRepository repository) : IPluginCac
     }
 
     /// <inheritdoc/>
-    public IAsyncEnumerable<PluginCacheEntry> LoadAsync(string name = "", PluginVersion? version = null, CancellationToken cancellationToken = default) 
+    public IAsyncEnumerable<PluginCacheEntry> LoadAsync(string? name = null, PluginVersion? version = null, CancellationToken cancellationToken = default) 
         => repository
             .GetAsync<PluginCacheEntity, PluginCacheFilter>(new() { PluginName = name, PluginVersion = version?.Name }, cancellationToken: cancellationToken)
             .Select(ToEntry);

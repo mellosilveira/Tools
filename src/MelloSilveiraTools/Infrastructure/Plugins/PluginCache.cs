@@ -76,10 +76,8 @@ public class PluginCache(ITwoLevelCache cache)
     /// to the underlying <see cref="ITwoLevelCache"/>, whose filtering semantics treat
     /// <see langword="null"/> as "match all" for that level.
     /// </remarks>
-    public IAsyncEnumerable<PluginCacheEntry> Stream(string name, PluginVersion? version, CancellationToken cancellationToken = default)
-        => cache.StreamAll<DiscoveredPlugin>(NormalizeFilter(name), version?.Name, cancellationToken).Select(MapToEntry);
-
-    private static string? NormalizeFilter(string? value) => string.IsNullOrEmpty(value) ? null : value;
+    public IAsyncEnumerable<PluginCacheEntry> Stream(string? name, PluginVersion? version, CancellationToken cancellationToken = default)
+        => cache.StreamAll<DiscoveredPlugin>(name, version?.Name, cancellationToken).Select(MapToEntry);
 
     private static PluginCacheEntry MapToEntry((string Group, string Key, DiscoveredPlugin Plugin) tuple) => new(tuple.Group, tuple.Key, tuple.Plugin);
 }

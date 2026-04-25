@@ -58,25 +58,25 @@ public class PluginService(
     : IPluginService
 {
     /// <inheritdoc/>
-    public void LoadPluginsOnStartup(string pluginName = "", PluginVersion? version = null)
-        => LoadPlugins(PluginRegistrationContext.ForStartup(services), pluginName, version);
+    public void LoadPluginsOnStartup(string? name = null, PluginVersion? version = null)
+        => LoadPlugins(PluginRegistrationContext.ForStartup(services), name, version);
 
     /// <inheritdoc/>
-    public void LoadPluginsOnRuntime(string pluginName = "", PluginVersion? version = null)
-        => LoadPlugins(PluginRegistrationContext.ForRuntime(dynamicServiceProvider), pluginName, version);
+    public void LoadPluginsOnRuntime(string? name = null, PluginVersion? version = null)
+        => LoadPlugins(PluginRegistrationContext.ForRuntime(dynamicServiceProvider), name, version);
 
     /// <inheritdoc/>
-    public void ReloadPluginsOnStartup(bool forceLoad, string pluginName = "", PluginVersion? version = null)
-        => ReloadPlugins(PluginRegistrationContext.ForStartup(services), forceLoad, pluginName, version);
+    public void ReloadPluginsOnStartup(bool forceLoad, string? name = null, PluginVersion? version = null)
+        => ReloadPlugins(PluginRegistrationContext.ForStartup(services), forceLoad, name, version);
 
     /// <inheritdoc/>
-    public void ReloadPluginsOnRuntime(bool forceLoad, string pluginName = "", PluginVersion? version = null)
-        => ReloadPlugins(PluginRegistrationContext.ForRuntime(dynamicServiceProvider), forceLoad, pluginName, version);
+    public void ReloadPluginsOnRuntime(bool forceLoad, string? name = null, PluginVersion? version = null)
+        => ReloadPlugins(PluginRegistrationContext.ForRuntime(dynamicServiceProvider), forceLoad, name, version);
 
     /// <inheritdoc/>
-    public IEnumerable<RegisteredPlugin> GetPlugins(string pluginName, PluginVersion? version)
+    public IEnumerable<RegisteredPlugin> GetPlugins(string name, PluginVersion? version)
         => fileProcessor
-            .Scan(pluginName, version)
+            .Scan(name, version)
             .Select(discovered => discovered
                 .LoadAssembly(assemblyProcessor)
                 .GetRegistry(assemblyProcessor));
@@ -85,13 +85,13 @@ public class PluginService(
     public void Clear() => cache.Clear();
 
     /// <inheritdoc/>
-    public Task PersistCacheAsync(string name = "", PluginVersion? version = null, CancellationToken cancellationToken = default)
+    public Task PersistCacheAsync(string? name = null, PluginVersion? version = null, CancellationToken cancellationToken = default)
         => persistence.SaveAsync(
             cache.Stream(name, version, cancellationToken),
             cancellationToken);
 
     /// <inheritdoc/>
-    public async Task RestoreCacheAsync(string name = "", PluginVersion? version = null, CancellationToken cancellationToken = default)
+    public async Task RestoreCacheAsync(string? name = null, PluginVersion? version = null, CancellationToken cancellationToken = default)
     {
         await foreach (PluginCacheEntry entry in persistence.LoadAsync(name, version, cancellationToken))
         {
@@ -99,9 +99,9 @@ public class PluginService(
         }
     }
 
-    private void LoadPlugins(PluginRegistrationContext context, string pluginName = "", PluginVersion? version = null)
+    private void LoadPlugins(PluginRegistrationContext context, string? name = null, PluginVersion? version = null)
         => fileProcessor
-            .Scan(pluginName, version)
+            .Scan(name, version)
             .Foreach(discovered => LoadPlugin(context, discovered));
 
     private void LoadPlugin(PluginRegistrationContext context, DiscoveredPlugin discovered)
@@ -123,13 +123,13 @@ public class PluginService(
     /// reloads it through the registration pipeline.
     /// </summary>
     /// <remarks>
-    /// Earlier revisions of this method evicted the cache using the original <c>pluginName</c>/<c>version</c>
+    /// Earlier revisions of this method evicted the cache using the original <c>name</c>/<c>version</c>
     /// filter on every iteration, which meant a wildcard reload erased the entire cache repeatedly. The
     /// per-iteration eviction now targets only the discovered plugin currently being reloaded.
     /// </remarks>
-    private void ReloadPlugins(PluginRegistrationContext context, bool forceLoad, string pluginName = "", PluginVersion? version = null)
+    private void ReloadPlugins(PluginRegistrationContext context, bool forceLoad, string? name = null, PluginVersion? version = null)
         => fileProcessor
-            .ScanLoaded(pluginName, version)
+            .ScanLoaded(name, version)
             .Foreach(discovered =>
             {
                 fileProcessor.MoveToMainFolder(discovered);

@@ -21,5 +21,5 @@ public interface IPluginCachePersistence
     /// When <paramref name="name"/> is non-empty, only entries for that plugin are returned.
     /// When <paramref name="version"/> is non-null, the result is further narrowed to that version.
     /// </summary>
-    IAsyncEnumerable<PluginCacheEntry> LoadAsync(string name = "", PluginVersion? version = null, CancellationToken cancellationToken = default);
+    IAsyncEnumerable<PluginCacheEntry> LoadAsync(string? name = null, PluginVersion? version = null, CancellationToken cancellationToken = default);
 }

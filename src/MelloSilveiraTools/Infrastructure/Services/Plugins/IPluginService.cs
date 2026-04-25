@@ -10,7 +10,7 @@ public interface IPluginService
     /// <summary>
     /// Discovers plugins and registers their services at application startup, using the root service collection.
     /// </summary>
-    /// <param name="pluginName">Optional plugin name filter. When empty, all plugins are considered.</param>
+    /// <param name="name">Optional plugin name filter. When empty, all plugins are considered.</param>
     /// <param name="version">Optional version filter. When <c>null</c>, all versions are considered.</param>
     /// <example>
     /// <code>
@@ -23,30 +23,30 @@ public interface IPluginService
     /// app.Services.GetRequiredService&lt;IPluginService&gt;().LoadPluginsOnStartup();
     /// </code>
     /// </example>
-    void LoadPluginsOnStartup(string pluginName = "", PluginVersion? version = null);
+    void LoadPluginsOnStartup(string? name = null, PluginVersion? version = null);
 
     /// <summary>
     /// Discovers plugins and registers their services at runtime through the dynamic service provider.
     /// </summary>
-    /// <param name="pluginName">Optional plugin name filter. When empty, all plugins are considered.</param>
+    /// <param name="name">Optional plugin name filter. When empty, all plugins are considered.</param>
     /// <param name="version">Optional version filter. When <c>null</c>, all versions are considered.</param>
-    void LoadPluginsOnRuntime(string pluginName = "", PluginVersion? version = null);
+    void LoadPluginsOnRuntime(string? name = null, PluginVersion? version = null);
 
     /// <summary>
     /// Reloads plugins previously moved to the loaded folder, optionally forcing a fresh load, at startup time.
     /// </summary>
     /// <param name="forceLoad">When <c>true</c>, clears the cache for the matching plugins and loads them again.</param>
-    /// <param name="pluginName">Optional plugin name filter. When empty, all plugins are considered.</param>
+    /// <param name="name">Optional plugin name filter. When empty, all plugins are considered.</param>
     /// <param name="version">Optional version filter. When <c>null</c>, all versions are considered.</param>
-    void ReloadPluginsOnStartup(bool forceLoad, string pluginName = "", PluginVersion? version = null);
+    void ReloadPluginsOnStartup(bool forceLoad, string? name = null, PluginVersion? version = null);
 
     /// <summary>
     /// Reloads plugins previously moved to the loaded folder, optionally forcing a fresh load, at runtime.
     /// </summary>
     /// <param name="forceLoad">When <c>true</c>, clears the cache for the matching plugins and loads them again.</param>
-    /// <param name="pluginName">Optional plugin name filter. When empty, all plugins are considered.</param>
+    /// <param name="name">Optional plugin name filter. When empty, all plugins are considered.</param>
     /// <param name="version">Optional version filter. When <c>null</c>, all versions are considered.</param>
-    void ReloadPluginsOnRuntime(bool forceLoad, string pluginName = "", PluginVersion? version = null);
+    void ReloadPluginsOnRuntime(bool forceLoad, string? name = null, PluginVersion? version = null);
 
     /// <summary>
     /// Clears the plugin cache entirely.
@@ -56,10 +56,10 @@ public interface IPluginService
     /// <summary>
     /// Lists plugins available on disk that match the provided filters, returning registry information for each one.
     /// </summary>
-    /// <param name="pluginName">Optional plugin name filter. When empty, all plugins are considered.</param>
+    /// <param name="name">Optional plugin name filter. When empty, all plugins are considered.</param>
     /// <param name="version">Optional version filter. When <c>null</c>, all versions are considered.</param>
     /// <returns>The registered plugins discovered on disk.</returns>
-    IEnumerable<RegisteredPlugin> GetPlugins(string pluginName, PluginVersion? version);
+    IEnumerable<RegisteredPlugin> GetPlugins(string name, PluginVersion? version);
 
     /// <summary>
     /// Persists the current plugin cache entries matching the provided filters through the configured persistence.
@@ -67,7 +67,7 @@ public interface IPluginService
     /// <param name="name">Optional plugin name filter. When empty, all plugins are considered.</param>
     /// <param name="version">Optional version filter. When <c>null</c>, all versions are considered.</param>
     /// <param name="cancellationToken">Token used to cancel the operation.</param>
-    Task PersistCacheAsync(string name = "", PluginVersion? version = null, CancellationToken cancellationToken = default);
+    Task PersistCacheAsync(string? name = null, PluginVersion? version = null, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Restores plugin cache entries matching the provided filters from the configured persistence.
@@ -75,5 +75,5 @@ public interface IPluginService
     /// <param name="name">Optional plugin name filter. When empty, all plugins are considered.</param>
     /// <param name="version">Optional version filter. When <c>null</c>, all versions are considered.</param>
     /// <param name="cancellationToken">Token used to cancel the operation.</param>
-    Task RestoreCacheAsync(string name = "", PluginVersion? version = null, CancellationToken cancellationToken = default);
+    Task RestoreCacheAsync(string? name = null, PluginVersion? version = null, CancellationToken cancellationToken = default);
 }

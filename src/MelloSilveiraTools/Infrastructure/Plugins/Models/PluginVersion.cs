@@ -52,10 +52,16 @@ public readonly record struct PluginVersion(int Major, int Minor, int Patch) : I
     /// <summary>
     /// Attempts to parse a version string; returns <see langword="false"/> when the input is malformed.
     /// </summary>
-    public static bool TryParse(string version, out PluginVersion parsedVersion)
+    public static bool TryParse(string? version, out PluginVersion parsedVersion)
     {
         try
         {
+            if (string.IsNullOrWhiteSpace(version))
+            {
+                parsedVersion = Default;
+                return false;
+            }
+
             parsedVersion = Parse(version);
             return true;
         }
@@ -69,7 +75,7 @@ public readonly record struct PluginVersion(int Major, int Minor, int Patch) : I
     /// <summary>
     /// Parses a version string and returns <see langword="null"/> when the input is malformed.
     /// </summary>
-    public static PluginVersion? SafeParse(string version) => TryParse(version, out PluginVersion parsedVersion) ? parsedVersion : null;
+    public static PluginVersion? SafeParse(string? version) => TryParse(version, out PluginVersion parsedVersion) ? parsedVersion : null;
 
     /// <inheritdoc/>
     public override string ToString() => Name;
