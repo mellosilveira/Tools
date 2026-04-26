@@ -81,7 +81,16 @@ app.MapPluginEndpoints("/api/v1/plugins");
 | `HttpContext.WriteNdjsonAsync<T>(IAsyncEnumerable<T>, ILogger, string resourceName)` | WebApi (`Application/Endpoints/StreamEndpoints.cs`) | `CustomControllerBase.Stream` |
 | `MapPluginEndpoints(IEndpointRouteBuilder, string pattern = "/api/v1/plugins")` | Plugins (`Application/Endpoints/PluginEndpoints.cs`) | `PluginController` |
 
-Handlers in the minimal-API path return `IResult` (`Results.Json(...)` driven by `OperationResponse.StatusCode`). `OperationResponseExtensions` exposes both `ToHttpResult(this OperationResponse)` (for `IResult`) and `BuildHttpResponse(this OperationResponse)` (for `JsonResult` inside controllers); both are first-class.
+Handlers in the minimal-API path return `IResult` (`Results.Json(...)` driven by `OperationResponse.StatusCode`). `OperationResponseExtensions` exposes four conversion helpers — all equivalent in semantics, differing only in call site:
+
+| Method | Extends | Returns | Used by |
+|---|---|---|---|
+| `ToHttpResult<T>(this T)` | `T : OperationResponse` | `IResult` | minimal-API handlers |
+| `ToHttpResultAsync<T>(this Task<T>)` | `Task<T : OperationResponse>` | `Task<IResult>` | minimal-API handlers (async chain) |
+| `BuildHttpResponse<T>(this T)` | `T : OperationResponse` | `JsonResult` | MVC controllers |
+| `BuildHttpResponseAsync<T>(this Task<T>)` | `Task<T : OperationResponse>` | `Task<JsonResult>` | MVC controllers (async chain) |
+
+The `*Async` variants extend `Task<T>` and chain directly after `operation.ProcessAsync(...)` without an intermediate variable — the same pattern both endpoint styles now use consistently.
 
 ## AOT compatibility
 
@@ -160,6 +169,7 @@ Inside `MelloSilveiraTools.Plugins/Application/Operations/Plugins/`:
 - `ILogger` is the in-house abstraction (`MelloSilveiraTools.Core.Infrastructure.Logger.ILogger`) — not `Microsoft.Extensions.Logging.ILogger`. The default implementation is `LocalFileLogger` (JSON-line, daily/size rotation).
 - `OperationResponse` lives in WebApi because its `StatusCode` field is `System.Net.HttpStatusCode`. `OperationBase` therefore also lives in WebApi.
 - HTTP surfaces are exposed both as MVC controllers (`CustomControllerBase`/`CrudController`/`PluginController`) and as minimal-API endpoint extensions (`MapCrud`/`MapPluginEndpoints`). New projects should prefer minimal APIs but the controller path is supported for migration.
+- `ApiServiceAgentBase` provides two protected HTTP-client helpers: `GetAsync<TResponse, TResponseData>` for standard JSON payloads (wrapped in `ResiliencePipeline`) and `GetStreamAsync<T>` for NDJSON-streaming endpoints (`IAsyncEnumerable<T>`, `HttpCompletionOption.ResponseHeadersRead`). `GetStreamAsync` validates the `X-Stream-Status: true` trailer emitted by `WriteNdjsonAsync` after consuming the full body, and logs an error if the trailer is absent.
 - AOT/trim warnings are silenced via `<NoWarn>` at the project level. Reach for `[DynamicallyAccessedMembers]` when reflection target preservation matters; avoid `[RequiresUnreferencedCode]`/`[RequiresDynamicCode]` propagation.
 - CHANGELOG entries go under `## [Unreleased]` until release; sections are `### Added / Changed / Fixed / Breaking / Removed`.
 

@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [1.3.0] - 2026-04-25
 ### Added
+- `OperationResponseExtensions.BuildHttpResponseAsync<T>(this Task<T>)` — async counterpart to `BuildHttpResponse`: awaits a `Task<T> where T : OperationResponse` and returns a `JsonResult` with the matching HTTP status code. Mirrors `ToHttpResultAsync` (minimal APIs) on the controller side.
+- `ApiServiceAgentBase.GetStreamAsync<T>(requestUri, timeoutInMilliseconds, methodName, cancellationToken)` — protected `async IAsyncEnumerable<T>` for consuming NDJSON-streaming endpoints. Opens the response body with `HttpCompletionOption.ResponseHeadersRead`, deserializes each newline-delimited JSON record on arrival, and after the body is fully consumed validates the `X-Stream-Status: true` trailer written by `WriteNdjsonAsync` — logging an error when the trailer is absent.
 - **Plugin architecture** for discovering, loading and hot-swapping external assemblies dropped into a configured folder, with their services automatically wired into the DI container:
   - File-based discovery: DLLs named `{name}.v{major}.{minor}.{patch}.dll` are scanned by `PluginFileProcessor`. Loaded files are moved to a `loaded/` subfolder.
   - `PluginVersion` (readonly record struct) with `Parse`/`TryParse`/`SafeParse` and full ordering operators.
@@ -31,6 +33,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - `Force` (Mechanics of Materials): magnitude (`AbsoluteValue`) is now always consistent with `X`/`Y`/`Z` after `Sum`/`Subtract`/`Round`/`Divide`/`Abs`/`Create`.
 - `EnumerableExtensions.FirstWithoutValidate` exception message corrected ("No element matched the predicate.").
 ### Changed
+- `CrudController` (all four CRUD actions) and `CustomControllerBase.Add` now use the fluent `BuildHttpResponseAsync`.
 - NuGet metadata populated on both `MelloSilveiraTools` and `MelloSilveiraTools.MechanicsOfMaterials` projects (PackageId, Description, Tags, README, license, symbols).
 - Both packages now target `net10.0` (`MechanicsOfMaterials` was previously on `net9.0`).
 - XML documentation is now generated and shipped inside the `.nupkg` so consumers get IntelliSense.

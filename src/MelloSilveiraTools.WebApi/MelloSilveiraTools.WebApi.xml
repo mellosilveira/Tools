@@ -1336,6 +1336,13 @@
             Projects the operation response into a <see cref="T:Microsoft.AspNetCore.Mvc.JsonResult"/> carrying the same HTTP status code.
             </summary>
         </member>
+        <member name="M:MelloSilveiraTools.WebApi.ExtensionMethods.OperationResponseExtensions.BuildHttpResponseAsync``1(System.Threading.Tasks.Task{``0})">
+            <summary>
+            Awaits the response task and projects the result into a <see cref="T:Microsoft.AspNetCore.Mvc.JsonResult"/> carrying the same HTTP status code.
+            </summary>
+            <param name="responseTask">The task containing the operation response to be returned.</param>
+            <returns>A <see cref="T:Microsoft.AspNetCore.Mvc.JsonResult"/> that serializes the operation response with the response status code.</returns>
+        </member>
         <member name="M:MelloSilveiraTools.WebApi.ExtensionMethods.OperationResponseExtensions.ToHttpResultAsync``1(System.Threading.Tasks.Task{``0})">
             <summary>
             Projects the operation response into an <see cref="T:Microsoft.AspNetCore.Http.IResult"/> suitable for minimal-API endpoints,
@@ -1445,6 +1452,28 @@
             <param name="timeoutInMiliseconds">Per-request timeout, in milliseconds.</param>
             <param name="methodName">Name of the caller method used to enrich log and error messages.</param>
             <returns>An operation response carrying the deserialized data or the failure reason.</returns>
+        </member>
+        <member name="M:MelloSilveiraTools.WebApi.Infrastructure.Services.ApiServiceAgent.ApiServiceAgentBase.GetStreamAsync``1(System.String,System.Int32,System.String,System.Threading.CancellationToken)">
+            <summary>
+            Sends a GET request to the specified URI and streams the NDJSON response as an async sequence,
+            yielding one deserialized record per line as data arrives.
+            </summary>
+            <typeparam name="T">The type of each record in the NDJSON stream.</typeparam>
+            <param name="requestUri">Relative or absolute URI of the streaming endpoint to call.</param>
+            <param name="timeoutInMilliseconds">Per-request timeout, in milliseconds. Applies to the entire stream.</param>
+            <param name="methodName">Name of the caller method used to enrich log and error messages.</param>
+            <param name="cancellationToken">Token that cancels the enumeration from the caller side.</param>
+            <returns>
+            An async sequence of deserialized <typeparamref name="T"/> records yielded as each NDJSON line arrives.
+            Returns an empty sequence when the server responds with a non-success status code, a timeout occurs,
+            or a connection error is raised before the first line.
+            </returns>
+            <example>
+            <code>
+            await foreach (var item in GetStreamAsync&lt;MyRecord&gt;("/api/stream", 30_000, nameof(MyMethodAsync)))
+                Process(item);
+            </code>
+            </example>
         </member>
         <member name="M:MelloSilveiraTools.WebApi.Infrastructure.Services.ApiServiceAgent.ApiServiceAgentBase.Dispose(System.Boolean)">
             <summary>

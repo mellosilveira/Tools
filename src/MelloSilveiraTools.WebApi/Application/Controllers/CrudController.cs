@@ -55,10 +55,10 @@ public abstract class CrudController<TEntity, TFilter>(ILogger logger) : CustomC
         [FromServices] ReadEntityById<TEntity> operation,
         [FromRoute] long id)
     {
-        OperationResponseBase<TEntity> response = await operation
+        return await operation
             .ProcessAsync(new ReadEntityByIdRequest { Id = id, ResourceName = ResourceName })
+            .BuildHttpResponseAsync()
             .ConfigureAwait(false);
-        return response.BuildHttpResponse();
     }
 
     /// <summary>
@@ -77,7 +77,7 @@ public abstract class CrudController<TEntity, TFilter>(ILogger logger) : CustomC
         [FromQuery] TFilter filter,
         [FromQuery] Pagination pagination)
     {
-        OperationPagedResponseBase<TEntity> response = await operation
+        return await operation
             .ProcessAsync(new ReadEntityPagedRequest<TFilter>
             {
                 Filter = filter,
@@ -85,8 +85,8 @@ public abstract class CrudController<TEntity, TFilter>(ILogger logger) : CustomC
                 ResourceName = ResourceName,
                 CancellationToken = HttpContext.RequestAborted,
             })
+            .BuildHttpResponseAsync()
             .ConfigureAwait(false);
-        return response.BuildHttpResponse();
     }
 
     /// <summary>
@@ -105,10 +105,10 @@ public abstract class CrudController<TEntity, TFilter>(ILogger logger) : CustomC
         [FromRoute] long id,
         [FromBody] TEntity entity)
     {
-        OperationResponse response = await operation
+        return await operation
             .ProcessAsync(new UpdateEntityRequest<TEntity> { Id = id, Entity = entity, ResourceName = ResourceName })
+            .BuildHttpResponseAsync()
             .ConfigureAwait(false);
-        return response.BuildHttpResponse();
     }
 
     /// <summary>
@@ -125,10 +125,10 @@ public abstract class CrudController<TEntity, TFilter>(ILogger logger) : CustomC
         [FromServices] DeleteEntity<TEntity> operation,
         [FromRoute] long id)
     {
-        OperationResponse response = await operation
+        return await operation
             .ProcessAsync(new DeleteEntityRequest { Id = id, ResourceName = ResourceName })
+            .BuildHttpResponseAsync()
             .ConfigureAwait(false);
-        return response.BuildHttpResponse();
     }
 
     /// <summary>

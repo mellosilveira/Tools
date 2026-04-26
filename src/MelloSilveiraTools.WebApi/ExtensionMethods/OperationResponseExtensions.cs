@@ -173,6 +173,17 @@ public static class OperationResponseExtensions
         => new(response) { StatusCode = (int)response.StatusCode };
 
     /// <summary>
+    /// Awaits the response task and projects the result into a <see cref="JsonResult"/> carrying the same HTTP status code.
+    /// </summary>
+    /// <param name="responseTask">The task containing the operation response to be returned.</param>
+    /// <returns>A <see cref="JsonResult"/> that serializes the operation response with the response status code.</returns>
+    public static async Task<JsonResult> BuildHttpResponseAsync<T>(this Task<T> responseTask) where T : OperationResponse
+    {
+        var response = await responseTask.ConfigureAwait(false);
+        return response.BuildHttpResponse();
+    }
+
+    /// <summary>
     /// Projects the operation response into an <see cref="IResult"/> suitable for minimal-API endpoints,
     /// preserving the response payload and HTTP status code.
     /// </summary>

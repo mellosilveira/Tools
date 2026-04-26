@@ -29,88 +29,56 @@ public static class PluginEndpoints
         RouteGroupBuilder group = builder.MapGroup(pattern);
 
         group
-            .MapGet("/", async (GetPlugins operation, [AsParameters] GetPluginsRequest request) =>
-            {
-                GetPluginsResponse response = await operation.ProcessAsync(request).ConfigureAwait(false);
-                return response.ToHttpResult();
-            })
+            .MapGet("/", async (GetPlugins operation, [AsParameters] GetPluginsRequest request) => await operation.ProcessAsync(request).ToHttpResultAsync().ConfigureAwait(false))
             .Produces<GetPluginsResponse>(StatusCodes.Status200OK)
             .Produces<OperationResponse>(StatusCodes.Status500InternalServerError)
             .WithName("GetPlugins")
             .WithSummary("Returns the plugins currently known to the host.");
 
         group
-            .MapPost("/load", async (LoadPlugins operation, [AsParameters] LoadPluginsRequest request) =>
-            {
-                OperationResponse response = await operation.ProcessAsync(request).ConfigureAwait(false);
-                return response.ToHttpResult();
-            })
+            .MapPost("/load", async (LoadPlugins operation, [AsParameters] LoadPluginsRequest request) => await operation.ProcessAsync(request).ToHttpResultAsync().ConfigureAwait(false))
             .Produces<OperationResponse>(StatusCodes.Status200OK)
             .Produces<OperationResponse>(StatusCodes.Status500InternalServerError)
             .WithName("LoadPlugins")
             .WithSummary("Loads plugins matching the supplied name and/or version.");
 
         group
-            .MapPost("/load/all", async (LoadPlugins operation) =>
-            {
-                OperationResponse response = await operation.ProcessAsync(new LoadPluginsRequest()).ConfigureAwait(false);
-                return response.ToHttpResult();
-            })
+            .MapPost("/load/all", async (LoadPlugins operation) => await operation.ProcessAsync(new LoadPluginsRequest()).ToHttpResultAsync().ConfigureAwait(false))
             .Produces<OperationResponse>(StatusCodes.Status200OK)
             .Produces<OperationResponse>(StatusCodes.Status500InternalServerError)
             .WithName("LoadAllPlugins")
             .WithSummary("Loads every plugin known to the host.");
 
         group
-            .MapPost("/reload", async (ReloadPlugins operation, [AsParameters] ReloadPluginsRequest request) =>
-            {
-                OperationResponse response = await operation.ProcessAsync(request).ConfigureAwait(false);
-                return response.ToHttpResult();
-            })
+            .MapPost("/reload", async (ReloadPlugins operation, [AsParameters] ReloadPluginsRequest request) => await operation.ProcessAsync(request).ToHttpResultAsync().ConfigureAwait(false))
             .Produces<OperationResponse>(StatusCodes.Status200OK)
             .Produces<OperationResponse>(StatusCodes.Status500InternalServerError)
             .WithName("ReloadPlugins")
             .WithSummary("Reloads plugins matching the supplied name and/or version.");
 
         group
-            .MapPost("/reload/all", async (ReloadPlugins operation) =>
-            {
-                OperationResponse response = await operation.ProcessAsync(new ReloadPluginsRequest()).ConfigureAwait(false);
-                return response.ToHttpResult();
-            })
+            .MapPost("/reload/all", async (ReloadPlugins operation) => await operation.ProcessAsync(new ReloadPluginsRequest()).ToHttpResultAsync().ConfigureAwait(false))
             .Produces<OperationResponse>(StatusCodes.Status200OK)
             .Produces<OperationResponse>(StatusCodes.Status500InternalServerError)
             .WithName("ReloadAllPlugins")
             .WithSummary("Reloads every plugin known to the host.");
 
         group
-            .MapDelete("/cache", async (ClearPluginCache operation) =>
-            {
-                OperationResponse response = await operation.ProcessAsync().ConfigureAwait(false);
-                return response.ToHttpResult();
-            })
+            .MapDelete("/cache", async (ClearPluginCache operation) => await operation.ProcessAsync().ToHttpResultAsync().ConfigureAwait(false))
             .Produces<OperationResponse>(StatusCodes.Status200OK)
             .Produces<OperationResponse>(StatusCodes.Status500InternalServerError)
             .WithName("ClearPluginCache")
             .WithSummary("Clears the plugin cache.");
 
         group
-            .MapPost("/cache/{target}/persist", async (PersistPluginCache operation, [AsParameters] PersistPluginCacheRequest request) =>
-            {
-                OperationResponse response = await operation.ProcessAsync(request).ConfigureAwait(false);
-                return response.ToHttpResult();
-            })
+            .MapPost("/cache/{target}/persist", async (PersistPluginCache operation, [AsParameters] PersistPluginCacheRequest request) => await operation.ProcessAsync(request).ToHttpResultAsync().ConfigureAwait(false))
             .Produces<OperationResponse>(StatusCodes.Status200OK)
             .Produces<OperationResponse>(StatusCodes.Status500InternalServerError)
             .WithName("PersistPluginCache")
             .WithSummary("Persists the plugin cache to the target identified by the {target} route segment.");
 
         group
-            .MapPost("/cache/{target}/restore", async (RestorePluginCache operation, [AsParameters] RestorePluginCacheRequest request) =>
-            {
-                OperationResponse response = await operation.ProcessAsync(request).ConfigureAwait(false);
-                return response.ToHttpResult();
-            })
+            .MapPost("/cache/{target}/restore", async (RestorePluginCache operation, [AsParameters] RestorePluginCacheRequest request) => await operation.ProcessAsync(request).ToHttpResultAsync().ConfigureAwait(false))
             .Produces<OperationResponse>(StatusCodes.Status200OK)
             .Produces<OperationResponse>(StatusCodes.Status500InternalServerError)
             .WithName("RestorePluginCache")

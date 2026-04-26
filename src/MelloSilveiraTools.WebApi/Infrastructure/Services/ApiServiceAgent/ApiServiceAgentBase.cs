@@ -1,8 +1,11 @@
 using MelloSilveiraTools.Core.ExtensionMethods;
 using MelloSilveiraTools.Core.Infrastructure.Logger;
+using MelloSilveiraTools.WebApi.Application.Models;
 using MelloSilveiraTools.WebApi.Application.Operations;
 using MelloSilveiraTools.WebApi.Infrastructure.ResiliencePipelines;
 using MelloSilveiraTools.WebApi.Infrastructure.Services.ApiServiceAgent.Settings;
+using System.IO;
+using System.Runtime.CompilerServices;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
@@ -80,6 +83,100 @@ public abstract class ApiServiceAgentBase : IApiServiceAgent
             using CancellationTokenSource cts = new(timeoutInMiliseconds);
             return await ExecuteAsync<TResponse, TResponseData>(HttpClient.GetAsync(requestUri, cts.Token), methodName, cts.Token);
         });
+    }
+
+    /// <summary>
+    /// Sends a GET request to the specified URI and streams the NDJSON response as an async sequence,
+    /// yielding one deserialized record per line as data arrives.
+    /// </summary>
+    /// <typeparam name="T">The type of each record in the NDJSON stream.</typeparam>
+    /// <param name="requestUri">Relative or absolute URI of the streaming endpoint to call.</param>
+    /// <param name="timeoutInMilliseconds">Per-request timeout, in milliseconds. Applies to the entire stream.</param>
+    /// <param name="methodName">Name of the caller method used to enrich log and error messages.</param>
+    /// <param name="cancellationToken">Token that cancels the enumeration from the caller side.</param>
+    /// <returns>
+    /// An async sequence of deserialized <typeparamref name="T"/> records yielded as each NDJSON line arrives.
+    /// Returns an empty sequence when the server responds with a non-success status code, a timeout occurs,
+    /// or a connection error is raised before the first line.
+    /// </returns>
+    /// <example>
+    /// <code>
+    /// await foreach (var item in GetStreamAsync&lt;MyRecord&gt;("/api/stream", 30_000, nameof(MyMethodAsync)))
+    ///     Process(item);
+    /// </code>
+    /// </example>
+    protected async IAsyncEnumerable<T> GetStreamAsync<T>(
+        string requestUri,
+        int timeoutInMilliseconds,
+        string methodName,
+        [EnumeratorCancellation] CancellationToken cancellationToken = default)
+        where T : class, new()
+    {
+        using CancellationTokenSource cts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+        cts.CancelAfter(timeoutInMilliseconds);
+
+        (HttpResponseMessage Response, StreamReader Reader)? connection = await OpenNdjsonStreamAsync(requestUri, methodName, cts.Token).ConfigureAwait(false);
+        if (connection is null)
+            yield break;
+
+        HttpResponseMessage response = connection.Value.Response;
+        StreamReader reader = connection.Value.Reader;
+
+        try
+        {
+            string? line;
+            while ((line = await reader.ReadLineAsync(cts.Token).ConfigureAwait(false)) is not null)
+            {
+                if (string.IsNullOrWhiteSpace(line))
+                    continue;
+
+                T? item = JsonSerializer.Deserialize<T>(line, JsonSerializerOptions);
+                if (item is not null)
+                    yield return item;
+            }
+
+            // After the body is fully consumed the HTTP stack populates TrailingHeaders.
+            // Verify the server committed the full stream successfully.
+            bool streamSucceeded = response.TrailingHeaders.TryGetValues(ApplicationConstants.StreamStatusTrailerName, out IEnumerable<string>? trailerValues) && trailerValues.FirstOrDefault() == ApplicationConstants.StreamSuccessfullyStatus;
+            if (!streamSucceeded)
+                Logger.Error($"Stream from '{ServiceName}' did not complete successfully — trailer '{ApplicationConstants.StreamStatusTrailerName}' was not received.");
+        }
+        finally
+        {
+            reader.Dispose();
+            response.Dispose();
+        }
+    }
+
+    private async Task<(HttpResponseMessage Response, StreamReader Reader)?> OpenNdjsonStreamAsync(string requestUri, string methodName, CancellationToken cancellationToken)
+    {
+        try
+        {
+            HttpResponseMessage response = await HttpClient.GetAsync(requestUri, HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
+            if (!response.IsSuccessStatusCode)
+            {
+                string content = await response.Content.ReadAsStringAsync(cancellationToken).ConfigureAwait(false);
+                string message = $"Failed on '{methodName.Remove("Async")}'.";
+
+                Logger.Error(message, null, new Dictionary<string, object?> { { "Content", content } });
+                response.Dispose();
+                
+                return null;
+            }
+
+            Stream stream = await response.Content.ReadAsStreamAsync(cancellationToken).ConfigureAwait(false);
+            return (response, new StreamReader(stream));
+        }
+        catch (OperationCanceledException ex)
+        {
+            Logger.Error($"Timeout on integration with '{ServiceName}'.", ex);
+            return null;
+        }
+        catch (Exception ex)
+        {
+            Logger.Error($"Failed on integration with '{ServiceName}'.", ex);
+            return null;
+        }
     }
 
     private async Task<TResponse> ExecuteAsync<TResponse, TResponseData>(Task<HttpResponseMessage> httpTask, string methodName, CancellationToken cancellationToken)
