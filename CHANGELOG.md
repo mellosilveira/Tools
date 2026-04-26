@@ -5,7 +5,7 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
-## [1.3.0] - 2026-04-25
+## [1.3.0] - 2026-04-26
 ### Added
 - `OperationResponseExtensions.BuildHttpResponseAsync<T>(this Task<T>)` — async counterpart to `BuildHttpResponse`: awaits a `Task<T> where T : OperationResponse` and returns a `JsonResult` with the matching HTTP status code. Mirrors `ToHttpResultAsync` (minimal APIs) on the controller side.
 - `ApiServiceAgentBase.GetStreamAsync<T>(requestUri, timeoutInMilliseconds, methodName, cancellationToken)` — protected `async IAsyncEnumerable<T>` for consuming NDJSON-streaming endpoints. Opens the response body with `HttpCompletionOption.ResponseHeadersRead`, deserializes each newline-delimited JSON record on arrival, and after the body is fully consumed validates the `X-Stream-Status: true` trailer written by `WriteNdjsonAsync` — logging an error when the trailer is absent.
