@@ -1,151 +1,41 @@
-﻿using MelloSilveiraTools.Authentication;
-using MelloSilveiraTools.Authentication.Services;
-using MelloSilveiraTools.Domain.NumericalMethods.DifferentialEquation;
-using MelloSilveiraTools.Infrastructure.Database.Repositories;
-using MelloSilveiraTools.Infrastructure.Database.Settings;
-using MelloSilveiraTools.Infrastructure.Database.Sql.Provider;
-using MelloSilveiraTools.Infrastructure.Logger;
-using MelloSilveiraTools.Infrastructure.ResiliencePipelines;
-using MelloSilveiraTools.Infrastructure.Services.Encryption;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Builder;
+using MelloSilveiraTools.Core;
+using MelloSilveiraTools.Core.Infrastructure.Logger;
+using MelloSilveiraTools.Core.Infrastructure.ResiliencePipelines;
+using MelloSilveiraTools.Core.Infrastructure.Services.Encryption;
+using MelloSilveiraTools.Database;
+using MelloSilveiraTools.Database.Infrastructure.Database.Settings;
+using MelloSilveiraTools.Mathematics;
+using MelloSilveiraTools.MechanicsOfMaterials;
+using MelloSilveiraTools.Plugins;
+using MelloSilveiraTools.Plugins.Infrastructure;
+using MelloSilveiraTools.WebApi;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.OpenApi.Models;
-using System.Reflection;
 
 namespace MelloSilveiraTools;
 
 /// <summary>
-/// Provides extension methods to dependency injection of Tools project.
+/// Provides extension methods to dependency injection of Tools project (meta-package).
 /// </summary>
 public static class DependencyInjection
 {
     /// <summary>
-    /// Registers the services of Tools project.
+    /// Registers the services of every contextual MelloSilveiraTools package
+    /// (Core, Database, WebApi and Plugins).
     /// </summary>
-    /// <param name="services"></param>
-    /// <param name="databaseSettings"></param>
-    /// <param name="encryptionSettings"></param>
-    /// <param name="resiliencePipelineSettings"></param>
-    /// <returns></returns>
-    public static IServiceCollection AddToolsServices(this IServiceCollection services, DatabaseSettings databaseSettings, EncryptionSettings encryptionSettings, ResiliencePipelineSettings resiliencePipelineSettings)
+    /// <param name="services">Service collection that receives the registrations.</param>
+    /// <param name="databaseSettings">Database connection and behavior settings.</param>
+    /// <param name="encryptionSettings">Settings used by the encryption service.</param>
+    /// <param name="resiliencePipelineSettings">Settings that parameterize the resilience pipelines.</param>
+    /// <param name="pluginSettings">Settings that describe plugin folders and behavior.</param>
+    /// <param name="loggerSettings">Settings used by logger service.</param>
+    /// <returns>The same <paramref name="services"/> instance to allow call chaining.</returns>
+    public static IServiceCollection AddToolsServices(this IServiceCollection services, DatabaseSettings databaseSettings,
+        EncryptionSettings encryptionSettings, ResiliencePipelineSettings resiliencePipelineSettings, PluginSettings pluginSettings, LoggerSettings? loggerSettings = null)
         => services
-            // Register settings.
-            .AddSingleton(databaseSettings)
-            .AddSingleton(encryptionSettings)
-            .AddSingleton(resiliencePipelineSettings)
-            // Register resilience pipelines.
-            .AddSingleton(provider => new ApiServiceAgentResiliencePipeline(provider.GetRequiredService<ILogger>(), resiliencePipelineSettings))
-            .AddSingleton(provider => new PostgresResiliencePipeline(provider.GetRequiredService<ILogger>(), resiliencePipelineSettings))
-            .AddSingleton(provider => new SmtpResiliencePipeline(provider.GetRequiredService<ILogger>(), resiliencePipelineSettings))
-            // Register SQL providers.
-            .AddSingleton<ISqlProvider, PostgresSqlProvider>()
-            // Register repositories.
-            .AddSingleton<IDatabaseRepository, PostgresRepository>()
-            // Register logger.
-            .AddSingleton<ILogger, LocalFileLogger>()
-            // Register services.
-            .AddScoped<IEncryptionService, EncryptionService>();
-
-    /// <summary>
-    /// Register numerical methods.
-    /// </summary>
-    /// <param name="services"></param>
-    /// <returns></returns>
-    public static IServiceCollection AddNumericalMethods(this IServiceCollection services)
-        => services
-            // Register numerical methods.
-            .AddSingleton<IDifferentialEquationMethod, NewmarkMethod>()
-            .AddSingleton<IDifferentialEquationMethod, NewmarkBetaMethod>()
-            // Register factories.
-            .AddSingleton<DifferentialEquationMethodFactory>();
-
-    /// <summary>
-    /// Registers the authentication for AdmMaster users using JWT.
-    /// </summary>
-    /// <param name="services"></param>
-    /// <param name="jwtSettings"></param>
-    /// <returns></returns>
-    public static IServiceCollection AddJweAuthentication(this IServiceCollection services, JwtSettings jwtSettings)
-    {
-        services
-            .AddSingleton(jwtSettings)
-            .AddScoped<IAuthenticationTokenService, AuthenticationJweTokenService>()
-            .AddAuthentication(options =>
-            {
-                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-                options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
-            })
-            .AddJwtBearer(options =>
-            {
-                options.SaveToken = true;
-                options.TokenValidationParameters = AuthenticationJweTokenService.BuildTokenValidationParameters(jwtSettings);
-            });
-
-        return services;
-    }
-
-    /// <summary>
-    /// Configures the documentation file for Swagger User Interface using JWT authentication.
-    /// </summary>
-    public static IServiceCollection AddSwaggerDocsWithJwtAuthentication(this IServiceCollection services)
-    {
-        Assembly assembly = Assembly.GetExecutingAssembly();
-        string assemblyTitle = assembly.GetCustomAttribute<AssemblyTitleAttribute>()!.Title;
-        string assemblyDescription = assembly.GetCustomAttribute<AssemblyDescriptionAttribute>()!.Description;
-        string assemblyLocation = Path.GetDirectoryName(assembly.Location)!;
-
-        return services
-            .AddSwaggerGen(options =>
-            {
-                options.SwaggerDoc(assemblyTitle, new OpenApiInfo
-                {
-                    Title = assemblyTitle,
-                    Description = assemblyDescription,
-                    Version = "v1"
-                });
-
-                options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
-                {
-                    Description = "Please enter into your token",
-                    Name = "Authorization",
-                    In = ParameterLocation.Header,
-                    Type = SecuritySchemeType.ApiKey,
-                    Scheme = "Bearer",
-                    BearerFormat = "JWT",
-                });
-
-                options.AddSecurityRequirement(new OpenApiSecurityRequirement
-                {
-                    {
-                        new OpenApiSecurityScheme { Reference = new OpenApiReference { Type = ReferenceType.SecurityScheme, Id = "Bearer" } },
-                        new List<string>()
-                    }
-                });
-
-                string[] xmlFiles = Directory.GetFiles(assemblyLocation, "*.xml");
-                foreach (string xmlFile in xmlFiles)
-                {
-                    options.IncludeXmlComments(xmlFile);
-                }
-            })
-            .AddSwaggerGenNewtonsoftSupport();
-    }
-
-    /// <summary>
-    /// Adds Swagger documentations to ApplicationBuilder.
-    /// </summary>
-    public static IApplicationBuilder UseSwaggerDocs(this IApplicationBuilder app)
-    {
-        string assemblyTitle = Assembly.GetExecutingAssembly().GetCustomAttribute<AssemblyTitleAttribute>()!.Title;
-
-        return app
-            .UseSwagger()
-            .UseSwaggerUI(c =>
-            {
-                c.SwaggerEndpoint($"/swagger/{assemblyTitle}/swagger.json", $"{assemblyTitle} API");
-                c.EnableValidator(null);
-            });
-    }
+            .AddCoreServices(encryptionSettings, resiliencePipelineSettings, loggerSettings)
+            .AddDatabaseServices(databaseSettings, resiliencePipelineSettings)
+            .AddMathematicsServices()
+            .AddMechanicsOfMaterialsServices()
+            .AddPluginServices(pluginSettings)
+            .AddWebApiServices(resiliencePipelineSettings);
 }
