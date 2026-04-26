@@ -28,10 +28,12 @@ namespace MelloSilveiraTools.MechanicsOfMaterials.Models
         public override string ToString() => $"({X}, {Y}, {Z})";
 
         /// <summary>
-        /// This method creates a <see cref="Point3D"/> based on a string.
+        /// Parses a comma-separated string of three numeric values (in millimeters) into a
+        /// <see cref="Point3D"/>. Each component is divided by 1000 so the resulting point is
+        /// expressed in meters.
         /// </summary>
-        /// <param name="point">The points in string at milimeters.</param>
-        /// <returns></returns>
+        /// <param name="point">String in the form "x,y,z" with coordinates in millimeters.</param>
+        /// <returns>The <see cref="Point3D"/> in meters represented by the string.</returns>
         public static Point3D Create(string point)
         {
             List<string> points = point.Split(',').ToList();

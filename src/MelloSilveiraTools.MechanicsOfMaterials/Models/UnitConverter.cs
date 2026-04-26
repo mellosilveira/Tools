@@ -6,17 +6,17 @@
     public static class UnitConverter
     {
         /// <summary>
-        /// This method converts a velocity from kilometers per hour to meters per second.
+        /// Converts a linear velocity from kilometers per hour to meters per second.
         /// </summary>
-        /// <param name="valueInKmh"></param>
-        /// <returns></returns>
+        /// <param name="valueInKmh">The velocity expressed in km/h.</param>
+        /// <returns>The equivalent velocity in m/s.</returns>
         public static double FromKmhToMs(double valueInKmh) => valueInKmh / 3.6;
 
         /// <summary>
-        /// This method converts a frequency from revolutions per minute to radian per second.
+        /// Converts an angular frequency from revolutions per minute to radians per second.
         /// </summary>
-        /// <param name="valueInRpm"></param>
-        /// <returns></returns>
+        /// <param name="valueInRpm">The angular frequency expressed in RPM.</param>
+        /// <returns>The equivalent angular frequency in rad/s.</returns>
         public static double FromRpmToRads(double valueInRpm) => valueInRpm * Math.PI / 30;
     }
 }

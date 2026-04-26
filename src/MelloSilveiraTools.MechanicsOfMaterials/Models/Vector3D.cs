@@ -10,11 +10,11 @@ namespace MelloSilveiraTools.MechanicsOfMaterials.Models
     public struct Vector3D
     {
         /// <summary>
-        /// Class constructor.
+        /// Creates a 3D vector from its Cartesian components.
         /// </summary>
-        /// <param name="x"></param>
-        /// <param name="y"></param>
-        /// <param name="z"></param>
+        /// <param name="x">Component along the X axis.</param>
+        /// <param name="y">Component along the Y axis.</param>
+        /// <param name="z">Component along the Z axis.</param>
         public Vector3D(double x, double y, double z)
         {
             X = x;
@@ -43,17 +43,18 @@ namespace MelloSilveiraTools.MechanicsOfMaterials.Models
         public double Length => Math.Sqrt(LengthSquared);
 
         /// <summary>
-        /// The lenght squared of vector.
+        /// The length squared of vector.
         /// </summary>
         public double LengthSquared
             => Math.Pow(X, 2) + Math.Pow(Y, 2) + Math.Pow(Z, 2);
 
         /// <summary>
-        /// This method creates a <see cref="Vector3D"/> based on two <see cref="Point3D"/>.
+        /// Builds the vector that goes from <paramref name="point1"/> to <paramref name="point2"/>
+        /// (computed component-wise as point2 - point1).
         /// </summary>
-        /// <param name="point1"></param>
-        /// <param name="point2"></param>
-        /// <returns></returns>
+        /// <param name="point1">The start point (tail of the vector).</param>
+        /// <param name="point2">The end point (head of the vector).</param>
+        /// <returns>The <see cref="Vector3D"/> connecting the two points.</returns>
         public static Vector3D Create(Point3D point1, Point3D point2)
         {
             return new Vector3D(
@@ -63,10 +64,10 @@ namespace MelloSilveiraTools.MechanicsOfMaterials.Models
         }
 
         /// <summary>
-        /// This method creates a <see cref="Vector3D"/> based on a string.
+        /// Parses a comma-separated string of three numeric values into a <see cref="Vector3D"/>.
         /// </summary>
-        /// <param name="vector"></param>
-        /// <returns></returns>
+        /// <param name="vector">String in the form "x,y,z" containing the three components.</param>
+        /// <returns>The <see cref="Vector3D"/> represented by the string.</returns>
         public static Vector3D Create(string vector)
         {
             List<string> vec = vector.Split(',').ToList();

@@ -1,0 +1,1092 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>MelloSilveiraTools.Core</name>
+    </assembly>
+    <members>
+        <member name="T:MelloSilveiraTools.Core.CoreDependencyInjection">
+            <summary>
+            Provides extension methods to register services from the MelloSilveiraTools.Core package.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.CoreDependencyInjection.AddCoreServices(Microsoft.Extensions.DependencyInjection.IServiceCollection,MelloSilveiraTools.Core.Infrastructure.Services.Encryption.EncryptionSettings,MelloSilveiraTools.Core.Infrastructure.ResiliencePipelines.ResiliencePipelineSettings,MelloSilveiraTools.Core.Infrastructure.Logger.LoggerSettings)">
+            <summary>
+            Registers core services: settings, SMTP resilience pipeline, file logger and encryption service.
+            </summary>
+            <param name="services">Service collection that receives the registrations.</param>
+            <param name="encryptionSettings">Settings used by the encryption service.</param>
+            <param name="resiliencePipelineSettings">Settings that parameterize the resilience pipelines.</param>
+            <param name="loggerSettings">Settings used by logger service.</param>
+            <returns>The same <paramref name="services"/> instance to allow call chaining.</returns>
+        </member>
+        <member name="T:MelloSilveiraTools.Core.Domain.Models.Constants">
+            <summary>
+            It contains the constants used in the project.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Core.Domain.Models.Constants.InvalidValues">
+            <summary>
+            The invalid values for double parameters.
+            </summary>
+        </member>
+        <member name="F:MelloSilveiraTools.Core.Domain.Models.Constants.GravityAcceleration">
+            <summary>
+            Unit: m/s² (meter per squared second).
+            </summary>
+        </member>
+        <member name="F:MelloSilveiraTools.Core.Domain.Models.Constants.InitialTime">
+            <summary>
+            The initial time that must be used in all analyzes and operations.
+            Unit: s (second).
+            </summary>
+        </member>
+        <member name="T:MelloSilveiraTools.Core.Domain.Models.SpanStringBuilder">
+            <summary>
+            Provides a high-performance, allocation-free string builder using pooled buffers and stack allocation optimizations.
+            Designed for critical path operations where minimal memory allocation and maximum performance are required.
+            </summary>
+            <remarks>
+            <para>
+            Key features:
+            <list type="bullet">
+            <item>Uses <see cref="T:System.Buffers.ArrayPool`1"/> for buffer management to reduce GC pressure</item>
+            <item>Aggressive inlining of hot-path methods for near-native performance</item>
+            <item>Efficient bounds checking using unsigned integer comparisons</item>
+            <item>Growth strategy optimized for both small and large string scenarios</item>
+            <item>Ref struct implementation ensures stack-only semantics</item>
+            </list>
+            </para>
+            <para>
+            ⚠️ Important structural constraints:
+            <list type="bullet">
+            <item>Cannot be used as a field in classes or non-ref structs</item>
+            <item>Cannot be boxed or stored in heap-allocated collections</item>
+            <item>Cannot cross async method boundaries (including lambda captures)</item>
+            <item>Must be disposed after use to return buffers to the pool</item>
+            </list>
+            </para>
+            <para>
+            Performance characteristics:
+            <list type="bullet">
+            <item>Append(char): ~2-3 CPU cycles (inlined fast path)</item>
+            <item>Append(ReadOnlySpan): ~1 cycle per character (vectorized)</item>
+            <item>Growth operations: O(n) but minimized by growth strategy</item>
+            </list>
+            </para>
+            </remarks>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Domain.Models.SpanStringBuilder.#ctor(System.Int32)">
+            <summary>
+            Initializes a new instance with optimized initial capacity
+            </summary>
+            <param name="initialCapacity">
+            Expected capacity requirement. Default 32 balances memory usage and growth operations.
+            For known large strings, set higher to minimize reallocations.
+            </param>
+            <remarks>
+            The actual allocated capacity may be larger than requested due to pool bucket sizes.
+            </remarks>
+        </member>
+        <member name="P:MelloSilveiraTools.Core.Domain.Models.SpanStringBuilder.Item(System.Int32)">
+            <summary>
+            Direct character access to the underlying buffer
+            </summary>
+            <param name="index">Zero-based character position</param>
+            <exception cref="T:System.IndexOutOfRangeException">
+            Thrown when index is outside [0, Length-1] range
+            </exception>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Domain.Models.SpanStringBuilder.Append(System.Char)">
+            <summary>
+            Appends a single character using optimized path
+            </summary>
+            <param name="value">Character to append</param>
+            <returns>Chainable reference</returns>
+            <remarks>
+            Uses <see cref="F:System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining"/> for near-zero overhead.
+            Bounds check optimized using unsigned integer comparison (single branch).
+            </remarks>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Domain.Models.SpanStringBuilder.Append(System.ReadOnlySpan{System.Char})">
+            <summary>
+            Appends a character span using memory-copy optimizations
+            </summary>
+            <param name="value">Character sequence to append</param>
+            <returns>Chainable reference</returns>
+            <remarks>
+            <para>
+            Optimization strategy:
+            <list type="number">
+            <item>Early exit for empty spans</item>
+            <item>Pre-calculates required size</item>
+            <item>Uses Span.CopyTo for block copying</item>
+            <item>Separate handling for growth scenarios</item>
+            </list>
+            </para>
+            <para>
+            Uses <see cref="M:System.Span`1.Slice(System.Int32,System.Int32)"/> with explicit length for better bounds elision.
+            </para>
+            </remarks>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Domain.Models.SpanStringBuilder.AppendLine(System.Char)">
+            <summary>
+            Appends a character followed by environment-specific newline
+            </summary>
+            <param name="value">Character to append</param>
+            <returns>Chainable reference</returns>
+            <remarks>
+            Newline sequence matches Environment.NewLine (CRLF on Windows, LF on Unix)
+            </remarks>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Domain.Models.SpanStringBuilder.AppendLine(System.ReadOnlySpan{System.Char})">
+            <summary>
+            Appends a character sequence followed by environment-specific newline
+            </summary>
+            <param name="value">Character sequence to append</param>
+            <returns>Chainable reference</returns>
+            <remarks>
+            Newline sequence matches Environment.NewLine (CRLF on Windows, LF on Unix)
+            </remarks>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Domain.Models.SpanStringBuilder.ToString">
+            <summary>
+            Constructs string from current buffer contents
+            </summary>
+            <remarks>
+            Creates a new string instance. For zero-allocation alternatives, consider 
+            using the Span directly in downstream APIs.
+            </remarks>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Domain.Models.SpanStringBuilder.Dispose">
+            <summary>
+            Returns buffer to pool and resets state
+            </summary>
+            <remarks>
+            Critical for preventing pool memory leaks. Safe to call multiple times.
+            After disposal:
+            <list type="bullet">
+            <item>All buffer accesses become invalid</item>
+            <item>Append operations will fail</item>
+            <item>ToString returns empty string</item>
+            </list>
+            </remarks>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Domain.Models.SpanStringBuilder.GrowAndAppend(System.Char)">
+            <summary>
+            Handle buffer growth and append for single character
+            </summary>
+            <remarks>
+            Marked <see cref="F:System.Runtime.CompilerServices.MethodImplOptions.NoInlining"/> to:
+            <list type="bullet">
+            <item>Keep hot path compact in Append()</item>
+            <item>Reduce register pressure in common case</item>
+            <item>Isolate rare growth operations</item>
+            </list>
+            </remarks>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Domain.Models.SpanStringBuilder.GrowAndAppend(System.ReadOnlySpan{System.Char},System.Int32,System.Int32)">
+            <summary>
+            Handle buffer growth and append for character span
+            </summary>
+            <param name="value"></param>
+            <param name="length">Precomputed span length</param>
+            <param name="requiredCapacity">Total required capacity</param>
+            <remarks>
+            Avoids recalculating length during growth. Separated from hot path
+            to prevent code bloat in frequently executed methods.
+            </remarks>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Domain.Models.SpanStringBuilder.Grow(System.Int32)">
+            <summary>
+            Grows internal buffer to required capacity
+            </summary>
+            <param name="requiredCapacity">Minimum new capacity</param>
+            <remarks>
+            Growth strategy:
+            <list type="number">
+            <item>Double current size (capped at Array.MaxLength)</item>
+            <item>Or requiredCapacity if larger than doubled size</item>
+            <item>Copies existing data to new buffer</item>
+            <item>Returns old buffer to pool</item>
+            </list>
+            </remarks>
+        </member>
+        <member name="T:MelloSilveiraTools.Core.Domain.Services.IEmailService">
+            <summary>
+            Service responsible for sending e-mail messages.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Domain.Services.IEmailService.SendAsync(System.String,System.String,System.String,System.Boolean)">
+            <summary>
+            Sends an e-mail message to the specified recipient.
+            </summary>
+            <param name="recipient">The destination e-mail address.</param>
+            <param name="subject">The subject line of the message.</param>
+            <param name="body">The body content of the message.</param>
+            <param name="isBodyHtml">Whether the body should be interpreted as HTML. Defaults to <c>true</c>.</param>
+            <returns><c>true</c> when the message was successfully dispatched; otherwise <c>false</c>.</returns>
+        </member>
+        <member name="T:MelloSilveiraTools.Core.ExtensionMethods.ArrayExtension">
+            <summary>
+            It contains extension methods to arrays.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.ExtensionMethods.ArrayExtension.NormalizeVector(System.Double[])">
+            <summary>
+            This method normalizes the vector. 
+            </summary>
+            <param name="vector"></param>
+            <returns></returns>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.ExtensionMethods.ArrayExtension.CalculateNorm(System.Double[])">
+            <summary>
+            This method calculates the vector norm. 
+            </summary>
+            <param name="vector"></param>
+            <returns></returns>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.ExtensionMethods.ArrayExtension.InverseMatrix(System.Double[0:,0:])">
+            <summary>
+            This method inverses a matrix using the Gauss-Jordan method.
+            </summary>
+            <param name="matrix"></param>
+            <returns>The inversed matrix using the Gauss-Jordan method.</returns>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.ExtensionMethods.ArrayExtension.Multiply(System.Double[0:,0:],System.Double[])">
+            <summary>
+            This method multiplicates a matrix and a vector.
+            </summary>
+            <param name="matrix"></param>
+            <param name="vector"></param>
+            <returns>A new vector with the result of multiplication between a matrix and a vector.</returns>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.ExtensionMethods.ArrayExtension.Multiply(System.Double[],System.Double)">
+            <summary>
+            This method multiplicates a number and a vector.
+            </summary>
+            <param name="vector"></param>
+            <param name="number"></param>
+            <returns></returns>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.ExtensionMethods.ArrayExtension.Sum(System.Double[],System.Double[])">
+            <summary>
+            This method sums two vectors.
+            </summary>
+            <param name="vector1"></param>
+            <param name="vector2"></param>
+            <returns></returns>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.ExtensionMethods.ArrayExtension.Subtract(System.Double[],System.Double[])">
+            <summary>
+            This method subtracts two vectors.
+            </summary>
+            <param name="vector1"></param>
+            <param name="vector2"></param>
+            <returns></returns>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.ExtensionMethods.ArrayExtension.MathOperation(System.Double[],System.Func{System.Double,System.Double,System.Double},System.Double[])">
+            <summary>
+            This method do a mathematic operation for two vectors.
+            </summary>
+            <param name="vector1"></param>
+            <param name="func"></param>
+            <param name="vector2"></param>
+            <returns></returns>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.ExtensionMethods.ArrayExtension.Sum(System.Double[],System.Double[][])">
+            <summary>
+            This method sums two vectors.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.ExtensionMethods.ArrayExtension.Subtract(System.Double[],System.Double[],System.Double[])">
+            <summary>
+            This method subtracts three vectors.
+            </summary>
+            <param name="vector1"></param>
+            <param name="vector2"></param>
+            <param name="vector3"></param>
+            <returns></returns>
+        </member>
+        <member name="T:MelloSilveiraTools.Core.ExtensionMethods.DictionaryExtensions">
+            <summary>
+            Contains extension methods for <see cref="T:System.Collections.Generic.Dictionary`2"/>
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.ExtensionMethods.DictionaryExtensions.ConvertTo``1(System.Data.IDataReader)">
+            <summary>
+            Converts the <see cref="T:System.Data.IDataReader"/> to an object.
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="sqlDataReader"></param>
+            <returns></returns>
+        </member>
+        <member name="T:MelloSilveiraTools.Core.ExtensionMethods.DoubleExtensions">
+            <summary>
+            Contains the extension methods to double.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.ExtensionMethods.DoubleExtensions.ToDegrees(System.Double)">
+            <summary>
+            Converts the value from radians to degrees.
+            </summary>
+            <param name="value"></param>
+            <returns></returns>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.ExtensionMethods.DoubleExtensions.RelativeDifference(System.Double,System.Double)">
+            <summary>
+            Calculates the relative difference between two values.
+            </summary>
+            <param name="value1"></param>
+            <param name="value2"></param>
+            <returns></returns>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.ExtensionMethods.DoubleExtensions.RelativeAbsolutDifference(System.Double,System.Double)">
+            <summary>
+            Calculates the relative absolut difference between two values.
+            </summary>
+            <param name="value1"></param>
+            <param name="value2"></param>
+            <returns></returns>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.ExtensionMethods.DoubleExtensions.EqualsWithTolerance(System.Double,System.Double,System.Double)">
+            <summary>
+            Indicates if two values are equals considering the application tolerance. 
+            </summary>
+            <param name="value1"></param>
+            <param name="value2"></param>
+            <param name="tolerance"></param>
+            <returns></returns>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.ExtensionMethods.DoubleExtensions.IsPositive(System.Double)">
+            <summary>
+            Indicates if a value is positive and is not zero.
+            </summary>
+            <param name="value"></param>
+            <returns></returns>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.ExtensionMethods.DoubleExtensions.IsPositive(System.Nullable{System.Double})">
+            <summary>
+            Indicates if a value is positive and is not zero.
+            </summary>
+            <param name="value"></param>
+            <returns></returns>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.ExtensionMethods.DoubleExtensions.IsNegative(System.Double)">
+            <summary>
+            Indicates if a value is negative and is not zero.
+            </summary>
+            <param name="value"></param>
+            <returns></returns>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.ExtensionMethods.DoubleExtensions.IsNegativeOrZero(System.Double)">
+            <summary>
+            Indicates if a value is negative or zero.
+            </summary>
+            <param name="value"></param>
+            <returns></returns>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.ExtensionMethods.DoubleExtensions.IsNegative(System.Nullable{System.Double})">
+            <summary>
+            Indicates if a value is negative and is not zero.
+            </summary>
+            <param name="value"></param>
+            <returns></returns>
+        </member>
+        <member name="T:MelloSilveiraTools.Core.ExtensionMethods.EnumerableExtensions">
+            <summary>
+            Contains extension methods for <see cref="T:System.Linq.Enumerable"/>.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.ExtensionMethods.EnumerableExtensions.FirstOrDefaultWithoutValidate``1(System.Collections.Generic.IEnumerable{``0},System.Func{``0,System.Boolean},``0)">
+            <summary>
+            Returns the first element of the sequence that satisfies a condition or a default value if no such element is found.
+            </summary>
+            <typeparam name="TSource">The type of the elements of <paramref name="sources" />.</typeparam>
+            <param name="sources">An <see cref="T:System.Collections.Generic.IEnumerable`1" /> to return an element from.</param>
+            <param name="predicate">A function to test each element for a condition.</param>
+            <param name="defaultValue">The default value to return if the sequence is empty.</param>
+            <returns><paramref name="defaultValue" /> if <paramref name="sources" /> is empty or if no element passes the test specified by <paramref name="predicate" />; otherwise, the first element in <paramref name="sources" /> that passes the test specified by <paramref name="predicate" />.</returns>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.ExtensionMethods.EnumerableExtensions.FirstWithoutValidate``1(System.Collections.Generic.IEnumerable{``0},System.Func{``0,System.Boolean})">
+            <summary>
+            Returns the first element of the sequence that satisfies a condition.
+            </summary>
+            <typeparam name="TSource">The type of the elements of <paramref name="sources" />.</typeparam>
+            <param name="sources">An <see cref="T:System.Collections.Generic.IEnumerable`1" /> to return an element from.</param>
+            <param name="predicate">A function to test each element for a condition.</param>
+            <returns>The first element in <paramref name="sources" /> that passes the test specified by <paramref name="predicate" />.</returns>
+            <exception cref="T:System.InvalidOperationException">Thrown when no element in the source matches the predicate.</exception>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.ExtensionMethods.EnumerableExtensions.IsEmpty``1(System.Collections.Generic.IEnumerable{``0})">
+            <summary>
+            Indicates if <paramref name="sources"/> is empty.
+            </summary>
+            <typeparam name="TSource">The type of the elements of <paramref name="sources" />.</typeparam>
+            <param name="sources">An <see cref="T:System.Collections.Generic.IEnumerable`1" /> to check if is empty.</param>
+            <returns>True, if <paramref name="sources"/> is empty. False, otherwise.</returns>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.ExtensionMethods.EnumerableExtensions.IsNullOrEmpty``1(System.Collections.Generic.IEnumerable{``0})">
+            <summary>
+            Indicates if <paramref name="sources"/> is null or empty.
+            </summary>
+            <typeparam name="TSource">The type of the elements of <paramref name="sources" />.</typeparam>
+            <param name="sources">An <see cref="T:System.Collections.Generic.IEnumerable`1" /> to check if is null or empty.</param>
+            <returns>True, if <paramref name="sources"/> is null or empty. False, otherwise.</returns>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.ExtensionMethods.EnumerableExtensions.IsNotNullOrEmpty``1(System.Collections.Generic.IEnumerable{``0})">
+            <summary>
+            Indicates if <paramref name="sources"/> is not null nor empty.
+            </summary>
+            <typeparam name="TSource">The type of the elements of <paramref name="sources" />.</typeparam>
+            <param name="sources">An <see cref="T:System.Collections.Generic.IEnumerable`1" /> to check if is not null nor empty.</param>
+            <returns>True, if <paramref name="sources"/> is not null nor empty. False, otherwise.</returns>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.ExtensionMethods.EnumerableExtensions.FluentAddIfNotNull(System.Collections.Generic.List{System.Double},System.Nullable{System.Double})">
+            <summary>
+            If <paramref name="element"/> is not null, adds it in <paramref name="sources"/>
+            </summary>
+            <param name="sources">A list of double to add an <paramref name="element"/>.</param>
+            <param name="element">The element to be added in <paramref name="sources"/> if not null.</param>
+            <returns>The <paramref name="sources"/> received to add an <paramref name="element"/>.</returns>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.ExtensionMethods.EnumerableExtensions.FluentAddRangeIfNotNull``1(System.Collections.Generic.List{``0},System.Collections.Generic.IEnumerable{``0})">
+            <summary>
+            If <paramref name="collection"/> is not null, adds the <paramref name="collection"/> of the given collection to the end of this <paramref name="sources"/>. 
+            If required, the capacity of the list is increased to twice the previous capacity or the new size, whichever is larger.
+            </summary>
+            <typeparam name="TSource">The type of the elements of <paramref name="sources" />.</typeparam>
+            <param name="sources">An <see cref="T:System.Collections.Generic.List`1" /> to add an <paramref name="collection"/>.</param>
+            <param name="collection">The object to add to the <see cref="T:System.Collections.Generic.List`1"/>.</param>
+            <returns>The <paramref name="sources"/> received to add an <paramref name="collection"/>.</returns>
+            <exception cref="T:System.ArgumentNullException">The <see cref="T:System.Collections.Generic.List`1" /> is null.</exception>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.ExtensionMethods.EnumerableExtensions.FluentAdd``1(System.Collections.Generic.List{``0},``0)">
+            <summary>
+            Adds an item to the <see cref="T:System.Collections.Generic.ICollection`1"/>.
+            </summary>
+            <typeparam name="TSource">The type of the elements of <paramref name="sources" />.</typeparam>
+            <param name="sources">An <see cref="T:System.Collections.Generic.ICollection`1" /> to add an <paramref name="element"/>.</param>
+            <param name="element">The object to add to the <see cref="T:System.Collections.Generic.ICollection`1"/>.</param>
+            <returns>The <paramref name="sources"/> received to add an <paramref name="element"/>.</returns>
+            <exception cref="T:System.NotSupportedException">The <see cref="T:System.Collections.Generic.ICollection`1" /> is read-only.</exception>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.ExtensionMethods.EnumerableExtensions.FluentAddRange``1(System.Collections.Generic.List{``0},System.Collections.Generic.IEnumerable{``0})">
+            <summary>
+            Adds the <paramref name="collection"/> of the given collection to the end of this <paramref name="sources"/>. 
+            If required, the capacity of the list is increased to twice the previous capacity or the new size, whichever is larger.
+            </summary>
+            <typeparam name="TSource">The type of the elements of <paramref name="sources" />.</typeparam>
+            <param name="sources">An <see cref="T:System.Collections.Generic.List`1" /> to add an <paramref name="collection"/>.</param>
+            <param name="collection">The object to add to the <see cref="T:System.Collections.Generic.List`1"/>.</param>
+            <returns>The <paramref name="sources"/> received to add an <paramref name="collection"/>.</returns>
+            <exception cref="T:System.ArgumentNullException">The <see cref="T:System.Collections.Generic.List`1" /> is null.</exception>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.ExtensionMethods.EnumerableExtensions.GetSourceType``1(System.Collections.Generic.IEnumerable{``0})">
+            <summary>
+            Gets the runtime <see cref="T:System.Type"/> of the actual elements stored in <paramref name="sources"/>.
+            When the sequence has at least one element, the runtime type of that element is returned
+            (useful for polymorphic collections where <typeparamref name="TSource"/> may be a base type
+            or interface). When the sequence is empty, the static <typeparamref name="TSource"/> is
+            returned as a fallback.
+            </summary>
+            <typeparam name="TSource">The static element type of the sequence.</typeparam>
+            <param name="sources">The sequence whose element type should be inspected.</param>
+            <returns>The runtime type of the first element, or <c>typeof(<typeparamref name="TSource"/>)</c> when the sequence is empty.</returns>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.ExtensionMethods.EnumerableExtensions.ForeachAsync``1(System.Collections.Generic.IEnumerable{``0},System.Func{``0,System.Threading.Tasks.Task},System.Int32)">
+            <summary>
+            Iterates over <paramref name="source"/> launching <paramref name="asyncAction"/> for every item,
+            while limiting concurrency through a <see cref="T:System.Threading.SemaphoreSlim"/> bounded by <paramref name="maxDegreeOfParallelism"/>.
+            Items are dispatched in source order, but their actual completion order is non-deterministic
+            because they execute in parallel. Exceptions raised inside <paramref name="asyncAction"/> are
+            logged to <see cref="T:System.Console"/> and swallowed so the iteration continues; cancellation is not
+            observed by this overload.
+            </summary>
+            <typeparam name="T">The element type of the sequence.</typeparam>
+            <param name="source">The sequence to iterate. Must not be <see langword="null"/>.</param>
+            <param name="asyncAction">The asynchronous delegate invoked for each item.</param>
+            <param name="maxDegreeOfParallelism">Maximum number of <paramref name="asyncAction"/> invocations allowed to run concurrently. Must be greater than zero.</param>
+            <returns>A task that completes when every dispatched <paramref name="asyncAction"/> has finished.</returns>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.ExtensionMethods.EnumerableExtensions.ForeachAsync``1(System.Collections.Generic.IEnumerable{``0},System.Action{``0},System.Int32)">
+            <summary>
+            Iterates over <paramref name="source"/> dispatching <paramref name="action"/> for every item on
+            the thread pool, while limiting concurrency through a <see cref="T:System.Threading.SemaphoreSlim"/> bounded by
+            <paramref name="maxDegreeOfParallelism"/>. Items are scheduled in source order but completion
+            order is non-deterministic. Exceptions raised inside <paramref name="action"/> are logged to
+            <see cref="T:System.Console"/> and swallowed so the iteration continues; cancellation is not observed
+            by this overload.
+            </summary>
+            <typeparam name="T">The element type of the sequence.</typeparam>
+            <param name="source">The sequence to iterate. Must not be <see langword="null"/>.</param>
+            <param name="action">The synchronous delegate invoked for each item on the thread pool.</param>
+            <param name="maxDegreeOfParallelism">Maximum number of <paramref name="action"/> invocations allowed to run concurrently. Must be greater than zero.</param>
+            <returns>A task that completes when every scheduled invocation of <paramref name="action"/> has finished.</returns>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.ExtensionMethods.EnumerableExtensions.Foreach``1(System.Collections.Generic.IEnumerable{``0},System.Action{``0})">
+            <summary>
+            Iterates synchronously over <paramref name="source"/> invoking <paramref name="action"/> for each item.
+            Exceptions thrown by <paramref name="action"/> are logged and swallowed so the iteration continues.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.ExtensionMethods.EnumerableExtensions.GetCombinations``1(System.Collections.Generic.IEnumerable{System.Collections.Generic.List{``0}})">
+            <summary>
+            Builds the Cartesian product of the supplied lists, yielding every possible combination
+            formed by picking exactly one element from each list, in list order. The number of
+            combinations produced equals the product of the sizes of the inner lists.
+            </summary>
+            <param name="lists">The collection of lists to combine. Each emitted array has one element per inner list, ordered to match the order of <paramref name="lists"/>.</param>
+            <returns>A lazy sequence of arrays where each array is one combination drawn from <paramref name="lists"/>.</returns>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.ExtensionMethods.EnumerableExtensions.GetCombinationsRecursive``1(System.Collections.Generic.List{System.Collections.Generic.List{``0}},``0[],System.Int32)">
+            <summary>
+            Recursive worker that walks <paramref name="lists"/> depth-first, fixing one element of
+            <paramref name="current"/> per level until <paramref name="depth"/> reaches the number of
+            lists, at which point a clone of <paramref name="current"/> is yielded.
+            </summary>
+            <param name="lists">The lists being combined.</param>
+            <param name="current">The reusable buffer holding the partial combination at the current recursion level.</param>
+            <param name="depth">The zero-based index of the list currently being expanded; recursion stops when it equals <c>lists.Count</c>.</param>
+            <returns>A lazy sequence of arrays, each one a complete combination drawn from <paramref name="lists"/>.</returns>
+        </member>
+        <member name="T:MelloSilveiraTools.Core.ExtensionMethods.StringExtensions">
+            <summary>
+            Contains extension methods for <see cref="T:System.String"/>.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.ExtensionMethods.StringExtensions.AddSpaceBeforeUpperCase(System.String)">
+            <summary>
+            Inserts a space character before every uppercase letter (except at the start of the string,
+            or when the previous character is already whitespace). Useful for converting an identifier
+            such as <c>"MyClassName"</c> into the human-readable form <c>"My Class Name"</c>.
+            </summary>
+            <param name="input">The source string. If <see langword="null"/> or empty, it is returned unchanged.</param>
+            <returns>The input string with a space inserted before each uppercase letter that does not already follow whitespace.</returns>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.ExtensionMethods.StringExtensions.ToSnakeCase(System.String)">
+            <summary>
+            Converts a string from PascalCase or camelCase to snake_case.
+            </summary>
+            <param name="input">The source identifier in PascalCase or camelCase. If <see langword="null"/> or empty, it is returned unchanged.</param>
+            <returns>The snake_case representation of <paramref name="input"/> (all lowercase, with underscores inserted before each original uppercase boundary).</returns>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.ExtensionMethods.StringExtensions.FromSnakeCaseToCamelCase(System.String)">
+            <summary>
+            Converts a string from snake_case to camelCase.
+            </summary>
+            <param name="input">The source string in snake_case. The first segment is kept as-is (lowercase by convention) and every subsequent underscore-separated segment has its first letter uppercased.</param>
+            <returns>The camelCase representation of <paramref name="input"/>.</returns>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.ExtensionMethods.StringExtensions.FromSnakeCaseToPascalCase(System.String)">
+            <summary>
+            Converts a string from snake_case to PascalCase.
+            </summary>
+            <param name="input">The source string in snake_case. Each underscore-separated segment has its first letter uppercased and the remainder lowercased.</param>
+            <returns>The PascalCase representation of <paramref name="input"/>.</returns>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.ExtensionMethods.StringExtensions.Remove(System.String,System.String[])">
+            <summary>
+            Removes every occurrence of each supplied substring from <paramref name="input"/>. The substrings
+            are removed sequentially in the order they are provided, so a later argument operates on the
+            result of the previous removal (this matters when one substring may be produced by another's removal).
+            </summary>
+            <param name="input">The source string from which substrings will be removed.</param>
+            <param name="valuesToRemove">The substrings to remove. All occurrences of each value are removed; the order of arguments defines the order of removals.</param>
+            <returns>A new string with every occurrence of each value in <paramref name="valuesToRemove"/> stripped out.</returns>
+        </member>
+        <member name="T:MelloSilveiraTools.Core.Infrastructure.Caching.InMemorySingleLevelCache">
+            <summary>
+            Thread-safe in-memory implementation of <see cref="T:MelloSilveiraTools.Core.Infrastructure.Caching.ISingleLevelCache"/>.
+            Suitable for single-instance deployments. For distributed scenarios, replace
+            with a Redis-backed implementation registered in the DI container.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Infrastructure.Caching.InMemorySingleLevelCache.TryGet``1(System.String,``0@)">
+            <inheritdoc/>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Infrastructure.Caching.InMemorySingleLevelCache.GetOrAdd``1(System.String,System.Func{``0})">
+            <inheritdoc/>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Infrastructure.Caching.InMemorySingleLevelCache.Set``1(System.String,``0)">
+            <inheritdoc/>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Infrastructure.Caching.InMemorySingleLevelCache.Remove(System.String)">
+            <inheritdoc/>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Infrastructure.Caching.InMemorySingleLevelCache.GetKeys">
+            <inheritdoc/>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Infrastructure.Caching.InMemorySingleLevelCache.Clear">
+            <inheritdoc/>
+        </member>
+        <member name="T:MelloSilveiraTools.Core.Infrastructure.Caching.InMemoryTwoLevelCache">
+            <summary>
+            Thread-safe in-memory implementation of <see cref="T:MelloSilveiraTools.Core.Infrastructure.Caching.ITwoLevelCache"/>.
+            Suitable for single-instance deployments. For distributed scenarios, replace
+            with a Redis-backed implementation registered in the DI container.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Infrastructure.Caching.InMemoryTwoLevelCache.TryGet``1(System.String,System.String,``0@)">
+            <inheritdoc/>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Infrastructure.Caching.InMemoryTwoLevelCache.GetOrAdd``1(System.String,System.String,System.Func{``0})">
+            <inheritdoc/>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Infrastructure.Caching.InMemoryTwoLevelCache.Set``1(System.String,System.String,``0)">
+            <inheritdoc/>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Infrastructure.Caching.InMemoryTwoLevelCache.Remove(System.String,System.String)">
+            <inheritdoc/>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Infrastructure.Caching.InMemoryTwoLevelCache.Remove(System.String)">
+            <inheritdoc/>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Infrastructure.Caching.InMemoryTwoLevelCache.GetKeys">
+            <inheritdoc/>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Infrastructure.Caching.InMemoryTwoLevelCache.StreamAll``1(System.Threading.CancellationToken)">
+            <inheritdoc/>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Infrastructure.Caching.InMemoryTwoLevelCache.StreamAll``1(System.String,System.String,System.Threading.CancellationToken)">
+            <inheritdoc/>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Infrastructure.Caching.InMemoryTwoLevelCache.Clear">
+            <inheritdoc/>
+        </member>
+        <member name="T:MelloSilveiraTools.Core.Infrastructure.Caching.ISingleLevelCache">
+            <summary>
+            Generic single-level cache keyed by a key.
+            Implementations may use in-memory storage or a distributed backend (e.g. Redis).
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Infrastructure.Caching.ISingleLevelCache.TryGet``1(System.String,``0@)">
+            <summary>
+            Attempts to retrieve a cached value of type <typeparamref name="T"/> for the given <paramref name="key"/>.
+            </summary>
+            <returns><see langword="true"/> when an entry exists and is assignable to <typeparamref name="T"/>; otherwise <see langword="false"/>.</returns>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Infrastructure.Caching.ISingleLevelCache.GetOrAdd``1(System.String,System.Func{``0})">
+            <summary>
+            Returns the cached value for <paramref name="key"/> or adds a new one produced by <paramref name="factory"/>.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Infrastructure.Caching.ISingleLevelCache.Set``1(System.String,``0)">
+            <summary>
+            Stores <paramref name="value"/> under the given <paramref name="key"/>, replacing any existing entry.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Infrastructure.Caching.ISingleLevelCache.Remove(System.String)">
+            <summary>
+            Removes the entry associated with <paramref name="key"/>, if any.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Infrastructure.Caching.ISingleLevelCache.GetKeys">
+            <summary>
+            Enumerates all keys currently held in the cache.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Infrastructure.Caching.ISingleLevelCache.Clear">
+            <summary>
+            Removes every entry from the cache.
+            </summary>
+        </member>
+        <member name="T:MelloSilveiraTools.Core.Infrastructure.Caching.ITwoLevelCache">
+            <summary>
+            Generic two-level cache keyed by a <c>group</c> (level 1) and a <c>key</c> (level 2).
+            Implementations may use in-memory storage or a distributed backend (e.g. Redis).
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Infrastructure.Caching.ITwoLevelCache.TryGet``1(System.String,System.String,``0@)">
+            <summary>
+            Attempts to retrieve a cached value of type <typeparamref name="T"/> for the given <paramref name="group"/> and <paramref name="key"/>.
+            </summary>
+            <returns><see langword="true"/> when an entry exists and is assignable to <typeparamref name="T"/>; otherwise <see langword="false"/>.</returns>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Infrastructure.Caching.ITwoLevelCache.GetOrAdd``1(System.String,System.String,System.Func{``0})">
+            <summary>
+            Returns the cached value for (<paramref name="group"/>, <paramref name="key"/>) or adds a new one produced by <paramref name="factory"/>.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Infrastructure.Caching.ITwoLevelCache.Set``1(System.String,System.String,``0)">
+            <summary>
+            Stores <paramref name="value"/> under the given <paramref name="group"/> and <paramref name="key"/>, replacing any existing entry.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Infrastructure.Caching.ITwoLevelCache.Remove(System.String,System.String)">
+            <summary>
+            Removes the entry associated with the given <paramref name="group"/> and <paramref name="key"/>, if any.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Infrastructure.Caching.ITwoLevelCache.Remove(System.String)">
+            <summary>
+            Removes every entry under the given <paramref name="group"/>.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Infrastructure.Caching.ITwoLevelCache.GetKeys">
+            <summary>
+            Enumerates all (group, key) pairs currently held in the cache.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Infrastructure.Caching.ITwoLevelCache.StreamAll``1(System.Threading.CancellationToken)">
+            <summary>
+            Streams every entry currently held in the cache.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Infrastructure.Caching.ITwoLevelCache.StreamAll``1(System.String,System.String,System.Threading.CancellationToken)">
+            <summary>
+            Streams entries filtered by <paramref name="group"/> and/or <paramref name="key"/>.
+            A <see langword="null"/> argument means "match all" for that level.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Infrastructure.Caching.ITwoLevelCache.Clear">
+            <summary>
+            Removes every entry from the cache.
+            </summary>
+        </member>
+        <member name="T:MelloSilveiraTools.Core.Infrastructure.Logger.ILogger">
+            <summary>
+            Abstraction for application logging with support for tags, exceptions and structured additional data.
+            Implementations decide the underlying sink (local file, remote service, etc.).
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Infrastructure.Logger.ILogger.Error(System.String,System.String,System.String)">
+            <summary>
+            Writes an error-level log entry. The caller file and member name are captured automatically to build tags.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Infrastructure.Logger.ILogger.Error(System.String,System.Exception,System.String,System.String)">
+            <summary>
+            Writes an error-level log entry with an associated exception.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Infrastructure.Logger.ILogger.Error(System.String,System.Exception,System.Collections.Generic.IDictionary{System.String,System.Object},System.String,System.String)">
+            <summary>
+            Writes an error-level log entry with an exception and structured <paramref name="additionalData"/>.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Infrastructure.Logger.ILogger.Error(System.String,System.Exception,System.Collections.Generic.IList{System.String},System.Collections.Generic.IDictionary{System.String,System.Object})">
+            <summary>
+            Writes an error-level log entry using explicit <paramref name="tags"/> and <paramref name="additionalData"/>.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Infrastructure.Logger.ILogger.Warn(System.String,System.String,System.String)">
+            <summary>
+            Writes a warning-level log entry. The caller file and member name are captured automatically to build tags.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Infrastructure.Logger.ILogger.Warn(System.String,System.Exception,System.String,System.String)">
+            <summary>
+            Writes a warning-level log entry with an associated exception.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Infrastructure.Logger.ILogger.Warn(System.String,System.Exception,System.Collections.Generic.IDictionary{System.String,System.Object},System.String,System.String)">
+            <summary>
+            Writes a warning-level log entry with an exception and structured <paramref name="additionalData"/>.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Infrastructure.Logger.ILogger.Warn(System.String,System.Exception,System.Collections.Generic.IDictionary{System.String,System.Object},System.Collections.Generic.IList{System.String})">
+            <summary>
+            Writes a warning-level log entry using explicit <paramref name="tags"/> and <paramref name="additionalData"/>.
+            </summary>
+        </member>
+        <member name="T:MelloSilveiraTools.Core.Infrastructure.Logger.LocalFileLogger">
+            <summary>
+            <see cref="T:MelloSilveiraTools.Core.Infrastructure.Logger.ILogger"/> implementation that appends one JSON-encoded entry per line to a local file,
+            rolling the file by UTC day and/or by size.
+            </summary>
+            <remarks>
+            <para>
+            Thread-safe via an internal lock. Suitable for low-to-medium throughput. For high-throughput production
+            workloads, prefer a logger backed by an asynchronous queue or a structured logging framework
+            (Serilog, NLog, OpenTelemetry).
+            </para>
+            <para>Each entry has the shape (newlines added for readability — actual output is a single line):</para>
+            <code>
+            {
+              "timestamp": "2026-04-25T10:30:15.1234567Z",
+              "level": "Error",
+              "tags": ["MyController", "DoSomething"],
+              "message": "Something failed.",
+              "exception": { "type": "...", "message": "...", "stackTrace": "...", "inner": { ... } },
+              "data": { "userId": 42, "correlationId": "..." }
+            }
+            </code>
+            <para>Rotation:</para>
+            <list type="bullet">
+              <item>If <see cref="P:MelloSilveiraTools.Core.Infrastructure.Logger.LoggerSettings.RollDaily"/> is <c>true</c>, a new file is opened on the first write of each UTC day with name <c>{FileNamePrefix}-{yyyy-MM-dd}.log</c>.</item>
+              <item>If <see cref="P:MelloSilveiraTools.Core.Infrastructure.Logger.LoggerSettings.MaxFileSizeBytes"/> is set, the file is rolled to a time-suffixed copy when the size threshold is reached.</item>
+              <item><see cref="P:MelloSilveiraTools.Core.Infrastructure.Logger.LoggerSettings.MaxRetainedFiles"/> controls how many files are kept in the directory; older files are deleted on roll.</item>
+            </list>
+            </remarks>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Infrastructure.Logger.LocalFileLogger.#ctor(MelloSilveiraTools.Core.Infrastructure.Logger.LoggerSettings)">
+            <summary>
+            Creates a new logger and opens the file for the current UTC day. The target directory is created if missing.
+            </summary>
+            <param name="settings">Logger configuration. Use <see cref="T:MelloSilveiraTools.Core.Infrastructure.Logger.LoggerSettings"/> defaults for a quick start.</param>
+            <exception cref="T:System.UnauthorizedAccessException">Thrown when the process cannot create the directory or open the file.</exception>
+            <exception cref="T:System.IO.IOException">Thrown when the directory cannot be created or the file cannot be opened.</exception>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Infrastructure.Logger.LocalFileLogger.WriteLog(System.String,Microsoft.Extensions.Logging.LogLevel,System.Exception,System.Collections.Generic.IList{System.String},System.Collections.Generic.IDictionary{System.String,System.Object})">
+            <inheritdoc/>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Infrastructure.Logger.LocalFileLogger.Dispose">
+            <summary>
+            Flushes and releases the underlying file. Subsequent writes are silently dropped.
+            </summary>
+        </member>
+        <member name="T:MelloSilveiraTools.Core.Infrastructure.Logger.LoggerBase">
+            <inheritdoc cref="T:MelloSilveiraTools.Core.Infrastructure.Logger.ILogger"/>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Infrastructure.Logger.LoggerBase.Error(System.String,System.String,System.String)">
+            <inheritdoc/>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Infrastructure.Logger.LoggerBase.Error(System.String,System.Exception,System.String,System.String)">
+            <inheritdoc/>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Infrastructure.Logger.LoggerBase.Error(System.String,System.Exception,System.Collections.Generic.IDictionary{System.String,System.Object},System.String,System.String)">
+            <inheritdoc/>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Infrastructure.Logger.LoggerBase.Error(System.String,System.Exception,System.Collections.Generic.IList{System.String},System.Collections.Generic.IDictionary{System.String,System.Object})">
+            <inheritdoc/>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Infrastructure.Logger.LoggerBase.Warn(System.String,System.String,System.String)">
+            <inheritdoc/>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Infrastructure.Logger.LoggerBase.Warn(System.String,System.Exception,System.String,System.String)">
+            <inheritdoc/>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Infrastructure.Logger.LoggerBase.Warn(System.String,System.Exception,System.Collections.Generic.IDictionary{System.String,System.Object},System.String,System.String)">
+            <inheritdoc/>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Infrastructure.Logger.LoggerBase.Warn(System.String,System.Exception,System.Collections.Generic.IDictionary{System.String,System.Object},System.Collections.Generic.IList{System.String})">
+            <inheritdoc/>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Infrastructure.Logger.LoggerBase.WriteLog(System.String,Microsoft.Extensions.Logging.LogLevel,System.Exception,System.Collections.Generic.IList{System.String},System.Collections.Generic.IDictionary{System.String,System.Object})">
+            <summary>
+            Writes a single log entry to the underlying sink. Derived classes define how and where the entry is persisted.
+            </summary>
+            <param name="message">Human-readable log message.</param>
+            <param name="logLevel">Severity of the entry.</param>
+            <param name="ex">Optional exception associated with the entry.</param>
+            <param name="tags">Optional tags used for filtering and indexing.</param>
+            <param name="additionalData">Optional structured data to attach to the entry.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Infrastructure.Logger.LoggerBase.BuildTags(System.String,System.String)">
+            <summary>
+            Builds the default tag set — the caller file name (without extension) and the caller member name.
+            </summary>
+        </member>
+        <member name="T:MelloSilveiraTools.Core.Infrastructure.Logger.LoggerSettings">
+            <summary>
+            Configuration for <see cref="T:MelloSilveiraTools.Core.Infrastructure.Logger.LocalFileLogger"/>: target directory, file naming, rotation policy and retention.
+            </summary>
+            <remarks>
+            Register a configured instance with <c>services.AddSingleton(new LoggerSettings { ... })</c> before calling
+            <c>AddToolsServices</c>; otherwise <c>AddToolsServices</c> registers an instance with default values via
+            <see cref="M:Microsoft.Extensions.DependencyInjection.Extensions.ServiceCollectionDescriptorExtensions.TryAddSingleton``1(Microsoft.Extensions.DependencyInjection.IServiceCollection)"/>.
+            </remarks>
+        </member>
+        <member name="P:MelloSilveiraTools.Core.Infrastructure.Logger.LoggerSettings.Directory">
+            <summary>
+            Directory where log files are written. Created on logger startup if missing.
+            Defaults to <c>{AppContext.BaseDirectory}/logs</c>.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Core.Infrastructure.Logger.LoggerSettings.FileNamePrefix">
+            <summary>
+            File name prefix (without extension). Defaults to <c>"log"</c>.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Core.Infrastructure.Logger.LoggerSettings.RollDaily">
+            <summary>
+            When <c>true</c>, the active file rolls every UTC day and the date is embedded in the file name as
+            <c>{FileNamePrefix}-yyyy-MM-dd.log</c>. Defaults to <c>true</c>.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Core.Infrastructure.Logger.LoggerSettings.MaxFileSizeBytes">
+            <summary>
+            Maximum size, in bytes, after which the active file is rolled to a new suffixed file
+            (<c>{FileNamePrefix}-yyyy-MM-dd-HHmmssfff.log</c>). Set to <c>null</c> to disable size-based rolling.
+            Defaults to 10&#160;MB.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Core.Infrastructure.Logger.LoggerSettings.MaxRetainedFiles">
+            <summary>
+            Maximum number of log files to retain in <see cref="P:MelloSilveiraTools.Core.Infrastructure.Logger.LoggerSettings.Directory"/>. Older files are deleted on every roll.
+            Set to <c>0</c> or negative to disable retention cleanup. Defaults to 30.
+            </summary>
+        </member>
+        <member name="T:MelloSilveiraTools.Core.Infrastructure.ResiliencePipelines.DefaultResiliencePipeline">
+            <summary>
+            Base resilience pipeline to automatically retry and log each attempt.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Infrastructure.ResiliencePipelines.DefaultResiliencePipeline.#ctor(MelloSilveiraTools.Core.Infrastructure.Logger.ILogger,MelloSilveiraTools.Core.Infrastructure.ResiliencePipelines.ResiliencePipelineSettings,System.Func{Polly.Retry.RetryPredicateArguments{System.Object},System.Threading.Tasks.ValueTask{System.Boolean}})">
+            <summary>
+            Initializes a new instance of <see cref="T:MelloSilveiraTools.Core.Infrastructure.ResiliencePipelines.DefaultResiliencePipeline"/>.
+            </summary>
+            <param name="logger">See reference at <see cref="T:MelloSilveiraTools.Core.Infrastructure.Logger.ILogger"/>.</param>
+            <param name="settings">See reference at <see cref="T:MelloSilveiraTools.Core.Infrastructure.ResiliencePipelines.ResiliencePipelineSettings"/>.</param>
+            <param name="shouldHandle">Predicate that determines whether the retry should be executed for a given outcome.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Infrastructure.ResiliencePipelines.DefaultResiliencePipeline.ExecuteAsync``1(System.Func{Polly.ResilienceContext,System.Threading.Tasks.ValueTask{``0}},System.String,System.String)">
+            <summary>
+            Encapsulates a function with a strategy that covers retriable scenarios.
+            </summary>
+            <typeparam name="T">Type returned by callback function.</typeparam>
+            <param name="callback">Function which will be encapsulated by the retry strategy.</param>
+            <param name="callerMemberName">Member name of the caller which will be logged when a retry is performed.</param>
+            <param name="callerFilePath">Path of the caller which will be used to get the class name to be logged when a retry is performed.</param>
+            <returns>The instance of <see cref="T:System.Threading.Tasks.ValueTask"/> that represents the asynchronous execution.</returns>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Infrastructure.ResiliencePipelines.DefaultResiliencePipeline.ExecuteAsync(System.Func{Polly.ResilienceContext,System.Threading.Tasks.ValueTask},System.String,System.String)">
+            <summary>
+            Encapsulates a function with a strategy that covers retriable scenarios.
+            </summary>
+            <param name="callback">Function which will be encapsulated by the retry strategy.</param>
+            <param name="callerMemberName">Member name of the caller which will be logged when a retry is performed.</param>
+            <param name="callerFilePath">Path of the caller which will be used to get the class name to be logged when a retry is performed.</param>
+            <returns>The instance of <see cref="T:System.Threading.Tasks.ValueTask"/> that represents the asynchronous execution.</returns>
+        </member>
+        <member name="T:MelloSilveiraTools.Core.Infrastructure.ResiliencePipelines.ResiliencePipelineSettings">
+            <summary>
+            Settings for <see cref="T:Polly.ResiliencePipeline"/>.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Core.Infrastructure.ResiliencePipelines.ResiliencePipelineSettings.BackoffType">
+            <inheritdoc cref="T:Polly.DelayBackoffType"/>
+        </member>
+        <member name="P:MelloSilveiraTools.Core.Infrastructure.ResiliencePipelines.ResiliencePipelineSettings.DelayInMilliseconds">
+            <summary>
+            Delay between retries in milliseconds.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Core.Infrastructure.ResiliencePipelines.ResiliencePipelineSettings.MaxRetryAttempts">
+            <inheritdoc cref="P:Polly.Retry.RetryStrategyOptions`1.MaxRetryAttempts"/>
+        </member>
+        <member name="P:MelloSilveiraTools.Core.Infrastructure.ResiliencePipelines.ResiliencePipelineSettings.UseJitter">
+            <inheritdoc cref="P:Polly.Retry.RetryStrategyOptions`1.UseJitter"/>
+        </member>
+        <member name="T:MelloSilveiraTools.Core.Infrastructure.ResiliencePipelines.SmtpResiliencePipeline">
+            <summary>
+            Resilience pipeline for SMTP communications that provides a strategy to handle retriable exceptions.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Infrastructure.ResiliencePipelines.SmtpResiliencePipeline.#ctor(MelloSilveiraTools.Core.Infrastructure.Logger.ILogger,MelloSilveiraTools.Core.Infrastructure.ResiliencePipelines.ResiliencePipelineSettings)">
+            <summary>
+            Initialize a new instance of <see cref="T:MelloSilveiraTools.Core.Infrastructure.ResiliencePipelines.SmtpResiliencePipeline"/>.
+            </summary>
+            <param name="logger"></param>
+            <param name="settings"></param>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Infrastructure.ResiliencePipelines.SmtpResiliencePipeline.#ctor(MelloSilveiraTools.Core.Infrastructure.Logger.ILogger,MelloSilveiraTools.Core.Infrastructure.ResiliencePipelines.ResiliencePipelineSettings,System.Func{Polly.Retry.RetryPredicateArguments{System.Object},System.Threading.Tasks.ValueTask{System.Boolean}})">
+            <summary>
+            Initializes a new instance of <see cref="T:MelloSilveiraTools.Core.Infrastructure.ResiliencePipelines.SmtpResiliencePipeline"/>.
+            </summary>
+            <param name="logger">See reference at <see cref="T:MelloSilveiraTools.Core.Infrastructure.Logger.ILogger"/>.</param>
+            <param name="settings">See reference at <see cref="T:MelloSilveiraTools.Core.Infrastructure.ResiliencePipelines.ResiliencePipelineSettings"/>.</param>
+            <param name="shouldHandle">Predicate that determines whether the retry should be executed for a given outcome.</param>
+        </member>
+        <member name="T:MelloSilveiraTools.Core.Infrastructure.Services.Email.EmailSettings">
+            <summary>
+            Settings used to send e-mails through an SMTP server.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Core.Infrastructure.Services.Email.EmailSettings.ApplicationEmail">
+            <summary>
+            E-mail address that the application uses as sender and to authenticate against the SMTP server.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Core.Infrastructure.Services.Email.EmailSettings.ApplicationPassword">
+            <summary>
+            Password used together with <see cref="P:MelloSilveiraTools.Core.Infrastructure.Services.Email.EmailSettings.ApplicationEmail"/> to authenticate against the SMTP server.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Core.Infrastructure.Services.Email.EmailSettings.SmtpHost">
+            <summary>
+            Host name or IP address of the SMTP server.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Core.Infrastructure.Services.Email.EmailSettings.SmtpPort">
+            <summary>
+            Port number of the SMTP server.
+            </summary>
+        </member>
+        <member name="T:MelloSilveiraTools.Core.Infrastructure.Services.Email.SmtpEmailService">
+            <summary>
+            Implementation of <see cref="T:MelloSilveiraTools.Core.Domain.Services.IEmailService"/> that sends messages through an SMTP server
+            using the provided <see cref="T:MelloSilveiraTools.Core.Infrastructure.Services.Email.EmailSettings"/> and the SMTP resilience pipeline.
+            </summary>
+            <param name="logger">Logger used to record failures while sending e-mails.</param>
+            <param name="smtpResiliencePipeline">Resilience pipeline applied to the SMTP send operation.</param>
+            <param name="emailSettings">SMTP server configuration and sender credentials.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Infrastructure.Services.Email.SmtpEmailService.#ctor(MelloSilveiraTools.Core.Infrastructure.Logger.ILogger,MelloSilveiraTools.Core.Infrastructure.ResiliencePipelines.SmtpResiliencePipeline,MelloSilveiraTools.Core.Infrastructure.Services.Email.EmailSettings)">
+            <summary>
+            Implementation of <see cref="T:MelloSilveiraTools.Core.Domain.Services.IEmailService"/> that sends messages through an SMTP server
+            using the provided <see cref="T:MelloSilveiraTools.Core.Infrastructure.Services.Email.EmailSettings"/> and the SMTP resilience pipeline.
+            </summary>
+            <param name="logger">Logger used to record failures while sending e-mails.</param>
+            <param name="smtpResiliencePipeline">Resilience pipeline applied to the SMTP send operation.</param>
+            <param name="emailSettings">SMTP server configuration and sender credentials.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Infrastructure.Services.Email.SmtpEmailService.SendAsync(System.String,System.String,System.String,System.Boolean)">
+            <inheritdoc/>
+        </member>
+        <member name="T:MelloSilveiraTools.Core.Infrastructure.Services.Encryption.EncryptionService">
+            <inheritdoc cref="T:MelloSilveiraTools.Core.Infrastructure.Services.Encryption.IEncryptionService"/>
+            <param name="settings">Settings that control the salt size, hash size and iteration count.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Infrastructure.Services.Encryption.EncryptionService.#ctor(MelloSilveiraTools.Core.Infrastructure.Services.Encryption.EncryptionSettings)">
+            <inheritdoc cref="T:MelloSilveiraTools.Core.Infrastructure.Services.Encryption.IEncryptionService"/>
+            <param name="settings">Settings that control the salt size, hash size and iteration count.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Infrastructure.Services.Encryption.EncryptionService.GeneratePasswordHash(System.String)">
+            <inheritdoc/>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Infrastructure.Services.Encryption.EncryptionService.IsPasswordValid(System.String,System.String)">
+            <inheritdoc/>
+        </member>
+        <member name="T:MelloSilveiraTools.Core.Infrastructure.Services.Encryption.EncryptionSettings">
+            <summary>
+            Settings that parameterize password hashing performed by <see cref="T:MelloSilveiraTools.Core.Infrastructure.Services.Encryption.IEncryptionService"/>.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Core.Infrastructure.Services.Encryption.EncryptionSettings.SaltSize">
+            <summary>
+            Size, in bytes, of the random salt generated for each password.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Core.Infrastructure.Services.Encryption.EncryptionSettings.HashSize">
+            <summary>
+            Size, in bytes, of the derived key produced by the hashing algorithm.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Core.Infrastructure.Services.Encryption.EncryptionSettings.Iterations">
+            <summary>
+            Number of iterations used by the key derivation function.
+            </summary>
+        </member>
+        <member name="T:MelloSilveiraTools.Core.Infrastructure.Services.Encryption.IEncryptionService">
+            <summary>
+            Provides cryptographic operations for password hashing and verification.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Infrastructure.Services.Encryption.IEncryptionService.GeneratePasswordHash(System.String)">
+            <summary>
+            Generates a salted hash for the specified password.
+            </summary>
+            <param name="password">Plain-text password to be hashed.</param>
+            <returns>A string that combines the salt and the derived hash.</returns>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Infrastructure.Services.Encryption.IEncryptionService.IsPasswordValid(System.String,System.String)">
+            <summary>
+            Checks whether the specified password matches a previously generated hash.
+            </summary>
+            <param name="password">Plain-text password provided by the caller.</param>
+            <param name="storedPasswordHash">Hash previously produced by <see cref="M:MelloSilveiraTools.Core.Infrastructure.Services.Encryption.IEncryptionService.GeneratePasswordHash(System.String)"/>.</param>
+            <returns><c>true</c> when the password is valid for the stored hash; otherwise, <c>false</c>.</returns>
+        </member>
+    </members>
+</doc>
