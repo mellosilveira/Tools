@@ -1,4 +1,4 @@
-﻿using MelloSilveiraTools.MechanicsOfMaterials.Models.Enums;
+﻿using MelloSilveiraTools.MechanicsOfMaterials.Models.Materials;
 using MelloSilveiraTools.MechanicsOfMaterials.Models.Profiles;
 
 namespace MelloSilveiraTools.MechanicsOfMaterials.Models.Fatigue

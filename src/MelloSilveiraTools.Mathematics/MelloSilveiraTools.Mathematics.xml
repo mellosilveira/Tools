@@ -4,6 +4,81 @@
         <name>MelloSilveiraTools.Mathematics</name>
     </assembly>
     <members>
+        <member name="T:MelloSilveiraTools.Mathematics.Converters.UnitConverter">
+            <summary>
+            It is responsible to convert units.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Mathematics.Converters.UnitConverter.FromKmhToMs(System.Double)">
+            <summary>
+            Converts a linear velocity from kilometers per hour to meters per second.
+            </summary>
+            <param name="valueInKmh">The velocity expressed in km/h.</param>
+            <returns>The equivalent velocity in m/s.</returns>
+        </member>
+        <member name="M:MelloSilveiraTools.Mathematics.Converters.UnitConverter.FromRpmToRads(System.Double)">
+            <summary>
+            Converts an angular frequency from revolutions per minute to radians per second.
+            </summary>
+            <param name="valueInRpm">The angular frequency expressed in RPM.</param>
+            <returns>The equivalent angular frequency in rad/s.</returns>
+        </member>
+        <member name="M:MelloSilveiraTools.Mathematics.Converters.UnitConverter.ConvertDecimalToPercentage(System.Double)">
+            <summary>
+            Converts a value from decimal to percentage.
+            </summary>
+            <param name="value"></param>
+            <returns></returns>
+        </member>
+        <member name="M:MelloSilveiraTools.Mathematics.Converters.UnitConverter.ConvertMm2ToM2(System.Double)">
+            <summary>
+            Converts a value from square milimeters to square meter.
+            </summary>
+            <param name="value"></param>
+            <returns></returns>
+        </member>
+        <member name="M:MelloSilveiraTools.Mathematics.Converters.UnitConverter.ConvertMmToM(System.Double)">
+            <summary>
+            Converts a value from milimeters to meter.
+            </summary>
+            <param name="value"></param>
+            <returns></returns>
+        </member>
+        <member name="M:MelloSilveiraTools.Mathematics.Converters.UnitConverter.ConvertMToMm(System.Double)">
+            <summary>
+            Converts a value from milimeters to meter.
+            </summary>
+            <param name="value"></param>
+            <returns></returns>
+        </member>
+        <member name="M:MelloSilveiraTools.Mathematics.Converters.UnitConverter.ConvertPaToMPa(System.Double)">
+            <summary>
+            Converts a value from Pascal to Mega-Pascal.
+            </summary>
+            <param name="value"></param>
+            <returns></returns>
+        </member>
+        <member name="M:MelloSilveiraTools.Mathematics.Converters.UnitConverter.ConvertMPaToPa(System.Double)">
+            <summary>
+            Converts a value from Mega-Pascal to Pascal.
+            </summary>
+            <param name="value"></param>
+            <returns></returns>
+        </member>
+        <member name="M:MelloSilveiraTools.Mathematics.Converters.UnitConverter.ConvertRadToDegree(System.Double)">
+            <summary>
+            Converts a value from radian to degree.
+            </summary>
+            <param name="value"></param>
+            <returns></returns>
+        </member>
+        <member name="M:MelloSilveiraTools.Mathematics.Converters.UnitConverter.ConvertRadToDegree(MelloSilveiraTools.Mathematics.Models.Vector3D)">
+            <summary>
+            Converts a value from radian to degree.
+            </summary>
+            <param name="value"></param>
+            <returns></returns>
+        </member>
         <member name="T:MelloSilveiraTools.Mathematics.MathematicsDependencyInjection">
             <summary>
             Provides extension methods to register services from the MelloSilveiraTools.Mathematics package.
@@ -16,83 +91,807 @@
             <param name="services">Service collection that receives the registrations.</param>
             <returns>The same <paramref name="services"/> instance to allow call chaining.</returns>
         </member>
-        <member name="T:MelloSilveiraTools.Mathematics.Domain.Models.CurveType">
+        <member name="T:MelloSilveiraTools.Mathematics.Expressions.Expression">
             <summary>
-            It contains the accepted curve types for curve fitting.
+            Represents an unique dimension mathematical expression.
             </summary>
         </member>
-        <member name="F:MelloSilveiraTools.Mathematics.Domain.Models.CurveType.Polinomial">
+        <member name="F:MelloSilveiraTools.Mathematics.Expressions.Expression._derivative">
             <summary>
-            Equation: f(x) = a_0 + a_1 * x + a_2 * x^2 + ... + a_n * x^n
+            Represents the expression's derivative.
             </summary>
         </member>
-        <member name="F:MelloSilveiraTools.Mathematics.Domain.Models.CurveType.Exponencial">
+        <member name="F:MelloSilveiraTools.Mathematics.Expressions.Expression._integral">
             <summary>
-            Equation: f(x) = a_0 * exp(a_1 * x) + a_2 * exp(a_3 * x) + ... + a_n-1 * exp(a_n * x)
+            Represents the expression's integral.
             </summary>
         </member>
-        <member name="F:MelloSilveiraTools.Mathematics.Domain.Models.CurveType.Cosine">
+        <member name="M:MelloSilveiraTools.Mathematics.Expressions.Expression.#ctor(System.Nullable{System.Double},System.Nullable{System.Double},System.Collections.Generic.List{MelloSilveiraTools.Mathematics.Functions.Function})">
             <summary>
-            Equation: 
-                f(x) = (a_0 / 2) * (a_1 + a_2 * cos(w * x)), with x = [t_0, t_1]
-                f(x) = (a_3 / 2) * (a_4 + a_5 * cos(w * x)), with x = [t_2, t_3]
-                ...
-                f(x) = (a_n-2 / 2) * (a_n-1 + a_n * cos(w * x)), with x = [t_m-1, t_m]
+            Initializes a new instance of <see cref="T:MelloSilveiraTools.Mathematics.Expressions.Expression"/>.
+            </summary>
+            <param name="initialVariableValue"></param>
+            <param name="finalVariableValue"></param>
+            <param name="functions"></param>
+            <exception cref="T:System.ArgumentNullException">When <paramref name="functions"/> is null or empty.</exception>
+        </member>
+        <member name="P:MelloSilveiraTools.Mathematics.Expressions.Expression.Derivative">
+            <summary>
+            Represents the expression's derivative.
             </summary>
         </member>
-        <member name="T:MelloSilveiraTools.Mathematics.Domain.Models.DifferentialEquationMethodType">
+        <member name="P:MelloSilveiraTools.Mathematics.Expressions.Expression.Integral">
+            <summary>
+            Represents the expression's integral.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Mathematics.Expressions.Expression.InitialVariableValue">
+            <summary>
+            Initial value for variable.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Mathematics.Expressions.Expression.FinalVariableValue">
+            <summary>
+            Final value for variable.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Mathematics.Expressions.Expression.Functions">
+            <summary>
+            List of functions.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Mathematics.Expressions.Expression.Calculate(System.Double)">
+            <summary>
+            Calculates the value for the expression.
+            </summary>
+            <param name="variableValue">Dependency variable for equation.</param>
+            <returns></returns>
+        </member>
+        <member name="M:MelloSilveiraTools.Mathematics.Expressions.Expression.CreateDerivative">
+            <summary>
+            Creates the expression's derivative.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Mathematics.Expressions.Expression.CreateIntegral">
+            <summary>
+            Creates the expression's integral.
+            </summary>
+        </member>
+        <member name="T:MelloSilveiraTools.Mathematics.Expressions.PronySeries">
+            <summary>
+            Represents a prony series.
+            f(x) = c + [a_0 * e^(a_1 * x) + ... a_n-1 * e^(a_n * x)]
+            </summary>
+            <param name="initialVariableValue">Initial value for variable.</param>
+            <param name="finalVariableValue">Final value for variable.</param>
+            <param name="independentParameter">Independent parameter represented by c.</param>
+            <param name="iteratorCoefficients">Coefficients for iterations represented by a_n.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.Mathematics.Expressions.PronySeries.#ctor(System.Nullable{System.Double},System.Nullable{System.Double},System.Double,System.Double[])">
+            <summary>
+            Represents a prony series.
+            f(x) = c + [a_0 * e^(a_1 * x) + ... a_n-1 * e^(a_n * x)]
+            </summary>
+            <param name="initialVariableValue">Initial value for variable.</param>
+            <param name="finalVariableValue">Final value for variable.</param>
+            <param name="independentParameter">Independent parameter represented by c.</param>
+            <param name="iteratorCoefficients">Coefficients for iterations represented by a_n.</param>
+        </member>
+        <member name="P:MelloSilveiraTools.Mathematics.Expressions.PronySeries.IndependentParameter">
+            <summary>
+            Independent parameter represented by c.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Mathematics.Expressions.PronySeries.IteratorCoefficients">
+            <summary>
+            Coefficients for iterations represented by a_n.
+            </summary>
+        </member>
+        <member name="T:MelloSilveiraTools.Mathematics.Extensions.Vector3DExtension">
+            <summary>
+            It contains the extension methods to Vector3D.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Mathematics.Extensions.Vector3DExtension.IsZero(MelloSilveiraTools.Mathematics.Models.Vector3D)">
+            <summary>
+            Determines whether every component of the supplied vector is exactly zero.
+            </summary>
+            <param name="vector">The vector to test.</param>
+            <returns><c>true</c> when X, Y and Z are all zero; otherwise <c>false</c>.</returns>
+        </member>
+        <member name="M:MelloSilveiraTools.Mathematics.Extensions.Vector3DExtension.Normalize(MelloSilveiraTools.Mathematics.Models.Vector3D)">
+            <summary>
+            This method normalizes the vector.
+            </summary>
+            <param name="vector"></param>
+            <returns></returns>
+        </member>
+        <member name="M:MelloSilveiraTools.Mathematics.Extensions.Vector3DExtension.CrossProduct(MelloSilveiraTools.Mathematics.Models.Vector3D,MelloSilveiraTools.Mathematics.Models.Vector3D)">
+            <summary>
+            This method calculates the cross product between two vectors.
+            </summary>
+            <param name="vector1"></param>
+            <param name="vector2"></param>
+            <returns></returns>
+        </member>
+        <member name="M:MelloSilveiraTools.Mathematics.Extensions.Vector3DExtension.Sum(MelloSilveiraTools.Mathematics.Models.Vector3D,MelloSilveiraTools.Mathematics.Models.Vector3D)">
+            <summary>
+            This method sums two vectors.
+            </summary>
+            <param name="vector1"></param>
+            <param name="vector2"></param>
+            <returns></returns>
+        </member>
+        <member name="M:MelloSilveiraTools.Mathematics.Extensions.Vector3DExtension.Subtract(MelloSilveiraTools.Mathematics.Models.Vector3D,MelloSilveiraTools.Mathematics.Models.Vector3D)">
+            <summary>
+            This method subtracts two vectors.
+            </summary>
+            <param name="vector1"></param>
+            <param name="vector2"></param>
+            <returns></returns>
+        </member>
+        <member name="M:MelloSilveiraTools.Mathematics.Extensions.Vector3DExtension.DotProduct(MelloSilveiraTools.Mathematics.Models.Vector3D,MelloSilveiraTools.Mathematics.Models.Vector3D)">
+            <summary>
+            This method calculates the dot product between two vectors.
+            </summary>
+            <param name="vector1"></param>
+            <param name="vector2"></param>
+            <returns></returns>
+        </member>
+        <member name="M:MelloSilveiraTools.Mathematics.Extensions.Vector3DExtension.IsEmpty(MelloSilveiraTools.Mathematics.Models.Vector3D)">
+            <summary>
+            This method returns true if the vector is empty and false, otherwise.
+            </summary>
+            <param name="vector"></param>
+            <returns></returns>
+        </member>
+        <member name="M:MelloSilveiraTools.Mathematics.Factories.Functions.FunctionFactory.Create(MelloSilveiraTools.Mathematics.Models.FunctionType,System.Nullable{System.Double},System.Nullable{System.Double},System.Double[])">
+            <inheritdoc/>
+        </member>
+        <member name="T:MelloSilveiraTools.Mathematics.Factories.NumericalMethods.DifferentialEquationMethodFactory">
+            <summary>
+            Resolves the appropriate <see cref="T:MelloSilveiraTools.Mathematics.NumericalMethods.DifferentialEquation.IDifferentialEquationMethod"/> implementation based on the
+            requested <see cref="T:MelloSilveiraTools.Mathematics.Models.NumericalMethods.DifferentialEquationMethodType"/>. The factory matches by the
+            <see cref="P:MelloSilveiraTools.Mathematics.NumericalMethods.DifferentialEquation.IDifferentialEquationMethod.Type"/> property of every implementation registered in the
+            DI container, picking the single one whose type equals the requested value (e.g. it returns
+            <see cref="T:MelloSilveiraTools.Mathematics.NumericalMethods.DifferentialEquation.NewmarkMethod"/> for <see cref="F:MelloSilveiraTools.Mathematics.Models.NumericalMethods.DifferentialEquationMethodType.Newmark"/> and
+            <see cref="T:MelloSilveiraTools.Mathematics.NumericalMethods.DifferentialEquation.NewmarkBetaMethod"/> for <see cref="F:MelloSilveiraTools.Mathematics.Models.NumericalMethods.DifferentialEquationMethodType.NewmarkBeta"/>).
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Mathematics.Factories.NumericalMethods.DifferentialEquationMethodFactory.#ctor(System.Collections.Generic.IEnumerable{MelloSilveiraTools.Mathematics.NumericalMethods.DifferentialEquation.IDifferentialEquationMethod})">
+            <summary>
+            Resolves the appropriate <see cref="T:MelloSilveiraTools.Mathematics.NumericalMethods.DifferentialEquation.IDifferentialEquationMethod"/> implementation based on the
+            requested <see cref="T:MelloSilveiraTools.Mathematics.Models.NumericalMethods.DifferentialEquationMethodType"/>. The factory matches by the
+            <see cref="P:MelloSilveiraTools.Mathematics.NumericalMethods.DifferentialEquation.IDifferentialEquationMethod.Type"/> property of every implementation registered in the
+            DI container, picking the single one whose type equals the requested value (e.g. it returns
+            <see cref="T:MelloSilveiraTools.Mathematics.NumericalMethods.DifferentialEquation.NewmarkMethod"/> for <see cref="F:MelloSilveiraTools.Mathematics.Models.NumericalMethods.DifferentialEquationMethodType.Newmark"/> and
+            <see cref="T:MelloSilveiraTools.Mathematics.NumericalMethods.DifferentialEquation.NewmarkBetaMethod"/> for <see cref="F:MelloSilveiraTools.Mathematics.Models.NumericalMethods.DifferentialEquationMethodType.NewmarkBeta"/>).
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Mathematics.Factories.NumericalMethods.DifferentialEquationMethodFactory.Get(MelloSilveiraTools.Mathematics.Models.NumericalMethods.DifferentialEquationMethodType)">
+            <summary>
+            Gets the <see cref="T:MelloSilveiraTools.Mathematics.NumericalMethods.DifferentialEquation.IDifferentialEquationMethod"/> registered for the supplied <paramref name="type"/>.
+            </summary>
+            <param name="type">The numerical method to resolve.</param>
+            <returns>The single registered implementation whose <see cref="P:MelloSilveiraTools.Mathematics.NumericalMethods.DifferentialEquation.IDifferentialEquationMethod.Type"/> equals <paramref name="type"/>.</returns>
+        </member>
+        <member name="T:MelloSilveiraTools.Mathematics.Functions.ConstantFunction">
+            <summary>
+            Represents a constant function.
+            f(x) = c
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Mathematics.Functions.ConstantFunction.#ctor(System.Nullable{System.Double},System.Nullable{System.Double},System.Double)">
+            <summary>
+            Initializes a new instance of <see cref="T:MelloSilveiraTools.Mathematics.Functions.ConstantFunction"/>.
+            </summary>
+            <param name="initialVariableValue"></param>
+            <param name="finalVariableValue"></param>
+            <param name="coefficient"></param>
+        </member>
+        <member name="M:MelloSilveiraTools.Mathematics.Functions.ConstantFunction.Calculate(System.Double)">
+            <inheritdoc/>
+        </member>
+        <member name="M:MelloSilveiraTools.Mathematics.Functions.ConstantFunction.CreateDerivative">
+            <inheritdoc/>
+            <remarks>Derivative of a constant function is always zero.</remarks>
+        </member>
+        <member name="M:MelloSilveiraTools.Mathematics.Functions.ConstantFunction.CreateIntegral">
+            <inheritdoc/>
+        </member>
+        <member name="T:MelloSilveiraTools.Mathematics.Functions.CosineFunction">
+            <summary>
+            Represents a cosine function.
+            f(x) = a_0 * cos[a_1 * (x - a_2)] + ... + a_n-2 * cos[a_n-1 * (x - a_n)]
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Mathematics.Functions.CosineFunction.#ctor(System.Nullable{System.Double},System.Nullable{System.Double},System.Double[])">
+            <summary>
+            Initializes a new instance of <see cref="T:MelloSilveiraTools.Mathematics.Functions.CosineFunction"/>.
+            </summary>
+            <param name="initialVariableValue"></param>
+            <param name="finalVariableValue"></param>
+            <param name="coefficients"></param>
+        </member>
+        <member name="M:MelloSilveiraTools.Mathematics.Functions.CosineFunction.Calculate(System.Double)">
+            <inheritdoc/>
+        </member>
+        <member name="M:MelloSilveiraTools.Mathematics.Functions.CosineFunction.CreateDerivative">
+            <inheritdoc/>
+        </member>
+        <member name="M:MelloSilveiraTools.Mathematics.Functions.CosineFunction.CreateIntegral">
+            <inheritdoc/>
+        </member>
+        <member name="T:MelloSilveiraTools.Mathematics.Functions.ExponencialFunction">
+            <summary>
+            Represents an exponencial function.
+            f(x) = a_0 * e^(a_1 * x) + ... + a_n-1 * e^(a_n * x)
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Mathematics.Functions.ExponencialFunction.#ctor(System.Nullable{System.Double},System.Nullable{System.Double},System.Double[])">
+            <summary>
+            Initializes a new instance of <see cref="T:MelloSilveiraTools.Mathematics.Functions.ExponencialFunction"/>.
+            </summary>
+            <param name="initialVariableValue"></param>
+            <param name="finalVariableValue"></param>
+            <param name="coefficients"></param>
+        </member>
+        <member name="M:MelloSilveiraTools.Mathematics.Functions.ExponencialFunction.Calculate(System.Double)">
+            <inheritdoc/>
+        </member>
+        <member name="M:MelloSilveiraTools.Mathematics.Functions.ExponencialFunction.CreateDerivative">
+            <inheritdoc/>
+        </member>
+        <member name="M:MelloSilveiraTools.Mathematics.Functions.ExponencialFunction.CreateIntegral">
+            <inheritdoc/>
+        </member>
+        <member name="T:MelloSilveiraTools.Mathematics.Functions.Function">
+            <summary>
+            Represents an unique dimension mathematical function, f(x).
+            </summary>
+        </member>
+        <member name="F:MelloSilveiraTools.Mathematics.Functions.Function._derivative">
+            <summary>
+            Represents the function's derivative.
+            </summary>
+        </member>
+        <member name="F:MelloSilveiraTools.Mathematics.Functions.Function._integral">
+            <summary>
+            Represents the function's integral.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Mathematics.Functions.Function.#ctor(MelloSilveiraTools.Mathematics.Models.FunctionType,System.Nullable{System.Double},System.Nullable{System.Double},System.Double[])">
+            <summary>
+            Initializes a new instance of <see cref="T:MelloSilveiraTools.Mathematics.Functions.Function"/>.
+            </summary>
+            <param name="functionType"></param>
+            <param name="initialVariableValue"></param>
+            <param name="finalVariableValue"></param>
+            <param name="coefficients"></param>
+            <exception cref="T:System.ArgumentNullException">When <paramref name="coefficients"/> is null.</exception>
+        </member>
+        <member name="P:MelloSilveiraTools.Mathematics.Functions.Function.Derivative">
+            <summary>
+            Represents the function's derivative.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Mathematics.Functions.Function.Integral">
+            <summary>
+            Represents the function's integral.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Mathematics.Functions.Function.FunctionType">
+            <inheritdoc cref="!:SharedModules.Models.Mathematical.FunctionType"/>
+        </member>
+        <member name="P:MelloSilveiraTools.Mathematics.Functions.Function.InitialVariableValue">
+            <summary>
+            Initial value for variable.
+            This property must be 'protected set' due to an implementation for binary search.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Mathematics.Functions.Function.FinalVariableValue">
+            <summary>
+            Final value for variable.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Mathematics.Functions.Function.Coefficients">
+            <summary>
+            Represents the scaling or proportionality factor of the variable in the expression.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Mathematics.Functions.Function.Calculate(System.Double)">
+            <summary>
+            Calculates the value for the function.
+            </summary>
+            <param name="variableValue">Dependency variable for equation.</param>
+            <returns></returns>
+        </member>
+        <member name="M:MelloSilveiraTools.Mathematics.Functions.Function.CreateDerivative">
+            <summary>
+            Creates the function's derivative.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Mathematics.Functions.Function.CreateIntegral">
+            <summary>
+            Creates the function's integral.
+            </summary>
+        </member>
+        <member name="T:MelloSilveiraTools.Mathematics.Functions.GenericFunction">
+            <summary>
+            Represents a generic mathematical function which can be represented by any equation.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Mathematics.Functions.GenericFunction.#ctor(System.Nullable{System.Double},System.Nullable{System.Double},System.Func{System.Double,System.Double},System.Func{System.Double,System.Double},System.Func{System.Double,System.Double})">
+            <summary>
+            Initializes a new instance of <see cref="T:MelloSilveiraTools.Mathematics.Functions.GenericFunction"/>.
+            </summary>
+            <param name="initialVariableValue"></param>
+            <param name="finalVariableValue"></param>
+            <param name="function"></param>
+            <param name="derivativeFunction"></param>
+            <param name="integralFunction"></param>
+        </member>
+        <member name="M:MelloSilveiraTools.Mathematics.Functions.GenericFunction.Calculate(System.Double)">
+            <inheritdoc/>
+        </member>
+        <member name="M:MelloSilveiraTools.Mathematics.Functions.GenericFunction.CreateDerivative">
+            <inheritdoc/>
+        </member>
+        <member name="M:MelloSilveiraTools.Mathematics.Functions.GenericFunction.CreateIntegral">
+            <inheritdoc/>
+        </member>
+        <member name="T:MelloSilveiraTools.Mathematics.Functions.PolynomialFunction">
+            <summary>
+            Represents a polynomial function.
+            f(x) = a_0 + a_1 * x + a_2 * x^2 + ... + a_n * x^n
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Mathematics.Functions.PolynomialFunction.#ctor(System.Nullable{System.Double},System.Nullable{System.Double},System.Double[])">
+            <summary>
+            Initializes a new instance of <see cref="T:MelloSilveiraTools.Mathematics.Functions.PolynomialFunction"/>.
+            </summary>
+            <param name="initialVariableValue"></param>
+            <param name="finalVariableValue"></param>
+            <param name="coefficients"></param>
+        </member>
+        <member name="M:MelloSilveiraTools.Mathematics.Functions.PolynomialFunction.Calculate(System.Double)">
+            <inheritdoc/>
+        </member>
+        <member name="M:MelloSilveiraTools.Mathematics.Functions.PolynomialFunction.CreateDerivative">
+            <inheritdoc/>
+        </member>
+        <member name="M:MelloSilveiraTools.Mathematics.Functions.PolynomialFunction.CreateIntegral">
+            <inheritdoc/>
+        </member>
+        <member name="T:MelloSilveiraTools.Mathematics.Functions.PowerLaw">
+            <summary>
+            Represents the Power Law function.
+            f(x) = a_0 * x^(-a_1)
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Mathematics.Functions.PowerLaw.#ctor(System.Nullable{System.Double},System.Nullable{System.Double},System.Double[])">
+            <summary>
+            Initializes a new instance of <see cref="T:MelloSilveiraTools.Mathematics.Functions.PowerLaw"/>.
+            </summary>
+            <param name="initialVariableValue"></param>
+            <param name="finalVariableValue"></param>
+            <param name="coefficients"></param>
+            <exception cref="T:System.ArgumentOutOfRangeException"></exception>
+        </member>
+        <member name="M:MelloSilveiraTools.Mathematics.Functions.PowerLaw.Calculate(System.Double)">
+            <inheritdoc/>
+        </member>
+        <member name="M:MelloSilveiraTools.Mathematics.Functions.PowerLaw.CreateDerivative">
+            <inheritdoc/>
+        </member>
+        <member name="M:MelloSilveiraTools.Mathematics.Functions.PowerLaw.CreateIntegral">
+            <inheritdoc/>
+        </member>
+        <member name="T:MelloSilveiraTools.Mathematics.Functions.SineFunction">
+            <summary>
+            Represents a sine function.
+            f(x) = a_0 * sin[a_1 * (x - a_2)] + ... + a_n-2 * sin[a_n-1 * (x - a_n)]
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Mathematics.Functions.SineFunction.#ctor(System.Nullable{System.Double},System.Nullable{System.Double},System.Double[])">
+            <summary>
+            Initializes a new instance of <see cref="T:MelloSilveiraTools.Mathematics.Functions.SineFunction"/>.
+            </summary>
+            <param name="initialVariableValue"></param>
+            <param name="finalVariableValue"></param>
+            <param name="coefficients"></param>
+        </member>
+        <member name="M:MelloSilveiraTools.Mathematics.Functions.SineFunction.Calculate(System.Double)">
+            <inheritdoc/>
+        </member>
+        <member name="M:MelloSilveiraTools.Mathematics.Functions.SineFunction.CreateDerivative">
+            <inheritdoc/>
+        </member>
+        <member name="M:MelloSilveiraTools.Mathematics.Functions.SineFunction.CreateIntegral">
+            <inheritdoc/>
+        </member>
+        <member name="T:MelloSilveiraTools.Mathematics.Models.CustomMath">
+            <summary>
+            Provides constants and static methods for trigonometric, logarithmic, and other common mathematical functions.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Mathematics.Models.CustomMath.Cos(MelloSilveiraTools.Mathematics.Models.Vector3D)">
+            <summary>
+            Calculates the cosine.
+            </summary>
+            <param name="angle">Unit: rad (radians).</param>
+            <returns>
+            A <see cref="T:MelloSilveiraTools.Mathematics.Models.Point3D"/> with the value of cosine foreach axis on <see cref="T:MelloSilveiraTools.Mathematics.Models.Vector3D"/>. 
+            Unit: dimensionless.
+            </returns>
+        </member>
+        <member name="M:MelloSilveiraTools.Mathematics.Models.CustomMath.Sum(System.Collections.Generic.IReadOnlyCollection{System.Double})">
+            <summary>
+            Sums the <paramref name="values"/>.
+            </summary>
+            <param name="values"></param>
+            <returns>The sum of values. Unit: depends on unit of values.</returns>
+        </member>
+        <member name="M:MelloSilveiraTools.Mathematics.Models.CustomMath.Average(System.Collections.Generic.IReadOnlyCollection{System.Double})">
+            <summary>
+            Calculates the average between the <paramref name="values"/>.
+            </summary>
+            <param name="values"></param>
+            <returns></returns>
+        </member>
+        <member name="T:MelloSilveiraTools.Mathematics.Models.FunctionType">
+            <summary>
+            Contains the function types.
+            </summary>
+        </member>
+        <member name="F:MelloSilveiraTools.Mathematics.Models.FunctionType.Generic">
+            <summary>
+            Function can be represented by any mathematical equation.
+            </summary>
+        </member>
+        <member name="F:MelloSilveiraTools.Mathematics.Models.FunctionType.Constant">
+            <summary>
+            f(x) = c
+            </summary>
+        </member>
+        <member name="F:MelloSilveiraTools.Mathematics.Models.FunctionType.Polynomial">
+            <summary>
+            f(x) = a_0 + a_1 * x + a_2 * x^2 + ... + a_n * x^n
+            </summary>
+        </member>
+        <member name="F:MelloSilveiraTools.Mathematics.Models.FunctionType.Exponential">
+            <summary>
+            f(x) = a_0 * exp(a_1 * x) + a_2 * exp(a_3 * x) + ... + a_n-1 * exp(a_n * x)
+            </summary>
+        </member>
+        <member name="F:MelloSilveiraTools.Mathematics.Models.FunctionType.Sine">
+            <summary>
+            f(x) = a_0 * sin[a_1 * (x - a_2)] + ... + a_n-2 * sin[a_n-1 * (x - a_n)]
+            </summary>
+        </member>
+        <member name="F:MelloSilveiraTools.Mathematics.Models.FunctionType.Cosine">
+            <summary>
+            f(x) = a_0 * cos[a_1 * (x - a_2)] + ... + a_n-2 * cos[a_n-1 * (x - a_n)]
+            </summary>
+        </member>
+        <member name="F:MelloSilveiraTools.Mathematics.Models.FunctionType.PowerLaw">
+            <summary>
+            f(x) = a_0 * x^(-a_1)
+            </summary>
+        </member>
+        <member name="F:MelloSilveiraTools.Mathematics.Models.FunctionType.PronySeries">
+            <summary>
+            f(x) = a_0 + a_1 * exp(a_2 * x) + ... a_n-1 * exp(a_n * x)
+            </summary>
+        </member>
+        <member name="T:MelloSilveiraTools.Mathematics.Models.NumericalMethods.DifferentialEquationMethodType">
             <summary>
             It contains the available numerical methods for differential equations.
             </summary>
         </member>
-        <member name="F:MelloSilveiraTools.Mathematics.Domain.Models.DifferentialEquationMethodType.Newmark">
+        <member name="F:MelloSilveiraTools.Mathematics.Models.NumericalMethods.DifferentialEquationMethodType.Newmark">
             <summary>
             Newmark numerical method.
             </summary>
         </member>
-        <member name="F:MelloSilveiraTools.Mathematics.Domain.Models.DifferentialEquationMethodType.NewmarkBeta">
+        <member name="F:MelloSilveiraTools.Mathematics.Models.NumericalMethods.DifferentialEquationMethodType.NewmarkBeta">
             <summary>
             Newmark-Beta numerical method.
             </summary>
         </member>
-        <member name="T:MelloSilveiraTools.Mathematics.Domain.NumericalMethods.DifferentialEquation.DifferentialEquationMethodFactory">
+        <member name="T:MelloSilveiraTools.Mathematics.Models.NumericalMethods.IntegralInput">
             <summary>
-            Resolves the appropriate <see cref="T:MelloSilveiraTools.Mathematics.Domain.NumericalMethods.DifferentialEquation.IDifferentialEquationMethod"/> implementation based on the
-            requested <see cref="T:MelloSilveiraTools.Mathematics.Domain.Models.DifferentialEquationMethodType"/>. The factory matches by the
-            <see cref="P:MelloSilveiraTools.Mathematics.Domain.NumericalMethods.DifferentialEquation.IDifferentialEquationMethod.Type"/> property of every implementation registered in the
-            DI container, picking the single one whose type equals the requested value (e.g. it returns
-            <see cref="T:MelloSilveiraTools.Mathematics.Domain.NumericalMethods.DifferentialEquation.NewmarkMethod"/> for <see cref="F:MelloSilveiraTools.Mathematics.Domain.Models.DifferentialEquationMethodType.Newmark"/> and
-            <see cref="T:MelloSilveiraTools.Mathematics.Domain.NumericalMethods.DifferentialEquation.NewmarkBetaMethod"/> for <see cref="F:MelloSilveiraTools.Mathematics.Domain.Models.DifferentialEquationMethodType.NewmarkBeta"/>).
+            Contains the input data for integrations.
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.Mathematics.Domain.NumericalMethods.DifferentialEquation.DifferentialEquationMethodFactory.#ctor(System.Collections.Generic.IEnumerable{MelloSilveiraTools.Mathematics.Domain.NumericalMethods.DifferentialEquation.IDifferentialEquationMethod})">
+        <member name="P:MelloSilveiraTools.Mathematics.Models.NumericalMethods.IntegralInput.InitialPoint">
             <summary>
-            Resolves the appropriate <see cref="T:MelloSilveiraTools.Mathematics.Domain.NumericalMethods.DifferentialEquation.IDifferentialEquationMethod"/> implementation based on the
-            requested <see cref="T:MelloSilveiraTools.Mathematics.Domain.Models.DifferentialEquationMethodType"/>. The factory matches by the
-            <see cref="P:MelloSilveiraTools.Mathematics.Domain.NumericalMethods.DifferentialEquation.IDifferentialEquationMethod.Type"/> property of every implementation registered in the
-            DI container, picking the single one whose type equals the requested value (e.g. it returns
-            <see cref="T:MelloSilveiraTools.Mathematics.Domain.NumericalMethods.DifferentialEquation.NewmarkMethod"/> for <see cref="F:MelloSilveiraTools.Mathematics.Domain.Models.DifferentialEquationMethodType.Newmark"/> and
-            <see cref="T:MelloSilveiraTools.Mathematics.Domain.NumericalMethods.DifferentialEquation.NewmarkBetaMethod"/> for <see cref="F:MelloSilveiraTools.Mathematics.Domain.Models.DifferentialEquationMethodType.NewmarkBeta"/>).
+            The initial point.
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.Mathematics.Domain.NumericalMethods.DifferentialEquation.DifferentialEquationMethodFactory.Get(MelloSilveiraTools.Mathematics.Domain.Models.DifferentialEquationMethodType)">
+        <member name="P:MelloSilveiraTools.Mathematics.Models.NumericalMethods.IntegralInput.FinalPoint">
             <summary>
-            Gets the <see cref="T:MelloSilveiraTools.Mathematics.Domain.NumericalMethods.DifferentialEquation.IDifferentialEquationMethod"/> registered for the supplied <paramref name="type"/>.
+            The final point.
             </summary>
-            <param name="type">The numerical method to resolve.</param>
-            <returns>The single registered implementation whose <see cref="P:MelloSilveiraTools.Mathematics.Domain.NumericalMethods.DifferentialEquation.IDifferentialEquationMethod.Type"/> equals <paramref name="type"/>.</returns>
         </member>
-        <member name="T:MelloSilveiraTools.Mathematics.Domain.NumericalMethods.DifferentialEquation.IDifferentialEquationMethod">
+        <member name="P:MelloSilveiraTools.Mathematics.Models.NumericalMethods.IntegralInput.Step">
+            <summary>
+            The step to be used while iterating.
+            </summary>
+        </member>
+        <member name="T:MelloSilveiraTools.Mathematics.Models.NumericalMethods.RootFindingAlgorithm">
+            <summary>
+            Contains the root-finding algorithms used in this project.
+            </summary>
+        </member>
+        <member name="F:MelloSilveiraTools.Mathematics.Models.NumericalMethods.RootFindingAlgorithm.StepByStepMethod">
+            <summary>
+            The step-by-step method is a root-finding algorithm for a continuous function within a given interval.
+            It works by dividing the interval into smaller steps and iteratively evaluating the function at each
+            step until a sufficiently accurate approximation of the root is found.
+            </summary>
+        </member>
+        <member name="F:MelloSilveiraTools.Mathematics.Models.NumericalMethods.RootFindingAlgorithm.BisectionMethod">
+            <summary>
+            The Bisection method is a root-finding algorithm for a continuous function within a given interval.
+            It works by repeatedly dividing the interval in half and narrowing down the search range until a
+            sufficiently accurate approximation of the root is found.
+            </summary>
+        </member>
+        <member name="F:MelloSilveiraTools.Mathematics.Models.NumericalMethods.RootFindingAlgorithm.BrentMethod">
+            <summary>
+            Brent's method is a hybrid root-finding algorithm combining the bisection method, 
+            the secant method and inverse quadratic interpolation. The algorithm tries to use 
+            the potentially fast-converging secant method or inverse quadratic interpolation 
+            if possible, it falls back to the more robust bisection method if necessary.
+            </summary>
+        </member>
+        <member name="T:MelloSilveiraTools.Mathematics.Models.Point3D">
+            <summary>
+            Represents a point with 3 dimensions: x, y and z.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Mathematics.Models.Point3D.X">
+            <summary>
+            The value at axis X.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Mathematics.Models.Point3D.Y">
+            <summary>
+            The value at axis Y.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Mathematics.Models.Point3D.Z">
+            <summary>
+            The value at axis Z.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Mathematics.Models.Point3D.ToString">
+            <inheritdoc/>
+        </member>
+        <member name="M:MelloSilveiraTools.Mathematics.Models.Point3D.Equals(System.Object)">
+            <inheritdoc/>
+        </member>
+        <member name="M:MelloSilveiraTools.Mathematics.Models.Point3D.GetHashCode">
+            <inheritdoc/>
+        </member>
+        <member name="M:MelloSilveiraTools.Mathematics.Models.Point3D.Parse(System.String)">
+            <summary>
+            Creates a <see cref="T:MelloSilveiraTools.Mathematics.Models.Point3D"/> based on a string.
+            </summary>
+            <param name="point">The points as string at milimeters.</param>
+            <returns>A new instance of <see cref="T:MelloSilveiraTools.Mathematics.Models.Point3D"/>.</returns>
+        </member>
+        <member name="M:MelloSilveiraTools.Mathematics.Models.Point3D.Create(System.Double,System.Double,System.Double)">
+            <summary>
+            Creates a <see cref="T:MelloSilveiraTools.Mathematics.Models.Point3D"/> based on each axis.
+            </summary>
+            <param name="x"></param>
+            <param name="y"></param>
+            <param name="z"></param>
+            <returns>A new instance of <see cref="T:MelloSilveiraTools.Mathematics.Models.Point3D"/>.</returns>
+        </member>
+        <member name="M:MelloSilveiraTools.Mathematics.Models.Point3D.op_Equality(MelloSilveiraTools.Mathematics.Models.Point3D,MelloSilveiraTools.Mathematics.Models.Point3D)">
+            <summary>
+            Returns a value that indicates whether two specified <see cref="T:MelloSilveiraTools.Mathematics.Models.Point3D"/> values are equal.
+            </summary>
+            <param name="left">The first value to compare.</param>
+            <param name="right">The second value to compare.</param>
+            <returns>True, if left and right are equal. False, otherwise.</returns>
+        </member>
+        <member name="M:MelloSilveiraTools.Mathematics.Models.Point3D.op_Inequality(MelloSilveiraTools.Mathematics.Models.Point3D,MelloSilveiraTools.Mathematics.Models.Point3D)">
+            <summary>
+            Returns a value that indicates whether two specified <see cref="T:MelloSilveiraTools.Mathematics.Models.Point3D"/> values are not equal.
+            </summary>
+            <param name="left">The first value to compare.</param>
+            <param name="right">The second value to compare.</param>
+            <returns>True, if left and right are not equal. False, otherwise.</returns>
+        </member>
+        <member name="T:MelloSilveiraTools.Mathematics.Models.Statistics.StatisticalData">
+            <summary>
+            Represents the statistical data of some information.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Mathematics.Models.Statistics.StatisticalData.Median">
+            <summary>
+            Median is the middle number. It is found by ordering all data points and picking out the one in the middle (or 
+            if there are two middle numbers, taking the mean of those two numbers).
+            </summary>
+        </member>
+        <member name="T:MelloSilveiraTools.Mathematics.Models.Vector3D">
+            <summary>
+            Represents a vector with 3 dimensions: x, y and z.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Mathematics.Models.Vector3D.#ctor(System.Double,System.Double,System.Double)">
+            <summary>
+            Class constructor.
+            </summary>
+            <param name="x"></param>
+            <param name="y"></param>
+            <param name="z"></param>
+        </member>
+        <member name="P:MelloSilveiraTools.Mathematics.Models.Vector3D.X">
+            <summary>
+            The value at axis X.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Mathematics.Models.Vector3D.Y">
+            <summary>
+            The value at axis Y.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Mathematics.Models.Vector3D.Z">
+            <summary>
+            The value at axis Z.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Mathematics.Models.Vector3D.Length">
+            <summary>
+            The length of vector.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Mathematics.Models.Vector3D.LengthSquared">
+            <summary>
+            The length squared of vector.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Mathematics.Models.Vector3D.ToString">
+            <inheritdoc/>
+        </member>
+        <member name="M:MelloSilveiraTools.Mathematics.Models.Vector3D.Equals(System.Object)">
+            <inheritdoc/>
+        </member>
+        <member name="M:MelloSilveiraTools.Mathematics.Models.Vector3D.GetHashCode">
+            <inheritdoc/>
+        </member>
+        <member name="P:MelloSilveiraTools.Mathematics.Models.Vector3D.Empty">
+            <summary>
+            An empty vector.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Mathematics.Models.Vector3D.Create(MelloSilveiraTools.Mathematics.Models.Point3D,MelloSilveiraTools.Mathematics.Models.Point3D)">
+            <summary>
+            Creates a <see cref="T:MelloSilveiraTools.Mathematics.Models.Vector3D"/> based on two <see cref="T:MelloSilveiraTools.Mathematics.Models.Point3D"/>.
+            </summary>
+            <param name="point1"></param>
+            <param name="point2"></param>
+            <returns></returns>
+        </member>
+        <member name="M:MelloSilveiraTools.Mathematics.Models.Vector3D.Create(System.String,System.String)">
+            <summary>
+            Creates a <see cref="T:MelloSilveiraTools.Mathematics.Models.Vector3D"/> based on two <see cref="T:MelloSilveiraTools.Mathematics.Models.Point3D"/>.
+            </summary>
+            <param name="point1">The points as string at millimeters.</param>
+            <param name="point2">The points as string at millimeters.</param>
+            <returns></returns>
+        </member>
+        <member name="M:MelloSilveiraTools.Mathematics.Models.Vector3D.Create(System.Double,System.Double,System.Double)">
+            <summary>
+            Creates a <see cref="T:MelloSilveiraTools.Mathematics.Models.Vector3D"/> based on the axis x, y and z.
+            </summary>
+            <param name="x"></param>
+            <param name="y"></param>
+            <param name="z"></param>
+            <returns></returns>
+        </member>
+        <member name="M:MelloSilveiraTools.Mathematics.Models.Vector3D.Parse(System.String)">
+            <summary>
+            Creates a <see cref="T:MelloSilveiraTools.Mathematics.Models.Vector3D"/> based on a string.
+            </summary>
+            <param name="vectorAsString"></param>
+            <returns></returns>
+        </member>
+        <member name="M:MelloSilveiraTools.Mathematics.Models.Vector3D.SafeParse(System.String)">
+            <summary>
+            Safaselly creates a <see cref="T:MelloSilveiraTools.Mathematics.Models.Vector3D"/> based on a string.
+            </summary>
+            <param name="vectorAsString"></param>
+            <returns></returns>
+        </member>
+        <member name="M:MelloSilveiraTools.Mathematics.Models.Vector3D.TryParse(System.String,System.Nullable{MelloSilveiraTools.Mathematics.Models.Vector3D}@)">
+            <summary>
+            Creates a <see cref="T:MelloSilveiraTools.Mathematics.Models.Vector3D"/> based on a string.
+            </summary>
+            <param name="vectorAsString"></param>
+            <param name="vector3D"></param>
+            <returns></returns>
+        </member>
+        <member name="M:MelloSilveiraTools.Mathematics.Models.Vector3D.op_Equality(MelloSilveiraTools.Mathematics.Models.Vector3D,MelloSilveiraTools.Mathematics.Models.Vector3D)">
+            <summary>
+            Returns a value that indicates whether two specified <see cref="T:MelloSilveiraTools.Mathematics.Models.Vector3D"/> values are equal.
+            </summary>
+            <param name="left">The first value to compare.</param>
+            <param name="right">The second value to compare.</param>
+            <returns>True, if left and right are equal. False, otherwise.</returns>
+        </member>
+        <member name="M:MelloSilveiraTools.Mathematics.Models.Vector3D.op_Inequality(MelloSilveiraTools.Mathematics.Models.Vector3D,MelloSilveiraTools.Mathematics.Models.Vector3D)">
+            <summary>
+            Returns a value that indicates whether two specified <see cref="T:MelloSilveiraTools.Mathematics.Models.Vector3D"/> values are not equal.
+            </summary>
+            <param name="left">The first value to compare.</param>
+            <param name="right">The second value to compare.</param>
+            <returns>True, if left and right are not equal. False, otherwise.</returns>
+        </member>
+        <member name="M:MelloSilveiraTools.Mathematics.Models.Vector3D.op_Addition(MelloSilveiraTools.Mathematics.Models.Vector3D,MelloSilveiraTools.Mathematics.Models.Vector3D)">
+            <summary>
+            Sums two <see cref="T:MelloSilveiraTools.Mathematics.Models.Vector3D"/>.
+            </summary>
+            <param name="left">The first value to sum.</param>
+            <param name="right">The second value to sum.</param>
+            <returns>An instance of <see cref="T:MelloSilveiraTools.Mathematics.Models.Vector3D"/> with the result of summation.</returns>
+        </member>
+        <member name="M:MelloSilveiraTools.Mathematics.Models.Vector3D.op_Subtraction(MelloSilveiraTools.Mathematics.Models.Vector3D,MelloSilveiraTools.Mathematics.Models.Vector3D)">
+            <summary>
+            Substracts two <see cref="T:MelloSilveiraTools.Mathematics.Models.Vector3D"/>.
+            </summary>
+            <param name="left">The first value to subtract.</param>
+            <param name="right">The second value to subtract.</param>
+            <returns>An instance of <see cref="T:MelloSilveiraTools.Mathematics.Models.Vector3D"/> with the result of subtraction.</returns>
+        </member>
+        <member name="T:MelloSilveiraTools.Mathematics.NumericalMethods.Derivative.Derivative">
+            <inheritdoc/>
+        </member>
+        <member name="M:MelloSilveiraTools.Mathematics.NumericalMethods.Derivative.Derivative.Calculate(System.Func{System.Double,System.Double},System.Double,System.Double)">
+            <inheritdoc/>
+        </member>
+        <member name="M:MelloSilveiraTools.Mathematics.NumericalMethods.Derivative.Derivative.Calculate(System.Double,System.Double,System.Double)">
+            <inheritdoc/>
+        </member>
+        <member name="T:MelloSilveiraTools.Mathematics.NumericalMethods.Derivative.IDerivative">
+            <summary>
+            Represents the numerical derivative.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Mathematics.NumericalMethods.Derivative.IDerivative.Calculate(System.Func{System.Double,System.Double},System.Double,System.Double)">
+            <summary>
+            Calculates the derivative of a function.
+            </summary>
+            <param name="Equation">The equation to be derivated.</param>
+            <param name="timeStep">Unit: s (second).</param>
+            <param name="time">Unit: s (second).</param>
+            <returns>The value of derivative.</returns>
+        </member>
+        <member name="M:MelloSilveiraTools.Mathematics.NumericalMethods.Derivative.IDerivative.Calculate(System.Double,System.Double,System.Double)">
+            <summary>
+            Calculates the derivative between two points.
+            </summary>
+            <param name="initialPoint">The initial point of equation.</param>
+            <param name="finalPoint">The final point of equation.</param>
+            <param name="step">The step to be used in derivative.</param>
+            <returns>The value of derivative.</returns>
+        </member>
+        <member name="T:MelloSilveiraTools.Mathematics.NumericalMethods.DifferentialEquation.IDifferentialEquationMethod">
             <summary>
             Executes numerical method to solve Differential Equation
             </summary>
         </member>
-        <member name="P:MelloSilveiraTools.Mathematics.Domain.NumericalMethods.DifferentialEquation.IDifferentialEquationMethod.Type">
+        <member name="P:MelloSilveiraTools.Mathematics.NumericalMethods.DifferentialEquation.IDifferentialEquationMethod.Type">
             <summary>
             The method type identifying this implementation.
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.Mathematics.Domain.NumericalMethods.DifferentialEquation.IDifferentialEquationMethod.CalculateResult(MelloSilveiraTools.Mathematics.Domain.NumericalMethods.NumericalMethodInput,System.Double,MelloSilveiraTools.Mathematics.Domain.NumericalMethods.NumericalMethodResult)">
+        <member name="M:MelloSilveiraTools.Mathematics.NumericalMethods.DifferentialEquation.IDifferentialEquationMethod.CalculateResult(MelloSilveiraTools.Mathematics.NumericalMethods.NumericalMethodInput,System.Double,MelloSilveiraTools.Mathematics.NumericalMethods.NumericalMethodResult)">
             <summary>
             Advances the dynamic system by one time step, computing the state (displacement, velocity,
             acceleration and equivalent force) at the requested instant <paramref name="time"/>.
@@ -112,24 +911,24 @@
             <returns>The numerical state of the system at <paramref name="time"/>.</returns>
             <remarks>
             Implementations integrate a second-order ODE of the form [M]ẍ + [C]ẋ + [K]x = F(t).
-            The classic <see cref="T:MelloSilveiraTools.Mathematics.Domain.NumericalMethods.DifferentialEquation.NewmarkMethod"/> uses γ = 1/2, β = 1/4 (constant-average-acceleration)
-            which is unconditionally stable and second-order accurate. The <see cref="T:MelloSilveiraTools.Mathematics.Domain.NumericalMethods.DifferentialEquation.NewmarkBetaMethod"/>
+            The classic <see cref="T:MelloSilveiraTools.Mathematics.NumericalMethods.DifferentialEquation.NewmarkMethod"/> uses γ = 1/2, β = 1/4 (constant-average-acceleration)
+            which is unconditionally stable and second-order accurate. The <see cref="T:MelloSilveiraTools.Mathematics.NumericalMethods.DifferentialEquation.NewmarkBetaMethod"/>
             variant uses γ = 1/2, β = 1/6 (linear-acceleration), which is conditionally stable
             (Δt must be small relative to the highest natural period) but provides better phase accuracy.
             </remarks>
         </member>
-        <member name="T:MelloSilveiraTools.Mathematics.Domain.NumericalMethods.DifferentialEquation.NewmarkBetaMethod">
+        <member name="T:MelloSilveiraTools.Mathematics.NumericalMethods.DifferentialEquation.NewmarkBetaMethod">
             <summary>
             Execute the Newmark-Beta numerical method to solve Differential Equation.
             </summary>
         </member>
-        <member name="P:MelloSilveiraTools.Mathematics.Domain.NumericalMethods.DifferentialEquation.NewmarkBetaMethod.Type">
+        <member name="P:MelloSilveiraTools.Mathematics.NumericalMethods.DifferentialEquation.NewmarkBetaMethod.Type">
             <inheritdoc/>
         </member>
-        <member name="M:MelloSilveiraTools.Mathematics.Domain.NumericalMethods.DifferentialEquation.NewmarkBetaMethod.CalculateResult(MelloSilveiraTools.Mathematics.Domain.NumericalMethods.NumericalMethodInput,System.Double,MelloSilveiraTools.Mathematics.Domain.NumericalMethods.NumericalMethodResult)">
+        <member name="M:MelloSilveiraTools.Mathematics.NumericalMethods.DifferentialEquation.NewmarkBetaMethod.CalculateResult(MelloSilveiraTools.Mathematics.NumericalMethods.NumericalMethodInput,System.Double,MelloSilveiraTools.Mathematics.NumericalMethods.NumericalMethodResult)">
             <inheritdoc/>
         </member>
-        <member name="M:MelloSilveiraTools.Mathematics.Domain.NumericalMethods.DifferentialEquation.NewmarkBetaMethod.CalculateEquivalentStiffness(MelloSilveiraTools.Mathematics.Domain.NumericalMethods.NumericalMethodInput)">
+        <member name="M:MelloSilveiraTools.Mathematics.NumericalMethods.DifferentialEquation.NewmarkBetaMethod.CalculateEquivalentStiffness(MelloSilveiraTools.Mathematics.NumericalMethods.NumericalMethodInput)">
             <summary>
             Builds the effective stiffness matrix [K̂] = a₀[M] + a₁[C] + [K] used to solve for the
             displacement increment Δx at the current step.
@@ -137,7 +936,7 @@
             <param name="input">System input providing the mass, damping and stiffness matrices and the time step Δt.</param>
             <returns>The effective stiffness matrix.</returns>
         </member>
-        <member name="M:MelloSilveiraTools.Mathematics.Domain.NumericalMethods.DifferentialEquation.NewmarkBetaMethod.CalculateEquivalentForce(MelloSilveiraTools.Mathematics.Domain.NumericalMethods.NumericalMethodInput,MelloSilveiraTools.Mathematics.Domain.NumericalMethods.NumericalMethodResult)">
+        <member name="M:MelloSilveiraTools.Mathematics.NumericalMethods.DifferentialEquation.NewmarkBetaMethod.CalculateEquivalentForce(MelloSilveiraTools.Mathematics.NumericalMethods.NumericalMethodInput,MelloSilveiraTools.Mathematics.NumericalMethods.NumericalMethodResult)">
             <summary>
             Builds the effective force vector ΔF̂ used to solve for the displacement increment in the
             Newmark-Beta incremental formulation. The vector combines the change in applied force
@@ -148,7 +947,7 @@
             <param name="previousResult">State at t−Δt (displacement, velocity, acceleration and applied force).</param>
             <returns>The effective force vector at the current step, in Newtons.</returns>
         </member>
-        <member name="M:MelloSilveiraTools.Mathematics.Domain.NumericalMethods.DifferentialEquation.NewmarkBetaMethod.CalculateEquivalentDamping(MelloSilveiraTools.Mathematics.Domain.NumericalMethods.NumericalMethodInput)">
+        <member name="M:MelloSilveiraTools.Mathematics.NumericalMethods.DifferentialEquation.NewmarkBetaMethod.CalculateEquivalentDamping(MelloSilveiraTools.Mathematics.NumericalMethods.NumericalMethodInput)">
             <summary>
             Builds the equivalent damping matrix [Ĉ] = a₂[M] + A₃[C] used to multiply the previous
             velocity when assembling the effective force vector.
@@ -156,7 +955,7 @@
             <param name="input">System input providing the mass and damping matrices and the time step Δt.</param>
             <returns>The equivalent damping matrix.</returns>
         </member>
-        <member name="M:MelloSilveiraTools.Mathematics.Domain.NumericalMethods.DifferentialEquation.NewmarkBetaMethod.CalculateEquivalentMass(MelloSilveiraTools.Mathematics.Domain.NumericalMethods.NumericalMethodInput)">
+        <member name="M:MelloSilveiraTools.Mathematics.NumericalMethods.DifferentialEquation.NewmarkBetaMethod.CalculateEquivalentMass(MelloSilveiraTools.Mathematics.NumericalMethods.NumericalMethodInput)">
             <summary>
             Builds the equivalent mass matrix [M̂] = A₄[M] + a₅[C] used to multiply the previous
             acceleration when assembling the effective force vector.
@@ -164,18 +963,18 @@
             <param name="input">System input providing the mass and damping matrices and the time step Δt.</param>
             <returns>The equivalent mass matrix.</returns>
         </member>
-        <member name="T:MelloSilveiraTools.Mathematics.Domain.NumericalMethods.DifferentialEquation.NewmarkMethod">
+        <member name="T:MelloSilveiraTools.Mathematics.NumericalMethods.DifferentialEquation.NewmarkMethod">
             <summary>
             Execute the Newmark numerical method to solve Differential Equation.
             </summary>
         </member>
-        <member name="P:MelloSilveiraTools.Mathematics.Domain.NumericalMethods.DifferentialEquation.NewmarkMethod.Type">
+        <member name="P:MelloSilveiraTools.Mathematics.NumericalMethods.DifferentialEquation.NewmarkMethod.Type">
             <inheritdoc/>
         </member>
-        <member name="M:MelloSilveiraTools.Mathematics.Domain.NumericalMethods.DifferentialEquation.NewmarkMethod.CalculateResult(MelloSilveiraTools.Mathematics.Domain.NumericalMethods.NumericalMethodInput,System.Double,MelloSilveiraTools.Mathematics.Domain.NumericalMethods.NumericalMethodResult)">
+        <member name="M:MelloSilveiraTools.Mathematics.NumericalMethods.DifferentialEquation.NewmarkMethod.CalculateResult(MelloSilveiraTools.Mathematics.NumericalMethods.NumericalMethodInput,System.Double,MelloSilveiraTools.Mathematics.NumericalMethods.NumericalMethodResult)">
             <inheritdoc/>
         </member>
-        <member name="M:MelloSilveiraTools.Mathematics.Domain.NumericalMethods.DifferentialEquation.NewmarkMethod.CalculateEquivalentStiffness(MelloSilveiraTools.Mathematics.Domain.NumericalMethods.NumericalMethodInput)">
+        <member name="M:MelloSilveiraTools.Mathematics.NumericalMethods.DifferentialEquation.NewmarkMethod.CalculateEquivalentStiffness(MelloSilveiraTools.Mathematics.NumericalMethods.NumericalMethodInput)">
             <summary>
             Builds the effective stiffness matrix [K̂] = a₀[M] + a₁[C] + [K] used to solve for
             the displacement vector at the current step.
@@ -183,7 +982,7 @@
             <param name="input">System input providing the mass, damping and stiffness matrices and the time step Δt.</param>
             <returns>The effective stiffness matrix, with the same dimensions as the system matrices.</returns>
         </member>
-        <member name="M:MelloSilveiraTools.Mathematics.Domain.NumericalMethods.DifferentialEquation.NewmarkMethod.CalculateEquivalentForce(MelloSilveiraTools.Mathematics.Domain.NumericalMethods.NumericalMethodInput,System.Double[],System.Double[],System.Double[])">
+        <member name="M:MelloSilveiraTools.Mathematics.NumericalMethods.DifferentialEquation.NewmarkMethod.CalculateEquivalentForce(MelloSilveiraTools.Mathematics.NumericalMethods.NumericalMethodInput,System.Double[],System.Double[],System.Double[])">
             <summary>
             Builds the effective force vector F̂ = F + [C]·v_eq + [M]·a_eq, where v_eq and a_eq are
             the equivalent velocity and acceleration extrapolated from the previous step. The result
@@ -195,7 +994,7 @@
             <param name="previousAcceleration">Acceleration vector ẍ(t−Δt), in m/s².</param>
             <returns>The effective force vector F̂ at the current step, in Newtons.</returns>
         </member>
-        <member name="M:MelloSilveiraTools.Mathematics.Domain.NumericalMethods.DifferentialEquation.NewmarkMethod.CalculateEquivalentAcceleration(MelloSilveiraTools.Mathematics.Domain.NumericalMethods.NumericalMethodInput,System.Double[],System.Double[],System.Double[])">
+        <member name="M:MelloSilveiraTools.Mathematics.NumericalMethods.DifferentialEquation.NewmarkMethod.CalculateEquivalentAcceleration(MelloSilveiraTools.Mathematics.NumericalMethods.NumericalMethodInput,System.Double[],System.Double[],System.Double[])">
             <summary>
             Computes a_eq = a₀·x(t−Δt) + a₂·ẋ(t−Δt) + a₃·ẍ(t−Δt), the equivalent acceleration term that enters the effective force vector.
             </summary>
@@ -205,7 +1004,7 @@
             <param name="previousAcceleration">Acceleration vector at t−Δt, in m/s².</param>
             <returns>The equivalent acceleration vector used to assemble the effective force.</returns>
         </member>
-        <member name="M:MelloSilveiraTools.Mathematics.Domain.NumericalMethods.DifferentialEquation.NewmarkMethod.CalculateEquivalentVelocity(MelloSilveiraTools.Mathematics.Domain.NumericalMethods.NumericalMethodInput,System.Double[],System.Double[],System.Double[])">
+        <member name="M:MelloSilveiraTools.Mathematics.NumericalMethods.DifferentialEquation.NewmarkMethod.CalculateEquivalentVelocity(MelloSilveiraTools.Mathematics.NumericalMethods.NumericalMethodInput,System.Double[],System.Double[],System.Double[])">
             <summary>
             Computes v_eq = a₁·x(t−Δt) + a₄·ẋ(t−Δt) + a₅·ẍ(t−Δt), the equivalent velocity term
             that enters the effective force vector.
@@ -216,84 +1015,322 @@
             <param name="previousAcceleration">Acceleration vector at t−Δt, in m/s².</param>
             <returns>The equivalent velocity vector used to assemble the effective force.</returns>
         </member>
-        <member name="T:MelloSilveiraTools.Mathematics.Domain.NumericalMethods.NumericalMethodInput">
+        <member name="T:MelloSilveiraTools.Mathematics.NumericalMethods.Integral.IIntegration">
+            <summary>
+            Represents the Simpson's Rule integration.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Mathematics.NumericalMethods.Integral.IIntegration.GetMultiplyFactor(System.Int32,System.Int32)">
+            <summary>
+            Gets the multiply factor for integration steps.
+            </summary>
+            <param name="index"></param>
+            <param name="numberOfDivisions"></param>
+            <returns></returns>
+        </member>
+        <member name="M:MelloSilveiraTools.Mathematics.NumericalMethods.Integral.IIntegration.Calculate(System.Func{System.Double,System.Double},MelloSilveiraTools.Mathematics.Models.NumericalMethods.IntegralInput)">
+            <summary>
+            Calculates the integral of a function.
+            </summary>
+            <param name="equation">The equation to be integrated.</param>
+            <param name="integralInput">The inputs for integral.</param>
+            <returns>The value of integration.</returns>
+        </member>
+        <member name="M:MelloSilveiraTools.Mathematics.NumericalMethods.Integral.IIntegration.CalculateAsync(System.Func{System.Double,System.Threading.Tasks.Task{System.Double}},MelloSilveiraTools.Mathematics.Models.NumericalMethods.IntegralInput)">
+            <summary>
+            Calculates the integral of a function.
+            </summary>
+            <param name="equation">The equation to be integrated.</param>
+            <param name="integralInput">The inputs for integral.</param>
+            <returns>The value of integration.</returns>
+        </member>
+        <member name="T:MelloSilveiraTools.Mathematics.NumericalMethods.Integral.SimpsonRuleIntegration">
+            <inheritdoc/>
+        </member>
+        <member name="M:MelloSilveiraTools.Mathematics.NumericalMethods.Integral.SimpsonRuleIntegration.GetMultiplyFactor(System.Int32,System.Int32)">
+            <inheritdoc/>
+        </member>
+        <member name="M:MelloSilveiraTools.Mathematics.NumericalMethods.Integral.SimpsonRuleIntegration.Calculate(System.Func{System.Double,System.Double},MelloSilveiraTools.Mathematics.Models.NumericalMethods.IntegralInput)">
+            <inheritdoc/>
+        </member>
+        <member name="M:MelloSilveiraTools.Mathematics.NumericalMethods.Integral.SimpsonRuleIntegration.CalculateAsync(System.Func{System.Double,System.Threading.Tasks.Task{System.Double}},MelloSilveiraTools.Mathematics.Models.NumericalMethods.IntegralInput)">
+            <inheritdoc/>
+        </member>
+        <member name="T:MelloSilveiraTools.Mathematics.NumericalMethods.NumericalMethodInput">
             <summary>
             It contains the input data for a numerical method.
             </summary>
         </member>
-        <member name="P:MelloSilveiraTools.Mathematics.Domain.NumericalMethods.NumericalMethodInput.TimeStep">
+        <member name="P:MelloSilveiraTools.Mathematics.NumericalMethods.NumericalMethodInput.TimeStep">
             <summary>
             Unit: s (second).
             </summary>
         </member>
-        <member name="P:MelloSilveiraTools.Mathematics.Domain.NumericalMethods.NumericalMethodInput.Mass">
+        <member name="P:MelloSilveiraTools.Mathematics.NumericalMethods.NumericalMethodInput.Mass">
             <summary>
             Unit: kg (kilogram).
             </summary>
         </member>
-        <member name="P:MelloSilveiraTools.Mathematics.Domain.NumericalMethods.NumericalMethodInput.Stiffness">
+        <member name="P:MelloSilveiraTools.Mathematics.NumericalMethods.NumericalMethodInput.Stiffness">
             <summary>
             Unit: N/m (Newton per meter).
             </summary>
         </member>
-        <member name="P:MelloSilveiraTools.Mathematics.Domain.NumericalMethods.NumericalMethodInput.Damping">
+        <member name="P:MelloSilveiraTools.Mathematics.NumericalMethods.NumericalMethodInput.Damping">
             <summary>
             Unit: N.s/m (Newston-second per meter).
             </summary>
         </member>
-        <member name="P:MelloSilveiraTools.Mathematics.Domain.NumericalMethods.NumericalMethodInput.EquivalentForce">
+        <member name="P:MelloSilveiraTools.Mathematics.NumericalMethods.NumericalMethodInput.EquivalentForce">
             <summary>
             Unit: N (Newton).
             </summary>
         </member>
-        <member name="P:MelloSilveiraTools.Mathematics.Domain.NumericalMethods.NumericalMethodInput.NumberOfBoundaryConditions">
+        <member name="P:MelloSilveiraTools.Mathematics.NumericalMethods.NumericalMethodInput.NumberOfBoundaryConditions">
             <summary>
             Dimensionless.
             </summary>
         </member>
-        <member name="T:MelloSilveiraTools.Mathematics.Domain.NumericalMethods.NumericalMethodResult">
+        <member name="T:MelloSilveiraTools.Mathematics.NumericalMethods.NumericalMethodResult">
             <summary>
             It contains the finite element analysis results to a specific time.
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.Mathematics.Domain.NumericalMethods.NumericalMethodResult.#ctor">
+        <member name="M:MelloSilveiraTools.Mathematics.NumericalMethods.NumericalMethodResult.#ctor">
             <summary>
             Basic constructor.
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.Mathematics.Domain.NumericalMethods.NumericalMethodResult.#ctor(System.UInt32)">
+        <member name="M:MelloSilveiraTools.Mathematics.NumericalMethods.NumericalMethodResult.#ctor(System.UInt32)">
             <summary>
             Class constructor.
             </summary>
             <param name="numberOfBoundaryConditions"></param>
         </member>
-        <member name="P:MelloSilveiraTools.Mathematics.Domain.NumericalMethods.NumericalMethodResult.Time">
+        <member name="P:MelloSilveiraTools.Mathematics.NumericalMethods.NumericalMethodResult.Time">
             <summary>
             Unit: s (second).
             </summary>
         </member>
-        <member name="P:MelloSilveiraTools.Mathematics.Domain.NumericalMethods.NumericalMethodResult.Displacement">
+        <member name="P:MelloSilveiraTools.Mathematics.NumericalMethods.NumericalMethodResult.Displacement">
             <summary>
             Unit: m (meter).
             </summary>
         </member>
-        <member name="P:MelloSilveiraTools.Mathematics.Domain.NumericalMethods.NumericalMethodResult.Velocity">
+        <member name="P:MelloSilveiraTools.Mathematics.NumericalMethods.NumericalMethodResult.Velocity">
             <summary>
             Unit: m/s (meter per second).
             </summary>
         </member>
-        <member name="P:MelloSilveiraTools.Mathematics.Domain.NumericalMethods.NumericalMethodResult.Acceleration">
+        <member name="P:MelloSilveiraTools.Mathematics.NumericalMethods.NumericalMethodResult.Acceleration">
             <summary>
             Unit: m/s² (meter per squared second).
             </summary>
         </member>
-        <member name="P:MelloSilveiraTools.Mathematics.Domain.NumericalMethods.NumericalMethodResult.EquivalentForce">
+        <member name="P:MelloSilveiraTools.Mathematics.NumericalMethods.NumericalMethodResult.EquivalentForce">
             <summary>
             Unit: N (Newton).
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.Mathematics.Domain.NumericalMethods.NumericalMethodResult.ToString">
+        <member name="M:MelloSilveiraTools.Mathematics.NumericalMethods.NumericalMethodResult.ToString">
             <inheritdoc/>
+        </member>
+        <member name="T:MelloSilveiraTools.Mathematics.NumericalMethods.RootFindingAlgorithms.BisectionMethod">
+            <inheritdoc cref="!:RootFindingAlgorithm.BisectionMethod"/>
+        </member>
+        <member name="M:MelloSilveiraTools.Mathematics.NumericalMethods.RootFindingAlgorithms.BisectionMethod.FindRoot(MelloSilveiraTools.Mathematics.NumericalMethods.RootFindingAlgorithms.RootFindingInput,System.Func{System.Double,System.Double})">
+            <inheritdoc/>
+        </member>
+        <member name="T:MelloSilveiraTools.Mathematics.NumericalMethods.RootFindingAlgorithms.BrentMethod">
+            <inheritdoc cref="F:MelloSilveiraTools.Mathematics.Models.NumericalMethods.RootFindingAlgorithm.BrentMethod"/>
+        </member>
+        <member name="M:MelloSilveiraTools.Mathematics.NumericalMethods.RootFindingAlgorithms.BrentMethod.FindRoot(MelloSilveiraTools.Mathematics.NumericalMethods.RootFindingAlgorithms.RootFindingInput,System.Func{System.Double,System.Double})">
+            <inheritdoc/>
+        </member>
+        <member name="T:MelloSilveiraTools.Mathematics.NumericalMethods.RootFindingAlgorithms.IRootFinding">
+            <summary>
+            The root-finding algorithm is a numerical method used to find the roots or zeros of a continuous function.
+            It iteratively refines the root approximation based on the function's behavior within an interval. The
+            algorithm returns the approximate root or indicates if convergence criteria were not met.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Mathematics.NumericalMethods.RootFindingAlgorithms.IRootFinding.FindRoot(MelloSilveiraTools.Mathematics.NumericalMethods.RootFindingAlgorithms.RootFindingInput,System.Func{System.Double,System.Double})">
+            <summary>
+            Find the root of a continuous <paramref name="function"/> which is in the interval informed in <paramref name="input"/>.
+            </summary>
+            <param name="input">Contains the inputs for root-finding algorithm.</param>
+            <param name="function">Represents the continuous function.</param>
+            <returns>The root of the continuous function and its error.</returns>
+            <exception cref="!:MathNet.Numerics.NonConvergenceException">When it was not possible to converge to a value.</exception>
+        </member>
+        <member name="T:MelloSilveiraTools.Mathematics.NumericalMethods.RootFindingAlgorithms.RootFinding">
+            <inheritdoc cref="T:MelloSilveiraTools.Mathematics.NumericalMethods.RootFindingAlgorithms.IRootFinding"/>
+        </member>
+        <member name="M:MelloSilveiraTools.Mathematics.NumericalMethods.RootFindingAlgorithms.RootFinding.FindRoot(MelloSilveiraTools.Mathematics.NumericalMethods.RootFindingAlgorithms.RootFindingInput,System.Func{System.Double,System.Double})">
+            <inheritdoc/>
+        </member>
+        <member name="M:MelloSilveiraTools.Mathematics.NumericalMethods.RootFindingAlgorithms.RootFinding.GetNonConvergenceException(System.Double,System.Double)">
+            <summary>
+            Throws exception indicating a non convergence of root-finding algorithm.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="T:MelloSilveiraTools.Mathematics.NumericalMethods.RootFindingAlgorithms.RootFindingInput">
+            <summary>
+            Represents the input for the root-finding algorithm.
+            </summary>
+            <param name="InitialPoint">Initial point of interval. Unit: depends on function which is used.</param>
+            <param name="FinalPoint">Final point of interval. Unit: depends on function which is used.</param>
+            <param name="Tolerance">Maximum acceptable error.</param>
+            <param name="MaxIterations">Maximum number of iterations to be performed.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.Mathematics.NumericalMethods.RootFindingAlgorithms.RootFindingInput.#ctor(System.Double,System.Double,System.Double,System.Int32)">
+            <summary>
+            Represents the input for the root-finding algorithm.
+            </summary>
+            <param name="InitialPoint">Initial point of interval. Unit: depends on function which is used.</param>
+            <param name="FinalPoint">Final point of interval. Unit: depends on function which is used.</param>
+            <param name="Tolerance">Maximum acceptable error.</param>
+            <param name="MaxIterations">Maximum number of iterations to be performed.</param>
+        </member>
+        <member name="P:MelloSilveiraTools.Mathematics.NumericalMethods.RootFindingAlgorithms.RootFindingInput.InitialPoint">
+            <summary>Initial point of interval. Unit: depends on function which is used.</summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Mathematics.NumericalMethods.RootFindingAlgorithms.RootFindingInput.FinalPoint">
+            <summary>Final point of interval. Unit: depends on function which is used.</summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Mathematics.NumericalMethods.RootFindingAlgorithms.RootFindingInput.Tolerance">
+            <summary>Maximum acceptable error.</summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Mathematics.NumericalMethods.RootFindingAlgorithms.RootFindingInput.MaxIterations">
+            <summary>Maximum number of iterations to be performed.</summary>
+        </member>
+        <member name="T:MelloSilveiraTools.Mathematics.NumericalMethods.RootFindingAlgorithms.StepByStepMethod">
+            <inheritdoc cref="F:MelloSilveiraTools.Mathematics.Models.NumericalMethods.RootFindingAlgorithm.StepByStepMethod"/>
+        </member>
+        <member name="M:MelloSilveiraTools.Mathematics.NumericalMethods.RootFindingAlgorithms.StepByStepMethod.FindRoot(MelloSilveiraTools.Mathematics.NumericalMethods.RootFindingAlgorithms.RootFindingInput,System.Func{System.Double,System.Double})">
+            <inheritdoc/>
+        </member>
+        <member name="T:MelloSilveiraTools.Mathematics.Statistics.IStatisticsCalculator">
+            <summary>
+            Performs statistics calculations.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Mathematics.Statistics.IStatisticsCalculator.Calculate(System.Double[],System.Double)">
+            <summary>
+            Calculates the statistics data.
+            </summary>
+            <param name="values"></param>
+            <param name="threshold"></param>
+            <returns></returns>
+        </member>
+        <member name="T:MelloSilveiraTools.Mathematics.Statistics.StatisticsCalculator">
+            <inheritdoc cref="T:MelloSilveiraTools.Mathematics.Statistics.IStatisticsCalculator"/>
+        </member>
+        <member name="M:MelloSilveiraTools.Mathematics.Statistics.StatisticsCalculator.Calculate(System.Double[],System.Double)">
+            <inheritdoc/>
+        </member>
+        <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MathematicConstants">
+            <summary>
+            Contain the constats used in application.
+            </summary>
+        </member>
+        <member name="F:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MathematicConstants.EulerMascheroniConstant">
+            <summary>
+            The constant of Euler-Mascheroni.
+            </summary>
+        </member>
+        <member name="F:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MathematicConstants.Tolerance">
+            <summary>
+            The tolerance for time comparisons.
+            Used to distinguish "effectively zero" from any meaningful positive value.
+            Chosen as 1e-10 s (0.1 nanosecond), well below any physically relevant time in the simulation.
+            </summary>
+        </member>
+        <member name="F:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MathematicConstants.RelativeTolerance">
+            <summary>
+            The relative double-point precision accepted for value equality comparisons.
+            Two values whose relative difference is less than this threshold are considered equal.
+            </summary>
+        </member>
+        <member name="T:SoftTissue.SharedModules.ExtensionMethods.DoubleExtensions">
+            <summary>
+            Contains the extension methods to double.
+            </summary>
+        </member>
+        <member name="M:SoftTissue.SharedModules.ExtensionMethods.DoubleExtensions.Squared(System.Double)">
+            <summary>
+            Returns the square of the value (value * value).
+            </summary>
+            <param name="value"></param>
+            <returns></returns>
+        </member>
+        <member name="M:SoftTissue.SharedModules.ExtensionMethods.DoubleExtensions.ToDegrees(System.Double)">
+            <summary>
+            Converts the value from radians to degrees.
+            </summary>
+            <param name="value"></param>
+            <returns></returns>
+        </member>
+        <member name="M:SoftTissue.SharedModules.ExtensionMethods.DoubleExtensions.RelativeDifference(System.Double,System.Double)">
+            <summary>
+            Calculates the relative difference between two values.
+            </summary>
+            <param name="value1"></param>
+            <param name="value2"></param>
+            <returns></returns>
+        </member>
+        <member name="M:SoftTissue.SharedModules.ExtensionMethods.DoubleExtensions.RelativeAbsolutDifference(System.Double,System.Double)">
+            <summary>
+            Calculates the relative absolut difference between two values.
+            </summary>
+            <param name="value1"></param>
+            <param name="value2"></param>
+            <returns></returns>
+        </member>
+        <member name="M:SoftTissue.SharedModules.ExtensionMethods.DoubleExtensions.EqualsWithTolerance(System.Double,System.Double,System.Nullable{System.Double})">
+            <summary>
+            Indicates if two values are equals considering the application tolerance. 
+            </summary>
+            <param name="value1"></param>
+            <param name="value2"></param>
+            <param name="tolerance"></param>
+            <returns></returns>
+        </member>
+        <member name="M:SoftTissue.SharedModules.ExtensionMethods.DoubleExtensions.IsPositive(System.Double)">
+            <summary>
+            Indicates if a value is non-negative (zero is considered non-negative).
+            </summary>
+            <param name="value"></param>
+            <returns></returns>
+        </member>
+        <member name="M:SoftTissue.SharedModules.ExtensionMethods.DoubleExtensions.IsPositive(System.Nullable{System.Double})">
+            <summary>
+            Indicates if a value is non-negative (zero is considered non-negative).
+            </summary>
+            <param name="value"></param>
+            <returns></returns>
+        </member>
+        <member name="M:SoftTissue.SharedModules.ExtensionMethods.DoubleExtensions.IsNegative(System.Double)">
+            <summary>
+            Indicates if a value is negative and is not zero.
+            </summary>
+            <param name="value"></param>
+            <returns></returns>
+        </member>
+        <member name="M:SoftTissue.SharedModules.ExtensionMethods.DoubleExtensions.IsNegativeOrZero(System.Double)">
+            <summary>
+            Indicates if a value is negative or zero.
+            </summary>
+            <param name="value"></param>
+            <returns></returns>
+        </member>
+        <member name="M:SoftTissue.SharedModules.ExtensionMethods.DoubleExtensions.IsNegative(System.Nullable{System.Double})">
+            <summary>
+            Indicates if a value is negative and is not zero.
+            </summary>
+            <param name="value"></param>
+            <returns></returns>
         </member>
     </members>
 </doc>

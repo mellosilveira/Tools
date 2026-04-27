@@ -1,4 +1,5 @@
-using MelloSilveiraTools.Mathematics.Domain.NumericalMethods.DifferentialEquation;
+using MelloSilveiraTools.Mathematics.Factories.NumericalMethods;
+using MelloSilveiraTools.Mathematics.NumericalMethods.DifferentialEquation;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace MelloSilveiraTools.Mathematics;
