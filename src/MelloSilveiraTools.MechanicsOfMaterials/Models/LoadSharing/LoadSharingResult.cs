@@ -1,5 +1,5 @@
-﻿using SoftTissue.Domain.Models;
-using SoftTissue.SharedModules.ExtensionMethods;
+﻿using MelloSilveiraTools.Mathematics.Extensions;
+using MelloSilveiraTools.MechanicsOfMaterials.Models;
 
 namespace MelloSilveiraTools.MechanicsOfMaterials.Models.LoadSharing;
 

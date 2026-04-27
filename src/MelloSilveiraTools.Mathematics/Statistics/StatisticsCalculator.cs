@@ -1,5 +1,5 @@
 ﻿using MelloSilveiraTools.Mathematics.Models.Statistics;
-using SoftTissue.SharedModules.ExtensionMethods;
+using MelloSilveiraTools.Mathematics.Extensions;
 
 namespace MelloSilveiraTools.Mathematics.Statistics;
 
@@ -11,11 +11,11 @@ public class StatisticsCalculator : IStatisticsCalculator
     /// <inheritdoc/>
     public StatisticalData Calculate(double[] values, double threshold = 3.5)
     {
-        var originalValeus = (double[])values.Clone();
+        // Clone before sorting so the caller's array is never mutated.
+        var sorted = (double[])values.Clone();
+        Array.Sort(sorted);
 
-        Array.Sort(values);
-
-        var (valuesWithoutOutliers, outliers, lowerLimit, upperLimit) = CalculateOutliers(values, threshold);
+        var (valuesWithoutOutliers, outliers, lowerLimit, upperLimit) = CalculateOutliers(sorted, threshold);
         double mean = CalculateMean(valuesWithoutOutliers);
         return new StatisticalData
         {
@@ -27,7 +27,7 @@ public class StatisticsCalculator : IStatisticsCalculator
             UpperLimit = upperLimit,
             StandardDeviation = CalculateStandardDeviation(valuesWithoutOutliers, mean),
             Outliers = outliers,
-            Values = originalValeus,
+            Values = values,
         };
     }
 
@@ -39,15 +39,19 @@ public class StatisticsCalculator : IStatisticsCalculator
             : sortedValues[midIndex];
     }
 
-    private static double CalculateMean(double[] values) => values.Average();
+    private static double CalculateMean(double[] values)
+    {
+        double sum = 0;
+        for (int i = 0; i < values.Length; i++)
+            sum += values[i];
+        return sum / values.Length;
+    }
 
     private static double CalculateStandardDeviation(double[] values, double mean)
     {
         double sumSquaredDifferences = 0;
         for (int i = 0; i < values.Length; i++)
-        {
             sumSquaredDifferences += (values[i] - mean).Squared();
-        }
 
         return Math.Sqrt(sumSquaredDifferences / values.Length);
     }
@@ -58,28 +62,34 @@ public class StatisticsCalculator : IStatisticsCalculator
             return ([], [], double.NaN, double.NaN);
 
         double median = CalculateMedian(sortedValues);
-        double[] absoluteDeviations = sortedValues.Select(v => Math.Abs(v - median)).ToArray();
+
+        // Compute absolute deviations without LINQ.
+        var absoluteDeviations = new double[sortedValues.Length];
+        for (int i = 0; i < sortedValues.Length; i++)
+            absoluteDeviations[i] = Math.Abs(sortedValues[i] - median);
         Array.Sort(absoluteDeviations);
 
         double mad = CalculateMedian(absoluteDeviations);
         double lowerLimit = median - (threshold * mad) / ZScoreModifiedConstant;
         double upperLimit = median + (threshold * mad) / ZScoreModifiedConstant;
 
-        List<double> valuesWithoutOutliers = new(sortedValues.Length);
-        List<double> outliers = [];
+        // Pre-allocate arrays at max capacity, then slice to actual count.
+        var withoutOutliers = new double[sortedValues.Length];
+        var outliersArr = new double[sortedValues.Length];
+        int withoutCount = 0, outliersCount = 0;
 
-        foreach (var value in sortedValues)
+        foreach (double value in sortedValues)
         {
             if (value >= lowerLimit && value <= upperLimit)
-            {
-                valuesWithoutOutliers.Add(value);
-            }
+                withoutOutliers[withoutCount++] = value;
             else
-            {
-                outliers.Add(value);
-            }
+                outliersArr[outliersCount++] = value;
         }
 
-        return (valuesWithoutOutliers.ToArray(), outliers.ToArray(), lowerLimit, upperLimit);
+        return (
+            withoutOutliers[..withoutCount],
+            outliersArr[..outliersCount],
+            lowerLimit,
+            upperLimit);
     }
 }

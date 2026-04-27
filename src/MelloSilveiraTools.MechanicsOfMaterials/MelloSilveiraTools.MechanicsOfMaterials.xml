@@ -1236,6 +1236,16 @@
             <param name="services">The service collection used to register the dependencies.</param>
             <returns>The same service collection so additional registrations can be chained.</returns>
         </member>
+        <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Models.AnalysisResult">
+            <summary>
+            Contains the results for a generic analysis.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Models.AnalysisResult.Time">
+            <summary>
+            Unit: s (second).
+            </summary>
+        </member>
         <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Models.AnalysisType">
             <summary>
             Contains the types for all analysis performed by application.
@@ -2496,16 +2506,6 @@
             <summary>
             Initial angle of the material with the system.
             Unit: rad (radians).
-            </summary>
-        </member>
-        <member name="T:SoftTissue.Domain.Models.AnalysisResult">
-            <summary>
-            Contains the results for a generic analysis.
-            </summary>
-        </member>
-        <member name="P:SoftTissue.Domain.Models.AnalysisResult.Time">
-            <summary>
-            Unit: s (second).
             </summary>
         </member>
     </members>

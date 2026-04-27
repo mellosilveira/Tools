@@ -6,19 +6,14 @@ namespace MelloSilveiraTools.Mathematics.Functions;
 /// Represents a sine function.
 /// f(x) = a_0 * sin[a_1 * (x - a_2)] + ... + a_n-2 * sin[a_n-1 * (x - a_n)]
 /// </summary>
-public sealed record SineFunction : Function
+/// <param name="initialVariableValue"></param>
+/// <param name="finalVariableValue"></param>
+/// <param name="coefficients"></param>
+public sealed class SineFunction(
+    double? initialVariableValue,
+    double? finalVariableValue,
+    double[] coefficients) : Function(FunctionType.Sine, initialVariableValue, finalVariableValue, coefficients)
 {
-    /// <summary>
-    /// Initializes a new instance of <see cref="SineFunction"/>.
-    /// </summary>
-    /// <param name="initialVariableValue"></param>
-    /// <param name="finalVariableValue"></param>
-    /// <param name="coefficients"></param>
-    public SineFunction(
-        double? initialVariableValue,
-        double? finalVariableValue,
-        double[] coefficients)
-        : base(FunctionType.Sine, initialVariableValue, finalVariableValue, coefficients) { }
 
     /// <inheritdoc/>
     public override double Calculate(double variableValue)

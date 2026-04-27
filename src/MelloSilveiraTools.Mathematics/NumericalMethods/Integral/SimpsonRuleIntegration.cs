@@ -13,7 +13,7 @@ namespace MelloSilveiraTools.Mathematics.NumericalMethods.Integral
 
             return index % 2 != 0 ? 4 : 2;
         }
-
+        
         /// <inheritdoc/>
         public double Calculate(Func<double, double> equation, IntegralInput integralInput)
         {
@@ -26,7 +26,7 @@ namespace MelloSilveiraTools.Mathematics.NumericalMethods.Integral
                 if (equationResult == 0)
                     continue;
 
-                sum += GetMultiplyFactor(index: i, numberOfDivisions) * equationResult;
+                sum += GetMultiplyFactor(i, numberOfDivisions) * equationResult;
             }
 
             return sum * integralInput.Step / 3;
@@ -44,7 +44,7 @@ namespace MelloSilveiraTools.Mathematics.NumericalMethods.Integral
                 if (equationResult == 0)
                     continue;
 
-                sum += GetMultiplyFactor(index: i, numberOfDivisions) * equationResult;
+                sum += GetMultiplyFactor(i, numberOfDivisions) * equationResult;
             }
 
             return sum * integralInput.Step / 3;

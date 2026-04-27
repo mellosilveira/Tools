@@ -15,7 +15,7 @@ public class BisectionMethod : RootFinding
         var finalValue = function(input.FinalPoint);
 
         if (initialValue * finalValue >= 0)
-            throw new Exception("It is not possible to apply the Bisection Method for the interval. The function must have opposite signs at the initial and final points.");
+            throw new InvalidOperationException("The Bisection Method requires the function to have opposite signs at the initial and final points of the interval.");
 
         double middlePoint = 0;
         double middleValue = 0;

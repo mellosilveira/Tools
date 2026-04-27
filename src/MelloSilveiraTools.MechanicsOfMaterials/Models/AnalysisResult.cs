@@ -1,4 +1,4 @@
-﻿namespace SoftTissue.Domain.Models;
+﻿namespace MelloSilveiraTools.MechanicsOfMaterials.Models;
 
 /// <summary>
 /// Contains the results for a generic analysis.

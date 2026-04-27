@@ -30,10 +30,11 @@ public class Expression : List<Function>
 
         InitialVariableValue = initialVariableValue ?? double.NegativeInfinity;
         FinalVariableValue = finalVariableValue ?? double.PositiveInfinity;
-        Functions = functions;
 
-        // Sort the functions based on its initial variable value.
-        Functions.Sort((f1, f2) => f1.InitialVariableValue.CompareTo(f2.InitialVariableValue));
+        // Build an internal sorted copy so the caller's list is never mutated.
+        var sorted = new List<Function>(functions);
+        sorted.Sort((f1, f2) => f1.InitialVariableValue.CompareTo(f2.InitialVariableValue));
+        Functions = sorted;
     }
 
     /// <summary>

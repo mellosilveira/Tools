@@ -6,28 +6,23 @@ namespace MelloSilveiraTools.Mathematics.Functions;
 /// Represents a polynomial function.
 /// f(x) = a_0 + a_1 * x + a_2 * x^2 + ... + a_n * x^n
 /// </summary>
-public sealed record PolynomialFunction : Function
+/// <param name="initialVariableValue"></param>
+/// <param name="finalVariableValue"></param>
+/// <param name="coefficients"></param>
+public sealed class PolynomialFunction(
+    double? initialVariableValue,
+    double? finalVariableValue,
+    double[] coefficients) : Function(FunctionType.Polynomial, initialVariableValue, finalVariableValue, coefficients)
 {
-    /// <summary>
-    /// Initializes a new instance of <see cref="PolynomialFunction"/>.
-    /// </summary>
-    /// <param name="initialVariableValue"></param>
-    /// <param name="finalVariableValue"></param>
-    /// <param name="coefficients"></param>
-    public PolynomialFunction(
-        double? initialVariableValue,
-        double? finalVariableValue,
-        double[] coefficients)
-        : base(FunctionType.Polynomial, initialVariableValue, finalVariableValue, coefficients) { }
 
     /// <inheritdoc/>
     public override double Calculate(double variableValue)
     {
-        double result = Coefficients[0];
-        for (int i = 1; i < Coefficients.Length; i++)
-        {
-            result += Coefficients[i] * Math.Pow(variableValue, i);
-        }
+        // Horner's method: O(n) multiplications, no Math.Pow calls.
+        // Evaluates ((a_n * x + a_{n-1}) * x + ... ) * x + a_0
+        double result = Coefficients[^1];
+        for (int i = Coefficients.Length - 2; i >= 0; i--)
+            result = result * variableValue + Coefficients[i];
         return result;
     }
 

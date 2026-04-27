@@ -1,6 +1,6 @@
 ﻿using MelloSilveiraTools.MechanicsOfMaterials.Attributes;
 using MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity;
-using SoftTissue.Domain.Models;
+using MelloSilveiraTools.MechanicsOfMaterials.Models;
 
 namespace MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels;
 

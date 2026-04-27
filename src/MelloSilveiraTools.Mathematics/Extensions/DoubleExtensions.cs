@@ -1,7 +1,7 @@
-﻿using MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels;
+﻿using MelloSilveiraTools.Mathematics.Models;
 using System.Runtime.CompilerServices;
 
-namespace SoftTissue.SharedModules.ExtensionMethods;
+namespace MelloSilveiraTools.Mathematics.Extensions;
 
 /// <summary>
 /// Contains the extension methods to double.

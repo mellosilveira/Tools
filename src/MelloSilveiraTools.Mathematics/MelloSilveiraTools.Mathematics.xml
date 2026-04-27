@@ -187,6 +187,85 @@
             Coefficients for iterations represented by a_n.
             </summary>
         </member>
+        <member name="T:MelloSilveiraTools.Mathematics.Extensions.DoubleExtensions">
+            <summary>
+            Contains the extension methods to double.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Mathematics.Extensions.DoubleExtensions.Squared(System.Double)">
+            <summary>
+            Returns the square of the value (value * value).
+            </summary>
+            <param name="value"></param>
+            <returns></returns>
+        </member>
+        <member name="M:MelloSilveiraTools.Mathematics.Extensions.DoubleExtensions.ToDegrees(System.Double)">
+            <summary>
+            Converts the value from radians to degrees.
+            </summary>
+            <param name="value"></param>
+            <returns></returns>
+        </member>
+        <member name="M:MelloSilveiraTools.Mathematics.Extensions.DoubleExtensions.RelativeDifference(System.Double,System.Double)">
+            <summary>
+            Calculates the relative difference between two values.
+            </summary>
+            <param name="value1"></param>
+            <param name="value2"></param>
+            <returns></returns>
+        </member>
+        <member name="M:MelloSilveiraTools.Mathematics.Extensions.DoubleExtensions.RelativeAbsolutDifference(System.Double,System.Double)">
+            <summary>
+            Calculates the relative absolut difference between two values.
+            </summary>
+            <param name="value1"></param>
+            <param name="value2"></param>
+            <returns></returns>
+        </member>
+        <member name="M:MelloSilveiraTools.Mathematics.Extensions.DoubleExtensions.EqualsWithTolerance(System.Double,System.Double,System.Nullable{System.Double})">
+            <summary>
+            Indicates if two values are equals considering the application tolerance. 
+            </summary>
+            <param name="value1"></param>
+            <param name="value2"></param>
+            <param name="tolerance"></param>
+            <returns></returns>
+        </member>
+        <member name="M:MelloSilveiraTools.Mathematics.Extensions.DoubleExtensions.IsPositive(System.Double)">
+            <summary>
+            Indicates if a value is non-negative (zero is considered non-negative).
+            </summary>
+            <param name="value"></param>
+            <returns></returns>
+        </member>
+        <member name="M:MelloSilveiraTools.Mathematics.Extensions.DoubleExtensions.IsPositive(System.Nullable{System.Double})">
+            <summary>
+            Indicates if a value is non-negative (zero is considered non-negative).
+            </summary>
+            <param name="value"></param>
+            <returns></returns>
+        </member>
+        <member name="M:MelloSilveiraTools.Mathematics.Extensions.DoubleExtensions.IsNegative(System.Double)">
+            <summary>
+            Indicates if a value is negative and is not zero.
+            </summary>
+            <param name="value"></param>
+            <returns></returns>
+        </member>
+        <member name="M:MelloSilveiraTools.Mathematics.Extensions.DoubleExtensions.IsNegativeOrZero(System.Double)">
+            <summary>
+            Indicates if a value is negative or zero.
+            </summary>
+            <param name="value"></param>
+            <returns></returns>
+        </member>
+        <member name="M:MelloSilveiraTools.Mathematics.Extensions.DoubleExtensions.IsNegative(System.Nullable{System.Double})">
+            <summary>
+            Indicates if a value is negative and is not zero.
+            </summary>
+            <param name="value"></param>
+            <returns></returns>
+        </member>
         <member name="T:MelloSilveiraTools.Mathematics.Extensions.Vector3DExtension">
             <summary>
             It contains the extension methods to Vector3D.
@@ -236,13 +315,6 @@
             </summary>
             <param name="vector1"></param>
             <param name="vector2"></param>
-            <returns></returns>
-        </member>
-        <member name="M:MelloSilveiraTools.Mathematics.Extensions.Vector3DExtension.IsEmpty(MelloSilveiraTools.Mathematics.Models.Vector3D)">
-            <summary>
-            This method returns true if the vector is empty and false, otherwise.
-            </summary>
-            <param name="vector"></param>
             <returns></returns>
         </member>
         <member name="M:MelloSilveiraTools.Mathematics.Factories.Functions.FunctionFactory.Create(MelloSilveiraTools.Mathematics.Models.FunctionType,System.Nullable{System.Double},System.Nullable{System.Double},System.Double[])">
@@ -584,6 +656,29 @@
             f(x) = a_0 + a_1 * exp(a_2 * x) + ... a_n-1 * exp(a_n * x)
             </summary>
         </member>
+        <member name="T:MelloSilveiraTools.Mathematics.Models.MathematicConstants">
+            <summary>
+            Contain the constats used in application.
+            </summary>
+        </member>
+        <member name="F:MelloSilveiraTools.Mathematics.Models.MathematicConstants.EulerMascheroniConstant">
+            <summary>
+            The constant of Euler-Mascheroni.
+            </summary>
+        </member>
+        <member name="F:MelloSilveiraTools.Mathematics.Models.MathematicConstants.Tolerance">
+            <summary>
+            The tolerance for time comparisons.
+            Used to distinguish "effectively zero" from any meaningful positive value.
+            Chosen as 1e-10 s (0.1 nanosecond), well below any physically relevant time in the simulation.
+            </summary>
+        </member>
+        <member name="F:MelloSilveiraTools.Mathematics.Models.MathematicConstants.RelativeTolerance">
+            <summary>
+            The relative double-point precision accepted for value equality comparisons.
+            Two values whose relative difference is less than this threshold are considered equal.
+            </summary>
+        </member>
         <member name="T:MelloSilveiraTools.Mathematics.Models.NumericalMethods.DifferentialEquationMethodType">
             <summary>
             It contains the available numerical methods for differential equations.
@@ -616,7 +711,7 @@
         </member>
         <member name="P:MelloSilveiraTools.Mathematics.Models.NumericalMethods.IntegralInput.Step">
             <summary>
-            The step to be used while iterating.
+            The step size used while iterating.
             </summary>
         </member>
         <member name="T:MelloSilveiraTools.Mathematics.Models.NumericalMethods.RootFindingAlgorithm">
@@ -1017,16 +1112,8 @@
         </member>
         <member name="T:MelloSilveiraTools.Mathematics.NumericalMethods.Integral.IIntegration">
             <summary>
-            Represents the Simpson's Rule integration.
+            Represents a numerical integration rule.
             </summary>
-        </member>
-        <member name="M:MelloSilveiraTools.Mathematics.NumericalMethods.Integral.IIntegration.GetMultiplyFactor(System.Int32,System.Int32)">
-            <summary>
-            Gets the multiply factor for integration steps.
-            </summary>
-            <param name="index"></param>
-            <param name="numberOfDivisions"></param>
-            <returns></returns>
         </member>
         <member name="M:MelloSilveiraTools.Mathematics.NumericalMethods.Integral.IIntegration.Calculate(System.Func{System.Double,System.Double},MelloSilveiraTools.Mathematics.Models.NumericalMethods.IntegralInput)">
             <summary>
@@ -1038,16 +1125,13 @@
         </member>
         <member name="M:MelloSilveiraTools.Mathematics.NumericalMethods.Integral.IIntegration.CalculateAsync(System.Func{System.Double,System.Threading.Tasks.Task{System.Double}},MelloSilveiraTools.Mathematics.Models.NumericalMethods.IntegralInput)">
             <summary>
-            Calculates the integral of a function.
+            Calculates the integral of a function asynchronously.
             </summary>
             <param name="equation">The equation to be integrated.</param>
             <param name="integralInput">The inputs for integral.</param>
             <returns>The value of integration.</returns>
         </member>
         <member name="T:MelloSilveiraTools.Mathematics.NumericalMethods.Integral.SimpsonRuleIntegration">
-            <inheritdoc/>
-        </member>
-        <member name="M:MelloSilveiraTools.Mathematics.NumericalMethods.Integral.SimpsonRuleIntegration.GetMultiplyFactor(System.Int32,System.Int32)">
             <inheritdoc/>
         </member>
         <member name="M:MelloSilveiraTools.Mathematics.NumericalMethods.Integral.SimpsonRuleIntegration.Calculate(System.Func{System.Double,System.Double},MelloSilveiraTools.Mathematics.Models.NumericalMethods.IntegralInput)">
@@ -1229,108 +1313,6 @@
         </member>
         <member name="M:MelloSilveiraTools.Mathematics.Statistics.StatisticsCalculator.Calculate(System.Double[],System.Double)">
             <inheritdoc/>
-        </member>
-        <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MathematicConstants">
-            <summary>
-            Contain the constats used in application.
-            </summary>
-        </member>
-        <member name="F:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MathematicConstants.EulerMascheroniConstant">
-            <summary>
-            The constant of Euler-Mascheroni.
-            </summary>
-        </member>
-        <member name="F:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MathematicConstants.Tolerance">
-            <summary>
-            The tolerance for time comparisons.
-            Used to distinguish "effectively zero" from any meaningful positive value.
-            Chosen as 1e-10 s (0.1 nanosecond), well below any physically relevant time in the simulation.
-            </summary>
-        </member>
-        <member name="F:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MathematicConstants.RelativeTolerance">
-            <summary>
-            The relative double-point precision accepted for value equality comparisons.
-            Two values whose relative difference is less than this threshold are considered equal.
-            </summary>
-        </member>
-        <member name="T:SoftTissue.SharedModules.ExtensionMethods.DoubleExtensions">
-            <summary>
-            Contains the extension methods to double.
-            </summary>
-        </member>
-        <member name="M:SoftTissue.SharedModules.ExtensionMethods.DoubleExtensions.Squared(System.Double)">
-            <summary>
-            Returns the square of the value (value * value).
-            </summary>
-            <param name="value"></param>
-            <returns></returns>
-        </member>
-        <member name="M:SoftTissue.SharedModules.ExtensionMethods.DoubleExtensions.ToDegrees(System.Double)">
-            <summary>
-            Converts the value from radians to degrees.
-            </summary>
-            <param name="value"></param>
-            <returns></returns>
-        </member>
-        <member name="M:SoftTissue.SharedModules.ExtensionMethods.DoubleExtensions.RelativeDifference(System.Double,System.Double)">
-            <summary>
-            Calculates the relative difference between two values.
-            </summary>
-            <param name="value1"></param>
-            <param name="value2"></param>
-            <returns></returns>
-        </member>
-        <member name="M:SoftTissue.SharedModules.ExtensionMethods.DoubleExtensions.RelativeAbsolutDifference(System.Double,System.Double)">
-            <summary>
-            Calculates the relative absolut difference between two values.
-            </summary>
-            <param name="value1"></param>
-            <param name="value2"></param>
-            <returns></returns>
-        </member>
-        <member name="M:SoftTissue.SharedModules.ExtensionMethods.DoubleExtensions.EqualsWithTolerance(System.Double,System.Double,System.Nullable{System.Double})">
-            <summary>
-            Indicates if two values are equals considering the application tolerance. 
-            </summary>
-            <param name="value1"></param>
-            <param name="value2"></param>
-            <param name="tolerance"></param>
-            <returns></returns>
-        </member>
-        <member name="M:SoftTissue.SharedModules.ExtensionMethods.DoubleExtensions.IsPositive(System.Double)">
-            <summary>
-            Indicates if a value is non-negative (zero is considered non-negative).
-            </summary>
-            <param name="value"></param>
-            <returns></returns>
-        </member>
-        <member name="M:SoftTissue.SharedModules.ExtensionMethods.DoubleExtensions.IsPositive(System.Nullable{System.Double})">
-            <summary>
-            Indicates if a value is non-negative (zero is considered non-negative).
-            </summary>
-            <param name="value"></param>
-            <returns></returns>
-        </member>
-        <member name="M:SoftTissue.SharedModules.ExtensionMethods.DoubleExtensions.IsNegative(System.Double)">
-            <summary>
-            Indicates if a value is negative and is not zero.
-            </summary>
-            <param name="value"></param>
-            <returns></returns>
-        </member>
-        <member name="M:SoftTissue.SharedModules.ExtensionMethods.DoubleExtensions.IsNegativeOrZero(System.Double)">
-            <summary>
-            Indicates if a value is negative or zero.
-            </summary>
-            <param name="value"></param>
-            <returns></returns>
-        </member>
-        <member name="M:SoftTissue.SharedModules.ExtensionMethods.DoubleExtensions.IsNegative(System.Nullable{System.Double})">
-            <summary>
-            Indicates if a value is negative and is not zero.
-            </summary>
-            <param name="value"></param>
-            <returns></returns>
         </member>
     </members>
 </doc>

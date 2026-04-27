@@ -42,7 +42,12 @@
       "Bash(git checkout *)",
       "Bash(git ls-tree *)",
       "PowerShell($f = \"D:\\\\Mello Silveira Serviços LTDA\\\\Projetos\\\\Tools\\\\src\\\\MelloSilveiraTools\\\\DependencyInjection.cs\"; $bytes = [System.IO.File]::ReadAllBytes\\($f\\); \"{0:X2} {1:X2} {2:X2}\" -f $bytes[0],$bytes[1],$bytes[2])",
-      "PowerShell(& \"D:\\\\Mello Silveira Servi�os LTDA\\\\Projetos\\\\Tools\\\\strip-aot-attrs.ps1\" -Root \"D:\\\\Mello Silveira Servi�os LTDA\\\\Projetos\\\\Tools\\\\src\")"
+      "PowerShell(& \"D:\\\\Mello Silveira Servi�os LTDA\\\\Projetos\\\\Tools\\\\strip-aot-attrs.ps1\" -Root \"D:\\\\Mello Silveira Servi�os LTDA\\\\Projetos\\\\Tools\\\\src\")",
+      "Bash(sed -i 's/public sealed record ConstantFunction : Function/public sealed class ConstantFunction : Function/' \"D:/Mello Silveira Serviços LTDA/Projetos/Tools/src/MelloSilveiraTools.Mathematics/Functions/ConstantFunction.cs\")",
+      "Bash(sed -i 's/public sealed record CosineFunction : Function/public sealed class CosineFunction : Function/' \"D:/Mello Silveira Serviços LTDA/Projetos/Tools/src/MelloSilveiraTools.Mathematics/Functions/CosineFunction.cs\")",
+      "Bash(sed -i 's/public sealed record ExponencialFunction : Function/public sealed class ExponencialFunction : Function/' \"D:/Mello Silveira Serviços LTDA/Projetos/Tools/src/MelloSilveiraTools.Mathematics/Functions/ExponencialFunction.cs\")",
+      "Bash(sed -i 's/public sealed record GenericFunction : Function/public sealed class GenericFunction : Function/' \"D:/Mello Silveira Serviços LTDA/Projetos/Tools/src/MelloSilveiraTools.Mathematics/Functions/GenericFunction.cs\")",
+      "Bash(sed -i 's/public sealed record SineFunction : Function/public sealed class SineFunction : Function/' \"D:/Mello Silveira Serviços LTDA/Projetos/Tools/src/MelloSilveiraTools.Mathematics/Functions/SineFunction.cs\")"
     ]
   }
 }

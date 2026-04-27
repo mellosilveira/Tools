@@ -6,19 +6,14 @@ namespace MelloSilveiraTools.Mathematics.Functions;
 /// Represents a cosine function.
 /// f(x) = a_0 * cos[a_1 * (x - a_2)] + ... + a_n-2 * cos[a_n-1 * (x - a_n)]
 /// </summary>
-public sealed record CosineFunction : Function
+/// <param name="initialVariableValue"></param>
+/// <param name="finalVariableValue"></param>
+/// <param name="coefficients"></param>
+public sealed class CosineFunction(
+    double? initialVariableValue,
+    double? finalVariableValue,
+    double[] coefficients) : Function(FunctionType.Cosine, initialVariableValue, finalVariableValue, coefficients)
 {
-    /// <summary>
-    /// Initializes a new instance of <see cref="CosineFunction"/>.
-    /// </summary>
-    /// <param name="initialVariableValue"></param>
-    /// <param name="finalVariableValue"></param>
-    /// <param name="coefficients"></param>
-    public CosineFunction(
-        double? initialVariableValue,
-        double? finalVariableValue,
-        double[] coefficients)
-        : base(FunctionType.Cosine, initialVariableValue, finalVariableValue, coefficients) { }
 
     /// <inheritdoc/>
     public override double Calculate(double variableValue)

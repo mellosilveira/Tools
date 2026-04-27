@@ -5,76 +5,44 @@ namespace MelloSilveiraTools.Mathematics.Functions;
 /// <summary>
 /// Represents an unique dimension mathematical function, f(x).
 /// </summary>
-public abstract record Function
+/// <param name="functionType"></param>
+/// <param name="initialVariableValue"></param>
+/// <param name="finalVariableValue"></param>
+/// <param name="coefficients"></param>
+/// <exception cref="ArgumentNullException">When <paramref name="coefficients"/> is null.</exception>
+public abstract class Function(FunctionType functionType, double? initialVariableValue, double? finalVariableValue, double[] coefficients)
 {
-    /// <summary>
-    /// Represents the function's derivative.
-    /// </summary>
-    private Function _derivative;
-
-    /// <summary>
-    /// Represents the function's integral.
-    /// </summary>
-    private Function _integral;
-
-    /// <summary>
-    /// Initializes a new instance of <see cref="Function"/>.
-    /// </summary>
-    /// <param name="functionType"></param>
-    /// <param name="initialVariableValue"></param>
-    /// <param name="finalVariableValue"></param>
-    /// <param name="coefficients"></param>
-    /// <exception cref="ArgumentNullException">When <paramref name="coefficients"/> is null.</exception>
-    public Function(FunctionType functionType, double? initialVariableValue, double? finalVariableValue, double[] coefficients)
-    {
-        FunctionType = functionType;
-        InitialVariableValue = initialVariableValue ?? double.NegativeInfinity;
-        FinalVariableValue = finalVariableValue ?? double.PositiveInfinity;
-        Coefficients = coefficients;
-    }
+    private Function? _derivative;
+    private Function? _integral;
 
     /// <summary>
     /// Represents the function's derivative.
     /// </summary>
-    public Function Derivative
-    {
-        get
-        {
-            _derivative ??= CreateDerivative();
-            return _derivative;
-        }
-    }
+    public Function Derivative => _derivative ??= CreateDerivative();
 
     /// <summary>
     /// Represents the function's integral.
     /// </summary>
-    public Function Integral
-    {
-        get
-        {
-            _integral ??= CreateIntegral();
-            return _integral;
-        }
-    }
+    public Function Integral => _integral ??= CreateIntegral();
 
-    /// <inheritdoc cref="SharedModules.Models.Mathematical.FunctionType"/>
-    public FunctionType FunctionType { get; }
+    /// <inheritdoc cref="Models.FunctionType"/>
+    public FunctionType FunctionType { get; } = functionType;
 
     /// <summary>
     /// Initial value for variable.
     /// This property must be 'protected set' due to an implementation for binary search.
     /// </summary>
-    public double InitialVariableValue { get; protected set; }
+    public double InitialVariableValue { get; } = initialVariableValue ?? double.NegativeInfinity;
 
     /// <summary>
     /// Final value for variable.
     /// </summary>
-    public double FinalVariableValue { get; }
+    public double FinalVariableValue { get; } = finalVariableValue ?? double.PositiveInfinity;
 
     /// <summary>
     /// Represents the scaling or proportionality factor of the variable in the expression.
     /// </summary>
-    public double[] Coefficients { get; }
+    public double[] Coefficients { get; } = coefficients;
 
     /// <summary>
     /// Calculates the value for the function.

@@ -20,12 +20,10 @@ namespace MelloSilveiraTools.Mathematics.Extensions
         /// <param name="vector"></param>
         /// <returns></returns>
         public static Vector3D Normalize(this Vector3D vector)
-            => Vector3D.Create
-            (
-                vector.X / vector.Length,
-                vector.Y / vector.Length,
-                vector.Z / vector.Length
-            );
+        {
+            double length = vector.Length;
+            return Vector3D.Create(vector.X / length, vector.Y / length, vector.Z / length);
+        }
 
         /// <summary>
         /// This method calculates the cross product between two vectors.
@@ -78,11 +76,5 @@ namespace MelloSilveiraTools.Mathematics.Extensions
         public static double DotProduct(this Vector3D vector1, Vector3D vector2)
             => vector1.X * vector2.X + vector1.Y * vector2.Y + vector1.Z * vector2.Z;
 
-        /// <summary>
-        /// This method returns true if the vector is empty and false, otherwise.
-        /// </summary>
-        /// <param name="vector"></param>
-        /// <returns></returns>
-        public static bool IsEmpty(this Vector3D vector) => vector.X == 0 && vector.Y == 0 && vector.Z == 0;
     }
 }

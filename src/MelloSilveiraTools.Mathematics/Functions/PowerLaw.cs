@@ -6,7 +6,7 @@ namespace MelloSilveiraTools.Mathematics.Functions;
 /// Represents the Power Law function.
 /// f(x) = a_0 * x^(-a_1)
 /// </summary>
-public record PowerLaw : Function
+public class PowerLaw : Function
 {
     /// <summary>
     /// Initializes a new instance of <see cref="PowerLaw"/>.
@@ -22,7 +22,7 @@ public record PowerLaw : Function
         : base(FunctionType.PowerLaw, initialVariableValue, finalVariableValue, coefficients)
     {
         if (coefficients.Length != 2)
-            throw new ArgumentOutOfRangeException(nameof(coefficients), $"'{nameof(PowerLaw)}' must contain only 2 coefficients.");
+            throw new ArgumentOutOfRangeException(nameof(coefficients), $"'{nameof(PowerLaw)}' must contain exactly 2 coefficients.");
     }
 
     /// <inheritdoc/>

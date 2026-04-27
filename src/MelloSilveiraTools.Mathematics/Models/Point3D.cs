@@ -1,5 +1,5 @@
 ﻿using MelloSilveiraTools.Mathematics.Converters;
-using SoftTissue.SharedModules.ExtensionMethods;
+using MelloSilveiraTools.Mathematics.Extensions;
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 

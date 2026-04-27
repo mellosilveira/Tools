@@ -12,8 +12,8 @@ Pick the contextual packages your application actually needs, or install the met
 | `MelloSilveiraTools.Database` | `IRepository`, `PostgresRepository`, `ISqlProvider`, attribute-driven SQL generation, filter clauses, Npgsql/Dapper extensions, dedicated Postgres resilience pipeline | Core |
 | `MelloSilveiraTools.WebApi` | `CustomControllerBase`, `CrudController<TEntity, TFilter>`, `ExceptionHandlingMiddleware`, NDJSON streaming, JWE bearer authentication, Swagger bootstrap, `ApiServiceAgent`, `OperationBase` / `OperationResponse` | Core, Database |
 | `MelloSilveiraTools.Plugins` | File-based plugin runtime, two-level cache, dynamic DI, persistence (file/database), HTTP-friendly operations, background orchestrator | Core, Database, WebApi |
-| `MelloSilveiraTools.Mathematics` | Differential equation solvers (Newmark, Newmark-β) and supporting types. Future home for expressions, functions, derivatives, integrals | Core |
-| `MelloSilveiraTools.MechanicsOfMaterials` | Fatigue (Goodman/Marin), constitutive equations, geometric properties (circular/rectangular profiles), 3D vector/force models | — |
+| `MelloSilveiraTools.Mathematics` | Differential equation solvers (Newmark, Newmark-β), function system (constant/polynomial/exponential/sine/cosine/power-law + factory), expressions (PronySeries), numerical integration (Simpson), differentiation, root-finding (Bisection, Brent), statistics, 3D geometry (Point3D, Vector3D), unit converter | Core |
+| `MelloSilveiraTools.MechanicsOfMaterials` | Fatigue (Goodman/Marin), constitutive equations, geometric properties (circular/rectangular profiles), 3D vector/force models, mechanical models (elastic, linear/non-linear/quasi-linear viscoelastic), load-sharing calculator | Mathematics |
 | `MelloSilveiraTools` | Meta-package: ProjectReferences for every package above; install once and get everything | all of the above |
 
 ## Quick start
@@ -119,7 +119,19 @@ MyCompany.Plugins.Reporting.v1.2.3.dll
 
 ## Mathematics
 
-`MelloSilveiraTools.Mathematics` currently ships time-domain integration solvers (`NewmarkMethod`, `NewmarkBetaMethod`) and a factory. The package name is intentionally broad — future additions like `Expression`, `Function`, derivatives and integrals will land here without renaming.
+`MelloSilveiraTools.Mathematics` ships the following toolkits. The DI entry point (`AddMathematicsServices`) registers only the differential-equation solvers; the rest are used directly without injection.
+
+**Differential equation solvers** — `NewmarkMethod`, `NewmarkBetaMethod` (registered via DI), `DifferentialEquationMethodFactory`.
+
+**Function system** — `Function` abstract record with lazy `Derivative` / `Integral` properties. Concrete types: `ConstantFunction`, `PolynomialFunction`, `ExponencialFunction`, `SineFunction`, `CosineFunction`, `PowerLaw`, `GenericFunction`. Create by enum via `FunctionFactory`.
+
+**Expressions** — `Expression` (sum of `Function` instances) and `PronySeries` (`c + Σ aₙ·e^(aₙx)`).
+
+**Numerical methods** — `SimpsonRuleIntegration` (integral), `Derivative` (finite-difference), `BisectionMethod` / `BrentMethod` / `RootFinding` / `StepByStepMethod` (root-finding, all implement `IRootFinding`).
+
+**Statistics** — `IStatisticsCalculator` / `StatisticsCalculator`.
+
+**Geometry and utilities** — `Point3D`, `Vector3D`, `UnitConverter`, `CustomMath` / `MathematicConstants`, `Vector3DExtension`, `DoubleExtensions`.
 
 ```csharp
 services.AddMathematicsServices();
@@ -127,7 +139,19 @@ services.AddMathematicsServices();
 
 ## Mechanics of Materials
 
-`MelloSilveiraTools.MechanicsOfMaterials` provides fatigue analysis (Goodman/Marin), constitutive equations, geometric property calculators (circular and rectangular profiles), and immutable 3D vector/force models.
+`MelloSilveiraTools.MechanicsOfMaterials` provides the following calculators. The DI entry point (`AddMechanicsOfMaterialsServices`) registers only the fatigue, constitutive equations, and geometric-property calculators; mechanical models and load sharing are used directly.
+
+**Fatigue** — `IFatigueCalculator` / `FatigueCalculator` (Goodman/Marin criteria, registered via DI).
+
+**Constitutive equations** — `IConstitutiveEquationsCalculator` / `ConstitutiveEquationsCalculator` (registered via DI).
+
+**Geometric properties** — `IGeometricPropertyCalculator<CircularProfile>` / `IGeometricPropertyCalculator<RectangularProfile>` (registered via DI).
+
+**Mechanical models** — generic `IMechanicalModelCalculator<TInput>` (force, displacement, stress, strain). Implementations: `ElasticModelCalculator`; linear viscoelastic `MaxwellModelCalculator`; non-linear viscoelastic `SchaperyModelCalculator`, `ModifiedSuperpositionMethodCalculator`; quasi-linear viscoelastic `FungModelCalculator`, `SimplifiedFungModelCalculator`.
+
+**Load sharing** — `ILoadSharingCalculator` / `LoadShare1DTissueThreeDimensionalSpaceCalculator` (specimen displacement, angle, force projection and derivatives in 3-D space).
+
+**3D force model** — immutable `Force` struct; use `Sum`/`Subtract`/`Round`/`Divide`/`Abs`/`Create` to derive new instances.
 
 ```csharp
 services.AddMechanicsOfMaterialsServices();

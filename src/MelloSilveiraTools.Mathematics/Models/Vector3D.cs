@@ -1,4 +1,4 @@
-﻿using SoftTissue.SharedModules.ExtensionMethods;
+﻿using MelloSilveiraTools.Mathematics.Extensions;
 
 namespace MelloSilveiraTools.Mathematics.Models
 {
@@ -119,8 +119,7 @@ namespace MelloSilveiraTools.Mathematics.Models
         {
             try
             {
-                List<string> vec = vectorAsString.Split(',').ToList();
-
+                string[] vec = vectorAsString.Split(',');
                 vector3D = new Vector3D
                 (
                     x: double.Parse(vec[0]),

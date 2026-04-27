@@ -1,4 +1,4 @@
-﻿namespace MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels;
+﻿namespace MelloSilveiraTools.Mathematics.Models;
 
 /// <summary>
 /// Contain the constats used in application.

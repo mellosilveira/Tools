@@ -3,7 +3,7 @@
 namespace MelloSilveiraTools.Mathematics.NumericalMethods.Integral
 {
     /// <summary>
-    /// Represents the Simpson's Rule integration.
+    /// Represents a numerical integration rule.
     /// </summary>
     public interface IIntegration
     {
@@ -24,7 +24,7 @@ namespace MelloSilveiraTools.Mathematics.NumericalMethods.Integral
         double Calculate(Func<double, double> equation, IntegralInput integralInput);
 
         /// <summary>
-        /// Calculates the integral of a function.
+        /// Calculates the integral of a function asynchronously.
         /// </summary>
         /// <param name="equation">The equation to be integrated.</param>
         /// <param name="integralInput">The inputs for integral.</param>

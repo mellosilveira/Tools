@@ -1,5 +1,5 @@
 ﻿using MelloSilveiraTools.Mathematics.Models;
-using SoftTissue.SharedModules.ExtensionMethods;
+using MelloSilveiraTools.Mathematics.Extensions;
 
 namespace MelloSilveiraTools.MechanicsOfMaterials.Models.LoadSharing;
 
@@ -13,7 +13,7 @@ public class SpecimenLoadSharingResult
     /// <summary>
     /// Unique identifier for specimen.
     /// </summary>
-    public string Identifier { get; init; }
+    public required string Identifier { get; init; }
 
     /// <summary>
     /// Unit: rad (radians).
@@ -64,12 +64,12 @@ public class SpecimenLoadSharingResult
         }
         else
         {
-            throw new ArgumentException("It is not possible to attribute a value to property.", nameof(LoadSharing));
+            throw new ArgumentException("It is not possible to attribute a value to property.", nameof(loadSharing));
         }
     }
 
     /// <inheritdoc/>
-    public override bool Equals(object obj)
+    public override bool Equals(object? obj)
     {
         if (obj is SpecimenLoadSharingResult result)
         {

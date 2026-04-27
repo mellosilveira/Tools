@@ -1,6 +1,5 @@
 ﻿using MelloSilveiraTools.Mathematics.NumericalMethods.Derivative;
 using MelloSilveiraTools.Mathematics.NumericalMethods.Integral;
-using MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Viscoelasticity.QuasiLinear;
 using MelloSilveiraTools.MechanicsOfMaterials.Converters.MechanicalParameter;
 using MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels;
 using MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.QuasiLinear;

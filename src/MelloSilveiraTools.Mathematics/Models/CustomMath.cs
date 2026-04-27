@@ -13,7 +13,7 @@ public static class CustomMath
     /// A <see cref="Point3D"/> with the value of cosine foreach axis on <see cref="Vector3D"/>. 
     /// Unit: dimensionless.
     /// </returns>
-    public static Point3D Cos(Vector3D angle) => Point3D.Create(Math.Cos(angle.X), Math.Sin(angle.Y), Math.Cos(angle.Z));
+    public static Point3D Cos(Vector3D angle) => Point3D.Create(Math.Cos(angle.X), Math.Cos(angle.Y), Math.Cos(angle.Z));
 
     /// <summary>
     /// Sums the <paramref name="values"/>.

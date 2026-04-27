@@ -6,19 +6,14 @@ namespace MelloSilveiraTools.Mathematics.Functions;
 /// Represents an exponencial function.
 /// f(x) = a_0 * e^(a_1 * x) + ... + a_n-1 * e^(a_n * x)
 /// </summary>
-public sealed record ExponencialFunction : Function
+/// <param name="initialVariableValue"></param>
+/// <param name="finalVariableValue"></param>
+/// <param name="coefficients"></param>
+public sealed class ExponencialFunction(
+    double? initialVariableValue,
+    double? finalVariableValue,
+    double[] coefficients) : Function(FunctionType.Exponential, initialVariableValue, finalVariableValue, coefficients)
 {
-    /// <summary>
-    /// Initializes a new instance of <see cref="ExponencialFunction"/>.
-    /// </summary>
-    /// <param name="initialVariableValue"></param>
-    /// <param name="finalVariableValue"></param>
-    /// <param name="coefficients"></param>
-    public ExponencialFunction(
-        double? initialVariableValue,
-        double? finalVariableValue,
-        double[] coefficients) 
-        : base(FunctionType.Exponential, initialVariableValue, finalVariableValue, coefficients) { }
 
     /// <inheritdoc/>
     public override double Calculate(double variableValue)

@@ -1,8 +1,8 @@
 ﻿using MelloSilveiraTools.Mathematics.Expressions;
+using MelloSilveiraTools.Mathematics.Extensions;
 using MelloSilveiraTools.Mathematics.Functions;
 using MelloSilveiraTools.Mathematics.Models;
 using MelloSilveiraTools.MechanicsOfMaterials.Models;
-using SoftTissue.SharedModules.ExtensionMethods;
 
 namespace MelloSilveiraTools.MechanicsOfMaterials.Calculators.LoadSharing;
 
