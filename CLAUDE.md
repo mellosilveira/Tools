@@ -23,10 +23,9 @@ Build everything: `dotnet build MelloSilveiraTools.sln`. Each project produces i
 ## Package dependency graph
 
 ```
-Core ←─── Mathematics
+Core ←─── Mathematics ←─── MechanicsOfMaterials
   ↑
-  ├── Database ←── WebApi ←── Plugins
-  └── MechanicsOfMaterials
+  └── Database ←── WebApi ←── Plugins
 
 MelloSilveiraTools (meta)  →  Core, Database, WebApi, Plugins, Mathematics, MechanicsOfMaterials
 ```
@@ -34,7 +33,7 @@ MelloSilveiraTools (meta)  →  Core, Database, WebApi, Plugins, Mathematics, Me
 Notable consequences:
 - `WebApi → Database` because `CrudController` consumes `IRepository`, `EntityBase`, `FilterBase`.
 - `Plugins → Database` because `DatabasePluginCachePersistence` is shipped alongside `JsonFilePluginCachePersistence`.
-- `MechanicsOfMaterials` and `Mathematics` are independent today (MoM does not consume the Newmark solvers in code).
+- `MechanicsOfMaterials → Mathematics` because `ILoadSharingCalculator` uses `Vector3D` from Mathematics.
 
 ## Namespaces
 
@@ -175,10 +174,27 @@ Inside `MelloSilveiraTools.Plugins/Application/Operations/Plugins/`:
 
 ## Mathematics package
 
-Today it ships only the differential equation solvers (`NewmarkMethod`, `NewmarkBetaMethod`, `DifferentialEquationMethodFactory`, supporting input/result records, `CurveType`, `DifferentialEquationMethodType`).
+**DI-registered services** (`AddMathematicsServices`): `NewmarkMethod`, `NewmarkBetaMethod`, `DifferentialEquationMethodFactory`.
 
-Named **Mathematics** (not "NumericalMethods") so future additions — `Expression`, `Function`, derivatives, integrals, etc. — fit without another rename. Add new namespaces alongside (e.g. `MelloSilveiraTools.Mathematics.Domain.Mathematical.Expressions`) inside the same csproj.
+**Direct-use types** (no DI registration needed):
+
+- *Functions* — `Function` abstract class with lazy `Derivative` / `Integral` properties. Implementations: `ConstantFunction`, `PolynomialFunction`, `ExponencialFunction`, `SineFunction`, `CosineFunction`, `PowerLaw`, `GenericFunction`. `FunctionFactory` dispatches by `FunctionType` enum.
+- *Expressions* — `Expression` abstract class (sum of `Function` instances); `PronySeries` concrete expression.
+- *Numerical methods* — `SimpsonRuleIntegration` (`IIntegration`); `Derivative` (`IDerivative`); `BisectionMethod`, `BrentMethod`, `RootFinding`, `StepByStepMethod` (all `IRootFinding`).
+- *Statistics* — `IStatisticsCalculator` / `StatisticsCalculator`.
+- *Geometry/utilities* — `Point3D`, `Vector3D`, `Vector3DExtension`, `DoubleExtensions`, `UnitConverter`, `CustomMath`, `MathematicConstants`.
+
+Add new feature families as sibling namespaces inside the same csproj (e.g. `MelloSilveiraTools.Mathematics.Expressions`).
 
 ## Companion package: MechanicsOfMaterials
 
-Ships fatigue (Goodman/Marin) analysis, constitutive equations, geometric properties, 3D vector/force models. `Force` is immutable after construction (use `Sum`/`Subtract`/`Round`/`Divide`/`Abs`/`Create` to derive new instances). Independent of Mathematics today.
+**DI-registered services** (`AddMechanicsOfMaterialsServices`): `IConstitutiveEquationsCalculator`, `IFatigueCalculator`, `IGeometricPropertyCalculator<CircularProfile>`, `IGeometricPropertyCalculator<RectangularProfile>`.
+
+**Direct-use calculators** (no DI registration):
+
+- *Mechanical models* — `IMechanicalModelCalculator<TInput>` (force / displacement / stress / strain). Families: elastic (`ElasticModelCalculator`), linear viscoelastic (`MaxwellModelCalculator`), non-linear viscoelastic (`SchaperyModelCalculator`, `ModifiedSuperpositionMethodCalculator`), quasi-linear viscoelastic (`FungModelCalculator`, `SimplifiedFungModelCalculator`).
+- *Load sharing* — `ILoadSharingCalculator` / `LoadShare1DTissueThreeDimensionalSpaceCalculator`.
+- *Converters* — `IMechanicalParameterConverter` / `MechanicalParameterConverter`.
+- *Attributes* — `MechanicalModelParameterAttribute`, `MechanicalModelParameterCalculationAttribute`.
+
+`Force` is immutable after construction; use `Sum`/`Subtract`/`Round`/`Divide`/`Abs`/`Create` to derive new instances. Depends on Mathematics (transitive) for `Vector3D`.

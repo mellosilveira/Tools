@@ -1,0 +1,231 @@
+﻿using MelloSilveiraTools.Mathematics.Models.NumericalMethods;
+using MelloSilveiraTools.Mathematics.NumericalMethods.Derivative;
+using MelloSilveiraTools.Mathematics.NumericalMethods.Integral;
+using MelloSilveiraTools.MechanicsOfMaterials.Attributes;
+using MelloSilveiraTools.MechanicsOfMaterials.Converters.MechanicalParameter;
+using MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels;
+using MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity;
+using MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.NonLinear.Schapery;
+
+namespace MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Viscoelasticity.NonLinear.Schapery
+{
+    /// <inheritdoc cref="ISchaperyModelCalculator"/>
+    /// <param name="simpsonRuleIntegration">See reference at <see cref="IIntegration"/>.</param>
+    /// <param name="derivative">See reference at <see cref="IDerivative"/>.</param>
+    /// <param name="parameterConverter">See reference at <see cref="IMechanicalParameterConverter"/>.</param>
+    public sealed class SchaperyModelCalculator(
+        IIntegration simpsonRuleIntegration,
+        IDerivative derivative,
+        IMechanicalParameterConverter parameterConverter)
+        : MechanicalModelCalculatorBase<SchaperyModelInput>(parameterConverter), ISchaperyModelCalculator
+    {
+        private readonly IIntegration _integration = simpsonRuleIntegration;
+        private readonly IDerivative _derivative = derivative;
+
+        #region Calculate mechanical model's parameters.
+
+        /// <inheritdoc/>
+        [MechanicalModelParameterCalculation(nameof(SchaperyModelResult.TransientRelaxationFunction), ViscoelasticEffect.Relaxation)]
+        public double CalculateTransientRelaxationFunction(SchaperyModelInput input, double time)
+        {
+            return input.TransientRelaxationFunction.Calculate(time);
+
+            // TODO: Revisar, porque está errado.
+            //if (time <= Constants.Precision)
+            //{
+            //    if (input.RampTimeConsideration == RampTimeConsideration.Disregard)
+            //    {
+            //        double initialStress = input.Stress?.InitialValue ?? ParameterConverter.CalculateStressFromForce(input, input.Force.InitialValue);
+            //        return (initialStress - CalculateSchaperyModelConstant(input.He, strain.Value) * input.Ge * strain.Value)
+            //            / (CalculateSchaperyModelConstant(input.H2, strain.Value) * strain.Value);
+            //    }
+            //
+            //    return 0;
+            //}
+        }
+
+        /// <inheritdoc/>
+        [MechanicalModelParameterCalculation(nameof(SchaperyModelResult.TransientCreepCompliance), ViscoelasticEffect.Creep)]
+        public double CalculateTransientCreepCompliance(SchaperyModelInput input, double time)
+        {
+            return input.TransientCreepCompliance.Calculate(time);
+        }
+
+        /// <inheritdoc/>
+        public double CalculateReducedTimeFunction(SchaperyModelInput input, double time)
+        {
+            // For soft tissue, it always returns the time because the shift factor for that case is always 1.
+            return time;
+
+            // TODO: Implementar validação que distingue tecidos moles de outros materiais
+            // para que este modelo possa ser aplicado em diferentes materiais.
+
+            //if (time <= Constants.Precision)
+            //    return 0;
+            //
+            //return SimpsonRuleIntegration.Calculate(
+            //    (integrationTime) => 1 / CalculateStressShiftFactor(input, integrationTime),
+            //    new IntegralInput
+            //    {
+            //        InitialPoint = 0,
+            //        FinalPoint = time,
+            //        Step = input.TimeStep
+            //    });
+        }
+
+        /// <inheritdoc/>
+        public double CalculateRetardationTimeFunction(SchaperyModelInput input, double time)
+        {
+            // For soft tissue, it always returns the time because the shift factor for that case is always 1.
+            return time;
+
+            // TODO: Implementar validação que distingue tecidos moles de outros materiais
+            // para que este modelo possa ser aplicado em diferentes materiais.
+
+            //if (time <= Constants.Precision)
+            //    return 0;
+            //
+            //return SimpsonRuleIntegration.Calculate(
+            //    (integrationTime) => 1 / CalculateTemperatureShiftFactor(input, integrationTime),
+            //    new IntegralInput
+            //    {
+            //        InitialPoint = 0,
+            //        FinalPoint = time,
+            //        Step = input.TimeStep
+            //    });
+        }
+
+        /// <inheritdoc/>
+        public double CalculateStressShiftFactor(SchaperyModelInput input, double time)
+        {
+            throw new NotImplementedException(
+                $"The method '{nameof(CalculateStressShiftFactor)}' was not implemented because for soft tissue analysis it is not necessary.");
+        }
+
+        /// <inheritdoc/>
+        public double CalculateTemperatureShiftFactor(SchaperyModelInput input, double time)
+        {
+            throw new NotImplementedException(
+                $"The method '{nameof(CalculateTemperatureShiftFactor)}' was not implemented because for soft tissue analysis it is not necessary.");
+        }
+
+        /// <inheritdoc/>
+        public double CalculateRelaxationFunction(SchaperyModelInput input, double time, double? strain = null)
+        {
+            return CalculateTransientRelaxationFunction(input, time) + input.Ge;
+        }
+
+        /// <inheritdoc/>
+        public double CalculateCreepCompliance(SchaperyModelInput input, double time, double? stress = null)
+        {
+            return CalculateTransientCreepCompliance(input, time) + input.J0;
+        }
+
+        /// <inheritdoc/>
+        public override double CalculateForce(SchaperyModelInput input, double time, double? displacement = null)
+        {
+            double stress = 0;
+
+            if (input.RampTimeConsideration == RampTimeConsideration.Disregard)
+            {
+                displacement ??= input.Displacement.InitialValue;
+                double strain = ParameterConverter.CalculateStrainFromDisplacement(input.Specimen, displacement.Value);
+
+                if (input.ViscoelasticEffect == ViscoelasticEffect.Relaxation)
+                    stress = CalculateStressWhenDisregardRampTime(input, time, strain);
+
+                if (input.ViscoelasticEffect == ViscoelasticEffect.Creep)
+                    throw new NotImplementedException($"The logic for calculate the stress while disregarding the ramp time and considering creep was not implemented on '{GetType().Name}'.");
+            }
+            else if (input.RampTimeConsideration == RampTimeConsideration.ConsiderWithViscoelasticEffect && time > MechanicalModelConstants.Tolerance)
+            {
+                displacement ??= input.Displacement.CalculateValue(time);
+                double strain = ParameterConverter.CalculateStrainFromDisplacement(input.Specimen, displacement.Value);
+
+                // σ(ε,t) = hₑ(ε)·Gₑ·ε(t) + h₁(ε)·∫₀ᵗ ΔG(ρ(t)-ρ(τ))·d[h₂(ε)·ε(τ)]/dτ dτ (Projeto Final, Eq. 47).
+                stress = input.He.Calculate(strain) * input.Ge * strain
+                    + input.H1.Calculate(strain) * _integration.Calculate((integrationTime) =>
+                        CalculateTransientRelaxationFunction(input, CalculateReducedTimeFunction(input, time) - CalculateReducedTimeFunction(input, integrationTime))
+                        * _derivative.Calculate((derivativeTime) =>
+                        {
+                            double derivativeDisplacement = input.Displacement.CalculateValue(derivativeTime);
+                            double derivativeStrain = ParameterConverter.CalculateStrainFromDisplacement(input.Specimen, derivativeDisplacement);
+                            return input.H2.Calculate(derivativeStrain) * derivativeStrain;
+                        },
+                        input.TimeStep,
+                        integrationTime),
+                    new IntegralInput
+                    {
+                        InitialPoint = MechanicalModelConstants.InitialTime,
+                        Step = input.TimeStep,
+                        FinalPoint = time
+                    });
+            }
+
+            return ParameterConverter.CalculateForceFromStress(input.Specimen, stress);
+        }
+
+        /// <inheritdoc/>
+        public override double CalculateDisplacement(SchaperyModelInput input, double time, double? force = null)
+        {
+            throw new NotImplementedException($"The method '{nameof(CalculateDisplacement)}' was not implemented for '{GetType().Name}'.");
+        }
+
+        /// <inheritdoc/>
+        /// <remarks>σ(ε,t) = hₑ(ε)·Gₑ·ε(t) + h₁(ε)·∫₀ᵗ ΔG(ρ(t)-ρ(τ))·d[h₂(ε)·ε(τ)]/dτ dτ (Projeto Final, Eq. 47/48).</remarks>
+        public override double CalculateStress(SchaperyModelInput input, double time, double? strain = null)
+        {
+            strain ??= input.Strain.CalculateValue(time);
+
+            if (input.RampTimeConsideration == RampTimeConsideration.Disregard)
+            {
+                if (input.ViscoelasticEffect == ViscoelasticEffect.Relaxation)
+                    return CalculateStressWhenDisregardRampTime(input, time, strain.Value);
+
+                if (input.ViscoelasticEffect == ViscoelasticEffect.Creep)
+                    throw new NotImplementedException($"The logic for calculate the stress while disregarding the ramp time and considering creep was not implemented on '{GetType().Name}'.");
+            }
+
+            if (time <= MechanicalModelConstants.Tolerance)
+                return 0;
+
+            return input.He.Calculate(strain.Value) * input.Ge * strain.Value
+                + input.H1.Calculate(strain.Value) * _integration.Calculate((integrationTime) =>
+                    CalculateTransientRelaxationFunction(input, CalculateReducedTimeFunction(input, time) - CalculateReducedTimeFunction(input, integrationTime))
+                    * _derivative.Calculate((derivativeTime) =>
+                    {
+                        double experimentalStrain = input.Strain.CalculateValue(derivativeTime);
+                        return input.H2.Calculate(experimentalStrain) * experimentalStrain;
+                    },
+                    input.TimeStep,
+                    integrationTime),
+                new IntegralInput
+                {
+                    InitialPoint = MechanicalModelConstants.InitialTime,
+                    Step = input.TimeStep,
+                    FinalPoint = time
+                });
+        }
+
+        /// <inheritdoc/>
+        public override double CalculateStrain(SchaperyModelInput input, double time, double? stress = null)
+        {
+            throw new NotImplementedException($"The method '{nameof(CalculateStrain)}' was not implemented for '{GetType().Name}'.");
+        }
+
+        /// <summary>
+        /// Calculates the stress when the ramp time is disregarded.
+        /// </summary>
+        /// <param name="input">The mechanical model's input.</param>
+        /// <param name="time">Unit: s (second).</param>
+        /// <param name="strain">Unit: dimensionless.</param>
+        /// <returns>Unit: MPa (Mega-Pascal).</returns>
+        private double CalculateStressWhenDisregardRampTime(SchaperyModelInput input, double time, double strain)
+        {
+            return input.He.Calculate(strain) * input.Ge * strain
+                + input.H2.Calculate(strain) * strain * CalculateTransientRelaxationFunction(input, time);
+        }
+
+        #endregion
+    }
+}

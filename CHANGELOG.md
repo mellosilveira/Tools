@@ -5,6 +5,26 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [1.4.0] - 2026-05-01
+### Added
+- **Mathematics — function system.** `Function` abstract class (unidimensional f(x)) with lazy `Derivative` and `Integral` properties. Concrete implementations: `ConstantFunction`, `PolynomialFunction`, `ExponencialFunction`, `SineFunction`, `CosineFunction`, `PowerLaw`, `GenericFunction`. `FunctionFactory` creates instances by `FunctionType`.
+- **Mathematics — expressions.** `Expression` abstract class (sum of multiple `Function` instances). `PronySeries` concrete expression: `f(x) = c + Σ aₙ·e^(aₙx)`.
+- **Mathematics — numerical integration and differentiation.** `IIntegration` + `SimpsonRuleIntegration`; `IDerivative` + `Derivative` (finite-difference numerical derivative).
+- **Mathematics — root-finding.** `IRootFinding` interface + `BisectionMethod`, `BrentMethod`, `RootFinding` (composite dispatcher), `StepByStepMethod`. `RootFindingInput` carries interval, tolerance and max-iteration settings. `NonConvergenceException` is thrown when the algorithm fails to converge.
+- **Mathematics — statistics.** `IStatisticsCalculator` + `StatisticsCalculator`; `StatisticalData` result record.
+- **Mathematics — 3D geometry and utilities.** `Point3D` and `Vector3D` value types; `Vector3DExtension` and `DoubleExtensions`; `UnitConverter`; `CustomMath` and `MathematicConstants` constant holders.
+- **MechanicsOfMaterials — mechanical models.** Generic `IMechanicalModelCalculator<TInput>` interface (CalculateForce / CalculateDisplacement / CalculateStress / CalculateStrain) and `MechanicalModelCalculatorBase`.
+  - *Elastic:* `IElasticModelCalculator` / `ElasticModelCalculator` + `ElasticModelInput` / `ElasticModelResult`.
+  - *Linear viscoelastic:* `ILinearModelCalculator` / `LinearModelCalculator`; `IMaxwellModelCalculator` / `MaxwellModelCalculator` + `MaxwellModelInput` / `MaxwellModelResult`.
+  - *Non-linear viscoelastic:* `ISchaperyModelCalculator` / `SchaperyModelCalculator` + `SchaperyModelInput` / `SchaperyModelResult`; `IModifiedSuperpositionMethodCalculator` / `ModifiedSuperpositionMethodCalculator` + corresponding input/result.
+  - *Quasi-linear viscoelastic:* `IQuasiLinearModelCalculator` / `QuasiLinearModelCalculator`; `IFungModelCalculator` / `FungModelCalculator` + `FungModelInput`; `ISimplifiedFungModelCalculator` / `SimplifiedFungModelCalculator` + `SimplifiedFungModelInput`; `ReducedRelaxationFunction` helper type.
+- **MechanicsOfMaterials — load sharing.** `ILoadSharingCalculator` / `LoadShare1DTissueThreeDimensionalSpaceCalculator` — computes specimen displacement, angle, force projection and their derivatives within a 3-D system.
+- **MechanicsOfMaterials — supporting types.** `MechanicalParameter` (displacement / strain / force / stress descriptor), `SpecimenParameter`, `Asymptote`, `AnalysisType`, `AnalysisResult`, `MechanicalModelType`, `MechanicalRelationship`, `ParameterNameConstant`, `MechanicalModelConstants`, `RampTimeConsideration`, `ViscoelasticEffect`, `AcceptedRange`, `LoadSharingConsideration`, `MechanicalSystem`, `FailureCondition`, `LoadSharingResult`, `SpecimenLoadSharingResult`.
+- **MechanicsOfMaterials — attributes.** `MechanicalModelParameterAttribute` and `MechanicalModelParameterCalculationAttribute` for annotating model-parameter properties.
+- **MechanicsOfMaterials — converter.** `IMechanicalParameterConverter` + `MechanicalParameterConverter`.
+### Changed
+- `MelloSilveiraTools.MechanicsOfMaterials` now takes a `ProjectReference` on `MelloSilveiraTools.Mathematics` (required by `ILoadSharingCalculator` which uses `Vector3D`). Consumers that install `MechanicsOfMaterials` without the meta-package will pull in `Mathematics` as a transitive dependency.
+
 ## [1.3.0] - 2026-04-26
 ### Added
 - `OperationResponseExtensions.BuildHttpResponseAsync<T>(this Task<T>)` — async counterpart to `BuildHttpResponse`: awaits a `Task<T> where T : OperationResponse` and returns a `JsonResult` with the matching HTTP status code. Mirrors `ToHttpResultAsync` (minimal APIs) on the controller side.
