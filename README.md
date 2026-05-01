@@ -123,7 +123,7 @@ MyCompany.Plugins.Reporting.v1.2.3.dll
 
 **Differential equation solvers** — `NewmarkMethod`, `NewmarkBetaMethod` (registered via DI), `DifferentialEquationMethodFactory`.
 
-**Function system** — `Function` abstract record with lazy `Derivative` / `Integral` properties. Concrete types: `ConstantFunction`, `PolynomialFunction`, `ExponencialFunction`, `SineFunction`, `CosineFunction`, `PowerLaw`, `GenericFunction`. Create by enum via `FunctionFactory`.
+**Function system** — `Function` abstract class with lazy `Derivative` / `Integral` properties. Concrete types: `ConstantFunction`, `PolynomialFunction`, `ExponencialFunction`, `SineFunction`, `CosineFunction`, `PowerLaw`, `GenericFunction`. Create by enum via `FunctionFactory`.
 
 **Expressions** — `Expression` (sum of `Function` instances) and `PronySeries` (`c + Σ aₙ·e^(aₙx)`).
 

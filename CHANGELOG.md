@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 ### Added
-- **Mathematics — function system.** `Function` abstract record (unidimensional f(x)) with lazy `Derivative` and `Integral` properties. Concrete implementations: `ConstantFunction`, `PolynomialFunction`, `ExponencialFunction`, `SineFunction`, `CosineFunction`, `PowerLaw`, `GenericFunction`. `FunctionFactory` creates instances by `FunctionType`.
+- **Mathematics — function system.** `Function` abstract class (unidimensional f(x)) with lazy `Derivative` and `Integral` properties. Concrete implementations: `ConstantFunction`, `PolynomialFunction`, `ExponencialFunction`, `SineFunction`, `CosineFunction`, `PowerLaw`, `GenericFunction`. `FunctionFactory` creates instances by `FunctionType`.
 - **Mathematics — expressions.** `Expression` abstract class (sum of multiple `Function` instances). `PronySeries` concrete expression: `f(x) = c + Σ aₙ·e^(aₙx)`.
 - **Mathematics — numerical integration and differentiation.** `IIntegration` + `SimpsonRuleIntegration`; `IDerivative` + `Derivative` (finite-difference numerical derivative).
 - **Mathematics — root-finding.** `IRootFinding` interface + `BisectionMethod`, `BrentMethod`, `RootFinding` (composite dispatcher), `StepByStepMethod`. `RootFindingInput` carries interval, tolerance and max-iteration settings. `NonConvergenceException` is thrown when the algorithm fails to converge.
