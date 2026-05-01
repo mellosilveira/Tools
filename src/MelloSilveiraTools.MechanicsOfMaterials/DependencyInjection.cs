@@ -1,6 +1,6 @@
-﻿using MelloSilveiraTools.MechanicsOfMaterials.ConstitutiveEquations;
-using MelloSilveiraTools.MechanicsOfMaterials.Fatigue;
-using MelloSilveiraTools.MechanicsOfMaterials.GeometricProperties;
+﻿using MelloSilveiraTools.MechanicsOfMaterials.Calculators.ConstitutiveEquations;
+using MelloSilveiraTools.MechanicsOfMaterials.Calculators.Fatigue;
+using MelloSilveiraTools.MechanicsOfMaterials.Calculators.GeometricProperties;
 using MelloSilveiraTools.MechanicsOfMaterials.Models.Profiles;
 using Microsoft.Extensions.DependencyInjection;
 
