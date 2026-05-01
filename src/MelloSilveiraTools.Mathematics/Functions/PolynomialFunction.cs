@@ -14,7 +14,6 @@ public sealed class PolynomialFunction(
     double? finalVariableValue,
     double[] coefficients) : Function(FunctionType.Polynomial, initialVariableValue, finalVariableValue, coefficients)
 {
-
     /// <inheritdoc/>
     public override double Calculate(double variableValue)
     {

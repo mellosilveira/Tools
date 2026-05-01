@@ -14,7 +14,6 @@ public sealed class ExponencialFunction(
     double? finalVariableValue,
     double[] coefficients) : Function(FunctionType.Exponential, initialVariableValue, finalVariableValue, coefficients)
 {
-
     /// <inheritdoc/>
     public override double Calculate(double variableValue)
     {

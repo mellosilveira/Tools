@@ -14,7 +14,6 @@ public sealed class CosineFunction(
     double? finalVariableValue,
     double[] coefficients) : Function(FunctionType.Cosine, initialVariableValue, finalVariableValue, coefficients)
 {
-
     /// <inheritdoc/>
     public override double Calculate(double variableValue)
     {

@@ -45,7 +45,8 @@ namespace MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.V
                 if (equationResult == 0)
                     continue;
 
-                result += Integration.GetMultiplyFactor(index, numberOfDivisions) * equationResult * step / 3;
+                int factor = (index == 0 || index == numberOfDivisions) ? 1 : (index % 2 != 0 ? 4 : 2);
+                result += factor * equationResult * step / 3;
 
                 step = SetIntegrationStep(integrationTime, step);
             }

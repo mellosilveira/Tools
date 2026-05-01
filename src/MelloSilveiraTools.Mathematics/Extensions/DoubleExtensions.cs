@@ -24,18 +24,14 @@ public static class DoubleExtensions
     public static double ToDegrees(this double value) => 180 / Math.PI * value;
 
     /// <summary>
-    /// Calculates the relative difference between two values.
+    /// Calculates the relative difference between two values: (value1 - value2) / value1.
+    /// Returns 0 when <paramref name="value1"/> is zero to avoid division by zero.
     /// </summary>
     /// <param name="value1"></param>
     /// <param name="value2"></param>
     /// <returns></returns>
     public static double RelativeDifference(this double value1, double value2)
-    {
-        if (value1 == value2)
-            return 0;
-
-        return (value1 - value2) / value1;
-    }
+        => value1 == 0 ? 0 : (value1 - value2) / value1;
 
     /// <summary>
     /// Calculates the relative absolut difference between two values.

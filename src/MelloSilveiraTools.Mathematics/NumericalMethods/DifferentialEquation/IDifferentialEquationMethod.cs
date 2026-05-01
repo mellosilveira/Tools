@@ -1,5 +1,4 @@
 ﻿using MelloSilveiraTools.Mathematics.Models.NumericalMethods;
-using MelloSilveiraTools.Mathematics.NumericalMethods;
 
 namespace MelloSilveiraTools.Mathematics.NumericalMethods.DifferentialEquation;
 

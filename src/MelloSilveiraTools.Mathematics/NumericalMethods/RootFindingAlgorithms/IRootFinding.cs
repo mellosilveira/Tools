@@ -1,4 +1,6 @@
-﻿namespace MelloSilveiraTools.Mathematics.NumericalMethods.RootFindingAlgorithms;
+﻿using MelloSilveiraTools.Mathematics.Models.NumericalMethods;
+
+namespace MelloSilveiraTools.Mathematics.NumericalMethods.RootFindingAlgorithms;
 
 /// <summary>
 /// The root-finding algorithm is a numerical method used to find the roots or zeros of a continuous function.
@@ -13,6 +15,6 @@ public interface IRootFinding
     /// <param name="input">Contains the inputs for root-finding algorithm.</param>
     /// <param name="function">Represents the continuous function.</param>
     /// <returns>The root of the continuous function and its error.</returns>
-    /// <exception cref="MathNet.Numerics.NonConvergenceException">When it was not possible to converge to a value.</exception>
+    /// <exception cref="NonConvergenceException">When it was not possible to converge to a value.</exception>
     (double Root, double Error) FindRoot(RootFindingInput input, Func<double, double> function);
 }

@@ -1,4 +1,5 @@
 ﻿using MelloSilveiraTools.Mathematics.Models;
+using MelloSilveiraTools.Mathematics.Models.NumericalMethods;
 
 namespace MelloSilveiraTools.Mathematics.NumericalMethods.RootFindingAlgorithms;
 

@@ -19,7 +19,6 @@ public sealed class PronySeries(double? initialVariableValue, double? finalVaria
             new ExponencialFunction(initialVariableValue, finalVariableValue, iteratorCoefficients)
         ])
 {
-
     /// <summary>
     /// Independent parameter represented by c.
     /// </summary>

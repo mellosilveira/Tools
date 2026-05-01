@@ -7,15 +7,8 @@ namespace MelloSilveiraTools.Mathematics.Expressions;
 /// </summary>
 public class Expression : List<Function>
 {
-    /// <summary>
-    /// Represents the expression's derivative.
-    /// </summary>
-    private Expression _derivative;
-
-    /// <summary>
-    /// Represents the expression's integral.
-    /// </summary>
-    private Expression _integral;
+    private Expression? _derivative;
+    private Expression? _integral;
 
     /// <summary>
     /// Initializes a new instance of <see cref="Expression"/>.
@@ -26,8 +19,6 @@ public class Expression : List<Function>
     /// <exception cref="ArgumentNullException">When <paramref name="functions"/> is null or empty.</exception>
     public Expression(double? initialVariableValue, double? finalVariableValue, List<Function> functions) : base(functions)
     {
-        ArgumentNullException.ThrowIfNull(functions);
-
         InitialVariableValue = initialVariableValue ?? double.NegativeInfinity;
         FinalVariableValue = finalVariableValue ?? double.PositiveInfinity;
 
@@ -40,26 +31,12 @@ public class Expression : List<Function>
     /// <summary>
     /// Represents the expression's derivative.
     /// </summary>
-    public Expression Derivative
-    {
-        get
-        {
-            _derivative ??= CreateDerivative();
-            return _derivative;
-        }
-    }
+    public Expression Derivative => _derivative ??= CreateDerivative();
 
     /// <summary>
     /// Represents the expression's integral.
     /// </summary>
-    public Expression Integral
-    {
-        get
-        {
-            _integral ??= CreateIntegral();
-            return _integral;
-        }
-    }
+    public Expression Integral => _integral ??= CreateIntegral();
 
     /// <summary>
     /// Initial value for variable.

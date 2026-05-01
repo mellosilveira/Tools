@@ -26,10 +26,7 @@ public class PowerLaw : Function
     }
 
     /// <inheritdoc/>
-    public override double Calculate(double variableValue)
-    {
-        return Coefficients[0] * Math.Pow(variableValue, -Coefficients[1]);
-    }
+    public override double Calculate(double variableValue) => Coefficients[0] * Math.Pow(variableValue, -Coefficients[1]);
 
     /// <inheritdoc/>
     protected override Function CreateDerivative()

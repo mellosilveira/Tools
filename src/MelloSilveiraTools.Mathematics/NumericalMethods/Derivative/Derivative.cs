@@ -1,24 +1,18 @@
-﻿namespace MelloSilveiraTools.Mathematics.NumericalMethods.Derivative
+﻿namespace MelloSilveiraTools.Mathematics.NumericalMethods.Derivative;
+
+/// <inheritdoc/>
+public class Derivative : IDerivative
 {
     /// <inheritdoc/>
-    public class Derivative : IDerivative
+    public double Calculate(Func<double, double> equation, double timeStep, double time)
     {
-        // TODO: SE PRECISAR DE UMA DERIVADA MUITO COMPLEXA, PODE GERAR UM TEMPO ARTIFICIAL PARA CADA DERIVADA.
-        // TODO: PESQUISAR SOBRE PARKING LOT RELACIONADA A UTILIZAÇÃO DE MEMÓRIA.
+        double previous = equation(time - timeStep);
+        double nextValue = equation(time + timeStep);
 
-        /// <inheritdoc/>
-        public double Calculate(Func<double, double> equation, double timeStep, double time)
-        {
-            double previous = equation(time - timeStep);
-            double nextValue = equation(time + timeStep);
-
-            return (nextValue - previous) / (2 * timeStep);
-        }
-
-        /// <inheritdoc/>
-        public double Calculate(double initialPoint, double finalPoint, double step)
-        {
-            return (finalPoint - initialPoint) / step;
-        }
+        return (nextValue - previous) / (2 * timeStep);
     }
+
+    /// <inheritdoc/>
+    public double Calculate(double initialPoint, double finalPoint, double step)
+        => (finalPoint - initialPoint) / step;
 }
