@@ -1,4 +1,4 @@
-﻿using MelloSilveiraTools.Core.Domain.Models;
+﻿using MelloSilveiraTools.Core.Models;
 using System.Text;
 
 namespace MelloSilveiraTools.Core.ExtensionMethods;

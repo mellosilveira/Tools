@@ -1,5 +1,5 @@
-using MelloSilveiraTools.Database.Infrastructure.Database.Models.Entities;
-using MelloSilveiraTools.WebApi.Application.Operations.Add;
+using MelloSilveiraTools.Database.RelationalDatabase.Models.Entities;
+using MelloSilveiraTools.WebApi.Application.Operations.Crud.Add;
 using MelloSilveiraTools.WebApi.ExtensionMethods;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;

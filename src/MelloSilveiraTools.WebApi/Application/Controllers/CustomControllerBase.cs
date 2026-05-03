@@ -1,7 +1,7 @@
-using MelloSilveiraTools.Core.Infrastructure.Logger;
-using MelloSilveiraTools.Database.Infrastructure.Database.Models.Entities;
+using MelloSilveiraTools.Core.Logger;
+using MelloSilveiraTools.Database.RelationalDatabase.Models.Entities;
 using MelloSilveiraTools.WebApi.Application.Endpoints;
-using MelloSilveiraTools.WebApi.Application.Operations.Add;
+using MelloSilveiraTools.WebApi.Application.Operations.Crud.Add;
 using MelloSilveiraTools.WebApi.ExtensionMethods;
 using Microsoft.AspNetCore.Mvc;
 

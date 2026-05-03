@@ -1,91 +1,47 @@
-using MelloSilveiraTools.Database.Infrastructure.Database.Attributes;
-using MelloSilveiraTools.Database.Infrastructure.Database.Models.Entities;
-using MelloSilveiraTools.Database.Infrastructure.Database.Sql.Provider;
+using MelloSilveiraTools.Core.Logger;
+using MelloSilveiraTools.Database.ExtensionMethods;
+using MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels;
+using MelloSilveiraTools.WebApi.Application.Operations;
+using Moq;
 
 namespace UnitTests;
 
-/// <summary>
-/// Smoke tests using the original domain entity graph (user / district / join table).
-/// These verify that the SQL provider handles FK-heavy schemas end-to-end.
-/// </summary>
-public sealed class DomainEntitySqlSmokeTests
+public class Class1
 {
-    private readonly ISqlProvider _provider = new PostgresSqlProvider();
-
     [Fact]
-    public void UserManagedDistrict_SelectSql_ContainsJoinsForBothForeignKeys()
+    public async Task A()
     {
-        var select = _provider.GetSelectSql<UserManagedDistrictEntity>();
+        // Arrange
+        var operation = new FailedValidatioinOperation(Mock.Of<ILogger>());
 
-        Assert.Contains("FROM user_managed_district AS usmd", select);
-        Assert.Contains("INNER JOIN prajah_user",             select);
-        Assert.Contains("INNER JOIN district",                select);
+        // Act
+        var response = await operation.ProcessAsync(new OperationRequestBase());
     }
 
-    [Fact]
-    public void UserManagedDistrict_SelectDistinctSql_ContainsSelectDistinct()
+    public class SuccessOperation(ILogger logger) : OperationBaseWithData<OperationRequestBase, MechanicalModelInput>(logger)
     {
-        var sql = _provider.GetSelectDistinctSql<UserManagedDistrictEntity>();
-
-        Assert.Contains("SELECT DISTINCT", sql);
+        protected override Task<OperationResponse<MechanicalModelInput>> ProcessOperationAsync(OperationRequestBase request)
+            => OperationResponse.CreateSuccessOk(new MechanicalModelInput()).AsTask();
+        
+        protected override Task<OperationResponse<MechanicalModelInput>> ValidateOperationAsync(OperationRequestBase request) 
+            => OperationResponse.CreateSuccessOk<MechanicalModelInput>().AsTask();
     }
 
-    [Fact]
-    public void UserManagedDistrict_InsertSql_ContainsForeignKeyColumns()
+    public class FailedValidatioinOperation(ILogger logger) : OperationBaseWithData<OperationRequestBase, MechanicalModelInput>(logger)
     {
-        var sql = _provider.GetInsertSql<UserManagedDistrictEntity>();
+        protected override Task<OperationResponse<MechanicalModelInput>> ProcessOperationAsync(OperationRequestBase request)
+            => OperationResponse.CreateSuccessOk(new MechanicalModelInput()).AsTask();
 
-        Assert.Contains("user_id",    sql);
-        Assert.Contains("district_id", sql);
-        Assert.Contains("RETURNING id", sql);
+        protected override Task<OperationResponse<MechanicalModelInput>> ValidateOperationAsync(OperationRequestBase request) 
+            => Task.FromResult<OperationResponse<MechanicalModelInput>>(OperationResponse.CreateInternalServerError("Deu ruim."));
     }
 
-    [Fact]
-    public void District_InsertSql_ReturnsOnConflictInsert_BecauseOfUniqueColumns()
+    public class FailedProcessOperation(ILogger logger) : OperationBaseWithData<OperationRequestBase, MechanicalModelInput>(logger)
     {
-        // DistrictEntity has several [UniqueColumn] properties — conflict clause uses their actual column names.
-        var sql = _provider.GetInsertSql<DistrictEntity>();
+        protected override Task<OperationResponse<MechanicalModelInput>> ProcessOperationAsync(OperationRequestBase request)
+            => throw new Exception("Deu ruim");
 
-        Assert.Contains("ON CONFLICT (name, city, state_abbreviation, region_abbreviation, country_abbreviation)", sql);
-        Assert.Contains("DO UPDATE SET name = EXCLUDED.name", sql);
+        protected override Task<OperationResponse<MechanicalModelInput>> ValidateOperationAsync(OperationRequestBase request)
+            => OperationResponse.CreateSuccessOk<MechanicalModelInput>().AsTask();
     }
-}
-
-// ── Entity definitions (kept here to preserve the original test intent) ────────
-
-[Table("user_managed_district", "usmd")]
-public record UserManagedDistrictEntity : EntityBase
-{
-    [ForeignKeyColumn(typeof(UserEntity))]
-    public long UserId { get; init; }
-
-    [ForeignKeyColumn(typeof(DistrictEntity))]
-    public long DistrictId { get; init; }
-}
-
-[Table("prajah_user", "pusr")]
-public record UserEntity : EntityBase
-{
-    [Column] public string Document         { get; init; } = null!;
-    [Column] public string Name             { get; init; } = null!;
-    [Column] public string Email            { get; init; } = null!;
-    [Column] public string PasswordHash     { get; init; } = null!;
-    [Column] public byte[] CompressedPhotoContent { get; init; } = null!;
-    [Column] public string[] PhoneNumbers   { get; init; } = null!;
-    [Column] public string[] InstagramAccounts { get; init; } = null!;
-    [Column] public string[] FacebookAccounts  { get; init; } = null!;
-    [Column] public string[] LinkedinAccounts  { get; init; } = null!;
-}
-
-[Table("district")]
-public record DistrictEntity : EntityBase
-{
-    [UniqueColumn] public string Name                { get; init; } = null!;
-    [UniqueColumn] public string City                { get; init; } = null!;
-    [Column]       public string State               { get; init; } = null!;
-    [UniqueColumn] public string StateAbbreviation   { get; init; } = null!;
-    [Column]       public string Region              { get; init; } = null!;
-    [UniqueColumn] public string RegionAbbreviation  { get; init; } = null!;
-    [Column]       public string Country             { get; init; } = null!;
-    [UniqueColumn] public string CountryAbbreviation { get; init; } = null!;
 }

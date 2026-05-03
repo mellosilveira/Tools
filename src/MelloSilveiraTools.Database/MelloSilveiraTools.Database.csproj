@@ -14,14 +14,14 @@
     <PackageReference Include="Npgsql" Version="10.0.2" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Update="Infrastructure\Database\Sql\Provider\SqlResource.Designer.cs">
+    <Compile Update="RelationalDatabase\Sql\Provider\SqlResource.Designer.cs">
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
       <DependentUpon>SqlResource.resx</DependentUpon>
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Update="Infrastructure\Database\Sql\Provider\SqlResource.resx">
+    <EmbeddedResource Update="RelationalDatabase\Sql\Provider\SqlResource.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>SqlResource.Designer.cs</LastGenOutput>
     </EmbeddedResource>

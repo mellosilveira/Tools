@@ -1,5 +1,5 @@
 using MelloSilveiraTools.Core.ExtensionMethods;
-using MelloSilveiraTools.Core.Infrastructure.Logger;
+using MelloSilveiraTools.Core.Logger;
 using MelloSilveiraTools.WebApi.Application.Models;
 using MelloSilveiraTools.WebApi.Application.Operations;
 using MelloSilveiraTools.WebApi.Infrastructure.ResiliencePipelines;
@@ -74,16 +74,47 @@ public abstract class ApiServiceAgentBase : IApiServiceAgent
     /// <param name="timeoutInMiliseconds">Per-request timeout, in milliseconds.</param>
     /// <param name="methodName">Name of the caller method used to enrich log and error messages.</param>
     /// <returns>An operation response carrying the deserialized data or the failure reason.</returns>
-    protected async Task<TResponse> GetAsync<TResponse, TResponseData>(string requestUri, int timeoutInMiliseconds, string methodName)
-        where TResponse : OperationListResponseBase<TResponseData>, new()
-        where TResponseData : class, new()
+    protected async Task<ListedOperationResponse<TResponseData>> GetAsync<TResponseData>(string requestUri, int timeoutInMiliseconds, [CallerMemberName] string methodName = "") where TResponseData : class, new() => await ResiliencePipeline.ExecuteAsync(async _ =>
     {
-        return await ResiliencePipeline.ExecuteAsync(async _ =>
+        var token = new CancellationTokenSource(timeoutInMiliseconds).Token;
+        try
         {
-            using CancellationTokenSource cts = new(timeoutInMiliseconds);
-            return await ExecuteAsync<TResponse, TResponseData>(HttpClient.GetAsync(requestUri, cts.Token), methodName, cts.Token);
-        });
-    }
+            HttpResponseMessage result = await HttpClient.GetAsync(requestUri, token).ConfigureAwait(false);
+            if (result.Content != null)
+            {
+                string content = await result.Content.ReadAsStringAsync(token).ConfigureAwait(false);
+
+                if (result.IsSuccessStatusCode)
+                {
+                    var responseData = JsonSerializer.Deserialize<TResponseData[]>(content, JsonSerializerOptions);
+                    return OperationResponse.CreateListedSuccess(result.StatusCode, responseData);
+                }
+
+                string message = $"Failed on '{methodName.Remove("Async")}'.";
+
+                Dictionary<string, object?> logAdditionalData = new() { { "Content", content } };
+                Logger.Error(message, null, logAdditionalData);
+
+                return OperationResponse.CreateError(result.StatusCode, message);
+            }
+
+            return OperationResponse.CreateInternalServerError($"Failed on '{methodName.Remove("Async")}' due to null content.");
+        }
+        catch (OperationCanceledException ex)
+        {
+            string message = $"Timeout on integration with '{ServiceName}'.";
+            Logger.Error(message, ex);
+
+            return OperationResponse.CreateRequestTimeout(message);
+        }
+        catch (Exception ex)
+        {
+            string message = $"Failed on integration with '{ServiceName}'.";
+            Logger.Error(message, ex);
+
+            return OperationResponse.CreateServiceUnavailable(message);
+        }
+    });
 
     /// <summary>
     /// Sends a GET request to the specified URI and streams the NDJSON response as an async sequence,
@@ -148,81 +179,7 @@ public abstract class ApiServiceAgentBase : IApiServiceAgent
         }
     }
 
-    private async Task<(HttpResponseMessage Response, StreamReader Reader)?> OpenNdjsonStreamAsync(string requestUri, string methodName, CancellationToken cancellationToken)
-    {
-        try
-        {
-            HttpResponseMessage response = await HttpClient.GetAsync(requestUri, HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
-            if (!response.IsSuccessStatusCode)
-            {
-                string content = await response.Content.ReadAsStringAsync(cancellationToken).ConfigureAwait(false);
-                string message = $"Failed on '{methodName.Remove("Async")}'.";
-
-                Logger.Error(message, null, new Dictionary<string, object?> { { "Content", content } });
-                response.Dispose();
-                
-                return null;
-            }
-
-            Stream stream = await response.Content.ReadAsStreamAsync(cancellationToken).ConfigureAwait(false);
-            return (response, new StreamReader(stream));
-        }
-        catch (OperationCanceledException ex)
-        {
-            Logger.Error($"Timeout on integration with '{ServiceName}'.", ex);
-            return null;
-        }
-        catch (Exception ex)
-        {
-            Logger.Error($"Failed on integration with '{ServiceName}'.", ex);
-            return null;
-        }
-    }
-
-    private async Task<TResponse> ExecuteAsync<TResponse, TResponseData>(Task<HttpResponseMessage> httpTask, string methodName, CancellationToken cancellationToken)
-        where TResponse : OperationListResponseBase<TResponseData>, new()
-        where TResponseData : class, new()
-    {
-        try
-        {
-            HttpResponseMessage result = await httpTask.ConfigureAwait(false);
-            if (result.Content != null)
-            {
-                string content = await result.Content.ReadAsStringAsync(cancellationToken).ConfigureAwait(false);
-
-                if (result.IsSuccessStatusCode)
-                {
-                    TResponseData[]? responseData = JsonSerializer.Deserialize<TResponseData[]>(content, JsonSerializerOptions);
-                    return OperationResponse.CreateListSuccess<TResponse, TResponseData>(result.StatusCode, responseData);
-                }
-
-                string message = $"Failed on '{methodName.Remove("Async")}'.";
-
-                Dictionary<string, object?> logAdditionalData = new() { { "Content", content } };
-                Logger.Error(message, null, logAdditionalData);
-
-                return OperationResponse.CreateError<TResponse>(result.StatusCode, message);
-            }
-
-            return OperationResponse.CreateInternalServerError<TResponse>($"Failed on '{methodName.Remove("Async")}' due to null content.");
-        }
-        catch (OperationCanceledException ex)
-        {
-            string message = $"Timeout on integration with '{ServiceName}'.";
-            Logger.Error(message, ex);
-
-            return OperationResponse.CreateRequestTimeout<TResponse>(message);
-        }
-        catch (Exception ex)
-        {
-            string message = $"Failed on integration with '{ServiceName}'.";
-            Logger.Error(message, ex);
-
-            return OperationResponse.CreateServiceUnavailable<TResponse>(message);
-        }
-    }
-
-    private async Task<OperationResponse> ExecuteAsync(Task<HttpResponseMessage> httpTask, string methodName)
+    protected async Task<OperationResponse> ExecuteAsync(Task<HttpResponseMessage> httpTask, string methodName, CancellationToken cancellationToken)
     {
         try
         {
@@ -257,6 +214,37 @@ public abstract class ApiServiceAgentBase : IApiServiceAgent
             Logger.Error(message, ex);
 
             return OperationResponse.CreateServiceUnavailable(message);
+        }
+    }
+
+    private async Task<(HttpResponseMessage Response, StreamReader Reader)?> OpenNdjsonStreamAsync(string requestUri, string methodName, CancellationToken cancellationToken)
+    {
+        try
+        {
+            HttpResponseMessage response = await HttpClient.GetAsync(requestUri, HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
+            if (!response.IsSuccessStatusCode)
+            {
+                string content = await response.Content.ReadAsStringAsync(cancellationToken).ConfigureAwait(false);
+                string message = $"Failed on '{methodName.Remove("Async")}'.";
+
+                Logger.Error(message, null, new Dictionary<string, object?> { { "Content", content } });
+                response.Dispose();
+
+                return null;
+            }
+
+            Stream stream = await response.Content.ReadAsStreamAsync(cancellationToken).ConfigureAwait(false);
+            return (response, new StreamReader(stream));
+        }
+        catch (OperationCanceledException ex)
+        {
+            Logger.Error($"Timeout on integration with '{ServiceName}'.", ex);
+            return null;
+        }
+        catch (Exception ex)
+        {
+            Logger.Error($"Failed on integration with '{ServiceName}'.", ex);
+            return null;
         }
     }
 

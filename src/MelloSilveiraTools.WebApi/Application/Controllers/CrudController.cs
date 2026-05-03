@@ -1,10 +1,13 @@
-using MelloSilveiraTools.Core.Infrastructure.Logger;
-using MelloSilveiraTools.Database.Domain.Repositories;
-using MelloSilveiraTools.Database.Infrastructure.Database.Models.Entities;
-using MelloSilveiraTools.Database.Infrastructure.Database.Models.Filters;
+using MelloSilveiraTools.Core.Logger;
+using MelloSilveiraTools.Database.RelationalDatabase.Models.Entities;
+using MelloSilveiraTools.Database.RelationalDatabase.Models.Filters;
+using MelloSilveiraTools.Database.Repositories;
 using MelloSilveiraTools.WebApi.Application.Operations;
-using MelloSilveiraTools.WebApi.Application.Operations.Add;
 using MelloSilveiraTools.WebApi.Application.Operations.Crud;
+using MelloSilveiraTools.WebApi.Application.Operations.Crud.Add;
+using MelloSilveiraTools.WebApi.Application.Operations.Crud.Delete;
+using MelloSilveiraTools.WebApi.Application.Operations.Crud.Read;
+using MelloSilveiraTools.WebApi.Application.Operations.Crud.Update;
 using MelloSilveiraTools.WebApi.ExtensionMethods;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -51,7 +54,7 @@ public abstract class CrudController<TEntity, TFilter>(ILogger logger) : CustomC
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [HttpGet("{id:long}")]
-    public async Task<ActionResult<OperationResponseBase<TEntity>>> Read(
+    public async Task<ActionResult<OperationResponse<TEntity>>> Read(
         [FromServices] ReadEntityById<TEntity> operation,
         [FromRoute] long id)
     {
@@ -72,7 +75,7 @@ public abstract class CrudController<TEntity, TFilter>(ILogger logger) : CustomC
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [HttpGet]
-    public async Task<ActionResult<OperationPagedResponseBase<TEntity>>> Read(
+    public async Task<ActionResult<PagedOperationResponse<TEntity>>> Read(
         [FromServices] ReadEntityPaged<TEntity, TFilter> operation,
         [FromQuery] TFilter filter,
         [FromQuery] Pagination pagination)

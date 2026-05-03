@@ -5,6 +5,30 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [1.5.0] - 2026-05-DD
+### Breaking
+- **Namespace flattening (Core).** Removed the `Domain.` and `Infrastructure.` segments from every `MelloSilveiraTools.Core` namespace:
+  - `MelloSilveiraTools.Core.Domain.Models.*` → `MelloSilveiraTools.Core.Models.*`
+  - `MelloSilveiraTools.Core.Domain.Services.*` → `MelloSilveiraTools.Core.Services.*`
+  - `MelloSilveiraTools.Core.Infrastructure.Caching.*` → `MelloSilveiraTools.Core.Caching.*`
+  - `MelloSilveiraTools.Core.Infrastructure.Logger.*` → `MelloSilveiraTools.Core.Logger.*`
+  - `MelloSilveiraTools.Core.Infrastructure.ResiliencePipelines.*` → `MelloSilveiraTools.Core.ResiliencePipelines.*`
+  - `MelloSilveiraTools.Core.Infrastructure.Services.Email.*` → `MelloSilveiraTools.Core.Services.Email.*`
+  - `MelloSilveiraTools.Core.Infrastructure.Services.Encryption.*` → `MelloSilveiraTools.Core.Services.Encryption.*`
+- **Namespace flattening + rename (Database).** Removed `Domain.` and `Infrastructure.` segments and renamed `Infrastructure.Database` → `RelationalDatabase` (signals room for non-relational stores in the future):
+  - `MelloSilveiraTools.Database.Domain.Repositories.*` → `MelloSilveiraTools.Database.Repositories.*`
+  - `MelloSilveiraTools.Database.Infrastructure.Database.Attributes.*` → `MelloSilveiraTools.Database.RelationalDatabase.Attributes.*`
+  - `MelloSilveiraTools.Database.Infrastructure.Database.Models.*` → `MelloSilveiraTools.Database.RelationalDatabase.Models.*`
+  - `MelloSilveiraTools.Database.Infrastructure.Database.Repositories.*` → `MelloSilveiraTools.Database.RelationalDatabase.Repositories.*`
+  - `MelloSilveiraTools.Database.Infrastructure.Database.Settings.*` → `MelloSilveiraTools.Database.RelationalDatabase.Settings.*`
+  - `MelloSilveiraTools.Database.Infrastructure.Database.Sql.*` → `MelloSilveiraTools.Database.RelationalDatabase.Sql.*`
+  - `MelloSilveiraTools.Database.Infrastructure.ResiliencePipelines.*` → `MelloSilveiraTools.Database.ResiliencePipelines.*`
+- **`OperationResponse` hierarchy split.** The previous `OperationResponse` record was renamed to `OperationResponseBase` and a new `OperationResponse : OperationResponseBase` was introduced to host the success / conflict / unprocessable-entity factory helpers. The generic constraints on `OperationBase<TRequest, TResponse>`, `OperationBaseWithData<TRequest, TResponseData>` and every helper in `OperationResponseExtensions` (`AddError`, `AddErrorIf*`, `ToHttpResult*`, `BuildHttpResponse*`) now require `T : OperationResponseBase`. Consumers writing custom operations or extension methods must update their generic constraints.
+- **`OperationResponse.ErrorMessages` renamed to `Messages`.** Field name and type carry over (`List<string>`); `Messages` now lives on `OperationResponseBase`.
+- **WebApi Operations folder restructure.** `Add*.cs`, `DeleteEntity*.cs`, `ReadEntity*.cs` and `UpdateEntity*.cs` moved from `Application/Operations/` (flat) into `Application/Operations/Crud/{Add,Delete,Read,Update}/`. Namespace updates required: `MelloSilveiraTools.WebApi.Application.Operations.Add` → `MelloSilveiraTools.WebApi.Application.Operations.Crud.Add` (and equivalents for Delete / Read / Update).
+### Removed
+- `MelloSilveiraTools.Core.ExtensionMethods.DoubleExtensions` — the canonical implementation now lives at `MelloSilveiraTools.Mathematics.Extensions.DoubleExtensions`. Consumers that imported the Core variant must add a reference to `MelloSilveiraTools.Mathematics` and update the `using` directive.
+
 ## [1.4.0] - 2026-05-01
 ### Added
 - **Mathematics — function system.** `Function` abstract class (unidimensional f(x)) with lazy `Derivative` and `Integral` properties. Concrete implementations: `ConstantFunction`, `PolynomialFunction`, `ExponencialFunction`, `SineFunction`, `CosineFunction`, `PowerLaw`, `GenericFunction`. `FunctionFactory` creates instances by `FunctionType`.

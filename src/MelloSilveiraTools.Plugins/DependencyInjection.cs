@@ -1,4 +1,4 @@
-using MelloSilveiraTools.Core.Infrastructure.Caching;
+using MelloSilveiraTools.Core.Caching;
 using MelloSilveiraTools.Plugins.Application.Operations.Cache;
 using MelloSilveiraTools.Plugins.Application.Operations.Get;
 using MelloSilveiraTools.Plugins.Application.Operations.Load;

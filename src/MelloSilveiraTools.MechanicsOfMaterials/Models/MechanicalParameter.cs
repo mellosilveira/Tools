@@ -23,7 +23,7 @@ public sealed record MechanicalParameter
     /// </summary>
     /// <param name="initialValue"></param>
     /// <param name="expression"></param>
-    public MechanicalParameter(double initialValue, Expression expression)
+    public MechanicalParameter(double initialValue, Expression? expression)
     {
         InitialValue = initialValue;
         Expression = expression;
@@ -37,7 +37,7 @@ public sealed record MechanicalParameter
     /// <summary>
     /// Mathematical expression that represents how the mechanical parameter varies in time.
     /// </summary>
-    public Expression Expression { get; }
+    public Expression? Expression { get; }
 
     /// <summary>
     /// Sets the initial value.
@@ -53,28 +53,19 @@ public sealed record MechanicalParameter
     /// </summary>
     /// <param name="time">Unit: s (second).</param>
     /// <returns>Unit depends on which parameter is being calculated.</returns>
-    public double CalculateValue(double time)
-    {
-        return InitialValue + (Expression?.Calculate(time) ?? 0);
-    }
+    public double CalculateValue(double time) => InitialValue + (Expression?.Calculate(time) ?? 0);
 
     /// <summary>
     /// Calculates the derivative of a mechanical parameter.
     /// </summary>
     /// <param name="time">Unit: s (second).</param>
     /// <returns>Unit depends on which parameter is being calculated.</returns>
-    public double CalculateDerivative(double time)
-    {
-        return Expression?.Derivative.Calculate(time) ?? 0;
-    }
+    public double CalculateDerivative(double time) => Expression?.Derivative.Calculate(time) ?? 0;
 
     /// <summary>
     /// Calculates the value and its derivative of a mechanical parameter.
     /// </summary>
     /// <param name="time">Unit: s (second).</param>
     /// <returns>Unit depends on which parameter is being calculated.</returns>
-    public (double Value, double Derivative) CalculateValueAndDerivative(double time)
-    {
-        return (CalculateValue(time), CalculateDerivative(time));
-    }
+    public (double Value, double Derivative) CalculateValueAndDerivative(double time) => (CalculateValue(time), CalculateDerivative(time));
 }

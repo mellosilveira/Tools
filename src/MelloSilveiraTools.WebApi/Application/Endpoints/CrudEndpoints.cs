@@ -1,7 +1,10 @@
-using MelloSilveiraTools.Database.Infrastructure.Database.Models.Entities;
-using MelloSilveiraTools.Database.Infrastructure.Database.Models.Filters;
+using MelloSilveiraTools.Database.RelationalDatabase.Models.Entities;
+using MelloSilveiraTools.Database.RelationalDatabase.Models.Filters;
 using MelloSilveiraTools.WebApi.Application.Operations;
 using MelloSilveiraTools.WebApi.Application.Operations.Crud;
+using MelloSilveiraTools.WebApi.Application.Operations.Crud.Delete;
+using MelloSilveiraTools.WebApi.Application.Operations.Crud.Read;
+using MelloSilveiraTools.WebApi.Application.Operations.Crud.Update;
 using MelloSilveiraTools.WebApi.ExtensionMethods;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
@@ -45,7 +48,7 @@ public static class CrudEndpoints
                 .ProcessAsync(new ReadEntityByIdRequest { Id = id, ResourceName = resourceName })
                 .ToHttpResultAsync()
                 .ConfigureAwait(false))
-            .Produces<OperationResponseBase<TEntity>>(StatusCodes.Status200OK)
+            .Produces<OperationResponse<TEntity>>(StatusCodes.Status200OK)
             .Produces<OperationResponse>(StatusCodes.Status404NotFound)
             .Produces<OperationResponse>(StatusCodes.Status500InternalServerError)
             .WithName($"ReadById_{resourceName}")
@@ -63,7 +66,7 @@ public static class CrudEndpoints
                 })
                 .ToHttpResultAsync()
                 .ConfigureAwait(false))
-            .Produces<OperationPagedResponseBase<TEntity>>(StatusCodes.Status200OK)
+            .Produces<PagedOperationResponse<TEntity>>(StatusCodes.Status200OK)
             .Produces<OperationResponse>(StatusCodes.Status500InternalServerError)
             .WithName($"ReadPaged_{resourceName}")
             .WithSummary($"Retrieves a paginated list of {resourceName}.");

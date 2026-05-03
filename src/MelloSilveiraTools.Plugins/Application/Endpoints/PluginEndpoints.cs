@@ -2,6 +2,7 @@ using MelloSilveiraTools.Plugins.Application.Operations.Cache;
 using MelloSilveiraTools.Plugins.Application.Operations.Get;
 using MelloSilveiraTools.Plugins.Application.Operations.Load;
 using MelloSilveiraTools.Plugins.Application.Operations.Reload;
+using MelloSilveiraTools.Plugins.Infrastructure.Models;
 using MelloSilveiraTools.WebApi.Application.Operations;
 using MelloSilveiraTools.WebApi.ExtensionMethods;
 using Microsoft.AspNetCore.Builder;
@@ -30,7 +31,7 @@ public static class PluginEndpoints
 
         group
             .MapGet("/", async (GetPlugins operation, [AsParameters] GetPluginsRequest request) => await operation.ProcessAsync(request).ToHttpResultAsync().ConfigureAwait(false))
-            .Produces<GetPluginsResponse>(StatusCodes.Status200OK)
+            .Produces<ListedOperationResponse<RegisteredPlugin>>(StatusCodes.Status200OK)
             .Produces<OperationResponse>(StatusCodes.Status500InternalServerError)
             .WithName("GetPlugins")
             .WithSummary("Returns the plugins currently known to the host.");

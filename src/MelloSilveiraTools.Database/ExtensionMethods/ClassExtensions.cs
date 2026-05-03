@@ -1,7 +1,7 @@
 using Dapper;
 using MelloSilveiraTools.Core.ExtensionMethods;
-using MelloSilveiraTools.Database.Infrastructure.Database.Attributes;
-using MelloSilveiraTools.Database.Infrastructure.Database.Models;
+using MelloSilveiraTools.Database.RelationalDatabase.Attributes;
+using MelloSilveiraTools.Database.RelationalDatabase.Models;
 using Npgsql;
 using NpgsqlTypes;
 using System.Collections.Concurrent;

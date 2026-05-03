@@ -1,5 +1,5 @@
 using MelloSilveiraTools.Core.ExtensionMethods;
-using MelloSilveiraTools.Database.Infrastructure.Database.Attributes;
+using MelloSilveiraTools.Database.RelationalDatabase.Attributes;
 using Npgsql;
 
 namespace MelloSilveiraTools.Database.ExtensionMethods;

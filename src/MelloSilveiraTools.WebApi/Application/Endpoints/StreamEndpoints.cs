@@ -1,7 +1,7 @@
-using MelloSilveiraTools.Core.Infrastructure.Logger;
-using MelloSilveiraTools.Database.Domain.Repositories;
-using MelloSilveiraTools.Database.Infrastructure.Database.Models.Entities;
-using MelloSilveiraTools.Database.Infrastructure.Database.Models.Filters;
+using MelloSilveiraTools.Core.Logger;
+using MelloSilveiraTools.Database.RelationalDatabase.Models.Entities;
+using MelloSilveiraTools.Database.RelationalDatabase.Models.Filters;
+using MelloSilveiraTools.Database.Repositories;
 using MelloSilveiraTools.WebApi.Application.Models;
 using MelloSilveiraTools.WebApi.ExtensionMethods;
 using Microsoft.AspNetCore.Builder;

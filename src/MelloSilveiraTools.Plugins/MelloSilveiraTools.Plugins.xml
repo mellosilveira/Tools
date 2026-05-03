@@ -81,7 +81,7 @@
             Operation that clears the plugin cache managed by <see cref="T:MelloSilveiraTools.Plugins.Infrastructure.Services.IPluginService"/>.
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.Plugins.Application.Operations.Cache.ClearPluginCache.#ctor(MelloSilveiraTools.Core.Infrastructure.Logger.ILogger,MelloSilveiraTools.Plugins.Infrastructure.Services.IPluginService)">
+        <member name="M:MelloSilveiraTools.Plugins.Application.Operations.Cache.ClearPluginCache.#ctor(MelloSilveiraTools.Core.Logger.ILogger,MelloSilveiraTools.Plugins.Infrastructure.Services.IPluginService)">
             <summary>
             Operation that clears the plugin cache managed by <see cref="T:MelloSilveiraTools.Plugins.Infrastructure.Services.IPluginService"/>.
             </summary>
@@ -94,7 +94,7 @@
             Operation that persists the plugin cache to the configured target (file, database, etc.) for the supplied plugin filter.
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.Plugins.Application.Operations.Cache.PersistPluginCache.#ctor(MelloSilveiraTools.Core.Infrastructure.Logger.ILogger,MelloSilveiraTools.Plugins.Infrastructure.Services.IPluginService)">
+        <member name="M:MelloSilveiraTools.Plugins.Application.Operations.Cache.PersistPluginCache.#ctor(MelloSilveiraTools.Core.Logger.ILogger,MelloSilveiraTools.Plugins.Infrastructure.Services.IPluginService)">
             <summary>
             Operation that persists the plugin cache to the configured target (file, database, etc.) for the supplied plugin filter.
             </summary>
@@ -125,7 +125,7 @@
             Operation that restores the plugin cache from the configured target (file, database, etc.) for the supplied plugin filter.
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.Plugins.Application.Operations.Cache.RestorePluginCache.#ctor(MelloSilveiraTools.Core.Infrastructure.Logger.ILogger,MelloSilveiraTools.Plugins.Infrastructure.Services.IPluginService)">
+        <member name="M:MelloSilveiraTools.Plugins.Application.Operations.Cache.RestorePluginCache.#ctor(MelloSilveiraTools.Core.Logger.ILogger,MelloSilveiraTools.Plugins.Infrastructure.Services.IPluginService)">
             <summary>
             Operation that restores the plugin cache from the configured target (file, database, etc.) for the supplied plugin filter.
             </summary>
@@ -156,7 +156,7 @@
             Operation that retrieves registered plugins matching the supplied name, version and load-state filters.
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.Plugins.Application.Operations.Get.GetPlugins.#ctor(MelloSilveiraTools.Core.Infrastructure.Logger.ILogger,MelloSilveiraTools.Plugins.Infrastructure.Services.IPluginService)">
+        <member name="M:MelloSilveiraTools.Plugins.Application.Operations.Get.GetPlugins.#ctor(MelloSilveiraTools.Core.Logger.ILogger,MelloSilveiraTools.Plugins.Infrastructure.Services.IPluginService)">
             <summary>
             Operation that retrieves registered plugins matching the supplied name, version and load-state filters.
             </summary>
@@ -187,17 +187,12 @@
             When set, restricts the result to plugins that are fully loaded (<c>true</c>) or not fully loaded (<c>false</c>).
             </summary>
         </member>
-        <member name="T:MelloSilveiraTools.Plugins.Application.Operations.Get.GetPluginsResponse">
-            <summary>
-            Response returned by the <c>GetPlugins</c> operation, listing the plugins that match the request filter.
-            </summary>
-        </member>
         <member name="T:MelloSilveiraTools.Plugins.Application.Operations.Load.LoadPlugins">
             <summary>
             Operation that loads plugins into the runtime based on the supplied name/version filter.
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.Plugins.Application.Operations.Load.LoadPlugins.#ctor(MelloSilveiraTools.Core.Infrastructure.Logger.ILogger,MelloSilveiraTools.Plugins.Infrastructure.Services.IPluginService)">
+        <member name="M:MelloSilveiraTools.Plugins.Application.Operations.Load.LoadPlugins.#ctor(MelloSilveiraTools.Core.Logger.ILogger,MelloSilveiraTools.Plugins.Infrastructure.Services.IPluginService)">
             <summary>
             Operation that loads plugins into the runtime based on the supplied name/version filter.
             </summary>
@@ -228,7 +223,7 @@
             Operation that reloads plugins into the runtime based on the supplied name/version filter and force flag.
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.Plugins.Application.Operations.Reload.ReloadPlugins.#ctor(MelloSilveiraTools.Core.Infrastructure.Logger.ILogger,MelloSilveiraTools.Plugins.Infrastructure.Services.IPluginService)">
+        <member name="M:MelloSilveiraTools.Plugins.Application.Operations.Reload.ReloadPlugins.#ctor(MelloSilveiraTools.Core.Logger.ILogger,MelloSilveiraTools.Plugins.Infrastructure.Services.IPluginService)">
             <summary>
             Operation that reloads plugins into the runtime based on the supplied name/version filter and force flag.
             </summary>
@@ -467,13 +462,13 @@
         <member name="T:MelloSilveiraTools.Plugins.Infrastructure.Persistences.DatabasePluginCachePersistence">
             <summary>
             Persists plugin cache to a database table (<see cref="T:MelloSilveiraTools.Plugins.Infrastructure.Persistences.PluginCacheEntity"/>)
-            via <see cref="T:MelloSilveiraTools.Database.Domain.Repositories.IRepository"/>.
+            via <see cref="T:MelloSilveiraTools.Database.Repositories.IRepository"/>.
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.Plugins.Infrastructure.Persistences.DatabasePluginCachePersistence.#ctor(MelloSilveiraTools.Database.Domain.Repositories.IRepository)">
+        <member name="M:MelloSilveiraTools.Plugins.Infrastructure.Persistences.DatabasePluginCachePersistence.#ctor(MelloSilveiraTools.Database.Repositories.IRepository)">
             <summary>
             Persists plugin cache to a database table (<see cref="T:MelloSilveiraTools.Plugins.Infrastructure.Persistences.PluginCacheEntity"/>)
-            via <see cref="T:MelloSilveiraTools.Database.Domain.Repositories.IRepository"/>.
+            via <see cref="T:MelloSilveiraTools.Database.Repositories.IRepository"/>.
             </summary>
         </member>
         <member name="M:MelloSilveiraTools.Plugins.Infrastructure.Persistences.DatabasePluginCachePersistence.SaveAsync(System.Collections.Generic.IAsyncEnumerable{MelloSilveiraTools.Plugins.Infrastructure.Persistences.PluginCacheEntry},System.Threading.CancellationToken)">
@@ -624,7 +619,7 @@
             <see cref="T:MelloSilveiraTools.Plugins.Infrastructure.Models.DiscoveredPlugin"/>, <see cref="T:MelloSilveiraTools.Plugins.Infrastructure.Models.LoadedPlugin"/> or <see cref="T:MelloSilveiraTools.Plugins.Infrastructure.Models.RegisteredPlugin"/>.
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.Plugins.Infrastructure.PluginCache.#ctor(MelloSilveiraTools.Core.Infrastructure.Caching.ITwoLevelCache)">
+        <member name="M:MelloSilveiraTools.Plugins.Infrastructure.PluginCache.#ctor(MelloSilveiraTools.Core.Caching.ITwoLevelCache)">
             <summary>
             Two-level cache for plugin state.
             Level 1: plugin name. Level 2: <see cref="T:MelloSilveiraTools.Plugins.Infrastructure.Models.PluginVersion"/>.
@@ -682,7 +677,7 @@
             A <see langword="null"/> or empty <paramref name="name"/> means "match all names";
             a <see langword="null"/> <paramref name="version"/> means "match all versions".
             The empty-string sentinel is normalized to <see langword="null"/> before being forwarded
-            to the underlying <see cref="T:MelloSilveiraTools.Core.Infrastructure.Caching.ITwoLevelCache"/>, whose filtering semantics treat
+            to the underlying <see cref="T:MelloSilveiraTools.Core.Caching.ITwoLevelCache"/>, whose filtering semantics treat
             <see langword="null"/> as "match all" for that level.
             </remarks>
         </member>
@@ -942,7 +937,7 @@
             cached versions according to <see cref="P:MelloSilveiraTools.Plugins.Infrastructure.PluginSettings.PreviousVersionRetention"/>.
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.Plugins.Infrastructure.Services.PluginOrchestratorBackgroundService.#ctor(MelloSilveiraTools.Core.Infrastructure.Logger.ILogger,Microsoft.Extensions.DependencyInjection.IServiceScopeFactory,MelloSilveiraTools.Plugins.Infrastructure.PluginFileProcessor,MelloSilveiraTools.Plugins.Infrastructure.PluginCache,MelloSilveiraTools.Plugins.Infrastructure.PluginSettings)">
+        <member name="M:MelloSilveiraTools.Plugins.Infrastructure.Services.PluginOrchestratorBackgroundService.#ctor(MelloSilveiraTools.Core.Logger.ILogger,Microsoft.Extensions.DependencyInjection.IServiceScopeFactory,MelloSilveiraTools.Plugins.Infrastructure.PluginFileProcessor,MelloSilveiraTools.Plugins.Infrastructure.PluginCache,MelloSilveiraTools.Plugins.Infrastructure.PluginSettings)">
             <summary>
             Periodically inspects the plugin folder, loads newer plugin versions through
             <see cref="M:MelloSilveiraTools.Plugins.Infrastructure.Services.IPluginService.LoadPluginsOnRuntime(System.String,System.Nullable{MelloSilveiraTools.Plugins.Infrastructure.Models.PluginVersion})"/> and evicts obsolete

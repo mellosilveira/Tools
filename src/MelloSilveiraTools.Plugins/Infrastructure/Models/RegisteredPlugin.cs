@@ -8,6 +8,8 @@ public record RegisteredPlugin : DiscoveredPlugin
 {
     private readonly Dictionary<Type, bool> _typeLoadedStatus;
 
+    public RegisteredPlugin() { }
+
     /// <summary>
     /// Initializes a new <see cref="RegisteredPlugin"/> from a <paramref name="loaded"/> plugin, with all processable types marked as not yet registered.
     /// </summary>

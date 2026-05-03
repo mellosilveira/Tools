@@ -1,4 +1,4 @@
-using MelloSilveiraTools.Database.Infrastructure.Database.Models.Filters;
+using MelloSilveiraTools.Database.RelationalDatabase.Models.Filters;
 
 namespace MelloSilveiraTools.Database.ExtensionMethods;
 

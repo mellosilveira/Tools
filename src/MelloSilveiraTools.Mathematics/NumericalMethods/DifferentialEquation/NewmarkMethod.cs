@@ -1,5 +1,5 @@
-﻿using MelloSilveiraTools.Core.Domain.Models;
-using MelloSilveiraTools.Core.ExtensionMethods;
+﻿using MelloSilveiraTools.Core.ExtensionMethods;
+using MelloSilveiraTools.Core.Models;
 using MelloSilveiraTools.Mathematics.Models.NumericalMethods;
 
 namespace MelloSilveiraTools.Mathematics.NumericalMethods.DifferentialEquation;

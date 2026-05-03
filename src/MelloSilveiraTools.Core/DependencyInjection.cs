@@ -1,6 +1,6 @@
-using MelloSilveiraTools.Core.Infrastructure.Logger;
-using MelloSilveiraTools.Core.Infrastructure.ResiliencePipelines;
-using MelloSilveiraTools.Core.Infrastructure.Services.Encryption;
+using MelloSilveiraTools.Core.Logger;
+using MelloSilveiraTools.Core.ResiliencePipelines;
+using MelloSilveiraTools.Core.Services.Encryption;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace MelloSilveiraTools.Core;

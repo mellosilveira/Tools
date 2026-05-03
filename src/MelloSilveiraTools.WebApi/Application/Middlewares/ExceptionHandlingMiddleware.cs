@@ -1,4 +1,4 @@
-using MelloSilveiraTools.Core.Infrastructure.Logger;
+using MelloSilveiraTools.Core.Logger;
 using MelloSilveiraTools.WebApi.Application.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;

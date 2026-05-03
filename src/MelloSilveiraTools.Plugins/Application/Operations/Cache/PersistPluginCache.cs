@@ -1,4 +1,4 @@
-using MelloSilveiraTools.Core.Infrastructure.Logger;
+using MelloSilveiraTools.Core.Logger;
 using MelloSilveiraTools.Database.ExtensionMethods;
 using MelloSilveiraTools.Plugins.Infrastructure.Models;
 using MelloSilveiraTools.Plugins.Infrastructure.Services;

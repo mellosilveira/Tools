@@ -1,6 +1,6 @@
-﻿using MelloSilveiraTools.Core.Infrastructure.Logger;
-using MelloSilveiraTools.Core.Infrastructure.ResiliencePipelines;
-using MelloSilveiraTools.Database.Infrastructure.ResiliencePipelines;
+﻿using MelloSilveiraTools.Core.Logger;
+using MelloSilveiraTools.Core.ResiliencePipelines;
+using MelloSilveiraTools.Database.ResiliencePipelines;
 using MelloSilveiraTools.WebApi.Application.Operations;
 using Polly;
 using Polly.Retry;

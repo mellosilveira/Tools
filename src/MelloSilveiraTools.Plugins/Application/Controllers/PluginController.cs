@@ -2,6 +2,7 @@ using MelloSilveiraTools.Plugins.Application.Operations.Cache;
 using MelloSilveiraTools.Plugins.Application.Operations.Get;
 using MelloSilveiraTools.Plugins.Application.Operations.Load;
 using MelloSilveiraTools.Plugins.Application.Operations.Reload;
+using MelloSilveiraTools.Plugins.Infrastructure.Models;
 using MelloSilveiraTools.WebApi.Application.Operations;
 using MelloSilveiraTools.WebApi.ExtensionMethods;
 using Microsoft.AspNetCore.Http;
@@ -23,7 +24,7 @@ public class PluginController : ControllerBase
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [HttpGet]
-    public async Task<ActionResult<GetPluginsResponse>> Get([FromServices] GetPlugins operation, [FromQuery] GetPluginsRequest request)
+    public async Task<ActionResult<ListedOperationResponse<RegisteredPlugin>>> Get([FromServices] GetPlugins operation, [FromQuery] GetPluginsRequest request)
         => await operation.ProcessAsync(request).BuildHttpResponseAsync().ConfigureAwait(false);
 
     /// <summary>

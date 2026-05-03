@@ -1,5 +1,5 @@
 using MelloSilveiraTools.Database.ExtensionMethods;
-using MelloSilveiraTools.Database.Infrastructure.Database.Attributes;
+using MelloSilveiraTools.Database.RelationalDatabase.Attributes;
 using NpgsqlTypes;
 
 namespace UnitTests;

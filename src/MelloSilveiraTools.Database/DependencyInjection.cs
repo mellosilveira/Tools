@@ -1,10 +1,10 @@
-using MelloSilveiraTools.Core.Infrastructure.Logger;
-using MelloSilveiraTools.Core.Infrastructure.ResiliencePipelines;
-using MelloSilveiraTools.Database.Domain.Repositories;
-using MelloSilveiraTools.Database.Infrastructure.Database.Repositories;
-using MelloSilveiraTools.Database.Infrastructure.Database.Settings;
-using MelloSilveiraTools.Database.Infrastructure.Database.Sql.Provider;
-using MelloSilveiraTools.Database.Infrastructure.ResiliencePipelines;
+using MelloSilveiraTools.Core.Logger;
+using MelloSilveiraTools.Core.ResiliencePipelines;
+using MelloSilveiraTools.Database.RelationalDatabase.Repositories;
+using MelloSilveiraTools.Database.RelationalDatabase.Settings;
+using MelloSilveiraTools.Database.RelationalDatabase.Sql.Provider;
+using MelloSilveiraTools.Database.Repositories;
+using MelloSilveiraTools.Database.ResiliencePipelines;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace MelloSilveiraTools.Database;

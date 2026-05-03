@@ -1,4 +1,4 @@
-using MelloSilveiraTools.Core.Infrastructure.Logger;
+using MelloSilveiraTools.Core.Logger;
 using MelloSilveiraTools.Plugins.Infrastructure.Models;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;

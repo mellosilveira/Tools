@@ -39,7 +39,7 @@ Notable consequences:
 
 Each project owns a namespace that mirrors its package id:
 
-- `MelloSilveiraTools.Core.*` (e.g. `MelloSilveiraTools.Core.Infrastructure.Logger`)
+- `MelloSilveiraTools.Core.*` (e.g. `MelloSilveiraTools.Core.Logger`, `MelloSilveiraTools.Core.Caching`, `MelloSilveiraTools.Core.Services.Encryption`)
 - `MelloSilveiraTools.Database.*`
 - `MelloSilveiraTools.WebApi.*`
 - `MelloSilveiraTools.Plugins.*`
@@ -80,14 +80,14 @@ app.MapPluginEndpoints("/api/v1/plugins");
 | `HttpContext.WriteNdjsonAsync<T>(IAsyncEnumerable<T>, ILogger, string resourceName)` | WebApi (`Application/Endpoints/StreamEndpoints.cs`) | `CustomControllerBase.Stream` |
 | `MapPluginEndpoints(IEndpointRouteBuilder, string pattern = "/api/v1/plugins")` | Plugins (`Application/Endpoints/PluginEndpoints.cs`) | `PluginController` |
 
-Handlers in the minimal-API path return `IResult` (`Results.Json(...)` driven by `OperationResponse.StatusCode`). `OperationResponseExtensions` exposes four conversion helpers — all equivalent in semantics, differing only in call site:
+Handlers in the minimal-API path return `IResult` (`Results.Json(...)` driven by `OperationResponseBase.StatusCode`). `OperationResponseExtensions` exposes four conversion helpers — all equivalent in semantics, differing only in call site:
 
 | Method | Extends | Returns | Used by |
 |---|---|---|---|
-| `ToHttpResult<T>(this T)` | `T : OperationResponse` | `IResult` | minimal-API handlers |
-| `ToHttpResultAsync<T>(this Task<T>)` | `Task<T : OperationResponse>` | `Task<IResult>` | minimal-API handlers (async chain) |
-| `BuildHttpResponse<T>(this T)` | `T : OperationResponse` | `JsonResult` | MVC controllers |
-| `BuildHttpResponseAsync<T>(this Task<T>)` | `Task<T : OperationResponse>` | `Task<JsonResult>` | MVC controllers (async chain) |
+| `ToHttpResult<T>(this T)` | `T : OperationResponseBase` | `IResult` | minimal-API handlers |
+| `ToHttpResultAsync<T>(this Task<T>)` | `Task<T : OperationResponseBase>` | `Task<IResult>` | minimal-API handlers (async chain) |
+| `BuildHttpResponse<T>(this T)` | `T : OperationResponseBase` | `JsonResult` | MVC controllers |
+| `BuildHttpResponseAsync<T>(this Task<T>)` | `Task<T : OperationResponseBase>` | `Task<JsonResult>` | MVC controllers (async chain) |
 
 The `*Async` variants extend `Task<T>` and chain directly after `operation.ProcessAsync(...)` without an intermediate variable — the same pattern both endpoint styles now use consistently.
 
@@ -165,8 +165,8 @@ Inside `MelloSilveiraTools.Plugins/Application/Operations/Plugins/`:
 - Private fields use `_` prefix (linter rewrites otherwise).
 - Settings are records with safe defaults registered via plain `AddSingleton(settings ?? new ...)` rather than `TryAddSingleton<TSettings>()` — keeps the fluent chain intact and lets consumers override by passing their own instance.
 - Public XML docs are mandatory; `<exception>` and `<example>` tags are expected on the public surface.
-- `ILogger` is the in-house abstraction (`MelloSilveiraTools.Core.Infrastructure.Logger.ILogger`) — not `Microsoft.Extensions.Logging.ILogger`. The default implementation is `LocalFileLogger` (JSON-line, daily/size rotation).
-- `OperationResponse` lives in WebApi because its `StatusCode` field is `System.Net.HttpStatusCode`. `OperationBase` therefore also lives in WebApi.
+- `ILogger` is the in-house abstraction (`MelloSilveiraTools.Core.Logger.ILogger`) — not `Microsoft.Extensions.Logging.ILogger`. The default implementation is `LocalFileLogger` (JSON-line, daily/size rotation).
+- `OperationResponseBase` (and its derived `OperationResponse`) lives in WebApi because its `StatusCode` field is `System.Net.HttpStatusCode`. `OperationBase` therefore also lives in WebApi. Custom operations and `OperationResponseExtensions` helpers constrain on `OperationResponseBase`; the derived `OperationResponse` adds factory helpers (`CreateSuccessOk`, `CreateConflict`, `CreateUnprocessableEntity`).
 - HTTP surfaces are exposed both as MVC controllers (`CustomControllerBase`/`CrudController`/`PluginController`) and as minimal-API endpoint extensions (`MapCrud`/`MapPluginEndpoints`). New projects should prefer minimal APIs but the controller path is supported for migration.
 - `ApiServiceAgentBase` provides two protected HTTP-client helpers: `GetAsync<TResponse, TResponseData>` for standard JSON payloads (wrapped in `ResiliencePipeline`) and `GetStreamAsync<T>` for NDJSON-streaming endpoints (`IAsyncEnumerable<T>`, `HttpCompletionOption.ResponseHeadersRead`). `GetStreamAsync` validates the `X-Stream-Status: true` trailer emitted by `WriteNdjsonAsync` after consuming the full body, and logs an error if the trailer is absent.
 - AOT/trim warnings are silenced via `<NoWarn>` at the project level. Reach for `[DynamicallyAccessedMembers]` when reflection target preservation matters; avoid `[RequiresUnreferencedCode]`/`[RequiresDynamicCode]` propagation.

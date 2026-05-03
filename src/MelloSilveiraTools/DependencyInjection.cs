@@ -1,9 +1,9 @@
 using MelloSilveiraTools.Core;
-using MelloSilveiraTools.Core.Infrastructure.Logger;
-using MelloSilveiraTools.Core.Infrastructure.ResiliencePipelines;
-using MelloSilveiraTools.Core.Infrastructure.Services.Encryption;
+using MelloSilveiraTools.Core.Logger;
+using MelloSilveiraTools.Core.ResiliencePipelines;
+using MelloSilveiraTools.Core.Services.Encryption;
 using MelloSilveiraTools.Database;
-using MelloSilveiraTools.Database.Infrastructure.Database.Settings;
+using MelloSilveiraTools.Database.RelationalDatabase.Settings;
 using MelloSilveiraTools.Mathematics;
 using MelloSilveiraTools.MechanicsOfMaterials;
 using MelloSilveiraTools.Plugins;

@@ -1,4 +1,4 @@
-using MelloSilveiraTools.Core.Infrastructure.Caching;
+using MelloSilveiraTools.Core.Caching;
 using MelloSilveiraTools.Plugins.Infrastructure.Models;
 using MelloSilveiraTools.Plugins.Infrastructure.Persistences;
 
