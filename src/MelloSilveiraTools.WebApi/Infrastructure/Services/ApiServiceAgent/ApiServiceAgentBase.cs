@@ -74,7 +74,7 @@ public abstract class ApiServiceAgentBase : IApiServiceAgent
     /// <param name="timeoutInMiliseconds">Per-request timeout, in milliseconds.</param>
     /// <param name="methodName">Name of the caller method used to enrich log and error messages.</param>
     /// <returns>An operation response carrying the deserialized data or the failure reason.</returns>
-    protected async Task<ListedOperationResponse<TResponseData>> GetAsync<TResponseData>(string requestUri, int timeoutInMiliseconds, [CallerMemberName] string methodName = "") where TResponseData : class, new() => await ResiliencePipeline.ExecuteAsync(async _ =>
+    protected async Task<ListedOperationResponse<TResponseData>> GetAsync<TResponseData>(string requestUri, int timeoutInMiliseconds, [CallerMemberName] string methodName = "") where TResponseData : class => await ResiliencePipeline.ExecuteAsync(async _ =>
     {
         var token = new CancellationTokenSource(timeoutInMiliseconds).Token;
         try
@@ -141,7 +141,7 @@ public abstract class ApiServiceAgentBase : IApiServiceAgent
         int timeoutInMilliseconds,
         string methodName,
         [EnumeratorCancellation] CancellationToken cancellationToken = default)
-        where T : class, new()
+        where T : class
     {
         using CancellationTokenSource cts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
         cts.CancelAfter(timeoutInMilliseconds);
@@ -190,7 +190,7 @@ public abstract class ApiServiceAgentBase : IApiServiceAgent
                     return OperationResponse.CreateSuccess(result.StatusCode);
 
                 string message = $"Failed on '{methodName.Remove("Async")}'.";
-                string content = await result.Content.ReadAsStringAsync();
+                string content = await result.Content.ReadAsStringAsync(cancellationToken).ConfigureAwait(false);
 
                 var logAdditionalData = new Dictionary<string, object?> { { "Content", content } };
 

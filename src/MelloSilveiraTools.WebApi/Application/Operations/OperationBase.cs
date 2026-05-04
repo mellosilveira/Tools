@@ -91,7 +91,7 @@ public abstract class OperationBase<TRequest, TResponse>(ILogger logger)
 /// <typeparam name="TResponseData">Type of the data payload returned by the operation.</typeparam>
 public abstract class OperationBaseWithData<TRequest, TResponseData>(ILogger logger) : OperationBase<TRequest, OperationResponse<TResponseData>>(logger)
     where TRequest : OperationRequestBase, new()
-    where TResponseData : class, new()
+    where TResponseData : class
 { }
 
 /// <summary>
@@ -101,7 +101,7 @@ public abstract class OperationBaseWithData<TRequest, TResponseData>(ILogger log
 /// <typeparam name="TResponseData">Type of each item returned by the operation.</typeparam>
 public abstract class ListedOperationBase<TRequest, TResponseData>(ILogger logger) : OperationBase<TRequest, ListedOperationResponse<TResponseData>>(logger)
     where TRequest : OperationRequestBase, new()
-    where TResponseData : class, new()
+    where TResponseData : class
 { }
 
 /// <summary>
@@ -111,7 +111,7 @@ public abstract class ListedOperationBase<TRequest, TResponseData>(ILogger logge
 /// <typeparam name="TResponseData">Type of each item returned in the page.</typeparam>
 public abstract class PagedOperationBase<TRequest, TResponseData>(ILogger logger) : OperationBase<TRequest, PagedOperationResponse<TResponseData>>(logger)
     where TRequest : OperationRequestBase, new()
-    where TResponseData : class, new()
+    where TResponseData : class
 { }
 
 /// <summary>
@@ -123,7 +123,7 @@ public abstract class OperationBaseWithDefaultResponse<TRequest>(ILogger logger)
 /// Represents the base for all operations that does not use a request.
 /// </summary>
 /// <param name="logger">Logger used to record failures raised while processing the operation.</param>
-public abstract class OperationBaseWithoutRequest<TResponseData>(ILogger logger) where TResponseData : class, new()
+public abstract class OperationBaseWithoutRequest<TResponseData>(ILogger logger) where TResponseData : class
 {
     /// <summary>
     /// Logger used to report failures raised while processing the operation.
