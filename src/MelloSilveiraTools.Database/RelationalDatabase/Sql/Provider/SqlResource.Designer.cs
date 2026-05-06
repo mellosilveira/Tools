@@ -153,6 +153,30 @@ namespace MelloSilveiraTools.Database.RelationalDatabase.Sql.Provider {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to WITH cte AS (
+        ///    INSERT INTO #TABLE_NAME
+        ///    (
+        ///        #COLUMNS
+        ///    )
+        ///    VALUES
+        ///    (
+        ///        #PARAMETER_NAMES
+        ///    )
+        ///    ON CONFLICT (#UNIQUE_COLUMNS) DO NOTHING
+        ///    RETURNING #PRIMARY_KEY
+        ///)
+        ///SELECT #PRIMARY_KEY, TRUE AS inserted FROM cte
+        ///UNION ALL
+        ///SELECT #PRIMARY_KEY, FALSE AS inserted FROM #TABLE_NAME WHERE #UNIQUE_WHERE
+        ///LIMIT 1;.
+        /// </summary>
+        internal static string TryInsertWithUniqueKeyTemplate {
+            get {
+                return ResourceManager.GetString("TryInsertWithUniqueKeyTemplate", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to UPDATE #TABLE_NAME
         ///SET
         ///	#VALUES_TO_UPDATE

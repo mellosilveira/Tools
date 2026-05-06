@@ -59,6 +59,15 @@ public interface ISqlProvider
     string GetInsertSql<T>();
 
     /// <summary>
+    /// Builds an INSERT statement that, on unique-key conflict, leaves the existing row intact and
+    /// returns its primary key plus a boolean flag indicating whether a new row was created.
+    /// </summary>
+    /// <exception cref="InvalidOperationException">
+    /// Thrown when <typeparamref name="T"/> has no <c>[UniqueColumn]</c>-annotated property.
+    /// </exception>
+    string GetTryInsertSql<T>();
+
+    /// <summary>
     /// Builds a SELECT statement with placeholders for WHERE, ORDER BY, LIMIT and OFFSET.
     /// </summary>
     string GetSelectSql<T>();

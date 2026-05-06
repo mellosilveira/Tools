@@ -642,6 +642,9 @@
         <member name="M:MelloSilveiraTools.Database.RelationalDatabase.Repositories.PostgresRepository.InsertAsync``1(``0[],System.Threading.CancellationToken)">
             <inheritdoc/>
         </member>
+        <member name="M:MelloSilveiraTools.Database.RelationalDatabase.Repositories.PostgresRepository.TryInsertAsync``1(``0,System.Threading.CancellationToken)">
+            <inheritdoc/>
+        </member>
         <member name="M:MelloSilveiraTools.Database.RelationalDatabase.Repositories.PostgresRepository.UpsertAsync``1(``0,System.Threading.CancellationToken)">
             <inheritdoc/>
         </member>
@@ -742,6 +745,15 @@
             Builds an INSERT statement for a single entity.
             </summary>
         </member>
+        <member name="M:MelloSilveiraTools.Database.RelationalDatabase.Sql.Provider.ISqlProvider.GetTryInsertSql``1">
+            <summary>
+            Builds an INSERT statement that, on unique-key conflict, leaves the existing row intact and
+            returns its primary key plus a boolean flag indicating whether a new row was created.
+            </summary>
+            <exception cref="T:System.InvalidOperationException">
+            Thrown when <typeparamref name="T"/> has no <c>[UniqueColumn]</c>-annotated property.
+            </exception>
+        </member>
         <member name="M:MelloSilveiraTools.Database.RelationalDatabase.Sql.Provider.ISqlProvider.GetSelectSql``1">
             <summary>
             Builds a SELECT statement with placeholders for WHERE, ORDER BY, LIMIT and OFFSET.
@@ -804,6 +816,9 @@
             <inheritdoc/>
         </member>
         <member name="M:MelloSilveiraTools.Database.RelationalDatabase.Sql.Provider.PostgresSqlProvider.GetInsertSql``1">
+            <inheritdoc/>
+        </member>
+        <member name="M:MelloSilveiraTools.Database.RelationalDatabase.Sql.Provider.PostgresSqlProvider.GetTryInsertSql``1">
             <inheritdoc/>
         </member>
         <member name="M:MelloSilveiraTools.Database.RelationalDatabase.Sql.Provider.PostgresSqlProvider.GetSelectSql``1">
@@ -911,6 +926,26 @@
             #LIMIT.
              </summary>
         </member>
+        <member name="P:MelloSilveiraTools.Database.RelationalDatabase.Sql.Provider.SqlResource.TryInsertWithUniqueKeyTemplate">
+             <summary>
+               Looks up a localized string similar to WITH cte AS (
+                INSERT INTO #TABLE_NAME
+                (
+                    #COLUMNS
+                )
+                VALUES
+                (
+                    #PARAMETER_NAMES
+                )
+                ON CONFLICT (#UNIQUE_COLUMNS) DO NOTHING
+                RETURNING #PRIMARY_KEY
+            )
+            SELECT #PRIMARY_KEY, TRUE AS inserted FROM cte
+            UNION ALL
+            SELECT #PRIMARY_KEY, FALSE AS inserted FROM #TABLE_NAME WHERE #UNIQUE_WHERE
+            LIMIT 1;.
+             </summary>
+        </member>
         <member name="P:MelloSilveiraTools.Database.RelationalDatabase.Sql.Provider.SqlResource.UpdateTemplate">
              <summary>
                Looks up a localized string similar to UPDATE #TABLE_NAME
@@ -987,6 +1022,21 @@
             <summary>
             Inserts a new entity and returns its generated identifier.
             </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Database.Repositories.IRepository.TryInsertAsync``1(``0,System.Threading.CancellationToken)">
+            <summary>
+            Inserts the entity. When a row with the same unique-key value already exists, returns the
+            existing row's primary key WITHOUT modifying the existing record (semantics: ON CONFLICT DO NOTHING
+            + fallback SELECT in a single atomic statement).
+            </summary>
+            <returns>
+            <c>Inserted</c> is <c>true</c> when a new row was created and <c>false</c> when an existing
+            row was returned. <c>Id</c> is always the primary key of the canonical row (new or pre-existing).
+            </returns>
+            <exception cref="T:System.InvalidOperationException">
+            Thrown when <typeparamref name="TEntity"/> has no <c>[UniqueColumn]</c>-annotated property —
+            without a unique constraint there is no conflict to detect, so callers should use <see cref="M:MelloSilveiraTools.Database.Repositories.IRepository.InsertAsync``1(``0,System.Threading.CancellationToken)"/> instead.
+            </exception>
         </member>
         <member name="M:MelloSilveiraTools.Database.Repositories.IRepository.InsertAsync``1(``0[],System.Threading.CancellationToken)">
             <summary>

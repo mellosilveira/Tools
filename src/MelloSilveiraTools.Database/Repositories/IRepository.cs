@@ -79,6 +79,21 @@ public interface IRepository
     Task<long> InsertAsync<TEntity>(TEntity entity, CancellationToken cancellationToken = default);
 
     /// <summary>
+    /// Inserts the entity. When a row with the same unique-key value already exists, returns the
+    /// existing row's primary key WITHOUT modifying the existing record (semantics: ON CONFLICT DO NOTHING
+    /// + fallback SELECT in a single atomic statement).
+    /// </summary>
+    /// <returns>
+    /// <c>Inserted</c> is <c>true</c> when a new row was created and <c>false</c> when an existing
+    /// row was returned. <c>Id</c> is always the primary key of the canonical row (new or pre-existing).
+    /// </returns>
+    /// <exception cref="InvalidOperationException">
+    /// Thrown when <typeparamref name="TEntity"/> has no <c>[UniqueColumn]</c>-annotated property —
+    /// without a unique constraint there is no conflict to detect, so callers should use <see cref="InsertAsync{TEntity}(TEntity, CancellationToken)"/> instead.
+    /// </exception>
+    Task<(bool Inserted, long Id)> TryInsertAsync<TEntity>(TEntity entity, CancellationToken cancellationToken = default);
+
+    /// <summary>
     /// Inserts a batch of entities and returns their generated identifiers in the same order.
     /// </summary>
     Task<long[]> InsertAsync<TEntity>(TEntity[] entity, CancellationToken cancellationToken = default);

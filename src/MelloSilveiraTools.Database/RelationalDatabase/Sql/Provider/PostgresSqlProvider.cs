@@ -35,7 +35,7 @@ public class PostgresSqlProvider : ISqlProvider
     // BatchSize é 0 para operações que não são bulk insert.
     private static readonly ConcurrentDictionary<(Type Type, Operation Op, int BatchSize), string> _sqlCache = [];
 
-    private enum Operation { BulkInsert, Insert, Count, Delete, DeletePk, ExistPk, Select, SelectDistinct, SelectPk, Update, UpdatePk }
+    private enum Operation { BulkInsert, Insert, TryInsert, Count, Delete, DeletePk, ExistPk, Select, SelectDistinct, SelectPk, Update, UpdatePk }
 
     private record EntityMetadata(
         string TableName,
@@ -67,6 +67,9 @@ public class PostgresSqlProvider : ISqlProvider
 
     /// <inheritdoc/>
     public string GetInsertSql<T>() => GetSql<T>(Operation.Insert, CreateInsertSql);
+
+    /// <inheritdoc/>
+    public string GetTryInsertSql<T>() => GetSql<T>(Operation.TryInsert, CreateTryInsertSql);
 
     /// <inheritdoc/>
     public string GetSelectSql<T>() => GetSql<T>(Operation.Select, CreateSelectSql);
@@ -192,6 +195,7 @@ public class PostgresSqlProvider : ISqlProvider
     }
 
     private static string CreateSelectSql(Type type) => CreateBaseSelectSql(type, false);
+
     private static string CreateDistinctSelectSql(Type type) => CreateBaseSelectSql(type, true);
 
     private static string CreateSelectByPrimaryKeySql(Type type)
@@ -228,6 +232,23 @@ public class PostgresSqlProvider : ISqlProvider
         }
 
         return sql;
+    }
+
+    private static string CreateTryInsertSql(Type type)
+    {
+        var meta = GetMetadata(type);
+        var cols = string.Join(", ", meta.AllColumns.Select(c => c.ColName));
+        var pars = string.Join(", ", meta.AllColumns.Select(c => $"@{c.Prop.Name}"));
+        var uniqueCols = string.Join(", ", meta.UniqueColumns.Select(c => c.ColName));
+        var uniqueWhere = string.Join(" AND ", meta.UniqueColumns.Select(c => $"{c.ColName} = @{c.Prop.Name}"));
+
+        return SqlResource.TryInsertWithUniqueKeyTemplate
+            .Replace("#TABLE_NAME", meta.TableName)
+            .Replace("#COLUMNS", cols)
+            .Replace("#PARAMETER_NAMES", pars)
+            .Replace("#UNIQUE_COLUMNS", uniqueCols)
+            .Replace("#UNIQUE_WHERE", uniqueWhere)
+            .Replace("#PRIMARY_KEY", meta.PrimaryKeyCol);
     }
 
     private static string CreateUpdateSql(Type type)

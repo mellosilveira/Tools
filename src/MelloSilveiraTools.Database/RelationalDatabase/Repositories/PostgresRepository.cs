@@ -243,6 +243,30 @@ public class PostgresRepository(ISqlProvider sqlProvider, PostgresResiliencePipe
     }
 
     /// <inheritdoc/>
+    public async Task<(bool Inserted, long Id)> TryInsertAsync<TEntity>(TEntity entity, CancellationToken cancellationToken = default)
+    {
+        string sql = sqlProvider.GetTryInsertSql<TEntity>();
+        IEnumerable<NpgsqlParameter> parameters = entity.BuildParameters(useDeclaredProperties: true);
+
+        return await resiliencePipeline.ExecuteAsync(async _ =>
+        {
+            await using NpgsqlConnection connection = await GetNewOpenedConnectionAsync(cancellationToken).ConfigureAwait(false);
+            await using NpgsqlCommand command = new(sql, connection) { CommandTimeout = DatabaseSettings.UnitOperationTimeoutInSeconds };
+            await using NpgsqlDataReader reader = await command
+                .SetCommandParameters(parameters)
+                .ExecuteReaderAsync(cancellationToken)
+                .ConfigureAwait(false);
+
+            if (!await reader.ReadAsync(cancellationToken).ConfigureAwait(false))
+                throw new InvalidOperationException($"{nameof(TryInsertAsync)} produced no rows.");
+
+            long id = reader.GetInt64(0);
+            bool inserted = reader.GetBoolean(1);
+            return (inserted, id);
+        });
+    }
+
+    /// <inheritdoc/>
     public async Task<long> UpsertAsync<TEntity>(TEntity entity, CancellationToken cancellationToken = default)
     {
         string sql = sqlProvider.GetInsertSql<TEntity>();
