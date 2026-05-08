@@ -35,7 +35,7 @@ public class PostgresSqlProvider : ISqlProvider
     // BatchSize é 0 para operações que não são bulk insert.
     private static readonly ConcurrentDictionary<(Type Type, Operation Op, int BatchSize), string> _sqlCache = [];
 
-    private enum Operation { BulkInsert, Insert, TryInsert, Count, Delete, DeletePk, ExistPk, Select, SelectDistinct, SelectPk, Update, UpdatePk }
+    private enum Operation { BulkInsert, Insert, TryInsert, Count, Delete, DeletePk, ExistPk, Select, SelectDistinct, SelectUniqueColumn, SelectPk, Update, UpdatePk }
 
     private record EntityMetadata(
         string TableName,
@@ -79,6 +79,9 @@ public class PostgresSqlProvider : ISqlProvider
 
     /// <inheritdoc/>
     public string GetSelectByPrimaryKeySql<T>() => GetSql<T>(Operation.SelectPk, CreateSelectByPrimaryKeySql);
+
+    /// <inheritdoc/>
+    public string GetSelectByUniqueColumnSql<T>() => GetSql<T>(Operation.SelectUniqueColumn, CreateSelectByUniqueColumnSql);
 
     /// <inheritdoc/>
     public string GetUpdateSql<T>() => GetSql<T>(Operation.Update, CreateUpdateSql);
@@ -203,6 +206,15 @@ public class PostgresSqlProvider : ISqlProvider
         var meta = GetMetadata(type);
         return CreateSelectSql(type)
             .Replace("#WHERE", $"WHERE {meta.Alias}.{meta.PrimaryKeyCol} = @{meta.PrimaryKey.Name}")
+            .Remove("#ORDERBY").Remove("#OFFSET").Remove("#LIMIT");
+    }
+
+    private static string CreateSelectByUniqueColumnSql(Type type)
+    {
+        var meta = GetMetadata(type);
+        var (_, colName) = meta.UniqueColumns[0];
+        return CreateSelectSql(type)
+            .Replace("#WHERE", $"WHERE {meta.Alias}.{colName} = @UniqueColumnValue")
             .Remove("#ORDERBY").Remove("#OFFSET").Remove("#LIMIT");
     }
 

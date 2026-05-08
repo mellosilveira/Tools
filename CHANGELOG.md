@@ -7,10 +7,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [1.5.0] - 2026-05-DD
 ### Added
-- `IRepository.TryInsertAsync<TEntity>(TEntity, CancellationToken)` — insert-or-get-existing semantics. 
-  Returns `(Inserted, Id)`; on unique-key conflict leaves the existing row intact and returns its primary key. Atomic single statement (CTE + UNION ALL).
-  Requires the entity to declare at least one `[UniqueColumn]` property; otherwise throws `InvalidOperationException`.
+- `IRepository.TryInsertAsync<TEntity>(TEntity, CancellationToken)` — insert-or-get-existing semantics. Returns `(Inserted, Id)`; on unique-key conflict leaves the existing row intact and returns its primary key. Atomic single statement (CTE + UNION ALL). Requires the entity to declare at least one `[UniqueColumn]` property; otherwise throws `InvalidOperationException`.
 - `ISqlProvider.GetTryInsertSql<T>()` plus the `TryInsertTemplate.sql` resource that backs it.
+- `IRepository.GetByUniqueColumnAsync<TEntity>(object, CancellationToken)` — typed lookup by the entity's single `[UniqueColumn]`-annotated column. Returns the entity or `null`. Removes the need to declare a `FilterBase`-derived filter just for unique-column lookups (common pattern when the unique column is a hash-based identifier produced by a database trigger). Throws `InvalidOperationException` when the entity has zero or more than one `[UniqueColumn]` property.
+- `ISqlProvider.GetSelectByUniqueColumnSql<T>()`. The generated SQL binds the value to the literal parameter name `@UniqueColumnValue` regardless of the underlying property name.
 ### Breaking
 - **Namespace flattening (Core).** Removed the `Domain.` and `Infrastructure.` segments from every `MelloSilveiraTools.Core` namespace:
   - `MelloSilveiraTools.Core.Domain.Models.*` → `MelloSilveiraTools.Core.Models.*`

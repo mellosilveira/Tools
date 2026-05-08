@@ -186,6 +186,23 @@ public class PostgresRepository(ISqlProvider sqlProvider, PostgresResiliencePipe
         where TFilter : FilterBase
         => StreamAsync<TEntity, TFilter>(sqlProvider.GetSelectDistinctSql<TEntity>(), filter, pagination, cancellationToken);
 
+    /// <inheritdoc/>
+    public async Task<TEntity?> GetByUniqueColumnAsync<TEntity>(object value, CancellationToken cancellationToken = default)
+    {
+        string sql = sqlProvider.GetSelectByUniqueColumnSql<TEntity>();
+
+        DynamicParameters parameters = new();
+        parameters.Add("@UniqueColumnValue", value);
+
+        return await resiliencePipeline.ExecuteAsync(async _ =>
+        {
+            await using NpgsqlConnection connection = await GetNewOpenedConnectionAsync(cancellationToken).ConfigureAwait(false);
+            return await connection
+                .QueryFirstOrDefaultAsync<TEntity>(sql, parameters, DatabaseSettings.UnitOperationTimeoutInSeconds, cancellationToken)
+                .ConfigureAwait(false);
+        });
+    }
+
     private IAsyncEnumerable<TEntity> StreamAsync<TEntity, TFilter>(string baseSql, TFilter filter, Pagination? pagination, CancellationToken cancellationToken)
         where TEntity : class, new()
         where TFilter : FilterBase

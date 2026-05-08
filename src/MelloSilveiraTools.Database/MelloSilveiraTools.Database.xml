@@ -636,6 +636,9 @@
         <member name="M:MelloSilveiraTools.Database.RelationalDatabase.Repositories.PostgresRepository.GetDistinctAsync``2(``1,MelloSilveiraTools.Database.RelationalDatabase.Models.Filters.Pagination,System.Threading.CancellationToken)">
             <inheritdoc/>
         </member>
+        <member name="M:MelloSilveiraTools.Database.RelationalDatabase.Repositories.PostgresRepository.GetByUniqueColumnAsync``1(System.Object,System.Threading.CancellationToken)">
+            <inheritdoc/>
+        </member>
         <member name="M:MelloSilveiraTools.Database.RelationalDatabase.Repositories.PostgresRepository.InsertAsync``1(``0,System.Threading.CancellationToken)">
             <inheritdoc/>
         </member>
@@ -769,6 +772,21 @@
             Builds a SELECT statement filtered by the entity's primary key.
             </summary>
         </member>
+        <member name="M:MelloSilveiraTools.Database.RelationalDatabase.Sql.Provider.ISqlProvider.GetSelectByUniqueColumnSql``1">
+            <summary>
+            Builds a <c>SELECT … LIMIT 1</c> statement that filters by the entity's single
+            <c>[UniqueColumn]</c>-annotated column.
+            </summary>
+            <remarks>
+            The SQL parameter name is the **fixed literal** <c>@UniqueColumnValue</c> regardless of the underlying
+            property name, so callers don't need to know the entity's metadata. Includes the same JOINs as
+            <see cref="M:MelloSilveiraTools.Database.RelationalDatabase.Sql.Provider.ISqlProvider.GetSelectSql``1"/> (foreign-key projections), so the WHERE clause is qualified by the
+            main table's alias to remove ambiguity when the joined tables also have a column with the same name.
+            </remarks>
+            <exception cref="T:System.InvalidOperationException">
+            Thrown when <typeparamref name="T"/> has zero or more than one <c>[UniqueColumn]</c>-annotated property.
+            </exception>
+        </member>
         <member name="M:MelloSilveiraTools.Database.RelationalDatabase.Sql.Provider.ISqlProvider.GetUpdateSql``1">
             <summary>
             Builds an UPDATE statement with a placeholder for the WHERE clause.
@@ -828,6 +846,9 @@
             <inheritdoc/>
         </member>
         <member name="M:MelloSilveiraTools.Database.RelationalDatabase.Sql.Provider.PostgresSqlProvider.GetSelectByPrimaryKeySql``1">
+            <inheritdoc/>
+        </member>
+        <member name="M:MelloSilveiraTools.Database.RelationalDatabase.Sql.Provider.PostgresSqlProvider.GetSelectByUniqueColumnSql``1">
             <inheritdoc/>
         </member>
         <member name="M:MelloSilveiraTools.Database.RelationalDatabase.Sql.Provider.PostgresSqlProvider.GetUpdateSql``1">
@@ -997,6 +1018,20 @@
             <summary>
             Streams all entities matching the supplied filter, optionally paginated.
             </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Database.Repositories.IRepository.GetByUniqueColumnAsync``1(System.Object,System.Threading.CancellationToken)">
+            <summary>
+            Returns the entity whose <c>[UniqueColumn]</c>-annotated column equals <paramref name="value"/>,
+            or <c>null</c> when no row matches. Useful as a typed lookup on hash-based identifiers
+            (and any other single-column unique key) without needing to write a <see cref="T:MelloSilveiraTools.Database.RelationalDatabase.Models.Filters.FilterBase"/>-derived filter.
+            </summary>
+            <param name="value">Value to compare against the unique column. Bound as a SQL parameter.</param>
+            <param name="cancellationToken"></param>
+            <exception cref="T:System.InvalidOperationException">
+            Thrown when <typeparamref name="TEntity"/> has zero or more than one <c>[UniqueColumn]</c>-annotated
+            property — for composite unique keys, use a custom <c>FilterBase</c> with multiple <c>[FilterColumn]</c>
+            entries instead.
+            </exception>
         </member>
         <member name="M:MelloSilveiraTools.Database.Repositories.IRepository.GetDistinctAsync``2(``1,MelloSilveiraTools.Database.RelationalDatabase.Models.Filters.Pagination,System.Threading.CancellationToken)">
             <summary>

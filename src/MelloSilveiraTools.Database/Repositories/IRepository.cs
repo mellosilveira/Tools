@@ -52,6 +52,20 @@ public interface IRepository
         where TFilter : FilterBase;
 
     /// <summary>
+    /// Returns the entity whose <c>[UniqueColumn]</c>-annotated column equals <paramref name="value"/>,
+    /// or <c>null</c> when no row matches. Useful as a typed lookup on hash-based identifiers
+    /// (and any other single-column unique key) without needing to write a <see cref="MelloSilveiraTools.Database.RelationalDatabase.Models.Filters.FilterBase"/>-derived filter.
+    /// </summary>
+    /// <param name="value">Value to compare against the unique column. Bound as a SQL parameter.</param>
+    /// <param name="cancellationToken"></param>
+    /// <exception cref="InvalidOperationException">
+    /// Thrown when <typeparamref name="TEntity"/> has zero or more than one <c>[UniqueColumn]</c>-annotated
+    /// property — for composite unique keys, use a custom <c>FilterBase</c> with multiple <c>[FilterColumn]</c>
+    /// entries instead.
+    /// </exception>
+    Task<TEntity?> GetByUniqueColumnAsync<TEntity>(object value, CancellationToken cancellationToken = default);
+
+    /// <summary>
     /// Streams the distinct entities matching the supplied filter, optionally paginated.
     /// </summary>
     IAsyncEnumerable<TEntity> GetDistinctAsync<TEntity, TFilter>(TFilter filter, Pagination? pagination = null, CancellationToken cancellationToken = default)

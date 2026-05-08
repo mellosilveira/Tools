@@ -83,6 +83,21 @@ public interface ISqlProvider
     string GetSelectByPrimaryKeySql<T>();
 
     /// <summary>
+    /// Builds a <c>SELECT … LIMIT 1</c> statement that filters by the entity's single
+    /// <c>[UniqueColumn]</c>-annotated column.
+    /// </summary>
+    /// <remarks>
+    /// The SQL parameter name is the **fixed literal** <c>@UniqueColumnValue</c> regardless of the underlying
+    /// property name, so callers don't need to know the entity's metadata. Includes the same JOINs as
+    /// <see cref="GetSelectSql{T}"/> (foreign-key projections), so the WHERE clause is qualified by the
+    /// main table's alias to remove ambiguity when the joined tables also have a column with the same name.
+    /// </remarks>
+    /// <exception cref="InvalidOperationException">
+    /// Thrown when <typeparamref name="T"/> has zero or more than one <c>[UniqueColumn]</c>-annotated property.
+    /// </exception>
+    string GetSelectByUniqueColumnSql<T>();
+
+    /// <summary>
     /// Builds an UPDATE statement with a placeholder for the WHERE clause.
     /// </summary>
     string GetUpdateSql<T>();
