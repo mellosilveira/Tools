@@ -6,7 +6,7 @@
 public static class MathematicConstants
 {
     /// <summary>
-    /// The constant of Euler-Mascheroni.
+    /// Euler-Mascheroni constant (γ ≈ 0.57721566490153286...).
     /// </summary>
     public const double EulerMascheroniConstant = 0.5772156649015328606065120900824024310421;
 
