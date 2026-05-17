@@ -1,13 +1,12 @@
 using MelloSilveiraTools.Core.Logger;
+using MelloSilveiraTools.Core.Models;
 using MelloSilveiraTools.Database.RelationalDatabase.Models.Entities;
 using MelloSilveiraTools.Database.RelationalDatabase.Models.Filters;
 using MelloSilveiraTools.Database.Repositories;
-using MelloSilveiraTools.WebApi.Application.Operations;
-using MelloSilveiraTools.WebApi.Application.Operations.Crud;
-using MelloSilveiraTools.WebApi.Application.Operations.Crud.Add;
-using MelloSilveiraTools.WebApi.Application.Operations.Crud.Delete;
-using MelloSilveiraTools.WebApi.Application.Operations.Crud.Read;
-using MelloSilveiraTools.WebApi.Application.Operations.Crud.Update;
+using MelloSilveiraTools.WebApi.Application.Commands.Crud.Add;
+using MelloSilveiraTools.WebApi.Application.Commands.Crud.Delete;
+using MelloSilveiraTools.WebApi.Application.Commands.Crud.Read;
+using MelloSilveiraTools.WebApi.Application.Commands.Crud.Update;
 using MelloSilveiraTools.WebApi.ExtensionMethods;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -54,12 +53,12 @@ public abstract class CrudController<TEntity, TFilter>(ILogger logger) : CustomC
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [HttpGet("{id:long}")]
-    public async Task<ActionResult<OperationResponse<TEntity>>> Read(
+    public async Task<ActionResult<Result<TEntity>>> Read(
         [FromServices] ReadEntityById<TEntity> operation,
         [FromRoute] long id)
     {
         return await operation
-            .ProcessAsync(new ReadEntityByIdRequest { Id = id, ResourceName = ResourceName })
+            .ExecuteAsync(new ReadEntityByIdRequest { Id = id, ResourceName = ResourceName })
             .BuildHttpResponseAsync()
             .ConfigureAwait(false);
     }
@@ -75,13 +74,13 @@ public abstract class CrudController<TEntity, TFilter>(ILogger logger) : CustomC
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [HttpGet]
-    public async Task<ActionResult<PagedOperationResponse<TEntity>>> Read(
+    public async Task<ActionResult<PagedResult<TEntity>>> Read(
         [FromServices] ReadEntityPaged<TEntity, TFilter> operation,
         [FromQuery] TFilter filter,
         [FromQuery] Pagination pagination)
     {
         return await operation
-            .ProcessAsync(new ReadEntityPagedRequest<TFilter>
+            .ExecuteAsync(new ReadEntityPagedRequest<TFilter>
             {
                 Filter = filter,
                 Pagination = pagination,
@@ -103,13 +102,13 @@ public abstract class CrudController<TEntity, TFilter>(ILogger logger) : CustomC
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [HttpPut("{id:long}")]
-    public async Task<ActionResult<OperationResponse>> Update(
+    public async Task<ActionResult<Result>> Update(
         [FromServices] UpdateEntity<TEntity> operation,
         [FromRoute] long id,
         [FromBody] TEntity entity)
     {
         return await operation
-            .ProcessAsync(new UpdateEntityRequest<TEntity> { Id = id, Entity = entity, ResourceName = ResourceName })
+            .ExecuteAsync(new UpdateEntityRequest<TEntity> { Id = id, Entity = entity, ResourceName = ResourceName })
             .BuildHttpResponseAsync()
             .ConfigureAwait(false);
     }
@@ -124,12 +123,12 @@ public abstract class CrudController<TEntity, TFilter>(ILogger logger) : CustomC
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [HttpDelete("{id:long}")]
-    public async Task<ActionResult<OperationResponse>> Delete(
+    public async Task<ActionResult<Result>> Delete(
         [FromServices] DeleteEntity<TEntity> operation,
         [FromRoute] long id)
     {
         return await operation
-            .ProcessAsync(new DeleteEntityRequest { Id = id, ResourceName = ResourceName })
+            .ExecuteAsync(new DeleteEntityRequest { Id = id, ResourceName = ResourceName })
             .BuildHttpResponseAsync()
             .ConfigureAwait(false);
     }

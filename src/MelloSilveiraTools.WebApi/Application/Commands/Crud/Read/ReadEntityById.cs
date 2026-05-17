@@ -1,9 +1,9 @@
 using MelloSilveiraTools.Core.Logger;
-using MelloSilveiraTools.Database.ExtensionMethods;
+using MelloSilveiraTools.Core.Models;
 using MelloSilveiraTools.Database.RelationalDatabase.Models.Entities;
 using MelloSilveiraTools.Database.Repositories;
 
-namespace MelloSilveiraTools.WebApi.Application.Operations.Crud.Read;
+namespace MelloSilveiraTools.WebApi.Application.Commands.Crud.Read;
 
 /// <summary>
 /// Generic operation that loads a single entity by its identifier through <see cref="IRepository"/>.
@@ -11,19 +11,16 @@ namespace MelloSilveiraTools.WebApi.Application.Operations.Crud.Read;
 /// </summary>
 /// <typeparam name="TEntity">Entity type being read.</typeparam>
 public class ReadEntityById<TEntity>(ILogger logger, IRepository repository)
-    : OperationBaseWithData<ReadEntityByIdRequest, TEntity>(logger)
+    : CommandBaseWithData<ReadEntityByIdRequest, TEntity>(logger)
     where TEntity : EntityBase, new()
 {
     /// <inheritdoc />
-    protected override Task<OperationResponse<TEntity>> ValidateOperationAsync(ReadEntityByIdRequest request) => OperationResponse.CreateSuccessOk<TEntity>().AsTask();
-
-    /// <inheritdoc />
-    protected override async Task<OperationResponse<TEntity>> ProcessOperationAsync(ReadEntityByIdRequest request)
+    protected override async Task<Result<TEntity>> ExecuteCommandAsync(ReadEntityByIdRequest request)
     {
         try
         {
             TEntity? entity = await repository.GetAsync<TEntity>(request.Id).ConfigureAwait(false);
-            return entity is null ? OperationResponse.CreateNotFound() : OperationResponse.CreateSuccessOk(entity);
+            return entity is null ? Result.CreateNotFound() : Result.CreateSuccessOk(entity);
         }
         catch (Exception ex)
         {
@@ -32,7 +29,7 @@ public class ReadEntityById<TEntity>(ILogger logger, IRepository repository)
             Dictionary<string, object?> logAdditionalData = new() { { "Id", request.Id } };
             Logger.Error(message, ex, logAdditionalData);
 
-            return OperationResponse.CreateInternalServerError(message);
+            return Result.CreateUnknownError(message);
         }
     }
 }

@@ -1,12 +1,13 @@
 using MelloSilveiraTools.Database.RelationalDatabase.Models.Filters;
+using MelloSilveiraTools.WebApi.Application.Commands;
 
-namespace MelloSilveiraTools.WebApi.Application.Operations.Crud.Read;
+namespace MelloSilveiraTools.WebApi.Application.Commands.Crud.Read;
 
 /// <summary>
 /// Request consumed by <see cref="ReadEntityPaged{TEntity, TFilter}"/>.
 /// </summary>
 /// <typeparam name="TFilter">Filter type used to query the entity.</typeparam>
-public sealed record ReadEntityPagedRequest<TFilter> : OperationRequestBase
+public sealed record ReadEntityPagedRequest<TFilter> : RequestBase
     where TFilter : FilterBase, new()
 {
     /// <summary>Filter criteria applied to the query.</summary>

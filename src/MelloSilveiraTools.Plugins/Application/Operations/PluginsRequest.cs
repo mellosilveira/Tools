@@ -1,11 +1,11 @@
-using MelloSilveiraTools.WebApi.Application.Operations;
+using MelloSilveiraTools.WebApi.Application.Commands;
 
-namespace MelloSilveiraTools.Plugins.Application.Operations.Load;
+namespace MelloSilveiraTools.Plugins.Application.Operations;
 
 /// <summary>
-/// Request used by the <c>LoadPlugins</c> operation to identify which plugins should be loaded at runtime.
+/// Request used to filter plugins for a command.
 /// </summary>
-public record LoadPluginsRequest : OperationRequestBase
+public record PluginsRequest : RequestBase
 {
     /// <summary>
     /// Optional plugin name. When omitted, all plugins are considered.

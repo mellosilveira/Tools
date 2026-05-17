@@ -1,12 +1,13 @@
 using MelloSilveiraTools.Database.RelationalDatabase.Models.Entities;
+using MelloSilveiraTools.WebApi.Application.Commands;
 
-namespace MelloSilveiraTools.WebApi.Application.Operations.Crud.Add;
+namespace MelloSilveiraTools.WebApi.Application.Commands.Crud.Add;
 
 /// <summary>
 /// Request consumed by <see cref="AddEntity{TEntity}"/>.
 /// </summary>
 /// <typeparam name="TEntity">Entity type being persisted.</typeparam>
-public sealed record AddEntityRequest<TEntity> : OperationRequestBase
+public sealed record AddEntityRequest<TEntity> : RequestBase
     where TEntity : EntityBase, new()
 {
     /// <summary>Entity to insert.</summary>

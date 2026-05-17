@@ -1,10 +1,9 @@
+using MelloSilveiraTools.Core.Models;
 using MelloSilveiraTools.Database.RelationalDatabase.Models.Entities;
 using MelloSilveiraTools.Database.RelationalDatabase.Models.Filters;
-using MelloSilveiraTools.WebApi.Application.Operations;
-using MelloSilveiraTools.WebApi.Application.Operations.Crud;
-using MelloSilveiraTools.WebApi.Application.Operations.Crud.Delete;
-using MelloSilveiraTools.WebApi.Application.Operations.Crud.Read;
-using MelloSilveiraTools.WebApi.Application.Operations.Crud.Update;
+using MelloSilveiraTools.WebApi.Application.Commands.Crud.Delete;
+using MelloSilveiraTools.WebApi.Application.Commands.Crud.Read;
+using MelloSilveiraTools.WebApi.Application.Commands.Crud.Update;
 using MelloSilveiraTools.WebApi.ExtensionMethods;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
@@ -45,19 +44,19 @@ public static class CrudEndpoints
 
         group
             .MapGet("/{id:long}", async (ReadEntityById<TEntity> operation, long id) => await operation
-                .ProcessAsync(new ReadEntityByIdRequest { Id = id, ResourceName = resourceName })
+                .ExecuteAsync(new ReadEntityByIdRequest { Id = id, ResourceName = resourceName })
                 .ToHttpResultAsync()
                 .ConfigureAwait(false))
-            .Produces<OperationResponse<TEntity>>(StatusCodes.Status200OK)
-            .Produces<OperationResponse>(StatusCodes.Status404NotFound)
-            .Produces<OperationResponse>(StatusCodes.Status500InternalServerError)
+            .Produces<Result<TEntity>>(StatusCodes.Status200OK)
+            .Produces<Result>(StatusCodes.Status404NotFound)
+            .Produces<Result>(StatusCodes.Status500InternalServerError)
             .WithName($"ReadById_{resourceName}")
             .WithSummary($"Retrieves a single {resourceName} by its identifier.");
 
         group
             .MapGet("/", async (HttpContext httpContext, ReadEntityPaged<TEntity, TFilter> operation,
                 [AsParameters] TFilter filter, [AsParameters] Pagination pagination) => await operation
-                .ProcessAsync(new ReadEntityPagedRequest<TFilter>
+                .ExecuteAsync(new ReadEntityPagedRequest<TFilter>
                 {
                     Filter = filter,
                     Pagination = pagination,
@@ -66,29 +65,29 @@ public static class CrudEndpoints
                 })
                 .ToHttpResultAsync()
                 .ConfigureAwait(false))
-            .Produces<PagedOperationResponse<TEntity>>(StatusCodes.Status200OK)
-            .Produces<OperationResponse>(StatusCodes.Status500InternalServerError)
+            .Produces<PagedResult<TEntity>>(StatusCodes.Status200OK)
+            .Produces<Result>(StatusCodes.Status500InternalServerError)
             .WithName($"ReadPaged_{resourceName}")
             .WithSummary($"Retrieves a paginated list of {resourceName}.");
 
         group
             .MapPut("/{id:long}", async (UpdateEntity<TEntity> operation, long id, TEntity entity) => await operation
-                .ProcessAsync(new UpdateEntityRequest<TEntity> { Id = id, Entity = entity, ResourceName = resourceName })
+                .ExecuteAsync(new UpdateEntityRequest<TEntity> { Id = id, Entity = entity, ResourceName = resourceName })
                 .ToHttpResultAsync()
                 .ConfigureAwait(false))
-            .Produces<OperationResponse>(StatusCodes.Status200OK)
-            .Produces<OperationResponse>(StatusCodes.Status204NoContent)
-            .Produces<OperationResponse>(StatusCodes.Status500InternalServerError)
+            .Produces<Result>(StatusCodes.Status200OK)
+            .Produces<Result>(StatusCodes.Status204NoContent)
+            .Produces<Result>(StatusCodes.Status500InternalServerError)
             .WithName($"Update_{resourceName}")
             .WithSummary($"Updates an existing {resourceName}.");
 
         group
             .MapDelete("/{id:long}", async (DeleteEntity<TEntity> operation, long id) => await operation
-                .ProcessAsync(new DeleteEntityRequest { Id = id, ResourceName = resourceName })
+                .ExecuteAsync(new DeleteEntityRequest { Id = id, ResourceName = resourceName })
                 .ToHttpResultAsync()
                 .ConfigureAwait(false))
-            .Produces<OperationResponse>(StatusCodes.Status200OK)
-            .Produces<OperationResponse>(StatusCodes.Status500InternalServerError)
+            .Produces<Result>(StatusCodes.Status200OK)
+            .Produces<Result>(StatusCodes.Status500InternalServerError)
             .WithName($"Delete_{resourceName}")
             .WithSummary($"Deletes a {resourceName} by its identifier.");
 

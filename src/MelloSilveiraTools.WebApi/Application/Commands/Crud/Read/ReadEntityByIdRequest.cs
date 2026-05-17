@@ -1,9 +1,11 @@
-namespace MelloSilveiraTools.WebApi.Application.Operations.Crud.Read;
+using MelloSilveiraTools.WebApi.Application.Commands;
+
+namespace MelloSilveiraTools.WebApi.Application.Commands.Crud.Read;
 
 /// <summary>
 /// Request consumed by <see cref="ReadEntityById{TEntity}"/>.
 /// </summary>
-public sealed record ReadEntityByIdRequest : OperationRequestBase
+public sealed record ReadEntityByIdRequest : RequestBase
 {
     /// <summary>Identifier of the entity to load.</summary>
     public long Id { get; init; }

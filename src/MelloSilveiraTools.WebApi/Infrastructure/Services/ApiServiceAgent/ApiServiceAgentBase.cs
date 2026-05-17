@@ -1,10 +1,10 @@
 using MelloSilveiraTools.Core.ExtensionMethods;
 using MelloSilveiraTools.Core.Logger;
+using MelloSilveiraTools.Core.Models;
+using MelloSilveiraTools.WebApi.Application.Commands;
 using MelloSilveiraTools.WebApi.Application.Models;
-using MelloSilveiraTools.WebApi.Application.Operations;
 using MelloSilveiraTools.WebApi.Infrastructure.ResiliencePipelines;
 using MelloSilveiraTools.WebApi.Infrastructure.Services.ApiServiceAgent.Settings;
-using System.IO;
 using System.Runtime.CompilerServices;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -74,7 +74,7 @@ public abstract class ApiServiceAgentBase : IApiServiceAgent
     /// <param name="timeoutInMiliseconds">Per-request timeout, in milliseconds.</param>
     /// <param name="methodName">Name of the caller method used to enrich log and error messages.</param>
     /// <returns>An operation response carrying the deserialized data or the failure reason.</returns>
-    protected async Task<ListedOperationResponse<TResponseData>> GetAsync<TResponseData>(string requestUri, int timeoutInMiliseconds, [CallerMemberName] string methodName = "") where TResponseData : class => await ResiliencePipeline.ExecuteAsync(async _ =>
+    protected async Task<ListedResult<TResponseData>> GetAsync<TResponseData>(string requestUri, int timeoutInMiliseconds, [CallerMemberName] string methodName = "") where TResponseData : class => await ResiliencePipeline.ExecuteAsync(async _ =>
     {
         var token = new CancellationTokenSource(timeoutInMiliseconds).Token;
         try
@@ -87,7 +87,7 @@ public abstract class ApiServiceAgentBase : IApiServiceAgent
                 if (result.IsSuccessStatusCode)
                 {
                     var responseData = JsonSerializer.Deserialize<TResponseData[]>(content, JsonSerializerOptions);
-                    return OperationResponse.CreateListedSuccess(result.StatusCode, responseData);
+                    return Result.CreateListedSuccess((StatusCode)result.StatusCode, responseData);
                 }
 
                 string message = $"Failed on '{methodName.Remove("Async")}'.";
@@ -95,24 +95,24 @@ public abstract class ApiServiceAgentBase : IApiServiceAgent
                 Dictionary<string, object?> logAdditionalData = new() { { "Content", content } };
                 Logger.Error(message, null, logAdditionalData);
 
-                return OperationResponse.CreateError(result.StatusCode, message);
+                return Result.CreateError((StatusCode)result.StatusCode, message);
             }
 
-            return OperationResponse.CreateInternalServerError($"Failed on '{methodName.Remove("Async")}' due to null content.");
+            return Result.CreateUnknownError($"Failed on '{methodName.Remove("Async")}' due to null content.");
         }
         catch (OperationCanceledException ex)
         {
             string message = $"Timeout on integration with '{ServiceName}'.";
             Logger.Error(message, ex);
 
-            return OperationResponse.CreateRequestTimeout(message);
+            return Result.CreateRequestTimeout(message);
         }
         catch (Exception ex)
         {
             string message = $"Failed on integration with '{ServiceName}'.";
             Logger.Error(message, ex);
 
-            return OperationResponse.CreateServiceUnavailable(message);
+            return Result.CreateServiceUnavailable(message);
         }
     });
 
@@ -179,7 +179,7 @@ public abstract class ApiServiceAgentBase : IApiServiceAgent
         }
     }
 
-    protected async Task<OperationResponse> ExecuteAsync(Task<HttpResponseMessage> httpTask, string methodName, CancellationToken cancellationToken)
+    protected async Task<Result> ExecuteAsync(Task<HttpResponseMessage> httpTask, string methodName, CancellationToken cancellationToken)
     {
         try
         {
@@ -187,7 +187,7 @@ public abstract class ApiServiceAgentBase : IApiServiceAgent
             if (result.Content != null)
             {
                 if (result.IsSuccessStatusCode)
-                    return OperationResponse.CreateSuccess(result.StatusCode);
+                    return Result.CreateSuccess((StatusCode)result.StatusCode);
 
                 string message = $"Failed on '{methodName.Remove("Async")}'.";
                 string content = await result.Content.ReadAsStringAsync(cancellationToken).ConfigureAwait(false);
@@ -196,24 +196,24 @@ public abstract class ApiServiceAgentBase : IApiServiceAgent
 
                 Logger.Error(message, null, logAdditionalData);
 
-                return OperationResponse.CreateError(result.StatusCode, message);
+                return Result.CreateError((StatusCode)result.StatusCode, message);
             }
 
-            return OperationResponse.CreateInternalServerError($"Failed on '{methodName.Remove("Async")}' due to null content.");
+            return Result.CreateUnknownError($"Failed on '{methodName.Remove("Async")}' due to null content.");
         }
         catch (OperationCanceledException ex)
         {
             string message = $"Timeout on integration with '{ServiceName}'.";
             Logger.Error(message, ex);
 
-            return OperationResponse.CreateRequestTimeout(message);
+            return Result.CreateRequestTimeout(message);
         }
         catch (Exception ex)
         {
             string message = $"Failed on integration with '{ServiceName}'.";
             Logger.Error(message, ex);
 
-            return OperationResponse.CreateServiceUnavailable(message);
+            return Result.CreateServiceUnavailable(message);
         }
     }
 

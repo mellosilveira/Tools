@@ -1,8 +1,9 @@
 using MelloSilveiraTools.Core.Logger;
+using MelloSilveiraTools.Core.Models;
+using MelloSilveiraTools.WebApi.Application.Commands;
 using MelloSilveiraTools.WebApi.Application.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using System.Net;
 using System.Net.Mime;
 
 namespace MelloSilveiraTools.WebApi.Application.Middlewares;
@@ -13,10 +14,10 @@ namespace MelloSilveiraTools.WebApi.Application.Middlewares;
 /// <remarks>
 /// Exception-to-status mapping performed by <see cref="InvokeAsync"/>:
 /// <list type="bullet">
-///   <item><description><see cref="UnauthorizedAccessException"/> → <see cref="HttpStatusCode.Unauthorized"/> (401).</description></item>
-///   <item><description><see cref="ArgumentException"/> or <see cref="InvalidOperationException"/> → <see cref="HttpStatusCode.BadRequest"/> (400).</description></item>
-///   <item><description><see cref="KeyNotFoundException"/> → <see cref="HttpStatusCode.NotFound"/> (404).</description></item>
-///   <item><description>Any other exception → <see cref="HttpStatusCode.InternalServerError"/> (500).</description></item>
+///   <item><description><see cref="UnauthorizedAccessException"/> → <see cref="StatusCode.Unauthorized"/> (401).</description></item>
+///   <item><description><see cref="ArgumentException"/> or <see cref="InvalidOperationException"/> → <see cref="StatusCode.BadRequest"/> (400).</description></item>
+///   <item><description><see cref="KeyNotFoundException"/> → <see cref="StatusCode.NotFound"/> (404).</description></item>
+///   <item><description>Any other exception → <see cref="StatusCode.UnknownError"/> (500).</description></item>
 /// </list>
 /// <see cref="NdjsonException"/> receives special handling: it is logged via <paramref name="logger"/>
 /// and the middleware returns without writing any response body, since NDJSON streaming may already
@@ -46,23 +47,24 @@ public class ExceptionHandlingMiddleware(RequestDelegate next, ILogger logger)
 
             var statusCode = ex switch
             {
-                UnauthorizedAccessException => HttpStatusCode.Unauthorized,
-                ArgumentException or InvalidOperationException => HttpStatusCode.BadRequest,
-                KeyNotFoundException => HttpStatusCode.NotFound,
-                _ => HttpStatusCode.InternalServerError
+                UnauthorizedAccessException => StatusCode.Unauthorized,
+                ArgumentException or InvalidOperationException => StatusCode.BadRequest,
+                KeyNotFoundException => StatusCode.NotFound,
+                _ => StatusCode.UnknownError
             };
 
             context.Response.ContentType = MediaTypeNames.Application.Json;
             context.Response.StatusCode = (int)statusCode;
-            await context.Response
-                .WriteAsJsonAsync(new ProblemDetails
-                {
-                    Status = (int)statusCode,
-                    Title = "Erro na requisição.",
-                    Detail = ex.Message ?? "Ocorreu um erro interno. Tente novamente mais tarde.",
-                    Instance = context.Request.Path
-                })
-                .ConfigureAwait(false);
+
+#if DEBUG
+            string message = $"{ex}";
+#else
+            string message = "Ocorreu um erro interno durante o processamento da solicitação.";
+#endif
+            Dictionary<string, object?> logAdditionalData = new() { { "Request", context.Request } };
+            logger.Error(message, ex, logAdditionalData);
+
+            await context.Response.WriteAsJsonAsync(Result.CreateError(statusCode, message)).ConfigureAwait(false);
         }
     }
 }

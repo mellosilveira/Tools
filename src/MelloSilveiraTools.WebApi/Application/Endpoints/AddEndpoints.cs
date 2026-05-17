@@ -1,5 +1,5 @@
 using MelloSilveiraTools.Database.RelationalDatabase.Models.Entities;
-using MelloSilveiraTools.WebApi.Application.Operations.Crud.Add;
+using MelloSilveiraTools.WebApi.Application.Commands.Crud.Add;
 using MelloSilveiraTools.WebApi.ExtensionMethods;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
@@ -28,7 +28,7 @@ public static class AddEndpoints
         where TEntity : EntityBase, new()
         => builder
             .MapPost(pattern, async (AddEntity<TEntity> operation, TEntity entity) => await operation
-                .ProcessAsync(new AddEntityRequest<TEntity> { Entity = entity, ResourceName = resourceName })
+                .ExecuteAsync(new AddEntityRequest<TEntity> { Entity = entity, ResourceName = resourceName })
                 .ToHttpResultAsync()
                 .ConfigureAwait(false))
             .Produces<AddResponse>(StatusCodes.Status201Created)

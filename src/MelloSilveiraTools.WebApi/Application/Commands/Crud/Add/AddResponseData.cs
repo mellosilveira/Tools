@@ -1,4 +1,4 @@
-namespace MelloSilveiraTools.WebApi.Application.Operations.Crud.Add;
+namespace MelloSilveiraTools.WebApi.Application.Commands.Crud.Add;
 
 /// <summary>
 /// Data payload returned by add/create operations, carrying the identifier of the new resource.

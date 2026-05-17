@@ -89,7 +89,7 @@ Handlers in the minimal-API path return `IResult` (`Results.Json(...)` driven by
 | `BuildHttpResponse<T>(this T)` | `T : OperationResponseBase` | `JsonResult` | MVC controllers |
 | `BuildHttpResponseAsync<T>(this Task<T>)` | `Task<T : OperationResponseBase>` | `Task<JsonResult>` | MVC controllers (async chain) |
 
-The `*Async` variants extend `Task<T>` and chain directly after `operation.ProcessAsync(...)` without an intermediate variable — the same pattern both endpoint styles now use consistently.
+The `*Async` variants extend `Task<T>` and chain directly after `operation.ExecuteAsync(...)` without an intermediate variable — the same pattern both endpoint styles now use consistently.
 
 ## AOT compatibility
 

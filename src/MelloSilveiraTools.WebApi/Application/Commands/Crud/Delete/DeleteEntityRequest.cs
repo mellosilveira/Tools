@@ -1,9 +1,9 @@
-namespace MelloSilveiraTools.WebApi.Application.Operations.Crud.Delete;
+namespace MelloSilveiraTools.WebApi.Application.Commands.Crud.Delete;
 
 /// <summary>
 /// Request consumed by <see cref="DeleteEntity{TEntity}"/>.
 /// </summary>
-public sealed record DeleteEntityRequest : OperationRequestBase
+public sealed record DeleteEntityRequest : RequestBase
 {
     /// <summary>Identifier of the entity to delete.</summary>
     public long Id { get; init; }

@@ -1,9 +1,9 @@
 using MelloSilveiraTools.Core.Logger;
 using MelloSilveiraTools.Core.ResiliencePipelines;
-using MelloSilveiraTools.WebApi.Application.Operations.Crud.Add;
-using MelloSilveiraTools.WebApi.Application.Operations.Crud.Delete;
-using MelloSilveiraTools.WebApi.Application.Operations.Crud.Read;
-using MelloSilveiraTools.WebApi.Application.Operations.Crud.Update;
+using MelloSilveiraTools.WebApi.Application.Commands.Crud.Add;
+using MelloSilveiraTools.WebApi.Application.Commands.Crud.Delete;
+using MelloSilveiraTools.WebApi.Application.Commands.Crud.Read;
+using MelloSilveiraTools.WebApi.Application.Commands.Crud.Update;
 using MelloSilveiraTools.WebApi.Authentication;
 using MelloSilveiraTools.WebApi.Authentication.Services;
 using MelloSilveiraTools.WebApi.Infrastructure.ResiliencePipelines;

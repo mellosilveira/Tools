@@ -1,19 +1,20 @@
 using MelloSilveiraTools.Core.Logger;
+using MelloSilveiraTools.Core.Models;
 using MelloSilveiraTools.Database.ExtensionMethods;
 using MelloSilveiraTools.Plugins.Infrastructure.Services;
-using MelloSilveiraTools.WebApi.Application.Operations;
+using MelloSilveiraTools.WebApi.Application.Commands;
 
 namespace MelloSilveiraTools.Plugins.Application.Operations.Cache;
 
 /// <summary>
 /// Operation that clears the plugin cache managed by <see cref="IPluginService"/>.
 /// </summary>
-public class ClearPluginCache(ILogger logger, IPluginService pluginService) : DefaultOperationBase(logger)
+public class ClearPluginCache(ILogger logger, IPluginService pluginService) : DefaultCommandBase(logger)
 {
     /// <inheritdoc />
-    protected override Task<OperationResponse> ProcessOperationAsync()
+    protected override Task<Result> ExecuteCommandAsync()
     {
         pluginService.Clear();
-        return OperationResponse.CreateSuccessOk().AsTask();
+        return Result.CreateSuccessOk().AsTask();
     }
 }

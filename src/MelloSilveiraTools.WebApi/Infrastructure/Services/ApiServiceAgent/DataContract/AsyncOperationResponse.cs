@@ -1,11 +1,11 @@
-﻿using MelloSilveiraTools.WebApi.Application.Operations;
+﻿using MelloSilveiraTools.Core.Models;
 
 namespace MelloSilveiraTools.WebApi.Infrastructure.Services.ApiServiceAgent.DataContract;
 
 /// <summary>
 /// Response content for async operations.
 /// </summary>
-public record AsyncOperationResponse<TResponseData> : OperationResponse
+public record AsyncOperationResponse<TResponseData> : Result
     where TResponseData : class
 {
     /// <summary>

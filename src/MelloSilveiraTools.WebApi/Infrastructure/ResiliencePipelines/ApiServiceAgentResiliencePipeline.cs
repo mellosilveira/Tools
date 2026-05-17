@@ -1,10 +1,10 @@
 ﻿using MelloSilveiraTools.Core.Logger;
+using MelloSilveiraTools.Core.Models;
 using MelloSilveiraTools.Core.ResiliencePipelines;
 using MelloSilveiraTools.Database.ResiliencePipelines;
-using MelloSilveiraTools.WebApi.Application.Operations;
+using MelloSilveiraTools.WebApi.Application.Commands;
 using Polly;
 using Polly.Retry;
-using System.Net;
 
 namespace MelloSilveiraTools.WebApi.Infrastructure.ResiliencePipelines;
 
@@ -13,7 +13,7 @@ namespace MelloSilveiraTools.WebApi.Infrastructure.ResiliencePipelines;
 /// </summary>
 public class ApiServiceAgentResiliencePipeline : DefaultResiliencePipeline
 {
-    private static readonly List<HttpStatusCode> StatusCodesToRetry = [HttpStatusCode.InternalServerError, HttpStatusCode.ServiceUnavailable];
+    private static readonly List<StatusCode> StatusCodesToRetry = [StatusCode.UnknownError, StatusCode.ServiceUnavailable];
     
     /// <summary>
     /// Initialize a new instance of <see cref="PostgresResiliencePipeline"/>.
@@ -23,7 +23,7 @@ public class ApiServiceAgentResiliencePipeline : DefaultResiliencePipeline
     public ApiServiceAgentResiliencePipeline(ILogger logger, ResiliencePipelineSettings settings)
         : base(logger, settings, new PredicateBuilder()
             .Handle<Exception>()
-            .HandleResult(new Func<OperationResponse, bool>(r => StatusCodesToRetry.Contains(r.StatusCode))))
+            .HandleResult(new Func<Result, bool>(r => StatusCodesToRetry.Contains(r.StatusCode))))
     { }
 
     /// <summary>

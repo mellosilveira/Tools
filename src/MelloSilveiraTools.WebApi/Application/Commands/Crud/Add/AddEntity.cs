@@ -1,9 +1,9 @@
 using MelloSilveiraTools.Core.Logger;
-using MelloSilveiraTools.Database.ExtensionMethods;
+using MelloSilveiraTools.Core.Models;
 using MelloSilveiraTools.Database.RelationalDatabase.Models.Entities;
 using MelloSilveiraTools.Database.Repositories;
 
-namespace MelloSilveiraTools.WebApi.Application.Operations.Crud.Add;
+namespace MelloSilveiraTools.WebApi.Application.Commands.Crud.Add;
 
 /// <summary>
 /// Generic operation that inserts an entity through <see cref="IRepository"/> and returns an <see cref="AddResponse"/>
@@ -12,15 +12,11 @@ namespace MelloSilveiraTools.WebApi.Application.Operations.Crud.Add;
 /// </summary>
 /// <typeparam name="TEntity">Entity type being persisted.</typeparam>
 public class AddEntity<TEntity>(ILogger logger, IRepository repository)
-    : OperationBase<AddEntityRequest<TEntity>, AddResponse>(logger)
+    : CommandBase<AddEntityRequest<TEntity>, AddResponse>(logger)
     where TEntity : EntityBase, new()
 {
     /// <inheritdoc />
-    protected override Task<AddResponse> ValidateOperationAsync(AddEntityRequest<TEntity> request)
-        => OperationResponse.CreateSuccessOk<AddResponse>().AsTask();
-
-    /// <inheritdoc />
-    protected override async Task<AddResponse> ProcessOperationAsync(AddEntityRequest<TEntity> request)
+    protected override async Task<AddResponse> ExecuteCommandAsync(AddEntityRequest<TEntity> request)
     {
         try
         {
@@ -34,7 +30,7 @@ public class AddEntity<TEntity>(ILogger logger, IRepository repository)
             Dictionary<string, object?> logAdditionalData = new() { { "Entity", request.Entity } };
             Logger.Error(message, ex, logAdditionalData);
 
-            return OperationResponse.CreateInternalServerError(message);
+            return Result.CreateUnknownError(message);
         }
     }
 }

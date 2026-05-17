@@ -658,7 +658,7 @@
         </member>
         <member name="F:MelloSilveiraTools.Mathematics.Models.MathematicConstants.EulerMascheroniConstant">
             <summary>
-            The constant of Euler-Mascheroni.
+            Euler-Mascheroni constant (γ ≈ 0.57721566490153286...).
             </summary>
         </member>
         <member name="F:MelloSilveiraTools.Mathematics.Models.MathematicConstants.Tolerance">

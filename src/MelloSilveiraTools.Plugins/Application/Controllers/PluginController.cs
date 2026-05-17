@@ -1,9 +1,10 @@
+using MelloSilveiraTools.Core.Models;
+using MelloSilveiraTools.Plugins.Application.Operations;
 using MelloSilveiraTools.Plugins.Application.Operations.Cache;
 using MelloSilveiraTools.Plugins.Application.Operations.Get;
 using MelloSilveiraTools.Plugins.Application.Operations.Load;
 using MelloSilveiraTools.Plugins.Application.Operations.Reload;
 using MelloSilveiraTools.Plugins.Infrastructure.Models;
-using MelloSilveiraTools.WebApi.Application.Operations;
 using MelloSilveiraTools.WebApi.ExtensionMethods;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -24,8 +25,8 @@ public class PluginController : ControllerBase
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [HttpGet]
-    public async Task<ActionResult<ListedOperationResponse<RegisteredPlugin>>> Get([FromServices] GetPlugins operation, [FromQuery] GetPluginsRequest request)
-        => await operation.ProcessAsync(request).BuildHttpResponseAsync().ConfigureAwait(false);
+    public async Task<ActionResult<ListedResult<RegisteredPlugin>>> Get([FromServices] GetPlugins operation, [FromQuery] GetPluginsRequest request)
+        => await operation.ExecuteAsync(request).BuildHttpResponseAsync().ConfigureAwait(false);
 
     /// <summary>
     /// Loads the plugins that match the supplied name and/or version.
@@ -35,8 +36,8 @@ public class PluginController : ControllerBase
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [HttpPost("load")]
-    public async Task<ActionResult<OperationResponse>> Load([FromServices] LoadPlugins operation, [FromQuery] LoadPluginsRequest request)
-        => await operation.ProcessAsync(request).BuildHttpResponseAsync().ConfigureAwait(false);
+    public async Task<ActionResult<Result>> Load([FromServices] LoadPlugins operation, [FromQuery] PluginsRequest request)
+        => await operation.ExecuteAsync(request).BuildHttpResponseAsync().ConfigureAwait(false);
 
     /// <summary>
     /// Loads every plugin known to the host.
@@ -45,8 +46,8 @@ public class PluginController : ControllerBase
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [HttpPost("load/all")]
-    public async Task<ActionResult<OperationResponse>> LoadAll([FromServices] LoadPlugins operation)
-        => await operation.ProcessAsync(new LoadPluginsRequest()).BuildHttpResponseAsync().ConfigureAwait(false);
+    public async Task<ActionResult<Result>> LoadAll([FromServices] LoadPlugins operation)
+        => await operation.ExecuteAsync(new PluginsRequest()).BuildHttpResponseAsync().ConfigureAwait(false);
 
     /// <summary>
     /// Reloads plugins that match the supplied name and/or version, optionally forcing a reload.
@@ -56,8 +57,8 @@ public class PluginController : ControllerBase
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [HttpPost("reload")]
-    public async Task<ActionResult<OperationResponse>> Reload([FromServices] ReloadPlugins operation, [FromQuery] ReloadPluginsRequest request)
-        => await operation.ProcessAsync(request).BuildHttpResponseAsync().ConfigureAwait(false);
+    public async Task<ActionResult<Result>> Reload([FromServices] ReloadPlugins operation, [FromQuery] ReloadPluginsRequest request)
+        => await operation.ExecuteAsync(request).BuildHttpResponseAsync().ConfigureAwait(false);
 
     /// <summary>
     /// Reloads every plugin known to the host.
@@ -66,8 +67,8 @@ public class PluginController : ControllerBase
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [HttpPost("reload/all")]
-    public async Task<ActionResult<OperationResponse>> ReloadAll([FromServices] ReloadPlugins operation)
-        => await operation.ProcessAsync(new ReloadPluginsRequest()).BuildHttpResponseAsync().ConfigureAwait(false);
+    public async Task<ActionResult<Result>> ReloadAll([FromServices] ReloadPlugins operation)
+        => await operation.ExecuteAsync(new ReloadPluginsRequest()).BuildHttpResponseAsync().ConfigureAwait(false);
 
     /// <summary>
     /// Clears the plugin cache.
@@ -77,8 +78,8 @@ public class PluginController : ControllerBase
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [HttpDelete("cache")]
-    public async Task<ActionResult<OperationResponse>> ClearCache([FromServices] ClearPluginCache operation)
-        => await operation.ProcessAsync().BuildHttpResponseAsync().ConfigureAwait(false);
+    public async Task<ActionResult<Result>> ClearCache([FromServices] ClearPluginCache operation)
+        => await operation.ExecuteAsync().BuildHttpResponseAsync().ConfigureAwait(false);
 
     /// <summary>
     /// Persists the plugin cache to the target identified by the {target} route segment (e.g. file or database).
@@ -89,8 +90,8 @@ public class PluginController : ControllerBase
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [HttpPost("cache/{target}/persist")]
-    public async Task<ActionResult<OperationResponse>> PersistCache([FromServices] PersistPluginCache operation, [FromQuery] PersistPluginCacheRequest request)
-        => await operation.ProcessAsync(request).BuildHttpResponseAsync().ConfigureAwait(false);
+    public async Task<ActionResult<Result>> PersistCache([FromServices] PersistPluginCache operation, [FromQuery] PluginsRequest request)
+        => await operation.ExecuteAsync(request).BuildHttpResponseAsync().ConfigureAwait(false);
 
     /// <summary>
     /// Restores the plugin cache from the target identified by the {target} route segment (e.g. file or database).
@@ -101,6 +102,6 @@ public class PluginController : ControllerBase
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [HttpPost("cache/{target}/restore")]
-    public async Task<ActionResult<OperationResponse>> RestoreCache([FromServices] RestorePluginCache operation, [FromQuery] RestorePluginCacheRequest request)
-        => await operation.ProcessAsync(request).BuildHttpResponseAsync().ConfigureAwait(false);
+    public async Task<ActionResult<Result>> RestoreCache([FromServices] RestorePluginCache operation, [FromQuery] PluginsRequest request)
+        => await operation.ExecuteAsync(request).BuildHttpResponseAsync().ConfigureAwait(false);
 }

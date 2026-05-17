@@ -1,11 +1,11 @@
-using System.Net;
+using MelloSilveiraTools.Core.Models;
 
-namespace MelloSilveiraTools.WebApi.Application.Operations.Crud.Add;
+namespace MelloSilveiraTools.WebApi.Application.Commands.Crud.Add;
 
 /// <summary>
 /// Response produced by add/create operations, optionally exposing the identifier of the newly created resource.
 /// </summary>
-public record AddResponse : OperationResponse<AddResponseData>
+public record AddResponse : Result<AddResponseData>
 {
     /// <summary>
     /// Creates a successful 201 Created response that returns the identifier assigned to the new resource.
@@ -14,7 +14,7 @@ public record AddResponse : OperationResponse<AddResponseData>
     public static AddResponse CreateSuccessCreated(long id) => new()
     {
         Data = new AddResponseData(id),
-        StatusCode = HttpStatusCode.Created,
+        StatusCode = StatusCode.Created,
         Success = true,
     };
 
@@ -27,8 +27,8 @@ public record AddResponse : OperationResponse<AddResponseData>
     {
         Data = new AddResponseData(id),
         Messages = [message],
-        StatusCode = HttpStatusCode.Conflict,
+        StatusCode = StatusCode.Conflict,
     };
 
-    public static implicit operator AddResponse(OperationResponse response) => new() { Messages = response.Messages, StatusCode = response.StatusCode, Success = response.Success };
+    public static implicit operator AddResponse(Result response) => new() { Messages = response.Messages, StatusCode = response.StatusCode, Success = response.Success };
 }

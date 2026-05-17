@@ -1,11 +1,10 @@
 using MelloSilveiraTools.Core.Logger;
-using MelloSilveiraTools.Database.ExtensionMethods;
+using MelloSilveiraTools.Core.Models;
 using MelloSilveiraTools.Database.RelationalDatabase.Models.Entities;
 using MelloSilveiraTools.Database.RelationalDatabase.Models.Filters;
 using MelloSilveiraTools.Database.Repositories;
-using System.Net;
 
-namespace MelloSilveiraTools.WebApi.Application.Operations.Crud.Read;
+namespace MelloSilveiraTools.WebApi.Application.Commands.Crud.Read;
 
 /// <summary>
 /// Generic operation that returns a paginated list of entities matching the supplied filter.
@@ -14,15 +13,12 @@ namespace MelloSilveiraTools.WebApi.Application.Operations.Crud.Read;
 /// <typeparam name="TEntity">Entity type being queried.</typeparam>
 /// <typeparam name="TFilter">Filter type used to query the entity.</typeparam>
 public class ReadEntityPaged<TEntity, TFilter>(ILogger logger, IRepository repository)
-    : PagedOperationBase<ReadEntityPagedRequest<TFilter>, TEntity>(logger)
+    : PagedCommandBase<ReadEntityPagedRequest<TFilter>, TEntity>(logger)
     where TEntity : EntityBase, new()
     where TFilter : FilterBase, new()
 {
     /// <inheritdoc />
-    protected override Task<PagedOperationResponse<TEntity>> ValidateOperationAsync(ReadEntityPagedRequest<TFilter> request) => OperationResponse.CreatePagedSuccessOk<TEntity>().AsTask();
-
-    /// <inheritdoc />
-    protected override async Task<PagedOperationResponse<TEntity>> ProcessOperationAsync(ReadEntityPagedRequest<TFilter> request)
+    protected override async Task<PagedResult<TEntity>> ExecuteCommandAsync(ReadEntityPagedRequest<TFilter> request)
     {
         try
         {
@@ -32,9 +28,9 @@ public class ReadEntityPaged<TEntity, TFilter>(ILogger logger, IRepository repos
                 .ToListAsync(request.CancellationToken)
                 .ConfigureAwait(false);
 
-            return new PagedOperationResponse<TEntity>
+            return new PagedResult<TEntity>
             {
-                StatusCode = HttpStatusCode.OK,
+                StatusCode = StatusCode.OK,
                 Success = true,
                 Data = entities,
                 TotalCount = totalCount,
@@ -48,7 +44,7 @@ public class ReadEntityPaged<TEntity, TFilter>(ILogger logger, IRepository repos
             Dictionary<string, object?> logAdditionalData = new() { { "Filter", request.Filter } };
             Logger.Error(message, ex, logAdditionalData);
 
-            return OperationResponse.CreateInternalServerError(message);
+            return Result.CreateUnknownError(message);
         }
     }
 }

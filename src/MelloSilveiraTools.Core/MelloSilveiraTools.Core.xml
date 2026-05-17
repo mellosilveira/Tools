@@ -659,6 +659,205 @@
             Unit: s (second).
             </summary>
         </member>
+        <member name="T:MelloSilveiraTools.Core.Models.ResultBase">
+            <summary>
+            Result content for all commands.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Models.Result.CreateSuccessOk``1">
+            <summary>
+            Creates a successful 200 OK result.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Models.Result.CreateBadRequest``1(System.Collections.Generic.List{System.String})">
+            <summary>
+            Creates a 400 Bad Request result with the supplied message.
+            </summary>
+            <param name="messages">Error messages describing the failure.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Models.Result.CreateUnknownError``1(System.String)">
+            <summary>
+            Creates a 500 Internal Server Error result with the supplied message.
+            </summary>
+            <param name="message">Error message describing the failure.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Models.Result.CreateSuccess(MelloSilveiraTools.WebApi.Application.Commands.StatusCode)">
+            <summary>
+            Creates a successful result with the supplied status code.
+            </summary>
+            <param name="statusCode">The HTTP status code returned to the caller.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Models.Result.CreateError(MelloSilveiraTools.WebApi.Application.Commands.StatusCode)">
+            <summary>
+            Creates an error result with the supplied status code and no error messages.
+            </summary>
+            <param name="statusCode">The HTTP status code returned to the caller.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Models.Result.CreateError(MelloSilveiraTools.WebApi.Application.Commands.StatusCode,System.String)">
+            <summary>
+            Creates an error result.
+            </summary>
+            <param name="statusCode">The HTTP status code returned to the caller.</param>
+            <param name="message">Error messages describing the failures.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Models.Result.Create``1(MelloSilveiraTools.Core.Models.Result)">
+            <summary>
+            Creates an error result.
+            </summary>0
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Models.Result.CreateSuccessOk">
+            <summary>
+            Creates a successful 200 OK result.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Models.Result.CreateSuccessCreated">
+            <summary>
+            Creates a successful 201 Created result.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Models.Result.CreateNoContent">
+            <summary>
+            Creates a successful 204 No Content result.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Models.Result.CreateBadRequest(System.String)">
+            <summary>
+            Creates a 400 BadRequest error result.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Models.Result.CreateUnauthorized">
+            <summary>
+            Creates a 401 Unauthorized error result without a message.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Models.Result.CreateUnauthorized(System.String)">
+            <summary>
+            Creates a 401 Unauthorized error result with the supplied message.
+            </summary>
+            <param name="message">Error message describing the failure.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Models.Result.CreateNotFound(System.String)">
+            <summary>
+            Creates a 404 Not Found error result with the supplied message.
+            </summary>
+            <param name="message">Error message describing the failure.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Models.Result.CreateRequestTimeout(System.String)">
+            <summary>
+            Creates a 408 Request Timeout error result with the supplied message.
+            </summary>
+            <param name="message">Error message describing the failure.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Models.Result.CreateUnprocessableEntity(System.String)">
+            <summary>
+            Creates a 422 Unprocessable Entity error result with the supplied message.
+            </summary>
+            <param name="message">Error message describing the failure.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Models.Result.CreateUnknownError(System.String)">
+            <summary>
+            Creates a 500 Internal Server Error result with the supplied message.
+            </summary>
+            <param name="message">Error message describing the failure.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Models.Result.CreateServiceUnavailable(System.String)">
+            <summary>
+            Creates a 503 Service Unavailable error result with the supplied message.
+            </summary>
+            <param name="message">Error message describing the failure.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Models.Result.CreateSuccess``1(MelloSilveiraTools.WebApi.Application.Commands.StatusCode,``0)">
+            <summary>
+            Creates a successful result carrying the supplied data payload.
+            </summary>
+            <param name="statusCode"></param>
+            <param name="resultData">Data returned to the caller.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Models.Result.CreateSuccessOk``1(``0)">
+            <summary>
+            Creates a successful 200 OK result carrying the supplied data payload.
+            </summary>
+            <param name="resultData">Data returned to the caller.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Models.Result.CreateSuccessCreated``1(``0)">
+            <summary>
+            Creates a successful 201 Created result.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Models.Result.CreateConflict``1(``0,System.String)">
+            <summary>
+            Creates a typed 409 Conflict error result.
+            </summary>
+            <param name="data"></param>
+            <param name="message">Error message describing the failure.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Models.Result.CreateListedSuccess``1(MelloSilveiraTools.WebApi.Application.Commands.StatusCode,System.Collections.Generic.IEnumerable{``0})">
+            <summary>
+            Creates a successful list result of a specific type with the supplied items.
+            </summary>
+            <param name="statusCode">The HTTP status code returned to the caller.</param>
+            <param name="data">Items to include in the result payload.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Models.Result.CreateListedSuccessOk``1(System.Collections.Generic.IEnumerable{``0})">
+            <summary>
+            Creates a successful 200 OK list result containing the supplied items.
+            </summary>
+            <param name="data">Items to include in the result payload.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Models.Result.CreatePagedSuccessOk``1(System.Collections.Generic.IEnumerable{``0})">
+            <summary>
+            Builds a successful 200 OK paged result with the supplied items.
+            </summary>
+            <param name="data">Items to include in the current page.</param>
+        </member>
+        <member name="T:MelloSilveiraTools.Core.Models.Result`1">
+            <summary>
+            Result content for all commands.
+            </summary>
+            <typeparam name="TResultData"></typeparam>
+        </member>
+        <member name="P:MelloSilveiraTools.Core.Models.Result`1.Data">
+            <summary>
+            Data content of all result.
+            </summary>
+        </member>
+        <member name="T:MelloSilveiraTools.Core.Models.ListedResult`1">
+            <summary>
+            Base result for commands that return an array of items.
+            </summary>
+            <typeparam name="TResultData">Type of each item in the returned list.</typeparam>
+        </member>
+        <member name="P:MelloSilveiraTools.Core.Models.ListedResult`1.Data">
+            <summary>
+            Data content of all result.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Core.Models.ListedResult`1.Count">
+            <summary>
+            Number of items returned in <see cref="P:MelloSilveiraTools.Core.Models.Result`1.Data"/>.
+            </summary>
+        </member>
+        <member name="T:MelloSilveiraTools.Core.Models.PagedResult`1">
+            <summary>
+            Base result for commands that return a paginated list of items.
+            </summary>
+            <typeparam name="TResultData">Type of each item in the returned page.</typeparam>
+        </member>
+        <member name="P:MelloSilveiraTools.Core.Models.PagedResult`1.TotalCount">
+            <summary>
+            Total number of items that match the query across all pages.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Core.Models.PagedResult`1.PageNumber">
+            <summary>
+            One-based number of the current page.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Core.Models.PagedResult`1.PageSize">
+            <summary>
+            Number of items in the current page.
+            </summary>
+        </member>
         <member name="T:MelloSilveiraTools.Core.Models.SpanStringBuilder">
             <summary>
             Provides a high-performance, allocation-free string builder using pooled buffers and stack allocation optimizations.

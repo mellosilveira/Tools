@@ -1,7 +1,7 @@
 using MelloSilveiraTools.Core.Logger;
 using MelloSilveiraTools.Database.RelationalDatabase.Models.Entities;
+using MelloSilveiraTools.WebApi.Application.Commands.Crud.Add;
 using MelloSilveiraTools.WebApi.Application.Endpoints;
-using MelloSilveiraTools.WebApi.Application.Operations.Crud.Add;
 using MelloSilveiraTools.WebApi.ExtensionMethods;
 using Microsoft.AspNetCore.Mvc;
 
@@ -28,7 +28,7 @@ public class CustomControllerBase(ILogger logger) : Controller
     /// <param name="resourceName">Human-readable resource name used to build localized error messages.</param>
     protected async Task<ActionResult<AddResponse>> Add<TEntity>(AddEntity<TEntity> operation, TEntity entity, string resourceName) where TEntity : EntityBase, new()
         => await operation
-            .ProcessAsync(new AddEntityRequest<TEntity> { Entity = entity, ResourceName = resourceName })
+            .ExecuteAsync(new AddEntityRequest<TEntity> { Entity = entity, ResourceName = resourceName })
             .BuildHttpResponseAsync()
             .ConfigureAwait(false);
 
