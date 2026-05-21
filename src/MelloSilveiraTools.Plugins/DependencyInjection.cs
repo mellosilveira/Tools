@@ -1,11 +1,11 @@
 using MelloSilveiraTools.Core.Caching;
+using MelloSilveiraTools.Core.Providers.Dynamics;
 using MelloSilveiraTools.Plugins.Application.Operations.Cache;
 using MelloSilveiraTools.Plugins.Application.Operations.Get;
 using MelloSilveiraTools.Plugins.Application.Operations.Load;
 using MelloSilveiraTools.Plugins.Application.Operations.Reload;
 using MelloSilveiraTools.Plugins.Infrastructure;
 using MelloSilveiraTools.Plugins.Infrastructure.Persistences;
-using MelloSilveiraTools.Plugins.Infrastructure.Providers;
 using MelloSilveiraTools.Plugins.Infrastructure.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
@@ -35,7 +35,7 @@ public static class PluginsDependencyInjection
             .AddSingleton<ITwoLevelCache, InMemoryTwoLevelCache>()
             // Register dynamic service provider (runtime plugin service registration).
             .AddSingleton(services)
-            .AddSingleton<IDynamicServiceProvider, DynamicServiceProvider>()
+            .AddSingleton<IDynamicServiceProvider, InMemoryDynamicServiceProvider>()
             // Register plugin processors and cache.
             .AddSingleton<PluginCache>()
             .AddSingleton<PluginFileProcessor>()

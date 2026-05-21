@@ -2,18 +2,13 @@
 
 namespace MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels;
 
-// TODO: usar ref readonly para variáveis de tempo para otimizações de memória.
-
 /// <summary>
 /// A generic mechanical model.
 /// Establish an approach for stress-strain and force-displacement relationship which approximate from reality.
 /// </summary>
 /// <typeparam name="TInput">Type of mechanical model's input.</typeparam>
-public interface IMechanicalModelCalculator<TInput>
-    where TInput : MechanicalModelInput, new()
+public interface IMechanicalModelCalculator<TInput> where TInput : MechanicalModelInput, new()
 {
-    #region Calculate mechanical model's parameters.
-
     /// <summary>
     /// Calculates the force, represented by F. 
     /// For more details, see on section "Bibliographies" on file "README.MD".
@@ -67,6 +62,4 @@ public interface IMechanicalModelCalculator<TInput>
     /// </param>
     /// <returns>Unit: dimensionless.</returns>
     double CalculateStrain(TInput input, double time, double? stress = null);
-
-    #endregion
 }

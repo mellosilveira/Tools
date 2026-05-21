@@ -81,6 +81,86 @@
             Name of property that is calculated.
             </summary>
         </member>
+        <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Caching.IMechanicalModelTypeCache">
+            <summary>
+            Domain-specific cache for compiled reflection metadata required by mechanical model processing.
+            Wraps <see cref="T:MelloSilveiraTools.Core.Caching.ISingleLevelCache"/> with typed, semantically named
+            methods that encapsulate key construction and compilation logic.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Caching.IMechanicalModelTypeCache.GetOrAddMethodInvoker(System.Type,System.String)">
+            <summary>
+            Returns a compiled delegate that invokes the named method on the given calculator type.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Caching.IMechanicalModelTypeCache.GetOrAddMethodDataList(System.Type,MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalRelationship,MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.ViscoelasticEffect)">
+            <summary>
+            Returns the list of calculator methods applicable to the given relationship and viscoelastic effect,
+            each pre-compiled into a <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Caching.CalculatorMethodData"/>.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Caching.IMechanicalModelTypeCache.GetOrAddResultFactory(System.Type)">
+            <summary>
+            Returns a compiled factory delegate that creates instances of the given result type.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Caching.IMechanicalModelTypeCache.GetOrAddPropertySetters(System.Type)">
+            <summary>
+            Returns compiled property setter delegates for all settable properties of the given type.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Caching.IMechanicalModelTypeCache.GetOrAddConstructorParameterTypes(System.Type)">
+            <summary>
+            Returns the constructor parameter types of the given type's single public constructor.
+            </summary>
+        </member>
+        <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Caching.MechanicalModelTypeCache">
+            <inheritdoc cref="T:MelloSilveiraTools.MechanicsOfMaterials.Caching.IMechanicalModelTypeCache"/>
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Caching.MechanicalModelTypeCache.#ctor(MelloSilveiraTools.Core.Caching.ISingleLevelCache)">
+            <inheritdoc cref="T:MelloSilveiraTools.MechanicsOfMaterials.Caching.IMechanicalModelTypeCache"/>
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Caching.MechanicalModelTypeCache.GetOrAddMethodInvoker(System.Type,System.String)">
+            <inheritdoc/>
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Caching.MechanicalModelTypeCache.GetOrAddMethodDataList(System.Type,MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalRelationship,MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.ViscoelasticEffect)">
+            <inheritdoc/>
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Caching.MechanicalModelTypeCache.GetOrAddResultFactory(System.Type)">
+            <inheritdoc/>
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Caching.MechanicalModelTypeCache.GetOrAddPropertySetters(System.Type)">
+            <inheritdoc/>
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Caching.MechanicalModelTypeCache.GetOrAddConstructorParameterTypes(System.Type)">
+            <inheritdoc/>
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Caching.MechanicalModelTypeCache.CompileMethodInvoker(System.Reflection.MethodInfo)">
+            <summary>
+            Compiles a <see cref="T:System.Reflection.MethodInfo"/> into a delegate, eliminating reflection overhead on every call.
+            The compiled delegate is ~10-50x faster than <see cref="M:System.Reflection.MethodBase.Invoke(System.Object,System.Object[])"/>.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Caching.MechanicalModelTypeCache.CompileResultFactory(System.Type)">
+            <summary>
+            Compiles a parameterless constructor into a factory delegate, replacing <see cref="M:System.Activator.CreateInstance(System.String,System.String)"/>.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Caching.MechanicalModelTypeCache.CompilePropertySetters(System.Type)">
+            <summary>
+            Compiles property setters for all settable properties of a type, replacing <see cref="M:System.Reflection.PropertyInfo.SetValue(System.Object,System.Object)"/>.
+            </summary>
+        </member>
+        <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Caching.CalculatorMethodData">
+            <summary>
+            Holds a pre-compiled calculator method with its parameter names and result property target.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Caching.CalculatorMethodData.#ctor(System.Func{System.Object,System.Object[],System.Object},System.String[],System.String)">
+            <summary>
+            Holds a pre-compiled calculator method with its parameter names and result property target.
+            </summary>
+        </member>
         <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Calculators.ConstitutiveEquations.ConstitutiveEquationsCalculator">
             <summary>
             It contains the Mechanics of Materials constitutive equations.
@@ -547,6 +627,18 @@
             </param>
             <returns>Unit: dimensionless.</returns>
         </member>
+        <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.IMechanicalModelCalculatorFacade">
+            <summary>
+            Facade for <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.IMechanicalModelCalculator`1"/>
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.IMechanicalModelCalculatorFacade.CalculateResult(System.Double)">
+            <summary>
+            Calculates the mechanical model's result.
+            </summary>
+            <param name="time">Unit: s (second).</param>
+            <returns>The mechanical model's result.</returns>
+        </member>
         <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.MechanicalModelCalculatorBase`1">
             <inheritdoc cref="T:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.IMechanicalModelCalculator`1"/>
             <param name="parameterConverter">See reference at <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Converters.MechanicalParameter.IMechanicalParameterConverter"/>.</param>
@@ -568,6 +660,24 @@
             <inheritdoc/>
         </member>
         <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.MechanicalModelCalculatorBase`1.CalculateStrain(`0,System.Double,System.Nullable{System.Double})">
+            <inheritdoc/>
+        </member>
+        <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.MechanicalModelCalculatorFacade">
+            <inheritdoc cref="T:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.IMechanicalModelCalculatorFacade"/>
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.MechanicalModelCalculatorFacade.#ctor(MelloSilveiraTools.MechanicsOfMaterials.Caching.IMechanicalModelTypeCache,System.Object)">
+            <inheritdoc cref="T:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.IMechanicalModelCalculatorFacade"/>
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.MechanicalModelCalculatorFacade.CalculateResult(System.Double)">
+            <inheritdoc/>
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.MechanicalModelCalculatorFacade.CalculateDisplacement(MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalModelInput,System.Double,System.Nullable{System.Double})">
+            <inheritdoc/>
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.MechanicalModelCalculatorFacade.CalculateForce(MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalModelInput,System.Double,System.Nullable{System.Double})">
+            <inheritdoc/>
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.MechanicalModelCalculatorFacade.CalculateStress(MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalModelInput,System.Double,System.Nullable{System.Double})">
             <inheritdoc/>
         </member>
         <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Viscoelasticity.IViscoelasticModelCalculator`1">
@@ -1939,11 +2049,6 @@
         <member name="F:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalRelationship.ForceDisplacement">
             <summary>
             Force-displacement relationship.
-            </summary>
-        </member>
-        <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.ParameterNameConstant">
-            <summary>
-            Contains constants for parameter name.
             </summary>
         </member>
         <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.Linear.Maxwell.MaxwellModelInput">

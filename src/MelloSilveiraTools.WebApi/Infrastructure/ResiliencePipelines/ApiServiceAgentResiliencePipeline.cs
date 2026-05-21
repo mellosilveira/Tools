@@ -2,7 +2,6 @@
 using MelloSilveiraTools.Core.Models;
 using MelloSilveiraTools.Core.ResiliencePipelines;
 using MelloSilveiraTools.Database.ResiliencePipelines;
-using MelloSilveiraTools.WebApi.Application.Commands;
 using Polly;
 using Polly.Retry;
 

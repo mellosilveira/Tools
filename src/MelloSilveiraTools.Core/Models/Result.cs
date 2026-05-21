@@ -1,5 +1,3 @@
-using MelloSilveiraTools.WebApi.Application.Commands;
-
 namespace MelloSilveiraTools.Core.Models;
 
 /// <summary>

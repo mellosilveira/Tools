@@ -286,7 +286,7 @@
             when <see cref="P:MelloSilveiraTools.Plugins.Infrastructure.Models.PluginRegistrationContext.IsStartup"/> is <see langword="true"/>, <see cref="P:MelloSilveiraTools.Plugins.Infrastructure.Models.PluginRegistrationContext.Services"/> is non-null and
             <see cref="P:MelloSilveiraTools.Plugins.Infrastructure.Models.PluginRegistrationContext.DynamicProvider"/> is <see langword="null"/>; otherwise <see cref="P:MelloSilveiraTools.Plugins.Infrastructure.Models.PluginRegistrationContext.DynamicProvider"/> is
             non-null and <see cref="P:MelloSilveiraTools.Plugins.Infrastructure.Models.PluginRegistrationContext.Services"/> is <see langword="null"/>.
-            Use the <see cref="M:MelloSilveiraTools.Plugins.Infrastructure.Models.PluginRegistrationContext.ForStartup(Microsoft.Extensions.DependencyInjection.IServiceCollection)"/> and <see cref="M:MelloSilveiraTools.Plugins.Infrastructure.Models.PluginRegistrationContext.ForRuntime(MelloSilveiraTools.Plugins.Infrastructure.Providers.IDynamicServiceProvider)"/> factory methods to construct
+            Use the <see cref="M:MelloSilveiraTools.Plugins.Infrastructure.Models.PluginRegistrationContext.ForStartup(Microsoft.Extensions.DependencyInjection.IServiceCollection)"/> and <see cref="M:MelloSilveiraTools.Plugins.Infrastructure.Models.PluginRegistrationContext.ForRuntime(MelloSilveiraTools.Core.Providers.Dynamics.IDynamicServiceProvider)"/> factory methods to construct
             instances that satisfy this invariant.
             </remarks>
         </member>
@@ -313,7 +313,7 @@
             Creates a context that targets the static DI container during application startup.
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.Plugins.Infrastructure.Models.PluginRegistrationContext.ForRuntime(MelloSilveiraTools.Plugins.Infrastructure.Providers.IDynamicServiceProvider)">
+        <member name="M:MelloSilveiraTools.Plugins.Infrastructure.Models.PluginRegistrationContext.ForRuntime(MelloSilveiraTools.Core.Providers.Dynamics.IDynamicServiceProvider)">
             <summary>
             Creates a context that targets the dynamic service provider for runtime plugin registration.
             </summary>
@@ -738,68 +738,6 @@
             Defaults to <see cref="F:MelloSilveiraTools.Plugins.Infrastructure.Persistences.PluginCacheTargets.File"/>.
             </remarks>
         </member>
-        <member name="T:MelloSilveiraTools.Plugins.Infrastructure.Providers.DynamicServiceProvider">
-            <summary>
-            Thread-safe implementation of <see cref="T:MelloSilveiraTools.Plugins.Infrastructure.Providers.IDynamicServiceProvider"/> using
-            <see cref="T:System.Lazy`1"/> for deferred instantiation and <see cref="T:System.Collections.Concurrent.ConcurrentDictionary`2"/>
-            for thread-safe storage.
-            </summary>
-        </member>
-        <member name="M:MelloSilveiraTools.Plugins.Infrastructure.Providers.DynamicServiceProvider.#ctor(System.IServiceProvider)">
-            <summary>
-            Thread-safe implementation of <see cref="T:MelloSilveiraTools.Plugins.Infrastructure.Providers.IDynamicServiceProvider"/> using
-            <see cref="T:System.Lazy`1"/> for deferred instantiation and <see cref="T:System.Collections.Concurrent.ConcurrentDictionary`2"/>
-            for thread-safe storage.
-            </summary>
-        </member>
-        <member name="M:MelloSilveiraTools.Plugins.Infrastructure.Providers.DynamicServiceProvider.Add(System.Type,System.Type)">
-            <inheritdoc/>
-        </member>
-        <member name="M:MelloSilveiraTools.Plugins.Infrastructure.Providers.DynamicServiceProvider.AddKeyed(System.String,System.Object)">
-            <inheritdoc/>
-        </member>
-        <member name="M:MelloSilveiraTools.Plugins.Infrastructure.Providers.DynamicServiceProvider.GetService(System.Type)">
-            <inheritdoc/>
-        </member>
-        <member name="M:MelloSilveiraTools.Plugins.Infrastructure.Providers.DynamicServiceProvider.GetKeyed``1(System.String)">
-            <inheritdoc/>
-        </member>
-        <member name="T:MelloSilveiraTools.Plugins.Infrastructure.Providers.IDynamicServiceProvider">
-            <summary>
-            Provides dynamic service registration and resolution at runtime.
-            Used for services that cannot be registered statically in the DI container,
-            such as plugin-provided implementations discovered after application startup.
-            </summary>
-        </member>
-        <member name="M:MelloSilveiraTools.Plugins.Infrastructure.Providers.IDynamicServiceProvider.Add(System.Type,System.Type)">
-            <summary>
-            Registers a service type with its implementation type for lazy instantiation.
-            </summary>
-            <param name="serviceType">The service interface type.</param>
-            <param name="implementationType">The concrete implementation type.</param>
-        </member>
-        <member name="M:MelloSilveiraTools.Plugins.Infrastructure.Providers.IDynamicServiceProvider.AddKeyed(System.String,System.Object)">
-            <summary>
-            Registers a named instance directly.
-            </summary>
-            <param name="key">A unique key identifying the registration.</param>
-            <param name="instance">The instance to register.</param>
-        </member>
-        <member name="M:MelloSilveiraTools.Plugins.Infrastructure.Providers.IDynamicServiceProvider.GetService(System.Type)">
-            <summary>
-            Resolves a service by its type.
-            </summary>
-            <param name="serviceType">The service type to resolve.</param>
-            <returns>The resolved instance, or <see langword="null"/> when the service is not registered.</returns>
-        </member>
-        <member name="M:MelloSilveiraTools.Plugins.Infrastructure.Providers.IDynamicServiceProvider.GetKeyed``1(System.String)">
-            <summary>
-            Resolves a named instance by its key.
-            </summary>
-            <typeparam name="T">The expected return type.</typeparam>
-            <param name="key">The registration key.</param>
-            <returns>The resolved instance cast to <typeparamref name="T"/>, or <see langword="null"/> when the service is not registered.</returns>
-        </member>
         <member name="T:MelloSilveiraTools.Plugins.Infrastructure.Services.IPluginService">
             <summary>
             High-level orchestrator for plugin discovery, loading, reload, and cache management.
@@ -931,7 +869,7 @@
             <param name="services">Root service collection used to register plugin services at startup.</param>
             <param name="dynamicServiceProvider">Service provider used to register plugin services at runtime.</param>
         </member>
-        <member name="M:MelloSilveiraTools.Plugins.Infrastructure.Services.PluginService.#ctor(MelloSilveiraTools.Plugins.Infrastructure.PluginFileProcessor,MelloSilveiraTools.Plugins.Infrastructure.PluginAssemblyProcessor,MelloSilveiraTools.Plugins.Infrastructure.PluginCache,MelloSilveiraTools.Plugins.Infrastructure.Persistences.IPluginCachePersistence,Microsoft.Extensions.DependencyInjection.IServiceCollection,MelloSilveiraTools.Plugins.Infrastructure.Providers.IDynamicServiceProvider)">
+        <member name="M:MelloSilveiraTools.Plugins.Infrastructure.Services.PluginService.#ctor(MelloSilveiraTools.Plugins.Infrastructure.PluginFileProcessor,MelloSilveiraTools.Plugins.Infrastructure.PluginAssemblyProcessor,MelloSilveiraTools.Plugins.Infrastructure.PluginCache,MelloSilveiraTools.Plugins.Infrastructure.Persistences.IPluginCachePersistence,Microsoft.Extensions.DependencyInjection.IServiceCollection,MelloSilveiraTools.Core.Providers.Dynamics.IDynamicServiceProvider)">
             <inheritdoc cref="T:MelloSilveiraTools.Plugins.Infrastructure.Services.IPluginService"/>
             <param name="fileProcessor">Processor that scans the file system for plugin assemblies.</param>
             <param name="assemblyProcessor">Processor that loads and inspects plugin assemblies.</param>

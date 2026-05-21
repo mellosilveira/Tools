@@ -659,6 +659,22 @@
             Unit: s (second).
             </summary>
         </member>
+        <member name="T:MelloSilveiraTools.Core.Models.CsvSeparators">
+            <summary>
+            Standard separators used when serializing/deserializing CSV files.
+            </summary>
+        </member>
+        <member name="F:MelloSilveiraTools.Core.Models.CsvSeparators.Main">
+            <summary>
+            Main column separator. Standard CSV (comma-separated).
+            </summary>
+        </member>
+        <member name="F:MelloSilveiraTools.Core.Models.CsvSeparators.Secondary">
+            <summary>
+            Secondary separator used inside cells when a single column carries multiple values
+            (e.g. an array serialized as <c>"1;2;3"</c> within one CSV column).
+            </summary>
+        </member>
         <member name="T:MelloSilveiraTools.Core.Models.ResultBase">
             <summary>
             Result content for all commands.
@@ -681,19 +697,19 @@
             </summary>
             <param name="message">Error message describing the failure.</param>
         </member>
-        <member name="M:MelloSilveiraTools.Core.Models.Result.CreateSuccess(MelloSilveiraTools.WebApi.Application.Commands.StatusCode)">
+        <member name="M:MelloSilveiraTools.Core.Models.Result.CreateSuccess(MelloSilveiraTools.Core.Models.StatusCode)">
             <summary>
             Creates a successful result with the supplied status code.
             </summary>
             <param name="statusCode">The HTTP status code returned to the caller.</param>
         </member>
-        <member name="M:MelloSilveiraTools.Core.Models.Result.CreateError(MelloSilveiraTools.WebApi.Application.Commands.StatusCode)">
+        <member name="M:MelloSilveiraTools.Core.Models.Result.CreateError(MelloSilveiraTools.Core.Models.StatusCode)">
             <summary>
             Creates an error result with the supplied status code and no error messages.
             </summary>
             <param name="statusCode">The HTTP status code returned to the caller.</param>
         </member>
-        <member name="M:MelloSilveiraTools.Core.Models.Result.CreateError(MelloSilveiraTools.WebApi.Application.Commands.StatusCode,System.String)">
+        <member name="M:MelloSilveiraTools.Core.Models.Result.CreateError(MelloSilveiraTools.Core.Models.StatusCode,System.String)">
             <summary>
             Creates an error result.
             </summary>
@@ -766,7 +782,7 @@
             </summary>
             <param name="message">Error message describing the failure.</param>
         </member>
-        <member name="M:MelloSilveiraTools.Core.Models.Result.CreateSuccess``1(MelloSilveiraTools.WebApi.Application.Commands.StatusCode,``0)">
+        <member name="M:MelloSilveiraTools.Core.Models.Result.CreateSuccess``1(MelloSilveiraTools.Core.Models.StatusCode,``0)">
             <summary>
             Creates a successful result carrying the supplied data payload.
             </summary>
@@ -791,7 +807,7 @@
             <param name="data"></param>
             <param name="message">Error message describing the failure.</param>
         </member>
-        <member name="M:MelloSilveiraTools.Core.Models.Result.CreateListedSuccess``1(MelloSilveiraTools.WebApi.Application.Commands.StatusCode,System.Collections.Generic.IEnumerable{``0})">
+        <member name="M:MelloSilveiraTools.Core.Models.Result.CreateListedSuccess``1(MelloSilveiraTools.Core.Models.StatusCode,System.Collections.Generic.IEnumerable{``0})">
             <summary>
             Creates a successful list result of a specific type with the supplied items.
             </summary>
@@ -1028,6 +1044,93 @@
             <item>Returns old buffer to pool</item>
             </list>
             </remarks>
+        </member>
+        <member name="T:MelloSilveiraTools.Core.Providers.Dynamics.IDynamicServiceProvider">
+            <summary>
+            Provides dynamic service registration and resolution at runtime.
+            Used for services that cannot be registered statically in the DI container,
+            such as plugin-provided implementations discovered after application startup.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Providers.Dynamics.IDynamicServiceProvider.Add(System.Type,System.Type,System.Object[])">
+            <summary>
+            Registers a service type with its implementation type for lazy instantiation.
+            </summary>
+            <param name="serviceType">The service interface type.</param>
+            <param name="implementationType">The concrete implementation type.</param>
+            <param name="parameters"></param>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Providers.Dynamics.IDynamicServiceProvider.AddKeyed(System.String,System.Object)">
+            <summary>
+            Registers a named instance directly.
+            </summary>
+            <param name="key">A unique key identifying the registration.</param>
+            <param name="instance">The instance to register.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Providers.Dynamics.IDynamicServiceProvider.GetService(System.Type)">
+            <summary>
+            Resolves a service by its type.
+            </summary>
+            <param name="serviceType">The service type to resolve.</param>
+            <returns>The resolved instance, or <see langword="null"/> when the service is not registered.</returns>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Providers.Dynamics.IDynamicServiceProvider.GetKeyed``1(System.String)">
+            <summary>
+            Resolves a named instance by its key.
+            </summary>
+            <typeparam name="T">The expected return type.</typeparam>
+            <param name="key">The registration key.</param>
+            <returns>The resolved instance cast to <typeparamref name="T"/>, or <see langword="null"/> when the service is not registered.</returns>
+        </member>
+        <member name="T:MelloSilveiraTools.Core.Providers.Dynamics.InMemoryDynamicServiceProvider">
+            <summary>
+            Thread-safe implementation of <see cref="T:MelloSilveiraTools.Core.Providers.Dynamics.IDynamicServiceProvider"/> using
+            <see cref="T:System.Lazy`1"/> for deferred instantiation and <see cref="T:System.Collections.Concurrent.ConcurrentDictionary`2"/>
+            for thread-safe storage.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Providers.Dynamics.InMemoryDynamicServiceProvider.#ctor(System.IServiceProvider)">
+            <summary>
+            Thread-safe implementation of <see cref="T:MelloSilveiraTools.Core.Providers.Dynamics.IDynamicServiceProvider"/> using
+            <see cref="T:System.Lazy`1"/> for deferred instantiation and <see cref="T:System.Collections.Concurrent.ConcurrentDictionary`2"/>
+            for thread-safe storage.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Providers.Dynamics.InMemoryDynamicServiceProvider.Add(System.Type,System.Type,System.Object[])">
+            <inheritdoc/>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Providers.Dynamics.InMemoryDynamicServiceProvider.AddKeyed(System.String,System.Object)">
+            <inheritdoc/>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Providers.Dynamics.InMemoryDynamicServiceProvider.GetService(System.Type)">
+            <inheritdoc/>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Providers.Dynamics.InMemoryDynamicServiceProvider.GetKeyed``1(System.String)">
+            <inheritdoc/>
+        </member>
+        <member name="T:MelloSilveiraTools.Core.Providers.ServiceLocator">
+            <summary>
+            Generic service locator that resolves dependencies by combining a dynamic plugin-aware
+            service provider with the application's static <see cref="T:System.IServiceProvider"/>.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Providers.ServiceLocator.#ctor(MelloSilveiraTools.Core.Providers.Dynamics.IDynamicServiceProvider,System.IServiceProvider)">
+            <summary>
+            Generic service locator that resolves dependencies by combining a dynamic plugin-aware
+            service provider with the application's static <see cref="T:System.IServiceProvider"/>.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Providers.ServiceLocator.GetRequiredService(System.Type)">
+            <summary>
+            Resolves a required service. Looks up the dynamic provider first; falls back to the static
+            provider when no dynamic registration is found. Throws if neither has the type.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Providers.ServiceLocator.GetService(System.Type)">
+            <summary>
+            Resolves an optional service. Looks up the dynamic provider first; falls back to the static
+            provider. Returns <see langword="null"/> when neither has the type.
+            </summary>
         </member>
         <member name="T:MelloSilveiraTools.Core.ResiliencePipelines.DefaultResiliencePipeline">
             <summary>

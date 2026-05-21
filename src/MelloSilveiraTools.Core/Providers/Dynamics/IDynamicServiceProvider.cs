@@ -1,6 +1,6 @@
 using System.Diagnostics.CodeAnalysis;
 
-namespace MelloSilveiraTools.Plugins.Infrastructure.Providers;
+namespace MelloSilveiraTools.Core.Providers.Dynamics;
 
 /// <summary>
 /// Provides dynamic service registration and resolution at runtime.
@@ -14,7 +14,8 @@ public interface IDynamicServiceProvider
     /// </summary>
     /// <param name="serviceType">The service interface type.</param>
     /// <param name="implementationType">The concrete implementation type.</param>
-    void Add(Type serviceType, [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)] Type implementationType);
+    /// <param name="parameters"></param>
+    void Add(Type serviceType, [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)] Type implementationType, params object[] parameters);
 
     /// <summary>
     /// Registers a named instance directly.

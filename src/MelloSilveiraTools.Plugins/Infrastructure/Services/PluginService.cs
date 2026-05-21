@@ -1,7 +1,7 @@
 using MelloSilveiraTools.Core.ExtensionMethods;
+using MelloSilveiraTools.Core.Providers.Dynamics;
 using MelloSilveiraTools.Plugins.Infrastructure.Models;
 using MelloSilveiraTools.Plugins.Infrastructure.Persistences;
-using MelloSilveiraTools.Plugins.Infrastructure.Providers;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace MelloSilveiraTools.Plugins.Infrastructure.Services;

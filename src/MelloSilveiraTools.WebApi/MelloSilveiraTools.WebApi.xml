@@ -551,10 +551,10 @@
             <remarks>
             Exception-to-status mapping performed by <see cref="M:MelloSilveiraTools.WebApi.Application.Middlewares.ExceptionHandlingMiddleware.InvokeAsync(Microsoft.AspNetCore.Http.HttpContext)"/>:
             <list type="bullet">
-              <item><description><see cref="T:System.UnauthorizedAccessException"/> → <see cref="F:MelloSilveiraTools.WebApi.Application.Commands.StatusCode.Unauthorized"/> (401).</description></item>
-              <item><description><see cref="T:System.ArgumentException"/> or <see cref="T:System.InvalidOperationException"/> → <see cref="F:MelloSilveiraTools.WebApi.Application.Commands.StatusCode.BadRequest"/> (400).</description></item>
-              <item><description><see cref="T:System.Collections.Generic.KeyNotFoundException"/> → <see cref="F:MelloSilveiraTools.WebApi.Application.Commands.StatusCode.NotFound"/> (404).</description></item>
-              <item><description>Any other exception → <see cref="F:MelloSilveiraTools.WebApi.Application.Commands.StatusCode.UnknownError"/> (500).</description></item>
+              <item><description><see cref="T:System.UnauthorizedAccessException"/> → <see cref="F:MelloSilveiraTools.Core.Models.StatusCode.Unauthorized"/> (401).</description></item>
+              <item><description><see cref="T:System.ArgumentException"/> or <see cref="T:System.InvalidOperationException"/> → <see cref="F:MelloSilveiraTools.Core.Models.StatusCode.BadRequest"/> (400).</description></item>
+              <item><description><see cref="T:System.Collections.Generic.KeyNotFoundException"/> → <see cref="F:MelloSilveiraTools.Core.Models.StatusCode.NotFound"/> (404).</description></item>
+              <item><description>Any other exception → <see cref="F:MelloSilveiraTools.Core.Models.StatusCode.UnknownError"/> (500).</description></item>
             </list>
             <see cref="T:MelloSilveiraTools.WebApi.Application.Models.NdjsonException"/> receives special handling: it is logged via <paramref name="logger"/>
             and the middleware returns without writing any response body, since NDJSON streaming may already
@@ -570,10 +570,10 @@
             <remarks>
             Exception-to-status mapping performed by <see cref="M:MelloSilveiraTools.WebApi.Application.Middlewares.ExceptionHandlingMiddleware.InvokeAsync(Microsoft.AspNetCore.Http.HttpContext)"/>:
             <list type="bullet">
-              <item><description><see cref="T:System.UnauthorizedAccessException"/> → <see cref="F:MelloSilveiraTools.WebApi.Application.Commands.StatusCode.Unauthorized"/> (401).</description></item>
-              <item><description><see cref="T:System.ArgumentException"/> or <see cref="T:System.InvalidOperationException"/> → <see cref="F:MelloSilveiraTools.WebApi.Application.Commands.StatusCode.BadRequest"/> (400).</description></item>
-              <item><description><see cref="T:System.Collections.Generic.KeyNotFoundException"/> → <see cref="F:MelloSilveiraTools.WebApi.Application.Commands.StatusCode.NotFound"/> (404).</description></item>
-              <item><description>Any other exception → <see cref="F:MelloSilveiraTools.WebApi.Application.Commands.StatusCode.UnknownError"/> (500).</description></item>
+              <item><description><see cref="T:System.UnauthorizedAccessException"/> → <see cref="F:MelloSilveiraTools.Core.Models.StatusCode.Unauthorized"/> (401).</description></item>
+              <item><description><see cref="T:System.ArgumentException"/> or <see cref="T:System.InvalidOperationException"/> → <see cref="F:MelloSilveiraTools.Core.Models.StatusCode.BadRequest"/> (400).</description></item>
+              <item><description><see cref="T:System.Collections.Generic.KeyNotFoundException"/> → <see cref="F:MelloSilveiraTools.Core.Models.StatusCode.NotFound"/> (404).</description></item>
+              <item><description>Any other exception → <see cref="F:MelloSilveiraTools.Core.Models.StatusCode.UnknownError"/> (500).</description></item>
             </list>
             <see cref="T:MelloSilveiraTools.WebApi.Application.Models.NdjsonException"/> receives special handling: it is logged via <paramref name="logger"/>
             and the middleware returns without writing any response body, since NDJSON streaming may already
@@ -901,83 +901,83 @@
             Contains extension methods for <see cref="T:MelloSilveiraTools.Core.Models.Result"/>.
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.WebApi.ExtensionMethods.ResultExtensions.AddError``1(``0,System.String,MelloSilveiraTools.WebApi.Application.Commands.StatusCode)">
+        <member name="M:MelloSilveiraTools.WebApi.ExtensionMethods.ResultExtensions.AddError``1(``0,System.String,MelloSilveiraTools.Core.Models.StatusCode)">
             <summary>
             Appends <paramref name="errorMessage"/> to the result and marks it as failed with the given status code.
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.WebApi.ExtensionMethods.ResultExtensions.AddErrorIf``1(``0,System.Boolean,System.String,MelloSilveiraTools.WebApi.Application.Commands.StatusCode)">
+        <member name="M:MelloSilveiraTools.WebApi.ExtensionMethods.ResultExtensions.AddErrorIf``1(``0,System.Boolean,System.String,MelloSilveiraTools.Core.Models.StatusCode)">
             <summary>
             Appends <paramref name="errorMessage"/> to the result only when <paramref name="condition"/> is <c>true</c>.
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.WebApi.ExtensionMethods.ResultExtensions.AddErrorIf``1(``0,System.Threading.Tasks.Task{System.Boolean},System.String,MelloSilveiraTools.WebApi.Application.Commands.StatusCode)">
+        <member name="M:MelloSilveiraTools.WebApi.ExtensionMethods.ResultExtensions.AddErrorIf``1(``0,System.Threading.Tasks.Task{System.Boolean},System.String,MelloSilveiraTools.Core.Models.StatusCode)">
             <summary>
             Awaits the condition task and, when it resolves to <c>true</c>, appends <paramref name="errorMessage"/> to the result.
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.WebApi.ExtensionMethods.ResultExtensions.AddErrorIfNull``1(``0,System.Object,System.String,MelloSilveiraTools.WebApi.Application.Commands.StatusCode)">
+        <member name="M:MelloSilveiraTools.WebApi.ExtensionMethods.ResultExtensions.AddErrorIfNull``1(``0,System.Object,System.String,MelloSilveiraTools.Core.Models.StatusCode)">
             <summary>
             Appends <paramref name="message"/> when <paramref name="value"/> is <c>null</c>.
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.WebApi.ExtensionMethods.ResultExtensions.AddErrorIfNotNull``1(``0,System.Object,System.String,MelloSilveiraTools.WebApi.Application.Commands.StatusCode)">
+        <member name="M:MelloSilveiraTools.WebApi.ExtensionMethods.ResultExtensions.AddErrorIfNotNull``1(``0,System.Object,System.String,MelloSilveiraTools.Core.Models.StatusCode)">
             <summary>
             Appends <paramref name="message"/> when <paramref name="value"/> is not <c>null</c>.
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.WebApi.ExtensionMethods.ResultExtensions.AddErrorIfNullOrEmpty``1(``0,System.String,System.String,MelloSilveiraTools.WebApi.Application.Commands.StatusCode)">
+        <member name="M:MelloSilveiraTools.WebApi.ExtensionMethods.ResultExtensions.AddErrorIfNullOrEmpty``1(``0,System.String,System.String,MelloSilveiraTools.Core.Models.StatusCode)">
             <summary>
             Appends <paramref name="message"/> when <paramref name="parameter"/> is <c>null</c> or empty.
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.WebApi.ExtensionMethods.ResultExtensions.AddErrorIfNullOrWhiteSpace``1(``0,System.String,System.String,MelloSilveiraTools.WebApi.Application.Commands.StatusCode)">
+        <member name="M:MelloSilveiraTools.WebApi.ExtensionMethods.ResultExtensions.AddErrorIfNullOrWhiteSpace``1(``0,System.String,System.String,MelloSilveiraTools.Core.Models.StatusCode)">
             <summary>
             Appends <paramref name="message"/> when <paramref name="parameter"/> is <c>null</c>, empty, or whitespace.
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.WebApi.ExtensionMethods.ResultExtensions.AddErrorIfNullOrEmpty``2(``0,System.Collections.Generic.IEnumerable{``1},System.String,MelloSilveiraTools.WebApi.Application.Commands.StatusCode)">
+        <member name="M:MelloSilveiraTools.WebApi.ExtensionMethods.ResultExtensions.AddErrorIfNullOrEmpty``2(``0,System.Collections.Generic.IEnumerable{``1},System.String,MelloSilveiraTools.Core.Models.StatusCode)">
             <summary>
             Appends <paramref name="message"/> when <paramref name="parameters"/> is <c>null</c> or contains no elements.
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.WebApi.ExtensionMethods.ResultExtensions.AddErrorIfZero``1(``0,System.Double,System.String,MelloSilveiraTools.WebApi.Application.Commands.StatusCode)">
+        <member name="M:MelloSilveiraTools.WebApi.ExtensionMethods.ResultExtensions.AddErrorIfZero``1(``0,System.Double,System.String,MelloSilveiraTools.Core.Models.StatusCode)">
             <summary>
             Appends <paramref name="message"/> when <paramref name="parameter"/> equals zero.
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.WebApi.ExtensionMethods.ResultExtensions.AddErrorIfNegative``1(``0,System.Double,System.String,MelloSilveiraTools.WebApi.Application.Commands.StatusCode)">
+        <member name="M:MelloSilveiraTools.WebApi.ExtensionMethods.ResultExtensions.AddErrorIfNegative``1(``0,System.Double,System.String,MelloSilveiraTools.Core.Models.StatusCode)">
             <summary>
             Appends <paramref name="message"/> when <paramref name="parameter"/> is strictly negative.
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.WebApi.ExtensionMethods.ResultExtensions.AddErrorIfNegativeOrZero``1(``0,System.Double,System.String,MelloSilveiraTools.WebApi.Application.Commands.StatusCode)">
+        <member name="M:MelloSilveiraTools.WebApi.ExtensionMethods.ResultExtensions.AddErrorIfNegativeOrZero``1(``0,System.Double,System.String,MelloSilveiraTools.Core.Models.StatusCode)">
             <summary>
             Appends <paramref name="message"/> when <paramref name="parameter"/> is negative or zero.
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.WebApi.ExtensionMethods.ResultExtensions.AddErrorIfNegativeOrZero``1(``0,System.Collections.Generic.List{System.Double},System.String,MelloSilveiraTools.WebApi.Application.Commands.StatusCode)">
+        <member name="M:MelloSilveiraTools.WebApi.ExtensionMethods.ResultExtensions.AddErrorIfNegativeOrZero``1(``0,System.Collections.Generic.List{System.Double},System.String,MelloSilveiraTools.Core.Models.StatusCode)">
             <summary>
             Validates each element of <paramref name="parameters"/> and appends <paramref name="message"/> when any value is negative or zero,
             or when the list itself is <c>null</c> or empty.
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.WebApi.ExtensionMethods.ResultExtensions.AddErrorIfInvalidEnum``2(``0,``1,System.String,MelloSilveiraTools.WebApi.Application.Commands.StatusCode)">
+        <member name="M:MelloSilveiraTools.WebApi.ExtensionMethods.ResultExtensions.AddErrorIfInvalidEnum``2(``0,``1,System.String,MelloSilveiraTools.Core.Models.StatusCode)">
             <summary>
             Appends <paramref name="message"/> when <paramref name="value"/> is not a defined member of the enum type.
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.WebApi.ExtensionMethods.ResultExtensions.AddErrorIfFileNotExist``1(``0,System.String,System.String,MelloSilveiraTools.WebApi.Application.Commands.StatusCode)">
+        <member name="M:MelloSilveiraTools.WebApi.ExtensionMethods.ResultExtensions.AddErrorIfFileNotExist``1(``0,System.String,System.String,MelloSilveiraTools.Core.Models.StatusCode)">
             <summary>
             Appends <paramref name="message"/> when the file does not exist or when <paramref name="fullFileName"/> is blank.
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.WebApi.ExtensionMethods.ResultExtensions.AddErrorIfFileExist``1(``0,System.String,MelloSilveiraTools.WebApi.Application.Commands.StatusCode)">
+        <member name="M:MelloSilveiraTools.WebApi.ExtensionMethods.ResultExtensions.AddErrorIfFileExist``1(``0,System.String,MelloSilveiraTools.Core.Models.StatusCode)">
             <summary>
             Appends an error when the file at <paramref name="fullFileName"/> already exists.
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.WebApi.ExtensionMethods.ResultExtensions.AddErrorIfDirectoryNotExist``1(``0,System.String,System.String,MelloSilveiraTools.WebApi.Application.Commands.StatusCode)">
+        <member name="M:MelloSilveiraTools.WebApi.ExtensionMethods.ResultExtensions.AddErrorIfDirectoryNotExist``1(``0,System.String,System.String,MelloSilveiraTools.Core.Models.StatusCode)">
             <summary>
             Appends an error when the directory does not exist or when <paramref name="fullDirectoryName"/> is blank.
             </summary>

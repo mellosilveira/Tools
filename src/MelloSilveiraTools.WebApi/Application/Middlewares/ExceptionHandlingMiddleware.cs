@@ -1,6 +1,5 @@
 using MelloSilveiraTools.Core.Logger;
 using MelloSilveiraTools.Core.Models;
-using MelloSilveiraTools.WebApi.Application.Commands;
 using MelloSilveiraTools.WebApi.Application.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;

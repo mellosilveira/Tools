@@ -1,4 +1,4 @@
-﻿namespace MelloSilveiraTools.WebApi.Application.Commands;
+﻿namespace MelloSilveiraTools.Core.Models;
 
 public enum StatusCode : short
 {
