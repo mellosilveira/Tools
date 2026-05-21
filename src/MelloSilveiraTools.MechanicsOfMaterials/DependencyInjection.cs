@@ -1,4 +1,6 @@
-﻿using MelloSilveiraTools.MechanicsOfMaterials.Calculators.ConstitutiveEquations;
+﻿using MelloSilveiraTools.Core.Providers;
+using MelloSilveiraTools.MechanicsOfMaterials.Caching;
+using MelloSilveiraTools.MechanicsOfMaterials.Calculators.ConstitutiveEquations;
 using MelloSilveiraTools.MechanicsOfMaterials.Calculators.Fatigue;
 using MelloSilveiraTools.MechanicsOfMaterials.Calculators.GeometricProperties;
 using MelloSilveiraTools.MechanicsOfMaterials.Models.Profiles;
@@ -23,5 +25,8 @@ public static class DependencyInjection
             .AddSingleton<IFatigueCalculator, FatigueCalculator>()
             // Register geometric properties.
             .AddSingleton<IGeometricPropertyCalculator<CircularProfile>, CircularProfileGeometricPropertyCalculator>()
-            .AddSingleton<IGeometricPropertyCalculator<RectangularProfile>, RectangularProfileGeometricPropertyCalculator>();
+            .AddSingleton<IGeometricPropertyCalculator<RectangularProfile>, RectangularProfileGeometricPropertyCalculator>()
+            // Register service dependencies.
+            .AddSingleton<ServiceLocator>()
+            .AddSingleton<IMechanicalModelTypeCache, MechanicalModelTypeCache>();
 }

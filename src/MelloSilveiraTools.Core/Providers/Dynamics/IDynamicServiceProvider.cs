@@ -37,5 +37,5 @@ public interface IDynamicServiceProvider
     /// <typeparam name="T">The expected return type.</typeparam>
     /// <param name="key">The registration key.</param>
     /// <returns>The resolved instance cast to <typeparamref name="T"/>, or <see langword="null"/> when the service is not registered.</returns>
-    T? GetKeyed<T>(string key) where T : class;
+    T? GetKeyedService<T>(string key) where T : class;
 }

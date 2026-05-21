@@ -27,5 +27,5 @@ public class InMemoryDynamicServiceProvider(IServiceProvider serviceProvider) : 
     public object? GetService(Type serviceType) => _serviceInstances.TryGetValue(serviceType, out Lazy<object>? lazy) ? lazy.Value : null;
 
     /// <inheritdoc/>
-    public T? GetKeyed<T>(string key) where T : class => _keyedInstances.TryGetValue(key, out object? instance) ? (T)instance : null;
+    public T? GetKeyedService<T>(string key) where T : class => _keyedInstances.TryGetValue(key, out object? instance) ? (T)instance : null;
 }
