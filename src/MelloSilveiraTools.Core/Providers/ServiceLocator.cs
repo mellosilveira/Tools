@@ -27,11 +27,11 @@ public class ServiceLocator(
     /// Resolves a required service. Looks up the dynamic provider first; falls back to the static
     /// provider when no dynamic registration is found. Throws if neither has the type.
     /// </summary>
-    public object GetRequiredKeyedService<T>(string key) where T : class => dynamicServiceProvider.GetKeyedService<T>(key) ?? serviceProvider.GetRequiredKeyedService<T>(key);
+    public T GetRequiredKeyedService<T>(string key) where T : class => dynamicServiceProvider.GetKeyedService<T>(key) ?? serviceProvider.GetRequiredKeyedService<T>(key);
 
     /// <summary>
     /// Resolves an optional service. Looks up the dynamic provider first; falls back to the static
     /// provider. Returns <see langword="null"/> when neither has the type.
     /// </summary>
-    public object? GetKeyedService<T>(string key) where T : class => dynamicServiceProvider.GetKeyedService<T>(key) ?? serviceProvider.GetKeyedService<T>(key);
+    public T? GetKeyedService<T>(string key) where T : class => dynamicServiceProvider.GetKeyedService<T>(key) ?? serviceProvider.GetKeyedService<T>(key);
 }
