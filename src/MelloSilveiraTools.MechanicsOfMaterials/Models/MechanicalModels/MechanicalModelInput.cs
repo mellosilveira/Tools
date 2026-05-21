@@ -20,13 +20,12 @@ public record MechanicalModelInput
 
     #region Mechanical parameters
 
-    /// <inheritdoc cref="SharedModules.Models.MechanicalModels.MechanicalRelationship"/>
     public MechanicalRelationship MechanicalRelationship { get; init; }
 
-    /// <inheritdoc cref="SharedModules.Models.MechanicalModels.ViscoelasticEffect"/>
+    /// <inheritdoc cref="Viscoelasticity.ViscoelasticEffect"/>
     public ViscoelasticEffect ViscoelasticEffect { get; init; }
 
-    /// <inheritdoc cref="SharedModules.Models.MechanicalModels.RampTimeConsideration"/>
+    /// <inheritdoc cref="Viscoelasticity.RampTimeConsideration"/>
     public RampTimeConsideration RampTimeConsideration { get; init; }
 
     /// <summary>

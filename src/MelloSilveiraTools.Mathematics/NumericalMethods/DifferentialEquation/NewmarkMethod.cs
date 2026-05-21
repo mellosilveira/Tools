@@ -1,5 +1,5 @@
 ﻿using MelloSilveiraTools.Core.ExtensionMethods;
-using MelloSilveiraTools.Core.Models;
+using MelloSilveiraTools.Mathematics.Models;
 using MelloSilveiraTools.Mathematics.Models.NumericalMethods;
 
 namespace MelloSilveiraTools.Mathematics.NumericalMethods.DifferentialEquation;
@@ -18,10 +18,10 @@ public class NewmarkMethod : IDifferentialEquationMethod
     /// <inheritdoc/>
     public NumericalMethodResult CalculateResult(NumericalMethodInput input, double time, NumericalMethodResult previousResult)
     {
-        if (time < Constants.InitialTime)
-            throw new ArgumentOutOfRangeException(nameof(time), $"The time cannot be less than the initial time: {Constants.InitialTime}.");
+        if (time < MathematicConstants.InitialTime)
+            throw new ArgumentOutOfRangeException(nameof(time), $"The time cannot be less than the initial time: {MathematicConstants.InitialTime}.");
 
-        if (time == Constants.InitialTime)
+        if (time == MathematicConstants.InitialTime)
             return new NumericalMethodResult { EquivalentForce = input.EquivalentForce };
 
         #region Step 1 - Calculates the equivalent stiffness and equivalent force.

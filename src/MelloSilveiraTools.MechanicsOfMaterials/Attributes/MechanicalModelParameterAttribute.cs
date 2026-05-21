@@ -44,10 +44,10 @@ public class MechanicalModelParameterAttribute : Attribute
         ViscoelasticEffect = viscoelasticEffect;
     }
 
-    /// <inheritdoc cref="SharedModules.Models.MechanicalModels.MechanicalRelationship"/>
+    /// <inheritdoc cref="Models.MechanicalModels.MechanicalRelationship"/>
     public MechanicalRelationship? MechanicalRelationship { get; }
 
-    /// <inheritdoc cref="SharedModules.Models.MechanicalModels.ViscoelasticEffect"/>
+    /// <inheritdoc cref="Models.MechanicalModels.Viscoelasticity.ViscoelasticEffect"/>
     public ViscoelasticEffect? ViscoelasticEffect { get; }
 
     /// <summary>

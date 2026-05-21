@@ -648,17 +648,6 @@
             The invalid values for double parameters.
             </summary>
         </member>
-        <member name="F:MelloSilveiraTools.Core.Models.Constants.GravityAcceleration">
-            <summary>
-            Unit: m/s² (meter per squared second).
-            </summary>
-        </member>
-        <member name="F:MelloSilveiraTools.Core.Models.Constants.InitialTime">
-            <summary>
-            The initial time that must be used in all analyzes and operations.
-            Unit: s (second).
-            </summary>
-        </member>
         <member name="T:MelloSilveiraTools.Core.Models.CsvSeparators">
             <summary>
             Standard separators used when serializing/deserializing CSV files.
@@ -1074,7 +1063,7 @@
             <param name="serviceType">The service type to resolve.</param>
             <returns>The resolved instance, or <see langword="null"/> when the service is not registered.</returns>
         </member>
-        <member name="M:MelloSilveiraTools.Core.Providers.Dynamics.IDynamicServiceProvider.GetKeyed``1(System.String)">
+        <member name="M:MelloSilveiraTools.Core.Providers.Dynamics.IDynamicServiceProvider.GetKeyedService``1(System.String)">
             <summary>
             Resolves a named instance by its key.
             </summary>
@@ -1105,7 +1094,7 @@
         <member name="M:MelloSilveiraTools.Core.Providers.Dynamics.InMemoryDynamicServiceProvider.GetService(System.Type)">
             <inheritdoc/>
         </member>
-        <member name="M:MelloSilveiraTools.Core.Providers.Dynamics.InMemoryDynamicServiceProvider.GetKeyed``1(System.String)">
+        <member name="M:MelloSilveiraTools.Core.Providers.Dynamics.InMemoryDynamicServiceProvider.GetKeyedService``1(System.String)">
             <inheritdoc/>
         </member>
         <member name="T:MelloSilveiraTools.Core.Providers.ServiceLocator">
@@ -1127,6 +1116,18 @@
             </summary>
         </member>
         <member name="M:MelloSilveiraTools.Core.Providers.ServiceLocator.GetService(System.Type)">
+            <summary>
+            Resolves an optional service. Looks up the dynamic provider first; falls back to the static
+            provider. Returns <see langword="null"/> when neither has the type.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Providers.ServiceLocator.GetRequiredKeyedService``1(System.String)">
+            <summary>
+            Resolves a required service. Looks up the dynamic provider first; falls back to the static
+            provider when no dynamic registration is found. Throws if neither has the type.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Providers.ServiceLocator.GetKeyedService``1(System.String)">
             <summary>
             Resolves an optional service. Looks up the dynamic provider first; falls back to the static
             provider. Returns <see langword="null"/> when neither has the type.

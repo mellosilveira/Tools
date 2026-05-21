@@ -1,4 +1,5 @@
-﻿using MelloSilveiraTools.Mathematics.NumericalMethods.Derivative;
+﻿using MelloSilveiraTools.Mathematics.Models;
+using MelloSilveiraTools.Mathematics.NumericalMethods.Derivative;
 using MelloSilveiraTools.Mathematics.NumericalMethods.Integral;
 using MelloSilveiraTools.MechanicsOfMaterials.Converters.MechanicalParameter;
 using MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels;
@@ -25,7 +26,7 @@ namespace MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.V
         /// </remarks>
         public double CalculateI(double slowRelaxationTime, double fastRelaxationTime, double timeStep, double time)
         {
-            if (time <= MechanicalModelConstants.Tolerance)
+            if (time <= MathematicConstants.Tolerance)
                 return Math.Log(slowRelaxationTime / fastRelaxationTime);
 
             double initialTime = time / slowRelaxationTime;
@@ -60,7 +61,7 @@ namespace MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.V
         /// <remarks>G(t) = (1 + C · I(t)) / (1 + C · ln(τ₂/τ₁)) (Projeto Final, Eq. 43). G(0) = 1.</remarks>
         public override double CalculateReducedRelaxationFunction(FungModelInput input, double time)
         {
-            if (time <= MechanicalModelConstants.Tolerance)
+            if (time <= MathematicConstants.Tolerance)
                 return 1;
 
             ReducedRelaxationFunction reducedRelaxationFunction = input.ReducedRelaxationFunction;
@@ -78,7 +79,7 @@ namespace MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.V
             ReducedRelaxationFunction reducedRelaxationFunction = input.ReducedRelaxationFunction;
             double denominator = CalculateReducedRelaxationFunctionDenominator(reducedRelaxationFunction);
 
-            if (time <= MechanicalModelConstants.Tolerance)
+            if (time <= MathematicConstants.Tolerance)
                 return reducedRelaxationFunction.RelaxationStiffness
                     * (-1 / reducedRelaxationFunction.FastRelaxationTime + 1 / reducedRelaxationFunction.SlowRelaxationTime)
                     / denominator;

@@ -6,6 +6,12 @@
 public static class MathematicConstants
 {
     /// <summary>
+    /// The initial time that must be used in all analyzes and operations.
+    /// Unit: s (second).
+    /// </summary>
+    public const double InitialTime = 0;
+
+    /// <summary>
     /// Euler-Mascheroni constant (γ ≈ 0.57721566490153286...).
     /// </summary>
     public const double EulerMascheroniConstant = 0.5772156649015328606065120900824024310421;
@@ -22,4 +28,9 @@ public static class MathematicConstants
     /// Two values whose relative difference is less than this threshold are considered equal.
     /// </summary>
     public const double RelativeTolerance = 1e-8;
+
+    /// <summary>
+    /// Unit: m/s² (meter per squared second).
+    /// </summary>
+    public const double GravityAcceleration = 9.80665;
 }

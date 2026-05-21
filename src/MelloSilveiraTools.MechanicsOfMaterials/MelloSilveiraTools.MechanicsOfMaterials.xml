@@ -35,10 +35,10 @@
             <param name="viscoelasticEffect"></param>
         </member>
         <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Attributes.MechanicalModelParameterAttribute.MechanicalRelationship">
-            <inheritdoc cref="!:SharedModules.Models.MechanicalModels.MechanicalRelationship"/>
+            <inheritdoc cref="T:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalRelationship"/>
         </member>
         <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Attributes.MechanicalModelParameterAttribute.ViscoelasticEffect">
-            <inheritdoc cref="!:SharedModules.Models.MechanicalModels.ViscoelasticEffect"/>
+            <inheritdoc cref="T:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.ViscoelasticEffect"/>
         </member>
         <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Attributes.MechanicalModelParameterAttribute.CanMethodBeInvoked(MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalRelationship,MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.ViscoelasticEffect)">
             <summary>
@@ -1868,29 +1868,6 @@
             Contain the constats used in application.
             </summary>
         </member>
-        <member name="F:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalModelConstants.InitialTime">
-            <summary>
-            Unit: s (second).
-            </summary>
-        </member>
-        <member name="F:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalModelConstants.EulerMascheroniConstant">
-            <summary>
-            The constant of Euler-Mascheroni.
-            </summary>
-        </member>
-        <member name="F:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalModelConstants.Tolerance">
-            <summary>
-            The tolerance for time comparisons.
-            Used to distinguish "effectively zero" from any meaningful positive value.
-            Chosen as 1e-10 s (0.1 nanosecond), well below any physically relevant time in the simulation.
-            </summary>
-        </member>
-        <member name="F:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalModelConstants.RelativeTolerance">
-            <summary>
-            The relative double-point precision accepted for value equality comparisons.
-            Two values whose relative difference is less than this threshold are considered equal.
-            </summary>
-        </member>
         <member name="F:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalModelConstants.EquationE1MaximumFinalTime">
             <summary>
             The final time to equation E1 must be at most 11.4, because, using Geogebra to plot the graphic for the 
@@ -1915,14 +1892,11 @@
             Unit: dimensionless.
             </summary>
         </member>
-        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalModelInput.MechanicalRelationship">
-            <inheritdoc cref="!:SharedModules.Models.MechanicalModels.MechanicalRelationship"/>
-        </member>
         <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalModelInput.ViscoelasticEffect">
-            <inheritdoc cref="!:SharedModules.Models.MechanicalModels.ViscoelasticEffect"/>
+            <inheritdoc cref="T:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.ViscoelasticEffect"/>
         </member>
         <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalModelInput.RampTimeConsideration">
-            <inheritdoc cref="!:SharedModules.Models.MechanicalModels.RampTimeConsideration"/>
+            <inheritdoc cref="T:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.RampTimeConsideration"/>
         </member>
         <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalModelInput.Strain">
             <summary>

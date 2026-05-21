@@ -1,4 +1,5 @@
-﻿using MelloSilveiraTools.Mathematics.Models.NumericalMethods;
+﻿using MelloSilveiraTools.Mathematics.Models;
+using MelloSilveiraTools.Mathematics.Models.NumericalMethods;
 using MelloSilveiraTools.Mathematics.NumericalMethods.Derivative;
 using MelloSilveiraTools.Mathematics.NumericalMethods.Integral;
 using MelloSilveiraTools.MechanicsOfMaterials.Attributes;
@@ -137,7 +138,7 @@ namespace MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.V
                 if (input.ViscoelasticEffect == ViscoelasticEffect.Creep)
                     throw new NotImplementedException($"The logic for calculate the stress while disregarding the ramp time and considering creep was not implemented on '{GetType().Name}'.");
             }
-            else if (input.RampTimeConsideration == RampTimeConsideration.ConsiderWithViscoelasticEffect && time > MechanicalModelConstants.Tolerance)
+            else if (input.RampTimeConsideration == RampTimeConsideration.ConsiderWithViscoelasticEffect && time > MathematicConstants.Tolerance)
             {
                 displacement ??= input.Displacement.CalculateValue(time);
                 double strain = ParameterConverter.CalculateStrainFromDisplacement(input.Specimen, displacement.Value);
@@ -156,7 +157,7 @@ namespace MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.V
                         integrationTime),
                     new IntegralInput
                     {
-                        InitialPoint = MechanicalModelConstants.InitialTime,
+                        InitialPoint = MathematicConstants.InitialTime,
                         Step = input.TimeStep,
                         FinalPoint = time
                     });
@@ -186,7 +187,7 @@ namespace MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.V
                     throw new NotImplementedException($"The logic for calculate the stress while disregarding the ramp time and considering creep was not implemented on '{GetType().Name}'.");
             }
 
-            if (time <= MechanicalModelConstants.Tolerance)
+            if (time <= MathematicConstants.Tolerance)
                 return 0;
 
             return input.He.Calculate(strain.Value) * input.Ge * strain.Value
@@ -201,7 +202,7 @@ namespace MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.V
                     integrationTime),
                 new IntegralInput
                 {
-                    InitialPoint = MechanicalModelConstants.InitialTime,
+                    InitialPoint = MathematicConstants.InitialTime,
                     Step = input.TimeStep,
                     FinalPoint = time
                 });

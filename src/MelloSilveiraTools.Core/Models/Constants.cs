@@ -16,15 +16,4 @@ public class Constants
         double.MaxValue, 
         double.MinValue 
     ];
-
-    /// <summary>
-    /// Unit: m/s² (meter per squared second).
-    /// </summary>
-    public const double GravityAcceleration = 9.80665;
-
-    /// <summary>
-    /// The initial time that must be used in all analyzes and operations.
-    /// Unit: s (second).
-    /// </summary>
-    public const double InitialTime = 0;
 }

@@ -1,4 +1,5 @@
-﻿using MelloSilveiraTools.Mathematics.Models.NumericalMethods;
+﻿using MelloSilveiraTools.Mathematics.Models;
+using MelloSilveiraTools.Mathematics.Models.NumericalMethods;
 using MelloSilveiraTools.Mathematics.NumericalMethods.Integral;
 using MelloSilveiraTools.MechanicsOfMaterials.Converters.MechanicalParameter;
 using MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels;
@@ -35,7 +36,7 @@ public abstract class LinearModelCalculator<TInput>(
             if (input.ViscoelasticEffect == ViscoelasticEffect.Creep)
                 throw new NotImplementedException($"The logic for calculate the force while disregarding the ramp time and considering creep was not implemented on '{GetType().Name}'.");
         }
-        else if (input.RampTimeConsideration == RampTimeConsideration.ConsiderWithViscoelasticEffect && time > MechanicalModelConstants.Tolerance)
+        else if (input.RampTimeConsideration == RampTimeConsideration.ConsiderWithViscoelasticEffect && time > MathematicConstants.Tolerance)
         {
             stress = _integration
                 .Calculate((integrationTime) =>
@@ -46,7 +47,7 @@ public abstract class LinearModelCalculator<TInput>(
                 },
                 new IntegralInput
                 {
-                    InitialPoint = MechanicalModelConstants.InitialTime,
+                    InitialPoint = MathematicConstants.InitialTime,
                     Step = input.TimeStep,
                     FinalPoint = time
                 });
@@ -71,7 +72,7 @@ public abstract class LinearModelCalculator<TInput>(
             if (input.ViscoelasticEffect == ViscoelasticEffect.Creep)
                 strain = stress * CalculateCreepCompliance(input, time);
         }
-        else if (input.RampTimeConsideration == RampTimeConsideration.ConsiderWithViscoelasticEffect && time > MechanicalModelConstants.Tolerance)
+        else if (input.RampTimeConsideration == RampTimeConsideration.ConsiderWithViscoelasticEffect && time > MathematicConstants.Tolerance)
         {
             strain = _integration
                 .Calculate((integrationTime) =>
@@ -82,7 +83,7 @@ public abstract class LinearModelCalculator<TInput>(
                 },
                 new IntegralInput
                 {
-                    InitialPoint = MechanicalModelConstants.InitialTime,
+                    InitialPoint = MathematicConstants.InitialTime,
                     Step = input.TimeStep,
                     FinalPoint = time
                 });
@@ -109,7 +110,7 @@ public abstract class LinearModelCalculator<TInput>(
             (integrationTime) => CalculateRelaxationFunction(input, time - integrationTime) * input.Strain.CalculateDerivative(integrationTime),
             new IntegralInput
             {
-                InitialPoint = MechanicalModelConstants.InitialTime,
+                InitialPoint = MathematicConstants.InitialTime,
                 Step = input.TimeStep,
                 FinalPoint = time
             });
@@ -133,7 +134,7 @@ public abstract class LinearModelCalculator<TInput>(
             (integrationTime) => CalculateCreepCompliance(input, time - integrationTime) * input.Stress.CalculateDerivative(integrationTime),
             new IntegralInput
             {
-                InitialPoint = MechanicalModelConstants.InitialTime,
+                InitialPoint = MathematicConstants.InitialTime,
                 Step = input.TimeStep,
                 FinalPoint = time
             });

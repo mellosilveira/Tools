@@ -1,4 +1,5 @@
-﻿using MelloSilveiraTools.Mathematics.Models.NumericalMethods;
+﻿using MelloSilveiraTools.Mathematics.Models;
+using MelloSilveiraTools.Mathematics.Models.NumericalMethods;
 using MelloSilveiraTools.Mathematics.NumericalMethods.Derivative;
 using MelloSilveiraTools.Mathematics.NumericalMethods.Integral;
 using MelloSilveiraTools.MechanicsOfMaterials.Attributes;
@@ -62,7 +63,7 @@ public abstract class QuasiLinearModelCalculator<TInput, TReducedRelaxationFunct
             (integrationTime) => CalculateReducedRelaxationFunction(input, time - integrationTime) * CalculateElasticForceResponseDerivative(input, integrationTime),
             new IntegralInput
             {
-                InitialPoint = MechanicalModelConstants.InitialTime,
+                InitialPoint = MathematicConstants.InitialTime,
                 FinalPoint = time,
                 Step = input.TimeStep
             });
@@ -105,7 +106,7 @@ public abstract class QuasiLinearModelCalculator<TInput, TReducedRelaxationFunct
                 throw new NotImplementedException($"The logic for calculate the stress while disregarding the ramp time and considering creep was not implemented on '{GetType().Name}'.");
         }
 
-        if (time <= MechanicalModelConstants.Tolerance)
+        if (time <= MathematicConstants.Tolerance)
             return 0;
 
         return Integration.Calculate(
@@ -117,7 +118,7 @@ public abstract class QuasiLinearModelCalculator<TInput, TReducedRelaxationFunct
             },
             new IntegralInput
             {
-                InitialPoint = MechanicalModelConstants.InitialTime,
+                InitialPoint = MathematicConstants.InitialTime,
                 FinalPoint = time,
                 Step = input.TimeStep
             });
@@ -158,7 +159,7 @@ public abstract class QuasiLinearModelCalculator<TInput, TReducedRelaxationFunct
         }
 
         double elasticResponse = CalculateElasticResponse(input, time);
-        double reducedRelaxationFunction = CalculateReducedRelaxationFunction(input, MechanicalModelConstants.InitialTime);
+        double reducedRelaxationFunction = CalculateReducedRelaxationFunction(input, MathematicConstants.InitialTime);
         return elasticResponse * reducedRelaxationFunction
             + Integration.Calculate(
                 (integrationTime) =>
@@ -169,7 +170,7 @@ public abstract class QuasiLinearModelCalculator<TInput, TReducedRelaxationFunct
                 },
                 new IntegralInput
                 {
-                    InitialPoint = MechanicalModelConstants.InitialTime,
+                    InitialPoint = MathematicConstants.InitialTime,
                     FinalPoint = time,
                     Step = input.TimeStep
                 });
@@ -199,7 +200,7 @@ public abstract class QuasiLinearModelCalculator<TInput, TReducedRelaxationFunct
                 },
                 new IntegralInput
                 {
-                    InitialPoint = MechanicalModelConstants.InitialTime,
+                    InitialPoint = MathematicConstants.InitialTime,
                     FinalPoint = derivativeTime,
                     Step = input.TimeStep
                 }),

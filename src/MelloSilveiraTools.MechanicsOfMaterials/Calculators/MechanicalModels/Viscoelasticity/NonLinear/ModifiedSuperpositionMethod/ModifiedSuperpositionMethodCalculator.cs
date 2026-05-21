@@ -1,4 +1,5 @@
-﻿using MelloSilveiraTools.Mathematics.Models.NumericalMethods;
+﻿using MelloSilveiraTools.Mathematics.Models;
+using MelloSilveiraTools.Mathematics.Models.NumericalMethods;
 using MelloSilveiraTools.Mathematics.NumericalMethods.Integral;
 using MelloSilveiraTools.MechanicsOfMaterials.Attributes;
 using MelloSilveiraTools.MechanicsOfMaterials.Converters.MechanicalParameter;
@@ -64,7 +65,7 @@ public sealed class ModifiedSuperpositionMethodCalculator(
             if (input.ViscoelasticEffect == ViscoelasticEffect.Creep)
                 throw new NotImplementedException($"The logic for calculate the stress while disregarding the ramp time and considering creep was not implemented on '{GetType().Name}'.");
         }
-        else if (input.RampTimeConsideration == RampTimeConsideration.ConsiderWithViscoelasticEffect && time > MechanicalModelConstants.Tolerance)
+        else if (input.RampTimeConsideration == RampTimeConsideration.ConsiderWithViscoelasticEffect && time > MathematicConstants.Tolerance)
         {
             stress = _integration.Calculate((integrationTime) =>
             {
@@ -75,7 +76,7 @@ public sealed class ModifiedSuperpositionMethodCalculator(
             },
             new IntegralInput
             {
-                InitialPoint = MechanicalModelConstants.InitialTime,
+                InitialPoint = MathematicConstants.InitialTime,
                 Step = input.TimeStep,
                 FinalPoint = time
             });
@@ -105,7 +106,7 @@ public sealed class ModifiedSuperpositionMethodCalculator(
                 throw new NotImplementedException($"The logic for calculate the stress while disregarding the ramp time and considering creep was not implemented on '{GetType().Name}'.");
         }
 
-        if (time <= MechanicalModelConstants.Tolerance)
+        if (time <= MathematicConstants.Tolerance)
             return 0;
 
         return _integration.Calculate((integrationTime) =>
@@ -115,7 +116,7 @@ public sealed class ModifiedSuperpositionMethodCalculator(
         },
         new IntegralInput
         {
-            InitialPoint = MechanicalModelConstants.InitialTime,
+            InitialPoint = MathematicConstants.InitialTime,
             Step = input.TimeStep,
             FinalPoint = time
         });
