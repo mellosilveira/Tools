@@ -22,7 +22,7 @@ public static class ResultExtensions
     public static Task<T> OnSuccess<T>(this T result, Func<Task<T>> action) where T : ResultBase
         => result.Success ? action() : Task.FromResult(result);
 
-    public static TOut Match<TIn, TOut>(this TIn result, Func<TOut> onSuccess, Func<TIn, TOut> onError) 
+    public static TOut Match<TIn, TOut>(this TIn result, Func<TOut> onSuccess, Func<TIn, TOut> onError)
         where TIn : Result
         where TOut : Result
         => result.Success ? onSuccess() : onError(result);
@@ -50,6 +50,8 @@ public static class ResultExtensions
     public static T AddErrorIf<T>(this T result, bool condition, string errorMessage, StatusCode statusCode = StatusCode.BadRequest) where T : ResultBase => condition
         ? result.AddError(errorMessage, statusCode)
         : result;
+
+    public static T AddErrorIf<T>(this T result, bool condition, Func<T, T> errorFunc) where T : ResultBase => condition ? errorFunc(result) : result;
 
     /// <summary>
     /// Awaits the condition task and, when it resolves to <c>true</c>, appends <paramref name="errorMessage"/> to the result.
