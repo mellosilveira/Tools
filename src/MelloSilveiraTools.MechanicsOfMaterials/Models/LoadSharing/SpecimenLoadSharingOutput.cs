@@ -4,9 +4,9 @@ using MelloSilveiraTools.Mathematics.Extensions;
 namespace MelloSilveiraTools.MechanicsOfMaterials.Models.LoadSharing;
 
 /// <summary>
-/// Contains the result for an unique specimen on load sharing analysis.
+/// Contains the output for an unique specimen on load sharing analysis.
 /// </summary>
-public class SpecimenLoadSharingResult
+public class SpecimenLoadSharingOutput
 {
     private bool _loadSharingSet;
 
@@ -69,20 +69,13 @@ public class SpecimenLoadSharingResult
     }
 
     /// <inheritdoc/>
-    public override bool Equals(object? obj)
-    {
-        if (obj is SpecimenLoadSharingResult result)
-        {
-            return result.Angle == Angle
-                   && Displacement.EqualsWithTolerance(result.Displacement)
-                   && Strain.EqualsWithTolerance(result.Strain)
-                   && Force.EqualsWithTolerance(result.Force)
-                   && Stress.EqualsWithTolerance(result.Stress)
-                   && LoadSharing.EqualsWithTolerance(result.LoadSharing);
-        }
-
-        return false;
-    }
+    public override bool Equals(object? obj) => obj is SpecimenLoadSharingOutput output
+        && output.Angle == Angle
+        && Displacement.EqualsWithTolerance(output.Displacement)
+        && Strain.EqualsWithTolerance(output.Strain)
+        && Force.EqualsWithTolerance(output.Force)
+        && Stress.EqualsWithTolerance(output.Stress)
+        && LoadSharing.EqualsWithTolerance(output.LoadSharing);
 
     /// <summary>
     /// This method was not implemented since it is not necessary.

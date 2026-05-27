@@ -5,7 +5,7 @@ namespace MelloSilveiraTools.MechanicsOfMaterials.Attributes;
 
 /// <summary>
 /// Attribute to tag properties in mechanical models, linking them to specific mechanical 
-/// relationships and viscoelastic effects for dynamic construction of result.
+/// relationships and viscoelastic effects for dynamic construction of output.
 /// </summary>
 [AttributeUsage(AttributeTargets.Property)]
 public class MechanicalModelParameterAttribute : Attribute

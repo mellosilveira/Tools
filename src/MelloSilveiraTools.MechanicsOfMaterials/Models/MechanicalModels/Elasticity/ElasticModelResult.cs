@@ -3,9 +3,9 @@
 namespace MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Elasticity;
 
 /// <summary>
-/// Contains the results for a elastic model.
+/// Contains the output for a elastic model.
 /// </summary>
-public class ElasticModelResult : MechanicalModelResult
+public class ElasticModelOutput : MechanicalModelOutput
 {
     /// <summary>
     /// Unit: N/m (Newton per meter).

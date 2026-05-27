@@ -27,8 +27,8 @@ public abstract class LinearModelCalculator<TInput>(
 
         if (input.RampTimeConsideration == RampTimeConsideration.Disregard)
         {
-            displacement ??= input.Displacement.InitialValue;
-            var strain = ParameterConverter.CalculateStrainFromDisplacement(input.Specimen, displacement.Value);
+            displacement ??= input.Displacement!.InitialValue;
+            var strain = ParameterConverter.CalculateStrainFromDisplacement(input.Specimen!, displacement.Value);
 
             if (input.ViscoelasticEffect == ViscoelasticEffect.Relaxation)
                 stress = CalculateStressWhenDisregardRampTime(input, time, strain);
@@ -41,8 +41,8 @@ public abstract class LinearModelCalculator<TInput>(
             stress = _integration
                 .Calculate((integrationTime) =>
                 {
-                    (double integralDisplacement, double integralDisplacementDerivative) = input.Displacement.CalculateValueAndDerivative(integrationTime);
-                    double strainDerivative = ParameterConverter.CalculateStrainDerivativeFromDisplacement(input.Specimen, integralDisplacement, integralDisplacementDerivative);
+                    (double integralDisplacement, double integralDisplacementDerivative) = input.Displacement!.CalculateValueAndDerivative(integrationTime);
+                    double strainDerivative = ParameterConverter.CalculateStrainDerivativeFromDisplacement(input.Specimen!, integralDisplacement, integralDisplacementDerivative);
                     return CalculateRelaxationFunction(input, time - integrationTime) * strainDerivative;
                 },
                 new IntegralInput
@@ -53,7 +53,7 @@ public abstract class LinearModelCalculator<TInput>(
                 });
         }
 
-        return ParameterConverter.CalculateForceFromStress(input.Specimen, stress);
+        return ParameterConverter.CalculateForceFromStress(input.Specimen!, stress);
     }
 
     /// <inheritdoc/>
@@ -63,8 +63,8 @@ public abstract class LinearModelCalculator<TInput>(
 
         if (input.RampTimeConsideration == RampTimeConsideration.Disregard)
         {
-            force ??= input.Force.InitialValue;
-            var stress = ParameterConverter.CalculateStressFromForce(input.Specimen, force.Value);
+            force ??= input.Force!.InitialValue;
+            var stress = ParameterConverter.CalculateStressFromForce(input.Specimen!, force.Value);
 
             if (input.ViscoelasticEffect == ViscoelasticEffect.Relaxation)
                 strain = stress / CalculateRelaxationFunction(input, time);
@@ -77,8 +77,8 @@ public abstract class LinearModelCalculator<TInput>(
             strain = _integration
                 .Calculate((integrationTime) =>
                 {
-                    (double integralForce, double integralForceDerivative) = input.Force.CalculateValueAndDerivative(integrationTime);
-                    double stressDerivative = ParameterConverter.CalculateStressDerivativeFromForce(input.Specimen, integralForce, integralForceDerivative);
+                    (double integralForce, double integralForceDerivative) = input.Force!.CalculateValueAndDerivative(integrationTime);
+                    double stressDerivative = ParameterConverter.CalculateStressDerivativeFromForce(input.Specimen!, integralForce, integralForceDerivative);
                     return CalculateCreepCompliance(input, time - integrationTime) * stressDerivative;
                 },
                 new IntegralInput
@@ -89,7 +89,7 @@ public abstract class LinearModelCalculator<TInput>(
                 });
         }
 
-        return ParameterConverter.CalculateDisplacementFromStrain(input.Specimen, strain);
+        return ParameterConverter.CalculateDisplacementFromStrain(input.Specimen!, strain);
     }
 
     /// <inheritdoc/>
@@ -97,7 +97,7 @@ public abstract class LinearModelCalculator<TInput>(
     {
         if (input.RampTimeConsideration == RampTimeConsideration.Disregard)
         {
-            strain ??= input.Strain.InitialValue;
+            strain ??= input.Strain!.InitialValue;
 
             if (input.ViscoelasticEffect == ViscoelasticEffect.Relaxation)
                 return CalculateStressWhenDisregardRampTime(input, time, strain.Value);
@@ -107,7 +107,7 @@ public abstract class LinearModelCalculator<TInput>(
         }
 
         return _integration.Calculate(
-            (integrationTime) => CalculateRelaxationFunction(input, time - integrationTime) * input.Strain.CalculateDerivative(integrationTime),
+            (integrationTime) => CalculateRelaxationFunction(input, time - integrationTime) * input.Strain!.CalculateDerivative(integrationTime),
             new IntegralInput
             {
                 InitialPoint = MathematicConstants.InitialTime,
@@ -121,7 +121,7 @@ public abstract class LinearModelCalculator<TInput>(
     {
         if (input.RampTimeConsideration == RampTimeConsideration.Disregard)
         {
-            stress ??= input.Stress.InitialValue;
+            stress ??= input.Stress!.InitialValue;
 
             if (input.ViscoelasticEffect == ViscoelasticEffect.Relaxation)
                 return stress.Value / CalculateRelaxationFunction(input, time);
@@ -131,7 +131,7 @@ public abstract class LinearModelCalculator<TInput>(
         }
 
         return _integration.Calculate(
-            (integrationTime) => CalculateCreepCompliance(input, time - integrationTime) * input.Stress.CalculateDerivative(integrationTime),
+            (integrationTime) => CalculateCreepCompliance(input, time - integrationTime) * input.Stress!.CalculateDerivative(integrationTime),
             new IntegralInput
             {
                 InitialPoint = MathematicConstants.InitialTime,

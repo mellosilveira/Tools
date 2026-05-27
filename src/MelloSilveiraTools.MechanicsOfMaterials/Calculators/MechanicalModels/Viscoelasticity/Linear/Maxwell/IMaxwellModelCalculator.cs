@@ -10,7 +10,7 @@ namespace MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.V
 public interface IMaxwellModelCalculator : ILinearModelCalculator<MaxwellModelInput>
 {
     /// <summary>
-    /// Calculates the relaxation time: τ = η / μ.
+    /// Calculates the relaxation time: τ = η / μ (Projeto Final, Eq. 26).
     /// </summary>
     /// <param name="input">The mechanical's model input.</param>
     /// <returns>Unit: s (second).</returns>

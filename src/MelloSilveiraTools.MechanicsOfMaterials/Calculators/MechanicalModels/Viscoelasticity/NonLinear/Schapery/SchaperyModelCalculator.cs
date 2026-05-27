@@ -26,17 +26,17 @@ namespace MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.V
         #region Calculate mechanical model's parameters.
 
         /// <inheritdoc/>
-        [MechanicalModelParameterCalculation(nameof(SchaperyModelResult.TransientRelaxationFunction), ViscoelasticEffect.Relaxation)]
+        [MechanicalModelParameterCalculation(nameof(SchaperyModelOutput.TransientRelaxationFunction), ViscoelasticEffect.Relaxation)]
         public double CalculateTransientRelaxationFunction(SchaperyModelInput input, double time)
         {
-            return input.TransientRelaxationFunction.Calculate(time);
+            return input.TransientRelaxationFunction!.Calculate(time);
 
             // TODO: Revisar, porque está errado.
             //if (time <= Constants.Precision)
             //{
             //    if (input.RampTimeConsideration == RampTimeConsideration.Disregard)
             //    {
-            //        double initialStress = input.Stress?.InitialValue ?? ParameterConverter.CalculateStressFromForce(input, input.Force.InitialValue);
+            //        double initialStress = input.Stress?.InitialValue ?? ParameterConverter.CalculateStressFromForce(input, input.Force!.InitialValue);
             //        return (initialStress - CalculateSchaperyModelConstant(input.He, strain.Value) * input.Ge * strain.Value)
             //            / (CalculateSchaperyModelConstant(input.H2, strain.Value) * strain.Value);
             //    }
@@ -46,10 +46,10 @@ namespace MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.V
         }
 
         /// <inheritdoc/>
-        [MechanicalModelParameterCalculation(nameof(SchaperyModelResult.TransientCreepCompliance), ViscoelasticEffect.Creep)]
+        [MechanicalModelParameterCalculation(nameof(SchaperyModelOutput.TransientCreepCompliance), ViscoelasticEffect.Creep)]
         public double CalculateTransientCreepCompliance(SchaperyModelInput input, double time)
         {
-            return input.TransientCreepCompliance.Calculate(time);
+            return input.TransientCreepCompliance!.Calculate(time);
         }
 
         /// <inheritdoc/>
@@ -129,8 +129,8 @@ namespace MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.V
 
             if (input.RampTimeConsideration == RampTimeConsideration.Disregard)
             {
-                displacement ??= input.Displacement.InitialValue;
-                double strain = ParameterConverter.CalculateStrainFromDisplacement(input.Specimen, displacement.Value);
+                displacement ??= input.Displacement!.InitialValue;
+                double strain = ParameterConverter.CalculateStrainFromDisplacement(input.Specimen!, displacement.Value);
 
                 if (input.ViscoelasticEffect == ViscoelasticEffect.Relaxation)
                     stress = CalculateStressWhenDisregardRampTime(input, time, strain);
@@ -140,18 +140,18 @@ namespace MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.V
             }
             else if (input.RampTimeConsideration == RampTimeConsideration.ConsiderWithViscoelasticEffect && time > MathematicConstants.Tolerance)
             {
-                displacement ??= input.Displacement.CalculateValue(time);
-                double strain = ParameterConverter.CalculateStrainFromDisplacement(input.Specimen, displacement.Value);
+                displacement ??= input.Displacement!.CalculateValue(time);
+                double strain = ParameterConverter.CalculateStrainFromDisplacement(input.Specimen!, displacement.Value);
 
                 // σ(ε,t) = hₑ(ε)·Gₑ·ε(t) + h₁(ε)·∫₀ᵗ ΔG(ρ(t)-ρ(τ))·d[h₂(ε)·ε(τ)]/dτ dτ (Projeto Final, Eq. 47).
-                stress = input.He.Calculate(strain) * input.Ge * strain
-                    + input.H1.Calculate(strain) * _integration.Calculate((integrationTime) =>
+                stress = input.He!.Calculate(strain) * input.Ge * strain
+                    + input.H1!.Calculate(strain) * _integration.Calculate((integrationTime) =>
                         CalculateTransientRelaxationFunction(input, CalculateReducedTimeFunction(input, time) - CalculateReducedTimeFunction(input, integrationTime))
                         * _derivative.Calculate((derivativeTime) =>
                         {
-                            double derivativeDisplacement = input.Displacement.CalculateValue(derivativeTime);
-                            double derivativeStrain = ParameterConverter.CalculateStrainFromDisplacement(input.Specimen, derivativeDisplacement);
-                            return input.H2.Calculate(derivativeStrain) * derivativeStrain;
+                            double derivativeDisplacement = input.Displacement!.CalculateValue(derivativeTime);
+                            double derivativeStrain = ParameterConverter.CalculateStrainFromDisplacement(input.Specimen!, derivativeDisplacement);
+                            return input.H2!.Calculate(derivativeStrain) * derivativeStrain;
                         },
                         input.TimeStep,
                         integrationTime),
@@ -163,7 +163,7 @@ namespace MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.V
                     });
             }
 
-            return ParameterConverter.CalculateForceFromStress(input.Specimen, stress);
+            return ParameterConverter.CalculateForceFromStress(input.Specimen!, stress);
         }
 
         /// <inheritdoc/>
@@ -176,7 +176,7 @@ namespace MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.V
         /// <remarks>σ(ε,t) = hₑ(ε)·Gₑ·ε(t) + h₁(ε)·∫₀ᵗ ΔG(ρ(t)-ρ(τ))·d[h₂(ε)·ε(τ)]/dτ dτ (Projeto Final, Eq. 47/48).</remarks>
         public override double CalculateStress(SchaperyModelInput input, double time, double? strain = null)
         {
-            strain ??= input.Strain.CalculateValue(time);
+            strain ??= input.Strain!.CalculateValue(time);
 
             if (input.RampTimeConsideration == RampTimeConsideration.Disregard)
             {
@@ -190,13 +190,13 @@ namespace MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.V
             if (time <= MathematicConstants.Tolerance)
                 return 0;
 
-            return input.He.Calculate(strain.Value) * input.Ge * strain.Value
-                + input.H1.Calculate(strain.Value) * _integration.Calculate((integrationTime) =>
+            return input.He!.Calculate(strain.Value) * input.Ge * strain.Value
+                + input.H1!.Calculate(strain.Value) * _integration.Calculate((integrationTime) =>
                     CalculateTransientRelaxationFunction(input, CalculateReducedTimeFunction(input, time) - CalculateReducedTimeFunction(input, integrationTime))
                     * _derivative.Calculate((derivativeTime) =>
                     {
-                        double experimentalStrain = input.Strain.CalculateValue(derivativeTime);
-                        return input.H2.Calculate(experimentalStrain) * experimentalStrain;
+                        double experimentalStrain = input.Strain!.CalculateValue(derivativeTime);
+                        return input.H2!.Calculate(experimentalStrain) * experimentalStrain;
                     },
                     input.TimeStep,
                     integrationTime),
@@ -223,8 +223,8 @@ namespace MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.V
         /// <returns>Unit: MPa (Mega-Pascal).</returns>
         private double CalculateStressWhenDisregardRampTime(SchaperyModelInput input, double time, double strain)
         {
-            return input.He.Calculate(strain) * input.Ge * strain
-                + input.H2.Calculate(strain) * strain * CalculateTransientRelaxationFunction(input, time);
+            return input.He!.Calculate(strain) * input.Ge * strain
+                + input.H2!.Calculate(strain) * strain * CalculateTransientRelaxationFunction(input, time);
         }
 
         #endregion

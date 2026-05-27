@@ -60,14 +60,14 @@ public class Expression : List<Function>
     /// <returns></returns>
     public double Calculate(double variableValue)
     {
-        double result = 0;
+        double value = 0;
         foreach (var function in Functions)
         {
             if (function.InitialVariableValue <= variableValue && variableValue <= function.FinalVariableValue)
-                result += function.Calculate(variableValue);
+                value += function.Calculate(variableValue);
         }
 
-        return result;
+        return value;
     }
 
     /// <summary>

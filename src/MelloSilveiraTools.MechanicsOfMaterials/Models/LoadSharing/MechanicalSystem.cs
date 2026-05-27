@@ -15,10 +15,10 @@ public class MechanicalSystem
     /// <summary>
     /// Represents the displacement behavior over the time.
     /// </summary>
-    public MechanicalParameter Displacement { get; init; }
+    public MechanicalParameter? Displacement { get; init; }
 
     /// <summary>
     /// Mechanical model input for specimens on mechanical system.
     /// </summary>
-    public MechanicalModelInput[] SpecimenInputs { get; init; }
+    public MechanicalModelInput[] SpecimenInputs { get; init; } = [];
 }

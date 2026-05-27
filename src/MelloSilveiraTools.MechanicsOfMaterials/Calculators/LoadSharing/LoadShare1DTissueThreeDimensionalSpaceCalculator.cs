@@ -18,7 +18,7 @@ public class LoadSharing1DSpecimenThreeDimensionalSpaceCalculator : ILoadSharing
     /// <inheritdoc/>
     public MechanicalParameter CreateSpecimenDisplacement(MechanicalParameter systemDisplacement, SpecimenParameter specimenParameter)
     {
-        Expression? systemDisplacementExpression = systemDisplacement?.Expression;
+        Expression? systemDisplacementExpression = systemDisplacement.Expression;
         double? initialVariableValue = systemDisplacementExpression?.InitialVariableValue;
         double? finalVariableValue = systemDisplacementExpression?.FinalVariableValue;
         var specimenDisplacementFunction = new GenericFunction

@@ -1,13 +1,12 @@
 ﻿using MelloSilveiraTools.MechanicsOfMaterials.Attributes;
 using MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity;
-using MelloSilveiraTools.MechanicsOfMaterials.Models;
 
 namespace MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels;
 
 /// <summary>
-/// Contains the results for a generic mechanical model.
+/// Contains the output for a generic mechanical model.
 /// </summary>
-public class MechanicalModelResult : AnalysisResult
+public class MechanicalModelOutput : TimebasedAnalysisOutput
 {
     /// <summary>
     /// Unit: dimensionless.

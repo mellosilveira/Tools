@@ -54,7 +54,7 @@ public static class DictionaryExtensions
 
     private static Dictionary<string, (Action<object, object> Setter, Type PropertyType)> BuildSetters([DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicProperties)] Type type)
     {
-        var result = new Dictionary<string, (Action<object, object>, Type)>(StringComparer.Ordinal);
+        var setters = new Dictionary<string, (Action<object, object>, Type)>(StringComparer.Ordinal);
 
         foreach (var prop in type.GetProperties(BindingFlags.Instance | BindingFlags.Public))
         {
@@ -70,9 +70,9 @@ public static class DictionaryExtensions
                     Expression.Convert(value, prop.PropertyType)),
                 instance, value).Compile();
 
-            result[prop.Name] = (setter, prop.PropertyType);
+            setters[prop.Name] = (setter, prop.PropertyType);
         }
 
-        return result;
+        return setters;
     }
 }

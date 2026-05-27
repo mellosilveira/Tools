@@ -81,11 +81,11 @@ public static class ClassExtensions
         if (obj is null)
             return null;
 
-        Dictionary<string, object?> result = [];
+        Dictionary<string, object?> dict = [];
         foreach (PropertyInfo property in typeof(T).GetPropertiesInHierarchy<TCustomAttribute>())
-            result.Add(property.Name, property.GetValue(obj));
+            dict.Add(property.Name, property.GetValue(obj));
 
-        return result;
+        return dict;
     }
 
     /// <summary>

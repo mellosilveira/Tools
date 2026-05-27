@@ -19,26 +19,25 @@ public class MechanicalModelTypeCache(ISingleLevelCache cache) : IMechanicalMode
         => cache.GetOrAdd($"MethodData:{calculatorType.FullName}:{relationship}:{effect}", () => BuildMethodDataList(calculatorType, relationship, effect));
 
     /// <inheritdoc/>
-    public Func<MechanicalModelResult> GetOrAddResultFactory(Type resultType)
-        => cache.GetOrAdd($"ResultFactory:{resultType.FullName}", () => CompileResultFactory(resultType));
+    public Func<MechanicalModelOutput> GetOrAddOutputFactory(Type outputType)
+        => cache.GetOrAdd($"OutputFactory:{outputType.FullName}", () => CompileOutputFactory(outputType));
 
     /// <inheritdoc/>
     public Dictionary<string, Action<object, object>> GetOrAddPropertySetters(Type type)
-        => cache.GetOrAdd($"ResultSetters:{type.FullName}", () => CompilePropertySetters(type));
+        => cache.GetOrAdd($"OutputFactory:{type.FullName}", () => CompilePropertySetters(type));
 
     /// <inheritdoc/>
     public Type[] GetOrAddConstructorParameterTypes(Type type)
         => cache.GetOrAdd($"CtorParams:{type.FullName}", () => type.GetConstructors().Single().GetParameters().Select(p => p.ParameterType).ToArray());
 
     private static CalculatorMethodData[] BuildMethodDataList(Type calculatorType, MechanicalRelationship relationship, ViscoelasticEffect effect) 
-        => calculatorType.GetMethods()
+        => [.. calculatorType.GetMethods()
             .Select(method => (Method: method, Attribute: method.GetCustomAttribute<MechanicalModelParameterCalculationAttribute>()))
             .Where(x => x.Attribute != null && x.Attribute.CanMethodBeInvoked(relationship, effect))
             .Select(x => new CalculatorMethodData(
                 CompileMethodInvoker(x.Method),
                 [.. x.Method.GetParameters().Select(p => p.Name)!],
-                x.Attribute!.PropertyName))
-            .ToArray();
+                x.Attribute!.PropertyName))];
 
     /// <summary>
     /// Compiles a <see cref="MethodInfo"/> into a delegate, eliminating reflection overhead on every call.
@@ -73,8 +72,8 @@ public class MechanicalModelTypeCache(ISingleLevelCache cache) : IMechanicalMode
     /// <summary>
     /// Compiles a parameterless constructor into a factory delegate, replacing <see cref="Activator.CreateInstance"/>.
     /// </summary>
-    private static Func<MechanicalModelResult> CompileResultFactory(Type resultType)
-        => Expression.Lambda<Func<MechanicalModelResult>>(Expression.New(resultType)).Compile();
+    private static Func<MechanicalModelOutput> CompileOutputFactory(Type outputType)
+        => Expression.Lambda<Func<MechanicalModelOutput>>(Expression.New(outputType)).Compile();
 
     /// <summary>
     /// Compiles property setters for all settable properties of a type, replacing <see cref="PropertyInfo.SetValue"/>.
@@ -88,7 +87,7 @@ public class MechanicalModelTypeCache(ISingleLevelCache cache) : IMechanicalMode
         var value = Expression.Parameter(typeof(object), "value");
 
         Expression body = Expression.Assign(
-            Expression.Property(Expression.Convert(instance, property.DeclaringType), property),
+            Expression.Property(Expression.Convert(instance, property.DeclaringType!), property),
             Expression.Convert(value, property.PropertyType));
 
         return Expression.Lambda<Action<object, object>>(body, instance, value).Compile();
@@ -96,7 +95,7 @@ public class MechanicalModelTypeCache(ISingleLevelCache cache) : IMechanicalMode
 }
 
 /// <summary>
-/// Holds a pre-compiled calculator method with its parameter names and result property target.
+/// Holds a pre-compiled calculator method with its parameter names and output property target.
 /// </summary>
 public readonly record struct CalculatorMethodData(
     Func<object, object[], object> Invoker,

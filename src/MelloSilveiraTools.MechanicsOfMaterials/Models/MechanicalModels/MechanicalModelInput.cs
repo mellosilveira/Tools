@@ -11,12 +11,12 @@ public record MechanicalModelInput
     /// <summary>
     /// Unique identifier for mechanical model in current analysis.
     /// </summary>
-    public string Identifier { get; init; }
+    public string? Identifier { get; init; }
 
     /// <summary>
     /// Unit: dimensionless.
     /// </summary>
-    public AcceptedRange AcceptedStrainRange { get; init; }
+    public AcceptedRange AcceptedStrainRange { get; init; } = AcceptedRange.Default;
 
     #region Mechanical parameters
 
@@ -31,29 +31,29 @@ public record MechanicalModelInput
     /// <summary>
     /// Represents the strain behavior over the time.
     /// </summary>
-    public MechanicalParameter Strain { get; init; }
+    public MechanicalParameter? Strain { get; init; }
 
     /// <summary>
     /// Represents the displacement behavior over the time.
     /// </summary>
-    public MechanicalParameter Displacement { get; init; }
+    public MechanicalParameter? Displacement { get; init; }
 
     /// <summary>
     /// Represents the stress behavior over the time.
     /// </summary>
-    public MechanicalParameter Stress { get; init; }
+    public MechanicalParameter? Stress { get; init; }
 
     /// <summary>
     /// Represents the force behavior over the time.
     /// </summary>
-    public MechanicalParameter Force { get; init; }
+    public MechanicalParameter? Force { get; init; }
 
     #endregion
 
     #region Specimen properties
 
     /// <inheritdoc cref="Models.SpecimenParameter"/>
-    public SpecimenParameter Specimen { get; init; }
+    public SpecimenParameter? Specimen { get; init; }
 
     #endregion
 

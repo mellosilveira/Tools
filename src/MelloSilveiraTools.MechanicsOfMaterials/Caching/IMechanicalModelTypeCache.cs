@@ -22,9 +22,9 @@ public interface IMechanicalModelTypeCache
     CalculatorMethodData[] GetOrAddMethodDataList(Type calculatorType, MechanicalRelationship relationship, ViscoelasticEffect effect);
 
     /// <summary>
-    /// Returns a compiled factory delegate that creates instances of the given result type.
+    /// Returns a compiled factory delegate that creates instances of the given output type.
     /// </summary>
-    Func<MechanicalModelResult> GetOrAddResultFactory(Type resultType);
+    Func<MechanicalModelOutput> GetOrAddOutputFactory(Type outputType);
 
     /// <summary>
     /// Returns compiled property setter delegates for all settable properties of the given type.

@@ -22,18 +22,12 @@ public sealed class ModifiedSuperpositionMethodCalculator(
     #region Calculate mechanical model's parameters.
 
     /// <inheritdoc/>
-    [MechanicalModelParameterCalculation(nameof(ModifiedSuperpositionMethodResult.InitialYoungModulus), MechanicalRelationship.StressStrain, ViscoelasticEffect.Relaxation)]
-    public double CalculateInitialYoungModulus(ModifiedSuperpositionMethodInput input, double strain)
-    {
-        return input.InitialYoungModulus.Calculate(strain);
-    }
+    [MechanicalModelParameterCalculation(nameof(ModifiedSuperpositionMethodOutput.InitialYoungModulus), MechanicalRelationship.StressStrain, ViscoelasticEffect.Relaxation)]
+    public double CalculateInitialYoungModulus(ModifiedSuperpositionMethodInput input, double strain) => input.InitialYoungModulus!.Calculate(strain);
 
     /// <inheritdoc/>
-    [MechanicalModelParameterCalculation(nameof(ModifiedSuperpositionMethodResult.StressRelaxationRate), MechanicalRelationship.StressStrain, ViscoelasticEffect.Relaxation)]
-    public double CalculateStressRelaxationRate(ModifiedSuperpositionMethodInput input, double strain)
-    {
-        return input.StressRelaxationRate.Calculate(strain);
-    }
+    [MechanicalModelParameterCalculation(nameof(ModifiedSuperpositionMethodOutput.StressRelaxationRate), MechanicalRelationship.StressStrain, ViscoelasticEffect.Relaxation)]
+    public double CalculateStressRelaxationRate(ModifiedSuperpositionMethodInput input, double strain) => input.StressRelaxationRate!.Calculate(strain);
 
     /// <inheritdoc/>
     public double CalculateCreepCompliance(ModifiedSuperpositionMethodInput input, double time, double? stress = null)
@@ -45,7 +39,7 @@ public sealed class ModifiedSuperpositionMethodCalculator(
     /// <remarks>G(t,ε) = A(ε) · t^(B(ε)) (Projeto Final, Eq. 55).</remarks>
     public double CalculateRelaxationFunction(ModifiedSuperpositionMethodInput input, double time, double? strain = null)
     {
-        strain ??= input.Strain.CalculateValue(time);
+        strain ??= input.Strain!.CalculateValue(time);
         return CalculateInitialYoungModulus(input, strain.Value) * Math.Pow(time, CalculateStressRelaxationRate(input, strain.Value));
     }
 
@@ -56,8 +50,8 @@ public sealed class ModifiedSuperpositionMethodCalculator(
 
         if (input.RampTimeConsideration == RampTimeConsideration.Disregard)
         {
-            displacement ??= input.Displacement.InitialValue;
-            double strain = ParameterConverter.CalculateStrainFromDisplacement(input.Specimen, displacement.Value);
+            displacement ??= input.Displacement!.InitialValue;
+            double strain = ParameterConverter.CalculateStrainFromDisplacement(input.Specimen!, displacement.Value);
 
             if (input.ViscoelasticEffect == ViscoelasticEffect.Relaxation)
                 stress = CalculateStressWhenDisregardRampTime(input, time, strain);
@@ -69,9 +63,9 @@ public sealed class ModifiedSuperpositionMethodCalculator(
         {
             stress = _integration.Calculate((integrationTime) =>
             {
-                (double integrationDisplacement, double integrationDisplacementDerivative) = input.Displacement.CalculateValueAndDerivative(integrationTime);
-                double strain = ParameterConverter.CalculateStrainFromDisplacement(input.Specimen, integrationDisplacement);
-                double strainDerivative = ParameterConverter.CalculateStrainDerivativeFromDisplacement(input.Specimen, integrationDisplacement, integrationDisplacementDerivative);
+                (double integrationDisplacement, double integrationDisplacementDerivative) = input.Displacement!.CalculateValueAndDerivative(integrationTime);
+                double strain = ParameterConverter.CalculateStrainFromDisplacement(input.Specimen!, integrationDisplacement);
+                double strainDerivative = ParameterConverter.CalculateStrainDerivativeFromDisplacement(input.Specimen!, integrationDisplacement, integrationDisplacementDerivative);
                 return CalculateRelaxationFunction(input, time - integrationTime, strain) * strainDerivative;
             },
             new IntegralInput
@@ -82,7 +76,7 @@ public sealed class ModifiedSuperpositionMethodCalculator(
             });
         }
 
-        return ParameterConverter.CalculateForceFromStress(input.Specimen, stress);
+        return ParameterConverter.CalculateForceFromStress(input.Specimen!, stress);
     }
 
     /// <inheritdoc/>
@@ -97,7 +91,7 @@ public sealed class ModifiedSuperpositionMethodCalculator(
     {
         if (input.RampTimeConsideration == RampTimeConsideration.Disregard)
         {
-            strain ??= input.Strain.InitialValue;
+            strain ??= input.Strain!.InitialValue;
 
             if (input.ViscoelasticEffect == ViscoelasticEffect.Relaxation)
                 return CalculateStressWhenDisregardRampTime(input, time, strain.Value);
@@ -111,7 +105,7 @@ public sealed class ModifiedSuperpositionMethodCalculator(
 
         return _integration.Calculate((integrationTime) =>
         {
-            (double integrationStrain, double integrationStrainDerivative) = input.Strain.CalculateValueAndDerivative(integrationTime);
+            (double integrationStrain, double integrationStrainDerivative) = input.Strain!.CalculateValueAndDerivative(integrationTime);
             return CalculateRelaxationFunction(input, time - integrationTime, integrationStrain) * integrationStrainDerivative;
         },
         new IntegralInput

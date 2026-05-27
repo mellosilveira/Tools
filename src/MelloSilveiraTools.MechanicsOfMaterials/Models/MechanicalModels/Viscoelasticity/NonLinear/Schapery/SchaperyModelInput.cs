@@ -48,21 +48,21 @@ public sealed record SchaperyModelInput : NonLinearModelInput
     /// Material constant that depend on strain and Helmoltz free energy for the state in equilibrium.
     /// Unit: dimensionless.
     /// </summary>
-    public Function He { get; init; }
+    public Function? He { get; init; }
 
     /// <summary>
     /// Material constant that depend on strain and Helmoltz free energy.
     /// First order of dependence on the Helmoltz free energy.
     /// Unit: dimensionless.
     /// </summary>
-    public Function H1 { get; init; }
+    public Function? H1 { get; init; }
 
     /// <summary>
     /// Material constant that depend on strain and Helmoltz free energy.
     /// Second order of dependence on the Helmoltz free energy.
     /// Unit: dimensionless.
     /// </summary>
-    public Function H2 { get; init; }
+    public Function? H2 { get; init; }
 
     /// <summary>
     /// Stress dependent coefficients based on thermodynamic concepts. 
@@ -78,7 +78,7 @@ public sealed record SchaperyModelInput : NonLinearModelInput
     /// <summary>
     /// An <see cref="Function"/> that represents the transient relaxation function.
     /// </summary>
-    public PowerLaw TransientRelaxationFunction { get; init; }
+    public PowerLaw? TransientRelaxationFunction { get; init; }
 
     #endregion
 
@@ -87,7 +87,7 @@ public sealed record SchaperyModelInput : NonLinearModelInput
     /// <summary>
     /// An <see cref="Expression"/> that represents the transient creep compliance.
     /// </summary>
-    public PronySeries TransientCreepCompliance { get; init; }
+    public PronySeries? TransientCreepCompliance { get; init; }
 
     #endregion
 }

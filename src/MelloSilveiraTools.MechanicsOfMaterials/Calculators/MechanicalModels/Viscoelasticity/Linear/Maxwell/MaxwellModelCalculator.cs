@@ -7,22 +7,16 @@ using MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelast
 namespace MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Viscoelasticity.Linear.Maxwell;
 
 /// <inheritdoc cref="IMaxwellModelCalculator"/>
-/// <param name="simpsonRuleIntegration">See reference at <see cref="IIntegration"/>.</param>
+/// <param name="integration">See reference at <see cref="IIntegration"/>.</param>
 /// <param name="parameterConverter">See reference at <see cref="IMechanicalParameterConverter"/>.</param>
 public sealed class MaxwellModelCalculator(
-    IIntegration simpsonRuleIntegration,
+    IIntegration integration,
     IMechanicalParameterConverter parameterConverter)
-    : LinearModelCalculator<MaxwellModelInput>(simpsonRuleIntegration, parameterConverter), IMaxwellModelCalculator
+    : LinearModelCalculator<MaxwellModelInput>(integration, parameterConverter), IMaxwellModelCalculator
 {
-    #region Calculate mechanical model's parameters.
-
     /// <inheritdoc/>
-    /// <remarks>τ = η / μ (Projeto Final, Eq. 26).</remarks>
-    [MechanicalModelParameterCalculation(nameof(MaxwellModelResult.RelaxationTime), ViscoelasticEffect.Relaxation)]
-    public double CalculateRelaxationTime(MaxwellModelInput input)
-    {
-        return input.Viscosity / input.Stiffness;
-    }
+    [MechanicalModelParameterCalculation(nameof(MaxwellModelOutput.RelaxationTime), ViscoelasticEffect.Relaxation)]
+    public double CalculateRelaxationTime(MaxwellModelInput input) => input.Viscosity / input.Stiffness;
 
     /// <inheritdoc/>
     /// <remarks>G(t) = μ · e^(-t/τ) (Projeto Final, Eq. 26).</remarks>
@@ -37,6 +31,4 @@ public sealed class MaxwellModelCalculator(
     {
         return 1 / input.Stiffness + time / input.Viscosity;
     }
-
-    #endregion
 }

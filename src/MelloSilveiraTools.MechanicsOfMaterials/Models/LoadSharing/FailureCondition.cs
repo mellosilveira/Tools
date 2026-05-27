@@ -8,7 +8,7 @@ public record FailureCondition
     /// <summary>
     /// The same identifier used for specimen in load sharing analysis.
     /// </summary>
-    public string[] SpecimenIdentifiers { get; init; }
+    public required string[] SpecimenIdentifiers { get; init; }
 
     /// <summary>
     /// Time when the specimen failure.

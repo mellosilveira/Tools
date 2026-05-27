@@ -4,78 +4,6 @@
         <name>MelloSilveiraTools.Plugins</name>
     </assembly>
     <members>
-        <member name="T:MelloSilveiraTools.Plugins.Application.Controllers.PluginController">
-            <summary>
-            Exposes HTTP endpoints for inspecting and managing the plugin runtime (discovery, loading, reloading and cache management).
-            </summary>
-        </member>
-        <member name="M:MelloSilveiraTools.Plugins.Application.Controllers.PluginController.Get(MelloSilveiraTools.Plugins.Application.Operations.Get.GetPlugins,MelloSilveiraTools.Plugins.Application.Operations.Get.GetPluginsRequest)">
-            <summary>
-            Returns the plugins currently known to the host, optionally filtered by name, version and load state.
-            </summary>
-            <param name="operation">Operation that resolves the matching plugins.</param>
-            <param name="request">Filter criteria applied to the plugin lookup.</param>
-        </member>
-        <member name="M:MelloSilveiraTools.Plugins.Application.Controllers.PluginController.Load(MelloSilveiraTools.Plugins.Application.Operations.Load.LoadPlugins,MelloSilveiraTools.Plugins.Application.Operations.PluginsRequest)">
-            <summary>
-            Loads the plugins that match the supplied name and/or version.
-            </summary>
-            <param name="operation">Operation that performs the plugin load.</param>
-            <param name="request">Filter identifying the plugins to load.</param>
-        </member>
-        <member name="M:MelloSilveiraTools.Plugins.Application.Controllers.PluginController.LoadAll(MelloSilveiraTools.Plugins.Application.Operations.Load.LoadPlugins)">
-            <summary>
-            Loads every plugin known to the host.
-            </summary>
-            <param name="operation">Operation that performs the plugin load.</param>
-        </member>
-        <member name="M:MelloSilveiraTools.Plugins.Application.Controllers.PluginController.Reload(MelloSilveiraTools.Plugins.Application.Operations.Reload.ReloadPlugins,MelloSilveiraTools.Plugins.Application.Operations.Reload.ReloadPluginsRequest)">
-            <summary>
-            Reloads plugins that match the supplied name and/or version, optionally forcing a reload.
-            </summary>
-            <param name="operation">Operation that performs the plugin reload.</param>
-            <param name="request">Filter identifying the plugins to reload.</param>
-        </member>
-        <member name="M:MelloSilveiraTools.Plugins.Application.Controllers.PluginController.ReloadAll(MelloSilveiraTools.Plugins.Application.Operations.Reload.ReloadPlugins)">
-            <summary>
-            Reloads every plugin known to the host.
-            </summary>
-            <param name="operation">Operation that performs the plugin reload.</param>
-        </member>
-        <member name="M:MelloSilveiraTools.Plugins.Application.Controllers.PluginController.ClearCache(MelloSilveiraTools.Plugins.Application.Operations.Cache.ClearPluginCache)">
-            <summary>
-            Clears the plugin cache.
-            </summary>
-            <param name="operation">Operation that clears the plugin cache.</param>
-        </member>
-        <member name="M:MelloSilveiraTools.Plugins.Application.Controllers.PluginController.PersistCache(MelloSilveiraTools.Plugins.Application.Operations.Cache.PersistPluginCache,MelloSilveiraTools.Plugins.Application.Operations.PluginsRequest)">
-            <summary>
-            Persists the plugin cache to the target identified by the {target} route segment (e.g. file or database).
-            </summary>
-            <param name="operation">Operation that persists the plugin cache.</param>
-            <param name="request">Filter identifying the plugins to persist.</param>
-        </member>
-        <member name="M:MelloSilveiraTools.Plugins.Application.Controllers.PluginController.RestoreCache(MelloSilveiraTools.Plugins.Application.Operations.Cache.RestorePluginCache,MelloSilveiraTools.Plugins.Application.Operations.PluginsRequest)">
-            <summary>
-            Restores the plugin cache from the target identified by the {target} route segment (e.g. file or database).
-            </summary>
-            <param name="operation">Operation that restores the plugin cache.</param>
-            <param name="request">Filter identifying the plugins to restore.</param>
-        </member>
-        <member name="T:MelloSilveiraTools.Plugins.Application.Endpoints.PluginEndpoints">
-            <summary>
-            Maps the same surface as <see cref="T:MelloSilveiraTools.Plugins.Application.Controllers.PluginController"/> using minimal APIs.
-            Hosts that don't wire <c>app.MapControllers()</c> can reach the plugin runtime through this extension instead.
-            </summary>
-        </member>
-        <member name="M:MelloSilveiraTools.Plugins.Application.Endpoints.PluginEndpoints.MapPluginEndpoints(Microsoft.AspNetCore.Routing.IEndpointRouteBuilder,System.String)">
-            <summary>
-            Maps every plugin-management endpoint (list, load, reload, cache lifecycle) under <paramref name="pattern"/>.
-            </summary>
-            <param name="builder">Endpoint route builder used to register the endpoints.</param>
-            <param name="pattern">Route prefix; defaults to <c>"/api/v1/plugins"</c>.</param>
-            <returns>The created <see cref="T:Microsoft.AspNetCore.Routing.RouteGroupBuilder"/> so callers can chain <c>.RequireAuthorization(...)</c>, <c>.WithTags(...)</c>, etc.</returns>
-        </member>
         <member name="T:MelloSilveiraTools.Plugins.Application.Operations.Cache.ClearPluginCache">
             <summary>
             Operation that clears the plugin cache managed by <see cref="T:MelloSilveiraTools.Plugins.Infrastructure.Services.IPluginService"/>.
@@ -188,6 +116,78 @@
             <summary>
             When <c>true</c>, plugins are reloaded even if they are already up to date.
             </summary>
+        </member>
+        <member name="T:MelloSilveiraTools.Plugins.Application.Controllers.PluginController">
+            <summary>
+            Exposes HTTP endpoints for inspecting and managing the plugin runtime (discovery, loading, reloading and cache management).
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Plugins.Application.Controllers.PluginController.Get(MelloSilveiraTools.Plugins.Application.Operations.Get.GetPlugins,MelloSilveiraTools.Plugins.Application.Operations.Get.GetPluginsRequest)">
+            <summary>
+            Returns the plugins currently known to the host, optionally filtered by name, version and load state.
+            </summary>
+            <param name="operation">Operation that resolves the matching plugins.</param>
+            <param name="request">Filter criteria applied to the plugin lookup.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.Plugins.Application.Controllers.PluginController.Load(MelloSilveiraTools.Plugins.Application.Operations.Load.LoadPlugins,MelloSilveiraTools.Plugins.Application.Operations.PluginsRequest)">
+            <summary>
+            Loads the plugins that match the supplied name and/or version.
+            </summary>
+            <param name="operation">Operation that performs the plugin load.</param>
+            <param name="request">Filter identifying the plugins to load.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.Plugins.Application.Controllers.PluginController.LoadAll(MelloSilveiraTools.Plugins.Application.Operations.Load.LoadPlugins)">
+            <summary>
+            Loads every plugin known to the host.
+            </summary>
+            <param name="operation">Operation that performs the plugin load.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.Plugins.Application.Controllers.PluginController.Reload(MelloSilveiraTools.Plugins.Application.Operations.Reload.ReloadPlugins,MelloSilveiraTools.Plugins.Application.Operations.Reload.ReloadPluginsRequest)">
+            <summary>
+            Reloads plugins that match the supplied name and/or version, optionally forcing a reload.
+            </summary>
+            <param name="operation">Operation that performs the plugin reload.</param>
+            <param name="request">Filter identifying the plugins to reload.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.Plugins.Application.Controllers.PluginController.ReloadAll(MelloSilveiraTools.Plugins.Application.Operations.Reload.ReloadPlugins)">
+            <summary>
+            Reloads every plugin known to the host.
+            </summary>
+            <param name="operation">Operation that performs the plugin reload.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.Plugins.Application.Controllers.PluginController.ClearCache(MelloSilveiraTools.Plugins.Application.Operations.Cache.ClearPluginCache)">
+            <summary>
+            Clears the plugin cache.
+            </summary>
+            <param name="operation">Operation that clears the plugin cache.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.Plugins.Application.Controllers.PluginController.PersistCache(MelloSilveiraTools.Plugins.Application.Operations.Cache.PersistPluginCache,MelloSilveiraTools.Plugins.Application.Operations.PluginsRequest)">
+            <summary>
+            Persists the plugin cache to the target identified by the {target} route segment (e.g. file or database).
+            </summary>
+            <param name="operation">Operation that persists the plugin cache.</param>
+            <param name="request">Filter identifying the plugins to persist.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.Plugins.Application.Controllers.PluginController.RestoreCache(MelloSilveiraTools.Plugins.Application.Operations.Cache.RestorePluginCache,MelloSilveiraTools.Plugins.Application.Operations.PluginsRequest)">
+            <summary>
+            Restores the plugin cache from the target identified by the {target} route segment (e.g. file or database).
+            </summary>
+            <param name="operation">Operation that restores the plugin cache.</param>
+            <param name="request">Filter identifying the plugins to restore.</param>
+        </member>
+        <member name="T:MelloSilveiraTools.Plugins.Application.Endpoints.PluginEndpoints">
+            <summary>
+            Maps the same surface as <see cref="T:MelloSilveiraTools.Plugins.Application.Controllers.PluginController"/> using minimal APIs.
+            Hosts that don't wire <c>app.MapControllers()</c> can reach the plugin runtime through this extension instead.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Plugins.Application.Endpoints.PluginEndpoints.MapPluginEndpoints(Microsoft.AspNetCore.Routing.IEndpointRouteBuilder,System.String)">
+            <summary>
+            Maps every plugin-management endpoint (list, load, reload, cache lifecycle) under <paramref name="pattern"/>.
+            </summary>
+            <param name="builder">Endpoint route builder used to register the endpoints.</param>
+            <param name="pattern">Route prefix; defaults to <c>"/api/v1/plugins"</c>.</param>
+            <returns>The created <see cref="T:Microsoft.AspNetCore.Routing.RouteGroupBuilder"/> so callers can chain <c>.RequireAuthorization(...)</c>, <c>.WithTags(...)</c>, etc.</returns>
         </member>
         <member name="T:MelloSilveiraTools.Plugins.PluginsDependencyInjection">
             <summary>

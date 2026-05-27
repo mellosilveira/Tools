@@ -17,46 +17,46 @@ public class ElasticModelCalculator(IMechanicalParameterConverter parameterConve
     #region Calculate mechanical model's parameters.
 
     /// <inheritdoc/>
-    [MechanicalModelParameterCalculation(nameof(ElasticModelResult.Stiffness), MechanicalRelationship.ForceDisplacement, ViscoelasticEffect.Relaxation)]
+    [MechanicalModelParameterCalculation(nameof(ElasticModelOutput.Stiffness), MechanicalRelationship.ForceDisplacement, ViscoelasticEffect.Relaxation)]
     public double CalculateStiffnessThroughDisplacement(ElasticModelInput input, double time)
     {
-        double displacement = input.Displacement.CalculateValue(time);
+        double displacement = input.Displacement!.CalculateValue(time);
         return CalculateStiffness(input, time, displacement: displacement);
     }
 
     /// <inheritdoc/>
-    [MechanicalModelParameterCalculation(nameof(ElasticModelResult.Stiffness), MechanicalRelationship.ForceDisplacement, ViscoelasticEffect.Creep)]
+    [MechanicalModelParameterCalculation(nameof(ElasticModelOutput.Stiffness), MechanicalRelationship.ForceDisplacement, ViscoelasticEffect.Creep)]
     public double CalculateStiffnessThroughForce(ElasticModelInput input, double time)
     {
-        double force = input.Force.CalculateValue(time);
+        double force = input.Force!.CalculateValue(time);
         return CalculateStiffness(input, time, force: force);
     }
 
     /// <inheritdoc/>
     public override double CalculateForce(ElasticModelInput input, double time, double? displacement = null)
     {
-        displacement ??= input.Displacement.CalculateValue(time);
+        displacement ??= input.Displacement!.CalculateValue(time);
         return displacement.Value * CalculateStiffness(input, time, displacement: displacement);
     }
 
     /// <inheritdoc/>
     public override double CalculateDisplacement(ElasticModelInput input, double time, double? force = null)
     {
-        force ??= input.Force.CalculateValue(time);
+        force ??= input.Force!.CalculateValue(time);
         return force.Value / CalculateStiffness(input, time, force: force);
     }
 
     /// <inheritdoc/>
     public override double CalculateStress(ElasticModelInput input, double time, double? strain = null)
     {
-        strain ??= input.Strain.CalculateValue(time);
+        strain ??= input.Strain!.CalculateValue(time);
         return input.ElasticModulus * strain.Value;
     }
 
     /// <inheritdoc/>
     public override double CalculateStrain(ElasticModelInput input, double time, double? stress = null)
     {
-        stress ??= input.Stress.CalculateValue(time);
+        stress ??= input.Stress!.CalculateValue(time);
         return stress.Value / input.ElasticModulus;
     }
 
@@ -70,7 +70,7 @@ public class ElasticModelCalculator(IMechanicalParameterConverter parameterConve
     /// <returns>Unit: N/m (Newton per meter).</returns>
     private double CalculateStiffness(ElasticModelInput input, double time, double? force = null, double? displacement = null)
     {
-        var specimen = input.Specimen;
+        var specimen = input.Specimen!;
         if (!specimen.ConsiderLargeDisplacement)
             return specimen.Area * UnitConverter.ConvertMPaToPa(input.ElasticModulus) / specimen.PreLoadLength;
 

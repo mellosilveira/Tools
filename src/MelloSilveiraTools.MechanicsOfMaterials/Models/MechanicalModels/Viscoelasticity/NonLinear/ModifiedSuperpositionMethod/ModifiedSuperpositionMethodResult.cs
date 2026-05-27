@@ -3,9 +3,9 @@
 namespace MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.NonLinear.ModifiedSuperpositionMethod
 {
     /// <summary>
-    /// Contains the results for the Modified Superposition Method.
+    /// Contains the output for the Modified Superposition Method.
     /// </summary>
-    public sealed class ModifiedSuperpositionMethodResult : ViscoelasticModelResult
+    public sealed class ModifiedSuperpositionMethodOutput : ViscoelasticModelOutput
     {
         /// <summary>
         /// Initial Young's modulus.

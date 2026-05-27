@@ -196,7 +196,6 @@ public static class EnumerableExtensions
     /// <param name="source">The sequence to iterate. Must not be <see langword="null"/>.</param>
     /// <param name="asyncAction">The asynchronous delegate invoked for each item.</param>
     /// <param name="maxDegreeOfParallelism">Maximum number of <paramref name="asyncAction"/> invocations allowed to run concurrently. Must be greater than zero.</param>
-    /// <param name="logger"></param>
     /// <returns>A task that completes when every dispatched <paramref name="asyncAction"/> has finished.</returns>
     public static async Task ForeachAsync<T>(this IEnumerable<T> source, Func<T, Task> asyncAction, int maxDegreeOfParallelism)
     {

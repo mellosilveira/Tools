@@ -3,9 +3,9 @@
 namespace MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.Linear.Maxwell;
 
 /// <summary>
-/// Contains the results for Maxwell's model.
+/// Contains the output for Maxwell's model.
 /// </summary>
-public sealed class MaxwellModelResult : ViscoelasticModelResult 
+public sealed class MaxwellModelOutput : ViscoelasticModelOutput 
 {
     /// <summary>
     /// Unit: s (second).

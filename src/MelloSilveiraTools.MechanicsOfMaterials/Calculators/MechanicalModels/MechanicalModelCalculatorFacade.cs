@@ -15,56 +15,56 @@ public class MechanicalModelCalculatorFacade(IMechanicalModelTypeCache cache, ob
     private readonly Func<object, object?[], object> _invokeStrain = cache.GetOrAddMethodInvoker(calculator.GetType(), nameof(IMechanicalModelCalculator<>.CalculateStrain));
 
     private readonly CalculatorMethodData[]? _calculatorMethodDataList;
-    private readonly Func<MechanicalModelResult>? _resultFactory;
-    private readonly Dictionary<string, Action<object, object>>? _resultPropertySetters;
+    private readonly Func<MechanicalModelOutput>? _outputFactory;
+    private readonly Dictionary<string, Action<object, object>>? _outputPropertySetters;
     private readonly Func<double, (double Value, double Derivative)>? _calculateValueAndDerivativeMethod;
     private readonly string? _inputParameterValueName;
     private readonly string? _inputParameterDerivativeName;
-    private readonly string? _resultParameterValueName;
-    private readonly string? _resultParameterDerivativeName;
+    private readonly string? _outputParameterValueName;
+    private readonly string? _outputParameterDerivativeName;
     private readonly Dictionary<string, object>? _inputParameters;
-    private readonly Dictionary<string, object>? _resultParameters;
+    private readonly Dictionary<string, object>? _outputParameters;
 
-    public MechanicalModelCalculatorFacade(IMechanicalModelTypeCache cache, Type resultType, object calculator, MechanicalModelInput input) : this(cache, calculator)
+    public MechanicalModelCalculatorFacade(IMechanicalModelTypeCache cache, Type outputType, object calculator, MechanicalModelInput input) : this(cache, calculator)
     {
         ArgumentNullException.ThrowIfNull(input);
 
         _calculatorMethodDataList = cache.GetOrAddMethodDataList(_calculatorType, input.MechanicalRelationship, input.ViscoelasticEffect);
-        _resultFactory = cache.GetOrAddResultFactory(resultType);
-        _resultPropertySetters = cache.GetOrAddPropertySetters(resultType);
+        _outputFactory = cache.GetOrAddOutputFactory(outputType);
+        _outputPropertySetters = cache.GetOrAddPropertySetters(outputType);
 
         switch (input.MechanicalRelationship, input.ViscoelasticEffect)
         {
             case (MechanicalRelationship.ForceDisplacement, ViscoelasticEffect.Relaxation):
-                _calculateValueAndDerivativeMethod = input.Displacement.CalculateValueAndDerivative;
+                _calculateValueAndDerivativeMethod = input.Displacement!.CalculateValueAndDerivative;
                 _inputParameterValueName = ParameterNameConstant.Displacement;
                 _inputParameterDerivativeName = ParameterNameConstant.DisplacementDerivative;
-                _resultParameterValueName = nameof(MechanicalModelResult.Displacement);
-                _resultParameterDerivativeName = nameof(MechanicalModelResult.DisplacementDerivative);
+                _outputParameterValueName = nameof(MechanicalModelOutput.Displacement);
+                _outputParameterDerivativeName = nameof(MechanicalModelOutput.DisplacementDerivative);
                 break;
 
             case (MechanicalRelationship.ForceDisplacement, ViscoelasticEffect.Creep):
-                _calculateValueAndDerivativeMethod = input.Force.CalculateValueAndDerivative;
+                _calculateValueAndDerivativeMethod = input.Force!.CalculateValueAndDerivative;
                 _inputParameterValueName = ParameterNameConstant.Force;
                 _inputParameterDerivativeName = ParameterNameConstant.ForceDerivative;
-                _resultParameterValueName = nameof(MechanicalModelResult.Force);
-                _resultParameterDerivativeName = nameof(MechanicalModelResult.ForceDerivative);
+                _outputParameterValueName = nameof(MechanicalModelOutput.Force);
+                _outputParameterDerivativeName = nameof(MechanicalModelOutput.ForceDerivative);
                 break;
 
             case (MechanicalRelationship.StressStrain, ViscoelasticEffect.Relaxation):
-                _calculateValueAndDerivativeMethod = input.Strain.CalculateValueAndDerivative;
+                _calculateValueAndDerivativeMethod = input.Strain!.CalculateValueAndDerivative;
                 _inputParameterValueName = ParameterNameConstant.Strain;
                 _inputParameterDerivativeName = ParameterNameConstant.StrainDerivative;
-                _resultParameterValueName = nameof(MechanicalModelResult.Strain);
-                _resultParameterDerivativeName = nameof(MechanicalModelResult.StrainDerivative);
+                _outputParameterValueName = nameof(MechanicalModelOutput.Strain);
+                _outputParameterDerivativeName = nameof(MechanicalModelOutput.StrainDerivative);
                 break;
 
             case (MechanicalRelationship.StressStrain, ViscoelasticEffect.Creep):
-                _calculateValueAndDerivativeMethod = input.Stress.CalculateValueAndDerivative;
+                _calculateValueAndDerivativeMethod = input.Stress!.CalculateValueAndDerivative;
                 _inputParameterValueName = ParameterNameConstant.Stress;
                 _inputParameterDerivativeName = ParameterNameConstant.StressDerivative;
-                _resultParameterValueName = nameof(MechanicalModelResult.Stress);
-                _resultParameterDerivativeName = nameof(MechanicalModelResult.StressDerivative);
+                _outputParameterValueName = nameof(MechanicalModelOutput.Stress);
+                _outputParameterDerivativeName = nameof(MechanicalModelOutput.StressDerivative);
                 break;
 
             default:
@@ -72,11 +72,11 @@ public class MechanicalModelCalculatorFacade(IMechanicalModelTypeCache cache, ob
         }
 
         _inputParameters = new(capacity: 4) { { ParameterNameConstant.MechanicalModelInput, input } };
-        _resultParameters = new(capacity: 3);
+        _outputParameters = new(capacity: 3);
     }
 
     /// <inheritdoc/>
-    public MechanicalModelResult CalculateResult(double time)
+    public MechanicalModelOutput Calculate(double time)
     {
         (double value, double derivative) = _calculateValueAndDerivativeMethod!(time);
 
@@ -84,26 +84,26 @@ public class MechanicalModelCalculatorFacade(IMechanicalModelTypeCache cache, ob
         _inputParameters[_inputParameterValueName!] = value;
         _inputParameters[_inputParameterDerivativeName!] = derivative;
 
-        _resultParameters![nameof(MechanicalModelResult.Time)] = time;
-        _resultParameters[_resultParameterValueName!] = value;
-        _resultParameters[_resultParameterDerivativeName!] = derivative;
+        _outputParameters![nameof(MechanicalModelOutput.Time)] = time;
+        _outputParameters[_outputParameterValueName!] = value;
+        _outputParameters[_outputParameterDerivativeName!] = derivative;
 
-        MechanicalModelResult result = _resultFactory!();
+        MechanicalModelOutput output = _outputFactory!();
 
-        foreach (KeyValuePair<string, object> entry in _resultParameters)
+        foreach (KeyValuePair<string, object> entry in _outputParameters)
         {
-            var setter = _resultPropertySetters![entry.Key];
-            setter(result, entry.Value);
+            var setter = _outputPropertySetters![entry.Key];
+            setter(output, entry.Value);
         }
 
         foreach (CalculatorMethodData data in _calculatorMethodDataList!)
         {
             object[] methodParameters = [.. data.ParameterNames.Select(name => _inputParameters[name])];
             object methodValue = data.Invoker(calculator, methodParameters);
-            _resultPropertySetters![data.PropertyName](result, methodValue);
+            _outputPropertySetters![data.PropertyName](output, methodValue);
         }
 
-        return result;
+        return output;
     }
 
     /// <inheritdoc/>

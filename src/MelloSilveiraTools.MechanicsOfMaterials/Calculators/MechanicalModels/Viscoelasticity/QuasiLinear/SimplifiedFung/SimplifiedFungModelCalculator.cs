@@ -26,7 +26,7 @@ public sealed class SimplifiedFungModelCalculator(
         if (time <= MathematicConstants.Tolerance)
             time = 0;
 
-        return input.ReducedRelaxationFunction.Calculate(time);
+        return input.ReducedRelaxationFunction!.Calculate(time);
     }
 
     /// <inheritdoc/>
@@ -35,7 +35,7 @@ public sealed class SimplifiedFungModelCalculator(
         if (time <= MathematicConstants.Tolerance)
             time = 0;
 
-        return input.ReducedRelaxationFunction.Derivative.Calculate(time);
+        return input.ReducedRelaxationFunction!.Derivative.Calculate(time);
     }
 
     #endregion

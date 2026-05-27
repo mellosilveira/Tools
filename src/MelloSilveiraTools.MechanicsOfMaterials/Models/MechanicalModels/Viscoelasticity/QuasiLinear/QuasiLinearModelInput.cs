@@ -27,7 +27,7 @@ public abstract record QuasiLinearModelInput<TReducedRelaxationFunction> : Mecha
     /// <summary>
     /// The constants for Reduced Relaxation Function.
     /// </summary>
-    public TReducedRelaxationFunction ReducedRelaxationFunction { get; init; }
+    public TReducedRelaxationFunction? ReducedRelaxationFunction { get; init; }
 
     #endregion
 }

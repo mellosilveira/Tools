@@ -1,9 +1,9 @@
 ﻿namespace MelloSilveiraTools.MechanicsOfMaterials.Models;
 
 /// <summary>
-/// Contains the results for a generic analysis.
+/// Contains the output for a generic timebased analysis.
 /// </summary>
-public abstract class AnalysisResult
+public abstract class TimebasedAnalysisOutput
 {
     /// <summary>
     /// Unit: s (second).

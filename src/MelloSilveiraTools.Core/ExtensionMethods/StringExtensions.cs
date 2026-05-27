@@ -20,16 +20,16 @@ public static class StringExtensions
         if (string.IsNullOrEmpty(input))
             return input;
 
-        using SpanStringBuilder result = new();
+        using SpanStringBuilder value = new();
         for (int i = 0; i < input.Length; i++)
         {
             if (i > 0 && char.IsUpper(input[i]) && !char.IsWhiteSpace(input[i - 1]))
-                result.Append(' ');
+                value.Append(' ');
 
-            result.Append(input[i]);
+            value.Append(input[i]);
         }
 
-        return result.ToString();
+        return value.ToString();
     }
 
     /// <summary>
@@ -69,15 +69,15 @@ public static class StringExtensions
     public static string FromSnakeCaseToCamelCase(this string input)
     {
         string[] parts = input.Split('_');
-        StringBuilder result = new(parts[0]);
+        StringBuilder value = new(parts[0]);
 
         for (int i = 1; i < parts.Length; i++)
         {
             if (parts[i].Length > 0)
-                result.Append(char.ToUpper(parts[i][0]) + parts[i][1..].ToLowerInvariant());
+                value.Append(char.ToUpper(parts[i][0]) + parts[i][1..].ToLowerInvariant());
         }
 
-        return result.ToString();
+        return value.ToString();
     }
 
     /// <summary>
@@ -88,15 +88,15 @@ public static class StringExtensions
     public static string FromSnakeCaseToPascalCase(this string input)
     {
         string[] parts = input.Split('_');
-        StringBuilder result = new();
+        StringBuilder value = new();
 
         for (int i = 0; i < parts.Length; i++)
         {
             if (parts[i].Length > 0)
-                result.Append(char.ToUpper(parts[i][0]) + parts[i][1..].ToLowerInvariant());
+                value.Append(char.ToUpper(parts[i][0]) + parts[i][1..].ToLowerInvariant());
         }
 
-        return result.ToString();
+        return value.ToString();
     }
 
     /// <summary>
@@ -109,12 +109,12 @@ public static class StringExtensions
     /// <returns>A new string with every occurrence of each value in <paramref name="valuesToRemove"/> stripped out.</returns>
     public static string Remove(this string input, params string[] valuesToRemove)
     {
-        string result = input;
+        string value = input;
         foreach (string valueToRemove in valuesToRemove)
         {
-            result = result.Replace(valueToRemove, null);
+            value = value.Replace(valueToRemove, null);
         }
 
-        return result;
+        return value;
     }
 }

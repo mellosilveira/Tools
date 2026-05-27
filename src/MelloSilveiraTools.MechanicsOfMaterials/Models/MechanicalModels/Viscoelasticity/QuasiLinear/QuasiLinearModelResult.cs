@@ -3,9 +3,9 @@
 namespace MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.QuasiLinear
 {
     /// <summary>
-    /// Contains the results for quasi-linear Viscoelastic Model.
+    /// Contains the output for quasi-linear Viscoelastic Model.
     /// </summary>
-    public sealed class QuasiLinearModelResult : ViscoelasticModelResult
+    public sealed class QuasiLinearModelOutput : ViscoelasticModelOutput
     {
         /// <summary>
         /// Unit: dimensionless.

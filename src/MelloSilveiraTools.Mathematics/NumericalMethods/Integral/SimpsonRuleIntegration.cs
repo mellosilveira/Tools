@@ -13,11 +13,11 @@ public class SimpsonRuleIntegration : IIntegration
 
         for (int i = 0; i <= numberOfDivisions; i++)
         {
-            double equationResult = equation(integralInput.InitialPoint + i * integralInput.Step);
-            if (equationResult == 0)
+            double equationValue = equation(integralInput.InitialPoint + i * integralInput.Step);
+            if (equationValue == 0)
                 continue;
 
-            sum += GetFactor(i, numberOfDivisions) * equationResult;
+            sum += GetFactor(i, numberOfDivisions) * equationValue;
         }
 
         return sum * integralInput.Step / 3;
@@ -31,11 +31,11 @@ public class SimpsonRuleIntegration : IIntegration
 
         for (int i = 0; i <= numberOfDivisions; i++)
         {
-            double equationResult = await equation(integralInput.InitialPoint + i * integralInput.Step);
-            if (equationResult == 0)
+            double equationValue = await equation(integralInput.InitialPoint + i * integralInput.Step);
+            if (equationValue == 0)
                 continue;
 
-            sum += GetFactor(i, numberOfDivisions) * equationResult;
+            sum += GetFactor(i, numberOfDivisions) * equationValue;
         }
 
         return sum * integralInput.Step / 3;

@@ -17,8 +17,6 @@ namespace MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.V
         IMechanicalParameterConverter parameterConverter)
         : QuasiLinearModelCalculator<FungModelInput, ReducedRelaxationFunction>(simpsonRuleIntegration, derivative, parameterConverter), IFungModelCalculator
     {
-        #region Calculate mechanical model's parameters.
-
         /// <inheritdoc/>
         /// <remarks>
         /// I(t) = ∫[t/τ₂, t/τ₁] e^(-x)/x dx (Projeto Final, Eq. 43).
@@ -36,7 +34,7 @@ namespace MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.V
             #region Here is used a Simpson Integration rule with some changes to addapt for this case.
 
             int numberOfDivisions = Convert.ToInt32((finalTime - initialTime) / step);
-            double result = 0;
+            double value = 0;
 
             for (int index = 0; index <= numberOfDivisions; index++)
             {
@@ -47,14 +45,14 @@ namespace MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.V
                     continue;
 
                 int factor = (index == 0 || index == numberOfDivisions) ? 1 : (index % 2 != 0 ? 4 : 2);
-                result += factor * equationResult * step / 3;
+                value += factor * equationResult * step / 3;
 
                 step = SetIntegrationStep(integrationTime, step);
             }
 
             #endregion
 
-            return result;
+            return value;
         }
 
         /// <inheritdoc/>
@@ -64,7 +62,7 @@ namespace MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.V
             if (time <= MathematicConstants.Tolerance)
                 return 1;
 
-            ReducedRelaxationFunction reducedRelaxationFunction = input.ReducedRelaxationFunction;
+            ReducedRelaxationFunction reducedRelaxationFunction = input.ReducedRelaxationFunction!;
 
             // The original equation was simplified, since it has two integrals which the domains could be unified in an unique integral (I).
             // For more details, see on section "Bibliographies" on file "README.MD".
@@ -76,7 +74,7 @@ namespace MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.V
         /// <remarks>dG/dt = C · [e^(-t/τ₁) - e^(-t/τ₂)] / [t · (1 + C · ln(τ₂/τ₁))] (Projeto Final, Eq. 45).</remarks>
         protected override double CalculateReducedRelaxationFunctionDerivative(FungModelInput input, double time)
         {
-            ReducedRelaxationFunction reducedRelaxationFunction = input.ReducedRelaxationFunction;
+            ReducedRelaxationFunction reducedRelaxationFunction = input.ReducedRelaxationFunction!;
             double denominator = CalculateReducedRelaxationFunctionDenominator(reducedRelaxationFunction);
 
             if (time <= MathematicConstants.Tolerance)
@@ -104,7 +102,5 @@ namespace MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.V
             > 0.5 and <= 1 => timeStep > 1e-2 ? 1e-2 : timeStep,
             _ => timeStep > 1e-1 ? 1e-1 : timeStep,
         };
-
-        #endregion
     }
 }

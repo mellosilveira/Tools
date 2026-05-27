@@ -7,7 +7,7 @@
         <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Attributes.MechanicalModelParameterAttribute">
             <summary>
             Attribute to tag properties in mechanical models, linking them to specific mechanical 
-            relationships and viscoelastic effects for dynamic construction of result.
+            relationships and viscoelastic effects for dynamic construction of output.
             </summary>
         </member>
         <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Attributes.MechanicalModelParameterAttribute.#ctor">
@@ -99,9 +99,9 @@
             each pre-compiled into a <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Caching.CalculatorMethodData"/>.
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Caching.IMechanicalModelTypeCache.GetOrAddResultFactory(System.Type)">
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Caching.IMechanicalModelTypeCache.GetOrAddOutputFactory(System.Type)">
             <summary>
-            Returns a compiled factory delegate that creates instances of the given result type.
+            Returns a compiled factory delegate that creates instances of the given output type.
             </summary>
         </member>
         <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Caching.IMechanicalModelTypeCache.GetOrAddPropertySetters(System.Type)">
@@ -126,7 +126,7 @@
         <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Caching.MechanicalModelTypeCache.GetOrAddMethodDataList(System.Type,MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalRelationship,MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.ViscoelasticEffect)">
             <inheritdoc/>
         </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Caching.MechanicalModelTypeCache.GetOrAddResultFactory(System.Type)">
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Caching.MechanicalModelTypeCache.GetOrAddOutputFactory(System.Type)">
             <inheritdoc/>
         </member>
         <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Caching.MechanicalModelTypeCache.GetOrAddPropertySetters(System.Type)">
@@ -141,7 +141,7 @@
             The compiled delegate is ~10-50x faster than <see cref="M:System.Reflection.MethodBase.Invoke(System.Object,System.Object[])"/>.
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Caching.MechanicalModelTypeCache.CompileResultFactory(System.Type)">
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Caching.MechanicalModelTypeCache.CompileOutputFactory(System.Type)">
             <summary>
             Compiles a parameterless constructor into a factory delegate, replacing <see cref="M:System.Activator.CreateInstance(System.String,System.String)"/>.
             </summary>
@@ -153,12 +153,12 @@
         </member>
         <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Caching.CalculatorMethodData">
             <summary>
-            Holds a pre-compiled calculator method with its parameter names and result property target.
+            Holds a pre-compiled calculator method with its parameter names and output property target.
             </summary>
         </member>
         <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Caching.CalculatorMethodData.#ctor(System.Func{System.Object,System.Object[],System.Object},System.String[],System.String)">
             <summary>
-            Holds a pre-compiled calculator method with its parameter names and result property target.
+            Holds a pre-compiled calculator method with its parameter names and output property target.
             </summary>
         </member>
         <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Calculators.ConstitutiveEquations.ConstitutiveEquationsCalculator">
@@ -223,14 +223,14 @@
             It contains the Mechanical Fatigue constitutive equations.
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Calculators.Fatigue.FatigueCalculator.CalculateFatigueResult(MelloSilveiraTools.MechanicsOfMaterials.Models.Fatigue.FatigueInput)">
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Calculators.Fatigue.FatigueCalculator.Calculate(MelloSilveiraTools.MechanicsOfMaterials.Models.Fatigue.FatigueInput)">
             <summary>
             Performs a high-cycle fatigue analysis on the supplied input. The method computes the
             stress amplitude, mean stress, the Goodman-equivalent stress, the estimated fatigue life
             (number of cycles, capped at 1e6) and the Modified Goodman safety factor.
             </summary>
             <param name="input">The fatigue analysis input (applied stresses, material data, profile and correction factors).</param>
-            <returns>The <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Models.Fatigue.FatigueResult"/> containing stress amplitude, mean stress, equivalent stress, expected life and safety factor.</returns>
+            <returns>The <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Models.Fatigue.FatigueOutput"/> containing stress amplitude, mean stress, equivalent stress, expected life and safety factor.</returns>
         </member>
         <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Calculators.Fatigue.FatigueCalculator.CalculateModifiedFatigueStress(MelloSilveiraTools.MechanicsOfMaterials.Models.Fatigue.FatigueInput)">
             <summary>
@@ -298,32 +298,13 @@
             It contains the Mechanical Fatigue constitutive equations.
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Calculators.Fatigue.IFatigueCalculator.CalculateFatigueResult(MelloSilveiraTools.MechanicsOfMaterials.Models.Fatigue.FatigueInput)">
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Calculators.Fatigue.IFatigueCalculator.Calculate(MelloSilveiraTools.MechanicsOfMaterials.Models.Fatigue.FatigueInput)">
             <summary>
             Runs a complete high-cycle fatigue analysis and returns stress amplitude, mean stress,
             the Goodman-equivalent stress, the estimated fatigue life and the Modified Goodman safety factor.
             </summary>
             <param name="input">The fatigue analysis input (applied stresses, material data, profile and correction factors).</param>
-            <returns>The <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Models.Fatigue.FatigueResult"/> containing every computed fatigue quantity.</returns>
-            <example>
-            <code>
-            var input = new FatigueInput
-            {
-                MinimumAppliedStress = -50,
-                MaximumAppliedStress = 200,
-                TensileStress = 700,
-                FatigueLimit = 350,
-                FatigueLimitFraction = 0.9,
-                IsRotativeSection = true,
-                Reliability = Reliability.NinetyNinePercent,
-                SurfaceFinish = SurfaceFinish.Machined,
-                LoadingType = LoadingType.Bending,
-                Temperature = 25,
-                Profile = new CircularProfile { /* ... */ },
-            };
-            FatigueResult result = fatigueCalculator.CalculateFatigueResult(input);
-            </code>
-            </example>
+            <returns>The <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Models.Fatigue.FatigueOutput"/> containing every computed fatigue quantity.</returns>
         </member>
         <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Calculators.Fatigue.IFatigueCalculator.CalculateModifiedFatigueStress(MelloSilveiraTools.MechanicsOfMaterials.Models.Fatigue.FatigueInput)">
             <summary>
@@ -632,12 +613,12 @@
             Facade for <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.IMechanicalModelCalculator`1"/>
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.IMechanicalModelCalculatorFacade.CalculateResult(System.Double)">
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.IMechanicalModelCalculatorFacade.Calculate(System.Double)">
             <summary>
-            Calculates the mechanical model's result.
+            Calculates the mechanical model's output.
             </summary>
             <param name="time">Unit: s (second).</param>
-            <returns>The mechanical model's result.</returns>
+            <returns>The mechanical model's output.</returns>
         </member>
         <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.MechanicalModelCalculatorBase`1">
             <inheritdoc cref="T:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.IMechanicalModelCalculator`1"/>
@@ -668,7 +649,7 @@
         <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.MechanicalModelCalculatorFacade.#ctor(MelloSilveiraTools.MechanicsOfMaterials.Caching.IMechanicalModelTypeCache,System.Object)">
             <inheritdoc cref="T:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.IMechanicalModelCalculatorFacade"/>
         </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.MechanicalModelCalculatorFacade.CalculateResult(System.Double)">
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.MechanicalModelCalculatorFacade.Calculate(System.Double)">
             <inheritdoc/>
         </member>
         <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.MechanicalModelCalculatorFacade.CalculateDisplacement(MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalModelInput,System.Double,System.Nullable{System.Double})">
@@ -766,24 +747,23 @@
         </member>
         <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Viscoelasticity.Linear.Maxwell.IMaxwellModelCalculator.CalculateRelaxationTime(MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.Linear.Maxwell.MaxwellModelInput)">
             <summary>
-            Calculates the relaxation time: τ = η / μ.
+            Calculates the relaxation time: τ = η / μ (Projeto Final, Eq. 26).
             </summary>
             <param name="input">The mechanical's model input.</param>
             <returns>Unit: s (second).</returns>
         </member>
         <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Viscoelasticity.Linear.Maxwell.MaxwellModelCalculator">
             <inheritdoc cref="T:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Viscoelasticity.Linear.Maxwell.IMaxwellModelCalculator"/>
-            <param name="simpsonRuleIntegration">See reference at <see cref="T:MelloSilveiraTools.Mathematics.NumericalMethods.Integral.IIntegration"/>.</param>
+            <param name="integration">See reference at <see cref="T:MelloSilveiraTools.Mathematics.NumericalMethods.Integral.IIntegration"/>.</param>
             <param name="parameterConverter">See reference at <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Converters.MechanicalParameter.IMechanicalParameterConverter"/>.</param>
         </member>
         <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Viscoelasticity.Linear.Maxwell.MaxwellModelCalculator.#ctor(MelloSilveiraTools.Mathematics.NumericalMethods.Integral.IIntegration,MelloSilveiraTools.MechanicsOfMaterials.Converters.MechanicalParameter.IMechanicalParameterConverter)">
             <inheritdoc cref="T:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Viscoelasticity.Linear.Maxwell.IMaxwellModelCalculator"/>
-            <param name="simpsonRuleIntegration">See reference at <see cref="T:MelloSilveiraTools.Mathematics.NumericalMethods.Integral.IIntegration"/>.</param>
+            <param name="integration">See reference at <see cref="T:MelloSilveiraTools.Mathematics.NumericalMethods.Integral.IIntegration"/>.</param>
             <param name="parameterConverter">See reference at <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Converters.MechanicalParameter.IMechanicalParameterConverter"/>.</param>
         </member>
         <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Viscoelasticity.Linear.Maxwell.MaxwellModelCalculator.CalculateRelaxationTime(MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.Linear.Maxwell.MaxwellModelInput)">
             <inheritdoc/>
-            <remarks>τ = η / μ (Projeto Final, Eq. 26).</remarks>
         </member>
         <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Viscoelasticity.Linear.Maxwell.MaxwellModelCalculator.CalculateRelaxationFunction(MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.Linear.Maxwell.MaxwellModelInput,System.Double,System.Nullable{System.Double})">
             <inheritdoc/>
@@ -1346,16 +1326,6 @@
             <param name="services">The service collection used to register the dependencies.</param>
             <returns>The same service collection so additional registrations can be chained.</returns>
         </member>
-        <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Models.AnalysisResult">
-            <summary>
-            Contains the results for a generic analysis.
-            </summary>
-        </member>
-        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Models.AnalysisResult.Time">
-            <summary>
-            Unit: s (second).
-            </summary>
-        </member>
         <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Models.AnalysisType">
             <summary>
             Contains the types for all analysis performed by application.
@@ -1461,36 +1431,40 @@
             The profile.
             </summary>
         </member>
-        <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Models.Fatigue.FatigueResult">
+        <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Models.Fatigue.FatigueOutput">
             <summary>
-            It contains the result for fatigue analysis.
+            Contains the output for fatigue analysis.
             </summary>
+            <param name="SafetyFactor">The fatigue safety factor based on Modified Goodman. Dimensionless.</param>
+            <param name="StressAmplitude">Unit: MPa (Mega Pascal).</param>
+            <param name="MeanStress">Unit: MPa (Mega Pascal).</param>
+            <param name="EquivalentStress">Unit: MPa (Mega Pascal).</param>
+            <param name="NumberOfCycles">Dimensionless.</param>
         </member>
-        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Models.Fatigue.FatigueResult.SafetyFactor">
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Models.Fatigue.FatigueOutput.#ctor(System.Double,System.Double,System.Double,System.Double,System.Double)">
             <summary>
-            The fatigue safety factor based on Modified Goodman.
-            Dimensionless.
+            Contains the output for fatigue analysis.
             </summary>
+            <param name="SafetyFactor">The fatigue safety factor based on Modified Goodman. Dimensionless.</param>
+            <param name="StressAmplitude">Unit: MPa (Mega Pascal).</param>
+            <param name="MeanStress">Unit: MPa (Mega Pascal).</param>
+            <param name="EquivalentStress">Unit: MPa (Mega Pascal).</param>
+            <param name="NumberOfCycles">Dimensionless.</param>
         </member>
-        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Models.Fatigue.FatigueResult.StressAmplitude">
-            <summary>
-            Unit: MPa (Mega Pascal).
-            </summary>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Models.Fatigue.FatigueOutput.SafetyFactor">
+            <summary>The fatigue safety factor based on Modified Goodman. Dimensionless.</summary>
         </member>
-        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Models.Fatigue.FatigueResult.MeanStress">
-            <summary>
-            Unit: MPa (Mega Pascal).
-            </summary>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Models.Fatigue.FatigueOutput.StressAmplitude">
+            <summary>Unit: MPa (Mega Pascal).</summary>
         </member>
-        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Models.Fatigue.FatigueResult.EquivalentStress">
-            <summary>
-            Unit: MPa (Mega Pascal).
-            </summary>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Models.Fatigue.FatigueOutput.MeanStress">
+            <summary>Unit: MPa (Mega Pascal).</summary>
         </member>
-        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Models.Fatigue.FatigueResult.NumberOfCycles">
-            <summary>
-            Dimensionless.
-            </summary>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Models.Fatigue.FatigueOutput.EquivalentStress">
+            <summary>Unit: MPa (Mega Pascal).</summary>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Models.Fatigue.FatigueOutput.NumberOfCycles">
+            <summary>Dimensionless.</summary>
         </member>
         <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Models.Fatigue.LoadingType">
             <summary>
@@ -1581,43 +1555,43 @@
             It can be used for any relaxation analysis and for creep analysis only when ramp time is disregard.
             </summary>
         </member>
-        <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Models.LoadSharing.LoadSharingResult">
+        <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Models.LoadSharing.LoadSharingOutput">
             <summary>
-            Contains the result for load sharing analysis.
+            Contains the output for load sharing analysis.
             </summary>
         </member>
-        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Models.LoadSharing.LoadSharingResult.SpecimensLoadSharingResult">
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Models.LoadSharing.LoadSharingOutput.SpecimensLoadSharingOutput">
             <summary>
-            Specimens load sharing's result.
+            Specimens load sharing's output.
             </summary>
         </member>
-        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Models.LoadSharing.LoadSharingResult.SystemDisplacement">
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Models.LoadSharing.LoadSharingOutput.SystemDisplacement">
             <summary>
             Unit: m (meter).
             </summary>
         </member>
-        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Models.LoadSharing.LoadSharingResult.SystemForce">
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Models.LoadSharing.LoadSharingOutput.SystemForce">
             <summary>
             Unit: N (Newton).
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Models.LoadSharing.LoadSharingResult.Equals(System.Object)">
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Models.LoadSharing.LoadSharingOutput.Equals(System.Object)">
             <inheritdoc/>
         </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Models.LoadSharing.LoadSharingResult.GetHashCode">
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Models.LoadSharing.LoadSharingOutput.GetHashCode">
             <inheritdoc/>
         </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Models.LoadSharing.LoadSharingResult.op_Equality(MelloSilveiraTools.MechanicsOfMaterials.Models.LoadSharing.LoadSharingResult,MelloSilveiraTools.MechanicsOfMaterials.Models.LoadSharing.LoadSharingResult)">
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Models.LoadSharing.LoadSharingOutput.op_Equality(MelloSilveiraTools.MechanicsOfMaterials.Models.LoadSharing.LoadSharingOutput,MelloSilveiraTools.MechanicsOfMaterials.Models.LoadSharing.LoadSharingOutput)">
             <summary>
-            Returns a <see cref="T:System.Boolean"/> that indicates whether two specified <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Models.LoadSharing.LoadSharingResult"/> values are equal.
+            Returns a <see cref="T:System.Boolean"/> that indicates whether two specified <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Models.LoadSharing.LoadSharingOutput"/> values are equal.
             </summary>
             <param name="left">The first value to compare.</param>
             <param name="right">The second value to compare.</param>
             <returns>True, if left and right are equal. False, otherwise.</returns>
         </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Models.LoadSharing.LoadSharingResult.op_Inequality(MelloSilveiraTools.MechanicsOfMaterials.Models.LoadSharing.LoadSharingResult,MelloSilveiraTools.MechanicsOfMaterials.Models.LoadSharing.LoadSharingResult)">
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Models.LoadSharing.LoadSharingOutput.op_Inequality(MelloSilveiraTools.MechanicsOfMaterials.Models.LoadSharing.LoadSharingOutput,MelloSilveiraTools.MechanicsOfMaterials.Models.LoadSharing.LoadSharingOutput)">
             <summary>
-            Returns a <see cref="T:System.Boolean"/> that indicates whether two specified <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Models.LoadSharing.LoadSharingResult"/> values are not equal.
+            Returns a <see cref="T:System.Boolean"/> that indicates whether two specified <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Models.LoadSharing.LoadSharingOutput"/> values are not equal.
             </summary>
             <param name="left">The first value to compare.</param>
             <param name="right">The second value to compare.</param>
@@ -1643,62 +1617,62 @@
             Mechanical model input for specimens on mechanical system.
             </summary>
         </member>
-        <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Models.LoadSharing.SpecimenLoadSharingResult">
+        <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Models.LoadSharing.SpecimenLoadSharingOutput">
             <summary>
-            Contains the result for an unique specimen on load sharing analysis.
+            Contains the output for an unique specimen on load sharing analysis.
             </summary>
         </member>
-        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Models.LoadSharing.SpecimenLoadSharingResult.Identifier">
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Models.LoadSharing.SpecimenLoadSharingOutput.Identifier">
             <summary>
             Unique identifier for specimen.
             </summary>
         </member>
-        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Models.LoadSharing.SpecimenLoadSharingResult.Angle">
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Models.LoadSharing.SpecimenLoadSharingOutput.Angle">
             <summary>
             Unit: rad (radians).
             </summary>
         </member>
-        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Models.LoadSharing.SpecimenLoadSharingResult.Strain">
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Models.LoadSharing.SpecimenLoadSharingOutput.Strain">
             <summary>
             Dimensionless.
             </summary>
         </member>
-        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Models.LoadSharing.SpecimenLoadSharingResult.Displacement">
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Models.LoadSharing.SpecimenLoadSharingOutput.Displacement">
             <summary>
             Unit: m (meter).
             </summary>
         </member>
-        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Models.LoadSharing.SpecimenLoadSharingResult.Force">
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Models.LoadSharing.SpecimenLoadSharingOutput.Force">
             <summary>
             Unit: N (Newton).
             </summary>
         </member>
-        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Models.LoadSharing.SpecimenLoadSharingResult.ForceOnSystemAxis">
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Models.LoadSharing.SpecimenLoadSharingOutput.ForceOnSystemAxis">
             <summary>
             Unit: N (Newton).
             </summary>
         </member>
-        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Models.LoadSharing.SpecimenLoadSharingResult.Stress">
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Models.LoadSharing.SpecimenLoadSharingOutput.Stress">
             <summary>
             Unit: MPa (Mega-Pascal).
             </summary>
         </member>
-        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Models.LoadSharing.SpecimenLoadSharingResult.LoadSharing">
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Models.LoadSharing.SpecimenLoadSharingOutput.LoadSharing">
             <summary>
             Unit: dimensionless.
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Models.LoadSharing.SpecimenLoadSharingResult.SetLoadSharing(System.Double)">
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Models.LoadSharing.SpecimenLoadSharingOutput.SetLoadSharing(System.Double)">
             <summary>
-            Sets a value for <see cref="P:MelloSilveiraTools.MechanicsOfMaterials.Models.LoadSharing.SpecimenLoadSharingResult.LoadSharing"/>.
+            Sets a value for <see cref="P:MelloSilveiraTools.MechanicsOfMaterials.Models.LoadSharing.SpecimenLoadSharingOutput.LoadSharing"/>.
             </summary>
             <param name="loadSharing"></param>
-            <exception cref="T:System.ArgumentException">When <see cref="P:MelloSilveiraTools.MechanicsOfMaterials.Models.LoadSharing.SpecimenLoadSharingResult.LoadSharing"/> was already set.</exception>
+            <exception cref="T:System.ArgumentException">When <see cref="P:MelloSilveiraTools.MechanicsOfMaterials.Models.LoadSharing.SpecimenLoadSharingOutput.LoadSharing"/> was already set.</exception>
         </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Models.LoadSharing.SpecimenLoadSharingResult.Equals(System.Object)">
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Models.LoadSharing.SpecimenLoadSharingOutput.Equals(System.Object)">
             <inheritdoc/>
         </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Models.LoadSharing.SpecimenLoadSharingResult.GetHashCode">
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Models.LoadSharing.SpecimenLoadSharingOutput.GetHashCode">
             <summary>
             This method was not implemented since it is not necessary.
             </summary>
@@ -1853,12 +1827,12 @@
             Unit: MPa (Mega-Pascal).
             </summary>
         </member>
-        <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Elasticity.ElasticModelResult">
+        <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Elasticity.ElasticModelOutput">
             <summary>
-            Contains the results for a elastic model.
+            Contains the output for a elastic model.
             </summary>
         </member>
-        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Elasticity.ElasticModelResult.Stiffness">
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Elasticity.ElasticModelOutput.Stiffness">
             <summary>
             Unit: N/m (Newton per meter).
             </summary>
@@ -1926,47 +1900,47 @@
             Unit: s (second).
             </summary>
         </member>
-        <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalModelResult">
+        <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalModelOutput">
             <summary>
-            Contains the results for a generic mechanical model.
+            Contains the output for a generic mechanical model.
             </summary>
         </member>
-        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalModelResult.Strain">
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalModelOutput.Strain">
             <summary>
             Unit: dimensionless.
             </summary>
         </member>
-        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalModelResult.StrainDerivative">
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalModelOutput.StrainDerivative">
             <summary>
             Unit: /s (Per second).
             </summary>
         </member>
-        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalModelResult.Stress">
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalModelOutput.Stress">
             <summary>
             Unit: MPa (Mega-Pascal).
             </summary>
         </member>
-        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalModelResult.StressDerivative">
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalModelOutput.StressDerivative">
             <summary>
             Unit: MPa/s (Mega-Pascal per second).
             </summary>
         </member>
-        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalModelResult.Displacement">
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalModelOutput.Displacement">
             <summary>
             Unit: m (Meter).
             </summary>
         </member>
-        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalModelResult.DisplacementDerivative">
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalModelOutput.DisplacementDerivative">
             <summary>
             Unit: m/s (Meter per second).
             </summary>
         </member>
-        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalModelResult.Force">
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalModelOutput.Force">
             <summary>
             Unit: N (Newton).
             </summary>
         </member>
-        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalModelResult.ForceDerivative">
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalModelOutput.ForceDerivative">
             <summary>
             Unit: N/s (Newton per second).
             </summary>
@@ -2040,12 +2014,12 @@
             Unit: MPa (Mega-Pascal).
             </summary>
         </member>
-        <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.Linear.Maxwell.MaxwellModelResult">
+        <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.Linear.Maxwell.MaxwellModelOutput">
             <summary>
-            Contains the results for Maxwell's model.
+            Contains the output for Maxwell's model.
             </summary>
         </member>
-        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.Linear.Maxwell.MaxwellModelResult.RelaxationTime">
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.Linear.Maxwell.MaxwellModelOutput.RelaxationTime">
             <summary>
             Unit: s (second).
             </summary>
@@ -2054,21 +2028,16 @@
             <summary>
             Contains the range of values accepted for a variable.
             </summary>
-            <param name="InitialPoint">Unit depends on which variable the accepted range is applied.</param>
-            <param name="FinalPoint">Unit depends on which variable the accepted range is applied.</param>
-        </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.NonLinear.AcceptedRange.#ctor(System.Double,System.Double)">
-            <summary>
-            Contains the range of values accepted for a variable.
-            </summary>
-            <param name="InitialPoint">Unit depends on which variable the accepted range is applied.</param>
-            <param name="FinalPoint">Unit depends on which variable the accepted range is applied.</param>
         </member>
         <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.NonLinear.AcceptedRange.InitialPoint">
-            <summary>Unit depends on which variable the accepted range is applied.</summary>
+            <summary>
+            Unit depends on which variable the accepted range is applied.
+            </summary>
         </member>
         <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.NonLinear.AcceptedRange.FinalPoint">
-            <summary>Unit depends on which variable the accepted range is applied.</summary>
+            <summary>
+            Unit depends on which variable the accepted range is applied.
+            </summary>
         </member>
         <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.NonLinear.ModifiedSuperpositionMethod.ModifiedSuperpositionMethodInput">
             <summary>
@@ -2086,18 +2055,18 @@
             Strain-dependent rate of stress relaxation.
             </summary>
         </member>
-        <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.NonLinear.ModifiedSuperpositionMethod.ModifiedSuperpositionMethodResult">
+        <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.NonLinear.ModifiedSuperpositionMethod.ModifiedSuperpositionMethodOutput">
             <summary>
-            Contains the results for the Modified Superposition Method.
+            Contains the output for the Modified Superposition Method.
             </summary>
         </member>
-        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.NonLinear.ModifiedSuperpositionMethod.ModifiedSuperpositionMethodResult.InitialYoungModulus">
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.NonLinear.ModifiedSuperpositionMethod.ModifiedSuperpositionMethodOutput.InitialYoungModulus">
             <summary>
             Initial Young's modulus.
             Unit: MPa (Mega-Pascal).
             </summary>
         </member>
-        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.NonLinear.ModifiedSuperpositionMethod.ModifiedSuperpositionMethodResult.StressRelaxationRate">
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.NonLinear.ModifiedSuperpositionMethod.ModifiedSuperpositionMethodOutput.StressRelaxationRate">
             <summary>
             Strain-dependent rate of stress relaxation.
             Unit: dimensionless.
@@ -2180,17 +2149,17 @@
             An <see cref="T:MelloSilveiraTools.Mathematics.Expressions.Expression"/> that represents the transient creep compliance.
             </summary>
         </member>
-        <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.NonLinear.Schapery.SchaperyModelResult">
+        <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.NonLinear.Schapery.SchaperyModelOutput">
             <summary>
-            Contains the results for Schapery's model.
+            Contains the output for Schapery's model.
             </summary>
         </member>
-        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.NonLinear.Schapery.SchaperyModelResult.TransientCreepCompliance">
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.NonLinear.Schapery.SchaperyModelOutput.TransientCreepCompliance">
             <summary>
             Unit: /Mpa (per Mega-Pascal).
             </summary>
         </member>
-        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.NonLinear.Schapery.SchaperyModelResult.TransientRelaxationFunction">
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.NonLinear.Schapery.SchaperyModelOutput.TransientRelaxationFunction">
             <summary>
             Unit: MPa (Mega-Pascal).
             </summary>
@@ -2223,32 +2192,32 @@
             The constants for Reduced Relaxation Function.
             </summary>
         </member>
-        <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.QuasiLinear.QuasiLinearModelResult">
+        <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.QuasiLinear.QuasiLinearModelOutput">
             <summary>
-            Contains the results for quasi-linear Viscoelastic Model.
+            Contains the output for quasi-linear Viscoelastic Model.
             </summary>
         </member>
-        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.QuasiLinear.QuasiLinearModelResult.ReducedRelaxationFunction">
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.QuasiLinear.QuasiLinearModelOutput.ReducedRelaxationFunction">
             <summary>
             Unit: dimensionless.
             </summary>
         </member>
-        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.QuasiLinear.QuasiLinearModelResult.ElasticResponse">
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.QuasiLinear.QuasiLinearModelOutput.ElasticResponse">
             <summary>
             Unit: MPa (Mega-Pascal).
             </summary>
         </member>
-        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.QuasiLinear.QuasiLinearModelResult.ElasticForceResponse">
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.QuasiLinear.QuasiLinearModelOutput.ElasticForceResponse">
             <summary>
             Unit: MPa (Mega-Pascal).
             </summary>
         </member>
-        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.QuasiLinear.QuasiLinearModelResult.StressByReducedRelaxationFunctionDerivative">
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.QuasiLinear.QuasiLinearModelOutput.StressByReducedRelaxationFunctionDerivative">
             <summary>
             Unit: MPa (Mega-Pascal).
             </summary>
         </member>
-        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.QuasiLinear.QuasiLinearModelResult.StressByConvolutionDerivative">
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.QuasiLinear.QuasiLinearModelOutput.StressByConvolutionDerivative">
             <summary>
             Unit: MPa (Mega-Pascal).
             </summary>
@@ -2313,17 +2282,17 @@
             Creep is a gradual reduction in strain with time at constant stress.
             </summary>
         </member>
-        <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.ViscoelasticModelResult">
+        <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.ViscoelasticModelOutput">
             <summary>
-            Contains the results for a generic viscoelastic model.
+            Contains the output for a generic viscoelastic model.
             </summary>
         </member>
-        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.ViscoelasticModelResult.CreepCompliance">
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.ViscoelasticModelOutput.CreepCompliance">
             <summary>
             Unit: /MPa (per Mega-Pascal) or m/N (meter per Newton).
             </summary>
         </member>
-        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.ViscoelasticModelResult.RelaxationFunction">
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.ViscoelasticModelOutput.RelaxationFunction">
             <summary>
             Unit: MPa (Mega-Pascal) or N/m (Newton per meter).
             </summary>

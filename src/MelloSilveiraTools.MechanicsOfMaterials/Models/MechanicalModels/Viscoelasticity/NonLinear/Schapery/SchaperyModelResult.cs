@@ -3,9 +3,9 @@
 namespace MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.NonLinear.Schapery;
 
 /// <summary>
-/// Contains the results for Schapery's model.
+/// Contains the output for Schapery's model.
 /// </summary>
-public sealed class SchaperyModelResult : ViscoelasticModelResult 
+public sealed class SchaperyModelOutput : ViscoelasticModelOutput 
 {
     /// <summary>
     /// Unit: /Mpa (per Mega-Pascal).

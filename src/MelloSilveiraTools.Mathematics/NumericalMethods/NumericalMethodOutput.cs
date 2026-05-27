@@ -1,33 +1,29 @@
-﻿using System.Globalization;
+﻿using MelloSilveiraTools.MechanicsOfMaterials.Models;
+using System.Globalization;
 
 namespace MelloSilveiraTools.Mathematics.NumericalMethods;
 
 /// <summary>
-/// It contains the finite element analysis results to a specific time.
+/// Contains the finite element analysis output to a specific time.
 /// </summary>
-public class NumericalMethodResult
+public class NumericalMethodOutput : TimebasedAnalysisOutput
 {
     /// <summary>
     /// Basic constructor.
     /// </summary>
-    public NumericalMethodResult() { }
+    public NumericalMethodOutput() { }
 
     /// <summary>
     /// Class constructor.
     /// </summary>
     /// <param name="numberOfBoundaryConditions"></param>
-    public NumericalMethodResult(uint numberOfBoundaryConditions)
+    public NumericalMethodOutput(uint numberOfBoundaryConditions)
     {
         Displacement = new double[numberOfBoundaryConditions];
         Velocity = new double[numberOfBoundaryConditions];
         Acceleration = new double[numberOfBoundaryConditions];
         EquivalentForce = new double[numberOfBoundaryConditions];
     }
-
-    /// <summary>
-    /// Unit: s (second).
-    /// </summary>
-    public double Time { get; set; }
 
     /// <summary>
     /// Unit: m (meter).

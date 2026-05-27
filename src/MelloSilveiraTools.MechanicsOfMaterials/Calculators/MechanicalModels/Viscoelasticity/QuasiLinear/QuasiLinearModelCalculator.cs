@@ -51,7 +51,7 @@ public abstract class QuasiLinearModelCalculator<TInput, TReducedRelaxationFunct
 
             if (input.ViscoelasticEffect == ViscoelasticEffect.Relaxation)
             {
-                displacement ??= input.Displacement.InitialValue;
+                displacement ??= input.Displacement!.InitialValue;
                 return CalculateForceWhenDisregardRampTime(input, time, displacement.Value);
             }
 
@@ -77,8 +77,8 @@ public abstract class QuasiLinearModelCalculator<TInput, TReducedRelaxationFunct
 
             if (input.ViscoelasticEffect == ViscoelasticEffect.Relaxation)
             {
-                force ??= input.Force.InitialValue;
-                double stress = ParameterConverter.CalculateStressFromForce(input.Specimen, force.Value);
+                force ??= input.Force!.InitialValue;
+                double stress = ParameterConverter.CalculateStressFromForce(input.Specimen!, force.Value);
                 double reducedRelaxationFunction = CalculateReducedRelaxationFunction(input, time);
                 return Math.Log(stress / (input.ElasticStressConstant * reducedRelaxationFunction) + 1) / input.ElasticPowerConstant;
             }
@@ -98,7 +98,7 @@ public abstract class QuasiLinearModelCalculator<TInput, TReducedRelaxationFunct
         {
             if (input.ViscoelasticEffect == ViscoelasticEffect.Relaxation)
             {
-                strain ??= input.Strain.InitialValue;
+                strain ??= input.Strain!.InitialValue;
                 return CalculateStressWhenDisregardRampTime(input, time, strain.Value);
             }
 
@@ -132,7 +132,7 @@ public abstract class QuasiLinearModelCalculator<TInput, TReducedRelaxationFunct
 
             if (input.ViscoelasticEffect == ViscoelasticEffect.Relaxation)
             {
-                stress ??= input.Stress.InitialValue;
+                stress ??= input.Stress!.InitialValue;
                 double reducedRelaxationFunction = CalculateReducedRelaxationFunction(input, time);
                 return Math.Log(stress.Value / (input.ElasticStressConstant * reducedRelaxationFunction) + 1) / input.ElasticPowerConstant;
             }
@@ -146,7 +146,7 @@ public abstract class QuasiLinearModelCalculator<TInput, TReducedRelaxationFunct
 
     /// <inheritdoc/>
     /// <remarks>σ(t) = σᵉ(t)·G(0) + ∫₀ᵗ σᵉ(t-τ)·dG(τ)/dτ dτ (Projeto Final, Eq. 35).</remarks>
-    [MechanicalModelParameterCalculation(nameof(QuasiLinearModelResult.StressByReducedRelaxationFunctionDerivative), MechanicalRelationship.StressStrain, ViscoelasticEffect.Relaxation)]
+    [MechanicalModelParameterCalculation(nameof(QuasiLinearModelOutput.StressByReducedRelaxationFunctionDerivative), MechanicalRelationship.StressStrain, ViscoelasticEffect.Relaxation)]
     public double CalculateStressByReducedRelaxationFunctionDerivative(TInput input, double time)
     {
         if (input.RampTimeConsideration == RampTimeConsideration.Disregard)
@@ -178,7 +178,7 @@ public abstract class QuasiLinearModelCalculator<TInput, TReducedRelaxationFunct
 
     /// <inheritdoc/>
     /// <remarks>σ(t) = d/dt ∫₀ᵗ σᵉ(t-τ)·G(τ) dτ (Projeto Final, Eq. 36).</remarks>
-    [MechanicalModelParameterCalculation(nameof(QuasiLinearModelResult.StressByConvolutionDerivative), MechanicalRelationship.StressStrain, ViscoelasticEffect.Relaxation)]
+    [MechanicalModelParameterCalculation(nameof(QuasiLinearModelOutput.StressByConvolutionDerivative), MechanicalRelationship.StressStrain, ViscoelasticEffect.Relaxation)]
     public double CalculateStressByConvolutionDerivative(TInput input, double time)
     {
         if (input.RampTimeConsideration == RampTimeConsideration.Disregard)
@@ -209,33 +209,33 @@ public abstract class QuasiLinearModelCalculator<TInput, TReducedRelaxationFunct
     }
 
     /// <inheritdoc/>
-    [MechanicalModelParameterCalculation(nameof(QuasiLinearModelResult.ElasticForceResponse), MechanicalRelationship.ForceDisplacement, ViscoelasticEffect.Relaxation)]
+    [MechanicalModelParameterCalculation(nameof(QuasiLinearModelOutput.ElasticForceResponse), MechanicalRelationship.ForceDisplacement, ViscoelasticEffect.Relaxation)]
     public double CalculateElasticForceResponse(TInput input, double time, double? displacement = null)
     {
         if (input.RampTimeConsideration == RampTimeConsideration.Disregard && displacement is null)
-            return input.Force.InitialValue;
+            return input.Force!.InitialValue;
 
-        displacement ??= input.Displacement.CalculateValue(time);
-        double strain = ParameterConverter.CalculateStrainFromDisplacement(input.Specimen, displacement.Value);
+        displacement ??= input.Displacement!.CalculateValue(time);
+        double strain = ParameterConverter.CalculateStrainFromDisplacement(input.Specimen!, displacement.Value);
         double elasticResponse = CalculateElasticResponse(input, time, strain);
 
-        return ParameterConverter.CalculateForceFromStress(input.Specimen, elasticResponse);
+        return ParameterConverter.CalculateForceFromStress(input.Specimen!, elasticResponse);
     }
 
     /// <inheritdoc/>
     /// <remarks>σᵉ(t) = A · (e^(B·ε(t)) - 1) (Projeto Final, Eq. 37).</remarks>
-    [MechanicalModelParameterCalculation(nameof(QuasiLinearModelResult.ElasticResponse), MechanicalRelationship.StressStrain, ViscoelasticEffect.Relaxation)]
+    [MechanicalModelParameterCalculation(nameof(QuasiLinearModelOutput.ElasticResponse), MechanicalRelationship.StressStrain, ViscoelasticEffect.Relaxation)]
     public double CalculateElasticResponse(TInput input, double time, double? strain = null)
     {
         if (input.RampTimeConsideration == RampTimeConsideration.Disregard && strain is null)
-            return input.Stress.InitialValue;
+            return input.Stress!.InitialValue;
 
-        strain ??= input.Strain.CalculateValue(time);
+        strain ??= input.Strain!.CalculateValue(time);
         return input.ElasticStressConstant * (Math.Exp(input.ElasticPowerConstant * strain.Value) - 1);
     }
 
     /// <inheritdoc/>
-    [MechanicalModelParameterCalculation(nameof(QuasiLinearModelResult.ReducedRelaxationFunction), ViscoelasticEffect.Relaxation)]
+    [MechanicalModelParameterCalculation(nameof(QuasiLinearModelOutput.ReducedRelaxationFunction), ViscoelasticEffect.Relaxation)]
     public abstract double CalculateReducedRelaxationFunction(TInput input, double time);
 
     /// <inheritdoc/>
@@ -248,25 +248,25 @@ public abstract class QuasiLinearModelCalculator<TInput, TReducedRelaxationFunct
         if (input.RampTimeConsideration == RampTimeConsideration.Disregard)
             return 0;
 
-        displacement ??= input.Displacement.CalculateValue(time);
-        displacementDerivative ??= input.Displacement.CalculateDerivative(time);
+        displacement ??= input.Displacement!.CalculateValue(time);
+        displacementDerivative ??= input.Displacement!.CalculateDerivative(time);
 
-        double strain = ParameterConverter.CalculateStrainFromDisplacement(input.Specimen, displacement.Value);
-        double strainDerivative = ParameterConverter.CalculateStrainDerivativeFromDisplacement(input.Specimen, displacement.Value, displacementDerivative.Value);
+        double strain = ParameterConverter.CalculateStrainFromDisplacement(input.Specimen!, displacement.Value);
+        double strainDerivative = ParameterConverter.CalculateStrainDerivativeFromDisplacement(input.Specimen!, displacement.Value, displacementDerivative.Value);
 
         double elasticResponseDerivative = CalculateElasticResponseDerivative(input, time, strain, strainDerivative);
-        return ParameterConverter.CalculateForceFromStress(input.Specimen, elasticResponseDerivative);
+        return ParameterConverter.CalculateForceFromStress(input.Specimen!, elasticResponseDerivative);
     }
 
     /// <remarks>dσᵉ/dt = A · B · e^(B·ε(t)) · dε/dt (Projeto Final, Eq. 39).</remarks>
-    private double CalculateElasticResponseDerivative(TInput input, double time, double? strain = null, double? strainDerivative = null)
+    private static double CalculateElasticResponseDerivative(TInput input, double time, double? strain = null, double? strainDerivative = null)
     {
         // If the ramp time is disregarded, the elastic response is constant during the time and its derivative is always zero.
         if (input.RampTimeConsideration == RampTimeConsideration.Disregard)
             return 0;
 
-        strain ??= input.Strain.CalculateValue(time);
-        strainDerivative ??= input.Strain.CalculateDerivative(time);
+        strain ??= input.Strain!.CalculateValue(time);
+        strainDerivative ??= input.Strain!.CalculateDerivative(time);
 
         return input.ElasticStressConstant * input.ElasticPowerConstant * strainDerivative.Value * Math.Exp(input.ElasticPowerConstant * strain.Value);
     }
@@ -281,7 +281,7 @@ public abstract class QuasiLinearModelCalculator<TInput, TReducedRelaxationFunct
     private double CalculateStressWhenDisregardRampTime(TInput input, double time, double? strain = null)
     {
         double reducedRelaxationFunction = CalculateReducedRelaxationFunction(input, time);
-        double elasticResponse = strain is null ? input.Stress.InitialValue : CalculateElasticResponse(input, time, strain);
+        double elasticResponse = strain is null ? input.Stress!.InitialValue : CalculateElasticResponse(input, time, strain);
         return elasticResponse * reducedRelaxationFunction;
     }
 
@@ -295,7 +295,7 @@ public abstract class QuasiLinearModelCalculator<TInput, TReducedRelaxationFunct
     private double CalculateForceWhenDisregardRampTime(TInput input, double time, double? displacement)
     {
         double reducedRelaxationFunction = CalculateReducedRelaxationFunction(input, time);
-        double elasticForce = displacement is null ? input.Force.InitialValue : CalculateElasticForceResponse(input, time, displacement);
+        double elasticForce = displacement is null ? input.Force!.InitialValue : CalculateElasticForceResponse(input, time, displacement);
         return elasticForce * reducedRelaxationFunction;
     }
 
