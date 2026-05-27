@@ -1,4 +1,4 @@
-﻿namespace MelloSilveiraTools.MechanicsOfMaterials.Models;
+﻿namespace MelloSilveiraTools.Mathematics.Models;
 
 /// <summary>
 /// Contains the output for a generic timebased analysis.

@@ -6,7 +6,7 @@ using MelloSilveiraTools.Plugins.Infrastructure.Models;
 using MelloSilveiraTools.Plugins.Infrastructure.Services;
 using MelloSilveiraTools.WebApi.Application.Commands;
 
-namespace MelloSilveiraTools.Plugins.Application.Operations.Get;
+namespace MelloSilveiraTools.Plugins.Application.Commands.Get;
 
 /// <summary>
 /// Operation that retrieves registered plugins matching the supplied name, version and load-state filters.

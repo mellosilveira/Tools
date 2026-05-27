@@ -1,11 +1,12 @@
 using MelloSilveiraTools.Core.Logger;
 using MelloSilveiraTools.Core.Models;
+using MelloSilveiraTools.Plugins.Application.Commands;
 using MelloSilveiraTools.Plugins.Application.Validators;
 using MelloSilveiraTools.Plugins.Infrastructure.Models;
 using MelloSilveiraTools.Plugins.Infrastructure.Services;
 using MelloSilveiraTools.WebApi.Application.Commands;
 
-namespace MelloSilveiraTools.Plugins.Application.Operations.Cache;
+namespace MelloSilveiraTools.Plugins.Application.Commands.Cache;
 
 /// <summary>
 /// Operation that restores the plugin cache from the configured target (file, database, etc.) for the supplied plugin filter.

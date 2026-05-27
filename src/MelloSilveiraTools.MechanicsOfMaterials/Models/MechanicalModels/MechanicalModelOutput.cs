@@ -1,4 +1,5 @@
-﻿using MelloSilveiraTools.MechanicsOfMaterials.Attributes;
+﻿using MelloSilveiraTools.Mathematics.Models;
+using MelloSilveiraTools.MechanicsOfMaterials.Attributes;
 using MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity;
 
 namespace MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels;

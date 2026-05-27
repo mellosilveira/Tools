@@ -6,7 +6,7 @@ using MelloSilveiraTools.Plugins.Infrastructure.Models;
 using MelloSilveiraTools.Plugins.Infrastructure.Services;
 using MelloSilveiraTools.WebApi.Application.Commands;
 
-namespace MelloSilveiraTools.Plugins.Application.Operations.Reload;
+namespace MelloSilveiraTools.Plugins.Application.Commands.Reload;
 
 /// <summary>
 /// Operation that reloads plugins into the runtime based on the supplied name/version filter and force flag.

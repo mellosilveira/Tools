@@ -1,4 +1,5 @@
 ﻿using MelloSilveiraTools.Mathematics.Extensions;
+using MelloSilveiraTools.Mathematics.Models;
 
 namespace MelloSilveiraTools.MechanicsOfMaterials.Models.LoadSharing;
 

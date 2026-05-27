@@ -1,6 +1,6 @@
 using MelloSilveiraTools.WebApi.Application.Commands;
 
-namespace MelloSilveiraTools.Plugins.Application.Operations;
+namespace MelloSilveiraTools.Plugins.Application.Commands;
 
 /// <summary>
 /// Request used to filter plugins for a command.

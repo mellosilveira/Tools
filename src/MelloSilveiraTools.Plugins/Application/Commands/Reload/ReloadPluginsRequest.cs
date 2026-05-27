@@ -1,4 +1,6 @@
-namespace MelloSilveiraTools.Plugins.Application.Operations.Reload;
+using MelloSilveiraTools.Plugins.Application.Commands;
+
+namespace MelloSilveiraTools.Plugins.Application.Commands.Reload;
 
 /// <summary>
 /// Request used by the <c>ReloadPlugins</c> operation to identify which plugins should be reloaded and whether to force the reload.

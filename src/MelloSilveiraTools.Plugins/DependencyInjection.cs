@@ -1,9 +1,9 @@
 using MelloSilveiraTools.Core.Caching;
 using MelloSilveiraTools.Core.Providers.Dynamics;
-using MelloSilveiraTools.Plugins.Application.Operations.Cache;
-using MelloSilveiraTools.Plugins.Application.Operations.Get;
-using MelloSilveiraTools.Plugins.Application.Operations.Load;
-using MelloSilveiraTools.Plugins.Application.Operations.Reload;
+using MelloSilveiraTools.Plugins.Application.Commands.Cache;
+using MelloSilveiraTools.Plugins.Application.Commands.Get;
+using MelloSilveiraTools.Plugins.Application.Commands.Load;
+using MelloSilveiraTools.Plugins.Application.Commands.Reload;
 using MelloSilveiraTools.Plugins.Infrastructure;
 using MelloSilveiraTools.Plugins.Infrastructure.Persistences;
 using MelloSilveiraTools.Plugins.Infrastructure.Services;

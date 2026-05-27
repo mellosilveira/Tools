@@ -6,7 +6,7 @@ using MelloSilveiraTools.Plugins.Infrastructure.Models;
 using MelloSilveiraTools.Plugins.Infrastructure.Services;
 using MelloSilveiraTools.WebApi.Application.Commands;
 
-namespace MelloSilveiraTools.Plugins.Application.Operations.Load;
+namespace MelloSilveiraTools.Plugins.Application.Commands.Load;
 
 /// <summary>
 /// Operation that loads plugins into the runtime based on the supplied name/version filter.

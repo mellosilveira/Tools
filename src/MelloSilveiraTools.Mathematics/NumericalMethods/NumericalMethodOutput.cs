@@ -1,4 +1,4 @@
-﻿using MelloSilveiraTools.MechanicsOfMaterials.Models;
+﻿using MelloSilveiraTools.Mathematics.Models;
 using System.Globalization;
 
 namespace MelloSilveiraTools.Mathematics.NumericalMethods;

@@ -1,6 +1,6 @@
 ﻿using MelloSilveiraTools.Core.Models;
 using MelloSilveiraTools.Core.Validators;
-using MelloSilveiraTools.Plugins.Application.Operations;
+using MelloSilveiraTools.Plugins.Application.Commands;
 using MelloSilveiraTools.Plugins.Infrastructure.Models;
 
 namespace MelloSilveiraTools.Plugins.Application.Validators;

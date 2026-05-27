@@ -1,4 +1,6 @@
-namespace MelloSilveiraTools.Plugins.Application.Operations.Get;
+using MelloSilveiraTools.Plugins.Application.Commands;
+
+namespace MelloSilveiraTools.Plugins.Application.Commands.Get;
 
 /// <summary>
 /// Request used to filter plugins returned by the <c>GetPlugins</c> operation.

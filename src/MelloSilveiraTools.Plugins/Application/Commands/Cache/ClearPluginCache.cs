@@ -4,7 +4,7 @@ using MelloSilveiraTools.Database.ExtensionMethods;
 using MelloSilveiraTools.Plugins.Infrastructure.Services;
 using MelloSilveiraTools.WebApi.Application.Commands;
 
-namespace MelloSilveiraTools.Plugins.Application.Operations.Cache;
+namespace MelloSilveiraTools.Plugins.Application.Commands.Cache;
 
 /// <summary>
 /// Operation that clears the plugin cache managed by <see cref="IPluginService"/>.
