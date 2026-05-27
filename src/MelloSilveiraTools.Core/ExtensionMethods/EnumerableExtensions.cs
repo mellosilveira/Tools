@@ -1,4 +1,4 @@
-﻿using System.Threading;
+﻿using MelloSilveiraTools.Core.Logger;
 
 namespace MelloSilveiraTools.Core.ExtensionMethods;
 
@@ -153,8 +153,9 @@ public static class EnumerableExtensions
     /// <param name="source">The sequence to iterate. Must not be <see langword="null"/>.</param>
     /// <param name="asyncAction">The asynchronous delegate invoked for each item.</param>
     /// <param name="maxDegreeOfParallelism">Maximum number of <paramref name="asyncAction"/> invocations allowed to run concurrently. Must be greater than zero.</param>
+    /// <param name="logger"></param>
     /// <returns>A task that completes when every dispatched <paramref name="asyncAction"/> has finished.</returns>
-    public static async Task ForeachAsync<T>(this IEnumerable<T> source, Func<T, Task> asyncAction, int maxDegreeOfParallelism)
+    public static async Task ForeachAsync<T>(this IEnumerable<T> source, Func<T, Task> asyncAction, int maxDegreeOfParallelism, ILogger logger)
     {
         using SemaphoreSlim semaphoreSlim = new(maxDegreeOfParallelism, maxDegreeOfParallelism);
 
@@ -171,7 +172,89 @@ public static class EnumerableExtensions
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine("Failed on async loop. " + ex.Message);
+                    logger.Error("Failed on async loop.", ex, new Dictionary<string, object?> { { "Item", item } });
+                }
+                finally
+                {
+                    semaphoreSlim.Release();
+                }
+            }));
+        }
+
+        await Task.WhenAll(tasks).ConfigureAwait(false);
+    }
+
+    /// <summary>
+    /// Iterates over <paramref name="source"/> launching <paramref name="asyncAction"/> for every item,
+    /// while limiting concurrency through a <see cref="SemaphoreSlim"/> bounded by <paramref name="maxDegreeOfParallelism"/>.
+    /// Items are dispatched in source order, but their actual completion order is non-deterministic
+    /// because they execute in parallel. Exceptions raised inside <paramref name="asyncAction"/> are
+    /// logged to <see cref="Console"/> and swallowed so the iteration continues; cancellation is not
+    /// observed by this overload.
+    /// </summary>
+    /// <typeparam name="T">The element type of the sequence.</typeparam>
+    /// <param name="source">The sequence to iterate. Must not be <see langword="null"/>.</param>
+    /// <param name="asyncAction">The asynchronous delegate invoked for each item.</param>
+    /// <param name="maxDegreeOfParallelism">Maximum number of <paramref name="asyncAction"/> invocations allowed to run concurrently. Must be greater than zero.</param>
+    /// <param name="logger"></param>
+    /// <returns>A task that completes when every dispatched <paramref name="asyncAction"/> has finished.</returns>
+    public static async Task ForeachAsync<T>(this IEnumerable<T> source, Func<T, Task> asyncAction, int maxDegreeOfParallelism)
+    {
+        using SemaphoreSlim semaphoreSlim = new(maxDegreeOfParallelism, maxDegreeOfParallelism);
+
+        List<Task> tasks = [];
+        foreach (T item in source)
+        {
+            await semaphoreSlim.WaitAsync().ConfigureAwait(false);
+
+            tasks.Add(Task.Run(async () =>
+            {
+                try
+                {
+                    await asyncAction(item);
+                }
+                finally
+                {
+                    semaphoreSlim.Release();
+                }
+            }));
+        }
+
+        await Task.WhenAll(tasks).ConfigureAwait(false);
+    }
+
+    /// <summary>
+    /// Iterates over <paramref name="source"/> dispatching <paramref name="action"/> for every item on
+    /// the thread pool, while limiting concurrency through a <see cref="SemaphoreSlim"/> bounded by
+    /// <paramref name="maxDegreeOfParallelism"/>. Items are scheduled in source order but completion
+    /// order is non-deterministic. Exceptions raised inside <paramref name="action"/> are logged to
+    /// <see cref="Console"/> and swallowed so the iteration continues; cancellation is not observed
+    /// by this overload.
+    /// </summary>
+    /// <typeparam name="T">The element type of the sequence.</typeparam>
+    /// <param name="source">The sequence to iterate. Must not be <see langword="null"/>.</param>
+    /// <param name="action">The synchronous delegate invoked for each item on the thread pool.</param>
+    /// <param name="maxDegreeOfParallelism">Maximum number of <paramref name="action"/> invocations allowed to run concurrently. Must be greater than zero.</param>
+    /// <param name="logger"></param>
+    /// <returns>A task that completes when every scheduled invocation of <paramref name="action"/> has finished.</returns>
+    public static async Task ForeachAsync<T>(this IEnumerable<T> source, Action<T> action, int maxDegreeOfParallelism, ILogger logger)
+    {
+        using SemaphoreSlim semaphoreSlim = new(maxDegreeOfParallelism, maxDegreeOfParallelism);
+
+        List<Task> tasks = [];
+        foreach (T item in source)
+        {
+            await semaphoreSlim.WaitAsync().ConfigureAwait(false);
+
+            tasks.Add(Task.Run(() =>
+            {
+                try
+                {
+                    action(item);
+                }
+                catch (Exception ex)
+                {
+                    logger.Error("Failed on async loop.", ex, new Dictionary<string, object?> { { "Item", item } });
                 }
                 finally
                 {
@@ -211,10 +294,6 @@ public static class EnumerableExtensions
                 {
                     action(item);
                 }
-                catch (Exception ex)
-                {
-                    Console.WriteLine("Failed on async loop. " + ex.Message);
-                }
                 finally
                 {
                     semaphoreSlim.Release();
@@ -229,7 +308,7 @@ public static class EnumerableExtensions
     /// Iterates synchronously over <paramref name="source"/> invoking <paramref name="action"/> for each item.
     /// Exceptions thrown by <paramref name="action"/> are logged and swallowed so the iteration continues.
     /// </summary>
-    public static void Foreach<T>(this IEnumerable<T> source, Action<T> action)
+    public static void Foreach<T>(this IEnumerable<T> source, Action<T> action, ILogger logger)
     {
         foreach (T item in source)
         {
@@ -239,8 +318,20 @@ public static class EnumerableExtensions
             }
             catch (Exception ex)
             {
-                Console.WriteLine("Failed on loop. " + ex.Message);
+                logger.Error("Failed on loop.", ex, new Dictionary<string, object?> { { "Item", item } });
             }
+        }
+    }
+
+    /// <summary>
+    /// Iterates synchronously over <paramref name="source"/> invoking <paramref name="action"/> for each item.
+    /// Exceptions thrown by <paramref name="action"/> are logged and swallowed so the iteration continues.
+    /// </summary>
+    public static void Foreach<T>(this IEnumerable<T> source, Action<T> action)
+    {
+        foreach (T item in source)
+        {
+            action(item);
         }
     }
 
