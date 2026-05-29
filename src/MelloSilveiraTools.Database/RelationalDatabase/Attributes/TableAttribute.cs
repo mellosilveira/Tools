@@ -37,11 +37,6 @@ public class TableAttribute : Attribute
     /// </summary>
     public string Alias { get; }
 
-    /// <summary>
-    /// Gets alias from table name.
-    /// </summary>
-    /// <param name="tableName"></param>
-    /// <returns></returns>
     private static string GetAliasName(string tableName)
     {
         if (!tableName.Contains('_'))
