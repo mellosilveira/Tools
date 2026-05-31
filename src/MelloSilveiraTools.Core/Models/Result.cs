@@ -74,6 +74,9 @@ public record Result : ResultBase
     public static TResult Create<TResult>(Result result) where TResult : ResultBase, new()
         => new() { Success = result.Success, StatusCode = result.StatusCode, Messages = result.Messages ?? [] };
 
+    public static Result Create<TResult>(TResult result) where TResult : ResultBase, new()
+        => new() { Success = result.Success, StatusCode = result.StatusCode, Messages = result.Messages ?? [] };
+
     /// <summary>
     /// Creates a successful 200 OK result.
     /// </summary>
@@ -207,6 +210,8 @@ public record Result<TResultData> : ResultBase
     public TResultData? Data { get; init; }
 
     public static implicit operator Result<TResultData>(Result response) => new() { Messages = response.Messages, StatusCode = response.StatusCode, Success = response.Success };
+    
+    public static implicit operator Result<TResultData>(TResultData resultData) => Result.CreateSuccessOk(resultData);
 }
 
 /// <summary>

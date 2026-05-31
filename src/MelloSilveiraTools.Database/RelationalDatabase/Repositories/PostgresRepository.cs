@@ -264,7 +264,7 @@ public class PostgresRepository(ISqlProvider sqlProvider, PostgresResiliencePipe
         string sql = sqlProvider.GetTryInsertSql<TEntity>();
         IEnumerable<NpgsqlParameter> parameters = entity.BuildParameters(useDeclaredProperties: true);
 
-        return await resiliencePipeline.ExecuteAsync<Result<long>>(async _ =>
+        return await resiliencePipeline.ExecuteAsync(async _ =>
         {
             await using NpgsqlConnection connection = await GetNewOpenedConnectionAsync(cancellationToken).ConfigureAwait(false);
             await using NpgsqlCommand command = new(sql, connection) { CommandTimeout = DatabaseSettings.UnitOperationTimeoutInSeconds };
