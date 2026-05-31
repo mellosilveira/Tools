@@ -1326,6 +1326,22 @@
             <param name="services">The service collection used to register the dependencies.</param>
             <returns>The same service collection so additional registrations can be chained.</returns>
         </member>
+        <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Models.AnalysisParameter">
+            <summary>
+            Represents an analysis parameter consisting of an initial value for a dependent mechanical parameter 
+            and an independent mechanical parameter.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Models.AnalysisParameter.InitialDependentMechanicalParameterValue">
+            <summary>
+            Initial value for the dependent mechanical parameter.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Models.AnalysisParameter.IndependentMechanicalParameter">
+            <summary>
+            Independent mechanical parameter.
+            </summary>
+        </member>
         <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Models.AnalysisType">
             <summary>
             Contains the types for all analysis performed by application.

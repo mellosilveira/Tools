@@ -797,6 +797,11 @@
             </summary>
             <param name="message">Error message describing the failure.</param>
         </member>
+        <member name="M:MelloSilveiraTools.Core.Models.Result.CreateUnknownError">
+            <summary>
+            Creates a 500 Internal Server Error result with the supplied message.
+            </summary>
+        </member>
         <member name="M:MelloSilveiraTools.Core.Models.Result.CreateUnknownError(System.String)">
             <summary>
             Creates a 500 Internal Server Error result with the supplied message.

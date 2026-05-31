@@ -419,13 +419,6 @@
             Alias of table.
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.Database.RelationalDatabase.Attributes.TableAttribute.GetAliasName(System.String)">
-            <summary>
-            Gets alias from table name.
-            </summary>
-            <param name="tableName"></param>
-            <returns></returns>
-        </member>
         <member name="T:MelloSilveiraTools.Database.RelationalDatabase.Attributes.UniqueColumnAttribute">
             <summary>
             Specifies if a column is a primary key of table.

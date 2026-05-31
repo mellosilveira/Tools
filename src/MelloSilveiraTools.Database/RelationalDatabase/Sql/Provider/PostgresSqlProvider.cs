@@ -148,7 +148,7 @@ public class PostgresSqlProvider : ISqlProvider
 
         if (meta.UniqueColumns.Count != 0)
         {
-            var uniqueCols    = string.Join(", ", meta.UniqueColumns.Select(c => c.ColName));
+            var uniqueCols = string.Join(", ", meta.UniqueColumns.Select(c => c.ColName));
             var uniqueUpdates = BuildUniqueUpdates(meta);
             sql = sql
                 .Replace("#UNIQUE_COLUMNS", uniqueCols)
@@ -224,26 +224,17 @@ public class PostgresSqlProvider : ISqlProvider
         var cols = string.Join(", ", meta.AllColumns.Select(c => c.ColName));
         var pars = string.Join(", ", meta.AllColumns.Select(c => $"@{c.Prop.Name}"));
 
-        var template = meta.UniqueColumns.Count != 0
-            ? SqlResource.InsertWithUniqueKeyTemplate
-            : SqlResource.InsertTemplate;
+        string sql = meta.UniqueColumns.Count == 0
+            ? SqlResource.InsertTemplate
+            : SqlResource.InsertWithUniqueKeyTemplate
+                .Replace("#UNIQUE_COLUMNS", string.Join(", ", meta.UniqueColumns.Select(c => c.ColName)))
+                .Replace("#UNIQUE_UPDATES", BuildUniqueUpdates(meta));
 
-        var sql = template
+        return sql
             .Replace("#TABLE_NAME", meta.TableName)
             .Replace("#COLUMNS", cols)
             .Replace("#PARAMETER_NAMES", pars)
             .Replace("#PRIMARY_KEY", meta.PrimaryKeyCol);
-
-        if (meta.UniqueColumns.Count != 0)
-        {
-            var uniqueCols    = string.Join(", ", meta.UniqueColumns.Select(c => c.ColName));
-            var uniqueUpdates = BuildUniqueUpdates(meta);
-            sql = sql
-                .Replace("#UNIQUE_COLUMNS", uniqueCols)
-                .Replace("#UNIQUE_UPDATES", uniqueUpdates);
-        }
-
-        return sql;
     }
 
     private static string CreateTryInsertSql(Type type)
@@ -303,7 +294,7 @@ public class PostgresSqlProvider : ISqlProvider
     {
         var payloadCols = meta.AllColumns
             .Where(c => c.Prop.GetCustomAttribute<PrimaryKeyColumnAttribute>() == null &&
-                        c.Prop.GetCustomAttribute<UniqueColumnAttribute>()    == null)
+                        c.Prop.GetCustomAttribute<UniqueColumnAttribute>() == null)
             .ToList();
 
         return payloadCols.Count > 0

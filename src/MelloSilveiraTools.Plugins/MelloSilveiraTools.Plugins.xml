@@ -4,115 +4,115 @@
         <name>MelloSilveiraTools.Plugins</name>
     </assembly>
     <members>
-        <member name="T:MelloSilveiraTools.Plugins.Application.Operations.Cache.ClearPluginCache">
+        <member name="T:MelloSilveiraTools.Plugins.Application.Commands.Cache.ClearPluginCache">
             <summary>
             Operation that clears the plugin cache managed by <see cref="T:MelloSilveiraTools.Plugins.Infrastructure.Services.IPluginService"/>.
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.Plugins.Application.Operations.Cache.ClearPluginCache.#ctor(MelloSilveiraTools.Core.Logger.ILogger,MelloSilveiraTools.Plugins.Infrastructure.Services.IPluginService)">
+        <member name="M:MelloSilveiraTools.Plugins.Application.Commands.Cache.ClearPluginCache.#ctor(MelloSilveiraTools.Core.Logger.ILogger,MelloSilveiraTools.Plugins.Infrastructure.Services.IPluginService)">
             <summary>
             Operation that clears the plugin cache managed by <see cref="T:MelloSilveiraTools.Plugins.Infrastructure.Services.IPluginService"/>.
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.Plugins.Application.Operations.Cache.ClearPluginCache.ExecuteCommandAsync">
+        <member name="M:MelloSilveiraTools.Plugins.Application.Commands.Cache.ClearPluginCache.ExecuteCommandAsync">
             <inheritdoc />
         </member>
-        <member name="T:MelloSilveiraTools.Plugins.Application.Operations.Cache.PersistPluginCache">
+        <member name="T:MelloSilveiraTools.Plugins.Application.Commands.Cache.PersistPluginCache">
             <summary>
             Operation that persists the plugin cache to the configured target (file, database, etc.) for the supplied plugin filter.
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.Plugins.Application.Operations.Cache.PersistPluginCache.#ctor(MelloSilveiraTools.Core.Logger.ILogger,MelloSilveiraTools.Plugins.Infrastructure.Services.IPluginService,MelloSilveiraTools.Plugins.Application.Validators.PluginValidator)">
+        <member name="M:MelloSilveiraTools.Plugins.Application.Commands.Cache.PersistPluginCache.#ctor(MelloSilveiraTools.Core.Logger.ILogger,MelloSilveiraTools.Plugins.Infrastructure.Services.IPluginService,MelloSilveiraTools.Plugins.Application.Validators.PluginValidator)">
             <summary>
             Operation that persists the plugin cache to the configured target (file, database, etc.) for the supplied plugin filter.
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.Plugins.Application.Operations.Cache.PersistPluginCache.ExecuteCommandAsync(MelloSilveiraTools.Plugins.Application.Operations.PluginsRequest)">
+        <member name="M:MelloSilveiraTools.Plugins.Application.Commands.Cache.PersistPluginCache.ExecuteCommandAsync(MelloSilveiraTools.Plugins.Application.Commands.PluginsRequest)">
             <inheritdoc />
         </member>
-        <member name="T:MelloSilveiraTools.Plugins.Application.Operations.Cache.RestorePluginCache">
+        <member name="T:MelloSilveiraTools.Plugins.Application.Commands.Cache.RestorePluginCache">
             <summary>
             Operation that restores the plugin cache from the configured target (file, database, etc.) for the supplied plugin filter.
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.Plugins.Application.Operations.Cache.RestorePluginCache.#ctor(MelloSilveiraTools.Core.Logger.ILogger,MelloSilveiraTools.Plugins.Infrastructure.Services.IPluginService,MelloSilveiraTools.Plugins.Application.Validators.PluginValidator)">
+        <member name="M:MelloSilveiraTools.Plugins.Application.Commands.Cache.RestorePluginCache.#ctor(MelloSilveiraTools.Core.Logger.ILogger,MelloSilveiraTools.Plugins.Infrastructure.Services.IPluginService,MelloSilveiraTools.Plugins.Application.Validators.PluginValidator)">
             <summary>
             Operation that restores the plugin cache from the configured target (file, database, etc.) for the supplied plugin filter.
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.Plugins.Application.Operations.Cache.RestorePluginCache.ExecuteCommandAsync(MelloSilveiraTools.Plugins.Application.Operations.PluginsRequest)">
+        <member name="M:MelloSilveiraTools.Plugins.Application.Commands.Cache.RestorePluginCache.ExecuteCommandAsync(MelloSilveiraTools.Plugins.Application.Commands.PluginsRequest)">
             <inheritdoc />
         </member>
-        <member name="T:MelloSilveiraTools.Plugins.Application.Operations.Get.GetPlugins">
+        <member name="T:MelloSilveiraTools.Plugins.Application.Commands.Get.GetPlugins">
             <summary>
             Operation that retrieves registered plugins matching the supplied name, version and load-state filters.
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.Plugins.Application.Operations.Get.GetPlugins.#ctor(MelloSilveiraTools.Core.Logger.ILogger,MelloSilveiraTools.Plugins.Infrastructure.Services.IPluginService,MelloSilveiraTools.Plugins.Application.Validators.PluginValidator{MelloSilveiraTools.Plugins.Application.Operations.Get.GetPluginsRequest})">
+        <member name="M:MelloSilveiraTools.Plugins.Application.Commands.Get.GetPlugins.#ctor(MelloSilveiraTools.Core.Logger.ILogger,MelloSilveiraTools.Plugins.Infrastructure.Services.IPluginService,MelloSilveiraTools.Plugins.Application.Validators.PluginValidator{MelloSilveiraTools.Plugins.Application.Commands.Get.GetPluginsRequest})">
             <summary>
             Operation that retrieves registered plugins matching the supplied name, version and load-state filters.
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.Plugins.Application.Operations.Get.GetPlugins.ExecuteCommandAsync(MelloSilveiraTools.Plugins.Application.Operations.Get.GetPluginsRequest)">
+        <member name="M:MelloSilveiraTools.Plugins.Application.Commands.Get.GetPlugins.ExecuteCommandAsync(MelloSilveiraTools.Plugins.Application.Commands.Get.GetPluginsRequest)">
             <inheritdoc />
         </member>
-        <member name="T:MelloSilveiraTools.Plugins.Application.Operations.Get.GetPluginsRequest">
+        <member name="T:MelloSilveiraTools.Plugins.Application.Commands.Get.GetPluginsRequest">
             <summary>
             Request used to filter plugins returned by the <c>GetPlugins</c> operation.
             </summary>
         </member>
-        <member name="P:MelloSilveiraTools.Plugins.Application.Operations.Get.GetPluginsRequest.FullyLoaded">
+        <member name="P:MelloSilveiraTools.Plugins.Application.Commands.Get.GetPluginsRequest.FullyLoaded">
             <summary>
             When set, restricts the result to plugins that are fully loaded (<c>true</c>) or not fully loaded (<c>false</c>).
             </summary>
         </member>
-        <member name="T:MelloSilveiraTools.Plugins.Application.Operations.Load.LoadPlugins">
+        <member name="T:MelloSilveiraTools.Plugins.Application.Commands.Load.LoadPlugins">
             <summary>
             Operation that loads plugins into the runtime based on the supplied name/version filter.
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.Plugins.Application.Operations.Load.LoadPlugins.#ctor(MelloSilveiraTools.Core.Logger.ILogger,MelloSilveiraTools.Plugins.Infrastructure.Services.IPluginService,MelloSilveiraTools.Plugins.Application.Validators.PluginValidator)">
+        <member name="M:MelloSilveiraTools.Plugins.Application.Commands.Load.LoadPlugins.#ctor(MelloSilveiraTools.Core.Logger.ILogger,MelloSilveiraTools.Plugins.Infrastructure.Services.IPluginService,MelloSilveiraTools.Plugins.Application.Validators.PluginValidator)">
             <summary>
             Operation that loads plugins into the runtime based on the supplied name/version filter.
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.Plugins.Application.Operations.Load.LoadPlugins.ExecuteCommandAsync(MelloSilveiraTools.Plugins.Application.Operations.PluginsRequest)">
+        <member name="M:MelloSilveiraTools.Plugins.Application.Commands.Load.LoadPlugins.ExecuteCommandAsync(MelloSilveiraTools.Plugins.Application.Commands.PluginsRequest)">
             <inheritdoc />
         </member>
-        <member name="T:MelloSilveiraTools.Plugins.Application.Operations.PluginsRequest">
+        <member name="T:MelloSilveiraTools.Plugins.Application.Commands.PluginsRequest">
             <summary>
             Request used to filter plugins for a command.
             </summary>
         </member>
-        <member name="P:MelloSilveiraTools.Plugins.Application.Operations.PluginsRequest.Name">
+        <member name="P:MelloSilveiraTools.Plugins.Application.Commands.PluginsRequest.Name">
             <summary>
             Optional plugin name. When omitted, all plugins are considered.
             </summary>
         </member>
-        <member name="P:MelloSilveiraTools.Plugins.Application.Operations.PluginsRequest.Version">
+        <member name="P:MelloSilveiraTools.Plugins.Application.Commands.PluginsRequest.Version">
             <summary>
             Optional plugin version (in <c>PluginVersion</c> string form). When omitted, all versions are considered.
             </summary>
         </member>
-        <member name="T:MelloSilveiraTools.Plugins.Application.Operations.Reload.ReloadPlugins">
+        <member name="T:MelloSilveiraTools.Plugins.Application.Commands.Reload.ReloadPlugins">
             <summary>
             Operation that reloads plugins into the runtime based on the supplied name/version filter and force flag.
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.Plugins.Application.Operations.Reload.ReloadPlugins.#ctor(MelloSilveiraTools.Core.Logger.ILogger,MelloSilveiraTools.Plugins.Infrastructure.Services.IPluginService,MelloSilveiraTools.Plugins.Application.Validators.PluginValidator{MelloSilveiraTools.Plugins.Application.Operations.Reload.ReloadPluginsRequest})">
+        <member name="M:MelloSilveiraTools.Plugins.Application.Commands.Reload.ReloadPlugins.#ctor(MelloSilveiraTools.Core.Logger.ILogger,MelloSilveiraTools.Plugins.Infrastructure.Services.IPluginService,MelloSilveiraTools.Plugins.Application.Validators.PluginValidator{MelloSilveiraTools.Plugins.Application.Commands.Reload.ReloadPluginsRequest})">
             <summary>
             Operation that reloads plugins into the runtime based on the supplied name/version filter and force flag.
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.Plugins.Application.Operations.Reload.ReloadPlugins.ExecuteCommandAsync(MelloSilveiraTools.Plugins.Application.Operations.Reload.ReloadPluginsRequest)">
+        <member name="M:MelloSilveiraTools.Plugins.Application.Commands.Reload.ReloadPlugins.ExecuteCommandAsync(MelloSilveiraTools.Plugins.Application.Commands.Reload.ReloadPluginsRequest)">
             <inheritdoc />
         </member>
-        <member name="T:MelloSilveiraTools.Plugins.Application.Operations.Reload.ReloadPluginsRequest">
+        <member name="T:MelloSilveiraTools.Plugins.Application.Commands.Reload.ReloadPluginsRequest">
             <summary>
             Request used by the <c>ReloadPlugins</c> operation to identify which plugins should be reloaded and whether to force the reload.
             </summary>
         </member>
-        <member name="P:MelloSilveiraTools.Plugins.Application.Operations.Reload.ReloadPluginsRequest.Force">
+        <member name="P:MelloSilveiraTools.Plugins.Application.Commands.Reload.ReloadPluginsRequest.Force">
             <summary>
             When <c>true</c>, plugins are reloaded even if they are already up to date.
             </summary>
@@ -122,53 +122,53 @@
             Exposes HTTP endpoints for inspecting and managing the plugin runtime (discovery, loading, reloading and cache management).
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.Plugins.Application.Controllers.PluginController.Get(MelloSilveiraTools.Plugins.Application.Operations.Get.GetPlugins,MelloSilveiraTools.Plugins.Application.Operations.Get.GetPluginsRequest)">
+        <member name="M:MelloSilveiraTools.Plugins.Application.Controllers.PluginController.Get(MelloSilveiraTools.Plugins.Application.Commands.Get.GetPlugins,MelloSilveiraTools.Plugins.Application.Commands.Get.GetPluginsRequest)">
             <summary>
             Returns the plugins currently known to the host, optionally filtered by name, version and load state.
             </summary>
             <param name="operation">Operation that resolves the matching plugins.</param>
             <param name="request">Filter criteria applied to the plugin lookup.</param>
         </member>
-        <member name="M:MelloSilveiraTools.Plugins.Application.Controllers.PluginController.Load(MelloSilveiraTools.Plugins.Application.Operations.Load.LoadPlugins,MelloSilveiraTools.Plugins.Application.Operations.PluginsRequest)">
+        <member name="M:MelloSilveiraTools.Plugins.Application.Controllers.PluginController.Load(MelloSilveiraTools.Plugins.Application.Commands.Load.LoadPlugins,MelloSilveiraTools.Plugins.Application.Commands.PluginsRequest)">
             <summary>
             Loads the plugins that match the supplied name and/or version.
             </summary>
             <param name="operation">Operation that performs the plugin load.</param>
             <param name="request">Filter identifying the plugins to load.</param>
         </member>
-        <member name="M:MelloSilveiraTools.Plugins.Application.Controllers.PluginController.LoadAll(MelloSilveiraTools.Plugins.Application.Operations.Load.LoadPlugins)">
+        <member name="M:MelloSilveiraTools.Plugins.Application.Controllers.PluginController.LoadAll(MelloSilveiraTools.Plugins.Application.Commands.Load.LoadPlugins)">
             <summary>
             Loads every plugin known to the host.
             </summary>
             <param name="operation">Operation that performs the plugin load.</param>
         </member>
-        <member name="M:MelloSilveiraTools.Plugins.Application.Controllers.PluginController.Reload(MelloSilveiraTools.Plugins.Application.Operations.Reload.ReloadPlugins,MelloSilveiraTools.Plugins.Application.Operations.Reload.ReloadPluginsRequest)">
+        <member name="M:MelloSilveiraTools.Plugins.Application.Controllers.PluginController.Reload(MelloSilveiraTools.Plugins.Application.Commands.Reload.ReloadPlugins,MelloSilveiraTools.Plugins.Application.Commands.Reload.ReloadPluginsRequest)">
             <summary>
             Reloads plugins that match the supplied name and/or version, optionally forcing a reload.
             </summary>
             <param name="operation">Operation that performs the plugin reload.</param>
             <param name="request">Filter identifying the plugins to reload.</param>
         </member>
-        <member name="M:MelloSilveiraTools.Plugins.Application.Controllers.PluginController.ReloadAll(MelloSilveiraTools.Plugins.Application.Operations.Reload.ReloadPlugins)">
+        <member name="M:MelloSilveiraTools.Plugins.Application.Controllers.PluginController.ReloadAll(MelloSilveiraTools.Plugins.Application.Commands.Reload.ReloadPlugins)">
             <summary>
             Reloads every plugin known to the host.
             </summary>
             <param name="operation">Operation that performs the plugin reload.</param>
         </member>
-        <member name="M:MelloSilveiraTools.Plugins.Application.Controllers.PluginController.ClearCache(MelloSilveiraTools.Plugins.Application.Operations.Cache.ClearPluginCache)">
+        <member name="M:MelloSilveiraTools.Plugins.Application.Controllers.PluginController.ClearCache(MelloSilveiraTools.Plugins.Application.Commands.Cache.ClearPluginCache)">
             <summary>
             Clears the plugin cache.
             </summary>
             <param name="operation">Operation that clears the plugin cache.</param>
         </member>
-        <member name="M:MelloSilveiraTools.Plugins.Application.Controllers.PluginController.PersistCache(MelloSilveiraTools.Plugins.Application.Operations.Cache.PersistPluginCache,MelloSilveiraTools.Plugins.Application.Operations.PluginsRequest)">
+        <member name="M:MelloSilveiraTools.Plugins.Application.Controllers.PluginController.PersistCache(MelloSilveiraTools.Plugins.Application.Commands.Cache.PersistPluginCache,MelloSilveiraTools.Plugins.Application.Commands.PluginsRequest)">
             <summary>
             Persists the plugin cache to the target identified by the {target} route segment (e.g. file or database).
             </summary>
             <param name="operation">Operation that persists the plugin cache.</param>
             <param name="request">Filter identifying the plugins to persist.</param>
         </member>
-        <member name="M:MelloSilveiraTools.Plugins.Application.Controllers.PluginController.RestoreCache(MelloSilveiraTools.Plugins.Application.Operations.Cache.RestorePluginCache,MelloSilveiraTools.Plugins.Application.Operations.PluginsRequest)">
+        <member name="M:MelloSilveiraTools.Plugins.Application.Controllers.PluginController.RestoreCache(MelloSilveiraTools.Plugins.Application.Commands.Cache.RestorePluginCache,MelloSilveiraTools.Plugins.Application.Commands.PluginsRequest)">
             <summary>
             Restores the plugin cache from the target identified by the {target} route segment (e.g. file or database).
             </summary>

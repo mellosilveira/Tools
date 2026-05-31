@@ -872,6 +872,16 @@
         <member name="P:MelloSilveiraTools.Mathematics.Models.Statistics.StatisticalData.Values">
             <summary></summary>
         </member>
+        <member name="T:MelloSilveiraTools.Mathematics.Models.TimebasedAnalysisOutput">
+            <summary>
+            Contains the output for a generic timebased analysis.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Mathematics.Models.TimebasedAnalysisOutput.Time">
+            <summary>
+            Unit: s (second).
+            </summary>
+        </member>
         <member name="T:MelloSilveiraTools.Mathematics.Models.Vector3D">
             <summary>
             Represents a vector with 3 dimensions: x, y and z.
@@ -1383,16 +1393,6 @@
         </member>
         <member name="M:MelloSilveiraTools.Mathematics.Statistics.StatisticsCalculator.Calculate(System.Double[],System.Double)">
             <inheritdoc/>
-        </member>
-        <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Models.TimebasedAnalysisOutput">
-            <summary>
-            Contains the output for a generic timebased analysis.
-            </summary>
-        </member>
-        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Models.TimebasedAnalysisOutput.Time">
-            <summary>
-            Unit: s (second).
-            </summary>
         </member>
     </members>
 </doc>

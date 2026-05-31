@@ -23,6 +23,8 @@ public abstract record ResultBase
 
 public record Result : ResultBase
 {
+    public bool IsConflict() => StatusCode == StatusCode.Conflict;
+
     /// <summary>
     /// Creates a successful 200 OK result.
     /// </summary>
@@ -120,6 +122,11 @@ public record Result : ResultBase
     /// </summary>
     /// <param name="message">Error message describing the failure.</param>
     public static Result CreateUnprocessableEntity(string message) => CreateError(StatusCode.UnprocessableEntity, message);
+
+    /// <summary>
+    /// Creates a 500 Internal Server Error result with the supplied message.
+    /// </summary>
+    public static Result CreateUnknownError() => CreateError(StatusCode.UnknownError);
 
     /// <summary>
     /// Creates a 500 Internal Server Error result with the supplied message.

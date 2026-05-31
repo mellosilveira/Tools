@@ -49,8 +49,7 @@ public class PostgresRepository(ISqlProvider sqlProvider, PostgresResiliencePipe
     protected DatabaseSettings DatabaseSettings { get; } = databaseSettings;
 
     /// <inheritdoc/>
-    public async Task<long> CountAsync<TEntity, TFilter>(TFilter filter, CancellationToken cancellationToken = default)
-        where TFilter : FilterBase
+    public async Task<long> CountAsync<TEntity, TFilter>(TFilter filter, CancellationToken cancellationToken = default) where TFilter : FilterBase
     {
         (string? sqlWhereClause, DynamicParameters? parameters) = filter.BuildWhereClauseAndParameters();
         string sql = sqlProvider.GetCountSql<TEntity>().Replace("#WHERE", sqlWhereClause);
@@ -275,7 +274,7 @@ public class PostgresRepository(ISqlProvider sqlProvider, PostgresResiliencePipe
                 .ConfigureAwait(false);
 
             if (!await reader.ReadAsync(cancellationToken).ConfigureAwait(false))
-                throw new InvalidOperationException($"{nameof(TryInsertAsync)} produced no rows.");
+                return (false, 0);
 
             long id = reader.GetInt64(0);
             bool inserted = reader.GetBoolean(1);
