@@ -19,12 +19,12 @@ public abstract record ResultBase
     public StatusCode StatusCode { get; init; }
 
     public List<string> Messages { get; init; } = [];
+
+    public bool IsConflict => StatusCode == StatusCode.Conflict;
 }
 
 public record Result : ResultBase
 {
-    public bool IsConflict() => StatusCode == StatusCode.Conflict;
-
     /// <summary>
     /// Creates a successful 200 OK result.
     /// </summary>
