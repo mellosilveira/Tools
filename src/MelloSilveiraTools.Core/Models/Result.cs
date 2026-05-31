@@ -145,28 +145,31 @@ public record Result : ResultBase
     /// </summary>
     /// <param name="statusCode"></param>
     /// <param name="resultData">Data returned to the caller.</param>
-    public static Result<TResultData> CreateSuccess<TResultData>(StatusCode statusCode, TResultData? resultData = null) where TResultData : class
+    public static Result<TResultData> CreateSuccess<TResultData>(StatusCode statusCode, TResultData? resultData = default)
         => new() { StatusCode = statusCode, Data = resultData, Success = true };
 
     /// <summary>
     /// Creates a successful 200 OK result carrying the supplied data payload.
     /// </summary>
     /// <param name="resultData">Data returned to the caller.</param>
-    public static Result<TResultData> CreateSuccessOk<TResultData>(TResultData? resultData = null) where TResultData : class
+    public static Result<TResultData> CreateSuccessOk<TResultData>(TResultData? resultData = default)
         => CreateSuccess(StatusCode.OK, resultData);
 
     /// <summary>
     /// Creates a successful 201 Created result.
     /// </summary>
-    public static Result<TResultData> CreateSuccessCreated<TResultData>(TResultData resultData) where TResultData : class
+    public static Result<TResultData> CreateSuccessCreated<TResultData>(TResultData resultData)
         => CreateSuccess(StatusCode.Created, resultData);
+
+    public static Result<TResultData> CreateConflict<TResultData>(TResultData data)
+        => new() { Data = data, StatusCode = StatusCode.Conflict, Success = false };
 
     /// <summary>
     /// Creates a typed 409 Conflict error result.
     /// </summary>
     /// <param name="data"></param>
     /// <param name="message">Error message describing the failure.</param>
-    public static Result<TResultData> CreateConflict<TResultData>(TResultData data, string message) where TResultData : class, new()
+    public static Result<TResultData> CreateConflict<TResultData>(TResultData data, string message)
         => new() { Data = data, Messages = [message], StatusCode = StatusCode.Conflict, Success = false };
 
     /// <summary>
@@ -174,21 +177,21 @@ public record Result : ResultBase
     /// </summary>
     /// <param name="statusCode">The HTTP status code returned to the caller.</param>
     /// <param name="data">Items to include in the result payload.</param>
-    public static ListedResult<TResultData> CreateListedSuccess<TResultData>(StatusCode statusCode, IEnumerable<TResultData>? data = null) where TResultData : class
+    public static ListedResult<TResultData> CreateListedSuccess<TResultData>(StatusCode statusCode, IEnumerable<TResultData>? data = null)
         => new() { Data = data?.ToList(), StatusCode = statusCode, Success = true };
 
     /// <summary>
     /// Creates a successful 200 OK list result containing the supplied items.
     /// </summary>
     /// <param name="data">Items to include in the result payload.</param>
-    public static ListedResult<TResultData> CreateListedSuccessOk<TResultData>(IEnumerable<TResultData>? data = null) where TResultData : class
+    public static ListedResult<TResultData> CreateListedSuccessOk<TResultData>(IEnumerable<TResultData>? data = null)
         => CreateListedSuccess(StatusCode.OK, data);
 
     /// <summary>
     /// Builds a successful 200 OK paged result with the supplied items.
     /// </summary>
     /// <param name="data">Items to include in the current page.</param>
-    public static PagedResult<TResultData> CreatePagedSuccessOk<TResultData>(IEnumerable<TResultData>? data = null) where TResultData : class, new()
+    public static PagedResult<TResultData> CreatePagedSuccessOk<TResultData>(IEnumerable<TResultData>? data = null)
         => new() { StatusCode = StatusCode.OK, Data = data?.ToList() };
 }
 
@@ -196,7 +199,7 @@ public record Result : ResultBase
 /// Result content for all commands.
 /// </summary>
 /// <typeparam name="TResultData"></typeparam>
-public record Result<TResultData> : ResultBase where TResultData : class
+public record Result<TResultData> : ResultBase
 {
     /// <summary>
     /// Data content of all result.
@@ -210,7 +213,7 @@ public record Result<TResultData> : ResultBase where TResultData : class
 /// Base result for commands that return an array of items.
 /// </summary>
 /// <typeparam name="TResultData">Type of each item in the returned list.</typeparam>
-public record ListedResult<TResultData> : ResultBase where TResultData : class
+public record ListedResult<TResultData> : ResultBase
 {
     /// <summary>
     /// Data content of all result.
@@ -229,7 +232,7 @@ public record ListedResult<TResultData> : ResultBase where TResultData : class
 /// Base result for commands that return a paginated list of items.
 /// </summary>
 /// <typeparam name="TResultData">Type of each item in the returned page.</typeparam>
-public record PagedResult<TResultData> : ListedResult<TResultData> where TResultData : class
+public record PagedResult<TResultData> : ListedResult<TResultData>
 {
     /// <summary>
     /// Total number of items that match the query across all pages.

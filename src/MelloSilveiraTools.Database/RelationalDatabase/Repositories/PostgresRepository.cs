@@ -259,12 +259,12 @@ public class PostgresRepository(ISqlProvider sqlProvider, PostgresResiliencePipe
     }
 
     /// <inheritdoc/>
-    public async Task<(bool Inserted, long Id)> TryInsertAsync<TEntity>(TEntity entity, CancellationToken cancellationToken = default)
+    public async Task<Result<long>> TryInsertAsync<TEntity>(TEntity entity, CancellationToken cancellationToken = default)
     {
         string sql = sqlProvider.GetTryInsertSql<TEntity>();
         IEnumerable<NpgsqlParameter> parameters = entity.BuildParameters(useDeclaredProperties: true);
 
-        return await resiliencePipeline.ExecuteAsync(async _ =>
+        return await resiliencePipeline.ExecuteAsync<Result<long>>(async _ =>
         {
             await using NpgsqlConnection connection = await GetNewOpenedConnectionAsync(cancellationToken).ConfigureAwait(false);
             await using NpgsqlCommand command = new(sql, connection) { CommandTimeout = DatabaseSettings.UnitOperationTimeoutInSeconds };
@@ -274,11 +274,11 @@ public class PostgresRepository(ISqlProvider sqlProvider, PostgresResiliencePipe
                 .ConfigureAwait(false);
 
             if (!await reader.ReadAsync(cancellationToken).ConfigureAwait(false))
-                return (false, 0);
+                return Result.CreateUnknownError();
 
             long id = reader.GetInt64(0);
             bool inserted = reader.GetBoolean(1);
-            return (inserted, id);
+            return inserted ? Result.CreateSuccessOk(id) : Result.CreateConflict(id);
         });
     }
 

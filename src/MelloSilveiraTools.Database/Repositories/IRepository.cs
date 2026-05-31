@@ -1,3 +1,4 @@
+using MelloSilveiraTools.Core.Models;
 using MelloSilveiraTools.Database.RelationalDatabase.Models.Filters;
 
 namespace MelloSilveiraTools.Database.Repositories;
@@ -105,7 +106,7 @@ public interface IRepository
     /// Thrown when <typeparamref name="TEntity"/> has no <c>[UniqueColumn]</c>-annotated property —
     /// without a unique constraint there is no conflict to detect, so callers should use <see cref="InsertAsync{TEntity}(TEntity, CancellationToken)"/> instead.
     /// </exception>
-    Task<(bool Inserted, long Id)> TryInsertAsync<TEntity>(TEntity entity, CancellationToken cancellationToken = default);
+    Task<Result<long>> TryInsertAsync<TEntity>(TEntity entity, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Inserts a batch of entities and returns their generated identifiers in the same order.
