@@ -209,8 +209,12 @@ public record Result<TResultData> : ResultBase
     /// </summary>
     public TResultData? Data { get; init; }
 
+    public Result<T> ChangeData<T>(T newData) => Data is not null
+        ? new Result<T> { Data = newData, Messages = Messages, StatusCode = StatusCode, Success = Success }
+        : Result.Create(this);
+
     public static implicit operator Result<TResultData>(Result response) => new() { Messages = response.Messages, StatusCode = response.StatusCode, Success = response.Success };
-    
+
     public static implicit operator Result<TResultData>(TResultData resultData) => Result.CreateSuccessOk(resultData);
 }
 
