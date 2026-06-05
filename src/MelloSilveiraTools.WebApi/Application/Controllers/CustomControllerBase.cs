@@ -1,9 +1,9 @@
-using MelloSilveiraTools.Core.Logger;
 using MelloSilveiraTools.Database.RelationalDatabase.Models.Entities;
 using MelloSilveiraTools.WebApi.Application.Commands.Crud.Add;
 using MelloSilveiraTools.WebApi.Application.Endpoints;
 using MelloSilveiraTools.WebApi.ExtensionMethods;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 
 namespace MelloSilveiraTools.WebApi.Application.Controllers;
 

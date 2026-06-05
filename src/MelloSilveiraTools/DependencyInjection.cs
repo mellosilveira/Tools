@@ -1,5 +1,5 @@
 using MelloSilveiraTools.Core;
-using MelloSilveiraTools.Core.Logger;
+using MelloSilveiraTools.Core.Logging;
 using MelloSilveiraTools.Core.ResiliencePipelines;
 using MelloSilveiraTools.Core.Services.Encryption;
 using MelloSilveiraTools.Database;
@@ -29,8 +29,12 @@ public static class DependencyInjection
     /// <param name="pluginSettings">Settings that describe plugin folders and behavior.</param>
     /// <param name="loggerSettings">Settings used by logger service.</param>
     /// <returns>The same <paramref name="services"/> instance to allow call chaining.</returns>
-    public static IServiceCollection AddToolsServices(this IServiceCollection services, DatabaseSettings databaseSettings,
-        EncryptionSettings encryptionSettings, ResiliencePipelineSettings resiliencePipelineSettings, PluginSettings pluginSettings, LoggerSettings? loggerSettings = null)
+    public static IServiceCollection AddToolsServices(this IServiceCollection services, 
+        DatabaseSettings databaseSettings,
+        EncryptionSettings encryptionSettings, 
+        ResiliencePipelineSettings resiliencePipelineSettings, 
+        PluginSettings pluginSettings,
+        LoggerSettings? loggerSettings = null)
         => services
             .AddCoreServices(encryptionSettings, resiliencePipelineSettings, loggerSettings)
             .AddDatabaseServices(databaseSettings, resiliencePipelineSettings)

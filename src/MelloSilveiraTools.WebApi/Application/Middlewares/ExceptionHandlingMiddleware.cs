@@ -1,8 +1,8 @@
-using MelloSilveiraTools.Core.Logger;
 using MelloSilveiraTools.Core.Models;
 using MelloSilveiraTools.WebApi.Application.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using System.Net.Mime;
 
 namespace MelloSilveiraTools.WebApi.Application.Middlewares;
@@ -40,7 +40,7 @@ public class ExceptionHandlingMiddleware(RequestDelegate next, ILogger logger)
         {
             if (ex is NdjsonException)
             {
-                logger.Error("Error occurred while streaming NDJSON data.", ex);
+                logger.LogError(ex, "Error occurred while streaming NDJSON data.");
                 return;
             }
 
@@ -56,14 +56,33 @@ public class ExceptionHandlingMiddleware(RequestDelegate next, ILogger logger)
             context.Response.StatusCode = (int)statusCode;
 
 #if DEBUG
-            string message = $"{ex}";
+            string responseMessage = $"{ex}";
 #else
-            string message = "Ocorreu um erro interno durante o processamento da solicitação.";
+        string responseMessage = "An internal error occurred while processing the request.";
 #endif
-            Dictionary<string, object?> logAdditionalData = new() { { "Request", context.Request } };
-            logger.Error(message, ex, logAdditionalData);
 
-            await context.Response.WriteAsJsonAsync(Result.CreateError(statusCode, message)).ConfigureAwait(false);
+            string requestBody = string.Empty;
+            if (context.Request.ContentLength > 0 && context.Request.Body.CanSeek)
+            {
+                context.Request.Body.Position = 0;
+                
+                // leaveOpen: true ensures we don't accidentally kill the stream
+                using var reader = new StreamReader(context.Request.Body, leaveOpen: true);
+                requestBody = await reader.ReadToEndAsync();
+            }
+
+            logger.LogError(
+                ex,
+                "Request failed. Method: {Method}, Path: {Path}, Query: {QueryString}, Body: {RequestBody}, Status: {StatusCode}, SentMessage: {ResponseMessage}",
+                context.Request.Method,
+                context.Request.Path.Value,
+                context.Request.QueryString.Value,
+                requestBody,
+                statusCode,
+                responseMessage);
+
+            var result = Result.CreateError(statusCode, responseMessage);
+            await context.Response.WriteAsJsonAsync(result).ConfigureAwait(false);
         }
     }
 }

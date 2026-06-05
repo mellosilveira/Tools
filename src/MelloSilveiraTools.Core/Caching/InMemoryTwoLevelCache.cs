@@ -28,12 +28,10 @@ public class InMemoryTwoLevelCache : ITwoLevelCache
     }
 
     /// <inheritdoc/>
-    public T GetOrAdd<T>(string group, string key, Func<T> factory)
-        => (T)_cache.GetOrAdd(group, static _ => new()).GetOrAdd(key, _ => factory()!);
+    public T GetOrAdd<T>(string group, string key, Func<T> factory) => (T)_cache.GetOrAdd(group, static _ => new()).GetOrAdd(key, _ => factory()!);
 
     /// <inheritdoc/>
-    public void Set<T>(string group, string key, T value)
-        => _cache.GetOrAdd(group, static _ => new())[key] = value!;
+    public void Set<T>(string group, string key, T value) => _cache.GetOrAdd(group, static _ => new())[key] = value!;
 
     /// <inheritdoc/>
     public void Remove(string group, string key)
@@ -50,12 +48,10 @@ public class InMemoryTwoLevelCache : ITwoLevelCache
     public void Remove(string group) => _cache.Remove(group, out _);
 
     /// <inheritdoc/>
-    public IEnumerable<(string Group, string Key)> GetKeys()
-        => _cache.SelectMany(kvp => kvp.Value.Keys.Select(k => (kvp.Key, k)));
+    public IEnumerable<(string Group, string Key)> GetKeys() => _cache.SelectMany(kvp => kvp.Value.Keys.Select(k => (kvp.Key, k)));
 
     /// <inheritdoc/>
-    public IAsyncEnumerable<(string Group, string Key, T Value)> StreamAll<T>(CancellationToken cancellationToken = default)
-        => StreamAll<T>(null, null, cancellationToken);
+    public IAsyncEnumerable<(string Group, string Key, T Value)> StreamAll<T>(CancellationToken cancellationToken = default) => StreamAll<T>(null, null, cancellationToken);
 
     /// <inheritdoc/>
     public async IAsyncEnumerable<(string Group, string Key, T Value)> StreamAll<T>(

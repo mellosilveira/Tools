@@ -1,5 +1,5 @@
-﻿using MelloSilveiraTools.Core.Logger;
-using MelloSilveiraTools.Core.ResiliencePipelines;
+﻿using MelloSilveiraTools.Core.ResiliencePipelines;
+using Microsoft.Extensions.Logging;
 using Npgsql;
 using Polly;
 using Polly.Retry;
@@ -17,7 +17,7 @@ public class PostgresResiliencePipeline : DefaultResiliencePipeline
     /// </summary>
     /// <param name="logger">Logger used to record retry attempts and failures while executing operations through the pipeline.</param>
     /// <param name="settings">Resilience pipeline settings (max retries, base delay, jitter, etc.) that drive the retry strategy.</param>
-    public PostgresResiliencePipeline(ILogger logger, ResiliencePipelineSettings settings)
+    public PostgresResiliencePipeline(ILogger<PostgresResiliencePipeline> logger, ResiliencePipelineSettings settings)
         : base(logger, settings, new PredicateBuilder()
             .Handle<PostgresException>(ex => ex.IsTransient || ex.SqlState == PostgresErrorCodes.ProtocolViolation /* PgBouncer error */)
             .Handle<NpgsqlException>(ex => ex.IsTransient)
@@ -31,5 +31,5 @@ public class PostgresResiliencePipeline : DefaultResiliencePipeline
     /// <param name="logger">See reference at <see cref="ILogger"/>.</param>
     /// <param name="settings">See reference at <see cref="ResiliencePipelineSettings"/>.</param>
     /// <param name="shouldHandle">Predicate that determines whether the retry should be executed for a given outcome.</param>
-    public PostgresResiliencePipeline(ILogger logger, ResiliencePipelineSettings settings, Func<RetryPredicateArguments<object>, ValueTask<bool>> shouldHandle) : base(logger, settings, shouldHandle) { }
+    public PostgresResiliencePipeline(ILogger<PostgresResiliencePipeline> logger, ResiliencePipelineSettings settings, Func<RetryPredicateArguments<object>, ValueTask<bool>> shouldHandle) : base(logger, settings, shouldHandle) { }
 }

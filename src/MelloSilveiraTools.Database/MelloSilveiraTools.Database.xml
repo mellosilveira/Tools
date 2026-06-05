@@ -9,13 +9,16 @@
             Provides extension methods to register services from the MelloSilveiraTools.Database package.
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.Database.DatabaseDependencyInjection.AddDatabaseServices(Microsoft.Extensions.DependencyInjection.IServiceCollection,MelloSilveiraTools.Database.RelationalDatabase.Settings.DatabaseSettings,MelloSilveiraTools.Core.ResiliencePipelines.ResiliencePipelineSettings)">
+        <member name="M:MelloSilveiraTools.Database.DatabaseDependencyInjection.AddDatabaseServices(Microsoft.Extensions.DependencyInjection.IServiceCollection,MelloSilveiraTools.Database.RelationalDatabase.Settings.DatabaseSettings,MelloSilveiraTools.Core.ResiliencePipelines.ResiliencePipelineSettings,MelloSilveiraTools.Core.Logging.LoggerSettings)">
+            <inheritdoc cref="M:MelloSilveiraTools.Database.DatabaseDependencyInjection.&lt;G&gt;$7B30185E57B8298C6754F16C0BCF4773.AddDatabaseServices(MelloSilveiraTools.Database.RelationalDatabase.Settings.DatabaseSettings,MelloSilveiraTools.Core.ResiliencePipelines.ResiliencePipelineSettings,MelloSilveiraTools.Core.Logging.LoggerSettings)"/>
+        </member>
+        <member name="M:MelloSilveiraTools.Database.DatabaseDependencyInjection.&lt;G&gt;$7B30185E57B8298C6754F16C0BCF4773.AddDatabaseServices(MelloSilveiraTools.Database.RelationalDatabase.Settings.DatabaseSettings,MelloSilveiraTools.Core.ResiliencePipelines.ResiliencePipelineSettings,MelloSilveiraTools.Core.Logging.LoggerSettings)">
             <summary>
             Registers database services: settings, Postgres resilience pipeline, SQL provider and repository.
             </summary>
-            <param name="services">Service collection that receives the registrations.</param>
             <param name="databaseSettings">Database connection and behavior settings.</param>
             <param name="resiliencePipelineSettings">Settings that parameterize the resilience pipelines.</param>
+            <param name="loggerSettings">Settings used by logger service.</param>
             <returns>The same <paramref name="services"/> instance to allow call chaining.</returns>
         </member>
         <member name="T:MelloSilveiraTools.Database.ExtensionMethods.ClassExtensions">
@@ -24,80 +27,98 @@
             </summary>
         </member>
         <member name="M:MelloSilveiraTools.Database.ExtensionMethods.ClassExtensions.GetValuesInHierarchy``1(``0)">
+            <inheritdoc cref="M:MelloSilveiraTools.Database.ExtensionMethods.ClassExtensions.&lt;G&gt;$8048A6C8BE30A622530249B904B537EB`1.GetValuesInHierarchy"/>
+        </member>
+        <member name="M:MelloSilveiraTools.Database.ExtensionMethods.ClassExtensions.GetValues``1(``0,System.Collections.Generic.IEnumerable{System.Reflection.PropertyInfo})">
+            <inheritdoc cref="M:MelloSilveiraTools.Database.ExtensionMethods.ClassExtensions.&lt;G&gt;$8048A6C8BE30A622530249B904B537EB`1.GetValues(System.Collections.Generic.IEnumerable{System.Reflection.PropertyInfo})"/>
+        </member>
+        <member name="M:MelloSilveiraTools.Database.ExtensionMethods.ClassExtensions.GetPropertyNamesAndValuesInHierarchy``2(``0)">
+            <inheritdoc cref="M:MelloSilveiraTools.Database.ExtensionMethods.ClassExtensions.&lt;G&gt;$8048A6C8BE30A622530249B904B537EB`1.GetPropertyNamesAndValuesInHierarchy``1"/>
+        </member>
+        <member name="M:MelloSilveiraTools.Database.ExtensionMethods.ClassExtensions.BuildParameters``1(``0,System.Boolean)">
+            <inheritdoc cref="M:MelloSilveiraTools.Database.ExtensionMethods.ClassExtensions.&lt;G&gt;$8048A6C8BE30A622530249B904B537EB`1.BuildParameters(System.Boolean)"/>
+        </member>
+        <member name="M:MelloSilveiraTools.Database.ExtensionMethods.ClassExtensions.BuildWhereClauseAndParameters``1(``0)">
+            <inheritdoc cref="M:MelloSilveiraTools.Database.ExtensionMethods.ClassExtensions.&lt;G&gt;$8048A6C8BE30A622530249B904B537EB`1.BuildWhereClauseAndParameters"/>
+        </member>
+        <member name="M:MelloSilveiraTools.Database.ExtensionMethods.ClassExtensions.BuildWhereClauseAndNpgsqlParameters``1(``0)">
+            <inheritdoc cref="M:MelloSilveiraTools.Database.ExtensionMethods.ClassExtensions.&lt;G&gt;$8048A6C8BE30A622530249B904B537EB`1.BuildWhereClauseAndNpgsqlParameters"/>
+        </member>
+        <member name="M:MelloSilveiraTools.Database.ExtensionMethods.ClassExtensions.AsTask``1(``0)">
+            <inheritdoc cref="M:MelloSilveiraTools.Database.ExtensionMethods.ClassExtensions.&lt;G&gt;$8048A6C8BE30A622530249B904B537EB`1.AsTask"/>
+        </member>
+        <member name="M:MelloSilveiraTools.Database.ExtensionMethods.ClassExtensions.SetValues``1(System.Object,System.Type,System.Collections.Generic.IDictionary{System.String,``0})">
+            <inheritdoc cref="M:MelloSilveiraTools.Database.ExtensionMethods.ClassExtensions.&lt;G&gt;$C43E2675C7BBF9284AF22FB8A9BF0280.SetValues``1(System.Type,System.Collections.Generic.IDictionary{System.String,``0})"/>
+        </member>
+        <member name="M:MelloSilveiraTools.Database.ExtensionMethods.ClassExtensions.BuildParametersFromCollection``1(System.Collections.Generic.ICollection{``0})">
+            <inheritdoc cref="M:MelloSilveiraTools.Database.ExtensionMethods.ClassExtensions.&lt;G&gt;$847CB318C385471B1F4E7BD0A197DBCA`1.BuildParametersFromCollection"/>
+        </member>
+        <member name="T:MelloSilveiraTools.Database.ExtensionMethods.ClassExtensions.&lt;G&gt;$8048A6C8BE30A622530249B904B537EB`1.&lt;M&gt;$9693FCD04DC098E818044F36B6B87842">
+            <summary>
+            Contains extension methods for class instances.
+            </summary>
+            <typeparam name="T">The type of <paramref name="obj"/>.</typeparam>
+            <param name="obj"></param>
+        </member>
+        <member name="M:MelloSilveiraTools.Database.ExtensionMethods.ClassExtensions.&lt;G&gt;$8048A6C8BE30A622530249B904B537EB`1.GetValuesInHierarchy">
             <summary>
             Gets the values from object which is following the hierarchy order from parent to child.
             </summary>
-            <typeparam name="T">The type of <paramref name="obj"/>.</typeparam>
-            <param name="obj"></param>
             <returns>A <see cref="T:System.Collections.Generic.List`1"/> containing the values from object which is following the hierarchy order from parent to child.</returns>
         </member>
-        <member name="M:MelloSilveiraTools.Database.ExtensionMethods.ClassExtensions.GetValues``1(``0,System.Collections.Generic.IEnumerable{System.Reflection.PropertyInfo})">
+        <member name="M:MelloSilveiraTools.Database.ExtensionMethods.ClassExtensions.&lt;G&gt;$8048A6C8BE30A622530249B904B537EB`1.GetValues(System.Collections.Generic.IEnumerable{System.Reflection.PropertyInfo})">
             <summary>
             Gets the values from object using an <see cref="T:System.Collections.Generic.IEnumerable`1"/> of properties as reference.
             </summary>
-            <typeparam name="T">The type of <paramref name="obj"/>.</typeparam>
-            <param name="obj"></param>
             <param name="properties">Properties to be used as reference to get the values from object.</param>
             <returns></returns>
         </member>
-        <member name="M:MelloSilveiraTools.Database.ExtensionMethods.ClassExtensions.SetValues``1(System.Object,System.Type,System.Collections.Generic.IDictionary{System.String,``0})">
-            <summary>
-            Sets the values in objects using reflection.
-            </summary>
-            <typeparam name="T"></typeparam>
-            <param name="obj"></param>
-            <param name="type"></param>
-            <param name="valuesGroupedByPropertyName"></param>
-        </member>
-        <member name="M:MelloSilveiraTools.Database.ExtensionMethods.ClassExtensions.GetPropertyNamesAndValuesInHierarchy``2(``0)">
+        <member name="M:MelloSilveiraTools.Database.ExtensionMethods.ClassExtensions.&lt;G&gt;$8048A6C8BE30A622530249B904B537EB`1.GetPropertyNamesAndValuesInHierarchy``1">
             <summary>
             Gets the name and value of properties from object which is following the hierarchy order from parent to child.
             It is also possible to filter by a custom attribute.
             </summary>
-            <typeparam name="T">The type of <paramref name="obj"/>.</typeparam>
             <typeparam name="TCustomAttribute">The type of custom attribute to be used in search.</typeparam>
-            <param name="obj"></param>
             <returns>
             A <see cref="T:System.Collections.Generic.Dictionary`2"/> which the key is the property name and the value is the property value.
             </returns>
         </member>
-        <member name="M:MelloSilveiraTools.Database.ExtensionMethods.ClassExtensions.BuildParametersFromCollection``1(System.Collections.Generic.ICollection{``0})">
+        <member name="M:MelloSilveiraTools.Database.ExtensionMethods.ClassExtensions.&lt;G&gt;$8048A6C8BE30A622530249B904B537EB`1.BuildParameters(System.Boolean)">
             <summary>
             Builds an enumerable with <see cref="T:Npgsql.NpgsqlParameter"/>.
             </summary>
-            <typeparam name="T">The type of <paramref name="collection"/>.</typeparam>
-            <param name="collection"></param>
-            <returns>A <see cref="T:System.Collections.Generic.IEnumerable`1"/> with <see cref="T:Npgsql.NpgsqlParameter"/>.</returns>
-        </member>
-        <member name="M:MelloSilveiraTools.Database.ExtensionMethods.ClassExtensions.BuildParameters``1(``0,System.Boolean)">
-            <summary>
-            Builds an enumerable with <see cref="T:Npgsql.NpgsqlParameter"/>.
-            </summary>
-            <typeparam name="T">The type of <paramref name="obj"/>.</typeparam>
-            <param name="obj"></param>
             <param name="useDeclaredProperties"></param>
             <returns>A <see cref="T:System.Collections.Generic.IEnumerable`1"/> with <see cref="T:Npgsql.NpgsqlParameter"/>.</returns>
         </member>
-        <member name="M:MelloSilveiraTools.Database.ExtensionMethods.ClassExtensions.BuildWhereClauseAndParameters``1(``0)">
+        <member name="M:MelloSilveiraTools.Database.ExtensionMethods.ClassExtensions.&lt;G&gt;$8048A6C8BE30A622530249B904B537EB`1.BuildWhereClauseAndParameters">
             <summary>
             Builds a SQL WHERE clause and a <see cref="T:Dapper.DynamicParameters"/> based on filter.
             </summary>
-            <typeparam name="T"></typeparam>
-            <param name="obj"></param>
             <returns></returns>
         </member>
-        <member name="M:MelloSilveiraTools.Database.ExtensionMethods.ClassExtensions.BuildWhereClauseAndNpgsqlParameters``1(``0)">
+        <member name="M:MelloSilveiraTools.Database.ExtensionMethods.ClassExtensions.&lt;G&gt;$8048A6C8BE30A622530249B904B537EB`1.BuildWhereClauseAndNpgsqlParameters">
             <summary>
             Builds a SQL WHERE clause and a list of <see cref="T:Npgsql.NpgsqlParameter"/> based on filter.
             </summary>
-            <typeparam name="T"></typeparam>
-            <param name="obj"></param>
             <returns></returns>
         </member>
-        <member name="M:MelloSilveiraTools.Database.ExtensionMethods.ClassExtensions.AsTask``1(``0)">
+        <member name="M:MelloSilveiraTools.Database.ExtensionMethods.ClassExtensions.&lt;G&gt;$8048A6C8BE30A622530249B904B537EB`1.AsTask">
             <summary>
             Wraps the supplied instance in a completed <see cref="T:System.Threading.Tasks.Task`1"/>.
             </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Database.ExtensionMethods.ClassExtensions.&lt;G&gt;$C43E2675C7BBF9284AF22FB8A9BF0280.SetValues``1(System.Type,System.Collections.Generic.IDictionary{System.String,``0})">
+            <summary>
+            Sets the values in objects using reflection.
+            </summary>
+            <param name="type"></param>
+            <param name="valuesGroupedByPropertyName"></param>
+        </member>
+        <member name="M:MelloSilveiraTools.Database.ExtensionMethods.ClassExtensions.&lt;G&gt;$847CB318C385471B1F4E7BD0A197DBCA`1.BuildParametersFromCollection">
+            <summary>
+            Builds an enumerable with <see cref="T:Npgsql.NpgsqlParameter"/>.
+            </summary>
+            <returns>A <see cref="T:System.Collections.Generic.IEnumerable`1"/> with <see cref="T:Npgsql.NpgsqlParameter"/>.</returns>
         </member>
         <member name="T:MelloSilveiraTools.Database.ExtensionMethods.DbDataReaderExtensions">
             <summary>
@@ -105,19 +126,23 @@
             </summary>
         </member>
         <member name="M:MelloSilveiraTools.Database.ExtensionMethods.DbDataReaderExtensions.ToObject``1(System.Data.Common.DbDataReader)">
+            <inheritdoc cref="M:MelloSilveiraTools.Database.ExtensionMethods.DbDataReaderExtensions.&lt;G&gt;$3CAAB53CACEAA22373AF5C40C0C62B1F.ToObject``1"/>
+        </member>
+        <member name="M:MelloSilveiraTools.Database.ExtensionMethods.DbDataReaderExtensions.ToObject``1(System.Data.Common.DbDataReader,System.Collections.Generic.Dictionary{System.String,System.Reflection.PropertyInfo})">
+            <inheritdoc cref="M:MelloSilveiraTools.Database.ExtensionMethods.DbDataReaderExtensions.&lt;G&gt;$3CAAB53CACEAA22373AF5C40C0C62B1F.ToObject``1(System.Collections.Generic.Dictionary{System.String,System.Reflection.PropertyInfo})"/>
+        </member>
+        <member name="M:MelloSilveiraTools.Database.ExtensionMethods.DbDataReaderExtensions.&lt;G&gt;$3CAAB53CACEAA22373AF5C40C0C62B1F.ToObject``1">
             <summary>
             Converts a <see cref="T:System.Data.Common.DbDataReader"/> to an object.
             </summary>
             <typeparam name="T">Type of <see cref="T:System.Data.Common.DbDataReader"/> must be converted.</typeparam>
-            <param name="reader"></param>
             <returns></returns>
         </member>
-        <member name="M:MelloSilveiraTools.Database.ExtensionMethods.DbDataReaderExtensions.ToObject``1(System.Data.Common.DbDataReader,System.Collections.Generic.Dictionary{System.String,System.Reflection.PropertyInfo})">
+        <member name="M:MelloSilveiraTools.Database.ExtensionMethods.DbDataReaderExtensions.&lt;G&gt;$3CAAB53CACEAA22373AF5C40C0C62B1F.ToObject``1(System.Collections.Generic.Dictionary{System.String,System.Reflection.PropertyInfo})">
             <summary>
             Converts a <see cref="T:System.Data.Common.DbDataReader"/> to an object using a cache to store property info of object.
             </summary>
             <typeparam name="T">Type of <see cref="T:System.Data.Common.DbDataReader"/> must be converted.</typeparam>
-            <param name="reader"></param>
             <param name="propertyInfoCache"></param>
             <returns></returns>
         </member>
@@ -127,6 +152,9 @@
             </summary>
         </member>
         <member name="M:MelloSilveiraTools.Database.ExtensionMethods.EnumExtensions.ToNpgsqlString(MelloSilveiraTools.Database.RelationalDatabase.Models.Filters.SortOrder)">
+            <inheritdoc cref="M:MelloSilveiraTools.Database.ExtensionMethods.EnumExtensions.&lt;G&gt;$A72BD8C59E21EADEDDC2A6239C3FCA6D.ToNpgsqlString"/>
+        </member>
+        <member name="M:MelloSilveiraTools.Database.ExtensionMethods.EnumExtensions.&lt;G&gt;$A72BD8C59E21EADEDDC2A6239C3FCA6D.ToNpgsqlString">
             <summary>
             Converts a <see cref="T:MelloSilveiraTools.Database.RelationalDatabase.Models.Filters.SortOrder"/> into the corresponding PostgreSQL <c>ORDER BY</c> clause.
             </summary>
@@ -137,19 +165,23 @@
             </summary>
         </member>
         <member name="M:MelloSilveiraTools.Database.ExtensionMethods.NpgsqlCommandExtensions.SetCommandParametersFromEntity``1(Npgsql.NpgsqlCommand,``0)">
+            <inheritdoc cref="M:MelloSilveiraTools.Database.ExtensionMethods.NpgsqlCommandExtensions.&lt;G&gt;$F3D142B2ABB736DD52B0587421BCB512.SetCommandParametersFromEntity``1(``0)"/>
+        </member>
+        <member name="M:MelloSilveiraTools.Database.ExtensionMethods.NpgsqlCommandExtensions.SetCommandParameters(Npgsql.NpgsqlCommand,System.Collections.Generic.IEnumerable{Npgsql.NpgsqlParameter})">
+            <inheritdoc cref="M:MelloSilveiraTools.Database.ExtensionMethods.NpgsqlCommandExtensions.&lt;G&gt;$F3D142B2ABB736DD52B0587421BCB512.SetCommandParameters(System.Collections.Generic.IEnumerable{Npgsql.NpgsqlParameter})"/>
+        </member>
+        <member name="M:MelloSilveiraTools.Database.ExtensionMethods.NpgsqlCommandExtensions.&lt;G&gt;$F3D142B2ABB736DD52B0587421BCB512.SetCommandParametersFromEntity``1(``0)">
             <summary>
             Sets the parameter for sql command.
             </summary>
             <typeparam name="TEntity"></typeparam>
-            <param name="command"></param>
             <param name="entity"></param>
             <returns></returns>
         </member>
-        <member name="M:MelloSilveiraTools.Database.ExtensionMethods.NpgsqlCommandExtensions.SetCommandParameters(Npgsql.NpgsqlCommand,System.Collections.Generic.IEnumerable{Npgsql.NpgsqlParameter})">
+        <member name="M:MelloSilveiraTools.Database.ExtensionMethods.NpgsqlCommandExtensions.&lt;G&gt;$F3D142B2ABB736DD52B0587421BCB512.SetCommandParameters(System.Collections.Generic.IEnumerable{Npgsql.NpgsqlParameter})">
             <summary>
             Sets the parameter for sql command.
             </summary>
-            <param name="command"></param>
             <param name="parameters"></param>
             <returns></returns>
         </member>
@@ -159,11 +191,34 @@
             </summary>
         </member>
         <member name="M:MelloSilveiraTools.Database.ExtensionMethods.NpgsqlConnectionExtensions.QueryFirstOrDefaultAsync``1(Npgsql.NpgsqlConnection,System.String,Dapper.DynamicParameters,System.Threading.CancellationToken)">
+            <inheritdoc cref="M:MelloSilveiraTools.Database.ExtensionMethods.NpgsqlConnectionExtensions.&lt;G&gt;$277C0D2B5C73CA72F65CD00D7B70955D.QueryFirstOrDefaultAsync``1(System.String,Dapper.DynamicParameters,System.Threading.CancellationToken)"/>
+        </member>
+        <member name="M:MelloSilveiraTools.Database.ExtensionMethods.NpgsqlConnectionExtensions.QueryFirstOrDefaultAsync``1(Npgsql.NpgsqlConnection,System.String,Dapper.DynamicParameters,System.Int32,System.Threading.CancellationToken)">
+            <inheritdoc cref="M:MelloSilveiraTools.Database.ExtensionMethods.NpgsqlConnectionExtensions.&lt;G&gt;$277C0D2B5C73CA72F65CD00D7B70955D.QueryFirstOrDefaultAsync``1(System.String,Dapper.DynamicParameters,System.Int32,System.Threading.CancellationToken)"/>
+        </member>
+        <member name="M:MelloSilveiraTools.Database.ExtensionMethods.NpgsqlConnectionExtensions.QueryAsync``1(Npgsql.NpgsqlConnection,System.String,Dapper.DynamicParameters,System.Threading.CancellationToken)">
+            <inheritdoc cref="M:MelloSilveiraTools.Database.ExtensionMethods.NpgsqlConnectionExtensions.&lt;G&gt;$277C0D2B5C73CA72F65CD00D7B70955D.QueryAsync``1(System.String,Dapper.DynamicParameters,System.Threading.CancellationToken)"/>
+        </member>
+        <member name="M:MelloSilveiraTools.Database.ExtensionMethods.NpgsqlConnectionExtensions.ExecuteScalarAsync``1(Npgsql.NpgsqlConnection,System.String,Dapper.DynamicParameters,System.Threading.CancellationToken)">
+            <inheritdoc cref="M:MelloSilveiraTools.Database.ExtensionMethods.NpgsqlConnectionExtensions.&lt;G&gt;$277C0D2B5C73CA72F65CD00D7B70955D.ExecuteScalarAsync``1(System.String,Dapper.DynamicParameters,System.Threading.CancellationToken)"/>
+        </member>
+        <member name="M:MelloSilveiraTools.Database.ExtensionMethods.NpgsqlConnectionExtensions.ExecuteScalarAsync``1(Npgsql.NpgsqlConnection,System.String,Dapper.DynamicParameters,System.Int32,System.Threading.CancellationToken)">
+            <inheritdoc cref="M:MelloSilveiraTools.Database.ExtensionMethods.NpgsqlConnectionExtensions.&lt;G&gt;$277C0D2B5C73CA72F65CD00D7B70955D.ExecuteScalarAsync``1(System.String,Dapper.DynamicParameters,System.Int32,System.Threading.CancellationToken)"/>
+        </member>
+        <member name="M:MelloSilveiraTools.Database.ExtensionMethods.NpgsqlConnectionExtensions.ExecuteReaderAsync(Npgsql.NpgsqlConnection,System.String,Dapper.DynamicParameters,System.Threading.CancellationToken)">
+            <inheritdoc cref="M:MelloSilveiraTools.Database.ExtensionMethods.NpgsqlConnectionExtensions.&lt;G&gt;$277C0D2B5C73CA72F65CD00D7B70955D.ExecuteReaderAsync(System.String,Dapper.DynamicParameters,System.Threading.CancellationToken)"/>
+        </member>
+        <member name="T:MelloSilveiraTools.Database.ExtensionMethods.NpgsqlConnectionExtensions.&lt;G&gt;$277C0D2B5C73CA72F65CD00D7B70955D.&lt;M&gt;$7E08B0497304926E2C845BC43C5B1B93">
+            <summary>
+            Contains extension methods for <see cref="T:Npgsql.NpgsqlConnection"/> instances.
+            </summary>
+            <param name="connection">Connection to query on.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.Database.ExtensionMethods.NpgsqlConnectionExtensions.&lt;G&gt;$277C0D2B5C73CA72F65CD00D7B70955D.QueryFirstOrDefaultAsync``1(System.String,Dapper.DynamicParameters,System.Threading.CancellationToken)">
             <summary>
             Executes a query, returning the data typed as <typeparamref name="T"/>.
             </summary>
             <typeparam name="T">Type of results to return.</typeparam>
-            <param name="connection">Connection to query on.</param>
             <param name="sql">Text query to be executed.</param>
             <param name="parameters">The parameters for this command.</param>
             <param name="cancellationToken">Cancellation token for this command.</param>
@@ -172,12 +227,11 @@
             otherwise an instance is created per row, and a direct column-name === member-name mapping is assumed (case insensitive).
             </returns>
         </member>
-        <member name="M:MelloSilveiraTools.Database.ExtensionMethods.NpgsqlConnectionExtensions.QueryFirstOrDefaultAsync``1(Npgsql.NpgsqlConnection,System.String,Dapper.DynamicParameters,System.Int32,System.Threading.CancellationToken)">
+        <member name="M:MelloSilveiraTools.Database.ExtensionMethods.NpgsqlConnectionExtensions.&lt;G&gt;$277C0D2B5C73CA72F65CD00D7B70955D.QueryFirstOrDefaultAsync``1(System.String,Dapper.DynamicParameters,System.Int32,System.Threading.CancellationToken)">
             <summary>
             Executes a query, returning the data typed as <typeparamref name="T"/>.
             </summary>
             <typeparam name="T">Type of results to return.</typeparam>
-            <param name="connection">Connection to query on.</param>
             <param name="sql">Text query to be executed.</param>
             <param name="parameters">The parameters for this command.</param>
             <param name="commandTimeout">Number of seconds before command execution timeout.</param>
@@ -187,12 +241,11 @@
             otherwise an instance is created per row, and a direct column-name === member-name mapping is assumed (case insensitive).
             </returns>
         </member>
-        <member name="M:MelloSilveiraTools.Database.ExtensionMethods.NpgsqlConnectionExtensions.QueryAsync``1(Npgsql.NpgsqlConnection,System.String,Dapper.DynamicParameters,System.Threading.CancellationToken)">
+        <member name="M:MelloSilveiraTools.Database.ExtensionMethods.NpgsqlConnectionExtensions.&lt;G&gt;$277C0D2B5C73CA72F65CD00D7B70955D.QueryAsync``1(System.String,Dapper.DynamicParameters,System.Threading.CancellationToken)">
             <summary>
             Execute a query asynchronously using Task.
             </summary>
             <typeparam name="T">Type of results to return.</typeparam>
-            <param name="connection">Connection to query on.</param>
             <param name="sql">Text query to be executed.</param>
             <param name="parameters">The parameters for this command.</param>
             <param name="cancellationToken">Cancellation token for this command.</param>
@@ -201,34 +254,31 @@
             created per row, and a direct column-name===member-name mapping is assumed (case insensitive).
             </returns>
         </member>
-        <member name="M:MelloSilveiraTools.Database.ExtensionMethods.NpgsqlConnectionExtensions.ExecuteScalarAsync``1(Npgsql.NpgsqlConnection,System.String,Dapper.DynamicParameters,System.Threading.CancellationToken)">
+        <member name="M:MelloSilveiraTools.Database.ExtensionMethods.NpgsqlConnectionExtensions.&lt;G&gt;$277C0D2B5C73CA72F65CD00D7B70955D.ExecuteScalarAsync``1(System.String,Dapper.DynamicParameters,System.Threading.CancellationToken)">
             <summary>
             Execute parameterized SQL that selects a single value.
             </summary>
             <typeparam name="T">The type to return.</typeparam>
-            <param name="connection">The connection to execute on.</param>
             <param name="sql">The SQL to execute.</param>
             <param name="parameters">The parameters to use for this command.</param>
             <param name="cancellationToken">Cancellation token for this command.</param>
             <returns>The first cell returned, as <typeparamref name="T"/>.</returns>
         </member>
-        <member name="M:MelloSilveiraTools.Database.ExtensionMethods.NpgsqlConnectionExtensions.ExecuteScalarAsync``1(Npgsql.NpgsqlConnection,System.String,Dapper.DynamicParameters,System.Int32,System.Threading.CancellationToken)">
+        <member name="M:MelloSilveiraTools.Database.ExtensionMethods.NpgsqlConnectionExtensions.&lt;G&gt;$277C0D2B5C73CA72F65CD00D7B70955D.ExecuteScalarAsync``1(System.String,Dapper.DynamicParameters,System.Int32,System.Threading.CancellationToken)">
             <summary>
             Execute parameterized SQL that selects a single value.
             </summary>
             <typeparam name="T">The type to return.</typeparam>
-            <param name="connection">The connection to execute on.</param>
             <param name="sql">The SQL to execute.</param>
             <param name="parameters">The parameters to use for this command.</param>
             <param name="commandTimeout">Number of seconds before command execution timeout.</param>
             <param name="cancellationToken">Cancellation token for this command.</param>
             <returns>The first cell returned, as <typeparamref name="T"/>.</returns>
         </member>
-        <member name="M:MelloSilveiraTools.Database.ExtensionMethods.NpgsqlConnectionExtensions.ExecuteReaderAsync(Npgsql.NpgsqlConnection,System.String,Dapper.DynamicParameters,System.Threading.CancellationToken)">
+        <member name="M:MelloSilveiraTools.Database.ExtensionMethods.NpgsqlConnectionExtensions.&lt;G&gt;$277C0D2B5C73CA72F65CD00D7B70955D.ExecuteReaderAsync(System.String,Dapper.DynamicParameters,System.Threading.CancellationToken)">
             <summary>
             Execute parameterized SQL and return an <see cref="T:System.Data.IDataReader"/>.
             </summary>
-            <param name="connection">The connection to execute on.</param>
             <param name="sql">The SQL to execute.</param>
             <param name="parameters">The parameters to use for this command.</param>
             <param name="cancellationToken">Cancellation token for this command.</param>
@@ -244,77 +294,125 @@
             </summary>
         </member>
         <member name="M:MelloSilveiraTools.Database.ExtensionMethods.TypeExtensions.GetPropertiesInHierarchy(System.Type)">
+            <inheritdoc cref="M:MelloSilveiraTools.Database.ExtensionMethods.TypeExtensions.&lt;G&gt;$6B6159A298CA62A8C577E514BE40E3DD.GetPropertiesInHierarchy"/>
+        </member>
+        <member name="M:MelloSilveiraTools.Database.ExtensionMethods.TypeExtensions.GetPropertiesInHierarchy``1(System.Type)">
+            <inheritdoc cref="M:MelloSilveiraTools.Database.ExtensionMethods.TypeExtensions.&lt;G&gt;$6B6159A298CA62A8C577E514BE40E3DD.GetPropertiesInHierarchy``1"/>
+        </member>
+        <member name="M:MelloSilveiraTools.Database.ExtensionMethods.TypeExtensions.GetPropertyNamesInHierarchy(System.Type)">
+            <inheritdoc cref="M:MelloSilveiraTools.Database.ExtensionMethods.TypeExtensions.&lt;G&gt;$6B6159A298CA62A8C577E514BE40E3DD.GetPropertyNamesInHierarchy"/>
+        </member>
+        <member name="M:MelloSilveiraTools.Database.ExtensionMethods.TypeExtensions.IsEnumerable(System.Type)">
+            <inheritdoc cref="M:MelloSilveiraTools.Database.ExtensionMethods.TypeExtensions.&lt;G&gt;$6B6159A298CA62A8C577E514BE40E3DD.IsEnumerable"/>
+        </member>
+        <member name="M:MelloSilveiraTools.Database.ExtensionMethods.TypeExtensions.GetDbTypeFromPropertyType(System.Type)">
+            <inheritdoc cref="M:MelloSilveiraTools.Database.ExtensionMethods.TypeExtensions.&lt;G&gt;$6B6159A298CA62A8C577E514BE40E3DD.GetDbTypeFromPropertyType"/>
+        </member>
+        <member name="M:MelloSilveiraTools.Database.ExtensionMethods.TypeExtensions.GetDeclaredProperties(System.Type)">
+            <inheritdoc cref="M:MelloSilveiraTools.Database.ExtensionMethods.TypeExtensions.&lt;G&gt;$6B6159A298CA62A8C577E514BE40E3DD.GetDeclaredProperties"/>
+        </member>
+        <member name="M:MelloSilveiraTools.Database.ExtensionMethods.TypeExtensions.GetDeclaredProperties``1(System.Type)">
+            <inheritdoc cref="M:MelloSilveiraTools.Database.ExtensionMethods.TypeExtensions.&lt;G&gt;$6B6159A298CA62A8C577E514BE40E3DD.GetDeclaredProperties``1"/>
+        </member>
+        <member name="M:MelloSilveiraTools.Database.ExtensionMethods.TypeExtensions.GetDeclaredPropertyNames(System.Type)">
+            <inheritdoc cref="M:MelloSilveiraTools.Database.ExtensionMethods.TypeExtensions.&lt;G&gt;$6B6159A298CA62A8C577E514BE40E3DD.GetDeclaredPropertyNames"/>
+        </member>
+        <member name="M:MelloSilveiraTools.Database.ExtensionMethods.TypeExtensions.&lt;G&gt;$6B6159A298CA62A8C577E514BE40E3DD.GetPropertiesInHierarchy">
             <summary>
             Gets every public instance property declared anywhere in the type hierarchy of <paramref name="type"/>,
             ordered from the topmost base class down to the most derived type. Properties declared in a base
             class appear before those declared in its descendants. Results are cached per <see cref="T:System.Type"/>.
             </summary>
-            <param name="type">The type whose hierarchy should be walked.</param>
+            <remarks>
+            <paramref name="type"/>: The type whose hierarchy should be walked.
+            </remarks>
             <returns>The properties of <paramref name="type"/> ordered from base to derived.</returns>
         </member>
-        <member name="M:MelloSilveiraTools.Database.ExtensionMethods.TypeExtensions.GetPropertiesInHierarchy``1(System.Type)">
+        <member name="M:MelloSilveiraTools.Database.ExtensionMethods.TypeExtensions.&lt;G&gt;$6B6159A298CA62A8C577E514BE40E3DD.GetPropertiesInHierarchy``1">
             <summary>
             Gets every public instance property declared in the type hierarchy of <paramref name="type"/>
             that is decorated with <typeparamref name="TAttribute"/>, ordered from the topmost base class
             down to the most derived type. Results are cached per (type, attribute) pair.
             </summary>
             <typeparam name="TAttribute">The attribute used to filter properties.</typeparam>
-            <param name="type">The type whose hierarchy should be walked.</param>
+            <remarks>
+            <paramref name="type"/>: The type whose hierarchy should be walked.
+            </remarks>
             <returns>The matching properties ordered from base to derived.</returns>
         </member>
-        <member name="M:MelloSilveiraTools.Database.ExtensionMethods.TypeExtensions.GetPropertyNamesInHierarchy(System.Type)">
+        <member name="M:MelloSilveiraTools.Database.ExtensionMethods.TypeExtensions.&lt;G&gt;$6B6159A298CA62A8C577E514BE40E3DD.GetPropertyNamesInHierarchy">
             <summary>
             Gets the names of every public instance property declared in the hierarchy of <paramref name="type"/>,
             ordered from the topmost base class down to the most derived type (same order as
             <see cref="M:MelloSilveiraTools.Database.ExtensionMethods.TypeExtensions.GetPropertiesInHierarchy(System.Type)"/>). Results are cached per <see cref="T:System.Type"/>.
             </summary>
-            <param name="type">The type whose hierarchy should be walked.</param>
+            <remarks>
+            <paramref name="type"/>: The type whose hierarchy should be walked.
+            </remarks>
             <returns>The property names of <paramref name="type"/> ordered from base to derived.</returns>
         </member>
-        <member name="M:MelloSilveiraTools.Database.ExtensionMethods.TypeExtensions.GetDeclaredProperties(System.Type)">
-            <summary>
-            Gets only the public instance properties declared directly on <paramref name="type"/>,
-            excluding those inherited from base classes.
-            </summary>
-            <param name="type">The type whose declared properties should be returned.</param>
-            <returns>The public instance properties declared on <paramref name="type"/>.</returns>
-        </member>
-        <member name="M:MelloSilveiraTools.Database.ExtensionMethods.TypeExtensions.GetDeclaredProperties``1(System.Type)">
-            <summary>
-            Gets the public instance properties declared directly on <paramref name="type"/> (no inherited
-            members) that are decorated with <typeparamref name="TAttribute"/>.
-            </summary>
-            <typeparam name="TAttribute">The attribute used to filter properties.</typeparam>
-            <param name="type">The type whose declared properties should be inspected.</param>
-            <returns>The matching declared properties.</returns>
-        </member>
-        <member name="M:MelloSilveiraTools.Database.ExtensionMethods.TypeExtensions.GetDeclaredPropertyNames(System.Type)">
-            <summary>
-            Gets the names of the public instance properties declared directly on <paramref name="type"/>,
-            excluding inherited members.
-            </summary>
-            <param name="type">The type whose declared property names should be returned.</param>
-            <returns>The names of the public instance properties declared on <paramref name="type"/>.</returns>
-        </member>
-        <member name="M:MelloSilveiraTools.Database.ExtensionMethods.TypeExtensions.IsEnumerable(System.Type)">
+        <member name="M:MelloSilveiraTools.Database.ExtensionMethods.TypeExtensions.&lt;G&gt;$6B6159A298CA62A8C577E514BE40E3DD.IsEnumerable">
             <summary>
             Indicates whether <paramref name="type"/> is an enumerable collection — that is, whether it
             implements <see cref="T:System.Collections.IEnumerable"/>. <see cref="T:System.String"/> is treated as a non-enumerable
             special case and always returns <see langword="false"/>.
             </summary>
-            <param name="type">The type to test.</param>
+            <remarks>
+            <paramref name="type"/>: The type to test.
+            </remarks>
             <returns><see langword="true"/> if <paramref name="type"/> implements <see cref="T:System.Collections.IEnumerable"/> and is not <see cref="T:System.String"/>; otherwise <see langword="false"/>.</returns>
         </member>
-        <member name="M:MelloSilveiraTools.Database.ExtensionMethods.TypeExtensions.GetDbTypeFromPropertyType(System.Type)">
+        <member name="M:MelloSilveiraTools.Database.ExtensionMethods.TypeExtensions.&lt;G&gt;$6B6159A298CA62A8C577E514BE40E3DD.GetDbTypeFromPropertyType">
             <summary>
             Returns the <see cref="T:NpgsqlTypes.NpgsqlDbType"/> from property type.
             </summary>
-            <param name="type">The CLR property type to be mapped to its corresponding <see cref="T:NpgsqlTypes.NpgsqlDbType"/>.</param>
+            <remarks>
+            <paramref name="type"/>: The CLR property type to be mapped to its corresponding <see cref="T:NpgsqlTypes.NpgsqlDbType"/>.
+            </remarks>
             <returns>The <see cref="T:NpgsqlTypes.NpgsqlDbType"/> matching <paramref name="type"/>.</returns>
             <exception cref="T:System.ArgumentOutOfRangeException">
             Thrown when <paramref name="type"/> is not handled by this mapping (i.e. it is not one of the supported
             primitive, nullable primitive, array or generic enumerable types).
             </exception>
+        </member>
+        <member name="M:MelloSilveiraTools.Database.ExtensionMethods.TypeExtensions.&lt;G&gt;$6B6159A298CA62A8C577E514BE40E3DD.GetDeclaredProperties">
+            <summary>
+            Gets only the public instance properties declared directly on <paramref name="type"/>,
+            excluding those inherited from base classes.
+            </summary>
+            <remarks>
+            <paramref name="type"/>: The type whose declared properties should be returned.
+            </remarks>
+            <returns>The public instance properties declared on <paramref name="type"/>.</returns>
+        </member>
+        <member name="M:MelloSilveiraTools.Database.ExtensionMethods.TypeExtensions.&lt;G&gt;$6B6159A298CA62A8C577E514BE40E3DD.GetDeclaredProperties``1">
+            <summary>
+            Gets the public instance properties declared directly on <paramref name="type"/> (no inherited
+            members) that are decorated with <typeparamref name="TAttribute"/>.
+            </summary>
+            <typeparam name="TAttribute">The attribute used to filter properties.</typeparam>
+            <remarks>
+            <paramref name="type"/>: The type whose declared properties should be inspected.
+            </remarks>
+            <returns>The matching declared properties.</returns>
+        </member>
+        <member name="M:MelloSilveiraTools.Database.ExtensionMethods.TypeExtensions.&lt;G&gt;$6B6159A298CA62A8C577E514BE40E3DD.GetDeclaredPropertyNames">
+            <summary>
+            Gets the names of the public instance properties declared directly on <paramref name="type"/>,
+            excluding inherited members.
+            </summary>
+            <remarks>
+            <paramref name="type"/>: The type whose declared property names should be returned.
+            </remarks>
+            <returns>The names of the public instance properties declared on <paramref name="type"/>.</returns>
+        </member>
+        <member name="M:MelloSilveiraTools.Database.Logging.DatabaseLoggingExtensions.WriteToPostgres(Serilog.LoggerConfiguration,MelloSilveiraTools.Core.Logging.LoggerSettings)">
+            <inheritdoc cref="M:MelloSilveiraTools.Database.Logging.DatabaseLoggingExtensions.&lt;G&gt;$6B5B6285A2C1A95C5914B27276A625A6.WriteToPostgres(MelloSilveiraTools.Core.Logging.LoggerSettings)"/>
+        </member>
+        <member name="M:MelloSilveiraTools.Database.Logging.DatabaseLoggingExtensions.&lt;G&gt;$6B5B6285A2C1A95C5914B27276A625A6.WriteToPostgres(MelloSilveiraTools.Core.Logging.LoggerSettings)">
+            <summary>
+            Adds the PostgreSQL batch-insert sink to the Serilog configuration using the unified settings.
+            </summary>
         </member>
         <member name="T:MelloSilveiraTools.Database.RelationalDatabase.Attributes.ColumnAttribute">
             <summary>
@@ -1091,18 +1189,18 @@
             Resilience pipeline for PostgreSQL repositories that provides a strategy to handle retriable exceptions.
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.Database.ResiliencePipelines.PostgresResiliencePipeline.#ctor(MelloSilveiraTools.Core.Logger.ILogger,MelloSilveiraTools.Core.ResiliencePipelines.ResiliencePipelineSettings)">
+        <member name="M:MelloSilveiraTools.Database.ResiliencePipelines.PostgresResiliencePipeline.#ctor(Microsoft.Extensions.Logging.ILogger{MelloSilveiraTools.Database.ResiliencePipelines.PostgresResiliencePipeline},MelloSilveiraTools.Core.ResiliencePipelines.ResiliencePipelineSettings)">
             <summary>
             Initialize a new instance of <see cref="T:MelloSilveiraTools.Database.ResiliencePipelines.PostgresResiliencePipeline"/>.
             </summary>
             <param name="logger">Logger used to record retry attempts and failures while executing operations through the pipeline.</param>
             <param name="settings">Resilience pipeline settings (max retries, base delay, jitter, etc.) that drive the retry strategy.</param>
         </member>
-        <member name="M:MelloSilveiraTools.Database.ResiliencePipelines.PostgresResiliencePipeline.#ctor(MelloSilveiraTools.Core.Logger.ILogger,MelloSilveiraTools.Core.ResiliencePipelines.ResiliencePipelineSettings,System.Func{Polly.Retry.RetryPredicateArguments{System.Object},System.Threading.Tasks.ValueTask{System.Boolean}})">
+        <member name="M:MelloSilveiraTools.Database.ResiliencePipelines.PostgresResiliencePipeline.#ctor(Microsoft.Extensions.Logging.ILogger{MelloSilveiraTools.Database.ResiliencePipelines.PostgresResiliencePipeline},MelloSilveiraTools.Core.ResiliencePipelines.ResiliencePipelineSettings,System.Func{Polly.Retry.RetryPredicateArguments{System.Object},System.Threading.Tasks.ValueTask{System.Boolean}})">
             <summary>
             Initializes a new instance of <see cref="T:MelloSilveiraTools.Database.ResiliencePipelines.PostgresResiliencePipeline"/>.
             </summary>
-            <param name="logger">See reference at <see cref="T:MelloSilveiraTools.Core.Logger.ILogger"/>.</param>
+            <param name="logger">See reference at <see cref="T:Microsoft.Extensions.Logging.ILogger"/>.</param>
             <param name="settings">See reference at <see cref="T:MelloSilveiraTools.Core.ResiliencePipelines.ResiliencePipelineSettings"/>.</param>
             <param name="shouldHandle">Predicate that determines whether the retry should be executed for a given outcome.</param>
         </member>

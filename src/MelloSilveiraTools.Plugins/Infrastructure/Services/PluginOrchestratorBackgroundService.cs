@@ -1,7 +1,7 @@
-using MelloSilveiraTools.Core.Logger;
 using MelloSilveiraTools.Plugins.Infrastructure.Models;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 
 namespace MelloSilveiraTools.Plugins.Infrastructure.Services;
 
@@ -11,7 +11,7 @@ namespace MelloSilveiraTools.Plugins.Infrastructure.Services;
 /// cached versions according to <see cref="PluginSettings.PreviousVersionRetention"/>.
 /// </summary>
 public sealed class PluginOrchestratorBackgroundService(
-    ILogger logger,
+    ILogger<PluginOrchestratorBackgroundService> logger,
     IServiceScopeFactory scopeFactory,
     PluginFileProcessor fileProcessor,
     PluginCache cache,
@@ -30,7 +30,7 @@ public sealed class PluginOrchestratorBackgroundService(
                 await timer.WaitForNextTickAsync(stoppingToken);
             }
             catch (OperationCanceledException) { return; }
-            catch (Exception ex) { logger.Error("Plugin orchestrator pass failed.", ex); }
+            catch (Exception ex) { logger.LogError(ex, "Plugin orchestrator pass failed."); }
         }
     }
 
@@ -63,7 +63,11 @@ public sealed class PluginOrchestratorBackgroundService(
         // Newer version already in place → ignore the old file.
         if (highestLoaded is PluginVersion highest && discovered.Version < highest)
         {
-            logger.Warn($"Ignoring plugin file '{Path.GetFileName(discovered.FullPath)}': version {highest.Name} of '{discovered.Name}' is already loaded.");
+            logger.LogWarning(
+                "Ignoring plugin file '{PluginFileName}': version {PluginVersion} of '{PluginName}' is already loaded.",
+                Path.GetFileName(discovered.FullPath),
+                highest.Name,
+                discovered.Name);
             return;
         }
 
@@ -109,7 +113,11 @@ public sealed class PluginOrchestratorBackgroundService(
         }
         catch (Exception ex)
         {
-            logger.Error($"Failed to load plugin '{discovered.Name}' {discovered.Version.Name}.", ex);
+            logger.LogError(
+                ex,
+                "Failed to load plugin '{PluginName}' {PluginVersion}.",
+                discovered.Name,
+                discovered.Version.Name);
             return false;
         }
     }

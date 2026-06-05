@@ -1,6 +1,5 @@
-﻿using MelloSilveiraTools.Core.Logger;
-using MelloSilveiraTools.Core.ResiliencePipelines;
-using MelloSilveiraTools.Core.Services;
+﻿using MelloSilveiraTools.Core.ResiliencePipelines;
+using Microsoft.Extensions.Logging;
 using System.Net;
 using System.Net.Mail;
 
@@ -14,17 +13,15 @@ namespace MelloSilveiraTools.Core.Services.Email;
 /// <param name="smtpResiliencePipeline">Resilience pipeline applied to the SMTP send operation.</param>
 /// <param name="emailSettings">SMTP server configuration and sender credentials.</param>
 public class SmtpEmailService(
-    ILogger logger,
+    ILogger<SmtpEmailService> logger,
     SmtpResiliencePipeline smtpResiliencePipeline,
     EmailSettings emailSettings)
     : IEmailService
 {
     /// <inheritdoc/>
-    public async Task<bool> SendAsync(string recipient, string subject, string body, bool isBodyHtml = true)
-    {
-        try
-        {
-            return await smtpResiliencePipeline.ExecuteAsync(async _ =>
+    public async Task<bool> SendAsync(string recipient, string subject, string body, bool isBodyHtml = true) => await smtpResiliencePipeline
+        .ExecuteAsync(
+            async _ =>
             {
                 NetworkCredential credentials = new(emailSettings.ApplicationEmail, emailSettings.ApplicationPassword);
                 using SmtpClient smtpClient = new(emailSettings.SmtpHost, emailSettings.SmtpPort) { EnableSsl = true, Credentials = credentials };
@@ -33,20 +30,18 @@ public class SmtpEmailService(
                 await smtpClient.SendMailAsync(mailMessage).ConfigureAwait(false);
 
                 return true;
-            }).ConfigureAwait(false);
-        }
-        catch (Exception ex)
-        {
-            Dictionary<string, object?> logAdditionalData = new()
+            },
+            ex =>
             {
-                { "Recipient", recipient },
-                { "Subject", subject },
-                { "Body", body },
-                { "IsBodyHtml", isBodyHtml },
-            };
-            logger.Error("Falha ao enviar email.", ex, logAdditionalData);
+                logger.LogError(
+                    ex,
+                    "Failed to send file. Recipient: {Recipient}, Subject: {Subject}, Body: {Body}, IsBodyHtml: {IsBodyHtml}",
+                    recipient,
+                    subject,
+                    body,
+                    isBodyHtml);
 
-            return false;
-        }
-    }
+                return false;
+            })
+        .ConfigureAwait(false);
 }

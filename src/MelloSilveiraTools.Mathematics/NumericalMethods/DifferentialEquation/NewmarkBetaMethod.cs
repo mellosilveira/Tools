@@ -1,5 +1,4 @@
 ﻿using MelloSilveiraTools.Core.ExtensionMethods;
-using MelloSilveiraTools.Mathematics.Models.NumericalMethods;
 
 namespace MelloSilveiraTools.Mathematics.NumericalMethods.DifferentialEquation;
 
@@ -12,9 +11,6 @@ public class NewmarkBetaMethod : IDifferentialEquationMethod
     private const double Beta = (double)1 / 6;
     private const double A3 = Gama / Beta;
     private const double A4 = 1 / (2 * Beta);
-
-    /// <inheritdoc/>
-    public DifferentialEquationMethodType Type => DifferentialEquationMethodType.NewmarkBeta;
 
     /// <inheritdoc/>
     public NumericalMethodOutput Calculate(NumericalMethodInput input, double time, NumericalMethodOutput previousOutput)

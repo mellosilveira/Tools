@@ -25,8 +25,7 @@ public class InMemorySingleLevelCache : ISingleLevelCache
     }
 
     /// <inheritdoc/>
-    public T GetOrAdd<T>(string key, Func<T> factory)
-        => (T)_cache.GetOrAdd(key, _ => factory()!);
+    public T GetOrAdd<T>(string key, Func<T> factory) => (T)_cache.GetOrAdd(key, _ => factory()!);
 
     /// <inheritdoc/>
     public void Set<T>(string key, T value) => _cache[key] = value!;

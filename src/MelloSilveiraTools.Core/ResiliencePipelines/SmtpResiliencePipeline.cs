@@ -1,4 +1,4 @@
-﻿using MelloSilveiraTools.Core.Logger;
+﻿using Microsoft.Extensions.Logging;
 using Polly;
 using Polly.Retry;
 using System.Net.Mail;
@@ -15,7 +15,7 @@ public class SmtpResiliencePipeline : DefaultResiliencePipeline
     /// </summary>
     /// <param name="logger"></param>
     /// <param name="settings"></param>
-    public SmtpResiliencePipeline(ILogger logger, ResiliencePipelineSettings settings)
+    public SmtpResiliencePipeline(ILogger<SmtpResiliencePipeline> logger, ResiliencePipelineSettings settings)
         : base(logger, settings, new PredicateBuilder()
             // TODO: AVALIAR QUANDO USAR SmtpException.
             //.Handle<SmtpException>()
@@ -28,5 +28,5 @@ public class SmtpResiliencePipeline : DefaultResiliencePipeline
     /// <param name="logger">See reference at <see cref="ILogger"/>.</param>
     /// <param name="settings">See reference at <see cref="ResiliencePipelineSettings"/>.</param>
     /// <param name="shouldHandle">Predicate that determines whether the retry should be executed for a given outcome.</param>
-    public SmtpResiliencePipeline(ILogger logger, ResiliencePipelineSettings settings, Func<RetryPredicateArguments<object>, ValueTask<bool>> shouldHandle) : base(logger, settings, shouldHandle) { }
+    public SmtpResiliencePipeline(ILogger<SmtpResiliencePipeline> logger, ResiliencePipelineSettings settings, Func<RetryPredicateArguments<object>, ValueTask<bool>> shouldHandle) : base(logger, settings, shouldHandle) { }
 }

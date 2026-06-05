@@ -1,4 +1,3 @@
-using MelloSilveiraTools.Core.Logger;
 using MelloSilveiraTools.Core.Models;
 using MelloSilveiraTools.Database.RelationalDatabase.Models.Entities;
 using MelloSilveiraTools.Database.RelationalDatabase.Models.Filters;
@@ -12,39 +11,25 @@ namespace MelloSilveiraTools.WebApi.Application.Commands.Crud.Read;
 /// </summary>
 /// <typeparam name="TEntity">Entity type being queried.</typeparam>
 /// <typeparam name="TFilter">Filter type used to query the entity.</typeparam>
-public class ReadEntityPaged<TEntity, TFilter>(ILogger logger, IRepository repository)
-    : PagedCommandBase<ReadEntityPagedRequest<TFilter>, TEntity>(logger)
-    where TEntity : EntityBase, new()
+public class ReadEntityPaged<TEntity, TFilter>(IRepository repository) : PagedCommandBase<ReadEntityPagedRequest<TFilter>, TEntity> where TEntity : EntityBase, new()
     where TFilter : FilterBase, new()
 {
     /// <inheritdoc />
     protected override async Task<PagedResult<TEntity>> ExecuteCommandAsync(ReadEntityPagedRequest<TFilter> request)
     {
-        try
-        {
-            long totalCount = await repository.CountAsync<TEntity, TFilter>(request.Filter).ConfigureAwait(false);
-            var entities = await repository
-                .GetAsync<TEntity, TFilter>(request.Filter, request.Pagination)
-                .ToListAsync(request.CancellationToken)
-                .ConfigureAwait(false);
+        long totalCount = await repository.CountAsync<TEntity, TFilter>(request.Filter).ConfigureAwait(false);
+        var entities = await repository
+            .GetAsync<TEntity, TFilter>(request.Filter, request.Pagination)
+            .ToListAsync(request.CancellationToken)
+            .ConfigureAwait(false);
 
-            return new PagedResult<TEntity>
-            {
-                StatusCode = StatusCode.OK,
-                Success = true,
-                Data = entities,
-                TotalCount = totalCount,
-                PageNumber = entities.Count > 0 ? (request.Pagination.Offset ?? 0) / entities.Count + 1 : 1,
-            };
-        }
-        catch (Exception ex)
+        return new PagedResult<TEntity>
         {
-            string message = $"Falha ao buscar {request.ResourceName}.";
-            
-            Dictionary<string, object?> logAdditionalData = new() { { "Filter", request.Filter } };
-            Logger.Error(message, ex, logAdditionalData);
-
-            return Result.CreateUnknownError(message);
-        }
+            StatusCode = StatusCode.OK,
+            Success = true,
+            Data = entities,
+            TotalCount = totalCount,
+            PageNumber = entities.Count > 0 ? (request.Pagination.Offset ?? 0) / entities.Count + 1 : 1,
+        };
     }
 }

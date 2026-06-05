@@ -1,6 +1,5 @@
 ﻿using MelloSilveiraTools.Core.ExtensionMethods;
 using MelloSilveiraTools.Mathematics.Models;
-using MelloSilveiraTools.Mathematics.Models.NumericalMethods;
 
 namespace MelloSilveiraTools.Mathematics.NumericalMethods.DifferentialEquation;
 
@@ -12,9 +11,6 @@ public class NewmarkMethod : IDifferentialEquationMethod
     private const double Gama = (double)1 / 2;
     private const double Beta = (double)1 / 4;
 
-    /// <inheritdoc/>
-    public DifferentialEquationMethodType Type => DifferentialEquationMethodType.Newmark;
-    
     /// <inheritdoc/>
     public NumericalMethodOutput Calculate(NumericalMethodInput input, double time, NumericalMethodOutput previousOutput)
     {
@@ -139,21 +135,14 @@ public class NewmarkMethod : IDifferentialEquationMethod
 
     #region Integration Constants
 
-    private double GetA0(double timeStep) => 1 / (Beta * Math.Pow(timeStep, 2));
-
-    private double GetA1(double timeStep) => Gama / (Beta * timeStep);
-
-    private double GetA2(double timeStep) => 1 / (Beta * timeStep);
-
-    private double GetA3() => 1 / (2 * Beta) - 1;
-
-    private double GetA4() => Gama / Beta - 1;
-
-    private double GetA5(double timeStep) => timeStep / 2 * (Gama / Beta - 2);
-
-    private double GetA6(double timeStep) => timeStep * (1 - Gama);
-
-    private double GetA7(double timeStep) => Gama * timeStep;
+    private static double GetA0(double timeStep) => 1 / (Beta * Math.Pow(timeStep, 2));
+    private static double GetA1(double timeStep) => Gama / (Beta * timeStep);
+    private static double GetA2(double timeStep) => 1 / (Beta * timeStep);
+    private static double GetA3() => 1 / (2 * Beta) - 1;
+    private static double GetA4() => Gama / Beta - 1;
+    private static double GetA5(double timeStep) => timeStep / 2 * (Gama / Beta - 2);
+    private static double GetA6(double timeStep) => timeStep * (1 - Gama);
+    private static double GetA7(double timeStep) => Gama * timeStep;
 
     #endregion
 }

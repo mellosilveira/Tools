@@ -1,17 +1,10 @@
-﻿using MelloSilveiraTools.Mathematics.Models.NumericalMethods;
-
-namespace MelloSilveiraTools.Mathematics.NumericalMethods.DifferentialEquation;
+﻿namespace MelloSilveiraTools.Mathematics.NumericalMethods.DifferentialEquation;
 
 /// <summary>
 /// Executes numerical method to solve Differential Equation
 /// </summary>
 public interface IDifferentialEquationMethod
 {
-    /// <summary>
-    /// The method type identifying this implementation.
-    /// </summary>
-    DifferentialEquationMethodType Type { get; }
-
     /// <summary>
     /// Advances the dynamic system by one time step, computing the state (displacement, velocity,
     /// acceleration and equivalent force) at the requested instant <paramref name="time"/>.

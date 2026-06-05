@@ -1,4 +1,3 @@
-using MelloSilveiraTools.Core.Logger;
 using MelloSilveiraTools.Core.Models;
 using MelloSilveiraTools.Database.ExtensionMethods;
 using MelloSilveiraTools.Plugins.Application.Validators;
@@ -11,7 +10,7 @@ namespace MelloSilveiraTools.Plugins.Application.Commands.Get;
 /// <summary>
 /// Operation that retrieves registered plugins matching the supplied name, version and load-state filters.
 /// </summary>
-public class GetPlugins(ILogger logger, IPluginService pluginService, PluginValidator<GetPluginsRequest> validator) : ListedCommandBase<GetPluginsRequest, RegisteredPlugin>(logger, validator)
+public class GetPlugins(IPluginService pluginService, PluginValidator<GetPluginsRequest> validator) : ListedCommandBase<GetPluginsRequest, RegisteredPlugin>(validator)
 {
     /// <inheritdoc />
     protected override Task<ListedResult<RegisteredPlugin>> ExecuteCommandAsync(GetPluginsRequest request)

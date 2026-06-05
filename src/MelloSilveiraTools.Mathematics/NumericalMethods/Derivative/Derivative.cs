@@ -8,11 +8,10 @@ public class Derivative : IDerivative
     {
         double previous = equation(time - timeStep);
         double nextValue = equation(time + timeStep);
-
+        
         return (nextValue - previous) / (2 * timeStep);
     }
 
     /// <inheritdoc/>
-    public double Calculate(double initialPoint, double finalPoint, double step)
-        => (finalPoint - initialPoint) / step;
+    public double Calculate(double initialPoint, double finalPoint, double step) => (finalPoint - initialPoint) / step;
 }

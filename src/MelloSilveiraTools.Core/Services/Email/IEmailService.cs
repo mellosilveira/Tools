@@ -1,4 +1,4 @@
-namespace MelloSilveiraTools.Core.Services;
+namespace MelloSilveiraTools.Core.Services.Email;
 
 /// <summary>
 /// Service responsible for sending e-mail messages.

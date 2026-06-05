@@ -1,6 +1,6 @@
-using MelloSilveiraTools.Core.Logger;
 using MelloSilveiraTools.Core.Models;
 using MelloSilveiraTools.Core.Validators;
+using Microsoft.Extensions.Logging;
 
 namespace MelloSilveiraTools.WebApi.Application.Commands;
 
@@ -9,17 +9,11 @@ namespace MelloSilveiraTools.WebApi.Application.Commands;
 /// </summary>
 /// <typeparam name="TRequest">Request type consumed by the command.</typeparam>
 /// <typeparam name="TResult">Response type produced by the command.</typeparam>
-/// <param name="logger">Logger used to record failures raised while processing the command.</param>
 /// <param name="validator"></param>
-public abstract class CommandBase<TRequest, TResult>(ILogger logger, IValidator<TRequest>? validator = null)
+public abstract class CommandBase<TRequest, TResult>(IValidator<TRequest>? validator = null)
     where TRequest : class, new()
     where TResult : ResultBase, new()
 {
-    /// <summary>
-    /// Logger used to report failures raised while processing the command.
-    /// </summary>
-    protected ILogger Logger { get; } = logger;
-
     public IValidator<TRequest>? Validator { get; } = validator;
 
     /// <summary>
@@ -47,7 +41,7 @@ public abstract class CommandBase<TRequest, TResult>(ILogger logger, IValidator<
 
     /// <summary>
     /// Asynchronously executes the use-case domain logic for this command. Implementations should
-    /// rely on <see cref="Logger"/> (inherited from this base class) for diagnostic logging and
+    /// rely on <see cref="ILogger"/> (inherited from this base class) for diagnostic logging and
     /// build their response using the <see cref="Result"/> factory helpers
     /// (<c>CreateSuccessOk</c>, <c>CreateNotFound</c>, <c>CreateUnknownError</c>, etc.) for
     /// expected outcomes. Unexpected exceptions should be allowed to propagate — they are caught by
@@ -63,7 +57,7 @@ public abstract class CommandBase<TRequest, TResult>(ILogger logger, IValidator<
 /// </summary>
 /// <typeparam name="TRequest">Request type consumed by the command.</typeparam>
 /// <typeparam name="TResponseData">Type of the data payload returned by the command.</typeparam>
-public abstract class CommandBaseWithData<TRequest, TResponseData>(ILogger logger, IValidator<TRequest>? validator = null) : CommandBase<TRequest, Result<TResponseData>>(logger, validator)
+public abstract class CommandBaseWithData<TRequest, TResponseData>(IValidator<TRequest>? validator = null) : CommandBase<TRequest, Result<TResponseData>>(validator)
     where TRequest : class, new()
     where TResponseData : class
 { }
@@ -73,7 +67,7 @@ public abstract class CommandBaseWithData<TRequest, TResponseData>(ILogger logge
 /// </summary>
 /// <typeparam name="TRequest">Request type consumed by the command.</typeparam>
 /// <typeparam name="TResponseData">Type of each item returned by the command.</typeparam>
-public abstract class ListedCommandBase<TRequest, TResponseData>(ILogger logger, IValidator<TRequest>? validator = null) : CommandBase<TRequest, ListedResult<TResponseData>>(logger, validator)
+public abstract class ListedCommandBase<TRequest, TResponseData>(IValidator<TRequest>? validator = null) : CommandBase<TRequest, ListedResult<TResponseData>>(validator)
     where TRequest : class, new()
     where TResponseData : class
 { }
@@ -83,7 +77,7 @@ public abstract class ListedCommandBase<TRequest, TResponseData>(ILogger logger,
 /// </summary>
 /// <typeparam name="TRequest">Request type consumed by the command.</typeparam>
 /// <typeparam name="TResponseData">Type of each item returned in the page.</typeparam>
-public abstract class PagedCommandBase<TRequest, TResponseData>(ILogger logger, IValidator<TRequest>? validator = null) : CommandBase<TRequest, PagedResult<TResponseData>>(logger, validator)
+public abstract class PagedCommandBase<TRequest, TResponseData>(IValidator<TRequest>? validator = null) : CommandBase<TRequest, PagedResult<TResponseData>>(validator)
     where TRequest : class, new()
     where TResponseData : class
 { }
@@ -91,47 +85,23 @@ public abstract class PagedCommandBase<TRequest, TResponseData>(ILogger logger, 
 /// <summary>
 /// Represents the base for all commands that uses the default response (<see cref="Result"/>).
 /// </summary>
-public abstract class CommandBaseWithDefaultResponse<TRequest>(ILogger logger, IValidator<TRequest>? validator = null) : CommandBase<TRequest, Result>(logger, validator) where TRequest : class, new();
+public abstract class CommandBaseWithDefaultResponse<TRequest>(IValidator<TRequest>? validator = null) : CommandBase<TRequest, Result>(validator) where TRequest : class, new();
 
 /// <summary>
 /// Represents the base for all commands that does not use a request.
 /// </summary>
-/// <param name="logger">Logger used to record failures raised while processing the command.</param>
-public abstract class CommandBaseWithoutRequest<TResponseData>(ILogger logger) where TResponseData : class
+public abstract class CommandBaseWithoutRequest<TResponseData> where TResponseData : class
 {
-    /// <summary>
-    /// Logger used to report failures raised while processing the command.
-    /// </summary>
-    protected ILogger Logger { get; } = logger;
-
     /// <summary>
     /// The main method of all commands.
     /// Asynchronously, orchestrates and validates the commands.
     /// </summary>
     /// <returns>The command response.</returns>
-    public async Task<Result<TResponseData>> ExecuteAsync()
-    {
-        try
-        {
-            return await ExecuteCommandAsync().ConfigureAwait(false);
-        }
-        catch (Exception ex)
-        {
-#if DEBUG
-            string message = $"{ex}";
-#else
-            string message = "Ocorreu um erro interno durante o processamento da solicitação.";
-#endif
-
-            Logger.Error(message, ex);
-
-            return Result.CreateUnknownError(message);
-        }
-    }
+    public async Task<Result<TResponseData>> ExecuteAsync() => await ExecuteCommandAsync().ConfigureAwait(false);
 
     /// <summary>
     /// Asynchronously executes the use-case domain logic for this request-less command.
-    /// Implementations should use <see cref="Logger"/> for diagnostics and the
+    /// Implementations should use <see cref="ILogger"/> for diagnostics and the
     /// <see cref="Result"/> factory helpers to build expected outcomes. Unexpected
     /// exceptions should propagate — they are caught by <see cref="ExecuteAsync"/> and translated
     /// into a 500 Internal Server Error response.
@@ -143,42 +113,18 @@ public abstract class CommandBaseWithoutRequest<TResponseData>(ILogger logger) w
 /// <summary>
 /// Represents the base for all commands that does not use a request.
 /// </summary>
-/// <param name="logger">Logger used to record failures raised while processing the command.</param>
-public abstract class DefaultCommandBase(ILogger logger)
+public abstract class DefaultCommandBase
 {
-    /// <summary>
-    /// Logger used to report failures raised while processing the command.
-    /// </summary>
-    protected ILogger Logger { get; } = logger;
-
     /// <summary>
     /// The main method of all commands.
     /// Asynchronously, orchestrates and validates the commands.
     /// </summary>
     /// <returns>The command response.</returns>
-    public async Task<Result> ExecuteAsync()
-    {
-        try
-        {
-            return await ExecuteCommandAsync().ConfigureAwait(false);
-        }
-        catch (Exception ex)
-        {
-#if DEBUG
-            string message = $"{ex}";
-#else
-            string message = "Ocorreu um erro interno durante o processamento da solicitação.";
-#endif
-
-            Logger.Error(message, ex);
-
-            return Result.CreateUnknownError(message);
-        }
-    }
+    public async Task<Result> ExecuteAsync() => await ExecuteCommandAsync().ConfigureAwait(false);
 
     /// <summary>
     /// Asynchronously executes the use-case domain logic for this request-less command.
-    /// Implementations should use <see cref="Logger"/> for diagnostics and the
+    /// Implementations should use <see cref="ILogger"/> for diagnostics and the
     /// <see cref="Result"/> factory helpers to build expected outcomes. Unexpected
     /// exceptions should propagate — they are caught by <see cref="ExecuteAsync"/> and translated
     /// into a 500 Internal Server Error response.

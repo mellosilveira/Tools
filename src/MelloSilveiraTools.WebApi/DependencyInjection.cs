@@ -1,4 +1,3 @@
-using MelloSilveiraTools.Core.Logger;
 using MelloSilveiraTools.Core.ResiliencePipelines;
 using MelloSilveiraTools.WebApi.Application.Commands.Crud.Add;
 using MelloSilveiraTools.WebApi.Application.Commands.Crud.Delete;
@@ -10,6 +9,7 @@ using MelloSilveiraTools.WebApi.Infrastructure.ResiliencePipelines;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi;
 using System.Reflection;
 
@@ -29,7 +29,7 @@ public static class WebApiDependencyInjection
     public static IServiceCollection AddWebApiServices(this IServiceCollection services,
         ResiliencePipelineSettings resiliencePipelineSettings)
         => services
-            .AddSingleton(provider => new ApiServiceAgentResiliencePipeline(provider.GetRequiredService<ILogger>(), resiliencePipelineSettings))
+            .AddSingleton(provider => new ApiServiceAgentResiliencePipeline(provider.GetRequiredService<ILogger<ApiServiceAgentResiliencePipeline>>(), resiliencePipelineSettings))
             // Register generic CRUD operations as open generics so any TEntity / TFilter pair resolves
             // through DI without per-entity registrations. Both CrudController<TEntity, TFilter> and
             // the MapCrud<TEntity, TFilter> minimal-API extension consume them.

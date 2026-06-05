@@ -13,43 +13,45 @@ public static class DictionaryExtensions
 {
     private static readonly ConcurrentDictionary<Type, Dictionary<string, (Action<object, object> Setter, Type PropertyType)>> _typeCache = [];
 
-    /// <summary>
-    /// Converts the <see cref="IDataReader"/> to an object.
-    /// </summary>
-    /// <typeparam name="T"></typeparam>
-    /// <param name="sqlDataReader"></param>
-    /// <returns></returns>
-    public static T ConvertTo<T>(this IDataReader sqlDataReader) where T : class, new()
+    extension(IDataReader sqlDataReader)
     {
-        var setters = _typeCache.GetOrAdd(typeof(T), BuildSetters);
-        var obj = new T();
-
-        for (int i = 0; i < sqlDataReader.FieldCount; i++)
+        /// <summary>
+        /// Converts the <see cref="IDataReader"/> to an object.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public T ConvertTo<T>() where T : class, new()
         {
-            if (sqlDataReader.IsDBNull(i))
-                continue;
+            var setters = _typeCache.GetOrAdd(typeof(T), BuildSetters);
+            var obj = new T();
 
-            var fieldName = sqlDataReader.GetName(i);
-            if (!setters.TryGetValue(fieldName, out var entry))
-                continue;
+            for (int i = 0; i < sqlDataReader.FieldCount; i++)
+            {
+                if (sqlDataReader.IsDBNull(i))
+                    continue;
 
-            object fieldValue = sqlDataReader.GetValue(i);
-            var underlyingType = Nullable.GetUnderlyingType(entry.PropertyType) ?? entry.PropertyType;
+                var fieldName = sqlDataReader.GetName(i);
+                if (!setters.TryGetValue(fieldName, out var entry))
+                    continue;
 
-            object propertyValue;
-            if (underlyingType == typeof(DateTimeOffset) && fieldValue is DateTime dt)
-                propertyValue = new DateTimeOffset(dt);
-            else if (underlyingType == typeof(DateTimeOffset))
-                propertyValue = (DateTimeOffset)fieldValue;
-            else if (underlyingType.IsEnum)
-                propertyValue = Enum.ToObject(underlyingType, fieldValue);
-            else
-                propertyValue = Convert.ChangeType(fieldValue, underlyingType);
+                object fieldValue = sqlDataReader.GetValue(i);
+                var underlyingType = Nullable.GetUnderlyingType(entry.PropertyType) ?? entry.PropertyType;
 
-            entry.Setter(obj, propertyValue);
+                object propertyValue;
+                if (underlyingType == typeof(DateTimeOffset) && fieldValue is DateTime dt)
+                    propertyValue = new DateTimeOffset(dt);
+                else if (underlyingType == typeof(DateTimeOffset))
+                    propertyValue = (DateTimeOffset)fieldValue;
+                else if (underlyingType.IsEnum)
+                    propertyValue = Enum.ToObject(underlyingType, fieldValue);
+                else
+                    propertyValue = Convert.ChangeType(fieldValue, underlyingType);
+
+                entry.Setter(obj, propertyValue);
+            }
+
+            return obj;
         }
-
-        return obj;
     }
 
     private static Dictionary<string, (Action<object, object> Setter, Type PropertyType)> BuildSetters([DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicProperties)] Type type)

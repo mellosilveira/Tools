@@ -1,4 +1,3 @@
-using MelloSilveiraTools.Core.Logger;
 using MelloSilveiraTools.Core.Models;
 using MelloSilveiraTools.Database.RelationalDatabase.Models.Entities;
 using MelloSilveiraTools.Database.RelationalDatabase.Models.Filters;
@@ -10,6 +9,7 @@ using MelloSilveiraTools.WebApi.Application.Commands.Crud.Update;
 using MelloSilveiraTools.WebApi.ExtensionMethods;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 
 namespace MelloSilveiraTools.WebApi.Application.Controllers;
 
@@ -54,14 +54,12 @@ public abstract class CrudController<TEntity, TFilter>(ILogger logger) : CustomC
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [HttpGet("{id:long}")]
     public async Task<ActionResult<Result<TEntity>>> Read(
-        [FromServices] ReadEntityById<TEntity> operation,
-        [FromRoute] long id)
-    {
-        return await operation
+        [FromServices] ReadEntityById<TEntity> operation, 
+        [FromRoute] long id) 
+        => await operation
             .ExecuteAsync(new ReadEntityByIdRequest { Id = id, ResourceName = ResourceName })
             .BuildHttpResponseAsync()
             .ConfigureAwait(false);
-    }
 
     /// <summary>
     /// Retrieves a paginated list of entities that match the supplied filter.
@@ -77,9 +75,8 @@ public abstract class CrudController<TEntity, TFilter>(ILogger logger) : CustomC
     public async Task<ActionResult<PagedResult<TEntity>>> Read(
         [FromServices] ReadEntityPaged<TEntity, TFilter> operation,
         [FromQuery] TFilter filter,
-        [FromQuery] Pagination pagination)
-    {
-        return await operation
+        [FromQuery] Pagination pagination) 
+        => await operation
             .ExecuteAsync(new ReadEntityPagedRequest<TFilter>
             {
                 Filter = filter,
@@ -89,7 +86,6 @@ public abstract class CrudController<TEntity, TFilter>(ILogger logger) : CustomC
             })
             .BuildHttpResponseAsync()
             .ConfigureAwait(false);
-    }
 
     /// <summary>
     /// Updates an existing entity identified by the route parameter.
@@ -105,13 +101,11 @@ public abstract class CrudController<TEntity, TFilter>(ILogger logger) : CustomC
     public async Task<ActionResult<Result>> Update(
         [FromServices] UpdateEntity<TEntity> operation,
         [FromRoute] long id,
-        [FromBody] TEntity entity)
-    {
-        return await operation
+        [FromBody] TEntity entity) 
+        => await operation
             .ExecuteAsync(new UpdateEntityRequest<TEntity> { Id = id, Entity = entity, ResourceName = ResourceName })
             .BuildHttpResponseAsync()
             .ConfigureAwait(false);
-    }
 
     /// <summary>
     /// Deletes an entity by its identifier.
@@ -125,13 +119,11 @@ public abstract class CrudController<TEntity, TFilter>(ILogger logger) : CustomC
     [HttpDelete("{id:long}")]
     public async Task<ActionResult<Result>> Delete(
         [FromServices] DeleteEntity<TEntity> operation,
-        [FromRoute] long id)
-    {
-        return await operation
+        [FromRoute] long id) 
+        => await operation
             .ExecuteAsync(new DeleteEntityRequest { Id = id, ResourceName = ResourceName })
             .BuildHttpResponseAsync()
             .ConfigureAwait(false);
-    }
 
     /// <summary>
     /// Streams entities that match the supplied filter as newline-delimited JSON (NDJSON).

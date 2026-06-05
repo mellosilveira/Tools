@@ -11,8 +11,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - `ISqlProvider.GetTryInsertSql<T>()` plus the `TryInsertTemplate.sql` resource that backs it.
 - `IRepository.GetByUniqueColumnAsync<TEntity>(object, CancellationToken)` — typed lookup by the entity's single `[UniqueColumn]`-annotated column. Returns the entity or `null`. Removes the need to declare a `FilterBase`-derived filter just for unique-column lookups (common pattern when the unique column is a hash-based identifier produced by a database trigger). Throws `InvalidOperationException` when the entity has zero or more than one `[UniqueColumn]` property.
 - `ISqlProvider.GetSelectByUniqueColumnSql<T>()`. The generated SQL binds the value to the literal parameter name `@UniqueColumnValue` regardless of the underlying property name.
-### Added
 - `EnumerableExtensions.ForeachAsync<T>(...)` and `Foreach<T>(...)` overloads supporting structured telemetry via `ILogger` instead of using raw `Console.WriteLine`. Exceptions captured inside these overloads are logged as errors alongside a context dictionary containing the specific failed item, preventing complete loop degradation while maintaining tracking.
+- Integrated standard `Microsoft.Extensions.Logging` across all packages, backed by Serilog for structured JSON file logging.
 ### Changed
 - **`EnumerableExtensions.ForeachAsync<T>(...)` and `Foreach<T>(...)` safety regression fallback**: The vanilla overload without an `ILogger` parameter no longer swallows and suppresses internal iteration exceptions; it now bubbles up failures directly to the caller, adhering to standard sequential execution expectations.
 ### Breaking
@@ -37,6 +37,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - **WebApi Operations folder restructure.** `Add*.cs`, `DeleteEntity*.cs`, `ReadEntity*.cs` and `UpdateEntity*.cs` moved from `Application/Operations/` (flat) into `Application/Operations/Crud/{Add,Delete,Read,Update}/`. Namespace updates required: `MelloSilveiraTools.WebApi.Application.Operations.Add` → `MelloSilveiraTools.WebApi.Application.Operations.Crud.Add` (and equivalents for Delete / Read / Update).
 - **Calculator response contract realignment (Result vs Output).** Renamed all calculator execution response classes from `*Result` to `*Output` across the engine domain (e.g., `MechanicalModelResult` → `MechanicalModelOutput`). This breaking change decouples pure mathematical data structures from the application's Result pattern pipeline, establishing that calculator blocks emit raw numerical projections rather than operation-status monads. Consumers invoking calculator engines must update their variable declarations and type bindings to the new `*Output` contract.
 - `IRepository.TryInsertAsync` to return `Result<long>` instead of tuple `(bool, long)`.
+- **Custom Logger Abstraction Removed:** Removed the custom in-house logging abstraction (`MelloSilveiraTools.Core.Infrastructure.Logger.ILogger`, `LocalFileLogger`, `LoggerBase`, and `LoggerSettings`). Consumers must migrate their constructors to use the standard `Microsoft.Extensions.Logging.ILogger<T>`.
 ### Removed
 - `MelloSilveiraTools.Core.ExtensionMethods.DoubleExtensions` — the canonical implementation now lives at `MelloSilveiraTools.Mathematics.Extensions.DoubleExtensions`. Consumers that imported the Core variant must add a reference to `MelloSilveiraTools.Mathematics` and update the `using` directive.
 

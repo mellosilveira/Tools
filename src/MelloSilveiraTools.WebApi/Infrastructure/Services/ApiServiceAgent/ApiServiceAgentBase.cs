@@ -1,9 +1,9 @@
 using MelloSilveiraTools.Core.ExtensionMethods;
-using MelloSilveiraTools.Core.Logger;
 using MelloSilveiraTools.Core.Models;
 using MelloSilveiraTools.WebApi.Application.Models;
 using MelloSilveiraTools.WebApi.Infrastructure.ResiliencePipelines;
 using MelloSilveiraTools.WebApi.Infrastructure.Services.ApiServiceAgent.Settings;
+using Microsoft.Extensions.Logging;
 using System.Runtime.CompilerServices;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -89,29 +89,22 @@ public abstract class ApiServiceAgentBase : IApiServiceAgent
                     return Result.CreateListedSuccess((StatusCode)result.StatusCode, responseData);
                 }
 
-                string message = $"Failed on '{methodName.Remove("Async")}'.";
-
-                Dictionary<string, object?> logAdditionalData = new() { { "Content", content } };
-                Logger.Error(message, null, logAdditionalData);
-
-                return Result.CreateError((StatusCode)result.StatusCode, message);
+                string cleanMethodName = methodName.Remove("Async");
+                Logger.LogError("Failed on '{MethodName}'. Content: {Content}", cleanMethodName, content);
+                return Result.CreateError((StatusCode)result.StatusCode, $"Failed on '{cleanMethodName}'.");
             }
 
             return Result.CreateUnknownError($"Failed on '{methodName.Remove("Async")}' due to null content.");
         }
         catch (OperationCanceledException ex)
         {
-            string message = $"Timeout on integration with '{ServiceName}'.";
-            Logger.Error(message, ex);
-
-            return Result.CreateRequestTimeout(message);
+            Logger.LogError(ex, "Timeout on integration with '{ServiceName}'.", ServiceName);
+            return Result.CreateRequestTimeout($"Timeout on integration with '{ServiceName}'.");
         }
         catch (Exception ex)
         {
-            string message = $"Failed on integration with '{ServiceName}'.";
-            Logger.Error(message, ex);
-
-            return Result.CreateServiceUnavailable(message);
+            Logger.LogError(ex, "Failed on integration with '{ServiceName}'.", ServiceName);
+            return Result.CreateServiceUnavailable($"Failed on integration with '{ServiceName}'.");
         }
     });
 
@@ -169,7 +162,12 @@ public abstract class ApiServiceAgentBase : IApiServiceAgent
             // Verify the server committed the full stream successfully.
             bool streamSucceeded = response.TrailingHeaders.TryGetValues(ApplicationConstants.StreamStatusTrailerName, out IEnumerable<string>? trailerValues) && trailerValues.FirstOrDefault() == ApplicationConstants.StreamSuccessfullyStatus;
             if (!streamSucceeded)
-                Logger.Error($"Stream from '{ServiceName}' did not complete successfully — trailer '{ApplicationConstants.StreamStatusTrailerName}' was not received.");
+            {
+                Logger.LogError(
+                    "Stream from '{ServiceName}' did not complete successfully — trailer '{TrailerName}' was not received.",
+                    ServiceName,
+                    ApplicationConstants.StreamStatusTrailerName);
+            }
         }
         finally
         {
@@ -188,31 +186,23 @@ public abstract class ApiServiceAgentBase : IApiServiceAgent
                 if (result.IsSuccessStatusCode)
                     return Result.CreateSuccess((StatusCode)result.StatusCode);
 
-                string message = $"Failed on '{methodName.Remove("Async")}'.";
                 string content = await result.Content.ReadAsStringAsync(cancellationToken).ConfigureAwait(false);
-
-                var logAdditionalData = new Dictionary<string, object?> { { "Content", content } };
-
-                Logger.Error(message, null, logAdditionalData);
-
-                return Result.CreateError((StatusCode)result.StatusCode, message);
+                string cleanMethodName = methodName.Remove("Async");
+                Logger.LogError("Failed on '{MethodName}'. Content: {Content}", cleanMethodName, content);
+                return Result.CreateError((StatusCode)result.StatusCode, $"Failed on '{cleanMethodName}'.");
             }
 
             return Result.CreateUnknownError($"Failed on '{methodName.Remove("Async")}' due to null content.");
         }
         catch (OperationCanceledException ex)
         {
-            string message = $"Timeout on integration with '{ServiceName}'.";
-            Logger.Error(message, ex);
-
-            return Result.CreateRequestTimeout(message);
+            Logger.LogError(ex, "Timeout on integration with '{ServiceName}'.", ServiceName);
+            return Result.CreateRequestTimeout($"Timeout on integration with '{ServiceName}'.");
         }
         catch (Exception ex)
         {
-            string message = $"Failed on integration with '{ServiceName}'.";
-            Logger.Error(message, ex);
-
-            return Result.CreateServiceUnavailable(message);
+            Logger.LogError(ex, "Failed on integration with '{ServiceName}'.", ServiceName);
+            return Result.CreateServiceUnavailable($"Failed on integration with '{ServiceName}'.");
         }
     }
 
@@ -224,11 +214,9 @@ public abstract class ApiServiceAgentBase : IApiServiceAgent
             if (!response.IsSuccessStatusCode)
             {
                 string content = await response.Content.ReadAsStringAsync(cancellationToken).ConfigureAwait(false);
-                string message = $"Failed on '{methodName.Remove("Async")}'.";
 
-                Logger.Error(message, null, new Dictionary<string, object?> { { "Content", content } });
+                Logger.LogError("Failed on '{MethodName}'. Content: {Content}", methodName.Remove("Async"), content);
                 response.Dispose();
-
                 return null;
             }
 
@@ -237,12 +225,12 @@ public abstract class ApiServiceAgentBase : IApiServiceAgent
         }
         catch (OperationCanceledException ex)
         {
-            Logger.Error($"Timeout on integration with '{ServiceName}'.", ex);
+            Logger.LogError(ex, "Timeout on integration with '{ServiceName}'.", ServiceName);
             return null;
         }
         catch (Exception ex)
         {
-            Logger.Error($"Failed on integration with '{ServiceName}'.", ex);
+            Logger.LogError(ex, "Failed on integration with '{ServiceName}'.", ServiceName);
             return null;
         }
     }

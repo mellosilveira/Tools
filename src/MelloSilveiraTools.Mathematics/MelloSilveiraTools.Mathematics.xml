@@ -183,78 +183,98 @@
             </summary>
         </member>
         <member name="M:MelloSilveiraTools.Mathematics.Extensions.DoubleExtensions.Squared(System.Double)">
+            <inheritdoc cref="M:MelloSilveiraTools.Mathematics.Extensions.DoubleExtensions.&lt;G&gt;$4EDA8CBD8B61F6706755C541165134FD.Squared"/>
+        </member>
+        <member name="M:MelloSilveiraTools.Mathematics.Extensions.DoubleExtensions.ToDegrees(System.Double)">
+            <inheritdoc cref="M:MelloSilveiraTools.Mathematics.Extensions.DoubleExtensions.&lt;G&gt;$4EDA8CBD8B61F6706755C541165134FD.ToDegrees"/>
+        </member>
+        <member name="M:MelloSilveiraTools.Mathematics.Extensions.DoubleExtensions.IsPositive(System.Double)">
+            <inheritdoc cref="M:MelloSilveiraTools.Mathematics.Extensions.DoubleExtensions.&lt;G&gt;$4EDA8CBD8B61F6706755C541165134FD.IsPositive"/>
+        </member>
+        <member name="M:MelloSilveiraTools.Mathematics.Extensions.DoubleExtensions.IsNegative(System.Double)">
+            <inheritdoc cref="M:MelloSilveiraTools.Mathematics.Extensions.DoubleExtensions.&lt;G&gt;$4EDA8CBD8B61F6706755C541165134FD.IsNegative"/>
+        </member>
+        <member name="M:MelloSilveiraTools.Mathematics.Extensions.DoubleExtensions.IsNegativeOrZero(System.Double)">
+            <inheritdoc cref="M:MelloSilveiraTools.Mathematics.Extensions.DoubleExtensions.&lt;G&gt;$4EDA8CBD8B61F6706755C541165134FD.IsNegativeOrZero"/>
+        </member>
+        <member name="M:MelloSilveiraTools.Mathematics.Extensions.DoubleExtensions.RelativeDifference(System.Double,System.Double)">
+            <inheritdoc cref="M:MelloSilveiraTools.Mathematics.Extensions.DoubleExtensions.&lt;G&gt;$4EDA8CBD8B61F6706755C541165134FD.RelativeDifference(System.Double)"/>
+        </member>
+        <member name="M:MelloSilveiraTools.Mathematics.Extensions.DoubleExtensions.RelativeAbsolutDifference(System.Double,System.Double)">
+            <inheritdoc cref="M:MelloSilveiraTools.Mathematics.Extensions.DoubleExtensions.&lt;G&gt;$4EDA8CBD8B61F6706755C541165134FD.RelativeAbsolutDifference(System.Double)"/>
+        </member>
+        <member name="M:MelloSilveiraTools.Mathematics.Extensions.DoubleExtensions.EqualsWithTolerance(System.Double,System.Double,System.Nullable{System.Double})">
+            <inheritdoc cref="M:MelloSilveiraTools.Mathematics.Extensions.DoubleExtensions.&lt;G&gt;$4EDA8CBD8B61F6706755C541165134FD.EqualsWithTolerance(System.Double,System.Nullable{System.Double})"/>
+        </member>
+        <member name="M:MelloSilveiraTools.Mathematics.Extensions.DoubleExtensions.IsPositive(System.Nullable{System.Double})">
+            <inheritdoc cref="M:MelloSilveiraTools.Mathematics.Extensions.DoubleExtensions.&lt;G&gt;$7EB0052855A41EB6606E81C43C3F1B9A.IsPositive"/>
+        </member>
+        <member name="M:MelloSilveiraTools.Mathematics.Extensions.DoubleExtensions.IsNegative(System.Nullable{System.Double})">
+            <inheritdoc cref="M:MelloSilveiraTools.Mathematics.Extensions.DoubleExtensions.&lt;G&gt;$7EB0052855A41EB6606E81C43C3F1B9A.IsNegative"/>
+        </member>
+        <member name="M:MelloSilveiraTools.Mathematics.Extensions.DoubleExtensions.&lt;G&gt;$4EDA8CBD8B61F6706755C541165134FD.Squared">
             <summary>
             Returns the square of the value (value * value).
             </summary>
-            <param name="value"></param>
             <returns></returns>
         </member>
-        <member name="M:MelloSilveiraTools.Mathematics.Extensions.DoubleExtensions.ToDegrees(System.Double)">
+        <member name="M:MelloSilveiraTools.Mathematics.Extensions.DoubleExtensions.&lt;G&gt;$4EDA8CBD8B61F6706755C541165134FD.ToDegrees">
             <summary>
             Converts the value from radians to degrees.
             </summary>
-            <param name="value"></param>
             <returns></returns>
         </member>
-        <member name="M:MelloSilveiraTools.Mathematics.Extensions.DoubleExtensions.RelativeDifference(System.Double,System.Double)">
+        <member name="M:MelloSilveiraTools.Mathematics.Extensions.DoubleExtensions.&lt;G&gt;$4EDA8CBD8B61F6706755C541165134FD.IsPositive">
+            <summary>
+            Indicates if a value is non-negative (zero is considered non-negative).
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:MelloSilveiraTools.Mathematics.Extensions.DoubleExtensions.&lt;G&gt;$4EDA8CBD8B61F6706755C541165134FD.IsNegative">
+            <summary>
+            Indicates if a value is negative and is not zero.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:MelloSilveiraTools.Mathematics.Extensions.DoubleExtensions.&lt;G&gt;$4EDA8CBD8B61F6706755C541165134FD.IsNegativeOrZero">
+            <summary>
+            Indicates if a value is negative or zero.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:MelloSilveiraTools.Mathematics.Extensions.DoubleExtensions.&lt;G&gt;$4EDA8CBD8B61F6706755C541165134FD.RelativeDifference(System.Double)">
             <summary>
             Calculates the relative difference between two values: (value1 - value2) / value1.
-            Returns 0 when <paramref name="value1"/> is zero to avoid division by zero.
+            Returns 0 when <paramref name="value"/> is zero to avoid division by zero.
             </summary>
-            <param name="value1"></param>
             <param name="value2"></param>
             <returns></returns>
         </member>
-        <member name="M:MelloSilveiraTools.Mathematics.Extensions.DoubleExtensions.RelativeAbsolutDifference(System.Double,System.Double)">
+        <member name="M:MelloSilveiraTools.Mathematics.Extensions.DoubleExtensions.&lt;G&gt;$4EDA8CBD8B61F6706755C541165134FD.RelativeAbsolutDifference(System.Double)">
             <summary>
             Calculates the relative absolut difference between two values.
             </summary>
-            <param name="value1"></param>
             <param name="value2"></param>
             <returns></returns>
         </member>
-        <member name="M:MelloSilveiraTools.Mathematics.Extensions.DoubleExtensions.EqualsWithTolerance(System.Double,System.Double,System.Nullable{System.Double})">
+        <member name="M:MelloSilveiraTools.Mathematics.Extensions.DoubleExtensions.&lt;G&gt;$4EDA8CBD8B61F6706755C541165134FD.EqualsWithTolerance(System.Double,System.Nullable{System.Double})">
             <summary>
             Indicates if two values are equals considering the application tolerance. 
             </summary>
-            <param name="value1"></param>
             <param name="value2"></param>
             <param name="tolerance"></param>
             <returns></returns>
         </member>
-        <member name="M:MelloSilveiraTools.Mathematics.Extensions.DoubleExtensions.IsPositive(System.Double)">
+        <member name="M:MelloSilveiraTools.Mathematics.Extensions.DoubleExtensions.&lt;G&gt;$7EB0052855A41EB6606E81C43C3F1B9A.IsPositive">
             <summary>
             Indicates if a value is non-negative (zero is considered non-negative).
             </summary>
-            <param name="value"></param>
             <returns></returns>
         </member>
-        <member name="M:MelloSilveiraTools.Mathematics.Extensions.DoubleExtensions.IsPositive(System.Nullable{System.Double})">
-            <summary>
-            Indicates if a value is non-negative (zero is considered non-negative).
-            </summary>
-            <param name="value"></param>
-            <returns></returns>
-        </member>
-        <member name="M:MelloSilveiraTools.Mathematics.Extensions.DoubleExtensions.IsNegative(System.Double)">
+        <member name="M:MelloSilveiraTools.Mathematics.Extensions.DoubleExtensions.&lt;G&gt;$7EB0052855A41EB6606E81C43C3F1B9A.IsNegative">
             <summary>
             Indicates if a value is negative and is not zero.
             </summary>
-            <param name="value"></param>
-            <returns></returns>
-        </member>
-        <member name="M:MelloSilveiraTools.Mathematics.Extensions.DoubleExtensions.IsNegativeOrZero(System.Double)">
-            <summary>
-            Indicates if a value is negative or zero.
-            </summary>
-            <param name="value"></param>
-            <returns></returns>
-        </member>
-        <member name="M:MelloSilveiraTools.Mathematics.Extensions.DoubleExtensions.IsNegative(System.Nullable{System.Double})">
-            <summary>
-            Indicates if a value is negative and is not zero.
-            </summary>
-            <param name="value"></param>
             <returns></returns>
         </member>
         <member name="T:MelloSilveiraTools.Mathematics.Extensions.Vector3DExtension">

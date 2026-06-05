@@ -1,5 +1,10 @@
-using MelloSilveiraTools.Mathematics.Factories.NumericalMethods;
+using MelloSilveiraTools.Mathematics.Factories.Functions;
+using MelloSilveiraTools.Mathematics.Models.NumericalMethods;
+using MelloSilveiraTools.Mathematics.NumericalMethods.Derivative;
 using MelloSilveiraTools.Mathematics.NumericalMethods.DifferentialEquation;
+using MelloSilveiraTools.Mathematics.NumericalMethods.Integral;
+using MelloSilveiraTools.Mathematics.NumericalMethods.RootFindingAlgorithms;
+using MelloSilveiraTools.Mathematics.Statistics;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace MelloSilveiraTools.Mathematics;
@@ -17,8 +22,15 @@ public static class MathematicsDependencyInjection
     public static IServiceCollection AddMathematicsServices(this IServiceCollection services)
         => services
             // Register numerical methods.
-            .AddSingleton<IDifferentialEquationMethod, NewmarkMethod>()
-            .AddSingleton<IDifferentialEquationMethod, NewmarkBetaMethod>()
+            .AddSingleton<IDerivative, Derivative>()
+            .AddKeyedSingleton<IDifferentialEquationMethod, NewmarkMethod>(DifferentialEquationMethodType.Newmark)
+            .AddKeyedSingleton<IDifferentialEquationMethod, NewmarkBetaMethod>(DifferentialEquationMethodType.NewmarkBeta)
+            .AddSingleton<IIntegration, SimpsonRuleIntegration>()
+            .AddKeyedSingleton<IRootFinding, BisectionMethod>(RootFindingAlgorithm.BisectionMethod)
+            .AddKeyedSingleton<IRootFinding, BrentMethod>(RootFindingAlgorithm.BrentMethod)
+            .AddKeyedSingleton<IRootFinding, StepByStepMethod>(RootFindingAlgorithm.StepByStepMethod)
             // Register factories.
-            .AddSingleton<DifferentialEquationMethodFactory>();
+            .AddSingleton<FunctionFactory>()
+            // Register calculators.
+            .AddSingleton<IStatisticsCalculator, StatisticsCalculator>();
 }

@@ -1,4 +1,4 @@
-﻿using MelloSilveiraTools.Core.Logger;
+﻿using Microsoft.Extensions.Logging;
 using Polly;
 using Polly.RateLimiting;
 using Polly.Retry;
@@ -23,7 +23,7 @@ public class DefaultResiliencePipeline
     /// <param name="logger">See reference at <see cref="ILogger"/>.</param>
     /// <param name="settings">See reference at <see cref="ResiliencePipelineSettings"/>.</param>
     /// <param name="shouldHandle">Predicate that determines whether the retry should be executed for a given outcome.</param>
-    public DefaultResiliencePipeline(ILogger logger, ResiliencePipelineSettings settings, Func<RetryPredicateArguments<object>, ValueTask<bool>> shouldHandle)
+    public DefaultResiliencePipeline(ILogger<DefaultResiliencePipeline> logger, ResiliencePipelineSettings settings, Func<RetryPredicateArguments<object>, ValueTask<bool>> shouldHandle)
     {
         _pipeline = new ResiliencePipelineBuilder()
             .AddRetry(new RetryStrategyOptions
@@ -42,16 +42,16 @@ public class DefaultResiliencePipeline
                     // The attempt number from resilience pipeline arguments is zero-based.
                     int attempt = args.AttemptNumber + 1;
 
-                    List<string?> tags = [className, methodName];
-                    Dictionary<string, object?> additionalData = new()
-                    {
-                        { "Attempt", attempt },
-                        { nameof(args.Duration), args.Duration },
-                        { nameof(args.RetryDelay), args.RetryDelay },
-                        { nameof(args.Outcome.Result), args.Outcome.Result },
-                    };
+                    logger.LogWarning(
+                        args.Outcome.Exception,
+                        "Attempt {Attempt} on {MethodName} of {ClassName}. Duration: {Duration}, RetryDelay: {RetryDelay}, Result: {@Result}",
+                        attempt,
+                        methodName,
+                        className,
+                        args.Duration,
+                        args.RetryDelay,
+                        args.Outcome.Result);
 
-                    logger.Warn($"Attempt '{attempt}' on '{methodName}' of '{className}'.", args.Outcome.Exception, additionalData);
                     return default;
                 }
             })
@@ -92,6 +92,70 @@ public class DefaultResiliencePipeline
     /// <summary>
     /// Encapsulates a function with a strategy that covers retriable scenarios.
     /// </summary>
+    /// <typeparam name="T">Type returned by callback function.</typeparam>
+    /// <param name="callback">Function which will be encapsulated by the retry strategy.</param>
+    /// <param name="fallback">Function invoked if the pipeline execution fails. It receives the caught exception and must provide a safe alternative value of type <typeparamref name="T"/> to be returned to the caller.</param>
+    /// <param name="callerMemberName">Member name of the caller which will be logged when a retry is performed.</param>
+    /// <param name="callerFilePath">Path of the caller which will be used to get the class name to be logged when a retry is performed.</param>
+    /// <returns>The instance of <see cref="ValueTask"/> that represents the asynchronous execution.</returns>
+    public async ValueTask<T> ExecuteAsync<T>(Func<ResilienceContext, ValueTask<T>> callback, Func<Exception, T> fallback, [CallerMemberName] string callerMemberName = "", [CallerFilePath] string callerFilePath = "")
+    {
+        ResilienceContext context = ResilienceContextPool.Shared.Get();
+
+        try
+        {
+            // It is necessary to store the caller member name and caller file name to correctly log on retry.
+            context.Properties.Set(CallerMemberNamePropertyKey, callerMemberName);
+            context.Properties.Set(CallerFileNamePropertyKey, Path.GetFileNameWithoutExtension(callerFilePath));
+
+            // ATENTION: use async/await to correctly perform finally block.
+            return await _pipeline.ExecuteAsync(callback, context).ConfigureAwait(false);
+        }
+        catch (Exception ex)
+        {
+            return fallback(ex);
+        }
+        finally
+        {
+            ResilienceContextPool.Shared.Return(context);
+        }
+    }
+
+    /// <summary>
+    /// Encapsulates a function with a strategy that covers retriable scenarios.
+    /// </summary>
+    /// <typeparam name="T">Type returned by callback function.</typeparam>
+    /// <param name="callback">Function which will be encapsulated by the retry strategy.</param>
+    /// <param name="fallback">Function invoked if the pipeline execution fails. It receives the caught exception and must provide a safe alternative value of type <typeparamref name="T"/> to be returned to the caller.</param>
+    /// <param name="callerMemberName">Member name of the caller which will be logged when a retry is performed.</param>
+    /// <param name="callerFilePath">Path of the caller which will be used to get the class name to be logged when a retry is performed.</param>
+    /// <returns>The instance of <see cref="ValueTask"/> that represents the asynchronous execution.</returns>
+    public async ValueTask<T> ExecuteAsync<T>(Func<ResilienceContext, ValueTask<T>> callback, Func<Exception, ValueTask<T>> fallback, [CallerMemberName] string callerMemberName = "", [CallerFilePath] string callerFilePath = "")
+    {
+        ResilienceContext context = ResilienceContextPool.Shared.Get();
+
+        try
+        {
+            // It is necessary to store the caller member name and caller file name to correctly log on retry.
+            context.Properties.Set(CallerMemberNamePropertyKey, callerMemberName);
+            context.Properties.Set(CallerFileNamePropertyKey, Path.GetFileNameWithoutExtension(callerFilePath));
+
+            // ATENTION: use async/await to correctly perform finally block.
+            return await _pipeline.ExecuteAsync(callback, context).ConfigureAwait(false);
+        }
+        catch (Exception ex)
+        {
+            return await fallback(ex).ConfigureAwait(false);
+        }
+        finally
+        {
+            ResilienceContextPool.Shared.Return(context);
+        }
+    }
+
+    /// <summary>
+    /// Encapsulates a function with a strategy that covers retriable scenarios.
+    /// </summary>
     /// <param name="callback">Function which will be encapsulated by the retry strategy.</param>
     /// <param name="callerMemberName">Member name of the caller which will be logged when a retry is performed.</param>
     /// <param name="callerFilePath">Path of the caller which will be used to get the class name to be logged when a retry is performed.</param>
@@ -108,6 +172,68 @@ public class DefaultResiliencePipeline
 
             // ATENTION: use async/await to correctly perform finally block.
             await _pipeline.ExecuteAsync(callback, context).ConfigureAwait(false);
+        }
+        finally
+        {
+            ResilienceContextPool.Shared.Return(context);
+        }
+    }
+
+    /// <summary>
+    /// Encapsulates a function with a strategy that covers retriable scenarios.
+    /// </summary>
+    /// <param name="callback">Function which will be encapsulated by the retry strategy.</param>
+    /// <param name="fallback">Function invoked if the pipeline execution fails. It receives the caught exception and must provide a safe alternative value of type <typeparamref name="T"/> to be returned to the caller.</param>
+    /// <param name="callerMemberName">Member name of the caller which will be logged when a retry is performed.</param>
+    /// <param name="callerFilePath">Path of the caller which will be used to get the class name to be logged when a retry is performed.</param>
+    /// <returns>The instance of <see cref="ValueTask"/> that represents the asynchronous execution.</returns>
+    public async ValueTask ExecuteAsync(Func<ResilienceContext, ValueTask> callback, Action<Exception> fallback, [CallerMemberName] string callerMemberName = "", [CallerFilePath] string callerFilePath = "")
+    {
+        ResilienceContext context = ResilienceContextPool.Shared.Get();
+
+        try
+        {
+            // It is necessary to store the caller member name and caller file name to correctly log on retry.
+            context.Properties.Set(CallerMemberNamePropertyKey, callerMemberName);
+            context.Properties.Set(CallerFileNamePropertyKey, Path.GetFileNameWithoutExtension(callerFilePath));
+
+            // ATENTION: use async/await to correctly perform finally block.
+            await _pipeline.ExecuteAsync(callback, context).ConfigureAwait(false);
+        }
+        catch (Exception ex)
+        {
+            fallback(ex);
+        }
+        finally
+        {
+            ResilienceContextPool.Shared.Return(context);
+        }
+    }
+
+    /// <summary>
+    /// Encapsulates a function with a strategy that covers retriable scenarios.
+    /// </summary>
+    /// <param name="callback">Function which will be encapsulated by the retry strategy.</param>
+    /// <param name="fallback">Function invoked if the pipeline execution fails. It receives the caught exception and must provide a safe alternative value of type <typeparamref name="T"/> to be returned to the caller.</param>
+    /// <param name="callerMemberName">Member name of the caller which will be logged when a retry is performed.</param>
+    /// <param name="callerFilePath">Path of the caller which will be used to get the class name to be logged when a retry is performed.</param>
+    /// <returns>The instance of <see cref="ValueTask"/> that represents the asynchronous execution.</returns>
+    public async ValueTask ExecuteAsync(Func<ResilienceContext, ValueTask> callback, Func<Exception, ValueTask> fallback, [CallerMemberName] string callerMemberName = "", [CallerFilePath] string callerFilePath = "")
+    {
+        ResilienceContext context = ResilienceContextPool.Shared.Get();
+
+        try
+        {
+            // It is necessary to store the caller member name and caller file name to correctly log on retry.
+            context.Properties.Set(CallerMemberNamePropertyKey, callerMemberName);
+            context.Properties.Set(CallerFileNamePropertyKey, Path.GetFileNameWithoutExtension(callerFilePath));
+
+            // ATENTION: use async/await to correctly perform finally block.
+            await _pipeline.ExecuteAsync(callback, context).ConfigureAwait(false);
+        }
+        catch (Exception ex)
+        {
+            await fallback(ex).ConfigureAwait(false);
         }
         finally
         {

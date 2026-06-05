@@ -1,7 +1,7 @@
-﻿using MelloSilveiraTools.Core.Logger;
-using MelloSilveiraTools.Core.Models;
+﻿using MelloSilveiraTools.Core.Models;
 using MelloSilveiraTools.Core.ResiliencePipelines;
 using MelloSilveiraTools.Database.ResiliencePipelines;
+using Microsoft.Extensions.Logging;
 using Polly;
 using Polly.Retry;
 
@@ -19,7 +19,7 @@ public class ApiServiceAgentResiliencePipeline : DefaultResiliencePipeline
     /// </summary>
     /// <param name="logger"></param>
     /// <param name="settings"></param>
-    public ApiServiceAgentResiliencePipeline(ILogger logger, ResiliencePipelineSettings settings)
+    public ApiServiceAgentResiliencePipeline(ILogger<ApiServiceAgentResiliencePipeline> logger, ResiliencePipelineSettings settings)
         : base(logger, settings, new PredicateBuilder()
             .Handle<Exception>()
             .HandleResult(new Func<Result, bool>(r => StatusCodesToRetry.Contains(r.StatusCode))))
@@ -31,5 +31,5 @@ public class ApiServiceAgentResiliencePipeline : DefaultResiliencePipeline
     /// <param name="logger">See reference at <see cref="ILogger"/>.</param>
     /// <param name="settings">See reference at <see cref="ResiliencePipelineSettings"/>.</param>
     /// <param name="shouldHandle">Predicate that determines whether the retry should be executed for a given outcome.</param>
-    public ApiServiceAgentResiliencePipeline(ILogger logger, ResiliencePipelineSettings settings, Func<RetryPredicateArguments<object>, ValueTask<bool>> shouldHandle) : base(logger, settings, shouldHandle) { }
+    public ApiServiceAgentResiliencePipeline(ILogger<ApiServiceAgentResiliencePipeline> logger, ResiliencePipelineSettings settings, Func<RetryPredicateArguments<object>, ValueTask<bool>> shouldHandle) : base(logger, settings, shouldHandle) { }
 }
