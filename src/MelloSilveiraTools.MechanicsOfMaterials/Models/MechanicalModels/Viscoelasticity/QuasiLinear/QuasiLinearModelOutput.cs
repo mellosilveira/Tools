@@ -16,25 +16,25 @@ namespace MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoe
         /// <summary>
         /// Unit: MPa (Mega-Pascal).
         /// </summary>
-        [MechanicalModelParameter(MechanicalRelationship.StressStrain, ViscoelasticEffect.Relaxation)]
+        [MechanicalModelParameter(MechanicalBehaviorType.StressStrain, ViscoelasticEffect.Relaxation)]
         public double? ElasticResponse { get; set; }
 
         /// <summary>
         /// Unit: MPa (Mega-Pascal).
         /// </summary>
-        [MechanicalModelParameter(MechanicalRelationship.ForceDisplacement, ViscoelasticEffect.Relaxation)]
+        [MechanicalModelParameter(MechanicalBehaviorType.ForceDisplacement, ViscoelasticEffect.Relaxation)]
         public double? ElasticForceResponse { get; set; }
 
         /// <summary>
         /// Unit: MPa (Mega-Pascal).
         /// </summary>
-        [MechanicalModelParameter(MechanicalRelationship.StressStrain, ViscoelasticEffect.Relaxation)]
+        [MechanicalModelParameter(MechanicalBehaviorType.StressStrain, ViscoelasticEffect.Relaxation)]
         public double? StressByReducedRelaxationFunctionDerivative { get; set; }
 
         /// <summary>
         /// Unit: MPa (Mega-Pascal).
         /// </summary>
-        [MechanicalModelParameter(MechanicalRelationship.StressStrain, ViscoelasticEffect.Relaxation)]
+        [MechanicalModelParameter(MechanicalBehaviorType.StressStrain, ViscoelasticEffect.Relaxation)]
         public double? StressByConvolutionDerivative { get; set; }
     }
 }

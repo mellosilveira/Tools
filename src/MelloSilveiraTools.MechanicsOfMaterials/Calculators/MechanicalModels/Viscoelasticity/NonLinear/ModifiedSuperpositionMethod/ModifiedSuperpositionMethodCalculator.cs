@@ -22,11 +22,11 @@ public sealed class ModifiedSuperpositionMethodCalculator(
     #region Calculate mechanical model's parameters.
 
     /// <inheritdoc/>
-    [MechanicalModelParameterCalculation(nameof(ModifiedSuperpositionMethodOutput.InitialYoungModulus), MechanicalRelationship.StressStrain, ViscoelasticEffect.Relaxation)]
+    [MechanicalModelParameterCalculation(nameof(ModifiedSuperpositionMethodOutput.InitialYoungModulus), MechanicalBehaviorType.StressStrain, ViscoelasticEffect.Relaxation)]
     public double CalculateInitialYoungModulus(ModifiedSuperpositionMethodInput input, double strain) => input.InitialYoungModulus!.Calculate(strain);
 
     /// <inheritdoc/>
-    [MechanicalModelParameterCalculation(nameof(ModifiedSuperpositionMethodOutput.StressRelaxationRate), MechanicalRelationship.StressStrain, ViscoelasticEffect.Relaxation)]
+    [MechanicalModelParameterCalculation(nameof(ModifiedSuperpositionMethodOutput.StressRelaxationRate), MechanicalBehaviorType.StressStrain, ViscoelasticEffect.Relaxation)]
     public double CalculateStressRelaxationRate(ModifiedSuperpositionMethodInput input, double strain) => input.StressRelaxationRate!.Calculate(strain);
 
     /// <inheritdoc/>

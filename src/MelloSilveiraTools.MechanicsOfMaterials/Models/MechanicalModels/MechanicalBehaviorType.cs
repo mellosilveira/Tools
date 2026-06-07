@@ -5,7 +5,7 @@
 /// <summary>
 /// Contains the relationships available for mechanical analysis.
 /// </summary>
-public enum MechanicalRelationship
+public enum MechanicalBehaviorType : int
 {
     /// <summary>
     /// Stress-strain relationship.

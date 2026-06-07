@@ -15,7 +15,7 @@ public class MechanicalModelTypeCache(ISingleLevelCache cache) : IMechanicalMode
         => cache.GetOrAdd($"Invoker:{calculatorType.FullName}:{methodName}", () => CompileMethodInvoker(calculatorType.GetMethod(methodName)!));
 
     /// <inheritdoc/>
-    public CalculatorMethodData[] GetOrAddMethodDataList(Type calculatorType, MechanicalRelationship relationship, ViscoelasticEffect effect)
+    public CalculatorMethodData[] GetOrAddMethodDataList(Type calculatorType, MechanicalBehaviorType relationship, ViscoelasticEffect effect)
         => cache.GetOrAdd($"MethodData:{calculatorType.FullName}:{relationship}:{effect}", () => BuildMethodDataList(calculatorType, relationship, effect));
 
     /// <inheritdoc/>
@@ -30,7 +30,7 @@ public class MechanicalModelTypeCache(ISingleLevelCache cache) : IMechanicalMode
     public Type[] GetOrAddConstructorParameterTypes(Type type)
         => cache.GetOrAdd($"CtorParams:{type.FullName}", () => type.GetConstructors().Single().GetParameters().Select(p => p.ParameterType).ToArray());
 
-    private static CalculatorMethodData[] BuildMethodDataList(Type calculatorType, MechanicalRelationship relationship, ViscoelasticEffect effect) 
+    private static CalculatorMethodData[] BuildMethodDataList(Type calculatorType, MechanicalBehaviorType relationship, ViscoelasticEffect effect) 
         => [.. calculatorType.GetMethods()
             .Select(method => (Method: method, Attribute: method.GetCustomAttribute<MechanicalModelParameterCalculationAttribute>()))
             .Where(x => x.Attribute != null && x.Attribute.CanMethodBeInvoked(relationship, effect))

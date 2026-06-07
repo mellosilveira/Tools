@@ -17,7 +17,7 @@ public class ElasticModelCalculator(IMechanicalParameterConverter parameterConve
     #region Calculate mechanical model's parameters.
 
     /// <inheritdoc/>
-    [MechanicalModelParameterCalculation(nameof(ElasticModelOutput.Stiffness), MechanicalRelationship.ForceDisplacement, ViscoelasticEffect.Relaxation)]
+    [MechanicalModelParameterCalculation(nameof(ElasticModelOutput.Stiffness), MechanicalBehaviorType.ForceDisplacement, ViscoelasticEffect.Relaxation)]
     public double CalculateStiffnessThroughDisplacement(ElasticModelInput input, double time)
     {
         double displacement = input.Displacement!.CalculateValue(time);
@@ -25,7 +25,7 @@ public class ElasticModelCalculator(IMechanicalParameterConverter parameterConve
     }
 
     /// <inheritdoc/>
-    [MechanicalModelParameterCalculation(nameof(ElasticModelOutput.Stiffness), MechanicalRelationship.ForceDisplacement, ViscoelasticEffect.Creep)]
+    [MechanicalModelParameterCalculation(nameof(ElasticModelOutput.Stiffness), MechanicalBehaviorType.ForceDisplacement, ViscoelasticEffect.Creep)]
     public double CalculateStiffnessThroughForce(ElasticModelInput input, double time)
     {
         double force = input.Force!.CalculateValue(time);

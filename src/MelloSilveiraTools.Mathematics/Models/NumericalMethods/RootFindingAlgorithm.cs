@@ -3,7 +3,7 @@
 /// <summary>
 /// Contains the root-finding algorithms used in this project.
 /// </summary>
-public enum RootFindingAlgorithm
+public enum RootFindingAlgorithm : int
 {
     /// <summary>
     /// The step-by-step method is a root-finding algorithm for a continuous function within a given interval.

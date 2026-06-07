@@ -17,7 +17,7 @@ public class MechanicalModelParameterCalculationAttribute : MechanicalModelParam
     /// <param name="mechanicalRelationship"></param>
     public MechanicalModelParameterCalculationAttribute(
         string propertyName,
-        MechanicalRelationship mechanicalRelationship) : base(mechanicalRelationship)
+        MechanicalBehaviorType mechanicalRelationship) : base(mechanicalRelationship)
     {
         PropertyName = propertyName;
     }
@@ -42,7 +42,7 @@ public class MechanicalModelParameterCalculationAttribute : MechanicalModelParam
     /// <param name="viscoelasticEffect"></param>
     public MechanicalModelParameterCalculationAttribute(
         string propertyName,
-        MechanicalRelationship mechanicalRelationship,
+        MechanicalBehaviorType mechanicalRelationship,
         ViscoelasticEffect viscoelasticEffect) : base(mechanicalRelationship, viscoelasticEffect)
     {
         PropertyName = propertyName;

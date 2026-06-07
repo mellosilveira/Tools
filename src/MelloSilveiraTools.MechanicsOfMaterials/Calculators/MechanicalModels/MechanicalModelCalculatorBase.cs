@@ -16,19 +16,19 @@ public abstract class MechanicalModelCalculatorBase<TInput>(IMechanicalParameter
     #region Calculate mechanical model's parameters.
 
     /// <inheritdoc/>
-    [MechanicalModelParameterCalculation(nameof(MechanicalModelOutput.Force), MechanicalRelationship.ForceDisplacement, ViscoelasticEffect.Relaxation)]
+    [MechanicalModelParameterCalculation(nameof(MechanicalModelOutput.Force), MechanicalBehaviorType.ForceDisplacement, ViscoelasticEffect.Relaxation)]
     public abstract double CalculateForce(TInput input, double time, double? displacement = null);
 
     /// <inheritdoc/>
-    [MechanicalModelParameterCalculation(nameof(MechanicalModelOutput.Displacement), MechanicalRelationship.ForceDisplacement, ViscoelasticEffect.Creep)]
+    [MechanicalModelParameterCalculation(nameof(MechanicalModelOutput.Displacement), MechanicalBehaviorType.ForceDisplacement, ViscoelasticEffect.Creep)]
     public abstract double CalculateDisplacement(TInput input, double time, double? force = null);
 
     /// <inheritdoc/>
-    [MechanicalModelParameterCalculation(nameof(MechanicalModelOutput.Stress), MechanicalRelationship.StressStrain, ViscoelasticEffect.Relaxation)]
+    [MechanicalModelParameterCalculation(nameof(MechanicalModelOutput.Stress), MechanicalBehaviorType.StressStrain, ViscoelasticEffect.Relaxation)]
     public abstract double CalculateStress(TInput input, double time, double? strain = null);
 
     /// <inheritdoc/>
-    [MechanicalModelParameterCalculation(nameof(MechanicalModelOutput.Strain), MechanicalRelationship.StressStrain, ViscoelasticEffect.Creep)]
+    [MechanicalModelParameterCalculation(nameof(MechanicalModelOutput.Strain), MechanicalBehaviorType.StressStrain, ViscoelasticEffect.Creep)]
     public abstract double CalculateStrain(TInput input, double time, double? stress = null);
 
     #endregion

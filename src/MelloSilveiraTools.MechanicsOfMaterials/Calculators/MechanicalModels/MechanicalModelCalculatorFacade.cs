@@ -35,7 +35,7 @@ public class MechanicalModelCalculatorFacade(IMechanicalModelTypeCache cache, ob
 
         switch (input.MechanicalRelationship, input.ViscoelasticEffect)
         {
-            case (MechanicalRelationship.ForceDisplacement, ViscoelasticEffect.Relaxation):
+            case (MechanicalBehaviorType.ForceDisplacement, ViscoelasticEffect.Relaxation):
                 _calculateValueAndDerivativeMethod = input.Displacement!.CalculateValueAndDerivative;
                 _inputParameterValueName = ParameterNameConstant.Displacement;
                 _inputParameterDerivativeName = ParameterNameConstant.DisplacementDerivative;
@@ -43,7 +43,7 @@ public class MechanicalModelCalculatorFacade(IMechanicalModelTypeCache cache, ob
                 _outputParameterDerivativeName = nameof(MechanicalModelOutput.DisplacementDerivative);
                 break;
 
-            case (MechanicalRelationship.ForceDisplacement, ViscoelasticEffect.Creep):
+            case (MechanicalBehaviorType.ForceDisplacement, ViscoelasticEffect.Creep):
                 _calculateValueAndDerivativeMethod = input.Force!.CalculateValueAndDerivative;
                 _inputParameterValueName = ParameterNameConstant.Force;
                 _inputParameterDerivativeName = ParameterNameConstant.ForceDerivative;
@@ -51,7 +51,7 @@ public class MechanicalModelCalculatorFacade(IMechanicalModelTypeCache cache, ob
                 _outputParameterDerivativeName = nameof(MechanicalModelOutput.ForceDerivative);
                 break;
 
-            case (MechanicalRelationship.StressStrain, ViscoelasticEffect.Relaxation):
+            case (MechanicalBehaviorType.StressStrain, ViscoelasticEffect.Relaxation):
                 _calculateValueAndDerivativeMethod = input.Strain!.CalculateValueAndDerivative;
                 _inputParameterValueName = ParameterNameConstant.Strain;
                 _inputParameterDerivativeName = ParameterNameConstant.StrainDerivative;
@@ -59,7 +59,7 @@ public class MechanicalModelCalculatorFacade(IMechanicalModelTypeCache cache, ob
                 _outputParameterDerivativeName = nameof(MechanicalModelOutput.StrainDerivative);
                 break;
 
-            case (MechanicalRelationship.StressStrain, ViscoelasticEffect.Creep):
+            case (MechanicalBehaviorType.StressStrain, ViscoelasticEffect.Creep):
                 _calculateValueAndDerivativeMethod = input.Stress!.CalculateValueAndDerivative;
                 _inputParameterValueName = ParameterNameConstant.Stress;
                 _inputParameterDerivativeName = ParameterNameConstant.StressDerivative;

@@ -1,6 +1,6 @@
 ﻿namespace MelloSilveiraTools.Core.Models;
 
-public enum StatusCode : short
+public enum StatusCode : int
 {
     OK = 200,
     Created = 201,

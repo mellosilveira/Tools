@@ -20,7 +20,7 @@ public record MechanicalModelInput
 
     #region Mechanical parameters
 
-    public MechanicalRelationship MechanicalRelationship { get; init; }
+    public MechanicalBehaviorType MechanicalRelationship { get; init; }
 
     /// <inheritdoc cref="Viscoelasticity.ViscoelasticEffect"/>
     public ViscoelasticEffect ViscoelasticEffect { get; init; }

@@ -19,7 +19,7 @@ public class MechanicalModelParameterAttribute : Attribute
     /// Initializes a new instance of <see cref="MechanicalModelParameterAttribute"/>.
     /// </summary>
     /// <param name="mechanicalRelationship"></param>
-    public MechanicalModelParameterAttribute(MechanicalRelationship mechanicalRelationship)
+    public MechanicalModelParameterAttribute(MechanicalBehaviorType mechanicalRelationship)
     {
         MechanicalRelationship = mechanicalRelationship;
     }
@@ -38,14 +38,14 @@ public class MechanicalModelParameterAttribute : Attribute
     /// </summary>
     /// <param name="mechanicalRelationship"></param>
     /// <param name="viscoelasticEffect"></param>
-    public MechanicalModelParameterAttribute(MechanicalRelationship mechanicalRelationship, ViscoelasticEffect viscoelasticEffect)
+    public MechanicalModelParameterAttribute(MechanicalBehaviorType mechanicalRelationship, ViscoelasticEffect viscoelasticEffect)
     {
         MechanicalRelationship = mechanicalRelationship;
         ViscoelasticEffect = viscoelasticEffect;
     }
 
-    /// <inheritdoc cref="Models.MechanicalModels.MechanicalRelationship"/>
-    public MechanicalRelationship? MechanicalRelationship { get; }
+    /// <inheritdoc cref="Models.MechanicalModels.MechanicalBehaviorType"/>
+    public MechanicalBehaviorType? MechanicalRelationship { get; }
 
     /// <inheritdoc cref="Models.MechanicalModels.Viscoelasticity.ViscoelasticEffect"/>
     public ViscoelasticEffect? ViscoelasticEffect { get; }
@@ -56,7 +56,7 @@ public class MechanicalModelParameterAttribute : Attribute
     /// <param name="mechanicalRelationship"></param>
     /// <param name="viscoelasticEffect"></param>
     /// <returns></returns>
-    public bool CanMethodBeInvoked(MechanicalRelationship mechanicalRelationship, ViscoelasticEffect viscoelasticEffect)
+    public bool CanMethodBeInvoked(MechanicalBehaviorType mechanicalRelationship, ViscoelasticEffect viscoelasticEffect)
     {
         return (!MechanicalRelationship.HasValue || MechanicalRelationship == mechanicalRelationship) 
             && (!ViscoelasticEffect.HasValue || ViscoelasticEffect == viscoelasticEffect);
