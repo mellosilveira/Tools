@@ -334,7 +334,7 @@
             <param name="depth">The zero-based index of the list currently being expanded; recursion stops when it equals <c>lists.Count</c>.</param>
             <returns>A lazy sequence of arrays, each one a complete combination drawn from <paramref name="lists"/>.</returns>
         </member>
-        <member name="T:MelloSilveiraTools.Core.ExtensionMethods.EnumerableExtensions.&lt;G&gt;$E09FCB5EB13C1AE2FC524F6744DE5322`1.&lt;M&gt;$594F24F3AF0132375B9CC4A8FD2C7433">
+        <member name="T:MelloSilveiraTools.Core.ExtensionMethods.EnumerableExtensions.&lt;G&gt;$E09FCB5EB13C1AE2FC524F6744DE5322`1.&lt;M&gt;$EECE2D54084980D06565F911D61FED0F">
             <summary>
             Contains extension methods for <see cref="T:System.Collections.Generic.IEnumerable`1"/>.
             </summary>
@@ -373,8 +373,6 @@
             <summary>
             Indicates if <paramref name="sources"/> is not null nor empty.
             </summary>
-            <typeparam name="TSource">The type of the elements of <paramref name="sources" />.</typeparam>
-            <param name="sources">An <see cref="T:System.Collections.Generic.IEnumerable`1" /> to check if is not null nor empty.</param>
             <returns>True, if <paramref name="sources"/> is not null nor empty. False, otherwise.</returns>
         </member>
         <member name="M:MelloSilveiraTools.Core.ExtensionMethods.EnumerableExtensions.&lt;G&gt;$E09FCB5EB13C1AE2FC524F6744DE5322`1.GetSourceType">
@@ -385,21 +383,17 @@
             or interface). When the sequence is empty, the static <typeparamref name="TSource"/> is
             returned as a fallback.
             </summary>
-            <typeparam name="TSource">The static element type of the sequence.</typeparam>
-            <param name="sources">The sequence whose element type should be inspected.</param>
             <returns>The runtime type of the first element, or <c>typeof(<typeparamref name="TSource"/>)</c> when the sequence is empty.</returns>
         </member>
         <member name="M:MelloSilveiraTools.Core.ExtensionMethods.EnumerableExtensions.&lt;G&gt;$E09FCB5EB13C1AE2FC524F6744DE5322`1.ForeachAsync(System.Func{`0,System.Threading.Tasks.Task},System.Int32,Microsoft.Extensions.Logging.ILogger)">
             <summary>
-            Iterates over <paramref name="source"/> launching <paramref name="asyncAction"/> for every item,
+            Iterates over <paramref name="sources"/> launching <paramref name="asyncAction"/> for every item,
             while limiting concurrency through a <see cref="T:System.Threading.SemaphoreSlim"/> bounded by <paramref name="maxDegreeOfParallelism"/>.
             Items are dispatched in source order, but their actual completion order is non-deterministic
             because they execute in parallel. Exceptions raised inside <paramref name="asyncAction"/> are
             logged to <see cref="T:System.Console"/> and swallowed so the iteration continues; cancellation is not
             observed by this overload.
             </summary>
-            <typeparam name="T">The element type of the sequence.</typeparam>
-            <param name="source">The sequence to iterate. Must not be <see langword="null"/>.</param>
             <param name="asyncAction">The asynchronous delegate invoked for each item.</param>
             <param name="maxDegreeOfParallelism">Maximum number of <paramref name="asyncAction"/> invocations allowed to run concurrently. Must be greater than zero.</param>
             <param name="logger"></param>
@@ -407,30 +401,26 @@
         </member>
         <member name="M:MelloSilveiraTools.Core.ExtensionMethods.EnumerableExtensions.&lt;G&gt;$E09FCB5EB13C1AE2FC524F6744DE5322`1.ForeachAsync(System.Func{`0,System.Threading.Tasks.Task},System.Int32)">
             <summary>
-            Iterates over <paramref name="source"/> launching <paramref name="asyncAction"/> for every item,
+            Iterates over <paramref name="sources"/> launching <paramref name="asyncAction"/> for every item,
             while limiting concurrency through a <see cref="T:System.Threading.SemaphoreSlim"/> bounded by <paramref name="maxDegreeOfParallelism"/>.
             Items are dispatched in source order, but their actual completion order is non-deterministic
             because they execute in parallel. Exceptions raised inside <paramref name="asyncAction"/> are
             logged to <see cref="T:System.Console"/> and swallowed so the iteration continues; cancellation is not
             observed by this overload.
             </summary>
-            <typeparam name="T">The element type of the sequence.</typeparam>
-            <param name="source">The sequence to iterate. Must not be <see langword="null"/>.</param>
             <param name="asyncAction">The asynchronous delegate invoked for each item.</param>
             <param name="maxDegreeOfParallelism">Maximum number of <paramref name="asyncAction"/> invocations allowed to run concurrently. Must be greater than zero.</param>
             <returns>A task that completes when every dispatched <paramref name="asyncAction"/> has finished.</returns>
         </member>
         <member name="M:MelloSilveiraTools.Core.ExtensionMethods.EnumerableExtensions.&lt;G&gt;$E09FCB5EB13C1AE2FC524F6744DE5322`1.ForeachAsync(System.Action{`0},System.Int32,Microsoft.Extensions.Logging.ILogger)">
             <summary>
-            Iterates over <paramref name="source"/> dispatching <paramref name="action"/> for every item on
+            Iterates over <paramref name="sources"/> dispatching <paramref name="action"/> for every item on
             the thread pool, while limiting concurrency through a <see cref="T:System.Threading.SemaphoreSlim"/> bounded by
             <paramref name="maxDegreeOfParallelism"/>. Items are scheduled in source order but completion
             order is non-deterministic. Exceptions raised inside <paramref name="action"/> are logged to
             <see cref="T:System.Console"/> and swallowed so the iteration continues; cancellation is not observed
             by this overload.
             </summary>
-            <typeparam name="T">The element type of the sequence.</typeparam>
-            <param name="source">The sequence to iterate. Must not be <see langword="null"/>.</param>
             <param name="action">The synchronous delegate invoked for each item on the thread pool.</param>
             <param name="maxDegreeOfParallelism">Maximum number of <paramref name="action"/> invocations allowed to run concurrently. Must be greater than zero.</param>
             <param name="logger"></param>
@@ -438,28 +428,26 @@
         </member>
         <member name="M:MelloSilveiraTools.Core.ExtensionMethods.EnumerableExtensions.&lt;G&gt;$E09FCB5EB13C1AE2FC524F6744DE5322`1.ForeachAsync(System.Action{`0},System.Int32)">
             <summary>
-            Iterates over <paramref name="source"/> dispatching <paramref name="action"/> for every item on
+            Iterates over <paramref name="sources"/> dispatching <paramref name="action"/> for every item on
             the thread pool, while limiting concurrency through a <see cref="T:System.Threading.SemaphoreSlim"/> bounded by
             <paramref name="maxDegreeOfParallelism"/>. Items are scheduled in source order but completion
             order is non-deterministic. Exceptions raised inside <paramref name="action"/> are logged to
             <see cref="T:System.Console"/> and swallowed so the iteration continues; cancellation is not observed
             by this overload.
             </summary>
-            <typeparam name="T">The element type of the sequence.</typeparam>
-            <param name="source">The sequence to iterate. Must not be <see langword="null"/>.</param>
             <param name="action">The synchronous delegate invoked for each item on the thread pool.</param>
             <param name="maxDegreeOfParallelism">Maximum number of <paramref name="action"/> invocations allowed to run concurrently. Must be greater than zero.</param>
             <returns>A task that completes when every scheduled invocation of <paramref name="action"/> has finished.</returns>
         </member>
         <member name="M:MelloSilveiraTools.Core.ExtensionMethods.EnumerableExtensions.&lt;G&gt;$E09FCB5EB13C1AE2FC524F6744DE5322`1.Foreach(System.Action{`0},Microsoft.Extensions.Logging.ILogger)">
             <summary>
-            Iterates synchronously over <paramref name="source"/> invoking <paramref name="action"/> for each item.
+            Iterates synchronously over <paramref name="sources"/> invoking <paramref name="action"/> for each item.
             Exceptions thrown by <paramref name="action"/> are logged and swallowed so the iteration continues.
             </summary>
         </member>
         <member name="M:MelloSilveiraTools.Core.ExtensionMethods.EnumerableExtensions.&lt;G&gt;$E09FCB5EB13C1AE2FC524F6744DE5322`1.Foreach(System.Action{`0})">
             <summary>
-            Iterates synchronously over <paramref name="source"/> invoking <paramref name="action"/> for each item.
+            Iterates synchronously over <paramref name="sources"/> invoking <paramref name="action"/> for each item.
             Exceptions thrown by <paramref name="action"/> are logged and swallowed so the iteration continues.
             </summary>
         </member>
@@ -509,7 +497,9 @@
             formed by picking exactly one element from each list, in list order. The number of
             combinations produced equals the product of the sizes of the inner lists.
             </summary>
-            <param name="lists">The collection of lists to combine. Each emitted array has one element per inner list, ordered to match the order of <paramref name="lists"/>.</param>
+            <remarks>
+            <paramref name="lists"/>: The collection of lists to combine. Each emitted array has one element per inner list, ordered to match the order of <paramref name="lists"/>.
+            </remarks>
             <returns>A lazy sequence of arrays where each array is one combination drawn from <paramref name="lists"/>.</returns>
         </member>
         <member name="T:MelloSilveiraTools.Core.ExtensionMethods.StringExtensions">
@@ -1201,7 +1191,7 @@
             Encapsulates a function with a strategy that covers retriable scenarios.
             </summary>
             <param name="callback">Function which will be encapsulated by the retry strategy.</param>
-            <param name="fallback">Function invoked if the pipeline execution fails. It receives the caught exception and must provide a safe alternative value of type <typeparamref name="T"/> to be returned to the caller.</param>
+            <param name="fallback">Function invoked if the pipeline execution fails. It receives the caught exception.</param>
             <param name="callerMemberName">Member name of the caller which will be logged when a retry is performed.</param>
             <param name="callerFilePath">Path of the caller which will be used to get the class name to be logged when a retry is performed.</param>
             <returns>The instance of <see cref="T:System.Threading.Tasks.ValueTask"/> that represents the asynchronous execution.</returns>
@@ -1211,7 +1201,7 @@
             Encapsulates a function with a strategy that covers retriable scenarios.
             </summary>
             <param name="callback">Function which will be encapsulated by the retry strategy.</param>
-            <param name="fallback">Function invoked if the pipeline execution fails. It receives the caught exception and must provide a safe alternative value of type <typeparamref name="T"/> to be returned to the caller.</param>
+            <param name="fallback">Function invoked if the pipeline execution fails. It receives the caught exception.</param>
             <param name="callerMemberName">Member name of the caller which will be logged when a retry is performed.</param>
             <param name="callerFilePath">Path of the caller which will be used to get the class name to be logged when a retry is performed.</param>
             <returns>The instance of <see cref="T:System.Threading.Tasks.ValueTask"/> that represents the asynchronous execution.</returns>

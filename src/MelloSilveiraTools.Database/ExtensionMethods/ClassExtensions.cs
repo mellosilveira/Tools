@@ -103,8 +103,7 @@ public static class ClassExtensions
         public (string? SqlWhereClause, List<NpgsqlParameter> Parameters) BuildWhereClauseAndNpgsqlParameters()
         {
             List<NpgsqlParameter> parameters = [];
-            string? whereClause = BuildWhereClauseCore(obj,
-                (name, type, value) => parameters.Add(new NpgsqlParameter(name, type.GetDbTypeFromPropertyType()) { Value = value }));
+            string? whereClause = BuildWhereClauseCore(obj, (name, type, value) => parameters.Add(new NpgsqlParameter(name, type.GetDbTypeFromPropertyType()) { Value = value }));
             return (whereClause, parameters);
         }
 
@@ -162,15 +161,13 @@ public static class ClassExtensions
                 PropertyInfo[] props = key.DeclaredOnly
                     ? key.Type.GetDeclaredProperties<ColumnAttribute>()
                     : key.Type.GetPropertiesInHierarchy<ColumnAttribute>();
-                return props.Select(p => (p, p.PropertyType.GetDbTypeFromPropertyType())).ToArray();
+                return [.. props.Select(p => (p, p.PropertyType.GetDbTypeFromPropertyType()))];
             });
 
     private static (PropertyInfo Prop, FilterColumnAttribute Attr)[] GetFilterColumnMeta(Type type)
         => _filterColumnMetaCache.GetOrAdd(
             type,
-            static t => t.GetPropertiesInHierarchy<FilterColumnAttribute>()
-                         .Select(p => (p, p.GetCustomAttribute<FilterColumnAttribute>()!))
-                         .ToArray());
+            static t => [.. t.GetPropertiesInHierarchy<FilterColumnAttribute>().Select(p => (p, p.GetCustomAttribute<FilterColumnAttribute>()!))]);
 
     private static string? BuildWhereClauseCore<T>(T obj, Action<string, Type, object> addParam)
     {

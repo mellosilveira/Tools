@@ -12,7 +12,7 @@ public static class EnumerableExtensions
     /// </summary>
     /// <typeparam name="TSource">The type of the elements of <paramref name="sources" />.</typeparam>
     /// <param name="sources">An <see cref="IEnumerable{T}" />.</param>
-    extension<TSource>(IEnumerable<TSource?> sources)
+    extension<TSource>(IEnumerable<TSource> sources)
     {
         /// <summary>
         /// Returns the first element of the sequence that satisfies a condition or a default value if no such element is found.
@@ -20,9 +20,9 @@ public static class EnumerableExtensions
         /// <param name="predicate">A function to test each element for a condition.</param>
         /// <param name="defaultValue">The default value to return if the sequence is empty.</param>
         /// <returns><paramref name="defaultValue" /> if <paramref name="sources" /> is empty or if no element passes the test specified by <paramref name="predicate" />; otherwise, the first element in <paramref name="sources" /> that passes the test specified by <paramref name="predicate" />.</returns>
-        public TSource? FirstOrDefaultWithoutValidate(Func<TSource?, bool> predicate, TSource? defaultValue = default)
+        public TSource? FirstOrDefaultWithoutValidate(Func<TSource, bool> predicate, TSource? defaultValue = default)
         {
-            foreach (TSource? element in sources)
+            foreach (TSource element in sources)
             {
                 if (predicate(element))
                     return element;
@@ -37,9 +37,9 @@ public static class EnumerableExtensions
         /// <param name="predicate">A function to test each element for a condition.</param>
         /// <returns>The first element in <paramref name="sources" /> that passes the test specified by <paramref name="predicate" />.</returns>
         /// <exception cref="InvalidOperationException">Thrown when no element in the source matches the predicate.</exception>
-        public TSource? FirstWithoutValidate(Func<TSource?, bool> predicate)
+        public TSource FirstWithoutValidate(Func<TSource, bool> predicate)
         {
-            foreach (TSource? element in sources)
+            foreach (TSource element in sources)
             {
                 if (predicate(element))
                     return element;
@@ -63,8 +63,6 @@ public static class EnumerableExtensions
         /// <summary>
         /// Indicates if <paramref name="sources"/> is not null nor empty.
         /// </summary>
-        /// <typeparam name="TSource">The type of the elements of <paramref name="sources" />.</typeparam>
-        /// <param name="sources">An <see cref="IEnumerable{T}" /> to check if is not null nor empty.</param>
         /// <returns>True, if <paramref name="sources"/> is not null nor empty. False, otherwise.</returns>
         public bool IsNotNullOrEmpty() => sources is not null && sources.Any();
 
@@ -75,21 +73,17 @@ public static class EnumerableExtensions
         /// or interface). When the sequence is empty, the static <typeparamref name="TSource"/> is
         /// returned as a fallback.
         /// </summary>
-        /// <typeparam name="TSource">The static element type of the sequence.</typeparam>
-        /// <param name="sources">The sequence whose element type should be inspected.</param>
         /// <returns>The runtime type of the first element, or <c>typeof(<typeparamref name="TSource"/>)</c> when the sequence is empty.</returns>
         public Type GetSourceType() => sources.FirstOrDefault()?.GetType() ?? typeof(TSource);
 
         /// <summary>
-        /// Iterates over <paramref name="source"/> launching <paramref name="asyncAction"/> for every item,
+        /// Iterates over <paramref name="sources"/> launching <paramref name="asyncAction"/> for every item,
         /// while limiting concurrency through a <see cref="SemaphoreSlim"/> bounded by <paramref name="maxDegreeOfParallelism"/>.
         /// Items are dispatched in source order, but their actual completion order is non-deterministic
         /// because they execute in parallel. Exceptions raised inside <paramref name="asyncAction"/> are
         /// logged to <see cref="Console"/> and swallowed so the iteration continues; cancellation is not
         /// observed by this overload.
         /// </summary>
-        /// <typeparam name="T">The element type of the sequence.</typeparam>
-        /// <param name="source">The sequence to iterate. Must not be <see langword="null"/>.</param>
         /// <param name="asyncAction">The asynchronous delegate invoked for each item.</param>
         /// <param name="maxDegreeOfParallelism">Maximum number of <paramref name="asyncAction"/> invocations allowed to run concurrently. Must be greater than zero.</param>
         /// <param name="logger"></param>
@@ -124,15 +118,13 @@ public static class EnumerableExtensions
         }
 
         /// <summary>
-        /// Iterates over <paramref name="source"/> launching <paramref name="asyncAction"/> for every item,
+        /// Iterates over <paramref name="sources"/> launching <paramref name="asyncAction"/> for every item,
         /// while limiting concurrency through a <see cref="SemaphoreSlim"/> bounded by <paramref name="maxDegreeOfParallelism"/>.
         /// Items are dispatched in source order, but their actual completion order is non-deterministic
         /// because they execute in parallel. Exceptions raised inside <paramref name="asyncAction"/> are
         /// logged to <see cref="Console"/> and swallowed so the iteration continues; cancellation is not
         /// observed by this overload.
         /// </summary>
-        /// <typeparam name="T">The element type of the sequence.</typeparam>
-        /// <param name="source">The sequence to iterate. Must not be <see langword="null"/>.</param>
         /// <param name="asyncAction">The asynchronous delegate invoked for each item.</param>
         /// <param name="maxDegreeOfParallelism">Maximum number of <paramref name="asyncAction"/> invocations allowed to run concurrently. Must be greater than zero.</param>
         /// <returns>A task that completes when every dispatched <paramref name="asyncAction"/> has finished.</returns>
@@ -162,15 +154,13 @@ public static class EnumerableExtensions
         }
 
         /// <summary>
-        /// Iterates over <paramref name="source"/> dispatching <paramref name="action"/> for every item on
+        /// Iterates over <paramref name="sources"/> dispatching <paramref name="action"/> for every item on
         /// the thread pool, while limiting concurrency through a <see cref="SemaphoreSlim"/> bounded by
         /// <paramref name="maxDegreeOfParallelism"/>. Items are scheduled in source order but completion
         /// order is non-deterministic. Exceptions raised inside <paramref name="action"/> are logged to
         /// <see cref="Console"/> and swallowed so the iteration continues; cancellation is not observed
         /// by this overload.
         /// </summary>
-        /// <typeparam name="T">The element type of the sequence.</typeparam>
-        /// <param name="source">The sequence to iterate. Must not be <see langword="null"/>.</param>
         /// <param name="action">The synchronous delegate invoked for each item on the thread pool.</param>
         /// <param name="maxDegreeOfParallelism">Maximum number of <paramref name="action"/> invocations allowed to run concurrently. Must be greater than zero.</param>
         /// <param name="logger"></param>
@@ -205,15 +195,13 @@ public static class EnumerableExtensions
         }
 
         /// <summary>
-        /// Iterates over <paramref name="source"/> dispatching <paramref name="action"/> for every item on
+        /// Iterates over <paramref name="sources"/> dispatching <paramref name="action"/> for every item on
         /// the thread pool, while limiting concurrency through a <see cref="SemaphoreSlim"/> bounded by
         /// <paramref name="maxDegreeOfParallelism"/>. Items are scheduled in source order but completion
         /// order is non-deterministic. Exceptions raised inside <paramref name="action"/> are logged to
         /// <see cref="Console"/> and swallowed so the iteration continues; cancellation is not observed
         /// by this overload.
         /// </summary>
-        /// <typeparam name="T">The element type of the sequence.</typeparam>
-        /// <param name="source">The sequence to iterate. Must not be <see langword="null"/>.</param>
         /// <param name="action">The synchronous delegate invoked for each item on the thread pool.</param>
         /// <param name="maxDegreeOfParallelism">Maximum number of <paramref name="action"/> invocations allowed to run concurrently. Must be greater than zero.</param>
         /// <returns>A task that completes when every scheduled invocation of <paramref name="action"/> has finished.</returns>
@@ -243,12 +231,12 @@ public static class EnumerableExtensions
         }
 
         /// <summary>
-        /// Iterates synchronously over <paramref name="source"/> invoking <paramref name="action"/> for each item.
+        /// Iterates synchronously over <paramref name="sources"/> invoking <paramref name="action"/> for each item.
         /// Exceptions thrown by <paramref name="action"/> are logged and swallowed so the iteration continues.
         /// </summary>
-        public void Foreach(Action<TSource?> action, ILogger logger)
+        public void Foreach(Action<TSource> action, ILogger logger)
         {
-            foreach (TSource? item in sources)
+            foreach (TSource item in sources)
             {
                 try
                 {
@@ -262,12 +250,12 @@ public static class EnumerableExtensions
         }
 
         /// <summary>
-        /// Iterates synchronously over <paramref name="source"/> invoking <paramref name="action"/> for each item.
+        /// Iterates synchronously over <paramref name="sources"/> invoking <paramref name="action"/> for each item.
         /// Exceptions thrown by <paramref name="action"/> are logged and swallowed so the iteration continues.
         /// </summary>
-        public void Foreach(Action<TSource?> action)
+        public void Foreach(Action<TSource> action)
         {
-            foreach (TSource? item in sources)
+            foreach (TSource item in sources)
             {
                 action(item);
             }
@@ -345,7 +333,9 @@ public static class EnumerableExtensions
         /// formed by picking exactly one element from each list, in list order. The number of
         /// combinations produced equals the product of the sizes of the inner lists.
         /// </summary>
-        /// <param name="lists">The collection of lists to combine. Each emitted array has one element per inner list, ordered to match the order of <paramref name="lists"/>.</param>
+        /// <remarks>
+        /// <paramref name="lists"/>: The collection of lists to combine. Each emitted array has one element per inner list, ordered to match the order of <paramref name="lists"/>.
+        /// </remarks>
         /// <returns>A lazy sequence of arrays where each array is one combination drawn from <paramref name="lists"/>.</returns>
         public IEnumerable<T[]> GetCombinations()
         {
