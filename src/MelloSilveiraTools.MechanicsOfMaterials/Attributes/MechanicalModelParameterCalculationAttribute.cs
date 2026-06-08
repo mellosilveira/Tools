@@ -14,10 +14,10 @@ public class MechanicalModelParameterCalculationAttribute : MechanicalModelParam
     /// Initializes a new instance of <see cref="MechanicalModelParameterAttribute"/>.
     /// </summary>
     /// <param name="propertyName"></param>
-    /// <param name="mechanicalRelationship"></param>
+    /// <param name="mechanicalBehaviorType"></param>
     public MechanicalModelParameterCalculationAttribute(
         string propertyName,
-        MechanicalBehaviorType mechanicalRelationship) : base(mechanicalRelationship)
+        MechanicalBehaviorType mechanicalBehaviorType) : base(mechanicalBehaviorType)
     {
         PropertyName = propertyName;
     }
@@ -38,12 +38,12 @@ public class MechanicalModelParameterCalculationAttribute : MechanicalModelParam
     /// Initializes a new instance of <see cref="MechanicalModelParameterAttribute"/>.
     /// </summary>
     /// <param name="propertyName"></param>
-    /// <param name="mechanicalRelationship"></param>
+    /// <param name="mechanicalBehaviorType"></param>
     /// <param name="viscoelasticEffect"></param>
     public MechanicalModelParameterCalculationAttribute(
         string propertyName,
-        MechanicalBehaviorType mechanicalRelationship,
-        ViscoelasticEffect viscoelasticEffect) : base(mechanicalRelationship, viscoelasticEffect)
+        MechanicalBehaviorType mechanicalBehaviorType,
+        ViscoelasticEffect viscoelasticEffect) : base(mechanicalBehaviorType, viscoelasticEffect)
     {
         PropertyName = propertyName;
     }

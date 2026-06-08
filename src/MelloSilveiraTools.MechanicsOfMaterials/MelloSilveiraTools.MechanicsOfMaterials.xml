@@ -19,7 +19,7 @@
             <summary>
             Initializes a new instance of <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Attributes.MechanicalModelParameterAttribute"/>.
             </summary>
-            <param name="mechanicalRelationship"></param>
+            <param name="mechanicalBehaviorType"></param>
         </member>
         <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Attributes.MechanicalModelParameterAttribute.#ctor(MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.ViscoelasticEffect)">
             <summary>
@@ -31,10 +31,10 @@
             <summary>
             Initializes a new instance of <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Attributes.MechanicalModelParameterAttribute"/>.
             </summary>
-            <param name="mechanicalRelationship"></param>
+            <param name="mechanicalBehaviorType"></param>
             <param name="viscoelasticEffect"></param>
         </member>
-        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Attributes.MechanicalModelParameterAttribute.MechanicalRelationship">
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Attributes.MechanicalModelParameterAttribute.MechanicalBehaviorType">
             <inheritdoc cref="T:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalBehaviorType"/>
         </member>
         <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Attributes.MechanicalModelParameterAttribute.ViscoelasticEffect">
@@ -44,7 +44,7 @@
             <summary>
             Checks if the mechanical relationship and viscoelastic effect matches with the values used to build the attribute.
             </summary>
-            <param name="mechanicalRelationship"></param>
+            <param name="mechanicalBehaviorType"></param>
             <param name="viscoelasticEffect"></param>
             <returns></returns>
         </member>
@@ -59,7 +59,7 @@
             Initializes a new instance of <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Attributes.MechanicalModelParameterAttribute"/>.
             </summary>
             <param name="propertyName"></param>
-            <param name="mechanicalRelationship"></param>
+            <param name="mechanicalBehaviorType"></param>
         </member>
         <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Attributes.MechanicalModelParameterCalculationAttribute.#ctor(System.String,MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.ViscoelasticEffect)">
             <summary>
@@ -73,7 +73,7 @@
             Initializes a new instance of <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Attributes.MechanicalModelParameterAttribute"/>.
             </summary>
             <param name="propertyName"></param>
-            <param name="mechanicalRelationship"></param>
+            <param name="mechanicalBehaviorType"></param>
             <param name="viscoelasticEffect"></param>
         </member>
         <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Attributes.MechanicalModelParameterCalculationAttribute.PropertyName">

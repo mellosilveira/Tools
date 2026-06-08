@@ -29,11 +29,11 @@ public class MechanicalModelCalculatorFacade(IMechanicalModelTypeCache cache, ob
     {
         ArgumentNullException.ThrowIfNull(input);
 
-        _calculatorMethodDataList = cache.GetOrAddMethodDataList(_calculatorType, input.MechanicalRelationship, input.ViscoelasticEffect);
+        _calculatorMethodDataList = cache.GetOrAddMethodDataList(_calculatorType, input.MechanicalBehaviorType, input.ViscoelasticEffect);
         _outputFactory = cache.GetOrAddOutputFactory(outputType);
         _outputPropertySetters = cache.GetOrAddPropertySetters(outputType);
 
-        switch (input.MechanicalRelationship, input.ViscoelasticEffect)
+        switch (input.MechanicalBehaviorType, input.ViscoelasticEffect)
         {
             case (MechanicalBehaviorType.ForceDisplacement, ViscoelasticEffect.Relaxation):
                 _calculateValueAndDerivativeMethod = input.Displacement!.CalculateValueAndDerivative;
@@ -68,7 +68,7 @@ public class MechanicalModelCalculatorFacade(IMechanicalModelTypeCache cache, ob
                 break;
 
             default:
-                throw new ArgumentOutOfRangeException($"{nameof(input.MechanicalRelationship)} and {nameof(input.ViscoelasticEffect)}");
+                throw new ArgumentOutOfRangeException($"{nameof(input.MechanicalBehaviorType)} and {nameof(input.ViscoelasticEffect)}");
         }
 
         _inputParameters = new(capacity: 4) { { ParameterNameConstant.MechanicalModelInput, input } };
