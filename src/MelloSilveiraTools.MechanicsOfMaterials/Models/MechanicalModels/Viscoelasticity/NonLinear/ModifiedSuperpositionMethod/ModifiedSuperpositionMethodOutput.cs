@@ -5,7 +5,7 @@ namespace MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoe
 /// <summary>
 /// Contains the output for the Modified Superposition Method.
 /// </summary>
-public sealed class ModifiedSuperpositionMethodOutput : ViscoelasticModelOutput
+public sealed record ModifiedSuperpositionMethodOutput : ViscoelasticModelOutput
 {
     /// <summary>
     /// Initial Young's modulus.

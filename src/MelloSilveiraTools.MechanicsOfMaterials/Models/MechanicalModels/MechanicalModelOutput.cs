@@ -7,7 +7,7 @@ namespace MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels;
 /// <summary>
 /// Contains the output for a generic mechanical model.
 /// </summary>
-public class MechanicalModelOutput : TimebasedAnalysisOutput
+public record MechanicalModelOutput : TimebasedAnalysisOutput
 {
     /// <summary>
     /// Unit: dimensionless.

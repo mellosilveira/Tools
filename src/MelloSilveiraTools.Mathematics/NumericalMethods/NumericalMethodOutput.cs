@@ -6,7 +6,7 @@ namespace MelloSilveiraTools.Mathematics.NumericalMethods;
 /// <summary>
 /// Contains the finite element analysis output to a specific time.
 /// </summary>
-public class NumericalMethodOutput : TimebasedAnalysisOutput
+public record NumericalMethodOutput : TimebasedAnalysisOutput
 {
     /// <summary>
     /// Basic constructor.

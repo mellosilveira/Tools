@@ -3,7 +3,7 @@
 /// <summary>
 /// Contains the output for a generic timebased analysis.
 /// </summary>
-public abstract class TimebasedAnalysisOutput
+public abstract record TimebasedAnalysisOutput
 {
     /// <summary>
     /// Unit: s (second).
