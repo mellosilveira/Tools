@@ -1,4 +1,4 @@
-﻿namespace SoftTissue.Infrastructure.Files.Managers;
+﻿namespace MelloSilveiraTools.Core.Managers.File;
 
 public record FileData
 {

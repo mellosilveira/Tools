@@ -1,5 +1,6 @@
 using MelloSilveiraTools.Core.Caching;
 using MelloSilveiraTools.Core.Logging;
+using MelloSilveiraTools.Core.Managers.File;
 using MelloSilveiraTools.Core.Providers.Dynamics;
 using MelloSilveiraTools.Core.ResiliencePipelines;
 using MelloSilveiraTools.Core.Services.Email;
@@ -50,6 +51,7 @@ public static class CoreDependencyInjection
             }
 
             return services
+                .AddSingleton<IFileManager, FileManager>()
                 // Register caching pipelines.
                 .AddSingleton<ISingleLevelCache, InMemorySingleLevelCache>()
                 .AddSingleton<ITwoLevelCache, InMemoryTwoLevelCache>()
