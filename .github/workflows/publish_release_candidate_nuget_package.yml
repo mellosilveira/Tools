@@ -14,10 +14,10 @@ on:
 env:
   CONFIGURATION: Release
   DOTNET_CORE_VERSION: 10.x
-  ARTIFACT_NAME: MelloSilveiraTools_nugetpackages_artifact
+  ARTIFACT_NAME: ${{ vars.ARTIFACT_NAME }}
   UPLOAD_PATH: build/nupkgs/
-  TARGET_PATH: /home/runner/work/MelloSilveiraTools/MelloSilveiraTools
-  NUGET_USER: ${{ vars.NUGET_USER }}
+  TARGET_PATH: ${{ vars.TARGET_PATH }}
+  NUGET_USER: ${{ secrets.NUGET_USER }}
 
 jobs:
   build:
