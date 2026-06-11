@@ -67,6 +67,7 @@ jobs:
     needs: build
     permissions:
       id-token: write
+      contents: read
 
     steps:
     - name: Download nuget packages artifact
