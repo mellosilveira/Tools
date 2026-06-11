@@ -58,7 +58,7 @@ public class MechanicalModelParameterAttribute : Attribute
     /// <returns></returns>
     public bool CanMethodBeInvoked(MechanicalBehaviorType mechanicalBehaviorType, ViscoelasticEffect viscoelasticEffect)
     {
-        return (!MechanicalBehaviorType.HasValue || MechanicalBehaviorType == mechanicalBehaviorType) 
+        return (!MechanicalBehaviorType.HasValue || MechanicalBehaviorType == mechanicalBehaviorType)
             && (!ViscoelasticEffect.HasValue || ViscoelasticEffect == viscoelasticEffect);
     }
 }

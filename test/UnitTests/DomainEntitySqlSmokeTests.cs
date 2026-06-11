@@ -18,8 +18,8 @@ public sealed class DomainEntitySqlSmokeTests
         var select = _provider.GetSelectSql<UserManagedDistrictEntity>();
 
         Assert.Contains("FROM user_managed_district AS usmd", select);
-        Assert.Contains("INNER JOIN prajah_user",             select);
-        Assert.Contains("INNER JOIN district",                select);
+        Assert.Contains("INNER JOIN prajah_user", select);
+        Assert.Contains("INNER JOIN district", select);
     }
 
     [Fact]
@@ -35,7 +35,7 @@ public sealed class DomainEntitySqlSmokeTests
     {
         var sql = _provider.GetInsertSql<UserManagedDistrictEntity>();
 
-        Assert.Contains("user_id",    sql);
+        Assert.Contains("user_id", sql);
         Assert.Contains("district_id", sql);
         Assert.Contains("RETURNING id", sql);
     }

@@ -10,9 +10,9 @@ namespace MelloSilveiraTools.Mathematics.Expressions;
 /// <param name="finalVariableValue">Final value for variable.</param>
 /// <param name="independentParameter">Independent parameter represented by c.</param>
 /// <param name="iteratorCoefficients">Coefficients for iterations represented by a_n.</param>
-public sealed class PronySeries(double? initialVariableValue, double? finalVariableValue, double independentParameter, double[] iteratorCoefficients) 
+public sealed class PronySeries(double? initialVariableValue, double? finalVariableValue, double independentParameter, double[] iteratorCoefficients)
     : Expression(
-        initialVariableValue, 
+        initialVariableValue,
         finalVariableValue,
         [
             new PolynomialFunction(initialVariableValue, finalVariableValue, [independentParameter]),

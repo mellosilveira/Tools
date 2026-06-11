@@ -1,5 +1,4 @@
-﻿using MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels;
-using MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Elasticity;
+﻿using MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Elasticity;
 
 namespace MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Elasticity;
 

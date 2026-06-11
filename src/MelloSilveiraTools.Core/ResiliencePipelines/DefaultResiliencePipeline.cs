@@ -1,9 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
 using Polly;
-using Polly.RateLimiting;
 using Polly.Retry;
 using System.Runtime.CompilerServices;
-using System.Threading.RateLimiting;
 
 namespace MelloSilveiraTools.Core.ResiliencePipelines;
 

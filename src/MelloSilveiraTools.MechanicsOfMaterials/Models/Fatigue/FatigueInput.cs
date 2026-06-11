@@ -25,7 +25,7 @@ namespace MelloSilveiraTools.MechanicsOfMaterials.Models.Fatigue
         /// Unit: MPa (Mega Pascal).
         /// </summary>
         public double TensileStress { get; set; }
-        
+
         /// <summary>
         /// The fatigue limit (Se').
         /// Unit: MPa (Mega Pascal).
@@ -37,7 +37,7 @@ namespace MelloSilveiraTools.MechanicsOfMaterials.Models.Fatigue
         /// Dimensionless.
         /// </summary>
         public double FatigueLimitFraction { get; set; }
-        
+
         /// <summary>
         /// True, if is rotative section. False, otherwise.
         /// </summary>

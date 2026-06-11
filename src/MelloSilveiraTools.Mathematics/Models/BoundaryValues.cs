@@ -1,4 +1,4 @@
-﻿namespace SoftTissue.DataContracts.Commands.MechanicalModels.Commons;
+﻿namespace MelloSilveiraTools.Mathematics.Models;
 
 /// <summary>
 /// Contains the initial and final boundary values of a calculation, along with their relative variation.

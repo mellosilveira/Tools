@@ -5,7 +5,7 @@ namespace MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoe
 /// <summary>
 /// Contains the output for Schapery's model.
 /// </summary>
-public sealed record SchaperyModelOutput : ViscoelasticModelOutput 
+public sealed record SchaperyModelOutput : ViscoelasticModelOutput
 {
     /// <summary>
     /// Unit: /Mpa (per Mega-Pascal).

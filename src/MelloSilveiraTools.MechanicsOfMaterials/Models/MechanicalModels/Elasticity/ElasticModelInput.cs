@@ -1,6 +1,4 @@
-﻿using MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels;
-
-namespace MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Elasticity;
+﻿namespace MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Elasticity;
 
 /// <summary>
 /// Contains the input data for a elastic model.

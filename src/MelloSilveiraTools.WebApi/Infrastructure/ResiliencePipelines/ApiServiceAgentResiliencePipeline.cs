@@ -13,7 +13,7 @@ namespace MelloSilveiraTools.WebApi.Infrastructure.ResiliencePipelines;
 public class ApiServiceAgentResiliencePipeline : DefaultResiliencePipeline
 {
     private static readonly List<StatusCode> StatusCodesToRetry = [StatusCode.UnknownError, StatusCode.ServiceUnavailable];
-    
+
     /// <summary>
     /// Initialize a new instance of <see cref="PostgresResiliencePipeline"/>.
     /// </summary>

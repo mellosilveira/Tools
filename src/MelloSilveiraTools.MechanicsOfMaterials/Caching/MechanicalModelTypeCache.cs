@@ -30,7 +30,7 @@ public class MechanicalModelTypeCache(ISingleLevelCache cache) : IMechanicalMode
     public Type[] GetOrAddConstructorParameterTypes(Type type)
         => cache.GetOrAdd($"CtorParams:{type.FullName}", () => type.GetConstructors().Single().GetParameters().Select(p => p.ParameterType).ToArray());
 
-    private static CalculatorMethodData[] BuildMethodDataList(Type calculatorType, MechanicalBehaviorType relationship, ViscoelasticEffect effect) 
+    private static CalculatorMethodData[] BuildMethodDataList(Type calculatorType, MechanicalBehaviorType relationship, ViscoelasticEffect effect)
         => [.. calculatorType.GetMethods()
             .Select(method => (Method: method, Attribute: method.GetCustomAttribute<MechanicalModelParameterCalculationAttribute>()))
             .Where(x => x.Attribute != null && x.Attribute.CanMethodBeInvoked(relationship, effect))
@@ -78,7 +78,7 @@ public class MechanicalModelTypeCache(ISingleLevelCache cache) : IMechanicalMode
     /// <summary>
     /// Compiles property setters for all settable properties of a type, replacing <see cref="PropertyInfo.SetValue"/>.
     /// </summary>
-    private static Dictionary<string, Action<object, object>> CompilePropertySetters(Type type) 
+    private static Dictionary<string, Action<object, object>> CompilePropertySetters(Type type)
         => type.GetProperties().Where(p => p.SetMethod != null).ToDictionary(p => p.Name, CompilePropertySetter);
 
     private static Action<object, object> CompilePropertySetter(PropertyInfo property)

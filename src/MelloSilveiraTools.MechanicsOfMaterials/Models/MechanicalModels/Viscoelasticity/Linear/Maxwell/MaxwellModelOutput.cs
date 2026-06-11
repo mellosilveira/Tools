@@ -5,7 +5,7 @@ namespace MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoe
 /// <summary>
 /// Contains the output for Maxwell's model.
 /// </summary>
-public sealed record MaxwellModelOutput : ViscoelasticModelOutput 
+public sealed record MaxwellModelOutput : ViscoelasticModelOutput
 {
     /// <summary>
     /// Unit: s (second).

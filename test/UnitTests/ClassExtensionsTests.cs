@@ -53,9 +53,9 @@ public sealed class ClassExtensionsTests
 
         var parameters = entity.BuildParameters().ToList();
 
-        Assert.Equal(99L,    parameters.First(p => p.ParameterName == "Id").Value);
+        Assert.Equal(99L, parameters.First(p => p.ParameterName == "Id").Value);
         Assert.Equal("Test", parameters.First(p => p.ParameterName == "Name").Value);
-        Assert.Equal(200L,   parameters.First(p => p.ParameterName == "Price").Value);
+        Assert.Equal(200L, parameters.First(p => p.ParameterName == "Price").Value);
     }
 
     // ── BuildParametersFromCollection ──────────────────────────────────────────
@@ -106,9 +106,9 @@ public sealed class ClassExtensionsTests
 
         var parameters = entities.BuildParametersFromCollection().ToList();
 
-        Assert.Equal(42L,     parameters.First(p => p.ParameterName == "Id_1").Value);
+        Assert.Equal(42L, parameters.First(p => p.ParameterName == "Id_1").Value);
         Assert.Equal("Alpha", parameters.First(p => p.ParameterName == "Name_1").Value);
-        Assert.Equal(99L,     parameters.First(p => p.ParameterName == "Price_1").Value);
+        Assert.Equal(99L, parameters.First(p => p.ParameterName == "Price_1").Value);
     }
 
     [Fact]
@@ -132,7 +132,7 @@ public sealed class ClassExtensionsTests
 
         // Expect: Id, CreationTimestamp, Name, Price (4 values, in hierarchy order)
         Assert.Equal(4, values.Count);
-        Assert.Contains(7L,  values);
+        Assert.Contains(7L, values);
         Assert.Contains("X", values);
     }
 }

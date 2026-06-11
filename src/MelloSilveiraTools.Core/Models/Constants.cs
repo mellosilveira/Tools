@@ -10,10 +10,10 @@ public class Constants
     /// </summary>
     public static List<double> InvalidValues =>
     [
-        double.NaN, 
-        double.PositiveInfinity, 
-        double.NegativeInfinity, 
-        double.MaxValue, 
-        double.MinValue 
+        double.NaN,
+        double.PositiveInfinity,
+        double.NegativeInfinity,
+        double.MaxValue,
+        double.MinValue
     ];
 }

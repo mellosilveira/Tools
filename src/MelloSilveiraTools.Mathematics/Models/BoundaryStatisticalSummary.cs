@@ -1,6 +1,6 @@
 using MelloSilveiraTools.Mathematics.Models.Statistics;
 
-namespace SoftTissue.DataContracts.Commands.MechanicalModels.Commons;
+namespace MelloSilveiraTools.Mathematics.Models;
 
 /// <summary>
 /// Represents the consolidated statistical summary of boundary conditions and their relative variations.

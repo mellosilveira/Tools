@@ -1,3 +1,3 @@
-namespace SoftTissue.DataContracts.Commands.MechanicalModels.Commons;
+namespace MelloSilveiraTools.Mathematics.Models;
 
 public sealed class VariableBoundaryValues : Dictionary<string, BoundaryValues>;

@@ -29,10 +29,10 @@ public static class DependencyInjection
     /// <param name="pluginSettings">Settings that describe plugin folders and behavior.</param>
     /// <param name="loggerSettings">Settings used by logger service.</param>
     /// <returns>The same <paramref name="services"/> instance to allow call chaining.</returns>
-    public static IServiceCollection AddToolsServices(this IServiceCollection services, 
+    public static IServiceCollection AddToolsServices(this IServiceCollection services,
         DatabaseSettings databaseSettings,
-        EncryptionSettings encryptionSettings, 
-        ResiliencePipelineSettings resiliencePipelineSettings, 
+        EncryptionSettings encryptionSettings,
+        ResiliencePipelineSettings resiliencePipelineSettings,
         PluginSettings pluginSettings,
         LoggerSettings? loggerSettings = null)
         => services

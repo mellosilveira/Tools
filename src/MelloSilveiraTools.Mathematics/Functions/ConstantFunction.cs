@@ -12,7 +12,8 @@ namespace MelloSilveiraTools.Mathematics.Functions;
 public sealed class ConstantFunction(
     double? initialVariableValue,
     double? finalVariableValue,
-    double coefficient = 0) : Function(FunctionType.Constant, initialVariableValue, finalVariableValue, [coefficient])
+    double coefficient = 0)
+    : Function(FunctionType.Constant, initialVariableValue, finalVariableValue, [coefficient])
 {
     /// <inheritdoc/>
     public override double Calculate(double variableValue) => coefficient;

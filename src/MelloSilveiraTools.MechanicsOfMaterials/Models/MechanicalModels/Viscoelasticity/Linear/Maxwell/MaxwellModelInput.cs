@@ -1,6 +1,4 @@
-﻿using MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels;
-
-namespace MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.Linear.Maxwell;
+﻿namespace MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.Linear.Maxwell;
 
 /// <summary>
 /// Contains the input data for Maxwell's model.

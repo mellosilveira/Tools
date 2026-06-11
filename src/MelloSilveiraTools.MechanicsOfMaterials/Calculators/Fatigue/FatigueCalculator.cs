@@ -94,7 +94,7 @@ public class FatigueCalculator : IFatigueCalculator
             return 1;
         }
 
-        double equivalentDiameter = profile switch 
+        double equivalentDiameter = profile switch
         {
             CircularProfile circularProfile => isRotativeSection ? circularProfile.Diameter : 0.37 * circularProfile.Diameter,
             RectangularProfile rectangularProfile => isRotativeSection ? rectangularProfile.Height : 0.808 * Math.Sqrt(rectangularProfile.Width * rectangularProfile.Height),
@@ -105,7 +105,7 @@ public class FatigueCalculator : IFatigueCalculator
         {
             return Math.Pow(equivalentDiameter / 7.62, -0.107);
         }
-        
+
         if (51 < equivalentDiameter * 1000 && equivalentDiameter <= 254)
         {
             return 1.51 * Math.Pow(equivalentDiameter, -0.157);
