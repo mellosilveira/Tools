@@ -17,6 +17,7 @@ env:
   ARTIFACT_NAME: MelloSilveiraTools_nugetpackages_artifact
   UPLOAD_PATH: build/nupkgs/
   TARGET_PATH: /home/runner/work/MelloSilveiraTools/MelloSilveiraTools
+  NUGET_USER: ${{ vars.NUGET_USER }}
 
 jobs:
   build:
@@ -64,6 +65,8 @@ jobs:
     environment: production_pakages
     runs-on: ubuntu-latest
     needs: build
+    permissions:
+      id-token: write
 
     steps:
     - name: Download nuget packages artifact
@@ -73,5 +76,11 @@ jobs:
         path: ${{ env.TARGET_PATH }}
     - name: List downloaded packages
       run: ls -la ${{ env.TARGET_PATH }}
+    # Get a short-lived NuGet API key
+    - name: NuGet login (OIDC → temp API key)
+      uses: NuGet/login@v1
+      id: login
+      with:
+        user: ${{ env.NUGET_USER }}
     - name: Publish all RC packages to nuget.org
-      run: dotnet nuget push "${{ env.TARGET_PATH }}/*.nupkg" --api-key ${{ secrets.NUGET_ORG_API_KEY }} --source https://api.nuget.org/v3/index.json
+      run: dotnet nuget push "${{ env.TARGET_PATH }}/*.nupkg" --api-key ${{ steps.login.outputs.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json
