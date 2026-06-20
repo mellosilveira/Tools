@@ -5,8 +5,9 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
-## [1.5.0] - 2026-05-DD
+## [1.5.0] - 2026-06-DD
 ### Added
+- `ConstitutiveParameters` abstract base record acting as the foundational domain constraint for all mechanical and viscoelastic material properties.
 - `IRepository.TryInsertAsync<TEntity>(TEntity, CancellationToken)` — insert-or-get-existing semantics. Returns `(Inserted, Id)`; on unique-key conflict leaves the existing row intact and returns its primary key. Atomic single statement (CTE + UNION ALL). Requires the entity to declare at least one `[UniqueColumn]` property; otherwise throws `InvalidOperationException`.
 - `ISqlProvider.GetTryInsertSql<T>()` plus the `TryInsertTemplate.sql` resource that backs it.
 - `IRepository.GetByUniqueColumnAsync<TEntity>(object, CancellationToken)` — typed lookup by the entity's single `[UniqueColumn]`-annotated column. Returns the entity or `null`. Removes the need to declare a `FilterBase`-derived filter just for unique-column lookups (common pattern when the unique column is a hash-based identifier produced by a database trigger). Throws `InvalidOperationException` when the entity has zero or more than one `[UniqueColumn]` property.
@@ -16,9 +17,19 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - `BoundaryStatisticalSummary`, `BoundaryValues` and `BoundaryValue` types to capture the statistical distribution of boundary conditions.
 - FileManager service to build a file with timebased name.
 ### Changed
+- All mechanical model calculators (e.g., `SchaperyModelCalculator`, `FungModelCalculator`, `ModifiedSuperpositionMethodCalculator`, `LinearModelCalculator`) now isolate and route physical properties through the `input.ConstitutiveParameters` property instead of reading them directly from a flattened input object.
 - **`EnumerableExtensions.ForeachAsync<T>(...)` and `Foreach<T>(...)` safety regression fallback**: The vanilla overload without an `ILogger` parameter no longer swallows and suppresses internal iteration exceptions; it now bubbles up failures directly to the caller, adhering to standard sequential execution expectations.
 - Enums to inherit from int.
 ### Breaking
+- **Architectural Overhaul (Mechanical Models Input).** Introduced a strong-typed generic constraint for mechanical model inputs. All `IMechanicalModelCalculator` and `IViscoelasticModelCalculator` interfaces and their implementations now strictly require the wrapper `MechanicalModelInput<TConstitutiveParameters>` instead of specific inherited flat input classes.
+- **Constitutive Parameters Renaming & Inheritance.** Specific model input classes were refactored into parameter records inheriting from the newly introduced `ConstitutiveParameters` base class:
+  - `MaxwellModelInput` → `MaxwellConstitutiveParameters`
+  - `ModifiedSuperpositionMethodInput` → `ModifiedSuperpositionMethodConstitutiveParameters`
+  - `SchaperyModelInput` → `SchaperyConstitutiveParameters`
+  - `QuasiLinearModelInput<T>` → `QuasiLinearConstitutiveParameters<T>`
+  - `SimplifiedFungModelInput` → `SimplifiedFungConstitutiveParameters`
+  - `FungModelInput` → `FungConstitutiveParameters`
+- **Mechanical Model Facade Initialization.** `MechanicalModelCalculatorFacade`'s reflection engine was updated to unpack the new generic architecture. Consumers instantiating the Facade must now provide the non-generic base `MechanicalModelInput`, which internally carries the strongly-typed `ConstitutiveParameters`.
 - `MechanicalBehaviorType` → `MechanicalBehaviorType`.  
 - **Namespace flattening (Core).** Removed the `Domain.` and `Infrastructure.` segments from every `MelloSilveiraTools.Core` namespace:
   - `MelloSilveiraTools.Core.Domain.Models.*` → `MelloSilveiraTools.Core.Models.*`

@@ -15,8 +15,8 @@ public class MechanicalModelTypeCache(ISingleLevelCache cache) : IMechanicalMode
         => cache.GetOrAdd($"Invoker:{calculatorType.FullName}:{methodName}", () => CompileMethodInvoker(calculatorType.GetMethod(methodName)!));
 
     /// <inheritdoc/>
-    public CalculatorMethodData[] GetOrAddMethodDataList(Type calculatorType, MechanicalBehaviorType relationship, ViscoelasticEffect effect)
-        => cache.GetOrAdd($"MethodData:{calculatorType.FullName}:{relationship}:{effect}", () => BuildMethodDataList(calculatorType, relationship, effect));
+    public CalculatorMethodData[] GetOrAddMethodDataList(Type calculatorType, MechanicalBehaviorType behaviorType, ViscoelasticEffect effect)
+        => cache.GetOrAdd($"MethodData:{calculatorType.FullName}:{behaviorType}:{effect}", () => BuildMethodDataList(calculatorType, behaviorType, effect));
 
     /// <inheritdoc/>
     public Func<MechanicalModelOutput> GetOrAddOutputFactory(Type outputType)
@@ -30,10 +30,10 @@ public class MechanicalModelTypeCache(ISingleLevelCache cache) : IMechanicalMode
     public Type[] GetOrAddConstructorParameterTypes(Type type)
         => cache.GetOrAdd($"CtorParams:{type.FullName}", () => type.GetConstructors().Single().GetParameters().Select(p => p.ParameterType).ToArray());
 
-    private static CalculatorMethodData[] BuildMethodDataList(Type calculatorType, MechanicalBehaviorType relationship, ViscoelasticEffect effect)
+    private static CalculatorMethodData[] BuildMethodDataList(Type calculatorType, MechanicalBehaviorType behaviorType, ViscoelasticEffect effect)
         => [.. calculatorType.GetMethods()
             .Select(method => (Method: method, Attribute: method.GetCustomAttribute<MechanicalModelParameterCalculationAttribute>()))
-            .Where(x => x.Attribute != null && x.Attribute.CanMethodBeInvoked(relationship, effect))
+            .Where(x => x.Attribute != null && x.Attribute.CanMethodBeInvoked(behaviorType, effect))
             .Select(x => new CalculatorMethodData(
                 CompileMethodInvoker(x.Method),
                 [.. x.Method.GetParameters().Select(p => p.Name)!],

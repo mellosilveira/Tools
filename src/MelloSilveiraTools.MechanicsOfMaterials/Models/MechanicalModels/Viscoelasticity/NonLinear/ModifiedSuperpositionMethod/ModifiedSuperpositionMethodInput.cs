@@ -3,18 +3,23 @@
 namespace MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.NonLinear.ModifiedSuperpositionMethod;
 
 /// <summary>
-/// Contains the input data for Modified Superposition Method.
+/// Defines the constitutive parameters for the Modified Superposition Method (MSM) non-linear viscoelastic model.
 /// </summary>
-public sealed record ModifiedSuperpositionMethodInput : NonLinearModelInput
+public sealed record ModifiedSuperpositionMethodConstitutiveParameters : ConstitutiveParameters
 {
     /// <summary>
-    /// A <see cref="Function"/> that represents the initial Young Modulus.
+    /// Gets the function representing the instantaneous elastic stiffness (Young's Modulus).
     /// </summary>
+    /// <remarks>
+    /// In this non-linear formulation, the initial modulus is not a constant, but a function that varies depending on the applied strain or stress level.
+    /// </remarks>
     public Function? InitialYoungModulus { get; init; }
 
     /// <summary>
-    /// A <see cref="PolynomialFunction"/> that represents the stress relaxation rate.
-    /// Strain-dependent rate of stress relaxation.
+    /// Gets the polynomial function representing the rate of stress relaxation.
     /// </summary>
+    /// <remarks>
+    /// Dictates how the viscous decay accelerates or decelerates depending on the magnitude of the strain.
+    /// </remarks>
     public PolynomialFunction? StressRelaxationRate { get; init; }
 }

@@ -7,34 +7,35 @@ using MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelast
 
 namespace MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Viscoelasticity.Linear;
 
-/// <inheritdoc cref="ILinearModelCalculator{TInput}"/>
-/// <param name="simpsonRuleIntegration">See reference at <see cref="IIntegration"/>.</param>
-/// <param name="parameterConverter">See reference at <see cref="IMechanicalParameterConverter"/>.</param>
-public abstract class LinearModelCalculator<TInput>(
+/// <summary>
+/// Defines the foundational calculator for linear viscoelastic models, utilizing hereditary integrals to establish time-dependent stress-strain relationships.
+/// For more details, see the "Bibliographies" section in the "README.md" file.
+/// </summary>
+/// <typeparam name="TConstitutiveParameters">The specific type of constitutive parameters governing the linear viscoelastic model.</typeparam>
+/// <param name="simpsonRuleIntegration">The numerical integration method used to solve the convolution integrals over time.</param>
+/// <param name="parameterConverter">The utility used to convert between structural metrics (force/displacement) and material metrics (stress/strain) based on specimen geometry.</param>
+public abstract class LinearModelCalculator<TConstitutiveParameters>(
     IIntegration simpsonRuleIntegration,
-    IMechanicalParameterConverter parameterConverter) :
-    MechanicalModelCalculatorBase<TInput>(parameterConverter), ILinearModelCalculator<TInput>
-    where TInput : MechanicalModelInput, new()
+    IMechanicalParameterConverter parameterConverter)
+    : IViscoelasticModelCalculator<TConstitutiveParameters> where TConstitutiveParameters : ConstitutiveParameters
 {
     private readonly IIntegration _integration = simpsonRuleIntegration;
 
-    #region Calculate mechanical model's parameters.
-
     /// <inheritdoc/>
-    public override double CalculateForce(TInput input, double time, double? displacement = null)
+    public double CalculateForce(MechanicalModelInput<TConstitutiveParameters> input, double time, double? displacement = null)
     {
         double stress = 0;
 
         if (input.RampTimeConsideration == RampTimeConsideration.Disregard)
         {
             displacement ??= input.Displacement!.InitialValue;
-            var strain = ParameterConverter.CalculateStrainFromDisplacement(input.Specimen!, displacement.Value);
+            var strain = parameterConverter.CalculateStrainFromDisplacement(input.Specimen!, displacement.Value);
 
             if (input.ViscoelasticEffect == ViscoelasticEffect.Relaxation)
                 stress = CalculateStressWhenDisregardRampTime(input, time, strain);
 
             if (input.ViscoelasticEffect == ViscoelasticEffect.Creep)
-                throw new NotImplementedException($"The logic for calculate the force while disregarding the ramp time and considering creep was not implemented on '{GetType().Name}'.");
+                throw new NotImplementedException($"The logic to calculate force while disregarding the ramp time and considering creep is not implemented in '{GetType().Name}'.");
         }
         else if (input.RampTimeConsideration == RampTimeConsideration.ConsiderWithViscoelasticEffect && time > MathematicConstants.Tolerance)
         {
@@ -42,7 +43,7 @@ public abstract class LinearModelCalculator<TInput>(
                 .Calculate((integrationTime) =>
                 {
                     (double integralDisplacement, double integralDisplacementDerivative) = input.Displacement!.CalculateValueAndDerivative(integrationTime);
-                    double strainDerivative = ParameterConverter.CalculateStrainDerivativeFromDisplacement(input.Specimen!, integralDisplacement, integralDisplacementDerivative);
+                    double strainDerivative = parameterConverter.CalculateStrainDerivativeFromDisplacement(input.Specimen!, integralDisplacement, integralDisplacementDerivative);
                     return CalculateRelaxationFunction(input, time - integrationTime) * strainDerivative;
                 },
                 new IntegralInput
@@ -53,18 +54,18 @@ public abstract class LinearModelCalculator<TInput>(
                 });
         }
 
-        return ParameterConverter.CalculateForceFromStress(input.Specimen!, stress);
+        return parameterConverter.CalculateForceFromStress(input.Specimen!, stress);
     }
 
     /// <inheritdoc/>
-    public override double CalculateDisplacement(TInput input, double time, double? force = null)
+    public double CalculateDisplacement(MechanicalModelInput<TConstitutiveParameters> input, double time, double? force = null)
     {
         double strain = 0;
 
         if (input.RampTimeConsideration == RampTimeConsideration.Disregard)
         {
             force ??= input.Force!.InitialValue;
-            var stress = ParameterConverter.CalculateStressFromForce(input.Specimen!, force.Value);
+            var stress = parameterConverter.CalculateStressFromForce(input.Specimen!, force.Value);
 
             if (input.ViscoelasticEffect == ViscoelasticEffect.Relaxation)
                 strain = stress / CalculateRelaxationFunction(input, time);
@@ -78,7 +79,7 @@ public abstract class LinearModelCalculator<TInput>(
                 .Calculate((integrationTime) =>
                 {
                     (double integralForce, double integralForceDerivative) = input.Force!.CalculateValueAndDerivative(integrationTime);
-                    double stressDerivative = ParameterConverter.CalculateStressDerivativeFromForce(input.Specimen!, integralForce, integralForceDerivative);
+                    double stressDerivative = parameterConverter.CalculateStressDerivativeFromForce(input.Specimen!, integralForce, integralForceDerivative);
                     return CalculateCreepCompliance(input, time - integrationTime) * stressDerivative;
                 },
                 new IntegralInput
@@ -89,11 +90,11 @@ public abstract class LinearModelCalculator<TInput>(
                 });
         }
 
-        return ParameterConverter.CalculateDisplacementFromStrain(input.Specimen!, strain);
+        return parameterConverter.CalculateDisplacementFromStrain(input.Specimen!, strain);
     }
 
     /// <inheritdoc/>
-    public override double CalculateStress(TInput input, double time, double? strain = null)
+    public double CalculateStress(MechanicalModelInput<TConstitutiveParameters> input, double time, double? strain = null)
     {
         if (input.RampTimeConsideration == RampTimeConsideration.Disregard)
         {
@@ -103,7 +104,7 @@ public abstract class LinearModelCalculator<TInput>(
                 return CalculateStressWhenDisregardRampTime(input, time, strain.Value);
 
             if (input.ViscoelasticEffect == ViscoelasticEffect.Creep)
-                throw new NotImplementedException($"The logic for calculate the stress while disregarding the ramp time and considering creep was not implemented on '{GetType().Name}'.");
+                throw new NotImplementedException($"The logic to calculate stress while disregarding the ramp time and considering creep is not implemented in '{GetType().Name}'.");
         }
 
         return _integration.Calculate(
@@ -117,7 +118,7 @@ public abstract class LinearModelCalculator<TInput>(
     }
 
     /// <inheritdoc/>
-    public override double CalculateStrain(TInput input, double time, double? stress = null)
+    public double CalculateStrain(MechanicalModelInput<TConstitutiveParameters> input, double time, double? stress = null)
     {
         if (input.RampTimeConsideration == RampTimeConsideration.Disregard)
         {
@@ -141,22 +142,10 @@ public abstract class LinearModelCalculator<TInput>(
     }
 
     /// <inheritdoc/>
-    public abstract double CalculateRelaxationFunction(TInput input, double time, double? strain = null);
+    public abstract double CalculateRelaxationFunction(MechanicalModelInput<TConstitutiveParameters> input, double time, double? strain = null);
 
     /// <inheritdoc/>
-    public abstract double CalculateCreepCompliance(TInput input, double time, double? stress = null);
+    public abstract double CalculateCreepCompliance(MechanicalModelInput<TConstitutiveParameters> input, double time, double? stress = null);
 
-    /// <summary>
-    /// Calculates the stress when the ramp time is disregarded.
-    /// </summary>
-    /// <param name="input">The mechanical model's input.</param>
-    /// <param name="time">Unit: s (second).</param>
-    /// <param name="strain">Unit: dimensionless.</param>
-    /// <returns>Unit: MPa (Mega-Pascal).</returns>
-    private double CalculateStressWhenDisregardRampTime(TInput input, double time, double strain)
-    {
-        return CalculateRelaxationFunction(input, time) * strain;
-    }
-
-    #endregion
+    private double CalculateStressWhenDisregardRampTime(MechanicalModelInput<TConstitutiveParameters> input, double time, double strain) => CalculateRelaxationFunction(input, time) * strain;
 }

@@ -578,6 +578,56 @@
         <member name="M:MelloSilveiraTools.Mathematics.Functions.SineFunction.CreateIntegral">
             <inheritdoc/>
         </member>
+        <member name="T:MelloSilveiraTools.Mathematics.Models.BoundaryStatisticalSummary">
+            <summary>
+            Represents the consolidated statistical summary of boundary conditions and their relative variations.
+            </summary>
+            <param name="InitialValues">The statistical data computed at the initial boundary of the analysis.</param>
+            <param name="FinalValues">The statistical data computed at the final boundary of the analysis.</param>
+            <param name="Variations">The statistical data representing the relative variations between final and initial boundaries.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.Mathematics.Models.BoundaryStatisticalSummary.#ctor(MelloSilveiraTools.Mathematics.Models.Statistics.StatisticalData,MelloSilveiraTools.Mathematics.Models.Statistics.StatisticalData,MelloSilveiraTools.Mathematics.Models.Statistics.StatisticalData)">
+            <summary>
+            Represents the consolidated statistical summary of boundary conditions and their relative variations.
+            </summary>
+            <param name="InitialValues">The statistical data computed at the initial boundary of the analysis.</param>
+            <param name="FinalValues">The statistical data computed at the final boundary of the analysis.</param>
+            <param name="Variations">The statistical data representing the relative variations between final and initial boundaries.</param>
+        </member>
+        <member name="P:MelloSilveiraTools.Mathematics.Models.BoundaryStatisticalSummary.InitialValues">
+            <summary>The statistical data computed at the initial boundary of the analysis.</summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Mathematics.Models.BoundaryStatisticalSummary.FinalValues">
+            <summary>The statistical data computed at the final boundary of the analysis.</summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Mathematics.Models.BoundaryStatisticalSummary.Variations">
+            <summary>The statistical data representing the relative variations between final and initial boundaries.</summary>
+        </member>
+        <member name="T:MelloSilveiraTools.Mathematics.Models.BoundaryValues">
+            <summary>
+            Contains the initial and final boundary values of a calculation, along with their relative variation.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Mathematics.Models.BoundaryValues.#ctor(System.Double,System.Double)">
+            <summary>
+            Initializes a new instance of <see cref="T:MelloSilveiraTools.Mathematics.Models.BoundaryValues"/>.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Mathematics.Models.BoundaryValues.InitialValue">
+            <summary>
+            The value at the initial boundary of the calculation.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Mathematics.Models.BoundaryValues.FinalValue">
+            <summary>
+            The value at the final boundary of the calculation.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Mathematics.Models.BoundaryValues.Variation">
+            <summary>
+            The relative variation between the final and initial boundary values.
+            </summary>
+        </member>
         <member name="T:MelloSilveiraTools.Mathematics.Models.CustomMath">
             <summary>
             Provides constants and static methods for trigonometric, logarithmic, and other common mathematical functions.

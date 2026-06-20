@@ -9,64 +9,63 @@ using MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelast
 
 namespace MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Viscoelasticity.NonLinear.ModifiedSuperpositionMethod;
 
-/// <inheritdoc cref="IModifiedSuperpositionMethodCalculator"/>
-/// <param name="simpsonRuleIntegration">See reference at <see cref="IIntegration"/>.</param>
-/// <param name="parameterConverter">See reference at <see cref="IMechanicalParameterConverter"/>.</param>
-public sealed class ModifiedSuperpositionMethodCalculator(
-    IIntegration simpsonRuleIntegration,
-    IMechanicalParameterConverter parameterConverter)
-    : MechanicalModelCalculatorBase<ModifiedSuperpositionMethodInput>(parameterConverter), IModifiedSuperpositionMethodCalculator
+/// <summary>
+/// Implements the calculator for the Modified Superposition Method (MSM).
+/// Resolves non-linear viscoelastic responses by evaluating strain-dependent relaxation functions through numerical integration.
+/// </summary>
+/// <param name="integration">See reference at <see cref="IIntegration"/>.</param>
+/// <param name="parameterConverter">The utility used to convert structural metrics into material metrics.</param>
+public sealed class ModifiedSuperpositionMethodCalculator(IIntegration integration, IMechanicalParameterConverter parameterConverter) : IModifiedSuperpositionMethodCalculator
 {
-    private readonly IIntegration _integration = simpsonRuleIntegration;
-
-    #region Calculate mechanical model's parameters.
-
     /// <inheritdoc/>
     [MechanicalModelParameterCalculation(nameof(ModifiedSuperpositionMethodOutput.InitialYoungModulus), MechanicalBehaviorType.StressStrain, ViscoelasticEffect.Relaxation)]
-    public double CalculateInitialYoungModulus(ModifiedSuperpositionMethodInput input, double strain) => input.InitialYoungModulus!.Calculate(strain);
+    public double CalculateInitialYoungModulus(MechanicalModelInput<ModifiedSuperpositionMethodConstitutiveParameters> input, double strain)
+        => input.ConstitutiveParameters.InitialYoungModulus!.Calculate(strain);
 
     /// <inheritdoc/>
     [MechanicalModelParameterCalculation(nameof(ModifiedSuperpositionMethodOutput.StressRelaxationRate), MechanicalBehaviorType.StressStrain, ViscoelasticEffect.Relaxation)]
-    public double CalculateStressRelaxationRate(ModifiedSuperpositionMethodInput input, double strain) => input.StressRelaxationRate!.Calculate(strain);
+    public double CalculateStressRelaxationRate(MechanicalModelInput<ModifiedSuperpositionMethodConstitutiveParameters> input, double strain)
+        => input.ConstitutiveParameters.StressRelaxationRate!.Calculate(strain);
 
     /// <inheritdoc/>
-    public double CalculateCreepCompliance(ModifiedSuperpositionMethodInput input, double time, double? stress = null)
+    public double CalculateCreepCompliance(MechanicalModelInput<ModifiedSuperpositionMethodConstitutiveParameters> input, double time, double? stress = null)
     {
-        throw new NotImplementedException($"The method '{nameof(CalculateCreepCompliance)}' was not implemented for '{GetType().Name}'.");
+        throw new NotImplementedException($"The method '{nameof(CalculateCreepCompliance)}' is not implemented for '{GetType().Name}'.");
     }
 
     /// <inheritdoc/>
-    /// <remarks>G(t,ε) = A(ε) · t^(B(ε)) (Projeto Final, Eq. 55).</remarks>
-    public double CalculateRelaxationFunction(ModifiedSuperpositionMethodInput input, double time, double? strain = null)
+    /// <remarks>Formula: G(t,ε) = A(ε) · t^(B(ε)) (Projeto Final, Eq. 55).</remarks>
+    public double CalculateRelaxationFunction(MechanicalModelInput<ModifiedSuperpositionMethodConstitutiveParameters> input, double time, double? strain = null)
     {
         strain ??= input.Strain!.CalculateValue(time);
         return CalculateInitialYoungModulus(input, strain.Value) * Math.Pow(time, CalculateStressRelaxationRate(input, strain.Value));
     }
 
     /// <inheritdoc/>
-    public override double CalculateForce(ModifiedSuperpositionMethodInput input, double time, double? displacement = null)
+    public double CalculateForce(MechanicalModelInput<ModifiedSuperpositionMethodConstitutiveParameters> input, double time, double? displacement = null)
     {
         double stress = 0;
 
         if (input.RampTimeConsideration == RampTimeConsideration.Disregard)
         {
             displacement ??= input.Displacement!.InitialValue;
-            double strain = ParameterConverter.CalculateStrainFromDisplacement(input.Specimen!, displacement.Value);
+            double strain = parameterConverter.CalculateStrainFromDisplacement(input.Specimen!, displacement.Value);
 
             if (input.ViscoelasticEffect == ViscoelasticEffect.Relaxation)
                 stress = CalculateStressWhenDisregardRampTime(input, time, strain);
 
             if (input.ViscoelasticEffect == ViscoelasticEffect.Creep)
-                throw new NotImplementedException($"The logic for calculate the stress while disregarding the ramp time and considering creep was not implemented on '{GetType().Name}'.");
+                throw new NotImplementedException($"The logic to calculate force while disregarding the ramp time and considering creep is not implemented in '{GetType().Name}'.");
         }
         else if (input.RampTimeConsideration == RampTimeConsideration.ConsiderWithViscoelasticEffect && time > MathematicConstants.Tolerance)
         {
-            stress = _integration.Calculate((integrationTime) =>
+            stress = integration.Calculate((integrationTime) =>
             {
                 (double integrationDisplacement, double integrationDisplacementDerivative) = input.Displacement!.CalculateValueAndDerivative(integrationTime);
-                double strain = ParameterConverter.CalculateStrainFromDisplacement(input.Specimen!, integrationDisplacement);
-                double strainDerivative = ParameterConverter.CalculateStrainDerivativeFromDisplacement(input.Specimen!, integrationDisplacement, integrationDisplacementDerivative);
-                return CalculateRelaxationFunction(input, time - integrationTime, strain) * strainDerivative;
+                double currentStrain = parameterConverter.CalculateStrainFromDisplacement(input.Specimen!, integrationDisplacement);
+                double strainDerivative = parameterConverter.CalculateStrainDerivativeFromDisplacement(input.Specimen!, integrationDisplacement, integrationDisplacementDerivative);
+
+                return CalculateRelaxationFunction(input, time - integrationTime, currentStrain) * strainDerivative;
             },
             new IntegralInput
             {
@@ -76,18 +75,18 @@ public sealed class ModifiedSuperpositionMethodCalculator(
             });
         }
 
-        return ParameterConverter.CalculateForceFromStress(input.Specimen!, stress);
+        return parameterConverter.CalculateForceFromStress(input.Specimen!, stress);
     }
 
     /// <inheritdoc/>
-    public override double CalculateDisplacement(ModifiedSuperpositionMethodInput input, double time, double? force = null)
+    public double CalculateDisplacement(MechanicalModelInput<ModifiedSuperpositionMethodConstitutiveParameters> input, double time, double? force = null)
     {
-        throw new NotImplementedException($"The method '{nameof(CalculateDisplacement)}' was not implemented for '{GetType().Name}'.");
+        throw new NotImplementedException($"The method '{nameof(CalculateDisplacement)}' is not implemented for '{GetType().Name}'.");
     }
 
     /// <inheritdoc/>
-    /// <remarks>σ(ε,t) = ∫₀ᵗ G(t-τ, ε(τ)) · dε(τ)/dτ dτ (Projeto Final, Eq. 53).</remarks>
-    public override double CalculateStress(ModifiedSuperpositionMethodInput input, double time, double? strain = null)
+    /// <remarks>Formula: σ(ε,t) = ∫₀ᵗ G(t-τ, ε(τ)) · dε(τ)/dτ dτ (Projeto Final, Eq. 53).</remarks>
+    public double CalculateStress(MechanicalModelInput<ModifiedSuperpositionMethodConstitutiveParameters> input, double time, double? strain = null)
     {
         if (input.RampTimeConsideration == RampTimeConsideration.Disregard)
         {
@@ -97,13 +96,13 @@ public sealed class ModifiedSuperpositionMethodCalculator(
                 return CalculateStressWhenDisregardRampTime(input, time, strain.Value);
 
             if (input.ViscoelasticEffect == ViscoelasticEffect.Creep)
-                throw new NotImplementedException($"The logic for calculate the stress while disregarding the ramp time and considering creep was not implemented on '{GetType().Name}'.");
+                throw new NotImplementedException($"The logic to calculate stress while disregarding the ramp time and considering creep is not implemented in '{GetType().Name}'.");
         }
 
         if (time <= MathematicConstants.Tolerance)
             return 0;
 
-        return _integration.Calculate((integrationTime) =>
+        return integration.Calculate((integrationTime) =>
         {
             (double integrationStrain, double integrationStrainDerivative) = input.Strain!.CalculateValueAndDerivative(integrationTime);
             return CalculateRelaxationFunction(input, time - integrationTime, integrationStrain) * integrationStrainDerivative;
@@ -117,24 +116,19 @@ public sealed class ModifiedSuperpositionMethodCalculator(
     }
 
     /// <inheritdoc/>
-    public override double CalculateStrain(ModifiedSuperpositionMethodInput input, double time, double? stress = null)
+    public double CalculateStrain(MechanicalModelInput<ModifiedSuperpositionMethodConstitutiveParameters> input, double time, double? stress = null)
     {
-        throw new NotImplementedException($"The method '{nameof(CalculateStrain)}' was not implemented for '{GetType().Name}'.");
+        throw new NotImplementedException($"The method '{nameof(CalculateStrain)}' is not implemented for '{GetType().Name}'.");
     }
 
     /// <summary>
-    /// Calculates the stress when the ramp time is disregarded.
-    /// σ(εᵢ,t) = G(t, εᵢ) · εᵢ (Projeto Final, Eq. 54).
+    /// Calculates the stress when the ramp time is disregarded (instantaneous loading).
+    /// Formula: σ(εᵢ,t) = G(t, εᵢ) · εᵢ (Projeto Final, Eq. 54).
     /// </summary>
-    /// <param name="input">The mechanical model's input.</param>
+    /// <param name="input">The mechanical model's input data.</param>
     /// <param name="time">Unit: s (second).</param>
     /// <param name="strain">Unit: dimensionless.</param>
     /// <returns>Unit: MPa (Mega-Pascal).</returns>
-    private double CalculateStressWhenDisregardRampTime(ModifiedSuperpositionMethodInput input, double time, double strain)
-    {
-        return CalculateRelaxationFunction(input, time, strain) * strain;
-    }
-
-    #endregion
+    private double CalculateStressWhenDisregardRampTime(MechanicalModelInput<ModifiedSuperpositionMethodConstitutiveParameters> input, double time, double strain)
+        => CalculateRelaxationFunction(input, time, strain) * strain;
 }
-

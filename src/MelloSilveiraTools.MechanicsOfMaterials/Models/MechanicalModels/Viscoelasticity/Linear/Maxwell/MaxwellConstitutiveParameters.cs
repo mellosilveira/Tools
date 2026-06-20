@@ -1,9 +1,9 @@
 ﻿namespace MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.Linear.Maxwell;
 
 /// <summary>
-/// Contains the input data for Maxwell's model.
+/// Defines the constitutive parameters for the Maxwell viscoelastic model.
 /// </summary>
-public sealed record MaxwellModelInput : MechanicalModelInput
+public sealed record MaxwellConstitutiveParameters : ConstitutiveParameters
 {
     /// <summary>
     /// Unit: MPa.s (Mega-Pascal-second).

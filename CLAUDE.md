@@ -6,7 +6,7 @@ Project notes for AI agents working on **MelloSilveiraTools** — a .NET 10 NuGe
 
 ```
 src/MelloSilveiraTools/                       — meta-package (only ProjectReferences, no code beyond the meta DI entry)
-src/MelloSilveiraTools.Core/                  — extension methods, file logger, in-memory caches, Polly pipelines, encryption, SMTP email
+src/MelloSilveiraTools.Core/                  — extension methods, in-memory caches, Polly pipelines, encryption, SMTP email
 src/MelloSilveiraTools.Database/              — IRepository, PostgresRepository, ISqlProvider, attributes, FilterClauses, Npgsql/Dapper extensions
 src/MelloSilveiraTools.WebApi/                — controllers (Custom/Crud), middleware, NDJSON, Swagger, JWE auth, ApiServiceAgent, OperationBase
 src/MelloSilveiraTools.Plugins/               — file-based plugin runtime, two-level cache, dynamic DI, persistence, HTTP operations, background orchestrator
