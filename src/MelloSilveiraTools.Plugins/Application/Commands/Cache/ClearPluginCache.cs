@@ -1,5 +1,5 @@
+using MelloSilveiraTools.Core.ExtensionMethods;
 using MelloSilveiraTools.Core.Models;
-using MelloSilveiraTools.Database.ExtensionMethods;
 using MelloSilveiraTools.Plugins.Infrastructure.Services;
 using MelloSilveiraTools.WebApi.Application.Commands;
 
@@ -14,6 +14,6 @@ public class ClearPluginCache(IPluginService pluginService) : DefaultCommandBase
     protected override Task<Result> ExecuteCommandAsync()
     {
         pluginService.Clear();
-        return Result.CreateSuccessOk().AsTask();
+        return Result.CreateSuccessOk().ToTask();
     }
 }

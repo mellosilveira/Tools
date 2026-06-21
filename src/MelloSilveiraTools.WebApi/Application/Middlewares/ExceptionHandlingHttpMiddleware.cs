@@ -24,7 +24,7 @@ namespace MelloSilveiraTools.WebApi.Application.Middlewares;
 /// </remarks>
 /// <param name="next">The next middleware in the request pipeline.</param>
 /// <param name="logger">Logger used to record handled streaming exceptions.</param>
-public class ExceptionHandlingMiddleware(RequestDelegate next, ILogger logger)
+public class ExceptionHandlingHttpMiddleware(RequestDelegate next, ILogger logger)
 {
     /// <summary>
     /// Invokes the next middleware in the pipeline and translates any unhandled exception into an HTTP error response.

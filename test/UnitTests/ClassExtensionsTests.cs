@@ -1,3 +1,4 @@
+using MelloSilveiraTools.Core.ExtensionMethods;
 using MelloSilveiraTools.Database.ExtensionMethods;
 
 namespace UnitTests;

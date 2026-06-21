@@ -7,13 +7,17 @@ using MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelast
 
 namespace MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Viscoelasticity.Linear;
 
-/// <inheritdoc cref="ILinearModelCalculator{TInput}"/>
+/// <summary>
+/// A linear viscoelastic model. Establish a linear stress-strain relation that depends only on time.
+/// For more details, see on section "Bibliographies" on file "README.MD".
+/// </summary>
+/// <typeparam name="TInput">Type of linear viscoelastic model's input.</typeparam>
 /// <param name="simpsonRuleIntegration">See reference at <see cref="IIntegration"/>.</param>
 /// <param name="parameterConverter">See reference at <see cref="IMechanicalParameterConverter"/>.</param>
 public abstract class LinearModelCalculator<TInput>(
     IIntegration simpsonRuleIntegration,
     IMechanicalParameterConverter parameterConverter) :
-    MechanicalModelCalculatorBase<TInput>(parameterConverter), ILinearModelCalculator<TInput>
+    MechanicalModelCalculatorBase<TInput>(parameterConverter), IViscoelasticModelCalculator<TInput>
     where TInput : MechanicalModelInput, new()
 {
     private readonly IIntegration _integration = simpsonRuleIntegration;

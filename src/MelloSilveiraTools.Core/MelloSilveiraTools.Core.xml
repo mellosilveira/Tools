@@ -252,6 +252,46 @@
             <param name="vector3"></param>
             <returns></returns>
         </member>
+        <member name="M:MelloSilveiraTools.Core.ExtensionMethods.ClassExtensions.ToTask``1(``0)">
+            <inheritdoc cref="M:MelloSilveiraTools.Core.ExtensionMethods.ClassExtensions.&lt;G&gt;$8048A6C8BE30A622530249B904B537EB`1.ToTask"/>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.ExtensionMethods.ClassExtensions.GetValuesInHierarchy``1(``0)">
+            <inheritdoc cref="M:MelloSilveiraTools.Core.ExtensionMethods.ClassExtensions.&lt;G&gt;$8048A6C8BE30A622530249B904B537EB`1.GetValuesInHierarchy"/>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.ExtensionMethods.ClassExtensions.GetValues``1(``0,System.Collections.Generic.IEnumerable{System.Reflection.PropertyInfo})">
+            <inheritdoc cref="M:MelloSilveiraTools.Core.ExtensionMethods.ClassExtensions.&lt;G&gt;$8048A6C8BE30A622530249B904B537EB`1.GetValues(System.Collections.Generic.IEnumerable{System.Reflection.PropertyInfo})"/>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.ExtensionMethods.ClassExtensions.GetPropertyNamesAndValuesInHierarchy``2(``0)">
+            <inheritdoc cref="M:MelloSilveiraTools.Core.ExtensionMethods.ClassExtensions.&lt;G&gt;$8048A6C8BE30A622530249B904B537EB`1.GetPropertyNamesAndValuesInHierarchy``1"/>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.ExtensionMethods.ClassExtensions.&lt;G&gt;$8048A6C8BE30A622530249B904B537EB`1.ToTask">
+            <summary>
+            Wraps the supplied instance in a completed <see cref="T:System.Threading.Tasks.Task`1"/>.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.ExtensionMethods.ClassExtensions.&lt;G&gt;$8048A6C8BE30A622530249B904B537EB`1.GetValuesInHierarchy">
+            <summary>
+            Gets the values from object which is following the hierarchy order from parent to child.
+            </summary>
+            <returns>A <see cref="T:System.Collections.Generic.List`1"/> containing the values from object which is following the hierarchy order from parent to child.</returns>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.ExtensionMethods.ClassExtensions.&lt;G&gt;$8048A6C8BE30A622530249B904B537EB`1.GetValues(System.Collections.Generic.IEnumerable{System.Reflection.PropertyInfo})">
+            <summary>
+            Gets the values from object using an <see cref="T:System.Collections.Generic.IEnumerable`1"/> of properties as reference.
+            </summary>
+            <param name="properties">Properties to be used as reference to get the values from object.</param>
+            <returns></returns>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.ExtensionMethods.ClassExtensions.&lt;G&gt;$8048A6C8BE30A622530249B904B537EB`1.GetPropertyNamesAndValuesInHierarchy``1">
+            <summary>
+            Gets the name and value of properties from object which is following the hierarchy order from parent to child.
+            It is also possible to filter by a custom attribute.
+            </summary>
+            <typeparam name="TCustomAttribute">The type of custom attribute to be used in search.</typeparam>
+            <returns>
+            A <see cref="T:System.Collections.Generic.Dictionary`2"/> which the key is the property name and the value is the property value.
+            </returns>
+        </member>
         <member name="T:MelloSilveiraTools.Core.ExtensionMethods.DictionaryExtensions">
             <summary>
             Contains extension methods for <see cref="T:System.Collections.Generic.Dictionary`2"/>
@@ -1369,6 +1409,108 @@
             <param name="password">Plain-text password provided by the caller.</param>
             <param name="storedPasswordHash">Hash previously produced by <see cref="M:MelloSilveiraTools.Core.Services.Encryption.IEncryptionService.GeneratePasswordHash(System.String)"/>.</param>
             <returns><c>true</c> when the password is valid for the stored hash; otherwise, <c>false</c>.</returns>
+        </member>
+        <member name="T:MelloSilveiraTools.Database.ExtensionMethods.TypeExtensions">
+            <summary>
+            Contains extension methods for <see cref="T:System.Type"/>.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Database.ExtensionMethods.TypeExtensions.GetPropertiesInHierarchy(System.Type)">
+            <inheritdoc cref="M:MelloSilveiraTools.Database.ExtensionMethods.TypeExtensions.&lt;G&gt;$6B6159A298CA62A8C577E514BE40E3DD.GetPropertiesInHierarchy"/>
+        </member>
+        <member name="M:MelloSilveiraTools.Database.ExtensionMethods.TypeExtensions.GetPropertiesInHierarchy``1(System.Type)">
+            <inheritdoc cref="M:MelloSilveiraTools.Database.ExtensionMethods.TypeExtensions.&lt;G&gt;$6B6159A298CA62A8C577E514BE40E3DD.GetPropertiesInHierarchy``1"/>
+        </member>
+        <member name="M:MelloSilveiraTools.Database.ExtensionMethods.TypeExtensions.GetPropertyNamesInHierarchy(System.Type)">
+            <inheritdoc cref="M:MelloSilveiraTools.Database.ExtensionMethods.TypeExtensions.&lt;G&gt;$6B6159A298CA62A8C577E514BE40E3DD.GetPropertyNamesInHierarchy"/>
+        </member>
+        <member name="M:MelloSilveiraTools.Database.ExtensionMethods.TypeExtensions.IsEnumerable(System.Type)">
+            <inheritdoc cref="M:MelloSilveiraTools.Database.ExtensionMethods.TypeExtensions.&lt;G&gt;$6B6159A298CA62A8C577E514BE40E3DD.IsEnumerable"/>
+        </member>
+        <member name="M:MelloSilveiraTools.Database.ExtensionMethods.TypeExtensions.GetDeclaredProperties(System.Type)">
+            <inheritdoc cref="M:MelloSilveiraTools.Database.ExtensionMethods.TypeExtensions.&lt;G&gt;$6B6159A298CA62A8C577E514BE40E3DD.GetDeclaredProperties"/>
+        </member>
+        <member name="M:MelloSilveiraTools.Database.ExtensionMethods.TypeExtensions.GetDeclaredProperties``1(System.Type)">
+            <inheritdoc cref="M:MelloSilveiraTools.Database.ExtensionMethods.TypeExtensions.&lt;G&gt;$6B6159A298CA62A8C577E514BE40E3DD.GetDeclaredProperties``1"/>
+        </member>
+        <member name="M:MelloSilveiraTools.Database.ExtensionMethods.TypeExtensions.GetDeclaredPropertyNames(System.Type)">
+            <inheritdoc cref="M:MelloSilveiraTools.Database.ExtensionMethods.TypeExtensions.&lt;G&gt;$6B6159A298CA62A8C577E514BE40E3DD.GetDeclaredPropertyNames"/>
+        </member>
+        <member name="M:MelloSilveiraTools.Database.ExtensionMethods.TypeExtensions.&lt;G&gt;$6B6159A298CA62A8C577E514BE40E3DD.GetPropertiesInHierarchy">
+            <summary>
+            Gets every public instance property declared anywhere in the type hierarchy of <paramref name="type"/>,
+            ordered from the topmost base class down to the most derived type. Properties declared in a base
+            class appear before those declared in its descendants. Results are cached per <see cref="T:System.Type"/>.
+            </summary>
+            <remarks>
+            <paramref name="type"/>: The type whose hierarchy should be walked.
+            </remarks>
+            <returns>The properties of <paramref name="type"/> ordered from base to derived.</returns>
+        </member>
+        <member name="M:MelloSilveiraTools.Database.ExtensionMethods.TypeExtensions.&lt;G&gt;$6B6159A298CA62A8C577E514BE40E3DD.GetPropertiesInHierarchy``1">
+            <summary>
+            Gets every public instance property declared in the type hierarchy of <paramref name="type"/>
+            that is decorated with <typeparamref name="TAttribute"/>, ordered from the topmost base class
+            down to the most derived type. Results are cached per (type, attribute) pair.
+            </summary>
+            <typeparam name="TAttribute">The attribute used to filter properties.</typeparam>
+            <remarks>
+            <paramref name="type"/>: The type whose hierarchy should be walked.
+            </remarks>
+            <returns>The matching properties ordered from base to derived.</returns>
+        </member>
+        <member name="M:MelloSilveiraTools.Database.ExtensionMethods.TypeExtensions.&lt;G&gt;$6B6159A298CA62A8C577E514BE40E3DD.GetPropertyNamesInHierarchy">
+            <summary>
+            Gets the names of every public instance property declared in the hierarchy of <paramref name="type"/>,
+            ordered from the topmost base class down to the most derived type (same order as
+            <see cref="M:MelloSilveiraTools.Database.ExtensionMethods.TypeExtensions.GetPropertiesInHierarchy(System.Type)"/>). Results are cached per <see cref="T:System.Type"/>.
+            </summary>
+            <remarks>
+            <paramref name="type"/>: The type whose hierarchy should be walked.
+            </remarks>
+            <returns>The property names of <paramref name="type"/> ordered from base to derived.</returns>
+        </member>
+        <member name="M:MelloSilveiraTools.Database.ExtensionMethods.TypeExtensions.&lt;G&gt;$6B6159A298CA62A8C577E514BE40E3DD.IsEnumerable">
+            <summary>
+            Indicates whether <paramref name="type"/> is an enumerable collection — that is, whether it
+            implements <see cref="T:System.Collections.IEnumerable"/>. <see cref="T:System.String"/> is treated as a non-enumerable
+            special case and always returns <see langword="false"/>.
+            </summary>
+            <remarks>
+            <paramref name="type"/>: The type to test.
+            </remarks>
+            <returns><see langword="true"/> if <paramref name="type"/> implements <see cref="T:System.Collections.IEnumerable"/> and is not <see cref="T:System.String"/>; otherwise <see langword="false"/>.</returns>
+        </member>
+        <member name="M:MelloSilveiraTools.Database.ExtensionMethods.TypeExtensions.&lt;G&gt;$6B6159A298CA62A8C577E514BE40E3DD.GetDeclaredProperties">
+            <summary>
+            Gets only the public instance properties declared directly on <paramref name="type"/>,
+            excluding those inherited from base classes.
+            </summary>
+            <remarks>
+            <paramref name="type"/>: The type whose declared properties should be returned.
+            </remarks>
+            <returns>The public instance properties declared on <paramref name="type"/>.</returns>
+        </member>
+        <member name="M:MelloSilveiraTools.Database.ExtensionMethods.TypeExtensions.&lt;G&gt;$6B6159A298CA62A8C577E514BE40E3DD.GetDeclaredProperties``1">
+            <summary>
+            Gets the public instance properties declared directly on <paramref name="type"/> (no inherited
+            members) that are decorated with <typeparamref name="TAttribute"/>.
+            </summary>
+            <typeparam name="TAttribute">The attribute used to filter properties.</typeparam>
+            <remarks>
+            <paramref name="type"/>: The type whose declared properties should be inspected.
+            </remarks>
+            <returns>The matching declared properties.</returns>
+        </member>
+        <member name="M:MelloSilveiraTools.Database.ExtensionMethods.TypeExtensions.&lt;G&gt;$6B6159A298CA62A8C577E514BE40E3DD.GetDeclaredPropertyNames">
+            <summary>
+            Gets the names of the public instance properties declared directly on <paramref name="type"/>,
+            excluding inherited members.
+            </summary>
+            <remarks>
+            <paramref name="type"/>: The type whose declared property names should be returned.
+            </remarks>
+            <returns>The names of the public instance properties declared on <paramref name="type"/>.</returns>
         </member>
     </members>
 </doc>

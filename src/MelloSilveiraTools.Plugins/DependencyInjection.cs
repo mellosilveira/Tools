@@ -1,5 +1,3 @@
-using MelloSilveiraTools.Core.Caching;
-using MelloSilveiraTools.Core.Providers.Dynamics;
 using MelloSilveiraTools.Plugins.Application.Commands.Cache;
 using MelloSilveiraTools.Plugins.Application.Commands.Get;
 using MelloSilveiraTools.Plugins.Application.Commands.Load;
@@ -30,16 +28,10 @@ public static class PluginsDependencyInjection
             .AddSingleton(pluginSettings)
             // Required so plugin cache operations can read the {target} route value.
             .AddHttpContextAccessor()
-            // Register caching.
-            .AddSingleton<ISingleLevelCache, InMemorySingleLevelCache>()
-            .AddSingleton<ITwoLevelCache, InMemoryTwoLevelCache>()
-            // Register dynamic service provider (runtime plugin service registration).
-            .AddSingleton(services)
-            .AddSingleton<IDynamicServiceProvider, InMemoryDynamicServiceProvider>()
             // Register plugin processors and cache.
-            .AddSingleton<PluginCache>()
             .AddSingleton<PluginFileProcessor>()
             .AddSingleton<PluginAssemblyProcessor>()
+            .AddSingleton<PluginCache>()
             // Register plugin cache persistences as keyed services. The key matches
             // the {target} route segment on cache-persist/restore endpoints. Consumers
             // of this package can register additional implementations under their own

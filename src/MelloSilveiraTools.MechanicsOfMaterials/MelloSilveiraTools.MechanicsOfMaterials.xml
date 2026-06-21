@@ -571,20 +571,21 @@
             </param>
             <returns>Unit: /MPa (per Mega-Pascal).</returns>
         </member>
-        <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Viscoelasticity.Linear.ILinearModelCalculator`1">
+        <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Viscoelasticity.Linear.LinearModelCalculator`1">
             <summary>
             A linear viscoelastic model. Establish a linear stress-strain relation that depends only on time.
             For more details, see on section "Bibliographies" on file "README.MD".
             </summary>
             <typeparam name="TInput">Type of linear viscoelastic model's input.</typeparam>
-        </member>
-        <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Viscoelasticity.Linear.LinearModelCalculator`1">
-            <inheritdoc cref="T:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Viscoelasticity.Linear.ILinearModelCalculator`1"/>
             <param name="simpsonRuleIntegration">See reference at <see cref="T:MelloSilveiraTools.Mathematics.NumericalMethods.Integral.IIntegration"/>.</param>
             <param name="parameterConverter">See reference at <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Converters.MechanicalParameter.IMechanicalParameterConverter"/>.</param>
         </member>
         <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Viscoelasticity.Linear.LinearModelCalculator`1.#ctor(MelloSilveiraTools.Mathematics.NumericalMethods.Integral.IIntegration,MelloSilveiraTools.MechanicsOfMaterials.Converters.MechanicalParameter.IMechanicalParameterConverter)">
-            <inheritdoc cref="T:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Viscoelasticity.Linear.ILinearModelCalculator`1"/>
+            <summary>
+            A linear viscoelastic model. Establish a linear stress-strain relation that depends only on time.
+            For more details, see on section "Bibliographies" on file "README.MD".
+            </summary>
+            <typeparam name="TInput">Type of linear viscoelastic model's input.</typeparam>
             <param name="simpsonRuleIntegration">See reference at <see cref="T:MelloSilveiraTools.Mathematics.NumericalMethods.Integral.IIntegration"/>.</param>
             <param name="parameterConverter">See reference at <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Converters.MechanicalParameter.IMechanicalParameterConverter"/>.</param>
         </member>

@@ -20,8 +20,10 @@ public class PluginAssemblyProcessor(
     /// <summary>
     /// Loads the assembly described by <paramref name="discovered"/> and returns the set of processable types it contains.
     /// </summary>
-    public LoadedPlugin Load(DiscoveredPlugin discovered)
-        => cache.GetOrAdd(discovered.Name, discovered.Version, () =>
+    public LoadedPlugin Load(DiscoveredPlugin discovered) => cache.GetOrAdd(
+        discovered.Name,
+        discovered.Version,
+        () =>
         {
             Assembly assembly = AssemblyLoadContext.Default.LoadFromAssemblyPath(discovered.FullPath);
             Type[] processableTypes = [.. assembly.GetTypes().Where(t => _typeProcessorsByType.Keys.Any(processableType => processableType.IsAssignableFrom(t)) && !t.IsInterface && !t.IsAbstract)];
@@ -31,8 +33,7 @@ public class PluginAssemblyProcessor(
     /// <summary>
     /// Returns a <see cref="RegisteredPlugin"/> instance for <paramref name="loaded"/>, creating a cache entry when missing.
     /// </summary>
-    public RegisteredPlugin GetInfo(LoadedPlugin loaded)
-        => cache.GetOrAdd(loaded.Name, loaded.Version, () => new(loaded));
+    public RegisteredPlugin GetInfo(LoadedPlugin loaded) => cache.GetOrAdd(loaded.Name, loaded.Version, () => new(loaded));
 
     /// <summary>
     /// Runs each processable type of <paramref name="loaded"/> through its matching <see cref="IPluginTypeProcessor"/>

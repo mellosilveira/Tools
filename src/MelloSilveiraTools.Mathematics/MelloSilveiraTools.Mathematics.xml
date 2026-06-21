@@ -277,70 +277,51 @@
             </summary>
             <returns></returns>
         </member>
-        <member name="T:MelloSilveiraTools.Mathematics.Extensions.Vector3DExtension">
+        <member name="T:MelloSilveiraTools.Mathematics.Extensions.Vector3DExtensions">
             <summary>
             It contains the extension methods to Vector3D.
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.Mathematics.Extensions.Vector3DExtension.IsZero(MelloSilveiraTools.Mathematics.Models.Vector3D)">
+        <member name="M:MelloSilveiraTools.Mathematics.Extensions.Vector3DExtensions.IsZero(MelloSilveiraTools.Mathematics.Models.Vector3D)">
+            <inheritdoc cref="M:MelloSilveiraTools.Mathematics.Extensions.Vector3DExtensions.&lt;G&gt;$10FA83FD4EA5F511866CBE14941182B1.IsZero"/>
+        </member>
+        <member name="M:MelloSilveiraTools.Mathematics.Extensions.Vector3DExtensions.Normalize(MelloSilveiraTools.Mathematics.Models.Vector3D)">
+            <inheritdoc cref="M:MelloSilveiraTools.Mathematics.Extensions.Vector3DExtensions.&lt;G&gt;$10FA83FD4EA5F511866CBE14941182B1.Normalize"/>
+        </member>
+        <member name="M:MelloSilveiraTools.Mathematics.Extensions.Vector3DExtensions.CrossProduct(MelloSilveiraTools.Mathematics.Models.Vector3D,MelloSilveiraTools.Mathematics.Models.Vector3D)">
+            <inheritdoc cref="M:MelloSilveiraTools.Mathematics.Extensions.Vector3DExtensions.&lt;G&gt;$10FA83FD4EA5F511866CBE14941182B1.CrossProduct(MelloSilveiraTools.Mathematics.Models.Vector3D)"/>
+        </member>
+        <member name="M:MelloSilveiraTools.Mathematics.Extensions.Vector3DExtensions.DotProduct(MelloSilveiraTools.Mathematics.Models.Vector3D,MelloSilveiraTools.Mathematics.Models.Vector3D)">
+            <inheritdoc cref="M:MelloSilveiraTools.Mathematics.Extensions.Vector3DExtensions.&lt;G&gt;$10FA83FD4EA5F511866CBE14941182B1.DotProduct(MelloSilveiraTools.Mathematics.Models.Vector3D)"/>
+        </member>
+        <member name="M:MelloSilveiraTools.Mathematics.Extensions.Vector3DExtensions.&lt;G&gt;$10FA83FD4EA5F511866CBE14941182B1.IsZero">
             <summary>
             Determines whether every component of the supplied vector is exactly zero.
             </summary>
-            <param name="vector">The vector to test.</param>
             <returns><c>true</c> when X, Y and Z are all zero; otherwise <c>false</c>.</returns>
         </member>
-        <member name="M:MelloSilveiraTools.Mathematics.Extensions.Vector3DExtension.Normalize(MelloSilveiraTools.Mathematics.Models.Vector3D)">
+        <member name="M:MelloSilveiraTools.Mathematics.Extensions.Vector3DExtensions.&lt;G&gt;$10FA83FD4EA5F511866CBE14941182B1.Normalize">
             <summary>
-            This method normalizes the vector.
+            Normalizes the vector.
             </summary>
-            <param name="vector"></param>
             <returns></returns>
         </member>
-        <member name="M:MelloSilveiraTools.Mathematics.Extensions.Vector3DExtension.CrossProduct(MelloSilveiraTools.Mathematics.Models.Vector3D,MelloSilveiraTools.Mathematics.Models.Vector3D)">
+        <member name="M:MelloSilveiraTools.Mathematics.Extensions.Vector3DExtensions.&lt;G&gt;$10FA83FD4EA5F511866CBE14941182B1.CrossProduct(MelloSilveiraTools.Mathematics.Models.Vector3D)">
             <summary>
-            This method calculates the cross product between two vectors.
+            Calculates the cross product between two vectors.
             </summary>
-            <param name="vector1"></param>
             <param name="vector2"></param>
             <returns></returns>
         </member>
-        <member name="M:MelloSilveiraTools.Mathematics.Extensions.Vector3DExtension.DotProduct(MelloSilveiraTools.Mathematics.Models.Vector3D,MelloSilveiraTools.Mathematics.Models.Vector3D)">
+        <member name="M:MelloSilveiraTools.Mathematics.Extensions.Vector3DExtensions.&lt;G&gt;$10FA83FD4EA5F511866CBE14941182B1.DotProduct(MelloSilveiraTools.Mathematics.Models.Vector3D)">
             <summary>
-            This method calculates the dot product between two vectors.
+            Calculates the dot product between two vectors.
             </summary>
-            <param name="vector1"></param>
             <param name="vector2"></param>
             <returns></returns>
         </member>
         <member name="M:MelloSilveiraTools.Mathematics.Factories.Functions.FunctionFactory.Create(MelloSilveiraTools.Mathematics.Models.FunctionType,System.Nullable{System.Double},System.Nullable{System.Double},System.Double[])">
             <inheritdoc/>
-        </member>
-        <member name="T:MelloSilveiraTools.Mathematics.Factories.NumericalMethods.DifferentialEquationMethodFactory">
-            <summary>
-            Resolves the appropriate <see cref="T:MelloSilveiraTools.Mathematics.NumericalMethods.DifferentialEquation.IDifferentialEquationMethod"/> implementation based on the
-            requested <see cref="T:MelloSilveiraTools.Mathematics.Models.NumericalMethods.DifferentialEquationMethodType"/>. The factory matches by the
-            <see cref="P:MelloSilveiraTools.Mathematics.NumericalMethods.DifferentialEquation.IDifferentialEquationMethod.Type"/> property of every implementation registered in the
-            DI container, picking the single one whose type equals the requested value (e.g. it returns
-            <see cref="T:MelloSilveiraTools.Mathematics.NumericalMethods.DifferentialEquation.NewmarkMethod"/> for <see cref="F:MelloSilveiraTools.Mathematics.Models.NumericalMethods.DifferentialEquationMethodType.Newmark"/> and
-            <see cref="T:MelloSilveiraTools.Mathematics.NumericalMethods.DifferentialEquation.NewmarkBetaMethod"/> for <see cref="F:MelloSilveiraTools.Mathematics.Models.NumericalMethods.DifferentialEquationMethodType.NewmarkBeta"/>).
-            </summary>
-        </member>
-        <member name="M:MelloSilveiraTools.Mathematics.Factories.NumericalMethods.DifferentialEquationMethodFactory.#ctor(System.Collections.Generic.IEnumerable{MelloSilveiraTools.Mathematics.NumericalMethods.DifferentialEquation.IDifferentialEquationMethod})">
-            <summary>
-            Resolves the appropriate <see cref="T:MelloSilveiraTools.Mathematics.NumericalMethods.DifferentialEquation.IDifferentialEquationMethod"/> implementation based on the
-            requested <see cref="T:MelloSilveiraTools.Mathematics.Models.NumericalMethods.DifferentialEquationMethodType"/>. The factory matches by the
-            <see cref="P:MelloSilveiraTools.Mathematics.NumericalMethods.DifferentialEquation.IDifferentialEquationMethod.Type"/> property of every implementation registered in the
-            DI container, picking the single one whose type equals the requested value (e.g. it returns
-            <see cref="T:MelloSilveiraTools.Mathematics.NumericalMethods.DifferentialEquation.NewmarkMethod"/> for <see cref="F:MelloSilveiraTools.Mathematics.Models.NumericalMethods.DifferentialEquationMethodType.Newmark"/> and
-            <see cref="T:MelloSilveiraTools.Mathematics.NumericalMethods.DifferentialEquation.NewmarkBetaMethod"/> for <see cref="F:MelloSilveiraTools.Mathematics.Models.NumericalMethods.DifferentialEquationMethodType.NewmarkBeta"/>).
-            </summary>
-        </member>
-        <member name="M:MelloSilveiraTools.Mathematics.Factories.NumericalMethods.DifferentialEquationMethodFactory.Get(MelloSilveiraTools.Mathematics.Models.NumericalMethods.DifferentialEquationMethodType)">
-            <summary>
-            Gets the <see cref="T:MelloSilveiraTools.Mathematics.NumericalMethods.DifferentialEquation.IDifferentialEquationMethod"/> registered for the supplied <paramref name="type"/>.
-            </summary>
-            <param name="type">The numerical method to resolve.</param>
-            <returns>The single registered implementation whose <see cref="P:MelloSilveiraTools.Mathematics.NumericalMethods.DifferentialEquation.IDifferentialEquationMethod.Type"/> equals <paramref name="type"/>.</returns>
         </member>
         <member name="T:MelloSilveiraTools.Mathematics.Functions.ConstantFunction">
             <summary>
@@ -1086,11 +1067,6 @@
             Executes numerical method to solve Differential Equation
             </summary>
         </member>
-        <member name="P:MelloSilveiraTools.Mathematics.NumericalMethods.DifferentialEquation.IDifferentialEquationMethod.Type">
-            <summary>
-            The method type identifying this implementation.
-            </summary>
-        </member>
         <member name="M:MelloSilveiraTools.Mathematics.NumericalMethods.DifferentialEquation.IDifferentialEquationMethod.Calculate(MelloSilveiraTools.Mathematics.NumericalMethods.NumericalMethodInput,System.Double,MelloSilveiraTools.Mathematics.NumericalMethods.NumericalMethodOutput)">
             <summary>
             Advances the dynamic system by one time step, computing the state (displacement, velocity,
@@ -1121,9 +1097,6 @@
             <summary>
             Execute the Newmark-Beta numerical method to solve Differential Equation.
             </summary>
-        </member>
-        <member name="P:MelloSilveiraTools.Mathematics.NumericalMethods.DifferentialEquation.NewmarkBetaMethod.Type">
-            <inheritdoc/>
         </member>
         <member name="M:MelloSilveiraTools.Mathematics.NumericalMethods.DifferentialEquation.NewmarkBetaMethod.Calculate(MelloSilveiraTools.Mathematics.NumericalMethods.NumericalMethodInput,System.Double,MelloSilveiraTools.Mathematics.NumericalMethods.NumericalMethodOutput)">
             <inheritdoc/>
@@ -1167,9 +1140,6 @@
             <summary>
             Execute the Newmark numerical method to solve Differential Equation.
             </summary>
-        </member>
-        <member name="P:MelloSilveiraTools.Mathematics.NumericalMethods.DifferentialEquation.NewmarkMethod.Type">
-            <inheritdoc/>
         </member>
         <member name="M:MelloSilveiraTools.Mathematics.NumericalMethods.DifferentialEquation.NewmarkMethod.Calculate(MelloSilveiraTools.Mathematics.NumericalMethods.NumericalMethodInput,System.Double,MelloSilveiraTools.Mathematics.NumericalMethods.NumericalMethodOutput)">
             <inheritdoc/>

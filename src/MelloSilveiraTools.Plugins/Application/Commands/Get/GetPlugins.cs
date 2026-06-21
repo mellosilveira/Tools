@@ -1,3 +1,4 @@
+using MelloSilveiraTools.Core.ExtensionMethods;
 using MelloSilveiraTools.Core.Models;
 using MelloSilveiraTools.Database.ExtensionMethods;
 using MelloSilveiraTools.Plugins.Application.Validators;
@@ -19,5 +20,5 @@ public class GetPlugins(IPluginService pluginService, PluginValidator<GetPlugins
                 .GetPlugins(request.Name, PluginVersion.SafeParse(request.Version))
                 .Where(registered => request.FullyLoaded is null || registered.IsFullyLoaded == request.FullyLoaded)
                 .ToArray())
-            .AsTask();
+            .ToTask();
 }

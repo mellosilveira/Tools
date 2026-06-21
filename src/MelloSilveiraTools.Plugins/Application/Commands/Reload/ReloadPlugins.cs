@@ -1,5 +1,5 @@
+using MelloSilveiraTools.Core.ExtensionMethods;
 using MelloSilveiraTools.Core.Models;
-using MelloSilveiraTools.Database.ExtensionMethods;
 using MelloSilveiraTools.Plugins.Application.Validators;
 using MelloSilveiraTools.Plugins.Infrastructure.Models;
 using MelloSilveiraTools.Plugins.Infrastructure.Services;
@@ -16,6 +16,6 @@ public class ReloadPlugins(IPluginService pluginService, PluginValidator<ReloadP
     protected override Task<Result> ExecuteCommandAsync(ReloadPluginsRequest request)
     {
         pluginService.ReloadPluginsOnRuntime(request.Force, request.Name, PluginVersion.SafeParse(request.Version));
-        return Result.CreateSuccessOk().AsTask();
+        return Result.CreateSuccessOk().ToTask();
     }
 }
