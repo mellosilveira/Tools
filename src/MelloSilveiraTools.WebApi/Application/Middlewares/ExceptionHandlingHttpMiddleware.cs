@@ -65,7 +65,7 @@ public class ExceptionHandlingHttpMiddleware(RequestDelegate next, ILogger logge
             if (context.Request.ContentLength > 0 && context.Request.Body.CanSeek)
             {
                 context.Request.Body.Position = 0;
-                
+
                 // leaveOpen: true ensures we don't accidentally kill the stream
                 using var reader = new StreamReader(context.Request.Body, leaveOpen: true);
                 requestBody = await reader.ReadToEndAsync();

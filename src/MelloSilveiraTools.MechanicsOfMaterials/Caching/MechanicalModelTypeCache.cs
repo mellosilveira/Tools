@@ -15,8 +15,8 @@ public class MechanicalModelTypeCache(ISingleLevelCache cache) : IMechanicalMode
         => cache.GetOrAdd($"Invoker:{calculatorType.FullName}:{methodName}", () => CompileMethodInvoker(calculatorType.GetMethod(methodName)!));
 
     /// <inheritdoc/>
-    public CalculatorMethodData[] GetOrAddMethodDataList(Type calculatorType, MechanicalRelationship relationship, ViscoelasticEffect effect)
-        => cache.GetOrAdd($"MethodData:{calculatorType.FullName}:{relationship}:{effect}", () => BuildMethodDataList(calculatorType, relationship, effect));
+    public CalculatorMethodData[] GetOrAddMethodDataList(Type calculatorType, MechanicalBehaviorType behaviorType, ViscoelasticEffect effect)
+        => cache.GetOrAdd($"MethodData:{calculatorType.FullName}:{behaviorType}:{effect}", () => BuildMethodDataList(calculatorType, behaviorType, effect));
 
     /// <inheritdoc/>
     public Func<MechanicalModelOutput> GetOrAddOutputFactory(Type outputType)
@@ -30,10 +30,10 @@ public class MechanicalModelTypeCache(ISingleLevelCache cache) : IMechanicalMode
     public Type[] GetOrAddConstructorParameterTypes(Type type)
         => cache.GetOrAdd($"CtorParams:{type.FullName}", () => type.GetConstructors().Single().GetParameters().Select(p => p.ParameterType).ToArray());
 
-    private static CalculatorMethodData[] BuildMethodDataList(Type calculatorType, MechanicalRelationship relationship, ViscoelasticEffect effect) 
+    private static CalculatorMethodData[] BuildMethodDataList(Type calculatorType, MechanicalBehaviorType behaviorType, ViscoelasticEffect effect)
         => [.. calculatorType.GetMethods()
             .Select(method => (Method: method, Attribute: method.GetCustomAttribute<MechanicalModelParameterCalculationAttribute>()))
-            .Where(x => x.Attribute != null && x.Attribute.CanMethodBeInvoked(relationship, effect))
+            .Where(x => x.Attribute != null && x.Attribute.CanMethodBeInvoked(behaviorType, effect))
             .Select(x => new CalculatorMethodData(
                 CompileMethodInvoker(x.Method),
                 [.. x.Method.GetParameters().Select(p => p.Name)!],
@@ -78,7 +78,7 @@ public class MechanicalModelTypeCache(ISingleLevelCache cache) : IMechanicalMode
     /// <summary>
     /// Compiles property setters for all settable properties of a type, replacing <see cref="PropertyInfo.SetValue"/>.
     /// </summary>
-    private static Dictionary<string, Action<object, object>> CompilePropertySetters(Type type) 
+    private static Dictionary<string, Action<object, object>> CompilePropertySetters(Type type)
         => type.GetProperties().Where(p => p.SetMethod != null).ToDictionary(p => p.Name, CompilePropertySetter);
 
     private static Action<object, object> CompilePropertySetter(PropertyInfo property)

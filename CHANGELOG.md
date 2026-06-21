@@ -5,17 +5,32 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
-## [1.5.0] - 2026-05-DD
+## [1.5.0] - 2026-06-DD
 ### Added
+- `ConstitutiveParameters` abstract base record acting as the foundational domain constraint for all mechanical and viscoelastic material properties.
 - `IRepository.TryInsertAsync<TEntity>(TEntity, CancellationToken)` — insert-or-get-existing semantics. Returns `(Inserted, Id)`; on unique-key conflict leaves the existing row intact and returns its primary key. Atomic single statement (CTE + UNION ALL). Requires the entity to declare at least one `[UniqueColumn]` property; otherwise throws `InvalidOperationException`.
 - `ISqlProvider.GetTryInsertSql<T>()` plus the `TryInsertTemplate.sql` resource that backs it.
 - `IRepository.GetByUniqueColumnAsync<TEntity>(object, CancellationToken)` — typed lookup by the entity's single `[UniqueColumn]`-annotated column. Returns the entity or `null`. Removes the need to declare a `FilterBase`-derived filter just for unique-column lookups (common pattern when the unique column is a hash-based identifier produced by a database trigger). Throws `InvalidOperationException` when the entity has zero or more than one `[UniqueColumn]` property.
 - `ISqlProvider.GetSelectByUniqueColumnSql<T>()`. The generated SQL binds the value to the literal parameter name `@UniqueColumnValue` regardless of the underlying property name.
 - `EnumerableExtensions.ForeachAsync<T>(...)` and `Foreach<T>(...)` overloads supporting structured telemetry via `ILogger` instead of using raw `Console.WriteLine`. Exceptions captured inside these overloads are logged as errors alongside a context dictionary containing the specific failed item, preventing complete loop degradation while maintaining tracking.
 - Integrated standard `Microsoft.Extensions.Logging` across all packages, backed by Serilog for structured JSON file logging.
+- `BoundaryStatisticalSummary`, `BoundaryValues` and `BoundaryValue` types to capture the statistical distribution of boundary conditions.
+- FileManager service to build a file with timebased name.
 ### Changed
+- All mechanical model calculators (e.g., `SchaperyModelCalculator`, `FungModelCalculator`, `ModifiedSuperpositionMethodCalculator`, `LinearModelCalculator`) now isolate and route physical properties through the `input.ConstitutiveParameters` property instead of reading them directly from a flattened input object.
 - **`EnumerableExtensions.ForeachAsync<T>(...)` and `Foreach<T>(...)` safety regression fallback**: The vanilla overload without an `ILogger` parameter no longer swallows and suppresses internal iteration exceptions; it now bubbles up failures directly to the caller, adhering to standard sequential execution expectations.
+- Enums to inherit from int.
 ### Breaking
+- **Architectural Overhaul (Mechanical Models Input).** Introduced a strong-typed generic constraint for mechanical model inputs. All `IMechanicalModelCalculator` and `IViscoelasticModelCalculator` interfaces and their implementations now strictly require the wrapper `MechanicalModelInput<TConstitutiveParameters>` instead of specific inherited flat input classes.
+- **Constitutive Parameters Renaming & Inheritance.** Specific model input classes were refactored into parameter records inheriting from the newly introduced `ConstitutiveParameters` base class:
+  - `MaxwellModelInput` → `MaxwellConstitutiveParameters`
+  - `ModifiedSuperpositionMethodInput` → `ModifiedSuperpositionMethodConstitutiveParameters`
+  - `SchaperyModelInput` → `SchaperyConstitutiveParameters`
+  - `QuasiLinearModelInput<T>` → `QuasiLinearConstitutiveParameters<T>`
+  - `SimplifiedFungModelInput` → `SimplifiedFungConstitutiveParameters`
+  - `FungModelInput` → `FungConstitutiveParameters`
+- **Mechanical Model Facade Initialization.** `MechanicalModelCalculatorFacade`'s reflection engine was updated to unpack the new generic architecture. Consumers instantiating the Facade must now provide the non-generic base `MechanicalModelInput`, which internally carries the strongly-typed `ConstitutiveParameters`.
+- `MechanicalBehaviorType` → `MechanicalBehaviorType`.  
 - **Namespace flattening (Core).** Removed the `Domain.` and `Infrastructure.` segments from every `MelloSilveiraTools.Core` namespace:
   - `MelloSilveiraTools.Core.Domain.Models.*` → `MelloSilveiraTools.Core.Models.*`
   - `MelloSilveiraTools.Core.Domain.Services.*` → `MelloSilveiraTools.Core.Services.*`
@@ -32,9 +47,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
   - `MelloSilveiraTools.Database.Infrastructure.Database.Settings.*` → `MelloSilveiraTools.Database.RelationalDatabase.Settings.*`
   - `MelloSilveiraTools.Database.Infrastructure.Database.Sql.*` → `MelloSilveiraTools.Database.RelationalDatabase.Sql.*`
   - `MelloSilveiraTools.Database.Infrastructure.ResiliencePipelines.*` → `MelloSilveiraTools.Database.ResiliencePipelines.*`
-- **`OperationResponse` hierarchy split.** The previous `OperationResponse` record was renamed to `OperationResponseBase` and a new `OperationResponse : OperationResponseBase` was introduced to host the success / conflict / unprocessable-entity factory helpers. The generic constraints on `OperationBase<TRequest, TResponse>`, `OperationBaseWithData<TRequest, TResponseData>` and every helper in `OperationResponseExtensions` (`AddError`, `AddErrorIf*`, `ToHttpResult*`, `BuildHttpResponse*`) now require `T : OperationResponseBase`. Consumers writing custom operations or extension methods must update their generic constraints.
-- **`OperationResponse.ErrorMessages` renamed to `Messages`.** Field name and type carry over (`List<string>`); `Messages` now lives on `OperationResponseBase`.
-- **WebApi Operations folder restructure.** `Add*.cs`, `DeleteEntity*.cs`, `ReadEntity*.cs` and `UpdateEntity*.cs` moved from `Application/Operations/` (flat) into `Application/Operations/Crud/{Add,Delete,Read,Update}/`. Namespace updates required: `MelloSilveiraTools.WebApi.Application.Operations.Add` → `MelloSilveiraTools.WebApi.Application.Operations.Crud.Add` (and equivalents for Delete / Read / Update).
+- **WebApi Commands folder restructure.** `Add*.cs`, `DeleteEntity*.cs`, `ReadEntity*.cs` and `UpdateEntity*.cs` moved from `Application/Commands/` (flat) into `Application/Commands/Crud/{Add,Delete,Read,Update}/`. Namespace updates required: `MelloSilveiraTools.WebApi.Application.Commands.Add` → `MelloSilveiraTools.WebApi.Application.Commands.Crud.Add` (and equivalents for Delete / Read / Update).
 - **Calculator response contract realignment (Result vs Output).** Renamed all calculator execution response classes from `*Result` to `*Output` across the engine domain (e.g., `MechanicalModelResult` → `MechanicalModelOutput`). This breaking change decouples pure mathematical data structures from the application's Result pattern pipeline, establishing that calculator blocks emit raw numerical projections rather than operation-status monads. Consumers invoking calculator engines must update their variable declarations and type bindings to the new `*Output` contract.
 - `IRepository.TryInsertAsync` to return `Result<long>` instead of tuple `(bool, long)`.
 - **Custom Logger Abstraction Removed:** Removed the custom in-house logging abstraction (`MelloSilveiraTools.Core.Infrastructure.Logger.ILogger`, `LocalFileLogger`, `LoggerBase`, and `LoggerSettings`). Consumers must migrate their constructors to use the standard `Microsoft.Extensions.Logging.ILogger<T>`.
@@ -55,7 +68,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
   - *Non-linear viscoelastic:* `ISchaperyModelCalculator` / `SchaperyModelCalculator` + `SchaperyModelInput` / `SchaperyModelResult`; `IModifiedSuperpositionMethodCalculator` / `ModifiedSuperpositionMethodCalculator` + corresponding input/result.
   - *Quasi-linear viscoelastic:* `IQuasiLinearModelCalculator` / `QuasiLinearModelCalculator`; `IFungModelCalculator` / `FungModelCalculator` + `FungModelInput`; `ISimplifiedFungModelCalculator` / `SimplifiedFungModelCalculator` + `SimplifiedFungModelInput`; `ReducedRelaxationFunction` helper type.
 - **MechanicsOfMaterials — load sharing.** `ILoadSharingCalculator` / `LoadShare1DTissueThreeDimensionalSpaceCalculator` — computes specimen displacement, angle, force projection and their derivatives within a 3-D system.
-- **MechanicsOfMaterials — supporting types.** `MechanicalParameter` (displacement / strain / force / stress descriptor), `SpecimenParameter`, `Asymptote`, `AnalysisType`, `AnalysisResult`, `MechanicalModelType`, `MechanicalRelationship`, `ParameterNameConstant`, `MechanicalModelConstants`, `RampTimeConsideration`, `ViscoelasticEffect`, `AcceptedRange`, `LoadSharingConsideration`, `MechanicalSystem`, `FailureCondition`, `LoadSharingResult`, `SpecimenLoadSharingResult`.
+- **MechanicsOfMaterials — supporting types.** `MechanicalParameter` (displacement / strain / force / stress descriptor), `SpecimenParameter`, `Asymptote`, `AnalysisType`, `AnalysisResult`, `MechanicalModelType`, `MechanicalBehaviorType`, `ParameterNameConstant`, `MechanicalModelConstants`, `RampTimeConsideration`, `ViscoelasticEffect`, `AcceptedRange`, `LoadSharingConsideration`, `MechanicalSystem`, `FailureCondition`, `LoadSharingResult`, `SpecimenLoadSharingResult`.
 - **MechanicsOfMaterials — attributes.** `MechanicalModelParameterAttribute` and `MechanicalModelParameterCalculationAttribute` for annotating model-parameter properties.
 - **MechanicsOfMaterials — converter.** `IMechanicalParameterConverter` + `MechanicalParameterConverter`.
 ### Changed

@@ -15,11 +15,11 @@
             Initializes a new instance of <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Attributes.MechanicalModelParameterAttribute"/>.
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Attributes.MechanicalModelParameterAttribute.#ctor(MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalRelationship)">
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Attributes.MechanicalModelParameterAttribute.#ctor(MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalBehaviorType)">
             <summary>
             Initializes a new instance of <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Attributes.MechanicalModelParameterAttribute"/>.
             </summary>
-            <param name="mechanicalRelationship"></param>
+            <param name="mechanicalBehaviorType"></param>
         </member>
         <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Attributes.MechanicalModelParameterAttribute.#ctor(MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.ViscoelasticEffect)">
             <summary>
@@ -27,24 +27,24 @@
             </summary>
             <param name="viscoelasticEffect"></param>
         </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Attributes.MechanicalModelParameterAttribute.#ctor(MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalRelationship,MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.ViscoelasticEffect)">
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Attributes.MechanicalModelParameterAttribute.#ctor(MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalBehaviorType,MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.ViscoelasticEffect)">
             <summary>
             Initializes a new instance of <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Attributes.MechanicalModelParameterAttribute"/>.
             </summary>
-            <param name="mechanicalRelationship"></param>
+            <param name="mechanicalBehaviorType"></param>
             <param name="viscoelasticEffect"></param>
         </member>
-        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Attributes.MechanicalModelParameterAttribute.MechanicalRelationship">
-            <inheritdoc cref="T:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalRelationship"/>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Attributes.MechanicalModelParameterAttribute.MechanicalBehaviorType">
+            <inheritdoc cref="T:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalBehaviorType"/>
         </member>
         <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Attributes.MechanicalModelParameterAttribute.ViscoelasticEffect">
             <inheritdoc cref="T:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.ViscoelasticEffect"/>
         </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Attributes.MechanicalModelParameterAttribute.CanMethodBeInvoked(MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalRelationship,MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.ViscoelasticEffect)">
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Attributes.MechanicalModelParameterAttribute.CanMethodBeInvoked(MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalBehaviorType,MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.ViscoelasticEffect)">
             <summary>
             Checks if the mechanical relationship and viscoelastic effect matches with the values used to build the attribute.
             </summary>
-            <param name="mechanicalRelationship"></param>
+            <param name="mechanicalBehaviorType"></param>
             <param name="viscoelasticEffect"></param>
             <returns></returns>
         </member>
@@ -54,12 +54,12 @@
             relationships and viscoelastic effects for dynamic method selection based on the model's characteristics.
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Attributes.MechanicalModelParameterCalculationAttribute.#ctor(System.String,MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalRelationship)">
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Attributes.MechanicalModelParameterCalculationAttribute.#ctor(System.String,MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalBehaviorType)">
             <summary>
             Initializes a new instance of <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Attributes.MechanicalModelParameterAttribute"/>.
             </summary>
             <param name="propertyName"></param>
-            <param name="mechanicalRelationship"></param>
+            <param name="mechanicalBehaviorType"></param>
         </member>
         <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Attributes.MechanicalModelParameterCalculationAttribute.#ctor(System.String,MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.ViscoelasticEffect)">
             <summary>
@@ -68,12 +68,12 @@
             <param name="propertyName"></param>
             <param name="viscoelasticEffect"></param>
         </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Attributes.MechanicalModelParameterCalculationAttribute.#ctor(System.String,MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalRelationship,MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.ViscoelasticEffect)">
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Attributes.MechanicalModelParameterCalculationAttribute.#ctor(System.String,MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalBehaviorType,MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.ViscoelasticEffect)">
             <summary>
             Initializes a new instance of <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Attributes.MechanicalModelParameterAttribute"/>.
             </summary>
             <param name="propertyName"></param>
-            <param name="mechanicalRelationship"></param>
+            <param name="mechanicalBehaviorType"></param>
             <param name="viscoelasticEffect"></param>
         </member>
         <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Attributes.MechanicalModelParameterCalculationAttribute.PropertyName">
@@ -93,7 +93,7 @@
             Returns a compiled delegate that invokes the named method on the given calculator type.
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Caching.IMechanicalModelTypeCache.GetOrAddMethodDataList(System.Type,MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalRelationship,MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.ViscoelasticEffect)">
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Caching.IMechanicalModelTypeCache.GetOrAddMethodDataList(System.Type,MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalBehaviorType,MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.ViscoelasticEffect)">
             <summary>
             Returns the list of calculator methods applicable to the given relationship and viscoelastic effect,
             each pre-compiled into a <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Caching.CalculatorMethodData"/>.
@@ -123,7 +123,7 @@
         <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Caching.MechanicalModelTypeCache.GetOrAddMethodInvoker(System.Type,System.String)">
             <inheritdoc/>
         </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Caching.MechanicalModelTypeCache.GetOrAddMethodDataList(System.Type,MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalRelationship,MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.ViscoelasticEffect)">
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Caching.MechanicalModelTypeCache.GetOrAddMethodDataList(System.Type,MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalBehaviorType,MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.ViscoelasticEffect)">
             <inheritdoc/>
         </member>
         <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Caching.MechanicalModelTypeCache.GetOrAddOutputFactory(System.Type)">
@@ -361,169 +361,209 @@
         </member>
         <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Elasticity.ElasticModelCalculator">
             <inheritdoc cref="T:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Elasticity.IElasticModelCalculator"/>
-            <summary>
-            Initializes a new instance of <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Elasticity.ElasticModelCalculator"/>.
-            </summary>
-            <param name="parameterConverter"></param>
         </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Elasticity.ElasticModelCalculator.#ctor(MelloSilveiraTools.MechanicsOfMaterials.Converters.MechanicalParameter.IMechanicalParameterConverter)">
-            <inheritdoc cref="T:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Elasticity.IElasticModelCalculator"/>
-            <summary>
-            Initializes a new instance of <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Elasticity.ElasticModelCalculator"/>.
-            </summary>
-            <param name="parameterConverter"></param>
-        </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Elasticity.ElasticModelCalculator.CalculateStiffnessThroughDisplacement(MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Elasticity.ElasticModelInput,System.Double)">
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Elasticity.ElasticModelCalculator.CalculateStiffnessThroughDisplacement(MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalModelInput{MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Elasticity.ElasticConstitutiveParameters},System.Double)">
             <inheritdoc/>
         </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Elasticity.ElasticModelCalculator.CalculateStiffnessThroughForce(MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Elasticity.ElasticModelInput,System.Double)">
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Elasticity.ElasticModelCalculator.CalculateStiffnessThroughForce(MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalModelInput{MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Elasticity.ElasticConstitutiveParameters},System.Double)">
             <inheritdoc/>
         </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Elasticity.ElasticModelCalculator.CalculateForce(MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Elasticity.ElasticModelInput,System.Double,System.Nullable{System.Double})">
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Elasticity.ElasticModelCalculator.CalculateForce(MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalModelInput{MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Elasticity.ElasticConstitutiveParameters},System.Double,System.Nullable{System.Double})">
             <inheritdoc/>
         </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Elasticity.ElasticModelCalculator.CalculateDisplacement(MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Elasticity.ElasticModelInput,System.Double,System.Nullable{System.Double})">
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Elasticity.ElasticModelCalculator.CalculateDisplacement(MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalModelInput{MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Elasticity.ElasticConstitutiveParameters},System.Double,System.Nullable{System.Double})">
             <inheritdoc/>
         </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Elasticity.ElasticModelCalculator.CalculateStress(MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Elasticity.ElasticModelInput,System.Double,System.Nullable{System.Double})">
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Elasticity.ElasticModelCalculator.CalculateStress(MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalModelInput{MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Elasticity.ElasticConstitutiveParameters},System.Double,System.Nullable{System.Double})">
             <inheritdoc/>
         </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Elasticity.ElasticModelCalculator.CalculateStrain(MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Elasticity.ElasticModelInput,System.Double,System.Nullable{System.Double})">
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Elasticity.ElasticModelCalculator.CalculateStrain(MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalModelInput{MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Elasticity.ElasticConstitutiveParameters},System.Double,System.Nullable{System.Double})">
             <inheritdoc/>
-        </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Elasticity.ElasticModelCalculator.CalculateStiffness(MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Elasticity.ElasticModelInput,System.Double,System.Nullable{System.Double},System.Nullable{System.Double})">
-            <summary>
-            Calculates the stiffness.
-            </summary>
-            <param name="input">The mechanical model's input.</param>
-            <param name="time">Unit: s (seconds).</param>
-            <param name="displacement">Unit: m (meter).</param>
-            <param name="force">Unit: N (Newton).</param>
-            <returns>Unit: N/m (Newton per meter).</returns>
         </member>
         <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Elasticity.IElasticModelCalculator">
             <summary>
-            Assumes infinitesimal strains and linear relationship between stress and strain. 
+            Defines a calculator for linear elastic models, assuming infinitesimal strains and a linear relationship between stress and strain. 
             Valid only for stress states that do not produce yielding.
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Elasticity.IElasticModelCalculator.CalculateStiffnessThroughDisplacement(MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Elasticity.ElasticModelInput,System.Double)">
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Elasticity.IElasticModelCalculator.CalculateStiffnessThroughDisplacement(MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalModelInput{MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Elasticity.ElasticConstitutiveParameters},System.Double)">
             <summary>
-            Calculates the stiffness through displacement.
+            Calculates the stiffness based on displacement.
             </summary>
-            <param name="input">The mechanical model's input.</param>
-            <param name="time">Unit: s (seconds).</param>
-            <returns></returns>
+            <param name="input">The elastic constitutive parameters.</param>
+            <param name="time">Unit: s (second).</param>
+            <returns>The calculated structural stiffness.</returns>
         </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Elasticity.IElasticModelCalculator.CalculateStiffnessThroughForce(MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Elasticity.ElasticModelInput,System.Double)">
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Elasticity.IElasticModelCalculator.CalculateStiffnessThroughForce(MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalModelInput{MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Elasticity.ElasticConstitutiveParameters},System.Double)">
             <summary>
-            Calculates the stiffness through force.
+            Calculates the stiffness based on force.
             </summary>
-            <param name="input">The mechanical model's input.</param>
-            <param name="time">Unit: s (seconds).</param>
-            <returns></returns>
+            <param name="input">The elastic constitutive parameters.</param>
+            <param name="time">Unit: s (second).</param>
+            <returns>The calculated structural stiffness.</returns>
         </member>
         <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.IMechanicalModelCalculator`1">
             <summary>
-            A generic mechanical model.
-            Establish an approach for stress-strain and force-displacement relationship which approximate from reality.
+            Defines a generic mechanical model calculator.
+            Establishes approaches for stress-strain and force-displacement relationships that approximate real-world behavior.
             </summary>
-            <typeparam name="TInput">Type of mechanical model's input.</typeparam>
+            <typeparam name="TConstitutiveParameters">The type of the constitutive parameters used as input for the mechanical model.</typeparam>
         </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.IMechanicalModelCalculator`1.CalculateForce(`0,System.Double,System.Nullable{System.Double})">
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.IMechanicalModelCalculator`1.CalculateForce(MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalModelInput{`0},System.Double,System.Nullable{System.Double})">
             <summary>
             Calculates the force, represented by F. 
-            For more details, see on section "Bibliographies" on file "README.MD".
-            This method is only useful for load sharing analysis.
+            For more details, see the "Bibliographies" section in the "README.md" file.
+            This method is primarily useful for load-sharing analysis.
             </summary>
-            <param name="input">The mechanical model's input.</param>
+            <param name="input">The mechanical model's input data.</param>
             <param name="time">Unit: s (second).</param>
             <param name="displacement">
             Unit: m (meter).
-            If not informed, this is calculated from the displacement parameters on mechanical model's input.
+            If not provided, this is calculated from the displacement parameters on the mechanical model's input.
             </param>
             <returns>Unit: N (Newton).</returns>
         </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.IMechanicalModelCalculator`1.CalculateDisplacement(`0,System.Double,System.Nullable{System.Double})">
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.IMechanicalModelCalculator`1.CalculateDisplacement(MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalModelInput{`0},System.Double,System.Nullable{System.Double})">
             <summary>
             Calculates the displacement, represented by δ. 
-            For more details, see on section "Bibliographies" on file "README.MD".
-            This method is only useful for load sharing analysis.
+            For more details, see the "Bibliographies" section in the "README.md" file.
+            This method is primarily useful for load-sharing analysis.
             </summary>
-            <param name="input">The mechanical model's input.</param>
+            <param name="input">The mechanical model's input data.</param>
             <param name="time">Unit: s (second).</param>
             <param name="force">
             Unit: N (Newton).
-            If not informed, this is calculated from the force parameters on mechanical model's input.
+            If not provided, this is calculated from the force parameters on the mechanical model's input.
             </param>
             <returns>Unit: m (meter).</returns>
         </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.IMechanicalModelCalculator`1.CalculateStress(`0,System.Double,System.Nullable{System.Double})">
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.IMechanicalModelCalculator`1.CalculateStress(MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalModelInput{`0},System.Double,System.Nullable{System.Double})">
             <summary>
             Calculates the stress, represented by σ. 
-            For more details, see on section "Bibliographies" on file "README.MD".
+            For more details, see the "Bibliographies" section in the "README.md" file.
             </summary>
-            <param name="input">The mechanical model's input.</param>
+            <param name="input">The mechanical model's input data.</param>
             <param name="time">Unit: s (second).</param>
             <param name="strain">
             Unit: dimensionless. 
-            If not informed, this is calculated from the strain parameters on mechanical model's input.
+            If not provided, this is calculated from the strain parameters on the mechanical model's input.
             </param>
             <returns>Unit: MPa (Mega-Pascal).</returns>
         </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.IMechanicalModelCalculator`1.CalculateStrain(`0,System.Double,System.Nullable{System.Double})">
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.IMechanicalModelCalculator`1.CalculateStrain(MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalModelInput{`0},System.Double,System.Nullable{System.Double})">
             <summary>
             Calculates the strain, represented by ε. 
-            For more details, see on section "Bibliographies" on file "README.MD".
+            For more details, see the "Bibliographies" section in the "README.md" file.
             </summary>
-            <param name="input">The mechanical model's input.</param>
+            <param name="input">The mechanical model's input data.</param>
             <param name="time">Unit: s (second).</param>
             <param name="stress">
             Unit: MPa (Mega-Pascal).
-            If not informed, this is calculated from the stress parameters on mechanical model's input.
+            If not provided, this is calculated from the stress parameters on the mechanical model's input.
             </param>
             <returns>Unit: dimensionless.</returns>
         </member>
         <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.IMechanicalModelCalculatorFacade">
             <summary>
-            Facade for <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.IMechanicalModelCalculator`1"/>
+            Defines a unified facade for all mechanical model calculators.
+            Hides the underlying complexity, specific mathematical implementations, and generic constitutive parameters from the client.
             </summary>
         </member>
         <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.IMechanicalModelCalculatorFacade.Calculate(System.Double)">
             <summary>
-            Calculates the mechanical model's output.
+            Calculates the consolidated mechanical model's output at a specific point in time.
             </summary>
-            <param name="time">Unit: s (second).</param>
-            <returns>The mechanical model's output.</returns>
-        </member>
-        <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.MechanicalModelCalculatorBase`1">
-            <inheritdoc cref="T:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.IMechanicalModelCalculator`1"/>
-            <param name="parameterConverter">See reference at <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Converters.MechanicalParameter.IMechanicalParameterConverter"/>.</param>
-        </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.MechanicalModelCalculatorBase`1.#ctor(MelloSilveiraTools.MechanicsOfMaterials.Converters.MechanicalParameter.IMechanicalParameterConverter)">
-            <inheritdoc cref="T:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.IMechanicalModelCalculator`1"/>
-            <param name="parameterConverter">See reference at <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Converters.MechanicalParameter.IMechanicalParameterConverter"/>.</param>
-        </member>
-        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.MechanicalModelCalculatorBase`1.ParameterConverter">
-            <inheritdoc cref="T:MelloSilveiraTools.MechanicsOfMaterials.Converters.MechanicalParameter.IMechanicalParameterConverter"/>
-        </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.MechanicalModelCalculatorBase`1.CalculateForce(`0,System.Double,System.Nullable{System.Double})">
-            <inheritdoc/>
-        </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.MechanicalModelCalculatorBase`1.CalculateDisplacement(`0,System.Double,System.Nullable{System.Double})">
-            <inheritdoc/>
-        </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.MechanicalModelCalculatorBase`1.CalculateStress(`0,System.Double,System.Nullable{System.Double})">
-            <inheritdoc/>
-        </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.MechanicalModelCalculatorBase`1.CalculateStrain(`0,System.Double,System.Nullable{System.Double})">
-            <inheritdoc/>
+            <param name="time">The elapsed time for the calculation. Unit: s (second).</param>
+            <returns>The mechanical model's output, encapsulating the calculated stress, strain, force, and displacement.</returns>
         </member>
         <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.MechanicalModelCalculatorFacade">
             <inheritdoc cref="T:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.IMechanicalModelCalculatorFacade"/>
         </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.MechanicalModelCalculatorFacade.#ctor(MelloSilveiraTools.MechanicsOfMaterials.Caching.IMechanicalModelTypeCache,System.Object)">
-            <inheritdoc cref="T:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.IMechanicalModelCalculatorFacade"/>
+        <member name="F:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.MechanicalModelCalculatorFacade._invokeDisplacement">
+            <summary>
+            Cached compiled invoker for the underlying displacement calculation method.
+            </summary>
+        </member>
+        <member name="F:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.MechanicalModelCalculatorFacade._invokeForce">
+            <summary>
+            Cached compiled invoker for the underlying force calculation method.
+            </summary>
+        </member>
+        <member name="F:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.MechanicalModelCalculatorFacade._invokeStress">
+            <summary>
+            Cached compiled invoker for the underlying stress calculation method.
+            </summary>
+        </member>
+        <member name="F:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.MechanicalModelCalculatorFacade._invokeStrain">
+            <summary>
+            Cached compiled invoker for the underlying strain calculation method.
+            </summary>
+        </member>
+        <member name="F:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.MechanicalModelCalculatorFacade._calculatorMethodDataList">
+            <summary>
+            An optimized array containing pre-fetched reflection metadata and compiled invokers for specific parameter calculation loops.
+            </summary>
+        </member>
+        <member name="F:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.MechanicalModelCalculatorFacade._outputFactory">
+            <summary>
+            Factory delegate compiled to instantly instantiate instances of the target projection output model without instantiation overhead.
+            </summary>
+        </member>
+        <member name="F:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.MechanicalModelCalculatorFacade._outputPropertySetters">
+            <summary>
+            Fast-access dictionary containing compiled property-setter expressions mapped by property names for the designated output type.
+            </summary>
+        </member>
+        <member name="F:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.MechanicalModelCalculatorFacade._calculateValueAndDerivativeMethod">
+            <summary>
+            Delegate targeting the boundary condition's function to compute the boundary value and its first-order time derivative concurrently.
+            </summary>
+        </member>
+        <member name="F:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.MechanicalModelCalculatorFacade._inputParameterValueName">
+            <summary>
+            The exact argument name corresponding to the input boundary parameter value expected by the underlying model methods.
+            </summary>
+        </member>
+        <member name="F:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.MechanicalModelCalculatorFacade._inputParameterDerivativeName">
+            <summary>
+            The exact argument name corresponding to the input boundary parameter's temporal derivative expected by the underlying model methods.
+            </summary>
+        </member>
+        <member name="F:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.MechanicalModelCalculatorFacade._outputParameterValueName">
+            <summary>
+            The target property identifier on the output instance where the independent boundary condition value is mirrored.
+            </summary>
+        </member>
+        <member name="F:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.MechanicalModelCalculatorFacade._outputParameterDerivativeName">
+            <summary>
+            The target property identifier on the output instance where the independent boundary condition's temporal derivative is mirrored.
+            </summary>
+        </member>
+        <member name="F:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.MechanicalModelCalculatorFacade._inputParameters">
+            <summary>
+            Mutable parameter buffer dictionary passing time, input data models, and boundary states into the compiled reflection invokers.
+            </summary>
+        </member>
+        <member name="F:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.MechanicalModelCalculatorFacade._outputParameters">
+            <summary>
+            State map tracking independent variables and current integration times to initialize the freshly generated output objects.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.MechanicalModelCalculatorFacade.#ctor(MelloSilveiraTools.MechanicsOfMaterials.Caching.IMechanicalModelTypeCache,System.Type,System.Object,MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalModelInput)">
+            <summary>
+            Initializes a secondary instance of the <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.MechanicalModelCalculatorFacade"/> class optimized for iterative time-history simulations.
+            </summary>
+            <remarks>
+            This constructor evaluates the combination of <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalBehaviorType"/> and <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.ViscoelasticEffect"/> 
+            to determine the independent boundary condition. It extracts the value-derivative delegate, registers parameter tokens, 
+            and pre-allocates localized parameter buffers to eliminate allocation overhead during numerical loops.
+            </remarks>
+            <param name="cache">The high-performance type metadata cache mechanism.</param>
+            <param name="outputType">The explicit projection model type representing the output structure.</param>
+            <param name="calculator">The specific mathematical mechanical solver instance.</param>
+            <param name="input">The operational boundaries, specimen geometry, and time configurations.</param>
+            <exception cref="T:System.ArgumentNullException">Thrown when the provided input argument or required internal entities evaluate to null.</exception>
+            <exception cref="T:System.ArgumentOutOfRangeException">Thrown when the combination of behavior type and viscoelastic mechanism is unsupported by the domain logic.</exception>
         </member>
         <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.MechanicalModelCalculatorFacade.Calculate(System.Double)">
             <inheritdoc/>
@@ -537,301 +577,345 @@
         <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.MechanicalModelCalculatorFacade.CalculateStress(MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalModelInput,System.Double,System.Nullable{System.Double})">
             <inheritdoc/>
         </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.MechanicalModelCalculatorFacade.CalculateStrain(MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalModelInput,System.Double,System.Nullable{System.Double})">
+            <summary>
+            Dynamically invokes the underlying model's implementation to evaluate the dependent strain response.
+            </summary>
+            <param name="input">The base configuration parameters governing the simulation state.</param>
+            <param name="time">The specified chronological timeline coordinate. Unit: s (second).</param>
+            <param name="stress">The forced mechanical load applied as a continuum constraint. Unit: MPa (Mega-Pascal).</param>
+            <returns>The resolved material strain field mapping to the continuum stress state. Unit: dimensionless.</returns>
+        </member>
+        <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.MechanicalModelCalculatorFacade.ParameterNameConstant">
+            <summary>
+            Contains standard literal parameter name constants used across the meta-programming routing infrastructure.
+            </summary>
+        </member>
+        <member name="F:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.MechanicalModelCalculatorFacade.ParameterNameConstant.MechanicalModelInput">
+            <summary>Identifier for the configuration parameter model instance argument.</summary>
+        </member>
+        <member name="F:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.MechanicalModelCalculatorFacade.ParameterNameConstant.Time">
+            <summary>Identifier for the current step timeline argument.</summary>
+        </member>
+        <member name="F:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.MechanicalModelCalculatorFacade.ParameterNameConstant.Force">
+            <summary>Identifier for structural force bounds.</summary>
+        </member>
+        <member name="F:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.MechanicalModelCalculatorFacade.ParameterNameConstant.ForceDerivative">
+            <summary>Identifier for the temporal rate of structural force bounds.</summary>
+        </member>
+        <member name="F:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.MechanicalModelCalculatorFacade.ParameterNameConstant.Displacement">
+            <summary>Identifier for macrostructural kinematic displacements.</summary>
+        </member>
+        <member name="F:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.MechanicalModelCalculatorFacade.ParameterNameConstant.DisplacementDerivative">
+            <summary>Identifier for the kinematic velocity of structural displacements.</summary>
+        </member>
+        <member name="F:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.MechanicalModelCalculatorFacade.ParameterNameConstant.Stress">
+            <summary>Identifier for the continuum Cauchy stress bounds.</summary>
+        </member>
+        <member name="F:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.MechanicalModelCalculatorFacade.ParameterNameConstant.StressDerivative">
+            <summary>Identifier for the internal loading rate of the stress continuum.</summary>
+        </member>
+        <member name="F:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.MechanicalModelCalculatorFacade.ParameterNameConstant.Strain">
+            <summary>Identifier for the material Green-Lagrange or infinitesimal strains.</summary>
+        </member>
+        <member name="F:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.MechanicalModelCalculatorFacade.ParameterNameConstant.StrainDerivative">
+            <summary>Identifier for the material strain rate deformation tensor component.</summary>
+        </member>
         <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Viscoelasticity.IViscoelasticModelCalculator`1">
             <summary>
-            A generic viscoelastic model and can be linear, quasi-linear and non-linear.
-            Establish an approach using viscoelasticity for stress-strain and force-displacement relation which approximate from reality.
-            Viscoelasticity is understood as the property of materials that present viscous and elastic behavior at the same time. 
+            Defines a generic viscoelastic model calculator, accommodating linear, quasi-linear, and non-linear behaviors.
+            Establishes time-dependent approaches for stress-strain and force-displacement relationships.
+            Viscoelasticity is the property of models that exhibit both viscous and elastic characteristics simultaneously.
             </summary>
-            <typeparam name="TInput">Type of viscoelastic model's input.</typeparam>
+            <typeparam name="TConstitutiveParameters">The specific type of constitutive parameters governing the viscoelastic model.</typeparam>
         </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Viscoelasticity.IViscoelasticModelCalculator`1.CalculateRelaxationFunction(`0,System.Double,System.Nullable{System.Double})">
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Viscoelasticity.IViscoelasticModelCalculator`1.CalculateRelaxationFunction(MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalModelInput{`0},System.Double,System.Nullable{System.Double})">
             <summary>
-            Calculates the relaxation function, the viscous part of equation, represented by G. 
-            For more details, see on section "Bibliographies" on file "README.MD".
+            Calculates the relaxation function (the viscous component of the equation), represented by G. 
+            For more details, see the "Bibliographies" section in the "README.md" file.
             </summary>
-            <param name="input">The mechanical model's input.</param>
+            <param name="input">The mechanical model's input data.</param>
             <param name="time">Unit: s (second).</param>
             <param name="strain">
-            If not informed, this is calculated from the strain parameters on mechanical model's input.
             Unit: dimensionless.
+            If not provided, this is calculated from the strain parameters on the mechanical model's input.
             </param>
             <returns>Unit: MPa (Mega-Pascal).</returns>
         </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Viscoelasticity.IViscoelasticModelCalculator`1.CalculateCreepCompliance(`0,System.Double,System.Nullable{System.Double})">
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Viscoelasticity.IViscoelasticModelCalculator`1.CalculateCreepCompliance(MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalModelInput{`0},System.Double,System.Nullable{System.Double})">
             <summary>
-            Calculates the creep compliance, the viscous part of equation, represented by J. 
-            For more details, see on section "Bibliographies" on file "README.MD".
+            Calculates the creep compliance (the viscous component of the equation), represented by J. 
+            For more details, see the "Bibliographies" section in the "README.md" file.
             </summary>
-            <param name="input">The mechanical model's input.</param>
+            <param name="input">The mechanical model's input data.</param>
             <param name="time">Unit: s (second).</param>
             <param name="stress">
-            If not informed, this is calculated from the stress parameters on mechanical model's input.
             Unit: MPa (Mega-Pascal).
+            If not provided, this is calculated from the stress parameters on the mechanical model's input.
             </param>
             <returns>Unit: /MPa (per Mega-Pascal).</returns>
         </member>
         <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Viscoelasticity.Linear.LinearModelCalculator`1">
             <summary>
-            A linear viscoelastic model. Establish a linear stress-strain relation that depends only on time.
-            For more details, see on section "Bibliographies" on file "README.MD".
+            Defines the foundational calculator for linear viscoelastic models, utilizing hereditary integrals to establish time-dependent stress-strain relationships.
+            For more details, see the "Bibliographies" section in the "README.md" file.
             </summary>
-            <typeparam name="TInput">Type of linear viscoelastic model's input.</typeparam>
-            <param name="simpsonRuleIntegration">See reference at <see cref="T:MelloSilveiraTools.Mathematics.NumericalMethods.Integral.IIntegration"/>.</param>
+            <typeparam name="TConstitutiveParameters">The specific type of constitutive parameters governing the linear viscoelastic model.</typeparam>
+            <param name="integration">See reference at <see cref="T:MelloSilveiraTools.Mathematics.NumericalMethods.Integral.IIntegration"/>.</param>
             <param name="parameterConverter">See reference at <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Converters.MechanicalParameter.IMechanicalParameterConverter"/>.</param>
         </member>
         <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Viscoelasticity.Linear.LinearModelCalculator`1.#ctor(MelloSilveiraTools.Mathematics.NumericalMethods.Integral.IIntegration,MelloSilveiraTools.MechanicsOfMaterials.Converters.MechanicalParameter.IMechanicalParameterConverter)">
             <summary>
-            A linear viscoelastic model. Establish a linear stress-strain relation that depends only on time.
-            For more details, see on section "Bibliographies" on file "README.MD".
+            Defines the foundational calculator for linear viscoelastic models, utilizing hereditary integrals to establish time-dependent stress-strain relationships.
+            For more details, see the "Bibliographies" section in the "README.md" file.
             </summary>
-            <typeparam name="TInput">Type of linear viscoelastic model's input.</typeparam>
-            <param name="simpsonRuleIntegration">See reference at <see cref="T:MelloSilveiraTools.Mathematics.NumericalMethods.Integral.IIntegration"/>.</param>
+            <typeparam name="TConstitutiveParameters">The specific type of constitutive parameters governing the linear viscoelastic model.</typeparam>
+            <param name="integration">See reference at <see cref="T:MelloSilveiraTools.Mathematics.NumericalMethods.Integral.IIntegration"/>.</param>
             <param name="parameterConverter">See reference at <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Converters.MechanicalParameter.IMechanicalParameterConverter"/>.</param>
         </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Viscoelasticity.Linear.LinearModelCalculator`1.CalculateForce(`0,System.Double,System.Nullable{System.Double})">
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Viscoelasticity.Linear.LinearModelCalculator`1.CalculateForce(MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalModelInput{`0},System.Double,System.Nullable{System.Double})">
             <inheritdoc/>
         </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Viscoelasticity.Linear.LinearModelCalculator`1.CalculateDisplacement(`0,System.Double,System.Nullable{System.Double})">
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Viscoelasticity.Linear.LinearModelCalculator`1.CalculateDisplacement(MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalModelInput{`0},System.Double,System.Nullable{System.Double})">
             <inheritdoc/>
         </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Viscoelasticity.Linear.LinearModelCalculator`1.CalculateStress(`0,System.Double,System.Nullable{System.Double})">
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Viscoelasticity.Linear.LinearModelCalculator`1.CalculateStress(MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalModelInput{`0},System.Double,System.Nullable{System.Double})">
             <inheritdoc/>
         </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Viscoelasticity.Linear.LinearModelCalculator`1.CalculateStrain(`0,System.Double,System.Nullable{System.Double})">
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Viscoelasticity.Linear.LinearModelCalculator`1.CalculateStrain(MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalModelInput{`0},System.Double,System.Nullable{System.Double})">
             <inheritdoc/>
         </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Viscoelasticity.Linear.LinearModelCalculator`1.CalculateRelaxationFunction(`0,System.Double,System.Nullable{System.Double})">
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Viscoelasticity.Linear.LinearModelCalculator`1.CalculateRelaxationFunction(MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalModelInput{`0},System.Double,System.Nullable{System.Double})">
             <inheritdoc/>
         </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Viscoelasticity.Linear.LinearModelCalculator`1.CalculateCreepCompliance(`0,System.Double,System.Nullable{System.Double})">
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Viscoelasticity.Linear.LinearModelCalculator`1.CalculateCreepCompliance(MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalModelInput{`0},System.Double,System.Nullable{System.Double})">
             <inheritdoc/>
-        </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Viscoelasticity.Linear.LinearModelCalculator`1.CalculateStressWhenDisregardRampTime(`0,System.Double,System.Double)">
-            <summary>
-            Calculates the stress when the ramp time is disregarded.
-            </summary>
-            <param name="input">The mechanical model's input.</param>
-            <param name="time">Unit: s (second).</param>
-            <param name="strain">Unit: dimensionless.</param>
-            <returns>Unit: MPa (Mega-Pascal).</returns>
         </member>
         <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Viscoelasticity.Linear.Maxwell.IMaxwellModelCalculator">
             <summary>
-            Maxwell's linear viscoelastic model. It has a poor precision for soft tissues, but a good applicability for metals.
-            The model represents a spring and dashpot in series, where μ is the stiffness and η is the viscosity.
+            Defines a calculator for the Maxwell linear viscoelastic model.
             </summary>
+            <remarks>
+            The Maxwell model is represented mechanically by a purely elastic spring (stiffness, μ) 
+            and a purely viscous dashpot (viscosity, η) connected in series. 
+            While it has limited accuracy for modeling soft biological tissues, it exhibits good applicability for metals and fluid-like materials.
+            </remarks>
         </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Viscoelasticity.Linear.Maxwell.IMaxwellModelCalculator.CalculateRelaxationTime(MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.Linear.Maxwell.MaxwellModelInput)">
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Viscoelasticity.Linear.Maxwell.IMaxwellModelCalculator.CalculateRelaxationTime(MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalModelInput{MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.Linear.Maxwell.MaxwellConstitutiveParameters})">
             <summary>
-            Calculates the relaxation time: τ = η / μ (Projeto Final, Eq. 26).
+            Calculates the relaxation time (τ), which dictates the rate at which stress decays under constant strain.
+            Formula: τ = η / μ (Projeto Final, Eq. 26).
             </summary>
-            <param name="input">The mechanical's model input.</param>
+            <param name="input">The constitutive parameters for the Maxwell model.</param>
             <returns>Unit: s (second).</returns>
         </member>
         <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Viscoelasticity.Linear.Maxwell.MaxwellModelCalculator">
             <inheritdoc cref="T:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Viscoelasticity.Linear.Maxwell.IMaxwellModelCalculator"/>
-            <param name="integration">See reference at <see cref="T:MelloSilveiraTools.Mathematics.NumericalMethods.Integral.IIntegration"/>.</param>
-            <param name="parameterConverter">See reference at <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Converters.MechanicalParameter.IMechanicalParameterConverter"/>.</param>
         </member>
         <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Viscoelasticity.Linear.Maxwell.MaxwellModelCalculator.#ctor(MelloSilveiraTools.Mathematics.NumericalMethods.Integral.IIntegration,MelloSilveiraTools.MechanicsOfMaterials.Converters.MechanicalParameter.IMechanicalParameterConverter)">
             <inheritdoc cref="T:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Viscoelasticity.Linear.Maxwell.IMaxwellModelCalculator"/>
-            <param name="integration">See reference at <see cref="T:MelloSilveiraTools.Mathematics.NumericalMethods.Integral.IIntegration"/>.</param>
-            <param name="parameterConverter">See reference at <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Converters.MechanicalParameter.IMechanicalParameterConverter"/>.</param>
         </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Viscoelasticity.Linear.Maxwell.MaxwellModelCalculator.CalculateRelaxationTime(MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.Linear.Maxwell.MaxwellModelInput)">
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Viscoelasticity.Linear.Maxwell.MaxwellModelCalculator.CalculateRelaxationTime(MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalModelInput{MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.Linear.Maxwell.MaxwellConstitutiveParameters})">
             <inheritdoc/>
         </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Viscoelasticity.Linear.Maxwell.MaxwellModelCalculator.CalculateRelaxationFunction(MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.Linear.Maxwell.MaxwellModelInput,System.Double,System.Nullable{System.Double})">
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Viscoelasticity.Linear.Maxwell.MaxwellModelCalculator.CalculateRelaxationFunction(MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalModelInput{MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.Linear.Maxwell.MaxwellConstitutiveParameters},System.Double,System.Nullable{System.Double})">
             <inheritdoc/>
             <remarks>G(t) = μ · e^(-t/τ) (Projeto Final, Eq. 26).</remarks>
         </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Viscoelasticity.Linear.Maxwell.MaxwellModelCalculator.CalculateCreepCompliance(MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.Linear.Maxwell.MaxwellModelInput,System.Double,System.Nullable{System.Double})">
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Viscoelasticity.Linear.Maxwell.MaxwellModelCalculator.CalculateCreepCompliance(MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalModelInput{MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.Linear.Maxwell.MaxwellConstitutiveParameters},System.Double,System.Nullable{System.Double})">
             <inheritdoc/>
             <remarks>J(t) = 1/μ + t/η (Projeto Final, Eq. 23).</remarks>
         </member>
         <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Viscoelasticity.NonLinear.ModifiedSuperpositionMethod.IModifiedSuperpositionMethodCalculator">
             <summary>
-            Modified Superposition Method, a non-linear viscoelastic model based on Boltzmann superposition method.
+            Defines a calculator for the Modified Superposition Method (MSM), a non-linear viscoelastic model based on the Boltzmann superposition principle.
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Viscoelasticity.NonLinear.ModifiedSuperpositionMethod.IModifiedSuperpositionMethodCalculator.CalculateInitialYoungModulus(MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.NonLinear.ModifiedSuperpositionMethod.ModifiedSuperpositionMethodInput,System.Double)">
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Viscoelasticity.NonLinear.ModifiedSuperpositionMethod.IModifiedSuperpositionMethodCalculator.CalculateInitialYoungModulus(MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalModelInput{MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.NonLinear.ModifiedSuperpositionMethod.ModifiedSuperpositionMethodConstitutiveParameters},System.Double)">
             <summary>
-            Calculates the initial young modulus.
+            Calculates the initial Young's Modulus based on the applied strain.
             </summary>
-            <param name="input">The mechanical model's input.</param>
+            <param name="input">The mechanical model's input data.</param>
             <param name="strain">Unit: dimensionless.</param>
             <returns>Unit: dimensionless.</returns>
         </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Viscoelasticity.NonLinear.ModifiedSuperpositionMethod.IModifiedSuperpositionMethodCalculator.CalculateStressRelaxationRate(MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.NonLinear.ModifiedSuperpositionMethod.ModifiedSuperpositionMethodInput,System.Double)">
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Viscoelasticity.NonLinear.ModifiedSuperpositionMethod.IModifiedSuperpositionMethodCalculator.CalculateStressRelaxationRate(MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalModelInput{MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.NonLinear.ModifiedSuperpositionMethod.ModifiedSuperpositionMethodConstitutiveParameters},System.Double)">
             <summary>
-            Calculates the stress relaxation rate.
+            Calculates the stress relaxation rate based on the applied strain.
             </summary>
-            <param name="input">The mechanical model's input.</param>
+            <param name="input">The mechanical model's input data.</param>
             <param name="strain">Unit: dimensionless.</param>
             <returns>Unit: MPa (Mega-Pascal).</returns>
         </member>
         <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Viscoelasticity.NonLinear.ModifiedSuperpositionMethod.ModifiedSuperpositionMethodCalculator">
-            <inheritdoc cref="T:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Viscoelasticity.NonLinear.ModifiedSuperpositionMethod.IModifiedSuperpositionMethodCalculator"/>
-            <param name="simpsonRuleIntegration">See reference at <see cref="T:MelloSilveiraTools.Mathematics.NumericalMethods.Integral.IIntegration"/>.</param>
-            <param name="parameterConverter">See reference at <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Converters.MechanicalParameter.IMechanicalParameterConverter"/>.</param>
+            <summary>
+            Implements the calculator for the Modified Superposition Method (MSM).
+            Resolves non-linear viscoelastic responses by evaluating strain-dependent relaxation functions through numerical integration.
+            </summary>
+            <param name="integration">See reference at <see cref="T:MelloSilveiraTools.Mathematics.NumericalMethods.Integral.IIntegration"/>.</param>
+            <param name="parameterConverter">The utility used to convert structural metrics into material metrics.</param>
         </member>
         <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Viscoelasticity.NonLinear.ModifiedSuperpositionMethod.ModifiedSuperpositionMethodCalculator.#ctor(MelloSilveiraTools.Mathematics.NumericalMethods.Integral.IIntegration,MelloSilveiraTools.MechanicsOfMaterials.Converters.MechanicalParameter.IMechanicalParameterConverter)">
-            <inheritdoc cref="T:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Viscoelasticity.NonLinear.ModifiedSuperpositionMethod.IModifiedSuperpositionMethodCalculator"/>
-            <param name="simpsonRuleIntegration">See reference at <see cref="T:MelloSilveiraTools.Mathematics.NumericalMethods.Integral.IIntegration"/>.</param>
-            <param name="parameterConverter">See reference at <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Converters.MechanicalParameter.IMechanicalParameterConverter"/>.</param>
-        </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Viscoelasticity.NonLinear.ModifiedSuperpositionMethod.ModifiedSuperpositionMethodCalculator.CalculateInitialYoungModulus(MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.NonLinear.ModifiedSuperpositionMethod.ModifiedSuperpositionMethodInput,System.Double)">
-            <inheritdoc/>
-        </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Viscoelasticity.NonLinear.ModifiedSuperpositionMethod.ModifiedSuperpositionMethodCalculator.CalculateStressRelaxationRate(MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.NonLinear.ModifiedSuperpositionMethod.ModifiedSuperpositionMethodInput,System.Double)">
-            <inheritdoc/>
-        </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Viscoelasticity.NonLinear.ModifiedSuperpositionMethod.ModifiedSuperpositionMethodCalculator.CalculateCreepCompliance(MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.NonLinear.ModifiedSuperpositionMethod.ModifiedSuperpositionMethodInput,System.Double,System.Nullable{System.Double})">
-            <inheritdoc/>
-        </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Viscoelasticity.NonLinear.ModifiedSuperpositionMethod.ModifiedSuperpositionMethodCalculator.CalculateRelaxationFunction(MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.NonLinear.ModifiedSuperpositionMethod.ModifiedSuperpositionMethodInput,System.Double,System.Nullable{System.Double})">
-            <inheritdoc/>
-            <remarks>G(t,ε) = A(ε) · t^(B(ε)) (Projeto Final, Eq. 55).</remarks>
-        </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Viscoelasticity.NonLinear.ModifiedSuperpositionMethod.ModifiedSuperpositionMethodCalculator.CalculateForce(MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.NonLinear.ModifiedSuperpositionMethod.ModifiedSuperpositionMethodInput,System.Double,System.Nullable{System.Double})">
-            <inheritdoc/>
-        </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Viscoelasticity.NonLinear.ModifiedSuperpositionMethod.ModifiedSuperpositionMethodCalculator.CalculateDisplacement(MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.NonLinear.ModifiedSuperpositionMethod.ModifiedSuperpositionMethodInput,System.Double,System.Nullable{System.Double})">
-            <inheritdoc/>
-        </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Viscoelasticity.NonLinear.ModifiedSuperpositionMethod.ModifiedSuperpositionMethodCalculator.CalculateStress(MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.NonLinear.ModifiedSuperpositionMethod.ModifiedSuperpositionMethodInput,System.Double,System.Nullable{System.Double})">
-            <inheritdoc/>
-            <remarks>σ(ε,t) = ∫₀ᵗ G(t-τ, ε(τ)) · dε(τ)/dτ dτ (Projeto Final, Eq. 53).</remarks>
-        </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Viscoelasticity.NonLinear.ModifiedSuperpositionMethod.ModifiedSuperpositionMethodCalculator.CalculateStrain(MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.NonLinear.ModifiedSuperpositionMethod.ModifiedSuperpositionMethodInput,System.Double,System.Nullable{System.Double})">
-            <inheritdoc/>
-        </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Viscoelasticity.NonLinear.ModifiedSuperpositionMethod.ModifiedSuperpositionMethodCalculator.CalculateStressWhenDisregardRampTime(MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.NonLinear.ModifiedSuperpositionMethod.ModifiedSuperpositionMethodInput,System.Double,System.Double)">
             <summary>
-            Calculates the stress when the ramp time is disregarded.
-            σ(εᵢ,t) = G(t, εᵢ) · εᵢ (Projeto Final, Eq. 54).
+            Implements the calculator for the Modified Superposition Method (MSM).
+            Resolves non-linear viscoelastic responses by evaluating strain-dependent relaxation functions through numerical integration.
             </summary>
-            <param name="input">The mechanical model's input.</param>
+            <param name="integration">See reference at <see cref="T:MelloSilveiraTools.Mathematics.NumericalMethods.Integral.IIntegration"/>.</param>
+            <param name="parameterConverter">The utility used to convert structural metrics into material metrics.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Viscoelasticity.NonLinear.ModifiedSuperpositionMethod.ModifiedSuperpositionMethodCalculator.CalculateInitialYoungModulus(MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalModelInput{MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.NonLinear.ModifiedSuperpositionMethod.ModifiedSuperpositionMethodConstitutiveParameters},System.Double)">
+            <inheritdoc/>
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Viscoelasticity.NonLinear.ModifiedSuperpositionMethod.ModifiedSuperpositionMethodCalculator.CalculateStressRelaxationRate(MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalModelInput{MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.NonLinear.ModifiedSuperpositionMethod.ModifiedSuperpositionMethodConstitutiveParameters},System.Double)">
+            <inheritdoc/>
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Viscoelasticity.NonLinear.ModifiedSuperpositionMethod.ModifiedSuperpositionMethodCalculator.CalculateCreepCompliance(MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalModelInput{MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.NonLinear.ModifiedSuperpositionMethod.ModifiedSuperpositionMethodConstitutiveParameters},System.Double,System.Nullable{System.Double})">
+            <inheritdoc/>
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Viscoelasticity.NonLinear.ModifiedSuperpositionMethod.ModifiedSuperpositionMethodCalculator.CalculateRelaxationFunction(MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalModelInput{MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.NonLinear.ModifiedSuperpositionMethod.ModifiedSuperpositionMethodConstitutiveParameters},System.Double,System.Nullable{System.Double})">
+            <inheritdoc/>
+            <remarks>Formula: G(t,ε) = A(ε) · t^(B(ε)) (Projeto Final, Eq. 55).</remarks>
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Viscoelasticity.NonLinear.ModifiedSuperpositionMethod.ModifiedSuperpositionMethodCalculator.CalculateForce(MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalModelInput{MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.NonLinear.ModifiedSuperpositionMethod.ModifiedSuperpositionMethodConstitutiveParameters},System.Double,System.Nullable{System.Double})">
+            <inheritdoc/>
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Viscoelasticity.NonLinear.ModifiedSuperpositionMethod.ModifiedSuperpositionMethodCalculator.CalculateDisplacement(MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalModelInput{MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.NonLinear.ModifiedSuperpositionMethod.ModifiedSuperpositionMethodConstitutiveParameters},System.Double,System.Nullable{System.Double})">
+            <inheritdoc/>
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Viscoelasticity.NonLinear.ModifiedSuperpositionMethod.ModifiedSuperpositionMethodCalculator.CalculateStress(MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalModelInput{MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.NonLinear.ModifiedSuperpositionMethod.ModifiedSuperpositionMethodConstitutiveParameters},System.Double,System.Nullable{System.Double})">
+            <inheritdoc/>
+            <remarks>Formula: σ(ε,t) = ∫₀ᵗ G(t-τ, ε(τ)) · dε(τ)/dτ dτ (Projeto Final, Eq. 53).</remarks>
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Viscoelasticity.NonLinear.ModifiedSuperpositionMethod.ModifiedSuperpositionMethodCalculator.CalculateStrain(MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalModelInput{MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.NonLinear.ModifiedSuperpositionMethod.ModifiedSuperpositionMethodConstitutiveParameters},System.Double,System.Nullable{System.Double})">
+            <inheritdoc/>
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Viscoelasticity.NonLinear.ModifiedSuperpositionMethod.ModifiedSuperpositionMethodCalculator.CalculateStressWhenDisregardRampTime(MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalModelInput{MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.NonLinear.ModifiedSuperpositionMethod.ModifiedSuperpositionMethodConstitutiveParameters},System.Double,System.Double)">
+            <summary>
+            Calculates the stress when the ramp time is disregarded (instantaneous loading).
+            Formula: σ(εᵢ,t) = G(t, εᵢ) · εᵢ (Projeto Final, Eq. 54).
+            </summary>
+            <param name="input">The mechanical model's input data.</param>
             <param name="time">Unit: s (second).</param>
             <param name="strain">Unit: dimensionless.</param>
             <returns>Unit: MPa (Mega-Pascal).</returns>
         </member>
         <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Viscoelasticity.NonLinear.Schapery.ISchaperyModelCalculator">
             <summary>
-            Schapery's non-linear viscoelastic model.
-            It uses the Boltzmann superposition method, with thermodynamics concepts, to determine a non-linear strain-stress relation. 
-            For soft tissue analysis, the influence of temperature is not considered since the temperature is constant or has slight
-            variation in a real body.
-            The main limitation of Schapery’s model is the dependence on the relaxation function value in the equilibrium condition (when 
-            the time tends to infinity). This is considered a limitation since the accuracy of the numerical model depends on finding the 
-            equilibrium state in the experimental tests. This may require periods in the range of hours, as observed in several researches. 
-            For more details, see on section "Bibliographies" on file "README.MD".
+            Defines a calculator for Schapery's non-linear viscoelastic model.
             </summary>
+            <remarks>
+            It uses the Boltzmann superposition principle combined with thermodynamic concepts to determine a non-linear stress-strain relationship.
+            
+            For soft tissue analysis, the influence of temperature is typically disregarded, as the temperature remains constant or has slight variations in a real biological body.
+            
+            The main limitation of Schapery’s model is its dependence on the relaxation function value in the equilibrium condition (when time approaches infinity). 
+            This requires finding the equilibrium state in experimental tests, which may take hours, as observed in several biomechanical researches.
+            For more details, see the "Bibliographies" section in the "README.md" file.
+            </remarks>
         </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Viscoelasticity.NonLinear.Schapery.ISchaperyModelCalculator.CalculateTransientRelaxationFunction(MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.NonLinear.Schapery.SchaperyModelInput,System.Double)">
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Viscoelasticity.NonLinear.Schapery.ISchaperyModelCalculator.CalculateTransientRelaxationFunction(MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalModelInput{MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.NonLinear.Schapery.SchaperyConstitutiveParameters},System.Double)">
             <summary>
             Calculates the transient relaxation function.
-            For more details, see on section "Bibliographies" on file "README.MD".
+            For more details, see the "Bibliographies" section in the "README.md" file.
             </summary>
-            <param name="input">The mechanical model's input.</param>
+            <param name="input">The mechanical model's input data.</param>
             <param name="time">Unit: s (second).</param>
             <returns>Unit: MPa (Mega-Pascal).</returns>
         </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Viscoelasticity.NonLinear.Schapery.ISchaperyModelCalculator.CalculateTransientCreepCompliance(MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.NonLinear.Schapery.SchaperyModelInput,System.Double)">
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Viscoelasticity.NonLinear.Schapery.ISchaperyModelCalculator.CalculateTransientCreepCompliance(MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalModelInput{MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.NonLinear.Schapery.SchaperyConstitutiveParameters},System.Double)">
             <summary>
             Calculates the transient creep compliance.
-            For more details, see on section "Bibliographies" on file "README.MD".
+            For more details, see the "Bibliographies" section in the "README.md" file.
             </summary>
-            <param name="input">The mechanical model's input.</param>
+            <param name="input">The mechanical model's input data.</param>
             <param name="time">Unit: s (second).</param>
-            <returns>Unit: /Mpa (per Mega-Pascal).</returns>
+            <returns>Unit: /MPa (per Mega-Pascal).</returns>
         </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Viscoelasticity.NonLinear.Schapery.ISchaperyModelCalculator.CalculateReducedTimeFunction(MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.NonLinear.Schapery.SchaperyModelInput,System.Double)">
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Viscoelasticity.NonLinear.Schapery.ISchaperyModelCalculator.CalculateReducedTimeFunction(MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalModelInput{MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.NonLinear.Schapery.SchaperyConstitutiveParameters},System.Double)">
             <summary>
-            Calculates the reduced time function to be used on stress calculation.
-            For analysis with low stress level, as soft tissue analysis, this variable is considered equal to time.
-            For more details, see on section "Bibliographies" on file "README.MD".
+            Calculates the reduced time function used in stress calculation (relaxation).
+            For analyses with low stress levels (such as soft tissue analysis), this variable is often considered equal to the real time.
+            For more details, see the "Bibliographies" section in the "README.md" file.
             </summary>
-            <param name="input">The mechanical model's input.</param>
-            <param name="time">Unit: s (second).</param>
-            <returns>Unit: s (second).</returns>
-        </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Viscoelasticity.NonLinear.Schapery.ISchaperyModelCalculator.CalculateRetardationTimeFunction(MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.NonLinear.Schapery.SchaperyModelInput,System.Double)">
-            <summary>
-            Calculates the retardation time function to be used on strain calculation.
-            For analysis with low stress level, as soft tissue analysis, this variable is considered equal to time.
-            </summary>
-            <param name="input">The mechanical model's input.</param>
+            <param name="input">The mechanical model's input data.</param>
             <param name="time">Unit: s (second).</param>
             <returns>Unit: s (second).</returns>
         </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Viscoelasticity.NonLinear.Schapery.ISchaperyModelCalculator.CalculateStressShiftFactor(MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.NonLinear.Schapery.SchaperyModelInput,System.Double)">
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Viscoelasticity.NonLinear.Schapery.ISchaperyModelCalculator.CalculateRetardationTimeFunction(MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalModelInput{MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.NonLinear.Schapery.SchaperyConstitutiveParameters},System.Double)">
             <summary>
-            Calculates the stress shift factor to be used when calculating the reduced time function for relaxation analysis.
+            Calculates the retardation time function used in strain calculation (creep).
+            For analyses with low stress levels (such as soft tissue analysis), this variable is often considered equal to the real time.
             </summary>
-            <param name="input">The mechanical model's input.</param>
+            <param name="input">The mechanical model's input data.</param>
+            <param name="time">Unit: s (second).</param>
+            <returns>Unit: s (second).</returns>
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Viscoelasticity.NonLinear.Schapery.ISchaperyModelCalculator.CalculateStressShiftFactor(MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalModelInput{MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.NonLinear.Schapery.SchaperyConstitutiveParameters},System.Double)">
+            <summary>
+            Calculates the stress shift factor used when computing the reduced time function for relaxation analysis.
+            </summary>
+            <param name="input">The mechanical model's input data.</param>
             <param name="time">Unit: s (second).</param>
             <returns>Unit: dimensionless.</returns>
         </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Viscoelasticity.NonLinear.Schapery.ISchaperyModelCalculator.CalculateTemperatureShiftFactor(MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.NonLinear.Schapery.SchaperyModelInput,System.Double)">
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Viscoelasticity.NonLinear.Schapery.ISchaperyModelCalculator.CalculateTemperatureShiftFactor(MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalModelInput{MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.NonLinear.Schapery.SchaperyConstitutiveParameters},System.Double)">
             <summary>
-            Calculates the temperature shift factor to be used when calculating the retardation time function for creep analysis.
+            Calculates the temperature shift factor used when computing the retardation time function for creep analysis.
             </summary>
-            <param name="input">The mechanical model's input.</param>
+            <param name="input">The mechanical model's input data.</param>
             <param name="time">Unit: s (second).</param>
             <returns>Unit: dimensionless.</returns>
         </member>
         <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Viscoelasticity.NonLinear.Schapery.SchaperyModelCalculator">
             <inheritdoc cref="T:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Viscoelasticity.NonLinear.Schapery.ISchaperyModelCalculator"/>
-            <param name="simpsonRuleIntegration">See reference at <see cref="T:MelloSilveiraTools.Mathematics.NumericalMethods.Integral.IIntegration"/>.</param>
+            <param name="integration">See reference at <see cref="T:MelloSilveiraTools.Mathematics.NumericalMethods.Integral.IIntegration"/>.</param>
             <param name="derivative">See reference at <see cref="T:MelloSilveiraTools.Mathematics.NumericalMethods.Derivative.IDerivative"/>.</param>
             <param name="parameterConverter">See reference at <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Converters.MechanicalParameter.IMechanicalParameterConverter"/>.</param>
         </member>
         <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Viscoelasticity.NonLinear.Schapery.SchaperyModelCalculator.#ctor(MelloSilveiraTools.Mathematics.NumericalMethods.Integral.IIntegration,MelloSilveiraTools.Mathematics.NumericalMethods.Derivative.IDerivative,MelloSilveiraTools.MechanicsOfMaterials.Converters.MechanicalParameter.IMechanicalParameterConverter)">
             <inheritdoc cref="T:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Viscoelasticity.NonLinear.Schapery.ISchaperyModelCalculator"/>
-            <param name="simpsonRuleIntegration">See reference at <see cref="T:MelloSilveiraTools.Mathematics.NumericalMethods.Integral.IIntegration"/>.</param>
+            <param name="integration">See reference at <see cref="T:MelloSilveiraTools.Mathematics.NumericalMethods.Integral.IIntegration"/>.</param>
             <param name="derivative">See reference at <see cref="T:MelloSilveiraTools.Mathematics.NumericalMethods.Derivative.IDerivative"/>.</param>
             <param name="parameterConverter">See reference at <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Converters.MechanicalParameter.IMechanicalParameterConverter"/>.</param>
         </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Viscoelasticity.NonLinear.Schapery.SchaperyModelCalculator.CalculateTransientRelaxationFunction(MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.NonLinear.Schapery.SchaperyModelInput,System.Double)">
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Viscoelasticity.NonLinear.Schapery.SchaperyModelCalculator.CalculateTransientRelaxationFunction(MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalModelInput{MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.NonLinear.Schapery.SchaperyConstitutiveParameters},System.Double)">
             <inheritdoc/>
         </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Viscoelasticity.NonLinear.Schapery.SchaperyModelCalculator.CalculateTransientCreepCompliance(MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.NonLinear.Schapery.SchaperyModelInput,System.Double)">
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Viscoelasticity.NonLinear.Schapery.SchaperyModelCalculator.CalculateTransientCreepCompliance(MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalModelInput{MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.NonLinear.Schapery.SchaperyConstitutiveParameters},System.Double)">
             <inheritdoc/>
         </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Viscoelasticity.NonLinear.Schapery.SchaperyModelCalculator.CalculateReducedTimeFunction(MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.NonLinear.Schapery.SchaperyModelInput,System.Double)">
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Viscoelasticity.NonLinear.Schapery.SchaperyModelCalculator.CalculateReducedTimeFunction(MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalModelInput{MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.NonLinear.Schapery.SchaperyConstitutiveParameters},System.Double)">
             <inheritdoc/>
         </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Viscoelasticity.NonLinear.Schapery.SchaperyModelCalculator.CalculateRetardationTimeFunction(MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.NonLinear.Schapery.SchaperyModelInput,System.Double)">
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Viscoelasticity.NonLinear.Schapery.SchaperyModelCalculator.CalculateRetardationTimeFunction(MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalModelInput{MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.NonLinear.Schapery.SchaperyConstitutiveParameters},System.Double)">
             <inheritdoc/>
         </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Viscoelasticity.NonLinear.Schapery.SchaperyModelCalculator.CalculateStressShiftFactor(MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.NonLinear.Schapery.SchaperyModelInput,System.Double)">
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Viscoelasticity.NonLinear.Schapery.SchaperyModelCalculator.CalculateStressShiftFactor(MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalModelInput{MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.NonLinear.Schapery.SchaperyConstitutiveParameters},System.Double)">
             <inheritdoc/>
         </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Viscoelasticity.NonLinear.Schapery.SchaperyModelCalculator.CalculateTemperatureShiftFactor(MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.NonLinear.Schapery.SchaperyModelInput,System.Double)">
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Viscoelasticity.NonLinear.Schapery.SchaperyModelCalculator.CalculateTemperatureShiftFactor(MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalModelInput{MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.NonLinear.Schapery.SchaperyConstitutiveParameters},System.Double)">
             <inheritdoc/>
         </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Viscoelasticity.NonLinear.Schapery.SchaperyModelCalculator.CalculateRelaxationFunction(MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.NonLinear.Schapery.SchaperyModelInput,System.Double,System.Nullable{System.Double})">
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Viscoelasticity.NonLinear.Schapery.SchaperyModelCalculator.CalculateRelaxationFunction(MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalModelInput{MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.NonLinear.Schapery.SchaperyConstitutiveParameters},System.Double,System.Nullable{System.Double})">
             <inheritdoc/>
         </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Viscoelasticity.NonLinear.Schapery.SchaperyModelCalculator.CalculateCreepCompliance(MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.NonLinear.Schapery.SchaperyModelInput,System.Double,System.Nullable{System.Double})">
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Viscoelasticity.NonLinear.Schapery.SchaperyModelCalculator.CalculateCreepCompliance(MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalModelInput{MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.NonLinear.Schapery.SchaperyConstitutiveParameters},System.Double,System.Nullable{System.Double})">
             <inheritdoc/>
         </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Viscoelasticity.NonLinear.Schapery.SchaperyModelCalculator.CalculateForce(MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.NonLinear.Schapery.SchaperyModelInput,System.Double,System.Nullable{System.Double})">
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Viscoelasticity.NonLinear.Schapery.SchaperyModelCalculator.CalculateForce(MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalModelInput{MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.NonLinear.Schapery.SchaperyConstitutiveParameters},System.Double,System.Nullable{System.Double})">
             <inheritdoc/>
         </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Viscoelasticity.NonLinear.Schapery.SchaperyModelCalculator.CalculateDisplacement(MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.NonLinear.Schapery.SchaperyModelInput,System.Double,System.Nullable{System.Double})">
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Viscoelasticity.NonLinear.Schapery.SchaperyModelCalculator.CalculateDisplacement(MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalModelInput{MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.NonLinear.Schapery.SchaperyConstitutiveParameters},System.Double,System.Nullable{System.Double})">
             <inheritdoc/>
         </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Viscoelasticity.NonLinear.Schapery.SchaperyModelCalculator.CalculateStress(MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.NonLinear.Schapery.SchaperyModelInput,System.Double,System.Nullable{System.Double})">
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Viscoelasticity.NonLinear.Schapery.SchaperyModelCalculator.CalculateStress(MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalModelInput{MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.NonLinear.Schapery.SchaperyConstitutiveParameters},System.Double,System.Nullable{System.Double})">
             <inheritdoc/>
             <remarks>σ(ε,t) = hₑ(ε)·Gₑ·ε(t) + h₁(ε)·∫₀ᵗ ΔG(ρ(t)-ρ(τ))·d[h₂(ε)·ε(τ)]/dτ dτ (Projeto Final, Eq. 47/48).</remarks>
         </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Viscoelasticity.NonLinear.Schapery.SchaperyModelCalculator.CalculateStrain(MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.NonLinear.Schapery.SchaperyModelInput,System.Double,System.Nullable{System.Double})">
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Viscoelasticity.NonLinear.Schapery.SchaperyModelCalculator.CalculateStrain(MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalModelInput{MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.NonLinear.Schapery.SchaperyConstitutiveParameters},System.Double,System.Nullable{System.Double})">
             <inheritdoc/>
         </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Viscoelasticity.NonLinear.Schapery.SchaperyModelCalculator.CalculateStressWhenDisregardRampTime(MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.NonLinear.Schapery.SchaperyModelInput,System.Double,System.Double)">
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Viscoelasticity.NonLinear.Schapery.SchaperyModelCalculator.CalculateStressWhenDisregardRampTime(MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalModelInput{MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.NonLinear.Schapery.SchaperyConstitutiveParameters},System.Double,System.Double)">
             <summary>
             Calculates the stress when the ramp time is disregarded.
             </summary>
@@ -842,34 +926,34 @@
         </member>
         <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Viscoelasticity.QuasiLinear.Fung.FungModelCalculator">
             <inheritdoc cref="T:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Viscoelasticity.QuasiLinear.Fung.IFungModelCalculator"/>
-            <param name="simpsonRuleIntegration">See reference at <see cref="T:MelloSilveiraTools.Mathematics.NumericalMethods.Integral.IIntegration"/>.</param>
+            <param name="integration">See reference at <see cref="T:MelloSilveiraTools.Mathematics.NumericalMethods.Integral.IIntegration"/>.</param>
             <param name="derivative">See reference at <see cref="T:MelloSilveiraTools.Mathematics.NumericalMethods.Derivative.IDerivative"/>.</param>
             <param name="parameterConverter">See reference at <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Converters.MechanicalParameter.IMechanicalParameterConverter"/>.</param>
         </member>
         <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Viscoelasticity.QuasiLinear.Fung.FungModelCalculator.#ctor(MelloSilveiraTools.Mathematics.NumericalMethods.Integral.IIntegration,MelloSilveiraTools.Mathematics.NumericalMethods.Derivative.IDerivative,MelloSilveiraTools.MechanicsOfMaterials.Converters.MechanicalParameter.IMechanicalParameterConverter)">
             <inheritdoc cref="T:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Viscoelasticity.QuasiLinear.Fung.IFungModelCalculator"/>
-            <param name="simpsonRuleIntegration">See reference at <see cref="T:MelloSilveiraTools.Mathematics.NumericalMethods.Integral.IIntegration"/>.</param>
+            <param name="integration">See reference at <see cref="T:MelloSilveiraTools.Mathematics.NumericalMethods.Integral.IIntegration"/>.</param>
             <param name="derivative">See reference at <see cref="T:MelloSilveiraTools.Mathematics.NumericalMethods.Derivative.IDerivative"/>.</param>
             <param name="parameterConverter">See reference at <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Converters.MechanicalParameter.IMechanicalParameterConverter"/>.</param>
         </member>
         <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Viscoelasticity.QuasiLinear.Fung.FungModelCalculator.CalculateI(System.Double,System.Double,System.Double,System.Double)">
             <inheritdoc/>
             <remarks>
-            I(t) = ∫[t/τ₂, t/τ₁] e^(-x)/x dx (Projeto Final, Eq. 43).
+            Formula: I(t) = ∫[t/τ₂, t/τ₁] e^(-x)/x dx (Projeto Final, Eq. 43).
             When t → 0, the integrand e^(-x)/x ≈ 1/x, so I(0) = ln(τ₂/τ₁).
             </remarks>
         </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Viscoelasticity.QuasiLinear.Fung.FungModelCalculator.CalculateReducedRelaxationFunction(MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.QuasiLinear.FungModelInput,System.Double)">
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Viscoelasticity.QuasiLinear.Fung.FungModelCalculator.CalculateReducedRelaxationFunction(MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalModelInput{MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.QuasiLinear.FungConstitutiveParameters},System.Double)">
             <inheritdoc/>
-            <remarks>G(t) = (1 + C · I(t)) / (1 + C · ln(τ₂/τ₁)) (Projeto Final, Eq. 43). G(0) = 1.</remarks>
+            <remarks>Formula: G(t) = (1 + C · I(t)) / (1 + C · ln(τ₂/τ₁)) (Projeto Final, Eq. 43). G(0) = 1.</remarks>
         </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Viscoelasticity.QuasiLinear.Fung.FungModelCalculator.CalculateReducedRelaxationFunctionDerivative(MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.QuasiLinear.FungModelInput,System.Double)">
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Viscoelasticity.QuasiLinear.Fung.FungModelCalculator.CalculateReducedRelaxationFunctionDerivative(MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalModelInput{MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.QuasiLinear.FungConstitutiveParameters},System.Double)">
             <inheritdoc/>
-            <remarks>dG/dt = C · [e^(-t/τ₁) - e^(-t/τ₂)] / [t · (1 + C · ln(τ₂/τ₁))] (Projeto Final, Eq. 45).</remarks>
+            <remarks>Formula: dG/dt = C · [e^(-t/τ₁) - e^(-t/τ₂)] / [t · (1 + C · ln(τ₂/τ₁))] (Projeto Final, Eq. 45).</remarks>
         </member>
         <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Viscoelasticity.QuasiLinear.Fung.FungModelCalculator.SetIntegrationStep(System.Double,System.Double)">
             <summary>
-            Sets the step time for integration.
+            Sets the dynamic time step for numerical integration based on the current integration time.
             </summary>
             <param name="time">Unit: s (second).</param>
             <param name="timeStep">Unit: s (second).</param>
@@ -877,75 +961,87 @@
         </member>
         <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Viscoelasticity.QuasiLinear.Fung.IFungModelCalculator">
             <summary>
-            Fung's quasi-linear viscoelastic model.
+            Defines a calculator for the classic Fung Quasi-Linear Viscoelastic (QLV) model.
             </summary>
+            <remarks>
+            This calculator implements the exact numerical evaluation of Fung's continuous relaxation spectrum, 
+            avoiding the discrete approximations used in the simplified model.
+            </remarks>
         </member>
         <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Viscoelasticity.QuasiLinear.Fung.IFungModelCalculator.CalculateI(System.Double,System.Double,System.Double,System.Double)">
             <summary>
-            Calculates the equation I(t) where t is the time.
+            Calculates the integral function I(t), which resolves the continuous relaxation spectrum between the fast and slow relaxation times.
             </summary>
-            <param name="slowRelaxationTime">Unit: s (second).</param>
-            <param name="fastRelaxationTime">Unit: s (second).</param>
-            <param name="timeStep">Unit: s (second).</param>
-            <param name="time">Unit: s (second).</param>
+            <remarks>
+            Mathematically, this evaluates the exponential integral commonly represented as ∫(e^(-t/τ) / τ) dτ from τ2 to τ1.
+            </remarks>
+            <param name="slowRelaxationTime">The upper bound of the relaxation spectrum (τ1). Unit: s (second).</param>
+            <param name="fastRelaxationTime">The lower bound of the relaxation spectrum (τ2). Unit: s (second).</param>
+            <param name="timeStep">The numerical integration step. Unit: s (second).</param>
+            <param name="time">The current elapsed time. Unit: s (second).</param>
             <returns>Unit: dimensionless.</returns>
         </member>
         <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Viscoelasticity.QuasiLinear.IQuasiLinearModelCalculator`2">
             <summary>
-            A quasi-linear viscoelastic model, initially proposed by Fung. Establish a non-linear stress-strain relation, divided in 
-            two parts: the reduced relaxation function, which depends only on time, and the elastic response, which depends on strain.
-            For more details, see on section "Bibliographies" on file "README.MD".
+            Defines a calculator for the Quasi-Linear Viscoelastic (QLV) model, initially proposed by Y.C. Fung.
             </summary>
-            <typeparam name="TInput">The type of mechanical model input.</typeparam>
-            <typeparam name="TReducedRelaxationFunction">The type of reduced relaxation function.</typeparam>
+            <remarks>
+            This formulation establishes a non-linear stress-strain relationship divided into two mathematically independent parts: 
+            the reduced relaxation function (which depends only on time) and the elastic response (which depends only on strain).
+            For more details, see the "Bibliographies" section in the "README.md" file.
+            </remarks>
+            <typeparam name="TConstitutiveParameters">The specific type of QLV constitutive parameters.</typeparam>
+            <typeparam name="TReducedRelaxationFunction">The specific type of the reduced relaxation function formulation.</typeparam>
         </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Viscoelasticity.QuasiLinear.IQuasiLinearModelCalculator`2.CalculateElasticForceResponse(`0,System.Double,System.Nullable{System.Double})">
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Viscoelasticity.QuasiLinear.IQuasiLinearModelCalculator`2.CalculateElasticForceResponse(MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalModelInput{`0},System.Double,System.Nullable{System.Double})">
             <summary>
-            Calculates the elastic force response, the elastic part of equation while calculating the force-displacement relation.
-            For more details, see on section "Bibliographies" on file "README.MD".
+            Calculates the elastic force response. 
+            This represents the purely elastic component of the equation when computing the force-displacement relationship.
+            For more details, see the "Bibliographies" section in the "README.md" file.
             </summary>
-            <param name="input">The mechanical model's input.</param>
+            <param name="input">The mechanical model's input data.</param>
             <param name="time">Unit: s (second).</param>
             <param name="displacement">Unit: m (meter).</param>
             <returns>Unit: N (Newton).</returns>
         </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Viscoelasticity.QuasiLinear.IQuasiLinearModelCalculator`2.CalculateElasticResponse(`0,System.Double,System.Nullable{System.Double})">
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Viscoelasticity.QuasiLinear.IQuasiLinearModelCalculator`2.CalculateElasticResponse(MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalModelInput{`0},System.Double,System.Nullable{System.Double})">
             <summary>
-            Calculates the elastic response, the elastic part of equation while calculating the stress-stress relation.
-            For more details, see on section "Bibliographies" on file "README.MD".
+            Calculates the elastic response ($T^{(e)}$). 
+            This represents the purely elastic component of the equation when computing the stress-strain relationship.
+            For more details, see the "Bibliographies" section in the "README.md" file.
             </summary>
-            <param name="input">The mechanical model's input.</param>
+            <param name="input">The mechanical model's input data.</param>
             <param name="time">Unit: s (second).</param>
             <param name="strain">
             Unit: dimensionless. 
-            If not informed, this is calculated from the strain parameters on mechanical model's input.
+            If not provided, this is calculated from the strain parameters on the mechanical model's input.
             </param>
             <returns>Unit: MPa (Mega-Pascal).</returns>
         </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Viscoelasticity.QuasiLinear.IQuasiLinearModelCalculator`2.CalculateReducedRelaxationFunction(`0,System.Double)">
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Viscoelasticity.QuasiLinear.IQuasiLinearModelCalculator`2.CalculateReducedRelaxationFunction(MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalModelInput{`0},System.Double)">
             <summary>
-            Calculates the reduced relaxation function, a normalized function of time, the viscous part of equation. 
-            For more details, see on section "Bibliographies" on file "README.MD".
+            Calculates the reduced relaxation function ($G(t)$), which is a normalized function of time representing the viscous decay.
+            For more details, see the "Bibliographies" section in the "README.md" file.
             </summary>
-            <param name="input">The mechanical model's input.</param>
+            <param name="input">The mechanical model's input data.</param>
             <param name="time">Unit: s (second).</param>
             <returns>Unit: dimensionless.</returns>
         </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Viscoelasticity.QuasiLinear.IQuasiLinearModelCalculator`2.CalculateStressByReducedRelaxationFunctionDerivative(`0,System.Double)">
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Viscoelasticity.QuasiLinear.IQuasiLinearModelCalculator`2.CalculateStressByReducedRelaxationFunctionDerivative(MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalModelInput{`0},System.Double)">
             <summary>
-            Calculates the stress using a non convencional equation that uses the derivative of reduced relaxation function.
-            For more details, see on section "Bibliographies" on file "README.MD".
+            Calculates the stress using a non-conventional numerical approach that relies on the derivative of the reduced relaxation function.
+            For more details, see the "Bibliographies" section in the "README.md" file.
             </summary>
-            <param name="input">The mechanical model's input.</param>
+            <param name="input">The mechanical model's input data.</param>
             <param name="time">Unit: s (second).</param>
             <returns>Unit: MPa (Mega-Pascal).</returns>
         </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Viscoelasticity.QuasiLinear.IQuasiLinearModelCalculator`2.CalculateStressByConvolutionDerivative(`0,System.Double)">
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Viscoelasticity.QuasiLinear.IQuasiLinearModelCalculator`2.CalculateStressByConvolutionDerivative(MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalModelInput{`0},System.Double)">
             <summary>
-            Calculates the stress using a non convencional equation that uses the derivative of convolution.
-            For more details, see on section "Bibliographies" on file "README.MD".
+            Calculates the stress using a non-conventional numerical approach that relies on the derivative of the convolution integral.
+            For more details, see the "Bibliographies" section in the "README.md" file.
             </summary>
-            <param name="input">The mechanical model's input.</param>
+            <param name="input">The mechanical model's input data.</param>
             <param name="time">Unit: s (second).</param>
             <returns>Unit: MPa (Mega-Pascal).</returns>
         </member>
@@ -964,96 +1060,96 @@
         <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Viscoelasticity.QuasiLinear.QuasiLinearModelCalculator`2.Integration">
             <inheritdoc cref="T:MelloSilveiraTools.Mathematics.NumericalMethods.Integral.IIntegration"/>
         </member>
-        <member name="F:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Viscoelasticity.QuasiLinear.QuasiLinearModelCalculator`2._derivative">
-            <inheritdoc cref="T:MelloSilveiraTools.Mathematics.NumericalMethods.Derivative.IDerivative"/>
-        </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Viscoelasticity.QuasiLinear.QuasiLinearModelCalculator`2.CalculateCreepCompliance(`0,System.Double,System.Nullable{System.Double})">
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Viscoelasticity.QuasiLinear.QuasiLinearModelCalculator`2.CalculateCreepCompliance(MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalModelInput{`0},System.Double,System.Nullable{System.Double})">
             <inheritdoc/>
         </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Viscoelasticity.QuasiLinear.QuasiLinearModelCalculator`2.CalculateRelaxationFunction(`0,System.Double,System.Nullable{System.Double})">
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Viscoelasticity.QuasiLinear.QuasiLinearModelCalculator`2.CalculateRelaxationFunction(MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalModelInput{`0},System.Double,System.Nullable{System.Double})">
             <inheritdoc/>
-            <remarks>G(t) · σᵉ(t), where G(t) is the reduced relaxation function and σᵉ(t) is the elastic response.</remarks>
+            <remarks>Formula: G(t) · σᵉ(t), where G(t) is the reduced relaxation function and σᵉ(t) is the elastic response.</remarks>
         </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Viscoelasticity.QuasiLinear.QuasiLinearModelCalculator`2.CalculateForce(`0,System.Double,System.Nullable{System.Double})">
-            <inheritdoc/>
-        </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Viscoelasticity.QuasiLinear.QuasiLinearModelCalculator`2.CalculateDisplacement(`0,System.Double,System.Nullable{System.Double})">
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Viscoelasticity.QuasiLinear.QuasiLinearModelCalculator`2.CalculateForce(MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalModelInput{`0},System.Double,System.Nullable{System.Double})">
             <inheritdoc/>
         </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Viscoelasticity.QuasiLinear.QuasiLinearModelCalculator`2.CalculateStress(`0,System.Double,System.Nullable{System.Double})">
-            <inheritdoc/>
-            <remarks>σ(t) = ∫₀ᵗ G(t-τ) · dσᵉ(τ)/dτ dτ (Projeto Final, Eq. 34).</remarks>
-        </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Viscoelasticity.QuasiLinear.QuasiLinearModelCalculator`2.CalculateStrain(`0,System.Double,System.Nullable{System.Double})">
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Viscoelasticity.QuasiLinear.QuasiLinearModelCalculator`2.CalculateDisplacement(MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalModelInput{`0},System.Double,System.Nullable{System.Double})">
             <inheritdoc/>
         </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Viscoelasticity.QuasiLinear.QuasiLinearModelCalculator`2.CalculateStressByReducedRelaxationFunctionDerivative(`0,System.Double)">
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Viscoelasticity.QuasiLinear.QuasiLinearModelCalculator`2.CalculateStress(MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalModelInput{`0},System.Double,System.Nullable{System.Double})">
             <inheritdoc/>
-            <remarks>σ(t) = σᵉ(t)·G(0) + ∫₀ᵗ σᵉ(t-τ)·dG(τ)/dτ dτ (Projeto Final, Eq. 35).</remarks>
+            <remarks>Formula: σ(t) = ∫₀ᵗ G(t-τ) · dσᵉ(τ)/dτ dτ (Projeto Final, Eq. 34).</remarks>
         </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Viscoelasticity.QuasiLinear.QuasiLinearModelCalculator`2.CalculateStressByConvolutionDerivative(`0,System.Double)">
-            <inheritdoc/>
-            <remarks>σ(t) = d/dt ∫₀ᵗ σᵉ(t-τ)·G(τ) dτ (Projeto Final, Eq. 36).</remarks>
-        </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Viscoelasticity.QuasiLinear.QuasiLinearModelCalculator`2.CalculateElasticForceResponse(`0,System.Double,System.Nullable{System.Double})">
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Viscoelasticity.QuasiLinear.QuasiLinearModelCalculator`2.CalculateStrain(MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalModelInput{`0},System.Double,System.Nullable{System.Double})">
             <inheritdoc/>
         </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Viscoelasticity.QuasiLinear.QuasiLinearModelCalculator`2.CalculateElasticResponse(`0,System.Double,System.Nullable{System.Double})">
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Viscoelasticity.QuasiLinear.QuasiLinearModelCalculator`2.CalculateStressByReducedRelaxationFunctionDerivative(MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalModelInput{`0},System.Double)">
             <inheritdoc/>
-            <remarks>σᵉ(t) = A · (e^(B·ε(t)) - 1) (Projeto Final, Eq. 37).</remarks>
+            <remarks>Formula: σ(t) = σᵉ(t)·G(0) + ∫₀ᵗ σᵉ(t-τ)·dG(τ)/dτ dτ (Projeto Final, Eq. 35).</remarks>
         </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Viscoelasticity.QuasiLinear.QuasiLinearModelCalculator`2.CalculateReducedRelaxationFunction(`0,System.Double)">
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Viscoelasticity.QuasiLinear.QuasiLinearModelCalculator`2.CalculateStressByConvolutionDerivative(MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalModelInput{`0},System.Double)">
             <inheritdoc/>
+            <remarks>Formula: σ(t) = d/dt ∫₀ᵗ σᵉ(t-τ)·G(τ) dτ (Projeto Final, Eq. 36).</remarks>
         </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Viscoelasticity.QuasiLinear.QuasiLinearModelCalculator`2.CalculateReducedRelaxationFunctionDerivative(`0,System.Double)">
-            <inheritdoc/>
-        </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Viscoelasticity.QuasiLinear.QuasiLinearModelCalculator`2.CalculateElasticForceResponseDerivative(`0,System.Double,System.Nullable{System.Double},System.Nullable{System.Double})">
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Viscoelasticity.QuasiLinear.QuasiLinearModelCalculator`2.CalculateElasticForceResponse(MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalModelInput{`0},System.Double,System.Nullable{System.Double})">
             <inheritdoc/>
         </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Viscoelasticity.QuasiLinear.QuasiLinearModelCalculator`2.CalculateElasticResponseDerivative(`0,System.Double,System.Nullable{System.Double},System.Nullable{System.Double})">
-            <remarks>dσᵉ/dt = A · B · e^(B·ε(t)) · dε/dt (Projeto Final, Eq. 39).</remarks>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Viscoelasticity.QuasiLinear.QuasiLinearModelCalculator`2.CalculateElasticResponse(MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalModelInput{`0},System.Double,System.Nullable{System.Double})">
+            <inheritdoc/>
+            <remarks>Formula: σᵉ(t) = A · (e^(B·ε(t)) - 1) (Projeto Final, Eq. 37).</remarks>
         </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Viscoelasticity.QuasiLinear.QuasiLinearModelCalculator`2.CalculateStressWhenDisregardRampTime(`0,System.Double,System.Nullable{System.Double})">
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Viscoelasticity.QuasiLinear.QuasiLinearModelCalculator`2.CalculateReducedRelaxationFunction(MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalModelInput{`0},System.Double)">
+            <inheritdoc/>
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Viscoelasticity.QuasiLinear.QuasiLinearModelCalculator`2.CalculateReducedRelaxationFunctionDerivative(MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalModelInput{`0},System.Double)">
+            <inheritdoc/>
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Viscoelasticity.QuasiLinear.QuasiLinearModelCalculator`2.CalculateElasticForceResponseDerivative(MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalModelInput{`0},System.Double,System.Nullable{System.Double},System.Nullable{System.Double})">
+            <inheritdoc/>
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Viscoelasticity.QuasiLinear.QuasiLinearModelCalculator`2.CalculateElasticResponseDerivative(MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalModelInput{`0},System.Double,System.Nullable{System.Double},System.Nullable{System.Double})">
+            <remarks>Formula: dσᵉ/dt = A · B · e^(B·ε(t)) · dε/dt (Projeto Final, Eq. 39).</remarks>
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Viscoelasticity.QuasiLinear.QuasiLinearModelCalculator`2.CalculateStressWhenDisregardRampTime(MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalModelInput{`0},System.Double,System.Nullable{System.Double})">
             <summary>
             Calculates the stress when the ramp time is disregarded.
             </summary>
-            <param name="input">The mechanical model's input.</param>
+            <param name="input">The mechanical model's input data.</param>
             <param name="time">Unit: s (second).</param>
             <param name="strain">Unit: dimensionless.</param>
             <returns>Unit: MPa (Mega-Pascal).</returns>
         </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Viscoelasticity.QuasiLinear.QuasiLinearModelCalculator`2.CalculateForceWhenDisregardRampTime(`0,System.Double,System.Nullable{System.Double})">
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Viscoelasticity.QuasiLinear.QuasiLinearModelCalculator`2.CalculateForceWhenDisregardRampTime(MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalModelInput{`0},System.Double,System.Nullable{System.Double})">
             <summary>
             Calculates the force when the ramp time is disregarded.
             </summary>
-            <param name="input">The mechanical model's input.</param>
+            <param name="input">The mechanical model's input data.</param>
             <param name="time">Unit: s (second).</param>
             <param name="displacement">Unit: m (meter).</param>
             <returns>Unit: N (Newton).</returns>
         </member>
         <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Viscoelasticity.QuasiLinear.SimplifiedFung.ISimplifiedFungModelCalculator">
             <summary>
-            Simplified Fung's quasi-linear viscoelastic model.
-            It is characterized by using a simplified Reduced Relaxation Function that is based on <see cref="T:MelloSilveiraTools.Mathematics.Expressions.PronySeries"/>.
+            Defines a calculator for the Simplified Fung Quasi-Linear Viscoelastic (QLV) model.
             </summary>
+            <remarks>
+            It is characterized by using a discrete reduced relaxation function based on a <see cref="T:MelloSilveiraTools.Mathematics.Expressions.PronySeries"/>, 
+            which significantly accelerates numerical integration compared to the classic continuous spectrum model.
+            </remarks>
         </member>
         <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Viscoelasticity.QuasiLinear.SimplifiedFung.SimplifiedFungModelCalculator">
             <inheritdoc cref="T:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Viscoelasticity.QuasiLinear.SimplifiedFung.ISimplifiedFungModelCalculator"/>
-            <param name="simpsonRuleIntegration">See reference at <see cref="T:MelloSilveiraTools.Mathematics.NumericalMethods.Integral.IIntegration"/>.</param>
+            <param name="integration">See reference at <see cref="T:MelloSilveiraTools.Mathematics.NumericalMethods.Integral.IIntegration"/>.</param>
             <param name="derivative">See reference at <see cref="T:MelloSilveiraTools.Mathematics.NumericalMethods.Derivative.IDerivative"/>.</param>
             <param name="parameterConverter">See reference at <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Converters.MechanicalParameter.IMechanicalParameterConverter"/>.</param>
         </member>
         <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Viscoelasticity.QuasiLinear.SimplifiedFung.SimplifiedFungModelCalculator.#ctor(MelloSilveiraTools.Mathematics.NumericalMethods.Integral.IIntegration,MelloSilveiraTools.Mathematics.NumericalMethods.Derivative.IDerivative,MelloSilveiraTools.MechanicsOfMaterials.Converters.MechanicalParameter.IMechanicalParameterConverter)">
             <inheritdoc cref="T:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Viscoelasticity.QuasiLinear.SimplifiedFung.ISimplifiedFungModelCalculator"/>
-            <param name="simpsonRuleIntegration">See reference at <see cref="T:MelloSilveiraTools.Mathematics.NumericalMethods.Integral.IIntegration"/>.</param>
+            <param name="integration">See reference at <see cref="T:MelloSilveiraTools.Mathematics.NumericalMethods.Integral.IIntegration"/>.</param>
             <param name="derivative">See reference at <see cref="T:MelloSilveiraTools.Mathematics.NumericalMethods.Derivative.IDerivative"/>.</param>
             <param name="parameterConverter">See reference at <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Converters.MechanicalParameter.IMechanicalParameterConverter"/>.</param>
         </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Viscoelasticity.QuasiLinear.SimplifiedFung.SimplifiedFungModelCalculator.CalculateReducedRelaxationFunction(MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.QuasiLinear.SimplifiedFungModelInput,System.Double)">
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Viscoelasticity.QuasiLinear.SimplifiedFung.SimplifiedFungModelCalculator.CalculateReducedRelaxationFunction(MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalModelInput{MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.QuasiLinear.SimplifiedFungConstitutiveParameters},System.Double)">
             <inheritdoc/>
         </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Viscoelasticity.QuasiLinear.SimplifiedFung.SimplifiedFungModelCalculator.CalculateReducedRelaxationFunctionDerivative(MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.QuasiLinear.SimplifiedFungModelInput,System.Double)">
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Viscoelasticity.QuasiLinear.SimplifiedFung.SimplifiedFungModelCalculator.CalculateReducedRelaxationFunctionDerivative(MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalModelInput{MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.QuasiLinear.SimplifiedFungConstitutiveParameters},System.Double)">
             <inheritdoc/>
         </member>
         <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Converters.MechanicalParameter.IMechanicalParameterConverter">
@@ -1195,12 +1291,14 @@
             Provides extension methods to dependency injection of Tools project.
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.DependencyInjection.AddMechanicsOfMaterialsServices(Microsoft.Extensions.DependencyInjection.IServiceCollection)">
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.DependencyInjection.AddMechanicsOfMaterialsServices(Microsoft.Extensions.DependencyInjection.IServiceCollection,System.Boolean)">
+            <inheritdoc cref="M:MelloSilveiraTools.MechanicsOfMaterials.DependencyInjection.&lt;G&gt;$7B30185E57B8298C6754F16C0BCF4773.AddMechanicsOfMaterialsServices(System.Boolean)"/>
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.DependencyInjection.&lt;G&gt;$7B30185E57B8298C6754F16C0BCF4773.AddMechanicsOfMaterialsServices(System.Boolean)">
             <summary>
             Registers the Mechanics of Materials services (constitutive equations, fatigue and
             geometric property calculators) as singletons into the dependency injection container.
             </summary>
-            <param name="services">The service collection used to register the dependencies.</param>
             <returns>The same service collection so additional registrations can be chained.</returns>
         </member>
         <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Models.AnalysisParameter">
@@ -1553,14 +1651,35 @@
             As-forged / wrought surface. Produces the lowest surface factor (largest endurance-limit reduction).
             </summary>
         </member>
-        <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Elasticity.ElasticModelInput">
+        <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.AcceptedRange">
             <summary>
-            Contains the input data for a elastic model.
+            Contains the range of values accepted for a variable.
             </summary>
         </member>
-        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Elasticity.ElasticModelInput.ElasticModulus">
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.AcceptedRange.InitialPoint">
             <summary>
-            Unit: MPa (Mega-Pascal).
+            Unit depends on which variable the accepted range is applied.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.AcceptedRange.FinalPoint">
+            <summary>
+            Unit depends on which variable the accepted range is applied.
+            </summary>
+        </member>
+        <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.ConstitutiveParameters">
+            <summary>
+            Represents the base type for all constitutive parameters used in mechanical models.
+            </summary>
+        </member>
+        <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Elasticity.ElasticConstitutiveParameters">
+            <summary>
+            Defines the parameters that govern the linear relationship between stress and strain in an elastic model.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Elasticity.ElasticConstitutiveParameters.ElasticModulus">
+            <summary>
+            Represents the longitudinal stiffness (Young's Modulus).
+            Unit: MPa.
             </summary>
         </member>
         <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Elasticity.ElasticModelOutput">
@@ -1573,67 +1692,84 @@
             Unit: N/m (Newton per meter).
             </summary>
         </member>
-        <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalModelConstants">
+        <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalBehaviorType">
             <summary>
-            Contain the constats used in application.
+            Contains the relationships available for mechanical analysis.
             </summary>
         </member>
-        <member name="F:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalModelConstants.EquationE1MaximumFinalTime">
+        <member name="F:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalBehaviorType.StressStrain">
             <summary>
-            The final time to equation E1 must be at most 11.4, because, using Geogebra to plot the graphic for the 
-            equation e^(-t)/t, we found to that time a value less than the precision assumed to the project.
-            f(t) = e^(-t)/t
-            f(11.4) = 9.820601e-7
-            f(11.4) less than tolerance = 1e-6
+            Stress-strain relationship.
             </summary>
+        </member>
+        <member name="F:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalBehaviorType.ForceDisplacement">
+            <summary>
+            Force-displacement relationship.
+            </summary>
+        </member>
+        <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalModelInput`1">
+            <summary>
+            Represents the comprehensive input dataset required to execute a mechanical model simulation.
+            </summary>
+            <typeparam name="TConstitutiveParameters">The specific type of constitutive parameters governing the model.</typeparam>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalModelInput`1.Identifier">
+            <summary>
+            Unique identifier for the mechanical model in the current analysis.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalModelInput`1.MechanicalModelName">
+            <summary>
+            The descriptive name or classification of the mechanical model.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalModelInput`1.ConstitutiveParameters">
+            <inheritdoc cref="T:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.ConstitutiveParameters"/>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalModelInput`1.AcceptedStrainRange">
+            <inheritdoc cref="T:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.AcceptedRange"/>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalModelInput`1.MechanicalBehaviorType">
+            <inheritdoc cref="T:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalBehaviorType"/>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalModelInput`1.ViscoelasticEffect">
+            <inheritdoc cref="T:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.ViscoelasticEffect"/>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalModelInput`1.RampTimeConsideration">
+            <inheritdoc cref="T:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.RampTimeConsideration"/>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalModelInput`1.Strain">
+            <summary>
+            Represents the strain applied or measured over time.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalModelInput`1.Displacement">
+            <summary>
+            Represents the displacement applied or measured over time.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalModelInput`1.Stress">
+            <summary>
+            Represents the stress applied or measured over time.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalModelInput`1.Force">
+            <summary>
+            Represents the force applied or measured over time.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalModelInput`1.Specimen">
+            <inheritdoc cref="T:MelloSilveiraTools.MechanicsOfMaterials.Models.SpecimenParameter"/>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalModelInput`1.TimeStep">
+            <summary>
+            The time increment used for numerical integration or step-by-step analysis.
+            </summary>
+            <value>Unit: s (second).</value>
         </member>
         <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalModelInput">
             <summary>
-            Contains the input data for a generic mechanical model.
-            </summary>
-        </member>
-        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalModelInput.Identifier">
-            <summary>
-            Unique identifier for mechanical model in current analysis.
-            </summary>
-        </member>
-        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalModelInput.AcceptedStrainRange">
-            <summary>
-            Unit: dimensionless.
-            </summary>
-        </member>
-        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalModelInput.ViscoelasticEffect">
-            <inheritdoc cref="T:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.ViscoelasticEffect"/>
-        </member>
-        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalModelInput.RampTimeConsideration">
-            <inheritdoc cref="T:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.RampTimeConsideration"/>
-        </member>
-        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalModelInput.Strain">
-            <summary>
-            Represents the strain behavior over the time.
-            </summary>
-        </member>
-        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalModelInput.Displacement">
-            <summary>
-            Represents the displacement behavior over the time.
-            </summary>
-        </member>
-        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalModelInput.Stress">
-            <summary>
-            Represents the stress behavior over the time.
-            </summary>
-        </member>
-        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalModelInput.Force">
-            <summary>
-            Represents the force behavior over the time.
-            </summary>
-        </member>
-        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalModelInput.Specimen">
-            <inheritdoc cref="T:MelloSilveiraTools.MechanicsOfMaterials.Models.SpecimenParameter"/>
-        </member>
-        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalModelInput.TimeStep">
-            <summary>
-            Unit: s (second).
+            Represents the generic input dataset required to execute a mechanical model, decoupled from a specific constitutive formulation.
             </summary>
         </member>
         <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalModelOutput">
@@ -1720,32 +1856,17 @@
             Modified Superposition Method.
             </summary>
         </member>
-        <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalRelationship">
+        <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.Linear.Maxwell.MaxwellConstitutiveParameters">
             <summary>
-            Contains the relationships available for mechanical analysis.
+            Defines the constitutive parameters for the Maxwell viscoelastic model.
             </summary>
         </member>
-        <member name="F:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalRelationship.StressStrain">
-            <summary>
-            Stress-strain relationship.
-            </summary>
-        </member>
-        <member name="F:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalRelationship.ForceDisplacement">
-            <summary>
-            Force-displacement relationship.
-            </summary>
-        </member>
-        <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.Linear.Maxwell.MaxwellModelInput">
-            <summary>
-            Contains the input data for Maxwell's model.
-            </summary>
-        </member>
-        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.Linear.Maxwell.MaxwellModelInput.Viscosity">
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.Linear.Maxwell.MaxwellConstitutiveParameters.Viscosity">
             <summary>
             Unit: MPa.s (Mega-Pascal-second).
             </summary>
         </member>
-        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.Linear.Maxwell.MaxwellModelInput.Stiffness">
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.Linear.Maxwell.MaxwellConstitutiveParameters.Stiffness">
             <summary>
             Unit: MPa (Mega-Pascal).
             </summary>
@@ -1760,36 +1881,26 @@
             Unit: s (second).
             </summary>
         </member>
-        <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.NonLinear.AcceptedRange">
+        <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.NonLinear.ModifiedSuperpositionMethod.ModifiedSuperpositionMethodConstitutiveParameters">
             <summary>
-            Contains the range of values accepted for a variable.
+            Defines the constitutive parameters for the Modified Superposition Method (MSM) non-linear viscoelastic model.
             </summary>
         </member>
-        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.NonLinear.AcceptedRange.InitialPoint">
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.NonLinear.ModifiedSuperpositionMethod.ModifiedSuperpositionMethodConstitutiveParameters.InitialYoungModulus">
             <summary>
-            Unit depends on which variable the accepted range is applied.
+            Gets the function representing the instantaneous elastic stiffness (Young's Modulus).
             </summary>
+            <remarks>
+            In this non-linear formulation, the initial modulus is not a constant, but a function that varies depending on the applied strain or stress level.
+            </remarks>
         </member>
-        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.NonLinear.AcceptedRange.FinalPoint">
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.NonLinear.ModifiedSuperpositionMethod.ModifiedSuperpositionMethodConstitutiveParameters.StressRelaxationRate">
             <summary>
-            Unit depends on which variable the accepted range is applied.
+            Gets the polynomial function representing the rate of stress relaxation.
             </summary>
-        </member>
-        <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.NonLinear.ModifiedSuperpositionMethod.ModifiedSuperpositionMethodInput">
-            <summary>
-            Contains the input data for Modified Superposition Method.
-            </summary>
-        </member>
-        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.NonLinear.ModifiedSuperpositionMethod.ModifiedSuperpositionMethodInput.InitialYoungModulus">
-            <summary>
-            A <see cref="T:MelloSilveiraTools.Mathematics.Functions.Function"/> that represents the initial Young Modulus.
-            </summary>
-        </member>
-        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.NonLinear.ModifiedSuperpositionMethod.ModifiedSuperpositionMethodInput.StressRelaxationRate">
-            <summary>
-            A <see cref="T:MelloSilveiraTools.Mathematics.Functions.PolynomialFunction"/> that represents the stress relaxation rate.
-            Strain-dependent rate of stress relaxation.
-            </summary>
+            <remarks>
+            Dictates how the viscous decay accelerates or decelerates depending on the magnitude of the strain.
+            </remarks>
         </member>
         <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.NonLinear.ModifiedSuperpositionMethod.ModifiedSuperpositionMethodOutput">
             <summary>
@@ -1808,81 +1919,73 @@
             Unit: dimensionless.
             </summary>
         </member>
-        <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.NonLinear.NonLinearModelInput">
+        <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.NonLinear.Schapery.SchaperyConstitutiveParameters">
             <summary>
-            Contains the input data for a generic non-linear model.
+            Defines the constitutive parameters for the Schapery non-linear viscoelastic model.
             </summary>
         </member>
-        <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.NonLinear.Schapery.SchaperyModelInput">
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.NonLinear.Schapery.SchaperyConstitutiveParameters.G0">
             <summary>
-            Contains the input data for Schapery's model.
+            Material constant based on thermodynamic concepts that depends on stress and Gibbs free energy.
+            Represents the non-linear elastic response that calculates the instantaneous change in compliance.
+            </summary>
+            <value>Unit: dimensionless.</value>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.NonLinear.Schapery.SchaperyConstitutiveParameters.G1">
+            <summary>
+            Material constant based on thermodynamic concepts that depends on stress and Gibbs free energy.
+            Represents the non-linear transient response.
+            </summary>
+            <value>Unit: dimensionless.</value>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.NonLinear.Schapery.SchaperyConstitutiveParameters.G2">
+            <summary>
+            Material constant based on thermodynamic concepts that depends on stress and Gibbs free energy.
+            Parameter that measures load rate effects in creep.
+            </summary>
+            <value>Unit: dimensionless.</value>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.NonLinear.Schapery.SchaperyConstitutiveParameters.J0">
+            <summary>
+            The instantaneous or equilibrium state of creep compliance.
+            </summary>
+            <value>Unit: /MPa (per Mega-Pascal).</value>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.NonLinear.Schapery.SchaperyConstitutiveParameters.He">
+            <summary>
+            Strain-dependent material function based on Helmholtz free energy for the state in equilibrium.
+            </summary>
+            <value>Unit: dimensionless.</value>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.NonLinear.Schapery.SchaperyConstitutiveParameters.H1">
+            <summary>
+            Strain-dependent material function based on Helmholtz free energy.
+            First order of dependence on the Helmholtz free energy.
+            </summary>
+            <value>Unit: dimensionless.</value>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.NonLinear.Schapery.SchaperyConstitutiveParameters.H2">
+            <summary>
+            Strain-dependent material function based on Helmholtz free energy.
+            Second order of dependence on the Helmholtz free energy.
+            </summary>
+            <value>Unit: dimensionless.</value>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.NonLinear.Schapery.SchaperyConstitutiveParameters.Ge">
+            <summary>
+            Strain-dependent coefficient based on thermodynamic concepts. 
+            The state in equilibrium of the relaxation function.
+            </summary>
+            <value>Unit: MPa (Mega-Pascal).</value>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.NonLinear.Schapery.SchaperyConstitutiveParameters.TransientRelaxationFunction">
+            <summary>
+            Represents the transient relaxation function using a Power Law formulation.
             </summary>
         </member>
-        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.NonLinear.Schapery.SchaperyModelInput.G0">
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.NonLinear.Schapery.SchaperyConstitutiveParameters.TransientCreepCompliance">
             <summary>
-            The letter G and the index numbers indicate the Gibb’s free energy dependence and its order.
-            Material constant based on thermodynamic concepts that depend on stress and Gibb’s free energy.
-            Non-linear elastic response that calculates the instantaneous change in stiffness.
-            Unit: .
-            </summary>
-        </member>
-        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.NonLinear.Schapery.SchaperyModelInput.G1">
-            <summary>
-            The letter G and the index numbers indicate the Gibb’s free energy dependence and its order.
-            Material constant based on thermodynamic concepts that depend on stress and Gibb’s free energy.
-            Non-linear transient response.
-            Unit: .
-            </summary>
-        </member>
-        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.NonLinear.Schapery.SchaperyModelInput.G2">
-            <summary>
-            The letter G and the index numbers indicate the Gibb’s free energy dependence and its order.
-            Material constant based on thermodynamic concepts that depend on stress and Gibb’s free energy.
-            The parameter that measures load rate effects in creep.
-            Unit: .
-            </summary>
-        </member>
-        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.NonLinear.Schapery.SchaperyModelInput.J0">
-            <summary>
-            The state in equilibrium of creep compliance.
-            Unit: .
-            </summary>
-        </member>
-        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.NonLinear.Schapery.SchaperyModelInput.He">
-            <summary>
-            Material constant that depend on strain and Helmoltz free energy for the state in equilibrium.
-            Unit: dimensionless.
-            </summary>
-        </member>
-        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.NonLinear.Schapery.SchaperyModelInput.H1">
-            <summary>
-            Material constant that depend on strain and Helmoltz free energy.
-            First order of dependence on the Helmoltz free energy.
-            Unit: dimensionless.
-            </summary>
-        </member>
-        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.NonLinear.Schapery.SchaperyModelInput.H2">
-            <summary>
-            Material constant that depend on strain and Helmoltz free energy.
-            Second order of dependence on the Helmoltz free energy.
-            Unit: dimensionless.
-            </summary>
-        </member>
-        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.NonLinear.Schapery.SchaperyModelInput.Ge">
-            <summary>
-            Stress dependent coefficients based on thermodynamic concepts. 
-            The state in equilibrium of relaxation function.
-            Unit: MPa (Mega-pascal).
-            </summary>
-        </member>
-        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.NonLinear.Schapery.SchaperyModelInput.TransientRelaxationFunction">
-            <summary>
-            An <see cref="T:MelloSilveiraTools.Mathematics.Functions.Function"/> that represents the transient relaxation function.
-            </summary>
-        </member>
-        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.NonLinear.Schapery.SchaperyModelInput.TransientCreepCompliance">
-            <summary>
-            An <see cref="T:MelloSilveiraTools.Mathematics.Expressions.Expression"/> that represents the transient creep compliance.
+            Represents the transient creep compliance using a Prony Series formulation.
             </summary>
         </member>
         <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.NonLinear.Schapery.SchaperyModelOutput">
@@ -1900,32 +2003,36 @@
             Unit: MPa (Mega-Pascal).
             </summary>
         </member>
-        <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.QuasiLinear.FungModelInput">
+        <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.QuasiLinear.FungConstitutiveParameters">
             <summary>
-            Contains the input data for Fung's model.
+            Defines the constitutive parameters for the classic Fung Quasi-Linear Viscoelastic (QLV) model.
             </summary>
+            <remarks>
+            This formulation integrates the non-linear exponential elastic response with the continuous spectrum reduced relaxation function. 
+            It is highly accurate for modeling the time-dependent behavior of biological soft tissues over a broad continuous range of relaxation times.
+            </remarks>
         </member>
-        <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.QuasiLinear.QuasiLinearModelInput`1">
+        <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.QuasiLinear.QuasiLinearConstitutiveParameters`1">
             <summary>
-            Contains the input data for quasi-linear viscoelastic model.
+            Defines the constitutive parameters for the Quasi-Linear Viscoelastic (QLV) model.
             </summary>
-            <typeparam name="TReducedRelaxationFunction">The type of reduced relaxation function.</typeparam>
+            <typeparam name="TReducedRelaxationFunction">The specific type of the reduced relaxation function used in the time-dependent formulation.</typeparam>
         </member>
-        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.QuasiLinear.QuasiLinearModelInput`1.ElasticStressConstant">
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.QuasiLinear.QuasiLinearConstitutiveParameters`1.ElasticStressConstant">
             <summary>
-            Constant A.
-            Unit: MPa (Mega-Pascal).
+            Gets the linear stress scaling constant (often denoted as A).
             </summary>
+            <value>Unit: MPa (Mega-Pascal).</value>
         </member>
-        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.QuasiLinear.QuasiLinearModelInput`1.ElasticPowerConstant">
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.QuasiLinear.QuasiLinearConstitutiveParameters`1.ElasticPowerConstant">
             <summary>
-            Constant B.
-            Unit: dimensionless.
+            Gets the non-linear stiffening coefficient (often denoted as B), which governs the exponential elastic response.
             </summary>
+            <value>Unit: dimensionless.</value>
         </member>
-        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.QuasiLinear.QuasiLinearModelInput`1.ReducedRelaxationFunction">
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.QuasiLinear.QuasiLinearConstitutiveParameters`1.ReducedRelaxationFunction">
             <summary>
-            The constants for Reduced Relaxation Function.
+            Gets the parameters that govern the time-dependent reduced relaxation function (often denoted as G(t)).
             </summary>
         </member>
         <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.QuasiLinear.QuasiLinearModelOutput">
@@ -1960,62 +2067,101 @@
         </member>
         <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.QuasiLinear.ReducedRelaxationFunction">
             <summary>
-            Contains the input data for Reduced Relaxation Function.
+            Defines the parameters for the continuous spectrum reduced relaxation function used in Fung's Quasi-Linear Viscoelastic (QLV) model.
             </summary>
-            <param name="RelaxationStiffness">Constant C. Unit: dimensionless.</param>
-            <param name="SlowRelaxationTime">Constant tau 1. Unit: s (second).</param>
-            <param name="FastRelaxationTime">Constant tau 2. Unit: s (second).</param>
+            <param name="RelaxationStiffness">
+            The relaxation stiffness constant (often denoted as C). 
+            Represents the amplitude of the viscous effects relative to the elastic response. Unit: dimensionless.
+            </param>
+            <param name="FastRelaxationTime">
+            The fast relaxation time constant (often denoted as τ2). 
+            Governs the short-term viscous response immediately after loading. Unit: s (second).
+            </param>
+            <param name="SlowRelaxationTime">
+            The slow relaxation time constant (often denoted as τ1). 
+            Governs the long-term viscous response, dictating when the material reaches equilibrium. Unit: s (second).
+            </param>
         </member>
         <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.QuasiLinear.ReducedRelaxationFunction.#ctor(System.Double,System.Double,System.Double)">
             <summary>
-            Contains the input data for Reduced Relaxation Function.
+            Defines the parameters for the continuous spectrum reduced relaxation function used in Fung's Quasi-Linear Viscoelastic (QLV) model.
             </summary>
-            <param name="RelaxationStiffness">Constant C. Unit: dimensionless.</param>
-            <param name="SlowRelaxationTime">Constant tau 1. Unit: s (second).</param>
-            <param name="FastRelaxationTime">Constant tau 2. Unit: s (second).</param>
+            <param name="RelaxationStiffness">
+            The relaxation stiffness constant (often denoted as C). 
+            Represents the amplitude of the viscous effects relative to the elastic response. Unit: dimensionless.
+            </param>
+            <param name="FastRelaxationTime">
+            The fast relaxation time constant (often denoted as τ2). 
+            Governs the short-term viscous response immediately after loading. Unit: s (second).
+            </param>
+            <param name="SlowRelaxationTime">
+            The slow relaxation time constant (often denoted as τ1). 
+            Governs the long-term viscous response, dictating when the material reaches equilibrium. Unit: s (second).
+            </param>
         </member>
         <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.QuasiLinear.ReducedRelaxationFunction.RelaxationStiffness">
-            <summary>Constant C. Unit: dimensionless.</summary>
+            <summary>
+            The relaxation stiffness constant (often denoted as C). 
+            Represents the amplitude of the viscous effects relative to the elastic response. Unit: dimensionless.
+            </summary>
         </member>
         <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.QuasiLinear.ReducedRelaxationFunction.FastRelaxationTime">
-            <summary>Constant tau 2. Unit: s (second).</summary>
+            <summary>
+            The fast relaxation time constant (often denoted as τ2). 
+            Governs the short-term viscous response immediately after loading. Unit: s (second).
+            </summary>
         </member>
         <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.QuasiLinear.ReducedRelaxationFunction.SlowRelaxationTime">
-            <summary>Constant tau 1. Unit: s (second).</summary>
-        </member>
-        <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.QuasiLinear.SimplifiedFungModelInput">
             <summary>
-            Contains the input data for simplified Fung's model.
+            The slow relaxation time constant (often denoted as τ1). 
+            Governs the long-term viscous response, dictating when the material reaches equilibrium. Unit: s (second).
             </summary>
+        </member>
+        <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.QuasiLinear.SimplifiedFungConstitutiveParameters">
+            <summary>
+            Defines the constitutive parameters for the Simplified Fung Quasi-Linear Viscoelastic (QLV) model.
+            </summary>
+            <remarks>
+            The Simplified Fung model retains the non-linear exponential elastic response (J-curve) of the original theory, 
+            but replaces the complex continuous relaxation spectrum with a discrete <see cref="T:MelloSilveiraTools.Mathematics.Expressions.PronySeries"/>. 
+            This substitution significantly improves the computational efficiency for numerical integration and makes parameter fitting easier for experimental data.
+            </remarks>
         </member>
         <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.RampTimeConsideration">
             <summary>
-            Contains the ramp time considerations for analysis.
+            Defines how the initial loading phase (ramp time) is treated in viscoelastic analysis.
             </summary>
         </member>
         <member name="F:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.RampTimeConsideration.ConsiderWithViscoelasticEffect">
             <summary>
-            Consider ramp time at analysis with viscoelastic effect.
+            Includes the ramp time in the analysis, computing viscoelastic time-dependent effects during the loading phase.
+            </summary>
+        </member>
+        <member name="F:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.RampTimeConsideration.ConsiderWithoutViscoelasticEffect">
+            <summary>
+            Includes the ramp time but assumes purely elastic behavior during loading. 
+            Viscoelastic effects (like relaxation or creep) begin only after the ramp phase is complete.
             </summary>
         </member>
         <member name="F:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.RampTimeConsideration.Disregard">
             <summary>
-            The ramp time is disregarded. It means that the strain is constant at the whole experiment.
+            Assumes instantaneous loading (zero ramp time). 
+            The target strain or stress is applied immediately as a step function.
             </summary>
         </member>
         <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.ViscoelasticEffect">
             <summary>
-            Contains the viscoelasticy effects.
+            Defines the primary time-dependent mechanical behaviors observed in viscoelastic models.
             </summary>
         </member>
         <member name="F:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.ViscoelasticEffect.Relaxation">
             <summary>
-            Relaxation is a gradual reduction in stress with time at constant strain.
+            Stress relaxation is the gradual decrease in stress over time when the model is held at a constant strain.
             </summary>
         </member>
         <member name="F:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.ViscoelasticEffect.Creep">
             <summary>
-            Creep is a gradual reduction in strain with time at constant stress.
+            Creep is the gradual increase in strain over time when the model is subjected to a constant stress.
             </summary>
         </member>
         <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.ViscoelasticModelOutput">

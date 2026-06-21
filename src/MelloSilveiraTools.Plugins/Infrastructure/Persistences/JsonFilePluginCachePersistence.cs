@@ -1,4 +1,3 @@
-using MelloSilveiraTools.Plugins.Infrastructure;
 using MelloSilveiraTools.Plugins.Infrastructure.Models;
 using System.Runtime.CompilerServices;
 using System.Text.Json;
@@ -83,8 +82,8 @@ public class JsonFilePluginCachePersistence(PluginSettings settings) : IPluginCa
         DiscoveredPlugin? state = dto.StateType switch
         {
             nameof(RegisteredPlugin) => dto.State.Deserialize<RegisteredPlugin>(JsonOptions),
-            nameof(LoadedPlugin)     => dto.State.Deserialize<LoadedPlugin>(JsonOptions),
-            _                        => dto.State.Deserialize<DiscoveredPlugin>(JsonOptions)
+            nameof(LoadedPlugin) => dto.State.Deserialize<LoadedPlugin>(JsonOptions),
+            _ => dto.State.Deserialize<DiscoveredPlugin>(JsonOptions)
         };
 
         return state is null ? null : new PluginCacheEntry(dto.Name, dto.Version, state);

@@ -1,4 +1,4 @@
-﻿namespace MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.NonLinear;
+﻿namespace MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels;
 
 /// <summary>
 /// Contains the range of values accepted for a variable.

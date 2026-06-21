@@ -16,7 +16,7 @@ public record ProductEntity : EntityBase
 public record CategoryEntity : EntityBase
 {
     [UniqueColumn] public string Code { get; init; } = null!;
-    [Column]       public string Description { get; init; } = null!;
+    [Column] public string Description { get; init; } = null!;
 }
 
 // ── Entity with a foreign key → tests JOIN generation ─────────────────────────

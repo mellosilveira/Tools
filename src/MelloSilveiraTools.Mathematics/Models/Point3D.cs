@@ -1,6 +1,5 @@
 ﻿using MelloSilveiraTools.Mathematics.Converters;
 using MelloSilveiraTools.Mathematics.Extensions;
-using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 
 namespace MelloSilveiraTools.Mathematics.Models;

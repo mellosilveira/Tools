@@ -12,16 +12,16 @@ public sealed class TableAttributeTests
         var attr = new TableAttribute("product", "prd");
 
         Assert.Equal("product", attr.Name);
-        Assert.Equal("prd",     attr.Alias);
+        Assert.Equal("prd", attr.Alias);
     }
 
     // ── Auto-generated alias ───────────────────────────────────────────────────
 
     [Theory]
-    [InlineData("product",              "product")]  // single word → full name
-    [InlineData("order_item",           "oi")]       // two words → acronym
-    [InlineData("user_managed_district","umd")]      // three words → acronym
-    [InlineData("prajah_user",          "pu")]
+    [InlineData("product", "product")]  // single word → full name
+    [InlineData("order_item", "oi")]       // two words → acronym
+    [InlineData("user_managed_district", "umd")]      // three words → acronym
+    [InlineData("prajah_user", "pu")]
     public void Constructor_AutoAlias_GeneratesCorrectAbbreviation(
         string tableName, string expectedAlias)
     {
@@ -41,7 +41,7 @@ public sealed class TableAttributeTests
             .Single();
 
         Assert.Equal("product", attr.Name);
-        Assert.Equal("prd",     attr.Alias);
+        Assert.Equal("prd", attr.Alias);
     }
 
     [Fact]
@@ -53,6 +53,6 @@ public sealed class TableAttributeTests
             .Single();
 
         Assert.Equal("order_item", attr.Name);
-        Assert.Equal("ordi",       attr.Alias);
+        Assert.Equal("ordi", attr.Alias);
     }
 }

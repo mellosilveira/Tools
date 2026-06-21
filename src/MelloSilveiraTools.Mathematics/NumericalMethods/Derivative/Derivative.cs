@@ -8,7 +8,7 @@ public class Derivative : IDerivative
     {
         double previous = equation(time - timeStep);
         double nextValue = equation(time + timeStep);
-        
+
         return (nextValue - previous) / (2 * timeStep);
     }
 

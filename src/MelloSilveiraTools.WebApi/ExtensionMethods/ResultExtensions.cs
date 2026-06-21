@@ -155,7 +155,6 @@ public static class ResultExtensions
         /// Projects the operation result into an <see cref="IResult"/> suitable for minimal-API endpoints,
         /// preserving the result payload and HTTP status code.
         /// </summary>
-        /// <param name="result">The operation result to be returned.</param>
         /// <returns>An <see cref="IResult"/> that serializes <paramref name="result"/> as JSON with the result status code.</returns>
         public IResult ToHttpResult() => Results.Json(result, statusCode: (int)result.StatusCode);
 

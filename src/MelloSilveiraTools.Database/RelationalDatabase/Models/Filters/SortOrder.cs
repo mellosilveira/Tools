@@ -3,7 +3,7 @@
 /// <summary>
 /// Direction used to sort query results.
 /// </summary>
-public enum SortOrder
+public enum SortOrder : int
 {
     /// <summary>
     /// Ascending order (smallest value first).

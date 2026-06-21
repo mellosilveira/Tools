@@ -5,7 +5,7 @@ namespace MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoe
 /// <summary>
 /// Contains the output for a generic viscoelastic model.
 /// </summary>
-public class ViscoelasticModelOutput : MechanicalModelOutput
+public record ViscoelasticModelOutput : MechanicalModelOutput
 {
     /// <summary>
     /// Unit: /MPa (per Mega-Pascal) or m/N (meter per Newton).

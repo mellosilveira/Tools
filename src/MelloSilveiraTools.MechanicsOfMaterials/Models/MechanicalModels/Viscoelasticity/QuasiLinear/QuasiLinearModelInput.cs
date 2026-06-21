@@ -1,23 +1,23 @@
 ﻿namespace MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.QuasiLinear;
 
 /// <summary>
-/// Contains the input data for quasi-linear viscoelastic model.
+/// Defines the constitutive parameters for the Quasi-Linear Viscoelastic (QLV) model.
 /// </summary>
-/// <typeparam name="TReducedRelaxationFunction">The type of reduced relaxation function.</typeparam>
-public abstract record QuasiLinearModelInput<TReducedRelaxationFunction> : MechanicalModelInput
+/// <typeparam name="TReducedRelaxationFunction">The specific type of the reduced relaxation function used in the time-dependent formulation.</typeparam>
+public abstract record QuasiLinearConstitutiveParameters<TReducedRelaxationFunction> : ConstitutiveParameters
 {
     #region Elastic Response parameters
 
     /// <summary>
-    /// Constant A.
-    /// Unit: MPa (Mega-Pascal).
+    /// Gets the linear stress scaling constant (often denoted as A).
     /// </summary>
+    /// <value>Unit: MPa (Mega-Pascal).</value>
     public double ElasticStressConstant { get; init; }
 
     /// <summary>
-    /// Constant B.
-    /// Unit: dimensionless.
+    /// Gets the non-linear stiffening coefficient (often denoted as B), which governs the exponential elastic response.
     /// </summary>
+    /// <value>Unit: dimensionless.</value>
     public double ElasticPowerConstant { get; init; }
 
     #endregion
@@ -25,7 +25,7 @@ public abstract record QuasiLinearModelInput<TReducedRelaxationFunction> : Mecha
     #region Reduced Relaxation Function constants
 
     /// <summary>
-    /// The constants for Reduced Relaxation Function.
+    /// Gets the parameters that govern the time-dependent reduced relaxation function (often denoted as G(t)).
     /// </summary>
     public TReducedRelaxationFunction? ReducedRelaxationFunction { get; init; }
 

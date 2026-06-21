@@ -1,5 +1,3 @@
-using MelloSilveiraTools.WebApi.Application.Commands;
-
 namespace MelloSilveiraTools.WebApi.Application.Commands.Crud.Read;
 
 /// <summary>

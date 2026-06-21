@@ -5,37 +5,119 @@ using MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelast
 namespace MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels;
 
 /// <inheritdoc cref="IMechanicalModelCalculatorFacade"/>
-public class MechanicalModelCalculatorFacade(IMechanicalModelTypeCache cache, object calculator) : IMechanicalModelCalculatorFacade
+public class MechanicalModelCalculatorFacade : IMechanicalModelCalculatorFacade
 {
-    private readonly Type _calculatorType = calculator.GetType();
+    private readonly Type _calculatorType;
 
-    private readonly Func<object, object?[], object> _invokeDisplacement = cache.GetOrAddMethodInvoker(calculator.GetType(), nameof(IMechanicalModelCalculator<>.CalculateDisplacement));
-    private readonly Func<object, object?[], object> _invokeForce = cache.GetOrAddMethodInvoker(calculator.GetType(), nameof(IMechanicalModelCalculator<>.CalculateForce));
-    private readonly Func<object, object?[], object> _invokeStress = cache.GetOrAddMethodInvoker(calculator.GetType(), nameof(IMechanicalModelCalculator<>.CalculateStress));
-    private readonly Func<object, object?[], object> _invokeStrain = cache.GetOrAddMethodInvoker(calculator.GetType(), nameof(IMechanicalModelCalculator<>.CalculateStrain));
+    /// <summary>
+    /// Cached compiled invoker for the underlying displacement calculation method.
+    /// </summary>
+    private readonly Func<object, object?[], object> _invokeDisplacement;
+    
+    /// <summary>
+    /// Cached compiled invoker for the underlying force calculation method.
+    /// </summary>
+    private readonly Func<object, object?[], object> _invokeForce;
+    
+    /// <summary>
+    /// Cached compiled invoker for the underlying stress calculation method.
+    /// </summary>
+    private readonly Func<object, object?[], object> _invokeStress;
+    
+    /// <summary>
+    /// Cached compiled invoker for the underlying strain calculation method.
+    /// </summary>
+    private readonly Func<object, object?[], object> _invokeStrain;
 
+    /// <summary>
+    /// An optimized array containing pre-fetched reflection metadata and compiled invokers for specific parameter calculation loops.
+    /// </summary>
     private readonly CalculatorMethodData[]? _calculatorMethodDataList;
+    
+    /// <summary>
+    /// Factory delegate compiled to instantly instantiate instances of the target projection output model without instantiation overhead.
+    /// </summary>
     private readonly Func<MechanicalModelOutput>? _outputFactory;
+    
+    /// <summary>
+    /// Fast-access dictionary containing compiled property-setter expressions mapped by property names for the designated output type.
+    /// </summary>
     private readonly Dictionary<string, Action<object, object>>? _outputPropertySetters;
+    
+    /// <summary>
+    /// Delegate targeting the boundary condition's function to compute the boundary value and its first-order time derivative concurrently.
+    /// </summary>
     private readonly Func<double, (double Value, double Derivative)>? _calculateValueAndDerivativeMethod;
+    
+    /// <summary>
+    /// The exact argument name corresponding to the input boundary parameter value expected by the underlying model methods.
+    /// </summary>
     private readonly string? _inputParameterValueName;
+    
+    /// <summary>
+    /// The exact argument name corresponding to the input boundary parameter's temporal derivative expected by the underlying model methods.
+    /// </summary>
     private readonly string? _inputParameterDerivativeName;
+    
+    /// <summary>
+    /// The target property identifier on the output instance where the independent boundary condition value is mirrored.
+    /// </summary>
     private readonly string? _outputParameterValueName;
+    
+    /// <summary>
+    /// The target property identifier on the output instance where the independent boundary condition's temporal derivative is mirrored.
+    /// </summary>
     private readonly string? _outputParameterDerivativeName;
+    
+    /// <summary>
+    /// Mutable parameter buffer dictionary passing time, input data models, and boundary states into the compiled reflection invokers.
+    /// </summary>
     private readonly Dictionary<string, object>? _inputParameters;
+    
+    /// <summary>
+    /// State map tracking independent variables and current integration times to initialize the freshly generated output objects.
+    /// </summary>
     private readonly Dictionary<string, object>? _outputParameters;
+    private readonly IMechanicalModelTypeCache _cache;
+    private readonly object _calculator;
 
+    public MechanicalModelCalculatorFacade(IMechanicalModelTypeCache cache, object calculator)
+    {
+        _calculatorType = calculator.GetType();
+        _invokeDisplacement = cache.GetOrAddMethodInvoker(_calculatorType, nameof(IMechanicalModelCalculator<>.CalculateDisplacement));
+        _invokeForce = cache.GetOrAddMethodInvoker(_calculatorType, nameof(IMechanicalModelCalculator<>.CalculateForce));
+        _invokeStress = cache.GetOrAddMethodInvoker(_calculatorType, nameof(IMechanicalModelCalculator<>.CalculateStress));
+        _invokeStrain = cache.GetOrAddMethodInvoker(_calculatorType, nameof(IMechanicalModelCalculator<>.CalculateStrain));
+
+        _cache = cache;
+        _calculator = calculator;
+    }
+
+    /// <summary>
+    /// Initializes a secondary instance of the <see cref="MechanicalModelCalculatorFacade"/> class optimized for iterative time-history simulations.
+    /// </summary>
+    /// <remarks>
+    /// This constructor evaluates the combination of <see cref="MechanicalBehaviorType"/> and <see cref="ViscoelasticEffect"/> 
+    /// to determine the independent boundary condition. It extracts the value-derivative delegate, registers parameter tokens, 
+    /// and pre-allocates localized parameter buffers to eliminate allocation overhead during numerical loops.
+    /// </remarks>
+    /// <param name="cache">The high-performance type metadata cache mechanism.</param>
+    /// <param name="outputType">The explicit projection model type representing the output structure.</param>
+    /// <param name="calculator">The specific mathematical mechanical solver instance.</param>
+    /// <param name="input">The operational boundaries, specimen geometry, and time configurations.</param>
+    /// <exception cref="ArgumentNullException">Thrown when the provided input argument or required internal entities evaluate to null.</exception>
+    /// <exception cref="ArgumentOutOfRangeException">Thrown when the combination of behavior type and viscoelastic mechanism is unsupported by the domain logic.</exception>
     public MechanicalModelCalculatorFacade(IMechanicalModelTypeCache cache, Type outputType, object calculator, MechanicalModelInput input) : this(cache, calculator)
     {
         ArgumentNullException.ThrowIfNull(input);
 
-        _calculatorMethodDataList = cache.GetOrAddMethodDataList(_calculatorType, input.MechanicalRelationship, input.ViscoelasticEffect);
+        _calculatorMethodDataList = cache.GetOrAddMethodDataList(_calculatorType, input.MechanicalBehaviorType, input.ViscoelasticEffect);
         _outputFactory = cache.GetOrAddOutputFactory(outputType);
         _outputPropertySetters = cache.GetOrAddPropertySetters(outputType);
 
-        switch (input.MechanicalRelationship, input.ViscoelasticEffect)
+        switch (input.MechanicalBehaviorType, input.ViscoelasticEffect)
         {
-            case (MechanicalRelationship.ForceDisplacement, ViscoelasticEffect.Relaxation):
+            case (MechanicalBehaviorType.ForceDisplacement, ViscoelasticEffect.Relaxation):
                 _calculateValueAndDerivativeMethod = input.Displacement!.CalculateValueAndDerivative;
                 _inputParameterValueName = ParameterNameConstant.Displacement;
                 _inputParameterDerivativeName = ParameterNameConstant.DisplacementDerivative;
@@ -43,7 +125,7 @@ public class MechanicalModelCalculatorFacade(IMechanicalModelTypeCache cache, ob
                 _outputParameterDerivativeName = nameof(MechanicalModelOutput.DisplacementDerivative);
                 break;
 
-            case (MechanicalRelationship.ForceDisplacement, ViscoelasticEffect.Creep):
+            case (MechanicalBehaviorType.ForceDisplacement, ViscoelasticEffect.Creep):
                 _calculateValueAndDerivativeMethod = input.Force!.CalculateValueAndDerivative;
                 _inputParameterValueName = ParameterNameConstant.Force;
                 _inputParameterDerivativeName = ParameterNameConstant.ForceDerivative;
@@ -51,7 +133,7 @@ public class MechanicalModelCalculatorFacade(IMechanicalModelTypeCache cache, ob
                 _outputParameterDerivativeName = nameof(MechanicalModelOutput.ForceDerivative);
                 break;
 
-            case (MechanicalRelationship.StressStrain, ViscoelasticEffect.Relaxation):
+            case (MechanicalBehaviorType.StressStrain, ViscoelasticEffect.Relaxation):
                 _calculateValueAndDerivativeMethod = input.Strain!.CalculateValueAndDerivative;
                 _inputParameterValueName = ParameterNameConstant.Strain;
                 _inputParameterDerivativeName = ParameterNameConstant.StrainDerivative;
@@ -59,7 +141,7 @@ public class MechanicalModelCalculatorFacade(IMechanicalModelTypeCache cache, ob
                 _outputParameterDerivativeName = nameof(MechanicalModelOutput.StrainDerivative);
                 break;
 
-            case (MechanicalRelationship.StressStrain, ViscoelasticEffect.Creep):
+            case (MechanicalBehaviorType.StressStrain, ViscoelasticEffect.Creep):
                 _calculateValueAndDerivativeMethod = input.Stress!.CalculateValueAndDerivative;
                 _inputParameterValueName = ParameterNameConstant.Stress;
                 _inputParameterDerivativeName = ParameterNameConstant.StressDerivative;
@@ -68,7 +150,7 @@ public class MechanicalModelCalculatorFacade(IMechanicalModelTypeCache cache, ob
                 break;
 
             default:
-                throw new ArgumentOutOfRangeException($"{nameof(input.MechanicalRelationship)} and {nameof(input.ViscoelasticEffect)}");
+                throw new ArgumentOutOfRangeException($"{nameof(input.MechanicalBehaviorType)} and {nameof(input.ViscoelasticEffect)}");
         }
 
         _inputParameters = new(capacity: 4) { { ParameterNameConstant.MechanicalModelInput, input } };
@@ -99,7 +181,7 @@ public class MechanicalModelCalculatorFacade(IMechanicalModelTypeCache cache, ob
         foreach (CalculatorMethodData data in _calculatorMethodDataList!)
         {
             object[] methodParameters = [.. data.ParameterNames.Select(name => _inputParameters[name])];
-            object methodValue = data.Invoker(calculator, methodParameters);
+            object methodValue = data.Invoker(_calculator, methodParameters);
             _outputPropertySetters![data.PropertyName](output, methodValue);
         }
 
@@ -107,27 +189,56 @@ public class MechanicalModelCalculatorFacade(IMechanicalModelTypeCache cache, ob
     }
 
     /// <inheritdoc/>
-    public double CalculateDisplacement(MechanicalModelInput input, double time, double? force) => (double)_invokeDisplacement(calculator, [input, time, force]);
+    public double CalculateDisplacement(MechanicalModelInput input, double time, double? force) => (double)_invokeDisplacement(_calculator, [input, time, force]);
 
     /// <inheritdoc/>
-    public double CalculateForce(MechanicalModelInput input, double time, double? displacement) => (double)_invokeForce(calculator, [input, time, displacement]);
+    public double CalculateForce(MechanicalModelInput input, double time, double? displacement) => (double)_invokeForce(_calculator, [input, time, displacement]);
 
     /// <inheritdoc/>
-    public double CalculateStress(MechanicalModelInput input, double time, double? strain) => (double)_invokeStress(calculator, [input, time, strain]);
+    public double CalculateStress(MechanicalModelInput input, double time, double? strain) => (double)_invokeStress(_calculator, [input, time, strain]);
 
-    public double CalculateStrain(MechanicalModelInput input, double time, double? stress) => (double)_invokeStrain(calculator, [input, time, stress]);
+    /// <summary>
+    /// Dynamically invokes the underlying model's implementation to evaluate the dependent strain response.
+    /// </summary>
+    /// <param name="input">The base configuration parameters governing the simulation state.</param>
+    /// <param name="time">The specified chronological timeline coordinate. Unit: s (second).</param>
+    /// <param name="stress">The forced mechanical load applied as a continuum constraint. Unit: MPa (Mega-Pascal).</param>
+    /// <returns>The resolved material strain field mapping to the continuum stress state. Unit: dimensionless.</returns>
+    public double CalculateStrain(MechanicalModelInput input, double time, double? stress) => (double)_invokeStrain(_calculator, [input, time, stress]);
 
+    /// <summary>
+    /// Contains standard literal parameter name constants used across the meta-programming routing infrastructure.
+    /// </summary>
     public class ParameterNameConstant
     {
+        /// <summary>Identifier for the configuration parameter model instance argument.</summary>
         public const string MechanicalModelInput = "input";
+        
+        /// <summary>Identifier for the current step timeline argument.</summary>
         public const string Time = "time";
+        
+        /// <summary>Identifier for structural force bounds.</summary>
         public const string Force = "force";
+        
+        /// <summary>Identifier for the temporal rate of structural force bounds.</summary>
         public const string ForceDerivative = "forceDerivative";
+        
+        /// <summary>Identifier for macrostructural kinematic displacements.</summary>
         public const string Displacement = "displacement";
+        
+        /// <summary>Identifier for the kinematic velocity of structural displacements.</summary>
         public const string DisplacementDerivative = "displacementDerivative";
+        
+        /// <summary>Identifier for the continuum Cauchy stress bounds.</summary>
         public const string Stress = "stress";
+        
+        /// <summary>Identifier for the internal loading rate of the stress continuum.</summary>
         public const string StressDerivative = "stressDerivative";
+        
+        /// <summary>Identifier for the material Green-Lagrange or infinitesimal strains.</summary>
         public const string Strain = "strain";
+        
+        /// <summary>Identifier for the material strain rate deformation tensor component.</summary>
         public const string StrainDerivative = "strainDerivative";
     }
 }

@@ -3,7 +3,7 @@
 /// <summary>
 /// JOIN is an SQL clause used to query and access data from multiple tables, based on logical relationships between those tables.
 /// </summary>
-public enum JoinType
+public enum JoinType : int
 {
     /// <summary>
     /// Returns records that have matching values in both tables.

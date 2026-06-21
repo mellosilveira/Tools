@@ -14,7 +14,6 @@ using MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Visco
 using MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Viscoelasticity.QuasiLinear.Fung;
 using MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Viscoelasticity.QuasiLinear.SimplifiedFung;
 using MelloSilveiraTools.MechanicsOfMaterials.Converters.MechanicalParameter;
-using MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels;
 using MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Elasticity;
 using MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.Linear.Maxwell;
 using MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.NonLinear.ModifiedSuperpositionMethod;
@@ -30,50 +29,56 @@ namespace MelloSilveiraTools.MechanicsOfMaterials;
 /// </summary>
 public static class DependencyInjection
 {
-    /// <summary>
-    /// Registers the Mechanics of Materials services (constitutive equations, fatigue and
-    /// geometric property calculators) as singletons into the dependency injection container.
-    /// </summary>
-    /// <param name="services">The service collection used to register the dependencies.</param>
-    /// <returns>The same service collection so additional registrations can be chained.</returns>
-    public static IServiceCollection AddMechanicsOfMaterialsServices(this IServiceCollection services) => services
-        // Register service dependencies.
-        .AddSingleton<IMechanicalModelTypeCache, MechanicalModelTypeCache>()
-        // Register converters.
-        .AddSingleton<IMechanicalParameterConverter, MechanicalParameterConverter>()
-        // Register calculators.
-        // => for constitutive equations.
-        .AddSingleton<IConstitutiveEquationsCalculator, ConstitutiveEquationsCalculator>()
-        // => for fatigue.
-        .AddSingleton<IFatigueCalculator, FatigueCalculator>()
-        // => for geometric properties.
-        .AddSingleton<IGeometricPropertyCalculator<CircularProfile>, CircularProfileGeometricPropertyCalculator>()
-        .AddSingleton<IGeometricPropertyCalculator<RectangularProfile>, RectangularProfileGeometricPropertyCalculator>()
-        // => for mechanical models facade.
-        .AddSingleton<IMechanicalModelCalculatorFacade, MechanicalModelCalculatorFacade>()
-        .AddSingleton<IMechanicalModelCalculator<MechanicalModelInput>, MechanicalModelCalculatorFacade>()
-        // => for elastic model.
-        .AddSingleton<IMechanicalModelCalculator<ElasticModelInput>, ElasticModelCalculator>()
-        .AddSingleton<IElasticModelCalculator, ElasticModelCalculator>()
-        // => for linear viscoelastic Maxwell model.
-        .AddSingleton<IMechanicalModelCalculator<MaxwellModelInput>, MaxwellModelCalculator>()
-        .AddSingleton<IViscoelasticModelCalculator<MaxwellModelInput>, MaxwellModelCalculator>()
-        .AddSingleton<IMaxwellModelCalculator, MaxwellModelCalculator>()
-        // => for quasi-linear viscoelastic models.
-        .AddSingleton<IMechanicalModelCalculator<FungModelInput>, FungModelCalculator>()
-        .AddSingleton<IMechanicalModelCalculator<SimplifiedFungModelInput>, SimplifiedFungModelCalculator>()
-        .AddSingleton<IViscoelasticModelCalculator<FungModelInput>, FungModelCalculator>()
-        .AddSingleton<IFungModelCalculator, FungModelCalculator>()
-        .AddSingleton<IViscoelasticModelCalculator<SimplifiedFungModelInput>, SimplifiedFungModelCalculator>()
-        .AddSingleton<IQuasiLinearModelCalculator<FungModelInput, ReducedRelaxationFunction>, FungModelCalculator>()
-        .AddSingleton<IQuasiLinearModelCalculator<SimplifiedFungModelInput, PronySeries>, SimplifiedFungModelCalculator>()
-        .AddSingleton<ISimplifiedFungModelCalculator, SimplifiedFungModelCalculator>()
-        // => for non linear viscoelastic Schapery model.
-        .AddSingleton<IMechanicalModelCalculator<SchaperyModelInput>, SchaperyModelCalculator>()
-        .AddSingleton<IViscoelasticModelCalculator<SchaperyModelInput>, SchaperyModelCalculator>()
-        .AddSingleton<ISchaperyModelCalculator, SchaperyModelCalculator>()
-        // => for non linear viscoelastic Modified Superposition Method.
-        .AddSingleton<IMechanicalModelCalculator<ModifiedSuperpositionMethodInput>, ModifiedSuperpositionMethodCalculator>()
-        .AddSingleton<IViscoelasticModelCalculator<ModifiedSuperpositionMethodInput>, ModifiedSuperpositionMethodCalculator>()
-        .AddSingleton<IModifiedSuperpositionMethodCalculator, ModifiedSuperpositionMethodCalculator>();
+    extension(IServiceCollection services)
+    {
+        /// <summary>
+        /// Registers the Mechanics of Materials services (constitutive equations, fatigue and
+        /// geometric property calculators) as singletons into the dependency injection container.
+        /// </summary>
+        /// <returns>The same service collection so additional registrations can be chained.</returns>
+        public IServiceCollection AddMechanicsOfMaterialsServices(bool addMechanicalModels = false)
+        {
+            if (addMechanicalModels)
+                services.AddMechanicalModels();
+
+            return services
+                // Register converters.
+                .AddSingleton<IMechanicalParameterConverter, MechanicalParameterConverter>()
+                // Register calculators.
+                .AddSingleton<IConstitutiveEquationsCalculator, ConstitutiveEquationsCalculator>()
+                .AddSingleton<IFatigueCalculator, FatigueCalculator>()
+                .AddSingleton<IMechanicalModelCalculatorFacade, MechanicalModelCalculatorFacade>()
+                // Register geometric properties.
+                .AddSingleton<IGeometricPropertyCalculator<CircularProfile>, CircularProfileGeometricPropertyCalculator>()
+                .AddSingleton<IGeometricPropertyCalculator<RectangularProfile>, RectangularProfileGeometricPropertyCalculator>()
+                // Register service dependencies.
+                .AddSingleton<ServiceLocator>()
+                .AddSingleton<IMechanicalModelTypeCache, MechanicalModelTypeCache>();
+        }
+
+        public IServiceCollection AddMechanicalModels() => services
+            // Register elastic model.
+            .AddSingleton<IMechanicalModelCalculator<ElasticConstitutiveParameters>, ElasticModelCalculator>()
+            .AddSingleton<IElasticModelCalculator, ElasticModelCalculator>()
+            // Register linear viscoelastic models.
+            .AddSingleton<IMechanicalModelCalculator<MaxwellConstitutiveParameters>, MaxwellModelCalculator>()
+            .AddSingleton<IViscoelasticModelCalculator<MaxwellConstitutiveParameters>, MaxwellModelCalculator>()
+            .AddSingleton<IMaxwellModelCalculator, MaxwellModelCalculator>()
+            // Register quasi-linear viscoelastic models.
+            .AddSingleton<IMechanicalModelCalculator<FungConstitutiveParameters>, FungModelCalculator>()
+            .AddSingleton<IMechanicalModelCalculator<SimplifiedFungConstitutiveParameters>, SimplifiedFungModelCalculator>()
+            .AddSingleton<IViscoelasticModelCalculator<FungConstitutiveParameters>, FungModelCalculator>()
+            .AddSingleton<IViscoelasticModelCalculator<SimplifiedFungConstitutiveParameters>, SimplifiedFungModelCalculator>()
+            .AddSingleton<IQuasiLinearModelCalculator<FungConstitutiveParameters, ReducedRelaxationFunction>, FungModelCalculator>()
+            .AddSingleton<IQuasiLinearModelCalculator<SimplifiedFungConstitutiveParameters, PronySeries>, SimplifiedFungModelCalculator>()
+            .AddSingleton<IFungModelCalculator, FungModelCalculator>()
+            .AddSingleton<ISimplifiedFungModelCalculator, SimplifiedFungModelCalculator>()
+            // Register nonlinear viscoelastic models.
+            .AddSingleton<IMechanicalModelCalculator<ModifiedSuperpositionMethodConstitutiveParameters>, ModifiedSuperpositionMethodCalculator>()
+            .AddSingleton<IMechanicalModelCalculator<SchaperyConstitutiveParameters>, SchaperyModelCalculator>()
+            .AddSingleton<IViscoelasticModelCalculator<ModifiedSuperpositionMethodConstitutiveParameters>, ModifiedSuperpositionMethodCalculator>()
+            .AddSingleton<IViscoelasticModelCalculator<SchaperyConstitutiveParameters>, SchaperyModelCalculator>()
+            .AddSingleton<IModifiedSuperpositionMethodCalculator, ModifiedSuperpositionMethodCalculator>()
+            .AddSingleton<ISchaperyModelCalculator, SchaperyModelCalculator>();
+    }
 }

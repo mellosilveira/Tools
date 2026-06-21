@@ -54,8 +54,8 @@ public abstract class CrudController<TEntity, TFilter>(ILogger logger) : CustomC
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [HttpGet("{id:long}")]
     public async Task<ActionResult<Result<TEntity>>> Read(
-        [FromServices] ReadEntityById<TEntity> operation, 
-        [FromRoute] long id) 
+        [FromServices] ReadEntityById<TEntity> operation,
+        [FromRoute] long id)
         => await operation
             .ExecuteAsync(new ReadEntityByIdRequest { Id = id, ResourceName = ResourceName })
             .BuildHttpResponseAsync()
@@ -75,7 +75,7 @@ public abstract class CrudController<TEntity, TFilter>(ILogger logger) : CustomC
     public async Task<ActionResult<PagedResult<TEntity>>> Read(
         [FromServices] ReadEntityPaged<TEntity, TFilter> operation,
         [FromQuery] TFilter filter,
-        [FromQuery] Pagination pagination) 
+        [FromQuery] Pagination pagination)
         => await operation
             .ExecuteAsync(new ReadEntityPagedRequest<TFilter>
             {
@@ -101,7 +101,7 @@ public abstract class CrudController<TEntity, TFilter>(ILogger logger) : CustomC
     public async Task<ActionResult<Result>> Update(
         [FromServices] UpdateEntity<TEntity> operation,
         [FromRoute] long id,
-        [FromBody] TEntity entity) 
+        [FromBody] TEntity entity)
         => await operation
             .ExecuteAsync(new UpdateEntityRequest<TEntity> { Id = id, Entity = entity, ResourceName = ResourceName })
             .BuildHttpResponseAsync()
@@ -119,7 +119,7 @@ public abstract class CrudController<TEntity, TFilter>(ILogger logger) : CustomC
     [HttpDelete("{id:long}")]
     public async Task<ActionResult<Result>> Delete(
         [FromServices] DeleteEntity<TEntity> operation,
-        [FromRoute] long id) 
+        [FromRoute] long id)
         => await operation
             .ExecuteAsync(new DeleteEntityRequest { Id = id, ResourceName = ResourceName })
             .BuildHttpResponseAsync()

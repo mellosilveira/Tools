@@ -41,8 +41,8 @@ public sealed class PostgresSqlProviderTests
         Assert.Contains("INSERT INTO product", sql);
         Assert.Contains("@Id_1, @CreationTimestamp_1, @Name_1, @Price_1", sql);
         Assert.Contains("@Id_2, @CreationTimestamp_2, @Name_2, @Price_2", sql);
-        Assert.DoesNotContain("@Id_0",  sql); // no zero-based suffix
-        Assert.DoesNotContain("@Id_3",  sql); // only 2 rows
+        Assert.DoesNotContain("@Id_0", sql); // no zero-based suffix
+        Assert.DoesNotContain("@Id_3", sql); // only 2 rows
         Assert.Contains("RETURNING id", sql);
         Assert.DoesNotContain("ON CONFLICT", sql);
     }
@@ -111,10 +111,10 @@ public sealed class PostgresSqlProviderTests
         var sql = _provider.GetSelectByPrimaryKeySql<ProductEntity>();
 
         Assert.Contains("WHERE prd.id = @Id", sql);
-        Assert.DoesNotContain("#WHERE",   sql);
+        Assert.DoesNotContain("#WHERE", sql);
         Assert.DoesNotContain("#ORDERBY", sql);
-        Assert.DoesNotContain("#OFFSET",  sql);
-        Assert.DoesNotContain("#LIMIT",   sql);
+        Assert.DoesNotContain("#OFFSET", sql);
+        Assert.DoesNotContain("#LIMIT", sql);
     }
 
     // ── COUNT / EXIST ──────────────────────────────────────────────────────────

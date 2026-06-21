@@ -1,5 +1,5 @@
-﻿using MelloSilveiraTools.Mathematics.Models.Statistics;
-using MelloSilveiraTools.Mathematics.Extensions;
+﻿using MelloSilveiraTools.Mathematics.Extensions;
+using MelloSilveiraTools.Mathematics.Models.Statistics;
 
 namespace MelloSilveiraTools.Mathematics.Statistics;
 

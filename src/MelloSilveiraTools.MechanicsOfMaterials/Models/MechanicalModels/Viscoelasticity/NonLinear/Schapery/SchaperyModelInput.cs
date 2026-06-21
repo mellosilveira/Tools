@@ -4,71 +4,68 @@ using MelloSilveiraTools.Mathematics.Functions;
 namespace MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.NonLinear.Schapery;
 
 /// <summary>
-/// Contains the input data for Schapery's model.
+/// Defines the constitutive parameters for the Schapery non-linear viscoelastic model.
 /// </summary>
-public sealed record SchaperyModelInput : NonLinearModelInput
+public sealed record SchaperyConstitutiveParameters : ConstitutiveParameters
 {
-    #region Contansts for strain calculation
+    #region Constants for strain calculation (Creep)
 
     /// <summary>
-    /// The letter G and the index numbers indicate the Gibb’s free energy dependence and its order.
-    /// Material constant based on thermodynamic concepts that depend on stress and Gibb’s free energy.
-    /// Non-linear elastic response that calculates the instantaneous change in stiffness.
-    /// Unit: .
+    /// Material constant based on thermodynamic concepts that depends on stress and Gibbs free energy.
+    /// Represents the non-linear elastic response that calculates the instantaneous change in compliance.
     /// </summary>
+    /// <value>Unit: dimensionless.</value>
     public double G0 { get; init; }
 
     /// <summary>
-    /// The letter G and the index numbers indicate the Gibb’s free energy dependence and its order.
-    /// Material constant based on thermodynamic concepts that depend on stress and Gibb’s free energy.
-    /// Non-linear transient response.
-    /// Unit: .
+    /// Material constant based on thermodynamic concepts that depends on stress and Gibbs free energy.
+    /// Represents the non-linear transient response.
     /// </summary>
+    /// <value>Unit: dimensionless.</value>
     public double G1 { get; init; }
 
     /// <summary>
-    /// The letter G and the index numbers indicate the Gibb’s free energy dependence and its order.
-    /// Material constant based on thermodynamic concepts that depend on stress and Gibb’s free energy.
-    /// The parameter that measures load rate effects in creep.
-    /// Unit: .
+    /// Material constant based on thermodynamic concepts that depends on stress and Gibbs free energy.
+    /// Parameter that measures load rate effects in creep.
     /// </summary>
+    /// <value>Unit: dimensionless.</value>
     public double G2 { get; init; }
 
     /// <summary>
-    /// The state in equilibrium of creep compliance.
-    /// Unit: .
+    /// The instantaneous or equilibrium state of creep compliance.
     /// </summary>
+    /// <value>Unit: /MPa (per Mega-Pascal).</value>
     public double J0 { get; init; }
 
     #endregion
 
-    #region Constants for stress calculation
+    #region Constants for stress calculation (Relaxation)
 
     /// <summary>
-    /// Material constant that depend on strain and Helmoltz free energy for the state in equilibrium.
-    /// Unit: dimensionless.
+    /// Strain-dependent material function based on Helmholtz free energy for the state in equilibrium.
     /// </summary>
+    /// <value>Unit: dimensionless.</value>
     public Function? He { get; init; }
 
     /// <summary>
-    /// Material constant that depend on strain and Helmoltz free energy.
-    /// First order of dependence on the Helmoltz free energy.
-    /// Unit: dimensionless.
+    /// Strain-dependent material function based on Helmholtz free energy.
+    /// First order of dependence on the Helmholtz free energy.
     /// </summary>
+    /// <value>Unit: dimensionless.</value>
     public Function? H1 { get; init; }
 
     /// <summary>
-    /// Material constant that depend on strain and Helmoltz free energy.
-    /// Second order of dependence on the Helmoltz free energy.
-    /// Unit: dimensionless.
+    /// Strain-dependent material function based on Helmholtz free energy.
+    /// Second order of dependence on the Helmholtz free energy.
     /// </summary>
+    /// <value>Unit: dimensionless.</value>
     public Function? H2 { get; init; }
 
     /// <summary>
-    /// Stress dependent coefficients based on thermodynamic concepts. 
-    /// The state in equilibrium of relaxation function.
-    /// Unit: MPa (Mega-pascal).
+    /// Strain-dependent coefficient based on thermodynamic concepts. 
+    /// The state in equilibrium of the relaxation function.
     /// </summary>
+    /// <value>Unit: MPa (Mega-Pascal).</value>
     public double Ge { get; init; }
 
     #endregion
@@ -76,7 +73,7 @@ public sealed record SchaperyModelInput : NonLinearModelInput
     #region Constants for Relaxation Function
 
     /// <summary>
-    /// An <see cref="Function"/> that represents the transient relaxation function.
+    /// Represents the transient relaxation function using a Power Law formulation.
     /// </summary>
     public PowerLaw? TransientRelaxationFunction { get; init; }
 
@@ -85,7 +82,7 @@ public sealed record SchaperyModelInput : NonLinearModelInput
     #region Constants for Creep Compliance
 
     /// <summary>
-    /// An <see cref="Expression"/> that represents the transient creep compliance.
+    /// Represents the transient creep compliance using a Prony Series formulation.
     /// </summary>
     public PronySeries? TransientCreepCompliance { get; init; }
 

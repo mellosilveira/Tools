@@ -513,12 +513,12 @@
             <param name="logger">Logger used to record warnings (client cancellation) and errors.</param>
             <param name="resourceName">Human-readable resource name used when reporting streaming failures.</param>
         </member>
-        <member name="T:MelloSilveiraTools.WebApi.Application.Middlewares.ExceptionHandlingMiddleware">
+        <member name="T:MelloSilveiraTools.WebApi.Application.Middlewares.ExceptionHandlingHttpMiddleware">
             <summary>
             Middleware that converts unhandled exceptions raised by the pipeline into a standard <see cref="T:Microsoft.AspNetCore.Mvc.ProblemDetails"/> JSON response.
             </summary>
             <remarks>
-            Exception-to-status mapping performed by <see cref="M:MelloSilveiraTools.WebApi.Application.Middlewares.ExceptionHandlingMiddleware.InvokeAsync(Microsoft.AspNetCore.Http.HttpContext)"/>:
+            Exception-to-status mapping performed by <see cref="M:MelloSilveiraTools.WebApi.Application.Middlewares.ExceptionHandlingHttpMiddleware.InvokeAsync(Microsoft.AspNetCore.Http.HttpContext)"/>:
             <list type="bullet">
               <item><description><see cref="T:System.UnauthorizedAccessException"/> → <see cref="F:MelloSilveiraTools.Core.Models.StatusCode.Unauthorized"/> (401).</description></item>
               <item><description><see cref="T:System.ArgumentException"/> or <see cref="T:System.InvalidOperationException"/> → <see cref="F:MelloSilveiraTools.Core.Models.StatusCode.BadRequest"/> (400).</description></item>
@@ -532,12 +532,12 @@
             <param name="next">The next middleware in the request pipeline.</param>
             <param name="logger">Logger used to record handled streaming exceptions.</param>
         </member>
-        <member name="M:MelloSilveiraTools.WebApi.Application.Middlewares.ExceptionHandlingMiddleware.#ctor(Microsoft.AspNetCore.Http.RequestDelegate,Microsoft.Extensions.Logging.ILogger)">
+        <member name="M:MelloSilveiraTools.WebApi.Application.Middlewares.ExceptionHandlingHttpMiddleware.#ctor(Microsoft.AspNetCore.Http.RequestDelegate,Microsoft.Extensions.Logging.ILogger)">
             <summary>
             Middleware that converts unhandled exceptions raised by the pipeline into a standard <see cref="T:Microsoft.AspNetCore.Mvc.ProblemDetails"/> JSON response.
             </summary>
             <remarks>
-            Exception-to-status mapping performed by <see cref="M:MelloSilveiraTools.WebApi.Application.Middlewares.ExceptionHandlingMiddleware.InvokeAsync(Microsoft.AspNetCore.Http.HttpContext)"/>:
+            Exception-to-status mapping performed by <see cref="M:MelloSilveiraTools.WebApi.Application.Middlewares.ExceptionHandlingHttpMiddleware.InvokeAsync(Microsoft.AspNetCore.Http.HttpContext)"/>:
             <list type="bullet">
               <item><description><see cref="T:System.UnauthorizedAccessException"/> → <see cref="F:MelloSilveiraTools.Core.Models.StatusCode.Unauthorized"/> (401).</description></item>
               <item><description><see cref="T:System.ArgumentException"/> or <see cref="T:System.InvalidOperationException"/> → <see cref="F:MelloSilveiraTools.Core.Models.StatusCode.BadRequest"/> (400).</description></item>
@@ -551,7 +551,7 @@
             <param name="next">The next middleware in the request pipeline.</param>
             <param name="logger">Logger used to record handled streaming exceptions.</param>
         </member>
-        <member name="M:MelloSilveiraTools.WebApi.Application.Middlewares.ExceptionHandlingMiddleware.InvokeAsync(Microsoft.AspNetCore.Http.HttpContext)">
+        <member name="M:MelloSilveiraTools.WebApi.Application.Middlewares.ExceptionHandlingHttpMiddleware.InvokeAsync(Microsoft.AspNetCore.Http.HttpContext)">
             <summary>
             Invokes the next middleware in the pipeline and translates any unhandled exception into an HTTP error response.
             </summary>
@@ -1042,7 +1042,6 @@
             Projects the operation result into an <see cref="T:Microsoft.AspNetCore.Http.IResult"/> suitable for minimal-API endpoints,
             preserving the result payload and HTTP status code.
             </summary>
-            <param name="result">The operation result to be returned.</param>
             <returns>An <see cref="T:Microsoft.AspNetCore.Http.IResult"/> that serializes <paramref name="result"/> as JSON with the result status code.</returns>
         </member>
         <member name="T:MelloSilveiraTools.WebApi.ExtensionMethods.ResultExtensions.&lt;G&gt;$32C079C447F7FCD34303CE689DD35102`1.&lt;M&gt;$4D4A0B2F1A3465A3B20482AC339CDFBD">

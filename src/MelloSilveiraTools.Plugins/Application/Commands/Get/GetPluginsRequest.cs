@@ -1,5 +1,3 @@
-using MelloSilveiraTools.Plugins.Application.Commands;
-
 namespace MelloSilveiraTools.Plugins.Application.Commands.Get;
 
 /// <summary>

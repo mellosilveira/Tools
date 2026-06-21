@@ -1,9 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
 using Polly;
-using Polly.RateLimiting;
 using Polly.Retry;
 using System.Runtime.CompilerServices;
-using System.Threading.RateLimiting;
 
 namespace MelloSilveiraTools.Core.ResiliencePipelines;
 
@@ -183,7 +181,7 @@ public class DefaultResiliencePipeline
     /// Encapsulates a function with a strategy that covers retriable scenarios.
     /// </summary>
     /// <param name="callback">Function which will be encapsulated by the retry strategy.</param>
-    /// <param name="fallback">Function invoked if the pipeline execution fails. It receives the caught exception and must provide a safe alternative value of type <typeparamref name="T"/> to be returned to the caller.</param>
+    /// <param name="fallback">Function invoked if the pipeline execution fails. It receives the caught exception.</param>
     /// <param name="callerMemberName">Member name of the caller which will be logged when a retry is performed.</param>
     /// <param name="callerFilePath">Path of the caller which will be used to get the class name to be logged when a retry is performed.</param>
     /// <returns>The instance of <see cref="ValueTask"/> that represents the asynchronous execution.</returns>
@@ -214,7 +212,7 @@ public class DefaultResiliencePipeline
     /// Encapsulates a function with a strategy that covers retriable scenarios.
     /// </summary>
     /// <param name="callback">Function which will be encapsulated by the retry strategy.</param>
-    /// <param name="fallback">Function invoked if the pipeline execution fails. It receives the caught exception and must provide a safe alternative value of type <typeparamref name="T"/> to be returned to the caller.</param>
+    /// <param name="fallback">Function invoked if the pipeline execution fails. It receives the caught exception.</param>
     /// <param name="callerMemberName">Member name of the caller which will be logged when a retry is performed.</param>
     /// <param name="callerFilePath">Path of the caller which will be used to get the class name to be logged when a retry is performed.</param>
     /// <returns>The instance of <see cref="ValueTask"/> that represents the asynchronous execution.</returns>

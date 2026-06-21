@@ -19,7 +19,7 @@ public interface IMechanicalModelTypeCache
     /// Returns the list of calculator methods applicable to the given relationship and viscoelastic effect,
     /// each pre-compiled into a <see cref="CalculatorMethodData"/>.
     /// </summary>
-    CalculatorMethodData[] GetOrAddMethodDataList(Type calculatorType, MechanicalRelationship relationship, ViscoelasticEffect effect);
+    CalculatorMethodData[] GetOrAddMethodDataList(Type calculatorType, MechanicalBehaviorType relationship, ViscoelasticEffect effect);
 
     /// <summary>
     /// Returns a compiled factory delegate that creates instances of the given output type.
