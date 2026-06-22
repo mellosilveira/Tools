@@ -11,7 +11,7 @@ namespace MelloSilveiraTools.WebApi.Application.Commands;
 /// <typeparam name="TResult">Response type produced by the command.</typeparam>
 /// <param name="validator"></param>
 public abstract class CommandBase<TRequest, TResult>(IValidator<TRequest>? validator = null)
-    where TRequest : class, new()
+    where TRequest : class
     where TResult : ResultBase, new()
 {
     public IValidator<TRequest>? Validator { get; } = validator;
@@ -58,7 +58,7 @@ public abstract class CommandBase<TRequest, TResult>(IValidator<TRequest>? valid
 /// <typeparam name="TRequest">Request type consumed by the command.</typeparam>
 /// <typeparam name="TResponseData">Type of the data payload returned by the command.</typeparam>
 public abstract class CommandBaseWithData<TRequest, TResponseData>(IValidator<TRequest>? validator = null) : CommandBase<TRequest, Result<TResponseData>>(validator)
-    where TRequest : class, new()
+    where TRequest : class
     where TResponseData : class
 { }
 
@@ -68,7 +68,7 @@ public abstract class CommandBaseWithData<TRequest, TResponseData>(IValidator<TR
 /// <typeparam name="TRequest">Request type consumed by the command.</typeparam>
 /// <typeparam name="TResponseData">Type of each item returned by the command.</typeparam>
 public abstract class ListedCommandBase<TRequest, TResponseData>(IValidator<TRequest>? validator = null) : CommandBase<TRequest, ListedResult<TResponseData>>(validator)
-    where TRequest : class, new()
+    where TRequest : class
     where TResponseData : class
 { }
 
@@ -78,14 +78,14 @@ public abstract class ListedCommandBase<TRequest, TResponseData>(IValidator<TReq
 /// <typeparam name="TRequest">Request type consumed by the command.</typeparam>
 /// <typeparam name="TResponseData">Type of each item returned in the page.</typeparam>
 public abstract class PagedCommandBase<TRequest, TResponseData>(IValidator<TRequest>? validator = null) : CommandBase<TRequest, PagedResult<TResponseData>>(validator)
-    where TRequest : class, new()
+    where TRequest : class
     where TResponseData : class
 { }
 
 /// <summary>
 /// Represents the base for all commands that uses the default response (<see cref="Result"/>).
 /// </summary>
-public abstract class CommandBaseWithDefaultResponse<TRequest>(IValidator<TRequest>? validator = null) : CommandBase<TRequest, Result>(validator) where TRequest : class, new();
+public abstract class CommandBaseWithDefaultResponse<TRequest>(IValidator<TRequest>? validator = null) : CommandBase<TRequest, Result>(validator) where TRequest : class;
 
 /// <summary>
 /// Represents the base for all commands that does not use a request.
