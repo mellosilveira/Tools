@@ -16,4 +16,9 @@
 	  <ProjectReference Include="..\MelloSilveiraTools.Mathematics\MelloSilveiraTools.Mathematics.csproj" />
 	</ItemGroup>
 
+	<ItemGroup>
+	  <Folder Include="Optimizations\CurveFitting\" />
+	  <Folder Include="Optimizations\SensitivityAnalyses\" />
+	</ItemGroup>
+
 </Project>
