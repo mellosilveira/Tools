@@ -12,6 +12,24 @@ namespace MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels;
 /// </remarks>
 public record MechanicalModelInput
 {
+    public MechanicalModelInput() { }
+
+    public MechanicalModelInput(MechanicalModelInput original)
+    {
+        Identifier = original.Identifier;
+        MechanicalModelName = original.MechanicalModelName;
+        AcceptedStrainRange = original.AcceptedStrainRange;
+        MechanicalBehaviorType = original.MechanicalBehaviorType;
+        ViscoelasticEffect = original.ViscoelasticEffect;
+        RampTimeConsideration = original.RampTimeConsideration;
+        Strain = original.Strain;
+        Displacement = original.Displacement;
+        Stress = original.Stress;
+        Force = original.Force;
+        Specimen = original.Specimen;
+        TimeStep = original.TimeStep;
+    }
+
     /// <summary>
     /// An optional correlational identifier used to track this specific boundary value problem 
     /// configuration within batch executions or experimental logs.
@@ -99,6 +117,10 @@ public record MechanicalModelInput
 public record MechanicalModelInput<TConstitutiveParameters> : MechanicalModelInput
     where TConstitutiveParameters : ConstitutiveParameters
 {
+    public MechanicalModelInput() { }
+
+    public MechanicalModelInput(MechanicalModelInput input, TConstitutiveParameters constitutiveParameters) : base(input) => ConstitutiveParameters = constitutiveParameters;
+
     /// <summary>
     /// The explicitly defined material constants, scalar moduli, and phenomenological tensors 
     /// governing the mathematical formulation assigned to this simulation.
@@ -110,4 +132,9 @@ public record MechanicalModelInput<TConstitutiveParameters> : MechanicalModelInp
 /// Provides a non-generic bridging construct, allowing polymorphically diverse boundary value problems 
 /// to be routed through generalized processing pipelines prior to type specialization.
 /// </summary>
-public sealed record GenericMechanicalModelInput : MechanicalModelInput<ConstitutiveParameters>;
+public sealed record GenericMechanicalModelInput : MechanicalModelInput<ConstitutiveParameters>
+{
+    public GenericMechanicalModelInput() { }
+
+    public GenericMechanicalModelInput(MechanicalModelInput input, ConstitutiveParameters constitutiveParameters) : base(input, constitutiveParameters) { }
+}
