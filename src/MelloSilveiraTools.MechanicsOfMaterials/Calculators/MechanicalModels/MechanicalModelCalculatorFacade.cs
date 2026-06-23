@@ -107,7 +107,7 @@ public class MechanicalModelCalculatorFacade : IMechanicalModelCalculatorFacade
     /// <param name="input">The operational boundaries, specimen geometry, and time configurations.</param>
     /// <exception cref="ArgumentNullException">Thrown when the provided input argument or required internal entities evaluate to null.</exception>
     /// <exception cref="ArgumentOutOfRangeException">Thrown when the combination of behavior type and viscoelastic mechanism is unsupported by the domain logic.</exception>
-    public MechanicalModelCalculatorFacade(IMechanicalModelTypeCache cache, Type outputType, object calculator, MechanicalModelInput input) : this(cache, calculator)
+    public MechanicalModelCalculatorFacade(IMechanicalModelTypeCache cache, Type outputType, object calculator, GenericMechanicalModelInput input) : this(cache, calculator)
     {
         ArgumentNullException.ThrowIfNull(input);
 
@@ -189,13 +189,13 @@ public class MechanicalModelCalculatorFacade : IMechanicalModelCalculatorFacade
     }
 
     /// <inheritdoc/>
-    public double CalculateDisplacement(MechanicalModelInput input, double time, double? force) => (double)_invokeDisplacement(_calculator, [input, time, force]);
+    public double CalculateDisplacement(GenericMechanicalModelInput input, double time, double? force) => (double)_invokeDisplacement(_calculator, [input, time, force]);
 
     /// <inheritdoc/>
-    public double CalculateForce(MechanicalModelInput input, double time, double? displacement) => (double)_invokeForce(_calculator, [input, time, displacement]);
+    public double CalculateForce(GenericMechanicalModelInput input, double time, double? displacement) => (double)_invokeForce(_calculator, [input, time, displacement]);
 
     /// <inheritdoc/>
-    public double CalculateStress(MechanicalModelInput input, double time, double? strain) => (double)_invokeStress(_calculator, [input, time, strain]);
+    public double CalculateStress(GenericMechanicalModelInput input, double time, double? strain) => (double)_invokeStress(_calculator, [input, time, strain]);
 
     /// <summary>
     /// Dynamically invokes the underlying model's implementation to evaluate the dependent strain response.
@@ -204,7 +204,7 @@ public class MechanicalModelCalculatorFacade : IMechanicalModelCalculatorFacade
     /// <param name="time">The specified chronological timeline coordinate. Unit: s (second).</param>
     /// <param name="stress">The forced mechanical load applied as a continuum constraint. Unit: MPa (Mega-Pascal).</param>
     /// <returns>The resolved material strain field mapping to the continuum stress state. Unit: dimensionless.</returns>
-    public double CalculateStrain(MechanicalModelInput input, double time, double? stress) => (double)_invokeStrain(_calculator, [input, time, stress]);
+    public double CalculateStrain(GenericMechanicalModelInput input, double time, double? stress) => (double)_invokeStrain(_calculator, [input, time, stress]);
 
     /// <summary>
     /// Contains standard literal parameter name constants used across the meta-programming routing infrastructure.
