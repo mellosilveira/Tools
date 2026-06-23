@@ -197,13 +197,7 @@ public class MechanicalModelCalculatorFacade : IMechanicalModelCalculatorFacade
     /// <inheritdoc/>
     public double CalculateStress(GenericMechanicalModelInput input, double time, double? strain) => (double)_invokeStress(_calculator, [input, time, strain]);
 
-    /// <summary>
-    /// Dynamically invokes the underlying model's implementation to evaluate the dependent strain response.
-    /// </summary>
-    /// <param name="input">The base configuration parameters governing the simulation state.</param>
-    /// <param name="time">The specified chronological timeline coordinate. Unit: s (second).</param>
-    /// <param name="stress">The forced mechanical load applied as a continuum constraint. Unit: MPa (Mega-Pascal).</param>
-    /// <returns>The resolved material strain field mapping to the continuum stress state. Unit: dimensionless.</returns>
+    /// <inheritdoc/>
     public double CalculateStrain(GenericMechanicalModelInput input, double time, double? stress) => (double)_invokeStrain(_calculator, [input, time, stress]);
 
     /// <summary>
