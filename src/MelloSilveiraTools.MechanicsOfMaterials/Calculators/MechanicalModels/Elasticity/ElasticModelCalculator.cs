@@ -43,21 +43,21 @@ public class ElasticModelCalculator : IElasticModelCalculator
     public double CalculateStress(MechanicalModelInput<ElasticConstitutiveParameters> input, double time, double? strain = null)
     {
         strain ??= input.Strain!.CalculateValue(time);
-        return input.ConstitutiveParameters.ElasticModulus * strain.Value;
+        return input.ConstitutiveParameters.YoungModulus * strain.Value;
     }
 
     /// <inheritdoc/>
     public double CalculateStrain(MechanicalModelInput<ElasticConstitutiveParameters> input, double time, double? stress = null)
     {
         stress ??= input.Stress!.CalculateValue(time);
-        return stress.Value / input.ConstitutiveParameters.ElasticModulus;
+        return stress.Value / input.ConstitutiveParameters.YoungModulus;
     }
 
     private double CalculateStiffness(MechanicalModelInput<ElasticConstitutiveParameters> input, double time, double? force = null, double? displacement = null)
     {
         var specimen = input.Specimen!;
         if (!specimen.ConsiderLargeDisplacement)
-            return specimen.Area * UnitConverter.ConvertMPaToPa(input.ConstitutiveParameters.ElasticModulus) / specimen.PreLoadLength;
+            return specimen.Area * UnitConverter.ConvertMPaToPa(input.ConstitutiveParameters.YoungModulus) / specimen.PreLoadLength;
 
         force ??= CalculateForce(input, time);
         displacement ??= CalculateDisplacement(input, time);

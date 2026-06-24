@@ -9,5 +9,5 @@ public record ElasticConstitutiveParameters : ConstitutiveParameters
     /// Represents the longitudinal stiffness (Young's Modulus).
     /// Unit: MPa.
     /// </summary>
-    public double ElasticModulus { get; init; }
+    public double YoungModulus { get; init; }
 }

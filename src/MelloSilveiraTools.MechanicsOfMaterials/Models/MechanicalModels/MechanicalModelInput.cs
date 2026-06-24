@@ -1,4 +1,5 @@
 ﻿using MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity;
+using System.Diagnostics.CodeAnalysis;
 
 namespace MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels;
 
@@ -14,6 +15,7 @@ public record MechanicalModelInput
 {
     public MechanicalModelInput() { }
 
+    [SetsRequiredMembers]
     public MechanicalModelInput(MechanicalModelInput original)
     {
         Identifier = original.Identifier;
@@ -119,6 +121,7 @@ public record MechanicalModelInput<TConstitutiveParameters> : MechanicalModelInp
 {
     public MechanicalModelInput() { }
 
+    [SetsRequiredMembers]
     public MechanicalModelInput(MechanicalModelInput input, TConstitutiveParameters constitutiveParameters) : base(input) => ConstitutiveParameters = constitutiveParameters;
 
     /// <summary>
@@ -136,5 +139,6 @@ public sealed record GenericMechanicalModelInput : MechanicalModelInput<Constitu
 {
     public GenericMechanicalModelInput() { }
 
+    [SetsRequiredMembers]
     public GenericMechanicalModelInput(MechanicalModelInput input, ConstitutiveParameters constitutiveParameters) : base(input, constitutiveParameters) { }
 }
