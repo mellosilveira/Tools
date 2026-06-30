@@ -465,16 +465,56 @@
         </member>
         <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.IMechanicalModelCalculatorFacade">
             <summary>
-            Defines a unified facade for all mechanical model calculators.
-            Hides the underlying complexity, specific mathematical implementations, and generic constitutive parameters from the client.
+            Defines a unified structural and mathematical facade for all phenomenological mechanical model calculators.
             </summary>
+            <remarks>
+            This interface fully encapsulates the underlying numerical complexity, constitutive tensor operations, 
+            and polymorphic material definitions, providing the macroscopic solver with a clean, strictly-typed 
+            contract to evaluate continuum mechanics states without exposing specific formulation details.
+            </remarks>
         </member>
         <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.IMechanicalModelCalculatorFacade.Calculate(System.Double)">
             <summary>
-            Calculates the consolidated mechanical model's output at a specific point in time.
+            Evaluates the complete, deterministic macroscopic and intensive state of the continuum at a specific integration step.
             </summary>
-            <param name="time">The elapsed time for the calculation. Unit: s (second).</param>
-            <returns>The mechanical model's output, encapsulating the calculated stress, strain, force, and displacement.</returns>
+            <param name="time">The elapsed integration time ($t$). Unit: seconds (s).</param>
+            <returns>An aggregated artifact encapsulating the instantaneously converged stress, strain, force, and displacement.</returns>
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.IMechanicalModelCalculatorFacade.CalculateForce(MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.GenericMechanicalModelInput,System.Double,System.Nullable{System.Double})">
+            <summary>
+            Resolves the global kinetic response (force) evaluated against a generic macroscopic boundary condition.
+            </summary>
+            <param name="input">The generalized problem definition acting as a polymorphic parameter payload.</param>
+            <param name="time">The integration time ($t$). Unit: seconds (s).</param>
+            <param name="displacement">An optional kinematic override to bypass the intrinsic input history during iterative root-finding steps.</param>
+            <returns>The resultant macroscopic force. Unit: Newtons (N).</returns>
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.IMechanicalModelCalculatorFacade.CalculateDisplacement(MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.GenericMechanicalModelInput,System.Double,System.Nullable{System.Double})">
+            <summary>
+            Resolves the global kinematic response (displacement) derived from a generic kinetic boundary condition.
+            </summary>
+            <param name="input">The generalized problem definition acting as a polymorphic parameter payload.</param>
+            <param name="time">The integration time ($t$). Unit: seconds (s).</param>
+            <param name="force">An optional kinetic override to bypass the intrinsic input history.</param>
+            <returns>The resultant macroscopic displacement. Unit: meters (m).</returns>
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.IMechanicalModelCalculatorFacade.CalculateStress(MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.GenericMechanicalModelInput,System.Double,System.Nullable{System.Double})">
+            <summary>
+            Evaluates the intensive kinetic response (stress tensor magnitude) within the continuum domain.
+            </summary>
+            <param name="input">The generalized problem definition acting as a polymorphic parameter payload.</param>
+            <param name="time">The integration time ($t$). Unit: seconds (s).</param>
+            <param name="strain">An optional intensive kinematic override to bypass the intrinsic input history.</param>
+            <returns>The resultant continuum stress. Unit: Megapascals (MPa).</returns>
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.IMechanicalModelCalculatorFacade.CalculateStrain(MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.GenericMechanicalModelInput,System.Double,System.Nullable{System.Double})">
+            <summary>
+            Evaluates the intensive kinematic response (strain tensor magnitude) within the continuum domain.
+            </summary>
+            <param name="input">The generalized problem definition acting as a polymorphic parameter payload.</param>
+            <param name="time">The integration time ($t$). Unit: seconds (s).</param>
+            <param name="stress">An optional intensive kinetic override to bypass the intrinsic input history.</param>
+            <returns>The resultant continuum strain. Dimensionless.</returns>
         </member>
         <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.MechanicalModelCalculatorFacade">
             <inheritdoc cref="T:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.IMechanicalModelCalculatorFacade"/>
@@ -549,7 +589,7 @@
             State map tracking independent variables and current integration times to initialize the freshly generated output objects.
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.MechanicalModelCalculatorFacade.#ctor(MelloSilveiraTools.MechanicsOfMaterials.Caching.IMechanicalModelTypeCache,System.Type,System.Object,MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalModelInput)">
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.MechanicalModelCalculatorFacade.#ctor(MelloSilveiraTools.MechanicsOfMaterials.Caching.IMechanicalModelTypeCache,System.Type,System.Object,MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.GenericMechanicalModelInput)">
             <summary>
             Initializes a secondary instance of the <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.MechanicalModelCalculatorFacade"/> class optimized for iterative time-history simulations.
             </summary>
@@ -568,23 +608,17 @@
         <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.MechanicalModelCalculatorFacade.Calculate(System.Double)">
             <inheritdoc/>
         </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.MechanicalModelCalculatorFacade.CalculateDisplacement(MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalModelInput,System.Double,System.Nullable{System.Double})">
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.MechanicalModelCalculatorFacade.CalculateDisplacement(MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.GenericMechanicalModelInput,System.Double,System.Nullable{System.Double})">
             <inheritdoc/>
         </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.MechanicalModelCalculatorFacade.CalculateForce(MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalModelInput,System.Double,System.Nullable{System.Double})">
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.MechanicalModelCalculatorFacade.CalculateForce(MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.GenericMechanicalModelInput,System.Double,System.Nullable{System.Double})">
             <inheritdoc/>
         </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.MechanicalModelCalculatorFacade.CalculateStress(MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalModelInput,System.Double,System.Nullable{System.Double})">
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.MechanicalModelCalculatorFacade.CalculateStress(MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.GenericMechanicalModelInput,System.Double,System.Nullable{System.Double})">
             <inheritdoc/>
         </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.MechanicalModelCalculatorFacade.CalculateStrain(MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalModelInput,System.Double,System.Nullable{System.Double})">
-            <summary>
-            Dynamically invokes the underlying model's implementation to evaluate the dependent strain response.
-            </summary>
-            <param name="input">The base configuration parameters governing the simulation state.</param>
-            <param name="time">The specified chronological timeline coordinate. Unit: s (second).</param>
-            <param name="stress">The forced mechanical load applied as a continuum constraint. Unit: MPa (Mega-Pascal).</param>
-            <returns>The resolved material strain field mapping to the continuum stress state. Unit: dimensionless.</returns>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.MechanicalModelCalculatorFacade.CalculateStrain(MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.GenericMechanicalModelInput,System.Double,System.Nullable{System.Double})">
+            <inheritdoc/>
         </member>
         <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.MechanicalModelCalculatorFacade.ParameterNameConstant">
             <summary>
@@ -1676,7 +1710,7 @@
             Defines the parameters that govern the linear relationship between stress and strain in an elastic model.
             </summary>
         </member>
-        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Elasticity.ElasticConstitutiveParameters.ElasticModulus">
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Elasticity.ElasticConstitutiveParameters.YoungModulus">
             <summary>
             Represents the longitudinal stiffness (Young's Modulus).
             Unit: MPa.
@@ -1707,69 +1741,99 @@
             Force-displacement relationship.
             </summary>
         </member>
-        <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalModelInput`1">
-            <summary>
-            Represents the comprehensive input dataset required to execute a mechanical model simulation.
-            </summary>
-            <typeparam name="TConstitutiveParameters">The specific type of constitutive parameters governing the model.</typeparam>
-        </member>
-        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalModelInput`1.Identifier">
-            <summary>
-            Unique identifier for the mechanical model in the current analysis.
-            </summary>
-        </member>
-        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalModelInput`1.MechanicalModelName">
-            <summary>
-            The descriptive name or classification of the mechanical model.
-            </summary>
-        </member>
-        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalModelInput`1.ConstitutiveParameters">
-            <inheritdoc cref="T:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.ConstitutiveParameters"/>
-        </member>
-        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalModelInput`1.AcceptedStrainRange">
-            <inheritdoc cref="T:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.AcceptedRange"/>
-        </member>
-        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalModelInput`1.MechanicalBehaviorType">
-            <inheritdoc cref="T:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalBehaviorType"/>
-        </member>
-        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalModelInput`1.ViscoelasticEffect">
-            <inheritdoc cref="T:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.ViscoelasticEffect"/>
-        </member>
-        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalModelInput`1.RampTimeConsideration">
-            <inheritdoc cref="T:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.RampTimeConsideration"/>
-        </member>
-        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalModelInput`1.Strain">
-            <summary>
-            Represents the strain applied or measured over time.
-            </summary>
-        </member>
-        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalModelInput`1.Displacement">
-            <summary>
-            Represents the displacement applied or measured over time.
-            </summary>
-        </member>
-        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalModelInput`1.Stress">
-            <summary>
-            Represents the stress applied or measured over time.
-            </summary>
-        </member>
-        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalModelInput`1.Force">
-            <summary>
-            Represents the force applied or measured over time.
-            </summary>
-        </member>
-        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalModelInput`1.Specimen">
-            <inheritdoc cref="T:MelloSilveiraTools.MechanicsOfMaterials.Models.SpecimenParameter"/>
-        </member>
-        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalModelInput`1.TimeStep">
-            <summary>
-            The time increment used for numerical integration or step-by-step analysis.
-            </summary>
-            <value>Unit: s (second).</value>
-        </member>
         <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalModelInput">
             <summary>
-            Represents the generic input dataset required to execute a mechanical model, decoupled from a specific constitutive formulation.
+            Defines the macroscopic boundary value problem and physical payload required to execute 
+            a numerical continuum mechanics simulation.
+            </summary>
+            <remarks>
+            This base record acts as the foundational structural blueprint, aggregating kinematic histories, 
+            kinetic boundaries, and the temporal domain prior to the injection of specific material constitutive laws.
+            </remarks>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalModelInput.Identifier">
+            <summary>
+            An optional correlational identifier used to track this specific boundary value problem 
+            configuration within batch executions or experimental logs.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalModelInput.MechanicalModelName">
+            <summary>
+            The unique registry string defining the phenomenological or structurally based formulation 
+            (e.g., 'Fung', 'Maxwell', 'Schapery') that the solver factory must instantiate.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalModelInput.AcceptedStrainRange">
+            <summary>
+            The validated operational limits enforcing thermodynamic or structural sanity checks 
+            (e.g., preventing compression in tension-only cable elements).
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalModelInput.MechanicalBehaviorType">
+            <summary>
+            Defines the overarching phenomenological continuum framework governing the stress-strain relationship 
+            (e.g., Elastic, Hyperelastic, Damage mechanics) targeted by the solver.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalModelInput.ViscoelasticEffect">
+            <summary>
+            Specifies the temporal dependency of the material's response, determining the specific viscoelastic 
+            phenomena to be integrated (e.g., Creep, Stress Relaxation, Constant Strain Rate).
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalModelInput.RampTimeConsideration">
+            <summary>
+            Defines the integration strategy for the initial loading phase, determining whether the applied boundary 
+            conditions are evaluated as an instantaneous Heaviside step or a finite-time linear ramp.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalModelInput.Strain">
+            <summary>
+            The intensive kinematic boundary condition history applied to the continuum domain.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalModelInput.Displacement">
+            <summary>
+            The extensive macroscopic kinematic boundary condition history applied to the geometric boundaries.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalModelInput.Stress">
+            <summary>
+            The intensive macroscopic kinetic boundary condition (traction) history applied to the continuum domain.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalModelInput.Force">
+            <summary>
+            The extensive macroscopic kinetic boundary condition history applied to the geometric boundaries.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalModelInput.Specimen">
+            <summary>
+            The reference geometric and spatial initial state of the analyzed continuum body.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalModelInput.TimeStep">
+            <summary>
+            The discrete temporal integration increment utilized by the time-marching numerical solver.
+            </summary>
+            <value>Unit: seconds (s).</value>
+        </member>
+        <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalModelInput`1">
+            <summary>
+            Enforces a strict, type-safe coupling between the macroscopic boundary conditions and a specifically defined material constitutive law.
+            </summary>
+            <typeparam name="TConstitutiveParameters">The strictly typed constitutive parameters defining the material's physical response.</typeparam>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalModelInput`1.ConstitutiveParameters">
+            <summary>
+            The explicitly defined material constants, scalar moduli, and phenomenological tensors 
+            governing the mathematical formulation assigned to this simulation.
+            </summary>
+        </member>
+        <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.GenericMechanicalModelInput">
+            <summary>
+            Provides a non-generic bridging construct, allowing polymorphically diverse boundary value problems 
+            to be routed through generalized processing pipelines prior to type specialization.
             </summary>
         </member>
         <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalModelOutput">
@@ -2003,15 +2067,6 @@
             Unit: MPa (Mega-Pascal).
             </summary>
         </member>
-        <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.QuasiLinear.FungConstitutiveParameters">
-            <summary>
-            Defines the constitutive parameters for the classic Fung Quasi-Linear Viscoelastic (QLV) model.
-            </summary>
-            <remarks>
-            This formulation integrates the non-linear exponential elastic response with the continuous spectrum reduced relaxation function. 
-            It is highly accurate for modeling the time-dependent behavior of biological soft tissues over a broad continuous range of relaxation times.
-            </remarks>
-        </member>
         <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.QuasiLinear.QuasiLinearConstitutiveParameters`1">
             <summary>
             Defines the constitutive parameters for the Quasi-Linear Viscoelastic (QLV) model.
@@ -2116,6 +2171,15 @@
             The slow relaxation time constant (often denoted as τ1). 
             Governs the long-term viscous response, dictating when the material reaches equilibrium. Unit: s (second).
             </summary>
+        </member>
+        <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.QuasiLinear.FungConstitutiveParameters">
+            <summary>
+            Defines the constitutive parameters for the classic Fung Quasi-Linear Viscoelastic (QLV) model.
+            </summary>
+            <remarks>
+            This formulation integrates the non-linear exponential elastic response with the continuous spectrum reduced relaxation function. 
+            It is highly accurate for modeling the time-dependent behavior of biological soft tissues over a broad continuous range of relaxation times.
+            </remarks>
         </member>
         <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.QuasiLinear.SimplifiedFungConstitutiveParameters">
             <summary>

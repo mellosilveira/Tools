@@ -743,10 +743,11 @@
             High-level orchestrator for plugin discovery, loading, reload, and cache management.
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.Plugins.Infrastructure.Services.IPluginService.LoadPluginsOnStartup(System.String,System.Nullable{MelloSilveiraTools.Plugins.Infrastructure.Models.PluginVersion})">
+        <member name="M:MelloSilveiraTools.Plugins.Infrastructure.Services.IPluginService.LoadPluginsOnStartup(Microsoft.Extensions.DependencyInjection.IServiceCollection,System.String,System.Nullable{MelloSilveiraTools.Plugins.Infrastructure.Models.PluginVersion})">
              <summary>
              Discovers plugins and registers their services at application startup, using the root service collection.
              </summary>
+             <param name="services"></param>
              <param name="name">Optional plugin name filter. When empty, all plugins are considered.</param>
              <param name="version">Optional version filter. When <c>null</c>, all versions are considered.</param>
              <example>
@@ -768,10 +769,11 @@
             <param name="name">Optional plugin name filter. When empty, all plugins are considered.</param>
             <param name="version">Optional version filter. When <c>null</c>, all versions are considered.</param>
         </member>
-        <member name="M:MelloSilveiraTools.Plugins.Infrastructure.Services.IPluginService.ReloadPluginsOnStartup(System.Boolean,System.String,System.Nullable{MelloSilveiraTools.Plugins.Infrastructure.Models.PluginVersion})">
+        <member name="M:MelloSilveiraTools.Plugins.Infrastructure.Services.IPluginService.ReloadPluginsOnStartup(Microsoft.Extensions.DependencyInjection.IServiceCollection,System.Boolean,System.String,System.Nullable{MelloSilveiraTools.Plugins.Infrastructure.Models.PluginVersion})">
             <summary>
             Reloads plugins previously moved to the loaded folder, optionally forcing a fresh load, at startup time.
             </summary>
+            <param name="services"></param>
             <param name="forceLoad">When <c>true</c>, clears the cache for the matching plugins and loads them again.</param>
             <param name="name">Optional plugin name filter. When empty, all plugins are considered.</param>
             <param name="version">Optional version filter. When <c>null</c>, all versions are considered.</param>
@@ -866,25 +868,23 @@
             <param name="assemblyProcessor">Processor that loads and inspects plugin assemblies.</param>
             <param name="cache">Cache that keeps track of plugin registration state.</param>
             <param name="persistence">Persistence used to save and restore the plugin cache.</param>
-            <param name="services">Root service collection used to register plugin services at startup.</param>
             <param name="dynamicServiceProvider">Service provider used to register plugin services at runtime.</param>
         </member>
-        <member name="M:MelloSilveiraTools.Plugins.Infrastructure.Services.PluginService.#ctor(MelloSilveiraTools.Plugins.Infrastructure.PluginFileProcessor,MelloSilveiraTools.Plugins.Infrastructure.PluginAssemblyProcessor,MelloSilveiraTools.Plugins.Infrastructure.PluginCache,MelloSilveiraTools.Plugins.Infrastructure.Persistences.IPluginCachePersistence,Microsoft.Extensions.DependencyInjection.IServiceCollection,MelloSilveiraTools.Core.Providers.Dynamics.IDynamicServiceProvider)">
+        <member name="M:MelloSilveiraTools.Plugins.Infrastructure.Services.PluginService.#ctor(MelloSilveiraTools.Plugins.Infrastructure.PluginFileProcessor,MelloSilveiraTools.Plugins.Infrastructure.PluginAssemblyProcessor,MelloSilveiraTools.Plugins.Infrastructure.PluginCache,MelloSilveiraTools.Plugins.Infrastructure.Persistences.IPluginCachePersistence,MelloSilveiraTools.Core.Providers.Dynamics.IDynamicServiceProvider)">
             <inheritdoc cref="T:MelloSilveiraTools.Plugins.Infrastructure.Services.IPluginService"/>
             <param name="fileProcessor">Processor that scans the file system for plugin assemblies.</param>
             <param name="assemblyProcessor">Processor that loads and inspects plugin assemblies.</param>
             <param name="cache">Cache that keeps track of plugin registration state.</param>
             <param name="persistence">Persistence used to save and restore the plugin cache.</param>
-            <param name="services">Root service collection used to register plugin services at startup.</param>
             <param name="dynamicServiceProvider">Service provider used to register plugin services at runtime.</param>
         </member>
-        <member name="M:MelloSilveiraTools.Plugins.Infrastructure.Services.PluginService.LoadPluginsOnStartup(System.String,System.Nullable{MelloSilveiraTools.Plugins.Infrastructure.Models.PluginVersion})">
+        <member name="M:MelloSilveiraTools.Plugins.Infrastructure.Services.PluginService.LoadPluginsOnStartup(Microsoft.Extensions.DependencyInjection.IServiceCollection,System.String,System.Nullable{MelloSilveiraTools.Plugins.Infrastructure.Models.PluginVersion})">
             <inheritdoc/>
         </member>
         <member name="M:MelloSilveiraTools.Plugins.Infrastructure.Services.PluginService.LoadPluginsOnRuntime(System.String,System.Nullable{MelloSilveiraTools.Plugins.Infrastructure.Models.PluginVersion})">
             <inheritdoc/>
         </member>
-        <member name="M:MelloSilveiraTools.Plugins.Infrastructure.Services.PluginService.ReloadPluginsOnStartup(System.Boolean,System.String,System.Nullable{MelloSilveiraTools.Plugins.Infrastructure.Models.PluginVersion})">
+        <member name="M:MelloSilveiraTools.Plugins.Infrastructure.Services.PluginService.ReloadPluginsOnStartup(Microsoft.Extensions.DependencyInjection.IServiceCollection,System.Boolean,System.String,System.Nullable{MelloSilveiraTools.Plugins.Infrastructure.Models.PluginVersion})">
             <inheritdoc/>
         </member>
         <member name="M:MelloSilveiraTools.Plugins.Infrastructure.Services.PluginService.ReloadPluginsOnRuntime(System.Boolean,System.String,System.Nullable{MelloSilveiraTools.Plugins.Infrastructure.Models.PluginVersion})">

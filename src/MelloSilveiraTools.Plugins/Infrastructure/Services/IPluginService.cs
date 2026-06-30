@@ -1,4 +1,5 @@
 using MelloSilveiraTools.Plugins.Infrastructure.Models;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace MelloSilveiraTools.Plugins.Infrastructure.Services;
 
@@ -10,6 +11,7 @@ public interface IPluginService
     /// <summary>
     /// Discovers plugins and registers their services at application startup, using the root service collection.
     /// </summary>
+    /// <param name="services"></param>
     /// <param name="name">Optional plugin name filter. When empty, all plugins are considered.</param>
     /// <param name="version">Optional version filter. When <c>null</c>, all versions are considered.</param>
     /// <example>
@@ -23,7 +25,7 @@ public interface IPluginService
     /// app.Services.GetRequiredService&lt;IPluginService&gt;().LoadPluginsOnStartup();
     /// </code>
     /// </example>
-    void LoadPluginsOnStartup(string? name = null, PluginVersion? version = null);
+    void LoadPluginsOnStartup(IServiceCollection services, string? name = null, PluginVersion? version = null);
 
     /// <summary>
     /// Discovers plugins and registers their services at runtime through the dynamic service provider.
@@ -35,10 +37,11 @@ public interface IPluginService
     /// <summary>
     /// Reloads plugins previously moved to the loaded folder, optionally forcing a fresh load, at startup time.
     /// </summary>
+    /// <param name="services"></param>
     /// <param name="forceLoad">When <c>true</c>, clears the cache for the matching plugins and loads them again.</param>
     /// <param name="name">Optional plugin name filter. When empty, all plugins are considered.</param>
     /// <param name="version">Optional version filter. When <c>null</c>, all versions are considered.</param>
-    void ReloadPluginsOnStartup(bool forceLoad, string? name = null, PluginVersion? version = null);
+    void ReloadPluginsOnStartup(IServiceCollection services, bool forceLoad, string? name = null, PluginVersion? version = null);
 
     /// <summary>
     /// Reloads plugins previously moved to the loaded folder, optionally forcing a fresh load, at runtime.

@@ -81,7 +81,7 @@ public static class PluginsDependencyInjection
         // observe every registration the plugins added.
         using ServiceProvider bootstrapProvider = services.BuildServiceProvider();
         using IServiceScope bootstrapScope = bootstrapProvider.CreateScope();
-        bootstrapScope.ServiceProvider.GetRequiredService<IPluginService>().LoadPluginsOnStartup();
+        bootstrapScope.ServiceProvider.GetRequiredService<IPluginService>().LoadPluginsOnStartup(services);
 
         return services;
     }
