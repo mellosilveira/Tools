@@ -1,5 +1,4 @@
-﻿using MelloSilveiraTools.Database.ExtensionMethods;
-using System.Reflection;
+﻿using System.Reflection;
 
 namespace MelloSilveiraTools.Core.ExtensionMethods;
 

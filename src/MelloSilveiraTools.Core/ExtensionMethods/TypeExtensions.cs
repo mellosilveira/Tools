@@ -3,7 +3,7 @@ using System.Collections.Concurrent;
 using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 
-namespace MelloSilveiraTools.Database.ExtensionMethods;
+namespace MelloSilveiraTools.Core.ExtensionMethods;
 
 /// <summary>
 /// Contains extension methods for <see cref="Type"/>.

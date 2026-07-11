@@ -91,58 +91,58 @@
             <param name="services">Service collection that receives the registrations.</param>
             <returns>The same <paramref name="services"/> instance to allow call chaining.</returns>
         </member>
-        <member name="T:MelloSilveiraTools.Mathematics.Expressions.Expression">
+        <member name="T:MelloSilveiraTools.Mathematics.Expressions.MathExpression">
             <summary>
             Represents an unique dimension mathematical expression.
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.Mathematics.Expressions.Expression.#ctor(System.Nullable{System.Double},System.Nullable{System.Double},System.Collections.Generic.List{MelloSilveiraTools.Mathematics.Functions.Function})">
+        <member name="M:MelloSilveiraTools.Mathematics.Expressions.MathExpression.#ctor(System.Nullable{System.Double},System.Nullable{System.Double},System.Collections.Generic.List{MelloSilveiraTools.Mathematics.Functions.Function})">
             <summary>
-            Initializes a new instance of <see cref="T:MelloSilveiraTools.Mathematics.Expressions.Expression"/>.
+            Initializes a new instance of <see cref="T:MelloSilveiraTools.Mathematics.Expressions.MathExpression"/>.
             </summary>
             <param name="initialVariableValue"></param>
             <param name="finalVariableValue"></param>
             <param name="functions"></param>
             <exception cref="T:System.ArgumentNullException">When <paramref name="functions"/> is null or empty.</exception>
         </member>
-        <member name="P:MelloSilveiraTools.Mathematics.Expressions.Expression.Derivative">
+        <member name="P:MelloSilveiraTools.Mathematics.Expressions.MathExpression.Derivative">
             <summary>
             Represents the expression's derivative.
             </summary>
         </member>
-        <member name="P:MelloSilveiraTools.Mathematics.Expressions.Expression.Integral">
+        <member name="P:MelloSilveiraTools.Mathematics.Expressions.MathExpression.Integral">
             <summary>
             Represents the expression's integral.
             </summary>
         </member>
-        <member name="P:MelloSilveiraTools.Mathematics.Expressions.Expression.InitialVariableValue">
+        <member name="P:MelloSilveiraTools.Mathematics.Expressions.MathExpression.InitialVariableValue">
             <summary>
             Initial value for variable.
             </summary>
         </member>
-        <member name="P:MelloSilveiraTools.Mathematics.Expressions.Expression.FinalVariableValue">
+        <member name="P:MelloSilveiraTools.Mathematics.Expressions.MathExpression.FinalVariableValue">
             <summary>
             Final value for variable.
             </summary>
         </member>
-        <member name="P:MelloSilveiraTools.Mathematics.Expressions.Expression.Functions">
+        <member name="P:MelloSilveiraTools.Mathematics.Expressions.MathExpression.Functions">
             <summary>
             List of functions.
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.Mathematics.Expressions.Expression.Calculate(System.Double)">
+        <member name="M:MelloSilveiraTools.Mathematics.Expressions.MathExpression.Calculate(System.Double)">
             <summary>
             Calculates the value for the expression.
             </summary>
             <param name="variableValue">Dependency variable for equation.</param>
             <returns></returns>
         </member>
-        <member name="M:MelloSilveiraTools.Mathematics.Expressions.Expression.CreateDerivative">
+        <member name="M:MelloSilveiraTools.Mathematics.Expressions.MathExpression.CreateDerivative">
             <summary>
             Creates the expression's derivative.
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.Mathematics.Expressions.Expression.CreateIntegral">
+        <member name="M:MelloSilveiraTools.Mathematics.Expressions.MathExpression.CreateIntegral">
             <summary>
             Creates the expression's integral.
             </summary>
@@ -1433,6 +1433,11 @@
         </member>
         <member name="M:MelloSilveiraTools.Mathematics.Statistics.StatisticsCalculator.Calculate(System.Double[],System.Double)">
             <inheritdoc/>
+        </member>
+        <member name="M:MelloSilveiraTools.SensitivityAnalysis.Math.ExpressionPathResolver.GetPath``2(System.Linq.Expressions.Expression{System.Func{``0,``1}})">
+            <summary>
+            Converts a lambda expression into a string path using the built-in C# compiler expression tree.
+            </summary>
         </member>
     </members>
 </doc>

@@ -23,7 +23,7 @@ public sealed record MechanicalParameter
     /// </summary>
     /// <param name="initialValue"></param>
     /// <param name="expression"></param>
-    public MechanicalParameter(double initialValue, Expression? expression)
+    public MechanicalParameter(double initialValue, MathExpression? expression)
     {
         InitialValue = initialValue;
         Expression = expression;
@@ -37,7 +37,7 @@ public sealed record MechanicalParameter
     /// <summary>
     /// Mathematical expression that represents how the mechanical parameter varies in time.
     /// </summary>
-    public Expression? Expression { get; }
+    public MathExpression? Expression { get; }
 
     /// <summary>
     /// Sets the initial value.

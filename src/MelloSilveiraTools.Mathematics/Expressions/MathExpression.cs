@@ -5,19 +5,19 @@ namespace MelloSilveiraTools.Mathematics.Expressions;
 /// <summary>
 /// Represents an unique dimension mathematical expression.
 /// </summary>
-public class Expression : List<Function>
+public class MathExpression : List<Function>
 {
-    private Expression? _derivative;
-    private Expression? _integral;
+    private MathExpression? _derivative;
+    private MathExpression? _integral;
 
     /// <summary>
-    /// Initializes a new instance of <see cref="Expression"/>.
+    /// Initializes a new instance of <see cref="MathExpression"/>.
     /// </summary>
     /// <param name="initialVariableValue"></param>
     /// <param name="finalVariableValue"></param>
     /// <param name="functions"></param>
     /// <exception cref="ArgumentNullException">When <paramref name="functions"/> is null or empty.</exception>
-    public Expression(double? initialVariableValue, double? finalVariableValue, List<Function> functions) : base(functions)
+    public MathExpression(double? initialVariableValue, double? finalVariableValue, List<Function> functions) : base(functions)
     {
         InitialVariableValue = initialVariableValue ?? double.NegativeInfinity;
         FinalVariableValue = finalVariableValue ?? double.PositiveInfinity;
@@ -31,12 +31,12 @@ public class Expression : List<Function>
     /// <summary>
     /// Represents the expression's derivative.
     /// </summary>
-    public Expression Derivative => _derivative ??= CreateDerivative();
+    public MathExpression Derivative => _derivative ??= CreateDerivative();
 
     /// <summary>
     /// Represents the expression's integral.
     /// </summary>
-    public Expression Integral => _integral ??= CreateIntegral();
+    public MathExpression Integral => _integral ??= CreateIntegral();
 
     /// <summary>
     /// Initial value for variable.
@@ -73,7 +73,7 @@ public class Expression : List<Function>
     /// <summary>
     /// Creates the expression's derivative.
     /// </summary>
-    protected Expression CreateDerivative()
+    protected MathExpression CreateDerivative()
     {
         var derivativeFunctions = new List<Function>();
         foreach (var function in Functions)
@@ -81,13 +81,13 @@ public class Expression : List<Function>
             derivativeFunctions.Add(function.Derivative);
         }
 
-        return new Expression(InitialVariableValue, FinalVariableValue, derivativeFunctions);
+        return new MathExpression(InitialVariableValue, FinalVariableValue, derivativeFunctions);
     }
 
     /// <summary>
     /// Creates the expression's integral.
     /// </summary>
-    protected Expression CreateIntegral()
+    protected MathExpression CreateIntegral()
     {
         var integralFunctions = new List<Function>();
         foreach (var function in Functions)
@@ -95,6 +95,6 @@ public class Expression : List<Function>
             integralFunctions.Add(function.Integral);
         }
 
-        return new Expression(InitialVariableValue, FinalVariableValue, integralFunctions);
+        return new MathExpression(InitialVariableValue, FinalVariableValue, integralFunctions);
     }
 }

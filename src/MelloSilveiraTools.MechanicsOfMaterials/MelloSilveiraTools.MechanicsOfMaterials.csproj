@@ -18,7 +18,6 @@
 
 	<ItemGroup>
 	  <Folder Include="Optimizations\CurveFitting\" />
-	  <Folder Include="Optimizations\SensitivityAnalyses\" />
 	</ItemGroup>
 
 </Project>
