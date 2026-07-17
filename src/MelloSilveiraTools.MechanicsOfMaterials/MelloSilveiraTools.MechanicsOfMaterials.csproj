@@ -17,7 +17,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <Folder Include="Optimizations\CurveFitting\" />
+	  <Folder Include="Optimizations\CurveFitting\Alglib\" />
 	</ItemGroup>
 
 </Project>
