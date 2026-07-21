@@ -1,4 +1,5 @@
 using MelloSilveiraTools.Plugins.Infrastructure.Models;
+using Microsoft.Extensions.Logging;
 using System.Text.RegularExpressions;
 
 namespace MelloSilveiraTools.Plugins.Infrastructure;
@@ -8,9 +9,11 @@ namespace MelloSilveiraTools.Plugins.Infrastructure;
 /// moving DLLs between the main and loaded subfolders, and parsing filenames into
 /// <see cref="DiscoveredPlugin"/> instances cached in <see cref="PluginCache"/>.
 /// </summary>
+/// <param name="logger"></param>
 /// <param name="cache">Plugin cache used to memoize the parsed <see cref="DiscoveredPlugin"/> instances by name and version.</param>
 /// <param name="settings">Plugin settings providing the root plugins directory used to locate the main and <c>loaded/</c> subfolders.</param>
 public class PluginFileProcessor(
+    ILogger<PluginFileProcessor> logger,
     PluginCache cache,
     PluginSettings settings)
 {
@@ -28,10 +31,7 @@ public class PluginFileProcessor(
     /// <exception cref="IOException">Thrown when an I/O error occurs while enumerating files in the plugins directory.</exception>
     /// <exception cref="InvalidOperationException">Thrown by the iterator when a discovered file does not match the expected plugin filename pattern.</exception>
     public IEnumerable<DiscoveredPlugin> Scan(string? pluginName = null, PluginVersion? version = null)
-    {
-        foreach (string file in Directory.GetFiles(_pluginsDirectory, $"{pluginName}{version?.Name ?? string.Empty}*.dll"))
-            yield return Parse(file);
-    }
+        => Scan(Directory.GetFiles(_pluginsDirectory, $"{pluginName}{version?.Name ?? string.Empty}*.dll"));
 
     /// <summary>
     /// Scans the <c>loaded/</c> subfolder for DLLs matching the given <paramref name="pluginName"/> and <paramref name="version"/> filters.
@@ -43,10 +43,7 @@ public class PluginFileProcessor(
     /// <exception cref="IOException">Thrown when an I/O error occurs while enumerating files in the <c>loaded/</c> subfolder.</exception>
     /// <exception cref="InvalidOperationException">Thrown by the iterator when a discovered file does not match the expected plugin filename pattern.</exception>
     public IEnumerable<DiscoveredPlugin> ScanLoaded(string? pluginName = null, PluginVersion? version = null)
-    {
-        foreach (string file in Directory.GetFiles(_loadedDirectory, $"{pluginName}{version?.Name ?? string.Empty}*.dll"))
-            yield return Parse(file);
-    }
+        => Scan(Directory.GetFiles(_loadedDirectory, $"{pluginName}{version?.Name ?? string.Empty}*.dll"));
 
     /// <summary>Moves a plugin DLL back from the loaded/ subfolder to the main plugins directory.</summary>
     /// <param name="plugin">The plugin whose DLL should be moved.</param>
@@ -93,13 +90,23 @@ public class PluginFileProcessor(
         return File.Exists(loadedPath);
     }
 
+    private IEnumerable<DiscoveredPlugin> Scan(IEnumerable<string> files)
+    {
+        foreach (string file in files)
+        {
+            DiscoveredPlugin? plugin = Parse(file);
+            if (plugin != null)
+                yield return plugin;
+        }
+    }
+
     /// <summary>
     /// Parses a DLL file path into a <see cref="DiscoveredPlugin"/>.
     /// Expected pattern: {name}.v{major}.{minor}.{patch}.dll.
     /// </summary>
     /// <param name="dllFilePath">Full path to the DLL file whose filename should be parsed.</param>
     /// <exception cref="InvalidOperationException">Thrown when the filename does not match the expected plugin filename pattern.</exception>
-    private DiscoveredPlugin Parse(string dllFilePath)
+    private DiscoveredPlugin? Parse(string dllFilePath)
     {
         string fileName = Path.GetFileNameWithoutExtension(dllFilePath);
         Match match = PluginFileRegex.Match(fileName);
@@ -114,7 +121,8 @@ public class PluginFileProcessor(
 
             return cache.GetOrAdd(name, version, () => new(name, version, Path.GetFullPath(dllFilePath), DateTimeOffset.UtcNow));
         }
-
-        throw new InvalidOperationException("File does not match the plugin filename pattern.");
+        
+        logger.LogWarning("File does not match the plugin filename pattern: {FilePath}", dllFilePath);
+        return null;
     }
 }
