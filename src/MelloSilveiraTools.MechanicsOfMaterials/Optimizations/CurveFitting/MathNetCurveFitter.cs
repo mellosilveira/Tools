@@ -1,16 +1,16 @@
 ﻿using MathNet.Numerics.Optimization;
 using MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels;
+using MelloSilveiraTools.MechanicsOfMaterials.Models.Optimizations;
+using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Mappers;
 using Microsoft.Extensions.Logging;
-using SoftTissue.Domain.Models.Optimization;
-using SoftTissue.Domain.Optimizations.CurveFitting.Mappers;
 using MathNetNumerics = MathNet.Numerics.LinearAlgebra;
 
-namespace SoftTissue.Domain.Optimizations.CurveFitting;
+namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting;
 
 public class MathNetCurveFitter(
     ILogger<MathNetCurveFitter> logger,
     IMechanicalModelCalculatorFacade calculatorFacade,
-    IModelParameterMapper mapper)
+    IOptimizationMapper mapper)
     : GenericCurveFittingBase(calculatorFacade, mapper)
 {
     public override CurveFitResult Fit(CurveFitInput input)
@@ -33,7 +33,7 @@ public class MathNetCurveFitter(
                 input.Options.Tolerance,
                 input.Options.MaxIterations);
 
-            var initialGuesses = Mapper.ExtractOptimizableParameters(input.InitialInput);
+            var initialGuesses = Mapper.ExtractOptimizableParameters(input.InitialInput.ConstitutiveParameters);
             var initialVector = MathNetNumerics.Vector<double>.Build.Dense(initialGuesses);
             var resultStage1 = solverStage1.FindMinimum(objStage1, initialVector);
 

@@ -1,22 +1,22 @@
 ﻿using MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels;
 using MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels;
-using SoftTissue.Domain.Models.Optimization;
-using SoftTissue.Domain.Optimizations.CurveFitting.Mappers;
+using MelloSilveiraTools.MechanicsOfMaterials.Models.Optimizations;
+using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Mappers;
 
-namespace SoftTissue.Domain.Optimizations.CurveFitting;
+namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting;
 
 public abstract class GenericCurveFittingBase(
     IMechanicalModelCalculatorFacade calculatorFacade,
-    IModelParameterMapper mapper)
+    IOptimizationMapper mapper)
     : ICurveFitter
 {
     protected IMechanicalModelCalculatorFacade CalculatorFacade { get; } = calculatorFacade;
-    protected IModelParameterMapper Mapper { get; } = mapper;
+    protected IOptimizationMapper Mapper { get; } = mapper;
 
     protected double CalculateObjectiveFunction(CurveFitInput input, double[] currentParameters, bool applyConstraints)
     {
         // 1. Converte o array da iteração atual para o seu Record imutável
-        GenericMechanicalModelInput currentInput = Mapper.MapToInput(currentParameters);
+        GenericMechanicalModelInput currentInput = new(input.InitialInput, Mapper.MapToConstitutiveParameters(currentParameters));
 
         double sumOfSquares = 0;
 

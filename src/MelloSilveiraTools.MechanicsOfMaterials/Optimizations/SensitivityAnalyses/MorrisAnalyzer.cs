@@ -1,5 +1,4 @@
 ﻿using MelloSilveiraTools.MechanicsOfMaterials.Models.Optimizations;
-using MelloSilveiraTools.SensitivityAnalysis.Morris;
 
 namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses;
 

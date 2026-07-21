@@ -1,6 +1,6 @@
-﻿using SoftTissue.Domain.Models.Optimization;
+﻿using MelloSilveiraTools.MechanicsOfMaterials.Models.Optimizations;
 
-namespace SoftTissue.Domain.Optimizations.CurveFitting;
+namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting;
 
 public interface ICurveFitter
 {

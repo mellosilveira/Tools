@@ -1,4 +1,4 @@
-﻿namespace MelloSilveiraTools.MechanicsOfMaterials.Models.Optimizations;
+﻿namespace MelloSilveiraTools.MechanicsOfMaterials.Models.Optimizations.Range;
 
 /// <summary>
 /// Contains the parameters to build a range of thiss.

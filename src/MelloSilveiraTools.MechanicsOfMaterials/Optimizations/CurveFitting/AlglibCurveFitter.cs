@@ -1,12 +1,12 @@
 ﻿using MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels;
-using SoftTissue.Domain.Models.Optimization;
-using SoftTissue.Domain.Optimizations.CurveFitting.Mappers;
+using MelloSilveiraTools.MechanicsOfMaterials.Models.Optimizations;
+using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Mappers;
 
-namespace SoftTissue.Domain.Optimizations.CurveFitting;
+namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting;
 
 public class AlglibCurveFitter(
     IMechanicalModelCalculatorFacade calculatorFacade,
-    IModelParameterMapper mapper)
+    IOptimizationMapper mapper)
     : GenericCurveFittingBase(calculatorFacade, mapper)
 {
     public override CurveFitResult Fit(CurveFitInput input)
@@ -14,7 +14,7 @@ public class AlglibCurveFitter(
         try
         {
             // Extrai as estimativas iniciais do modelo via Mapper
-            var initialGuesses = Mapper.ExtractOptimizableParameters(input.InitialInput);
+            var initialGuesses = Mapper.ExtractOptimizableParameters(input.InitialInput.ConstitutiveParameters);
             double[] x = (double[])initialGuesses.Clone();
 
             // 1. Inicializa o estado do solver BLEIC

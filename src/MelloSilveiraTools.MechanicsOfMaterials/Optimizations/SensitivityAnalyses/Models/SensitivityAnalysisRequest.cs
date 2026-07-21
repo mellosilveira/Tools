@@ -1,5 +1,5 @@
 ﻿using MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels;
-using MelloSilveiraTools.MechanicsOfMaterials.Models.Optimizations;
+using MelloSilveiraTools.MechanicsOfMaterials.Models.Optimizations.Range;
 
 namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Models;
 

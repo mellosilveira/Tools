@@ -1434,10 +1434,5 @@
         <member name="M:MelloSilveiraTools.Mathematics.Statistics.StatisticsCalculator.Calculate(System.Double[],System.Double)">
             <inheritdoc/>
         </member>
-        <member name="M:MelloSilveiraTools.SensitivityAnalysis.Math.ExpressionPathResolver.GetPath``2(System.Linq.Expressions.Expression{System.Func{``0,``1}})">
-            <summary>
-            Converts a lambda expression into a string path using the built-in C# compiler expression tree.
-            </summary>
-        </member>
     </members>
 </doc>
