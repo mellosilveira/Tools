@@ -632,15 +632,17 @@
             moving DLLs between the main and loaded subfolders, and parsing filenames into
             <see cref="T:MelloSilveiraTools.Plugins.Infrastructure.Models.DiscoveredPlugin"/> instances cached in <see cref="T:MelloSilveiraTools.Plugins.Infrastructure.PluginCache"/>.
             </summary>
+            <param name="logger"></param>
             <param name="cache">Plugin cache used to memoize the parsed <see cref="T:MelloSilveiraTools.Plugins.Infrastructure.Models.DiscoveredPlugin"/> instances by name and version.</param>
             <param name="settings">Plugin settings providing the root plugins directory used to locate the main and <c>loaded/</c> subfolders.</param>
         </member>
-        <member name="M:MelloSilveiraTools.Plugins.Infrastructure.PluginFileProcessor.#ctor(MelloSilveiraTools.Plugins.Infrastructure.PluginCache,MelloSilveiraTools.Plugins.Infrastructure.PluginSettings)">
+        <member name="M:MelloSilveiraTools.Plugins.Infrastructure.PluginFileProcessor.#ctor(Microsoft.Extensions.Logging.ILogger{MelloSilveiraTools.Plugins.Infrastructure.PluginFileProcessor},MelloSilveiraTools.Plugins.Infrastructure.PluginCache,MelloSilveiraTools.Plugins.Infrastructure.PluginSettings)">
             <summary>
             File-system level operations on plugin DLLs: scanning the plugins directory,
             moving DLLs between the main and loaded subfolders, and parsing filenames into
             <see cref="T:MelloSilveiraTools.Plugins.Infrastructure.Models.DiscoveredPlugin"/> instances cached in <see cref="T:MelloSilveiraTools.Plugins.Infrastructure.PluginCache"/>.
             </summary>
+            <param name="logger"></param>
             <param name="cache">Plugin cache used to memoize the parsed <see cref="T:MelloSilveiraTools.Plugins.Infrastructure.Models.DiscoveredPlugin"/> instances by name and version.</param>
             <param name="settings">Plugin settings providing the root plugins directory used to locate the main and <c>loaded/</c> subfolders.</param>
         </member>

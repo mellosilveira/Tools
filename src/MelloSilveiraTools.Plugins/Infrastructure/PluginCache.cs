@@ -16,19 +16,25 @@ public class PluginCache(ITwoLevelCache cache)
     /// Returns the cached <see cref="DiscoveredPlugin"/> for (<paramref name="name"/>, <paramref name="version"/>) or adds the one produced by <paramref name="factory"/>.
     /// </summary>
     public DiscoveredPlugin GetOrAdd(string name, PluginVersion version, Func<DiscoveredPlugin> factory)
-        => cache.GetOrAdd(name, version.Name, factory);
+        => cache.GetOrAdd(name, $"{version.Name}_DiscoveredPlugin", factory);
 
     /// <summary>
     /// Returns the cached <see cref="LoadedPlugin"/> for (<paramref name="name"/>, <paramref name="version"/>) or adds the one produced by <paramref name="factory"/>.
     /// </summary>
     public LoadedPlugin GetOrAdd(string name, PluginVersion version, Func<LoadedPlugin> factory)
-        => cache.GetOrAdd(name, version.Name, factory);
+    {
+        cache.Remove(name, $"{version.Name}_DiscoveredPlugin");
+        return cache.GetOrAdd(name, $"{version.Name}_LoadedPlugin", factory);
+    }
 
     /// <summary>
     /// Returns the cached <see cref="RegisteredPlugin"/> for (<paramref name="name"/>, <paramref name="version"/>) or adds the one produced by <paramref name="factory"/>.
     /// </summary>
     public RegisteredPlugin GetOrAdd(string name, PluginVersion version, Func<RegisteredPlugin> factory)
-        => cache.GetOrAdd(name, version.Name, factory);
+    {
+        cache.Remove(name, $"{version.Name}_DiscoveredPlugin");
+        return cache.GetOrAdd(name, $"{version.Name}_RegisteredPlugin", factory);
+    }
 
     /// <summary>
     /// Attempts to retrieve the cached plugin state for (<paramref name="name"/>, <paramref name="version"/>) as <typeparamref name="T"/>.

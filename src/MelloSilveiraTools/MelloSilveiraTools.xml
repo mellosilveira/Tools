@@ -9,7 +9,7 @@
             Provides extension methods to dependency injection of Tools project (meta-package).
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.DependencyInjection.AddToolsServices(Microsoft.Extensions.DependencyInjection.IServiceCollection,MelloSilveiraTools.Database.RelationalDatabase.Settings.DatabaseSettings,MelloSilveiraTools.Core.Services.Encryption.EncryptionSettings,MelloSilveiraTools.Core.ResiliencePipelines.ResiliencePipelineSettings,MelloSilveiraTools.Plugins.Infrastructure.PluginSettings,MelloSilveiraTools.Core.Logging.LoggerSettings)">
+        <member name="M:MelloSilveiraTools.DependencyInjection.AddToolsServices(Microsoft.Extensions.DependencyInjection.IServiceCollection,MelloSilveiraTools.Database.RelationalDatabase.Settings.DatabaseSettings,MelloSilveiraTools.Core.Services.Encryption.EncryptionSettings,MelloSilveiraTools.Core.ResiliencePipelines.ResiliencePipelineSettings,MelloSilveiraTools.Plugins.Infrastructure.PluginSettings,MelloSilveiraTools.Core.Logging.LoggerSettings,System.Boolean,System.Boolean)">
             <summary>
             Registers the services of every contextual MelloSilveiraTools package
             (Core, Database, WebApi and Plugins).
@@ -20,6 +20,8 @@
             <param name="resiliencePipelineSettings">Settings that parameterize the resilience pipelines.</param>
             <param name="pluginSettings">Settings that describe plugin folders and behavior.</param>
             <param name="loggerSettings">Settings used by logger service.</param>
+            <param name="useDefaultLogger"></param>
+            <param name="addMechanicalModels"></param>
             <returns>The same <paramref name="services"/> instance to allow call chaining.</returns>
         </member>
     </members>

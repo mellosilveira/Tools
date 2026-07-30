@@ -1335,6 +1335,29 @@
             </summary>
             <returns>The same service collection so additional registrations can be chained.</returns>
         </member>
+        <member name="T:MelloSilveiraTools.MechanicsOfMaterials.ExtensionMethods.RangeExtensions">
+            <summary>
+            It contains extension methods for <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Models.Optimizations.Range.RangeParameters"/>
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.ExtensionMethods.RangeExtensions.GetCombinations(System.Collections.Generic.List{MelloSilveiraTools.MechanicsOfMaterials.Models.Optimizations.Range.RangeParameters})">
+            <inheritdoc cref="M:MelloSilveiraTools.MechanicsOfMaterials.ExtensionMethods.RangeExtensions.&lt;G&gt;$69F0825AA2D306EB3EA8FE3AAF3934C9.GetCombinations"/>
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.ExtensionMethods.RangeExtensions.ToList(MelloSilveiraTools.MechanicsOfMaterials.Models.Optimizations.Range.RangeParameters)">
+            <inheritdoc cref="M:MelloSilveiraTools.MechanicsOfMaterials.ExtensionMethods.RangeExtensions.&lt;G&gt;$6332ED951CB064DDBF8DB6CA1B28B2C5.ToList"/>
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.ExtensionMethods.RangeExtensions.&lt;G&gt;$69F0825AA2D306EB3EA8FE3AAF3934C9.GetCombinations">
+            <summary>
+            Gets all possible combinations from a list of <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Models.Optimizations.Range.RangeParameters"/>.
+            </summary>
+            <returns>List of double array with all possible combinations.</returns>
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.ExtensionMethods.RangeExtensions.&lt;G&gt;$6332ED951CB064DDBF8DB6CA1B28B2C5.ToList">
+            <summary>
+            Converts a <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Models.Optimizations.Range.RangeParameters"/> to <see cref="T:System.Collections.Generic.List`1"/> of double.
+            </summary>
+            <returns></returns>
+        </member>
         <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Models.AnalysisParameter">
             <summary>
             Represents an analysis parameter consisting of an initial value for a dependent mechanical parameter 
@@ -2373,35 +2396,145 @@
             Maps a parameter (e.g., "N" or "A[0]") to its specific physical boundaries.
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Models.Optimizations.MorrisParameterBoundary.#ctor(System.String,MelloSilveiraTools.MechanicsOfMaterials.Models.Optimizations.RangeParameters)">
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Models.Optimizations.MorrisParameterBoundary.#ctor(System.String,MelloSilveiraTools.MechanicsOfMaterials.Models.Optimizations.Range.RangeParameters)">
             <summary>
             Maps a parameter (e.g., "N" or "A[0]") to its specific physical boundaries.
             </summary>
         </member>
-        <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Models.Optimizations.RangeParameters">
+        <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Models.Optimizations.Range.RangeFunction">
+            <summary>
+            Represents the data contract for a range of unique dimension mathematical function, f(x).
+            </summary>
+            <param name="InitialVariableValue">Initial value for variable.</param>
+            <param name="FinalVariableValue">Final value for variable.</param>
+            <param name="Types">List of <see cref="T:MelloSilveiraTools.Mathematics.Models.FunctionType"/>.</param>
+            <param name="Coefficients">List of <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Models.Optimizations.Range.RangeParameters"/> for the scaling or proportionality factor of the variable in the expression.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Models.Optimizations.Range.RangeFunction.#ctor(System.Nullable{System.Double},System.Nullable{System.Double},System.Collections.Generic.List{MelloSilveiraTools.Mathematics.Models.FunctionType},System.Collections.Generic.List{MelloSilveiraTools.MechanicsOfMaterials.Models.Optimizations.Range.RangeParameters})">
+            <summary>
+            Represents the data contract for a range of unique dimension mathematical function, f(x).
+            </summary>
+            <param name="InitialVariableValue">Initial value for variable.</param>
+            <param name="FinalVariableValue">Final value for variable.</param>
+            <param name="Types">List of <see cref="T:MelloSilveiraTools.Mathematics.Models.FunctionType"/>.</param>
+            <param name="Coefficients">List of <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Models.Optimizations.Range.RangeParameters"/> for the scaling or proportionality factor of the variable in the expression.</param>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Models.Optimizations.Range.RangeFunction.InitialVariableValue">
+            <summary>Initial value for variable.</summary>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Models.Optimizations.Range.RangeFunction.FinalVariableValue">
+            <summary>Final value for variable.</summary>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Models.Optimizations.Range.RangeFunction.Types">
+            <summary>List of <see cref="T:MelloSilveiraTools.Mathematics.Models.FunctionType"/>.</summary>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Models.Optimizations.Range.RangeFunction.Coefficients">
+            <summary>List of <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Models.Optimizations.Range.RangeParameters"/> for the scaling or proportionality factor of the variable in the expression.</summary>
+        </member>
+        <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Models.Optimizations.Range.RangeParameters">
             <summary>
             Contains the parameters to build a range of thiss.
             </summary>
         </member>
-        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Models.Optimizations.RangeParameters.InitialPoint">
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Models.Optimizations.Range.RangeParameters.InitialPoint">
             <summary>
             The initial point.
             </summary>
         </member>
-        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Models.Optimizations.RangeParameters.Step">
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Models.Optimizations.Range.RangeParameters.Step">
             <summary>
             The step used to iterate from initial point to final point.
             </summary>
         </member>
-        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Models.Optimizations.RangeParameters.MultiplicativeFactor">
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Models.Optimizations.Range.RangeParameters.MultiplicativeFactor">
             <summary>
             The multiplicative factor used to iterate from initial point to final point.
             </summary>
         </member>
-        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Models.Optimizations.RangeParameters.FinalPoint">
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Models.Optimizations.Range.RangeParameters.FinalPoint">
             <summary>
             The final point.
             </summary>
+        </member>
+        <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Models.Optimizations.Range.RangePowerLaw">
+            <summary>
+            Represents the data contract for a power law function.
+            </summary>
+            <param name="InitialVariableValue">Initial value for variable.</param>
+            <param name="FinalVariableValue">Final value for variable.</param>
+            <param name="Coefficients">List of <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Models.Optimizations.Range.RangeParameters"/> for coefficients used to calculate the power law function.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Models.Optimizations.Range.RangePowerLaw.#ctor(System.Nullable{System.Double},System.Nullable{System.Double},System.Collections.Generic.List{MelloSilveiraTools.MechanicsOfMaterials.Models.Optimizations.Range.RangeParameters})">
+            <summary>
+            Represents the data contract for a power law function.
+            </summary>
+            <param name="InitialVariableValue">Initial value for variable.</param>
+            <param name="FinalVariableValue">Final value for variable.</param>
+            <param name="Coefficients">List of <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Models.Optimizations.Range.RangeParameters"/> for coefficients used to calculate the power law function.</param>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Models.Optimizations.Range.RangePowerLaw.InitialVariableValue">
+            <summary>Initial value for variable.</summary>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Models.Optimizations.Range.RangePowerLaw.FinalVariableValue">
+            <summary>Final value for variable.</summary>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Models.Optimizations.Range.RangePowerLaw.Coefficients">
+            <summary>List of <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Models.Optimizations.Range.RangeParameters"/> for coefficients used to calculate the power law function.</summary>
+        </member>
+        <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Models.Optimizations.Range.RangePronySeries">
+            <summary>
+            Represents the data contract for a prony series.
+            </summary>
+            <param name="InitialVariableValue">Initial value for variable.</param>
+            <param name="FinalVariableValue">Final value for variable.</param>
+            <param name="IndependentParameter">Independent parameter represented by c.</param>
+            <param name="Coefficients">List of <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Models.Optimizations.Range.RangeParameters"/> for iterator coefficients represented by a_n.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Models.Optimizations.Range.RangePronySeries.#ctor(System.Nullable{System.Double},System.Nullable{System.Double},MelloSilveiraTools.MechanicsOfMaterials.Models.Optimizations.Range.RangeParameters,System.Collections.Generic.List{MelloSilveiraTools.MechanicsOfMaterials.Models.Optimizations.Range.RangeParameters})">
+            <summary>
+            Represents the data contract for a prony series.
+            </summary>
+            <param name="InitialVariableValue">Initial value for variable.</param>
+            <param name="FinalVariableValue">Final value for variable.</param>
+            <param name="IndependentParameter">Independent parameter represented by c.</param>
+            <param name="Coefficients">List of <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Models.Optimizations.Range.RangeParameters"/> for iterator coefficients represented by a_n.</param>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Models.Optimizations.Range.RangePronySeries.InitialVariableValue">
+            <summary>Initial value for variable.</summary>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Models.Optimizations.Range.RangePronySeries.FinalVariableValue">
+            <summary>Final value for variable.</summary>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Models.Optimizations.Range.RangePronySeries.IndependentParameter">
+            <summary>Independent parameter represented by c.</summary>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Models.Optimizations.Range.RangePronySeries.Coefficients">
+            <summary>List of <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Models.Optimizations.Range.RangeParameters"/> for iterator coefficients represented by a_n.</summary>
+        </member>
+        <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Models.Optimizations.Range.RangeReducedRelaxationFunction">
+            <summary>
+            Contains the input data for Reduced Relaxation Function.
+            </summary>
+            <param name="RelaxationStiffness">Constant C. Unit: dimensionless.</param>
+            <param name="SlowRelaxationTime">Constant tau 1. Unit: s (second).</param>
+            <param name="FastRelaxationTime">Constant tau 2. Unit: s (second).</param>
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Models.Optimizations.Range.RangeReducedRelaxationFunction.#ctor(MelloSilveiraTools.MechanicsOfMaterials.Models.Optimizations.Range.RangeParameters,MelloSilveiraTools.MechanicsOfMaterials.Models.Optimizations.Range.RangeParameters,MelloSilveiraTools.MechanicsOfMaterials.Models.Optimizations.Range.RangeParameters)">
+            <summary>
+            Contains the input data for Reduced Relaxation Function.
+            </summary>
+            <param name="RelaxationStiffness">Constant C. Unit: dimensionless.</param>
+            <param name="SlowRelaxationTime">Constant tau 1. Unit: s (second).</param>
+            <param name="FastRelaxationTime">Constant tau 2. Unit: s (second).</param>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Models.Optimizations.Range.RangeReducedRelaxationFunction.RelaxationStiffness">
+            <summary>Constant C. Unit: dimensionless.</summary>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Models.Optimizations.Range.RangeReducedRelaxationFunction.FastRelaxationTime">
+            <summary>Constant tau 2. Unit: s (second).</summary>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Models.Optimizations.Range.RangeReducedRelaxationFunction.SlowRelaxationTime">
+            <summary>Constant tau 1. Unit: s (second).</summary>
         </member>
         <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Models.Physics.Force">
             <summary>

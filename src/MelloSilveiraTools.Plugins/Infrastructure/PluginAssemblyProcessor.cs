@@ -1,4 +1,5 @@
 using MelloSilveiraTools.Plugins.Infrastructure.Models;
+using System.Collections.Concurrent;
 using System.Reflection;
 using System.Runtime.Loader;
 
@@ -15,7 +16,7 @@ public class PluginAssemblyProcessor(
     IEnumerable<IPluginTypeProcessor> typeProcessors,
     PluginCache cache)
 {
-    private Dictionary<Type, IPluginTypeProcessor> _typeProcessorsByType = typeProcessors.ToDictionary(tp => tp.ProcessableType);
+    private readonly IPluginTypeProcessor[] _typeProcessors = [.. typeProcessors];
 
     /// <summary>
     /// Loads the assembly described by <paramref name="discovered"/> and returns the set of processable types it contains.
@@ -26,7 +27,11 @@ public class PluginAssemblyProcessor(
         () =>
         {
             Assembly assembly = AssemblyLoadContext.Default.LoadFromAssemblyPath(discovered.FullPath);
-            Type[] processableTypes = [.. assembly.GetTypes().Where(t => _typeProcessorsByType.Keys.Any(processableType => processableType.IsAssignableFrom(t)) && !t.IsInterface && !t.IsAbstract)];
+            Type[] processableTypes = [.. assembly.GetTypes().Where(t =>
+                !t.IsInterface &&
+                !t.IsAbstract &&
+                Array.Exists(_typeProcessors, tp => tp.ProcessableType.IsAssignableFrom(t)))];
+
             return new LoadedPlugin(discovered, processableTypes);
         });
 
@@ -45,8 +50,7 @@ public class PluginAssemblyProcessor(
 
         foreach (Type type in loaded.ProcessableTypes)
         {
-            _typeProcessorsByType[type].Process(type, context);
-
+            Array.Find(_typeProcessors, tp => tp.ProcessableType.IsAssignableFrom(type))!.Process(type, context);
             registered.MarkTypeLoaded(type);
             cache.Update(loaded.Name, loaded.Version, registered);
         }

@@ -24,11 +24,13 @@ public static class CoreDependencyInjection
         /// </summary>
         /// <param name="encryptionSettings">Settings used by the encryption service.</param>
         /// <param name="smtpResiliencePipelineSettings">Settings that parameterize the resilience pipelines.</param>
+        /// <param name="emailSettings">Settings used to send e-mails through an SMTP server.</param>
         /// <param name="loggerSettings">Settings used by logger service.</param>
-        /// <param name="useDefaultLogger">Indicates if should use the </param>
+        /// <param name="useDefaultLogger">Indicates if should use the default logger.</param>
         /// <returns>The same <paramref name="services"/> instance to allow call chaining.</returns>
         public IServiceCollection AddCoreServices(EncryptionSettings? encryptionSettings = null,
             ResiliencePipelineSettings? smtpResiliencePipelineSettings = null,
+            EmailSettings? emailSettings = null,
             LoggerSettings? loggerSettings = null,
             bool useDefaultLogger = true)
         {
@@ -39,9 +41,10 @@ public static class CoreDependencyInjection
                     .AddScoped<IEncryptionService, EncryptionService>();
             }
 
-            if (smtpResiliencePipelineSettings is not null)
+            if (smtpResiliencePipelineSettings is not null && emailSettings is not null)
             {
                 services
+                    .AddSingleton(emailSettings)
                     .AddSingleton(provider => new SmtpResiliencePipeline(provider.GetRequiredService<ILogger<SmtpResiliencePipeline>>(), smtpResiliencePipelineSettings))
                     .AddScoped<IEmailService, SmtpEmailService>();
             }
