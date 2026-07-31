@@ -1,7 +1,7 @@
 using MelloSilveiraTools.Core.Caching;
 using MelloSilveiraTools.Core.Logging;
-using MelloSilveiraTools.Core.Providers;
 using MelloSilveiraTools.Core.Managers.File;
+using MelloSilveiraTools.Core.Providers;
 using MelloSilveiraTools.Core.Providers.Dynamics;
 using MelloSilveiraTools.Core.ResiliencePipelines;
 using MelloSilveiraTools.Core.Services.Email;
@@ -28,7 +28,8 @@ public static class CoreDependencyInjection
         /// <param name="loggerSettings">Settings used by logger service.</param>
         /// <param name="useDefaultLogger">Indicates if should use the default logger.</param>
         /// <returns>The same <paramref name="services"/> instance to allow call chaining.</returns>
-        public IServiceCollection AddCoreServices(EncryptionSettings? encryptionSettings = null,
+        public IServiceCollection AddCoreServices(
+            EncryptionSettings? encryptionSettings = null,
             ResiliencePipelineSettings? smtpResiliencePipelineSettings = null,
             EmailSettings? emailSettings = null,
             LoggerSettings? loggerSettings = null,

@@ -2,6 +2,7 @@ using MelloSilveiraTools.Plugins.Application.Commands.Cache;
 using MelloSilveiraTools.Plugins.Application.Commands.Get;
 using MelloSilveiraTools.Plugins.Application.Commands.Load;
 using MelloSilveiraTools.Plugins.Application.Commands.Reload;
+using MelloSilveiraTools.Plugins.Application.Validators;
 using MelloSilveiraTools.Plugins.Infrastructure;
 using MelloSilveiraTools.Plugins.Infrastructure.Persistences;
 using MelloSilveiraTools.Plugins.Infrastructure.Services;
@@ -32,6 +33,10 @@ public static class PluginsDependencyInjection
             .AddSingleton<PluginFileProcessor>()
             .AddSingleton<PluginAssemblyProcessor>()
             .AddSingleton<PluginCache>()
+            // Register validators.
+            .AddSingleton<PluginValidator<GetPluginsRequest>>()
+            .AddSingleton<PluginValidator<ReloadPluginsRequest>>()
+            .AddSingleton<PluginValidator>()
             // Register plugin cache persistences as keyed services. The key matches
             // the {target} route segment on cache-persist/restore endpoints. Consumers
             // of this package can register additional implementations under their own

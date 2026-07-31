@@ -1,6 +1,5 @@
 using MelloSilveiraTools.Core.ExtensionMethods;
 using MelloSilveiraTools.Core.Models;
-using MelloSilveiraTools.Database.ExtensionMethods;
 using MelloSilveiraTools.Plugins.Application.Validators;
 using MelloSilveiraTools.Plugins.Infrastructure.Models;
 using MelloSilveiraTools.Plugins.Infrastructure.Services;

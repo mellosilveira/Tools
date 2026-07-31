@@ -1,5 +1,4 @@
 using MelloSilveiraTools.Plugins.Infrastructure.Models;
-using System.Collections.Concurrent;
 using System.Reflection;
 using System.Runtime.Loader;
 

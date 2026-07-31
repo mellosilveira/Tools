@@ -121,7 +121,7 @@ public class PluginFileProcessor(
 
             return cache.GetOrAdd(name, version, () => new(name, version, Path.GetFullPath(dllFilePath), DateTimeOffset.UtcNow));
         }
-        
+
         logger.LogWarning("File does not match the plugin filename pattern: {FilePath}", dllFilePath);
         return null;
     }

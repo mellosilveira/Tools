@@ -47,7 +47,6 @@ public static class DependencyInjection
                 // Register calculators.
                 .AddSingleton<IConstitutiveEquationsCalculator, ConstitutiveEquationsCalculator>()
                 .AddSingleton<IFatigueCalculator, FatigueCalculator>()
-                .AddSingleton<IMechanicalModelCalculatorFacade, MechanicalModelCalculatorFacade>()
                 // Register geometric properties.
                 .AddSingleton<IGeometricPropertyCalculator<CircularProfile>, CircularProfileGeometricPropertyCalculator>()
                 .AddSingleton<IGeometricPropertyCalculator<RectangularProfile>, RectangularProfileGeometricPropertyCalculator>()

@@ -13,17 +13,17 @@ public class MechanicalModelCalculatorFacade : IMechanicalModelCalculatorFacade
     /// Cached compiled invoker for the underlying displacement calculation method.
     /// </summary>
     private readonly Func<object, object?[], object> _invokeDisplacement;
-    
+
     /// <summary>
     /// Cached compiled invoker for the underlying force calculation method.
     /// </summary>
     private readonly Func<object, object?[], object> _invokeForce;
-    
+
     /// <summary>
     /// Cached compiled invoker for the underlying stress calculation method.
     /// </summary>
     private readonly Func<object, object?[], object> _invokeStress;
-    
+
     /// <summary>
     /// Cached compiled invoker for the underlying strain calculation method.
     /// </summary>
@@ -33,47 +33,47 @@ public class MechanicalModelCalculatorFacade : IMechanicalModelCalculatorFacade
     /// An optimized array containing pre-fetched reflection metadata and compiled invokers for specific parameter calculation loops.
     /// </summary>
     private readonly CalculatorMethodData[]? _calculatorMethodDataList;
-    
+
     /// <summary>
     /// Factory delegate compiled to instantly instantiate instances of the target projection output model without instantiation overhead.
     /// </summary>
     private readonly Func<MechanicalModelOutput>? _outputFactory;
-    
+
     /// <summary>
     /// Fast-access dictionary containing compiled property-setter expressions mapped by property names for the designated output type.
     /// </summary>
     private readonly Dictionary<string, Action<object, object>>? _outputPropertySetters;
-    
+
     /// <summary>
     /// Delegate targeting the boundary condition's function to compute the boundary value and its first-order time derivative concurrently.
     /// </summary>
     private readonly Func<double, (double Value, double Derivative)>? _calculateValueAndDerivativeMethod;
-    
+
     /// <summary>
     /// The exact argument name corresponding to the input boundary parameter value expected by the underlying model methods.
     /// </summary>
     private readonly string? _inputParameterValueName;
-    
+
     /// <summary>
     /// The exact argument name corresponding to the input boundary parameter's temporal derivative expected by the underlying model methods.
     /// </summary>
     private readonly string? _inputParameterDerivativeName;
-    
+
     /// <summary>
     /// The target property identifier on the output instance where the independent boundary condition value is mirrored.
     /// </summary>
     private readonly string? _outputParameterValueName;
-    
+
     /// <summary>
     /// The target property identifier on the output instance where the independent boundary condition's temporal derivative is mirrored.
     /// </summary>
     private readonly string? _outputParameterDerivativeName;
-    
+
     /// <summary>
     /// Mutable parameter buffer dictionary passing time, input data models, and boundary states into the compiled reflection invokers.
     /// </summary>
     private readonly Dictionary<string, object>? _inputParameters;
-    
+
     /// <summary>
     /// State map tracking independent variables and current integration times to initialize the freshly generated output objects.
     /// </summary>
@@ -207,31 +207,31 @@ public class MechanicalModelCalculatorFacade : IMechanicalModelCalculatorFacade
     {
         /// <summary>Identifier for the configuration parameter model instance argument.</summary>
         public const string MechanicalModelInput = "input";
-        
+
         /// <summary>Identifier for the current step timeline argument.</summary>
         public const string Time = "time";
-        
+
         /// <summary>Identifier for structural force bounds.</summary>
         public const string Force = "force";
-        
+
         /// <summary>Identifier for the temporal rate of structural force bounds.</summary>
         public const string ForceDerivative = "forceDerivative";
-        
+
         /// <summary>Identifier for macrostructural kinematic displacements.</summary>
         public const string Displacement = "displacement";
-        
+
         /// <summary>Identifier for the kinematic velocity of structural displacements.</summary>
         public const string DisplacementDerivative = "displacementDerivative";
-        
+
         /// <summary>Identifier for the continuum Cauchy stress bounds.</summary>
         public const string Stress = "stress";
-        
+
         /// <summary>Identifier for the internal loading rate of the stress continuum.</summary>
         public const string StressDerivative = "stressDerivative";
-        
+
         /// <summary>Identifier for the material Green-Lagrange or infinitesimal strains.</summary>
         public const string Strain = "strain";
-        
+
         /// <summary>Identifier for the material strain rate deformation tensor component.</summary>
         public const string StrainDerivative = "strainDerivative";
     }
