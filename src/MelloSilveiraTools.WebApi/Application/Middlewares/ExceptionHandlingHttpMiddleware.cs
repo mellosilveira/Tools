@@ -18,19 +18,19 @@ namespace MelloSilveiraTools.WebApi.Application.Middlewares;
 ///   <item><description><see cref="KeyNotFoundException"/> → <see cref="StatusCode.NotFound"/> (404).</description></item>
 ///   <item><description>Any other exception → <see cref="StatusCode.UnknownError"/> (500).</description></item>
 /// </list>
-/// <see cref="NdjsonException"/> receives special handling: it is logged via <paramref name="logger"/>
-/// and the middleware returns without writing any response body, since NDJSON streaming may already
-/// have sent partial output to the client and rewriting the response would corrupt the stream.
+/// <see cref="NdjsonException"/> receives special handling: it is logged via <see cref="ILogger{ExceptionHandlingHttpMiddleware}"/>
+/// and the middleware returns without writing any response body, since NDJSON streaming may already have sent partial output to the 
+/// client and rewriting the response would corrupt the stream.
 /// </remarks>
 /// <param name="next">The next middleware in the request pipeline.</param>
-/// <param name="logger">Logger used to record handled streaming exceptions.</param>
-public class ExceptionHandlingHttpMiddleware(RequestDelegate next, ILogger<ExceptionHandlingHttpMiddleware> logger)
+public class ExceptionHandlingHttpMiddleware(RequestDelegate next)
 {
     /// <summary>
     /// Invokes the next middleware in the pipeline and translates any unhandled exception into an HTTP error response.
     /// </summary>
     /// <param name="context">The current HTTP context.</param>
-    public async Task InvokeAsync(HttpContext context)
+    /// <param name="logger">Logger used to record handled streaming exceptions.</param>
+    public async Task InvokeAsync(HttpContext context, ILogger<ExceptionHandlingHttpMiddleware> logger)
     {
         try
         {
@@ -54,11 +54,10 @@ public class ExceptionHandlingHttpMiddleware(RequestDelegate next, ILogger<Excep
 
             context.Response.ContentType = MediaTypeNames.Application.Json;
             context.Response.StatusCode = (int)statusCode;
-
 #if DEBUG
             string responseMessage = $"{ex}";
-#else
-        string responseMessage = "An internal error occurred while processing the request.";
+#else        
+            string responseMessage = "An internal error occurred while processing the request.";
 #endif
 
             string requestBody = string.Empty;
