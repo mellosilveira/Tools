@@ -64,6 +64,13 @@ public class PluginFileProcessor(
     public void MoveToLoadedFolder(DiscoveredPlugin plugin)
     {
         string destination = Path.Combine(_loadedDirectory, Path.GetFileName(plugin.FullPath));
+        if (File.Exists(destination))
+        {
+            string backupFullFileName = $"{destination}.old";
+            logger.LogWarning("Destination file already exists: {DestinationFileName}. Backing up existing file to: {BackupFileName}", destination, backupFullFileName);
+            File.Move(destination, backupFullFileName, overwrite: false);
+        }
+
         File.Move(plugin.FullPath, destination, overwrite: false);
     }
 
