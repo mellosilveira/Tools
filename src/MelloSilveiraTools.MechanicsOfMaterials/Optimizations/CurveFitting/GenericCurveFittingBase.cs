@@ -2,6 +2,7 @@
 using MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels;
 using MelloSilveiraTools.MechanicsOfMaterials.Models.Optimizations;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Mappers;
+using System;
 
 namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting;
 
@@ -13,54 +14,69 @@ public abstract class GenericCurveFittingBase(
     protected IMechanicalModelCalculatorFacade CalculatorFacade { get; } = calculatorFacade;
     protected IOptimizationMapper Mapper { get; } = mapper;
 
+    // 1. Método para calcular o erro total (todos os segmentos)
     protected double CalculateObjectiveFunction(CurveFitInput input, double[] currentParameters, bool applyConstraints)
     {
-        // 1. Converte o array da iteração atual para o seu Record imutável
-        GenericMechanicalModelInput currentInput = new(input.InitialInput, Mapper.MapToConstitutiveParameters(currentParameters));
+        GenericMechanicalModelInput currentInput = input.InitialInput with { ConstitutiveParameters = Mapper.MapToConstitutiveParameters(currentParameters) };
 
         double sumOfSquares = 0;
 
-        // 2. Chama a sua biblioteca de cálculo existente de forma transparente
-        for (int i = 0; i < input.TimePoints.Length; i++)
+        for (int i = 0; i < input.Segments.Length; i++)
         {
-            double predictedStress = CalculatorFacade.CalculateStress(currentInput, input.TimePoints[i], input.Strain);
-            sumOfSquares += Math.Pow(input.ExperimentalStress[i] - predictedStress, 2);
+            sumOfSquares += CalculateSegmentError(currentInput, input.Segments[i]);
         }
 
-        // 3. Aplica limites matemáticos condicionais (Estágio 2)
-        if (applyConstraints && input.EvaluateConstraintsAndPenalties != null)
+        sumOfSquares += EvaluateConstraintsAndPenalties(currentInput, input.EvaluateConstraintsAndPenalties, applyConstraints);
+        return sumOfSquares;
+    }
+
+    // 2. Método para calcular o erro de um segmento em específico
+    protected double CalculateObjectiveFunction(CurveFitInput input, double[] currentParameters, CurveSegment segment, bool applyConstraints)
+    {
+        GenericMechanicalModelInput currentInput = input.InitialInput with { ConstitutiveParameters = Mapper.MapToConstitutiveParameters(currentParameters) };
+        return CalculateSegmentError(currentInput, segment)
+            + EvaluateConstraintsAndPenalties(currentInput, input.EvaluateConstraintsAndPenalties, applyConstraints);
+    }
+
+    protected double[] CalculateNumericalGradient(CurveFitInput input, double[] currentParameters, bool applyConstraints)
+    {
+        var gradient = new double[currentParameters.Length];
+        double h = 1e-6;
+
+        var tempParams = (double[])currentParameters.Clone();
+
+        for (int i = 0; i < currentParameters.Length; i++)
         {
-            sumOfSquares += input.EvaluateConstraintsAndPenalties(input.InitialInput, currentParameters);
+            tempParams[i] += h;
+            double forwardCost = CalculateObjectiveFunction(input, tempParams, applyConstraints);
+
+            tempParams[i] -= 2 * h;
+            double backwardCost = CalculateObjectiveFunction(input, tempParams, applyConstraints);
+
+            gradient[i] = (forwardCost - backwardCost) / (2 * h);
+
+            tempParams[i] += h;
+        }
+
+        return gradient;
+    }
+
+    private double CalculateSegmentError(GenericMechanicalModelInput currentInput, CurveSegment segment)
+    {
+        double sumOfSquares = 0;
+
+        for (int j = 0; j < segment.TimePoints.Length; j++)
+        {
+            double predictedStress = CalculatorFacade.CalculateStress(currentInput, segment.TimePoints[j], segment.ExperimentalStrain[j]);
+            double diff = segment.ExperimentalStress[j] - predictedStress;
+            sumOfSquares += diff * diff;
         }
 
         return sumOfSquares;
     }
 
-    /// <summary>
-    /// Calcula o gradiente da função custo numericamente via Diferença Central.
-    /// Necessário para algoritmos baseados em Quase-Newton como o BFGS.
-    /// </summary>
-    protected double[] CalculateNumericalGradient(CurveFitInput input, double[] currentParameters, bool applyConstraints)
-    {
-        var gradient = new double[currentParameters.Length];
-        double h = 1e-6; // Passo diferencial pequeno para aproximação da derivada
-
-        for (int i = 0; i < currentParameters.Length; i++)
-        {
-            var forwardParams = (double[])currentParameters.Clone();
-            forwardParams[i] += h;
-            double forwardCost = CalculateObjectiveFunction(input, forwardParams, applyConstraints);
-
-            var backwardParams = (double[])currentParameters.Clone();
-            backwardParams[i] -= h;
-            double backwardCost = CalculateObjectiveFunction(input, backwardParams, applyConstraints);
-
-            // Fórmula da diferença central para maior precisão: (f(x+h) - f(x-h)) / 2h
-            gradient[i] = (forwardCost - backwardCost) / (2 * h);
-        }
-
-        return gradient;
-    }
+    private static double EvaluateConstraintsAndPenalties(GenericMechanicalModelInput currentInput, Func<GenericMechanicalModelInput, double>? evaluateConstraintsAndPenalties, bool applyConstraints)
+        => applyConstraints && evaluateConstraintsAndPenalties != null ? evaluateConstraintsAndPenalties(currentInput) : 0;
 
     public abstract CurveFitResult Fit(CurveFitInput input);
 }

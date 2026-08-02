@@ -1,10 +1,12 @@
 ﻿using MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels;
 using MelloSilveiraTools.MechanicsOfMaterials.Models.Optimizations;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Mappers;
+using Microsoft.Extensions.Logging;
 
 namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting;
 
 public class AlglibCurveFitter(
+    ILogger<AlglibCurveFitter> logger,
     IMechanicalModelCalculatorFacade calculatorFacade,
     IOptimizationMapper mapper)
     : GenericCurveFittingBase(calculatorFacade, mapper)
@@ -57,6 +59,7 @@ public class AlglibCurveFitter(
         }
         catch (Exception ex)
         {
+            logger.LogError(ex, "Failed to fit curve using MathNet. Input: {@Input}", input);
             return new CurveFitResult(false, [], double.MaxValue, ex.Message);
         }
     }
