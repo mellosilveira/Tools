@@ -38,7 +38,7 @@ public abstract class CrudController<TEntity, TFilter>(ILogger logger) : CustomC
     [ProducesResponseType(StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [HttpPost]
-    public Task<ActionResult<AddResponse>> Add(
+    public Task<ActionResult<AddResult>> Add(
         [FromServices] AddEntity<TEntity> operation,
         [FromBody] TEntity entity)
         => Add(operation, entity, ResourceName);

@@ -51,19 +51,26 @@ public class PluginCache(ITwoLevelCache cache)
     /// <summary>
     /// Removes every cached plugin entry.
     /// </summary>
-    public void Clear() => cache.Clear();
+    public async Task ClearAsync()
+    {
+        await foreach (var (name, versionAsString, _) in cache.StreamAll())
+        {
+            Clear(name, PluginVersion.Parse(versionAsString));
+        }
+    }
 
     /// <summary>
     /// Clears all cache entries for the given plugin name.
     /// When <paramref name="version"/> is <see langword="null"/>, all versions are removed;
     /// otherwise only the specified version is evicted.
     /// </summary>
-    public void Clear(string name, PluginVersion? version)
+    public void Clear(string name, PluginVersion version)
     {
-        if (version is null)
-            cache.Remove(name);
-        else
-            cache.Remove(name, version.Value.Name);
+        // If assembly is loaded, unload it before removing the cache entry.
+        if (TryGet<LoadedPlugin>(name, version, out var plugin))
+            plugin!.UnloadAssembly();
+
+        cache.Remove(name, version.Name);
     }
 
     /// <summary>

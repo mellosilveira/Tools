@@ -43,6 +43,11 @@ public interface ITwoLevelCache
     IAsyncEnumerable<(string Group, string Key, T Value)> StreamAll<T>(CancellationToken cancellationToken = default);
 
     /// <summary>
+    /// Streams every entry currently held in the cache.
+    /// </summary>
+    IAsyncEnumerable<(string Group, string Key, object Value)> StreamAll(CancellationToken cancellationToken = default);
+
+    /// <summary>
     /// Streams entries filtered by <paramref name="group"/> and/or <paramref name="key"/>.
     /// A <see langword="null"/> argument means "match all" for that level.
     /// </summary>

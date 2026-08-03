@@ -1,3 +1,4 @@
+using MelloSilveiraTools.Core.Application.Commands;
 using MelloSilveiraTools.Database.RelationalDatabase.Models.Entities;
 
 namespace MelloSilveiraTools.WebApi.Application.Commands.Crud.Add;

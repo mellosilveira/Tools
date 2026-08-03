@@ -9,16 +9,11 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<PackageReference Include="MathNet.Numerics" Version="5.0.0" />
-		<PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="10.0.8" />
+		<PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="10.0.10" />
 	</ItemGroup>
 
 	<ItemGroup>
 	  <ProjectReference Include="..\MelloSilveiraTools.Mathematics\MelloSilveiraTools.Mathematics.csproj" />
-	</ItemGroup>
-
-	<ItemGroup>
-	  <Folder Include="Optimizations\CurveFitting\Alglib\" />
 	</ItemGroup>
 
 </Project>

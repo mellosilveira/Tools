@@ -1,3 +1,5 @@
+using MelloSilveiraTools.Core.Application.Commands;
+
 namespace MelloSilveiraTools.WebApi.Application.Commands.Crud.Delete;
 
 /// <summary>

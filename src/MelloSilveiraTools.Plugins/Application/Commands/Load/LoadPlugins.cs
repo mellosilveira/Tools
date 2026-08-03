@@ -1,9 +1,9 @@
+using MelloSilveiraTools.Core.Application.Commands;
 using MelloSilveiraTools.Core.ExtensionMethods;
 using MelloSilveiraTools.Core.Models;
 using MelloSilveiraTools.Plugins.Application.Validators;
 using MelloSilveiraTools.Plugins.Infrastructure.Models;
 using MelloSilveiraTools.Plugins.Infrastructure.Services;
-using MelloSilveiraTools.WebApi.Application.Commands;
 
 namespace MelloSilveiraTools.Plugins.Application.Commands.Load;
 

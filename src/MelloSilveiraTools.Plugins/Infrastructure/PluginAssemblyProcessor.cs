@@ -25,13 +25,18 @@ public class PluginAssemblyProcessor(
         discovered.Version,
         () =>
         {
-            Assembly assembly = AssemblyLoadContext.Default.LoadFromAssemblyPath(discovered.FullPath);
+            // 1. Created an isolated context and collectible for plugin.
+            var pluginContext = new AssemblyLoadContext($"PluginContext_{discovered.Name}", isCollectible: true);
+
+            // 2. Load the assembly in this new isolated context, instead of the default.
+            Assembly assembly = pluginContext.LoadFromAssemblyPath(discovered.FullPath);
+
             Type[] processableTypes = [.. assembly.GetTypes().Where(t =>
                 !t.IsInterface &&
                 !t.IsAbstract &&
                 Array.Exists(_typeProcessors, tp => tp.ProcessableType.IsAssignableFrom(t)))];
 
-            return new LoadedPlugin(discovered, processableTypes);
+             return new LoadedPlugin(discovered, processableTypes, pluginContext);
         });
 
     /// <summary>

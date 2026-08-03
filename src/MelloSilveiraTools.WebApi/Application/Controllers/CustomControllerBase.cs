@@ -26,7 +26,7 @@ public class CustomControllerBase(ILogger logger) : Controller
     /// <param name="operation">Operation that performs the insert (resolved from DI).</param>
     /// <param name="entity">Entity payload received from the request.</param>
     /// <param name="resourceName">Human-readable resource name used to build localized error messages.</param>
-    protected async Task<ActionResult<AddResponse>> Add<TEntity>(AddEntity<TEntity> operation, TEntity entity, string resourceName) where TEntity : EntityBase, new()
+    protected async Task<ActionResult<AddResult>> Add<TEntity>(AddEntity<TEntity> operation, TEntity entity, string resourceName) where TEntity : EntityBase, new()
         => await operation
             .ExecuteAsync(new AddEntityRequest<TEntity> { Entity = entity, ResourceName = resourceName })
             .BuildHttpResponseAsync()

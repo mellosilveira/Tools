@@ -79,7 +79,7 @@ public class PluginService(
                 .GetRegistry(assemblyProcessor));
 
     /// <inheritdoc/>
-    public void Clear() => cache.Clear();
+    public Task ClearAsync() => cache.ClearAsync();
 
     /// <inheritdoc/>
     public Task PersistCacheAsync(string? name = null, PluginVersion? version = null, CancellationToken cancellationToken = default)

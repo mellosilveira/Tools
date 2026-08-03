@@ -267,7 +267,7 @@
             Adds the set of types eligible for processing.
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.Plugins.Infrastructure.Models.LoadedPlugin.#ctor(MelloSilveiraTools.Plugins.Infrastructure.Models.DiscoveredPlugin,System.Type[])">
+        <member name="M:MelloSilveiraTools.Plugins.Infrastructure.Models.LoadedPlugin.#ctor(MelloSilveiraTools.Plugins.Infrastructure.Models.DiscoveredPlugin,System.Type[],System.Runtime.Loader.AssemblyLoadContext)">
             <summary>
             Initializes a new <see cref="T:MelloSilveiraTools.Plugins.Infrastructure.Models.LoadedPlugin"/> by wrapping a <paramref name="discovered"/> entry
             with the set of <paramref name="processableTypes"/> found in the loaded assembly.
@@ -275,6 +275,11 @@
         </member>
         <member name="P:MelloSilveiraTools.Plugins.Infrastructure.Models.LoadedPlugin.ProcessableTypes">
             <summary>Types found in the assembly that implement the plugin interface.</summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Plugins.Infrastructure.Models.LoadedPlugin.UnloadAssembly">
+            <summary>
+            This must be called only when application update the plugin.
+            </summary>
         </member>
         <member name="T:MelloSilveiraTools.Plugins.Infrastructure.Models.PluginRegistrationContext">
             <summary>
@@ -597,12 +602,12 @@
             Replaces the cached state for (<paramref name="name"/>, <paramref name="version"/>) with <paramref name="plugin"/>.
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.Plugins.Infrastructure.PluginCache.Clear">
+        <member name="M:MelloSilveiraTools.Plugins.Infrastructure.PluginCache.ClearAsync">
             <summary>
             Removes every cached plugin entry.
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.Plugins.Infrastructure.PluginCache.Clear(System.String,System.Nullable{MelloSilveiraTools.Plugins.Infrastructure.Models.PluginVersion})">
+        <member name="M:MelloSilveiraTools.Plugins.Infrastructure.PluginCache.Clear(System.String,MelloSilveiraTools.Plugins.Infrastructure.Models.PluginVersion)">
             <summary>
             Clears all cache entries for the given plugin name.
             When <paramref name="version"/> is <see langword="null"/>, all versions are removed;
@@ -788,7 +793,7 @@
             <param name="name">Optional plugin name filter. When empty, all plugins are considered.</param>
             <param name="version">Optional version filter. When <c>null</c>, all versions are considered.</param>
         </member>
-        <member name="M:MelloSilveiraTools.Plugins.Infrastructure.Services.IPluginService.Clear">
+        <member name="M:MelloSilveiraTools.Plugins.Infrastructure.Services.IPluginService.ClearAsync">
             <summary>
             Clears the plugin cache entirely.
             </summary>
@@ -895,7 +900,7 @@
         <member name="M:MelloSilveiraTools.Plugins.Infrastructure.Services.PluginService.GetPlugins(System.String,System.Nullable{MelloSilveiraTools.Plugins.Infrastructure.Models.PluginVersion})">
             <inheritdoc/>
         </member>
-        <member name="M:MelloSilveiraTools.Plugins.Infrastructure.Services.PluginService.Clear">
+        <member name="M:MelloSilveiraTools.Plugins.Infrastructure.Services.PluginService.ClearAsync">
             <inheritdoc/>
         </member>
         <member name="M:MelloSilveiraTools.Plugins.Infrastructure.Services.PluginService.PersistCacheAsync(System.String,System.Nullable{MelloSilveiraTools.Plugins.Infrastructure.Models.PluginVersion},System.Threading.CancellationToken)">

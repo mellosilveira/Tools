@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 17
-VisualStudioVersion = 17.12.35707.178
+# Visual Studio Version 18
+VisualStudioVersion = 18.9.12023.133 insiders
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "etc", "etc", "{C87CB27D-FD2A-4506-A353-F6B36AA39AFB}"
 	ProjectSection(SolutionItems) = preProject
@@ -39,6 +39,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MelloSilveiraTools.Plugins", "src\MelloSilveiraTools.Plugins\MelloSilveiraTools.Plugins.csproj", "{232A5029-0BD8-439D-AF87-68A204AEEA0C}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MelloSilveiraTools.Mathematics", "src\MelloSilveiraTools.Mathematics\MelloSilveiraTools.Mathematics.csproj", "{0DB915F2-9604-4870-B5AF-9B050C3E1297}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MelloSilveiraTools.MechanicsOfMaterials.Optimizations", "src\MelloSilveiraTools.MechanicsOfMaterials.Optimizations\MelloSilveiraTools.MechanicsOfMaterials.Optimizations.csproj", "{C0459F81-106C-4D77-AFB7-5403EA69CB68}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -146,6 +148,18 @@ Global
 		{0DB915F2-9604-4870-B5AF-9B050C3E1297}.Release|x64.Build.0 = Release|Any CPU
 		{0DB915F2-9604-4870-B5AF-9B050C3E1297}.Release|x86.ActiveCfg = Release|Any CPU
 		{0DB915F2-9604-4870-B5AF-9B050C3E1297}.Release|x86.Build.0 = Release|Any CPU
+		{C0459F81-106C-4D77-AFB7-5403EA69CB68}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C0459F81-106C-4D77-AFB7-5403EA69CB68}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C0459F81-106C-4D77-AFB7-5403EA69CB68}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{C0459F81-106C-4D77-AFB7-5403EA69CB68}.Debug|x64.Build.0 = Debug|Any CPU
+		{C0459F81-106C-4D77-AFB7-5403EA69CB68}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{C0459F81-106C-4D77-AFB7-5403EA69CB68}.Debug|x86.Build.0 = Debug|Any CPU
+		{C0459F81-106C-4D77-AFB7-5403EA69CB68}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C0459F81-106C-4D77-AFB7-5403EA69CB68}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C0459F81-106C-4D77-AFB7-5403EA69CB68}.Release|x64.ActiveCfg = Release|Any CPU
+		{C0459F81-106C-4D77-AFB7-5403EA69CB68}.Release|x64.Build.0 = Release|Any CPU
+		{C0459F81-106C-4D77-AFB7-5403EA69CB68}.Release|x86.ActiveCfg = Release|Any CPU
+		{C0459F81-106C-4D77-AFB7-5403EA69CB68}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -160,6 +174,7 @@ Global
 		{0654CD5E-0D54-4F0A-8C15-707395771D33} = {92D89A6E-7E8A-4E65-955F-ECAC80987E27}
 		{232A5029-0BD8-439D-AF87-68A204AEEA0C} = {92D89A6E-7E8A-4E65-955F-ECAC80987E27}
 		{0DB915F2-9604-4870-B5AF-9B050C3E1297} = {92D89A6E-7E8A-4E65-955F-ECAC80987E27}
+		{C0459F81-106C-4D77-AFB7-5403EA69CB68} = {92D89A6E-7E8A-4E65-955F-ECAC80987E27}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {6138CFB8-82E9-45F6-B28F-BF93F657D839}

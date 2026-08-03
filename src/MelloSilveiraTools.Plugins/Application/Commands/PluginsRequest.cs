@@ -1,4 +1,4 @@
-using MelloSilveiraTools.WebApi.Application.Commands;
+using MelloSilveiraTools.Core.Application.Commands;
 
 namespace MelloSilveiraTools.Plugins.Application.Commands;
 

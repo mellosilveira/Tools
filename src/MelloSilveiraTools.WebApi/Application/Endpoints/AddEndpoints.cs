@@ -31,8 +31,8 @@ public static class AddEndpoints
                 .ExecuteAsync(new AddEntityRequest<TEntity> { Entity = entity, ResourceName = resourceName })
                 .ToHttpResultAsync()
                 .ConfigureAwait(false))
-            .Produces<AddResponse>(StatusCodes.Status201Created)
-            .Produces<AddResponse>(StatusCodes.Status500InternalServerError)
+            .Produces<AddResult>(StatusCodes.Status201Created)
+            .Produces<AddResult>(StatusCodes.Status500InternalServerError)
             .WithName($"Add_{resourceName}")
             .WithSummary($"Persists a new {resourceName}.");
 }

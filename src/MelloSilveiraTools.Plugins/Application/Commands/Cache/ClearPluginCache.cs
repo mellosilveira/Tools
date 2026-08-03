@@ -1,7 +1,6 @@
-using MelloSilveiraTools.Core.ExtensionMethods;
+using MelloSilveiraTools.Core.Application.Commands;
 using MelloSilveiraTools.Core.Models;
 using MelloSilveiraTools.Plugins.Infrastructure.Services;
-using MelloSilveiraTools.WebApi.Application.Commands;
 
 namespace MelloSilveiraTools.Plugins.Application.Commands.Cache;
 
@@ -11,9 +10,9 @@ namespace MelloSilveiraTools.Plugins.Application.Commands.Cache;
 public class ClearPluginCache(IPluginService pluginService) : DefaultCommandBase
 {
     /// <inheritdoc />
-    protected override Task<Result> ExecuteCommandAsync()
+    protected override async Task<Result> ExecuteCommandAsync()
     {
-        pluginService.Clear();
-        return Result.CreateSuccessOk().ToTask();
+        await pluginService.ClearAsync();
+        return Result.CreateSuccessOk();
     }
 }

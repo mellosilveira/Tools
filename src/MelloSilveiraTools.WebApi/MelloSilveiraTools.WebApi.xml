@@ -4,150 +4,9 @@
         <name>MelloSilveiraTools.WebApi</name>
     </assembly>
     <members>
-        <member name="T:MelloSilveiraTools.WebApi.Application.Commands.CommandBase`2">
-            <summary>
-            Represents the base for all commands in the application.
-            </summary>
-            <typeparam name="TRequest">Request type consumed by the command.</typeparam>
-            <typeparam name="TResult">Response type produced by the command.</typeparam>
-            <param name="validator"></param>
-        </member>
-        <member name="M:MelloSilveiraTools.WebApi.Application.Commands.CommandBase`2.#ctor(MelloSilveiraTools.Core.Validators.IValidator{`0})">
-            <summary>
-            Represents the base for all commands in the application.
-            </summary>
-            <typeparam name="TRequest">Request type consumed by the command.</typeparam>
-            <typeparam name="TResult">Response type produced by the command.</typeparam>
-            <param name="validator"></param>
-        </member>
-        <member name="M:MelloSilveiraTools.WebApi.Application.Commands.CommandBase`2.ExecuteAsync(`0)">
-            <summary>
-            The main method of all commands.
-            Asynchronously, orchestrates and validates the commands.
-            </summary>
-            <param name="request">The command request content.</param>
-            <returns>The command response.</returns>
-            <example>
-            <code>
-            var command = serviceProvider.GetRequiredService&lt;CreateUserCommand&gt;();
-            var response = await command.ExecuteAsync(new CreateUserRequest { Email = "user@example.com" });
-            if (!response.Success)
-                return BadRequest(response.ErrorMessages);
-            return StatusCode((int)response.StatusCode);
-            </code>
-            </example>
-        </member>
-        <member name="M:MelloSilveiraTools.WebApi.Application.Commands.CommandBase`2.ExecuteCommandAsync(`0)">
-            <summary>
-            Asynchronously executes the use-case domain logic for this command. Implementations should
-            rely on <see cref="T:Microsoft.Extensions.Logging.ILogger"/> (inherited from this base class) for diagnostic logging and
-            build their response using the <see cref="T:MelloSilveiraTools.Core.Models.Result"/> factory helpers
-            (<c>CreateSuccessOk</c>, <c>CreateNotFound</c>, <c>CreateUnknownError</c>, etc.) for
-            expected outcomes. Unexpected exceptions should be allowed to propagate — they are caught by
-            <see cref="M:MelloSilveiraTools.WebApi.Application.Commands.CommandBase`2.ExecuteAsync(`0)"/> and translated into a 500 Internal Server Error response.
-            </summary>
-            <param name="request">The request payload.</param>
-            <returns>The command response, populated with the outcome of the domain logic.</returns>
-        </member>
-        <member name="T:MelloSilveiraTools.WebApi.Application.Commands.CommandBaseWithData`2">
-            <summary>
-            Base class for commands that return an <see cref="T:MelloSilveiraTools.Core.Models.Result`1"/> carrying a single data payload.
-            </summary>
-            <typeparam name="TRequest">Request type consumed by the command.</typeparam>
-            <typeparam name="TResponseData">Type of the data payload returned by the command.</typeparam>
-        </member>
-        <member name="M:MelloSilveiraTools.WebApi.Application.Commands.CommandBaseWithData`2.#ctor(MelloSilveiraTools.Core.Validators.IValidator{`0})">
-            <summary>
-            Base class for commands that return an <see cref="T:MelloSilveiraTools.Core.Models.Result`1"/> carrying a single data payload.
-            </summary>
-            <typeparam name="TRequest">Request type consumed by the command.</typeparam>
-            <typeparam name="TResponseData">Type of the data payload returned by the command.</typeparam>
-        </member>
-        <member name="T:MelloSilveiraTools.WebApi.Application.Commands.ListedCommandBase`2">
-            <summary>
-            Base class for commands that return a list of items through <see cref="T:MelloSilveiraTools.Core.Models.ListedResult`1"/>.
-            </summary>
-            <typeparam name="TRequest">Request type consumed by the command.</typeparam>
-            <typeparam name="TResponseData">Type of each item returned by the command.</typeparam>
-        </member>
-        <member name="M:MelloSilveiraTools.WebApi.Application.Commands.ListedCommandBase`2.#ctor(MelloSilveiraTools.Core.Validators.IValidator{`0})">
-            <summary>
-            Base class for commands that return a list of items through <see cref="T:MelloSilveiraTools.Core.Models.ListedResult`1"/>.
-            </summary>
-            <typeparam name="TRequest">Request type consumed by the command.</typeparam>
-            <typeparam name="TResponseData">Type of each item returned by the command.</typeparam>
-        </member>
-        <member name="T:MelloSilveiraTools.WebApi.Application.Commands.PagedCommandBase`2">
-            <summary>
-            Base class for commands that return a paginated list of items through <see cref="T:MelloSilveiraTools.Core.Models.PagedResult`1"/>.
-            </summary>
-            <typeparam name="TRequest">Request type consumed by the command.</typeparam>
-            <typeparam name="TResponseData">Type of each item returned in the page.</typeparam>
-        </member>
-        <member name="M:MelloSilveiraTools.WebApi.Application.Commands.PagedCommandBase`2.#ctor(MelloSilveiraTools.Core.Validators.IValidator{`0})">
-            <summary>
-            Base class for commands that return a paginated list of items through <see cref="T:MelloSilveiraTools.Core.Models.PagedResult`1"/>.
-            </summary>
-            <typeparam name="TRequest">Request type consumed by the command.</typeparam>
-            <typeparam name="TResponseData">Type of each item returned in the page.</typeparam>
-        </member>
-        <member name="T:MelloSilveiraTools.WebApi.Application.Commands.CommandBaseWithDefaultResponse`1">
-            <summary>
-            Represents the base for all commands that uses the default response (<see cref="T:MelloSilveiraTools.Core.Models.Result"/>).
-            </summary>
-        </member>
-        <member name="M:MelloSilveiraTools.WebApi.Application.Commands.CommandBaseWithDefaultResponse`1.#ctor(MelloSilveiraTools.Core.Validators.IValidator{`0})">
-            <summary>
-            Represents the base for all commands that uses the default response (<see cref="T:MelloSilveiraTools.Core.Models.Result"/>).
-            </summary>
-        </member>
-        <member name="T:MelloSilveiraTools.WebApi.Application.Commands.CommandBaseWithoutRequest`1">
-            <summary>
-            Represents the base for all commands that does not use a request.
-            </summary>
-        </member>
-        <member name="M:MelloSilveiraTools.WebApi.Application.Commands.CommandBaseWithoutRequest`1.ExecuteAsync">
-            <summary>
-            The main method of all commands.
-            Asynchronously, orchestrates and validates the commands.
-            </summary>
-            <returns>The command response.</returns>
-        </member>
-        <member name="M:MelloSilveiraTools.WebApi.Application.Commands.CommandBaseWithoutRequest`1.ExecuteCommandAsync">
-            <summary>
-            Asynchronously executes the use-case domain logic for this request-less command.
-            Implementations should use <see cref="T:Microsoft.Extensions.Logging.ILogger"/> for diagnostics and the
-            <see cref="T:MelloSilveiraTools.Core.Models.Result"/> factory helpers to build expected outcomes. Unexpected
-            exceptions should propagate — they are caught by <see cref="M:MelloSilveiraTools.WebApi.Application.Commands.CommandBaseWithoutRequest`1.ExecuteAsync"/> and translated
-            into a 500 Internal Server Error response.
-            </summary>
-            <returns>The command response carrying the outcome of the domain logic.</returns>
-        </member>
-        <member name="T:MelloSilveiraTools.WebApi.Application.Commands.DefaultCommandBase">
-            <summary>
-            Represents the base for all commands that does not use a request.
-            </summary>
-        </member>
-        <member name="M:MelloSilveiraTools.WebApi.Application.Commands.DefaultCommandBase.ExecuteAsync">
-            <summary>
-            The main method of all commands.
-            Asynchronously, orchestrates and validates the commands.
-            </summary>
-            <returns>The command response.</returns>
-        </member>
-        <member name="M:MelloSilveiraTools.WebApi.Application.Commands.DefaultCommandBase.ExecuteCommandAsync">
-            <summary>
-            Asynchronously executes the use-case domain logic for this request-less command.
-            Implementations should use <see cref="T:Microsoft.Extensions.Logging.ILogger"/> for diagnostics and the
-            <see cref="T:MelloSilveiraTools.Core.Models.Result"/> factory helpers to build expected outcomes. Unexpected
-            exceptions should propagate — they are caught by <see cref="M:MelloSilveiraTools.WebApi.Application.Commands.DefaultCommandBase.ExecuteAsync"/> and translated
-            into a 500 Internal Server Error response.
-            </summary>
-            <returns>The command response carrying the outcome of the domain logic.</returns>
-        </member>
         <member name="T:MelloSilveiraTools.WebApi.Application.Commands.Crud.Add.AddEntity`1">
             <summary>
-            Generic operation that inserts an entity through <see cref="T:MelloSilveiraTools.Database.Repositories.IRepository"/> and returns an <see cref="T:MelloSilveiraTools.WebApi.Application.Commands.Crud.Add.AddResponse"/>
+            Generic operation that inserts an entity through <see cref="T:MelloSilveiraTools.Database.Repositories.IRepository"/> and returns an <see cref="T:MelloSilveiraTools.WebApi.Application.Commands.Crud.Add.AddResult"/>
             carrying the assigned identifier. Shared between <c>CrudController</c>/<c>CustomControllerBase</c> and the
             <c>AddEndpoints.MapAdd</c> minimal-API extension so the create path is implemented in exactly one place.
             </summary>
@@ -155,7 +14,7 @@
         </member>
         <member name="M:MelloSilveiraTools.WebApi.Application.Commands.Crud.Add.AddEntity`1.#ctor(MelloSilveiraTools.Database.Repositories.IRepository)">
             <summary>
-            Generic operation that inserts an entity through <see cref="T:MelloSilveiraTools.Database.Repositories.IRepository"/> and returns an <see cref="T:MelloSilveiraTools.WebApi.Application.Commands.Crud.Add.AddResponse"/>
+            Generic operation that inserts an entity through <see cref="T:MelloSilveiraTools.Database.Repositories.IRepository"/> and returns an <see cref="T:MelloSilveiraTools.WebApi.Application.Commands.Crud.Add.AddResult"/>
             carrying the assigned identifier. Shared between <c>CrudController</c>/<c>CustomControllerBase</c> and the
             <c>AddEndpoints.MapAdd</c> minimal-API extension so the create path is implemented in exactly one place.
             </summary>
@@ -176,37 +35,37 @@
         <member name="P:MelloSilveiraTools.WebApi.Application.Commands.Crud.Add.AddEntityRequest`1.ResourceName">
             <summary>Human-readable resource name used to build localized error messages.</summary>
         </member>
-        <member name="T:MelloSilveiraTools.WebApi.Application.Commands.Crud.Add.AddResponse">
+        <member name="T:MelloSilveiraTools.WebApi.Application.Commands.Crud.Add.AddResult">
             <summary>
             Response produced by add/create operations, optionally exposing the identifier of the newly created resource.
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.WebApi.Application.Commands.Crud.Add.AddResponse.CreateSuccessCreated(System.Int64)">
+        <member name="M:MelloSilveiraTools.WebApi.Application.Commands.Crud.Add.AddResult.CreateSuccessCreated(System.Int64)">
             <summary>
             Creates a successful 201 Created response that returns the identifier assigned to the new resource.
             </summary>
             <param name="id">Identifier of the newly created resource.</param>
         </member>
-        <member name="M:MelloSilveiraTools.WebApi.Application.Commands.Crud.Add.AddResponse.CreateConflict(System.Int64,System.String)">
+        <member name="M:MelloSilveiraTools.WebApi.Application.Commands.Crud.Add.AddResult.CreateConflict(System.Int64,System.String)">
             <summary>
             Creates a 409 Conflict response that also exposes the identifier of the conflicting resource.
             </summary>
             <param name="id">Identifier of the existing resource that conflicts with the request.</param>
             <param name="message">Error message describing the conflict.</param>
         </member>
-        <member name="T:MelloSilveiraTools.WebApi.Application.Commands.Crud.Add.AddResponseData">
+        <member name="T:MelloSilveiraTools.WebApi.Application.Commands.Crud.Add.AddResultData">
             <summary>
             Data payload returned by add/create operations, carrying the identifier of the new resource.
             </summary>
             <param name="Id">Identifier assigned to the newly created resource.</param>
         </member>
-        <member name="M:MelloSilveiraTools.WebApi.Application.Commands.Crud.Add.AddResponseData.#ctor(System.Int64)">
+        <member name="M:MelloSilveiraTools.WebApi.Application.Commands.Crud.Add.AddResultData.#ctor(System.Int64)">
             <summary>
             Data payload returned by add/create operations, carrying the identifier of the new resource.
             </summary>
             <param name="Id">Identifier assigned to the newly created resource.</param>
         </member>
-        <member name="P:MelloSilveiraTools.WebApi.Application.Commands.Crud.Add.AddResponseData.Id">
+        <member name="P:MelloSilveiraTools.WebApi.Application.Commands.Crud.Add.AddResultData.Id">
             <summary>Identifier assigned to the newly created resource.</summary>
         </member>
         <member name="T:MelloSilveiraTools.WebApi.Application.Commands.Crud.Delete.DeleteEntity`1">
@@ -335,11 +194,6 @@
         </member>
         <member name="P:MelloSilveiraTools.WebApi.Application.Commands.Crud.Update.UpdateEntityRequest`1.ResourceName">
             <summary>Human-readable resource name used to build localized error messages.</summary>
-        </member>
-        <member name="T:MelloSilveiraTools.WebApi.Application.Commands.RequestBase">
-            <summary>
-            Request content to all operations.
-            </summary>
         </member>
         <member name="T:MelloSilveiraTools.WebApi.Application.Controllers.CrudController`2">
             <summary>
@@ -518,44 +372,43 @@
             Middleware that converts unhandled exceptions raised by the pipeline into a standard <see cref="T:Microsoft.AspNetCore.Mvc.ProblemDetails"/> JSON response.
             </summary>
             <remarks>
-            Exception-to-status mapping performed by <see cref="M:MelloSilveiraTools.WebApi.Application.Middlewares.ExceptionHandlingHttpMiddleware.InvokeAsync(Microsoft.AspNetCore.Http.HttpContext)"/>:
+            Exception-to-status mapping performed by <see cref="M:MelloSilveiraTools.WebApi.Application.Middlewares.ExceptionHandlingHttpMiddleware.InvokeAsync(Microsoft.AspNetCore.Http.HttpContext,Microsoft.Extensions.Logging.ILogger{MelloSilveiraTools.WebApi.Application.Middlewares.ExceptionHandlingHttpMiddleware})"/>:
             <list type="bullet">
               <item><description><see cref="T:System.UnauthorizedAccessException"/> → <see cref="F:MelloSilveiraTools.Core.Models.StatusCode.Unauthorized"/> (401).</description></item>
               <item><description><see cref="T:System.ArgumentException"/> or <see cref="T:System.InvalidOperationException"/> → <see cref="F:MelloSilveiraTools.Core.Models.StatusCode.BadRequest"/> (400).</description></item>
               <item><description><see cref="T:System.Collections.Generic.KeyNotFoundException"/> → <see cref="F:MelloSilveiraTools.Core.Models.StatusCode.NotFound"/> (404).</description></item>
               <item><description>Any other exception → <see cref="F:MelloSilveiraTools.Core.Models.StatusCode.UnknownError"/> (500).</description></item>
             </list>
-            <see cref="T:MelloSilveiraTools.WebApi.Application.Models.NdjsonException"/> receives special handling: it is logged via <paramref name="logger"/>
-            and the middleware returns without writing any response body, since NDJSON streaming may already
-            have sent partial output to the client and rewriting the response would corrupt the stream.
+            <see cref="T:MelloSilveiraTools.WebApi.Application.Models.NdjsonException"/> receives special handling: it is logged via <see cref="T:Microsoft.Extensions.Logging.ILogger`1"/>
+            and the middleware returns without writing any response body, since NDJSON streaming may already have sent partial output to the 
+            client and rewriting the response would corrupt the stream.
             </remarks>
             <param name="next">The next middleware in the request pipeline.</param>
-            <param name="logger">Logger used to record handled streaming exceptions.</param>
         </member>
-        <member name="M:MelloSilveiraTools.WebApi.Application.Middlewares.ExceptionHandlingHttpMiddleware.#ctor(Microsoft.AspNetCore.Http.RequestDelegate,Microsoft.Extensions.Logging.ILogger)">
+        <member name="M:MelloSilveiraTools.WebApi.Application.Middlewares.ExceptionHandlingHttpMiddleware.#ctor(Microsoft.AspNetCore.Http.RequestDelegate)">
             <summary>
             Middleware that converts unhandled exceptions raised by the pipeline into a standard <see cref="T:Microsoft.AspNetCore.Mvc.ProblemDetails"/> JSON response.
             </summary>
             <remarks>
-            Exception-to-status mapping performed by <see cref="M:MelloSilveiraTools.WebApi.Application.Middlewares.ExceptionHandlingHttpMiddleware.InvokeAsync(Microsoft.AspNetCore.Http.HttpContext)"/>:
+            Exception-to-status mapping performed by <see cref="M:MelloSilveiraTools.WebApi.Application.Middlewares.ExceptionHandlingHttpMiddleware.InvokeAsync(Microsoft.AspNetCore.Http.HttpContext,Microsoft.Extensions.Logging.ILogger{MelloSilveiraTools.WebApi.Application.Middlewares.ExceptionHandlingHttpMiddleware})"/>:
             <list type="bullet">
               <item><description><see cref="T:System.UnauthorizedAccessException"/> → <see cref="F:MelloSilveiraTools.Core.Models.StatusCode.Unauthorized"/> (401).</description></item>
               <item><description><see cref="T:System.ArgumentException"/> or <see cref="T:System.InvalidOperationException"/> → <see cref="F:MelloSilveiraTools.Core.Models.StatusCode.BadRequest"/> (400).</description></item>
               <item><description><see cref="T:System.Collections.Generic.KeyNotFoundException"/> → <see cref="F:MelloSilveiraTools.Core.Models.StatusCode.NotFound"/> (404).</description></item>
               <item><description>Any other exception → <see cref="F:MelloSilveiraTools.Core.Models.StatusCode.UnknownError"/> (500).</description></item>
             </list>
-            <see cref="T:MelloSilveiraTools.WebApi.Application.Models.NdjsonException"/> receives special handling: it is logged via <paramref name="logger"/>
-            and the middleware returns without writing any response body, since NDJSON streaming may already
-            have sent partial output to the client and rewriting the response would corrupt the stream.
+            <see cref="T:MelloSilveiraTools.WebApi.Application.Models.NdjsonException"/> receives special handling: it is logged via <see cref="T:Microsoft.Extensions.Logging.ILogger`1"/>
+            and the middleware returns without writing any response body, since NDJSON streaming may already have sent partial output to the 
+            client and rewriting the response would corrupt the stream.
             </remarks>
             <param name="next">The next middleware in the request pipeline.</param>
-            <param name="logger">Logger used to record handled streaming exceptions.</param>
         </member>
-        <member name="M:MelloSilveiraTools.WebApi.Application.Middlewares.ExceptionHandlingHttpMiddleware.InvokeAsync(Microsoft.AspNetCore.Http.HttpContext)">
+        <member name="M:MelloSilveiraTools.WebApi.Application.Middlewares.ExceptionHandlingHttpMiddleware.InvokeAsync(Microsoft.AspNetCore.Http.HttpContext,Microsoft.Extensions.Logging.ILogger{MelloSilveiraTools.WebApi.Application.Middlewares.ExceptionHandlingHttpMiddleware})">
             <summary>
             Invokes the next middleware in the pipeline and translates any unhandled exception into an HTTP error response.
             </summary>
             <param name="context">The current HTTP context.</param>
+            <param name="logger">Logger used to record handled streaming exceptions.</param>
         </member>
         <member name="T:MelloSilveiraTools.WebApi.Application.Models.ApplicationConstants">
             <summary>

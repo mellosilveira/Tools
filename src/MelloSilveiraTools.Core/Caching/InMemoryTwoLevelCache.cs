@@ -52,6 +52,9 @@ public class InMemoryTwoLevelCache : ITwoLevelCache
 
     /// <inheritdoc/>
     public IAsyncEnumerable<(string Group, string Key, T Value)> StreamAll<T>(CancellationToken cancellationToken = default) => StreamAll<T>(null, null, cancellationToken);
+    
+    /// <inheritdoc/>
+    public IAsyncEnumerable<(string Group, string Key, object Value)> StreamAll(CancellationToken cancellationToken = default) => StreamAll<object>(null, null, cancellationToken);
 
     /// <inheritdoc/>
     public async IAsyncEnumerable<(string Group, string Key, T Value)> StreamAll<T>(
@@ -61,11 +64,13 @@ public class InMemoryTwoLevelCache : ITwoLevelCache
     {
         foreach (var (g, byKey) in _cache)
         {
-            if (!string.IsNullOrWhiteSpace(group) && g != group) continue;
+            if (!string.IsNullOrWhiteSpace(group) && g != group) 
+                continue;
 
             foreach (var (k, obj) in byKey)
             {
-                if (!string.IsNullOrWhiteSpace(key) && k != key) continue;
+                if (!string.IsNullOrWhiteSpace(key) && k != key)
+                    continue;
 
                 cancellationToken.ThrowIfCancellationRequested();
 

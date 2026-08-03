@@ -54,7 +54,7 @@ public interface IPluginService
     /// <summary>
     /// Clears the plugin cache entirely.
     /// </summary>
-    void Clear();
+    Task ClearAsync();
 
     /// <summary>
     /// Lists plugins available on disk that match the provided filters, returning registry information for each one.

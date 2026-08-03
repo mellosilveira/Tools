@@ -4,6 +4,152 @@
         <name>MelloSilveiraTools.Core</name>
     </assembly>
     <members>
+        <member name="T:MelloSilveiraTools.Core.Application.Commands.CommandBase`2">
+            <summary>
+            Represents the base for all commands in the application.
+            </summary>
+            <typeparam name="TRequest">Request type consumed by the command.</typeparam>
+            <typeparam name="TResult">Response type produced by the command.</typeparam>
+            <param name="validator"></param>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Application.Commands.CommandBase`2.#ctor(MelloSilveiraTools.Core.Validators.IValidator{`0})">
+            <summary>
+            Represents the base for all commands in the application.
+            </summary>
+            <typeparam name="TRequest">Request type consumed by the command.</typeparam>
+            <typeparam name="TResult">Response type produced by the command.</typeparam>
+            <param name="validator"></param>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Application.Commands.CommandBase`2.ExecuteAsync(`0)">
+            <summary>
+            The main method of all commands.
+            Asynchronously, orchestrates and validates the commands.
+            </summary>
+            <param name="request">The command request content.</param>
+            <returns>The command response.</returns>
+            <example>
+            <code>
+            var command = serviceProvider.GetRequiredService&lt;CreateUserCommand&gt;();
+            var response = await command.ExecuteAsync(new CreateUserRequest { Email = "user@example.com" });
+            if (!response.Success)
+                return BadRequest(response.ErrorMessages);
+            return StatusCode((int)response.StatusCode);
+            </code>
+            </example>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Application.Commands.CommandBase`2.ExecuteCommandAsync(`0)">
+            <summary>
+            Asynchronously executes the use-case domain logic for this command. Implementations should
+            rely on <see cref="T:Microsoft.Extensions.Logging.ILogger"/> (inherited from this base class) for diagnostic logging and
+            build their response using the <see cref="T:MelloSilveiraTools.Core.Models.Result"/> factory helpers
+            (<c>CreateSuccessOk</c>, <c>CreateNotFound</c>, <c>CreateUnknownError</c>, etc.) for
+            expected outcomes. Unexpected exceptions should be allowed to propagate — they are caught by
+            <see cref="M:MelloSilveiraTools.Core.Application.Commands.CommandBase`2.ExecuteAsync(`0)"/> and translated into a 500 Internal Server Error response.
+            </summary>
+            <param name="request">The request payload.</param>
+            <returns>The command response, populated with the outcome of the domain logic.</returns>
+        </member>
+        <member name="T:MelloSilveiraTools.Core.Application.Commands.CommandBaseWithData`2">
+            <summary>
+            Base class for commands that return an <see cref="T:MelloSilveiraTools.Core.Models.Result`1"/> carrying a single data payload.
+            </summary>
+            <typeparam name="TRequest">Request type consumed by the command.</typeparam>
+            <typeparam name="TResponseData">Type of the data payload returned by the command.</typeparam>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Application.Commands.CommandBaseWithData`2.#ctor(MelloSilveiraTools.Core.Validators.IValidator{`0})">
+            <summary>
+            Base class for commands that return an <see cref="T:MelloSilveiraTools.Core.Models.Result`1"/> carrying a single data payload.
+            </summary>
+            <typeparam name="TRequest">Request type consumed by the command.</typeparam>
+            <typeparam name="TResponseData">Type of the data payload returned by the command.</typeparam>
+        </member>
+        <member name="T:MelloSilveiraTools.Core.Application.Commands.ListedCommandBase`2">
+            <summary>
+            Base class for commands that return a list of items through <see cref="T:MelloSilveiraTools.Core.Models.ListedResult`1"/>.
+            </summary>
+            <typeparam name="TRequest">Request type consumed by the command.</typeparam>
+            <typeparam name="TResponseData">Type of each item returned by the command.</typeparam>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Application.Commands.ListedCommandBase`2.#ctor(MelloSilveiraTools.Core.Validators.IValidator{`0})">
+            <summary>
+            Base class for commands that return a list of items through <see cref="T:MelloSilveiraTools.Core.Models.ListedResult`1"/>.
+            </summary>
+            <typeparam name="TRequest">Request type consumed by the command.</typeparam>
+            <typeparam name="TResponseData">Type of each item returned by the command.</typeparam>
+        </member>
+        <member name="T:MelloSilveiraTools.Core.Application.Commands.PagedCommandBase`2">
+            <summary>
+            Base class for commands that return a paginated list of items through <see cref="T:MelloSilveiraTools.Core.Models.PagedResult`1"/>.
+            </summary>
+            <typeparam name="TRequest">Request type consumed by the command.</typeparam>
+            <typeparam name="TResponseData">Type of each item returned in the page.</typeparam>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Application.Commands.PagedCommandBase`2.#ctor(MelloSilveiraTools.Core.Validators.IValidator{`0})">
+            <summary>
+            Base class for commands that return a paginated list of items through <see cref="T:MelloSilveiraTools.Core.Models.PagedResult`1"/>.
+            </summary>
+            <typeparam name="TRequest">Request type consumed by the command.</typeparam>
+            <typeparam name="TResponseData">Type of each item returned in the page.</typeparam>
+        </member>
+        <member name="T:MelloSilveiraTools.Core.Application.Commands.CommandBaseWithDefaultResponse`1">
+            <summary>
+            Represents the base for all commands that uses the default response (<see cref="T:MelloSilveiraTools.Core.Models.Result"/>).
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Application.Commands.CommandBaseWithDefaultResponse`1.#ctor(MelloSilveiraTools.Core.Validators.IValidator{`0})">
+            <summary>
+            Represents the base for all commands that uses the default response (<see cref="T:MelloSilveiraTools.Core.Models.Result"/>).
+            </summary>
+        </member>
+        <member name="T:MelloSilveiraTools.Core.Application.Commands.CommandBaseWithoutRequest`1">
+            <summary>
+            Represents the base for all commands that does not use a request.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Application.Commands.CommandBaseWithoutRequest`1.ExecuteAsync">
+            <summary>
+            The main method of all commands.
+            Asynchronously, orchestrates and validates the commands.
+            </summary>
+            <returns>The command response.</returns>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Application.Commands.CommandBaseWithoutRequest`1.ExecuteCommandAsync">
+            <summary>
+            Asynchronously executes the use-case domain logic for this request-less command.
+            Implementations should use <see cref="T:Microsoft.Extensions.Logging.ILogger"/> for diagnostics and the
+            <see cref="T:MelloSilveiraTools.Core.Models.Result"/> factory helpers to build expected outcomes. Unexpected
+            exceptions should propagate — they are caught by <see cref="M:MelloSilveiraTools.Core.Application.Commands.CommandBaseWithoutRequest`1.ExecuteAsync"/> and translated
+            into a 500 Internal Server Error response.
+            </summary>
+            <returns>The command response carrying the outcome of the domain logic.</returns>
+        </member>
+        <member name="T:MelloSilveiraTools.Core.Application.Commands.DefaultCommandBase">
+            <summary>
+            Represents the base for all commands that does not use a request.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Application.Commands.DefaultCommandBase.ExecuteAsync">
+            <summary>
+            The main method of all commands.
+            Asynchronously, orchestrates and validates the commands.
+            </summary>
+            <returns>The command response.</returns>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Application.Commands.DefaultCommandBase.ExecuteCommandAsync">
+            <summary>
+            Asynchronously executes the use-case domain logic for this request-less command.
+            Implementations should use <see cref="T:Microsoft.Extensions.Logging.ILogger"/> for diagnostics and the
+            <see cref="T:MelloSilveiraTools.Core.Models.Result"/> factory helpers to build expected outcomes. Unexpected
+            exceptions should propagate — they are caught by <see cref="M:MelloSilveiraTools.Core.Application.Commands.DefaultCommandBase.ExecuteAsync"/> and translated
+            into a 500 Internal Server Error response.
+            </summary>
+            <returns>The command response carrying the outcome of the domain logic.</returns>
+        </member>
+        <member name="T:MelloSilveiraTools.Core.Application.Commands.RequestBase">
+            <summary>
+            Request content to all operations.
+            </summary>
+        </member>
         <member name="T:MelloSilveiraTools.Core.Caching.InMemorySingleLevelCache">
             <summary>
             Thread-safe in-memory implementation of <see cref="T:MelloSilveiraTools.Core.Caching.ISingleLevelCache"/>.
@@ -55,6 +201,9 @@
             <inheritdoc/>
         </member>
         <member name="M:MelloSilveiraTools.Core.Caching.InMemoryTwoLevelCache.StreamAll``1(System.Threading.CancellationToken)">
+            <inheritdoc/>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Caching.InMemoryTwoLevelCache.StreamAll(System.Threading.CancellationToken)">
             <inheritdoc/>
         </member>
         <member name="M:MelloSilveiraTools.Core.Caching.InMemoryTwoLevelCache.StreamAll``1(System.String,System.String,System.Threading.CancellationToken)">
@@ -142,6 +291,11 @@
             Streams every entry currently held in the cache.
             </summary>
         </member>
+        <member name="M:MelloSilveiraTools.Core.Caching.ITwoLevelCache.StreamAll(System.Threading.CancellationToken)">
+            <summary>
+            Streams every entry currently held in the cache.
+            </summary>
+        </member>
         <member name="M:MelloSilveiraTools.Core.Caching.ITwoLevelCache.StreamAll``1(System.String,System.String,System.Threading.CancellationToken)">
             <summary>
             Streams entries filtered by <paramref name="group"/> and/or <paramref name="key"/>.
@@ -158,17 +312,18 @@
             Provides extension methods to register services from the MelloSilveiraTools.Core package.
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.Core.CoreDependencyInjection.AddCoreServices(Microsoft.Extensions.DependencyInjection.IServiceCollection,MelloSilveiraTools.Core.Services.Encryption.EncryptionSettings,MelloSilveiraTools.Core.ResiliencePipelines.ResiliencePipelineSettings,MelloSilveiraTools.Core.Logging.LoggerSettings,System.Boolean)">
-            <inheritdoc cref="M:MelloSilveiraTools.Core.CoreDependencyInjection.&lt;G&gt;$7B30185E57B8298C6754F16C0BCF4773.AddCoreServices(MelloSilveiraTools.Core.Services.Encryption.EncryptionSettings,MelloSilveiraTools.Core.ResiliencePipelines.ResiliencePipelineSettings,MelloSilveiraTools.Core.Logging.LoggerSettings,System.Boolean)"/>
+        <member name="M:MelloSilveiraTools.Core.CoreDependencyInjection.AddCoreServices(Microsoft.Extensions.DependencyInjection.IServiceCollection,MelloSilveiraTools.Core.Services.Encryption.EncryptionSettings,MelloSilveiraTools.Core.ResiliencePipelines.ResiliencePipelineSettings,MelloSilveiraTools.Core.Services.Email.EmailSettings,MelloSilveiraTools.Core.Logging.LoggerSettings,System.Boolean)">
+            <inheritdoc cref="M:MelloSilveiraTools.Core.CoreDependencyInjection.&lt;G&gt;$7B30185E57B8298C6754F16C0BCF4773.AddCoreServices(MelloSilveiraTools.Core.Services.Encryption.EncryptionSettings,MelloSilveiraTools.Core.ResiliencePipelines.ResiliencePipelineSettings,MelloSilveiraTools.Core.Services.Email.EmailSettings,MelloSilveiraTools.Core.Logging.LoggerSettings,System.Boolean)"/>
         </member>
-        <member name="M:MelloSilveiraTools.Core.CoreDependencyInjection.&lt;G&gt;$7B30185E57B8298C6754F16C0BCF4773.AddCoreServices(MelloSilveiraTools.Core.Services.Encryption.EncryptionSettings,MelloSilveiraTools.Core.ResiliencePipelines.ResiliencePipelineSettings,MelloSilveiraTools.Core.Logging.LoggerSettings,System.Boolean)">
+        <member name="M:MelloSilveiraTools.Core.CoreDependencyInjection.&lt;G&gt;$7B30185E57B8298C6754F16C0BCF4773.AddCoreServices(MelloSilveiraTools.Core.Services.Encryption.EncryptionSettings,MelloSilveiraTools.Core.ResiliencePipelines.ResiliencePipelineSettings,MelloSilveiraTools.Core.Services.Email.EmailSettings,MelloSilveiraTools.Core.Logging.LoggerSettings,System.Boolean)">
             <summary>
             Registers core services: settings, SMTP resilience pipeline, file logger and encryption service.
             </summary>
             <param name="encryptionSettings">Settings used by the encryption service.</param>
             <param name="smtpResiliencePipelineSettings">Settings that parameterize the resilience pipelines.</param>
+            <param name="emailSettings">Settings used to send e-mails through an SMTP server.</param>
             <param name="loggerSettings">Settings used by logger service.</param>
-            <param name="useDefaultLogger">Indicates if should use the </param>
+            <param name="useDefaultLogger">Indicates if should use the default logger.</param>
             <returns>The same <paramref name="services"/> instance to allow call chaining.</returns>
         </member>
         <member name="T:MelloSilveiraTools.Core.ExtensionMethods.ArrayExtension">
