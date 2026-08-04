@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Http;
 
 namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Commands.CurveFitting;
 
-public record CurveFitRequest : RequestBase
+public record FitCurveRequest : RequestBase
 {
     public required string MechanicalModelName { get; init; }
     public required GenericMechanicalModelInput InitialInput { get; init; }

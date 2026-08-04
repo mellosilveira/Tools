@@ -1,30 +1,32 @@
-﻿using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Commands.CurveFitting;
+﻿using MelloSilveiraTools.Core.Models;
+using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Commands.CurveFitting;
+using MelloSilveiraTools.WebApi.ExtensionMethods;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using System.Net.Mime;
 
 namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Controllers;
 
-[Route("api/v1/[controller]")]
-public class CurveFittingController : Controller
+/// <summary>
+/// Exposes HTTP endpoints for performing curve fitting optimizations on mechanical models.
+/// </summary>
+[Route("api/V1/curve-fitting")]
+[ApiController]
+public class CurveFittingController : ControllerBase
 {
-    //[HttpPost("fit")]
-    //[ProducesResponseType(StatusCodes.Status200OK)]
-    //[ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    //public Task<ActionResult<AddResult>> FitCurve(
-    //    [FromBody] CurveFitRequest request)
-    //{
-    //    if (!ModelState.IsValid)
-    //        return BadRequest(ModelState);
-
-    //    // The Application Service handles mapping from DTOs to Domain Records 
-    //    // and routes to the correct IModelParameterMapper based on request.ModelType.
-    //    var result = curveFittingService.ProcessCurveFit(request);
-
-    //    if (!result.IsSuccessful)
-    //    {
-    //        return UnprocessableEntity(result);
-    //    }
-
-    //    return Ok(result);
-    //}
+    /// <summary>
+    /// Performs curve fitting optimization using experimental data provided via a CSV file.
+    /// </summary>
+    /// <param name="command">Command that handles the curve fitting execution.</param>
+    /// <param name="request">The form-data request containing the model configurations and the CSV file.</param>
+    [Consumes(MediaTypeNames.Multipart.FormData)]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    [HttpPost("fit")]
+    public async Task<ActionResult<Result<FitCurveResultData>>> FitCurve(
+        [FromServices] FitCurve command,
+        [FromForm] FitCurveRequest request)
+        => await command.ExecuteAsync(request).BuildHttpResponseAsync().ConfigureAwait(false);
 }

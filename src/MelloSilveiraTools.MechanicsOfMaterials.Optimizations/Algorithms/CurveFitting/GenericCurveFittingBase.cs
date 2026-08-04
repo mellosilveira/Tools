@@ -2,7 +2,6 @@
 using MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Mappers;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Models.CurveFitting;
-using System;
 
 namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Algorithms.CurveFitting;
 

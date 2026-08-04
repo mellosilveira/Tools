@@ -1,6 +1,5 @@
 ﻿using MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels;
 using MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.QuasiLinear;
-using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Algorithms.CurveFitting;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Mappers;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Models.CurveFitting;
 

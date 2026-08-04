@@ -1,6 +1,6 @@
 ﻿namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Commands.CurveFitting;
 
-public record CurveFitResultData
+public record FitCurveResultData
 {
     // TODO: CRIAR CONSTRUTOR BASEADO NO USO.
 
