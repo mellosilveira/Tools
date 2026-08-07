@@ -1,6 +1,6 @@
 using MelloSilveiraTools.Mathematics.Factories.Functions;
 using MelloSilveiraTools.Mathematics.Models.NumericalMethods;
-using MelloSilveiraTools.Mathematics.NumericalMethods.Derivative;
+using MelloSilveiraTools.Mathematics.NumericalMethods.Differentiations;
 using MelloSilveiraTools.Mathematics.NumericalMethods.DifferentialEquation;
 using MelloSilveiraTools.Mathematics.NumericalMethods.Integral;
 using MelloSilveiraTools.Mathematics.NumericalMethods.RootFindingAlgorithms;
@@ -22,7 +22,7 @@ public static class MathematicsDependencyInjection
     public static IServiceCollection AddMathematicsServices(this IServiceCollection services)
         => services
             // Register numerical methods.
-            .AddSingleton<IDerivative, Derivative>()
+            .AddSingleton<IDifferentiation, Differentiation>()
             .AddKeyedSingleton<IDifferentialEquationMethod, NewmarkMethod>(DifferentialEquationMethodType.Newmark)
             .AddKeyedSingleton<IDifferentialEquationMethod, NewmarkBetaMethod>(DifferentialEquationMethodType.NewmarkBeta)
             .AddSingleton<IIntegration, SimpsonRuleIntegration>()

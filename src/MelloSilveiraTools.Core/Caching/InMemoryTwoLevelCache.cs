@@ -79,7 +79,7 @@ public class InMemoryTwoLevelCache : ITwoLevelCache
             }
         }
 
-        await Task.CompletedTask;
+        await Task.CompletedTask.ConfigureAwait(false);
     }
 
     /// <inheritdoc/>

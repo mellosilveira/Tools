@@ -1,9 +1,9 @@
-﻿namespace MelloSilveiraTools.Mathematics.NumericalMethods.Derivative;
+﻿namespace MelloSilveiraTools.Mathematics.NumericalMethods.Differentiations;
 
 /// <summary>
 /// Represents the numerical derivative.
 /// </summary>
-public interface IDerivative
+public interface IDifferentiation
 {
     /// <summary>
     /// Calculates the derivative of a function.

@@ -1,5 +1,5 @@
 ﻿using MelloSilveiraTools.Mathematics.Models;
-using MelloSilveiraTools.Mathematics.NumericalMethods.Derivative;
+using MelloSilveiraTools.Mathematics.NumericalMethods.Differentiations;
 using MelloSilveiraTools.Mathematics.NumericalMethods.Integral;
 using MelloSilveiraTools.MechanicsOfMaterials.Converters.MechanicalParameter;
 using MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels;
@@ -9,13 +9,13 @@ namespace MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.V
 
 /// <inheritdoc cref="IFungModelCalculator"/>
 /// <param name="integration">See reference at <see cref="IIntegration"/>.</param>
-/// <param name="derivative">See reference at <see cref="IDerivative"/>.</param>
+/// <param name="differentiation">See reference at <see cref="IDifferentiation"/>.</param>
 /// <param name="parameterConverter">See reference at <see cref="IMechanicalParameterConverter"/>.</param>
 public sealed class FungModelCalculator(
     IIntegration integration,
-    IDerivative derivative,
+    IDifferentiation differentiation,
     IMechanicalParameterConverter parameterConverter)
-    : QuasiLinearModelCalculator<FungConstitutiveParameters, ReducedRelaxationFunction>(integration, derivative, parameterConverter), IFungModelCalculator
+    : QuasiLinearModelCalculator<FungConstitutiveParameters, ReducedRelaxationFunction>(integration, differentiation, parameterConverter), IFungModelCalculator
 {
     private const double EquationE1MaximumFinalTime = 11.4;
 

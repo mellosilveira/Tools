@@ -101,7 +101,7 @@ public static class EnumerableExtensions
                 {
                     try
                     {
-                        await asyncAction(item);
+                        await asyncAction(item).ConfigureAwait(false);
                     }
                     catch (Exception ex)
                     {
@@ -141,7 +141,7 @@ public static class EnumerableExtensions
                 {
                     try
                     {
-                        await asyncAction(item);
+                        await asyncAction(item).ConfigureAwait(false);
                     }
                     finally
                     {

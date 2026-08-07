@@ -43,7 +43,7 @@ public static class ResultExtensions
         /// <summary>
         /// Awaits the condition task and, when it resolves to <c>true</c>, appends <paramref name="errorMessage"/> to the result.
         /// </summary>
-        public async Task<T> AddErrorIf(Task<bool> condition, string errorMessage, StatusCode statusCode = StatusCode.BadRequest) => await condition
+        public async Task<T> AddErrorIf(Task<bool> condition, string errorMessage, StatusCode statusCode = StatusCode.BadRequest) => await condition.ConfigureAwait(false)
             ? result.AddError(errorMessage, statusCode)
             : result;
 

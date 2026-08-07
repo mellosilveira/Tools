@@ -1,7 +1,7 @@
-﻿namespace MelloSilveiraTools.Mathematics.NumericalMethods.Derivative;
+﻿namespace MelloSilveiraTools.Mathematics.NumericalMethods.Differentiations;
 
 /// <inheritdoc/>
-public class Derivative : IDerivative
+public class Differentiation : IDifferentiation
 {
     /// <inheritdoc/>
     public double Calculate(Func<double, double> equation, double timeStep, double time)

@@ -58,7 +58,7 @@ public class PostgresRepository(ISqlProvider sqlProvider, PostgresResiliencePipe
         {
             await using NpgsqlConnection connection = await GetNewOpenedConnectionAsync(cancellationToken).ConfigureAwait(false);
             return await connection.ExecuteScalarAsync<long>(sql, parameters, cancellationToken).ConfigureAwait(false);
-        });
+        }).ConfigureAwait(false);
     }
 
     /// <inheritdoc/>
@@ -74,7 +74,7 @@ public class PostgresRepository(ISqlProvider sqlProvider, PostgresResiliencePipe
             await using NpgsqlConnection connection = await GetNewOpenedConnectionAsync(cancellationToken).ConfigureAwait(false);
             long count = await connection.ExecuteScalarAsync<long>(sql, parameters, DatabaseSettings.UnitOperationTimeoutInSeconds, cancellationToken).ConfigureAwait(false);
             return count > 0;
-        });
+        }).ConfigureAwait(false);
     }
 
     /// <inheritdoc/>
@@ -89,7 +89,7 @@ public class PostgresRepository(ISqlProvider sqlProvider, PostgresResiliencePipe
             await using NpgsqlConnection connection = await GetNewOpenedConnectionAsync(cancellationToken).ConfigureAwait(false);
             long count = await connection.ExecuteScalarAsync<long>(sql, parameters, cancellationToken).ConfigureAwait(false);
             return count > 0;
-        });
+        }).ConfigureAwait(false);
     }
 
     /// <inheritdoc/>
@@ -102,7 +102,7 @@ public class PostgresRepository(ISqlProvider sqlProvider, PostgresResiliencePipe
             await using NpgsqlConnection connection = await GetNewOpenedConnectionAsync(cancellationToken).ConfigureAwait(false);
             await using NpgsqlCommand command = new(sql, connection);
             await command.ExecuteNonQueryAsync(cancellationToken).ConfigureAwait(false);
-        });
+        }).ConfigureAwait(false);
     }
 
     /// <inheritdoc/>
@@ -117,7 +117,7 @@ public class PostgresRepository(ISqlProvider sqlProvider, PostgresResiliencePipe
 
             command.Parameters.AddWithValue("@Id", NpgsqlDbType.Bigint, id);
             await command.ExecuteNonQueryAsync(cancellationToken).ConfigureAwait(false);
-        });
+        }).ConfigureAwait(false);
     }
 
     /// <inheritdoc/>
@@ -137,7 +137,7 @@ public class PostgresRepository(ISqlProvider sqlProvider, PostgresResiliencePipe
             }
 
             await command.ExecuteNonQueryAsync(cancellationToken).ConfigureAwait(false);
-        });
+        }).ConfigureAwait(false);
     }
 
     /// <inheritdoc/>
@@ -155,7 +155,7 @@ public class PostgresRepository(ISqlProvider sqlProvider, PostgresResiliencePipe
         {
             await using NpgsqlConnection connection = await GetNewOpenedConnectionAsync(cancellationToken).ConfigureAwait(false);
             return await connection.QueryFirstOrDefaultAsync<TEntity>(sql, parameters, DatabaseSettings.UnitOperationTimeoutInSeconds, cancellationToken).ConfigureAwait(false);
-        });
+        }).ConfigureAwait(false);
     }
 
     /// <inheritdoc/>
@@ -170,7 +170,7 @@ public class PostgresRepository(ISqlProvider sqlProvider, PostgresResiliencePipe
         {
             await using NpgsqlConnection connection = await GetNewOpenedConnectionAsync(cancellationToken).ConfigureAwait(false);
             return await connection.QueryFirstOrDefaultAsync<TEntity>(sql, parameters, DatabaseSettings.UnitOperationTimeoutInSeconds, cancellationToken).ConfigureAwait(false);
-        });
+        }).ConfigureAwait(false);
     }
 
     /// <inheritdoc/>
@@ -199,7 +199,7 @@ public class PostgresRepository(ISqlProvider sqlProvider, PostgresResiliencePipe
             return await connection
                 .QueryFirstOrDefaultAsync<TEntity>(sql, parameters, DatabaseSettings.UnitOperationTimeoutInSeconds, cancellationToken)
                 .ConfigureAwait(false);
-        });
+        }).ConfigureAwait(false);
     }
 
     private IAsyncEnumerable<TEntity> StreamAsync<TEntity, TFilter>(string baseSql, TFilter filter, Pagination? pagination, CancellationToken cancellationToken)
@@ -231,7 +231,7 @@ public class PostgresRepository(ISqlProvider sqlProvider, PostgresResiliencePipe
                 .ConfigureAwait(false);
 
             return Convert.ToInt64(insertedIdentifier!);
-        });
+        }).ConfigureAwait(false);
     }
 
     /// <inheritdoc/>
@@ -255,7 +255,7 @@ public class PostgresRepository(ISqlProvider sqlProvider, PostgresResiliencePipe
                 ids[i++] = reader.GetInt64(0);
 
             return ids;
-        });
+        }).ConfigureAwait(false);
     }
 
     /// <inheritdoc/>
@@ -279,7 +279,7 @@ public class PostgresRepository(ISqlProvider sqlProvider, PostgresResiliencePipe
             long id = reader.GetInt64(0);
             bool inserted = reader.GetBoolean(1);
             return inserted ? Result.CreateSuccessOk(id) : Result.CreateConflict(id);
-        });
+        }).ConfigureAwait(false);
     }
 
     /// <inheritdoc/>
@@ -298,7 +298,7 @@ public class PostgresRepository(ISqlProvider sqlProvider, PostgresResiliencePipe
                 .ConfigureAwait(false);
 
             return Convert.ToInt64(upsertedId!);
-        });
+        }).ConfigureAwait(false);
     }
 
     /// <inheritdoc/>
@@ -330,7 +330,7 @@ public class PostgresRepository(ISqlProvider sqlProvider, PostgresResiliencePipe
             } while (await reader.NextResultAsync(cancellationToken).ConfigureAwait(false));
 
             return ids.ToArray();
-        });
+        }).ConfigureAwait(false);
     }
 
     /// <inheritdoc/>
@@ -348,7 +348,7 @@ public class PostgresRepository(ISqlProvider sqlProvider, PostgresResiliencePipe
                 .ExecuteNonQueryAsync(cancellationToken)
                 .ConfigureAwait(false);
             return affectedRows > 0;
-        });
+        }).ConfigureAwait(false);
     }
 
     /// <summary>

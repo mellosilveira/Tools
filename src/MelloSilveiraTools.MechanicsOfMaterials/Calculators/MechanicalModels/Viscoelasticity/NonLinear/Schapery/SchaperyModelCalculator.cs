@@ -1,6 +1,6 @@
 ﻿using MelloSilveiraTools.Mathematics.Models;
 using MelloSilveiraTools.Mathematics.Models.NumericalMethods;
-using MelloSilveiraTools.Mathematics.NumericalMethods.Derivative;
+using MelloSilveiraTools.Mathematics.NumericalMethods.Differentiations;
 using MelloSilveiraTools.Mathematics.NumericalMethods.Integral;
 using MelloSilveiraTools.MechanicsOfMaterials.Attributes;
 using MelloSilveiraTools.MechanicsOfMaterials.Converters.MechanicalParameter;
@@ -12,11 +12,11 @@ namespace MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.V
 
 /// <inheritdoc cref="ISchaperyModelCalculator"/>
 /// <param name="integration">See reference at <see cref="IIntegration"/>.</param>
-/// <param name="derivative">See reference at <see cref="IDerivative"/>.</param>
+/// <param name="differentiation">See reference at <see cref="IDifferentiation"/>.</param>
 /// <param name="parameterConverter">See reference at <see cref="IMechanicalParameterConverter"/>.</param>
 public sealed class SchaperyModelCalculator(
     IIntegration integration,
-    IDerivative derivative,
+    IDifferentiation differentiation,
     IMechanicalParameterConverter parameterConverter)
     : ISchaperyModelCalculator
 {
@@ -142,7 +142,7 @@ public sealed class SchaperyModelCalculator(
             stress = input.ConstitutiveParameters.He!.Calculate(strain) * input.ConstitutiveParameters.Ge * strain
                 + input.ConstitutiveParameters.H1!.Calculate(strain) * integration.Calculate((integrationTime) =>
                     CalculateTransientRelaxationFunction(input, CalculateReducedTimeFunction(input, time) - CalculateReducedTimeFunction(input, integrationTime))
-                    * derivative.Calculate((derivativeTime) =>
+                    * differentiation.Calculate((derivativeTime) =>
                     {
                         double derivativeDisplacement = input.Displacement!.CalculateValue(derivativeTime);
                         double derivativeStrain = parameterConverter.CalculateStrainFromDisplacement(input.Specimen!, derivativeDisplacement);
@@ -188,7 +188,7 @@ public sealed class SchaperyModelCalculator(
         return input.ConstitutiveParameters.He!.Calculate(strain.Value) * input.ConstitutiveParameters.Ge * strain.Value
             + input.ConstitutiveParameters.H1!.Calculate(strain.Value) * integration.Calculate((integrationTime) =>
                 CalculateTransientRelaxationFunction(input, CalculateReducedTimeFunction(input, time) - CalculateReducedTimeFunction(input, integrationTime))
-                * derivative.Calculate((derivativeTime) =>
+                * differentiation.Calculate((derivativeTime) =>
                 {
                     double experimentalStrain = input.Strain!.CalculateValue(derivativeTime);
                     return input.ConstitutiveParameters.H2!.Calculate(experimentalStrain) * experimentalStrain;

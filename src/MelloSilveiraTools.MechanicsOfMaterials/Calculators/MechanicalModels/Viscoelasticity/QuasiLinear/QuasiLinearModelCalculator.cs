@@ -1,6 +1,6 @@
 ﻿using MelloSilveiraTools.Mathematics.Models;
 using MelloSilveiraTools.Mathematics.Models.NumericalMethods;
-using MelloSilveiraTools.Mathematics.NumericalMethods.Derivative;
+using MelloSilveiraTools.Mathematics.NumericalMethods.Differentiations;
 using MelloSilveiraTools.Mathematics.NumericalMethods.Integral;
 using MelloSilveiraTools.MechanicsOfMaterials.Attributes;
 using MelloSilveiraTools.MechanicsOfMaterials.Converters.MechanicalParameter;
@@ -12,11 +12,11 @@ namespace MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.V
 
 /// <inheritdoc cref="IQuasiLinearModelCalculator{TConstitutiveParameters, TReducedRelaxationFunction}"/>
 /// <param name="integration">See reference at <see cref="IIntegration"/>.</param>
-/// <param name="derivative">See reference at <see cref="IDerivative"/>.</param>
+/// <param name="differentiation">See reference at <see cref="IDifferentiation"/>.</param>
 /// <param name="parameterConverter">See reference at <see cref="IMechanicalParameterConverter"/>.</param>
 public abstract class QuasiLinearModelCalculator<TConstitutiveParameters, TReducedRelaxationFunction>(
     IIntegration integration,
-    IDerivative derivative,
+    IDifferentiation differentiation,
     IMechanicalParameterConverter parameterConverter)
     : IQuasiLinearModelCalculator<TConstitutiveParameters, TReducedRelaxationFunction>
     where TConstitutiveParameters : QuasiLinearConstitutiveParameters<TReducedRelaxationFunction>, new()
@@ -182,7 +182,7 @@ public abstract class QuasiLinearModelCalculator<TConstitutiveParameters, TReduc
                 throw new NotImplementedException($"The logic for calculating the stress while disregarding the ramp time and considering creep is not implemented in '{GetType().Name}'.");
         }
 
-        return derivative.Calculate(
+        return differentiation.Calculate(
             (derivativeTime) => Integration.Calculate(
                 (integrationTime) =>
                 {

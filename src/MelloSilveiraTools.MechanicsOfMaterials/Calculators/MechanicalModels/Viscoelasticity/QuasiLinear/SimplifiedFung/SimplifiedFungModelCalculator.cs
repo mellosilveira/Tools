@@ -1,6 +1,6 @@
 ﻿using MelloSilveiraTools.Mathematics.Expressions;
 using MelloSilveiraTools.Mathematics.Models;
-using MelloSilveiraTools.Mathematics.NumericalMethods.Derivative;
+using MelloSilveiraTools.Mathematics.NumericalMethods.Differentiations;
 using MelloSilveiraTools.Mathematics.NumericalMethods.Integral;
 using MelloSilveiraTools.MechanicsOfMaterials.Converters.MechanicalParameter;
 using MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels;
@@ -10,13 +10,13 @@ namespace MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.V
 
 /// <inheritdoc cref="ISimplifiedFungModelCalculator"/>
 /// <param name="integration">See reference at <see cref="IIntegration"/>.</param>
-/// <param name="derivative">See reference at <see cref="IDerivative"/>.</param>
+/// <param name="differentiation">See reference at <see cref="IDifferentiation"/>.</param>
 /// <param name="parameterConverter">See reference at <see cref="IMechanicalParameterConverter"/>.</param>
 public sealed class SimplifiedFungModelCalculator(
     IIntegration integration,
-    IDerivative derivative,
+    IDifferentiation differentiation,
     IMechanicalParameterConverter parameterConverter)
-    : QuasiLinearModelCalculator<SimplifiedFungConstitutiveParameters, PronySeries>(integration, derivative, parameterConverter), ISimplifiedFungModelCalculator
+    : QuasiLinearModelCalculator<SimplifiedFungConstitutiveParameters, PronySeries>(integration, differentiation, parameterConverter), ISimplifiedFungModelCalculator
 {
     /// <inheritdoc/>
     public override double CalculateReducedRelaxationFunction(MechanicalModelInput<SimplifiedFungConstitutiveParameters> input, double time)

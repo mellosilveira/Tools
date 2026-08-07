@@ -180,7 +180,7 @@ Inside `MelloSilveiraTools.Plugins/Application/Operations/Plugins/`:
 
 - *Functions* — `Function` abstract class with lazy `Derivative` / `Integral` properties. Implementations: `ConstantFunction`, `PolynomialFunction`, `ExponencialFunction`, `SineFunction`, `CosineFunction`, `PowerLaw`, `GenericFunction`. `FunctionFactory` dispatches by `FunctionType` enum.
 - *Expressions* — `Expression` abstract class (sum of `Function` instances); `PronySeries` concrete expression.
-- *Numerical methods* — `SimpsonRuleIntegration` (`IIntegration`); `Derivative` (`IDerivative`); `BisectionMethod`, `BrentMethod`, `RootFinding`, `StepByStepMethod` (all `IRootFinding`).
+- *Numerical methods* — `SimpsonRuleIntegration` (`IIntegration`); `Differentiation` (`IDifferentiation`); `BisectionMethod`, `BrentMethod`, `RootFinding`, `StepByStepMethod` (all `IRootFinding`).
 - *Statistics* — `IStatisticsCalculator` / `StatisticsCalculator`.
 - *Geometry/utilities* — `Point3D`, `Vector3D`, `Vector3DExtension`, `DoubleExtensions`, `UnitConverter`, `CustomMath`, `MathematicConstants`.
 
