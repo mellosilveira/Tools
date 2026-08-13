@@ -15,11 +15,8 @@ public class Test
     [MemberData(nameof(GetTestData))]
     public void TestMethod(SegmentType currentType, ExperimentalDataPoint[] buffer, Dictionary<SegmentType, ExperimentalDataPoint[]> expected)
     {
-        // Arrange
-        ExperimentalDataPoint basePoint = new(0.0, 0.0, 0.0);
-
         // Act
-        var result = _processor.DetermineSegmentType(currentType, buffer, basePoint, _options);
+        var result = _processor.DetermineSegmentType(currentType, buffer, _options);
 
         // Assert
         Assert.Equal(expected.Keys.Count, result.Keys.Count);

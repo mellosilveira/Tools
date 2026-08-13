@@ -147,67 +147,39 @@ public class ExperimentalDataProcessor(
         _ => false
     };
 
-    public Dictionary<SegmentType, ExperimentalDataPoint[]> DetermineSegmentType(
-        SegmentType currentType,
-        ExperimentalDataPoint[] buffer,
-        ExperimentalDataPoint basePoint,
-        ExperimentalDataProcessingOptions options)
+    public Dictionary<SegmentType, ExperimentalDataPoint[]> DetermineSegmentType(SegmentType currentType, ExperimentalDataPoint[] buffer, ExperimentalDataProcessingOptions options)
     {
-        int minStrainIndex = -1, maxStrainIndex = -1;
-        double minStrain = double.MaxValue, maxStrain = double.MinValue;
+        int minStrainIndex = 0, maxStrainIndex = 0;
+        double minStrain = buffer[0].Strain, maxStrain = buffer[0].Strain;
 
-        for (int i = 0; i < buffer.Length; i++)
+        for (int i = 1; i < buffer.Length; i++)
         {
-            double strainDiff = buffer[i].Strain - (i == 0 ? basePoint.Strain : buffer[i - 1].Strain);
+            double strainDiff = buffer[i].Strain - buffer[i - 1].Strain;
             if (Math.Abs(strainDiff) < options.Tolerance)
             {
-                if (currentType == SegmentType.Relaxation) 
-                { 
-                    maxStrain = buffer[i].Strain; 
-                    maxStrainIndex = i; 
-                }
-                else if (currentType == SegmentType.Recovery) 
+                if (currentType == SegmentType.Relaxation)
                 {
-                    minStrain = buffer[i].Strain; 
-                    minStrainIndex = i; 
+                    maxStrain = buffer[i].Strain;
+                    maxStrainIndex = i;
+                }
+                else if (currentType == SegmentType.Recovery)
+                {
+                    minStrain = buffer[i].Strain;
+                    minStrainIndex = i;
                 }
             }
             else
             {
-                if (buffer[i].Strain > maxStrain) 
+                if (buffer[i].Strain > maxStrain)
                 {
-                    maxStrain = buffer[i].Strain; 
-                    maxStrainIndex = i; 
+                    maxStrain = buffer[i].Strain;
+                    maxStrainIndex = i;
                 }
-                
-                if (buffer[i].Strain < minStrain) 
-                {
-                    minStrain = buffer[i].Strain; 
-                    minStrainIndex = i; 
-                }
-            }
-        }
 
-        if (minStrainIndex == -1 && maxStrainIndex == -1)
-        {
-            logger.LogError("No valid strain indices found. Base point: {@BasePoint}", basePoint);
-            throw new InvalidOperationException("No valid strain indices found.");
-        }
-
-        if (minStrainIndex == -1 || maxStrainIndex == -1)
-        {
-            for (int i = 0; i < buffer.Length; i++)
-            {
-                if (minStrainIndex == -1 || buffer[i].Strain < minStrain) 
+                if (buffer[i].Strain < minStrain)
                 {
-                    minStrain = buffer[i].Strain; 
-                    minStrainIndex = i; 
-                }
-                
-                if (maxStrainIndex == -1 || buffer[i].Strain > maxStrain) 
-                {
-                    maxStrain = buffer[i].Strain; 
-                    maxStrainIndex = i; 
+                    minStrain = buffer[i].Strain;
+                    minStrainIndex = i;
                 }
             }
         }
@@ -245,11 +217,11 @@ public class ExperimentalDataProcessor(
     }
 
     private Dictionary<SegmentType, ExperimentalDataPoint[]> SliceBuffer(
-        ExperimentalDataPoint[] points, 
-        int startIndex, 
-        int endIndex, 
-        SegmentType segmentTypeBefore, 
-        SegmentType activeSegmentyType, 
+        ExperimentalDataPoint[] points,
+        int startIndex,
+        int endIndex,
+        SegmentType segmentTypeBefore,
+        SegmentType activeSegmentyType,
         SegmentType segmentTypeAfter)
     {
         if (startIndex == 0 && endIndex == points.Length - 1)
