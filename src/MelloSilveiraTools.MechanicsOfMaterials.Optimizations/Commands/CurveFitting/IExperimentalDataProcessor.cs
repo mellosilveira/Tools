@@ -3,6 +3,7 @@ using MelloSilveiraTools.Mathematics.Extensions;
 using MelloSilveiraTools.Mathematics.Models;
 using MelloSilveiraTools.Mathematics.NumericalMethods.Differentiations;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Models.CurveFitting;
+using Microsoft.Extensions.FileSystemGlobbing.Internal.PathSegments;
 using Microsoft.Extensions.Logging;
 using System.Runtime.CompilerServices;
 
@@ -23,17 +24,22 @@ public readonly record struct ProcessedDataPoint(
     double StrainAcceleration,
     double Stress,
     double StressRate,
-    double StressAcceleration,
-    SegmentType SegmentType)
+    double StressAcceleration)
 {
     public static implicit operator ExperimentalDataPoint(ProcessedDataPoint point) => new(point.Time, point.Strain, point.Stress);
+}
+
+public readonly record struct SegmentedDataPoint(SegmentType SegmentType, ProcessedDataPoint ProcessedDataPoint)
+{
+    public static implicit operator ExperimentalDataPoint(SegmentedDataPoint point) => point.ProcessedDataPoint;
+    public static implicit operator ProcessedDataPoint(SegmentedDataPoint point) => point.ProcessedDataPoint;
 }
 
 public record ExperimentalDataProcessingOptions(
     double StartTimeThreshold,
     ushort BufferSize = 10,
-    double RelativeTimeTolerance = MathematicConstants.RelativeTolerance,
-    double StrainTolerance = MathematicConstants.Tolerance,
+    double Tolerance = MathematicConstants.Tolerance,
+    double RelativeTolerance = MathematicConstants.RelativeTolerance,
     double DerivativeTolerance = MathematicConstants.Tolerance,
     double SkipTimeStep = 0);
 
@@ -80,7 +86,7 @@ public class ExperimentalDataProcessor(
                 var (stressTime, stress) = ParseLine(stressLine);
 
                 // Skip point if timestamps do not match within the tolerance
-                if (time.RelativeAbsolutDifference(stressTime) > options.RelativeTimeTolerance)
+                if (time.RelativeAbsolutDifference(stressTime) > options.RelativeTolerance)
                 {
                     logger.LogTrace("Skipping point at StrainTime={StrainTime} and StressTime={StressTime} due to time mismatch.", time, stressTime);
                     continue;
@@ -90,10 +96,10 @@ public class ExperimentalDataProcessor(
                 firstValidTime ??= time;
                 double normalizedTime = time - firstValidTime.Value;
 
-                if (strain <= options.StrainTolerance)
+                if (strain <= options.Tolerance)
                 {
                     logger.LogTrace("Skipping point at StrainTime={StrainTime} and Strain={Strain} due to non-positive strain.", time, strain);
-                    previousPoint = new(normalizedTime, strain, StrainRate: 0, StrainAcceleration: 0, stress, StressRate: 0, StressAcceleration: 0, SegmentType.Unknown);
+                    previousPoint = new(normalizedTime, strain, StrainRate: 0, StrainAcceleration: 0, stress, StressRate: 0, StressAcceleration: 0);
                     continue;
                 }
 
@@ -141,196 +147,121 @@ public class ExperimentalDataProcessor(
         _ => false
     };
 
-    public Dictionary<SegmentType, int[]> DetermineSegmentType2(
+    public Dictionary<SegmentType, ExperimentalDataPoint[]> DetermineSegmentType(
         SegmentType currentType,
-        List<ExperimentalDataPoint> buffer,
-        ProcessedDataPoint basePoint,
+        ExperimentalDataPoint[] buffer,
+        ExperimentalDataPoint basePoint,
         ExperimentalDataProcessingOptions options)
     {
-        int minStrainIndex = -1, maxStrainIndex = -1, minStressIndex = -1, maxStressIndex = -1;
-        double minStrain = basePoint.Strain;
-        double maxStrain = basePoint.Strain;
-        double minStress = basePoint.Stress;
-        double maxStress = basePoint.Stress;
+        int minStrainIndex = -1, maxStrainIndex = -1;
+        double minStrain = double.MaxValue, maxStrain = double.MinValue;
 
-        for (int i = 0; i < buffer.Count; i++)
+        for (int i = 0; i < buffer.Length; i++)
         {
-            var point = buffer[i];
-            if (point.Strain > maxStrain)
+            double strainDiff = buffer[i].Strain - (i == 0 ? basePoint.Strain : buffer[i - 1].Strain);
+            if (Math.Abs(strainDiff) < options.Tolerance)
             {
-                maxStrain = point.Strain;
-                maxStrainIndex = i;
+                if (currentType == SegmentType.Relaxation) 
+                { 
+                    maxStrain = buffer[i].Strain; 
+                    maxStrainIndex = i; 
+                }
+                else if (currentType == SegmentType.Recovery) 
+                {
+                    minStrain = buffer[i].Strain; 
+                    minStrainIndex = i; 
+                }
             }
-
-            if (point.Strain < minStrain)
+            else
             {
-                minStrain = point.Strain;
-                minStrainIndex = i;
-            }
-
-            if (point.Stress > maxStress)
-            {
-                maxStress = point.Stress;
-                maxStressIndex = i;
-            }
-
-            if (point.Stress < minStress)
-            {
-                minStress = point.Stress;
-                minStressIndex = i;
+                if (buffer[i].Strain > maxStrain) 
+                {
+                    maxStrain = buffer[i].Strain; 
+                    maxStrainIndex = i; 
+                }
+                
+                if (buffer[i].Strain < minStrain) 
+                {
+                    minStrain = buffer[i].Strain; 
+                    minStrainIndex = i; 
+                }
             }
         }
 
-        double strainRate = differentiation.Calculate(maxStrain, minStrain, buffer[maxStrainIndex].Time - buffer[minStrainIndex].Time);
-
-        if (Math.Abs(strainRate) <= options.StrainTolerance)
+        if (minStrainIndex == -1 && maxStrainIndex == -1)
         {
-            SegmentType segmentType = (currentType == SegmentType.Descent || currentType == SegmentType.Recovery) ? SegmentType.Recovery : SegmentType.Relaxation;
-            return new Dictionary<SegmentType, int[]> { { segmentType, [.. Enumerable.Range(0, buffer.Count).ToArray()] } };
+            logger.LogError("No valid strain indices found. Base point: {@BasePoint}", basePoint);
+            throw new InvalidOperationException("No valid strain indices found.");
         }
 
-        if (strainRate > options.StrainTolerance)
+        if (minStrainIndex == -1 || maxStrainIndex == -1)
         {
-            if (minStrainIndex == 0 && maxStrainIndex == buffer.Count - 1)
-                return new Dictionary<SegmentType, int[]> { { SegmentType.Ramp, [.. Enumerable.Range(0, buffer.Count).ToArray()] } };
-
-
+            for (int i = 0; i < buffer.Length; i++)
+            {
+                if (minStrainIndex == -1 || buffer[i].Strain < minStrain) 
+                {
+                    minStrain = buffer[i].Strain; 
+                    minStrainIndex = i; 
+                }
+                
+                if (maxStrainIndex == -1 || buffer[i].Strain > maxStrain) 
+                {
+                    maxStrain = buffer[i].Strain; 
+                    maxStrainIndex = i; 
+                }
+            }
         }
 
-        return null;
+        double stepTime = buffer[maxStrainIndex].Time - buffer[minStrainIndex].Time;
+        double strainRate = differentiation.Calculate(minStrain, maxStrain, stepTime == 0 ? double.Epsilon : stepTime);
+
+        if (Math.Abs(strainRate) <= options.DerivativeTolerance)
+        {
+            var type = currentType is SegmentType.Descent or SegmentType.Recovery ? SegmentType.Recovery : SegmentType.Relaxation;
+            return new() { { type, buffer } };
+        }
+
+        return strainRate > options.DerivativeTolerance
+            ? SliceBuffer(buffer, minStrainIndex, maxStrainIndex, SegmentType.Recovery, SegmentType.Ramp, SegmentType.Relaxation)
+            : SliceBuffer(buffer, maxStrainIndex, minStrainIndex, SegmentType.Relaxation, SegmentType.Descent, SegmentType.Recovery);
     }
 
-    public Dictionary<SegmentType, int[]> DetermineSegmentType(
-        SegmentType currentType,
-        List<ExperimentalDataPoint> buffer,
-        ProcessedDataPoint basePoint,
-        ExperimentalDataProcessingOptions options)
+    private ProcessedDataPoint BuildProcessedDataPoint(ProcessedDataPoint basePoint, ExperimentalDataPoint point, ExperimentalDataProcessingOptions options)
     {
-        var groupedIndices = new Dictionary<SegmentType, List<int>>();
+        double calculatedStrainRate = differentiation.Calculate(basePoint.Strain, point.Strain, point.Time - basePoint.Time);
+        double calculatedStressRate = differentiation.Calculate(basePoint.Stress, point.Stress, point.Time - basePoint.Time);
+        double calculatedStrainAcceleration = differentiation.Calculate(basePoint.StrainRate, calculatedStrainRate, point.Time - basePoint.Time);
+        double calculatedStressAcceleration = differentiation.Calculate(basePoint.StressRate, calculatedStressRate, point.Time - basePoint.Time);
 
-        // 1. Procurar os valores maximos e minimos de tensão e deformação (Requisito estrito)
-        double maxStrain = double.MinValue, minStrain = double.MaxValue;
-        double maxStress = double.MinValue, minStress = double.MaxValue;
+        return new ProcessedDataPoint(
+            point.Time,
+            Strain: Math.Abs(point.Strain) > options.Tolerance ? point.Strain : 0,
+            StrainRate: Math.Abs(calculatedStrainRate) > options.DerivativeTolerance ? calculatedStrainRate : 0,
+            StrainAcceleration: Math.Abs(calculatedStrainAcceleration) > options.DerivativeTolerance ? calculatedStrainAcceleration : 0,
+            Stress: Math.Abs(point.Stress) > options.Tolerance ? point.Stress : 0,
+            StressRate: Math.Abs(calculatedStressRate) > options.DerivativeTolerance ? calculatedStressRate : 0,
+            StressAcceleration: Math.Abs(calculatedStressAcceleration) > options.DerivativeTolerance ? calculatedStressAcceleration : 0
+        );
+    }
 
-        // Rastreamos o primeiro e o último índice de ocorrência para identificar "platôs" (constantes)
-        int maxStrainIdxFirst = -1, maxStrainIdxLast = -1;
-        int minStrainIdxFirst = -1, minStrainIdxLast = -1;
-        int maxStressIdx = -1, minStressIdx = -1;
+    private Dictionary<SegmentType, ExperimentalDataPoint[]> SliceBuffer(
+        ExperimentalDataPoint[] points, 
+        int startIndex, 
+        int endIndex, 
+        SegmentType segmentTypeBefore, 
+        SegmentType activeSegmentyType, 
+        SegmentType segmentTypeAfter)
+    {
+        if (startIndex == 0 && endIndex == points.Length - 1)
+            return new() { { activeSegmentyType, points } };
 
-        for (int i = 0; i < buffer.Count; i++)
-        {
-            // Deformação (Strain) - Análise com Tolerância
-            if (buffer[i].Strain > maxStrain)
-            {
-                maxStrain = buffer[i].Strain;
-                maxStrainIdxFirst = i;
-                maxStrainIdxLast = i;
-            }
-            else if (Math.Abs(buffer[i].Strain - maxStrain) <= options.StrainTolerance)
-            {
-                maxStrainIdxLast = i;
-            }
+        if (startIndex == 0)
+            return new() { { activeSegmentyType, points[..(endIndex + 1)] }, { segmentTypeAfter, points[(endIndex + 1)..] } };
 
-            if (buffer[i].Strain < minStrain)
-            {
-                minStrain = buffer[i].Strain;
-                minStrainIdxFirst = i;
-                minStrainIdxLast = i;
-            }
-            else if (Math.Abs(buffer[i].Strain - minStrain) <= options.StrainTolerance)
-            {
-                minStrainIdxLast = i;
-            }
+        if (endIndex == points.Length - 1)
+            return new() { { segmentTypeBefore, points[..startIndex] }, { activeSegmentyType, points[startIndex..] } };
 
-            // Tensão (Stress) - Captura exigida para validações termodinâmicas futuras
-            if (buffer[i].Stress > maxStress) { maxStress = buffer[i].Stress; maxStressIdx = i; }
-            if (buffer[i].Stress < minStress) { minStress = buffer[i].Stress; minStressIdx = i; }
-        }
-
-        double strainDiff = maxStrain - minStrain;
-        SegmentType activeType = currentType;
-
-        // Análise 1: Deformação se mantém constante para todos os pontos no buffer
-        if (strainDiff <= options.StrainTolerance)
-        {
-            activeType = (currentType == SegmentType.Descent || currentType == SegmentType.Recovery) ? SegmentType.Recovery : SegmentType.Relaxation;
-            return new Dictionary<SegmentType, int[]> { { activeType, [.. Enumerable.Range(0, buffer.Count)] } };
-        }
-
-        // Análise 2: Variação de deformação (Rampa, Descida e Platôs intermediários)
-        if (maxStrainIdxFirst >= minStrainIdxFirst)
-        {
-            // Tendência Geral: Subida (Rampa)
-            for (int i = 0; i < buffer.Count; i++)
-            {
-                if (i <= minStrainIdxLast && minStrainIdxLast < maxStrainIdxFirst)
-                {
-                    // Fase A: Piso constante ANTES da subida
-                    // Se minStrainIdxLast for 0, é apenas o ponto de partida da rampa (não é um platô real), 
-                    // a menos que o estado anterior já fosse um platô.
-                    if (minStrainIdxLast <= options.StrainTolerance && currentType != SegmentType.Relaxation && currentType != SegmentType.Recovery)
-                    {
-                        activeType = SegmentType.Ramp;
-                    }
-                    else
-                    {
-                        activeType = (currentType == SegmentType.Descent || currentType == SegmentType.Recovery) ? SegmentType.Recovery : SegmentType.Relaxation;
-                    }
-                }
-                else if (i <= maxStrainIdxFirst)
-                {
-                    // Fase B: Rampa ativa ("aumenta até o ponto X")
-                    activeType = SegmentType.Ramp;
-                }
-                else
-                {
-                    // Fase C: Teto constante após subida ("depois se mantém constante")
-                    activeType = SegmentType.Relaxation;
-                }
-
-                if (!groupedIndices.TryGetValue(activeType, out var indexes))
-                    groupedIndices[activeType] = [];
-
-                groupedIndices[activeType].Add(i);
-            }
-        }
-        else
-        {
-            // Tendência Geral: Descida (Descent)
-            for (int i = 0; i < buffer.Count; i++)
-            {
-                if (i <= maxStrainIdxLast && maxStrainIdxLast < minStrainIdxFirst)
-                {
-                    // Fase A: Teto constante ANTES da descida
-                    if (maxStrainIdxLast == 0 && currentType != SegmentType.Relaxation)
-                    {
-                        activeType = SegmentType.Descent;
-                    }
-                    else
-                    {
-                        activeType = SegmentType.Relaxation;
-                    }
-                }
-                else if (i <= minStrainIdxFirst)
-                {
-                    // Fase B: Descida ativa ("diminui até o ponto X")
-                    activeType = SegmentType.Descent;
-                }
-                else
-                {
-                    // Fase C: Piso constante após descida ("depois se mantém constante")
-                    activeType = SegmentType.Recovery;
-                }
-
-                if (!groupedIndices.TryGetValue(activeType, out var indices))
-                {
-                    groupedIndices[activeType] = new List<int>();
-                }
-                groupedIndices[activeType].Add(i);
-            }
-        }
-
-        // Mapeia as listas internas para arrays de inteiros garantindo a assinatura estrita do método
-        return groupedIndices.ToDictionary(k => k.Key, v => v.Value.ToArray());
+        logger.LogError("Unexpected strain pattern: Start={StartIdx}, End={EndIdx}.", startIndex, endIndex);
+        throw new InvalidOperationException($"Unexpected strain pattern: '{startIndex}' is not at the start and '{endIndex}' is not at the end of the buffer.");
     }
 }

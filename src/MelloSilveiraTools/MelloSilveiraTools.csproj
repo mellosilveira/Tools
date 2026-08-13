@@ -13,6 +13,7 @@
     <ProjectReference Include="..\MelloSilveiraTools.Core\MelloSilveiraTools.Core.csproj" />
     <ProjectReference Include="..\MelloSilveiraTools.Database\MelloSilveiraTools.Database.csproj" />
     <ProjectReference Include="..\MelloSilveiraTools.Mathematics\MelloSilveiraTools.Mathematics.csproj" />
+    <ProjectReference Include="..\MelloSilveiraTools.MechanicsOfMaterials.Optimizations\MelloSilveiraTools.MechanicsOfMaterials.Optimizations.csproj" />
     <ProjectReference Include="..\MelloSilveiraTools.MechanicsOfMaterials\MelloSilveiraTools.MechanicsOfMaterials.csproj" />
     <ProjectReference Include="..\MelloSilveiraTools.Plugins\MelloSilveiraTools.Plugins.csproj" />
     <ProjectReference Include="..\MelloSilveiraTools.WebApi\MelloSilveiraTools.WebApi.csproj" />

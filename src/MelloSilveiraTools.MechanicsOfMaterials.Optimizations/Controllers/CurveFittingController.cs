@@ -19,14 +19,14 @@ public class CurveFittingController : ControllerBase
     /// </summary>
     /// <param name="command">Command that handles the curve fitting execution.</param>
     /// <param name="request">The form-data request containing the model configurations and the CSV file.</param>
-    [Consumes(MediaTypeNames.Multipart.FormData)]
-    [ProducesResponseType(StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
-    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    [HttpPost("fit")]
-    public async Task<ActionResult<Result<FitCurveResultData>>> FitCurve(
-        [FromServices] FitCurve command,
-        [FromForm] FitCurveRequest request)
-        => await command.ExecuteAsync(request).BuildHttpResponseAsync().ConfigureAwait(false);
+    //[Consumes(MediaTypeNames.Multipart.FormData)]
+    //[ProducesResponseType(StatusCodes.Status200OK)]
+    //[ProducesResponseType(StatusCodes.Status400BadRequest)]
+    //[ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
+    //[ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    //[HttpPost("fit")]
+    //public async Task<ActionResult<Result<FitCurveResultData>>> FitCurve(
+    //    [FromServices] FitCurve command,
+    //    [FromForm] FitCurveRequest request)
+    //    => await command.ExecuteAsync(request).BuildHttpResponseAsync().ConfigureAwait(false);
 }

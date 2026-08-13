@@ -103,6 +103,61 @@
             Represents a single completed simulation point within a trajectory.
             </summary>
         </member>
+        <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Commands.CurveFitting.DataProcessingOptions">
+            <summary>
+            Configuration options for the experimental data processing pipeline.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Commands.CurveFitting.DataProcessingOptions.#ctor(System.Double,System.Nullable{System.Int32},System.Nullable{System.Double})">
+            <summary>
+            Configuration options for the experimental data processing pipeline.
+            </summary>
+        </member>
+        <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Commands.CurveFitting.ExperimentalSegment">
+            <summary>
+            Represents an immutable metadata segment of the experiment.
+            Instead of holding a List in memory, it provides a factory to stream its data asynchronously.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Commands.CurveFitting.ExperimentalSegment.#ctor(MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Models.CurveFitting.SegmentType,MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Models.CurveFitting.ExperimentalDataPoint,MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Models.CurveFitting.ExperimentalDataPoint,System.Func{System.Threading.CancellationToken,System.Collections.Generic.IAsyncEnumerable{MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Models.CurveFitting.ExperimentalDataPoint}})">
+            <summary>
+            Represents an immutable metadata segment of the experiment.
+            Instead of holding a List in memory, it provides a factory to stream its data asynchronously.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Commands.CurveFitting.ExperimentalSegment.GetValidPointsAsync(System.Threading.CancellationToken)">
+            <summary>
+            Streams the valid data points belonging to this segment, applying the configured downsampling (skips).
+            </summary>
+        </member>
+        <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Commands.CurveFitting.IExperimentalDataProcessorService">
+            <summary>
+            Service responsible for processing experimental raw data streams and segmenting physical phases.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Commands.CurveFitting.IExperimentalDataProcessorService.ProcessExperimentalDataAsync(System.IO.Stream,System.IO.Stream,System.String,MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Commands.CurveFitting.DataProcessingOptions,System.IProgress{System.Double},System.IProgress{System.Int64},System.Threading.CancellationToken)">
+            <summary>
+            Reads, normalizes, validates, and segments the strain and stress data streams.
+            Writes valid data to a background file while yielding streaming segments.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Commands.CurveFitting.FitCurveRequest.ViscoelasticEffect">
+            <summary>
+            Specifies the temporal dependency of the material's response, determining the specific viscoelastic 
+            phenomena to be integrated (e.g., Creep, Stress Relaxation, Constant Strain Rate).
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Commands.CurveFitting.FitCurveRequest.RampTimeConsideration">
+            <summary>
+            Defines the integration strategy for the initial loading phase, determining whether the applied boundary 
+            conditions are evaluated as an instantaneous Heaviside step or a finite-time linear ramp.
+            </summary>
+        </member>
+        <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Commands.CurveFitting.IExperimentalDataProcessor">
+            <summary>
+            Handles the validation and segmentation of the experimental data file.
+            </summary>
+        </member>
         <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Commands.CurveFitting.ParameterGroupResultData.OptimizedParameters">
             <summary>
             Optimized constitutive parameters.
@@ -116,6 +171,11 @@
         <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Commands.CurveFitting.ParameterGroupResultData.ValidEvents">
             <summary>
             The specific experimental phases where this parameter group applies.
+            </summary>
+        </member>
+        <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Controllers.CurveFittingController">
+            <summary>
+            Exposes HTTP endpoints for performing curve fitting optimizations on mechanical models.
             </summary>
         </member>
         <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExtensionMethods.RangeExtensions">
@@ -140,6 +200,23 @@
             Converts a <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Models.Range.RangeParameters"/> to <see cref="T:System.Collections.Generic.List`1"/> of double.
             </summary>
             <returns></returns>
+        </member>
+        <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Models.CurveFitting.ExperimentalDataPoint">
+            <summary>
+            Represents an experimental data point containing time, stress, and strain.
+            Uses 'record struct' to avoid Heap allocations during massive reading.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Models.CurveFitting.ExperimentalDataPoint.#ctor(System.Double,System.Double,System.Double)">
+            <summary>
+            Represents an experimental data point containing time, stress, and strain.
+            Uses 'record struct' to avoid Heap allocations during massive reading.
+            </summary>
+        </member>
+        <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Models.CurveFitting.SegmentType">
+            <summary>
+            Represents the phases of the viscoelastic experimental test.
+            </summary>
         </member>
         <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Models.Range.RangeFunction">
             <summary>

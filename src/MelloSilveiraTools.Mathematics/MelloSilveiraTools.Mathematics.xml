@@ -1080,38 +1080,6 @@
             <param name="value">The scalar divisor.</param>
             <returns>A new <see cref="T:MelloSilveiraTools.Mathematics.Models.Vector3D"/> with each component divided by <paramref name="value"/>.</returns>
         </member>
-        <member name="T:MelloSilveiraTools.Mathematics.NumericalMethods.Derivative.Derivative">
-            <inheritdoc/>
-        </member>
-        <member name="M:MelloSilveiraTools.Mathematics.NumericalMethods.Derivative.Derivative.Calculate(System.Func{System.Double,System.Double},System.Double,System.Double)">
-            <inheritdoc/>
-        </member>
-        <member name="M:MelloSilveiraTools.Mathematics.NumericalMethods.Derivative.Derivative.Calculate(System.Double,System.Double,System.Double)">
-            <inheritdoc/>
-        </member>
-        <member name="T:MelloSilveiraTools.Mathematics.NumericalMethods.Derivative.IDerivative">
-            <summary>
-            Represents the numerical derivative.
-            </summary>
-        </member>
-        <member name="M:MelloSilveiraTools.Mathematics.NumericalMethods.Derivative.IDerivative.Calculate(System.Func{System.Double,System.Double},System.Double,System.Double)">
-            <summary>
-            Calculates the derivative of a function.
-            </summary>
-            <param name="equation">The equation to be derivated.</param>
-            <param name="timeStep">Unit: s (second).</param>
-            <param name="time">Unit: s (second).</param>
-            <returns>The value of derivative.</returns>
-        </member>
-        <member name="M:MelloSilveiraTools.Mathematics.NumericalMethods.Derivative.IDerivative.Calculate(System.Double,System.Double,System.Double)">
-            <summary>
-            Calculates the derivative between two points.
-            </summary>
-            <param name="initialPoint">The initial point of equation.</param>
-            <param name="finalPoint">The final point of equation.</param>
-            <param name="step">The step to be used in derivative.</param>
-            <returns>The value of derivative.</returns>
-        </member>
         <member name="T:MelloSilveiraTools.Mathematics.NumericalMethods.DifferentialEquation.IDifferentialEquationMethod">
             <summary>
             Executes numerical method to solve Differential Equation
@@ -1234,6 +1202,38 @@
             <param name="previousVelocity">Velocity vector at t−Δt, in m/s.</param>
             <param name="previousAcceleration">Acceleration vector at t−Δt, in m/s².</param>
             <returns>The equivalent velocity vector used to assemble the effective force.</returns>
+        </member>
+        <member name="T:MelloSilveiraTools.Mathematics.NumericalMethods.Differentiations.Differentiation">
+            <inheritdoc/>
+        </member>
+        <member name="M:MelloSilveiraTools.Mathematics.NumericalMethods.Differentiations.Differentiation.Calculate(System.Func{System.Double,System.Double},System.Double,System.Double)">
+            <inheritdoc/>
+        </member>
+        <member name="M:MelloSilveiraTools.Mathematics.NumericalMethods.Differentiations.Differentiation.Calculate(System.Double,System.Double,System.Double)">
+            <inheritdoc/>
+        </member>
+        <member name="T:MelloSilveiraTools.Mathematics.NumericalMethods.Differentiations.IDifferentiation">
+            <summary>
+            Represents the numerical derivative.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Mathematics.NumericalMethods.Differentiations.IDifferentiation.Calculate(System.Func{System.Double,System.Double},System.Double,System.Double)">
+            <summary>
+            Calculates the derivative of a function.
+            </summary>
+            <param name="equation">The equation to be derivated.</param>
+            <param name="timeStep">Unit: s (second).</param>
+            <param name="time">Unit: s (second).</param>
+            <returns>The value of derivative.</returns>
+        </member>
+        <member name="M:MelloSilveiraTools.Mathematics.NumericalMethods.Differentiations.IDifferentiation.Calculate(System.Double,System.Double,System.Double)">
+            <summary>
+            Calculates the derivative between two points.
+            </summary>
+            <param name="initialPoint">The initial point of equation.</param>
+            <param name="finalPoint">The final point of equation.</param>
+            <param name="step">The step to be used in derivative.</param>
+            <returns>The value of derivative.</returns>
         </member>
         <member name="T:MelloSilveiraTools.Mathematics.NumericalMethods.Integral.IIntegration">
             <summary>
