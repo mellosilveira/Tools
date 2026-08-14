@@ -200,8 +200,8 @@
         <member name="M:MelloSilveiraTools.Mathematics.Extensions.DoubleExtensions.RelativeDifference(System.Double,System.Double)">
             <inheritdoc cref="M:MelloSilveiraTools.Mathematics.Extensions.DoubleExtensions.&lt;G&gt;$4EDA8CBD8B61F6706755C541165134FD.RelativeDifference(System.Double)"/>
         </member>
-        <member name="M:MelloSilveiraTools.Mathematics.Extensions.DoubleExtensions.RelativeAbsolutDifference(System.Double,System.Double)">
-            <inheritdoc cref="M:MelloSilveiraTools.Mathematics.Extensions.DoubleExtensions.&lt;G&gt;$4EDA8CBD8B61F6706755C541165134FD.RelativeAbsolutDifference(System.Double)"/>
+        <member name="M:MelloSilveiraTools.Mathematics.Extensions.DoubleExtensions.AbsolutRelativeDifference(System.Double,System.Double)">
+            <inheritdoc cref="M:MelloSilveiraTools.Mathematics.Extensions.DoubleExtensions.&lt;G&gt;$4EDA8CBD8B61F6706755C541165134FD.AbsolutRelativeDifference(System.Double)"/>
         </member>
         <member name="M:MelloSilveiraTools.Mathematics.Extensions.DoubleExtensions.EqualsWithTolerance(System.Double,System.Double,System.Nullable{System.Double})">
             <inheritdoc cref="M:MelloSilveiraTools.Mathematics.Extensions.DoubleExtensions.&lt;G&gt;$4EDA8CBD8B61F6706755C541165134FD.EqualsWithTolerance(System.Double,System.Nullable{System.Double})"/>
@@ -250,7 +250,7 @@
             <param name="value2"></param>
             <returns></returns>
         </member>
-        <member name="M:MelloSilveiraTools.Mathematics.Extensions.DoubleExtensions.&lt;G&gt;$4EDA8CBD8B61F6706755C541165134FD.RelativeAbsolutDifference(System.Double)">
+        <member name="M:MelloSilveiraTools.Mathematics.Extensions.DoubleExtensions.&lt;G&gt;$4EDA8CBD8B61F6706755C541165134FD.AbsolutRelativeDifference(System.Double)">
             <summary>
             Calculates the relative absolut difference between two values.
             </summary>

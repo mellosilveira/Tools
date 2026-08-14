@@ -13,33 +13,28 @@ public class Test
 
     [Theory]
     [MemberData(nameof(GetTestData))]
-    public void TestMethod(SegmentType currentType, ExperimentalDataPoint[] buffer, Dictionary<SegmentType, ExperimentalDataPoint[]> expected)
+    public void TestMethod(SegmentType currentType, ExperimentalDataPoint[] buffer, List<(SegmentType SegmentType, ArraySegment<ExperimentalDataPoint> Points)> expected)
     {
         // Act
-        var result = _processor.DetermineSegmentType(currentType, buffer, _options);
+        List<(SegmentType SegmentType, ArraySegment<ExperimentalDataPoint> Points)> result = _processor.ExtractSegments(currentType, buffer, count: buffer.Length, _options, []);
 
         // Assert
-        Assert.Equal(expected.Keys.Count, result.Keys.Count);
+        Assert.Equal(expected.Count, result.Count);
 
-        foreach (var key in expected.Keys)
+        for (int i = 0; i < expected.Count; i++)
         {
-            Assert.True(result.ContainsKey(key), $"O resultado não contém o segmento {key}.");
-
-            var expectedArr = expected[key];
-            var resultArr = result[key];
-
-            Assert.Equal(expectedArr.Length, resultArr.Length);
-
-            for (int i = 0; i < expectedArr.Length; i++)
+            Assert.Equal(expected[i].SegmentType, result[i].SegmentType);
+            for (int j = 0; j < expected[i].Points.Count; j++)
             {
                 // O número '5' indica que a tolerância é de 5 casas decimais (1e-5) maior do que foi definido em _options.
-                Assert.Equal(expectedArr[i].Time, resultArr[i].Time, 5);
-                Assert.Equal(expectedArr[i].Strain, resultArr[i].Strain, 5);
+                Assert.Equal(expected[i].Points[j].Time, result[i].Points[j].Time, 5);
+                Assert.Equal(expected[i].Points[j].Strain, result[i].Points[j].Strain, 5);
+                Assert.Equal(expected[i].Points[j].Stress, result[i].Points[j].Stress, 5);
             }
         }
     }
 
-    public static TheoryData<SegmentType, ExperimentalDataPoint[], Dictionary<SegmentType, ExperimentalDataPoint[]>> GetTestData() => new()
+    public static TheoryData<SegmentType, ExperimentalDataPoint[], List<(SegmentType SegmentType, ArraySegment<ExperimentalDataPoint> Points)>> GetTestData() => new()
     {
         // --------------------------------------------------------------------------------
         // CASO 1: Rampa Pura 
@@ -53,18 +48,14 @@ public class Test
                 new ExperimentalDataPoint(Time: 3.0, Stress: 18.0, Strain: 9.0),
                 new ExperimentalDataPoint(Time: 4.0, Stress: 32.0, Strain: 16.0)
             ],
-            new Dictionary<SegmentType, ExperimentalDataPoint[]>
-            {
-                {
-                    SegmentType.Ramp,
-                    [
-                        new ExperimentalDataPoint(Time: 1.0, Strain: 1.0, Stress: 2.0),
-                        new ExperimentalDataPoint(Time: 2.0, Strain: 4.0, Stress: 8.0),
-                        new ExperimentalDataPoint(Time: 3.0, Strain: 9.0, Stress: 18.0),
-                        new ExperimentalDataPoint(Time: 4.0, Strain: 16.0, Stress: 32.0)
-                    ]
-                }
-            }
+            [
+                (SegmentType.Ramp, new ArraySegment<ExperimentalDataPoint>([
+                    new(Time: 1.0, Strain: 1.0, Stress: 2.0),
+                    new(Time: 2.0, Strain: 4.0, Stress: 8.0),
+                    new(Time: 3.0, Strain: 9.0, Stress: 18.0),
+                    new(Time: 4.0, Strain: 16.0, Stress: 32.0)
+                ]))
+            ]
         },
 
         // --------------------------------------------------------------------------------
@@ -79,25 +70,10 @@ public class Test
                 new ExperimentalDataPoint(Time: 3.0, Stress: 6.0, Strain: 4.0000001),
                 new ExperimentalDataPoint(Time: 4.0, Stress: 5.0, Strain: 4.0000002)
             ],
-            new Dictionary<SegmentType, ExperimentalDataPoint[]>
-            {
-                {
-                    SegmentType.Ramp,
-                    new[]
-                    {
-                        new ExperimentalDataPoint(Time: 1.0, Strain: 1.0, Stress: 2.0),
-                        new ExperimentalDataPoint(Time: 2.0, Strain: 4.0, Stress: 8.0)
-                    }
-                },
-                {
-                    SegmentType.Relaxation,
-                    [
-                        // StrainRate = 1e-7 é mascarado pela Tolerance -> 0.0
-                        new ExperimentalDataPoint(Time: 3.0, Strain: 4.0000001, Stress: 6.0),
-                        new ExperimentalDataPoint(Time: 4.0, Strain: 4.0000002, Stress: 5.0)
-                    ]
-                }
-            }
+            [
+                (SegmentType.Ramp, new ArraySegment<ExperimentalDataPoint>([new(Time: 1.0, Strain: 1.0, Stress: 2.0), new(Time: 2.0, Strain: 4.0, Stress: 8.0)])),
+                (SegmentType.Relaxation, new ArraySegment<ExperimentalDataPoint>([new(Time: 3.0, Strain: 4.0000001, Stress: 6.0), new(Time: 4.0, Strain: 4.0000002, Stress: 5.0)]))
+            ]
         },
 
         // --------------------------------------------------------------------------------
@@ -112,18 +88,14 @@ public class Test
                 new ExperimentalDataPoint(Time: 3.0, Stress: 12.0, Strain: 10.0000003),
                 new ExperimentalDataPoint(Time: 4.0, Stress: 10.0, Strain: 10.0000002)
             ],
-            new Dictionary<SegmentType, ExperimentalDataPoint[]>
-            {
-                {
-                    SegmentType.Relaxation,
-                    [
-                        new ExperimentalDataPoint(Time: 1.0, Strain: 10.0, Stress: 20.0),
-                        new ExperimentalDataPoint(Time: 2.0, Strain: 10.0000001, Stress: 15.0),
-                        new ExperimentalDataPoint(Time: 3.0, Strain: 10.0000003, Stress: 12.0),
-                        new ExperimentalDataPoint(Time: 4.0, Strain: 10.0000002, Stress: 10.0)
-                    ]
-                }
-            }
+            [
+                (SegmentType.Relaxation, new ArraySegment<ExperimentalDataPoint>([
+                    new(Time: 1.0, Strain: 10.0, Stress: 20.0),
+                    new(Time: 2.0, Strain: 10.0000001, Stress: 15.0),
+                    new(Time: 3.0, Strain: 10.0000003, Stress: 12.0),
+                    new(Time: 4.0, Strain: 10.0000002, Stress: 10.0)
+                ]))
+            ]
         },
 
         // --------------------------------------------------------------------------------
@@ -138,18 +110,14 @@ public class Test
                 new ExperimentalDataPoint(Time: 3.0, Stress: 5.0, Strain: 9.0),
                 new ExperimentalDataPoint(Time: 4.0, Stress: 2.0, Strain: 4.0)
             ],
-            new Dictionary<SegmentType, ExperimentalDataPoint[]>
-            {
-                { SegmentType.Relaxation, [new ExperimentalDataPoint(Time: 1.0, Strain: 10.0, Stress: 10.0)] },
-                {
-                    SegmentType.Descent,
-                    [
-                        new ExperimentalDataPoint(Time: 2.0, Strain: 10.0000001, Stress: 9.0),
-                        new ExperimentalDataPoint(Time: 3.0, Strain: 9.0, Stress: 5.0),
-                        new ExperimentalDataPoint(Time: 4.0, Strain: 4.0, Stress: 2.0)
-                    ]
-                }
-            }
+            [
+                (SegmentType.Relaxation, new ArraySegment<ExperimentalDataPoint>([new(Time: 1.0, Strain: 10.0, Stress: 10.0)])),
+                (SegmentType.Descent, new ArraySegment<ExperimentalDataPoint>([
+                    new(Time: 2.0, Strain: 10.0000001, Stress: 9.0),
+                    new(Time: 3.0, Strain: 9.0, Stress: 5.0),
+                    new(Time: 4.0, Strain: 4.0, Stress: 2.0)
+                ]))
+            ]
         },
 
         // --------------------------------------------------------------------------------
@@ -164,18 +132,14 @@ public class Test
                 new ExperimentalDataPoint(Time: 3.0, Stress: 8.0, Strain: 4.0),
                 new ExperimentalDataPoint(Time: 4.0, Stress: 2.0, Strain: 1.0)
             ],
-            new Dictionary<SegmentType, ExperimentalDataPoint[]>
-            {
-                {
-                    SegmentType.Descent,
-                    [
-                        new ExperimentalDataPoint(Time: 1.0, Strain: 16.0, Stress: 32.0),
-                        new ExperimentalDataPoint(Time: 2.0, Strain: 9.0, Stress: 18.0),
-                        new ExperimentalDataPoint(Time: 3.0, Strain: 4.0, Stress: 8.0),
-                        new ExperimentalDataPoint(Time: 4.0, Strain: 1.0, Stress: 2.0)
-                    ]
-                }
-            }
+            [
+                (SegmentType.Descent, new ArraySegment<ExperimentalDataPoint>([
+                    new(Time: 1.0, Strain: 16.0, Stress: 32.0),
+                    new(Time: 2.0, Strain: 9.0, Stress: 18.0),
+                    new(Time: 3.0, Strain: 4.0, Stress: 8.0),
+                    new(Time: 4.0, Strain: 1.0, Stress: 2.0)
+                ]))
+            ]
         },
 
         // --------------------------------------------------------------------------------
@@ -190,23 +154,10 @@ public class Test
                 new ExperimentalDataPoint(Time: 3.0, Stress: 1.5, Strain: 1.0000001),
                 new ExperimentalDataPoint(Time: 4.0, Stress: 1.2, Strain: 1.0)
             ],
-            new Dictionary<SegmentType, ExperimentalDataPoint[]>
-            {
-                {
-                    SegmentType.Descent,
-                    [
-                        new ExperimentalDataPoint(Time: 1.0, Strain: 4.0, Stress: 8.0),
-                        new ExperimentalDataPoint(Time: 2.0, Strain: 1.0, Stress: 2.0)
-                    ]
-                },
-                {
-                    SegmentType.Recovery,
-                    [
-                        new ExperimentalDataPoint(Time: 3.0, Strain: 1.0000001, Stress: 1.5),
-                        new ExperimentalDataPoint(Time: 4.0, Strain: 1.0, Stress: 1.2)
-                    ]
-                }
-            }
+            [
+                (SegmentType.Descent, new ArraySegment<ExperimentalDataPoint>([new(Time: 1.0, Strain: 4.0, Stress: 8.0), new(Time: 2.0, Strain: 1.0, Stress: 2.0)])),
+                (SegmentType.Recovery, new ArraySegment<ExperimentalDataPoint>([new(Time: 3.0, Strain: 1.0000001, Stress: 1.5), new(Time: 4.0, Strain: 1.0, Stress: 1.2)]))
+            ]
         },
 
         // --------------------------------------------------------------------------------
@@ -221,18 +172,14 @@ public class Test
                 new ExperimentalDataPoint(Time: 3.0, Stress: 8.0, Strain: 4.0),
                 new ExperimentalDataPoint(Time: 4.0, Stress: 18.0, Strain: 9.0)
             ],
-            new Dictionary<SegmentType, ExperimentalDataPoint[]>
-            {
-                { SegmentType.Recovery, [new ExperimentalDataPoint(Time: 1.0, Strain: 1.0000001, Stress: 1.1)] },
-                {
-                    SegmentType.Ramp,
-                    [
-                        new ExperimentalDataPoint(Time: 2.0, Strain: 1.0, Stress: 1.0),
-                        new ExperimentalDataPoint(Time: 3.0, Strain: 4.0, Stress: 8.0),
-                        new ExperimentalDataPoint(Time: 4.0, Strain: 9.0, Stress: 18.0)
-                    ]
-                }
-            }
+            [
+                (SegmentType.Recovery, new ArraySegment<ExperimentalDataPoint>([new(Time: 1.0, Strain: 1.0000001, Stress: 1.1)])),
+                (SegmentType.Ramp, new ArraySegment<ExperimentalDataPoint>([
+                    new(Time: 2.0, Strain: 1.0, Stress: 1.0),
+                    new(Time: 3.0, Strain: 4.0, Stress: 8.0),
+                    new(Time: 4.0, Strain: 9.0, Stress: 18.0)
+                ]))
+            ]
         },
 
         // --------------------------------------------------------------------------------
@@ -247,18 +194,14 @@ public class Test
                 new ExperimentalDataPoint(Time: 3.0, Stress: 1.2, Strain: 1.0000003),
                 new ExperimentalDataPoint(Time: 4.0, Stress: 1.0, Strain: 1.0000002)
             ],
-            new Dictionary<SegmentType, ExperimentalDataPoint[]>
-            {
-                {
-                    SegmentType.Recovery,
-                    [
-                        new ExperimentalDataPoint(Time: 1.0, Strain: 1.0, Stress: 2.0),
-                        new ExperimentalDataPoint(Time: 2.0, Strain: 1.0000001, Stress: 1.5),
-                        new ExperimentalDataPoint(Time: 3.0, Strain: 1.0000003, Stress: 1.2),
-                        new ExperimentalDataPoint(Time: 4.0, Strain: 1.0000002, Stress: 1.0)
-                    ]
-                }
-            }
+            [
+                (SegmentType.Recovery, new ArraySegment<ExperimentalDataPoint>([
+                    new(Time: 1.0, Strain: 1.0, Stress: 2.0),
+                    new(Time: 2.0, Strain: 1.0000001, Stress: 1.5),
+                    new(Time: 3.0, Strain: 1.0000003, Stress: 1.2),
+                    new(Time: 4.0, Strain: 1.0000002, Stress: 1.0)
+                ]))
+            ]
         }
     };
 }

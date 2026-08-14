@@ -54,7 +54,7 @@ public static class DoubleExtensions
         /// </summary>
         /// <param name="value2"></param>
         /// <returns></returns>
-        public double RelativeAbsolutDifference(double value2) => Math.Abs(value.RelativeDifference(value2));
+        public double AbsolutRelativeDifference(double value2) => Math.Abs(value.RelativeDifference(value2));
 
         /// <summary>
         /// Indicates if two values are equals considering the application tolerance. 
