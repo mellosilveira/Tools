@@ -1,6 +1,7 @@
 using MelloSilveiraTools.Mathematics.NumericalMethods.Differentiations;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Commands.CurveFitting;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Models.CurveFitting;
+using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Models.ExperimentalData;
 using Microsoft.Extensions.Logging;
 using Moq;
 
@@ -8,7 +9,7 @@ namespace UnitTests;
 
 public class Test
 {
-    private readonly ExperimentalDataProcessor _processor = new(Mock.Of<ILogger<ExperimentalDataProcessor>>(), new Differentiation());
+    private readonly ExperimentalDataService _processor = new(Mock.Of<ILogger<ExperimentalDataService>>(), new Differentiation());
     private readonly ExperimentalDataProcessingOptions _options = new(0.0, BufferSize: 10, RelativeTolerance: 1e-6, Tolerance: 1e-6, DerivativeTolerance: 1e-6, SkipTimeStep: 0.0);
 
     [Theory]

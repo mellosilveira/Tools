@@ -7,4 +7,6 @@ public interface IFileManager
     FileData BuildTimebasedFile(string fileUri, string filePrefix, string fileExtension);
 
     FileInfo BuildTimebasedFileInfo(string fileUri, string filePrefix, string fileExtension);
+
+    StreamWriter CreateTimebasedFileWriter(string fileUri, string filePrefix, string fileExtension);
 }

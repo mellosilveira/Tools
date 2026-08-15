@@ -1,9 +1,9 @@
-﻿using MelloSilveiraTools.Core.Models;
+﻿using MelloSilveiraTools.Core.Managers.File;
+using MelloSilveiraTools.Core.Models;
 using MelloSilveiraTools.Mathematics.Extensions;
-using MelloSilveiraTools.Mathematics.Models;
 using MelloSilveiraTools.Mathematics.NumericalMethods.Differentiations;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Models.CurveFitting;
-using Microsoft.Extensions.FileSystemGlobbing.Internal.PathSegments;
+using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Models.ExperimentalData;
 using Microsoft.Extensions.Logging;
 using System.Runtime.CompilerServices;
 
@@ -12,53 +12,32 @@ namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Commands.CurveFi
 /// <summary>
 /// Handles the validation and segmentation of the experimental data file.
 /// </summary>
-public interface IExperimentalDataProcessor
+public interface IExperimentalDataService
 {
-    Task<Result<CurveSegment[]>> ProcessAsync(Stream strainStream, Stream stressStream, ExperimentalDataProcessingOptions options, CancellationToken cancellationToken);
+    Task<Result<CurveSegment[]>> ProcessAsync(string identifier, string outputFileUri, Stream strainStream, Stream stressStream, ExperimentalDataProcessingOptions options, CancellationToken cancellationToken);
 }
 
-public readonly record struct ProcessedDataPoint(
-    double Time,
-    double Strain,
-    double StrainRate,
-    double StrainAcceleration,
-    double Stress,
-    double StressRate,
-    double StressAcceleration)
+public class ExperimentalDataService(
+    ILogger<ExperimentalDataService> logger,
+    IDifferentiation differentiation,
+    IFileManager fileManager)
+    : IExperimentalDataService
 {
-    public static implicit operator ExperimentalDataPoint(ProcessedDataPoint point) => new(point.Time, point.Strain, point.Stress);
-}
-
-public readonly record struct SegmentedDataPoint(SegmentType SegmentType, ProcessedDataPoint ProcessedDataPoint)
-{
-    public static implicit operator ExperimentalDataPoint(SegmentedDataPoint point) => point.ProcessedDataPoint;
-    public static implicit operator ProcessedDataPoint(SegmentedDataPoint point) => point.ProcessedDataPoint;
-}
-
-public record ExperimentalDataProcessingOptions(
-    double StartTimeThreshold,
-    ushort BufferSize = 10,
-    double Tolerance = MathematicConstants.Tolerance,
-    double RelativeTolerance = MathematicConstants.RelativeTolerance,
-    double DerivativeTolerance = MathematicConstants.Tolerance);
-
-public class ExperimentalDataProcessor(
-    ILogger<ExperimentalDataProcessor> logger,
-    IDifferentiation differentiation)
-    : IExperimentalDataProcessor
-{
-    public async Task<Result<CurveSegment[]>> ProcessAsync(Stream strainStream, Stream stressStream, ExperimentalDataProcessingOptions options, CancellationToken cancellationToken)
+    public async Task<Result<CurveSegment[]>> ProcessAsync(string identifier, string outputFileUri, Stream strainStream, Stream stressStream, ExperimentalDataProcessingOptions options, CancellationToken cancellationToken)
     {
-        await foreach ((SegmentType segmentType, ProcessedDataPoint processedDataPoint) in ProcessPointsAsync(strainStream, stressStream, options, cancellationToken))
+        using (var streamWriter = fileManager.CreateTimebasedFileWriter(outputFileUri, identifier, FileExtensions.CommaSeparatedValues))
         {
+            await foreach ((SegmentType segmentType, ProcessedDataPoint processedDataPoint) in SegmentPointsAsync(strainStream, stressStream, options, cancellationToken))
+            {
 
+            }
         }
 
 
         return null;
     }
 
-    public async IAsyncEnumerable<SegmentedDataPoint> ProcessPointsAsync(
+    public async IAsyncEnumerable<SegmentedDataPoint> SegmentPointsAsync(
         Stream strainStream,
         Stream stressStream,
         ExperimentalDataProcessingOptions options,
@@ -90,17 +69,25 @@ public class ExperimentalDataProcessor(
             }
 
             var (time, strain) = ParseLine(strainLine);
-            if (time < options.StartTimeThreshold) continue;
+            if (time < options.StartTimeThreshold)
+            {
+                logger.LogTrace("Skipping point at Time={StrainTime} and Strain={Strain} due to start time threshold: {StartTimeThreshold}.", time, strain, options.StartTimeThreshold);
+                continue;
+            }
 
             var (stressTime, stress) = ParseLine(stressLine);
-
-            if (time.AbsolutRelativeDifference(stressTime) > options.RelativeTolerance) continue;
+            if (time.AbsolutRelativeDifference(stressTime) > options.RelativeTolerance)
+            {
+                logger.LogTrace("Skipping point at StrainTime={StrainTime} and StressTime={StressTime} due to time mismatch.", time, stressTime);
+                continue;
+            }
 
             firstValidTime ??= time;
             double normalizedTime = time - firstValidTime.Value;
 
             if (strain <= options.Tolerance)
             {
+                logger.LogTrace("Skipping point at StrainTime={StrainTime} and Strain={Strain} due to non-positive strain.", time, strain);
                 previousPoint = new(normalizedTime, strain, StrainRate: 0, StrainAcceleration: 0, stress, StressRate: 0, StressAcceleration: 0);
                 continue;
             }
@@ -116,9 +103,7 @@ public class ExperimentalDataProcessor(
                 // ArraySegment permite indexação super rápida sem alocar arrays
                 for (int i = 0; i < points.Count; i++)
                 {
-                    var point = points[i];
-                    ProcessedDataPoint processedPoint = BuildProcessedDataPoint(previousPoint, point, options);
-
+                    ProcessedDataPoint processedPoint = BuildProcessedDataPoint(previousPoint, points[i], options);
                     if (!ValidateStress(segmentType, processedPoint.StressRate, processedPoint.StressAcceleration))
                     {
                         logger.LogWarning("Invalid stress behavior detected for point: {@Point}.", processedPoint);
