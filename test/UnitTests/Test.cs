@@ -1,7 +1,7 @@
 using MelloSilveiraTools.Mathematics.NumericalMethods.Differentiations;
-using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Commands.CurveFitting;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Models.CurveFitting;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Models.ExperimentalData;
+using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Services.ExperimentalData;
 using Microsoft.Extensions.Logging;
 using Moq;
 

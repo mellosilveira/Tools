@@ -1,5 +1,4 @@
 ﻿using MelloSilveiraTools.Core.Managers.File;
-using MelloSilveiraTools.Core.Models;
 using MelloSilveiraTools.Mathematics.Extensions;
 using MelloSilveiraTools.Mathematics.NumericalMethods.Differentiations;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Models.CurveFitting;
@@ -7,15 +6,7 @@ using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Models.ExperimentalD
 using Microsoft.Extensions.Logging;
 using System.Runtime.CompilerServices;
 
-namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Commands.CurveFitting;
-
-/// <summary>
-/// Handles the validation and segmentation of the experimental data file.
-/// </summary>
-public interface IExperimentalDataService
-{
-    Task<Result<CurveSegment[]>> ProcessAsync(string identifier, string outputFileUri, Stream strainStream, Stream stressStream, ExperimentalDataProcessingOptions options, CancellationToken cancellationToken);
-}
+namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Services.ExperimentalData;
 
 public class ExperimentalDataService(
     ILogger<ExperimentalDataService> logger,
@@ -23,18 +14,27 @@ public class ExperimentalDataService(
     IFileManager fileManager)
     : IExperimentalDataService
 {
-    public async Task<Result<CurveSegment[]>> ProcessAsync(string identifier, string outputFileUri, Stream strainStream, Stream stressStream, ExperimentalDataProcessingOptions options, CancellationToken cancellationToken)
+    public async IAsyncEnumerable<SegmentedDataPoint> ProcessAsync(string identifier, string outputFileUri, Stream strainStream, Stream stressStream, ExperimentalDataProcessingOptions options, CancellationToken cancellationToken)
     {
         using (var streamWriter = fileManager.CreateTimebasedFileWriter(outputFileUri, identifier, FileExtensions.CommaSeparatedValues))
         {
-            await foreach ((SegmentType segmentType, ProcessedDataPoint processedDataPoint) in SegmentPointsAsync(strainStream, stressStream, options, cancellationToken))
-            {
+            await streamWriter.WriteLineAsync("Time,Strain,StrainRate,StrainAcceleration,Stress,StressRate,StressAcceleration").ConfigureAwait(false);
 
+            ProcessedDataPoint? previousPoint = null;
+            SegmentType? previousSegmentType = null;
+            await foreach ((SegmentType segmentType, ProcessedDataPoint point) in SegmentPointsAsync(strainStream, stressStream, options, cancellationToken))
+            {
+                await streamWriter.WriteLineAsync($"{point.Time},{point.Strain},{point.StrainRate},{point.StrainAcceleration},{point.Stress},{point.StressRate},{point.StressAcceleration}").ConfigureAwait(false);
+                
+                if (previousSegmentType != segmentType || previousSegmentType is null || point.Time - previousPoint?.Time >= options.SkipTimeStep)
+                {
+
+                }
+
+                previousSegmentType = segmentType;
+                previousPoint = point;
             }
         }
-
-
-        return null;
     }
 
     public async IAsyncEnumerable<SegmentedDataPoint> SegmentPointsAsync(

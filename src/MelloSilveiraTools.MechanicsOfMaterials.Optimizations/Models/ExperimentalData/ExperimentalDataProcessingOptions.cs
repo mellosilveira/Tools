@@ -7,4 +7,5 @@ public record ExperimentalDataProcessingOptions(
     ushort BufferSize = 10,
     double Tolerance = MathematicConstants.Tolerance,
     double RelativeTolerance = MathematicConstants.RelativeTolerance,
-    double DerivativeTolerance = MathematicConstants.Tolerance);
+    double DerivativeTolerance = MathematicConstants.Tolerance,
+    double SkipTimeStep = 0);
