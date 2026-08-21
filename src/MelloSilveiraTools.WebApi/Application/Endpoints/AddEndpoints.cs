@@ -1,6 +1,6 @@
+using MelloSilveiraTools.Core.ExtensionMethods;
 using MelloSilveiraTools.Database.RelationalDatabase.Models.Entities;
 using MelloSilveiraTools.WebApi.Application.Commands.Crud.Add;
-using MelloSilveiraTools.WebApi.ExtensionMethods;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;

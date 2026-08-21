@@ -1235,12 +1235,12 @@
             <param name="step">The step to be used in derivative.</param>
             <returns>The value of derivative.</returns>
         </member>
-        <member name="T:MelloSilveiraTools.Mathematics.NumericalMethods.Integral.IIntegration">
+        <member name="T:MelloSilveiraTools.Mathematics.NumericalMethods.Integrals.IIntegration">
             <summary>
             Represents a numerical integration rule.
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.Mathematics.NumericalMethods.Integral.IIntegration.Calculate(System.Func{System.Double,System.Double},MelloSilveiraTools.Mathematics.Models.NumericalMethods.IntegralInput)">
+        <member name="M:MelloSilveiraTools.Mathematics.NumericalMethods.Integrals.IIntegration.Calculate(System.Func{System.Double,System.Double},MelloSilveiraTools.Mathematics.Models.NumericalMethods.IntegralInput)">
             <summary>
             Calculates the integral of a function.
             </summary>
@@ -1248,7 +1248,7 @@
             <param name="integralInput">The inputs for integral.</param>
             <returns>The value of integration.</returns>
         </member>
-        <member name="M:MelloSilveiraTools.Mathematics.NumericalMethods.Integral.IIntegration.CalculateAsync(System.Func{System.Double,System.Threading.Tasks.Task{System.Double}},MelloSilveiraTools.Mathematics.Models.NumericalMethods.IntegralInput)">
+        <member name="M:MelloSilveiraTools.Mathematics.NumericalMethods.Integrals.IIntegration.CalculateAsync(System.Func{System.Double,System.Threading.Tasks.Task{System.Double}},MelloSilveiraTools.Mathematics.Models.NumericalMethods.IntegralInput)">
             <summary>
             Calculates the integral of a function asynchronously.
             </summary>
@@ -1256,13 +1256,13 @@
             <param name="integralInput">The inputs for integral.</param>
             <returns>The value of integration.</returns>
         </member>
-        <member name="T:MelloSilveiraTools.Mathematics.NumericalMethods.Integral.SimpsonRuleIntegration">
+        <member name="T:MelloSilveiraTools.Mathematics.NumericalMethods.Integrals.SimpsonRuleIntegration">
             <inheritdoc/>
         </member>
-        <member name="M:MelloSilveiraTools.Mathematics.NumericalMethods.Integral.SimpsonRuleIntegration.Calculate(System.Func{System.Double,System.Double},MelloSilveiraTools.Mathematics.Models.NumericalMethods.IntegralInput)">
+        <member name="M:MelloSilveiraTools.Mathematics.NumericalMethods.Integrals.SimpsonRuleIntegration.Calculate(System.Func{System.Double,System.Double},MelloSilveiraTools.Mathematics.Models.NumericalMethods.IntegralInput)">
             <inheritdoc/>
         </member>
-        <member name="M:MelloSilveiraTools.Mathematics.NumericalMethods.Integral.SimpsonRuleIntegration.CalculateAsync(System.Func{System.Double,System.Threading.Tasks.Task{System.Double}},MelloSilveiraTools.Mathematics.Models.NumericalMethods.IntegralInput)">
+        <member name="M:MelloSilveiraTools.Mathematics.NumericalMethods.Integrals.SimpsonRuleIntegration.CalculateAsync(System.Func{System.Double,System.Threading.Tasks.Task{System.Double}},MelloSilveiraTools.Mathematics.Models.NumericalMethods.IntegralInput)">
             <inheritdoc/>
         </member>
         <member name="T:MelloSilveiraTools.Mathematics.NumericalMethods.NumericalMethodInput">

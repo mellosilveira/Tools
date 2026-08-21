@@ -1,4 +1,4 @@
-﻿using MelloSilveiraTools.Mathematics.NumericalMethods.Integral;
+﻿using MelloSilveiraTools.Mathematics.NumericalMethods.Integrals;
 using MelloSilveiraTools.MechanicsOfMaterials.Attributes;
 using MelloSilveiraTools.MechanicsOfMaterials.Converters.MechanicalParameter;
 using MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels;

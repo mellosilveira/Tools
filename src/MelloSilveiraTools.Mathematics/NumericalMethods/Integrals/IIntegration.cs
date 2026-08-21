@@ -1,6 +1,6 @@
 ﻿using MelloSilveiraTools.Mathematics.Models.NumericalMethods;
 
-namespace MelloSilveiraTools.Mathematics.NumericalMethods.Integral;
+namespace MelloSilveiraTools.Mathematics.NumericalMethods.Integrals;
 
 /// <summary>
 /// Represents a numerical integration rule.

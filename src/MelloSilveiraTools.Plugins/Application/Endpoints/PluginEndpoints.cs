@@ -1,3 +1,4 @@
+using MelloSilveiraTools.Core.ExtensionMethods;
 using MelloSilveiraTools.Core.Models;
 using MelloSilveiraTools.Plugins.Application.Commands;
 using MelloSilveiraTools.Plugins.Application.Commands.Cache;
@@ -5,7 +6,6 @@ using MelloSilveiraTools.Plugins.Application.Commands.Get;
 using MelloSilveiraTools.Plugins.Application.Commands.Load;
 using MelloSilveiraTools.Plugins.Application.Commands.Reload;
 using MelloSilveiraTools.Plugins.Infrastructure.Models;
-using MelloSilveiraTools.WebApi.ExtensionMethods;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;

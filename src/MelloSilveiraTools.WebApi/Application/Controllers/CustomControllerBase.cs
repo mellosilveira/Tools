@@ -1,7 +1,7 @@
+using MelloSilveiraTools.Core.ExtensionMethods;
 using MelloSilveiraTools.Database.RelationalDatabase.Models.Entities;
 using MelloSilveiraTools.WebApi.Application.Commands.Crud.Add;
 using MelloSilveiraTools.WebApi.Application.Endpoints;
-using MelloSilveiraTools.WebApi.ExtensionMethods;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 

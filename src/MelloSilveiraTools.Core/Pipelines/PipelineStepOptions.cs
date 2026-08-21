@@ -19,11 +19,6 @@ public readonly record struct PipelineStepOptions
     public static readonly PipelineStepOptions Default = new();
 
     /// <summary>
-    /// Pre-computed native TPL options instance derived from the default configuration.
-    /// </summary>
-    public static readonly ExecutionDataflowBlockOptions DataflowDefault = Default.ToDataflowOptions();
-
-    /// <summary>
     /// Configures the 'MaxDegreeOfParallelism' for the underlying block.
     /// - 1: Enforces sequential execution within this step.
     /// - >1: Permits concurrent execution of multiple messages via the ThreadPool.
@@ -46,20 +41,14 @@ public readonly record struct PipelineStepOptions
     public bool KeepOrder { get; init; } = true;
 
     /// <summary>
-    /// Propagates cancellation down to the individual block level.
-    /// If triggered, the block transitions to a faulted/canceled state, rejecting new messages.
-    /// </summary>
-    public CancellationToken CancellationToken { get; init; } = CancellationToken.None;
-
-    /// <summary>
     /// Projects the abstracted configuration into the native TPL Dataflow options payload.
     /// </summary>
-    internal ExecutionDataflowBlockOptions ToDataflowOptions() => new()
+    internal ExecutionDataflowBlockOptions ToDataflowOptions(CancellationToken pipelineCancellationToken) => new()
     {
         MaxDegreeOfParallelism = MaxWorkers,
         BoundedCapacity = MaxBufferSize,
         EnsureOrdered = KeepOrder,
-        CancellationToken = CancellationToken,
+        CancellationToken = pipelineCancellationToken,
         // Optimized for multi-producer thread safety by default
         SingleProducerConstrained = false,
     };

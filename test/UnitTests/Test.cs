@@ -10,7 +10,7 @@ namespace UnitTests;
 
 public class Test
 {
-    private readonly ExperimentalDataService _processor = new(Mock.Of<ILogger<ExperimentalDataService>>(), new Differentiation(), Mock.Of<IFileManager>());
+    private readonly ExperimentalDataService _processor = new(Mock.Of<ILogger<ExperimentalDataService>>(), new Differentiation(), Mock.Of<IFileManager>(), new ExperimentalDataSettings());
     private readonly ExperimentalDataProcessingOptions _options = new(0.0, BufferSize: 10, RelativeTolerance: 1e-6, Tolerance: 1e-6, AccelerationTolerance: 1e-6, SkipTimeStep: 0.0);
 
     [Theory]

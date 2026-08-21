@@ -1,6 +1,6 @@
 ﻿using MelloSilveiraTools.Mathematics.Models;
 using MelloSilveiraTools.Mathematics.NumericalMethods.Differentiations;
-using MelloSilveiraTools.Mathematics.NumericalMethods.Integral;
+using MelloSilveiraTools.Mathematics.NumericalMethods.Integrals;
 using MelloSilveiraTools.MechanicsOfMaterials.Converters.MechanicalParameter;
 using MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels;
 using MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.QuasiLinear;

@@ -2,10 +2,10 @@ using MelloSilveiraTools.Mathematics.Factories.Functions;
 using MelloSilveiraTools.Mathematics.Models.NumericalMethods;
 using MelloSilveiraTools.Mathematics.NumericalMethods.Differentiations;
 using MelloSilveiraTools.Mathematics.NumericalMethods.DifferentialEquation;
-using MelloSilveiraTools.Mathematics.NumericalMethods.Integral;
 using MelloSilveiraTools.Mathematics.NumericalMethods.RootFindingAlgorithms;
 using MelloSilveiraTools.Mathematics.Statistics;
 using Microsoft.Extensions.DependencyInjection;
+using MelloSilveiraTools.Mathematics.NumericalMethods.Integrals;
 
 namespace MelloSilveiraTools.Mathematics;
 

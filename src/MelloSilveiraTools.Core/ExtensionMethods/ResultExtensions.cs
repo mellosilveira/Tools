@@ -1,9 +1,8 @@
-using MelloSilveiraTools.Core.ExtensionMethods;
 using MelloSilveiraTools.Core.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
-namespace MelloSilveiraTools.WebApi.ExtensionMethods;
+namespace MelloSilveiraTools.Core.ExtensionMethods;
 
 /// <summary>
 /// Contains extension methods for <see cref="Result"/>.

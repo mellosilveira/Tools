@@ -1,10 +1,10 @@
+using MelloSilveiraTools.Core.ExtensionMethods;
 using MelloSilveiraTools.Core.Models;
 using MelloSilveiraTools.Database.RelationalDatabase.Models.Entities;
 using MelloSilveiraTools.Database.RelationalDatabase.Models.Filters;
 using MelloSilveiraTools.WebApi.Application.Commands.Crud.Delete;
 using MelloSilveiraTools.WebApi.Application.Commands.Crud.Read;
 using MelloSilveiraTools.WebApi.Application.Commands.Crud.Update;
-using MelloSilveiraTools.WebApi.ExtensionMethods;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;

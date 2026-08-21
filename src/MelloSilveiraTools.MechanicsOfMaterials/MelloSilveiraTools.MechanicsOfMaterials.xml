@@ -695,16 +695,16 @@
             For more details, see the "Bibliographies" section in the "README.md" file.
             </summary>
             <typeparam name="TConstitutiveParameters">The specific type of constitutive parameters governing the linear viscoelastic model.</typeparam>
-            <param name="integration">See reference at <see cref="T:MelloSilveiraTools.Mathematics.NumericalMethods.Integral.IIntegration"/>.</param>
+            <param name="integration">See reference at <see cref="T:MelloSilveiraTools.Mathematics.NumericalMethods.Integrals.IIntegration"/>.</param>
             <param name="parameterConverter">See reference at <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Converters.MechanicalParameter.IMechanicalParameterConverter"/>.</param>
         </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Viscoelasticity.Linear.LinearModelCalculator`1.#ctor(MelloSilveiraTools.Mathematics.NumericalMethods.Integral.IIntegration,MelloSilveiraTools.MechanicsOfMaterials.Converters.MechanicalParameter.IMechanicalParameterConverter)">
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Viscoelasticity.Linear.LinearModelCalculator`1.#ctor(MelloSilveiraTools.Mathematics.NumericalMethods.Integrals.IIntegration,MelloSilveiraTools.MechanicsOfMaterials.Converters.MechanicalParameter.IMechanicalParameterConverter)">
             <summary>
             Defines the foundational calculator for linear viscoelastic models, utilizing hereditary integrals to establish time-dependent stress-strain relationships.
             For more details, see the "Bibliographies" section in the "README.md" file.
             </summary>
             <typeparam name="TConstitutiveParameters">The specific type of constitutive parameters governing the linear viscoelastic model.</typeparam>
-            <param name="integration">See reference at <see cref="T:MelloSilveiraTools.Mathematics.NumericalMethods.Integral.IIntegration"/>.</param>
+            <param name="integration">See reference at <see cref="T:MelloSilveiraTools.Mathematics.NumericalMethods.Integrals.IIntegration"/>.</param>
             <param name="parameterConverter">See reference at <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Converters.MechanicalParameter.IMechanicalParameterConverter"/>.</param>
         </member>
         <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Viscoelasticity.Linear.LinearModelCalculator`1.CalculateForce(MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalModelInput{`0},System.Double,System.Nullable{System.Double})">
@@ -746,7 +746,7 @@
         <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Viscoelasticity.Linear.Maxwell.MaxwellModelCalculator">
             <inheritdoc cref="T:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Viscoelasticity.Linear.Maxwell.IMaxwellModelCalculator"/>
         </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Viscoelasticity.Linear.Maxwell.MaxwellModelCalculator.#ctor(MelloSilveiraTools.Mathematics.NumericalMethods.Integral.IIntegration,MelloSilveiraTools.MechanicsOfMaterials.Converters.MechanicalParameter.IMechanicalParameterConverter)">
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Viscoelasticity.Linear.Maxwell.MaxwellModelCalculator.#ctor(MelloSilveiraTools.Mathematics.NumericalMethods.Integrals.IIntegration,MelloSilveiraTools.MechanicsOfMaterials.Converters.MechanicalParameter.IMechanicalParameterConverter)">
             <inheritdoc cref="T:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Viscoelasticity.Linear.Maxwell.IMaxwellModelCalculator"/>
         </member>
         <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Viscoelasticity.Linear.Maxwell.MaxwellModelCalculator.CalculateRelaxationTime(MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalModelInput{MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.Linear.Maxwell.MaxwellConstitutiveParameters})">
@@ -786,15 +786,15 @@
             Implements the calculator for the Modified Superposition Method (MSM).
             Resolves non-linear viscoelastic responses by evaluating strain-dependent relaxation functions through numerical integration.
             </summary>
-            <param name="integration">See reference at <see cref="T:MelloSilveiraTools.Mathematics.NumericalMethods.Integral.IIntegration"/>.</param>
+            <param name="integration">See reference at <see cref="T:MelloSilveiraTools.Mathematics.NumericalMethods.Integrals.IIntegration"/>.</param>
             <param name="parameterConverter">The utility used to convert structural metrics into material metrics.</param>
         </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Viscoelasticity.NonLinear.ModifiedSuperpositionMethod.ModifiedSuperpositionMethodCalculator.#ctor(MelloSilveiraTools.Mathematics.NumericalMethods.Integral.IIntegration,MelloSilveiraTools.MechanicsOfMaterials.Converters.MechanicalParameter.IMechanicalParameterConverter)">
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Viscoelasticity.NonLinear.ModifiedSuperpositionMethod.ModifiedSuperpositionMethodCalculator.#ctor(MelloSilveiraTools.Mathematics.NumericalMethods.Integrals.IIntegration,MelloSilveiraTools.MechanicsOfMaterials.Converters.MechanicalParameter.IMechanicalParameterConverter)">
             <summary>
             Implements the calculator for the Modified Superposition Method (MSM).
             Resolves non-linear viscoelastic responses by evaluating strain-dependent relaxation functions through numerical integration.
             </summary>
-            <param name="integration">See reference at <see cref="T:MelloSilveiraTools.Mathematics.NumericalMethods.Integral.IIntegration"/>.</param>
+            <param name="integration">See reference at <see cref="T:MelloSilveiraTools.Mathematics.NumericalMethods.Integrals.IIntegration"/>.</param>
             <param name="parameterConverter">The utility used to convert structural metrics into material metrics.</param>
         </member>
         <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Viscoelasticity.NonLinear.ModifiedSuperpositionMethod.ModifiedSuperpositionMethodCalculator.CalculateInitialYoungModulus(MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalModelInput{MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.NonLinear.ModifiedSuperpositionMethod.ModifiedSuperpositionMethodConstitutiveParameters},System.Double)">
@@ -902,13 +902,13 @@
         </member>
         <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Viscoelasticity.NonLinear.Schapery.SchaperyModelCalculator">
             <inheritdoc cref="T:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Viscoelasticity.NonLinear.Schapery.ISchaperyModelCalculator"/>
-            <param name="integration">See reference at <see cref="T:MelloSilveiraTools.Mathematics.NumericalMethods.Integral.IIntegration"/>.</param>
+            <param name="integration">See reference at <see cref="T:MelloSilveiraTools.Mathematics.NumericalMethods.Integrals.IIntegration"/>.</param>
             <param name="differentiation">See reference at <see cref="T:MelloSilveiraTools.Mathematics.NumericalMethods.Differentiations.IDifferentiation"/>.</param>
             <param name="parameterConverter">See reference at <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Converters.MechanicalParameter.IMechanicalParameterConverter"/>.</param>
         </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Viscoelasticity.NonLinear.Schapery.SchaperyModelCalculator.#ctor(MelloSilveiraTools.Mathematics.NumericalMethods.Integral.IIntegration,MelloSilveiraTools.Mathematics.NumericalMethods.Differentiations.IDifferentiation,MelloSilveiraTools.MechanicsOfMaterials.Converters.MechanicalParameter.IMechanicalParameterConverter)">
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Viscoelasticity.NonLinear.Schapery.SchaperyModelCalculator.#ctor(MelloSilveiraTools.Mathematics.NumericalMethods.Integrals.IIntegration,MelloSilveiraTools.Mathematics.NumericalMethods.Differentiations.IDifferentiation,MelloSilveiraTools.MechanicsOfMaterials.Converters.MechanicalParameter.IMechanicalParameterConverter)">
             <inheritdoc cref="T:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Viscoelasticity.NonLinear.Schapery.ISchaperyModelCalculator"/>
-            <param name="integration">See reference at <see cref="T:MelloSilveiraTools.Mathematics.NumericalMethods.Integral.IIntegration"/>.</param>
+            <param name="integration">See reference at <see cref="T:MelloSilveiraTools.Mathematics.NumericalMethods.Integrals.IIntegration"/>.</param>
             <param name="differentiation">See reference at <see cref="T:MelloSilveiraTools.Mathematics.NumericalMethods.Differentiations.IDifferentiation"/>.</param>
             <param name="parameterConverter">See reference at <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Converters.MechanicalParameter.IMechanicalParameterConverter"/>.</param>
         </member>
@@ -960,13 +960,13 @@
         </member>
         <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Viscoelasticity.QuasiLinear.Fung.FungModelCalculator">
             <inheritdoc cref="T:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Viscoelasticity.QuasiLinear.Fung.IFungModelCalculator"/>
-            <param name="integration">See reference at <see cref="T:MelloSilveiraTools.Mathematics.NumericalMethods.Integral.IIntegration"/>.</param>
+            <param name="integration">See reference at <see cref="T:MelloSilveiraTools.Mathematics.NumericalMethods.Integrals.IIntegration"/>.</param>
             <param name="differentiation">See reference at <see cref="T:MelloSilveiraTools.Mathematics.NumericalMethods.Differentiations.IDifferentiation"/>.</param>
             <param name="parameterConverter">See reference at <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Converters.MechanicalParameter.IMechanicalParameterConverter"/>.</param>
         </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Viscoelasticity.QuasiLinear.Fung.FungModelCalculator.#ctor(MelloSilveiraTools.Mathematics.NumericalMethods.Integral.IIntegration,MelloSilveiraTools.Mathematics.NumericalMethods.Differentiations.IDifferentiation,MelloSilveiraTools.MechanicsOfMaterials.Converters.MechanicalParameter.IMechanicalParameterConverter)">
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Viscoelasticity.QuasiLinear.Fung.FungModelCalculator.#ctor(MelloSilveiraTools.Mathematics.NumericalMethods.Integrals.IIntegration,MelloSilveiraTools.Mathematics.NumericalMethods.Differentiations.IDifferentiation,MelloSilveiraTools.MechanicsOfMaterials.Converters.MechanicalParameter.IMechanicalParameterConverter)">
             <inheritdoc cref="T:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Viscoelasticity.QuasiLinear.Fung.IFungModelCalculator"/>
-            <param name="integration">See reference at <see cref="T:MelloSilveiraTools.Mathematics.NumericalMethods.Integral.IIntegration"/>.</param>
+            <param name="integration">See reference at <see cref="T:MelloSilveiraTools.Mathematics.NumericalMethods.Integrals.IIntegration"/>.</param>
             <param name="differentiation">See reference at <see cref="T:MelloSilveiraTools.Mathematics.NumericalMethods.Differentiations.IDifferentiation"/>.</param>
             <param name="parameterConverter">See reference at <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Converters.MechanicalParameter.IMechanicalParameterConverter"/>.</param>
         </member>
@@ -1081,18 +1081,18 @@
         </member>
         <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Viscoelasticity.QuasiLinear.QuasiLinearModelCalculator`2">
             <inheritdoc cref="T:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Viscoelasticity.QuasiLinear.IQuasiLinearModelCalculator`2"/>
-            <param name="integration">See reference at <see cref="T:MelloSilveiraTools.Mathematics.NumericalMethods.Integral.IIntegration"/>.</param>
+            <param name="integration">See reference at <see cref="T:MelloSilveiraTools.Mathematics.NumericalMethods.Integrals.IIntegration"/>.</param>
             <param name="differentiation">See reference at <see cref="T:MelloSilveiraTools.Mathematics.NumericalMethods.Differentiations.IDifferentiation"/>.</param>
             <param name="parameterConverter">See reference at <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Converters.MechanicalParameter.IMechanicalParameterConverter"/>.</param>
         </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Viscoelasticity.QuasiLinear.QuasiLinearModelCalculator`2.#ctor(MelloSilveiraTools.Mathematics.NumericalMethods.Integral.IIntegration,MelloSilveiraTools.Mathematics.NumericalMethods.Differentiations.IDifferentiation,MelloSilveiraTools.MechanicsOfMaterials.Converters.MechanicalParameter.IMechanicalParameterConverter)">
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Viscoelasticity.QuasiLinear.QuasiLinearModelCalculator`2.#ctor(MelloSilveiraTools.Mathematics.NumericalMethods.Integrals.IIntegration,MelloSilveiraTools.Mathematics.NumericalMethods.Differentiations.IDifferentiation,MelloSilveiraTools.MechanicsOfMaterials.Converters.MechanicalParameter.IMechanicalParameterConverter)">
             <inheritdoc cref="T:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Viscoelasticity.QuasiLinear.IQuasiLinearModelCalculator`2"/>
-            <param name="integration">See reference at <see cref="T:MelloSilveiraTools.Mathematics.NumericalMethods.Integral.IIntegration"/>.</param>
+            <param name="integration">See reference at <see cref="T:MelloSilveiraTools.Mathematics.NumericalMethods.Integrals.IIntegration"/>.</param>
             <param name="differentiation">See reference at <see cref="T:MelloSilveiraTools.Mathematics.NumericalMethods.Differentiations.IDifferentiation"/>.</param>
             <param name="parameterConverter">See reference at <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Converters.MechanicalParameter.IMechanicalParameterConverter"/>.</param>
         </member>
         <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Viscoelasticity.QuasiLinear.QuasiLinearModelCalculator`2.Integration">
-            <inheritdoc cref="T:MelloSilveiraTools.Mathematics.NumericalMethods.Integral.IIntegration"/>
+            <inheritdoc cref="T:MelloSilveiraTools.Mathematics.NumericalMethods.Integrals.IIntegration"/>
         </member>
         <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Viscoelasticity.QuasiLinear.QuasiLinearModelCalculator`2.CalculateCreepCompliance(MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalModelInput{`0},System.Double,System.Nullable{System.Double})">
             <inheritdoc/>
@@ -1170,13 +1170,13 @@
         </member>
         <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Viscoelasticity.QuasiLinear.SimplifiedFung.SimplifiedFungModelCalculator">
             <inheritdoc cref="T:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Viscoelasticity.QuasiLinear.SimplifiedFung.ISimplifiedFungModelCalculator"/>
-            <param name="integration">See reference at <see cref="T:MelloSilveiraTools.Mathematics.NumericalMethods.Integral.IIntegration"/>.</param>
+            <param name="integration">See reference at <see cref="T:MelloSilveiraTools.Mathematics.NumericalMethods.Integrals.IIntegration"/>.</param>
             <param name="differentiation">See reference at <see cref="T:MelloSilveiraTools.Mathematics.NumericalMethods.Differentiations.IDifferentiation"/>.</param>
             <param name="parameterConverter">See reference at <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Converters.MechanicalParameter.IMechanicalParameterConverter"/>.</param>
         </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Viscoelasticity.QuasiLinear.SimplifiedFung.SimplifiedFungModelCalculator.#ctor(MelloSilveiraTools.Mathematics.NumericalMethods.Integral.IIntegration,MelloSilveiraTools.Mathematics.NumericalMethods.Differentiations.IDifferentiation,MelloSilveiraTools.MechanicsOfMaterials.Converters.MechanicalParameter.IMechanicalParameterConverter)">
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Viscoelasticity.QuasiLinear.SimplifiedFung.SimplifiedFungModelCalculator.#ctor(MelloSilveiraTools.Mathematics.NumericalMethods.Integrals.IIntegration,MelloSilveiraTools.Mathematics.NumericalMethods.Differentiations.IDifferentiation,MelloSilveiraTools.MechanicsOfMaterials.Converters.MechanicalParameter.IMechanicalParameterConverter)">
             <inheritdoc cref="T:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Viscoelasticity.QuasiLinear.SimplifiedFung.ISimplifiedFungModelCalculator"/>
-            <param name="integration">See reference at <see cref="T:MelloSilveiraTools.Mathematics.NumericalMethods.Integral.IIntegration"/>.</param>
+            <param name="integration">See reference at <see cref="T:MelloSilveiraTools.Mathematics.NumericalMethods.Integrals.IIntegration"/>.</param>
             <param name="differentiation">See reference at <see cref="T:MelloSilveiraTools.Mathematics.NumericalMethods.Differentiations.IDifferentiation"/>.</param>
             <param name="parameterConverter">See reference at <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Converters.MechanicalParameter.IMechanicalParameterConverter"/>.</param>
         </member>

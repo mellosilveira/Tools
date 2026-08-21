@@ -1,9 +1,4 @@
-﻿using MelloSilveiraTools.Core.Models;
-using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Commands.CurveFitting;
-using MelloSilveiraTools.WebApi.ExtensionMethods;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using System.Net.Mime;
+﻿using Microsoft.AspNetCore.Mvc;
 
 namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Controllers;
 
