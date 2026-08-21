@@ -1,48 +1,95 @@
 ﻿using MelloSilveiraTools.Core.Managers.File;
+using MelloSilveiraTools.Core.Models;
 using MelloSilveiraTools.Mathematics.Extensions;
 using MelloSilveiraTools.Mathematics.NumericalMethods.Differentiations;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Models.CurveFitting;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Models.ExperimentalData;
 using Microsoft.Extensions.Logging;
 using System.Runtime.CompilerServices;
+using System.Threading.Tasks.Dataflow;
 
 namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Services.ExperimentalData;
 
 public class ExperimentalDataService(
     ILogger<ExperimentalDataService> logger,
     IDifferentiation differentiation,
-    IFileManager fileManager)
+    IFileManager fileManager,
+    ExperimentalDataSettings settings)
     : IExperimentalDataService
 {
-    public async IAsyncEnumerable<SegmentedDataPoint> ProcessAsync(string identifier, string outputFileUri, Stream strainStream, Stream stressStream, ExperimentalDataProcessingOptions options, CancellationToken cancellationToken)
+    public async Task<Result<(string OutputFileName, CurveSegment[] CurveSegments)>> ProcessAsync(
+        string uniqueIdentifier,
+        string outputFileUri,
+        Stream strainStream,
+        Stream stressStream,
+        ExperimentalDataProcessingOptions? options = null,
+        CancellationToken cancellationToken = default)
     {
-        using (var streamWriter = fileManager.CreateTimebasedFileWriter(outputFileUri, identifier, FileExtensions.CommaSeparatedValues))
+        options ??= ExperimentalDataProcessingOptions.Default;
+
+        List<CurveSegment> curveSegments = [];
+        List<double> timePoints = [];
+        List<double> strainPoints = [];
+        List<double> stressPoints = [];
+        ProcessedDataPoint? previousPoint = null;
+        SegmentType? previousSegmentType = null;
+
+        var (outputFullFileName, writePointTask, completeWriterTask) = await PrepareFileWriterAsync(outputFileUri, uniqueIdentifier, cancellationToken).ConfigureAwait(false);
+        await foreach (var (segmentType, point) in SegmentPointsAsync(strainStream, stressStream, options, cancellationToken))
         {
-            await streamWriter.WriteLineAsync("Time,Strain,StrainRate,StrainAcceleration,Stress,StressRate,StressAcceleration").ConfigureAwait(false);
+            await writePointTask(point, cancellationToken).ConfigureAwait(false);
 
-            ProcessedDataPoint? previousPoint = null;
-            SegmentType? previousSegmentType = null;
-            await foreach ((SegmentType segmentType, ProcessedDataPoint point) in SegmentPointsAsync(strainStream, stressStream, options, cancellationToken))
+            bool typeChanged = previousSegmentType != segmentType;
+            if (typeChanged && previousSegmentType != null && timePoints.Count > 0)
             {
-                await streamWriter.WriteLineAsync($"{point.Time},{point.Strain},{point.StrainRate},{point.StrainAcceleration},{point.Stress},{point.StressRate},{point.StressAcceleration}").ConfigureAwait(false);
-                
-                if (previousSegmentType != segmentType || previousSegmentType is null || point.Time - previousPoint?.Time >= options.SkipTimeStep)
+                curveSegments.Add(new CurveSegment
                 {
+                    Type = previousSegmentType.Value,
+                    TimePoints = [.. timePoints],
+                    ExperimentalStrain = [.. strainPoints],
+                    ExperimentalStress = [.. stressPoints]
+                });
 
-                }
-
-                previousSegmentType = segmentType;
-                previousPoint = point;
+                timePoints.Clear();
+                strainPoints.Clear();
+                stressPoints.Clear();
             }
+
+            if (typeChanged || previousPoint == null || (point.Time - previousPoint.Value.Time) >= options.SkipTimeStep)
+            {
+                timePoints.Add(point.Time);
+                strainPoints.Add(point.Strain);
+                stressPoints.Add(point.Stress);
+            }
+
+            previousSegmentType = segmentType;
+            previousPoint = point;
         }
+
+        await completeWriterTask(cancellationToken).ConfigureAwait(false);
+
+        if (timePoints.Count > 0 && previousSegmentType != null)
+        {
+            curveSegments.Add(new CurveSegment
+            {
+                Type = previousSegmentType.Value,
+                TimePoints = [.. timePoints],
+                ExperimentalStrain = [.. strainPoints],
+                ExperimentalStress = [.. stressPoints]
+            });
+        }
+
+        return (outputFullFileName, [.. curveSegments]);
     }
 
     public async IAsyncEnumerable<SegmentedDataPoint> SegmentPointsAsync(
         Stream strainStream,
         Stream stressStream,
-        ExperimentalDataProcessingOptions options,
-        [EnumeratorCancellation] CancellationToken cancellationToken)
+        ExperimentalDataProcessingOptions? options = null,
+        [EnumeratorCancellation] CancellationToken cancellationToken = default)
     {
+        options ??= ExperimentalDataProcessingOptions.Default;
+
         using var strainReader = new StreamReader(strainStream);
         using var stressReader = new StreamReader(stressStream);
 
@@ -52,13 +99,10 @@ public class ExperimentalDataService(
         ProcessedDataPoint previousPoint = new();
         SegmentType currentSegmentType = SegmentType.Unknown;
 
-        // 1. Substituímos o List por um Array Fixo para reaproveitamento total
         ExperimentalDataPoint[] buffer = new ExperimentalDataPoint[options.BufferSize];
         int bufferCount = 0;
 
-        // 2. Pré-alocamos a lista de resultados para não recriar dicionários e arrays
         List<(SegmentType Type, ArraySegment<ExperimentalDataPoint> Points)> segmentResults = new(2);
-
         while ((strainLine = await strainReader.ReadLineAsync(cancellationToken).ConfigureAwait(false)) != null
             && (stressLine = await stressReader.ReadLineAsync(cancellationToken).ConfigureAwait(false)) != null)
         {
@@ -92,15 +136,12 @@ public class ExperimentalDataService(
                 continue;
             }
 
-            // Correção de Bug: Adiciona ao buffer ANTES de verificar se está cheio para não perder o ponto atual
             buffer[bufferCount++] = new ExperimentalDataPoint(normalizedTime, strain, stress);
             if (bufferCount < options.BufferSize)
                 continue;
 
-            // Processa passando o array fixo e a lista pre-alocada
             foreach (var (segmentType, points) in ExtractSegments(currentSegmentType, buffer, bufferCount, options, segmentResults))
             {
-                // ArraySegment permite indexação super rápida sem alocar arrays
                 for (int i = 0; i < points.Count; i++)
                 {
                     ProcessedDataPoint processedPoint = BuildProcessedDataPoint(previousPoint, points[i], options);
@@ -116,22 +157,64 @@ public class ExperimentalDataService(
                 }
             }
 
-            // Apenas zeramos o contador. Os dados serão sobrescritos de forma eficiente na próxima volta.
             bufferCount = 0;
         }
     }
 
-    private static (double Time, double Value) ParseLine(string line)
+    public List<(SegmentType, ArraySegment<ExperimentalDataPoint>)> ExtractSegments(
+        SegmentType currentType, 
+        ExperimentalDataPoint[] points, 
+        int count, 
+        ExperimentalDataProcessingOptions? options = null)
+        => ExtractSegments(currentType, points, count, options ?? ExperimentalDataProcessingOptions.Default, []);
+
+    private async Task<(string OutputFullFileName, Func<ProcessedDataPoint, CancellationToken, Task> WritePointTask, Func<CancellationToken, Task> CompleteWriterTask)> PrepareFileWriterAsync(
+        string outputFileUri, 
+        string uniqueIdentifier, 
+        CancellationToken cancellationToken)
     {
-        var span = line.AsSpan();
-        int commaIndex = span.IndexOf(',');
-        return (double.Parse(span[..commaIndex]), double.Parse(span[(commaIndex + 1)..]));
+        FileInfo outputFile = fileManager.BuildTimebasedFileInfo(outputFileUri, uniqueIdentifier, FileExtensions.CommaSeparatedValues);
+        using var streamWriter = fileManager.CreateLargeFileWriter(outputFile);
+        await streamWriter.WriteLineAsync("Time,Strain,StrainRate,StrainAcceleration,Stress,StressRate,StressAcceleration").ConfigureAwait(false);
+
+        ActionBlock<ProcessedDataPoint> fileWriterBlock = new(
+            async p => await streamWriter.WriteLineAsync($"{p.Time},{p.Strain},{p.StrainRate},{p.StrainAcceleration},{p.Stress},{p.StressRate},{p.StressAcceleration}").ConfigureAwait(false),
+            new ExecutionDataflowBlockOptions
+            {
+                // The file must be writer sequentially to avoid corruption, so we set MaxDegreeOfParallelism to 1.
+                MaxDegreeOfParallelism = 1,
+                BoundedCapacity = settings.FileWriterBoundedCapacity,
+                CancellationToken = cancellationToken
+            });
+
+        async Task WritePointAsync(ProcessedDataPoint point, CancellationToken ct)
+        {
+            if (!await fileWriterBlock.SendAsync(point, ct).ConfigureAwait(false))
+                logger.LogWarning("Failed to send point {@Point} at Time={Time} to file writer block.", point, point.Time);
+        }
+
+        async Task CompleteWriterAsync(CancellationToken cancellationToken)
+        {
+            await streamWriter.DisposeAsync().ConfigureAwait(false);
+
+            try
+            {
+                fileWriterBlock.Complete();
+                await fileWriterBlock.Completion.ConfigureAwait(false);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "Error occurred while completing the file writer block.");
+            }
+        }
+
+        return (outputFile.FullName, WritePointAsync, CompleteWriterAsync);
     }
 
-    public List<(SegmentType, ArraySegment<ExperimentalDataPoint>)> ExtractSegments(
+    private List<(SegmentType, ArraySegment<ExperimentalDataPoint>)> ExtractSegments(
         SegmentType currentType,
         ExperimentalDataPoint[] buffer,
-        int count,
+        int bufferCount,
         ExperimentalDataProcessingOptions options,
         List<(SegmentType, ArraySegment<ExperimentalDataPoint>)> results)
     {
@@ -139,8 +222,7 @@ public class ExperimentalDataService(
         int minStrainIndex = 0, maxStrainIndex = 0;
         double minStrain = buffer[0].Strain, maxStrain = buffer[0].Strain;
 
-        // Iteramos até 'count' em vez de 'buffer.Length'
-        for (int i = 1; i < count; i++)
+        for (int i = 1; i < bufferCount; i++)
         {
             double strainDiff = buffer[i].Strain - buffer[i - 1].Strain;
             if (Math.Abs(strainDiff) < options.Tolerance)
@@ -175,45 +257,52 @@ public class ExperimentalDataService(
         double stepTime = buffer[maxStrainIndex].Time - buffer[minStrainIndex].Time;
         double strainRate = differentiation.Calculate(minStrain, maxStrain, stepTime == 0 ? double.Epsilon : stepTime);
 
-        if (Math.Abs(strainRate) <= options.DerivativeTolerance)
+        if (Math.Abs(strainRate) <= options.RateTolerance)
         {
             var type = currentType is SegmentType.Descent or SegmentType.Recovery ? SegmentType.Recovery : SegmentType.Relaxation;
-            results.Add((type, new ArraySegment<ExperimentalDataPoint>(buffer, 0, count)));
+            results.Add((type, new ArraySegment<ExperimentalDataPoint>(buffer, 0, bufferCount)));
             return results;
         }
 
-        return strainRate > options.DerivativeTolerance
-            ? SliceBuffer(buffer, count, minStrainIndex, maxStrainIndex, SegmentType.Recovery, SegmentType.Ramp, SegmentType.Relaxation, results)
-            : SliceBuffer(buffer, count, maxStrainIndex, minStrainIndex, SegmentType.Relaxation, SegmentType.Descent, SegmentType.Recovery, results);
+        return strainRate > options.RateTolerance
+            ? SliceBuffer(buffer, bufferCount, minStrainIndex, maxStrainIndex, SegmentType.Recovery, SegmentType.Ramp, SegmentType.Relaxation, results)
+            : SliceBuffer(buffer, bufferCount, maxStrainIndex, minStrainIndex, SegmentType.Relaxation, SegmentType.Descent, SegmentType.Recovery, results);
+    }
+
+    private static (double Time, double Value) ParseLine(string line)
+    {
+        var span = line.AsSpan();
+        int commaIndex = span.IndexOf(',');
+        return (double.Parse(span[..commaIndex]), double.Parse(span[(commaIndex + 1)..]));
     }
 
     private List<(SegmentType, ArraySegment<ExperimentalDataPoint>)> SliceBuffer(
         ExperimentalDataPoint[] buffer,
-        int count,
-        int startIndex,
+        int bufferCount,
+        int startIndex, 
         int endIndex,
         SegmentType typeBefore,
         SegmentType activeType,
         SegmentType typeAfter,
         List<(SegmentType, ArraySegment<ExperimentalDataPoint>)> results)
     {
-        if (startIndex == 0 && endIndex == count - 1)
+        if (startIndex == 0 && endIndex == bufferCount - 1)
         {
-            results.Add((activeType, new ArraySegment<ExperimentalDataPoint>(buffer, 0, count)));
+            results.Add((activeType, new ArraySegment<ExperimentalDataPoint>(buffer, 0, bufferCount)));
             return results;
         }
 
         if (startIndex == 0)
         {
             results.Add((activeType, new ArraySegment<ExperimentalDataPoint>(buffer, 0, endIndex + 1)));
-            results.Add((typeAfter, new ArraySegment<ExperimentalDataPoint>(buffer, endIndex + 1, count - (endIndex + 1))));
+            results.Add((typeAfter, new ArraySegment<ExperimentalDataPoint>(buffer, endIndex + 1, bufferCount - (endIndex + 1))));
             return results;
         }
 
-        if (endIndex == count - 1)
+        if (endIndex == bufferCount - 1)
         {
             results.Add((typeBefore, new ArraySegment<ExperimentalDataPoint>(buffer, 0, startIndex)));
-            results.Add((activeType, new ArraySegment<ExperimentalDataPoint>(buffer, startIndex, count - startIndex)));
+            results.Add((activeType, new ArraySegment<ExperimentalDataPoint>(buffer, startIndex, bufferCount - startIndex)));
             return results;
         }
 
@@ -231,20 +320,20 @@ public class ExperimentalDataService(
         return new ProcessedDataPoint(
             point.Time,
             Strain: Math.Abs(point.Strain) > options.Tolerance ? point.Strain : 0,
-            StrainRate: Math.Abs(calculatedStrainRate) > options.DerivativeTolerance ? calculatedStrainRate : 0,
-            StrainAcceleration: Math.Abs(calculatedStrainAcceleration) > options.DerivativeTolerance ? calculatedStrainAcceleration : 0,
+            StrainRate: Math.Abs(calculatedStrainRate) > options.RateTolerance ? calculatedStrainRate : 0,
+            StrainAcceleration: Math.Abs(calculatedStrainAcceleration) > options.AccelerationTolerance ? calculatedStrainAcceleration : 0,
             Stress: Math.Abs(point.Stress) > options.Tolerance ? point.Stress : 0,
-            StressRate: Math.Abs(calculatedStressRate) > options.DerivativeTolerance ? calculatedStressRate : 0,
-            StressAcceleration: Math.Abs(calculatedStressAcceleration) > options.DerivativeTolerance ? calculatedStressAcceleration : 0
+            StressRate: Math.Abs(calculatedStressRate) > options.RateTolerance ? calculatedStressRate : 0,
+            StressAcceleration: Math.Abs(calculatedStressAcceleration) > options.AccelerationTolerance ? calculatedStressAcceleration : 0
         );
     }
 
     private static bool ValidateStress(SegmentType segment, double stressRate, double stressAcceleration) => segment switch
     {
         SegmentType.Ramp => stressRate > 0,
-        SegmentType.Relaxation => stressRate < 0 && stressAcceleration > 0,
+        SegmentType.Relaxation => stressRate <= 0 && stressAcceleration >= 0,
         SegmentType.Descent => stressRate < 0,
-        SegmentType.Recovery => stressRate > 0 && stressAcceleration < 0,
+        SegmentType.Recovery => stressRate >= 0 && stressAcceleration <= 0,
         _ => false
     };
 }

@@ -153,11 +153,6 @@
             conditions are evaluated as an instantaneous Heaviside step or a finite-time linear ramp.
             </summary>
         </member>
-        <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Commands.CurveFitting.IExperimentalDataProcessor">
-            <summary>
-            Handles the validation and segmentation of the experimental data file.
-            </summary>
-        </member>
         <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Commands.CurveFitting.ParameterGroupResultData.OptimizedParameters">
             <summary>
             Optimized constitutive parameters.
@@ -352,6 +347,11 @@
         </member>
         <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Models.Range.RangeReducedRelaxationFunction.SlowRelaxationTime">
             <summary>Constant tau 1. Unit: s (second).</summary>
+        </member>
+        <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Services.ExperimentalData.IExperimentalDataService">
+            <summary>
+            Handles the validation and segmentation of the experimental data file.
+            </summary>
         </member>
     </members>
 </doc>

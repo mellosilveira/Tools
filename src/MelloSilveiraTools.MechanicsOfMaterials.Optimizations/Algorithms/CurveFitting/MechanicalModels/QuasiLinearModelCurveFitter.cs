@@ -5,6 +5,22 @@ using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Models.CurveFitting;
 
 namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Algorithms.CurveFitting.MechanicalModels;
 
+public abstract class QuasiLinearModelRampCurveFitter(
+    ICurveFitter mathematicalEngine,
+    IOptimizationMapper optimizationMapper) : ICurveFitter
+{
+    protected readonly ICurveFitter MathematicalEngine = mathematicalEngine;
+
+    public CurveFitResult Fit(CurveFitInput input)
+    {
+
+        
+        return null;
+    }
+
+    protected abstract CurveFitResult FitRelaxationPhase(CurveFitInput relaxationInput);
+}
+
 public abstract class QuasiLinearModelCurveFitter(
     ICurveFitter mathematicalEngine,
     IOptimizationMapper optimizationMapper) : ICurveFitter
@@ -13,39 +29,40 @@ public abstract class QuasiLinearModelCurveFitter(
 
     public CurveFitResult Fit(CurveFitInput input)
     {
-        var rampSegment = input.Segments.FirstOrDefault(s => s.Type == SegmentType.Ramp);
-        var relaxationSegment = input.Segments.FirstOrDefault(s => s.Type == SegmentType.Relaxation);
+        //var rampSegment = input.Segments.FirstOrDefault(s => s.Type == SegmentType.Ramp);
+        //var relaxationSegment = input.Segments.FirstOrDefault(s => s.Type == SegmentType.Relaxation);
 
-        // Se não houver rampa (ex: step-strain ideal), ajusta apenas a relaxação
-        if (rampSegment == null && relaxationSegment != null)
-        {
-            return FitRelaxationPhase(input with { Segments = [relaxationSegment] });
-        }
+        //// Se não houver rampa (ex: step-strain ideal), ajusta apenas a relaxação
+        //if (rampSegment == null && relaxationSegment != null)
+        //{
+        //    return FitRelaxationPhase(input with { Segments = [relaxationSegment] });
+        //}
 
-        if (rampSegment == null)
-            return MathematicalEngine.Fit(input); // Fallback genérico se não tiver nenhum dos dois
+        //if (rampSegment == null)
+        //    return MathematicalEngine.Fit(input); // Fallback genérico se não tiver nenhum dos dois
 
-        // 1. Ajuste do trecho de Rampa (Isolando o segmento no Input)
-        var rampInput = input with { Segments = [rampSegment] };
-        var elasticResult = MathematicalEngine.Fit(rampInput);
+        //// 1. Ajuste do trecho de Rampa (Isolando o segmento no Input)
+        //var rampInput = input with { Segments = [rampSegment] };
+        //var elasticResult = MathematicalEngine.Fit(rampInput);
 
-        if (!elasticResult.IsSuccessful)
-            return elasticResult;
+        //if (!elasticResult.IsSuccessful)
+        //    return elasticResult;
 
-        // 2. Atualiza os parâmetros do modelo com A e B otimizados
-        var updatedInitialInput = input.InitialInput with { ConstitutiveParameters = optimizationMapper.MapToConstitutiveParameters(elasticResult.OptimizedParameters) };
+        //// 2. Atualiza os parâmetros do modelo com A e B otimizados
+        //var updatedInitialInput = input.InitialMechanicalModelInput with { ConstitutiveParameters = optimizationMapper.MapToConstitutiveParameters(elasticResult.OptimizedParameters) };
 
-        // 3. Prepara o input apenas com a Relaxação
-        var relaxationInput = input with
-        {
-            InitialInput = updatedInitialInput,
-            Segments = relaxationSegment != null ? [relaxationSegment] : []
-        };
+        //// 3. Prepara o input apenas com a Relaxação
+        //var relaxationInput = input with
+        //{
+        //    InitialMechanicalModelInput = updatedInitialInput,
+        //    Segments = relaxationSegment != null ? [relaxationSegment] : []
+        //};
 
-        // 4. Ajuste do trecho de Relaxação
-        return relaxationSegment != null
-            ? FitRelaxationPhase(relaxationInput)
-            : elasticResult;
+        //// 4. Ajuste do trecho de Relaxação
+        //return relaxationSegment != null
+        //    ? FitRelaxationPhase(relaxationInput)
+        //    : elasticResult;
+        return null;
     }
 
     protected abstract CurveFitResult FitRelaxationPhase(CurveFitInput relaxationInput);

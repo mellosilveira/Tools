@@ -38,9 +38,8 @@ public class FileManager : IFileManager
         return fileInfo;
     }
 
-    public StreamWriter CreateTimebasedFileWriter(string fileUri, string filePrefix, string fileExtension)
+    public StreamWriter CreateLargeFileWriter(FileInfo fileInfo)
     {
-        FileInfo fileInfo = BuildTimebasedFileInfo(fileUri, filePrefix, fileExtension);
         FileStream stream = fileInfo.Open(LargeFileStreamOptions);
         return new StreamWriter(stream, Utf8Encoding, LargeFileBufferSize);
     }

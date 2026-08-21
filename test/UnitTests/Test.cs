@@ -1,3 +1,4 @@
+using MelloSilveiraTools.Core.Managers.File;
 using MelloSilveiraTools.Mathematics.NumericalMethods.Differentiations;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Models.CurveFitting;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Models.ExperimentalData;
@@ -9,15 +10,15 @@ namespace UnitTests;
 
 public class Test
 {
-    private readonly ExperimentalDataService _processor = new(Mock.Of<ILogger<ExperimentalDataService>>(), new Differentiation());
-    private readonly ExperimentalDataProcessingOptions _options = new(0.0, BufferSize: 10, RelativeTolerance: 1e-6, Tolerance: 1e-6, DerivativeTolerance: 1e-6, SkipTimeStep: 0.0);
+    private readonly ExperimentalDataService _processor = new(Mock.Of<ILogger<ExperimentalDataService>>(), new Differentiation(), Mock.Of<IFileManager>());
+    private readonly ExperimentalDataProcessingOptions _options = new(0.0, BufferSize: 10, RelativeTolerance: 1e-6, Tolerance: 1e-6, AccelerationTolerance: 1e-6, SkipTimeStep: 0.0);
 
     [Theory]
     [MemberData(nameof(GetTestData))]
     public void TestMethod(SegmentType currentType, ExperimentalDataPoint[] buffer, List<(SegmentType SegmentType, ArraySegment<ExperimentalDataPoint> Points)> expected)
     {
         // Act
-        List<(SegmentType SegmentType, ArraySegment<ExperimentalDataPoint> Points)> result = _processor.ExtractSegments(currentType, buffer, count: buffer.Length, _options, []);
+        List<(SegmentType SegmentType, ArraySegment<ExperimentalDataPoint> Points)> result = _processor.ExtractSegments(currentType, buffer, count: buffer.Length, _options);
 
         // Assert
         Assert.Equal(expected.Count, result.Count);

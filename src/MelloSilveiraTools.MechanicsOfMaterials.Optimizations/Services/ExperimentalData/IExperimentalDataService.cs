@@ -9,5 +9,9 @@ namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Services.Experim
 /// </summary>
 public interface IExperimentalDataService
 {
-    Task<Result<CurveSegment[]>> ProcessAsync(string identifier, string outputFileUri, Stream strainStream, Stream stressStream, ExperimentalDataProcessingOptions options, CancellationToken cancellationToken);
+    Task<Result<(string OutputFileName, CurveSegment[] CurveSegments)>> ProcessAsync(string identifier, string outputFileUri, Stream strainStream, Stream stressStream, ExperimentalDataProcessingOptions? options = null, CancellationToken cancellationToken = default);
+
+    IAsyncEnumerable<SegmentedDataPoint> SegmentPointsAsync(Stream strainStream, Stream stressStream, ExperimentalDataProcessingOptions? options = null, CancellationToken cancellationToken = default);
+
+    List<(SegmentType, ArraySegment<ExperimentalDataPoint>)> ExtractSegments(SegmentType currentType, ExperimentalDataPoint[] points, int count, ExperimentalDataProcessingOptions? options = null);
 }
