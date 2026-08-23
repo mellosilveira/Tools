@@ -11,38 +11,101 @@ namespace MelloSilveiraTools.Core.Pipelines.Dataflow;
 internal class DataflowPipelineBuilder<THead, TTail>(
     ITargetBlock<THead> headBlock,
     ISourceBlock<TTail> tailBlock,
+    ITargetBlock<FailedPayload<TTail>>? deadLetterQueueBlock,
     ILogger? logger,
-    CancellationToken pipelineCancellationToken) 
+    CancellationToken pipelineCancellationToken)
     : IDataflowPipelineBuilder<THead, TTail>
 {
     /// <inheritdoc/>
+    public IDataflowPipelineBuilder<THead, TTail> WithDeadLetterQueue(ITargetBlock<FailedPayload<TTail>> deadLetterQueueSink)
+    {
+        ArgumentNullException.ThrowIfNull(deadLetterQueueSink);
+        return new DataflowPipelineBuilder<THead, TTail>(headBlock, tailBlock, deadLetterQueueSink, logger, pipelineCancellationToken);
+    }
+
+    /// <inheritdoc/>
+    public IDataflowPipelineBuilder<THead, TTail> WithDeadLetterQueue(Action<FailedPayload<TTail>> errorHandler, PipelineStepOptions options = default)
+    {
+        ArgumentNullException.ThrowIfNull(errorHandler);
+        ActionBlock<FailedPayload<TTail>> actionBlock = new(errorHandler, options.ToDataflowOptions(pipelineCancellationToken));
+        return WithDeadLetterQueue(actionBlock);
+    }
+
+    /// <inheritdoc/>
+    public IDataflowPipelineBuilder<THead, TTail> WithDeadLetterQueue(Func<FailedPayload<TTail>, CancellationToken, Task> errorHandlerAsync, PipelineStepOptions options = default)
+    {
+        ArgumentNullException.ThrowIfNull(errorHandlerAsync);
+        ActionBlock<FailedPayload<TTail>> actionBlock = new(async payload => await errorHandlerAsync(payload, pipelineCancellationToken).ConfigureAwait(false), options.ToDataflowOptions(pipelineCancellationToken));
+        return WithDeadLetterQueue(actionBlock);
+    }
+
+    /// <inheritdoc/>
     public IDataflowPipelineBuilder<THead, TNextOut> AddStep<TNextOut>(string stepName, Func<TTail, CancellationToken, Task<TNextOut>> stepFunc, PipelineStepOptions options = default)
     {
-        Func<TTail, Task<TNextOut>> safeExecution = ConvertToSafeExecution(stepName, stepFunc, pipelineCancellationToken);
-        TransformBlock<TTail, TNextOut> nextBlock = new(safeExecution, options.ToDataflowOptions(pipelineCancellationToken));
-        tailBlock.LinkTo(nextBlock, new DataflowLinkOptions { PropagateCompletion = true });
+        Func<TTail, Task<TNextOut?>> safeExecution = ConvertToSafeExecution(stepName, stepFunc, pipelineCancellationToken);
+        TransformBlock<TTail, TNextOut?> nextBlock = new(safeExecution, options.ToDataflowOptions(pipelineCancellationToken));
+        tailBlock.LinkTo(nextBlock, ignoreNulls: true);
 
-        return new DataflowPipelineBuilder<THead, TNextOut>(headBlock, nextBlock, logger, pipelineCancellationToken);
+        return new DataflowPipelineBuilder<THead, TNextOut>(headBlock, nextBlock!, deadLetterQueueBlock: null, logger, pipelineCancellationToken);
+    }
+
+    /// <inheritdoc/>
+    public IDataflowPipelineBuilder<THead, TNextOut> AddForkingStep<TNextOut>(
+        string stepName,
+        Func<TTail, CancellationToken, Task<TNextOut>> primaryFunc,
+        Func<FailedPayload<TTail>, CancellationToken, Task> recoveryFunc,
+        PipelineStepOptions options = default)
+    {
+        async Task<(TNextOut? Result, FailedPayload<TTail>? Failure, bool IsSuccess)> ExecuteWithForkAsync(TTail item)
+        {
+            try
+            {
+                var result = await primaryFunc(item, pipelineCancellationToken).ConfigureAwait(false);
+                return (result, default, true);
+            }
+            catch (Exception ex) when (ex is not OperationCanceledException)
+            {
+                PipelineExecutionException pipelineEx = new(stepName, $"Forking step '{stepName}' faulted.", ex);
+                FailedPayload<TTail> failure = new(item, pipelineEx, stepName);
+                return (default, failure, false);
+            }
+        }
+
+        TransformBlock<TTail, (TNextOut? Result, FailedPayload<TTail>? Failure, bool IsSuccess)> splitBlock = new(ExecuteWithForkAsync, options.ToDataflowOptions(pipelineCancellationToken));
+
+        TransformBlock<(TNextOut? Result, FailedPayload<TTail>? Failure, bool IsSuccess), TNextOut> successTarget = new(
+            tuple => tuple.Result!,
+            options.ToDataflowOptions(pipelineCancellationToken));
+
+        ActionBlock<(TNextOut? Result, FailedPayload<TTail>? Failure, bool IsSuccess)> failureTarget = new(
+            async tuple => await recoveryFunc(tuple.Failure!.Value, pipelineCancellationToken).ConfigureAwait(false),
+            options.ToDataflowOptions(pipelineCancellationToken));
+
+        tailBlock.LinkTo(splitBlock);
+        splitBlock.LinkTo(successTarget, tuple => tuple.IsSuccess);
+        splitBlock.LinkTo(failureTarget, tuple => !tuple.IsSuccess);
+
+        return new DataflowPipelineBuilder<THead, TNextOut>(headBlock, successTarget, null, logger, pipelineCancellationToken);
     }
 
     /// <inheritdoc/>
     public IDataflowPipelineBuilder<THead, TNextOut> AddDataMapping<TNextOut>(string stepName, Func<TTail, TNextOut> mapFunc, PipelineStepOptions options = default)
     {
-        Func<TTail, TNextOut> safeExecution = ConvertToSafeExecution(stepName, mapFunc, pipelineCancellationToken);
-        TransformBlock<TTail, TNextOut> nextBlock = new(safeExecution, options.ToDataflowOptions(pipelineCancellationToken));
-        tailBlock.LinkTo(nextBlock, new DataflowLinkOptions { PropagateCompletion = true });
+        Func<TTail, Task<TNextOut?>> safeExecution = ConvertToSafeExecution(stepName, mapFunc, pipelineCancellationToken);
+        TransformBlock<TTail, TNextOut?> nextBlock = new(safeExecution, options.ToDataflowOptions(pipelineCancellationToken));
+        tailBlock.LinkTo(nextBlock, ignoreNulls: true);
 
-        return new DataflowPipelineBuilder<THead, TNextOut>(headBlock, nextBlock, logger, pipelineCancellationToken);
+        return new DataflowPipelineBuilder<THead, TNextOut>(headBlock, nextBlock!, deadLetterQueueBlock: null, logger, pipelineCancellationToken);
     }
 
     /// <inheritdoc/>
     public IDataflowPipelineBuilder<THead, TNextOut> AddDataMapping<TNextOut>(string stepName, Func<TTail, CancellationToken, Task<TNextOut>> mapFunc, PipelineStepOptions options = default)
     {
-        Func<TTail, Task<TNextOut>> safeExecution = ConvertToSafeExecution(stepName, mapFunc, pipelineCancellationToken);
-        TransformBlock<TTail, TNextOut> nextBlock = new(safeExecution, options.ToDataflowOptions(pipelineCancellationToken));
-        tailBlock.LinkTo(nextBlock, new DataflowLinkOptions { PropagateCompletion = true });
+        Func<TTail, Task<TNextOut?>> safeExecution = ConvertToSafeExecution(stepName, mapFunc, pipelineCancellationToken);
+        TransformBlock<TTail, TNextOut?> nextBlock = new(safeExecution, options.ToDataflowOptions(pipelineCancellationToken));
+        tailBlock.LinkTo(nextBlock, ignoreNulls: true);
 
-        return new DataflowPipelineBuilder<THead, TNextOut>(headBlock, nextBlock, logger, pipelineCancellationToken);
+        return new DataflowPipelineBuilder<THead, TNextOut>(headBlock, nextBlock!, deadLetterQueueBlock: null, logger, pipelineCancellationToken);
     }
 
     /// <inheritdoc/>
@@ -50,12 +113,12 @@ internal class DataflowPipelineBuilder<THead, TTail>(
     {
         Action<TTail> safeExecution = ConvertToSafeExecution(stepName, terminalAction, pipelineCancellationToken);
         ActionBlock<TTail> terminalBlock = new(terminalAction, options.ToDataflowOptions(pipelineCancellationToken));
-        tailBlock.LinkTo(terminalBlock, new DataflowLinkOptions { PropagateCompletion = true });
+        tailBlock.LinkTo(terminalBlock);
 
         return new DataflowPipeline<THead>(headBlock, terminalBlock.Completion, logger);
     }
 
-    private Func<TTail, Task<TNextOut>> ConvertToSafeExecution<TNextOut>(string stepName, Func<TTail, CancellationToken, Task<TNextOut>> stepFunc, CancellationToken token) => [StackTraceHidden] async (item) =>
+    private Func<TTail, Task<TNextOut?>> ConvertToSafeExecution<TNextOut>(string stepName, Func<TTail, CancellationToken, Task<TNextOut>> stepFunc, CancellationToken token) => [StackTraceHidden] async (item) =>
     {
         try
         {
@@ -63,11 +126,20 @@ internal class DataflowPipelineBuilder<THead, TTail>(
         }
         catch (Exception ex) when (ex is not OperationCanceledException)
         {
-            throw CreateAndLogFault(stepName, item, ex);
+            PipelineExecutionException pipelineEx = HandleException(stepName, item, ex);
+
+            if (deadLetterQueueBlock != null)
+            {
+                // Route to DLQ and return default to prevent block faulting
+                await deadLetterQueueBlock.SendAsync(new FailedPayload<TTail>(item, pipelineEx, stepName), pipelineCancellationToken);
+                return default;
+            }
+
+            throw pipelineEx;
         }
     };
 
-    private Func<TTail, TNextOut> ConvertToSafeExecution<TNextOut>(string stepName, Func<TTail, TNextOut> stepFunc, CancellationToken token) => [StackTraceHidden] (item) =>
+    private Func<TTail, Task<TNextOut?>> ConvertToSafeExecution<TNextOut>(string stepName, Func<TTail, TNextOut> stepFunc, CancellationToken token) => [StackTraceHidden] async (item) =>
     {
         token.ThrowIfCancellationRequested();
 
@@ -77,7 +149,16 @@ internal class DataflowPipelineBuilder<THead, TTail>(
         }
         catch (Exception ex) when (ex is not OperationCanceledException)
         {
-            throw CreateAndLogFault(stepName, item, ex);
+            PipelineExecutionException pipelineEx = HandleException(stepName, item, ex);
+
+            if (deadLetterQueueBlock != null)
+            {
+                // Route to DLQ and return default to prevent block faulting
+                await deadLetterQueueBlock.SendAsync(new FailedPayload<TTail>(item, pipelineEx, stepName), pipelineCancellationToken);
+                return default;
+            }
+
+            throw pipelineEx;
         }
     };
 
@@ -91,11 +172,11 @@ internal class DataflowPipelineBuilder<THead, TTail>(
         }
         catch (Exception ex) when (ex is not OperationCanceledException)
         {
-            throw CreateAndLogFault(stepName, item, ex);
+            throw HandleException(stepName, item, ex);
         }
     };
 
-    private PipelineExecutionException CreateAndLogFault(string stepName, TTail item, Exception ex)
+    private PipelineExecutionException HandleException(string stepName, TTail item, Exception ex)
     {
         PipelineExecutionException pipelineEx = new(stepName, $"Dataflow execution faulted at step '{stepName}'.", ex);
         logger?.LogError(pipelineEx, "Dataflow TransformBlock fault encountered. Payload: {@Item}", item);

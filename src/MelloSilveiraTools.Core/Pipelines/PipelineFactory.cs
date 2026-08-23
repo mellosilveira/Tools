@@ -28,7 +28,7 @@ public static class PipelineFactory
         CancellationToken cancellationToken = default)
     {
         BufferBlock<T> buffer = new(new DataflowBlockOptions { BoundedCapacity = initialBufferSize, CancellationToken = cancellationToken });
-        return new DataflowPipelineBuilder<T, T>(buffer, buffer, logger, cancellationToken);
+        return new DataflowPipelineBuilder<T, T>(buffer, buffer, null, logger, cancellationToken);
     }
 
     /// <summary>
