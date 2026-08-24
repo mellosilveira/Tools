@@ -1,4 +1,4 @@
-﻿namespace MelloSilveiraTools.Core.Pipelines.Dataflow;
+﻿namespace MelloSilveiraTools.Core.Pipelines;
 
 /// <summary>
 /// Encapsulates a faulted payload, the originating exception, and the 

@@ -1,5 +1,4 @@
-﻿using MelloSilveiraTools.Core.Pipelines.Telemetry;
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 using System.Diagnostics;
 using System.Threading.Tasks.Dataflow;
 
@@ -58,23 +57,9 @@ internal class DataflowPipelineBuilder<THead, TTail>(
         Func<FailedPayload<TTail>, CancellationToken, Task> recoveryFunc,
         PipelineStepOptions options = default)
     {
-        async Task<(TNextOut? Result, FailedPayload<TTail>? Failure, bool IsSuccess)> ExecuteWithForkAsync(TTail item)
-        {
-            try
-            {
-                // Wrapped with OpenTelemetry tracing
-                TNextOut? result = await StepTelemetryExtensions.ExecuteWithTracingAsync(primaryStepName, item, primaryFunc, pipelineCancellationToken).ConfigureAwait(false);
-                return (result, default, true);
-            }
-            catch (Exception ex) when (ex is not OperationCanceledException)
-            {
-                PipelineExecutionException pipelineEx = new(primaryStepName, $"Forking step '{primaryStepName}' encountered an unhandled exception.", ex);
-                FailedPayload<TTail> failedPayload = new(item, pipelineEx, primaryStepName);
-                return (default, failedPayload, false);
-            }
-        }
-
-        TransformBlock<TTail, (TNextOut? Result, FailedPayload<TTail>? Failure, bool IsSuccess)> splitBlock = new(ExecuteWithForkAsync, options.ToDataflowOptions(pipelineCancellationToken));
+        TransformBlock<TTail, (TNextOut? Result, FailedPayload<TTail>? Failure, bool IsSuccess)> splitBlock = new(
+            TelemetryExtensions.HandleStepExecution(logger, primaryStepName, recoveryStepName, primaryFunc, recoveryFunc, pipelineCancellationToken), 
+            options.ToDataflowOptions(pipelineCancellationToken));
 
         TransformBlock<(TNextOut? Result, FailedPayload<TTail>? Failure, bool IsSuccess), TNextOut> successTarget = new(
             tuple => tuple.Result!,
