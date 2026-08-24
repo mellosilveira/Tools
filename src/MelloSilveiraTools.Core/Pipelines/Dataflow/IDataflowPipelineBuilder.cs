@@ -43,7 +43,7 @@ public interface IDataflowPipelineBuilder<THead, TTail>
     /// Forks the pipeline topology. Successful payloads are transformed and passed to the next step.
     /// Faulted payloads are intercepted, wrapped in a <see cref="FailedPayload{T}"/>, and processed by a recovery delegate.
     /// </summary>
-    IDataflowPipelineBuilder<THead, TNextOut> AddForkingStep<TNextOut>(string stepName, Func<TTail, CancellationToken, Task<TNextOut>> primaryFunc, Func<FailedPayload<TTail>, CancellationToken, Task> recoveryFunc, PipelineStepOptions options = default);
+    IDataflowPipelineBuilder<THead, TNextOut> AddForkingStep<TNextOut>(string stepName, string recoveryStepName, Func<TTail, CancellationToken, Task<TNextOut>> primaryFunc, Func<FailedPayload<TTail>, CancellationToken, Task> recoveryFunc, PipelineStepOptions options = default);
 
     /// <summary>
     /// Appends a TransformBlock bound to a synchronous delegate.

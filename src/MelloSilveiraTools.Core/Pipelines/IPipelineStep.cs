@@ -7,7 +7,7 @@
 /// </summary>
 /// <typeparam name="TIn">The expected input payload type ingested by this execution node.</typeparam>
 /// <typeparam name="TOut">The resultant output payload type yielded after successful state mutation.</typeparam>
-public interface IStep<TIn, TOut>
+public interface IPipelineStep<TIn, TOut>
 {
     /// <summary>
     /// Gets the semantic identifier for this specific execution step.

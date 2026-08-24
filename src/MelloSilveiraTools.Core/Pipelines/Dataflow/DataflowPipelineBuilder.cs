@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using MelloSilveiraTools.Core.Pipelines.Telemetry;
+using Microsoft.Extensions.Logging;
 using System.Diagnostics;
 using System.Threading.Tasks.Dataflow;
 
@@ -12,7 +13,7 @@ internal class DataflowPipelineBuilder<THead, TTail>(
     ITargetBlock<THead> headBlock,
     ISourceBlock<TTail> tailBlock,
     ITargetBlock<FailedPayload<TTail>>? deadLetterQueueBlock,
-    ILogger? logger,
+    ILogger logger,
     CancellationToken pipelineCancellationToken)
     : IDataflowPipelineBuilder<THead, TTail>
 {
@@ -51,7 +52,8 @@ internal class DataflowPipelineBuilder<THead, TTail>(
 
     /// <inheritdoc/>
     public IDataflowPipelineBuilder<THead, TNextOut> AddForkingStep<TNextOut>(
-        string stepName,
+        string primaryStepName,
+        string recoveryStepName,
         Func<TTail, CancellationToken, Task<TNextOut>> primaryFunc,
         Func<FailedPayload<TTail>, CancellationToken, Task> recoveryFunc,
         PipelineStepOptions options = default)
@@ -60,14 +62,15 @@ internal class DataflowPipelineBuilder<THead, TTail>(
         {
             try
             {
-                var result = await primaryFunc(item, pipelineCancellationToken).ConfigureAwait(false);
+                // Wrapped with OpenTelemetry tracing
+                TNextOut? result = await StepTelemetryExtensions.ExecuteWithTracingAsync(primaryStepName, item, primaryFunc, pipelineCancellationToken).ConfigureAwait(false);
                 return (result, default, true);
             }
             catch (Exception ex) when (ex is not OperationCanceledException)
             {
-                PipelineExecutionException pipelineEx = new(stepName, $"Forking step '{stepName}' faulted.", ex);
-                FailedPayload<TTail> failure = new(item, pipelineEx, stepName);
-                return (default, failure, false);
+                PipelineExecutionException pipelineEx = new(primaryStepName, $"Forking step '{primaryStepName}' encountered an unhandled exception.", ex);
+                FailedPayload<TTail> failedPayload = new(item, pipelineEx, primaryStepName);
+                return (default, failedPayload, false);
             }
         }
 
