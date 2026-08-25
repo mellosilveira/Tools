@@ -7,7 +7,7 @@ namespace MelloSilveiraTools.Core.Pipelines;
 /// </summary>
 public static class Telemetry
 {
-    public const string PipelineSourceName = "MelloSilveiraTools.Core.Pipelines";
+    public const string PipelineSourceName = "MelloSilveiraTools";
 
-    public static readonly ActivitySource PipelineInstance = new(PipelineSourceName, "1.0.0");
+    public static readonly ActivitySource DefaultInstance = new(PipelineSourceName, "1.0.0");
 }

@@ -8,6 +8,44 @@ namespace MelloSilveiraTools.Core.Pipelines;
 /// </summary>
 public static class TelemetryExtensions
 {
+    public static Action<TIn> HandleExecution<TIn>(ILogger logger, string name, Action<TIn> callback, CancellationToken cancellationToken = default) => [StackTraceHidden] (input) =>
+    {
+        using Activity? activity = Telemetry.DefaultInstance.StartActivity(name, ActivityKind.Internal);
+        Execute(logger, activity, input, name, callback, cancellationToken);
+    };
+
+    public static Func<TIn, Task> HandleExecution<TIn>(ILogger logger, string name, Func<TIn, Task> callback, CancellationToken cancellationToken = default) => [StackTraceHidden] async (input) =>
+    {
+        using Activity? activity = Telemetry.DefaultInstance.StartActivity(name, ActivityKind.Internal);
+        await ExecuteAsync(logger, activity, input, name, callback, cancellationToken).Con;
+    };
+
+    public static Func<TIn, Task> HandleExecution<TIn>(ILogger logger, string name, Func<TIn, CancellationToken, Task> callback, CancellationToken cancellationToken = default) => [StackTraceHidden] async (input) =>
+    {
+        using Activity? activity = Telemetry.DefaultInstance.StartActivity(name, ActivityKind.Internal);
+        await ExecuteAsync(logger, activity, input, name, callback, cancellationToken).ConfigureAwait(false);
+    };
+
+    public static Func<TIn, Task<TOut?>> HandleStepExecution<TIn, TOut>(
+        ILogger logger,
+        string stepName,
+        string deadLetterQueueName,
+        Func<TIn, CancellationToken, Task<TOut>> stepFunc,
+        Func<FailedPayload<object>, CancellationToken, Task>? deadLetterQueueFunc,
+        CancellationToken cancellationToken = default)
+        => [StackTraceHidden] async (input) =>
+        {
+            string name = $"Pipeline.Step.{stepName}";
+            using Activity? activity = Telemetry.DefaultInstance.StartActivity(name, ActivityKind.Internal);
+
+            if (deadLetterQueueFunc is null)
+                return await ExecuteAsync(logger, activity, input, name, stepFunc, cancellationToken);
+
+            string fallbackName = $"Pipeline.Step.{deadLetterQueueName}";
+            async Task FallbackAsync(FailedPayload<TIn> failedPayload, CancellationToken ct) => await deadLetterQueueFunc(failedPayload, ct).ConfigureAwait(false);
+            return await ExecuteAsync(logger, activity, input, name, fallbackName, stepFunc, FallbackAsync, cancellationToken).ConfigureAwait(false);
+        };
+
     public static Func<TIn, Task<(TOut? Result, FailedPayload<TIn>? Failure, bool IsSuccess)>> HandleStepExecution<TIn, TOut>(
         ILogger logger,
         string stepName,
@@ -19,7 +57,9 @@ public static class TelemetryExtensions
         {
             string name = $"Pipeline.Step.{stepName}";
             string fallbackName = $"Pipeline.Step.{recoveryStepName}";
-            using Activity? activity = Telemetry.PipelineInstance.StartActivity(name, ActivityKind.Internal);
+
+            using Activity? activity = Telemetry.DefaultInstance.StartActivity(name, ActivityKind.Internal);
+
             return await ExecuteAsync<TIn, (TOut? Result, FailedPayload<TIn>? Failure, bool IsSuccess)>(
                 logger, activity, input, name, fallbackName,
                 async (input, ct) =>
@@ -114,13 +154,7 @@ public static class TelemetryExtensions
         }
     }
 
-    public static async Task ExecuteAsync<TIn>(
-        ILogger logger,
-        Activity? activity,
-        TIn input,
-        string name,
-        Func<TIn, CancellationToken, Task> callback,
-        CancellationToken cancellationToken = default)
+    public static async Task ExecuteAsync<TIn>(ILogger logger, Activity? activity, TIn input, string name, Func<TIn, CancellationToken, Task> callback, CancellationToken cancellationToken = default)
     {
         DateTimeOffset startTime = StartTelemetry(logger, activity, name, input);
 
@@ -161,13 +195,7 @@ public static class TelemetryExtensions
         }
     }
 
-    public static TOut Execute<TIn, TOut>(
-        ILogger logger,
-        Activity? activity,
-        TIn input,
-        string name,
-        Func<TIn, TOut> callback,
-        CancellationToken cancellationToken = default)
+    public static TOut Execute<TIn, TOut>(ILogger logger, Activity? activity, TIn input, string name, Func<TIn, TOut> callback, CancellationToken cancellationToken = default)
     {
         cancellationToken.ThrowIfCancellationRequested();
 
@@ -215,13 +243,7 @@ public static class TelemetryExtensions
         }
     }
 
-    public static void Execute<TIn>(
-        ILogger logger,
-        Activity? activity,
-        TIn input,
-        string name,
-        Action<TIn> callback,
-        CancellationToken cancellationToken = default)
+    public static void Execute<TIn>(ILogger logger, Activity? activity, TIn input, string name, Action<TIn> callback, CancellationToken cancellationToken = default)
     {
         cancellationToken.ThrowIfCancellationRequested();
 
