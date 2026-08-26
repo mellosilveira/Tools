@@ -17,7 +17,7 @@ public static class TelemetryExtensions
     public static Func<TIn, Task> HandleExecution<TIn>(ILogger logger, string name, Func<TIn, Task> callback, CancellationToken cancellationToken = default) => [StackTraceHidden] async (input) =>
     {
         using Activity? activity = Telemetry.DefaultInstance.StartActivity(name, ActivityKind.Internal);
-        await ExecuteAsync(logger, activity, input, name, callback, cancellationToken).Con;
+        await ExecuteAsync(logger, activity, input, name, callback, cancellationToken).ConfigureAwait(false);
     };
 
     public static Func<TIn, Task> HandleExecution<TIn>(ILogger logger, string name, Func<TIn, CancellationToken, Task> callback, CancellationToken cancellationToken = default) => [StackTraceHidden] async (input) =>
@@ -35,15 +35,15 @@ public static class TelemetryExtensions
         CancellationToken cancellationToken = default)
         => [StackTraceHidden] async (input) =>
         {
-            string name = $"Pipeline.Step.{stepName}";
-            using Activity? activity = Telemetry.DefaultInstance.StartActivity(name, ActivityKind.Internal);
+            string callbackName = $"Pipeline.Step.{stepName}";
+            using Activity? activity = Telemetry.DefaultInstance.StartActivity(callbackName, ActivityKind.Internal);
 
             if (deadLetterQueueFunc is null)
-                return await ExecuteAsync(logger, activity, input, name, stepFunc, cancellationToken);
+                return await InternalExecuteAsync(logger, activity, input, callbackName, stepFunc, cancellationToken);
 
             string fallbackName = $"Pipeline.Step.{deadLetterQueueName}";
             async Task FallbackAsync(FailedPayload<TIn> failedPayload, CancellationToken ct) => await deadLetterQueueFunc(failedPayload, ct).ConfigureAwait(false);
-            return await ExecuteAsync(logger, activity, input, name, fallbackName, stepFunc, FallbackAsync, cancellationToken).ConfigureAwait(false);
+            return await ExecuteAsync(logger, activity, input, callbackName, stepFunc, fallbackName, FallbackAsync, cancellationToken).ConfigureAwait(false);
         };
 
     public static Func<TIn, Task<(TOut? Result, FailedPayload<TIn>? Failure, bool IsSuccess)>> HandleStepExecution<TIn, TOut>(
@@ -55,18 +55,19 @@ public static class TelemetryExtensions
         CancellationToken cancellationToken = default)
         => [StackTraceHidden] async (input) =>
         {
-            string name = $"Pipeline.Step.{stepName}";
+            string callbackName = $"Pipeline.Step.{stepName}";
             string fallbackName = $"Pipeline.Step.{recoveryStepName}";
 
-            using Activity? activity = Telemetry.DefaultInstance.StartActivity(name, ActivityKind.Internal);
+            using Activity? activity = Telemetry.DefaultInstance.StartActivity(callbackName, ActivityKind.Internal);
 
             return await ExecuteAsync<TIn, (TOut? Result, FailedPayload<TIn>? Failure, bool IsSuccess)>(
-                logger, activity, input, name, fallbackName,
+                logger, activity, input, callbackName,
                 async (input, ct) =>
                 {
                     TOut output = await primaryStepFunc(input, ct).ConfigureAwait(false);
                     return (output, default, true);
                 },
+                fallbackName,
                 async (failedPayload, ct) =>
                 {
                     await recoveryStepFunc(failedPayload, ct).ConfigureAwait(false);
@@ -80,49 +81,31 @@ public static class TelemetryExtensions
         ILogger logger,
         Activity? activity,
         TIn input,
-        string name,
+        string callbackName,
         Func<TIn, CancellationToken, Task<TOut>> callback,
+        string? fallbackName = null,
+        Func<FailedPayload<TIn>, CancellationToken, Task<TOut>>? fallback = null,
         CancellationToken cancellationToken = default)
     {
-        DateTimeOffset startTime = StartTelemetry(logger, activity, name, input);
+        DateTimeOffset startTime = StartTelemetry(logger, activity, callbackName, input);
 
         try
         {
             TOut? output = await callback(input, cancellationToken).ConfigureAwait(false);
-            LogAndTrackStepCompletion(logger, activity, startTime, name, input, output);
+            LogAndTrackStepCompletion(logger, activity, startTime, callbackName, input, output);
             return output;
         }
         catch (Exception ex) when (ex is not OperationCanceledException)
         {
-            LogAndTrackStepFailure(logger, activity, startTime, name, input, ex);
-            throw;
-        }
-    }
+            LogAndTrackStepFailure(logger, activity, startTime, callbackName, input, ex);
 
-    public static async Task<TOut> ExecuteAsync<TIn, TOut>(
-        ILogger logger,
-        Activity? activity,
-        TIn input,
-        string name,
-        string fallbackName,
-        Func<TIn, CancellationToken, Task<TOut>> callback,
-        Func<FailedPayload<TIn>, CancellationToken, Task<TOut>> fallback,
-        CancellationToken cancellationToken = default)
-    {
-        DateTimeOffset startTime = StartTelemetry(logger, activity, name, input);
 
-        try
-        {
-            TOut? output = await callback(input, cancellationToken).ConfigureAwait(false);
-            LogAndTrackStepCompletion(logger, activity, startTime, name, input, output);
-            return output;
-        }
-        catch (Exception ex) when (ex is not OperationCanceledException)
-        {
-            LogAndTrackStepFailure(logger, activity, startTime, name, input, ex);
+            if (fallback is null)
+                throw;
 
-            FailedPayload<TIn> failedPayload = new(input, ex, name);
-            return await ExecuteAsync(logger, activity, failedPayload, fallbackName, fallback, cancellationToken).ConfigureAwait(false);
+            FailedPayload<TIn> failedPayload = new(input, ex, callbackName);
+            fallbackName ??= $"{callbackName}.Fallback";
+            return await InternalExecuteAsync(logger, activity, failedPayload, fallbackName, fallback, cancellationToken: cancellationToken).ConfigureAwait(false);
         }
     }
 
@@ -130,10 +113,169 @@ public static class TelemetryExtensions
         ILogger logger,
         Activity? activity,
         TIn input,
-        string name,
-        string fallbackName,
+        string callbackName,
         Func<TIn, CancellationToken, Task<TOut>> callback,
-        Func<FailedPayload<TIn>, CancellationToken, Task> fallback,
+        string? fallbackName = null,
+        Func<FailedPayload<TIn>, CancellationToken, Task>? fallback = null,
+        CancellationToken cancellationToken = default)
+    {
+        DateTimeOffset startTime = StartTelemetry(logger, activity, callbackName, input);
+
+        try
+        {
+            TOut? output = await callback(input, cancellationToken).ConfigureAwait(false);
+            LogAndTrackStepCompletion(logger, activity, startTime, callbackName, input, output);
+            return output;
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            LogAndTrackStepFailure(logger, activity, startTime, callbackName, input, ex);
+
+            if (fallback is null)
+                throw;
+
+            FailedPayload<TIn> failedPayload = new(input, ex, callbackName);
+            fallbackName ??= $"{callbackName}.Fallback";
+            await ExecuteAsync(logger, activity, failedPayload, fallbackName, fallback, cancellationToken: cancellationToken).ConfigureAwait(false);
+            return default;
+        }
+    }
+
+    public static async Task ExecuteAsync<TIn>(
+        ILogger logger,
+        Activity? activity,
+        TIn input,
+        string callbackName,
+        Func<TIn, CancellationToken, Task> callback,
+        string? fallbackName = null,
+        Func<FailedPayload<TIn>, CancellationToken, Task>? fallback = null,
+        CancellationToken cancellationToken = default)
+    {
+        DateTimeOffset startTime = StartTelemetry(logger, activity, callbackName, input);
+
+        try
+        {
+            LogAndTrackStepCompletion(logger, activity, startTime, callbackName, input);
+            await callback(input, cancellationToken).ConfigureAwait(false);
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            LogAndTrackStepFailure(logger, activity, startTime, callbackName, input, ex);
+
+            if (fallback is null)
+                throw;
+
+            FailedPayload<TIn> failedPayload = new(input, ex, callbackName);
+            fallbackName ??= $"{callbackName}.Fallback";
+            await ExecuteAsync(logger, activity, failedPayload, fallbackName, fallback, cancellationToken: cancellationToken).ConfigureAwait(false);
+        }
+    }
+
+    public static TOut Execute<TIn, TOut>(
+        ILogger logger,
+        Activity? activity,
+        TIn input,
+        string callbackName,
+        Func<TIn, TOut> callback,
+        string? fallbackName = null,
+        Func<FailedPayload<TIn>, TOut>? fallback = null,
+        CancellationToken cancellationToken = default)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+
+        DateTimeOffset startTime = StartTelemetry(logger, activity, callbackName, input);
+
+        try
+        {
+            TOut? result = callback(input);
+            LogAndTrackStepCompletion(logger, activity, startTime, callbackName, input, result);
+            return result;
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            LogAndTrackStepFailure(logger, activity, startTime, callbackName, input, ex);
+
+            if (fallback is null)
+                throw;
+
+            FailedPayload<TIn> failedPayload = new(input, ex, callbackName);
+            fallbackName ??= $"{callbackName}.Fallback";
+            return Execute<FailedPayload<TIn>, TOut>(logger, activity, failedPayload, fallbackName, fallback, cancellationToken: cancellationToken);
+        }
+    }
+
+    public static TOut? Execute<TIn, TOut>(
+        ILogger logger,
+        Activity? activity,
+        TIn input,
+        string callbackName,
+        Func<TIn, TOut> callback,
+        string? fallbackName = null,
+        Action<FailedPayload<TIn>>? fallback = null,
+        CancellationToken cancellationToken = default)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+
+        DateTimeOffset startTime = StartTelemetry(logger, activity, callbackName, input);
+
+        try
+        {
+            TOut? result = callback(input);
+            LogAndTrackStepCompletion(logger, activity, startTime, callbackName, input, result);
+            return result;
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            LogAndTrackStepFailure(logger, activity, startTime, callbackName, input, ex);
+
+            if (fallback is null)
+                throw;
+
+            FailedPayload<TIn> failedPayload = new(input, ex, callbackName);
+            fallbackName ??= $"{callbackName}.Fallback";
+            Execute(logger, activity, failedPayload, fallbackName, fallback, cancellationToken: cancellationToken);
+            return default;
+        }
+    }
+
+    public static void Execute<TIn>(
+        ILogger logger,
+        Activity? activity,
+        TIn input,
+        string callbackName,
+        Action<TIn> callback,
+        string? fallbackName = null,
+        Action<FailedPayload<TIn>>? fallback = null,
+        CancellationToken cancellationToken = default)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+
+        DateTimeOffset startTime = StartTelemetry(logger, activity, callbackName, input);
+
+        try
+        {
+            LogAndTrackStepCompletion(logger, activity, startTime, callbackName, input);
+            callback(input);
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            LogAndTrackStepFailure(logger, activity, startTime, callbackName, input, ex);
+
+            if (fallback is null)
+                throw;
+
+            FailedPayload<TIn> failedPayload = new(input, ex, callbackName);
+            fallbackName ??= $"{callbackName}.Fallback";
+            Execute(logger, activity, failedPayload, fallbackName, fallback, cancellationToken: cancellationToken);
+        }
+    }
+
+    private static async Task<TOut> InternalExecuteAsync<TIn, TOut>(
+        ILogger logger,
+        Activity? activity,
+        TIn input,
+        string name,
+        Func<TIn, CancellationToken, Task<TOut>> callback,
         CancellationToken cancellationToken = default)
     {
         DateTimeOffset startTime = StartTelemetry(logger, activity, name, input);
@@ -147,145 +289,7 @@ public static class TelemetryExtensions
         catch (Exception ex) when (ex is not OperationCanceledException)
         {
             LogAndTrackStepFailure(logger, activity, startTime, name, input, ex);
-
-            FailedPayload<TIn> failedPayload = new(input, ex, name);
-            await ExecuteAsync(logger, activity, failedPayload, fallbackName, fallback, cancellationToken).ConfigureAwait(false);
-            return default;
-        }
-    }
-
-    public static async Task ExecuteAsync<TIn>(ILogger logger, Activity? activity, TIn input, string name, Func<TIn, CancellationToken, Task> callback, CancellationToken cancellationToken = default)
-    {
-        DateTimeOffset startTime = StartTelemetry(logger, activity, name, input);
-
-        try
-        {
-            LogAndTrackStepCompletion(logger, activity, startTime, name, input);
-            await callback(input, cancellationToken).ConfigureAwait(false);
-        }
-        catch (Exception ex) when (ex is not OperationCanceledException)
-        {
-            LogAndTrackStepFailure(logger, activity, startTime, name, input, ex);
             throw;
-        }
-    }
-
-    public static async Task ExecuteAsync<TIn>(
-        ILogger logger,
-        Activity? activity,
-        TIn input,
-        string name,
-        string fallbackName,
-        Func<TIn, CancellationToken, Task> callback,
-        Func<FailedPayload<TIn>, CancellationToken, Task> fallback,
-        CancellationToken cancellationToken = default)
-    {
-        DateTimeOffset startTime = StartTelemetry(logger, activity, name, input);
-
-        try
-        {
-            LogAndTrackStepCompletion(logger, activity, startTime, name, input);
-            await callback(input, cancellationToken).ConfigureAwait(false);
-        }
-        catch (Exception ex) when (ex is not OperationCanceledException)
-        {
-            LogAndTrackStepFailure(logger, activity, startTime, name, input, ex);
-            FailedPayload<TIn> failedPayload = new(input, ex, name);
-            await ExecuteAsync(logger, activity, failedPayload, fallbackName, fallback, cancellationToken).ConfigureAwait(false);
-        }
-    }
-
-    public static TOut Execute<TIn, TOut>(ILogger logger, Activity? activity, TIn input, string name, Func<TIn, TOut> callback, CancellationToken cancellationToken = default)
-    {
-        cancellationToken.ThrowIfCancellationRequested();
-
-        DateTimeOffset startTime = StartTelemetry(logger, activity, name, input);
-
-        try
-        {
-            TOut? result = callback(input);
-            LogAndTrackStepCompletion(logger, activity, startTime, name, input, result);
-            return result;
-        }
-        catch (Exception ex) when (ex is not OperationCanceledException)
-        {
-            LogAndTrackStepFailure(logger, activity, startTime, name, input, ex);
-            throw;
-        }
-    }
-
-    public static TOut Execute<TIn, TOut>(
-        ILogger logger,
-        Activity? activity,
-        TIn input,
-        string name,
-        string fallbackName,
-        Func<TIn, TOut> callback,
-        Func<FailedPayload<TIn>, TOut> fallback,
-        CancellationToken cancellationToken = default)
-    {
-        cancellationToken.ThrowIfCancellationRequested();
-
-        DateTimeOffset startTime = StartTelemetry(logger, activity, name, input);
-
-        try
-        {
-            TOut? result = callback(input);
-            LogAndTrackStepCompletion(logger, activity, startTime, name, input, result);
-            return result;
-        }
-        catch (Exception ex) when (ex is not OperationCanceledException)
-        {
-            LogAndTrackStepFailure(logger, activity, startTime, name, input, ex);
-
-            FailedPayload<TIn> failedPayload = new(input, ex, name);
-            return Execute(logger, activity, failedPayload, fallbackName, fallback, cancellationToken);
-        }
-    }
-
-    public static void Execute<TIn>(ILogger logger, Activity? activity, TIn input, string name, Action<TIn> callback, CancellationToken cancellationToken = default)
-    {
-        cancellationToken.ThrowIfCancellationRequested();
-
-        DateTimeOffset startTime = StartTelemetry(logger, activity, name, input);
-
-        try
-        {
-            LogAndTrackStepCompletion(logger, activity, startTime, name, input);
-            callback(input);
-        }
-        catch (Exception ex) when (ex is not OperationCanceledException)
-        {
-            LogAndTrackStepFailure(logger, activity, startTime, name, input, ex);
-            throw;
-        }
-    }
-
-    public static void Execute<TIn>(
-        ILogger logger,
-        Activity? activity,
-        TIn input,
-        string name,
-        string fallbackName,
-        Action<TIn> callback,
-        Action<FailedPayload<TIn>> fallback,
-        CancellationToken cancellationToken = default)
-    {
-        cancellationToken.ThrowIfCancellationRequested();
-
-        DateTimeOffset startTime = StartTelemetry(logger, activity, name, input);
-
-        try
-        {
-            LogAndTrackStepCompletion(logger, activity, startTime, name, input);
-            callback(input);
-        }
-        catch (Exception ex) when (ex is not OperationCanceledException)
-        {
-            LogAndTrackStepFailure(logger, activity, startTime, name, input, ex);
-
-            FailedPayload<TIn> failedPayload = new(input, ex, name);
-            Execute(logger, activity, failedPayload, fallbackName, fallback, cancellationToken);
         }
     }
 
