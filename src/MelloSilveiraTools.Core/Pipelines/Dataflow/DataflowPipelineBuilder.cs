@@ -12,47 +12,79 @@ internal class DataflowPipelineBuilder<THead, TTail>(
     ILogger logger,
     ITargetBlock<THead> headBlock,
     ISourceBlock<TTail> tailBlock,
-    ITargetBlock<FailedPayload<object>>? deadLetterQueueBlock,
+    ITargetBlock<FailedPayload<object?>>? deadLetterQueueBlock,
     CancellationToken pipelineCancellationToken)
     : IDataflowPipelineBuilder<THead, TTail>
 {
+    private const string DeadLetterQueueTelemetryName = "Pipeline.DeadLetterQueue";
+
     /// <inheritdoc/>
-    public IDataflowPipelineBuilder<THead, TTail> WithDeadLetterQueue(ITargetBlock<FailedPayload<object>> deadLetterQueueSink)
+    public IDataflowPipelineBuilder<THead, TTail> WithDeadLetterQueue(ITargetBlock<FailedPayload<object?>> deadLetterQueueSink)
     {
         ArgumentNullException.ThrowIfNull(deadLetterQueueSink);
         return new DataflowPipelineBuilder<THead, TTail>(logger, headBlock, tailBlock, deadLetterQueueSink, pipelineCancellationToken);
     }
 
     /// <inheritdoc/>
-    public IDataflowPipelineBuilder<THead, TTail> WithDeadLetterQueue(Action<FailedPayload<object>> errorHandler, PipelineStepOptions options = default)
+    public IDataflowPipelineBuilder<THead, TTail> WithDeadLetterQueue(Action<FailedPayload<object?>> errorHandler, PipelineStepOptions options = default)
     {
-        ActionBlock<FailedPayload<object>> actionBlock = new(
-            TelemetryExtensions.HandleExecution(logger, "DeadLetterQueue", errorHandler, pipelineCancellationToken),
+        ActionBlock<FailedPayload<object?>> actionBlock = new(
+            TelemetryExtensions.HandleExecution(logger, DeadLetterQueueTelemetryName, errorHandler, pipelineCancellationToken),
             options.ToDataflowOptions(pipelineCancellationToken));
 
         return WithDeadLetterQueue(actionBlock);
     }
 
     /// <inheritdoc/>
-    public IDataflowPipelineBuilder<THead, TTail> WithDeadLetterQueue(Func<FailedPayload<object>, CancellationToken, Task> errorHandlerAsync, PipelineStepOptions options = default)
+    public IDataflowPipelineBuilder<THead, TTail> WithDeadLetterQueue(Func<FailedPayload<object?>, CancellationToken, Task> errorHandlerAsync, PipelineStepOptions options = default)
     {
-        ActionBlock<FailedPayload<object>> actionBlock = new(
-            TelemetryExtensions.HandleStepExecution(logger, "DeadLetterQueue", errorHandlerAsync, pipelineCancellationToken),
+        ActionBlock<FailedPayload<object?>> actionBlock = new(
+            TelemetryExtensions.HandleExecutionAsync(logger, DeadLetterQueueTelemetryName, errorHandlerAsync, pipelineCancellationToken),
             options.ToDataflowOptions(pipelineCancellationToken));
 
         return WithDeadLetterQueue(actionBlock);
+    }
+
+    /// <inheritdoc/>
+    public IDataflowPipelineBuilder<THead, TTail> WithLoggingErrors(PipelineStepOptions options = default)
+    {
+        ActionBlock<FailedPayload<object?>> actionBlock = new(
+            failedPayload => logger.LogError("Failed to execute step. Failed payload: {FailedPayload}", failedPayload),
+            options.ToDataflowOptions(pipelineCancellationToken));
+
+        return WithDeadLetterQueue(actionBlock);
+    }
+
+    /// <inheritdoc/>
+    public IDataflowPipelineBuilder<THead, TNextOut> AddDataMapping<TNextOut>(string stepName, Func<TTail, TNextOut> mapFunc, PipelineStepOptions options = default)
+    {
+        TransformBlock<TTail, TNextOut?> nextBlock = deadLetterQueueBlock is null
+            ? new(
+                TelemetryExtensions.HandleExecution(logger, GetTelemetryName(stepName), mapFunc, pipelineCancellationToken), 
+                options.ToDataflowOptions(pipelineCancellationToken))
+            : new(
+                TelemetryExtensions.HandleExecution(logger, GetTelemetryName(stepName), mapFunc, GetDeadLetterQueueSender(logger, deadLetterQueueBlock, stepName), pipelineCancellationToken),
+                options.ToDataflowOptions(pipelineCancellationToken));
+
+        return new DataflowPipelineBuilder<THead, TNextOut>(logger, headBlock, nextBlock!, deadLetterQueueBlock, pipelineCancellationToken);
     }
 
     /// <inheritdoc/>
     public IDataflowPipelineBuilder<THead, TNextOut> AddStep<TNextOut>(string stepName, Func<TTail, CancellationToken, Task<TNextOut>> stepFunc, PipelineStepOptions options = default)
     {
         TransformBlock<TTail, TNextOut?> nextBlock = new(
-            TelemetryExtensions.HandleStepExecution(logger, stepName, "DeadLetterQueue", stepFunc, deadLetterQueueBlock.SendAsync, pipelineCancellationToken),
+            deadLetterQueueBlock is null
+                ? TelemetryExtensions.HandleExecution(logger, stepName, stepFunc, pipelineCancellationToken)
+                : TelemetryExtensions.HandleExecution(logger, stepName, stepFunc, "DeadLetterQueue", deadLetterQueueBlock.SendAsync, pipelineCancellationToken),
             options.ToDataflowOptions(pipelineCancellationToken));
         tailBlock.LinkTo(nextBlock, ignoreNulls: true);
 
         return new DataflowPipelineBuilder<THead, TNextOut>(logger, headBlock, nextBlock!, deadLetterQueueBlock, pipelineCancellationToken);
     }
+
+
+
+
 
     /// <inheritdoc/>
     public IDataflowPipelineBuilder<THead, TNextOut> AddForkingStep<TNextOut>(
@@ -63,7 +95,7 @@ internal class DataflowPipelineBuilder<THead, TTail>(
         PipelineStepOptions options = default)
     {
         TransformBlock<TTail, (TNextOut? Result, FailedPayload<TTail>? Failure, bool IsSuccess)> splitBlock = new(
-            TelemetryExtensions.HandleStepExecution(logger, primaryStepName, recoveryStepName, primaryFunc, recoveryFunc, pipelineCancellationToken),
+            TelemetryExtensions.HandleExecution(logger, primaryStepName, recoveryStepName, primaryFunc, recoveryFunc, pipelineCancellationToken),
             options.ToDataflowOptions(pipelineCancellationToken));
 
         TransformBlock<(TNextOut? Result, FailedPayload<TTail>? Failure, bool IsSuccess), TNextOut> successTarget = new(
@@ -82,20 +114,10 @@ internal class DataflowPipelineBuilder<THead, TTail>(
     }
 
     /// <inheritdoc/>
-    public IDataflowPipelineBuilder<THead, TNextOut> AddDataMapping<TNextOut>(string stepName, Func<TTail, TNextOut> mapFunc, PipelineStepOptions options = default)
-    {
-        Func<TTail, Task<TNextOut?>> safeExecution = ConvertToSafeExecution(stepName, mapFunc, pipelineCancellationToken);
-        TransformBlock<TTail, TNextOut?> nextBlock = new(safeExecution, options.ToDataflowOptions(pipelineCancellationToken));
-        tailBlock.LinkTo(nextBlock, ignoreNulls: true);
-
-        return new DataflowPipelineBuilder<THead, TNextOut>(logger, headBlock, nextBlock!, deadLetterQueueBlock, pipelineCancellationToken);
-    }
-
-    /// <inheritdoc/>
     public IDataflowPipelineBuilder<THead, TNextOut> AddDataMapping<TNextOut>(string stepName, Func<TTail, CancellationToken, Task<TNextOut>> mapFunc, PipelineStepOptions options = default)
     {
         TransformBlock<TTail, TNextOut?> nextBlock = new(
-            TelemetryExtensions.HandleExecution(logger, GetTelemetryName(stepName), mapFunc, pipelineCancellationToken), 
+            TelemetryExtensions.HandleExecution(logger, GetTelemetryName(stepName), mapFunc, pipelineCancellationToken),
             options.ToDataflowOptions(pipelineCancellationToken));
 
         tailBlock.LinkTo(nextBlock, ignoreNulls: true);
@@ -120,6 +142,45 @@ internal class DataflowPipelineBuilder<THead, TTail>(
 
         return new DataflowPipeline<THead>(headBlock, terminalBlock.Completion, logger);
     }
+
+
+
+    private static Func<TIn, Task<(TOut? Result, FailedPayload<TIn>? Failure, bool IsSuccess)>> HandleExecution<TIn, TOut>(
+        ILogger logger,
+        string stepName,
+        string recoveryStepName,
+        Func<TIn, CancellationToken, Task<TOut>> primaryStepFunc,
+        Func<TIn, CancellationToken, Task> recoveryStepFunc,
+        CancellationToken cancellationToken = default)
+        => [StackTraceHidden] async (input) =>
+        {
+            string callbackName = GetTelemetryName(stepName);
+            using Activity? activity = Telemetry.DefaultInstance.StartActivity(callbackName, ActivityKind.Internal);
+
+            return await TelemetryExtensions.ExecuteAsync<TIn, (TOut? Result, FailedPayload<TIn>? Failure, bool IsSuccess)>(
+                logger, activity, input, callbackName,
+                async (input, ct) =>
+                {
+                    TOut output = await primaryStepFunc(input, ct).ConfigureAwait(false);
+                    return (output, default, true);
+                },
+                GetTelemetryName(recoveryStepName),
+                async (failedPayload, ct) =>
+                {
+                    await recoveryStepFunc(failedPayload, ct).ConfigureAwait(false);
+                    return (default, failedPayload, false);
+                },
+                cancellationToken
+            ).ConfigureAwait(false);
+        };
+
+    private static Func<(TTail Input, Exception Exception), CancellationToken, Task> GetDeadLetterQueueSender(ILogger logger, ITargetBlock<FailedPayload<object?>> deadLetterQueueBlock, string stepName)
+        => async (tuple, cancellationToken) =>
+        {
+            FailedPayload<object?> failedPayload = new(stepName, tuple.Input, tuple.Exception);
+            if (await deadLetterQueueBlock.SendAsync(failedPayload, cancellationToken))
+                logger.LogWarning("Failed to send failed payload to dead letter queue. Failed payload: {FailedPayload}", failedPayload);
+        };
 
     private static string GetTelemetryName(string stepName) => $"Pipeline.Step.{stepName}";
 }
