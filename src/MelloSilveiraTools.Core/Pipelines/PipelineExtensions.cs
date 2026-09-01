@@ -48,12 +48,13 @@ public static class PipelineExtensions
     /// </summary>
     public static IDataflowPipelineBuilder<THead, TNextOut> AddForkingStep<THead, TCurrentOut, TNextOut>(
         this IDataflowPipelineBuilder<THead, TCurrentOut> builder,
-        IPipelineStep<TCurrentOut, TNextOut> primaryStep,
-        IPipelineStep<FailedPayload<TCurrentOut>, TNextOut> recoveryStep,
+        IPipelineStep<TCurrentOut, TNextOut> step,
+        Func<TNextOut, bool> fallbackCondition,
+        IPipelineStep<TCurrentOut, TNextOut> fallbackStep,
         PipelineStepOptions options = default)
     {
-        ArgumentNullException.ThrowIfNull(primaryStep);
-        ArgumentNullException.ThrowIfNull(recoveryStep);
-        return builder.AddForkingStep(primaryStep.Name, recoveryStep.Name, primaryStep.ExecuteAsync, recoveryStep.ExecuteAsync, options);
+        ArgumentNullException.ThrowIfNull(step);
+        ArgumentNullException.ThrowIfNull(fallbackStep);
+        return builder.AddForkingStep(step.Name, fallbackStep.Name, step.ExecuteAsync, fallbackCondition, fallbackStep.ExecuteAsync, options);
     }
 }

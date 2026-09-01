@@ -15,7 +15,7 @@ public interface IDataflowPipelineBuilder<THead, TTail>
     /// Configures a Dead-Letter Queue (DLQ) using an existing target block. 
     /// Ideal for advanced scenarios where payloads are routed to a shared buffer or queue block.
     /// </summary>
-    IDataflowPipelineBuilder<THead, TTail> WithDeadLetterQueue(ITargetBlock<FailedPayload<TTail>> deadLetterQueueSink);
+    IDataflowPipelineBuilder<THead, TTail> WithDeadLetterQueue(ITargetBlock<FailedPayload<object?>> deadLetterQueueSink);
 
     /// <summary>
     /// Configures a Dead-Letter Queue (DLQ) using a synchronous callback action. 
@@ -23,7 +23,7 @@ public interface IDataflowPipelineBuilder<THead, TTail>
     /// </summary>
     /// <param name="errorHandler">The synchronous delegate executed when a payload faults.</param>
     /// <param name="options">Concurrency and buffer options for the DLQ processing block.</param>
-    IDataflowPipelineBuilder<THead, TTail> WithDeadLetterQueue(Action<FailedPayload<TTail>> errorHandler, PipelineStepOptions options = default);
+    IDataflowPipelineBuilder<THead, TTail> WithDeadLetterQueue(Action<FailedPayload<object?>> errorHandler, PipelineStepOptions options = default);
 
     /// <summary>
     /// Configures a Dead-Letter Queue (DLQ) using an asynchronous callback delegate. 
@@ -31,7 +31,21 @@ public interface IDataflowPipelineBuilder<THead, TTail>
     /// </summary>
     /// <param name="errorHandlerAsync">The asynchronous delegate executed when a payload faults.</param>
     /// <param name="options">Concurrency and buffer options for the DLQ processing block.</param>
-    IDataflowPipelineBuilder<THead, TTail> WithDeadLetterQueue(Func<FailedPayload<TTail>, CancellationToken, Task> errorHandlerAsync, PipelineStepOptions options = default);
+    IDataflowPipelineBuilder<THead, TTail> WithDeadLetterQueue(Func<FailedPayload<object?>, CancellationToken, Task> errorHandlerAsync, PipelineStepOptions options = default);
+
+    /// <summary>
+    /// Configures a Dead-Letter Queue (DLQ) for only loggins the errors. 
+    /// </summary>
+    /// <param name="options">Concurrency and buffer options for the DLQ processing block.</param>
+    IDataflowPipelineBuilder<THead, TTail> WithLoggingErrors(PipelineStepOptions options = default);
+
+    /// <summary>
+    /// Appends a TransformBlock bound to a synchronous delegate.
+    /// Elides the async state machine allocation entirely, making this highly performant for synchronous CPU-bound data mapping operations.
+    /// </summary>
+    IDataflowPipelineBuilder<THead, TNextOut> AddDataMapping<TNextOut>(Func<TTail, TNextOut> mapFunc, PipelineStepOptions options = default);
+
+    IDataflowPipelineBuilder<THead, TNextOut> AddDataMapping<TNextOut>(Func<TTail, CancellationToken, Task<TNextOut>> mapFunc, PipelineStepOptions options = default);
 
     /// <summary>
     /// Appends a TransformBlock bound to an asynchronous delegate.
@@ -39,25 +53,9 @@ public interface IDataflowPipelineBuilder<THead, TTail>
     /// </summary>
     IDataflowPipelineBuilder<THead, TNextOut> AddStep<TNextOut>(string stepName, Func<TTail, CancellationToken, Task<TNextOut>> stepFunc, PipelineStepOptions options = default);
 
-    /// <summary>
-    /// Forks the pipeline topology. Successful payloads are transformed and passed to the next step.
-    /// Faulted payloads are intercepted, wrapped in a <see cref="FailedPayload{T}"/>, and processed by a recovery delegate.
-    /// </summary>
-    IDataflowPipelineBuilder<THead, TNextOut> AddForkingStep<TNextOut>(string stepName, string recoveryStepName, Func<TTail, CancellationToken, Task<TNextOut>> primaryFunc, Func<FailedPayload<TTail>, CancellationToken, Task> recoveryFunc, PipelineStepOptions options = default);
-
-    /// <summary>
-    /// Appends a TransformBlock bound to a synchronous delegate.
-    /// Elides the async state machine allocation entirely, making this highly performant for 
-    /// synchronous CPU-bound data mapping operations.
-    /// </summary>
-    IDataflowPipelineBuilder<THead, TNextOut> AddDataMapping<TNextOut>(string stepName, Func<TTail, TNextOut> mapFunc, PipelineStepOptions options = default);
-
-    /// <summary>
-    /// Appends a TransformBlock bound to a synchronous delegate.
-    /// Elides the async state machine allocation entirely, making this highly performant for 
-    /// synchronous CPU-bound data mapping operations.
-    /// </summary>
-    IDataflowPipelineBuilder<THead, TNextOut> AddDataMapping<TNextOut>(string stepName, Func<TTail, CancellationToken, Task<TNextOut>> mapFunc, PipelineStepOptions options = default);
+    IDataflowPipelineBuilder<THead, TNextOut> AddForkingStep<TNextOut>(string stepName, string fallbackStepName, Func<TTail, CancellationToken, Task<TNextOut>> stepFunc, Func<TNextOut, bool> fallbackCondition, Func<TTail, CancellationToken, Task<TNextOut>> fallbackStep, PipelineStepOptions options = default);
+    
+    IDataflowPipelineBuilder<THead, TNextOut> AddForkingStep<TNextOut>(string stepName, string fallbackStepName, Func<TTail, CancellationToken, Task<TNextOut>> stepFunc, Func<TTail, bool> fallbackCondition, Func<TTail, CancellationToken, Task<TNextOut>> fallbackStep, PipelineStepOptions options = default);
 
     /// <summary>
     /// Appends an ActionBlock to consume the final pipeline output.

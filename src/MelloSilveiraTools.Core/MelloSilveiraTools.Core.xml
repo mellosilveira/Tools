@@ -1508,43 +1508,50 @@
             </list>
             </remarks>
         </member>
-        <member name="T:MelloSilveiraTools.Core.Pipelines.Dataflow.DataflowBuilder`2">
+        <member name="T:MelloSilveiraTools.Core.Pipelines.Dataflow.DataflowPipelineBuilder`2">
             <summary>
             A strongly-typed fluent builder for orchestrating TPL Dataflow topologies.
             Maintains internal block references to guarantee type invariance during pipeline construction.
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.Core.Pipelines.Dataflow.DataflowBuilder`2.#ctor(System.Threading.Tasks.Dataflow.ITargetBlock{`0},System.Threading.Tasks.Dataflow.ISourceBlock{`1},Microsoft.Extensions.Logging.ILogger,System.Threading.CancellationToken)">
+        <member name="M:MelloSilveiraTools.Core.Pipelines.Dataflow.DataflowPipelineBuilder`2.#ctor(Microsoft.Extensions.Logging.ILogger,System.Threading.Tasks.Dataflow.ITargetBlock{`0},System.Threading.Tasks.Dataflow.ISourceBlock{`1},System.Threading.Tasks.Dataflow.ITargetBlock{MelloSilveiraTools.Core.Pipelines.FailedPayload{System.Object}},System.Threading.CancellationToken)">
             <summary>
             A strongly-typed fluent builder for orchestrating TPL Dataflow topologies.
             Maintains internal block references to guarantee type invariance during pipeline construction.
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.Core.Pipelines.Dataflow.DataflowBuilder`2.AddAsyncStep``1(System.String,System.Func{`1,System.Threading.CancellationToken,System.Threading.Tasks.Task{``0}},MelloSilveiraTools.Core.Pipelines.PipelineStepOptions)">
-            <summary>
-            Appends a TransformBlock bound to an asynchronous delegate.
-            Optimized for I/O-bound operations or computationally expensive tasks leveraging MaxWorkers > 1.
-            </summary>
+        <member name="M:MelloSilveiraTools.Core.Pipelines.Dataflow.DataflowPipelineBuilder`2.WithDeadLetterQueue(System.Threading.Tasks.Dataflow.ITargetBlock{MelloSilveiraTools.Core.Pipelines.FailedPayload{System.Object}})">
+            <inheritdoc/>
         </member>
-        <member name="M:MelloSilveiraTools.Core.Pipelines.Dataflow.DataflowBuilder`2.AddDataMapping``1(System.String,System.Func{`1,``0},MelloSilveiraTools.Core.Pipelines.PipelineStepOptions)">
-            <summary>
-            Appends a TransformBlock bound to a synchronous delegate.
-            Elides the async state machine allocation entirely, making this highly performant for 
-            synchronous CPU-bound data mapping operations.
-            </summary>
+        <member name="M:MelloSilveiraTools.Core.Pipelines.Dataflow.DataflowPipelineBuilder`2.WithDeadLetterQueue(System.Action{MelloSilveiraTools.Core.Pipelines.FailedPayload{System.Object}},MelloSilveiraTools.Core.Pipelines.PipelineStepOptions)">
+            <inheritdoc/>
         </member>
-        <member name="M:MelloSilveiraTools.Core.Pipelines.Dataflow.DataflowBuilder`2.AddDataMapping``1(System.String,System.Func{`1,System.Threading.CancellationToken,System.Threading.Tasks.Task{``0}},MelloSilveiraTools.Core.Pipelines.PipelineStepOptions)">
-            <summary>
-            Appends a TransformBlock bound to a synchronous delegate.
-            Elides the async state machine allocation entirely, making this highly performant for 
-            synchronous CPU-bound data mapping operations.
-            </summary>
+        <member name="M:MelloSilveiraTools.Core.Pipelines.Dataflow.DataflowPipelineBuilder`2.WithDeadLetterQueue(System.Func{MelloSilveiraTools.Core.Pipelines.FailedPayload{System.Object},System.Threading.CancellationToken,System.Threading.Tasks.Task},MelloSilveiraTools.Core.Pipelines.PipelineStepOptions)">
+            <inheritdoc/>
         </member>
-        <member name="M:MelloSilveiraTools.Core.Pipelines.Dataflow.DataflowBuilder`2.BuildTerminal(System.String,System.Action{`1},MelloSilveiraTools.Core.Pipelines.PipelineStepOptions)">
-            <summary>
-            Appends an ActionBlock to consume the final pipeline output.
-            Serves as the pipeline sink, linking the final ISourceBlock and returning the execution interface.
-            </summary>
+        <member name="M:MelloSilveiraTools.Core.Pipelines.Dataflow.DataflowPipelineBuilder`2.WithLoggingErrors(MelloSilveiraTools.Core.Pipelines.PipelineStepOptions)">
+            <inheritdoc/>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Pipelines.Dataflow.DataflowPipelineBuilder`2.AddDataMapping``1(System.Func{`1,``0},MelloSilveiraTools.Core.Pipelines.PipelineStepOptions)">
+            <inheritdoc/>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Pipelines.Dataflow.DataflowPipelineBuilder`2.AddDataMapping``1(System.Func{`1,System.Threading.CancellationToken,System.Threading.Tasks.Task{``0}},MelloSilveiraTools.Core.Pipelines.PipelineStepOptions)">
+            <inheritdoc/>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Pipelines.Dataflow.DataflowPipelineBuilder`2.AddStep``1(System.String,System.Func{`1,System.Threading.CancellationToken,System.Threading.Tasks.Task{``0}},MelloSilveiraTools.Core.Pipelines.PipelineStepOptions)">
+            <inheritdoc/>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Pipelines.Dataflow.DataflowPipelineBuilder`2.AddForkingStep``1(System.String,System.String,System.Func{`1,System.Threading.CancellationToken,System.Threading.Tasks.Task{``0}},System.Func{`1,System.Boolean},System.Func{`1,System.Threading.CancellationToken,System.Threading.Tasks.Task{``0}},MelloSilveiraTools.Core.Pipelines.PipelineStepOptions)">
+            <inheritdoc/>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Pipelines.Dataflow.DataflowPipelineBuilder`2.AddForkingStep``1(System.String,System.String,System.Func{`1,System.Threading.CancellationToken,System.Threading.Tasks.Task{``0}},System.Func{``0,System.Boolean},System.Func{`1,System.Threading.CancellationToken,System.Threading.Tasks.Task{``0}},MelloSilveiraTools.Core.Pipelines.PipelineStepOptions)">
+            <inheritdoc/>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Pipelines.Dataflow.DataflowPipelineBuilder`2.BuildTerminal(System.String,System.Action{`1},MelloSilveiraTools.Core.Pipelines.PipelineStepOptions)">
+            <inheritdoc/>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Pipelines.Dataflow.DataflowPipelineBuilder`2.BuildTerminal(System.String,System.Func{`1,System.Threading.Tasks.Task},MelloSilveiraTools.Core.Pipelines.PipelineStepOptions)">
+            <inheritdoc/>
         </member>
         <member name="T:MelloSilveiraTools.Core.Pipelines.Dataflow.DataflowPipeline`1">
             <summary>
@@ -1570,16 +1577,6 @@
         <member name="M:MelloSilveiraTools.Core.Pipelines.Dataflow.DataflowPipeline`1.DisposeAsync">
             <inheritdoc/>
         </member>
-        <member name="T:MelloSilveiraTools.Core.Pipelines.Dataflow.DataflowPipelineFactory">
-            <summary>
-            Factory entry point.
-            </summary>
-        </member>
-        <member name="M:MelloSilveiraTools.Core.Pipelines.Dataflow.DataflowPipelineFactory.Start``1(Microsoft.Extensions.Logging.ILogger,System.Int32,System.Threading.CancellationToken)">
-            <summary>
-            Initializes a new Dataflow Pipeline utilizing a BufferBlock as the ingestion head.
-            </summary>
-        </member>
         <member name="T:MelloSilveiraTools.Core.Pipelines.Dataflow.IDataflowPipeline`1">
             <summary>
             Exposes the operational ingestion surface of the continuous Dataflow pipeline.
@@ -1604,31 +1601,97 @@
             Awaiting this ensures all propagated messages have been fully consumed by the terminal action block.
             </summary>
         </member>
-        <member name="T:MelloSilveiraTools.Core.Pipelines.Fluent.FluentPipelineFactory">
+        <member name="T:MelloSilveiraTools.Core.Pipelines.Dataflow.IDataflowPipelineBuilder`2">
             <summary>
-            Factory for instantiating the request-response fluent pipeline builder.
-            Binds the initial input type to the builder's root state to guarantee compile-time safety 
-            before transitioning into the type-erased internal execution engine.
+            Defines the fluent contract for orchestrating continuous, push-based execution topologies utilizing TPL Dataflow.
+            Facilitates the strictly-typed construction of block linkages, ensuring type invariance at the ingestion root 
+            while safely mapping transient intermediate state transitions across the execution graph.
+            </summary>
+            <typeparam name="THead">The immutable root input type configured at the pipeline head, serving as the ingestion contract.</typeparam>
+            <typeparam name="TTail">The transient terminal state type of the topology prior to subsequent block linkage or sink attachment.</typeparam>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Pipelines.Dataflow.IDataflowPipelineBuilder`2.WithDeadLetterQueue(System.Threading.Tasks.Dataflow.ITargetBlock{MelloSilveiraTools.Core.Pipelines.FailedPayload{System.Object}})">
+            <summary>
+            Configures a Dead-Letter Queue (DLQ) using an existing target block. 
+            Ideal for advanced scenarios where payloads are routed to a shared buffer or queue block.
             </summary>
         </member>
-        <member name="T:MelloSilveiraTools.Core.Pipelines.Fluent.PipelineBuilder`2">
+        <member name="M:MelloSilveiraTools.Core.Pipelines.Dataflow.IDataflowPipelineBuilder`2.WithDeadLetterQueue(System.Action{MelloSilveiraTools.Core.Pipelines.FailedPayload{System.Object}},MelloSilveiraTools.Core.Pipelines.PipelineStepOptions)">
+            <summary>
+            Configures a Dead-Letter Queue (DLQ) using a synchronous callback action. 
+            Automatically wraps the action in an <see cref="T:System.Threading.Tasks.Dataflow.ActionBlock`1"/> to capture failed payloads seamlessly.
+            </summary>
+            <param name="errorHandler">The synchronous delegate executed when a payload faults.</param>
+            <param name="options">Concurrency and buffer options for the DLQ processing block.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Pipelines.Dataflow.IDataflowPipelineBuilder`2.WithDeadLetterQueue(System.Func{MelloSilveiraTools.Core.Pipelines.FailedPayload{System.Object},System.Threading.CancellationToken,System.Threading.Tasks.Task},MelloSilveiraTools.Core.Pipelines.PipelineStepOptions)">
+            <summary>
+            Configures a Dead-Letter Queue (DLQ) using an asynchronous callback delegate. 
+            Automatically wraps the delegate in an <see cref="T:System.Threading.Tasks.Dataflow.ActionBlock`1"/> to capture failed payloads seamlessly.
+            </summary>
+            <param name="errorHandlerAsync">The asynchronous delegate executed when a payload faults.</param>
+            <param name="options">Concurrency and buffer options for the DLQ processing block.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Pipelines.Dataflow.IDataflowPipelineBuilder`2.WithLoggingErrors(MelloSilveiraTools.Core.Pipelines.PipelineStepOptions)">
+            <summary>
+            Configures a Dead-Letter Queue (DLQ) for only loggins the errors. 
+            </summary>
+            <param name="options">Concurrency and buffer options for the DLQ processing block.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Pipelines.Dataflow.IDataflowPipelineBuilder`2.AddDataMapping``1(System.Func{`1,``0},MelloSilveiraTools.Core.Pipelines.PipelineStepOptions)">
+            <summary>
+            Appends a TransformBlock bound to a synchronous delegate.
+            Elides the async state machine allocation entirely, making this highly performant for synchronous CPU-bound data mapping operations.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Pipelines.Dataflow.IDataflowPipelineBuilder`2.AddStep``1(System.String,System.Func{`1,System.Threading.CancellationToken,System.Threading.Tasks.Task{``0}},MelloSilveiraTools.Core.Pipelines.PipelineStepOptions)">
+            <summary>
+            Appends a TransformBlock bound to an asynchronous delegate.
+            Optimized for I/O-bound operations or computationally expensive tasks leveraging MaxWorkers > 1.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Pipelines.Dataflow.IDataflowPipelineBuilder`2.BuildTerminal(System.String,System.Action{`1},MelloSilveiraTools.Core.Pipelines.PipelineStepOptions)">
+            <summary>
+            Appends an ActionBlock to consume the final pipeline output.
+            Serves as the pipeline sink, linking the final ISourceBlock and returning the execution interface.
+            </summary>
+        </member>
+        <member name="T:MelloSilveiraTools.Core.Pipelines.FailedPayload`1">
+            <summary>
+            Encapsulates a faulted payload, the originating exception, and the 
+            execution context for dead-letter routing.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Pipelines.FailedPayload`1.#ctor(System.String,`0,System.Exception)">
+            <summary>
+            Encapsulates a faulted payload, the originating exception, and the 
+            execution context for dead-letter routing.
+            </summary>
+        </member>
+        <member name="T:MelloSilveiraTools.Core.Pipelines.Fluent.FluentPipelineBuilder`2">
             <summary>
             Orchestrates the sequential chaining of asynchronous pipeline steps.
             Utilizes delegate wrapping (Type Erasure) to strip compile-time generic constraints, allowing 
             heterogeneous return types to be stored in a unified internal execution collection.
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.Core.Pipelines.Fluent.PipelineBuilder`2.#ctor(System.Collections.Generic.List{System.ValueTuple{System.String,System.Func{System.Object,System.Threading.CancellationToken,System.Threading.Tasks.Task{System.Object}}}})">
+        <member name="M:MelloSilveiraTools.Core.Pipelines.Fluent.FluentPipelineBuilder`2.#ctor(System.Collections.Generic.List{System.ValueTuple{System.String,System.Func{System.Object,System.Threading.CancellationToken,System.Threading.Tasks.Task{System.Object}}}})">
             <summary>
             Orchestrates the sequential chaining of asynchronous pipeline steps.
             Utilizes delegate wrapping (Type Erasure) to strip compile-time generic constraints, allowing 
             heterogeneous return types to be stored in a unified internal execution collection.
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.Core.Pipelines.Fluent.PipelineBuilder`2.#ctor">
+        <member name="M:MelloSilveiraTools.Core.Pipelines.Fluent.FluentPipelineBuilder`2.#ctor">
             <summary>
             Initializes the root builder with an empty execution sequence.
             </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Pipelines.Fluent.FluentPipelineBuilder`2.AddStep``1(System.String,System.Func{`1,System.Threading.CancellationToken,System.Threading.Tasks.Task{``0}})">
+            <inheritdoc/>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Pipelines.Fluent.FluentPipelineBuilder`2.Build(Microsoft.Extensions.Logging.ILogger)">
+            <inheritdoc/>
         </member>
         <member name="T:MelloSilveiraTools.Core.Pipelines.Fluent.PipelineEngine`2">
             <summary>
@@ -1673,13 +1736,16 @@
         <member name="T:MelloSilveiraTools.Core.Pipelines.Fluent.IFluentPipelineBuilder`2">
             <summary>
             Defines the contract for constructing a strongly-typed, sequential execution graph.
+            Facilitates compile-time type safety across state transitions while abstracting 
+            the underlying type-erased delegate collection.
             </summary>
             <typeparam name="TInitialIn">The immutable root input type bound at the pipeline's inception.</typeparam>
             <typeparam name="TCurrentOut">The current terminal state type of the execution graph prior to the next step linkage.</typeparam>
         </member>
         <member name="M:MelloSilveiraTools.Core.Pipelines.Fluent.IFluentPipelineBuilder`2.AddStep``1(System.String,System.Func{`1,System.Threading.CancellationToken,System.Threading.Tasks.Task{``0}})">
             <summary>
-            Appends an asynchronous execution delegate to the pipeline topology, mutating the terminal state type of the builder graph.
+            Appends an asynchronous execution delegate to the pipeline topology, 
+            mutating the terminal state type of the builder graph.
             </summary>
             <typeparam name="TNextOut">The resultant state type emitted by the appended delegate.</typeparam>
             <param name="stepName">The semantic identifier utilized for structured telemetry and fault localization.</param>
@@ -1693,12 +1759,29 @@
             <param name="logger">An optional structured logging provider injected into the execution engine for telemetry and state tracking.</param>
             <returns>The finalized pipeline instance capable of processing the sequential state transitions.</returns>
         </member>
-        <member name="T:MelloSilveiraTools.Core.Pipelines.IStep`2">
+        <member name="T:MelloSilveiraTools.Core.Pipelines.IPipelineStep`2">
             <summary>
-            Contract for an isolated processing step within the pipeline.
+            Defines the atomic contract for an isolated execution boundary within a pipeline topology.
+            Encapsulates a singular domain responsibility, facilitating a strongly-typed state transition 
+            from a predefined input payload to a deterministic output state.
             </summary>
-            <typeparam name="TIn">The expected input type for this step.</typeparam>
-            <typeparam name="TOut">The resulting output type of this step.</typeparam>
+            <typeparam name="TIn">The expected input payload type ingested by this execution node.</typeparam>
+            <typeparam name="TOut">The resultant output payload type yielded after successful state mutation.</typeparam>
+        </member>
+        <member name="P:MelloSilveiraTools.Core.Pipelines.IPipelineStep`2.Name">
+            <summary>
+            Gets the semantic identifier for this specific execution step.
+            Required by the pipeline orchestration engines for structured telemetry, 
+            distributed tracing, and precise fault localization within the execution graph.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Pipelines.IPipelineStep`2.ExecuteAsync(`0,System.Threading.CancellationToken)">
+            <summary>
+            Invokes the encapsulated domain logic asynchronously, mapping the ingested state to the resultant output state.
+            </summary>
+            <param name="input">The immutable payload propagated from the preceding pipeline node.</param>
+            <param name="cancellationToken">The cooperative cancellation token injected by the pipeline lifecycle orchestrator.</param>
+            <returns>A task representing the asynchronous operation, encapsulating the mutated terminal state.</returns>
         </member>
         <member name="T:MelloSilveiraTools.Core.Pipelines.PipelineExecutionException">
             <summary>
@@ -1728,27 +1811,67 @@
         </member>
         <member name="T:MelloSilveiraTools.Core.Pipelines.PipelineExtensions">
             <summary>
-            Encapsulates extension methods for <see cref="T:MelloSilveiraTools.Core.Pipelines.Fluent.IFluentPipelineBuilder`2"/>.
-            Abstracts the underlying type-erased builder mechanics by providing strongly-typed fluid configuration APIs.
+            Encapsulates extension methods for pipeline builders.
+            Abstracts underlying mechanics by providing strongly-typed fluid configuration APIs.
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.Core.Pipelines.PipelineExtensions.AddStep``3(MelloSilveiraTools.Core.Pipelines.Fluent.IFluentPipelineBuilder{``0,``1},MelloSilveiraTools.Core.Pipelines.IStep{``1,``2})">
-            <inheritdoc cref="M:MelloSilveiraTools.Core.Pipelines.PipelineExtensions.&lt;G&gt;$03ED2E6D27C8C403899CE301D0527571`2.AddStep``1(MelloSilveiraTools.Core.Pipelines.IStep{`1,``0})"/>
+        <member name="M:MelloSilveiraTools.Core.Pipelines.PipelineExtensions.AddStep``3(MelloSilveiraTools.Core.Pipelines.Fluent.IFluentPipelineBuilder{``0,``1},MelloSilveiraTools.Core.Pipelines.IPipelineStep{``1,``2})">
+            <inheritdoc cref="M:MelloSilveiraTools.Core.Pipelines.PipelineExtensions.&lt;G&gt;$03ED2E6D27C8C403899CE301D0527571`2.AddStep``1(MelloSilveiraTools.Core.Pipelines.IPipelineStep{`1,``0})"/>
         </member>
         <member name="M:MelloSilveiraTools.Core.Pipelines.PipelineExtensions.AddDataMapping``3(MelloSilveiraTools.Core.Pipelines.Fluent.IFluentPipelineBuilder{``0,``1},System.Func{``1,``2})">
             <inheritdoc cref="M:MelloSilveiraTools.Core.Pipelines.PipelineExtensions.&lt;G&gt;$03ED2E6D27C8C403899CE301D0527571`2.AddDataMapping``1(System.Func{`1,``0})"/>
         </member>
-        <member name="M:MelloSilveiraTools.Core.Pipelines.PipelineExtensions.&lt;G&gt;$03ED2E6D27C8C403899CE301D0527571`2.AddStep``1(MelloSilveiraTools.Core.Pipelines.IStep{`1,``0})">
+        <member name="M:MelloSilveiraTools.Core.Pipelines.PipelineExtensions.AddStep``3(MelloSilveiraTools.Core.Pipelines.Dataflow.IDataflowPipelineBuilder{``0,``1},MelloSilveiraTools.Core.Pipelines.IPipelineStep{``1,``2},MelloSilveiraTools.Core.Pipelines.PipelineStepOptions)">
+            <inheritdoc cref="M:MelloSilveiraTools.Core.Pipelines.PipelineExtensions.&lt;G&gt;$6773866DE25ECFE8E7C56EE5107CFB66`2.AddStep``1(MelloSilveiraTools.Core.Pipelines.IPipelineStep{`1,``0},MelloSilveiraTools.Core.Pipelines.PipelineStepOptions)"/>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Pipelines.PipelineExtensions.AddForkingStep``3(MelloSilveiraTools.Core.Pipelines.Dataflow.IDataflowPipelineBuilder{``0,``1},MelloSilveiraTools.Core.Pipelines.IPipelineStep{``1,``2},System.Func{``2,System.Boolean},MelloSilveiraTools.Core.Pipelines.IPipelineStep{``1,``2},MelloSilveiraTools.Core.Pipelines.PipelineStepOptions)">
             <summary>
-            Appends an asynchronous execution step to the pipeline topology.
-            Resolves the step's runtime type name for telemetry and delegates execution via the strongly-typed interface.
+            Forks the pipeline execution based on success or failure using a lightweight ValueTuple envelope.
+            Successful items proceed to the next stage, while failed items are routed to a recovery step and terminated.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Pipelines.PipelineExtensions.&lt;G&gt;$03ED2E6D27C8C403899CE301D0527571`2.AddStep``1(MelloSilveiraTools.Core.Pipelines.IPipelineStep{`1,``0})">
+            <summary>
+            Appends an asynchronous execution step to the fluent pipeline topology[cite: 2].
             </summary>
         </member>
         <member name="M:MelloSilveiraTools.Core.Pipelines.PipelineExtensions.&lt;G&gt;$03ED2E6D27C8C403899CE301D0527571`2.AddDataMapping``1(System.Func{`1,``0})">
             <summary>
-            Injects a synchronous data transformation projection into the pipeline execution graph.
-            Wraps the synchronous lambda within a Task to satisfy the asynchronous execution engine contract.
+            Injects a synchronous data transformation projection into the pipeline execution graph[cite: 2].
             </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Pipelines.PipelineExtensions.&lt;G&gt;$6773866DE25ECFE8E7C56EE5107CFB66`2.AddStep``1(MelloSilveiraTools.Core.Pipelines.IPipelineStep{`1,``0},MelloSilveiraTools.Core.Pipelines.PipelineStepOptions)">
+            <summary>
+            Injects a pre-configured <see cref="T:MelloSilveiraTools.Core.Pipelines.IPipelineStep`2"/> instance into the continuous Dataflow execution graph.
+            </summary>
+        </member>
+        <member name="T:MelloSilveiraTools.Core.Pipelines.PipelineFactory">
+            <summary>
+            Serves as the primary static factory for bootstrapping execution topologies.
+            Encapsulates the initialization logic for both the continuous push-based Dataflow network 
+            and the strongly-typed pull-based Fluent request-response pipeline.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Pipelines.PipelineFactory.StartDataflow``1(Microsoft.Extensions.Logging.ILogger,System.Int32,System.Threading.CancellationToken)">
+            <summary>
+            Bootstraps a continuous TPL Dataflow pipeline topology by instantiating a <see cref="T:System.Threading.Tasks.Dataflow.BufferBlock`1"/> 
+            as the ingestion head. Enforces bounded capacity backpressure and injects the unified cancellation graph 
+            that dictates the lifecycle of all subsequent blocks.
+            </summary>
+            <typeparam name="T">The immutable payload type ingested at the pipeline head.</typeparam>
+            <param name="logger">Structured logging provider for tracking block transitions and telemetry.</param>
+            <param name="initialBufferSize">The maximum bounded capacity of the ingestion buffer block, defaulting to 10,000 items.</param>
+            <param name="cancellationToken">The unified cancellation token propagated down the entire Dataflow network.</param>
+            <returns>A fluent builder instance anchored to the initial buffer head.</returns>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Pipelines.PipelineFactory.StartFluent``1">
+            <summary>
+            Bootstraps a strongly-typed, pull-based Fluent pipeline builder.
+            Binds the initial input type to the builder's root state to guarantee compile-time safety 
+            before transitioning into the type-erased internal execution engine.
+            </summary>
+            <typeparam name="T">The immutable root input type validated at compile time.</typeparam>
+            <returns>A fluent builder instance ready to receive step linkages.</returns>
         </member>
         <member name="T:MelloSilveiraTools.Core.Pipelines.PipelineStepOptions">
             <summary>
@@ -1791,6 +1914,26 @@
         <member name="M:MelloSilveiraTools.Core.Pipelines.PipelineStepOptions.ToDataflowOptions(System.Threading.CancellationToken)">
             <summary>
             Projects the abstracted configuration into the native TPL Dataflow options payload.
+            </summary>
+        </member>
+        <member name="T:MelloSilveiraTools.Core.Pipelines.RetryOptions">
+            <summary>
+            Defines optional retry configurations with exponential backoff for transient failure recovery.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Pipelines.RetryOptions.#ctor(System.Int32,System.Int32,System.Double)">
+            <summary>
+            Defines optional retry configurations with exponential backoff for transient failure recovery.
+            </summary>
+        </member>
+        <member name="T:MelloSilveiraTools.Core.Pipelines.Telemetry">
+            <summary>
+            Exposes the centralized ActivitySource for tracing pipeline execution topologies.
+            </summary>
+        </member>
+        <member name="T:MelloSilveiraTools.Core.Pipelines.TelemetryExtensions">
+            <summary>
+            Provides structured logging wrappers, ensuring consistent tracking of execution lifecycles, durations, and failures.
             </summary>
         </member>
         <member name="T:MelloSilveiraTools.Core.Providers.Dynamics.IDynamicServiceProvider">

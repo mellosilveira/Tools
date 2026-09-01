@@ -18,17 +18,17 @@ public static class PipelineFactory
     /// that dictates the lifecycle of all subsequent blocks.
     /// </summary>
     /// <typeparam name="T">The immutable payload type ingested at the pipeline head.</typeparam>
-    /// <param name="logger">Optional structured logging provider for tracking block transitions and telemetry.</param>
+    /// <param name="logger">Structured logging provider for tracking block transitions and telemetry.</param>
     /// <param name="initialBufferSize">The maximum bounded capacity of the ingestion buffer block, defaulting to 10,000 items.</param>
     /// <param name="cancellationToken">The unified cancellation token propagated down the entire Dataflow network.</param>
     /// <returns>A fluent builder instance anchored to the initial buffer head.</returns>
     public static IDataflowPipelineBuilder<T, T> StartDataflow<T>(
-        ILogger? logger = null,
+        ILogger logger,
         int initialBufferSize = 10000,
         CancellationToken cancellationToken = default)
     {
         BufferBlock<T> buffer = new(new DataflowBlockOptions { BoundedCapacity = initialBufferSize, CancellationToken = cancellationToken });
-        return new DataflowPipelineBuilder<T, T>(buffer, buffer, null, logger, cancellationToken);
+        return new DataflowPipelineBuilder<T, T>(logger, buffer, buffer, null, cancellationToken);
     }
 
     /// <summary>
