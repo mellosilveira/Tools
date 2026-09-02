@@ -6,38 +6,34 @@ namespace MelloSilveiraTools.Core.Pipelines;
 /// <summary>
 /// Provides structured logging wrappers, ensuring consistent tracking of execution lifecycles, durations, and failures.
 /// </summary>
+[StackTraceHidden]
 public static class TelemetryExtensions
 {
-    public static Action<TIn> HandleExecution<TIn>(ILogger logger, string callbackName, Action<TIn> callback, CancellationToken cancellationToken = default) 
-        => [StackTraceHidden] (input) =>
-        {
-            using Activity? activity = Telemetry.DefaultInstance.StartActivity(callbackName, ActivityKind.Internal);
-            Execute(logger, activity, input, callbackName, callback, cancellationToken);
-        };
+    public static Action<TIn> HandleExecution<TIn>(ILogger logger, string callbackName, Action<TIn> callback, CancellationToken cancellationToken = default) => (input) =>
+    {
+        using Activity? activity = Telemetry.DefaultInstance.StartActivity(callbackName, ActivityKind.Internal);
+        Execute(logger, activity, input, callbackName, callback, cancellationToken);
+    };
 
-    public static Func<TIn, Task> HandleExecution<TIn>(ILogger logger, string callbackName, Func<TIn, CancellationToken, Task> callback, CancellationToken cancellationToken = default) 
-        => [StackTraceHidden] async (input) =>
-        {
-            using Activity? activity = Telemetry.DefaultInstance.StartActivity(callbackName, ActivityKind.Internal);
-            await ExecuteAsync(logger, activity, input, callbackName, callback, cancellationToken).ConfigureAwait(false);
-        };
+    public static Func<TIn, Task> HandleExecution<TIn>(ILogger logger, string callbackName, Func<TIn, CancellationToken, Task> callback, CancellationToken cancellationToken = default) => async (input) =>
+    {
+        using Activity? activity = Telemetry.DefaultInstance.StartActivity(callbackName, ActivityKind.Internal);
+        await ExecuteAsync(logger, activity, input, callbackName, callback, cancellationToken).ConfigureAwait(false);
+    };
 
-    public static Func<TIn, TOut> HandleExecution<TIn, TOut>(ILogger logger,
-        string callbackName,
-        Func<TIn, TOut> callback,
-        CancellationToken cancellationToken = default)
-        => [StackTraceHidden] (input) =>
-        {
-            using Activity? activity = Telemetry.DefaultInstance.StartActivity(callbackName, ActivityKind.Internal);
-            return Execute(logger, activity, input, callbackName, callback, cancellationToken);
-        };
+    public static Func<TIn, TOut> HandleExecution<TIn, TOut>(ILogger logger, string callbackName, Func<TIn, TOut> callback, CancellationToken cancellationToken = default) => (input) =>
+    {
+        using Activity? activity = Telemetry.DefaultInstance.StartActivity(callbackName, ActivityKind.Internal);
+        return Execute(logger, activity, input, callbackName, callback, cancellationToken);
+    };
 
-    public static Func<TIn, Task<TOut?>> HandleExecution<TIn, TOut>(ILogger logger,
-        string callbackName,
-        Func<TIn, TOut> callback,
-        Func<(TIn Input, Exception Exception), CancellationToken, Task> errorHandler,
-        CancellationToken cancellationToken = default)
-        => [StackTraceHidden] async (input) =>
+    public static Func<TIn, Task<TOut?>> HandleExecution<TIn, TOut>(
+        ILogger logger, 
+        string callbackName, 
+        Func<TIn, TOut> callback, 
+        Func<(TIn Input, Exception Exception), CancellationToken, Task> errorHandler, 
+        CancellationToken cancellationToken = default) 
+        => async (input) =>
         {
             using Activity? activity = Telemetry.DefaultInstance.StartActivity(callbackName, ActivityKind.Internal);
             return await ExecuteAsync(logger, activity, input, callbackName, callback, errorHandler, cancellationToken).ConfigureAwait(false);
@@ -47,11 +43,12 @@ public static class TelemetryExtensions
         string callbackName,
         Func<TIn, CancellationToken, Task<TOut>> callback,
         Func<(TIn Input, Exception Exception), CancellationToken, Task>? errorHandler = null,
+        RetryOptions? retryOptions = null,
         CancellationToken cancellationToken = default)
-        => [StackTraceHidden] async (input) =>
+        => async (input) =>
         {
             using Activity? activity = Telemetry.DefaultInstance.StartActivity(callbackName, ActivityKind.Internal);
-            return await ExecuteAsync(logger, activity, input, callbackName, callback, errorHandler, cancellationToken).ConfigureAwait(false);
+            return await ExecuteAsync(logger, activity, input, callbackName, callback, errorHandler, retryOptions, cancellationToken).ConfigureAwait(false);
         };
 
     public static Func<TIn, Task<TOut?>> HandleExecution<TIn, TOut>(ILogger logger,
@@ -61,11 +58,12 @@ public static class TelemetryExtensions
         Func<TIn, bool> fallbackCondition,
         Func<TIn, CancellationToken, Task<TOut>> fallback,
         Func<(TIn Input, Exception Exception), CancellationToken, Task>? errorHandler = null,
+        RetryOptions? retryOptions = null,
         CancellationToken cancellationToken = default)
-        => [StackTraceHidden] async (input) =>
+        => async (input) =>
         {
             using Activity? activity = Telemetry.DefaultInstance.StartActivity(callbackName, ActivityKind.Internal);
-            return await ExecuteAsync(logger, activity, input, callbackName, fallbackName, callback, fallbackCondition, fallback, errorHandler, cancellationToken).ConfigureAwait(false);
+            return await ExecuteForkingAsync(logger, activity, input, callbackName, fallbackName, callback, fallbackCondition, fallback, errorHandler, retryOptions, cancellationToken).ConfigureAwait(false);
         };
 
     public static Func<TIn, Task<TOut?>> HandleExecution<TIn, TOut>(ILogger logger,
@@ -75,11 +73,12 @@ public static class TelemetryExtensions
         Func<TOut, bool> fallbackCondition,
         Func<TIn, CancellationToken, Task<TOut>> fallback,
         Func<(TIn Input, Exception Exception), CancellationToken, Task>? errorHandler = null,
+        RetryOptions? retryOptions = null,
         CancellationToken cancellationToken = default)
-        => [StackTraceHidden] async (input) =>
+        => async (input) =>
         {
             using Activity? activity = Telemetry.DefaultInstance.StartActivity(callbackName, ActivityKind.Internal);
-            return await ExecuteAsync(logger, activity, input, callbackName, fallbackName, callback, fallbackCondition, fallback, errorHandler, cancellationToken).ConfigureAwait(false);
+            return await ExecuteForkingAsync(logger, activity, input, callbackName, fallbackName, callback, fallbackCondition, fallback, errorHandler, retryOptions, cancellationToken).ConfigureAwait(false);
         };
 
     public static void Execute<TIn>(ILogger logger, Activity? activity, TIn input, string callbackName, Action<TIn> callback, CancellationToken cancellationToken = default)
@@ -162,6 +161,9 @@ public static class TelemetryExtensions
         }
     }
 
+    /// <summary>
+    /// Executes an async func with OpenTelemetry tracing, standard logging, and exponential backoff retry.
+    /// </summary>
     public static async Task<TOut?> ExecuteAsync<TIn, TOut>(
         ILogger logger,
         Activity? activity,
@@ -169,28 +171,44 @@ public static class TelemetryExtensions
         string callbackName,
         Func<TIn, CancellationToken, Task<TOut>> callback,
         Func<(TIn Input, Exception Exception), CancellationToken, Task>? errorHandler = null,
+        RetryOptions? retryOptions = null,
         CancellationToken cancellationToken = default)
     {
         DateTimeOffset startTime = StartTelemetry(logger, activity, callbackName);
 
-        try
-        {
-            TOut? result = await callback(input, cancellationToken).ConfigureAwait(false);
-            LogAndTrackStepCompletion(logger, activity, startTime, callbackName);
-            return result;
-        }
-        catch (Exception ex) when (ex is not OperationCanceledException)
-        {
-            LogAndTrackStepFailure(logger, activity, startTime, callbackName, ex);
-            if (errorHandler is null)
-                throw;
+        int attempt = 0;
+        int delayMs = retryOptions?.InitialDelayMs ?? 0;
 
-            await ExecuteAsync(logger, activity, (input, ex), $"{callbackName}.ErrorHandler", errorHandler, cancellationToken);
-            return default;
+        while (true)
+        {
+            try
+            {
+                TOut? result = await callback(input, cancellationToken).ConfigureAwait(false);
+                LogAndTrackStepCompletion(logger, activity, startTime, callbackName);
+                return result;
+            }
+            catch (Exception ex) when (ex is not OperationCanceledException)
+            {
+                attempt++;
+                if (retryOptions == null || attempt >= retryOptions.Value.MaxAttempts)
+                {
+                    LogAndTrackStepFailure(logger, activity, startTime, callbackName, ex);
+
+                    if (errorHandler is null)
+                        throw;
+
+                    await errorHandler((input, ex), cancellationToken).ConfigureAwait(false);
+                    return default;
+                }
+
+                logger.LogWarning(ex, "Attempt {Attempt} failed for '{Name}'. Retrying in {Delay}ms...", attempt, callbackName, delayMs);
+                await Task.Delay(delayMs, cancellationToken);
+                delayMs = (int)(delayMs * retryOptions.Value.BackoffFactor);
+            }
         }
     }
 
-    public static Task<TOut?> ExecuteAsync<TIn, TOut>(
+    public static async Task<TOut?> ExecuteForkingAsync<TIn, TOut>(
         ILogger logger,
         Activity? activity,
         TIn input,
@@ -200,12 +218,19 @@ public static class TelemetryExtensions
         Func<TIn, bool> fallbackCondition,
         Func<TIn, CancellationToken, Task<TOut>> fallback,
         Func<(TIn Input, Exception Exception), CancellationToken, Task>? errorHandler = null,
-        CancellationToken cancellationToken = default) 
-        => !fallbackCondition(input)
-            ? ExecuteAsync(logger, activity, input, callbackName, callback, errorHandler, cancellationToken)
-            : ExecuteAsync(logger, activity, input, fallbackName, fallback, errorHandler, cancellationToken);
+        RetryOptions? retryOptions = null,
+        CancellationToken cancellationToken = default)
+    {
+        if (fallbackCondition(input))
+        {
+            logger.LogInformation("Fallback condition met for input prior to '{CallbackName}'. Rerouting to '{FallbackName}'.", callbackName, fallbackName);
+            return await ExecuteAsync(logger, activity, input, fallbackName, fallback, errorHandler, retryOptions, cancellationToken).ConfigureAwait(false);
+        }
 
-    public static async Task<TOut?> ExecuteAsync<TIn, TOut>(
+        return await ExecuteAsync(logger, activity, input, callbackName, callback, errorHandler, retryOptions, cancellationToken).ConfigureAwait(false);
+    }
+
+    public static async Task<TOut?> ExecuteForkingAsync<TIn, TOut>(
         ILogger logger,
         Activity? activity,
         TIn input,
@@ -215,6 +240,7 @@ public static class TelemetryExtensions
         Func<TOut, bool> fallbackCondition,
         Func<TIn, CancellationToken, Task<TOut>> fallback,
         Func<(TIn Input, Exception Exception), CancellationToken, Task>? errorHandler = null,
+        RetryOptions? retryOptions = null,
         CancellationToken cancellationToken = default)
     {
         DateTimeOffset startTime = StartTelemetry(logger, activity, callbackName);
@@ -224,8 +250,8 @@ public static class TelemetryExtensions
             TOut? result = await callback(input, cancellationToken).ConfigureAwait(false);
             if (fallbackCondition(result))
             {
-                LogAndTrackStepFailure(logger, activity, startTime, callbackName, new Exception($"Fallback condition met for '{callbackName}'."));
-                return await ExecuteAsync(logger, activity, input, fallbackName, fallback, errorHandler, cancellationToken).ConfigureAwait(false);
+                LogAndTrackStepFailure(logger, activity, startTime, callbackName, new Exception($"Fallback condition met for output of '{callbackName}'. Rerouting to '{fallbackName}'."));
+                return await ExecuteAsync(logger, activity, input, fallbackName, fallback, errorHandler, retryOptions, cancellationToken).ConfigureAwait(false);
             }
 
             LogAndTrackStepCompletion(logger, activity, startTime, callbackName);
