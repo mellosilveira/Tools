@@ -15,6 +15,10 @@ public interface IDataflowPipelineBuilder<THead, TTail>
     /// Configures a Dead-Letter Queue (DLQ) using an existing target block. 
     /// Ideal for advanced scenarios where payloads are routed to a shared buffer or queue block.
     /// </summary>
+    /// <remarks>
+    /// Technical Decision: Accepting an <see cref="ITargetBlock{T}"/> allows multiple discrete pipeline branches to share a single centralized DLQ block for aggregated error handling.
+    /// Limitation: Faulted payloads routed here are permanently diverted from the primary execution graph. If the DLQ block's buffer fills up and enforces backpressure, it will stall the upstream blocks that are trying to offload errors.
+    /// </remarks>
     IDataflowPipelineBuilder<THead, TTail> WithDeadLetterQueue(ITargetBlock<FailedPayload> deadLetterQueueSink);
 
     /// <summary>
@@ -23,6 +27,10 @@ public interface IDataflowPipelineBuilder<THead, TTail>
     /// </summary>
     /// <param name="errorHandler">The synchronous delegate executed when a payload faults.</param>
     /// <param name="options">Concurrency and buffer options for the DLQ processing block.</param>
+    /// <remarks>
+    /// Technical Decision: Provides a lightweight abstraction over TPL Dataflow blocks for developers who just want to write a standard C# lambda for error handling.
+    /// Limitation: Because it executes synchronously, any blocking I/O inside the <paramref name="errorHandler"/> (e.g., writing to a database) will block the underlying ThreadPool thread assigned to the DLQ ActionBlock.
+    /// </remarks>
     IDataflowPipelineBuilder<THead, TTail> WithDeadLetterQueue(Action<FailedPayload> errorHandler, PipelineStepOptions options = default);
 
     /// <summary>
@@ -31,39 +39,93 @@ public interface IDataflowPipelineBuilder<THead, TTail>
     /// </summary>
     /// <param name="errorHandlerAsync">The asynchronous delegate executed when a payload faults.</param>
     /// <param name="options">Concurrency and buffer options for the DLQ processing block.</param>
+    /// <remarks>
+    /// Technical Decision: The preferred DLQ setup for handling network-bound failure routing (e.g., sending failed payloads to an Azure Service Bus or SQS queue) as it leverages async I/O.
+    /// Limitation: Like all DLQ routing in this topology, the error handling is terminal for the specific message. It does not provide a mechanism to automatically re-inject the payload back into the primary flow after DLQ processing.
+    /// </remarks>
     IDataflowPipelineBuilder<THead, TTail> WithDeadLetterQueue(Func<FailedPayload, CancellationToken, Task> errorHandlerAsync, PipelineStepOptions options = default);
 
     /// <summary>
-    /// Configures a Dead-Letter Queue (DLQ) for only loggins the errors. 
+    /// Configures a Dead-Letter Queue (DLQ) for only logging the errors. 
     /// </summary>
     /// <param name="options">Concurrency and buffer options for the DLQ processing block.</param>
+    /// <remarks>
+    /// Technical Decision: Implements a zero-configuration fault tolerance layer. Unhandled exceptions are logged, preventing the default TPL behavior which would fault the entire pipeline block and halt all message processing.
+    /// Limitation: The failed payload is strictly written to the standard <see cref="Microsoft.Extensions.Logging.ILogger"/> and is immediately lost from memory. It cannot be recovered, programmatically inspected, or retried later.
+    /// </remarks>
     IDataflowPipelineBuilder<THead, TTail> WithLoggingErrors(PipelineStepOptions options = default);
 
     /// <summary>
     /// Appends a TransformBlock bound to a synchronous delegate.
-    /// Elides the async state machine allocation entirely, making this highly performant for synchronous CPU-bound data mapping operations.
     /// </summary>
+    /// <remarks>
+    /// Technical Decision: Explicitly elides the async state machine allocation entirely. This is highly performant and strictly designed for pure CPU-bound data mapping operations (e.g., mapping DTOs).
+    /// Limitation: Does not support exponential backoff retries. Implementing retries in a synchronous block requires <see cref="System.Threading.Thread.Sleep"/>, which would cause severe ThreadPool starvation.
+    /// </remarks>
     IDataflowPipelineBuilder<THead, TNextOut> AddDataMapping<TNextOut>(Func<TTail, TNextOut> mapFunc, PipelineStepOptions options = default);
 
+    /// <summary>
+    /// Appends a TransformBlock bound to an asynchronous delegate for mapping operations.
+    /// </summary>
+    /// <remarks>
+    /// Technical Decision: Separated from <see cref="AddStep{TNextOut}"/> purely for semantic clarity in fluent chains, indicating that the core purpose of the delegate is payload transformation via I/O (e.g., enriching data via an external API).
+    /// Limitation: Incurs standard Task allocation and async state machine overhead. Do not use for pure in-memory object mapping where the synchronous overload would suffice.
+    /// </remarks>
     IDataflowPipelineBuilder<THead, TNextOut> AddDataMapping<TNextOut>(Func<TTail, CancellationToken, Task<TNextOut>> mapFunc, PipelineStepOptions options = default);
 
     /// <summary>
     /// Appends a TransformBlock bound to an asynchronous delegate.
     /// Optimized for I/O-bound operations or computationally expensive tasks leveraging MaxWorkers > 1.
     /// </summary>
+    /// <remarks>
+    /// Technical Decision: Enforces a string <paramref name="stepName"/> parameter to guarantee that OpenTelemetry spans and logs have a consistent, queryable identifier across distributed tracing systems.
+    /// Limitation: Implements a strict 1:1 input-to-output ratio. A message must return a result to continue down the pipeline. To drop a message, it must return <c>null</c> and rely on a downstream filter to ignore it.
+    /// </remarks>
     IDataflowPipelineBuilder<THead, TNextOut> AddStep<TNextOut>(string stepName, Func<TTail, CancellationToken, Task<TNextOut>> stepFunc, PipelineStepOptions options = default);
 
+    /// <summary>
+    /// Appends a conditional branching step evaluating the output payload after the primary execution completes.
+    /// </summary>
+    /// <remarks>
+    /// Technical Decision: Allows execution topologies to recover or alternative route based on business validation rules evaluated against the *result* of the primary operation.
+    /// Limitation: The primary <paramref name="stepFunc"/> executes fully before the <paramref name="fallbackCondition"/> is evaluated. If the primary step applies external side effects (e.g., mutating a database row), those side effects cannot be rolled back by the pipeline engine if the fallback triggers.
+    /// </remarks>
     IDataflowPipelineBuilder<THead, TNextOut> AddForkingStep<TNextOut>(string stepName, string fallbackStepName, Func<TTail, CancellationToken, Task<TNextOut>> stepFunc, Func<TNextOut, bool> fallbackCondition, Func<TTail, CancellationToken, Task<TNextOut>> fallbackStep, PipelineStepOptions options = default);
-    
+
+    /// <summary>
+    /// Appends a conditional branching step evaluating the input payload prior to execution.
+    /// </summary>
+    /// <remarks>
+    /// Technical Decision: Provides a short-circuit routing mechanism. If the input meets the fallback condition, the primary execution is bypassed entirely, saving compute and I/O resources.
+    /// Limitation: The branch replacement is absolute. The output of the <paramref name="fallbackStep"/> strictly replaces the primary step's output and continues down the identical main pipeline track. This does not create a bifurcated, parallel pipeline graph.
+    /// </remarks>
     IDataflowPipelineBuilder<THead, TNextOut> AddForkingStep<TNextOut>(string stepName, string fallbackStepName, Func<TTail, CancellationToken, Task<TNextOut>> stepFunc, Func<TTail, bool> fallbackCondition, Func<TTail, CancellationToken, Task<TNextOut>> fallbackStep, PipelineStepOptions options = default);
 
+    /// <summary>
+    /// Appends a BatchBlock to aggregate messages into arrays based on a specified batch size.
+    /// </summary>
+    /// <remarks>
+    /// Technical Decision: Leverages the native TPL <see cref="BatchBlock{T}"/> to optimize downstream I/O-bound operations, such as bulk SQL inserts or batched HTTP requests, reducing network round-trips.
+    /// Limitation: Messages are held in memory until the exact <paramref name="batchSize"/> is reached. If the upstream stops emitting messages (a "trickle" scenario), the partial batch remains stuck in limbo indefinitely unless the pipeline is explicitly signaled via <see cref="IDataflowPipeline{TIn}.Complete"/> to force-flush.
+    /// </remarks>
     IDataflowPipelineBuilder<THead, TTail[]> AddBatchStep(int batchSize, PipelineStepOptions options = default);
 
     /// <summary>
-    /// Appends an ActionBlock to consume the final pipeline output.
+    /// Appends a synchronous ActionBlock to consume the final pipeline output.
     /// Serves as the pipeline sink, linking the final ISourceBlock and returning the execution interface.
     /// </summary>
+    /// <remarks>
+    /// Technical Decision: Caps the builder pattern by returning the concrete <see cref="IDataflowPipeline{THead}"/> interface rather than the builder. This strongly enforces that pipelines cannot have dangling outputs.
+    /// Limitation: Terminal blocks cannot emit data. Once <see cref="BuildTerminal"/> is called, the execution graph is sealed and no further blocks can be appended.
+    /// </remarks>
     IDataflowPipeline<THead> BuildTerminal(string stepName, Action<TTail> terminalAction, PipelineStepOptions options = default);
 
+    /// <summary>
+    /// Appends an asynchronous ActionBlock to consume the final pipeline output.
+    /// </summary>
+    /// <remarks>
+    /// Technical Decision: Designed for the most common end-of-pipe scenarios, such as persisting the final transformed state to a database or publishing a completed event to a message broker.
+    /// Limitation: Any unhandled exceptions at this terminal step that are not caught by a Dead-Letter Queue configuration will still fault this final block, potentially dropping the fully processed payload right at the finish line.
+    /// </remarks>
     IDataflowPipeline<THead> BuildTerminal(string stepName, Func<TTail, CancellationToken, Task> terminalAction, PipelineStepOptions options = default);
 }

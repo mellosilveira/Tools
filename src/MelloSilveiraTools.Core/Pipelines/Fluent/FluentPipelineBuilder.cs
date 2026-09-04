@@ -39,6 +39,7 @@ file class PipelineEngine<TInitialIn, TFinalOut>(
     IReadOnlyList<(string Name, Func<object, CancellationToken, Task<object>> Func)> steps)
     : IFluentPipeline<TInitialIn, TFinalOut>
 {
+    /// <inheritdoc/>
     public async Task<TFinalOut> ExecuteAsync(TInitialIn input, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(input);

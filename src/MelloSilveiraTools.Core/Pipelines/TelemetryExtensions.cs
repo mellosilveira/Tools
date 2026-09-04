@@ -6,12 +6,20 @@ namespace MelloSilveiraTools.Core.Pipelines;
 /// <summary>
 /// Provides structured logging wrappers, ensuring consistent tracking of execution lifecycles, durations, and failures.
 /// </summary>
+/// <remarks>
+/// Technical Decision: Enforces the <see cref="StackTraceHiddenAttribute"/> across all methods to prevent these telemetry 
+/// and retry wrapper frames from cluttering application exception stack traces, keeping debugging focused on the actual business logic.
+/// </remarks>
 [StackTraceHidden]
 public static class TelemetryExtensions
 {
     /// <summary>
     /// Wraps a synchronous action with OpenTelemetry tracing and structured logging, returning a new execution delegate.
     /// </summary>
+    /// <remarks>
+    /// Technical Decision: Exceptions are allowed to bubble up naturally. This is intended for use in pipeline topologies without a configured Dead-Letter Queue (DLQ).
+    /// Limitation: Does not support retries. Attempting to retry a synchronous action would require thread-blocking operations, risking ThreadPool starvation.
+    /// </remarks>
     public static Action<TIn> HandleExecution<TIn>(ILogger logger, string callbackName, Action<TIn> callback, CancellationToken cancellationToken = default) => (input) =>
     {
         cancellationToken.ThrowIfCancellationRequested();
@@ -31,6 +39,12 @@ public static class TelemetryExtensions
         }
     };
 
+    /// <summary>
+    /// Wraps a synchronous action, capturing exceptions into a <see cref="SafeResult{TIn}"/> envelope for centralized error routing.
+    /// </summary>
+    /// <remarks>
+    /// Technical Decision: Dynamically replaces the native exception-throwing behavior to prevent block faults in TPL Dataflow, routing the failure to a DLQ branch instead.
+    /// </remarks>
     public static Func<TIn, SafeResult<TIn>> HandleSafeExecution<TIn>(ILogger logger, string callbackName, Action<TIn> callback, CancellationToken cancellationToken = default) => (input) =>
     {
         cancellationToken.ThrowIfCancellationRequested();
@@ -52,8 +66,12 @@ public static class TelemetryExtensions
     };
 
     /// <summary>
-    /// Wraps an asynchronous action with OpenTelemetry tracing and structured logging, returning a new execution delegate.
+    /// Wraps an asynchronous action with OpenTelemetry tracing, structured logging, and optional exponential backoff.
     /// </summary>
+    /// <remarks>
+    /// Technical Decision: Leverages asynchronous delays (<see cref="Task.Delay"/>) to perform backoff retries without blocking the ThreadPool.
+    /// Limitation: Unrecoverable exceptions (post-retries) will fault the pipeline block since this method does not return a <see cref="SafeResult{TIn}"/>.
+    /// </remarks>
     public static Func<TIn, Task> HandleExecution<TIn>(
         ILogger logger,
         string callbackName,
@@ -74,6 +92,7 @@ public static class TelemetryExtensions
                 {
                     await callback(input, cancellationToken).ConfigureAwait(false);
                     LogAndTrackStepCompletion(logger, activity, startTime, callbackName);
+                    return; // Explicitly break out of loop on success
                 }
                 catch (Exception ex) when (ex is not OperationCanceledException)
                 {
@@ -84,6 +103,12 @@ public static class TelemetryExtensions
             }
         };
 
+    /// <summary>
+    /// Wraps an asynchronous action, combining exponential backoff with a <see cref="SafeResult{TIn}"/> envelope for terminal failures.
+    /// </summary>
+    /// <remarks>
+    /// Technical Decision: Provides the highest degree of fault tolerance for terminal pipeline steps (sinks), attempting to heal transient issues first, and gracefully failing over to a DLQ if exhaustion occurs.
+    /// </remarks>
     public static Func<TIn, Task<SafeResult<TIn>>> HandleSafeExecution<TIn>(
         ILogger logger,
         string callbackName,
@@ -103,10 +128,11 @@ public static class TelemetryExtensions
                 {
                     await callback(input, cancellationToken).ConfigureAwait(false);
                     LogAndTrackStepCompletion(logger, activity, startTime, callbackName);
+                    return SafeResult<TIn>.CreateSuccess();
                 }
                 catch (Exception ex) when (ex is not OperationCanceledException)
                 {
-                    (bool shouldRetry, int currentAttempt, int currentDelayMs) = await HandleRetryAsync(logger, activity, callbackName, ex, attempt, delayMs, startTime, retryOptions, cancellationToken).ConfigureAwait(false);
+                    (bool shouldRetry, attempt, delayMs) = await HandleRetryAsync(logger, activity, callbackName, ex, attempt, delayMs, startTime, retryOptions, cancellationToken).ConfigureAwait(false);
                     if (!shouldRetry)
                         return new(callbackName, input, ex);
                 }
@@ -114,8 +140,11 @@ public static class TelemetryExtensions
         };
 
     /// <summary>
-    /// Wraps a synchronous mapping function with OpenTelemetry tracing and structured logging, returning a new execution delegate.
+    /// Wraps a synchronous mapping function with OpenTelemetry tracing and structured logging, returning the mapped output.
     /// </summary>
+    /// <remarks>
+    /// Technical Decision: Elides async overhead entirely. Designed for pure CPU-bound mapping logic (e.g., entity to DTO translation).
+    /// </remarks>
     public static Func<TIn, TOut> HandleExecution<TIn, TOut>(ILogger logger, string callbackName, Func<TIn, TOut> callback, CancellationToken cancellationToken = default) => (input) =>
     {
         cancellationToken.ThrowIfCancellationRequested();
@@ -136,6 +165,9 @@ public static class TelemetryExtensions
         }
     };
 
+    /// <summary>
+    /// Wraps a synchronous mapping function, intercepting failures into a <see cref="SafeResult{TIn, TOut}"/> to permit DLQ offloading.
+    /// </summary>
     public static Func<TIn, SafeResult<TIn, TOut>> HandleSafeExecution<TIn, TOut>(ILogger logger, string callbackName, Func<TIn, TOut> callback, CancellationToken cancellationToken = default) => (input) =>
     {
         cancellationToken.ThrowIfCancellationRequested();
@@ -157,7 +189,7 @@ public static class TelemetryExtensions
     };
 
     /// <summary>
-    /// Wraps an asynchronous mapping function with support for optional retry logic (exponential backoff) and error handling.
+    /// Wraps an asynchronous mapping function with support for optional retry logic (exponential backoff) and telemetry tracking.
     /// </summary>
     public static Func<TIn, Task<TOut>> HandleExecution<TIn, TOut>(ILogger logger,
         string callbackName,
@@ -170,6 +202,9 @@ public static class TelemetryExtensions
             return await ExecuteAsync(logger, activity, input, callbackName, callback, retryOptions, cancellationToken).ConfigureAwait(false);
         };
 
+    /// <summary>
+    /// Wraps an asynchronous mapping function, catching ultimate backoff failures into a bifurcated <see cref="SafeResult{TIn, TOut}"/>.
+    /// </summary>
     public static Func<TIn, Task<SafeResult<TIn, TOut>>> HandleSafeExecution<TIn, TOut>(
         ILogger logger,
         string callbackName,
@@ -185,6 +220,10 @@ public static class TelemetryExtensions
     /// <summary>
     /// Wraps a conditional forking operation evaluating the input payload prior to execution.
     /// </summary>
+    /// <remarks>
+    /// Technical Decision: Pre-execution evaluation prevents unnecessary I/O allocation on the primary branch if the short-circuit condition is met.
+    /// Limitation: The condition must be synchronous. If asynchronous validation is required before branching, this pattern must be adapted.
+    /// </remarks>
     public static Func<TIn, Task<TOut>> HandleExecution<TIn, TOut>(ILogger logger,
         string callbackName,
         string fallbackName,
@@ -206,6 +245,9 @@ public static class TelemetryExtensions
             return await ExecuteAsync(logger, activity, input, callbackName, callback, retryOptions, cancellationToken).ConfigureAwait(false);
         };
 
+    /// <summary>
+    /// Wraps a conditional forking operation evaluating the input payload, utilizing a <see cref="SafeResult{TIn, TOut}"/> to catch execution failures on either branch.
+    /// </summary>
     public static Func<TIn, Task<SafeResult<TIn, TOut>>> HandleSafeExecution<TIn, TOut>(ILogger logger,
         string callbackName,
         string fallbackName,
@@ -230,6 +272,9 @@ public static class TelemetryExtensions
     /// <summary>
     /// Wraps a conditional forking operation evaluating the output payload after the primary execution completes.
     /// </summary>
+    /// <remarks>
+    /// Limitation: If the primary execution applies external side effects (like updating a database) before returning its result, triggering this fallback will *not* roll back those side effects automatically.
+    /// </remarks>
     public static Func<TIn, Task<TOut>> HandleExecution<TIn, TOut>(ILogger logger,
         string callbackName,
         string fallbackName,
@@ -252,6 +297,12 @@ public static class TelemetryExtensions
             return output;
         };
 
+    /// <summary>
+    /// Wraps a post-execution conditional forking operation, evaluating against the <see cref="SafeResult{TIn, TOut}"/> state.
+    /// </summary>
+    /// <remarks>
+    /// Technical Decision: Passing the entire <c>SafeResult</c> to the <paramref name="fallbackCondition"/> allows the condition to evaluate both successfully mapped outputs and handled faults to determine routing logic.
+    /// </remarks>
     public static Func<TIn, Task<SafeResult<TIn, TOut>>> HandleSafeExecution<TIn, TOut>(ILogger logger,
         string callbackName,
         string fallbackName,
@@ -275,7 +326,7 @@ public static class TelemetryExtensions
         };
 
     /// <summary>
-    /// Executes an async func with OpenTelemetry tracing, standard logging, and optional exponential backoff retry logic.
+    /// Encapsulates the core asynchronous execution loop with exponential backoff logic.
     /// </summary>
     private static async Task<TOut> ExecuteAsync<TIn, TOut>(
         ILogger logger,
@@ -308,6 +359,9 @@ public static class TelemetryExtensions
         }
     }
 
+    /// <summary>
+    /// Encapsulates the core asynchronous execution loop, returning a <see cref="SafeResult{TIn, TOut}"/> upon failure exhaustion.
+    /// </summary>
     private static async Task<SafeResult<TIn, TOut>> SafeExecuteAsync<TIn, TOut>(
         ILogger logger,
         Activity? activity,
@@ -384,11 +438,20 @@ public static class TelemetryExtensions
         logger.LogError(ex, "{EndTime:O} - Duration: {Duration} - Failed '{Name}'.", endTime, duration, name);
     }
 
+    /// <summary>
+    /// Standardized log event indicating that short-circuit or fallback conditions have been met.
+    /// </summary>
     private static void LogFallbackConditionMet(ILogger logger, string callbackName, string fallbackName)
     {
         logger.LogInformation("Fallback condition met for input prior to '{CallbackName}'. Rerouting to '{FallbackName}'.", callbackName, fallbackName);
     }
 
+    /// <summary>
+    /// Evaluates backoff conditions, applies Task delays for valid retries, or returns a terminal state if limits are reached.
+    /// </summary>
+    /// <remarks>
+    /// Technical Decision: Extracted into a distinct helper to keep the execution loops clean and testable, unifying the retry calculation logic across both Safe and Unsafe async patterns.
+    /// </remarks>
     private static async Task<(bool ShouldRetry, int Attempt, int DelayMs)> HandleRetryAsync(
         ILogger logger,
         Activity? activity,
