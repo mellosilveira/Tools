@@ -1511,22 +1511,20 @@
         <member name="T:MelloSilveiraTools.Core.Pipelines.Dataflow.DataflowPipelineBuilder`2">
             <summary>
             A strongly-typed fluent builder for orchestrating TPL Dataflow topologies.
-            Maintains internal block references to guarantee type invariance during pipeline construction.
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.Core.Pipelines.Dataflow.DataflowPipelineBuilder`2.#ctor(Microsoft.Extensions.Logging.ILogger,System.Threading.Tasks.Dataflow.ITargetBlock{`0},System.Threading.Tasks.Dataflow.ISourceBlock{`1},System.Threading.Tasks.Dataflow.ITargetBlock{MelloSilveiraTools.Core.Pipelines.FailedPayload{System.Object}},System.Threading.CancellationToken)">
+        <member name="M:MelloSilveiraTools.Core.Pipelines.Dataflow.DataflowPipelineBuilder`2.#ctor(Microsoft.Extensions.Logging.ILogger,System.Threading.Tasks.Dataflow.ITargetBlock{`0},System.Threading.Tasks.Dataflow.ISourceBlock{`1},System.Threading.Tasks.Dataflow.ITargetBlock{MelloSilveiraTools.Core.Pipelines.FailedPayload},System.Nullable{MelloSilveiraTools.Core.Pipelines.RetryOptions},System.Threading.CancellationToken)">
             <summary>
             A strongly-typed fluent builder for orchestrating TPL Dataflow topologies.
-            Maintains internal block references to guarantee type invariance during pipeline construction.
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.Core.Pipelines.Dataflow.DataflowPipelineBuilder`2.WithDeadLetterQueue(System.Threading.Tasks.Dataflow.ITargetBlock{MelloSilveiraTools.Core.Pipelines.FailedPayload{System.Object}})">
+        <member name="M:MelloSilveiraTools.Core.Pipelines.Dataflow.DataflowPipelineBuilder`2.WithDeadLetterQueue(System.Threading.Tasks.Dataflow.ITargetBlock{MelloSilveiraTools.Core.Pipelines.FailedPayload})">
             <inheritdoc/>
         </member>
-        <member name="M:MelloSilveiraTools.Core.Pipelines.Dataflow.DataflowPipelineBuilder`2.WithDeadLetterQueue(System.Action{MelloSilveiraTools.Core.Pipelines.FailedPayload{System.Object}},MelloSilveiraTools.Core.Pipelines.PipelineStepOptions)">
+        <member name="M:MelloSilveiraTools.Core.Pipelines.Dataflow.DataflowPipelineBuilder`2.WithDeadLetterQueue(System.Action{MelloSilveiraTools.Core.Pipelines.FailedPayload},MelloSilveiraTools.Core.Pipelines.PipelineStepOptions)">
             <inheritdoc/>
         </member>
-        <member name="M:MelloSilveiraTools.Core.Pipelines.Dataflow.DataflowPipelineBuilder`2.WithDeadLetterQueue(System.Func{MelloSilveiraTools.Core.Pipelines.FailedPayload{System.Object},System.Threading.CancellationToken,System.Threading.Tasks.Task},MelloSilveiraTools.Core.Pipelines.PipelineStepOptions)">
+        <member name="M:MelloSilveiraTools.Core.Pipelines.Dataflow.DataflowPipelineBuilder`2.WithDeadLetterQueue(System.Func{MelloSilveiraTools.Core.Pipelines.FailedPayload,System.Threading.CancellationToken,System.Threading.Tasks.Task},MelloSilveiraTools.Core.Pipelines.PipelineStepOptions)">
             <inheritdoc/>
         </member>
         <member name="M:MelloSilveiraTools.Core.Pipelines.Dataflow.DataflowPipelineBuilder`2.WithLoggingErrors(MelloSilveiraTools.Core.Pipelines.PipelineStepOptions)">
@@ -1538,43 +1536,10 @@
         <member name="M:MelloSilveiraTools.Core.Pipelines.Dataflow.DataflowPipelineBuilder`2.AddDataMapping``1(System.Func{`1,System.Threading.CancellationToken,System.Threading.Tasks.Task{``0}},MelloSilveiraTools.Core.Pipelines.PipelineStepOptions)">
             <inheritdoc/>
         </member>
-        <member name="M:MelloSilveiraTools.Core.Pipelines.Dataflow.DataflowPipelineBuilder`2.AddStep``1(System.String,System.Func{`1,System.Threading.CancellationToken,System.Threading.Tasks.Task{``0}},MelloSilveiraTools.Core.Pipelines.PipelineStepOptions)">
-            <inheritdoc/>
-        </member>
         <member name="M:MelloSilveiraTools.Core.Pipelines.Dataflow.DataflowPipelineBuilder`2.AddForkingStep``1(System.String,System.String,System.Func{`1,System.Threading.CancellationToken,System.Threading.Tasks.Task{``0}},System.Func{`1,System.Boolean},System.Func{`1,System.Threading.CancellationToken,System.Threading.Tasks.Task{``0}},MelloSilveiraTools.Core.Pipelines.PipelineStepOptions)">
             <inheritdoc/>
         </member>
         <member name="M:MelloSilveiraTools.Core.Pipelines.Dataflow.DataflowPipelineBuilder`2.AddForkingStep``1(System.String,System.String,System.Func{`1,System.Threading.CancellationToken,System.Threading.Tasks.Task{``0}},System.Func{``0,System.Boolean},System.Func{`1,System.Threading.CancellationToken,System.Threading.Tasks.Task{``0}},MelloSilveiraTools.Core.Pipelines.PipelineStepOptions)">
-            <inheritdoc/>
-        </member>
-        <member name="M:MelloSilveiraTools.Core.Pipelines.Dataflow.DataflowPipelineBuilder`2.BuildTerminal(System.String,System.Action{`1},MelloSilveiraTools.Core.Pipelines.PipelineStepOptions)">
-            <inheritdoc/>
-        </member>
-        <member name="M:MelloSilveiraTools.Core.Pipelines.Dataflow.DataflowPipelineBuilder`2.BuildTerminal(System.String,System.Func{`1,System.Threading.Tasks.Task},MelloSilveiraTools.Core.Pipelines.PipelineStepOptions)">
-            <inheritdoc/>
-        </member>
-        <member name="T:MelloSilveiraTools.Core.Pipelines.Dataflow.DataflowPipeline`1">
-            <summary>
-            The concrete execution engine encapsulating the TPL source/target block linkages.
-            Restricted via file-scoped access and sealed to enable runtime devirtualization optimizations.
-            </summary>
-        </member>
-        <member name="M:MelloSilveiraTools.Core.Pipelines.Dataflow.DataflowPipeline`1.#ctor(System.Threading.Tasks.Dataflow.ITargetBlock{`0},System.Threading.Tasks.Task,Microsoft.Extensions.Logging.ILogger)">
-            <summary>
-            The concrete execution engine encapsulating the TPL source/target block linkages.
-            Restricted via file-scoped access and sealed to enable runtime devirtualization optimizations.
-            </summary>
-        </member>
-        <member name="M:MelloSilveiraTools.Core.Pipelines.Dataflow.DataflowPipeline`1.SendAsync(`0,System.Threading.CancellationToken)">
-            <inheritdoc/>
-        </member>
-        <member name="M:MelloSilveiraTools.Core.Pipelines.Dataflow.DataflowPipeline`1.Complete">
-            <inheritdoc/>
-        </member>
-        <member name="P:MelloSilveiraTools.Core.Pipelines.Dataflow.DataflowPipeline`1.Completion">
-            <inheritdoc/>
-        </member>
-        <member name="M:MelloSilveiraTools.Core.Pipelines.Dataflow.DataflowPipeline`1.DisposeAsync">
             <inheritdoc/>
         </member>
         <member name="T:MelloSilveiraTools.Core.Pipelines.Dataflow.IDataflowPipeline`1">
@@ -1610,13 +1575,13 @@
             <typeparam name="THead">The immutable root input type configured at the pipeline head, serving as the ingestion contract.</typeparam>
             <typeparam name="TTail">The transient terminal state type of the topology prior to subsequent block linkage or sink attachment.</typeparam>
         </member>
-        <member name="M:MelloSilveiraTools.Core.Pipelines.Dataflow.IDataflowPipelineBuilder`2.WithDeadLetterQueue(System.Threading.Tasks.Dataflow.ITargetBlock{MelloSilveiraTools.Core.Pipelines.FailedPayload{System.Object}})">
+        <member name="M:MelloSilveiraTools.Core.Pipelines.Dataflow.IDataflowPipelineBuilder`2.WithDeadLetterQueue(System.Threading.Tasks.Dataflow.ITargetBlock{MelloSilveiraTools.Core.Pipelines.FailedPayload})">
             <summary>
             Configures a Dead-Letter Queue (DLQ) using an existing target block. 
             Ideal for advanced scenarios where payloads are routed to a shared buffer or queue block.
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.Core.Pipelines.Dataflow.IDataflowPipelineBuilder`2.WithDeadLetterQueue(System.Action{MelloSilveiraTools.Core.Pipelines.FailedPayload{System.Object}},MelloSilveiraTools.Core.Pipelines.PipelineStepOptions)">
+        <member name="M:MelloSilveiraTools.Core.Pipelines.Dataflow.IDataflowPipelineBuilder`2.WithDeadLetterQueue(System.Action{MelloSilveiraTools.Core.Pipelines.FailedPayload},MelloSilveiraTools.Core.Pipelines.PipelineStepOptions)">
             <summary>
             Configures a Dead-Letter Queue (DLQ) using a synchronous callback action. 
             Automatically wraps the action in an <see cref="T:System.Threading.Tasks.Dataflow.ActionBlock`1"/> to capture failed payloads seamlessly.
@@ -1624,7 +1589,7 @@
             <param name="errorHandler">The synchronous delegate executed when a payload faults.</param>
             <param name="options">Concurrency and buffer options for the DLQ processing block.</param>
         </member>
-        <member name="M:MelloSilveiraTools.Core.Pipelines.Dataflow.IDataflowPipelineBuilder`2.WithDeadLetterQueue(System.Func{MelloSilveiraTools.Core.Pipelines.FailedPayload{System.Object},System.Threading.CancellationToken,System.Threading.Tasks.Task},MelloSilveiraTools.Core.Pipelines.PipelineStepOptions)">
+        <member name="M:MelloSilveiraTools.Core.Pipelines.Dataflow.IDataflowPipelineBuilder`2.WithDeadLetterQueue(System.Func{MelloSilveiraTools.Core.Pipelines.FailedPayload,System.Threading.CancellationToken,System.Threading.Tasks.Task},MelloSilveiraTools.Core.Pipelines.PipelineStepOptions)">
             <summary>
             Configures a Dead-Letter Queue (DLQ) using an asynchronous callback delegate. 
             Automatically wraps the delegate in an <see cref="T:System.Threading.Tasks.Dataflow.ActionBlock`1"/> to capture failed payloads seamlessly.
@@ -1656,16 +1621,24 @@
             Serves as the pipeline sink, linking the final ISourceBlock and returning the execution interface.
             </summary>
         </member>
+        <member name="T:MelloSilveiraTools.Core.Pipelines.FailedPayload">
+            <summary>
+            Encapsulates a faulted payload, the originating exception, and the execution context for dead-letter routing.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Pipelines.FailedPayload.#ctor(System.String,System.Object,System.Exception)">
+            <summary>
+            Encapsulates a faulted payload, the originating exception, and the execution context for dead-letter routing.
+            </summary>
+        </member>
         <member name="T:MelloSilveiraTools.Core.Pipelines.FailedPayload`1">
             <summary>
-            Encapsulates a faulted payload, the originating exception, and the 
-            execution context for dead-letter routing.
+            Encapsulates a faulted payload, the originating exception, and the execution context for dead-letter routing.
             </summary>
         </member>
         <member name="M:MelloSilveiraTools.Core.Pipelines.FailedPayload`1.#ctor(System.String,`0,System.Exception)">
             <summary>
-            Encapsulates a faulted payload, the originating exception, and the 
-            execution context for dead-letter routing.
+            Encapsulates a faulted payload, the originating exception, and the execution context for dead-letter routing.
             </summary>
         </member>
         <member name="T:MelloSilveiraTools.Core.Pipelines.Fluent.FluentPipelineBuilder`2">
@@ -1852,7 +1825,7 @@
             and the strongly-typed pull-based Fluent request-response pipeline.
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.Core.Pipelines.PipelineFactory.StartDataflow``1(Microsoft.Extensions.Logging.ILogger,System.Int32,System.Threading.CancellationToken)">
+        <member name="M:MelloSilveiraTools.Core.Pipelines.PipelineFactory.StartDataflow``1(Microsoft.Extensions.Logging.ILogger,System.Int32,System.Nullable{MelloSilveiraTools.Core.Pipelines.RetryOptions},System.Threading.CancellationToken)">
             <summary>
             Bootstraps a continuous TPL Dataflow pipeline topology by instantiating a <see cref="T:System.Threading.Tasks.Dataflow.BufferBlock`1"/> 
             as the ingestion head. Enforces bounded capacity backpressure and injects the unified cancellation graph 
@@ -1861,6 +1834,7 @@
             <typeparam name="T">The immutable payload type ingested at the pipeline head.</typeparam>
             <param name="logger">Structured logging provider for tracking block transitions and telemetry.</param>
             <param name="initialBufferSize">The maximum bounded capacity of the ingestion buffer block, defaulting to 10,000 items.</param>
+            <param name="retryOptions"></param>
             <param name="cancellationToken">The unified cancellation token propagated down the entire Dataflow network.</param>
             <returns>A fluent builder instance anchored to the initial buffer head.</returns>
         </member>
@@ -1934,6 +1908,56 @@
         <member name="T:MelloSilveiraTools.Core.Pipelines.TelemetryExtensions">
             <summary>
             Provides structured logging wrappers, ensuring consistent tracking of execution lifecycles, durations, and failures.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Pipelines.TelemetryExtensions.HandleExecution``1(Microsoft.Extensions.Logging.ILogger,System.String,System.Action{``0},System.Threading.CancellationToken)">
+            <summary>
+            Wraps a synchronous action with OpenTelemetry tracing and structured logging, returning a new execution delegate.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Pipelines.TelemetryExtensions.HandleExecution``1(Microsoft.Extensions.Logging.ILogger,System.String,System.Func{``0,System.Threading.CancellationToken,System.Threading.Tasks.Task},System.Nullable{MelloSilveiraTools.Core.Pipelines.RetryOptions},System.Threading.CancellationToken)">
+            <summary>
+            Wraps an asynchronous action with OpenTelemetry tracing and structured logging, returning a new execution delegate.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Pipelines.TelemetryExtensions.HandleExecution``2(Microsoft.Extensions.Logging.ILogger,System.String,System.Func{``0,``1},System.Threading.CancellationToken)">
+            <summary>
+            Wraps a synchronous mapping function with OpenTelemetry tracing and structured logging, returning a new execution delegate.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Pipelines.TelemetryExtensions.HandleExecution``2(Microsoft.Extensions.Logging.ILogger,System.String,System.Func{``0,System.Threading.CancellationToken,System.Threading.Tasks.Task{``1}},System.Nullable{MelloSilveiraTools.Core.Pipelines.RetryOptions},System.Threading.CancellationToken)">
+            <summary>
+            Wraps an asynchronous mapping function with support for optional retry logic (exponential backoff) and error handling.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Pipelines.TelemetryExtensions.HandleExecution``2(Microsoft.Extensions.Logging.ILogger,System.String,System.String,System.Func{``0,System.Threading.CancellationToken,System.Threading.Tasks.Task{``1}},System.Func{``0,System.Boolean},System.Func{``0,System.Threading.CancellationToken,System.Threading.Tasks.Task{``1}},System.Nullable{MelloSilveiraTools.Core.Pipelines.RetryOptions},System.Threading.CancellationToken)">
+            <summary>
+            Wraps a conditional forking operation evaluating the input payload prior to execution.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Pipelines.TelemetryExtensions.HandleExecution``2(Microsoft.Extensions.Logging.ILogger,System.String,System.String,System.Func{``0,System.Threading.CancellationToken,System.Threading.Tasks.Task{``1}},System.Func{``1,System.Boolean},System.Func{``0,System.Threading.CancellationToken,System.Threading.Tasks.Task{``1}},System.Nullable{MelloSilveiraTools.Core.Pipelines.RetryOptions},System.Threading.CancellationToken)">
+            <summary>
+            Wraps a conditional forking operation evaluating the output payload after the primary execution completes.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Pipelines.TelemetryExtensions.ExecuteAsync``2(Microsoft.Extensions.Logging.ILogger,System.Diagnostics.Activity,``0,System.String,System.Func{``0,System.Threading.CancellationToken,System.Threading.Tasks.Task{``1}},System.Nullable{MelloSilveiraTools.Core.Pipelines.RetryOptions},System.Threading.CancellationToken)">
+            <summary>
+            Executes an async func with OpenTelemetry tracing, standard logging, and optional exponential backoff retry logic.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Pipelines.TelemetryExtensions.StartTelemetry(Microsoft.Extensions.Logging.ILogger,System.Diagnostics.Activity,System.String)">
+            <summary>
+            Initializes telemetry tags and logs the start of a pipeline execution step.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Pipelines.TelemetryExtensions.LogAndTrackStepCompletion(Microsoft.Extensions.Logging.ILogger,System.Diagnostics.Activity,System.DateTimeOffset,System.String)">
+            <summary>
+            Finalizes a successful execution step, updating the span status to Ok and logging the total duration.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Pipelines.TelemetryExtensions.LogAndTrackStepFailure(Microsoft.Extensions.Logging.ILogger,System.Diagnostics.Activity,System.DateTimeOffset,System.String,System.Exception)">
+            <summary>
+            Finalizes a failed execution step, attaching the exception to the span, updating status to Error, and logging the fault.
             </summary>
         </member>
         <member name="T:MelloSilveiraTools.Core.Providers.Dynamics.IDynamicServiceProvider">

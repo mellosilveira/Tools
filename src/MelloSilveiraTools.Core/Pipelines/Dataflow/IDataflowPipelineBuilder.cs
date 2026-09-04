@@ -15,7 +15,7 @@ public interface IDataflowPipelineBuilder<THead, TTail>
     /// Configures a Dead-Letter Queue (DLQ) using an existing target block. 
     /// Ideal for advanced scenarios where payloads are routed to a shared buffer or queue block.
     /// </summary>
-    IDataflowPipelineBuilder<THead, TTail> WithDeadLetterQueue(ITargetBlock<FailedPayload<object?>> deadLetterQueueSink);
+    IDataflowPipelineBuilder<THead, TTail> WithDeadLetterQueue(ITargetBlock<FailedPayload> deadLetterQueueSink);
 
     /// <summary>
     /// Configures a Dead-Letter Queue (DLQ) using a synchronous callback action. 
@@ -23,7 +23,7 @@ public interface IDataflowPipelineBuilder<THead, TTail>
     /// </summary>
     /// <param name="errorHandler">The synchronous delegate executed when a payload faults.</param>
     /// <param name="options">Concurrency and buffer options for the DLQ processing block.</param>
-    IDataflowPipelineBuilder<THead, TTail> WithDeadLetterQueue(Action<FailedPayload<object?>> errorHandler, PipelineStepOptions options = default);
+    IDataflowPipelineBuilder<THead, TTail> WithDeadLetterQueue(Action<FailedPayload> errorHandler, PipelineStepOptions options = default);
 
     /// <summary>
     /// Configures a Dead-Letter Queue (DLQ) using an asynchronous callback delegate. 
@@ -31,7 +31,7 @@ public interface IDataflowPipelineBuilder<THead, TTail>
     /// </summary>
     /// <param name="errorHandlerAsync">The asynchronous delegate executed when a payload faults.</param>
     /// <param name="options">Concurrency and buffer options for the DLQ processing block.</param>
-    IDataflowPipelineBuilder<THead, TTail> WithDeadLetterQueue(Func<FailedPayload<object?>, CancellationToken, Task> errorHandlerAsync, PipelineStepOptions options = default);
+    IDataflowPipelineBuilder<THead, TTail> WithDeadLetterQueue(Func<FailedPayload, CancellationToken, Task> errorHandlerAsync, PipelineStepOptions options = default);
 
     /// <summary>
     /// Configures a Dead-Letter Queue (DLQ) for only loggins the errors. 
@@ -57,9 +57,13 @@ public interface IDataflowPipelineBuilder<THead, TTail>
     
     IDataflowPipelineBuilder<THead, TNextOut> AddForkingStep<TNextOut>(string stepName, string fallbackStepName, Func<TTail, CancellationToken, Task<TNextOut>> stepFunc, Func<TTail, bool> fallbackCondition, Func<TTail, CancellationToken, Task<TNextOut>> fallbackStep, PipelineStepOptions options = default);
 
+    IDataflowPipelineBuilder<THead, TTail[]> AddBatchStep(int batchSize, PipelineStepOptions options = default);
+
     /// <summary>
     /// Appends an ActionBlock to consume the final pipeline output.
     /// Serves as the pipeline sink, linking the final ISourceBlock and returning the execution interface.
     /// </summary>
     IDataflowPipeline<THead> BuildTerminal(string stepName, Action<TTail> terminalAction, PipelineStepOptions options = default);
+
+    IDataflowPipeline<THead> BuildTerminal(string stepName, Func<TTail, CancellationToken, Task> terminalAction, PipelineStepOptions options = default);
 }
