@@ -111,12 +111,33 @@ public interface IDataflowPipelineBuilder<THead, TTail>
     IDataflowPipelineBuilder<THead, TTail[]> AddBatchStep(int batchSize, PipelineStepOptions options = default);
 
     /// <summary>
+    /// Appends a step that evaluates a predicate against each payload. Payloads that evaluate to false are safely dropped from the pipeline.
+    /// </summary>
+    /// <param name="predicate">The condition a message must meet to proceed.</param>
+    /// <param name="options"></param>
+    /// <remarks>
+    /// Technical Decision: Bypasses the buffer exhaustion and deadlock risks associated with predicate-based <see cref="DataflowLinkOptions"/>[cite: 4]. By yielding an empty array internally via a TransformManyBlock, the message is gracefully consumed and discarded without violating the strict 1:1 input-to-output pipeline ratio[cite: 3].
+    /// </remarks>
+    IDataflowPipelineBuilder<THead, TTail> AddFilterStep(Predicate<TTail> predicate, PipelineStepOptions options = default);
+
+    /// <summary>
+    /// Appends a stateful grouping block that accumulates messages into an array until the provided condition evaluates to false.
+    /// </summary>
+    /// <param name="condition">A function comparing the previously buffered item to the current item. Returns true if they belong in the same group.</param>
+    /// <param name="options"></param>
+    /// <remarks>
+    /// Technical Decision: Overcomes the limitation of the native TPL BatchBlock which strictly holds messages until a numeric count is met[cite: 3]. This utilizes an encapsulated state machine.
+    /// Limitation: Forces <c>MaxDegreeOfParallelism = 1</c> to guarantee deterministic sequential state accumulation. 
+    /// </remarks>
+    IDataflowPipelineBuilder<THead, TTail[]> AddGroupWhileStep(Func<TTail, TTail, bool> condition, PipelineStepOptions options = default);
+
+    /// <summary>
     /// Appends a synchronous ActionBlock to consume the final pipeline output.
     /// Serves as the pipeline sink, linking the final ISourceBlock and returning the execution interface.
     /// </summary>
     /// <remarks>
     /// Technical Decision: Caps the builder pattern by returning the concrete <see cref="IDataflowPipeline{THead}"/> interface rather than the builder. This strongly enforces that pipelines cannot have dangling outputs.
-    /// Limitation: Terminal blocks cannot emit data. Once <see cref="BuildTerminal"/> is called, the execution graph is sealed and no further blocks can be appended.
+    /// Limitation: Terminal blocks cannot emit data. Once <see cref="BuildTerminal(string, Action{TTail}, PipelineStepOptions)"/> is called, the execution graph is sealed and no further blocks can be appended.
     /// </remarks>
     IDataflowPipeline<THead> BuildTerminal(string stepName, Action<TTail> terminalAction, PipelineStepOptions options = default);
 

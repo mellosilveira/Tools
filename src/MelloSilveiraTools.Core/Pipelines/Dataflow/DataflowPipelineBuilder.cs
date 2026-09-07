@@ -216,6 +216,68 @@ internal class DataflowPipelineBuilder<THead, TTail>(
         return new DataflowPipelineBuilder<THead, TTail[]>(logger, headBlock, nextBlock, deadLetterQueueBlock, retryOptions, pipelineCancellationToken);
     }
 
+    /// <inheritdoc/>
+    public IDataflowPipelineBuilder<THead, TTail> AddFilterStep(Predicate<TTail> predicate, PipelineStepOptions options = default)
+    {
+        ExecutionDataflowBlockOptions dataFlowOptions = options.ToDataflowOptions(pipelineCancellationToken);
+
+        // Technical Decision: A TransformManyBlock yielding 0 or 1 item is the safest TPL-native way to drop messages.
+        // It consumes the message entirely, preventing it from getting permanently stuck in the upstream source buffer.
+        TransformManyBlock<TTail, TTail> filterBlock = new(
+            item => predicate(item) ? [item] : Array.Empty<TTail>(),
+            dataFlowOptions);
+
+        tailBlock.LinkTo(filterBlock);
+
+        return new DataflowPipelineBuilder<THead, TTail>(logger, headBlock, filterBlock, deadLetterQueueBlock, retryOptions, pipelineCancellationToken);
+    }
+
+    /// <inheritdoc/>
+    public IDataflowPipelineBuilder<THead, TTail[]> AddGroupWhileStep(Func<TTail, TTail, bool> condition, PipelineStepOptions options = default)
+    {
+        ExecutionDataflowBlockOptions dataFlowOptions = options.ToDataflowOptions(pipelineCancellationToken);
+
+        // Must be strictly sequential to evaluate the condition against the previous item accurately.
+        dataFlowOptions.MaxDegreeOfParallelism = 1;
+
+        List<TTail> buffer = [];
+        BufferBlock<TTail[]> source = new(dataFlowOptions);
+
+        ActionBlock<TTail> target = new(async item =>
+        {
+            if (buffer.Count > 0 && !condition(buffer[^1], item))
+            {
+                await source.SendAsync([.. buffer]).ConfigureAwait(false);
+                buffer.Clear();
+            }
+            buffer.Add(item);
+        }, dataFlowOptions);
+
+        // Technical Decision: When the pipeline invokes Complete()[cite: 2], we must force-flush the final 
+        // partial batch trapped in the buffer before propagating the completion state downstream.
+        target.Completion.ContinueWith(async t =>
+        {
+            if (buffer.Count > 0)
+            {
+                await source.SendAsync([.. buffer]).ConfigureAwait(false);
+                buffer.Clear();
+            }
+
+            if (t.IsFaulted && t.Exception is not null)
+                ((IDataflowBlock)source).Fault(t.Exception);
+            else
+                source.Complete();
+
+        }, TaskContinuationOptions.ExecuteSynchronously);
+
+        // Encapsulate combines the receiving ActionBlock and emitting BufferBlock into a single logical Propagator node.
+        IPropagatorBlock<TTail, TTail[]> groupBlock = DataflowBlock.Encapsulate(target, source);
+
+        tailBlock.LinkTo(groupBlock);
+
+        return new DataflowPipelineBuilder<THead, TTail[]>(logger, headBlock, groupBlock, deadLetterQueueBlock, retryOptions, pipelineCancellationToken);
+    }
+
     // TODO: ESSA IMPLEMENTAÇÃO NÃO FAZ SENTIDO.
     //public IDataflowPipelineBuilder<THead, TTail> AddBroadcastStep(Func<TTail, TTail> cloneFunc, PipelineStepOptions options = default)
     //{
