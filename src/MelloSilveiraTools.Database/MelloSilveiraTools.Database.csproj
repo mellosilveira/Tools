@@ -12,7 +12,7 @@
   <ItemGroup>
     <PackageReference Include="Dapper" Version="2.1.79" />
     <PackageReference Include="Npgsql" Version="10.0.3" />
-    <PackageReference Include="Serilog.Sinks.Postgresql.Alternative" Version="4.2.0" />
+    <PackageReference Include="Serilog.Sinks.Postgresql.Alternative" Version="4.3.0" />
   </ItemGroup>
   <ItemGroup>
     <Compile Update="RelationalDatabase\Sql\Provider\SqlResource.Designer.cs">
