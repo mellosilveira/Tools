@@ -10,7 +10,7 @@ namespace UnitTests;
 
 public class Test
 {
-    private readonly ExperimentalDataService _processor = new(Mock.Of<ILogger<ExperimentalDataService>>(), new Differentiation(), Mock.Of<IFileManager>(), new ExperimentalDataSettings());
+    private readonly ExperimentalDataService _processor = new(Mock.Of<ILogger<ExperimentalDataService>>(), new Differentiation());
     private readonly ExperimentalDataProcessingOptions _options = new(0.0, BufferSize: 10, RelativeTolerance: 1e-6, Tolerance: 1e-6, AccelerationTolerance: 1e-6, SkipTimeStep: 0.0);
 
     [Theory]
@@ -62,6 +62,32 @@ public class Test
         Assert.Equal(1.0, points[0].ProcessedDataPoint.Strain);
         Assert.Equal(2.0, points[0].ProcessedDataPoint.Stress);
         Assert.Equal(SegmentType.Ramp, points[0].SegmentType);
+    }
+
+    [Fact]
+    public async Task ProcessAsync_WithUtf8Stream_ProcessesAndAssemblesSegmentsThroughPipeline()
+    {
+        // Arrange
+        string strainContent = "1.0, 1.0\r\n2.0, 4.0\r\n3.0, 9.0\r\n4.0, 16.0\r\n";
+        string stressContent = "1.0, 2.0\r\n2.0, 8.0\r\n3.0, 18.0\r\n4.0, 32.0\r\n";
+
+        using MemoryStream strainStream = new(System.Text.Encoding.UTF8.GetBytes(strainContent));
+        using MemoryStream stressStream = new(System.Text.Encoding.UTF8.GetBytes(stressContent));
+
+        ExperimentalDataProcessingOptions options = new(0.0, BufferSize: 4, RelativeTolerance: 1e-6, Tolerance: 1e-6, AccelerationTolerance: 1e-6, SkipTimeStep: 0.0);
+
+        // Act
+        MelloSilveiraTools.Core.Models.Result<CurveSegment[]> result = await _processor.ProcessAsync(strainStream, stressStream, options);
+
+        // Assert
+        Assert.True(result.Success);
+        Assert.NotNull(result.Data);
+        Assert.Single(result.Data);
+        Assert.Equal(SegmentType.Ramp, result.Data[0].Type);
+        Assert.Equal(4, result.Data[0].TimePoints.Length);
+        Assert.Equal(0.0, result.Data[0].TimePoints[0]);
+        Assert.Equal(1.0, result.Data[0].ExperimentalStrain[0]);
+        Assert.Equal(2.0, result.Data[0].ExperimentalStress[0]);
     }
 
     public static TheoryData<SegmentType, ExperimentalDataPoint[], List<(SegmentType SegmentType, ArraySegment<ExperimentalDataPoint> Points)>> GetTestData() => new()

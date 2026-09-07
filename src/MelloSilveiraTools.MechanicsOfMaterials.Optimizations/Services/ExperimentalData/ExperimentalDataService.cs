@@ -1,25 +1,23 @@
 using MelloSilveiraTools.Core.Managers.File;
 using MelloSilveiraTools.Core.Models;
+using MelloSilveiraTools.Core.Pipelines;
+using MelloSilveiraTools.Core.Pipelines.Dataflow;
 using MelloSilveiraTools.Mathematics.Extensions;
 using MelloSilveiraTools.Mathematics.NumericalMethods.Differentiations;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Models.CurveFitting;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Models.ExperimentalData;
 using Microsoft.Extensions.Logging;
 using System.Runtime.CompilerServices;
-using System.Threading.Tasks.Dataflow;
 
 namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Services.ExperimentalData;
 
 public class ExperimentalDataService(
     ILogger<ExperimentalDataService> logger,
-    IDifferentiation differentiation,
-    IFileManager fileManager,
-    ExperimentalDataSettings settings)
+    IDifferentiation differentiation)
     : IExperimentalDataService
 {
-    public async Task<Result<(string OutputFileName, CurveSegment[] CurveSegments)>> ProcessAsync(
-        string uniqueIdentifier,
-        string outputFileUri,
+    /// <inheritdoc/>
+    public async Task<Result<CurveSegment[]>> ProcessAsync(
         Stream strainStream,
         Stream stressStream,
         ExperimentalDataProcessingOptions? options = null,
@@ -28,58 +26,23 @@ public class ExperimentalDataService(
         options ??= ExperimentalDataProcessingOptions.Default;
 
         List<CurveSegment> curveSegments = [];
-        List<double> timePoints = [];
-        List<double> strainPoints = [];
-        List<double> stressPoints = [];
-        ProcessedDataPoint? previousPoint = null;
-        SegmentType? previousSegmentType = null;
 
-        (string outputFullFileName, Func<ProcessedDataPoint, CancellationToken, Task> writePointTask, Func<CancellationToken, Task> completeWriterTask) = await PrepareFileWriterAsync(outputFileUri, uniqueIdentifier, cancellationToken).ConfigureAwait(false);
-        await foreach ((SegmentType segmentType, ProcessedDataPoint point) in SegmentPointsAsync(strainStream, stressStream, options, cancellationToken))
+        await using IDataflowPipeline<SegmentedDataPoint> pipeline = PipelineFactory.StartDataflow<SegmentedDataPoint>(
+                logger,
+                cancellationToken: cancellationToken)
+            .AddGroupWhileStep((prev, curr) => prev.SegmentType == curr.SegmentType)
+            .AddDataMapping(points => BuildCurveSegment(points, options.SkipTimeStep))
+            .BuildTerminal("CollectSegments", (Action<CurveSegment>)(segment => curveSegments.Add(segment)));
+
+        await foreach (SegmentedDataPoint point in SegmentPointsAsync(strainStream, stressStream, options, cancellationToken).ConfigureAwait(false))
         {
-            await writePointTask(point, cancellationToken).ConfigureAwait(false);
-
-            bool typeChanged = previousSegmentType != segmentType;
-            if (typeChanged && previousSegmentType != null && timePoints.Count > 0)
-            {
-                curveSegments.Add(new CurveSegment
-                {
-                    Type = previousSegmentType.Value,
-                    TimePoints = [.. timePoints],
-                    ExperimentalStrain = [.. strainPoints],
-                    ExperimentalStress = [.. stressPoints]
-                });
-
-                timePoints.Clear();
-                strainPoints.Clear();
-                stressPoints.Clear();
-            }
-
-            if (typeChanged || previousPoint == null || (point.Time - previousPoint.Value.Time) >= options.SkipTimeStep)
-            {
-                timePoints.Add(point.Time);
-                strainPoints.Add(point.Strain);
-                stressPoints.Add(point.Stress);
-            }
-
-            previousSegmentType = segmentType;
-            previousPoint = point;
+            await pipeline.SendAsync(point, cancellationToken).ConfigureAwait(false);
         }
 
-        await completeWriterTask(cancellationToken).ConfigureAwait(false);
+        pipeline.Complete();
+        await pipeline.Completion.ConfigureAwait(false);
 
-        if (timePoints.Count > 0 && previousSegmentType != null)
-        {
-            curveSegments.Add(new CurveSegment
-            {
-                Type = previousSegmentType.Value,
-                TimePoints = [.. timePoints],
-                ExperimentalStrain = [.. strainPoints],
-                ExperimentalStress = [.. stressPoints]
-            });
-        }
-
-        return (outputFullFileName, [.. curveSegments]);
+        return Result.CreateSuccessOk<CurveSegment[]>([.. curveSegments]);
     }
 
     public async IAsyncEnumerable<SegmentedDataPoint> SegmentPointsAsync(
@@ -179,48 +142,46 @@ public class ExperimentalDataService(
         ExperimentalDataProcessingOptions? options = null)
         => ExtractSegments(currentType, points, count, options ?? ExperimentalDataProcessingOptions.Default, []);
 
-    private async Task<(string OutputFullFileName, Func<ProcessedDataPoint, CancellationToken, Task> WritePointTask, Func<CancellationToken, Task> CompleteWriterTask)> PrepareFileWriterAsync(
-        string outputFileUri,
-        string uniqueIdentifier,
-        CancellationToken cancellationToken)
+    private static CurveSegment BuildCurveSegment(SegmentedDataPoint[] points, double skipTimeStep)
     {
-        FileInfo outputFile = fileManager.BuildTimebasedFileInfo(outputFileUri, uniqueIdentifier, FileExtensions.CommaSeparatedValues);
-        using var streamWriter = fileManager.CreateLargeFileWriter(outputFile);
-        await streamWriter.WriteLineAsync("Time,Strain,StrainRate,StrainAcceleration,Stress,StressRate,StressAcceleration").ConfigureAwait(false);
-
-        ActionBlock<ProcessedDataPoint> fileWriterBlock = new(
-            async p => await streamWriter.WriteLineAsync($"{p.Time},{p.Strain},{p.StrainRate},{p.StrainAcceleration},{p.Stress},{p.StressRate},{p.StressAcceleration}").ConfigureAwait(false),
-            new ExecutionDataflowBlockOptions
-            {
-                // The file must be writer sequentially to avoid corruption, so we set MaxDegreeOfParallelism to 1.
-                MaxDegreeOfParallelism = 1,
-                BoundedCapacity = settings.FileWriterBoundedCapacity,
-                CancellationToken = cancellationToken
-            });
-
-        async Task WritePointAsync(ProcessedDataPoint point, CancellationToken ct)
+        if (points.Length == 0)
         {
-            if (!await fileWriterBlock.SendAsync(point, ct).ConfigureAwait(false))
-                logger.LogWarning("Failed to send point {@Point} at Time={Time} to file writer block.", point, point.Time);
+            return new CurveSegment
+            {
+                Type = SegmentType.Unknown,
+                TimePoints = [],
+                ExperimentalStrain = [],
+                ExperimentalStress = []
+            };
         }
 
-        async Task CompleteWriterAsync(CancellationToken cancellationToken)
-        {
-            await streamWriter.DisposeAsync().ConfigureAwait(false);
+        SegmentType segmentType = points[0].SegmentType;
+        List<double> timePoints = [];
+        List<double> strainPoints = [];
+        List<double> stressPoints = [];
 
-            try
+        double? lastTime = null;
+        for (int i = 0; i < points.Length; i++)
+        {
+            ProcessedDataPoint p = points[i].ProcessedDataPoint;
+            if (lastTime is null || (p.Time - lastTime.Value) >= skipTimeStep || i == points.Length - 1)
             {
-                fileWriterBlock.Complete();
-                await fileWriterBlock.Completion.ConfigureAwait(false);
-            }
-            catch (Exception ex)
-            {
-                logger.LogError(ex, "Error occurred while completing the file writer block.");
+                timePoints.Add(p.Time);
+                strainPoints.Add(p.Strain);
+                stressPoints.Add(p.Stress);
+                lastTime = p.Time;
             }
         }
 
-        return (outputFile.FullName, WritePointAsync, CompleteWriterAsync);
+        return new CurveSegment
+        {
+            Type = segmentType,
+            TimePoints = [.. timePoints],
+            ExperimentalStrain = [.. strainPoints],
+            ExperimentalStress = [.. stressPoints]
+        };
     }
+
 
     private List<(SegmentType, ArraySegment<ExperimentalDataPoint>)> ExtractSegments(
         SegmentType currentType,
