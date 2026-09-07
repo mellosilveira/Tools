@@ -27,50 +27,50 @@
             <summary>
             Converts a value from decimal to percentage.
             </summary>
-            <param name="value"></param>
-            <returns></returns>
+            <param name="value">The decimal value to convert.</param>
+            <returns>The value multiplied by 100.</returns>
         </member>
         <member name="M:MelloSilveiraTools.Mathematics.Converters.UnitConverter.ConvertMm2ToM2(System.Double)">
             <summary>
             Converts a value from square milimeters to square meter.
             </summary>
-            <param name="value"></param>
-            <returns></returns>
+            <param name="value">The area in square millimeters.</param>
+            <returns>The area in square meters.</returns>
         </member>
         <member name="M:MelloSilveiraTools.Mathematics.Converters.UnitConverter.ConvertMmToM(System.Double)">
             <summary>
             Converts a value from milimeters to meter.
             </summary>
-            <param name="value"></param>
-            <returns></returns>
+            <param name="value">The length in millimeters.</param>
+            <returns>The length in meters.</returns>
         </member>
         <member name="M:MelloSilveiraTools.Mathematics.Converters.UnitConverter.ConvertMToMm(System.Double)">
             <summary>
             Converts a value from meters to millimeters.
             </summary>
-            <param name="value"></param>
-            <returns></returns>
+            <param name="value">The length in meters.</param>
+            <returns>The length in millimeters.</returns>
         </member>
         <member name="M:MelloSilveiraTools.Mathematics.Converters.UnitConverter.ConvertPaToMPa(System.Double)">
             <summary>
             Converts a value from Pascal to Mega-Pascal.
             </summary>
-            <param name="value"></param>
-            <returns></returns>
+            <param name="value">The pressure in Pascals.</param>
+            <returns>The pressure in Megapascals.</returns>
         </member>
         <member name="M:MelloSilveiraTools.Mathematics.Converters.UnitConverter.ConvertMPaToPa(System.Double)">
             <summary>
             Converts a value from Mega-Pascal to Pascal.
             </summary>
-            <param name="value"></param>
-            <returns></returns>
+            <param name="value">The pressure in Megapascals.</param>
+            <returns>The pressure in Pascals.</returns>
         </member>
         <member name="M:MelloSilveiraTools.Mathematics.Converters.UnitConverter.ConvertRadToDegree(System.Double)">
             <summary>
             Converts a value from radian to degree.
             </summary>
-            <param name="value"></param>
-            <returns></returns>
+            <param name="value">The angle in radians.</param>
+            <returns>The angle in degrees.</returns>
         </member>
         <member name="M:MelloSilveiraTools.Mathematics.Converters.UnitConverter.ConvertRadToDegree(MelloSilveiraTools.Mathematics.Models.Vector3D)">
             <summary>
@@ -477,9 +477,9 @@
             </summary>
             <param name="initialVariableValue"></param>
             <param name="finalVariableValue"></param>
-            <param name="function"></param>
-            <param name="derivativeFunction"></param>
-            <param name="integralFunction"></param>
+            <param name="function">The delegate that computes f(x) for a given x.</param>
+            <param name="derivativeFunction">Optional delegate that computes f'(x). If null, numerical differentiation is used.</param>
+            <param name="integralFunction">Optional delegate that computes the antiderivative F(x). If null, numerical integration is used.</param>
         </member>
         <member name="M:MelloSilveiraTools.Mathematics.Functions.GenericFunction.#ctor(System.Nullable{System.Double},System.Nullable{System.Double},System.Func{System.Double,System.Double},System.Func{System.Double,System.Double},System.Func{System.Double,System.Double})">
             <summary>
@@ -487,9 +487,9 @@
             </summary>
             <param name="initialVariableValue"></param>
             <param name="finalVariableValue"></param>
-            <param name="function"></param>
-            <param name="derivativeFunction"></param>
-            <param name="integralFunction"></param>
+            <param name="function">The delegate that computes f(x) for a given x.</param>
+            <param name="derivativeFunction">Optional delegate that computes f'(x). If null, numerical differentiation is used.</param>
+            <param name="integralFunction">Optional delegate that computes the antiderivative F(x). If null, numerical integration is used.</param>
         </member>
         <member name="M:MelloSilveiraTools.Mathematics.Functions.GenericFunction.Calculate(System.Double)">
             <inheritdoc/>

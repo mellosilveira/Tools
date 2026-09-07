@@ -1,4 +1,4 @@
-﻿using MelloSilveiraTools.Core.Models;
+using MelloSilveiraTools.Core.Models;
 using MelloSilveiraTools.Core.ResiliencePipelines;
 using MelloSilveiraTools.Database.ResiliencePipelines;
 using Microsoft.Extensions.Logging;
@@ -15,7 +15,7 @@ public class ApiServiceAgentResiliencePipeline : DefaultResiliencePipeline
     private static readonly List<StatusCode> StatusCodesToRetry = [StatusCode.UnknownError, StatusCode.ServiceUnavailable];
 
     /// <summary>
-    /// Initialize a new instance of <see cref="PostgresResiliencePipeline"/>.
+    /// Initialize a new instance of <see cref="ApiServiceAgentResiliencePipeline"/>.
     /// </summary>
     /// <param name="logger"></param>
     /// <param name="settings"></param>
@@ -26,7 +26,7 @@ public class ApiServiceAgentResiliencePipeline : DefaultResiliencePipeline
     { }
 
     /// <summary>
-    /// Initializes a new instance of <see cref="PostgresResiliencePipeline"/>.
+    /// Initializes a new instance of <see cref="ApiServiceAgentResiliencePipeline"/>.
     /// </summary>
     /// <param name="logger">See reference at <see cref="ILogger"/>.</param>
     /// <param name="settings">See reference at <see cref="ResiliencePipelineSettings"/>.</param>

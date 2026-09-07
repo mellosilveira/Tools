@@ -17,6 +17,7 @@ namespace MelloSilveiraTools.Database.RelationalDatabase.Repositories;
 
 /// <summary>
 /// Repository that contains methods to deal with Postgres database.
+/// Registered as Singleton in DI. Opens a new connection per call. Safe for concurrent use.
 /// </summary>
 /// <remarks>
 /// <para>

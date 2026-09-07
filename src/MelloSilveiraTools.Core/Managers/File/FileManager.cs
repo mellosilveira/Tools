@@ -1,7 +1,11 @@
-﻿using System.Text;
+using System.Text;
 
 namespace MelloSilveiraTools.Core.Managers.File;
 
+/// <summary>
+/// Handles file operations such as writing streams to disk.
+/// Registered as Singleton in DI. Thread-safe.
+/// </summary>
 public class FileManager : IFileManager
 {
     private const int LargeFileBufferSize = 128 * 1024; // 128 KB buffer

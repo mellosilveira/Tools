@@ -1,7 +1,7 @@
-﻿namespace MelloSilveiraTools.Database.RelationalDatabase.Attributes;
+namespace MelloSilveiraTools.Database.RelationalDatabase.Attributes;
 
 /// <summary>
-/// Specifies if a column is a primary key of table.
+/// Specifies that a column has a unique constraint, used for ON CONFLICT upserts and typed lookups via GetByUniqueColumnAsync.
 /// </summary>
 [AttributeUsage(AttributeTargets.Property, AllowMultiple = false)]
 public class UniqueColumnAttribute : ColumnAttribute;

@@ -382,7 +382,7 @@
         </member>
         <member name="T:MelloSilveiraTools.Database.RelationalDatabase.Attributes.UniqueColumnAttribute">
             <summary>
-            Specifies if a column is a primary key of table.
+            Specifies that a column has a unique constraint, used for ON CONFLICT upserts and typed lookups via GetByUniqueColumnAsync.
             </summary>
         </member>
         <member name="T:MelloSilveiraTools.Database.RelationalDatabase.Models.DatabaseConstants">

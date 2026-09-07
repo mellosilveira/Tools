@@ -746,14 +746,14 @@
         </member>
         <member name="M:MelloSilveiraTools.WebApi.Infrastructure.ResiliencePipelines.ApiServiceAgentResiliencePipeline.#ctor(Microsoft.Extensions.Logging.ILogger{MelloSilveiraTools.WebApi.Infrastructure.ResiliencePipelines.ApiServiceAgentResiliencePipeline},MelloSilveiraTools.Core.ResiliencePipelines.ResiliencePipelineSettings)">
             <summary>
-            Initialize a new instance of <see cref="T:MelloSilveiraTools.Database.ResiliencePipelines.PostgresResiliencePipeline"/>.
+            Initialize a new instance of <see cref="T:MelloSilveiraTools.WebApi.Infrastructure.ResiliencePipelines.ApiServiceAgentResiliencePipeline"/>.
             </summary>
             <param name="logger"></param>
             <param name="settings"></param>
         </member>
         <member name="M:MelloSilveiraTools.WebApi.Infrastructure.ResiliencePipelines.ApiServiceAgentResiliencePipeline.#ctor(Microsoft.Extensions.Logging.ILogger{MelloSilveiraTools.WebApi.Infrastructure.ResiliencePipelines.ApiServiceAgentResiliencePipeline},MelloSilveiraTools.Core.ResiliencePipelines.ResiliencePipelineSettings,System.Func{Polly.Retry.RetryPredicateArguments{System.Object},System.Threading.Tasks.ValueTask{System.Boolean}})">
             <summary>
-            Initializes a new instance of <see cref="T:MelloSilveiraTools.Database.ResiliencePipelines.PostgresResiliencePipeline"/>.
+            Initializes a new instance of <see cref="T:MelloSilveiraTools.WebApi.Infrastructure.ResiliencePipelines.ApiServiceAgentResiliencePipeline"/>.
             </summary>
             <param name="logger">See reference at <see cref="T:Microsoft.Extensions.Logging.ILogger"/>.</param>
             <param name="settings">See reference at <see cref="T:MelloSilveiraTools.Core.ResiliencePipelines.ResiliencePipelineSettings"/>.</param>

@@ -189,6 +189,26 @@
             <param name="pattern">Route prefix; defaults to <c>"/api/v1/plugins"</c>.</param>
             <returns>The created <see cref="T:Microsoft.AspNetCore.Routing.RouteGroupBuilder"/> so callers can chain <c>.RequireAuthorization(...)</c>, <c>.WithTags(...)</c>, etc.</returns>
         </member>
+        <member name="T:MelloSilveiraTools.Plugins.Application.Validators.PluginValidator">
+            <summary>
+            Validates a <see cref="T:MelloSilveiraTools.Plugins.Application.Commands.PluginsRequest"/>, verifying that any specified plugin version adheres to the expected format.
+            Registered as Singleton in DI. Thread-safe.
+            </summary>
+        </member>
+        <member name="T:MelloSilveiraTools.Plugins.Application.Validators.PluginValidator`1">
+            <summary>
+            Validates a plugin request of type <typeparamref name="TRequest"/>, verifying that any specified plugin version adheres to the expected format.
+            Registered as Singleton in DI. Thread-safe.
+            </summary>
+            <typeparam name="TRequest">The type of plugin request to validate, derived from <see cref="T:MelloSilveiraTools.Plugins.Application.Commands.PluginsRequest"/>.</typeparam>
+        </member>
+        <member name="M:MelloSilveiraTools.Plugins.Application.Validators.PluginValidator`1.Validate(`0)">
+            <summary>
+            Validates the specified plugin request, ensuring that the version string conforms to <see cref="T:MelloSilveiraTools.Plugins.Infrastructure.Models.PluginVersion"/> semantics if present.
+            </summary>
+            <param name="value">The plugin request instance to validate.</param>
+            <returns>A successful <see cref="T:MelloSilveiraTools.Core.Models.Result"/> when the version is omitted, empty, or valid; otherwise, a 400 Bad Request <see cref="T:MelloSilveiraTools.Core.Models.Result"/>.</returns>
+        </member>
         <member name="T:MelloSilveiraTools.Plugins.PluginsDependencyInjection">
             <summary>
             Provides extension methods to register services from the MelloSilveiraTools.Plugins package.
@@ -495,11 +515,26 @@
             <summary>
             Represents a single two-level cache entry to be persisted or restored.
             </summary>
+            <param name="Name">The plugin name representing the first-level cache key.</param>
+            <param name="Version">The plugin version string representing the second-level cache key.</param>
+            <param name="State">The cached <see cref="T:MelloSilveiraTools.Plugins.Infrastructure.Models.DiscoveredPlugin"/> state instance associated with the entry.</param>
         </member>
         <member name="M:MelloSilveiraTools.Plugins.Infrastructure.Persistences.PluginCacheEntry.#ctor(System.String,System.String,MelloSilveiraTools.Plugins.Infrastructure.Models.DiscoveredPlugin)">
             <summary>
             Represents a single two-level cache entry to be persisted or restored.
             </summary>
+            <param name="Name">The plugin name representing the first-level cache key.</param>
+            <param name="Version">The plugin version string representing the second-level cache key.</param>
+            <param name="State">The cached <see cref="T:MelloSilveiraTools.Plugins.Infrastructure.Models.DiscoveredPlugin"/> state instance associated with the entry.</param>
+        </member>
+        <member name="P:MelloSilveiraTools.Plugins.Infrastructure.Persistences.PluginCacheEntry.Name">
+            <summary>The plugin name representing the first-level cache key.</summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Plugins.Infrastructure.Persistences.PluginCacheEntry.Version">
+            <summary>The plugin version string representing the second-level cache key.</summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Plugins.Infrastructure.Persistences.PluginCacheEntry.State">
+            <summary>The cached <see cref="T:MelloSilveiraTools.Plugins.Infrastructure.Models.DiscoveredPlugin"/> state instance associated with the entry.</summary>
         </member>
         <member name="T:MelloSilveiraTools.Plugins.Infrastructure.Persistences.PluginCacheFilter">
             <summary>
@@ -637,7 +672,7 @@
             moving DLLs between the main and loaded subfolders, and parsing filenames into
             <see cref="T:MelloSilveiraTools.Plugins.Infrastructure.Models.DiscoveredPlugin"/> instances cached in <see cref="T:MelloSilveiraTools.Plugins.Infrastructure.PluginCache"/>.
             </summary>
-            <param name="logger"></param>
+            <param name="logger">The logger instance for diagnostics and tracing.</param>
             <param name="cache">Plugin cache used to memoize the parsed <see cref="T:MelloSilveiraTools.Plugins.Infrastructure.Models.DiscoveredPlugin"/> instances by name and version.</param>
             <param name="settings">Plugin settings providing the root plugins directory used to locate the main and <c>loaded/</c> subfolders.</param>
         </member>
@@ -647,7 +682,7 @@
             moving DLLs between the main and loaded subfolders, and parsing filenames into
             <see cref="T:MelloSilveiraTools.Plugins.Infrastructure.Models.DiscoveredPlugin"/> instances cached in <see cref="T:MelloSilveiraTools.Plugins.Infrastructure.PluginCache"/>.
             </summary>
-            <param name="logger"></param>
+            <param name="logger">The logger instance for diagnostics and tracing.</param>
             <param name="cache">Plugin cache used to memoize the parsed <see cref="T:MelloSilveiraTools.Plugins.Infrastructure.Models.DiscoveredPlugin"/> instances by name and version.</param>
             <param name="settings">Plugin settings providing the root plugins directory used to locate the main and <c>loaded/</c> subfolders.</param>
         </member>
@@ -754,7 +789,7 @@
              <summary>
              Discovers plugins and registers their services at application startup, using the root service collection.
              </summary>
-             <param name="services"></param>
+             <param name="services">The service collection to register plugin-contributed services into during application startup.</param>
              <param name="name">Optional plugin name filter. When empty, all plugins are considered.</param>
              <param name="version">Optional version filter. When <c>null</c>, all versions are considered.</param>
              <example>
@@ -780,7 +815,7 @@
             <summary>
             Reloads plugins previously moved to the loaded folder, optionally forcing a fresh load, at startup time.
             </summary>
-            <param name="services"></param>
+            <param name="services">The service collection to register plugin-contributed services into during application startup.</param>
             <param name="forceLoad">When <c>true</c>, clears the cache for the matching plugins and loads them again.</param>
             <param name="name">Optional plugin name filter. When empty, all plugins are considered.</param>
             <param name="version">Optional version filter. When <c>null</c>, all versions are considered.</param>

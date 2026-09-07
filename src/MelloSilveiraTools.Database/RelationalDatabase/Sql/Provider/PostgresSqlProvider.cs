@@ -7,6 +7,9 @@ using System.Text;
 namespace MelloSilveiraTools.Database.RelationalDatabase.Sql.Provider;
 
 /// <inheritdoc cref="ISqlProvider"/>
+/// <summary>
+/// Registered as Singleton in DI. Thread-safe. Backed by ConcurrentDictionary.
+/// </summary>
 /// <remarks>
 /// <para>
 /// Generated SQL strings are memoized in a process-wide static <see cref="ConcurrentDictionary{TKey, TValue}"/>

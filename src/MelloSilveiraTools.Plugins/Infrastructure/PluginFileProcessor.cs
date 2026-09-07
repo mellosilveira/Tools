@@ -9,7 +9,7 @@ namespace MelloSilveiraTools.Plugins.Infrastructure;
 /// moving DLLs between the main and loaded subfolders, and parsing filenames into
 /// <see cref="DiscoveredPlugin"/> instances cached in <see cref="PluginCache"/>.
 /// </summary>
-/// <param name="logger"></param>
+/// <param name="logger">The logger instance for diagnostics and tracing.</param>
 /// <param name="cache">Plugin cache used to memoize the parsed <see cref="DiscoveredPlugin"/> instances by name and version.</param>
 /// <param name="settings">Plugin settings providing the root plugins directory used to locate the main and <c>loaded/</c> subfolders.</param>
 public class PluginFileProcessor(

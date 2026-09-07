@@ -11,7 +11,7 @@ public interface IPluginService
     /// <summary>
     /// Discovers plugins and registers their services at application startup, using the root service collection.
     /// </summary>
-    /// <param name="services"></param>
+    /// <param name="services">The service collection to register plugin-contributed services into during application startup.</param>
     /// <param name="name">Optional plugin name filter. When empty, all plugins are considered.</param>
     /// <param name="version">Optional version filter. When <c>null</c>, all versions are considered.</param>
     /// <example>
@@ -37,7 +37,7 @@ public interface IPluginService
     /// <summary>
     /// Reloads plugins previously moved to the loaded folder, optionally forcing a fresh load, at startup time.
     /// </summary>
-    /// <param name="services"></param>
+    /// <param name="services">The service collection to register plugin-contributed services into during application startup.</param>
     /// <param name="forceLoad">When <c>true</c>, clears the cache for the matching plugins and loads them again.</param>
     /// <param name="name">Optional plugin name filter. When empty, all plugins are considered.</param>
     /// <param name="version">Optional version filter. When <c>null</c>, all versions are considered.</param>
