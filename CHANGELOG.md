@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+### Added
+- `CsvStreamReader` in `MelloSilveiraTools.Core.Managers.File`: High-performance, streaming CSV reader utilizing native `System.IO.Pipelines.PipeReader` and `System.Buffers.Text.Utf8Parser`. Returns parsed numerical rows as `double[]`, supporting arbitrary column counts, custom delimiters, empty line skipping, and header/invalid line filtering with minimal allocations.
+
+### Changed
+- `ExperimentalDataService`: Refactored `SegmentPointsAsync` to consume `CsvStreamReader` returning `double[]` rows, mapping index 0 to time and index 1 to value (strain or stress).
+
 ## [1.5.0] - 2026-06-DD
 ### Added
 - `ConstitutiveParameters` abstract base record acting as the foundational domain constraint for all mechanical and viscoelastic material properties.

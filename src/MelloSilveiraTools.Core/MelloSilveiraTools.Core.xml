@@ -1107,6 +1107,63 @@
             Limits how many logs are held in memory before a batch insert is triggered to PostgreSQL. Defaults to 50.
             </summary>
         </member>
+        <member name="T:MelloSilveiraTools.Core.Managers.File.CsvStreamReader">
+            <summary>
+            High-performance, streaming numeric CSV reader powered by native <see cref="T:System.IO.Pipelines.PipeReader"/> and <see cref="T:System.Buffers.Text.Utf8Parser"/>.
+            Reads delimited rows containing an arbitrary number of numeric (<see cref="T:System.Double"/>) columns with minimal memory allocations.
+            </summary>
+            <param name="stream">The underlying stream to read from.</param>
+            <param name="delimiter">The column delimiter byte (default is comma <c>','</c>).</param>
+            <param name="leaveOpen">Whether to leave the underlying stream open after disposing the reader.</param>
+            <param name="bufferSize">The initial pipe buffer size.</param>
+            <param name="skipInvalidLines">Whether to skip unparseable lines (e.g. headers) instead of stopping.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Managers.File.CsvStreamReader.#ctor(System.IO.Stream,System.Byte,System.Boolean,System.Int32,System.Boolean)">
+            <summary>
+            High-performance, streaming numeric CSV reader powered by native <see cref="T:System.IO.Pipelines.PipeReader"/> and <see cref="T:System.Buffers.Text.Utf8Parser"/>.
+            Reads delimited rows containing an arbitrary number of numeric (<see cref="T:System.Double"/>) columns with minimal memory allocations.
+            </summary>
+            <param name="stream">The underlying stream to read from.</param>
+            <param name="delimiter">The column delimiter byte (default is comma <c>','</c>).</param>
+            <param name="leaveOpen">Whether to leave the underlying stream open after disposing the reader.</param>
+            <param name="bufferSize">The initial pipe buffer size.</param>
+            <param name="skipInvalidLines">Whether to skip unparseable lines (e.g. headers) instead of stopping.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Managers.File.CsvStreamReader.ReadNextRowAsync(System.Threading.CancellationToken)">
+            <summary>
+            Reads the next numerical row asynchronously from the CSV stream, parsing all delimited numeric columns.
+            </summary>
+            <param name="cancellationToken">A token to cancel the read operation.</param>
+            <returns>
+            An array of parsed <see cref="T:System.Double"/> values representing each column in the row, or <see langword="null"/> if the end of the stream is reached or an unparseable line is encountered.
+            </returns>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Managers.File.CsvStreamReader.ReadNextPointAsync(System.Threading.CancellationToken)">
+            <summary>
+            Reads the next numerical row asynchronously from the CSV stream. Alias for <see cref="M:MelloSilveiraTools.Core.Managers.File.CsvStreamReader.ReadNextRowAsync(System.Threading.CancellationToken)"/>.
+            </summary>
+            <param name="cancellationToken">A token to cancel the read operation.</param>
+            <returns>
+            An array of parsed <see cref="T:System.Double"/> values representing each column in the row, or <see langword="null"/> if the end of stream is reached.
+            </returns>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Managers.File.CsvStreamReader.ReadAllRowsAsync(System.Threading.CancellationToken)">
+            <summary>
+            Asynchronously streams all parsed numeric rows from the CSV stream until the end of the stream or the first invalid row.
+            </summary>
+            <param name="cancellationToken">A token to cancel the streaming operation.</param>
+            <returns>An async stream of <see cref="T:System.Double"/> arrays, where each array contains the parsed column values.</returns>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Managers.File.CsvStreamReader.ReadAllPointsAsync(System.Threading.CancellationToken)">
+            <summary>
+            Asynchronously streams all parsed rows from the CSV stream. Alias for <see cref="M:MelloSilveiraTools.Core.Managers.File.CsvStreamReader.ReadAllRowsAsync(System.Threading.CancellationToken)"/>.
+            </summary>
+            <param name="cancellationToken">A token to cancel the streaming operation.</param>
+            <returns>An async stream of <see cref="T:System.Double"/> arrays.</returns>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Managers.File.CsvStreamReader.DisposeAsync">
+            <inheritdoc/>
+        </member>
         <member name="T:MelloSilveiraTools.Core.Models.Constants">
             <summary>
             It contains the constants used in the project.

@@ -17,4 +17,8 @@
 		<ProjectReference Include="..\MelloSilveiraTools.MechanicsOfMaterials\MelloSilveiraTools.MechanicsOfMaterials.csproj" />
 	</ItemGroup>
 
+	<ItemGroup>
+	  <Folder Include="Pipelines\" />
+	</ItemGroup>
+
 </Project>

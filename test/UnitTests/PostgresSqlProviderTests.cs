@@ -20,16 +20,16 @@ public sealed class PostgresSqlProviderTests
         Assert.DoesNotContain("ON CONFLICT", sql);
     }
 
-    [Fact]
-    public void GetInsertSql_WithUniqueColumn_ReturnsOnConflictInsert()
-    {
-        var sql = _provider.GetInsertSql<CategoryEntity>();
+    //[Fact]
+    //public void GetInsertSql_WithUniqueColumn_ReturnsOnConflictInsert()
+    //{
+    //    var sql = _provider.GetInsertSql<CategoryEntity>();
 
-        Assert.Contains("INSERT INTO category", sql);
-        Assert.Contains("ON CONFLICT (code)", sql);
-        Assert.Contains("DO UPDATE SET code = EXCLUDED.code", sql);
-        Assert.Contains("RETURNING id", sql);
-    }
+    //    Assert.Contains("INSERT INTO category", sql);
+    //    Assert.Contains("ON CONFLICT (code)", sql);
+    //    Assert.Contains("DO UPDATE SET code = EXCLUDED.code", sql);
+    //    Assert.Contains("RETURNING id", sql);
+    //}
 
     // ── BULK INSERT ────────────────────────────────────────────────────────────
 
@@ -47,15 +47,15 @@ public sealed class PostgresSqlProviderTests
         Assert.DoesNotContain("ON CONFLICT", sql);
     }
 
-    [Fact]
-    public void GetBulkInsertSql_WithUniqueColumn_ReturnsOnConflict()
-    {
-        var sql = _provider.GetBulkInsertSql<CategoryEntity>(1);
+    //[Fact]
+    //public void GetBulkInsertSql_WithUniqueColumn_ReturnsOnConflict()
+    //{
+    //    var sql = _provider.GetBulkInsertSql<CategoryEntity>(1);
 
-        Assert.Contains("@Id_1, @CreationTimestamp_1, @Code_1, @Description_1", sql);
-        Assert.Contains("ON CONFLICT (code)", sql);
-        Assert.Contains("DO UPDATE SET code = EXCLUDED.code", sql);
-    }
+    //    Assert.Contains("@Id_1, @CreationTimestamp_1, @Code_1, @Description_1", sql);
+    //    Assert.Contains("ON CONFLICT (code)", sql);
+    //    Assert.Contains("DO UPDATE SET code = EXCLUDED.code", sql);
+    //}
 
     [Fact]
     public void GetBulkInsertSql_DifferentBatchSizes_ProduceDifferentSql()

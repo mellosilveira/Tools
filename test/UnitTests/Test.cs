@@ -36,6 +36,34 @@ public class Test
         }
     }
 
+    [Fact]
+    public async Task SegmentPointsAsync_WithUtf8Stream_SegmentsPointsCorrectly()
+    {
+        // Arrange
+        string strainContent = "1.0, 1.0\r\n2.0, 4.0\r\n3.0, 9.0\r\n4.0, 16.0\r\n";
+        string stressContent = "1.0, 2.0\r\n2.0, 8.0\r\n3.0, 18.0\r\n4.0, 32.0\r\n";
+
+        using MemoryStream strainStream = new(System.Text.Encoding.UTF8.GetBytes(strainContent));
+        using MemoryStream stressStream = new(System.Text.Encoding.UTF8.GetBytes(stressContent));
+
+        ExperimentalDataProcessingOptions options = new(0.0, BufferSize: 4, RelativeTolerance: 1e-6, Tolerance: 1e-6, AccelerationTolerance: 1e-6, SkipTimeStep: 0.0);
+
+        // Act
+        List<SegmentedDataPoint> points = [];
+        await foreach (SegmentedDataPoint point in _processor.SegmentPointsAsync(strainStream, stressStream, options))
+        {
+            points.Add(point);
+        }
+
+        // Assert
+        Assert.NotEmpty(points);
+        Assert.Equal(4, points.Count);
+        Assert.Equal(0.0, points[0].ProcessedDataPoint.Time);
+        Assert.Equal(1.0, points[0].ProcessedDataPoint.Strain);
+        Assert.Equal(2.0, points[0].ProcessedDataPoint.Stress);
+        Assert.Equal(SegmentType.Ramp, points[0].SegmentType);
+    }
+
     public static TheoryData<SegmentType, ExperimentalDataPoint[], List<(SegmentType SegmentType, ArraySegment<ExperimentalDataPoint> Points)>> GetTestData() => new()
     {
         // --------------------------------------------------------------------------------

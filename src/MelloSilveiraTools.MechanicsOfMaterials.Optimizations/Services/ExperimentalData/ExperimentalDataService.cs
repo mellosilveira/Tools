@@ -1,4 +1,4 @@
-﻿using MelloSilveiraTools.Core.Managers.File;
+using MelloSilveiraTools.Core.Managers.File;
 using MelloSilveiraTools.Core.Models;
 using MelloSilveiraTools.Mathematics.Extensions;
 using MelloSilveiraTools.Mathematics.NumericalMethods.Differentiations;
@@ -34,8 +34,8 @@ public class ExperimentalDataService(
         ProcessedDataPoint? previousPoint = null;
         SegmentType? previousSegmentType = null;
 
-        var (outputFullFileName, writePointTask, completeWriterTask) = await PrepareFileWriterAsync(outputFileUri, uniqueIdentifier, cancellationToken).ConfigureAwait(false);
-        await foreach (var (segmentType, point) in SegmentPointsAsync(strainStream, stressStream, options, cancellationToken))
+        (string outputFullFileName, Func<ProcessedDataPoint, CancellationToken, Task> writePointTask, Func<CancellationToken, Task> completeWriterTask) = await PrepareFileWriterAsync(outputFileUri, uniqueIdentifier, cancellationToken).ConfigureAwait(false);
+        await foreach ((SegmentType segmentType, ProcessedDataPoint point) in SegmentPointsAsync(strainStream, stressStream, options, cancellationToken))
         {
             await writePointTask(point, cancellationToken).ConfigureAwait(false);
 
@@ -90,11 +90,9 @@ public class ExperimentalDataService(
     {
         options ??= ExperimentalDataProcessingOptions.Default;
 
-        using var strainReader = new StreamReader(strainStream);
-        using var stressReader = new StreamReader(stressStream);
+        await using CsvStreamReader strainReader = new(strainStream, leaveOpen: true);
+        await using CsvStreamReader stressReader = new(stressStream, leaveOpen: true);
 
-        string? strainLine;
-        string? stressLine;
         double? firstValidTime = null;
         ProcessedDataPoint previousPoint = new();
         SegmentType currentSegmentType = SegmentType.Unknown;
@@ -103,23 +101,32 @@ public class ExperimentalDataService(
         int bufferCount = 0;
 
         List<(SegmentType Type, ArraySegment<ExperimentalDataPoint> Points)> segmentResults = new(2);
-        while ((strainLine = await strainReader.ReadLineAsync(cancellationToken).ConfigureAwait(false)) != null
-            && (stressLine = await stressReader.ReadLineAsync(cancellationToken).ConfigureAwait(false)) != null)
+
+        while (!cancellationToken.IsCancellationRequested)
         {
-            if (string.IsNullOrWhiteSpace(strainLine))
+            double[]? strainRow = await strainReader.ReadNextRowAsync(cancellationToken).ConfigureAwait(false);
+            double[]? stressRow = await stressReader.ReadNextRowAsync(cancellationToken).ConfigureAwait(false);
+
+            if (strainRow is null || stressRow is null)
             {
-                logger.LogTrace("Breaking loop due to empty strain line.");
+                logger.LogTrace("Breaking loop due to end of stream or empty line.");
                 break;
             }
 
-            var (time, strain) = ParseLine(strainLine);
+            if (strainRow.Length < 2 || stressRow.Length < 2)
+            {
+                logger.LogWarning("CSV row must contain at least 2 columns (Time and Value). Skipping invalid row.");
+                continue;
+            }
+
+            double time = strainRow[0];
             if (time < options.StartTimeThreshold)
             {
                 logger.LogTrace("Skipping point at Time={StrainTime} and Strain={Strain} due to start time threshold: {StartTimeThreshold}.", time, strain, options.StartTimeThreshold);
                 continue;
             }
 
-            var (stressTime, stress) = ParseLine(stressLine);
+            double stressTime = stressRow[0];
             if (time.AbsolutRelativeDifference(stressTime) > options.RelativeTolerance)
             {
                 logger.LogTrace("Skipping point at StrainTime={StrainTime} and StressTime={StressTime} due to time mismatch.", time, stressTime);
@@ -129,6 +136,8 @@ public class ExperimentalDataService(
             firstValidTime ??= time;
             double normalizedTime = time - firstValidTime.Value;
 
+            double strain = strainRow[1];
+            double stress = stressRow[1];
             if (strain <= options.Tolerance)
             {
                 logger.LogTrace("Skipping point at StrainTime={StrainTime} and Strain={Strain} due to non-positive strain.", time, strain);
@@ -136,11 +145,13 @@ public class ExperimentalDataService(
                 continue;
             }
 
-            buffer[bufferCount++] = new ExperimentalDataPoint(normalizedTime, strain, stress);
+            buffer[bufferCount++] = new ExperimentalDataPoint(Time: normalizedTime, Stress: stress, Strain: strain);
             if (bufferCount < options.BufferSize)
+            {
                 continue;
+            }
 
-            foreach (var (segmentType, points) in ExtractSegments(currentSegmentType, buffer, bufferCount, options, segmentResults))
+            foreach ((SegmentType segmentType, ArraySegment<ExperimentalDataPoint> points) in ExtractSegments(currentSegmentType, buffer, bufferCount, options, segmentResults))
             {
                 for (int i = 0; i < points.Count; i++)
                 {
@@ -162,15 +173,15 @@ public class ExperimentalDataService(
     }
 
     public List<(SegmentType, ArraySegment<ExperimentalDataPoint>)> ExtractSegments(
-        SegmentType currentType, 
-        ExperimentalDataPoint[] points, 
-        int count, 
+        SegmentType currentType,
+        ExperimentalDataPoint[] points,
+        int count,
         ExperimentalDataProcessingOptions? options = null)
         => ExtractSegments(currentType, points, count, options ?? ExperimentalDataProcessingOptions.Default, []);
 
     private async Task<(string OutputFullFileName, Func<ProcessedDataPoint, CancellationToken, Task> WritePointTask, Func<CancellationToken, Task> CompleteWriterTask)> PrepareFileWriterAsync(
-        string outputFileUri, 
-        string uniqueIdentifier, 
+        string outputFileUri,
+        string uniqueIdentifier,
         CancellationToken cancellationToken)
     {
         FileInfo outputFile = fileManager.BuildTimebasedFileInfo(outputFileUri, uniqueIdentifier, FileExtensions.CommaSeparatedValues);
@@ -259,7 +270,7 @@ public class ExperimentalDataService(
 
         if (Math.Abs(strainRate) <= options.RateTolerance)
         {
-            var type = currentType is SegmentType.Descent or SegmentType.Recovery ? SegmentType.Recovery : SegmentType.Relaxation;
+            SegmentType type = currentType is SegmentType.Descent or SegmentType.Recovery ? SegmentType.Recovery : SegmentType.Relaxation;
             results.Add((type, new ArraySegment<ExperimentalDataPoint>(buffer, 0, bufferCount)));
             return results;
         }
@@ -269,17 +280,10 @@ public class ExperimentalDataService(
             : SliceBuffer(buffer, bufferCount, maxStrainIndex, minStrainIndex, SegmentType.Relaxation, SegmentType.Descent, SegmentType.Recovery, results);
     }
 
-    private static (double Time, double Value) ParseLine(string line)
-    {
-        var span = line.AsSpan();
-        int commaIndex = span.IndexOf(',');
-        return (double.Parse(span[..commaIndex]), double.Parse(span[(commaIndex + 1)..]));
-    }
-
     private List<(SegmentType, ArraySegment<ExperimentalDataPoint>)> SliceBuffer(
         ExperimentalDataPoint[] buffer,
         int bufferCount,
-        int startIndex, 
+        int startIndex,
         int endIndex,
         SegmentType typeBefore,
         SegmentType activeType,
