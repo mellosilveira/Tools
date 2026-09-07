@@ -120,6 +120,7 @@ public class ExperimentalDataService(
             }
 
             double time = strainRow[0];
+            double strain = strainRow[1];
             if (time < options.StartTimeThreshold)
             {
                 logger.LogTrace("Skipping point at Time={StrainTime} and Strain={Strain} due to start time threshold: {StartTimeThreshold}.", time, strain, options.StartTimeThreshold);
@@ -136,7 +137,6 @@ public class ExperimentalDataService(
             firstValidTime ??= time;
             double normalizedTime = time - firstValidTime.Value;
 
-            double strain = strainRow[1];
             double stress = stressRow[1];
             if (strain <= options.Tolerance)
             {
