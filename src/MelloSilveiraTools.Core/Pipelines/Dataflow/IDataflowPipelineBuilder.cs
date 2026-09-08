@@ -1,4 +1,4 @@
-﻿using System.Threading.Tasks.Dataflow;
+using System.Threading.Tasks.Dataflow;
 
 namespace MelloSilveiraTools.Core.Pipelines.Dataflow;
 
@@ -130,6 +130,49 @@ public interface IDataflowPipelineBuilder<THead, TTail>
     /// Limitation: Forces <c>MaxDegreeOfParallelism = 1</c> to guarantee deterministic sequential state accumulation. 
     /// </remarks>
     IDataflowPipelineBuilder<THead, TTail[]> AddGroupWhileStep(Func<TTail, TTail, bool> condition, PipelineStepOptions options = default);
+
+    /// <summary>
+    /// Appends a BroadcastBlock to the execution topology, duplicating emitted payloads across a side-branch target block
+    /// while propagating the primary data stream downstream for continued pipeline orchestration.
+    /// </summary>
+    /// <param name="branchTarget">The independent consumer or branch target block receiving broadcasted messages.</param>
+    /// <param name="cloneFunc">An optional function used to clone each payload before broadcasting. If null, the payload instance reference is shared.</param>
+    /// <param name="options">Options configuring buffer sizes and cancellation tokens for the broadcast block.</param>
+    /// <remarks>
+    /// Technical Decision: In TPL Dataflow, a BroadcastBlock broadcasts each incoming message to all linked targets.
+    /// Linking a side target and returning the broadcast block as the tail block allows both the side branch and downstream 
+    /// pipeline stages to concurrently ingest every message without diverting or dropping items.
+    /// </remarks>
+    IDataflowPipelineBuilder<THead, TTail> AddBroadcastBlock(ITargetBlock<TTail> branchTarget, Func<TTail, TTail>? cloneFunc = null, PipelineStepOptions options = default);
+
+    /// <summary>
+    /// Appends a BroadcastBlock to the execution topology, duplicating emitted payloads across multiple side-branch target blocks
+    /// while propagating the primary data stream downstream for continued pipeline orchestration.
+    /// </summary>
+    /// <param name="branchTargets">The independent consumers or branch target blocks receiving broadcasted messages.</param>
+    /// <param name="cloneFunc">An optional function used to clone each payload before broadcasting. If null, the payload instance reference is shared.</param>
+    /// <param name="options">Options configuring buffer sizes and cancellation tokens for the broadcast block.</param>
+    IDataflowPipelineBuilder<THead, TTail> AddBroadcastBlock(IEnumerable<ITargetBlock<TTail>> branchTargets, Func<TTail, TTail>? cloneFunc = null, PipelineStepOptions options = default);
+
+    /// <summary>
+    /// Appends a BroadcastBlock to the execution topology executing an asynchronous side-branch action for every payload,
+    /// while propagating the primary data stream downstream for continued pipeline orchestration.
+    /// </summary>
+    /// <param name="stepName">Semantic name of the side-branch step for telemetry and distributed tracing.</param>
+    /// <param name="branchAction">The asynchronous action to execute for each broadcasted message.</param>
+    /// <param name="cloneFunc">An optional function used to clone each payload before broadcasting. If null, the payload instance reference is shared.</param>
+    /// <param name="options">Options configuring concurrency, buffer sizes, and cancellation tokens.</param>
+    IDataflowPipelineBuilder<THead, TTail> AddBroadcastBlock(string stepName, Func<TTail, CancellationToken, Task> branchAction, Func<TTail, TTail>? cloneFunc = null, PipelineStepOptions options = default);
+
+    /// <summary>
+    /// Appends a BroadcastBlock to the execution topology executing a synchronous side-branch action for every payload,
+    /// while propagating the primary data stream downstream for continued pipeline orchestration.
+    /// </summary>
+    /// <param name="stepName">Semantic name of the side-branch step for telemetry and distributed tracing.</param>
+    /// <param name="branchAction">The synchronous action to execute for each broadcasted message.</param>
+    /// <param name="cloneFunc">An optional function used to clone each payload before broadcasting. If null, the payload instance reference is shared.</param>
+    /// <param name="options">Options configuring concurrency, buffer sizes, and cancellation tokens.</param>
+    IDataflowPipelineBuilder<THead, TTail> AddBroadcastBlock(string stepName, Action<TTail> branchAction, Func<TTail, TTail>? cloneFunc = null, PipelineStepOptions options = default);
 
     /// <summary>
     /// Appends a synchronous ActionBlock to consume the final pipeline output.

@@ -348,24 +348,82 @@
         <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Models.Range.RangeReducedRelaxationFunction.SlowRelaxationTime">
             <summary>Constant tau 1. Unit: s (second).</summary>
         </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Services.ExperimentalData.ExperimentalDataService.ProcessAsync(System.IO.Stream,System.IO.Stream,MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Models.ExperimentalData.ExperimentalDataProcessingOptions,System.Threading.CancellationToken)">
+        <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Services.ExperimentalData.ExperimentalDataFileWriterStep">
+            <summary>
+            Pipeline step responsible for persisting processed experimental data points to a CSV file.
+            Writes the CSV header upon initialization and sequentially appends each data point line.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Services.ExperimentalData.ExperimentalDataFileWriterStep.#ctor(MelloSilveiraTools.Core.Managers.File.IFileManager,System.String,System.String)">
+            <summary>
+            Initializes a new instance of the <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Services.ExperimentalData.ExperimentalDataFileWriterStep"/> class using file manager configuration.
+            </summary>
+            <param name="fileManager">The file manager used to resolve the time-based output file path and large file writer.</param>
+            <param name="outputFileUri">The destination directory path for the output CSV file.</param>
+            <param name="uniqueIdentifier">The prefix or identifier used to name the output file.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Services.ExperimentalData.ExperimentalDataFileWriterStep.#ctor(System.IO.StreamWriter,System.String,System.Boolean)">
+            <summary>
+            Initializes a new instance of the <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Services.ExperimentalData.ExperimentalDataFileWriterStep"/> class using an existing <see cref="T:System.IO.StreamWriter"/>.
+            </summary>
+            <param name="writer">The writer instance to append CSV rows to.</param>
+            <param name="outputFilePath">The logical file path of the output file.</param>
+            <param name="leaveOpen">Whether to leave the underlying writer open upon disposal.</param>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Services.ExperimentalData.ExperimentalDataFileWriterStep.Name">
             <inheritdoc/>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Services.ExperimentalData.ExperimentalDataFileWriterStep.OutputFilePath">
+            <summary>
+            Gets the full path of the generated CSV file.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Services.ExperimentalData.ExperimentalDataFileWriterStep.ExecuteAsync(MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Models.ExperimentalData.SegmentedDataPoint,System.Threading.CancellationToken)">
+            <inheritdoc/>
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Services.ExperimentalData.ExperimentalDataFileWriterStep.ExecuteAsync(MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Models.ExperimentalData.ProcessedDataPoint,System.Threading.CancellationToken)">
+            <inheritdoc/>
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Services.ExperimentalData.ExperimentalDataFileWriterStep.DisposeAsync">
+            <inheritdoc/>
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Services.ExperimentalData.ExperimentalDataService.ProcessAsync(System.String,System.String,System.IO.Stream,System.IO.Stream,MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Models.ExperimentalData.ExperimentalDataProcessingOptions,System.Threading.CancellationToken)">
+            <inheritdoc/>
+        </member>
+        <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Services.ExperimentalData.ExperimentalDataSettings">
+            <summary>
+            Infrastructure and execution topology settings for experimental data processing.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Services.ExperimentalData.ExperimentalDataSettings.FileWriterOptions">
+            <summary>
+            Configuration options for the file writer pipeline step (concurrency, buffer capacity, and ordering).
+            Defaults to MaxWorkers = 1, MaxBufferSize = 10000, and KeepOrder = true to guarantee data integrity.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Services.ExperimentalData.ExperimentalDataSettings.GroupingOptions">
+            <summary>
+            Configuration options for the curve segment grouping step in the Dataflow pipeline.
+            Defaults to default pipeline step options.
+            </summary>
         </member>
         <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Services.ExperimentalData.IExperimentalDataService">
             <summary>
             Handles the ingestion, validation, and physical phase segmentation of experimental raw data streams.
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Services.ExperimentalData.IExperimentalDataService.ProcessAsync(System.IO.Stream,System.IO.Stream,MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Models.ExperimentalData.ExperimentalDataProcessingOptions,System.Threading.CancellationToken)">
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Services.ExperimentalData.IExperimentalDataService.ProcessAsync(System.String,System.String,System.IO.Stream,System.IO.Stream,MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Models.ExperimentalData.ExperimentalDataProcessingOptions,System.Threading.CancellationToken)">
             <summary>
             Ingests strain and stress data streams and processes them through a TPL Dataflow pipeline,
-            returning the physical curve segments categorized by deformation phases.
+            writing the valid processed points to a CSV file and returning the physical curve segments categorized by deformation phases.
             </summary>
+            <param name="identifier">A unique identifier prefix used to name the output file.</param>
+            <param name="outputFileUri">The directory path where the output file will be written.</param>
             <param name="strainStream">A stream containing experimental strain values across time.</param>
             <param name="stressStream">A stream containing experimental stress values across time.</param>
             <param name="options">Options controlling tolerances, buffer sizing, and downsampling thresholds.</param>
             <param name="cancellationToken">A token to cancel the operation.</param>
-            <returns>A <see cref="T:MelloSilveiraTools.Core.Models.Result`1"/> containing the categorized <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Models.CurveFitting.CurveSegment"/> array.</returns>
+            <returns>A <see cref="T:MelloSilveiraTools.Core.Models.Result`1"/> containing the generated output file name and the categorized <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Models.CurveFitting.CurveSegment"/> array.</returns>
         </member>
         <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Services.ExperimentalData.IExperimentalDataService.SegmentPointsAsync(System.IO.Stream,System.IO.Stream,MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Models.ExperimentalData.ExperimentalDataProcessingOptions,System.Threading.CancellationToken)">
             <summary>

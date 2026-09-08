@@ -1138,15 +1138,6 @@
             An array of parsed <see cref="T:System.Double"/> values representing each column in the row, or <see langword="null"/> if the end of the stream is reached or an unparseable line is encountered.
             </returns>
         </member>
-        <member name="M:MelloSilveiraTools.Core.Managers.File.CsvStreamReader.ReadNextPointAsync(System.Threading.CancellationToken)">
-            <summary>
-            Reads the next numerical row asynchronously from the CSV stream. Alias for <see cref="M:MelloSilveiraTools.Core.Managers.File.CsvStreamReader.ReadNextRowAsync(System.Threading.CancellationToken)"/>.
-            </summary>
-            <param name="cancellationToken">A token to cancel the read operation.</param>
-            <returns>
-            An array of parsed <see cref="T:System.Double"/> values representing each column in the row, or <see langword="null"/> if the end of stream is reached.
-            </returns>
-        </member>
         <member name="M:MelloSilveiraTools.Core.Managers.File.CsvStreamReader.ReadAllRowsAsync(System.Threading.CancellationToken)">
             <summary>
             Asynchronously streams all parsed numeric rows from the CSV stream until the end of the stream or the first invalid row.
@@ -1154,15 +1145,14 @@
             <param name="cancellationToken">A token to cancel the streaming operation.</param>
             <returns>An async stream of <see cref="T:System.Double"/> arrays, where each array contains the parsed column values.</returns>
         </member>
-        <member name="M:MelloSilveiraTools.Core.Managers.File.CsvStreamReader.ReadAllPointsAsync(System.Threading.CancellationToken)">
-            <summary>
-            Asynchronously streams all parsed rows from the CSV stream. Alias for <see cref="M:MelloSilveiraTools.Core.Managers.File.CsvStreamReader.ReadAllRowsAsync(System.Threading.CancellationToken)"/>.
-            </summary>
-            <param name="cancellationToken">A token to cancel the streaming operation.</param>
-            <returns>An async stream of <see cref="T:System.Double"/> arrays.</returns>
-        </member>
         <member name="M:MelloSilveiraTools.Core.Managers.File.CsvStreamReader.DisposeAsync">
             <inheritdoc/>
+        </member>
+        <member name="T:MelloSilveiraTools.Core.Managers.File.FileManager">
+            <summary>
+            Handles file operations such as writing streams to disk.
+            Registered as Singleton in DI. Thread-safe.
+            </summary>
         </member>
         <member name="T:MelloSilveiraTools.Core.Models.Constants">
             <summary>
@@ -1621,7 +1611,7 @@
             those branches must reconcile back to a single primary data type to proceed to the next step.
             </remarks>
         </member>
-        <member name="M:MelloSilveiraTools.Core.Pipelines.Dataflow.DataflowPipelineBuilder`2.#ctor(Microsoft.Extensions.Logging.ILogger,System.Threading.Tasks.Dataflow.ITargetBlock{`0},System.Threading.Tasks.Dataflow.ISourceBlock{`1},System.Threading.Tasks.Dataflow.ITargetBlock{MelloSilveiraTools.Core.Pipelines.FailedPayload},System.Nullable{MelloSilveiraTools.Core.Pipelines.RetryOptions},System.Threading.CancellationToken)">
+        <member name="M:MelloSilveiraTools.Core.Pipelines.Dataflow.DataflowPipelineBuilder`2.#ctor(Microsoft.Extensions.Logging.ILogger,System.Threading.Tasks.Dataflow.ITargetBlock{`0},System.Threading.Tasks.Dataflow.ISourceBlock{`1},System.Threading.Tasks.Dataflow.ITargetBlock{MelloSilveiraTools.Core.Pipelines.FailedPayload},System.Nullable{MelloSilveiraTools.Core.Pipelines.RetryOptions},System.Threading.CancellationToken,System.Collections.Generic.List{System.Threading.Tasks.Task})">
             <summary>
             A strongly-typed fluent builder for orchestrating TPL Dataflow topologies.
             </summary>
@@ -1706,6 +1696,18 @@
             <inheritdoc/>
         </member>
         <member name="M:MelloSilveiraTools.Core.Pipelines.Dataflow.DataflowPipelineBuilder`2.AddGroupWhileStep(System.Func{`1,`1,System.Boolean},MelloSilveiraTools.Core.Pipelines.PipelineStepOptions)">
+            <inheritdoc/>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Pipelines.Dataflow.DataflowPipelineBuilder`2.AddBroadcastBlock(System.Threading.Tasks.Dataflow.ITargetBlock{`1},System.Func{`1,`1},MelloSilveiraTools.Core.Pipelines.PipelineStepOptions)">
+            <inheritdoc/>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Pipelines.Dataflow.DataflowPipelineBuilder`2.AddBroadcastBlock(System.Collections.Generic.IEnumerable{System.Threading.Tasks.Dataflow.ITargetBlock{`1}},System.Func{`1,`1},MelloSilveiraTools.Core.Pipelines.PipelineStepOptions)">
+            <inheritdoc/>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Pipelines.Dataflow.DataflowPipelineBuilder`2.AddBroadcastBlock(System.String,System.Func{`1,System.Threading.CancellationToken,System.Threading.Tasks.Task},System.Func{`1,`1},MelloSilveiraTools.Core.Pipelines.PipelineStepOptions)">
+            <inheritdoc/>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Pipelines.Dataflow.DataflowPipelineBuilder`2.AddBroadcastBlock(System.String,System.Action{`1},System.Func{`1,`1},MelloSilveiraTools.Core.Pipelines.PipelineStepOptions)">
             <inheritdoc/>
         </member>
         <member name="M:MelloSilveiraTools.Core.Pipelines.Dataflow.DataflowPipelineBuilder`2.BuildTerminal(System.String,System.Action{`1},MelloSilveiraTools.Core.Pipelines.PipelineStepOptions)">
@@ -1912,6 +1914,49 @@
             Technical Decision: Overcomes the limitation of the native TPL BatchBlock which strictly holds messages until a numeric count is met[cite: 3]. This utilizes an encapsulated state machine.
             Limitation: Forces <c>MaxDegreeOfParallelism = 1</c> to guarantee deterministic sequential state accumulation. 
             </remarks>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Pipelines.Dataflow.IDataflowPipelineBuilder`2.AddBroadcastBlock(System.Threading.Tasks.Dataflow.ITargetBlock{`1},System.Func{`1,`1},MelloSilveiraTools.Core.Pipelines.PipelineStepOptions)">
+            <summary>
+            Appends a BroadcastBlock to the execution topology, duplicating emitted payloads across a side-branch target block
+            while propagating the primary data stream downstream for continued pipeline orchestration.
+            </summary>
+            <param name="branchTarget">The independent consumer or branch target block receiving broadcasted messages.</param>
+            <param name="cloneFunc">An optional function used to clone each payload before broadcasting. If null, the payload instance reference is shared.</param>
+            <param name="options">Options configuring buffer sizes and cancellation tokens for the broadcast block.</param>
+            <remarks>
+            Technical Decision: In TPL Dataflow, a BroadcastBlock broadcasts each incoming message to all linked targets.
+            Linking a side target and returning the broadcast block as the tail block allows both the side branch and downstream 
+            pipeline stages to concurrently ingest every message without diverting or dropping items.
+            </remarks>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Pipelines.Dataflow.IDataflowPipelineBuilder`2.AddBroadcastBlock(System.Collections.Generic.IEnumerable{System.Threading.Tasks.Dataflow.ITargetBlock{`1}},System.Func{`1,`1},MelloSilveiraTools.Core.Pipelines.PipelineStepOptions)">
+            <summary>
+            Appends a BroadcastBlock to the execution topology, duplicating emitted payloads across multiple side-branch target blocks
+            while propagating the primary data stream downstream for continued pipeline orchestration.
+            </summary>
+            <param name="branchTargets">The independent consumers or branch target blocks receiving broadcasted messages.</param>
+            <param name="cloneFunc">An optional function used to clone each payload before broadcasting. If null, the payload instance reference is shared.</param>
+            <param name="options">Options configuring buffer sizes and cancellation tokens for the broadcast block.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Pipelines.Dataflow.IDataflowPipelineBuilder`2.AddBroadcastBlock(System.String,System.Func{`1,System.Threading.CancellationToken,System.Threading.Tasks.Task},System.Func{`1,`1},MelloSilveiraTools.Core.Pipelines.PipelineStepOptions)">
+            <summary>
+            Appends a BroadcastBlock to the execution topology executing an asynchronous side-branch action for every payload,
+            while propagating the primary data stream downstream for continued pipeline orchestration.
+            </summary>
+            <param name="stepName">Semantic name of the side-branch step for telemetry and distributed tracing.</param>
+            <param name="branchAction">The asynchronous action to execute for each broadcasted message.</param>
+            <param name="cloneFunc">An optional function used to clone each payload before broadcasting. If null, the payload instance reference is shared.</param>
+            <param name="options">Options configuring concurrency, buffer sizes, and cancellation tokens.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Pipelines.Dataflow.IDataflowPipelineBuilder`2.AddBroadcastBlock(System.String,System.Action{`1},System.Func{`1,`1},MelloSilveiraTools.Core.Pipelines.PipelineStepOptions)">
+            <summary>
+            Appends a BroadcastBlock to the execution topology executing a synchronous side-branch action for every payload,
+            while propagating the primary data stream downstream for continued pipeline orchestration.
+            </summary>
+            <param name="stepName">Semantic name of the side-branch step for telemetry and distributed tracing.</param>
+            <param name="branchAction">The synchronous action to execute for each broadcasted message.</param>
+            <param name="cloneFunc">An optional function used to clone each payload before broadcasting. If null, the payload instance reference is shared.</param>
+            <param name="options">Options configuring concurrency, buffer sizes, and cancellation tokens.</param>
         </member>
         <member name="M:MelloSilveiraTools.Core.Pipelines.Dataflow.IDataflowPipelineBuilder`2.BuildTerminal(System.String,System.Action{`1},MelloSilveiraTools.Core.Pipelines.PipelineStepOptions)">
             <summary>
@@ -2141,6 +2186,18 @@
         <member name="M:MelloSilveiraTools.Core.Pipelines.PipelineExtensions.AddStep``3(MelloSilveiraTools.Core.Pipelines.Dataflow.IDataflowPipelineBuilder{``0,``1},MelloSilveiraTools.Core.Pipelines.IPipelineStep{``1,``2},MelloSilveiraTools.Core.Pipelines.PipelineStepOptions)">
             <inheritdoc cref="M:MelloSilveiraTools.Core.Pipelines.PipelineExtensions.&lt;G&gt;$6773866DE25ECFE8E7C56EE5107CFB66`2.AddStep``1(MelloSilveiraTools.Core.Pipelines.IPipelineStep{`1,``0},MelloSilveiraTools.Core.Pipelines.PipelineStepOptions)"/>
         </member>
+        <member name="M:MelloSilveiraTools.Core.Pipelines.PipelineExtensions.AddBroadcastStep``3(MelloSilveiraTools.Core.Pipelines.Dataflow.IDataflowPipelineBuilder{``0,``1},MelloSilveiraTools.Core.Pipelines.IPipelineStep{``1,``2},MelloSilveiraTools.Core.Pipelines.PipelineStepOptions)">
+            <inheritdoc cref="M:MelloSilveiraTools.Core.Pipelines.PipelineExtensions.&lt;G&gt;$6773866DE25ECFE8E7C56EE5107CFB66`2.AddBroadcastStep``1(MelloSilveiraTools.Core.Pipelines.IPipelineStep{`1,``0},MelloSilveiraTools.Core.Pipelines.PipelineStepOptions)"/>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Pipelines.PipelineExtensions.AddBroadcastStep``3(MelloSilveiraTools.Core.Pipelines.Dataflow.IDataflowPipelineBuilder{``0,``1},MelloSilveiraTools.Core.Pipelines.IPipelineStep{``1,``2},System.Func{``1,``1},MelloSilveiraTools.Core.Pipelines.PipelineStepOptions)">
+            <inheritdoc cref="M:MelloSilveiraTools.Core.Pipelines.PipelineExtensions.&lt;G&gt;$6773866DE25ECFE8E7C56EE5107CFB66`2.AddBroadcastStep``1(MelloSilveiraTools.Core.Pipelines.IPipelineStep{`1,``0},System.Func{`1,`1},MelloSilveiraTools.Core.Pipelines.PipelineStepOptions)"/>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Pipelines.PipelineExtensions.AddBroadcastBlock``3(MelloSilveiraTools.Core.Pipelines.Dataflow.IDataflowPipelineBuilder{``0,``1},MelloSilveiraTools.Core.Pipelines.IPipelineStep{``1,``2},MelloSilveiraTools.Core.Pipelines.PipelineStepOptions)">
+            <inheritdoc cref="M:MelloSilveiraTools.Core.Pipelines.PipelineExtensions.&lt;G&gt;$6773866DE25ECFE8E7C56EE5107CFB66`2.AddBroadcastBlock``1(MelloSilveiraTools.Core.Pipelines.IPipelineStep{`1,``0},MelloSilveiraTools.Core.Pipelines.PipelineStepOptions)"/>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Pipelines.PipelineExtensions.AddBroadcastBlock``3(MelloSilveiraTools.Core.Pipelines.Dataflow.IDataflowPipelineBuilder{``0,``1},MelloSilveiraTools.Core.Pipelines.IPipelineStep{``1,``2},System.Func{``1,``1},MelloSilveiraTools.Core.Pipelines.PipelineStepOptions)">
+            <inheritdoc cref="M:MelloSilveiraTools.Core.Pipelines.PipelineExtensions.&lt;G&gt;$6773866DE25ECFE8E7C56EE5107CFB66`2.AddBroadcastBlock``1(MelloSilveiraTools.Core.Pipelines.IPipelineStep{`1,``0},System.Func{`1,`1},MelloSilveiraTools.Core.Pipelines.PipelineStepOptions)"/>
+        </member>
         <member name="M:MelloSilveiraTools.Core.Pipelines.PipelineExtensions.AddForkingStep``3(MelloSilveiraTools.Core.Pipelines.Dataflow.IDataflowPipelineBuilder{``0,``1},MelloSilveiraTools.Core.Pipelines.IPipelineStep{``1,``2},System.Func{``2,System.Boolean},MelloSilveiraTools.Core.Pipelines.IPipelineStep{``1,``2},MelloSilveiraTools.Core.Pipelines.PipelineStepOptions)">
             <summary>
             Forks the pipeline execution based on success or failure using a lightweight ValueTuple envelope.
@@ -2160,6 +2217,32 @@
         <member name="M:MelloSilveiraTools.Core.Pipelines.PipelineExtensions.&lt;G&gt;$6773866DE25ECFE8E7C56EE5107CFB66`2.AddStep``1(MelloSilveiraTools.Core.Pipelines.IPipelineStep{`1,``0},MelloSilveiraTools.Core.Pipelines.PipelineStepOptions)">
             <summary>
             Injects a pre-configured <see cref="T:MelloSilveiraTools.Core.Pipelines.IPipelineStep`2"/> instance into the continuous Dataflow execution graph.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Pipelines.PipelineExtensions.&lt;G&gt;$6773866DE25ECFE8E7C56EE5107CFB66`2.AddBroadcastStep``1(MelloSilveiraTools.Core.Pipelines.IPipelineStep{`1,``0},MelloSilveiraTools.Core.Pipelines.PipelineStepOptions)">
+            <summary>
+            Injects a pre-configured <see cref="T:MelloSilveiraTools.Core.Pipelines.IPipelineStep`2"/> as a side-branch consumer linked to a BroadcastBlock,
+            while propagating the primary data stream downstream for continued pipeline orchestration.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Pipelines.PipelineExtensions.&lt;G&gt;$6773866DE25ECFE8E7C56EE5107CFB66`2.AddBroadcastStep``1(MelloSilveiraTools.Core.Pipelines.IPipelineStep{`1,``0},System.Func{`1,`1},MelloSilveiraTools.Core.Pipelines.PipelineStepOptions)">
+            <summary>
+            Injects a pre-configured <see cref="T:MelloSilveiraTools.Core.Pipelines.IPipelineStep`2"/> as a side-branch consumer linked to a BroadcastBlock,
+            while propagating the primary data stream downstream for continued pipeline orchestration.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Pipelines.PipelineExtensions.&lt;G&gt;$6773866DE25ECFE8E7C56EE5107CFB66`2.AddBroadcastBlock``1(MelloSilveiraTools.Core.Pipelines.IPipelineStep{`1,``0},MelloSilveiraTools.Core.Pipelines.PipelineStepOptions)">
+            <summary>
+            Injects a pre-configured <see cref="T:MelloSilveiraTools.Core.Pipelines.IPipelineStep`2"/> as a side-branch consumer linked to a BroadcastBlock,
+            while propagating the primary data stream downstream for continued pipeline orchestration.
+            Alias for <see cref="M:MelloSilveiraTools.Core.Pipelines.PipelineExtensions.AddBroadcastStep``3(MelloSilveiraTools.Core.Pipelines.Dataflow.IDataflowPipelineBuilder{``0,``1},MelloSilveiraTools.Core.Pipelines.IPipelineStep{``1,``2},MelloSilveiraTools.Core.Pipelines.PipelineStepOptions)"/>.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Pipelines.PipelineExtensions.&lt;G&gt;$6773866DE25ECFE8E7C56EE5107CFB66`2.AddBroadcastBlock``1(MelloSilveiraTools.Core.Pipelines.IPipelineStep{`1,``0},System.Func{`1,`1},MelloSilveiraTools.Core.Pipelines.PipelineStepOptions)">
+            <summary>
+            Injects a pre-configured <see cref="T:MelloSilveiraTools.Core.Pipelines.IPipelineStep`2"/> as a side-branch consumer linked to a BroadcastBlock,
+            while propagating the primary data stream downstream for continued pipeline orchestration.
+            Alias for <see cref="M:MelloSilveiraTools.Core.Pipelines.PipelineExtensions.AddBroadcastStep``3(MelloSilveiraTools.Core.Pipelines.Dataflow.IDataflowPipelineBuilder{``0,``1},MelloSilveiraTools.Core.Pipelines.IPipelineStep{``1,``2},MelloSilveiraTools.Core.Pipelines.PipelineStepOptions)"/>.
             </summary>
         </member>
         <member name="T:MelloSilveiraTools.Core.Pipelines.PipelineFactory">

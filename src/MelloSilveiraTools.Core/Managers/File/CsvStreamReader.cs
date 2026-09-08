@@ -77,9 +77,7 @@ public class CsvStreamReader(
                     bool parsed = TryParseLine(buffer, out double[]? values);
                     _pipeReader.AdvanceTo(buffer.End);
                     if (parsed)
-                    {
                         return values;
-                    }
                 }
                 else
                 {
@@ -94,18 +92,6 @@ public class CsvStreamReader(
     }
 
     /// <summary>
-    /// Reads the next numerical row asynchronously from the CSV stream. Alias for <see cref="ReadNextRowAsync"/>.
-    /// </summary>
-    /// <param name="cancellationToken">A token to cancel the read operation.</param>
-    /// <returns>
-    /// An array of parsed <see cref="double"/> values representing each column in the row, or <see langword="null"/> if the end of stream is reached.
-    /// </returns>
-    public ValueTask<double[]?> ReadNextPointAsync(CancellationToken cancellationToken = default)
-    {
-        return ReadNextRowAsync(cancellationToken);
-    }
-
-    /// <summary>
     /// Asynchronously streams all parsed numeric rows from the CSV stream until the end of the stream or the first invalid row.
     /// </summary>
     /// <param name="cancellationToken">A token to cancel the streaming operation.</param>
@@ -116,22 +102,10 @@ public class CsvStreamReader(
         {
             double[]? values = await ReadNextRowAsync(cancellationToken).ConfigureAwait(false);
             if (values is null)
-            {
                 break;
-            }
 
             yield return values;
         }
-    }
-
-    /// <summary>
-    /// Asynchronously streams all parsed rows from the CSV stream. Alias for <see cref="ReadAllRowsAsync"/>.
-    /// </summary>
-    /// <param name="cancellationToken">A token to cancel the streaming operation.</param>
-    /// <returns>An async stream of <see cref="double"/> arrays.</returns>
-    public IAsyncEnumerable<double[]> ReadAllPointsAsync([EnumeratorCancellation] CancellationToken cancellationToken = default)
-    {
-        return ReadAllRowsAsync(cancellationToken);
     }
 
     /// <inheritdoc/>
@@ -144,9 +118,7 @@ public class CsvStreamReader(
     private static bool IsLineEmpty(ReadOnlySequence<byte> line)
     {
         if (line.IsEmpty)
-        {
             return true;
-        }
 
         foreach (ReadOnlyMemory<byte> segment in line)
         {
@@ -169,14 +141,10 @@ public class CsvStreamReader(
         values = null;
 
         if (line.IsEmpty)
-        {
             return false;
-        }
 
         if (line.IsSingleSegment)
-        {
             return TryParseSpan(line.FirstSpan, out values);
-        }
 
         if (line.Length <= 512)
         {
@@ -203,17 +171,14 @@ public class CsvStreamReader(
 
         span = span.Trim((byte)'\r').Trim((byte)' ').Trim((byte)'\t');
         if (span.IsEmpty)
-        {
             return false;
-        }
 
         int delimiterCount = span.Count(_delimiter);
         int maxColumns = delimiterCount + 1;
 
-        Span<double> stackColumns = stackalloc double[maxColumns <= 32 ? maxColumns : 0];
         double[]? rentedColumns = null;
         Span<double> columnSpan = maxColumns <= 32
-            ? stackColumns
+            ? stackalloc double[maxColumns]
             : (rentedColumns = ArrayPool<double>.Shared.Rent(maxColumns)).AsSpan(0, maxColumns);
 
         try
@@ -238,22 +203,15 @@ public class CsvStreamReader(
                 }
 
                 if (token.IsEmpty || !Utf8Parser.TryParse(token, out double val, out int bytesConsumed) || bytesConsumed != token.Length)
-                {
                     return false;
-                }
 
                 columnSpan[count++] = val;
-
                 if (remaining.IsEmpty && commaIndex < 0)
-                {
                     break;
-                }
             }
 
             if (count == 0)
-            {
                 return false;
-            }
 
             values = new double[count];
             columnSpan[..count].CopyTo(values);
@@ -262,9 +220,7 @@ public class CsvStreamReader(
         finally
         {
             if (rentedColumns != null)
-            {
                 ArrayPool<double>.Shared.Return(rentedColumns);
-            }
         }
     }
 }

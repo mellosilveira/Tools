@@ -10,7 +10,7 @@ Project notes and developer guidelines for AI agents working on **MelloSilveiraT
 src/MelloSilveiraTools/                                — Meta-package (aggregates all packages; meta DI entry)
 src/MelloSilveiraTools.Core/                           — Extensions, in-memory caches, Polly v8 pipelines, encryption, email, file management, TPL Dataflow & fluent pipelines
 src/MelloSilveiraTools.Database/                       — IRepository, PostgresRepository, ISqlProvider, attributes, FilterClauses, Npgsql/Dapper
-src/MelloSilveiraTools.WebApi/                         — Controllers (Custom/Crud), minimal endpoints, NDJSON streaming, Swagger, JWE auth, ApiServiceAgent, OperationBase
+src/MelloSilveiraTools.WebApi/                         — Controllers (Custom/Crud), minimal endpoints, NDJSON streaming, Swagger, JWE auth, ApiServiceAgent, Commands (Crud)
 src/MelloSilveiraTools.Plugins/                        — File-based plugin runtime, two-level cache, dynamic DI, persistence, background orchestrator
 src/MelloSilveiraTools.Mathematics/                    — Differential equation solvers (Newmark, Newmark-β), univariate Function hierarchy, expressions, numerical calculus, root-finding, 3D geometry, statistics
 src/MelloSilveiraTools.MechanicsOfMaterials/           — Fatigue, constitutive equations, geometric profiles, force/vector models, viscoelastic models
@@ -187,7 +187,7 @@ AI agents modifying or generating code in this repository **must strictly adhere
 ### 2. Pipeline Architecture (`MelloSilveiraTools.Core.Pipelines`)
 **Two pipeline flavors:**
 - **TPL Dataflow (streaming/push):** `PipelineFactory.StartDataflow<T>()` → `IDataflowPipelineBuilder` → `IDataflowPipeline<T>`.
-  - Supports: `AddStep`, `AddDataMapping`, `AddForkingStep`, `AddBatchStep`, `AddFilterStep`, `AddGroupWhileStep`, `BuildTerminal`.
+  - Supports: `AddStep`, `AddDataMapping`, `AddForkingStep`, `AddBatchStep`, `AddFilterStep`, `AddGroupWhileStep`, `AddBroadcastBlock`, `AddBroadcastStep`, `BuildTerminal`.
   - Dead-Letter Queue (DLQ): `WithDeadLetterQueue()` isolates faulted items via `ActionBlock<FailedPayload>`.
   - Backpressure: `PipelineStepOptions.MaxBufferSize` → `BoundedCapacity`.
   - Telemetry: OpenTelemetry `ActivitySource` tracing + structured Serilog logging via `TelemetryExtensions`.
@@ -220,7 +220,14 @@ AI agents modifying or generating code in this repository **must strictly adhere
 
 ### 6. Experimental Data & Optimizations
 - Located in `MelloSilveiraTools.MechanicsOfMaterials.Optimizations`.
-- `IExperimentalDataService.ProcessAsync(strainStream, stressStream, options)` → `Result<CurveSegment[]>`.
+- `IExperimentalDataService.ProcessAsync(identifier, outputFileUri, strainStream, stressStream, options)` → `Result<(string OutputFileName, CurveSegment[] CurveSegments)>`.
+  - Bifurcated stream topology via `BroadcastBlock` / `AddBroadcastStep`:
+    - Branch 1: writes all valid processed/segmented points to a CSV file (`ExperimentalDataFileWriterStep` implementing `IPipelineStep<SegmentedDataPoint, SegmentedDataPoint>`).
+    - Branch 2: groups adjacent points into `CurveSegment[]` via `.AddGroupWhileStep((prev, curr) => prev.SegmentType == curr.SegmentType)`.
+  - Configured via `ExperimentalDataSettings` (`FileWriterOptions` and `GroupingOptions` with `PipelineStepOptions`).
+  - Buffer pooling using `ArrayPool<ExperimentalDataPoint>.Shared` with safe return in `finally`.
+  - Flushes remainder buffer on stream completion to prevent dropping trailing points.
+  - Supports 3-phase interior transitions in `SliceBuffer` (`startIndex > 0 && endIndex < bufferCount - 1`).
 - `IExperimentalDataService.SegmentPointsAsync()` → `IAsyncEnumerable<SegmentedDataPoint>`.
 - `IExperimentalDataService.ExtractSegments()` → sliding-window segment classification.
 - Segment types: `Ramp`, `Relaxation`, `Descent`, `Recovery`.
@@ -277,6 +284,7 @@ AI agents modifying or generating code in this repository **must strictly adhere
 ### Memory Allocation
 - `SpanStringBuilder`: `ref struct` using `ArrayPool<char>.Shared`. Stack-only; cannot cross `await` boundaries.
 - `CsvStreamReader`: `PipeReader` + `MemoryPool<byte>.Shared`, `stackalloc` for lines ≤ 512 bytes, `ArrayPool<byte/double>.Shared` for larger buffers.
+- `ExperimentalDataService`: `ArrayPool<ExperimentalDataPoint>.Shared` for sliding-window segmentation, returned in `finally`.
 
 ### Resilience
 - `DefaultResiliencePipeline`: Uses `ResilienceContextPool.Shared.Get()/Return()` — zero per-call allocation.

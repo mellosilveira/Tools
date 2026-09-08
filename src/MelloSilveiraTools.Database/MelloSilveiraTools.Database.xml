@@ -502,6 +502,7 @@
         <member name="T:MelloSilveiraTools.Database.RelationalDatabase.Repositories.PostgresRepository">
             <summary>
             Repository that contains methods to deal with Postgres database.
+            Registered as Singleton in DI. Opens a new connection per call. Safe for concurrent use.
             </summary>
             <remarks>
             <para>
@@ -530,6 +531,7 @@
         <member name="M:MelloSilveiraTools.Database.RelationalDatabase.Repositories.PostgresRepository.#ctor(MelloSilveiraTools.Database.RelationalDatabase.Sql.Provider.ISqlProvider,MelloSilveiraTools.Database.ResiliencePipelines.PostgresResiliencePipeline,MelloSilveiraTools.Database.RelationalDatabase.Settings.DatabaseSettings)">
             <summary>
             Repository that contains methods to deal with Postgres database.
+            Registered as Singleton in DI. Opens a new connection per call. Safe for concurrent use.
             </summary>
             <remarks>
             <para>
@@ -753,6 +755,9 @@
         </member>
         <member name="T:MelloSilveiraTools.Database.RelationalDatabase.Sql.Provider.PostgresSqlProvider">
             <inheritdoc cref="T:MelloSilveiraTools.Database.RelationalDatabase.Sql.Provider.ISqlProvider"/>
+            <summary>
+            Registered as Singleton in DI. Thread-safe. Backed by ConcurrentDictionary.
+            </summary>
             <remarks>
             <para>
             Generated SQL strings are memoized in a process-wide static <see cref="T:System.Collections.Concurrent.ConcurrentDictionary`2"/>

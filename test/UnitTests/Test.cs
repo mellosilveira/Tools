@@ -10,7 +10,7 @@ namespace UnitTests;
 
 public class Test
 {
-    private readonly ExperimentalDataService _processor = new(Mock.Of<ILogger<ExperimentalDataService>>(), new Differentiation());
+    private readonly ExperimentalDataService _processor = new(Mock.Of<ILogger<ExperimentalDataService>>(), new Differentiation(), new FileManager(), new ExperimentalDataSettings());
     private readonly ExperimentalDataProcessingOptions _options = new(0.0, BufferSize: 10, RelativeTolerance: 1e-6, Tolerance: 1e-6, AccelerationTolerance: 1e-6, SkipTimeStep: 0.0);
 
     [Theory]
@@ -18,7 +18,7 @@ public class Test
     public void TestMethod(SegmentType currentType, ExperimentalDataPoint[] buffer, List<(SegmentType SegmentType, ArraySegment<ExperimentalDataPoint> Points)> expected)
     {
         // Act
-        List<(SegmentType SegmentType, ArraySegment<ExperimentalDataPoint> Points)> result = _processor.ExtractSegments(currentType, buffer, count: buffer.Length, _options);
+        List<(SegmentType SegmentType, ArraySegment<ExperimentalDataPoint> Points)> result = _processor.ExtractSegments(currentType, buffer, bufferCount: buffer.Length, _options);
 
         // Assert
         Assert.Equal(expected.Count, result.Count);
@@ -65,7 +65,7 @@ public class Test
     }
 
     [Fact]
-    public async Task ProcessAsync_WithUtf8Stream_ProcessesAndAssemblesSegmentsThroughPipeline()
+    public async Task ProcessAsync_WithUtf8Stream_ProcessesAndAssemblesSegmentsAndWritesFileThroughPipeline()
     {
         // Arrange
         string strainContent = "1.0, 1.0\r\n2.0, 4.0\r\n3.0, 9.0\r\n4.0, 16.0\r\n";
@@ -75,19 +75,37 @@ public class Test
         using MemoryStream stressStream = new(System.Text.Encoding.UTF8.GetBytes(stressContent));
 
         ExperimentalDataProcessingOptions options = new(0.0, BufferSize: 4, RelativeTolerance: 1e-6, Tolerance: 1e-6, AccelerationTolerance: 1e-6, SkipTimeStep: 0.0);
+        string tempDirectory = Path.Combine(Path.GetTempPath(), $"test_exp_data_{Guid.NewGuid():N}");
+        Directory.CreateDirectory(tempDirectory);
 
-        // Act
-        MelloSilveiraTools.Core.Models.Result<CurveSegment[]> result = await _processor.ProcessAsync(strainStream, stressStream, options);
+        try
+        {
+            // Act
+            MelloSilveiraTools.Core.Models.Result<(string OutputFileName, CurveSegment[] CurveSegments)> result =
+                await _processor.ProcessAsync("test_run", tempDirectory, strainStream, stressStream, options);
 
-        // Assert
-        Assert.True(result.Success);
-        Assert.NotNull(result.Data);
-        Assert.Single(result.Data);
-        Assert.Equal(SegmentType.Ramp, result.Data[0].Type);
-        Assert.Equal(4, result.Data[0].TimePoints.Length);
-        Assert.Equal(0.0, result.Data[0].TimePoints[0]);
-        Assert.Equal(1.0, result.Data[0].ExperimentalStrain[0]);
-        Assert.Equal(2.0, result.Data[0].ExperimentalStress[0]);
+            // Assert
+            Assert.True(result.Success);
+            Assert.True(File.Exists(result.Data.OutputFileName));
+
+            string[] lines = await File.ReadAllLinesAsync(result.Data.OutputFileName);
+            Assert.True(lines.Length > 1);
+            Assert.Equal("Time,Strain,StrainRate,StrainAcceleration,Stress,StressRate,StressAcceleration", lines[0]);
+
+            Assert.Single(result.Data.CurveSegments);
+            Assert.Equal(SegmentType.Ramp, result.Data.CurveSegments[0].Type);
+            Assert.Equal(4, result.Data.CurveSegments[0].TimePoints.Length);
+            Assert.Equal(0.0, result.Data.CurveSegments[0].TimePoints[0]);
+            Assert.Equal(1.0, result.Data.CurveSegments[0].ExperimentalStrain[0]);
+            Assert.Equal(2.0, result.Data.CurveSegments[0].ExperimentalStress[0]);
+        }
+        finally
+        {
+            if (Directory.Exists(tempDirectory))
+            {
+                Directory.Delete(tempDirectory, recursive: true);
+            }
+        }
     }
 
     public static TheoryData<SegmentType, ExperimentalDataPoint[], List<(SegmentType SegmentType, ArraySegment<ExperimentalDataPoint> Points)>> GetTestData() => new()
@@ -256,6 +274,33 @@ public class Test
                     new(Time: 2.0, Strain: 1.0000001, Stress: 1.5),
                     new(Time: 3.0, Strain: 1.0000003, Stress: 1.2),
                     new(Time: 4.0, Strain: 1.0000002, Stress: 1.0)
+                ]))
+            ]
+        },
+
+        // --------------------------------------------------------------------------------
+        // CASO 9: Transição Dupla Interior (Recuperação -> Rampa -> Relaxação no mesmo buffer)
+        // --------------------------------------------------------------------------------
+        {
+            SegmentType.Recovery,
+            [
+                new ExperimentalDataPoint(Time: 1.0, Stress: 1.1, Strain: 1.0),
+                new ExperimentalDataPoint(Time: 2.0, Stress: 1.0, Strain: 1.0),
+                new ExperimentalDataPoint(Time: 3.0, Stress: 8.0, Strain: 4.0),
+                new ExperimentalDataPoint(Time: 4.0, Stress: 7.0, Strain: 4.0000001),
+                new ExperimentalDataPoint(Time: 5.0, Stress: 6.0, Strain: 4.0000002)
+            ],
+            [
+                (SegmentType.Recovery, new ArraySegment<ExperimentalDataPoint>([
+                    new(Time: 1.0, Strain: 1.0, Stress: 1.1)
+                ])),
+                (SegmentType.Ramp, new ArraySegment<ExperimentalDataPoint>([
+                    new(Time: 2.0, Strain: 1.0, Stress: 1.0),
+                    new(Time: 3.0, Strain: 4.0, Stress: 8.0)
+                ])),
+                (SegmentType.Relaxation, new ArraySegment<ExperimentalDataPoint>([
+                    new(Time: 4.0, Strain: 4.0000001, Stress: 7.0),
+                    new(Time: 5.0, Strain: 4.0000002, Stress: 6.0)
                 ]))
             ]
         }

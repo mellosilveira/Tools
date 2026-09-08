@@ -301,6 +301,21 @@ public static class EnumerableExtensions
         }
 
         /// <summary>
+        /// Adds an item to the <see cref="ICollection{T}"/> if the specified <paramref name="condition"/> is true.
+        /// </summary>
+        /// <param name="condition">The condition to evaluate before adding the element.</param>
+        /// <param name="element">The object to add to the <see cref="ICollection{T}"/>.</param>
+        /// <returns>The <paramref name="sources"/> received to add an <paramref name="element"/>.</returns>
+        /// <exception cref="NotSupportedException">The <see cref="ICollection{T}" /> is read-only.</exception>
+        public List<TSource> FluentAddIf(bool condition, TSource element)
+        {
+            if (condition)
+                sources.Add(element);
+
+            return sources;
+        }
+
+        /// <summary>
         /// Adds an item to the <see cref="ICollection{T}"/>.
         /// </summary>
         /// <param name="element">The object to add to the <see cref="ICollection{T}"/>.</param>

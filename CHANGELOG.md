@@ -5,19 +5,51 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
-### Added
-- `CsvStreamReader` in `MelloSilveiraTools.Core.Managers.File`: High-performance, streaming CSV reader utilizing native `System.IO.Pipelines.PipeReader` and `System.Buffers.Text.Utf8Parser`. Returns parsed numerical rows as `double[]`, supporting arbitrary column counts, custom delimiters, empty line skipping, and header/invalid line filtering with minimal allocations.
-
-### Changed
-- `ExperimentalDataService` & `IExperimentalDataService`: Decoupled Step 1 from downstream responsibilities (file writing and manual segment aggregation). `ProcessAsync` now operates strictly in-memory returning `Task<Result<CurveSegment[]>>`, delegating segment assembly to the TPL Dataflow pipeline via `PipelineFactory.StartDataflow` and `AddGroupWhileStep`. Removed `IFileManager` from constructor dependencies.
-
-### Removed
-- `ExperimentalDataSettings`: Removed settings class as file writing buffer capacity is no longer coupled to `ExperimentalDataService`.
-- `PrepareFileWriterAsync`: Removed file writing logic from `ExperimentalDataService`.
-
 ## [1.5.0] - 2026-06-DD
 ### Added
+- `CsvStreamReader` in `MelloSilveiraTools.Core.Managers.File`: High-performance, zero-allocation streaming CSV reader utilizing native `System.IO.Pipelines.PipeReader` and `System.Buffers.Text.Utf8Parser`. Returns parsed numerical rows as `double[]`, supporting arbitrary column counts, custom delimiters, empty line skipping, and header/invalid line filtering.
+- **New Package: `MelloSilveiraTools.MechanicsOfMaterials.Optimizations`**:
+  - High-throughput experimental data processing and segmentation engine (`IExperimentalDataService`, `ExperimentalDataService`):
+    - Stream processing with persistence and segmentation: `ProcessAsync(identifier, outputFileUri, strainStream, stressStream, options)` returns `Result<(string OutputFileName, CurveSegment[] CurveSegments)>`, consuming numerical streams via `CsvStreamReader` and delegating segment assembly and file writing to a reactive TPL Dataflow pipeline via `PipelineFactory.StartDataflow`, `AddBroadcastStep`, `ExperimentalDataFileWriterStep`, and `AddGroupWhileStep`.
+    - Sliding-window segment classification supporting continuous stream processing of strain and stress tests into classified segments (`Ramp`, `Relaxation`, `Descent`, `Recovery`).
+    - Buffer pooling using `ArrayPool<ExperimentalDataPoint>.Shared` with safe return in `finally`, eliminating heap allocations during continuous point streaming.
+    - Remainder buffer processing on stream completion to prevent dropping trailing points that do not reach a full `BufferSize`.
+    - Robust `SliceBuffer` algorithm supporting 3-phase interior transitions (`startIndex > 0 && endIndex < bufferCount - 1`), eliminating `InvalidOperationException` when phase boundaries occur interior to a single buffer window.
+    - Precomputed single `timeDelta` per point in `BuildProcessedDataPoint`.
+    - `ExperimentalDataSettings`: Topology execution settings configuring `FileWriterOptions` and `GroupingOptions` via `PipelineStepOptions`.
+    - `ExperimentalDataFileWriterStep`: Dedicated `IPipelineStep<SegmentedDataPoint, SegmentedDataPoint>` and `IAsyncDisposable` persisting processed data points to a CSV file.
+  - Extensible curve fitting suite: `ICurveFitter` interface with `MathNetCurveFitter` (Levenberg-Marquardt via MathNet.Numerics), `AlglibCurveFitter` (bundled ALGLIB), and `QuasiLinearModelCurveFitter` (fitting viscoelastic constitutive models to experimental data curves).
+  - Global sensitivity analysis via Morris Elementary Effects Method: `MorrisAnalyzer`, `MorrisInput`, `MorrisOutput`, `MorrisMetrics`, `MorrisPoint`, `MorrisParameterBoundary`, and `ExpressionPathResolver`.
+  - Optimization Web API commands & endpoints: `FitCurve`, `FitCurveRequest`, `FitCurveResultData`, `ParameterGroupResultData`, `OptimizationOptionsRequest`, and `CurveFittingController`.
+  - Domain models for optimization: `CurveFitInput`, `CurveFitResult`, `CurveSegment`, `ExperimentalDataPoint`, `SegmentType`, `ExperimentalDataProcessingOptions`, `ProcessedDataPoint`, `SegmentedDataPoint`, `OptimizationOptions`, and parameter range models (`RangeFunction`, `RangeParameters`, `RangePowerLaw`, `RangePronySeries`, `RangeReducedRelaxationFunction`).
+- **Pipelines Engine (`MelloSilveiraTools.Core.Pipelines`)**:
+  - `PipelineFactory`: Unified factory entry point for building streaming push-based (TPL Dataflow) and request/response pull-based (Fluent) execution pipelines.
+  - TPL Dataflow Pipelines (`IDataflowPipelineBuilder<T>`, `IDataflowPipeline<T>`):
+    - Fluent stage configuration: `.AddStep()`, `.AddDataMapping()`, `.AddForkingStep()`, `.AddBatchStep()`, `.AddFilterStep()`, `.AddGroupWhileStep()`, `.AddBroadcastBlock()`, `.AddBroadcastStep()`, and `.BuildTerminal()`.
+    - Integrated resilience: exponential backoff retry policies (`RetryOptions`), dead-letter queue routing (`WithDeadLetterQueue()`) to isolate faulted items without halting pipeline throughput, and bounded capacity backpressure (`PipelineStepOptions.MaxBufferSize`).
+    - Telemetry and tracing: OpenTelemetry `ActivitySource` tracing and structured Serilog logging via `TelemetryExtensions`.
+  - Fluent Pipelines (`IFluentPipelineBuilder`, `IFluentPipeline<TIn, TOut>`): Composable sequential step execution for request/response operations.
+- **Command Pattern Infrastructure (`MelloSilveiraTools.Core.Application.Commands`)**:
+  - Unified command hierarchy replacing legacy `OperationBase`: `CommandBase<TRequest, TResult>`, `CommandBaseWithData<TRequest, TData>`, `ListedCommandBase<TRequest, TData>`, `PagedCommandBase<TRequest, TFilter, TData>`, `CommandBaseWithDefaultResponse<TRequest>`, `CommandBaseWithoutRequest<TResult>`, and `DefaultCommandBase`.
+  - Integrated request validation via `IValidator<TRequest>`.
+- **Result Monad (`MelloSilveiraTools.Core.Models`)**:
+  - Domain-agnostic Result monad replacing `OperationResponse`: `ResultBase`, `Result`, `Result<T>`, `ListedResult<T>`, and `PagedResult<T>`.
+  - Rich error tracking with `ResultError`, `StatusCode` enum, and functional flow branching (`OnSuccess`, `OnError`, `Match`).
+  - Response projection extensions: `ToHttpResult` (ASP.NET Core minimal APIs `IResult`), `BuildHttpResponse` (MVC `JsonResult`), and asynchronous variants (`ToHttpResultAsync`, `BuildHttpResponseAsync`).
+  - Asynchronous client result contract `AsyncResult<T>` for `ApiServiceAgentBase`.
+- **Dynamic Service Providers & Service Locator (`MelloSilveiraTools.Core.Providers`)**:
+  - Extracted `IDynamicServiceProvider` and `InMemoryDynamicServiceProvider` into `MelloSilveiraTools.Core.Providers.Dynamics` for runtime service registration and dynamic resolution.
+  - Added thread-safe `ServiceLocator` singleton for global service lookup.
+- **Web API & Middleware Modernization**:
+  - `ExceptionHandlingHttpMiddleware` replacing `ExceptionHandlingMiddleware`, with dedicated handling for `NdjsonException` to preserve streaming response integrity.
+  - Minimal API endpoint mappings: `AddEndpoints`, `CrudEndpoints`, `StreamEndpoints`.
+  - Migrated CRUD operations to the new Command pattern (`AddEntity`, `DeleteEntity`, `ReadEntityById`, `ReadEntityPaged`, `UpdateEntity`).
+- **Dynamic Plugins Subsystem**:
+  - Migrated plugin operations to the new Command pattern (`ClearPluginCache`, `PersistPluginCache`, `RestorePluginCache`, `GetPlugins`, `LoadPlugins`, `ReloadPlugins`).
+  - Added `PluginValidator` implementing `IValidator<PluginsRequest>`.
+- **Mechanics of Materials Facade & Type Cache**:
+  - `IMechanicalModelCalculatorFacade` and `MechanicalModelCalculatorFacade` for dynamically resolving model calculators based on runtime `ConstitutiveParameters` types.
+  - `IMechanicalModelTypeCache` and `MechanicalModelTypeCache` for thread-safe caching of mechanical model types and calculators.
 - `ConstitutiveParameters` abstract base record acting as the foundational domain constraint for all mechanical and viscoelastic material properties.
 - `IRepository.TryInsertAsync<TEntity>(TEntity, CancellationToken)` — insert-or-get-existing semantics. Returns `(Inserted, Id)`; on unique-key conflict leaves the existing row intact and returns its primary key. Atomic single statement (CTE + UNION ALL). Requires the entity to declare at least one `[UniqueColumn]` property; otherwise throws `InvalidOperationException`.
 - `ISqlProvider.GetTryInsertSql<T>()` plus the `TryInsertTemplate.sql` resource that backs it.
@@ -29,9 +61,19 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - FileManager service to build a file with timebased name.
 ### Changed
 - All mechanical model calculators (e.g., `SchaperyModelCalculator`, `FungModelCalculator`, `ModifiedSuperpositionMethodCalculator`, `LinearModelCalculator`) now isolate and route physical properties through the `input.ConstitutiveParameters` property instead of reading them directly from a flattened input object.
+- `Expression` abstract class in `MelloSilveiraTools.Mathematics` renamed to `MathExpression`.
+- `Vector3DExtension` renamed to `Vector3DExtensions`.
+- `IDerivative` / `Derivative` in `MelloSilveiraTools.Mathematics` renamed to `IDifferentiation` / `Differentiation`.
+- Replaced `MechanicalRelationship` with `MechanicalBehaviorType`.
 - **`EnumerableExtensions.ForeachAsync<T>(...)` and `Foreach<T>(...)` safety regression fallback**: The vanilla overload without an `ILogger` parameter no longer swallows and suppresses internal iteration exceptions; it now bubbles up failures directly to the caller, adhering to standard sequential execution expectations.
 - Enums to inherit from int.
 ### Breaking
+- **OperationBase Architecture Deprecation & Replacement with Command Pattern**: Removed `OperationBase`, `OperationRequestBase`, and `OperationResponse` in `MelloSilveiraTools.WebApi`. All application operations (CRUD and Plugins) now inherit from `CommandBase<TRequest, TResult>` (or its specialized variants in `MelloSilveiraTools.Core.Application.Commands`) and return `Result<T>` instead of `OperationResponse`.
+- **OperationResponse Replacement with Result Monad**: Completely removed `OperationResponse` and `OperationResponseExtensions`. Migrated all controller endpoints, minimal APIs, and `ApiServiceAgentBase` to `Result<T>`, `ListedResult<T>`, and `PagedResult<T>`.
+- **Dynamic Service Provider Relocation**: Moved `IDynamicServiceProvider` and `DynamicServiceProvider` (renamed `InMemoryDynamicServiceProvider`) from `MelloSilveiraTools.Plugins.Infrastructure.Providers` to `MelloSilveiraTools.Core.Providers.Dynamics`.
+- **ExceptionHandlingMiddleware Replacement**: Replaced `ExceptionHandlingMiddleware` with `ExceptionHandlingHttpMiddleware`.
+- **Removal of LoadSharing Module**: Removed `ILoadSharingCalculator`, `LoadShare1DTissueThreeDimensionalSpaceCalculator`, and related load-sharing models (`MechanicalSystem`, `LoadSharingConsideration`, `LoadSharingResult`, `SpecimenLoadSharingResult`, `FailureCondition`) from `MelloSilveiraTools.MechanicsOfMaterials`.
+- **Mathematics Expression & Differentiation Renaming**: Renamed `Expression` to `MathExpression`, and `IDerivative` / `Derivative` to `IDifferentiation` / `Differentiation`.
 - **Architectural Overhaul (Mechanical Models Input).** Introduced a strong-typed generic constraint for mechanical model inputs. All `IMechanicalModelCalculator` and `IViscoelasticModelCalculator` interfaces and their implementations now strictly require the wrapper `MechanicalModelInput<TConstitutiveParameters>` instead of specific inherited flat input classes.
 - **Constitutive Parameters Renaming & Inheritance.** Specific model input classes were refactored into parameter records inheriting from the newly introduced `ConstitutiveParameters` base class:
   - `MaxwellModelInput` → `MaxwellConstitutiveParameters`
@@ -59,10 +101,14 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
   - `MelloSilveiraTools.Database.Infrastructure.Database.Sql.*` → `MelloSilveiraTools.Database.RelationalDatabase.Sql.*`
   - `MelloSilveiraTools.Database.Infrastructure.ResiliencePipelines.*` → `MelloSilveiraTools.Database.ResiliencePipelines.*`
 - **WebApi Commands folder restructure.** `Add*.cs`, `DeleteEntity*.cs`, `ReadEntity*.cs` and `UpdateEntity*.cs` moved from `Application/Commands/` (flat) into `Application/Commands/Crud/{Add,Delete,Read,Update}/`. Namespace updates required: `MelloSilveiraTools.WebApi.Application.Commands.Add` → `MelloSilveiraTools.WebApi.Application.Commands.Crud.Add` (and equivalents for Delete / Read / Update).
-- **Calculator response contract realignment (Result vs Output).** Renamed all calculator execution response classes from `*Result` to `*Output` across the engine domain (e.g., `MechanicalModelResult` → `MechanicalModelOutput`). This breaking change decouples pure mathematical data structures from the application's Result pattern pipeline, establishing that calculator blocks emit raw numerical projections rather than operation-status monads. Consumers invoking calculator engines must update their variable declarations and type bindings to the new `*Output` contract.
+- **Calculator response contract realignment (Result vs Output).** Renamed all calculator execution response classes from `*Result` to `*Output` across the engine domain (e.g., `MechanicalModelResult` → `MechanicalModelOutput`, `FatigueResult` → `FatigueOutput`, `NumericalMethodResult` → `NumericalMethodOutput`). This breaking change decouples pure mathematical data structures from the application's Result pattern pipeline, establishing that calculator blocks emit raw numerical projections rather than operation-status monads. Consumers invoking calculator engines must update their variable declarations and type bindings to the new `*Output` contract.
 - `IRepository.TryInsertAsync` to return `Result<long>` instead of tuple `(bool, long)`.
 - **Custom Logger Abstraction Removed:** Removed the custom in-house logging abstraction (`MelloSilveiraTools.Core.Infrastructure.Logger.ILogger`, `LocalFileLogger`, `LoggerBase`, and `LoggerSettings`). Consumers must migrate their constructors to use the standard `Microsoft.Extensions.Logging.ILogger<T>`.
 ### Removed
+- `MelloSilveiraTools.WebApi.Application.Operations.*`: Removed legacy `OperationBase`, `OperationRequestBase`, `OperationResponse`, and old operation classes.
+- `MelloSilveiraTools.WebApi.ExtensionMethods.OperationResponseExtensions` and `ResultExtensions`.
+- `MelloSilveiraTools.MechanicsOfMaterials.Calculators.LoadSharing.*` and associated models.
+- `DifferentialEquationMethodFactory` in `MelloSilveiraTools.Mathematics` (differential equation solvers are now resolved via Keyed DI or direct dependency injection).
 - `MelloSilveiraTools.Core.ExtensionMethods.DoubleExtensions` — the canonical implementation now lives at `MelloSilveiraTools.Mathematics.Extensions.DoubleExtensions`. Consumers that imported the Core variant must add a reference to `MelloSilveiraTools.Mathematics` and update the `using` directive.
 
 ## [1.4.0] - 2026-05-01
