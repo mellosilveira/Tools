@@ -30,7 +30,7 @@ public sealed class ExperimentalDataSegmenterStep(
     /// <inheritdoc/>
     public async IAsyncEnumerable<SegmentedDataPoint> ExecuteAsync((Stream StrainStream, Stream StressStream) input, [EnumeratorCancellation] CancellationToken cancellationToken = default)
     {
-        var (strainStream, stressStream) = input;
+        (Stream strainStream, Stream stressStream) = input;
         await using CsvStreamReader strainReader = new(strainStream, leaveOpen: true);
         await using CsvStreamReader stressReader = new(stressStream, leaveOpen: true);
 

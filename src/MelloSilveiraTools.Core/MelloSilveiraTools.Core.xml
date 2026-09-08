@@ -2610,9 +2610,6 @@
             <param name="cancellationToken">The cooperative cancellation token injected by the pipeline lifecycle orchestrator.</param>
             <returns>An asynchronous stream yielding items produced by this execution node.</returns>
         </member>
-        <member name="M:MelloSilveiraTools.Core.Pipelines.Steps.IAsyncEnumerablePipelineStep`2.System#IAsyncDisposable#DisposeAsync">
-            <inheritdoc/>
-        </member>
         <member name="T:MelloSilveiraTools.Core.Pipelines.Steps.IAsyncPipelineStep`2">
             <summary>
             Defines the atomic contract for an asynchronous execution boundary within a pipeline topology.
@@ -2629,9 +2626,6 @@
             <param name="input">The immutable payload propagated from the preceding pipeline node.</param>
             <param name="cancellationToken">The cooperative cancellation token injected by the pipeline lifecycle orchestrator.</param>
             <returns>A task representing the asynchronous operation, encapsulating the mutated terminal state.</returns>
-        </member>
-        <member name="M:MelloSilveiraTools.Core.Pipelines.Steps.IAsyncPipelineStep`2.System#IAsyncDisposable#DisposeAsync">
-            <inheritdoc/>
         </member>
         <member name="T:MelloSilveiraTools.Core.Pipelines.Steps.IPipelineStep">
             <summary>
@@ -2661,9 +2655,6 @@
             </summary>
             <param name="input">The immutable payload propagated from the preceding pipeline node.</param>
             <returns>The resultant output state produced by the synchronous execution.</returns>
-        </member>
-        <member name="M:MelloSilveiraTools.Core.Pipelines.Steps.ISyncPipelineStep`2.System#IDisposable#Dispose">
-            <inheritdoc/>
         </member>
         <member name="T:MelloSilveiraTools.Core.Pipelines.Telemetry.TelemetryConstants">
             <summary>

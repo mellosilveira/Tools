@@ -1,4 +1,4 @@
-﻿using System.Threading.Tasks.Dataflow;
+using System.Threading.Tasks.Dataflow;
 
 namespace MelloSilveiraTools.Core.Pipelines.Models;
 
