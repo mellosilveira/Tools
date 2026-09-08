@@ -27,33 +27,5 @@ public interface IExperimentalDataService
         Stream stressStream,
         ExperimentalDataProcessingOptions? options = null,
         CancellationToken cancellationToken = default);
-
-    /// <summary>
-    /// Asynchronously streams categorized data points from strain and stress streams.
-    /// </summary>
-    /// <param name="strainStream">A stream containing experimental strain values across time.</param>
-    /// <param name="stressStream">A stream containing experimental stress values across time.</param>
-    /// <param name="options">Options controlling tolerances and buffer sizing.</param>
-    /// <param name="cancellationToken">A token to cancel the streaming operation.</param>
-    /// <returns>An async enumerable of <see cref="SegmentedDataPoint"/> instances.</returns>
-    IAsyncEnumerable<SegmentedDataPoint> SegmentPointsAsync(
-        Stream strainStream,
-        Stream stressStream,
-        ExperimentalDataProcessingOptions? options = null,
-        CancellationToken cancellationToken = default);
-
-    /// <summary>
-    /// Extracts physical deformation segments from a sliding buffer of experimental data points.
-    /// </summary>
-    /// <param name="currentType">The active segment type preceding the current buffer.</param>
-    /// <param name="points">An array of buffered experimental points.</param>
-    /// <param name="count">The valid number of items inside <paramref name="points"/>.</param>
-    /// <param name="options">Processing options.</param>
-    /// <returns>A list of extracted segment types and their corresponding point slices.</returns>
-    List<(SegmentType, ArraySegment<ExperimentalDataPoint>)> ExtractSegments(
-        SegmentType currentType,
-        ExperimentalDataPoint[] points,
-        int count,
-        ExperimentalDataProcessingOptions? options = null);
 }
 

@@ -227,16 +227,22 @@ AI agents modifying or generating code in this repository **must strictly adhere
 
 ### 6. Experimental Data & Optimizations
 - Located in `MelloSilveiraTools.MechanicsOfMaterials.Optimizations`.
+- Multi-modal pipeline steps:
+  - `ExperimentalDataSegmenterStep`: Ingestion step implementing `IAsyncEnumerablePipelineStep<(Stream StrainStream, Stream StressStream), SegmentedDataPoint>`, parsing CSV streams and categorizing points across deformation phases via sliding-window numerical differentiation.
+  - `ExperimentalDataFileWriterStep`: Persistence step implementing `IAsyncPipelineStep<SegmentedDataPoint, SegmentedDataPoint>`, streaming valid points to disk via CSV format.
+  - `CurveSegmentBuilderStep`: Assembly step implementing `ISyncPipelineStep<SegmentedDataPoint[], CurveSegment>`, constructing segments from grouped arrays with configurable downsampling (`skipTimeStep`).
 - `IExperimentalDataService.ProcessAsync(identifier, outputFileUri, strainStream, stressStream, options)` → `Result<(string OutputFileName, CurveSegment[] CurveSegments)>`.
-  - Bifurcated stream topology via `BroadcastBlock` / `AddBroadcastStep`:
-    - Branch 1: writes all valid processed/segmented points to a CSV file (`ExperimentalDataFileWriterStep` implementing `IAsyncPipelineStep<SegmentedDataPoint, SegmentedDataPoint>`).
-    - Branch 2: groups adjacent points via `.AddGroupWhileStep((prev, curr) => prev.SegmentType == curr.SegmentType)` and maps to `CurveSegment` via `CurveSegmentBuilderStep` (implementing `ISyncPipelineStep<SegmentedDataPoint[], CurveSegment>`).
-  - Configured via `ExperimentalDataSettings` (`FileWriterOptions`, `GroupingOptions`, and `SegmentBuilderOptions` with `PipelineStepOptions`).
+  - Continuous stream topology via TPL Dataflow:
+    - Ingestion: `ExperimentalDataSegmenterStep` converts raw stream pair into streaming `SegmentedDataPoint` sequence.
+    - Branch 1 (Broadcast): `ExperimentalDataFileWriterStep` writes points to CSV via `AddBroadcastStep`.
+    - Branch 2 (Aggregation): Adjacent points grouped via `.AddGroupWhileStep((prev, curr) => prev.SegmentType == curr.SegmentType)` and mapped to `CurveSegment` via `CurveSegmentBuilderStep`.
+    - Terminal: Segments collected into result array.
+  - Configured via `ExperimentalDataSettings` (`FileWriterOptions`, `GroupingOptions`, `SegmentBuilderOptions`, and `SegmenterOptions` with `PipelineStepOptions`).
   - Buffer pooling using `ArrayPool<ExperimentalDataPoint>.Shared` with safe return in `finally`.
   - Flushes remainder buffer on stream completion to prevent dropping trailing points.
   - Supports 3-phase interior transitions in `SliceBuffer` (`startIndex > 0 && endIndex < bufferCount - 1`).
-- `IExperimentalDataService.SegmentPointsAsync()` → `IAsyncEnumerable<SegmentedDataPoint>`.
-- `IExperimentalDataService.ExtractSegments()` → sliding-window segment classification.
+- `IExperimentalDataService.SegmentPointsAsync()` → `IAsyncEnumerable<SegmentedDataPoint>` (delegates to `ExperimentalDataSegmenterStep.ExecuteAsync`).
+- `IExperimentalDataService.ExtractSegments()` → sliding-window segment classification (delegates to `ExperimentalDataSegmenterStep.ExtractSegments`).
 - Segment types: `Ramp`, `Relaxation`, `Descent`, `Recovery`.
 - `ICurveFitter` interface with `MathNetCurveFitter` (Levenberg-Marquardt via MathNet.Numerics) and `AlglibCurveFitter` (bundled ALGLIB).
 - `QuasiLinearModelCurveFitter` for specialized mechanical model curve fitting.

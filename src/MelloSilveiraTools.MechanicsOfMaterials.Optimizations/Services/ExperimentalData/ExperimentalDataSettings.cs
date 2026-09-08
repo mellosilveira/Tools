@@ -29,4 +29,10 @@ public record ExperimentalDataSettings
     /// Defaults to default pipeline step options.
     /// </summary>
     public PipelineStepOptions SegmentBuilderOptions { get; init; } = PipelineStepOptions.Default;
+
+    /// <summary>
+    /// Configuration options for the experimental data segmenter pipeline step in the Dataflow pipeline.
+    /// Defaults to default pipeline step options.
+    /// </summary>
+    public PipelineStepOptions SegmenterOptions { get; init; } = PipelineStepOptions.Default;
 }

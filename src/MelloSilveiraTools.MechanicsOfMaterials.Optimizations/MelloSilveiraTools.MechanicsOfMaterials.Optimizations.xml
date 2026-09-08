@@ -411,7 +411,86 @@
         <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Services.ExperimentalData.ExperimentalDataFileWriterStep.DisposeAsync">
             <inheritdoc/>
         </member>
+        <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Services.ExperimentalData.ExperimentalDataSegmenterStep">
+            <summary>
+            Pipeline step responsible for parsing and streaming raw experimental strain and stress data,
+            segmenting points into physical deformation phases (Ramp, Relaxation, Descent, Recovery) using numerical differentiation.
+            </summary>
+            <param name="differentiation">The differentiation calculator used to compute strain and stress rates and accelerations.</param>
+            <param name="logger">Optional logger for telemetry, warnings, and diagnostic information.</param>
+            <param name="options">Options controlling tolerances, start time thresholds, and buffer sizing. Defaults to <see cref="F:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Models.ExperimentalData.ExperimentalDataProcessingOptions.Default"/>.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Services.ExperimentalData.ExperimentalDataSegmenterStep.#ctor(MelloSilveiraTools.Mathematics.NumericalMethods.Differentiations.IDifferentiation,Microsoft.Extensions.Logging.ILogger,MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Models.ExperimentalData.ExperimentalDataProcessingOptions)">
+            <summary>
+            Pipeline step responsible for parsing and streaming raw experimental strain and stress data,
+            segmenting points into physical deformation phases (Ramp, Relaxation, Descent, Recovery) using numerical differentiation.
+            </summary>
+            <param name="differentiation">The differentiation calculator used to compute strain and stress rates and accelerations.</param>
+            <param name="logger">Optional logger for telemetry, warnings, and diagnostic information.</param>
+            <param name="options">Options controlling tolerances, start time thresholds, and buffer sizing. Defaults to <see cref="F:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Models.ExperimentalData.ExperimentalDataProcessingOptions.Default"/>.</param>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Services.ExperimentalData.ExperimentalDataSegmenterStep.Name">
+            <inheritdoc/>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Services.ExperimentalData.ExperimentalDataSegmenterStep.Options">
+            <summary>
+            Gets the processing options configured for this segmenter step.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Services.ExperimentalData.ExperimentalDataSegmenterStep.ExecuteAsync(System.ValueTuple{System.IO.Stream,System.IO.Stream},System.Threading.CancellationToken)">
+            <inheritdoc/>
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Services.ExperimentalData.ExperimentalDataSegmenterStep.ExecuteAsync(System.IO.Stream,System.IO.Stream,System.Threading.CancellationToken)">
+            <summary>
+            Asynchronously streams categorized data points from strain and stress streams.
+            </summary>
+            <param name="strainStream">A stream containing experimental strain values across time.</param>
+            <param name="stressStream">A stream containing experimental stress values across time.</param>
+            <param name="cancellationToken">A token to cancel the streaming operation.</param>
+            <returns>An async enumerable of <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Models.ExperimentalData.SegmentedDataPoint"/> instances.</returns>
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Services.ExperimentalData.ExperimentalDataSegmenterStep.ExtractSegments(MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Models.CurveFitting.SegmentType,MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Models.CurveFitting.ExperimentalDataPoint[],System.Int32,MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Models.ExperimentalData.ExperimentalDataProcessingOptions)">
+            <summary>
+            Extracts physical deformation segments from a sliding buffer of experimental data points.
+            </summary>
+            <param name="currentType">The active segment type preceding the current buffer.</param>
+            <param name="points">An array of buffered experimental points.</param>
+            <param name="bufferCount">The valid number of items inside <paramref name="points"/>.</param>
+            <param name="extractionOptions">Processing options. If null, the step's configured options are used.</param>
+            <returns>A list of extracted segment types and their corresponding point slices.</returns>
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Services.ExperimentalData.ExperimentalDataSegmenterStep.ExtractSegments(MelloSilveiraTools.Mathematics.NumericalMethods.Differentiations.IDifferentiation,MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Models.CurveFitting.SegmentType,MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Models.CurveFitting.ExperimentalDataPoint[],System.Int32,MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Models.ExperimentalData.ExperimentalDataProcessingOptions,Microsoft.Extensions.Logging.ILogger)">
+            <summary>
+            Static helper to extract physical deformation segments from a sliding buffer of experimental data points.
+            </summary>
+            <param name="differentiation">The differentiation calculator.</param>
+            <param name="currentType">The active segment type preceding the current buffer.</param>
+            <param name="points">An array of buffered experimental points.</param>
+            <param name="bufferCount">The valid number of items inside <paramref name="points"/>.</param>
+            <param name="options">Processing options.</param>
+            <param name="logger">Optional logger for telemetry and diagnostics.</param>
+            <returns>A list of extracted segment types and their corresponding point slices.</returns>
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Services.ExperimentalData.ExperimentalDataSegmenterStep.DisposeAsync">
+            <inheritdoc/>
+        </member>
+        <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Services.ExperimentalData.ExperimentalDataService">
+            <summary>
+            Service responsible for orchestrating the ingestion, validation, and physical phase segmentation of experimental raw data streams.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Services.ExperimentalData.ExperimentalDataService.#ctor(Microsoft.Extensions.Logging.ILogger{MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Services.ExperimentalData.ExperimentalDataService},MelloSilveiraTools.Mathematics.NumericalMethods.Differentiations.IDifferentiation,MelloSilveiraTools.Core.Managers.File.IFileManager,MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Services.ExperimentalData.ExperimentalDataSettings)">
+            <summary>
+            Service responsible for orchestrating the ingestion, validation, and physical phase segmentation of experimental raw data streams.
+            </summary>
+        </member>
         <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Services.ExperimentalData.ExperimentalDataService.ProcessAsync(System.String,System.String,System.IO.Stream,System.IO.Stream,MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Models.ExperimentalData.ExperimentalDataProcessingOptions,System.Threading.CancellationToken)">
+            <inheritdoc/>
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Services.ExperimentalData.ExperimentalDataService.SegmentPointsAsync(System.IO.Stream,System.IO.Stream,MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Models.ExperimentalData.ExperimentalDataProcessingOptions,System.Threading.CancellationToken)">
+            <inheritdoc/>
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Services.ExperimentalData.ExperimentalDataService.ExtractSegments(MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Models.CurveFitting.SegmentType,MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Models.CurveFitting.ExperimentalDataPoint[],System.Int32,MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Models.ExperimentalData.ExperimentalDataProcessingOptions)">
             <inheritdoc/>
         </member>
         <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Services.ExperimentalData.ExperimentalDataSettings">
@@ -434,6 +513,12 @@
         <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Services.ExperimentalData.ExperimentalDataSettings.SegmentBuilderOptions">
             <summary>
             Configuration options for the curve segment builder step in the Dataflow pipeline.
+            Defaults to default pipeline step options.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Services.ExperimentalData.ExperimentalDataSettings.SegmenterOptions">
+            <summary>
+            Configuration options for the experimental data segmenter pipeline step in the Dataflow pipeline.
             Defaults to default pipeline step options.
             </summary>
         </member>
@@ -471,7 +556,7 @@
             </summary>
             <param name="currentType">The active segment type preceding the current buffer.</param>
             <param name="points">An array of buffered experimental points.</param>
-            <param name="count">The valid number of items inside <paramref name="points"/>.</param>
+            <param name="bufferCount">The valid number of items inside <paramref name="points"/>.</param>
             <param name="options">Processing options.</param>
             <returns>A list of extracted segment types and their corresponding point slices.</returns>
         </member>

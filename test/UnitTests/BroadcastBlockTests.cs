@@ -36,6 +36,8 @@ public class BroadcastBlockTests
         {
             return input * factor;
         }
+
+        public void Dispose() { }
     }
 
     private sealed class SampleStreamingStep(int count) : IAsyncEnumerablePipelineStep<int, int>
@@ -49,6 +51,11 @@ public class BroadcastBlockTests
                 cancellationToken.ThrowIfCancellationRequested();
                 yield return input * 10 + i;
             }
+        }
+
+        public ValueTask DisposeAsync()
+        {
+            return ValueTask.CompletedTask;
         }
     }
 

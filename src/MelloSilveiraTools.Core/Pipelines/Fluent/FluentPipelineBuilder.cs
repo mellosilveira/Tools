@@ -1,3 +1,4 @@
+using MelloSilveiraTools.Core.Pipelines.Models;
 using Microsoft.Extensions.Logging;
 
 namespace MelloSilveiraTools.Core.Pipelines.Fluent;
