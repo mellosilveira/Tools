@@ -33,12 +33,15 @@ public class ExperimentalDataService(
 
         List<CurveSegment> curveSegments = [];
 
-        await using ExperimentalDataFileWriterStep fileWriterStep = new(fileManager, outputFileUri, identifier);
+        FileInfo outputFile = fileManager.BuildTimebasedFileInfo(outputFileUri, identifier, FileExtensions.CommaSeparatedValues);
+        StreamWriter writer = fileManager.CreateLargeFileWriter(outputFile);
+        await using ExperimentalDataFileWriterStep fileWriterStep = new(writer, outputFile.FullName);
+        using CurveSegmentBuilderStep segmentBuilderStep = new(options.SkipTimeStep);
 
         await using IDataflowPipeline<SegmentedDataPoint> pipeline = PipelineFactory.StartDataflow<SegmentedDataPoint>(logger, cancellationToken: cancellationToken)
             .AddBroadcastStep(fileWriterStep, options: settings.FileWriterOptions)
             .AddGroupWhileStep((prev, curr) => prev.SegmentType == curr.SegmentType, options: settings.GroupingOptions)
-            .AddDataMapping(points => BuildCurveSegment(points, options.SkipTimeStep))
+            .AddStep(segmentBuilderStep, options: settings.SegmentBuilderOptions)
             .BuildTerminal("CollectSegments", curveSegments.Add);
 
         await foreach (SegmentedDataPoint point in SegmentPointsAsync(strainStream, stressStream, options, cancellationToken).ConfigureAwait(false))
@@ -231,46 +234,6 @@ public class ExperimentalDataService(
             .FluentAddIf(startIndex > 0, (typeBefore, new ArraySegment<ExperimentalDataPoint>(buffer, 0, startIndex)))
             .FluentAdd((activeType, new ArraySegment<ExperimentalDataPoint>(buffer, startIndex, (endIndex + 1) - startIndex)))
             .FluentAddIf(endIndex < bufferCount - 1, (typeAfter, new ArraySegment<ExperimentalDataPoint>(buffer, endIndex + 1, bufferCount - (endIndex + 1))));
-    }
-
-    private static CurveSegment BuildCurveSegment(SegmentedDataPoint[] points, double skipTimeStep)
-    {
-        if (points.Length == 0)
-        {
-            return new CurveSegment
-            {
-                Type = SegmentType.Unknown,
-                TimePoints = [],
-                ExperimentalStrain = [],
-                ExperimentalStress = []
-            };
-        }
-
-        SegmentType segmentType = points[0].SegmentType;
-        List<double> timePoints = [];
-        List<double> strainPoints = [];
-        List<double> stressPoints = [];
-
-        double? lastTime = null;
-        for (int i = 0; i < points.Length; i++)
-        {
-            ProcessedDataPoint point = points[i].ProcessedDataPoint;
-            if (lastTime is null || (point.Time - lastTime.Value) >= skipTimeStep || i == points.Length - 1)
-            {
-                timePoints.Add(point.Time);
-                strainPoints.Add(point.Strain);
-                stressPoints.Add(point.Stress);
-                lastTime = point.Time;
-            }
-        }
-
-        return new CurveSegment
-        {
-            Type = segmentType,
-            TimePoints = [.. timePoints],
-            ExperimentalStrain = [.. strainPoints],
-            ExperimentalStress = [.. stressPoints]
-        };
     }
 
     private ProcessedDataPoint BuildProcessedDataPoint(ProcessedDataPoint basePoint, ExperimentalDataPoint point, ExperimentalDataProcessingOptions options)

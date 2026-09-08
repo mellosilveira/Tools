@@ -1,4 +1,4 @@
-﻿using MelloSilveiraTools.Core.Pipelines;
+using MelloSilveiraTools.Core.Pipelines.Models;
 
 namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Services.ExperimentalData;
 
@@ -23,4 +23,10 @@ public record ExperimentalDataSettings
     /// Defaults to default pipeline step options.
     /// </summary>
     public PipelineStepOptions GroupingOptions { get; init; } = PipelineStepOptions.Default;
+
+    /// <summary>
+    /// Configuration options for the curve segment builder step in the Dataflow pipeline.
+    /// Defaults to default pipeline step options.
+    /// </summary>
+    public PipelineStepOptions SegmentBuilderOptions { get; init; } = PipelineStepOptions.Default;
 }

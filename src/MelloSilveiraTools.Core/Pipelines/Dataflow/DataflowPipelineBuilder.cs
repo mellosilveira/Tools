@@ -1,3 +1,5 @@
+using MelloSilveiraTools.Core.Pipelines.Models;
+using MelloSilveiraTools.Core.Pipelines.Telemetry;
 using Microsoft.Extensions.Logging;
 using System.Threading.Tasks.Dataflow;
 
@@ -132,6 +134,56 @@ internal class DataflowPipelineBuilder<THead, TTail>(
 
         TransformBlock<TTail, TNextOut> nextBlock = new(TelemetryExtensions.HandleExecution(logger, GetTelemetryName(stepName), stepFunc, retryOptions, pipelineCancellationToken)!, dataFlowOptions);
         return LinkAndContinue(nextBlock);
+    }
+
+    /// <inheritdoc/>
+    public IDataflowPipelineBuilder<THead, TNextOut> AddStep<TNextOut>(string stepName, Func<TTail, TNextOut> stepFunc, PipelineStepOptions options = default)
+    {
+        ExecutionDataflowBlockOptions dataFlowOptions = options.ToDataflowOptions(pipelineCancellationToken);
+
+        if (_deadLetterQueueEnabled)
+        {
+            TransformBlock<TTail, SafeResult<TTail, TNextOut>> safeBlock = new(TelemetryExtensions.HandleSafeExecution(logger, GetTelemetryName(stepName), stepFunc, pipelineCancellationToken), dataFlowOptions);
+            return AddSafeStep(safeBlock, dataFlowOptions);
+        }
+
+        TransformBlock<TTail, TNextOut> nextBlock = new(TelemetryExtensions.HandleExecution(logger, GetTelemetryName(stepName), stepFunc, pipelineCancellationToken), dataFlowOptions);
+        return LinkAndContinue(nextBlock);
+    }
+
+    /// <inheritdoc/>
+    public IDataflowPipelineBuilder<THead, TNextOut> AddStep<TNextOut>(string stepName, Func<TTail, CancellationToken, IAsyncEnumerable<TNextOut>> stepFunc, PipelineStepOptions options = default)
+    {
+        ExecutionDataflowBlockOptions dataFlowOptions = options.ToDataflowOptions(pipelineCancellationToken);
+        Func<TTail, IAsyncEnumerable<TNextOut>> telemetryStreamFunc = TelemetryExtensions.HandleExecution(logger, GetTelemetryName(stepName), stepFunc, pipelineCancellationToken);
+
+        BufferBlock<TNextOut> source = new(dataFlowOptions);
+
+        ActionBlock<TTail> target = new(async item =>
+        {
+            try
+            {
+                await foreach (TNextOut outItem in telemetryStreamFunc(item).WithCancellation(pipelineCancellationToken).ConfigureAwait(false))
+                {
+                    await source.SendAsync(outItem, pipelineCancellationToken).ConfigureAwait(false);
+                }
+            }
+            catch (Exception ex) when (ex is not OperationCanceledException && _deadLetterQueueEnabled)
+            {
+                await deadLetterQueueBlock!.SendAsync(new FailedPayload(GetTelemetryName(stepName), item, ex), pipelineCancellationToken).ConfigureAwait(false);
+            }
+        }, dataFlowOptions);
+
+        target.Completion.ContinueWith(t =>
+        {
+            if (t.IsFaulted && t.Exception is not null)
+                ((IDataflowBlock)source).Fault(t.Exception);
+            else
+                source.Complete();
+        }, TaskContinuationOptions.ExecuteSynchronously);
+
+        IPropagatorBlock<TTail, TNextOut> streamBlock = DataflowBlock.Encapsulate(target, source);
+        return LinkAndContinue(streamBlock);
     }
 
     /// <inheritdoc/>

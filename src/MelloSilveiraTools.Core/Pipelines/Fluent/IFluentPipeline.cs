@@ -1,4 +1,6 @@
-﻿namespace MelloSilveiraTools.Core.Pipelines.Fluent;
+﻿using MelloSilveiraTools.Core.Pipelines.Models;
+
+namespace MelloSilveiraTools.Core.Pipelines.Fluent;
 
 /// <summary>
 /// Represents the finalized execution graph of the fluent pipeline.

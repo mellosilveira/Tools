@@ -1,4 +1,4 @@
-﻿namespace MelloSilveiraTools.Core.Pipelines;
+﻿namespace MelloSilveiraTools.Core.Pipelines.Models;
 
 /// <summary>
 /// Defines optional retry configurations with exponential backoff for transient failure recovery.

@@ -348,23 +348,47 @@
         <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Models.Range.RangeReducedRelaxationFunction.SlowRelaxationTime">
             <summary>Constant tau 1. Unit: s (second).</summary>
         </member>
+        <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Services.ExperimentalData.CurveSegmentBuilderStep">
+            <summary>
+            Pipeline step responsible for constructing <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Models.CurveFitting.CurveSegment"/> instances from grouped <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Models.ExperimentalData.SegmentedDataPoint"/> arrays,
+            applying downsampling thresholds to minimize redundant data points.
+            </summary>
+            <param name="skipTimeStep">The minimum time interval required between consecutive points within a segment. Defaults to 0.0 (no downsampling).</param>
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Services.ExperimentalData.CurveSegmentBuilderStep.#ctor(System.Double)">
+            <summary>
+            Pipeline step responsible for constructing <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Models.CurveFitting.CurveSegment"/> instances from grouped <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Models.ExperimentalData.SegmentedDataPoint"/> arrays,
+            applying downsampling thresholds to minimize redundant data points.
+            </summary>
+            <param name="skipTimeStep">The minimum time interval required between consecutive points within a segment. Defaults to 0.0 (no downsampling).</param>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Services.ExperimentalData.CurveSegmentBuilderStep.Name">
+            <inheritdoc/>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Services.ExperimentalData.CurveSegmentBuilderStep.SkipTimeStep">
+            <summary>
+            Gets the minimum time interval threshold used for downsampling.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Services.ExperimentalData.CurveSegmentBuilderStep.Execute(MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Models.ExperimentalData.SegmentedDataPoint[])">
+            <inheritdoc/>
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Services.ExperimentalData.CurveSegmentBuilderStep.Dispose">
+            <inheritdoc/>
+        </member>
         <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Services.ExperimentalData.ExperimentalDataFileWriterStep">
             <summary>
             Pipeline step responsible for persisting processed experimental data points to a CSV file.
             Writes the CSV header upon initialization and sequentially appends each data point line.
             </summary>
-        </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Services.ExperimentalData.ExperimentalDataFileWriterStep.#ctor(MelloSilveiraTools.Core.Managers.File.IFileManager,System.String,System.String)">
-            <summary>
-            Initializes a new instance of the <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Services.ExperimentalData.ExperimentalDataFileWriterStep"/> class using file manager configuration.
-            </summary>
-            <param name="fileManager">The file manager used to resolve the time-based output file path and large file writer.</param>
-            <param name="outputFileUri">The destination directory path for the output CSV file.</param>
-            <param name="uniqueIdentifier">The prefix or identifier used to name the output file.</param>
+            <param name="writer">The writer instance to append CSV rows to.</param>
+            <param name="outputFilePath">The logical file path of the output file.</param>
+            <param name="leaveOpen">Whether to leave the underlying writer open upon disposal.</param>
         </member>
         <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Services.ExperimentalData.ExperimentalDataFileWriterStep.#ctor(System.IO.StreamWriter,System.String,System.Boolean)">
             <summary>
-            Initializes a new instance of the <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Services.ExperimentalData.ExperimentalDataFileWriterStep"/> class using an existing <see cref="T:System.IO.StreamWriter"/>.
+            Pipeline step responsible for persisting processed experimental data points to a CSV file.
+            Writes the CSV header upon initialization and sequentially appends each data point line.
             </summary>
             <param name="writer">The writer instance to append CSV rows to.</param>
             <param name="outputFilePath">The logical file path of the output file.</param>
@@ -404,6 +428,12 @@
         <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Services.ExperimentalData.ExperimentalDataSettings.GroupingOptions">
             <summary>
             Configuration options for the curve segment grouping step in the Dataflow pipeline.
+            Defaults to default pipeline step options.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Services.ExperimentalData.ExperimentalDataSettings.SegmentBuilderOptions">
+            <summary>
+            Configuration options for the curve segment builder step in the Dataflow pipeline.
             Defaults to default pipeline step options.
             </summary>
         </member>

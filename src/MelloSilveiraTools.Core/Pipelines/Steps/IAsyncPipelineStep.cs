@@ -1,21 +1,14 @@
-﻿namespace MelloSilveiraTools.Core.Pipelines;
+namespace MelloSilveiraTools.Core.Pipelines.Steps;
 
 /// <summary>
-/// Defines the atomic contract for an isolated execution boundary within a pipeline topology.
+/// Defines the atomic contract for an asynchronous execution boundary within a pipeline topology.
 /// Encapsulates a singular domain responsibility, facilitating a strongly-typed state transition 
-/// from a predefined input payload to a deterministic output state.
+/// from a predefined input payload to a deterministic output state asynchronously.
 /// </summary>
 /// <typeparam name="TIn">The expected input payload type ingested by this execution node.</typeparam>
 /// <typeparam name="TOut">The resultant output payload type yielded after successful state mutation.</typeparam>
-public interface IPipelineStep<TIn, TOut> : IAsyncDisposable
+public interface IAsyncPipelineStep<in TIn, TOut> : IPipelineStep, IAsyncDisposable
 {
-    /// <summary>
-    /// Gets the semantic identifier for this specific execution step.
-    /// Required by the pipeline orchestration engines for structured telemetry, 
-    /// distributed tracing, and precise fault localization within the execution graph.
-    /// </summary>
-    string Name { get; }
-
     /// <summary>
     /// Invokes the encapsulated domain logic asynchronously, mapping the ingested state to the resultant output state.
     /// </summary>

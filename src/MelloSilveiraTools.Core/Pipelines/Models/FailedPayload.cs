@@ -1,4 +1,4 @@
-﻿namespace MelloSilveiraTools.Core.Pipelines;
+﻿namespace MelloSilveiraTools.Core.Pipelines.Models;
 
 /// <summary>
 /// Encapsulates a type-erased faulted payload, the originating exception, and the execution context for centralized dead-letter routing.

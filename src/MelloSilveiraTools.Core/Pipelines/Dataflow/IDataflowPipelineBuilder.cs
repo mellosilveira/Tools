@@ -1,3 +1,4 @@
+using MelloSilveiraTools.Core.Pipelines.Models;
 using System.Threading.Tasks.Dataflow;
 
 namespace MelloSilveiraTools.Core.Pipelines.Dataflow;
@@ -82,6 +83,28 @@ public interface IDataflowPipelineBuilder<THead, TTail>
     /// Limitation: Implements a strict 1:1 input-to-output ratio. A message must return a result to continue down the pipeline. To drop a message, it must return <c>null</c> and rely on a downstream filter to ignore it.
     /// </remarks>
     IDataflowPipelineBuilder<THead, TNextOut> AddStep<TNextOut>(string stepName, Func<TTail, CancellationToken, Task<TNextOut>> stepFunc, PipelineStepOptions options = default);
+
+    /// <summary>
+    /// Appends a TransformBlock bound to a synchronous delegate with explicit naming for telemetry and tracing.
+    /// Optimized for CPU-bound computations, eliminating Task allocations.
+    /// </summary>
+    /// <typeparam name="TNextOut">The resultant state type emitted by the appended synchronous delegate.</typeparam>
+    /// <param name="stepName">The semantic identifier utilized for structured telemetry and fault localization.</param>
+    /// <param name="stepFunc">The synchronous delegate encapsulating the execution logic and state mutation.</param>
+    /// <param name="options">Options configuring buffer sizes and cancellation tokens for the block.</param>
+    /// <returns>A new builder instance representing the next pipeline stage.</returns>
+    IDataflowPipelineBuilder<THead, TNextOut> AddStep<TNextOut>(string stepName, Func<TTail, TNextOut> stepFunc, PipelineStepOptions options = default);
+
+    /// <summary>
+    /// Appends a streaming transformation step that expands each ingested payload into an asynchronous sequence of output items,
+    /// propagating each yielded item individually downstream through the pipeline execution graph.
+    /// </summary>
+    /// <typeparam name="TNextOut">The resultant element type yielded by the asynchronous stream.</typeparam>
+    /// <param name="stepName">The semantic identifier utilized for structured telemetry and fault localization.</param>
+    /// <param name="stepFunc">The asynchronous streaming delegate yielding an asynchronous sequence of items.</param>
+    /// <param name="options">Options configuring buffer sizes and cancellation tokens for the step.</param>
+    /// <returns>A new builder instance representing the next pipeline stage yielding individual items.</returns>
+    IDataflowPipelineBuilder<THead, TNextOut> AddStep<TNextOut>(string stepName, Func<TTail, CancellationToken, IAsyncEnumerable<TNextOut>> stepFunc, PipelineStepOptions options = default);
 
     /// <summary>
     /// Appends a conditional branching step evaluating the output payload after the primary execution completes.

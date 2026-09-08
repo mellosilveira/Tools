@@ -185,14 +185,21 @@ AI agents modifying or generating code in this repository **must strictly adhere
 - Async equivalents: `.ToHttpResultAsync()`, `.BuildHttpResponseAsync()`.
 
 ### 2. Pipeline Architecture (`MelloSilveiraTools.Core.Pipelines`)
+**Step contracts:**
+- **`IPipelineStep`**: Base metadata contract defining `string Name { get; }` for telemetry, distributed tracing, and fault localization.
+- **`IAsyncPipelineStep<in TIn, TOut>`**: Asynchronous step contract (`Task<TOut> ExecuteAsync(TIn input, CancellationToken ct)`) implementing `IAsyncDisposable`.
+- **`ISyncPipelineStep<in TIn, out TOut>`**: Synchronous step contract (`TOut Execute(TIn input)`) implementing `IDisposable` (does not inherit from `IAsyncDisposable`).
+- **`IAsyncEnumerablePipelineStep<in TIn, out TOut>`**: Streaming step contract (`IAsyncEnumerable<TOut> ExecuteAsync(TIn input, CancellationToken ct)`) implementing `IAsyncDisposable`.
+
 **Two pipeline flavors:**
 - **TPL Dataflow (streaming/push):** `PipelineFactory.StartDataflow<T>()` → `IDataflowPipelineBuilder` → `IDataflowPipeline<T>`.
-  - Supports: `AddStep`, `AddDataMapping`, `AddForkingStep`, `AddBatchStep`, `AddFilterStep`, `AddGroupWhileStep`, `AddBroadcastBlock`, `AddBroadcastStep`, `BuildTerminal`.
+  - Supports: `AddStep` (sync, async, and `IAsyncEnumerable`), `AddDataMapping`, `AddForkingStep`, `AddBatchStep`, `AddFilterStep`, `AddGroupWhileStep`, `AddBroadcastBlock`, `AddBroadcastStep`, `BuildTerminal`.
   - Dead-Letter Queue (DLQ): `WithDeadLetterQueue()` isolates faulted items via `ActionBlock<FailedPayload>`.
   - Backpressure: `PipelineStepOptions.MaxBufferSize` → `BoundedCapacity`.
   - Telemetry: OpenTelemetry `ActivitySource` tracing + structured Serilog logging via `TelemetryExtensions`.
   - Retry: `RetryOptions(MaxAttempts, InitialDelayMs, BackoffFactor)` with exponential backoff.
 - **Fluent (request/response/pull):** `PipelineFactory.StartFluent<T>()` → `IFluentPipelineBuilder` → `IFluentPipeline<TIn, TOut>.ExecuteAsync()`.
+  - Supports: `AddStep` (sync, async, and `IAsyncEnumerable`), `AddDataMapping`.
   - Sequential step chain; type-erased internal delegates.
 
 ### 3. Command Pattern (`MelloSilveiraTools.Core.Application.Commands`)
@@ -222,9 +229,9 @@ AI agents modifying or generating code in this repository **must strictly adhere
 - Located in `MelloSilveiraTools.MechanicsOfMaterials.Optimizations`.
 - `IExperimentalDataService.ProcessAsync(identifier, outputFileUri, strainStream, stressStream, options)` → `Result<(string OutputFileName, CurveSegment[] CurveSegments)>`.
   - Bifurcated stream topology via `BroadcastBlock` / `AddBroadcastStep`:
-    - Branch 1: writes all valid processed/segmented points to a CSV file (`ExperimentalDataFileWriterStep` implementing `IPipelineStep<SegmentedDataPoint, SegmentedDataPoint>`).
-    - Branch 2: groups adjacent points into `CurveSegment[]` via `.AddGroupWhileStep((prev, curr) => prev.SegmentType == curr.SegmentType)`.
-  - Configured via `ExperimentalDataSettings` (`FileWriterOptions` and `GroupingOptions` with `PipelineStepOptions`).
+    - Branch 1: writes all valid processed/segmented points to a CSV file (`ExperimentalDataFileWriterStep` implementing `IAsyncPipelineStep<SegmentedDataPoint, SegmentedDataPoint>`).
+    - Branch 2: groups adjacent points via `.AddGroupWhileStep((prev, curr) => prev.SegmentType == curr.SegmentType)` and maps to `CurveSegment` via `CurveSegmentBuilderStep` (implementing `ISyncPipelineStep<SegmentedDataPoint[], CurveSegment>`).
+  - Configured via `ExperimentalDataSettings` (`FileWriterOptions`, `GroupingOptions`, and `SegmentBuilderOptions` with `PipelineStepOptions`).
   - Buffer pooling using `ArrayPool<ExperimentalDataPoint>.Shared` with safe return in `finally`.
   - Flushes remainder buffer on stream completion to prevent dropping trailing points.
   - Supports 3-phase interior transitions in `SliceBuffer` (`startIndex > 0 && endIndex < bufferCount - 1`).

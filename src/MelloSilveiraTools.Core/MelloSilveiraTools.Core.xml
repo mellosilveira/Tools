@@ -509,6 +509,9 @@
         <member name="M:MelloSilveiraTools.Core.ExtensionMethods.EnumerableExtensions.FluentAddRangeIfNotNull``1(System.Collections.Generic.List{``0},System.Collections.Generic.IEnumerable{``0})">
             <inheritdoc cref="M:MelloSilveiraTools.Core.ExtensionMethods.EnumerableExtensions.&lt;G&gt;$64B67F85FE78DDA587BDEEBA2FF0A5A2`1.FluentAddRangeIfNotNull(System.Collections.Generic.IEnumerable{`0})"/>
         </member>
+        <member name="M:MelloSilveiraTools.Core.ExtensionMethods.EnumerableExtensions.FluentAddIf``1(System.Collections.Generic.List{``0},System.Boolean,``0)">
+            <inheritdoc cref="M:MelloSilveiraTools.Core.ExtensionMethods.EnumerableExtensions.&lt;G&gt;$64B67F85FE78DDA587BDEEBA2FF0A5A2`1.FluentAddIf(System.Boolean,`0)"/>
+        </member>
         <member name="M:MelloSilveiraTools.Core.ExtensionMethods.EnumerableExtensions.FluentAdd``1(System.Collections.Generic.List{``0},``0)">
             <inheritdoc cref="M:MelloSilveiraTools.Core.ExtensionMethods.EnumerableExtensions.&lt;G&gt;$64B67F85FE78DDA587BDEEBA2FF0A5A2`1.FluentAdd(`0)"/>
         </member>
@@ -668,6 +671,15 @@
             <param name="collection">The object to add to the <see cref="T:System.Collections.Generic.List`1"/>.</param>
             <returns>The <paramref name="sources"/> received to add an <paramref name="collection"/>.</returns>
             <exception cref="T:System.ArgumentNullException">The <see cref="T:System.Collections.Generic.List`1" /> is null.</exception>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.ExtensionMethods.EnumerableExtensions.&lt;G&gt;$64B67F85FE78DDA587BDEEBA2FF0A5A2`1.FluentAddIf(System.Boolean,`0)">
+            <summary>
+            Adds an item to the <see cref="T:System.Collections.Generic.ICollection`1"/> if the specified <paramref name="condition"/> is true.
+            </summary>
+            <param name="condition">The condition to evaluate before adding the element.</param>
+            <param name="element">The object to add to the <see cref="T:System.Collections.Generic.ICollection`1"/>.</param>
+            <returns>The <paramref name="sources"/> received to add an <paramref name="element"/>.</returns>
+            <exception cref="T:System.NotSupportedException">The <see cref="T:System.Collections.Generic.ICollection`1" /> is read-only.</exception>
         </member>
         <member name="M:MelloSilveiraTools.Core.ExtensionMethods.EnumerableExtensions.&lt;G&gt;$64B67F85FE78DDA587BDEEBA2FF0A5A2`1.FluentAdd(`0)">
             <summary>
@@ -1671,6 +1683,12 @@
             Limitation: Strict 1:1 input/output cardinality.
             </remarks>
         </member>
+        <member name="M:MelloSilveiraTools.Core.Pipelines.Dataflow.DataflowPipelineBuilder`2.AddStep``1(System.String,System.Func{`1,``0},MelloSilveiraTools.Core.Pipelines.PipelineStepOptions)">
+            <inheritdoc/>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Pipelines.Dataflow.DataflowPipelineBuilder`2.AddStep``1(System.String,System.Func{`1,System.Threading.CancellationToken,System.Collections.Generic.IAsyncEnumerable{``0}},MelloSilveiraTools.Core.Pipelines.PipelineStepOptions)">
+            <inheritdoc/>
+        </member>
         <member name="M:MelloSilveiraTools.Core.Pipelines.Dataflow.DataflowPipelineBuilder`2.AddForkingStep``1(System.String,System.String,System.Func{`1,System.Threading.CancellationToken,System.Threading.Tasks.Task{``0}},System.Func{`1,System.Boolean},System.Func{`1,System.Threading.CancellationToken,System.Threading.Tasks.Task{``0}},MelloSilveiraTools.Core.Pipelines.PipelineStepOptions)">
             <inheritdoc/>
             <remarks>
@@ -1867,6 +1885,28 @@
             Limitation: Implements a strict 1:1 input-to-output ratio. A message must return a result to continue down the pipeline. To drop a message, it must return <c>null</c> and rely on a downstream filter to ignore it.
             </remarks>
         </member>
+        <member name="M:MelloSilveiraTools.Core.Pipelines.Dataflow.IDataflowPipelineBuilder`2.AddStep``1(System.String,System.Func{`1,``0},MelloSilveiraTools.Core.Pipelines.PipelineStepOptions)">
+            <summary>
+            Appends a TransformBlock bound to a synchronous delegate with explicit naming for telemetry and tracing.
+            Optimized for CPU-bound computations, eliminating Task allocations.
+            </summary>
+            <typeparam name="TNextOut">The resultant state type emitted by the appended synchronous delegate.</typeparam>
+            <param name="stepName">The semantic identifier utilized for structured telemetry and fault localization.</param>
+            <param name="stepFunc">The synchronous delegate encapsulating the execution logic and state mutation.</param>
+            <param name="options">Options configuring buffer sizes and cancellation tokens for the block.</param>
+            <returns>A new builder instance representing the next pipeline stage.</returns>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Pipelines.Dataflow.IDataflowPipelineBuilder`2.AddStep``1(System.String,System.Func{`1,System.Threading.CancellationToken,System.Collections.Generic.IAsyncEnumerable{``0}},MelloSilveiraTools.Core.Pipelines.PipelineStepOptions)">
+            <summary>
+            Appends a streaming transformation step that expands each ingested payload into an asynchronous sequence of output items,
+            propagating each yielded item individually downstream through the pipeline execution graph.
+            </summary>
+            <typeparam name="TNextOut">The resultant element type yielded by the asynchronous stream.</typeparam>
+            <param name="stepName">The semantic identifier utilized for structured telemetry and fault localization.</param>
+            <param name="stepFunc">The asynchronous streaming delegate yielding an asynchronous sequence of items.</param>
+            <param name="options">Options configuring buffer sizes and cancellation tokens for the step.</param>
+            <returns>A new builder instance representing the next pipeline stage yielding individual items.</returns>
+        </member>
         <member name="M:MelloSilveiraTools.Core.Pipelines.Dataflow.IDataflowPipelineBuilder`2.AddForkingStep``1(System.String,System.String,System.Func{`1,System.Threading.CancellationToken,System.Threading.Tasks.Task{``0}},System.Func{``0,System.Boolean},System.Func{`1,System.Threading.CancellationToken,System.Threading.Tasks.Task{``0}},MelloSilveiraTools.Core.Pipelines.PipelineStepOptions)">
             <summary>
             Appends a conditional branching step evaluating the output payload after the primary execution completes.
@@ -2049,6 +2089,9 @@
         <member name="M:MelloSilveiraTools.Core.Pipelines.Fluent.FluentPipelineBuilder`2.AddStep``1(System.String,System.Func{`1,System.Threading.CancellationToken,System.Threading.Tasks.Task{``0}})">
             <inheritdoc/>
         </member>
+        <member name="M:MelloSilveiraTools.Core.Pipelines.Fluent.FluentPipelineBuilder`2.AddStep``1(System.String,System.Func{`1,``0})">
+            <inheritdoc/>
+        </member>
         <member name="M:MelloSilveiraTools.Core.Pipelines.Fluent.FluentPipelineBuilder`2.Build(Microsoft.Extensions.Logging.ILogger)">
             <inheritdoc/>
         </member>
@@ -2114,6 +2157,16 @@
             <param name="stepFunc">The asynchronous delegate encapsulating the execution logic and state mutation.</param>
             <returns>A new builder instance binding the root input to the newly mutated terminal state.</returns>
         </member>
+        <member name="M:MelloSilveiraTools.Core.Pipelines.Fluent.IFluentPipelineBuilder`2.AddStep``1(System.String,System.Func{`1,``0})">
+            <summary>
+            Appends a synchronous execution delegate to the pipeline topology, 
+            mutating the terminal state type of the builder graph without Task allocation overhead.
+            </summary>
+            <typeparam name="TNextOut">The resultant state type emitted by the appended delegate.</typeparam>
+            <param name="stepName">The semantic identifier utilized for structured telemetry and fault localization.</param>
+            <param name="stepFunc">The synchronous delegate encapsulating the execution logic and state mutation.</param>
+            <returns>A new builder instance binding the root input to the newly mutated terminal state.</returns>
+        </member>
         <member name="M:MelloSilveiraTools.Core.Pipelines.Fluent.IFluentPipelineBuilder`2.Build(Microsoft.Extensions.Logging.ILogger)">
             <summary>
             Compiles the configured execution graph into an immutable, executable pipeline instance.
@@ -2121,29 +2174,76 @@
             <param name="logger">An optional structured logging provider injected into the execution engine for telemetry and state tracking.</param>
             <returns>The finalized pipeline instance capable of processing the sequential state transitions.</returns>
         </member>
-        <member name="T:MelloSilveiraTools.Core.Pipelines.IPipelineStep`2">
+        <member name="T:MelloSilveiraTools.Core.Pipelines.IAsyncEnumerablePipelineStep`2">
             <summary>
-            Defines the atomic contract for an isolated execution boundary within a pipeline topology.
+            Defines the atomic contract for a streaming execution boundary within a pipeline topology.
+            Encapsulates a singular domain responsibility, transforming a single input payload into an asynchronous sequence of output items.
+            </summary>
+            <typeparam name="TIn">The expected input payload type ingested by this execution node.</typeparam>
+            <typeparam name="TOut">The resultant output element type yielded in the asynchronous sequence.</typeparam>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Pipelines.IAsyncEnumerablePipelineStep`2.ExecuteAsync(`0,System.Threading.CancellationToken)">
+            <summary>
+            Invokes the encapsulated domain logic asynchronously, streaming an asynchronous sequence of resultant output items.
+            </summary>
+            <param name="input">The immutable payload propagated from the preceding pipeline node.</param>
+            <param name="cancellationToken">The cooperative cancellation token injected by the pipeline lifecycle orchestrator.</param>
+            <returns>An asynchronous stream yielding items produced by this execution node.</returns>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Pipelines.IAsyncEnumerablePipelineStep`2.System#IAsyncDisposable#DisposeAsync">
+            <inheritdoc/>
+        </member>
+        <member name="T:MelloSilveiraTools.Core.Pipelines.IAsyncPipelineStep`2">
+            <summary>
+            Defines the atomic contract for an asynchronous execution boundary within a pipeline topology.
             Encapsulates a singular domain responsibility, facilitating a strongly-typed state transition 
-            from a predefined input payload to a deterministic output state.
+            from a predefined input payload to a deterministic output state asynchronously.
             </summary>
             <typeparam name="TIn">The expected input payload type ingested by this execution node.</typeparam>
             <typeparam name="TOut">The resultant output payload type yielded after successful state mutation.</typeparam>
         </member>
-        <member name="P:MelloSilveiraTools.Core.Pipelines.IPipelineStep`2.Name">
-            <summary>
-            Gets the semantic identifier for this specific execution step.
-            Required by the pipeline orchestration engines for structured telemetry, 
-            distributed tracing, and precise fault localization within the execution graph.
-            </summary>
-        </member>
-        <member name="M:MelloSilveiraTools.Core.Pipelines.IPipelineStep`2.ExecuteAsync(`0,System.Threading.CancellationToken)">
+        <member name="M:MelloSilveiraTools.Core.Pipelines.IAsyncPipelineStep`2.ExecuteAsync(`0,System.Threading.CancellationToken)">
             <summary>
             Invokes the encapsulated domain logic asynchronously, mapping the ingested state to the resultant output state.
             </summary>
             <param name="input">The immutable payload propagated from the preceding pipeline node.</param>
             <param name="cancellationToken">The cooperative cancellation token injected by the pipeline lifecycle orchestrator.</param>
             <returns>A task representing the asynchronous operation, encapsulating the mutated terminal state.</returns>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Pipelines.IAsyncPipelineStep`2.System#IAsyncDisposable#DisposeAsync">
+            <inheritdoc/>
+        </member>
+        <member name="T:MelloSilveiraTools.Core.Pipelines.IPipelineStep">
+            <summary>
+            Defines the core metadata contract common to all pipeline execution step topologies.
+            Encapsulates naming semantics required for distributed tracing, structured telemetry, and logging.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Core.Pipelines.IPipelineStep.Name">
+            <summary>
+            Gets the semantic identifier for this specific execution step.
+            Required by the pipeline orchestration engines for structured telemetry, 
+            distributed tracing, and precise fault localization within the execution graph.
+            </summary>
+        </member>
+        <member name="T:MelloSilveiraTools.Core.Pipelines.ISyncPipelineStep`2">
+            <summary>
+            Defines the atomic contract for a synchronous execution boundary within a pipeline topology.
+            Encapsulates a singular domain responsibility, facilitating a strongly-typed state transition 
+            from a predefined input payload to a deterministic output state synchronously without Task allocations.
+            </summary>
+            <typeparam name="TIn">The expected input payload type ingested by this execution node.</typeparam>
+            <typeparam name="TOut">The resultant output payload type yielded after successful state mutation.</typeparam>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Pipelines.ISyncPipelineStep`2.Execute(`0)">
+            <summary>
+            Invokes the encapsulated domain logic synchronously, mapping the ingested state to the resultant output state.
+            </summary>
+            <param name="input">The immutable payload propagated from the preceding pipeline node.</param>
+            <returns>The resultant output state produced by the synchronous execution.</returns>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Pipelines.ISyncPipelineStep`2.System#IDisposable#Dispose">
+            <inheritdoc/>
         </member>
         <member name="T:MelloSilveiraTools.Core.Pipelines.PipelineExecutionException">
             <summary>
@@ -2177,72 +2277,242 @@
             Abstracts underlying mechanics by providing strongly-typed fluid configuration APIs.
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.Core.Pipelines.PipelineExtensions.AddStep``3(MelloSilveiraTools.Core.Pipelines.Fluent.IFluentPipelineBuilder{``0,``1},MelloSilveiraTools.Core.Pipelines.IPipelineStep{``1,``2})">
-            <inheritdoc cref="M:MelloSilveiraTools.Core.Pipelines.PipelineExtensions.&lt;G&gt;$03ED2E6D27C8C403899CE301D0527571`2.AddStep``1(MelloSilveiraTools.Core.Pipelines.IPipelineStep{`1,``0})"/>
+        <member name="M:MelloSilveiraTools.Core.Pipelines.PipelineExtensions.AddStep``3(MelloSilveiraTools.Core.Pipelines.Fluent.IFluentPipelineBuilder{``0,``1},MelloSilveiraTools.Core.Pipelines.IAsyncPipelineStep{``1,``2})">
+            <inheritdoc cref="M:MelloSilveiraTools.Core.Pipelines.PipelineExtensions.&lt;G&gt;$03ED2E6D27C8C403899CE301D0527571`2.AddStep``1(MelloSilveiraTools.Core.Pipelines.IAsyncPipelineStep{`1,``0})"/>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Pipelines.PipelineExtensions.AddStep``3(MelloSilveiraTools.Core.Pipelines.Fluent.IFluentPipelineBuilder{``0,``1},MelloSilveiraTools.Core.Pipelines.ISyncPipelineStep{``1,``2})">
+            <inheritdoc cref="M:MelloSilveiraTools.Core.Pipelines.PipelineExtensions.&lt;G&gt;$03ED2E6D27C8C403899CE301D0527571`2.AddStep``1(MelloSilveiraTools.Core.Pipelines.ISyncPipelineStep{`1,``0})"/>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Pipelines.PipelineExtensions.AddStep``3(MelloSilveiraTools.Core.Pipelines.Fluent.IFluentPipelineBuilder{``0,``1},MelloSilveiraTools.Core.Pipelines.IAsyncEnumerablePipelineStep{``1,``2})">
+            <inheritdoc cref="M:MelloSilveiraTools.Core.Pipelines.PipelineExtensions.&lt;G&gt;$03ED2E6D27C8C403899CE301D0527571`2.AddStep``1(MelloSilveiraTools.Core.Pipelines.IAsyncEnumerablePipelineStep{`1,``0})"/>
         </member>
         <member name="M:MelloSilveiraTools.Core.Pipelines.PipelineExtensions.AddDataMapping``3(MelloSilveiraTools.Core.Pipelines.Fluent.IFluentPipelineBuilder{``0,``1},System.Func{``1,``2})">
             <inheritdoc cref="M:MelloSilveiraTools.Core.Pipelines.PipelineExtensions.&lt;G&gt;$03ED2E6D27C8C403899CE301D0527571`2.AddDataMapping``1(System.Func{`1,``0})"/>
         </member>
-        <member name="M:MelloSilveiraTools.Core.Pipelines.PipelineExtensions.AddStep``3(MelloSilveiraTools.Core.Pipelines.Dataflow.IDataflowPipelineBuilder{``0,``1},MelloSilveiraTools.Core.Pipelines.IPipelineStep{``1,``2},MelloSilveiraTools.Core.Pipelines.PipelineStepOptions)">
-            <inheritdoc cref="M:MelloSilveiraTools.Core.Pipelines.PipelineExtensions.&lt;G&gt;$6773866DE25ECFE8E7C56EE5107CFB66`2.AddStep``1(MelloSilveiraTools.Core.Pipelines.IPipelineStep{`1,``0},MelloSilveiraTools.Core.Pipelines.PipelineStepOptions)"/>
+        <member name="M:MelloSilveiraTools.Core.Pipelines.PipelineExtensions.AddStep``3(MelloSilveiraTools.Core.Pipelines.Dataflow.IDataflowPipelineBuilder{``0,``1},MelloSilveiraTools.Core.Pipelines.IAsyncPipelineStep{``1,``2},MelloSilveiraTools.Core.Pipelines.PipelineStepOptions)">
+            <inheritdoc cref="M:MelloSilveiraTools.Core.Pipelines.PipelineExtensions.&lt;G&gt;$6773866DE25ECFE8E7C56EE5107CFB66`2.AddStep``1(MelloSilveiraTools.Core.Pipelines.IAsyncPipelineStep{`1,``0},MelloSilveiraTools.Core.Pipelines.PipelineStepOptions)"/>
         </member>
-        <member name="M:MelloSilveiraTools.Core.Pipelines.PipelineExtensions.AddBroadcastStep``3(MelloSilveiraTools.Core.Pipelines.Dataflow.IDataflowPipelineBuilder{``0,``1},MelloSilveiraTools.Core.Pipelines.IPipelineStep{``1,``2},MelloSilveiraTools.Core.Pipelines.PipelineStepOptions)">
-            <inheritdoc cref="M:MelloSilveiraTools.Core.Pipelines.PipelineExtensions.&lt;G&gt;$6773866DE25ECFE8E7C56EE5107CFB66`2.AddBroadcastStep``1(MelloSilveiraTools.Core.Pipelines.IPipelineStep{`1,``0},MelloSilveiraTools.Core.Pipelines.PipelineStepOptions)"/>
+        <member name="M:MelloSilveiraTools.Core.Pipelines.PipelineExtensions.AddStep``3(MelloSilveiraTools.Core.Pipelines.Dataflow.IDataflowPipelineBuilder{``0,``1},MelloSilveiraTools.Core.Pipelines.ISyncPipelineStep{``1,``2},MelloSilveiraTools.Core.Pipelines.PipelineStepOptions)">
+            <inheritdoc cref="M:MelloSilveiraTools.Core.Pipelines.PipelineExtensions.&lt;G&gt;$6773866DE25ECFE8E7C56EE5107CFB66`2.AddStep``1(MelloSilveiraTools.Core.Pipelines.ISyncPipelineStep{`1,``0},MelloSilveiraTools.Core.Pipelines.PipelineStepOptions)"/>
         </member>
-        <member name="M:MelloSilveiraTools.Core.Pipelines.PipelineExtensions.AddBroadcastStep``3(MelloSilveiraTools.Core.Pipelines.Dataflow.IDataflowPipelineBuilder{``0,``1},MelloSilveiraTools.Core.Pipelines.IPipelineStep{``1,``2},System.Func{``1,``1},MelloSilveiraTools.Core.Pipelines.PipelineStepOptions)">
-            <inheritdoc cref="M:MelloSilveiraTools.Core.Pipelines.PipelineExtensions.&lt;G&gt;$6773866DE25ECFE8E7C56EE5107CFB66`2.AddBroadcastStep``1(MelloSilveiraTools.Core.Pipelines.IPipelineStep{`1,``0},System.Func{`1,`1},MelloSilveiraTools.Core.Pipelines.PipelineStepOptions)"/>
+        <member name="M:MelloSilveiraTools.Core.Pipelines.PipelineExtensions.AddStep``3(MelloSilveiraTools.Core.Pipelines.Dataflow.IDataflowPipelineBuilder{``0,``1},MelloSilveiraTools.Core.Pipelines.IAsyncEnumerablePipelineStep{``1,``2},MelloSilveiraTools.Core.Pipelines.PipelineStepOptions)">
+            <inheritdoc cref="M:MelloSilveiraTools.Core.Pipelines.PipelineExtensions.&lt;G&gt;$6773866DE25ECFE8E7C56EE5107CFB66`2.AddStep``1(MelloSilveiraTools.Core.Pipelines.IAsyncEnumerablePipelineStep{`1,``0},MelloSilveiraTools.Core.Pipelines.PipelineStepOptions)"/>
         </member>
-        <member name="M:MelloSilveiraTools.Core.Pipelines.PipelineExtensions.AddBroadcastBlock``3(MelloSilveiraTools.Core.Pipelines.Dataflow.IDataflowPipelineBuilder{``0,``1},MelloSilveiraTools.Core.Pipelines.IPipelineStep{``1,``2},MelloSilveiraTools.Core.Pipelines.PipelineStepOptions)">
-            <inheritdoc cref="M:MelloSilveiraTools.Core.Pipelines.PipelineExtensions.&lt;G&gt;$6773866DE25ECFE8E7C56EE5107CFB66`2.AddBroadcastBlock``1(MelloSilveiraTools.Core.Pipelines.IPipelineStep{`1,``0},MelloSilveiraTools.Core.Pipelines.PipelineStepOptions)"/>
+        <member name="M:MelloSilveiraTools.Core.Pipelines.PipelineExtensions.AddBroadcastStep``3(MelloSilveiraTools.Core.Pipelines.Dataflow.IDataflowPipelineBuilder{``0,``1},MelloSilveiraTools.Core.Pipelines.IAsyncPipelineStep{``1,``2},MelloSilveiraTools.Core.Pipelines.PipelineStepOptions)">
+            <inheritdoc cref="M:MelloSilveiraTools.Core.Pipelines.PipelineExtensions.&lt;G&gt;$6773866DE25ECFE8E7C56EE5107CFB66`2.AddBroadcastStep``1(MelloSilveiraTools.Core.Pipelines.IAsyncPipelineStep{`1,``0},MelloSilveiraTools.Core.Pipelines.PipelineStepOptions)"/>
         </member>
-        <member name="M:MelloSilveiraTools.Core.Pipelines.PipelineExtensions.AddBroadcastBlock``3(MelloSilveiraTools.Core.Pipelines.Dataflow.IDataflowPipelineBuilder{``0,``1},MelloSilveiraTools.Core.Pipelines.IPipelineStep{``1,``2},System.Func{``1,``1},MelloSilveiraTools.Core.Pipelines.PipelineStepOptions)">
-            <inheritdoc cref="M:MelloSilveiraTools.Core.Pipelines.PipelineExtensions.&lt;G&gt;$6773866DE25ECFE8E7C56EE5107CFB66`2.AddBroadcastBlock``1(MelloSilveiraTools.Core.Pipelines.IPipelineStep{`1,``0},System.Func{`1,`1},MelloSilveiraTools.Core.Pipelines.PipelineStepOptions)"/>
+        <member name="M:MelloSilveiraTools.Core.Pipelines.PipelineExtensions.AddBroadcastStep``3(MelloSilveiraTools.Core.Pipelines.Dataflow.IDataflowPipelineBuilder{``0,``1},MelloSilveiraTools.Core.Pipelines.IAsyncPipelineStep{``1,``2},System.Func{``1,``1},MelloSilveiraTools.Core.Pipelines.PipelineStepOptions)">
+            <inheritdoc cref="M:MelloSilveiraTools.Core.Pipelines.PipelineExtensions.&lt;G&gt;$6773866DE25ECFE8E7C56EE5107CFB66`2.AddBroadcastStep``1(MelloSilveiraTools.Core.Pipelines.IAsyncPipelineStep{`1,``0},System.Func{`1,`1},MelloSilveiraTools.Core.Pipelines.PipelineStepOptions)"/>
         </member>
-        <member name="M:MelloSilveiraTools.Core.Pipelines.PipelineExtensions.AddForkingStep``3(MelloSilveiraTools.Core.Pipelines.Dataflow.IDataflowPipelineBuilder{``0,``1},MelloSilveiraTools.Core.Pipelines.IPipelineStep{``1,``2},System.Func{``2,System.Boolean},MelloSilveiraTools.Core.Pipelines.IPipelineStep{``1,``2},MelloSilveiraTools.Core.Pipelines.PipelineStepOptions)">
+        <member name="M:MelloSilveiraTools.Core.Pipelines.PipelineExtensions.AddBroadcastStep``3(MelloSilveiraTools.Core.Pipelines.Dataflow.IDataflowPipelineBuilder{``0,``1},MelloSilveiraTools.Core.Pipelines.ISyncPipelineStep{``1,``2},MelloSilveiraTools.Core.Pipelines.PipelineStepOptions)">
+            <inheritdoc cref="M:MelloSilveiraTools.Core.Pipelines.PipelineExtensions.&lt;G&gt;$6773866DE25ECFE8E7C56EE5107CFB66`2.AddBroadcastStep``1(MelloSilveiraTools.Core.Pipelines.ISyncPipelineStep{`1,``0},MelloSilveiraTools.Core.Pipelines.PipelineStepOptions)"/>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Pipelines.PipelineExtensions.AddBroadcastStep``3(MelloSilveiraTools.Core.Pipelines.Dataflow.IDataflowPipelineBuilder{``0,``1},MelloSilveiraTools.Core.Pipelines.ISyncPipelineStep{``1,``2},System.Func{``1,``1},MelloSilveiraTools.Core.Pipelines.PipelineStepOptions)">
+            <inheritdoc cref="M:MelloSilveiraTools.Core.Pipelines.PipelineExtensions.&lt;G&gt;$6773866DE25ECFE8E7C56EE5107CFB66`2.AddBroadcastStep``1(MelloSilveiraTools.Core.Pipelines.ISyncPipelineStep{`1,``0},System.Func{`1,`1},MelloSilveiraTools.Core.Pipelines.PipelineStepOptions)"/>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Pipelines.PipelineExtensions.AddBroadcastStep``3(MelloSilveiraTools.Core.Pipelines.Dataflow.IDataflowPipelineBuilder{``0,``1},MelloSilveiraTools.Core.Pipelines.IAsyncEnumerablePipelineStep{``1,``2},MelloSilveiraTools.Core.Pipelines.PipelineStepOptions)">
+            <inheritdoc cref="M:MelloSilveiraTools.Core.Pipelines.PipelineExtensions.&lt;G&gt;$6773866DE25ECFE8E7C56EE5107CFB66`2.AddBroadcastStep``1(MelloSilveiraTools.Core.Pipelines.IAsyncEnumerablePipelineStep{`1,``0},MelloSilveiraTools.Core.Pipelines.PipelineStepOptions)"/>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Pipelines.PipelineExtensions.AddBroadcastStep``3(MelloSilveiraTools.Core.Pipelines.Dataflow.IDataflowPipelineBuilder{``0,``1},MelloSilveiraTools.Core.Pipelines.IAsyncEnumerablePipelineStep{``1,``2},System.Func{``1,``1},MelloSilveiraTools.Core.Pipelines.PipelineStepOptions)">
+            <inheritdoc cref="M:MelloSilveiraTools.Core.Pipelines.PipelineExtensions.&lt;G&gt;$6773866DE25ECFE8E7C56EE5107CFB66`2.AddBroadcastStep``1(MelloSilveiraTools.Core.Pipelines.IAsyncEnumerablePipelineStep{`1,``0},System.Func{`1,`1},MelloSilveiraTools.Core.Pipelines.PipelineStepOptions)"/>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Pipelines.PipelineExtensions.AddBroadcastBlock``3(MelloSilveiraTools.Core.Pipelines.Dataflow.IDataflowPipelineBuilder{``0,``1},MelloSilveiraTools.Core.Pipelines.IAsyncPipelineStep{``1,``2},MelloSilveiraTools.Core.Pipelines.PipelineStepOptions)">
+            <inheritdoc cref="M:MelloSilveiraTools.Core.Pipelines.PipelineExtensions.&lt;G&gt;$6773866DE25ECFE8E7C56EE5107CFB66`2.AddBroadcastBlock``1(MelloSilveiraTools.Core.Pipelines.IAsyncPipelineStep{`1,``0},MelloSilveiraTools.Core.Pipelines.PipelineStepOptions)"/>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Pipelines.PipelineExtensions.AddBroadcastBlock``3(MelloSilveiraTools.Core.Pipelines.Dataflow.IDataflowPipelineBuilder{``0,``1},MelloSilveiraTools.Core.Pipelines.IAsyncPipelineStep{``1,``2},System.Func{``1,``1},MelloSilveiraTools.Core.Pipelines.PipelineStepOptions)">
+            <inheritdoc cref="M:MelloSilveiraTools.Core.Pipelines.PipelineExtensions.&lt;G&gt;$6773866DE25ECFE8E7C56EE5107CFB66`2.AddBroadcastBlock``1(MelloSilveiraTools.Core.Pipelines.IAsyncPipelineStep{`1,``0},System.Func{`1,`1},MelloSilveiraTools.Core.Pipelines.PipelineStepOptions)"/>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Pipelines.PipelineExtensions.AddBroadcastBlock``3(MelloSilveiraTools.Core.Pipelines.Dataflow.IDataflowPipelineBuilder{``0,``1},MelloSilveiraTools.Core.Pipelines.ISyncPipelineStep{``1,``2},MelloSilveiraTools.Core.Pipelines.PipelineStepOptions)">
+            <inheritdoc cref="M:MelloSilveiraTools.Core.Pipelines.PipelineExtensions.&lt;G&gt;$6773866DE25ECFE8E7C56EE5107CFB66`2.AddBroadcastBlock``1(MelloSilveiraTools.Core.Pipelines.ISyncPipelineStep{`1,``0},MelloSilveiraTools.Core.Pipelines.PipelineStepOptions)"/>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Pipelines.PipelineExtensions.AddBroadcastBlock``3(MelloSilveiraTools.Core.Pipelines.Dataflow.IDataflowPipelineBuilder{``0,``1},MelloSilveiraTools.Core.Pipelines.ISyncPipelineStep{``1,``2},System.Func{``1,``1},MelloSilveiraTools.Core.Pipelines.PipelineStepOptions)">
+            <inheritdoc cref="M:MelloSilveiraTools.Core.Pipelines.PipelineExtensions.&lt;G&gt;$6773866DE25ECFE8E7C56EE5107CFB66`2.AddBroadcastBlock``1(MelloSilveiraTools.Core.Pipelines.ISyncPipelineStep{`1,``0},System.Func{`1,`1},MelloSilveiraTools.Core.Pipelines.PipelineStepOptions)"/>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Pipelines.PipelineExtensions.AddBroadcastBlock``3(MelloSilveiraTools.Core.Pipelines.Dataflow.IDataflowPipelineBuilder{``0,``1},MelloSilveiraTools.Core.Pipelines.IAsyncEnumerablePipelineStep{``1,``2},MelloSilveiraTools.Core.Pipelines.PipelineStepOptions)">
+            <inheritdoc cref="M:MelloSilveiraTools.Core.Pipelines.PipelineExtensions.&lt;G&gt;$6773866DE25ECFE8E7C56EE5107CFB66`2.AddBroadcastBlock``1(MelloSilveiraTools.Core.Pipelines.IAsyncEnumerablePipelineStep{`1,``0},MelloSilveiraTools.Core.Pipelines.PipelineStepOptions)"/>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Pipelines.PipelineExtensions.AddBroadcastBlock``3(MelloSilveiraTools.Core.Pipelines.Dataflow.IDataflowPipelineBuilder{``0,``1},MelloSilveiraTools.Core.Pipelines.IAsyncEnumerablePipelineStep{``1,``2},System.Func{``1,``1},MelloSilveiraTools.Core.Pipelines.PipelineStepOptions)">
+            <inheritdoc cref="M:MelloSilveiraTools.Core.Pipelines.PipelineExtensions.&lt;G&gt;$6773866DE25ECFE8E7C56EE5107CFB66`2.AddBroadcastBlock``1(MelloSilveiraTools.Core.Pipelines.IAsyncEnumerablePipelineStep{`1,``0},System.Func{`1,`1},MelloSilveiraTools.Core.Pipelines.PipelineStepOptions)"/>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Pipelines.PipelineExtensions.AddForkingStep``3(MelloSilveiraTools.Core.Pipelines.Dataflow.IDataflowPipelineBuilder{``0,``1},MelloSilveiraTools.Core.Pipelines.IAsyncPipelineStep{``1,``2},System.Func{``2,System.Boolean},MelloSilveiraTools.Core.Pipelines.IAsyncPipelineStep{``1,``2},MelloSilveiraTools.Core.Pipelines.PipelineStepOptions)">
+            <inheritdoc cref="M:MelloSilveiraTools.Core.Pipelines.PipelineExtensions.&lt;G&gt;$6773866DE25ECFE8E7C56EE5107CFB66`2.AddForkingStep``1(MelloSilveiraTools.Core.Pipelines.IAsyncPipelineStep{`1,``0},System.Func{``0,System.Boolean},MelloSilveiraTools.Core.Pipelines.IAsyncPipelineStep{`1,``0},MelloSilveiraTools.Core.Pipelines.PipelineStepOptions)"/>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Pipelines.PipelineExtensions.AddForkingStep``3(MelloSilveiraTools.Core.Pipelines.Dataflow.IDataflowPipelineBuilder{``0,``1},MelloSilveiraTools.Core.Pipelines.ISyncPipelineStep{``1,``2},System.Func{``2,System.Boolean},MelloSilveiraTools.Core.Pipelines.ISyncPipelineStep{``1,``2},MelloSilveiraTools.Core.Pipelines.PipelineStepOptions)">
+            <inheritdoc cref="M:MelloSilveiraTools.Core.Pipelines.PipelineExtensions.&lt;G&gt;$6773866DE25ECFE8E7C56EE5107CFB66`2.AddForkingStep``1(MelloSilveiraTools.Core.Pipelines.ISyncPipelineStep{`1,``0},System.Func{``0,System.Boolean},MelloSilveiraTools.Core.Pipelines.ISyncPipelineStep{`1,``0},MelloSilveiraTools.Core.Pipelines.PipelineStepOptions)"/>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Pipelines.PipelineExtensions.&lt;G&gt;$03ED2E6D27C8C403899CE301D0527571`2.AddStep``1(MelloSilveiraTools.Core.Pipelines.IAsyncPipelineStep{`1,``0})">
             <summary>
-            Forks the pipeline execution based on success or failure using a lightweight ValueTuple envelope.
-            Successful items proceed to the next stage, while failed items are routed to a recovery step and terminated.
+            Appends an asynchronous execution step to the fluent pipeline topology.
             </summary>
+            <typeparam name="TNextOut">The resultant state type emitted by the step.</typeparam>
+            <param name="step">The asynchronous pipeline step instance to append.</param>
+            <returns>A new builder instance binding the root input to the newly mutated terminal state.</returns>
         </member>
-        <member name="M:MelloSilveiraTools.Core.Pipelines.PipelineExtensions.&lt;G&gt;$03ED2E6D27C8C403899CE301D0527571`2.AddStep``1(MelloSilveiraTools.Core.Pipelines.IPipelineStep{`1,``0})">
+        <member name="M:MelloSilveiraTools.Core.Pipelines.PipelineExtensions.&lt;G&gt;$03ED2E6D27C8C403899CE301D0527571`2.AddStep``1(MelloSilveiraTools.Core.Pipelines.ISyncPipelineStep{`1,``0})">
             <summary>
-            Appends an asynchronous execution step to the fluent pipeline topology[cite: 2].
+            Appends a synchronous execution step to the fluent pipeline topology.
             </summary>
+            <typeparam name="TNextOut">The resultant state type emitted by the step.</typeparam>
+            <param name="step">The synchronous pipeline step instance to append.</param>
+            <returns>A new builder instance binding the root input to the newly mutated terminal state.</returns>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Pipelines.PipelineExtensions.&lt;G&gt;$03ED2E6D27C8C403899CE301D0527571`2.AddStep``1(MelloSilveiraTools.Core.Pipelines.IAsyncEnumerablePipelineStep{`1,``0})">
+            <summary>
+            Appends a streaming execution step returning an asynchronous sequence to the fluent pipeline topology.
+            </summary>
+            <typeparam name="TNextOut">The element type emitted by the streaming step.</typeparam>
+            <param name="step">The streaming pipeline step instance to append.</param>
+            <returns>A new builder instance yielding an asynchronous sequence of elements.</returns>
         </member>
         <member name="M:MelloSilveiraTools.Core.Pipelines.PipelineExtensions.&lt;G&gt;$03ED2E6D27C8C403899CE301D0527571`2.AddDataMapping``1(System.Func{`1,``0})">
             <summary>
-            Injects a synchronous data transformation projection into the pipeline execution graph[cite: 2].
+            Injects a synchronous data transformation projection into the pipeline execution graph.
             </summary>
+            <typeparam name="TNextOut">The resultant state type emitted by the mapper function.</typeparam>
+            <param name="mapper">The synchronous data mapping projection function.</param>
+            <returns>A new builder instance binding the root input to the newly mutated terminal state.</returns>
         </member>
-        <member name="M:MelloSilveiraTools.Core.Pipelines.PipelineExtensions.&lt;G&gt;$6773866DE25ECFE8E7C56EE5107CFB66`2.AddStep``1(MelloSilveiraTools.Core.Pipelines.IPipelineStep{`1,``0},MelloSilveiraTools.Core.Pipelines.PipelineStepOptions)">
+        <member name="M:MelloSilveiraTools.Core.Pipelines.PipelineExtensions.&lt;G&gt;$6773866DE25ECFE8E7C56EE5107CFB66`2.AddStep``1(MelloSilveiraTools.Core.Pipelines.IAsyncPipelineStep{`1,``0},MelloSilveiraTools.Core.Pipelines.PipelineStepOptions)">
             <summary>
-            Injects a pre-configured <see cref="T:MelloSilveiraTools.Core.Pipelines.IPipelineStep`2"/> instance into the continuous Dataflow execution graph.
+            Injects a pre-configured <see cref="T:MelloSilveiraTools.Core.Pipelines.IAsyncPipelineStep`2"/> instance into the continuous Dataflow execution graph.
             </summary>
+            <typeparam name="TNextOut">The resultant state type emitted by the step.</typeparam>
+            <param name="step">The asynchronous pipeline step instance to append.</param>
+            <param name="options">Options configuring buffer sizes and cancellation tokens for the block.</param>
+            <returns>A new builder instance representing the next pipeline stage.</returns>
         </member>
-        <member name="M:MelloSilveiraTools.Core.Pipelines.PipelineExtensions.&lt;G&gt;$6773866DE25ECFE8E7C56EE5107CFB66`2.AddBroadcastStep``1(MelloSilveiraTools.Core.Pipelines.IPipelineStep{`1,``0},MelloSilveiraTools.Core.Pipelines.PipelineStepOptions)">
+        <member name="M:MelloSilveiraTools.Core.Pipelines.PipelineExtensions.&lt;G&gt;$6773866DE25ECFE8E7C56EE5107CFB66`2.AddStep``1(MelloSilveiraTools.Core.Pipelines.ISyncPipelineStep{`1,``0},MelloSilveiraTools.Core.Pipelines.PipelineStepOptions)">
             <summary>
-            Injects a pre-configured <see cref="T:MelloSilveiraTools.Core.Pipelines.IPipelineStep`2"/> as a side-branch consumer linked to a BroadcastBlock,
+            Injects a pre-configured <see cref="T:MelloSilveiraTools.Core.Pipelines.ISyncPipelineStep`2"/> instance into the continuous Dataflow execution graph.
+            </summary>
+            <typeparam name="TNextOut">The resultant state type emitted by the step.</typeparam>
+            <param name="step">The synchronous pipeline step instance to append.</param>
+            <param name="options">Options configuring buffer sizes and cancellation tokens for the block.</param>
+            <returns>A new builder instance representing the next pipeline stage.</returns>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Pipelines.PipelineExtensions.&lt;G&gt;$6773866DE25ECFE8E7C56EE5107CFB66`2.AddStep``1(MelloSilveiraTools.Core.Pipelines.IAsyncEnumerablePipelineStep{`1,``0},MelloSilveiraTools.Core.Pipelines.PipelineStepOptions)">
+            <summary>
+            Injects a pre-configured <see cref="T:MelloSilveiraTools.Core.Pipelines.IAsyncEnumerablePipelineStep`2"/> instance into the continuous Dataflow execution graph,
+            streaming individual output items downstream.
+            </summary>
+            <typeparam name="TNextOut">The element type yielded by the streaming step.</typeparam>
+            <param name="step">The streaming pipeline step instance to append.</param>
+            <param name="options">Options configuring buffer sizes and cancellation tokens for the block.</param>
+            <returns>A new builder instance representing the next pipeline stage.</returns>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Pipelines.PipelineExtensions.&lt;G&gt;$6773866DE25ECFE8E7C56EE5107CFB66`2.AddBroadcastStep``1(MelloSilveiraTools.Core.Pipelines.IAsyncPipelineStep{`1,``0},MelloSilveiraTools.Core.Pipelines.PipelineStepOptions)">
+            <summary>
+            Injects a pre-configured <see cref="T:MelloSilveiraTools.Core.Pipelines.IAsyncPipelineStep`2"/> as a side-branch consumer linked to a BroadcastBlock,
             while propagating the primary data stream downstream for continued pipeline orchestration.
             </summary>
+            <typeparam name="TBranchOut">The return state type produced by the side-branch step.</typeparam>
+            <param name="step">The asynchronous pipeline step to broadcast to.</param>
+            <param name="options">Options configuring buffer sizes and cancellation tokens for the block.</param>
+            <returns>The builder instance configured with the broadcast block linked to the branch target.</returns>
         </member>
-        <member name="M:MelloSilveiraTools.Core.Pipelines.PipelineExtensions.&lt;G&gt;$6773866DE25ECFE8E7C56EE5107CFB66`2.AddBroadcastStep``1(MelloSilveiraTools.Core.Pipelines.IPipelineStep{`1,``0},System.Func{`1,`1},MelloSilveiraTools.Core.Pipelines.PipelineStepOptions)">
+        <member name="M:MelloSilveiraTools.Core.Pipelines.PipelineExtensions.&lt;G&gt;$6773866DE25ECFE8E7C56EE5107CFB66`2.AddBroadcastStep``1(MelloSilveiraTools.Core.Pipelines.IAsyncPipelineStep{`1,``0},System.Func{`1,`1},MelloSilveiraTools.Core.Pipelines.PipelineStepOptions)">
             <summary>
-            Injects a pre-configured <see cref="T:MelloSilveiraTools.Core.Pipelines.IPipelineStep`2"/> as a side-branch consumer linked to a BroadcastBlock,
+            Injects a pre-configured <see cref="T:MelloSilveiraTools.Core.Pipelines.IAsyncPipelineStep`2"/> as a side-branch consumer linked to a BroadcastBlock,
             while propagating the primary data stream downstream for continued pipeline orchestration.
             </summary>
+            <typeparam name="TBranchOut">The return state type produced by the side-branch step.</typeparam>
+            <param name="step">The asynchronous pipeline step to broadcast to.</param>
+            <param name="cloneFunc">An optional delegate to clone each payload before broadcasting.</param>
+            <param name="options">Options configuring buffer sizes and cancellation tokens for the block.</param>
+            <returns>The builder instance configured with the broadcast block linked to the branch target.</returns>
         </member>
-        <member name="M:MelloSilveiraTools.Core.Pipelines.PipelineExtensions.&lt;G&gt;$6773866DE25ECFE8E7C56EE5107CFB66`2.AddBroadcastBlock``1(MelloSilveiraTools.Core.Pipelines.IPipelineStep{`1,``0},MelloSilveiraTools.Core.Pipelines.PipelineStepOptions)">
+        <member name="M:MelloSilveiraTools.Core.Pipelines.PipelineExtensions.&lt;G&gt;$6773866DE25ECFE8E7C56EE5107CFB66`2.AddBroadcastStep``1(MelloSilveiraTools.Core.Pipelines.ISyncPipelineStep{`1,``0},MelloSilveiraTools.Core.Pipelines.PipelineStepOptions)">
             <summary>
-            Injects a pre-configured <see cref="T:MelloSilveiraTools.Core.Pipelines.IPipelineStep`2"/> as a side-branch consumer linked to a BroadcastBlock,
+            Injects a pre-configured <see cref="T:MelloSilveiraTools.Core.Pipelines.ISyncPipelineStep`2"/> as a side-branch consumer linked to a BroadcastBlock,
             while propagating the primary data stream downstream for continued pipeline orchestration.
-            Alias for <see cref="M:MelloSilveiraTools.Core.Pipelines.PipelineExtensions.AddBroadcastStep``3(MelloSilveiraTools.Core.Pipelines.Dataflow.IDataflowPipelineBuilder{``0,``1},MelloSilveiraTools.Core.Pipelines.IPipelineStep{``1,``2},MelloSilveiraTools.Core.Pipelines.PipelineStepOptions)"/>.
+            </summary>
+            <typeparam name="TBranchOut">The return state type produced by the side-branch step.</typeparam>
+            <param name="step">The synchronous pipeline step to broadcast to.</param>
+            <param name="options">Options configuring buffer sizes and cancellation tokens for the block.</param>
+            <returns>The builder instance configured with the broadcast block linked to the branch target.</returns>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Pipelines.PipelineExtensions.&lt;G&gt;$6773866DE25ECFE8E7C56EE5107CFB66`2.AddBroadcastStep``1(MelloSilveiraTools.Core.Pipelines.ISyncPipelineStep{`1,``0},System.Func{`1,`1},MelloSilveiraTools.Core.Pipelines.PipelineStepOptions)">
+            <summary>
+            Injects a pre-configured <see cref="T:MelloSilveiraTools.Core.Pipelines.ISyncPipelineStep`2"/> as a side-branch consumer linked to a BroadcastBlock,
+            while propagating the primary data stream downstream for continued pipeline orchestration.
+            </summary>
+            <typeparam name="TBranchOut">The return state type produced by the side-branch step.</typeparam>
+            <param name="step">The synchronous pipeline step to broadcast to.</param>
+            <param name="cloneFunc">An optional delegate to clone each payload before broadcasting.</param>
+            <param name="options">Options configuring buffer sizes and cancellation tokens for the block.</param>
+            <returns>The builder instance configured with the broadcast block linked to the branch target.</returns>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Pipelines.PipelineExtensions.&lt;G&gt;$6773866DE25ECFE8E7C56EE5107CFB66`2.AddBroadcastStep``1(MelloSilveiraTools.Core.Pipelines.IAsyncEnumerablePipelineStep{`1,``0},MelloSilveiraTools.Core.Pipelines.PipelineStepOptions)">
+            <summary>
+            Injects a pre-configured <see cref="T:MelloSilveiraTools.Core.Pipelines.IAsyncEnumerablePipelineStep`2"/> as a side-branch consumer linked to a BroadcastBlock,
+            while propagating the primary data stream downstream for continued pipeline orchestration.
+            </summary>
+            <typeparam name="TBranchOut">The return state type produced by the side-branch step.</typeparam>
+            <param name="step">The streaming pipeline step to broadcast to.</param>
+            <param name="options">Options configuring buffer sizes and cancellation tokens for the block.</param>
+            <returns>The builder instance configured with the broadcast block linked to the branch target.</returns>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Pipelines.PipelineExtensions.&lt;G&gt;$6773866DE25ECFE8E7C56EE5107CFB66`2.AddBroadcastStep``1(MelloSilveiraTools.Core.Pipelines.IAsyncEnumerablePipelineStep{`1,``0},System.Func{`1,`1},MelloSilveiraTools.Core.Pipelines.PipelineStepOptions)">
+            <summary>
+            Injects a pre-configured <see cref="T:MelloSilveiraTools.Core.Pipelines.IAsyncEnumerablePipelineStep`2"/> as a side-branch consumer linked to a BroadcastBlock,
+            while propagating the primary data stream downstream for continued pipeline orchestration.
+            </summary>
+            <typeparam name="TBranchOut">The return state type produced by the side-branch step.</typeparam>
+            <param name="step">The streaming pipeline step to broadcast to.</param>
+            <param name="cloneFunc">An optional delegate to clone each payload before broadcasting.</param>
+            <param name="options">Options configuring buffer sizes and cancellation tokens for the block.</param>
+            <returns>The builder instance configured with the broadcast block linked to the branch target.</returns>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Pipelines.PipelineExtensions.&lt;G&gt;$6773866DE25ECFE8E7C56EE5107CFB66`2.AddBroadcastBlock``1(MelloSilveiraTools.Core.Pipelines.IAsyncPipelineStep{`1,``0},MelloSilveiraTools.Core.Pipelines.PipelineStepOptions)">
+            <summary>
+            Injects a pre-configured <see cref="T:MelloSilveiraTools.Core.Pipelines.IAsyncPipelineStep`2"/> as a side-branch consumer linked to a BroadcastBlock,
+            while propagating the primary data stream downstream for continued pipeline orchestration.
+            Alias for <see cref="!:AddBroadcastStep&lt;TBranchOut&gt;(IAsyncPipelineStep&lt;TCurrentOut, TBranchOut&gt;, PipelineStepOptions)"/>.
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.Core.Pipelines.PipelineExtensions.&lt;G&gt;$6773866DE25ECFE8E7C56EE5107CFB66`2.AddBroadcastBlock``1(MelloSilveiraTools.Core.Pipelines.IPipelineStep{`1,``0},System.Func{`1,`1},MelloSilveiraTools.Core.Pipelines.PipelineStepOptions)">
+        <member name="M:MelloSilveiraTools.Core.Pipelines.PipelineExtensions.&lt;G&gt;$6773866DE25ECFE8E7C56EE5107CFB66`2.AddBroadcastBlock``1(MelloSilveiraTools.Core.Pipelines.IAsyncPipelineStep{`1,``0},System.Func{`1,`1},MelloSilveiraTools.Core.Pipelines.PipelineStepOptions)">
             <summary>
-            Injects a pre-configured <see cref="T:MelloSilveiraTools.Core.Pipelines.IPipelineStep`2"/> as a side-branch consumer linked to a BroadcastBlock,
+            Injects a pre-configured <see cref="T:MelloSilveiraTools.Core.Pipelines.IAsyncPipelineStep`2"/> as a side-branch consumer linked to a BroadcastBlock,
             while propagating the primary data stream downstream for continued pipeline orchestration.
-            Alias for <see cref="M:MelloSilveiraTools.Core.Pipelines.PipelineExtensions.AddBroadcastStep``3(MelloSilveiraTools.Core.Pipelines.Dataflow.IDataflowPipelineBuilder{``0,``1},MelloSilveiraTools.Core.Pipelines.IPipelineStep{``1,``2},MelloSilveiraTools.Core.Pipelines.PipelineStepOptions)"/>.
+            Alias for <see cref="!:AddBroadcastStep&lt;TBranchOut&gt;(IAsyncPipelineStep&lt;TCurrentOut, TBranchOut&gt;, Func&lt;TCurrentOut, TCurrentOut&gt;?, PipelineStepOptions)"/>.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Pipelines.PipelineExtensions.&lt;G&gt;$6773866DE25ECFE8E7C56EE5107CFB66`2.AddBroadcastBlock``1(MelloSilveiraTools.Core.Pipelines.ISyncPipelineStep{`1,``0},MelloSilveiraTools.Core.Pipelines.PipelineStepOptions)">
+            <summary>
+            Injects a pre-configured <see cref="T:MelloSilveiraTools.Core.Pipelines.ISyncPipelineStep`2"/> as a side-branch consumer linked to a BroadcastBlock,
+            while propagating the primary data stream downstream for continued pipeline orchestration.
+            Alias for <see cref="!:AddBroadcastStep&lt;TBranchOut&gt;(ISyncPipelineStep&lt;TCurrentOut, TBranchOut&gt;, PipelineStepOptions)"/>.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Pipelines.PipelineExtensions.&lt;G&gt;$6773866DE25ECFE8E7C56EE5107CFB66`2.AddBroadcastBlock``1(MelloSilveiraTools.Core.Pipelines.ISyncPipelineStep{`1,``0},System.Func{`1,`1},MelloSilveiraTools.Core.Pipelines.PipelineStepOptions)">
+            <summary>
+            Injects a pre-configured <see cref="T:MelloSilveiraTools.Core.Pipelines.ISyncPipelineStep`2"/> as a side-branch consumer linked to a BroadcastBlock,
+            while propagating the primary data stream downstream for continued pipeline orchestration.
+            Alias for <see cref="!:AddBroadcastStep&lt;TBranchOut&gt;(ISyncPipelineStep&lt;TCurrentOut, TBranchOut&gt;, Func&lt;TCurrentOut, TCurrentOut&gt;?, PipelineStepOptions)"/>.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Pipelines.PipelineExtensions.&lt;G&gt;$6773866DE25ECFE8E7C56EE5107CFB66`2.AddBroadcastBlock``1(MelloSilveiraTools.Core.Pipelines.IAsyncEnumerablePipelineStep{`1,``0},MelloSilveiraTools.Core.Pipelines.PipelineStepOptions)">
+            <summary>
+            Injects a pre-configured <see cref="T:MelloSilveiraTools.Core.Pipelines.IAsyncEnumerablePipelineStep`2"/> as a side-branch consumer linked to a BroadcastBlock,
+            while propagating the primary data stream downstream for continued pipeline orchestration.
+            Alias for <see cref="!:AddBroadcastStep&lt;TBranchOut&gt;(IAsyncEnumerablePipelineStep&lt;TCurrentOut, TBranchOut&gt;, PipelineStepOptions)"/>.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Pipelines.PipelineExtensions.&lt;G&gt;$6773866DE25ECFE8E7C56EE5107CFB66`2.AddBroadcastBlock``1(MelloSilveiraTools.Core.Pipelines.IAsyncEnumerablePipelineStep{`1,``0},System.Func{`1,`1},MelloSilveiraTools.Core.Pipelines.PipelineStepOptions)">
+            <summary>
+            Injects a pre-configured <see cref="T:MelloSilveiraTools.Core.Pipelines.IAsyncEnumerablePipelineStep`2"/> as a side-branch consumer linked to a BroadcastBlock,
+            while propagating the primary data stream downstream for continued pipeline orchestration.
+            Alias for <see cref="!:AddBroadcastStep&lt;TBranchOut&gt;(IAsyncEnumerablePipelineStep&lt;TCurrentOut, TBranchOut&gt;, Func&lt;TCurrentOut, TCurrentOut&gt;?, PipelineStepOptions)"/>.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Pipelines.PipelineExtensions.&lt;G&gt;$6773866DE25ECFE8E7C56EE5107CFB66`2.AddForkingStep``1(MelloSilveiraTools.Core.Pipelines.IAsyncPipelineStep{`1,``0},System.Func{``0,System.Boolean},MelloSilveiraTools.Core.Pipelines.IAsyncPipelineStep{`1,``0},MelloSilveiraTools.Core.Pipelines.PipelineStepOptions)">
+            <summary>
+            Forks the pipeline execution based on success or failure using an asynchronous step and recovery step.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Pipelines.PipelineExtensions.&lt;G&gt;$6773866DE25ECFE8E7C56EE5107CFB66`2.AddForkingStep``1(MelloSilveiraTools.Core.Pipelines.ISyncPipelineStep{`1,``0},System.Func{``0,System.Boolean},MelloSilveiraTools.Core.Pipelines.ISyncPipelineStep{`1,``0},MelloSilveiraTools.Core.Pipelines.PipelineStepOptions)">
+            <summary>
+            Forks the pipeline execution based on success or failure using a synchronous step and recovery step.
             </summary>
         </member>
         <member name="T:MelloSilveiraTools.Core.Pipelines.PipelineFactory">
@@ -2464,6 +2734,11 @@
         <member name="M:MelloSilveiraTools.Core.Pipelines.TelemetryExtensions.HandleSafeExecution``2(Microsoft.Extensions.Logging.ILogger,System.String,System.Func{``0,System.Threading.CancellationToken,System.Threading.Tasks.Task{``1}},System.Nullable{MelloSilveiraTools.Core.Pipelines.RetryOptions},System.Threading.CancellationToken)">
             <summary>
             Wraps an asynchronous mapping function, catching ultimate backoff failures into a bifurcated <see cref="T:MelloSilveiraTools.Core.Pipelines.SafeResult`2"/>.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Pipelines.TelemetryExtensions.HandleExecution``2(Microsoft.Extensions.Logging.ILogger,System.String,System.Func{``0,System.Threading.CancellationToken,System.Collections.Generic.IAsyncEnumerable{``1}},System.Threading.CancellationToken)">
+            <summary>
+            Wraps a streaming function returning an <see cref="T:System.Collections.Generic.IAsyncEnumerable`1"/> with OpenTelemetry tracing and structured logging.
             </summary>
         </member>
         <member name="M:MelloSilveiraTools.Core.Pipelines.TelemetryExtensions.HandleExecution``2(Microsoft.Extensions.Logging.ILogger,System.String,System.String,System.Func{``0,System.Threading.CancellationToken,System.Threading.Tasks.Task{``1}},System.Func{``0,System.Boolean},System.Func{``0,System.Threading.CancellationToken,System.Threading.Tasks.Task{``1}},System.Nullable{MelloSilveiraTools.Core.Pipelines.RetryOptions},System.Threading.CancellationToken)">

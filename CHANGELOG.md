@@ -10,25 +10,30 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - `CsvStreamReader` in `MelloSilveiraTools.Core.Managers.File`: High-performance, zero-allocation streaming CSV reader utilizing native `System.IO.Pipelines.PipeReader` and `System.Buffers.Text.Utf8Parser`. Returns parsed numerical rows as `double[]`, supporting arbitrary column counts, custom delimiters, empty line skipping, and header/invalid line filtering.
 - **New Package: `MelloSilveiraTools.MechanicsOfMaterials.Optimizations`**:
   - High-throughput experimental data processing and segmentation engine (`IExperimentalDataService`, `ExperimentalDataService`):
-    - Stream processing with persistence and segmentation: `ProcessAsync(identifier, outputFileUri, strainStream, stressStream, options)` returns `Result<(string OutputFileName, CurveSegment[] CurveSegments)>`, consuming numerical streams via `CsvStreamReader` and delegating segment assembly and file writing to a reactive TPL Dataflow pipeline via `PipelineFactory.StartDataflow`, `AddBroadcastStep`, `ExperimentalDataFileWriterStep`, and `AddGroupWhileStep`.
+    - Stream processing with persistence and segmentation: `ProcessAsync(identifier, outputFileUri, strainStream, stressStream, options)` returns `Result<(string OutputFileName, CurveSegment[] CurveSegments)>`, consuming numerical streams via `CsvStreamReader` and delegating segment assembly and file writing to a reactive TPL Dataflow pipeline via `PipelineFactory.StartDataflow`, `AddBroadcastStep`, `ExperimentalDataFileWriterStep`, `AddGroupWhileStep`, and `CurveSegmentBuilderStep`.
     - Sliding-window segment classification supporting continuous stream processing of strain and stress tests into classified segments (`Ramp`, `Relaxation`, `Descent`, `Recovery`).
     - Buffer pooling using `ArrayPool<ExperimentalDataPoint>.Shared` with safe return in `finally`, eliminating heap allocations during continuous point streaming.
     - Remainder buffer processing on stream completion to prevent dropping trailing points that do not reach a full `BufferSize`.
     - Robust `SliceBuffer` algorithm supporting 3-phase interior transitions (`startIndex > 0 && endIndex < bufferCount - 1`), eliminating `InvalidOperationException` when phase boundaries occur interior to a single buffer window.
     - Precomputed single `timeDelta` per point in `BuildProcessedDataPoint`.
-    - `ExperimentalDataSettings`: Topology execution settings configuring `FileWriterOptions` and `GroupingOptions` via `PipelineStepOptions`.
-    - `ExperimentalDataFileWriterStep`: Dedicated `IPipelineStep<SegmentedDataPoint, SegmentedDataPoint>` and `IAsyncDisposable` persisting processed data points to a CSV file.
+    - `ExperimentalDataSettings`: Topology execution settings configuring `FileWriterOptions`, `GroupingOptions`, and `SegmentBuilderOptions` via `PipelineStepOptions`.
+    - `ExperimentalDataFileWriterStep`: Dedicated `IAsyncPipelineStep<SegmentedDataPoint, SegmentedDataPoint>` and `IAsyncDisposable` persisting processed data points to a CSV file.
+    - `CurveSegmentBuilderStep`: Dedicated `ISyncPipelineStep<SegmentedDataPoint[], CurveSegment>` transforming grouped data points into classified curve segments with downsampling.
   - Extensible curve fitting suite: `ICurveFitter` interface with `MathNetCurveFitter` (Levenberg-Marquardt via MathNet.Numerics), `AlglibCurveFitter` (bundled ALGLIB), and `QuasiLinearModelCurveFitter` (fitting viscoelastic constitutive models to experimental data curves).
   - Global sensitivity analysis via Morris Elementary Effects Method: `MorrisAnalyzer`, `MorrisInput`, `MorrisOutput`, `MorrisMetrics`, `MorrisPoint`, `MorrisParameterBoundary`, and `ExpressionPathResolver`.
   - Optimization Web API commands & endpoints: `FitCurve`, `FitCurveRequest`, `FitCurveResultData`, `ParameterGroupResultData`, `OptimizationOptionsRequest`, and `CurveFittingController`.
   - Domain models for optimization: `CurveFitInput`, `CurveFitResult`, `CurveSegment`, `ExperimentalDataPoint`, `SegmentType`, `ExperimentalDataProcessingOptions`, `ProcessedDataPoint`, `SegmentedDataPoint`, `OptimizationOptions`, and parameter range models (`RangeFunction`, `RangeParameters`, `RangePowerLaw`, `RangePronySeries`, `RangeReducedRelaxationFunction`).
 - **Pipelines Engine (`MelloSilveiraTools.Core.Pipelines`)**:
+  - `IPipelineStep`: Core non-generic metadata contract defining `string Name { get; }` for telemetry, distributed tracing, and fault localization.
+  - `IAsyncPipelineStep<in TIn, TOut>`: Asynchronous execution contract (`Task<TOut> ExecuteAsync(TIn input, CancellationToken ct)`) implementing `IAsyncDisposable`.
+  - `ISyncPipelineStep<in TIn, out TOut>`: Synchronous execution contract (`TOut Execute(TIn input)`) implementing `IDisposable` without `IAsyncDisposable` inheritance.
+  - `IAsyncEnumerablePipelineStep<in TIn, out TOut>`: Streaming 1-to-many execution contract (`IAsyncEnumerable<TOut> ExecuteAsync(TIn input, CancellationToken ct)`) implementing `IAsyncDisposable`.
   - `PipelineFactory`: Unified factory entry point for building streaming push-based (TPL Dataflow) and request/response pull-based (Fluent) execution pipelines.
   - TPL Dataflow Pipelines (`IDataflowPipelineBuilder<T>`, `IDataflowPipeline<T>`):
-    - Fluent stage configuration: `.AddStep()`, `.AddDataMapping()`, `.AddForkingStep()`, `.AddBatchStep()`, `.AddFilterStep()`, `.AddGroupWhileStep()`, `.AddBroadcastBlock()`, `.AddBroadcastStep()`, and `.BuildTerminal()`.
+    - Fluent stage configuration: `.AddStep()` (overloaded for sync, async, and `IAsyncEnumerable`), `.AddDataMapping()`, `.AddForkingStep()`, `.AddBatchStep()`, `.AddFilterStep()`, `.AddGroupWhileStep()`, `.AddBroadcastBlock()`, `.AddBroadcastStep()`, and `.BuildTerminal()`.
     - Integrated resilience: exponential backoff retry policies (`RetryOptions`), dead-letter queue routing (`WithDeadLetterQueue()`) to isolate faulted items without halting pipeline throughput, and bounded capacity backpressure (`PipelineStepOptions.MaxBufferSize`).
     - Telemetry and tracing: OpenTelemetry `ActivitySource` tracing and structured Serilog logging via `TelemetryExtensions`.
-  - Fluent Pipelines (`IFluentPipelineBuilder`, `IFluentPipeline<TIn, TOut>`): Composable sequential step execution for request/response operations.
+  - Fluent Pipelines (`IFluentPipelineBuilder`, `IFluentPipeline<TIn, TOut>`): Composable sequential step execution for request/response operations with `.AddStep()` supporting sync, async, and streaming steps.
 - **Command Pattern Infrastructure (`MelloSilveiraTools.Core.Application.Commands`)**:
   - Unified command hierarchy replacing legacy `OperationBase`: `CommandBase<TRequest, TResult>`, `CommandBaseWithData<TRequest, TData>`, `ListedCommandBase<TRequest, TData>`, `PagedCommandBase<TRequest, TFilter, TData>`, `CommandBaseWithDefaultResponse<TRequest>`, `CommandBaseWithoutRequest<TResult>`, and `DefaultCommandBase`.
   - Integrated request validation via `IValidator<TRequest>`.

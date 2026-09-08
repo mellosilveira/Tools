@@ -1,4 +1,4 @@
-﻿namespace MelloSilveiraTools.Core.Pipelines;
+﻿namespace MelloSilveiraTools.Core.Pipelines.Models;
 
 /// <summary>
 /// Represents a terminal fault encountered during the traversal of the pipeline execution graph.

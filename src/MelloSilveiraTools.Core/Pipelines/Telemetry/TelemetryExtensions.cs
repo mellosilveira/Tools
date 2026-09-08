@@ -1,7 +1,9 @@
-﻿using Microsoft.Extensions.Logging;
+using MelloSilveiraTools.Core.Pipelines.Models;
+using Microsoft.Extensions.Logging;
 using System.Diagnostics;
+using System.Runtime.CompilerServices;
 
-namespace MelloSilveiraTools.Core.Pipelines;
+namespace MelloSilveiraTools.Core.Pipelines.Telemetry;
 
 /// <summary>
 /// Provides structured logging wrappers, ensuring consistent tracking of execution lifecycles, durations, and failures.
@@ -24,7 +26,7 @@ public static class TelemetryExtensions
     {
         cancellationToken.ThrowIfCancellationRequested();
 
-        using Activity? activity = Telemetry.DefaultInstance.StartActivity(callbackName, ActivityKind.Internal);
+        using Activity? activity = TelemetryConstants.DefaultInstance.StartActivity(callbackName, ActivityKind.Internal);
         DateTimeOffset startTime = StartTelemetry(logger, activity, callbackName);
 
         try
@@ -49,7 +51,7 @@ public static class TelemetryExtensions
     {
         cancellationToken.ThrowIfCancellationRequested();
 
-        using Activity? activity = Telemetry.DefaultInstance.StartActivity(callbackName, ActivityKind.Internal);
+        using Activity? activity = TelemetryConstants.DefaultInstance.StartActivity(callbackName, ActivityKind.Internal);
         DateTimeOffset startTime = StartTelemetry(logger, activity, callbackName);
 
         try
@@ -80,7 +82,7 @@ public static class TelemetryExtensions
         CancellationToken cancellationToken = default)
         => async (input) =>
         {
-            using Activity? activity = Telemetry.DefaultInstance.StartActivity(callbackName, ActivityKind.Internal);
+            using Activity? activity = TelemetryConstants.DefaultInstance.StartActivity(callbackName, ActivityKind.Internal);
             DateTimeOffset startTime = StartTelemetry(logger, activity, callbackName);
 
             int attempt = 0;
@@ -116,7 +118,7 @@ public static class TelemetryExtensions
         RetryOptions? retryOptions = null,
         CancellationToken cancellationToken = default) => async (input) =>
         {
-            using Activity? activity = Telemetry.DefaultInstance.StartActivity(callbackName, ActivityKind.Internal);
+            using Activity? activity = TelemetryConstants.DefaultInstance.StartActivity(callbackName, ActivityKind.Internal);
             DateTimeOffset startTime = StartTelemetry(logger, activity, callbackName);
 
             int attempt = 0;
@@ -149,7 +151,7 @@ public static class TelemetryExtensions
     {
         cancellationToken.ThrowIfCancellationRequested();
 
-        using Activity? activity = Telemetry.DefaultInstance.StartActivity(callbackName, ActivityKind.Internal);
+        using Activity? activity = TelemetryConstants.DefaultInstance.StartActivity(callbackName, ActivityKind.Internal);
         DateTimeOffset startTime = StartTelemetry(logger, activity, callbackName);
 
         try
@@ -172,7 +174,7 @@ public static class TelemetryExtensions
     {
         cancellationToken.ThrowIfCancellationRequested();
 
-        using Activity? activity = Telemetry.DefaultInstance.StartActivity(callbackName, ActivityKind.Internal);
+        using Activity? activity = TelemetryConstants.DefaultInstance.StartActivity(callbackName, ActivityKind.Internal);
         DateTimeOffset startTime = StartTelemetry(logger, activity, callbackName);
 
         try
@@ -198,7 +200,7 @@ public static class TelemetryExtensions
         CancellationToken cancellationToken = default)
         => async (input) =>
         {
-            using Activity? activity = Telemetry.DefaultInstance.StartActivity(callbackName, ActivityKind.Internal);
+            using Activity? activity = TelemetryConstants.DefaultInstance.StartActivity(callbackName, ActivityKind.Internal);
             return await ExecuteAsync(logger, activity, input, callbackName, callback, retryOptions, cancellationToken).ConfigureAwait(false);
         };
 
@@ -213,9 +215,76 @@ public static class TelemetryExtensions
         CancellationToken cancellationToken = default)
         => async (input) =>
         {
-            using Activity? activity = Telemetry.DefaultInstance.StartActivity(callbackName, ActivityKind.Internal);
+            using Activity? activity = TelemetryConstants.DefaultInstance.StartActivity(callbackName, ActivityKind.Internal);
             return await SafeExecuteAsync(logger, activity, input, callbackName, callback, retryOptions, cancellationToken).ConfigureAwait(false);
         };
+
+    /// <summary>
+    /// Wraps a streaming function returning an <see cref="IAsyncEnumerable{TOut}"/> with OpenTelemetry tracing and structured logging.
+    /// </summary>
+    public static Func<TIn, IAsyncEnumerable<TOut>> HandleExecution<TIn, TOut>(
+        ILogger logger,
+        string callbackName,
+        Func<TIn, CancellationToken, IAsyncEnumerable<TOut>> callback,
+        CancellationToken cancellationToken = default)
+        => (input) => ExecuteStreamingAsync(logger, input, callbackName, callback, cancellationToken);
+
+    private static async IAsyncEnumerable<TOut> ExecuteStreamingAsync<TIn, TOut>(
+        ILogger logger,
+        TIn input,
+        string callbackName,
+        Func<TIn, CancellationToken, IAsyncEnumerable<TOut>> callback,
+        [EnumeratorCancellation] CancellationToken cancellationToken = default)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+        using Activity? activity = TelemetryConstants.DefaultInstance.StartActivity(callbackName, ActivityKind.Internal);
+        DateTimeOffset startTime = StartTelemetry(logger, activity, callbackName);
+
+        IAsyncEnumerator<TOut>? enumerator = null;
+        try
+        {
+            IAsyncEnumerable<TOut> enumerable = callback(input, cancellationToken);
+            enumerator = enumerable.GetAsyncEnumerator(cancellationToken);
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            LogAndTrackStepFailure(logger, activity, startTime, callbackName, ex);
+            throw;
+        }
+
+        try
+        {
+            while (true)
+            {
+                bool hasNext;
+                try
+                {
+                    hasNext = await enumerator.MoveNextAsync().ConfigureAwait(false);
+                }
+                catch (Exception ex) when (ex is not OperationCanceledException)
+                {
+                    LogAndTrackStepFailure(logger, activity, startTime, callbackName, ex);
+                    throw;
+                }
+
+                if (!hasNext)
+                {
+                    break;
+                }
+
+                yield return enumerator.Current;
+            }
+
+            LogAndTrackStepCompletion(logger, activity, startTime, callbackName);
+        }
+        finally
+        {
+            if (enumerator is not null)
+            {
+                await enumerator.DisposeAsync().ConfigureAwait(false);
+            }
+        }
+    }
 
     /// <summary>
     /// Wraps a conditional forking operation evaluating the input payload prior to execution.
@@ -234,7 +303,7 @@ public static class TelemetryExtensions
         CancellationToken cancellationToken = default)
         => async (input) =>
         {
-            using Activity? activity = Telemetry.DefaultInstance.StartActivity(callbackName, ActivityKind.Internal);
+            using Activity? activity = TelemetryConstants.DefaultInstance.StartActivity(callbackName, ActivityKind.Internal);
 
             if (fallbackCondition(input))
             {
@@ -258,7 +327,7 @@ public static class TelemetryExtensions
         CancellationToken cancellationToken = default)
         => async (input) =>
         {
-            using Activity? activity = Telemetry.DefaultInstance.StartActivity(callbackName, ActivityKind.Internal);
+            using Activity? activity = TelemetryConstants.DefaultInstance.StartActivity(callbackName, ActivityKind.Internal);
 
             if (fallbackCondition(input))
             {
@@ -285,7 +354,7 @@ public static class TelemetryExtensions
         CancellationToken cancellationToken = default)
         => async (input) =>
         {
-            using Activity? activity = Telemetry.DefaultInstance.StartActivity(callbackName, ActivityKind.Internal);
+            using Activity? activity = TelemetryConstants.DefaultInstance.StartActivity(callbackName, ActivityKind.Internal);
 
             TOut output = await ExecuteAsync(logger, activity, input, fallbackName, fallback, retryOptions, cancellationToken).ConfigureAwait(false);
             if (fallbackCondition(output))
@@ -313,7 +382,7 @@ public static class TelemetryExtensions
         CancellationToken cancellationToken = default)
         => async (input) =>
         {
-            using Activity? activity = Telemetry.DefaultInstance.StartActivity(callbackName, ActivityKind.Internal);
+            using Activity? activity = TelemetryConstants.DefaultInstance.StartActivity(callbackName, ActivityKind.Internal);
 
             SafeResult<TIn, TOut> safeResult = await SafeExecuteAsync(logger, activity, input, fallbackName, fallback, retryOptions, cancellationToken).ConfigureAwait(false);
             if (fallbackCondition(safeResult))

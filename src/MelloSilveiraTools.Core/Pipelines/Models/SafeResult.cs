@@ -1,4 +1,4 @@
-﻿namespace MelloSilveiraTools.Core.Pipelines;
+﻿namespace MelloSilveiraTools.Core.Pipelines.Models;
 
 /// <summary>
 /// Encapsulates the execution outcome of a terminal pipeline step, isolating failures to prevent graph collapse.

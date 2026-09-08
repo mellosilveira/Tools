@@ -108,6 +108,47 @@ public class Test
         }
     }
 
+    [Fact]
+    public void CurveSegmentBuilderStep_WithEmptyInput_ReturnsEmptyUnknownSegment()
+    {
+        // Arrange
+        using CurveSegmentBuilderStep step = new(skipTimeStep: 0.0);
+
+        // Act
+        CurveSegment result = step.Execute([]);
+
+        // Assert
+        Assert.Equal(SegmentType.Unknown, result.Type);
+        Assert.Empty(result.TimePoints);
+        Assert.Empty(result.ExperimentalStrain);
+        Assert.Empty(result.ExperimentalStress);
+    }
+
+    [Fact]
+    public void CurveSegmentBuilderStep_WithDownsampling_FiltersPointsCorrectly()
+    {
+        // Arrange: 4 points at t = 0.0, 0.5, 1.0, 1.5; with skipTimeStep = 0.9, t=0.5 should be skipped
+        SegmentedDataPoint[] points =
+        [
+            new(SegmentType.Ramp, new ProcessedDataPoint(Time: 0.0, Strain: 0.1, StrainRate: 0.2, StrainAcceleration: 0.0, Stress: 1.0, StressRate: 2.0, StressAcceleration: 0.0)),
+            new(SegmentType.Ramp, new ProcessedDataPoint(Time: 0.5, Strain: 0.2, StrainRate: 0.2, StrainAcceleration: 0.0, Stress: 2.0, StressRate: 2.0, StressAcceleration: 0.0)),
+            new(SegmentType.Ramp, new ProcessedDataPoint(Time: 1.0, Strain: 0.3, StrainRate: 0.2, StrainAcceleration: 0.0, Stress: 3.0, StressRate: 2.0, StressAcceleration: 0.0)),
+            new(SegmentType.Ramp, new ProcessedDataPoint(Time: 1.5, Strain: 0.4, StrainRate: 0.2, StrainAcceleration: 0.0, Stress: 4.0, StressRate: 2.0, StressAcceleration: 0.0))
+        ];
+
+        using CurveSegmentBuilderStep step = new(skipTimeStep: 0.9);
+
+        // Act
+        CurveSegment result = step.Execute(points);
+
+        // Assert: t=0.0 included, t=0.5 skipped (delta < 0.9), t=1.0 included (delta = 1.0 >= 0.9), t=1.5 included (last point)
+        Assert.Equal(SegmentType.Ramp, result.Type);
+        Assert.Equal(3, result.TimePoints.Length);
+        Assert.Equal([0.0, 1.0, 1.5], result.TimePoints);
+        Assert.Equal([0.1, 0.3, 0.4], result.ExperimentalStrain);
+        Assert.Equal([1.0, 3.0, 4.0], result.ExperimentalStress);
+    }
+
     public static TheoryData<SegmentType, ExperimentalDataPoint[], List<(SegmentType SegmentType, ArraySegment<ExperimentalDataPoint> Points)>> GetTestData() => new()
     {
         // --------------------------------------------------------------------------------

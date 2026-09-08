@@ -1,5 +1,6 @@
 ﻿using MelloSilveiraTools.Core.Pipelines.Dataflow;
 using MelloSilveiraTools.Core.Pipelines.Fluent;
+using MelloSilveiraTools.Core.Pipelines.Models;
 using Microsoft.Extensions.Logging;
 using System.Threading.Tasks.Dataflow;
 

@@ -1,6 +1,6 @@
 ﻿using System.Threading.Tasks.Dataflow;
 
-namespace MelloSilveiraTools.Core.Pipelines;
+namespace MelloSilveiraTools.Core.Pipelines.Models;
 
 /// <summary>
 /// Encapsulates execution configurations for individual TPL Dataflow blocks.

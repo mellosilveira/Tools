@@ -1,4 +1,4 @@
-﻿using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging;
 
 namespace MelloSilveiraTools.Core.Pipelines.Fluent;
 
@@ -19,6 +19,13 @@ internal class FluentPipelineBuilder<TInitialIn, TCurrentOut>(List<(string Name,
     {
         // Encapsulate the strongly-typed execution within a unified object-based delegate
         async Task<object> erasedFunc(object objInput, CancellationToken ct) => (await stepFunc((TCurrentOut)objInput, ct).ConfigureAwait(false))!;
+        return new FluentPipelineBuilder<TInitialIn, TNextOut>([.. steps, (stepName, erasedFunc)]);
+    }
+
+    /// <inheritdoc/>
+    public IFluentPipelineBuilder<TInitialIn, TNextOut> AddStep<TNextOut>(string stepName, Func<TCurrentOut, TNextOut> stepFunc)
+    {
+        Task<object> erasedFunc(object objInput, CancellationToken _) => Task.FromResult<object>(stepFunc((TCurrentOut)objInput)!);
         return new FluentPipelineBuilder<TInitialIn, TNextOut>([.. steps, (stepName, erasedFunc)]);
     }
 

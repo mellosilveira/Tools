@@ -1,4 +1,4 @@
-﻿using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging;
 
 namespace MelloSilveiraTools.Core.Pipelines.Fluent;
 
@@ -20,6 +20,16 @@ public interface IFluentPipelineBuilder<TInitialIn, TCurrentOut>
     /// <param name="stepFunc">The asynchronous delegate encapsulating the execution logic and state mutation.</param>
     /// <returns>A new builder instance binding the root input to the newly mutated terminal state.</returns>
     IFluentPipelineBuilder<TInitialIn, TNextOut> AddStep<TNextOut>(string stepName, Func<TCurrentOut, CancellationToken, Task<TNextOut>> stepFunc);
+
+    /// <summary>
+    /// Appends a synchronous execution delegate to the pipeline topology, 
+    /// mutating the terminal state type of the builder graph without Task allocation overhead.
+    /// </summary>
+    /// <typeparam name="TNextOut">The resultant state type emitted by the appended delegate.</typeparam>
+    /// <param name="stepName">The semantic identifier utilized for structured telemetry and fault localization.</param>
+    /// <param name="stepFunc">The synchronous delegate encapsulating the execution logic and state mutation.</param>
+    /// <returns>A new builder instance binding the root input to the newly mutated terminal state.</returns>
+    IFluentPipelineBuilder<TInitialIn, TNextOut> AddStep<TNextOut>(string stepName, Func<TCurrentOut, TNextOut> stepFunc);
 
     /// <summary>
     /// Compiles the configured execution graph into an immutable, executable pipeline instance.
