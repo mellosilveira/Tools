@@ -416,7 +416,7 @@
             Pipeline step responsible for parsing and streaming raw experimental strain and stress data,
             segmenting points into physical deformation phases (Ramp, Relaxation, Descent, Recovery) using numerical differentiation.
             </summary>
-            <param name="logger">Optional logger for telemetry, warnings, and diagnostic information.</param>
+            <param name="logger">Logger for telemetry, warnings, and diagnostic information.</param>
             <param name="differentiation">The differentiation calculator used to compute strain and stress rates and accelerations.</param>
             <param name="options">Options controlling tolerances, start time thresholds, and buffer sizing.</param>
         </member>
@@ -425,64 +425,15 @@
             Pipeline step responsible for parsing and streaming raw experimental strain and stress data,
             segmenting points into physical deformation phases (Ramp, Relaxation, Descent, Recovery) using numerical differentiation.
             </summary>
-            <param name="logger">Optional logger for telemetry, warnings, and diagnostic information.</param>
+            <param name="logger">Logger for telemetry, warnings, and diagnostic information.</param>
             <param name="differentiation">The differentiation calculator used to compute strain and stress rates and accelerations.</param>
             <param name="options">Options controlling tolerances, start time thresholds, and buffer sizing.</param>
-        </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Services.ExperimentalData.ExperimentalDataSegmenterStep.#ctor(MelloSilveiraTools.Mathematics.NumericalMethods.Differentiations.IDifferentiation,MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Models.ExperimentalData.ExperimentalDataProcessingOptions)">
-            <summary>
-            Initializes a new instance of the <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Services.ExperimentalData.ExperimentalDataSegmenterStep"/> class without an explicit logger.
-            </summary>
-            <param name="differentiation">The differentiation calculator used to compute strain and stress rates and accelerations.</param>
-            <param name="options">Options controlling tolerances, start time thresholds, and buffer sizing.</param>
-        </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Services.ExperimentalData.ExperimentalDataSegmenterStep.#ctor(MelloSilveiraTools.Mathematics.NumericalMethods.Differentiations.IDifferentiation)">
-            <summary>
-            Initializes a new instance of the <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Services.ExperimentalData.ExperimentalDataSegmenterStep"/> class with default processing options and without an explicit logger.
-            </summary>
-            <param name="differentiation">The differentiation calculator used to compute strain and stress rates and accelerations.</param>
         </member>
         <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Services.ExperimentalData.ExperimentalDataSegmenterStep.Name">
             <inheritdoc/>
         </member>
-        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Services.ExperimentalData.ExperimentalDataSegmenterStep.Options">
-            <summary>
-            Gets the processing options configured for this segmenter step.
-            </summary>
-        </member>
         <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Services.ExperimentalData.ExperimentalDataSegmenterStep.ExecuteAsync(System.ValueTuple{System.IO.Stream,System.IO.Stream},System.Threading.CancellationToken)">
             <inheritdoc/>
-        </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Services.ExperimentalData.ExperimentalDataSegmenterStep.ExecuteAsync(System.IO.Stream,System.IO.Stream,System.Threading.CancellationToken)">
-            <summary>
-            Asynchronously streams categorized data points from strain and stress streams.
-            </summary>
-            <param name="strainStream">A stream containing experimental strain values across time.</param>
-            <param name="stressStream">A stream containing experimental stress values across time.</param>
-            <param name="cancellationToken">A token to cancel the streaming operation.</param>
-            <returns>An async enumerable of <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Models.ExperimentalData.SegmentedDataPoint"/> instances.</returns>
-        </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Services.ExperimentalData.ExperimentalDataSegmenterStep.ExtractSegments(MelloSilveiraTools.Mathematics.NumericalMethods.Differentiations.IDifferentiation,MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Models.CurveFitting.SegmentType,MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Models.CurveFitting.ExperimentalDataPoint[],System.Int32,MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Models.ExperimentalData.ExperimentalDataProcessingOptions,Microsoft.Extensions.Logging.ILogger)">
-            <summary>
-            Extracts physical deformation segments from a sliding buffer of experimental data points.
-            </summary>
-            <param name="differentiation">The differentiation calculator.</param>
-            <param name="currentType">The active segment type preceding the current buffer.</param>
-            <param name="buffer">An array of buffered experimental points.</param>
-            <param name="bufferCount">The valid number of items inside <paramref name="buffer"/>.</param>
-            <param name="options">Processing options.</param>
-            <param name="logger">Optional logger for telemetry and diagnostics.</param>
-            <returns>A list of extracted segment types and their corresponding point slices.</returns>
-        </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Services.ExperimentalData.ExperimentalDataSegmenterStep.ExtractSegments(MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Models.CurveFitting.SegmentType,MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Models.CurveFitting.ExperimentalDataPoint[],System.Int32,MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Models.ExperimentalData.ExperimentalDataProcessingOptions)">
-            <summary>
-            Extracts physical deformation segments from a sliding buffer of experimental data points using this step's configuration.
-            </summary>
-            <param name="currentType">The active segment type preceding the current buffer.</param>
-            <param name="buffer">An array of buffered experimental points.</param>
-            <param name="bufferCount">The valid number of items inside <paramref name="buffer"/>.</param>
-            <param name="extractionOptions">Processing options. If null, the step's configured options are used.</param>
-            <returns>A list of extracted segment types and their corresponding point slices.</returns>
         </member>
         <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Services.ExperimentalData.ExperimentalDataSegmenterStep.DisposeAsync">
             <inheritdoc/>
@@ -498,12 +449,6 @@
             </summary>
         </member>
         <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Services.ExperimentalData.ExperimentalDataService.ProcessAsync(System.String,System.String,System.IO.Stream,System.IO.Stream,MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Models.ExperimentalData.ExperimentalDataProcessingOptions,System.Threading.CancellationToken)">
-            <inheritdoc/>
-        </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Services.ExperimentalData.ExperimentalDataService.SegmentPointsAsync(System.IO.Stream,System.IO.Stream,MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Models.ExperimentalData.ExperimentalDataProcessingOptions,System.Threading.CancellationToken)">
-            <inheritdoc/>
-        </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Services.ExperimentalData.ExperimentalDataService.ExtractSegments(MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Models.CurveFitting.SegmentType,MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Models.CurveFitting.ExperimentalDataPoint[],System.Int32,MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Models.ExperimentalData.ExperimentalDataProcessingOptions)">
             <inheritdoc/>
         </member>
         <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Services.ExperimentalData.ExperimentalDataSettings">
@@ -552,26 +497,6 @@
             <param name="options">Options controlling tolerances, buffer sizing, and downsampling thresholds.</param>
             <param name="cancellationToken">A token to cancel the operation.</param>
             <returns>A <see cref="T:MelloSilveiraTools.Core.Models.Result`1"/> containing the generated output file name and the categorized <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Models.CurveFitting.CurveSegment"/> array.</returns>
-        </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Services.ExperimentalData.IExperimentalDataService.SegmentPointsAsync(System.IO.Stream,System.IO.Stream,MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Models.ExperimentalData.ExperimentalDataProcessingOptions,System.Threading.CancellationToken)">
-            <summary>
-            Asynchronously streams categorized data points from strain and stress streams.
-            </summary>
-            <param name="strainStream">A stream containing experimental strain values across time.</param>
-            <param name="stressStream">A stream containing experimental stress values across time.</param>
-            <param name="options">Options controlling tolerances and buffer sizing.</param>
-            <param name="cancellationToken">A token to cancel the streaming operation.</param>
-            <returns>An async enumerable of <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Models.ExperimentalData.SegmentedDataPoint"/> instances.</returns>
-        </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Services.ExperimentalData.IExperimentalDataService.ExtractSegments(MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Models.CurveFitting.SegmentType,MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Models.CurveFitting.ExperimentalDataPoint[],System.Int32,MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Models.ExperimentalData.ExperimentalDataProcessingOptions)">
-            <summary>
-            Extracts physical deformation segments from a sliding buffer of experimental data points.
-            </summary>
-            <param name="currentType">The active segment type preceding the current buffer.</param>
-            <param name="buffer">An array of buffered experimental points.</param>
-            <param name="bufferCount">The valid number of items inside <paramref name="buffer"/>.</param>
-            <param name="options">Processing options.</param>
-            <returns>A list of extracted segment types and their corresponding point slices.</returns>
         </member>
     </members>
 </doc>

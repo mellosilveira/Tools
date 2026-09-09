@@ -241,8 +241,8 @@ AI agents modifying or generating code in this repository **must strictly adhere
   - Buffer pooling using `ArrayPool<ExperimentalDataPoint>.Shared` with safe return in `finally`.
   - Flushes remainder buffer on stream completion to prevent dropping trailing points.
   - Supports 3-phase interior transitions in `SliceBuffer` (`startIndex > 0 && endIndex < bufferCount - 1`).
-- `IExperimentalDataService.SegmentPointsAsync()` → `IAsyncEnumerable<SegmentedDataPoint>` (delegates to `ExperimentalDataSegmenterStep.ExecuteAsync`).
-- `IExperimentalDataService.ExtractSegments()` → sliding-window segment classification (delegates to `ExperimentalDataSegmenterStep.ExtractSegments`).
+- `ExperimentalDataSegmenterStep.ExecuteAsync()` → streaming segmented points sequence.
+- `ExperimentalDataSegmenterStep.ExtractSegments()` → sliding-window segment classification.
 - Segment types: `Ramp`, `Relaxation`, `Descent`, `Recovery`.
 - `ICurveFitter` interface with `MathNetCurveFitter` (Levenberg-Marquardt via MathNet.Numerics) and `AlglibCurveFitter` (bundled ALGLIB).
 - `QuasiLinearModelCurveFitter` for specialized mechanical model curve fitting.

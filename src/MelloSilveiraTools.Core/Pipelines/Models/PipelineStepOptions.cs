@@ -45,8 +45,8 @@ public readonly record struct PipelineStepOptions
     /// </summary>
     internal ExecutionDataflowBlockOptions ToDataflowOptions(CancellationToken pipelineCancellationToken) => new()
     {
-        MaxDegreeOfParallelism = MaxWorkers,
-        BoundedCapacity = MaxBufferSize,
+        MaxDegreeOfParallelism = MaxWorkers <= 0 && MaxWorkers != DataflowBlockOptions.Unbounded ? 1 : MaxWorkers,
+        BoundedCapacity = MaxBufferSize <= 0 && MaxBufferSize != DataflowBlockOptions.Unbounded ? DataflowBlockOptions.Unbounded : MaxBufferSize,
         EnsureOrdered = KeepOrder,
         CancellationToken = pipelineCancellationToken,
         // Optimized for multi-producer thread safety by default

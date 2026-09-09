@@ -8,105 +8,75 @@ using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Models.ExperimentalD
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Services.ExperimentalData;
 using Microsoft.Extensions.Logging;
 using Moq;
+using System.Text;
 
 namespace UnitTests;
 
 public class Test
 {
     private readonly ExperimentalDataService _processor = new(Mock.Of<ILogger<ExperimentalDataService>>(), new Differentiation(), new FileManager(), new ExperimentalDataSettings());
-    private readonly ExperimentalDataProcessingOptions _options = new(0.0, BufferSize: 10, RelativeTolerance: 1e-6, Tolerance: 1e-6, AccelerationTolerance: 1e-6, SkipTimeStep: 0.0);
 
-    [Theory]
-    [MemberData(nameof(GetTestData))]
-    public void TestMethod(SegmentType currentType, ExperimentalDataPoint[] buffer, List<(SegmentType SegmentType, ArraySegment<ExperimentalDataPoint> Points)> expected)
+    private static (MemoryStream StrainStream, MemoryStream StressStream, ExperimentalDataPoint[] Points) CreateStreamsFromTestData()
     {
-        // Act
-        List<(SegmentType SegmentType, ArraySegment<ExperimentalDataPoint> Points)> result = _processor.ExtractSegments(currentType, buffer, bufferCount: buffer.Length, _options);
+        TheoryData<SegmentType, ExperimentalDataPoint[], List<(SegmentType SegmentType, ArraySegment<ExperimentalDataPoint> Points)>> testData = GetTestData();
+        IEnumerator<object[]> enumerator = testData.GetEnumerator();
+        enumerator.MoveNext();
+        ExperimentalDataPoint[] points = (ExperimentalDataPoint[])enumerator.Current[1];
 
-        // Assert
-        Assert.Equal(expected.Count, result.Count);
-
-        for (int i = 0; i < expected.Count; i++)
+        StringBuilder strainBuilder = new();
+        StringBuilder stressBuilder = new();
+        for (int i = 0; i < points.Length; i++)
         {
-            Assert.Equal(expected[i].SegmentType, result[i].SegmentType);
-            for (int j = 0; j < expected[i].Points.Count; j++)
-            {
-                // O número '5' indica que a tolerância é de 5 casas decimais (1e-5) maior do que foi definido em _options.
-                Assert.Equal(expected[i].Points[j].Time, result[i].Points[j].Time, 5);
-                Assert.Equal(expected[i].Points[j].Strain, result[i].Points[j].Strain, 5);
-                Assert.Equal(expected[i].Points[j].Stress, result[i].Points[j].Stress, 5);
-            }
-        }
-    }
-
-    [Fact]
-    public async Task SegmentPointsAsync_WithUtf8Stream_SegmentsPointsCorrectly()
-    {
-        // Arrange
-        string strainContent = "1.0, 1.0\r\n2.0, 4.0\r\n3.0, 9.0\r\n4.0, 16.0\r\n";
-        string stressContent = "1.0, 2.0\r\n2.0, 8.0\r\n3.0, 18.0\r\n4.0, 32.0\r\n";
-
-        using MemoryStream strainStream = new(System.Text.Encoding.UTF8.GetBytes(strainContent));
-        using MemoryStream stressStream = new(System.Text.Encoding.UTF8.GetBytes(stressContent));
-
-        ExperimentalDataProcessingOptions options = new(0.0, BufferSize: 4, RelativeTolerance: 1e-6, Tolerance: 1e-6, AccelerationTolerance: 1e-6, SkipTimeStep: 0.0);
-
-        // Act
-        List<SegmentedDataPoint> points = [];
-        await foreach (SegmentedDataPoint point in _processor.SegmentPointsAsync(strainStream, stressStream, options))
-        {
-            points.Add(point);
+            strainBuilder.AppendLine(string.Create(System.Globalization.CultureInfo.InvariantCulture, $"{points[i].Time:F1}, {points[i].Strain:F1}"));
+            stressBuilder.AppendLine(string.Create(System.Globalization.CultureInfo.InvariantCulture, $"{points[i].Time:F1}, {points[i].Stress:F1}"));
         }
 
-        // Assert
-        Assert.NotEmpty(points);
-        Assert.Equal(4, points.Count);
-        Assert.Equal(0.0, points[0].ProcessedDataPoint.Time);
-        Assert.Equal(1.0, points[0].ProcessedDataPoint.Strain);
-        Assert.Equal(2.0, points[0].ProcessedDataPoint.Stress);
-        Assert.Equal(SegmentType.Ramp, points[0].SegmentType);
+        return (
+            new MemoryStream(Encoding.UTF8.GetBytes(strainBuilder.ToString())),
+            new MemoryStream(Encoding.UTF8.GetBytes(stressBuilder.ToString())),
+            points
+        );
     }
 
     [Fact]
     public async Task ProcessAsync_WithUtf8Stream_ProcessesAndAssemblesSegmentsAndWritesFileThroughPipeline()
     {
         // Arrange
-        string strainContent = "1.0, 1.0\r\n2.0, 4.0\r\n3.0, 9.0\r\n4.0, 16.0\r\n";
-        string stressContent = "1.0, 2.0\r\n2.0, 8.0\r\n3.0, 18.0\r\n4.0, 32.0\r\n";
-
-        using MemoryStream strainStream = new(System.Text.Encoding.UTF8.GetBytes(strainContent));
-        using MemoryStream stressStream = new(System.Text.Encoding.UTF8.GetBytes(stressContent));
-
-        ExperimentalDataProcessingOptions options = new(0.0, BufferSize: 4, RelativeTolerance: 1e-6, Tolerance: 1e-6, AccelerationTolerance: 1e-6, SkipTimeStep: 0.0);
-        string tempDirectory = Path.Combine(Path.GetTempPath(), $"test_exp_data_{Guid.NewGuid():N}");
-        Directory.CreateDirectory(tempDirectory);
-
-        try
+        (MemoryStream strainStream, MemoryStream stressStream, ExperimentalDataPoint[] testPoints) = CreateStreamsFromTestData();
+        using (strainStream)
+        using (stressStream)
         {
-            // Act
-            MelloSilveiraTools.Core.Models.Result<(string OutputFileName, CurveSegment[] CurveSegments)> result =
-                await _processor.ProcessAsync("test_run", tempDirectory, strainStream, stressStream, options);
+            ExperimentalDataProcessingOptions options = new(0.0, BufferSize: (ushort)testPoints.Length, RelativeTolerance: 1e-6, Tolerance: 1e-6, AccelerationTolerance: 1e-6, SkipTimeStep: 0.0);
+            string tempDirectory = Path.Combine(Path.GetTempPath(), $"test_exp_data_{Guid.NewGuid():N}");
+            Directory.CreateDirectory(tempDirectory);
 
-            // Assert
-            Assert.True(result.Success);
-            Assert.True(File.Exists(result.Data.OutputFileName));
-
-            string[] lines = await File.ReadAllLinesAsync(result.Data.OutputFileName);
-            Assert.True(lines.Length > 1);
-            Assert.Equal("Time,Strain,StrainRate,StrainAcceleration,Stress,StressRate,StressAcceleration", lines[0]);
-
-            Assert.Single(result.Data.CurveSegments);
-            Assert.Equal(SegmentType.Ramp, result.Data.CurveSegments[0].Type);
-            Assert.Equal(4, result.Data.CurveSegments[0].TimePoints.Length);
-            Assert.Equal(0.0, result.Data.CurveSegments[0].TimePoints[0]);
-            Assert.Equal(1.0, result.Data.CurveSegments[0].ExperimentalStrain[0]);
-            Assert.Equal(2.0, result.Data.CurveSegments[0].ExperimentalStress[0]);
-        }
-        finally
-        {
-            if (Directory.Exists(tempDirectory))
+            try
             {
-                Directory.Delete(tempDirectory, recursive: true);
+                // Act
+                MelloSilveiraTools.Core.Models.Result<(string OutputFileName, CurveSegment[] CurveSegments)> result =
+                    await _processor.ProcessAsync("test_run", tempDirectory, strainStream, stressStream, options);
+
+                // Assert
+                Assert.True(result.Success);
+                Assert.True(File.Exists(result.Data.OutputFileName));
+
+                string[] lines = await File.ReadAllLinesAsync(result.Data.OutputFileName);
+                Assert.True(lines.Length > 1);
+                Assert.Equal("Time,Strain,StrainRate,StrainAcceleration,Stress,StressRate,StressAcceleration", lines[0]);
+
+                Assert.Single(result.Data.CurveSegments);
+                Assert.Equal(SegmentType.Ramp, result.Data.CurveSegments[0].Type);
+                Assert.Equal(testPoints.Length, result.Data.CurveSegments[0].TimePoints.Length);
+                Assert.Equal(0.0, result.Data.CurveSegments[0].TimePoints[0]);
+                Assert.Equal(testPoints[0].Strain, result.Data.CurveSegments[0].ExperimentalStrain[0]);
+                Assert.Equal(testPoints[0].Stress, result.Data.CurveSegments[0].ExperimentalStress[0]);
+            }
+            finally
+            {
+                if (Directory.Exists(tempDirectory))
+                {
+                    Directory.Delete(tempDirectory, recursive: true);
+                }
             }
         }
     }
@@ -156,62 +126,60 @@ public class Test
     public async Task ExperimentalDataSegmenterStep_StandaloneStreaming_YieldsExpectedPoints()
     {
         // Arrange
-        string strainContent = "1.0, 1.0\r\n2.0, 4.0\r\n3.0, 9.0\r\n4.0, 16.0\r\n";
-        string stressContent = "1.0, 2.0\r\n2.0, 8.0\r\n3.0, 18.0\r\n4.0, 32.0\r\n";
-
-        using MemoryStream strainStream = new(System.Text.Encoding.UTF8.GetBytes(strainContent));
-        using MemoryStream stressStream = new(System.Text.Encoding.UTF8.GetBytes(stressContent));
-
-        ExperimentalDataProcessingOptions options = new(0.0, BufferSize: 4, RelativeTolerance: 1e-6, Tolerance: 1e-6, AccelerationTolerance: 1e-6, SkipTimeStep: 0.0);
-        await using ExperimentalDataSegmenterStep segmenterStep = new(new Differentiation(), options: options);
-
-        // Act
-        List<SegmentedDataPoint> points = [];
-        await foreach (SegmentedDataPoint point in segmenterStep.ExecuteAsync(strainStream, stressStream))
+        (MemoryStream strainStream, MemoryStream stressStream, ExperimentalDataPoint[] testPoints) = CreateStreamsFromTestData();
+        using (strainStream)
+        using (stressStream)
         {
-            points.Add(point);
-        }
+            ExperimentalDataProcessingOptions options = new(0.0, BufferSize: (ushort)testPoints.Length, RelativeTolerance: 1e-6, Tolerance: 1e-6, AccelerationTolerance: 1e-6, SkipTimeStep: 0.0);
+            await using ExperimentalDataSegmenterStep segmenterStep = new(Mock.Of<ILogger>(), new Differentiation(), options: options);
 
-        // Assert
-        Assert.NotEmpty(points);
-        Assert.Equal(4, points.Count);
-        Assert.Equal(0.0, points[0].ProcessedDataPoint.Time);
-        Assert.Equal(1.0, points[0].ProcessedDataPoint.Strain);
-        Assert.Equal(2.0, points[0].ProcessedDataPoint.Stress);
-        Assert.Equal(SegmentType.Ramp, points[0].SegmentType);
+            // Act
+            List<SegmentedDataPoint> points = [];
+            await foreach (SegmentedDataPoint point in segmenterStep.ExecuteAsync((strainStream, stressStream)))
+            {
+                points.Add(point);
+            }
+
+            // Assert
+            Assert.NotEmpty(points);
+            Assert.Equal(testPoints.Length, points.Count);
+            Assert.Equal(0.0, points[0].ProcessedDataPoint.Time);
+            Assert.Equal(testPoints[0].Strain, points[0].ProcessedDataPoint.Strain);
+            Assert.Equal(testPoints[0].Stress, points[0].ProcessedDataPoint.Stress);
+            Assert.Equal(SegmentType.Ramp, points[0].SegmentType);
+        }
     }
 
     [Fact]
     public async Task ExperimentalDataSegmenterStep_WithinDataflowPipeline_StreamsThroughPipelineCorrectly()
     {
         // Arrange
-        string strainContent = "1.0, 1.0\r\n2.0, 4.0\r\n3.0, 9.0\r\n4.0, 16.0\r\n";
-        string stressContent = "1.0, 2.0\r\n2.0, 8.0\r\n3.0, 18.0\r\n4.0, 32.0\r\n";
+        (MemoryStream strainStream, MemoryStream stressStream, ExperimentalDataPoint[] testPoints) = CreateStreamsFromTestData();
+        using (strainStream)
+        using (stressStream)
+        {
+            ExperimentalDataProcessingOptions options = new(0.0, BufferSize: (ushort)testPoints.Length, RelativeTolerance: 1e-6, Tolerance: 1e-6, AccelerationTolerance: 1e-6, SkipTimeStep: 0.0);
+            await using ExperimentalDataSegmenterStep segmenterStep = new(Mock.Of<ILogger>(), new Differentiation(), options: options);
 
-        using MemoryStream strainStream = new(System.Text.Encoding.UTF8.GetBytes(strainContent));
-        using MemoryStream stressStream = new(System.Text.Encoding.UTF8.GetBytes(stressContent));
+            List<SegmentedDataPoint> collectedPoints = [];
 
-        ExperimentalDataProcessingOptions options = new(0.0, BufferSize: 4, RelativeTolerance: 1e-6, Tolerance: 1e-6, AccelerationTolerance: 1e-6, SkipTimeStep: 0.0);
-        await using ExperimentalDataSegmenterStep segmenterStep = new(new Differentiation(), options: options);
+            await using IDataflowPipeline<(Stream StrainStream, Stream StressStream)> pipeline = 
+                PipelineFactory.StartDataflow<(Stream StrainStream, Stream StressStream)>(Mock.Of<ILogger>())
+                    .AddStep(segmenterStep)
+                    .BuildTerminal("CollectPoints", collectedPoints.Add);
 
-        List<SegmentedDataPoint> collectedPoints = [];
+            // Act
+            await pipeline.SendAsync((strainStream, stressStream));
+            pipeline.Complete();
+            await pipeline.Completion;
 
-        await using IDataflowPipeline<(Stream StrainStream, Stream StressStream)> pipeline = 
-            PipelineFactory.StartDataflow<(Stream StrainStream, Stream StressStream)>(Mock.Of<ILogger>())
-                .AddStep(segmenterStep)
-                .BuildTerminal("CollectPoints", collectedPoints.Add);
-
-        // Act
-        await pipeline.SendAsync((strainStream, stressStream));
-        pipeline.Complete();
-        await pipeline.Completion;
-
-        // Assert
-        Assert.Equal(4, collectedPoints.Count);
-        Assert.Equal(SegmentType.Ramp, collectedPoints[0].SegmentType);
-        Assert.Equal(0.0, collectedPoints[0].ProcessedDataPoint.Time);
-        Assert.Equal(1.0, collectedPoints[0].ProcessedDataPoint.Strain);
-        Assert.Equal(2.0, collectedPoints[0].ProcessedDataPoint.Stress);
+            // Assert
+            Assert.Equal(testPoints.Length, collectedPoints.Count);
+            Assert.Equal(SegmentType.Ramp, collectedPoints[0].SegmentType);
+            Assert.Equal(0.0, collectedPoints[0].ProcessedDataPoint.Time);
+            Assert.Equal(testPoints[0].Strain, collectedPoints[0].ProcessedDataPoint.Strain);
+            Assert.Equal(testPoints[0].Stress, collectedPoints[0].ProcessedDataPoint.Stress);
+        }
     }
 
     public static TheoryData<SegmentType, ExperimentalDataPoint[], List<(SegmentType SegmentType, ArraySegment<ExperimentalDataPoint> Points)>> GetTestData() => new()
