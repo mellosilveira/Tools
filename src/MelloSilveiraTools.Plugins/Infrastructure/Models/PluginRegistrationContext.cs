@@ -1,4 +1,4 @@
-using MelloSilveiraTools.Plugins.Infrastructure.Providers;
+using MelloSilveiraTools.Core.Providers.Dynamics;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace MelloSilveiraTools.Plugins.Infrastructure.Models;

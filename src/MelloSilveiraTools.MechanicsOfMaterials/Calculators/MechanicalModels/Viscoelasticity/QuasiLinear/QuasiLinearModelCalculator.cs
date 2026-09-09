@@ -1,6 +1,7 @@
-﻿using MelloSilveiraTools.Mathematics.Models.NumericalMethods;
-using MelloSilveiraTools.Mathematics.NumericalMethods.Derivative;
-using MelloSilveiraTools.Mathematics.NumericalMethods.Integral;
+﻿using MelloSilveiraTools.Mathematics.Models;
+using MelloSilveiraTools.Mathematics.Models.NumericalMethods;
+using MelloSilveiraTools.Mathematics.NumericalMethods.Differentiations;
+using MelloSilveiraTools.Mathematics.NumericalMethods.Integrals;
 using MelloSilveiraTools.MechanicsOfMaterials.Attributes;
 using MelloSilveiraTools.MechanicsOfMaterials.Converters.MechanicalParameter;
 using MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels;
@@ -9,103 +10,96 @@ using MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelast
 
 namespace MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Viscoelasticity.QuasiLinear;
 
-/// <inheritdoc cref="IQuasiLinearModelCalculator{TInput, TReducedRelaxationFunction}"/>
+/// <inheritdoc cref="IQuasiLinearModelCalculator{TConstitutiveParameters, TReducedRelaxationFunction}"/>
 /// <param name="integration">See reference at <see cref="IIntegration"/>.</param>
-/// <param name="derivative">See reference at <see cref="IDerivative"/>.</param>
+/// <param name="differentiation">See reference at <see cref="IDifferentiation"/>.</param>
 /// <param name="parameterConverter">See reference at <see cref="IMechanicalParameterConverter"/>.</param>
-public abstract class QuasiLinearModelCalculator<TInput, TReducedRelaxationFunction>(
+public abstract class QuasiLinearModelCalculator<TConstitutiveParameters, TReducedRelaxationFunction>(
     IIntegration integration,
-    IDerivative derivative,
+    IDifferentiation differentiation,
     IMechanicalParameterConverter parameterConverter)
-    : MechanicalModelCalculatorBase<TInput>(parameterConverter), IQuasiLinearModelCalculator<TInput, TReducedRelaxationFunction>
-    where TInput : QuasiLinearModelInput<TReducedRelaxationFunction>, new()
+    : IQuasiLinearModelCalculator<TConstitutiveParameters, TReducedRelaxationFunction>
+    where TConstitutiveParameters : QuasiLinearConstitutiveParameters<TReducedRelaxationFunction>, new()
     where TReducedRelaxationFunction : class
 {
     /// <inheritdoc cref="IIntegration"/>
     protected IIntegration Integration { get; } = integration;
 
-    /// <inheritdoc cref="IDerivative"/>
-    private readonly IDerivative _derivative = derivative;
-
-    #region Calculate mechanical model's parameters.
-
     /// <inheritdoc/>
-    public double CalculateCreepCompliance(TInput input, double time, double? stress = null)
+    public double CalculateCreepCompliance(MechanicalModelInput<TConstitutiveParameters> input, double time, double? stress = null)
     {
-        throw new NotImplementedException($"The logic for calculate the creep compliance was not implemented on '{GetType().Name}'.");
+        throw new NotImplementedException($"The logic for calculating the creep compliance is not implemented in '{GetType().Name}'.");
     }
 
     /// <inheritdoc/>
-    /// <remarks>G(t) · σᵉ(t), where G(t) is the reduced relaxation function and σᵉ(t) is the elastic response.</remarks>
-    public double CalculateRelaxationFunction(TInput input, double time, double? strain = null)
+    /// <remarks>Formula: G(t) · σᵉ(t), where G(t) is the reduced relaxation function and σᵉ(t) is the elastic response.</remarks>
+    public double CalculateRelaxationFunction(MechanicalModelInput<TConstitutiveParameters> input, double time, double? strain = null)
     {
         return CalculateReducedRelaxationFunction(input, time) * CalculateElasticResponse(input, time, strain);
     }
 
     /// <inheritdoc/>
-    public override double CalculateForce(TInput input, double time, double? displacement = null)
+    public double CalculateForce(MechanicalModelInput<TConstitutiveParameters> input, double time, double? displacement = null)
     {
         if (input.RampTimeConsideration == RampTimeConsideration.Disregard)
         {
-
             if (input.ViscoelasticEffect == ViscoelasticEffect.Relaxation)
             {
-                displacement ??= input.Displacement.InitialValue;
+                displacement ??= input.Displacement!.InitialValue;
                 return CalculateForceWhenDisregardRampTime(input, time, displacement.Value);
             }
 
             if (input.ViscoelasticEffect == ViscoelasticEffect.Creep)
-                throw new NotImplementedException($"The logic for calculate the stress while disregarding the ramp time and considering creep was not implemented on '{GetType().Name}'.");
+                throw new NotImplementedException($"The logic for calculating the force while disregarding the ramp time and considering creep is not implemented in '{GetType().Name}'.");
         }
 
         return Integration.Calculate(
             (integrationTime) => CalculateReducedRelaxationFunction(input, time - integrationTime) * CalculateElasticForceResponseDerivative(input, integrationTime),
             new IntegralInput
             {
-                InitialPoint = MechanicalModelConstants.InitialTime,
+                InitialPoint = MathematicConstants.InitialTime,
                 FinalPoint = time,
                 Step = input.TimeStep
             });
     }
 
     /// <inheritdoc/>
-    public override double CalculateDisplacement(TInput input, double time, double? force = null)
+    public double CalculateDisplacement(MechanicalModelInput<TConstitutiveParameters> input, double time, double? force = null)
     {
         if (input.RampTimeConsideration == RampTimeConsideration.Disregard)
         {
-
             if (input.ViscoelasticEffect == ViscoelasticEffect.Relaxation)
             {
-                force ??= input.Force.InitialValue;
-                double stress = ParameterConverter.CalculateStressFromForce(input.Specimen, force.Value);
+                force ??= input.Force!.InitialValue;
+                double stress = parameterConverter.CalculateStressFromForce(input.Specimen!, force.Value);
                 double reducedRelaxationFunction = CalculateReducedRelaxationFunction(input, time);
-                return Math.Log(stress / (input.ElasticStressConstant * reducedRelaxationFunction) + 1) / input.ElasticPowerConstant;
+                return Math.Log(stress / (input.ConstitutiveParameters.ElasticStressConstant * reducedRelaxationFunction) + 1) / input.ConstitutiveParameters.ElasticPowerConstant;
             }
 
             if (input.ViscoelasticEffect == ViscoelasticEffect.Creep)
-                throw new NotImplementedException($"The logic for calculate the displacement while disregarding the ramp time and considering creep was not implemented on '{GetType().Name}'.");
+                throw new NotImplementedException($"The logic for calculating the displacement while disregarding the ramp time and considering creep is not implemented in '{GetType().Name}'.");
         }
 
-        throw new NotImplementedException($"The logic for calculate the displacement while considering the ramp time was not implemented on '{GetType().Name}'.");
+        throw new NotImplementedException($"The logic for calculating the displacement while considering the ramp time is not implemented in '{GetType().Name}'.");
     }
 
     /// <inheritdoc/>
-    /// <remarks>σ(t) = ∫₀ᵗ G(t-τ) · dσᵉ(τ)/dτ dτ (Projeto Final, Eq. 34).</remarks>
-    public override double CalculateStress(TInput input, double time, double? strain = null)
+    /// <remarks>Formula: σ(t) = ∫₀ᵗ G(t-τ) · dσᵉ(τ)/dτ dτ (Projeto Final, Eq. 34).</remarks>
+    public double CalculateStress(MechanicalModelInput<TConstitutiveParameters> input, double time, double? strain = null)
     {
         if (input.RampTimeConsideration == RampTimeConsideration.Disregard)
         {
             if (input.ViscoelasticEffect == ViscoelasticEffect.Relaxation)
             {
-                strain ??= input.Strain.InitialValue;
+                strain ??= input.Strain!.InitialValue;
                 return CalculateStressWhenDisregardRampTime(input, time, strain.Value);
             }
 
             if (input.ViscoelasticEffect == ViscoelasticEffect.Creep)
-                throw new NotImplementedException($"The logic for calculate the stress while disregarding the ramp time and considering creep was not implemented on '{GetType().Name}'.");
+                throw new NotImplementedException($"The logic for calculating the stress while disregarding the ramp time and considering creep is not implemented in '{GetType().Name}'.");
         }
 
-        if (time <= MechanicalModelConstants.Tolerance)
+        if (time <= MathematicConstants.Tolerance)
             return 0;
 
         return Integration.Calculate(
@@ -117,36 +111,35 @@ public abstract class QuasiLinearModelCalculator<TInput, TReducedRelaxationFunct
             },
             new IntegralInput
             {
-                InitialPoint = MechanicalModelConstants.InitialTime,
+                InitialPoint = MathematicConstants.InitialTime,
                 FinalPoint = time,
                 Step = input.TimeStep
             });
     }
 
     /// <inheritdoc/>
-    public override double CalculateStrain(TInput input, double time, double? stress = null)
+    public double CalculateStrain(MechanicalModelInput<TConstitutiveParameters> input, double time, double? stress = null)
     {
         if (input.RampTimeConsideration == RampTimeConsideration.Disregard)
         {
-
             if (input.ViscoelasticEffect == ViscoelasticEffect.Relaxation)
             {
-                stress ??= input.Stress.InitialValue;
+                stress ??= input.Stress!.InitialValue;
                 double reducedRelaxationFunction = CalculateReducedRelaxationFunction(input, time);
-                return Math.Log(stress.Value / (input.ElasticStressConstant * reducedRelaxationFunction) + 1) / input.ElasticPowerConstant;
+                return Math.Log(stress.Value / (input.ConstitutiveParameters.ElasticStressConstant * reducedRelaxationFunction) + 1) / input.ConstitutiveParameters.ElasticPowerConstant;
             }
 
             if (input.ViscoelasticEffect == ViscoelasticEffect.Creep)
-                throw new NotImplementedException($"The logic for calculate the strain while disregarding the ramp time and considering creep was not implemented on '{GetType().Name}'.");
+                throw new NotImplementedException($"The logic for calculating the strain while disregarding the ramp time and considering creep is not implemented in '{GetType().Name}'.");
         }
 
-        throw new NotImplementedException($"The logic for calculate the strain while considering the ramp time was not implemented on '{GetType().Name}'.");
+        throw new NotImplementedException($"The logic for calculating the strain while considering the ramp time is not implemented in '{GetType().Name}'.");
     }
 
     /// <inheritdoc/>
-    /// <remarks>σ(t) = σᵉ(t)·G(0) + ∫₀ᵗ σᵉ(t-τ)·dG(τ)/dτ dτ (Projeto Final, Eq. 35).</remarks>
-    [MechanicalModelParameterCalculation(nameof(QuasiLinearModelResult.StressByReducedRelaxationFunctionDerivative), MechanicalRelationship.StressStrain, ViscoelasticEffect.Relaxation)]
-    public double CalculateStressByReducedRelaxationFunctionDerivative(TInput input, double time)
+    /// <remarks>Formula: σ(t) = σᵉ(t)·G(0) + ∫₀ᵗ σᵉ(t-τ)·dG(τ)/dτ dτ (Projeto Final, Eq. 35).</remarks>
+    [MechanicalModelParameterCalculation(nameof(QuasiLinearModelOutput.StressByReducedRelaxationFunctionDerivative), MechanicalBehaviorType.StressStrain, ViscoelasticEffect.Relaxation)]
+    public double CalculateStressByReducedRelaxationFunctionDerivative(MechanicalModelInput<TConstitutiveParameters> input, double time)
     {
         if (input.RampTimeConsideration == RampTimeConsideration.Disregard)
         {
@@ -154,11 +147,11 @@ public abstract class QuasiLinearModelCalculator<TInput, TReducedRelaxationFunct
                 return CalculateStressWhenDisregardRampTime(input, time);
 
             if (input.ViscoelasticEffect == ViscoelasticEffect.Creep)
-                throw new NotImplementedException($"The logic for calculate the stress while disregarding the ramp time and considering creep was not implemented on '{GetType().Name}'.");
+                throw new NotImplementedException($"The logic for calculating the stress while disregarding the ramp time and considering creep is not implemented in '{GetType().Name}'.");
         }
 
         double elasticResponse = CalculateElasticResponse(input, time);
-        double reducedRelaxationFunction = CalculateReducedRelaxationFunction(input, MechanicalModelConstants.InitialTime);
+        double reducedRelaxationFunction = CalculateReducedRelaxationFunction(input, MathematicConstants.InitialTime);
         return elasticResponse * reducedRelaxationFunction
             + Integration.Calculate(
                 (integrationTime) =>
@@ -169,16 +162,16 @@ public abstract class QuasiLinearModelCalculator<TInput, TReducedRelaxationFunct
                 },
                 new IntegralInput
                 {
-                    InitialPoint = MechanicalModelConstants.InitialTime,
+                    InitialPoint = MathematicConstants.InitialTime,
                     FinalPoint = time,
                     Step = input.TimeStep
                 });
     }
 
     /// <inheritdoc/>
-    /// <remarks>σ(t) = d/dt ∫₀ᵗ σᵉ(t-τ)·G(τ) dτ (Projeto Final, Eq. 36).</remarks>
-    [MechanicalModelParameterCalculation(nameof(QuasiLinearModelResult.StressByConvolutionDerivative), MechanicalRelationship.StressStrain, ViscoelasticEffect.Relaxation)]
-    public double CalculateStressByConvolutionDerivative(TInput input, double time)
+    /// <remarks>Formula: σ(t) = d/dt ∫₀ᵗ σᵉ(t-τ)·G(τ) dτ (Projeto Final, Eq. 36).</remarks>
+    [MechanicalModelParameterCalculation(nameof(QuasiLinearModelOutput.StressByConvolutionDerivative), MechanicalBehaviorType.StressStrain, ViscoelasticEffect.Relaxation)]
+    public double CalculateStressByConvolutionDerivative(MechanicalModelInput<TConstitutiveParameters> input, double time)
     {
         if (input.RampTimeConsideration == RampTimeConsideration.Disregard)
         {
@@ -186,10 +179,10 @@ public abstract class QuasiLinearModelCalculator<TInput, TReducedRelaxationFunct
                 return CalculateStressWhenDisregardRampTime(input, time);
 
             if (input.ViscoelasticEffect == ViscoelasticEffect.Creep)
-                throw new NotImplementedException($"The logic for calculate the stress while disregarding the ramp time and considering creep was not implemented on '{GetType().Name}'.");
+                throw new NotImplementedException($"The logic for calculating the stress while disregarding the ramp time and considering creep is not implemented in '{GetType().Name}'.");
         }
 
-        return _derivative.Calculate(
+        return differentiation.Calculate(
             (derivativeTime) => Integration.Calculate(
                 (integrationTime) =>
                 {
@@ -199,7 +192,7 @@ public abstract class QuasiLinearModelCalculator<TInput, TReducedRelaxationFunct
                 },
                 new IntegralInput
                 {
-                    InitialPoint = MechanicalModelConstants.InitialTime,
+                    InitialPoint = MathematicConstants.InitialTime,
                     FinalPoint = derivativeTime,
                     Step = input.TimeStep
                 }),
@@ -208,95 +201,91 @@ public abstract class QuasiLinearModelCalculator<TInput, TReducedRelaxationFunct
     }
 
     /// <inheritdoc/>
-    [MechanicalModelParameterCalculation(nameof(QuasiLinearModelResult.ElasticForceResponse), MechanicalRelationship.ForceDisplacement, ViscoelasticEffect.Relaxation)]
-    public double CalculateElasticForceResponse(TInput input, double time, double? displacement = null)
+    [MechanicalModelParameterCalculation(nameof(QuasiLinearModelOutput.ElasticForceResponse), MechanicalBehaviorType.ForceDisplacement, ViscoelasticEffect.Relaxation)]
+    public double CalculateElasticForceResponse(MechanicalModelInput<TConstitutiveParameters> input, double time, double? displacement = null)
     {
         if (input.RampTimeConsideration == RampTimeConsideration.Disregard && displacement is null)
-            return input.Force.InitialValue;
+            return input.Force!.InitialValue;
 
-        displacement ??= input.Displacement.CalculateValue(time);
-        double strain = ParameterConverter.CalculateStrainFromDisplacement(input.Specimen, displacement.Value);
+        displacement ??= input.Displacement!.CalculateValue(time);
+        double strain = parameterConverter.CalculateStrainFromDisplacement(input.Specimen!, displacement.Value);
         double elasticResponse = CalculateElasticResponse(input, time, strain);
 
-        return ParameterConverter.CalculateForceFromStress(input.Specimen, elasticResponse);
+        return parameterConverter.CalculateForceFromStress(input.Specimen!, elasticResponse);
     }
 
     /// <inheritdoc/>
-    /// <remarks>σᵉ(t) = A · (e^(B·ε(t)) - 1) (Projeto Final, Eq. 37).</remarks>
-    [MechanicalModelParameterCalculation(nameof(QuasiLinearModelResult.ElasticResponse), MechanicalRelationship.StressStrain, ViscoelasticEffect.Relaxation)]
-    public double CalculateElasticResponse(TInput input, double time, double? strain = null)
+    /// <remarks>Formula: σᵉ(t) = A · (e^(B·ε(t)) - 1) (Projeto Final, Eq. 37).</remarks>
+    [MechanicalModelParameterCalculation(nameof(QuasiLinearModelOutput.ElasticResponse), MechanicalBehaviorType.StressStrain, ViscoelasticEffect.Relaxation)]
+    public double CalculateElasticResponse(MechanicalModelInput<TConstitutiveParameters> input, double time, double? strain = null)
     {
         if (input.RampTimeConsideration == RampTimeConsideration.Disregard && strain is null)
-            return input.Stress.InitialValue;
+            return input.Stress!.InitialValue;
 
-        strain ??= input.Strain.CalculateValue(time);
-        return input.ElasticStressConstant * (Math.Exp(input.ElasticPowerConstant * strain.Value) - 1);
+        strain ??= input.Strain!.CalculateValue(time);
+        return input.ConstitutiveParameters.ElasticStressConstant * (Math.Exp(input.ConstitutiveParameters.ElasticPowerConstant * strain.Value) - 1);
     }
 
     /// <inheritdoc/>
-    [MechanicalModelParameterCalculation(nameof(QuasiLinearModelResult.ReducedRelaxationFunction), ViscoelasticEffect.Relaxation)]
-    public abstract double CalculateReducedRelaxationFunction(TInput input, double time);
+    [MechanicalModelParameterCalculation(nameof(QuasiLinearModelOutput.ReducedRelaxationFunction), ViscoelasticEffect.Relaxation)]
+    public abstract double CalculateReducedRelaxationFunction(MechanicalModelInput<TConstitutiveParameters> input, double time);
 
     /// <inheritdoc/>
-    protected abstract double CalculateReducedRelaxationFunctionDerivative(TInput input, double time);
+    protected abstract double CalculateReducedRelaxationFunctionDerivative(MechanicalModelInput<TConstitutiveParameters> input, double time);
 
     /// <inheritdoc/>
-    private double CalculateElasticForceResponseDerivative(TInput input, double time, double? displacement = null, double? displacementDerivative = null)
+    private double CalculateElasticForceResponseDerivative(MechanicalModelInput<TConstitutiveParameters> input, double time, double? displacement = null, double? displacementDerivative = null)
     {
-        // If the ramp time is disregarded, the elastic force response is constant during the time and its derivative is always zero.
         if (input.RampTimeConsideration == RampTimeConsideration.Disregard)
             return 0;
 
-        displacement ??= input.Displacement.CalculateValue(time);
-        displacementDerivative ??= input.Displacement.CalculateDerivative(time);
+        displacement ??= input.Displacement!.CalculateValue(time);
+        displacementDerivative ??= input.Displacement!.CalculateDerivative(time);
 
-        double strain = ParameterConverter.CalculateStrainFromDisplacement(input.Specimen, displacement.Value);
-        double strainDerivative = ParameterConverter.CalculateStrainDerivativeFromDisplacement(input.Specimen, displacement.Value, displacementDerivative.Value);
+        double strain = parameterConverter.CalculateStrainFromDisplacement(input.Specimen!, displacement.Value);
+        double strainDerivative = parameterConverter.CalculateStrainDerivativeFromDisplacement(input.Specimen!, displacement.Value, displacementDerivative.Value);
 
         double elasticResponseDerivative = CalculateElasticResponseDerivative(input, time, strain, strainDerivative);
-        return ParameterConverter.CalculateForceFromStress(input.Specimen, elasticResponseDerivative);
+        return parameterConverter.CalculateForceFromStress(input.Specimen!, elasticResponseDerivative);
     }
 
-    /// <remarks>dσᵉ/dt = A · B · e^(B·ε(t)) · dε/dt (Projeto Final, Eq. 39).</remarks>
-    private double CalculateElasticResponseDerivative(TInput input, double time, double? strain = null, double? strainDerivative = null)
+    /// <remarks>Formula: dσᵉ/dt = A · B · e^(B·ε(t)) · dε/dt (Projeto Final, Eq. 39).</remarks>
+    private static double CalculateElasticResponseDerivative(MechanicalModelInput<TConstitutiveParameters> input, double time, double? strain = null, double? strainDerivative = null)
     {
-        // If the ramp time is disregarded, the elastic response is constant during the time and its derivative is always zero.
         if (input.RampTimeConsideration == RampTimeConsideration.Disregard)
             return 0;
 
-        strain ??= input.Strain.CalculateValue(time);
-        strainDerivative ??= input.Strain.CalculateDerivative(time);
+        strain ??= input.Strain!.CalculateValue(time);
+        strainDerivative ??= input.Strain!.CalculateDerivative(time);
 
-        return input.ElasticStressConstant * input.ElasticPowerConstant * strainDerivative.Value * Math.Exp(input.ElasticPowerConstant * strain.Value);
+        return input.ConstitutiveParameters.ElasticStressConstant * input.ConstitutiveParameters.ElasticPowerConstant * strainDerivative.Value * Math.Exp(input.ConstitutiveParameters.ElasticPowerConstant * strain.Value);
     }
 
     /// <summary>
     /// Calculates the stress when the ramp time is disregarded.
     /// </summary>
-    /// <param name="input">The mechanical model's input.</param>
+    /// <param name="input">The mechanical model's input data.</param>
     /// <param name="time">Unit: s (second).</param>
     /// <param name="strain">Unit: dimensionless.</param>
     /// <returns>Unit: MPa (Mega-Pascal).</returns>
-    private double CalculateStressWhenDisregardRampTime(TInput input, double time, double? strain = null)
+    private double CalculateStressWhenDisregardRampTime(MechanicalModelInput<TConstitutiveParameters> input, double time, double? strain = null)
     {
         double reducedRelaxationFunction = CalculateReducedRelaxationFunction(input, time);
-        double elasticResponse = strain is null ? input.Stress.InitialValue : CalculateElasticResponse(input, time, strain);
+        double elasticResponse = strain is null ? input.Stress!.InitialValue : CalculateElasticResponse(input, time, strain);
         return elasticResponse * reducedRelaxationFunction;
     }
 
     /// <summary>
     /// Calculates the force when the ramp time is disregarded.
     /// </summary>
-    /// <param name="input">The mechanical model's input.</param>
+    /// <param name="input">The mechanical model's input data.</param>
     /// <param name="time">Unit: s (second).</param>
     /// <param name="displacement">Unit: m (meter).</param>
     /// <returns>Unit: N (Newton).</returns>
-    private double CalculateForceWhenDisregardRampTime(TInput input, double time, double? displacement)
+    private double CalculateForceWhenDisregardRampTime(MechanicalModelInput<TConstitutiveParameters> input, double time, double? displacement)
     {
         double reducedRelaxationFunction = CalculateReducedRelaxationFunction(input, time);
-        double elasticForce = displacement is null ? input.Force.InitialValue : CalculateElasticForceResponse(input, time, displacement);
+        double elasticForce = displacement is null ? input.Force!.InitialValue : CalculateElasticForceResponse(input, time, displacement);
         return elasticForce * reducedRelaxationFunction;
     }
-
-    #endregion
 }

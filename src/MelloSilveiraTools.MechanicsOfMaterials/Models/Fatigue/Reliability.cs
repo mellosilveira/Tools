@@ -1,33 +1,32 @@
-﻿namespace MelloSilveiraTools.MechanicsOfMaterials.Models.Fatigue
+﻿namespace MelloSilveiraTools.MechanicsOfMaterials.Models.Fatigue;
+
+/// <summary>
+/// It contains the reliability for project to fatigue analysis.
+/// </summary>
+public enum Reliability : int
 {
     /// <summary>
-    /// It contains the reliability for project to fatigue analysis.
+    /// 50 per cent.
     /// </summary>
-    public enum Reliability
-    {
-        /// <summary>
-        /// 50 per cent.
-        /// </summary>
-        Fifty,
+    Fifty = 50,
 
-        /// <summary>
-        /// 90 per cent.
-        /// </summary>
-        Ninety,
+    /// <summary>
+    /// 90 per cent.
+    /// </summary>
+    Ninety = 90,
 
-        /// <summary>
-        /// 95 per cent.
-        /// </summary>
-        NinetyFive,
+    /// <summary>
+    /// 95 per cent.
+    /// </summary>
+    NinetyFive = 95,
 
-        /// <summary>
-        /// 99 per cent.
-        /// </summary>
-        NinetyNine,
+    /// <summary>
+    /// 99 per cent.
+    /// </summary>
+    NinetyNine = 99,
 
-        /// <summary>
-        /// 99.9 per cent.
-        /// </summary>
-        NinetyNinePointNine,
-    }
+    /// <summary>
+    /// 99.9 per cent.
+    /// </summary>
+    NinetyNinePointNine = 999,
 }

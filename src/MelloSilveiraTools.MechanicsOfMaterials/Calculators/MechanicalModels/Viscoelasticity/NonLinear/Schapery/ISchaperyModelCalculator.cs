@@ -1,70 +1,72 @@
-﻿using MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Viscoelasticity;
+﻿using MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels;
 using MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.NonLinear.Schapery;
 
 namespace MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Viscoelasticity.NonLinear.Schapery;
 
 /// <summary>
-/// Schapery's non-linear viscoelastic model.
-/// It uses the Boltzmann superposition method, with thermodynamics concepts, to determine a non-linear strain-stress relation. 
-/// For soft tissue analysis, the influence of temperature is not considered since the temperature is constant or has slight
-/// variation in a real body.
-/// The main limitation of Schapery’s model is the dependence on the relaxation function value in the equilibrium condition (when 
-/// the time tends to infinity). This is considered a limitation since the accuracy of the numerical model depends on finding the 
-/// equilibrium state in the experimental tests. This may require periods in the range of hours, as observed in several researches. 
-/// For more details, see on section "Bibliographies" on file "README.MD".
+/// Defines a calculator for Schapery's non-linear viscoelastic model.
 /// </summary>
-public interface ISchaperyModelCalculator : IViscoelasticModelCalculator<SchaperyModelInput>
+/// <remarks>
+/// It uses the Boltzmann superposition principle combined with thermodynamic concepts to determine a non-linear stress-strain relationship.
+/// 
+/// For soft tissue analysis, the influence of temperature is typically disregarded, as the temperature remains constant or has slight variations in a real biological body.
+/// 
+/// The main limitation of Schapery’s model is its dependence on the relaxation function value in the equilibrium condition (when time approaches infinity). 
+/// This requires finding the equilibrium state in experimental tests, which may take hours, as observed in several biomechanical researches.
+/// For more details, see the "Bibliographies" section in the "README.md" file.
+/// </remarks>
+public interface ISchaperyModelCalculator : IViscoelasticModelCalculator<SchaperyConstitutiveParameters>
 {
     /// <summary>
     /// Calculates the transient relaxation function.
-    /// For more details, see on section "Bibliographies" on file "README.MD".
+    /// For more details, see the "Bibliographies" section in the "README.md" file.
     /// </summary>
-    /// <param name="input">The mechanical model's input.</param>
+    /// <param name="input">The mechanical model's input data.</param>
     /// <param name="time">Unit: s (second).</param>
     /// <returns>Unit: MPa (Mega-Pascal).</returns>
-    double CalculateTransientRelaxationFunction(SchaperyModelInput input, double time);
+    double CalculateTransientRelaxationFunction(MechanicalModelInput<SchaperyConstitutiveParameters> input, double time);
 
     /// <summary>
     /// Calculates the transient creep compliance.
-    /// For more details, see on section "Bibliographies" on file "README.MD".
+    /// For more details, see the "Bibliographies" section in the "README.md" file.
     /// </summary>
-    /// <param name="input">The mechanical model's input.</param>
+    /// <param name="input">The mechanical model's input data.</param>
     /// <param name="time">Unit: s (second).</param>
-    /// <returns>Unit: /Mpa (per Mega-Pascal).</returns>
-    double CalculateTransientCreepCompliance(SchaperyModelInput input, double time);
+    /// <returns>Unit: /MPa (per Mega-Pascal).</returns>
+    double CalculateTransientCreepCompliance(MechanicalModelInput<SchaperyConstitutiveParameters> input, double time);
 
     /// <summary>
-    /// Calculates the reduced time function to be used on stress calculation.
-    /// For analysis with low stress level, as soft tissue analysis, this variable is considered equal to time.
-    /// For more details, see on section "Bibliographies" on file "README.MD".
+    /// Calculates the reduced time function used in stress calculation (relaxation).
+    /// For analyses with low stress levels (such as soft tissue analysis), this variable is often considered equal to the real time.
+    /// For more details, see the "Bibliographies" section in the "README.md" file.
     /// </summary>
-    /// <param name="input">The mechanical model's input.</param>
+    /// <param name="input">The mechanical model's input data.</param>
     /// <param name="time">Unit: s (second).</param>
     /// <returns>Unit: s (second).</returns>
-    double CalculateReducedTimeFunction(SchaperyModelInput input, double time);
+    double CalculateReducedTimeFunction(MechanicalModelInput<SchaperyConstitutiveParameters> input, double time);
 
     /// <summary>
-    /// Calculates the retardation time function to be used on strain calculation.
-    /// For analysis with low stress level, as soft tissue analysis, this variable is considered equal to time.
+    /// Calculates the retardation time function used in strain calculation (creep).
+    /// For analyses with low stress levels (such as soft tissue analysis), this variable is often considered equal to the real time.
     /// </summary>
-    /// <param name="input">The mechanical model's input.</param>
+    /// <param name="input">The mechanical model's input data.</param>
     /// <param name="time">Unit: s (second).</param>
     /// <returns>Unit: s (second).</returns>
-    double CalculateRetardationTimeFunction(SchaperyModelInput input, double time);
+    double CalculateRetardationTimeFunction(MechanicalModelInput<SchaperyConstitutiveParameters> input, double time);
 
     /// <summary>
-    /// Calculates the stress shift factor to be used when calculating the reduced time function for relaxation analysis.
+    /// Calculates the stress shift factor used when computing the reduced time function for relaxation analysis.
     /// </summary>
-    /// <param name="input">The mechanical model's input.</param>
+    /// <param name="input">The mechanical model's input data.</param>
     /// <param name="time">Unit: s (second).</param>
     /// <returns>Unit: dimensionless.</returns>
-    double CalculateStressShiftFactor(SchaperyModelInput input, double time);
+    double CalculateStressShiftFactor(MechanicalModelInput<SchaperyConstitutiveParameters> input, double time);
 
     /// <summary>
-    /// Calculates the temperature shift factor to be used when calculating the retardation time function for creep analysis.
+    /// Calculates the temperature shift factor used when computing the retardation time function for creep analysis.
     /// </summary>
-    /// <param name="input">The mechanical model's input.</param>
+    /// <param name="input">The mechanical model's input data.</param>
     /// <param name="time">Unit: s (second).</param>
     /// <returns>Unit: dimensionless.</returns>
-    double CalculateTemperatureShiftFactor(SchaperyModelInput input, double time);
+    double CalculateTemperatureShiftFactor(MechanicalModelInput<SchaperyConstitutiveParameters> input, double time);
 }

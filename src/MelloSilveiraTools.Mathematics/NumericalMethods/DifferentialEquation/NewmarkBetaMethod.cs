@@ -1,5 +1,4 @@
 ﻿using MelloSilveiraTools.Core.ExtensionMethods;
-using MelloSilveiraTools.Mathematics.Models.NumericalMethods;
 
 namespace MelloSilveiraTools.Mathematics.NumericalMethods.DifferentialEquation;
 
@@ -14,32 +13,29 @@ public class NewmarkBetaMethod : IDifferentialEquationMethod
     private const double A4 = 1 / (2 * Beta);
 
     /// <inheritdoc/>
-    public DifferentialEquationMethodType Type => DifferentialEquationMethodType.NewmarkBeta;
-
-    /// <inheritdoc/>
-    public NumericalMethodResult CalculateResult(NumericalMethodInput input, double time, NumericalMethodResult previousResult)
+    public NumericalMethodOutput Calculate(NumericalMethodInput input, double time, NumericalMethodOutput previousOutput)
     {
         if (time < 0)
             throw new ArgumentOutOfRangeException(nameof(time), "The time cannot be negative.");
 
         if (time == 0)
-            return new NumericalMethodResult { EquivalentForce = input.EquivalentForce };
+            return new NumericalMethodOutput { EquivalentForce = input.EquivalentForce };
 
         #region Step 1 - Calculates the inversed equivalent stiffness and equivalent force.
         double[,] inversedEquivalentStiffness = CalculateEquivalentStiffness(input).InverseMatrix();
-        double[] equivalentForce = CalculateEquivalentForce(input, previousResult);
+        double[] equivalentForce = CalculateEquivalentForce(input, previousOutput);
         #endregion
 
         #region Step 2 - Calculates the displacement.
         double[] deltaDisplacement = inversedEquivalentStiffness.Multiply(equivalentForce);
-        double[] displacement = previousResult.Displacement.Sum(deltaDisplacement);
+        double[] displacement = previousOutput.Displacement.Sum(deltaDisplacement);
         #endregion
 
         #region Step 3 - Calculates the velocity.
         double[] velocity = new double[input.NumberOfBoundaryConditions];
         for (int i = 0; i < input.NumberOfBoundaryConditions; i++)
         {
-            velocity[i] = GetA1(input.TimeStep) * deltaDisplacement[i] + (1 - A3) * previousResult.Velocity[i] - GetA5(input.TimeStep) * previousResult.Acceleration[i];
+            velocity[i] = GetA1(input.TimeStep) * deltaDisplacement[i] + (1 - A3) * previousOutput.Velocity[i] - GetA5(input.TimeStep) * previousOutput.Acceleration[i];
         }
         #endregion
 
@@ -92,9 +88,9 @@ public class NewmarkBetaMethod : IDifferentialEquationMethod
     /// from the previous step.
     /// </summary>
     /// <param name="input">System input providing the matrices and current applied force.</param>
-    /// <param name="previousResult">State at t−Δt (displacement, velocity, acceleration and applied force).</param>
+    /// <param name="previousOutput">State at t−Δt (displacement, velocity, acceleration and applied force).</param>
     /// <returns>The effective force vector at the current step, in Newtons.</returns>
-    private double[] CalculateEquivalentForce(NumericalMethodInput input, NumericalMethodResult previousResult)
+    private double[] CalculateEquivalentForce(NumericalMethodInput input, NumericalMethodOutput previousOutput)
     {
         #region Calculates the equivalent damping and equivalent mass.
         double[,] equivalentDamping = CalculateEquivalentDamping(input);
@@ -102,12 +98,12 @@ public class NewmarkBetaMethod : IDifferentialEquationMethod
         #endregion
 
         #region Calculates the equivalent forces.
-        double[] equivalentDampingForce = equivalentDamping.Multiply(previousResult.Velocity);
-        double[] equivalentDynamicForce = equivalentMass.Multiply(previousResult.Acceleration);
+        double[] equivalentDampingForce = equivalentDamping.Multiply(previousOutput.Velocity);
+        double[] equivalentDynamicForce = equivalentMass.Multiply(previousOutput.Acceleration);
         #endregion
 
         return input.EquivalentForce
-            .Subtract(previousResult.EquivalentForce)
+            .Subtract(previousOutput.EquivalentForce)
             .Sum(equivalentDampingForce, equivalentDynamicForce);
     }
 

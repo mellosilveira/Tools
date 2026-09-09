@@ -1,0 +1,502 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>MelloSilveiraTools.MechanicsOfMaterials.Optimizations</name>
+    </assembly>
+    <members>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Algorithms.SensitivityAnalyses.ExpressionPathResolver.GetPath``2(System.Linq.Expressions.Expression{System.Func{``0,``1}})">
+            <summary>
+            Converts a lambda expression into a string path using the built-in C# compiler expression tree.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Algorithms.SensitivityAnalyses.Morris.MorrisAnalyzer.Analyze(System.Int32,System.Collections.Generic.IReadOnlyCollection{System.String},System.Collections.Generic.IReadOnlyCollection{System.String},System.Collections.Generic.List{System.Collections.Generic.List{MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Algorithms.SensitivityAnalyses.Morris.MorrisPoint}})">
+            <summary>
+            Analyzes the trajectories and calculates Mu, MuStar, and Sigma.
+            </summary>
+            <param name="levels">The 'p' grid levels used during generation.</param>
+            <param name="targetOutputs">List of mechanical outputs (e.g., "Stress").</param>
+            <param name="parameterPaths">List of parameters analyzed (e.g., "N", "A[0]").</param>
+            <param name="trajectories">The completed simulation points grouped by trajectory.</param>
+        </member>
+        <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Algorithms.SensitivityAnalyses.Morris.MorrisInput">
+            <summary>
+            The exact payload required to start a Morris Screening analysis.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Algorithms.SensitivityAnalyses.Morris.MorrisInput.MechanicalModelName">
+            <summary>
+            Discriminator to identify the specific mechanical model (e.g., "Schapery", "Fung").
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Algorithms.SensitivityAnalyses.Morris.MorrisInput.BaselineConfiguration">
+            <summary>
+            The un-mutated biological configuration.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Algorithms.SensitivityAnalyses.Morris.MorrisInput.Boundaries">
+            <summary>
+            The list of parameters to include in the screening (defines 'k').
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Algorithms.SensitivityAnalyses.Morris.MorrisInput.TargetOutputs">
+            <summary>
+            The mechanical outputs to analyze (e.g., "Stress", "Force").
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Algorithms.SensitivityAnalyses.Morris.MorrisInput.Trajectories">
+            <summary>
+            Number of trajectories (r) - random starting points in the parameter space.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Algorithms.SensitivityAnalyses.Morris.MorrisInput.Levels">
+            <summary>
+            Number of levels (p) - the resolution of the normalized grid.
+            </summary>
+        </member>
+        <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Algorithms.SensitivityAnalyses.Morris.MorrisMetrics">
+            <summary>
+            The core diagnostic metrics for a specific parameter against a specific mechanical output.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Algorithms.SensitivityAnalyses.Morris.MorrisMetrics.Mu">
+            <summary>
+            Standard Mean. Can indicate directional effect, but risks positive/negative cancellation.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Algorithms.SensitivityAnalyses.Morris.MorrisMetrics.MuStar">
+            <summary>
+            Absolute Mean. The overall magnitude of influence this parameter has on the output.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Algorithms.SensitivityAnalyses.Morris.MorrisMetrics.Sigma">
+            <summary>
+            Standard Deviation. Measures non-linearity and interaction with other parameters.
+            </summary>
+        </member>
+        <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Algorithms.SensitivityAnalyses.Morris.MorrisOutput">
+            <summary>
+            The final result object containing all calculated metrics.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Algorithms.SensitivityAnalyses.Morris.MorrisOutput.Results">
+            <summary>
+            A flat list of every computed metric combination (Parameter x Output).
+            </summary>
+        </member>
+        <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Algorithms.SensitivityAnalyses.Morris.MorrisParameterBoundary">
+            <summary>
+            Maps a parameter (e.g., "N" or "A[0]") to its specific physical boundaries.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Algorithms.SensitivityAnalyses.Morris.MorrisParameterBoundary.#ctor(System.String,MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Models.Range.RangeParameters)">
+            <summary>
+            Maps a parameter (e.g., "N" or "A[0]") to its specific physical boundaries.
+            </summary>
+        </member>
+        <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Algorithms.SensitivityAnalyses.Morris.MorrisPoint">
+            <summary>
+            Represents a single completed simulation point within a trajectory.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Algorithms.SensitivityAnalyses.Morris.MorrisPoint.#ctor(System.Collections.Generic.IReadOnlyDictionary{System.String,System.Double},System.Collections.Generic.IReadOnlyDictionary{System.String,System.Double})">
+            <summary>
+            Represents a single completed simulation point within a trajectory.
+            </summary>
+        </member>
+        <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Commands.CurveFitting.DataProcessingOptions">
+            <summary>
+            Configuration options for the experimental data processing pipeline.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Commands.CurveFitting.DataProcessingOptions.#ctor(System.Double,System.Nullable{System.Int32},System.Nullable{System.Double})">
+            <summary>
+            Configuration options for the experimental data processing pipeline.
+            </summary>
+        </member>
+        <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Commands.CurveFitting.ExperimentalSegment">
+            <summary>
+            Represents an immutable metadata segment of the experiment.
+            Instead of holding a List in memory, it provides a factory to stream its data asynchronously.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Commands.CurveFitting.ExperimentalSegment.#ctor(MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Models.CurveFitting.SegmentType,MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Models.CurveFitting.ExperimentalDataPoint,MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Models.CurveFitting.ExperimentalDataPoint,System.Func{System.Threading.CancellationToken,System.Collections.Generic.IAsyncEnumerable{MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Models.CurveFitting.ExperimentalDataPoint}})">
+            <summary>
+            Represents an immutable metadata segment of the experiment.
+            Instead of holding a List in memory, it provides a factory to stream its data asynchronously.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Commands.CurveFitting.ExperimentalSegment.GetValidPointsAsync(System.Threading.CancellationToken)">
+            <summary>
+            Streams the valid data points belonging to this segment, applying the configured downsampling (skips).
+            </summary>
+        </member>
+        <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Commands.CurveFitting.IExperimentalDataProcessorService">
+            <summary>
+            Service responsible for processing experimental raw data streams and segmenting physical phases.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Commands.CurveFitting.IExperimentalDataProcessorService.ProcessExperimentalDataAsync(System.IO.Stream,System.IO.Stream,System.String,MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Commands.CurveFitting.DataProcessingOptions,System.IProgress{System.Double},System.IProgress{System.Int64},System.Threading.CancellationToken)">
+            <summary>
+            Reads, normalizes, validates, and segments the strain and stress data streams.
+            Writes valid data to a background file while yielding streaming segments.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Commands.CurveFitting.FitCurveRequest.ViscoelasticEffect">
+            <summary>
+            Specifies the temporal dependency of the material's response, determining the specific viscoelastic 
+            phenomena to be integrated (e.g., Creep, Stress Relaxation, Constant Strain Rate).
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Commands.CurveFitting.FitCurveRequest.RampTimeConsideration">
+            <summary>
+            Defines the integration strategy for the initial loading phase, determining whether the applied boundary 
+            conditions are evaluated as an instantaneous Heaviside step or a finite-time linear ramp.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Commands.CurveFitting.ParameterGroupResultData.OptimizedParameters">
+            <summary>
+            Optimized constitutive parameters.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Commands.CurveFitting.ParameterGroupResultData.AcceptedStrainRange">
+            <summary>
+            The strain interval where these mathematical parameters remain physically valid.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Commands.CurveFitting.ParameterGroupResultData.ValidEvents">
+            <summary>
+            The specific experimental phases where this parameter group applies.
+            </summary>
+        </member>
+        <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Controllers.CurveFittingController">
+            <summary>
+            Exposes HTTP endpoints for performing curve fitting optimizations on mechanical models.
+            </summary>
+        </member>
+        <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExtensionMethods.RangeExtensions">
+            <summary>
+            It contains extension methods for <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Models.Range.RangeParameters"/>
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExtensionMethods.RangeExtensions.GetCombinations(System.Collections.Generic.List{MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Models.Range.RangeParameters})">
+            <inheritdoc cref="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExtensionMethods.RangeExtensions.&lt;G&gt;$8CEB18629035556C0CD30B30A84D2FB3.GetCombinations"/>
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExtensionMethods.RangeExtensions.ToList(MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Models.Range.RangeParameters)">
+            <inheritdoc cref="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExtensionMethods.RangeExtensions.&lt;G&gt;$31C63A9174C62B843D4DC428F6792622.ToList"/>
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExtensionMethods.RangeExtensions.&lt;G&gt;$8CEB18629035556C0CD30B30A84D2FB3.GetCombinations">
+            <summary>
+            Gets all possible combinations from a list of <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Models.Range.RangeParameters"/>.
+            </summary>
+            <returns>List of double array with all possible combinations.</returns>
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExtensionMethods.RangeExtensions.&lt;G&gt;$31C63A9174C62B843D4DC428F6792622.ToList">
+            <summary>
+            Converts a <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Models.Range.RangeParameters"/> to <see cref="T:System.Collections.Generic.List`1"/> of double.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Models.CurveFitting.ExperimentalDataPoint">
+            <summary>
+            Represents an experimental data point containing time, stress, and strain.
+            Uses 'record struct' to avoid Heap allocations during massive reading.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Models.CurveFitting.ExperimentalDataPoint.#ctor(System.Double,System.Double,System.Double)">
+            <summary>
+            Represents an experimental data point containing time, stress, and strain.
+            Uses 'record struct' to avoid Heap allocations during massive reading.
+            </summary>
+        </member>
+        <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Models.CurveFitting.SegmentType">
+            <summary>
+            Represents the phases of the viscoelastic experimental test.
+            </summary>
+        </member>
+        <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Models.Range.RangeFunction">
+            <summary>
+            Represents the data contract for a range of unique dimension mathematical function, f(x).
+            </summary>
+            <param name="InitialVariableValue">Initial value for variable.</param>
+            <param name="FinalVariableValue">Final value for variable.</param>
+            <param name="Types">List of <see cref="T:MelloSilveiraTools.Mathematics.Models.FunctionType"/>.</param>
+            <param name="Coefficients">List of <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Models.Range.RangeParameters"/> for the scaling or proportionality factor of the variable in the expression.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Models.Range.RangeFunction.#ctor(System.Nullable{System.Double},System.Nullable{System.Double},System.Collections.Generic.List{MelloSilveiraTools.Mathematics.Models.FunctionType},System.Collections.Generic.List{MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Models.Range.RangeParameters})">
+            <summary>
+            Represents the data contract for a range of unique dimension mathematical function, f(x).
+            </summary>
+            <param name="InitialVariableValue">Initial value for variable.</param>
+            <param name="FinalVariableValue">Final value for variable.</param>
+            <param name="Types">List of <see cref="T:MelloSilveiraTools.Mathematics.Models.FunctionType"/>.</param>
+            <param name="Coefficients">List of <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Models.Range.RangeParameters"/> for the scaling or proportionality factor of the variable in the expression.</param>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Models.Range.RangeFunction.InitialVariableValue">
+            <summary>Initial value for variable.</summary>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Models.Range.RangeFunction.FinalVariableValue">
+            <summary>Final value for variable.</summary>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Models.Range.RangeFunction.Types">
+            <summary>List of <see cref="T:MelloSilveiraTools.Mathematics.Models.FunctionType"/>.</summary>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Models.Range.RangeFunction.Coefficients">
+            <summary>List of <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Models.Range.RangeParameters"/> for the scaling or proportionality factor of the variable in the expression.</summary>
+        </member>
+        <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Models.Range.RangeParameters">
+            <summary>
+            Contains the parameters to build a range of thiss.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Models.Range.RangeParameters.InitialPoint">
+            <summary>
+            The initial point.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Models.Range.RangeParameters.Step">
+            <summary>
+            The step used to iterate from initial point to final point.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Models.Range.RangeParameters.MultiplicativeFactor">
+            <summary>
+            The multiplicative factor used to iterate from initial point to final point.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Models.Range.RangeParameters.FinalPoint">
+            <summary>
+            The final point.
+            </summary>
+        </member>
+        <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Models.Range.RangePowerLaw">
+            <summary>
+            Represents the data contract for a power law function.
+            </summary>
+            <param name="InitialVariableValue">Initial value for variable.</param>
+            <param name="FinalVariableValue">Final value for variable.</param>
+            <param name="Coefficients">List of <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Models.Range.RangeParameters"/> for coefficients used to calculate the power law function.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Models.Range.RangePowerLaw.#ctor(System.Nullable{System.Double},System.Nullable{System.Double},System.Collections.Generic.List{MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Models.Range.RangeParameters})">
+            <summary>
+            Represents the data contract for a power law function.
+            </summary>
+            <param name="InitialVariableValue">Initial value for variable.</param>
+            <param name="FinalVariableValue">Final value for variable.</param>
+            <param name="Coefficients">List of <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Models.Range.RangeParameters"/> for coefficients used to calculate the power law function.</param>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Models.Range.RangePowerLaw.InitialVariableValue">
+            <summary>Initial value for variable.</summary>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Models.Range.RangePowerLaw.FinalVariableValue">
+            <summary>Final value for variable.</summary>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Models.Range.RangePowerLaw.Coefficients">
+            <summary>List of <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Models.Range.RangeParameters"/> for coefficients used to calculate the power law function.</summary>
+        </member>
+        <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Models.Range.RangePronySeries">
+            <summary>
+            Represents the data contract for a prony series.
+            </summary>
+            <param name="InitialVariableValue">Initial value for variable.</param>
+            <param name="FinalVariableValue">Final value for variable.</param>
+            <param name="IndependentParameter">Independent parameter represented by c.</param>
+            <param name="Coefficients">List of <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Models.Range.RangeParameters"/> for iterator coefficients represented by a_n.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Models.Range.RangePronySeries.#ctor(System.Nullable{System.Double},System.Nullable{System.Double},MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Models.Range.RangeParameters,System.Collections.Generic.List{MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Models.Range.RangeParameters})">
+            <summary>
+            Represents the data contract for a prony series.
+            </summary>
+            <param name="InitialVariableValue">Initial value for variable.</param>
+            <param name="FinalVariableValue">Final value for variable.</param>
+            <param name="IndependentParameter">Independent parameter represented by c.</param>
+            <param name="Coefficients">List of <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Models.Range.RangeParameters"/> for iterator coefficients represented by a_n.</param>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Models.Range.RangePronySeries.InitialVariableValue">
+            <summary>Initial value for variable.</summary>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Models.Range.RangePronySeries.FinalVariableValue">
+            <summary>Final value for variable.</summary>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Models.Range.RangePronySeries.IndependentParameter">
+            <summary>Independent parameter represented by c.</summary>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Models.Range.RangePronySeries.Coefficients">
+            <summary>List of <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Models.Range.RangeParameters"/> for iterator coefficients represented by a_n.</summary>
+        </member>
+        <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Models.Range.RangeReducedRelaxationFunction">
+            <summary>
+            Contains the input data for Reduced Relaxation Function.
+            </summary>
+            <param name="RelaxationStiffness">Constant C. Unit: dimensionless.</param>
+            <param name="SlowRelaxationTime">Constant tau 1. Unit: s (second).</param>
+            <param name="FastRelaxationTime">Constant tau 2. Unit: s (second).</param>
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Models.Range.RangeReducedRelaxationFunction.#ctor(MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Models.Range.RangeParameters,MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Models.Range.RangeParameters,MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Models.Range.RangeParameters)">
+            <summary>
+            Contains the input data for Reduced Relaxation Function.
+            </summary>
+            <param name="RelaxationStiffness">Constant C. Unit: dimensionless.</param>
+            <param name="SlowRelaxationTime">Constant tau 1. Unit: s (second).</param>
+            <param name="FastRelaxationTime">Constant tau 2. Unit: s (second).</param>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Models.Range.RangeReducedRelaxationFunction.RelaxationStiffness">
+            <summary>Constant C. Unit: dimensionless.</summary>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Models.Range.RangeReducedRelaxationFunction.FastRelaxationTime">
+            <summary>Constant tau 2. Unit: s (second).</summary>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Models.Range.RangeReducedRelaxationFunction.SlowRelaxationTime">
+            <summary>Constant tau 1. Unit: s (second).</summary>
+        </member>
+        <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Services.ExperimentalData.CurveSegmentBuilderStep">
+            <summary>
+            Pipeline step responsible for constructing <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Models.CurveFitting.CurveSegment"/> instances from grouped <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Models.ExperimentalData.SegmentedDataPoint"/> arrays,
+            applying downsampling thresholds to minimize redundant data points.
+            </summary>
+            <param name="skipTimeStep">The minimum time interval required between consecutive points within a segment. Defaults to 0.0 (no downsampling).</param>
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Services.ExperimentalData.CurveSegmentBuilderStep.#ctor(System.Double)">
+            <summary>
+            Pipeline step responsible for constructing <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Models.CurveFitting.CurveSegment"/> instances from grouped <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Models.ExperimentalData.SegmentedDataPoint"/> arrays,
+            applying downsampling thresholds to minimize redundant data points.
+            </summary>
+            <param name="skipTimeStep">The minimum time interval required between consecutive points within a segment. Defaults to 0.0 (no downsampling).</param>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Services.ExperimentalData.CurveSegmentBuilderStep.Name">
+            <inheritdoc/>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Services.ExperimentalData.CurveSegmentBuilderStep.SkipTimeStep">
+            <summary>
+            Gets the minimum time interval threshold used for downsampling.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Services.ExperimentalData.CurveSegmentBuilderStep.Execute(MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Models.ExperimentalData.SegmentedDataPoint[])">
+            <inheritdoc/>
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Services.ExperimentalData.CurveSegmentBuilderStep.Dispose">
+            <inheritdoc/>
+        </member>
+        <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Services.ExperimentalData.ExperimentalDataFileWriterStep">
+            <summary>
+            Pipeline step responsible for persisting processed experimental data points to a CSV file.
+            Writes the CSV header upon initialization and sequentially appends each data point line.
+            </summary>
+            <param name="writer">The writer instance to append CSV rows to.</param>
+            <param name="outputFilePath">The logical file path of the output file.</param>
+            <param name="leaveOpen">Whether to leave the underlying writer open upon disposal.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Services.ExperimentalData.ExperimentalDataFileWriterStep.#ctor(System.IO.StreamWriter,System.String,System.Boolean)">
+            <summary>
+            Pipeline step responsible for persisting processed experimental data points to a CSV file.
+            Writes the CSV header upon initialization and sequentially appends each data point line.
+            </summary>
+            <param name="writer">The writer instance to append CSV rows to.</param>
+            <param name="outputFilePath">The logical file path of the output file.</param>
+            <param name="leaveOpen">Whether to leave the underlying writer open upon disposal.</param>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Services.ExperimentalData.ExperimentalDataFileWriterStep.Name">
+            <inheritdoc/>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Services.ExperimentalData.ExperimentalDataFileWriterStep.OutputFilePath">
+            <summary>
+            Gets the full path of the generated CSV file.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Services.ExperimentalData.ExperimentalDataFileWriterStep.ExecuteAsync(MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Models.ExperimentalData.SegmentedDataPoint,System.Threading.CancellationToken)">
+            <inheritdoc/>
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Services.ExperimentalData.ExperimentalDataFileWriterStep.ExecuteAsync(MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Models.ExperimentalData.ProcessedDataPoint,System.Threading.CancellationToken)">
+            <inheritdoc/>
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Services.ExperimentalData.ExperimentalDataFileWriterStep.DisposeAsync">
+            <inheritdoc/>
+        </member>
+        <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Services.ExperimentalData.ExperimentalDataSegmenterStep">
+            <summary>
+            Pipeline step responsible for parsing and streaming raw experimental strain and stress data,
+            segmenting points into physical deformation phases (Ramp, Relaxation, Descent, Recovery) using numerical differentiation.
+            </summary>
+            <param name="logger">Logger for telemetry, warnings, and diagnostic information.</param>
+            <param name="differentiation">The differentiation calculator used to compute strain and stress rates and accelerations.</param>
+            <param name="options">Options controlling tolerances, start time thresholds, and buffer sizing.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Services.ExperimentalData.ExperimentalDataSegmenterStep.#ctor(Microsoft.Extensions.Logging.ILogger,MelloSilveiraTools.Mathematics.NumericalMethods.Differentiations.IDifferentiation,MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Models.ExperimentalData.ExperimentalDataProcessingOptions)">
+            <summary>
+            Pipeline step responsible for parsing and streaming raw experimental strain and stress data,
+            segmenting points into physical deformation phases (Ramp, Relaxation, Descent, Recovery) using numerical differentiation.
+            </summary>
+            <param name="logger">Logger for telemetry, warnings, and diagnostic information.</param>
+            <param name="differentiation">The differentiation calculator used to compute strain and stress rates and accelerations.</param>
+            <param name="options">Options controlling tolerances, start time thresholds, and buffer sizing.</param>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Services.ExperimentalData.ExperimentalDataSegmenterStep.Name">
+            <inheritdoc/>
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Services.ExperimentalData.ExperimentalDataSegmenterStep.ExecuteAsync(System.ValueTuple{System.IO.Stream,System.IO.Stream},System.Threading.CancellationToken)">
+            <inheritdoc/>
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Services.ExperimentalData.ExperimentalDataSegmenterStep.DisposeAsync">
+            <inheritdoc/>
+        </member>
+        <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Services.ExperimentalData.ExperimentalDataService">
+            <summary>
+            Service responsible for orchestrating the ingestion, validation, and physical phase segmentation of experimental raw data streams.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Services.ExperimentalData.ExperimentalDataService.#ctor(Microsoft.Extensions.Logging.ILogger{MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Services.ExperimentalData.ExperimentalDataService},MelloSilveiraTools.Mathematics.NumericalMethods.Differentiations.IDifferentiation,MelloSilveiraTools.Core.Managers.File.IFileManager,MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Services.ExperimentalData.ExperimentalDataSettings)">
+            <summary>
+            Service responsible for orchestrating the ingestion, validation, and physical phase segmentation of experimental raw data streams.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Services.ExperimentalData.ExperimentalDataService.ProcessAsync(System.String,System.String,System.IO.Stream,System.IO.Stream,MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Models.ExperimentalData.ExperimentalDataProcessingOptions,System.Threading.CancellationToken)">
+            <inheritdoc/>
+        </member>
+        <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Services.ExperimentalData.ExperimentalDataSettings">
+            <summary>
+            Infrastructure and execution topology settings for experimental data processing.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Services.ExperimentalData.ExperimentalDataSettings.FileWriterOptions">
+            <summary>
+            Configuration options for the file writer pipeline step (concurrency, buffer capacity, and ordering).
+            Defaults to MaxWorkers = 1, MaxBufferSize = 10000, and KeepOrder = true to guarantee data integrity.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Services.ExperimentalData.ExperimentalDataSettings.GroupingOptions">
+            <summary>
+            Configuration options for the curve segment grouping step in the Dataflow pipeline.
+            Defaults to default pipeline step options.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Services.ExperimentalData.ExperimentalDataSettings.SegmentBuilderOptions">
+            <summary>
+            Configuration options for the curve segment builder step in the Dataflow pipeline.
+            Defaults to default pipeline step options.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Services.ExperimentalData.ExperimentalDataSettings.SegmenterOptions">
+            <summary>
+            Configuration options for the experimental data segmenter pipeline step in the Dataflow pipeline.
+            Defaults to default pipeline step options.
+            </summary>
+        </member>
+        <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Services.ExperimentalData.IExperimentalDataService">
+            <summary>
+            Handles the ingestion, validation, and physical phase segmentation of experimental raw data streams.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Services.ExperimentalData.IExperimentalDataService.ProcessAsync(System.String,System.String,System.IO.Stream,System.IO.Stream,MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Models.ExperimentalData.ExperimentalDataProcessingOptions,System.Threading.CancellationToken)">
+            <summary>
+            Ingests strain and stress data streams and processes them through a TPL Dataflow pipeline,
+            writing the valid processed points to a CSV file and returning the physical curve segments categorized by deformation phases.
+            </summary>
+            <param name="identifier">A unique identifier prefix used to name the output file.</param>
+            <param name="outputFileUri">The directory path where the output file will be written.</param>
+            <param name="strainStream">A stream containing experimental strain values across time.</param>
+            <param name="stressStream">A stream containing experimental stress values across time.</param>
+            <param name="options">Options controlling tolerances, buffer sizing, and downsampling thresholds.</param>
+            <param name="cancellationToken">A token to cancel the operation.</param>
+            <returns>A <see cref="T:MelloSilveiraTools.Core.Models.Result`1"/> containing the generated output file name and the categorized <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Models.CurveFitting.CurveSegment"/> array.</returns>
+        </member>
+    </members>
+</doc>

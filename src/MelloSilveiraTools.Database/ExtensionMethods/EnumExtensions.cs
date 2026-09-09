@@ -1,4 +1,4 @@
-using MelloSilveiraTools.Database.Infrastructure.Database.Models.Filters;
+using MelloSilveiraTools.Database.RelationalDatabase.Models.Filters;
 
 namespace MelloSilveiraTools.Database.ExtensionMethods;
 
@@ -7,13 +7,16 @@ namespace MelloSilveiraTools.Database.ExtensionMethods;
 /// </summary>
 public static class EnumExtensions
 {
-    /// <summary>
-    /// Converts a <see cref="SortOrder"/> into the corresponding PostgreSQL <c>ORDER BY</c> clause.
-    /// </summary>
-    public static string ToNpgsqlString(this SortOrder sortOrder) => sortOrder switch
+    extension(SortOrder sortOrder)
     {
-        SortOrder.Asc => "ORDER BY 1 ASC",
-        SortOrder.Desc => "ORDER BY 1 DESC",
-        _ => throw new ArgumentOutOfRangeException(nameof(sortOrder), sortOrder, null)
-    };
+        /// <summary>
+        /// Converts a <see cref="SortOrder"/> into the corresponding PostgreSQL <c>ORDER BY</c> clause.
+        /// </summary>
+        public string ToNpgsqlString() => sortOrder switch
+        {
+            SortOrder.Asc => "ORDER BY 1 ASC",
+            SortOrder.Desc => "ORDER BY 1 DESC",
+            _ => throw new ArgumentOutOfRangeException(nameof(sortOrder), sortOrder, null)
+        };
+    }
 }

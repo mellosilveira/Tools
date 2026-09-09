@@ -11,7 +11,7 @@ namespace MelloSilveiraTools.MechanicsOfMaterials.Calculators.GeometricPropertie
         public double CalculateArea(CircularProfile profile)
         {
             return profile.Thickness.HasValue ?
-                Math.PI / 4 * (Math.Pow(profile.Diameter, 2) - Math.Pow(profile.Diameter - 2 * profile.Thickness.Value, 2)) 
+                Math.PI / 4 * (Math.Pow(profile.Diameter, 2) - Math.Pow(profile.Diameter - 2 * profile.Thickness.Value, 2))
                 : Math.PI / 4 * Math.Pow(profile.Diameter, 2);
         }
 

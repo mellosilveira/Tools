@@ -15,24 +15,34 @@ public class PluginAssemblyProcessor(
     IEnumerable<IPluginTypeProcessor> typeProcessors,
     PluginCache cache)
 {
-    private Dictionary<Type, IPluginTypeProcessor> _typeProcessorsByType = typeProcessors.ToDictionary(tp => tp.ProcessableType);
+    private readonly IPluginTypeProcessor[] _typeProcessors = [.. typeProcessors];
 
     /// <summary>
     /// Loads the assembly described by <paramref name="discovered"/> and returns the set of processable types it contains.
     /// </summary>
-    public LoadedPlugin Load(DiscoveredPlugin discovered)
-        => cache.GetOrAdd(discovered.Name, discovered.Version, () =>
+    public LoadedPlugin Load(DiscoveredPlugin discovered) => cache.GetOrAdd(
+        discovered.Name,
+        discovered.Version,
+        () =>
         {
-            Assembly assembly = AssemblyLoadContext.Default.LoadFromAssemblyPath(discovered.FullPath);
-            Type[] processableTypes = [.. assembly.GetTypes().Where(t => _typeProcessorsByType.Keys.Any(processableType => processableType.IsAssignableFrom(t)) && !t.IsInterface && !t.IsAbstract)];
-            return new LoadedPlugin(discovered, processableTypes);
+            // 1. Created an isolated context and collectible for plugin.
+            var pluginContext = new AssemblyLoadContext($"PluginContext_{discovered.Name}", isCollectible: true);
+
+            // 2. Load the assembly in this new isolated context, instead of the default.
+            Assembly assembly = pluginContext.LoadFromAssemblyPath(discovered.FullPath);
+
+            Type[] processableTypes = [.. assembly.GetTypes().Where(t =>
+                !t.IsInterface &&
+                !t.IsAbstract &&
+                Array.Exists(_typeProcessors, tp => tp.ProcessableType.IsAssignableFrom(t)))];
+
+             return new LoadedPlugin(discovered, processableTypes, pluginContext);
         });
 
     /// <summary>
     /// Returns a <see cref="RegisteredPlugin"/> instance for <paramref name="loaded"/>, creating a cache entry when missing.
     /// </summary>
-    public RegisteredPlugin GetInfo(LoadedPlugin loaded)
-        => cache.GetOrAdd(loaded.Name, loaded.Version, () => new(loaded));
+    public RegisteredPlugin GetInfo(LoadedPlugin loaded) => cache.GetOrAdd(loaded.Name, loaded.Version, () => new(loaded));
 
     /// <summary>
     /// Runs each processable type of <paramref name="loaded"/> through its matching <see cref="IPluginTypeProcessor"/>
@@ -44,8 +54,7 @@ public class PluginAssemblyProcessor(
 
         foreach (Type type in loaded.ProcessableTypes)
         {
-            _typeProcessorsByType[type].Process(type, context);
-
+            Array.Find(_typeProcessors, tp => tp.ProcessableType.IsAssignableFrom(type))!.Process(type, context);
             registered.MarkTypeLoaded(type);
             cache.Update(loaded.Name, loaded.Version, registered);
         }

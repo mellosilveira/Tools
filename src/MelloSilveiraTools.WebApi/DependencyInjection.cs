@@ -1,13 +1,16 @@
-using MelloSilveiraTools.Core.Infrastructure.Logger;
-using MelloSilveiraTools.Core.Infrastructure.ResiliencePipelines;
-using MelloSilveiraTools.WebApi.Application.Operations.Add;
-using MelloSilveiraTools.WebApi.Application.Operations.Crud;
+using MelloSilveiraTools.Core.ResiliencePipelines;
+using MelloSilveiraTools.WebApi.Application.Commands.Crud.Add;
+using MelloSilveiraTools.WebApi.Application.Commands.Crud.Delete;
+using MelloSilveiraTools.WebApi.Application.Commands.Crud.Read;
+using MelloSilveiraTools.WebApi.Application.Commands.Crud.Update;
+using MelloSilveiraTools.WebApi.Application.Middlewares;
 using MelloSilveiraTools.WebApi.Authentication;
 using MelloSilveiraTools.WebApi.Authentication.Services;
 using MelloSilveiraTools.WebApi.Infrastructure.ResiliencePipelines;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi;
 using System.Reflection;
 
@@ -24,18 +27,16 @@ public static class WebApiDependencyInjection
     /// <param name="services">Service collection that receives the registrations.</param>
     /// <param name="resiliencePipelineSettings">Settings that parameterize the resilience pipelines.</param>
     /// <returns>The same <paramref name="services"/> instance to allow call chaining.</returns>
-    public static IServiceCollection AddWebApiServices(this IServiceCollection services,
-        ResiliencePipelineSettings resiliencePipelineSettings)
-        => services
-            .AddSingleton(provider => new ApiServiceAgentResiliencePipeline(provider.GetRequiredService<ILogger>(), resiliencePipelineSettings))
-            // Register generic CRUD operations as open generics so any TEntity / TFilter pair resolves
-            // through DI without per-entity registrations. Both CrudController<TEntity, TFilter> and
-            // the MapCrud<TEntity, TFilter> minimal-API extension consume them.
-            .AddScoped(typeof(AddEntity<>))
-            .AddScoped(typeof(ReadEntityById<>))
-            .AddScoped(typeof(ReadEntityPaged<,>))
-            .AddScoped(typeof(UpdateEntity<>))
-            .AddScoped(typeof(DeleteEntity<>));
+    public static IServiceCollection AddWebApiServices(this IServiceCollection services, ResiliencePipelineSettings resiliencePipelineSettings) => services
+        .AddSingleton(provider => new ApiServiceAgentResiliencePipeline(provider.GetRequiredService<ILogger<ApiServiceAgentResiliencePipeline>>(), resiliencePipelineSettings))
+        // Register generic CRUD operations as open generics so any TEntity / TFilter pair resolves
+        // through DI without per-entity registrations. Both CrudController<TEntity, TFilter> and
+        // the MapCrud<TEntity, TFilter> minimal-API extension consume them.
+        .AddScoped(typeof(AddEntity<>))
+        .AddScoped(typeof(ReadEntityById<>))
+        .AddScoped(typeof(ReadEntityPaged<,>))
+        .AddScoped(typeof(UpdateEntity<>))
+        .AddScoped(typeof(DeleteEntity<>));
 
     /// <summary>
     /// Registers the authentication for AdmMaster users using JWT.
@@ -66,57 +67,56 @@ public static class WebApiDependencyInjection
     /// <summary>
     /// Configures the documentation file for Swagger User Interface using bearer authentication.
     /// </summary>
-    public static IServiceCollection AddSwaggerWithBearerSecurity(this IServiceCollection services)
-    {
-        (string assemblyTitle, string assemblyDescription, string assemblyLocation) = GetAssemblyAttributes();
-        return services
-            .AddSwaggerGen(options =>
+    public static IServiceCollection AddSwaggerWithBearerSecurity(this IServiceCollection services) => services
+        .AddEndpointsApiExplorer()
+        .AddSwaggerGen(options =>
+        {
+            (string assemblyTitle, string assemblyDescription, string assemblyLocation) = GetAssemblyAttributes();
+
+            options.SwaggerDoc(assemblyTitle, new OpenApiInfo
             {
-                options.SwaggerDoc(assemblyTitle, new OpenApiInfo
-                {
-                    Title = assemblyTitle,
-                    Description = assemblyDescription,
-                    Version = "v1"
-                });
+                Title = assemblyTitle,
+                Description = assemblyDescription,
+                Version = "v1"
+            });
 
-                options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
-                {
-                    Description = "Please enter into your token",
-                    Name = "Authorization",
-                    In = ParameterLocation.Header,
-                    Type = SecuritySchemeType.ApiKey,
-                    Scheme = "Bearer",
-                    BearerFormat = "JWT",
-                });
+            options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+            {
+                Description = "Please enter into your token",
+                Name = "Authorization",
+                In = ParameterLocation.Header,
+                Type = SecuritySchemeType.ApiKey,
+                Scheme = "Bearer",
+                BearerFormat = "JWT",
+            });
 
-                options.AddSecurityRequirement(_ => new OpenApiSecurityRequirement
-                {
-                    { new OpenApiSecuritySchemeReference("Bearer"), [] }
-                });
+            options.AddSecurityRequirement(_ => new OpenApiSecurityRequirement
+            {
+                { new OpenApiSecuritySchemeReference("Bearer"), [] }
+            });
 
-                string[] xmlFiles = Directory.GetFiles(assemblyLocation, "*.xml");
-                foreach (string xmlFile in xmlFiles)
-                {
-                    options.IncludeXmlComments(xmlFile);
-                }
-            })
-            .AddSwaggerGenNewtonsoftSupport();
-    }
+            string[] xmlFiles = Directory.GetFiles(assemblyLocation, "*.xml");
+            foreach (string xmlFile in xmlFiles)
+            {
+                options.IncludeXmlComments(xmlFile);
+            }
+        })
+        .AddSwaggerGenNewtonsoftSupport();
 
     /// <summary>
     /// Adds Swagger documentations to ApplicationBuilder.
     /// </summary>
-    public static IApplicationBuilder UseSwaggerDocs(this IApplicationBuilder app)
-    {
-        (string assemblyTitle, _, _) = GetAssemblyAttributes();
-        return app
-            .UseSwagger()
-            .UseSwaggerUI(c =>
-            {
-                c.SwaggerEndpoint($"/swagger/{assemblyTitle}/swagger.json", $"{assemblyTitle} API");
-                c.EnableValidator(null);
-            });
-    }
+    public static IApplicationBuilder UseSwaggerDocs(this IApplicationBuilder app) => app
+        .UseSwagger()
+        .UseSwaggerUI(c =>
+        {
+            (string assemblyTitle, _, _) = GetAssemblyAttributes();
+            c.SwaggerEndpoint($"/swagger/{assemblyTitle}/swagger.json", $"{assemblyTitle} API");
+            c.EnableValidator(null);
+        });
+
+    public static IApplicationBuilder UseCustomMiddlewares(this IApplicationBuilder app)
+        => app.UseMiddleware<ExceptionHandlingHttpMiddleware>();
 
     private static (string Title, string Description, string Location) GetAssemblyAttributes()
     {

@@ -5,7 +5,7 @@ namespace MelloSilveiraTools.MechanicsOfMaterials.Attributes;
 
 /// <summary>
 /// Attribute to tag properties in mechanical models, linking them to specific mechanical 
-/// relationships and viscoelastic effects for dynamic construction of result.
+/// relationships and viscoelastic effects for dynamic construction of output.
 /// </summary>
 [AttributeUsage(AttributeTargets.Property)]
 public class MechanicalModelParameterAttribute : Attribute
@@ -18,10 +18,10 @@ public class MechanicalModelParameterAttribute : Attribute
     /// <summary>
     /// Initializes a new instance of <see cref="MechanicalModelParameterAttribute"/>.
     /// </summary>
-    /// <param name="mechanicalRelationship"></param>
-    public MechanicalModelParameterAttribute(MechanicalRelationship mechanicalRelationship)
+    /// <param name="mechanicalBehaviorType"></param>
+    public MechanicalModelParameterAttribute(MechanicalBehaviorType mechanicalBehaviorType)
     {
-        MechanicalRelationship = mechanicalRelationship;
+        MechanicalBehaviorType = mechanicalBehaviorType;
     }
 
     /// <summary>
@@ -36,29 +36,29 @@ public class MechanicalModelParameterAttribute : Attribute
     /// <summary>
     /// Initializes a new instance of <see cref="MechanicalModelParameterAttribute"/>.
     /// </summary>
-    /// <param name="mechanicalRelationship"></param>
+    /// <param name="mechanicalBehaviorType"></param>
     /// <param name="viscoelasticEffect"></param>
-    public MechanicalModelParameterAttribute(MechanicalRelationship mechanicalRelationship, ViscoelasticEffect viscoelasticEffect)
+    public MechanicalModelParameterAttribute(MechanicalBehaviorType mechanicalBehaviorType, ViscoelasticEffect viscoelasticEffect)
     {
-        MechanicalRelationship = mechanicalRelationship;
+        MechanicalBehaviorType = mechanicalBehaviorType;
         ViscoelasticEffect = viscoelasticEffect;
     }
 
-    /// <inheritdoc cref="SharedModules.Models.MechanicalModels.MechanicalRelationship"/>
-    public MechanicalRelationship? MechanicalRelationship { get; }
+    /// <inheritdoc cref="Models.MechanicalModels.MechanicalBehaviorType"/>
+    public MechanicalBehaviorType? MechanicalBehaviorType { get; }
 
-    /// <inheritdoc cref="SharedModules.Models.MechanicalModels.ViscoelasticEffect"/>
+    /// <inheritdoc cref="Models.MechanicalModels.Viscoelasticity.ViscoelasticEffect"/>
     public ViscoelasticEffect? ViscoelasticEffect { get; }
 
     /// <summary>
     /// Checks if the mechanical relationship and viscoelastic effect matches with the values used to build the attribute.
     /// </summary>
-    /// <param name="mechanicalRelationship"></param>
+    /// <param name="mechanicalBehaviorType"></param>
     /// <param name="viscoelasticEffect"></param>
     /// <returns></returns>
-    public bool CanMethodBeInvoked(MechanicalRelationship mechanicalRelationship, ViscoelasticEffect viscoelasticEffect)
+    public bool CanMethodBeInvoked(MechanicalBehaviorType mechanicalBehaviorType, ViscoelasticEffect viscoelasticEffect)
     {
-        return (!MechanicalRelationship.HasValue || MechanicalRelationship == mechanicalRelationship) 
+        return (!MechanicalBehaviorType.HasValue || MechanicalBehaviorType == mechanicalBehaviorType)
             && (!ViscoelasticEffect.HasValue || ViscoelasticEffect == viscoelasticEffect);
     }
 }

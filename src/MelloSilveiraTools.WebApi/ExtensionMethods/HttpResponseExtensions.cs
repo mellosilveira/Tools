@@ -10,14 +10,17 @@ public static class HttpResponseExtensions
 {
     private const string NdJsonNewLine = "\n";
 
-    /// <summary>
-    /// Serializes the supplied object as JSON, writes it to the response followed by a newline delimiter (NDJSON),
-    /// and flushes the response body so the caller receives the chunk immediately.
-    /// </summary>
-    public static async Task<HttpResponse> WriteLineAsNdJsonAsync<T>(this HttpResponse response, T obj, CancellationToken cancellationToken = default)
+    extension(HttpResponse response)
     {
-        await response.WriteAsync(JsonSerializer.Serialize(obj) + NdJsonNewLine, cancellationToken);
-        await response.Body.FlushAsync(cancellationToken);
-        return response;
+        /// <summary>
+        /// Serializes the supplied object as JSON, writes it to the response followed by a newline delimiter (NDJSON),
+        /// and flushes the response body so the caller receives the chunk immediately.
+        /// </summary>
+        public async Task<HttpResponse> WriteLineAsNdJsonAsync<T>(T obj, CancellationToken cancellationToken = default)
+        {
+            await response.WriteAsync(JsonSerializer.Serialize(obj) + NdJsonNewLine, cancellationToken);
+            await response.Body.FlushAsync(cancellationToken);
+            return response;
+        }
     }
 }

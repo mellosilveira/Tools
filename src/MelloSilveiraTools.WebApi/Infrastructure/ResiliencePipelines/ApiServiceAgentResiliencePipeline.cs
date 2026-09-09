@@ -1,10 +1,9 @@
-﻿using MelloSilveiraTools.Core.Infrastructure.Logger;
-using MelloSilveiraTools.Core.Infrastructure.ResiliencePipelines;
-using MelloSilveiraTools.Database.Infrastructure.ResiliencePipelines;
-using MelloSilveiraTools.WebApi.Application.Operations;
+using MelloSilveiraTools.Core.Models;
+using MelloSilveiraTools.Core.ResiliencePipelines;
+using MelloSilveiraTools.Database.ResiliencePipelines;
+using Microsoft.Extensions.Logging;
 using Polly;
 using Polly.Retry;
-using System.Net;
 
 namespace MelloSilveiraTools.WebApi.Infrastructure.ResiliencePipelines;
 
@@ -13,24 +12,24 @@ namespace MelloSilveiraTools.WebApi.Infrastructure.ResiliencePipelines;
 /// </summary>
 public class ApiServiceAgentResiliencePipeline : DefaultResiliencePipeline
 {
-    private static readonly List<HttpStatusCode> StatusCodesToRetry = [HttpStatusCode.InternalServerError, HttpStatusCode.ServiceUnavailable];
-    
+    private static readonly List<StatusCode> StatusCodesToRetry = [StatusCode.UnknownError, StatusCode.ServiceUnavailable];
+
     /// <summary>
-    /// Initialize a new instance of <see cref="PostgresResiliencePipeline"/>.
+    /// Initialize a new instance of <see cref="ApiServiceAgentResiliencePipeline"/>.
     /// </summary>
     /// <param name="logger"></param>
     /// <param name="settings"></param>
-    public ApiServiceAgentResiliencePipeline(ILogger logger, ResiliencePipelineSettings settings)
+    public ApiServiceAgentResiliencePipeline(ILogger<ApiServiceAgentResiliencePipeline> logger, ResiliencePipelineSettings settings)
         : base(logger, settings, new PredicateBuilder()
             .Handle<Exception>()
-            .HandleResult(new Func<OperationResponse, bool>(r => StatusCodesToRetry.Contains(r.StatusCode))))
+            .HandleResult(new Func<Result, bool>(r => StatusCodesToRetry.Contains(r.StatusCode))))
     { }
 
     /// <summary>
-    /// Initializes a new instance of <see cref="PostgresResiliencePipeline"/>.
+    /// Initializes a new instance of <see cref="ApiServiceAgentResiliencePipeline"/>.
     /// </summary>
     /// <param name="logger">See reference at <see cref="ILogger"/>.</param>
     /// <param name="settings">See reference at <see cref="ResiliencePipelineSettings"/>.</param>
     /// <param name="shouldHandle">Predicate that determines whether the retry should be executed for a given outcome.</param>
-    public ApiServiceAgentResiliencePipeline(ILogger logger, ResiliencePipelineSettings settings, Func<RetryPredicateArguments<object>, ValueTask<bool>> shouldHandle) : base(logger, settings, shouldHandle) { }
+    public ApiServiceAgentResiliencePipeline(ILogger<ApiServiceAgentResiliencePipeline> logger, ResiliencePipelineSettings settings, Func<RetryPredicateArguments<object>, ValueTask<bool>> shouldHandle) : base(logger, settings, shouldHandle) { }
 }

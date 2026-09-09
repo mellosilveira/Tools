@@ -1,6 +1,5 @@
 ﻿using MelloSilveiraTools.Mathematics.Converters;
 using MelloSilveiraTools.Mathematics.Extensions;
-using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 
 namespace MelloSilveiraTools.Mathematics.Models;
@@ -36,11 +35,10 @@ public readonly struct Point3D
     public override string ToString() => $"({X},{Y},{Z})";
 
     /// <inheritdoc/>
-    public override bool Equals([NotNullWhen(true)] object obj) =>
-        obj is Point3D point3D
-        && (X.EqualsWithTolerance(point3D.X)
-            && Y.EqualsWithTolerance(point3D.Y)
-            && Z.EqualsWithTolerance(point3D.Z));
+    public override bool Equals(object? obj) => obj is Point3D point3D
+        && X.EqualsWithTolerance(point3D.X)
+        && Y.EqualsWithTolerance(point3D.Y)
+        && Z.EqualsWithTolerance(point3D.Z);
 
     /// <inheritdoc/>
     public override int GetHashCode() => HashCode.Combine(X, Y, Z);
