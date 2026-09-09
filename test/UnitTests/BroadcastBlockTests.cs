@@ -235,3 +235,5 @@ public class BroadcastBlockTests
         Assert.Equal([1, 2, 3], mainItems);
     }
 }
+
+

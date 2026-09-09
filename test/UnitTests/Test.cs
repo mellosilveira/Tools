@@ -3,9 +3,13 @@ using MelloSilveiraTools.Core.Managers.File;
 using MelloSilveiraTools.Core.Pipelines;
 using MelloSilveiraTools.Core.Pipelines.Dataflow;
 using MelloSilveiraTools.Mathematics.NumericalMethods.Differentiations;
+using MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels;
+using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Abstractions;
+using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Factories;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Models.CurveFitting;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Models.ExperimentalData;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Services.ExperimentalData;
+using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Steps;
 using Microsoft.Extensions.Logging;
 using Moq;
 using System.Text;
@@ -14,7 +18,14 @@ namespace UnitTests;
 
 public class Test
 {
-    private readonly ExperimentalDataService _processor = new(Mock.Of<ILogger<ExperimentalDataService>>(), new Differentiation(), new FileManager(), new ExperimentalDataSettings());
+    private static IMechanicalModelStepFactory CreateMockStepFactory()
+    {
+        Mock<IMechanicalModelStepFactory> mock = new();
+        mock.Setup(f => f.Create(It.IsAny<string>())).Returns(new SchaperyCurveFitterStep());
+        return mock.Object;
+    }
+
+    private readonly ExperimentalDataService _processor = new(Mock.Of<ILogger<ExperimentalDataService>>(), new Differentiation(), new FileManager(), new ExperimentalDataSettings(), CreateMockStepFactory());
 
     private static (MemoryStream StrainStream, MemoryStream StressStream, ExperimentalDataPoint[] Points) CreateStreamsFromTestData()
     {
@@ -53,8 +64,8 @@ public class Test
             try
             {
                 // Act
-                MelloSilveiraTools.Core.Models.Result<(string OutputFileName, CurveSegment[] CurveSegments)> result =
-                    await _processor.ProcessAsync("test_run", tempDirectory, strainStream, stressStream, options);
+                MelloSilveiraTools.Core.Models.Result<(string OutputFileName, ConstitutiveParameters[] Parameters)> result =
+                    await _processor.ProcessAsync("Schapery", "test_run", tempDirectory, strainStream, stressStream, options);
 
                 // Assert
                 Assert.True(result.Success);
@@ -64,12 +75,7 @@ public class Test
                 Assert.True(lines.Length > 1);
                 Assert.Equal("Time,Strain,StrainRate,StrainAcceleration,Stress,StressRate,StressAcceleration", lines[0]);
 
-                Assert.Single(result.Data.CurveSegments);
-                Assert.Equal(SegmentType.Ramp, result.Data.CurveSegments[0].Type);
-                Assert.Equal(testPoints.Length, result.Data.CurveSegments[0].TimePoints.Length);
-                Assert.Equal(0.0, result.Data.CurveSegments[0].TimePoints[0]);
-                Assert.Equal(testPoints[0].Strain, result.Data.CurveSegments[0].ExperimentalStrain[0]);
-                Assert.Equal(testPoints[0].Stress, result.Data.CurveSegments[0].ExperimentalStress[0]);
+                Assert.NotNull(result.Data.Parameters);
             }
             finally
             {

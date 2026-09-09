@@ -1,4 +1,4 @@
-﻿using MelloSilveiraTools.Core.Pipelines.Models;
+using MelloSilveiraTools.Core.Pipelines.Models;
 
 namespace MelloSilveiraTools.Core.Pipelines.Fluent;
 
@@ -8,7 +8,7 @@ namespace MelloSilveiraTools.Core.Pipelines.Fluent;
 /// </summary>
 /// <typeparam name="TIn">The immutable root input type.</typeparam>
 /// <typeparam name="TOut">The guaranteed terminal output type.</typeparam>
-public interface IFluentPipeline<in TIn, TOut>
+public interface IFluentPipeline<in TIn, TOut> : IAsyncDisposable
 {
     /// <summary>
     /// Initiates the asynchronous execution of the constructed pipeline graph.
@@ -22,3 +22,4 @@ public interface IFluentPipeline<in TIn, TOut>
     /// <exception cref="PipelineExecutionException">Thrown when an internal step delegate faults, encapsulating the inner exception and execution context.</exception>
     Task<TOut> ExecuteAsync(TIn input, CancellationToken cancellationToken = default);
 }
+

@@ -1,4 +1,4 @@
-﻿using MelloSilveiraTools.Mathematics.Models;
+using MelloSilveiraTools.Mathematics.Models;
 
 namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Models.ExperimentalData;
 

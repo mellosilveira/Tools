@@ -35,4 +35,10 @@ public record ExperimentalDataSettings
     /// Defaults to default pipeline step options.
     /// </summary>
     public PipelineStepOptions SegmenterOptions { get; init; } = PipelineStepOptions.Default;
+
+    /// <summary>
+    /// Configuration options for the mechanical model curve fitter pipeline step in the Dataflow pipeline.
+    /// Defaults to default pipeline step options.
+    /// </summary>
+    public PipelineStepOptions CurveFitterOptions { get; init; } = PipelineStepOptions.Default;
 }

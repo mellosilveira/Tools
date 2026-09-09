@@ -8,32 +8,13 @@ namespace MelloSilveiraTools.Core.Managers.File;
 /// </summary>
 public class FileManager : IFileManager
 {
-    private const int LargeFileBufferSize = 128 * 1024; // 128 KB buffer
-    private static readonly Encoding Utf8Encoding = new UTF8Encoding(false);
-    private static readonly FileStreamOptions LargeFileStreamOptions = new()
-    {
-        Mode = FileMode.Create,
-        Access = FileAccess.Write,
-        Share = FileShare.None,
-        Options = FileOptions.SequentialScan | FileOptions.Asynchronous,
-        BufferSize = LargeFileBufferSize
-    };
+    public string BuildTimebasedFullName(string fileUri, string filePrefix, string fileExtension) => Path.Combine(fileUri, BuildTimebasedName(filePrefix, fileExtension));
 
-    public string BuildTimebasedFullName(string fileUri, string filePrefix, string fileExtension)
-    {
-        FileInfo fileInfo = BuildTimebasedFileInfo(fileUri, filePrefix, fileExtension);
-        return fileInfo.FullName;
-    }
-
-    public FileData BuildTimebasedFile(string fileUri, string filePrefix, string fileExtension)
-    {
-        FileInfo fileInfo = BuildTimebasedFileInfo(fileUri, filePrefix, fileExtension);
-        return new FileData(fileInfo);
-    }
+    public FileData BuildTimebasedFile(string fileUri, string filePrefix, string fileExtension) => new(fileUri, BuildTimebasedName(filePrefix, fileExtension));
 
     public FileInfo BuildTimebasedFileInfo(string fileUri, string filePrefix, string fileExtension)
     {
-        string fullFileName = Path.Combine(fileUri, $"{filePrefix}_{DateTime.Now:yyyy-MM-dd_HH-mm-ss}{fileExtension}");
+        string fullFileName = BuildTimebasedFullName(fileUri, filePrefix, fileExtension);
         FileInfo fileInfo = new(fullFileName);
 
         if (fileInfo.Directory?.Exists == false)
@@ -42,9 +23,5 @@ public class FileManager : IFileManager
         return fileInfo;
     }
 
-    public StreamWriter CreateLargeFileWriter(FileInfo fileInfo)
-    {
-        FileStream stream = fileInfo.Open(LargeFileStreamOptions);
-        return new StreamWriter(stream, Utf8Encoding, LargeFileBufferSize);
-    }
+    private static string BuildTimebasedName(string filePrefix, string fileExtension) => $"{filePrefix}_{DateTime.Now:yyyy-MM-dd_HH-mm-ss}{fileExtension}";
 }

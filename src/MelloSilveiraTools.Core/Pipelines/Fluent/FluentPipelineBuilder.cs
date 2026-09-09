@@ -8,8 +8,12 @@ namespace MelloSilveiraTools.Core.Pipelines.Fluent;
 /// Utilizes delegate wrapping (Type Erasure) to strip compile-time generic constraints, allowing 
 /// heterogeneous return types to be stored in a unified internal execution collection.
 /// </summary>
-internal class FluentPipelineBuilder<TInitialIn, TCurrentOut>(List<(string Name, Func<object, CancellationToken, Task<object>> Func)> steps) : IFluentPipelineBuilder<TInitialIn, TCurrentOut>
+using MelloSilveiraTools.Core.Pipelines.Steps;
+
+internal class FluentPipelineBuilder<TInitialIn, TCurrentOut>(List<(string Name, Func<object, CancellationToken, Task<object>> Func)> steps, List<IPipelineStep>? pipelineSteps = null) : IFluentPipelineBuilder<TInitialIn, TCurrentOut>
 {
+    private readonly List<IPipelineStep> _steps = pipelineSteps ?? [];
+
     /// <summary>
     /// Initializes the root builder with an empty execution sequence.
     /// </summary>
@@ -31,7 +35,7 @@ internal class FluentPipelineBuilder<TInitialIn, TCurrentOut>(List<(string Name,
     }
 
     /// <inheritdoc/>
-    public IFluentPipeline<TInitialIn, TCurrentOut> Build(ILogger? logger = null) => new PipelineEngine<TInitialIn, TCurrentOut>(logger, steps);
+    public IFluentPipeline<TInitialIn, TCurrentOut> Build(ILogger? logger = null) => new PipelineEngine<TInitialIn, TCurrentOut>(logger, steps, _steps);
 }
 
 /// <summary>
@@ -44,7 +48,8 @@ internal class FluentPipelineBuilder<TInitialIn, TCurrentOut>(List<(string Name,
 /// <param name="steps">The chronologically ordered list of type-erased asynchronous delegates.</param>
 file class PipelineEngine<TInitialIn, TFinalOut>(
     ILogger? logger,
-    IReadOnlyList<(string Name, Func<object, CancellationToken, Task<object>> Func)> steps)
+    IReadOnlyList<(string Name, Func<object, CancellationToken, Task<object>> Func)> steps,
+    IReadOnlyList<IPipelineStep> pipelineSteps)
     : IFluentPipeline<TInitialIn, TFinalOut>
 {
     /// <inheritdoc/>
@@ -78,4 +83,15 @@ file class PipelineEngine<TInitialIn, TFinalOut>(
         logger?.LogInformation("Pipeline execution finished successfully. Final output type: {FinalOutputType}. Final Data: {@FinalOutput}", typeof(TFinalOut).Name, currentData);
         return (TFinalOut)currentData;
     }
+
+    public async ValueTask DisposeAsync()
+    {
+        foreach (var step in pipelineSteps)
+        {
+            if (step is IAsyncDisposable asyncDisposable) await asyncDisposable.DisposeAsync().ConfigureAwait(false);
+            else if (step is IDisposable disposable) disposable.Dispose();
+        }
+    }
 }
+
+

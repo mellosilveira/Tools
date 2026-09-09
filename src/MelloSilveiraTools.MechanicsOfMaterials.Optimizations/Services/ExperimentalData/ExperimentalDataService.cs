@@ -4,7 +4,9 @@ using MelloSilveiraTools.Core.Models;
 using MelloSilveiraTools.Core.Pipelines;
 using MelloSilveiraTools.Core.Pipelines.Dataflow;
 using MelloSilveiraTools.Mathematics.NumericalMethods.Differentiations;
-using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Models.CurveFitting;
+using MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels;
+using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Abstractions;
+using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Factories;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Models.ExperimentalData;
 using Microsoft.Extensions.Logging;
 using System.Collections.Concurrent;
@@ -18,11 +20,13 @@ public class ExperimentalDataService(
     ILogger<ExperimentalDataService> logger,
     IDifferentiation differentiation,
     IFileManager fileManager,
-    ExperimentalDataSettings settings)
+    ExperimentalDataSettings settings,
+    IMechanicalModelStepFactory stepFactory)
     : IExperimentalDataService
 {
     /// <inheritdoc/>
-    public async Task<Result<(string OutputFileName, CurveSegment[] CurveSegments)>> ProcessAsync(
+    public async Task<Result<(string OutputFileName, ConstitutiveParameters[] Parameters)>> ProcessAsync(
+        string mechanicalModelName,
         string identifier,
         string outputFileUri,
         Stream strainStream,
@@ -32,26 +36,29 @@ public class ExperimentalDataService(
     {
         options ??= ExperimentalDataProcessingOptions.Default;
 
-        ConcurrentBag<CurveSegment> curveSegments = [];
+        ConcurrentBag<ConstitutiveParameters[]> parameterBatches = [];
 
-        FileInfo outputFile = fileManager.BuildTimebasedFileInfo(outputFileUri, identifier, FileExtensions.CommaSeparatedValues);
-        StreamWriter writer = fileManager.CreateLargeFileWriter(outputFile);
-        await using ExperimentalDataFileWriterStep fileWriterStep = new(writer, outputFile.FullName);
+        await using ExperimentalDataFileWriterStep fileWriterStep = new(fileManager, outputFileUri, identifier);
         using CurveSegmentBuilderStep segmentBuilderStep = new(options.SkipTimeStep);
         await using ExperimentalDataSegmenterStep segmenterStep = new(logger, differentiation, options);
+        using IMechanicalModelCurveFitterStep curveFitterStep = stepFactory.Create(mechanicalModelName);
 
-        await using IDataflowPipeline<(Stream StrainStream, Stream StressStream)> pipeline = PipelineFactory.StartDataflow<(Stream StrainStream, Stream StressStream)>(logger, cancellationToken: cancellationToken)
+        await using IDataflowPipeline<(Stream StrainStream, Stream StressStream)> pipeline = PipelineFactory
+            .StartDataflow<(Stream StrainStream, Stream StressStream)>(logger, cancellationToken: cancellationToken)
             .AddStep(segmenterStep, options: settings.SegmenterOptions)
             .AddBroadcastStep(fileWriterStep, options: settings.FileWriterOptions)
             .AddGroupWhileStep((prev, curr) => prev.SegmentType == curr.SegmentType, options: settings.GroupingOptions)
             .AddStep(segmentBuilderStep, options: settings.SegmentBuilderOptions)
-            .BuildTerminal("CollectSegments", curveSegments.Add);
+            .AddCollectAllStep()
+            .AddStep(curveFitterStep, options: settings.CurveFitterOptions)
+            .BuildTerminal("CollectParameters", parameterBatches.Add);
 
         await pipeline.SendAsync((strainStream, stressStream), cancellationToken).ConfigureAwait(false);
 
         pipeline.Complete();
         await pipeline.Completion.ConfigureAwait(false);
 
-        return (fileWriterStep.OutputFilePath, [.. curveSegments]);
+        ConstitutiveParameters[] parameters = [.. parameterBatches.SelectMany(batch => batch)];
+        return (fileWriterStep.OutputFullFileName, parameters);
     }
 }

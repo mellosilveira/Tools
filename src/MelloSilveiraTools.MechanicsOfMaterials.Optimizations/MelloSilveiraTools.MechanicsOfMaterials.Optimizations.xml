@@ -4,6 +4,15 @@
         <name>MelloSilveiraTools.MechanicsOfMaterials.Optimizations</name>
     </assembly>
     <members>
+        <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Abstractions.IMechanicalModelCurveFitterStep">
+            <summary>
+            Represents a pipeline step that fits constitutive model parameters from the full
+            set of <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Models.CurveFitting.CurveSegment"/> objects collected by the pipeline.
+            Receives all accumulated segments as a single array after the grouping/accumulation step
+            and returns the fitted <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.ConstitutiveParameters"/> for the entire experiment.
+            Inherits <see cref="T:MelloSilveiraTools.Core.Pipelines.Steps.IPipelineStep"/> for telemetry and tracing.
+            </summary>
+        </member>
         <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Algorithms.SensitivityAnalyses.ExpressionPathResolver.GetPath``2(System.Linq.Expressions.Expression{System.Func{``0,``1}})">
             <summary>
             Converts a lambda expression into a string path using the built-in C# compiler expression tree.
@@ -196,6 +205,49 @@
             </summary>
             <returns></returns>
         </member>
+        <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Factories.IMechanicalModelStepFactory">
+            <summary>
+            Factory responsible for creating the appropriate <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Abstractions.IMechanicalModelCurveFitterStep"/>
+            based on the mechanical model name supplied at runtime.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Factories.IMechanicalModelStepFactory.Create(System.String)">
+            <summary>
+            Creates a concrete <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Abstractions.IMechanicalModelCurveFitterStep"/> implementation
+            that matches the specified mechanical model.
+            </summary>
+            <param name="modelName">
+            The mechanical model identifier (e.g. <c>"Schapery"</c>, <c>"Fung"</c>,
+            <c>"SimplifiedFungRelaxation"</c>). Matching is case-insensitive.
+            </param>
+            <returns>An instance of <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Abstractions.IMechanicalModelCurveFitterStep"/> for the given model.</returns>
+            <exception cref="T:System.ArgumentException">Thrown when <paramref name="modelName"/> does not match any known model.</exception>
+        </member>
+        <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Factories.MechanicalModelStepFactory">
+            <summary>
+            Default implementation of <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Factories.IMechanicalModelStepFactory"/> that resolves
+            concrete <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Abstractions.IMechanicalModelCurveFitterStep"/> instances from the DI container
+            based on a case-insensitive model name.
+            </summary>
+            <remarks>
+            Stateless and thread-safe — suitable for singleton registration.
+            Each <see cref="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Factories.MechanicalModelStepFactory.Create(System.String)"/> call resolves a fresh step instance from <see cref="T:System.IServiceProvider"/>.
+            </remarks>
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Factories.MechanicalModelStepFactory.#ctor(System.IServiceProvider)">
+            <summary>
+            Default implementation of <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Factories.IMechanicalModelStepFactory"/> that resolves
+            concrete <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Abstractions.IMechanicalModelCurveFitterStep"/> instances from the DI container
+            based on a case-insensitive model name.
+            </summary>
+            <remarks>
+            Stateless and thread-safe — suitable for singleton registration.
+            Each <see cref="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Factories.MechanicalModelStepFactory.Create(System.String)"/> call resolves a fresh step instance from <see cref="T:System.IServiceProvider"/>.
+            </remarks>
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Factories.MechanicalModelStepFactory.Create(System.String)">
+            <inheritdoc />
+        </member>
         <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Models.CurveFitting.ExperimentalDataPoint">
             <summary>
             Represents an experimental data point containing time, stress, and strain.
@@ -348,6 +400,26 @@
         <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Models.Range.RangeReducedRelaxationFunction.SlowRelaxationTime">
             <summary>Constant tau 1. Unit: s (second).</summary>
         </member>
+        <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.OptimizationsDependencyInjection">
+            <summary>
+            Provides extension methods to register Optimizations services
+            (experimental data processing pipeline, curve fitter steps, and factory) into the DI container.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.OptimizationsDependencyInjection.AddOptimizationsServices(Microsoft.Extensions.DependencyInjection.IServiceCollection,MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Services.ExperimentalData.ExperimentalDataSettings)">
+            <inheritdoc cref="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.OptimizationsDependencyInjection.&lt;G&gt;$7B30185E57B8298C6754F16C0BCF4773.AddOptimizationsServices(MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Services.ExperimentalData.ExperimentalDataSettings)"/>
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.OptimizationsDependencyInjection.&lt;G&gt;$7B30185E57B8298C6754F16C0BCF4773.AddOptimizationsServices(MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Services.ExperimentalData.ExperimentalDataSettings)">
+            <summary>
+            Registers the Mechanics of Materials Optimizations services
+            (curve fitter steps, step factory, and experimental data service)
+            into the dependency injection container.
+            </summary>
+            <param name="settings">
+            Optional experimental data settings. When <see langword="null"/>, a default instance is registered.
+            </param>
+            <returns>The same service collection so additional registrations can be chained.</returns>
+        </member>
         <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Services.ExperimentalData.CurveSegmentBuilderStep">
             <summary>
             Pipeline step responsible for constructing <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Models.CurveFitting.CurveSegment"/> instances from grouped <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Models.ExperimentalData.SegmentedDataPoint"/> arrays,
@@ -381,31 +453,16 @@
             Pipeline step responsible for persisting processed experimental data points to a CSV file.
             Writes the CSV header upon initialization and sequentially appends each data point line.
             </summary>
-            <param name="writer">The writer instance to append CSV rows to.</param>
-            <param name="outputFilePath">The logical file path of the output file.</param>
-            <param name="leaveOpen">Whether to leave the underlying writer open upon disposal.</param>
-        </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Services.ExperimentalData.ExperimentalDataFileWriterStep.#ctor(System.IO.StreamWriter,System.String,System.Boolean)">
-            <summary>
-            Pipeline step responsible for persisting processed experimental data points to a CSV file.
-            Writes the CSV header upon initialization and sequentially appends each data point line.
-            </summary>
-            <param name="writer">The writer instance to append CSV rows to.</param>
-            <param name="outputFilePath">The logical file path of the output file.</param>
-            <param name="leaveOpen">Whether to leave the underlying writer open upon disposal.</param>
         </member>
         <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Services.ExperimentalData.ExperimentalDataFileWriterStep.Name">
             <inheritdoc/>
         </member>
-        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Services.ExperimentalData.ExperimentalDataFileWriterStep.OutputFilePath">
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Services.ExperimentalData.ExperimentalDataFileWriterStep.OutputFullFileName">
             <summary>
-            Gets the full path of the generated CSV file.
+            Gets the full name of the generated CSV file.
             </summary>
         </member>
         <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Services.ExperimentalData.ExperimentalDataFileWriterStep.ExecuteAsync(MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Models.ExperimentalData.SegmentedDataPoint,System.Threading.CancellationToken)">
-            <inheritdoc/>
-        </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Services.ExperimentalData.ExperimentalDataFileWriterStep.ExecuteAsync(MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Models.ExperimentalData.ProcessedDataPoint,System.Threading.CancellationToken)">
             <inheritdoc/>
         </member>
         <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Services.ExperimentalData.ExperimentalDataFileWriterStep.DisposeAsync">
@@ -443,12 +500,12 @@
             Service responsible for orchestrating the ingestion, validation, and physical phase segmentation of experimental raw data streams.
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Services.ExperimentalData.ExperimentalDataService.#ctor(Microsoft.Extensions.Logging.ILogger{MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Services.ExperimentalData.ExperimentalDataService},MelloSilveiraTools.Mathematics.NumericalMethods.Differentiations.IDifferentiation,MelloSilveiraTools.Core.Managers.File.IFileManager,MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Services.ExperimentalData.ExperimentalDataSettings)">
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Services.ExperimentalData.ExperimentalDataService.#ctor(Microsoft.Extensions.Logging.ILogger{MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Services.ExperimentalData.ExperimentalDataService},MelloSilveiraTools.Mathematics.NumericalMethods.Differentiations.IDifferentiation,MelloSilveiraTools.Core.Managers.File.IFileManager,MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Services.ExperimentalData.ExperimentalDataSettings,MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Factories.IMechanicalModelStepFactory)">
             <summary>
             Service responsible for orchestrating the ingestion, validation, and physical phase segmentation of experimental raw data streams.
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Services.ExperimentalData.ExperimentalDataService.ProcessAsync(System.String,System.String,System.IO.Stream,System.IO.Stream,MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Models.ExperimentalData.ExperimentalDataProcessingOptions,System.Threading.CancellationToken)">
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Services.ExperimentalData.ExperimentalDataService.ProcessAsync(System.String,System.String,System.String,System.IO.Stream,System.IO.Stream,MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Models.ExperimentalData.ExperimentalDataProcessingOptions,System.Threading.CancellationToken)">
             <inheritdoc/>
         </member>
         <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Services.ExperimentalData.ExperimentalDataSettings">
@@ -480,23 +537,120 @@
             Defaults to default pipeline step options.
             </summary>
         </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Services.ExperimentalData.ExperimentalDataSettings.CurveFitterOptions">
+            <summary>
+            Configuration options for the mechanical model curve fitter pipeline step in the Dataflow pipeline.
+            Defaults to default pipeline step options.
+            </summary>
+        </member>
         <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Services.ExperimentalData.IExperimentalDataService">
             <summary>
             Handles the ingestion, validation, and physical phase segmentation of experimental raw data streams.
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Services.ExperimentalData.IExperimentalDataService.ProcessAsync(System.String,System.String,System.IO.Stream,System.IO.Stream,MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Models.ExperimentalData.ExperimentalDataProcessingOptions,System.Threading.CancellationToken)">
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Services.ExperimentalData.IExperimentalDataService.ProcessAsync(System.String,System.String,System.String,System.IO.Stream,System.IO.Stream,MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Models.ExperimentalData.ExperimentalDataProcessingOptions,System.Threading.CancellationToken)">
             <summary>
             Ingests strain and stress data streams and processes them through a TPL Dataflow pipeline,
-            writing the valid processed points to a CSV file and returning the physical curve segments categorized by deformation phases.
+            writing the valid processed points to a CSV file and returning the physical model parameters.
             </summary>
+            <param name="mechanicalModelName"></param>
             <param name="identifier">A unique identifier prefix used to name the output file.</param>
             <param name="outputFileUri">The directory path where the output file will be written.</param>
             <param name="strainStream">A stream containing experimental strain values across time.</param>
             <param name="stressStream">A stream containing experimental stress values across time.</param>
             <param name="options">Options controlling tolerances, buffer sizing, and downsampling thresholds.</param>
             <param name="cancellationToken">A token to cancel the operation.</param>
-            <returns>A <see cref="T:MelloSilveiraTools.Core.Models.Result`1"/> containing the generated output file name and the categorized <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Models.CurveFitting.CurveSegment"/> array.</returns>
+            <returns>A <see cref="T:MelloSilveiraTools.Core.Models.Result`1"/> containing the generated output file name and the array of <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.ConstitutiveParameters"/>.</returns>
+        </member>
+        <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Steps.FungCurveFitterStep">
+            <summary>
+            Thread-safe. Implements <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Abstractions.IMechanicalModelCurveFitterStep"/> for the
+            Fung model (full curve fitting). Implements <c>IPipelineStep</c> for telemetry.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Steps.FungCurveFitterStep.Name">
+            <inheritdoc />
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Steps.FungCurveFitterStep.Execute(MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Models.CurveFitting.CurveSegment[])">
+            <inheritdoc />
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Steps.FungCurveFitterStep.Dispose">
+            <inheritdoc />
+        </member>
+        <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Steps.FungRelaxationOnlyCurveFitterStep">
+            <summary>
+            Thread-safe. Implements <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Abstractions.IMechanicalModelCurveFitterStep"/> for the
+            Fung model (relaxation-only curve fitting). Implements <c>IPipelineStep</c> for telemetry.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Steps.FungRelaxationOnlyCurveFitterStep.Name">
+            <inheritdoc />
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Steps.FungRelaxationOnlyCurveFitterStep.Execute(MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Models.CurveFitting.CurveSegment[])">
+            <inheritdoc />
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Steps.FungRelaxationOnlyCurveFitterStep.Dispose">
+            <inheritdoc />
+        </member>
+        <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Steps.SchaperyCurveFitterStep">
+            <summary>
+            Thread-safe. Implements <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Abstractions.IMechanicalModelCurveFitterStep"/> for the
+            Schapery model (full curve fitting). Implements <c>IPipelineStep</c> for telemetry.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Steps.SchaperyCurveFitterStep.Name">
+            <inheritdoc />
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Steps.SchaperyCurveFitterStep.Execute(MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Models.CurveFitting.CurveSegment[])">
+            <inheritdoc />
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Steps.SchaperyCurveFitterStep.Dispose">
+            <inheritdoc />
+        </member>
+        <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Steps.SchaperyRelaxationOnlyCurveFitterStep">
+            <summary>
+            Thread-safe. Implements <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Abstractions.IMechanicalModelCurveFitterStep"/> for the
+            Schapery model (relaxation-only curve fitting). Implements <c>IPipelineStep</c> for telemetry.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Steps.SchaperyRelaxationOnlyCurveFitterStep.Name">
+            <inheritdoc />
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Steps.SchaperyRelaxationOnlyCurveFitterStep.Execute(MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Models.CurveFitting.CurveSegment[])">
+            <inheritdoc />
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Steps.SchaperyRelaxationOnlyCurveFitterStep.Dispose">
+            <inheritdoc />
+        </member>
+        <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Steps.SimplifiedFungCurveFitterStep">
+            <summary>
+            Thread-safe. Implements <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Abstractions.IMechanicalModelCurveFitterStep"/> for the
+            Simplified Fung model (full curve fitting). Implements <c>IPipelineStep</c> for telemetry.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Steps.SimplifiedFungCurveFitterStep.Name">
+            <inheritdoc />
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Steps.SimplifiedFungCurveFitterStep.Execute(MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Models.CurveFitting.CurveSegment[])">
+            <inheritdoc />
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Steps.SimplifiedFungCurveFitterStep.Dispose">
+            <inheritdoc />
+        </member>
+        <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Steps.SimplifiedFungRelaxationOnlyCurveFitterStep">
+            <summary>
+            Thread-safe. Implements <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Abstractions.IMechanicalModelCurveFitterStep"/> for the
+            Simplified Fung model (relaxation-only curve fitting). Implements <c>IPipelineStep</c> for telemetry.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Steps.SimplifiedFungRelaxationOnlyCurveFitterStep.Name">
+            <inheritdoc />
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Steps.SimplifiedFungRelaxationOnlyCurveFitterStep.Execute(MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Models.CurveFitting.CurveSegment[])">
+            <inheritdoc />
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Steps.SimplifiedFungRelaxationOnlyCurveFitterStep.Dispose">
+            <inheritdoc />
         </member>
     </members>
 </doc>
