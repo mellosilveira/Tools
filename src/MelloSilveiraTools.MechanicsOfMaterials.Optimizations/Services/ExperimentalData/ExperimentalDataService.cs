@@ -1,4 +1,3 @@
-using MelloSilveiraTools.Core.ExtensionMethods;
 using MelloSilveiraTools.Core.Managers.File;
 using MelloSilveiraTools.Core.Models;
 using MelloSilveiraTools.Core.Pipelines;
@@ -38,13 +37,14 @@ public class ExperimentalDataService(
 
         ConcurrentBag<ConstitutiveParameters[]> parameterBatches = [];
 
-        await using ExperimentalDataFileWriterStep fileWriterStep = new(fileManager, outputFileUri, identifier);
-        using CurveSegmentBuilderStep segmentBuilderStep = new(options.SkipTimeStep);
-        await using ExperimentalDataSegmenterStep segmenterStep = new(logger, differentiation, options);
-        using IMechanicalModelCurveFitterStep curveFitterStep = stepFactory.Create(mechanicalModelName);
+        ExperimentalDataFileWriterStep fileWriterStep = new(fileManager, outputFileUri, identifier);
+        CurveSegmentBuilderStep segmentBuilderStep = new(options.SkipTimeStep);
+        ExperimentalDataSegmenterStep segmenterStep = new(logger, differentiation, options);
+        IMechanicalModelCurveFitterStep curveFitterStep = stepFactory.Create(mechanicalModelName);
 
-        await using IDataflowPipeline<(Stream StrainStream, Stream StressStream)> pipeline = PipelineFactory
+        IDataflowPipeline<(Stream StrainStream, Stream StressStream)> pipeline = PipelineFactory
             .StartDataflow<(Stream StrainStream, Stream StressStream)>(logger, cancellationToken: cancellationToken)
+            .WithLoggingErrors()
             .AddStep(segmenterStep, options: settings.SegmenterOptions)
             .AddBroadcastStep(fileWriterStep, options: settings.FileWriterOptions)
             .AddGroupWhileStep((prev, curr) => prev.SegmentType == curr.SegmentType, options: settings.GroupingOptions)
@@ -53,12 +53,15 @@ public class ExperimentalDataService(
             .AddStep(curveFitterStep, options: settings.CurveFitterOptions)
             .BuildTerminal("CollectParameters", parameterBatches.Add);
 
-        await pipeline.SendAsync((strainStream, stressStream), cancellationToken).ConfigureAwait(false);
+        await using (pipeline)
+        {
+            await pipeline.SendAsync((strainStream, stressStream), cancellationToken).ConfigureAwait(false);
 
-        pipeline.Complete();
-        await pipeline.Completion.ConfigureAwait(false);
+            pipeline.Complete();
+            await pipeline.Completion.ConfigureAwait(false);
 
-        ConstitutiveParameters[] parameters = [.. parameterBatches.SelectMany(batch => batch)];
-        return (fileWriterStep.OutputFullFileName, parameters);
+            ConstitutiveParameters[] parameters = [.. parameterBatches.SelectMany(batch => batch)];
+            return (fileWriterStep.OutputFullFileName, parameters);
+        }
     }
 }

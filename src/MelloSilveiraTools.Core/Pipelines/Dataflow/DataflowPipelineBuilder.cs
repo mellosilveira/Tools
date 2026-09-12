@@ -2,9 +2,12 @@ using MelloSilveiraTools.Core.Pipelines.Models;
 using MelloSilveiraTools.Core.Pipelines.Steps;
 using MelloSilveiraTools.Core.Pipelines.Telemetry;
 using Microsoft.Extensions.Logging;
+using System.Collections.Concurrent;
 using System.Threading.Tasks.Dataflow;
 
 namespace MelloSilveiraTools.Core.Pipelines.Dataflow;
+
+// TODO: ADICIONAR CIRCUIT BREAKER
 
 /// <summary>
 /// A strongly-typed fluent builder for orchestrating TPL Dataflow topologies.
@@ -27,11 +30,11 @@ internal class DataflowPipelineBuilder<THead, TTail>(
     List<IPipelineStep>? steps = null)
     : IDataflowPipelineBuilder<THead, TTail>
 {
-    private readonly List<IPipelineStep> _steps = steps ?? [];
-    private readonly bool _deadLetterQueueEnabled = deadLetterQueueBlock is not null;
-    private readonly List<Task> _branchCompletionTasks = branchCompletionTasks ?? [];
     private const string DeadLetterQueueTelemetryName = "Pipeline.DeadLetterQueue";
     private const string DataMappingTelemetryName = "Pipeline.DataMapping";
+    private readonly bool _deadLetterQueueEnabled = deadLetterQueueBlock is not null;
+    private readonly List<Task> _branchCompletionTasks = branchCompletionTasks ?? [];
+    private readonly List<IPipelineStep> _steps = steps ?? [];
 
     /// <inheritdoc/>
     /// <remarks>
@@ -112,148 +115,67 @@ internal class DataflowPipelineBuilder<THead, TTail>(
         return LinkAndContinue(nextBlock);
     }
 
-
-
-
-
-    /// <inheritdoc/>
-    public IDataflowPipelineBuilder<THead, TNextOut> AddStep<TNextOut>(string stepName, Func<TTail, CancellationToken, IAsyncEnumerable<TNextOut>> stepFunc, PipelineStepOptions options = default)
-    {
-        ExecutionDataflowBlockOptions dataFlowOptions = options.ToDataflowOptions(pipelineCancellationToken);
-        Func<TTail, IAsyncEnumerable<TNextOut>> telemetryStreamFunc = TelemetryExtensions.HandleExecution(logger, GetTelemetryName(stepName), stepFunc, pipelineCancellationToken);
-
-        BufferBlock<TNextOut> source = new(dataFlowOptions);
-
-        ActionBlock<TTail> target = new(async item =>
-        {
-            try
-            {
-                await foreach (TNextOut outItem in telemetryStreamFunc(item).WithCancellation(pipelineCancellationToken).ConfigureAwait(false))
-                {
-                    await source.SendAsync(outItem, pipelineCancellationToken).ConfigureAwait(false);
-                }
-            }
-            catch (Exception ex) when (ex is not OperationCanceledException && _deadLetterQueueEnabled)
-            {
-                await deadLetterQueueBlock!.SendAsync(new FailedPayload(GetTelemetryName(stepName), item, ex), pipelineCancellationToken).ConfigureAwait(false);
-            }
-        }, dataFlowOptions);
-
-        target.Completion.ContinueWith(t =>
-        {
-            if (t.IsFaulted && t.Exception is not null)
-                ((IDataflowBlock)source).Fault(t.Exception);
-            else
-                source.Complete();
-        }, TaskContinuationOptions.ExecuteSynchronously);
-
-        IPropagatorBlock<TTail, TNextOut> streamBlock = DataflowBlock.Encapsulate(target, source);
-        return LinkAndContinue(streamBlock);
-    }
-
-
-
-
-
-    /// <inheritdoc/>
-    /// <remarks>
-    /// Technical Decision: Configures a <see cref="BatchBlock{T}"/> using <see cref="GroupingDataflowBlockOptions"/> to respect bounded capacities.
-    /// Limitation: Messages remain buffered until the exact <paramref name="batchSize"/> is met. A manual <see cref="IDataflowPipeline{TIn}.Complete"/> call is required to force flush a partial batch at the end of the stream.
-    /// </remarks>
-    public IDataflowPipelineBuilder<THead, TTail[]> AddBatchStep(int batchSize, PipelineStepOptions options = default)
-    {
-        BatchBlock<TTail> nextBlock = new(batchSize, new GroupingDataflowBlockOptions { BoundedCapacity = options.MaxBufferSize, CancellationToken = pipelineCancellationToken });
-        return LinkAndContinue(nextBlock);
-    }
-
     /// <inheritdoc/>
     public IDataflowPipelineBuilder<THead, TTail> AddFilterStep(Predicate<TTail> predicate, PipelineStepOptions options = default)
     {
-        // Technical Decision: A TransformManyBlock yielding 0 or 1 item is the safest TPL-native way to drop messages.
-        // It consumes the message entirely, preventing it from getting permanently stuck in the upstream source buffer.
-        TransformManyBlock<TTail, TTail> filterBlock = new(item => predicate(item) ? [item] : Array.Empty<TTail>(), options.ToDataflowOptions(pipelineCancellationToken));
-        return LinkAndContinue(filterBlock);
+        // Creates an output buffer to hold only the items that pass the filter
+        BufferBlock<TTail> filterBlock = new(options.ToDataflowOptions(pipelineCancellationToken));
+
+        // 1. Native Routing: Links the previous block to the filter buffer using the predicate.
+        // Only items that evaluate to 'true' are forwarded. This guarantees zero memory allocation 
+        // per item (no arrays or IEnumerables created).
+        tailBlock.LinkTo(filterBlock, predicate);
+
+        // 2. Discard Bin (Mandatory): Items that evaluate to 'false' must be routed to a NullTarget.
+        // If this is missing, rejected items will remain stuck in the tailBlock's output buffer,
+        // eventually filling up its capacity and causing a silent pipeline deadlock.
+        tailBlock.LinkTo(DataflowBlock.NullTarget<TTail>());
+
+        return new DataflowPipelineBuilder<THead, TTail>(logger, headBlock, filterBlock, deadLetterQueueBlock, retryOptions, pipelineCancellationToken, _branchCompletionTasks, _steps);
+    }
+
+    /// <inheritdoc/>
+    public IDataflowPipelineBuilder<THead, TTail[]> AddGroupWhileStep(Func<TTail, TTail, bool> groupingCondition, PipelineStepOptions options = default)
+    {
+        ExecutionDataflowBlockOptions dataFlowOptions = options.ToDataflowOptions(pipelineCancellationToken);
+
+        // Must be strictly sequential to evaluate the condition against the previous item accurately.
+        if (dataFlowOptions.MaxDegreeOfParallelism > 1)
+        {
+            logger.LogWarning("Max workers cannot be greater than 1 for AddGroupWhileStep. Overriding to 1.");
+            dataFlowOptions.MaxDegreeOfParallelism = 1;
+        }
+
+        List<TTail> buffer = [];
+        BufferBlock<TTail[]> source = new(dataFlowOptions);
+        ActionBlock<TTail> target = new(async item =>
+        {
+            await TrySendAsync(source, buffer, !groupingCondition(buffer[^1], item)).ConfigureAwait(false);
+            buffer.Add(item);
+        }, dataFlowOptions);
+
+        // Technical Decision: When the pipeline invokes Complete(), we must force-flush the final 
+        // partial batch trapped in the buffer before propagating the completion state downstream.
+        target.Completion.ContinueWith(source, () => TrySendAsync(source, buffer, true));
+
+        // Encapsulate combines the receiving ActionBlock and emitting BufferBlock into a single logical Propagator node.
+        IPropagatorBlock<TTail, TTail[]> groupBlock = DataflowBlock.Encapsulate(target, source);
+        return LinkAndContinue(groupBlock);
+
+        static async Task TrySendAsync(BufferBlock<TTail[]> source, List<TTail> buffer, bool additionalCondition)
+        {
+            if (buffer.Count > 0 && additionalCondition)
+            {
+                await source.SendAsync([.. buffer]).ConfigureAwait(false);
+                buffer.Clear();
+            }
+        }
     }
 
     /// <inheritdoc/>
     public IDataflowPipelineBuilder<THead, TTail[]> AddCollectAllStep(PipelineStepOptions options = default) => AddGroupWhileStep((_, _) => true, options);
 
     /// <inheritdoc/>
-    public IDataflowPipelineBuilder<THead, TTail[]> AddGroupWhileStep(Func<TTail, TTail, bool> condition, PipelineStepOptions options = default)
-    {
-        ExecutionDataflowBlockOptions dataFlowOptions = options.ToDataflowOptions(pipelineCancellationToken);
-
-        // Must be strictly sequential to evaluate the condition against the previous item accurately.
-        dataFlowOptions.MaxDegreeOfParallelism = 1;
-
-        List<TTail> buffer = [];
-        BufferBlock<TTail[]> source = new(dataFlowOptions);
-
-        ActionBlock<TTail> target = new(async item =>
-        {
-            if (buffer.Count > 0 && !condition(buffer[^1], item))
-            {
-                await source.SendAsync([.. buffer]).ConfigureAwait(false);
-                buffer.Clear();
-            }
-            buffer.Add(item);
-        }, dataFlowOptions);
-
-        // Technical Decision: When the pipeline invokes Complete()[cite: 2], we must force-flush the final 
-        // partial batch trapped in the buffer before propagating the completion state downstream.
-        target.Completion.ContinueWith(async t =>
-        {
-            if (buffer.Count > 0)
-            {
-                await source.SendAsync([.. buffer]).ConfigureAwait(false);
-                buffer.Clear();
-            }
-
-            if (t.IsFaulted && t.Exception is not null)
-                ((IDataflowBlock)source).Fault(t.Exception);
-            else
-                source.Complete();
-
-        }, TaskContinuationOptions.ExecuteSynchronously);
-
-        // Encapsulate combines the receiving ActionBlock and emitting BufferBlock into a single logical Propagator node.
-        IPropagatorBlock<TTail, TTail[]> groupBlock = DataflowBlock.Encapsulate(target, source);
-        return LinkAndContinue(groupBlock);
-    }
-
-    /// <inheritdoc/>
-    public IDataflowPipelineBuilder<THead, TTail> AddBroadcastBlock(ITargetBlock<TTail> branchTarget, Func<TTail, TTail>? cloneFunc = null, PipelineStepOptions options = default)
-    {
-        return AddBroadcastTarget(branchTarget, branchTarget.Completion, cloneFunc, options.ToDataflowOptions(pipelineCancellationToken));
-    }
-
-    /// <inheritdoc/>
-    public IDataflowPipelineBuilder<THead, TTail> AddBroadcastBlock(IEnumerable<ITargetBlock<TTail>> branchTargets, Func<TTail, TTail>? cloneFunc = null, PipelineStepOptions options = default)
-    {
-        ExecutionDataflowBlockOptions dataFlowOptions = options.ToDataflowOptions(pipelineCancellationToken);
-        return AddBroadcastTargets(branchTargets.Select(target => (target, target.Completion)), cloneFunc, dataFlowOptions);
-    }
-
-    /// <inheritdoc/>
-    /// <remarks>
-    /// Technical Decision: Caps the underlying graph by resolving to a final <see cref="ActionBlock{T}"/>, returning a sealed interface that prevents further linkage.
-    /// </remarks>
-
-    public IDataflowPipelineBuilder<THead, TNextOut> AddStep<TNextOut>(IAsyncPipelineStep<TTail, TNextOut> step, PipelineStepOptions options = default)
-    {
-        _steps.Add(step);
-        ExecutionDataflowBlockOptions dataFlowOptions = options.ToDataflowOptions(pipelineCancellationToken);
-
-        if (_deadLetterQueueEnabled)
-        {
-            TransformBlock<TTail, SafeResult<TTail, TNextOut>> safeBlock = new(TelemetryExtensions.HandleSafeExecution<TTail, TNextOut>(logger, GetTelemetryName(step.Name), step.ExecuteAsync, retryOptions, pipelineCancellationToken), dataFlowOptions);
-            return AddSafeStep(safeBlock, dataFlowOptions);
-        }
-
-        TransformBlock<TTail, TNextOut> nextBlock = new(TelemetryExtensions.HandleExecution<TTail, TNextOut>(logger, GetTelemetryName(step.Name), step.ExecuteAsync, retryOptions, pipelineCancellationToken), dataFlowOptions);
-        return LinkAndContinue(nextBlock);
-    }
-
     public IDataflowPipelineBuilder<THead, TNextOut> AddStep<TNextOut>(ISyncPipelineStep<TTail, TNextOut> step, PipelineStepOptions options = default)
     {
         _steps.Add(step);
@@ -269,52 +191,111 @@ internal class DataflowPipelineBuilder<THead, TTail>(
         return LinkAndContinue(nextBlock);
     }
 
-    public IDataflowPipelineBuilder<THead, TNextOut> AddStep<TNextOut>(IAsyncEnumerablePipelineStep<TTail, TNextOut> step, PipelineStepOptions options = default)
+    /// <inheritdoc/>
+    public IDataflowPipelineBuilder<THead, TNextOut> AddStep<TNextOut>(IAsyncPipelineStep<TTail, TNextOut> step, PipelineStepOptions options = default)
     {
         _steps.Add(step);
         ExecutionDataflowBlockOptions dataFlowOptions = options.ToDataflowOptions(pipelineCancellationToken);
-        Func<TTail, IAsyncEnumerable<TNextOut>> telemetryStreamFunc = TelemetryExtensions.HandleExecution<TTail, TNextOut>(logger, GetTelemetryName(step.Name), step.ExecuteAsync, pipelineCancellationToken);
 
+        if (_deadLetterQueueEnabled)
+        {
+            TransformBlock<TTail, SafeResult<TTail, TNextOut>> safeBlock = new(
+                TelemetryExtensions.HandleSafeExecution<TTail, TNextOut>(logger, GetTelemetryName(step.Name), step.ExecuteAsync, retryOptions, pipelineCancellationToken),
+                dataFlowOptions);
+            return AddSafeStep(safeBlock, dataFlowOptions);
+        }
+
+        TransformBlock<TTail, TNextOut> nextBlock = new(TelemetryExtensions.HandleExecution<TTail, TNextOut>(logger, GetTelemetryName(step.Name), step.ExecuteAsync, retryOptions, pipelineCancellationToken), dataFlowOptions);
+        return LinkAndContinue(nextBlock);
+    }
+
+    /// <inheritdoc/>
+    public IDataflowPipelineBuilder<THead, TNextOut> AddStep<TNextOut>(IAsyncEnumerablePipelineStep<TTail, TNextOut> step, PipelineStepOptions options = default)
+    {
+        _steps.Add(step);
+
+        Func<TTail, CancellationToken, IAsyncEnumerable<TNextOut>> stepFunc = step.ExecuteAsync;
+
+        ExecutionDataflowBlockOptions dataFlowOptions = options.ToDataflowOptions(pipelineCancellationToken);
         BufferBlock<TNextOut> source = new(dataFlowOptions);
 
-        ActionBlock<TTail> target = new(async item =>
+        ActionBlock<TTail> target;
+        if (_deadLetterQueueEnabled)
         {
-            try
+            Func<TTail, IAsyncEnumerable<SafeResult<TTail, TNextOut>>> safeStreamFunc = TelemetryExtensions.HandleSafeExecution(logger, GetTelemetryName(step.Name), stepFunc, pipelineCancellationToken);
+            target = new(async item =>
             {
-                await foreach (TNextOut projectedResult in telemetryStreamFunc(item).ConfigureAwait(false))
+                await foreach (SafeResult<TTail, TNextOut> safeResult in safeStreamFunc(item).WithCancellation(pipelineCancellationToken).ConfigureAwait(false))
                 {
-                    await source.SendAsync(projectedResult, pipelineCancellationToken).ConfigureAwait(false);
+                    if (safeResult.Success)
+                        await source.SendAsync(safeResult.Output!, pipelineCancellationToken).ConfigureAwait(false);
+                    else
+                        await deadLetterQueueBlock!.SendAsync(safeResult.FailedPayload, pipelineCancellationToken).ConfigureAwait(false);
                 }
-            }
-            catch (Exception ex) when (ex is not OperationCanceledException)
-            {
-                logger?.LogError(ex, "Uncaught exception in streaming execution step {StepName}. Faulting block.", step.Name);
-                ((IDataflowBlock)source).Fault(ex);
-            }
-        }, dataFlowOptions);
-
-        target.Completion.ContinueWith(t =>
+            }, dataFlowOptions);
+        }
+        else
         {
-            if (t.IsFaulted && t.Exception is not null) ((IDataflowBlock)source).Fault(t.Exception);
-            else source.Complete();
-        }, TaskContinuationOptions.ExecuteSynchronously);
+            Func<TTail, IAsyncEnumerable<TNextOut>> streamFunc = TelemetryExtensions.HandleExecution(logger, GetTelemetryName(step.Name), stepFunc, pipelineCancellationToken);
+            target = new(async item =>
+            {
+                await foreach (TNextOut outItem in streamFunc(item).WithCancellation(pipelineCancellationToken).ConfigureAwait(false))
+                {
+                    await source.SendAsync(outItem, pipelineCancellationToken).ConfigureAwait(false);
+                }
+            }, dataFlowOptions);
+        }
 
-        tailBlock.LinkTo(target);
-        _branchCompletionTasks.Add(target.Completion);
+        target.Completion.ContinueWith(source);
+        return LinkAndContinue(DataflowBlock.Encapsulate(target, source));
+    }
 
-        return new DataflowPipelineBuilder<THead, TNextOut>(logger, headBlock, source, deadLetterQueueBlock, retryOptions, pipelineCancellationToken, _branchCompletionTasks, _steps);
+    public IDataflowPipelineBuilder<THead, TNextOut> AddForkingStep<TNextOut>(ISyncPipelineStep<TTail, TNextOut> step, Func<TNextOut, bool> fallbackCondition, ISyncPipelineStep<TTail, TNextOut> fallbackStep, PipelineStepOptions options = default)
+    {
+        _steps.Add(step);
+        _steps.Add(fallbackStep);
+
+        ExecutionDataflowBlockOptions dataFlowOptions = options.ToDataflowOptions(pipelineCancellationToken);
+
+        if (_deadLetterQueueEnabled)
+        {
+            TransformBlock<TTail, SafeResult<TTail, TNextOut>> safeBlock = new(
+                TelemetryExtensions.HandleSafeExecution<TTail, TNextOut>(
+                    logger,
+                    GetTelemetryName(step.Name),
+                    GetTelemetryName(fallbackStep.Name),
+                    step.Execute,
+                    safeResult => safeResult.Success && safeResult.Output is not null && fallbackCondition(safeResult.Output),
+                    fallbackStep.Execute,
+                    pipelineCancellationToken),
+                dataFlowOptions);
+            return AddSafeStep(safeBlock, dataFlowOptions);
+        }
+
+        TransformBlock<TTail, TNextOut> nextBlock = new(
+            TelemetryExtensions.HandleExecution<TTail, TNextOut>(logger, GetTelemetryName(step.Name), GetTelemetryName(fallbackStep.Name), step.Execute, fallbackCondition, fallbackStep.Execute, pipelineCancellationToken),
+            dataFlowOptions);
+        return LinkAndContinue(nextBlock);
     }
 
     public IDataflowPipelineBuilder<THead, TNextOut> AddForkingStep<TNextOut>(IAsyncPipelineStep<TTail, TNextOut> step, Func<TNextOut, bool> fallbackCondition, IAsyncPipelineStep<TTail, TNextOut> fallbackStep, PipelineStepOptions options = default)
     {
         _steps.Add(step);
         _steps.Add(fallbackStep);
+
         ExecutionDataflowBlockOptions dataFlowOptions = options.ToDataflowOptions(pipelineCancellationToken);
 
         if (_deadLetterQueueEnabled)
         {
             TransformBlock<TTail, SafeResult<TTail, TNextOut>> safeBlock = new(
-                TelemetryExtensions.HandleSafeExecution<TTail, TNextOut>(logger, GetTelemetryName(step.Name), GetTelemetryName(fallbackStep.Name), step.ExecuteAsync, safeResult => safeResult.Success && safeResult.Output is not null && fallbackCondition(safeResult.Output), fallbackStep.ExecuteAsync, retryOptions, pipelineCancellationToken),
+                TelemetryExtensions.HandleSafeExecution<TTail, TNextOut>(
+                    logger,
+                    GetTelemetryName(step.Name),
+                    GetTelemetryName(fallbackStep.Name),
+                    step.ExecuteAsync, safeResult => safeResult.Success && safeResult.Output is not null && fallbackCondition(safeResult.Output),
+                    fallbackStep.ExecuteAsync,
+                    retryOptions,
+                    pipelineCancellationToken),
                 dataFlowOptions);
             return AddSafeStep(safeBlock, dataFlowOptions);
         }
@@ -323,61 +304,20 @@ internal class DataflowPipelineBuilder<THead, TTail>(
         return LinkAndContinue(nextBlock);
     }
 
-    public IDataflowPipelineBuilder<THead, TNextOut> AddForkingStep<TNextOut>(ISyncPipelineStep<TTail, TNextOut> step, Func<TNextOut, bool> fallbackCondition, ISyncPipelineStep<TTail, TNextOut> fallbackStep, PipelineStepOptions options = default)
+    public IDataflowPipelineBuilder<THead, TTail> AddBroadcastStep(IAsyncPipelineStep<TTail> step, Func<TTail, TTail>? cloneFunc = null, PipelineStepOptions options = default)
     {
         _steps.Add(step);
-        _steps.Add(fallbackStep);
+
         ExecutionDataflowBlockOptions dataFlowOptions = options.ToDataflowOptions(pipelineCancellationToken);
 
-        if (_deadLetterQueueEnabled)
-        {
-            TransformBlock<TTail, SafeResult<TTail, TNextOut>> safeBlock = new(
-                TelemetryExtensions.HandleSafeExecution<TTail, TNextOut>(logger, GetTelemetryName(step.Name), GetTelemetryName(fallbackStep.Name), (input, _) => Task.FromResult(step.Execute(input)), safeResult => safeResult.Success && safeResult.Output is not null && fallbackCondition(safeResult.Output), (input, _) => Task.FromResult(fallbackStep.Execute(input)), retryOptions, pipelineCancellationToken),
-                dataFlowOptions);
-            return AddSafeStep(safeBlock, dataFlowOptions);
-        }
+        BroadcastBlock<TTail> broadcastBlock = new(cloneFunc, dataFlowOptions);
+        tailBlock.LinkTo(broadcastBlock);
 
-        TransformBlock<TTail, TNextOut> nextBlock = new(TelemetryExtensions.HandleExecution<TTail, TNextOut>(logger, GetTelemetryName(step.Name), GetTelemetryName(fallbackStep.Name), (input, _) => Task.FromResult(step.Execute(input)), fallbackCondition, (input, _) => Task.FromResult(fallbackStep.Execute(input)), retryOptions, pipelineCancellationToken)!, dataFlowOptions);
-        return LinkAndContinue(nextBlock);
-    }
+        (ITargetBlock<TTail> targetBlock, Task completionTask) = CreateConsumer(step.Name, step.ExecuteAsync, dataFlowOptions);
+        broadcastBlock.LinkTo(targetBlock);
 
-    public IDataflowPipelineBuilder<THead, TTail> AddBroadcastStep<TBranchOut>(IAsyncPipelineStep<TTail, TBranchOut> step, PipelineStepOptions options = default) => AddBroadcastStep(step, null, options);
-    public IDataflowPipelineBuilder<THead, TTail> AddBroadcastStep<TBranchOut>(IAsyncPipelineStep<TTail, TBranchOut> step, Func<TTail, TTail>? cloneFunc, PipelineStepOptions options = default)
-    {
-        _steps.Add(step);
-        ExecutionDataflowBlockOptions dataFlowOptions = options.ToDataflowOptions(pipelineCancellationToken);
-        (ITargetBlock<TTail> target, Task completion) = CreateConsumer(step.Name, async (item, ct) => { await step.ExecuteAsync(item, ct).ConfigureAwait(false); }, dataFlowOptions);
-        return AddBroadcastTarget(target, completion, cloneFunc, dataFlowOptions);
-    }
-
-    public IDataflowPipelineBuilder<THead, TTail> AddBroadcastStep(IAsyncPipelineStep<TTail> step, PipelineStepOptions options = default) => AddBroadcastStep(step, null, options);
-    public IDataflowPipelineBuilder<THead, TTail> AddBroadcastStep(IAsyncPipelineStep<TTail> step, Func<TTail, TTail>? cloneFunc, PipelineStepOptions options = default)
-    {
-        _steps.Add(step);
-        ExecutionDataflowBlockOptions dataFlowOptions = options.ToDataflowOptions(pipelineCancellationToken);
-        (ITargetBlock<TTail> target, Task completion) = CreateConsumer(step.Name, step.ExecuteAsync, dataFlowOptions);
-        return AddBroadcastTarget(target, completion, cloneFunc, dataFlowOptions);
-    }
-
-    public IDataflowPipelineBuilder<THead, TTail> AddBroadcastStep<TBranchOut>(ISyncPipelineStep<TTail, TBranchOut> step, PipelineStepOptions options = default) => AddBroadcastStep(step, null, options);
-    public IDataflowPipelineBuilder<THead, TTail> AddBroadcastStep<TBranchOut>(ISyncPipelineStep<TTail, TBranchOut> step, Func<TTail, TTail>? cloneFunc, PipelineStepOptions options = default)
-    {
-        _steps.Add(step);
-        ExecutionDataflowBlockOptions dataFlowOptions = options.ToDataflowOptions(pipelineCancellationToken);
-        (ITargetBlock<TTail> target, Task completion) = CreateConsumer(step.Name, (item, _) => { step.Execute(item); return Task.CompletedTask; }, dataFlowOptions);
-        return AddBroadcastTarget(target, completion, cloneFunc, dataFlowOptions);
-    }
-
-    public IDataflowPipelineBuilder<THead, TTail> AddBroadcastStep<TBranchOut>(IAsyncEnumerablePipelineStep<TTail, TBranchOut> step, PipelineStepOptions options = default) => AddBroadcastStep(step, null, options);
-    public IDataflowPipelineBuilder<THead, TTail> AddBroadcastStep<TBranchOut>(IAsyncEnumerablePipelineStep<TTail, TBranchOut> step, Func<TTail, TTail>? cloneFunc, PipelineStepOptions options = default)
-    {
-        _steps.Add(step);
-        ExecutionDataflowBlockOptions dataFlowOptions = options.ToDataflowOptions(pipelineCancellationToken);
-        (ITargetBlock<TTail> target, Task completion) = CreateConsumer(step.Name, async (item, ct) =>
-        {
-            await foreach (TBranchOut _ in step.ExecuteAsync(item, ct).ConfigureAwait(false)) { }
-        }, dataFlowOptions);
-        return AddBroadcastTarget(target, completion, cloneFunc, dataFlowOptions);
+        List<Task> updatedTasks = [.. _branchCompletionTasks, completionTask];
+        return new DataflowPipelineBuilder<THead, TTail>(logger, headBlock, broadcastBlock, deadLetterQueueBlock, retryOptions, pipelineCancellationToken, updatedTasks, _steps);
     }
 
     public IDataflowPipeline<THead> BuildTerminal(string stepName, Action<TTail> terminalAction, PipelineStepOptions options = default)
@@ -394,6 +334,48 @@ internal class DataflowPipelineBuilder<THead, TTail>(
     {
         (ITargetBlock<TTail> consumerBlock, Task completionTask) = CreateConsumer(stepName, terminalAction, options.ToDataflowOptions(pipelineCancellationToken));
         return BuildTerminalFromConsumer(consumerBlock, completionTask);
+    }
+
+    private (ITargetBlock<TTail> TargetBlock, Task CompletionTask) CreateConsumer(string stepName, Action<TTail> action, ExecutionDataflowBlockOptions dataFlowOptions)
+    {
+        if (_deadLetterQueueEnabled)
+        {
+            TransformBlock<TTail, SafeResult<TTail>> safeBlock = new(TelemetryExtensions.HandleSafeExecution(logger, GetTelemetryName(stepName), action, pipelineCancellationToken), dataFlowOptions);
+            return LinkDeadLetterQueue(safeBlock, dataFlowOptions);
+        }
+
+        ActionBlock<TTail> terminalBlock = new(TelemetryExtensions.HandleExecution(logger, GetTelemetryName(stepName), action, pipelineCancellationToken), dataFlowOptions);
+        return (terminalBlock, terminalBlock.Completion);
+    }
+
+    private (ITargetBlock<TTail> TargetBlock, Task CompletionTask) CreateConsumer(string stepName, Func<TTail, CancellationToken, Task> action, ExecutionDataflowBlockOptions dataFlowOptions)
+    {
+        if (_deadLetterQueueEnabled)
+        {
+            TransformBlock<TTail, SafeResult<TTail>> safeBlock = new(TelemetryExtensions.HandleSafeExecution(logger, GetTelemetryName(stepName), action, retryOptions, pipelineCancellationToken), dataFlowOptions);
+            return LinkDeadLetterQueue(safeBlock, dataFlowOptions);
+        }
+
+        ActionBlock<TTail> terminalBlock = new(TelemetryExtensions.HandleExecution(logger, GetTelemetryName(stepName), action, retryOptions, pipelineCancellationToken), dataFlowOptions);
+        return (terminalBlock, terminalBlock.Completion);
+    }
+
+    private (ITargetBlock<TTail> TargetBlock, Task CompletionTask) LinkDeadLetterQueue(TransformBlock<TTail, SafeResult<TTail>> safeBlock, ExecutionDataflowBlockOptions dataFlowOptions)
+    {
+        ActionBlock<SafeResult<TTail>> failedBlock = new(async safeResult => await deadLetterQueueBlock!.SendAsync(safeResult.FailedPayload, pipelineCancellationToken).ConfigureAwait(false), dataFlowOptions);
+        safeBlock.LinkTo(failedBlock, safeResult => !safeResult.Success);
+        safeBlock.LinkTo(DataflowBlock.NullTarget<SafeResult<TTail>>());
+
+        return (safeBlock, Task.WhenAll(safeBlock.Completion, failedBlock.Completion));
+    }
+
+    private DataflowPipelineBuilder<THead, TTail> WithDeadLetterQueue(ITargetBlock<FailedPayload> deadLetterQueueSink) => new(logger, headBlock, tailBlock, deadLetterQueueSink, retryOptions, pipelineCancellationToken, _branchCompletionTasks);
+
+    private IDataflowPipeline<THead> BuildTerminalFromConsumer(ITargetBlock<TTail> consumerBlock, Task completionTask)
+    {
+        tailBlock.LinkTo(consumerBlock);
+        Task finalCompletionTask = _branchCompletionTasks.Count > 0 ? Task.WhenAll([completionTask, .. _branchCompletionTasks]) : completionTask;
+        return new DataflowPipeline<THead>(logger, headBlock, finalCompletionTask, _steps);
     }
 
     /// <summary>
@@ -417,97 +399,6 @@ internal class DataflowPipelineBuilder<THead, TTail>(
         return new DataflowPipelineBuilder<THead, TNextOut>(logger, headBlock, successBlock, deadLetterQueueBlock, retryOptions, pipelineCancellationToken, _branchCompletionTasks, _steps);
     }
 
-    private (ITargetBlock<TTail> TargetBlock, Task CompletionTask) CreateConsumer(
-        string stepName,
-        Action<TTail> action,
-        ExecutionDataflowBlockOptions dataFlowOptions)
-    {
-        if (_deadLetterQueueEnabled)
-        {
-            TransformBlock<TTail, SafeResult<TTail>> safeBlock = new(
-                TelemetryExtensions.HandleSafeExecution(logger, GetTelemetryName(stepName), action, pipelineCancellationToken),
-                dataFlowOptions);
-            ActionBlock<SafeResult<TTail>> failedBlock = CreateDeadLetterSink(dataFlowOptions);
-            safeBlock.LinkTo(failedBlock, safeResult => !safeResult.Success);
-            return (safeBlock, Task.WhenAll(safeBlock.Completion, failedBlock.Completion));
-        }
-
-        ActionBlock<TTail> terminalBlock = new(
-            TelemetryExtensions.HandleExecution(logger, GetTelemetryName(stepName), action, pipelineCancellationToken),
-            dataFlowOptions);
-        return (terminalBlock, terminalBlock.Completion);
-    }
-
-    private (ITargetBlock<TTail> TargetBlock, Task CompletionTask) CreateConsumer(
-        string stepName,
-        Func<TTail, CancellationToken, Task> action,
-        ExecutionDataflowBlockOptions dataFlowOptions)
-    {
-        if (_deadLetterQueueEnabled)
-        {
-            TransformBlock<TTail, SafeResult<TTail>> safeBlock = new(
-                TelemetryExtensions.HandleSafeExecution(logger, GetTelemetryName(stepName), action, retryOptions, pipelineCancellationToken),
-                dataFlowOptions);
-            ActionBlock<SafeResult<TTail>> failedBlock = CreateDeadLetterSink(dataFlowOptions);
-            safeBlock.LinkTo(failedBlock, safeResult => !safeResult.Success);
-            return (safeBlock, Task.WhenAll(safeBlock.Completion, failedBlock.Completion));
-        }
-
-        ActionBlock<TTail> terminalBlock = new(
-            TelemetryExtensions.HandleExecution(logger, GetTelemetryName(stepName), action, retryOptions, pipelineCancellationToken)!,
-            dataFlowOptions);
-        return (terminalBlock, terminalBlock.Completion);
-    }
-
-    private ActionBlock<SafeResult<TTail>> CreateDeadLetterSink(ExecutionDataflowBlockOptions dataFlowOptions)
-    {
-        return new(async safeResult => await deadLetterQueueBlock!.SendAsync(safeResult.FailedPayload, pipelineCancellationToken).ConfigureAwait(false), dataFlowOptions);
-    }
-
-    private DataflowPipelineBuilder<THead, TTail> AddBroadcastTarget(
-        ITargetBlock<TTail> branchTarget,
-        Task branchCompletion,
-        Func<TTail, TTail>? cloneFunc,
-        ExecutionDataflowBlockOptions dataFlowOptions)
-    {
-        return AddBroadcastTargets([(branchTarget, branchCompletion)], cloneFunc, dataFlowOptions);
-    }
-
-    private DataflowPipelineBuilder<THead, TTail> AddBroadcastTargets(
-        IEnumerable<(ITargetBlock<TTail> Target, Task Completion)> targets,
-        Func<TTail, TTail>? cloneFunc,
-        ExecutionDataflowBlockOptions dataFlowOptions)
-    {
-        BroadcastBlock<TTail> broadcastBlock = new(cloneFunc, dataFlowOptions);
-        tailBlock.LinkTo(broadcastBlock);
-
-        List<Task> updatedTasks = [.. _branchCompletionTasks];
-        foreach ((ITargetBlock<TTail> target, Task completion) in targets)
-        {
-            broadcastBlock.LinkTo(target);
-            updatedTasks.Add(completion);
-        }
-
-        return new DataflowPipelineBuilder<THead, TTail>(logger, headBlock, broadcastBlock, deadLetterQueueBlock, retryOptions, pipelineCancellationToken, updatedTasks, _steps);
-    }
-
-    /// <inheritdoc/>
-    /// <remarks>
-    /// Technical Decision: Creates a new builder instance holding the DLQ reference, propagating it downstream.
-    /// Limitation: Replaces any previously configured DLQ for subsequent steps in the builder chain.
-    /// </remarks>
-    private IDataflowPipelineBuilder<THead, TTail> WithDeadLetterQueue(ITargetBlock<FailedPayload> deadLetterQueueSink)
-        => new DataflowPipelineBuilder<THead, TTail>(logger, headBlock, tailBlock, deadLetterQueueSink, retryOptions, pipelineCancellationToken, _branchCompletionTasks);
-
-    private IDataflowPipeline<THead> BuildTerminalFromConsumer(ITargetBlock<TTail> consumerBlock, Task completionTask)
-    {
-        tailBlock.LinkTo(consumerBlock);
-        return new DataflowPipeline<THead>(
-            logger,
-            headBlock,
-            _branchCompletionTasks.Count > 0 ? Task.WhenAll([completionTask, .. _branchCompletionTasks]) : completionTask);
-    }
-
     private DataflowPipelineBuilder<THead, TNextOut> LinkAndContinue<TNextOut>(IPropagatorBlock<TTail, TNextOut> nextBlock)
     {
         tailBlock.LinkTo(nextBlock);
@@ -524,7 +415,7 @@ internal class DataflowPipelineBuilder<THead, TTail>(
 /// Technical Decision: Restricted via file-scoped access and sealed to enable runtime devirtualization optimizations. 
 /// Exposes only the absolute minimum required operational surface (Send, Complete, and Await Completion).
 /// </remarks>
-file sealed class DataflowPipeline<TIn>(ILogger logger, ITargetBlock<TIn> headBlock, Task completionTask) : IDataflowPipeline<TIn>
+file sealed class DataflowPipeline<TIn>(ILogger logger, ITargetBlock<TIn> headBlock, Task completionTask, IReadOnlyCollection<IPipelineStep> steps) : IDataflowPipeline<TIn>
 {
     /// <inheritdoc/>
     public Task<bool> SendAsync(TIn item, CancellationToken cancellationToken = default) => headBlock.SendAsync(item, cancellationToken);
@@ -544,5 +435,13 @@ file sealed class DataflowPipeline<TIn>(ILogger logger, ITargetBlock<TIn> headBl
     {
         Complete();
         await Completion.ConfigureAwait(false);
+
+        foreach (IPipelineStep step in steps)
+        {
+            if (step is IAsyncDisposable asyncDisposableStep)
+                await asyncDisposableStep.DisposeAsync().ConfigureAwait(false);
+            else if (step is IDisposable disposableStep)
+                disposableStep.Dispose();
+        }
     }
 }

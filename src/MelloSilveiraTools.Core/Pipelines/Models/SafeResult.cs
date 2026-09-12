@@ -60,10 +60,10 @@ public readonly record struct SafeResult<TIn, TOut>
     /// <summary>
     /// Constructs a failed result containing the original input payload and the caught exception.
     /// </summary>
-    public SafeResult(string callbackName, TIn payload, Exception exception)
+    public SafeResult(string callbackName, TIn payload, Exception exception, TOut? output = default)
     {
         Success = false;
-        Output = default;
+        Output = output;
         FailedPayload = new FailedPayload<TIn>(callbackName, payload, exception);
     }
 
@@ -79,4 +79,6 @@ public readonly record struct SafeResult<TIn, TOut>
     /// from successful function executions, relying on the compiler to automatically box it into this safe envelope without manual instantiation.
     /// </remarks>
     public static implicit operator SafeResult<TIn, TOut>(TOut output) => new(output);
+
+    public static implicit operator SafeResult<TIn, TOut>((string CallbackName, TIn Payload, Exception Exception) tuple) => new(tuple.CallbackName, tuple.Payload, tuple.Exception);
 }

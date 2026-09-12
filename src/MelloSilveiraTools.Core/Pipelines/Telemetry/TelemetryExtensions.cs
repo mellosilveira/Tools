@@ -149,22 +149,8 @@ public static class TelemetryExtensions
     /// </remarks>
     public static Func<TIn, TOut> HandleExecution<TIn, TOut>(ILogger logger, string callbackName, Func<TIn, TOut> callback, CancellationToken cancellationToken = default) => (input) =>
     {
-        cancellationToken.ThrowIfCancellationRequested();
-
         using Activity? activity = TelemetryConstants.DefaultInstance.StartActivity(callbackName, ActivityKind.Internal);
-        DateTimeOffset startTime = StartTelemetry(logger, activity, callbackName);
-
-        try
-        {
-            TOut output = callback(input);
-            LogAndTrackStepCompletion(logger, activity, startTime, callbackName);
-            return output;
-        }
-        catch (Exception ex) when (ex is not OperationCanceledException)
-        {
-            LogAndTrackStepFailure(logger, activity, startTime, callbackName, ex);
-            throw;
-        }
+        return Execute(logger, activity, input, callbackName, callback, cancellationToken);
     };
 
     /// <summary>
@@ -172,22 +158,8 @@ public static class TelemetryExtensions
     /// </summary>
     public static Func<TIn, SafeResult<TIn, TOut>> HandleSafeExecution<TIn, TOut>(ILogger logger, string callbackName, Func<TIn, TOut> callback, CancellationToken cancellationToken = default) => (input) =>
     {
-        cancellationToken.ThrowIfCancellationRequested();
-
         using Activity? activity = TelemetryConstants.DefaultInstance.StartActivity(callbackName, ActivityKind.Internal);
-        DateTimeOffset startTime = StartTelemetry(logger, activity, callbackName);
-
-        try
-        {
-            TOut output = callback(input);
-            LogAndTrackStepCompletion(logger, activity, startTime, callbackName);
-            return output;
-        }
-        catch (Exception ex) when (ex is not OperationCanceledException)
-        {
-            LogAndTrackStepFailure(logger, activity, startTime, callbackName, ex);
-            return new(callbackName, input, ex);
-        }
+        return SafeExecute(logger, activity, input, callbackName, callback, cancellationToken);
     };
 
     /// <summary>
@@ -218,73 +190,6 @@ public static class TelemetryExtensions
             using Activity? activity = TelemetryConstants.DefaultInstance.StartActivity(callbackName, ActivityKind.Internal);
             return await SafeExecuteAsync(logger, activity, input, callbackName, callback, retryOptions, cancellationToken).ConfigureAwait(false);
         };
-
-    /// <summary>
-    /// Wraps a streaming function returning an <see cref="IAsyncEnumerable{TOut}"/> with OpenTelemetry tracing and structured logging.
-    /// </summary>
-    public static Func<TIn, IAsyncEnumerable<TOut>> HandleExecution<TIn, TOut>(
-        ILogger logger,
-        string callbackName,
-        Func<TIn, CancellationToken, IAsyncEnumerable<TOut>> callback,
-        CancellationToken cancellationToken = default)
-        => (input) => ExecuteStreamingAsync(logger, input, callbackName, callback, cancellationToken);
-
-    private static async IAsyncEnumerable<TOut> ExecuteStreamingAsync<TIn, TOut>(
-        ILogger logger,
-        TIn input,
-        string callbackName,
-        Func<TIn, CancellationToken, IAsyncEnumerable<TOut>> callback,
-        [EnumeratorCancellation] CancellationToken cancellationToken = default)
-    {
-        cancellationToken.ThrowIfCancellationRequested();
-        using Activity? activity = TelemetryConstants.DefaultInstance.StartActivity(callbackName, ActivityKind.Internal);
-        DateTimeOffset startTime = StartTelemetry(logger, activity, callbackName);
-
-        IAsyncEnumerator<TOut>? enumerator = null;
-        try
-        {
-            IAsyncEnumerable<TOut> enumerable = callback(input, cancellationToken);
-            enumerator = enumerable.GetAsyncEnumerator(cancellationToken);
-        }
-        catch (Exception ex) when (ex is not OperationCanceledException)
-        {
-            LogAndTrackStepFailure(logger, activity, startTime, callbackName, ex);
-            throw;
-        }
-
-        try
-        {
-            while (true)
-            {
-                bool hasNext;
-                try
-                {
-                    hasNext = await enumerator.MoveNextAsync().ConfigureAwait(false);
-                }
-                catch (Exception ex) when (ex is not OperationCanceledException)
-                {
-                    LogAndTrackStepFailure(logger, activity, startTime, callbackName, ex);
-                    throw;
-                }
-
-                if (!hasNext)
-                {
-                    break;
-                }
-
-                yield return enumerator.Current;
-            }
-
-            LogAndTrackStepCompletion(logger, activity, startTime, callbackName);
-        }
-        finally
-        {
-            if (enumerator is not null)
-            {
-                await enumerator.DisposeAsync().ConfigureAwait(false);
-            }
-        }
-    }
 
     /// <summary>
     /// Wraps a conditional forking operation evaluating the input payload prior to execution.
@@ -372,6 +277,54 @@ public static class TelemetryExtensions
     /// <remarks>
     /// Technical Decision: Passing the entire <c>SafeResult</c> to the <paramref name="fallbackCondition"/> allows the condition to evaluate both successfully mapped outputs and handled faults to determine routing logic.
     /// </remarks>
+    public static Func<TIn, SafeResult<TIn, TOut>> HandleSafeExecution<TIn, TOut>(ILogger logger,
+        string callbackName,
+        string fallbackName,
+        Func<TIn, TOut> callback,
+        Func<SafeResult<TIn, TOut>, bool> fallbackCondition,
+        Func<TIn, TOut> fallback,
+        CancellationToken cancellationToken = default)
+        => (input) =>
+        {
+            using Activity? activity = TelemetryConstants.DefaultInstance.StartActivity(callbackName, ActivityKind.Internal);
+
+            SafeResult<TIn, TOut> safeResult = SafeExecute(logger, activity, input, fallbackName, fallback, cancellationToken);
+            if (fallbackCondition(safeResult))
+            {
+                LogFallbackConditionMet(logger, callbackName, fallbackName);
+                return SafeExecute(logger, activity, input, callbackName, callback, cancellationToken);
+            }
+
+            return safeResult;
+        };
+
+    public static Func<TIn, TOut> HandleExecution<TIn, TOut>(ILogger logger,
+        string callbackName,
+        string fallbackName,
+        Func<TIn, TOut> callback,
+        Func<TOut, bool> fallbackCondition,
+        Func<TIn, TOut> fallback,
+        CancellationToken cancellationToken = default)
+        => (input) =>
+        {
+            using Activity? activity = TelemetryConstants.DefaultInstance.StartActivity(callbackName, ActivityKind.Internal);
+
+            TOut output = Execute(logger, activity, input, fallbackName, fallback, cancellationToken);
+            if (fallbackCondition(output))
+            {
+                LogFallbackConditionMet(logger, callbackName, fallbackName);
+                return Execute(logger, activity, input, callbackName, callback, cancellationToken);
+            }
+
+            return output;
+        };
+
+    /// <summary>
+    /// Wraps a post-execution conditional forking operation, evaluating against the <see cref="SafeResult{TIn, TOut}"/> state.
+    /// </summary>
+    /// <remarks>
+    /// Technical Decision: Passing the entire <c>SafeResult</c> to the <paramref name="fallbackCondition"/> allows the condition to evaluate both successfully mapped outputs and handled faults to determine routing logic.
+    /// </remarks>
     public static Func<TIn, Task<SafeResult<TIn, TOut>>> HandleSafeExecution<TIn, TOut>(ILogger logger,
         string callbackName,
         string fallbackName,
@@ -393,6 +346,84 @@ public static class TelemetryExtensions
 
             return safeResult;
         };
+
+    /// <summary>
+    /// Wraps a streaming function returning an <see cref="IAsyncEnumerable{TOut}"/> with OpenTelemetry tracing and structured logging.
+    /// </summary>
+    public static Func<TIn, IAsyncEnumerable<TOut>> HandleExecution<TIn, TOut>(
+        ILogger logger,
+        string callbackName,
+        Func<TIn, CancellationToken, IAsyncEnumerable<TOut>> callback,
+        CancellationToken cancellationToken = default)
+        => (input) =>
+        {
+            using Activity? activity = TelemetryConstants.DefaultInstance.StartActivity(callbackName, ActivityKind.Internal);
+            return ExecuteStreamingAsync(logger, activity, input, callbackName, callback, cancellationToken);
+        };
+
+    /// <summary>
+    /// Wraps a streaming function returning an <see cref="IAsyncEnumerable{TOut}"/> with OpenTelemetry tracing and structured logging.
+    /// </summary>
+    public static Func<TIn, IAsyncEnumerable<SafeResult<TIn, TOut>>> HandleSafeExecution<TIn, TOut>(
+        ILogger logger,
+        string callbackName,
+        Func<TIn, CancellationToken, IAsyncEnumerable<TOut>> callback,
+        CancellationToken cancellationToken = default)
+        => (input) =>
+        {
+            using Activity? activity = TelemetryConstants.DefaultInstance.StartActivity(callbackName, ActivityKind.Internal);
+            return ExecuteSafeStreamingAsync(logger, activity, input, callbackName, callback, cancellationToken);
+        };
+
+    private static SafeResult<TIn, TOut> SafeExecute<TIn, TOut>(
+        ILogger logger,
+        Activity? activity,
+        TIn input,
+        string callbackName,
+        Func<TIn, TOut> callback,
+        CancellationToken cancellationToken = default)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+
+        DateTimeOffset startTime = StartTelemetry(logger, activity, callbackName);
+
+        try
+        {
+            TOut output = callback(input);
+            LogAndTrackStepCompletion(logger, activity, startTime, callbackName);
+            return output;
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            LogAndTrackStepFailure(logger, activity, startTime, callbackName, ex);
+            return new(callbackName, input, ex);
+        }
+    }
+
+    private static TOut Execute<TIn, TOut>(
+        ILogger logger,
+        Activity? activity,
+        TIn input,
+        string callbackName,
+        Func<TIn, TOut> callback,
+        CancellationToken cancellationToken = default)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+        
+        DateTimeOffset startTime = StartTelemetry(logger, activity, callbackName);
+
+        try
+        {
+            TOut output = callback(input);
+            LogAndTrackStepCompletion(logger, activity, startTime, callbackName);
+            return output;
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            LogAndTrackStepFailure(logger, activity, startTime, callbackName, ex);
+            throw;
+        }
+    }
 
     /// <summary>
     /// Encapsulates the core asynchronous execution loop with exponential backoff logic.
@@ -463,10 +494,91 @@ public static class TelemetryExtensions
                 }
 
                 logger.LogWarning(ex, "Attempt {Attempt} failed for '{Name}'. Retrying in {Delay}ms...", attempt, callbackName, delayMs);
-                await Task.Delay(delayMs, cancellationToken);
+                await Task.Delay(delayMs, cancellationToken).ConfigureAwait(false);
                 delayMs = (int)(delayMs * retryOptions.Value.BackoffFactor);
             }
         }
+    }
+
+    private static async IAsyncEnumerable<TOut> ExecuteStreamingAsync<TIn, TOut>(
+        ILogger logger,
+        Activity? activity,
+        TIn input,
+        string callbackName,
+        Func<TIn, CancellationToken, IAsyncEnumerable<TOut>> callback,
+        [EnumeratorCancellation] CancellationToken cancellationToken = default)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+
+        DateTimeOffset startTime = StartTelemetry(logger, activity, callbackName);
+
+        IAsyncEnumerator<TOut> enumerator = callback(input, cancellationToken).GetAsyncEnumerator(cancellationToken);
+        await using (enumerator.ConfigureAwait(false))
+        {
+            while (true)
+            {
+                bool hasNext;
+                try
+                {
+                    hasNext = await enumerator.MoveNextAsync().ConfigureAwait(false);
+                }
+                catch (Exception ex) when (ex is not OperationCanceledException)
+                {
+                    LogAndTrackStepFailure(logger, activity, startTime, callbackName, ex);
+                    throw;
+                }
+
+                if (!hasNext)
+                {
+                    break;
+                }
+
+                yield return enumerator.Current;
+            }
+        }
+
+        LogAndTrackStepCompletion(logger, activity, startTime, callbackName);
+    }
+
+    private static async IAsyncEnumerable<SafeResult<TIn, TOut>> ExecuteSafeStreamingAsync<TIn, TOut>(
+        ILogger logger,
+        Activity? activity,
+        TIn input,
+        string callbackName,
+        Func<TIn, CancellationToken, IAsyncEnumerable<TOut>> callback,
+        [EnumeratorCancellation] CancellationToken cancellationToken = default)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+
+        DateTimeOffset startTime = StartTelemetry(logger, activity, callbackName);
+
+        IAsyncEnumerator<TOut> enumerator = callback(input, cancellationToken).GetAsyncEnumerator(cancellationToken);
+        await using (enumerator.ConfigureAwait(false))
+        {
+            while (true)
+            {
+                bool hasNext = false;
+                Exception? exception = null;
+                try
+                {
+                    hasNext = await enumerator.MoveNextAsync().ConfigureAwait(false);
+                }
+                catch (Exception ex) when (ex is not OperationCanceledException)
+                {
+                    LogAndTrackStepFailure(logger, activity, startTime, callbackName, ex);
+                    exception = ex;
+                }
+
+                if (!hasNext)
+                {
+                    break;
+                }
+
+                yield return exception is null ? enumerator.Current : (callbackName, input, exception);
+            }
+        }
+
+        LogAndTrackStepCompletion(logger, activity, startTime, callbackName);
     }
 
     /// <summary>
@@ -540,7 +652,7 @@ public static class TelemetryExtensions
         }
 
         logger.LogWarning(exception, "Attempt {Attempt} failed for '{Name}'. Retrying in {Delay}ms...", currentAttempt, callbackName, delayMs);
-        await Task.Delay(delayMs, cancellationToken);
+        await Task.Delay(delayMs, cancellationToken).ConfigureAwait(false);
 
         int currentDelayMs = (int)(delayMs * retryOptions.Value.BackoffFactor);
         return (true, currentAttempt, currentDelayMs);

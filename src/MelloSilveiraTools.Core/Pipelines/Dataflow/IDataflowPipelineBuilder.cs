@@ -63,19 +63,7 @@ public interface IDataflowPipelineBuilder<THead, TTail>
     /// Technical Decision: Separated from <see cref="AddStep{TNextOut}"/> purely for semantic clarity in fluent chains, indicating that the core purpose of the delegate is payload transformation via I/O (e.g., enriching data via an external API).
     /// Limitation: Incurs standard Task allocation and async state machine overhead. Do not use for pure in-memory object mapping where the synchronous overload would suffice.
     /// </remarks>
-    IDataflowPipelineBuilder<THead, TNextOut> AddDataMapping<TNextOut>(Func<TTail, CancellationToken, Task<TNextOut>> mapFunc, PipelineStepOptions options = default);    IDataflowPipelineBuilder<THead, TNextOut> AddStep<TNextOut>(IAsyncPipelineStep<TTail, TNextOut> step, PipelineStepOptions options = default);
-    IDataflowPipelineBuilder<THead, TNextOut> AddStep<TNextOut>(ISyncPipelineStep<TTail, TNextOut> step, PipelineStepOptions options = default);
-    IDataflowPipelineBuilder<THead, TNextOut> AddStep<TNextOut>(IAsyncEnumerablePipelineStep<TTail, TNextOut> step, PipelineStepOptions options = default);    IDataflowPipelineBuilder<THead, TNextOut> AddForkingStep<TNextOut>(IAsyncPipelineStep<TTail, TNextOut> step, Func<TNextOut, bool> fallbackCondition, IAsyncPipelineStep<TTail, TNextOut> fallbackStep, PipelineStepOptions options = default);
-    IDataflowPipelineBuilder<THead, TNextOut> AddForkingStep<TNextOut>(ISyncPipelineStep<TTail, TNextOut> step, Func<TNextOut, bool> fallbackCondition, ISyncPipelineStep<TTail, TNextOut> fallbackStep, PipelineStepOptions options = default);
-
-    /// <summary>
-    /// Appends a BatchBlock to aggregate messages into arrays based on a specified batch size.
-    /// </summary>
-    /// <remarks>
-    /// Technical Decision: Leverages the native TPL <see cref="BatchBlock{T}"/> to optimize downstream I/O-bound operations, such as bulk SQL inserts or batched HTTP requests, reducing network round-trips.
-    /// Limitation: Messages are held in memory until the exact <paramref name="batchSize"/> is reached. If the upstream stops emitting messages (a "trickle" scenario), the partial batch remains stuck in limbo indefinitely unless the pipeline is explicitly signaled via <see cref="IDataflowPipeline{TIn}.Complete"/> to force-flush.
-    /// </remarks>
-    IDataflowPipelineBuilder<THead, TTail[]> AddBatchStep(int batchSize, PipelineStepOptions options = default);
+    IDataflowPipelineBuilder<THead, TNextOut> AddDataMapping<TNextOut>(Func<TTail, CancellationToken, Task<TNextOut>> mapFunc, PipelineStepOptions options = default);    
 
     /// <summary>
     /// Appends a step that evaluates a predicate against each payload. Payloads that evaluate to false are safely dropped from the pipeline.
@@ -83,51 +71,34 @@ public interface IDataflowPipelineBuilder<THead, TTail>
     /// <param name="predicate">The condition a message must meet to proceed.</param>
     /// <param name="options"></param>
     /// <remarks>
-    /// Technical Decision: Bypasses the buffer exhaustion and deadlock risks associated with predicate-based <see cref="DataflowLinkOptions"/>[cite: 4]. By yielding an empty array internally via a TransformManyBlock, the message is gracefully consumed and discarded without violating the strict 1:1 input-to-output pipeline ratio[cite: 3].
+    /// Technical Decision: Bypasses the buffer exhaustion and deadlock risks associated with predicate-based <see cref="DataflowLinkOptions"/>. By yielding an empty array internally via a TransformManyBlock, the message is gracefully consumed and discarded without violating the strict 1:1 input-to-output pipeline ratio.
     /// </remarks>
     IDataflowPipelineBuilder<THead, TTail> AddFilterStep(Predicate<TTail> predicate, PipelineStepOptions options = default);
-
+    
     /// <summary>
     /// Appends a stateful grouping block that accumulates messages into an array until the provided condition evaluates to false.
     /// </summary>
     /// <param name="condition">A function comparing the previously buffered item to the current item. Returns true if they belong in the same group.</param>
     /// <param name="options"></param>
     /// <remarks>
-    /// Technical Decision: Overcomes the limitation of the native TPL BatchBlock which strictly holds messages until a numeric count is met[cite: 3]. This utilizes an encapsulated state machine.
+    /// Technical Decision: Overcomes the limitation of the native TPL BatchBlock which strictly holds messages until a numeric count is met. This utilizes an encapsulated state machine.
     /// Limitation: Forces <c>MaxDegreeOfParallelism = 1</c> to guarantee deterministic sequential state accumulation. 
     /// </remarks>
     IDataflowPipelineBuilder<THead, TTail[]> AddGroupWhileStep(Func<TTail, TTail, bool> condition, PipelineStepOptions options = default);
+
     IDataflowPipelineBuilder<THead, TTail[]> AddCollectAllStep(PipelineStepOptions options = default);
 
-    /// <summary>
-    /// Appends a BroadcastBlock to the execution topology, duplicating emitted payloads across a side-branch target block
-    /// while propagating the primary data stream downstream for continued pipeline orchestration.
-    /// </summary>
-    /// <param name="branchTarget">The independent consumer or branch target block receiving broadcasted messages.</param>
-    /// <param name="cloneFunc">An optional function used to clone each payload before broadcasting. If null, the payload instance reference is shared.</param>
-    /// <param name="options">Options configuring buffer sizes and cancellation tokens for the broadcast block.</param>
-    /// <remarks>
-    /// Technical Decision: In TPL Dataflow, a BroadcastBlock broadcasts each incoming message to all linked targets.
-    /// Linking a side target and returning the broadcast block as the tail block allows both the side branch and downstream 
-    /// pipeline stages to concurrently ingest every message without diverting or dropping items.
-    /// </remarks>
-    IDataflowPipelineBuilder<THead, TTail> AddBroadcastBlock(ITargetBlock<TTail> branchTarget, Func<TTail, TTail>? cloneFunc = null, PipelineStepOptions options = default);
+    IDataflowPipelineBuilder<THead, TNextOut> AddStep<TNextOut>(ISyncPipelineStep<TTail, TNextOut> step, PipelineStepOptions options = default);
 
-    /// <summary>
-    /// Appends a BroadcastBlock to the execution topology, duplicating emitted payloads across multiple side-branch target blocks
-    /// while propagating the primary data stream downstream for continued pipeline orchestration.
-    /// </summary>
-    /// <param name="branchTargets">The independent consumers or branch target blocks receiving broadcasted messages.</param>
-    /// <param name="cloneFunc">An optional function used to clone each payload before broadcasting. If null, the payload instance reference is shared.</param>
-    /// <param name="options">Options configuring buffer sizes and cancellation tokens for the broadcast block.</param>
-    IDataflowPipelineBuilder<THead, TTail> AddBroadcastBlock(IEnumerable<ITargetBlock<TTail>> branchTargets, Func<TTail, TTail>? cloneFunc = null, PipelineStepOptions options = default);    IDataflowPipelineBuilder<THead, TTail> AddBroadcastStep<TBranchOut>(IAsyncPipelineStep<TTail, TBranchOut> step, PipelineStepOptions options = default);
-    IDataflowPipelineBuilder<THead, TTail> AddBroadcastStep<TBranchOut>(IAsyncPipelineStep<TTail, TBranchOut> step, Func<TTail, TTail>? cloneFunc, PipelineStepOptions options = default);
-    IDataflowPipelineBuilder<THead, TTail> AddBroadcastStep(IAsyncPipelineStep<TTail> step, PipelineStepOptions options = default);
-    IDataflowPipelineBuilder<THead, TTail> AddBroadcastStep(IAsyncPipelineStep<TTail> step, Func<TTail, TTail>? cloneFunc, PipelineStepOptions options = default);
-    IDataflowPipelineBuilder<THead, TTail> AddBroadcastStep<TBranchOut>(ISyncPipelineStep<TTail, TBranchOut> step, PipelineStepOptions options = default);
-    IDataflowPipelineBuilder<THead, TTail> AddBroadcastStep<TBranchOut>(ISyncPipelineStep<TTail, TBranchOut> step, Func<TTail, TTail>? cloneFunc, PipelineStepOptions options = default);
-    IDataflowPipelineBuilder<THead, TTail> AddBroadcastStep<TBranchOut>(IAsyncEnumerablePipelineStep<TTail, TBranchOut> step, PipelineStepOptions options = default);
-    IDataflowPipelineBuilder<THead, TTail> AddBroadcastStep<TBranchOut>(IAsyncEnumerablePipelineStep<TTail, TBranchOut> step, Func<TTail, TTail>? cloneFunc, PipelineStepOptions options = default);
+    IDataflowPipelineBuilder<THead, TNextOut> AddStep<TNextOut>(IAsyncPipelineStep<TTail, TNextOut> step, PipelineStepOptions options = default);
+
+    IDataflowPipelineBuilder<THead, TNextOut> AddStep<TNextOut>(IAsyncEnumerablePipelineStep<TTail, TNextOut> step, PipelineStepOptions options = default);    
+    
+    IDataflowPipelineBuilder<THead, TNextOut> AddForkingStep<TNextOut>(IAsyncPipelineStep<TTail, TNextOut> step, Func<TNextOut, bool> fallbackCondition, IAsyncPipelineStep<TTail, TNextOut> fallbackStep, PipelineStepOptions options = default);
+    
+    IDataflowPipelineBuilder<THead, TNextOut> AddForkingStep<TNextOut>(ISyncPipelineStep<TTail, TNextOut> step, Func<TNextOut, bool> fallbackCondition, ISyncPipelineStep<TTail, TNextOut> fallbackStep, PipelineStepOptions options = default);
+
+    IDataflowPipelineBuilder<THead, TTail> AddBroadcastStep(IAsyncPipelineStep<TTail> step, Func<TTail, TTail>? cloneFunc = null, PipelineStepOptions options = default);
 
     /// <summary>
     /// Appends a synchronous ActionBlock to consume the final pipeline output.
