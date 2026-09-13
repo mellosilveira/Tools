@@ -37,9 +37,9 @@ public class ExperimentalDataService(
 
         ConcurrentBag<ConstitutiveParameters[]> parameterBatches = [];
 
+        ExperimentalDataSegmenterStep segmenterStep = new(logger, differentiation, options);
         ExperimentalDataFileWriterStep fileWriterStep = new(fileManager, outputFileUri, identifier);
         CurveSegmentBuilderStep segmentBuilderStep = new(options.SkipTimeStep);
-        ExperimentalDataSegmenterStep segmenterStep = new(logger, differentiation, options);
         IMechanicalModelCurveFitterStep curveFitterStep = stepFactory.Create(mechanicalModelName);
 
         IDataflowPipeline<(Stream StrainStream, Stream StressStream)> pipeline = PipelineFactory

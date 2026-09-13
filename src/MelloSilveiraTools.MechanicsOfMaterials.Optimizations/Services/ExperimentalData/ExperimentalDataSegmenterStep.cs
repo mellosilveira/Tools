@@ -11,28 +11,32 @@ using System.Runtime.CompilerServices;
 
 namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Services.ExperimentalData;
 
+public record ExperimentalDataSegmenterInput
+{
+    public Stream StrainStream { get; init; }
+    public Stream StressStream { get; init; }
+    public ExperimentalDataProcessingOptions Options { get; init; }
+}
+
 /// <summary>
 /// Pipeline step responsible for parsing and streaming raw experimental strain and stress data,
 /// segmenting points into physical deformation phases (Ramp, Relaxation, Descent, Recovery) using numerical differentiation.
 /// </summary>
 /// <param name="logger">Logger for telemetry, warnings, and diagnostic information.</param>
 /// <param name="differentiation">The differentiation calculator used to compute strain and stress rates and accelerations.</param>
-/// <param name="options">Options controlling tolerances, start time thresholds, and buffer sizing.</param>
-public sealed class ExperimentalDataSegmenterStep(
-    ILogger logger,
-    IDifferentiation differentiation,
-    ExperimentalDataProcessingOptions options)
-    : IAsyncEnumerablePipelineStep<(Stream StrainStream, Stream StressStream), SegmentedDataPoint>
+public sealed class ExperimentalDataSegmenterStep(ILogger logger, IDifferentiation differentiation)
+    : IAsyncEnumerablePipelineStep<ExperimentalDataSegmenterInput, SegmentedDataPoint>
 {
     /// <inheritdoc/>
     public string Name => "ExperimentalDataSegmenter";
 
     /// <inheritdoc/>
-    public async IAsyncEnumerable<SegmentedDataPoint> ExecuteAsync((Stream StrainStream, Stream StressStream) input, [EnumeratorCancellation] CancellationToken cancellationToken = default)
+    public async IAsyncEnumerable<SegmentedDataPoint> ExecuteAsync(ExperimentalDataSegmenterInput input, [EnumeratorCancellation] CancellationToken cancellationToken = default)
     {
-        (Stream strainStream, Stream stressStream) = input;
-        await using CsvStreamReader strainReader = new(strainStream, leaveOpen: true);
-        await using CsvStreamReader stressReader = new(stressStream, leaveOpen: true);
+        ExperimentalDataProcessingOptions options = input.Options;
+
+        await using CsvStreamReader strainReader = new(input.StrainStream, leaveOpen: true);
+        await using CsvStreamReader stressReader = new(input.StressStream, leaveOpen: true);
 
         double? firstValidTime = null;
         ProcessedDataPoint previousPoint = new();
