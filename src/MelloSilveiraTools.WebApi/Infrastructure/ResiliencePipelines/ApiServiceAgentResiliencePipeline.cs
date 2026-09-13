@@ -1,6 +1,5 @@
 using MelloSilveiraTools.Core.Models;
 using MelloSilveiraTools.Core.ResiliencePipelines;
-using MelloSilveiraTools.Database.ResiliencePipelines;
 using Microsoft.Extensions.Logging;
 using Polly;
 using Polly.Retry;

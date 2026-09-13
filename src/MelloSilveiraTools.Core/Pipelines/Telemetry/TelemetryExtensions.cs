@@ -409,7 +409,7 @@ public static class TelemetryExtensions
         CancellationToken cancellationToken = default)
     {
         cancellationToken.ThrowIfCancellationRequested();
-        
+
         DateTimeOffset startTime = StartTelemetry(logger, activity, callbackName);
 
         try

@@ -1,5 +1,4 @@
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Factories;
-using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Models.ExperimentalData;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Services.ExperimentalData;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Steps;
 using Microsoft.Extensions.DependencyInjection;

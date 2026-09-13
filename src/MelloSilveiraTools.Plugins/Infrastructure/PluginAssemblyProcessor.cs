@@ -36,7 +36,7 @@ public class PluginAssemblyProcessor(
                 !t.IsAbstract &&
                 Array.Exists(_typeProcessors, tp => tp.ProcessableType.IsAssignableFrom(t)))];
 
-             return new LoadedPlugin(discovered, processableTypes, pluginContext);
+            return new LoadedPlugin(discovered, processableTypes, pluginContext);
         });
 
     /// <summary>

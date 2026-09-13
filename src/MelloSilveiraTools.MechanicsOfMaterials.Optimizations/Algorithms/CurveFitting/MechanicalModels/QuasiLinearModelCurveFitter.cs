@@ -14,7 +14,7 @@ public abstract class QuasiLinearModelRampCurveFitter(
     public CurveFitResult Fit(CurveFitInput input)
     {
 
-        
+
         return null;
     }
 
@@ -70,7 +70,7 @@ public abstract class QuasiLinearModelCurveFitter(
 
 public class FungModelCurveFitter(
     ICurveFitter mathematicalEngine,
-    IOptimizationMapper optimizationMapper) 
+    IOptimizationMapper optimizationMapper)
     : QuasiLinearModelCurveFitter(mathematicalEngine, optimizationMapper)
 {
     protected override CurveFitResult FitRelaxationPhase(CurveFitInput relaxationInput)
@@ -89,7 +89,7 @@ public class FungModelCurveFitter(
 
 public class SimplifiedFungCurveFitter(
     ICurveFitter mathematicalEngine,
-    IOptimizationMapper optimizationMapper) 
+    IOptimizationMapper optimizationMapper)
     : QuasiLinearModelCurveFitter(mathematicalEngine, optimizationMapper)
 {
     protected override CurveFitResult FitRelaxationPhase(CurveFitInput relaxationInput)

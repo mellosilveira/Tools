@@ -1,5 +1,3 @@
-using System.Text;
-
 namespace MelloSilveiraTools.Core.Managers.File;
 
 /// <summary>

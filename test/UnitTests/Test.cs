@@ -1,10 +1,8 @@
-using MelloSilveiraTools.Core.ExtensionMethods;
 using MelloSilveiraTools.Core.Managers.File;
 using MelloSilveiraTools.Core.Pipelines;
 using MelloSilveiraTools.Core.Pipelines.Dataflow;
 using MelloSilveiraTools.Mathematics.NumericalMethods.Differentiations;
 using MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels;
-using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Abstractions;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Factories;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Models.CurveFitting;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Models.ExperimentalData;
@@ -169,7 +167,7 @@ public class Test
 
             List<SegmentedDataPoint> collectedPoints = [];
 
-            await using IDataflowPipeline<(Stream StrainStream, Stream StressStream)> pipeline = 
+            await using IDataflowPipeline<(Stream StrainStream, Stream StressStream)> pipeline =
                 PipelineFactory.StartDataflow<(Stream StrainStream, Stream StressStream)>(Mock.Of<ILogger>())
                     .AddStep(segmenterStep)
                     .BuildTerminal("CollectPoints", collectedPoints.Add);
