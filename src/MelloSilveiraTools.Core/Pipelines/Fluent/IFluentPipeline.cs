@@ -18,7 +18,7 @@ public interface IFluentPipeline<in TIn, TOut> : IAsyncDisposable
     /// <param name="input">The initial immutable payload ingested at the pipeline root.</param>
     /// <param name="cancellationToken">The token to cooperatively observe cancellation requests across all pipeline steps.</param>
     /// <returns>A task representing the asynchronous operation, encapsulating the strongly-typed terminal state.</returns>
-    /// <exception cref="System.ArgumentNullException">Thrown when the initial input payload is null.</exception>
+    /// <exception cref="ArgumentNullException">Thrown when the initial input payload is null.</exception>
     /// <exception cref="PipelineExecutionException">Thrown when an internal step delegate faults, encapsulating the inner exception and execution context.</exception>
     Task<TOut> ExecuteAsync(TIn input, CancellationToken cancellationToken = default);
 }

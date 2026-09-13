@@ -8,12 +8,8 @@ namespace MelloSilveiraTools.Core.Pipelines.Fluent;
 /// Utilizes delegate wrapping (Type Erasure) to strip compile-time generic constraints, allowing 
 /// heterogeneous return types to be stored in a unified internal execution collection.
 /// </summary>
-using MelloSilveiraTools.Core.Pipelines.Steps;
-
-internal class FluentPipelineBuilder<TInitialIn, TCurrentOut>(List<(string Name, Func<object, CancellationToken, Task<object>> Func)> steps, List<IPipelineStep>? pipelineSteps = null) : IFluentPipelineBuilder<TInitialIn, TCurrentOut>
+internal class FluentPipelineBuilder<TInitialIn, TCurrentOut>(List<(string Name, Func<object, CancellationToken, Task<object>> Func)> steps) : IFluentPipelineBuilder<TInitialIn, TCurrentOut>
 {
-    private readonly List<IPipelineStep> _steps = pipelineSteps ?? [];
-
     /// <summary>
     /// Initializes the root builder with an empty execution sequence.
     /// </summary>
@@ -35,7 +31,7 @@ internal class FluentPipelineBuilder<TInitialIn, TCurrentOut>(List<(string Name,
     }
 
     /// <inheritdoc/>
-    public IFluentPipeline<TInitialIn, TCurrentOut> Build(ILogger? logger = null) => new PipelineEngine<TInitialIn, TCurrentOut>(logger, steps, _steps);
+    public IFluentPipeline<TInitialIn, TCurrentOut> Build(ILogger logger) => new PipelineEngine<TInitialIn, TCurrentOut>(logger, steps);
 }
 
 /// <summary>
@@ -44,12 +40,11 @@ internal class FluentPipelineBuilder<TInitialIn, TCurrentOut>(List<(string Name,
 /// </summary>
 /// <typeparam name="TInitialIn">The immutable starting input type validated at compile time.</typeparam>
 /// <typeparam name="TFinalOut">The guaranteed final output type returned to the caller upon successful execution.</typeparam>
-/// <param name="logger">Optional structured logger for capturing state mutations and fault payloads.</param>
+/// <param name="logger">Structured logger for capturing state mutations and fault payloads.</param>
 /// <param name="steps">The chronologically ordered list of type-erased asynchronous delegates.</param>
 file class PipelineEngine<TInitialIn, TFinalOut>(
-    ILogger? logger,
-    IReadOnlyList<(string Name, Func<object, CancellationToken, Task<object>> Func)> steps,
-    IReadOnlyList<IPipelineStep> pipelineSteps)
+    ILogger logger,
+    IReadOnlyList<(string Name, Func<object, CancellationToken, Task<object>> Func)> steps)
     : IFluentPipeline<TInitialIn, TFinalOut>
 {
     /// <inheritdoc/>
@@ -57,7 +52,7 @@ file class PipelineEngine<TInitialIn, TFinalOut>(
     {
         ArgumentNullException.ThrowIfNull(input);
 
-        logger?.LogInformation("Starting pipeline execution. Total steps: {StepCount}. Initial input type: {InputType}. Initial Data: {@InitialInput}", steps.Count, typeof(TInitialIn).Name, input);
+        logger.LogInformation("Starting pipeline execution. Total steps: {StepCount}. Initial input type: {InputType}. Initial Data: {@InitialInput}", steps.Count, typeof(TInitialIn).Name, input);
 
         object currentData = input;
 
@@ -65,32 +60,28 @@ file class PipelineEngine<TInitialIn, TFinalOut>(
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            logger?.LogInformation("Executing step: '{StepName}'. Input type: {CurrentDataType}. Input Data: {@StepInput}", stepName, currentData.GetType().Name, currentData);
+            logger.LogInformation("Executing step: '{StepName}'. Input type: {CurrentDataType}. Input Data: {@StepInput}", stepName, currentData.GetType().Name, currentData);
 
             try
             {
                 currentData = await stepFunc(currentData, cancellationToken).ConfigureAwait(false);
 
-                logger?.LogInformation("Step '{StepName}' completed successfully. Output type: {OutputDataType}. Output Data: {@StepOutput}", stepName, currentData.GetType().Name, currentData);
+                logger.LogInformation("Step '{StepName}' completed successfully. Output type: {OutputDataType}. Output Data: {@StepOutput}", stepName, currentData.GetType().Name, currentData);
             }
             catch (Exception ex) when (ex is not OperationCanceledException)
             {
-                logger?.LogError(ex, "Pipeline execution failed at step '{StepName}'. Data state at failure: {@FailedDataState}", stepName, currentData);
+                logger.LogError(ex, "Pipeline execution failed at step '{StepName}'. Data state at failure: {@FailedDataState}", stepName, currentData);
                 throw new PipelineExecutionException(stepName, $"Failed to execute step '{stepName}'.", ex);
             }
         }
 
-        logger?.LogInformation("Pipeline execution finished successfully. Final output type: {FinalOutputType}. Final Data: {@FinalOutput}", typeof(TFinalOut).Name, currentData);
+        logger.LogInformation("Pipeline execution finished successfully. Final output type: {FinalOutputType}. Final Data: {@FinalOutput}", typeof(TFinalOut).Name, currentData);
         return (TFinalOut)currentData;
     }
 
     public async ValueTask DisposeAsync()
     {
-        foreach (var step in pipelineSteps)
-        {
-            if (step is IAsyncDisposable asyncDisposable) await asyncDisposable.DisposeAsync().ConfigureAwait(false);
-            else if (step is IDisposable disposable) disposable.Dispose();
-        }
+        GC.SuppressFinalize(this);
     }
 }
 

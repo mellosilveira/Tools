@@ -34,7 +34,7 @@ public interface IFluentPipelineBuilder<TInitialIn, TCurrentOut>
     /// <summary>
     /// Compiles the configured execution graph into an immutable, executable pipeline instance.
     /// </summary>
-    /// <param name="logger">An optional structured logging provider injected into the execution engine for telemetry and state tracking.</param>
+    /// <param name="logger">Structured logging provider injected into the execution engine for telemetry and state tracking.</param>
     /// <returns>The finalized pipeline instance capable of processing the sequential state transitions.</returns>
-    IFluentPipeline<TInitialIn, TCurrentOut> Build(ILogger? logger = null);
+    IFluentPipeline<TInitialIn, TCurrentOut> Build(ILogger logger);
 }

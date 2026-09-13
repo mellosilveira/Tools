@@ -957,6 +957,25 @@
             <param name="valuesToRemove">The substrings to remove. All occurrences of each value are removed; the order of arguments defines the order of removals.</param>
             <returns>A new string with every occurrence of each value in <paramref name="valuesToRemove"/> stripped out.</returns>
         </member>
+        <member name="T:MelloSilveiraTools.Core.ExtensionMethods.TaskExtensions">
+            <summary>
+            Provides extension methods for asynchronous task operations.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.ExtensionMethods.TaskExtensions.ContinueWith(System.Threading.Tasks.Task,System.Threading.Tasks.Dataflow.IDataflowBlock,System.Func{System.Threading.Tasks.Task})">
+            <inheritdoc cref="M:MelloSilveiraTools.Core.ExtensionMethods.TaskExtensions.&lt;G&gt;$96CB7C060F6C3BA9D49BEC9D5AB7FADB.ContinueWith(System.Threading.Tasks.Dataflow.IDataflowBlock,System.Func{System.Threading.Tasks.Task})"/>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.ExtensionMethods.TaskExtensions.&lt;G&gt;$96CB7C060F6C3BA9D49BEC9D5AB7FADB.ContinueWith(System.Threading.Tasks.Dataflow.IDataflowBlock,System.Func{System.Threading.Tasks.Task})">
+            <summary>
+            Propagates the completion or fault state of a task to a target block.
+            </summary>
+            <param name="dataflowBlock">The target block receiving the final state.</param>
+            <param name="additionalFunc">An optional asynchronous function executed prior to state propagation.</param>
+            <remarks>
+            Design: Uses <c>TaskContinuationOptions.ExecuteSynchronously</c> to minimize scheduling overhead when cascading completion states across the topology.
+            Constraint: The <paramref name="additionalFunc"/> must execute efficiently to avoid stalling the continuation thread.
+            </remarks>
+        </member>
         <member name="T:MelloSilveiraTools.Core.ExtensionMethods.TypeExtensions">
             <summary>
             Contains extension methods for <see cref="T:System.Type"/>.
@@ -1613,60 +1632,53 @@
         </member>
         <member name="T:MelloSilveiraTools.Core.Pipelines.Dataflow.DataflowPipelineBuilder`2">
             <summary>
-            A strongly-typed fluent builder for orchestrating TPL Dataflow topologies.
+            Strongly-typed fluent builder for orchestrating asynchronous data processing topologies.
             </summary>
             <remarks>
-            Technical Decision: Encapsulates the complexity of block instantiation, telemetry wrapping, and graph linkage. 
-            It dynamically alters the internal topology depending on whether a Dead-Letter Queue (DLQ) is enabled, seamlessly 
-            injecting bifurcated routing nodes (via <see cref="T:MelloSilveiraTools.Core.Pipelines.Models.SafeResult`2"/>) without exposing this graph complexity to the consumer.
-            Limitation: The builder assumes a linear or singular-convergence topology. While it supports branching (forking), 
-            those branches must reconcile back to a single primary data type to proceed to the next step.
+            Design: Encapsulates block instantiation, telemetry wrapping, and graph linkage. Dynamically injects bifurcated routing nodes for DLQ without exposing graph complexity.
+            Constraint: Assumes a linear or singular-convergence topology. Forked branches must reconcile back to a single primary data type to proceed.
             </remarks>
         </member>
         <member name="M:MelloSilveiraTools.Core.Pipelines.Dataflow.DataflowPipelineBuilder`2.#ctor(Microsoft.Extensions.Logging.ILogger,System.Threading.Tasks.Dataflow.ITargetBlock{`0},System.Threading.Tasks.Dataflow.ISourceBlock{`1},System.Threading.Tasks.Dataflow.ITargetBlock{MelloSilveiraTools.Core.Pipelines.Models.FailedPayload},System.Nullable{MelloSilveiraTools.Core.Pipelines.Models.RetryOptions},System.Threading.CancellationToken,System.Collections.Generic.List{System.Threading.Tasks.Task},System.Collections.Generic.List{MelloSilveiraTools.Core.Pipelines.Steps.IPipelineStep})">
             <summary>
-            A strongly-typed fluent builder for orchestrating TPL Dataflow topologies.
+            Strongly-typed fluent builder for orchestrating asynchronous data processing topologies.
             </summary>
             <remarks>
-            Technical Decision: Encapsulates the complexity of block instantiation, telemetry wrapping, and graph linkage. 
-            It dynamically alters the internal topology depending on whether a Dead-Letter Queue (DLQ) is enabled, seamlessly 
-            injecting bifurcated routing nodes (via <see cref="T:MelloSilveiraTools.Core.Pipelines.Models.SafeResult`2"/>) without exposing this graph complexity to the consumer.
-            Limitation: The builder assumes a linear or singular-convergence topology. While it supports branching (forking), 
-            those branches must reconcile back to a single primary data type to proceed to the next step.
+            Design: Encapsulates block instantiation, telemetry wrapping, and graph linkage. Dynamically injects bifurcated routing nodes for DLQ without exposing graph complexity.
+            Constraint: Assumes a linear or singular-convergence topology. Forked branches must reconcile back to a single primary data type to proceed.
             </remarks>
         </member>
         <member name="M:MelloSilveiraTools.Core.Pipelines.Dataflow.DataflowPipelineBuilder`2.WithDeadLetterQueue(System.Action{MelloSilveiraTools.Core.Pipelines.Models.FailedPayload},MelloSilveiraTools.Core.Pipelines.Models.PipelineStepOptions)">
             <inheritdoc/>
             <remarks>
-            Technical Decision: Automatically provisions an <see cref="T:System.Threading.Tasks.Dataflow.ActionBlock`1"/> to wrap the synchronous error handler, allowing it to hook directly into the TPL Dataflow graph.
-            Limitation: Blocking I/O inside the synchronous action will stall the underlying ThreadPool thread assigned to this terminal block.
+            Design: Automatically provisions an internal ActionBlock to integrate the synchronous handler into the execution graph.
+            Constraint: Blocking I/O stalls the underlying ThreadPool thread assigned to this terminal block.
             </remarks>
         </member>
         <member name="M:MelloSilveiraTools.Core.Pipelines.Dataflow.DataflowPipelineBuilder`2.WithDeadLetterQueue(System.Func{MelloSilveiraTools.Core.Pipelines.Models.FailedPayload,System.Threading.CancellationToken,System.Threading.Tasks.Task},MelloSilveiraTools.Core.Pipelines.Models.PipelineStepOptions)">
             <inheritdoc/>
             <remarks>
-            Technical Decision: Provides optimal DLQ routing by executing error-handling logic asynchronously (e.g., writing to a remote queue) while honoring retry constraints if configured.
+            Design: Provides optimal DLQ routing via async execution (e.g., remote queues), honoring configured retry constraints.
             </remarks>
         </member>
         <member name="M:MelloSilveiraTools.Core.Pipelines.Dataflow.DataflowPipelineBuilder`2.WithLoggingErrors(MelloSilveiraTools.Core.Pipelines.Models.PipelineStepOptions)">
             <inheritdoc/>
             <remarks>
-            Technical Decision: Serves as a fallback for pipelines that require fault tolerance (to prevent cascading block failures) but do not require complex error recovery.
-            Limitation: Failed payloads are strictly serialized to logs and discarded from memory.
+            Design: Fallback fault tolerance to prevent cascading block failures without complex recovery logic.
+            Constraint: Failed payloads are strictly serialized to logs and discarded from memory.
             </remarks>
         </member>
         <member name="M:MelloSilveiraTools.Core.Pipelines.Dataflow.DataflowPipelineBuilder`2.AddDataMapping``1(System.Func{`1,``0},MelloSilveiraTools.Core.Pipelines.Models.PipelineStepOptions)">
             <inheritdoc/>
             <remarks>
-            Technical Decision: Dynamically shifts the block type to <c>TransformBlock&lt;TTail, SafeResult&lt;TTail, TNextOut&gt;&gt;</c> if a DLQ is active. 
-            This allows the pipeline to catch the exception internally and route it to the DLQ rather than faulting the current block.
-            Limitation: Purely synchronous execution. Retry policies are physically bypassed here to prevent thread exhaustion.
+            Design: Dynamically shifts to a safe execution block if DLQ is active, routing exceptions internally without faulting the block.
+            Constraint: Purely synchronous. Retry policies are bypassed to prevent thread exhaustion.
             </remarks>
         </member>
         <member name="M:MelloSilveiraTools.Core.Pipelines.Dataflow.DataflowPipelineBuilder`2.AddDataMapping``1(System.Func{`1,System.Threading.CancellationToken,System.Threading.Tasks.Task{``0}},MelloSilveiraTools.Core.Pipelines.Models.PipelineStepOptions)">
             <inheritdoc/>
             <remarks>
-            Technical Decision: Leverages asynchronous execution, enabling both OpenTelemetry span lifecycle tracking and exponential backoff loops on transient faults.
+            Design: Asynchronous execution enables OpenTelemetry span lifecycle tracking and exponential backoff loops for transient faults.
             </remarks>
         </member>
         <member name="M:MelloSilveiraTools.Core.Pipelines.Dataflow.DataflowPipelineBuilder`2.AddFilterStep(System.Predicate{`1},MelloSilveiraTools.Core.Pipelines.Models.PipelineStepOptions)">
@@ -1687,39 +1699,43 @@
         <member name="M:MelloSilveiraTools.Core.Pipelines.Dataflow.DataflowPipelineBuilder`2.AddStep``1(MelloSilveiraTools.Core.Pipelines.Steps.IAsyncEnumerablePipelineStep{`1,``0},MelloSilveiraTools.Core.Pipelines.Models.PipelineStepOptions)">
             <inheritdoc/>
         </member>
+        <member name="M:MelloSilveiraTools.Core.Pipelines.Dataflow.DataflowPipelineBuilder`2.AddForkingStep``1(MelloSilveiraTools.Core.Pipelines.Steps.ISyncPipelineStep{`1,``0},System.Func{``0,System.Boolean},MelloSilveiraTools.Core.Pipelines.Steps.ISyncPipelineStep{`1,``0},MelloSilveiraTools.Core.Pipelines.Models.PipelineStepOptions)">
+            <inheritdoc/>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Pipelines.Dataflow.DataflowPipelineBuilder`2.AddForkingStep``1(MelloSilveiraTools.Core.Pipelines.Steps.IAsyncPipelineStep{`1,``0},System.Func{``0,System.Boolean},MelloSilveiraTools.Core.Pipelines.Steps.IAsyncPipelineStep{`1,``0},MelloSilveiraTools.Core.Pipelines.Models.PipelineStepOptions)">
+            <inheritdoc/>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Pipelines.Dataflow.DataflowPipelineBuilder`2.AddBroadcastStep(MelloSilveiraTools.Core.Pipelines.Steps.IAsyncPipelineStep{`1},System.Func{`1,`1},MelloSilveiraTools.Core.Pipelines.Models.PipelineStepOptions)">
+            <inheritdoc/>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Pipelines.Dataflow.DataflowPipelineBuilder`2.BuildTerminal(System.String,System.Action{`1},MelloSilveiraTools.Core.Pipelines.Models.PipelineStepOptions)">
+            <inheritdoc/>
+        </member>
         <member name="M:MelloSilveiraTools.Core.Pipelines.Dataflow.DataflowPipelineBuilder`2.BuildTerminal(System.String,System.Func{`1,System.Threading.CancellationToken,System.Threading.Tasks.Task},MelloSilveiraTools.Core.Pipelines.Models.PipelineStepOptions)">
             <inheritdoc/>
             <remarks>
-            Technical Decision: Caps the underlying graph by resolving to a final asynchronous <see cref="T:System.Threading.Tasks.Dataflow.ActionBlock`1"/>, returning a sealed interface that prevents further linkage.
+            Design: Caps the underlying graph by resolving to a final asynchronous block, returning a sealed interface preventing further linkage.
             </remarks>
         </member>
         <member name="M:MelloSilveiraTools.Core.Pipelines.Dataflow.DataflowPipelineBuilder`2.AddSafeStep``1(System.Threading.Tasks.Dataflow.TransformBlock{`1,MelloSilveiraTools.Core.Pipelines.Models.SafeResult{`1,``0}},System.Threading.Tasks.Dataflow.ExecutionDataflowBlockOptions)">
             <summary>
-            Constructs a bifurcated routing topology to handle <see cref="T:MelloSilveiraTools.Core.Pipelines.Models.SafeResult`2"/> payloads.
+            Constructs a bifurcated routing topology to handle safe result payloads.
             </summary>
             <remarks>
-            Technical Decision: Automatically splits a single logical pipeline step into three distinct TPL blocks: 
-            the primary execution wrapper, a success router, and an asynchronous failure router linked directly to the DLQ. 
-            This keeps the consumer's fluent configuration clean while satisfying complex TPL routing constraints.
+            Design: Splits a single logical step into three blocks (execution wrapper, success router, failure router) to keep consumer configuration clean while satisfying complex routing constraints.
             </remarks>
         </member>
         <member name="T:MelloSilveiraTools.Core.Pipelines.Dataflow.DataflowPipeline`1">
             <summary>
-            The concrete execution engine encapsulating the TPL source/target block linkages.
+            Sealed execution engine representing the finalized graph.
+            Exposes inputs, triggers completion, and awaits termination while automatically disposing registered steps on shutdown.
             </summary>
-            <remarks>
-            Technical Decision: Restricted via file-scoped access and sealed to enable runtime devirtualization optimizations. 
-            Exposes only the absolute minimum required operational surface (Send, Complete, and Await Completion).
-            </remarks>
         </member>
         <member name="M:MelloSilveiraTools.Core.Pipelines.Dataflow.DataflowPipeline`1.#ctor(Microsoft.Extensions.Logging.ILogger,System.Threading.Tasks.Dataflow.ITargetBlock{`0},System.Threading.Tasks.Task,System.Collections.Generic.IReadOnlyCollection{MelloSilveiraTools.Core.Pipelines.Steps.IPipelineStep})">
             <summary>
-            The concrete execution engine encapsulating the TPL source/target block linkages.
+            Sealed execution engine representing the finalized graph.
+            Exposes inputs, triggers completion, and awaits termination while automatically disposing registered steps on shutdown.
             </summary>
-            <remarks>
-            Technical Decision: Restricted via file-scoped access and sealed to enable runtime devirtualization optimizations. 
-            Exposes only the absolute minimum required operational surface (Send, Complete, and Await Completion).
-            </remarks>
         </member>
         <member name="M:MelloSilveiraTools.Core.Pipelines.Dataflow.DataflowPipeline`1.SendAsync(`0,System.Threading.CancellationToken)">
             <inheritdoc/>
@@ -1759,104 +1775,177 @@
         </member>
         <member name="T:MelloSilveiraTools.Core.Pipelines.Dataflow.IDataflowPipelineBuilder`2">
             <summary>
-            Defines the fluent contract for orchestrating continuous, push-based execution topologies utilizing TPL Dataflow.
-            Facilitates the strictly-typed construction of block linkages, ensuring type invariance at the ingestion root 
-            while safely mapping transient intermediate state transitions across the execution graph.
+            Fluent API contract for building asynchronous data processing topologies.
+            Maintains strict input/output type invariance across the execution graph.
             </summary>
-            <typeparam name="THead">The immutable root input type configured at the pipeline head, serving as the ingestion contract.</typeparam>
-            <typeparam name="TTail">The transient terminal state type of the topology prior to subsequent block linkage or sink attachment.</typeparam>
+            <typeparam name="THead">The immutable root input type serving as the ingestion contract.</typeparam>
+            <typeparam name="TTail">The transient terminal state type prior to subsequent step linkage.</typeparam>
         </member>
         <member name="M:MelloSilveiraTools.Core.Pipelines.Dataflow.IDataflowPipelineBuilder`2.WithDeadLetterQueue(System.Action{MelloSilveiraTools.Core.Pipelines.Models.FailedPayload},MelloSilveiraTools.Core.Pipelines.Models.PipelineStepOptions)">
             <summary>
-            Configures a Dead-Letter Queue (DLQ) using a synchronous callback action. 
-            Automatically wraps the action in an <see cref="T:System.Threading.Tasks.Dataflow.ActionBlock`1"/> to capture failed payloads seamlessly.
+            Configures a synchronous Dead-Letter Queue (DLQ) to capture failed payloads.
             </summary>
             <param name="errorHandler">The synchronous delegate executed when a payload faults.</param>
-            <param name="options">Concurrency and buffer options for the DLQ processing block.</param>
+            <param name="options">Concurrency and buffer options for this step.</param>
             <remarks>
-            Technical Decision: Provides a lightweight abstraction over TPL Dataflow blocks for developers who just want to write a standard C# lambda for error handling.
-            Limitation: Because it executes synchronously, any blocking I/O inside the <paramref name="errorHandler"/> (e.g., writing to a database) will block the underlying ThreadPool thread assigned to the DLQ ActionBlock.
+            Technical Decision: Lightweight abstraction for standard lambda error handling.
+            Limitation: Synchronous execution blocks the underlying ThreadPool thread during I/O operations.
             </remarks>
         </member>
         <member name="M:MelloSilveiraTools.Core.Pipelines.Dataflow.IDataflowPipelineBuilder`2.WithDeadLetterQueue(System.Func{MelloSilveiraTools.Core.Pipelines.Models.FailedPayload,System.Threading.CancellationToken,System.Threading.Tasks.Task},MelloSilveiraTools.Core.Pipelines.Models.PipelineStepOptions)">
             <summary>
-            Configures a Dead-Letter Queue (DLQ) using an asynchronous callback delegate. 
-            Automatically wraps the delegate in an <see cref="T:System.Threading.Tasks.Dataflow.ActionBlock`1"/> to capture failed payloads seamlessly.
+            Configures an asynchronous Dead-Letter Queue (DLQ) to capture failed payloads.
             </summary>
             <param name="errorHandlerAsync">The asynchronous delegate executed when a payload faults.</param>
-            <param name="options">Concurrency and buffer options for the DLQ processing block.</param>
+            <param name="options">Concurrency and buffer options for this step.</param>
             <remarks>
-            Technical Decision: The preferred DLQ setup for handling network-bound failure routing (e.g., sending failed payloads to an Azure Service Bus or SQS queue) as it leverages async I/O.
-            Limitation: Like all DLQ routing in this topology, the error handling is terminal for the specific message. It does not provide a mechanism to automatically re-inject the payload back into the primary flow after DLQ processing.
+            Technical Decision: Preferred setup for network-bound failure routing (e.g., Azure Service Bus, SQS).
+            Limitation: Error handling is terminal. Cannot automatically re-inject payloads into the primary flow.
             </remarks>
         </member>
         <member name="M:MelloSilveiraTools.Core.Pipelines.Dataflow.IDataflowPipelineBuilder`2.WithLoggingErrors(MelloSilveiraTools.Core.Pipelines.Models.PipelineStepOptions)">
             <summary>
-            Configures a Dead-Letter Queue (DLQ) for only logging the errors. 
+            Configures a zero-configuration fault tolerance layer that logs errors to prevent pipeline halting.
             </summary>
-            <param name="options">Concurrency and buffer options for the DLQ processing block.</param>
+            <param name="options">Concurrency and buffer options for this step.</param>
             <remarks>
-            Technical Decision: Implements a zero-configuration fault tolerance layer. Unhandled exceptions are logged, preventing the default TPL behavior which would fault the entire pipeline block and halt all message processing.
-            Limitation: The failed payload is strictly written to the standard <see cref="T:Microsoft.Extensions.Logging.ILogger"/> and is immediately lost from memory. It cannot be recovered, programmatically inspected, or retried later.
+            Technical Decision: Prevents unhandled exceptions from faulting the entire pipeline execution.
+            Limitation: Payloads are immediately lost from memory and cannot be recovered or retried.
             </remarks>
         </member>
         <member name="M:MelloSilveiraTools.Core.Pipelines.Dataflow.IDataflowPipelineBuilder`2.AddDataMapping``1(System.Func{`1,``0},MelloSilveiraTools.Core.Pipelines.Models.PipelineStepOptions)">
             <summary>
-            Appends a TransformBlock bound to a synchronous delegate.
+            Appends a synchronous data mapping step to the pipeline.
             </summary>
+            <param name="mapFunc">The synchronous function responsible for transforming the payload.</param>
+            <param name="options">Concurrency and buffer options for this step.</param>
             <remarks>
-            Technical Decision: Explicitly elides the async state machine allocation entirely. This is highly performant and strictly designed for pure CPU-bound data mapping operations (e.g., mapping DTOs).
-            Limitation: Does not support exponential backoff retries. Implementing retries in a synchronous block requires <see cref="M:System.Threading.Thread.Sleep(System.Int32)"/>, which would cause severe ThreadPool starvation.
+            Technical Decision: Elides async state machine overhead. Designed strictly for CPU-bound data mapping (e.g., DTOs).
+            Limitation: Cannot implement non-blocking retries. Using <see cref="M:System.Threading.Thread.Sleep(System.Int32)"/> causes ThreadPool starvation.
             </remarks>
         </member>
         <member name="M:MelloSilveiraTools.Core.Pipelines.Dataflow.IDataflowPipelineBuilder`2.AddDataMapping``1(System.Func{`1,System.Threading.CancellationToken,System.Threading.Tasks.Task{``0}},MelloSilveiraTools.Core.Pipelines.Models.PipelineStepOptions)">
             <summary>
-            Appends a TransformBlock bound to an asynchronous delegate for mapping operations.
+            Appends an asynchronous data mapping step to the pipeline.
             </summary>
+            <param name="mapFunc">The asynchronous function responsible for transforming the payload.</param>
+            <param name="options">Concurrency and buffer options for this step.</param>
             <remarks>
-            Technical Decision: Separated from <see cref="M:MelloSilveiraTools.Core.Pipelines.Dataflow.IDataflowPipelineBuilder`2.AddStep``1(MelloSilveiraTools.Core.Pipelines.Steps.ISyncPipelineStep{`1,``0},MelloSilveiraTools.Core.Pipelines.Models.PipelineStepOptions)"/> purely for semantic clarity in fluent chains, indicating that the core purpose of the delegate is payload transformation via I/O (e.g., enriching data via an external API).
-            Limitation: Incurs standard Task allocation and async state machine overhead. Do not use for pure in-memory object mapping where the synchronous overload would suffice.
+            Technical Decision: Explicitly named for payload transformation via I/O (e.g., external API enrichment).
+            Limitation: Incurs async state machine allocation. Avoid for pure in-memory mapping.
             </remarks>
         </member>
         <member name="M:MelloSilveiraTools.Core.Pipelines.Dataflow.IDataflowPipelineBuilder`2.AddFilterStep(System.Predicate{`1},MelloSilveiraTools.Core.Pipelines.Models.PipelineStepOptions)">
             <summary>
-            Appends a step that evaluates a predicate against each payload. Payloads that evaluate to false are safely dropped from the pipeline.
+            Appends a filtering step that evaluates a predicate against each payload. Payloads failing the condition are safely dropped.
             </summary>
-            <param name="predicate">The condition a message must meet to proceed.</param>
-            <param name="options"></param>
+            <param name="predicate">The condition a message must meet to proceed in the pipeline.</param>
+            <param name="options">Concurrency and buffer options for this step.</param>
             <remarks>
-            Technical Decision: Bypasses the buffer exhaustion and deadlock risks associated with predicate-based <see cref="T:System.Threading.Tasks.Dataflow.DataflowLinkOptions"/>. By yielding an empty array internally via a TransformManyBlock, the message is gracefully consumed and discarded without violating the strict 1:1 input-to-output pipeline ratio.
+            Technical Decision: Bypasses common pipeline deadlock risks associated with conditional routing by internally swallowing rejected payloads without violating the 1:1 I/O ratio.
             </remarks>
         </member>
         <member name="M:MelloSilveiraTools.Core.Pipelines.Dataflow.IDataflowPipelineBuilder`2.AddGroupWhileStep(System.Func{`1,`1,System.Boolean},MelloSilveiraTools.Core.Pipelines.Models.PipelineStepOptions)">
             <summary>
-            Appends a stateful grouping block that accumulates messages into an array until the provided condition evaluates to false.
+            Appends a stateful batching step that accumulates messages into an array until the condition evaluates false.
             </summary>
-            <param name="condition">A function comparing the previously buffered item to the current item. Returns true if they belong in the same group.</param>
-            <param name="options"></param>
+            <param name="condition">The function comparing previous and current items. Returns true to group them.</param>
+            <param name="options">Concurrency and buffer options for this step.</param>
             <remarks>
-            Technical Decision: Overcomes the limitation of the native TPL BatchBlock which strictly holds messages until a numeric count is met. This utilizes an encapsulated state machine.
-            Limitation: Forces <c>MaxDegreeOfParallelism = 1</c> to guarantee deterministic sequential state accumulation. 
+            Technical Decision: Overcomes static size-based batching limits by utilizing an encapsulated state machine for dynamic grouping.
+            Limitation: Forces sequential execution (<c>MaxDegreeOfParallelism = 1</c>) to guarantee deterministic state accumulation. 
             </remarks>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Pipelines.Dataflow.IDataflowPipelineBuilder`2.AddCollectAllStep(MelloSilveiraTools.Core.Pipelines.Models.PipelineStepOptions)">
+            <summary>
+            Appends a collection step that aggregates all remaining pipeline payloads into a single array.
+            </summary>
+            <param name="options">Concurrency and buffer options for this step.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Pipelines.Dataflow.IDataflowPipelineBuilder`2.AddStep``1(MelloSilveiraTools.Core.Pipelines.Steps.ISyncPipelineStep{`1,``0},MelloSilveiraTools.Core.Pipelines.Models.PipelineStepOptions)">
+            <summary>
+            Appends a custom synchronous processing step to the pipeline.
+            </summary>
+            <param name="step">The synchronous pipeline step instance to execute.</param>
+            <param name="options">Concurrency and buffer options for this step.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Pipelines.Dataflow.IDataflowPipelineBuilder`2.AddStep``1(MelloSilveiraTools.Core.Pipelines.Steps.IAsyncPipelineStep{`1,``0},MelloSilveiraTools.Core.Pipelines.Models.PipelineStepOptions)">
+            <summary>
+            Appends a custom asynchronous processing step to the pipeline.
+            </summary>
+            <param name="step">The asynchronous pipeline step instance to execute.</param>
+            <param name="options">Concurrency and buffer options for this step.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Pipelines.Dataflow.IDataflowPipelineBuilder`2.AddStep``1(MelloSilveiraTools.Core.Pipelines.Steps.IAsyncEnumerablePipelineStep{`1,``0},MelloSilveiraTools.Core.Pipelines.Models.PipelineStepOptions)">
+            <summary>
+            Appends a custom asynchronous enumerable streaming step to the pipeline.
+            </summary>
+            <param name="step">The asynchronous enumerable pipeline step instance to execute.</param>
+            <param name="options">Concurrency and buffer options for this step.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Pipelines.Dataflow.IDataflowPipelineBuilder`2.AddForkingStep``1(MelloSilveiraTools.Core.Pipelines.Steps.IAsyncPipelineStep{`1,``0},System.Func{``0,System.Boolean},MelloSilveiraTools.Core.Pipelines.Steps.IAsyncPipelineStep{`1,``0},MelloSilveiraTools.Core.Pipelines.Models.PipelineStepOptions)">
+            <summary>
+            Appends an asynchronous forking step that routes payloads to a fallback step if a specific condition is met.
+            </summary>
+            <param name="step">The primary asynchronous step to execute.</param>
+            <param name="fallbackCondition">The condition determining if the fallback step should be used.</param>
+            <param name="fallbackStep">The fallback asynchronous step to execute if the condition is met.</param>
+            <param name="options">Concurrency and buffer options for this step.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Pipelines.Dataflow.IDataflowPipelineBuilder`2.AddForkingStep``1(MelloSilveiraTools.Core.Pipelines.Steps.ISyncPipelineStep{`1,``0},System.Func{``0,System.Boolean},MelloSilveiraTools.Core.Pipelines.Steps.ISyncPipelineStep{`1,``0},MelloSilveiraTools.Core.Pipelines.Models.PipelineStepOptions)">
+            <summary>
+            Appends a synchronous forking step that routes payloads to a fallback step if a specific condition is met.
+            </summary>
+            <param name="step">The primary synchronous step to execute.</param>
+            <param name="fallbackCondition">The condition determining if the fallback step should be used.</param>
+            <param name="fallbackStep">The fallback synchronous step to execute if the condition is met.</param>
+            <param name="options">Concurrency and buffer options for this step.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Pipelines.Dataflow.IDataflowPipelineBuilder`2.AddBroadcastStep(MelloSilveiraTools.Core.Pipelines.Steps.IAsyncPipelineStep{`1},System.Func{`1,`1},MelloSilveiraTools.Core.Pipelines.Models.PipelineStepOptions)">
+            <summary>
+            Appends a non-mutating broadcast step that acts as a fire-and-forget observer.
+            </summary>
+            <param name="step">The asynchronous step to observe the payload.</param>
+            <param name="cloneFunc">An optional function to clone the payload before broadcasting.</param>
+            <param name="options">Concurrency and buffer options for this step.</param>
         </member>
         <member name="M:MelloSilveiraTools.Core.Pipelines.Dataflow.IDataflowPipelineBuilder`2.BuildTerminal(System.String,System.Action{`1},MelloSilveiraTools.Core.Pipelines.Models.PipelineStepOptions)">
             <summary>
-            Appends a synchronous ActionBlock to consume the final pipeline output.
-            Serves as the pipeline sink, linking the final ISourceBlock and returning the execution interface.
+            Appends a synchronous terminal step serving as the pipeline sink. Seals the topology.
             </summary>
+            <param name="stepName">The diagnostic name of the terminal step.</param>
+            <param name="terminalAction">The synchronous delegate to process the final payload.</param>
+            <param name="options">Concurrency and buffer options for this step.</param>
             <remarks>
-            Technical Decision: Caps the builder pattern by returning the concrete <see cref="T:MelloSilveiraTools.Core.Pipelines.Dataflow.IDataflowPipeline`1"/> interface rather than the builder. This strongly enforces that pipelines cannot have dangling outputs.
-            Limitation: Terminal blocks cannot emit data. Once <see cref="M:MelloSilveiraTools.Core.Pipelines.Dataflow.IDataflowPipelineBuilder`2.BuildTerminal(System.String,System.Action{`1},MelloSilveiraTools.Core.Pipelines.Models.PipelineStepOptions)"/> is called, the execution graph is sealed and no further blocks can be appended.
+            Technical Decision: Returns <see cref="T:MelloSilveiraTools.Core.Pipelines.Dataflow.IDataflowPipeline`1"/> to enforce that pipelines cannot have dangling outputs.
+            Limitation: Terminal steps cannot emit data. The execution graph is sealed after this call.
             </remarks>
         </member>
         <member name="M:MelloSilveiraTools.Core.Pipelines.Dataflow.IDataflowPipelineBuilder`2.BuildTerminal(System.String,System.Func{`1,System.Threading.CancellationToken,System.Threading.Tasks.Task},MelloSilveiraTools.Core.Pipelines.Models.PipelineStepOptions)">
             <summary>
-            Appends an asynchronous ActionBlock to consume the final pipeline output.
+            Appends an asynchronous terminal step serving as the pipeline sink. Seals the topology.
             </summary>
+            <param name="stepName">The diagnostic name of the terminal step.</param>
+            <param name="terminalAction">The asynchronous delegate to process the final payload.</param>
+            <param name="options">Concurrency and buffer options for this step.</param>
             <remarks>
-            Technical Decision: Designed for the most common end-of-pipe scenarios, such as persisting the final transformed state to a database or publishing a completed event to a message broker.
-            Limitation: Any unhandled exceptions at this terminal step that are not caught by a Dead-Letter Queue configuration will still fault this final block, potentially dropping the fully processed payload right at the finish line.
+            Technical Decision: Designed for async end-of-pipe operations (e.g., database persistence, event publishing).
+            Limitation: Unhandled exceptions here will drop the fully processed payload unless caught by a previously configured DLQ.
             </remarks>
+        </member>
+        <member name="T:MelloSilveiraTools.Core.Pipelines.Fluent.FluentPipelineBuilder`2">
+            <summary>
+            Orchestrates the sequential chaining of asynchronous pipeline steps.
+            Utilizes delegate wrapping (Type Erasure) to strip compile-time generic constraints, allowing 
+            heterogeneous return types to be stored in a unified internal execution collection.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Pipelines.Fluent.FluentPipelineBuilder`2.#ctor(System.Collections.Generic.List{System.ValueTuple{System.String,System.Func{System.Object,System.Threading.CancellationToken,System.Threading.Tasks.Task{System.Object}}}})">
+            <summary>
+            Orchestrates the sequential chaining of asynchronous pipeline steps.
+            Utilizes delegate wrapping (Type Erasure) to strip compile-time generic constraints, allowing 
+            heterogeneous return types to be stored in a unified internal execution collection.
+            </summary>
         </member>
         <member name="M:MelloSilveiraTools.Core.Pipelines.Fluent.FluentPipelineBuilder`2.#ctor">
             <summary>
@@ -1879,17 +1968,17 @@
             </summary>
             <typeparam name="TInitialIn">The immutable starting input type validated at compile time.</typeparam>
             <typeparam name="TFinalOut">The guaranteed final output type returned to the caller upon successful execution.</typeparam>
-            <param name="logger">Optional structured logger for capturing state mutations and fault payloads.</param>
+            <param name="logger">Structured logger for capturing state mutations and fault payloads.</param>
             <param name="steps">The chronologically ordered list of type-erased asynchronous delegates.</param>
         </member>
-        <member name="M:MelloSilveiraTools.Core.Pipelines.Fluent.PipelineEngine`2.#ctor(Microsoft.Extensions.Logging.ILogger,System.Collections.Generic.IReadOnlyList{System.ValueTuple{System.String,System.Func{System.Object,System.Threading.CancellationToken,System.Threading.Tasks.Task{System.Object}}}},System.Collections.Generic.IReadOnlyList{MelloSilveiraTools.Core.Pipelines.Steps.IPipelineStep})">
+        <member name="M:MelloSilveiraTools.Core.Pipelines.Fluent.PipelineEngine`2.#ctor(Microsoft.Extensions.Logging.ILogger,System.Collections.Generic.IReadOnlyList{System.ValueTuple{System.String,System.Func{System.Object,System.Threading.CancellationToken,System.Threading.Tasks.Task{System.Object}}}})">
             <summary>
             The terminal execution engine responsible for iterating and awaiting the type-erased delegate chain.
             Manages state transitions, cancellation propagation, and structured logging of payload mutations.
             </summary>
             <typeparam name="TInitialIn">The immutable starting input type validated at compile time.</typeparam>
             <typeparam name="TFinalOut">The guaranteed final output type returned to the caller upon successful execution.</typeparam>
-            <param name="logger">Optional structured logger for capturing state mutations and fault payloads.</param>
+            <param name="logger">Structured logger for capturing state mutations and fault payloads.</param>
             <param name="steps">The chronologically ordered list of type-erased asynchronous delegates.</param>
         </member>
         <member name="M:MelloSilveiraTools.Core.Pipelines.Fluent.PipelineEngine`2.ExecuteAsync(`0,System.Threading.CancellationToken)">
@@ -1948,7 +2037,7 @@
             <summary>
             Compiles the configured execution graph into an immutable, executable pipeline instance.
             </summary>
-            <param name="logger">An optional structured logging provider injected into the execution engine for telemetry and state tracking.</param>
+            <param name="logger">Structured logging provider injected into the execution engine for telemetry and state tracking.</param>
             <returns>The finalized pipeline instance capable of processing the sequential state transitions.</returns>
         </member>
         <member name="T:MelloSilveiraTools.Core.Pipelines.Models.FailedPayload">
