@@ -1,4 +1,7 @@
+using MelloSilveiraTools.Core.ExtensionMethods;
+using MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Abstractions;
+using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Models.CurveFitting;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Steps;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -16,19 +19,17 @@ namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Factories;
 public sealed class MechanicalModelStepFactory(IServiceProvider serviceProvider) : IMechanicalModelStepFactory
 {
     /// <inheritdoc />
-    public IMechanicalModelCurveFitterStep Create(string modelName)
+    public IMechanicalModelCurveFitterStep Create(string mechanicalModel, IReadOnlyList<SegmentType> targetSegments) => (mechanicalModel, targetSegments) switch
     {
-        string normalized = (modelName ?? string.Empty).Trim().ToUpperInvariant();
+        (nameof(MechanicalModel.Fung), [SegmentType.Relaxation]) => serviceProvider.GetRequiredService<FungRelaxationOnlyCurveFitterStep>(),
+        (nameof(MechanicalModel.Fung), _) => serviceProvider.GetRequiredService<FungCurveFitterStep>(),
 
-        return normalized switch
-        {
-            "SCHAPERY" => serviceProvider.GetRequiredService<SchaperyCurveFitterStep>(),
-            "SCHAPERYRELAXATION" => serviceProvider.GetRequiredService<SchaperyRelaxationOnlyCurveFitterStep>(),
-            "FUNG" => serviceProvider.GetRequiredService<FungCurveFitterStep>(),
-            "FUNGRELAXATION" => serviceProvider.GetRequiredService<FungRelaxationOnlyCurveFitterStep>(),
-            "SIMPLIFIEDFUNG" => serviceProvider.GetRequiredService<SimplifiedFungCurveFitterStep>(),
-            "SIMPLIFIEDFUNGRELAXATION" => serviceProvider.GetRequiredService<SimplifiedFungRelaxationOnlyCurveFitterStep>(),
-            _ => throw new ArgumentException($"Unknown mechanical model name: '{modelName}'.", nameof(modelName))
-        };
-    }
+        (nameof(MechanicalModel.SimplifiedFung), [SegmentType.Relaxation]) => serviceProvider.GetRequiredService<SimplifiedFungRelaxationOnlyCurveFitterStep>(),
+        (nameof(MechanicalModel.SimplifiedFung), _) => serviceProvider.GetRequiredService<SimplifiedFungCurveFitterStep>(),
+
+        (nameof(MechanicalModel.Schapery), [SegmentType.Relaxation]) => serviceProvider.GetRequiredService<SchaperyRelaxationOnlyCurveFitterStep>(),
+        (nameof(MechanicalModel.Schapery), _) => serviceProvider.GetRequiredService<SchaperyCurveFitterStep>(),
+
+        _ => throw new ArgumentException($"Unknown mechanical model name: '{mechanicalModel}'.", nameof(mechanicalModel))
+    };
 }

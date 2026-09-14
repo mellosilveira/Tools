@@ -6,6 +6,7 @@ using MelloSilveiraTools.Mathematics.NumericalMethods.Differentiations;
 using MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Abstractions;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Factories;
+using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Models.CurveFitting;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Models.ExperimentalData;
 using Microsoft.Extensions.Logging;
 using System.Collections.Concurrent;
@@ -17,45 +18,37 @@ namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Services.Experim
 /// </summary>
 public class ExperimentalDataService(
     ILogger<ExperimentalDataService> logger,
-    IDifferentiation differentiation,
     IFileManager fileManager,
-    ExperimentalDataSettings settings,
-    IMechanicalModelStepFactory stepFactory)
+    IDifferentiation differentiation,
+    IMechanicalModelStepFactory stepFactory,
+    ExperimentalDataSettings settings)
     : IExperimentalDataService
 {
     /// <inheritdoc/>
-    public async Task<Result<(string OutputFileName, ConstitutiveParameters[] Parameters)>> ProcessAsync(
-        string mechanicalModelName,
-        string identifier,
-        string outputFileUri,
-        Stream strainStream,
-        Stream stressStream,
-        ExperimentalDataProcessingOptions? options = null,
-        CancellationToken cancellationToken = default)
+    public async Task<Result<(string OutputFileName, ConstitutiveParameters[] Parameters)>> ProcessAsync(ExperimentalDataProcessingInput input, CancellationToken cancellationToken = default)
     {
-        options ??= ExperimentalDataProcessingOptions.Default;
-
         ConcurrentBag<ConstitutiveParameters[]> parameterBatches = [];
 
-        ExperimentalDataSegmenterStep segmenterStep = new(logger, differentiation, options);
-        ExperimentalDataFileWriterStep fileWriterStep = new(fileManager, outputFileUri, identifier);
-        CurveSegmentBuilderStep segmentBuilderStep = new(options.SkipTimeStep);
-        IMechanicalModelCurveFitterStep curveFitterStep = stepFactory.Create(mechanicalModelName);
+        ExperimentalDataSegmenterStep segmenterStep = new(logger, differentiation);
+        ExperimentalDataFileWriterStep fileWriterStep = new(fileManager, input.OutputFileUri, input.Identifier);
+        CurveSegmentBuilderStep curveSegmentBuilderStep = new();
+        IMechanicalModelCurveFitterStep curveFitterStep = stepFactory.Create(input.MechanicalModelName, input.TargetSegments);
 
-        IDataflowPipeline<(Stream StrainStream, Stream StressStream)> pipeline = PipelineFactory
-            .StartDataflow<(Stream StrainStream, Stream StressStream)>(logger, cancellationToken: cancellationToken)
+        IDataflowPipeline<ExperimentalDataSegmenterInput> pipeline = PipelineFactory
+            .StartDataflow<ExperimentalDataSegmenterInput>(logger, cancellationToken: cancellationToken)
             .WithLoggingErrors()
-            .AddStep(segmenterStep, options: settings.SegmenterOptions)
+            .AddStep(segmenterStep, settings.SegmenterOptions)
             .AddBroadcastStep(fileWriterStep, options: settings.FileWriterOptions)
-            .AddGroupWhileStep((prev, curr) => prev.SegmentType == curr.SegmentType, options: settings.GroupingOptions)
-            .AddStep(segmentBuilderStep, options: settings.SegmentBuilderOptions)
+            .AddGroupWhileStep((prev, curr) => prev.SegmentType == curr.SegmentType, settings.GroupingOptions)
+            .AddDataMapping(points => new CurveSegmentBuilderInput(input.Options.SkipTimeStep, points))
+            .AddStep(curveSegmentBuilderStep, settings.SegmentBuilderOptions)
             .AddCollectAllStep()
-            .AddStep(curveFitterStep, options: settings.CurveFitterOptions)
+            .AddStep(curveFitterStep, settings.CurveFitterOptions)
             .BuildTerminal("CollectParameters", parameterBatches.Add);
 
         await using (pipeline)
         {
-            await pipeline.SendAsync((strainStream, stressStream), cancellationToken).ConfigureAwait(false);
+            await pipeline.SendAsync(input.ToSegmenterInput(), cancellationToken).ConfigureAwait(false);
 
             pipeline.Complete();
             await pipeline.Completion.ConfigureAwait(false);
@@ -65,3 +58,36 @@ public class ExperimentalDataService(
         }
     }
 }
+
+public record ExperimentalDataProcessingInput
+{
+    public string MechanicalModelName { get; init; }
+
+    /// <summary>
+    /// Segment types to be processed.
+    /// If left  empty, all segment types will be considered.
+    /// </summary>
+    public IReadOnlyList<SegmentType> TargetSegments { get; init; } = [];
+
+    public string Identifier { get; init; }
+    public string OutputFileUri { get; init; }
+    public Stream StrainStream { get; init; }
+    public Stream StressStream { get; init; }
+    public ExperimentalDataProcessingOptions Options { get; init; }
+
+    public ExperimentalDataSegmenterInput ToSegmenterInput() => new() { StrainStream = StrainStream, StressStream = StressStream, Options = Options };
+}
+
+public record ExperimentalDataSegmenterInput
+{
+    public Stream StrainStream { get; init; }
+    public Stream StressStream { get; init; }
+    public ExperimentalDataProcessingOptions Options { get; init; }
+}
+
+/// <summary>
+/// 
+/// </summary>
+/// <param name="SkipTimeStep">The minimum time interval required between consecutive points within a segment. Defaults to 0.0 (no downsampling).</param>
+/// <param name="Points"></param>
+public record CurveSegmentBuilderInput(double SkipTimeStep, SegmentedDataPoint[] Points);

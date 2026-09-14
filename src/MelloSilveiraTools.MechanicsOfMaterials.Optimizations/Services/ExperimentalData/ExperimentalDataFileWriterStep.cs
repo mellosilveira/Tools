@@ -74,5 +74,7 @@ public sealed class ExperimentalDataFileWriterStep : IAsyncPipelineStep<Segmente
 
         await _writer.FlushAsync().ConfigureAwait(false);
         await _writer.DisposeAsync().ConfigureAwait(false);
+
+        GC.SuppressFinalize(this);
     }
 }

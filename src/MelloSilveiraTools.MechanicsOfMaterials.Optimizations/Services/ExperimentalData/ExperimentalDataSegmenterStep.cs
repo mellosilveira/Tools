@@ -11,21 +11,13 @@ using System.Runtime.CompilerServices;
 
 namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Services.ExperimentalData;
 
-public record ExperimentalDataSegmenterInput
-{
-    public Stream StrainStream { get; init; }
-    public Stream StressStream { get; init; }
-    public ExperimentalDataProcessingOptions Options { get; init; }
-}
-
 /// <summary>
 /// Pipeline step responsible for parsing and streaming raw experimental strain and stress data,
 /// segmenting points into physical deformation phases (Ramp, Relaxation, Descent, Recovery) using numerical differentiation.
 /// </summary>
 /// <param name="logger">Logger for telemetry, warnings, and diagnostic information.</param>
 /// <param name="differentiation">The differentiation calculator used to compute strain and stress rates and accelerations.</param>
-public sealed class ExperimentalDataSegmenterStep(ILogger logger, IDifferentiation differentiation)
-    : IAsyncEnumerablePipelineStep<ExperimentalDataSegmenterInput, SegmentedDataPoint>
+public sealed class ExperimentalDataSegmenterStep(ILogger logger, IDifferentiation differentiation) : IAsyncEnumerablePipelineStep<ExperimentalDataSegmenterInput, SegmentedDataPoint>
 {
     /// <inheritdoc/>
     public string Name => "ExperimentalDataSegmenter";

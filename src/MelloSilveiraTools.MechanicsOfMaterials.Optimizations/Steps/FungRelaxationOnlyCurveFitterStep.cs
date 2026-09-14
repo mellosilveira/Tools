@@ -16,6 +16,15 @@ public sealed class FungRelaxationOnlyCurveFitterStep : IMechanicalModelCurveFit
     /// <inheritdoc />
     public ConstitutiveParameters[] Execute(CurveSegment[] input)
     {
+        foreach (CurveSegment curve in input)
+        {
+            if (curve.Type != SegmentType.Relaxation)
+                continue;
+
+
+        }
+
+
         // TODO: Implement specific numerical solver for Fung relaxation-only curve fitting.
         return Array.Empty<ConstitutiveParameters>();
     }
