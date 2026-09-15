@@ -1,4 +1,4 @@
-﻿using MelloSilveiraTools.Mathematics.Models;
+using MelloSilveiraTools.Mathematics.Models;
 
 namespace MelloSilveiraTools.Mathematics.Functions;
 
@@ -7,9 +7,9 @@ namespace MelloSilveiraTools.Mathematics.Functions;
 /// </summary>
 /// <param name="initialVariableValue"></param>
 /// <param name="finalVariableValue"></param>
-/// <param name="function"></param>
-/// <param name="derivativeFunction"></param>
-/// <param name="integralFunction"></param>
+/// <param name="function">The delegate that computes f(x) for a given x.</param>
+/// <param name="derivativeFunction">Optional delegate that computes f'(x). If null, numerical differentiation is used.</param>
+/// <param name="integralFunction">Optional delegate that computes the antiderivative F(x). If null, numerical integration is used.</param>
 public sealed class GenericFunction(
     double? initialVariableValue,
     double? finalVariableValue,

@@ -8,18 +8,17 @@ public record RegisteredPlugin : DiscoveredPlugin
 {
     private readonly Dictionary<Type, bool> _typeLoadedStatus;
 
+    public RegisteredPlugin() => _typeLoadedStatus = [];
+
     /// <summary>
     /// Initializes a new <see cref="RegisteredPlugin"/> from a <paramref name="loaded"/> plugin, with all processable types marked as not yet registered.
     /// </summary>
-    public RegisteredPlugin(LoadedPlugin loaded) : base(loaded)
-    {
-        _typeLoadedStatus = loaded.ProcessableTypes.ToDictionary(t => t, _ => false);
-    }
+    public RegisteredPlugin(LoadedPlugin loaded) : base(loaded) => _typeLoadedStatus = loaded.ProcessableTypes.ToDictionary(t => t, _ => false);
 
     /// <summary>
     /// Per-type flag indicating whether each processable type has been registered in the DI container.
     /// </summary>
-    public IReadOnlyDictionary<Type, bool> TypesLoadedStatus => _typeLoadedStatus;
+    public IReadOnlyDictionary<Type, bool> TypesLoadedStatus => _typeLoadedStatus ?? [];
 
     /// <summary>
     /// Returns <see langword="true"/> when all processable types have been registered.

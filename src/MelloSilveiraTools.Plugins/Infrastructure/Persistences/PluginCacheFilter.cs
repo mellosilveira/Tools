@@ -1,5 +1,5 @@
-using MelloSilveiraTools.Database.Infrastructure.Database.Attributes;
-using MelloSilveiraTools.Database.Infrastructure.Database.Models.Filters;
+using MelloSilveiraTools.Database.RelationalDatabase.Attributes;
+using MelloSilveiraTools.Database.RelationalDatabase.Models.Filters;
 
 namespace MelloSilveiraTools.Plugins.Infrastructure.Persistences;
 

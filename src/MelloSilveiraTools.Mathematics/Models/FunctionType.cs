@@ -3,7 +3,7 @@
 /// <summary>
 /// Contains the function types.
 /// </summary>
-public enum FunctionType
+public enum FunctionType : int
 {
     /// <summary>
     /// Function can be represented by any mathematical equation.

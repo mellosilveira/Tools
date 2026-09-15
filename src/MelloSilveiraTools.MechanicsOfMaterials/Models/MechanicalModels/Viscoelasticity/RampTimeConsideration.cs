@@ -1,25 +1,24 @@
-﻿namespace MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity
+﻿namespace MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity;
+
+/// <summary>
+/// Defines how the initial loading phase (ramp time) is treated in viscoelastic analysis.
+/// </summary>
+public enum RampTimeConsideration
 {
     /// <summary>
-    /// Contains the ramp time considerations for analysis.
+    /// Includes the ramp time in the analysis, computing viscoelastic time-dependent effects during the loading phase.
     /// </summary>
-    public enum RampTimeConsideration
-    {
-        /// <summary>
-        /// Consider ramp time at analysis with viscoelastic effect.
-        /// </summary>
-        ConsiderWithViscoelasticEffect = 1,
+    ConsiderWithViscoelasticEffect = 1,
 
-        // TODO: This consideration was removed because is necessary to investigate an error while processing the operation.
-        ///// <summary>
-        ///// Consider ramp time at analysis without viscoelastic effect.
-        ///// The viscoelastic effect just begins after the ramp time.
-        ///// </summary>
-        //ConsiderWithoutViscoelasticEffect = 2,
+    /// <summary>
+    /// Includes the ramp time but assumes purely elastic behavior during loading. 
+    /// Viscoelastic effects (like relaxation or creep) begin only after the ramp phase is complete.
+    /// </summary>
+    ConsiderWithoutViscoelasticEffect = 2,
 
-        /// <summary>
-        /// The ramp time is disregarded. It means that the strain is constant at the whole experiment.
-        /// </summary>
-        Disregard = 3,
-    }
+    /// <summary>
+    /// Assumes instantaneous loading (zero ramp time). 
+    /// The target strain or stress is applied immediately as a step function.
+    /// </summary>
+    Disregard = 3,
 }

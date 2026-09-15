@@ -9,184 +9,76 @@
             Provides extension methods to register services from the MelloSilveiraTools.Database package.
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.Database.DatabaseDependencyInjection.AddDatabaseServices(Microsoft.Extensions.DependencyInjection.IServiceCollection,MelloSilveiraTools.Database.Infrastructure.Database.Settings.DatabaseSettings,MelloSilveiraTools.Core.Infrastructure.ResiliencePipelines.ResiliencePipelineSettings)">
+        <member name="M:MelloSilveiraTools.Database.DatabaseDependencyInjection.AddDatabaseServices(Microsoft.Extensions.DependencyInjection.IServiceCollection,MelloSilveiraTools.Database.RelationalDatabase.Settings.DatabaseSettings,MelloSilveiraTools.Core.ResiliencePipelines.ResiliencePipelineSettings,MelloSilveiraTools.Core.Logging.LoggerSettings)">
+            <inheritdoc cref="M:MelloSilveiraTools.Database.DatabaseDependencyInjection.&lt;G&gt;$7B30185E57B8298C6754F16C0BCF4773.AddDatabaseServices(MelloSilveiraTools.Database.RelationalDatabase.Settings.DatabaseSettings,MelloSilveiraTools.Core.ResiliencePipelines.ResiliencePipelineSettings,MelloSilveiraTools.Core.Logging.LoggerSettings)"/>
+        </member>
+        <member name="M:MelloSilveiraTools.Database.DatabaseDependencyInjection.&lt;G&gt;$7B30185E57B8298C6754F16C0BCF4773.AddDatabaseServices(MelloSilveiraTools.Database.RelationalDatabase.Settings.DatabaseSettings,MelloSilveiraTools.Core.ResiliencePipelines.ResiliencePipelineSettings,MelloSilveiraTools.Core.Logging.LoggerSettings)">
             <summary>
             Registers database services: settings, Postgres resilience pipeline, SQL provider and repository.
             </summary>
-            <param name="services">Service collection that receives the registrations.</param>
             <param name="databaseSettings">Database connection and behavior settings.</param>
             <param name="resiliencePipelineSettings">Settings that parameterize the resilience pipelines.</param>
+            <param name="loggerSettings">Settings used by logger service.</param>
             <returns>The same <paramref name="services"/> instance to allow call chaining.</returns>
-        </member>
-        <member name="T:MelloSilveiraTools.Database.Domain.Repositories.IRepository">
-             <summary>
-             Provides a generic, filter-driven abstraction over persistent storage for entity types.
-             </summary>
-             <remarks>
-             All asynchronous members accept a <see cref="T:System.Threading.CancellationToken"/> and will throw
-             <see cref="T:System.OperationCanceledException"/> when cancellation is signalled.
-            
-             Transient database failures (connection drops, broken protocol, network blips, command timeouts caused by
-             transient conditions) are absorbed and retried resilience pipeline. Once the pipeline budget is exhausted 
-             the underlying exceptions are re-thrown to the caller. Non-transient failures — for example unique-constraint 
-             violations, permission errors, or definitive command timeouts — are not retried and are propagated as <see cref="T:System.TimeoutException"/>.
-             </remarks>
-        </member>
-        <member name="M:MelloSilveiraTools.Database.Domain.Repositories.IRepository.CountAsync``2(``1,System.Threading.CancellationToken)">
-            <summary>
-            Counts the entities matching the supplied filter.
-            </summary>
-        </member>
-        <member name="M:MelloSilveiraTools.Database.Domain.Repositories.IRepository.ExistAsync``1(System.Int64,System.Threading.CancellationToken)">
-            <summary>
-            Indicates whether an entity with the given identifier exists.
-            </summary>
-        </member>
-        <member name="M:MelloSilveiraTools.Database.Domain.Repositories.IRepository.ExistAsync``2(``1,System.Threading.CancellationToken)">
-            <summary>
-            Indicates whether any entity matching the supplied filter exists.
-            </summary>
-        </member>
-        <member name="M:MelloSilveiraTools.Database.Domain.Repositories.IRepository.GetFirstOrDefaultAsync``2(``1,MelloSilveiraTools.Database.Infrastructure.Database.Models.Filters.SortOrder,System.Threading.CancellationToken)">
-            <summary>
-            Gets the first entity matching the supplied filter, or the default value when none is found.
-            </summary>
-        </member>
-        <member name="M:MelloSilveiraTools.Database.Domain.Repositories.IRepository.GetAsync``1(System.Int64,System.Threading.CancellationToken)">
-            <summary>
-            Gets the entity with the given identifier, or <c>null</c> when it does not exist.
-            </summary>
-        </member>
-        <member name="M:MelloSilveiraTools.Database.Domain.Repositories.IRepository.GetAsync``2(``1,MelloSilveiraTools.Database.Infrastructure.Database.Models.Filters.Pagination,System.Threading.CancellationToken)">
-            <summary>
-            Streams all entities matching the supplied filter, optionally paginated.
-            </summary>
-        </member>
-        <member name="M:MelloSilveiraTools.Database.Domain.Repositories.IRepository.GetDistinctAsync``2(``1,MelloSilveiraTools.Database.Infrastructure.Database.Models.Filters.Pagination,System.Threading.CancellationToken)">
-            <summary>
-            Streams the distinct entities matching the supplied filter, optionally paginated.
-            </summary>
-        </member>
-        <member name="M:MelloSilveiraTools.Database.Domain.Repositories.IRepository.DeleteAllAsync``1(System.Threading.CancellationToken)">
-            <summary>
-            Deletes every entity of the specified type.
-            </summary>
-        </member>
-        <member name="M:MelloSilveiraTools.Database.Domain.Repositories.IRepository.DeleteAsync``1(System.Int64,System.Threading.CancellationToken)">
-            <summary>
-            Deletes the entity with the given identifier.
-            </summary>
-        </member>
-        <member name="M:MelloSilveiraTools.Database.Domain.Repositories.IRepository.DeleteAsync``2(``1,System.Threading.CancellationToken)">
-            <summary>
-            Deletes the entities matching the supplied filter.
-            </summary>
-        </member>
-        <member name="M:MelloSilveiraTools.Database.Domain.Repositories.IRepository.InsertAsync``1(``0,System.Threading.CancellationToken)">
-            <summary>
-            Inserts a new entity and returns its generated identifier.
-            </summary>
-        </member>
-        <member name="M:MelloSilveiraTools.Database.Domain.Repositories.IRepository.InsertAsync``1(``0[],System.Threading.CancellationToken)">
-            <summary>
-            Inserts a batch of entities and returns their generated identifiers in the same order.
-            </summary>
-        </member>
-        <member name="M:MelloSilveiraTools.Database.Domain.Repositories.IRepository.UpsertAsync``1(``0,System.Threading.CancellationToken)">
-            <summary>
-            Inserts the entity or updates it when a matching record already exists, returning the resulting identifier.
-            </summary>
-        </member>
-        <member name="M:MelloSilveiraTools.Database.Domain.Repositories.IRepository.UpsertAsync``2(``0[],``1,System.Threading.CancellationToken)">
-            <summary>
-            Inserts or updates a batch of entities using the supplied filter to detect existing records.
-            </summary>
-        </member>
-        <member name="M:MelloSilveiraTools.Database.Domain.Repositories.IRepository.TryUpdateAsync``1(``0,System.Threading.CancellationToken)">
-            <summary>
-            Attempts to update the supplied entity, returning <c>true</c> only when a record was actually changed.
-            </summary>
         </member>
         <member name="T:MelloSilveiraTools.Database.ExtensionMethods.ClassExtensions">
             <summary>
             Contains extension methods for class.
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.Database.ExtensionMethods.ClassExtensions.GetValuesInHierarchy``1(``0)">
-            <summary>
-            Gets the values from object which is following the hierarchy order from parent to child.
-            </summary>
-            <typeparam name="T">The type of <paramref name="obj"/>.</typeparam>
-            <param name="obj"></param>
-            <returns>A <see cref="T:System.Collections.Generic.List`1"/> containing the values from object which is following the hierarchy order from parent to child.</returns>
+        <member name="M:MelloSilveiraTools.Database.ExtensionMethods.ClassExtensions.BuildParameters``1(``0,System.Boolean)">
+            <inheritdoc cref="M:MelloSilveiraTools.Database.ExtensionMethods.ClassExtensions.&lt;G&gt;$8048A6C8BE30A622530249B904B537EB`1.BuildParameters(System.Boolean)"/>
         </member>
-        <member name="M:MelloSilveiraTools.Database.ExtensionMethods.ClassExtensions.GetValues``1(``0,System.Collections.Generic.IEnumerable{System.Reflection.PropertyInfo})">
-            <summary>
-            Gets the values from object using an <see cref="T:System.Collections.Generic.IEnumerable`1"/> of properties as reference.
-            </summary>
-            <typeparam name="T">The type of <paramref name="obj"/>.</typeparam>
-            <param name="obj"></param>
-            <param name="properties">Properties to be used as reference to get the values from object.</param>
-            <returns></returns>
+        <member name="M:MelloSilveiraTools.Database.ExtensionMethods.ClassExtensions.BuildWhereClauseAndParameters``1(``0)">
+            <inheritdoc cref="M:MelloSilveiraTools.Database.ExtensionMethods.ClassExtensions.&lt;G&gt;$8048A6C8BE30A622530249B904B537EB`1.BuildWhereClauseAndParameters"/>
+        </member>
+        <member name="M:MelloSilveiraTools.Database.ExtensionMethods.ClassExtensions.BuildWhereClauseAndNpgsqlParameters``1(``0)">
+            <inheritdoc cref="M:MelloSilveiraTools.Database.ExtensionMethods.ClassExtensions.&lt;G&gt;$8048A6C8BE30A622530249B904B537EB`1.BuildWhereClauseAndNpgsqlParameters"/>
         </member>
         <member name="M:MelloSilveiraTools.Database.ExtensionMethods.ClassExtensions.SetValues``1(System.Object,System.Type,System.Collections.Generic.IDictionary{System.String,``0})">
-            <summary>
-            Sets the values in objects using reflection.
-            </summary>
-            <typeparam name="T"></typeparam>
-            <param name="obj"></param>
-            <param name="type"></param>
-            <param name="valuesGroupedByPropertyName"></param>
-        </member>
-        <member name="M:MelloSilveiraTools.Database.ExtensionMethods.ClassExtensions.GetPropertyNamesAndValuesInHierarchy``2(``0)">
-            <summary>
-            Gets the name and value of properties from object which is following the hierarchy order from parent to child.
-            It is also possible to filter by a custom attribute.
-            </summary>
-            <typeparam name="T">The type of <paramref name="obj"/>.</typeparam>
-            <typeparam name="TCustomAttribute">The type of custom attribute to be used in search.</typeparam>
-            <param name="obj"></param>
-            <returns>
-            A <see cref="T:System.Collections.Generic.Dictionary`2"/> which the key is the property name and the value is the property value.
-            </returns>
+            <inheritdoc cref="M:MelloSilveiraTools.Database.ExtensionMethods.ClassExtensions.&lt;G&gt;$C43E2675C7BBF9284AF22FB8A9BF0280.SetValues``1(System.Type,System.Collections.Generic.IDictionary{System.String,``0})"/>
         </member>
         <member name="M:MelloSilveiraTools.Database.ExtensionMethods.ClassExtensions.BuildParametersFromCollection``1(System.Collections.Generic.ICollection{``0})">
-            <summary>
-            Builds an enumerable with <see cref="T:Npgsql.NpgsqlParameter"/>.
-            </summary>
-            <typeparam name="T">The type of <paramref name="collection"/>.</typeparam>
-            <param name="collection"></param>
-            <returns>A <see cref="T:System.Collections.Generic.IEnumerable`1"/> with <see cref="T:Npgsql.NpgsqlParameter"/>.</returns>
+            <inheritdoc cref="M:MelloSilveiraTools.Database.ExtensionMethods.ClassExtensions.&lt;G&gt;$847CB318C385471B1F4E7BD0A197DBCA`1.BuildParametersFromCollection"/>
         </member>
-        <member name="M:MelloSilveiraTools.Database.ExtensionMethods.ClassExtensions.BuildParameters``1(``0,System.Boolean)">
+        <member name="T:MelloSilveiraTools.Database.ExtensionMethods.ClassExtensions.&lt;G&gt;$8048A6C8BE30A622530249B904B537EB`1.&lt;M&gt;$9693FCD04DC098E818044F36B6B87842">
             <summary>
-            Builds an enumerable with <see cref="T:Npgsql.NpgsqlParameter"/>.
+            Contains extension methods for class instances.
             </summary>
             <typeparam name="T">The type of <paramref name="obj"/>.</typeparam>
             <param name="obj"></param>
+        </member>
+        <member name="M:MelloSilveiraTools.Database.ExtensionMethods.ClassExtensions.&lt;G&gt;$8048A6C8BE30A622530249B904B537EB`1.BuildParameters(System.Boolean)">
+            <summary>
+            Builds an enumerable with <see cref="T:Npgsql.NpgsqlParameter"/>.
+            </summary>
             <param name="useDeclaredProperties"></param>
             <returns>A <see cref="T:System.Collections.Generic.IEnumerable`1"/> with <see cref="T:Npgsql.NpgsqlParameter"/>.</returns>
         </member>
-        <member name="M:MelloSilveiraTools.Database.ExtensionMethods.ClassExtensions.BuildWhereClauseAndParameters``1(``0)">
+        <member name="M:MelloSilveiraTools.Database.ExtensionMethods.ClassExtensions.&lt;G&gt;$8048A6C8BE30A622530249B904B537EB`1.BuildWhereClauseAndParameters">
             <summary>
             Builds a SQL WHERE clause and a <see cref="T:Dapper.DynamicParameters"/> based on filter.
             </summary>
-            <typeparam name="T"></typeparam>
-            <param name="obj"></param>
             <returns></returns>
         </member>
-        <member name="M:MelloSilveiraTools.Database.ExtensionMethods.ClassExtensions.BuildWhereClauseAndNpgsqlParameters``1(``0)">
+        <member name="M:MelloSilveiraTools.Database.ExtensionMethods.ClassExtensions.&lt;G&gt;$8048A6C8BE30A622530249B904B537EB`1.BuildWhereClauseAndNpgsqlParameters">
             <summary>
             Builds a SQL WHERE clause and a list of <see cref="T:Npgsql.NpgsqlParameter"/> based on filter.
             </summary>
-            <typeparam name="T"></typeparam>
-            <param name="obj"></param>
             <returns></returns>
         </member>
-        <member name="M:MelloSilveiraTools.Database.ExtensionMethods.ClassExtensions.AsTask``1(``0)">
+        <member name="M:MelloSilveiraTools.Database.ExtensionMethods.ClassExtensions.&lt;G&gt;$C43E2675C7BBF9284AF22FB8A9BF0280.SetValues``1(System.Type,System.Collections.Generic.IDictionary{System.String,``0})">
             <summary>
-            Wraps the supplied instance in a completed <see cref="T:System.Threading.Tasks.Task`1"/>.
+            Sets the values in objects using reflection.
             </summary>
+            <param name="type"></param>
+            <param name="valuesGroupedByPropertyName"></param>
+        </member>
+        <member name="M:MelloSilveiraTools.Database.ExtensionMethods.ClassExtensions.&lt;G&gt;$847CB318C385471B1F4E7BD0A197DBCA`1.BuildParametersFromCollection">
+            <summary>
+            Builds an enumerable with <see cref="T:Npgsql.NpgsqlParameter"/>.
+            </summary>
+            <returns>A <see cref="T:System.Collections.Generic.IEnumerable`1"/> with <see cref="T:Npgsql.NpgsqlParameter"/>.</returns>
         </member>
         <member name="T:MelloSilveiraTools.Database.ExtensionMethods.DbDataReaderExtensions">
             <summary>
@@ -194,19 +86,23 @@
             </summary>
         </member>
         <member name="M:MelloSilveiraTools.Database.ExtensionMethods.DbDataReaderExtensions.ToObject``1(System.Data.Common.DbDataReader)">
+            <inheritdoc cref="M:MelloSilveiraTools.Database.ExtensionMethods.DbDataReaderExtensions.&lt;G&gt;$3CAAB53CACEAA22373AF5C40C0C62B1F.ToObject``1"/>
+        </member>
+        <member name="M:MelloSilveiraTools.Database.ExtensionMethods.DbDataReaderExtensions.ToObject``1(System.Data.Common.DbDataReader,System.Collections.Generic.Dictionary{System.String,System.Reflection.PropertyInfo})">
+            <inheritdoc cref="M:MelloSilveiraTools.Database.ExtensionMethods.DbDataReaderExtensions.&lt;G&gt;$3CAAB53CACEAA22373AF5C40C0C62B1F.ToObject``1(System.Collections.Generic.Dictionary{System.String,System.Reflection.PropertyInfo})"/>
+        </member>
+        <member name="M:MelloSilveiraTools.Database.ExtensionMethods.DbDataReaderExtensions.&lt;G&gt;$3CAAB53CACEAA22373AF5C40C0C62B1F.ToObject``1">
             <summary>
             Converts a <see cref="T:System.Data.Common.DbDataReader"/> to an object.
             </summary>
             <typeparam name="T">Type of <see cref="T:System.Data.Common.DbDataReader"/> must be converted.</typeparam>
-            <param name="reader"></param>
             <returns></returns>
         </member>
-        <member name="M:MelloSilveiraTools.Database.ExtensionMethods.DbDataReaderExtensions.ToObject``1(System.Data.Common.DbDataReader,System.Collections.Generic.Dictionary{System.String,System.Reflection.PropertyInfo})">
+        <member name="M:MelloSilveiraTools.Database.ExtensionMethods.DbDataReaderExtensions.&lt;G&gt;$3CAAB53CACEAA22373AF5C40C0C62B1F.ToObject``1(System.Collections.Generic.Dictionary{System.String,System.Reflection.PropertyInfo})">
             <summary>
             Converts a <see cref="T:System.Data.Common.DbDataReader"/> to an object using a cache to store property info of object.
             </summary>
             <typeparam name="T">Type of <see cref="T:System.Data.Common.DbDataReader"/> must be converted.</typeparam>
-            <param name="reader"></param>
             <param name="propertyInfoCache"></param>
             <returns></returns>
         </member>
@@ -215,9 +111,12 @@
             Contains extension methods for enumerations used across the Tools project.
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.Database.ExtensionMethods.EnumExtensions.ToNpgsqlString(MelloSilveiraTools.Database.Infrastructure.Database.Models.Filters.SortOrder)">
+        <member name="M:MelloSilveiraTools.Database.ExtensionMethods.EnumExtensions.ToNpgsqlString(MelloSilveiraTools.Database.RelationalDatabase.Models.Filters.SortOrder)">
+            <inheritdoc cref="M:MelloSilveiraTools.Database.ExtensionMethods.EnumExtensions.&lt;G&gt;$A72BD8C59E21EADEDDC2A6239C3FCA6D.ToNpgsqlString"/>
+        </member>
+        <member name="M:MelloSilveiraTools.Database.ExtensionMethods.EnumExtensions.&lt;G&gt;$A72BD8C59E21EADEDDC2A6239C3FCA6D.ToNpgsqlString">
             <summary>
-            Converts a <see cref="T:MelloSilveiraTools.Database.Infrastructure.Database.Models.Filters.SortOrder"/> into the corresponding PostgreSQL <c>ORDER BY</c> clause.
+            Converts a <see cref="T:MelloSilveiraTools.Database.RelationalDatabase.Models.Filters.SortOrder"/> into the corresponding PostgreSQL <c>ORDER BY</c> clause.
             </summary>
         </member>
         <member name="T:MelloSilveiraTools.Database.ExtensionMethods.NpgsqlCommandExtensions">
@@ -226,19 +125,23 @@
             </summary>
         </member>
         <member name="M:MelloSilveiraTools.Database.ExtensionMethods.NpgsqlCommandExtensions.SetCommandParametersFromEntity``1(Npgsql.NpgsqlCommand,``0)">
+            <inheritdoc cref="M:MelloSilveiraTools.Database.ExtensionMethods.NpgsqlCommandExtensions.&lt;G&gt;$F3D142B2ABB736DD52B0587421BCB512.SetCommandParametersFromEntity``1(``0)"/>
+        </member>
+        <member name="M:MelloSilveiraTools.Database.ExtensionMethods.NpgsqlCommandExtensions.SetCommandParameters(Npgsql.NpgsqlCommand,System.Collections.Generic.IEnumerable{Npgsql.NpgsqlParameter})">
+            <inheritdoc cref="M:MelloSilveiraTools.Database.ExtensionMethods.NpgsqlCommandExtensions.&lt;G&gt;$F3D142B2ABB736DD52B0587421BCB512.SetCommandParameters(System.Collections.Generic.IEnumerable{Npgsql.NpgsqlParameter})"/>
+        </member>
+        <member name="M:MelloSilveiraTools.Database.ExtensionMethods.NpgsqlCommandExtensions.&lt;G&gt;$F3D142B2ABB736DD52B0587421BCB512.SetCommandParametersFromEntity``1(``0)">
             <summary>
             Sets the parameter for sql command.
             </summary>
             <typeparam name="TEntity"></typeparam>
-            <param name="command"></param>
             <param name="entity"></param>
             <returns></returns>
         </member>
-        <member name="M:MelloSilveiraTools.Database.ExtensionMethods.NpgsqlCommandExtensions.SetCommandParameters(Npgsql.NpgsqlCommand,System.Collections.Generic.IEnumerable{Npgsql.NpgsqlParameter})">
+        <member name="M:MelloSilveiraTools.Database.ExtensionMethods.NpgsqlCommandExtensions.&lt;G&gt;$F3D142B2ABB736DD52B0587421BCB512.SetCommandParameters(System.Collections.Generic.IEnumerable{Npgsql.NpgsqlParameter})">
             <summary>
             Sets the parameter for sql command.
             </summary>
-            <param name="command"></param>
             <param name="parameters"></param>
             <returns></returns>
         </member>
@@ -248,11 +151,34 @@
             </summary>
         </member>
         <member name="M:MelloSilveiraTools.Database.ExtensionMethods.NpgsqlConnectionExtensions.QueryFirstOrDefaultAsync``1(Npgsql.NpgsqlConnection,System.String,Dapper.DynamicParameters,System.Threading.CancellationToken)">
+            <inheritdoc cref="M:MelloSilveiraTools.Database.ExtensionMethods.NpgsqlConnectionExtensions.&lt;G&gt;$277C0D2B5C73CA72F65CD00D7B70955D.QueryFirstOrDefaultAsync``1(System.String,Dapper.DynamicParameters,System.Threading.CancellationToken)"/>
+        </member>
+        <member name="M:MelloSilveiraTools.Database.ExtensionMethods.NpgsqlConnectionExtensions.QueryFirstOrDefaultAsync``1(Npgsql.NpgsqlConnection,System.String,Dapper.DynamicParameters,System.Int32,System.Threading.CancellationToken)">
+            <inheritdoc cref="M:MelloSilveiraTools.Database.ExtensionMethods.NpgsqlConnectionExtensions.&lt;G&gt;$277C0D2B5C73CA72F65CD00D7B70955D.QueryFirstOrDefaultAsync``1(System.String,Dapper.DynamicParameters,System.Int32,System.Threading.CancellationToken)"/>
+        </member>
+        <member name="M:MelloSilveiraTools.Database.ExtensionMethods.NpgsqlConnectionExtensions.QueryAsync``1(Npgsql.NpgsqlConnection,System.String,Dapper.DynamicParameters,System.Threading.CancellationToken)">
+            <inheritdoc cref="M:MelloSilveiraTools.Database.ExtensionMethods.NpgsqlConnectionExtensions.&lt;G&gt;$277C0D2B5C73CA72F65CD00D7B70955D.QueryAsync``1(System.String,Dapper.DynamicParameters,System.Threading.CancellationToken)"/>
+        </member>
+        <member name="M:MelloSilveiraTools.Database.ExtensionMethods.NpgsqlConnectionExtensions.ExecuteScalarAsync``1(Npgsql.NpgsqlConnection,System.String,Dapper.DynamicParameters,System.Threading.CancellationToken)">
+            <inheritdoc cref="M:MelloSilveiraTools.Database.ExtensionMethods.NpgsqlConnectionExtensions.&lt;G&gt;$277C0D2B5C73CA72F65CD00D7B70955D.ExecuteScalarAsync``1(System.String,Dapper.DynamicParameters,System.Threading.CancellationToken)"/>
+        </member>
+        <member name="M:MelloSilveiraTools.Database.ExtensionMethods.NpgsqlConnectionExtensions.ExecuteScalarAsync``1(Npgsql.NpgsqlConnection,System.String,Dapper.DynamicParameters,System.Int32,System.Threading.CancellationToken)">
+            <inheritdoc cref="M:MelloSilveiraTools.Database.ExtensionMethods.NpgsqlConnectionExtensions.&lt;G&gt;$277C0D2B5C73CA72F65CD00D7B70955D.ExecuteScalarAsync``1(System.String,Dapper.DynamicParameters,System.Int32,System.Threading.CancellationToken)"/>
+        </member>
+        <member name="M:MelloSilveiraTools.Database.ExtensionMethods.NpgsqlConnectionExtensions.ExecuteReaderAsync(Npgsql.NpgsqlConnection,System.String,Dapper.DynamicParameters,System.Threading.CancellationToken)">
+            <inheritdoc cref="M:MelloSilveiraTools.Database.ExtensionMethods.NpgsqlConnectionExtensions.&lt;G&gt;$277C0D2B5C73CA72F65CD00D7B70955D.ExecuteReaderAsync(System.String,Dapper.DynamicParameters,System.Threading.CancellationToken)"/>
+        </member>
+        <member name="T:MelloSilveiraTools.Database.ExtensionMethods.NpgsqlConnectionExtensions.&lt;G&gt;$277C0D2B5C73CA72F65CD00D7B70955D.&lt;M&gt;$7E08B0497304926E2C845BC43C5B1B93">
+            <summary>
+            Contains extension methods for <see cref="T:Npgsql.NpgsqlConnection"/> instances.
+            </summary>
+            <param name="connection">Connection to query on.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.Database.ExtensionMethods.NpgsqlConnectionExtensions.&lt;G&gt;$277C0D2B5C73CA72F65CD00D7B70955D.QueryFirstOrDefaultAsync``1(System.String,Dapper.DynamicParameters,System.Threading.CancellationToken)">
             <summary>
             Executes a query, returning the data typed as <typeparamref name="T"/>.
             </summary>
             <typeparam name="T">Type of results to return.</typeparam>
-            <param name="connection">Connection to query on.</param>
             <param name="sql">Text query to be executed.</param>
             <param name="parameters">The parameters for this command.</param>
             <param name="cancellationToken">Cancellation token for this command.</param>
@@ -261,12 +187,11 @@
             otherwise an instance is created per row, and a direct column-name === member-name mapping is assumed (case insensitive).
             </returns>
         </member>
-        <member name="M:MelloSilveiraTools.Database.ExtensionMethods.NpgsqlConnectionExtensions.QueryFirstOrDefaultAsync``1(Npgsql.NpgsqlConnection,System.String,Dapper.DynamicParameters,System.Int32,System.Threading.CancellationToken)">
+        <member name="M:MelloSilveiraTools.Database.ExtensionMethods.NpgsqlConnectionExtensions.&lt;G&gt;$277C0D2B5C73CA72F65CD00D7B70955D.QueryFirstOrDefaultAsync``1(System.String,Dapper.DynamicParameters,System.Int32,System.Threading.CancellationToken)">
             <summary>
             Executes a query, returning the data typed as <typeparamref name="T"/>.
             </summary>
             <typeparam name="T">Type of results to return.</typeparam>
-            <param name="connection">Connection to query on.</param>
             <param name="sql">Text query to be executed.</param>
             <param name="parameters">The parameters for this command.</param>
             <param name="commandTimeout">Number of seconds before command execution timeout.</param>
@@ -276,12 +201,11 @@
             otherwise an instance is created per row, and a direct column-name === member-name mapping is assumed (case insensitive).
             </returns>
         </member>
-        <member name="M:MelloSilveiraTools.Database.ExtensionMethods.NpgsqlConnectionExtensions.QueryAsync``1(Npgsql.NpgsqlConnection,System.String,Dapper.DynamicParameters,System.Threading.CancellationToken)">
+        <member name="M:MelloSilveiraTools.Database.ExtensionMethods.NpgsqlConnectionExtensions.&lt;G&gt;$277C0D2B5C73CA72F65CD00D7B70955D.QueryAsync``1(System.String,Dapper.DynamicParameters,System.Threading.CancellationToken)">
             <summary>
             Execute a query asynchronously using Task.
             </summary>
             <typeparam name="T">Type of results to return.</typeparam>
-            <param name="connection">Connection to query on.</param>
             <param name="sql">Text query to be executed.</param>
             <param name="parameters">The parameters for this command.</param>
             <param name="cancellationToken">Cancellation token for this command.</param>
@@ -290,34 +214,31 @@
             created per row, and a direct column-name===member-name mapping is assumed (case insensitive).
             </returns>
         </member>
-        <member name="M:MelloSilveiraTools.Database.ExtensionMethods.NpgsqlConnectionExtensions.ExecuteScalarAsync``1(Npgsql.NpgsqlConnection,System.String,Dapper.DynamicParameters,System.Threading.CancellationToken)">
+        <member name="M:MelloSilveiraTools.Database.ExtensionMethods.NpgsqlConnectionExtensions.&lt;G&gt;$277C0D2B5C73CA72F65CD00D7B70955D.ExecuteScalarAsync``1(System.String,Dapper.DynamicParameters,System.Threading.CancellationToken)">
             <summary>
             Execute parameterized SQL that selects a single value.
             </summary>
             <typeparam name="T">The type to return.</typeparam>
-            <param name="connection">The connection to execute on.</param>
             <param name="sql">The SQL to execute.</param>
             <param name="parameters">The parameters to use for this command.</param>
             <param name="cancellationToken">Cancellation token for this command.</param>
             <returns>The first cell returned, as <typeparamref name="T"/>.</returns>
         </member>
-        <member name="M:MelloSilveiraTools.Database.ExtensionMethods.NpgsqlConnectionExtensions.ExecuteScalarAsync``1(Npgsql.NpgsqlConnection,System.String,Dapper.DynamicParameters,System.Int32,System.Threading.CancellationToken)">
+        <member name="M:MelloSilveiraTools.Database.ExtensionMethods.NpgsqlConnectionExtensions.&lt;G&gt;$277C0D2B5C73CA72F65CD00D7B70955D.ExecuteScalarAsync``1(System.String,Dapper.DynamicParameters,System.Int32,System.Threading.CancellationToken)">
             <summary>
             Execute parameterized SQL that selects a single value.
             </summary>
             <typeparam name="T">The type to return.</typeparam>
-            <param name="connection">The connection to execute on.</param>
             <param name="sql">The SQL to execute.</param>
             <param name="parameters">The parameters to use for this command.</param>
             <param name="commandTimeout">Number of seconds before command execution timeout.</param>
             <param name="cancellationToken">Cancellation token for this command.</param>
             <returns>The first cell returned, as <typeparamref name="T"/>.</returns>
         </member>
-        <member name="M:MelloSilveiraTools.Database.ExtensionMethods.NpgsqlConnectionExtensions.ExecuteReaderAsync(Npgsql.NpgsqlConnection,System.String,Dapper.DynamicParameters,System.Threading.CancellationToken)">
+        <member name="M:MelloSilveiraTools.Database.ExtensionMethods.NpgsqlConnectionExtensions.&lt;G&gt;$277C0D2B5C73CA72F65CD00D7B70955D.ExecuteReaderAsync(System.String,Dapper.DynamicParameters,System.Threading.CancellationToken)">
             <summary>
             Execute parameterized SQL and return an <see cref="T:System.Data.IDataReader"/>.
             </summary>
-            <param name="connection">The connection to execute on.</param>
             <param name="sql">The SQL to execute.</param>
             <param name="parameters">The parameters to use for this command.</param>
             <param name="cancellationToken">Cancellation token for this command.</param>
@@ -332,415 +253,367 @@
             Contains extension methods for <see cref="T:System.Type"/>.
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.Database.ExtensionMethods.TypeExtensions.GetPropertiesInHierarchy(System.Type)">
-            <summary>
-            Gets every public instance property declared anywhere in the type hierarchy of <paramref name="type"/>,
-            ordered from the topmost base class down to the most derived type. Properties declared in a base
-            class appear before those declared in its descendants. Results are cached per <see cref="T:System.Type"/>.
-            </summary>
-            <param name="type">The type whose hierarchy should be walked.</param>
-            <returns>The properties of <paramref name="type"/> ordered from base to derived.</returns>
-        </member>
-        <member name="M:MelloSilveiraTools.Database.ExtensionMethods.TypeExtensions.GetPropertiesInHierarchy``1(System.Type)">
-            <summary>
-            Gets every public instance property declared in the type hierarchy of <paramref name="type"/>
-            that is decorated with <typeparamref name="TAttribute"/>, ordered from the topmost base class
-            down to the most derived type. Results are cached per (type, attribute) pair.
-            </summary>
-            <typeparam name="TAttribute">The attribute used to filter properties.</typeparam>
-            <param name="type">The type whose hierarchy should be walked.</param>
-            <returns>The matching properties ordered from base to derived.</returns>
-        </member>
-        <member name="M:MelloSilveiraTools.Database.ExtensionMethods.TypeExtensions.GetPropertyNamesInHierarchy(System.Type)">
-            <summary>
-            Gets the names of every public instance property declared in the hierarchy of <paramref name="type"/>,
-            ordered from the topmost base class down to the most derived type (same order as
-            <see cref="M:MelloSilveiraTools.Database.ExtensionMethods.TypeExtensions.GetPropertiesInHierarchy(System.Type)"/>). Results are cached per <see cref="T:System.Type"/>.
-            </summary>
-            <param name="type">The type whose hierarchy should be walked.</param>
-            <returns>The property names of <paramref name="type"/> ordered from base to derived.</returns>
-        </member>
-        <member name="M:MelloSilveiraTools.Database.ExtensionMethods.TypeExtensions.GetDeclaredProperties(System.Type)">
-            <summary>
-            Gets only the public instance properties declared directly on <paramref name="type"/>,
-            excluding those inherited from base classes.
-            </summary>
-            <param name="type">The type whose declared properties should be returned.</param>
-            <returns>The public instance properties declared on <paramref name="type"/>.</returns>
-        </member>
-        <member name="M:MelloSilveiraTools.Database.ExtensionMethods.TypeExtensions.GetDeclaredProperties``1(System.Type)">
-            <summary>
-            Gets the public instance properties declared directly on <paramref name="type"/> (no inherited
-            members) that are decorated with <typeparamref name="TAttribute"/>.
-            </summary>
-            <typeparam name="TAttribute">The attribute used to filter properties.</typeparam>
-            <param name="type">The type whose declared properties should be inspected.</param>
-            <returns>The matching declared properties.</returns>
-        </member>
-        <member name="M:MelloSilveiraTools.Database.ExtensionMethods.TypeExtensions.GetDeclaredPropertyNames(System.Type)">
-            <summary>
-            Gets the names of the public instance properties declared directly on <paramref name="type"/>,
-            excluding inherited members.
-            </summary>
-            <param name="type">The type whose declared property names should be returned.</param>
-            <returns>The names of the public instance properties declared on <paramref name="type"/>.</returns>
-        </member>
-        <member name="M:MelloSilveiraTools.Database.ExtensionMethods.TypeExtensions.IsEnumerable(System.Type)">
-            <summary>
-            Indicates whether <paramref name="type"/> is an enumerable collection — that is, whether it
-            implements <see cref="T:System.Collections.IEnumerable"/>. <see cref="T:System.String"/> is treated as a non-enumerable
-            special case and always returns <see langword="false"/>.
-            </summary>
-            <param name="type">The type to test.</param>
-            <returns><see langword="true"/> if <paramref name="type"/> implements <see cref="T:System.Collections.IEnumerable"/> and is not <see cref="T:System.String"/>; otherwise <see langword="false"/>.</returns>
-        </member>
         <member name="M:MelloSilveiraTools.Database.ExtensionMethods.TypeExtensions.GetDbTypeFromPropertyType(System.Type)">
+            <inheritdoc cref="M:MelloSilveiraTools.Database.ExtensionMethods.TypeExtensions.&lt;G&gt;$6B6159A298CA62A8C577E514BE40E3DD.GetDbTypeFromPropertyType"/>
+        </member>
+        <member name="M:MelloSilveiraTools.Database.ExtensionMethods.TypeExtensions.&lt;G&gt;$6B6159A298CA62A8C577E514BE40E3DD.GetDbTypeFromPropertyType">
             <summary>
             Returns the <see cref="T:NpgsqlTypes.NpgsqlDbType"/> from property type.
             </summary>
-            <param name="type">The CLR property type to be mapped to its corresponding <see cref="T:NpgsqlTypes.NpgsqlDbType"/>.</param>
+            <remarks>
+            <paramref name="type"/>: The CLR property type to be mapped to its corresponding <see cref="T:NpgsqlTypes.NpgsqlDbType"/>.
+            </remarks>
             <returns>The <see cref="T:NpgsqlTypes.NpgsqlDbType"/> matching <paramref name="type"/>.</returns>
             <exception cref="T:System.ArgumentOutOfRangeException">
             Thrown when <paramref name="type"/> is not handled by this mapping (i.e. it is not one of the supported
             primitive, nullable primitive, array or generic enumerable types).
             </exception>
         </member>
-        <member name="T:MelloSilveiraTools.Database.Infrastructure.Database.Attributes.ColumnAttribute">
+        <member name="M:MelloSilveiraTools.Database.Logging.DatabaseLoggingExtensions.WriteToPostgres(Serilog.LoggerConfiguration,MelloSilveiraTools.Core.Logging.LoggerSettings)">
+            <inheritdoc cref="M:MelloSilveiraTools.Database.Logging.DatabaseLoggingExtensions.&lt;G&gt;$6B5B6285A2C1A95C5914B27276A625A6.WriteToPostgres(MelloSilveiraTools.Core.Logging.LoggerSettings)"/>
+        </member>
+        <member name="M:MelloSilveiraTools.Database.Logging.DatabaseLoggingExtensions.&lt;G&gt;$6B5B6285A2C1A95C5914B27276A625A6.WriteToPostgres(MelloSilveiraTools.Core.Logging.LoggerSettings)">
+            <summary>
+            Adds the PostgreSQL batch-insert sink to the Serilog configuration using the unified settings.
+            </summary>
+        </member>
+        <member name="T:MelloSilveiraTools.Database.RelationalDatabase.Attributes.ColumnAttribute">
             <summary>
             Specifies if a column is a primary key of table.
             </summary>
         </member>
-        <member name="T:MelloSilveiraTools.Database.Infrastructure.Database.Attributes.FilterAttribute">
+        <member name="T:MelloSilveiraTools.Database.RelationalDatabase.Attributes.FilterAttribute">
             <summary>
             Specifies if the class is a filter for a table.
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.Database.Infrastructure.Database.Attributes.FilterAttribute.#ctor(System.Type)">
+        <member name="M:MelloSilveiraTools.Database.RelationalDatabase.Attributes.FilterAttribute.#ctor(System.Type)">
             <summary>
-            Initializes a new instance of the <see cref="T:MelloSilveiraTools.Database.Infrastructure.Database.Attributes.FilterAttribute" /> class, discovering the target table and
+            Initializes a new instance of the <see cref="T:MelloSilveiraTools.Database.RelationalDatabase.Attributes.FilterAttribute" /> class, discovering the target table and
             its JOIN dependencies from the foreign key columns declared on <paramref name="entityToBeFiltered"/>.
             </summary>
             <param name="entityToBeFiltered">Entity type that this filter targets.</param>
         </member>
-        <member name="P:MelloSilveiraTools.Database.Infrastructure.Database.Attributes.FilterAttribute.TableDefinition">
+        <member name="P:MelloSilveiraTools.Database.RelationalDatabase.Attributes.FilterAttribute.TableDefinition">
             <summary>
             Definition of main table.
             </summary>
         </member>
-        <member name="P:MelloSilveiraTools.Database.Infrastructure.Database.Attributes.FilterAttribute.JoinTablesDefinition">
+        <member name="P:MelloSilveiraTools.Database.RelationalDatabase.Attributes.FilterAttribute.JoinTablesDefinition">
             <summary>
             Dictionary which key is the name of table in JOIN clause and value its definition.
             </summary>
         </member>
-        <member name="T:MelloSilveiraTools.Database.Infrastructure.Database.Attributes.FilterColumnAttribute">
+        <member name="T:MelloSilveiraTools.Database.RelationalDatabase.Attributes.FilterColumnAttribute">
             <summary>
             Specifies if the property is a filter for a column on table.
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.Database.Infrastructure.Database.Attributes.FilterColumnAttribute.#ctor(System.String,System.String,System.String)">
+        <member name="M:MelloSilveiraTools.Database.RelationalDatabase.Attributes.FilterColumnAttribute.#ctor(System.String,System.String,System.String)">
             <summary>
             Specifies if the property is a filter for a column on table.
             </summary>
         </member>
-        <member name="P:MelloSilveiraTools.Database.Infrastructure.Database.Attributes.FilterColumnAttribute.FilterClause">
+        <member name="P:MelloSilveiraTools.Database.RelationalDatabase.Attributes.FilterColumnAttribute.FilterClause">
             <summary>
             Clause to be used on filter. Example: equal, less, greater, LIKE, etc.
             </summary>
         </member>
-        <member name="P:MelloSilveiraTools.Database.Infrastructure.Database.Attributes.FilterColumnAttribute.PropertyName">
+        <member name="P:MelloSilveiraTools.Database.RelationalDatabase.Attributes.FilterColumnAttribute.PropertyName">
             <summary>
             Name of table property to be filtered.
             </summary>
         </member>
-        <member name="P:MelloSilveiraTools.Database.Infrastructure.Database.Attributes.FilterColumnAttribute.TableName">
+        <member name="P:MelloSilveiraTools.Database.RelationalDatabase.Attributes.FilterColumnAttribute.TableName">
             <summary>
             Name of table. If not informed, correspond to main table.
             </summary>
         </member>
-        <member name="T:MelloSilveiraTools.Database.Infrastructure.Database.Attributes.ForeignKeyColumnAttribute">
+        <member name="T:MelloSilveiraTools.Database.RelationalDatabase.Attributes.ForeignKeyColumnAttribute">
             <summary>
             Specifies if the property correspond to foreign key column of table.
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.Database.Infrastructure.Database.Attributes.ForeignKeyColumnAttribute.#ctor(System.Type,MelloSilveiraTools.Database.Infrastructure.Database.Models.JoinType)">
+        <member name="M:MelloSilveiraTools.Database.RelationalDatabase.Attributes.ForeignKeyColumnAttribute.#ctor(System.Type,MelloSilveiraTools.Database.RelationalDatabase.Models.JoinType)">
             <summary>
             Specifies if the property correspond to foreign key column of table.
             </summary>
         </member>
-        <member name="P:MelloSilveiraTools.Database.Infrastructure.Database.Attributes.ForeignKeyColumnAttribute.JoinType">
-            <inheritdoc cref="T:MelloSilveiraTools.Database.Infrastructure.Database.Models.JoinType"/>
+        <member name="P:MelloSilveiraTools.Database.RelationalDatabase.Attributes.ForeignKeyColumnAttribute.JoinType">
+            <inheritdoc cref="T:MelloSilveiraTools.Database.RelationalDatabase.Models.JoinType"/>
         </member>
-        <member name="P:MelloSilveiraTools.Database.Infrastructure.Database.Attributes.ForeignKeyColumnAttribute.ReferencedTableType">
+        <member name="P:MelloSilveiraTools.Database.RelationalDatabase.Attributes.ForeignKeyColumnAttribute.ReferencedTableType">
             <summary>
             Type of table which foreign key is referenced.
             </summary>
         </member>
-        <member name="T:MelloSilveiraTools.Database.Infrastructure.Database.Attributes.PrimaryKeyColumnAttribute">
+        <member name="T:MelloSilveiraTools.Database.RelationalDatabase.Attributes.PrimaryKeyColumnAttribute">
             <summary>
             Specifies if a column is a primary key of table.
             </summary>
         </member>
-        <member name="T:MelloSilveiraTools.Database.Infrastructure.Database.Attributes.TableAttribute">
+        <member name="T:MelloSilveiraTools.Database.RelationalDatabase.Attributes.TableAttribute">
             <summary>
             Specifies the database table that a class is mapped to.
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.Database.Infrastructure.Database.Attributes.TableAttribute.#ctor(System.String,System.String)">
+        <member name="M:MelloSilveiraTools.Database.RelationalDatabase.Attributes.TableAttribute.#ctor(System.String,System.String)">
             <summary>
-            Initializes a new instance of the <see cref="T:MelloSilveiraTools.Database.Infrastructure.Database.Attributes.TableAttribute"/> class with an explicit table alias.
+            Initializes a new instance of the <see cref="T:MelloSilveiraTools.Database.RelationalDatabase.Attributes.TableAttribute"/> class with an explicit table alias.
             </summary>
             <param name="name">Name of the database table.</param>
             <param name="alias">Alias used to qualify the table in SQL statements.</param>
         </member>
-        <member name="M:MelloSilveiraTools.Database.Infrastructure.Database.Attributes.TableAttribute.#ctor(System.String)">
+        <member name="M:MelloSilveiraTools.Database.RelationalDatabase.Attributes.TableAttribute.#ctor(System.String)">
             <summary>
-            Initializes a new instance of the <see cref="T:MelloSilveiraTools.Database.Infrastructure.Database.Attributes.TableAttribute"/> class, deriving the alias from the table name.
+            Initializes a new instance of the <see cref="T:MelloSilveiraTools.Database.RelationalDatabase.Attributes.TableAttribute"/> class, deriving the alias from the table name.
             </summary>
             <param name="name">Name of the database table.</param>
         </member>
-        <member name="P:MelloSilveiraTools.Database.Infrastructure.Database.Attributes.TableAttribute.Name">
+        <member name="P:MelloSilveiraTools.Database.RelationalDatabase.Attributes.TableAttribute.Name">
             <summary>
             Name of table.
             </summary>
         </member>
-        <member name="P:MelloSilveiraTools.Database.Infrastructure.Database.Attributes.TableAttribute.Alias">
+        <member name="P:MelloSilveiraTools.Database.RelationalDatabase.Attributes.TableAttribute.Alias">
             <summary>
             Alias of table.
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.Database.Infrastructure.Database.Attributes.TableAttribute.GetAliasName(System.String)">
+        <member name="T:MelloSilveiraTools.Database.RelationalDatabase.Attributes.UniqueColumnAttribute">
             <summary>
-            Gets alias from table name.
-            </summary>
-            <param name="tableName"></param>
-            <returns></returns>
-        </member>
-        <member name="T:MelloSilveiraTools.Database.Infrastructure.Database.Attributes.UniqueColumnAttribute">
-            <summary>
-            Specifies if a column is a primary key of table.
+            Specifies that a column has a unique constraint, used for ON CONFLICT upserts and typed lookups via GetByUniqueColumnAsync.
             </summary>
         </member>
-        <member name="T:MelloSilveiraTools.Database.Infrastructure.Database.Models.DatabaseConstants">
+        <member name="T:MelloSilveiraTools.Database.RelationalDatabase.Models.DatabaseConstants">
             <summary>
             Constant values related to database interactions.
             </summary>
         </member>
-        <member name="F:MelloSilveiraTools.Database.Infrastructure.Database.Models.DatabaseConstants.UniqueViolationSqlState">
+        <member name="F:MelloSilveiraTools.Database.RelationalDatabase.Models.DatabaseConstants.UniqueViolationSqlState">
             <summary>
             SQLSTATE code returned by PostgreSQL when a unique constraint is violated.
             </summary>
         </member>
-        <member name="T:MelloSilveiraTools.Database.Infrastructure.Database.Models.Entities.EntityBase">
+        <member name="T:MelloSilveiraTools.Database.RelationalDatabase.Models.Entities.EntityBase">
             <summary>
             Represents the base entity for database.
             </summary>
         </member>
-        <member name="P:MelloSilveiraTools.Database.Infrastructure.Database.Models.Entities.EntityBase.Id">
+        <member name="P:MelloSilveiraTools.Database.RelationalDatabase.Models.Entities.EntityBase.Id">
             <summary>
             Primary key that uniquely identifies the entity in its table.
             </summary>
         </member>
-        <member name="P:MelloSilveiraTools.Database.Infrastructure.Database.Models.Entities.EntityBase.CreationTimestamp">
+        <member name="P:MelloSilveiraTools.Database.RelationalDatabase.Models.Entities.EntityBase.CreationTimestamp">
             <summary>
             Moment (UTC) in which the entity was created.
             </summary>
         </member>
-        <member name="T:MelloSilveiraTools.Database.Infrastructure.Database.Models.FilterClause">
+        <member name="T:MelloSilveiraTools.Database.RelationalDatabase.Models.FilterClause">
             <summary>
             SQL comparison operators used by filter columns when building WHERE clauses.
             </summary>
         </member>
-        <member name="F:MelloSilveiraTools.Database.Infrastructure.Database.Models.FilterClause.Equal">
+        <member name="F:MelloSilveiraTools.Database.RelationalDatabase.Models.FilterClause.Equal">
             <summary>Equality comparison (=).</summary>
         </member>
-        <member name="F:MelloSilveiraTools.Database.Infrastructure.Database.Models.FilterClause.NotEqual">
+        <member name="F:MelloSilveiraTools.Database.RelationalDatabase.Models.FilterClause.NotEqual">
             <summary>Inequality comparison (!=).</summary>
         </member>
-        <member name="F:MelloSilveiraTools.Database.Infrastructure.Database.Models.FilterClause.Like">
+        <member name="F:MelloSilveiraTools.Database.RelationalDatabase.Models.FilterClause.Like">
             <summary>Case-sensitive pattern matching (LIKE).</summary>
         </member>
-        <member name="F:MelloSilveiraTools.Database.Infrastructure.Database.Models.FilterClause.ILike">
+        <member name="F:MelloSilveiraTools.Database.RelationalDatabase.Models.FilterClause.ILike">
             <summary>Case-insensitive pattern matching (ILIKE).</summary>
         </member>
-        <member name="F:MelloSilveiraTools.Database.Infrastructure.Database.Models.FilterClause.GreaterThan">
+        <member name="F:MelloSilveiraTools.Database.RelationalDatabase.Models.FilterClause.GreaterThan">
             <summary>Greater than comparison (&gt;).</summary>
         </member>
-        <member name="F:MelloSilveiraTools.Database.Infrastructure.Database.Models.FilterClause.LessThan">
+        <member name="F:MelloSilveiraTools.Database.RelationalDatabase.Models.FilterClause.LessThan">
             <summary>Less than comparison (&lt;).</summary>
         </member>
-        <member name="F:MelloSilveiraTools.Database.Infrastructure.Database.Models.FilterClause.GreaterThanOrEqual">
+        <member name="F:MelloSilveiraTools.Database.RelationalDatabase.Models.FilterClause.GreaterThanOrEqual">
             <summary>Greater than or equal comparison (&gt;=).</summary>
         </member>
-        <member name="F:MelloSilveiraTools.Database.Infrastructure.Database.Models.FilterClause.LessThanOrEqual">
+        <member name="F:MelloSilveiraTools.Database.RelationalDatabase.Models.FilterClause.LessThanOrEqual">
             <summary>Less than or equal comparison (&lt;=).</summary>
         </member>
-        <member name="T:MelloSilveiraTools.Database.Infrastructure.Database.Models.Filters.FilterBase">
+        <member name="T:MelloSilveiraTools.Database.RelationalDatabase.Models.Filters.FilterBase">
             <summary>
             Base record for filter types consumed by repository query methods.
             </summary>
         </member>
-        <member name="T:MelloSilveiraTools.Database.Infrastructure.Database.Models.Filters.Pagination">
+        <member name="T:MelloSilveiraTools.Database.RelationalDatabase.Models.Filters.Pagination">
             <summary>
             Describes pagination and ordering options applied to a query.
             </summary>
         </member>
-        <member name="P:MelloSilveiraTools.Database.Infrastructure.Database.Models.Filters.Pagination.SortOrder">
+        <member name="P:MelloSilveiraTools.Database.RelationalDatabase.Models.Filters.Pagination.SortOrder">
             <summary>
             Order in which the results should be sorted.
             </summary>
         </member>
-        <member name="P:MelloSilveiraTools.Database.Infrastructure.Database.Models.Filters.Pagination.Limit">
+        <member name="P:MelloSilveiraTools.Database.RelationalDatabase.Models.Filters.Pagination.Limit">
             <summary>
             Maximum number of records to return.
             </summary>
         </member>
-        <member name="P:MelloSilveiraTools.Database.Infrastructure.Database.Models.Filters.Pagination.Offset">
+        <member name="P:MelloSilveiraTools.Database.RelationalDatabase.Models.Filters.Pagination.Offset">
             <summary>
             Number of records to skip before returning results.
             </summary>
         </member>
-        <member name="T:MelloSilveiraTools.Database.Infrastructure.Database.Models.Filters.SortOrder">
+        <member name="T:MelloSilveiraTools.Database.RelationalDatabase.Models.Filters.SortOrder">
             <summary>
             Direction used to sort query results.
             </summary>
         </member>
-        <member name="F:MelloSilveiraTools.Database.Infrastructure.Database.Models.Filters.SortOrder.Asc">
+        <member name="F:MelloSilveiraTools.Database.RelationalDatabase.Models.Filters.SortOrder.Asc">
             <summary>
             Ascending order (smallest value first).
             </summary>
         </member>
-        <member name="F:MelloSilveiraTools.Database.Infrastructure.Database.Models.Filters.SortOrder.Desc">
+        <member name="F:MelloSilveiraTools.Database.RelationalDatabase.Models.Filters.SortOrder.Desc">
             <summary>
             Descending order (largest value first).
             </summary>
         </member>
-        <member name="T:MelloSilveiraTools.Database.Infrastructure.Database.Models.JoinType">
+        <member name="T:MelloSilveiraTools.Database.RelationalDatabase.Models.JoinType">
             <summary>
             JOIN is an SQL clause used to query and access data from multiple tables, based on logical relationships between those tables.
             </summary>
         </member>
-        <member name="F:MelloSilveiraTools.Database.Infrastructure.Database.Models.JoinType.Inner">
+        <member name="F:MelloSilveiraTools.Database.RelationalDatabase.Models.JoinType.Inner">
             <summary>
             Returns records that have matching values in both tables.
             </summary>
         </member>
-        <member name="F:MelloSilveiraTools.Database.Infrastructure.Database.Models.JoinType.Left">
+        <member name="F:MelloSilveiraTools.Database.RelationalDatabase.Models.JoinType.Left">
             <summary>
             Returns all records from the left table, and the matched records from the right table.
             </summary>
         </member>
-        <member name="F:MelloSilveiraTools.Database.Infrastructure.Database.Models.JoinType.Right">
+        <member name="F:MelloSilveiraTools.Database.RelationalDatabase.Models.JoinType.Right">
             <summary>
             Returns all records from the right table, and the matched records from the left table.
             </summary>
         </member>
-        <member name="T:MelloSilveiraTools.Database.Infrastructure.Database.Repositories.PostgresRepository">
+        <member name="T:MelloSilveiraTools.Database.RelationalDatabase.Repositories.PostgresRepository">
             <summary>
             Repository that contains methods to deal with Postgres database.
+            Registered as Singleton in DI. Opens a new connection per call. Safe for concurrent use.
             </summary>
             <remarks>
             <para>
-            All database operations are wrapped by <see cref="T:MelloSilveiraTools.Database.Infrastructure.ResiliencePipelines.PostgresResiliencePipeline"/>, which transparently
+            All database operations are wrapped by <see cref="T:MelloSilveiraTools.Database.ResiliencePipelines.PostgresResiliencePipeline"/>, which transparently
             retries transient failures (connection drops, deadlocks, timeouts) according to its configured policy.
             </para>
             <para>
-            Per-command timeouts are taken from <see cref="P:MelloSilveiraTools.Database.Infrastructure.Database.Repositories.PostgresRepository.DatabaseSettings"/>:
-            <see cref="P:MelloSilveiraTools.Database.Infrastructure.Database.Settings.DatabaseSettings.UnitOperationTimeoutInSeconds"/> applies to single-row operations
+            Per-command timeouts are taken from <see cref="P:MelloSilveiraTools.Database.RelationalDatabase.Repositories.PostgresRepository.DatabaseSettings"/>:
+            <see cref="P:MelloSilveiraTools.Database.RelationalDatabase.Settings.DatabaseSettings.UnitOperationTimeoutInSeconds"/> applies to single-row operations
             (insert, update, delete-by-id, get-by-id, exists) and
-            <see cref="P:MelloSilveiraTools.Database.Infrastructure.Database.Settings.DatabaseSettings.BulkOperationTimeoutInSeconds"/> applies to batch operations
+            <see cref="P:MelloSilveiraTools.Database.RelationalDatabase.Settings.DatabaseSettings.BulkOperationTimeoutInSeconds"/> applies to batch operations
             (bulk insert, bulk upsert).
             </para>
             <para>
-            SQL is generated through the injected <see cref="T:MelloSilveiraTools.Database.Infrastructure.Database.Sql.Provider.ISqlProvider"/>; the provider implementation memoizes
+            SQL is generated through the injected <see cref="T:MelloSilveiraTools.Database.RelationalDatabase.Sql.Provider.ISqlProvider"/>; the provider implementation memoizes
             SQL strings per CLR type so the cost of reflection-based generation is paid only once per type for the
             lifetime of the application.
             </para>
             <para>
             SELECT queries automatically include <c>JOIN</c> clauses for every property decorated with
-            <see cref="T:MelloSilveiraTools.Database.Infrastructure.Database.Attributes.ForeignKeyColumnAttribute"/>, using the
+            <see cref="T:MelloSilveiraTools.Database.RelationalDatabase.Attributes.ForeignKeyColumnAttribute"/>, using the
             join type configured on the attribute and the metadata of the referenced entity type.
             </para>
             </remarks>
         </member>
-        <member name="M:MelloSilveiraTools.Database.Infrastructure.Database.Repositories.PostgresRepository.#ctor(MelloSilveiraTools.Database.Infrastructure.Database.Sql.Provider.ISqlProvider,MelloSilveiraTools.Database.Infrastructure.ResiliencePipelines.PostgresResiliencePipeline,MelloSilveiraTools.Database.Infrastructure.Database.Settings.DatabaseSettings)">
+        <member name="M:MelloSilveiraTools.Database.RelationalDatabase.Repositories.PostgresRepository.#ctor(MelloSilveiraTools.Database.RelationalDatabase.Sql.Provider.ISqlProvider,MelloSilveiraTools.Database.ResiliencePipelines.PostgresResiliencePipeline,MelloSilveiraTools.Database.RelationalDatabase.Settings.DatabaseSettings)">
             <summary>
             Repository that contains methods to deal with Postgres database.
+            Registered as Singleton in DI. Opens a new connection per call. Safe for concurrent use.
             </summary>
             <remarks>
             <para>
-            All database operations are wrapped by <see cref="T:MelloSilveiraTools.Database.Infrastructure.ResiliencePipelines.PostgresResiliencePipeline"/>, which transparently
+            All database operations are wrapped by <see cref="T:MelloSilveiraTools.Database.ResiliencePipelines.PostgresResiliencePipeline"/>, which transparently
             retries transient failures (connection drops, deadlocks, timeouts) according to its configured policy.
             </para>
             <para>
-            Per-command timeouts are taken from <see cref="P:MelloSilveiraTools.Database.Infrastructure.Database.Repositories.PostgresRepository.DatabaseSettings"/>:
-            <see cref="P:MelloSilveiraTools.Database.Infrastructure.Database.Settings.DatabaseSettings.UnitOperationTimeoutInSeconds"/> applies to single-row operations
+            Per-command timeouts are taken from <see cref="P:MelloSilveiraTools.Database.RelationalDatabase.Repositories.PostgresRepository.DatabaseSettings"/>:
+            <see cref="P:MelloSilveiraTools.Database.RelationalDatabase.Settings.DatabaseSettings.UnitOperationTimeoutInSeconds"/> applies to single-row operations
             (insert, update, delete-by-id, get-by-id, exists) and
-            <see cref="P:MelloSilveiraTools.Database.Infrastructure.Database.Settings.DatabaseSettings.BulkOperationTimeoutInSeconds"/> applies to batch operations
+            <see cref="P:MelloSilveiraTools.Database.RelationalDatabase.Settings.DatabaseSettings.BulkOperationTimeoutInSeconds"/> applies to batch operations
             (bulk insert, bulk upsert).
             </para>
             <para>
-            SQL is generated through the injected <see cref="T:MelloSilveiraTools.Database.Infrastructure.Database.Sql.Provider.ISqlProvider"/>; the provider implementation memoizes
+            SQL is generated through the injected <see cref="T:MelloSilveiraTools.Database.RelationalDatabase.Sql.Provider.ISqlProvider"/>; the provider implementation memoizes
             SQL strings per CLR type so the cost of reflection-based generation is paid only once per type for the
             lifetime of the application.
             </para>
             <para>
             SELECT queries automatically include <c>JOIN</c> clauses for every property decorated with
-            <see cref="T:MelloSilveiraTools.Database.Infrastructure.Database.Attributes.ForeignKeyColumnAttribute"/>, using the
+            <see cref="T:MelloSilveiraTools.Database.RelationalDatabase.Attributes.ForeignKeyColumnAttribute"/>, using the
             join type configured on the attribute and the metadata of the referenced entity type.
             </para>
             </remarks>
         </member>
-        <member name="P:MelloSilveiraTools.Database.Infrastructure.Database.Repositories.PostgresRepository.DatabaseSettings">
+        <member name="P:MelloSilveiraTools.Database.RelationalDatabase.Repositories.PostgresRepository.DatabaseSettings">
             <summary>
             Database settings used to configure connections and command timeouts.
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.Database.Infrastructure.Database.Repositories.PostgresRepository.CountAsync``2(``1,System.Threading.CancellationToken)">
+        <member name="M:MelloSilveiraTools.Database.RelationalDatabase.Repositories.PostgresRepository.CountAsync``2(``1,System.Threading.CancellationToken)">
             <inheritdoc/>
         </member>
-        <member name="M:MelloSilveiraTools.Database.Infrastructure.Database.Repositories.PostgresRepository.ExistAsync``1(System.Int64,System.Threading.CancellationToken)">
+        <member name="M:MelloSilveiraTools.Database.RelationalDatabase.Repositories.PostgresRepository.ExistAsync``1(System.Int64,System.Threading.CancellationToken)">
             <inheritdoc/>
         </member>
-        <member name="M:MelloSilveiraTools.Database.Infrastructure.Database.Repositories.PostgresRepository.ExistAsync``2(``1,System.Threading.CancellationToken)">
+        <member name="M:MelloSilveiraTools.Database.RelationalDatabase.Repositories.PostgresRepository.ExistAsync``2(``1,System.Threading.CancellationToken)">
             <inheritdoc/>
         </member>
-        <member name="M:MelloSilveiraTools.Database.Infrastructure.Database.Repositories.PostgresRepository.DeleteAllAsync``1(System.Threading.CancellationToken)">
+        <member name="M:MelloSilveiraTools.Database.RelationalDatabase.Repositories.PostgresRepository.DeleteAllAsync``1(System.Threading.CancellationToken)">
             <inheritdoc/>
         </member>
-        <member name="M:MelloSilveiraTools.Database.Infrastructure.Database.Repositories.PostgresRepository.DeleteAsync``1(System.Int64,System.Threading.CancellationToken)">
+        <member name="M:MelloSilveiraTools.Database.RelationalDatabase.Repositories.PostgresRepository.DeleteAsync``1(System.Int64,System.Threading.CancellationToken)">
             <inheritdoc/>
         </member>
-        <member name="M:MelloSilveiraTools.Database.Infrastructure.Database.Repositories.PostgresRepository.DeleteAsync``2(``1,System.Threading.CancellationToken)">
+        <member name="M:MelloSilveiraTools.Database.RelationalDatabase.Repositories.PostgresRepository.DeleteAsync``2(``1,System.Threading.CancellationToken)">
             <inheritdoc/>
         </member>
-        <member name="M:MelloSilveiraTools.Database.Infrastructure.Database.Repositories.PostgresRepository.GetFirstOrDefaultAsync``2(``1,MelloSilveiraTools.Database.Infrastructure.Database.Models.Filters.SortOrder,System.Threading.CancellationToken)">
+        <member name="M:MelloSilveiraTools.Database.RelationalDatabase.Repositories.PostgresRepository.GetFirstOrDefaultAsync``2(``1,MelloSilveiraTools.Database.RelationalDatabase.Models.Filters.SortOrder,System.Threading.CancellationToken)">
             <inheritdoc/>
         </member>
-        <member name="M:MelloSilveiraTools.Database.Infrastructure.Database.Repositories.PostgresRepository.GetAsync``1(System.Int64,System.Threading.CancellationToken)">
+        <member name="M:MelloSilveiraTools.Database.RelationalDatabase.Repositories.PostgresRepository.GetAsync``1(System.Int64,System.Threading.CancellationToken)">
             <inheritdoc/>
         </member>
-        <member name="M:MelloSilveiraTools.Database.Infrastructure.Database.Repositories.PostgresRepository.GetAsync``2(``1,MelloSilveiraTools.Database.Infrastructure.Database.Models.Filters.Pagination,System.Threading.CancellationToken)">
+        <member name="M:MelloSilveiraTools.Database.RelationalDatabase.Repositories.PostgresRepository.GetAsync``2(``1,MelloSilveiraTools.Database.RelationalDatabase.Models.Filters.Pagination,System.Threading.CancellationToken)">
             <inheritdoc/>
         </member>
-        <member name="M:MelloSilveiraTools.Database.Infrastructure.Database.Repositories.PostgresRepository.GetDistinctAsync``2(``1,MelloSilveiraTools.Database.Infrastructure.Database.Models.Filters.Pagination,System.Threading.CancellationToken)">
+        <member name="M:MelloSilveiraTools.Database.RelationalDatabase.Repositories.PostgresRepository.GetDistinctAsync``2(``1,MelloSilveiraTools.Database.RelationalDatabase.Models.Filters.Pagination,System.Threading.CancellationToken)">
             <inheritdoc/>
         </member>
-        <member name="M:MelloSilveiraTools.Database.Infrastructure.Database.Repositories.PostgresRepository.InsertAsync``1(``0,System.Threading.CancellationToken)">
+        <member name="M:MelloSilveiraTools.Database.RelationalDatabase.Repositories.PostgresRepository.GetByUniqueColumnAsync``1(System.Object,System.Threading.CancellationToken)">
             <inheritdoc/>
         </member>
-        <member name="M:MelloSilveiraTools.Database.Infrastructure.Database.Repositories.PostgresRepository.InsertAsync``1(``0[],System.Threading.CancellationToken)">
+        <member name="M:MelloSilveiraTools.Database.RelationalDatabase.Repositories.PostgresRepository.InsertAsync``1(``0,System.Threading.CancellationToken)">
             <inheritdoc/>
         </member>
-        <member name="M:MelloSilveiraTools.Database.Infrastructure.Database.Repositories.PostgresRepository.UpsertAsync``1(``0,System.Threading.CancellationToken)">
+        <member name="M:MelloSilveiraTools.Database.RelationalDatabase.Repositories.PostgresRepository.InsertAsync``1(``0[],System.Threading.CancellationToken)">
             <inheritdoc/>
         </member>
-        <member name="M:MelloSilveiraTools.Database.Infrastructure.Database.Repositories.PostgresRepository.UpsertAsync``2(``0[],``1,System.Threading.CancellationToken)">
+        <member name="M:MelloSilveiraTools.Database.RelationalDatabase.Repositories.PostgresRepository.TryInsertAsync``1(``0,System.Threading.CancellationToken)">
             <inheritdoc/>
         </member>
-        <member name="M:MelloSilveiraTools.Database.Infrastructure.Database.Repositories.PostgresRepository.TryUpdateAsync``1(``0,System.Threading.CancellationToken)">
+        <member name="M:MelloSilveiraTools.Database.RelationalDatabase.Repositories.PostgresRepository.UpsertAsync``1(``0,System.Threading.CancellationToken)">
             <inheritdoc/>
         </member>
-        <member name="M:MelloSilveiraTools.Database.Infrastructure.Database.Repositories.PostgresRepository.GetAsync``1(System.String,Dapper.DynamicParameters,System.Threading.CancellationToken)">
+        <member name="M:MelloSilveiraTools.Database.RelationalDatabase.Repositories.PostgresRepository.UpsertAsync``2(``0[],``1,System.Threading.CancellationToken)">
+            <inheritdoc/>
+        </member>
+        <member name="M:MelloSilveiraTools.Database.RelationalDatabase.Repositories.PostgresRepository.TryUpdateAsync``1(``0,System.Threading.CancellationToken)">
+            <inheritdoc/>
+        </member>
+        <member name="M:MelloSilveiraTools.Database.RelationalDatabase.Repositories.PostgresRepository.GetAsync``1(System.String,Dapper.DynamicParameters,System.Threading.CancellationToken)">
             <summary>
             Streams rows returned by <paramref name="sql"/> and materializes each of them into a <typeparamref name="TEntity"/>.
             </summary>
@@ -748,41 +621,41 @@
             <param name="parameters">Parameters to bind to the statement, if any.</param>
             <param name="cancellationToken">Token used to cancel the streaming operation.</param>
         </member>
-        <member name="M:MelloSilveiraTools.Database.Infrastructure.Database.Repositories.PostgresRepository.GetNewOpenedConnectionAsync(System.Threading.CancellationToken)">
+        <member name="M:MelloSilveiraTools.Database.RelationalDatabase.Repositories.PostgresRepository.GetNewOpenedConnectionAsync(System.Threading.CancellationToken)">
             <summary>
             Creates and opens a new Npgsql connection using the configured connection string.
             </summary>
             <param name="cancellationToken">Token used to cancel the asynchronous open operation.</param>
             <returns>An opened <see cref="T:Npgsql.NpgsqlConnection"/>.</returns>
         </member>
-        <member name="T:MelloSilveiraTools.Database.Infrastructure.Database.Settings.DatabaseSettings">
+        <member name="T:MelloSilveiraTools.Database.RelationalDatabase.Settings.DatabaseSettings">
             <summary>
             Settings that configure access to the application's relational database.
             </summary>
         </member>
-        <member name="P:MelloSilveiraTools.Database.Infrastructure.Database.Settings.DatabaseSettings.ConnectionString">
+        <member name="P:MelloSilveiraTools.Database.RelationalDatabase.Settings.DatabaseSettings.ConnectionString">
             <summary>
             Connection string used to reach the database server.
             </summary>
         </member>
-        <member name="P:MelloSilveiraTools.Database.Infrastructure.Database.Settings.DatabaseSettings.UnitOperationTimeoutInMilliseconds">
+        <member name="P:MelloSilveiraTools.Database.RelationalDatabase.Settings.DatabaseSettings.UnitOperationTimeoutInMilliseconds">
             <summary>
             Timeout, in milliseconds, applied to single-row (unit) operations.
             </summary>
         </member>
-        <member name="P:MelloSilveiraTools.Database.Infrastructure.Database.Settings.DatabaseSettings.BulkOperationTimeoutInMilliseconds">
+        <member name="P:MelloSilveiraTools.Database.RelationalDatabase.Settings.DatabaseSettings.BulkOperationTimeoutInMilliseconds">
             <summary>
             Timeout, in milliseconds, applied to bulk operations that touch many rows.
             </summary>
         </member>
-        <member name="T:MelloSilveiraTools.Database.Infrastructure.Database.Sql.Provider.ISqlProvider">
+        <member name="T:MelloSilveiraTools.Database.RelationalDatabase.Sql.Provider.ISqlProvider">
             <summary>
             Provides SQL statements tailored to a specific database dialect for an entity type provided per call.
             </summary>
             <remarks>
             <para>
             The SQL strings returned by this interface contain textual placeholders prefixed with <c>#</c> that the
-            caller (typically <see cref="T:MelloSilveiraTools.Database.Infrastructure.Database.Repositories.PostgresRepository"/>)
+            caller (typically <see cref="T:MelloSilveiraTools.Database.RelationalDatabase.Repositories.PostgresRepository"/>)
             substitutes via <see cref="M:System.String.Replace(System.String,System.String)"/> before execution. Implementations must keep
             these placeholder names stable. The placeholders currently emitted are:
             </para>
@@ -801,63 +674,90 @@
             </para>
             </remarks>
         </member>
-        <member name="M:MelloSilveiraTools.Database.Infrastructure.Database.Sql.Provider.ISqlProvider.GetBulkInsertSql``1(System.Int32)">
+        <member name="M:MelloSilveiraTools.Database.RelationalDatabase.Sql.Provider.ISqlProvider.GetBulkInsertSql``1(System.Int32)">
             <summary>
             Builds a bulk INSERT statement capable of inserting <paramref name="batchSize"/> rows in a single round-trip.
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.Database.Infrastructure.Database.Sql.Provider.ISqlProvider.GetCountSql``1">
+        <member name="M:MelloSilveiraTools.Database.RelationalDatabase.Sql.Provider.ISqlProvider.GetCountSql``1">
             <summary>
             Builds a SELECT COUNT statement with a placeholder for the WHERE clause.
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.Database.Infrastructure.Database.Sql.Provider.ISqlProvider.GetDeleteSql``1">
+        <member name="M:MelloSilveiraTools.Database.RelationalDatabase.Sql.Provider.ISqlProvider.GetDeleteSql``1">
             <summary>
             Builds a DELETE statement with a placeholder for the WHERE clause.
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.Database.Infrastructure.Database.Sql.Provider.ISqlProvider.GetDeleteByPrimaryKeySql``1">
+        <member name="M:MelloSilveiraTools.Database.RelationalDatabase.Sql.Provider.ISqlProvider.GetDeleteByPrimaryKeySql``1">
             <summary>
             Builds a DELETE statement filtered by the entity's primary key.
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.Database.Infrastructure.Database.Sql.Provider.ISqlProvider.GetExistByPrimaryKeySql``1">
+        <member name="M:MelloSilveiraTools.Database.RelationalDatabase.Sql.Provider.ISqlProvider.GetExistByPrimaryKeySql``1">
             <summary>
             Builds a statement that checks whether a row with the given primary key exists.
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.Database.Infrastructure.Database.Sql.Provider.ISqlProvider.GetInsertSql``1">
+        <member name="M:MelloSilveiraTools.Database.RelationalDatabase.Sql.Provider.ISqlProvider.GetInsertSql``1">
             <summary>
             Builds an INSERT statement for a single entity.
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.Database.Infrastructure.Database.Sql.Provider.ISqlProvider.GetSelectSql``1">
+        <member name="M:MelloSilveiraTools.Database.RelationalDatabase.Sql.Provider.ISqlProvider.GetTryInsertSql``1">
+            <summary>
+            Builds an INSERT statement that, on unique-key conflict, leaves the existing row intact and
+            returns its primary key plus a boolean flag indicating whether a new row was created.
+            </summary>
+            <exception cref="T:System.InvalidOperationException">
+            Thrown when <typeparamref name="T"/> has no <c>[UniqueColumn]</c>-annotated property.
+            </exception>
+        </member>
+        <member name="M:MelloSilveiraTools.Database.RelationalDatabase.Sql.Provider.ISqlProvider.GetSelectSql``1">
             <summary>
             Builds a SELECT statement with placeholders for WHERE, ORDER BY, LIMIT and OFFSET.
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.Database.Infrastructure.Database.Sql.Provider.ISqlProvider.GetSelectDistinctSql``1">
+        <member name="M:MelloSilveiraTools.Database.RelationalDatabase.Sql.Provider.ISqlProvider.GetSelectDistinctSql``1">
             <summary>
             Builds a SELECT DISTINCT statement with placeholders for WHERE, ORDER BY, LIMIT and OFFSET.
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.Database.Infrastructure.Database.Sql.Provider.ISqlProvider.GetSelectByPrimaryKeySql``1">
+        <member name="M:MelloSilveiraTools.Database.RelationalDatabase.Sql.Provider.ISqlProvider.GetSelectByPrimaryKeySql``1">
             <summary>
             Builds a SELECT statement filtered by the entity's primary key.
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.Database.Infrastructure.Database.Sql.Provider.ISqlProvider.GetUpdateSql``1">
+        <member name="M:MelloSilveiraTools.Database.RelationalDatabase.Sql.Provider.ISqlProvider.GetSelectByUniqueColumnSql``1">
+            <summary>
+            Builds a <c>SELECT … LIMIT 1</c> statement that filters by the entity's single
+            <c>[UniqueColumn]</c>-annotated column.
+            </summary>
+            <remarks>
+            The SQL parameter name is the **fixed literal** <c>@UniqueColumnValue</c> regardless of the underlying
+            property name, so callers don't need to know the entity's metadata. Includes the same JOINs as
+            <see cref="M:MelloSilveiraTools.Database.RelationalDatabase.Sql.Provider.ISqlProvider.GetSelectSql``1"/> (foreign-key projections), so the WHERE clause is qualified by the
+            main table's alias to remove ambiguity when the joined tables also have a column with the same name.
+            </remarks>
+            <exception cref="T:System.InvalidOperationException">
+            Thrown when <typeparamref name="T"/> has zero or more than one <c>[UniqueColumn]</c>-annotated property.
+            </exception>
+        </member>
+        <member name="M:MelloSilveiraTools.Database.RelationalDatabase.Sql.Provider.ISqlProvider.GetUpdateSql``1">
             <summary>
             Builds an UPDATE statement with a placeholder for the WHERE clause.
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.Database.Infrastructure.Database.Sql.Provider.ISqlProvider.GetUpdateByPrimaryKeySql``1">
+        <member name="M:MelloSilveiraTools.Database.RelationalDatabase.Sql.Provider.ISqlProvider.GetUpdateByPrimaryKeySql``1">
             <summary>
             Builds an UPDATE statement filtered by the entity's primary key.
             </summary>
         </member>
-        <member name="T:MelloSilveiraTools.Database.Infrastructure.Database.Sql.Provider.PostgresSqlProvider">
-            <inheritdoc cref="T:MelloSilveiraTools.Database.Infrastructure.Database.Sql.Provider.ISqlProvider"/>
+        <member name="T:MelloSilveiraTools.Database.RelationalDatabase.Sql.Provider.PostgresSqlProvider">
+            <inheritdoc cref="T:MelloSilveiraTools.Database.RelationalDatabase.Sql.Provider.ISqlProvider"/>
+            <summary>
+            Registered as Singleton in DI. Thread-safe. Backed by ConcurrentDictionary.
+            </summary>
             <remarks>
             <para>
             Generated SQL strings are memoized in a process-wide static <see cref="T:System.Collections.Concurrent.ConcurrentDictionary`2"/>
@@ -877,103 +777,100 @@
             </para>
             </remarks>
         </member>
-        <member name="M:MelloSilveiraTools.Database.Infrastructure.Database.Sql.Provider.PostgresSqlProvider.GetBulkInsertSql``1(System.Int32)">
+        <member name="M:MelloSilveiraTools.Database.RelationalDatabase.Sql.Provider.PostgresSqlProvider.GetBulkInsertSql``1(System.Int32)">
             <inheritdoc/>
         </member>
-        <member name="M:MelloSilveiraTools.Database.Infrastructure.Database.Sql.Provider.PostgresSqlProvider.GetCountSql``1">
+        <member name="M:MelloSilveiraTools.Database.RelationalDatabase.Sql.Provider.PostgresSqlProvider.GetCountSql``1">
             <inheritdoc/>
         </member>
-        <member name="M:MelloSilveiraTools.Database.Infrastructure.Database.Sql.Provider.PostgresSqlProvider.GetDeleteSql``1">
+        <member name="M:MelloSilveiraTools.Database.RelationalDatabase.Sql.Provider.PostgresSqlProvider.GetDeleteSql``1">
             <inheritdoc/>
         </member>
-        <member name="M:MelloSilveiraTools.Database.Infrastructure.Database.Sql.Provider.PostgresSqlProvider.GetDeleteByPrimaryKeySql``1">
+        <member name="M:MelloSilveiraTools.Database.RelationalDatabase.Sql.Provider.PostgresSqlProvider.GetDeleteByPrimaryKeySql``1">
             <inheritdoc/>
         </member>
-        <member name="M:MelloSilveiraTools.Database.Infrastructure.Database.Sql.Provider.PostgresSqlProvider.GetExistByPrimaryKeySql``1">
+        <member name="M:MelloSilveiraTools.Database.RelationalDatabase.Sql.Provider.PostgresSqlProvider.GetExistByPrimaryKeySql``1">
             <inheritdoc/>
         </member>
-        <member name="M:MelloSilveiraTools.Database.Infrastructure.Database.Sql.Provider.PostgresSqlProvider.GetInsertSql``1">
+        <member name="M:MelloSilveiraTools.Database.RelationalDatabase.Sql.Provider.PostgresSqlProvider.GetInsertSql``1">
             <inheritdoc/>
         </member>
-        <member name="M:MelloSilveiraTools.Database.Infrastructure.Database.Sql.Provider.PostgresSqlProvider.GetSelectSql``1">
+        <member name="M:MelloSilveiraTools.Database.RelationalDatabase.Sql.Provider.PostgresSqlProvider.GetTryInsertSql``1">
             <inheritdoc/>
         </member>
-        <member name="M:MelloSilveiraTools.Database.Infrastructure.Database.Sql.Provider.PostgresSqlProvider.GetSelectDistinctSql``1">
+        <member name="M:MelloSilveiraTools.Database.RelationalDatabase.Sql.Provider.PostgresSqlProvider.GetSelectSql``1">
             <inheritdoc/>
         </member>
-        <member name="M:MelloSilveiraTools.Database.Infrastructure.Database.Sql.Provider.PostgresSqlProvider.GetSelectByPrimaryKeySql``1">
+        <member name="M:MelloSilveiraTools.Database.RelationalDatabase.Sql.Provider.PostgresSqlProvider.GetSelectDistinctSql``1">
             <inheritdoc/>
         </member>
-        <member name="M:MelloSilveiraTools.Database.Infrastructure.Database.Sql.Provider.PostgresSqlProvider.GetUpdateSql``1">
+        <member name="M:MelloSilveiraTools.Database.RelationalDatabase.Sql.Provider.PostgresSqlProvider.GetSelectByPrimaryKeySql``1">
             <inheritdoc/>
         </member>
-        <member name="M:MelloSilveiraTools.Database.Infrastructure.Database.Sql.Provider.PostgresSqlProvider.GetUpdateByPrimaryKeySql``1">
+        <member name="M:MelloSilveiraTools.Database.RelationalDatabase.Sql.Provider.PostgresSqlProvider.GetSelectByUniqueColumnSql``1">
             <inheritdoc/>
         </member>
-        <member name="M:MelloSilveiraTools.Database.Infrastructure.Database.Sql.Provider.PostgresSqlProvider.BuildUniqueUpdates(MelloSilveiraTools.Database.Infrastructure.Database.Sql.Provider.PostgresSqlProvider.EntityMetadata)">
+        <member name="M:MelloSilveiraTools.Database.RelationalDatabase.Sql.Provider.PostgresSqlProvider.GetUpdateSql``1">
+            <inheritdoc/>
+        </member>
+        <member name="M:MelloSilveiraTools.Database.RelationalDatabase.Sql.Provider.PostgresSqlProvider.GetUpdateByPrimaryKeySql``1">
+            <inheritdoc/>
+        </member>
+        <member name="M:MelloSilveiraTools.Database.RelationalDatabase.Sql.Provider.PostgresSqlProvider.BuildUniqueUpdates(MelloSilveiraTools.Database.RelationalDatabase.Sql.Provider.PostgresSqlProvider.EntityMetadata)">
             <summary>
             Builds the DO UPDATE SET clause for ON CONFLICT.
             Updates payload columns (non-PK, non-unique); falls back to unique columns if no payload exists.
             </summary>
         </member>
-        <member name="T:MelloSilveiraTools.Database.Infrastructure.ResiliencePipelines.PostgresResiliencePipeline">
-            <summary>
-            Resilience pipeline for PostgreSQL repositories that provides a strategy to handle retriable exceptions.
-            </summary>
-        </member>
-        <member name="M:MelloSilveiraTools.Database.Infrastructure.ResiliencePipelines.PostgresResiliencePipeline.#ctor(MelloSilveiraTools.Core.Infrastructure.Logger.ILogger,MelloSilveiraTools.Core.Infrastructure.ResiliencePipelines.ResiliencePipelineSettings)">
-            <summary>
-            Initialize a new instance of <see cref="T:MelloSilveiraTools.Database.Infrastructure.ResiliencePipelines.PostgresResiliencePipeline"/>.
-            </summary>
-            <param name="logger">Logger used to record retry attempts and failures while executing operations through the pipeline.</param>
-            <param name="settings">Resilience pipeline settings (max retries, base delay, jitter, etc.) that drive the retry strategy.</param>
-        </member>
-        <member name="M:MelloSilveiraTools.Database.Infrastructure.ResiliencePipelines.PostgresResiliencePipeline.#ctor(MelloSilveiraTools.Core.Infrastructure.Logger.ILogger,MelloSilveiraTools.Core.Infrastructure.ResiliencePipelines.ResiliencePipelineSettings,System.Func{Polly.Retry.RetryPredicateArguments{System.Object},System.Threading.Tasks.ValueTask{System.Boolean}})">
-            <summary>
-            Initializes a new instance of <see cref="T:MelloSilveiraTools.Database.Infrastructure.ResiliencePipelines.PostgresResiliencePipeline"/>.
-            </summary>
-            <param name="logger">See reference at <see cref="T:MelloSilveiraTools.Core.Infrastructure.Logger.ILogger"/>.</param>
-            <param name="settings">See reference at <see cref="T:MelloSilveiraTools.Core.Infrastructure.ResiliencePipelines.ResiliencePipelineSettings"/>.</param>
-            <param name="shouldHandle">Predicate that determines whether the retry should be executed for a given outcome.</param>
-        </member>
-        <member name="T:MelloSilveiraTools.Infrastructure.Database.Sql.Provider.SqlResource">
+        <member name="T:MelloSilveiraTools.Database.RelationalDatabase.Sql.Provider.SqlResource">
             <summary>
               A strongly-typed resource class, for looking up localized strings, etc.
             </summary>
         </member>
-        <member name="P:MelloSilveiraTools.Infrastructure.Database.Sql.Provider.SqlResource.ResourceManager">
+        <member name="P:MelloSilveiraTools.Database.RelationalDatabase.Sql.Provider.SqlResource.ResourceManager">
             <summary>
               Returns the cached ResourceManager instance used by this class.
             </summary>
         </member>
-        <member name="P:MelloSilveiraTools.Infrastructure.Database.Sql.Provider.SqlResource.Culture">
+        <member name="P:MelloSilveiraTools.Database.RelationalDatabase.Sql.Provider.SqlResource.Culture">
             <summary>
               Overrides the current thread's CurrentUICulture property for all
               resource lookups using this strongly typed resource class.
             </summary>
         </member>
-        <member name="P:MelloSilveiraTools.Infrastructure.Database.Sql.Provider.SqlResource.BulkInsertTemplate">
-            <summary>
-              Looks up a localized string similar to INSERT INTO #TABLE_NAME (#COLUMNS) VALUES #VALUES RETURNING #PRIMARY_KEY;.
-            </summary>
-        </member>
-        <member name="P:MelloSilveiraTools.Infrastructure.Database.Sql.Provider.SqlResource.BulkInsertWithUniqueKeyTemplate">
+        <member name="P:MelloSilveiraTools.Database.RelationalDatabase.Sql.Provider.SqlResource.BulkInsertTemplate">
              <summary>
-               Looks up a localized string similar to INSERT INTO #TABLE_NAME (#COLUMNS) VALUES #VALUES
-            ON CONFLICT (unique_hash) DO UPDATE SET unique_hash = EXCLUDED.unique_hash
+               Looks up a localized string similar to INSERT INTO #TABLE_NAME
+            (	
+            	#COLUMNS
+            )
+            VALUES
+            	#VALUES
             RETURNING #PRIMARY_KEY;.
              </summary>
         </member>
-        <member name="P:MelloSilveiraTools.Infrastructure.Database.Sql.Provider.SqlResource.DeleteTemplate">
+        <member name="P:MelloSilveiraTools.Database.RelationalDatabase.Sql.Provider.SqlResource.BulkInsertWithUniqueKeyTemplate">
+             <summary>
+               Looks up a localized string similar to INSERT INTO #TABLE_NAME
+            (
+            	#COLUMNS
+            )
+            VALUES
+            	#VALUES
+            ON CONFLICT (#UNIQUE_COLUMNS) DO UPDATE SET #UNIQUE_UPDATES
+            RETURNING #PRIMARY_KEY;.
+             </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Database.RelationalDatabase.Sql.Provider.SqlResource.DeleteTemplate">
              <summary>
                Looks up a localized string similar to DELETE FROM #TABLE_NAME AS #TABLE_ALIAS
             #WHERE.
              </summary>
         </member>
-        <member name="P:MelloSilveiraTools.Infrastructure.Database.Sql.Provider.SqlResource.InsertTemplate">
+        <member name="P:MelloSilveiraTools.Database.RelationalDatabase.Sql.Provider.SqlResource.InsertTemplate">
              <summary>
                Looks up a localized string similar to INSERT INTO #TABLE_NAME
-            (
+            (	
             	#COLUMNS
             )
             VALUES
@@ -983,14 +880,21 @@
             RETURNING #PRIMARY_KEY;.
              </summary>
         </member>
-        <member name="P:MelloSilveiraTools.Infrastructure.Database.Sql.Provider.SqlResource.InsertWithUniqueKeyTemplate">
+        <member name="P:MelloSilveiraTools.Database.RelationalDatabase.Sql.Provider.SqlResource.InsertWithUniqueKeyTemplate">
              <summary>
-               Looks up a localized string similar to INSERT INTO #TABLE_NAME (#COLUMNS) VALUES (#PARAMETER_NAMES)
-            ON CONFLICT (unique_hash) DO UPDATE SET unique_hash = EXCLUDED.unique_hash
+               Looks up a localized string similar to INSERT INTO #TABLE_NAME
+            (
+            	#COLUMNS
+            )
+            VALUES
+            (
+            	#PARAMETER_NAMES
+            )
+            ON CONFLICT (#UNIQUE_COLUMNS) DO UPDATE SET #UNIQUE_UPDATES
             RETURNING #PRIMARY_KEY;.
              </summary>
         </member>
-        <member name="P:MelloSilveiraTools.Infrastructure.Database.Sql.Provider.SqlResource.SelectTemplate">
+        <member name="P:MelloSilveiraTools.Database.RelationalDatabase.Sql.Provider.SqlResource.SelectTemplate">
              <summary>
                Looks up a localized string similar to SELECT DISTINCT
             	#COLUMNS
@@ -1002,13 +906,171 @@
             #LIMIT.
              </summary>
         </member>
-        <member name="P:MelloSilveiraTools.Infrastructure.Database.Sql.Provider.SqlResource.UpdateTemplate">
+        <member name="P:MelloSilveiraTools.Database.RelationalDatabase.Sql.Provider.SqlResource.TryInsertWithUniqueKeyTemplate">
+             <summary>
+               Looks up a localized string similar to WITH cte AS (
+                INSERT INTO #TABLE_NAME
+                (
+                    #COLUMNS
+                )
+                VALUES
+                (
+                    #PARAMETER_NAMES
+                )
+                ON CONFLICT (#UNIQUE_COLUMNS) DO NOTHING
+                RETURNING #PRIMARY_KEY
+            )
+            SELECT #PRIMARY_KEY, TRUE AS inserted FROM cte
+            UNION ALL
+            SELECT #PRIMARY_KEY, FALSE AS inserted FROM #TABLE_NAME WHERE #UNIQUE_WHERE
+            LIMIT 1;.
+             </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Database.RelationalDatabase.Sql.Provider.SqlResource.UpdateTemplate">
              <summary>
                Looks up a localized string similar to UPDATE #TABLE_NAME
             SET
             	#VALUES_TO_UPDATE
             #WHERE.
              </summary>
+        </member>
+        <member name="T:MelloSilveiraTools.Database.Repositories.IRepository">
+             <summary>
+             Provides a generic, filter-driven abstraction over persistent storage for entity types.
+             </summary>
+             <remarks>
+             All asynchronous members accept a <see cref="T:System.Threading.CancellationToken"/> and will throw
+             <see cref="T:System.OperationCanceledException"/> when cancellation is signalled.
+            
+             Transient database failures (connection drops, broken protocol, network blips, command timeouts caused by
+             transient conditions) are absorbed and retried resilience pipeline. Once the pipeline budget is exhausted 
+             the underlying exceptions are re-thrown to the caller. Non-transient failures — for example unique-constraint 
+             violations, permission errors, or definitive command timeouts — are not retried and are propagated as <see cref="T:System.TimeoutException"/>.
+             </remarks>
+        </member>
+        <member name="M:MelloSilveiraTools.Database.Repositories.IRepository.CountAsync``2(``1,System.Threading.CancellationToken)">
+            <summary>
+            Counts the entities matching the supplied filter.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Database.Repositories.IRepository.ExistAsync``1(System.Int64,System.Threading.CancellationToken)">
+            <summary>
+            Indicates whether an entity with the given identifier exists.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Database.Repositories.IRepository.ExistAsync``2(``1,System.Threading.CancellationToken)">
+            <summary>
+            Indicates whether any entity matching the supplied filter exists.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Database.Repositories.IRepository.GetFirstOrDefaultAsync``2(``1,MelloSilveiraTools.Database.RelationalDatabase.Models.Filters.SortOrder,System.Threading.CancellationToken)">
+            <summary>
+            Gets the first entity matching the supplied filter, or the default value when none is found.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Database.Repositories.IRepository.GetAsync``1(System.Int64,System.Threading.CancellationToken)">
+            <summary>
+            Gets the entity with the given identifier, or <c>null</c> when it does not exist.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Database.Repositories.IRepository.GetAsync``2(``1,MelloSilveiraTools.Database.RelationalDatabase.Models.Filters.Pagination,System.Threading.CancellationToken)">
+            <summary>
+            Streams all entities matching the supplied filter, optionally paginated.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Database.Repositories.IRepository.GetByUniqueColumnAsync``1(System.Object,System.Threading.CancellationToken)">
+            <summary>
+            Returns the entity whose <c>[UniqueColumn]</c>-annotated column equals <paramref name="value"/>,
+            or <c>null</c> when no row matches. Useful as a typed lookup on hash-based identifiers
+            (and any other single-column unique key) without needing to write a <see cref="T:MelloSilveiraTools.Database.RelationalDatabase.Models.Filters.FilterBase"/>-derived filter.
+            </summary>
+            <param name="value">Value to compare against the unique column. Bound as a SQL parameter.</param>
+            <param name="cancellationToken"></param>
+            <exception cref="T:System.InvalidOperationException">
+            Thrown when <typeparamref name="TEntity"/> has zero or more than one <c>[UniqueColumn]</c>-annotated
+            property — for composite unique keys, use a custom <c>FilterBase</c> with multiple <c>[FilterColumn]</c>
+            entries instead.
+            </exception>
+        </member>
+        <member name="M:MelloSilveiraTools.Database.Repositories.IRepository.GetDistinctAsync``2(``1,MelloSilveiraTools.Database.RelationalDatabase.Models.Filters.Pagination,System.Threading.CancellationToken)">
+            <summary>
+            Streams the distinct entities matching the supplied filter, optionally paginated.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Database.Repositories.IRepository.DeleteAllAsync``1(System.Threading.CancellationToken)">
+            <summary>
+            Deletes every entity of the specified type.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Database.Repositories.IRepository.DeleteAsync``1(System.Int64,System.Threading.CancellationToken)">
+            <summary>
+            Deletes the entity with the given identifier.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Database.Repositories.IRepository.DeleteAsync``2(``1,System.Threading.CancellationToken)">
+            <summary>
+            Deletes the entities matching the supplied filter.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Database.Repositories.IRepository.InsertAsync``1(``0,System.Threading.CancellationToken)">
+            <summary>
+            Inserts a new entity and returns its generated identifier.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Database.Repositories.IRepository.TryInsertAsync``1(``0,System.Threading.CancellationToken)">
+            <summary>
+            Inserts the entity. When a row with the same unique-key value already exists, returns the
+            existing row's primary key WITHOUT modifying the existing record (semantics: ON CONFLICT DO NOTHING
+            + fallback SELECT in a single atomic statement).
+            </summary>
+            <returns>
+            <c>Inserted</c> is <c>true</c> when a new row was created and <c>false</c> when an existing
+            row was returned. <c>Id</c> is always the primary key of the canonical row (new or pre-existing).
+            </returns>
+            <exception cref="T:System.InvalidOperationException">
+            Thrown when <typeparamref name="TEntity"/> has no <c>[UniqueColumn]</c>-annotated property —
+            without a unique constraint there is no conflict to detect, so callers should use <see cref="M:MelloSilveiraTools.Database.Repositories.IRepository.InsertAsync``1(``0,System.Threading.CancellationToken)"/> instead.
+            </exception>
+        </member>
+        <member name="M:MelloSilveiraTools.Database.Repositories.IRepository.InsertAsync``1(``0[],System.Threading.CancellationToken)">
+            <summary>
+            Inserts a batch of entities and returns their generated identifiers in the same order.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Database.Repositories.IRepository.UpsertAsync``1(``0,System.Threading.CancellationToken)">
+            <summary>
+            Inserts the entity or updates it when a matching record already exists, returning the resulting identifier.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Database.Repositories.IRepository.UpsertAsync``2(``0[],``1,System.Threading.CancellationToken)">
+            <summary>
+            Inserts or updates a batch of entities using the supplied filter to detect existing records.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Database.Repositories.IRepository.TryUpdateAsync``1(``0,System.Threading.CancellationToken)">
+            <summary>
+            Attempts to update the supplied entity, returning <c>true</c> only when a record was actually changed.
+            </summary>
+        </member>
+        <member name="T:MelloSilveiraTools.Database.ResiliencePipelines.PostgresResiliencePipeline">
+            <summary>
+            Resilience pipeline for PostgreSQL repositories that provides a strategy to handle retriable exceptions.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Database.ResiliencePipelines.PostgresResiliencePipeline.#ctor(Microsoft.Extensions.Logging.ILogger{MelloSilveiraTools.Database.ResiliencePipelines.PostgresResiliencePipeline},MelloSilveiraTools.Core.ResiliencePipelines.ResiliencePipelineSettings)">
+            <summary>
+            Initialize a new instance of <see cref="T:MelloSilveiraTools.Database.ResiliencePipelines.PostgresResiliencePipeline"/>.
+            </summary>
+            <param name="logger">Logger used to record retry attempts and failures while executing operations through the pipeline.</param>
+            <param name="settings">Resilience pipeline settings (max retries, base delay, jitter, etc.) that drive the retry strategy.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.Database.ResiliencePipelines.PostgresResiliencePipeline.#ctor(Microsoft.Extensions.Logging.ILogger{MelloSilveiraTools.Database.ResiliencePipelines.PostgresResiliencePipeline},MelloSilveiraTools.Core.ResiliencePipelines.ResiliencePipelineSettings,System.Func{Polly.Retry.RetryPredicateArguments{System.Object},System.Threading.Tasks.ValueTask{System.Boolean}})">
+            <summary>
+            Initializes a new instance of <see cref="T:MelloSilveiraTools.Database.ResiliencePipelines.PostgresResiliencePipeline"/>.
+            </summary>
+            <param name="logger">See reference at <see cref="T:Microsoft.Extensions.Logging.ILogger"/>.</param>
+            <param name="settings">See reference at <see cref="T:MelloSilveiraTools.Core.ResiliencePipelines.ResiliencePipelineSettings"/>.</param>
+            <param name="shouldHandle">Predicate that determines whether the retry should be executed for a given outcome.</param>
         </member>
     </members>
 </doc>

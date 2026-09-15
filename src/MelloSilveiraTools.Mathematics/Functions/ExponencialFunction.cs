@@ -17,12 +17,12 @@ public sealed class ExponencialFunction(
     /// <inheritdoc/>
     public override double Calculate(double variableValue)
     {
-        double result = 0;
+        double value = 0;
         for (int i = 0; i < Coefficients.Length / 2; i++)
         {
-            result += Coefficients[2 * i] * Math.Exp(Coefficients[2 * i + 1] * variableValue);
+            value += Coefficients[2 * i] * Math.Exp(Coefficients[2 * i + 1] * variableValue);
         }
-        return result;
+        return value;
     }
 
     /// <inheritdoc/>

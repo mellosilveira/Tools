@@ -128,8 +128,8 @@ public sealed class DictionaryExtensionsTests
 
     public sealed class SimpleDto
     {
-        public string? Name  { get; set; }
-        public int     Count { get; set; }
+        public string? Name { get; set; }
+        public int Count { get; set; }
     }
 
     public sealed class TimestampDto

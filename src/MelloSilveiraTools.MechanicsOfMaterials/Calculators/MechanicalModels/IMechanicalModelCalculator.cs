@@ -2,71 +2,64 @@
 
 namespace MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels;
 
-// TODO: usar ref readonly para variáveis de tempo para otimizações de memória.
-
 /// <summary>
-/// A generic mechanical model.
-/// Establish an approach for stress-strain and force-displacement relationship which approximate from reality.
+/// Defines a generic mechanical model calculator.
+/// Establishes approaches for stress-strain and force-displacement relationships that approximate real-world behavior.
 /// </summary>
-/// <typeparam name="TInput">Type of mechanical model's input.</typeparam>
-public interface IMechanicalModelCalculator<TInput>
-    where TInput : MechanicalModelInput, new()
+/// <typeparam name="TConstitutiveParameters">The type of the constitutive parameters used as input for the mechanical model.</typeparam>
+public interface IMechanicalModelCalculator<TConstitutiveParameters> where TConstitutiveParameters : ConstitutiveParameters
 {
-    #region Calculate mechanical model's parameters.
-
     /// <summary>
     /// Calculates the force, represented by F. 
-    /// For more details, see on section "Bibliographies" on file "README.MD".
-    /// This method is only useful for load sharing analysis.
+    /// For more details, see the "Bibliographies" section in the "README.md" file.
+    /// This method is primarily useful for load-sharing analysis.
     /// </summary>
-    /// <param name="input">The mechanical model's input.</param>
+    /// <param name="input">The mechanical model's input data.</param>
     /// <param name="time">Unit: s (second).</param>
     /// <param name="displacement">
     /// Unit: m (meter).
-    /// If not informed, this is calculated from the displacement parameters on mechanical model's input.
+    /// If not provided, this is calculated from the displacement parameters on the mechanical model's input.
     /// </param>
     /// <returns>Unit: N (Newton).</returns>
-    double CalculateForce(TInput input, double time, double? displacement = null);
+    double CalculateForce(MechanicalModelInput<TConstitutiveParameters> input, double time, double? displacement = null);
 
     /// <summary>
     /// Calculates the displacement, represented by δ. 
-    /// For more details, see on section "Bibliographies" on file "README.MD".
-    /// This method is only useful for load sharing analysis.
+    /// For more details, see the "Bibliographies" section in the "README.md" file.
+    /// This method is primarily useful for load-sharing analysis.
     /// </summary>
-    /// <param name="input">The mechanical model's input.</param>
+    /// <param name="input">The mechanical model's input data.</param>
     /// <param name="time">Unit: s (second).</param>
     /// <param name="force">
     /// Unit: N (Newton).
-    /// If not informed, this is calculated from the force parameters on mechanical model's input.
+    /// If not provided, this is calculated from the force parameters on the mechanical model's input.
     /// </param>
     /// <returns>Unit: m (meter).</returns>
-    double CalculateDisplacement(TInput input, double time, double? force = null);
+    double CalculateDisplacement(MechanicalModelInput<TConstitutiveParameters> input, double time, double? force = null);
 
     /// <summary>
     /// Calculates the stress, represented by σ. 
-    /// For more details, see on section "Bibliographies" on file "README.MD".
+    /// For more details, see the "Bibliographies" section in the "README.md" file.
     /// </summary>
-    /// <param name="input">The mechanical model's input.</param>
+    /// <param name="input">The mechanical model's input data.</param>
     /// <param name="time">Unit: s (second).</param>
     /// <param name="strain">
     /// Unit: dimensionless. 
-    /// If not informed, this is calculated from the strain parameters on mechanical model's input.
+    /// If not provided, this is calculated from the strain parameters on the mechanical model's input.
     /// </param>
     /// <returns>Unit: MPa (Mega-Pascal).</returns>
-    double CalculateStress(TInput input, double time, double? strain = null);
+    double CalculateStress(MechanicalModelInput<TConstitutiveParameters> input, double time, double? strain = null);
 
     /// <summary>
     /// Calculates the strain, represented by ε. 
-    /// For more details, see on section "Bibliographies" on file "README.MD".
+    /// For more details, see the "Bibliographies" section in the "README.md" file.
     /// </summary>
-    /// <param name="input">The mechanical model's input.</param>
+    /// <param name="input">The mechanical model's input data.</param>
     /// <param name="time">Unit: s (second).</param>
     /// <param name="stress">
     /// Unit: MPa (Mega-Pascal).
-    /// If not informed, this is calculated from the stress parameters on mechanical model's input.
+    /// If not provided, this is calculated from the stress parameters on the mechanical model's input.
     /// </param>
     /// <returns>Unit: dimensionless.</returns>
-    double CalculateStrain(TInput input, double time, double? stress = null);
-
-    #endregion
+    double CalculateStrain(MechanicalModelInput<TConstitutiveParameters> input, double time, double? stress = null);
 }

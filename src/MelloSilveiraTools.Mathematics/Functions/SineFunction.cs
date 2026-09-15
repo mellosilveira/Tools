@@ -18,12 +18,12 @@ public sealed class SineFunction(
     /// <inheritdoc/>
     public override double Calculate(double variableValue)
     {
-        double result = 0;
+        double value = 0;
         for (int i = 0; i < Coefficients.Length / 3; i++)
         {
-            result += Coefficients[3 * i] * Math.Sin(Coefficients[3 * i + 1] * (variableValue + Coefficients[3 * i + 2]));
+            value += Coefficients[3 * i] * Math.Sin(Coefficients[3 * i + 1] * (variableValue + Coefficients[3 * i + 2]));
         }
-        return result;
+        return value;
     }
 
     /// <inheritdoc/>

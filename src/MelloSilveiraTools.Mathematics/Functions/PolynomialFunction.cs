@@ -19,10 +19,12 @@ public sealed class PolynomialFunction(
     {
         // Horner's method: O(n) multiplications, no Math.Pow calls.
         // Evaluates ((a_n * x + a_{n-1}) * x + ... ) * x + a_0
-        double result = Coefficients[^1];
+        double value = Coefficients[^1];
         for (int i = Coefficients.Length - 2; i >= 0; i--)
-            result = result * variableValue + Coefficients[i];
-        return result;
+        {
+            value = value * variableValue + Coefficients[i];
+        }
+        return value;
     }
 
     /// <inheritdoc/>
