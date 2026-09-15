@@ -9,7 +9,7 @@ using Microsoft.Extensions.Logging;
 using System.Buffers;
 using System.Runtime.CompilerServices;
 
-namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Services.ExperimentalData;
+namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Steps;
 
 /// <summary>
 /// Pipeline step responsible for parsing and streaming raw experimental strain and stress data,

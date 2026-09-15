@@ -2,7 +2,7 @@ using MelloSilveiraTools.Core.Pipelines.Steps;
 using MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Models.CurveFitting;
 
-namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Abstractions;
+namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Steps.CurveFitter;
 
 /// <summary>
 /// Represents a pipeline step that fits constitutive model parameters from the full

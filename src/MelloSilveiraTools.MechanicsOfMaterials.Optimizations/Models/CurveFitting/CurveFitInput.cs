@@ -2,13 +2,14 @@
 
 namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Models.CurveFitting;
 
-public record CurveFitInput
+public record CurveFitInput<TConstitutiveParameters>
+    where TConstitutiveParameters : ConstitutiveParameters
 {
-    public GenericMechanicalModelInput InitialMechanicalModelInput { get; init; }
+    public MechanicalModelInput<TConstitutiveParameters> InitialMechanicalModelInput { get; init; }
     public required double[] TimePoints { get; init; }
     public required double[] StrainPoints { get; init; }
     public required double[] StressPoints { get; init; }
     public OptimizationOptions Options { get; init; }
-    public Func<GenericMechanicalModelInput, double, double, double> CalculateStress { get; init; }
-    public Func<GenericMechanicalModelInput, double> EvaluateConstraintsAndPenalties { get; init; }
+    public Func<MechanicalModelInput<TConstitutiveParameters>, double, double, double> CalculateStress { get; init; }
+    public Func<MechanicalModelInput<TConstitutiveParameters>, double> EvaluateConstraintsAndPenalties { get; init; }
 }

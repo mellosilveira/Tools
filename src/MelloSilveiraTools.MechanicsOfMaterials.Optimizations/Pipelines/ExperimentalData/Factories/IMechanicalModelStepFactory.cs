@@ -1,7 +1,7 @@
-using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Abstractions;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Models.CurveFitting;
+using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Steps.CurveFitter;
 
-namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Factories;
+namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Factories;
 
 /// <summary>
 /// Factory responsible for creating the appropriate <see cref="IMechanicalModelCurveFitterStep"/>

@@ -1,6 +1,6 @@
 using MelloSilveiraTools.Core.Pipelines.Models;
 
-namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Services.ExperimentalData;
+namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData;
 
 /// <summary>
 /// Infrastructure and execution topology settings for experimental data processing.

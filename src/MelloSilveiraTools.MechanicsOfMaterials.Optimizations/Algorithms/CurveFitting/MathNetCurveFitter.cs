@@ -1,4 +1,6 @@
 ﻿using MathNet.Numerics.Optimization;
+using MelloSilveiraTools.Core.Models;
+using MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Mappers;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Models.CurveFitting;
 using Microsoft.Extensions.Logging;
@@ -6,9 +8,10 @@ using MathNetNumerics = MathNet.Numerics.LinearAlgebra;
 
 namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Algorithms.CurveFitting;
 
-public class MathNetCurveFitter(ILogger<MathNetCurveFitter> logger, IOptimizationMapper mapper) : CurveFitterBase(mapper)
+public class MathNetCurveFitter<TConstitutiveParameters>(ILogger<MathNetCurveFitter<TConstitutiveParameters>> logger, IOptimizationMapper mapper) : CurveFitterBase<TConstitutiveParameters>(mapper)
+    where TConstitutiveParameters : ConstitutiveParameters
 {
-    public override CurveFitResult Fit(CurveFitInput input)
+    public override Result<CurveFitResultData<TConstitutiveParameters>> Fit(CurveFitInput<TConstitutiveParameters> input)
     {
         try
         {
@@ -42,17 +45,13 @@ public class MathNetCurveFitter(ILogger<MathNetCurveFitter> logger, IOptimizatio
             var solverStage2 = new NelderMeadSimplex(input.Options.Tolerance, input.Options.MaxIterations);
             var resultStage2 = solverStage2.FindMinimum(objStage2, initialVectorStage2);
 
-            return new CurveFitResult(
-                true,
-                [.. resultStage2.MinimizingPoint],
-                resultStage2.FunctionInfoAtMinimum.Value,
-                $"Sucesso. Estágio 1 (BFGS): {resultStage1.Iterations} iter. Estágio 2 (Simplex): {resultStage2.Iterations} iter."
-            );
+            var constitutiveParameters = Mapper.MapToConstitutiveParameters<TConstitutiveParameters>([.. resultStage2.MinimizingPoint]);
+            return Result.CreateSuccessOk(new CurveFitResultData<TConstitutiveParameters>(constitutiveParameters, resultStage2.FunctionInfoAtMinimum.Value, resultStage2.Iteration));
         }
         catch (Exception ex)
         {
             logger.LogError(ex, "Failed to fit curve using MathNet. Input: {@Input}", input);
-            return new CurveFitResult(false, [], double.MaxValue, ex.Message);
+            return Result.CreateUnknownError(ex.Message);
         }
     }
 }

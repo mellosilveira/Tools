@@ -4,14 +4,15 @@ using MelloSilveiraTools.Core.Pipelines;
 using MelloSilveiraTools.Core.Pipelines.Dataflow;
 using MelloSilveiraTools.Mathematics.NumericalMethods.Differentiations;
 using MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels;
-using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Abstractions;
-using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Factories;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Models.CurveFitting;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Models.ExperimentalData;
+using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Factories;
+using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Steps;
+using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Steps.CurveFitter;
 using Microsoft.Extensions.Logging;
 using System.Collections.Concurrent;
 
-namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Services.ExperimentalData;
+namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData;
 
 /// <summary>
 /// Service responsible for orchestrating the ingestion, validation, and physical phase segmentation of experimental raw data streams.

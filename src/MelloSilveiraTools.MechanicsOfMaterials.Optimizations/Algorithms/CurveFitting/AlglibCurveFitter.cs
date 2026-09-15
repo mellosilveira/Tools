@@ -1,12 +1,15 @@
-﻿using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Mappers;
+﻿using MelloSilveiraTools.Core.Models;
+using MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels;
+using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Mappers;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Models.CurveFitting;
 using Microsoft.Extensions.Logging;
 
 namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Algorithms.CurveFitting;
 
-public class AlglibCurveFitter(ILogger<AlglibCurveFitter> logger, IOptimizationMapper mapper) : CurveFitterBase(mapper)
+public class AlglibCurveFitter<TConstitutiveParameters>(ILogger<AlglibCurveFitter<TConstitutiveParameters>> logger, IOptimizationMapper mapper) : CurveFitterBase<TConstitutiveParameters>(mapper)
+    where TConstitutiveParameters : ConstitutiveParameters
 {
-    public override CurveFitResult Fit(CurveFitInput input)
+    public override Result<CurveFitResultData<TConstitutiveParameters>> Fit(CurveFitInput<TConstitutiveParameters> input)
     {
         try
         {
@@ -45,17 +48,14 @@ public class AlglibCurveFitter(ILogger<AlglibCurveFitter> logger, IOptimizationM
             alglib.minbleicresults(state, out x, out alglib.minbleicreport rep);
 
             bool success = rep.terminationtype > 0;
-            return new CurveFitResult(
-                success,
-                x,
-                state.f,
-                $"Sucesso ALGLIB. Código de terminação: {rep.terminationtype}. Iterações: {rep.iterationscount}"
-            );
+            return success
+                ? Result.CreateSuccessOk(new CurveFitResultData<TConstitutiveParameters>(Mapper.MapToConstitutiveParameters<TConstitutiveParameters>(x), state.f, rep.iterationscount))
+                : Result.CreateUnknownError($"Failed to fit curve using MathNet. Termination type: {rep.terminationtype}. Iteractions: {rep.iterationscount}");
         }
         catch (Exception ex)
         {
             logger.LogError(ex, "Failed to fit curve using MathNet. Input: {@Input}", input);
-            return new CurveFitResult(false, [], double.MaxValue, ex.Message);
+            return Result.CreateUnknownError(ex.Message);
         }
     }
 }

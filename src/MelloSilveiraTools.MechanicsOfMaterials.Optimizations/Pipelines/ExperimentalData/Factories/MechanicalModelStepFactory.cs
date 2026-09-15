@@ -1,11 +1,10 @@
 using MelloSilveiraTools.Core.ExtensionMethods;
 using MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels;
-using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Abstractions;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Models.CurveFitting;
-using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Steps;
+using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Steps.CurveFitter;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Factories;
+namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Factories;
 
 /// <summary>
 /// Default implementation of <see cref="IMechanicalModelStepFactory"/> that resolves

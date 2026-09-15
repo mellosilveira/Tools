@@ -2,7 +2,7 @@ using MelloSilveiraTools.Core.Pipelines.Steps;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Models.CurveFitting;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Models.ExperimentalData;
 
-namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Services.ExperimentalData;
+namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Steps;
 
 /// <summary>
 /// Pipeline step responsible for constructing <see cref="CurveSegment"/> instances from grouped <see cref="SegmentedDataPoint"/> arrays,

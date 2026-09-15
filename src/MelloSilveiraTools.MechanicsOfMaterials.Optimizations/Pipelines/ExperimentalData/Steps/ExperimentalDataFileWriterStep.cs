@@ -3,7 +3,7 @@ using MelloSilveiraTools.Core.Pipelines.Steps;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Models.ExperimentalData;
 using System.Text;
 
-namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Services.ExperimentalData;
+namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Steps;
 
 /// <summary>
 /// Pipeline step responsible for persisting processed experimental data points to a CSV file.

@@ -1,6 +1,6 @@
-using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Factories;
-using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Services.ExperimentalData;
-using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Steps;
+using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData;
+using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Factories;
+using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Steps.CurveFitter;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations;

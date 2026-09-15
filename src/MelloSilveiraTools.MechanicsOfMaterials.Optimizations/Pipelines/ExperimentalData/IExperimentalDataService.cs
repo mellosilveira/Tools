@@ -1,7 +1,7 @@
 using MelloSilveiraTools.Core.Models;
 using MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels;
 
-namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Services.ExperimentalData;
+namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData;
 
 /// <summary>
 /// Handles the ingestion, validation, and physical phase segmentation of experimental raw data streams.
