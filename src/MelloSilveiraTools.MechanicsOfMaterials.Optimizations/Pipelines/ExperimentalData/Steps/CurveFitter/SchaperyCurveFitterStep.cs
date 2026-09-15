@@ -1,3 +1,4 @@
+using MelloSilveiraTools.Mathematics.Functions;
 using MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Viscoelasticity.NonLinear.Schapery;
 using MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels;
 using MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity;
@@ -32,39 +33,32 @@ public sealed class SchaperyCurveFitterStep(
     protected override bool IsAcceptedSegment(SegmentType segmentType) => true;
 
     /// <inheritdoc />
-    protected override SchaperyConstitutiveParameters CreateInitialParameters() => new()
-    {
-        Ge = 10.0,
-        TransientRelaxationFunction = new MelloSilveiraTools.Mathematics.Functions.PowerLaw(null, null, [0.1, 0.05]),
-        He = new MelloSilveiraTools.Mathematics.Functions.PolynomialFunction(null, null, [1.0]),
-        H1 = new MelloSilveiraTools.Mathematics.Functions.PolynomialFunction(null, null, [1.0]),
-        H2 = new MelloSilveiraTools.Mathematics.Functions.PolynomialFunction(null, null, [1.0]),
-    };
+    protected override double[] CreateInitialParameters() => [1000.0, 0.1, 0.05, 1, 1, 1];
 
     /// <inheritdoc />
-    protected override double[] MapParametersToArray(SchaperyConstitutiveParameters parameters) =>
-    [
-        parameters.Ge,
-        parameters.TransientRelaxationFunction?.Coefficients[0] ?? 0.1,
-        parameters.TransientRelaxationFunction?.Coefficients[1] ?? 0.05,
-        parameters.He?.Coefficients[0] ?? 1.0,
-        parameters.H1?.Coefficients[0] ?? 1.0,
-        parameters.H2?.Coefficients[0] ?? 1.0,
-    ];
+    protected override double[] CreateLowerBounds() => [1e-6, 0.0, 0.0, 0.0, 0.0, 0.0];
+
+    /// <inheritdoc />
+    protected override double[] CreateUpperBounds() => [1e5, 1e3, 10.0, 1.0, 1.0, 1.0];
+
+    /// <inheritdoc />
+    protected override Func<double[], double>? CreateEvaluateConstraintsAndPenalties()
+    {
+        throw new NotImplementedException();
+    }
 
     /// <inheritdoc />
     protected override SchaperyConstitutiveParameters MapArrayToParameters(double[] array) => new()
     {
         Ge = array[0],
-        TransientRelaxationFunction = new MelloSilveiraTools.Mathematics.Functions.PowerLaw(null, null, [array[1], array[2]]),
-        He = new MelloSilveiraTools.Mathematics.Functions.PolynomialFunction(null, null, [array[3]]),
-        H1 = new MelloSilveiraTools.Mathematics.Functions.PolynomialFunction(null, null, [array[4]]),
-        H2 = new MelloSilveiraTools.Mathematics.Functions.PolynomialFunction(null, null, [array[5]]),
+        TransientRelaxationFunction = new PowerLaw(null, null, [array[1], array[2]]),
+        He = new PolynomialFunction(null, null, [array[3]]),
+        H1 = new PolynomialFunction(null, null, [array[4]]),
+        H2 = new PolynomialFunction(null, null, [array[5]]),
     };
 
-    /// <inheritdoc />
-    protected override double[] CreateLowerBounds() => [1e-2, 0.0, 0.0, 0.0, 0.0, 0.0];
-
-    /// <inheritdoc />
-    protected override double[] CreateUpperBounds() => [1e5, 1e3, 10.0, 1.0, 1.0, 1.0];
+    protected override MechanicalModelCurveFitOutput FitCurve(CurveSegment curveSegment)
+    {
+        return base.FitCurve(curveSegment);
+    }
 }
