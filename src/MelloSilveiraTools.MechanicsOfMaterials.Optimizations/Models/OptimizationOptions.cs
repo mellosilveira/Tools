@@ -1,5 +1,0 @@
-﻿using MelloSilveiraTools.Mathematics.Models;
-
-namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Models;
-
-public record OptimizationOptions(double[] InitialGuesses, double[] LowerBounds, double[] UpperBounds, int MaxIterations = 1_000_000, double Tolerance = MathematicConstants.Tolerance);

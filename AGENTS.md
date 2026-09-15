@@ -231,6 +231,7 @@ AI agents modifying or generating code in this repository **must strictly adhere
   - `ExperimentalDataSegmenterStep`: Ingestion step implementing `IAsyncEnumerablePipelineStep<(Stream StrainStream, Stream StressStream), SegmentedDataPoint>`, parsing CSV streams and categorizing points across deformation phases via sliding-window numerical differentiation.
   - `ExperimentalDataFileWriterStep`: Persistence step implementing `IAsyncPipelineStep<SegmentedDataPoint, SegmentedDataPoint>`, streaming valid points to disk via CSV format.
   - `CurveSegmentBuilderStep`: Assembly step implementing `ISyncPipelineStep<SegmentedDataPoint[], CurveSegment>`, constructing segments from grouped arrays with configurable downsampling (`skipTimeStep`).
+  - `IMechanicalModelCurveFitterStep`: Optimization step implementing `IAsyncEnumerablePipelineStep<CurveSegment[], ConstitutiveParameters>`. It yields fitted constitutive parameters sequentially as an async stream for real-time processing, using `MechanicalModelCurveFitterStepBase` to abstract model configurations.
 - `IExperimentalDataService.ProcessAsync(identifier, outputFileUri, strainStream, stressStream, options)` → `Result<(string OutputFileName, CurveSegment[] CurveSegments)>`.
   - Continuous stream topology via TPL Dataflow:
     - Ingestion: `ExperimentalDataSegmenterStep` converts raw stream pair into streaming `SegmentedDataPoint` sequence.

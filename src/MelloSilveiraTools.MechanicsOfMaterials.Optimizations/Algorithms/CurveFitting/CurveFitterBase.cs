@@ -1,32 +1,24 @@
-﻿using MelloSilveiraTools.Core.Models;
-using MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels;
-using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Mappers;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Models.CurveFitting;
 
 namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Algorithms.CurveFitting;
 
-public abstract class CurveFitterBase<TConstitutiveParameters>(IOptimizationMapper mapper) : ICurveFitter<TConstitutiveParameters>
-    where TConstitutiveParameters : ConstitutiveParameters
+public abstract class CurveFitterBase : ICurveFitter
 {
-    protected IOptimizationMapper Mapper { get; } = mapper;
-
-    protected double CalculateObjectiveFunction(CurveFitInput<TConstitutiveParameters> input, double[] currentParameters, bool applyConstraints)
+    protected double CalculateObjectiveFunction(CurveFitInput input, double[] currentParameters, bool applyConstraints)
     {
-        MechanicalModelInput<TConstitutiveParameters> mechanicalModelInput = input.InitialMechanicalModelInput with { ConstitutiveParameters = Mapper.MapToConstitutiveParameters<TConstitutiveParameters>(currentParameters) };
-
         double sumOfSquares = 0;
         for (int i = 0; i < input.TimePoints.Length; i++)
         {
-            double predictedStress = input.CalculateStress(mechanicalModelInput, input.TimePoints[i], input.StrainPoints[i]);
+            double predictedStress = input.CalculateStress(currentParameters, input.TimePoints[i], input.StrainPoints[i]);
             double diff = input.StressPoints[i] - predictedStress;
             sumOfSquares += diff * diff;
         }
 
-        sumOfSquares += applyConstraints && input.EvaluateConstraintsAndPenalties != null ? input.EvaluateConstraintsAndPenalties(mechanicalModelInput) : 0;
+        sumOfSquares += applyConstraints && input.EvaluateConstraintsAndPenalties != null ? input.EvaluateConstraintsAndPenalties(currentParameters) : 0;
         return sumOfSquares;
     }
 
-    protected double[] CalculateNumericalGradient(CurveFitInput<TConstitutiveParameters> input, double[] currentParameters, bool applyConstraints)
+    protected double[] CalculateNumericalGradient(CurveFitInput input, double[] currentParameters, bool applyConstraints)
     {
         var gradient = new double[currentParameters.Length];
         double h = 1e-6;
@@ -49,5 +41,5 @@ public abstract class CurveFitterBase<TConstitutiveParameters>(IOptimizationMapp
         return gradient;
     }
 
-    public abstract Result<CurveFitResultData<TConstitutiveParameters>> Fit(CurveFitInput<TConstitutiveParameters> input);
+    public abstract CurveFitOutput Fit(CurveFitInput input);
 }

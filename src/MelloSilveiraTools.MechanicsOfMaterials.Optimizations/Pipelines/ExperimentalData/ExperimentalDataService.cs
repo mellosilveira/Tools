@@ -28,7 +28,7 @@ public class ExperimentalDataService(
     /// <inheritdoc/>
     public async Task<Result<(string OutputFileName, ConstitutiveParameters[] Parameters)>> ProcessAsync(ExperimentalDataProcessingInput input, CancellationToken cancellationToken = default)
     {
-        ConcurrentBag<ConstitutiveParameters[]> parameterBatches = [];
+        ConcurrentBag<ConstitutiveParameters> parameterBatches = [];
 
         ExperimentalDataSegmenterStep segmenterStep = new(logger, differentiation);
         ExperimentalDataFileWriterStep fileWriterStep = new(fileManager, input.OutputFileUri, input.Identifier);
@@ -54,7 +54,7 @@ public class ExperimentalDataService(
             pipeline.Complete();
             await pipeline.Completion.ConfigureAwait(false);
 
-            ConstitutiveParameters[] parameters = [.. parameterBatches.SelectMany(batch => batch)];
+            ConstitutiveParameters[] parameters = [.. parameterBatches];
             return (fileWriterStep.OutputFullFileName, parameters);
         }
     }

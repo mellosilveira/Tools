@@ -1,6 +1,4 @@
-using MelloSilveiraTools.Core.Models;
 using MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Viscoelasticity.QuasiLinear.Fung;
-using MelloSilveiraTools.MechanicsOfMaterials.Models;
 using MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels;
 using MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity;
 using MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.QuasiLinear;
@@ -15,63 +13,53 @@ namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.Experi
 /// </summary>
 public sealed class FungRelaxationOnlyCurveFitterStep(
     IFungModelCalculator mechanicalModelCalculator,
-    ICurveFitter<FungConstitutiveParameters> curveFitter) 
-    : IMechanicalModelCurveFitterStep
+    ICurveFitter curveFitter) 
+    : MechanicalModelCurveFitterStepBase<IFungModelCalculator, FungConstitutiveParameters>(mechanicalModelCalculator, curveFitter)
 {
     /// <inheritdoc />
-    public string Name => nameof(FungRelaxationOnlyCurveFitterStep);
+    public override string Name => nameof(FungRelaxationOnlyCurveFitterStep);
 
     /// <inheritdoc />
-    public ConstitutiveParameters[] Execute(CurveSegment[] input)
-    {
-        foreach (CurveSegment curve in input)
-        {
-            if (curve.Type != SegmentType.Relaxation)
-                continue;
-
-            MechanicalModelInput<FungConstitutiveParameters> initialMechanicalModelInput = new()
-            {
-                MechanicalModelName = nameof(MechanicalModel.Fung),
-                AcceptedStrainRange = new AcceptedRange
-                {
-                    InitialPoint = curve.ExperimentalStrain[0],
-                    FinalPoint = curve.ExperimentalStrain[^1],
-                },
-                MechanicalBehaviorType = MechanicalBehaviorType.StressStrain,
-                RampTimeConsideration = RampTimeConsideration.Disregard,
-                ViscoelasticEffect = ViscoelasticEffect.Relaxation,
-                Strain = new MechanicalParameter(curve.ExperimentalStrain[0]),
-                Stress = new MechanicalParameter(curve.ExperimentalStress[0]),
-                TimeStep = curve.TimePoints[1] - curve.TimePoints[0],
-                ConstitutiveParameters = new FungConstitutiveParameters
-                {
-                    ReducedRelaxationFunction = new ReducedRelaxationFunction(1, 1, 1),
-                    ElasticPowerConstant = 1,
-                    ElasticStressConstant = 1,
-                },
-            };
-
-            CurveFitInput<FungConstitutiveParameters> curveFitInput = new()
-            {
-                TimePoints = curve.TimePoints,
-                StrainPoints = curve.ExperimentalStrain,
-                StressPoints = curve.ExperimentalStress,
-                CalculateStress = (mechanicalModelInput, time, strain) => mechanicalModelCalculator.CalculateStress(mechanicalModelInput, time, strain),
-                Options = new Models.OptimizationOptions([], [], []),
-                EvaluateConstraintsAndPenalties = (mechanicalModelInput) => 0.0,
-                InitialMechanicalModelInput = initialMechanicalModelInput,
-            };
-
-            Result<CurveFitResultData<FungConstitutiveParameters>> curveFitResult = curveFitter.Fit(curveFitInput);
-        }
-
-        // TODO: Implement specific numerical solver for Fung relaxation-only curve fitting.
-        return [];
-    }
+    protected override string MechanicalModelName => nameof(MechanicalModel.Fung);
 
     /// <inheritdoc />
-    public void Dispose()
+    protected override ViscoelasticEffect ViscoelasticEffect => ViscoelasticEffect.Relaxation;
+
+    /// <inheritdoc />
+    protected override RampTimeConsideration RampTimeConsideration => RampTimeConsideration.Disregard;
+
+    /// <inheritdoc />
+    protected override bool IsAcceptedSegment(SegmentType segmentType) => segmentType == SegmentType.Relaxation;
+
+    /// <inheritdoc />
+    protected override FungConstitutiveParameters CreateInitialParameters() => new()
     {
-        // No unmanaged resources to release.
-    }
+        ReducedRelaxationFunction = new ReducedRelaxationFunction(1, 1, 1),
+        ElasticPowerConstant = 1,
+        ElasticStressConstant = 1,
+    };
+
+    /// <inheritdoc />
+    protected override double[] MapParametersToArray(FungConstitutiveParameters parameters) =>
+    [
+        parameters.ElasticPowerConstant,
+        parameters.ElasticStressConstant,
+        parameters.ReducedRelaxationFunction?.RelaxationStiffness ?? 1,
+        parameters.ReducedRelaxationFunction?.FastRelaxationTime ?? 1,
+        parameters.ReducedRelaxationFunction?.SlowRelaxationTime ?? 1,
+    ];
+
+    /// <inheritdoc />
+    protected override FungConstitutiveParameters MapArrayToParameters(double[] array) => new()
+    {
+        ElasticPowerConstant = array[0],
+        ElasticStressConstant = array[1],
+        ReducedRelaxationFunction = new ReducedRelaxationFunction(array[2], array[3], array[4]),
+    };
+
+    /// <inheritdoc />
+    protected override double[] CreateLowerBounds() => [1e-5, 1e-2, 1e-5, 1e-4, 1.0];
+
+    /// <inheritdoc />
+    protected override double[] CreateUpperBounds() => [100.0, 1000.0, 10.0, 10.0, 1e6];
 }
