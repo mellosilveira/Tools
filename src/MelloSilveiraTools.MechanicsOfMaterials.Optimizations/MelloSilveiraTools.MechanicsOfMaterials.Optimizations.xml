@@ -494,7 +494,7 @@
             </summary>
             <param name="input"></param>
             <param name="cancellationToken">A token to cancel the operation.</param>
-            <returns>A <see cref="T:MelloSilveiraTools.Core.Models.Result`1"/> containing the generated output file name and the array of <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.ConstitutiveParameters"/>.</returns>
+            <returns>A <see cref="T:MelloSilveiraTools.Core.Models.Result`1"/> containing the generated output file name and the array of <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Steps.CurveFitter.MechanicalModelCurveFitOutput"/>.</returns>
         </member>
         <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Steps.CurveFitter.FungCurveFitterStep">
             <summary>
@@ -526,16 +526,16 @@
         <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Steps.CurveFitter.FungCurveFitterStep.CreateInitialParameters">
             <inheritdoc />
         </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Steps.CurveFitter.FungCurveFitterStep.MapParametersToArray(MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.QuasiLinear.FungConstitutiveParameters)">
-            <inheritdoc />
-        </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Steps.CurveFitter.FungCurveFitterStep.MapArrayToParameters(System.Double[])">
-            <inheritdoc />
-        </member>
         <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Steps.CurveFitter.FungCurveFitterStep.CreateLowerBounds">
             <inheritdoc />
         </member>
         <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Steps.CurveFitter.FungCurveFitterStep.CreateUpperBounds">
+            <inheritdoc />
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Steps.CurveFitter.FungCurveFitterStep.CreateEvaluateConstraintsAndPenalties">
+            <inheritdoc />
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Steps.CurveFitter.FungCurveFitterStep.MapArrayToParameters(System.Double[])">
             <inheritdoc />
         </member>
         <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Steps.CurveFitter.FungRelaxationOnlyCurveFitterStep">
@@ -553,31 +553,10 @@
         <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Steps.CurveFitter.FungRelaxationOnlyCurveFitterStep.Name">
             <inheritdoc />
         </member>
-        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Steps.CurveFitter.FungRelaxationOnlyCurveFitterStep.MechanicalModelName">
-            <inheritdoc />
-        </member>
-        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Steps.CurveFitter.FungRelaxationOnlyCurveFitterStep.ViscoelasticEffect">
-            <inheritdoc />
-        </member>
         <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Steps.CurveFitter.FungRelaxationOnlyCurveFitterStep.RampTimeConsideration">
             <inheritdoc />
         </member>
         <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Steps.CurveFitter.FungRelaxationOnlyCurveFitterStep.IsAcceptedSegment(MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Models.CurveFitting.SegmentType)">
-            <inheritdoc />
-        </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Steps.CurveFitter.FungRelaxationOnlyCurveFitterStep.CreateInitialParameters">
-            <inheritdoc />
-        </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Steps.CurveFitter.FungRelaxationOnlyCurveFitterStep.MapParametersToArray(MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.QuasiLinear.FungConstitutiveParameters)">
-            <inheritdoc />
-        </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Steps.CurveFitter.FungRelaxationOnlyCurveFitterStep.MapArrayToParameters(System.Double[])">
-            <inheritdoc />
-        </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Steps.CurveFitter.FungRelaxationOnlyCurveFitterStep.CreateLowerBounds">
-            <inheritdoc />
-        </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Steps.CurveFitter.FungRelaxationOnlyCurveFitterStep.CreateUpperBounds">
             <inheritdoc />
         </member>
         <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Steps.CurveFitter.IMechanicalModelCurveFitterStep">
@@ -601,16 +580,6 @@
             Implements common boilerplate for constructing inputs, filtering segments, and invoking the curve fitter.
             </summary>
         </member>
-        <member name="F:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Steps.CurveFitter.MechanicalModelCurveFitterStepBase`2._mechanicalModelCalculator">
-            <summary>
-            The mechanical model calculator instance.
-            </summary>
-        </member>
-        <member name="F:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Steps.CurveFitter.MechanicalModelCurveFitterStepBase`2._curveFitter">
-            <summary>
-            The curve fitter instance.
-            </summary>
-        </member>
         <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Steps.CurveFitter.MechanicalModelCurveFitterStepBase`2.Name">
             <inheritdoc />
         </member>
@@ -629,6 +598,9 @@
             Gets the ramp time consideration to be used.
             </summary>
         </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Steps.CurveFitter.MechanicalModelCurveFitterStepBase`2.ExecuteAsync(MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Models.CurveFitting.CurveSegment[],System.Threading.CancellationToken)">
+            <inheritdoc />
+        </member>
         <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Steps.CurveFitter.MechanicalModelCurveFitterStepBase`2.IsAcceptedSegment(MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Models.CurveFitting.SegmentType)">
             <summary>
             Determines whether the given segment type is accepted for curve fitting.
@@ -640,17 +612,7 @@
             <summary>
             Creates the initial constitutive parameters used as a starting point for optimization.
             </summary>
-            <returns>A new instance of <typeparamref name="TParameters"/>.</returns>
-        </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Steps.CurveFitter.MechanicalModelCurveFitterStepBase`2.MapParametersToArray(`1)">
-            <summary>
-            Maps the constitutive parameters object to a flat array of doubles for the curve fitter.
-            </summary>
-        </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Steps.CurveFitter.MechanicalModelCurveFitterStepBase`2.MapArrayToParameters(System.Double[])">
-            <summary>
-            Maps the flat array of doubles back to a strongly-typed constitutive parameters object.
-            </summary>
+            <returns>A new instance of <typeparamref name="TConstitutiveParameters"/>.</returns>
         </member>
         <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Steps.CurveFitter.MechanicalModelCurveFitterStepBase`2.CreateLowerBounds">
             <summary>
@@ -662,8 +624,10 @@
             Creates the upper bounds array for the optimization parameters.
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Steps.CurveFitter.MechanicalModelCurveFitterStepBase`2.ExecuteAsync(MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Models.CurveFitting.CurveSegment[],System.Threading.CancellationToken)">
-            <inheritdoc />
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Steps.CurveFitter.MechanicalModelCurveFitterStepBase`2.MapArrayToParameters(System.Double[])">
+            <summary>
+            Maps the flat array of doubles back to a strongly-typed constitutive parameters object.
+            </summary>
         </member>
         <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Steps.CurveFitter.MechanicalModelCurveFitterStepBase`2.DisposeAsync">
             <inheritdoc />
@@ -698,16 +662,16 @@
         <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Steps.CurveFitter.SchaperyCurveFitterStep.CreateInitialParameters">
             <inheritdoc />
         </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Steps.CurveFitter.SchaperyCurveFitterStep.MapParametersToArray(MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.NonLinear.Schapery.SchaperyConstitutiveParameters)">
-            <inheritdoc />
-        </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Steps.CurveFitter.SchaperyCurveFitterStep.MapArrayToParameters(System.Double[])">
-            <inheritdoc />
-        </member>
         <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Steps.CurveFitter.SchaperyCurveFitterStep.CreateLowerBounds">
             <inheritdoc />
         </member>
         <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Steps.CurveFitter.SchaperyCurveFitterStep.CreateUpperBounds">
+            <inheritdoc />
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Steps.CurveFitter.SchaperyCurveFitterStep.CreateEvaluateConstraintsAndPenalties">
+            <inheritdoc />
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Steps.CurveFitter.SchaperyCurveFitterStep.MapArrayToParameters(System.Double[])">
             <inheritdoc />
         </member>
         <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Steps.CurveFitter.SchaperyRelaxationOnlyCurveFitterStep">
@@ -740,16 +704,19 @@
         <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Steps.CurveFitter.SchaperyRelaxationOnlyCurveFitterStep.CreateInitialParameters">
             <inheritdoc />
         </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Steps.CurveFitter.SchaperyRelaxationOnlyCurveFitterStep.MapParametersToArray(MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.NonLinear.Schapery.SchaperyConstitutiveParameters)">
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Steps.CurveFitter.SchaperyRelaxationOnlyCurveFitterStep.CreateLowerBounds">
+            <inheritdoc />
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Steps.CurveFitter.SchaperyRelaxationOnlyCurveFitterStep.CreateUpperBounds">
+            <inheritdoc />
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Steps.CurveFitter.SchaperyRelaxationOnlyCurveFitterStep.CreateEvaluateConstraintsAndPenalties">
             <inheritdoc />
         </member>
         <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Steps.CurveFitter.SchaperyRelaxationOnlyCurveFitterStep.MapArrayToParameters(System.Double[])">
             <inheritdoc />
         </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Steps.CurveFitter.SchaperyRelaxationOnlyCurveFitterStep.CreateLowerBounds">
-            <inheritdoc />
-        </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Steps.CurveFitter.SchaperyRelaxationOnlyCurveFitterStep.CreateUpperBounds">
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Steps.CurveFitter.SchaperyRelaxationOnlyCurveFitterStep.ExecuteAsync(MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Models.CurveFitting.CurveSegment[],System.Threading.CancellationToken)">
             <inheritdoc />
         </member>
         <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Steps.CurveFitter.SimplifiedFungCurveFitterStep">
@@ -782,7 +749,7 @@
         <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Steps.CurveFitter.SimplifiedFungCurveFitterStep.CreateInitialParameters">
             <inheritdoc />
         </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Steps.CurveFitter.SimplifiedFungCurveFitterStep.MapParametersToArray(MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.QuasiLinear.SimplifiedFungConstitutiveParameters)">
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Steps.CurveFitter.SimplifiedFungCurveFitterStep.CreateEvaluateConstraintsAndPenalties">
             <inheritdoc />
         </member>
         <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Steps.CurveFitter.SimplifiedFungCurveFitterStep.MapArrayToParameters(System.Double[])">
@@ -809,31 +776,7 @@
         <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Steps.CurveFitter.SimplifiedFungRelaxationOnlyCurveFitterStep.Name">
             <inheritdoc />
         </member>
-        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Steps.CurveFitter.SimplifiedFungRelaxationOnlyCurveFitterStep.MechanicalModelName">
-            <inheritdoc />
-        </member>
-        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Steps.CurveFitter.SimplifiedFungRelaxationOnlyCurveFitterStep.ViscoelasticEffect">
-            <inheritdoc />
-        </member>
-        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Steps.CurveFitter.SimplifiedFungRelaxationOnlyCurveFitterStep.RampTimeConsideration">
-            <inheritdoc />
-        </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Steps.CurveFitter.SimplifiedFungRelaxationOnlyCurveFitterStep.IsAcceptedSegment(MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Models.CurveFitting.SegmentType)">
-            <inheritdoc />
-        </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Steps.CurveFitter.SimplifiedFungRelaxationOnlyCurveFitterStep.CreateInitialParameters">
-            <inheritdoc />
-        </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Steps.CurveFitter.SimplifiedFungRelaxationOnlyCurveFitterStep.MapParametersToArray(MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.QuasiLinear.SimplifiedFungConstitutiveParameters)">
-            <inheritdoc />
-        </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Steps.CurveFitter.SimplifiedFungRelaxationOnlyCurveFitterStep.MapArrayToParameters(System.Double[])">
-            <inheritdoc />
-        </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Steps.CurveFitter.SimplifiedFungRelaxationOnlyCurveFitterStep.CreateLowerBounds">
-            <inheritdoc />
-        </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Steps.CurveFitter.SimplifiedFungRelaxationOnlyCurveFitterStep.CreateUpperBounds">
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Steps.CurveFitter.SimplifiedFungRelaxationOnlyCurveFitterStep.ExecuteAsync(MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Models.CurveFitting.CurveSegment[],System.Threading.CancellationToken)">
             <inheritdoc />
         </member>
         <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Steps.CurveSegmentBuilderStep">

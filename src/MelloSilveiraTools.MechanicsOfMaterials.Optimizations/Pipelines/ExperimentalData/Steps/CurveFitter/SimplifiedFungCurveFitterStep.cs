@@ -12,7 +12,7 @@ namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.Experi
 /// Thread-safe. Implements <see cref="IMechanicalModelCurveFitterStep"/> for the
 /// Simplified Fung model (full curve fitting). Implements <c>IPipelineStep</c> for telemetry.
 /// </summary>
-public sealed class SimplifiedFungCurveFitterStep(
+public class SimplifiedFungCurveFitterStep(
     ISimplifiedFungModelCalculator mechanicalModelCalculator,
     ICurveFitter curveFitter) 
     : MechanicalModelCurveFitterStepBase<ISimplifiedFungModelCalculator, SimplifiedFungConstitutiveParameters>(mechanicalModelCalculator, curveFitter)
@@ -33,28 +33,10 @@ public sealed class SimplifiedFungCurveFitterStep(
     protected override bool IsAcceptedSegment(SegmentType segmentType) => true;
 
     /// <inheritdoc />
-    protected override SimplifiedFungConstitutiveParameters CreateInitialParameters() => new()
-    {
-        ReducedRelaxationFunction = new PronySeries(null, null, 1, [1]),
-        ElasticPowerConstant = 1,
-        ElasticStressConstant = 1,
-    };
+    protected override double[] CreateInitialParameters() => [1, 1, 1, 1];
 
     /// <inheritdoc />
-    protected override double[] MapParametersToArray(SimplifiedFungConstitutiveParameters parameters)
-    {
-        var prony = parameters.ReducedRelaxationFunction;
-        int iteratorCount = prony?.IteratorCoefficients.Length ?? 1;
-        var array = new double[3 + iteratorCount];
-        array[0] = parameters.ElasticPowerConstant;
-        array[1] = parameters.ElasticStressConstant;
-        array[2] = prony?.IndependentParameter ?? 1;
-        for (int i = 0; i < iteratorCount; i++)
-        {
-            array[3 + i] = prony?.IteratorCoefficients[i] ?? 1;
-        }
-        return array;
-    }
+    protected override Func<double[], double>? CreateEvaluateConstraintsAndPenalties() => null;
 
     /// <inheritdoc />
     protected override SimplifiedFungConstitutiveParameters MapArrayToParameters(double[] array)
@@ -76,12 +58,11 @@ public sealed class SimplifiedFungCurveFitterStep(
     protected override double[] CreateLowerBounds() 
     {
         var parameters = CreateInitialParameters();
-        int iteratorCount = parameters.ReducedRelaxationFunction?.IteratorCoefficients.Length ?? 1;
-        var array = new double[3 + iteratorCount];
+        var array = new double[parameters.Length];
         array[0] = 1e-5;
         array[1] = 1e-2;
         array[2] = 0.0;
-        for (int i = 0; i < iteratorCount; i++) array[3 + i] = 0.0;
+        for (int i = 3; i < array.Length; i++) array[i] = 0.0;
         return array;
     }
 
@@ -89,12 +70,11 @@ public sealed class SimplifiedFungCurveFitterStep(
     protected override double[] CreateUpperBounds() 
     {
         var parameters = CreateInitialParameters();
-        int iteratorCount = parameters.ReducedRelaxationFunction?.IteratorCoefficients.Length ?? 1;
-        var array = new double[3 + iteratorCount];
+        var array = new double[parameters.Length];
         array[0] = 100.0;
         array[1] = 1000.0;
         array[2] = 1.0;
-        for (int i = 0; i < iteratorCount; i++) array[3 + i] = 1e6;
+        for (int i = 3; i < array.Length; i++) array[i] = 1e6;
         return array;
     }
 }

@@ -60,49 +60,105 @@ public sealed class SchaperyRelaxationOnlyCurveFitterStep(
         H2 = new PolynomialFunction(null, null, [array[5]]),
     };
 
+    /// <inheritdoc />
     public override async IAsyncEnumerable<MechanicalModelCurveFitOutput> ExecuteAsync(CurveSegment[] input, [EnumeratorCancellation] CancellationToken cancellationToken = default)
     {
-        var curveSegments = input.Where(cs => cs.Type == SegmentType.Relaxation).OrderBy(cs => cs.ExperimentalStrain[0]).ToList();
+        var relaxations = input.Where(cs => cs.Type == SegmentType.Relaxation).OrderBy(cs => cs.ExperimentalStrain[0]).ToList();
+        if (relaxations.Count == 0)
+            yield break;
 
-        var curveSegment = curveSegments[0];
-        double initialStrain = curveSegment.ExperimentalStrain[0];
-        double finalStrain = curveSegment.ExperimentalStrain[^1];
-        CurveFitInput curveFitInput = new()
+        // 1. Select the relaxation with the lowest strain (Anchor)
+        var anchorSegment = relaxations[0];
+        
+        double[] initialParams = CreateInitialParameters();
+        double[] baseLowerBounds = CreateLowerBounds();
+        double[] baseUpperBounds = CreateUpperBounds();
+
+        // 2. Fit Anchor (Optimize Ge, C, n; Lock he=1, h1=1, h2=1)
+        double[] anchorLowerBounds = (double[])baseLowerBounds.Clone();
+        double[] anchorUpperBounds = (double[])baseUpperBounds.Clone();
+        anchorLowerBounds[3] = 1.0; anchorUpperBounds[3] = 1.0; // he
+        anchorLowerBounds[4] = 1.0; anchorUpperBounds[4] = 1.0; // h1
+        anchorLowerBounds[5] = 1.0; anchorUpperBounds[5] = 1.0; // h2
+
+        CurveFitInput anchorInput = new()
         {
-            TimePoints = curveSegment.TimePoints,
-            StrainPoints = curveSegment.ExperimentalStrain,
-            StressPoints = curveSegment.ExperimentalStress,
+            TimePoints = anchorSegment.TimePoints,
+            StrainPoints = anchorSegment.ExperimentalStrain,
+            StressPoints = anchorSegment.ExperimentalStress,
             CalculateStress = (parameters, time, strain) =>
             {
                 MechanicalModelInput<SchaperyConstitutiveParameters> currentInput = new()
                 {
                     MechanicalModelName = MechanicalModelName,
-                    AcceptedStrainRange = new AcceptedRange { InitialPoint = initialStrain, FinalPoint = finalStrain },
+                    AcceptedStrainRange = new AcceptedRange { InitialPoint = anchorSegment.ExperimentalStrain[0], FinalPoint = anchorSegment.ExperimentalStrain[^1] },
                     MechanicalBehaviorType = MechanicalBehaviorType.StressStrain,
                     RampTimeConsideration = RampTimeConsideration,
                     ViscoelasticEffect = ViscoelasticEffect,
                     Strain = new MechanicalParameter(strain),
-                    Stress = new MechanicalParameter(curveSegment.ExperimentalStress[0]),
-                    TimeStep = curveSegment.TimePoints[1] - curveSegment.TimePoints[0],
-                    ConstitutiveParameters = new SchaperyConstitutiveParameters
-                    {
-                        Ge = parameters[0],
-                        He = new PolynomialFunction(initialStrain, finalStrain, [1]),
-                        H1 = new PolynomialFunction(initialStrain, finalStrain, [1]),
-                        H2 = new PolynomialFunction(initialStrain, finalStrain, [1]),
-                        TransientRelaxationFunction = new PowerLaw(initialStrain, finalStrain, parameters[1..]),
-                    }
+                    Stress = new MechanicalParameter(anchorSegment.ExperimentalStress[0]),
+                    TimeStep = anchorSegment.TimePoints[1] - anchorSegment.TimePoints[0],
+                    ConstitutiveParameters = MapArrayToParameters(parameters),
                 };
                 return MechanicalModelCalculator.CalculateStress(currentInput, time, strain);
             },
-            LowerBounds = [0, 0, 0],
-            UpperBounds = [100, 100, 1],
+            LowerBounds = anchorLowerBounds,
+            UpperBounds = anchorUpperBounds,
             EvaluateConstraintsAndPenalties = CreateEvaluateConstraintsAndPenalties(),
-            InitialParameters = [],
+            InitialParameters = initialParams,
         };
-        CurveFitOutput curveFitOutput = CurveFitter.Fit(curveFitInput);
-        yield return MapToOutput(curveFitOutput);
 
+        CurveFitOutput anchorOutput = CurveFitter.Fit(anchorInput);
+        yield return MapToOutput(anchorOutput);
 
+        double[] optimizedLinearParams = anchorOutput.OptimizedParameters;
+
+        // 3. Fit remaining relaxations (Lock Ge, C, n; Optimize he, h1, h2)
+        for (int i = 1; i < relaxations.Count; i++)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            var segment = relaxations[i];
+
+            double[] segmentLowerBounds = (double[])baseLowerBounds.Clone();
+            double[] segmentUpperBounds = (double[])baseUpperBounds.Clone();
+            segmentLowerBounds[0] = optimizedLinearParams[0]; segmentUpperBounds[0] = optimizedLinearParams[0]; // Ge
+            segmentLowerBounds[1] = optimizedLinearParams[1]; segmentUpperBounds[1] = optimizedLinearParams[1]; // C
+            segmentLowerBounds[2] = optimizedLinearParams[2]; segmentUpperBounds[2] = optimizedLinearParams[2]; // n
+
+            double[] segmentInitialParams = (double[])initialParams.Clone();
+            segmentInitialParams[0] = optimizedLinearParams[0];
+            segmentInitialParams[1] = optimizedLinearParams[1];
+            segmentInitialParams[2] = optimizedLinearParams[2];
+
+            CurveFitInput segmentInput = new()
+            {
+                TimePoints = segment.TimePoints,
+                StrainPoints = segment.ExperimentalStrain,
+                StressPoints = segment.ExperimentalStress,
+                CalculateStress = (parameters, time, strain) =>
+                {
+                    MechanicalModelInput<SchaperyConstitutiveParameters> currentInput = new()
+                    {
+                        MechanicalModelName = MechanicalModelName,
+                        AcceptedStrainRange = new AcceptedRange { InitialPoint = segment.ExperimentalStrain[0], FinalPoint = segment.ExperimentalStrain[^1] },
+                        MechanicalBehaviorType = MechanicalBehaviorType.StressStrain,
+                        RampTimeConsideration = RampTimeConsideration,
+                        ViscoelasticEffect = ViscoelasticEffect,
+                        Strain = new MechanicalParameter(strain),
+                        Stress = new MechanicalParameter(segment.ExperimentalStress[0]),
+                        TimeStep = segment.TimePoints[1] - segment.TimePoints[0],
+                        ConstitutiveParameters = MapArrayToParameters(parameters),
+                    };
+                    return MechanicalModelCalculator.CalculateStress(currentInput, time, strain);
+                },
+                LowerBounds = segmentLowerBounds,
+                UpperBounds = segmentUpperBounds,
+                EvaluateConstraintsAndPenalties = CreateEvaluateConstraintsAndPenalties(),
+                InitialParameters = segmentInitialParams,
+            };
+
+            CurveFitOutput segmentOutput = CurveFitter.Fit(segmentInput);
+            yield return MapToOutput(segmentOutput);
+        }
     }
 }

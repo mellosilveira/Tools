@@ -56,9 +56,4 @@ public sealed class SchaperyCurveFitterStep(
         H1 = new PolynomialFunction(null, null, [array[4]]),
         H2 = new PolynomialFunction(null, null, [array[5]]),
     };
-
-    protected override MechanicalModelCurveFitOutput FitCurve(CurveSegment curveSegment)
-    {
-        return base.FitCurve(curveSegment);
-    }
 }

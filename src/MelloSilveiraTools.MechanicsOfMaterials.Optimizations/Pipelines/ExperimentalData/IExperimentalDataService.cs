@@ -15,7 +15,7 @@ public interface IExperimentalDataService
     /// </summary>
     /// <param name="input"></param>
     /// <param name="cancellationToken">A token to cancel the operation.</param>
-    /// <returns>A <see cref="Result{T}"/> containing the generated output file name and the array of <see cref="ConstitutiveParameters"/>.</returns>
-    Task<Result<(string OutputFileName, ConstitutiveParameters[] Parameters)>> ProcessAsync(ExperimentalDataProcessingInput input, CancellationToken cancellationToken = default);
+    /// <returns>A <see cref="Result{T}"/> containing the generated output file name and the array of <see cref="Steps.CurveFitter.MechanicalModelCurveFitOutput"/>.</returns>
+    Task<Result<(string OutputFileName, Steps.CurveFitter.MechanicalModelCurveFitOutput[] Parameters)>> ProcessAsync(ExperimentalDataProcessingInput input, CancellationToken cancellationToken = default);
 }
 
