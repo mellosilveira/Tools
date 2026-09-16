@@ -1,3 +1,4 @@
+using MelloSilveiraTools.Mathematics.Expressions;
 using MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Viscoelasticity.QuasiLinear.SimplifiedFung;
 using MelloSilveiraTools.MechanicsOfMaterials.Models;
 using MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels;
@@ -5,6 +6,7 @@ using MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelast
 using MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.QuasiLinear;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Algorithms.CurveFitting;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Models.CurveFitting;
+using System.Runtime.CompilerServices;
 
 namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Steps.CurveFitter;
 
@@ -14,114 +16,114 @@ namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.Experi
 /// </summary>
 public sealed class SimplifiedFungRelaxationOnlyCurveFitterStep(
     ISimplifiedFungModelCalculator mechanicalModelCalculator,
-    ICurveFitter curveFitter) 
-    : SimplifiedFungCurveFitterStep(mechanicalModelCalculator, curveFitter)
+    ICurveFitter curveFitter) : IMechanicalModelCurveFitterStep
 {
     /// <inheritdoc />
-    public override string Name => nameof(SimplifiedFungRelaxationOnlyCurveFitterStep);
+    public string Name => nameof(SimplifiedFungRelaxationOnlyCurveFitterStep);
 
     /// <inheritdoc />
-    public override async IAsyncEnumerable<MechanicalModelCurveFitOutput> ExecuteAsync(CurveSegment[] input, [System.Runtime.CompilerServices.EnumeratorCancellation] CancellationToken cancellationToken = default)
+    public async IAsyncEnumerable<MechanicalModelCurveFitOutput> ExecuteAsync(CurveSegment[] input, [EnumeratorCancellation] CancellationToken cancellationToken = default)
     {
-        var ramps = input.Where(s => s.Type == SegmentType.Ramp).ToList();
-        var relaxations = input.Where(s => s.Type == SegmentType.Relaxation).ToList();
+        var ramps = input.Where(cs => cs.Type == SegmentType.Ramp).ToList();
+        var relaxations = input.Where(cs => cs.Type == SegmentType.Relaxation).ToList();
 
-        // Assuming each ramp is followed by a relaxation with the same initial strain.
-        // We will match them in pairs chronologically.
-        for (int i = 0; i < Math.Min(ramps.Count, relaxations.Count); i++)
+        for (int i = 0; i < relaxations.Count; i++)
         {
             cancellationToken.ThrowIfCancellationRequested();
-            var ramp = ramps[i];
+
             var relaxation = relaxations[i];
 
-            double[] initialParams = CreateInitialParameters();
-            double[] lowerBounds = CreateLowerBounds();
-            double[] upperBounds = CreateUpperBounds();
+            // Busca a rampa que precede esta relaxao
+            var matchingRamp = ramps.LastOrDefault(r => r.TimePoints.Last() <= relaxation.TimePoints.First());
 
-            // 1. Fit Ramp (Optimize only A and B, lock the rest)
-            double[] rampLowerBounds = (double[])lowerBounds.Clone();
-            double[] rampUpperBounds = (double[])upperBounds.Clone();
-            for (int j = 2; j < initialParams.Length; j++)
-            {
-                rampLowerBounds[j] = initialParams[j];
-                rampUpperBounds[j] = initialParams[j];
-            }
+            double a = 1000.0, b = 1.0;
 
-            CurveFitInput rampInput = new()
+            if (matchingRamp != null)
             {
-                TimePoints = ramp.TimePoints,
-                StrainPoints = ramp.ExperimentalStrain,
-                StressPoints = ramp.ExperimentalStress,
-                CalculateStress = (parameters, time, strain) =>
+                CurveFitInput rampInput = new()
                 {
-                    MechanicalModelInput<SimplifiedFungConstitutiveParameters> currentInput = new()
+                    IndependentVariables = [matchingRamp.TimePoints, matchingRamp.ExperimentalStrain],
+                    DependentVariable = matchingRamp.ExperimentalStress,
+                    Calculate = (parameters, xValues) =>
                     {
-                        MechanicalModelName = MechanicalModelName,
-                        AcceptedStrainRange = new AcceptedRange
+                        MechanicalModelInput<SimplifiedFungConstitutiveParameters> currentInput = new()
                         {
-                            InitialPoint = ramp.ExperimentalStrain[0],
-                            FinalPoint = ramp.ExperimentalStrain[^1],
-                        },
-                        MechanicalBehaviorType = MechanicalBehaviorType.StressStrain,
-                        RampTimeConsideration = RampTimeConsideration.ConsiderWithViscoelasticEffect,
-                        ViscoelasticEffect = ViscoelasticEffect.Relaxation,
-                        Strain = new MechanicalParameter(ramp.ExperimentalStrain[0]),
-                        Stress = new MechanicalParameter(ramp.ExperimentalStress[0]),
-                        TimeStep = ramp.TimePoints[1] - ramp.TimePoints[0],
-                        ConstitutiveParameters = MapArrayToParameters(parameters),
-                    };
-                    return MechanicalModelCalculator.CalculateStress(currentInput, time, strain);
-                },
-                LowerBounds = rampLowerBounds,
-                UpperBounds = rampUpperBounds,
-                EvaluateConstraintsAndPenalties = CreateEvaluateConstraintsAndPenalties(),
-                InitialParameters = initialParams,
-            };
+                            MechanicalModelName = nameof(MechanicalModel.SimplifiedFung),
+                            AcceptedStrainRange = new AcceptedRange { InitialPoint = matchingRamp.ExperimentalStrain[0], FinalPoint = matchingRamp.ExperimentalStrain[^1] },
+                            MechanicalBehaviorType = MechanicalBehaviorType.StressStrain,
+                            RampTimeConsideration = RampTimeConsideration.Disregard,
+                            ViscoelasticEffect = ViscoelasticEffect.Relaxation,
+                            Strain = new MechanicalParameter(matchingRamp.ExperimentalStrain[0]),
+                            Stress = new MechanicalParameter(matchingRamp.ExperimentalStress[0]),
+                            TimeStep = matchingRamp.TimePoints[1] - matchingRamp.TimePoints[0],
+                            ConstitutiveParameters = new SimplifiedFungConstitutiveParameters
+                            {
+                                ElasticStressConstant = parameters[0],
+                                ElasticPowerConstant = parameters[1],
+                                ReducedRelaxationFunction = new PronySeries(null, null, 1.0, [0, -1.0]),
+                            },
+                        };
+                        return mechanicalModelCalculator.CalculateStress(currentInput, xValues[0], xValues[1]);
+                    },
+                    LowerBounds = [1e-6, 0.0],
+                    UpperBounds = [1e5, 100.0],
+                    EvaluateConstraintsAndPenalties = null,
+                    InitialParameters = [1000.0, 1.0],
+                };
 
-            CurveFitOutput rampOutput = CurveFitter.Fit(rampInput);
-            double[] intermediateParams = rampOutput.OptimizedParameters;
-
-            // 2. Fit Relaxation (Optimize only Prony, lock A and B)
-            double[] relLowerBounds = (double[])lowerBounds.Clone();
-            double[] relUpperBounds = (double[])upperBounds.Clone();
-            relLowerBounds[0] = intermediateParams[0];
-            relUpperBounds[0] = intermediateParams[0];
-            relLowerBounds[1] = intermediateParams[1];
-            relUpperBounds[1] = intermediateParams[1];
+                var rampOutput = curveFitter.Fit(rampInput);
+                a = rampOutput.OptimizedParameters[0];
+                b = rampOutput.OptimizedParameters[1];
+            }
 
             CurveFitInput relInput = new()
             {
-                TimePoints = relaxation.TimePoints,
-                StrainPoints = relaxation.ExperimentalStrain,
-                StressPoints = relaxation.ExperimentalStress,
-                CalculateStress = (parameters, time, strain) =>
+                IndependentVariables = [relaxation.TimePoints, relaxation.ExperimentalStrain],
+                DependentVariable = relaxation.ExperimentalStress,
+                Calculate = (parameters, xValues) =>
                 {
                     MechanicalModelInput<SimplifiedFungConstitutiveParameters> currentInput = new()
                     {
-                        MechanicalModelName = MechanicalModelName,
-                        AcceptedStrainRange = new AcceptedRange
-                        {
-                            InitialPoint = relaxation.ExperimentalStrain[0],
-                            FinalPoint = relaxation.ExperimentalStrain[^1],
-                        },
+                        MechanicalModelName = nameof(MechanicalModel.SimplifiedFung),
+                        AcceptedStrainRange = new AcceptedRange { InitialPoint = relaxation.ExperimentalStrain[0], FinalPoint = relaxation.ExperimentalStrain[^1] },
                         MechanicalBehaviorType = MechanicalBehaviorType.StressStrain,
                         RampTimeConsideration = RampTimeConsideration.Disregard,
                         ViscoelasticEffect = ViscoelasticEffect.Relaxation,
                         Strain = new MechanicalParameter(relaxation.ExperimentalStrain[0]),
                         Stress = new MechanicalParameter(relaxation.ExperimentalStress[0]),
                         TimeStep = relaxation.TimePoints[1] - relaxation.TimePoints[0],
-                        ConstitutiveParameters = MapArrayToParameters(parameters),
+                        ConstitutiveParameters = new SimplifiedFungConstitutiveParameters
+                        {
+                            ElasticStressConstant = a,
+                            ElasticPowerConstant = b,
+                            ReducedRelaxationFunction = new PronySeries(null, null, 1.0, [parameters[0], -1.0 / parameters[1]]),
+                        },
                     };
-                    return MechanicalModelCalculator.CalculateStress(currentInput, time, strain);
+                    return mechanicalModelCalculator.CalculateStress(currentInput, xValues[0], xValues[1]);
                 },
-                LowerBounds = relLowerBounds,
-                UpperBounds = relUpperBounds,
-                EvaluateConstraintsAndPenalties = CreateEvaluateConstraintsAndPenalties(),
-                InitialParameters = intermediateParams,
+                LowerBounds = [0.0, 1e-4],
+                UpperBounds = [1.0, 100.0],
+                EvaluateConstraintsAndPenalties = null,
+                InitialParameters = [0.1, 10.0],
             };
 
-            CurveFitOutput relOutput = CurveFitter.Fit(relInput);
-            yield return MapToOutput(relOutput);
+            var relOutput = curveFitter.Fit(relInput);
+
+            SimplifiedFungConstitutiveParameters finalParams = new SimplifiedFungConstitutiveParameters
+            {
+                ElasticStressConstant = a,
+                ElasticPowerConstant = b,
+                ReducedRelaxationFunction = new PronySeries(null, null, 1.0, [relOutput.OptimizedParameters[0], -1.0 / relOutput.OptimizedParameters[1]]),
+            };
+
+            yield return new MechanicalModelCurveFitOutput(finalParams, relOutput.FinalError, relOutput.Iterations, new AcceptedRange { InitialPoint = relaxation.ExperimentalStrain[0], FinalPoint = relaxation.ExperimentalStrain[^1] });
         }
+    }
+
+    /// <inheritdoc />
+    public ValueTask DisposeAsync()
+    {
+        GC.SuppressFinalize(this);
+        return ValueTask.CompletedTask;
     }
 }
