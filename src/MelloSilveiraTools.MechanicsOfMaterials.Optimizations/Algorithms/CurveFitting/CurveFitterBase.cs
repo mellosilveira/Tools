@@ -7,10 +7,11 @@ public abstract class CurveFitterBase : ICurveFitter
     protected double CalculateObjectiveFunction(CurveFitInput input, double[] currentParameters, bool applyConstraints)
     {
         double sumOfSquares = 0;
-        for (int i = 0; i < input.TimePoints.Length; i++)
+        for (int i = 0; i < input.XPoints[0].Length; i++)
         {
-            double predictedStress = input.CalculateStress(currentParameters, input.TimePoints[i], input.StrainPoints[i]);
-            double diff = input.StressPoints[i] - predictedStress;
+            double[] x = [.. input.XPoints.Select(point => point[i])];
+            double predictedStress = input.Calculate(currentParameters, x);
+            double diff = input.YPoints[i] - predictedStress;
             sumOfSquares += diff * diff;
         }
 

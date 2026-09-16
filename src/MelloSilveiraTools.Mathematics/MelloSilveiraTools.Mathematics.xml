@@ -500,6 +500,33 @@
         <member name="M:MelloSilveiraTools.Mathematics.Functions.GenericFunction.CreateIntegral">
             <inheritdoc/>
         </member>
+        <member name="T:MelloSilveiraTools.Mathematics.Functions.LogarithmicFunction">
+            <summary>
+            Represents a logarithmic function.
+            f(x) = a_0 + a_1 * ln(a_2 * x) + ... + a_n-1 * ln(a_n * x)
+            </summary>
+            <param name="initialVariableValue">The initial value of the variable range.</param>
+            <param name="finalVariableValue">The final value of the variable range.</param>
+            <param name="coefficients">The array containing the coefficients a_0, a_1, a_2, ..., a_n.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.Mathematics.Functions.LogarithmicFunction.#ctor(System.Nullable{System.Double},System.Nullable{System.Double},System.Double[])">
+            <summary>
+            Represents a logarithmic function.
+            f(x) = a_0 + a_1 * ln(a_2 * x) + ... + a_n-1 * ln(a_n * x)
+            </summary>
+            <param name="initialVariableValue">The initial value of the variable range.</param>
+            <param name="finalVariableValue">The final value of the variable range.</param>
+            <param name="coefficients">The array containing the coefficients a_0, a_1, a_2, ..., a_n.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.Mathematics.Functions.LogarithmicFunction.Calculate(System.Double)">
+            <inheritdoc/>
+        </member>
+        <member name="M:MelloSilveiraTools.Mathematics.Functions.LogarithmicFunction.CreateDerivative">
+            <inheritdoc/>
+        </member>
+        <member name="M:MelloSilveiraTools.Mathematics.Functions.LogarithmicFunction.CreateIntegral">
+            <inheritdoc/>
+        </member>
         <member name="T:MelloSilveiraTools.Mathematics.Functions.PolynomialFunction">
             <summary>
             Represents a polynomial function.
@@ -700,6 +727,11 @@
         <member name="F:MelloSilveiraTools.Mathematics.Models.FunctionType.PronySeries">
             <summary>
             f(x) = a_0 + a_1 * exp(a_2 * x) + ... a_n-1 * exp(a_n * x)
+            </summary>
+        </member>
+        <member name="F:MelloSilveiraTools.Mathematics.Models.FunctionType.Logarithmic">
+            <summary>
+            f(x) = a_0 + a_1 * ln(x)
             </summary>
         </member>
         <member name="T:MelloSilveiraTools.Mathematics.Models.MathematicConstants">

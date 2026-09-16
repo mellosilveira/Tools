@@ -1,4 +1,4 @@
-﻿namespace MelloSilveiraTools.Mathematics.Models;
+namespace MelloSilveiraTools.Mathematics.Models;
 
 /// <summary>
 /// Contains the function types.
@@ -44,4 +44,9 @@ public enum FunctionType : int
     /// f(x) = a_0 + a_1 * exp(a_2 * x) + ... a_n-1 * exp(a_n * x)
     /// </summary>
     PronySeries = 7,
+
+    /// <summary>
+    /// f(x) = a_0 + a_1 * ln(x)
+    /// </summary>
+    Logarithmic = 8,
 }
