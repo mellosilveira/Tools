@@ -12,7 +12,7 @@ src/MelloSilveiraTools.Core/                           — Extensions, in-memory
 src/MelloSilveiraTools.Database/                       — IRepository, PostgresRepository, ISqlProvider, attributes, FilterClauses, Npgsql/Dapper
 src/MelloSilveiraTools.WebApi/                         — Controllers (Custom/Crud), minimal endpoints, NDJSON streaming, Swagger, JWE auth, ApiServiceAgent, Commands (Crud)
 src/MelloSilveiraTools.Plugins/                        — File-based plugin runtime, two-level cache, dynamic DI, persistence, background orchestrator
-src/MelloSilveiraTools.Mathematics/                    — Differential equation solvers (Newmark, Newmark-β), univariate Function hierarchy, expressions, numerical calculus, root-finding, 3D geometry, statistics
+src/MelloSilveiraTools.Mathematics/                    — Differential equation solvers (Newmark, Newmark-β), Function hierarchy, expressions, numerical calculus, root-finding, 3D geometry, statistics
 src/MelloSilveiraTools.MechanicsOfMaterials/           — Fatigue, constitutive equations, geometric profiles, force/vector models, viscoelastic models
 src/MelloSilveiraTools.MechanicsOfMaterials.Optimizations/ — TPL Dataflow pipelines, experimental data segmentation (Ramp/Relaxation/Descent/Recovery), curve fitting via MathNet.Numerics & ALGLIB
 test/UnitTests/                                        — xUnit test suite, references the meta-package and Optimizations
@@ -231,7 +231,7 @@ AI agents modifying or generating code in this repository **must strictly adhere
   - `ExperimentalDataSegmenterStep`: Ingestion step implementing `IAsyncEnumerablePipelineStep<(Stream StrainStream, Stream StressStream), SegmentedDataPoint>`, parsing CSV streams and categorizing points across deformation phases via sliding-window numerical differentiation.
   - `ExperimentalDataFileWriterStep`: Persistence step implementing `IAsyncPipelineStep<SegmentedDataPoint, SegmentedDataPoint>`, streaming valid points to disk via CSV format.
   - `CurveSegmentBuilderStep`: Assembly step implementing `ISyncPipelineStep<SegmentedDataPoint[], CurveSegment>`, constructing segments from grouped arrays with configurable downsampling (`skipTimeStep`).
-  - `IMechanicalModelCurveFitterStep`: Optimization step implementing `IAsyncEnumerablePipelineStep<CurveSegment[], ConstitutiveParameters>`. It yields fitted constitutive parameters sequentially as an async stream for real-time processing, using `MechanicalModelCurveFitterStepBase` to abstract model configurations.
+  - `IMechanicalModelCurveFitterStep`: Optimization step implementing `IAsyncEnumerablePipelineStep<CurveSegment[], MechanicalModelCurveFitOutput>`. It yields fitted constitutive parameters and their analysis metrics sequentially as an async stream for real-time processing.
 - `IExperimentalDataService.ProcessAsync(identifier, outputFileUri, strainStream, stressStream, options)` → `Result<(string OutputFileName, CurveSegment[] CurveSegments)>`.
   - Continuous stream topology via TPL Dataflow:
     - Ingestion: `ExperimentalDataSegmenterStep` converts raw stream pair into streaming `SegmentedDataPoint` sequence.
@@ -246,7 +246,7 @@ AI agents modifying or generating code in this repository **must strictly adhere
 - `ExperimentalDataSegmenterStep.ExtractSegments()` → sliding-window segment classification.
 - Segment types: `Ramp`, `Relaxation`, `Descent`, `Recovery`.
 - `ICurveFitter` interface with `MathNetCurveFitter` (Levenberg-Marquardt via MathNet.Numerics) and `AlglibCurveFitter` (bundled ALGLIB).
-- `QuasiLinearModelCurveFitter` for specialized mechanical model curve fitting.
+
 - Morris sensitivity analysis: `MorrisAnalyzer`, `MorrisInput`, `MorrisOutput`, `MorrisMetrics`.
 
 ### 7. Database & SQL Generation

@@ -140,15 +140,17 @@ public sealed class SchaperyRelaxationOnlyCurveFitterStep(
             totalError += segmentOutput.FinalError;
             totalIterations += segmentOutput.Iterations;
 
-            SchaperyConstitutiveParameters segmentParams = new SchaperyConstitutiveParameters
+            double initialAcceptedStrain = segment.ExperimentalStrain[0];
+            double finalAcceptedStrain = segment.ExperimentalStrain[^1];
+            SchaperyConstitutiveParameters segmentParams = new()
             {
                 Ge = optimizedLinearParams[0],
-                TransientRelaxationFunction = new PowerLaw(segment.ExperimentalStrain[0], segment.ExperimentalStrain[^1], [optimizedLinearParams[1], optimizedLinearParams[2]]),
+                TransientRelaxationFunction = new PowerLaw(initialAcceptedStrain, finalAcceptedStrain, [optimizedLinearParams[1], optimizedLinearParams[2]]),
                 He = new ConstantFunction(segment.ExperimentalStrain[0], segment.ExperimentalStrain[^1], segmentOutput.OptimizedParameters[0]),
                 H1 = new ConstantFunction(segment.ExperimentalStrain[0], segment.ExperimentalStrain[^1], 1.0),
                 H2 = new ConstantFunction(segment.ExperimentalStrain[0], segment.ExperimentalStrain[^1], segmentOutput.OptimizedParameters[1]),
             };
-            yield return new MechanicalModelCurveFitOutput(segmentParams, segmentOutput.FinalError, segmentOutput.Iterations, new AcceptedRange { InitialPoint = segment.ExperimentalStrain[0], FinalPoint = segment.ExperimentalStrain[^1] });
+            yield return new MechanicalModelCurveFitOutput(segmentParams, segmentOutput.FinalError, segmentOutput.Iterations, new AcceptedRange(segment.ExperimentalStrain[0], segment.ExperimentalStrain[^1]));
         }
 
         Function heFunction = FindBestMathematicalFunction(strains.ToArray(), hePoints.ToArray(), curveFitter);

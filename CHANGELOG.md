@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [1.5.0] - 2026-06-DD
 ### Added
+- `LogarithmicFunction` in `MelloSilveiraTools.Mathematics.Functions`.
 - `CsvStreamReader` in `MelloSilveiraTools.Core.Managers.File`: High-performance, zero-allocation streaming CSV reader utilizing native `System.IO.Pipelines.PipeReader` and `System.Buffers.Text.Utf8Parser`. Returns parsed numerical rows as `double[]`, supporting arbitrary column counts, custom delimiters, empty line skipping, and header/invalid line filtering.
 - **New Package: `MelloSilveiraTools.MechanicsOfMaterials.Optimizations`**:
   - High-throughput experimental data processing and segmentation engine (`IExperimentalDataService`, `ExperimentalDataService`):
@@ -20,7 +21,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
     - `ExperimentalDataSegmenterStep`: Dedicated `IAsyncEnumerablePipelineStep<(Stream StrainStream, Stream StressStream), SegmentedDataPoint>` and `IAsyncDisposable` ingesting CSV streams and yielding classified `SegmentedDataPoint` items.
     - `ExperimentalDataFileWriterStep`: Dedicated `IAsyncPipelineStep<SegmentedDataPoint, SegmentedDataPoint>` and `IAsyncDisposable` persisting processed data points to a CSV file.
     - `CurveSegmentBuilderStep`: Dedicated `ISyncPipelineStep<SegmentedDataPoint[], CurveSegment>` transforming grouped data points into classified curve segments with downsampling.
-  - Extensible curve fitting suite: `ICurveFitter` interface with `MathNetCurveFitter` (Levenberg-Marquardt via MathNet.Numerics), `AlglibCurveFitter` (bundled ALGLIB), and `QuasiLinearModelCurveFitter` (fitting viscoelastic constitutive models to experimental data curves).
+  - Extensible curve fitting suite: `ICurveFitter` interface with `MathNetCurveFitter` (Levenberg-Marquardt via MathNet.Numerics) and `AlglibCurveFitter` (bundled ALGLIB).
   - Global sensitivity analysis via Morris Elementary Effects Method: `MorrisAnalyzer`, `MorrisInput`, `MorrisOutput`, `MorrisMetrics`, `MorrisPoint`, `MorrisParameterBoundary`, and `ExpressionPathResolver`.
   - Optimization Web API commands & endpoints: `FitCurve`, `FitCurveRequest`, `FitCurveResultData`, `ParameterGroupResultData`, `OptimizationOptionsRequest`, and `CurveFittingController`.
   - Domain models for optimization: `CurveFitInput`, `CurveFitResult`, `CurveSegment`, `ExperimentalDataPoint`, `SegmentType`, `ExperimentalDataProcessingOptions`, `ProcessedDataPoint`, `SegmentedDataPoint`, `OptimizationOptions`, and parameter range models (`RangeFunction`, `RangeParameters`, `RangePowerLaw`, `RangePronySeries`, `RangeReducedRelaxationFunction`).
@@ -66,6 +67,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - `BoundaryStatisticalSummary`, `BoundaryValues` and `BoundaryValue` types to capture the statistical distribution of boundary conditions.
 - FileManager service to build a file with timebased name.
 ### Changed
+- Refactored `ICurveFitter` and its implementations to support functions with multiple independent variables.
+- Updated `Schapery` and `Fung` constitutive model implementations in alignment with specialized bibliographies.
+- Refactored mechanical model curve fitter steps (e.g., `SchaperyRelaxationOnlyCurveFitterStep`, `FungCurveFitterStep`) to streamline pipeline integration and yield `MechanicalModelCurveFitOutput`, replacing previous base abstractions.
 - All mechanical model calculators (e.g., `SchaperyModelCalculator`, `FungModelCalculator`, `ModifiedSuperpositionMethodCalculator`, `LinearModelCalculator`) now isolate and route physical properties through the `input.ConstitutiveParameters` property instead of reading them directly from a flattened input object.
 - `Expression` abstract class in `MelloSilveiraTools.Mathematics` renamed to `MathExpression`.
 - `Vector3DExtension` renamed to `Vector3DExtensions`.
