@@ -1,4 +1,4 @@
-﻿using MelloSilveiraTools.Mathematics.Functions;
+using MelloSilveiraTools.Mathematics.Functions;
 using MelloSilveiraTools.Mathematics.Models;
 
 namespace MelloSilveiraTools.Mathematics.Factories.Functions;
@@ -14,6 +14,7 @@ public class FunctionFactory
         FunctionType.Sine => new SineFunction(initialVariableValue, finalVariableValue, coefficients),
         FunctionType.Cosine => new CosineFunction(initialVariableValue, finalVariableValue, coefficients),
         FunctionType.PowerLaw => new PowerLaw(initialVariableValue, finalVariableValue, coefficients),
+        FunctionType.Logarithmic => new LogarithmicFunction(initialVariableValue, finalVariableValue, coefficients),
         _ => throw new ArgumentOutOfRangeException(nameof(functionType))
     };
 }

@@ -1,5 +1,5 @@
-﻿using MelloSilveiraTools.Mathematics.Models.Statistics;
-using MelloSilveiraTools.Mathematics.Extensions;
+﻿using MelloSilveiraTools.Mathematics.Extensions;
+using MelloSilveiraTools.Mathematics.Models.Statistics;
 
 namespace MelloSilveiraTools.Mathematics.Statistics;
 
@@ -18,17 +18,17 @@ public class StatisticsCalculator : IStatisticsCalculator
         var (valuesWithoutOutliers, outliers, lowerLimit, upperLimit) = CalculateOutliers(sorted, threshold);
         double mean = CalculateMean(valuesWithoutOutliers);
         return new StatisticalData
-        {
-            Median = CalculateMedian(valuesWithoutOutliers),
-            Mean = mean,
-            Minimum = valuesWithoutOutliers[0],
-            Maximum = valuesWithoutOutliers[^1],
-            LowerLimit = lowerLimit,
-            UpperLimit = upperLimit,
-            StandardDeviation = CalculateStandardDeviation(valuesWithoutOutliers, mean),
-            Outliers = outliers,
-            Values = values,
-        };
+        (
+            Median: CalculateMedian(valuesWithoutOutliers),
+            Mean: mean,
+            Minimum: valuesWithoutOutliers[0],
+            Maximum: valuesWithoutOutliers[^1],
+            LowerLimit: lowerLimit,
+            UpperLimit: upperLimit,
+            StandardDeviation: CalculateStandardDeviation(valuesWithoutOutliers, mean),
+            Outliers: outliers,
+            Values: values
+        );
     }
 
     private static double CalculateMedian(double[] sortedValues)

@@ -7,14 +7,14 @@ public sealed class StringExtensionsTests
     // ── ToSnakeCase ────────────────────────────────────────────────────────────
 
     [Theory]
-    [InlineData("Id",                   "id")]
-    [InlineData("Name",                 "name")]
-    [InlineData("UserId",               "user_id")]
-    [InlineData("CreationTimestamp",    "creation_timestamp")]
-    [InlineData("StateAbbreviation",    "state_abbreviation")]
-    [InlineData("ProductId",            "product_id")]
-    [InlineData("name",                 "name")]           // already lower-case
-    [InlineData("ABC",                  "a_b_c")]          // all caps
+    [InlineData("Id", "id")]
+    [InlineData("Name", "name")]
+    [InlineData("UserId", "user_id")]
+    [InlineData("CreationTimestamp", "creation_timestamp")]
+    [InlineData("StateAbbreviation", "state_abbreviation")]
+    [InlineData("ProductId", "product_id")]
+    [InlineData("name", "name")]           // already lower-case
+    [InlineData("ABC", "a_b_c")]          // all caps
     public void ToSnakeCase_ConvertsCorrectly(string input, string expected)
     {
         Assert.Equal(expected, input.ToSnakeCase());
@@ -61,18 +61,18 @@ public sealed class StringExtensionsTests
     // ── FromSnakeCaseToPascalCase / ToCamelCase ────────────────────────────────
 
     [Theory]
-    [InlineData("user_id",              "UserId")]
-    [InlineData("creation_timestamp",   "CreationTimestamp")]
-    [InlineData("id",                   "Id")]
+    [InlineData("user_id", "UserId")]
+    [InlineData("creation_timestamp", "CreationTimestamp")]
+    [InlineData("id", "Id")]
     public void FromSnakeCaseToPascalCase_ConvertsCorrectly(string input, string expected)
     {
         Assert.Equal(expected, input.FromSnakeCaseToPascalCase());
     }
 
     [Theory]
-    [InlineData("user_id",              "userId")]
-    [InlineData("creation_timestamp",   "creationTimestamp")]
-    [InlineData("id",                   "id")]
+    [InlineData("user_id", "userId")]
+    [InlineData("creation_timestamp", "creationTimestamp")]
+    [InlineData("id", "id")]
     public void FromSnakeCaseToCamelCase_ConvertsCorrectly(string input, string expected)
     {
         Assert.Equal(expected, input.FromSnakeCaseToCamelCase());
@@ -81,10 +81,10 @@ public sealed class StringExtensionsTests
     // ── AddSpaceBeforeUpperCase ───────────────────────────────────────────────
 
     [Theory]
-    [InlineData("HelloWorld",  "Hello World")]
-    [InlineData("camelCase",   "camel Case")]
-    [InlineData("ABC",         "A B C")]
-    [InlineData("single",      "single")]
+    [InlineData("HelloWorld", "Hello World")]
+    [InlineData("camelCase", "camel Case")]
+    [InlineData("ABC", "A B C")]
+    [InlineData("single", "single")]
     public void AddSpaceBeforeUpperCase_InsertsSpacesCorrectly(string input, string expected)
     {
         Assert.Equal(expected, input.AddSpaceBeforeUpperCase());

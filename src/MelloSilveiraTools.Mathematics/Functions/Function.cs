@@ -60,4 +60,6 @@ public abstract class Function(FunctionType functionType, double? initialVariabl
     /// Creates the function's integral.
     /// </summary>
     protected abstract Function CreateIntegral();
+
+    public static implicit operator Function(int value) => new ConstantFunction(null, null, value);
 }

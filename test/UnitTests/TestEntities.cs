@@ -1,5 +1,5 @@
-using MelloSilveiraTools.Database.Infrastructure.Database.Attributes;
-using MelloSilveiraTools.Database.Infrastructure.Database.Models.Entities;
+using MelloSilveiraTools.Database.RelationalDatabase.Attributes;
+using MelloSilveiraTools.Database.RelationalDatabase.Models.Entities;
 
 namespace UnitTests;
 
@@ -16,7 +16,7 @@ public record ProductEntity : EntityBase
 public record CategoryEntity : EntityBase
 {
     [UniqueColumn] public string Code { get; init; } = null!;
-    [Column]       public string Description { get; init; } = null!;
+    [Column] public string Description { get; init; } = null!;
 }
 
 // ── Entity with a foreign key → tests JOIN generation ─────────────────────────

@@ -4,6 +4,197 @@
         <name>MelloSilveiraTools.WebApi</name>
     </assembly>
     <members>
+        <member name="T:MelloSilveiraTools.WebApi.Application.Commands.Crud.Add.AddEntity`1">
+            <summary>
+            Generic operation that inserts an entity through <see cref="T:MelloSilveiraTools.Database.Repositories.IRepository"/> and returns an <see cref="T:MelloSilveiraTools.WebApi.Application.Commands.Crud.Add.AddResult"/>
+            carrying the assigned identifier. Shared between <c>CrudController</c>/<c>CustomControllerBase</c> and the
+            <c>AddEndpoints.MapAdd</c> minimal-API extension so the create path is implemented in exactly one place.
+            </summary>
+            <typeparam name="TEntity">Entity type being persisted.</typeparam>
+        </member>
+        <member name="M:MelloSilveiraTools.WebApi.Application.Commands.Crud.Add.AddEntity`1.#ctor(MelloSilveiraTools.Database.Repositories.IRepository)">
+            <summary>
+            Generic operation that inserts an entity through <see cref="T:MelloSilveiraTools.Database.Repositories.IRepository"/> and returns an <see cref="T:MelloSilveiraTools.WebApi.Application.Commands.Crud.Add.AddResult"/>
+            carrying the assigned identifier. Shared between <c>CrudController</c>/<c>CustomControllerBase</c> and the
+            <c>AddEndpoints.MapAdd</c> minimal-API extension so the create path is implemented in exactly one place.
+            </summary>
+            <typeparam name="TEntity">Entity type being persisted.</typeparam>
+        </member>
+        <member name="M:MelloSilveiraTools.WebApi.Application.Commands.Crud.Add.AddEntity`1.ExecuteCommandAsync(MelloSilveiraTools.WebApi.Application.Commands.Crud.Add.AddEntityRequest{`0})">
+            <inheritdoc />
+        </member>
+        <member name="T:MelloSilveiraTools.WebApi.Application.Commands.Crud.Add.AddEntityRequest`1">
+            <summary>
+            Request consumed by <see cref="T:MelloSilveiraTools.WebApi.Application.Commands.Crud.Add.AddEntity`1"/>.
+            </summary>
+            <typeparam name="TEntity">Entity type being persisted.</typeparam>
+        </member>
+        <member name="P:MelloSilveiraTools.WebApi.Application.Commands.Crud.Add.AddEntityRequest`1.Entity">
+            <summary>Entity to insert.</summary>
+        </member>
+        <member name="P:MelloSilveiraTools.WebApi.Application.Commands.Crud.Add.AddEntityRequest`1.ResourceName">
+            <summary>Human-readable resource name used to build localized error messages.</summary>
+        </member>
+        <member name="T:MelloSilveiraTools.WebApi.Application.Commands.Crud.Add.AddResult">
+            <summary>
+            Response produced by add/create operations, optionally exposing the identifier of the newly created resource.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.WebApi.Application.Commands.Crud.Add.AddResult.CreateSuccessCreated(System.Int64)">
+            <summary>
+            Creates a successful 201 Created response that returns the identifier assigned to the new resource.
+            </summary>
+            <param name="id">Identifier of the newly created resource.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.WebApi.Application.Commands.Crud.Add.AddResult.CreateConflict(System.Int64,System.String)">
+            <summary>
+            Creates a 409 Conflict response that also exposes the identifier of the conflicting resource.
+            </summary>
+            <param name="id">Identifier of the existing resource that conflicts with the request.</param>
+            <param name="message">Error message describing the conflict.</param>
+        </member>
+        <member name="T:MelloSilveiraTools.WebApi.Application.Commands.Crud.Add.AddResultData">
+            <summary>
+            Data payload returned by add/create operations, carrying the identifier of the new resource.
+            </summary>
+            <param name="Id">Identifier assigned to the newly created resource.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.WebApi.Application.Commands.Crud.Add.AddResultData.#ctor(System.Int64)">
+            <summary>
+            Data payload returned by add/create operations, carrying the identifier of the new resource.
+            </summary>
+            <param name="Id">Identifier assigned to the newly created resource.</param>
+        </member>
+        <member name="P:MelloSilveiraTools.WebApi.Application.Commands.Crud.Add.AddResultData.Id">
+            <summary>Identifier assigned to the newly created resource.</summary>
+        </member>
+        <member name="T:MelloSilveiraTools.WebApi.Application.Commands.Crud.Delete.DeleteEntity`1">
+            <summary>
+            Generic operation that deletes an entity by its identifier through <see cref="T:MelloSilveiraTools.Database.Repositories.IRepository"/>.
+            Shared between <c>CrudController</c> and <c>CrudEndpoints</c>.
+            </summary>
+            <typeparam name="TEntity">Entity type being deleted.</typeparam>
+        </member>
+        <member name="M:MelloSilveiraTools.WebApi.Application.Commands.Crud.Delete.DeleteEntity`1.#ctor(MelloSilveiraTools.Database.Repositories.IRepository)">
+            <summary>
+            Generic operation that deletes an entity by its identifier through <see cref="T:MelloSilveiraTools.Database.Repositories.IRepository"/>.
+            Shared between <c>CrudController</c> and <c>CrudEndpoints</c>.
+            </summary>
+            <typeparam name="TEntity">Entity type being deleted.</typeparam>
+        </member>
+        <member name="M:MelloSilveiraTools.WebApi.Application.Commands.Crud.Delete.DeleteEntity`1.ExecuteCommandAsync(MelloSilveiraTools.WebApi.Application.Commands.Crud.Delete.DeleteEntityRequest)">
+            <inheritdoc />
+        </member>
+        <member name="T:MelloSilveiraTools.WebApi.Application.Commands.Crud.Delete.DeleteEntityRequest">
+            <summary>
+            Request consumed by <see cref="T:MelloSilveiraTools.WebApi.Application.Commands.Crud.Delete.DeleteEntity`1"/>.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.WebApi.Application.Commands.Crud.Delete.DeleteEntityRequest.Id">
+            <summary>Identifier of the entity to delete.</summary>
+        </member>
+        <member name="P:MelloSilveiraTools.WebApi.Application.Commands.Crud.Delete.DeleteEntityRequest.ResourceName">
+            <summary>Human-readable resource name used to build localized error messages.</summary>
+        </member>
+        <member name="T:MelloSilveiraTools.WebApi.Application.Commands.Crud.Read.ReadEntityById`1">
+            <summary>
+            Generic operation that loads a single entity by its identifier through <see cref="T:MelloSilveiraTools.Database.Repositories.IRepository"/>.
+            Shared between <c>CrudController</c> and <c>CrudEndpoints</c>.
+            </summary>
+            <typeparam name="TEntity">Entity type being read.</typeparam>
+        </member>
+        <member name="M:MelloSilveiraTools.WebApi.Application.Commands.Crud.Read.ReadEntityById`1.#ctor(MelloSilveiraTools.Database.Repositories.IRepository)">
+            <summary>
+            Generic operation that loads a single entity by its identifier through <see cref="T:MelloSilveiraTools.Database.Repositories.IRepository"/>.
+            Shared between <c>CrudController</c> and <c>CrudEndpoints</c>.
+            </summary>
+            <typeparam name="TEntity">Entity type being read.</typeparam>
+        </member>
+        <member name="M:MelloSilveiraTools.WebApi.Application.Commands.Crud.Read.ReadEntityById`1.ExecuteCommandAsync(MelloSilveiraTools.WebApi.Application.Commands.Crud.Read.ReadEntityByIdRequest)">
+            <inheritdoc />
+        </member>
+        <member name="T:MelloSilveiraTools.WebApi.Application.Commands.Crud.Read.ReadEntityByIdRequest">
+            <summary>
+            Request consumed by <see cref="T:MelloSilveiraTools.WebApi.Application.Commands.Crud.Read.ReadEntityById`1"/>.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.WebApi.Application.Commands.Crud.Read.ReadEntityByIdRequest.Id">
+            <summary>Identifier of the entity to load.</summary>
+        </member>
+        <member name="P:MelloSilveiraTools.WebApi.Application.Commands.Crud.Read.ReadEntityByIdRequest.ResourceName">
+            <summary>Human-readable resource name used to build localized error messages.</summary>
+        </member>
+        <member name="T:MelloSilveiraTools.WebApi.Application.Commands.Crud.Read.ReadEntityPaged`2">
+            <summary>
+            Generic operation that returns a paginated list of entities matching the supplied filter.
+            Shared between <c>CrudController</c> and <c>CrudEndpoints</c>.
+            </summary>
+            <typeparam name="TEntity">Entity type being queried.</typeparam>
+            <typeparam name="TFilter">Filter type used to query the entity.</typeparam>
+        </member>
+        <member name="M:MelloSilveiraTools.WebApi.Application.Commands.Crud.Read.ReadEntityPaged`2.#ctor(MelloSilveiraTools.Database.Repositories.IRepository)">
+            <summary>
+            Generic operation that returns a paginated list of entities matching the supplied filter.
+            Shared between <c>CrudController</c> and <c>CrudEndpoints</c>.
+            </summary>
+            <typeparam name="TEntity">Entity type being queried.</typeparam>
+            <typeparam name="TFilter">Filter type used to query the entity.</typeparam>
+        </member>
+        <member name="M:MelloSilveiraTools.WebApi.Application.Commands.Crud.Read.ReadEntityPaged`2.ExecuteCommandAsync(MelloSilveiraTools.WebApi.Application.Commands.Crud.Read.ReadEntityPagedRequest{`1})">
+            <inheritdoc />
+        </member>
+        <member name="T:MelloSilveiraTools.WebApi.Application.Commands.Crud.Read.ReadEntityPagedRequest`1">
+            <summary>
+            Request consumed by <see cref="T:MelloSilveiraTools.WebApi.Application.Commands.Crud.Read.ReadEntityPaged`2"/>.
+            </summary>
+            <typeparam name="TFilter">Filter type used to query the entity.</typeparam>
+        </member>
+        <member name="P:MelloSilveiraTools.WebApi.Application.Commands.Crud.Read.ReadEntityPagedRequest`1.Filter">
+            <summary>Filter criteria applied to the query.</summary>
+        </member>
+        <member name="P:MelloSilveiraTools.WebApi.Application.Commands.Crud.Read.ReadEntityPagedRequest`1.Pagination">
+            <summary>Pagination parameters (offset, limit, sort).</summary>
+        </member>
+        <member name="P:MelloSilveiraTools.WebApi.Application.Commands.Crud.Read.ReadEntityPagedRequest`1.ResourceName">
+            <summary>Human-readable resource name used to build localized error messages.</summary>
+        </member>
+        <member name="P:MelloSilveiraTools.WebApi.Application.Commands.Crud.Read.ReadEntityPagedRequest`1.CancellationToken">
+            <summary>Cancellation token (typically <c>HttpContext.RequestAborted</c>).</summary>
+        </member>
+        <member name="T:MelloSilveiraTools.WebApi.Application.Commands.Crud.Update.UpdateEntity`1">
+            <summary>
+            Generic operation that updates an existing entity through <see cref="T:MelloSilveiraTools.Database.Repositories.IRepository"/>.
+            Returns 201 Created when the row was modified or 204 No Content when no row matched the identifier.
+            Shared between <c>CrudController</c> and <c>CrudEndpoints</c>.
+            </summary>
+            <typeparam name="TEntity">Entity type being updated.</typeparam>
+        </member>
+        <member name="M:MelloSilveiraTools.WebApi.Application.Commands.Crud.Update.UpdateEntity`1.#ctor(MelloSilveiraTools.Database.Repositories.IRepository)">
+            <summary>
+            Generic operation that updates an existing entity through <see cref="T:MelloSilveiraTools.Database.Repositories.IRepository"/>.
+            Returns 201 Created when the row was modified or 204 No Content when no row matched the identifier.
+            Shared between <c>CrudController</c> and <c>CrudEndpoints</c>.
+            </summary>
+            <typeparam name="TEntity">Entity type being updated.</typeparam>
+        </member>
+        <member name="M:MelloSilveiraTools.WebApi.Application.Commands.Crud.Update.UpdateEntity`1.ExecuteCommandAsync(MelloSilveiraTools.WebApi.Application.Commands.Crud.Update.UpdateEntityRequest{`0})">
+            <inheritdoc />
+        </member>
+        <member name="T:MelloSilveiraTools.WebApi.Application.Commands.Crud.Update.UpdateEntityRequest`1">
+            <summary>
+            Request consumed by <see cref="T:MelloSilveiraTools.WebApi.Application.Commands.Crud.Update.UpdateEntity`1"/>.
+            </summary>
+            <typeparam name="TEntity">Entity type being updated.</typeparam>
+        </member>
+        <member name="P:MelloSilveiraTools.WebApi.Application.Commands.Crud.Update.UpdateEntityRequest`1.Id">
+            <summary>Identifier of the entity to update (overrides any value already on <see cref="P:MelloSilveiraTools.WebApi.Application.Commands.Crud.Update.UpdateEntityRequest`1.Entity"/>).</summary>
+        </member>
+        <member name="P:MelloSilveiraTools.WebApi.Application.Commands.Crud.Update.UpdateEntityRequest`1.Entity">
+            <summary>Updated entity payload.</summary>
+        </member>
+        <member name="P:MelloSilveiraTools.WebApi.Application.Commands.Crud.Update.UpdateEntityRequest`1.ResourceName">
+            <summary>Human-readable resource name used to build localized error messages.</summary>
+        </member>
         <member name="T:MelloSilveiraTools.WebApi.Application.Controllers.CrudController`2">
             <summary>
             Generic controller exposing standard CRUD and streaming endpoints for an entity and its filter.
@@ -14,7 +205,7 @@
             <typeparam name="TFilter">The filter type used to query the entity.</typeparam>
             <param name="logger">Logger used to record failures raised while handling CRUD requests.</param>
         </member>
-        <member name="M:MelloSilveiraTools.WebApi.Application.Controllers.CrudController`2.#ctor(MelloSilveiraTools.Core.Infrastructure.Logger.ILogger)">
+        <member name="M:MelloSilveiraTools.WebApi.Application.Controllers.CrudController`2.#ctor(Microsoft.Extensions.Logging.ILogger)">
             <summary>
             Generic controller exposing standard CRUD and streaming endpoints for an entity and its filter.
             All HTTP-agnostic logic lives in the <c>MelloSilveiraTools.WebApi.Application.Operations.Crud</c> operations,
@@ -29,21 +220,21 @@
             Human-readable name of the resource, used when building log and error messages.
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.WebApi.Application.Controllers.CrudController`2.Add(MelloSilveiraTools.WebApi.Application.Operations.Add.AddEntity{`0},`0)">
+        <member name="M:MelloSilveiraTools.WebApi.Application.Controllers.CrudController`2.Add(MelloSilveiraTools.WebApi.Application.Commands.Crud.Add.AddEntity{`0},`0)">
             <summary>
             Persists a new entity.
             </summary>
             <param name="operation">Operation that performs the insert.</param>
             <param name="entity">Entity instance to be persisted.</param>
         </member>
-        <member name="M:MelloSilveiraTools.WebApi.Application.Controllers.CrudController`2.Read(MelloSilveiraTools.WebApi.Application.Operations.Crud.ReadEntityById{`0},System.Int64)">
+        <member name="M:MelloSilveiraTools.WebApi.Application.Controllers.CrudController`2.Read(MelloSilveiraTools.WebApi.Application.Commands.Crud.Read.ReadEntityById{`0},System.Int64)">
             <summary>
             Retrieves a single entity by its identifier.
             </summary>
             <param name="operation">Operation that loads the entity.</param>
             <param name="id">Identifier of the entity to be returned.</param>
         </member>
-        <member name="M:MelloSilveiraTools.WebApi.Application.Controllers.CrudController`2.Read(MelloSilveiraTools.WebApi.Application.Operations.Crud.ReadEntityPaged{`0,`1},`1,MelloSilveiraTools.Database.Infrastructure.Database.Models.Filters.Pagination)">
+        <member name="M:MelloSilveiraTools.WebApi.Application.Controllers.CrudController`2.Read(MelloSilveiraTools.WebApi.Application.Commands.Crud.Read.ReadEntityPaged{`0,`1},`1,MelloSilveiraTools.Database.RelationalDatabase.Models.Filters.Pagination)">
             <summary>
             Retrieves a paginated list of entities that match the supplied filter.
             </summary>
@@ -51,7 +242,7 @@
             <param name="filter">Filter criteria applied to the query.</param>
             <param name="pagination">Pagination parameters (offset and limit).</param>
         </member>
-        <member name="M:MelloSilveiraTools.WebApi.Application.Controllers.CrudController`2.Update(MelloSilveiraTools.WebApi.Application.Operations.Crud.UpdateEntity{`0},System.Int64,`0)">
+        <member name="M:MelloSilveiraTools.WebApi.Application.Controllers.CrudController`2.Update(MelloSilveiraTools.WebApi.Application.Commands.Crud.Update.UpdateEntity{`0},System.Int64,`0)">
             <summary>
             Updates an existing entity identified by the route parameter.
             </summary>
@@ -59,14 +250,14 @@
             <param name="id">Identifier of the entity to be updated.</param>
             <param name="entity">Updated entity payload.</param>
         </member>
-        <member name="M:MelloSilveiraTools.WebApi.Application.Controllers.CrudController`2.Delete(MelloSilveiraTools.WebApi.Application.Operations.Crud.DeleteEntity{`0},System.Int64)">
+        <member name="M:MelloSilveiraTools.WebApi.Application.Controllers.CrudController`2.Delete(MelloSilveiraTools.WebApi.Application.Commands.Crud.Delete.DeleteEntity{`0},System.Int64)">
             <summary>
             Deletes an entity by its identifier.
             </summary>
             <param name="operation">Operation that deletes the entity.</param>
             <param name="id">Identifier of the entity to be deleted.</param>
         </member>
-        <member name="M:MelloSilveiraTools.WebApi.Application.Controllers.CrudController`2.Stream(MelloSilveiraTools.Database.Domain.Repositories.IRepository,`1)">
+        <member name="M:MelloSilveiraTools.WebApi.Application.Controllers.CrudController`2.Stream(MelloSilveiraTools.Database.Repositories.IRepository,`1)">
             <summary>
             Streams entities that match the supplied filter as newline-delimited JSON (NDJSON).
             </summary>
@@ -78,7 +269,7 @@
             Base controller providing shared behavior (logging, generic add helper, NDJSON streaming) for the project's controllers.
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.WebApi.Application.Controllers.CustomControllerBase.#ctor(MelloSilveiraTools.Core.Infrastructure.Logger.ILogger)">
+        <member name="M:MelloSilveiraTools.WebApi.Application.Controllers.CustomControllerBase.#ctor(Microsoft.Extensions.Logging.ILogger)">
             <summary>
             Base controller providing shared behavior (logging, generic add helper, NDJSON streaming) for the project's controllers.
             </summary>
@@ -88,9 +279,9 @@
             Logger used to report failures and diagnostics from controller actions.
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.WebApi.Application.Controllers.CustomControllerBase.Add``1(MelloSilveiraTools.WebApi.Application.Operations.Add.AddEntity{``0},``0,System.String)">
+        <member name="M:MelloSilveiraTools.WebApi.Application.Controllers.CustomControllerBase.Add``1(MelloSilveiraTools.WebApi.Application.Commands.Crud.Add.AddEntity{``0},``0,System.String)">
             <summary>
-            Persists <paramref name="entity"/> through the supplied <see cref="T:MelloSilveiraTools.WebApi.Application.Operations.Add.AddEntity`1"/> operation and
+            Persists <paramref name="entity"/> through the supplied <see cref="T:MelloSilveiraTools.WebApi.Application.Commands.Crud.Add.AddEntity`1"/> operation and
             projects the result onto an <see cref="T:Microsoft.AspNetCore.Mvc.ActionResult`1"/>. Available to every controller that derives
             from <see cref="T:MelloSilveiraTools.WebApi.Application.Controllers.CustomControllerBase"/> — not only the generic <c>CrudController</c>.
             </summary>
@@ -102,7 +293,7 @@
         <member name="M:MelloSilveiraTools.WebApi.Application.Controllers.CustomControllerBase.Stream``1(System.Collections.Generic.IAsyncEnumerable{``0},System.String)">
             <summary>
             Streams a sequence of entities to the response as newline-delimited JSON (NDJSON).
-            Delegates to <see cref="M:MelloSilveiraTools.WebApi.Application.Endpoints.StreamEndpoints.WriteNdjsonAsync``1(System.Collections.Generic.IAsyncEnumerable{``0},Microsoft.AspNetCore.Http.HttpContext,MelloSilveiraTools.Core.Infrastructure.Logger.ILogger,System.String)"/> so controllers and minimal-API endpoints
+            Delegates to <see cref="M:MelloSilveiraTools.WebApi.Application.Endpoints.StreamEndpoints.WriteNdjsonAsync``1(System.Collections.Generic.IAsyncEnumerable{``0},Microsoft.AspNetCore.Http.HttpContext,Microsoft.Extensions.Logging.ILogger,System.String)"/> so controllers and minimal-API endpoints
             share the exact same writer (headers, trailers, cancellation handling).
             </summary>
             <param name="entities">Asynchronous sequence of items to be streamed.</param>
@@ -110,13 +301,13 @@
         </member>
         <member name="T:MelloSilveiraTools.WebApi.Application.Endpoints.AddEndpoints">
             <summary>
-            Maps a single insert (POST) endpoint backed by the <see cref="T:MelloSilveiraTools.WebApi.Application.Operations.Add.AddEntity`1"/> operation.
+            Maps a single insert (POST) endpoint backed by the <see cref="T:MelloSilveiraTools.WebApi.Application.Commands.Crud.Add.AddEntity`1"/> operation.
             Available standalone (for hosts that only need the create path) or composed by <c>CrudEndpoints.MapCrud</c>.
             </summary>
         </member>
         <member name="M:MelloSilveiraTools.WebApi.Application.Endpoints.AddEndpoints.MapAdd``1(Microsoft.AspNetCore.Routing.IEndpointRouteBuilder,System.String,System.String)">
             <summary>
-            Maps a <c>POST</c> endpoint at <paramref name="pattern"/> that delegates to <see cref="T:MelloSilveiraTools.WebApi.Application.Operations.Add.AddEntity`1"/>.
+            Maps a <c>POST</c> endpoint at <paramref name="pattern"/> that delegates to <see cref="T:MelloSilveiraTools.WebApi.Application.Commands.Crud.Add.AddEntity`1"/>.
             </summary>
             <typeparam name="TEntity">The entity type to be inserted.</typeparam>
             <param name="builder">Endpoint route builder used to register the endpoint.</param>
@@ -164,7 +355,7 @@
             <param name="resourceName">Human-readable resource name used when reporting streaming failures.</param>
             <returns>The <see cref="T:Microsoft.AspNetCore.Builder.RouteHandlerBuilder"/> so the caller can chain metadata.</returns>
         </member>
-        <member name="M:MelloSilveiraTools.WebApi.Application.Endpoints.StreamEndpoints.WriteNdjsonAsync``1(System.Collections.Generic.IAsyncEnumerable{``0},Microsoft.AspNetCore.Http.HttpContext,MelloSilveiraTools.Core.Infrastructure.Logger.ILogger,System.String)">
+        <member name="M:MelloSilveiraTools.WebApi.Application.Endpoints.StreamEndpoints.WriteNdjsonAsync``1(System.Collections.Generic.IAsyncEnumerable{``0},Microsoft.AspNetCore.Http.HttpContext,Microsoft.Extensions.Logging.ILogger,System.String)">
             <summary>
             Writes <paramref name="entities"/> to the response body as newline-delimited JSON (NDJSON).
             Sets the proper content-type, the <c>X-Content-Type-Options: nosniff</c> header, and reports
@@ -176,49 +367,48 @@
             <param name="logger">Logger used to record warnings (client cancellation) and errors.</param>
             <param name="resourceName">Human-readable resource name used when reporting streaming failures.</param>
         </member>
-        <member name="T:MelloSilveiraTools.WebApi.Application.Middlewares.ExceptionHandlingMiddleware">
+        <member name="T:MelloSilveiraTools.WebApi.Application.Middlewares.ExceptionHandlingHttpMiddleware">
             <summary>
             Middleware that converts unhandled exceptions raised by the pipeline into a standard <see cref="T:Microsoft.AspNetCore.Mvc.ProblemDetails"/> JSON response.
             </summary>
             <remarks>
-            Exception-to-status mapping performed by <see cref="M:MelloSilveiraTools.WebApi.Application.Middlewares.ExceptionHandlingMiddleware.InvokeAsync(Microsoft.AspNetCore.Http.HttpContext)"/>:
+            Exception-to-status mapping performed by <see cref="M:MelloSilveiraTools.WebApi.Application.Middlewares.ExceptionHandlingHttpMiddleware.InvokeAsync(Microsoft.AspNetCore.Http.HttpContext,Microsoft.Extensions.Logging.ILogger{MelloSilveiraTools.WebApi.Application.Middlewares.ExceptionHandlingHttpMiddleware})"/>:
             <list type="bullet">
-              <item><description><see cref="T:System.UnauthorizedAccessException"/> → <see cref="F:System.Net.HttpStatusCode.Unauthorized"/> (401).</description></item>
-              <item><description><see cref="T:System.ArgumentException"/> or <see cref="T:System.InvalidOperationException"/> → <see cref="F:System.Net.HttpStatusCode.BadRequest"/> (400).</description></item>
-              <item><description><see cref="T:System.Collections.Generic.KeyNotFoundException"/> → <see cref="F:System.Net.HttpStatusCode.NotFound"/> (404).</description></item>
-              <item><description>Any other exception → <see cref="F:System.Net.HttpStatusCode.InternalServerError"/> (500).</description></item>
+              <item><description><see cref="T:System.UnauthorizedAccessException"/> → <see cref="F:MelloSilveiraTools.Core.Models.StatusCode.Unauthorized"/> (401).</description></item>
+              <item><description><see cref="T:System.ArgumentException"/> or <see cref="T:System.InvalidOperationException"/> → <see cref="F:MelloSilveiraTools.Core.Models.StatusCode.BadRequest"/> (400).</description></item>
+              <item><description><see cref="T:System.Collections.Generic.KeyNotFoundException"/> → <see cref="F:MelloSilveiraTools.Core.Models.StatusCode.NotFound"/> (404).</description></item>
+              <item><description>Any other exception → <see cref="F:MelloSilveiraTools.Core.Models.StatusCode.UnknownError"/> (500).</description></item>
             </list>
-            <see cref="T:MelloSilveiraTools.WebApi.Application.Models.NdjsonException"/> receives special handling: it is logged via <paramref name="logger"/>
-            and the middleware returns without writing any response body, since NDJSON streaming may already
-            have sent partial output to the client and rewriting the response would corrupt the stream.
+            <see cref="T:MelloSilveiraTools.WebApi.Application.Models.NdjsonException"/> receives special handling: it is logged via <see cref="T:Microsoft.Extensions.Logging.ILogger`1"/>
+            and the middleware returns without writing any response body, since NDJSON streaming may already have sent partial output to the 
+            client and rewriting the response would corrupt the stream.
             </remarks>
             <param name="next">The next middleware in the request pipeline.</param>
-            <param name="logger">Logger used to record handled streaming exceptions.</param>
         </member>
-        <member name="M:MelloSilveiraTools.WebApi.Application.Middlewares.ExceptionHandlingMiddleware.#ctor(Microsoft.AspNetCore.Http.RequestDelegate,MelloSilveiraTools.Core.Infrastructure.Logger.ILogger)">
+        <member name="M:MelloSilveiraTools.WebApi.Application.Middlewares.ExceptionHandlingHttpMiddleware.#ctor(Microsoft.AspNetCore.Http.RequestDelegate)">
             <summary>
             Middleware that converts unhandled exceptions raised by the pipeline into a standard <see cref="T:Microsoft.AspNetCore.Mvc.ProblemDetails"/> JSON response.
             </summary>
             <remarks>
-            Exception-to-status mapping performed by <see cref="M:MelloSilveiraTools.WebApi.Application.Middlewares.ExceptionHandlingMiddleware.InvokeAsync(Microsoft.AspNetCore.Http.HttpContext)"/>:
+            Exception-to-status mapping performed by <see cref="M:MelloSilveiraTools.WebApi.Application.Middlewares.ExceptionHandlingHttpMiddleware.InvokeAsync(Microsoft.AspNetCore.Http.HttpContext,Microsoft.Extensions.Logging.ILogger{MelloSilveiraTools.WebApi.Application.Middlewares.ExceptionHandlingHttpMiddleware})"/>:
             <list type="bullet">
-              <item><description><see cref="T:System.UnauthorizedAccessException"/> → <see cref="F:System.Net.HttpStatusCode.Unauthorized"/> (401).</description></item>
-              <item><description><see cref="T:System.ArgumentException"/> or <see cref="T:System.InvalidOperationException"/> → <see cref="F:System.Net.HttpStatusCode.BadRequest"/> (400).</description></item>
-              <item><description><see cref="T:System.Collections.Generic.KeyNotFoundException"/> → <see cref="F:System.Net.HttpStatusCode.NotFound"/> (404).</description></item>
-              <item><description>Any other exception → <see cref="F:System.Net.HttpStatusCode.InternalServerError"/> (500).</description></item>
+              <item><description><see cref="T:System.UnauthorizedAccessException"/> → <see cref="F:MelloSilveiraTools.Core.Models.StatusCode.Unauthorized"/> (401).</description></item>
+              <item><description><see cref="T:System.ArgumentException"/> or <see cref="T:System.InvalidOperationException"/> → <see cref="F:MelloSilveiraTools.Core.Models.StatusCode.BadRequest"/> (400).</description></item>
+              <item><description><see cref="T:System.Collections.Generic.KeyNotFoundException"/> → <see cref="F:MelloSilveiraTools.Core.Models.StatusCode.NotFound"/> (404).</description></item>
+              <item><description>Any other exception → <see cref="F:MelloSilveiraTools.Core.Models.StatusCode.UnknownError"/> (500).</description></item>
             </list>
-            <see cref="T:MelloSilveiraTools.WebApi.Application.Models.NdjsonException"/> receives special handling: it is logged via <paramref name="logger"/>
-            and the middleware returns without writing any response body, since NDJSON streaming may already
-            have sent partial output to the client and rewriting the response would corrupt the stream.
+            <see cref="T:MelloSilveiraTools.WebApi.Application.Models.NdjsonException"/> receives special handling: it is logged via <see cref="T:Microsoft.Extensions.Logging.ILogger`1"/>
+            and the middleware returns without writing any response body, since NDJSON streaming may already have sent partial output to the 
+            client and rewriting the response would corrupt the stream.
             </remarks>
             <param name="next">The next middleware in the request pipeline.</param>
-            <param name="logger">Logger used to record handled streaming exceptions.</param>
         </member>
-        <member name="M:MelloSilveiraTools.WebApi.Application.Middlewares.ExceptionHandlingMiddleware.InvokeAsync(Microsoft.AspNetCore.Http.HttpContext)">
+        <member name="M:MelloSilveiraTools.WebApi.Application.Middlewares.ExceptionHandlingHttpMiddleware.InvokeAsync(Microsoft.AspNetCore.Http.HttpContext,Microsoft.Extensions.Logging.ILogger{MelloSilveiraTools.WebApi.Application.Middlewares.ExceptionHandlingHttpMiddleware})">
             <summary>
             Invokes the next middleware in the pipeline and translates any unhandled exception into an HTTP error response.
             </summary>
             <param name="context">The current HTTP context.</param>
+            <param name="logger">Logger used to record handled streaming exceptions.</param>
         </member>
         <member name="T:MelloSilveiraTools.WebApi.Application.Models.ApplicationConstants">
             <summary>
@@ -285,753 +475,6 @@
             Executes the result, writing each item of the source sequence as an NDJSON line to the response body.
             </summary>
             <param name="httpContext">The HTTP context to which the NDJSON payload will be written.</param>
-        </member>
-        <member name="T:MelloSilveiraTools.WebApi.Application.Operations.Add.AddEntity`1">
-            <summary>
-            Generic operation that inserts an entity through <see cref="T:MelloSilveiraTools.Database.Domain.Repositories.IRepository"/> and returns an <see cref="T:MelloSilveiraTools.WebApi.Application.Operations.Add.AddResponse"/>
-            carrying the assigned identifier. Shared between <c>CrudController</c>/<c>CustomControllerBase</c> and the
-            <c>AddEndpoints.MapAdd</c> minimal-API extension so the create path is implemented in exactly one place.
-            </summary>
-            <typeparam name="TEntity">Entity type being persisted.</typeparam>
-        </member>
-        <member name="M:MelloSilveiraTools.WebApi.Application.Operations.Add.AddEntity`1.#ctor(MelloSilveiraTools.Core.Infrastructure.Logger.ILogger,MelloSilveiraTools.Database.Domain.Repositories.IRepository)">
-            <summary>
-            Generic operation that inserts an entity through <see cref="T:MelloSilveiraTools.Database.Domain.Repositories.IRepository"/> and returns an <see cref="T:MelloSilveiraTools.WebApi.Application.Operations.Add.AddResponse"/>
-            carrying the assigned identifier. Shared between <c>CrudController</c>/<c>CustomControllerBase</c> and the
-            <c>AddEndpoints.MapAdd</c> minimal-API extension so the create path is implemented in exactly one place.
-            </summary>
-            <typeparam name="TEntity">Entity type being persisted.</typeparam>
-        </member>
-        <member name="M:MelloSilveiraTools.WebApi.Application.Operations.Add.AddEntity`1.ValidateOperationAsync(MelloSilveiraTools.WebApi.Application.Operations.Add.AddEntityRequest{`0})">
-            <inheritdoc />
-        </member>
-        <member name="M:MelloSilveiraTools.WebApi.Application.Operations.Add.AddEntity`1.ProcessOperationAsync(MelloSilveiraTools.WebApi.Application.Operations.Add.AddEntityRequest{`0})">
-            <inheritdoc />
-        </member>
-        <member name="T:MelloSilveiraTools.WebApi.Application.Operations.Add.AddEntityRequest`1">
-            <summary>
-            Request consumed by <see cref="T:MelloSilveiraTools.WebApi.Application.Operations.Add.AddEntity`1"/>.
-            </summary>
-            <typeparam name="TEntity">Entity type being persisted.</typeparam>
-        </member>
-        <member name="P:MelloSilveiraTools.WebApi.Application.Operations.Add.AddEntityRequest`1.Entity">
-            <summary>Entity to insert.</summary>
-        </member>
-        <member name="P:MelloSilveiraTools.WebApi.Application.Operations.Add.AddEntityRequest`1.ResourceName">
-            <summary>Human-readable resource name used to build localized error messages.</summary>
-        </member>
-        <member name="T:MelloSilveiraTools.WebApi.Application.Operations.Add.AddResponse">
-            <summary>
-            Response produced by add/create operations, optionally exposing the identifier of the newly created resource.
-            </summary>
-        </member>
-        <member name="M:MelloSilveiraTools.WebApi.Application.Operations.Add.AddResponse.CreateSuccessCreated(System.Int64)">
-            <summary>
-            Creates a successful 201 Created response that returns the identifier assigned to the new resource.
-            </summary>
-            <param name="id">Identifier of the newly created resource.</param>
-        </member>
-        <member name="M:MelloSilveiraTools.WebApi.Application.Operations.Add.AddResponse.CreateConflict(System.Int64,System.String)">
-            <summary>
-            Creates a 409 Conflict response that also exposes the identifier of the conflicting resource.
-            </summary>
-            <param name="id">Identifier of the existing resource that conflicts with the request.</param>
-            <param name="message">Error message describing the conflict.</param>
-        </member>
-        <member name="T:MelloSilveiraTools.WebApi.Application.Operations.Add.AddResponseData">
-            <summary>
-            Data payload returned by add/create operations, carrying the identifier of the new resource.
-            </summary>
-            <param name="Id">Identifier assigned to the newly created resource.</param>
-        </member>
-        <member name="M:MelloSilveiraTools.WebApi.Application.Operations.Add.AddResponseData.#ctor(System.Int64)">
-            <summary>
-            Data payload returned by add/create operations, carrying the identifier of the new resource.
-            </summary>
-            <param name="Id">Identifier assigned to the newly created resource.</param>
-        </member>
-        <member name="P:MelloSilveiraTools.WebApi.Application.Operations.Add.AddResponseData.Id">
-            <summary>Identifier assigned to the newly created resource.</summary>
-        </member>
-        <member name="T:MelloSilveiraTools.WebApi.Application.Operations.Crud.DeleteEntity`1">
-            <summary>
-            Generic operation that deletes an entity by its identifier through <see cref="T:MelloSilveiraTools.Database.Domain.Repositories.IRepository"/>.
-            Shared between <c>CrudController</c> and <c>CrudEndpoints</c>.
-            </summary>
-            <typeparam name="TEntity">Entity type being deleted.</typeparam>
-        </member>
-        <member name="M:MelloSilveiraTools.WebApi.Application.Operations.Crud.DeleteEntity`1.#ctor(MelloSilveiraTools.Core.Infrastructure.Logger.ILogger,MelloSilveiraTools.Database.Domain.Repositories.IRepository)">
-            <summary>
-            Generic operation that deletes an entity by its identifier through <see cref="T:MelloSilveiraTools.Database.Domain.Repositories.IRepository"/>.
-            Shared between <c>CrudController</c> and <c>CrudEndpoints</c>.
-            </summary>
-            <typeparam name="TEntity">Entity type being deleted.</typeparam>
-        </member>
-        <member name="M:MelloSilveiraTools.WebApi.Application.Operations.Crud.DeleteEntity`1.ValidateOperationAsync(MelloSilveiraTools.WebApi.Application.Operations.Crud.DeleteEntityRequest)">
-            <inheritdoc />
-        </member>
-        <member name="M:MelloSilveiraTools.WebApi.Application.Operations.Crud.DeleteEntity`1.ProcessOperationAsync(MelloSilveiraTools.WebApi.Application.Operations.Crud.DeleteEntityRequest)">
-            <inheritdoc />
-        </member>
-        <member name="T:MelloSilveiraTools.WebApi.Application.Operations.Crud.DeleteEntityRequest">
-            <summary>
-            Request consumed by <see cref="T:MelloSilveiraTools.WebApi.Application.Operations.Crud.DeleteEntity`1"/>.
-            </summary>
-        </member>
-        <member name="P:MelloSilveiraTools.WebApi.Application.Operations.Crud.DeleteEntityRequest.Id">
-            <summary>Identifier of the entity to delete.</summary>
-        </member>
-        <member name="P:MelloSilveiraTools.WebApi.Application.Operations.Crud.DeleteEntityRequest.ResourceName">
-            <summary>Human-readable resource name used to build localized error messages.</summary>
-        </member>
-        <member name="T:MelloSilveiraTools.WebApi.Application.Operations.Crud.ReadEntityById`1">
-            <summary>
-            Generic operation that loads a single entity by its identifier through <see cref="T:MelloSilveiraTools.Database.Domain.Repositories.IRepository"/>.
-            Shared between <c>CrudController</c> and <c>CrudEndpoints</c>.
-            </summary>
-            <typeparam name="TEntity">Entity type being read.</typeparam>
-        </member>
-        <member name="M:MelloSilveiraTools.WebApi.Application.Operations.Crud.ReadEntityById`1.#ctor(MelloSilveiraTools.Core.Infrastructure.Logger.ILogger,MelloSilveiraTools.Database.Domain.Repositories.IRepository)">
-            <summary>
-            Generic operation that loads a single entity by its identifier through <see cref="T:MelloSilveiraTools.Database.Domain.Repositories.IRepository"/>.
-            Shared between <c>CrudController</c> and <c>CrudEndpoints</c>.
-            </summary>
-            <typeparam name="TEntity">Entity type being read.</typeparam>
-        </member>
-        <member name="M:MelloSilveiraTools.WebApi.Application.Operations.Crud.ReadEntityById`1.ValidateOperationAsync(MelloSilveiraTools.WebApi.Application.Operations.Crud.ReadEntityByIdRequest)">
-            <inheritdoc />
-        </member>
-        <member name="M:MelloSilveiraTools.WebApi.Application.Operations.Crud.ReadEntityById`1.ProcessOperationAsync(MelloSilveiraTools.WebApi.Application.Operations.Crud.ReadEntityByIdRequest)">
-            <inheritdoc />
-        </member>
-        <member name="T:MelloSilveiraTools.WebApi.Application.Operations.Crud.ReadEntityByIdRequest">
-            <summary>
-            Request consumed by <see cref="T:MelloSilveiraTools.WebApi.Application.Operations.Crud.ReadEntityById`1"/>.
-            </summary>
-        </member>
-        <member name="P:MelloSilveiraTools.WebApi.Application.Operations.Crud.ReadEntityByIdRequest.Id">
-            <summary>Identifier of the entity to load.</summary>
-        </member>
-        <member name="P:MelloSilveiraTools.WebApi.Application.Operations.Crud.ReadEntityByIdRequest.ResourceName">
-            <summary>Human-readable resource name used to build localized error messages.</summary>
-        </member>
-        <member name="T:MelloSilveiraTools.WebApi.Application.Operations.Crud.ReadEntityPaged`2">
-            <summary>
-            Generic operation that returns a paginated list of entities matching the supplied filter.
-            Shared between <c>CrudController</c> and <c>CrudEndpoints</c>.
-            </summary>
-            <typeparam name="TEntity">Entity type being queried.</typeparam>
-            <typeparam name="TFilter">Filter type used to query the entity.</typeparam>
-        </member>
-        <member name="M:MelloSilveiraTools.WebApi.Application.Operations.Crud.ReadEntityPaged`2.#ctor(MelloSilveiraTools.Core.Infrastructure.Logger.ILogger,MelloSilveiraTools.Database.Domain.Repositories.IRepository)">
-            <summary>
-            Generic operation that returns a paginated list of entities matching the supplied filter.
-            Shared between <c>CrudController</c> and <c>CrudEndpoints</c>.
-            </summary>
-            <typeparam name="TEntity">Entity type being queried.</typeparam>
-            <typeparam name="TFilter">Filter type used to query the entity.</typeparam>
-        </member>
-        <member name="M:MelloSilveiraTools.WebApi.Application.Operations.Crud.ReadEntityPaged`2.ValidateOperationAsync(MelloSilveiraTools.WebApi.Application.Operations.Crud.ReadEntityPagedRequest{`1})">
-            <inheritdoc />
-        </member>
-        <member name="M:MelloSilveiraTools.WebApi.Application.Operations.Crud.ReadEntityPaged`2.ProcessOperationAsync(MelloSilveiraTools.WebApi.Application.Operations.Crud.ReadEntityPagedRequest{`1})">
-            <inheritdoc />
-        </member>
-        <member name="T:MelloSilveiraTools.WebApi.Application.Operations.Crud.ReadEntityPagedRequest`1">
-            <summary>
-            Request consumed by <see cref="T:MelloSilveiraTools.WebApi.Application.Operations.Crud.ReadEntityPaged`2"/>.
-            </summary>
-            <typeparam name="TFilter">Filter type used to query the entity.</typeparam>
-        </member>
-        <member name="P:MelloSilveiraTools.WebApi.Application.Operations.Crud.ReadEntityPagedRequest`1.Filter">
-            <summary>Filter criteria applied to the query.</summary>
-        </member>
-        <member name="P:MelloSilveiraTools.WebApi.Application.Operations.Crud.ReadEntityPagedRequest`1.Pagination">
-            <summary>Pagination parameters (offset, limit, sort).</summary>
-        </member>
-        <member name="P:MelloSilveiraTools.WebApi.Application.Operations.Crud.ReadEntityPagedRequest`1.ResourceName">
-            <summary>Human-readable resource name used to build localized error messages.</summary>
-        </member>
-        <member name="P:MelloSilveiraTools.WebApi.Application.Operations.Crud.ReadEntityPagedRequest`1.CancellationToken">
-            <summary>Cancellation token (typically <c>HttpContext.RequestAborted</c>).</summary>
-        </member>
-        <member name="T:MelloSilveiraTools.WebApi.Application.Operations.Crud.UpdateEntity`1">
-            <summary>
-            Generic operation that updates an existing entity through <see cref="T:MelloSilveiraTools.Database.Domain.Repositories.IRepository"/>.
-            Returns 201 Created when the row was modified or 204 No Content when no row matched the identifier.
-            Shared between <c>CrudController</c> and <c>CrudEndpoints</c>.
-            </summary>
-            <typeparam name="TEntity">Entity type being updated.</typeparam>
-        </member>
-        <member name="M:MelloSilveiraTools.WebApi.Application.Operations.Crud.UpdateEntity`1.#ctor(MelloSilveiraTools.Core.Infrastructure.Logger.ILogger,MelloSilveiraTools.Database.Domain.Repositories.IRepository)">
-            <summary>
-            Generic operation that updates an existing entity through <see cref="T:MelloSilveiraTools.Database.Domain.Repositories.IRepository"/>.
-            Returns 201 Created when the row was modified or 204 No Content when no row matched the identifier.
-            Shared between <c>CrudController</c> and <c>CrudEndpoints</c>.
-            </summary>
-            <typeparam name="TEntity">Entity type being updated.</typeparam>
-        </member>
-        <member name="M:MelloSilveiraTools.WebApi.Application.Operations.Crud.UpdateEntity`1.ValidateOperationAsync(MelloSilveiraTools.WebApi.Application.Operations.Crud.UpdateEntityRequest{`0})">
-            <inheritdoc />
-        </member>
-        <member name="M:MelloSilveiraTools.WebApi.Application.Operations.Crud.UpdateEntity`1.ProcessOperationAsync(MelloSilveiraTools.WebApi.Application.Operations.Crud.UpdateEntityRequest{`0})">
-            <inheritdoc />
-        </member>
-        <member name="T:MelloSilveiraTools.WebApi.Application.Operations.Crud.UpdateEntityRequest`1">
-            <summary>
-            Request consumed by <see cref="T:MelloSilveiraTools.WebApi.Application.Operations.Crud.UpdateEntity`1"/>.
-            </summary>
-            <typeparam name="TEntity">Entity type being updated.</typeparam>
-        </member>
-        <member name="P:MelloSilveiraTools.WebApi.Application.Operations.Crud.UpdateEntityRequest`1.Id">
-            <summary>Identifier of the entity to update (overrides any value already on <see cref="P:MelloSilveiraTools.WebApi.Application.Operations.Crud.UpdateEntityRequest`1.Entity"/>).</summary>
-        </member>
-        <member name="P:MelloSilveiraTools.WebApi.Application.Operations.Crud.UpdateEntityRequest`1.Entity">
-            <summary>Updated entity payload.</summary>
-        </member>
-        <member name="P:MelloSilveiraTools.WebApi.Application.Operations.Crud.UpdateEntityRequest`1.ResourceName">
-            <summary>Human-readable resource name used to build localized error messages.</summary>
-        </member>
-        <member name="T:MelloSilveiraTools.WebApi.Application.Operations.OperationBase`2">
-            <summary>
-            Represents the base for all operations in the application.
-            </summary>
-            <typeparam name="TRequest">Request type consumed by the operation.</typeparam>
-            <typeparam name="TResponse">Response type produced by the operation.</typeparam>
-            <param name="logger">Logger used to record failures raised while processing the operation.</param>
-        </member>
-        <member name="M:MelloSilveiraTools.WebApi.Application.Operations.OperationBase`2.#ctor(MelloSilveiraTools.Core.Infrastructure.Logger.ILogger)">
-            <summary>
-            Represents the base for all operations in the application.
-            </summary>
-            <typeparam name="TRequest">Request type consumed by the operation.</typeparam>
-            <typeparam name="TResponse">Response type produced by the operation.</typeparam>
-            <param name="logger">Logger used to record failures raised while processing the operation.</param>
-        </member>
-        <member name="P:MelloSilveiraTools.WebApi.Application.Operations.OperationBase`2.Logger">
-            <summary>
-            Logger used to report failures raised while processing the operation.
-            </summary>
-        </member>
-        <member name="M:MelloSilveiraTools.WebApi.Application.Operations.OperationBase`2.ProcessAsync(`0)">
-            <summary>
-            The main method of all operations.
-            Asynchronously, orchestrates and validates the operations.
-            </summary>
-            <param name="request">The operation request content.</param>
-            <returns>The operation response.</returns>
-            <example>
-            <code>
-            var operation = serviceProvider.GetRequiredService&lt;CreateUserOperation&gt;();
-            var response = await operation.ProcessAsync(new CreateUserRequest { Email = "user@example.com" });
-            if (!response.Success)
-                return BadRequest(response.ErrorMessages);
-            return StatusCode((int)response.StatusCode);
-            </code>
-            </example>
-        </member>
-        <member name="M:MelloSilveiraTools.WebApi.Application.Operations.OperationBase`2.ProcessOperationAsync(`0)">
-            <summary>
-            Asynchronously executes the use-case domain logic for this operation. Implementations should
-            rely on <see cref="P:MelloSilveiraTools.WebApi.Application.Operations.OperationBase`2.Logger"/> (inherited from this base class) for diagnostic logging and
-            build their response using the <see cref="T:MelloSilveiraTools.WebApi.Application.Operations.OperationResponse"/> factory helpers
-            (<c>CreateSuccessOk</c>, <c>CreateNotFound</c>, <c>CreateInternalServerError</c>, etc.) for
-            expected outcomes. Unexpected exceptions should be allowed to propagate — they are caught by
-            <see cref="M:MelloSilveiraTools.WebApi.Application.Operations.OperationBase`2.ProcessAsync(`0)"/> and translated into a 500 Internal Server Error response.
-            </summary>
-            <param name="request">The validated request payload. <see cref="M:MelloSilveiraTools.WebApi.Application.Operations.OperationBase`2.ValidateOperationAsync(`0)"/> has already returned a successful result by the time this method runs.</param>
-            <returns>The operation response, populated with the outcome of the domain logic.</returns>
-        </member>
-        <member name="M:MelloSilveiraTools.WebApi.Application.Operations.OperationBase`2.ValidateOperationAsync(`0)">
-            <summary>
-            Asynchronously validates the inbound <paramref name="request"/> before
-            <see cref="M:MelloSilveiraTools.WebApi.Application.Operations.OperationBase`2.ProcessOperationAsync(`0)"/> runs. Contract: return a response with
-            <see cref="P:MelloSilveiraTools.WebApi.Application.Operations.OperationResponse.Success"/> set to <see langword="false"/> (typically built via
-            <c>CreateError</c>/<c>CreateNotFound</c>/<c>CreateUnauthorized</c>) to abort the pipeline and
-            short-circuit the response back to the caller; return a successful response (or one whose
-            <c>Success</c> property is <see langword="true"/>) to allow <see cref="M:MelloSilveiraTools.WebApi.Application.Operations.OperationBase`2.ProcessOperationAsync(`0)"/>
-            to execute.
-            </summary>
-            <param name="request">The raw request payload received from the caller.</param>
-            <returns>A response carrying the validation outcome.</returns>
-        </member>
-        <member name="T:MelloSilveiraTools.WebApi.Application.Operations.OperationBaseWithData`2">
-            <summary>
-            Base class for operations that return an <see cref="T:MelloSilveiraTools.WebApi.Application.Operations.OperationResponseBase`1"/> carrying a single data payload.
-            </summary>
-            <typeparam name="TRequest">Request type consumed by the operation.</typeparam>
-            <typeparam name="TResponseData">Type of the data payload returned by the operation.</typeparam>
-        </member>
-        <member name="M:MelloSilveiraTools.WebApi.Application.Operations.OperationBaseWithData`2.#ctor(MelloSilveiraTools.Core.Infrastructure.Logger.ILogger)">
-            <summary>
-            Base class for operations that return an <see cref="T:MelloSilveiraTools.WebApi.Application.Operations.OperationResponseBase`1"/> carrying a single data payload.
-            </summary>
-            <typeparam name="TRequest">Request type consumed by the operation.</typeparam>
-            <typeparam name="TResponseData">Type of the data payload returned by the operation.</typeparam>
-        </member>
-        <member name="M:MelloSilveiraTools.WebApi.Application.Operations.OperationBaseWithData`2.CreateSuccess(System.Net.HttpStatusCode,`1)">
-            <summary>
-            Builds a successful response with the supplied status code and optional data.
-            </summary>
-            <param name="statusCode">The HTTP status code returned to the caller.</param>
-            <param name="data">Optional data payload.</param>
-        </member>
-        <member name="M:MelloSilveiraTools.WebApi.Application.Operations.OperationBaseWithData`2.CreateSuccessOk(`1)">
-            <summary>
-            Builds a successful 200 OK response with optional data.
-            </summary>
-            <param name="data">Optional data payload.</param>
-        </member>
-        <member name="M:MelloSilveiraTools.WebApi.Application.Operations.OperationBaseWithData`2.CreateError(System.Net.HttpStatusCode)">
-            <summary>
-            Builds an error response with the supplied status code.
-            </summary>
-            <param name="statusCode">The HTTP status code returned to the caller.</param>
-        </member>
-        <member name="M:MelloSilveiraTools.WebApi.Application.Operations.OperationBaseWithData`2.CreateError(System.Net.HttpStatusCode,System.String)">
-            <summary>
-            Builds an error response with the supplied status code and message.
-            </summary>
-            <param name="statusCode">The HTTP status code returned to the caller.</param>
-            <param name="message">Error message describing the failure.</param>
-        </member>
-        <member name="M:MelloSilveiraTools.WebApi.Application.Operations.OperationBaseWithData`2.CreateError(System.Net.HttpStatusCode,`1,System.String)">
-            <summary>
-            Builds an error response that also carries a data payload (e.g. partial result or context).
-            </summary>
-            <param name="statusCode">The HTTP status code returned to the caller.</param>
-            <param name="data">Data payload returned with the error.</param>
-            <param name="message">Error message describing the failure.</param>
-        </member>
-        <member name="M:MelloSilveiraTools.WebApi.Application.Operations.OperationBaseWithData`2.CreateNotFound(System.String)">
-            <summary>
-            Builds a 404 Not Found error response.
-            </summary>
-            <param name="message">Error message describing the failure.</param>
-        </member>
-        <member name="M:MelloSilveiraTools.WebApi.Application.Operations.OperationBaseWithData`2.CreateUnauthorized">
-            <summary>
-            Builds a 401 Unauthorized error response.
-            </summary>
-        </member>
-        <member name="M:MelloSilveiraTools.WebApi.Application.Operations.OperationBaseWithData`2.CreateUnauthorized(System.String)">
-            <summary>
-            Builds a 401 Unauthorized error response with the supplied message.
-            </summary>
-            <param name="message">Error message describing the failure.</param>
-        </member>
-        <member name="M:MelloSilveiraTools.WebApi.Application.Operations.OperationBaseWithData`2.CreateUnauthorized(`1,System.String)">
-            <summary>
-            Builds a 401 Unauthorized error response carrying a data payload and message.
-            </summary>
-            <param name="data">Data payload returned with the error.</param>
-            <param name="message">Error message describing the failure.</param>
-        </member>
-        <member name="T:MelloSilveiraTools.WebApi.Application.Operations.OperationBaseWithDataList`2">
-            <summary>
-            Base class for operations that return a list of items through <see cref="T:MelloSilveiraTools.WebApi.Application.Operations.OperationListResponseBase`1"/>.
-            </summary>
-            <typeparam name="TRequest">Request type consumed by the operation.</typeparam>
-            <typeparam name="TResponseData">Type of each item returned by the operation.</typeparam>
-        </member>
-        <member name="M:MelloSilveiraTools.WebApi.Application.Operations.OperationBaseWithDataList`2.#ctor(MelloSilveiraTools.Core.Infrastructure.Logger.ILogger)">
-            <summary>
-            Base class for operations that return a list of items through <see cref="T:MelloSilveiraTools.WebApi.Application.Operations.OperationListResponseBase`1"/>.
-            </summary>
-            <typeparam name="TRequest">Request type consumed by the operation.</typeparam>
-            <typeparam name="TResponseData">Type of each item returned by the operation.</typeparam>
-        </member>
-        <member name="M:MelloSilveiraTools.WebApi.Application.Operations.OperationBaseWithDataList`2.CreateSuccess(System.Net.HttpStatusCode,`1[])">
-            <summary>
-            Builds a successful list response with the supplied status code and items.
-            </summary>
-            <param name="statusCode">The HTTP status code returned to the caller.</param>
-            <param name="data">Items to include in the response payload.</param>
-        </member>
-        <member name="M:MelloSilveiraTools.WebApi.Application.Operations.OperationBaseWithDataList`2.CreateSuccessOk">
-            <summary>
-            Builds a successful 200 OK list response with no items.
-            </summary>
-        </member>
-        <member name="M:MelloSilveiraTools.WebApi.Application.Operations.OperationBaseWithDataList`2.CreateSuccessOkAsync(System.Collections.Generic.IAsyncEnumerable{`1})">
-            <summary>
-            Materialises an async sequence into a successful 200 OK list response.
-            </summary>
-            <param name="dataAsAsyncEnumberable">Async sequence of items to include in the response.</param>
-        </member>
-        <member name="M:MelloSilveiraTools.WebApi.Application.Operations.OperationBaseWithDataList`2.CreateError(System.Net.HttpStatusCode,System.String)">
-            <summary>
-            Builds a list error response with the supplied status code and message.
-            </summary>
-            <param name="statusCode">The HTTP status code returned to the caller.</param>
-            <param name="message">Error message describing the failure.</param>
-        </member>
-        <member name="M:MelloSilveiraTools.WebApi.Application.Operations.OperationBaseWithDataList`2.CreateInternalServerError(System.String)">
-            <summary>
-            Builds a 500 Internal Server Error list response with the supplied message.
-            </summary>
-            <param name="message">Error message describing the failure.</param>
-        </member>
-        <member name="T:MelloSilveiraTools.WebApi.Application.Operations.PagedOperationBase`2">
-            <summary>
-            Base class for operations that return a paginated list of items through <see cref="T:MelloSilveiraTools.WebApi.Application.Operations.OperationPagedResponseBase`1"/>.
-            </summary>
-            <typeparam name="TRequest">Request type consumed by the operation.</typeparam>
-            <typeparam name="TResponseData">Type of each item returned in the page.</typeparam>
-        </member>
-        <member name="M:MelloSilveiraTools.WebApi.Application.Operations.PagedOperationBase`2.#ctor(MelloSilveiraTools.Core.Infrastructure.Logger.ILogger)">
-            <summary>
-            Base class for operations that return a paginated list of items through <see cref="T:MelloSilveiraTools.WebApi.Application.Operations.OperationPagedResponseBase`1"/>.
-            </summary>
-            <typeparam name="TRequest">Request type consumed by the operation.</typeparam>
-            <typeparam name="TResponseData">Type of each item returned in the page.</typeparam>
-        </member>
-        <member name="M:MelloSilveiraTools.WebApi.Application.Operations.PagedOperationBase`2.CreateSuccess(System.Net.HttpStatusCode,`1[])">
-            <summary>
-            Builds a successful paged response with the supplied status code and items.
-            </summary>
-            <param name="statusCode">The HTTP status code returned to the caller.</param>
-            <param name="data">Items to include in the current page.</param>
-        </member>
-        <member name="M:MelloSilveiraTools.WebApi.Application.Operations.PagedOperationBase`2.CreateSuccessOk(`1[])">
-            <summary>
-            Builds a successful 200 OK paged response with the supplied items.
-            </summary>
-            <param name="data">Items to include in the current page.</param>
-        </member>
-        <member name="M:MelloSilveiraTools.WebApi.Application.Operations.PagedOperationBase`2.CreateError(System.Net.HttpStatusCode,System.String)">
-            <summary>
-            Builds a paged error response with the supplied status code and message.
-            </summary>
-            <param name="statusCode">The HTTP status code returned to the caller.</param>
-            <param name="message">Error message describing the failure.</param>
-        </member>
-        <member name="M:MelloSilveiraTools.WebApi.Application.Operations.PagedOperationBase`2.CreateNotFound(System.String)">
-            <summary>
-            Builds a 404 Not Found paged response with the supplied message.
-            </summary>
-            <param name="message">Error message describing the failure.</param>
-        </member>
-        <member name="T:MelloSilveiraTools.WebApi.Application.Operations.OperationBaseWithDefaultResponse`1">
-            <summary>
-            Represents the base for all operations that uses the default response (<see cref="T:MelloSilveiraTools.WebApi.Application.Operations.OperationResponse"/>).
-            </summary>
-        </member>
-        <member name="M:MelloSilveiraTools.WebApi.Application.Operations.OperationBaseWithDefaultResponse`1.#ctor(MelloSilveiraTools.Core.Infrastructure.Logger.ILogger)">
-            <summary>
-            Represents the base for all operations that uses the default response (<see cref="T:MelloSilveiraTools.WebApi.Application.Operations.OperationResponse"/>).
-            </summary>
-        </member>
-        <member name="T:MelloSilveiraTools.WebApi.Application.Operations.OperationBaseWithoutRequest`1">
-            <summary>
-            Represents the base for all operations that does not use a request.
-            </summary>
-            <typeparam name="TResponse">Response type produced by the operation.</typeparam>
-            <param name="logger">Logger used to record failures raised while processing the operation.</param>
-        </member>
-        <member name="M:MelloSilveiraTools.WebApi.Application.Operations.OperationBaseWithoutRequest`1.#ctor(MelloSilveiraTools.Core.Infrastructure.Logger.ILogger)">
-            <summary>
-            Represents the base for all operations that does not use a request.
-            </summary>
-            <typeparam name="TResponse">Response type produced by the operation.</typeparam>
-            <param name="logger">Logger used to record failures raised while processing the operation.</param>
-        </member>
-        <member name="P:MelloSilveiraTools.WebApi.Application.Operations.OperationBaseWithoutRequest`1.Logger">
-            <summary>
-            Logger used to report failures raised while processing the operation.
-            </summary>
-        </member>
-        <member name="M:MelloSilveiraTools.WebApi.Application.Operations.OperationBaseWithoutRequest`1.ProcessAsync">
-            <summary>
-            The main method of all operations.
-            Asynchronously, orchestrates and validates the operations.
-            </summary>
-            <returns>The operation response.</returns>
-        </member>
-        <member name="M:MelloSilveiraTools.WebApi.Application.Operations.OperationBaseWithoutRequest`1.ProcessOperationAsync">
-            <summary>
-            Asynchronously executes the use-case domain logic for this request-less operation.
-            Implementations should use <see cref="P:MelloSilveiraTools.WebApi.Application.Operations.OperationBaseWithoutRequest`1.Logger"/> for diagnostics and the
-            <see cref="T:MelloSilveiraTools.WebApi.Application.Operations.OperationResponse"/> factory helpers to build expected outcomes. Unexpected
-            exceptions should propagate — they are caught by <see cref="M:MelloSilveiraTools.WebApi.Application.Operations.OperationBaseWithoutRequest`1.ProcessAsync"/> and translated
-            into a 500 Internal Server Error response.
-            </summary>
-            <returns>The operation response carrying the outcome of the domain logic.</returns>
-        </member>
-        <member name="T:MelloSilveiraTools.WebApi.Application.Operations.DefaultOperationBase">
-            <summary>
-            Represents the base for all operations that does not use a request.
-            </summary>
-            <param name="logger">Logger used to record failures raised while processing the operation.</param>
-        </member>
-        <member name="M:MelloSilveiraTools.WebApi.Application.Operations.DefaultOperationBase.#ctor(MelloSilveiraTools.Core.Infrastructure.Logger.ILogger)">
-            <summary>
-            Represents the base for all operations that does not use a request.
-            </summary>
-            <param name="logger">Logger used to record failures raised while processing the operation.</param>
-        </member>
-        <member name="P:MelloSilveiraTools.WebApi.Application.Operations.DefaultOperationBase.Logger">
-            <summary>
-            Logger used to report failures raised while processing the operation.
-            </summary>
-        </member>
-        <member name="M:MelloSilveiraTools.WebApi.Application.Operations.DefaultOperationBase.ProcessAsync">
-            <summary>
-            The main method of all operations.
-            Asynchronously, orchestrates and validates the operations.
-            </summary>
-            <returns>The operation response.</returns>
-        </member>
-        <member name="M:MelloSilveiraTools.WebApi.Application.Operations.DefaultOperationBase.ProcessOperationAsync">
-            <summary>
-            Asynchronously executes the use-case domain logic for this default operation.
-            Implementations should use <see cref="P:MelloSilveiraTools.WebApi.Application.Operations.DefaultOperationBase.Logger"/> for diagnostics and the
-            <see cref="T:MelloSilveiraTools.WebApi.Application.Operations.OperationResponse"/> factory helpers to build expected outcomes. Unexpected
-            exceptions should propagate — they are caught by <see cref="M:MelloSilveiraTools.WebApi.Application.Operations.DefaultOperationBase.ProcessAsync"/> and translated
-            into a 500 Internal Server Error response.
-            </summary>
-            <returns>The operation response carrying the outcome of the domain logic.</returns>
-        </member>
-        <member name="T:MelloSilveiraTools.WebApi.Application.Operations.OperationRequestBase">
-            <summary>
-            Request content to all operations.
-            </summary>
-        </member>
-        <member name="T:MelloSilveiraTools.WebApi.Application.Operations.OperationResponse">
-            <summary>
-            Response content for all operations.
-            </summary>
-        </member>
-        <member name="M:MelloSilveiraTools.WebApi.Application.Operations.OperationResponse.#ctor">
-            <summary>
-            Initializes a new instance of <see cref="T:MelloSilveiraTools.WebApi.Application.Operations.OperationResponse"/>.
-            </summary>
-        </member>
-        <member name="P:MelloSilveiraTools.WebApi.Application.Operations.OperationResponse.Success">
-            <summary>
-            The success status of operation.
-            </summary>
-        </member>
-        <member name="P:MelloSilveiraTools.WebApi.Application.Operations.OperationResponse.StatusCode">
-            <summary>
-            The HTTP status code.
-            </summary>
-        </member>
-        <member name="P:MelloSilveiraTools.WebApi.Application.Operations.OperationResponse.ErrorMessages">
-            <summary>
-            The list of error messages.
-            </summary>
-        </member>
-        <member name="M:MelloSilveiraTools.WebApi.Application.Operations.OperationResponse.CreateSuccess(System.Net.HttpStatusCode)">
-            <summary>
-            Creates a successful response with the supplied status code.
-            </summary>
-            <param name="statusCode">The HTTP status code returned to the caller.</param>
-        </member>
-        <member name="M:MelloSilveiraTools.WebApi.Application.Operations.OperationResponse.CreateError(System.Net.HttpStatusCode)">
-            <summary>
-            Creates an error response with the supplied status code and no error messages.
-            </summary>
-            <param name="statusCode">The HTTP status code returned to the caller.</param>
-        </member>
-        <member name="M:MelloSilveiraTools.WebApi.Application.Operations.OperationResponse.CreateError(System.Net.HttpStatusCode,System.String)">
-            <summary>
-            Creates an error response with a single error message.
-            </summary>
-            <param name="statusCode">The HTTP status code returned to the caller.</param>
-            <param name="message">Error message describing the failure.</param>
-        </member>
-        <member name="M:MelloSilveiraTools.WebApi.Application.Operations.OperationResponse.CreateError(System.Net.HttpStatusCode,System.Collections.Generic.List{System.String})">
-            <summary>
-            Creates an error response with a collection of error messages.
-            </summary>
-            <param name="statusCode">The HTTP status code returned to the caller.</param>
-            <param name="messages">Error messages describing the failures.</param>
-        </member>
-        <member name="M:MelloSilveiraTools.WebApi.Application.Operations.OperationResponse.CreateSuccessOk">
-            <summary>
-            Creates a successful 200 OK response.
-            </summary>
-        </member>
-        <member name="M:MelloSilveiraTools.WebApi.Application.Operations.OperationResponse.CreateSuccessCreated">
-            <summary>
-            Creates a successful 201 Created response.
-            </summary>
-        </member>
-        <member name="M:MelloSilveiraTools.WebApi.Application.Operations.OperationResponse.CreateNoContent">
-            <summary>
-            Creates a successful 204 No Content response.
-            </summary>
-        </member>
-        <member name="M:MelloSilveiraTools.WebApi.Application.Operations.OperationResponse.CreateUnauthorized">
-            <summary>
-            Creates a 401 Unauthorized error response without a message.
-            </summary>
-        </member>
-        <member name="M:MelloSilveiraTools.WebApi.Application.Operations.OperationResponse.CreateUnauthorized(System.String)">
-            <summary>
-            Creates a 401 Unauthorized error response with the supplied message.
-            </summary>
-            <param name="message">Error message describing the failure.</param>
-        </member>
-        <member name="M:MelloSilveiraTools.WebApi.Application.Operations.OperationResponse.CreateNotFound(System.String)">
-            <summary>
-            Creates a 404 Not Found error response with the supplied message.
-            </summary>
-            <param name="message">Error message describing the failure.</param>
-        </member>
-        <member name="M:MelloSilveiraTools.WebApi.Application.Operations.OperationResponse.CreateRequestTimeout(System.String)">
-            <summary>
-            Creates a 408 Request Timeout error response with the supplied message.
-            </summary>
-            <param name="message">Error message describing the failure.</param>
-        </member>
-        <member name="M:MelloSilveiraTools.WebApi.Application.Operations.OperationResponse.CreateUnprocessableEntity(System.String)">
-            <summary>
-            Creates a 422 Unprocessable Entity error response with the supplied message.
-            </summary>
-            <param name="message">Error message describing the failure.</param>
-        </member>
-        <member name="M:MelloSilveiraTools.WebApi.Application.Operations.OperationResponse.CreateUnprocessableEntity(System.Collections.Generic.List{System.String})">
-            <summary>
-            Creates a 422 Unprocessable Entity error response with the supplied messages.
-            </summary>
-            <param name="messages">Error messages describing the failures.</param>
-        </member>
-        <member name="M:MelloSilveiraTools.WebApi.Application.Operations.OperationResponse.CreateInternalServerError(System.String)">
-            <summary>
-            Creates a 500 Internal Server Error response with the supplied message.
-            </summary>
-            <param name="message">Error message describing the failure.</param>
-        </member>
-        <member name="M:MelloSilveiraTools.WebApi.Application.Operations.OperationResponse.CreateServiceUnavailable(System.String)">
-            <summary>
-            Creates a 503 Service Unavailable error response with the supplied message.
-            </summary>
-            <param name="message">Error message describing the failure.</param>
-        </member>
-        <member name="M:MelloSilveiraTools.WebApi.Application.Operations.OperationResponse.CreateListSuccessOk``1(``0[])">
-            <summary>
-            Creates a successful 200 OK list response containing the supplied items.
-            </summary>
-            <param name="data">Items to include in the response payload.</param>
-        </member>
-        <member name="M:MelloSilveiraTools.WebApi.Application.Operations.OperationResponse.CreateListSuccess``2(System.Net.HttpStatusCode,``1[])">
-            <summary>
-            Creates a successful list response of a specific type with the supplied items.
-            </summary>
-            <param name="statusCode">The HTTP status code returned to the caller.</param>
-            <param name="data">Items to include in the response payload.</param>
-        </member>
-        <member name="M:MelloSilveiraTools.WebApi.Application.Operations.OperationResponse.CreateListSuccessOk``2(``1[])">
-            <summary>
-            Creates a successful 200 OK list response of a specific type with the supplied items.
-            </summary>
-            <param name="data">Items to include in the response payload.</param>
-        </member>
-        <member name="M:MelloSilveiraTools.WebApi.Application.Operations.OperationResponse.CreateSuccessOk``1">
-            <summary>
-            Creates a successful 200 OK response of a specific response type.
-            </summary>
-        </member>
-        <member name="M:MelloSilveiraTools.WebApi.Application.Operations.OperationResponse.CreateSuccessOk``1(``0)">
-            <summary>
-            Creates a successful 200 OK response carrying the supplied data payload.
-            </summary>
-            <param name="responseData">Data returned to the caller.</param>
-        </member>
-        <member name="M:MelloSilveiraTools.WebApi.Application.Operations.OperationResponse.CreateError``1(System.Net.HttpStatusCode,System.String)">
-            <summary>
-            Creates a typed error response with the supplied status code and message.
-            </summary>
-            <param name="statusCode">The HTTP status code returned to the caller.</param>
-            <param name="message">Error message describing the failure.</param>
-        </member>
-        <member name="M:MelloSilveiraTools.WebApi.Application.Operations.OperationResponse.CreateNotFound``1(System.String)">
-            <summary>
-            Creates a typed 404 Not Found error response.
-            </summary>
-            <param name="message">Error message describing the failure.</param>
-        </member>
-        <member name="M:MelloSilveiraTools.WebApi.Application.Operations.OperationResponse.CreateRequestTimeout``1(System.String)">
-            <summary>
-            Creates a typed 408 Request Timeout error response.
-            </summary>
-            <param name="message">Error message describing the failure.</param>
-        </member>
-        <member name="M:MelloSilveiraTools.WebApi.Application.Operations.OperationResponse.CreateConflict``1(System.String)">
-            <summary>
-            Creates a typed 409 Conflict error response.
-            </summary>
-            <param name="message">Error message describing the failure.</param>
-        </member>
-        <member name="M:MelloSilveiraTools.WebApi.Application.Operations.OperationResponse.CreateUnprocessableEntity``1(System.String)">
-            <summary>
-            Creates a typed 422 Unprocessable Entity error response.
-            </summary>
-            <param name="message">Error message describing the failure.</param>
-        </member>
-        <member name="M:MelloSilveiraTools.WebApi.Application.Operations.OperationResponse.CreateInternalServerError``1(System.String)">
-            <summary>
-            Creates a typed 500 Internal Server Error response.
-            </summary>
-            <param name="message">Error message describing the failure.</param>
-        </member>
-        <member name="M:MelloSilveiraTools.WebApi.Application.Operations.OperationResponse.CreateServiceUnavailable``1(System.String)">
-            <summary>
-            Creates a typed 503 Service Unavailable error response.
-            </summary>
-            <param name="message">Error message describing the failure.</param>
-        </member>
-        <member name="T:MelloSilveiraTools.WebApi.Application.Operations.OperationResponseBase`1">
-            <summary>
-            Response content for all operations.
-            </summary>
-            <typeparam name="TResponseData"></typeparam>
-        </member>
-        <member name="P:MelloSilveiraTools.WebApi.Application.Operations.OperationResponseBase`1.Data">
-            <summary>
-            Data content of all operation response.
-            </summary>
-        </member>
-        <member name="M:MelloSilveiraTools.WebApi.Application.Operations.OperationResponseBase`1.CreateSuccess(System.Net.HttpStatusCode,`0)">
-            <summary>
-            Creates a successful response carrying the supplied data payload.
-            </summary>
-            <param name="statusCode">The HTTP status code returned to the caller.</param>
-            <param name="data">Data returned to the caller.</param>
-        </member>
-        <member name="T:MelloSilveiraTools.WebApi.Application.Operations.OperationListResponseBase`1">
-            <summary>
-            Base response for operations that return an array of items.
-            </summary>
-            <typeparam name="TResponseData">Type of each item in the returned list.</typeparam>
-        </member>
-        <member name="P:MelloSilveiraTools.WebApi.Application.Operations.OperationListResponseBase`1.Count">
-            <summary>
-            Number of items returned in <see cref="P:MelloSilveiraTools.WebApi.Application.Operations.OperationResponseBase`1.Data"/>.
-            </summary>
-        </member>
-        <member name="T:MelloSilveiraTools.WebApi.Application.Operations.OperationPagedResponseBase`1">
-            <summary>
-            Base response for operations that return a paginated list of items.
-            </summary>
-            <typeparam name="TResponseData">Type of each item in the returned page.</typeparam>
-        </member>
-        <member name="P:MelloSilveiraTools.WebApi.Application.Operations.OperationPagedResponseBase`1.TotalCount">
-            <summary>
-            Total number of items that match the query across all pages.
-            </summary>
-        </member>
-        <member name="P:MelloSilveiraTools.WebApi.Application.Operations.OperationPagedResponseBase`1.PageNumber">
-            <summary>
-            One-based number of the current page.
-            </summary>
-        </member>
-        <member name="P:MelloSilveiraTools.WebApi.Application.Operations.OperationPagedResponseBase`1.PageSize">
-            <summary>
-            Number of items in the current page.
-            </summary>
         </member>
         <member name="T:MelloSilveiraTools.WebApi.Authentication.AuthenticationToken">
             <summary>
@@ -1188,7 +631,7 @@
             Provides extension methods to register services from the MelloSilveiraTools.WebApi package.
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.WebApi.WebApiDependencyInjection.AddWebApiServices(Microsoft.Extensions.DependencyInjection.IServiceCollection,MelloSilveiraTools.Core.Infrastructure.ResiliencePipelines.ResiliencePipelineSettings)">
+        <member name="M:MelloSilveiraTools.WebApi.WebApiDependencyInjection.AddWebApiServices(Microsoft.Extensions.DependencyInjection.IServiceCollection,MelloSilveiraTools.Core.ResiliencePipelines.ResiliencePipelineSettings)">
             <summary>
             Registers Web API services: API service agent resilience pipeline.
             </summary>
@@ -1220,6 +663,9 @@
             </summary>
         </member>
         <member name="M:MelloSilveiraTools.WebApi.ExtensionMethods.FormFileExtensions.ToCompressedContentAsync(Microsoft.AspNetCore.Http.IFormFile)">
+            <inheritdoc cref="M:MelloSilveiraTools.WebApi.ExtensionMethods.FormFileExtensions.&lt;G&gt;$DE69C1CC9A97DC76310B45D9470C7C74.ToCompressedContentAsync"/>
+        </member>
+        <member name="M:MelloSilveiraTools.WebApi.ExtensionMethods.FormFileExtensions.&lt;G&gt;$DE69C1CC9A97DC76310B45D9470C7C74.ToCompressedContentAsync">
             <summary>
             Reads the entire <paramref name="formFile"/> content and returns it compressed using GZip.
             </summary>
@@ -1230,9 +676,57 @@
             </summary>
         </member>
         <member name="M:MelloSilveiraTools.WebApi.ExtensionMethods.HttpResponseExtensions.WriteLineAsNdJsonAsync``1(Microsoft.AspNetCore.Http.HttpResponse,``0,System.Threading.CancellationToken)">
+            <inheritdoc cref="M:MelloSilveiraTools.WebApi.ExtensionMethods.HttpResponseExtensions.&lt;G&gt;$8B7FDD3D869A4E98364DD81D882DB183.WriteLineAsNdJsonAsync``1(``0,System.Threading.CancellationToken)"/>
+        </member>
+        <member name="M:MelloSilveiraTools.WebApi.ExtensionMethods.HttpResponseExtensions.&lt;G&gt;$8B7FDD3D869A4E98364DD81D882DB183.WriteLineAsNdJsonAsync``1(``0,System.Threading.CancellationToken)">
             <summary>
             Serializes the supplied object as JSON, writes it to the response followed by a newline delimiter (NDJSON),
             and flushes the response body so the caller receives the chunk immediately.
+            </summary>
+        </member>
+        <member name="T:MelloSilveiraTools.WebApi.ExtensionMethods.HttpResultExtensions">
+            <summary>
+            Provides extension methods that convert operation <see cref="T:System.Threading.Tasks.Task"/> results into minimal API <see cref="T:Microsoft.AspNetCore.Http.IResult"/> values.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.WebApi.ExtensionMethods.HttpResultExtensions.ToOkResultAsync(System.Threading.Tasks.Task)">
+            <inheritdoc cref="M:MelloSilveiraTools.WebApi.ExtensionMethods.HttpResultExtensions.&lt;G&gt;$96CB7C060F6C3BA9D49BEC9D5AB7FADB.ToOkResultAsync"/>
+        </member>
+        <member name="M:MelloSilveiraTools.WebApi.ExtensionMethods.HttpResultExtensions.ToCreatedResultAsync(System.Threading.Tasks.Task)">
+            <inheritdoc cref="M:MelloSilveiraTools.WebApi.ExtensionMethods.HttpResultExtensions.&lt;G&gt;$96CB7C060F6C3BA9D49BEC9D5AB7FADB.ToCreatedResultAsync"/>
+        </member>
+        <member name="M:MelloSilveiraTools.WebApi.ExtensionMethods.HttpResultExtensions.ToOkResultAsync``1(System.Threading.Tasks.Task{``0})">
+            <inheritdoc cref="M:MelloSilveiraTools.WebApi.ExtensionMethods.HttpResultExtensions.&lt;G&gt;$E7A2230C6C70DB328A0B266127AB188B`1.ToOkResultAsync"/>
+        </member>
+        <member name="M:MelloSilveiraTools.WebApi.ExtensionMethods.HttpResultExtensions.ToCreatedResultAsync``1(System.Threading.Tasks.Task{``0},System.String)">
+            <inheritdoc cref="M:MelloSilveiraTools.WebApi.ExtensionMethods.HttpResultExtensions.&lt;G&gt;$E7A2230C6C70DB328A0B266127AB188B`1.ToCreatedResultAsync(System.String)"/>
+        </member>
+        <member name="M:MelloSilveiraTools.WebApi.ExtensionMethods.HttpResultExtensions.ToNdjsonResultAsync``1(System.Collections.Generic.IAsyncEnumerable{``0})">
+            <inheritdoc cref="M:MelloSilveiraTools.WebApi.ExtensionMethods.HttpResultExtensions.&lt;G&gt;$80073E1EF8BFBE3894A8F13DEEA08DF4`1.ToNdjsonResultAsync"/>
+        </member>
+        <member name="M:MelloSilveiraTools.WebApi.ExtensionMethods.HttpResultExtensions.&lt;G&gt;$96CB7C060F6C3BA9D49BEC9D5AB7FADB.ToOkResultAsync">
+            <summary>
+            Awaits the operation and returns an empty HTTP 200 OK result.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.WebApi.ExtensionMethods.HttpResultExtensions.&lt;G&gt;$96CB7C060F6C3BA9D49BEC9D5AB7FADB.ToCreatedResultAsync">
+            <summary>
+            Awaits the operation and returns an empty HTTP 201 Created result.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.WebApi.ExtensionMethods.HttpResultExtensions.&lt;G&gt;$E7A2230C6C70DB328A0B266127AB188B`1.ToOkResultAsync">
+            <summary>
+            Awaits the operation and returns an HTTP 200 OK result wrapping the produced value.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.WebApi.ExtensionMethods.HttpResultExtensions.&lt;G&gt;$E7A2230C6C70DB328A0B266127AB188B`1.ToCreatedResultAsync(System.String)">
+            <summary>
+            Awaits the operation and returns an HTTP 201 Created result pointing at <paramref name="uri"/> and wrapping the produced value.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.WebApi.ExtensionMethods.HttpResultExtensions.&lt;G&gt;$80073E1EF8BFBE3894A8F13DEEA08DF4`1.ToNdjsonResultAsync">
+            <summary>
+            Wraps the supplied asynchronous sequence in an NDJSON streaming result.
             </summary>
         </member>
         <member name="T:MelloSilveiraTools.WebApi.ExtensionMethods.NdjsonResultExtensions">
@@ -1245,168 +739,24 @@
             Builds an <see cref="T:Microsoft.AspNetCore.Http.IResult"/> that streams the supplied asynchronous sequence as newline-delimited JSON.
             </summary>
         </member>
-        <member name="T:MelloSilveiraTools.WebApi.ExtensionMethods.OperationResponseExtensions">
-            <summary>
-            Contains extension methods for <see cref="T:MelloSilveiraTools.WebApi.Application.Operations.OperationResponse"/>.
-            </summary>
-        </member>
-        <member name="M:MelloSilveiraTools.WebApi.ExtensionMethods.OperationResponseExtensions.AddError``1(``0,System.String,System.Net.HttpStatusCode)">
-            <summary>
-            Appends <paramref name="errorMessage"/> to the response and marks it as failed with the given status code.
-            </summary>
-        </member>
-        <member name="M:MelloSilveiraTools.WebApi.ExtensionMethods.OperationResponseExtensions.AddErrorIf``1(``0,System.Boolean,System.String,System.Net.HttpStatusCode)">
-            <summary>
-            Appends <paramref name="errorMessage"/> to the response only when <paramref name="condition"/> is <c>true</c>.
-            </summary>
-        </member>
-        <member name="M:MelloSilveiraTools.WebApi.ExtensionMethods.OperationResponseExtensions.AddErrorIf``1(``0,System.Threading.Tasks.Task{System.Boolean},System.String,System.Net.HttpStatusCode)">
-            <summary>
-            Awaits the condition task and, when it resolves to <c>true</c>, appends <paramref name="errorMessage"/> to the response.
-            </summary>
-        </member>
-        <member name="M:MelloSilveiraTools.WebApi.ExtensionMethods.OperationResponseExtensions.AddErrorIfNull``1(``0,System.Object,System.String,System.Net.HttpStatusCode)">
-            <summary>
-            Appends <paramref name="message"/> when <paramref name="value"/> is <c>null</c>.
-            </summary>
-        </member>
-        <member name="M:MelloSilveiraTools.WebApi.ExtensionMethods.OperationResponseExtensions.AddErrorIfNotNull``1(``0,System.Object,System.String,System.Net.HttpStatusCode)">
-            <summary>
-            Appends <paramref name="message"/> when <paramref name="value"/> is not <c>null</c>.
-            </summary>
-        </member>
-        <member name="M:MelloSilveiraTools.WebApi.ExtensionMethods.OperationResponseExtensions.AddErrorIfNullOrEmpty``1(``0,System.String,System.String,System.Net.HttpStatusCode)">
-            <summary>
-            Appends <paramref name="message"/> when <paramref name="parameter"/> is <c>null</c> or empty.
-            </summary>
-        </member>
-        <member name="M:MelloSilveiraTools.WebApi.ExtensionMethods.OperationResponseExtensions.AddErrorIfNullOrWhiteSpace``1(``0,System.String,System.String,System.Net.HttpStatusCode)">
-            <summary>
-            Appends <paramref name="message"/> when <paramref name="parameter"/> is <c>null</c>, empty, or whitespace.
-            </summary>
-        </member>
-        <member name="M:MelloSilveiraTools.WebApi.ExtensionMethods.OperationResponseExtensions.AddErrorIfNullOrEmpty``2(``0,System.Collections.Generic.IEnumerable{``1},System.String,System.Net.HttpStatusCode)">
-            <summary>
-            Appends <paramref name="message"/> when <paramref name="parameters"/> is <c>null</c> or contains no elements.
-            </summary>
-        </member>
-        <member name="M:MelloSilveiraTools.WebApi.ExtensionMethods.OperationResponseExtensions.AddErrorIfZero``1(``0,System.Double,System.String,System.Net.HttpStatusCode)">
-            <summary>
-            Appends <paramref name="message"/> when <paramref name="parameter"/> equals zero.
-            </summary>
-        </member>
-        <member name="M:MelloSilveiraTools.WebApi.ExtensionMethods.OperationResponseExtensions.AddErrorIfNegative``1(``0,System.Double,System.String,System.Net.HttpStatusCode)">
-            <summary>
-            Appends <paramref name="message"/> when <paramref name="parameter"/> is strictly negative.
-            </summary>
-        </member>
-        <member name="M:MelloSilveiraTools.WebApi.ExtensionMethods.OperationResponseExtensions.AddErrorIfNegativeOrZero``1(``0,System.Double,System.String,System.Net.HttpStatusCode)">
-            <summary>
-            Appends <paramref name="message"/> when <paramref name="parameter"/> is negative or zero.
-            </summary>
-        </member>
-        <member name="M:MelloSilveiraTools.WebApi.ExtensionMethods.OperationResponseExtensions.AddErrorIfNegativeOrZero``1(``0,System.Collections.Generic.List{System.Double},System.String,System.Net.HttpStatusCode)">
-            <summary>
-            Validates each element of <paramref name="parameters"/> and appends <paramref name="message"/> when any value is negative or zero,
-            or when the list itself is <c>null</c> or empty.
-            </summary>
-        </member>
-        <member name="M:MelloSilveiraTools.WebApi.ExtensionMethods.OperationResponseExtensions.AddErrorIfInvalidEnum``2(``0,``1,System.String,System.Net.HttpStatusCode)">
-            <summary>
-            Appends <paramref name="message"/> when <paramref name="value"/> is not a defined member of the enum type.
-            </summary>
-        </member>
-        <member name="M:MelloSilveiraTools.WebApi.ExtensionMethods.OperationResponseExtensions.AddErrorIfFileNotExist``1(``0,System.String,System.String,System.Net.HttpStatusCode)">
-            <summary>
-            Appends <paramref name="message"/> when the file does not exist or when <paramref name="fullFileName"/> is blank.
-            </summary>
-        </member>
-        <member name="M:MelloSilveiraTools.WebApi.ExtensionMethods.OperationResponseExtensions.AddErrorIfFileExist``1(``0,System.String,System.Net.HttpStatusCode)">
-            <summary>
-            Appends an error when the file at <paramref name="fullFileName"/> already exists.
-            </summary>
-        </member>
-        <member name="M:MelloSilveiraTools.WebApi.ExtensionMethods.OperationResponseExtensions.AddErrorIfDirectoryNotExist``1(``0,System.String,System.String,System.Net.HttpStatusCode)">
-            <summary>
-            Appends an error when the directory does not exist or when <paramref name="fullDirectoryName"/> is blank.
-            </summary>
-        </member>
-        <member name="M:MelloSilveiraTools.WebApi.ExtensionMethods.OperationResponseExtensions.BuildHttpResponse``1(``0)">
-            <summary>
-            Projects the operation response into a <see cref="T:Microsoft.AspNetCore.Mvc.JsonResult"/> carrying the same HTTP status code.
-            </summary>
-        </member>
-        <member name="M:MelloSilveiraTools.WebApi.ExtensionMethods.OperationResponseExtensions.BuildHttpResponseAsync``1(System.Threading.Tasks.Task{``0})">
-            <summary>
-            Awaits the response task and projects the result into a <see cref="T:Microsoft.AspNetCore.Mvc.JsonResult"/> carrying the same HTTP status code.
-            </summary>
-            <param name="responseTask">The task containing the operation response to be returned.</param>
-            <returns>A <see cref="T:Microsoft.AspNetCore.Mvc.JsonResult"/> that serializes the operation response with the response status code.</returns>
-        </member>
-        <member name="M:MelloSilveiraTools.WebApi.ExtensionMethods.OperationResponseExtensions.ToHttpResultAsync``1(System.Threading.Tasks.Task{``0})">
-            <summary>
-            Projects the operation response into an <see cref="T:Microsoft.AspNetCore.Http.IResult"/> suitable for minimal-API endpoints,
-            preserving the response payload and HTTP status code.
-            </summary>
-            <param name="responseTask">The task containing the operation response to be returned.</param>
-            <returns>An <see cref="T:Microsoft.AspNetCore.Http.IResult"/> that serializes operation response as JSON with the response status code.</returns>
-        </member>
-        <member name="M:MelloSilveiraTools.WebApi.ExtensionMethods.OperationResponseExtensions.ToHttpResult``1(``0)">
-            <summary>
-            Projects the operation response into an <see cref="T:Microsoft.AspNetCore.Http.IResult"/> suitable for minimal-API endpoints,
-            preserving the response payload and HTTP status code.
-            </summary>
-            <param name="response">The operation response to be returned.</param>
-            <returns>An <see cref="T:Microsoft.AspNetCore.Http.IResult"/> that serializes <paramref name="response"/> as JSON with the response status code.</returns>
-        </member>
-        <member name="T:MelloSilveiraTools.WebApi.ExtensionMethods.ResultExtensions">
-            <summary>
-            Provides extension methods that convert operation <see cref="T:System.Threading.Tasks.Task"/> results into minimal API <see cref="T:Microsoft.AspNetCore.Http.IResult"/> values.
-            </summary>
-        </member>
-        <member name="M:MelloSilveiraTools.WebApi.ExtensionMethods.ResultExtensions.ToOkResultAsync(System.Threading.Tasks.Task)">
-            <summary>
-            Awaits the operation and returns an empty HTTP 200 OK result.
-            </summary>
-        </member>
-        <member name="M:MelloSilveiraTools.WebApi.ExtensionMethods.ResultExtensions.ToOkResultAsync``1(System.Threading.Tasks.Task{``0})">
-            <summary>
-            Awaits the operation and returns an HTTP 200 OK result wrapping the produced value.
-            </summary>
-        </member>
-        <member name="M:MelloSilveiraTools.WebApi.ExtensionMethods.ResultExtensions.ToCreatedResultAsync(System.Threading.Tasks.Task)">
-            <summary>
-            Awaits the operation and returns an empty HTTP 201 Created result.
-            </summary>
-        </member>
-        <member name="M:MelloSilveiraTools.WebApi.ExtensionMethods.ResultExtensions.ToCreatedResultAsync``1(System.Threading.Tasks.Task{``0},System.String)">
-            <summary>
-            Awaits the operation and returns an HTTP 201 Created result pointing at <paramref name="uri"/> and wrapping the produced value.
-            </summary>
-        </member>
-        <member name="M:MelloSilveiraTools.WebApi.ExtensionMethods.ResultExtensions.ToNdjsonResultAsync``1(System.Collections.Generic.IAsyncEnumerable{``0})">
-            <summary>
-            Wraps the supplied asynchronous sequence in an NDJSON streaming result.
-            </summary>
-        </member>
         <member name="T:MelloSilveiraTools.WebApi.Infrastructure.ResiliencePipelines.ApiServiceAgentResiliencePipeline">
             <summary>
             Resilience pipeline for PostgreSQL repositories that provides a strategy to handle retriable exceptions.
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.WebApi.Infrastructure.ResiliencePipelines.ApiServiceAgentResiliencePipeline.#ctor(MelloSilveiraTools.Core.Infrastructure.Logger.ILogger,MelloSilveiraTools.Core.Infrastructure.ResiliencePipelines.ResiliencePipelineSettings)">
+        <member name="M:MelloSilveiraTools.WebApi.Infrastructure.ResiliencePipelines.ApiServiceAgentResiliencePipeline.#ctor(Microsoft.Extensions.Logging.ILogger{MelloSilveiraTools.WebApi.Infrastructure.ResiliencePipelines.ApiServiceAgentResiliencePipeline},MelloSilveiraTools.Core.ResiliencePipelines.ResiliencePipelineSettings)">
             <summary>
-            Initialize a new instance of <see cref="T:MelloSilveiraTools.Database.Infrastructure.ResiliencePipelines.PostgresResiliencePipeline"/>.
+            Initialize a new instance of <see cref="T:MelloSilveiraTools.WebApi.Infrastructure.ResiliencePipelines.ApiServiceAgentResiliencePipeline"/>.
             </summary>
             <param name="logger"></param>
             <param name="settings"></param>
         </member>
-        <member name="M:MelloSilveiraTools.WebApi.Infrastructure.ResiliencePipelines.ApiServiceAgentResiliencePipeline.#ctor(MelloSilveiraTools.Core.Infrastructure.Logger.ILogger,MelloSilveiraTools.Core.Infrastructure.ResiliencePipelines.ResiliencePipelineSettings,System.Func{Polly.Retry.RetryPredicateArguments{System.Object},System.Threading.Tasks.ValueTask{System.Boolean}})">
+        <member name="M:MelloSilveiraTools.WebApi.Infrastructure.ResiliencePipelines.ApiServiceAgentResiliencePipeline.#ctor(Microsoft.Extensions.Logging.ILogger{MelloSilveiraTools.WebApi.Infrastructure.ResiliencePipelines.ApiServiceAgentResiliencePipeline},MelloSilveiraTools.Core.ResiliencePipelines.ResiliencePipelineSettings,System.Func{Polly.Retry.RetryPredicateArguments{System.Object},System.Threading.Tasks.ValueTask{System.Boolean}})">
             <summary>
-            Initializes a new instance of <see cref="T:MelloSilveiraTools.Database.Infrastructure.ResiliencePipelines.PostgresResiliencePipeline"/>.
+            Initializes a new instance of <see cref="T:MelloSilveiraTools.WebApi.Infrastructure.ResiliencePipelines.ApiServiceAgentResiliencePipeline"/>.
             </summary>
-            <param name="logger">See reference at <see cref="T:MelloSilveiraTools.Core.Infrastructure.Logger.ILogger"/>.</param>
-            <param name="settings">See reference at <see cref="T:MelloSilveiraTools.Core.Infrastructure.ResiliencePipelines.ResiliencePipelineSettings"/>.</param>
+            <param name="logger">See reference at <see cref="T:Microsoft.Extensions.Logging.ILogger"/>.</param>
+            <param name="settings">See reference at <see cref="T:MelloSilveiraTools.Core.ResiliencePipelines.ResiliencePipelineSettings"/>.</param>
             <param name="shouldHandle">Predicate that determines whether the retry should be executed for a given outcome.</param>
         </member>
         <member name="T:MelloSilveiraTools.WebApi.Infrastructure.Services.ApiServiceAgent.ApiServiceAgentBase">
@@ -1421,7 +771,7 @@
             </summary>
         </member>
         <member name="P:MelloSilveiraTools.WebApi.Infrastructure.Services.ApiServiceAgent.ApiServiceAgentBase.Logger">
-            <inheritdoc cref="T:MelloSilveiraTools.Core.Infrastructure.Logger.ILogger"/>
+            <inheritdoc cref="T:Microsoft.Extensions.Logging.ILogger"/>
         </member>
         <member name="P:MelloSilveiraTools.WebApi.Infrastructure.Services.ApiServiceAgent.ApiServiceAgentBase.HttpClient">
             <summary>
@@ -1436,7 +786,7 @@
         <member name="P:MelloSilveiraTools.WebApi.Infrastructure.Services.ApiServiceAgent.ApiServiceAgentBase.ResiliencePipeline">
             <inheritdoc cref="T:MelloSilveiraTools.WebApi.Infrastructure.ResiliencePipelines.ApiServiceAgentResiliencePipeline"/>
         </member>
-        <member name="M:MelloSilveiraTools.WebApi.Infrastructure.Services.ApiServiceAgent.ApiServiceAgentBase.#ctor(MelloSilveiraTools.Core.Infrastructure.Logger.ILogger,MelloSilveiraTools.WebApi.Infrastructure.Services.ApiServiceAgent.Settings.ApiServiceAgentSettings,MelloSilveiraTools.WebApi.Infrastructure.ResiliencePipelines.ApiServiceAgentResiliencePipeline)">
+        <member name="M:MelloSilveiraTools.WebApi.Infrastructure.Services.ApiServiceAgent.ApiServiceAgentBase.#ctor(Microsoft.Extensions.Logging.ILogger,MelloSilveiraTools.WebApi.Infrastructure.Services.ApiServiceAgent.Settings.ApiServiceAgentSettings,MelloSilveiraTools.WebApi.Infrastructure.ResiliencePipelines.ApiServiceAgentResiliencePipeline)">
             <summary>
             Initializes a new instance of <see cref="T:MelloSilveiraTools.WebApi.Infrastructure.Services.ApiServiceAgent.ApiServiceAgentBase"/>.
             </summary>
@@ -1444,7 +794,7 @@
             <param name="settings">Settings controlling the connection with the external API.</param>
             <param name="resiliencePipeline">Resilience pipeline applied to outbound HTTP requests.</param>
         </member>
-        <member name="M:MelloSilveiraTools.WebApi.Infrastructure.Services.ApiServiceAgent.ApiServiceAgentBase.GetAsync``2(System.String,System.Int32,System.String)">
+        <member name="M:MelloSilveiraTools.WebApi.Infrastructure.Services.ApiServiceAgent.ApiServiceAgentBase.GetAsync``1(System.String,System.Int32,System.String)">
             <summary>
             Sends a GET request to the specified URI and maps the JSON payload into a list-style operation response.
             </summary>
@@ -1487,12 +837,12 @@
         <member name="M:MelloSilveiraTools.WebApi.Infrastructure.Services.ApiServiceAgent.ApiServiceAgentBase.Dispose">
             <inheritdoc/>
         </member>
-        <member name="T:MelloSilveiraTools.WebApi.Infrastructure.Services.ApiServiceAgent.DataContract.AsyncOperationResponse`1">
+        <member name="T:MelloSilveiraTools.WebApi.Infrastructure.Services.ApiServiceAgent.DataContract.AsyncResult`1">
             <summary>
             Response content for async operations.
             </summary>
         </member>
-        <member name="P:MelloSilveiraTools.WebApi.Infrastructure.Services.ApiServiceAgent.DataContract.AsyncOperationResponse`1.Data">
+        <member name="P:MelloSilveiraTools.WebApi.Infrastructure.Services.ApiServiceAgent.DataContract.AsyncResult`1.Data">
             <summary>
             Data content of response.
             </summary>
