@@ -16,7 +16,7 @@ public sealed class PronySeries(double? initialVariableValue, double? finalVaria
         finalVariableValue,
         [
             new PolynomialFunction(initialVariableValue, finalVariableValue, [independentParameter]),
-            new ExponencialFunction(initialVariableValue, finalVariableValue, iteratorCoefficients)
+            new ExponentialFunction(initialVariableValue, finalVariableValue, iteratorCoefficients)
         ])
 {
     /// <summary>

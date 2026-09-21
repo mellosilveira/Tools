@@ -9,7 +9,7 @@ namespace MelloSilveiraTools.Mathematics.Functions;
 /// <param name="initialVariableValue"></param>
 /// <param name="finalVariableValue"></param>
 /// <param name="coefficients"></param>
-public sealed class ExponencialFunction(
+public sealed class ExponentialFunction(
     double? initialVariableValue,
     double? finalVariableValue,
     double[] coefficients) : Function(FunctionType.Exponential, initialVariableValue, finalVariableValue, coefficients)
@@ -37,7 +37,7 @@ public sealed class ExponencialFunction(
             derivativeCoefficients[2 * i + 1] = Coefficients[2 * i + 1];
         }
 
-        return new ExponencialFunction(InitialVariableValue, FinalVariableValue, derivativeCoefficients);
+        return new ExponentialFunction(InitialVariableValue, FinalVariableValue, derivativeCoefficients);
     }
 
     /// <inheritdoc/>
@@ -52,6 +52,6 @@ public sealed class ExponencialFunction(
             integralCoefficients[2 * i + 1] = Coefficients[2 * i + 1];
         }
 
-        return new ExponencialFunction(InitialVariableValue, FinalVariableValue, integralCoefficients);
+        return new ExponentialFunction(InitialVariableValue, FinalVariableValue, integralCoefficients);
     }
 }

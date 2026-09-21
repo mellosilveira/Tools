@@ -46,7 +46,7 @@ public enum FunctionType : int
     PronySeries = 7,
 
     /// <summary>
-    /// f(x) = a_0 + a_1 * ln(x)
+    /// f(x) = a_0 + a_1 * ln(a_2 * x) + ... + a_n-1 * ln(a_n * x)
     /// </summary>
     Logarithmic = 8,
 }

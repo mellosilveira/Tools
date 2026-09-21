@@ -1,32 +1,42 @@
+using MelloSilveiraTools.Core.Pipelines.Models;
 using MelloSilveiraTools.Mathematics.Functions;
+using MelloSilveiraTools.Mathematics.Models;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Algorithms;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Models;
 
 namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.MathematicalFunctions;
 
-public sealed class PolynomialCurveFitter(ICurveFitter innerFitter) : ICurveFitter
+public sealed class PolynomialCurveFitter(ICurveFitter innerFitter) : IMathematicalFunctionCurveFitter
 {
-    public CurveFitOutput Fit(CurveFitInput input)
+    public SafeResult<CurveFitInput, CurveFitOutput> TryFit(int numberOfParameters, double[] independentVariable, double[] dependentVariable, bool zeroBased = false, double tolerance = MathematicConstants.Tolerance, int maxIterations = 1_000_000)
     {
-        double[] x = input.IndependentVariables[0];
-        int n = x.Length;
-        double minX = x.Min();
-        double maxX = x.Max();
-
-        int polyParamCount = n;
-        double[] polyLower = Enumerable.Repeat(-1e6, polyParamCount).ToArray();
-        double[] polyUpper = Enumerable.Repeat(1e6, polyParamCount).ToArray();
-        double[] polyInitial = new double[polyParamCount];
-        polyInitial[0] = 1.0;
-
-        CurveFitInput modifiedInput = input with
+        CurveFitInput? input = null;
+        try
         {
-            Calculate = (p, xValues) => new PolynomialFunction(minX, maxX, p).Calculate(xValues[0]),
-            LowerBounds = polyLower,
-            UpperBounds = polyUpper,
-            InitialParameters = polyInitial
-        };
+            if (numberOfParameters > independentVariable.Length)
+                throw new ArgumentException("The number of constants to calculate cannot be greater than the number of points.");
 
-        return innerFitter.Fit(modifiedInput);
+            double minX = independentVariable[0];
+            double maxX = independentVariable[^1];
+
+            input = new()
+            {
+                IndependentVariables = [independentVariable],
+                DependentVariable = dependentVariable,
+                Calculate = zeroBased
+                    ? (p, xValues) => new PolynomialFunction(minX, maxX, [0, .. p]).Calculate(xValues[0])
+                    : (p, xValues) => new PolynomialFunction(minX, maxX, p).Calculate(xValues[0]),
+                LowerBounds = [.. Enumerable.Repeat(double.MinValue, numberOfParameters)],
+                UpperBounds = [.. Enumerable.Repeat(double.MaxValue, numberOfParameters)],
+                InitialParameters = [.. Enumerable.Repeat(1.0, numberOfParameters)],
+                MaxIterations = maxIterations,
+                Tolerance = tolerance
+            };
+            return innerFitter.Fit(input);
+        }
+        catch (Exception ex)
+        {
+            return (nameof(TryFit), input!, ex);
+        }
     }
 }

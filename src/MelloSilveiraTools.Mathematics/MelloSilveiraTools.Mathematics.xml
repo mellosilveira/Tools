@@ -731,7 +731,7 @@
         </member>
         <member name="F:MelloSilveiraTools.Mathematics.Models.FunctionType.Logarithmic">
             <summary>
-            f(x) = a_0 + a_1 * ln(x)
+            f(x) = a_0 + a_1 * ln(a_2 * x) + ... + a_n-1 * ln(a_n * x)
             </summary>
         </member>
         <member name="T:MelloSilveiraTools.Mathematics.Models.MathematicConstants">

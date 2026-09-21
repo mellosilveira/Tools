@@ -15,7 +15,7 @@ public readonly record struct FailedPayload(string CallbackName, object? Payload
 /// <remarks>
 /// Technical Decision: Maintains strict type safety within the generic boundaries of the pipeline builder. Utilizes <c>readonly record struct</c> to guarantee immutability and ensure zero heap allocations during the fault generation phase.
 /// </remarks>
-public readonly record struct FailedPayload<T>(string CallbackName, T Payload, Exception Exception)
+public readonly record struct FailedPayload<T>(string CallbackName, T? Payload, Exception Exception)
 {
     /// <summary>
     /// Implicitly converts a strongly-typed failed payload into a type-erased failed payload.

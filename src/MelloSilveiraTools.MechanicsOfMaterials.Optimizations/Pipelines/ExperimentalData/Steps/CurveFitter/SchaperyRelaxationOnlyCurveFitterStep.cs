@@ -1,3 +1,5 @@
+using MathNet.Numerics.Distributions;
+using MelloSilveiraTools.Mathematics.Factories.Functions;
 using MelloSilveiraTools.Mathematics.Functions;
 using MelloSilveiraTools.Mathematics.Models;
 using MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Viscoelasticity.NonLinear.Schapery;
@@ -8,6 +10,9 @@ using MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelast
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Algorithms;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.MathematicalFunctions;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Models;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+using Serilog.Core;
 using System.Runtime.CompilerServices;
 
 namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Steps.CurveFitter;
@@ -17,9 +22,18 @@ namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.Experi
 /// Schapery model (relaxation-only curve fitting). Implements <c>IPipelineStep</c> for telemetry.
 /// </summary>
 public sealed class SchaperyRelaxationOnlyCurveFitterStep(
+    ILogger<SchaperyRelaxationOnlyCurveFitterStep> logger,
     ISchaperyModelCalculator mechanicalModelCalculator,
-    ICurveFitter curveFitter) : IMechanicalModelCurveFitterStep
+    ICurveFitter curveFitter,
+    [FromKeyedServices(FunctionType.Logarithmic)] IMathematicalFunctionCurveFitter logarithmicCurveFitter,
+    [FromKeyedServices(FunctionType.Exponential)] IMathematicalFunctionCurveFitter exponentialCurveFitter,
+    FunctionFactory functionFactory) 
+    : IMechanicalModelCurveFitterStep
 {
+    private readonly static double[] HelmholtzInitialParameters = [1.0, 1.0];
+    private readonly static double[] HelmholtzLowerBounds = [0.0, 0.0];
+    private readonly static double[] HelmholtzUpperBounds = [10.0, 10.0];
+
     /// <inheritdoc />
     public string Name => nameof(SchaperyRelaxationOnlyCurveFitterStep);
 
@@ -27,43 +41,47 @@ public sealed class SchaperyRelaxationOnlyCurveFitterStep(
     public async IAsyncEnumerable<MechanicalModelCurveFitOutput> ExecuteAsync(CurveSegment[] input, [EnumeratorCancellation] CancellationToken cancellationToken = default)
     {
         cancellationToken.ThrowIfCancellationRequested();
-        
+
         List<CurveSegment> relaxations = [.. input.Where(cs => cs.Type == SegmentType.Relaxation).OrderBy(cs => cs.ExperimentalStrain[0])];
         if (relaxations.Count == 0)
             yield break;
 
         for (int i = 0; i < relaxations.Count; i++)
         {
+            cancellationToken.ThrowIfCancellationRequested();
+            
             CurveSegment anchorSegment = relaxations[i];
             var (anchorResult, optimizedLinearParams) = FitAnchorSegment(anchorSegment);
             yield return anchorResult;
 
-            List<double> strains = [anchorSegment.ExperimentalStrain[0]];
-            List<double> hePoints = [1.0];
-            List<double> h2Points = [1.0];
+            var strainAndHelmholtzVariables = new(double Strain, double He, double H2)[(relaxations.Count - 1)];
+
             double totalError = anchorResult.FinalError;
             int totalIterations = anchorResult.Iterations;
 
-            for (int j = 1; j < relaxations.Count; j++)
+            for (int j = 0; j < relaxations.Count; j++)
             {
-                if (j == i) continue; // Skip the anchor segment
-
                 cancellationToken.ThrowIfCancellationRequested();
+
+                if (j == i)
+                {
+                    strainAndHelmholtzVariables[j] = (anchorSegment.ExperimentalStrain[0], 1.0, 1.0);
+                    continue; // Skip the anchor segment
+                }
 
                 CurveSegment segment = relaxations[j];
                 var segmentFitResult = FitRemainingSegment(segment, optimizedLinearParams);
 
-                strains.Add(segment.ExperimentalStrain[0]);
-                hePoints.Add(segmentFitResult.He);
-                h2Points.Add(segmentFitResult.H2);
+                strainAndHelmholtzVariables[j] = (segment.ExperimentalStrain[0], segmentFitResult.He, segmentFitResult.H2);
 
-                totalError += segmentFitResult.FinalError;
+                // TODO: ESTUDAR MELHOR FORMA DE CALCULAR O ERRO FINAL.
+                totalError *= segmentFitResult.FinalError;
                 totalIterations += segmentFitResult.Iterations;
 
                 yield return segmentFitResult.CurveFitOutput;
             }
 
-            yield return BuildFinalOutput(relaxations, optimizedLinearParams, strains, hePoints, h2Points, totalError, totalIterations);
+            yield return BuildFinalOutput(relaxations, optimizedLinearParams, strainAndHelmholtzVariables, totalError, totalIterations);
         }
     }
 
@@ -102,7 +120,7 @@ public sealed class SchaperyRelaxationOnlyCurveFitterStep(
         };
         CurveFitOutput anchorOutput = curveFitter.Fit(anchorInput);
         double[] optimizedLinearParams = anchorOutput.OptimizedParameters;
-        
+
         SchaperyConstitutiveParameters anchorParameters = new()
         {
             Ge = optimizedLinearParams[0],
@@ -117,10 +135,6 @@ public sealed class SchaperyRelaxationOnlyCurveFitterStep(
 
     private (MechanicalModelCurveFitOutput CurveFitOutput, double He, double H2, double FinalError, int Iterations) FitRemainingSegment(CurveSegment segment, double[] optimizedLinearParams)
     {
-        double[] segmentInitialParams = [1.0, 1.0];
-        double[] segmentLowerBounds = [0.0, 0.0];
-        double[] segmentUpperBounds = [10.0, 10.0];
-
         CurveFitInput segmentInput = new()
         {
             IndependentVariables = [segment.TimePoints, segment.ExperimentalStrain],
@@ -138,13 +152,13 @@ public sealed class SchaperyRelaxationOnlyCurveFitterStep(
                 MechanicalModelInput<SchaperyConstitutiveParameters> currentInput = CreateModelInput(segment, xValues[1], constitutiveParameters);
                 return mechanicalModelCalculator.CalculateStress(currentInput, xValues[0], xValues[1]);
             },
-            InitialParameters = segmentInitialParams,
-            LowerBounds = segmentLowerBounds,
-            UpperBounds = segmentUpperBounds,
+            InitialParameters = HelmholtzInitialParameters,
+            LowerBounds = HelmholtzLowerBounds,
+            UpperBounds = HelmholtzUpperBounds,
             EvaluateConstraintsAndPenalties = null,
         };
         CurveFitOutput segmentOutput = curveFitter.Fit(segmentInput);
-        
+
         double he = segmentOutput.OptimizedParameters[0];
         double h2 = segmentOutput.OptimizedParameters[1];
 
@@ -176,14 +190,24 @@ public sealed class SchaperyRelaxationOnlyCurveFitterStep(
         ConstitutiveParameters = constitutiveParameters
     };
 
-    private MechanicalModelCurveFitOutput BuildFinalOutput(List<CurveSegment> relaxations, double[] optimizedLinearParams, List<double> strains, List<double> hePoints, List<double> h2Points, double totalError, int totalIterations)
+    private MechanicalModelCurveFitOutput BuildFinalOutput(List<CurveSegment> relaxations, double[] optimizedLinearParams, (double Strain, double He, double H2)[] strainAndHelmholtzVariables, double totalError, int totalIterations)
     {
-        Function heFunction = FindBestMathematicalFunction([.. strains], [.. hePoints]);
-        Function h2Function = FindBestMathematicalFunction([.. strains], [.. h2Points]);
+        var strains = new double[strainAndHelmholtzVariables.Length];
+        var hePoints = new double[strainAndHelmholtzVariables.Length];
+        var h2Points = new double[strainAndHelmholtzVariables.Length];
+
+        for (int i = 0; i < strainAndHelmholtzVariables.Length; i++)
+        {
+            strains[i] = strainAndHelmholtzVariables[i].Strain;
+            hePoints[i] = strainAndHelmholtzVariables[i].He;
+            h2Points[i] = strainAndHelmholtzVariables[i].H2;
+        }
+
+        Function heFunction = FitHelmholtzVariable(strains, hePoints);
+        Function h2Function = FitHelmholtzVariable(strains, h2Points);
 
         double initialAcceptedStrain = relaxations[0].ExperimentalStrain[0];
-        double finalAcceptedStrain = relaxations[^1].ExperimentalStrain[0];
-        
+        double finalAcceptedStrain = relaxations[^1].ExperimentalStrain[^1];
         SchaperyConstitutiveParameters finalParams = new()
         {
             Ge = optimizedLinearParams[0],
@@ -195,61 +219,33 @@ public sealed class SchaperyRelaxationOnlyCurveFitterStep(
         return new MechanicalModelCurveFitOutput(finalParams, totalError, totalIterations, new AcceptedRange(initialAcceptedStrain, finalAcceptedStrain));
     }
 
-    private Function FindBestMathematicalFunction(double[] x, double[] y)
+    private Function FitHelmholtzVariable(double[] strain, double[] helmholtzVariable)
     {
-        if (x.Length == 1)
-            return new ConstantFunction(x[0], x[0], y[0]);
+        if (strain.Length == 1)
+            return new ConstantFunction(strain[0], strain[0], helmholtzVariable[0]);
 
-        CurveFitInput baseInput = new()
-        {
-            IndependentVariables = [x],
-            DependentVariable = y,
-            Calculate = (_, _) => 0,
-            LowerBounds = [],
-            UpperBounds = [],
-            InitialParameters = []
-        };
+        // For logarithmic and exponential functions, we assume 2 parameters.
+        const int numberOfParameters = 2;
 
-        var results = new List<(FunctionType Type, CurveFitOutput Output)>();
+        List<(FunctionType Type, CurveFitOutput Output)> results = [];
 
-        // 1. Polynomial
-        try
-        {
-            ICurveFitter polyFitter = new PolynomialCurveFitter(curveFitter);
-            results.Add((FunctionType.Polynomial, polyFitter.Fit(baseInput)));
-        }
-        catch { }
+        var logarithmicResult = logarithmicCurveFitter.TryFit(numberOfParameters, strain, helmholtzVariable, zeroBased: true);
+        if (logarithmicResult.Success)
+            results.Add((FunctionType.Logarithmic, logarithmicResult.Output!));
+        else
+            logger.LogWarning("It was not possible to fit the Helmholtz variable to a logarithmic function. Result: {@Result}", logarithmicResult);
 
-        // 2. Logarithmic
-        try
-        {
-            ICurveFitter logFitter = new LogarithmicCurveFitter(curveFitter);
-            results.Add((FunctionType.Logarithmic, logFitter.Fit(baseInput)));
-        }
-        catch { }
-
-        // 3. Exponential
-        try
-        {
-            ICurveFitter expFitter = new ExponentialCurveFitter(curveFitter);
-            results.Add((FunctionType.Exponential, expFitter.Fit(baseInput)));
-        }
-        catch { }
+        var exponentialResult = exponentialCurveFitter.TryFit(numberOfParameters, strain, helmholtzVariable);
+        if (exponentialResult.Success)
+            results.Add((FunctionType.Exponential, exponentialResult.Output!));
+        else
+            logger.LogWarning("It was not possible to fit the Helmholtz variable to a exponential function. Result: {@Result}", exponentialResult);
 
         if (results.Count == 0)
             throw new InvalidOperationException("All mathematical function curve fits failed.");
 
-        var best = results.OrderBy(o => o.Output.FinalError).First();
-
-        double minX = x.Min();
-        double maxX = x.Max();
-
-        return best.Type switch
-        {
-            FunctionType.Polynomial => new PolynomialFunction(minX, maxX, best.Output.OptimizedParameters),
-            FunctionType.Exponential => new ExponencialFunction(minX, maxX, best.Output.OptimizedParameters),
-            _ => new LogarithmicFunction(minX, maxX, best.Output.OptimizedParameters),
-        };
+        (FunctionType bestType, CurveFitOutput bestOutput) = results.OrderBy(o => o.Output.FinalError).First();
+        return functionFactory.Create(bestType, strain[0], strain[^1], bestOutput.OptimizedParameters);
     }
 
     /// <inheritdoc />
@@ -259,8 +255,3 @@ public sealed class SchaperyRelaxationOnlyCurveFitterStep(
         return ValueTask.CompletedTask;
     }
 }
-
-
-
-
-

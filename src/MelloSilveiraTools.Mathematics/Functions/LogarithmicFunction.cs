@@ -21,7 +21,7 @@ public sealed class LogarithmicFunction(
         double value = Coefficients[0];
         for (int i = 0; i < (Coefficients.Length - 1) / 2; i++)
         {
-            value += Coefficients[2 * i + 1] * Math.Log(Math.Max(Coefficients[2 * i + 2] * variableValue, 1e-12));
+            value += Coefficients[2 * i + 1] * Math.Log(Coefficients[2 * i + 2] * variableValue);
         }
 
         return value;

@@ -1,32 +1,45 @@
+using MelloSilveiraTools.Core.Pipelines.Models;
 using MelloSilveiraTools.Mathematics.Functions;
+using MelloSilveiraTools.Mathematics.Models;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Algorithms;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Models;
 
 namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.MathematicalFunctions;
 
-public sealed class ExponentialCurveFitter(ICurveFitter innerFitter) : ICurveFitter
+public sealed class ExponentialCurveFitter(ICurveFitter innerFitter) : IMathematicalFunctionCurveFitter
 {
-    public CurveFitOutput Fit(CurveFitInput input)
+    public SafeResult<CurveFitInput, CurveFitOutput> TryFit(int numberOfParameters, double[] independentVariable, double[] dependentVariable, bool zeroBased = false, double tolerance = MathematicConstants.Tolerance, int maxIterations = 1_000_000)
     {
-        double[] x = input.IndependentVariables[0];
-        int n = x.Length;
-        double minX = x.Min();
-        double maxX = x.Max();
-
-        int expParamCount = 2 * n;
-        double[] expLower = Enumerable.Repeat(-1e6, expParamCount).ToArray();
-        double[] expUpper = Enumerable.Repeat(1e6, expParamCount).ToArray();
-        double[] expInitial = new double[expParamCount];
-        for (int i = 0; i < n; i++) expInitial[2 * i] = 1.0; 
-
-        CurveFitInput modifiedInput = input with
+        CurveFitInput? input = null;
+        try
         {
-            Calculate = (p, xValues) => new ExponencialFunction(minX, maxX, p).Calculate(xValues[0]),
-            LowerBounds = expLower,
-            UpperBounds = expUpper,
-            InitialParameters = expInitial
-        };
+            int parameterCount = 2 * numberOfParameters;
+            if (parameterCount > independentVariable.Length)
+                throw new ArgumentException("The number of constants to calculate cannot be greater than the number of points.");
 
-        return innerFitter.Fit(modifiedInput);
+            double minX = independentVariable[0];
+            double maxX = independentVariable[^1];
+
+            double[] expInitial = new double[parameterCount];
+            for (int i = 0; i < numberOfParameters; i++) expInitial[2 * i] = 1.0;
+
+            input = new()
+            {
+                IndependentVariables = [independentVariable],
+                DependentVariable = dependentVariable,
+                Calculate = (p, xValues) => new ExponentialFunction(minX, maxX, p).Calculate(xValues[0]),
+                LowerBounds = [.. Enumerable.Repeat(double.MinValue, parameterCount)],
+                UpperBounds = [.. Enumerable.Repeat(double.MaxValue, parameterCount)],
+                InitialParameters = expInitial,
+                MaxIterations = maxIterations,
+                Tolerance = tolerance
+            };
+
+            return innerFitter.Fit(input);
+        }
+        catch (Exception ex)
+        {
+            return (nameof(TryFit), input!, ex);
+        }
     }
 }
