@@ -1,7 +1,7 @@
 ﻿using MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Models.Range;
 
-namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Algorithms.SensitivityAnalyses.Models;
+namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Models;
 
 public record SensitivityAnalysisRequest
 {

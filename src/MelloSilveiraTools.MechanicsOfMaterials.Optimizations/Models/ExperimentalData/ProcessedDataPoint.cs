@@ -1,4 +1,4 @@
-﻿using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Models.CurveFitting;
+﻿using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Models;
 
 namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Models.ExperimentalData;
 

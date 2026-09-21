@@ -3,7 +3,7 @@ using MelloSilveiraTools.Core.Managers.File;
 using MelloSilveiraTools.Core.Pipelines.Steps;
 using MelloSilveiraTools.Mathematics.Extensions;
 using MelloSilveiraTools.Mathematics.NumericalMethods.Differentiations;
-using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Models.CurveFitting;
+using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Models;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Models.ExperimentalData;
 using Microsoft.Extensions.Logging;
 using System.Buffers;

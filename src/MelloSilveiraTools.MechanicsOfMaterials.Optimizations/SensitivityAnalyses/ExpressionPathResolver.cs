@@ -1,6 +1,6 @@
 ﻿using System.Linq.Expressions;
 
-namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Algorithms.SensitivityAnalyses;
+namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses;
 
 public static class ExpressionPathResolver
 {

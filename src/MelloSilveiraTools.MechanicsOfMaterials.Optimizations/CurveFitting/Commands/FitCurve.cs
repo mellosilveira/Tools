@@ -1,9 +1,9 @@
-﻿using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Models.CurveFitting;
+﻿using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Models;
 using Microsoft.Extensions.Logging;
 using System.Runtime.CompilerServices;
 using System.Threading.Channels;
 
-namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Commands.CurveFitting;
+namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Commands;
 
 /// <summary>
 /// Command that validates experimental data, selects the appropriate mechanical model orchestrator, 

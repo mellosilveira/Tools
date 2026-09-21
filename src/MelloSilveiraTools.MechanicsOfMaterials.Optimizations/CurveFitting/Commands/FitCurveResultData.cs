@@ -1,4 +1,4 @@
-﻿namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Commands.CurveFitting;
+﻿namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Commands;
 
 public record FitCurveResultData
 {

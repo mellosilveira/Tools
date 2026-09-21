@@ -1,4 +1,4 @@
-﻿namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Algorithms.SensitivityAnalyses.Morris
+﻿namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Morris
 {
     /// <summary>
     /// Represents a single completed simulation point within a trajectory.

@@ -1,6 +1,6 @@
 using MelloSilveiraTools.Mathematics.Models;
 
-namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Models.CurveFitting;
+namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Models;
 
 public record CurveFitInput
 {

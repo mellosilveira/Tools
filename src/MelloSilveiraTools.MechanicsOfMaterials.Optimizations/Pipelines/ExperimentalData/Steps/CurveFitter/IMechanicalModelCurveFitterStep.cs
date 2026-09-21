@@ -1,6 +1,6 @@
 using MelloSilveiraTools.Core.Pipelines.Steps;
 using MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels;
-using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Models.CurveFitting;
+using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Models;
 
 namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Steps.CurveFitter;
 

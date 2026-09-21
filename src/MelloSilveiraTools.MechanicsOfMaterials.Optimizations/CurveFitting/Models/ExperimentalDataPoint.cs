@@ -1,4 +1,4 @@
-﻿namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Models.CurveFitting;
+﻿namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Models;
 
 /// <summary>
 /// Represents an experimental data point containing time, stress, and strain.

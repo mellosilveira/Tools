@@ -1,4 +1,4 @@
-﻿namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Algorithms.SensitivityAnalyses.Morris;
+﻿namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Morris;
 
 /// <summary>
 /// The core diagnostic metrics for a specific parameter against a specific mechanical output.

@@ -1,4 +1,3 @@
-using MelloSilveiraTools.Mathematics.Expressions;
 using MelloSilveiraTools.Mathematics.Functions;
 using MelloSilveiraTools.Mathematics.Models;
 using MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Viscoelasticity.NonLinear.Schapery;
@@ -6,8 +5,9 @@ using MelloSilveiraTools.MechanicsOfMaterials.Models;
 using MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels;
 using MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity;
 using MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.NonLinear.Schapery;
-using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Algorithms.CurveFitting;
-using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Models.CurveFitting;
+using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Algorithms;
+using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.MathematicalFunctions;
+using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Models;
 using System.Runtime.CompilerServices;
 
 namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Steps.CurveFitter;
@@ -32,34 +32,39 @@ public sealed class SchaperyRelaxationOnlyCurveFitterStep(
         if (relaxations.Count == 0)
             yield break;
 
-        CurveSegment anchorSegment = relaxations[0];
-        var (anchorResult, optimizedLinearParams) = FitAnchorSegment(anchorSegment);
-        yield return anchorResult;
-
-        List<double> strains = [anchorSegment.ExperimentalStrain[0]];
-        List<double> hePoints = [1.0];
-        List<double> h2Points = [1.0];
-        double totalError = anchorResult.FinalError;
-        int totalIterations = anchorResult.Iterations;
-
-        for (int i = 1; i < relaxations.Count; i++)
+        for (int i = 0; i < relaxations.Count; i++)
         {
-            cancellationToken.ThrowIfCancellationRequested();
-            
-            CurveSegment segment = relaxations[i];
-            var segmentFitResult = FitRemainingSegment(segment, optimizedLinearParams);
+            CurveSegment anchorSegment = relaxations[i];
+            var (anchorResult, optimizedLinearParams) = FitAnchorSegment(anchorSegment);
+            yield return anchorResult;
 
-            strains.Add(segment.ExperimentalStrain[0]);
-            hePoints.Add(segmentFitResult.He);
-            h2Points.Add(segmentFitResult.H2);
-            
-            totalError += segmentFitResult.FinalError;
-            totalIterations += segmentFitResult.Iterations;
+            List<double> strains = [anchorSegment.ExperimentalStrain[0]];
+            List<double> hePoints = [1.0];
+            List<double> h2Points = [1.0];
+            double totalError = anchorResult.FinalError;
+            int totalIterations = anchorResult.Iterations;
 
-            yield return segmentFitResult.CurveFitOutput;
+            for (int j = 1; j < relaxations.Count; j++)
+            {
+                if (j == i) continue; // Skip the anchor segment
+
+                cancellationToken.ThrowIfCancellationRequested();
+
+                CurveSegment segment = relaxations[j];
+                var segmentFitResult = FitRemainingSegment(segment, optimizedLinearParams);
+
+                strains.Add(segment.ExperimentalStrain[0]);
+                hePoints.Add(segmentFitResult.He);
+                h2Points.Add(segmentFitResult.H2);
+
+                totalError += segmentFitResult.FinalError;
+                totalIterations += segmentFitResult.Iterations;
+
+                yield return segmentFitResult.CurveFitOutput;
+            }
+
+            yield return BuildFinalOutput(relaxations, optimizedLinearParams, strains, hePoints, h2Points, totalError, totalIterations);
         }
-
-        yield return BuildFinalOutput(relaxations, optimizedLinearParams, strains, hePoints, h2Points, totalError, totalIterations);
     }
 
     private (MechanicalModelCurveFitOutput CurveFitOutput, double[] OptimizedLinearParams) FitAnchorSegment(CurveSegment anchorSegment)
@@ -195,77 +200,39 @@ public sealed class SchaperyRelaxationOnlyCurveFitterStep(
         if (x.Length == 1)
             return new ConstantFunction(x[0], x[0], y[0]);
 
-        int n = x.Length;
-        double minX = x.Min();
-        double maxX = x.Max();
+        CurveFitInput baseInput = new()
+        {
+            IndependentVariables = [x],
+            DependentVariable = y,
+            Calculate = (_, _) => 0,
+            LowerBounds = [],
+            UpperBounds = [],
+            InitialParameters = []
+        };
 
         var results = new List<(FunctionType Type, CurveFitOutput Output)>();
 
         // 1. Polynomial
         try
         {
-            int polyParamCount = n;
-            double[] polyLower = Enumerable.Repeat(-1e6, polyParamCount).ToArray();
-            double[] polyUpper = Enumerable.Repeat(1e6, polyParamCount).ToArray();
-            double[] polyInitial = new double[polyParamCount];
-            polyInitial[0] = 1.0;
-            CurveFitInput polyInput = new()
-            {
-                IndependentVariables = [x],
-                DependentVariable = y,
-                Calculate = (p, xValues) => new PolynomialFunction(minX, maxX, p).Calculate(xValues[0]),
-                LowerBounds = polyLower,
-                UpperBounds = polyUpper,
-                InitialParameters = polyInitial,
-            };
-            results.Add((FunctionType.Polynomial, curveFitter.Fit(polyInput)));
+            ICurveFitter polyFitter = new PolynomialCurveFitter(curveFitter);
+            results.Add((FunctionType.Polynomial, polyFitter.Fit(baseInput)));
         }
         catch { }
 
         // 2. Logarithmic
         try
         {
-            int logParamCount = 2 * n + 1;
-            double[] logLower = Enumerable.Repeat(-1e6, logParamCount).ToArray();
-            double[] logUpper = Enumerable.Repeat(1e6, logParamCount).ToArray();
-            double[] logInitial = new double[logParamCount];
-            logInitial[0] = 1.0; 
-            for (int i = 0; i < n; i++) 
-            {
-                logInitial[2 * i + 1] = 1.0; 
-                logInitial[2 * i + 2] = 1.0; 
-            }
-            CurveFitInput logInput = new()
-            {
-                IndependentVariables = [x],
-                DependentVariable = y,
-                Calculate = (p, xValues) => new LogarithmicFunction(minX, maxX, p).Calculate(xValues[0]),
-                LowerBounds = logLower,
-                UpperBounds = logUpper,
-                InitialParameters = logInitial,
-            };
-            results.Add((FunctionType.Logarithmic, curveFitter.Fit(logInput)));
+            ICurveFitter logFitter = new LogarithmicCurveFitter(curveFitter);
+            results.Add((FunctionType.Logarithmic, logFitter.Fit(baseInput)));
         }
         catch { }
 
         // 3. Exponential
         try
         {
-            int expParamCount = 2 * n;
-            double[] expLower = Enumerable.Repeat(-1e6, expParamCount).ToArray();
-            double[] expUpper = Enumerable.Repeat(1e6, expParamCount).ToArray();
-            double[] expInitial = new double[expParamCount];
-            for (int i = 0; i < n; i++) expInitial[2 * i] = 1.0; 
-            CurveFitInput expInput = new()
-            {
-                IndependentVariables = [x],
-                DependentVariable = y,
-                Calculate = (p, xValues) => new ExponencialFunction(minX, maxX, p).Calculate(xValues[0]),
-                LowerBounds = expLower,
-                UpperBounds = expUpper,
-                InitialParameters = expInitial,
-            };
-            results.Add((FunctionType.Exponential, curveFitter.Fit(expInput)));
+            ICurveFitter expFitter = new ExponentialCurveFitter(curveFitter);
+            results.Add((FunctionType.Exponential, expFitter.Fit(baseInput)));
         }
         catch { }
 
@@ -273,6 +240,10 @@ public sealed class SchaperyRelaxationOnlyCurveFitterStep(
             throw new InvalidOperationException("All mathematical function curve fits failed.");
 
         var best = results.OrderBy(o => o.Output.FinalError).First();
+
+        double minX = x.Min();
+        double maxX = x.Max();
+
         return best.Type switch
         {
             FunctionType.Polynomial => new PolynomialFunction(minX, maxX, best.Output.OptimizedParameters),
@@ -288,4 +259,8 @@ public sealed class SchaperyRelaxationOnlyCurveFitterStep(
         return ValueTask.CompletedTask;
     }
 }
+
+
+
+
 

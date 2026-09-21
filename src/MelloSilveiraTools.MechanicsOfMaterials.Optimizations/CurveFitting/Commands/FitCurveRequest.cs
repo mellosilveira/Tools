@@ -3,7 +3,7 @@ using MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels;
 using MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity;
 using Microsoft.AspNetCore.Http;
 
-namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Commands.CurveFitting;
+namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Commands;
 
 public record FitCurveRequest : RequestBase
 {

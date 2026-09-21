@@ -1,8 +1,8 @@
 using MathNet.Numerics.LinearAlgebra;
 using MathNet.Numerics.Optimization;
-using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Models.CurveFitting;
+using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Models;
 
-namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Algorithms.CurveFitting;
+namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Algorithms;
 
 public class MathNetCurveFitter : CurveFitterBase
 {

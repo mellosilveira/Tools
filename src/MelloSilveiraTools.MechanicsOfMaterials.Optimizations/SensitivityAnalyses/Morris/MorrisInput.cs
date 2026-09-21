@@ -1,6 +1,6 @@
 ﻿using MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels;
 
-namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Algorithms.SensitivityAnalyses.Morris;
+namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Morris;
 
 /// <summary>
 /// The exact payload required to start a Morris Screening analysis.
