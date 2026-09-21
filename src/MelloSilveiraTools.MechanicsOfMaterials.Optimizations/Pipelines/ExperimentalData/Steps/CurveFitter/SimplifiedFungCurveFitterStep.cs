@@ -37,11 +37,7 @@ public sealed class SimplifiedFungCurveFitterStep(
                     MechanicalModelInput<SimplifiedFungConstitutiveParameters> currentInput = new()
                     {
                         MechanicalModelName = nameof(MechanicalModel.SimplifiedFung),
-                        AcceptedStrainRange = new AcceptedRange
-                        {
-                            InitialPoint = curveSegment.ExperimentalStrain[0],
-                            FinalPoint = curveSegment.ExperimentalStrain[^1],
-                        },
+                        AcceptedStrainRange = new AcceptedRange(curveSegment.ExperimentalStrain[0], curveSegment.ExperimentalStrain[^1]),
                         MechanicalBehaviorType = MechanicalBehaviorType.StressStrain,
                         RampTimeConsideration = RampTimeConsideration.ConsiderWithViscoelasticEffect,
                         ViscoelasticEffect = ViscoelasticEffect.Relaxation,
@@ -72,7 +68,7 @@ public sealed class SimplifiedFungCurveFitterStep(
                 ReducedRelaxationFunction = new PronySeries(null, null, 1.0, [curveFitOutput.OptimizedParameters[2], -1.0 / curveFitOutput.OptimizedParameters[3]]),
             };
 
-            yield return new MechanicalModelCurveFitOutput(finalParams, curveFitOutput.FinalError, curveFitOutput.Iterations, new AcceptedRange { InitialPoint = curveSegment.ExperimentalStrain[0], FinalPoint = curveSegment.ExperimentalStrain[^1] });
+            yield return new MechanicalModelCurveFitOutput(finalParams, curveFitOutput.FinalError, curveFitOutput.Iterations, new AcceptedRange(curveSegment.ExperimentalStrain[0], curveSegment.ExperimentalStrain[^1] ));
         }
     }
 
@@ -83,3 +79,4 @@ public sealed class SimplifiedFungCurveFitterStep(
         return ValueTask.CompletedTask;
     }
 }
+

@@ -36,11 +36,7 @@ public sealed class FungCurveFitterStep(
                     MechanicalModelInput<FungConstitutiveParameters> currentInput = new()
                     {
                         MechanicalModelName = nameof(MechanicalModel.Fung),
-                        AcceptedStrainRange = new AcceptedRange
-                        {
-                            InitialPoint = curveSegment.ExperimentalStrain[0],
-                            FinalPoint = curveSegment.ExperimentalStrain[^1],
-                        },
+                        AcceptedStrainRange = new AcceptedRange(curveSegment.ExperimentalStrain[0], curveSegment.ExperimentalStrain[^1]),
                         MechanicalBehaviorType = MechanicalBehaviorType.StressStrain,
                         RampTimeConsideration = RampTimeConsideration.ConsiderWithViscoelasticEffect,
                         ViscoelasticEffect = ViscoelasticEffect.Relaxation,
@@ -71,7 +67,7 @@ public sealed class FungCurveFitterStep(
                 ReducedRelaxationFunction = new ReducedRelaxationFunction(curveFitOutput.OptimizedParameters[2], curveFitOutput.OptimizedParameters[3], curveFitOutput.OptimizedParameters[4]),
             };
 
-            yield return new MechanicalModelCurveFitOutput(finalParams, curveFitOutput.FinalError, curveFitOutput.Iterations, new AcceptedRange { InitialPoint = curveSegment.ExperimentalStrain[0], FinalPoint = curveSegment.ExperimentalStrain[^1] });
+            yield return new MechanicalModelCurveFitOutput(finalParams, curveFitOutput.FinalError, curveFitOutput.Iterations, new AcceptedRange(curveSegment.ExperimentalStrain[0], curveSegment.ExperimentalStrain[^1] ));
         }
     }
 
@@ -82,3 +78,4 @@ public sealed class FungCurveFitterStep(
         return ValueTask.CompletedTask;
     }
 }
+
