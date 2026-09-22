@@ -1,6 +1,5 @@
 using MelloSilveiraTools.Core.Pipelines.Models;
 using MelloSilveiraTools.Mathematics.Functions;
-using MelloSilveiraTools.Mathematics.Models;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Algorithms;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Models;
 
@@ -8,7 +7,7 @@ namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Mat
 
 public sealed class ExponentialCurveFitter(ICurveFitter innerFitter) : IMathematicalFunctionCurveFitter
 {
-    public SafeResult<CurveFitInput, CurveFitOutput> TryFit(int numberOfParameters, double[] independentVariable, double[] dependentVariable, bool zeroBased = false, double tolerance = MathematicConstants.Tolerance, int maxIterations = 1_000_000)
+    public SafeResult<CurveFitInput, CurveFitOutput> TryFit(int numberOfParameters, double[] independentVariable, double[] dependentVariable, bool zeroBased = false, double tolerance = CurveFittingConstants.Tolerance, int maxIterations = CurveFittingConstants.MaxIterations)
     {
         CurveFitInput? input = null;
         try
@@ -43,3 +42,4 @@ public sealed class ExponentialCurveFitter(ICurveFitter innerFitter) : IMathemat
         }
     }
 }
+

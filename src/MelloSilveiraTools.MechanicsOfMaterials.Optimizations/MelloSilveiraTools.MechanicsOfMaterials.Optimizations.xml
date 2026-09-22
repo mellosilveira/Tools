@@ -74,6 +74,11 @@
             The specific experimental phases where this parameter group applies.
             </summary>
         </member>
+        <member name="F:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Models.CurveFittingConstants.Tolerance">
+            <summary>
+            Default tolerance used by the curve fitting algorithms.
+            </summary>
+        </member>
         <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Models.ExperimentalDataPoint">
             <summary>
             Represents an experimental data point containing time, stress, and strain.
@@ -485,7 +490,7 @@
             Schapery model (relaxation-only curve fitting). Implements <c>IPipelineStep</c> for telemetry.
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Steps.CurveFitter.SchaperyRelaxationOnlyCurveFitterStep.#ctor(MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Viscoelasticity.NonLinear.Schapery.ISchaperyModelCalculator,MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Algorithms.ICurveFitter,MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.MathematicalFunctions.IMathematicalFunctionCurveFitter,MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.MathematicalFunctions.IMathematicalFunctionCurveFitter,MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.MathematicalFunctions.IMathematicalFunctionCurveFitter)">
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Steps.CurveFitter.SchaperyRelaxationOnlyCurveFitterStep.#ctor(Microsoft.Extensions.Logging.ILogger{MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Steps.CurveFitter.SchaperyRelaxationOnlyCurveFitterStep},MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Viscoelasticity.NonLinear.Schapery.ISchaperyModelCalculator,MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Algorithms.ICurveFitter,MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.MathematicalFunctions.IMathematicalFunctionCurveFitter,MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.MathematicalFunctions.IMathematicalFunctionCurveFitter,MelloSilveiraTools.Mathematics.Factories.Functions.FunctionFactory)">
             <summary>
             Thread-safe. Implements <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Steps.CurveFitter.IMechanicalModelCurveFitterStep"/> for the
             Schapery model (relaxation-only curve fitting). Implements <c>IPipelineStep</c> for telemetry.

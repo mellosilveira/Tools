@@ -11,6 +11,6 @@ public record CurveFitInput
     public required double[] DependentVariable { get; init; }
     public required Func<double[], double[], double> Calculate { get; init; }
     public Func<double[], double>? EvaluateConstraintsAndPenalties { get; init; }
-    public int MaxIterations { get; init; } = 1_000_000;
-    public double Tolerance { get; init; } = MathematicConstants.Tolerance;
+    public int MaxIterations { get; init; } = CurveFittingConstants.MaxIterations;
+    public double Tolerance { get; init; } = CurveFittingConstants.Tolerance;
 }

@@ -378,7 +378,7 @@
         <member name="M:MelloSilveiraTools.Mathematics.Functions.CosineFunction.CreateIntegral">
             <inheritdoc/>
         </member>
-        <member name="T:MelloSilveiraTools.Mathematics.Functions.ExponencialFunction">
+        <member name="T:MelloSilveiraTools.Mathematics.Functions.ExponentialFunction">
             <summary>
             Represents an exponencial function.
             f(x) = a_0 * e^(a_1 * x) + ... + a_n-1 * e^(a_n * x)
@@ -387,7 +387,7 @@
             <param name="finalVariableValue"></param>
             <param name="coefficients"></param>
         </member>
-        <member name="M:MelloSilveiraTools.Mathematics.Functions.ExponencialFunction.#ctor(System.Nullable{System.Double},System.Nullable{System.Double},System.Double[])">
+        <member name="M:MelloSilveiraTools.Mathematics.Functions.ExponentialFunction.#ctor(System.Nullable{System.Double},System.Nullable{System.Double},System.Double[])">
             <summary>
             Represents an exponencial function.
             f(x) = a_0 * e^(a_1 * x) + ... + a_n-1 * e^(a_n * x)
@@ -396,13 +396,13 @@
             <param name="finalVariableValue"></param>
             <param name="coefficients"></param>
         </member>
-        <member name="M:MelloSilveiraTools.Mathematics.Functions.ExponencialFunction.Calculate(System.Double)">
+        <member name="M:MelloSilveiraTools.Mathematics.Functions.ExponentialFunction.Calculate(System.Double)">
             <inheritdoc/>
         </member>
-        <member name="M:MelloSilveiraTools.Mathematics.Functions.ExponencialFunction.CreateDerivative">
+        <member name="M:MelloSilveiraTools.Mathematics.Functions.ExponentialFunction.CreateDerivative">
             <inheritdoc/>
         </member>
-        <member name="M:MelloSilveiraTools.Mathematics.Functions.ExponencialFunction.CreateIntegral">
+        <member name="M:MelloSilveiraTools.Mathematics.Functions.ExponentialFunction.CreateIntegral">
             <inheritdoc/>
         </member>
         <member name="T:MelloSilveiraTools.Mathematics.Functions.Function">

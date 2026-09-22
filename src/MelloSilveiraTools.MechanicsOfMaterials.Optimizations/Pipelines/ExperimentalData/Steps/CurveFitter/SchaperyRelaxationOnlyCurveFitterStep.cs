@@ -219,7 +219,7 @@ public sealed class SchaperyRelaxationOnlyCurveFitterStep(
         return new MechanicalModelCurveFitOutput(finalParams, totalError, totalIterations, new AcceptedRange(initialAcceptedStrain, finalAcceptedStrain));
     }
 
-    private Function FitHelmholtzVariable(double[] strain, double[] helmholtzVariable)
+    internal Function FitHelmholtzVariable(double[] strain, double[] helmholtzVariable)
     {
         if (strain.Length == 1)
             return new ConstantFunction(strain[0], strain[0], helmholtzVariable[0]);
