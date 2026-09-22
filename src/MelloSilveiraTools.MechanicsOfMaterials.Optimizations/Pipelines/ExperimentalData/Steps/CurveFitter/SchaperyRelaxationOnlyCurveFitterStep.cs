@@ -203,8 +203,12 @@ public sealed class SchaperyRelaxationOnlyCurveFitterStep(
             h2Points[i] = strainAndHelmholtzVariables[i].H2;
         }
 
-        Function heFunction = FitHelmholtzVariable(strains, hePoints);
-        Function h2Function = FitHelmholtzVariable(strains, h2Points);
+        var heResult = FitHelmholtzVariable(strains, hePoints);
+        var h2Result = FitHelmholtzVariable(strains, h2Points);
+
+        // Incorporate error and iterations
+        totalError *= (heResult.Error * h2Result.Error);
+        totalIterations += (heResult.Iterations + h2Result.Iterations);
 
         double initialAcceptedStrain = relaxations[0].ExperimentalStrain[0];
         double finalAcceptedStrain = relaxations[^1].ExperimentalStrain[^1];
@@ -212,17 +216,17 @@ public sealed class SchaperyRelaxationOnlyCurveFitterStep(
         {
             Ge = optimizedLinearParams[0],
             TransientRelaxationFunction = new PowerLaw(initialAcceptedStrain, finalAcceptedStrain, [optimizedLinearParams[1], optimizedLinearParams[2]]),
-            He = heFunction,
+            He = heResult.Function,
             H1 = new ConstantFunction(initialAcceptedStrain, finalAcceptedStrain, 1.0),
-            H2 = h2Function
+            H2 = h2Result.Function
         };
         return new MechanicalModelCurveFitOutput(finalParams, totalError, totalIterations, new AcceptedRange(initialAcceptedStrain, finalAcceptedStrain));
     }
 
-    internal Function FitHelmholtzVariable(double[] strain, double[] helmholtzVariable)
+    internal (Function Function, double Error, int Iterations) FitHelmholtzVariable(double[] strain, double[] helmholtzVariable)
     {
         if (strain.Length == 1)
-            return new ConstantFunction(strain[0], strain[0], helmholtzVariable[0]);
+            return (new ConstantFunction(strain[0], strain[0], helmholtzVariable[0]), 0.0, 0);
 
         // For logarithmic and exponential functions, we assume 2 parameters.
         const int numberOfParameters = 2;
@@ -245,7 +249,7 @@ public sealed class SchaperyRelaxationOnlyCurveFitterStep(
             throw new InvalidOperationException("All mathematical function curve fits failed.");
 
         (FunctionType bestType, CurveFitOutput bestOutput) = results.OrderBy(o => o.Output.FinalError).First();
-        return functionFactory.Create(bestType, strain[0], strain[^1], bestOutput.OptimizedParameters);
+        return (functionFactory.Create(bestType, strain[0], strain[^1], bestOutput.OptimizedParameters), bestOutput.FinalError, bestOutput.Iterations);
     }
 
     /// <inheritdoc />

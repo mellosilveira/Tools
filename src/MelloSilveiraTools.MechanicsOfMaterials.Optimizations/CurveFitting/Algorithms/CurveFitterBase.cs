@@ -16,7 +16,7 @@ public abstract class CurveFitterBase : ICurveFitter
         }
 
         sumOfSquares += applyConstraints && input.EvaluateConstraintsAndPenalties != null ? input.EvaluateConstraintsAndPenalties(currentParameters) : 0;
-        return sumOfSquares;
+        return Math.Sqrt(sumOfSquares);
     }
 
     protected double[] CalculateNumericalGradient(CurveFitInput input, double[] currentParameters, bool applyConstraints)
