@@ -100,7 +100,7 @@
             <summary>
             Initializes a new instance of <see cref="T:MelloSilveiraTools.Mathematics.Expressions.MathExpression"/>.
             </summary>
-            <param name="mathExpressionType"></param>
+            <param name="type"></param>
             <param name="initialVariableValue"></param>
             <param name="finalVariableValue"></param>
             <param name="functions"></param>
@@ -116,7 +116,7 @@
             Represents the expression's integral.
             </summary>
         </member>
-        <member name="P:MelloSilveiraTools.Mathematics.Expressions.MathExpression.MathExpressionType">
+        <member name="P:MelloSilveiraTools.Mathematics.Expressions.MathExpression.Type">
             <inheritdoc cref="T:MelloSilveiraTools.Mathematics.Models.MathExpressionType"/>
         </member>
         <member name="P:MelloSilveiraTools.Mathematics.Expressions.MathExpression.InitialVariableValue">

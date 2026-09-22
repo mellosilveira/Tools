@@ -48,7 +48,7 @@ public sealed class SimplifiedFungCurveFitterStep(
                         {
                             ElasticStressConstant = parameters[0],
                             ElasticPowerConstant = parameters[1],
-                            ReducedRelaxationFunction = new PronySeries(null, null, 1.0, [parameters[2], -1.0 / parameters[3]]),
+                            ReducedRelaxationFunction = new PronySeries(1.0, [parameters[2], -1.0 / parameters[3]]),
                         },
                     };
                     return mechanicalModelCalculator.CalculateStress(currentInput, xValues[0], xValues[1]);
@@ -65,7 +65,7 @@ public sealed class SimplifiedFungCurveFitterStep(
             {
                 ElasticStressConstant = curveFitOutput.OptimizedParameters[0],
                 ElasticPowerConstant = curveFitOutput.OptimizedParameters[1],
-                ReducedRelaxationFunction = new PronySeries(null, null, 1.0, [curveFitOutput.OptimizedParameters[2], -1.0 / curveFitOutput.OptimizedParameters[3]]),
+                ReducedRelaxationFunction = new PronySeries(1.0, [curveFitOutput.OptimizedParameters[2], -1.0 / curveFitOutput.OptimizedParameters[3]]),
             };
 
             yield return new MechanicalModelCurveFitOutput(finalParams, curveFitOutput.FinalError, curveFitOutput.Iterations, new AcceptedRange(curveSegment.ExperimentalStrain[0], curveSegment.ExperimentalStrain[^1]));

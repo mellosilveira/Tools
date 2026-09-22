@@ -1,3 +1,6 @@
+using MelloSilveiraTools.Mathematics.Models;
+using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Algorithms;
+using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.MathematicalFunctions;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.MathExpressions;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Factories;
@@ -35,8 +38,14 @@ public static class OptimizationsDependencyInjection
                 .AddSingleton<FungRelaxationOnlyCurveFitterStep>()
                 .AddSingleton<SimplifiedFungCurveFitterStep>()
                 .AddSingleton<SimplifiedFungRelaxationOnlyCurveFitterStep>()
-                // Register MathExpression curve fitter decorator.
-                .AddSingleton<IMathExpressionCurveFitter, PronySeriesCurveFitter>()
+                // Register Curve Fitter implementations.
+                .AddSingleton<ICurveFitter, AlglibCurveFitter>()
+                // Register MathExpression curve fitter decorators.
+                .AddKeyedSingleton<IMathExpressionCurveFitter, PronySeriesCurveFitter>(MathExpressionType.PronySeries)
+                // Register MathematicalFunction curve fitter decorators.
+                .AddKeyedSingleton<IMathematicalFunctionCurveFitter, LogarithmicCurveFitter>(FunctionType.Logarithmic)
+                .AddKeyedSingleton<IMathematicalFunctionCurveFitter, ExponentialCurveFitter>(FunctionType.Exponential)
+                .AddKeyedSingleton<IMathematicalFunctionCurveFitter, PolynomialCurveFitter>(FunctionType.Polynomial)
                 // Register the step factory.
                 .AddSingleton<IMechanicalModelStepFactory, MechanicalModelStepFactory>()
                 // Register the experimental data service.

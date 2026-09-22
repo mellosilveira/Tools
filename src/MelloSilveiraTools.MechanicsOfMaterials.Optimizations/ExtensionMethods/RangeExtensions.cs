@@ -1,4 +1,4 @@
-﻿using MelloSilveiraTools.Core.ExtensionMethods;
+using MelloSilveiraTools.Core.ExtensionMethods;
 using MelloSilveiraTools.Mathematics.Expressions;
 using MelloSilveiraTools.Mathematics.Factories.Functions;
 using MelloSilveiraTools.Mathematics.Functions;
@@ -112,7 +112,7 @@ public static class RangeExtensions
             {
                 foreach (double[] iteratorCoefficients in rangePronySeries.Coefficients.GetCombinations())
                 {
-                    yield return new PronySeries(rangePronySeries.InitialVariableValue, rangePronySeries.FinalVariableValue, independentParameter, iteratorCoefficients);
+                    yield return new PronySeries(independentParameter, iteratorCoefficients, rangePronySeries.InitialVariableValue, rangePronySeries.FinalVariableValue);
                 }
             }
         }

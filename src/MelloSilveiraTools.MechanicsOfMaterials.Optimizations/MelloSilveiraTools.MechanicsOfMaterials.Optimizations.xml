@@ -79,9 +79,9 @@
             Decorator for curve fitting that uses MathExpressions.
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.MathExpressions.IMathExpressionCurveFitter.TryFit(MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Models.MathematicalCurveFitInput)">
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.MathExpressions.IMathExpressionCurveFitter.Fit(MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Models.MathematicalCurveFitInput)">
             <summary>
-            Attempts to fit the curve using the provided input, catching internal exceptions.
+            Fit the curve using the provided input.
             </summary>
         </member>
         <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.MathExpressions.PronySeriesCurveFitter">
@@ -94,7 +94,7 @@
             Specific curve fitter for <see cref="T:MelloSilveiraTools.Mathematics.Expressions.PronySeries"/>.
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.MathExpressions.PronySeriesCurveFitter.TryFit(MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Models.MathematicalCurveFitInput)">
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.MathExpressions.PronySeriesCurveFitter.Fit(MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Models.MathematicalCurveFitInput)">
             <inheritdoc />
         </member>
         <member name="F:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Models.CurveFittingConstants.Tolerance">
@@ -555,7 +555,7 @@
             Simplified Fung model (relaxation-only curve fitting). Implements <c>IPipelineStep</c> for telemetry.
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Steps.CurveFitter.SimplifiedFungRelaxationOnlyCurveFitterStep.#ctor(Microsoft.Extensions.Logging.ILogger{MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Steps.CurveFitter.SimplifiedFungRelaxationOnlyCurveFitterStep},MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Viscoelasticity.QuasiLinear.SimplifiedFung.ISimplifiedFungModelCalculator,MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Algorithms.ICurveFitter,MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.MathExpressions.IMathExpressionCurveFitter)">
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Steps.CurveFitter.SimplifiedFungRelaxationOnlyCurveFitterStep.#ctor(MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Viscoelasticity.QuasiLinear.SimplifiedFung.ISimplifiedFungModelCalculator,MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Algorithms.ICurveFitter,MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.MathExpressions.IMathExpressionCurveFitter)">
             <summary>
             Thread-safe. Implements <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Steps.CurveFitter.IMechanicalModelCurveFitterStep"/> for the
             Simplified Fung model (relaxation-only curve fitting). Implements <c>IPipelineStep</c> for telemetry.
