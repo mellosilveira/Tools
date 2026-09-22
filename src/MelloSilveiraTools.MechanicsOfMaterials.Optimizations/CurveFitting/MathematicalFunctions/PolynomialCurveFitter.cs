@@ -7,36 +7,36 @@ namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Mat
 
 public sealed class PolynomialCurveFitter(ICurveFitter innerFitter) : IMathematicalFunctionCurveFitter
 {
-    public SafeResult<CurveFitInput, CurveFitOutput> TryFit(int numberOfParameters, double[] independentVariable, double[] dependentVariable, bool zeroBased = false, double tolerance = CurveFittingConstants.Tolerance, int maxIterations = CurveFittingConstants.MaxIterations)
+    public SafeResult<CurveFitInput, CurveFitOutput> TryFit(MathematicalCurveFitInput input)
     {
-        CurveFitInput? input = null;
+        CurveFitInput? fitInput = null;
         try
         {
-            if (numberOfParameters > independentVariable.Length)
+            if (input.NumberOfParameters > input.IndependentVariable.Length)
                 throw new ArgumentException("The number of constants to calculate cannot be greater than the number of points.");
 
-            double minX = independentVariable[0];
-            double maxX = independentVariable[^1];
+            double minX = input.IndependentVariable[0];
+            double maxX = input.IndependentVariable[^1];
 
-            input = new()
+            fitInput = new()
             {
-                IndependentVariables = [independentVariable],
-                DependentVariable = dependentVariable,
-                Calculate = zeroBased
+                IndependentVariables = [input.IndependentVariable],
+                DependentVariable = input.DependentVariable,
+                Calculate = input.ZeroBased
                     ? (p, xValues) => new PolynomialFunction(minX, maxX, [0, .. p]).Calculate(xValues[0])
                     : (p, xValues) => new PolynomialFunction(minX, maxX, p).Calculate(xValues[0]),
-                LowerBounds = [.. Enumerable.Repeat(double.MinValue, numberOfParameters)],
-                UpperBounds = [.. Enumerable.Repeat(double.MaxValue, numberOfParameters)],
-                InitialParameters = [.. Enumerable.Repeat(1.0, numberOfParameters)],
-                MaxIterations = maxIterations,
-                Tolerance = tolerance
+                LowerBounds = input.LowerBounds ?? [.. Enumerable.Repeat(double.MinValue, input.NumberOfParameters)],
+                UpperBounds = input.UpperBounds ?? [.. Enumerable.Repeat(double.MaxValue, input.NumberOfParameters)],
+                InitialParameters = input.InitialParameters ?? [.. Enumerable.Repeat(1.0, input.NumberOfParameters)],
+                MaxIterations = input.MaxIterations,
+                Tolerance = input.Tolerance,
+                EvaluateConstraintsAndPenalties = input.EvaluateConstraintsAndPenalties
             };
-            return innerFitter.Fit(input);
+            return innerFitter.Fit(fitInput);
         }
         catch (Exception ex)
         {
-            return (nameof(TryFit), input!, ex);
+            return (nameof(PolynomialCurveFitter), fitInput, ex);
         }
     }
 }
-

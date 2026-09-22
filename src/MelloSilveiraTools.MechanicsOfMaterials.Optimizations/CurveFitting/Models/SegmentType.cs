@@ -3,11 +3,11 @@
 /// <summary>
 /// Represents the phases of the viscoelastic experimental test.
 /// </summary>
-public enum SegmentType
+public enum SegmentType : int
 {
-    Unknown,
-    Ramp,
-    Relaxation,
-    Descent,
-    Recovery
+    Unknown = 0,
+    Ramp = 1,
+    Relaxation = 2,
+    Descent = 3,
+    Recovery = 4
 }

@@ -5,5 +5,5 @@ namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Mat
 
 public interface IMathematicalFunctionCurveFitter
 {
-    SafeResult<CurveFitInput, CurveFitOutput> TryFit(int numberOfParameters, double[] independentVariable, double[] dependentVariable, bool zeroBased = false, double tolerance = CurveFittingConstants.Tolerance, int maxIterations = CurveFittingConstants.MaxIterations);
+    SafeResult<CurveFitInput, CurveFitOutput> TryFit(MathematicalCurveFitInput input);
 }

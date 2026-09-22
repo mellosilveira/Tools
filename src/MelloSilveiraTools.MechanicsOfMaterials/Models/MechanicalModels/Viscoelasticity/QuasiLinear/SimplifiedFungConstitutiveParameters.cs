@@ -10,4 +10,14 @@ namespace MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoe
 /// but replaces the complex continuous relaxation spectrum with a discrete <see cref="PronySeries"/>. 
 /// This substitution significantly improves the computational efficiency for numerical integration and makes parameter fitting easier for experimental data.
 /// </remarks>
-public record SimplifiedFungConstitutiveParameters : QuasiLinearConstitutiveParameters<PronySeries>;
+public record SimplifiedFungConstitutiveParameters : QuasiLinearConstitutiveParameters<PronySeries>
+{
+    public SimplifiedFungConstitutiveParameters() { }
+
+    public SimplifiedFungConstitutiveParameters(double elasticStressConstant, double elasticPowerConstant, PronySeries reducedRelaxationFunction)
+    {
+        ElasticStressConstant = elasticStressConstant;
+        ElasticPowerConstant = elasticPowerConstant;
+        ReducedRelaxationFunction = reducedRelaxationFunction;
+    }
+}

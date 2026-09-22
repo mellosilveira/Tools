@@ -102,8 +102,14 @@ public abstract class QuasiLinearModelCalculator<TConstitutiveParameters, TReduc
         if (time <= MathematicConstants.Tolerance)
             return 0;
 
-        return Integration.Calculate(
-            (integrationTime) =>
+        return Integration.Calculate(input.RampTimeConsideration == RampTimeConsideration.ConsiderWithoutViscoelasticEffect
+            ? (integrationTime) =>
+            {
+                double reducedRelaxationFunction = integrationTime <= input.RampTime ? 1 : CalculateReducedRelaxationFunction(input, time - integrationTime);
+                double elasticResponseDerivative = CalculateElasticResponseDerivative(input, integrationTime);
+                return reducedRelaxationFunction * elasticResponseDerivative;
+            }
+            : (integrationTime) =>
             {
                 double reducedRelaxationFunction = CalculateReducedRelaxationFunction(input, time - integrationTime);
                 double elasticResponseDerivative = CalculateElasticResponseDerivative(input, integrationTime);
@@ -271,7 +277,7 @@ public abstract class QuasiLinearModelCalculator<TConstitutiveParameters, TReduc
     private double CalculateStressWhenDisregardRampTime(MechanicalModelInput<TConstitutiveParameters> input, double time, double? strain = null)
     {
         double reducedRelaxationFunction = CalculateReducedRelaxationFunction(input, time);
-        double elasticResponse = strain is null ? input.Stress!.InitialValue : CalculateElasticResponse(input, time, strain);
+        double elasticResponse = input.Stress?.InitialValue ?? CalculateElasticResponse(input, time, strain);
         return elasticResponse * reducedRelaxationFunction;
     }
 

@@ -1,3 +1,4 @@
+using MelloSilveiraTools.Core.Pipelines.Models;
 using MelloSilveiraTools.Mathematics.Factories.Functions;
 using MelloSilveiraTools.Mathematics.Functions;
 using MelloSilveiraTools.Mathematics.Models;
@@ -230,16 +231,22 @@ public sealed class SchaperyRelaxationOnlyCurveFitterStep(
 
         // For logarithmic and exponential functions, we assume 2 parameters.
         const int numberOfParameters = 2;
+        MathematicalCurveFitInput curveFitterInput = new()
+        {
+            NumberOfParameters = numberOfParameters,
+            IndependentVariable = strain,
+            DependentVariable = helmholtzVariable
+        };
 
         List<(FunctionType Type, CurveFitOutput Output)> results = [];
 
-        var logarithmicResult = logarithmicCurveFitter.TryFit(numberOfParameters, strain, helmholtzVariable, zeroBased: true);
+        SafeResult<CurveFitInput, CurveFitOutput> logarithmicResult = logarithmicCurveFitter.TryFit(curveFitterInput with { ZeroBased = true });
         if (logarithmicResult.Success)
             results.Add((FunctionType.Logarithmic, logarithmicResult.Output!));
         else
             logger.LogWarning("It was not possible to fit the Helmholtz variable to a logarithmic function. Result: {@Result}", logarithmicResult);
 
-        var exponentialResult = exponentialCurveFitter.TryFit(numberOfParameters, strain, helmholtzVariable);
+        SafeResult<CurveFitInput, CurveFitOutput> exponentialResult = exponentialCurveFitter.TryFit(curveFitterInput);
         if (exponentialResult.Success)
             results.Add((FunctionType.Exponential, exponentialResult.Output!));
         else

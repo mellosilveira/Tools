@@ -24,6 +24,7 @@ public record MechanicalModelInput
         MechanicalBehaviorType = original.MechanicalBehaviorType;
         ViscoelasticEffect = original.ViscoelasticEffect;
         RampTimeConsideration = original.RampTimeConsideration;
+        RampTime = original.RampTime;
         Strain = original.Strain;
         Displacement = original.Displacement;
         Stress = original.Stress;
@@ -69,6 +70,8 @@ public record MechanicalModelInput
     /// conditions are evaluated as an instantaneous Heaviside step or a finite-time linear ramp.
     /// </summary>
     public RampTimeConsideration RampTimeConsideration { get; init; }
+
+    public double? RampTime { get; init; }
 
     /// <summary>
     /// The intensive kinematic boundary condition history applied to the continuum domain.

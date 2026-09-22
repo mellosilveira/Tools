@@ -1,3 +1,4 @@
+using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.MathExpressions;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Factories;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Steps.CurveFitter;
@@ -34,6 +35,8 @@ public static class OptimizationsDependencyInjection
                 .AddSingleton<FungRelaxationOnlyCurveFitterStep>()
                 .AddSingleton<SimplifiedFungCurveFitterStep>()
                 .AddSingleton<SimplifiedFungRelaxationOnlyCurveFitterStep>()
+                // Register MathExpression curve fitter decorator.
+                .AddSingleton<IMathExpressionCurveFitter, PronySeriesCurveFitter>()
                 // Register the step factory.
                 .AddSingleton<IMechanicalModelStepFactory, MechanicalModelStepFactory>()
                 // Register the experimental data service.

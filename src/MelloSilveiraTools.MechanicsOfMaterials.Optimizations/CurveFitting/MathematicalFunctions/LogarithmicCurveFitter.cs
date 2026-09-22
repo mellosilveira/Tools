@@ -5,38 +5,39 @@ using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Models;
 
 namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.MathematicalFunctions;
 
-public sealed class LogarithmicCurveFitter(ICurveFitter innerFitter) : IMathematicalFunctionCurveFitter
+public sealed class LogarithmicCurveFitter(ICurveFitter curveFitter) : IMathematicalFunctionCurveFitter
 {
-    public SafeResult<CurveFitInput, CurveFitOutput> TryFit(int numberOfParameters, double[] independentVariable, double[] dependentVariable, bool zeroBased = false, double tolerance = CurveFittingConstants.Tolerance, int maxIterations = CurveFittingConstants.MaxIterations)
+    public SafeResult<CurveFitInput, CurveFitOutput> TryFit(MathematicalCurveFitInput input)
     {
-        CurveFitInput? input = null;
+        CurveFitInput? fitInput = null;
         try
         {
-            int parameterCount = zeroBased ? 2 * numberOfParameters : 2 * numberOfParameters - 1;
-            if (parameterCount > independentVariable.Length)
+            int parameterCount = input.ZeroBased ? 2 * input.NumberOfParameters : 2 * input.NumberOfParameters - 1;
+            if (parameterCount > input.IndependentVariable.Length)
                 throw new ArgumentException("The number of constants to calculate cannot be greater than the number of points.");
 
-            double minX = independentVariable[0];
-            double maxX = independentVariable[^1];
+            double minX = input.IndependentVariable[0];
+            double maxX = input.IndependentVariable[^1];
 
-            input = new()
+            fitInput = new()
             {
-                IndependentVariables = [independentVariable],
-                DependentVariable = dependentVariable,
-                Calculate = zeroBased
+                IndependentVariables = [input.IndependentVariable],
+                DependentVariable = input.DependentVariable,
+                Calculate = input.ZeroBased
                     ? (p, xValues) => new LogarithmicFunction(minX, maxX, [0, .. p]).Calculate(xValues[0])
                     : (p, xValues) => new LogarithmicFunction(minX, maxX, p).Calculate(xValues[0]),
-                LowerBounds = [.. Enumerable.Repeat(double.MinValue, parameterCount)],
-                UpperBounds = [.. Enumerable.Repeat(double.MaxValue, parameterCount)],
-                InitialParameters = [.. Enumerable.Repeat(1.0, parameterCount)],
-                MaxIterations = maxIterations,
-                Tolerance = tolerance
+                LowerBounds = input.LowerBounds ?? [.. Enumerable.Repeat(double.MinValue, parameterCount)],
+                UpperBounds = input.UpperBounds ?? [.. Enumerable.Repeat(double.MaxValue, parameterCount)],
+                InitialParameters = input.InitialParameters ?? [.. Enumerable.Repeat(1.0, parameterCount)],
+                MaxIterations = input.MaxIterations,
+                Tolerance = input.Tolerance,
+                EvaluateConstraintsAndPenalties = input.EvaluateConstraintsAndPenalties
             };
-            return innerFitter.Fit(input);
+            return curveFitter.Fit(fitInput);
         }
         catch (Exception ex)
         {
-            return (nameof(LogarithmicCurveFitter), input, ex);
+            return (nameof(LogarithmicCurveFitter), fitInput, ex);
         }
     }
 }

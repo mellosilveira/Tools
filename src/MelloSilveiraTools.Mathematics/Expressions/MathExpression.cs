@@ -17,13 +17,13 @@ public class MathExpression : List<Function>
     /// <param name="finalVariableValue"></param>
     /// <param name="functions"></param>
     /// <exception cref="ArgumentNullException">When <paramref name="functions"/> is null or empty.</exception>
-    public MathExpression(double? initialVariableValue, double? finalVariableValue, List<Function> functions) : base(functions)
+    public MathExpression(List<Function> functions, double? initialVariableValue = null, double? finalVariableValue = null) : base(functions)
     {
         InitialVariableValue = initialVariableValue ?? double.NegativeInfinity;
         FinalVariableValue = finalVariableValue ?? double.PositiveInfinity;
 
         // Build an internal sorted copy so the caller's list is never mutated.
-        var sorted = new List<Function>(functions);
+        List<Function> sorted = [.. functions];
         sorted.Sort((f1, f2) => f1.InitialVariableValue.CompareTo(f2.InitialVariableValue));
         Functions = sorted;
     }
