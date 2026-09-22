@@ -72,7 +72,7 @@ public sealed class SchaperyCurveFitterStep(
                 H2 = new ConstantFunction(curveSegment.ExperimentalStrain[0], curveSegment.ExperimentalStrain[^1], curveFitOutput.OptimizedParameters[5]),
             };
 
-            yield return new MechanicalModelCurveFitOutput(finalParams, curveFitOutput.FinalError, curveFitOutput.Iterations, new AcceptedRange(curveSegment.ExperimentalStrain[0], curveSegment.ExperimentalStrain[^1] ));
+            yield return new MechanicalModelCurveFitOutput(finalParams, curveFitOutput.FinalError, curveFitOutput.Iterations, new AcceptedRange(curveSegment.ExperimentalStrain[0], curveSegment.ExperimentalStrain[^1]));
         }
     }
 

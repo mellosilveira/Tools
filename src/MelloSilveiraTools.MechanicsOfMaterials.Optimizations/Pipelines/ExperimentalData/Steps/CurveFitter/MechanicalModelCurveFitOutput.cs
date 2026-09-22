@@ -6,7 +6,7 @@ namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.Experi
 /// Output for mechanical model curve fitting steps.
 /// </summary>
 public record MechanicalModelCurveFitOutput(
-    ConstitutiveParameters ConstitutiveParameters, 
-    double FinalError, 
-    int Iterations, 
+    ConstitutiveParameters ConstitutiveParameters,
+    double FinalError,
+    int Iterations,
     AcceptedRange AcceptedStrainRange);

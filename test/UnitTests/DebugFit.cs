@@ -1,4 +1,3 @@
-using System;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Algorithms;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.MathematicalFunctions;
 
@@ -10,6 +9,7 @@ double[] heValues = new double[] { 1, 0.8167, 0.7672, 0.7413 };
 
 var result = expFitter.TryFit(2, strains, heValues);
 Console.WriteLine(result.Success);
-if (!result.Success) {
+if (!result.Success)
+{
     Console.WriteLine(result.FailedPayload?.Exception?.ToString());
 }

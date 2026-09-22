@@ -56,7 +56,7 @@ public sealed class CurveSegmentBuilderStep() : ISyncPipelineStep<CurveSegmentBu
     }
 
     /// <inheritdoc/>
-    public void Dispose() 
+    public void Dispose()
     {
         GC.SuppressFinalize(this);
     }

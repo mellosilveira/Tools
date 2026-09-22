@@ -49,7 +49,7 @@ public sealed class SimplifiedFungRelaxationOnlyCurveFitterStep(
                         MechanicalModelInput<SimplifiedFungConstitutiveParameters> currentInput = new()
                         {
                             MechanicalModelName = nameof(MechanicalModel.SimplifiedFung),
-                            AcceptedStrainRange = new AcceptedRange(matchingRamp.ExperimentalStrain[0], matchingRamp.ExperimentalStrain[^1] ),
+                            AcceptedStrainRange = new AcceptedRange(matchingRamp.ExperimentalStrain[0], matchingRamp.ExperimentalStrain[^1]),
                             MechanicalBehaviorType = MechanicalBehaviorType.StressStrain,
                             RampTimeConsideration = RampTimeConsideration.Disregard,
                             ViscoelasticEffect = ViscoelasticEffect.Relaxation,
@@ -85,7 +85,7 @@ public sealed class SimplifiedFungRelaxationOnlyCurveFitterStep(
                     MechanicalModelInput<SimplifiedFungConstitutiveParameters> currentInput = new()
                     {
                         MechanicalModelName = nameof(MechanicalModel.SimplifiedFung),
-                        AcceptedStrainRange = new AcceptedRange(relaxation.ExperimentalStrain[0], relaxation.ExperimentalStrain[^1] ),
+                        AcceptedStrainRange = new AcceptedRange(relaxation.ExperimentalStrain[0], relaxation.ExperimentalStrain[^1]),
                         MechanicalBehaviorType = MechanicalBehaviorType.StressStrain,
                         RampTimeConsideration = RampTimeConsideration.Disregard,
                         ViscoelasticEffect = ViscoelasticEffect.Relaxation,
@@ -116,7 +116,7 @@ public sealed class SimplifiedFungRelaxationOnlyCurveFitterStep(
                 ReducedRelaxationFunction = new PronySeries(null, null, 1.0, [relOutput.OptimizedParameters[0], -1.0 / relOutput.OptimizedParameters[1]]),
             };
 
-            yield return new MechanicalModelCurveFitOutput(finalParams, relOutput.FinalError, relOutput.Iterations, new AcceptedRange(relaxation.ExperimentalStrain[0], relaxation.ExperimentalStrain[^1] ));
+            yield return new MechanicalModelCurveFitOutput(finalParams, relOutput.FinalError, relOutput.Iterations, new AcceptedRange(relaxation.ExperimentalStrain[0], relaxation.ExperimentalStrain[^1]));
         }
     }
 

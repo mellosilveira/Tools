@@ -39,7 +39,7 @@ public class AlglibCurveFitter : CurveFitterBase
         // 5. Coleta os resultados finais
         alglib.minbleicresults(state, out x, out alglib.minbleicreport rep);
 
-        return rep.terminationtype > 0 
+        return rep.terminationtype > 0
             ? new CurveFitOutput(x, state.f, rep.iterationscount)
             : throw new InvalidOperationException($"Failed to fit curve using ALGLIB. Termination type: {rep.terminationtype}. Iteractions: {rep.iterationscount}");
     }

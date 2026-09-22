@@ -23,8 +23,8 @@ public sealed class LogarithmicCurveFitter(ICurveFitter innerFitter) : IMathemat
             {
                 IndependentVariables = [independentVariable],
                 DependentVariable = dependentVariable,
-                Calculate = zeroBased 
-                    ? (p, xValues) => new LogarithmicFunction(minX, maxX, [0, ..p]).Calculate(xValues[0])
+                Calculate = zeroBased
+                    ? (p, xValues) => new LogarithmicFunction(minX, maxX, [0, .. p]).Calculate(xValues[0])
                     : (p, xValues) => new LogarithmicFunction(minX, maxX, p).Calculate(xValues[0]),
                 LowerBounds = [.. Enumerable.Repeat(double.MinValue, parameterCount)],
                 UpperBounds = [.. Enumerable.Repeat(double.MaxValue, parameterCount)],

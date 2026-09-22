@@ -67,7 +67,7 @@ public sealed class FungCurveFitterStep(
                 ReducedRelaxationFunction = new ReducedRelaxationFunction(curveFitOutput.OptimizedParameters[2], curveFitOutput.OptimizedParameters[3], curveFitOutput.OptimizedParameters[4]),
             };
 
-            yield return new MechanicalModelCurveFitOutput(finalParams, curveFitOutput.FinalError, curveFitOutput.Iterations, new AcceptedRange(curveSegment.ExperimentalStrain[0], curveSegment.ExperimentalStrain[^1] ));
+            yield return new MechanicalModelCurveFitOutput(finalParams, curveFitOutput.FinalError, curveFitOutput.Iterations, new AcceptedRange(curveSegment.ExperimentalStrain[0], curveSegment.ExperimentalStrain[^1]));
         }
     }
 

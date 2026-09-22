@@ -12,7 +12,7 @@ namespace MelloSilveiraTools.Mathematics.Functions;
 public sealed class LogarithmicFunction(
     double? initialVariableValue,
     double? finalVariableValue,
-    double[] coefficients) 
+    double[] coefficients)
     : Function(FunctionType.Logarithmic, initialVariableValue, finalVariableValue, coefficients)
 {
     /// <inheritdoc/>

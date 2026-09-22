@@ -15,7 +15,7 @@ public sealed class GenericFunction(
     double? finalVariableValue,
     Func<double, double> function,
     Func<double, double>? derivativeFunction = null,
-    Func<double, double>? integralFunction = null) 
+    Func<double, double>? integralFunction = null)
     : Function(FunctionType.Generic, initialVariableValue, finalVariableValue, [])
 {
     /// <inheritdoc/>

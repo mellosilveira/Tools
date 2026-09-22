@@ -1,4 +1,3 @@
-using MathNet.Numerics.Distributions;
 using MelloSilveiraTools.Mathematics.Factories.Functions;
 using MelloSilveiraTools.Mathematics.Functions;
 using MelloSilveiraTools.Mathematics.Models;
@@ -12,7 +11,6 @@ using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Mathema
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Models;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Serilog.Core;
 using System.Runtime.CompilerServices;
 
 namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Steps.CurveFitter;
@@ -27,12 +25,13 @@ public sealed class SchaperyRelaxationOnlyCurveFitterStep(
     ICurveFitter curveFitter,
     [FromKeyedServices(FunctionType.Logarithmic)] IMathematicalFunctionCurveFitter logarithmicCurveFitter,
     [FromKeyedServices(FunctionType.Exponential)] IMathematicalFunctionCurveFitter exponentialCurveFitter,
-    FunctionFactory functionFactory) 
+    FunctionFactory functionFactory)
     : IMechanicalModelCurveFitterStep
 {
-    private readonly static double[] HelmholtzInitialParameters = [1.0, 1.0];
-    private readonly static double[] HelmholtzLowerBounds = [0.0, 0.0];
-    private readonly static double[] HelmholtzUpperBounds = [10.0, 10.0];
+    private static readonly double[] HelmholtzInitialParameters = [1.0, 1.0];
+    private static readonly double[] HelmholtzLowerBounds = [0.0, 0.0];
+    private static readonly double[] HelmholtzUpperBounds = [10.0, 10.0];
+    private static readonly PolynomialFunction AnchorHelmholtzFunction = new(null, null, [1.0]);
 
     /// <inheritdoc />
     public string Name => nameof(SchaperyRelaxationOnlyCurveFitterStep);
@@ -49,12 +48,12 @@ public sealed class SchaperyRelaxationOnlyCurveFitterStep(
         for (int i = 0; i < relaxations.Count; i++)
         {
             cancellationToken.ThrowIfCancellationRequested();
-            
+
             CurveSegment anchorSegment = relaxations[i];
             var (anchorResult, optimizedLinearParams) = FitAnchorSegment(anchorSegment);
             yield return anchorResult;
 
-            var strainAndHelmholtzVariables = new(double Strain, double He, double H2)[(relaxations.Count - 1)];
+            var strainAndHelmholtzVariables = new (double Strain, double He, double H2)[(relaxations.Count - 1)];
 
             double totalError = anchorResult.FinalError;
             int totalIterations = anchorResult.Iterations;
@@ -106,11 +105,11 @@ public sealed class SchaperyRelaxationOnlyCurveFitterStep(
                 {
                     Ge = parameters[0],
                     TransientRelaxationFunction = new PowerLaw(null, null, [parameters[1], parameters[2]]),
-                    He = new PolynomialFunction(null, null, [1.0]),
-                    H1 = new PolynomialFunction(null, null, [1.0]),
-                    H2 = new PolynomialFunction(null, null, [1.0]),
+                    He = AnchorHelmholtzFunction,
+                    H1 = AnchorHelmholtzFunction,
+                    H2 = AnchorHelmholtzFunction,
                 };
-                MechanicalModelInput<SchaperyConstitutiveParameters> currentInput = CreateModelInput(anchorSegment, xValues[1], constitutiveParameters);
+                MechanicalModelInput<SchaperyConstitutiveParameters> currentInput = CreateModelInput(anchorSegment, constitutiveParameters);
                 return mechanicalModelCalculator.CalculateStress(currentInput, xValues[0], xValues[1]);
             },
             InitialParameters = anchorInitialParams,
@@ -135,6 +134,7 @@ public sealed class SchaperyRelaxationOnlyCurveFitterStep(
 
     private (MechanicalModelCurveFitOutput CurveFitOutput, double He, double H2, double FinalError, int Iterations) FitRemainingSegment(CurveSegment segment, double[] optimizedLinearParams)
     {
+        PowerLaw transientRelaxationFunction = new(null, null, [optimizedLinearParams[1], optimizedLinearParams[2]]);
         CurveFitInput segmentInput = new()
         {
             IndependentVariables = [segment.TimePoints, segment.ExperimentalStrain],
@@ -144,12 +144,12 @@ public sealed class SchaperyRelaxationOnlyCurveFitterStep(
                 SchaperyConstitutiveParameters constitutiveParameters = new()
                 {
                     Ge = optimizedLinearParams[0],
-                    TransientRelaxationFunction = new PowerLaw(null, null, [optimizedLinearParams[1], optimizedLinearParams[2]]),
+                    TransientRelaxationFunction = transientRelaxationFunction,
                     He = new PolynomialFunction(null, null, [parameters[0]]),
-                    H1 = new PolynomialFunction(null, null, [1.0]),
+                    H1 = AnchorHelmholtzFunction,
                     H2 = new PolynomialFunction(null, null, [parameters[1]]),
                 };
-                MechanicalModelInput<SchaperyConstitutiveParameters> currentInput = CreateModelInput(segment, xValues[1], constitutiveParameters);
+                MechanicalModelInput<SchaperyConstitutiveParameters> currentInput = CreateModelInput(segment, constitutiveParameters);
                 return mechanicalModelCalculator.CalculateStress(currentInput, xValues[0], xValues[1]);
             },
             InitialParameters = HelmholtzInitialParameters,
@@ -177,14 +177,14 @@ public sealed class SchaperyRelaxationOnlyCurveFitterStep(
         return (output, he, h2, segmentOutput.FinalError, segmentOutput.Iterations);
     }
 
-    private static MechanicalModelInput<SchaperyConstitutiveParameters> CreateModelInput(CurveSegment segment, double strain, SchaperyConstitutiveParameters constitutiveParameters) => new()
+    private static MechanicalModelInput<SchaperyConstitutiveParameters> CreateModelInput(CurveSegment segment, SchaperyConstitutiveParameters constitutiveParameters) => new()
     {
         MechanicalModelName = nameof(MechanicalModel.Schapery),
         AcceptedStrainRange = new AcceptedRange(segment.ExperimentalStrain[0], segment.ExperimentalStrain[^1]),
         MechanicalBehaviorType = MechanicalBehaviorType.StressStrain,
         RampTimeConsideration = RampTimeConsideration.Disregard,
         ViscoelasticEffect = ViscoelasticEffect.Relaxation,
-        Strain = new MechanicalParameter(strain),
+        Strain = new MechanicalParameter(segment.ExperimentalStrain[0]),
         Stress = new MechanicalParameter(segment.ExperimentalStress[0]),
         TimeStep = segment.TimePoints[1] - segment.TimePoints[0],
         ConstitutiveParameters = constitutiveParameters

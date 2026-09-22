@@ -48,10 +48,10 @@ public class SchaperyRelaxationOnlyCurveFitterStepTests
         Assert.NotNull(h2Function);
 
         Assert.Equal(expectedHeConstants.Length, heFunction.Coefficients.Length);
-        for(int i = 0; i < expectedHeConstants.Length; i++) Assert.Equal(expectedHeConstants[i], heFunction.Coefficients[i], 3);
+        for (int i = 0; i < expectedHeConstants.Length; i++) Assert.Equal(expectedHeConstants[i], heFunction.Coefficients[i], 3);
 
         Assert.Equal(expectedH2Constants.Length, h2Function.Coefficients.Length);
-        for(int i = 0; i < expectedH2Constants.Length; i++) Assert.Equal(expectedH2Constants[i], h2Function.Coefficients[i], 3);
+        for (int i = 0; i < expectedH2Constants.Length; i++) Assert.Equal(expectedH2Constants[i], h2Function.Coefficients[i], 3);
 
         Assert.Equal(expectedHeError, heResult.Error, 3);
         Assert.Equal(expectedH2Error, h2Result.Error, 3);
@@ -76,10 +76,10 @@ public class SchaperyRelaxationOnlyCurveFitterStepTests
         Assert.NotNull(h2Function);
 
         Assert.Equal(expectedHeConstants.Length, heFunction.Coefficients.Length);
-        for(int i = 0; i < expectedHeConstants.Length; i++) Assert.Equal(expectedHeConstants[i], heFunction.Coefficients[i], 3);
+        for (int i = 0; i < expectedHeConstants.Length; i++) Assert.Equal(expectedHeConstants[i], heFunction.Coefficients[i], 3);
 
         Assert.Equal(expectedH2Constants.Length, h2Function.Coefficients.Length);
-        for(int i = 0; i < expectedH2Constants.Length; i++) Assert.Equal(expectedH2Constants[i], h2Function.Coefficients[i], 3);
+        for (int i = 0; i < expectedH2Constants.Length; i++) Assert.Equal(expectedH2Constants[i], h2Function.Coefficients[i], 3);
 
         Assert.Equal(expectedHeError, heResult.Error, 3);
         Assert.Equal(expectedH2Error, h2Result.Error, 3);
