@@ -5,6 +5,7 @@ using MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelast
 using MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.QuasiLinear;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Algorithms;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Models;
+using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExtensionMethods;
 using System.Runtime.CompilerServices;
 
 namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Steps.CurveFitter;
@@ -17,60 +18,123 @@ public sealed class FungRelaxationOnlyCurveFitterStep(
     IFungModelCalculator mechanicalModelCalculator,
     ICurveFitter curveFitter) : IMechanicalModelCurveFitterStep
 {
+    private static readonly double[] RelaxationLowerBounds = [0.0, 1e-4, 1.0];
+    private static readonly double[] RelaxationUpperBounds = [1.0, 0.1, 1e5];
+    private static readonly double[] RelaxationInitialParameters = [0.1, 0.01, 10.0];
+    private static readonly double[] RampLowerBounds = [1e-6, 0.0];
+    private static readonly double[] RampUpperBounds = [1e6, 100.0];
+    private static readonly double[] RampInitialParameters = [1000.0, 1.0];
+
     /// <inheritdoc />
     public string Name => nameof(FungRelaxationOnlyCurveFitterStep);
 
     /// <inheritdoc />
     public async IAsyncEnumerable<MechanicalModelCurveFitOutput> ExecuteAsync(CurveSegment[] input, [EnumeratorCancellation] CancellationToken cancellationToken = default)
     {
-        var relaxations = input.Where(cs => cs.Type == SegmentType.Relaxation).ToList();
+        CurveSegment? currentRamp = null;
 
-        foreach (CurveSegment curveSegment in relaxations)
+        foreach (CurveSegment segment in input)
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            CurveFitInput curveFitInput = new()
+            if (segment.Type is SegmentType.Ramp)
             {
-                IndependentVariables = [curveSegment.TimePoints, curveSegment.ExperimentalStrain],
-                DependentVariable = curveSegment.ExperimentalStress,
-                Calculate = (parameters, xValues) =>
+                currentRamp = segment;
+                continue;
+            }
+
+            if (segment.Type is SegmentType.Relaxation)
+            {
+                CurveSegment relaxation = segment;
+
+                double[] relaxationTime = relaxation.TimePoints.TranslateToOrigin();
+                double[] normalizedStress = relaxation.ExperimentalStress.Normalize(relaxation.ExperimentalStress[0]);
+
+                CurveFitInput relaxationInput = new()
                 {
-                    MechanicalModelInput<FungConstitutiveParameters> currentInput = new()
+                    IndependentVariables = [relaxationTime],
+                    DependentVariable = normalizedStress,
+                    LowerBounds = RelaxationLowerBounds,
+                    UpperBounds = RelaxationUpperBounds,
+                    InitialParameters = RelaxationInitialParameters,
+                    Calculate = (parameters, xValues) =>
                     {
-                        MechanicalModelName = nameof(MechanicalModel.Fung),
-                        AcceptedStrainRange = new AcceptedRange(curveSegment.ExperimentalStrain[0], curveSegment.ExperimentalStrain[^1]),
-                        MechanicalBehaviorType = MechanicalBehaviorType.StressStrain,
-                        RampTimeConsideration = RampTimeConsideration.Disregard,
-                        ViscoelasticEffect = ViscoelasticEffect.Relaxation,
-                        Strain = new MechanicalParameter(curveSegment.ExperimentalStrain[0]),
-                        Stress = new MechanicalParameter(curveSegment.ExperimentalStress[0]),
-                        TimeStep = curveSegment.TimePoints[1] - curveSegment.TimePoints[0],
-                        ConstitutiveParameters = new FungConstitutiveParameters
+                        MechanicalModelInput<FungConstitutiveParameters> currentInput = new()
                         {
-                            ElasticStressConstant = parameters[0],
-                            ElasticPowerConstant = parameters[1],
-                            ReducedRelaxationFunction = new ReducedRelaxationFunction(parameters[2], parameters[3], parameters[4]),
-                        },
-                    };
-                    return mechanicalModelCalculator.CalculateStress(currentInput, xValues[0], xValues[1]);
-                },
-                LowerBounds = [1e-6, 0.0, 0.0, 1e-4, 1.0],
-                UpperBounds = [1e5, 100.0, 1.0, 0.1, 1e5],
-                EvaluateConstraintsAndPenalties = null,
-                InitialParameters = [1000.0, 1.0, 0.1, 0.01, 10.0],
-            };
+                            MechanicalModelName = nameof(MechanicalModel.Fung),
+                            AcceptedStrainRange = new AcceptedRange(relaxation.ExperimentalStrain[0], relaxation.ExperimentalStrain[^1]),
+                            MechanicalBehaviorType = MechanicalBehaviorType.StressStrain,
+                            RampTimeConsideration = RampTimeConsideration.Disregard,
+                            ViscoelasticEffect = ViscoelasticEffect.Relaxation,
+                            Strain = new MechanicalParameter(relaxation.ExperimentalStrain[0]),
+                            Stress = new MechanicalParameter(relaxation.ExperimentalStress[0]),
+                            TimeStep = relaxation.TimePoints[1] - relaxation.TimePoints[0],
+                            ConstitutiveParameters = new FungConstitutiveParameters(0.0, 0.0, new ReducedRelaxationFunction(parameters[0], parameters[1], parameters[2]))
+                        };
 
-            CurveFitOutput curveFitOutput = curveFitter.Fit(curveFitInput);
+                        return mechanicalModelCalculator.CalculateReducedRelaxationFunction(currentInput, xValues[0]);
+                    },
+                    EvaluateConstraintsAndPenalties = null
+                };
+                CurveFitOutput relaxationOutput = curveFitter.Fit(relaxationInput);
 
-            FungConstitutiveParameters finalParams = new FungConstitutiveParameters
-            {
-                ElasticStressConstant = curveFitOutput.OptimizedParameters[0],
-                ElasticPowerConstant = curveFitOutput.OptimizedParameters[1],
-                ReducedRelaxationFunction = new ReducedRelaxationFunction(curveFitOutput.OptimizedParameters[2], curveFitOutput.OptimizedParameters[3], curveFitOutput.OptimizedParameters[4]),
-            };
+                ReducedRelaxationFunction reducedRelaxationFunction = new(relaxationOutput.OptimizedParameters[0], relaxationOutput.OptimizedParameters[1], relaxationOutput.OptimizedParameters[2]);
 
-            yield return new MechanicalModelCurveFitOutput(finalParams, curveFitOutput.FinalError, curveFitOutput.Iterations, new AcceptedRange(curveSegment.ExperimentalStrain[0], curveSegment.ExperimentalStrain[^1]));
+                if (currentRamp != null)
+                {
+                    yield return FitRamp(currentRamp, relaxation, reducedRelaxationFunction, RampTimeConsideration.ConsiderWithoutViscoelasticEffect, relaxationOutput.FinalError, relaxationOutput.Iterations);
+                    yield return FitRamp(currentRamp, relaxation, reducedRelaxationFunction, RampTimeConsideration.ConsiderWithViscoelasticEffect, relaxationOutput.FinalError, relaxationOutput.Iterations);
+                }
+                else
+                {
+                    FungConstitutiveParameters constitutiveParameters = new(0.0, 0.0, reducedRelaxationFunction);
+                    yield return new MechanicalModelCurveFitOutput(constitutiveParameters, relaxationOutput.FinalError, relaxationOutput.Iterations, new AcceptedRange(relaxation.ExperimentalStrain[0], relaxation.ExperimentalStrain[^1]));
+                }
+            }
+
+            currentRamp = null;
         }
+    }
+
+    private MechanicalModelCurveFitOutput FitRamp(CurveSegment ramp, CurveSegment relaxation, ReducedRelaxationFunction reducedRelaxationFunction, RampTimeConsideration rampTimeConsideration, double relaxationError, int relaxationIterations)
+    {
+        double timeStep = ramp.TimePoints[1] - ramp.TimePoints[0];
+        double[] rampTimePoints = ramp.TimePoints.TranslateToOrigin();
+
+        CurveFitInput rampInput = new()
+        {
+            IndependentVariables = [rampTimePoints, ramp.ExperimentalStrain],
+            DependentVariable = ramp.ExperimentalStress,
+            Calculate = (parameters, xValues) =>
+            {
+                MechanicalModelInput<FungConstitutiveParameters> currentInput = new()
+                {
+                    MechanicalModelName = nameof(MechanicalModel.Fung),
+                    AcceptedStrainRange = new AcceptedRange(ramp.ExperimentalStrain[0], ramp.ExperimentalStrain[^1]),
+                    MechanicalBehaviorType = MechanicalBehaviorType.StressStrain,
+                    RampTimeConsideration = rampTimeConsideration,
+                    RampTime = relaxation.TimePoints[0],
+                    ViscoelasticEffect = ViscoelasticEffect.Relaxation,
+                    Strain = new MechanicalParameter(xValues[1]),
+                    Stress = new MechanicalParameter(ramp.ExperimentalStress[0]),
+                    TimeStep = timeStep,
+                    ConstitutiveParameters = new FungConstitutiveParameters(parameters[0], parameters[1], reducedRelaxationFunction)
+                };
+                return mechanicalModelCalculator.CalculateStress(currentInput, xValues[0], xValues[1]);
+            },
+            LowerBounds = RampLowerBounds,
+            UpperBounds = RampUpperBounds,
+            InitialParameters = RampInitialParameters,
+            EvaluateConstraintsAndPenalties = null
+        };
+
+        CurveFitOutput rampOutput = curveFitter.Fit(rampInput);
+
+        double totalError = relaxationError * rampOutput.FinalError;
+        int totalIterations = relaxationIterations + rampOutput.Iterations;
+
+        FungConstitutiveParameters constitutiveParameters = new(rampOutput.OptimizedParameters[0], rampOutput.OptimizedParameters[1], reducedRelaxationFunction);
+        return new MechanicalModelCurveFitOutput(constitutiveParameters, totalError, totalIterations, new AcceptedRange(ramp.ExperimentalStrain[0], relaxation.ExperimentalStrain[^1]));
     }
 
     /// <inheritdoc />
@@ -80,4 +144,3 @@ public sealed class FungRelaxationOnlyCurveFitterStep(
         return ValueTask.CompletedTask;
     }
 }
-

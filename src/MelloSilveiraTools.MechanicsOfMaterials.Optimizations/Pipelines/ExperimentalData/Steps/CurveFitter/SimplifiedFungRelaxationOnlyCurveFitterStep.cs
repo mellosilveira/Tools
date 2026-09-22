@@ -27,6 +27,9 @@ public sealed class SimplifiedFungRelaxationOnlyCurveFitterStep(
     private static readonly double[] RelaxationLowerBounds = [0.0, 0.0, -10.0, 0.0, -100.0, 0.0, -1000.0];
     private static readonly double[] RelaxationUpperBounds = [1.0, 1.0, -0.1, 1.0, -10.0, 1.0, -100.0];
     private static readonly double[] RelaxationInitialParameters = [0.4, 0.2, -1.0, 0.2, -10.0, 0.2, -100.0];
+    private static readonly double[] RampLowerBounds = [1e-6, 0.0];
+    private static readonly double[] RampUpperBounds = [1e6, 100.0];
+    private static readonly double[] RampInitialParameters = [1000.0, 1.0];
 
 
     /// <inheritdoc />
@@ -117,9 +120,9 @@ public sealed class SimplifiedFungRelaxationOnlyCurveFitterStep(
                 };
                 return mechanicalModelCalculator.CalculateStress(currentInput, xValues[0], xValues[1]);
             },
-            LowerBounds = [1e-6, 0.0],
-            UpperBounds = [1e6, 100.0],
-            InitialParameters = [1000.0, 1.0],
+            LowerBounds = RampLowerBounds,
+            UpperBounds = RampUpperBounds,
+            InitialParameters = RampInitialParameters,
             EvaluateConstraintsAndPenalties = null
         };
         var rampOutput = curveFitter.Fit(rampInput);
