@@ -24,6 +24,11 @@ public sealed class SimplifiedFungRelaxationOnlyCurveFitterStep(
     [FromKeyedServices(MathExpressionType.PronySeries)] IMathExpressionCurveFitter pronySeriesCurveFitter) 
     : IMechanicalModelCurveFitterStep
 {
+    private static readonly double[] RelaxationLowerBounds = [0.0, 0.0, -10.0, 0.0, -100.0, 0.0, -1000.0];
+    private static readonly double[] RelaxationUpperBounds = [1.0, 1.0, -0.1, 1.0, -10.0, 1.0, -100.0];
+    private static readonly double[] RelaxationInitialParameters = [0.4, 0.2, -1.0, 0.2, -10.0, 0.2, -100.0];
+
+
     /// <inheritdoc />
     public string Name => nameof(SimplifiedFungRelaxationOnlyCurveFitterStep);
 
@@ -55,9 +60,9 @@ public sealed class SimplifiedFungRelaxationOnlyCurveFitterStep(
                     NumberOfParameters = 7,
                     IndependentVariable = relaxationTime,
                     DependentVariable = normalizedStress,
-                    LowerBounds = [0.0, 0.0, -10.0, 0.0, -100.0, 0.0, -1000.0],
-                    UpperBounds = [1.0, 1.0, -0.1, 1.0, -10.0, 1.0, -100.0],
-                    InitialParameters = [0.4, 0.2, -1.0, 0.2, -10.0, 0.2, -100.0]
+                    LowerBounds = RelaxationLowerBounds,
+                    UpperBounds = RelaxationUpperBounds,
+                    InitialParameters = RelaxationInitialParameters
                 };
                 CurveFitOutput relaxationOutput = pronySeriesCurveFitter.Fit(relaxationInput);
                 
