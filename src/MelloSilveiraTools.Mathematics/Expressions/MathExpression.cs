@@ -1,4 +1,5 @@
-﻿using MelloSilveiraTools.Mathematics.Functions;
+using MelloSilveiraTools.Mathematics.Functions;
+using MelloSilveiraTools.Mathematics.Models;
 
 namespace MelloSilveiraTools.Mathematics.Expressions;
 
@@ -13,12 +14,14 @@ public class MathExpression : List<Function>
     /// <summary>
     /// Initializes a new instance of <see cref="MathExpression"/>.
     /// </summary>
+    /// <param name="type"></param>
     /// <param name="initialVariableValue"></param>
     /// <param name="finalVariableValue"></param>
     /// <param name="functions"></param>
     /// <exception cref="ArgumentNullException">When <paramref name="functions"/> is null or empty.</exception>
-    public MathExpression(List<Function> functions, double? initialVariableValue = null, double? finalVariableValue = null) : base(functions)
+    public MathExpression(MathExpressionType type, List<Function> functions, double? initialVariableValue = null, double? finalVariableValue = null) : base(functions)
     {
+        Type = type;
         InitialVariableValue = initialVariableValue ?? double.NegativeInfinity;
         FinalVariableValue = finalVariableValue ?? double.PositiveInfinity;
 
@@ -37,6 +40,9 @@ public class MathExpression : List<Function>
     /// Represents the expression's integral.
     /// </summary>
     public MathExpression Integral => _integral ??= CreateIntegral();
+
+    /// <inheritdoc cref="Models.MathExpressionType"/>
+    public MathExpressionType Type { get; }
 
     /// <summary>
     /// Initial value for variable.
@@ -81,7 +87,7 @@ public class MathExpression : List<Function>
             derivativeFunctions.Add(function.Derivative);
         }
 
-        return new MathExpression(InitialVariableValue, FinalVariableValue, derivativeFunctions);
+        return new MathExpression(Type, derivativeFunctions, InitialVariableValue, FinalVariableValue);
     }
 
     /// <summary>
@@ -95,6 +101,6 @@ public class MathExpression : List<Function>
             integralFunctions.Add(function.Integral);
         }
 
-        return new MathExpression(InitialVariableValue, FinalVariableValue, integralFunctions);
+        return new MathExpression(Type, integralFunctions, InitialVariableValue, FinalVariableValue);
     }
 }

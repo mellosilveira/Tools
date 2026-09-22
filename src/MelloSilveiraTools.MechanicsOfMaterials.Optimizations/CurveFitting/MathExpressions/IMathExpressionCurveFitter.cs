@@ -1,4 +1,3 @@
-using MelloSilveiraTools.Core.Pipelines.Models;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Models;
 
 namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.MathExpressions;
@@ -9,7 +8,7 @@ namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Mat
 public interface IMathExpressionCurveFitter
 {
     /// <summary>
-    /// Attempts to fit the curve using the provided input, catching internal exceptions.
+    /// Fit the curve using the provided input.
     /// </summary>
-    SafeResult<CurveFitInput, CurveFitOutput> TryFit(MathematicalCurveFitInput input);
+    CurveFitOutput Fit(MathematicalCurveFitInput input);
 }

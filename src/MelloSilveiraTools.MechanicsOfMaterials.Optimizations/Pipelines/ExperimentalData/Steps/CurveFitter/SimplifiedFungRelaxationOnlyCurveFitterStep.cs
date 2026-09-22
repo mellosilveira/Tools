@@ -1,5 +1,5 @@
-using MelloSilveiraTools.Core.Pipelines.Models;
 using MelloSilveiraTools.Mathematics.Expressions;
+using MelloSilveiraTools.Mathematics.Models;
 using MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Viscoelasticity.QuasiLinear.SimplifiedFung;
 using MelloSilveiraTools.MechanicsOfMaterials.Models;
 using MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels;
@@ -9,7 +9,7 @@ using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Algorit
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.MathExpressions;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Models;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExtensionMethods;
-using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.DependencyInjection;
 using System.Runtime.CompilerServices;
 
 namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Steps.CurveFitter;
@@ -19,10 +19,10 @@ namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.Experi
 /// Simplified Fung model (relaxation-only curve fitting). Implements <c>IPipelineStep</c> for telemetry.
 /// </summary>
 public sealed class SimplifiedFungRelaxationOnlyCurveFitterStep(
-    ILogger<SimplifiedFungRelaxationOnlyCurveFitterStep> logger,
     ISimplifiedFungModelCalculator mechanicalModelCalculator,
     ICurveFitter curveFitter,
-    IMathExpressionCurveFitter mathExpressionCurveFitter) : IMechanicalModelCurveFitterStep
+    [FromKeyedServices(MathExpressionType.PronySeries)] IMathExpressionCurveFitter pronySeriesCurveFitter) 
+    : IMechanicalModelCurveFitterStep
 {
     /// <inheritdoc />
     public string Name => nameof(SimplifiedFungRelaxationOnlyCurveFitterStep);
@@ -59,15 +59,8 @@ public sealed class SimplifiedFungRelaxationOnlyCurveFitterStep(
                     UpperBounds = [1.0, 1.0, -0.1, 1.0, -10.0, 1.0, -100.0],
                     InitialParameters = [0.4, 0.2, -1.0, 0.2, -10.0, 0.2, -100.0]
                 };
-                SafeResult<CurveFitInput, CurveFitOutput> relaxationResult = mathExpressionCurveFitter.TryFit(relaxationInput);
-                if (!relaxationResult.Success)
-                {
-                    logger.LogWarning(relaxationResult.FailedPayload?.Exception, "Failed to fit PronySeries for relaxation segment. Result: {@Result}", relaxationResult);
-                    currentRamp = null;
-                    continue;
-                }
-
-                CurveFitOutput relaxationOutput = relaxationResult.Output!;
+                CurveFitOutput relaxationOutput = pronySeriesCurveFitter.Fit(relaxationInput);
+                
                 PronySeries reducedRelaxationFunction = new(
                     independentParameter: relaxationOutput.OptimizedParameters[0],
                     iteratorCoefficients: [relaxationOutput.OptimizedParameters[1], relaxationOutput.OptimizedParameters[2], relaxationOutput.OptimizedParameters[3], relaxationOutput.OptimizedParameters[4], relaxationOutput.OptimizedParameters[5], relaxationOutput.OptimizedParameters[6]]);
@@ -124,7 +117,6 @@ public sealed class SimplifiedFungRelaxationOnlyCurveFitterStep(
             InitialParameters = [1000.0, 1.0],
             EvaluateConstraintsAndPenalties = null
         };
-
         var rampOutput = curveFitter.Fit(rampInput);
 
         double totalError = relaxationError * rampOutput.FinalError;

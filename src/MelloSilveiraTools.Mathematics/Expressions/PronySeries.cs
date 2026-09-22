@@ -1,4 +1,5 @@
-﻿using MelloSilveiraTools.Mathematics.Functions;
+using MelloSilveiraTools.Mathematics.Functions;
+using MelloSilveiraTools.Mathematics.Models;
 
 namespace MelloSilveiraTools.Mathematics.Expressions;
 
@@ -12,6 +13,7 @@ namespace MelloSilveiraTools.Mathematics.Expressions;
 /// <param name="iteratorCoefficients">Coefficients for iterations represented by a_n.</param>
 public sealed class PronySeries(double independentParameter, double[] iteratorCoefficients, double? initialVariableValue = null, double? finalVariableValue = null)
     : MathExpression(
+        MathExpressionType.PronySeries,
         [
             new ConstantFunction(initialVariableValue, finalVariableValue, independentParameter),
             new ExponentialFunction(initialVariableValue, finalVariableValue, iteratorCoefficients)

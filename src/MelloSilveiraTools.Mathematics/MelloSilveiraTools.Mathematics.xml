@@ -96,10 +96,11 @@
             Represents an unique dimension mathematical expression.
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.Mathematics.Expressions.MathExpression.#ctor(System.Nullable{System.Double},System.Nullable{System.Double},System.Collections.Generic.List{MelloSilveiraTools.Mathematics.Functions.Function})">
+        <member name="M:MelloSilveiraTools.Mathematics.Expressions.MathExpression.#ctor(MelloSilveiraTools.Mathematics.Models.MathExpressionType,System.Collections.Generic.List{MelloSilveiraTools.Mathematics.Functions.Function},System.Nullable{System.Double},System.Nullable{System.Double})">
             <summary>
             Initializes a new instance of <see cref="T:MelloSilveiraTools.Mathematics.Expressions.MathExpression"/>.
             </summary>
+            <param name="mathExpressionType"></param>
             <param name="initialVariableValue"></param>
             <param name="finalVariableValue"></param>
             <param name="functions"></param>
@@ -114,6 +115,9 @@
             <summary>
             Represents the expression's integral.
             </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Mathematics.Expressions.MathExpression.MathExpressionType">
+            <inheritdoc cref="T:MelloSilveiraTools.Mathematics.Models.MathExpressionType"/>
         </member>
         <member name="P:MelloSilveiraTools.Mathematics.Expressions.MathExpression.InitialVariableValue">
             <summary>
@@ -157,7 +161,7 @@
             <param name="independentParameter">Independent parameter represented by c.</param>
             <param name="iteratorCoefficients">Coefficients for iterations represented by a_n.</param>
         </member>
-        <member name="M:MelloSilveiraTools.Mathematics.Expressions.PronySeries.#ctor(System.Nullable{System.Double},System.Nullable{System.Double},System.Double,System.Double[])">
+        <member name="M:MelloSilveiraTools.Mathematics.Expressions.PronySeries.#ctor(System.Double,System.Double[],System.Nullable{System.Double},System.Nullable{System.Double})">
             <summary>
             Represents a prony series.
             f(x) = c + [a_0 * e^(a_1 * x) + ... a_n-1 * e^(a_n * x)]
@@ -766,6 +770,21 @@
         <member name="F:MelloSilveiraTools.Mathematics.Models.MathematicConstants.GravityAcceleration">
             <summary>
             Unit: m/s² (meter per squared second).
+            </summary>
+        </member>
+        <member name="T:MelloSilveiraTools.Mathematics.Models.MathExpressionType">
+            <summary>
+            Contains the mathematical expression types.
+            </summary>
+        </member>
+        <member name="F:MelloSilveiraTools.Mathematics.Models.MathExpressionType.Generic">
+            <summary>
+            Generic mathematical expression.
+            </summary>
+        </member>
+        <member name="F:MelloSilveiraTools.Mathematics.Models.MathExpressionType.PronySeries">
+            <summary>
+            Prony series expression.
             </summary>
         </member>
         <member name="T:MelloSilveiraTools.Mathematics.Models.NumericalMethods.DifferentialEquationMethodType">

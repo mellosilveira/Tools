@@ -51,13 +51,13 @@ public sealed class SchaperyRelaxationOnlyCurveFitterStep(
             cancellationToken.ThrowIfCancellationRequested();
 
             CurveSegment anchorSegment = relaxations[i];
-            var (anchorResult, optimizedLinearParams) = FitAnchorSegment(anchorSegment);
-            yield return anchorResult;
+            var (anchorOutput, optimizedLinearParams) = FitAnchorSegment(anchorSegment);
+            yield return anchorOutput;
 
             var strainAndHelmholtzVariables = new (double Strain, double He, double H2)[(relaxations.Count - 1)];
 
-            double totalError = anchorResult.FinalError;
-            int totalIterations = anchorResult.Iterations;
+            double totalError = anchorOutput.FinalError;
+            int totalIterations = anchorOutput.Iterations;
 
             for (int j = 0; j < relaxations.Count; j++)
             {
