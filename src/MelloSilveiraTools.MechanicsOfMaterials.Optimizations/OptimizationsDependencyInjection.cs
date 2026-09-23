@@ -40,6 +40,7 @@ public static class OptimizationsDependencyInjection
                 .AddSingleton<SimplifiedFungRelaxationOnlyCurveFitterStep>()
                 // Register Curve Fitter implementations.
                 .AddSingleton<ICurveFitter, AlglibCurveFitter>()
+                //.AddSingleton<ICurveFitter, MathNetCurveFitter>()
                 // Register MathExpression curve fitter decorators.
                 .AddKeyedSingleton<IMathExpressionCurveFitter, PronySeriesCurveFitter>(MathExpressionType.PronySeries)
                 // Register MathematicalFunction curve fitter decorators.

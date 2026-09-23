@@ -1,0 +1,25 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>AcceptanceTests</name>
+    </assembly>
+    <members>
+        <member name="T:AcceptanceTests.GlobalServiceProvider">
+            <summary>
+            Central dependency injection container for all acceptance tests. 
+            Created exactly once per application domain (eliminates duplication across generic types).
+            </summary>
+        </member>
+        <member name="T:AcceptanceTests.MechanicalOfMaterials.Optimizations.CurveFitterSteps.AcceptanceTestHelpers">
+            <summary>
+            Helper for loading acceptance test data CSV files and converting them to CurveSegment arrays.
+            </summary>
+        </member>
+        <member name="M:AcceptanceTests.MechanicalOfMaterials.Optimizations.CurveFitterSteps.AcceptanceTestHelpers.LoadSegmentsForPrefixAsync(System.String)">
+            <summary>
+            Loads CurveSegment array for a given curve fitter step prefix by finding all CSV files in TestData matching [PREFIX]_[SEGMENT_TYPE].csv.
+            Expected columns: Time, ExperimentalStrain, ExperimentalStress
+            </summary>
+        </member>
+    </members>
+</doc>

@@ -7,6 +7,7 @@ using MelloSilveiraTools.Database;
 using MelloSilveiraTools.Database.RelationalDatabase.Settings;
 using MelloSilveiraTools.Mathematics;
 using MelloSilveiraTools.MechanicsOfMaterials;
+using MelloSilveiraTools.MechanicsOfMaterials.Optimizations;
 using MelloSilveiraTools.Plugins;
 using MelloSilveiraTools.Plugins.Infrastructure;
 using MelloSilveiraTools.WebApi;
@@ -47,6 +48,7 @@ public static class DependencyInjection
             .AddDatabaseServices(databaseSettings, resiliencePipelineSettings)
             .AddMathematicsServices()
             .AddMechanicsOfMaterialsServices(addMechanicalModels)
+            .AddOptimizationsServices()
             .AddPluginServices(pluginSettings)
             .AddWebApiServices(resiliencePipelineSettings);
 }
