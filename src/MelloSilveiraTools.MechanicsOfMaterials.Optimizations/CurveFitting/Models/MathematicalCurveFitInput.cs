@@ -1,5 +1,3 @@
-using System;
-
 namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Models;
 
 public record MathematicalCurveFitInput

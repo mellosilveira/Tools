@@ -1,6 +1,6 @@
 ﻿using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Models;
 
-namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Models.ExperimentalData;
+namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Models;
 
 public readonly record struct SegmentedDataPoint(SegmentType SegmentType, ProcessedDataPoint ProcessedDataPoint)
 {

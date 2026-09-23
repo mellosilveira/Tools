@@ -46,7 +46,7 @@ public sealed class ExponentialCurveFitter(ICurveFitter curveFitter) : IMathemat
             return input.InitialParameters;
 
         double[] initialParameters = new double[parameterCount];
-        for (int i = 0; i < input.NumberOfParameters; i++) 
+        for (int i = 0; i < input.NumberOfParameters; i++)
             initialParameters[2 * i] = 1.0;
 
         return initialParameters;

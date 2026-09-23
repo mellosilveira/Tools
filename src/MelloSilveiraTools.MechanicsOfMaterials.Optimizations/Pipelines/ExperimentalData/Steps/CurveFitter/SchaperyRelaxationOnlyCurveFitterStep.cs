@@ -10,6 +10,7 @@ using MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelast
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Algorithms;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.MathematicalFunctions;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Models;
+using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Models;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using System.Runtime.CompilerServices;
@@ -29,6 +30,11 @@ public sealed class SchaperyRelaxationOnlyCurveFitterStep(
     FunctionFactory functionFactory)
     : IMechanicalModelCurveFitterStep
 {
+    private const string MechanicalModelName = nameof(MechanicalModel.Schapery);
+    private const MechanicalBehaviorType MechanicalBehaviorType = MechanicalBehaviorType.StressStrain;
+    private const ViscoelasticEffect ViscoelasticEffect = ViscoelasticEffect.Relaxation;
+    private const RampTimeConsideration RampTimeConsideration = RampTimeConsideration.Disregard;
+
     private static readonly double[] HelmholtzInitialParameters = [1.0, 1.0];
     private static readonly double[] HelmholtzLowerBounds = [0.0, 0.0];
     private static readonly double[] HelmholtzUpperBounds = [10.0, 10.0];
@@ -129,7 +135,15 @@ public sealed class SchaperyRelaxationOnlyCurveFitterStep(
             H1 = new ConstantFunction(initialStrain, finalStrain, 1.0),
             H2 = new ConstantFunction(initialStrain, finalStrain, 1.0),
         };
-        MechanicalModelCurveFitOutput output = new(anchorParameters, anchorOutput.FinalError, anchorOutput.Iterations, new AcceptedRange(initialStrain, finalStrain));
+        MechanicalModelCurveFitOutput output = new(
+            MechanicalModelName,
+            anchorParameters,
+            new AcceptedRange(initialStrain, finalStrain),
+            MechanicalBehaviorType,
+            ViscoelasticEffect,
+            RampTimeConsideration,
+            anchorOutput.FinalError,
+            anchorOutput.Iterations);
         return (output, optimizedLinearParams);
     }
 
@@ -173,18 +187,26 @@ public sealed class SchaperyRelaxationOnlyCurveFitterStep(
             H1 = new ConstantFunction(initialAcceptedStrain, finalAcceptedStrain, 1.0),
             H2 = new ConstantFunction(initialAcceptedStrain, finalAcceptedStrain, h2),
         };
-        MechanicalModelCurveFitOutput output = new(segmentParams, segmentOutput.FinalError, segmentOutput.Iterations, new AcceptedRange(initialAcceptedStrain, finalAcceptedStrain));
+        MechanicalModelCurveFitOutput output = new(
+            MechanicalModelName,
+            segmentParams,
+            new AcceptedRange(initialAcceptedStrain, finalAcceptedStrain),
+            MechanicalBehaviorType,
+            ViscoelasticEffect,
+            RampTimeConsideration,
+            segmentOutput.FinalError,
+            segmentOutput.Iterations);
 
         return (output, he, h2, segmentOutput.FinalError, segmentOutput.Iterations);
     }
 
     private static MechanicalModelInput<SchaperyConstitutiveParameters> CreateModelInput(CurveSegment segment, SchaperyConstitutiveParameters constitutiveParameters) => new()
     {
-        MechanicalModelName = nameof(MechanicalModel.Schapery),
+        MechanicalModelName = MechanicalModelName,
         AcceptedStrainRange = new AcceptedRange(segment.ExperimentalStrain[0], segment.ExperimentalStrain[^1]),
-        MechanicalBehaviorType = MechanicalBehaviorType.StressStrain,
-        RampTimeConsideration = RampTimeConsideration.Disregard,
-        ViscoelasticEffect = ViscoelasticEffect.Relaxation,
+        MechanicalBehaviorType = MechanicalBehaviorType,
+        ViscoelasticEffect = ViscoelasticEffect,
+        RampTimeConsideration = RampTimeConsideration,
         Strain = new MechanicalParameter(segment.ExperimentalStrain[0]),
         Stress = new MechanicalParameter(segment.ExperimentalStress[0]),
         TimeStep = segment.TimePoints[1] - segment.TimePoints[0],
@@ -221,7 +243,15 @@ public sealed class SchaperyRelaxationOnlyCurveFitterStep(
             H1 = new ConstantFunction(initialAcceptedStrain, finalAcceptedStrain, 1.0),
             H2 = h2Result.Function
         };
-        return new MechanicalModelCurveFitOutput(finalParams, totalError, totalIterations, new AcceptedRange(initialAcceptedStrain, finalAcceptedStrain));
+        return new MechanicalModelCurveFitOutput(
+            MechanicalModelName,
+            finalParams,
+            new AcceptedRange(initialAcceptedStrain, finalAcceptedStrain),
+            MechanicalBehaviorType,
+            ViscoelasticEffect,
+            RampTimeConsideration,
+            totalError,
+            totalIterations);
     }
 
     internal (Function Function, double Error, int Iterations) FitHelmholtzVariable(double[] strain, double[] helmholtzVariable)

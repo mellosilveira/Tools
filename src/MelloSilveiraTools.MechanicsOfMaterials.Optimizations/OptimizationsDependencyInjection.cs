@@ -32,11 +32,8 @@ public static class OptimizationsDependencyInjection
                 // Register settings.
                 .AddSingleton(settings ?? new ExperimentalDataSettings())
                 // Register curve fitter steps as singletons (stateless, thread-safe).
-                .AddSingleton<SchaperyCurveFitterStep>()
                 .AddSingleton<SchaperyRelaxationOnlyCurveFitterStep>()
-                .AddSingleton<FungCurveFitterStep>()
                 .AddSingleton<FungRelaxationOnlyCurveFitterStep>()
-                .AddSingleton<SimplifiedFungCurveFitterStep>()
                 .AddSingleton<SimplifiedFungRelaxationOnlyCurveFitterStep>()
                 // Register Curve Fitter implementations.
                 .AddSingleton<ICurveFitter, AlglibCurveFitter>()

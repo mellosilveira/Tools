@@ -1,4 +1,5 @@
 using MelloSilveiraTools.Core.Models;
+using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Models;
 
 namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData;
 
@@ -14,7 +15,7 @@ public interface IExperimentalDataService
     /// </summary>
     /// <param name="input"></param>
     /// <param name="cancellationToken">A token to cancel the operation.</param>
-    /// <returns>A <see cref="Result{T}"/> containing the generated output file name and the array of <see cref="Steps.CurveFitter.MechanicalModelCurveFitOutput"/>.</returns>
-    Task<Result<(string OutputFileName, Steps.CurveFitter.MechanicalModelCurveFitOutput[] Parameters)>> ProcessAsync(ExperimentalDataProcessingInput input, CancellationToken cancellationToken = default);
+    /// <returns>A <see cref="Result{T}"/> containing the generated output file name and the array of <see cref="MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Models.MechanicalModelCurveFitOutput"/>.</returns>
+    Task<Result<(string OutputFileName, MechanicalModelCurveFitOutput[] Parameters)>> ProcessAsync(ExperimentalDataProcessingInput input, CancellationToken cancellationToken = default);
 }
 

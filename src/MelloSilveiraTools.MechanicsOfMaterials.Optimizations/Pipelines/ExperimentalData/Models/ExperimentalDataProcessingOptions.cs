@@ -1,6 +1,6 @@
 using MelloSilveiraTools.Mathematics.Models;
 
-namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Models.ExperimentalData;
+namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Models;
 
 public record ExperimentalDataProcessingOptions(
     double StartTimeThreshold,

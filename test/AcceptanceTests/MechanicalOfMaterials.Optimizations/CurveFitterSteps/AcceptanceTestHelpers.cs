@@ -19,7 +19,7 @@ public static class AcceptanceTestHelpers
         if (string.IsNullOrWhiteSpace(testDataFolder) || !Directory.Exists(testDataFolder))
         {
             testDataFolder = Path.Combine(AppContext.BaseDirectory, "MechanicalOfMaterials.Optimizations", "CurveFitterSteps", "TestData");
-            
+
             if (!Directory.Exists(testDataFolder))
             {
                 testDataFolder = Path.Combine(Directory.GetCurrentDirectory(), "MechanicalOfMaterials.Optimizations", "CurveFitterSteps", "TestData");
@@ -49,7 +49,7 @@ public static class AcceptanceTestHelpers
         foreach (string filePath in files)
         {
             string fileName = Path.GetFileNameWithoutExtension(filePath);
-            
+
             SegmentType segmentType = SegmentType.Unknown;
             foreach (SegmentType type in Enum.GetValues<SegmentType>())
             {

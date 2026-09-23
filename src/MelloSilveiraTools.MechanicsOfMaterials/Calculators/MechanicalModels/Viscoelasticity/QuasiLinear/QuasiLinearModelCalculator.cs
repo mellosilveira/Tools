@@ -109,12 +109,12 @@ public abstract class QuasiLinearModelCalculator<TConstitutiveParameters, TReduc
                 double elasticResponseDerivative = CalculateElasticResponseDerivative(input, integrationTime);
                 return reducedRelaxationFunction * elasticResponseDerivative;
             }
-            : (integrationTime) =>
-            {
-                double reducedRelaxationFunction = CalculateReducedRelaxationFunction(input, time - integrationTime);
-                double elasticResponseDerivative = CalculateElasticResponseDerivative(input, integrationTime);
-                return reducedRelaxationFunction * elasticResponseDerivative;
-            },
+        : (integrationTime) =>
+        {
+            double reducedRelaxationFunction = CalculateReducedRelaxationFunction(input, time - integrationTime);
+            double elasticResponseDerivative = CalculateElasticResponseDerivative(input, integrationTime);
+            return reducedRelaxationFunction * elasticResponseDerivative;
+        },
             new IntegralInput
             {
                 InitialPoint = MathematicConstants.InitialTime,

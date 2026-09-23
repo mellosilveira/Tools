@@ -1,6 +1,6 @@
 using MelloSilveiraTools.Core.Managers.File;
 using MelloSilveiraTools.Core.Pipelines.Steps;
-using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Models.ExperimentalData;
+using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Models;
 using System.Text;
 
 namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Steps;

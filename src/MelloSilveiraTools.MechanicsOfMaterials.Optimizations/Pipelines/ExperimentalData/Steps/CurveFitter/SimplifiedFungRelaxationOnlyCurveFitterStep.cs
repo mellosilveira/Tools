@@ -9,6 +9,7 @@ using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Algorit
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.MathExpressions;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Models;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExtensionMethods;
+using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Models;
 using Microsoft.Extensions.DependencyInjection;
 using System.Runtime.CompilerServices;
 
@@ -21,9 +22,13 @@ namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.Experi
 public sealed class SimplifiedFungRelaxationOnlyCurveFitterStep(
     ISimplifiedFungModelCalculator mechanicalModelCalculator,
     ICurveFitter curveFitter,
-    [FromKeyedServices(MathExpressionType.PronySeries)] IMathExpressionCurveFitter pronySeriesCurveFitter) 
+    [FromKeyedServices(MathExpressionType.PronySeries)] IMathExpressionCurveFitter pronySeriesCurveFitter)
     : IMechanicalModelCurveFitterStep
 {
+    private const string MechanicalModelName = nameof(MechanicalModel.SimplifiedFung);
+    private const MechanicalBehaviorType MechanicalBehaviorType = MechanicalBehaviorType.StressStrain;
+    private const ViscoelasticEffect ViscoelasticEffect = ViscoelasticEffect.Relaxation;
+
     private static readonly double[] RelaxationLowerBounds = [0.1, 0.1, -1000.0, 0.1, -1000.0, 0.1, -1000.0];
     private static readonly double[] RelaxationUpperBounds = [1.0, 1.0, 0, 1.0, 0, 1.0, 0];
     private static readonly double[] RelaxationInitialParameters = [0.4, 0.2, -0.1, 0.2, -1.0, 0.2, -10.0];
@@ -68,7 +73,7 @@ public sealed class SimplifiedFungRelaxationOnlyCurveFitterStep(
                     InitialParameters = RelaxationInitialParameters
                 };
                 CurveFitOutput relaxationOutput = pronySeriesCurveFitter.Fit(relaxationInput);
-                
+
                 PronySeries reducedRelaxationFunction = new(
                     independentParameter: relaxationOutput.OptimizedParameters[0],
                     iteratorCoefficients: [relaxationOutput.OptimizedParameters[1], relaxationOutput.OptimizedParameters[2], relaxationOutput.OptimizedParameters[3], relaxationOutput.OptimizedParameters[4], relaxationOutput.OptimizedParameters[5], relaxationOutput.OptimizedParameters[6]]);
@@ -81,7 +86,15 @@ public sealed class SimplifiedFungRelaxationOnlyCurveFitterStep(
                 else
                 {
                     SimplifiedFungConstitutiveParameters constitutiveParameters = new(0, 0, reducedRelaxationFunction);
-                    yield return new MechanicalModelCurveFitOutput(constitutiveParameters, relaxationOutput.FinalError, relaxationOutput.Iterations, new AcceptedRange(relaxation.ExperimentalStrain[0], relaxation.ExperimentalStrain[^1]));
+                    yield return new MechanicalModelCurveFitOutput(
+                        MechanicalModelName,
+                        constitutiveParameters,
+                        new AcceptedRange(relaxation.ExperimentalStrain[0], relaxation.ExperimentalStrain[^1]),
+                        MechanicalBehaviorType,
+                        ViscoelasticEffect,
+                        RampTimeConsideration.Disregard,
+                        relaxationOutput.FinalError,
+                        relaxationOutput.Iterations);
                 }
             }
 
@@ -102,21 +115,16 @@ public sealed class SimplifiedFungRelaxationOnlyCurveFitterStep(
             {
                 MechanicalModelInput<SimplifiedFungConstitutiveParameters> currentInput = new()
                 {
-                    MechanicalModelName = nameof(MechanicalModel.SimplifiedFung),
+                    MechanicalModelName = MechanicalModelName,
                     AcceptedStrainRange = new AcceptedRange(ramp.ExperimentalStrain[0], ramp.ExperimentalStrain[^1]),
-                    MechanicalBehaviorType = MechanicalBehaviorType.StressStrain,
+                    MechanicalBehaviorType = MechanicalBehaviorType,
+                    ViscoelasticEffect = ViscoelasticEffect,
                     RampTimeConsideration = rampTimeConsideration,
                     RampTime = relaxation.TimePoints[0],
-                    ViscoelasticEffect = ViscoelasticEffect.Relaxation,
                     Strain = new MechanicalParameter(xValues[1]),
                     Stress = new MechanicalParameter(ramp.ExperimentalStress[0]),
                     TimeStep = timeStep,
-                    ConstitutiveParameters = new SimplifiedFungConstitutiveParameters
-                    {
-                        ElasticStressConstant = parameters[0],
-                        ElasticPowerConstant = parameters[1],
-                        ReducedRelaxationFunction = reducedRelaxationFunction
-                    }
+                    ConstitutiveParameters = new SimplifiedFungConstitutiveParameters(parameters[0], parameters[1], reducedRelaxationFunction)
                 };
                 return mechanicalModelCalculator.CalculateStress(currentInput, xValues[0], xValues[1]);
             },
@@ -130,13 +138,16 @@ public sealed class SimplifiedFungRelaxationOnlyCurveFitterStep(
         double totalError = relaxationError * rampOutput.FinalError;
         int totalIterations = relaxationIterations + rampOutput.Iterations;
 
-        SimplifiedFungConstitutiveParameters finalParams = new()
-        {
-            ElasticStressConstant = rampOutput.OptimizedParameters[0],
-            ElasticPowerConstant = rampOutput.OptimizedParameters[1],
-            ReducedRelaxationFunction = reducedRelaxationFunction
-        };
-        return new MechanicalModelCurveFitOutput(finalParams, totalError, totalIterations, new AcceptedRange(relaxation.ExperimentalStrain[0], relaxation.ExperimentalStrain[^1]));
+        SimplifiedFungConstitutiveParameters constitutiveParameters = new(rampOutput.OptimizedParameters[0], rampOutput.OptimizedParameters[1], reducedRelaxationFunction);
+        return new MechanicalModelCurveFitOutput(
+            MechanicalModelName,
+            constitutiveParameters,
+            new AcceptedRange(relaxation.ExperimentalStrain[0], relaxation.ExperimentalStrain[^1]),
+            MechanicalBehaviorType,
+            ViscoelasticEffect,
+            rampTimeConsideration,
+            totalError,
+            totalIterations);
     }
 
     /// <inheritdoc />
