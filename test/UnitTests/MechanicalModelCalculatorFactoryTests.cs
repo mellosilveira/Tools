@@ -2,6 +2,7 @@ using MelloSilveiraTools.Core;
 using MelloSilveiraTools.Mathematics;
 using MelloSilveiraTools.MechanicsOfMaterials;
 using MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels;
+using MelloSilveiraTools.MechanicsOfMaterials.Models;
 using MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels;
 using MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Elasticity;
 using MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity;
@@ -52,7 +53,8 @@ public class MechanicalModelCalculatorFactoryTests
             MechanicalModelName = nameof(MechanicalModel.Elastic),
             MechanicalBehaviorType = MechanicalBehaviorType.StressStrain,
             ViscoelasticEffect = ViscoelasticEffect.Relaxation,
-            ConstitutiveParameters = new ElasticConstitutiveParameters { YoungModulus = 100.0 }
+            ConstitutiveParameters = new ElasticConstitutiveParameters { YoungModulus = 100.0 },
+            Strain = new MechanicalParameter(0.1)
         };
 
         IMechanicalModelCalculatorFacade facade = _factory.CreateCalculatorFacade(input);
@@ -68,7 +70,8 @@ public class MechanicalModelCalculatorFactoryTests
             MechanicalModelName = nameof(MechanicalModel.Maxwell),
             MechanicalBehaviorType = MechanicalBehaviorType.StressStrain,
             ViscoelasticEffect = ViscoelasticEffect.Relaxation,
-            ConstitutiveParameters = new MaxwellConstitutiveParameters { Stiffness = 200.0, Viscosity = 50.0 }
+            ConstitutiveParameters = new MaxwellConstitutiveParameters { Stiffness = 200.0, Viscosity = 50.0 },
+            Strain = new MechanicalParameter(0.1)
         };
 
         IMechanicalModelCalculatorFacade facade = _factory.CreateCalculatorFacade(input);

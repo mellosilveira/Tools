@@ -27,15 +27,16 @@ public sealed class PronySeriesCurveFitter(ICurveFitter innerFitter) : IMathExpr
             InitialParameters = input.InitialParameters ?? [.. Enumerable.Repeat(1.0, input.NumberOfParameters)],
             Tolerance = input.Tolerance,
             MaxIterations = input.MaxIterations,
-            EvaluateConstraintsAndPenalties = input.EvaluateConstraintsAndPenalties ?? (parameters =>
+            Profile = input.Profile,
+            ValidateParameters = input.ValidateParameters ?? (parameters =>
             {
                 double sum = parameters[0];
                 for (int i = 0; i < (parameters.Length - 1) / 2; i++)
                     sum += parameters[2 * i + 1];
 
-                double diff = sum - initialValue;
-                return diff * diff;
-            })
+                return sum - initialValue > input.Tolerance;
+            }),
+            TargetRSquared = input.TargetRSquared
         };
         return innerFitter.Fit(fitInput);
     }

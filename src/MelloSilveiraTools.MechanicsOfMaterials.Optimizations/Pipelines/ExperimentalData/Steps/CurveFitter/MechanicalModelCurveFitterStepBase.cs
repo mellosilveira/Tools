@@ -66,67 +66,14 @@ public abstract class MechanicalModelCurveFitterStepBase : IMechanicalModelCurve
     /// <summary>
     /// Creates a new <see cref="MechanicalModelCurveFitOutput"/> with model metadata and fitting metrics.
     /// </summary>
-    /// <param name="constitutiveParameters">The fitted constitutive parameters.</param>
-    /// <param name="acceptedRange">The accepted strain range for the fit.</param>
-    /// <param name="rampTimeConsideration">The ramp-time consideration mode.</param>
-    /// <param name="finalError">The final fitting error.</param>
-    /// <param name="iterations">The total iterations taken to converge.</param>
-    /// <param name="timePoints">The experimental time points sequence.</param>
-    /// <param name="experimentalStrain">The experimental strain sequence.</param>
-    /// <param name="experimentalStress">The experimental stress sequence.</param>
-    /// <param name="timeStep">The experimental time step.</param>
-    /// <param name="rampTime">The ramp time if applicable.</param>
-    /// <returns>A populated <see cref="MechanicalModelCurveFitOutput"/> instance.</returns>
-    protected MechanicalModelCurveFitOutput CreateCurveFitOutput(
-        ConstitutiveParameters constitutiveParameters,
-        AcceptedRange acceptedRange,
-        RampTimeConsideration rampTimeConsideration,
-        double finalError,
-        int iterations,
-        double[]? timePoints = null,
-        double[]? experimentalStrain = null,
-        double[]? experimentalStress = null,
-        double timeStep = 0,
-        double? rampTime = null)
-        => new(
-            MechanicalModelName,
-            constitutiveParameters,
-            acceptedRange,
-            MechanicalBehaviorType,
-            ViscoelasticEffect,
-            rampTimeConsideration,
-            finalError,
-            iterations,
-            Identifier: string.Empty,
-            TimePoints: timePoints,
-            ExperimentalStrain: experimentalStrain,
-            ExperimentalStress: experimentalStress,
-            TimeStep: timeStep,
-            RampTime: rampTime);
+    protected MechanicalModelCurveFitOutput CreateCurveFitOutput(ConstitutiveParameters constitutiveParameters, AcceptedRange acceptedRange, RampTimeConsideration rampTimeConsideration, double precision, double finalError, int iterations)
+        => new(MechanicalModelName, constitutiveParameters, acceptedRange, MechanicalBehaviorType, ViscoelasticEffect, rampTimeConsideration, precision, finalError, iterations);
 
     /// <summary>
-    /// Creates a new <see cref="MechanicalModelCurveFitOutput"/> with model metadata and fitting metrics,
-    /// defaulting the ramp time consideration to <see cref="RampTimeConsideration.Disregard"/>.
+    /// Creates a new <see cref="MechanicalModelCurveFitOutput"/> with model metadata and fitting metrics, defaulting the ramp time consideration to <see cref="RampTimeConsideration.Disregard"/>.
     /// </summary>
-    /// <param name="constitutiveParameters">The fitted constitutive parameters.</param>
-    /// <param name="acceptedRange">The accepted strain range for the fit.</param>
-    /// <param name="finalError">The final fitting error.</param>
-    /// <param name="iterations">The total iterations taken to converge.</param>
-    /// <param name="timePoints">The experimental time points sequence.</param>
-    /// <param name="experimentalStrain">The experimental strain sequence.</param>
-    /// <param name="experimentalStress">The experimental stress sequence.</param>
-    /// <param name="timeStep">The experimental time step.</param>
-    /// <returns>A populated <see cref="MechanicalModelCurveFitOutput"/> instance.</returns>
-    protected MechanicalModelCurveFitOutput CreateCurveFitOutput(
-        ConstitutiveParameters constitutiveParameters,
-        AcceptedRange acceptedRange,
-        double finalError,
-        int iterations,
-        double[]? timePoints = null,
-        double[]? experimentalStrain = null,
-        double[]? experimentalStress = null,
-        double timeStep = 0)
-        => CreateCurveFitOutput(constitutiveParameters, acceptedRange, RampTimeConsideration.Disregard, finalError, iterations, timePoints, experimentalStrain, experimentalStress, timeStep);
+    protected MechanicalModelCurveFitOutput CreateCurveFitOutput(ConstitutiveParameters constitutiveParameters, AcceptedRange acceptedRange, double precision, double finalError, int iterations)
+        => CreateCurveFitOutput(constitutiveParameters, acceptedRange, RampTimeConsideration.Disregard, precision, finalError, iterations);
 
     /// <inheritdoc />
     public virtual ValueTask DisposeAsync()

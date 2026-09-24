@@ -11,5 +11,20 @@ public record MathematicalCurveFitInput
     public double[]? LowerBounds { get; init; }
     public double[]? UpperBounds { get; init; }
     public double[]? InitialParameters { get; init; }
-    public Func<double[], double>? EvaluateConstraintsAndPenalties { get; init; }
+
+    /// <summary>
+    /// Perfil de otimização selecionado (padrão: Automatic).
+    /// </summary>
+    public CurveFitProfile Profile { get; init; } = CurveFitProfile.Automatic;
+
+    /// <summary>
+    /// Motor de regras booleanas de curto-circuito.
+    /// Retorne false para combinações fisicamente ou comercialmente inadmissíveis.
+    /// </summary>
+    public Func<double[], bool>? ValidateParameters { get; init; }
+
+    /// <summary>
+    /// Meta dinâmica de qualidade do ajuste (Coeficiente de Determinação).
+    /// </summary>
+    public double? TargetRSquared { get; init; }
 }

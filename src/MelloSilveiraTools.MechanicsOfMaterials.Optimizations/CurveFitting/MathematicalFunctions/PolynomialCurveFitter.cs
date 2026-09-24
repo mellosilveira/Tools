@@ -30,7 +30,9 @@ public sealed class PolynomialCurveFitter(ICurveFitter innerFitter) : IMathemati
                 InitialParameters = input.InitialParameters ?? [.. Enumerable.Repeat(1.0, input.NumberOfParameters)],
                 MaxIterations = input.MaxIterations,
                 Tolerance = input.Tolerance,
-                EvaluateConstraintsAndPenalties = input.EvaluateConstraintsAndPenalties
+                Profile = input.Profile,
+                ValidateParameters = input.ValidateParameters,
+                TargetRSquared = input.TargetRSquared
             };
             return innerFitter.Fit(fitInput);
         }

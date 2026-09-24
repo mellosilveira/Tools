@@ -64,8 +64,8 @@ public class MechanicalModelOutputDeltaTests
         MechanicalModelOutput delta = current.CalculatePercentageDelta(initial);
 
         Assert.Equal(100.0, delta.Time);
-        Assert.Equal(50.0, delta.Strain!.Value, 3);
-        Assert.Equal(-20.0, delta.Stress!.Value, 3);
+        Assert.Equal(33.333, delta.Strain!.Value, 3);
+        Assert.Equal(-25.0, delta.Stress!.Value, 3);
     }
 
     [Fact]
@@ -121,8 +121,8 @@ public class MechanicalModelOutputDeltaTests
         SchaperyModelOutput delta = (SchaperyModelOutput)current.CalculatePercentageDelta(initial);
 
         Assert.Equal(100.0, delta.Time);
-        Assert.Equal(-20.0, delta.Stress!.Value, 3);
-        Assert.Equal(-20.0, delta.TransientRelaxationFunction!.Value, 3);
-        Assert.Equal(50.0, delta.TransientCreepCompliance!.Value, 3);
+        Assert.Equal(-25.0, delta.Stress!.Value, 3);
+        Assert.Equal(-25.0, delta.TransientRelaxationFunction!.Value, 3);
+        Assert.Equal(33.333, delta.TransientCreepCompliance!.Value, 3);
     }
 }

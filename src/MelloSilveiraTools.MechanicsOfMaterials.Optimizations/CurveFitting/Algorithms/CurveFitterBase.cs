@@ -4,22 +4,21 @@ namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Alg
 
 public abstract class CurveFitterBase : ICurveFitter
 {
-    protected double CalculateObjectiveFunction(CurveFitInput input, double[] currentParameters, bool applyConstraints)
+    protected double CalculateObjectiveFunction(CurveFitInput input, double[] currentParameters)
     {
-        double sumOfSquares = 0;
+        double sumOfSquaresError = 0;
         for (int i = 0; i < input.IndependentVariables[0].Length; i++)
         {
             double[] x = [.. input.IndependentVariables.Select(point => point[i])];
             double predictedValue = input.Calculate(currentParameters, x);
-            double diff = input.DependentVariable[i] - predictedValue;
-            sumOfSquares += diff * diff;
+            double residual = input.DependentVariable[i] - predictedValue;
+            sumOfSquaresError += residual * residual;
         }
 
-        sumOfSquares += applyConstraints && input.EvaluateConstraintsAndPenalties != null ? input.EvaluateConstraintsAndPenalties(currentParameters) : 0;
-        return Math.Sqrt(sumOfSquares);
+        return sumOfSquaresError;
     }
 
-    protected double[] CalculateNumericalGradient(CurveFitInput input, double[] currentParameters, bool applyConstraints)
+    protected double[] CalculateNumericalGradient(CurveFitInput input, double[] currentParameters)
     {
         var gradient = new double[currentParameters.Length];
         double h = 1e-6;
@@ -29,10 +28,10 @@ public abstract class CurveFitterBase : ICurveFitter
         for (int i = 0; i < currentParameters.Length; i++)
         {
             tempParams[i] += h;
-            double forwardCost = CalculateObjectiveFunction(input, tempParams, applyConstraints);
+            double forwardCost = CalculateObjectiveFunction(input, tempParams);
 
             tempParams[i] -= 2 * h;
-            double backwardCost = CalculateObjectiveFunction(input, tempParams, applyConstraints);
+            double backwardCost = CalculateObjectiveFunction(input, tempParams);
 
             gradient[i] = (forwardCost - backwardCost) / (2 * h);
 
@@ -40,6 +39,29 @@ public abstract class CurveFitterBase : ICurveFitter
         }
 
         return gradient;
+    }
+
+    protected double CalculateRSquared(CurveFitInput input, double[] currentParameters)
+    {
+        double sumOfSquaresResiduals = 0;
+        double sumOfSquaresTotal = 0;
+        double meanDependentVariable = input.DependentVariable.Average();
+
+        for (int i = 0; i < input.IndependentVariables[0].Length; i++)
+        {
+            double[] x = [.. input.IndependentVariables.Select(point => point[i])];
+            double predictedValue = input.Calculate(currentParameters, x);
+            double actualValue = input.DependentVariable[i];
+
+            double residual = actualValue - predictedValue;
+            sumOfSquaresResiduals += residual * residual;
+
+            double deviation = actualValue - meanDependentVariable;
+            sumOfSquaresTotal += deviation * deviation;
+        }
+
+        if (sumOfSquaresTotal == 0) return 1.0;
+        return 1.0 - (sumOfSquaresResiduals / sumOfSquaresTotal);
     }
 
     public abstract CurveFitOutput Fit(CurveFitInput input);

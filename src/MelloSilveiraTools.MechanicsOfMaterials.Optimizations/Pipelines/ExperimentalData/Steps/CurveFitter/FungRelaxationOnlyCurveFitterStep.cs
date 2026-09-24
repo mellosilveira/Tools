@@ -69,36 +69,24 @@ public sealed class FungRelaxationOnlyCurveFitterStep(
                     LowerBounds = RelaxationLowerBounds,
                     UpperBounds = RelaxationUpperBounds,
                     InitialParameters = RelaxationInitialParameters,
-                    EvaluateConstraintsAndPenalties = null
+                    Profile = CurveFitProfile.Automatic,
+                    // parameters[1] = FastRelaxationTime, parameters[2] = SlowRelaxationTime
+                    ValidateParameters = parameters => parameters[1] < parameters[2]
                 };
 
                 CurveFitOutput relaxationOutput = curveFitter.Fit(relaxationInput);
-
-                ReducedRelaxationFunction reducedRelaxationFunction = new(
-                    relaxationOutput.OptimizedParameters[0],
-                    relaxationOutput.OptimizedParameters[1],
-                    relaxationOutput.OptimizedParameters[2]);
+                ReducedRelaxationFunction reducedRelaxationFunction = new(relaxationOutput.OptimizedParameters[0], relaxationOutput.OptimizedParameters[1], relaxationOutput.OptimizedParameters[2]);
 
                 if (currentRamp != null)
                 {
-                    yield return FitRamp(currentRamp, relaxation, reducedRelaxationFunction, RampTimeConsideration.ConsiderWithoutViscoelasticEffect, relaxationOutput.FinalError, relaxationOutput.Iterations);
-                    yield return FitRamp(currentRamp, relaxation, reducedRelaxationFunction, RampTimeConsideration.ConsiderWithViscoelasticEffect, relaxationOutput.FinalError, relaxationOutput.Iterations);
+                    yield return FitRamp(reducedRelaxationFunction, relaxationOutput, relaxation, currentRamp, RampTimeConsideration.ConsiderWithoutViscoelasticEffect);
+                    yield return FitRamp(reducedRelaxationFunction, relaxationOutput, relaxation, currentRamp, RampTimeConsideration.ConsiderWithViscoelasticEffect);
                 }
                 else
                 {
                     FungConstitutiveParameters constitutiveParameters = new(0.0, 0.0, reducedRelaxationFunction);
-                    double dt = relaxation.TimePoints.Length > 1 ? (relaxation.TimePoints[^1] - relaxation.TimePoints[0]) / (relaxation.TimePoints.Length - 1) : 0.01;
-                    yield return CreateCurveFitOutput(
-                        constitutiveParameters,
-                        new AcceptedRange(relaxation.ExperimentalStrain[0], relaxation.ExperimentalStrain[^1]),
-                        RampTimeConsideration.Disregard,
-                        relaxationOutput.FinalError,
-                        relaxationOutput.Iterations,
-                        relaxation.TimePoints,
-                        relaxation.ExperimentalStrain,
-                        relaxation.ExperimentalStress,
-                        dt,
-                        null);
+                    AcceptedRange acceptedStrainRange = new(relaxation.ExperimentalStrain[0], relaxation.ExperimentalStrain[^1]);
+                    yield return CreateCurveFitOutput(constitutiveParameters, acceptedStrainRange, relaxationOutput.RSquared, relaxationOutput.FinalError, relaxationOutput.Iterations);
                 }
             }
 
@@ -106,11 +94,9 @@ public sealed class FungRelaxationOnlyCurveFitterStep(
         }
     }
 
-    private MechanicalModelCurveFitOutput FitRamp(CurveSegment ramp, CurveSegment relaxation, ReducedRelaxationFunction reducedRelaxationFunction, RampTimeConsideration rampTimeConsideration, double relaxationError, int relaxationIterations)
+    private MechanicalModelCurveFitOutput FitRamp(ReducedRelaxationFunction reducedRelaxationFunction, CurveFitOutput relaxationOutput, CurveSegment relaxation, CurveSegment ramp, RampTimeConsideration rampTimeConsideration)
     {
-        double timeStep = ramp.TimePoints[1] - ramp.TimePoints[0];
         double[] rampTimePoints = ramp.TimePoints.TranslateToOrigin();
-
         CurveFitInput rampInput = new()
         {
             IndependentVariables = [rampTimePoints, ramp.ExperimentalStrain],
@@ -124,30 +110,18 @@ public sealed class FungRelaxationOnlyCurveFitterStep(
             LowerBounds = RampLowerBounds,
             UpperBounds = RampUpperBounds,
             InitialParameters = RampInitialParameters,
-            EvaluateConstraintsAndPenalties = null
+            Profile = CurveFitProfile.Automatic
         };
 
         CurveFitOutput rampOutput = curveFitter.Fit(rampInput);
-
-        double totalError = relaxationError * rampOutput.FinalError;
-        int totalIterations = relaxationIterations + rampOutput.Iterations;
+        
+        // TODO: MELHORAR CALCULO DE R^2 E ERRO.
+        double precision = (relaxationOutput.RSquared + rampOutput.RSquared) / 2;
+        double totalError = relaxationOutput.FinalError * rampOutput.FinalError;
+        int totalIterations = relaxationOutput.Iterations + rampOutput.Iterations;
 
         FungConstitutiveParameters constitutiveParameters = new(rampOutput.OptimizedParameters[0], rampOutput.OptimizedParameters[1], reducedRelaxationFunction);
-        double[] fullTimePoints = [.. ramp.TimePoints, .. relaxation.TimePoints];
-        double[] fullStrain = [.. ramp.ExperimentalStrain, .. relaxation.ExperimentalStrain];
-        double[] fullStress = [.. ramp.ExperimentalStress, .. relaxation.ExperimentalStress];
-        double rampDuration = ramp.TimePoints[^1] - ramp.TimePoints[0];
-
-        return CreateCurveFitOutput(
-            constitutiveParameters,
-            new AcceptedRange(ramp.ExperimentalStrain[0], relaxation.ExperimentalStrain[^1]),
-            rampTimeConsideration,
-            totalError,
-            totalIterations,
-            fullTimePoints,
-            fullStrain,
-            fullStress,
-            timeStep,
-            rampDuration);
+        AcceptedRange accepteStrainRange = new(ramp.ExperimentalStrain[0], relaxation.ExperimentalStrain[^1]);
+        return CreateCurveFitOutput(constitutiveParameters, accepteStrainRange, rampTimeConsideration, precision, totalError, totalIterations);
     }
 }

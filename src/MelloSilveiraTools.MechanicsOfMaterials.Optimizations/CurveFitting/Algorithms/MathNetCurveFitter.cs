@@ -1,4 +1,4 @@
-using MathNet.Numerics.LinearAlgebra;
+using MathNet.Numerics.LinearAlgebra.Double;
 using MathNet.Numerics.Optimization;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Models;
 
@@ -8,36 +8,27 @@ public class MathNetCurveFitter : CurveFitterBase
 {
     public override CurveFitOutput Fit(CurveFitInput input)
     {
-        // ========================================================================
-        // ESTÁGIO 1: Busca Global/Rápida (Unconstrained) via BFGS
-        // Objetivo: Achar o formato geral da curva sem esbarrar nas penalidades
-        // ========================================================================
-        var objStage1 = ObjectiveFunction.Gradient(
-            v => CalculateObjectiveFunction(input, [.. v], applyConstraints: false),
-            v => Vector<double>.Build.Dense(CalculateNumericalGradient(input, [.. v], applyConstraints: false))
+        var objectiveFunction = ObjectiveFunction.Gradient(
+            (vector) => CalculateObjectiveFunction(input, vector.ToArray()),
+            (vector) => DenseVector.OfArray(CalculateNumericalGradient(input, vector.ToArray()))
         );
 
-        // BFGS é altamente eficiente para Least Squares quando as derivadas estão disponíveis
-        var solverStage1 = new BfgsMinimizer(
-            input.Tolerance,
-            input.Tolerance,
-            input.Tolerance,
-            input.MaxIterations);
+        var initialGuess = DenseVector.OfArray(input.InitialParameters);
 
-        var initialVector = Vector<double>.Build.Dense(input.InitialParameters);
-        var resultStage1 = solverStage1.FindMinimum(objStage1, initialVector);
+        // Est�gio 1: BFGS (sem restri��es) para encontrar o m�nimo aproximado
+        var solverBfgs = new BfgsMinimizer(input.Tolerance, input.Tolerance, input.Tolerance, input.MaxIterations);
+        var resultBfgs = solverBfgs.FindMinimum(objectiveFunction, initialGuess);
 
-        // ========================================================================
-        // ESTÁGIO 2: Refinamento Fino (Constrained) via Nelder-Mead Simplex
-        // Objetivo: Partindo do ponto encontrado, forçar a aderência às leis da física
-        // ========================================================================
-        var objStage2 = ObjectiveFunction.Gradient(
-            v => CalculateObjectiveFunction(input, [.. v], applyConstraints: false),
-            v => Vector<double>.Build.Dense(CalculateNumericalGradient(input, [.. v], applyConstraints: false))
+        // Est�gio 2: Nelder-Mead a partir do resultado do BFGS
+        var unconstrainedObjectiveFunction = ObjectiveFunction.Value(
+            (vector) => CalculateObjectiveFunction(input, vector.ToArray())
         );
-        var solverStage2 = new NelderMeadSimplex(input.Tolerance, input.MaxIterations);
-        var resultStage2 = solverStage2.FindMinimum(objStage2, resultStage1.MinimizingPoint);
+        var solverNelderMead = new NelderMeadSimplex(input.Tolerance, input.MaxIterations);
+        var finalResult = solverNelderMead.FindMinimum(unconstrainedObjectiveFunction, resultBfgs.MinimizingPoint);
 
-        return new CurveFitOutput([.. resultStage2.MinimizingPoint], resultStage2.FunctionInfoAtMinimum.Value, resultStage2.Iterations);
+        double[] finalParameters = finalResult.MinimizingPoint.ToArray();
+        double rSquared = CalculateRSquared(input, finalParameters);
+
+        return new CurveFitOutput(finalParameters, finalResult.FunctionInfoAtMinimum.Value, rSquared, finalResult.Iterations);
     }
 }

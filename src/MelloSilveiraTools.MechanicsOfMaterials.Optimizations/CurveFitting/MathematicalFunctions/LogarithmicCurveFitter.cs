@@ -31,7 +31,9 @@ public sealed class LogarithmicCurveFitter(ICurveFitter curveFitter) : IMathemat
                 InitialParameters = input.InitialParameters ?? [.. Enumerable.Repeat(1.0, parameterCount)],
                 MaxIterations = input.MaxIterations,
                 Tolerance = input.Tolerance,
-                EvaluateConstraintsAndPenalties = input.EvaluateConstraintsAndPenalties
+                Profile = input.Profile,
+                ValidateParameters = input.ValidateParameters,
+                TargetRSquared = input.TargetRSquared
             };
             return curveFitter.Fit(fitInput);
         }

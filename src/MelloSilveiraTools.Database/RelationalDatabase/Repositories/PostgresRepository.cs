@@ -231,7 +231,7 @@ public class PostgresRepository(ISqlProvider sqlProvider, PostgresResiliencePipe
                 .ExecuteScalarAsync(cancellationToken)
                 .ConfigureAwait(false);
 
-            return Convert.ToInt64(insertedIdentifier!);
+            return Convert.ToInt64(insertedIdentifier);
         }).ConfigureAwait(false);
     }
 

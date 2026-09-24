@@ -97,6 +97,45 @@
         <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.MathExpressions.PronySeriesCurveFitter.Fit(MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Models.MathematicalCurveFitInput)">
             <inheritdoc />
         </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Models.CurveFitInput.Profile">
+            <summary>
+            Perfil de otimização selecionado (padrão: Automatic).
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Models.CurveFitInput.ValidateParameters">
+            <summary>
+            Motor de regras booleanas de curto-circuito.
+            Retorne false para combinações fisicamente ou comercialmente inadmissíveis.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Models.CurveFitInput.TargetRSquared">
+            <summary>
+            Meta dinâmica de qualidade do ajuste (Coeficiente de Determinação).
+            </summary>
+        </member>
+        <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Models.CurveFitProfile">
+            <summary>
+            Define o perfil de comportamento e restrições para o ajuste de curvas.
+            </summary>
+        </member>
+        <member name="F:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Models.CurveFitProfile.Automatic">
+            <summary>
+            Seleção automática. Se houver regras de validação booleana informadas,
+            assume RuleConstrained; caso contrário, Standard.
+            </summary>
+        </member>
+        <member name="F:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Models.CurveFitProfile.Standard">
+            <summary>
+            Ajuste analítico rápido para funções suaves e limites simples de caixa (Min/Max).
+            Execução na ordem de milissegundos via L-BFGS.
+            </summary>
+        </member>
+        <member name="F:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Models.CurveFitProfile.RuleConstrained">
+            <summary>
+            Busca global estocástica (Evolução Diferencial / GDEMO).
+            Suporta validações booleanas de consistência e descarta combinações inválidas sem quebrar derivadas.
+            </summary>
+        </member>
         <member name="F:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Models.CurveFittingConstants.Tolerance">
             <summary>
             Default tolerance used by the curve fitting algorithms.
@@ -112,6 +151,22 @@
             <summary>
             Represents an experimental data point containing time, stress, and strain.
             Uses 'record struct' to avoid Heap allocations during massive reading.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Models.MathematicalCurveFitInput.Profile">
+            <summary>
+            Perfil de otimização selecionado (padrão: Automatic).
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Models.MathematicalCurveFitInput.ValidateParameters">
+            <summary>
+            Motor de regras booleanas de curto-circuito.
+            Retorne false para combinações fisicamente ou comercialmente inadmissíveis.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Models.MathematicalCurveFitInput.TargetRSquared">
+            <summary>
+            Meta dinâmica de qualidade do ajuste (Coeficiente de Determinação).
             </summary>
         </member>
         <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Models.SegmentType">

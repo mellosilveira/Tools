@@ -29,7 +29,9 @@ public sealed class ExponentialCurveFitter(ICurveFitter curveFitter) : IMathemat
                 InitialParameters = GetInitialParameters(input, parameterCount),
                 MaxIterations = input.MaxIterations,
                 Tolerance = input.Tolerance,
-                EvaluateConstraintsAndPenalties = input.EvaluateConstraintsAndPenalties
+                Profile = input.Profile,
+                ValidateParameters = input.ValidateParameters,
+                TargetRSquared = input.TargetRSquared
             };
 
             return curveFitter.Fit(fitInput);
