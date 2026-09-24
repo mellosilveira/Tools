@@ -55,12 +55,7 @@ public abstract class QuasiLinearModelCalculator<TConstitutiveParameters, TReduc
 
         return Integration.Calculate(
             (integrationTime) => CalculateReducedRelaxationFunction(input, time - integrationTime) * CalculateElasticForceResponseDerivative(input, integrationTime),
-            new IntegralInput
-            {
-                InitialPoint = MathematicConstants.InitialTime,
-                FinalPoint = time,
-                Step = input.TimeStep
-            });
+            new IntegralInput(time, input.TimeStep));
     }
 
     /// <inheritdoc/>
@@ -102,25 +97,26 @@ public abstract class QuasiLinearModelCalculator<TConstitutiveParameters, TReduc
         if (time <= MathematicConstants.Tolerance)
             return 0;
 
-        return Integration.Calculate(input.RampTimeConsideration == RampTimeConsideration.ConsiderWithoutViscoelasticEffect
-            ? (integrationTime) =>
-            {
-                double reducedRelaxationFunction = integrationTime <= input.RampTime ? 1 : CalculateReducedRelaxationFunction(input, time - integrationTime);
-                double elasticResponseDerivative = CalculateElasticResponseDerivative(input, integrationTime);
-                return reducedRelaxationFunction * elasticResponseDerivative;
-            }
-        : (integrationTime) =>
+        if (input.RampTimeConsideration == RampTimeConsideration.ConsiderWithoutViscoelasticEffect)
+        {
+            return time <= input.RampTime 
+                ? CalculateElasticResponse(input, time, strain)
+                : Integration.Calculate((integrationTime) =>
+                {
+                    double reducedRelaxationFunction = integrationTime <= input.RampTime ? 1 : CalculateReducedRelaxationFunction(input, time - integrationTime);
+                    double elasticResponseDerivative = CalculateElasticResponseDerivative(input, integrationTime);
+                    return reducedRelaxationFunction * elasticResponseDerivative;
+                },
+                new IntegralInput(time, input.TimeStep));
+        }
+
+        return Integration.Calculate((integrationTime) =>
         {
             double reducedRelaxationFunction = CalculateReducedRelaxationFunction(input, time - integrationTime);
             double elasticResponseDerivative = CalculateElasticResponseDerivative(input, integrationTime);
             return reducedRelaxationFunction * elasticResponseDerivative;
         },
-            new IntegralInput
-            {
-                InitialPoint = MathematicConstants.InitialTime,
-                FinalPoint = time,
-                Step = input.TimeStep
-            });
+        new IntegralInput(time, input.TimeStep));
     }
 
     /// <inheritdoc/>
@@ -166,12 +162,7 @@ public abstract class QuasiLinearModelCalculator<TConstitutiveParameters, TReduc
                     double integrationReducedRelaxationFunctionDerivative = CalculateReducedRelaxationFunctionDerivative(input, integrationTime);
                     return integrationElasticResponse * integrationReducedRelaxationFunctionDerivative;
                 },
-                new IntegralInput
-                {
-                    InitialPoint = MathematicConstants.InitialTime,
-                    FinalPoint = time,
-                    Step = input.TimeStep
-                });
+                new IntegralInput(time, input.TimeStep));
     }
 
     /// <inheritdoc/>
@@ -196,12 +187,7 @@ public abstract class QuasiLinearModelCalculator<TConstitutiveParameters, TReduc
                     double reducedRelaxationFunction = CalculateReducedRelaxationFunction(input, integrationTime);
                     return elasticResponse * reducedRelaxationFunction;
                 },
-                new IntegralInput
-                {
-                    InitialPoint = MathematicConstants.InitialTime,
-                    FinalPoint = derivativeTime,
-                    Step = input.TimeStep
-                }),
+                new IntegralInput(time, input.TimeStep)),
             input.TimeStep,
             time);
     }

@@ -8,13 +8,13 @@ public class FunctionFactory
     /// <inheritdoc/>
     public Function Create(FunctionType functionType, double? initialVariableValue, double? finalVariableValue, double[] coefficients) => functionType switch
     {
-        FunctionType.Constant => new ConstantFunction(initialVariableValue, finalVariableValue, coefficients[0]),
-        FunctionType.Polynomial => new PolynomialFunction(initialVariableValue, finalVariableValue, coefficients),
-        FunctionType.Exponential => new ExponentialFunction(initialVariableValue, finalVariableValue, coefficients),
-        FunctionType.Sine => new SineFunction(initialVariableValue, finalVariableValue, coefficients),
-        FunctionType.Cosine => new CosineFunction(initialVariableValue, finalVariableValue, coefficients),
-        FunctionType.PowerLaw => new PowerLaw(initialVariableValue, finalVariableValue, coefficients),
-        FunctionType.Logarithmic => new LogarithmicFunction(initialVariableValue, finalVariableValue, coefficients),
+        FunctionType.Constant => new ConstantFunction(coefficients[0], initialVariableValue, finalVariableValue),
+        FunctionType.Polynomial => new PolynomialFunction(coefficients, initialVariableValue, finalVariableValue),
+        FunctionType.Exponential => new ExponentialFunction(coefficients, initialVariableValue, finalVariableValue),
+        FunctionType.Sine => new SineFunction(coefficients, initialVariableValue, finalVariableValue),
+        FunctionType.Cosine => new CosineFunction(coefficients, initialVariableValue, finalVariableValue),
+        FunctionType.PowerLaw => new PowerLaw(coefficients, initialVariableValue, finalVariableValue),
+        FunctionType.Logarithmic => new LogarithmicFunction(coefficients, initialVariableValue, finalVariableValue),
         _ => throw new ArgumentOutOfRangeException(nameof(functionType))
     };
 }

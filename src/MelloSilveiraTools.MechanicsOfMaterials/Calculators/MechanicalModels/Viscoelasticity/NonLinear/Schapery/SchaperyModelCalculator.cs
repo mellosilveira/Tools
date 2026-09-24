@@ -150,12 +150,7 @@ public sealed class SchaperyModelCalculator(
                     },
                     input.TimeStep,
                     integrationTime),
-                new IntegralInput
-                {
-                    InitialPoint = MathematicConstants.InitialTime,
-                    Step = input.TimeStep,
-                    FinalPoint = time
-                });
+                new IntegralInput(input.TimeStep, time));
         }
 
         return parameterConverter.CalculateForceFromStress(input.Specimen!, stress);
@@ -195,12 +190,7 @@ public sealed class SchaperyModelCalculator(
                 },
                 input.TimeStep,
                 integrationTime),
-            new IntegralInput
-            {
-                InitialPoint = MathematicConstants.InitialTime,
-                Step = input.TimeStep,
-                FinalPoint = time
-            });
+            new IntegralInput(input.TimeStep, time));
     }
 
     /// <inheritdoc/>

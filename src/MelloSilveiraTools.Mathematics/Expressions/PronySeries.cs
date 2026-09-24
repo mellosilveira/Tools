@@ -15,8 +15,8 @@ public sealed class PronySeries(double independentParameter, double[] iteratorCo
     : MathExpression(
         MathExpressionType.PronySeries,
         [
-            new ConstantFunction(initialVariableValue, finalVariableValue, independentParameter),
-            new ExponentialFunction(initialVariableValue, finalVariableValue, iteratorCoefficients)
+            new ConstantFunction(independentParameter, initialVariableValue, finalVariableValue),
+            new ExponentialFunction(iteratorCoefficients, initialVariableValue, finalVariableValue)
         ],
         initialVariableValue,
         finalVariableValue)

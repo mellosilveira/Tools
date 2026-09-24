@@ -23,8 +23,8 @@ public sealed class PolynomialCurveFitter(ICurveFitter innerFitter) : IMathemati
                 IndependentVariables = [input.IndependentVariable],
                 DependentVariable = input.DependentVariable,
                 Calculate = input.ZeroBased
-                    ? (p, xValues) => new PolynomialFunction(minX, maxX, [0, .. p]).Calculate(xValues[0])
-                    : (p, xValues) => new PolynomialFunction(minX, maxX, p).Calculate(xValues[0]),
+                    ? (p, xValues) => new PolynomialFunction([0, .. p], minX, maxX).Calculate(xValues[0])
+                    : (p, xValues) => new PolynomialFunction(p, minX, maxX).Calculate(xValues[0]),
                 LowerBounds = input.LowerBounds ?? [.. Enumerable.Repeat(double.MinValue, input.NumberOfParameters)],
                 UpperBounds = input.UpperBounds ?? [.. Enumerable.Repeat(double.MaxValue, input.NumberOfParameters)],
                 InitialParameters = input.InitialParameters ?? [.. Enumerable.Repeat(1.0, input.NumberOfParameters)],

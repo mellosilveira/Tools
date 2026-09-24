@@ -1721,10 +1721,27 @@
             Contains the output for a elastic model.
             </summary>
         </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Elasticity.ElasticModelOutput.#ctor">
+            <summary>
+            Initializes a new instance of the <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Elasticity.ElasticModelOutput"/> class.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Elasticity.ElasticModelOutput.#ctor(MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalModelOutput)">
+            <summary>
+            Initializes a new instance of the <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Elasticity.ElasticModelOutput"/> class from a base output.
+            </summary>
+            <param name="baseOutput">The base output instance.</param>
+        </member>
         <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Elasticity.ElasticModelOutput.Stiffness">
             <summary>
             Unit: N/m (Newton per meter).
             </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Elasticity.ElasticModelOutput.CalculateDelta(MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalModelOutput)">
+            <inheritdoc />
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Elasticity.ElasticModelOutput.CalculatePercentageDelta(MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalModelOutput)">
+            <inheritdoc />
         </member>
         <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalBehaviorType">
             <summary>
@@ -1852,6 +1869,17 @@
             Contains the output for a generic mechanical model.
             </summary>
         </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalModelOutput.#ctor">
+            <summary>
+            Initializes a new instance of the <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalModelOutput"/> class.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalModelOutput.#ctor(MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalModelOutput)">
+            <summary>
+            Initializes a new instance of the <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalModelOutput"/> class by copying another instance.
+            </summary>
+            <param name="original">The original instance to copy from.</param>
+        </member>
         <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalModelOutput.Strain">
             <summary>
             Unit: dimensionless.
@@ -1891,6 +1919,20 @@
             <summary>
             Unit: N/s (Newton per second).
             </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalModelOutput.CalculateDelta(MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalModelOutput)">
+            <summary>
+            Calculates the absolute variation (this - initial) across all output properties.
+            </summary>
+            <param name="initial">The initial output point.</param>
+            <returns>A new <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalModelOutput"/> containing the calculated differences.</returns>
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalModelOutput.CalculatePercentageDelta(MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalModelOutput)">
+            <summary>
+            Calculates the percentage variation across all output properties using <see cref="M:MelloSilveiraTools.Mathematics.Extensions.DoubleExtensions.PercentageDifference(System.Nullable{System.Double},System.Nullable{System.Double})"/>.
+            </summary>
+            <param name="initial">The initial output point.</param>
+            <returns>A new <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalModelOutput"/> containing the calculated percentage differences.</returns>
         </member>
         <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalModel">
             <summary>
@@ -1951,10 +1993,27 @@
             Contains the output for Maxwell's model.
             </summary>
         </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.Linear.Maxwell.MaxwellModelOutput.#ctor">
+            <summary>
+            Initializes a new instance of the <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.Linear.Maxwell.MaxwellModelOutput"/> class.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.Linear.Maxwell.MaxwellModelOutput.#ctor(MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.ViscoelasticModelOutput)">
+            <summary>
+            Initializes a new instance of the <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.Linear.Maxwell.MaxwellModelOutput"/> class from a viscoelastic base output.
+            </summary>
+            <param name="baseOutput">The base viscoelastic output.</param>
+        </member>
         <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.Linear.Maxwell.MaxwellModelOutput.RelaxationTime">
             <summary>
             Unit: s (second).
             </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.Linear.Maxwell.MaxwellModelOutput.CalculateDelta(MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalModelOutput)">
+            <inheritdoc />
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.Linear.Maxwell.MaxwellModelOutput.CalculatePercentageDelta(MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalModelOutput)">
+            <inheritdoc />
         </member>
         <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.NonLinear.ModifiedSuperpositionMethod.ModifiedSuperpositionMethodConstitutiveParameters">
             <summary>
@@ -1982,6 +2041,17 @@
             Contains the output for the Modified Superposition Method.
             </summary>
         </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.NonLinear.ModifiedSuperpositionMethod.ModifiedSuperpositionMethodOutput.#ctor">
+            <summary>
+            Initializes a new instance of the <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.NonLinear.ModifiedSuperpositionMethod.ModifiedSuperpositionMethodOutput"/> class.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.NonLinear.ModifiedSuperpositionMethod.ModifiedSuperpositionMethodOutput.#ctor(MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.ViscoelasticModelOutput)">
+            <summary>
+            Initializes a new instance of the <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.NonLinear.ModifiedSuperpositionMethod.ModifiedSuperpositionMethodOutput"/> class from a viscoelastic base output.
+            </summary>
+            <param name="baseOutput">The base viscoelastic output.</param>
+        </member>
         <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.NonLinear.ModifiedSuperpositionMethod.ModifiedSuperpositionMethodOutput.InitialYoungModulus">
             <summary>
             Initial Young's modulus.
@@ -1993,6 +2063,12 @@
             Strain-dependent rate of stress relaxation.
             Unit: dimensionless.
             </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.NonLinear.ModifiedSuperpositionMethod.ModifiedSuperpositionMethodOutput.CalculateDelta(MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalModelOutput)">
+            <inheritdoc />
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.NonLinear.ModifiedSuperpositionMethod.ModifiedSuperpositionMethodOutput.CalculatePercentageDelta(MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalModelOutput)">
+            <inheritdoc />
         </member>
         <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.NonLinear.Schapery.SchaperyConstitutiveParameters">
             <summary>
@@ -2068,6 +2144,17 @@
             Contains the output for Schapery's model.
             </summary>
         </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.NonLinear.Schapery.SchaperyModelOutput.#ctor">
+            <summary>
+            Initializes a new instance of the <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.NonLinear.Schapery.SchaperyModelOutput"/> class.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.NonLinear.Schapery.SchaperyModelOutput.#ctor(MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.ViscoelasticModelOutput)">
+            <summary>
+            Initializes a new instance of the <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.NonLinear.Schapery.SchaperyModelOutput"/> class from a viscoelastic base output.
+            </summary>
+            <param name="baseOutput">The base viscoelastic output.</param>
+        </member>
         <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.NonLinear.Schapery.SchaperyModelOutput.TransientCreepCompliance">
             <summary>
             Unit: /Mpa (per Mega-Pascal).
@@ -2077,6 +2164,12 @@
             <summary>
             Unit: MPa (Mega-Pascal).
             </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.NonLinear.Schapery.SchaperyModelOutput.CalculateDelta(MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalModelOutput)">
+            <inheritdoc />
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.NonLinear.Schapery.SchaperyModelOutput.CalculatePercentageDelta(MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalModelOutput)">
+            <inheritdoc />
         </member>
         <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.QuasiLinear.FungConstitutiveParameters">
             <summary>
@@ -2115,6 +2208,17 @@
             Contains the output for quasi-linear Viscoelastic Model.
             </summary>
         </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.QuasiLinear.QuasiLinearModelOutput.#ctor">
+            <summary>
+            Initializes a new instance of the <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.QuasiLinear.QuasiLinearModelOutput"/> class.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.QuasiLinear.QuasiLinearModelOutput.#ctor(MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.ViscoelasticModelOutput)">
+            <summary>
+            Initializes a new instance of the <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.QuasiLinear.QuasiLinearModelOutput"/> class from a viscoelastic base output.
+            </summary>
+            <param name="baseOutput">The base viscoelastic output.</param>
+        </member>
         <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.QuasiLinear.QuasiLinearModelOutput.ReducedRelaxationFunction">
             <summary>
             Unit: dimensionless.
@@ -2139,6 +2243,12 @@
             <summary>
             Unit: MPa (Mega-Pascal).
             </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.QuasiLinear.QuasiLinearModelOutput.CalculateDelta(MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalModelOutput)">
+            <inheritdoc />
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.QuasiLinear.QuasiLinearModelOutput.CalculatePercentageDelta(MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalModelOutput)">
+            <inheritdoc />
         </member>
         <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.QuasiLinear.ReducedRelaxationFunction">
             <summary>
@@ -2244,6 +2354,17 @@
             Contains the output for a generic viscoelastic model.
             </summary>
         </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.ViscoelasticModelOutput.#ctor">
+            <summary>
+            Initializes a new instance of the <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.ViscoelasticModelOutput"/> class.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.ViscoelasticModelOutput.#ctor(MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalModelOutput)">
+            <summary>
+            Initializes a new instance of the <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.ViscoelasticModelOutput"/> class from a base output.
+            </summary>
+            <param name="baseOutput">The base output instance.</param>
+        </member>
         <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.ViscoelasticModelOutput.CreepCompliance">
             <summary>
             Unit: /MPa (per Mega-Pascal) or m/N (meter per Newton).
@@ -2253,6 +2374,12 @@
             <summary>
             Unit: MPa (Mega-Pascal) or N/m (Newton per meter).
             </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.ViscoelasticModelOutput.CalculateDelta(MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalModelOutput)">
+            <inheritdoc />
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.ViscoelasticModelOutput.CalculatePercentageDelta(MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalModelOutput)">
+            <inheritdoc />
         </member>
         <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalParameter">
             <summary>

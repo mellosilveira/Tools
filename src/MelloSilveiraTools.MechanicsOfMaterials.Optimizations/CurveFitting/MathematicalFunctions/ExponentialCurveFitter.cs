@@ -23,7 +23,7 @@ public sealed class ExponentialCurveFitter(ICurveFitter curveFitter) : IMathemat
             {
                 IndependentVariables = [input.IndependentVariable],
                 DependentVariable = input.DependentVariable,
-                Calculate = (p, xValues) => new ExponentialFunction(minX, maxX, p).Calculate(xValues[0]),
+                Calculate = (p, xValues) => new ExponentialFunction(p, minX, maxX).Calculate(xValues[0]),
                 LowerBounds = input.LowerBounds ?? [.. Enumerable.Repeat(double.MinValue, parameterCount)],
                 UpperBounds = input.UpperBounds ?? [.. Enumerable.Repeat(double.MaxValue, parameterCount)],
                 InitialParameters = GetInitialParameters(input, parameterCount),

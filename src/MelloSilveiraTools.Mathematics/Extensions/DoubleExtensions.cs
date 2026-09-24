@@ -1,4 +1,4 @@
-﻿using MelloSilveiraTools.Mathematics.Models;
+using MelloSilveiraTools.Mathematics.Models;
 using System.Runtime.CompilerServices;
 
 namespace MelloSilveiraTools.Mathematics.Extensions;
@@ -50,6 +50,14 @@ public static class DoubleExtensions
         public double RelativeDifference(double value2) => value == 0 ? 0 : (value - value2) / value;
 
         /// <summary>
+        /// Calculates the percentage difference between two values: (value1 - value2) / value1.
+        /// Returns 0 when <paramref name="value"/> is zero to avoid division by zero.
+        /// </summary>
+        /// <param name="value2"></param>
+        /// <returns></returns>
+        public double PercentageDifference(double value2) => value == 0 ? 0 : 100.0 * (value - value2) / value;
+
+        /// <summary>
         /// Calculates the relative absolut difference between two values.
         /// </summary>
         /// <param name="value2"></param>
@@ -89,5 +97,22 @@ public static class DoubleExtensions
         /// </summary>
         /// <returns></returns>
         public bool IsNegative() => value is not null && double.IsNegative(value.Value);
+
+        /// <summary>
+        /// Calculates the percentage difference between two nullable values: 100.0 * (value - value2) / value.
+        /// Returns null if either value is null.
+        /// Returns 0 when <paramref name="value"/> is zero to avoid division by zero.
+        /// </summary>
+        /// <param name="value2">The second value.</param>
+        /// <returns>The percentage difference, or null if either value is null.</returns>
+        public double? PercentageDifference(double? value2)
+        {
+            if (value is null || value2 is null)
+            {
+                return null;
+            }
+
+            return value.Value.PercentageDifference(value2.Value);
+        }
     }
 }

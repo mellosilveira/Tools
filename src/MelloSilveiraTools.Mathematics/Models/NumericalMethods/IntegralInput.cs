@@ -3,20 +3,10 @@ namespace MelloSilveiraTools.Mathematics.Models.NumericalMethods;
 /// <summary>
 /// Contains the input data for integrations.
 /// </summary>
-public record IntegralInput
+/// <param name="InitialPoint"></param>
+/// <param name="FinalPoint"></param>
+/// <param name="Step"></param>
+public record IntegralInput(double InitialPoint, double FinalPoint, double Step)
 {
-    /// <summary>
-    /// The initial point.
-    /// </summary>
-    public double InitialPoint { get; init; }
-
-    /// <summary>
-    /// The final point.
-    /// </summary>
-    public double FinalPoint { get; init; }
-
-    /// <summary>
-    /// The step size used while iterating.
-    /// </summary>
-    public double Step { get; init; }
+    public IntegralInput(double finalPoint, double step) : this(MathematicConstants.InitialTime, finalPoint, step) { }
 }

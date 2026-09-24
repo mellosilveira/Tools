@@ -6,13 +6,13 @@ namespace MelloSilveiraTools.Mathematics.Functions;
 /// Represents an exponencial function.
 /// f(x) = a_0 * e^(a_1 * x) + ... + a_n-1 * e^(a_n * x)
 /// </summary>
+/// <param name="coefficients"></param>
 /// <param name="initialVariableValue"></param>
 /// <param name="finalVariableValue"></param>
-/// <param name="coefficients"></param>
 public sealed class ExponentialFunction(
-    double? initialVariableValue,
-    double? finalVariableValue,
-    double[] coefficients) : Function(FunctionType.Exponential, initialVariableValue, finalVariableValue, coefficients)
+    double[] coefficients,
+    double? initialVariableValue = null,
+    double? finalVariableValue = null) : Function(FunctionType.Exponential, coefficients, initialVariableValue, finalVariableValue)
 {
     /// <inheritdoc/>
     public override double Calculate(double variableValue)
@@ -37,7 +37,7 @@ public sealed class ExponentialFunction(
             derivativeCoefficients[2 * i + 1] = Coefficients[2 * i + 1];
         }
 
-        return new ExponentialFunction(InitialVariableValue, FinalVariableValue, derivativeCoefficients);
+        return new ExponentialFunction(derivativeCoefficients, InitialVariableValue, FinalVariableValue);
     }
 
     /// <inheritdoc/>
@@ -52,6 +52,6 @@ public sealed class ExponentialFunction(
             integralCoefficients[2 * i + 1] = Coefficients[2 * i + 1];
         }
 
-        return new ExponentialFunction(InitialVariableValue, FinalVariableValue, integralCoefficients);
+        return new ExponentialFunction(integralCoefficients, InitialVariableValue, FinalVariableValue);
     }
 }

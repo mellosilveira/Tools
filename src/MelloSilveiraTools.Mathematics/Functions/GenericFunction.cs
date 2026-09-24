@@ -16,7 +16,7 @@ public sealed class GenericFunction(
     Func<double, double> function,
     Func<double, double>? derivativeFunction = null,
     Func<double, double>? integralFunction = null)
-    : Function(FunctionType.Generic, initialVariableValue, finalVariableValue, [])
+    : Function(FunctionType.Generic, [], initialVariableValue, finalVariableValue)
 {
     /// <inheritdoc/>
     public override double Calculate(double variableValue) => function(variableValue);

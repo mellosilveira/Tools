@@ -44,12 +44,7 @@ public abstract class LinearModelCalculator<TConstitutiveParameters>(
                     double strainDerivative = parameterConverter.CalculateStrainDerivativeFromDisplacement(input.Specimen!, integralDisplacement, integralDisplacementDerivative);
                     return CalculateRelaxationFunction(input, time - integrationTime) * strainDerivative;
                 },
-                new IntegralInput
-                {
-                    InitialPoint = MathematicConstants.InitialTime,
-                    Step = input.TimeStep,
-                    FinalPoint = time
-                });
+                new IntegralInput(input.TimeStep, time));
         }
 
         return parameterConverter.CalculateForceFromStress(input.Specimen!, stress);
@@ -80,12 +75,7 @@ public abstract class LinearModelCalculator<TConstitutiveParameters>(
                     double stressDerivative = parameterConverter.CalculateStressDerivativeFromForce(input.Specimen!, integralForce, integralForceDerivative);
                     return CalculateCreepCompliance(input, time - integrationTime) * stressDerivative;
                 },
-                new IntegralInput
-                {
-                    InitialPoint = MathematicConstants.InitialTime,
-                    Step = input.TimeStep,
-                    FinalPoint = time
-                });
+                new IntegralInput(input.TimeStep, time));
         }
 
         return parameterConverter.CalculateDisplacementFromStrain(input.Specimen!, strain);
@@ -107,12 +97,7 @@ public abstract class LinearModelCalculator<TConstitutiveParameters>(
 
         return integration.Calculate(
             (integrationTime) => CalculateRelaxationFunction(input, time - integrationTime) * input.Strain!.CalculateDerivative(integrationTime),
-            new IntegralInput
-            {
-                InitialPoint = MathematicConstants.InitialTime,
-                Step = input.TimeStep,
-                FinalPoint = time
-            });
+            new IntegralInput(input.TimeStep, time));
     }
 
     /// <inheritdoc/>
@@ -131,12 +116,7 @@ public abstract class LinearModelCalculator<TConstitutiveParameters>(
 
         return integration.Calculate(
             (integrationTime) => CalculateCreepCompliance(input, time - integrationTime) * input.Stress!.CalculateDerivative(integrationTime),
-            new IntegralInput
-            {
-                InitialPoint = MathematicConstants.InitialTime,
-                Step = input.TimeStep,
-                FinalPoint = time
-            });
+            new IntegralInput(input.TimeStep, time));
     }
 
     /// <inheritdoc/>

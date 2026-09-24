@@ -204,6 +204,9 @@
         <member name="M:MelloSilveiraTools.Mathematics.Extensions.DoubleExtensions.RelativeDifference(System.Double,System.Double)">
             <inheritdoc cref="M:MelloSilveiraTools.Mathematics.Extensions.DoubleExtensions.&lt;G&gt;$4EDA8CBD8B61F6706755C541165134FD.RelativeDifference(System.Double)"/>
         </member>
+        <member name="M:MelloSilveiraTools.Mathematics.Extensions.DoubleExtensions.PercentageDifference(System.Double,System.Double)">
+            <inheritdoc cref="M:MelloSilveiraTools.Mathematics.Extensions.DoubleExtensions.&lt;G&gt;$4EDA8CBD8B61F6706755C541165134FD.PercentageDifference(System.Double)"/>
+        </member>
         <member name="M:MelloSilveiraTools.Mathematics.Extensions.DoubleExtensions.AbsolutRelativeDifference(System.Double,System.Double)">
             <inheritdoc cref="M:MelloSilveiraTools.Mathematics.Extensions.DoubleExtensions.&lt;G&gt;$4EDA8CBD8B61F6706755C541165134FD.AbsolutRelativeDifference(System.Double)"/>
         </member>
@@ -215,6 +218,9 @@
         </member>
         <member name="M:MelloSilveiraTools.Mathematics.Extensions.DoubleExtensions.IsNegative(System.Nullable{System.Double})">
             <inheritdoc cref="M:MelloSilveiraTools.Mathematics.Extensions.DoubleExtensions.&lt;G&gt;$7EB0052855A41EB6606E81C43C3F1B9A.IsNegative"/>
+        </member>
+        <member name="M:MelloSilveiraTools.Mathematics.Extensions.DoubleExtensions.PercentageDifference(System.Nullable{System.Double},System.Nullable{System.Double})">
+            <inheritdoc cref="M:MelloSilveiraTools.Mathematics.Extensions.DoubleExtensions.&lt;G&gt;$7EB0052855A41EB6606E81C43C3F1B9A.PercentageDifference(System.Nullable{System.Double})"/>
         </member>
         <member name="M:MelloSilveiraTools.Mathematics.Extensions.DoubleExtensions.&lt;G&gt;$4EDA8CBD8B61F6706755C541165134FD.Squared">
             <summary>
@@ -254,6 +260,14 @@
             <param name="value2"></param>
             <returns></returns>
         </member>
+        <member name="M:MelloSilveiraTools.Mathematics.Extensions.DoubleExtensions.&lt;G&gt;$4EDA8CBD8B61F6706755C541165134FD.PercentageDifference(System.Double)">
+            <summary>
+            Calculates the percentage difference between two values: (value1 - value2) / value1.
+            Returns 0 when <paramref name="value"/> is zero to avoid division by zero.
+            </summary>
+            <param name="value2"></param>
+            <returns></returns>
+        </member>
         <member name="M:MelloSilveiraTools.Mathematics.Extensions.DoubleExtensions.&lt;G&gt;$4EDA8CBD8B61F6706755C541165134FD.AbsolutRelativeDifference(System.Double)">
             <summary>
             Calculates the relative absolut difference between two values.
@@ -280,6 +294,15 @@
             Indicates if a value is negative and is not zero.
             </summary>
             <returns></returns>
+        </member>
+        <member name="M:MelloSilveiraTools.Mathematics.Extensions.DoubleExtensions.&lt;G&gt;$7EB0052855A41EB6606E81C43C3F1B9A.PercentageDifference(System.Nullable{System.Double})">
+            <summary>
+            Calculates the percentage difference between two nullable values: 100.0 * (value - value2) / value.
+            Returns null if either value is null.
+            Returns 0 when <paramref name="value"/> is zero to avoid division by zero.
+            </summary>
+            <param name="value2">The second value.</param>
+            <returns>The percentage difference, or null if either value is null.</returns>
         </member>
         <member name="T:MelloSilveiraTools.Mathematics.Extensions.Vector3DExtensions">
             <summary>
@@ -332,18 +355,18 @@
             Represents a constant function.
             f(x) = c
             </summary>
+            <param name="coefficient"></param>
             <param name="initialVariableValue"></param>
             <param name="finalVariableValue"></param>
-            <param name="coefficient"></param>
         </member>
-        <member name="M:MelloSilveiraTools.Mathematics.Functions.ConstantFunction.#ctor(System.Nullable{System.Double},System.Nullable{System.Double},System.Double)">
+        <member name="M:MelloSilveiraTools.Mathematics.Functions.ConstantFunction.#ctor(System.Double,System.Nullable{System.Double},System.Nullable{System.Double})">
             <summary>
             Represents a constant function.
             f(x) = c
             </summary>
+            <param name="coefficient"></param>
             <param name="initialVariableValue"></param>
             <param name="finalVariableValue"></param>
-            <param name="coefficient"></param>
         </member>
         <member name="M:MelloSilveiraTools.Mathematics.Functions.ConstantFunction.Calculate(System.Double)">
             <inheritdoc/>
@@ -364,7 +387,7 @@
             <param name="finalVariableValue"></param>
             <param name="coefficients"></param>
         </member>
-        <member name="M:MelloSilveiraTools.Mathematics.Functions.CosineFunction.#ctor(System.Nullable{System.Double},System.Nullable{System.Double},System.Double[])">
+        <member name="M:MelloSilveiraTools.Mathematics.Functions.CosineFunction.#ctor(System.Double[],System.Nullable{System.Double},System.Nullable{System.Double})">
             <summary>
             Represents a cosine function.
             f(x) = a_0 * cos[a_1 * (x - a_2)] + ... + a_n-2 * cos[a_n-1 * (x - a_n)]
@@ -387,18 +410,18 @@
             Represents an exponencial function.
             f(x) = a_0 * e^(a_1 * x) + ... + a_n-1 * e^(a_n * x)
             </summary>
+            <param name="coefficients"></param>
             <param name="initialVariableValue"></param>
             <param name="finalVariableValue"></param>
-            <param name="coefficients"></param>
         </member>
-        <member name="M:MelloSilveiraTools.Mathematics.Functions.ExponentialFunction.#ctor(System.Nullable{System.Double},System.Nullable{System.Double},System.Double[])">
+        <member name="M:MelloSilveiraTools.Mathematics.Functions.ExponentialFunction.#ctor(System.Double[],System.Nullable{System.Double},System.Nullable{System.Double})">
             <summary>
             Represents an exponencial function.
             f(x) = a_0 * e^(a_1 * x) + ... + a_n-1 * e^(a_n * x)
             </summary>
+            <param name="coefficients"></param>
             <param name="initialVariableValue"></param>
             <param name="finalVariableValue"></param>
-            <param name="coefficients"></param>
         </member>
         <member name="M:MelloSilveiraTools.Mathematics.Functions.ExponentialFunction.Calculate(System.Double)">
             <inheritdoc/>
@@ -414,19 +437,19 @@
             Represents an unique dimension mathematical function, f(x).
             </summary>
             <param name="functionType"></param>
+            <param name="coefficients"></param>
             <param name="initialVariableValue"></param>
             <param name="finalVariableValue"></param>
-            <param name="coefficients"></param>
             <exception cref="T:System.ArgumentNullException">When <paramref name="coefficients"/> is null.</exception>
         </member>
-        <member name="M:MelloSilveiraTools.Mathematics.Functions.Function.#ctor(MelloSilveiraTools.Mathematics.Models.FunctionType,System.Nullable{System.Double},System.Nullable{System.Double},System.Double[])">
+        <member name="M:MelloSilveiraTools.Mathematics.Functions.Function.#ctor(MelloSilveiraTools.Mathematics.Models.FunctionType,System.Double[],System.Nullable{System.Double},System.Nullable{System.Double})">
             <summary>
             Represents an unique dimension mathematical function, f(x).
             </summary>
             <param name="functionType"></param>
+            <param name="coefficients"></param>
             <param name="initialVariableValue"></param>
             <param name="finalVariableValue"></param>
-            <param name="coefficients"></param>
             <exception cref="T:System.ArgumentNullException">When <paramref name="coefficients"/> is null.</exception>
         </member>
         <member name="P:MelloSilveiraTools.Mathematics.Functions.Function.Derivative">
@@ -509,18 +532,18 @@
             Represents a logarithmic function.
             f(x) = a_0 + a_1 * ln(a_2 * x) + ... + a_n-1 * ln(a_n * x)
             </summary>
+            <param name="coefficients">The array containing the coefficients a_0, a_1, a_2, ..., a_n.</param>
             <param name="initialVariableValue">The initial value of the variable range.</param>
             <param name="finalVariableValue">The final value of the variable range.</param>
-            <param name="coefficients">The array containing the coefficients a_0, a_1, a_2, ..., a_n.</param>
         </member>
-        <member name="M:MelloSilveiraTools.Mathematics.Functions.LogarithmicFunction.#ctor(System.Nullable{System.Double},System.Nullable{System.Double},System.Double[])">
+        <member name="M:MelloSilveiraTools.Mathematics.Functions.LogarithmicFunction.#ctor(System.Double[],System.Nullable{System.Double},System.Nullable{System.Double})">
             <summary>
             Represents a logarithmic function.
             f(x) = a_0 + a_1 * ln(a_2 * x) + ... + a_n-1 * ln(a_n * x)
             </summary>
+            <param name="coefficients">The array containing the coefficients a_0, a_1, a_2, ..., a_n.</param>
             <param name="initialVariableValue">The initial value of the variable range.</param>
             <param name="finalVariableValue">The final value of the variable range.</param>
-            <param name="coefficients">The array containing the coefficients a_0, a_1, a_2, ..., a_n.</param>
         </member>
         <member name="M:MelloSilveiraTools.Mathematics.Functions.LogarithmicFunction.Calculate(System.Double)">
             <inheritdoc/>
@@ -536,18 +559,18 @@
             Represents a polynomial function.
             f(x) = a_0 + a_1 * x + a_2 * x^2 + ... + a_n * x^n
             </summary>
+            <param name="coefficients"></param>
             <param name="initialVariableValue"></param>
             <param name="finalVariableValue"></param>
-            <param name="coefficients"></param>
         </member>
-        <member name="M:MelloSilveiraTools.Mathematics.Functions.PolynomialFunction.#ctor(System.Nullable{System.Double},System.Nullable{System.Double},System.Double[])">
+        <member name="M:MelloSilveiraTools.Mathematics.Functions.PolynomialFunction.#ctor(System.Double[],System.Nullable{System.Double},System.Nullable{System.Double})">
             <summary>
             Represents a polynomial function.
             f(x) = a_0 + a_1 * x + a_2 * x^2 + ... + a_n * x^n
             </summary>
+            <param name="coefficients"></param>
             <param name="initialVariableValue"></param>
             <param name="finalVariableValue"></param>
-            <param name="coefficients"></param>
         </member>
         <member name="M:MelloSilveiraTools.Mathematics.Functions.PolynomialFunction.Calculate(System.Double)">
             <inheritdoc/>
@@ -564,14 +587,22 @@
             f(x) = a_0 * x^(-a_1)
             </summary>
         </member>
+        <member name="M:MelloSilveiraTools.Mathematics.Functions.PowerLaw.#ctor(System.Double[],System.Nullable{System.Double},System.Nullable{System.Double})">
+            <summary>
+            Initializes a new instance of <see cref="T:MelloSilveiraTools.Mathematics.Functions.PowerLaw"/>.
+            </summary>
+            <param name="coefficients"></param>
+            <param name="initialVariableValue"></param>
+            <param name="finalVariableValue"></param>
+            <exception cref="T:System.ArgumentOutOfRangeException"></exception>
+        </member>
         <member name="M:MelloSilveiraTools.Mathematics.Functions.PowerLaw.#ctor(System.Nullable{System.Double},System.Nullable{System.Double},System.Double[])">
             <summary>
             Initializes a new instance of <see cref="T:MelloSilveiraTools.Mathematics.Functions.PowerLaw"/>.
             </summary>
-            <param name="initialVariableValue"></param>
-            <param name="finalVariableValue"></param>
-            <param name="coefficients"></param>
-            <exception cref="T:System.ArgumentOutOfRangeException"></exception>
+            <param name="initialVariableValue">Initial value for variable.</param>
+            <param name="finalVariableValue">Final value for variable.</param>
+            <param name="coefficients">The coefficients.</param>
         </member>
         <member name="M:MelloSilveiraTools.Mathematics.Functions.PowerLaw.Calculate(System.Double)">
             <inheritdoc/>
@@ -591,7 +622,7 @@
             <param name="finalVariableValue"></param>
             <param name="coefficients"></param>
         </member>
-        <member name="M:MelloSilveiraTools.Mathematics.Functions.SineFunction.#ctor(System.Nullable{System.Double},System.Nullable{System.Double},System.Double[])">
+        <member name="M:MelloSilveiraTools.Mathematics.Functions.SineFunction.#ctor(System.Double[],System.Nullable{System.Double},System.Nullable{System.Double})">
             <summary>
             Represents a sine function.
             f(x) = a_0 * sin[a_1 * (x - a_2)] + ... + a_n-2 * sin[a_n-1 * (x - a_n)]
@@ -806,21 +837,26 @@
             <summary>
             Contains the input data for integrations.
             </summary>
+            <param name="InitialPoint"></param>
+            <param name="FinalPoint"></param>
+            <param name="Step"></param>
+        </member>
+        <member name="M:MelloSilveiraTools.Mathematics.Models.NumericalMethods.IntegralInput.#ctor(System.Double,System.Double,System.Double)">
+            <summary>
+            Contains the input data for integrations.
+            </summary>
+            <param name="InitialPoint"></param>
+            <param name="FinalPoint"></param>
+            <param name="Step"></param>
         </member>
         <member name="P:MelloSilveiraTools.Mathematics.Models.NumericalMethods.IntegralInput.InitialPoint">
-            <summary>
-            The initial point.
-            </summary>
+            <summary></summary>
         </member>
         <member name="P:MelloSilveiraTools.Mathematics.Models.NumericalMethods.IntegralInput.FinalPoint">
-            <summary>
-            The final point.
-            </summary>
+            <summary></summary>
         </member>
         <member name="P:MelloSilveiraTools.Mathematics.Models.NumericalMethods.IntegralInput.Step">
-            <summary>
-            The step size used while iterating.
-            </summary>
+            <summary></summary>
         </member>
         <member name="T:MelloSilveiraTools.Mathematics.Models.NumericalMethods.RootFindingAlgorithm">
             <summary>

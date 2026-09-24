@@ -103,4 +103,6 @@ public class MathExpression : List<Function>
 
         return new MathExpression(Type, integralFunctions, InitialVariableValue, FinalVariableValue);
     }
+
+    public static implicit operator MathExpression(Function function) => new(MathExpressionType.Generic, [function], function.InitialVariableValue, function.FinalVariableValue);
 }

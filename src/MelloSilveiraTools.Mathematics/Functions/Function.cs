@@ -1,4 +1,4 @@
-﻿using MelloSilveiraTools.Mathematics.Models;
+using MelloSilveiraTools.Mathematics.Models;
 
 namespace MelloSilveiraTools.Mathematics.Functions;
 
@@ -6,11 +6,11 @@ namespace MelloSilveiraTools.Mathematics.Functions;
 /// Represents an unique dimension mathematical function, f(x).
 /// </summary>
 /// <param name="functionType"></param>
+/// <param name="coefficients"></param>
 /// <param name="initialVariableValue"></param>
 /// <param name="finalVariableValue"></param>
-/// <param name="coefficients"></param>
 /// <exception cref="ArgumentNullException">When <paramref name="coefficients"/> is null.</exception>
-public abstract class Function(FunctionType functionType, double? initialVariableValue, double? finalVariableValue, double[] coefficients)
+public abstract class Function(FunctionType functionType, double[] coefficients, double? initialVariableValue = null, double? finalVariableValue = null)
 {
     private Function? _derivative;
     private Function? _integral;
@@ -61,5 +61,5 @@ public abstract class Function(FunctionType functionType, double? initialVariabl
     /// </summary>
     protected abstract Function CreateIntegral();
 
-    public static implicit operator Function(int value) => new ConstantFunction(null, null, value);
+    public static implicit operator Function(int value) => new ConstantFunction(value);
 }

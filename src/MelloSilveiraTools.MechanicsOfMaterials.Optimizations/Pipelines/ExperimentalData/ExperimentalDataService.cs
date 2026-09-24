@@ -6,10 +6,11 @@ using MelloSilveiraTools.Mathematics.NumericalMethods.Differentiations;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Models;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Factories;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Models;
-using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Steps;
-using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Steps.CurveFitter;
 using Microsoft.Extensions.Logging;
 using System.Collections.Concurrent;
+using MelloSilveiraTools.Database.Repositories;
+using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Steps;
+using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Steps.CurveFitter;
 
 namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData;
 
@@ -21,6 +22,7 @@ public class ExperimentalDataService(
     IFileManager fileManager,
     IDifferentiation differentiation,
     IMechanicalModelStepFactory stepFactory,
+    IRepository repository,
     ExperimentalDataSettings settings)
     : IExperimentalDataService
 {
@@ -33,6 +35,7 @@ public class ExperimentalDataService(
         ExperimentalDataFileWriterStep fileWriterStep = new(fileManager, input.OutputFileUri, input.Identifier);
         CurveSegmentBuilderStep curveSegmentBuilderStep = new();
         IMechanicalModelCurveFitterStep curveFitterStep = stepFactory.Create(input.MechanicalModelName, input.TargetSegments);
+        ExperimentalDataPersistenceStep persistenceStep = new(repository);
 
         IDataflowPipeline<ExperimentalDataSegmenterInput> pipeline = PipelineFactory
             .StartDataflow<ExperimentalDataSegmenterInput>(logger, cancellationToken: cancellationToken)
@@ -44,6 +47,7 @@ public class ExperimentalDataService(
             .AddStep(curveSegmentBuilderStep, settings.SegmentBuilderOptions)
             .AddCollectAllStep()
             .AddStep(curveFitterStep, settings.CurveFitterOptions)
+            .AddStep(persistenceStep)
             .BuildTerminal("CollectParameters", parameterBatches.Add);
 
         await using (pipeline)

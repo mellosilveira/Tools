@@ -67,12 +67,7 @@ public sealed class ModifiedSuperpositionMethodCalculator(IIntegration integrati
 
                 return CalculateRelaxationFunction(input, time - integrationTime, currentStrain) * strainDerivative;
             },
-            new IntegralInput
-            {
-                InitialPoint = MathematicConstants.InitialTime,
-                Step = input.TimeStep,
-                FinalPoint = time
-            });
+            new IntegralInput(input.TimeStep, time));
         }
 
         return parameterConverter.CalculateForceFromStress(input.Specimen!, stress);
@@ -107,12 +102,7 @@ public sealed class ModifiedSuperpositionMethodCalculator(IIntegration integrati
             (double integrationStrain, double integrationStrainDerivative) = input.Strain!.CalculateValueAndDerivative(integrationTime);
             return CalculateRelaxationFunction(input, time - integrationTime, integrationStrain) * integrationStrainDerivative;
         },
-        new IntegralInput
-        {
-            InitialPoint = MathematicConstants.InitialTime,
-            Step = input.TimeStep,
-            FinalPoint = time
-        });
+        new IntegralInput(input.TimeStep, time));
     }
 
     /// <inheritdoc/>

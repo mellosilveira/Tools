@@ -27,6 +27,7 @@
 
 	<ItemGroup>
 		<ProjectReference Include="..\MelloSilveiraTools.MechanicsOfMaterials\MelloSilveiraTools.MechanicsOfMaterials.csproj" />
+		<ProjectReference Include="..\MelloSilveiraTools.Database\MelloSilveiraTools.Database.csproj" />
 	</ItemGroup>
 
 </Project>

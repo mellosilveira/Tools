@@ -6,13 +6,14 @@ namespace MelloSilveiraTools.Mathematics.Functions;
 /// Represents a cosine function.
 /// f(x) = a_0 * cos[a_1 * (x - a_2)] + ... + a_n-2 * cos[a_n-1 * (x - a_n)]
 /// </summary>
+/// <param name="coefficients"></param>
 /// <param name="initialVariableValue"></param>
 /// <param name="finalVariableValue"></param>
-/// <param name="coefficients"></param>
 public sealed class CosineFunction(
-    double? initialVariableValue,
-    double? finalVariableValue,
-    double[] coefficients) : Function(FunctionType.Cosine, initialVariableValue, finalVariableValue, coefficients)
+    double[] coefficients,
+    double? initialVariableValue = null,
+    double? finalVariableValue = null) 
+    : Function(FunctionType.Cosine, coefficients, initialVariableValue, finalVariableValue)
 {
     /// <inheritdoc/>
     public override double Calculate(double variableValue)
@@ -38,7 +39,7 @@ public sealed class CosineFunction(
             derivativeCoefficients[3 * i + 2] = Coefficients[3 * i + 2];
         }
 
-        return new SineFunction(InitialVariableValue, FinalVariableValue, derivativeCoefficients);
+        return new SineFunction(derivativeCoefficients, InitialVariableValue, FinalVariableValue);
     }
 
     /// <inheritdoc/>
@@ -54,6 +55,6 @@ public sealed class CosineFunction(
             integralCoefficients[3 * i + 2] = Coefficients[3 * i + 2];
         }
 
-        return new SineFunction(InitialVariableValue, FinalVariableValue, integralCoefficients);
+        return new SineFunction(integralCoefficients, InitialVariableValue, FinalVariableValue);
     }
 }

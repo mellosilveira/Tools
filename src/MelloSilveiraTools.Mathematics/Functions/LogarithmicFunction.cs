@@ -6,14 +6,14 @@ namespace MelloSilveiraTools.Mathematics.Functions;
 /// Represents a logarithmic function.
 /// f(x) = a_0 + a_1 * ln(a_2 * x) + ... + a_n-1 * ln(a_n * x)
 /// </summary>
+/// <param name="coefficients">The array containing the coefficients a_0, a_1, a_2, ..., a_n.</param>
 /// <param name="initialVariableValue">The initial value of the variable range.</param>
 /// <param name="finalVariableValue">The final value of the variable range.</param>
-/// <param name="coefficients">The array containing the coefficients a_0, a_1, a_2, ..., a_n.</param>
 public sealed class LogarithmicFunction(
-    double? initialVariableValue,
-    double? finalVariableValue,
-    double[] coefficients)
-    : Function(FunctionType.Logarithmic, initialVariableValue, finalVariableValue, coefficients)
+    double[] coefficients,
+    double? initialVariableValue = null,
+    double? finalVariableValue = null)
+    : Function(FunctionType.Logarithmic, coefficients, initialVariableValue, finalVariableValue)
 {
     /// <inheritdoc/>
     public override double Calculate(double variableValue)

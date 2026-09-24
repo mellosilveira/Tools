@@ -10,9 +10,9 @@ namespace MelloSilveiraTools.Mathematics.Functions;
 /// <param name="finalVariableValue"></param>
 /// <param name="coefficients"></param>
 public sealed class SineFunction(
-    double? initialVariableValue,
-    double? finalVariableValue,
-    double[] coefficients) : Function(FunctionType.Sine, initialVariableValue, finalVariableValue, coefficients)
+    double[] coefficients,
+    double? initialVariableValue = null,
+    double? finalVariableValue = null) : Function(FunctionType.Sine, coefficients, initialVariableValue, finalVariableValue)
 {
 
     /// <inheritdoc/>
@@ -39,7 +39,7 @@ public sealed class SineFunction(
             derivativeCoefficients[3 * i + 2] = Coefficients[3 * i + 2];
         }
 
-        return new CosineFunction(InitialVariableValue, FinalVariableValue, derivativeCoefficients);
+        return new CosineFunction(derivativeCoefficients, InitialVariableValue, FinalVariableValue);
     }
 
     /// <inheritdoc/>
@@ -55,6 +55,6 @@ public sealed class SineFunction(
             integralCoefficients[3 * i + 2] = Coefficients[3 * i + 2];
         }
 
-        return new CosineFunction(InitialVariableValue, FinalVariableValue, integralCoefficients);
+        return new CosineFunction(integralCoefficients, InitialVariableValue, FinalVariableValue);
     }
 }
