@@ -24,7 +24,7 @@ public class MechanicalModelTypeCache(ISingleLevelCache cache) : IMechanicalMode
 
     /// <inheritdoc/>
     public Dictionary<string, Action<object, object>> GetOrAddPropertySetters(Type type)
-        => cache.GetOrAdd($"OutputFactory:{type.FullName}", () => CompilePropertySetters(type));
+        => cache.GetOrAdd($"PropertySetters:{type.FullName}", () => CompilePropertySetters(type));
 
     /// <inheritdoc/>
     public Type[] GetOrAddConstructorParameterTypes(Type type)

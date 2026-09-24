@@ -1,4 +1,5 @@
-﻿using MelloSilveiraTools.Core.Providers;
+using MelloSilveiraTools.Core.Providers;
+using MelloSilveiraTools.Core.Providers.Dynamics;
 using MelloSilveiraTools.Mathematics.Expressions;
 using MelloSilveiraTools.MechanicsOfMaterials.Caching;
 using MelloSilveiraTools.MechanicsOfMaterials.Calculators.ConstitutiveEquations;
@@ -6,6 +7,7 @@ using MelloSilveiraTools.MechanicsOfMaterials.Calculators.Fatigue;
 using MelloSilveiraTools.MechanicsOfMaterials.Calculators.GeometricProperties;
 using MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels;
 using MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Elasticity;
+using MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.TypeResolvers;
 using MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Viscoelasticity;
 using MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Viscoelasticity.Linear.Maxwell;
 using MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Viscoelasticity.NonLinear.ModifiedSuperpositionMethod;
@@ -14,6 +16,7 @@ using MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Visco
 using MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Viscoelasticity.QuasiLinear.Fung;
 using MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Viscoelasticity.QuasiLinear.SimplifiedFung;
 using MelloSilveiraTools.MechanicsOfMaterials.Converters.MechanicalParameter;
+using MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels;
 using MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Elasticity;
 using MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.Linear.Maxwell;
 using MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.NonLinear.ModifiedSuperpositionMethod;
@@ -51,8 +54,17 @@ public static class DependencyInjection
                 .AddSingleton<IGeometricPropertyCalculator<CircularProfile>, CircularProfileGeometricPropertyCalculator>()
                 .AddSingleton<IGeometricPropertyCalculator<RectangularProfile>, RectangularProfileGeometricPropertyCalculator>()
                 // Register service dependencies.
+                .AddSingleton<IDynamicServiceProvider, InMemoryDynamicServiceProvider>()
                 .AddSingleton<ServiceLocator>()
-                .AddSingleton<IMechanicalModelTypeCache, MechanicalModelTypeCache>();
+                .AddSingleton<IMechanicalModelTypeCache, MechanicalModelTypeCache>()
+                .AddSingleton<IMechanicalModelCalculatorFactory, MechanicalModelCalculatorFactory>()
+                // Register mechanical-model type resolvers.
+                .AddKeyedSingleton<IMechanicalModelTypeResolver, ElasticModelTypeResolver>(nameof(MechanicalModel.Elastic))
+                .AddKeyedSingleton<IMechanicalModelTypeResolver, MaxwellModelTypeResolver>(nameof(MechanicalModel.Maxwell))
+                .AddKeyedSingleton<IMechanicalModelTypeResolver, FungModelTypeResolver>(nameof(MechanicalModel.Fung))
+                .AddKeyedSingleton<IMechanicalModelTypeResolver, SimplifiedFungModelTypeResolver>(nameof(MechanicalModel.SimplifiedFung))
+                .AddKeyedSingleton<IMechanicalModelTypeResolver, SchaperyModelTypeResolver>(nameof(MechanicalModel.Schapery))
+                .AddKeyedSingleton<IMechanicalModelTypeResolver, ModifiedSuperpositionMethodTypeResolver>(nameof(MechanicalModel.ModifiedSuperpositionMethod));
         }
 
         public IServiceCollection AddMechanicalModels() => services

@@ -10,7 +10,7 @@ namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.Experi
 
 /// <summary>
 /// Pipeline step that persists the curve-fitted constitutive parameters to the database.
-/// Acts as a pass-through, yielding the output for further in-memory collection.
+/// Acts as a pass-through, yielding the output for further in-memory collection and simulation.
 /// </summary>
 public class ExperimentalDataPersistenceStep(IRepository repository) : IAsyncPipelineStep<MechanicalModelCurveFitOutput, MechanicalModelCurveFitOutput>
 {
@@ -40,7 +40,7 @@ public class ExperimentalDataPersistenceStep(IRepository repository) : IAsyncPip
 
         await repository.TryInsertAsync(entity, cancellationToken).ConfigureAwait(false);
 
-        return output;
+        return output with { Identifier = identifierHash };
     }
 
     private static string ComputeSha256Hash(string rawData)

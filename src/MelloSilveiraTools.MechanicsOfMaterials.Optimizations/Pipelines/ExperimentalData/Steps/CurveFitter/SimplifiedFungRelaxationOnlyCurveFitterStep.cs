@@ -59,7 +59,6 @@ public sealed class SimplifiedFungRelaxationOnlyCurveFitterStep(
             {
                 CurveSegment relaxation = segment;
 
-                double initialStress = relaxation.ExperimentalStress[0];
                 double[] relaxationTime = relaxation.TimePoints.TranslateToOrigin();
                 double[] normalizedStress = relaxation.ExperimentalStress.Normalize(relaxation.ExperimentalStress[0]);
 
@@ -72,6 +71,7 @@ public sealed class SimplifiedFungRelaxationOnlyCurveFitterStep(
                     UpperBounds = RelaxationUpperBounds,
                     InitialParameters = RelaxationInitialParameters
                 };
+
                 CurveFitOutput relaxationOutput = pronySeriesCurveFitter.Fit(relaxationInput);
 
                 PronySeries reducedRelaxationFunction = new(
@@ -86,11 +86,18 @@ public sealed class SimplifiedFungRelaxationOnlyCurveFitterStep(
                 else
                 {
                     SimplifiedFungConstitutiveParameters constitutiveParameters = new(0, 0, reducedRelaxationFunction);
+                    double dt = relaxation.TimePoints.Length > 1 ? (relaxation.TimePoints[^1] - relaxation.TimePoints[0]) / (relaxation.TimePoints.Length - 1) : 0.01;
                     yield return CreateCurveFitOutput(
                         constitutiveParameters,
                         new AcceptedRange(relaxation.ExperimentalStrain[0], relaxation.ExperimentalStrain[^1]),
+                        RampTimeConsideration.Disregard,
                         relaxationOutput.FinalError,
-                        relaxationOutput.Iterations);
+                        relaxationOutput.Iterations,
+                        relaxation.TimePoints,
+                        relaxation.ExperimentalStrain,
+                        relaxation.ExperimentalStress,
+                        dt,
+                        null);
                 }
             }
 
@@ -124,11 +131,21 @@ public sealed class SimplifiedFungRelaxationOnlyCurveFitterStep(
         int totalIterations = relaxationIterations + rampOutput.Iterations;
 
         SimplifiedFungConstitutiveParameters constitutiveParameters = new(rampOutput.OptimizedParameters[0], rampOutput.OptimizedParameters[1], reducedRelaxationFunction);
+        double[] fullTimePoints = [.. ramp.TimePoints, .. relaxation.TimePoints];
+        double[] fullStrain = [.. ramp.ExperimentalStrain, .. relaxation.ExperimentalStrain];
+        double[] fullStress = [.. ramp.ExperimentalStress, .. relaxation.ExperimentalStress];
+        double rampDuration = ramp.TimePoints[^1] - ramp.TimePoints[0];
+
         return CreateCurveFitOutput(
             constitutiveParameters,
             new AcceptedRange(relaxation.ExperimentalStrain[0], relaxation.ExperimentalStrain[^1]),
             rampTimeConsideration,
             totalError,
-            totalIterations);
+            totalIterations,
+            fullTimePoints,
+            fullStrain,
+            fullStress,
+            timeStep,
+            rampDuration);
     }
 }

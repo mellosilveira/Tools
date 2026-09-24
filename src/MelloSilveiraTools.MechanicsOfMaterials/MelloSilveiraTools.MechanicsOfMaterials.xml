@@ -516,6 +516,33 @@
             <param name="stress">An optional intensive kinetic override to bypass the intrinsic input history.</param>
             <returns>The resultant continuum strain. Dimensionless.</returns>
         </member>
+        <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.IMechanicalModelCalculatorFactory">
+            <summary>
+            Factory contract responsible for constructing <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.IMechanicalModelCalculatorFacade"/> instances configured for mechanical model simulations.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.IMechanicalModelCalculatorFactory.CreateCalculatorFacade(System.String)">
+            <summary>
+            Creates a new instance of <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.IMechanicalModelCalculatorFacade"/> for the specified mechanical model.
+            </summary>
+            <param name="mechanicalModelName">The unique registry name of the mechanical model.</param>
+            <returns>A configured <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.IMechanicalModelCalculatorFacade"/> instance.</returns>
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.IMechanicalModelCalculatorFactory.CreateCalculatorFacade(System.String,MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.GenericMechanicalModelInput)">
+            <summary>
+            Creates a new instance of <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.IMechanicalModelCalculatorFacade"/> for the specified mechanical model and input.
+            </summary>
+            <param name="mechanicalModelName">The unique registry name of the mechanical model.</param>
+            <param name="input">The generic mechanical model input containing parameters, boundary conditions, and time configuration.</param>
+            <returns>A configured <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.IMechanicalModelCalculatorFacade"/> instance.</returns>
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.IMechanicalModelCalculatorFactory.CreateCalculatorFacade(MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.GenericMechanicalModelInput)">
+            <summary>
+            Creates a new instance of <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.IMechanicalModelCalculatorFacade"/> for the provided generic input.
+            </summary>
+            <param name="input">The generic mechanical model input containing parameters, boundary conditions, and time configuration.</param>
+            <returns>A configured <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.IMechanicalModelCalculatorFacade"/> instance.</returns>
+        </member>
         <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.MechanicalModelCalculatorFacade">
             <inheritdoc cref="T:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.IMechanicalModelCalculatorFacade"/>
         </member>
@@ -654,6 +681,142 @@
         </member>
         <member name="F:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.MechanicalModelCalculatorFacade.ParameterNameConstant.StrainDerivative">
             <summary>Identifier for the material strain rate deformation tensor component.</summary>
+        </member>
+        <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.MechanicalModelCalculatorFactory">
+            <inheritdoc cref="T:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.IMechanicalModelCalculatorFactory"/>
+            <param name="serviceLocator">The dynamic service locator to resolve keyed type resolvers and calculators.</param>
+            <param name="cache">The mechanical model type cache for compiled invokers and setters.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.MechanicalModelCalculatorFactory.#ctor(MelloSilveiraTools.Core.Providers.ServiceLocator,MelloSilveiraTools.MechanicsOfMaterials.Caching.IMechanicalModelTypeCache)">
+            <inheritdoc cref="T:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.IMechanicalModelCalculatorFactory"/>
+            <param name="serviceLocator">The dynamic service locator to resolve keyed type resolvers and calculators.</param>
+            <param name="cache">The mechanical model type cache for compiled invokers and setters.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.MechanicalModelCalculatorFactory.CreateCalculatorFacade(System.String)">
+            <inheritdoc/>
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.MechanicalModelCalculatorFactory.CreateCalculatorFacade(System.String,MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.GenericMechanicalModelInput)">
+            <inheritdoc/>
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.MechanicalModelCalculatorFactory.CreateCalculatorFacade(MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.GenericMechanicalModelInput)">
+            <inheritdoc/>
+        </member>
+        <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.TypeResolvers.ElasticModelTypeResolver">
+            <inheritdoc cref="T:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.TypeResolvers.IMechanicalModelTypeResolver"/>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.TypeResolvers.ElasticModelTypeResolver.MechanicalModelName">
+            <inheritdoc/>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.TypeResolvers.ElasticModelTypeResolver.ConstitutiveParameters">
+            <inheritdoc/>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.TypeResolvers.ElasticModelTypeResolver.Output">
+            <inheritdoc/>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.TypeResolvers.ElasticModelTypeResolver.Calculator">
+            <inheritdoc/>
+        </member>
+        <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.TypeResolvers.FungModelTypeResolver">
+            <inheritdoc cref="T:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.TypeResolvers.IMechanicalModelTypeResolver"/>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.TypeResolvers.FungModelTypeResolver.MechanicalModelName">
+            <inheritdoc/>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.TypeResolvers.FungModelTypeResolver.ConstitutiveParameters">
+            <inheritdoc/>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.TypeResolvers.FungModelTypeResolver.Output">
+            <inheritdoc/>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.TypeResolvers.FungModelTypeResolver.Calculator">
+            <inheritdoc/>
+        </member>
+        <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.TypeResolvers.IMechanicalModelTypeResolver">
+            <summary>
+            Type resolver for mechanical models.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.TypeResolvers.IMechanicalModelTypeResolver.MechanicalModelName">
+            <summary>
+            Gets the name of the mechanical model.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.TypeResolvers.IMechanicalModelTypeResolver.ConstitutiveParameters">
+            <summary>
+            Gets the type of constitutive parameters for the mechanical model.
+            This type must inherit from <see cref="P:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.TypeResolvers.IMechanicalModelTypeResolver.ConstitutiveParameters"/>.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.TypeResolvers.IMechanicalModelTypeResolver.Output">
+            <summary>
+            Gets the type of projection output for the mechanical model.
+            This type must inherit from <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalModelOutput"/>.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.TypeResolvers.IMechanicalModelTypeResolver.Calculator">
+            <summary>
+            Gets the type of calculator for the mechanical model.
+            </summary>
+        </member>
+        <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.TypeResolvers.MaxwellModelTypeResolver">
+            <inheritdoc cref="T:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.TypeResolvers.IMechanicalModelTypeResolver"/>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.TypeResolvers.MaxwellModelTypeResolver.MechanicalModelName">
+            <inheritdoc/>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.TypeResolvers.MaxwellModelTypeResolver.ConstitutiveParameters">
+            <inheritdoc/>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.TypeResolvers.MaxwellModelTypeResolver.Output">
+            <inheritdoc/>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.TypeResolvers.MaxwellModelTypeResolver.Calculator">
+            <inheritdoc/>
+        </member>
+        <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.TypeResolvers.ModifiedSuperpositionMethodTypeResolver">
+            <inheritdoc cref="T:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.TypeResolvers.IMechanicalModelTypeResolver"/>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.TypeResolvers.ModifiedSuperpositionMethodTypeResolver.MechanicalModelName">
+            <inheritdoc/>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.TypeResolvers.ModifiedSuperpositionMethodTypeResolver.ConstitutiveParameters">
+            <inheritdoc/>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.TypeResolvers.ModifiedSuperpositionMethodTypeResolver.Output">
+            <inheritdoc/>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.TypeResolvers.ModifiedSuperpositionMethodTypeResolver.Calculator">
+            <inheritdoc/>
+        </member>
+        <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.TypeResolvers.SchaperyModelTypeResolver">
+            <inheritdoc cref="T:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.TypeResolvers.IMechanicalModelTypeResolver"/>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.TypeResolvers.SchaperyModelTypeResolver.MechanicalModelName">
+            <inheritdoc/>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.TypeResolvers.SchaperyModelTypeResolver.ConstitutiveParameters">
+            <inheritdoc/>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.TypeResolvers.SchaperyModelTypeResolver.Output">
+            <inheritdoc/>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.TypeResolvers.SchaperyModelTypeResolver.Calculator">
+            <inheritdoc/>
+        </member>
+        <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.TypeResolvers.SimplifiedFungModelTypeResolver">
+            <inheritdoc cref="T:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.TypeResolvers.IMechanicalModelTypeResolver"/>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.TypeResolvers.SimplifiedFungModelTypeResolver.MechanicalModelName">
+            <inheritdoc/>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.TypeResolvers.SimplifiedFungModelTypeResolver.ConstitutiveParameters">
+            <inheritdoc/>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.TypeResolvers.SimplifiedFungModelTypeResolver.Output">
+            <inheritdoc/>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.TypeResolvers.SimplifiedFungModelTypeResolver.Calculator">
+            <inheritdoc/>
         </member>
         <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Viscoelasticity.IViscoelasticModelCalculator`1">
             <summary>

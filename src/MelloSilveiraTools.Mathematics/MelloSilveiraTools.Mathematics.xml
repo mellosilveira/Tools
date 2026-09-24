@@ -383,18 +383,18 @@
             Represents a cosine function.
             f(x) = a_0 * cos[a_1 * (x - a_2)] + ... + a_n-2 * cos[a_n-1 * (x - a_n)]
             </summary>
+            <param name="coefficients"></param>
             <param name="initialVariableValue"></param>
             <param name="finalVariableValue"></param>
-            <param name="coefficients"></param>
         </member>
         <member name="M:MelloSilveiraTools.Mathematics.Functions.CosineFunction.#ctor(System.Double[],System.Nullable{System.Double},System.Nullable{System.Double})">
             <summary>
             Represents a cosine function.
             f(x) = a_0 * cos[a_1 * (x - a_2)] + ... + a_n-2 * cos[a_n-1 * (x - a_n)]
             </summary>
+            <param name="coefficients"></param>
             <param name="initialVariableValue"></param>
             <param name="finalVariableValue"></param>
-            <param name="coefficients"></param>
         </member>
         <member name="M:MelloSilveiraTools.Mathematics.Functions.CosineFunction.Calculate(System.Double)">
             <inheritdoc/>

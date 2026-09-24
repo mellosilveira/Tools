@@ -14,4 +14,11 @@ public record MechanicalModelCurveFitOutput(
     ViscoelasticEffect ViscoelasticEffect,
     RampTimeConsideration RampTimeConsideration,
     double FinalError,
-    int Iterations);
+    int Iterations,
+    string Identifier = "",
+    double[]? TimePoints = null,
+    double[]? ExperimentalStrain = null,
+    double[]? ExperimentalStress = null,
+    double TimeStep = 0,
+    double? RampTime = null,
+    MechanicalModelSimulationOutput? Simulation = null);

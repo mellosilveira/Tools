@@ -314,7 +314,7 @@
             Service responsible for orchestrating the ingestion, validation, and physical phase segmentation of experimental raw data streams.
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.ExperimentalDataService.#ctor(Microsoft.Extensions.Logging.ILogger{MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.ExperimentalDataService},MelloSilveiraTools.Core.Managers.File.IFileManager,MelloSilveiraTools.Mathematics.NumericalMethods.Differentiations.IDifferentiation,MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Factories.IMechanicalModelStepFactory,MelloSilveiraTools.Database.Repositories.IRepository,MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.ExperimentalDataSettings)">
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.ExperimentalDataService.#ctor(Microsoft.Extensions.Logging.ILogger{MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.ExperimentalDataService},MelloSilveiraTools.Core.Managers.File.IFileManager,MelloSilveiraTools.Mathematics.NumericalMethods.Differentiations.IDifferentiation,MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Factories.IMechanicalModelStepFactory,MelloSilveiraTools.Database.Repositories.IRepository,MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.IMechanicalModelCalculatorFactory,MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.ExperimentalDataSettings)">
             <summary>
             Service responsible for orchestrating the ingestion, validation, and physical phase segmentation of experimental raw data streams.
             </summary>
@@ -326,6 +326,17 @@
             <summary>
             Segment types to be processed.
             If left  empty, all segment types will be considered.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.ExperimentalDataProcessingInput.FinalSimulationTime">
+            <summary>
+            Optional target final simulation time. When provided and greater than the last experimental time,
+            the forward numerical simulation continues marching until this time is reached.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.ExperimentalDataProcessingInput.SimulationTimeStep">
+            <summary>
+            Optional time step used during extended simulation. If omitted, defaults to the experimental time step.
             </summary>
         </member>
         <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.CurveSegmentBuilderInput">
@@ -447,10 +458,110 @@
             Output for mechanical model curve fitting steps.
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Models.MechanicalModelCurveFitOutput.#ctor(System.String,MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.ConstitutiveParameters,MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.AcceptedRange,MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalBehaviorType,MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.ViscoelasticEffect,MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.RampTimeConsideration,System.Double,System.Int32)">
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Models.MechanicalModelCurveFitOutput.#ctor(System.String,MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.ConstitutiveParameters,MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.AcceptedRange,MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalBehaviorType,MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.ViscoelasticEffect,MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.RampTimeConsideration,System.Double,System.Int32,System.String,System.Double[],System.Double[],System.Double[],System.Double,System.Nullable{System.Double},MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Models.MechanicalModelSimulationOutput)">
             <summary>
             Output for mechanical model curve fitting steps.
             </summary>
+        </member>
+        <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Models.MechanicalModelSimulationEntity">
+            <summary>
+            Database entity for forward numerical simulations of mechanical constitutive models.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Models.MechanicalModelSimulationEntity.Identifier">
+            <summary>
+            Unique identifier for the simulation execution.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Models.MechanicalModelSimulationEntity.CurveFitIdentifier">
+            <summary>
+            Correlated identifier of the curve fit parameter set.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Models.MechanicalModelSimulationEntity.MechanicalModelName">
+            <summary>
+            Name of the mechanical model.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Models.MechanicalModelSimulationEntity.OutputFileName">
+            <summary>
+            Generated output simulation CSV file name.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Models.MechanicalModelSimulationEntity.AsymptoteTime">
+            <summary>
+            Time when numerical asymptote convergence was detected, or null if convergence was not reached.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Models.MechanicalModelSimulationEntity.InitialOutputJson">
+            <summary>
+            Serialized JSON snapshot of the initial simulation state.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Models.MechanicalModelSimulationEntity.FinalOutputJson">
+            <summary>
+            Serialized JSON snapshot of the final simulation state.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Models.MechanicalModelSimulationEntity.AbsoluteDeltaOutputJson">
+            <summary>
+            Serialized JSON snapshot of the absolute output variation (Final - Initial).
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Models.MechanicalModelSimulationEntity.PercentageDeltaOutputJson">
+            <summary>
+            Serialized JSON snapshot of the percentage output variation.
+            </summary>
+        </member>
+        <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Models.MechanicalModelSimulationOutput">
+            <summary>
+            Domain output resulting from the numerical forward simulation of a fitted mechanical model.
+            </summary>
+            <param name="Identifier">Unique identifier for the simulation execution.</param>
+            <param name="CurveFitIdentifier">Correlated identifier of the curve fit parameter set.</param>
+            <param name="OutputFullFileName">Full path of the generated simulation CSV file.</param>
+            <param name="InitialOutput">Calculated initial output state.</param>
+            <param name="FinalOutput">Calculated final output state.</param>
+            <param name="AbsoluteDeltaOutput">Calculated absolute delta across all output properties.</param>
+            <param name="PercentageDeltaOutput">Calculated percentage delta across all output properties.</param>
+            <param name="AsymptoteTime">Time when asymptote convergence was reached, or null if not reached.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Models.MechanicalModelSimulationOutput.#ctor(System.String,System.String,System.String,MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalModelOutput,MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalModelOutput,MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalModelOutput,MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalModelOutput,System.Nullable{System.Double})">
+            <summary>
+            Domain output resulting from the numerical forward simulation of a fitted mechanical model.
+            </summary>
+            <param name="Identifier">Unique identifier for the simulation execution.</param>
+            <param name="CurveFitIdentifier">Correlated identifier of the curve fit parameter set.</param>
+            <param name="OutputFullFileName">Full path of the generated simulation CSV file.</param>
+            <param name="InitialOutput">Calculated initial output state.</param>
+            <param name="FinalOutput">Calculated final output state.</param>
+            <param name="AbsoluteDeltaOutput">Calculated absolute delta across all output properties.</param>
+            <param name="PercentageDeltaOutput">Calculated percentage delta across all output properties.</param>
+            <param name="AsymptoteTime">Time when asymptote convergence was reached, or null if not reached.</param>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Models.MechanicalModelSimulationOutput.Identifier">
+            <summary>Unique identifier for the simulation execution.</summary>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Models.MechanicalModelSimulationOutput.CurveFitIdentifier">
+            <summary>Correlated identifier of the curve fit parameter set.</summary>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Models.MechanicalModelSimulationOutput.OutputFullFileName">
+            <summary>Full path of the generated simulation CSV file.</summary>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Models.MechanicalModelSimulationOutput.InitialOutput">
+            <summary>Calculated initial output state.</summary>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Models.MechanicalModelSimulationOutput.FinalOutput">
+            <summary>Calculated final output state.</summary>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Models.MechanicalModelSimulationOutput.AbsoluteDeltaOutput">
+            <summary>Calculated absolute delta across all output properties.</summary>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Models.MechanicalModelSimulationOutput.PercentageDeltaOutput">
+            <summary>Calculated percentage delta across all output properties.</summary>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Models.MechanicalModelSimulationOutput.AsymptoteTime">
+            <summary>Time when asymptote convergence was reached, or null if not reached.</summary>
         </member>
         <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Steps.CurveFitter.FungRelaxationOnlyCurveFitterStep">
             <summary>
@@ -513,7 +624,7 @@
         <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Steps.CurveFitter.MechanicalModelCurveFitterStepBase.ExecuteAsync(MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Models.CurveSegment[],System.Threading.CancellationToken)">
             <inheritdoc />
         </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Steps.CurveFitter.MechanicalModelCurveFitterStepBase.CreateCurveFitOutput(MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.ConstitutiveParameters,MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.AcceptedRange,MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.RampTimeConsideration,System.Double,System.Int32)">
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Steps.CurveFitter.MechanicalModelCurveFitterStepBase.CreateCurveFitOutput(MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.ConstitutiveParameters,MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.AcceptedRange,MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.RampTimeConsideration,System.Double,System.Int32,System.Double[],System.Double[],System.Double[],System.Double,System.Nullable{System.Double})">
             <summary>
             Creates a new <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Models.MechanicalModelCurveFitOutput"/> with model metadata and fitting metrics.
             </summary>
@@ -522,9 +633,14 @@
             <param name="rampTimeConsideration">The ramp-time consideration mode.</param>
             <param name="finalError">The final fitting error.</param>
             <param name="iterations">The total iterations taken to converge.</param>
+            <param name="timePoints">The experimental time points sequence.</param>
+            <param name="experimentalStrain">The experimental strain sequence.</param>
+            <param name="experimentalStress">The experimental stress sequence.</param>
+            <param name="timeStep">The experimental time step.</param>
+            <param name="rampTime">The ramp time if applicable.</param>
             <returns>A populated <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Models.MechanicalModelCurveFitOutput"/> instance.</returns>
         </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Steps.CurveFitter.MechanicalModelCurveFitterStepBase.CreateCurveFitOutput(MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.ConstitutiveParameters,MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.AcceptedRange,System.Double,System.Int32)">
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Steps.CurveFitter.MechanicalModelCurveFitterStepBase.CreateCurveFitOutput(MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.ConstitutiveParameters,MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.AcceptedRange,System.Double,System.Int32,System.Double[],System.Double[],System.Double[],System.Double)">
             <summary>
             Creates a new <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Models.MechanicalModelCurveFitOutput"/> with model metadata and fitting metrics,
             defaulting the ramp time consideration to <see cref="F:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.RampTimeConsideration.Disregard"/>.
@@ -533,6 +649,10 @@
             <param name="acceptedRange">The accepted strain range for the fit.</param>
             <param name="finalError">The final fitting error.</param>
             <param name="iterations">The total iterations taken to converge.</param>
+            <param name="timePoints">The experimental time points sequence.</param>
+            <param name="experimentalStrain">The experimental strain sequence.</param>
+            <param name="experimentalStress">The experimental stress sequence.</param>
+            <param name="timeStep">The experimental time step.</param>
             <returns>A populated <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Models.MechanicalModelCurveFitOutput"/> instance.</returns>
         </member>
         <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Steps.CurveFitter.MechanicalModelCurveFitterStepBase.DisposeAsync">
@@ -630,13 +750,13 @@
         <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Steps.ExperimentalDataPersistenceStep">
             <summary>
             Pipeline step that persists the curve-fitted constitutive parameters to the database.
-            Acts as a pass-through, yielding the output for further in-memory collection.
+            Acts as a pass-through, yielding the output for further in-memory collection and simulation.
             </summary>
         </member>
         <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Steps.ExperimentalDataPersistenceStep.#ctor(MelloSilveiraTools.Database.Repositories.IRepository)">
             <summary>
             Pipeline step that persists the curve-fitted constitutive parameters to the database.
-            Acts as a pass-through, yielding the output for further in-memory collection.
+            Acts as a pass-through, yielding the output for further in-memory collection and simulation.
             </summary>
         </member>
         <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Steps.ExperimentalDataSegmenterStep">
@@ -663,6 +783,29 @@
         </member>
         <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Steps.ExperimentalDataSegmenterStep.DisposeAsync">
             <inheritdoc/>
+        </member>
+        <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Steps.MechanicalModelSimulationStep">
+            <summary>
+            Pipeline step responsible for performing numerical forward simulations on fitted mechanical constitutive models.
+            Streams results to CSV, detects asymptote convergence, calculates complete absolute and percentage deltas,
+            persists simulation entities, and attaches simulation output.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Steps.MechanicalModelSimulationStep.#ctor(MelloSilveiraTools.Core.Managers.File.IFileManager,MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.IMechanicalModelCalculatorFactory,MelloSilveiraTools.Database.Repositories.IRepository,System.String,System.String,System.Nullable{System.Double},System.Nullable{System.Double})">
+            <summary>
+            Pipeline step responsible for performing numerical forward simulations on fitted mechanical constitutive models.
+            Streams results to CSV, detects asymptote convergence, calculates complete absolute and percentage deltas,
+            persists simulation entities, and attaches simulation output.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Steps.MechanicalModelSimulationStep.Name">
+            <inheritdoc />
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Steps.MechanicalModelSimulationStep.ExecuteAsync(MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Models.MechanicalModelCurveFitOutput,System.Threading.CancellationToken)">
+            <inheritdoc />
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Steps.MechanicalModelSimulationStep.DisposeAsync">
+            <inheritdoc />
         </member>
         <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.ExpressionPathResolver.GetPath``2(System.Linq.Expressions.Expression{System.Func{``0,``1}})">
             <summary>

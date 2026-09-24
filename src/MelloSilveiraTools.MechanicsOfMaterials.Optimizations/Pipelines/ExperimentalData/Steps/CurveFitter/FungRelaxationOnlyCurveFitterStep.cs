@@ -60,20 +60,24 @@ public sealed class FungRelaxationOnlyCurveFitterStep(
                 {
                     IndependentVariables = [relaxationTime],
                     DependentVariable = normalizedStress,
-                    LowerBounds = RelaxationLowerBounds,
-                    UpperBounds = RelaxationUpperBounds,
-                    InitialParameters = RelaxationInitialParameters,
                     Calculate = (parameters, xValues) =>
                     {
                         FungConstitutiveParameters constitutiveParameters = new(0.0, 0.0, new ReducedRelaxationFunction(parameters[0], parameters[1], parameters[2]));
                         MechanicalModelInput<FungConstitutiveParameters> currentInput = CreateModelInput(relaxation, constitutiveParameters, RampTimeConsideration.Disregard);
                         return mechanicalModelCalculator.CalculateReducedRelaxationFunction(currentInput, xValues[0]);
                     },
+                    LowerBounds = RelaxationLowerBounds,
+                    UpperBounds = RelaxationUpperBounds,
+                    InitialParameters = RelaxationInitialParameters,
                     EvaluateConstraintsAndPenalties = null
                 };
+
                 CurveFitOutput relaxationOutput = curveFitter.Fit(relaxationInput);
 
-                ReducedRelaxationFunction reducedRelaxationFunction = new(relaxationOutput.OptimizedParameters[0], relaxationOutput.OptimizedParameters[1], relaxationOutput.OptimizedParameters[2]);
+                ReducedRelaxationFunction reducedRelaxationFunction = new(
+                    relaxationOutput.OptimizedParameters[0],
+                    relaxationOutput.OptimizedParameters[1],
+                    relaxationOutput.OptimizedParameters[2]);
 
                 if (currentRamp != null)
                 {
@@ -83,11 +87,18 @@ public sealed class FungRelaxationOnlyCurveFitterStep(
                 else
                 {
                     FungConstitutiveParameters constitutiveParameters = new(0.0, 0.0, reducedRelaxationFunction);
+                    double dt = relaxation.TimePoints.Length > 1 ? (relaxation.TimePoints[^1] - relaxation.TimePoints[0]) / (relaxation.TimePoints.Length - 1) : 0.01;
                     yield return CreateCurveFitOutput(
                         constitutiveParameters,
                         new AcceptedRange(relaxation.ExperimentalStrain[0], relaxation.ExperimentalStrain[^1]),
+                        RampTimeConsideration.Disregard,
                         relaxationOutput.FinalError,
-                        relaxationOutput.Iterations);
+                        relaxationOutput.Iterations,
+                        relaxation.TimePoints,
+                        relaxation.ExperimentalStrain,
+                        relaxation.ExperimentalStress,
+                        dt,
+                        null);
                 }
             }
 
@@ -122,11 +133,21 @@ public sealed class FungRelaxationOnlyCurveFitterStep(
         int totalIterations = relaxationIterations + rampOutput.Iterations;
 
         FungConstitutiveParameters constitutiveParameters = new(rampOutput.OptimizedParameters[0], rampOutput.OptimizedParameters[1], reducedRelaxationFunction);
+        double[] fullTimePoints = [.. ramp.TimePoints, .. relaxation.TimePoints];
+        double[] fullStrain = [.. ramp.ExperimentalStrain, .. relaxation.ExperimentalStrain];
+        double[] fullStress = [.. ramp.ExperimentalStress, .. relaxation.ExperimentalStress];
+        double rampDuration = ramp.TimePoints[^1] - ramp.TimePoints[0];
+
         return CreateCurveFitOutput(
             constitutiveParameters,
             new AcceptedRange(ramp.ExperimentalStrain[0], relaxation.ExperimentalStrain[^1]),
             rampTimeConsideration,
             totalError,
-            totalIterations);
+            totalIterations,
+            fullTimePoints,
+            fullStrain,
+            fullStress,
+            timeStep,
+            rampDuration);
     }
 }

@@ -138,11 +138,18 @@ public sealed class SchaperyRelaxationOnlyCurveFitterStep(
             H1 = new ConstantFunction(initialStrain, finalStrain, 1.0),
             H2 = new ConstantFunction(initialStrain, finalStrain, 1.0),
         };
+        double dt = anchorSegment.TimePoints.Length > 1 ? (anchorSegment.TimePoints[^1] - anchorSegment.TimePoints[0]) / (anchorSegment.TimePoints.Length - 1) : 0.01;
         MechanicalModelCurveFitOutput output = CreateCurveFitOutput(
             anchorParameters,
             new AcceptedRange(initialStrain, finalStrain),
+            RampTimeConsideration.Disregard,
             anchorOutput.FinalError,
-            anchorOutput.Iterations);
+            anchorOutput.Iterations,
+            anchorSegment.TimePoints,
+            anchorSegment.ExperimentalStrain,
+            anchorSegment.ExperimentalStress,
+            dt,
+            null);
         return (output, optimizedLinearParams);
     }
 
@@ -186,11 +193,18 @@ public sealed class SchaperyRelaxationOnlyCurveFitterStep(
             H1 = new ConstantFunction(initialAcceptedStrain, finalAcceptedStrain, 1.0),
             H2 = new ConstantFunction(initialAcceptedStrain, finalAcceptedStrain, h2),
         };
+        double dt = segment.TimePoints.Length > 1 ? (segment.TimePoints[^1] - segment.TimePoints[0]) / (segment.TimePoints.Length - 1) : 0.01;
         MechanicalModelCurveFitOutput output = CreateCurveFitOutput(
             segmentParams,
             new AcceptedRange(initialAcceptedStrain, finalAcceptedStrain),
+            RampTimeConsideration.Disregard,
             segmentOutput.FinalError,
-            segmentOutput.Iterations);
+            segmentOutput.Iterations,
+            segment.TimePoints,
+            segment.ExperimentalStrain,
+            segment.ExperimentalStress,
+            dt,
+            null);
 
         return (output, he, h2, segmentOutput.FinalError, segmentOutput.Iterations);
     }
@@ -225,11 +239,18 @@ public sealed class SchaperyRelaxationOnlyCurveFitterStep(
             H1 = new ConstantFunction(initialAcceptedStrain, finalAcceptedStrain, 1.0),
             H2 = h2Result.Function
         };
+        double dt = relaxations[0].TimePoints.Length > 1 ? (relaxations[0].TimePoints[^1] - relaxations[0].TimePoints[0]) / (relaxations[0].TimePoints.Length - 1) : 0.01;
         return CreateCurveFitOutput(
             constitutiveParameters,
             new AcceptedRange(initialAcceptedStrain, finalAcceptedStrain),
+            RampTimeConsideration.Disregard,
             totalError,
-            totalIterations);
+            totalIterations,
+            relaxations[0].TimePoints,
+            relaxations[0].ExperimentalStrain,
+            relaxations[0].ExperimentalStress,
+            dt,
+            null);
     }
 
     internal (Function Function, double Error, int Iterations) FitHelmholtzVariable(double[] strain, double[] helmholtzVariable)
