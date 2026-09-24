@@ -1,65 +1,71 @@
-﻿using MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.QuasiLinear;
+﻿using MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels;
+using MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.QuasiLinear;
 
 namespace MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Viscoelasticity.QuasiLinear;
 
 /// <summary>
-/// A quasi-linear viscoelastic model, initially proposed by Fung. Establish a non-linear stress-strain relation, divided in 
-/// two parts: the reduced relaxation function, which depends only on time, and the elastic response, which depends on strain.
-/// For more details, see on section "Bibliographies" on file "README.MD".
+/// Defines a calculator for the Quasi-Linear Viscoelastic (QLV) model, initially proposed by Y.C. Fung.
 /// </summary>
-/// <typeparam name="TInput">The type of mechanical model input.</typeparam>
-/// <typeparam name="TReducedRelaxationFunction">The type of reduced relaxation function.</typeparam>
-public interface IQuasiLinearModelCalculator<TInput, TReducedRelaxationFunction> : IViscoelasticModelCalculator<TInput>
-    where TInput : QuasiLinearModelInput<TReducedRelaxationFunction>, new()
+/// <remarks>
+/// This formulation establishes a non-linear stress-strain relationship divided into two mathematically independent parts: 
+/// the reduced relaxation function (which depends only on time) and the elastic response (which depends only on strain).
+/// For more details, see the "Bibliographies" section in the "README.md" file.
+/// </remarks>
+/// <typeparam name="TConstitutiveParameters">The specific type of QLV constitutive parameters.</typeparam>
+/// <typeparam name="TReducedRelaxationFunction">The specific type of the reduced relaxation function formulation.</typeparam>
+public interface IQuasiLinearModelCalculator<TConstitutiveParameters, TReducedRelaxationFunction> : IViscoelasticModelCalculator<TConstitutiveParameters>
+    where TConstitutiveParameters : QuasiLinearConstitutiveParameters<TReducedRelaxationFunction>
     where TReducedRelaxationFunction : class
 {
     /// <summary>
-    /// Calculates the elastic force response, the elastic part of equation while calculating the force-displacement relation.
-    /// For more details, see on section "Bibliographies" on file "README.MD".
+    /// Calculates the elastic force response. 
+    /// This represents the purely elastic component of the equation when computing the force-displacement relationship.
+    /// For more details, see the "Bibliographies" section in the "README.md" file.
     /// </summary>
-    /// <param name="input">The mechanical model's input.</param>
+    /// <param name="input">The mechanical model's input data.</param>
     /// <param name="time">Unit: s (second).</param>
     /// <param name="displacement">Unit: m (meter).</param>
     /// <returns>Unit: N (Newton).</returns>
-    double CalculateElasticForceResponse(TInput input, double time, double? displacement = null);
+    double CalculateElasticForceResponse(MechanicalModelInput<TConstitutiveParameters> input, double time, double? displacement = null);
 
     /// <summary>
-    /// Calculates the elastic response, the elastic part of equation while calculating the stress-stress relation.
-    /// For more details, see on section "Bibliographies" on file "README.MD".
+    /// Calculates the elastic response ($T^{(e)}$). 
+    /// This represents the purely elastic component of the equation when computing the stress-strain relationship.
+    /// For more details, see the "Bibliographies" section in the "README.md" file.
     /// </summary>
-    /// <param name="input">The mechanical model's input.</param>
+    /// <param name="input">The mechanical model's input data.</param>
     /// <param name="time">Unit: s (second).</param>
     /// <param name="strain">
     /// Unit: dimensionless. 
-    /// If not informed, this is calculated from the strain parameters on mechanical model's input.
+    /// If not provided, this is calculated from the strain parameters on the mechanical model's input.
     /// </param>
     /// <returns>Unit: MPa (Mega-Pascal).</returns>
-    double CalculateElasticResponse(TInput input, double time, double? strain = null);
+    double CalculateElasticResponse(MechanicalModelInput<TConstitutiveParameters> input, double time, double? strain = null);
 
     /// <summary>
-    /// Calculates the reduced relaxation function, a normalized function of time, the viscous part of equation. 
-    /// For more details, see on section "Bibliographies" on file "README.MD".
+    /// Calculates the reduced relaxation function ($G(t)$), which is a normalized function of time representing the viscous decay.
+    /// For more details, see the "Bibliographies" section in the "README.md" file.
     /// </summary>
-    /// <param name="input">The mechanical model's input.</param>
+    /// <param name="input">The mechanical model's input data.</param>
     /// <param name="time">Unit: s (second).</param>
     /// <returns>Unit: dimensionless.</returns>
-    double CalculateReducedRelaxationFunction(TInput input, double time);
+    double CalculateReducedRelaxationFunction(MechanicalModelInput<TConstitutiveParameters> input, double time);
 
     /// <summary>
-    /// Calculates the stress using a non convencional equation that uses the derivative of reduced relaxation function.
-    /// For more details, see on section "Bibliographies" on file "README.MD".
+    /// Calculates the stress using a non-conventional numerical approach that relies on the derivative of the reduced relaxation function.
+    /// For more details, see the "Bibliographies" section in the "README.md" file.
     /// </summary>
-    /// <param name="input">The mechanical model's input.</param>
+    /// <param name="input">The mechanical model's input data.</param>
     /// <param name="time">Unit: s (second).</param>
     /// <returns>Unit: MPa (Mega-Pascal).</returns>
-    double CalculateStressByReducedRelaxationFunctionDerivative(TInput input, double time);
+    double CalculateStressByReducedRelaxationFunctionDerivative(MechanicalModelInput<TConstitutiveParameters> input, double time);
 
     /// <summary>
-    /// Calculates the stress using a non convencional equation that uses the derivative of convolution.
-    /// For more details, see on section "Bibliographies" on file "README.MD".
+    /// Calculates the stress using a non-conventional numerical approach that relies on the derivative of the convolution integral.
+    /// For more details, see the "Bibliographies" section in the "README.md" file.
     /// </summary>
-    /// <param name="input">The mechanical model's input.</param>
+    /// <param name="input">The mechanical model's input data.</param>
     /// <param name="time">Unit: s (second).</param>
     /// <returns>Unit: MPa (Mega-Pascal).</returns>
-    double CalculateStressByConvolutionDerivative(TInput input, double time);
+    double CalculateStressByConvolutionDerivative(MechanicalModelInput<TConstitutiveParameters> input, double time);
 }

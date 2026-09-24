@@ -1,12 +1,12 @@
-using MelloSilveiraTools.Core.Infrastructure.Logger;
-using MelloSilveiraTools.Database.Domain.Repositories;
-using MelloSilveiraTools.Database.Infrastructure.Database.Models.Entities;
-using MelloSilveiraTools.Database.Infrastructure.Database.Models.Filters;
+using MelloSilveiraTools.Database.RelationalDatabase.Models.Entities;
+using MelloSilveiraTools.Database.RelationalDatabase.Models.Filters;
+using MelloSilveiraTools.Database.Repositories;
 using MelloSilveiraTools.WebApi.Application.Models;
 using MelloSilveiraTools.WebApi.ExtensionMethods;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
+using Microsoft.Extensions.Logging;
 using Microsoft.Net.Http.Headers;
 
 namespace MelloSilveiraTools.WebApi.Application.Endpoints;
@@ -74,11 +74,11 @@ public static class StreamEndpoints
         }
         catch (OperationCanceledException ex)
         {
-            logger.Warn("A conexão foi fechada pelo cliente durante o streaming.", ex);
+            logger.LogWarning(ex, "A conexão foi fechada pelo cliente durante o streaming.");
         }
         catch (Exception ex)
         {
-            logger.Error($"Falha durante o streaming de {resourceName}.", ex);
+            logger.LogError(ex, "Falha durante o streaming de {resourceName}.", resourceName);
         }
     }
 }

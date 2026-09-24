@@ -1,11 +1,10 @@
-using MelloSilveiraTools.Core.Infrastructure.Caching;
-using MelloSilveiraTools.Plugins.Application.Operations.Cache;
-using MelloSilveiraTools.Plugins.Application.Operations.Get;
-using MelloSilveiraTools.Plugins.Application.Operations.Load;
-using MelloSilveiraTools.Plugins.Application.Operations.Reload;
+using MelloSilveiraTools.Plugins.Application.Commands.Cache;
+using MelloSilveiraTools.Plugins.Application.Commands.Get;
+using MelloSilveiraTools.Plugins.Application.Commands.Load;
+using MelloSilveiraTools.Plugins.Application.Commands.Reload;
+using MelloSilveiraTools.Plugins.Application.Validators;
 using MelloSilveiraTools.Plugins.Infrastructure;
 using MelloSilveiraTools.Plugins.Infrastructure.Persistences;
-using MelloSilveiraTools.Plugins.Infrastructure.Providers;
 using MelloSilveiraTools.Plugins.Infrastructure.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
@@ -30,16 +29,14 @@ public static class PluginsDependencyInjection
             .AddSingleton(pluginSettings)
             // Required so plugin cache operations can read the {target} route value.
             .AddHttpContextAccessor()
-            // Register caching.
-            .AddSingleton<ISingleLevelCache, InMemorySingleLevelCache>()
-            .AddSingleton<ITwoLevelCache, InMemoryTwoLevelCache>()
-            // Register dynamic service provider (runtime plugin service registration).
-            .AddSingleton(services)
-            .AddSingleton<IDynamicServiceProvider, DynamicServiceProvider>()
             // Register plugin processors and cache.
-            .AddSingleton<PluginCache>()
             .AddSingleton<PluginFileProcessor>()
             .AddSingleton<PluginAssemblyProcessor>()
+            .AddSingleton<PluginCache>()
+            // Register validators.
+            .AddSingleton<PluginValidator<GetPluginsRequest>>()
+            .AddSingleton<PluginValidator<ReloadPluginsRequest>>()
+            .AddSingleton<PluginValidator>()
             // Register plugin cache persistences as keyed services. The key matches
             // the {target} route segment on cache-persist/restore endpoints. Consumers
             // of this package can register additional implementations under their own
@@ -89,7 +86,7 @@ public static class PluginsDependencyInjection
         // observe every registration the plugins added.
         using ServiceProvider bootstrapProvider = services.BuildServiceProvider();
         using IServiceScope bootstrapScope = bootstrapProvider.CreateScope();
-        bootstrapScope.ServiceProvider.GetRequiredService<IPluginService>().LoadPluginsOnStartup();
+        bootstrapScope.ServiceProvider.GetRequiredService<IPluginService>().LoadPluginsOnStartup(services);
 
         return services;
     }

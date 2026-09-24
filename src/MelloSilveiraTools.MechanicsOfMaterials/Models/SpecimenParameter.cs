@@ -8,10 +8,12 @@ namespace MelloSilveiraTools.MechanicsOfMaterials.Models;
 /// </summary>
 public sealed record SpecimenParameter
 {
+    public SpecimenParameter() { }
+
     public SpecimenParameter(
-        bool considerLargeDisplacement, 
-        bool considerAngleVariation, 
-        double preLoadStrain, 
+        bool considerLargeDisplacement,
+        bool considerAngleVariation,
+        double preLoadStrain,
         double preLoadLength,
         double area,
         Vector3D initialAngle)
@@ -22,7 +24,7 @@ public sealed record SpecimenParameter
         PreLoadLength = preLoadLength;
         Area = area;
         InitialAngle = initialAngle;
-        
+
         PreLoadFactor = 1 + preLoadStrain;
         InitialLength = preLoadLength / PreLoadFactor;
         PreLoadDisplacement = preLoadLength - InitialLength;

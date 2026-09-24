@@ -1,4 +1,4 @@
-﻿using MelloSilveiraTools.Mathematics.Models;
+using MelloSilveiraTools.Mathematics.Models;
 
 namespace MelloSilveiraTools.Mathematics.Converters;
 
@@ -24,50 +24,50 @@ public static class UnitConverter
     /// <summary>
     /// Converts a value from decimal to percentage.
     /// </summary>
-    /// <param name="value"></param>
-    /// <returns></returns>
+    /// <param name="value">The decimal value to convert.</param>
+    /// <returns>The value multiplied by 100.</returns>
     public static double ConvertDecimalToPercentage(double value) => value * 100;
 
     /// <summary>
     /// Converts a value from square milimeters to square meter.
     /// </summary>
-    /// <param name="value"></param>
-    /// <returns></returns>
+    /// <param name="value">The area in square millimeters.</param>
+    /// <returns>The area in square meters.</returns>
     public static double ConvertMm2ToM2(double value) => value / 1e6;
 
     /// <summary>
     /// Converts a value from milimeters to meter.
     /// </summary>
-    /// <param name="value"></param>
-    /// <returns></returns>
+    /// <param name="value">The length in millimeters.</param>
+    /// <returns>The length in meters.</returns>
     public static double ConvertMmToM(double value) => value / 1e3;
 
     /// <summary>
     /// Converts a value from meters to millimeters.
     /// </summary>
-    /// <param name="value"></param>
-    /// <returns></returns>
+    /// <param name="value">The length in meters.</param>
+    /// <returns>The length in millimeters.</returns>
     public static double ConvertMToMm(double value) => value * 1e3;
 
     /// <summary>
     /// Converts a value from Pascal to Mega-Pascal.
     /// </summary>
-    /// <param name="value"></param>
-    /// <returns></returns>
+    /// <param name="value">The pressure in Pascals.</param>
+    /// <returns>The pressure in Megapascals.</returns>
     public static double ConvertPaToMPa(double value) => value / 1e6;
 
     /// <summary>
     /// Converts a value from Mega-Pascal to Pascal.
     /// </summary>
-    /// <param name="value"></param>
-    /// <returns></returns>
+    /// <param name="value">The pressure in Megapascals.</param>
+    /// <returns>The pressure in Pascals.</returns>
     public static double ConvertMPaToPa(double value) => value * 1e6;
 
     /// <summary>
     /// Converts a value from radian to degree.
     /// </summary>
-    /// <param name="value"></param>
-    /// <returns></returns>
+    /// <param name="value">The angle in radians.</param>
+    /// <returns>The angle in degrees.</returns>
     public static double ConvertRadToDegree(double value) => value * 180 / Math.PI;
 
     /// <summary>

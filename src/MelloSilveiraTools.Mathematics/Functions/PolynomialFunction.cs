@@ -1,4 +1,4 @@
-﻿using MelloSilveiraTools.Mathematics.Models;
+using MelloSilveiraTools.Mathematics.Models;
 
 namespace MelloSilveiraTools.Mathematics.Functions;
 
@@ -6,23 +6,27 @@ namespace MelloSilveiraTools.Mathematics.Functions;
 /// Represents a polynomial function.
 /// f(x) = a_0 + a_1 * x + a_2 * x^2 + ... + a_n * x^n
 /// </summary>
+/// <param name="coefficients"></param>
 /// <param name="initialVariableValue"></param>
 /// <param name="finalVariableValue"></param>
-/// <param name="coefficients"></param>
 public sealed class PolynomialFunction(
-    double? initialVariableValue,
-    double? finalVariableValue,
-    double[] coefficients) : Function(FunctionType.Polynomial, initialVariableValue, finalVariableValue, coefficients)
+    double[] coefficients,
+    double? initialVariableValue = null,
+    double? finalVariableValue = null) 
+    : Function(FunctionType.Polynomial, coefficients, initialVariableValue, finalVariableValue)
 {
     /// <inheritdoc/>
     public override double Calculate(double variableValue)
     {
         // Horner's method: O(n) multiplications, no Math.Pow calls.
         // Evaluates ((a_n * x + a_{n-1}) * x + ... ) * x + a_0
-        double result = Coefficients[^1];
+        double value = Coefficients[^1];
         for (int i = Coefficients.Length - 2; i >= 0; i--)
-            result = result * variableValue + Coefficients[i];
-        return result;
+        {
+            value = value * variableValue + Coefficients[i];
+        }
+
+        return value;
     }
 
     /// <inheritdoc/>
@@ -38,7 +42,7 @@ public sealed class PolynomialFunction(
         // f(x) = a_0 + a_1 * x
         // f'(x) = a_1
         if (coefficientsLength == 2)
-            return new ConstantFunction(InitialVariableValue, FinalVariableValue, Coefficients[1]);
+            return new ConstantFunction(Coefficients[1], InitialVariableValue, FinalVariableValue);
 
         // f(x) = a_0 + a_1 * x + ... + a_n * x^n
         // f'(x) = a_1 + 2 * a_2 * x + ... + n * a_n * x^(n-1)
@@ -48,7 +52,7 @@ public sealed class PolynomialFunction(
             derivativeCoefficients[i - 1] = Coefficients[i] * i;
         }
 
-        return new PolynomialFunction(InitialVariableValue, FinalVariableValue, derivativeCoefficients);
+        return new PolynomialFunction(derivativeCoefficients, InitialVariableValue, FinalVariableValue);
     }
 
     /// <inheritdoc/>
@@ -72,6 +76,6 @@ public sealed class PolynomialFunction(
             }
         }
 
-        return new PolynomialFunction(InitialVariableValue, FinalVariableValue, integralCoefficients);
+        return new PolynomialFunction(integralCoefficients, InitialVariableValue, FinalVariableValue);
     }
 }
