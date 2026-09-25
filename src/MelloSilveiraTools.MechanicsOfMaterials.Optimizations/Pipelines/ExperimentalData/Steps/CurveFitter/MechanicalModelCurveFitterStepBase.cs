@@ -66,14 +66,24 @@ public abstract class MechanicalModelCurveFitterStepBase : IMechanicalModelCurve
     /// <summary>
     /// Creates a new <see cref="MechanicalModelCurveFitOutput"/> with model metadata and fitting metrics.
     /// </summary>
-    protected MechanicalModelCurveFitOutput CreateCurveFitOutput(ConstitutiveParameters constitutiveParameters, AcceptedRange acceptedRange, RampTimeConsideration rampTimeConsideration, double precision, double finalError, int iterations)
-        => new(MechanicalModelName, constitutiveParameters, acceptedRange, MechanicalBehaviorType, ViscoelasticEffect, rampTimeConsideration, precision, finalError, iterations);
+    protected MechanicalModelCurveFitOutput CreateCurveFitOutput(CurveSegment segment, ConstitutiveParameters constitutiveParameters, AcceptedRange acceptedRange, RampTimeConsideration rampTimeConsideration, double precision, double finalError, int iterations)
+    {
+        double initialTime = segment.TimePoints[0];
+        double finalTime = segment.TimePoints[^1];
+        return new(MechanicalModelName, constitutiveParameters, acceptedRange, MechanicalBehaviorType, ViscoelasticEffect, rampTimeConsideration, precision, finalError, iterations)
+        {
+            TimePoints = segment.TimePoints,
+            ExperimentalStress = segment.ExperimentalStress,
+            TimeStep = (finalTime - initialTime) / segment.TimePoints.Length,
+            RampTime = segment.Type == SegmentType.Ramp ? (finalTime - initialTime) : null
+        };
+    }
 
     /// <summary>
     /// Creates a new <see cref="MechanicalModelCurveFitOutput"/> with model metadata and fitting metrics, defaulting the ramp time consideration to <see cref="RampTimeConsideration.Disregard"/>.
     /// </summary>
-    protected MechanicalModelCurveFitOutput CreateCurveFitOutput(ConstitutiveParameters constitutiveParameters, AcceptedRange acceptedRange, double precision, double finalError, int iterations)
-        => CreateCurveFitOutput(constitutiveParameters, acceptedRange, RampTimeConsideration.Disregard, precision, finalError, iterations);
+    protected MechanicalModelCurveFitOutput CreateCurveFitOutput(CurveSegment segment, ConstitutiveParameters constitutiveParameters, AcceptedRange acceptedRange, double precision, double finalError, int iterations)
+        => CreateCurveFitOutput(segment, constitutiveParameters, acceptedRange, RampTimeConsideration.Disregard, precision, finalError, iterations);
 
     /// <inheritdoc />
     public virtual ValueTask DisposeAsync()

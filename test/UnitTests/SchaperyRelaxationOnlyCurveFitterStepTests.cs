@@ -11,7 +11,7 @@ namespace UnitTests;
 
 public class SchaperyRelaxationOnlyCurveFitterStepTests
 {
-    private static readonly AlglibCurveFitter _alglibCurveFitter = new();
+    private static readonly AlglibCurveFitter _alglibCurveFitter = new(Mock.Of<ILogger<AlglibCurveFitter>>());
     private static readonly MathNetCurveFitter _mathNetCurveFitter = new();
 
     private readonly SchaperyRelaxationOnlyCurveFitterStep _stepWithAlglib = new(

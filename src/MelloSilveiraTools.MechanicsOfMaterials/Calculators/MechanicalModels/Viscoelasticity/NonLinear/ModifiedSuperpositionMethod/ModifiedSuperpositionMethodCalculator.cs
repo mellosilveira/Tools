@@ -1,4 +1,4 @@
-﻿using MelloSilveiraTools.Mathematics.Models;
+using MelloSilveiraTools.Mathematics.Models;
 using MelloSilveiraTools.Mathematics.Models.NumericalMethods;
 using MelloSilveiraTools.Mathematics.NumericalMethods.Integrals;
 using MelloSilveiraTools.MechanicsOfMaterials.Attributes;
@@ -67,7 +67,7 @@ public sealed class ModifiedSuperpositionMethodCalculator(IIntegration integrati
 
                 return CalculateRelaxationFunction(input, time - integrationTime, currentStrain) * strainDerivative;
             },
-            new IntegralInput(input.TimeStep, time));
+            new IntegralInput(time, input.TimeStep));
         }
 
         return parameterConverter.CalculateForceFromStress(input.Specimen!, stress);
@@ -102,7 +102,7 @@ public sealed class ModifiedSuperpositionMethodCalculator(IIntegration integrati
             (double integrationStrain, double integrationStrainDerivative) = input.Strain!.CalculateValueAndDerivative(integrationTime);
             return CalculateRelaxationFunction(input, time - integrationTime, integrationStrain) * integrationStrainDerivative;
         },
-        new IntegralInput(input.TimeStep, time));
+        new IntegralInput(time, input.TimeStep));
     }
 
     /// <inheritdoc/>

@@ -20,6 +20,7 @@ namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.Experi
 /// </summary>
 public class ExperimentalDataService(
     ILogger<ExperimentalDataService> logger,
+    ILogger<ExperimentalDataPersistenceStep> persistenceLogger,
     IFileManager fileManager,
     IDifferentiation differentiation,
     IMechanicalModelStepFactory stepFactory,
@@ -37,7 +38,7 @@ public class ExperimentalDataService(
         ExperimentalDataFileWriterStep fileWriterStep = new(fileManager, input.OutputFileUri, input.Identifier);
         CurveSegmentBuilderStep curveSegmentBuilderStep = new();
         IMechanicalModelCurveFitterStep curveFitterStep = stepFactory.Create(input.MechanicalModelName, input.TargetSegments);
-        ExperimentalDataPersistenceStep persistenceStep = new(repository);
+        ExperimentalDataPersistenceStep persistenceStep = new(persistenceLogger, repository);
         MechanicalModelSimulationStep simulationStep = new(
             fileManager,
             calculatorFactory,

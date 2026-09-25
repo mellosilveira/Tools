@@ -20,10 +20,10 @@ public abstract class CurveFitterBase : ICurveFitter
 
     protected double[] CalculateNumericalGradient(CurveFitInput input, double[] currentParameters)
     {
-        var gradient = new double[currentParameters.Length];
+        double[] gradient = new double[currentParameters.Length];
         double h = 1e-6;
 
-        var tempParams = (double[])currentParameters.Clone();
+        double[] tempParams = (double[])currentParameters.Clone();
 
         for (int i = 0; i < currentParameters.Length; i++)
         {
@@ -60,8 +60,7 @@ public abstract class CurveFitterBase : ICurveFitter
             sumOfSquaresTotal += deviation * deviation;
         }
 
-        if (sumOfSquaresTotal == 0) return 1.0;
-        return 1.0 - (sumOfSquaresResiduals / sumOfSquaresTotal);
+        return sumOfSquaresTotal == 0 ? 1.0 : 1.0 - (sumOfSquaresResiduals / sumOfSquaresTotal);
     }
 
     public abstract CurveFitOutput Fit(CurveFitInput input);

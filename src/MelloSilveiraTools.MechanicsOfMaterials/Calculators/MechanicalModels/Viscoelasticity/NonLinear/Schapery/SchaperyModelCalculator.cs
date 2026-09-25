@@ -1,4 +1,4 @@
-﻿using MelloSilveiraTools.Mathematics.Models;
+using MelloSilveiraTools.Mathematics.Models;
 using MelloSilveiraTools.Mathematics.Models.NumericalMethods;
 using MelloSilveiraTools.Mathematics.NumericalMethods.Differentiations;
 using MelloSilveiraTools.Mathematics.NumericalMethods.Integrals;
@@ -150,7 +150,7 @@ public sealed class SchaperyModelCalculator(
                     },
                     input.TimeStep,
                     integrationTime),
-                new IntegralInput(input.TimeStep, time));
+                new IntegralInput(time, input.TimeStep));
         }
 
         return parameterConverter.CalculateForceFromStress(input.Specimen!, stress);
@@ -190,7 +190,7 @@ public sealed class SchaperyModelCalculator(
                 },
                 input.TimeStep,
                 integrationTime),
-            new IntegralInput(input.TimeStep, time));
+            new IntegralInput(time, input.TimeStep));
     }
 
     /// <inheritdoc/>

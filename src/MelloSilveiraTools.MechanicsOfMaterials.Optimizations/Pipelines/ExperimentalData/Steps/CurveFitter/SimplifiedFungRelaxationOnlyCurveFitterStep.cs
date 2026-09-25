@@ -89,7 +89,7 @@ public sealed class SimplifiedFungRelaxationOnlyCurveFitterStep(
                 {
                     SimplifiedFungConstitutiveParameters constitutiveParameters = new(0, 0, reducedRelaxationFunction);
                     AcceptedRange acceptedStrainRange = new(relaxation.ExperimentalStrain[0], relaxation.ExperimentalStrain[^1]);
-                    yield return CreateCurveFitOutput(constitutiveParameters, acceptedStrainRange, relaxationOutput.RSquared, relaxationOutput.FinalError, relaxationOutput.Iterations);
+                    yield return CreateCurveFitOutput(relaxation, constitutiveParameters, acceptedStrainRange, relaxationOutput.RSquared, relaxationOutput.FinalError, relaxationOutput.Iterations);
                 }
             }
 
@@ -124,6 +124,6 @@ public sealed class SimplifiedFungRelaxationOnlyCurveFitterStep(
 
         SimplifiedFungConstitutiveParameters constitutiveParameters = new(rampOutput.OptimizedParameters[0], rampOutput.OptimizedParameters[1], reducedRelaxationFunction);
         AcceptedRange acceptedStrainRange = new(relaxation.ExperimentalStrain[0], relaxation.ExperimentalStrain[^1]);
-        return CreateCurveFitOutput(constitutiveParameters, acceptedStrainRange, rampTimeConsideration, precision, totalError, totalIterations);
+        return CreateCurveFitOutput(ramp, constitutiveParameters, acceptedStrainRange, rampTimeConsideration, precision, totalError, totalIterations);
     }
 }

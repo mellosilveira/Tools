@@ -11,7 +11,7 @@ public class AlglibCurveFitterTests
     public void Fit_StandardProfile_FindsUnconstrainedMinimum()
     {
         // Arrange
-        var fitter = new AlglibCurveFitter();
+        var fitter = new AlglibCurveFitter(NullLogger<AlglibCurveFitter>.Instance);
 
         // A simple parabolic function: y = (x - p0)^2 + p1
         // Minimum at p0 = 2.0, p1 = 1.0
@@ -45,7 +45,7 @@ public class AlglibCurveFitterTests
     public void Fit_RuleConstrainedProfile_FindsConstrainedMinimum_WithoutBreakingGradients()
     {
         // Arrange
-        var fitter = new AlglibCurveFitter();
+        var fitter = new AlglibCurveFitter(NullLogger<AlglibCurveFitter>.Instance);
 
         // Same parabolic function: y = (x - p0)^2 + p1
         // True unconstrained minimum is p0 = 2.0, p1 = 1.0

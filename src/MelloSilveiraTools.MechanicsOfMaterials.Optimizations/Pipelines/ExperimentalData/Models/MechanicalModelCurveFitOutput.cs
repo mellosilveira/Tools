@@ -15,4 +15,12 @@ public record MechanicalModelCurveFitOutput(
     RampTimeConsideration RampTimeConsideration,
     double Precision,
     double FinalError,
-    int Iterations);
+    int Iterations)
+{
+    public string Identifier { get; init; } = Guid.NewGuid().ToString("N");
+    public double? RampTime { get; init; }
+    public double[] ExperimentalStress { get; init; } = [];
+    public double TimeStep { get; init; } = 0.01;
+    public double[] TimePoints { get; init; } = [];
+    public MechanicalModelSimulationOutput? Simulation { get; init; }
+}

@@ -214,7 +214,6 @@ AI agents modifying or generating code in this repository **must strictly adhere
 ### 5. Constitutive Modeling (Mechanics of Materials)
 - Physical material parameters inherit from the **`ConstitutiveParameters`** abstract base record.
 - Concrete types: `ElasticConstitutiveParameters`, `MaxwellConstitutiveParameters`, `SchaperyConstitutiveParameters`, `ModifiedSuperpositionMethodConstitutiveParameters`, `FungConstitutiveParameters`, `SimplifiedFungConstitutiveParameters`.
-- Quasi-linear models use `QuasiLinearConstitutiveParameters<TReducedRelaxationFunction>` intermediate base.
 - Calculator execution uses the strongly-typed wrapper `MechanicalModelInput<TConstitutiveParameters>`.
 - Calculator interface hierarchy:
   ```
@@ -223,7 +222,8 @@ AI agents modifying or generating code in this repository **must strictly adhere
       ← IMaxwellModelCalculator
       ← ISchaperyModelCalculator, IModifiedSuperpositionMethodCalculator
   ```
-- `IMechanicalModelCalculatorFacade`: Resolves calculators by `ConstitutiveParameters` type at runtime via `ServiceLocator` + `IMechanicalModelTypeCache`.
+- **Type Resolvers & Factory:** The `IMechanicalModelCalculatorFactory` resolves the correct `ConstitutiveParameters`, `MechanicalModelOutput`, and `IMechanicalModelCalculator` types via `IMechanicalModelTypeResolver` keyed singletons (found in `TypeResolvers/` directory).
+- `IMechanicalModelCalculatorFacade`: Uses `ServiceLocator` + `IMechanicalModelTypeCache` to wrap the dynamic reflection logic required for time-history numeric simulations, offering pre-compiled execution paths for high performance.
 
 ### 6. Experimental Data & Optimizations
 - Located in `MelloSilveiraTools.MechanicsOfMaterials.Optimizations`.
@@ -232,6 +232,7 @@ AI agents modifying or generating code in this repository **must strictly adhere
   - `ExperimentalDataFileWriterStep`: Persistence step implementing `IAsyncPipelineStep<SegmentedDataPoint, SegmentedDataPoint>`, streaming valid points to disk via CSV format.
   - `CurveSegmentBuilderStep`: Assembly step implementing `ISyncPipelineStep<SegmentedDataPoint[], CurveSegment>`, constructing segments from grouped arrays with configurable downsampling (`skipTimeStep`).
   - `IMechanicalModelCurveFitterStep`: Optimization step implementing `IAsyncEnumerablePipelineStep<CurveSegment[], MechanicalModelCurveFitOutput>`. It yields fitted constitutive parameters and their analysis metrics sequentially as an async stream for real-time processing.
+  - `MechanicalModelSimulationStep`: Final step implementing `IAsyncPipelineStep<MechanicalModelCurveFitOutput, MechanicalModelCurveFitOutput>`. Calculates the forward numeric simulation, compares it with experimental results (generating Percentage/Delta metrics), identifies asymptotes, and saves `MechanicalModelSimulationEntity` and `MechanicalModelSimulationOutput`.
 - `IExperimentalDataService.ProcessAsync(identifier, outputFileUri, strainStream, stressStream, options)` → `Result<(string OutputFileName, CurveSegment[] CurveSegments)>`.
   - Continuous stream topology via TPL Dataflow:
     - Ingestion: `ExperimentalDataSegmenterStep` converts raw stream pair into streaming `SegmentedDataPoint` sequence.
@@ -245,7 +246,14 @@ AI agents modifying or generating code in this repository **must strictly adhere
 - `ExperimentalDataSegmenterStep.ExecuteAsync()` → streaming segmented points sequence.
 - `ExperimentalDataSegmenterStep.ExtractSegments()` → sliding-window segment classification.
 - Segment types: `Ramp`, `Relaxation`, `Descent`, `Recovery`.
-- `ICurveFitter` interface with `MathNetCurveFitter` (Levenberg-Marquardt via MathNet.Numerics) and `AlglibCurveFitter` (bundled ALGLIB).
+- `ICurveFitter` interface with `MathNetCurveFitter` and `AlglibCurveFitter` (bundled ALGLIB):
+  - Domain-agnostic `CurveFitProfile` (`Automatic`, `Standard`, `RuleConstrained`):
+    - `Standard`: Local gradient optimization via `alglib.minbleic` (L-BFGS with box bounds) for fast, quadratic convergence in smooth analytical problems.
+    - `RuleConstrained`: Derivative-free global optimization via `alglib.mindf` with GDEMO (adaptive Differential Evolution / SHADE), executing short-circuit rejection (`1e12` barrier) on unphysical or forbidden parameter combinations.
+    - `Automatic`: Automatically routes to `RuleConstrained` if `ValidateParameters` is provided; defaults to `Standard` otherwise.
+  - `CurveFitInput`: Encapsulates independent/dependent variables, box bounds, initial parameters, `Profile`, `ValidateParameters: Func<double[], bool>?`, `TargetRSquared: double?`, and `PopulationMultiplier: int` (default 10).
+  - `CurveFitOutput`: Exposes `OptimizedParameters: double[]`, `FinalError: double` (SSR), `RSquared: double` ($1 - \frac{SSR}{SST}$), and `Iterations: int`.
+  - `CurveFitterBase`: Centralized evaluation of objective function (SSR), numerical gradient (finite differences), and determination coefficient ($R^2$).
 
 - Morris sensitivity analysis: `MorrisAnalyzer`, `MorrisInput`, `MorrisOutput`, `MorrisMetrics`.
 

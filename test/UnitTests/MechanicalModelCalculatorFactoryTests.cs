@@ -1,5 +1,6 @@
 using MelloSilveiraTools.Core;
 using MelloSilveiraTools.Mathematics;
+using MelloSilveiraTools.Mathematics.Functions;
 using MelloSilveiraTools.MechanicsOfMaterials;
 using MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels;
 using MelloSilveiraTools.MechanicsOfMaterials.Models;
@@ -54,7 +55,7 @@ public class MechanicalModelCalculatorFactoryTests
             MechanicalBehaviorType = MechanicalBehaviorType.StressStrain,
             ViscoelasticEffect = ViscoelasticEffect.Relaxation,
             ConstitutiveParameters = new ElasticConstitutiveParameters { YoungModulus = 100.0 },
-            Strain = new MechanicalParameter(0.1)
+            Strain = new MechanicalParameter(0.1, new PolynomialFunction([0.1]))
         };
 
         IMechanicalModelCalculatorFacade facade = _factory.CreateCalculatorFacade(input);
@@ -71,7 +72,7 @@ public class MechanicalModelCalculatorFactoryTests
             MechanicalBehaviorType = MechanicalBehaviorType.StressStrain,
             ViscoelasticEffect = ViscoelasticEffect.Relaxation,
             ConstitutiveParameters = new MaxwellConstitutiveParameters { Stiffness = 200.0, Viscosity = 50.0 },
-            Strain = new MechanicalParameter(0.1)
+            Strain = new MechanicalParameter(0.1, new PolynomialFunction([0.1]))
         };
 
         IMechanicalModelCalculatorFacade facade = _factory.CreateCalculatorFacade(input);

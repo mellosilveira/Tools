@@ -21,10 +21,24 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
     - `ExperimentalDataSegmenterStep`: Dedicated `IAsyncEnumerablePipelineStep<(Stream StrainStream, Stream StressStream), SegmentedDataPoint>` and `IAsyncDisposable` ingesting CSV streams and yielding classified `SegmentedDataPoint` items.
     - `ExperimentalDataFileWriterStep`: Dedicated `IAsyncPipelineStep<SegmentedDataPoint, SegmentedDataPoint>` and `IAsyncDisposable` persisting processed data points to a CSV file.
     - `CurveSegmentBuilderStep`: Dedicated `ISyncPipelineStep<SegmentedDataPoint[], CurveSegment>` transforming grouped data points into classified curve segments with downsampling.
-  - Extensible curve fitting suite: `ICurveFitter` interface with `MathNetCurveFitter` (Levenberg-Marquardt via MathNet.Numerics) and `AlglibCurveFitter` (bundled ALGLIB).
+  - Extensible curve fitting suite: `ICurveFitter` interface with `MathNetCurveFitter` and `AlglibCurveFitter` (bundled ALGLIB):
+    - `CurveFitProfile` enum (`Automatic`, `Standard`, `RuleConstrained`) providing domain-agnostic optimization routing.
+    - `AlglibCurveFitter` multi-strategy engine:
+      - `Standard`: Executes local gradient optimization via `alglib.minbleic` (L-BFGS with bounds) for fast quadratic convergence on smooth analytical curves.
+      - `RuleConstrained`: Executes derivative-free global optimization via `alglib.mindf` with GDEMO (Success-History Based Differential Evolution / SHADE), supporting short-circuit boolean constraint rejection (`1e12` barrier) without numerical gradient distortion.
+      - `Automatic`: Automatically resolves to `RuleConstrained` if boolean validation rules are present, defaulting to `Standard` otherwise.
+    - Centralized determination coefficient computation (`CalculateRSquared`) in `CurveFitterBase` ($R^2 = 1 - \frac{SSR}{SST}$).
+    - `CurveFitOutput`: Exposes `RSquared` metric alongside `OptimizedParameters`, `FinalError`, and `Iterations`.
+    - `CurveFitInput` and `MathematicalCurveFitInput`: Added `Profile`, boolean domain rule validation delegate `ValidateParameters: Func<double[], bool>?`, `TargetRSquared: double?`, and `PopulationMultiplier: int`.
+    - Integrated physical domain rules into `FungRelaxationOnlyCurveFitterStep` (fast relaxation time < slow relaxation time) and `SimplifiedFungRelaxationOnlyCurveFitterStep` (ordered Prony series decay times).
   - Global sensitivity analysis via Morris Elementary Effects Method: `MorrisAnalyzer`, `MorrisInput`, `MorrisOutput`, `MorrisMetrics`, `MorrisPoint`, `MorrisParameterBoundary`, and `ExpressionPathResolver`.
   - Optimization Web API commands & endpoints: `FitCurve`, `FitCurveRequest`, `FitCurveResultData`, `ParameterGroupResultData`, `OptimizationOptionsRequest`, and `CurveFittingController`.
   - Domain models for optimization: `CurveFitInput`, `CurveFitResult`, `CurveSegment`, `ExperimentalDataPoint`, `SegmentType`, `ExperimentalDataProcessingOptions`, `ProcessedDataPoint`, `SegmentedDataPoint`, `OptimizationOptions`, and parameter range models (`RangeFunction`, `RangeParameters`, `RangePowerLaw`, `RangePronySeries`, `RangeReducedRelaxationFunction`).
+  - Added missing properties `Identifier`, `RampTime`, `ExperimentalStress`, `TimeStep`, `TimePoints`, and `Simulation` to `MechanicalModelCurveFitOutput` to support forward simulation.
+- **Mechanics of Materials Facade & Type Cache**:
+  - `IMechanicalModelCalculatorFactory`: Re-implemented matching SoftTissue project pattern, using `IMechanicalModelTypeResolver` to decouple model mappings.
+  - `IMechanicalModelTypeResolver`: Interface and concrete keyed singleton implementations in `TypeResolvers/` for every mechanical model.
+  - Generic input architecture (`GenericMechanicalModelInput` and `MechanicalModelCalculatorFacade`) updated to use the factory with keyed DI resolvers.
 - **Pipelines Engine (`MelloSilveiraTools.Core.Pipelines`)**:
   - `IPipelineStep`: Core non-generic metadata contract defining `string Name { get; }` for telemetry, distributed tracing, and fault localization.
   - `IAsyncPipelineStep<in TIn, TOut>`: Asynchronous execution contract (`Task<TOut> ExecuteAsync(TIn input, CancellationToken ct)`) implementing `IAsyncDisposable`.
@@ -114,12 +128,21 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - **Calculator response contract realignment (Result vs Output).** Renamed all calculator execution response classes from `*Result` to `*Output` across the engine domain (e.g., `MechanicalModelResult` → `MechanicalModelOutput`, `FatigueResult` → `FatigueOutput`, `NumericalMethodResult` → `NumericalMethodOutput`). This breaking change decouples pure mathematical data structures from the application's Result pattern pipeline, establishing that calculator blocks emit raw numerical projections rather than operation-status monads. Consumers invoking calculator engines must update their variable declarations and type bindings to the new `*Output` contract.
 - `IRepository.TryInsertAsync` to return `Result<long>` instead of tuple `(bool, long)`.
 - **Custom Logger Abstraction Removed:** Removed the custom in-house logging abstraction (`MelloSilveiraTools.Core.Infrastructure.Logger.ILogger`, `LocalFileLogger`, `LoggerBase`, and `LoggerSettings`). Consumers must migrate their constructors to use the standard `Microsoft.Extensions.Logging.ILogger<T>`.
+- **Curve Fitting Modernization**:
+  - `CurveFitInput`: Replaced legacy scalar penalty delegate `EvaluateConstraintsAndPenalties` with short-circuit boolean rule validator `ValidateParameters`, added `Profile`, `TargetRSquared`, and `PopulationMultiplier`.
+  - `CurveFitOutput`: Extended record constructor to include `double RSquared`.
+  - `AlglibCurveFitter`: Primary constructor now requires `ILogger<AlglibCurveFitter>` for structured failure reporting and diagnostics.
+  - `ExperimentalDataPersistenceStep`: Updated execution return type to `Task<MechanicalModelCurveFitOutput>` (returning `output with { Identifier = identifierHash }`) to maintain model pipeline continuity.
+  - `LinearModelCalculator`, `ModifiedSuperpositionMethodCalculator`, and `SchaperyModelCalculator`: Corrected `IntegralInput` parameter ordering (`new IntegralInput(time, input.TimeStep)`).
 ### Removed
 - `MelloSilveiraTools.WebApi.Application.Operations.*`: Removed legacy `OperationBase`, `OperationRequestBase`, `OperationResponse`, and old operation classes.
 - `MelloSilveiraTools.WebApi.ExtensionMethods.OperationResponseExtensions` and `ResultExtensions`.
 - `MelloSilveiraTools.MechanicsOfMaterials.Calculators.LoadSharing.*` and associated models.
 - `DifferentialEquationMethodFactory` in `MelloSilveiraTools.Mathematics` (differential equation solvers are now resolved via Keyed DI or direct dependency injection).
 - `MelloSilveiraTools.Core.ExtensionMethods.DoubleExtensions` — the canonical implementation now lives at `MelloSilveiraTools.Mathematics.Extensions.DoubleExtensions`. Consumers that imported the Core variant must add a reference to `MelloSilveiraTools.Mathematics` and update the `using` directive.
+- **Experimental Data Pipeline cleanup:** Removed obsolete properties `OutputTypeName`, `InitialTime`, `InitialStrain`, `InitialStress`, `FinalTime`, `FinalStrain`, `FinalStress`, `DeltaStrain`, `DeltaStress`, `DeltaStrainPercentage`, `DeltaStressPercentage`, and `HasReachedAsymptote` from `MechanicalModelSimulationEntity`.
+- Removed `Asymptote` complex type from `MechanicalModelSimulationOutput`, replaced entirely by `AsymptoteTime`.
+- Removed obsolete `EvaluateConstraintsAndPenalties` delegate from `CurveFitInput` and `MathematicalCurveFitInput` in favor of short-circuit boolean rule validation.
 
 ## [1.4.0] - 2026-05-01
 ### Added
