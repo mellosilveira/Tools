@@ -41,4 +41,10 @@ public record ExperimentalDataSettings
     /// Defaults to default pipeline step options.
     /// </summary>
     public PipelineStepOptions CurveFitterOptions { get; init; } = PipelineStepOptions.Default;
+
+    /// <summary>
+    /// Configuration options for the simulation input builder step in the Dataflow pipeline.
+    /// Defaults to default pipeline step options.
+    /// </summary>
+    public PipelineStepOptions SimulationInputBuilderOptions { get; init; } = PipelineStepOptions.Default;
 }

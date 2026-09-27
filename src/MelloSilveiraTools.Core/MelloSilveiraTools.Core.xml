@@ -1179,6 +1179,22 @@
         <member name="M:MelloSilveiraTools.Core.Managers.File.CsvStreamReader.DisposeAsync">
             <inheritdoc/>
         </member>
+        <member name="T:MelloSilveiraTools.Core.Managers.File.FileData">
+            <summary>
+            Contains metadata about a file, such as its directory URI and its file name.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Managers.File.FileData.#ctor(System.String,System.String)">
+            <summary>
+            Contains metadata about a file, such as its directory URI and its file name.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Managers.File.FileData.#ctor(System.IO.FileInfo)">
+            <summary>
+            Initializes a new instance of <see cref="T:MelloSilveiraTools.Core.Managers.File.FileData"/> from a <see cref="T:System.IO.FileInfo"/>.
+            </summary>
+            <param name="fileInfo">The file info to extract data from.</param>
+        </member>
         <member name="T:MelloSilveiraTools.Core.Managers.File.FileManager">
             <summary>
             Handles file operations such as writing streams to disk.
@@ -1717,6 +1733,9 @@
             Design: Caps the underlying graph by resolving to a final asynchronous block, returning a sealed interface preventing further linkage.
             </remarks>
         </member>
+        <member name="M:MelloSilveiraTools.Core.Pipelines.Dataflow.DataflowPipelineBuilder`2.BuildTerminal(System.String,MelloSilveiraTools.Core.Pipelines.Models.PipelineStepOptions)">
+            <inheritdoc/>
+        </member>
         <member name="M:MelloSilveiraTools.Core.Pipelines.Dataflow.DataflowPipelineBuilder`2.AddSafeStep``1(System.Threading.Tasks.Dataflow.TransformBlock{`1,MelloSilveiraTools.Core.Pipelines.Models.SafeResult{`1,``0}},System.Threading.Tasks.Dataflow.ExecutionDataflowBlockOptions)">
             <summary>
             Constructs a bifurcated routing topology to handle safe result payloads.
@@ -1931,6 +1950,16 @@
             <remarks>
             Technical Decision: Designed for async end-of-pipe operations (e.g., database persistence, event publishing).
             Limitation: Unhandled exceptions here will drop the fully processed payload unless caught by a previously configured DLQ.
+            </remarks>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Pipelines.Dataflow.IDataflowPipelineBuilder`2.BuildTerminal(System.String,MelloSilveiraTools.Core.Pipelines.Models.PipelineStepOptions)">
+            <summary>
+            Appends a terminal step serving as the pipeline sink without requiring an explicit consumer action. Seals the topology.
+            </summary>
+            <param name="stepName">The diagnostic name of the terminal step. Defaults to "Terminal".</param>
+            <param name="options">Concurrency and buffer options for this step.</param>
+            <remarks>
+            Technical Decision: Acts as a semantic drain for unconsumed payloads at the end of a pipeline graph.
             </remarks>
         </member>
         <member name="T:MelloSilveiraTools.Core.Pipelines.Fluent.FluentPipelineBuilder`2">

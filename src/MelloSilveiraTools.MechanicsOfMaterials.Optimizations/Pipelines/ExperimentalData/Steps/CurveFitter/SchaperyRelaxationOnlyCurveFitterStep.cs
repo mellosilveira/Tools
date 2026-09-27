@@ -138,7 +138,7 @@ public sealed class SchaperyRelaxationOnlyCurveFitterStep(
             H1 = new ConstantFunction(initialStrain, finalStrain, 1.0),
             H2 = new ConstantFunction(initialStrain, finalStrain, 1.0),
         };
-        MechanicalModelCurveFitOutput output = CreateCurveFitOutput(anchorSegment, anchorParameters, new AcceptedRange(initialStrain, finalStrain), anchorOutput.RSquared, anchorOutput.FinalError, anchorOutput.Iterations);
+        MechanicalModelCurveFitOutput output = CreateCurveFitOutput([anchorSegment], anchorParameters, new AcceptedRange(initialStrain, finalStrain), anchorOutput.RSquared, anchorOutput.FinalError, anchorOutput.Iterations);
         return (output, anchorOutput.OptimizedParameters);
     }
 
@@ -183,7 +183,7 @@ public sealed class SchaperyRelaxationOnlyCurveFitterStep(
             H2 = new ConstantFunction(initialAcceptedStrain, finalAcceptedStrain, h2),
         };
         AcceptedRange acceptedStrainRange = new(initialAcceptedStrain, finalAcceptedStrain);
-        MechanicalModelCurveFitOutput output = CreateCurveFitOutput(segment, constitutiveParameters, acceptedStrainRange, segmentOutput.RSquared, segmentOutput.FinalError, segmentOutput.Iterations);
+        MechanicalModelCurveFitOutput output = CreateCurveFitOutput([segment], constitutiveParameters, acceptedStrainRange, segmentOutput.RSquared, segmentOutput.FinalError, segmentOutput.Iterations);
         return (output, he, h2);
     }
 
@@ -218,7 +218,7 @@ public sealed class SchaperyRelaxationOnlyCurveFitterStep(
             H1 = new ConstantFunction(initialAcceptedStrain, finalAcceptedStrain, 1.0),
             H2 = h2Result.Function
         };
-        return CreateCurveFitOutput(relaxations[0], constitutiveParameters, new AcceptedRange(initialAcceptedStrain, finalAcceptedStrain), precision, totalError, totalIterations);
+        return CreateCurveFitOutput(relaxations, constitutiveParameters, new AcceptedRange(initialAcceptedStrain, finalAcceptedStrain), precision, totalError, totalIterations);
     }
 
     internal (Function Function, double Precision, double Error, int Iterations) FitHelmholtzVariable(double[] strain, double[] helmholtzVariable)

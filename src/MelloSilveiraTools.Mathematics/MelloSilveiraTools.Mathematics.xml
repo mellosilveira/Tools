@@ -719,6 +719,7 @@
             <param name="values"></param>
             <returns></returns>
         </member>
+        <!-- Badly formed XML comment ignored for member "M:MelloSilveiraTools.Mathematics.Models.CustomMath.CalculateAverageTimeStep(System.Double[][])" -->
         <member name="T:MelloSilveiraTools.Mathematics.Models.FunctionType">
             <summary>
             Contains the function types.

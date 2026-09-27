@@ -162,4 +162,14 @@ public interface IDataflowPipelineBuilder<THead, TTail>
     /// Limitation: Unhandled exceptions here will drop the fully processed payload unless caught by a previously configured DLQ.
     /// </remarks>
     IDataflowPipeline<THead> BuildTerminal(string stepName, Func<TTail, CancellationToken, Task> terminalAction, PipelineStepOptions options = default);
+
+    /// <summary>
+    /// Appends a terminal step serving as the pipeline sink without requiring an explicit consumer action. Seals the topology.
+    /// </summary>
+    /// <param name="stepName">The diagnostic name of the terminal step. Defaults to "Terminal".</param>
+    /// <param name="options">Concurrency and buffer options for this step.</param>
+    /// <remarks>
+    /// Technical Decision: Acts as a semantic drain for unconsumed payloads at the end of a pipeline graph.
+    /// </remarks>
+    IDataflowPipeline<THead> BuildTerminal(string stepName = "Terminal", PipelineStepOptions options = default);
 }

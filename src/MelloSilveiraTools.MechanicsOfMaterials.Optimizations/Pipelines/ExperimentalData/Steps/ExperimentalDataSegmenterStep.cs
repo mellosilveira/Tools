@@ -17,7 +17,7 @@ namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.Experi
 /// </summary>
 /// <param name="logger">Logger for telemetry, warnings, and diagnostic information.</param>
 /// <param name="differentiation">The differentiation calculator used to compute strain and stress rates and accelerations.</param>
-public sealed class ExperimentalDataSegmenterStep(ILogger logger, IDifferentiation differentiation) : IAsyncEnumerablePipelineStep<ExperimentalDataSegmenterInput, SegmentedDataPoint>
+public sealed class ExperimentalDataSegmenterStep(ILogger<ExperimentalDataSegmenterStep> logger, IDifferentiation differentiation) : IAsyncEnumerablePipelineStep<ExperimentalDataSegmenterInput, SegmentedDataPoint>
 {
     /// <inheritdoc/>
     public string Name => "ExperimentalDataSegmenter";
@@ -27,11 +27,12 @@ public sealed class ExperimentalDataSegmenterStep(ILogger logger, IDifferentiati
     {
         ExperimentalDataProcessingOptions options = input.Options;
 
-        await using CsvStreamReader strainReader = new(input.StrainStream, leaveOpen: true);
-        await using CsvStreamReader stressReader = new(input.StressStream, leaveOpen: true);
+        // TODO: ADICIONAR EXPLICAÇÃO DO PORQUE USAR leaveOpen: false, PARA QUE O STREAM SEJA FECHADO AUTOMATICAMENTE AO FINAL DO USO E EXPLICAR O QUE ACONTECE QUANDO USAR leaveOpen: true.
+        await using CsvStreamReader strainReader = new(input.StrainStream, leaveOpen: false);
+        await using CsvStreamReader stressReader = new(input.StressStream, leaveOpen: false);
 
         double? firstValidTime = null;
-        ProcessedDataPoint previousPoint = new();
+        ProcessedDataPoint previousPoint = default;
         SegmentType currentSegmentType = SegmentType.Unknown;
 
         ExperimentalDataPoint[] buffer = ArrayPool<ExperimentalDataPoint>.Shared.Rent(options.BufferSize);
@@ -51,7 +52,7 @@ public sealed class ExperimentalDataSegmenterStep(ILogger logger, IDifferentiati
                 {
                     if (strainRow!.Length < 2 || stressRow!.Length < 2)
                     {
-                        logger?.LogWarning("CSV row must contain at least 2 columns (Time and Value). Skipping invalid row.");
+                        logger.LogWarning("CSV row must contain at least 2 columns (Time and Value). Skipping invalid row.");
                         continue;
                     }
 
@@ -59,14 +60,14 @@ public sealed class ExperimentalDataSegmenterStep(ILogger logger, IDifferentiati
                     double strain = strainRow[1];
                     if (time < options.StartTimeThreshold)
                     {
-                        logger?.LogTrace("Skipping point at Time={StrainTime} and Strain={Strain} due to start time threshold: {StartTimeThreshold}.", time, strain, options.StartTimeThreshold);
+                        logger.LogTrace("Skipping point at Time={StrainTime} and Strain={Strain} due to start time threshold: {StartTimeThreshold}.", time, strain, options.StartTimeThreshold);
                         continue;
                     }
 
                     double stressTime = stressRow[0];
                     if (time.AbsolutRelativeDifference(stressTime) > options.RelativeTolerance)
                     {
-                        logger?.LogTrace("Skipping point at StrainTime={StrainTime} and StressTime={StressTime} due to time mismatch.", time, stressTime);
+                        logger.LogTrace("Skipping point at StrainTime={StrainTime} and StressTime={StressTime} due to time mismatch.", time, stressTime);
                         continue;
                     }
 
@@ -76,24 +77,20 @@ public sealed class ExperimentalDataSegmenterStep(ILogger logger, IDifferentiati
                     double stress = stressRow[1];
                     if (strain <= options.Tolerance)
                     {
-                        logger?.LogTrace("Skipping point at StrainTime={StrainTime} and Strain={Strain} due to non-positive strain.", time, strain);
+                        logger.LogTrace("Skipping point at StrainTime={StrainTime} and Strain={Strain} due to non-positive strain.", time, strain);
                         previousPoint = new(normalizedTime, strain, StrainRate: 0, StrainAcceleration: 0, stress, StressRate: 0, StressAcceleration: 0);
                         continue;
                     }
 
                     buffer[bufferCount++] = new ExperimentalDataPoint(Time: normalizedTime, Stress: stress, Strain: strain);
                     if (bufferCount < options.BufferSize)
-                    {
                         continue;
-                    }
                 }
                 else
                 {
-                    logger?.LogTrace("Breaking loop due to end of stream or empty line.");
+                    logger.LogTrace("Breaking loop due to end of stream or empty line.");
                     if (bufferCount == 0)
-                    {
                         break;
-                    }
                 }
 
                 foreach ((SegmentType segmentType, ArraySegment<ExperimentalDataPoint> points) in ExtractSegments(differentiation, currentSegmentType, buffer, bufferCount, options, segmentResults, logger))
@@ -103,7 +100,7 @@ public sealed class ExperimentalDataSegmenterStep(ILogger logger, IDifferentiati
                         ProcessedDataPoint processedPoint = BuildProcessedDataPoint(differentiation, previousPoint, points[i], options);
                         if (!ValidateStress(segmentType, processedPoint.StressRate, processedPoint.StressAcceleration))
                         {
-                            logger?.LogWarning("Invalid stress behavior detected for point: {@Point}.", processedPoint);
+                            logger.LogWarning("Invalid stress behavior detected for point: {@Point}.", processedPoint);
                             continue;
                         }
 
@@ -116,9 +113,7 @@ public sealed class ExperimentalDataSegmenterStep(ILogger logger, IDifferentiati
                 bufferCount = 0;
 
                 if (isEndOfStream)
-                {
                     break;
-                }
             }
         }
         finally

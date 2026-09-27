@@ -45,6 +45,6 @@ public static class OptimizationsDependencyInjection
             // Register the step factory.
             .AddSingleton<IMechanicalModelStepFactory, MechanicalModelStepFactory>()
             // Register the experimental data service.
-            .AddScoped<IExperimentalDataService, ExperimentalDataService>();
+            .AddScoped<IExperimentalDataProcessingPipeline, ExperimentalDataProcessingPipeline>();
     }
 }

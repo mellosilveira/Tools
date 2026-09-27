@@ -330,6 +330,12 @@ internal class DataflowPipelineBuilder<THead, TTail>(
         return BuildTerminalFromConsumer(consumerBlock, completionTask);
     }
 
+    /// <inheritdoc/>
+    public IDataflowPipeline<THead> BuildTerminal(string stepName = "Terminal", PipelineStepOptions options = default)
+    {
+        return BuildTerminal(stepName, _ => { }, options);
+    }
+
     private (ITargetBlock<TTail> TargetBlock, Task CompletionTask) CreateConsumer(string stepName, Action<TTail> action, ExecutionDataflowBlockOptions dataFlowOptions)
     {
         if (_deadLetterQueueEnabled)
