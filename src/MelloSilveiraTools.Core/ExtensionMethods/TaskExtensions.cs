@@ -18,15 +18,15 @@ public static class TaskExtensions
         /// Design: Uses <c>TaskContinuationOptions.ExecuteSynchronously</c> to minimize scheduling overhead when cascading completion states across the topology.
         /// Constraint: The <paramref name="additionalFunc"/> must execute efficiently to avoid stalling the continuation thread.
         /// </remarks>
-        public Task ContinueWith(IDataflowBlock dataflowBlock, Func<Task>? additionalFunc = null) => task.ContinueWith(async task =>
+        public Task ContinueWith(IDataflowBlock dataflowBlock, Func<Task>? additionalFunc = null) => task.ContinueWith(async t =>
         {
             if (additionalFunc is not null)
                 await additionalFunc().ConfigureAwait(false);
 
-            if (task.IsFaulted)
-                dataflowBlock.Fault(task.Exception);
+            if (t.IsFaulted)
+                dataflowBlock.Fault(t.Exception!);
             else
                 dataflowBlock.Complete();
-        }, CancellationToken.None, TaskContinuationOptions.ExecuteSynchronously, TaskScheduler.Default);
+        }, CancellationToken.None, TaskContinuationOptions.ExecuteSynchronously, TaskScheduler.Default).Unwrap();
     }
 }

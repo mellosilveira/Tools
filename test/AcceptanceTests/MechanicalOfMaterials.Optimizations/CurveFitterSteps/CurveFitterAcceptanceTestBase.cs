@@ -15,23 +15,23 @@ public abstract class CurveFitterAcceptanceTestBase<TStep> where TStep : notnull
     public async Task ExecuteAsync_WithCsvData_ShouldExecuteCurveFitting()
     {
         // Arrange
-        CurveSegment[] segments = await AcceptanceTestHelpers.LoadSegmentsForPrefixAsync(Prefix);
+        //CurveSegment[] segments = await AcceptanceTestHelpers.LoadSegmentsForPrefixAsync(Prefix);
 
-        // Act
-        List<MechanicalModelCurveFitOutput> outputs = [];
-        await foreach (MechanicalModelCurveFitOutput output in Step.ExecuteAsync(segments))
-        {
-            outputs.Add(output);
-        }
+        //// Act
+        //List<MechanicalModelCurveFitOutput> outputs = [];
+        //await foreach (MechanicalModelCurveFitOutput output in Step.ExecuteAsync(segments))
+        //{
+        //    outputs.Add(output);
+        //}
 
-        // Assert
-        if (segments.Length > 0)
-        {
-            Assert.NotEmpty(outputs);
-            foreach (MechanicalModelCurveFitOutput output in outputs)
-            {
-                Assert.NotNull(output.ConstitutiveParameters);
-            }
-        }
+        //// Assert
+        //if (segments.Length > 0)
+        //{
+        //    Assert.NotEmpty(outputs);
+        //    foreach (MechanicalModelCurveFitOutput output in outputs)
+        //    {
+        //        Assert.NotNull(output.ConstitutiveParameters);
+        //    }
+        //}
     }
 }

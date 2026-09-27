@@ -137,29 +137,31 @@ internal class DataflowPipelineBuilder<THead, TTail>(
             dataFlowOptions.MaxDegreeOfParallelism = 1;
         }
 
-        List<TTail> buffer = [];
+        List<TTail> buffer = new(128);
         BufferBlock<TTail[]> source = new(dataFlowOptions);
         ActionBlock<TTail> target = new(async item =>
         {
-            await TrySendAsync(source, buffer, !groupingCondition(buffer[^1], item)).ConfigureAwait(false);
+            if (buffer.Count > 0 && !groupingCondition(buffer[^1], item))
+            {
+                await source.SendAsync([.. buffer], pipelineCancellationToken).ConfigureAwait(false);
+                buffer.Clear();
+            }
             buffer.Add(item);
         }, dataFlowOptions);
 
         // Design: Forces flushing of the final partial batch trapped in the buffer before propagating completion downstream.
-        target.Completion.ContinueWith(source, () => TrySendAsync(source, buffer, true));
+        target.Completion.ContinueWith(source, async () =>
+        {
+            if (buffer.Count > 0)
+            {
+                await source.SendAsync([.. buffer], pipelineCancellationToken).ConfigureAwait(false);
+                buffer.Clear();
+            }
+        });
 
         // Design: Encapsulates the receiving and emitting blocks into a single logical Propagator node.
         IPropagatorBlock<TTail, TTail[]> groupBlock = DataflowBlock.Encapsulate(target, source);
         return LinkAndContinue(groupBlock);
-
-        static async Task TrySendAsync(BufferBlock<TTail[]> source, List<TTail> buffer, bool additionalCondition)
-        {
-            if (buffer.Count > 0 && additionalCondition)
-            {
-                await source.SendAsync([.. buffer]).ConfigureAwait(false);
-                buffer.Clear();
-            }
-        }
     }
 
     /// <inheritdoc/>
@@ -394,7 +396,8 @@ internal class DataflowPipelineBuilder<THead, TTail>(
         ActionBlock<SafeResult<TTail, TNextOut>> failedBlock = new(async safeResult => await deadLetterQueueBlock!.SendAsync(safeResult.FailedPayload, pipelineCancellationToken).ConfigureAwait(false), dataFlowOptions);
         safeBlock.LinkTo(failedBlock, safeResult => !safeResult.Success);
 
-        return new DataflowPipelineBuilder<THead, TNextOut>(logger, headBlock, successBlock, deadLetterQueueBlock, retryOptions, pipelineCancellationToken, _branchCompletionTasks, _steps);
+        List<Task> updatedTasks = [.. _branchCompletionTasks, failedBlock.Completion];
+        return new DataflowPipelineBuilder<THead, TNextOut>(logger, headBlock, successBlock, deadLetterQueueBlock, retryOptions, pipelineCancellationToken, updatedTasks, _steps);
     }
 
     private DataflowPipelineBuilder<THead, TNextOut> LinkAndContinue<TNextOut>(IPropagatorBlock<TTail, TNextOut> nextBlock)

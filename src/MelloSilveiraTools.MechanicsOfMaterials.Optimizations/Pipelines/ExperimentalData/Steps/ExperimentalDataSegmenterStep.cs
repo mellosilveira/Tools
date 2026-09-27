@@ -1,4 +1,3 @@
-using MelloSilveiraTools.Core.ExtensionMethods;
 using MelloSilveiraTools.Core.Managers.File;
 using MelloSilveiraTools.Core.Pipelines.Steps;
 using MelloSilveiraTools.Mathematics.Extensions;
@@ -27,9 +26,9 @@ public sealed class ExperimentalDataSegmenterStep(ILogger<ExperimentalDataSegmen
     {
         ExperimentalDataProcessingOptions options = input.Options;
 
-        // TODO: ADICIONAR EXPLICAÇÃO DO PORQUE USAR leaveOpen: false, PARA QUE O STREAM SEJA FECHADO AUTOMATICAMENTE AO FINAL DO USO E EXPLICAR O QUE ACONTECE QUANDO USAR leaveOpen: true.
-        await using CsvStreamReader strainReader = new(input.StrainStream, leaveOpen: false);
-        await using CsvStreamReader stressReader = new(input.StressStream, leaveOpen: false);
+        // O uso de leaveOpen: false faz com que o stream seja fechado automaticamente ao final do uso.
+        await using CsvStreamReader strainReader = await CsvStreamReader.CreateAsync(input.StrainStream, leaveOpen: false, cancellationToken: cancellationToken).ConfigureAwait(false);
+        await using CsvStreamReader stressReader = await CsvStreamReader.CreateAsync(input.StressStream, leaveOpen: false, cancellationToken: cancellationToken).ConfigureAwait(false);
 
         double? firstValidTime = null;
         ProcessedDataPoint previousPoint = default;
@@ -38,33 +37,30 @@ public sealed class ExperimentalDataSegmenterStep(ILogger<ExperimentalDataSegmen
         ExperimentalDataPoint[] buffer = ArrayPool<ExperimentalDataPoint>.Shared.Rent(options.BufferSize);
         int bufferCount = 0;
 
-        List<(SegmentType Type, ArraySegment<ExperimentalDataPoint> Points)> segmentResults = new(4);
-
+        List<(SegmentType Type, Range Range)> segmentResults = new(4);
+        
         try
         {
             while (!cancellationToken.IsCancellationRequested)
             {
-                double[]? strainRow = await strainReader.ReadNextRowAsync(cancellationToken).ConfigureAwait(false);
-                double[]? stressRow = await stressReader.ReadNextRowAsync(cancellationToken).ConfigureAwait(false);
+                ReadOnlyMemory<double> strainRow = await strainReader.ReadNextRowAsync(cancellationToken).ConfigureAwait(false);
+                ReadOnlyMemory<double> stressRow = await stressReader.ReadNextRowAsync(cancellationToken).ConfigureAwait(false);
 
-                bool isEndOfStream = strainRow is null || stressRow is null;
+                bool isEndOfStream = strainRow.Length < 2 || stressRow.Length < 2;
                 if (!isEndOfStream)
                 {
-                    if (strainRow!.Length < 2 || stressRow!.Length < 2)
-                    {
-                        logger.LogWarning("CSV row must contain at least 2 columns (Time and Value). Skipping invalid row.");
-                        continue;
-                    }
+                    ReadOnlySpan<double> strainSpan = strainRow.Span;
+                    ReadOnlySpan<double> stressSpan = stressRow.Span;
 
-                    double time = strainRow[0];
-                    double strain = strainRow[1];
+                    double time = strainSpan[0];
+                    double strain = strainSpan[1];
                     if (time < options.StartTimeThreshold)
                     {
                         logger.LogTrace("Skipping point at Time={StrainTime} and Strain={Strain} due to start time threshold: {StartTimeThreshold}.", time, strain, options.StartTimeThreshold);
                         continue;
                     }
 
-                    double stressTime = stressRow[0];
+                    double stressTime = stressSpan[0];
                     if (time.AbsolutRelativeDifference(stressTime) > options.RelativeTolerance)
                     {
                         logger.LogTrace("Skipping point at StrainTime={StrainTime} and StressTime={StressTime} due to time mismatch.", time, stressTime);
@@ -74,7 +70,7 @@ public sealed class ExperimentalDataSegmenterStep(ILogger<ExperimentalDataSegmen
                     firstValidTime ??= time;
                     double normalizedTime = time - firstValidTime.Value;
 
-                    double stress = stressRow[1];
+                    double stress = stressSpan[1];
                     if (strain <= options.Tolerance)
                     {
                         logger.LogTrace("Skipping point at StrainTime={StrainTime} and Strain={Strain} due to non-positive strain.", time, strain);
@@ -93,11 +89,16 @@ public sealed class ExperimentalDataSegmenterStep(ILogger<ExperimentalDataSegmen
                         break;
                 }
 
-                foreach ((SegmentType segmentType, ArraySegment<ExperimentalDataPoint> points) in ExtractSegments(differentiation, currentSegmentType, buffer, bufferCount, options, segmentResults, logger))
+                ExtractSegments(differentiation, currentSegmentType, buffer.AsSpan(0, bufferCount), in options, segmentResults, logger);
+
+                foreach ((SegmentType segmentType, Range range) in segmentResults)
                 {
-                    for (int i = 0; i < points.Count; i++)
+                    int start = range.Start.Value;
+                    int end = range.End.Value;
+                    for (int i = start; i < end; i++)
                     {
-                        ProcessedDataPoint processedPoint = BuildProcessedDataPoint(differentiation, previousPoint, points[i], options);
+                        ref ExperimentalDataPoint pt = ref buffer[i];
+                        ProcessedDataPoint processedPoint = BuildProcessedDataPoint(differentiation, in previousPoint, in pt, in options);
                         if (!ValidateStress(segmentType, processedPoint.StressRate, processedPoint.StressAcceleration))
                         {
                             logger.LogWarning("Invalid stress behavior detected for point: {@Point}.", processedPoint);
@@ -122,16 +123,16 @@ public sealed class ExperimentalDataSegmenterStep(ILogger<ExperimentalDataSegmen
         }
     }
 
-    private static List<(SegmentType, ArraySegment<ExperimentalDataPoint>)> ExtractSegments(
+    private static void ExtractSegments(
         IDifferentiation differentiation,
         SegmentType currentType,
-        ExperimentalDataPoint[] buffer,
-        int bufferCount,
-        ExperimentalDataProcessingOptions options,
-        List<(SegmentType, ArraySegment<ExperimentalDataPoint>)> results,
+        ReadOnlySpan<ExperimentalDataPoint> buffer,
+        in ExperimentalDataProcessingOptions options,
+        List<(SegmentType Type, Range Range)> results,
         ILogger? logger)
     {
         results.Clear();
+        int bufferCount = buffer.Length;
         int minStrainIndex = 0, maxStrainIndex = 0;
         double minStrain = buffer[0].Strain, maxStrain = buffer[0].Strain;
 
@@ -173,24 +174,24 @@ public sealed class ExperimentalDataSegmenterStep(ILogger<ExperimentalDataSegmen
         if (Math.Abs(strainRate) <= options.RateTolerance)
         {
             SegmentType type = currentType is SegmentType.Descent or SegmentType.Recovery ? SegmentType.Recovery : SegmentType.Relaxation;
-            results.Add((type, new ArraySegment<ExperimentalDataPoint>(buffer, 0, bufferCount)));
-            return results;
+            results.Add((type, 0..bufferCount));
+            return;
         }
 
-        return strainRate > options.RateTolerance
-            ? SliceBuffer(buffer, bufferCount, minStrainIndex, maxStrainIndex, SegmentType.Recovery, SegmentType.Ramp, SegmentType.Relaxation, results, logger)
-            : SliceBuffer(buffer, bufferCount, maxStrainIndex, minStrainIndex, SegmentType.Relaxation, SegmentType.Descent, SegmentType.Recovery, results, logger);
+        if (strainRate > options.RateTolerance)
+            SliceBuffer(bufferCount, minStrainIndex, maxStrainIndex, SegmentType.Recovery, SegmentType.Ramp, SegmentType.Relaxation, results, logger);
+        else
+            SliceBuffer(bufferCount, maxStrainIndex, minStrainIndex, SegmentType.Relaxation, SegmentType.Descent, SegmentType.Recovery, results, logger);
     }
 
-    private static List<(SegmentType, ArraySegment<ExperimentalDataPoint>)> SliceBuffer(
-        ExperimentalDataPoint[] buffer,
+    private static void SliceBuffer(
         int bufferCount,
         int startIndex,
         int endIndex,
         SegmentType typeBefore,
         SegmentType activeType,
         SegmentType typeAfter,
-        List<(SegmentType, ArraySegment<ExperimentalDataPoint>)> results,
+        List<(SegmentType Type, Range Range)> results,
         ILogger? logger)
     {
         if (startIndex < 0 || endIndex >= bufferCount || startIndex > endIndex)
@@ -199,13 +200,16 @@ public sealed class ExperimentalDataSegmenterStep(ILogger<ExperimentalDataSegmen
             throw new InvalidOperationException($"Unexpected strain pattern: '{startIndex}' is not at the start and '{endIndex}' is not at the end of the buffer.");
         }
 
-        return results
-            .FluentAddIf(startIndex > 0, (typeBefore, new ArraySegment<ExperimentalDataPoint>(buffer, 0, startIndex)))
-            .FluentAdd((activeType, new ArraySegment<ExperimentalDataPoint>(buffer, startIndex, (endIndex + 1) - startIndex)))
-            .FluentAddIf(endIndex < bufferCount - 1, (typeAfter, new ArraySegment<ExperimentalDataPoint>(buffer, endIndex + 1, bufferCount - (endIndex + 1))));
+        if (startIndex > 0)
+            results.Add((typeBefore, 0..startIndex));
+        
+        results.Add((activeType, startIndex..(endIndex + 1)));
+        
+        if (endIndex < bufferCount - 1)
+            results.Add((typeAfter, (endIndex + 1)..bufferCount));
     }
 
-    private static ProcessedDataPoint BuildProcessedDataPoint(IDifferentiation differentiation, ProcessedDataPoint basePoint, ExperimentalDataPoint point, ExperimentalDataProcessingOptions options)
+    private static ProcessedDataPoint BuildProcessedDataPoint(IDifferentiation differentiation, in ProcessedDataPoint basePoint, in ExperimentalDataPoint point, in ExperimentalDataProcessingOptions options)
     {
         double timeDelta = point.Time - basePoint.Time;
         double calculatedStrainRate = differentiation.Calculate(basePoint.Strain, point.Strain, timeDelta);

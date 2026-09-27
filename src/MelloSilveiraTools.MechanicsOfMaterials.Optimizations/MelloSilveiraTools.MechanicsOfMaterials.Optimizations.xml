@@ -377,17 +377,17 @@
             This prevents floating-point noise from causing hash mismatches for mathematically identical converged parameters.
             </summary>
         </member>
-        <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.ExperimentalDataService">
+        <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.ExperimentalDataProcessingPipeline">
             <summary>
             Service responsible for orchestrating the ingestion, validation, and physical phase segmentation of experimental raw data streams.
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.ExperimentalDataService.#ctor(Microsoft.Extensions.Logging.ILogger{MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.ExperimentalDataService},Microsoft.Extensions.Logging.ILogger{MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Steps.ExperimentalDataPersistenceStep},MelloSilveiraTools.Core.Managers.File.IFileManager,MelloSilveiraTools.Mathematics.NumericalMethods.Differentiations.IDifferentiation,MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Factories.IMechanicalModelStepFactory,MelloSilveiraTools.Database.Repositories.IRepository,MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.IMechanicalModelCalculatorFactory,MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.ExperimentalDataSettings)">
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.ExperimentalDataProcessingPipeline.#ctor(Microsoft.Extensions.Logging.ILoggerFactory,MelloSilveiraTools.Core.Managers.File.IFileManager,MelloSilveiraTools.Mathematics.NumericalMethods.Differentiations.IDifferentiation,MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Factories.IMechanicalModelStepFactory,MelloSilveiraTools.Database.Repositories.IRepository,MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.IMechanicalModelCalculatorFactory,MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.ExperimentalDataSettings)">
             <summary>
             Service responsible for orchestrating the ingestion, validation, and physical phase segmentation of experimental raw data streams.
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.ExperimentalDataService.ProcessAsync(MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.ExperimentalDataProcessingInput,System.Threading.CancellationToken)">
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.ExperimentalDataProcessingPipeline.ProcessAsync(MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.ExperimentalDataProcessingInput,System.Threading.CancellationToken)">
             <inheritdoc/>
         </member>
         <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.ExperimentalDataProcessingInput">
@@ -395,25 +395,25 @@
             Input parameters for processing experimental raw data streams through the segmentation and optimization pipeline.
             </summary>
         </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.ExperimentalDataProcessingInput.Identifier">
+            <summary>
+            Optional predefined analysis identifier. If not provided, a unique GUID-based identifier is generated.
+            </summary>
+        </member>
         <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.ExperimentalDataProcessingInput.MechanicalModelName">
             <summary>
             The name of the mechanical model to fit (e.g., "Fung", "Schapery").
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.ExperimentalDataProcessingInput.OutputFileUri">
+            <summary>
+            The directory URI where generated output files are saved.
             </summary>
         </member>
         <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.ExperimentalDataProcessingInput.TargetSegments">
             <summary>
             Segment types to be processed.
             If left empty, all segment types will be considered.
-            </summary>
-        </member>
-        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.ExperimentalDataProcessingInput.Identifier">
-            <summary>
-            Optional predefined analysis identifier. If not provided, a unique GUID-based identifier is generated.
-            </summary>
-        </member>
-        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.ExperimentalDataProcessingInput.OutputFileUri">
-            <summary>
-            The directory URI where generated output files are saved.
             </summary>
         </member>
         <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.ExperimentalDataProcessingInput.StrainStream">
@@ -424,11 +424,6 @@
         <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.ExperimentalDataProcessingInput.StressStream">
             <summary>
             Stream containing raw experimental stress time-history.
-            </summary>
-        </member>
-        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.ExperimentalDataProcessingInput.Options">
-            <summary>
-            Processing options for segmentation tolerances and smoothing.
             </summary>
         </member>
         <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.ExperimentalDataProcessingInput.FinalSimulationTime">
@@ -445,6 +440,11 @@
         <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.ExperimentalDataProcessingInput.AsymptoteConsecutivePointsThreshold">
             <summary>
             The consecutive points threshold required to detect that a steady-state asymptote has been reached. Defaults to 10.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.ExperimentalDataProcessingInput.Options">
+            <summary>
+            Processing options for segmentation tolerances and smoothing.
             </summary>
         </member>
         <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.ExperimentalDataProcessingInput.ToSegmenterInput">
@@ -677,12 +677,12 @@
         <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Handlers.SimulationDeltaHandler.DisposeAsync">
             <inheritdoc />
         </member>
-        <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.IExperimentalDataService">
+        <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.IExperimentalDataProcessingPipeline">
             <summary>
             Handles the ingestion, validation, and physical phase segmentation of experimental raw data streams.
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.IExperimentalDataService.ProcessAsync(MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.ExperimentalDataProcessingInput,System.Threading.CancellationToken)">
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.IExperimentalDataProcessingPipeline.ProcessAsync(MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.ExperimentalDataProcessingInput,System.Threading.CancellationToken)">
             <summary>
             Ingests strain and stress data streams and processes them through a TPL Dataflow pipeline,
             writing the valid processed points to a CSV file and executing numerical simulations.
@@ -1025,7 +1025,7 @@
         <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Steps.ExperimentalDataFileWriterStep">
             <summary>
             Pipeline step responsible for persisting processed experimental data points to a CSV file.
-            Writes the CSV header upon initialization and sequentially appends each data point line.
+            Writes the CSV header upon initialization and sequentially appends each data point line in batches.
             </summary>
         </member>
         <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Steps.ExperimentalDataFileWriterStep.Name">
@@ -1080,7 +1080,7 @@
             <param name="logger">Logger for telemetry, warnings, and diagnostic information.</param>
             <param name="differentiation">The differentiation calculator used to compute strain and stress rates and accelerations.</param>
         </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Steps.ExperimentalDataSegmenterStep.#ctor(Microsoft.Extensions.Logging.ILogger,MelloSilveiraTools.Mathematics.NumericalMethods.Differentiations.IDifferentiation)">
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Steps.ExperimentalDataSegmenterStep.#ctor(Microsoft.Extensions.Logging.ILogger{MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Steps.ExperimentalDataSegmenterStep},MelloSilveiraTools.Mathematics.NumericalMethods.Differentiations.IDifferentiation)">
             <summary>
             Pipeline step responsible for parsing and streaming raw experimental strain and stress data,
             segmenting points into physical deformation phases (Ramp, Relaxation, Descent, Recovery) using numerical differentiation.

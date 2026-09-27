@@ -14,7 +14,7 @@ public record ExperimentalDataSettings
     public PipelineStepOptions FileWriterOptions { get; init; } = new()
     {
         MaxWorkers = 1,
-        MaxBufferSize = 10000,
+        MaxBufferSize = 5000,
         KeepOrder = true
     };
 
@@ -22,7 +22,12 @@ public record ExperimentalDataSettings
     /// Configuration options for the curve segment grouping step in the Dataflow pipeline.
     /// Defaults to default pipeline step options.
     /// </summary>
-    public PipelineStepOptions GroupingOptions { get; init; } = PipelineStepOptions.Default;
+    public PipelineStepOptions GroupingOptions { get; init; } = new()
+    {
+        MaxWorkers = 1,
+        MaxBufferSize = 100,
+        KeepOrder = true
+    };
 
     /// <summary>
     /// Configuration options for the curve segment builder step in the Dataflow pipeline.
@@ -34,7 +39,12 @@ public record ExperimentalDataSettings
     /// Configuration options for the experimental data segmenter pipeline step in the Dataflow pipeline.
     /// Defaults to default pipeline step options.
     /// </summary>
-    public PipelineStepOptions SegmenterOptions { get; init; } = PipelineStepOptions.Default;
+    public PipelineStepOptions SegmenterOptions { get; init; } = new()
+    {
+        MaxWorkers = 1,
+        MaxBufferSize = 5000,
+        KeepOrder = true
+    };
 
     /// <summary>
     /// Configuration options for the mechanical model curve fitter pipeline step in the Dataflow pipeline.
