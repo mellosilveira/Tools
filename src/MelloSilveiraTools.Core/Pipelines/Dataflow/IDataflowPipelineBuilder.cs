@@ -76,6 +76,27 @@ public interface IDataflowPipelineBuilder<THead, TTail>
     IDataflowPipelineBuilder<THead, TTail> AddFilterStep(Predicate<TTail> predicate, PipelineStepOptions options = default);
 
     /// <summary>
+    /// Forks the pipeline into two parallel branches, processing the same payload concurrently, and joins the results into a Tuple.
+    /// </summary>
+    /// <remarks>
+    /// Technical Decision: Executes true DAG (Directed Acyclic Graph) topologies by utilizing a BroadcastBlock linked to two independent pipeline branches, converging at a JoinBlock.
+    /// Constraint: To ensure correct tuple pairing at the JoinBlock, branches must not drop messages (e.g., using Filter without placeholder padding) and must preserve order.
+    /// </remarks>
+    IDataflowPipelineBuilder<THead, Tuple<TOut1, TOut2>> Fork<TOut1, TOut2>(
+        Func<IDataflowPipelineBuilder<THead, TTail>, IDataflowPipelineBuilder<THead, TOut1>> branch1,
+        Func<IDataflowPipelineBuilder<THead, TTail>, IDataflowPipelineBuilder<THead, TOut2>> branch2,
+        PipelineStepOptions options = default);
+
+    /// <summary>
+    /// Forks the pipeline into three parallel branches, processing the same payload concurrently, and joins the results into a Tuple.
+    /// </summary>
+    IDataflowPipelineBuilder<THead, Tuple<TOut1, TOut2, TOut3>> Fork<TOut1, TOut2, TOut3>(
+        Func<IDataflowPipelineBuilder<THead, TTail>, IDataflowPipelineBuilder<THead, TOut1>> branch1,
+        Func<IDataflowPipelineBuilder<THead, TTail>, IDataflowPipelineBuilder<THead, TOut2>> branch2,
+        Func<IDataflowPipelineBuilder<THead, TTail>, IDataflowPipelineBuilder<THead, TOut3>> branch3,
+        PipelineStepOptions options = default);
+
+    /// <summary>
     /// Appends a stateful batching step that accumulates messages into an array until the condition evaluates false.
     /// </summary>
     /// <param name="condition">The function comparing previous and current items. Returns true to group them.</param>
@@ -97,21 +118,21 @@ public interface IDataflowPipelineBuilder<THead, TTail>
     /// </summary>
     /// <param name="step">The synchronous pipeline step instance to execute.</param>
     /// <param name="options">Concurrency and buffer options for this step.</param>
-    IDataflowPipelineBuilder<THead, TNextOut> AddStep<TNextOut>(ISyncPipelineStep<TTail, TNextOut> step, PipelineStepOptions options = default);
+    IDataflowPipelineBuilder<THead, TNextOut> AppendStep<TNextOut>(ISyncPipelineStep<TTail, TNextOut> step, PipelineStepOptions options = default);
 
     /// <summary>
     /// Appends a custom asynchronous processing step to the pipeline.
     /// </summary>
     /// <param name="step">The asynchronous pipeline step instance to execute.</param>
     /// <param name="options">Concurrency and buffer options for this step.</param>
-    IDataflowPipelineBuilder<THead, TNextOut> AddStep<TNextOut>(IAsyncPipelineStep<TTail, TNextOut> step, PipelineStepOptions options = default);
+    IDataflowPipelineBuilder<THead, TNextOut> AppendStep<TNextOut>(IAsyncPipelineStep<TTail, TNextOut> step, PipelineStepOptions options = default);
 
     /// <summary>
     /// Appends a custom asynchronous enumerable streaming step to the pipeline.
     /// </summary>
     /// <param name="step">The asynchronous enumerable pipeline step instance to execute.</param>
     /// <param name="options">Concurrency and buffer options for this step.</param>
-    IDataflowPipelineBuilder<THead, TNextOut> AddStep<TNextOut>(IAsyncEnumerablePipelineStep<TTail, TNextOut> step, PipelineStepOptions options = default);
+    IDataflowPipelineBuilder<THead, TNextOut> AppendStep<TNextOut>(IAsyncEnumerablePipelineStep<TTail, TNextOut> step, PipelineStepOptions options = default);
 
     /// <summary>
     /// Appends an asynchronous forking step that routes payloads to a fallback step if a specific condition is met.

@@ -125,6 +125,76 @@ internal class DataflowPipelineBuilder<THead, TTail>(
         return new DataflowPipelineBuilder<THead, TTail>(logger, headBlock, filterBlock, deadLetterQueueBlock, retryOptions, pipelineCancellationToken, _branchCompletionTasks, _steps);
     }
 
+    internal ISourceBlock<TTail> TailBlock => tailBlock;
+
+    /// <inheritdoc/>
+    public IDataflowPipelineBuilder<THead, Tuple<TOut1, TOut2>> Fork<TOut1, TOut2>(
+        Func<IDataflowPipelineBuilder<THead, TTail>, IDataflowPipelineBuilder<THead, TOut1>> branch1,
+        Func<IDataflowPipelineBuilder<THead, TTail>, IDataflowPipelineBuilder<THead, TOut2>> branch2,
+        PipelineStepOptions options = default)
+    {
+        ExecutionDataflowBlockOptions dataFlowOptions = options.ToDataflowOptions(pipelineCancellationToken);
+        
+        // 1. Create a BroadcastBlock to copy the same payload to both branches.
+        BroadcastBlock<TTail> broadcastBlock = new(msg => msg, dataFlowOptions);
+        tailBlock.LinkTo(broadcastBlock, new DataflowLinkOptions { PropagateCompletion = true });
+
+        // 2. Initialize branch builders stemming from the broadcast block.
+        var builder1 = new DataflowPipelineBuilder<THead, TTail>(logger, headBlock, broadcastBlock, deadLetterQueueBlock, retryOptions, pipelineCancellationToken, _branchCompletionTasks, _steps);
+        var builder2 = new DataflowPipelineBuilder<THead, TTail>(logger, headBlock, broadcastBlock, deadLetterQueueBlock, retryOptions, pipelineCancellationToken, _branchCompletionTasks, _steps);
+
+        // 3. Execute branch construction delegates.
+        var out1Builder = branch1(builder1);
+        var out2Builder = branch2(builder2);
+
+        // 4. Create the convergence JoinBlock.
+        JoinBlock<TOut1, TOut2> joinBlock = new(new GroupingDataflowBlockOptions
+        {
+            BoundedCapacity = dataFlowOptions.BoundedCapacity,
+            CancellationToken = pipelineCancellationToken
+        });
+
+        // 5. Connect the terminal ends of the branches to the JoinBlock.
+        ((DataflowPipelineBuilder<THead, TOut1>)out1Builder).TailBlock.LinkTo(joinBlock.Target1, new DataflowLinkOptions { PropagateCompletion = true });
+        ((DataflowPipelineBuilder<THead, TOut2>)out2Builder).TailBlock.LinkTo(joinBlock.Target2, new DataflowLinkOptions { PropagateCompletion = true });
+
+        // Return a new builder extending from the JoinBlock.
+        return new DataflowPipelineBuilder<THead, Tuple<TOut1, TOut2>>(logger, headBlock, joinBlock, deadLetterQueueBlock, retryOptions, pipelineCancellationToken, _branchCompletionTasks, _steps);
+    }
+
+    /// <inheritdoc/>
+    public IDataflowPipelineBuilder<THead, Tuple<TOut1, TOut2, TOut3>> Fork<TOut1, TOut2, TOut3>(
+        Func<IDataflowPipelineBuilder<THead, TTail>, IDataflowPipelineBuilder<THead, TOut1>> branch1,
+        Func<IDataflowPipelineBuilder<THead, TTail>, IDataflowPipelineBuilder<THead, TOut2>> branch2,
+        Func<IDataflowPipelineBuilder<THead, TTail>, IDataflowPipelineBuilder<THead, TOut3>> branch3,
+        PipelineStepOptions options = default)
+    {
+        ExecutionDataflowBlockOptions dataFlowOptions = options.ToDataflowOptions(pipelineCancellationToken);
+        
+        BroadcastBlock<TTail> broadcastBlock = new(msg => msg, dataFlowOptions);
+        tailBlock.LinkTo(broadcastBlock, new DataflowLinkOptions { PropagateCompletion = true });
+
+        var builder1 = new DataflowPipelineBuilder<THead, TTail>(logger, headBlock, broadcastBlock, deadLetterQueueBlock, retryOptions, pipelineCancellationToken, _branchCompletionTasks, _steps);
+        var builder2 = new DataflowPipelineBuilder<THead, TTail>(logger, headBlock, broadcastBlock, deadLetterQueueBlock, retryOptions, pipelineCancellationToken, _branchCompletionTasks, _steps);
+        var builder3 = new DataflowPipelineBuilder<THead, TTail>(logger, headBlock, broadcastBlock, deadLetterQueueBlock, retryOptions, pipelineCancellationToken, _branchCompletionTasks, _steps);
+
+        var out1Builder = branch1(builder1);
+        var out2Builder = branch2(builder2);
+        var out3Builder = branch3(builder3);
+
+        JoinBlock<TOut1, TOut2, TOut3> joinBlock = new(new GroupingDataflowBlockOptions
+        {
+            BoundedCapacity = dataFlowOptions.BoundedCapacity,
+            CancellationToken = pipelineCancellationToken
+        });
+
+        ((DataflowPipelineBuilder<THead, TOut1>)out1Builder).TailBlock.LinkTo(joinBlock.Target1, new DataflowLinkOptions { PropagateCompletion = true });
+        ((DataflowPipelineBuilder<THead, TOut2>)out2Builder).TailBlock.LinkTo(joinBlock.Target2, new DataflowLinkOptions { PropagateCompletion = true });
+        ((DataflowPipelineBuilder<THead, TOut3>)out3Builder).TailBlock.LinkTo(joinBlock.Target3, new DataflowLinkOptions { PropagateCompletion = true });
+
+        return new DataflowPipelineBuilder<THead, Tuple<TOut1, TOut2, TOut3>>(logger, headBlock, joinBlock, deadLetterQueueBlock, retryOptions, pipelineCancellationToken, _branchCompletionTasks, _steps);
+    }
+
     /// <inheritdoc/>
     public IDataflowPipelineBuilder<THead, TTail[]> AddGroupWhileStep(Func<TTail, TTail, bool> groupingCondition, PipelineStepOptions options = default)
     {
@@ -168,7 +238,7 @@ internal class DataflowPipelineBuilder<THead, TTail>(
     public IDataflowPipelineBuilder<THead, TTail[]> AddCollectAllStep(PipelineStepOptions options = default) => AddGroupWhileStep((_, _) => true, options);
 
     /// <inheritdoc/>
-    public IDataflowPipelineBuilder<THead, TNextOut> AddStep<TNextOut>(ISyncPipelineStep<TTail, TNextOut> step, PipelineStepOptions options = default)
+    public IDataflowPipelineBuilder<THead, TNextOut> AppendStep<TNextOut>(ISyncPipelineStep<TTail, TNextOut> step, PipelineStepOptions options = default)
     {
         _steps.Add(step);
         ExecutionDataflowBlockOptions dataFlowOptions = options.ToDataflowOptions(pipelineCancellationToken);
@@ -184,7 +254,7 @@ internal class DataflowPipelineBuilder<THead, TTail>(
     }
 
     /// <inheritdoc/>
-    public IDataflowPipelineBuilder<THead, TNextOut> AddStep<TNextOut>(IAsyncPipelineStep<TTail, TNextOut> step, PipelineStepOptions options = default)
+    public IDataflowPipelineBuilder<THead, TNextOut> AppendStep<TNextOut>(IAsyncPipelineStep<TTail, TNextOut> step, PipelineStepOptions options = default)
     {
         _steps.Add(step);
         ExecutionDataflowBlockOptions dataFlowOptions = options.ToDataflowOptions(pipelineCancellationToken);
@@ -202,7 +272,7 @@ internal class DataflowPipelineBuilder<THead, TTail>(
     }
 
     /// <inheritdoc/>
-    public IDataflowPipelineBuilder<THead, TNextOut> AddStep<TNextOut>(IAsyncEnumerablePipelineStep<TTail, TNextOut> step, PipelineStepOptions options = default)
+    public IDataflowPipelineBuilder<THead, TNextOut> AppendStep<TNextOut>(IAsyncEnumerablePipelineStep<TTail, TNextOut> step, PipelineStepOptions options = default)
     {
         _steps.Add(step);
 

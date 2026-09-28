@@ -29,9 +29,10 @@ public sealed class CurveSegmentBuilderStep() : ISyncPipelineStep<CurveSegmentBu
         }
 
         SegmentType segmentType = points[0].SegmentType;
-        List<double> timePoints = [];
-        List<double> strainPoints = [];
-        List<double> stressPoints = [];
+        int capacity = points.Length;
+        List<double> timePoints = new(capacity);
+        List<double> strainPoints = new(capacity);
+        List<double> stressPoints = new(capacity);
 
         double? lastTime = null;
         for (int i = 0; i < points.Length; i++)

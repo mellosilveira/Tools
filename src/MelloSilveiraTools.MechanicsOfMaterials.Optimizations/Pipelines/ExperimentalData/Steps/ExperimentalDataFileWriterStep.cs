@@ -49,7 +49,7 @@ public sealed class ExperimentalDataFileWriterStep : IAsyncPipelineStep<Segmente
     public string OutputFullFileName { get; }
 
     /// <inheritdoc/>
-    public async ValueTask ExecuteAsync(SegmentedDataPoint input, CancellationToken cancellationToken = default)
+    public async Task ExecuteAsync(SegmentedDataPoint input, CancellationToken cancellationToken = default)
     {
         cancellationToken.ThrowIfCancellationRequested();
 

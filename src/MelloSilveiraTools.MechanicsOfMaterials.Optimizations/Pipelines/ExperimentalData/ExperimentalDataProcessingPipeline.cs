@@ -3,6 +3,7 @@ using MelloSilveiraTools.Core.Models;
 using MelloSilveiraTools.Core.Pipelines;
 using MelloSilveiraTools.Core.Pipelines.Dataflow;
 using MelloSilveiraTools.Database.Repositories;
+using MelloSilveiraTools.Mathematics.Models;
 using MelloSilveiraTools.Mathematics.NumericalMethods.Differentiations;
 using MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Models;
@@ -36,9 +37,14 @@ public class ExperimentalDataProcessingPipeline(
         ExperimentalDataFileWriterStep fileWriterStep = new(fileManager, input.OutputFileUri, uniqueIdentifier);
         CurveSegmentBuilderStep curveSegmentBuilderStep = new();
         IMechanicalModelCurveFitterStep curveFitterStep = stepFactory.Create(input.MechanicalModelName, input.TargetSegments); // TODO: ADICIONAR LOG PARA SEGMENTOS IGNORADOS.
-        ExperimentalDataPersistenceStep persistenceStep = new(loggerFactory.CreateLogger<ExperimentalDataPersistenceStep>(), repository);
-        SimulationInputBuilderStep simulationInputBuilderStep = new(input.SimulationTimeStep, input.FinalSimulationTime);
-        SimulationOrchestratorStep simulationStep = new(fileManager, calculatorFactory, repository, input.OutputFileUri, input.AsymptoteConsecutivePointsThreshold);
+        
+        IdentifierBuilderStep identifierBuilderStep = new();
+        CurveFitOutputPersistenceStep curveFitPersistenceStep = new(loggerFactory.CreateLogger<CurveFitOutputPersistenceStep>(), repository);
+        NumericalSimulationStep numericalSimulationStep = new(calculatorFactory, input.SimulationTimeStep, input.FinalSimulationTime);
+        AsymptoteMonitoringStep asymptoteStep = new(input.AsymptoteConsecutivePointsThreshold);
+        DeltaCalculatorStep deltaStep = new();
+        MechanicalModelOutputFileWriterStep csvWriterStep = new(fileManager, input.OutputFileUri, uniqueIdentifier);
+        MechanicalModelOutputPersistenceStep mechanicalModelOutputPersistenceStep = new(repository);
 
         IDataflowPipeline<ExperimentalDataSegmenterInput> pipeline = PipelineFactory
             .StartDataflow<ExperimentalDataSegmenterInput>(loggerFactory.CreateLogger<ExperimentalDataProcessingPipeline>(), cancellationToken: cancellationToken)
@@ -50,10 +56,21 @@ public class ExperimentalDataProcessingPipeline(
             .AddStep(curveSegmentBuilderStep, settings.SegmentBuilderOptions)
             .AddCollectAllStep()
             .AddStep(curveFitterStep, settings.CurveFitterOptions)
-            .AddStep(persistenceStep)
-            .AddStep(simulationInputBuilderStep, settings.SimulationInputBuilderOptions)
-            .AddStep(simulationStep)
-            .BuildTerminal();
+            .Fork(
+                branchC => branchC
+                    .AddStep(identifierBuilderStep)
+                    .AddStep(curveFitPersistenceStep)
+                    .Builder,
+                branchD => branchD
+                    .AddStep(numericalSimulationStep)
+                    .Fork(
+                        branchE => branchE.AddStep(asymptoteStep).Builder,
+                        branchF => branchF.AddStep(deltaStep).Builder,
+                        branchG => branchG.AddStep(csvWriterStep).Builder
+                    ).Builder
+            )
+            .AddStep(mechanicalModelOutputPersistenceStep)
+            .BuildPipelineTerminal();
 
         await using (pipeline)
         {
@@ -96,18 +113,22 @@ public record ExperimentalDataProcessingInput
     /// <summary>
     /// Stream containing raw experimental strain time-history.
     /// </summary>
-    public Stream StrainStream { get; init; }
+    public required Stream StrainStream { get; init; }
 
     /// <summary>
     /// Stream containing raw experimental stress time-history.
     /// </summary>
-    public Stream StressStream { get; init; }
+    public required Stream StressStream { get; init; }
 
     /// <summary>
-    /// Optional target final simulation time. When provided and greater than the last experimental time,
-    /// the forward numerical simulation continues marching until this time is reached.
+    /// Optional threshold time to ignore initial transient data. When provided, all data points with time less than this threshold are ignored during processing.
     /// </summary>
-    public double? FinalSimulationTime { get; init; }
+    public double? StartExperimentalTimeThreshold { get; init; }
+
+    /// <summary>
+    /// The consecutive points threshold required to detect that a steady-state asymptote has been reached.
+    /// </summary>
+    public int AsymptoteConsecutivePointsThreshold { get; init; }
 
     /// <summary>
     /// Optional time step used during extended simulation. If omitted, defaults to the experimental time step.
@@ -115,45 +136,33 @@ public record ExperimentalDataProcessingInput
     public double? SimulationTimeStep { get; init; }
 
     /// <summary>
-    /// The consecutive points threshold required to detect that a steady-state asymptote has been reached. Defaults to 10.
+    /// Optional target final simulation time. When provided and greater than the last experimental time, the forward numerical simulation continues marching until this time is reached.
     /// </summary>
-    public int AsymptoteConsecutivePointsThreshold { get; init; } = 10;
+    public double? FinalSimulationTime { get; init; }
 
     /// <summary>
     /// Processing options for segmentation tolerances and smoothing.
     /// </summary>
-    public ExperimentalDataProcessingOptions Options { get; init; }
+    public required ExperimentalDataProcessingOptions Options { get; init; }
 
     /// <summary>
     /// Converts this processing input into the segmenter ingestion payload.
     /// </summary>
-    public ExperimentalDataSegmenterInput ToSegmenterInput() => new() { StrainStream = StrainStream, StressStream = StressStream, Options = Options };
+    public ExperimentalDataSegmenterInput ToSegmenterInput() => new(StartExperimentalTimeThreshold ?? MathematicConstants.InitialTime, StrainStream, StressStream, Options);
 }
 
 /// <summary>
 /// Ingestion payload consumed by the <see cref="ExperimentalDataSegmenterStep"/>.
 /// </summary>
-public record ExperimentalDataSegmenterInput
-{
-    /// <summary>
-    /// Stream containing raw experimental strain time-history.
-    /// </summary>
-    public Stream StrainStream { get; init; }
-
-    /// <summary>
-    /// Stream containing raw experimental stress time-history.
-    /// </summary>
-    public Stream StressStream { get; init; }
-
-    /// <summary>
-    /// Processing options for segmentation tolerances and smoothing.
-    /// </summary>
-    public ExperimentalDataProcessingOptions Options { get; init; }
-}
+/// <param name="StartExperimentalTimeThreshold"></param>
+/// <param name="StrainStream">Stream containing raw experimental strain time-history.</param>
+/// <param name="StressStream">Stream containing raw experimental stress time-history.</param>
+/// <param name="Options">Processing options for segmentation tolerances and smoothing.</param>
+public record ExperimentalDataSegmenterInput(double StartExperimentalTimeThreshold, Stream StrainStream, Stream StressStream, ExperimentalDataProcessingOptions Options);
 
 /// <summary>
 /// Input for assembling segmented data points into a physical <see cref="CurveSegment"/>.
 /// </summary>
 /// <param name="SkipTimeStep">The minimum time interval required between consecutive points within a segment. Defaults to 0.0 (no downsampling).</param>
 /// <param name="Points">The array of segmented data points belonging to the segment.</param>
-public record CurveSegmentBuilderInput(double SkipTimeStep, SegmentedDataPoint[] Points);
+public readonly record struct CurveSegmentBuilderInput(double SkipTimeStep, SegmentedDataPoint[] Points);

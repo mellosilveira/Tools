@@ -14,6 +14,19 @@ public readonly record struct PipelineStepOptions
     public PipelineStepOptions() { }
 
     /// <summary>
+    /// Parameterized constructor for explicit configuration of pipeline step options.
+    /// </summary>
+    /// <param name="maxWorkers"></param>
+    /// <param name="maxBufferSize"></param>
+    /// <param name="keepOrder"></param>
+    public PipelineStepOptions(int maxWorkers, int maxBufferSize, bool keepOrder)
+    {
+        MaxWorkers = maxWorkers;
+        MaxBufferSize = maxBufferSize;
+        KeepOrder = keepOrder;
+    }
+
+    /// <summary>
     /// Static singleton representing the default pipeline step configuration.
     /// </summary>
     public static readonly PipelineStepOptions Default = new();

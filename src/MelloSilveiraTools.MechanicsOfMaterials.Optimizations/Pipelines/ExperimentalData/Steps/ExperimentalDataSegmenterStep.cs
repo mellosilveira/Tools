@@ -54,9 +54,9 @@ public sealed class ExperimentalDataSegmenterStep(ILogger<ExperimentalDataSegmen
 
                     double time = strainSpan[0];
                     double strain = strainSpan[1];
-                    if (time < options.StartTimeThreshold)
+                    if (time < input.StartExperimentalTimeThreshold)
                     {
-                        logger.LogTrace("Skipping point at Time={StrainTime} and Strain={Strain} due to start time threshold: {StartTimeThreshold}.", time, strain, options.StartTimeThreshold);
+                        logger.LogTrace("Skipping point at Time={StrainTime} and Strain={Strain} due to start time threshold: {StartTimeThreshold}.", time, strain, input.StartExperimentalTimeThreshold);
                         continue;
                     }
 

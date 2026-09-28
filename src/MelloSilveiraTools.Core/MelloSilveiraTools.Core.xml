@@ -1697,19 +1697,25 @@
         <member name="M:MelloSilveiraTools.Core.Pipelines.Dataflow.DataflowPipelineBuilder`2.AddFilterStep(System.Predicate{`1},MelloSilveiraTools.Core.Pipelines.Models.PipelineStepOptions)">
             <inheritdoc/>
         </member>
+        <member name="M:MelloSilveiraTools.Core.Pipelines.Dataflow.DataflowPipelineBuilder`2.Fork``2(System.Func{MelloSilveiraTools.Core.Pipelines.Dataflow.IDataflowPipelineBuilder{`0,`1},MelloSilveiraTools.Core.Pipelines.Dataflow.IDataflowPipelineBuilder{`0,``0}},System.Func{MelloSilveiraTools.Core.Pipelines.Dataflow.IDataflowPipelineBuilder{`0,`1},MelloSilveiraTools.Core.Pipelines.Dataflow.IDataflowPipelineBuilder{`0,``1}},MelloSilveiraTools.Core.Pipelines.Models.PipelineStepOptions)">
+            <inheritdoc/>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Pipelines.Dataflow.DataflowPipelineBuilder`2.Fork``3(System.Func{MelloSilveiraTools.Core.Pipelines.Dataflow.IDataflowPipelineBuilder{`0,`1},MelloSilveiraTools.Core.Pipelines.Dataflow.IDataflowPipelineBuilder{`0,``0}},System.Func{MelloSilveiraTools.Core.Pipelines.Dataflow.IDataflowPipelineBuilder{`0,`1},MelloSilveiraTools.Core.Pipelines.Dataflow.IDataflowPipelineBuilder{`0,``1}},System.Func{MelloSilveiraTools.Core.Pipelines.Dataflow.IDataflowPipelineBuilder{`0,`1},MelloSilveiraTools.Core.Pipelines.Dataflow.IDataflowPipelineBuilder{`0,``2}},MelloSilveiraTools.Core.Pipelines.Models.PipelineStepOptions)">
+            <inheritdoc/>
+        </member>
         <member name="M:MelloSilveiraTools.Core.Pipelines.Dataflow.DataflowPipelineBuilder`2.AddGroupWhileStep(System.Func{`1,`1,System.Boolean},MelloSilveiraTools.Core.Pipelines.Models.PipelineStepOptions)">
             <inheritdoc/>
         </member>
         <member name="M:MelloSilveiraTools.Core.Pipelines.Dataflow.DataflowPipelineBuilder`2.AddCollectAllStep(MelloSilveiraTools.Core.Pipelines.Models.PipelineStepOptions)">
             <inheritdoc/>
         </member>
-        <member name="M:MelloSilveiraTools.Core.Pipelines.Dataflow.DataflowPipelineBuilder`2.AddStep``1(MelloSilveiraTools.Core.Pipelines.Steps.ISyncPipelineStep{`1,``0},MelloSilveiraTools.Core.Pipelines.Models.PipelineStepOptions)">
+        <member name="M:MelloSilveiraTools.Core.Pipelines.Dataflow.DataflowPipelineBuilder`2.AppendStep``1(MelloSilveiraTools.Core.Pipelines.Steps.ISyncPipelineStep{`1,``0},MelloSilveiraTools.Core.Pipelines.Models.PipelineStepOptions)">
             <inheritdoc/>
         </member>
-        <member name="M:MelloSilveiraTools.Core.Pipelines.Dataflow.DataflowPipelineBuilder`2.AddStep``1(MelloSilveiraTools.Core.Pipelines.Steps.IAsyncPipelineStep{`1,``0},MelloSilveiraTools.Core.Pipelines.Models.PipelineStepOptions)">
+        <member name="M:MelloSilveiraTools.Core.Pipelines.Dataflow.DataflowPipelineBuilder`2.AppendStep``1(MelloSilveiraTools.Core.Pipelines.Steps.IAsyncPipelineStep{`1,``0},MelloSilveiraTools.Core.Pipelines.Models.PipelineStepOptions)">
             <inheritdoc/>
         </member>
-        <member name="M:MelloSilveiraTools.Core.Pipelines.Dataflow.DataflowPipelineBuilder`2.AddStep``1(MelloSilveiraTools.Core.Pipelines.Steps.IAsyncEnumerablePipelineStep{`1,``0},MelloSilveiraTools.Core.Pipelines.Models.PipelineStepOptions)">
+        <member name="M:MelloSilveiraTools.Core.Pipelines.Dataflow.DataflowPipelineBuilder`2.AppendStep``1(MelloSilveiraTools.Core.Pipelines.Steps.IAsyncEnumerablePipelineStep{`1,``0},MelloSilveiraTools.Core.Pipelines.Models.PipelineStepOptions)">
             <inheritdoc/>
         </member>
         <member name="M:MelloSilveiraTools.Core.Pipelines.Dataflow.DataflowPipelineBuilder`2.AddForkingStep``1(MelloSilveiraTools.Core.Pipelines.Steps.ISyncPipelineStep{`1,``0},System.Func{``0,System.Boolean},MelloSilveiraTools.Core.Pipelines.Steps.ISyncPipelineStep{`1,``0},MelloSilveiraTools.Core.Pipelines.Models.PipelineStepOptions)">
@@ -1861,6 +1867,20 @@
             Technical Decision: Bypasses common pipeline deadlock risks associated with conditional routing by internally swallowing rejected payloads without violating the 1:1 I/O ratio.
             </remarks>
         </member>
+        <member name="M:MelloSilveiraTools.Core.Pipelines.Dataflow.IDataflowPipelineBuilder`2.Fork``2(System.Func{MelloSilveiraTools.Core.Pipelines.Dataflow.IDataflowPipelineBuilder{`0,`1},MelloSilveiraTools.Core.Pipelines.Dataflow.IDataflowPipelineBuilder{`0,``0}},System.Func{MelloSilveiraTools.Core.Pipelines.Dataflow.IDataflowPipelineBuilder{`0,`1},MelloSilveiraTools.Core.Pipelines.Dataflow.IDataflowPipelineBuilder{`0,``1}},MelloSilveiraTools.Core.Pipelines.Models.PipelineStepOptions)">
+            <summary>
+            Forks the pipeline into two parallel branches, processing the same payload concurrently, and joins the results into a Tuple.
+            </summary>
+            <remarks>
+            Technical Decision: Executes true DAG (Directed Acyclic Graph) topologies by utilizing a BroadcastBlock linked to two independent pipeline branches, converging at a JoinBlock.
+            Constraint: To ensure correct tuple pairing at the JoinBlock, branches must not drop messages (e.g., using Filter without placeholder padding) and must preserve order.
+            </remarks>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Pipelines.Dataflow.IDataflowPipelineBuilder`2.Fork``3(System.Func{MelloSilveiraTools.Core.Pipelines.Dataflow.IDataflowPipelineBuilder{`0,`1},MelloSilveiraTools.Core.Pipelines.Dataflow.IDataflowPipelineBuilder{`0,``0}},System.Func{MelloSilveiraTools.Core.Pipelines.Dataflow.IDataflowPipelineBuilder{`0,`1},MelloSilveiraTools.Core.Pipelines.Dataflow.IDataflowPipelineBuilder{`0,``1}},System.Func{MelloSilveiraTools.Core.Pipelines.Dataflow.IDataflowPipelineBuilder{`0,`1},MelloSilveiraTools.Core.Pipelines.Dataflow.IDataflowPipelineBuilder{`0,``2}},MelloSilveiraTools.Core.Pipelines.Models.PipelineStepOptions)">
+            <summary>
+            Forks the pipeline into three parallel branches, processing the same payload concurrently, and joins the results into a Tuple.
+            </summary>
+        </member>
         <member name="M:MelloSilveiraTools.Core.Pipelines.Dataflow.IDataflowPipelineBuilder`2.AddGroupWhileStep(System.Func{`1,`1,System.Boolean},MelloSilveiraTools.Core.Pipelines.Models.PipelineStepOptions)">
             <summary>
             Appends a stateful batching step that accumulates messages into an array until the condition evaluates false.
@@ -1878,21 +1898,21 @@
             </summary>
             <param name="options">Concurrency and buffer options for this step.</param>
         </member>
-        <member name="M:MelloSilveiraTools.Core.Pipelines.Dataflow.IDataflowPipelineBuilder`2.AddStep``1(MelloSilveiraTools.Core.Pipelines.Steps.ISyncPipelineStep{`1,``0},MelloSilveiraTools.Core.Pipelines.Models.PipelineStepOptions)">
+        <member name="M:MelloSilveiraTools.Core.Pipelines.Dataflow.IDataflowPipelineBuilder`2.AppendStep``1(MelloSilveiraTools.Core.Pipelines.Steps.ISyncPipelineStep{`1,``0},MelloSilveiraTools.Core.Pipelines.Models.PipelineStepOptions)">
             <summary>
             Appends a custom synchronous processing step to the pipeline.
             </summary>
             <param name="step">The synchronous pipeline step instance to execute.</param>
             <param name="options">Concurrency and buffer options for this step.</param>
         </member>
-        <member name="M:MelloSilveiraTools.Core.Pipelines.Dataflow.IDataflowPipelineBuilder`2.AddStep``1(MelloSilveiraTools.Core.Pipelines.Steps.IAsyncPipelineStep{`1,``0},MelloSilveiraTools.Core.Pipelines.Models.PipelineStepOptions)">
+        <member name="M:MelloSilveiraTools.Core.Pipelines.Dataflow.IDataflowPipelineBuilder`2.AppendStep``1(MelloSilveiraTools.Core.Pipelines.Steps.IAsyncPipelineStep{`1,``0},MelloSilveiraTools.Core.Pipelines.Models.PipelineStepOptions)">
             <summary>
             Appends a custom asynchronous processing step to the pipeline.
             </summary>
             <param name="step">The asynchronous pipeline step instance to execute.</param>
             <param name="options">Concurrency and buffer options for this step.</param>
         </member>
-        <member name="M:MelloSilveiraTools.Core.Pipelines.Dataflow.IDataflowPipelineBuilder`2.AddStep``1(MelloSilveiraTools.Core.Pipelines.Steps.IAsyncEnumerablePipelineStep{`1,``0},MelloSilveiraTools.Core.Pipelines.Models.PipelineStepOptions)">
+        <member name="M:MelloSilveiraTools.Core.Pipelines.Dataflow.IDataflowPipelineBuilder`2.AppendStep``1(MelloSilveiraTools.Core.Pipelines.Steps.IAsyncEnumerablePipelineStep{`1,``0},MelloSilveiraTools.Core.Pipelines.Models.PipelineStepOptions)">
             <summary>
             Appends a custom asynchronous enumerable streaming step to the pipeline.
             </summary>
@@ -2152,6 +2172,14 @@
             <summary>
             Parameterless constructor ensures compatibility with struct instantiation rules.
             </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Pipelines.Models.PipelineStepOptions.#ctor(System.Int32,System.Int32,System.Boolean)">
+            <summary>
+            Parameterized constructor for explicit configuration of pipeline step options.
+            </summary>
+            <param name="maxWorkers"></param>
+            <param name="maxBufferSize"></param>
+            <param name="keepOrder"></param>
         </member>
         <member name="F:MelloSilveiraTools.Core.Pipelines.Models.PipelineStepOptions.Default">
             <summary>
