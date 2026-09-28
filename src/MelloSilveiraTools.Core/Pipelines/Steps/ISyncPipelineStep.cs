@@ -7,7 +7,7 @@ namespace MelloSilveiraTools.Core.Pipelines.Steps;
 /// </summary>
 /// <typeparam name="TIn">The expected input payload type ingested by this execution node.</typeparam>
 /// <typeparam name="TOut">The resultant output payload type yielded after successful state mutation.</typeparam>
-public interface ISyncPipelineStep<in TIn, out TOut> : IPipelineStep, IDisposable
+public interface ISyncPipelineStep<in TIn, out TOut> : IPipelineStep<TIn, TOut>, IDisposable
 {
     /// <summary>
     /// Invokes the encapsulated domain logic synchronously, mapping the ingested state to the resultant output state.

@@ -12,4 +12,4 @@ namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.Experi
 /// and returns the fitted <see cref="ConstitutiveParameters"/> for the entire experiment.
 /// Inherits <see cref="IPipelineStep"/> for telemetry and tracing.
 /// </summary>
-public interface IMechanicalModelCurveFitterStep : IAsyncEnumerablePipelineStep<CurveSegment[], MechanicalModelCurveFitOutput>;
+public interface IMechanicalModelCurveFitterStep : IAsyncEnumerablePipelineStep<CurveSegment, MechanicalModelCurveFitOutput>;

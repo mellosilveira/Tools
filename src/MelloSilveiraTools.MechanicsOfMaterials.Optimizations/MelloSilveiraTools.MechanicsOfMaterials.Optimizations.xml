@@ -618,6 +618,16 @@
         <!-- Badly formed XML comment ignored for member "P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Models.MechanicalModelCurveFitOutput.Precision" -->
         <!-- Badly formed XML comment ignored for member "P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Models.MechanicalModelCurveFitOutput.FinalError" -->
         <!-- Badly formed XML comment ignored for member "P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Models.MechanicalModelCurveFitOutput.Iterations" -->
+        <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Models.MechanicalModelOutputPersistenceInput">
+            <summary>
+            Strongly-typed payload encapsulating the converging branches of a mechanical simulation.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Models.MechanicalModelOutputPersistenceInput.#ctor(System.String,MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Models.MechanicalModelCurveFitOutput,System.Nullable{System.Double},MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Models.SimulationDeltaOutput,MelloSilveiraTools.Core.Managers.File.FileData)">
+            <summary>
+            Strongly-typed payload encapsulating the converging branches of a mechanical simulation.
+            </summary>
+        </member>
         <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Models.MechanicalModelSimulationEntity">
             <summary>
             Database entity for forward numerical simulations of mechanical constitutive models.
@@ -730,7 +740,7 @@
             allowing multiple downstream branches (Asymptote, Delta, CSV) to analyze the same dataset concurrently.
             </summary>
         </member>
-        <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Models.SimulationDeltaResult">
+        <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Models.SimulationDeltaOutput">
             <summary>
             Encapsulates the boundary values and comparative deltas between the initial and final simulation outputs.
             </summary>
@@ -739,7 +749,7 @@
             <param name="AbsoluteDelta">The absolute difference between final and initial outputs.</param>
             <param name="PercentageDelta">The relative percentage change between final and initial outputs.</param>
         </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Models.SimulationDeltaResult.#ctor(MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalModelOutput,MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalModelOutput,MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalModelOutput,MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalModelOutput)">
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Models.SimulationDeltaOutput.#ctor(MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalModelOutput,MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalModelOutput,MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalModelOutput,MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalModelOutput)">
             <summary>
             Encapsulates the boundary values and comparative deltas between the initial and final simulation outputs.
             </summary>
@@ -748,16 +758,16 @@
             <param name="AbsoluteDelta">The absolute difference between final and initial outputs.</param>
             <param name="PercentageDelta">The relative percentage change between final and initial outputs.</param>
         </member>
-        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Models.SimulationDeltaResult.InitialOutput">
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Models.SimulationDeltaOutput.InitialOutput">
             <summary>The output produced at the initial simulation step.</summary>
         </member>
-        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Models.SimulationDeltaResult.FinalOutput">
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Models.SimulationDeltaOutput.FinalOutput">
             <summary>The output produced at the final simulation step.</summary>
         </member>
-        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Models.SimulationDeltaResult.AbsoluteDelta">
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Models.SimulationDeltaOutput.AbsoluteDelta">
             <summary>The absolute difference between final and initial outputs.</summary>
         </member>
-        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Models.SimulationDeltaResult.PercentageDelta">
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Models.SimulationDeltaOutput.PercentageDelta">
             <summary>The relative percentage change between final and initial outputs.</summary>
         </member>
         <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Steps.AsymptoteMonitoringStep">
@@ -821,7 +831,7 @@
         <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Steps.CurveFitter.FungRelaxationOnlyCurveFitterStep.ViscoelasticEffect">
             <inheritdoc />
         </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Steps.CurveFitter.FungRelaxationOnlyCurveFitterStep.ExecuteAsync(MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Models.CurveSegment[],System.Threading.CancellationToken)">
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Steps.CurveFitter.FungRelaxationOnlyCurveFitterStep.ExecuteAsync(MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Models.CurveSegment,System.Threading.CancellationToken)">
             <inheritdoc />
         </member>
         <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Steps.CurveFitter.IMechanicalModelCurveFitterStep">
@@ -858,7 +868,7 @@
             Gets the viscoelastic effect for the model.
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Steps.CurveFitter.MechanicalModelCurveFitterStepBase.ExecuteAsync(MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Models.CurveSegment[],System.Threading.CancellationToken)">
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Steps.CurveFitter.MechanicalModelCurveFitterStepBase.ExecuteAsync(MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Models.CurveSegment,System.Threading.CancellationToken)">
             <inheritdoc />
         </member>
         <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Steps.CurveFitter.MechanicalModelCurveFitterStepBase.CreateModelInput``1(MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Models.CurveSegment,``0,MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.RampTimeConsideration,System.Nullable{System.Double})">
@@ -906,7 +916,7 @@
         <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Steps.CurveFitter.SchaperyRelaxationOnlyCurveFitterStep.ViscoelasticEffect">
             <inheritdoc />
         </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Steps.CurveFitter.SchaperyRelaxationOnlyCurveFitterStep.ExecuteAsync(MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Models.CurveSegment[],System.Threading.CancellationToken)">
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Steps.CurveFitter.SchaperyRelaxationOnlyCurveFitterStep.ExecuteAsync(MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Models.CurveSegment,System.Threading.CancellationToken)">
             <inheritdoc />
         </member>
         <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Steps.CurveFitter.SimplifiedFungRelaxationOnlyCurveFitterStep">
@@ -930,28 +940,22 @@
         <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Steps.CurveFitter.SimplifiedFungRelaxationOnlyCurveFitterStep.ViscoelasticEffect">
             <inheritdoc />
         </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Steps.CurveFitter.SimplifiedFungRelaxationOnlyCurveFitterStep.ExecuteAsync(MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Models.CurveSegment[],System.Threading.CancellationToken)">
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Steps.CurveFitter.SimplifiedFungRelaxationOnlyCurveFitterStep.ExecuteAsync(MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Models.CurveSegment,System.Threading.CancellationToken)">
             <inheritdoc />
         </member>
-        <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Steps.CurveSegmentBuilderStep">
+        <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Steps.CurveSegmentAccumulatorStep">
             <summary>
-            Pipeline step responsible for constructing <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Models.CurveSegment"/> instances from grouped <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Models.SegmentedDataPoint"/> arrays,
-            applying downsampling thresholds to minimize redundant data points.
+            Pipeline step responsible for accumulating <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Models.SegmentedDataPoint"/> sequentially and yielding a <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Models.CurveSegment"/> 
+            when the <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Models.SegmentType"/> changes.
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Steps.CurveSegmentBuilderStep.#ctor">
-            <summary>
-            Pipeline step responsible for constructing <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Models.CurveSegment"/> instances from grouped <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Models.SegmentedDataPoint"/> arrays,
-            applying downsampling thresholds to minimize redundant data points.
-            </summary>
-        </member>
-        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Steps.CurveSegmentBuilderStep.Name">
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Steps.CurveSegmentAccumulatorStep.Name">
             <inheritdoc/>
         </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Steps.CurveSegmentBuilderStep.Execute(MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.CurveSegmentBuilderInput)">
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Steps.CurveSegmentAccumulatorStep.ExecuteAsync(MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Models.SegmentedDataPoint,System.Threading.CancellationToken)">
             <inheritdoc/>
         </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Steps.CurveSegmentBuilderStep.Dispose">
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Steps.CurveSegmentAccumulatorStep.DisposeAsync">
             <inheritdoc/>
         </member>
         <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Steps.DeltaCalculatorStep">
@@ -967,6 +971,25 @@
         </member>
         <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Steps.DeltaCalculatorStep.Dispose">
             <inheritdoc />
+        </member>
+        <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Steps.ExperimentalDataDownsamplerStep">
+            <summary>
+            Pipeline step responsible for downsampling a stream of <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Models.SegmentedDataPoint"/> by skipping points that are too close in time.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Steps.ExperimentalDataDownsamplerStep.#ctor(System.Double)">
+            <summary>
+            Pipeline step responsible for downsampling a stream of <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Models.SegmentedDataPoint"/> by skipping points that are too close in time.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Steps.ExperimentalDataDownsamplerStep.Name">
+            <inheritdoc/>
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Steps.ExperimentalDataDownsamplerStep.ExecuteAsync(MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Models.SegmentedDataPoint,System.Threading.CancellationToken)">
+            <inheritdoc/>
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Steps.ExperimentalDataDownsamplerStep.DisposeAsync">
+            <inheritdoc/>
         </member>
         <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Steps.ExperimentalDataFileWriterStep">
             <summary>
@@ -1061,7 +1084,7 @@
         <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Steps.MechanicalModelOutputPersistenceStep.Name">
             <inheritdoc />
         </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Steps.MechanicalModelOutputPersistenceStep.ExecuteAsync(System.Tuple{System.ValueTuple{System.String,MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Models.MechanicalModelCurveFitOutput},System.Tuple{System.Nullable{System.Double},MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Models.SimulationDeltaResult,MelloSilveiraTools.Core.Managers.File.FileData}},System.Threading.CancellationToken)">
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Steps.MechanicalModelOutputPersistenceStep.ExecuteAsync(MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Models.MechanicalModelOutputPersistenceInput,System.Threading.CancellationToken)">
             <inheritdoc />
         </member>
         <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Steps.MechanicalModelOutputPersistenceStep.DisposeAsync">

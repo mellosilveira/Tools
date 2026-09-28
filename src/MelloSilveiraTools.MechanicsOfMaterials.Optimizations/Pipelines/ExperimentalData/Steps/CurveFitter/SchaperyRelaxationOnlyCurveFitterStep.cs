@@ -43,56 +43,69 @@ public sealed class SchaperyRelaxationOnlyCurveFitterStep(
     /// <inheritdoc />
     protected override ViscoelasticEffect ViscoelasticEffect => ViscoelasticEffect.Relaxation;
 
+    private readonly List<CurveSegment> _relaxations = new();
+
     /// <inheritdoc />
-    public override async IAsyncEnumerable<MechanicalModelCurveFitOutput> ExecuteAsync(CurveSegment[] input, [EnumeratorCancellation] CancellationToken cancellationToken = default)
+    public override async IAsyncEnumerable<MechanicalModelCurveFitOutput> ExecuteAsync(CurveSegment segment, [EnumeratorCancellation] CancellationToken cancellationToken = default)
     {
         cancellationToken.ThrowIfCancellationRequested();
 
-        List<CurveSegment> relaxations = [.. input.Where(cs => cs.Type == SegmentType.Relaxation).OrderBy(cs => cs.ExperimentalStrain[0])];
-        if (relaxations.Count == 0)
+        if (segment.Type == SegmentType.Relaxation)
         {
-            yield break;
+            _relaxations.Add(segment);
         }
-
-        for (int i = 0; i < relaxations.Count; i++)
+        else if (segment.Type == SegmentType.Unknown)
         {
-            cancellationToken.ThrowIfCancellationRequested();
+            List<CurveSegment> relaxations = [.. _relaxations.OrderBy(cs => cs.ExperimentalStrain[0])];
+            if (relaxations.Count == 0)
+            {
+                yield break;
+            }
 
-            CurveSegment anchorSegment = relaxations[i];
-            (MechanicalModelCurveFitOutput anchorOutput, double[] optimizedLinearParams) = FitAnchorSegment(anchorSegment);
-            yield return anchorOutput;
-
-            (double Strain, double He, double H2)[] strainAndHelmholtzVariables = new (double Strain, double He, double H2)[relaxations.Count - 1];
-
-            double precision = anchorOutput.Precision;
-            double totalError = anchorOutput.FinalError;
-            int totalIterations = anchorOutput.Iterations;
-
-            for (int j = 0; j < relaxations.Count; j++)
+            for (int i = 0; i < relaxations.Count; i++)
             {
                 cancellationToken.ThrowIfCancellationRequested();
 
-                if (j == i)
+                CurveSegment anchorSegment = relaxations[i];
+                (MechanicalModelCurveFitOutput anchorOutput, double[] optimizedLinearParams) = FitAnchorSegment(anchorSegment);
+                yield return anchorOutput;
+
+                (double Strain, double He, double H2)[] strainAndHelmholtzVariables = new (double Strain, double He, double H2)[relaxations.Count - 1];
+
+                double precision = anchorOutput.Precision;
+                double totalError = anchorOutput.FinalError;
+                int totalIterations = anchorOutput.Iterations;
+
+                for (int j = 0; j < relaxations.Count; j++)
                 {
-                    strainAndHelmholtzVariables[j] = (anchorSegment.ExperimentalStrain[0], 1.0, 1.0);
-                    continue; // Skip the anchor segment
+                    cancellationToken.ThrowIfCancellationRequested();
+
+                    if (j == i)
+                    {
+                        strainAndHelmholtzVariables[j] = (anchorSegment.ExperimentalStrain[0], 1.0, 1.0);
+                        continue; // Skip the anchor segment
+                    }
+
+                    CurveSegment currentSegment = relaxations[j];
+                    (MechanicalModelCurveFitOutput segmentFitResult, double he, double h2) = FitRemainingSegment(currentSegment, optimizedLinearParams);
+
+                    strainAndHelmholtzVariables[j] = (currentSegment.ExperimentalStrain[0], he, h2);
+
+                    // TODO: ESTUDAR MELHOR FORMA DE CALCULAR O ERRO FINAL.
+                    precision = (precision + segmentFitResult.Precision) / 2;
+                    totalError *= segmentFitResult.FinalError;
+                    totalIterations += segmentFitResult.Iterations;
+
+                    yield return segmentFitResult;
                 }
 
-                CurveSegment segment = relaxations[j];
-                (MechanicalModelCurveFitOutput segmentFitResult, double he, double h2) = FitRemainingSegment(segment, optimizedLinearParams);
-
-                strainAndHelmholtzVariables[j] = (segment.ExperimentalStrain[0], he, h2);
-
-                // TODO: ESTUDAR MELHOR FORMA DE CALCULAR O ERRO FINAL.
-                precision = (precision + segmentFitResult.Precision) / 2;
-                totalError *= segmentFitResult.FinalError;
-                totalIterations += segmentFitResult.Iterations;
-
-                yield return segmentFitResult;
+                yield return BuildFinalOutput(relaxations, optimizedLinearParams, strainAndHelmholtzVariables, precision, totalError, totalIterations);
             }
 
-            yield return BuildFinalOutput(relaxations, optimizedLinearParams, strainAndHelmholtzVariables, precision, totalError, totalIterations);
+            _relaxations.Clear();
         }
+
+        await Task.CompletedTask;
     }
 
     private (MechanicalModelCurveFitOutput CurveFitOutput, double[] OptimizedLinearParams) FitAnchorSegment(CurveSegment anchorSegment)

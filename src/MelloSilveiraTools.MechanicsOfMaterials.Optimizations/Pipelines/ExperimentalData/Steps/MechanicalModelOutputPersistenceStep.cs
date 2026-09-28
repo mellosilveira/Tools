@@ -2,8 +2,9 @@ using MelloSilveiraTools.Core.Pipelines.Steps;
 using MelloSilveiraTools.Database.Repositories;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Converters;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Models;
+using System.Security.Cryptography;
+using System.Text;
 using System.Text.Json;
-using MelloSilveiraTools.Core.Managers.File;
 
 namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Steps;
 
@@ -12,7 +13,7 @@ namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.Experi
 /// and persists the final simulation entity to the database.
 /// </summary>
 public class MechanicalModelOutputPersistenceStep(IRepository repository)
-    : IAsyncPipelineStep<Tuple<ValueTuple<string, MechanicalModelCurveFitOutput>, Tuple<double?, SimulationDeltaResult, FileData>>, MechanicalModelCurveFitOutput>
+    : IAsyncPipelineStep<MechanicalModelOutputPersistenceInput, MechanicalModelCurveFitOutput>
 {
     private static readonly JsonSerializerOptions JsonOptions = new() { Converters = { new SignificantFiguresDoubleJsonConverter(7) } };
 
@@ -20,31 +21,32 @@ public class MechanicalModelOutputPersistenceStep(IRepository repository)
     public string Name => nameof(MechanicalModelOutputPersistenceStep);
 
     /// <inheritdoc />
-    public async Task<MechanicalModelCurveFitOutput> ExecuteAsync(Tuple<ValueTuple<string, MechanicalModelCurveFitOutput>, Tuple<double?, SimulationDeltaResult, FileData>> input, CancellationToken cancellationToken)
+    public async Task<MechanicalModelCurveFitOutput> ExecuteAsync(MechanicalModelOutputPersistenceInput input, CancellationToken cancellationToken)
     {
-        string identifier = input.Item1.Item1;
-        MechanicalModelCurveFitOutput curveFit = input.Item1.Item2;
-        
-        double? asymptoteTime = input.Item2.Item1;
-        SimulationDeltaResult delta = input.Item2.Item2;
-        FileData fileData = input.Item2.Item3;
+        string initialOutputJson = JsonSerializer.Serialize((object)input.Delta.InitialOutput, JsonOptions);
+        string finalOutputJson = JsonSerializer.Serialize((object)input.Delta.FinalOutput, JsonOptions);
+        string absoluteDeltaOutputJson = JsonSerializer.Serialize((object)input.Delta.AbsoluteDelta, JsonOptions);
+        string percentageDeltaOutputJson = JsonSerializer.Serialize((object)input.Delta.PercentageDelta, JsonOptions);
+
+        string rawDataToHash = string.Concat(initialOutputJson, finalOutputJson, absoluteDeltaOutputJson, percentageDeltaOutputJson);
+        string identifierHash = Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(rawDataToHash)));
 
         MechanicalModelSimulationEntity simulationEntity = new()
         {
-            Identifier = identifier,
-            CurveFitIdentifier = identifier,
-            MechanicalModelName = curveFit.MechanicalModelName,
-            OutputFileName = fileData.Name,
-            AsymptoteTime = asymptoteTime,
-            InitialOutputJson = JsonSerializer.Serialize((object)delta.InitialOutput, JsonOptions),
-            FinalOutputJson = JsonSerializer.Serialize((object)delta.FinalOutput, JsonOptions),
-            AbsoluteDeltaOutputJson = JsonSerializer.Serialize((object)delta.AbsoluteDelta, JsonOptions),
-            PercentageDeltaOutputJson = JsonSerializer.Serialize((object)delta.PercentageDelta, JsonOptions)
+            Identifier = identifierHash,
+            CurveFitIdentifier = input.CurveFitIdentifier,
+            MechanicalModelName = input.CurveFit.MechanicalModelName,
+            OutputFileName = input.FileData.Name,
+            AsymptoteTime = input.AsymptoteTime,
+            InitialOutputJson = initialOutputJson,
+            FinalOutputJson = finalOutputJson,
+            AbsoluteDeltaOutputJson = absoluteDeltaOutputJson,
+            PercentageDeltaOutputJson = percentageDeltaOutputJson
         };
 
         await repository.TryInsertAsync(simulationEntity, cancellationToken).ConfigureAwait(false);
 
-        return curveFit;
+        return input.CurveFit;
     }
 
     /// <inheritdoc />

@@ -116,6 +116,8 @@ public sealed class ExperimentalDataSegmenterStep(ILogger<ExperimentalDataSegmen
                 if (isEndOfStream)
                     break;
             }
+
+            yield return new SegmentedDataPoint(SegmentType.Unknown, default);
         }
         finally
         {

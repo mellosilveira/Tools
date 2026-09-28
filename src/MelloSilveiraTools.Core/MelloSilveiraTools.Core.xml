@@ -1688,12 +1688,6 @@
             Constraint: Purely synchronous. Retry policies are bypassed to prevent thread exhaustion.
             </remarks>
         </member>
-        <member name="M:MelloSilveiraTools.Core.Pipelines.Dataflow.DataflowPipelineBuilder`2.AddDataMapping``1(System.Func{`1,System.Threading.CancellationToken,System.Threading.Tasks.Task{``0}},MelloSilveiraTools.Core.Pipelines.Models.PipelineStepOptions)">
-            <inheritdoc/>
-            <remarks>
-            Design: Asynchronous execution enables OpenTelemetry span lifecycle tracking and exponential backoff loops for transient faults.
-            </remarks>
-        </member>
         <member name="M:MelloSilveiraTools.Core.Pipelines.Dataflow.DataflowPipelineBuilder`2.AddFilterStep(System.Predicate{`1},MelloSilveiraTools.Core.Pipelines.Models.PipelineStepOptions)">
             <inheritdoc/>
         </member>
@@ -1703,19 +1697,25 @@
         <member name="M:MelloSilveiraTools.Core.Pipelines.Dataflow.DataflowPipelineBuilder`2.Fork``3(System.Func{MelloSilveiraTools.Core.Pipelines.Dataflow.IDataflowPipelineBuilder{`0,`1},MelloSilveiraTools.Core.Pipelines.Dataflow.IDataflowPipelineBuilder{`0,``0}},System.Func{MelloSilveiraTools.Core.Pipelines.Dataflow.IDataflowPipelineBuilder{`0,`1},MelloSilveiraTools.Core.Pipelines.Dataflow.IDataflowPipelineBuilder{`0,``1}},System.Func{MelloSilveiraTools.Core.Pipelines.Dataflow.IDataflowPipelineBuilder{`0,`1},MelloSilveiraTools.Core.Pipelines.Dataflow.IDataflowPipelineBuilder{`0,``2}},MelloSilveiraTools.Core.Pipelines.Models.PipelineStepOptions)">
             <inheritdoc/>
         </member>
+        <member name="M:MelloSilveiraTools.Core.Pipelines.Dataflow.DataflowPipelineBuilder`2.Fork``2(MelloSilveiraTools.Core.Pipelines.Steps.IPipelineStep{`1,``0},MelloSilveiraTools.Core.Pipelines.Steps.IPipelineStep{`1,``1},MelloSilveiraTools.Core.Pipelines.Models.PipelineStepOptions)">
+            <inheritdoc/>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Pipelines.Dataflow.DataflowPipelineBuilder`2.Fork``3(MelloSilveiraTools.Core.Pipelines.Steps.IPipelineStep{`1,``0},MelloSilveiraTools.Core.Pipelines.Steps.IPipelineStep{`1,``1},MelloSilveiraTools.Core.Pipelines.Steps.IPipelineStep{`1,``2},MelloSilveiraTools.Core.Pipelines.Models.PipelineStepOptions)">
+            <inheritdoc/>
+        </member>
         <member name="M:MelloSilveiraTools.Core.Pipelines.Dataflow.DataflowPipelineBuilder`2.AddGroupWhileStep(System.Func{`1,`1,System.Boolean},MelloSilveiraTools.Core.Pipelines.Models.PipelineStepOptions)">
             <inheritdoc/>
         </member>
         <member name="M:MelloSilveiraTools.Core.Pipelines.Dataflow.DataflowPipelineBuilder`2.AddCollectAllStep(MelloSilveiraTools.Core.Pipelines.Models.PipelineStepOptions)">
             <inheritdoc/>
         </member>
-        <member name="M:MelloSilveiraTools.Core.Pipelines.Dataflow.DataflowPipelineBuilder`2.AppendStep``1(MelloSilveiraTools.Core.Pipelines.Steps.ISyncPipelineStep{`1,``0},MelloSilveiraTools.Core.Pipelines.Models.PipelineStepOptions)">
+        <member name="M:MelloSilveiraTools.Core.Pipelines.Dataflow.DataflowPipelineBuilder`2.AddStep``1(MelloSilveiraTools.Core.Pipelines.Steps.ISyncPipelineStep{`1,``0},MelloSilveiraTools.Core.Pipelines.Models.PipelineStepOptions)">
             <inheritdoc/>
         </member>
-        <member name="M:MelloSilveiraTools.Core.Pipelines.Dataflow.DataflowPipelineBuilder`2.AppendStep``1(MelloSilveiraTools.Core.Pipelines.Steps.IAsyncPipelineStep{`1,``0},MelloSilveiraTools.Core.Pipelines.Models.PipelineStepOptions)">
+        <member name="M:MelloSilveiraTools.Core.Pipelines.Dataflow.DataflowPipelineBuilder`2.AddStep``1(MelloSilveiraTools.Core.Pipelines.Steps.IAsyncPipelineStep{`1,``0},MelloSilveiraTools.Core.Pipelines.Models.PipelineStepOptions)">
             <inheritdoc/>
         </member>
-        <member name="M:MelloSilveiraTools.Core.Pipelines.Dataflow.DataflowPipelineBuilder`2.AppendStep``1(MelloSilveiraTools.Core.Pipelines.Steps.IAsyncEnumerablePipelineStep{`1,``0},MelloSilveiraTools.Core.Pipelines.Models.PipelineStepOptions)">
+        <member name="M:MelloSilveiraTools.Core.Pipelines.Dataflow.DataflowPipelineBuilder`2.AddStep``1(MelloSilveiraTools.Core.Pipelines.Steps.IAsyncEnumerablePipelineStep{`1,``0},MelloSilveiraTools.Core.Pipelines.Models.PipelineStepOptions)">
             <inheritdoc/>
         </member>
         <member name="M:MelloSilveiraTools.Core.Pipelines.Dataflow.DataflowPipelineBuilder`2.AddForkingStep``1(MelloSilveiraTools.Core.Pipelines.Steps.ISyncPipelineStep{`1,``0},System.Func{``0,System.Boolean},MelloSilveiraTools.Core.Pipelines.Steps.ISyncPipelineStep{`1,``0},MelloSilveiraTools.Core.Pipelines.Models.PipelineStepOptions)">
@@ -1846,17 +1846,6 @@
             Limitation: Cannot implement non-blocking retries. Using <see cref="M:System.Threading.Thread.Sleep(System.Int32)"/> causes ThreadPool starvation.
             </remarks>
         </member>
-        <member name="M:MelloSilveiraTools.Core.Pipelines.Dataflow.IDataflowPipelineBuilder`2.AddDataMapping``1(System.Func{`1,System.Threading.CancellationToken,System.Threading.Tasks.Task{``0}},MelloSilveiraTools.Core.Pipelines.Models.PipelineStepOptions)">
-            <summary>
-            Appends an asynchronous data mapping step to the pipeline.
-            </summary>
-            <param name="mapFunc">The asynchronous function responsible for transforming the payload.</param>
-            <param name="options">Concurrency and buffer options for this step.</param>
-            <remarks>
-            Technical Decision: Explicitly named for payload transformation via I/O (e.g., external API enrichment).
-            Limitation: Incurs async state machine allocation. Avoid for pure in-memory mapping.
-            </remarks>
-        </member>
         <member name="M:MelloSilveiraTools.Core.Pipelines.Dataflow.IDataflowPipelineBuilder`2.AddFilterStep(System.Predicate{`1},MelloSilveiraTools.Core.Pipelines.Models.PipelineStepOptions)">
             <summary>
             Appends a filtering step that evaluates a predicate against each payload. Payloads failing the condition are safely dropped.
@@ -1881,6 +1870,16 @@
             Forks the pipeline into three parallel branches, processing the same payload concurrently, and joins the results into a Tuple.
             </summary>
         </member>
+        <member name="M:MelloSilveiraTools.Core.Pipelines.Dataflow.IDataflowPipelineBuilder`2.Fork``2(MelloSilveiraTools.Core.Pipelines.Steps.IPipelineStep{`1,``0},MelloSilveiraTools.Core.Pipelines.Steps.IPipelineStep{`1,``1},MelloSilveiraTools.Core.Pipelines.Models.PipelineStepOptions)">
+            <summary>
+            Forks the pipeline into two parallel branches using predefined steps, and joins the results into a Tuple.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Pipelines.Dataflow.IDataflowPipelineBuilder`2.Fork``3(MelloSilveiraTools.Core.Pipelines.Steps.IPipelineStep{`1,``0},MelloSilveiraTools.Core.Pipelines.Steps.IPipelineStep{`1,``1},MelloSilveiraTools.Core.Pipelines.Steps.IPipelineStep{`1,``2},MelloSilveiraTools.Core.Pipelines.Models.PipelineStepOptions)">
+            <summary>
+            Forks the pipeline into three parallel branches using predefined steps, and joins the results into a Tuple.
+            </summary>
+        </member>
         <member name="M:MelloSilveiraTools.Core.Pipelines.Dataflow.IDataflowPipelineBuilder`2.AddGroupWhileStep(System.Func{`1,`1,System.Boolean},MelloSilveiraTools.Core.Pipelines.Models.PipelineStepOptions)">
             <summary>
             Appends a stateful batching step that accumulates messages into an array until the condition evaluates false.
@@ -1898,21 +1897,21 @@
             </summary>
             <param name="options">Concurrency and buffer options for this step.</param>
         </member>
-        <member name="M:MelloSilveiraTools.Core.Pipelines.Dataflow.IDataflowPipelineBuilder`2.AppendStep``1(MelloSilveiraTools.Core.Pipelines.Steps.ISyncPipelineStep{`1,``0},MelloSilveiraTools.Core.Pipelines.Models.PipelineStepOptions)">
+        <member name="M:MelloSilveiraTools.Core.Pipelines.Dataflow.IDataflowPipelineBuilder`2.AddStep``1(MelloSilveiraTools.Core.Pipelines.Steps.ISyncPipelineStep{`1,``0},MelloSilveiraTools.Core.Pipelines.Models.PipelineStepOptions)">
             <summary>
             Appends a custom synchronous processing step to the pipeline.
             </summary>
             <param name="step">The synchronous pipeline step instance to execute.</param>
             <param name="options">Concurrency and buffer options for this step.</param>
         </member>
-        <member name="M:MelloSilveiraTools.Core.Pipelines.Dataflow.IDataflowPipelineBuilder`2.AppendStep``1(MelloSilveiraTools.Core.Pipelines.Steps.IAsyncPipelineStep{`1,``0},MelloSilveiraTools.Core.Pipelines.Models.PipelineStepOptions)">
+        <member name="M:MelloSilveiraTools.Core.Pipelines.Dataflow.IDataflowPipelineBuilder`2.AddStep``1(MelloSilveiraTools.Core.Pipelines.Steps.IAsyncPipelineStep{`1,``0},MelloSilveiraTools.Core.Pipelines.Models.PipelineStepOptions)">
             <summary>
             Appends a custom asynchronous processing step to the pipeline.
             </summary>
             <param name="step">The asynchronous pipeline step instance to execute.</param>
             <param name="options">Concurrency and buffer options for this step.</param>
         </member>
-        <member name="M:MelloSilveiraTools.Core.Pipelines.Dataflow.IDataflowPipelineBuilder`2.AppendStep``1(MelloSilveiraTools.Core.Pipelines.Steps.IAsyncEnumerablePipelineStep{`1,``0},MelloSilveiraTools.Core.Pipelines.Models.PipelineStepOptions)">
+        <member name="M:MelloSilveiraTools.Core.Pipelines.Dataflow.IDataflowPipelineBuilder`2.AddStep``1(MelloSilveiraTools.Core.Pipelines.Steps.IAsyncEnumerablePipelineStep{`1,``0},MelloSilveiraTools.Core.Pipelines.Models.PipelineStepOptions)">
             <summary>
             Appends a custom asynchronous enumerable streaming step to the pipeline.
             </summary>
@@ -2381,6 +2380,13 @@
             Required by the pipeline orchestration engines for structured telemetry, 
             distributed tracing, and precise fault localization within the execution graph.
             </summary>
+        </member>
+        <member name="T:MelloSilveiraTools.Core.Pipelines.Steps.IPipelineStep`2">
+            <summary>
+            Defines a strongly-typed core metadata contract for a pipeline execution step.
+            </summary>
+            <typeparam name="TIn">The input type.</typeparam>
+            <typeparam name="TOut">The output type.</typeparam>
         </member>
         <member name="T:MelloSilveiraTools.Core.Pipelines.Steps.ISyncPipelineStep`2">
             <summary>

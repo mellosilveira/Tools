@@ -1,6 +1,7 @@
 using MelloSilveiraTools.Core.Managers.File;
 using MelloSilveiraTools.Core.Models;
 using MelloSilveiraTools.Core.Pipelines;
+using MelloSilveiraTools.Core.Pipelines.Models;
 using MelloSilveiraTools.Core.Pipelines.Dataflow;
 using MelloSilveiraTools.Database.Repositories;
 using MelloSilveiraTools.Mathematics.Models;
@@ -35,9 +36,10 @@ public class ExperimentalDataProcessingPipeline(
 
         ExperimentalDataSegmenterStep segmenterStep = new(loggerFactory.CreateLogger<ExperimentalDataSegmenterStep>(), differentiation);
         ExperimentalDataFileWriterStep fileWriterStep = new(fileManager, input.OutputFileUri, uniqueIdentifier);
-        CurveSegmentBuilderStep curveSegmentBuilderStep = new();
+        ExperimentalDataDownsamplerStep downsamplerStep = new(input.Options.SkipTimeStep);
+        CurveSegmentAccumulatorStep accumulatorStep = new();
         IMechanicalModelCurveFitterStep curveFitterStep = stepFactory.Create(input.MechanicalModelName, input.TargetSegments); // TODO: ADICIONAR LOG PARA SEGMENTOS IGNORADOS.
-        
+
         IdentifierBuilderStep identifierBuilderStep = new();
         CurveFitOutputPersistenceStep curveFitPersistenceStep = new(loggerFactory.CreateLogger<CurveFitOutputPersistenceStep>(), repository);
         NumericalSimulationStep numericalSimulationStep = new(calculatorFactory, input.SimulationTimeStep, input.FinalSimulationTime);
@@ -51,26 +53,29 @@ public class ExperimentalDataProcessingPipeline(
             .WithLoggingErrors()
             .AddStep(segmenterStep, settings.SegmenterOptions)
             .AddBroadcastStep(fileWriterStep, options: settings.FileWriterOptions)
-            .AddGroupWhileStep((prev, curr) => prev.SegmentType == curr.SegmentType, settings.GroupingOptions)
-            .AddDataMapping(points => new CurveSegmentBuilderInput(input.Options.SkipTimeStep, points))
-            .AddStep(curveSegmentBuilderStep, settings.SegmentBuilderOptions)
-            .AddCollectAllStep()
+            .AddStep(downsamplerStep, new PipelineStepOptions { MaxWorkers = 1 }) // MaxWorkers MUST be 1 for sequential evaluation
+            .AddStep(accumulatorStep, new PipelineStepOptions { MaxWorkers = 1 }) // Same here, strictly sequential
             .AddStep(curveFitterStep, settings.CurveFitterOptions)
             .Fork(
-                branchC => branchC
+                persistenceBranch => persistenceBranch
                     .AddStep(identifierBuilderStep)
-                    .AddStep(curveFitPersistenceStep)
-                    .Builder,
-                branchD => branchD
+                    .AddStep(curveFitPersistenceStep),
+                simulationBranch => simulationBranch
                     .AddStep(numericalSimulationStep)
                     .Fork(
-                        branchE => branchE.AddStep(asymptoteStep).Builder,
-                        branchF => branchF.AddStep(deltaStep).Builder,
-                        branchG => branchG.AddStep(csvWriterStep).Builder
-                    ).Builder
+                        asymptoteStep,
+                        deltaStep,
+                        csvWriterStep
+                    )
             )
+            .AddDataMapping(t => new MechanicalModelOutputPersistenceInput(
+                CurveFitIdentifier: t.Item1.Item1,
+                CurveFit: t.Item1.Item2,
+                AsymptoteTime: t.Item2.Item1,
+                Delta: t.Item2.Item2,
+                FileData: t.Item2.Item3))
             .AddStep(mechanicalModelOutputPersistenceStep)
-            .BuildPipelineTerminal();
+            .BuildTerminal();
 
         await using (pipeline)
         {

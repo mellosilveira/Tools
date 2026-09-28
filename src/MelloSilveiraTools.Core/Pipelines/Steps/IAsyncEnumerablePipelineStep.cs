@@ -6,7 +6,7 @@ namespace MelloSilveiraTools.Core.Pipelines.Steps;
 /// </summary>
 /// <typeparam name="TIn">The expected input payload type ingested by this execution node.</typeparam>
 /// <typeparam name="TOut">The resultant output element type yielded in the asynchronous sequence.</typeparam>
-public interface IAsyncEnumerablePipelineStep<in TIn, out TOut> : IPipelineStep, IAsyncDisposable
+public interface IAsyncEnumerablePipelineStep<in TIn, out TOut> : IPipelineStep<TIn, TOut>, IAsyncDisposable
 {
     /// <summary>
     /// Invokes the encapsulated domain logic asynchronously, streaming an asynchronous sequence of resultant output items.

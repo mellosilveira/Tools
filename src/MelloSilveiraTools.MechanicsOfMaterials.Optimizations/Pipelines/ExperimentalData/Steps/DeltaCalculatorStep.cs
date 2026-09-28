@@ -7,13 +7,13 @@ namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.Experi
 /// <summary>
 /// Pipeline step that computes the absolute and percentage deltas from the simulated points array.
 /// </summary>
-public class DeltaCalculatorStep : ISyncPipelineStep<MechanicalModelSimulationPayload, SimulationDeltaResult>
+public class DeltaCalculatorStep : ISyncPipelineStep<MechanicalModelSimulationPayload, SimulationDeltaOutput>
 {
     /// <inheritdoc />
     public string Name => nameof(DeltaCalculatorStep);
 
     /// <inheritdoc />
-    public SimulationDeltaResult Execute(MechanicalModelSimulationPayload payload)
+    public SimulationDeltaOutput Execute(MechanicalModelSimulationPayload payload)
     {
         MechanicalModelOutput[] points = payload.SimulatedPoints;
 
@@ -23,7 +23,7 @@ public class DeltaCalculatorStep : ISyncPipelineStep<MechanicalModelSimulationPa
         MechanicalModelOutput absoluteDelta = finalOutput.CalculateDelta(initialOutput);
         MechanicalModelOutput percentageDelta = finalOutput.CalculatePercentageDelta(initialOutput);
 
-        return new SimulationDeltaResult(initialOutput, finalOutput, absoluteDelta, percentageDelta);
+        return new SimulationDeltaOutput(initialOutput, finalOutput, absoluteDelta, percentageDelta);
     }
 
     /// <inheritdoc />

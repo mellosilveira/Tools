@@ -24,7 +24,7 @@ public interface IAsyncPipelineStep<in TIn> : IPipelineStep, IAsyncDisposable
 /// </summary>
 /// <typeparam name="TIn">The expected input payload type ingested by this execution node.</typeparam>
 /// <typeparam name="TOut">The resultant output payload type yielded after successful state mutation.</typeparam>
-public interface IAsyncPipelineStep<in TIn, TOut> : IPipelineStep, IAsyncDisposable
+public interface IAsyncPipelineStep<in TIn, TOut> : IPipelineStep<TIn, TOut>, IAsyncDisposable
 {
     /// <summary>
     /// Invokes the encapsulated domain logic asynchronously, mapping the ingested state to the resultant output state.

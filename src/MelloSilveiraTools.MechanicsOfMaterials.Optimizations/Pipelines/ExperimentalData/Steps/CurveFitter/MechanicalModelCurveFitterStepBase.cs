@@ -33,7 +33,7 @@ public abstract class MechanicalModelCurveFitterStepBase : IMechanicalModelCurve
     protected abstract ViscoelasticEffect ViscoelasticEffect { get; }
 
     /// <inheritdoc />
-    public abstract IAsyncEnumerable<MechanicalModelCurveFitOutput> ExecuteAsync(CurveSegment[] input, CancellationToken cancellationToken = default);
+    public abstract IAsyncEnumerable<MechanicalModelCurveFitOutput> ExecuteAsync(CurveSegment input, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Constructs a strongly-typed <see cref="MechanicalModelInput{TConstitutiveParameters}"/> instance from a curve segment and constitutive parameters.

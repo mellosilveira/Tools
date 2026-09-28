@@ -94,24 +94,6 @@ internal class DataflowPipelineBuilder<THead, TTail>(
     }
 
     /// <inheritdoc/>
-    /// <remarks>
-    /// Design: Asynchronous execution enables OpenTelemetry span lifecycle tracking and exponential backoff loops for transient faults.
-    /// </remarks>
-    public IDataflowPipelineBuilder<THead, TNextOut> AddDataMapping<TNextOut>(Func<TTail, CancellationToken, Task<TNextOut>> mapFunc, PipelineStepOptions options = default)
-    {
-        ExecutionDataflowBlockOptions dataFlowOptions = options.ToDataflowOptions(pipelineCancellationToken);
-
-        if (_deadLetterQueueEnabled)
-        {
-            TransformBlock<TTail, SafeResult<TTail, TNextOut>> safeBlock = new(TelemetryExtensions.HandleSafeExecution(logger, DataMappingTelemetryName, mapFunc, retryOptions, pipelineCancellationToken), dataFlowOptions);
-            return AddSafeStep(safeBlock, dataFlowOptions);
-        }
-
-        TransformBlock<TTail, TNextOut> nextBlock = new(TelemetryExtensions.HandleExecution(logger, DataMappingTelemetryName, mapFunc, retryOptions, pipelineCancellationToken)!, dataFlowOptions);
-        return LinkAndContinue(nextBlock);
-    }
-
-    /// <inheritdoc/>
     public IDataflowPipelineBuilder<THead, TTail> AddFilterStep(Predicate<TTail> predicate, PipelineStepOptions options = default)
     {
         BufferBlock<TTail> filterBlock = new(options.ToDataflowOptions(pipelineCancellationToken));
@@ -178,9 +160,9 @@ internal class DataflowPipelineBuilder<THead, TTail>(
         var builder2 = new DataflowPipelineBuilder<THead, TTail>(logger, headBlock, broadcastBlock, deadLetterQueueBlock, retryOptions, pipelineCancellationToken, _branchCompletionTasks, _steps);
         var builder3 = new DataflowPipelineBuilder<THead, TTail>(logger, headBlock, broadcastBlock, deadLetterQueueBlock, retryOptions, pipelineCancellationToken, _branchCompletionTasks, _steps);
 
-        var out1Builder = branch1(builder1);
-        var out2Builder = branch2(builder2);
-        var out3Builder = branch3(builder3);
+        IDataflowPipelineBuilder<THead, TOut1> out1Builder = branch1(builder1);
+        IDataflowPipelineBuilder<THead, TOut2> out2Builder = branch2(builder2);
+        IDataflowPipelineBuilder<THead, TOut3> out3Builder = branch3(builder3);
 
         JoinBlock<TOut1, TOut2, TOut3> joinBlock = new(new GroupingDataflowBlockOptions
         {
@@ -193,6 +175,45 @@ internal class DataflowPipelineBuilder<THead, TTail>(
         ((DataflowPipelineBuilder<THead, TOut3>)out3Builder).TailBlock.LinkTo(joinBlock.Target3, new DataflowLinkOptions { PropagateCompletion = true });
 
         return new DataflowPipelineBuilder<THead, Tuple<TOut1, TOut2, TOut3>>(logger, headBlock, joinBlock, deadLetterQueueBlock, retryOptions, pipelineCancellationToken, _branchCompletionTasks, _steps);
+    }
+
+    /// <inheritdoc/>
+    public IDataflowPipelineBuilder<THead, Tuple<TOut1, TOut2>> Fork<TOut1, TOut2>(
+        IPipelineStep<TTail, TOut1> branch1Step,
+        IPipelineStep<TTail, TOut2> branch2Step,
+        PipelineStepOptions options = default)
+    {
+        return Fork(
+            b => AddStepDynamic(b, branch1Step),
+            b => AddStepDynamic(b, branch2Step),
+            options
+        );
+    }
+
+    /// <inheritdoc/>
+    public IDataflowPipelineBuilder<THead, Tuple<TOut1, TOut2, TOut3>> Fork<TOut1, TOut2, TOut3>(
+        IPipelineStep<TTail, TOut1> branch1Step,
+        IPipelineStep<TTail, TOut2> branch2Step,
+        IPipelineStep<TTail, TOut3> branch3Step,
+        PipelineStepOptions options = default)
+    {
+        return Fork(
+            b => AddStepDynamic(b, branch1Step),
+            b => AddStepDynamic(b, branch2Step),
+            b => AddStepDynamic(b, branch3Step),
+            options
+        );
+    }
+
+    private static IDataflowPipelineBuilder<THead, TOut> AddStepDynamic<TOut>(IDataflowPipelineBuilder<THead, TTail> builder, IPipelineStep<TTail, TOut> step)
+    {
+        return step switch
+        {
+            ISyncPipelineStep<TTail, TOut> syncStep => builder.AddStep(syncStep),
+            IAsyncPipelineStep<TTail, TOut> asyncStep => builder.AddStep(asyncStep),
+            IAsyncEnumerablePipelineStep<TTail, TOut> enumStep => builder.AddStep(enumStep),
+            _ => throw new NotSupportedException($"Pipeline step type '{step.GetType().Name}' is not supported in this Fork overload.")
+        };
     }
 
     /// <inheritdoc/>
@@ -238,7 +259,7 @@ internal class DataflowPipelineBuilder<THead, TTail>(
     public IDataflowPipelineBuilder<THead, TTail[]> AddCollectAllStep(PipelineStepOptions options = default) => AddGroupWhileStep((_, _) => true, options);
 
     /// <inheritdoc/>
-    public IDataflowPipelineBuilder<THead, TNextOut> AppendStep<TNextOut>(ISyncPipelineStep<TTail, TNextOut> step, PipelineStepOptions options = default)
+    public IDataflowPipelineBuilder<THead, TNextOut> AddStep<TNextOut>(ISyncPipelineStep<TTail, TNextOut> step, PipelineStepOptions options = default)
     {
         _steps.Add(step);
         ExecutionDataflowBlockOptions dataFlowOptions = options.ToDataflowOptions(pipelineCancellationToken);
@@ -254,7 +275,7 @@ internal class DataflowPipelineBuilder<THead, TTail>(
     }
 
     /// <inheritdoc/>
-    public IDataflowPipelineBuilder<THead, TNextOut> AppendStep<TNextOut>(IAsyncPipelineStep<TTail, TNextOut> step, PipelineStepOptions options = default)
+    public IDataflowPipelineBuilder<THead, TNextOut> AddStep<TNextOut>(IAsyncPipelineStep<TTail, TNextOut> step, PipelineStepOptions options = default)
     {
         _steps.Add(step);
         ExecutionDataflowBlockOptions dataFlowOptions = options.ToDataflowOptions(pipelineCancellationToken);
@@ -272,7 +293,7 @@ internal class DataflowPipelineBuilder<THead, TTail>(
     }
 
     /// <inheritdoc/>
-    public IDataflowPipelineBuilder<THead, TNextOut> AppendStep<TNextOut>(IAsyncEnumerablePipelineStep<TTail, TNextOut> step, PipelineStepOptions options = default)
+    public IDataflowPipelineBuilder<THead, TNextOut> AddStep<TNextOut>(IAsyncEnumerablePipelineStep<TTail, TNextOut> step, PipelineStepOptions options = default)
     {
         _steps.Add(step);
 

@@ -50,20 +50,9 @@ public interface IDataflowPipelineBuilder<THead, TTail>
     /// <param name="options">Concurrency and buffer options for this step.</param>
     /// <remarks>
     /// Technical Decision: Elides async state machine overhead. Designed strictly for CPU-bound data mapping (e.g., DTOs).
-    /// Limitation: Cannot implement non-blocking retries. Using <see cref="System.Threading.Thread.Sleep"/> causes ThreadPool starvation.
+    /// Limitation: Cannot implement non-blocking retries. Using <see cref="Thread.Sleep"/> causes ThreadPool starvation.
     /// </remarks>
     IDataflowPipelineBuilder<THead, TNextOut> AddDataMapping<TNextOut>(Func<TTail, TNextOut> mapFunc, PipelineStepOptions options = default);
-
-    /// <summary>
-    /// Appends an asynchronous data mapping step to the pipeline.
-    /// </summary>
-    /// <param name="mapFunc">The asynchronous function responsible for transforming the payload.</param>
-    /// <param name="options">Concurrency and buffer options for this step.</param>
-    /// <remarks>
-    /// Technical Decision: Explicitly named for payload transformation via I/O (e.g., external API enrichment).
-    /// Limitation: Incurs async state machine allocation. Avoid for pure in-memory mapping.
-    /// </remarks>
-    IDataflowPipelineBuilder<THead, TNextOut> AddDataMapping<TNextOut>(Func<TTail, CancellationToken, Task<TNextOut>> mapFunc, PipelineStepOptions options = default);
 
     /// <summary>
     /// Appends a filtering step that evaluates a predicate against each payload. Payloads failing the condition are safely dropped.
@@ -97,6 +86,23 @@ public interface IDataflowPipelineBuilder<THead, TTail>
         PipelineStepOptions options = default);
 
     /// <summary>
+    /// Forks the pipeline into two parallel branches using predefined steps, and joins the results into a Tuple.
+    /// </summary>
+    IDataflowPipelineBuilder<THead, Tuple<TOut1, TOut2>> Fork<TOut1, TOut2>(
+        IPipelineStep<TTail, TOut1> branch1Step,
+        IPipelineStep<TTail, TOut2> branch2Step,
+        PipelineStepOptions options = default);
+
+    /// <summary>
+    /// Forks the pipeline into three parallel branches using predefined steps, and joins the results into a Tuple.
+    /// </summary>
+    IDataflowPipelineBuilder<THead, Tuple<TOut1, TOut2, TOut3>> Fork<TOut1, TOut2, TOut3>(
+        IPipelineStep<TTail, TOut1> branch1Step,
+        IPipelineStep<TTail, TOut2> branch2Step,
+        IPipelineStep<TTail, TOut3> branch3Step,
+        PipelineStepOptions options = default);
+
+    /// <summary>
     /// Appends a stateful batching step that accumulates messages into an array until the condition evaluates false.
     /// </summary>
     /// <param name="condition">The function comparing previous and current items. Returns true to group them.</param>
@@ -118,21 +124,21 @@ public interface IDataflowPipelineBuilder<THead, TTail>
     /// </summary>
     /// <param name="step">The synchronous pipeline step instance to execute.</param>
     /// <param name="options">Concurrency and buffer options for this step.</param>
-    IDataflowPipelineBuilder<THead, TNextOut> AppendStep<TNextOut>(ISyncPipelineStep<TTail, TNextOut> step, PipelineStepOptions options = default);
+    IDataflowPipelineBuilder<THead, TNextOut> AddStep<TNextOut>(ISyncPipelineStep<TTail, TNextOut> step, PipelineStepOptions options = default);
 
     /// <summary>
     /// Appends a custom asynchronous processing step to the pipeline.
     /// </summary>
     /// <param name="step">The asynchronous pipeline step instance to execute.</param>
     /// <param name="options">Concurrency and buffer options for this step.</param>
-    IDataflowPipelineBuilder<THead, TNextOut> AppendStep<TNextOut>(IAsyncPipelineStep<TTail, TNextOut> step, PipelineStepOptions options = default);
+    IDataflowPipelineBuilder<THead, TNextOut> AddStep<TNextOut>(IAsyncPipelineStep<TTail, TNextOut> step, PipelineStepOptions options = default);
 
     /// <summary>
     /// Appends a custom asynchronous enumerable streaming step to the pipeline.
     /// </summary>
     /// <param name="step">The asynchronous enumerable pipeline step instance to execute.</param>
     /// <param name="options">Concurrency and buffer options for this step.</param>
-    IDataflowPipelineBuilder<THead, TNextOut> AppendStep<TNextOut>(IAsyncEnumerablePipelineStep<TTail, TNextOut> step, PipelineStepOptions options = default);
+    IDataflowPipelineBuilder<THead, TNextOut> AddStep<TNextOut>(IAsyncEnumerablePipelineStep<TTail, TNextOut> step, PipelineStepOptions options = default);
 
     /// <summary>
     /// Appends an asynchronous forking step that routes payloads to a fallback step if a specific condition is met.

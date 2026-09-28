@@ -13,3 +13,12 @@ public interface IPipelineStep
     /// </summary>
     string Name { get; }
 }
+
+/// <summary>
+/// Defines a strongly-typed core metadata contract for a pipeline execution step.
+/// </summary>
+/// <typeparam name="TIn">The input type.</typeparam>
+/// <typeparam name="TOut">The output type.</typeparam>
+public interface IPipelineStep<in TIn, out TOut> : IPipelineStep
+{
+}

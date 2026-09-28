@@ -40,61 +40,62 @@ public sealed class SimplifiedFungRelaxationOnlyCurveFitterStep(
     /// <inheritdoc />
     protected override ViscoelasticEffect ViscoelasticEffect => ViscoelasticEffect.Relaxation;
 
+    private CurveSegment? _currentRamp;
+
     /// <inheritdoc />
-    public override async IAsyncEnumerable<MechanicalModelCurveFitOutput> ExecuteAsync(CurveSegment[] input, [EnumeratorCancellation] CancellationToken cancellationToken = default)
+    public override async IAsyncEnumerable<MechanicalModelCurveFitOutput> ExecuteAsync(CurveSegment segment, [EnumeratorCancellation] CancellationToken cancellationToken = default)
     {
-        CurveSegment? currentRamp = null;
+        cancellationToken.ThrowIfCancellationRequested();
 
-        foreach (CurveSegment segment in input)
+        if (segment.Type is SegmentType.Ramp)
         {
-            cancellationToken.ThrowIfCancellationRequested();
-
-            if (segment.Type is SegmentType.Ramp)
-            {
-                currentRamp = segment;
-                continue;
-            }
-
-            if (segment.Type is SegmentType.Relaxation)
-            {
-                CurveSegment relaxation = segment;
-
-                double[] relaxationTime = relaxation.TimePoints.TranslateToOrigin();
-                double[] normalizedStress = relaxation.ExperimentalStress.Normalize(relaxation.ExperimentalStress[0]);
-
-                MathematicalCurveFitInput relaxationInput = new()
-                {
-                    NumberOfParameters = 7,
-                    IndependentVariable = relaxationTime,
-                    DependentVariable = normalizedStress,
-                    LowerBounds = RelaxationLowerBounds,
-                    UpperBounds = RelaxationUpperBounds,
-                    InitialParameters = RelaxationInitialParameters,
-                    Profile = CurveFitProfile.Automatic,
-                    ValidateParameters = parameters => parameters[2] > parameters[4] && parameters[4] > parameters[6]
-                };
-
-                CurveFitOutput relaxationOutput = pronySeriesCurveFitter.Fit(relaxationInput);
-
-                PronySeries reducedRelaxationFunction = new(
-                    independentParameter: relaxationOutput.OptimizedParameters[0],
-                    iteratorCoefficients: [relaxationOutput.OptimizedParameters[1], relaxationOutput.OptimizedParameters[2], relaxationOutput.OptimizedParameters[3], relaxationOutput.OptimizedParameters[4], relaxationOutput.OptimizedParameters[5], relaxationOutput.OptimizedParameters[6]]);
-
-                if (currentRamp != null)
-                {
-                    yield return FitRamp(reducedRelaxationFunction, relaxationOutput, relaxation, currentRamp, RampTimeConsideration.ConsiderWithoutViscoelasticEffect);
-                    yield return FitRamp(reducedRelaxationFunction, relaxationOutput, relaxation, currentRamp, RampTimeConsideration.ConsiderWithViscoelasticEffect);
-                }
-                else
-                {
-                    SimplifiedFungConstitutiveParameters constitutiveParameters = new(0, 0, reducedRelaxationFunction);
-                    AcceptedRange acceptedStrainRange = new(relaxation.ExperimentalStrain[0], relaxation.ExperimentalStrain[^1]);
-                    yield return CreateCurveFitOutput([relaxation], constitutiveParameters, acceptedStrainRange, relaxationOutput.RSquared, relaxationOutput.FinalError, relaxationOutput.Iterations);
-                }
-            }
-
-            currentRamp = null;
+            _currentRamp = segment;
         }
+        else if (segment.Type is SegmentType.Relaxation)
+        {
+            CurveSegment relaxation = segment;
+
+            double[] relaxationTime = relaxation.TimePoints.TranslateToOrigin();
+            double[] normalizedStress = relaxation.ExperimentalStress.Normalize(relaxation.ExperimentalStress[0]);
+
+            MathematicalCurveFitInput relaxationInput = new()
+            {
+                NumberOfParameters = 7,
+                IndependentVariable = relaxationTime,
+                DependentVariable = normalizedStress,
+                LowerBounds = RelaxationLowerBounds,
+                UpperBounds = RelaxationUpperBounds,
+                InitialParameters = RelaxationInitialParameters,
+                Profile = CurveFitProfile.Automatic,
+                ValidateParameters = parameters => parameters[2] > parameters[4] && parameters[4] > parameters[6]
+            };
+
+            CurveFitOutput relaxationOutput = pronySeriesCurveFitter.Fit(relaxationInput);
+
+            PronySeries reducedRelaxationFunction = new(
+                independentParameter: relaxationOutput.OptimizedParameters[0],
+                iteratorCoefficients: [relaxationOutput.OptimizedParameters[1], relaxationOutput.OptimizedParameters[2], relaxationOutput.OptimizedParameters[3], relaxationOutput.OptimizedParameters[4], relaxationOutput.OptimizedParameters[5], relaxationOutput.OptimizedParameters[6]]);
+
+            if (_currentRamp != null)
+            {
+                yield return FitRamp(reducedRelaxationFunction, relaxationOutput, relaxation, _currentRamp, RampTimeConsideration.ConsiderWithoutViscoelasticEffect);
+                yield return FitRamp(reducedRelaxationFunction, relaxationOutput, relaxation, _currentRamp, RampTimeConsideration.ConsiderWithViscoelasticEffect);
+            }
+            else
+            {
+                SimplifiedFungConstitutiveParameters constitutiveParameters = new(0, 0, reducedRelaxationFunction);
+                AcceptedRange acceptedStrainRange = new(relaxation.ExperimentalStrain[0], relaxation.ExperimentalStrain[^1]);
+                yield return CreateCurveFitOutput([relaxation], constitutiveParameters, acceptedStrainRange, relaxationOutput.RSquared, relaxationOutput.FinalError, relaxationOutput.Iterations);
+            }
+            
+            _currentRamp = null;
+        }
+        else
+        {
+            _currentRamp = null;
+        }
+
+        await Task.CompletedTask;
     }
 
     private MechanicalModelCurveFitOutput FitRamp(PronySeries reducedRelaxationFunction, CurveFitOutput relaxationOutput, CurveSegment relaxation, CurveSegment ramp, RampTimeConsideration rampTimeConsideration)
