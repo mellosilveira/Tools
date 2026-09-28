@@ -167,6 +167,14 @@ public interface IDataflowPipelineBuilder<THead, TTail>
     IDataflowPipelineBuilder<THead, TTail> AddBroadcastStep(IAsyncPipelineStep<TTail> step, Func<TTail, TTail>? cloneFunc = null, PipelineStepOptions options = default);
 
     /// <summary>
+    /// Appends a non-mutating broadcast step that maps the payload to a different type before observing it.
+    /// </summary>
+    /// <param name="step">The asynchronous step to observe the mapped payload.</param>
+    /// <param name="mapFunc">The function to transform the payload for the broadcast step.</param>
+    /// <param name="options">Concurrency and buffer options for this step.</param>
+    IDataflowPipelineBuilder<THead, TTail> AddBroadcastStep<TOut>(IAsyncPipelineStep<TOut> step, Func<TTail, TOut> mapFunc, PipelineStepOptions options = default);
+
+    /// <summary>
     /// Appends a synchronous terminal step serving as the pipeline sink. Seals the topology.
     /// </summary>
     /// <param name="stepName">The diagnostic name of the terminal step.</param>

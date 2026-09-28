@@ -623,7 +623,7 @@
             Strongly-typed payload encapsulating the converging branches of a mechanical simulation.
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Models.MechanicalModelOutputPersistenceInput.#ctor(System.String,MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Models.MechanicalModelCurveFitOutput,System.Nullable{System.Double},MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Models.SimulationDeltaOutput,MelloSilveiraTools.Core.Managers.File.FileData)">
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Models.MechanicalModelOutputPersistenceInput.#ctor(System.String,System.String,System.Nullable{System.Double},MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Models.SimulationDeltaOutput,MelloSilveiraTools.Core.Managers.File.FileData)">
             <summary>
             Strongly-typed payload encapsulating the converging branches of a mechanical simulation.
             </summary>
@@ -1075,7 +1075,7 @@
             and persists the final simulation entity to the database.
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Steps.MechanicalModelOutputPersistenceStep.#ctor(MelloSilveiraTools.Database.Repositories.IRepository)">
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Steps.MechanicalModelOutputPersistenceStep.#ctor(Microsoft.Extensions.Logging.ILogger{MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Steps.MechanicalModelOutputPersistenceStep},MelloSilveiraTools.Database.Repositories.IRepository)">
             <summary>
             Pipeline step that converges all simulation analysis branches (Identifier, Asymptote, Delta, CSV) 
             and persists the final simulation entity to the database.

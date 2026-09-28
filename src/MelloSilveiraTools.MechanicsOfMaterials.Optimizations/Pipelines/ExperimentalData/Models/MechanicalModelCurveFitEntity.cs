@@ -34,7 +34,7 @@ public record MechanicalModelCurveFitEntity : EntityBase
     public required ViscoelasticEffect ViscoelasticEffect { get; init; }
 
     [Column]
-    public required decimal Error { get; init; }
+    public required double Error { get; init; }
 
     [Column]
     public required int Iterations { get; init; }

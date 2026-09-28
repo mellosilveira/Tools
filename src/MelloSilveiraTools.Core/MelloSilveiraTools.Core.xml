@@ -1727,6 +1727,9 @@
         <member name="M:MelloSilveiraTools.Core.Pipelines.Dataflow.DataflowPipelineBuilder`2.AddBroadcastStep(MelloSilveiraTools.Core.Pipelines.Steps.IAsyncPipelineStep{`1},System.Func{`1,`1},MelloSilveiraTools.Core.Pipelines.Models.PipelineStepOptions)">
             <inheritdoc/>
         </member>
+        <member name="M:MelloSilveiraTools.Core.Pipelines.Dataflow.DataflowPipelineBuilder`2.AddBroadcastStep``1(MelloSilveiraTools.Core.Pipelines.Steps.IAsyncPipelineStep{``0},System.Func{`1,``0},MelloSilveiraTools.Core.Pipelines.Models.PipelineStepOptions)">
+            <inheritdoc/>
+        </member>
         <member name="M:MelloSilveiraTools.Core.Pipelines.Dataflow.DataflowPipelineBuilder`2.BuildTerminal(System.String,System.Action{`1},MelloSilveiraTools.Core.Pipelines.Models.PipelineStepOptions)">
             <inheritdoc/>
         </member>
@@ -1942,6 +1945,14 @@
             </summary>
             <param name="step">The asynchronous step to observe the payload.</param>
             <param name="cloneFunc">An optional function to clone the payload before broadcasting.</param>
+            <param name="options">Concurrency and buffer options for this step.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Pipelines.Dataflow.IDataflowPipelineBuilder`2.AddBroadcastStep``1(MelloSilveiraTools.Core.Pipelines.Steps.IAsyncPipelineStep{``0},System.Func{`1,``0},MelloSilveiraTools.Core.Pipelines.Models.PipelineStepOptions)">
+            <summary>
+            Appends a non-mutating broadcast step that maps the payload to a different type before observing it.
+            </summary>
+            <param name="step">The asynchronous step to observe the mapped payload.</param>
+            <param name="mapFunc">The function to transform the payload for the broadcast step.</param>
             <param name="options">Concurrency and buffer options for this step.</param>
         </member>
         <member name="M:MelloSilveiraTools.Core.Pipelines.Dataflow.IDataflowPipelineBuilder`2.BuildTerminal(System.String,System.Action{`1},MelloSilveiraTools.Core.Pipelines.Models.PipelineStepOptions)">

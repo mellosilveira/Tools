@@ -12,8 +12,10 @@ namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.Experi
 /// Pipeline step that persists the curve-fitted constitutive parameters to the database.
 /// This step acts as a broadcast dead-end in the DAG topology.
 /// </summary>
-public class CurveFitOutputPersistenceStep(ILogger<CurveFitOutputPersistenceStep> logger, IRepository repository) 
-    : IAsyncPipelineStep<(string OutputIdentifier, MechanicalModelCurveFitOutput CurveFit), (string OutputIdentifier, MechanicalModelCurveFitOutput CurveFit)>
+public class CurveFitOutputPersistenceStep(
+    ILogger<CurveFitOutputPersistenceStep> logger, 
+    IRepository repository) 
+    : IAsyncPipelineStep<(string Identifier, MechanicalModelCurveFitOutput CurveFitOutput)>
 {
     private static readonly JsonSerializerOptions JsonOptions = new() { Converters = { new SignificantFiguresDoubleJsonConverter(7) } };
 
@@ -21,36 +23,33 @@ public class CurveFitOutputPersistenceStep(ILogger<CurveFitOutputPersistenceStep
     public string Name => nameof(CurveFitOutputPersistenceStep);
 
     /// <inheritdoc />
-    public async Task<(string OutputIdentifier, MechanicalModelCurveFitOutput CurveFit)> ExecuteAsync((string OutputIdentifier, MechanicalModelCurveFitOutput CurveFit) input, CancellationToken cancellationToken)
+    public async Task ExecuteAsync((string Identifier, MechanicalModelCurveFitOutput CurveFitOutput) input, CancellationToken cancellationToken)
     {
-        string constitutiveParamsJson = JsonSerializer.Serialize((object)input.CurveFit.ConstitutiveParameters, JsonOptions);
-
+        string constitutiveParamsJson = JsonSerializer.Serialize(input.CurveFitOutput.ConstitutiveParameters, JsonOptions);
         MechanicalModelCurveFitEntity entity = new()
         {
-            Identifier = input.OutputIdentifier,
-            MechanicalModelName = input.CurveFit.MechanicalModelName,
-            InitialAcceptedRange = input.CurveFit.AcceptedRange.InitialPoint,
-            FinalAcceptedRange = input.CurveFit.AcceptedRange.FinalPoint,
-            MechanicalBehaviorType = input.CurveFit.MechanicalBehaviorType,
-            RampTimeConsideration = input.CurveFit.RampTimeConsideration,
-            ViscoelasticEffect = input.CurveFit.ViscoelasticEffect,
-            Error = (decimal)input.CurveFit.FinalError,
-            Iterations = input.CurveFit.Iterations,
+            Identifier = input.Identifier,
+            MechanicalModelName = input.CurveFitOutput.MechanicalModelName,
+            InitialAcceptedRange = input.CurveFitOutput.AcceptedRange.InitialPoint,
+            FinalAcceptedRange = input.CurveFitOutput.AcceptedRange.FinalPoint,
+            MechanicalBehaviorType = input.CurveFitOutput.MechanicalBehaviorType,
+            RampTimeConsideration = input.CurveFitOutput.RampTimeConsideration,
+            ViscoelasticEffect = input.CurveFitOutput.ViscoelasticEffect,
+            Error = input.CurveFitOutput.FinalError,
+            Iterations = input.CurveFitOutput.Iterations,
             ConstitutiveParameters = constitutiveParamsJson
         };
-
+        
         Result<long> insertResult = await repository.TryInsertAsync(entity, cancellationToken).ConfigureAwait(false);
         if (insertResult.IsConflict)
         {
-            logger.LogWarning("Entity for mechanical model curve fit already exist on database. Identifier: {Identifier}", input.OutputIdentifier);
+            logger.LogWarning("Entity for mechanical model curve fit already exist on database. Identifier: {Identifier}", input.Identifier);
         }
         else if (!insertResult.Success)
         {
             logger.LogError("Failed to insert entity for mechanical model curve fit. Entity: {@Entity}. Result: {@InsertResult}", entity, insertResult);
             throw new Exception(string.Join(Environment.NewLine, insertResult.Messages));
         }
-
-        return input;
     }
 
     /// <inheritdoc />

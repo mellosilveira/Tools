@@ -46,7 +46,7 @@ public class ExperimentalDataProcessingPipeline(
         AsymptoteMonitoringStep asymptoteStep = new(input.AsymptoteConsecutivePointsThreshold);
         DeltaCalculatorStep deltaStep = new();
         MechanicalModelOutputFileWriterStep csvWriterStep = new(fileManager, input.OutputFileUri, uniqueIdentifier);
-        MechanicalModelOutputPersistenceStep mechanicalModelOutputPersistenceStep = new(repository);
+        MechanicalModelOutputPersistenceStep mechanicalModelOutputPersistenceStep = new(loggerFactory.CreateLogger<MechanicalModelOutputPersistenceStep>(), repository);
 
         IDataflowPipeline<ExperimentalDataSegmenterInput> pipeline = PipelineFactory
             .StartDataflow<ExperimentalDataSegmenterInput>(loggerFactory.CreateLogger<ExperimentalDataProcessingPipeline>(), cancellationToken: cancellationToken)
@@ -57,10 +57,9 @@ public class ExperimentalDataProcessingPipeline(
             .AddStep(accumulatorStep, new PipelineStepOptions { MaxWorkers = 1 }) // Same here, strictly sequential
             .AddStep(curveFitterStep, settings.CurveFitterOptions)
             .Fork(
-                persistenceBranch => persistenceBranch
-                    .AddStep(identifierBuilderStep)
-                    .AddStep(curveFitPersistenceStep),
-                simulationBranch => simulationBranch
+                curveFit => curveFit, // Pass-through branch 1: CurveFitOutput
+                identifier => identifier.AddStep(identifierBuilderStep), // Branch 2: Identifier Hash
+                simulation => simulation // Branch 3: Simulation results
                     .AddStep(numericalSimulationStep)
                     .Fork(
                         asymptoteStep,
@@ -68,12 +67,13 @@ public class ExperimentalDataProcessingPipeline(
                         csvWriterStep
                     )
             )
+            .AddBroadcastStep(curveFitPersistenceStep, t => (t.Item2, t.Item1)) // Maps Tuple<CurveFit, string, Sim> to (string, CurveFit)
             .AddDataMapping(t => new MechanicalModelOutputPersistenceInput(
-                CurveFitIdentifier: t.Item1.Item1,
-                CurveFit: t.Item1.Item2,
-                AsymptoteTime: t.Item2.Item1,
-                Delta: t.Item2.Item2,
-                FileData: t.Item2.Item3))
+                MechanicalModelName: input.MechanicalModelName,
+                CurveFitIdentifier: t.Item2,
+                AsymptoteTime: t.Item3.Item1,
+                Delta: t.Item3.Item2,
+                FileData: t.Item3.Item3))
             .AddStep(mechanicalModelOutputPersistenceStep)
             .BuildTerminal();
 

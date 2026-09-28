@@ -5,9 +5,9 @@ namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.Experi
 /// <summary>
 /// Strongly-typed payload encapsulating the converging branches of a mechanical simulation.
 /// </summary>
-public readonly record struct MechanicalModelOutputPersistenceInput(
+public record MechanicalModelOutputPersistenceInput(
+    string MechanicalModelName,
     string CurveFitIdentifier,
-    MechanicalModelCurveFitOutput CurveFit,
     double? AsymptoteTime,
     SimulationDeltaOutput Delta,
     FileData FileData);

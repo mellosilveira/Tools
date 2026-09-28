@@ -9,7 +9,7 @@ namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.Experi
 /// <param name="FinalOutput">The output produced at the final simulation step.</param>
 /// <param name="AbsoluteDelta">The absolute difference between final and initial outputs.</param>
 /// <param name="PercentageDelta">The relative percentage change between final and initial outputs.</param>
-public readonly record struct SimulationDeltaOutput(
+public record SimulationDeltaOutput(
     MechanicalModelOutput InitialOutput,
     MechanicalModelOutput FinalOutput,
     MechanicalModelOutput AbsoluteDelta,
