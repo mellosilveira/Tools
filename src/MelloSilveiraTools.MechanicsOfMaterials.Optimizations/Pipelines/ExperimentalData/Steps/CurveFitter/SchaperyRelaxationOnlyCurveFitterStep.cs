@@ -72,7 +72,7 @@ public sealed class SchaperyRelaxationOnlyCurveFitterStep(
 
                 (double Strain, double He, double H2)[] strainAndHelmholtzVariables = new (double Strain, double He, double H2)[relaxations.Count - 1];
 
-                double precision = anchorOutput.Precision;
+                double precision = anchorOutput.RSquared;
                 double totalError = anchorOutput.FinalError;
                 int totalIterations = anchorOutput.Iterations;
 
@@ -92,7 +92,7 @@ public sealed class SchaperyRelaxationOnlyCurveFitterStep(
                     strainAndHelmholtzVariables[j] = (currentSegment.ExperimentalStrain[0], he, h2);
 
                     // TODO: ESTUDAR MELHOR FORMA DE CALCULAR O ERRO FINAL.
-                    precision = (precision + segmentFitResult.Precision) / 2;
+                    precision = (precision + segmentFitResult.RSquared) / 2;
                     totalError *= segmentFitResult.FinalError;
                     totalIterations += segmentFitResult.Iterations;
 

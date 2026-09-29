@@ -23,7 +23,7 @@ public record ExperimentalDataSettings
     /// Configuration options for the curve segment builder step in the Dataflow pipeline.
     /// Defaults to default pipeline step options.
     /// </summary>
-    public PipelineStepOptions SegmentBuilderOptions { get; init; } = PipelineStepOptions.Default;
+    public PipelineStepOptions SegmentBuilderOptions { get; init; } = PipelineStepOptions.Synchronous;
 
     /// <summary>
     /// Configuration options for the experimental data segmenter pipeline step in the Dataflow pipeline.
@@ -35,11 +35,11 @@ public record ExperimentalDataSettings
     /// Configuration options for the mechanical model curve fitter pipeline step in the Dataflow pipeline.
     /// Defaults to default pipeline step options.
     /// </summary>
-    public PipelineStepOptions CurveFitterOptions { get; init; } = PipelineStepOptions.Default;
+    public PipelineStepOptions CurveFitterOptions { get; init; } = PipelineStepOptions.Synchronous;
 
     /// <summary>
     /// Configuration options for the simulation input builder step in the Dataflow pipeline.
     /// Defaults to default pipeline step options.
     /// </summary>
-    public PipelineStepOptions SimulationInputBuilderOptions { get; init; } = PipelineStepOptions.Default;
+    public PipelineStepOptions SimulationInputBuilderOptions { get; init; } = PipelineStepOptions.Synchronous;
 }

@@ -38,7 +38,7 @@ public sealed class ExperimentalDataSegmenterStep(ILogger<ExperimentalDataSegmen
         int bufferCount = 0;
 
         List<(SegmentType Type, Range Range)> segmentResults = new(4);
-        
+
         try
         {
             while (!cancellationToken.IsCancellationRequested)
@@ -204,9 +204,9 @@ public sealed class ExperimentalDataSegmenterStep(ILogger<ExperimentalDataSegmen
 
         if (startIndex > 0)
             results.Add((typeBefore, 0..startIndex));
-        
+
         results.Add((activeType, startIndex..(endIndex + 1)));
-        
+
         if (endIndex < bufferCount - 1)
             results.Add((typeAfter, (endIndex + 1)..bufferCount));
     }

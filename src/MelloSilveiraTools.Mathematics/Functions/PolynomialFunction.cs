@@ -12,7 +12,7 @@ namespace MelloSilveiraTools.Mathematics.Functions;
 public sealed class PolynomialFunction(
     double[] coefficients,
     double? initialVariableValue = null,
-    double? finalVariableValue = null) 
+    double? finalVariableValue = null)
     : Function(FunctionType.Polynomial, coefficients, initialVariableValue, finalVariableValue)
 {
     /// <inheritdoc/>

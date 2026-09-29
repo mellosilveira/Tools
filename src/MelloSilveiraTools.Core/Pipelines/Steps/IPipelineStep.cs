@@ -17,8 +17,6 @@ public interface IPipelineStep
 /// <summary>
 /// Defines a strongly-typed core metadata contract for a pipeline execution step.
 /// </summary>
-/// <typeparam name="TIn">The input type.</typeparam>
-/// <typeparam name="TOut">The output type.</typeparam>
-public interface IPipelineStep<in TIn, out TOut> : IPipelineStep
-{
-}
+/// <typeparam name="TIn">The input payload type ingested by this execution step.</typeparam>
+/// <typeparam name="TOut">The output payload type yielded by this execution step.</typeparam>
+public interface IPipelineStep<in TIn, out TOut> : IPipelineStep;

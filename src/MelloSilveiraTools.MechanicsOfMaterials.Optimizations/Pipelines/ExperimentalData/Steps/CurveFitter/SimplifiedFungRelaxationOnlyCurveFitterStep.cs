@@ -87,7 +87,7 @@ public sealed class SimplifiedFungRelaxationOnlyCurveFitterStep(
                 AcceptedRange acceptedStrainRange = new(relaxation.ExperimentalStrain[0], relaxation.ExperimentalStrain[^1]);
                 yield return CreateCurveFitOutput([relaxation], constitutiveParameters, acceptedStrainRange, relaxationOutput.RSquared, relaxationOutput.FinalError, relaxationOutput.Iterations);
             }
-            
+
             _currentRamp = null;
         }
         else
@@ -117,7 +117,7 @@ public sealed class SimplifiedFungRelaxationOnlyCurveFitterStep(
             Profile = CurveFitProfile.Automatic
         };
         CurveFitOutput rampOutput = curveFitter.Fit(rampInput);
-        
+
         // TODO: MELHORAR CALCULO DE R^2 E ERRO.
         double precision = (relaxationOutput.RSquared + rampOutput.RSquared) / 2;
         double totalError = relaxationOutput.FinalError * rampOutput.FinalError;

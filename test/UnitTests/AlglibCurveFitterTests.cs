@@ -1,7 +1,6 @@
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Algorithms;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Models;
 using Microsoft.Extensions.Logging.Abstractions;
-using Xunit;
 
 namespace UnitTests;
 

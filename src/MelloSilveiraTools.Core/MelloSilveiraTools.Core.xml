@@ -1812,6 +1812,7 @@
             </summary>
             <param name="errorHandler">The synchronous delegate executed when a payload faults.</param>
             <param name="options">Concurrency and buffer options for this step.</param>
+            <returns>A configured <see cref="T:MelloSilveiraTools.Core.Pipelines.Dataflow.IDataflowPipelineBuilder`2"/> instance with synchronous dead-letter queue routing.</returns>
             <remarks>
             Technical Decision: Lightweight abstraction for standard lambda error handling.
             Limitation: Synchronous execution blocks the underlying ThreadPool thread during I/O operations.
@@ -1821,8 +1822,9 @@
             <summary>
             Configures an asynchronous Dead-Letter Queue (DLQ) to capture failed payloads.
             </summary>
-            <param name="errorHandlerAsync">The asynchronous delegate executed when a payload faults.</param>
+            <param name="errorHandler">The asynchronous delegate executed when a payload faults.</param>
             <param name="options">Concurrency and buffer options for this step.</param>
+            <returns>A configured <see cref="T:MelloSilveiraTools.Core.Pipelines.Dataflow.IDataflowPipelineBuilder`2"/> instance with asynchronous dead-letter queue routing.</returns>
             <remarks>
             Technical Decision: Preferred setup for network-bound failure routing (e.g., Azure Service Bus, SQS).
             Limitation: Error handling is terminal. Cannot automatically re-inject payloads into the primary flow.
@@ -1833,6 +1835,7 @@
             Configures a zero-configuration fault tolerance layer that logs errors to prevent pipeline halting.
             </summary>
             <param name="options">Concurrency and buffer options for this step.</param>
+            <returns>A configured <see cref="T:MelloSilveiraTools.Core.Pipelines.Dataflow.IDataflowPipelineBuilder`2"/> instance routing failed payloads to the logger sink.</returns>
             <remarks>
             Technical Decision: Prevents unhandled exceptions from faulting the entire pipeline execution.
             Limitation: Payloads are immediately lost from memory and cannot be recovered or retried.
@@ -1842,8 +1845,10 @@
             <summary>
             Appends a synchronous data mapping step to the pipeline.
             </summary>
+            <typeparam name="TNextOut">The transformed output type yielded by the mapping function.</typeparam>
             <param name="mapFunc">The synchronous function responsible for transforming the payload.</param>
             <param name="options">Concurrency and buffer options for this step.</param>
+            <returns>A new <see cref="T:MelloSilveiraTools.Core.Pipelines.Dataflow.IDataflowPipelineBuilder`2"/> continuing from the transformed output.</returns>
             <remarks>
             Technical Decision: Elides async state machine overhead. Designed strictly for CPU-bound data mapping (e.g., DTOs).
             Limitation: Cannot implement non-blocking retries. Using <see cref="M:System.Threading.Thread.Sleep(System.Int32)"/> causes ThreadPool starvation.
@@ -1855,6 +1860,7 @@
             </summary>
             <param name="predicate">The condition a message must meet to proceed in the pipeline.</param>
             <param name="options">Concurrency and buffer options for this step.</param>
+            <returns>A new <see cref="T:MelloSilveiraTools.Core.Pipelines.Dataflow.IDataflowPipelineBuilder`2"/> continuing with payloads satisfying the predicate.</returns>
             <remarks>
             Technical Decision: Bypasses common pipeline deadlock risks associated with conditional routing by internally swallowing rejected payloads without violating the 1:1 I/O ratio.
             </remarks>
@@ -1863,6 +1869,12 @@
             <summary>
             Forks the pipeline into two parallel branches, processing the same payload concurrently, and joins the results into a Tuple.
             </summary>
+            <typeparam name="TOut1">The output type produced by the first branch.</typeparam>
+            <typeparam name="TOut2">The output type produced by the second branch.</typeparam>
+            <param name="branch1">Delegate defining the pipeline topology for the first branch.</param>
+            <param name="branch2">Delegate defining the pipeline topology for the second branch.</param>
+            <param name="options">Concurrency and buffer options for the branching blocks.</param>
+            <returns>A new <see cref="T:MelloSilveiraTools.Core.Pipelines.Dataflow.IDataflowPipelineBuilder`2"/> converging both branch results into a joined tuple.</returns>
             <remarks>
             Technical Decision: Executes true DAG (Directed Acyclic Graph) topologies by utilizing a BroadcastBlock linked to two independent pipeline branches, converging at a JoinBlock.
             Constraint: To ensure correct tuple pairing at the JoinBlock, branches must not drop messages (e.g., using Filter without placeholder padding) and must preserve order.
@@ -1872,23 +1884,46 @@
             <summary>
             Forks the pipeline into three parallel branches, processing the same payload concurrently, and joins the results into a Tuple.
             </summary>
+            <typeparam name="TOut1">The output type produced by the first branch.</typeparam>
+            <typeparam name="TOut2">The output type produced by the second branch.</typeparam>
+            <typeparam name="TOut3">The output type produced by the third branch.</typeparam>
+            <param name="branch1">Delegate defining the pipeline topology for the first branch.</param>
+            <param name="branch2">Delegate defining the pipeline topology for the second branch.</param>
+            <param name="branch3">Delegate defining the pipeline topology for the third branch.</param>
+            <param name="options">Concurrency and buffer options for the branching blocks.</param>
+            <returns>A new <see cref="T:MelloSilveiraTools.Core.Pipelines.Dataflow.IDataflowPipelineBuilder`2"/> converging all three branch results into a joined tuple.</returns>
         </member>
         <member name="M:MelloSilveiraTools.Core.Pipelines.Dataflow.IDataflowPipelineBuilder`2.Fork``2(MelloSilveiraTools.Core.Pipelines.Steps.IPipelineStep{`1,``0},MelloSilveiraTools.Core.Pipelines.Steps.IPipelineStep{`1,``1},MelloSilveiraTools.Core.Pipelines.Models.PipelineStepOptions)">
             <summary>
             Forks the pipeline into two parallel branches using predefined steps, and joins the results into a Tuple.
             </summary>
+            <typeparam name="TOut1">The output type produced by the first step.</typeparam>
+            <typeparam name="TOut2">The output type produced by the second step.</typeparam>
+            <param name="branch1Step">The pipeline step instance for the first branch.</param>
+            <param name="branch2Step">The pipeline step instance for the second branch.</param>
+            <param name="options">Concurrency and buffer options for the branching blocks.</param>
+            <returns>A new <see cref="T:MelloSilveiraTools.Core.Pipelines.Dataflow.IDataflowPipelineBuilder`2"/> converging both step results into a joined tuple.</returns>
         </member>
         <member name="M:MelloSilveiraTools.Core.Pipelines.Dataflow.IDataflowPipelineBuilder`2.Fork``3(MelloSilveiraTools.Core.Pipelines.Steps.IPipelineStep{`1,``0},MelloSilveiraTools.Core.Pipelines.Steps.IPipelineStep{`1,``1},MelloSilveiraTools.Core.Pipelines.Steps.IPipelineStep{`1,``2},MelloSilveiraTools.Core.Pipelines.Models.PipelineStepOptions)">
             <summary>
             Forks the pipeline into three parallel branches using predefined steps, and joins the results into a Tuple.
             </summary>
+            <typeparam name="TOut1">The output type produced by the first step.</typeparam>
+            <typeparam name="TOut2">The output type produced by the second step.</typeparam>
+            <typeparam name="TOut3">The output type produced by the third step.</typeparam>
+            <param name="branch1Step">The pipeline step instance for the first branch.</param>
+            <param name="branch2Step">The pipeline step instance for the second branch.</param>
+            <param name="branch3Step">The pipeline step instance for the third branch.</param>
+            <param name="options">Concurrency and buffer options for the branching blocks.</param>
+            <returns>A new <see cref="T:MelloSilveiraTools.Core.Pipelines.Dataflow.IDataflowPipelineBuilder`2"/> converging all three step results into a joined tuple.</returns>
         </member>
         <member name="M:MelloSilveiraTools.Core.Pipelines.Dataflow.IDataflowPipelineBuilder`2.AddGroupWhileStep(System.Func{`1,`1,System.Boolean},MelloSilveiraTools.Core.Pipelines.Models.PipelineStepOptions)">
             <summary>
             Appends a stateful batching step that accumulates messages into an array until the condition evaluates false.
             </summary>
-            <param name="condition">The function comparing previous and current items. Returns true to group them.</param>
+            <param name="groupingCondition">The function comparing previous and current items. Returns true to group them.</param>
             <param name="options">Concurrency and buffer options for this step.</param>
+            <returns>A new <see cref="T:MelloSilveiraTools.Core.Pipelines.Dataflow.IDataflowPipelineBuilder`2"/> emitting dynamically grouped arrays.</returns>
             <remarks>
             Technical Decision: Overcomes static size-based batching limits by utilizing an encapsulated state machine for dynamic grouping.
             Limitation: Forces sequential execution (<c>MaxDegreeOfParallelism = 1</c>) to guarantee deterministic state accumulation. 
@@ -1899,45 +1934,56 @@
             Appends a collection step that aggregates all remaining pipeline payloads into a single array.
             </summary>
             <param name="options">Concurrency and buffer options for this step.</param>
+            <returns>A new <see cref="T:MelloSilveiraTools.Core.Pipelines.Dataflow.IDataflowPipelineBuilder`2"/> emitting the collected batch upon completion.</returns>
         </member>
         <member name="M:MelloSilveiraTools.Core.Pipelines.Dataflow.IDataflowPipelineBuilder`2.AddStep``1(MelloSilveiraTools.Core.Pipelines.Steps.ISyncPipelineStep{`1,``0},MelloSilveiraTools.Core.Pipelines.Models.PipelineStepOptions)">
             <summary>
             Appends a custom synchronous processing step to the pipeline.
             </summary>
+            <typeparam name="TNextOut">The resultant output type yielded by the synchronous step.</typeparam>
             <param name="step">The synchronous pipeline step instance to execute.</param>
             <param name="options">Concurrency and buffer options for this step.</param>
+            <returns>A new <see cref="T:MelloSilveiraTools.Core.Pipelines.Dataflow.IDataflowPipelineBuilder`2"/> continuing from the step output.</returns>
         </member>
         <member name="M:MelloSilveiraTools.Core.Pipelines.Dataflow.IDataflowPipelineBuilder`2.AddStep``1(MelloSilveiraTools.Core.Pipelines.Steps.IAsyncPipelineStep{`1,``0},MelloSilveiraTools.Core.Pipelines.Models.PipelineStepOptions)">
             <summary>
             Appends a custom asynchronous processing step to the pipeline.
             </summary>
+            <typeparam name="TNextOut">The resultant output type yielded by the asynchronous step.</typeparam>
             <param name="step">The asynchronous pipeline step instance to execute.</param>
             <param name="options">Concurrency and buffer options for this step.</param>
+            <returns>A new <see cref="T:MelloSilveiraTools.Core.Pipelines.Dataflow.IDataflowPipelineBuilder`2"/> continuing from the step output.</returns>
         </member>
         <member name="M:MelloSilveiraTools.Core.Pipelines.Dataflow.IDataflowPipelineBuilder`2.AddStep``1(MelloSilveiraTools.Core.Pipelines.Steps.IAsyncEnumerablePipelineStep{`1,``0},MelloSilveiraTools.Core.Pipelines.Models.PipelineStepOptions)">
             <summary>
             Appends a custom asynchronous enumerable streaming step to the pipeline.
             </summary>
+            <typeparam name="TNextOut">The resultant output element type yielded in the asynchronous sequence.</typeparam>
             <param name="step">The asynchronous enumerable pipeline step instance to execute.</param>
             <param name="options">Concurrency and buffer options for this step.</param>
+            <returns>A new <see cref="T:MelloSilveiraTools.Core.Pipelines.Dataflow.IDataflowPipelineBuilder`2"/> continuing from the stream items.</returns>
         </member>
         <member name="M:MelloSilveiraTools.Core.Pipelines.Dataflow.IDataflowPipelineBuilder`2.AddForkingStep``1(MelloSilveiraTools.Core.Pipelines.Steps.IAsyncPipelineStep{`1,``0},System.Func{``0,System.Boolean},MelloSilveiraTools.Core.Pipelines.Steps.IAsyncPipelineStep{`1,``0},MelloSilveiraTools.Core.Pipelines.Models.PipelineStepOptions)">
             <summary>
             Appends an asynchronous forking step that routes payloads to a fallback step if a specific condition is met.
             </summary>
+            <typeparam name="TNextOut">The output type produced by either the primary or fallback step.</typeparam>
             <param name="step">The primary asynchronous step to execute.</param>
             <param name="fallbackCondition">The condition determining if the fallback step should be used.</param>
             <param name="fallbackStep">The fallback asynchronous step to execute if the condition is met.</param>
             <param name="options">Concurrency and buffer options for this step.</param>
+            <returns>A new <see cref="T:MelloSilveiraTools.Core.Pipelines.Dataflow.IDataflowPipelineBuilder`2"/> continuing from the resolved step output.</returns>
         </member>
         <member name="M:MelloSilveiraTools.Core.Pipelines.Dataflow.IDataflowPipelineBuilder`2.AddForkingStep``1(MelloSilveiraTools.Core.Pipelines.Steps.ISyncPipelineStep{`1,``0},System.Func{``0,System.Boolean},MelloSilveiraTools.Core.Pipelines.Steps.ISyncPipelineStep{`1,``0},MelloSilveiraTools.Core.Pipelines.Models.PipelineStepOptions)">
             <summary>
             Appends a synchronous forking step that routes payloads to a fallback step if a specific condition is met.
             </summary>
+            <typeparam name="TNextOut">The output type produced by either the primary or fallback step.</typeparam>
             <param name="step">The primary synchronous step to execute.</param>
             <param name="fallbackCondition">The condition determining if the fallback step should be used.</param>
             <param name="fallbackStep">The fallback synchronous step to execute if the condition is met.</param>
             <param name="options">Concurrency and buffer options for this step.</param>
+            <returns>A new <see cref="T:MelloSilveiraTools.Core.Pipelines.Dataflow.IDataflowPipelineBuilder`2"/> continuing from the resolved step output.</returns>
         </member>
         <member name="M:MelloSilveiraTools.Core.Pipelines.Dataflow.IDataflowPipelineBuilder`2.AddBroadcastStep(MelloSilveiraTools.Core.Pipelines.Steps.IAsyncPipelineStep{`1},System.Func{`1,`1},MelloSilveiraTools.Core.Pipelines.Models.PipelineStepOptions)">
             <summary>
@@ -1946,14 +1992,23 @@
             <param name="step">The asynchronous step to observe the payload.</param>
             <param name="cloneFunc">An optional function to clone the payload before broadcasting.</param>
             <param name="options">Concurrency and buffer options for this step.</param>
+            <returns>A new <see cref="T:MelloSilveiraTools.Core.Pipelines.Dataflow.IDataflowPipelineBuilder`2"/> continuing with the unmodified payload.</returns>
+            <remarks>
+            Technical Decision: Executes a side-effect asynchronous observer without mutating the downstream pipeline payload.
+            </remarks>
         </member>
         <member name="M:MelloSilveiraTools.Core.Pipelines.Dataflow.IDataflowPipelineBuilder`2.AddBroadcastStep``1(MelloSilveiraTools.Core.Pipelines.Steps.IAsyncPipelineStep{``0},System.Func{`1,``0},MelloSilveiraTools.Core.Pipelines.Models.PipelineStepOptions)">
             <summary>
             Appends a non-mutating broadcast step that maps the payload to a different type before observing it.
             </summary>
+            <typeparam name="TOut">The type transformed for the observer step.</typeparam>
             <param name="step">The asynchronous step to observe the mapped payload.</param>
             <param name="mapFunc">The function to transform the payload for the broadcast step.</param>
             <param name="options">Concurrency and buffer options for this step.</param>
+            <returns>A new <see cref="T:MelloSilveiraTools.Core.Pipelines.Dataflow.IDataflowPipelineBuilder`2"/> continuing with the unmodified primary payload.</returns>
+            <remarks>
+            Technical Decision: Transforms and routes a payload projection to a side-effect observer without changing the primary pipeline contract.
+            </remarks>
         </member>
         <member name="M:MelloSilveiraTools.Core.Pipelines.Dataflow.IDataflowPipelineBuilder`2.BuildTerminal(System.String,System.Action{`1},MelloSilveiraTools.Core.Pipelines.Models.PipelineStepOptions)">
             <summary>
@@ -1962,6 +2017,7 @@
             <param name="stepName">The diagnostic name of the terminal step.</param>
             <param name="terminalAction">The synchronous delegate to process the final payload.</param>
             <param name="options">Concurrency and buffer options for this step.</param>
+            <returns>A sealed <see cref="T:MelloSilveiraTools.Core.Pipelines.Dataflow.IDataflowPipeline`1"/> execution engine representing the completed graph.</returns>
             <remarks>
             Technical Decision: Returns <see cref="T:MelloSilveiraTools.Core.Pipelines.Dataflow.IDataflowPipeline`1"/> to enforce that pipelines cannot have dangling outputs.
             Limitation: Terminal steps cannot emit data. The execution graph is sealed after this call.
@@ -1974,6 +2030,7 @@
             <param name="stepName">The diagnostic name of the terminal step.</param>
             <param name="terminalAction">The asynchronous delegate to process the final payload.</param>
             <param name="options">Concurrency and buffer options for this step.</param>
+            <returns>A sealed <see cref="T:MelloSilveiraTools.Core.Pipelines.Dataflow.IDataflowPipeline`1"/> execution engine representing the completed graph.</returns>
             <remarks>
             Technical Decision: Designed for async end-of-pipe operations (e.g., database persistence, event publishing).
             Limitation: Unhandled exceptions here will drop the fully processed payload unless caught by a previously configured DLQ.
@@ -1985,6 +2042,7 @@
             </summary>
             <param name="stepName">The diagnostic name of the terminal step. Defaults to "Terminal".</param>
             <param name="options">Concurrency and buffer options for this step.</param>
+            <returns>A sealed <see cref="T:MelloSilveiraTools.Core.Pipelines.Dataflow.IDataflowPipeline`1"/> execution engine representing the completed graph.</returns>
             <remarks>
             Technical Decision: Acts as a semantic drain for unconsumed payloads at the end of a pipeline graph.
             </remarks>
@@ -2191,9 +2249,9 @@
             <param name="maxBufferSize"></param>
             <param name="keepOrder"></param>
         </member>
-        <member name="F:MelloSilveiraTools.Core.Pipelines.Models.PipelineStepOptions.Default">
+        <member name="F:MelloSilveiraTools.Core.Pipelines.Models.PipelineStepOptions.Synchronous">
             <summary>
-            Static singleton representing the default pipeline step configuration.
+            Static singleton representing the default synchronous pipeline step configuration.
             </summary>
         </member>
         <member name="P:MelloSilveiraTools.Core.Pipelines.Models.PipelineStepOptions.MaxWorkers">
@@ -2348,19 +2406,18 @@
         </member>
         <member name="T:MelloSilveiraTools.Core.Pipelines.Steps.IAsyncPipelineStep`1">
             <summary>
-            Defines the atomic contract for an asynchronous execution boundary within a pipeline topology.
-            Encapsulates a singular domain responsibility, facilitating a strongly-typed state transition 
-            from a predefined input payload to a deterministic output state asynchronously.
+            Defines the atomic contract for an asynchronous consumer or terminal execution boundary within a pipeline topology.
+            Encapsulates a singular domain responsibility that ingests an input payload and executes side-effecting operations without producing a downstream state.
             </summary>
             <typeparam name="TIn">The expected input payload type ingested by this execution node.</typeparam>
         </member>
         <member name="M:MelloSilveiraTools.Core.Pipelines.Steps.IAsyncPipelineStep`1.ExecuteAsync(`0,System.Threading.CancellationToken)">
             <summary>
-            Invokes the encapsulated domain logic asynchronously, mapping the ingested state to the resultant output state.
+            Invokes the encapsulated domain logic asynchronously, processing the ingested payload as a terminal or broadcast operation.
             </summary>
             <param name="input">The immutable payload propagated from the preceding pipeline node.</param>
             <param name="cancellationToken">The cooperative cancellation token injected by the pipeline lifecycle orchestrator.</param>
-            <returns>A task representing the asynchronous operation, encapsulating the mutated terminal state.</returns>
+            <returns>A task representing the completion of the asynchronous processing operation.</returns>
         </member>
         <member name="T:MelloSilveiraTools.Core.Pipelines.Steps.IAsyncPipelineStep`2">
             <summary>
@@ -2396,8 +2453,8 @@
             <summary>
             Defines a strongly-typed core metadata contract for a pipeline execution step.
             </summary>
-            <typeparam name="TIn">The input type.</typeparam>
-            <typeparam name="TOut">The output type.</typeparam>
+            <typeparam name="TIn">The input payload type ingested by this execution step.</typeparam>
+            <typeparam name="TOut">The output payload type yielded by this execution step.</typeparam>
         </member>
         <member name="T:MelloSilveiraTools.Core.Pipelines.Steps.ISyncPipelineStep`2">
             <summary>

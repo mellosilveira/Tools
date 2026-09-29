@@ -1,7 +1,6 @@
 using MelloSilveiraTools.Core.Models;
 using MelloSilveiraTools.Core.Pipelines.Steps;
 using MelloSilveiraTools.Database.Repositories;
-using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Converters;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Models;
 using Microsoft.Extensions.Logging;
 using System.Security.Cryptography;
@@ -14,23 +13,24 @@ namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.Experi
 /// Pipeline step that converges all simulation analysis branches (Identifier, Asymptote, Delta, CSV) 
 /// and persists the final simulation entity to the database.
 /// </summary>
-public class MechanicalModelOutputPersistenceStep(
-    ILogger<MechanicalModelOutputPersistenceStep> logger, 
-    IRepository repository) 
+/// <param name="logger">The structured logger instance.</param>
+/// <param name="repository">The database repository provider for persistence.</param>
+public sealed class MechanicalModelOutputPersistenceStep(
+    ILogger<MechanicalModelOutputPersistenceStep> logger,
+    IRepository repository)
     : IAsyncPipelineStep<MechanicalModelOutputPersistenceInput, string>
 {
-    private static readonly JsonSerializerOptions JsonOptions = new() { Converters = { new SignificantFiguresDoubleJsonConverter(7) } };
-
     /// <inheritdoc />
     public string Name => nameof(MechanicalModelOutputPersistenceStep);
 
     /// <inheritdoc />
-    public async Task<string> ExecuteAsync(MechanicalModelOutputPersistenceInput input, CancellationToken cancellationToken)
+    /// <exception cref="InvalidOperationException">Thrown when insertion of the simulation output entity fails in the database.</exception>
+    public async Task<string> ExecuteAsync(MechanicalModelOutputPersistenceInput input, CancellationToken cancellationToken = default)
     {
-        string initialOutputJson = JsonSerializer.Serialize(input.Delta.InitialOutput, JsonOptions);
-        string finalOutputJson = JsonSerializer.Serialize(input.Delta.FinalOutput, JsonOptions);
-        string absoluteDeltaOutputJson = JsonSerializer.Serialize(input.Delta.AbsoluteDelta, JsonOptions);
-        string percentageDeltaOutputJson = JsonSerializer.Serialize(input.Delta.PercentageDelta, JsonOptions);
+        string initialOutputJson = JsonSerializer.Serialize(input.Delta.InitialOutput, input.Delta.InitialOutput.GetType(), OptimizationJsonOptions.SignificantFigures7);
+        string finalOutputJson = JsonSerializer.Serialize(input.Delta.FinalOutput, input.Delta.FinalOutput.GetType(), OptimizationJsonOptions.SignificantFigures7);
+        string absoluteDeltaOutputJson = JsonSerializer.Serialize(input.Delta.AbsoluteDelta, input.Delta.AbsoluteDelta.GetType(), OptimizationJsonOptions.SignificantFigures7);
+        string percentageDeltaOutputJson = JsonSerializer.Serialize(input.Delta.PercentageDelta, input.Delta.PercentageDelta.GetType(), OptimizationJsonOptions.SignificantFigures7);
 
         string rawDataToHash = string.Concat(initialOutputJson, finalOutputJson, absoluteDeltaOutputJson, percentageDeltaOutputJson);
         string identifierHash = Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(rawDataToHash)));
@@ -51,12 +51,12 @@ public class MechanicalModelOutputPersistenceStep(
         Result<long> insertResult = await repository.TryInsertAsync(entity, cancellationToken).ConfigureAwait(false);
         if (insertResult.IsConflict)
         {
-            logger.LogWarning("Entity for mechanical model output already exist on database. Identifier: {Identifier}", identifierHash);
+            logger.LogWarning("Entity for mechanical model output already exists in the database. Identifier: {Identifier}", identifierHash);
         }
         else if (!insertResult.Success)
         {
             logger.LogError("Failed to insert entity for mechanical model output. Entity: {@Entity}. Result: {@InsertResult}", entity, insertResult);
-            throw new Exception(string.Join(Environment.NewLine, insertResult.Messages));
+            throw new InvalidOperationException(string.Join(Environment.NewLine, insertResult.Messages));
         }
 
         return identifierHash;

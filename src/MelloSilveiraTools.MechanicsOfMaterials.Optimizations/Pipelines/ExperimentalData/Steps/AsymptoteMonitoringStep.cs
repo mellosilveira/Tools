@@ -21,7 +21,7 @@ public class AsymptoteMonitoringStep(int asymptoteConsecutivePointsThreshold = 1
         MechanicalModelOutput[] points = payload.SimulatedPoints;
 
         int consecutiveEqualPoints = 0;
-        
+
         for (int i = 1; i < points.Length; i++)
         {
             if (IsAsymptoteReached(points[i - 1], points[i], effect))

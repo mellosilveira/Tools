@@ -12,7 +12,7 @@ namespace MelloSilveiraTools.Mathematics.Functions;
 public sealed class CosineFunction(
     double[] coefficients,
     double? initialVariableValue = null,
-    double? finalVariableValue = null) 
+    double? finalVariableValue = null)
     : Function(FunctionType.Cosine, coefficients, initialVariableValue, finalVariableValue)
 {
     /// <inheritdoc/>

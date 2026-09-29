@@ -7,7 +7,7 @@ using System.Threading.Tasks.Dataflow;
 
 namespace MelloSilveiraTools.Core.Pipelines.Dataflow;
 
-// TODO: ADICIONAR CIRCUIT BREAKER
+// TODO: Add circuit breaker.
 
 /// <summary>
 /// Strongly-typed fluent builder for orchestrating asynchronous data processing topologies.
@@ -116,31 +116,25 @@ internal class DataflowPipelineBuilder<THead, TTail>(
         PipelineStepOptions options = default)
     {
         ExecutionDataflowBlockOptions dataFlowOptions = options.ToDataflowOptions(pipelineCancellationToken);
-        
+
         // 1. Create a BroadcastBlock to copy the same payload to both branches.
         BroadcastBlock<TTail> broadcastBlock = new(msg => msg, dataFlowOptions);
         tailBlock.LinkTo(broadcastBlock);
 
         // 2. Initialize branch builders stemming from the broadcast block.
-        var builder1 = new DataflowPipelineBuilder<THead, TTail>(logger, headBlock, broadcastBlock, deadLetterQueueBlock, retryOptions, pipelineCancellationToken, _branchCompletionTasks, _steps);
-        var builder2 = new DataflowPipelineBuilder<THead, TTail>(logger, headBlock, broadcastBlock, deadLetterQueueBlock, retryOptions, pipelineCancellationToken, _branchCompletionTasks, _steps);
+        DataflowPipelineBuilder<THead, TTail> builder1 = new(logger, headBlock, broadcastBlock, deadLetterQueueBlock, retryOptions, pipelineCancellationToken, _branchCompletionTasks, _steps);
+        DataflowPipelineBuilder<THead, TTail> builder2 = new(logger, headBlock, broadcastBlock, deadLetterQueueBlock, retryOptions, pipelineCancellationToken, _branchCompletionTasks, _steps);
 
-        // 3. Execute branch construction delegates.
-        var out1Builder = branch1(builder1);
-        var out2Builder = branch2(builder2);
-
-        // 4. Create the convergence JoinBlock.
+        // 3. Create the convergence JoinBlock.
         JoinBlock<TOut1, TOut2> joinBlock = new(new GroupingDataflowBlockOptions
         {
             BoundedCapacity = dataFlowOptions.BoundedCapacity,
             CancellationToken = pipelineCancellationToken
         });
 
-        // 5. Connect the terminal ends of the branches to the JoinBlock.
-        ((DataflowPipelineBuilder<THead, TOut1>)out1Builder).TailBlock.LinkTo(joinBlock.Target1);
-        ((DataflowPipelineBuilder<THead, TOut2>)out2Builder).TailBlock.LinkTo(joinBlock.Target2);
-
-        // Return a new builder extending from the JoinBlock.
+        // 4. Connect the terminal ends of the branches to the JoinBlock.
+        ((DataflowPipelineBuilder<THead, TOut1>)branch1(builder1)).TailBlock.LinkTo(joinBlock.Target1);
+        ((DataflowPipelineBuilder<THead, TOut2>)branch2(builder2)).TailBlock.LinkTo(joinBlock.Target2);
         return new DataflowPipelineBuilder<THead, Tuple<TOut1, TOut2>>(logger, headBlock, joinBlock, deadLetterQueueBlock, retryOptions, pipelineCancellationToken, _branchCompletionTasks, _steps);
     }
 
@@ -152,13 +146,13 @@ internal class DataflowPipelineBuilder<THead, TTail>(
         PipelineStepOptions options = default)
     {
         ExecutionDataflowBlockOptions dataFlowOptions = options.ToDataflowOptions(pipelineCancellationToken);
-        
+
         BroadcastBlock<TTail> broadcastBlock = new(msg => msg, dataFlowOptions);
         tailBlock.LinkTo(broadcastBlock);
 
-        var builder1 = new DataflowPipelineBuilder<THead, TTail>(logger, headBlock, broadcastBlock, deadLetterQueueBlock, retryOptions, pipelineCancellationToken, _branchCompletionTasks, _steps);
-        var builder2 = new DataflowPipelineBuilder<THead, TTail>(logger, headBlock, broadcastBlock, deadLetterQueueBlock, retryOptions, pipelineCancellationToken, _branchCompletionTasks, _steps);
-        var builder3 = new DataflowPipelineBuilder<THead, TTail>(logger, headBlock, broadcastBlock, deadLetterQueueBlock, retryOptions, pipelineCancellationToken, _branchCompletionTasks, _steps);
+        DataflowPipelineBuilder<THead, TTail> builder1 = new(logger, headBlock, broadcastBlock, deadLetterQueueBlock, retryOptions, pipelineCancellationToken, _branchCompletionTasks, _steps);
+        DataflowPipelineBuilder<THead, TTail> builder2 = new(logger, headBlock, broadcastBlock, deadLetterQueueBlock, retryOptions, pipelineCancellationToken, _branchCompletionTasks, _steps);
+        DataflowPipelineBuilder<THead, TTail> builder3 = new(logger, headBlock, broadcastBlock, deadLetterQueueBlock, retryOptions, pipelineCancellationToken, _branchCompletionTasks, _steps);
 
         JoinBlock<TOut1, TOut2, TOut3> joinBlock = new(new GroupingDataflowBlockOptions
         {
@@ -173,43 +167,20 @@ internal class DataflowPipelineBuilder<THead, TTail>(
     }
 
     /// <inheritdoc/>
-    public IDataflowPipelineBuilder<THead, Tuple<TOut1, TOut2>> Fork<TOut1, TOut2>(
-        IPipelineStep<TTail, TOut1> branch1Step,
-        IPipelineStep<TTail, TOut2> branch2Step,
-        PipelineStepOptions options = default)
-    {
-        return Fork(
-            b => AddStepDynamic(b, branch1Step),
-            b => AddStepDynamic(b, branch2Step),
-            options
-        );
-    }
+    public IDataflowPipelineBuilder<THead, Tuple<TOut1, TOut2>> Fork<TOut1, TOut2>(IPipelineStep<TTail, TOut1> branch1Step, IPipelineStep<TTail, TOut2> branch2Step, PipelineStepOptions options = default)
+        => Fork(b => AddStepDynamic(b, branch1Step), b => AddStepDynamic(b, branch2Step), options);
 
     /// <inheritdoc/>
-    public IDataflowPipelineBuilder<THead, Tuple<TOut1, TOut2, TOut3>> Fork<TOut1, TOut2, TOut3>(
-        IPipelineStep<TTail, TOut1> branch1Step,
-        IPipelineStep<TTail, TOut2> branch2Step,
-        IPipelineStep<TTail, TOut3> branch3Step,
-        PipelineStepOptions options = default)
-    {
-        return Fork(
-            b => AddStepDynamic(b, branch1Step),
-            b => AddStepDynamic(b, branch2Step),
-            b => AddStepDynamic(b, branch3Step),
-            options
-        );
-    }
+    public IDataflowPipelineBuilder<THead, Tuple<TOut1, TOut2, TOut3>> Fork<TOut1, TOut2, TOut3>(IPipelineStep<TTail, TOut1> branch1Step, IPipelineStep<TTail, TOut2> branch2Step, IPipelineStep<TTail, TOut3> branch3Step, PipelineStepOptions options = default)
+        => Fork(b => AddStepDynamic(b, branch1Step), b => AddStepDynamic(b, branch2Step), b => AddStepDynamic(b, branch3Step), options);
 
-    private static IDataflowPipelineBuilder<THead, TOut> AddStepDynamic<TOut>(IDataflowPipelineBuilder<THead, TTail> builder, IPipelineStep<TTail, TOut> step)
+    private static IDataflowPipelineBuilder<THead, TOut> AddStepDynamic<TOut>(IDataflowPipelineBuilder<THead, TTail> builder, IPipelineStep<TTail, TOut> step) => step switch
     {
-        return step switch
-        {
-            ISyncPipelineStep<TTail, TOut> syncStep => builder.AddStep(syncStep),
-            IAsyncPipelineStep<TTail, TOut> asyncStep => builder.AddStep(asyncStep),
-            IAsyncEnumerablePipelineStep<TTail, TOut> enumStep => builder.AddStep(enumStep),
-            _ => throw new NotSupportedException($"Pipeline step type '{step.GetType().Name}' is not supported in this Fork overload.")
-        };
-    }
+        ISyncPipelineStep<TTail, TOut> syncStep => builder.AddStep(syncStep),
+        IAsyncPipelineStep<TTail, TOut> asyncStep => builder.AddStep(asyncStep),
+        IAsyncEnumerablePipelineStep<TTail, TOut> enumStep => builder.AddStep(enumStep),
+        _ => throw new NotSupportedException($"Pipeline step type '{step.GetType().Name}' is not supported in this Fork overload.")
+    };
 
     /// <inheritdoc/>
     public IDataflowPipelineBuilder<THead, TTail[]> AddGroupWhileStep(Func<TTail, TTail, bool> groupingCondition, PipelineStepOptions options = default)
@@ -417,7 +388,7 @@ internal class DataflowPipelineBuilder<THead, TTail>(
             EnsureOrdered = true,
             MaxDegreeOfParallelism = 1
         });
-        
+
         broadcastBlock.LinkTo(mapBlock);
 
         (ITargetBlock<TOut> targetBlock, Task completionTask) = CreateConsumer<TOut>(step.Name, step.ExecuteAsync, dataFlowOptions);
@@ -445,10 +416,7 @@ internal class DataflowPipelineBuilder<THead, TTail>(
     }
 
     /// <inheritdoc/>
-    public IDataflowPipeline<THead> BuildTerminal(string stepName = "Terminal", PipelineStepOptions options = default)
-    {
-        return BuildTerminal(stepName, _ => { }, options);
-    }
+    public IDataflowPipeline<THead> BuildTerminal(string stepName = "Terminal", PipelineStepOptions options = default) => BuildTerminal(stepName, _ => { }, options);
 
     private (ITargetBlock<TInput> TargetBlock, Task CompletionTask) CreateConsumer<TInput>(string stepName, Action<TInput> action, ExecutionDataflowBlockOptions dataFlowOptions)
     {
@@ -544,14 +512,19 @@ file sealed class DataflowPipeline<TIn>(ILogger logger, ITargetBlock<TIn> headBl
     public async ValueTask DisposeAsync()
     {
         Complete();
-        await Completion.ConfigureAwait(false);
-
-        foreach (IPipelineStep step in steps)
+        try
         {
-            if (step is IAsyncDisposable asyncDisposableStep)
-                await asyncDisposableStep.DisposeAsync().ConfigureAwait(false);
-            else if (step is IDisposable disposableStep)
-                disposableStep.Dispose();
+            await Completion.ConfigureAwait(false);
+        }
+        finally
+        {
+            foreach (IPipelineStep step in steps)
+            {
+                if (step is IAsyncDisposable asyncDisposableStep)
+                    await asyncDisposableStep.DisposeAsync().ConfigureAwait(false);
+                else if (step is IDisposable disposableStep)
+                    disposableStep.Dispose();
+            }
         }
     }
 }

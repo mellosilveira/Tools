@@ -73,7 +73,7 @@ public class CsvStreamReader : IAsyncDisposable
                     _pipeReader.AdvanceTo(nextPosition);
                     return;
                 }
-                
+
                 _pipeReader.AdvanceTo(nextPosition);
                 continue;
             }

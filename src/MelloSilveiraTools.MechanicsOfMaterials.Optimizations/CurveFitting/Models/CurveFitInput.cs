@@ -8,7 +8,7 @@ public record CurveFitInput
     public required List<double[]> IndependentVariables { get; init; }
     public required double[] DependentVariable { get; init; }
     public required Func<double[], double[], double> Calculate { get; init; }
-    
+
     /// <summary>
     /// Perfil de otimização selecionado (padrão: Automatic).
     /// </summary>

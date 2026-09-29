@@ -10,7 +10,7 @@ namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.Experi
 /// </summary>
 public class SignificantFiguresDoubleJsonConverter(int significantDigits = 7) : JsonConverter<double>
 {
-    public override double Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options) 
+    public override double Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
         => reader.GetDouble();
 
     public override void Write(Utf8JsonWriter writer, double value, JsonSerializerOptions options)
@@ -20,13 +20,13 @@ public class SignificantFiguresDoubleJsonConverter(int significantDigits = 7) : 
             writer.WriteStringValue("NaN");
             return;
         }
-        
+
         if (double.IsPositiveInfinity(value))
         {
             writer.WriteStringValue("Infinity");
             return;
         }
-        
+
         if (double.IsNegativeInfinity(value))
         {
             writer.WriteStringValue("-Infinity");

@@ -13,7 +13,7 @@ public sealed class ExperimentalDataFileWriterStep : IAsyncPipelineStep<Segmente
 {
     private const int LargeFileBufferSize = 128 * 1024; // 128 KB buffer
     private const int BatchThreshold = 1000;
-    
+
     private static readonly Encoding Utf8Encoding = new UTF8Encoding(false);
     private static readonly FileStreamOptions LargeFileStreamOptions = new()
     {

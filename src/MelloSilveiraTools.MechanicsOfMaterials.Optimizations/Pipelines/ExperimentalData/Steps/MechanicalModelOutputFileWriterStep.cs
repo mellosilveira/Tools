@@ -16,7 +16,7 @@ namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.Experi
 public class MechanicalModelOutputFileWriterStep(
     IFileManager fileManager,
     string outputFileUri,
-    string uniqueIdentifier) 
+    string uniqueIdentifier)
     : IAsyncPipelineStep<MechanicalModelSimulationPayload, FileData>
 {
     /// <inheritdoc />
@@ -38,11 +38,11 @@ public class MechanicalModelOutputFileWriterStep(
             Options = FileOptions.SequentialScan,
             BufferSize = 128 * 1024
         });
-        
+
         await using StreamWriter writer = new(stream, new UTF8Encoding(false), 128 * 1024);
 
         PropertyInfo[] activeProperties = DiscoverActiveProperties(typeof(MechanicalModelOutput), payload.CurveFit.MechanicalBehaviorType, payload.CurveFit.ViscoelasticEffect);
-        
+
         var getters = new Func<MechanicalModelOutput, double?>[activeProperties.Length];
         for (int i = 0; i < activeProperties.Length; i++)
         {

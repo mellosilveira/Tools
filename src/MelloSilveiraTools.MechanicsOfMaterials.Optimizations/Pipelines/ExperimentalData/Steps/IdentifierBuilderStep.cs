@@ -1,5 +1,5 @@
 using MelloSilveiraTools.Core.Pipelines.Steps;
-using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Converters;
+using MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Models;
 using System.Security.Cryptography;
 using System.Text;
@@ -10,20 +10,18 @@ namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.Experi
 /// <summary>
 /// Pipeline step that generates a unique deterministic identifier for the curve-fitted parameters.
 /// </summary>
-public class IdentifierBuilderStep : ISyncPipelineStep<MechanicalModelCurveFitOutput, string>
+public sealed class IdentifierBuilderStep : ISyncPipelineStep<MechanicalModelCurveFitOutput, string>
 {
-    private static readonly JsonSerializerOptions JsonOptions = new() { Converters = { new SignificantFiguresDoubleJsonConverter(7) } };
-
     /// <inheritdoc />
     public string Name => nameof(IdentifierBuilderStep);
 
     /// <inheritdoc />
     public string Execute(MechanicalModelCurveFitOutput output)
     {
-        string constitutiveParamsJson = JsonSerializer.Serialize((object)output.ConstitutiveParameters, JsonOptions);
+        ConstitutiveParameters constitutiveParameters = output.ConstitutiveParameters;
+        string constitutiveParamsJson = JsonSerializer.Serialize(constitutiveParameters, constitutiveParameters.GetType(), OptimizationJsonOptions.SignificantFigures7);
         byte[] bytes = SHA256.HashData(Encoding.UTF8.GetBytes(constitutiveParamsJson));
-        string identifierHash = Convert.ToHexString(bytes);
-        return identifierHash;
+        return Convert.ToHexString(bytes);
     }
 
     /// <inheritdoc />

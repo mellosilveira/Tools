@@ -17,19 +17,19 @@ public class SignificantFiguresDoubleJsonConverterTests
     // Ruído de ponto flutuante (perto de 2)
     [InlineData(1.9999999999, 2.0)]
     [InlineData(2.0000000001, 2.0)]
-    
+
     // Valores pequenos em notação científica (exemplo do usuário)
     [InlineData(3.50000000001E-07, 3.5E-07)]
     [InlineData(1.23456789E-12, 1.234568E-12)]
-    
+
     // Valores muito grandes
     [InlineData(1.23456789E+20, 1.234568E+20)]
-    
+
     // Valores exatos sem ruído
     [InlineData(2.5, 2.5)]
     [InlineData(-150.0, -150.0)]
     [InlineData(0.0, 0.0)]
-    
+
     // Teste de truncamento com exatamente 7 algarismos significativos
     [InlineData(1234.56789, 1234.568)] // arredonda no 7º algarismo
     [InlineData(-0.000123456789, -0.0001234568)]
@@ -37,7 +37,7 @@ public class SignificantFiguresDoubleJsonConverterTests
     {
         // Act
         string json = JsonSerializer.Serialize(input, _options);
-        
+
         // Assert
         string expectedJson = JsonSerializer.Serialize(expectedOutput);
         Assert.Equal(expectedJson, json);

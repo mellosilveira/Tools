@@ -99,7 +99,7 @@ public abstract class QuasiLinearModelCalculator<TConstitutiveParameters, TReduc
 
         if (input.RampTimeConsideration == RampTimeConsideration.ConsiderWithoutViscoelasticEffect)
         {
-            return time <= input.RampTime 
+            return time <= input.RampTime
                 ? CalculateElasticResponse(input, time, strain)
                 : Integration.Calculate((integrationTime) =>
                 {

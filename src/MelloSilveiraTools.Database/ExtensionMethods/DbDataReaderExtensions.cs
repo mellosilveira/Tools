@@ -1,74 +1,73 @@
 ﻿using System.Data.Common;
 using System.Reflection;
 
-namespace MelloSilveiraTools.Database.ExtensionMethods
+namespace MelloSilveiraTools.Database.ExtensionMethods;
+
+/// <summary>
+/// Constains extension methods for <see cref="DbDataReader"/>.
+/// </summary>
+public static class DbDataReaderExtensions
 {
-    /// <summary>
-    /// Constains extension methods for <see cref="DbDataReader"/>.
-    /// </summary>
-    public static class DbDataReaderExtensions
+    extension(DbDataReader reader)
     {
-        extension(DbDataReader reader)
+        /// <summary>
+        /// Converts a <see cref="DbDataReader"/> to an object.
+        /// </summary>
+        /// <typeparam name="T">Type of <see cref="DbDataReader"/> must be converted.</typeparam>
+        /// <returns></returns>
+        [Obsolete("Use DictionaryExtensions.ConvertTo<T>() instead, which uses cached compiled setters for better performance.")]
+        public T ToObject<T>() where T : new()
         {
-            /// <summary>
-            /// Converts a <see cref="DbDataReader"/> to an object.
-            /// </summary>
-            /// <typeparam name="T">Type of <see cref="DbDataReader"/> must be converted.</typeparam>
-            /// <returns></returns>
-            [Obsolete("Use DictionaryExtensions.ConvertTo<T>() instead, which uses cached compiled setters for better performance.")]
-            public T ToObject<T>() where T : new()
+            T obj = new();
+            Type objectType = typeof(T);
+
+            for (int i = 0; i < reader.FieldCount; i++)
             {
-                T obj = new();
-                Type objectType = typeof(T);
+                string columnName = reader.GetName(i);
+                PropertyInfo? property = objectType.GetProperty(columnName, BindingFlags.Public | BindingFlags.Instance | BindingFlags.IgnoreCase);
 
-                for (int i = 0; i < reader.FieldCount; i++)
+                if (property != null && property.CanWrite)
                 {
-                    string columnName = reader.GetName(i);
-                    PropertyInfo? property = objectType.GetProperty(columnName, BindingFlags.Public | BindingFlags.Instance | BindingFlags.IgnoreCase);
-
-                    if (property != null && property.CanWrite)
-                    {
-                        object value = reader.GetValue(i);
-                        if (value != DBNull.Value)
-                            property.SetValue(obj, value);
-                    }
+                    object value = reader.GetValue(i);
+                    if (value != DBNull.Value)
+                        property.SetValue(obj, value);
                 }
-
-                return obj;
             }
 
-            /// <summary>
-            /// Converts a <see cref="DbDataReader"/> to an object using a cache to store property info of object.
-            /// </summary>
-            /// <typeparam name="T">Type of <see cref="DbDataReader"/> must be converted.</typeparam>
-            /// <param name="propertyInfoCache"></param>
-            /// <returns></returns>
-            [Obsolete("Use DictionaryExtensions.ConvertTo<T>() instead, which uses cached compiled setters for better performance.")]
-            public T ToObject<T>(Dictionary<string, PropertyInfo?> propertyInfoCache) where T : new()
+            return obj;
+        }
+
+        /// <summary>
+        /// Converts a <see cref="DbDataReader"/> to an object using a cache to store property info of object.
+        /// </summary>
+        /// <typeparam name="T">Type of <see cref="DbDataReader"/> must be converted.</typeparam>
+        /// <param name="propertyInfoCache"></param>
+        /// <returns></returns>
+        [Obsolete("Use DictionaryExtensions.ConvertTo<T>() instead, which uses cached compiled setters for better performance.")]
+        public T ToObject<T>(Dictionary<string, PropertyInfo?> propertyInfoCache) where T : new()
+        {
+            T obj = new();
+            Type objectType = typeof(T);
+
+            for (int i = 0; i < reader.FieldCount; i++)
             {
-                T obj = new();
-                Type objectType = typeof(T);
+                string columnName = reader.GetName(i);
 
-                for (int i = 0; i < reader.FieldCount; i++)
+                if (!propertyInfoCache.TryGetValue(columnName, out PropertyInfo? property))
                 {
-                    string columnName = reader.GetName(i);
-
-                    if (!propertyInfoCache.TryGetValue(columnName, out PropertyInfo? property))
-                    {
-                        property = objectType.GetProperty(columnName, BindingFlags.Public | BindingFlags.Instance | BindingFlags.IgnoreCase);
-                        propertyInfoCache[columnName] = property;
-                    }
-
-                    if (property != null && property.CanWrite)
-                    {
-                        object value = reader.GetValue(i);
-                        if (value != DBNull.Value)
-                            property.SetValue(obj, value);
-                    }
+                    property = objectType.GetProperty(columnName, BindingFlags.Public | BindingFlags.Instance | BindingFlags.IgnoreCase);
+                    propertyInfoCache[columnName] = property;
                 }
 
-                return obj;
+                if (property != null && property.CanWrite)
+                {
+                    object value = reader.GetValue(i);
+                    if (value != DBNull.Value)
+                        property.SetValue(obj, value);
+                }
             }
+
+            return obj;
         }
     }
 }

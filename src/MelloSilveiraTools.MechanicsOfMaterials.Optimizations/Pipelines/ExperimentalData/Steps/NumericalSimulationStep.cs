@@ -16,7 +16,7 @@ namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.Experi
 /// </summary>
 public sealed class NumericalSimulationStep(
     IMechanicalModelCalculatorFactory calculatorFactory,
-    double? simulationTimeStep = null, 
+    double? simulationTimeStep = null,
     double? finalSimulationTime = null)
     : ISyncPipelineStep<MechanicalModelCurveFitOutput, MechanicalModelSimulationPayload>
 {
@@ -66,7 +66,7 @@ public sealed class NumericalSimulationStep(
         }
 
         IMechanicalModelCalculatorFacade facade = calculatorFactory.CreateCalculatorFacade(genericInput);
-        
+
         MechanicalModelOutput[] points = new MechanicalModelOutput[times.Count];
         for (int i = 0; i < times.Count; i++)
         {

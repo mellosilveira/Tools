@@ -27,9 +27,9 @@ public readonly record struct PipelineStepOptions
     }
 
     /// <summary>
-    /// Static singleton representing the default pipeline step configuration.
+    /// Static singleton representing the default synchronous pipeline step configuration.
     /// </summary>
-    public static readonly PipelineStepOptions Default = new();
+    public static readonly PipelineStepOptions Synchronous = new();
 
     /// <summary>
     /// Configures the 'MaxDegreeOfParallelism' for the underlying block.
