@@ -97,7 +97,7 @@ public class MechanicalModelCalculatorFacade : IMechanicalModelCalculatorFacade
     /// Initializes a secondary instance of the <see cref="MechanicalModelCalculatorFacade"/> class optimized for iterative time-history simulations.
     /// </summary>
     /// <remarks>
-    /// This constructor evaluates the combination of <see cref="MechanicalBehaviorType"/> and <see cref="ViscoelasticEffect"/> 
+    /// This constructor evaluates the combination of <see cref="LoadResponseRelationship"/> and <see cref="ViscoelasticEffect"/> 
     /// to determine the independent boundary condition. It extracts the value-derivative delegate, registers parameter tokens, 
     /// and pre-allocates localized parameter buffers to eliminate allocation overhead during numerical loops.
     /// </remarks>
@@ -111,13 +111,13 @@ public class MechanicalModelCalculatorFacade : IMechanicalModelCalculatorFacade
     {
         ArgumentNullException.ThrowIfNull(input);
 
-        _calculatorMethodDataList = cache.GetOrAddMethodDataList(_calculatorType, input.MechanicalBehaviorType, input.ViscoelasticEffect);
+        _calculatorMethodDataList = cache.GetOrAddMethodDataList(_calculatorType, input.LoadResponseRelationship, input.ViscoelasticEffect);
         _outputFactory = cache.GetOrAddOutputFactory(outputType);
         _outputPropertySetters = cache.GetOrAddPropertySetters(outputType);
 
-        switch (input.MechanicalBehaviorType, input.ViscoelasticEffect)
+        switch (input.LoadResponseRelationship, input.ViscoelasticEffect)
         {
-            case (MechanicalBehaviorType.ForceDisplacement, ViscoelasticEffect.Relaxation):
+            case (LoadResponseRelationship.ForceDisplacement, ViscoelasticEffect.Relaxation):
                 _calculateValueAndDerivativeMethod = input.Displacement!.CalculateValueAndDerivative;
                 _inputParameterValueName = ParameterNameConstant.Displacement;
                 _inputParameterDerivativeName = ParameterNameConstant.DisplacementDerivative;
@@ -125,7 +125,7 @@ public class MechanicalModelCalculatorFacade : IMechanicalModelCalculatorFacade
                 _outputParameterDerivativeName = nameof(MechanicalModelOutput.DisplacementDerivative);
                 break;
 
-            case (MechanicalBehaviorType.ForceDisplacement, ViscoelasticEffect.Creep):
+            case (LoadResponseRelationship.ForceDisplacement, ViscoelasticEffect.Creep):
                 _calculateValueAndDerivativeMethod = input.Force!.CalculateValueAndDerivative;
                 _inputParameterValueName = ParameterNameConstant.Force;
                 _inputParameterDerivativeName = ParameterNameConstant.ForceDerivative;
@@ -133,7 +133,7 @@ public class MechanicalModelCalculatorFacade : IMechanicalModelCalculatorFacade
                 _outputParameterDerivativeName = nameof(MechanicalModelOutput.ForceDerivative);
                 break;
 
-            case (MechanicalBehaviorType.StressStrain, ViscoelasticEffect.Relaxation):
+            case (LoadResponseRelationship.StressStrain, ViscoelasticEffect.Relaxation):
                 _calculateValueAndDerivativeMethod = input.Strain!.CalculateValueAndDerivative;
                 _inputParameterValueName = ParameterNameConstant.Strain;
                 _inputParameterDerivativeName = ParameterNameConstant.StrainDerivative;
@@ -141,7 +141,7 @@ public class MechanicalModelCalculatorFacade : IMechanicalModelCalculatorFacade
                 _outputParameterDerivativeName = nameof(MechanicalModelOutput.StrainDerivative);
                 break;
 
-            case (MechanicalBehaviorType.StressStrain, ViscoelasticEffect.Creep):
+            case (LoadResponseRelationship.StressStrain, ViscoelasticEffect.Creep):
                 _calculateValueAndDerivativeMethod = input.Stress!.CalculateValueAndDerivative;
                 _inputParameterValueName = ParameterNameConstant.Stress;
                 _inputParameterDerivativeName = ParameterNameConstant.StressDerivative;
@@ -150,7 +150,7 @@ public class MechanicalModelCalculatorFacade : IMechanicalModelCalculatorFacade
                 break;
 
             default:
-                throw new ArgumentOutOfRangeException($"{nameof(input.MechanicalBehaviorType)} and {nameof(input.ViscoelasticEffect)}");
+                throw new ArgumentOutOfRangeException($"{nameof(input.LoadResponseRelationship)} and {nameof(input.ViscoelasticEffect)}");
         }
 
         _inputParameters = new(capacity: 4) { { ParameterNameConstant.MechanicalModelInput, input } };

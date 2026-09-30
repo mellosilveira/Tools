@@ -25,7 +25,7 @@ public record MechanicalModelCurveFitEntity : EntityBase
     public required double FinalAcceptedRange { get; init; }
 
     [Column]
-    public required MechanicalBehaviorType MechanicalBehaviorType { get; init; }
+    public required LoadResponseRelationship LoadResponseRelationship { get; init; }
 
     [Column]
     public required RampTimeConsideration RampTimeConsideration { get; init; }

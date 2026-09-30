@@ -18,12 +18,12 @@ namespace MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.V
 public sealed class ModifiedSuperpositionMethodCalculator(IIntegration integration, IMechanicalParameterConverter parameterConverter) : IModifiedSuperpositionMethodCalculator
 {
     /// <inheritdoc/>
-    [MechanicalModelParameterCalculation(nameof(ModifiedSuperpositionMethodOutput.InitialYoungModulus), MechanicalBehaviorType.StressStrain, ViscoelasticEffect.Relaxation)]
+    [MechanicalModelParameterCalculation(nameof(ModifiedSuperpositionMethodOutput.InitialYoungModulus), LoadResponseRelationship.StressStrain, ViscoelasticEffect.Relaxation)]
     public double CalculateInitialYoungModulus(MechanicalModelInput<ModifiedSuperpositionMethodConstitutiveParameters> input, double strain)
         => input.ConstitutiveParameters.InitialYoungModulus!.Calculate(strain);
 
     /// <inheritdoc/>
-    [MechanicalModelParameterCalculation(nameof(ModifiedSuperpositionMethodOutput.StressRelaxationRate), MechanicalBehaviorType.StressStrain, ViscoelasticEffect.Relaxation)]
+    [MechanicalModelParameterCalculation(nameof(ModifiedSuperpositionMethodOutput.StressRelaxationRate), LoadResponseRelationship.StressStrain, ViscoelasticEffect.Relaxation)]
     public double CalculateStressRelaxationRate(MechanicalModelInput<ModifiedSuperpositionMethodConstitutiveParameters> input, double strain)
         => input.ConstitutiveParameters.StressRelaxationRate!.Calculate(strain);
 

@@ -38,7 +38,7 @@ public sealed class SchaperyRelaxationOnlyCurveFitterStep(
     protected override string MechanicalModelName => nameof(MechanicalModel.Schapery);
 
     /// <inheritdoc />
-    protected override MechanicalBehaviorType MechanicalBehaviorType => MechanicalBehaviorType.StressStrain;
+    protected override LoadResponseRelationship LoadResponseRelationship => LoadResponseRelationship.StressStrain;
 
     /// <inheritdoc />
     protected override ViscoelasticEffect ViscoelasticEffect => ViscoelasticEffect.Relaxation;
@@ -72,8 +72,9 @@ public sealed class SchaperyRelaxationOnlyCurveFitterStep(
 
                 (double Strain, double He, double H2)[] strainAndHelmholtzVariables = new (double Strain, double He, double H2)[relaxations.Count - 1];
 
-                double precision = anchorOutput.RSquared;
-                double totalError = anchorOutput.FinalError;
+                double weightedRSquaredSum = anchorOutput.RSquared * anchorSegment.ExperimentalStrain.Length;
+                double weightSum = anchorSegment.ExperimentalStrain.Length;
+                double errorSum = anchorOutput.FinalError;
                 int totalIterations = anchorOutput.Iterations;
 
                 for (int j = 0; j < relaxations.Count; j++)
@@ -91,13 +92,17 @@ public sealed class SchaperyRelaxationOnlyCurveFitterStep(
 
                     strainAndHelmholtzVariables[j] = (currentSegment.ExperimentalStrain[0], he, h2);
 
-                    // TODO: ESTUDAR MELHOR FORMA DE CALCULAR O ERRO FINAL.
-                    precision = (precision + segmentFitResult.RSquared) / 2;
-                    totalError *= segmentFitResult.FinalError;
+                    int segmentPoints = currentSegment.ExperimentalStrain.Length;
+                    weightedRSquaredSum += segmentFitResult.RSquared * segmentPoints;
+                    weightSum += segmentPoints;
+                    errorSum += segmentFitResult.FinalError;
                     totalIterations += segmentFitResult.Iterations;
 
                     yield return segmentFitResult;
                 }
+
+                double precision = weightedRSquaredSum / weightSum;
+                double totalError = errorSum / weightSum;
 
                 yield return BuildFinalOutput(relaxations, optimizedLinearParams, strainAndHelmholtzVariables, precision, totalError, totalIterations);
             }

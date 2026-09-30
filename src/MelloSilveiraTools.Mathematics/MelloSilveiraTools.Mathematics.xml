@@ -955,16 +955,17 @@
             Median is the middle number. It is found by ordering all data points and picking out the one in the middle (or 
             if there are two middle numbers, taking the mean of those two numbers).
             </param>
-            <param name="Mean"></param>
-            <param name="Minimum"></param>
-            <param name="Maximum"></param>
-            <param name="LowerLimit"></param>
-            <param name="UpperLimit"></param>
-            <param name="StandardDeviation"></param>
-            <param name="Outliers"></param>
-            <param name="Values"></param>
+            <param name="Mode">The most frequent value in the data set, or <see cref="F:System.Double.NaN"/> if no single mode exists.</param>
+            <param name="Mean">The arithmetic mean of the values without outliers.</param>
+            <param name="Minimum">The minimum value without outliers.</param>
+            <param name="Maximum">The maximum value without outliers.</param>
+            <param name="LowerLimit">The lower threshold limit for outlier detection.</param>
+            <param name="UpperLimit">The upper threshold limit for outlier detection.</param>
+            <param name="StandardDeviation">The standard deviation of the values without outliers.</param>
+            <param name="Outliers">The detected outlier values.</param>
+            <param name="Values">The original input values.</param>
         </member>
-        <member name="M:MelloSilveiraTools.Mathematics.Models.Statistics.StatisticalData.#ctor(System.Double,System.Double,System.Double,System.Double,System.Double,System.Double,System.Double,System.Double[],System.Double[])">
+        <member name="M:MelloSilveiraTools.Mathematics.Models.Statistics.StatisticalData.#ctor(System.Double,System.Double,System.Double,System.Double,System.Double,System.Double,System.Double,System.Double,System.Double[],System.Double[])">
             <summary>
             Represents the statistical data of some information.
             </summary>
@@ -972,14 +973,15 @@
             Median is the middle number. It is found by ordering all data points and picking out the one in the middle (or 
             if there are two middle numbers, taking the mean of those two numbers).
             </param>
-            <param name="Mean"></param>
-            <param name="Minimum"></param>
-            <param name="Maximum"></param>
-            <param name="LowerLimit"></param>
-            <param name="UpperLimit"></param>
-            <param name="StandardDeviation"></param>
-            <param name="Outliers"></param>
-            <param name="Values"></param>
+            <param name="Mode">The most frequent value in the data set, or <see cref="F:System.Double.NaN"/> if no single mode exists.</param>
+            <param name="Mean">The arithmetic mean of the values without outliers.</param>
+            <param name="Minimum">The minimum value without outliers.</param>
+            <param name="Maximum">The maximum value without outliers.</param>
+            <param name="LowerLimit">The lower threshold limit for outlier detection.</param>
+            <param name="UpperLimit">The upper threshold limit for outlier detection.</param>
+            <param name="StandardDeviation">The standard deviation of the values without outliers.</param>
+            <param name="Outliers">The detected outlier values.</param>
+            <param name="Values">The original input values.</param>
         </member>
         <member name="P:MelloSilveiraTools.Mathematics.Models.Statistics.StatisticalData.Median">
             <summary>
@@ -987,29 +989,32 @@
             if there are two middle numbers, taking the mean of those two numbers).
             </summary>
         </member>
+        <member name="P:MelloSilveiraTools.Mathematics.Models.Statistics.StatisticalData.Mode">
+            <summary>The most frequent value in the data set, or <see cref="F:System.Double.NaN"/> if no single mode exists.</summary>
+        </member>
         <member name="P:MelloSilveiraTools.Mathematics.Models.Statistics.StatisticalData.Mean">
-            <summary></summary>
+            <summary>The arithmetic mean of the values without outliers.</summary>
         </member>
         <member name="P:MelloSilveiraTools.Mathematics.Models.Statistics.StatisticalData.Minimum">
-            <summary></summary>
+            <summary>The minimum value without outliers.</summary>
         </member>
         <member name="P:MelloSilveiraTools.Mathematics.Models.Statistics.StatisticalData.Maximum">
-            <summary></summary>
+            <summary>The maximum value without outliers.</summary>
         </member>
         <member name="P:MelloSilveiraTools.Mathematics.Models.Statistics.StatisticalData.LowerLimit">
-            <summary></summary>
+            <summary>The lower threshold limit for outlier detection.</summary>
         </member>
         <member name="P:MelloSilveiraTools.Mathematics.Models.Statistics.StatisticalData.UpperLimit">
-            <summary></summary>
+            <summary>The upper threshold limit for outlier detection.</summary>
         </member>
         <member name="P:MelloSilveiraTools.Mathematics.Models.Statistics.StatisticalData.StandardDeviation">
-            <summary></summary>
+            <summary>The standard deviation of the values without outliers.</summary>
         </member>
         <member name="P:MelloSilveiraTools.Mathematics.Models.Statistics.StatisticalData.Outliers">
-            <summary></summary>
+            <summary>The detected outlier values.</summary>
         </member>
         <member name="P:MelloSilveiraTools.Mathematics.Models.Statistics.StatisticalData.Values">
-            <summary></summary>
+            <summary>The original input values.</summary>
         </member>
         <member name="T:MelloSilveiraTools.Mathematics.Models.TimebasedAnalysisOutput">
             <summary>

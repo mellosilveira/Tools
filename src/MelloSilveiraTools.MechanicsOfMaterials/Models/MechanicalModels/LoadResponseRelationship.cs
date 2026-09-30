@@ -1,11 +1,9 @@
-﻿namespace MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels;
-
-// TODO: ALTERAR PARA LoadResponseRelationship.
+namespace MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels;
 
 /// <summary>
-/// Contains the relationships available for mechanical analysis.
+/// Contains the load-response relationships available for mechanical analysis.
 /// </summary>
-public enum MechanicalBehaviorType : int
+public enum LoadResponseRelationship : int
 {
     /// <summary>
     /// Stress-strain relationship.

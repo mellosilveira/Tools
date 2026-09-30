@@ -32,14 +32,14 @@ public sealed record ModifiedSuperpositionMethodOutput : ViscoelasticModelOutput
     /// Initial Young's modulus.
     /// Unit: MPa (Mega-Pascal).
     /// </summary>
-    [MechanicalModelParameter(MechanicalBehaviorType.StressStrain, ViscoelasticEffect.Relaxation)]
+    [MechanicalModelParameter(LoadResponseRelationship.StressStrain, ViscoelasticEffect.Relaxation)]
     public double? InitialYoungModulus { get; set; }
 
     /// <summary>
     /// Strain-dependent rate of stress relaxation.
     /// Unit: dimensionless.
     /// </summary>
-    [MechanicalModelParameter(MechanicalBehaviorType.StressStrain, ViscoelasticEffect.Relaxation)]
+    [MechanicalModelParameter(LoadResponseRelationship.StressStrain, ViscoelasticEffect.Relaxation)]
     public double? StressRelaxationRate { get; set; }
 
     /// <inheritdoc />

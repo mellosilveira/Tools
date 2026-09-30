@@ -23,9 +23,9 @@ public abstract class MechanicalModelCurveFitterStepBase : IMechanicalModelCurve
     protected abstract string MechanicalModelName { get; }
 
     /// <summary>
-    /// Gets the mechanical behavior type for the model.
+    /// Gets the load-response relationship for the model.
     /// </summary>
-    protected abstract MechanicalBehaviorType MechanicalBehaviorType { get; }
+    protected abstract LoadResponseRelationship LoadResponseRelationship { get; }
 
     /// <summary>
     /// Gets the viscoelastic effect for the model.
@@ -56,7 +56,7 @@ public abstract class MechanicalModelCurveFitterStepBase : IMechanicalModelCurve
         {
             MechanicalModelName = MechanicalModelName,
             AcceptedStrainRange = new AcceptedRange(initialStrain, finalStrain),
-            MechanicalBehaviorType = MechanicalBehaviorType,
+            LoadResponseRelationship = LoadResponseRelationship,
             ViscoelasticEffect = ViscoelasticEffect,
             RampTimeConsideration = rampTimeConsideration,
             RampTime = rampTime,
@@ -76,7 +76,7 @@ public abstract class MechanicalModelCurveFitterStepBase : IMechanicalModelCurve
     /// Creates a new <see cref="MechanicalModelCurveFitOutput"/> with model metadata and fitting metrics.
     /// </summary>
     protected MechanicalModelCurveFitOutput CreateCurveFitOutput(IReadOnlyList<CurveSegment> segments, ConstitutiveParameters constitutiveParameters, AcceptedRange acceptedRange, RampTimeConsideration rampTimeConsideration, double precision, double finalError, int iterations)
-        => new(segments, MechanicalModelName, constitutiveParameters, acceptedRange, MechanicalBehaviorType, ViscoelasticEffect, rampTimeConsideration, precision, finalError, iterations);
+        => new(segments, MechanicalModelName, constitutiveParameters, acceptedRange, LoadResponseRelationship, ViscoelasticEffect, rampTimeConsideration, precision, finalError, iterations);
 
     /// <summary>
     /// Creates a new <see cref="MechanicalModelCurveFitOutput"/> with model metadata and fitting metrics, defaulting the ramp time consideration to <see cref="RampTimeConsideration.Disregard"/>.

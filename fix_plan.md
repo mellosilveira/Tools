@@ -117,7 +117,7 @@ public string Execute(MechanicalModelCurveFitOutput output)
     ConstitutiveParameters constitutiveParameters = output.ConstitutiveParameters;
     string rawData = string.Concat(
         output.MechanicalModelName,
-        output.MechanicalBehaviorType.ToString(),
+        output.LoadResponseRelationship.ToString(),
         output.ViscoelasticEffect.ToString(),
         output.RampTimeConsideration.ToString(),
         output.AcceptedRange.InitialPoint.ToString("R"),

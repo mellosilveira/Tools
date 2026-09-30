@@ -29,7 +29,7 @@ public sealed class FungRelaxationOnlyCurveFitterStep(
     protected override string MechanicalModelName => nameof(MechanicalModel.Fung);
 
     /// <inheritdoc />
-    protected override MechanicalBehaviorType MechanicalBehaviorType => MechanicalBehaviorType.StressStrain;
+    protected override LoadResponseRelationship LoadResponseRelationship => LoadResponseRelationship.StressStrain;
 
     /// <inheritdoc />
     protected override ViscoelasticEffect ViscoelasticEffect => ViscoelasticEffect.Relaxation;
@@ -116,10 +116,13 @@ public sealed class FungRelaxationOnlyCurveFitterStep(
 
         CurveFitOutput rampOutput = curveFitter.Fit(rampInput);
 
-        // TODO: MELHORAR CALCULO DE R^2 E ERRO.
-        double precision = (relaxationOutput.RSquared + rampOutput.RSquared) / 2;
-        double totalError = relaxationOutput.FinalError * rampOutput.FinalError;
-        int totalIterations = relaxationOutput.Iterations + rampOutput.Iterations;
+        int rampPoints = ramp.ExperimentalStrain.Length;
+        int relaxationPoints = relaxation.ExperimentalStrain.Length;
+        int totalPoints = rampPoints + relaxationPoints;
+
+        double precision = (rampPoints * rampOutput.RSquared + relaxationPoints * relaxationOutput.RSquared) / totalPoints;
+        double totalError = (rampPoints * rampOutput.FinalError + relaxationPoints * relaxationOutput.FinalError) / totalPoints;
+        int totalIterations = rampOutput.Iterations + relaxationOutput.Iterations;
 
         FungConstitutiveParameters constitutiveParameters = new(rampOutput.OptimizedParameters[0], rampOutput.OptimizedParameters[1], reducedRelaxationFunction);
         AcceptedRange accepteStrainRange = new(ramp.ExperimentalStrain[0], relaxation.ExperimentalStrain[^1]);

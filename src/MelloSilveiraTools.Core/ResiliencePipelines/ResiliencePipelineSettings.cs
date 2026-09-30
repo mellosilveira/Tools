@@ -1,5 +1,8 @@
-﻿using Polly;
+using Polly;
+using Polly.CircuitBreaker;
+using Polly.RateLimiting;
 using Polly.Retry;
+using System.Threading.RateLimiting;
 
 namespace MelloSilveiraTools.Core.ResiliencePipelines;
 
@@ -21,4 +24,19 @@ public record ResiliencePipelineSettings
 
     /// <inheritdoc cref="RetryStrategyOptions{Object}.UseJitter"/>
     public bool UseJitter { get; init; }
+
+    /// <summary>
+    /// Optional circuit breaker strategy options. If not provided, sensible defaults are configured.
+    /// </summary>
+    public CircuitBreakerStrategyOptions? CircuitBreakerOptions { get; init; }
+
+    /// <summary>
+    /// Optional concurrency limiter options. If not provided, sensible defaults are configured.
+    /// </summary>
+    public ConcurrencyLimiterOptions? ConcurrencyLimiterOptions { get; init; }
+
+    /// <summary>
+    /// Optional rate limiter strategy options. If not provided, sensible defaults are configured.
+    /// </summary>
+    public RateLimiterStrategyOptions? RateLimiterOptions { get; init; }
 }

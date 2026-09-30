@@ -52,7 +52,7 @@ public class MechanicalModelCalculatorFactoryTests
         GenericMechanicalModelInput input = new()
         {
             MechanicalModelName = nameof(MechanicalModel.Elastic),
-            MechanicalBehaviorType = MechanicalBehaviorType.StressStrain,
+            LoadResponseRelationship = LoadResponseRelationship.StressStrain,
             ViscoelasticEffect = ViscoelasticEffect.Relaxation,
             ConstitutiveParameters = new ElasticConstitutiveParameters { YoungModulus = 100.0 },
             Strain = new MechanicalParameter(0.1, new PolynomialFunction([0.1]))
@@ -69,7 +69,7 @@ public class MechanicalModelCalculatorFactoryTests
         GenericMechanicalModelInput input = new()
         {
             MechanicalModelName = nameof(MechanicalModel.Maxwell),
-            MechanicalBehaviorType = MechanicalBehaviorType.StressStrain,
+            LoadResponseRelationship = LoadResponseRelationship.StressStrain,
             ViscoelasticEffect = ViscoelasticEffect.Relaxation,
             ConstitutiveParameters = new MaxwellConstitutiveParameters { Stiffness = 200.0, Viscosity = 50.0 },
             Strain = new MechanicalParameter(0.1, new PolynomialFunction([0.1]))

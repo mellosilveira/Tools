@@ -26,7 +26,7 @@ public sealed class SchaperyModelCalculator(
     {
         return input.ConstitutiveParameters.TransientRelaxationFunction!.Calculate(time);
 
-        // TODO: Revisar, porque está errado.
+        // TODO: Review — the commented implementation below is incorrect for the current use case (soft tissue).
         //if (time <= Constants.Precision)
         //{
         //    if (input.RampTimeConsideration == RampTimeConsideration.Disregard)
@@ -53,9 +53,7 @@ public sealed class SchaperyModelCalculator(
         // For soft tissue, it always returns the time because the shift factor for that case is always 1.
         return time;
 
-        // TODO: Implementar validação que distingue tecidos moles de outros materiais
-        // para que este modelo possa ser aplicado em diferentes materiais.
-
+        // TODO: Implement shift-factor-based reduced-time calculation to support materials other than soft tissue.
         //if (time <= Constants.Precision)
         //    return 0;
         //
@@ -75,9 +73,7 @@ public sealed class SchaperyModelCalculator(
         // For soft tissue, it always returns the time because the shift factor for that case is always 1.
         return time;
 
-        // TODO: Implementar validação que distingue tecidos moles de outros materiais
-        // para que este modelo possa ser aplicado em diferentes materiais.
-
+        // TODO: Implement temperature-shift-factor-based retardation-time calculation to support materials other than soft tissue.
         //if (time <= Constants.Precision)
         //    return 0;
         //

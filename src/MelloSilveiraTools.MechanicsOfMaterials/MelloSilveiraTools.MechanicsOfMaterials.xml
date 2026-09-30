@@ -15,11 +15,11 @@
             Initializes a new instance of <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Attributes.MechanicalModelParameterAttribute"/>.
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Attributes.MechanicalModelParameterAttribute.#ctor(MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalBehaviorType)">
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Attributes.MechanicalModelParameterAttribute.#ctor(MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.LoadResponseRelationship)">
             <summary>
             Initializes a new instance of <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Attributes.MechanicalModelParameterAttribute"/>.
             </summary>
-            <param name="mechanicalBehaviorType"></param>
+            <param name="loadResponseRelationship"></param>
         </member>
         <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Attributes.MechanicalModelParameterAttribute.#ctor(MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.ViscoelasticEffect)">
             <summary>
@@ -27,24 +27,24 @@
             </summary>
             <param name="viscoelasticEffect"></param>
         </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Attributes.MechanicalModelParameterAttribute.#ctor(MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalBehaviorType,MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.ViscoelasticEffect)">
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Attributes.MechanicalModelParameterAttribute.#ctor(MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.LoadResponseRelationship,MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.ViscoelasticEffect)">
             <summary>
             Initializes a new instance of <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Attributes.MechanicalModelParameterAttribute"/>.
             </summary>
-            <param name="mechanicalBehaviorType"></param>
+            <param name="loadResponseRelationship"></param>
             <param name="viscoelasticEffect"></param>
         </member>
-        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Attributes.MechanicalModelParameterAttribute.MechanicalBehaviorType">
-            <inheritdoc cref="T:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalBehaviorType"/>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Attributes.MechanicalModelParameterAttribute.LoadResponseRelationship">
+            <inheritdoc cref="T:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.LoadResponseRelationship"/>
         </member>
         <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Attributes.MechanicalModelParameterAttribute.ViscoelasticEffect">
             <inheritdoc cref="T:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.ViscoelasticEffect"/>
         </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Attributes.MechanicalModelParameterAttribute.CanMethodBeInvoked(MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalBehaviorType,MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.ViscoelasticEffect)">
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Attributes.MechanicalModelParameterAttribute.CanMethodBeInvoked(MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.LoadResponseRelationship,MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.ViscoelasticEffect)">
             <summary>
             Checks if the mechanical relationship and viscoelastic effect matches with the values used to build the attribute.
             </summary>
-            <param name="mechanicalBehaviorType"></param>
+            <param name="loadResponseRelationship"></param>
             <param name="viscoelasticEffect"></param>
             <returns></returns>
         </member>
@@ -54,26 +54,26 @@
             relationships and viscoelastic effects for dynamic method selection based on the model's characteristics.
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Attributes.MechanicalModelParameterCalculationAttribute.#ctor(System.String,MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalBehaviorType)">
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Attributes.MechanicalModelParameterCalculationAttribute.#ctor(System.String,MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.LoadResponseRelationship)">
             <summary>
-            Initializes a new instance of <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Attributes.MechanicalModelParameterAttribute"/>.
+            Initializes a new instance of <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Attributes.MechanicalModelParameterCalculationAttribute"/>.
             </summary>
             <param name="propertyName"></param>
-            <param name="mechanicalBehaviorType"></param>
+            <param name="loadResponseRelationship"></param>
         </member>
         <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Attributes.MechanicalModelParameterCalculationAttribute.#ctor(System.String,MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.ViscoelasticEffect)">
             <summary>
-            Initializes a new instance of <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Attributes.MechanicalModelParameterAttribute"/>.
+            Initializes a new instance of <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Attributes.MechanicalModelParameterCalculationAttribute"/>.
             </summary>
             <param name="propertyName"></param>
             <param name="viscoelasticEffect"></param>
         </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Attributes.MechanicalModelParameterCalculationAttribute.#ctor(System.String,MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalBehaviorType,MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.ViscoelasticEffect)">
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Attributes.MechanicalModelParameterCalculationAttribute.#ctor(System.String,MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.LoadResponseRelationship,MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.ViscoelasticEffect)">
             <summary>
-            Initializes a new instance of <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Attributes.MechanicalModelParameterAttribute"/>.
+            Initializes a new instance of <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Attributes.MechanicalModelParameterCalculationAttribute"/>.
             </summary>
             <param name="propertyName"></param>
-            <param name="mechanicalBehaviorType"></param>
+            <param name="loadResponseRelationship"></param>
             <param name="viscoelasticEffect"></param>
         </member>
         <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Attributes.MechanicalModelParameterCalculationAttribute.PropertyName">
@@ -93,7 +93,7 @@
             Returns a compiled delegate that invokes the named method on the given calculator type.
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Caching.IMechanicalModelTypeCache.GetOrAddMethodDataList(System.Type,MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalBehaviorType,MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.ViscoelasticEffect)">
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Caching.IMechanicalModelTypeCache.GetOrAddMethodDataList(System.Type,MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.LoadResponseRelationship,MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.ViscoelasticEffect)">
             <summary>
             Returns the list of calculator methods applicable to the given relationship and viscoelastic effect,
             each pre-compiled into a <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Caching.CalculatorMethodData"/>.
@@ -123,7 +123,7 @@
         <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Caching.MechanicalModelTypeCache.GetOrAddMethodInvoker(System.Type,System.String)">
             <inheritdoc/>
         </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Caching.MechanicalModelTypeCache.GetOrAddMethodDataList(System.Type,MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalBehaviorType,MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.ViscoelasticEffect)">
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Caching.MechanicalModelTypeCache.GetOrAddMethodDataList(System.Type,MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.LoadResponseRelationship,MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.ViscoelasticEffect)">
             <inheritdoc/>
         </member>
         <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Caching.MechanicalModelTypeCache.GetOrAddOutputFactory(System.Type)">
@@ -621,7 +621,7 @@
             Initializes a secondary instance of the <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.MechanicalModelCalculatorFacade"/> class optimized for iterative time-history simulations.
             </summary>
             <remarks>
-            This constructor evaluates the combination of <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalBehaviorType"/> and <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.ViscoelasticEffect"/> 
+            This constructor evaluates the combination of <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.LoadResponseRelationship"/> and <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.ViscoelasticEffect"/> 
             to determine the independent boundary condition. It extracts the value-derivative delegate, registers parameter tokens, 
             and pre-allocates localized parameter buffers to eliminate allocation overhead during numerical loops.
             </remarks>
@@ -1906,17 +1906,20 @@
         <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Elasticity.ElasticModelOutput.CalculatePercentageDelta(MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalModelOutput)">
             <inheritdoc />
         </member>
-        <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalBehaviorType">
+        <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.LoadResponseRelationship">
             <summary>
-            Contains the relationships available for mechanical analysis.
+            Contains the load-response relationships available for mechanical analysis.
             </summary>
+            <remarks>
+            Categorizes the physical load-response relationship (e.g., Stress-Strain or Force-Displacement).
+            </remarks>
         </member>
-        <member name="F:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalBehaviorType.StressStrain">
+        <member name="F:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.LoadResponseRelationship.StressStrain">
             <summary>
             Stress-strain relationship.
             </summary>
         </member>
-        <member name="F:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalBehaviorType.ForceDisplacement">
+        <member name="F:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.LoadResponseRelationship.ForceDisplacement">
             <summary>
             Force-displacement relationship.
             </summary>
@@ -1960,10 +1963,10 @@
             (e.g., preventing compression in tension-only cable elements).
             </summary>
         </member>
-        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalModelInput.MechanicalBehaviorType">
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalModelInput.LoadResponseRelationship">
             <summary>
-            Defines the overarching phenomenological continuum framework governing the stress-strain relationship 
-            (e.g., Elastic, Hyperelastic, Damage mechanics) targeted by the solver.
+            Defines the overarching phenomenological continuum framework governing the load-response relationship 
+            (e.g., Stress-Strain or Force-Displacement) targeted by the solver.
             </summary>
         </member>
         <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalModelInput.ViscoelasticEffect">

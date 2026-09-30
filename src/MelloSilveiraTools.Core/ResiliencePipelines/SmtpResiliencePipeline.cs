@@ -1,4 +1,4 @@
-﻿using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging;
 using Polly;
 using Polly.Retry;
 using System.Net.Mail;
@@ -13,13 +13,18 @@ public class SmtpResiliencePipeline : DefaultResiliencePipeline
     /// <summary>
     /// Initialize a new instance of <see cref="SmtpResiliencePipeline"/>.
     /// </summary>
-    /// <param name="logger"></param>
-    /// <param name="settings"></param>
+    /// <param name="logger">See reference at <see cref="ILogger"/>.</param>
+    /// <param name="settings">See reference at <see cref="ResiliencePipelineSettings"/>.</param>
     public SmtpResiliencePipeline(ILogger<SmtpResiliencePipeline> logger, ResiliencePipelineSettings settings)
         : base(logger, settings, new PredicateBuilder()
-            // TODO: AVALIAR QUANDO USAR SmtpException.
-            //.Handle<SmtpException>()
-            .Handle<SmtpFailedRecipientException>())
+            .Handle<SmtpFailedRecipientException>()
+            .Handle<SmtpException>(ex => ex.StatusCode is
+                SmtpStatusCode.ServiceNotAvailable or
+                SmtpStatusCode.MailboxBusy or
+                SmtpStatusCode.InsufficientStorage or
+                SmtpStatusCode.LocalErrorInProcessing or
+                SmtpStatusCode.TransactionFailed or
+                SmtpStatusCode.GeneralFailure))
     { }
 
     /// <summary>

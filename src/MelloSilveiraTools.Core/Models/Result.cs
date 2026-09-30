@@ -1,14 +1,5 @@
 namespace MelloSilveiraTools.Core.Models;
 
-// TODO: ANALISAR VIABILIDADE DISSO
-//public class AsyncResult : Task<Result>
-//{
-//    /// <summary>
-//    /// Creates a successful 200 OK result.
-//    /// </summary>
-//    public static AsyncResult CreateSuccessOk() => Task.FromResult(Result.CreateSuccessOk());
-//}
-
 /// <summary>
 /// Result content for all commands.
 /// </summary>

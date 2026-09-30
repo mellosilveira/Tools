@@ -1650,6 +1650,7 @@
             <remarks>
             Design: Encapsulates block instantiation, telemetry wrapping, and graph linkage. Dynamically injects bifurcated routing nodes for DLQ without exposing graph complexity.
             Constraint: Assumes a linear or singular-convergence topology. Forked branches must reconcile back to a single primary data type to proceed.
+            Note: Circuit-breaker and rate-limiter resilience strategies are planned for future integration at the block level.
             </remarks>
         </member>
         <member name="M:MelloSilveiraTools.Core.Pipelines.Dataflow.DataflowPipelineBuilder`2.#ctor(Microsoft.Extensions.Logging.ILogger,System.Threading.Tasks.Dataflow.ITargetBlock{`0},System.Threading.Tasks.Dataflow.ISourceBlock{`1},System.Threading.Tasks.Dataflow.ITargetBlock{MelloSilveiraTools.Core.Pipelines.Models.FailedPayload},System.Nullable{MelloSilveiraTools.Core.Pipelines.Models.RetryOptions},System.Threading.CancellationToken,System.Collections.Generic.List{System.Threading.Tasks.Task},System.Collections.Generic.List{MelloSilveiraTools.Core.Pipelines.Steps.IPipelineStep})">
@@ -1659,6 +1660,7 @@
             <remarks>
             Design: Encapsulates block instantiation, telemetry wrapping, and graph linkage. Dynamically injects bifurcated routing nodes for DLQ without exposing graph complexity.
             Constraint: Assumes a linear or singular-convergence topology. Forked branches must reconcile back to a single primary data type to proceed.
+            Note: Circuit-breaker and rate-limiter resilience strategies are planned for future integration at the block level.
             </remarks>
         </member>
         <member name="M:MelloSilveiraTools.Core.Pipelines.Dataflow.DataflowPipelineBuilder`2.WithDeadLetterQueue(System.Action{MelloSilveiraTools.Core.Pipelines.Models.FailedPayload},MelloSilveiraTools.Core.Pipelines.Models.PipelineStepOptions)">
@@ -2821,6 +2823,21 @@
         <member name="P:MelloSilveiraTools.Core.ResiliencePipelines.ResiliencePipelineSettings.UseJitter">
             <inheritdoc cref="P:Polly.Retry.RetryStrategyOptions`1.UseJitter"/>
         </member>
+        <member name="P:MelloSilveiraTools.Core.ResiliencePipelines.ResiliencePipelineSettings.CircuitBreakerOptions">
+            <summary>
+            Optional circuit breaker strategy options. If not provided, sensible defaults are configured.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Core.ResiliencePipelines.ResiliencePipelineSettings.ConcurrencyLimiterOptions">
+            <summary>
+            Optional concurrency limiter options. If not provided, sensible defaults are configured.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Core.ResiliencePipelines.ResiliencePipelineSettings.RateLimiterOptions">
+            <summary>
+            Optional rate limiter strategy options. If not provided, sensible defaults are configured.
+            </summary>
+        </member>
         <member name="T:MelloSilveiraTools.Core.ResiliencePipelines.SmtpResiliencePipeline">
             <summary>
             Resilience pipeline for SMTP communications that provides a strategy to handle retriable exceptions.
@@ -2830,8 +2847,8 @@
             <summary>
             Initialize a new instance of <see cref="T:MelloSilveiraTools.Core.ResiliencePipelines.SmtpResiliencePipeline"/>.
             </summary>
-            <param name="logger"></param>
-            <param name="settings"></param>
+            <param name="logger">See reference at <see cref="T:Microsoft.Extensions.Logging.ILogger"/>.</param>
+            <param name="settings">See reference at <see cref="T:MelloSilveiraTools.Core.ResiliencePipelines.ResiliencePipelineSettings"/>.</param>
         </member>
         <member name="M:MelloSilveiraTools.Core.ResiliencePipelines.SmtpResiliencePipeline.#ctor(Microsoft.Extensions.Logging.ILogger{MelloSilveiraTools.Core.ResiliencePipelines.SmtpResiliencePipeline},MelloSilveiraTools.Core.ResiliencePipelines.ResiliencePipelineSettings,System.Func{Polly.Retry.RetryPredicateArguments{System.Object},System.Threading.Tasks.ValueTask{System.Boolean}})">
             <summary>

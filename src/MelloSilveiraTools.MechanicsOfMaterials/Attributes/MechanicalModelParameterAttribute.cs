@@ -1,4 +1,4 @@
-﻿using MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels;
+using MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels;
 using MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity;
 
 namespace MelloSilveiraTools.MechanicsOfMaterials.Attributes;
@@ -18,10 +18,10 @@ public class MechanicalModelParameterAttribute : Attribute
     /// <summary>
     /// Initializes a new instance of <see cref="MechanicalModelParameterAttribute"/>.
     /// </summary>
-    /// <param name="mechanicalBehaviorType"></param>
-    public MechanicalModelParameterAttribute(MechanicalBehaviorType mechanicalBehaviorType)
+    /// <param name="loadResponseRelationship"></param>
+    public MechanicalModelParameterAttribute(LoadResponseRelationship loadResponseRelationship)
     {
-        MechanicalBehaviorType = mechanicalBehaviorType;
+        LoadResponseRelationship = loadResponseRelationship;
     }
 
     /// <summary>
@@ -36,16 +36,16 @@ public class MechanicalModelParameterAttribute : Attribute
     /// <summary>
     /// Initializes a new instance of <see cref="MechanicalModelParameterAttribute"/>.
     /// </summary>
-    /// <param name="mechanicalBehaviorType"></param>
+    /// <param name="loadResponseRelationship"></param>
     /// <param name="viscoelasticEffect"></param>
-    public MechanicalModelParameterAttribute(MechanicalBehaviorType mechanicalBehaviorType, ViscoelasticEffect viscoelasticEffect)
+    public MechanicalModelParameterAttribute(LoadResponseRelationship loadResponseRelationship, ViscoelasticEffect viscoelasticEffect)
     {
-        MechanicalBehaviorType = mechanicalBehaviorType;
+        LoadResponseRelationship = loadResponseRelationship;
         ViscoelasticEffect = viscoelasticEffect;
     }
 
-    /// <inheritdoc cref="Models.MechanicalModels.MechanicalBehaviorType"/>
-    public MechanicalBehaviorType? MechanicalBehaviorType { get; }
+    /// <inheritdoc cref="Models.MechanicalModels.LoadResponseRelationship"/>
+    public LoadResponseRelationship? LoadResponseRelationship { get; }
 
     /// <inheritdoc cref="Models.MechanicalModels.Viscoelasticity.ViscoelasticEffect"/>
     public ViscoelasticEffect? ViscoelasticEffect { get; }
@@ -53,12 +53,12 @@ public class MechanicalModelParameterAttribute : Attribute
     /// <summary>
     /// Checks if the mechanical relationship and viscoelastic effect matches with the values used to build the attribute.
     /// </summary>
-    /// <param name="mechanicalBehaviorType"></param>
+    /// <param name="loadResponseRelationship"></param>
     /// <param name="viscoelasticEffect"></param>
     /// <returns></returns>
-    public bool CanMethodBeInvoked(MechanicalBehaviorType mechanicalBehaviorType, ViscoelasticEffect viscoelasticEffect)
+    public bool CanMethodBeInvoked(LoadResponseRelationship loadResponseRelationship, ViscoelasticEffect viscoelasticEffect)
     {
-        return (!MechanicalBehaviorType.HasValue || MechanicalBehaviorType == mechanicalBehaviorType)
+        return (!LoadResponseRelationship.HasValue || LoadResponseRelationship == loadResponseRelationship)
             && (!ViscoelasticEffect.HasValue || ViscoelasticEffect == viscoelasticEffect);
     }
 }

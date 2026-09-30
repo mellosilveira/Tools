@@ -6,6 +6,7 @@ using MelloSilveiraTools.Core.Pipelines.Models;
 using MelloSilveiraTools.Database.Repositories;
 using MelloSilveiraTools.Mathematics.NumericalMethods.Differentiations;
 using MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels;
+using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Models;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Factories;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Models;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Steps;
@@ -37,13 +38,15 @@ public sealed class ExperimentalDataProcessingPipeline(
     /// <inheritdoc/>
     public async Task<Result<string>> ProcessAsync(ExperimentalDataProcessingInput input, CancellationToken cancellationToken = default)
     {
+        ILogger<ExperimentalDataProcessingPipeline> logger = loggerFactory.CreateLogger<ExperimentalDataProcessingPipeline>();
+
         string uniqueIdentifier = string.IsNullOrWhiteSpace(input.Identifier) ? Guid.NewGuid().ToString("N") : input.Identifier;
 
         ExperimentalDataSegmenterStep segmenterStep = new(loggerFactory.CreateLogger<ExperimentalDataSegmenterStep>(), differentiation);
         ExperimentalDataFileWriterStep fileWriterStep = new(fileManager, input.OutputFileUri, uniqueIdentifier);
         ExperimentalDataDownsamplerStep downsamplerStep = new(input.Options.SkipTimeStep);
         CurveSegmentAccumulatorStep accumulatorStep = new();
-        IMechanicalModelCurveFitterStep curveFitterStep = stepFactory.Create(input.MechanicalModelName, input.TargetSegments); // TODO: Add log for ignored segments.
+        IMechanicalModelCurveFitterStep curveFitterStep = stepFactory.Create(input.MechanicalModelName, input.TargetSegments);
 
         IdentifierBuilderStep identifierBuilderStep = new();
         CurveFitOutputPersistenceStep curveFitPersistenceStep = new(loggerFactory.CreateLogger<CurveFitOutputPersistenceStep>(), repository);
@@ -52,8 +55,6 @@ public sealed class ExperimentalDataProcessingPipeline(
         DeltaCalculatorStep deltaStep = new();
         MechanicalModelOutputFileWriterStep csvWriterStep = new(fileManager, input.OutputFileUri, uniqueIdentifier);
         MechanicalModelOutputPersistenceStep mechanicalModelOutputPersistenceStep = new(loggerFactory.CreateLogger<MechanicalModelOutputPersistenceStep>(), repository);
-
-        ILogger<ExperimentalDataProcessingPipeline> logger = loggerFactory.CreateLogger<ExperimentalDataProcessingPipeline>();
 
         IDataflowPipeline<ExperimentalDataSegmenterInput> pipeline = PipelineFactory
             .StartDataflow<ExperimentalDataSegmenterInput>(logger, cancellationToken: cancellationToken)

@@ -35,7 +35,7 @@ public sealed class CurveFitOutputPersistenceStep(
             MechanicalModelName = input.CurveFitOutput.MechanicalModelName,
             InitialAcceptedRange = input.CurveFitOutput.AcceptedRange.InitialPoint,
             FinalAcceptedRange = input.CurveFitOutput.AcceptedRange.FinalPoint,
-            MechanicalBehaviorType = input.CurveFitOutput.MechanicalBehaviorType,
+            LoadResponseRelationship = input.CurveFitOutput.LoadResponseRelationship,
             RampTimeConsideration = input.CurveFitOutput.RampTimeConsideration,
             ViscoelasticEffect = input.CurveFitOutput.ViscoelasticEffect,
             Error = input.CurveFitOutput.FinalError,

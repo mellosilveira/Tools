@@ -187,13 +187,16 @@ AI agents modifying or generating code in this repository **must strictly adhere
 ### 2. Pipeline Architecture (`MelloSilveiraTools.Core.Pipelines`)
 **Step contracts:**
 - **`IPipelineStep`**: Base metadata contract defining `string Name { get; }` for telemetry, distributed tracing, and fault localization.
+- **`IAsyncPipelineStep<in TIn>`**: Consumer/terminal asynchronous step contract (`Task ExecuteAsync(TIn input, CancellationToken ct)`) implementing `IAsyncDisposable`.
 - **`IAsyncPipelineStep<in TIn, TOut>`**: Asynchronous step contract (`Task<TOut> ExecuteAsync(TIn input, CancellationToken ct)`) implementing `IAsyncDisposable`.
 - **`ISyncPipelineStep<in TIn, out TOut>`**: Synchronous step contract (`TOut Execute(TIn input)`) implementing `IDisposable` (does not inherit from `IAsyncDisposable`).
 - **`IAsyncEnumerablePipelineStep<in TIn, out TOut>`**: Streaming step contract (`IAsyncEnumerable<TOut> ExecuteAsync(TIn input, CancellationToken ct)`) implementing `IAsyncDisposable`.
 
 **Two pipeline flavors:**
 - **TPL Dataflow (streaming/push):** `PipelineFactory.StartDataflow<T>()` → `IDataflowPipelineBuilder` → `IDataflowPipeline<T>`.
-  - Supports: `AddStep` (sync, async, and `IAsyncEnumerable`), `AddDataMapping`, `AddForkingStep`, `AddBatchStep`, `AddFilterStep`, `AddGroupWhileStep`, `AddBroadcastBlock`, `AddBroadcastStep`, `BuildTerminal`.
+  - Supports: `AddStep` (sync, async, and `IAsyncEnumerable`), `AddDataMapping`, `AddForkingStep`, `AddFilterStep`, `AddGroupWhileStep`, `AddCollectAllStep`, `Fork` (2-way and 3-way, accepting branch delegates or step instances directly), `AddBroadcastStep` (side-effect observer and mapped transform observer), and `BuildTerminal`.
+  - Completion propagation: `DataflowExtensions.LinkTo` C# 13 extension members override TPL Dataflow defaults by setting `PropagateCompletion = true` on block linkages, ensuring graceful graph draining upon `pipeline.Complete()`.
+  - Resource cleanup: `DataflowPipeline<TIn>.DisposeAsync` encloses step disposal in a `try ... finally` block, ensuring all `IDisposable` and `IAsyncDisposable` step resources are reclaimed even if graph completion faults.
   - Dead-Letter Queue (DLQ): `WithDeadLetterQueue()` isolates faulted items via `ActionBlock<FailedPayload>`.
   - Backpressure: `PipelineStepOptions.MaxBufferSize` → `BoundedCapacity`.
   - Telemetry: OpenTelemetry `ActivitySource` tracing + structured Serilog logging via `TelemetryExtensions`.
@@ -228,24 +231,34 @@ AI agents modifying or generating code in this repository **must strictly adhere
 ### 6. Experimental Data & Optimizations
 - Located in `MelloSilveiraTools.MechanicsOfMaterials.Optimizations`.
 - Multi-modal pipeline steps:
-  - `ExperimentalDataSegmenterStep`: Ingestion step implementing `IAsyncEnumerablePipelineStep<(Stream StrainStream, Stream StressStream), SegmentedDataPoint>`, parsing CSV streams and categorizing points across deformation phases via sliding-window numerical differentiation.
-  - `ExperimentalDataFileWriterStep`: Persistence step implementing `IAsyncPipelineStep<SegmentedDataPoint, SegmentedDataPoint>`, streaming valid points to disk via CSV format.
-  - `CurveSegmentBuilderStep`: Assembly step implementing `ISyncPipelineStep<SegmentedDataPoint[], CurveSegment>`, constructing segments from grouped arrays with configurable downsampling (`skipTimeStep`).
-  - `IMechanicalModelCurveFitterStep`: Optimization step implementing `IAsyncEnumerablePipelineStep<CurveSegment[], MechanicalModelCurveFitOutput>`. It yields fitted constitutive parameters and their analysis metrics sequentially as an async stream for real-time processing.
-  - `MechanicalModelSimulationStep`: Final step implementing `IAsyncPipelineStep<MechanicalModelCurveFitOutput, MechanicalModelCurveFitOutput>`. Calculates the forward numeric simulation, compares it with experimental results (generating Percentage/Delta metrics), identifies asymptotes, and saves `MechanicalModelSimulationEntity` and `MechanicalModelSimulationOutput`.
-- `IExperimentalDataService.ProcessAsync(identifier, outputFileUri, strainStream, stressStream, options)` → `Result<(string OutputFileName, CurveSegment[] CurveSegments)>`.
-  - Continuous stream topology via TPL Dataflow:
+  - `ExperimentalDataSegmenterStep`: Ingestion step implementing `IAsyncEnumerablePipelineStep<ExperimentalDataSegmenterInput, SegmentedDataPoint>`, parsing CSV streams and categorizing points across deformation phases via sliding-window numerical differentiation.
+  - `ExperimentalDataFileWriterStep`: Non-mutating persistence observer step implementing `IAsyncPipelineStep<SegmentedDataPoint>`, streaming valid points to disk via CSV format.
+  - `ExperimentalDataDownsamplerStep`: Streaming downsampling step implementing `IAsyncEnumerablePipelineStep<SegmentedDataPoint, SegmentedDataPoint>`, filtering data points according to `skipTimeStep`.
+  - `CurveSegmentAccumulatorStep`: Aggregation step implementing `IAsyncEnumerablePipelineStep<SegmentedDataPoint, CurveSegment>`, grouping points sequentially by `SegmentType` for continuous processing.
+  - `IMechanicalModelCurveFitterStep`: Optimization step implementing `IAsyncEnumerablePipelineStep<CurveSegment, MechanicalModelCurveFitOutput>`. It yields fitted constitutive parameters and their analysis metrics sequentially as an async stream for real-time processing. Resolved via `IMechanicalModelStepFactory`.
+  - `IdentifierBuilderStep`: Deterministic identification step implementing `ISyncPipelineStep<MechanicalModelCurveFitOutput, string>`, generating a SHA-256 hex hash from model metadata, range, and polymorphic constitutive parameters.
+  - `CurveFitOutputPersistenceStep`: Persistence observer step implementing `IAsyncPipelineStep<(string Identifier, MechanicalModelCurveFitOutput CurveFitOutput)>`, writing fit parameters to the database via `TryInsertAsync` using polymorphic `.GetType()` serialization and `OptimizationJsonOptions.SignificantFigures7`.
+  - `NumericalSimulationStep`: Simulation step implementing `ISyncPipelineStep<MechanicalModelCurveFitOutput, MechanicalModelSimulationPayload>`, executing forward numeric simulation using `IMechanicalModelCalculatorFactory`.
+  - `AsymptoteMonitoringStep`: Analysis step implementing `ISyncPipelineStep<MechanicalModelSimulationPayload, double?>`, detecting steady-state relaxation asymptotes.
+  - `DeltaCalculatorStep`: Analysis step implementing `ISyncPipelineStep<MechanicalModelSimulationPayload, SimulationDeltaOutput>`, computing initial, final, absolute, and percentage differences.
+  - `MechanicalModelOutputFileWriterStep`: Output writer step implementing `IAsyncPipelineStep<MechanicalModelSimulationPayload, FileData>`, streaming simulation time-histories to CSV.
+  - `MechanicalModelOutputPersistenceStep`: Convergence persistence step implementing `IAsyncPipelineStep<MechanicalModelOutputPersistenceInput, string>`, computing a deterministic simulation hash and persisting `MechanicalModelSimulationEntity`.
+- `IExperimentalDataProcessingPipeline.ProcessAsync(input, cancellationToken)` → `Result<string>`:
+  - Reactive DAG stream topology via TPL Dataflow:
     - Ingestion: `ExperimentalDataSegmenterStep` converts raw stream pair into streaming `SegmentedDataPoint` sequence.
-    - Branch 1 (Broadcast): `ExperimentalDataFileWriterStep` writes points to CSV via `AddBroadcastStep`.
-    - Branch 2 (Aggregation): Adjacent points grouped via `.AddGroupWhileStep((prev, curr) => prev.SegmentType == curr.SegmentType)` and mapped to `CurveSegment` via `CurveSegmentBuilderStep`.
-    - Terminal: Segments collected into result array.
-  - Configured via `ExperimentalDataSettings` (`FileWriterOptions`, `GroupingOptions`, `SegmentBuilderOptions`, and `SegmenterOptions` with `PipelineStepOptions`).
-  - Buffer pooling using `ArrayPool<ExperimentalDataPoint>.Shared` with safe return in `finally`.
-  - Flushes remainder buffer on stream completion to prevent dropping trailing points.
-  - Supports 3-phase interior transitions in `SliceBuffer` (`startIndex > 0 && endIndex < bufferCount - 1`).
-- `ExperimentalDataSegmenterStep.ExecuteAsync()` → streaming segmented points sequence.
-- `ExperimentalDataSegmenterStep.ExtractSegments()` → sliding-window segment classification.
-- Segment types: `Ramp`, `Relaxation`, `Descent`, `Recovery`.
+    - Broadcast 1: `ExperimentalDataFileWriterStep` writes raw points to disk via `.AddBroadcastStep(fileWriterStep)`.
+    - Downsampling & Accumulation: `ExperimentalDataDownsamplerStep` downsamples points sequentially, followed by `CurveSegmentAccumulatorStep`.
+    - Fitting: `IMechanicalModelCurveFitterStep` yields `MechanicalModelCurveFitOutput`.
+    - 3-Way Fork:
+      - Branch 1: Pass-through preserving `MechanicalModelCurveFitOutput`.
+      - Branch 2: `IdentifierBuilderStep` producing the deterministic SHA-256 fit identifier string.
+      - Branch 3: `NumericalSimulationStep` followed by an inner 3-way fork (`AsymptoteMonitoringStep`, `DeltaCalculatorStep`, `MechanicalModelOutputFileWriterStep`).
+    - Mapped Broadcast: `.AddBroadcastStep(curveFitPersistenceStep, t => (t.Item2, t.Item1))` persisting fitted parameters without mutating the primary stream.
+    - Convergence: `.AddDataMapping(...)` constructs `MechanicalModelOutputPersistenceInput` from the joined tuple.
+    - Terminal: `MechanicalModelOutputPersistenceStep` saves the simulation entity and returns the identifier.
+  - Configuration: `ExperimentalDataSettings` (`FileWriterOptions`, `SegmenterOptions`, `CurveFitterOptions`, `SegmentBuilderOptions`, `SimulationInputBuilderOptions` via `PipelineStepOptions`).
+  - Serialization: Centralized `OptimizationJsonOptions.SignificantFigures7` with `SignificantFiguresDoubleJsonConverter(7)`.
+  - Segment types: `Ramp`, `Relaxation`, `Descent`, `Recovery`.
 - `ICurveFitter` interface with `MathNetCurveFitter` and `AlglibCurveFitter` (bundled ALGLIB):
   - Domain-agnostic `CurveFitProfile` (`Automatic`, `Standard`, `RuleConstrained`):
     - `Standard`: Local gradient optimization via `alglib.minbleic` (L-BFGS with box bounds) for fast, quadratic convergence in smooth analytical problems.
@@ -253,8 +266,8 @@ AI agents modifying or generating code in this repository **must strictly adhere
     - `Automatic`: Automatically routes to `RuleConstrained` if `ValidateParameters` is provided; defaults to `Standard` otherwise.
   - `CurveFitInput`: Encapsulates independent/dependent variables, box bounds, initial parameters, `Profile`, `ValidateParameters: Func<double[], bool>?`, `TargetRSquared: double?`, and `PopulationMultiplier: int` (default 10).
   - `CurveFitOutput`: Exposes `OptimizedParameters: double[]`, `FinalError: double` (SSR), `RSquared: double` ($1 - \frac{SSR}{SST}$), and `Iterations: int`.
+  - `MechanicalModelCurveFitOutput`: Exposes `RSquared: double` ($1 - \frac{SSR}{SST}$) consistent with `CurveFitOutput`.
   - `CurveFitterBase`: Centralized evaluation of objective function (SSR), numerical gradient (finite differences), and determination coefficient ($R^2$).
-
 - Morris sensitivity analysis: `MorrisAnalyzer`, `MorrisInput`, `MorrisOutput`, `MorrisMetrics`.
 
 ### 7. Database & SQL Generation

@@ -11,7 +11,7 @@ namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.Experi
 /// <param name="MechanicalModelName">The name of the mechanical model evaluated.</param>
 /// <param name="ConstitutiveParameters">The optimized material constitutive parameters.</param>
 /// <param name="AcceptedRange">The strain range within which the parameters are valid.</param>
-/// <param name="MechanicalBehaviorType">The physical behavior classification (e.g. StressStrain).</param>
+/// <param name="LoadResponseRelationship">The physical load-response relationship (e.g. StressStrain).</param>
 /// <param name="ViscoelasticEffect">The active viscoelastic regime (e.g. Relaxation or Creep).</param>
 /// <param name="RampTimeConsideration">Strategy used for handling finite loading ramp times.</param>
 /// <param name="RSquared">The coefficient of determination (R²) of the fit.</param>
@@ -22,7 +22,7 @@ public sealed record MechanicalModelCurveFitOutput(
     string MechanicalModelName,
     ConstitutiveParameters ConstitutiveParameters,
     AcceptedRange AcceptedRange,
-    MechanicalBehaviorType MechanicalBehaviorType,
+    LoadResponseRelationship LoadResponseRelationship,
     ViscoelasticEffect ViscoelasticEffect,
     RampTimeConsideration RampTimeConsideration,
     double RSquared,

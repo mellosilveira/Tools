@@ -41,7 +41,7 @@ public class MechanicalModelOutputFileWriterStep(
 
         await using StreamWriter writer = new(stream, new UTF8Encoding(false), 128 * 1024);
 
-        PropertyInfo[] activeProperties = DiscoverActiveProperties(typeof(MechanicalModelOutput), payload.CurveFit.MechanicalBehaviorType, payload.CurveFit.ViscoelasticEffect);
+        PropertyInfo[] activeProperties = DiscoverActiveProperties(typeof(MechanicalModelOutput), payload.CurveFit.LoadResponseRelationship, payload.CurveFit.ViscoelasticEffect);
 
         var getters = new Func<MechanicalModelOutput, double?>[activeProperties.Length];
         for (int i = 0; i < activeProperties.Length; i++)
@@ -81,7 +81,7 @@ public class MechanicalModelOutputFileWriterStep(
         return new FileData(fileInfo);
     }
 
-    private static PropertyInfo[] DiscoverActiveProperties(Type outputType, MechanicalBehaviorType behavior, ViscoelasticEffect effect)
+    private static PropertyInfo[] DiscoverActiveProperties(Type outputType, LoadResponseRelationship relationship, ViscoelasticEffect effect)
     {
         PropertyInfo[] allProps = outputType.GetProperties(BindingFlags.Public | BindingFlags.Instance);
         List<PropertyInfo> matching = [];
@@ -92,7 +92,7 @@ public class MechanicalModelOutputFileWriterStep(
             if (prop.Name == nameof(MechanicalModelOutput.Time)) continue;
 
             MechanicalModelParameterAttribute? attr = prop.GetCustomAttribute<MechanicalModelParameterAttribute>();
-            if (attr is not null && attr.CanMethodBeInvoked(behavior, effect))
+            if (attr is not null && attr.CanMethodBeInvoked(relationship, effect))
             {
                 matching.Add(prop);
             }

@@ -1,4 +1,4 @@
-﻿using MelloSilveiraTools.Mathematics.Converters;
+using MelloSilveiraTools.Mathematics.Converters;
 using MelloSilveiraTools.MechanicsOfMaterials.Attributes;
 using MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels;
 using MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Elasticity;
@@ -10,7 +10,7 @@ namespace MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.E
 public class ElasticModelCalculator : IElasticModelCalculator
 {
     /// <inheritdoc/>
-    [MechanicalModelParameterCalculation(nameof(ElasticModelOutput.Stiffness), MechanicalBehaviorType.ForceDisplacement, ViscoelasticEffect.Relaxation)]
+    [MechanicalModelParameterCalculation(nameof(ElasticModelOutput.Stiffness), LoadResponseRelationship.ForceDisplacement, ViscoelasticEffect.Relaxation)]
     public double CalculateStiffnessThroughDisplacement(MechanicalModelInput<ElasticConstitutiveParameters> input, double time)
     {
         double displacement = input.Displacement!.CalculateValue(time);
@@ -18,7 +18,7 @@ public class ElasticModelCalculator : IElasticModelCalculator
     }
 
     /// <inheritdoc/>
-    [MechanicalModelParameterCalculation(nameof(ElasticModelOutput.Stiffness), MechanicalBehaviorType.ForceDisplacement, ViscoelasticEffect.Creep)]
+    [MechanicalModelParameterCalculation(nameof(ElasticModelOutput.Stiffness), LoadResponseRelationship.ForceDisplacement, ViscoelasticEffect.Creep)]
     public double CalculateStiffnessThroughForce(MechanicalModelInput<ElasticConstitutiveParameters> input, double time)
     {
         double force = input.Force!.CalculateValue(time);

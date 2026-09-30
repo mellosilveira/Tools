@@ -38,7 +38,7 @@ public sealed class NumericalSimulationStep(
         {
             MechanicalModelName = curveFit.MechanicalModelName,
             AcceptedStrainRange = curveFit.AcceptedRange,
-            MechanicalBehaviorType = curveFit.MechanicalBehaviorType,
+            LoadResponseRelationship = curveFit.LoadResponseRelationship,
             ViscoelasticEffect = curveFit.ViscoelasticEffect,
             RampTimeConsideration = curveFit.RampTimeConsideration,
             RampTime = rampTime,

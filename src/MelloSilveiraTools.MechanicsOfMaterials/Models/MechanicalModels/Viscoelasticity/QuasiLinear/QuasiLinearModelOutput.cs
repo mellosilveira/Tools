@@ -40,25 +40,25 @@ public sealed record QuasiLinearModelOutput : ViscoelasticModelOutput
     /// <summary>
     /// Unit: MPa (Mega-Pascal).
     /// </summary>
-    [MechanicalModelParameter(MechanicalBehaviorType.StressStrain, ViscoelasticEffect.Relaxation)]
+    [MechanicalModelParameter(LoadResponseRelationship.StressStrain, ViscoelasticEffect.Relaxation)]
     public double? ElasticResponse { get; set; }
 
     /// <summary>
     /// Unit: MPa (Mega-Pascal).
     /// </summary>
-    [MechanicalModelParameter(MechanicalBehaviorType.ForceDisplacement, ViscoelasticEffect.Relaxation)]
+    [MechanicalModelParameter(LoadResponseRelationship.ForceDisplacement, ViscoelasticEffect.Relaxation)]
     public double? ElasticForceResponse { get; set; }
 
     /// <summary>
     /// Unit: MPa (Mega-Pascal).
     /// </summary>
-    [MechanicalModelParameter(MechanicalBehaviorType.StressStrain, ViscoelasticEffect.Relaxation)]
+    [MechanicalModelParameter(LoadResponseRelationship.StressStrain, ViscoelasticEffect.Relaxation)]
     public double? StressByReducedRelaxationFunctionDerivative { get; set; }
 
     /// <summary>
     /// Unit: MPa (Mega-Pascal).
     /// </summary>
-    [MechanicalModelParameter(MechanicalBehaviorType.StressStrain, ViscoelasticEffect.Relaxation)]
+    [MechanicalModelParameter(LoadResponseRelationship.StressStrain, ViscoelasticEffect.Relaxation)]
     public double? StressByConvolutionDerivative { get; set; }
 
     /// <inheritdoc />

@@ -35,18 +35,33 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
   - Optimization Web API commands & endpoints: `FitCurve`, `FitCurveRequest`, `FitCurveResultData`, `ParameterGroupResultData`, `OptimizationOptionsRequest`, and `CurveFittingController`.
   - Domain models for optimization: `CurveFitInput`, `CurveFitResult`, `CurveSegment`, `ExperimentalDataPoint`, `SegmentType`, `ExperimentalDataProcessingOptions`, `ProcessedDataPoint`, `SegmentedDataPoint`, `OptimizationOptions`, and parameter range models (`RangeFunction`, `RangeParameters`, `RangePowerLaw`, `RangePronySeries`, `RangeReducedRelaxationFunction`).
   - Added missing properties `Identifier`, `RampTime`, `ExperimentalStress`, `TimeStep`, `TimePoints`, and `Simulation` to `MechanicalModelCurveFitOutput` to support forward simulation.
+  - Real-time streaming Experimental Data Processing Pipeline (`IExperimentalDataProcessingPipeline`, `ExperimentalDataProcessingPipeline`):
+    - Reactive DAG stream topology in `ProcessAsync(input, cancellationToken)` returning a `Result<string>` containing the processing run identifier.
+    - Continuous pipeline steps:
+      - `ExperimentalDataDownsamplerStep`: Sequential streaming step (`IAsyncEnumerablePipelineStep<SegmentedDataPoint, SegmentedDataPoint>`) enforcing downsampling by `skipTimeStep`.
+      - `CurveSegmentAccumulatorStep`: Real-time stateful accumulator step (`IAsyncEnumerablePipelineStep<SegmentedDataPoint, CurveSegment>`) grouping points by `SegmentType` without full-array batching overhead.
+      - `IdentifierBuilderStep`: Deterministic identification step (`ISyncPipelineStep<MechanicalModelCurveFitOutput, string>`) computing a SHA-256 hash over model metadata, range, and polymorphic constitutive parameters.
+      - `CurveFitOutputPersistenceStep`: Non-mutating database persistence step (`IAsyncPipelineStep<(string Identifier, MechanicalModelCurveFitOutput CurveFitOutput)>`) persisting fitted parameters via `IRepository.TryInsertAsync` using polymorphic `.GetType()` serialization.
+      - `NumericalSimulationStep`: Forward numerical simulation step (`ISyncPipelineStep<MechanicalModelCurveFitOutput, MechanicalModelSimulationPayload>`) integrating material behavior through `IMechanicalModelCalculatorFactory`.
+      - Parallel simulation analysis steps: `AsymptoteMonitoringStep` (detects steady-state relaxation asymptotes), `DeltaCalculatorStep` (computes comparative boundary deltas as `SimulationDeltaOutput`), and `MechanicalModelOutputFileWriterStep` (streams simulation time-histories to CSV).
+      - `MechanicalModelOutputPersistenceStep`: Convergence persistence step (`IAsyncPipelineStep<MechanicalModelOutputPersistenceInput, string>`) computing a deterministic simulation hash and persisting `MechanicalModelSimulationEntity`.
+    - `OptimizationJsonOptions`: Centralized JSON options provider (`OptimizationJsonOptions.SignificantFigures7`) using `SignificantFiguresDoubleJsonConverter(7)` across all optimization persistence steps.
+    - Pipeline domain models: `ExperimentalDataProcessingInput`, `ExperimentalDataSegmenterInput`, `MechanicalModelOutputPersistenceInput`, and `SimulationDeltaOutput`.
 - **Mechanics of Materials Facade & Type Cache**:
   - `IMechanicalModelCalculatorFactory`: Re-implemented matching SoftTissue project pattern, using `IMechanicalModelTypeResolver` to decouple model mappings.
   - `IMechanicalModelTypeResolver`: Interface and concrete keyed singleton implementations in `TypeResolvers/` for every mechanical model.
   - Generic input architecture (`GenericMechanicalModelInput` and `MechanicalModelCalculatorFacade`) updated to use the factory with keyed DI resolvers.
 - **Pipelines Engine (`MelloSilveiraTools.Core.Pipelines`)**:
   - `IPipelineStep`: Core non-generic metadata contract defining `string Name { get; }` for telemetry, distributed tracing, and fault localization.
+  - `IAsyncPipelineStep<in TIn>`: Consumer/terminal asynchronous execution contract (`Task ExecuteAsync(TIn input, CancellationToken ct)`) implementing `IAsyncDisposable`.
   - `IAsyncPipelineStep<in TIn, TOut>`: Asynchronous execution contract (`Task<TOut> ExecuteAsync(TIn input, CancellationToken ct)`) implementing `IAsyncDisposable`.
   - `ISyncPipelineStep<in TIn, out TOut>`: Synchronous execution contract (`TOut Execute(TIn input)`) implementing `IDisposable` without `IAsyncDisposable` inheritance.
   - `IAsyncEnumerablePipelineStep<in TIn, out TOut>`: Streaming 1-to-many execution contract (`IAsyncEnumerable<TOut> ExecuteAsync(TIn input, CancellationToken ct)`) implementing `IAsyncDisposable`.
   - `PipelineFactory`: Unified factory entry point for building streaming push-based (TPL Dataflow) and request/response pull-based (Fluent) execution pipelines.
   - TPL Dataflow Pipelines (`IDataflowPipelineBuilder<T>`, `IDataflowPipeline<T>`):
-    - Fluent stage configuration: `.AddStep()` (overloaded for sync, async, and `IAsyncEnumerable`), `.AddDataMapping()`, `.AddForkingStep()`, `.AddBatchStep()`, `.AddFilterStep()`, `.AddGroupWhileStep()`, `.AddBroadcastBlock()`, `.AddBroadcastStep()`, and `.BuildTerminal()`.
+    - Fluent stage configuration: `.AddStep()` (overloaded for sync, async, and `IAsyncEnumerable`), `.AddDataMapping()`, `.AddForkingStep()`, `.AddFilterStep()`, `.AddGroupWhileStep()`, `.AddCollectAllStep()`, `Fork` (2-way and 3-way, accepting branch delegates or step instances directly), `AddBroadcastStep` (side-effect observer and mapped transform observer), and `BuildTerminal()`.
+    - Completion propagation: `DataflowExtensions.LinkTo` C# 13 extension members overriding TPL Dataflow defaults with `PropagateCompletion = true` on block linkages, guaranteeing automatic and graceful graph draining on `pipeline.Complete()`.
+    - Resource cleanup: `DataflowPipeline<TIn>.DisposeAsync` encloses step disposal in a `try ... finally` block, ensuring all `IDisposable` and `IAsyncDisposable` step resources are reclaimed even if graph completion faults.
     - Integrated resilience: exponential backoff retry policies (`RetryOptions`), dead-letter queue routing (`WithDeadLetterQueue()`) to isolate faulted items without halting pipeline throughput, and bounded capacity backpressure (`PipelineStepOptions.MaxBufferSize`).
     - Telemetry and tracing: OpenTelemetry `ActivitySource` tracing and structured Serilog logging via `TelemetryExtensions`.
   - Fluent Pipelines (`IFluentPipelineBuilder`, `IFluentPipeline<TIn, TOut>`): Composable sequential step execution for request/response operations with `.AddStep()` supporting sync, async, and streaming steps.
@@ -87,8 +102,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - All mechanical model calculators (e.g., `SchaperyModelCalculator`, `FungModelCalculator`, `ModifiedSuperpositionMethodCalculator`, `LinearModelCalculator`) now isolate and route physical properties through the `input.ConstitutiveParameters` property instead of reading them directly from a flattened input object.
 - `Expression` abstract class in `MelloSilveiraTools.Mathematics` renamed to `MathExpression`.
 - `Vector3DExtension` renamed to `Vector3DExtensions`.
-- `IDerivative` / `Derivative` in `MelloSilveiraTools.Mathematics` renamed to `IDifferentiation` / `Differentiation`.
-- Replaced `MechanicalRelationship` with `MechanicalBehaviorType`.
+- Renamed enum `MechanicalBehaviorType` to `LoadResponseRelationship` across the domain, attributes, steps, models, and caches.
+- `MechanicalModelCurveFitOutput`: Renamed `Precision` property to `RSquared` for domain consistency with `CurveFitOutput` ($R^2 = 1 - \frac{SSR}{SST}$); updated XML doc comment replacing invalid HTML entity `&sup2;` with `²`.
+- `MechanicalModelStepFactory`: Handled empty `TargetSegments` collection (`[]`) matching default model behavior instead of throwing `ArgumentException`.
+- Refactored `ExperimentalDataProcessingPipeline` to log errors when `pipeline.SendAsync` fails instead of returning an error result, maintaining execution continuity.
+- Extracted `ExperimentalDataProcessingInput` and `ExperimentalDataSegmenterInput` from `ExperimentalDataProcessingPipeline.cs` into standalone model files under `Pipelines/ExperimentalData/Models/`.
 - **`EnumerableExtensions.ForeachAsync<T>(...)` and `Foreach<T>(...)` safety regression fallback**: The vanilla overload without an `ILogger` parameter no longer swallows and suppresses internal iteration exceptions; it now bubbles up failures directly to the caller, adhering to standard sequential execution expectations.
 - Enums to inherit from int.
 ### Breaking
@@ -143,6 +161,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - **Experimental Data Pipeline cleanup:** Removed obsolete properties `OutputTypeName`, `InitialTime`, `InitialStrain`, `InitialStress`, `FinalTime`, `FinalStrain`, `FinalStress`, `DeltaStrain`, `DeltaStress`, `DeltaStrainPercentage`, `DeltaStressPercentage`, and `HasReachedAsymptote` from `MechanicalModelSimulationEntity`.
 - Removed `Asymptote` complex type from `MechanicalModelSimulationOutput`, replaced entirely by `AsymptoteTime`.
 - Removed obsolete `EvaluateConstraintsAndPenalties` delegate from `CurveFitInput` and `MathematicalCurveFitInput` in favor of short-circuit boolean rule validation.
+- Removed orphaned dead code struct `CurveSegmentBuilderInput`.
 
 ## [1.4.0] - 2026-05-01
 ### Added

@@ -1,4 +1,4 @@
-﻿using MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity;
+using MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity;
 using System.Diagnostics.CodeAnalysis;
 
 namespace MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels;
@@ -21,7 +21,7 @@ public record MechanicalModelInput
         Identifier = original.Identifier;
         MechanicalModelName = original.MechanicalModelName;
         AcceptedStrainRange = original.AcceptedStrainRange;
-        MechanicalBehaviorType = original.MechanicalBehaviorType;
+        LoadResponseRelationship = original.LoadResponseRelationship;
         ViscoelasticEffect = original.ViscoelasticEffect;
         RampTimeConsideration = original.RampTimeConsideration;
         RampTime = original.RampTime;
@@ -54,10 +54,10 @@ public record MechanicalModelInput
     #region Mechanical parameters
 
     /// <summary>
-    /// Defines the overarching phenomenological continuum framework governing the stress-strain relationship 
-    /// (e.g., Elastic, Hyperelastic, Damage mechanics) targeted by the solver.
+    /// Defines the overarching phenomenological continuum framework governing the load-response relationship 
+    /// (e.g., Stress-Strain or Force-Displacement) targeted by the solver.
     /// </summary>
-    public MechanicalBehaviorType MechanicalBehaviorType { get; init; }
+    public LoadResponseRelationship LoadResponseRelationship { get; init; }
 
     /// <summary>
     /// Specifies the temporal dependency of the material's response, determining the specific viscoelastic 

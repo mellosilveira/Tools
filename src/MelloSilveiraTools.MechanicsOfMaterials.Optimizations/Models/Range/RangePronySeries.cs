@@ -1,4 +1,4 @@
-﻿namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Models.Range;
+namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Models.Range;
 
 /// <summary>
 /// Represents the data contract for a prony series.
@@ -12,5 +12,3 @@ public record RangePronySeries(
     double? FinalVariableValue,
     RangeParameters IndependentParameter,
     List<RangeParameters> Coefficients);
-// TODO: checar se é possível herdar de RangeFunction.
-//: RangeFunction(InitialVariableValue, FinalVariableValue, [FunctionType.PronySeries], [IndependentParameter, ..IteratorCoefficients]);

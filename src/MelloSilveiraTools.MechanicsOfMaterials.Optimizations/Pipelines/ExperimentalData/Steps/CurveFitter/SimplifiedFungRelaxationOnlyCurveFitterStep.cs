@@ -35,7 +35,7 @@ public sealed class SimplifiedFungRelaxationOnlyCurveFitterStep(
     protected override string MechanicalModelName => nameof(MechanicalModel.SimplifiedFung);
 
     /// <inheritdoc />
-    protected override MechanicalBehaviorType MechanicalBehaviorType => MechanicalBehaviorType.StressStrain;
+    protected override LoadResponseRelationship LoadResponseRelationship => LoadResponseRelationship.StressStrain;
 
     /// <inheritdoc />
     protected override ViscoelasticEffect ViscoelasticEffect => ViscoelasticEffect.Relaxation;
@@ -118,9 +118,12 @@ public sealed class SimplifiedFungRelaxationOnlyCurveFitterStep(
         };
         CurveFitOutput rampOutput = curveFitter.Fit(rampInput);
 
-        // TODO: MELHORAR CALCULO DE R^2 E ERRO.
-        double precision = (relaxationOutput.RSquared + rampOutput.RSquared) / 2;
-        double totalError = relaxationOutput.FinalError * rampOutput.FinalError;
+        int rampPoints = ramp.ExperimentalStrain.Length;
+        int relaxationPoints = relaxation.ExperimentalStrain.Length;
+        int totalPoints = rampPoints + relaxationPoints;
+
+        double precision = (rampPoints * rampOutput.RSquared + relaxationPoints * relaxationOutput.RSquared) / totalPoints;
+        double totalError = (rampPoints * rampOutput.FinalError + relaxationPoints * relaxationOutput.FinalError) / totalPoints;
         int totalIterations = relaxationOutput.Iterations + rampOutput.Iterations;
 
         SimplifiedFungConstitutiveParameters constitutiveParameters = new(rampOutput.OptimizedParameters[0], rampOutput.OptimizedParameters[1], reducedRelaxationFunction);

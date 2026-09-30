@@ -1,7 +1,10 @@
-﻿using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging;
 using Polly;
+using Polly.CircuitBreaker;
+using Polly.RateLimiting;
 using Polly.Retry;
 using System.Runtime.CompilerServices;
+using System.Threading.RateLimiting;
 
 namespace MelloSilveiraTools.Core.ResiliencePipelines;
 
@@ -23,6 +26,10 @@ public class DefaultResiliencePipeline
     /// <param name="shouldHandle">Predicate that determines whether the retry should be executed for a given outcome.</param>
     public DefaultResiliencePipeline(ILogger<DefaultResiliencePipeline> logger, ResiliencePipelineSettings settings, Func<RetryPredicateArguments<object>, ValueTask<bool>> shouldHandle)
     {
+        CircuitBreakerStrategyOptions circuitBreakerOptions = GetCircuitBreakerOptions(logger, settings, shouldHandle);
+        ConcurrencyLimiterOptions concurrencyLimiterOptions = GetConcurrencyLimiterOptions(settings);
+        RateLimiterStrategyOptions rateLimiterOptions = GetRateLimiterStrategyOptions(logger, settings);
+
         _pipeline = new ResiliencePipelineBuilder()
             .AddRetry(new RetryStrategyOptions
             {
@@ -53,10 +60,9 @@ public class DefaultResiliencePipeline
                     return default;
                 }
             })
-            // TODO: Estudar como implementar circuit breaker e rate limit nas próximas versões.
-            //.AddCircuitBreaker(new Polly.CircuitBreaker.CircuitBreakerStrategyOptions { })
-            //.AddConcurrencyLimiter(new ConcurrencyLimiterOptions { })
-            //.AddRateLimiter(new RateLimiterStrategyOptions { })
+            .AddCircuitBreaker(circuitBreakerOptions)
+            .AddConcurrencyLimiter(concurrencyLimiterOptions)
+            .AddRateLimiter(rateLimiterOptions)
             .Build();
     }
 
@@ -237,5 +243,76 @@ public class DefaultResiliencePipeline
         {
             ResilienceContextPool.Shared.Return(context);
         }
+    }
+
+    private static CircuitBreakerStrategyOptions GetCircuitBreakerOptions(ILogger<DefaultResiliencePipeline> logger, ResiliencePipelineSettings settings, Func<RetryPredicateArguments<object>, ValueTask<bool>> shouldHandle)
+    {
+        if (settings.CircuitBreakerOptions is not null)
+        {
+            settings.CircuitBreakerOptions.ShouldHandle ??= args => shouldHandle(new RetryPredicateArguments<object>(args.Context, args.Outcome, 0));
+            return settings.CircuitBreakerOptions;
+        }
+
+        return new CircuitBreakerStrategyOptions
+        {
+            FailureRatio = 0.5,
+            SamplingDuration = TimeSpan.FromSeconds(30),
+            MinimumThroughput = 10,
+            BreakDuration = TimeSpan.FromSeconds(15),
+            ShouldHandle = args => shouldHandle(new RetryPredicateArguments<object>(args.Context, args.Outcome, 0)),
+            OnOpened = args =>
+            {
+                logger.LogWarning(
+                    args.Outcome.Exception,
+                    "Circuit breaker opened for duration {BreakDuration}. Arguments: {Arguments}",
+                    args.BreakDuration,
+                    args);
+
+                return default;
+            },
+            OnClosed = args =>
+            {
+                logger.LogInformation("Circuit breaker closed. Normal execution resumed. Arguments: {Arguments}", args);
+                return default;
+            },
+            OnHalfOpened = args =>
+            {
+                logger.LogInformation("Circuit breaker half-opened. Testing service health. Arguments: {Arguments}", args);
+                return default;
+            }
+        };
+    }
+
+    private static ConcurrencyLimiterOptions GetConcurrencyLimiterOptions(ResiliencePipelineSettings settings) => settings.ConcurrencyLimiterOptions ?? new ConcurrencyLimiterOptions
+    {
+        PermitLimit = 1000,
+        QueueLimit = 100,
+        QueueProcessingOrder = QueueProcessingOrder.OldestFirst
+    };
+
+    private static RateLimiterStrategyOptions GetRateLimiterStrategyOptions(ILogger<DefaultResiliencePipeline> logger, ResiliencePipelineSettings settings)
+    {
+        if (settings.RateLimiterOptions is not null)
+            return settings.RateLimiterOptions;
+
+        RateLimiter defaultRateLimiter = new SlidingWindowRateLimiter(new SlidingWindowRateLimiterOptions
+        {
+            PermitLimit = 1000,
+            Window = TimeSpan.FromSeconds(1),
+            SegmentsPerWindow = 4,
+            QueueLimit = 100,
+            QueueProcessingOrder = QueueProcessingOrder.OldestFirst,
+        });
+
+        return new RateLimiterStrategyOptions
+        {
+            Name = "default-policy",
+            RateLimiter = args => defaultRateLimiter.AcquireAsync(1, args.Context.CancellationToken),
+            OnRejected = args =>
+            {
+                logger.LogWarning("Rate limit exceeded. Execution rejected by rate limiter. Arguments: {Arguments}", args);
+                return default;
+            }
+        };
     }
 }

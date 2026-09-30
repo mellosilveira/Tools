@@ -7,14 +7,13 @@ using System.Threading.Tasks.Dataflow;
 
 namespace MelloSilveiraTools.Core.Pipelines.Dataflow;
 
-// TODO: Add circuit breaker.
-
 /// <summary>
 /// Strongly-typed fluent builder for orchestrating asynchronous data processing topologies.
 /// </summary>
 /// <remarks>
 /// Design: Encapsulates block instantiation, telemetry wrapping, and graph linkage. Dynamically injects bifurcated routing nodes for DLQ without exposing graph complexity.
 /// Constraint: Assumes a linear or singular-convergence topology. Forked branches must reconcile back to a single primary data type to proceed.
+/// Note: Circuit-breaker and rate-limiter resilience strategies are planned for future integration at the block level.
 /// </remarks>
 internal class DataflowPipelineBuilder<THead, TTail>(
     ILogger logger,
