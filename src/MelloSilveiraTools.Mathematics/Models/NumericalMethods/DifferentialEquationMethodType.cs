@@ -3,7 +3,7 @@
 /// <summary>
 /// It contains the available numerical methods for differential equations.
 /// </summary>
-public enum DifferentialEquationMethodType
+public enum DifferentialEquationMethodType : int
 {
     /// <summary>
     /// Newmark numerical method.

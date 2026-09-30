@@ -1,5 +1,3 @@
-using MelloSilveiraTools.WebApi.Authentication;
-
 namespace MelloSilveiraTools.WebApi.Authentication.Services;
 
 /// <summary>

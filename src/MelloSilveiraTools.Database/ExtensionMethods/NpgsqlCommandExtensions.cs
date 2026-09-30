@@ -1,5 +1,5 @@
 using MelloSilveiraTools.Core.ExtensionMethods;
-using MelloSilveiraTools.Database.Infrastructure.Database.Attributes;
+using MelloSilveiraTools.Database.RelationalDatabase.Attributes;
 using Npgsql;
 
 namespace MelloSilveiraTools.Database.ExtensionMethods;
@@ -9,43 +9,44 @@ namespace MelloSilveiraTools.Database.ExtensionMethods;
 /// </summary>
 public static class NpgsqlCommandExtensions
 {
-    /// <summary>
-    /// Sets the parameter for sql command.
-    /// </summary>
-    /// <typeparam name="TEntity"></typeparam>
-    /// <param name="command"></param>
-    /// <param name="entity"></param>
-    /// <returns></returns>
-    public static NpgsqlCommand SetCommandParametersFromEntity<TEntity>(this NpgsqlCommand command, TEntity entity)
+    extension(NpgsqlCommand command)
     {
-        if (entity is null)
-            return command;
-
-        foreach (var property in entity.GetType().GetPropertiesInHierarchy<ColumnAttribute>())
+        /// <summary>
+        /// Sets the parameter for sql command.
+        /// </summary>
+        /// <typeparam name="TEntity"></typeparam>
+        /// <param name="entity"></param>
+        /// <returns></returns>
+        public NpgsqlCommand SetCommandParametersFromEntity<TEntity>(TEntity entity)
         {
-            object? value = property.GetValue(entity);
-            command.Parameters.AddWithValue(property.Name, property.PropertyType.GetDbTypeFromPropertyType(), value ?? DBNull.Value);
+            if (entity is null)
+                return command;
+
+            foreach (var property in entity.GetType().GetPropertiesInHierarchy<ColumnAttribute>())
+            {
+                object? value = property.GetValue(entity);
+                command.Parameters.AddWithValue(property.Name, property.PropertyType.GetDbTypeFromPropertyType(), value ?? DBNull.Value);
+            }
+
+            return command;
         }
 
-        return command;
-    }
-
-    /// <summary>
-    /// Sets the parameter for sql command.
-    /// </summary>
-    /// <param name="command"></param>
-    /// <param name="parameters"></param>
-    /// <returns></returns>
-    public static NpgsqlCommand SetCommandParameters(this NpgsqlCommand command, IEnumerable<NpgsqlParameter> parameters)
-    {
-        if (parameters.IsNullOrEmpty())
-            return command;
-
-        foreach (NpgsqlParameter parameter in parameters)
+        /// <summary>
+        /// Sets the parameter for sql command.
+        /// </summary>
+        /// <param name="parameters"></param>
+        /// <returns></returns>
+        public NpgsqlCommand SetCommandParameters(IEnumerable<NpgsqlParameter> parameters)
         {
-            command.Parameters.Add(parameter);
-        }
+            if (parameters.IsNullOrEmpty())
+                return command;
 
-        return command;
+            foreach (NpgsqlParameter parameter in parameters)
+            {
+                command.Parameters.Add(parameter);
+            }
+
+            return command;
+        }
     }
 }

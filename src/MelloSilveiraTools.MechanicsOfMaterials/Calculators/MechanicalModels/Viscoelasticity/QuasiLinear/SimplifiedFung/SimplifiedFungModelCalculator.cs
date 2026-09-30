@@ -1,6 +1,7 @@
 ﻿using MelloSilveiraTools.Mathematics.Expressions;
-using MelloSilveiraTools.Mathematics.NumericalMethods.Derivative;
-using MelloSilveiraTools.Mathematics.NumericalMethods.Integral;
+using MelloSilveiraTools.Mathematics.Models;
+using MelloSilveiraTools.Mathematics.NumericalMethods.Differentiations;
+using MelloSilveiraTools.Mathematics.NumericalMethods.Integrals;
 using MelloSilveiraTools.MechanicsOfMaterials.Converters.MechanicalParameter;
 using MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels;
 using MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.QuasiLinear;
@@ -8,35 +9,34 @@ using MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelast
 namespace MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Viscoelasticity.QuasiLinear.SimplifiedFung;
 
 /// <inheritdoc cref="ISimplifiedFungModelCalculator"/>
-/// <param name="simpsonRuleIntegration">See reference at <see cref="IIntegration"/>.</param>
-/// <param name="derivative">See reference at <see cref="IDerivative"/>.</param>
+/// <param name="integration">See reference at <see cref="IIntegration"/>.</param>
+/// <param name="differentiation">See reference at <see cref="IDifferentiation"/>.</param>
 /// <param name="parameterConverter">See reference at <see cref="IMechanicalParameterConverter"/>.</param>
 public sealed class SimplifiedFungModelCalculator(
-    IIntegration simpsonRuleIntegration,
-    IDerivative derivative,
+    IIntegration integration,
+    IDifferentiation differentiation,
     IMechanicalParameterConverter parameterConverter)
-    : QuasiLinearModelCalculator<SimplifiedFungModelInput, PronySeries>(simpsonRuleIntegration, derivative, parameterConverter), ISimplifiedFungModelCalculator
+    : QuasiLinearModelCalculator<SimplifiedFungConstitutiveParameters, PronySeries>(integration, differentiation, parameterConverter), ISimplifiedFungModelCalculator
 {
-    #region Calculate mechanical model's parameters.
-
     /// <inheritdoc/>
-    public override double CalculateReducedRelaxationFunction(SimplifiedFungModelInput input, double time)
+    public override double CalculateReducedRelaxationFunction(MechanicalModelInput<SimplifiedFungConstitutiveParameters> input, double time)
     {
-        // TODO: explicar que isso é feito para evitar que decimais do double interfiram no valor.
-        if (time <= MechanicalModelConstants.Tolerance)
+        // Forces time to zero if it falls within the mathematical tolerance. 
+        // This prevents floating-point precision errors (residual decimals of the double type) from interfering with the exact t=0 boundary evaluation.
+        if (time <= MathematicConstants.Tolerance)
             time = 0;
 
-        return input.ReducedRelaxationFunction.Calculate(time);
+        return input.ConstitutiveParameters.ReducedRelaxationFunction!.Calculate(time);
     }
 
     /// <inheritdoc/>
-    protected override double CalculateReducedRelaxationFunctionDerivative(SimplifiedFungModelInput input, double time)
+    protected override double CalculateReducedRelaxationFunctionDerivative(MechanicalModelInput<SimplifiedFungConstitutiveParameters> input, double time)
     {
-        if (time <= MechanicalModelConstants.Tolerance)
+        // Forces time to zero if it falls within the mathematical tolerance. 
+        // This prevents floating-point precision errors (residual decimals of the double type) from interfering with the exact t=0 boundary evaluation.
+        if (time <= MathematicConstants.Tolerance)
             time = 0;
 
-        return input.ReducedRelaxationFunction.Derivative.Calculate(time);
+        return input.ConstitutiveParameters.ReducedRelaxationFunction!.Derivative.Calculate(time);
     }
-
-    #endregion
 }

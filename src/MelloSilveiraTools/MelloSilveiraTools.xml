@@ -9,7 +9,7 @@
             Provides extension methods to dependency injection of Tools project (meta-package).
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.DependencyInjection.AddToolsServices(Microsoft.Extensions.DependencyInjection.IServiceCollection,MelloSilveiraTools.Database.Infrastructure.Database.Settings.DatabaseSettings,MelloSilveiraTools.Core.Infrastructure.Services.Encryption.EncryptionSettings,MelloSilveiraTools.Core.Infrastructure.ResiliencePipelines.ResiliencePipelineSettings,MelloSilveiraTools.Plugins.Infrastructure.PluginSettings,MelloSilveiraTools.Core.Infrastructure.Logger.LoggerSettings)">
+        <member name="M:MelloSilveiraTools.DependencyInjection.AddToolsServices(Microsoft.Extensions.DependencyInjection.IServiceCollection,MelloSilveiraTools.Database.RelationalDatabase.Settings.DatabaseSettings,MelloSilveiraTools.Core.Services.Encryption.EncryptionSettings,MelloSilveiraTools.Core.ResiliencePipelines.ResiliencePipelineSettings,MelloSilveiraTools.Plugins.Infrastructure.PluginSettings,MelloSilveiraTools.Core.Services.Email.EmailSettings,MelloSilveiraTools.Core.Logging.LoggerSettings,System.Boolean,System.Boolean)">
             <summary>
             Registers the services of every contextual MelloSilveiraTools package
             (Core, Database, WebApi and Plugins).
@@ -19,7 +19,10 @@
             <param name="encryptionSettings">Settings used by the encryption service.</param>
             <param name="resiliencePipelineSettings">Settings that parameterize the resilience pipelines.</param>
             <param name="pluginSettings">Settings that describe plugin folders and behavior.</param>
+            <param name="emailSettings">Settings used to send e-mails through an SMTP server.</param>
             <param name="loggerSettings">Settings used by logger service.</param>
+            <param name="useDefaultLogger">Indicates if should use the default logger.</param>
+            <param name="addMechanicalModels"></param>
             <returns>The same <paramref name="services"/> instance to allow call chaining.</returns>
         </member>
     </members>

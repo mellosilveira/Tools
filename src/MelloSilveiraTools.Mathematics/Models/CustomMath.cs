@@ -1,4 +1,4 @@
-﻿namespace MelloSilveiraTools.Mathematics.Models;
+namespace MelloSilveiraTools.Mathematics.Models;
 
 /// <summary>
 /// Provides constants and static methods for trigonometric, logarithmic, and other common mathematical functions.
@@ -37,4 +37,27 @@ public static class CustomMath
     /// <param name="values"></param>
     /// <returns></returns>
     public static double Average(params IReadOnlyCollection<double> values) => Sum(values) / values.Count;
+
+    /// <summary>
+    /// Calculates the average time step (&Delta;t) across multiple arrays of time points.
+    /// </summary>
+    /// <param name="timePointsArrays">The arrays containing ordered time points.</param>
+    /// <returns>The average interval between consecutive time points across all arrays, or 0 if no intervals exist.</returns>
+    public static double CalculateAverageTimeStep(double[][] timePointsArrays)
+    {
+        double sum = 0;
+        int count = 0;
+
+        for (int i = 0; i < timePointsArrays.Length; i++)
+        {
+            double[] timePoints = timePointsArrays[i];
+            for (int j = 1; j < timePoints.Length; j++)
+            {
+                sum += timePoints[j] - timePoints[j - 1];
+                count++;
+            }
+        }
+
+        return count > 0 ? sum / count : 0;
+    }
 }

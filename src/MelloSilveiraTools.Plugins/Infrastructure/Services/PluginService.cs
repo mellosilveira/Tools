@@ -1,7 +1,7 @@
 using MelloSilveiraTools.Core.ExtensionMethods;
+using MelloSilveiraTools.Core.Providers.Dynamics;
 using MelloSilveiraTools.Plugins.Infrastructure.Models;
 using MelloSilveiraTools.Plugins.Infrastructure.Persistences;
-using MelloSilveiraTools.Plugins.Infrastructure.Providers;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace MelloSilveiraTools.Plugins.Infrastructure.Services;
@@ -45,19 +45,17 @@ public static class PluginServiceExtensions
 /// <param name="assemblyProcessor">Processor that loads and inspects plugin assemblies.</param>
 /// <param name="cache">Cache that keeps track of plugin registration state.</param>
 /// <param name="persistence">Persistence used to save and restore the plugin cache.</param>
-/// <param name="services">Root service collection used to register plugin services at startup.</param>
 /// <param name="dynamicServiceProvider">Service provider used to register plugin services at runtime.</param>
 public class PluginService(
     PluginFileProcessor fileProcessor,
     PluginAssemblyProcessor assemblyProcessor,
     PluginCache cache,
     IPluginCachePersistence persistence,
-    IServiceCollection services,
     IDynamicServiceProvider dynamicServiceProvider)
     : IPluginService
 {
     /// <inheritdoc/>
-    public void LoadPluginsOnStartup(string? name = null, PluginVersion? version = null)
+    public void LoadPluginsOnStartup(IServiceCollection services, string? name = null, PluginVersion? version = null)
         => LoadPlugins(PluginRegistrationContext.ForStartup(services), name, version);
 
     /// <inheritdoc/>
@@ -65,7 +63,7 @@ public class PluginService(
         => LoadPlugins(PluginRegistrationContext.ForRuntime(dynamicServiceProvider), name, version);
 
     /// <inheritdoc/>
-    public void ReloadPluginsOnStartup(bool forceLoad, string? name = null, PluginVersion? version = null)
+    public void ReloadPluginsOnStartup(IServiceCollection services, bool forceLoad, string? name = null, PluginVersion? version = null)
         => ReloadPlugins(PluginRegistrationContext.ForStartup(services), forceLoad, name, version);
 
     /// <inheritdoc/>
@@ -81,7 +79,7 @@ public class PluginService(
                 .GetRegistry(assemblyProcessor));
 
     /// <inheritdoc/>
-    public void Clear() => cache.Clear();
+    public Task ClearAsync() => cache.ClearAsync();
 
     /// <inheritdoc/>
     public Task PersistCacheAsync(string? name = null, PluginVersion? version = null, CancellationToken cancellationToken = default)

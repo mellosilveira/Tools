@@ -1,4 +1,4 @@
-using MelloSilveiraTools.Core.Infrastructure.Caching;
+using MelloSilveiraTools.Core.Caching;
 using MelloSilveiraTools.Plugins.Infrastructure.Models;
 using MelloSilveiraTools.Plugins.Infrastructure.Persistences;
 
@@ -16,19 +16,25 @@ public class PluginCache(ITwoLevelCache cache)
     /// Returns the cached <see cref="DiscoveredPlugin"/> for (<paramref name="name"/>, <paramref name="version"/>) or adds the one produced by <paramref name="factory"/>.
     /// </summary>
     public DiscoveredPlugin GetOrAdd(string name, PluginVersion version, Func<DiscoveredPlugin> factory)
-        => cache.GetOrAdd(name, version.Name, factory);
+        => cache.GetOrAdd(name, $"{version.Name}_DiscoveredPlugin", factory);
 
     /// <summary>
     /// Returns the cached <see cref="LoadedPlugin"/> for (<paramref name="name"/>, <paramref name="version"/>) or adds the one produced by <paramref name="factory"/>.
     /// </summary>
     public LoadedPlugin GetOrAdd(string name, PluginVersion version, Func<LoadedPlugin> factory)
-        => cache.GetOrAdd(name, version.Name, factory);
+    {
+        cache.Remove(name, $"{version.Name}_DiscoveredPlugin");
+        return cache.GetOrAdd(name, $"{version.Name}_LoadedPlugin", factory);
+    }
 
     /// <summary>
     /// Returns the cached <see cref="RegisteredPlugin"/> for (<paramref name="name"/>, <paramref name="version"/>) or adds the one produced by <paramref name="factory"/>.
     /// </summary>
     public RegisteredPlugin GetOrAdd(string name, PluginVersion version, Func<RegisteredPlugin> factory)
-        => cache.GetOrAdd(name, version.Name, factory);
+    {
+        cache.Remove(name, $"{version.Name}_DiscoveredPlugin");
+        return cache.GetOrAdd(name, $"{version.Name}_RegisteredPlugin", factory);
+    }
 
     /// <summary>
     /// Attempts to retrieve the cached plugin state for (<paramref name="name"/>, <paramref name="version"/>) as <typeparamref name="T"/>.
@@ -45,19 +51,26 @@ public class PluginCache(ITwoLevelCache cache)
     /// <summary>
     /// Removes every cached plugin entry.
     /// </summary>
-    public void Clear() => cache.Clear();
+    public async Task ClearAsync()
+    {
+        await foreach (var (name, versionAsString, _) in cache.StreamAll())
+        {
+            Clear(name, PluginVersion.Parse(versionAsString));
+        }
+    }
 
     /// <summary>
     /// Clears all cache entries for the given plugin name.
     /// When <paramref name="version"/> is <see langword="null"/>, all versions are removed;
     /// otherwise only the specified version is evicted.
     /// </summary>
-    public void Clear(string name, PluginVersion? version)
+    public void Clear(string name, PluginVersion version)
     {
-        if (version is null)
-            cache.Remove(name);
-        else
-            cache.Remove(name, version.Value.Name);
+        // If assembly is loaded, unload it before removing the cache entry.
+        if (TryGet<LoadedPlugin>(name, version, out var plugin))
+            plugin!.UnloadAssembly();
+
+        cache.Remove(name, version.Name);
     }
 
     /// <summary>

@@ -10,6 +10,16 @@
             These verify that the SQL provider handles FK-heavy schemas end-to-end.
             </summary>
         </member>
+        <member name="T:UnitTests.MechanicalModelCalculatorFactoryTests">
+            <summary>
+            Unit tests for <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.IMechanicalModelCalculatorFactory"/> and <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.MechanicalModelCalculatorFactory"/>.
+            </summary>
+        </member>
+        <member name="T:UnitTests.MechanicalModelOutputDeltaTests">
+            <summary>
+            Unit tests verifying delta and percentage delta calculations across the <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalModelOutput"/> hierarchy.
+            </summary>
+        </member>
         <member name="T:UnitTests.FakeDataReader">
             <summary>
             Minimal IDataReader backed by an in-memory column array.

@@ -1,4 +1,4 @@
-using MelloSilveiraTools.Database.Domain.Repositories;
+using MelloSilveiraTools.Database.Repositories;
 using MelloSilveiraTools.Plugins.Infrastructure.Models;
 using System.Text.Json;
 

@@ -1,5 +1,6 @@
+using MelloSilveiraTools.Core.ExtensionMethods;
 using MelloSilveiraTools.Database.ExtensionMethods;
-using MelloSilveiraTools.Database.Infrastructure.Database.Attributes;
+using MelloSilveiraTools.Database.RelationalDatabase.Attributes;
 using NpgsqlTypes;
 
 namespace UnitTests;
@@ -9,26 +10,26 @@ public sealed class TypeExtensionsTests
     // ── GetDbTypeFromPropertyType ──────────────────────────────────────────────
 
     [Theory]
-    [InlineData(typeof(string),         NpgsqlDbType.Text)]
-    [InlineData(typeof(bool),           NpgsqlDbType.Boolean)]
-    [InlineData(typeof(bool?),          NpgsqlDbType.Boolean)]
-    [InlineData(typeof(short),          NpgsqlDbType.Smallint)]
-    [InlineData(typeof(short?),         NpgsqlDbType.Smallint)]
-    [InlineData(typeof(int),            NpgsqlDbType.Integer)]
-    [InlineData(typeof(int?),           NpgsqlDbType.Integer)]
-    [InlineData(typeof(long),           NpgsqlDbType.Bigint)]
-    [InlineData(typeof(long?),          NpgsqlDbType.Bigint)]
-    [InlineData(typeof(float),          NpgsqlDbType.Real)]
-    [InlineData(typeof(float?),         NpgsqlDbType.Real)]
-    [InlineData(typeof(double),         NpgsqlDbType.Double)]
-    [InlineData(typeof(double?),        NpgsqlDbType.Double)]
-    [InlineData(typeof(decimal),        NpgsqlDbType.Numeric)]
-    [InlineData(typeof(decimal?),       NpgsqlDbType.Numeric)]
-    [InlineData(typeof(byte[]),         NpgsqlDbType.Bytea)]
-    [InlineData(typeof(DateTime),       NpgsqlDbType.Timestamp)]
-    [InlineData(typeof(DateTime?),      NpgsqlDbType.Timestamp)]
+    [InlineData(typeof(string), NpgsqlDbType.Text)]
+    [InlineData(typeof(bool), NpgsqlDbType.Boolean)]
+    [InlineData(typeof(bool?), NpgsqlDbType.Boolean)]
+    [InlineData(typeof(short), NpgsqlDbType.Smallint)]
+    [InlineData(typeof(short?), NpgsqlDbType.Smallint)]
+    [InlineData(typeof(int), NpgsqlDbType.Integer)]
+    [InlineData(typeof(int?), NpgsqlDbType.Integer)]
+    [InlineData(typeof(long), NpgsqlDbType.Bigint)]
+    [InlineData(typeof(long?), NpgsqlDbType.Bigint)]
+    [InlineData(typeof(float), NpgsqlDbType.Real)]
+    [InlineData(typeof(float?), NpgsqlDbType.Real)]
+    [InlineData(typeof(double), NpgsqlDbType.Double)]
+    [InlineData(typeof(double?), NpgsqlDbType.Double)]
+    [InlineData(typeof(decimal), NpgsqlDbType.Numeric)]
+    [InlineData(typeof(decimal?), NpgsqlDbType.Numeric)]
+    [InlineData(typeof(byte[]), NpgsqlDbType.Bytea)]
+    [InlineData(typeof(DateTime), NpgsqlDbType.Timestamp)]
+    [InlineData(typeof(DateTime?), NpgsqlDbType.Timestamp)]
     [InlineData(typeof(DateTimeOffset), NpgsqlDbType.TimestampTz)]
-    [InlineData(typeof(DateTimeOffset?),NpgsqlDbType.TimestampTz)]
+    [InlineData(typeof(DateTimeOffset?), NpgsqlDbType.TimestampTz)]
     public void GetDbTypeFromPropertyType_KnownType_ReturnsCorrectNpgsqlDbType(
         Type type, NpgsqlDbType expected)
     {
@@ -60,10 +61,10 @@ public sealed class TypeExtensionsTests
             .Select(p => p.Name)
             .ToArray();
 
-        Assert.Contains("Id",                names); // EntityBase
+        Assert.Contains("Id", names); // EntityBase
         Assert.Contains("CreationTimestamp", names); // EntityBase
-        Assert.Contains("Name",              names); // ProductEntity
-        Assert.Contains("Price",             names); // ProductEntity
+        Assert.Contains("Name", names); // ProductEntity
+        Assert.Contains("Price", names); // ProductEntity
     }
 
     [Fact]
@@ -87,9 +88,9 @@ public sealed class TypeExtensionsTests
             .Select(p => p.Name)
             .ToArray();
 
-        Assert.Contains("Code",        names);
+        Assert.Contains("Code", names);
         Assert.DoesNotContain("Description", names);
-        Assert.DoesNotContain("Id",          names);
+        Assert.DoesNotContain("Id", names);
         Assert.DoesNotContain("CreationTimestamp", names);
     }
 
@@ -103,9 +104,9 @@ public sealed class TypeExtensionsTests
             .Select(p => p.Name)
             .ToArray();
 
-        Assert.Contains("Name",  names);
+        Assert.Contains("Name", names);
         Assert.Contains("Price", names);
-        Assert.DoesNotContain("Id",                names);
+        Assert.DoesNotContain("Id", names);
         Assert.DoesNotContain("CreationTimestamp", names);
     }
 }
