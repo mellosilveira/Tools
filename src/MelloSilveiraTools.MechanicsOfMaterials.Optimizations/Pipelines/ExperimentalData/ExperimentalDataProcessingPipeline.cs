@@ -65,13 +65,13 @@ public sealed class ExperimentalDataProcessingPipeline(
             .AddStep(accumulatorStep, PipelineStepOptions.Synchronous)
             .AddStep(curveFitterStep, settings.CurveFitterOptions)
             .Fork(
-                curveFit => curveFit, // Pass-through branch 1: CurveFitOutput
-                identifier => identifier.AddStep(identifierBuilderStep), // Branch 2: Identifier Hash
-                simulation => simulation // Branch 3: Simulation results
+                curveFit => curveFit,
+                identifier => identifier.AddStep(identifierBuilderStep),
+                simulation => simulation
                     .AddStep(numericalSimulationStep)
                     .Fork(asymptoteStep, deltaStep, csvWriterStep)
             )
-            .AddBroadcastStep(curveFitPersistenceStep, t => (t.Item2, t.Item1)) // Maps Tuple<CurveFit, string, Sim> to (string, CurveFit)
+            .AddBroadcastStep(curveFitPersistenceStep, t => (t.Item2, t.Item1))
             .AddDataMapping(t => new MechanicalModelOutputPersistenceInput(
                 MechanicalModelName: input.MechanicalModelName,
                 CurveFitIdentifier: t.Item2,
@@ -87,7 +87,7 @@ public sealed class ExperimentalDataProcessingPipeline(
             if (!accepted)
             {
                 logger.LogError("Failed to ingest experimental data into the processing pipeline. Identifier: {Identifier}. Input: {@Input}", uniqueIdentifier, input);
-                return Result.CreateUnknownError("Failed to ingest experimental data into the processing pipeline.");
+                return Result.CreateBadRequest("Failed to ingest experimental data into the processing pipeline.");
             }
 
             pipeline.Complete();
