@@ -79,6 +79,7 @@ O Orquestrador invoca subagentes genéricos (`TypeName: "self"`, `Workspace: "in
 - Registra decisões atuais, **trabalhos futuros** e **oportunidades/brechas**; recusa registros sem origem e justificativa.
 
 ### 5.5 Proibições Absolutas
+- ❌ Executar códigos de sistemas da pesquisa (Backend, Frontend, Banco de Dados, Scripts Python) diretamente no sistema operacional do Host. OBRIGATORIAMENTE tudo deve rodar isolado em contêineres Docker.
 - ❌ Inventar links, DOIs ou referências.
 - ❌ Arredondar números fora do texto redigido pelo Redator.
 - ❌ Especialistas usarem `ask_question` diretamente.
