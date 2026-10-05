@@ -1,89 +1,96 @@
-﻿# Planejamento: Ecossistema de Agentes de Pesquisa em BiomecÃ¢nica
-*Documento vivo â€” Ãºltima revisÃ£o: 2026-10-03*
+# Planejamento: Ecossistema de Agentes de Pesquisa em Biomecânica
+*Documento vivo — última revisão: 2026-10-05*
 
 > [!IMPORTANT]
-> Este documento Ã© a fonte da verdade do ecossistema de agentes. Toda decisÃ£o arquitetural, contrato de interface e regra de operaÃ§Ã£o estÃ¡ registrada aqui. Atualize-o sempre que uma skill for modificada.
+> Este documento é a fonte da verdade do ecossistema de agentes. Toda decisão arquitetural, contrato de interface e regra de operação está registrada aqui. Atualize-o sempre que uma skill for modificada.
 
 ---
 
-## 1. VisÃ£o Geral e Objetivo
+## 1. Visão Geral e Objetivo
 
-O ecossistema Ã© composto por **1 Orquestrador Central** e **8 Agentes Especialistas** que atuam de forma autÃ´noma para dar cadÃªncia Ã  pesquisa de comportamento mecÃ¢nico de tecidos moles humanos (foco inicial: ligamentos de joelho). 
+O ecossistema é composto por **1 Orquestrador Central** e **8 Agentes Especialistas** que dão cadência à pesquisa sobre o comportamento mecânico de tecidos moles humanos. **Foco atual: ligamentos de joelho**; após compreensão aceitável, a pesquisa migrará para outros tecidos moles.
 
-**EvoluÃ§Ã£o TeÃ³rica Esperada:** Atualmente, a pesquisa e os algoritmos lidam com **modelos mecÃ¢nicos escalares (1D)**. No entanto, um dos objetivos finais Ã© evoluir para **modelos mecÃ¢nicos tensoriais (3D)** utilizando o rigor da MecÃ¢nica do ContÃ­nuo (tensores de tensÃ£o de Cauchy/Piola-Kirchhoff, gradiente de deformaÃ§Ã£o, invariantes) e a utilizaÃ§Ã£o do software **FEBio** ou similares para validaÃ§Ãµes e simulaÃ§Ãµes. Toda a arquitetura (banco de dados, scripts analÃ­ticos e UI) deve ser projetada de forma extensÃ­vel para suportar essa migraÃ§Ã£o geomÃ©trica, matemÃ¡tica e de software no futuro.
+**Evolução Teórica Esperada:** hoje a pesquisa e os algoritmos usam **modelos mecânicos escalares (1D)**. Um dos objetivos finais é a **formulação tensorial (Mecânica do Contínuo 3D plena)** — tensores de Cauchy/Piola-Kirchhoff, gradiente de deformação, invariantes — e o uso do **FEBio** (ou similares) para simulações e validações. Banco de dados, código C# e UI devem ser extensíveis para essa migração.
 
-**PrincÃ­pios de Design:**
-- **Alta PrecisÃ£o NumÃ©rica:** Apenas o Redator arredonda dados para o texto (conforme formatting.significant_figures no config.yaml). O restante opera com precisÃ£o total.
-- **Isolamento de Tarefas:** O Orquestrador opera de forma completamente separada e delega TUDO via subagentes (`Workspace: inherit` e nÃ£o branch, para preservar artefatos).
-- **Rastreabilidade Total:** Toda saÃ­da produz um Contrato JSON e o Orquestrador alimenta o log `telemetry.jsonl`.
-- **AprovaÃ§Ã£o Humana Centralizada:** Apenas o Orquestrador invoca `ask_question`. Se o subagente falhar em 2 tentativas (Circuit Breaker), o Orquestrador avisa o humano.
-- **Arquitetura Incremental:** O Engenheiro Backend atua exclusivamente de forma incremental, nunca gerando sistemas do zero, e sempre atualizando `AGENTS.md` e `CHANGELOG.md`.
+**Contexto Termodinâmico:** a pesquisa não é focada em termodinâmica (variação de temperatura desprezível nos ligamentos). Apenas conceitos termodinâmicos usados na formulação de modelos não-lineares e hiperelásticos (ex.: Schapery) são considerados.
+
+**Princípios de Design:**
+- **Precisão Numérica:** apenas o Redator arredonda, e somente no texto (`formatting.significant_figures` = 3). Todo o resto, incluindo `data_payload` e Ledger, usa precisão integral.
+- **Isolamento do Orquestrador:** o Orquestrador apenas planeja e delega, mesmo tarefas leves.
+- **Rastreabilidade Total:** toda saída segue o contrato JSON; o Orquestrador registra telemetria e a Secretária registra o Ledger.
+- **Aprovação Humana Centralizada:** apenas o Orquestrador usa `ask_question`.
+- **Backend Incremental:** novas funcionalidades sobre o sistema existente; apenas a esteira de deploy é criada do zero. `AGENTS.md` é obrigatório e `CHANGELOG.md` é sempre atualizado.
 
 ---
 
-## 2. Topologia da Arquitetura
+## 2. Topologia
 
-O Orquestrador cria subagentes genÃ©ricos (`TypeName: self`, `Workspace: inherit`) e em seus Prompts envia a instruÃ§Ã£o para o subagente assumir a persona lendo seu respectivo `SKILL.md`.
+O Orquestrador invoca subagentes genéricos (`TypeName: "self"`, `Workspace: "inherit"`) e, no `Prompt`, instrui cada um a ler o `SKILL.md` da persona em `paths.skills_directory`.
 
-*Orquestrador â†’ Subagente (self) â†’ Retorna JSON â†’ Orquestrador decide prÃ³ximo passo.*
+*Orquestrador → Subagente → JSON → Telemetria → (Revisor, se texto) → Secretária (QA + Ledger) → Síntese ao humano.*
 
 ---
 
 ## 3. Roster de Agentes
 
-| Nome da Pasta (nome canÃ´nico) | Papel |
+| Skill (nome canônico) | Papel |
 |---|---|
-| `orquestrador-central-de-pesquisa-em-biomecanica` | Planejamento, delegaÃ§Ã£o via subagente, ask_question. |
-| `secretaria-de-documentacao-e-rastreamento` | Grava histÃ³rico no `decisoes.md`. Exige "O quÃª / De onde / Por quÃª". |
-| `pesquisador-senior-em-biomecanica-aplicada-deep-research` | Deep Research. Apenas focado em fatos e limitaÃ§Ãµes de modelo. |
-| `analista-de-dados-experimentais` | Scripts Python locais (run_command) para regressÃ£o e avaliaÃ§Ã£o estatÃ­stica. |
-| `redator-academico-especialista-em-biomecanica` | Escrita de alto padrÃ£o. Arredonda numerais conforme config.yaml no texto. |
-| `revisor-de-papers-de-alto-padrao` | CrÃ­tico rÃ­gido. Formato acionÃ¡vel. |
-| `coorientador-de-teses-em-biomecanica` | GuardiÃ£o do escopo (ligamento joelho). Anti-modismos. |
-| `engenheiro-de-software-backend-senior-net` | C# .NET/PostgreSQL incremental. Atualiza AGENTS.md e CHANGELOG.md. |
-| `engenheiro-de-software-frontend-mobile-senior` | React/Kotlin/Uno com UI renderizada em WebGL/Canvas para datasets grandes. |
+| `orquestrador-central-de-pesquisa-em-biomecanica` | Planejamento macro/micro, delegação, `ask_question`, telemetria, política de PDF. |
+| `secretaria-de-documentacao-e-rastreamento` | QA de rastreabilidade e Ledger (O quê / De onde / Por quê), incluindo trabalhos futuros e oportunidades. |
+| `pesquisador-senior-em-biomecanica-aplicada-deep-research` | Deep research com fontes reais e DOI; valida tendências e afirmações factuais. |
+| `analista-de-dados-experimentais` | Tratamento de dados, ajuste constitutivo, sensibilidade (4 cenários), RMSE/$R^2$ e propagação de erro, em consenso com o Backend. |
+| `redator-academico-especialista-em-biomecanica` | Escrita acadêmica; único que arredonda (no texto). |
+| `revisor-de-papers-de-alto-padrao` | Crítica científica e textual em formato acionável. |
+| `coorientador-de-teses-em-biomecanica` | Guardião do escopo, tendências (com lastro do Pesquisador), IA/ML apenas com precedentes. |
+| `engenheiro-de-software-backend-senior-net` | C#/.NET 10/PostgreSQL incremental; consultor do Analista; CI/CD do zero. |
+| `engenheiro-de-software-frontend-mobile-senior` | Frontend com prioridade de sinergia .NET e gráficos WebGL/Canvas. |
 
 ---
 
-## 4. Contratos e Telemetria
+## 4. Contratos e Telemetria (`.\.agents\config.yaml`)
 
-### 4.1 Contrato de SaÃ­da â€” Especialistas â†’ Orquestrador
-O contrato de saÃ­da unificado encontra-se definido em .\.agents\config.yaml. Todos os agentes devem retornar um JSON contendo, no mÃ­nimo, task_id, status, 
-retry_count, data_payload (para transporte com precisÃ£o integral), output_summary, rtifacts e warnings.
-
-### 4.2 Telemetria (Orquestrador â†’ `telemetry.jsonl`)
-O Orquestrador escreve `{"timestamp": "...", "skill": "nome", "status": "...", "rework_count": N, "warnings": [...]}` em modo `Append: true`.
+- **Saída padrão:** `contracts.standard_json_output` (`task_id`, `skill`, `status`, `retry_count`, `data_payload`, `output_summary`, `artifacts`, `warnings`).
+- **Feedback de reprovação:** `actionable_feedback` com itens `contracts.actionable_feedback_item`.
+- **Telemetria:** linha `contracts.telemetry_line` anexada a `paths.telemetry_file`.
+- **Ledger:** `paths.ledger_file`.
 
 ---
 
-## 5. Regras Transversais de OperaÃ§Ã£o
+## 5. Regras Transversais
 
-### 5.1 O Papel do Orquestrador e o Fluxo Humano
-- **Nenhuma execuÃ§Ã£o:** O Orquestrador NUNCA executa tarefas especializadas (como rodar scripts ou processar PDFs pesados diretamente). Ele Ã© o gerente central.
-- **Planejamento Macro e Micro:** Sempre inicia criando um planejamento Macro com o humano e dividindo as tarefas em MÃºltiplos Micro Planejamentos.
-- **Timeouts e Micro-InteraÃ§Ãµes:** O ecossistema opera de forma assÃ­ncrona localmente. O Orquestrador define e impÃµe micro_timeout_seconds (conforme config.yaml) OBRIGATORIAMENTE para cada pequena iteraÃ§Ã£o individual entre agentes. NÃ£o hÃ¡ um timeout Ãºnico para o ciclo inteiro, mas sim timeouts atrelados a cada subtarefa delegada. Se o agente estourar, a chamada falha e entra no Circuit Breaker.
-- **Circuit Breaker:** Se um subagente falhar em 2 tentativas, chama o humano.
-- **Tratamento de PDF:** O Orquestrador para e usa `ask_question` para consultar o humano antes de tentar converter ou lidar com arquivos PDF.
+### 5.1 Orquestrador e Fluxo Humano
+- Nunca executa tarefas especializadas.
+- Sempre cria um Planejamento Macro com o humano e o divide em Micro Planejamentos.
+- **Circuit Breaker:** após `execution.max_retries` falhas (incluindo timeout de `execution.micro_timeout_seconds`), consulta o humano.
+- **PDF:** para e pergunta ao humano; se negado, aguarda outro formato; se autorizado, delega a conversão (`paths.pdf_converter_script`).
 
-### 5.2 Sinergia Backend e Analista
-- **Consultoria TÃ©cnica:** O *Analista de Dados* nÃ£o deve reinventar a roda. Antes de propor um algoritmo novo, deve pedir (via Orquestrador) uma avaliaÃ§Ã£o ao *Engenheiro Backend* sobre quais ferramentas C# existentes podem ser reutilizadas.
-- **Fluxo de DecisÃ£o:** Analista pede anÃ¡lise $\rightarrow$ Backend responde $\rightarrow$ Analista processa a resposta e leva o consenso ao Orquestrador $\rightarrow$ Orquestrador decide com o humano.
-- **DomÃ­nio AnalÃ­tico:** O Analista foca em AnÃ¡lise de Sensibilidade (TensÃ£o x Tempo inicial/final/assÃ­ntota) e cÃ¡lculo propagado de erro (RMSE, $R^2$). O Backend foca em garantir que a infraestrutura (C#) atenda esses cÃ¡lculos escalÃ¡veis.
+### 5.2 Sinergia Analista ↔ Backend
+- O Analista não reinventa a roda: antes de propor algo novo, pede **uma única vez** (via Orquestrador) a análise do Backend sobre o que pode ser usado, estendido ou implementado em C#.
+- Fluxo: Analista → Backend → Analista consolida → Orquestrador → humano decide.
+- Sensibilidade obrigatória: tensão × variável (tempo inicial), tensão × variável (tempo final), tempo de assíntota × variável, variação de tensão × variável.
+- Métricas: RMSE e $R^2$, com erro/precisão consolidados ao longo das etapas (ex.: 4 passos do ajuste de Schapery).
 
-### 5.3 O Papel da SecretÃ¡ria Documental
-- AlÃ©m de anotar decisÃµes do caminho ATUAL, a SecretÃ¡ria deve registrar **ideias para Trabalhos Futuros**, brechas ou oportunidades metodolÃ³gicas para expandir a pesquisa depois.
+### 5.3 Governança do Backend
+- Lê o `AGENTS.md` antes de qualquer tarefa; decisões arquiteturais novas/alteradas atualizam o `AGENTS.md` após aprovação humana.
+- `CHANGELOG.md` atualizado em toda entrega.
+- Microsserviços e exclusão definitiva de dados científicos somente com justificativa, funcionalidade explícita e aprovação humana.
 
-### 5.4 ProibiÃ§Ãµes Absolutas
-- âŒ Inventar links, DOIs, ou referÃªncias.
-- âŒ O Analista de Dados nÃ£o aproxima nÃºmeros, apenas o Redator faz isso.
-- âŒ O Backend nÃ£o cria microserviÃ§os, nÃ£o deleta dados cientÃ­ficos, e nÃ£o atua em arquiteturas nÃ£o previstas no `AGENTS.md`.
+### 5.4 Secretária
+- Registra decisões atuais, **trabalhos futuros** e **oportunidades/brechas**; recusa registros sem origem e justificativa.
+
+### 5.5 Proibições Absolutas
+- ❌ Inventar links, DOIs ou referências.
+- ❌ Arredondar números fora do texto redigido pelo Redator.
+- ❌ Especialistas usarem `ask_question` diretamente.
+- ❌ O Orquestrador executar ou converter qualquer conteúdo.
 
 ---
 
-## 6. HistÃ³rico de RevisÃµes
+## 6. Histórico de Revisões
 
-| Data | VersÃ£o | AlteraÃ§Ãµes |
+| Data | Versão | Alterações |
 |---|---|---|
-| 2026-10-02 | v1.0 | CriaÃ§Ã£o inicial da arquitetura. |
-| 2026-10-02 | v2.0 | CorreÃ§Ãµes FR-01 a FR-07 e Planejamento. |
-| 2026-10-03 | v3.0 | AtualizaÃ§Ã£o de precisÃ£o numÃ©rica (Redator apenas), Orquestrador em modo self-subagent e isolado, foco em ligamentos, desenvolvimento backend estritamente incremental, consolidaÃ§Ã£o de ask_question centralizado e correÃ§Ã£o YAML. |
+| 2026-10-02 | v1.0 | Criação inicial da arquitetura. |
+| 2026-10-02 | v2.0 | Correções FR-01 a FR-07 e Planejamento. |
+| 2026-10-03 | v3.0 | Precisão numérica (Redator apenas), Orquestrador isolado com subagentes `self`, foco em ligamentos, backend incremental, `ask_question` centralizado. |
+| 2026-10-05 | v4.0 | Correção de codificação (mojibake) em todos os arquivos; alinhamento do roster e das proibições às skills (microsserviços, exclusão de dados, stack do Analista/Frontend, IA/ML); 4 cenários de sensibilidade; contexto termodinâmico; meta 3D/FEBio; schemas de telemetria e feedback centralizados no `config.yaml`. |

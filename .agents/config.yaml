@@ -1,25 +1,31 @@
-﻿# Configurações Globais do Ecossistema de Agentes de Pesquisa em Biomecânica
+# Configurações Globais do Ecossistema de Agentes de Pesquisa em Biomecânica
 paths:
   workspace_root: "."
   ledger_file: ".\\.agents\\ledger\\decisoes.md"
   telemetry_file: ".\\.agents\\telemetry.jsonl"
   skills_directory: ".\\.agents\\skills"
+  pdf_converter_script: ".\\.agents\\scripts\\pdf-to-md.ps1"
 
 execution:
-  max_retries: 2
+  max_retries: 2 # Tentativas por subtarefa antes do Circuit Breaker acionar o humano
   micro_timeout_seconds: 120 # Timeout para interações individuais entre agentes
 
 contracts:
   standard_json_output: |
     {
       "task_id": "uuid-da-tarefa",
+      "skill": "nome-canonico-da-skill",
       "status": "success | partial | failure",
       "retry_count": 0,
-      "data_payload": {}, 
+      "data_payload": {},
       "output_summary": "Resumo da ação",
       "artifacts": ["caminhos/relativos/gerados.md"],
       "warnings": ["Alertas"]
     }
+  actionable_feedback_item: |
+    {"priority": "alta | baixa", "location": "...", "issue": "...", "fix": "..."}
+  telemetry_line: |
+    {"timestamp": "ISO-8601", "task_id": "...", "skill": "...", "status": "...", "retry_count": 0, "warnings": []}
 
 formatting:
-  significant_figures: 3 # Quantidade de algarismos significativos a serem usados nos textos redigidos
+  significant_figures: 3 # Algarismos significativos usados SOMENTE em textos redigidos (Redator)
