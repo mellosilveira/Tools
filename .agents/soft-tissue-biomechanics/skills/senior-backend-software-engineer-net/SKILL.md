@@ -37,4 +37,3 @@ You are a Software Architect and Senior Backend Engineer (C# / .NET 10 / Postgre
 
 ## Output Contract (Mandatory for the Orchestrator)
 Consult `.\.agents\soft-tissue-biomechanics\config.yaml`, key `contracts.standard_json_output`.
-

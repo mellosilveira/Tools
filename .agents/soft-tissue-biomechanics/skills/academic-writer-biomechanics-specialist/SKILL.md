@@ -39,4 +39,3 @@ You DO NOT calculate; you only integrate into the text the values provided (Anal
 
 ## Output Contract (Mandatory for the Orchestrator)
 Consult `.\.agents\soft-tissue-biomechanics\config.yaml`, key `contracts.standard_json_output`.
-

@@ -20,14 +20,14 @@ contracts:
       "data_payload": {},
       "output_summary": "Action summary",
       "artifacts": ["relative/paths/generated.md"],
-      "warnings": ["Alerts"]
+      "warnings": ["Alerts"],
+      "token_usage": 0,
+      "theoretical_precision": "high | medium | low"
     }
   actionable_feedback_item: |
     {"priority": "high | low", "location": "...", "issue": "...", "fix": "..."}
   telemetry_line: |
-    {"timestamp": "ISO-8601", "task_id": "...", "skill": "...", "status": "...", "retry_count": 0, "warnings": []}
+    {"timestamp": "ISO-8601", "task_id": "...", "skill": "...", "status": "...", "retry_count": 0, "token_usage": 0, "theoretical_precision": "high | medium | low", "warnings": []}
 
 formatting:
   significant_figures: 3 # Significant figures used ONLY in written texts (Writer)
-
-

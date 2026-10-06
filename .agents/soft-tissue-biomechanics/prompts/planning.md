@@ -1,4 +1,4 @@
-# Planning: Biomechanics Research Agents Ecosystem
+﻿# Planning: Biomechanics Research Agents Ecosystem
 *Living document - last revision: 2026-10-05*
 
 > [!IMPORTANT]
@@ -27,7 +27,7 @@ The ecosystem is composed of **1 Central Orchestrator** and **8 Specialist Agent
 
 The Orchestrator invokes generic subagents (`TypeName: "self"`, `Workspace: "inherit"`) and, in the `Prompt`, instructs each to read the persona's `SKILL.md` in `paths.skills_directory`.
 
-*Orchestrator -> Subagent -> JSON -> Telemetry -> (Reviewer, if text) -> Secretary (QA + Ledger) -> Synthesis to human.*
+*Orchestrator -> Subagent -> JSON -> Telemetry -> Save JSON to `outputs/` folder -> (Reviewer, if text) -> Secretary (QA + Ledger) -> Synthesis to human.*
 
 ---
 
@@ -64,10 +64,10 @@ The Orchestrator invokes generic subagents (`TypeName: "self"`, `Workspace: "inh
 - **Circuit Breaker:** after `execution.max_retries` failures (including timeout of `execution.micro_timeout_seconds`), consults the human.
 - **PDF:** stops and asks the human; if denied, waits for another format; if authorized, delegates conversion (`paths.pdf_converter_script`).
 
-### 5.2 Analyst â†” Backend Synergy
+### 5.2 Analyst Ã¢â€ â€ Backend Synergy
 - The Analyst does not reinvent the wheel: before proposing something new, asks **once** (via Orchestrator) for the Backend's analysis on what can be used, extended, or implemented in C#.
 - Flow: Analyst -> Backend -> Analyst consolidates -> Orchestrator -> human decides.
-- Mandatory sensitivity: stress Ã— variable (initial time), stress Ã— variable (final time), asymptote time Ã— variable, stress variation Ã— variable.
+- Mandatory sensitivity: stress Ãƒâ€” variable (initial time), stress Ãƒâ€” variable (final time), asymptote time Ãƒâ€” variable, stress variation Ãƒâ€” variable.
 - Metrics: RMSE and $R^2$, with consolidated error/precision across steps (e.g., 4 steps of Schapery fitting).
 
 ### 5.3 Backend Governance
@@ -79,11 +79,11 @@ The Orchestrator invokes generic subagents (`TypeName: "self"`, `Workspace: "inh
 - Registers current decisions, **future works** and **opportunities/breaches**; refuses records without origin and justification.
 
 ### 5.5 Absolute Prohibitions
-- ❌ Executing research system codes (Backend, Frontend, Database, Python Scripts) directly on the Host operating system. EVERYTHING MUST run isolated in Docker containers.
-- ❌ Inventing links, DOIs, or references.
-- ❌ Rounding numbers outside the text written by the Writer.
-- ❌ Specialists using `ask_question` directly.
-- ❌ Orchestrator executing or converting any content.
+- âŒ Executing research system codes (Backend, Frontend, Database, Python Scripts) directly on the Host operating system. EVERYTHING MUST run isolated in Docker containers.
+- âŒ Inventing links, DOIs, or references.
+- âŒ Rounding numbers outside the text written by the Writer.
+- âŒ Specialists using `ask_question` directly.
+- âŒ Orchestrator executing or converting any content.
 
 ---
 
@@ -96,4 +96,3 @@ The Orchestrator invokes generic subagents (`TypeName: "self"`, `Workspace: "inh
 | 2026-10-03 | v3.0 | Numerical precision (Writer only), Isolated Orchestrator with `self` subagents, knee ligament focus, incremental backend, centralized `ask_question`. |
 | 2026-10-05 | v4.0 | Coding fix (mojibake) in all files; alignment of roster and prohibitions to skills (microservices, data deletion, Analyst/Frontend stack, AI/ML); 4 sensitivity scenarios; thermodynamic context; 3D/FEBio goal; centralized schemas. |
 | 2026-10-05 | v5.0 | English standardization across all files. |
-

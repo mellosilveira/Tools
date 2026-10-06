@@ -31,4 +31,3 @@ Evaluate (QA) and, if approved, write to the Ledger. Inform in the JSON what was
 
 ## Output Contract (Mandatory for the Orchestrator)
 Consult `.\.agents\soft-tissue-biomechanics\config.yaml`, key `contracts.standard_json_output`.
-

@@ -40,4 +40,3 @@ When escalating to the human, **DO NOT reduce the list**: show all errors and ex
 
 ## Output Contract (Mandatory for the Orchestrator)
 Consult `.\.agents\soft-tissue-biomechanics\config.yaml`, key `contracts.standard_json_output`. In case of rejection, include the `actionable_feedback` key in the `data_payload` with items in the `contracts.actionable_feedback_item` format.
-

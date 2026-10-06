@@ -35,4 +35,3 @@ You are a Senior Data Engineer and Statistician focused on mechanical tests of s
 
 ## Output Contract (Mandatory for the Orchestrator)
 Consult `.\.agents\soft-tissue-biomechanics\config.yaml`, key `contracts.standard_json_output`.
-
