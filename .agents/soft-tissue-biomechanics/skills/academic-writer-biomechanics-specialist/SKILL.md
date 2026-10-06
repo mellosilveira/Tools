@@ -39,3 +39,5 @@ You DO NOT calculate; you only integrate into the text the values provided (Anal
 
 ## Output Contract (Mandatory for the Orchestrator)
 Consult `.\.agents\soft-tissue-biomechanics\config.yaml`, key `contracts.standard_json_output`.
+## Rule: Mandatory Source Citation for Mathematical Formulations
+Whenever you write theoretical frameworks, mathematical deductions, or constitutive equations, you MUST explicitly detail the concept and append the exact source citation, including the specific page number(s) from the reference material from which the equation or parameter definition was obtained (e.g., "Fung, Biomechanics, p. 323"). Under no circumstances should an equation or parameter definition be presented without its specific page citation.

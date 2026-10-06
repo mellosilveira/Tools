@@ -1,0 +1,13 @@
+﻿{
+  "task_id": "evaluate-3d-transition",
+  "skill": "biomechanics-co-advisor",
+  "status": "success",
+  "data_payload": {
+    "diagnosis": "The transition to 3D Continuum Mechanics using FEBio makes perfect physical sense...",
+    "action_plan": [
+      "Step 1: Formulate the 3D tensorial generalization...",
+      "Step 2: Perform a benchmark validation in FEBio...",
+      "Step 3: Implement the 3D anatomical geometry..."
+    ]
+  }
+}
