@@ -5,7 +5,7 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
-## [2.0.0] - 2026-10-DD
+## [2.0.0] - 2026-10-08
 ### Added
 - `LogarithmicFunction` in `MelloSilveiraTools.Mathematics.Functions`.
 - `CsvStreamReader` in `MelloSilveiraTools.Core.Managers.File`: High-performance, zero-allocation streaming CSV reader utilizing native `System.IO.Pipelines.PipeReader` and `System.Buffers.Text.Utf8Parser`. Returns parsed numerical rows as `double[]`, supporting arbitrary column counts, custom delimiters, empty line skipping, and header/invalid line filtering.
