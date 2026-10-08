@@ -1,134 +1,120 @@
 using MelloSilveiraTools.Core.Models;
 using MelloSilveiraTools.Core.Validators;
-using Microsoft.Extensions.Logging;
 
 namespace MelloSilveiraTools.Core.Application.Commands;
 
 /// <summary>
-/// Represents the base for all commands in the application.
+/// Foundational structure for orchestrating business operations within the application.
+/// Enforces upfront validation of user and integration requests to safeguard business invariants,
+/// delivering consistent, reliable outcomes across all operations.
 /// </summary>
-/// <typeparam name="TRequest">Request type consumed by the command.</typeparam>
-/// <typeparam name="TResult">Response type produced by the command.</typeparam>
-/// <param name="validator"></param>
+/// <typeparam name="TRequest">The input parameters required for the operation.</typeparam>
+/// <typeparam name="TResult">The business result produced by the operation.</typeparam>
+/// <param name="validator">Optional validator that inspects input data integrity prior to execution.</param>
 public abstract class CommandBase<TRequest, TResult>(IValidator<TRequest>? validator = null)
     where TRequest : class
     where TResult : ResultBase, new()
 {
+    /// <summary>
+    /// Gets the validation rules assigned to inspect the incoming business request.
+    /// </summary>
     public IValidator<TRequest>? Validator { get; } = validator;
 
     /// <summary>
-    /// The main method of all commands.
-    /// Asynchronously, orchestrates and validates the commands.
+    /// Orchestrates execution: verifies input validity and executes domain logic if checks succeed.
+    /// If validation issues are found, stops processing immediately and returns corrective guidance.
     /// </summary>
-    /// <param name="request">The command request content.</param>
-    /// <returns>The command response.</returns>
-    /// <example>
-    /// <code>
-    /// var command = serviceProvider.GetRequiredService&lt;CreateUserCommand&gt;();
-    /// var response = await command.ExecuteAsync(new CreateUserRequest { Email = "user@example.com" });
-    /// if (!response.Success)
-    ///     return BadRequest(response.ErrorMessages);
-    /// return StatusCode((int)response.StatusCode);
-    /// </code>
-    /// </example>
+    /// <param name="request">Input data for the business operation.</param>
+    /// <returns>A structured business outcome confirming success or detailing validation points.</returns>
     public Task<TResult> ExecuteAsync(TRequest request)
     {
-        var result = Validator?.Validate(request);
+        Result? result = Validator?.Validate(request);
         return result is null || result.Success
             ? ExecuteCommandAsync(request)
             : Task.FromResult(Result.Create<TResult>(result));
     }
 
     /// <summary>
-    /// Asynchronously executes the use-case domain logic for this command. Implementations should
-    /// rely on <see cref="ILogger"/> (inherited from this base class) for diagnostic logging and
-    /// build their response using the <see cref="Result"/> factory helpers
-    /// (<c>CreateSuccessOk</c>, <c>CreateNotFound</c>, <c>CreateUnknownError</c>, etc.) for
-    /// expected outcomes. Unexpected exceptions should be allowed to propagate — they are caught by
-    /// <see cref="ExecuteAsync"/> and translated into a 500 Internal Server Error response.
+    /// Executes core domain business logic after request validation passes.
     /// </summary>
-    /// <param name="request">The request payload.</param>
-    /// <returns>The command response, populated with the outcome of the domain logic.</returns>
+    /// <param name="request">Validated input data.</param>
+    /// <returns>The result of the business execution.</returns>
     protected abstract Task<TResult> ExecuteCommandAsync(TRequest request);
 }
 
 /// <summary>
-/// Base class for commands that return an <see cref="Result{TResponseData}"/> carrying a single data payload.
+/// Business command that produces a single structured outcome payload upon completion.
 /// </summary>
-/// <typeparam name="TRequest">Request type consumed by the command.</typeparam>
-/// <typeparam name="TResponseData">Type of the data payload returned by the command.</typeparam>
+/// <typeparam name="TRequest">Input request type.</typeparam>
+/// <typeparam name="TResponseData">Type of the payload returned upon success.</typeparam>
+/// <param name="validator">Optional request validator.</param>
 public abstract class CommandBaseWithData<TRequest, TResponseData>(IValidator<TRequest>? validator = null) : CommandBase<TRequest, Result<TResponseData>>(validator)
     where TRequest : class
     where TResponseData : class
 { }
 
 /// <summary>
-/// Base class for commands that return a list of items through <see cref="ListedResult{TResponseData}"/>.
+/// Business command that returns a list of items matching the query or filter criteria.
 /// </summary>
-/// <typeparam name="TRequest">Request type consumed by the command.</typeparam>
-/// <typeparam name="TResponseData">Type of each item returned by the command.</typeparam>
+/// <typeparam name="TRequest">Filter or query parameter type.</typeparam>
+/// <typeparam name="TResponseData">Type of each item returned in the list.</typeparam>
+/// <param name="validator">Optional request validator.</param>
 public abstract class ListedCommandBase<TRequest, TResponseData>(IValidator<TRequest>? validator = null) : CommandBase<TRequest, ListedResult<TResponseData>>(validator)
     where TRequest : class
     where TResponseData : class
 { }
 
 /// <summary>
-/// Base class for commands that return a paginated list of items through <see cref="PagedResult{TResponseData}"/>.
+/// Business command that returns a paginated dataset optimized for UI tables and high-volume reporting.
 /// </summary>
-/// <typeparam name="TRequest">Request type consumed by the command.</typeparam>
-/// <typeparam name="TResponseData">Type of each item returned in the page.</typeparam>
+/// <typeparam name="TRequest">Paging and search criteria type.</typeparam>
+/// <typeparam name="TResponseData">Type of each item within the returned page.</typeparam>
+/// <param name="validator">Optional request validator.</param>
 public abstract class PagedCommandBase<TRequest, TResponseData>(IValidator<TRequest>? validator = null) : CommandBase<TRequest, PagedResult<TResponseData>>(validator)
     where TRequest : class
     where TResponseData : class
 { }
 
 /// <summary>
-/// Represents the base for all commands that uses the default response (<see cref="Result"/>).
+/// Business command that carries out an action and confirms completion via a standard status result.
 /// </summary>
+/// <typeparam name="TRequest">Input request type.</typeparam>
+/// <param name="validator">Optional request validator.</param>
 public abstract class CommandBaseWithDefaultResponse<TRequest>(IValidator<TRequest>? validator = null) : CommandBase<TRequest, Result>(validator) where TRequest : class;
 
 /// <summary>
-/// Represents the base for all commands that does not use a request.
+/// Business command triggered without incoming parameters that returns structured output upon completion.
 /// </summary>
+/// <typeparam name="TResponseData">Type of the payload produced by the operation.</typeparam>
 public abstract class CommandBaseWithoutRequest<TResponseData> where TResponseData : class
 {
     /// <summary>
-    /// The main method of all commands.
-    /// Asynchronously, orchestrates and validates the commands.
+    /// Executes the parameterless business operation.
     /// </summary>
-    /// <returns>The command response.</returns>
+    /// <returns>A structured business outcome containing output data.</returns>
     public async Task<Result<TResponseData>> ExecuteAsync() => await ExecuteCommandAsync().ConfigureAwait(false);
 
     /// <summary>
-    /// Asynchronously executes the use-case domain logic for this request-less command.
-    /// Implementations should use <see cref="ILogger"/> for diagnostics and the
-    /// <see cref="Result"/> factory helpers to build expected outcomes. Unexpected
-    /// exceptions should propagate — they are caught by <see cref="ExecuteAsync"/> and translated
-    /// into a 500 Internal Server Error response.
+    /// Executes the domain logic for this parameterless operation.
     /// </summary>
-    /// <returns>The command response carrying the outcome of the domain logic.</returns>
+    /// <returns>The operation result.</returns>
     protected abstract Task<Result<TResponseData>> ExecuteCommandAsync();
 }
 
 /// <summary>
-/// Represents the base for all commands that does not use a request.
+/// Business command triggered without incoming parameters that returns standard completion confirmation.
 /// </summary>
 public abstract class DefaultCommandBase
 {
     /// <summary>
-    /// The main method of all commands.
-    /// Asynchronously, orchestrates and validates the commands.
+    /// Executes the parameterless business operation.
     /// </summary>
-    /// <returns>The command response.</returns>
+    /// <returns>Standard completion confirmation.</returns>
     public async Task<Result> ExecuteAsync() => await ExecuteCommandAsync().ConfigureAwait(false);
 
     /// <summary>
-    /// Asynchronously executes the use-case domain logic for this request-less command.
-    /// Implementations should use <see cref="ILogger"/> for diagnostics and the
-    /// <see cref="Result"/> factory helpers to build expected outcomes. Unexpected
-    /// exceptions should propagate — they are caught by <see cref="ExecuteAsync"/> and translated
-    /// into a 500 Internal Server Error response.
+    /// Executes the domain logic for this parameterless operation.
     /// </summary>
-    /// <returns>The command response carrying the outcome of the domain logic.</returns>
+    /// <returns>Standard completion confirmation.</returns>
     protected abstract Task<Result> ExecuteCommandAsync();
 }

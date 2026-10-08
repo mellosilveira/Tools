@@ -6,144 +6,140 @@
     <members>
         <member name="T:MelloSilveiraTools.Core.Application.Commands.CommandBase`2">
             <summary>
-            Represents the base for all commands in the application.
+            Foundational structure for orchestrating business operations within the application.
+            Enforces upfront validation of user and integration requests to safeguard business invariants,
+            delivering consistent, reliable outcomes across all operations.
             </summary>
-            <typeparam name="TRequest">Request type consumed by the command.</typeparam>
-            <typeparam name="TResult">Response type produced by the command.</typeparam>
-            <param name="validator"></param>
+            <typeparam name="TRequest">The input parameters required for the operation.</typeparam>
+            <typeparam name="TResult">The business result produced by the operation.</typeparam>
+            <param name="validator">Optional validator that inspects input data integrity prior to execution.</param>
         </member>
         <member name="M:MelloSilveiraTools.Core.Application.Commands.CommandBase`2.#ctor(MelloSilveiraTools.Core.Validators.IValidator{`0})">
             <summary>
-            Represents the base for all commands in the application.
+            Foundational structure for orchestrating business operations within the application.
+            Enforces upfront validation of user and integration requests to safeguard business invariants,
+            delivering consistent, reliable outcomes across all operations.
             </summary>
-            <typeparam name="TRequest">Request type consumed by the command.</typeparam>
-            <typeparam name="TResult">Response type produced by the command.</typeparam>
-            <param name="validator"></param>
+            <typeparam name="TRequest">The input parameters required for the operation.</typeparam>
+            <typeparam name="TResult">The business result produced by the operation.</typeparam>
+            <param name="validator">Optional validator that inspects input data integrity prior to execution.</param>
+        </member>
+        <member name="P:MelloSilveiraTools.Core.Application.Commands.CommandBase`2.Validator">
+            <summary>
+            Gets the validation rules assigned to inspect the incoming business request.
+            </summary>
         </member>
         <member name="M:MelloSilveiraTools.Core.Application.Commands.CommandBase`2.ExecuteAsync(`0)">
             <summary>
-            The main method of all commands.
-            Asynchronously, orchestrates and validates the commands.
+            Orchestrates execution: verifies input validity and executes domain logic if checks succeed.
+            If validation issues are found, stops processing immediately and returns corrective guidance.
             </summary>
-            <param name="request">The command request content.</param>
-            <returns>The command response.</returns>
-            <example>
-            <code>
-            var command = serviceProvider.GetRequiredService&lt;CreateUserCommand&gt;();
-            var response = await command.ExecuteAsync(new CreateUserRequest { Email = "user@example.com" });
-            if (!response.Success)
-                return BadRequest(response.ErrorMessages);
-            return StatusCode((int)response.StatusCode);
-            </code>
-            </example>
+            <param name="request">Input data for the business operation.</param>
+            <returns>A structured business outcome confirming success or detailing validation points.</returns>
         </member>
         <member name="M:MelloSilveiraTools.Core.Application.Commands.CommandBase`2.ExecuteCommandAsync(`0)">
             <summary>
-            Asynchronously executes the use-case domain logic for this command. Implementations should
-            rely on <see cref="T:Microsoft.Extensions.Logging.ILogger"/> (inherited from this base class) for diagnostic logging and
-            build their response using the <see cref="T:MelloSilveiraTools.Core.Models.Result"/> factory helpers
-            (<c>CreateSuccessOk</c>, <c>CreateNotFound</c>, <c>CreateUnknownError</c>, etc.) for
-            expected outcomes. Unexpected exceptions should be allowed to propagate — they are caught by
-            <see cref="M:MelloSilveiraTools.Core.Application.Commands.CommandBase`2.ExecuteAsync(`0)"/> and translated into a 500 Internal Server Error response.
+            Executes core domain business logic after request validation passes.
             </summary>
-            <param name="request">The request payload.</param>
-            <returns>The command response, populated with the outcome of the domain logic.</returns>
+            <param name="request">Validated input data.</param>
+            <returns>The result of the business execution.</returns>
         </member>
         <member name="T:MelloSilveiraTools.Core.Application.Commands.CommandBaseWithData`2">
             <summary>
-            Base class for commands that return an <see cref="T:MelloSilveiraTools.Core.Models.Result`1"/> carrying a single data payload.
+            Business command that produces a single structured outcome payload upon completion.
             </summary>
-            <typeparam name="TRequest">Request type consumed by the command.</typeparam>
-            <typeparam name="TResponseData">Type of the data payload returned by the command.</typeparam>
+            <typeparam name="TRequest">Input request type.</typeparam>
+            <typeparam name="TResponseData">Type of the payload returned upon success.</typeparam>
+            <param name="validator">Optional request validator.</param>
         </member>
         <member name="M:MelloSilveiraTools.Core.Application.Commands.CommandBaseWithData`2.#ctor(MelloSilveiraTools.Core.Validators.IValidator{`0})">
             <summary>
-            Base class for commands that return an <see cref="T:MelloSilveiraTools.Core.Models.Result`1"/> carrying a single data payload.
+            Business command that produces a single structured outcome payload upon completion.
             </summary>
-            <typeparam name="TRequest">Request type consumed by the command.</typeparam>
-            <typeparam name="TResponseData">Type of the data payload returned by the command.</typeparam>
+            <typeparam name="TRequest">Input request type.</typeparam>
+            <typeparam name="TResponseData">Type of the payload returned upon success.</typeparam>
+            <param name="validator">Optional request validator.</param>
         </member>
         <member name="T:MelloSilveiraTools.Core.Application.Commands.ListedCommandBase`2">
             <summary>
-            Base class for commands that return a list of items through <see cref="T:MelloSilveiraTools.Core.Models.ListedResult`1"/>.
+            Business command that returns a list of items matching the query or filter criteria.
             </summary>
-            <typeparam name="TRequest">Request type consumed by the command.</typeparam>
-            <typeparam name="TResponseData">Type of each item returned by the command.</typeparam>
+            <typeparam name="TRequest">Filter or query parameter type.</typeparam>
+            <typeparam name="TResponseData">Type of each item returned in the list.</typeparam>
+            <param name="validator">Optional request validator.</param>
         </member>
         <member name="M:MelloSilveiraTools.Core.Application.Commands.ListedCommandBase`2.#ctor(MelloSilveiraTools.Core.Validators.IValidator{`0})">
             <summary>
-            Base class for commands that return a list of items through <see cref="T:MelloSilveiraTools.Core.Models.ListedResult`1"/>.
+            Business command that returns a list of items matching the query or filter criteria.
             </summary>
-            <typeparam name="TRequest">Request type consumed by the command.</typeparam>
-            <typeparam name="TResponseData">Type of each item returned by the command.</typeparam>
+            <typeparam name="TRequest">Filter or query parameter type.</typeparam>
+            <typeparam name="TResponseData">Type of each item returned in the list.</typeparam>
+            <param name="validator">Optional request validator.</param>
         </member>
         <member name="T:MelloSilveiraTools.Core.Application.Commands.PagedCommandBase`2">
             <summary>
-            Base class for commands that return a paginated list of items through <see cref="T:MelloSilveiraTools.Core.Models.PagedResult`1"/>.
+            Business command that returns a paginated dataset optimized for UI tables and high-volume reporting.
             </summary>
-            <typeparam name="TRequest">Request type consumed by the command.</typeparam>
-            <typeparam name="TResponseData">Type of each item returned in the page.</typeparam>
+            <typeparam name="TRequest">Paging and search criteria type.</typeparam>
+            <typeparam name="TResponseData">Type of each item within the returned page.</typeparam>
+            <param name="validator">Optional request validator.</param>
         </member>
         <member name="M:MelloSilveiraTools.Core.Application.Commands.PagedCommandBase`2.#ctor(MelloSilveiraTools.Core.Validators.IValidator{`0})">
             <summary>
-            Base class for commands that return a paginated list of items through <see cref="T:MelloSilveiraTools.Core.Models.PagedResult`1"/>.
+            Business command that returns a paginated dataset optimized for UI tables and high-volume reporting.
             </summary>
-            <typeparam name="TRequest">Request type consumed by the command.</typeparam>
-            <typeparam name="TResponseData">Type of each item returned in the page.</typeparam>
+            <typeparam name="TRequest">Paging and search criteria type.</typeparam>
+            <typeparam name="TResponseData">Type of each item within the returned page.</typeparam>
+            <param name="validator">Optional request validator.</param>
         </member>
         <member name="T:MelloSilveiraTools.Core.Application.Commands.CommandBaseWithDefaultResponse`1">
             <summary>
-            Represents the base for all commands that uses the default response (<see cref="T:MelloSilveiraTools.Core.Models.Result"/>).
+            Business command that carries out an action and confirms completion via a standard status result.
             </summary>
+            <typeparam name="TRequest">Input request type.</typeparam>
+            <param name="validator">Optional request validator.</param>
         </member>
         <member name="M:MelloSilveiraTools.Core.Application.Commands.CommandBaseWithDefaultResponse`1.#ctor(MelloSilveiraTools.Core.Validators.IValidator{`0})">
             <summary>
-            Represents the base for all commands that uses the default response (<see cref="T:MelloSilveiraTools.Core.Models.Result"/>).
+            Business command that carries out an action and confirms completion via a standard status result.
             </summary>
+            <typeparam name="TRequest">Input request type.</typeparam>
+            <param name="validator">Optional request validator.</param>
         </member>
         <member name="T:MelloSilveiraTools.Core.Application.Commands.CommandBaseWithoutRequest`1">
             <summary>
-            Represents the base for all commands that does not use a request.
+            Business command triggered without incoming parameters that returns structured output upon completion.
             </summary>
+            <typeparam name="TResponseData">Type of the payload produced by the operation.</typeparam>
         </member>
         <member name="M:MelloSilveiraTools.Core.Application.Commands.CommandBaseWithoutRequest`1.ExecuteAsync">
             <summary>
-            The main method of all commands.
-            Asynchronously, orchestrates and validates the commands.
+            Executes the parameterless business operation.
             </summary>
-            <returns>The command response.</returns>
+            <returns>A structured business outcome containing output data.</returns>
         </member>
         <member name="M:MelloSilveiraTools.Core.Application.Commands.CommandBaseWithoutRequest`1.ExecuteCommandAsync">
             <summary>
-            Asynchronously executes the use-case domain logic for this request-less command.
-            Implementations should use <see cref="T:Microsoft.Extensions.Logging.ILogger"/> for diagnostics and the
-            <see cref="T:MelloSilveiraTools.Core.Models.Result"/> factory helpers to build expected outcomes. Unexpected
-            exceptions should propagate — they are caught by <see cref="M:MelloSilveiraTools.Core.Application.Commands.CommandBaseWithoutRequest`1.ExecuteAsync"/> and translated
-            into a 500 Internal Server Error response.
+            Executes the domain logic for this parameterless operation.
             </summary>
-            <returns>The command response carrying the outcome of the domain logic.</returns>
+            <returns>The operation result.</returns>
         </member>
         <member name="T:MelloSilveiraTools.Core.Application.Commands.DefaultCommandBase">
             <summary>
-            Represents the base for all commands that does not use a request.
+            Business command triggered without incoming parameters that returns standard completion confirmation.
             </summary>
         </member>
         <member name="M:MelloSilveiraTools.Core.Application.Commands.DefaultCommandBase.ExecuteAsync">
             <summary>
-            The main method of all commands.
-            Asynchronously, orchestrates and validates the commands.
+            Executes the parameterless business operation.
             </summary>
-            <returns>The command response.</returns>
+            <returns>Standard completion confirmation.</returns>
         </member>
         <member name="M:MelloSilveiraTools.Core.Application.Commands.DefaultCommandBase.ExecuteCommandAsync">
             <summary>
-            Asynchronously executes the use-case domain logic for this request-less command.
-            Implementations should use <see cref="T:Microsoft.Extensions.Logging.ILogger"/> for diagnostics and the
-            <see cref="T:MelloSilveiraTools.Core.Models.Result"/> factory helpers to build expected outcomes. Unexpected
-            exceptions should propagate — they are caught by <see cref="M:MelloSilveiraTools.Core.Application.Commands.DefaultCommandBase.ExecuteAsync"/> and translated
-            into a 500 Internal Server Error response.
+            Executes the domain logic for this parameterless operation.
             </summary>
-            <returns>The command response carrying the outcome of the domain logic.</returns>
+            <returns>Standard completion confirmation.</returns>
         </member>
         <member name="T:MelloSilveiraTools.Core.Application.Commands.RequestBase">
             <summary>
@@ -152,9 +148,8 @@
         </member>
         <member name="T:MelloSilveiraTools.Core.Caching.InMemorySingleLevelCache">
             <summary>
-            Thread-safe in-memory implementation of <see cref="T:MelloSilveiraTools.Core.Caching.ISingleLevelCache"/>.
-            Suitable for single-instance deployments. For distributed scenarios, replace
-            with a Redis-backed implementation registered in the DI container.
+            Thread-safe in-memory caching engine that provides instant access to hot business data.
+            Accelerates application response times by eliminating redundant operational retrievals.
             </summary>
         </member>
         <member name="M:MelloSilveiraTools.Core.Caching.InMemorySingleLevelCache.TryGet``1(System.String,``0@)">
@@ -177,9 +172,8 @@
         </member>
         <member name="T:MelloSilveiraTools.Core.Caching.InMemoryTwoLevelCache">
             <summary>
-            Thread-safe in-memory implementation of <see cref="T:MelloSilveiraTools.Core.Caching.ITwoLevelCache"/>.
-            Suitable for single-instance deployments. For distributed scenarios, replace
-            with a Redis-backed implementation registered in the DI container.
+            High-performance thread-safe cache organized in two hierarchical tiers (Group and Key).
+            Allows applications to group operational data logically and perform bulk invalidations safely.
             </summary>
         </member>
         <member name="M:MelloSilveiraTools.Core.Caching.InMemoryTwoLevelCache.TryGet``1(System.String,System.String,``0@)">
@@ -214,97 +208,136 @@
         </member>
         <member name="T:MelloSilveiraTools.Core.Caching.ISingleLevelCache">
             <summary>
-            Generic single-level cache keyed by a key.
-            Implementations may use in-memory storage or a distributed backend (e.g. Redis).
+            Fast temporary in-memory storage contract for frequently referenced business information.
+            Dramatically reduces customer wait times and cuts repetitive database queries, lowering infrastructure load and cost.
             </summary>
         </member>
         <member name="M:MelloSilveiraTools.Core.Caching.ISingleLevelCache.TryGet``1(System.String,``0@)">
             <summary>
-            Attempts to retrieve a cached value of type <typeparamref name="T"/> for the given <paramref name="key"/>.
+            Attempts to retrieve a cached business value using its unique identifier.
             </summary>
-            <returns><see langword="true"/> when an entry exists and is assignable to <typeparamref name="T"/>; otherwise <see langword="false"/>.</returns>
+            <typeparam name="T">Type of the stored business item.</typeparam>
+            <param name="key">Unique identifier of the business item.</param>
+            <param name="value">The retrieved business item, if present.</param>
+            <returns><see langword="true"/> if the item was found and ready for immediate consumption; otherwise <see langword="false"/>.</returns>
         </member>
         <member name="M:MelloSilveiraTools.Core.Caching.ISingleLevelCache.GetOrAdd``1(System.String,System.Func{``0})">
             <summary>
-            Returns the cached value for <paramref name="key"/> or adds a new one produced by <paramref name="factory"/>.
+            Retrieves the cached item or computes and saves it if absent, avoiding duplicate calculations.
             </summary>
+            <typeparam name="T">Type of the business item.</typeparam>
+            <param name="key">Unique identifier of the business item.</param>
+            <param name="factory">Action that calculates or fetches the item when not present in storage.</param>
+            <returns>The business item ready for consumption.</returns>
         </member>
         <member name="M:MelloSilveiraTools.Core.Caching.ISingleLevelCache.Set``1(System.String,``0)">
             <summary>
-            Stores <paramref name="value"/> under the given <paramref name="key"/>, replacing any existing entry.
+            Stores or replaces a business item under the given identifier for future fast lookups.
             </summary>
+            <typeparam name="T">Type of the business item.</typeparam>
+            <param name="key">Unique identifier of the business item.</param>
+            <param name="value">The business item to store.</param>
         </member>
         <member name="M:MelloSilveiraTools.Core.Caching.ISingleLevelCache.Remove(System.String)">
             <summary>
-            Removes the entry associated with <paramref name="key"/>, if any.
+            Removes a specific business item from temporary storage, ensuring subsequent operations fetch fresh data.
             </summary>
+            <param name="key">Unique identifier of the item to remove.</param>
         </member>
         <member name="M:MelloSilveiraTools.Core.Caching.ISingleLevelCache.GetKeys">
             <summary>
-            Enumerates all keys currently held in the cache.
+            Returns the collection of all item identifiers currently stored in memory.
             </summary>
+            <returns>List of currently active cache keys.</returns>
         </member>
         <member name="M:MelloSilveiraTools.Core.Caching.ISingleLevelCache.Clear">
             <summary>
-            Removes every entry from the cache.
+            Empties all temporary storage entries, useful during system synchronizations or bulk data updates.
             </summary>
         </member>
         <member name="T:MelloSilveiraTools.Core.Caching.ITwoLevelCache">
             <summary>
-            Generic two-level cache keyed by a <c>group</c> (level 1) and a <c>key</c> (level 2).
-            Implementations may use in-memory storage or a distributed backend (e.g. Redis).
+            Hierarchical two-level temporary storage contract (Group and Item Key).
+            Allows segmenting business information by domain context (such as tenant, department, or transaction type),
+            enabling ultra-fast reads as well as complete invalidation of an entire business group without affecting others.
             </summary>
         </member>
         <member name="M:MelloSilveiraTools.Core.Caching.ITwoLevelCache.TryGet``1(System.String,System.String,``0@)">
             <summary>
-            Attempts to retrieve a cached value of type <typeparamref name="T"/> for the given <paramref name="group"/> and <paramref name="key"/>.
+            Attempts to retrieve a cached business value using its group and key identifiers.
             </summary>
-            <returns><see langword="true"/> when an entry exists and is assignable to <typeparamref name="T"/>; otherwise <see langword="false"/>.</returns>
+            <typeparam name="T">Type of the stored business item.</typeparam>
+            <param name="group">Business group or context category.</param>
+            <param name="key">Unique item identifier within the specified group.</param>
+            <param name="value">Retrieved item ready for consumption, if present.</param>
+            <returns><see langword="true"/> if found; otherwise <see langword="false"/>.</returns>
         </member>
         <member name="M:MelloSilveiraTools.Core.Caching.ITwoLevelCache.GetOrAdd``1(System.String,System.String,System.Func{``0})">
             <summary>
-            Returns the cached value for (<paramref name="group"/>, <paramref name="key"/>) or adds a new one produced by <paramref name="factory"/>.
+            Returns the cached item or calculates and registers it within the specified group if absent.
             </summary>
+            <typeparam name="T">Type of the business item.</typeparam>
+            <param name="group">Business group or context category.</param>
+            <param name="key">Unique item identifier within the group.</param>
+            <param name="factory">Action to compute or fetch the item when missing.</param>
+            <returns>The business item ready for consumption.</returns>
         </member>
         <member name="M:MelloSilveiraTools.Core.Caching.ITwoLevelCache.Set``1(System.String,System.String,``0)">
             <summary>
-            Stores <paramref name="value"/> under the given <paramref name="group"/> and <paramref name="key"/>, replacing any existing entry.
+            Stores or replaces a business item under the designated group and key.
             </summary>
+            <typeparam name="T">Type of the business item.</typeparam>
+            <param name="group">Business group or context category.</param>
+            <param name="key">Unique item identifier within the group.</param>
+            <param name="value">The business item to store.</param>
         </member>
         <member name="M:MelloSilveiraTools.Core.Caching.ITwoLevelCache.Remove(System.String,System.String)">
             <summary>
-            Removes the entry associated with the given <paramref name="group"/> and <paramref name="key"/>, if any.
+            Removes a specific business item from the designated group to force fresh data retrieval on subsequent calls.
             </summary>
+            <param name="group">Business group containing the item.</param>
+            <param name="key">Unique identifier of the item to remove.</param>
         </member>
         <member name="M:MelloSilveiraTools.Core.Caching.ITwoLevelCache.Remove(System.String)">
             <summary>
-            Removes every entry under the given <paramref name="group"/>.
+            Atomically removes all items belonging to a business group (e.g. after a bulk update or tenant change).
             </summary>
+            <param name="group">The business group to invalidate completely.</param>
         </member>
         <member name="M:MelloSilveiraTools.Core.Caching.ITwoLevelCache.GetKeys">
             <summary>
-            Enumerates all (group, key) pairs currently held in the cache.
+            Enumerates all active (Group, Key) pairs currently held in memory.
             </summary>
+            <returns>Pairs of group and key identifiers.</returns>
         </member>
         <member name="M:MelloSilveiraTools.Core.Caching.ITwoLevelCache.StreamAll``1(System.Threading.CancellationToken)">
             <summary>
-            Streams every entry currently held in the cache.
+            Streams all cached business records of a specific type on demand.
             </summary>
+            <typeparam name="T">Type of the business items to stream.</typeparam>
+            <param name="cancellationToken">Cancellation token to interrupt streaming.</param>
+            <returns>An asynchronous stream of (Group, Key, Item) tuples.</returns>
         </member>
         <member name="M:MelloSilveiraTools.Core.Caching.ITwoLevelCache.StreamAll(System.Threading.CancellationToken)">
             <summary>
-            Streams every entry currently held in the cache.
+            Streams all cached business items regardless of their specific type.
             </summary>
+            <param name="cancellationToken">Cancellation token to interrupt streaming.</param>
+            <returns>An asynchronous stream of all cached objects.</returns>
         </member>
         <member name="M:MelloSilveiraTools.Core.Caching.ITwoLevelCache.StreamAll``1(System.String,System.String,System.Threading.CancellationToken)">
             <summary>
-            Streams entries filtered by <paramref name="group"/> and/or <paramref name="key"/>.
-            A <see langword="null"/> argument means "match all" for that level.
+            Streams cached business items filtered optionally by group and/or item key.
             </summary>
+            <typeparam name="T">Type of the business items to stream.</typeparam>
+            <param name="group">Specific group to filter by, or <see langword="null"/> to include all groups.</param>
+            <param name="key">Specific key to filter by, or <see langword="null"/> to include all keys.</param>
+            <param name="cancellationToken">Cancellation token to interrupt streaming.</param>
+            <returns>Filtered asynchronous stream of matching entries.</returns>
         </member>
         <member name="M:MelloSilveiraTools.Core.Caching.ITwoLevelCache.Clear">
             <summary>
-            Removes every entry from the cache.
+            Empties all groups and entries from the two-level cache.
             </summary>
         </member>
         <member name="T:MelloSilveiraTools.Core.CoreDependencyInjection">
@@ -1178,25 +1211,80 @@
         </member>
         <member name="T:MelloSilveiraTools.Core.Managers.File.FileData">
             <summary>
-            Contains metadata about a file, such as its directory URI and its file name.
+            Represents the location and naming details of a document or report generated by the application.
+            Facilitates file tracking, user exports, and auditable data persistence.
             </summary>
+            <param name="Uri">Directory path where the file is stored.</param>
+            <param name="Name">Corresponding file name.</param>
         </member>
         <member name="M:MelloSilveiraTools.Core.Managers.File.FileData.#ctor(System.String,System.String)">
             <summary>
-            Contains metadata about a file, such as its directory URI and its file name.
+            Represents the location and naming details of a document or report generated by the application.
+            Facilitates file tracking, user exports, and auditable data persistence.
             </summary>
+            <param name="Uri">Directory path where the file is stored.</param>
+            <param name="Name">Corresponding file name.</param>
+        </member>
+        <member name="P:MelloSilveiraTools.Core.Managers.File.FileData.Uri">
+            <summary>Directory path where the file is stored.</summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Core.Managers.File.FileData.Name">
+            <summary>Corresponding file name.</summary>
         </member>
         <member name="M:MelloSilveiraTools.Core.Managers.File.FileData.#ctor(System.IO.FileInfo)">
             <summary>
-            Initializes a new instance of <see cref="T:MelloSilveiraTools.Core.Managers.File.FileData"/> from a <see cref="T:System.IO.FileInfo"/>.
+            Initializes file metadata from an existing file information handle.
             </summary>
-            <param name="fileInfo">The file info to extract data from.</param>
+            <param name="fileInfo">Reference to the physical file.</param>
         </member>
         <member name="T:MelloSilveiraTools.Core.Managers.File.FileManager">
             <summary>
-            Handles file operations such as writing streams to disk.
-            Registered as Singleton in DI. Thread-safe.
+            File management service responsible for structuring and safely saving files and reports to disk.
+            Employs chronological naming to protect against inadvertent file loss and ensures target directories exist.
             </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Managers.File.FileManager.BuildTimebasedFullName(System.String,System.String,System.String)">
+            <inheritdoc/>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Managers.File.FileManager.BuildTimebasedFile(System.String,System.String,System.String)">
+            <inheritdoc/>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Managers.File.FileManager.BuildTimebasedFileInfo(System.String,System.String,System.String)">
+            <inheritdoc/>
+        </member>
+        <member name="T:MelloSilveiraTools.Core.Managers.File.IFileManager">
+            <summary>
+            Contract for structured file, report, and export generation on disk.
+            Standardizes document naming by appending chronological timestamps (date and time),
+            preventing unintended overwriting of mission-critical files and preserving an auditable operational trail.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Managers.File.IFileManager.BuildTimebasedFullName(System.String,System.String,System.String)">
+            <summary>
+            Generates the absolute file path combining target directory, business prefix, and generation timestamp.
+            </summary>
+            <param name="fileUri">Destination directory for saving the document.</param>
+            <param name="filePrefix">Business identifier prefix (e.g. "SalesReport", "DataExport").</param>
+            <param name="fileExtension">Target file extension (e.g. ".csv", ".json", ".txt").</param>
+            <returns>The complete absolute file path.</returns>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Managers.File.IFileManager.BuildTimebasedFile(System.String,System.String,System.String)">
+            <summary>
+            Builds organizational file metadata (directory and timestamped name) to simplify tracking.
+            </summary>
+            <param name="fileUri">Destination directory.</param>
+            <param name="filePrefix">Business identifier prefix.</param>
+            <param name="fileExtension">Target file extension.</param>
+            <returns>A structured file data record.</returns>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Managers.File.IFileManager.BuildTimebasedFileInfo(System.String,System.String,System.String)">
+            <summary>
+            Prepares a physical file handle and guarantees destination directory existence, creating it automatically if missing.
+            </summary>
+            <param name="fileUri">Destination directory.</param>
+            <param name="filePrefix">Business identifier prefix.</param>
+            <param name="fileExtension">Target file extension.</param>
+            <returns>A <see cref="T:System.IO.FileInfo"/> ready for safe disk writing with verified directory path.</returns>
         </member>
         <member name="T:MelloSilveiraTools.Core.Models.Constants">
             <summary>
@@ -1226,206 +1314,317 @@
         </member>
         <member name="T:MelloSilveiraTools.Core.Models.ResultBase">
             <summary>
-            Result content for all commands.
+            Represents the standardized business outcome of an operation or process.
+            Provides clear visibility into whether an action succeeded or encountered business constraints,
+            accompanied by actionable feedback messages for end users and client systems.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Core.Models.ResultBase.Success">
+            <summary>
+            Indicates whether the business objective of the operation was completed successfully.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Core.Models.ResultBase.StatusCode">
+            <summary>
+            Status code describing the business condition (e.g. Success, Validation Issue, Item Not Found).
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Core.Models.ResultBase.Messages">
+            <summary>
+            Clear and actionable messages explaining the outcome or detailing what needs attention.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Core.Models.ResultBase.IsConflict">
+            <summary>
+            Indicates whether the action was halted due to conflicting business data (such as a duplicate record).
+            </summary>
+        </member>
+        <member name="T:MelloSilveiraTools.Core.Models.Result">
+            <summary>
+            Central utility for creating consistent and understandable business operation results.
             </summary>
         </member>
         <member name="M:MelloSilveiraTools.Core.Models.Result.CreateSuccessOk``1">
             <summary>
-            Creates a successful 200 OK result.
+            Creates a successful outcome confirming that the requested business action completed normally.
             </summary>
+            <typeparam name="TResult">The expected result type.</typeparam>
+            <returns>A successful business result.</returns>
         </member>
         <member name="M:MelloSilveiraTools.Core.Models.Result.CreateBadRequest``1(System.Collections.Generic.List{System.String})">
             <summary>
-            Creates a 400 Bad Request result with the supplied message.
+            Creates an outcome indicating that the submitted data did not meet business requirements or validation rules.
             </summary>
-            <param name="messages">Error messages describing the failure.</param>
+            <typeparam name="TResult">The expected result type.</typeparam>
+            <param name="messages">Explanations detailing the required corrections.</param>
+            <returns>An invalid request result containing guidance messages.</returns>
         </member>
         <member name="M:MelloSilveiraTools.Core.Models.Result.CreateUnknownError``1(System.String)">
             <summary>
-            Creates a 500 Internal Server Error result with the supplied message.
+            Creates an outcome indicating an unexpected operational interruption.
             </summary>
-            <param name="message">Error message describing the failure.</param>
+            <typeparam name="TResult">The expected result type.</typeparam>
+            <param name="message">Guidance or context for support teams.</param>
+            <returns>An unexpected failure result.</returns>
         </member>
         <member name="M:MelloSilveiraTools.Core.Models.Result.CreateSuccess(MelloSilveiraTools.Core.Models.StatusCode)">
             <summary>
-            Creates a successful result with the supplied status code.
+            Creates a successful result associated with a specific business status.
             </summary>
-            <param name="statusCode">The HTTP status code returned to the caller.</param>
+            <param name="statusCode">The target business status code.</param>
+            <returns>A successful result.</returns>
         </member>
         <member name="M:MelloSilveiraTools.Core.Models.Result.CreateError(MelloSilveiraTools.Core.Models.StatusCode)">
             <summary>
-            Creates an error result with the supplied status code and no error messages.
+            Creates an error result associated with a specific business status.
             </summary>
-            <param name="statusCode">The HTTP status code returned to the caller.</param>
+            <param name="statusCode">The target status code.</param>
+            <returns>An error result.</returns>
         </member>
         <member name="M:MelloSilveiraTools.Core.Models.Result.CreateError(MelloSilveiraTools.Core.Models.StatusCode,System.String)">
             <summary>
-            Creates an error result.
+            Creates an error result accompanied by a contextual explanation.
             </summary>
-            <param name="statusCode">The HTTP status code returned to the caller.</param>
-            <param name="message">Error messages describing the failures.</param>
+            <param name="statusCode">The target status code.</param>
+            <param name="message">Contextual explanation or guidance.</param>
+            <returns>A detailed error result.</returns>
         </member>
         <member name="M:MelloSilveiraTools.Core.Models.Result.Create``1(MelloSilveiraTools.Core.Models.Result)">
             <summary>
-            Creates an error result.
-            </summary>0
+            Converts a standard result into a specialized result model while preserving messages and status.
+            </summary>
+            <typeparam name="TResult">Target specialized result type.</typeparam>
+            <param name="result">The original result.</param>
+            <returns>A new instance with matching status and messages.</returns>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Models.Result.Create``1(``0)">
+            <summary>
+            Converts a specialized result into the standard system result format.
+            </summary>
+            <typeparam name="TResult">Source specialized result type.</typeparam>
+            <param name="result">The original specialized result.</param>
+            <returns>A standard result representation.</returns>
         </member>
         <member name="M:MelloSilveiraTools.Core.Models.Result.CreateSuccessOk">
             <summary>
-            Creates a successful 200 OK result.
+            Creates a standard confirmation that the operation finished successfully.
             </summary>
+            <returns>A successful 200 OK outcome.</returns>
         </member>
         <member name="M:MelloSilveiraTools.Core.Models.Result.CreateSuccessCreated">
             <summary>
-            Creates a successful 201 Created result.
+            Creates a confirmation indicating that a new business record or resource was successfully registered.
             </summary>
+            <returns>A creation confirmation outcome.</returns>
         </member>
         <member name="M:MelloSilveiraTools.Core.Models.Result.CreateNoContent">
             <summary>
-            Creates a successful 204 No Content result.
+            Creates a confirmation that an action finished with no additional content required.
             </summary>
+            <returns>A no-content success outcome.</returns>
         </member>
         <member name="M:MelloSilveiraTools.Core.Models.Result.CreateBadRequest(System.String)">
             <summary>
-            Creates a 400 BadRequest error result.
+            Creates an outcome indicating that provided information violates validation requirements or business rules.
             </summary>
+            <param name="message">Guidance on how to satisfy requirements.</param>
+            <returns>A bad request outcome.</returns>
         </member>
         <member name="M:MelloSilveiraTools.Core.Models.Result.CreateUnauthorized">
             <summary>
-            Creates a 401 Unauthorized error result without a message.
+            Creates an outcome indicating that the action requires valid user authentication or authorization.
             </summary>
+            <returns>An unauthorized outcome.</returns>
         </member>
         <member name="M:MelloSilveiraTools.Core.Models.Result.CreateUnauthorized(System.String)">
             <summary>
-            Creates a 401 Unauthorized error result with the supplied message.
+            Creates an outcome indicating that the action requires authorization, including guidance.
             </summary>
-            <param name="message">Error message describing the failure.</param>
+            <param name="message">Authorization guidance.</param>
+            <returns>An unauthorized outcome with instructions.</returns>
         </member>
         <member name="M:MelloSilveiraTools.Core.Models.Result.CreateNotFound(System.String)">
             <summary>
-            Creates a 404 Not Found error result with the supplied message.
+            Creates an outcome indicating that the requested information or record could not be found.
             </summary>
-            <param name="message">Error message describing the failure.</param>
+            <param name="message">Context describing the missing record.</param>
+            <returns>A not found outcome.</returns>
         </member>
         <member name="M:MelloSilveiraTools.Core.Models.Result.CreateRequestTimeout(System.String)">
             <summary>
-            Creates a 408 Request Timeout error result with the supplied message.
+            Creates an outcome indicating that the operation timed out before completing.
             </summary>
-            <param name="message">Error message describing the failure.</param>
+            <param name="message">Explanation of the elapsed time limit.</param>
+            <returns>A timeout outcome.</returns>
         </member>
         <member name="M:MelloSilveiraTools.Core.Models.Result.CreateUnprocessableEntity(System.String)">
             <summary>
-            Creates a 422 Unprocessable Entity error result with the supplied message.
+            Creates an outcome indicating that the request was understood but cannot be processed under current business rules.
             </summary>
-            <param name="message">Error message describing the failure.</param>
+            <param name="message">Specific business constraint that prevented processing.</param>
+            <returns>An unprocessable entity outcome.</returns>
         </member>
         <member name="M:MelloSilveiraTools.Core.Models.Result.CreateUnknownError">
             <summary>
-            Creates a 500 Internal Server Error result with the supplied message.
+            Creates an outcome indicating an unexpected operational failure.
             </summary>
+            <returns>An unknown error outcome.</returns>
         </member>
         <member name="M:MelloSilveiraTools.Core.Models.Result.CreateUnknownError(System.String)">
             <summary>
-            Creates a 500 Internal Server Error result with the supplied message.
+            Creates an outcome indicating an unexpected operational failure with descriptive guidance.
             </summary>
-            <param name="message">Error message describing the failure.</param>
+            <param name="message">Contextual failure message.</param>
+            <returns>An unknown error outcome.</returns>
         </member>
         <member name="M:MelloSilveiraTools.Core.Models.Result.CreateServiceUnavailable(System.String)">
             <summary>
-            Creates a 503 Service Unavailable error result with the supplied message.
+            Creates an outcome indicating temporary unavailability of a business service or integration.
             </summary>
-            <param name="message">Error message describing the failure.</param>
+            <param name="message">Status and retry guidance.</param>
+            <returns>A service unavailable outcome.</returns>
         </member>
         <member name="M:MelloSilveiraTools.Core.Models.Result.CreateSuccess``1(MelloSilveiraTools.Core.Models.StatusCode,``0)">
             <summary>
-            Creates a successful result carrying the supplied data payload.
+            Creates a successful outcome delivering business data with a specific status code.
             </summary>
-            <param name="statusCode"></param>
-            <param name="resultData">Data returned to the caller.</param>
+            <typeparam name="TResultData">The type of business data payload.</typeparam>
+            <param name="statusCode">Status of the completed operation.</param>
+            <param name="resultData">The business payload delivered to the client.</param>
+            <returns>A successful outcome carrying data.</returns>
         </member>
         <member name="M:MelloSilveiraTools.Core.Models.Result.CreateSuccessOk``1(``0)">
             <summary>
-            Creates a successful 200 OK result carrying the supplied data payload.
+            Creates a standard successful outcome delivering business data.
             </summary>
-            <param name="resultData">Data returned to the caller.</param>
+            <typeparam name="TResultData">The type of business data payload.</typeparam>
+            <param name="resultData">The business payload delivered to the client.</param>
+            <returns>A successful 200 OK outcome carrying data.</returns>
         </member>
         <member name="M:MelloSilveiraTools.Core.Models.Result.CreateSuccessCreated``1(``0)">
             <summary>
-            Creates a successful 201 Created result.
+            Creates an outcome confirming that a new record was created, delivering the created record details.
             </summary>
+            <typeparam name="TResultData">The type of business data payload.</typeparam>
+            <param name="resultData">The newly registered business item.</param>
+            <returns>A creation confirmation outcome carrying data.</returns>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Models.Result.CreateConflict``1(``0)">
+            <summary>
+            Creates an outcome indicating that the action conflicts with existing records (e.g. duplicate key).
+            </summary>
+            <typeparam name="TResultData">The type of business data payload.</typeparam>
+            <param name="data">The conflicting business item.</param>
+            <returns>A conflict outcome.</returns>
         </member>
         <member name="M:MelloSilveiraTools.Core.Models.Result.CreateConflict``1(``0,System.String)">
             <summary>
-            Creates a typed 409 Conflict error result.
+            Creates a conflict outcome with an explanatory message.
             </summary>
-            <param name="data"></param>
-            <param name="message">Error message describing the failure.</param>
+            <typeparam name="TResultData">The type of business data payload.</typeparam>
+            <param name="data">The conflicting business item.</param>
+            <param name="message">Explanation of the duplication or conflict.</param>
+            <returns>A conflict outcome with descriptive messages.</returns>
         </member>
         <member name="M:MelloSilveiraTools.Core.Models.Result.CreateListedSuccess``1(MelloSilveiraTools.Core.Models.StatusCode,System.Collections.Generic.IEnumerable{``0})">
             <summary>
-            Creates a successful list result of a specific type with the supplied items.
+            Creates a successful outcome delivering a list of business records.
             </summary>
-            <param name="statusCode">The HTTP status code returned to the caller.</param>
-            <param name="data">Items to include in the result payload.</param>
+            <typeparam name="TResultData">The type of items in the list.</typeparam>
+            <param name="statusCode">Status of the completed operation.</param>
+            <param name="data">The list of business items returned.</param>
+            <returns>A successful listed outcome.</returns>
         </member>
         <member name="M:MelloSilveiraTools.Core.Models.Result.CreateListedSuccessOk``1(System.Collections.Generic.IEnumerable{``0})">
             <summary>
-            Creates a successful 200 OK list result containing the supplied items.
+            Creates a standard successful outcome delivering a list of business records.
             </summary>
-            <param name="data">Items to include in the result payload.</param>
+            <typeparam name="TResultData">The type of items in the list.</typeparam>
+            <param name="data">The list of business items returned.</param>
+            <returns>A successful 200 OK listed outcome.</returns>
         </member>
         <member name="M:MelloSilveiraTools.Core.Models.Result.CreatePagedSuccessOk``1(System.Collections.Generic.IEnumerable{``0})">
             <summary>
-            Builds a successful 200 OK paged result with the supplied items.
+            Creates a successful paginated outcome tailored for tabular business reports and user interfaces.
             </summary>
-            <param name="data">Items to include in the current page.</param>
+            <typeparam name="TResultData">The type of items in the page.</typeparam>
+            <param name="data">The items belonging to the current page.</param>
+            <returns>A paginated outcome.</returns>
         </member>
         <member name="T:MelloSilveiraTools.Core.Models.Result`1">
             <summary>
-            Result content for all commands.
+            Represents the outcome of a business operation that returns a specific value or report to the caller.
             </summary>
-            <typeparam name="TResultData"></typeparam>
+            <typeparam name="TResultData">Type of the business payload delivered.</typeparam>
         </member>
         <member name="P:MelloSilveiraTools.Core.Models.Result`1.Data">
             <summary>
-            Data content of all result.
+            The business payload or document produced by the operation.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Models.Result`1.ChangeData``1(``0)">
+            <summary>
+            Transforms the payload while preserving original business status and feedback messages.
+            </summary>
+            <typeparam name="T">New payload type.</typeparam>
+            <param name="newData">The transformed business data.</param>
+            <returns>A new result with the updated payload.</returns>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Models.Result`1.op_Implicit(MelloSilveiraTools.Core.Models.Result)~MelloSilveiraTools.Core.Models.Result{`0}">
+            <summary>
+            Converts a basic result into a typed data result.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Models.Result`1.op_Implicit(`0)~MelloSilveiraTools.Core.Models.Result{`0}">
+            <summary>
+            Automatically converts a business value into a successful result.
             </summary>
         </member>
         <member name="T:MelloSilveiraTools.Core.Models.ListedResult`1">
             <summary>
-            Base result for commands that return an array of items.
+            Represents the outcome of a business operation that returns a collection of items.
             </summary>
-            <typeparam name="TResultData">Type of each item in the returned list.</typeparam>
+            <typeparam name="TResultData">Type of each item in the collection.</typeparam>
         </member>
         <member name="P:MelloSilveiraTools.Core.Models.ListedResult`1.Data">
             <summary>
-            Data content of all result.
+            Collection of business items returned.
             </summary>
         </member>
         <member name="P:MelloSilveiraTools.Core.Models.ListedResult`1.Count">
             <summary>
-            Number of items returned in <see cref="P:MelloSilveiraTools.Core.Models.Result`1.Data"/>.
+            Total count of items delivered in this collection.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Models.ListedResult`1.op_Implicit(MelloSilveiraTools.Core.Models.Result)~MelloSilveiraTools.Core.Models.ListedResult{`0}">
+            <summary>
+            Implicitly converts a general result into a listed result structure.
             </summary>
         </member>
         <member name="T:MelloSilveiraTools.Core.Models.PagedResult`1">
             <summary>
-            Base result for commands that return a paginated list of items.
+            Represents the outcome of queries split across pages to optimize report display and browsing speed.
             </summary>
-            <typeparam name="TResultData">Type of each item in the returned page.</typeparam>
+            <typeparam name="TResultData">Type of each item in the page.</typeparam>
         </member>
         <member name="P:MelloSilveiraTools.Core.Models.PagedResult`1.TotalCount">
             <summary>
-            Total number of items that match the query across all pages.
+            Total number of items matching the query criteria across all pages.
             </summary>
         </member>
         <member name="P:MelloSilveiraTools.Core.Models.PagedResult`1.PageNumber">
             <summary>
-            One-based number of the current page.
+            1-based index of the currently viewed page.
             </summary>
         </member>
         <member name="P:MelloSilveiraTools.Core.Models.PagedResult`1.PageSize">
             <summary>
-            Number of items in the current page.
+            Maximum count of items displayed per page.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Models.PagedResult`1.op_Implicit(MelloSilveiraTools.Core.Models.Result)~MelloSilveiraTools.Core.Models.PagedResult{`0}">
+            <summary>
+            Implicitly converts a general result into a paginated result structure.
             </summary>
         </member>
         <member name="T:MelloSilveiraTools.Core.Models.SpanStringBuilder">

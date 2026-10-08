@@ -4,9 +4,8 @@ using System.Runtime.CompilerServices;
 namespace MelloSilveiraTools.Core.Caching;
 
 /// <summary>
-/// Thread-safe in-memory implementation of <see cref="ITwoLevelCache"/>.
-/// Suitable for single-instance deployments. For distributed scenarios, replace
-/// with a Redis-backed implementation registered in the DI container.
+/// High-performance thread-safe cache organized in two hierarchical tiers (Group and Key).
+/// Allows applications to group operational data logically and perform bulk invalidations safely.
 /// </summary>
 public class InMemoryTwoLevelCache : ITwoLevelCache
 {
@@ -15,8 +14,8 @@ public class InMemoryTwoLevelCache : ITwoLevelCache
     /// <inheritdoc/>
     public bool TryGet<T>(string group, string key, out T? value)
     {
-        if (_cache.TryGetValue(group, out var byKey)
-            && byKey.TryGetValue(key, out var obj)
+        if (_cache.TryGetValue(group, out ConcurrentDictionary<string, object>? byKey)
+            && byKey.TryGetValue(key, out object? obj)
             && obj is T typed)
         {
             value = typed;
@@ -36,11 +35,13 @@ public class InMemoryTwoLevelCache : ITwoLevelCache
     /// <inheritdoc/>
     public void Remove(string group, string key)
     {
-        if (_cache.TryGetValue(group, out var byKey))
+        if (_cache.TryGetValue(group, out ConcurrentDictionary<string, object>? byKey))
         {
             byKey.Remove(key, out _);
             if (byKey.IsEmpty)
+            {
                 _cache.Remove(group, out _);
+            }
         }
     }
 
@@ -62,20 +63,26 @@ public class InMemoryTwoLevelCache : ITwoLevelCache
         string? key,
         [EnumeratorCancellation] CancellationToken cancellationToken = default)
     {
-        foreach (var (g, byKey) in _cache)
+        foreach ((string g, ConcurrentDictionary<string, object> byKey) in _cache)
         {
             if (!string.IsNullOrWhiteSpace(group) && g != group)
+            {
                 continue;
+            }
 
-            foreach (var (k, obj) in byKey)
+            foreach ((string k, object obj) in byKey)
             {
                 if (!string.IsNullOrWhiteSpace(key) && k != key)
+                {
                     continue;
+                }
 
                 cancellationToken.ThrowIfCancellationRequested();
 
                 if (obj is T typed)
+                {
                     yield return (g, k, typed);
+                }
             }
         }
 

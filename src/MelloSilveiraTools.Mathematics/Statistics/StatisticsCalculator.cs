@@ -3,7 +3,10 @@ using MelloSilveiraTools.Mathematics.Models.Statistics;
 
 namespace MelloSilveiraTools.Mathematics.Statistics;
 
-/// <inheritdoc cref="IStatisticsCalculator"/>
+/// <summary>
+/// High-performance statistical analysis engine that computes core indicators and isolates outliers.
+/// Delivers robust summary indicators while protecting source datasets against unintended mutations.
+/// </summary>
 public class StatisticsCalculator : IStatisticsCalculator
 {
     private const double ZScoreModifiedConstant = 0.6745;

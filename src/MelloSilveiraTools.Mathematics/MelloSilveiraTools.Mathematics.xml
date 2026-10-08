@@ -347,8 +347,24 @@
             <param name="vector2"></param>
             <returns></returns>
         </member>
+        <member name="T:MelloSilveiraTools.Mathematics.Factories.Functions.FunctionFactory">
+            <summary>
+            Centralized factory for constructing analytical mathematical curves and behavior models.
+            Dynamically creates mathematical profiles (polynomial, exponential relaxation, periodic patterns)
+            used to fit experimental data and simulate material response under mechanical stress.
+            </summary>
+        </member>
         <member name="M:MelloSilveiraTools.Mathematics.Factories.Functions.FunctionFactory.Create(MelloSilveiraTools.Mathematics.Models.FunctionType,System.Nullable{System.Double},System.Nullable{System.Double},System.Double[])">
-            <inheritdoc/>
+            <summary>
+            Creates the appropriate mathematical curve based on the requested model type, validity domain, and calibrated parameters.
+            </summary>
+            <param name="functionType">Curve family type (constant, polynomial, exponential, sine, cosine, etc.).</param>
+            <param name="initialVariableValue">Starting boundary of the observation interval (e.g. initial time or strain).</param>
+            <param name="finalVariableValue">Ending boundary of the observation interval.</param>
+            <param name="coefficients">Fitted numerical parameters defining curve shape and magnitude.</param>
+            <returns>A configured function instance ready for numeric simulation and evaluation.</returns>
+            <exception cref="T:System.ArgumentNullException">Thrown when coefficients array is null.</exception>
+            <exception cref="T:System.ArgumentOutOfRangeException">Thrown when the requested function type is unrecognized.</exception>
         </member>
         <member name="T:MelloSilveiraTools.Mathematics.Functions.ConstantFunction">
             <summary>
@@ -1297,7 +1313,10 @@
             <returns>The equivalent velocity vector used to assemble the effective force.</returns>
         </member>
         <member name="T:MelloSilveiraTools.Mathematics.NumericalMethods.Differentiations.Differentiation">
-            <inheritdoc/>
+            <summary>
+            Numerical differentiation engine that evaluates rate-of-change metrics from time-series and functions.
+            Delivers robust, fast mathematical derivation to drive segmentation and regime detection in physical pipelines.
+            </summary>
         </member>
         <member name="M:MelloSilveiraTools.Mathematics.NumericalMethods.Differentiations.Differentiation.Calculate(System.Func{System.Double,System.Double},System.Double,System.Double)">
             <inheritdoc/>
@@ -1307,26 +1326,28 @@
         </member>
         <member name="T:MelloSilveiraTools.Mathematics.NumericalMethods.Differentiations.IDifferentiation">
             <summary>
-            Represents the numerical derivative.
+            Contract for calculating rates of change and trend dynamics in experimental and time-series data.
+            Measures how fast physical metrics and operational indicators fluctuate over time,
+            enabling systems to detect velocities, accelerations, and deformation regime transitions.
             </summary>
         </member>
         <member name="M:MelloSilveiraTools.Mathematics.NumericalMethods.Differentiations.IDifferentiation.Calculate(System.Func{System.Double,System.Double},System.Double,System.Double)">
             <summary>
-            Calculates the derivative of a function.
+            Calculates the instantaneous rate of change of a behavior at a specific point in time.
             </summary>
-            <param name="equation">The equation to be derivated.</param>
-            <param name="timeStep">Unit: s (second).</param>
-            <param name="time">Unit: s (second).</param>
-            <returns>The value of derivative.</returns>
+            <param name="equation">Mathematical function or behavior model to differentiate.</param>
+            <param name="timeStep">Observation time step interval (in seconds).</param>
+            <param name="time">Target timestamp where the rate of change is measured (in seconds).</param>
+            <returns>The calculated instantaneous rate of change.</returns>
         </member>
         <member name="M:MelloSilveiraTools.Mathematics.NumericalMethods.Differentiations.IDifferentiation.Calculate(System.Double,System.Double,System.Double)">
             <summary>
-            Calculates the derivative between two points.
+            Computes the average rate of change between two successive observation values.
             </summary>
-            <param name="initialPoint">The initial point of equation.</param>
-            <param name="finalPoint">The final point of equation.</param>
-            <param name="step">The step to be used in derivative.</param>
-            <returns>The value of derivative.</returns>
+            <param name="initialPoint">Measurement value at the starting point.</param>
+            <param name="finalPoint">Measurement value at the ending point.</param>
+            <param name="step">Interval elapsed between the two observation points.</param>
+            <returns>The average rate of change across the interval.</returns>
         </member>
         <member name="T:MelloSilveiraTools.Mathematics.NumericalMethods.Integrals.IIntegration">
             <summary>
@@ -1433,7 +1454,10 @@
             <inheritdoc/>
         </member>
         <member name="T:MelloSilveiraTools.Mathematics.NumericalMethods.RootFindingAlgorithms.BisectionMethod">
-            <inheritdoc cref="F:MelloSilveiraTools.Mathematics.Models.NumericalMethods.RootFindingAlgorithm.BisectionMethod"/>
+            <summary>
+            Bisection search algorithm for finding equilibrium points within an interval of opposite signs.
+            Halves the search range iteratively to guarantee convergence towards the exact target condition.
+            </summary>
         </member>
         <member name="M:MelloSilveiraTools.Mathematics.NumericalMethods.RootFindingAlgorithms.BisectionMethod.FindRoot(MelloSilveiraTools.Mathematics.NumericalMethods.RootFindingAlgorithms.RootFindingInput,System.Func{System.Double,System.Double})">
             <inheritdoc/>
@@ -1461,68 +1485,83 @@
             <exception cref="T:MelloSilveiraTools.Mathematics.Models.NumericalMethods.NonConvergenceException">When it was not possible to converge to a value.</exception>
         </member>
         <member name="T:MelloSilveiraTools.Mathematics.NumericalMethods.RootFindingAlgorithms.RootFinding">
-            <inheritdoc cref="T:MelloSilveiraTools.Mathematics.NumericalMethods.RootFindingAlgorithms.IRootFinding"/>
+            <summary>
+            Base class providing standardized error reporting and execution scaffolding for root-finding algorithms.
+            Solves for balance points, zero-crossing thresholds, or parameter calibrations where opposing terms reach equilibrium.
+            </summary>
         </member>
         <member name="M:MelloSilveiraTools.Mathematics.NumericalMethods.RootFindingAlgorithms.RootFinding.FindRoot(MelloSilveiraTools.Mathematics.NumericalMethods.RootFindingAlgorithms.RootFindingInput,System.Func{System.Double,System.Double})">
             <inheritdoc/>
         </member>
         <member name="M:MelloSilveiraTools.Mathematics.NumericalMethods.RootFindingAlgorithms.RootFinding.GetNonConvergenceException(System.Double,System.Double)">
             <summary>
-            Throws exception indicating a non convergence of root-finding algorithm.
+            Creates an exception when the algorithm cannot reach the desired convergence criteria within limits.
             </summary>
-            <returns></returns>
+            <param name="point">The last evaluated candidate point.</param>
+            <param name="value">The residual value at the candidate point.</param>
+            <returns>A configured <see cref="T:MelloSilveiraTools.Mathematics.Models.NumericalMethods.NonConvergenceException"/>.</returns>
         </member>
         <member name="T:MelloSilveiraTools.Mathematics.NumericalMethods.RootFindingAlgorithms.RootFindingInput">
             <summary>
-            Represents the input for the root-finding algorithm.
+            Configuration parameters for finding equilibrium points, calibration roots, and zero-crossing states.
+            Encapsulates search interval boundaries, target convergence tolerance, and computational iteration safeguards.
             </summary>
-            <param name="InitialPoint">Initial point of interval. Unit: depends on function which is used.</param>
-            <param name="FinalPoint">Final point of interval. Unit: depends on function which is used.</param>
-            <param name="Tolerance">Maximum acceptable error.</param>
-            <param name="MaxIterations">Maximum number of iterations to be performed.</param>
+            <param name="InitialPoint">Starting boundary of the search interval.</param>
+            <param name="FinalPoint">Ending boundary of the search interval.</param>
+            <param name="Tolerance">Acceptable precision threshold for considering the solution converged.</param>
+            <param name="MaxIterations">Maximum number of evaluation cycles allowed to protect computational budget.</param>
         </member>
         <member name="M:MelloSilveiraTools.Mathematics.NumericalMethods.RootFindingAlgorithms.RootFindingInput.#ctor(System.Double,System.Double,System.Double,System.Int32)">
             <summary>
-            Represents the input for the root-finding algorithm.
+            Configuration parameters for finding equilibrium points, calibration roots, and zero-crossing states.
+            Encapsulates search interval boundaries, target convergence tolerance, and computational iteration safeguards.
             </summary>
-            <param name="InitialPoint">Initial point of interval. Unit: depends on function which is used.</param>
-            <param name="FinalPoint">Final point of interval. Unit: depends on function which is used.</param>
-            <param name="Tolerance">Maximum acceptable error.</param>
-            <param name="MaxIterations">Maximum number of iterations to be performed.</param>
+            <param name="InitialPoint">Starting boundary of the search interval.</param>
+            <param name="FinalPoint">Ending boundary of the search interval.</param>
+            <param name="Tolerance">Acceptable precision threshold for considering the solution converged.</param>
+            <param name="MaxIterations">Maximum number of evaluation cycles allowed to protect computational budget.</param>
         </member>
         <member name="P:MelloSilveiraTools.Mathematics.NumericalMethods.RootFindingAlgorithms.RootFindingInput.InitialPoint">
-            <summary>Initial point of interval. Unit: depends on function which is used.</summary>
+            <summary>Starting boundary of the search interval.</summary>
         </member>
         <member name="P:MelloSilveiraTools.Mathematics.NumericalMethods.RootFindingAlgorithms.RootFindingInput.FinalPoint">
-            <summary>Final point of interval. Unit: depends on function which is used.</summary>
+            <summary>Ending boundary of the search interval.</summary>
         </member>
         <member name="P:MelloSilveiraTools.Mathematics.NumericalMethods.RootFindingAlgorithms.RootFindingInput.Tolerance">
-            <summary>Maximum acceptable error.</summary>
+            <summary>Acceptable precision threshold for considering the solution converged.</summary>
         </member>
         <member name="P:MelloSilveiraTools.Mathematics.NumericalMethods.RootFindingAlgorithms.RootFindingInput.MaxIterations">
-            <summary>Maximum number of iterations to be performed.</summary>
+            <summary>Maximum number of evaluation cycles allowed to protect computational budget.</summary>
         </member>
         <member name="T:MelloSilveiraTools.Mathematics.NumericalMethods.RootFindingAlgorithms.StepByStepMethod">
-            <inheritdoc cref="F:MelloSilveiraTools.Mathematics.Models.NumericalMethods.RootFindingAlgorithm.StepByStepMethod"/>
+            <summary>
+            Step-by-step sequential search algorithm that samples an interval to detect the best matching equilibrium point.
+            Increments through the domain systematically, identifying where the target error threshold is minimized.
+            </summary>
         </member>
         <member name="M:MelloSilveiraTools.Mathematics.NumericalMethods.RootFindingAlgorithms.StepByStepMethod.FindRoot(MelloSilveiraTools.Mathematics.NumericalMethods.RootFindingAlgorithms.RootFindingInput,System.Func{System.Double,System.Double})">
             <inheritdoc/>
         </member>
         <member name="T:MelloSilveiraTools.Mathematics.Statistics.IStatisticsCalculator">
             <summary>
-            Performs statistics calculations.
+            Service contract for evaluating statistical distribution, central tendencies, and anomalous readings across datasets.
+            Enables business intelligence and quality teams to assess process stability, identify trends,
+            and isolate extreme outliers that could distort reporting and decision-making.
             </summary>
         </member>
         <member name="M:MelloSilveiraTools.Mathematics.Statistics.IStatisticsCalculator.Calculate(System.Double[],System.Double)">
             <summary>
-            Calculates the statistics data.
+            Computes summary metrics (mean, median, mode, spread) and isolates statistical outliers from the dataset.
             </summary>
-            <param name="values"></param>
-            <param name="threshold"></param>
-            <returns></returns>
+            <param name="values">Collection of numerical observations or sample data points.</param>
+            <param name="threshold">Sensitivity threshold multiplier for identifying extreme atypical readings.</param>
+            <returns>A comprehensive summary containing central metrics, dispersion boundaries, and identified outliers.</returns>
         </member>
         <member name="T:MelloSilveiraTools.Mathematics.Statistics.StatisticsCalculator">
-            <inheritdoc cref="T:MelloSilveiraTools.Mathematics.Statistics.IStatisticsCalculator"/>
+            <summary>
+            High-performance statistical analysis engine that computes core indicators and isolates outliers.
+            Delivers robust summary indicators while protecting source datasets against unintended mutations.
+            </summary>
         </member>
         <member name="M:MelloSilveiraTools.Mathematics.Statistics.StatisticsCalculator.Calculate(System.Double[],System.Double)">
             <inheritdoc/>

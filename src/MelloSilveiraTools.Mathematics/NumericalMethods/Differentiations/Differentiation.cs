@@ -1,6 +1,9 @@
-﻿namespace MelloSilveiraTools.Mathematics.NumericalMethods.Differentiations;
+namespace MelloSilveiraTools.Mathematics.NumericalMethods.Differentiations;
 
-/// <inheritdoc/>
+/// <summary>
+/// Numerical differentiation engine that evaluates rate-of-change metrics from time-series and functions.
+/// Delivers robust, fast mathematical derivation to drive segmentation and regime detection in physical pipelines.
+/// </summary>
 public class Differentiation : IDifferentiation
 {
     /// <inheritdoc/>

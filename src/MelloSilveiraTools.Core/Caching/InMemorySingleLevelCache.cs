@@ -3,9 +3,8 @@ using System.Collections.Concurrent;
 namespace MelloSilveiraTools.Core.Caching;
 
 /// <summary>
-/// Thread-safe in-memory implementation of <see cref="ISingleLevelCache"/>.
-/// Suitable for single-instance deployments. For distributed scenarios, replace
-/// with a Redis-backed implementation registered in the DI container.
+/// Thread-safe in-memory caching engine that provides instant access to hot business data.
+/// Accelerates application response times by eliminating redundant operational retrievals.
 /// </summary>
 public class InMemorySingleLevelCache : ISingleLevelCache
 {
@@ -14,7 +13,7 @@ public class InMemorySingleLevelCache : ISingleLevelCache
     /// <inheritdoc/>
     public bool TryGet<T>(string key, out T? value)
     {
-        if (_cache.TryGetValue(key, out var obj) && obj is T typed)
+        if (_cache.TryGetValue(key, out object? obj) && obj is T typed)
         {
             value = typed;
             return true;
