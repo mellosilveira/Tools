@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>AcceptanceTests</name>
+    </assembly>
+    <members>
+        <member name="T:AcceptanceTests.GlobalServiceProvider">
+            <summary>
+            Central dependency injection container for all acceptance tests. 
+            Created exactly once per application domain (eliminates duplication across generic types).
+            </summary>
+        </member>
+    </members>
+</doc>

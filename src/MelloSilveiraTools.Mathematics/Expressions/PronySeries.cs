@@ -1,4 +1,5 @@
-﻿using MelloSilveiraTools.Mathematics.Functions;
+using MelloSilveiraTools.Mathematics.Functions;
+using MelloSilveiraTools.Mathematics.Models;
 
 namespace MelloSilveiraTools.Mathematics.Expressions;
 
@@ -10,14 +11,15 @@ namespace MelloSilveiraTools.Mathematics.Expressions;
 /// <param name="finalVariableValue">Final value for variable.</param>
 /// <param name="independentParameter">Independent parameter represented by c.</param>
 /// <param name="iteratorCoefficients">Coefficients for iterations represented by a_n.</param>
-public sealed class PronySeries(double? initialVariableValue, double? finalVariableValue, double independentParameter, double[] iteratorCoefficients) 
-    : Expression(
-        initialVariableValue, 
-        finalVariableValue,
+public sealed class PronySeries(double independentParameter, double[] iteratorCoefficients, double? initialVariableValue = null, double? finalVariableValue = null)
+    : MathExpression(
+        MathExpressionType.PronySeries,
         [
-            new PolynomialFunction(initialVariableValue, finalVariableValue, [independentParameter]),
-            new ExponencialFunction(initialVariableValue, finalVariableValue, iteratorCoefficients)
-        ])
+            new ConstantFunction(independentParameter, initialVariableValue, finalVariableValue),
+            new ExponentialFunction(iteratorCoefficients, initialVariableValue, finalVariableValue)
+        ],
+        initialVariableValue,
+        finalVariableValue)
 {
     /// <summary>
     /// Independent parameter represented by c.

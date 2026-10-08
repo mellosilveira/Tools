@@ -15,8 +15,8 @@ public class FatigueCalculator : IFatigueCalculator
     /// (number of cycles, capped at 1e6) and the Modified Goodman safety factor.
     /// </summary>
     /// <param name="input">The fatigue analysis input (applied stresses, material data, profile and correction factors).</param>
-    /// <returns>The <see cref="FatigueResult"/> containing stress amplitude, mean stress, equivalent stress, expected life and safety factor.</returns>
-    public FatigueResult CalculateFatigueResult(FatigueInput input)
+    /// <returns>The <see cref="FatigueOutput"/> containing stress amplitude, mean stress, equivalent stress, expected life and safety factor.</returns>
+    public FatigueOutput Calculate(FatigueInput input)
     {
         double stressAmplitude = Math.Abs((input.MaximumAppliedStress - input.MinimumAppliedStress) / 2);
         double meanStress = (input.MaximumAppliedStress + input.MinimumAppliedStress) / 2;
@@ -27,14 +27,14 @@ public class FatigueCalculator : IFatigueCalculator
         double b = -Math.Log10(input.FatigueLimitFraction * input.TensileStress / modifiedFatigueStress) / 3;
         double numberOfCycles = Math.Pow(equivalentStress / a, 1 / b);
 
-        return new()
-        {
-            StressAmplitude = stressAmplitude,
-            MeanStress = meanStress,
-            EquivalentStress = equivalentStress,
-            NumberOfCycles = numberOfCycles > 1e6 ? 1e6 : numberOfCycles,
-            SafetyFactor = Math.Pow(stressAmplitude / modifiedFatigueStress + meanStress / input.TensileStress, -1)
-        };
+        return new
+        (
+            StressAmplitude: stressAmplitude,
+            MeanStress: meanStress,
+            EquivalentStress: equivalentStress,
+            NumberOfCycles: numberOfCycles > 1e6 ? 1e6 : numberOfCycles,
+            SafetyFactor: Math.Pow(stressAmplitude / modifiedFatigueStress + meanStress / input.TensileStress, -1)
+        );
     }
 
     /// <summary>
@@ -44,15 +44,12 @@ public class FatigueCalculator : IFatigueCalculator
     /// </summary>
     /// <param name="input">The fatigue analysis input providing the uncorrected fatigue limit and the parameters required to evaluate every Marin factor.</param>
     /// <returns>The modified fatigue endurance limit Se in MPa.</returns>
-    public double CalculateModifiedFatigueStress(FatigueInput input)
-    {
-        return input.FatigueLimit
-            * CalculateSurfaceFactor(input.TensileStress, input.SurfaceFinish)
-            * CalculateSizeFactor(input.Profile, input.LoadingType, input.IsRotativeSection)
-            * CalculateLoadingFactor(input.LoadingType)
-            * CalculateTemperatureFactor(input.Temperature)
-            * CalculateReliabilityFactor(input.Reliability);
-    }
+    public double CalculateModifiedFatigueStress(FatigueInput input) => input.FatigueLimit
+        * CalculateSurfaceFactor(input.TensileStress, input.SurfaceFinish)
+        * CalculateSizeFactor(input.Profile, input.LoadingType, input.IsRotativeSection)
+        * CalculateLoadingFactor(input.LoadingType)
+        * CalculateTemperatureFactor(input.Temperature)
+        * CalculateReliabilityFactor(input.Reliability);
 
     /// <summary>
     /// Calculates the Marin surface factor k_a using the empirical correlation k_a = a · S_ut^b,
@@ -97,7 +94,7 @@ public class FatigueCalculator : IFatigueCalculator
             return 1;
         }
 
-        double equivalentDiameter = profile switch 
+        double equivalentDiameter = profile switch
         {
             CircularProfile circularProfile => isRotativeSection ? circularProfile.Diameter : 0.37 * circularProfile.Diameter,
             RectangularProfile rectangularProfile => isRotativeSection ? rectangularProfile.Height : 0.808 * Math.Sqrt(rectangularProfile.Width * rectangularProfile.Height),
@@ -108,7 +105,7 @@ public class FatigueCalculator : IFatigueCalculator
         {
             return Math.Pow(equivalentDiameter / 7.62, -0.107);
         }
-        
+
         if (51 < equivalentDiameter * 1000 && equivalentDiameter <= 254)
         {
             return 1.51 * Math.Pow(equivalentDiameter, -0.157);

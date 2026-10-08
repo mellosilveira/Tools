@@ -29,7 +29,7 @@ public class NdjsonResult<T>(IAsyncEnumerable<T> data) : IResult
 
         try
         {
-            await foreach (var item in data.WithCancellation(httpContext.RequestAborted))
+            await foreach (T? item in data.WithCancellation(httpContext.RequestAborted))
             {
                 await httpContext.Response.WriteLineAsNdJsonAsync(item, httpContext.RequestAborted);
             }

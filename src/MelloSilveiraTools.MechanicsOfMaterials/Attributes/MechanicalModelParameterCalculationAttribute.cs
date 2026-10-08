@@ -1,4 +1,4 @@
-﻿using MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels;
+using MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels;
 using MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity;
 
 namespace MelloSilveiraTools.MechanicsOfMaterials.Attributes;
@@ -11,19 +11,19 @@ namespace MelloSilveiraTools.MechanicsOfMaterials.Attributes;
 public class MechanicalModelParameterCalculationAttribute : MechanicalModelParameterAttribute
 {
     /// <summary>
-    /// Initializes a new instance of <see cref="MechanicalModelParameterAttribute"/>.
+    /// Initializes a new instance of <see cref="MechanicalModelParameterCalculationAttribute"/>.
     /// </summary>
     /// <param name="propertyName"></param>
-    /// <param name="mechanicalRelationship"></param>
+    /// <param name="loadResponseRelationship"></param>
     public MechanicalModelParameterCalculationAttribute(
         string propertyName,
-        MechanicalRelationship mechanicalRelationship) : base(mechanicalRelationship)
+        LoadResponseRelationship loadResponseRelationship) : base(loadResponseRelationship)
     {
         PropertyName = propertyName;
     }
 
     /// <summary>
-    /// Initializes a new instance of <see cref="MechanicalModelParameterAttribute"/>.
+    /// Initializes a new instance of <see cref="MechanicalModelParameterCalculationAttribute"/>.
     /// </summary>
     /// <param name="propertyName"></param>
     /// <param name="viscoelasticEffect"></param>
@@ -35,15 +35,15 @@ public class MechanicalModelParameterCalculationAttribute : MechanicalModelParam
     }
 
     /// <summary>
-    /// Initializes a new instance of <see cref="MechanicalModelParameterAttribute"/>.
+    /// Initializes a new instance of <see cref="MechanicalModelParameterCalculationAttribute"/>.
     /// </summary>
     /// <param name="propertyName"></param>
-    /// <param name="mechanicalRelationship"></param>
+    /// <param name="loadResponseRelationship"></param>
     /// <param name="viscoelasticEffect"></param>
     public MechanicalModelParameterCalculationAttribute(
         string propertyName,
-        MechanicalRelationship mechanicalRelationship,
-        ViscoelasticEffect viscoelasticEffect) : base(mechanicalRelationship, viscoelasticEffect)
+        LoadResponseRelationship loadResponseRelationship,
+        ViscoelasticEffect viscoelasticEffect) : base(loadResponseRelationship, viscoelasticEffect)
     {
         PropertyName = propertyName;
     }

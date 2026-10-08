@@ -1,0 +1,22 @@
+namespace MelloSilveiraTools.Core.Pipelines.Steps;
+
+/// <summary>
+/// Defines the core metadata contract common to all pipeline execution step topologies.
+/// Encapsulates naming semantics required for distributed tracing, structured telemetry, and logging.
+/// </summary>
+public interface IPipelineStep
+{
+    /// <summary>
+    /// Gets the semantic identifier for this specific execution step.
+    /// Required by the pipeline orchestration engines for structured telemetry, 
+    /// distributed tracing, and precise fault localization within the execution graph.
+    /// </summary>
+    string Name { get; }
+}
+
+/// <summary>
+/// Defines a strongly-typed core metadata contract for a pipeline execution step.
+/// </summary>
+/// <typeparam name="TIn">The input payload type ingested by this execution step.</typeparam>
+/// <typeparam name="TOut">The output payload type yielded by this execution step.</typeparam>
+public interface IPipelineStep<in TIn, out TOut> : IPipelineStep;

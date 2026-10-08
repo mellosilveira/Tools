@@ -1,9 +1,11 @@
-using MelloSilveiraTools.Plugins.Application.Operations.Cache;
-using MelloSilveiraTools.Plugins.Application.Operations.Get;
-using MelloSilveiraTools.Plugins.Application.Operations.Load;
-using MelloSilveiraTools.Plugins.Application.Operations.Reload;
-using MelloSilveiraTools.WebApi.Application.Operations;
-using MelloSilveiraTools.WebApi.ExtensionMethods;
+using MelloSilveiraTools.Core.ExtensionMethods;
+using MelloSilveiraTools.Core.Models;
+using MelloSilveiraTools.Plugins.Application.Commands;
+using MelloSilveiraTools.Plugins.Application.Commands.Cache;
+using MelloSilveiraTools.Plugins.Application.Commands.Get;
+using MelloSilveiraTools.Plugins.Application.Commands.Load;
+using MelloSilveiraTools.Plugins.Application.Commands.Reload;
+using MelloSilveiraTools.Plugins.Infrastructure.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -18,88 +20,88 @@ public class PluginController : ControllerBase
     /// <summary>
     /// Returns the plugins currently known to the host, optionally filtered by name, version and load state.
     /// </summary>
-    /// <param name="operation">Operation that resolves the matching plugins.</param>
+    /// <param name="command">Command that resolves the matching plugins.</param>
     /// <param name="request">Filter criteria applied to the plugin lookup.</param>
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [HttpGet]
-    public async Task<ActionResult<GetPluginsResponse>> Get([FromServices] GetPlugins operation, [FromQuery] GetPluginsRequest request)
-        => await operation.ProcessAsync(request).BuildHttpResponseAsync().ConfigureAwait(false);
+    public async Task<ActionResult<ListedResult<RegisteredPlugin>>> Get([FromServices] GetPlugins command, [FromQuery] GetPluginsRequest request)
+        => await command.ExecuteAsync(request).BuildHttpResponseAsync().ConfigureAwait(false);
 
     /// <summary>
     /// Loads the plugins that match the supplied name and/or version.
     /// </summary>
-    /// <param name="operation">Operation that performs the plugin load.</param>
+    /// <param name="command">Command that performs the plugin load.</param>
     /// <param name="request">Filter identifying the plugins to load.</param>
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [HttpPost("load")]
-    public async Task<ActionResult<OperationResponse>> Load([FromServices] LoadPlugins operation, [FromQuery] LoadPluginsRequest request)
-        => await operation.ProcessAsync(request).BuildHttpResponseAsync().ConfigureAwait(false);
+    public async Task<ActionResult<Result>> Load([FromServices] LoadPlugins command, [FromQuery] PluginsRequest request)
+        => await command.ExecuteAsync(request).BuildHttpResponseAsync().ConfigureAwait(false);
 
     /// <summary>
     /// Loads every plugin known to the host.
     /// </summary>
-    /// <param name="operation">Operation that performs the plugin load.</param>
+    /// <param name="command">Command that performs the plugin load.</param>
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [HttpPost("load/all")]
-    public async Task<ActionResult<OperationResponse>> LoadAll([FromServices] LoadPlugins operation)
-        => await operation.ProcessAsync(new LoadPluginsRequest()).BuildHttpResponseAsync().ConfigureAwait(false);
+    public async Task<ActionResult<Result>> LoadAll([FromServices] LoadPlugins command)
+        => await command.ExecuteAsync(new PluginsRequest()).BuildHttpResponseAsync().ConfigureAwait(false);
 
     /// <summary>
     /// Reloads plugins that match the supplied name and/or version, optionally forcing a reload.
     /// </summary>
-    /// <param name="operation">Operation that performs the plugin reload.</param>
+    /// <param name="command">Command that performs the plugin reload.</param>
     /// <param name="request">Filter identifying the plugins to reload.</param>
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [HttpPost("reload")]
-    public async Task<ActionResult<OperationResponse>> Reload([FromServices] ReloadPlugins operation, [FromQuery] ReloadPluginsRequest request)
-        => await operation.ProcessAsync(request).BuildHttpResponseAsync().ConfigureAwait(false);
+    public async Task<ActionResult<Result>> Reload([FromServices] ReloadPlugins command, [FromQuery] ReloadPluginsRequest request)
+        => await command.ExecuteAsync(request).BuildHttpResponseAsync().ConfigureAwait(false);
 
     /// <summary>
     /// Reloads every plugin known to the host.
     /// </summary>
-    /// <param name="operation">Operation that performs the plugin reload.</param>
+    /// <param name="command">Command that performs the plugin reload.</param>
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [HttpPost("reload/all")]
-    public async Task<ActionResult<OperationResponse>> ReloadAll([FromServices] ReloadPlugins operation)
-        => await operation.ProcessAsync(new ReloadPluginsRequest()).BuildHttpResponseAsync().ConfigureAwait(false);
+    public async Task<ActionResult<Result>> ReloadAll([FromServices] ReloadPlugins command)
+        => await command.ExecuteAsync(new ReloadPluginsRequest()).BuildHttpResponseAsync().ConfigureAwait(false);
 
     /// <summary>
     /// Clears the plugin cache.
     /// </summary>
-    /// <param name="operation">Operation that clears the plugin cache.</param>
+    /// <param name="command">Command that clears the plugin cache.</param>
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [HttpDelete("cache")]
-    public async Task<ActionResult<OperationResponse>> ClearCache([FromServices] ClearPluginCache operation)
-        => await operation.ProcessAsync().BuildHttpResponseAsync().ConfigureAwait(false);
+    public async Task<ActionResult<Result>> ClearCache([FromServices] ClearPluginCache command)
+        => await command.ExecuteAsync().BuildHttpResponseAsync().ConfigureAwait(false);
 
     /// <summary>
     /// Persists the plugin cache to the target identified by the {target} route segment (e.g. file or database).
     /// </summary>
-    /// <param name="operation">Operation that persists the plugin cache.</param>
+    /// <param name="command">Command that persists the plugin cache.</param>
     /// <param name="request">Filter identifying the plugins to persist.</param>
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [HttpPost("cache/{target}/persist")]
-    public async Task<ActionResult<OperationResponse>> PersistCache([FromServices] PersistPluginCache operation, [FromQuery] PersistPluginCacheRequest request)
-        => await operation.ProcessAsync(request).BuildHttpResponseAsync().ConfigureAwait(false);
+    public async Task<ActionResult<Result>> PersistCache([FromServices] PersistPluginCache command, [FromQuery] PluginsRequest request)
+        => await command.ExecuteAsync(request).BuildHttpResponseAsync().ConfigureAwait(false);
 
     /// <summary>
     /// Restores the plugin cache from the target identified by the {target} route segment (e.g. file or database).
     /// </summary>
-    /// <param name="operation">Operation that restores the plugin cache.</param>
+    /// <param name="command">Command that restores the plugin cache.</param>
     /// <param name="request">Filter identifying the plugins to restore.</param>
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [HttpPost("cache/{target}/restore")]
-    public async Task<ActionResult<OperationResponse>> RestoreCache([FromServices] RestorePluginCache operation, [FromQuery] RestorePluginCacheRequest request)
-        => await operation.ProcessAsync(request).BuildHttpResponseAsync().ConfigureAwait(false);
+    public async Task<ActionResult<Result>> RestoreCache([FromServices] RestorePluginCache command, [FromQuery] PluginsRequest request)
+        => await command.ExecuteAsync(request).BuildHttpResponseAsync().ConfigureAwait(false);
 }

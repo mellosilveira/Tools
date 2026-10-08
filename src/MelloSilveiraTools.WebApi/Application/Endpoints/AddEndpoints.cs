@@ -1,6 +1,6 @@
-using MelloSilveiraTools.Database.Infrastructure.Database.Models.Entities;
-using MelloSilveiraTools.WebApi.Application.Operations.Add;
-using MelloSilveiraTools.WebApi.ExtensionMethods;
+using MelloSilveiraTools.Core.ExtensionMethods;
+using MelloSilveiraTools.Database.RelationalDatabase.Models.Entities;
+using MelloSilveiraTools.WebApi.Application.Commands.Crud.Add;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
@@ -28,11 +28,11 @@ public static class AddEndpoints
         where TEntity : EntityBase, new()
         => builder
             .MapPost(pattern, async (AddEntity<TEntity> operation, TEntity entity) => await operation
-                .ProcessAsync(new AddEntityRequest<TEntity> { Entity = entity, ResourceName = resourceName })
+                .ExecuteAsync(new AddEntityRequest<TEntity> { Entity = entity, ResourceName = resourceName })
                 .ToHttpResultAsync()
                 .ConfigureAwait(false))
-            .Produces<AddResponse>(StatusCodes.Status201Created)
-            .Produces<AddResponse>(StatusCodes.Status500InternalServerError)
+            .Produces<AddResult>(StatusCodes.Status201Created)
+            .Produces<AddResult>(StatusCodes.Status500InternalServerError)
             .WithName($"Add_{resourceName}")
             .WithSummary($"Persists a new {resourceName}.");
 }

@@ -1,4 +1,3 @@
-using MelloSilveiraTools.WebApi.Authentication;
 using Microsoft.IdentityModel.JsonWebTokens;
 using Microsoft.IdentityModel.Tokens;
 using System.Security.Claims;
@@ -43,8 +42,8 @@ public class AuthenticationJweTokenService : IAuthenticationTokenService
     public AuthenticationJweTokenService(JwtSettings settings)
     {
         _settings = settings;
-        var signingKey = CreateSecurityKey(settings.SigningKey, settings.SecurityKeyType);
-        var encryptionKey = CreateSecurityKey(settings.EncryptionKey, settings.SecurityKeyType);
+        SecurityKey signingKey = CreateSecurityKey(settings.SigningKey, settings.SecurityKeyType);
+        SecurityKey encryptionKey = CreateSecurityKey(settings.EncryptionKey, settings.SecurityKeyType);
         _signingCredentials = new SigningCredentials(signingKey, SecurityAlgorithms.HmacSha256);
         _encryptingCredentials = new EncryptingCredentials(encryptionKey, SecurityAlgorithms.Aes256KW, SecurityAlgorithms.Aes256CbcHmacSha512);
         _validationParameters = BuildTokenValidationParameters(settings);
@@ -56,7 +55,7 @@ public class AuthenticationJweTokenService : IAuthenticationTokenService
     /// <inheritdoc/>
     public AuthenticationToken Generate(string userIdentifier)
     {
-        var utcNow = DateTimeOffset.UtcNow;
+        DateTimeOffset utcNow = DateTimeOffset.UtcNow;
         DateTimeOffset expiresOn = utcNow.AddMinutes(_settings.TokenExperitationTimeInMinutes);
 
         SecurityTokenDescriptor descriptor = new()
@@ -84,7 +83,7 @@ public class AuthenticationJweTokenService : IAuthenticationTokenService
         if (!result.IsValid)
             throw new SecurityTokenException("Invalid token during refresh.");
 
-        var jwt = result.SecurityToken as JsonWebToken;
+        JsonWebToken? jwt = result.SecurityToken as JsonWebToken;
         string? userIdentifier = jwt?.Subject;
 
         if (string.IsNullOrEmpty(userIdentifier))

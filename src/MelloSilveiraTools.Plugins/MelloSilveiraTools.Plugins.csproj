@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <PackageId>MelloSilveiraTools.Plugins</PackageId>
     <AssemblyTitle>MelloSilveira Tools Plugins</AssemblyTitle>
@@ -11,8 +11,6 @@
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\MelloSilveiraTools.Core\MelloSilveiraTools.Core.csproj" />
-    <ProjectReference Include="..\MelloSilveiraTools.Database\MelloSilveiraTools.Database.csproj" />
     <ProjectReference Include="..\MelloSilveiraTools.WebApi\MelloSilveiraTools.WebApi.csproj" />
   </ItemGroup>
 </Project>

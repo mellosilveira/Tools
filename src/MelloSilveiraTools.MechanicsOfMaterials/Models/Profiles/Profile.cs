@@ -1,14 +1,13 @@
-﻿namespace MelloSilveiraTools.MechanicsOfMaterials.Models.Profiles
+﻿namespace MelloSilveiraTools.MechanicsOfMaterials.Models.Profiles;
+
+/// <summary>
+/// It represents the generic profile.
+/// </summary>
+public abstract class Profile
 {
     /// <summary>
-    /// It represents the generic profile.
+    /// The thickness.
+    /// Unit: mm (milimeter).
     /// </summary>
-    public abstract class Profile
-    {
-        /// <summary>
-        /// The thickness.
-        /// Unit: mm (milimeter).
-        /// </summary>
-        public double? Thickness { get; set; }
-    }
+    public double? Thickness { get; set; }
 }

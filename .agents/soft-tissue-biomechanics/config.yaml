@@ -1,0 +1,34 @@
+# Global Configurations of the Biomechanics Research Agents Ecosystem
+paths:
+  workspace_root: "."
+  ledger_file: ".\\.agents\\soft-tissue-biomechanics\\ledger\\decisions.md"
+  telemetry_file: ".\\.agents\\soft-tissue-biomechanics\\telemetry.jsonl"
+  skills_directory: ".\\.agents\\soft-tissue-biomechanics\\skills"
+  pdf_converter_script: ".\\.agents\\soft-tissue-biomechanics\\scripts\\pdf-to-md.ps1"
+
+execution:
+  max_retries: 2 # Attempts per subtask before the Circuit Breaker calls the human
+  micro_timeout_seconds: 120 # Timeout for individual interactions between agents
+
+contracts:
+  standard_json_output: |
+    {
+      "task_id": "task-uuid",
+      "skill": "canonical-skill-name",
+      "status": "success | partial | failure",
+      "retry_count": 0,
+      "data_payload": {},
+      "output_summary": "Action summary",
+      "justification_for_decisions": "Detailed explanation of WHY this approach was taken",
+      "artifacts": ["relative/paths/generated.md"],
+      "warnings": ["Alerts"],
+      "token_usage": 0,
+      "theoretical_precision": "high | medium | low"
+    }
+  actionable_feedback_item: |
+    {"priority": "high | low", "location": "...", "issue": "...", "fix": "..."}
+  telemetry_line: |
+    {"timestamp": "ISO-8601", "task_id": "...", "skill": "...", "status": "...", "retry_count": 0, "token_usage": 0, "theoretical_precision": "high | medium | low", "warnings": []}
+
+formatting:
+  significant_figures: 3 # Significant figures used ONLY in written texts (Writer)
