@@ -1,4 +1,4 @@
-# Macro Research Planning (1-Year Restriction)
+﻿# Macro Research Planning (1-Year Restriction)
 
 **Provisional Title:** Comparative Analysis of Non-Linear and Viscoelastic Constitutive Models Applied to Porcine Knee Ligaments under Uniaxial Tension.
 **Deadline Restriction:** 12 months until defense.
@@ -63,7 +63,7 @@
 - **[ ] TASK 2.6:** Develop and validate the native **1D Sensitivity Analysis Engine** (stress x time, stress x variation, asymptotes) within **MelloSilveiraTools**.
 - **[ ] TASK 2.7:** Inspect and clean the legacy code of the **SoftTissue** project to centralize business rules.
 - **[ ] TASK 2.8:** Create the logic, pipelines, and routes in **SoftTissue** aggregating the data triad.
-- **[ ] TASK 2.9:** Structure the **Frontend** to facilitate interaction and dynamic data exploration.
+- **[ ] TASK 2.9:** Structure a **Minimalist Frontend** focused exclusively on dynamic data exploration and triggering C# pipelines, strictly avoiding complex UI/UX engineering that drains research time.
 
 ---
 
@@ -73,7 +73,7 @@
 - **[ ] TASK 3.1:** Ingest real raw porcine experimental data (from Dr. Rodrigo Rodarte) into the C# API and run the numerical optimizer (MelloSilveiraTools) to generate the scalar constants.
 - **[ ] TASK 3.2:** Run the step-by-step 1D numerical simulation in C# to extract the "Scalar" curve.
 - **[ ] TASK 3.3:** Investigate literature methods to convert/recalibrate the extracted 1D scalar constants into valid 3D tensorial parameters.
-- **[ ] TASK 3.4:** Program and compile custom User-Defined Material (UDM) plugins (e.g., in C++) for any models missing natively in FEBio.
+- **[ ] TASK 3.4:** Program custom User-Defined Material (UDM) plugins in C++ for missing models in FEBio (e.g., Schapery). *(Safety Directive: Establish a strict 4-week Time-Box. If numerical convergence in C++ fails, restrict Schapery to C# 1D comparison and proceed with native FEBio models for 3D).* 
 - **[ ] TASK 3.5:** Configure geometries, boundaries, and the converted 3D constants within **FEBio**.
 - **[ ] TASK 3.6:** Run the FEBio Solver and export the results. Ingest back into SoftTissue Database.
 
