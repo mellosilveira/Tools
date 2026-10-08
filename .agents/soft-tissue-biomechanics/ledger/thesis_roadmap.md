@@ -49,6 +49,7 @@
 - **[ ] TASK 1.6:** Write the mathematical Cheat Sheet for the 3D tensorial formulation of the **Generalized Maxwell / Prony Series**. *(Note: 1D scalar equations are already held by the researcher).*
 - **[ ] TASK 1.7:** Write the mathematical Cheat Sheet for the 3D tensorial formulation of the **Weiss Transversely Isotropic Hyperelastic Model**. *(Note: 1D scalar equations are already held by the researcher).*
 - **[ ] TASK 1.8:** Write the mathematical Cheat Sheet for the 3D tensorial formulation of the **Poroviscoelasticity** model. *(Note: Typically used for cartilage; investigate and justify application to ligaments. 1D equations are held by the researcher).*
+- **[ ] TASK 1.9:** Write the mathematical Cheat Sheet for the **Holzapfel-Gasser-Ogden (HGO) structural model**, highlighting its application to collagen fiber dispersion in knee ligaments.
 
 ---
 
@@ -60,10 +61,11 @@
 - **[ ] TASK 2.3:** Develop the *Curve Fitting* objective functions for the **Generalized Maxwell / Prony Series 1D** within **MelloSilveiraTools**.
 - **[ ] TASK 2.4:** Develop the *Curve Fitting* objective functions for the **Weiss Transversely Isotropic 1D** model within **MelloSilveiraTools**.
 - **[ ] TASK 2.5:** Develop the *Curve Fitting* objective functions for the **Poroviscoelasticity 1D** model within **MelloSilveiraTools**.
-- **[ ] TASK 2.6:** Develop and validate the native **1D Sensitivity Analysis Engine** (stress x time, stress x variation, asymptotes) within **MelloSilveiraTools**.
-- **[ ] TASK 2.7:** Inspect and clean the legacy code of the **SoftTissue** project to centralize business rules.
-- **[ ] TASK 2.8:** Create the logic, pipelines, and routes in **SoftTissue** aggregating the data triad.
-- **[ ] TASK 2.9:** Structure a **Minimalist Frontend** focused exclusively on dynamic data exploration and triggering C# pipelines, strictly avoiding complex UI/UX engineering that drains research time.
+- **[ ] TASK 2.6:** Develop the *Curve Fitting* objective functions for the **Holzapfel-Gasser-Ogden (HGO) 1D** model within **MelloSilveiraTools**.
+- **[ ] TASK 2.7:** Develop and validate the native **1D Sensitivity Analysis Engine** (stress x time, stress x variation, asymptotes) within **MelloSilveiraTools**.
+- **[ ] TASK 2.8:** Inspect and clean the legacy code of the **SoftTissue** project to centralize business rules.
+- **[ ] TASK 2.9:** Create the logic, pipelines, and routes in **SoftTissue** aggregating the data triad.
+- **[ ] TASK 2.10:** Structure a **Minimalist Frontend** focused exclusively on dynamic data exploration and triggering C# pipelines, strictly avoiding complex UI/UX engineering that drains research time.
 
 ---
 
@@ -83,7 +85,7 @@
 *Status: To Do*
 
 - **[ ] TASK 4.1:** Calculate statistical error metrics (RMSE, $R^2$) and extract execution metadata (machine resources, execution time, precision, number of iterations) comparing the 1D, 3D, and experimental results for all 5 models.
-- **[ ] TASK 4.2:** Plot static Comparative Graphs (via Python script for high-res publication) superimposing experimental data and theoretical curves for **Fung, Schapery, Maxwell, Weiss, and Poroviscoelasticity**.
+- **[ ] TASK 4.2:** Plot static Comparative Graphs (via Python script for high-res publication) superimposing experimental data and theoretical curves for **Fung, Schapery, Maxwell, Weiss, Poroviscoelasticity, and HGO**.
 - **[ ] TASK 4.3:** Write the **"Introduction and Theoretical Framework"** chapters.
 - **[ ] TASK 4.4:** Write the **"Materials and Methods"** chapter.
 - **[ ] TASK 4.5:** Write the **"Results"** chapter.

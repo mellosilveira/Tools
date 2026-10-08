@@ -145,3 +145,16 @@ To ensure data integrity and prevent runaway token consumption during automated 
 * **What:** Validated and maintained Fung QLV 1D model objective function logic using inline lambdas in FungRelaxationOnlyCurveFitterStep.cs.
 * **From where:** senior-backend-software-engineer-net (File: C:\Pessoal\Projetos\Tools\.agents\soft-tissue-biomechanics\outputs\task-2.1-result.json)
 * **Why:** To strictly adhere to the "Do Not Reinvent the Wheel" directive and maintain architectural consistency across the MelloSilveiraTools ecosystem. Avoided creating redundant custom ObjectiveFunction classes, ensuring a unified approach to curve-fitting constraints.
+### 2026-10-08 Task: roadmap-revision-phase1-findings
+**Category**: Decision & Future Work
+
+#### Inclusion of Holzapfel-Gasser-Ogden (HGO) Model
+- **What**: Added the HGO structural model to the thesis scope (Tasks 1.9, 2.6, 4.2).
+- **From where**: Outputs of deep research Tasks 1.1 and 1.2.
+- **Why**: The literature strongly supports that soft tissues (especially knee ligaments) require anisotropic and structural constitutive models to account for collagen fiber dispersion in a ground matrix. Purely phenomenological polynomial models (Mooney-Rivlin, Neo-Hookean) were deemed insufficient, whereas HGO is a direct biological fit and is highly supported by modern FEA solvers like FEBio.
+
+#### Validation of FEBio and Poroviscoelasticity
+- **What**: Confirmed the selection of FEBio and the inclusion of Poroviscoelasticity in the roadmap.
+- **From where**: Outputs of deep research Task 1.3.
+- **Why**: FEBio natively supports complex biphasic and poroelastic materials critical for hydrated tissues. Its open-source nature allows for writing custom User-Defined Materials (UDMs) in C++ without licensing constraints, validating Task 3.4 of the roadmap.
+
