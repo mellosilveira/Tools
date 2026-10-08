@@ -108,3 +108,40 @@ To ensure data integrity and prevent runaway token consumption during automated 
 - **What:** Any constitutive model lacking native support in the chosen 3D FEA software will be custom-implemented.
 - **From where:** Researcher / Human directive.
 - **Why:** To ensure all 5 hypothesized models can be compared. The ecosystem will compile User-Defined Material (UDM) plugins (e.g., in C++) to inject the custom 3D tensorial math into the solver.
+
+## Ledger Entry: 2026-10-08
+
+### Decision & Execution
+* **Task_ID:** task-1.1
+* **Date:** 2026-10-08
+* **What:** Selection of primary constitutive models for soft tissue mechanics, specifically hyperelastic and viscoelastic models (Fung QLV, Mooney-Rivlin, Neo-Hookean, Ogden, Holzapfel-Gasser-Ogden).
+* **From where:** senior-applied-biomechanics-researcher-deep-research (Evidence includes DOIs: 10.1115/1.2834307, 10.1098/rsif.2015.0486, 10.1111/j.1475-1305.2006.00257.x, etc.)
+* **Why:** These models are chosen because they map well to the hierarchical structure of soft tissues like ligaments and tendons, representing large deformations, hysteresis, non-linear, time-dependent, and anisotropic behaviors.
+
+### Decision & Execution
+* **Task_ID:** task-1.2
+* **Date:** 2026-10-08
+* **What:** Application of Hyperelastic and viscoelastic constitutive models for knee ligaments.
+* **From where:** senior-applied-biomechanics-researcher-deep-research (Evidence includes DOIs: 10.1038/s41598-018-20739-w, 10.3389/fbioe.2014.00054, 10.1016/s0736-0266(03)00113-x, etc.)
+* **Why:** They correctly model the inherent nonlinearity, anisotropy (due to collagen bundles), and time-dependent behaviors (such as creep, hysteresis, and stress relaxation) under physiological and supra-physiological loads.
+
+### Decision & Execution
+* **Task_ID:** task-1.3
+* **Date:** 2026-10-08
+* **What:** Selection of FEBio as the core finite element solver instead of general-purpose solvers like Abaqus and Ansys.
+* **From where:** senior-applied-biomechanics-researcher-deep-research (Evidence includes DOIs: 10.1007/s10439-022-03074-0, 10.1111/os.13980, etc.)
+* **Why:** FEBio natively handles complex biphasic, multiphasic, and poroelastic materials essential for hydrated soft tissues. As open-source, it allows complete transparency, rigorous validation, and custom plugins for new constitutive models without licensing constraints.
+
+### Opportunity/Gap & Future Work
+* **Task_ID:** task-1.1, task-1.2, task-1.3
+* **Date:** 2026-10-08
+* **What:** Implementation of FEBio UDM (User Defined Material) and converting 1D constants to 3D models.
+* **From where:** Traceability QA identification / human input logic based on limitations of standard models in 3D settings.
+* **Why:** To fully leverage FEBio's open-source architecture by implementing custom plugins for specific constitutive models, moving beyond simple 1D constants to accurately model 3D biomechanical behaviors.
+
+### Execution & Decision
+* **Task_ID:** task-2.1
+* **Date:** 2026-10-08
+* **What:** Validated and maintained Fung QLV 1D model objective function logic using inline lambdas in FungRelaxationOnlyCurveFitterStep.cs.
+* **From where:** senior-backend-software-engineer-net (File: C:\Pessoal\Projetos\Tools\.agents\soft-tissue-biomechanics\outputs\task-2.1-result.json)
+* **Why:** To strictly adhere to the "Do Not Reinvent the Wheel" directive and maintain architectural consistency across the MelloSilveiraTools ecosystem. Avoided creating redundant custom ObjectiveFunction classes, ensuring a unified approach to curve-fitting constraints.

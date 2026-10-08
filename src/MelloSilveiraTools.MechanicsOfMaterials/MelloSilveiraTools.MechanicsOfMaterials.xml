@@ -1910,9 +1910,6 @@
             <summary>
             Contains the load-response relationships available for mechanical analysis.
             </summary>
-            <remarks>
-            Categorizes the physical load-response relationship (e.g., Stress-Strain or Force-Displacement).
-            </remarks>
         </member>
         <member name="F:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.LoadResponseRelationship.StressStrain">
             <summary>

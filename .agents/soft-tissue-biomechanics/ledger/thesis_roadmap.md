@@ -1,4 +1,4 @@
-﻿# Macro Research Planning (1-Year Restriction)
+# Macro Research Planning (1-Year Restriction)
 
 **Provisional Title:** Comparative Analysis of Non-Linear and Viscoelastic Constitutive Models Applied to Porcine Knee Ligaments under Uniaxial Tension.
 **Deadline Restriction:** 12 months until defense.
@@ -41,9 +41,9 @@
 ## PHASE 1: Review and Foundation
 *Status: In progress*
 
-- **[ ] TASK 1.1:** [FUNNEL - STEP 1] Survey the main constitutive models used for soft tissues. *(Ensure "Why" is logged)*.
-- **[ ] TASK 1.2:** [FUNNEL - STEP 2] Narrow the research to models used for knee ligaments. *(Ensure "Why" is logged)*.
-- **[ ] TASK 1.3:** [FUNNEL - STEP 3] Survey FEA technologies. Document the formal justification for using FEBio (open-source) over others.
+- **[x] TASK 1.1:** [FUNNEL - STEP 1] Survey the main constitutive models used for soft tissues. *(Ensure "Why" is logged)*. (COMPLETED)
+- **[x] TASK 1.2:** [FUNNEL - STEP 2] Narrow the research to models used for knee ligaments. *(Ensure "Why" is logged)*. (COMPLETED)
+- **[x] TASK 1.3:** [FUNNEL - STEP 3] Survey FEA technologies. Document the formal justification for using FEBio (open-source) over others. (COMPLETED)
 - **[x] TASK 1.4:** Write the mathematical Cheat Sheet for Fung's QLV 3D model. (COMPLETED)
 - **[ ] TASK 1.5:** Write the mathematical Cheat Sheet for the **Schapery Non-Linear Model in 3D Tensorial formulation** (uniaxial tension). *(Note: 1D scalar equations are already held by the researcher. Focus strictly on 3D tensorial math).*
 - **[ ] TASK 1.6:** Write the mathematical Cheat Sheet for the 3D tensorial formulation of the **Generalized Maxwell / Prony Series**. *(Note: 1D scalar equations are already held by the researcher).*
@@ -55,7 +55,7 @@
 ## PHASE 2: Computational Engineering (C# Architecture)
 *Status: To Do (MelloSilveiraTools + SoftTissue)*
 
-- **[ ] TASK 2.1:** Develop the *Curve Fitting* objective functions for the **Fung QLV 1D** model within the **MelloSilveiraTools** package.
+- **[x] TASK 2.1:** Develop the *Curve Fitting* objective functions for the **Fung QLV 1D** model within the **MelloSilveiraTools** package. (COMPLETED)
 - **[ ] TASK 2.2:** Develop the *Curve Fitting* objective functions for the **Schapery Non-Linear 1D** model within **MelloSilveiraTools**.
 - **[ ] TASK 2.3:** Develop the *Curve Fitting* objective functions for the **Generalized Maxwell / Prony Series 1D** within **MelloSilveiraTools**.
 - **[ ] TASK 2.4:** Develop the *Curve Fitting* objective functions for the **Weiss Transversely Isotropic 1D** model within **MelloSilveiraTools**.

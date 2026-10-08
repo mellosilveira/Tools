@@ -26,9 +26,14 @@ The ecosystem is composed of **1 Central Orchestrator** and **8 Specialist Agent
 
 ## 2. Topology
 
+The ecosystem strictly enforces a **Pre-Execution Justification and QA Gate**:
+1. **Strategy Proposal:** Before executing any actual work (e.g., writing code, processing data), the assigned subagent MUST present a justification and strategy of what will be done.
+2. **Evaluation:** The Secretary reviews this strategy. Then, the Orchestrator evaluates it alongside the Human User.
+3. **Execution:** ONLY after explicit approval from the Human User is the subagent allowed to proceed with the execution.
+
 The Orchestrator invokes generic subagents (`TypeName: "self"`, `Workspace: "inherit"`) and, in the `Prompt`, instructs each to read the persona's `SKILL.md` in `paths.skills_directory`.
 
-*Orchestrator -> Subagent -> JSON -> Telemetry -> Save JSON to `outputs/` folder -> (Reviewer, if text) -> Secretary (QA + Ledger) -> Synthesis to human.*
+*Orchestrator -> Subagent (Strategy Proposal) -> Secretary (Strategy QA) -> Human (Approval) -> Subagent (Execution) -> JSON -> Telemetry -> Save JSON to `outputs/` folder -> (Reviewer, if text) -> Secretary (QA + Ledger) -> Synthesis to human.*
 
 ---
 

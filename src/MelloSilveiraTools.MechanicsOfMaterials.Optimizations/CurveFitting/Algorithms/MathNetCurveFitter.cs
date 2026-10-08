@@ -9,8 +9,8 @@ public class MathNetCurveFitter : CurveFitterBase
     public override CurveFitOutput Fit(CurveFitInput input)
     {
         IObjectiveFunction objectiveFunction = ObjectiveFunction.Gradient(
-            (vector) => CalculateObjectiveFunction(input, vector.ToArray()),
-            (vector) => DenseVector.OfArray(CalculateNumericalGradient(input, vector.ToArray()))
+            (vector) => CalculateObjectiveFunction(input, [.. vector]),
+            (vector) => DenseVector.OfArray(CalculateNumericalGradient(input, [.. vector]))
         );
 
         DenseVector initialGuess = DenseVector.OfArray(input.InitialParameters);
@@ -21,12 +21,12 @@ public class MathNetCurveFitter : CurveFitterBase
 
         // Estagio 2: Nelder-Mead a partir do resultado do BFGS
         IObjectiveFunction unconstrainedObjectiveFunction = ObjectiveFunction.Value(
-            (vector) => CalculateObjectiveFunction(input, vector.ToArray())
+            (vector) => CalculateObjectiveFunction(input, [.. vector])
         );
         NelderMeadSimplex solverNelderMead = new(input.Tolerance, input.MaxIterations);
         MinimizationResult finalResult = solverNelderMead.FindMinimum(unconstrainedObjectiveFunction, resultBfgs.MinimizingPoint);
 
-        double[] finalParameters = finalResult.MinimizingPoint.ToArray();
+        double[] finalParameters = [.. finalResult.MinimizingPoint];
         double rSquared = CalculateRSquared(input, finalParameters);
 
         return new CurveFitOutput(finalParameters, finalResult.FunctionInfoAtMinimum.Value, rSquared, finalResult.Iterations);

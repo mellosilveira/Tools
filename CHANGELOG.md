@@ -99,6 +99,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Refactored `ICurveFitter` and its implementations to support functions with multiple independent variables.
 - Updated `Schapery` and `Fung` constitutive model implementations in alignment with specialized bibliographies.
 - Refactored mechanical model curve fitter steps (e.g., `SchaperyRelaxationOnlyCurveFitterStep`, `FungCurveFitterStep`) to streamline pipeline integration and yield `MechanicalModelCurveFitOutput`, replacing previous base abstractions.
+- Validated and maintained Fung QLV 1D model objective function curve fitting mapping via inline lambdas in `FungRelaxationOnlyCurveFitterStep`, adhering to the established architectural standard without redundant file generation.
 - All mechanical model calculators (e.g., `SchaperyModelCalculator`, `FungModelCalculator`, `ModifiedSuperpositionMethodCalculator`, `LinearModelCalculator`) now isolate and route physical properties through the `input.ConstitutiveParameters` property instead of reading them directly from a flattened input object.
 - `Expression` abstract class in `MelloSilveiraTools.Mathematics` renamed to `MathExpression`.
 - `Vector3DExtension` renamed to `Vector3DExtensions`.
