@@ -1,5 +1,6 @@
 using MelloSilveiraTools.Mathematics.Converters;
 using MelloSilveiraTools.MechanicsOfMaterials.Attributes;
+using MelloSilveiraTools.MechanicsOfMaterials.Models;
 using MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels;
 using MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Elasticity;
 using MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity;
@@ -55,7 +56,7 @@ public class ElasticModelCalculator : IElasticModelCalculator
 
     private double CalculateStiffness(MechanicalModelInput<ElasticConstitutiveParameters> input, double time, double? force = null, double? displacement = null)
     {
-        var specimen = input.Specimen!;
+        SpecimenParameter specimen = input.Specimen!;
         if (!specimen.ConsiderLargeDisplacement)
             return specimen.Area * UnitConverter.ConvertMPaToPa(input.ConstitutiveParameters.YoungModulus) / specimen.PreLoadLength;
 

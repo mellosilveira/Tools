@@ -45,11 +45,11 @@ public class MechanicalModelTypeCache(ISingleLevelCache cache) : IMechanicalMode
     /// </summary>
     private static Func<object, object?[], object> CompileMethodInvoker(MethodInfo method)
     {
-        var instance = Expression.Parameter(typeof(object), "instance");
-        var args = Expression.Parameter(typeof(object[]), "args");
+        ParameterExpression instance = Expression.Parameter(typeof(object), "instance");
+        ParameterExpression args = Expression.Parameter(typeof(object[]), "args");
 
         ParameterInfo[] parameters = method.GetParameters();
-        var paramExpressions = new Expression[parameters.Length];
+        Expression[] paramExpressions = new Expression[parameters.Length];
         for (int i = 0; i < parameters.Length; i++)
         {
             paramExpressions[i] = Expression.Convert(
@@ -83,8 +83,8 @@ public class MechanicalModelTypeCache(ISingleLevelCache cache) : IMechanicalMode
 
     private static Action<object, object> CompilePropertySetter(PropertyInfo property)
     {
-        var instance = Expression.Parameter(typeof(object), "instance");
-        var value = Expression.Parameter(typeof(object), "value");
+        ParameterExpression instance = Expression.Parameter(typeof(object), "instance");
+        ParameterExpression value = Expression.Parameter(typeof(object), "value");
 
         Expression body = Expression.Assign(
             Expression.Property(Expression.Convert(instance, property.DeclaringType!), property),

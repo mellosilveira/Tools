@@ -1,14 +1,14 @@
 using MelloSilveiraTools.Core.Models;
 using MelloSilveiraTools.WebApi.Application.Models;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using System.Net.Mime;
 
 namespace MelloSilveiraTools.WebApi.Application.Middlewares;
 
 /// <summary>
-/// Middleware that converts unhandled exceptions raised by the pipeline into a standard <see cref="ProblemDetails"/> JSON response.
+/// A safety net that catches unexpected system failures during operations, ensuring users receive a clear, standardized error message rather than a complete application crash.
+/// It acts as a polite translator, turning complex technical issues into predictable responses so client applications can handle them gracefully.
 /// </summary>
 /// <remarks>
 /// Exception-to-status mapping performed by <see cref="InvokeAsync"/>:
@@ -44,7 +44,7 @@ public class ExceptionHandlingHttpMiddleware(RequestDelegate next)
                 return;
             }
 
-            var statusCode = ex switch
+            StatusCode statusCode = ex switch
             {
                 UnauthorizedAccessException => StatusCode.Unauthorized,
                 ArgumentException or InvalidOperationException => StatusCode.BadRequest,
@@ -66,7 +66,7 @@ public class ExceptionHandlingHttpMiddleware(RequestDelegate next)
                 context.Request.Body.Position = 0;
 
                 // leaveOpen: true ensures we don't accidentally kill the stream
-                using var reader = new StreamReader(context.Request.Body, leaveOpen: true);
+                using StreamReader reader = new(context.Request.Body, leaveOpen: true);
                 requestBody = await reader.ReadToEndAsync();
             }
 
@@ -80,7 +80,7 @@ public class ExceptionHandlingHttpMiddleware(RequestDelegate next)
                 statusCode,
                 responseMessage);
 
-            var result = Result.CreateError(statusCode, responseMessage);
+            Result result = Result.CreateError(statusCode, responseMessage);
             await context.Response.WriteAsJsonAsync(result).ConfigureAwait(false);
         }
     }

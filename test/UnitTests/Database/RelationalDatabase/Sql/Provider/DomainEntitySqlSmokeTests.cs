@@ -2,7 +2,7 @@ using MelloSilveiraTools.Database.RelationalDatabase.Attributes;
 using MelloSilveiraTools.Database.RelationalDatabase.Models.Entities;
 using MelloSilveiraTools.Database.RelationalDatabase.Sql.Provider;
 
-namespace UnitTests;
+namespace UnitTests.Database.RelationalDatabase.Sql.Provider;
 
 /// <summary>
 /// Smoke tests using the original domain entity graph (user / district / join table).

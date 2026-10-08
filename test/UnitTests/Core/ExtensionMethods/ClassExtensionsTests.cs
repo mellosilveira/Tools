@@ -1,7 +1,8 @@
 using MelloSilveiraTools.Core.ExtensionMethods;
 using MelloSilveiraTools.Database.ExtensionMethods;
+using UnitTests.Database;
 
-namespace UnitTests;
+namespace UnitTests.Core.ExtensionMethods;
 
 public sealed class ClassExtensionsTests
 {

@@ -23,7 +23,7 @@ public static class CustomMath
     public static double Sum(params IReadOnlyCollection<double> values)
     {
         double sum = 0;
-        foreach (var value in values)
+        foreach (double value in values)
         {
             sum += value;
         }

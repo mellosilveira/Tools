@@ -53,7 +53,7 @@ public class PluginCache(ITwoLevelCache cache)
     /// </summary>
     public async Task ClearAsync()
     {
-        await foreach (var (name, versionAsString, _) in cache.StreamAll())
+        await foreach ((string? name, string? versionAsString, object _) in cache.StreamAll())
         {
             Clear(name, PluginVersion.Parse(versionAsString));
         }
@@ -67,7 +67,7 @@ public class PluginCache(ITwoLevelCache cache)
     public void Clear(string name, PluginVersion version)
     {
         // If assembly is loaded, unload it before removing the cache entry.
-        if (TryGet<LoadedPlugin>(name, version, out var plugin))
+        if (TryGet<LoadedPlugin>(name, version, out LoadedPlugin? plugin))
             plugin!.UnloadAssembly();
 
         cache.Remove(name, version.Name);

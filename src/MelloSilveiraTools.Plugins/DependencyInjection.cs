@@ -50,8 +50,8 @@ public static class PluginsDependencyInjection
             // injection.
             .AddScoped(serviceProvider =>
             {
-                var accessor = serviceProvider.GetRequiredService<IHttpContextAccessor>();
-                var settings = serviceProvider.GetRequiredService<PluginSettings>();
+                IHttpContextAccessor accessor = serviceProvider.GetRequiredService<IHttpContextAccessor>();
+                PluginSettings settings = serviceProvider.GetRequiredService<PluginSettings>();
                 // Outside an HTTP request (e.g. inside the plugin orchestrator background service)
                 // there is no {target} route value; fall back to the configured default so that
                 // IPluginService can still be resolved and call LoadPluginsOnRuntime.

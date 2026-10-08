@@ -480,7 +480,7 @@ public partial class alglib
     *************************************************************************/
     public static void knnserialize(knnmodel obj, out string s_out)
     {
-        alglib.serializer s = new alglib.serializer();
+        alglib.serializer s = new();
         s.alloc_start();
         knn.knnalloc(s, obj.innerobj, null);
         s.sstart_str();
@@ -512,7 +512,7 @@ public partial class alglib
     *************************************************************************/
     public static void knnserialize(knnmodel obj, System.IO.Stream stream_out)
     {
-        alglib.serializer s = new alglib.serializer();
+        alglib.serializer s = new();
         s.alloc_start();
         knn.knnalloc(s, obj.innerobj, null);
         s.sstart_stream(stream_out);
@@ -526,7 +526,7 @@ public partial class alglib
     *************************************************************************/
     public static void knnunserialize(string s_in, out knnmodel obj)
     {
-        alglib.serializer s = new alglib.serializer();
+        alglib.serializer s = new();
         obj = new knnmodel();
         s.ustart_str(s_in);
         knn.knnunserialize(s, obj.innerobj, null);
@@ -540,7 +540,7 @@ public partial class alglib
     public static void knnunserialize(System.IO.Stream stream_in, out knnmodel obj)
 
     {
-        alglib.serializer s = new alglib.serializer();
+        alglib.serializer s = new();
         obj = new knnmodel();
         s.ustart_stream(stream_in);
         knn.knnunserialize(s, obj.innerobj, null);
@@ -1455,7 +1455,7 @@ public partial class alglib
     *************************************************************************/
     public static void dfserialize(decisionforest obj, out string s_out)
     {
-        alglib.serializer s = new alglib.serializer();
+        alglib.serializer s = new();
         s.alloc_start();
         dforest.dfalloc(s, obj.innerobj, null);
         s.sstart_str();
@@ -1487,7 +1487,7 @@ public partial class alglib
     *************************************************************************/
     public static void dfserialize(decisionforest obj, System.IO.Stream stream_out)
     {
-        alglib.serializer s = new alglib.serializer();
+        alglib.serializer s = new();
         s.alloc_start();
         dforest.dfalloc(s, obj.innerobj, null);
         s.sstart_stream(stream_out);
@@ -1501,7 +1501,7 @@ public partial class alglib
     *************************************************************************/
     public static void dfunserialize(string s_in, out decisionforest obj)
     {
-        alglib.serializer s = new alglib.serializer();
+        alglib.serializer s = new();
         obj = new decisionforest();
         s.ustart_str(s_in);
         dforest.dfunserialize(s, obj.innerobj, null);
@@ -1515,7 +1515,7 @@ public partial class alglib
     public static void dfunserialize(System.IO.Stream stream_in, out decisionforest obj)
 
     {
-        alglib.serializer s = new alglib.serializer();
+        alglib.serializer s = new();
         obj = new decisionforest();
         s.ustart_stream(stream_in);
         dforest.dfunserialize(s, obj.innerobj, null);
@@ -2760,7 +2760,7 @@ public partial class alglib
     *************************************************************************/
     public static void mlpserialize(multilayerperceptron obj, out string s_out)
     {
-        alglib.serializer s = new alglib.serializer();
+        alglib.serializer s = new();
         s.alloc_start();
         mlpbase.mlpalloc(s, obj.innerobj, null);
         s.sstart_str();
@@ -2792,7 +2792,7 @@ public partial class alglib
     *************************************************************************/
     public static void mlpserialize(multilayerperceptron obj, System.IO.Stream stream_out)
     {
-        alglib.serializer s = new alglib.serializer();
+        alglib.serializer s = new();
         s.alloc_start();
         mlpbase.mlpalloc(s, obj.innerobj, null);
         s.sstart_stream(stream_out);
@@ -2806,7 +2806,7 @@ public partial class alglib
     *************************************************************************/
     public static void mlpunserialize(string s_in, out multilayerperceptron obj)
     {
-        alglib.serializer s = new alglib.serializer();
+        alglib.serializer s = new();
         obj = new multilayerperceptron();
         s.ustart_str(s_in);
         mlpbase.mlpunserialize(s, obj.innerobj, null);
@@ -2820,7 +2820,7 @@ public partial class alglib
     public static void mlpunserialize(System.IO.Stream stream_in, out multilayerperceptron obj)
 
     {
-        alglib.serializer s = new alglib.serializer();
+        alglib.serializer s = new();
         obj = new multilayerperceptron();
         s.ustart_stream(stream_in);
         mlpbase.mlpunserialize(s, obj.innerobj, null);
@@ -6964,7 +6964,7 @@ public partial class alglib
     *************************************************************************/
     public static void mlpeserialize(mlpensemble obj, out string s_out)
     {
-        alglib.serializer s = new alglib.serializer();
+        alglib.serializer s = new();
         s.alloc_start();
         mlpe.mlpealloc(s, obj.innerobj, null);
         s.sstart_str();
@@ -6996,7 +6996,7 @@ public partial class alglib
     *************************************************************************/
     public static void mlpeserialize(mlpensemble obj, System.IO.Stream stream_out)
     {
-        alglib.serializer s = new alglib.serializer();
+        alglib.serializer s = new();
         s.alloc_start();
         mlpe.mlpealloc(s, obj.innerobj, null);
         s.sstart_stream(stream_out);
@@ -7010,7 +7010,7 @@ public partial class alglib
     *************************************************************************/
     public static void mlpeunserialize(string s_in, out mlpensemble obj)
     {
-        alglib.serializer s = new alglib.serializer();
+        alglib.serializer s = new();
         obj = new mlpensemble();
         s.ustart_str(s_in);
         mlpe.mlpeunserialize(s, obj.innerobj, null);
@@ -7024,7 +7024,7 @@ public partial class alglib
     public static void mlpeunserialize(System.IO.Stream stream_in, out mlpensemble obj)
 
     {
-        alglib.serializer s = new alglib.serializer();
+        alglib.serializer s = new();
         obj = new mlpensemble();
         s.ustart_stream(stream_in);
         mlpe.mlpeunserialize(s, obj.innerobj, null);
@@ -11529,7 +11529,7 @@ public partial class alglib
             }
             public override alglib.apobject make_copy()
             {
-                cvreport _result = new cvreport();
+                cvreport _result = new();
                 _result.relclserror = relclserror;
                 _result.avgce = avgce;
                 _result.rmserror = rmserror;
@@ -13502,7 +13502,7 @@ public partial class alglib
             }
             public override alglib.apobject make_copy()
             {
-                knnbuffer _result = new knnbuffer();
+                knnbuffer _result = new();
                 _result.treebuf = treebuf != null ? (nearestneighbor.kdtreerequestbuffer)treebuf.make_copy() : null;
                 _result.x = (double[])x.Clone();
                 _result.y = (double[])y.Clone();
@@ -13540,7 +13540,7 @@ public partial class alglib
             }
             public override alglib.apobject make_copy()
             {
-                knnbuilder _result = new knnbuilder();
+                knnbuilder _result = new();
                 _result.dstype = dstype;
                 _result.npoints = npoints;
                 _result.nvars = nvars;
@@ -13579,7 +13579,7 @@ public partial class alglib
             }
             public override alglib.apobject make_copy()
             {
-                knnmodel _result = new knnmodel();
+                knnmodel _result = new();
                 _result.nvars = nvars;
                 _result.nout = nout;
                 _result.k = k;
@@ -13625,7 +13625,7 @@ public partial class alglib
             }
             public override alglib.apobject make_copy()
             {
-                knnreport _result = new knnreport();
+                knnreport _result = new();
                 _result.relclserror = relclserror;
                 _result.avgce = avgce;
                 _result.rmserror = rmserror;
@@ -13952,7 +13952,7 @@ public partial class alglib
             int nvars = 0;
             int nout = 0;
             int npoints = 0;
-            bool iscls = new bool();
+            bool iscls = new();
             double[,] xy = new double[0, 0];
             int[] tags = new int[0];
 
@@ -14320,7 +14320,7 @@ public partial class alglib
             alglib.xparams _params)
         {
             double result = 0;
-            knnreport rep = new knnreport();
+            knnreport rep = new();
 
             knnallerrors(model, xy, npoints, rep, _params);
             result = rep.relclserror;
@@ -14357,7 +14357,7 @@ public partial class alglib
             alglib.xparams _params)
         {
             double result = 0;
-            knnreport rep = new knnreport();
+            knnreport rep = new();
 
             knnallerrors(model, xy, npoints, rep, _params);
             result = rep.avgce;
@@ -14392,7 +14392,7 @@ public partial class alglib
             alglib.xparams _params)
         {
             double result = 0;
-            knnreport rep = new knnreport();
+            knnreport rep = new();
 
             knnallerrors(model, xy, npoints, rep, _params);
             result = rep.rmserror;
@@ -14427,7 +14427,7 @@ public partial class alglib
             alglib.xparams _params)
         {
             double result = 0;
-            knnreport rep = new knnreport();
+            knnreport rep = new();
 
             knnallerrors(model, xy, npoints, rep, _params);
             result = rep.avgerror;
@@ -14462,7 +14462,7 @@ public partial class alglib
             alglib.xparams _params)
         {
             double result = 0;
-            knnreport rep = new knnreport();
+            knnreport rep = new();
 
             knnallerrors(model, xy, npoints, rep, _params);
             result = rep.avgrelerror;
@@ -14509,13 +14509,13 @@ public partial class alglib
             knnreport rep,
             alglib.xparams _params)
         {
-            knnbuffer buf = new knnbuffer();
+            knnbuffer buf = new();
             double[] desiredy = new double[0];
             double[] errbuf = new double[0];
             int nvars = 0;
             int nout = 0;
             int ny = 0;
-            bool iscls = new bool();
+            bool iscls = new();
             int i = 0;
             int j = 0;
 
@@ -14736,7 +14736,7 @@ public partial class alglib
         {
             int nvars = 0;
             int nout = 0;
-            bool iscls = new bool();
+            bool iscls = new();
             int nncnt = 0;
             int i = 0;
             int j = 0;
@@ -14849,7 +14849,7 @@ public partial class alglib
             }
             public override alglib.apobject make_copy()
             {
-                decisionforestbuilder _result = new decisionforestbuilder();
+                decisionforestbuilder _result = new();
                 _result.dstype = dstype;
                 _result.npoints = npoints;
                 _result.nvars = nvars;
@@ -14938,7 +14938,7 @@ public partial class alglib
             }
             public override alglib.apobject make_copy()
             {
-                dfworkbuf _result = new dfworkbuf();
+                dfworkbuf _result = new();
                 _result.classpriors = (int[])classpriors.Clone();
                 _result.varpool = (int[])varpool.Clone();
                 _result.varpoolsize = varpoolsize;
@@ -14989,7 +14989,7 @@ public partial class alglib
             }
             public override alglib.apobject make_copy()
             {
-                dfvotebuf _result = new dfvotebuf();
+                dfvotebuf _result = new();
                 _result.trntotals = (double[])trntotals.Clone();
                 _result.oobtotals = (double[])oobtotals.Clone();
                 _result.trncounts = (int[])trncounts.Clone();
@@ -15037,7 +15037,7 @@ public partial class alglib
             }
             public override alglib.apobject make_copy()
             {
-                dfpermimpbuf _result = new dfpermimpbuf();
+                dfpermimpbuf _result = new();
                 _result.losses = (double[])losses.Clone();
                 _result.xraw = (double[])xraw.Clone();
                 _result.xdist = (double[])xdist.Clone();
@@ -15065,7 +15065,7 @@ public partial class alglib
             }
             public override alglib.apobject make_copy()
             {
-                dftreebuf _result = new dftreebuf();
+                dftreebuf _result = new();
                 _result.treebuf = (double[])treebuf.Clone();
                 _result.treeidx = treeidx;
                 return _result;
@@ -15095,7 +15095,7 @@ public partial class alglib
             }
             public override alglib.apobject make_copy()
             {
-                decisionforestbuffer _result = new decisionforestbuffer();
+                decisionforestbuffer _result = new();
                 _result.x = (double[])x.Clone();
                 _result.y = (double[])y.Clone();
                 return _result;
@@ -15129,7 +15129,7 @@ public partial class alglib
             }
             public override alglib.apobject make_copy()
             {
-                decisionforest _result = new decisionforest();
+                decisionforest _result = new();
                 _result.forestformat = forestformat;
                 _result.usemantissa8 = usemantissa8;
                 _result.nvars = nvars;
@@ -15243,7 +15243,7 @@ public partial class alglib
             }
             public override alglib.apobject make_copy()
             {
-                dfreport _result = new dfreport();
+                dfreport _result = new();
                 _result.relclserror = relclserror;
                 _result.avgce = avgce;
                 _result.rmserror = rmserror;
@@ -15296,7 +15296,7 @@ public partial class alglib
             }
             public override alglib.apobject make_copy()
             {
-                dfinternalbuffers _result = new dfinternalbuffers();
+                dfinternalbuffers _result = new();
                 _result.treebuf = (double[])treebuf.Clone();
                 _result.idxbuf = (int[])idxbuf.Clone();
                 _result.tmpbufr = (double[])tmpbufr.Clone();
@@ -16055,9 +16055,9 @@ public partial class alglib
             int trnsize = 0;
             int maxtreesize = 0;
             int sessionseed = 0;
-            dfworkbuf workbufseed = new dfworkbuf();
-            dfvotebuf votebufseed = new dfvotebuf();
-            dftreebuf treebufseed = new dftreebuf();
+            dfworkbuf workbufseed = new();
+            dfvotebuf votebufseed = new();
+            dftreebuf treebufseed = new();
 
             alglib.ap.assert(ntrees >= 1, "DFBuilderBuildRandomForest: ntrees<1");
             cleanreport(s, rep, _params);
@@ -16313,7 +16313,7 @@ public partial class alglib
             int i = 0;
             double v = 0;
             int treesize = 0;
-            bool processed = new bool();
+            bool processed = new();
             int i_ = 0;
 
 
@@ -17022,7 +17022,7 @@ public partial class alglib
         {
             int i0 = 0;
             int forestformat = 0;
-            bool processed = new bool();
+            bool processed = new();
 
 
             //
@@ -17158,7 +17158,7 @@ public partial class alglib
             dfreport rep,
             alglib.xparams _params)
         {
-            decisionforestbuilder builder = new decisionforestbuilder();
+            decisionforestbuilder builder = new();
             int i = 0;
 
             info = 0;
@@ -17210,7 +17210,7 @@ public partial class alglib
             int npoints = 0;
             int nvars = 0;
             int nclasses = 0;
-            hqrnd.hqrndstate rs = new hqrnd.hqrndstate();
+            hqrnd.hqrndstate rs = new();
             dfworkbuf workbuf = null;
             dfvotebuf votebuf = null;
             dftreebuf treebuf = null;
@@ -17419,7 +17419,7 @@ public partial class alglib
             int j = 0;
             int j0 = 0;
             double v = 0;
-            bool labelsaresame = new bool();
+            bool labelsaresame = new();
             int offs = 0;
             int varbest = 0;
             double splitbest = 0;
@@ -17656,12 +17656,12 @@ public partial class alglib
             double[] tmpr1 = new double[0];
             int[] tmpi0 = new int[0];
             double[] losses = new double[0];
-            dfpermimpbuf permseed = new dfpermimpbuf();
+            dfpermimpbuf permseed = new();
             dfpermimpbuf permresult = null;
-            alglib.smp.shared_pool permpool = new alglib.smp.shared_pool();
+            alglib.smp.shared_pool permpool = new();
             double nopermloss = 0;
             double totalpermloss = 0;
-            hqrnd.hqrndstate varimprs = new hqrnd.hqrndstate();
+            hqrnd.hqrndstate varimprs = new();
 
             npoints = s.npoints;
             nvars = s.nvars;
@@ -18288,7 +18288,7 @@ public partial class alglib
             double errbest = 0;
             int varstried = 0;
             int varcur = 0;
-            bool valuesaresame = new bool();
+            bool valuesaresame = new();
             int offs = 0;
             double split = 0;
             int i = 0;
@@ -19147,11 +19147,11 @@ public partial class alglib
             int npoints = 0;
             int i = 0;
             int j = 0;
-            bool isbinary = new bool();
+            bool isbinary = new();
             double v = 0;
             double v0 = 0;
             double v1 = 0;
-            hqrnd.hqrndstate rs = new hqrnd.hqrndstate();
+            hqrnd.hqrndstate rs = new();
 
             alglib.ap.assert(s.dstype == 0, "no sparsity");
             npoints = s.npoints;
@@ -20411,7 +20411,7 @@ public partial class alglib
             }
             public override alglib.apobject make_copy()
             {
-                modelerrors _result = new modelerrors();
+                modelerrors _result = new();
                 _result.relclserror = relclserror;
                 _result.avgce = avgce;
                 _result.rmserror = rmserror;
@@ -20439,7 +20439,7 @@ public partial class alglib
             }
             public override alglib.apobject make_copy()
             {
-                smlpgrad _result = new smlpgrad();
+                smlpgrad _result = new();
                 _result.f = f;
                 _result.g = (double[])g.Clone();
                 return _result;
@@ -20508,7 +20508,7 @@ public partial class alglib
             }
             public override alglib.apobject make_copy()
             {
-                multilayerperceptron _result = new multilayerperceptron();
+                multilayerperceptron _result = new();
                 _result.hlnetworktype = hlnetworktype;
                 _result.hlnormtype = hlnormtype;
                 _result.hllayersizes = (int[])hllayersizes.Clone();
@@ -21287,8 +21287,8 @@ public partial class alglib
         {
             int wcount = 0;
             int i = 0;
-            hpccores.mlpbuffers buf = new hpccores.mlpbuffers();
-            smlpgrad sgrad = new smlpgrad();
+            hpccores.mlpbuffers buf = new();
+            smlpgrad sgrad = new();
 
 
             //
@@ -21337,7 +21337,7 @@ public partial class alglib
             multilayerperceptron network2,
             alglib.xparams _params)
         {
-            bool result = new bool();
+            bool result = new();
             int i = 0;
             int ninfo = 0;
 
@@ -21758,7 +21758,7 @@ public partial class alglib
             int wcount = 0;
             int ntotal = 0;
             int istart = 0;
-            hqrnd.hqrndstate r = new hqrnd.hqrndstate();
+            hqrnd.hqrndstate r = new();
             int entrysize = 0;
             int entryoffs = 0;
             int neuronidx = 0;
@@ -22729,7 +22729,7 @@ public partial class alglib
         public static bool mlpissoftmax(multilayerperceptron network,
             alglib.xparams _params)
         {
-            bool result = new bool();
+            bool result = new();
 
             result = network.structinfo[6] == 1;
             return result;
@@ -25197,7 +25197,7 @@ public partial class alglib
             double df = 0;
             double d2f = 0;
             double mx = 0;
-            bool perr = new bool();
+            bool perr = new();
             int i_ = 0;
             int i1_ = 0;
 
@@ -25477,7 +25477,7 @@ public partial class alglib
             double v1 = 0;
             int nin = 0;
             int nout = 0;
-            bool issoftmax = new bool();
+            bool issoftmax = new();
             int[] layersizes = new int[0];
 
 
@@ -25936,7 +25936,7 @@ public partial class alglib
             int nout = 0;
             int wcount = 0;
             int rowsize = 0;
-            bool iscls = new bool();
+            bool iscls = new();
             int srcidx = 0;
             int cstart = 0;
             int csize = 0;
@@ -25944,8 +25944,8 @@ public partial class alglib
             hpccores.mlpbuffers pbuf = null;
             int len0 = 0;
             int len1 = 0;
-            modelerrors rep0 = new modelerrors();
-            modelerrors rep1 = new modelerrors();
+            modelerrors rep0 = new();
+            modelerrors rep1 = new();
             double problemcost = 0;
             int i_ = 0;
             int i1_ = 0;
@@ -26585,8 +26585,8 @@ public partial class alglib
             int[] localtemp = new int[0];
             int[] lnfirst = new int[0];
             int[] lnsyn = new int[0];
-            hpccores.mlpbuffers buf = new hpccores.mlpbuffers();
-            smlpgrad sgrad = new smlpgrad();
+            hpccores.mlpbuffers buf = new();
+            smlpgrad sgrad = new();
 
 
             //
@@ -26924,7 +26924,7 @@ public partial class alglib
             double t = 0;
             double v = 0;
             double et = 0;
-            bool bflag = new bool();
+            bool bflag = new();
             double f = 0;
             double df = 0;
             double d2f = 0;
@@ -27467,7 +27467,7 @@ public partial class alglib
             double deown = 0;
             double net = 0;
             double mx = 0;
-            bool bflag = new bool();
+            bool bflag = new();
             int i_ = 0;
             int i1_ = 0;
 
@@ -27624,7 +27624,7 @@ public partial class alglib
             double s = 0;
             double fown = 0;
             double deown = 0;
-            bool bflag = new bool();
+            bool bflag = new();
             int istart = 0;
             int entrysize = 0;
             int dfoffs = 0;
@@ -28146,7 +28146,7 @@ public partial class alglib
             double df = 0;
             double d2f = 0;
             double v = 0;
-            bool bflag = new bool();
+            bool bflag = new();
             int istart = 0;
             int entrysize = 0;
             int entryoffs = 0;
@@ -28618,7 +28618,7 @@ public partial class alglib
             }
             public override alglib.apobject make_copy()
             {
-                logitmodel _result = new logitmodel();
+                logitmodel _result = new();
                 _result.w = (double[])w.Clone();
                 return _result;
             }
@@ -28661,7 +28661,7 @@ public partial class alglib
             }
             public override alglib.apobject make_copy()
             {
-                logitmcstate _result = new logitmcstate();
+                logitmcstate _result = new();
                 _result.brackt = brackt;
                 _result.stage1 = stage1;
                 _result.infoc = infoc;
@@ -28710,7 +28710,7 @@ public partial class alglib
             }
             public override alglib.apobject make_copy()
             {
-                mnlreport _result = new mnlreport();
+                mnlreport _result = new();
                 _result.ngrad = ngrad;
                 _result.nhess = nhess;
                 return _result;
@@ -28768,19 +28768,19 @@ public partial class alglib
             int j = 0;
             int k = 0;
             int ssize = 0;
-            bool allsame = new bool();
+            bool allsame = new();
             int offs = 0;
             double decay = 0;
             double v = 0;
             double s = 0;
-            mlpbase.multilayerperceptron network = new mlpbase.multilayerperceptron();
+            mlpbase.multilayerperceptron network = new();
             int nin = 0;
             int nout = 0;
             int wcount = 0;
             double e = 0;
             double[] g = new double[0];
             double[,] h = new double[0, 0];
-            bool spd = new bool();
+            bool spd = new();
             double[] x = new double[0];
             double[] y = new double[0];
             double[] wbase = new double[0];
@@ -28788,10 +28788,10 @@ public partial class alglib
             double[] wdir = new double[0];
             double[] work = new double[0];
             int mcstage = 0;
-            logitmcstate mcstate = new logitmcstate();
+            logitmcstate mcstate = new();
             int mcinfo = 0;
             int mcnfev = 0;
-            directdensesolvers.densesolverreport solverrep = new directdensesolvers.densesolverreport();
+            directdensesolvers.densesolverreport solverrep = new();
             int i_ = 0;
             int i1_ = 0;
 
@@ -30038,7 +30038,7 @@ public partial class alglib
             ref int info,
             alglib.xparams _params)
         {
-            bool bound = new bool();
+            bool bound = new();
             double gamma = 0;
             double p = 0;
             double q = 0;
@@ -30325,7 +30325,7 @@ public partial class alglib
             }
             public override alglib.apobject make_copy()
             {
-                kmeansbuffers _result = new kmeansbuffers();
+                kmeansbuffers _result = new();
                 _result.ct = (double[,])ct.Clone();
                 _result.ctbest = (double[,])ctbest.Clone();
                 _result.xycbest = (int[])xycbest.Clone();
@@ -30378,7 +30378,7 @@ public partial class alglib
             }
             public override alglib.apobject make_copy()
             {
-                clusterizerstate _result = new clusterizerstate();
+                clusterizerstate _result = new();
                 _result.npoints = npoints;
                 _result.nfeatures = nfeatures;
                 _result.disttype = disttype;
@@ -30523,7 +30523,7 @@ public partial class alglib
             }
             public override alglib.apobject make_copy()
             {
-                ahcreport _result = new ahcreport();
+                ahcreport _result = new();
                 _result.terminationtype = terminationtype;
                 _result.npoints = npoints;
                 _result.p = (int[])p.Clone();
@@ -30593,7 +30593,7 @@ public partial class alglib
             }
             public override alglib.apobject make_copy()
             {
-                kmeansreport _result = new kmeansreport();
+                kmeansreport _result = new();
                 _result.npoints = npoints;
                 _result.nfeatures = nfeatures;
                 _result.terminationtype = terminationtype;
@@ -31243,7 +31243,7 @@ public partial class alglib
             ref double[,] d,
             alglib.xparams _params)
         {
-            apserv.apbuffers buf = new apserv.apbuffers();
+            apserv.apbuffers buf = new();
 
             d = new double[0, 0];
 
@@ -31825,7 +31825,7 @@ public partial class alglib
         public static void kmeansinitbuf(kmeansbuffers buf,
             alglib.xparams _params)
         {
-            apserv.apbuffers updateseed = new apserv.apbuffers();
+            apserv.apbuffers updateseed = new();
 
             alglib.smp.ae_shared_pool_set_seed(buf.updatepool, updateseed);
         }
@@ -31908,11 +31908,11 @@ public partial class alglib
             double eprev = 0;
             double v = 0;
             double vv = 0;
-            bool waschanges = new bool();
-            bool zerosizeclusters = new bool();
+            bool waschanges = new();
+            bool zerosizeclusters = new();
             int pass = 0;
             int itcnt = 0;
-            hqrnd.hqrndstate rs = new hqrnd.hqrndstate();
+            hqrnd.hqrndstate rs = new();
             int i_ = 0;
 
             info = 0;
@@ -32897,7 +32897,7 @@ public partial class alglib
             alglib.smp.shared_pool updatepool,
             alglib.xparams _params)
         {
-            bool result = new bool();
+            bool result = new();
             int fixiteration = 0;
             int centertofix = 0;
             int i = 0;
@@ -33559,7 +33559,7 @@ public partial class alglib
             }
             public override alglib.apobject make_copy()
             {
-                linearmodel _result = new linearmodel();
+                linearmodel _result = new();
                 _result.w = (double[])w.Clone();
                 return _result;
             }
@@ -33605,7 +33605,7 @@ public partial class alglib
             }
             public override alglib.apobject make_copy()
             {
-                lrreport _result = new lrreport();
+                lrreport _result = new();
                 _result.c = (double[,])c.Clone();
                 _result.rmserror = rmserror;
                 _result.avgerror = avgerror;
@@ -34465,9 +34465,9 @@ public partial class alglib
             double r = 0;
             double p = 0;
             double epstol = 0;
-            lrreport ar2 = new lrreport();
+            lrreport ar2 = new();
             int offs = 0;
-            linearmodel tlm = new linearmodel();
+            linearmodel tlm = new();
             int i_ = 0;
             int i1_ = 0;
 
@@ -34849,7 +34849,7 @@ public partial class alglib
             }
             public override alglib.apobject make_copy()
             {
-                mlpensemble _result = new mlpensemble();
+                mlpensemble _result = new();
                 _result.ensemblesize = ensemblesize;
                 _result.weights = (double[])weights.Clone();
                 _result.columnmeans = (double[])columnmeans.Clone();
@@ -34878,7 +34878,7 @@ public partial class alglib
             mlpensemble ensemble,
             alglib.xparams _params)
         {
-            mlpbase.multilayerperceptron net = new mlpbase.multilayerperceptron();
+            mlpbase.multilayerperceptron net = new();
 
             mlpbase.mlpcreate0(nin, nout, net, _params);
             mlpecreatefromnetwork(net, ensemblesize, ensemble, _params);
@@ -34898,7 +34898,7 @@ public partial class alglib
             mlpensemble ensemble,
             alglib.xparams _params)
         {
-            mlpbase.multilayerperceptron net = new mlpbase.multilayerperceptron();
+            mlpbase.multilayerperceptron net = new();
 
             mlpbase.mlpcreate1(nin, nhid, nout, net, _params);
             mlpecreatefromnetwork(net, ensemblesize, ensemble, _params);
@@ -34919,7 +34919,7 @@ public partial class alglib
             mlpensemble ensemble,
             alglib.xparams _params)
         {
-            mlpbase.multilayerperceptron net = new mlpbase.multilayerperceptron();
+            mlpbase.multilayerperceptron net = new();
 
             mlpbase.mlpcreate2(nin, nhid1, nhid2, nout, net, _params);
             mlpecreatefromnetwork(net, ensemblesize, ensemble, _params);
@@ -34940,7 +34940,7 @@ public partial class alglib
             mlpensemble ensemble,
             alglib.xparams _params)
         {
-            mlpbase.multilayerperceptron net = new mlpbase.multilayerperceptron();
+            mlpbase.multilayerperceptron net = new();
 
             mlpbase.mlpcreateb0(nin, nout, b, d, net, _params);
             mlpecreatefromnetwork(net, ensemblesize, ensemble, _params);
@@ -34962,7 +34962,7 @@ public partial class alglib
             mlpensemble ensemble,
             alglib.xparams _params)
         {
-            mlpbase.multilayerperceptron net = new mlpbase.multilayerperceptron();
+            mlpbase.multilayerperceptron net = new();
 
             mlpbase.mlpcreateb1(nin, nhid, nout, b, d, net, _params);
             mlpecreatefromnetwork(net, ensemblesize, ensemble, _params);
@@ -34985,7 +34985,7 @@ public partial class alglib
             mlpensemble ensemble,
             alglib.xparams _params)
         {
-            mlpbase.multilayerperceptron net = new mlpbase.multilayerperceptron();
+            mlpbase.multilayerperceptron net = new();
 
             mlpbase.mlpcreateb2(nin, nhid1, nhid2, nout, b, d, net, _params);
             mlpecreatefromnetwork(net, ensemblesize, ensemble, _params);
@@ -35006,7 +35006,7 @@ public partial class alglib
             mlpensemble ensemble,
             alglib.xparams _params)
         {
-            mlpbase.multilayerperceptron net = new mlpbase.multilayerperceptron();
+            mlpbase.multilayerperceptron net = new();
 
             mlpbase.mlpcreater0(nin, nout, a, b, net, _params);
             mlpecreatefromnetwork(net, ensemblesize, ensemble, _params);
@@ -35028,7 +35028,7 @@ public partial class alglib
             mlpensemble ensemble,
             alglib.xparams _params)
         {
-            mlpbase.multilayerperceptron net = new mlpbase.multilayerperceptron();
+            mlpbase.multilayerperceptron net = new();
 
             mlpbase.mlpcreater1(nin, nhid, nout, a, b, net, _params);
             mlpecreatefromnetwork(net, ensemblesize, ensemble, _params);
@@ -35051,7 +35051,7 @@ public partial class alglib
             mlpensemble ensemble,
             alglib.xparams _params)
         {
-            mlpbase.multilayerperceptron net = new mlpbase.multilayerperceptron();
+            mlpbase.multilayerperceptron net = new();
 
             mlpbase.mlpcreater2(nin, nhid1, nhid2, nout, a, b, net, _params);
             mlpecreatefromnetwork(net, ensemblesize, ensemble, _params);
@@ -35070,7 +35070,7 @@ public partial class alglib
             mlpensemble ensemble,
             alglib.xparams _params)
         {
-            mlpbase.multilayerperceptron net = new mlpbase.multilayerperceptron();
+            mlpbase.multilayerperceptron net = new();
 
             mlpbase.mlpcreatec0(nin, nout, net, _params);
             mlpecreatefromnetwork(net, ensemblesize, ensemble, _params);
@@ -35090,7 +35090,7 @@ public partial class alglib
             mlpensemble ensemble,
             alglib.xparams _params)
         {
-            mlpbase.multilayerperceptron net = new mlpbase.multilayerperceptron();
+            mlpbase.multilayerperceptron net = new();
 
             mlpbase.mlpcreatec1(nin, nhid, nout, net, _params);
             mlpecreatefromnetwork(net, ensemblesize, ensemble, _params);
@@ -35111,7 +35111,7 @@ public partial class alglib
             mlpensemble ensemble,
             alglib.xparams _params)
         {
-            mlpbase.multilayerperceptron net = new mlpbase.multilayerperceptron();
+            mlpbase.multilayerperceptron net = new();
 
             mlpbase.mlpcreatec2(nin, nhid1, nhid2, nout, net, _params);
             mlpecreatefromnetwork(net, ensemblesize, ensemble, _params);
@@ -35297,7 +35297,7 @@ public partial class alglib
         public static bool mlpeissoftmax(mlpensemble ensemble,
             alglib.xparams _params)
         {
-            bool result = new bool();
+            bool result = new();
 
             result = mlpbase.mlpissoftmax(ensemble.network, _params);
             return result;
@@ -35428,11 +35428,11 @@ public partial class alglib
             int j = 0;
             int nin = 0;
             int nout = 0;
-            bool iscls = new bool();
+            bool iscls = new();
             int srcidx = 0;
             hpccores.mlpbuffers pbuf = null;
-            mlpbase.modelerrors rep0 = new mlpbase.modelerrors();
-            mlpbase.modelerrors rep1 = new mlpbase.modelerrors();
+            mlpbase.modelerrors rep0 = new();
+            mlpbase.modelerrors rep1 = new();
             int i_ = 0;
             int i1_ = 0;
 
@@ -35617,7 +35617,7 @@ public partial class alglib
             alglib.xparams _params)
         {
             double result = 0;
-            mlpbase.modelerrors rep = new mlpbase.modelerrors();
+            mlpbase.modelerrors rep = new();
 
             mlpeallerrorsx(ensemble, xy, ensemble.network.dummysxy, npoints, 0, ensemble.network.dummyidx, 0, npoints, 0, ensemble.network.buf, rep, _params);
             result = rep.relclserror;
@@ -35646,7 +35646,7 @@ public partial class alglib
             alglib.xparams _params)
         {
             double result = 0;
-            mlpbase.modelerrors rep = new mlpbase.modelerrors();
+            mlpbase.modelerrors rep = new();
 
             mlpeallerrorsx(ensemble, xy, ensemble.network.dummysxy, npoints, 0, ensemble.network.dummyidx, 0, npoints, 0, ensemble.network.buf, rep, _params);
             result = rep.avgce;
@@ -35676,7 +35676,7 @@ public partial class alglib
             alglib.xparams _params)
         {
             double result = 0;
-            mlpbase.modelerrors rep = new mlpbase.modelerrors();
+            mlpbase.modelerrors rep = new();
 
             mlpeallerrorsx(ensemble, xy, ensemble.network.dummysxy, npoints, 0, ensemble.network.dummyidx, 0, npoints, 0, ensemble.network.buf, rep, _params);
             result = rep.rmserror;
@@ -35705,7 +35705,7 @@ public partial class alglib
             alglib.xparams _params)
         {
             double result = 0;
-            mlpbase.modelerrors rep = new mlpbase.modelerrors();
+            mlpbase.modelerrors rep = new();
 
             mlpeallerrorsx(ensemble, xy, ensemble.network.dummysxy, npoints, 0, ensemble.network.dummyidx, 0, npoints, 0, ensemble.network.buf, rep, _params);
             result = rep.avgerror;
@@ -35734,7 +35734,7 @@ public partial class alglib
             alglib.xparams _params)
         {
             double result = 0;
-            mlpbase.modelerrors rep = new mlpbase.modelerrors();
+            mlpbase.modelerrors rep = new();
 
             mlpeallerrorsx(ensemble, xy, ensemble.network.dummysxy, npoints, 0, ensemble.network.dummyidx, 0, npoints, 0, ensemble.network.buf, rep, _params);
             result = rep.avgrelerror;
@@ -35903,7 +35903,7 @@ public partial class alglib
             }
             public override alglib.apobject make_copy()
             {
-                ssamodel _result = new ssamodel();
+                ssamodel _result = new();
                 _result.nsequences = nsequences;
                 _result.sequenceidx = (int[])sequenceidx.Clone();
                 _result.sequencedata = (double[])sequencedata.Clone();
@@ -37968,10 +37968,10 @@ public partial class alglib
         private static bool hassomethingtoanalyze(ssamodel s,
             alglib.xparams _params)
         {
-            bool result = new bool();
+            bool result = new();
             int i = 0;
-            bool allsmaller = new bool();
-            bool isdegenerate = new bool();
+            bool allsmaller = new();
+            bool isdegenerate = new();
 
             isdegenerate = false;
             isdegenerate = isdegenerate || s.algotype == 0;
@@ -37999,7 +37999,7 @@ public partial class alglib
             int i,
             alglib.xparams _params)
         {
-            bool result = new bool();
+            bool result = new();
 
             alglib.ap.assert(i >= -1 && i < s.nsequences);
             result = false;
@@ -38067,10 +38067,10 @@ public partial class alglib
             int requesttype = 0;
             int requestsize = 0;
             double v = 0;
-            bool degeneraterecurrence = new bool();
+            bool degeneraterecurrence = new();
             double nu2 = 0;
             int subspaceits = 0;
-            bool needevd = new bool();
+            bool needevd = new();
 
             winw = s.windowwidth;
 
@@ -39278,7 +39278,7 @@ public partial class alglib
             }
             public override alglib.apobject make_copy()
             {
-                mlpreport _result = new mlpreport();
+                mlpreport _result = new();
                 _result.relclserror = relclserror;
                 _result.avgce = avgce;
                 _result.rmserror = rmserror;
@@ -39311,7 +39311,7 @@ public partial class alglib
             }
             public override alglib.apobject make_copy()
             {
-                mlpcvreport _result = new mlpcvreport();
+                mlpcvreport _result = new();
                 _result.relclserror = relclserror;
                 _result.avgce = avgce;
                 _result.rmserror = rmserror;
@@ -39371,7 +39371,7 @@ public partial class alglib
             }
             public override alglib.apobject make_copy()
             {
-                smlptrnsession _result = new smlptrnsession();
+                smlptrnsession _result = new();
                 _result.bestparameters = (double[])bestparameters.Clone();
                 _result.bestrmserror = bestrmserror;
                 _result.randomizenetwork = randomizenetwork;
@@ -39422,7 +39422,7 @@ public partial class alglib
             }
             public override alglib.apobject make_copy()
             {
-                mlpetrnsession _result = new mlpetrnsession();
+                mlpetrnsession _result = new();
                 _result.trnsubset = (int[])trnsubset.Clone();
                 _result.valsubset = (int[])valsubset.Clone();
                 _result.mlpsessions = mlpsessions != null ? (alglib.smp.shared_pool)mlpsessions.make_copy() : null;
@@ -39474,7 +39474,7 @@ public partial class alglib
             }
             public override alglib.apobject make_copy()
             {
-                mlptrainer _result = new mlptrainer();
+                mlptrainer _result = new();
                 _result.nin = nin;
                 _result.nout = nout;
                 _result.rcpar = rcpar;
@@ -39527,7 +39527,7 @@ public partial class alglib
             }
             public override alglib.apobject make_copy()
             {
-                mlpparallelizationcv _result = new mlpparallelizationcv();
+                mlpparallelizationcv _result = new();
                 _result.network = network != null ? (mlpbase.multilayerperceptron)network.make_copy() : null;
                 _result.rep = rep != null ? (mlpreport)rep.make_copy() : null;
                 _result.subset = (int[])subset.Clone();
@@ -39603,13 +39603,13 @@ public partial class alglib
             double[,] h = new double[0, 0];
             double[,] hmod = new double[0, 0];
             double[,] z = new double[0, 0];
-            bool spd = new bool();
+            bool spd = new();
             double nu = 0;
             double lambdav = 0;
             double lambdaup = 0;
             double lambdadown = 0;
-            minlbfgs.minlbfgsreport internalrep = new minlbfgs.minlbfgsreport();
-            minlbfgs.minlbfgsstate state = new minlbfgs.minlbfgsstate();
+            minlbfgs.minlbfgsreport internalrep = new();
+            minlbfgs.minlbfgsstate state = new();
             double[] x = new double[0];
             double[] y = new double[0];
             double[] wbase = new double[0];
@@ -39619,8 +39619,8 @@ public partial class alglib
             int pass = 0;
             double[] wbest = new double[0];
             double ebest = 0;
-            matinv.matinvreport invrep = new matinv.matinvreport();
-            directdensesolvers.densesolverreport solverrep = new directdensesolvers.densesolverreport();
+            matinv.matinvreport invrep = new();
+            directdensesolvers.densesolverreport solverrep = new();
             int i_ = 0;
 
             info = 0;
@@ -40028,8 +40028,8 @@ public partial class alglib
             double e = 0;
             double v = 0;
             double ebest = 0;
-            minlbfgs.minlbfgsreport internalrep = new minlbfgs.minlbfgsreport();
-            minlbfgs.minlbfgsstate state = new minlbfgs.minlbfgsstate();
+            minlbfgs.minlbfgsreport internalrep = new();
+            minlbfgs.minlbfgsstate state = new();
             int i_ = 0;
 
             info = 0;
@@ -40219,10 +40219,10 @@ public partial class alglib
             double efinal = 0;
             int itcnt = 0;
             int itbest = 0;
-            minlbfgs.minlbfgsreport internalrep = new minlbfgs.minlbfgsreport();
-            minlbfgs.minlbfgsstate state = new minlbfgs.minlbfgsstate();
+            minlbfgs.minlbfgsreport internalrep = new();
+            minlbfgs.minlbfgsstate state = new();
             double wstep = 0;
-            bool needrandomization = new bool();
+            bool needrandomization = new();
             int i_ = 0;
 
             info = 0;
@@ -40548,8 +40548,8 @@ public partial class alglib
             mlpreport rep,
             alglib.xparams _params)
         {
-            alglib.smp.shared_pool pooldatacv = new alglib.smp.shared_pool();
-            mlpparallelizationcv datacv = new mlpparallelizationcv();
+            alglib.smp.shared_pool pooldatacv = new();
+            mlpparallelizationcv datacv = new();
             mlpparallelizationcv sdatacv = null;
             double[,] cvy = new double[0, 0];
             int[] folds = new int[0];
@@ -40564,7 +40564,7 @@ public partial class alglib
             int i = 0;
             int j = 0;
             int k = 0;
-            hqrnd.hqrndstate rs = new hqrnd.hqrndstate();
+            hqrnd.hqrndstate rs = new();
             int i_ = 0;
             int i1_ = 0;
 
@@ -41116,7 +41116,7 @@ public partial class alglib
             int wcount = 0;
             int ntype = 0;
             int ttype = 0;
-            alglib.smp.shared_pool trnpool = new alglib.smp.shared_pool();
+            alglib.smp.shared_pool trnpool = new();
 
             alglib.ap.assert(s.npoints >= 0, "MLPTrainNetwork: parameter S is not initialized or is spoiled(S.NPoints<0)");
             if (!mlpbase.mlpissoftmax(network, _params))
@@ -41328,7 +41328,7 @@ public partial class alglib
             mlpbase.multilayerperceptron network,
             alglib.xparams _params)
         {
-            bool result = new bool();
+            bool result = new();
             int nin = 0;
             int nout = 0;
             int wcount = 0;
@@ -41498,8 +41498,8 @@ public partial class alglib
             int trnsize = 0;
             int valsize = 0;
             int tmpinfo = 0;
-            mlpreport tmprep = new mlpreport();
-            mlpbase.modelerrors moderr = new mlpbase.modelerrors();
+            mlpreport tmprep = new();
+            mlpbase.modelerrors moderr = new();
             int nin = 0;
             int nout = 0;
             int wcount = 0;
@@ -41686,9 +41686,9 @@ public partial class alglib
             int nout = 0;
             int ntype = 0;
             int ttype = 0;
-            alglib.smp.shared_pool esessions = new alglib.smp.shared_pool();
-            apserv.sinteger sgrad = new apserv.sinteger();
-            mlpbase.modelerrors tmprep = new mlpbase.modelerrors();
+            alglib.smp.shared_pool esessions = new();
+            apserv.sinteger sgrad = new();
+            mlpbase.modelerrors tmprep = new();
 
             alglib.ap.assert(s.npoints >= 0, "MLPTrainEnsembleES: parameter S is not initialized or is spoiled(S.NPoints<0)");
             if (!mlpe.mlpeissoftmax(ensemble, _params))
@@ -41782,7 +41782,7 @@ public partial class alglib
             int fold = 0;
             int j = 0;
             int k = 0;
-            mlpbase.multilayerperceptron network = new mlpbase.multilayerperceptron();
+            mlpbase.multilayerperceptron network = new();
             int nin = 0;
             int nout = 0;
             int rowlen = 0;
@@ -41794,7 +41794,7 @@ public partial class alglib
             double[,] testset = new double[0, 0];
             int[] folds = new int[0];
             int relcnt = 0;
-            mlpreport internalrep = new mlpreport();
+            mlpreport internalrep = new();
             double[] x = new double[0];
             double[] y = new double[0];
             int i_ = 0;
@@ -41987,7 +41987,7 @@ public partial class alglib
             int i = 0;
             int j = 0;
             int k = 0;
-            hqrnd.hqrndstate rs = new hqrnd.hqrndstate();
+            hqrnd.hqrndstate rs = new();
 
             folds = new int[0];
 
@@ -42184,7 +42184,7 @@ public partial class alglib
             alglib.smp.shared_pool sessions,
             alglib.xparams _params)
         {
-            mlpbase.modelerrors modrep = new mlpbase.modelerrors();
+            mlpbase.modelerrors modrep = new();
             double eval = 0;
             double ebest = 0;
             int ngradbatch = 0;
@@ -42196,13 +42196,13 @@ public partial class alglib
             int itcnt = 0;
             int ntype = 0;
             int ttype = 0;
-            bool rndstart = new bool();
+            bool rndstart = new();
             int i = 0;
             int nr0 = 0;
             int nr1 = 0;
-            mlpreport rep0 = new mlpreport();
-            mlpreport rep1 = new mlpreport();
-            bool randomizenetwork = new bool();
+            mlpreport rep0 = new();
+            mlpreport rep1 = new();
+            bool randomizenetwork = new();
             double bestrmserror = 0;
             smlptrnsession psession = null;
             int i_ = 0;
@@ -42488,10 +42488,10 @@ public partial class alglib
             int trnsubsetsize = 0;
             int valsubsetsize = 0;
             int k0 = 0;
-            apserv.sinteger ngrad0 = new apserv.sinteger();
-            apserv.sinteger ngrad1 = new apserv.sinteger();
+            apserv.sinteger ngrad0 = new();
+            apserv.sinteger ngrad1 = new();
             mlpetrnsession psession = null;
-            hqrnd.hqrndstate rs = new hqrnd.hqrndstate();
+            hqrnd.hqrndstate rs = new();
             int i_ = 0;
             int i1_ = 0;
 
@@ -42831,7 +42831,7 @@ public partial class alglib
             smlptrnsession session,
             alglib.xparams _params)
         {
-            bool result = new bool();
+            bool result = new();
             int nin = 0;
             int nout = 0;
             int wcount = 0;
@@ -43076,11 +43076,11 @@ public partial class alglib
             int j = 0;
             int k = 0;
             double v = 0;
-            mlpreport tmprep = new mlpreport();
+            mlpreport tmprep = new();
             int nin = 0;
             int nout = 0;
             int wcount = 0;
-            hqrnd.hqrndstate rs = new hqrnd.hqrndstate();
+            hqrnd.hqrndstate rs = new();
             int i_ = 0;
             int i1_ = 0;
 
@@ -43367,7 +43367,7 @@ public partial class alglib
             alglib.xparams _params)
         {
             int[] dummysubset = new int[0];
-            smlptrnsession t = new smlptrnsession();
+            smlptrnsession t = new();
             smlptrnsession p = null;
 
             if (alglib.smp.ae_shared_pool_is_initialized(sessions))
@@ -43430,7 +43430,7 @@ public partial class alglib
             alglib.smp.shared_pool sessions,
             alglib.xparams _params)
         {
-            mlpetrnsession t = new mlpetrnsession();
+            mlpetrnsession t = new();
 
             if (!alglib.smp.ae_shared_pool_is_initialized(sessions))
             {
@@ -43508,7 +43508,7 @@ public partial class alglib
             }
             public override alglib.apobject make_copy()
             {
-                mcpdstate _result = new mcpdstate();
+                mcpdstate _result = new();
                 _result.n = n;
                 _result.states = (int[])states.Clone();
                 _result.npairs = npairs;
@@ -43571,7 +43571,7 @@ public partial class alglib
             }
             public override alglib.apobject make_copy()
             {
-                mcpdreport _result = new mcpdreport();
+                mcpdreport _result = new();
                 _result.inneriterationscount = inneriterationscount;
                 _result.outeriterationscount = outeriterationscount;
                 _result.nfev = nfev;
@@ -44834,7 +44834,7 @@ public partial class alglib
             double[,] dummy = new double[0, 0];
             int itscnt = 0;
             double e = 0;
-            clustering.kmeansbuffers buf = new clustering.kmeansbuffers();
+            clustering.kmeansbuffers buf = new();
 
             info = 0;
             c = new double[0, 0];
@@ -45103,8 +45103,8 @@ public partial class alglib
             int j = 0;
             int k = 0;
             double vv = 0;
-            evd.eigsubspacestate solver = new evd.eigsubspacestate();
-            evd.eigsubspacereport rep = new evd.eigsubspacereport();
+            evd.eigsubspacestate solver = new();
+            evd.eigsubspacereport rep = new();
             int i_ = 0;
 
             s2 = new double[0];
@@ -45288,7 +45288,7 @@ public partial class alglib
             ref double[,] v,
             alglib.xparams _params)
         {
-            sparse.sparsematrix xcrs = new sparse.sparsematrix();
+            sparse.sparsematrix xcrs = new();
             double[] b1 = new double[0];
             double[] c1 = new double[0];
             double[] z1 = new double[0];
@@ -45297,8 +45297,8 @@ public partial class alglib
             int k = 0;
             double vv = 0;
             double[] means = new double[0];
-            evd.eigsubspacestate solver = new evd.eigsubspacestate();
-            evd.eigsubspacereport rep = new evd.eigsubspacereport();
+            evd.eigsubspacestate solver = new();
+            evd.eigsubspacereport rep = new();
             int i_ = 0;
 
             s2 = new double[0];

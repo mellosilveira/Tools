@@ -103,7 +103,7 @@ public class PluginService(
 
     private void LoadPlugin(PluginRegistrationContext context, DiscoveredPlugin discovered)
     {
-        if (!cache.TryGet<RegisteredPlugin>(discovered.Name, discovered.Version, out var registered) || registered is null || !registered.IsFullyLoaded)
+        if (!cache.TryGet<RegisteredPlugin>(discovered.Name, discovered.Version, out RegisteredPlugin? registered) || registered is null || !registered.IsFullyLoaded)
         {
             discovered
                 .LoadAssembly(assemblyProcessor)

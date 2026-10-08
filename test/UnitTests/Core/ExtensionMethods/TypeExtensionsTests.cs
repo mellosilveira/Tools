@@ -2,8 +2,9 @@ using MelloSilveiraTools.Core.ExtensionMethods;
 using MelloSilveiraTools.Database.ExtensionMethods;
 using MelloSilveiraTools.Database.RelationalDatabase.Attributes;
 using NpgsqlTypes;
+using UnitTests.Database;
 
-namespace UnitTests;
+namespace UnitTests.Core.ExtensionMethods;
 
 public sealed class TypeExtensionsTests
 {

@@ -1,7 +1,7 @@
 using MelloSilveiraTools.Database.RelationalDatabase.Attributes;
 using MelloSilveiraTools.Database.RelationalDatabase.Models.Entities;
 
-namespace UnitTests;
+namespace UnitTests.Database;
 
 // ── Simple entity: no unique columns ──────────────────────────────────────────
 [Table("product", "prd")]

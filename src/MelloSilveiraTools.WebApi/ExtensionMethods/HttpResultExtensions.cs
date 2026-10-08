@@ -35,7 +35,7 @@ public static class HttpResultExtensions
         /// </summary>
         public async Task<IResult> ToOkResultAsync()
         {
-            var responseData = await operation.ConfigureAwait(false);
+            T? responseData = await operation.ConfigureAwait(false);
             return Results.Ok(responseData);
         }
 
@@ -44,7 +44,7 @@ public static class HttpResultExtensions
         /// </summary>
         public async Task<IResult> ToCreatedResultAsync(string uri = "")
         {
-            var responseData = await operation.ConfigureAwait(false);
+            T? responseData = await operation.ConfigureAwait(false);
             return Results.Created(uri, responseData);
         }
     }

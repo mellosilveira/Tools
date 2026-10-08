@@ -2597,7 +2597,7 @@ public partial class alglib
             }
             public override alglib.apobject make_copy()
             {
-                autogkreport _result = new autogkreport();
+                autogkreport _result = new();
                 _result.terminationtype = terminationtype;
                 _result.nfev = nfev;
                 _result.nintervals = nintervals;
@@ -2643,7 +2643,7 @@ public partial class alglib
             }
             public override alglib.apobject make_copy()
             {
-                autogkinternalstate _result = new autogkinternalstate();
+                autogkinternalstate _result = new();
                 _result.a = a;
                 _result.b = b;
                 _result.eps = eps;
@@ -2708,7 +2708,7 @@ public partial class alglib
             }
             public override alglib.apobject make_copy()
             {
-                autogkstate _result = new autogkstate();
+                autogkstate _result = new();
                 _result.a = a;
                 _result.b = b;
                 _result.alpha = alpha;
@@ -2880,7 +2880,7 @@ public partial class alglib
         public static bool autogkiteration(autogkstate state,
             alglib.xparams _params)
         {
-            bool result = new bool();
+            bool result = new();
             double s = 0;
             double tmp = 0;
             double eps = 0;
@@ -3258,7 +3258,7 @@ public partial class alglib
         private static bool autogkinternaliteration(autogkinternalstate state,
             alglib.xparams _params)
         {
-            bool result = new bool();
+            bool result = new();
             double c1 = 0;
             double c2 = 0;
             int i = 0;

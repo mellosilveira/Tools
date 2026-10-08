@@ -76,7 +76,7 @@ public partial class alglib
             }
             public override alglib.apobject make_copy()
             {
-                apbuffers _result = new apbuffers();
+                apbuffers _result = new();
                 _result.ba0 = (bool[])ba0.Clone();
                 _result.ia0 = (int[])ia0.Clone();
                 _result.ia1 = (int[])ia1.Clone();
@@ -112,7 +112,7 @@ public partial class alglib
             }
             public override alglib.apobject make_copy()
             {
-                sboolean _result = new sboolean();
+                sboolean _result = new();
                 _result.val = val;
                 return _result;
             }
@@ -139,7 +139,7 @@ public partial class alglib
             }
             public override alglib.apobject make_copy()
             {
-                sbooleanarray _result = new sbooleanarray();
+                sbooleanarray _result = new();
                 _result.val = (bool[])val.Clone();
                 return _result;
             }
@@ -165,7 +165,7 @@ public partial class alglib
             }
             public override alglib.apobject make_copy()
             {
-                sinteger _result = new sinteger();
+                sinteger _result = new();
                 _result.val = val;
                 return _result;
             }
@@ -192,7 +192,7 @@ public partial class alglib
             }
             public override alglib.apobject make_copy()
             {
-                sintegerarray _result = new sintegerarray();
+                sintegerarray _result = new();
                 _result.val = (int[])val.Clone();
                 return _result;
             }
@@ -218,7 +218,7 @@ public partial class alglib
             }
             public override alglib.apobject make_copy()
             {
-                sreal _result = new sreal();
+                sreal _result = new();
                 _result.val = val;
                 return _result;
             }
@@ -245,7 +245,7 @@ public partial class alglib
             }
             public override alglib.apobject make_copy()
             {
-                srealarray _result = new srealarray();
+                srealarray _result = new();
                 _result.val = (double[])val.Clone();
                 return _result;
             }
@@ -271,7 +271,7 @@ public partial class alglib
             }
             public override alglib.apobject make_copy()
             {
-                scomplex _result = new scomplex();
+                scomplex _result = new();
                 _result.val = val;
                 return _result;
             }
@@ -298,7 +298,7 @@ public partial class alglib
             }
             public override alglib.apobject make_copy()
             {
-                scomplexarray _result = new scomplexarray();
+                scomplexarray _result = new();
                 _result.val = (complex[])val.Clone();
                 return _result;
             }
@@ -325,7 +325,7 @@ public partial class alglib
             }
             public override alglib.apobject make_copy()
             {
-                savgcounter _result = new savgcounter();
+                savgcounter _result = new();
                 _result.rsum = rsum;
                 _result.rcnt = rcnt;
                 _result.prior = prior;
@@ -356,7 +356,7 @@ public partial class alglib
             }
             public override alglib.apobject make_copy()
             {
-                squantilecounter _result = new squantilecounter();
+                squantilecounter _result = new();
                 _result.cnt = cnt;
                 _result.elems = (double[])elems.Clone();
                 _result.prior = prior;
@@ -387,7 +387,7 @@ public partial class alglib
             }
             public override alglib.apobject make_copy()
             {
-                stimer _result = new stimer();
+                stimer _result = new();
                 _result.ttotal = ttotal;
                 _result.tcurrent = tcurrent;
                 _result.isrunning = isrunning;
@@ -429,7 +429,7 @@ public partial class alglib
         *************************************************************************/
         public static bool alwaysfalse(alglib.xparams _params)
         {
-            bool result = new bool();
+            bool result = new();
 
             result = false;
             return result;
@@ -594,7 +594,7 @@ public partial class alglib
             double tol,
             alglib.xparams _params)
         {
-            bool result = new bool();
+            bool result = new();
 
             result = (double)(Math.Abs(a - b)) <= (double)(tol);
             return result;
@@ -614,7 +614,7 @@ public partial class alglib
             double tol,
             alglib.xparams _params)
         {
-            bool result = new bool();
+            bool result = new();
 
             result = (double)(Math.Abs(a - b)) <= (double)(Math.Max(Math.Abs(a), Math.Abs(b)) * tol);
             return result;
@@ -830,11 +830,11 @@ public partial class alglib
             int n,
             alglib.xparams _params)
         {
-            bool result = new bool();
+            bool result = new();
             double a = 0;
             double b = 0;
             int i = 0;
-            bool nonsorted = new bool();
+            bool nonsorted = new();
 
             alglib.ap.assert(n >= 1, "APSERVAreDistinct: internal error (N<1)");
             if (n == 1)
@@ -881,7 +881,7 @@ public partial class alglib
             bool v2,
             alglib.xparams _params)
         {
-            bool result = new bool();
+            bool result = new();
 
             result = (v1 && v2) || (!v1 && !v2);
             return result;
@@ -1504,7 +1504,7 @@ public partial class alglib
             int n,
             alglib.xparams _params)
         {
-            bool result = new bool();
+            bool result = new();
             int i = 0;
             double v = 0;
 
@@ -1540,7 +1540,7 @@ public partial class alglib
             int n,
             alglib.xparams _params)
         {
-            bool result = new bool();
+            bool result = new();
             int i = 0;
             double v = 0;
 
@@ -1596,7 +1596,7 @@ public partial class alglib
             int n,
             alglib.xparams _params)
         {
-            bool result = new bool();
+            bool result = new();
             int i = 0;
 
             alglib.ap.assert(n >= 0, "APSERVIsFiniteCVector: internal error (N<0)");
@@ -1625,7 +1625,7 @@ public partial class alglib
             int n,
             alglib.xparams _params)
         {
-            bool result = new bool();
+            bool result = new();
             int i = 0;
             int j = 0;
 
@@ -1668,7 +1668,7 @@ public partial class alglib
             int n,
             alglib.xparams _params)
         {
-            bool result = new bool();
+            bool result = new();
             int i = 0;
             int j = 0;
 
@@ -1701,7 +1701,7 @@ public partial class alglib
             int n,
             alglib.xparams _params)
         {
-            bool result = new bool();
+            bool result = new();
             int i = 0;
             int j = 0;
 
@@ -1735,7 +1735,7 @@ public partial class alglib
             bool isupper,
             alglib.xparams _params)
         {
-            bool result = new bool();
+            bool result = new();
             int i = 0;
             int j1 = 0;
             int j2 = 0;
@@ -1790,7 +1790,7 @@ public partial class alglib
             bool isupper,
             alglib.xparams _params)
         {
-            bool result = new bool();
+            bool result = new();
             int i = 0;
             int j1 = 0;
             int j2 = 0;
@@ -1835,7 +1835,7 @@ public partial class alglib
             bool isupper,
             alglib.xparams _params)
         {
-            bool result = new bool();
+            bool result = new();
             int i = 0;
             int j1 = 0;
             int j2 = 0;
@@ -1880,7 +1880,7 @@ public partial class alglib
             int n,
             alglib.xparams _params)
         {
-            bool result = new bool();
+            bool result = new();
             int i = 0;
             int j = 0;
 
@@ -2365,7 +2365,7 @@ public partial class alglib
             int offs0 = 0;
             int offs1 = 0;
             int j = 0;
-            bool v = new bool();
+            bool v = new();
 
             if (i0 == i1)
             {
@@ -2430,7 +2430,7 @@ public partial class alglib
             int i1,
             alglib.xparams _params)
         {
-            bool v = new bool();
+            bool v = new();
 
             if (i0 == i1)
             {
@@ -3138,7 +3138,7 @@ public partial class alglib
             bool v1,
             alglib.xparams _params)
         {
-            bool result = new bool();
+            bool result = new();
 
             if (cond)
             {
@@ -3407,7 +3407,7 @@ public partial class alglib
         {
             int n = 0;
             int i = 0;
-            bool t = new bool();
+            bool t = new();
 
             v = new bool[0];
 
@@ -3848,7 +3848,7 @@ public partial class alglib
             int v,
             alglib.xparams _params)
         {
-            bool result = new bool();
+            bool result = new();
             int i = 0;
 
             result = false;
@@ -3879,7 +3879,7 @@ public partial class alglib
             int v,
             alglib.xparams _params)
         {
-            bool result = new bool();
+            bool result = new();
             int ori1 = 0;
             int m = 0;
 
@@ -5017,7 +5017,7 @@ public partial class alglib
             int phin = 0;
             int q = 0;
             int f = 0;
-            bool allnonone = new bool();
+            bool allnonone = new();
             int x = 0;
             int lastx = 0;
             int y = 0;
@@ -5140,7 +5140,7 @@ public partial class alglib
         private static bool isprime(int n,
             alglib.xparams _params)
         {
-            bool result = new bool();
+            bool result = new();
             int p = 0;
 
             result = false;
@@ -5467,7 +5467,7 @@ public partial class alglib
             }
             public override alglib.apobject make_copy()
             {
-                fasttransformplan _result = new fasttransformplan();
+                fasttransformplan _result = new();
                 _result.entries = (int[,])entries.Clone();
                 _result.buffer = (double[])buffer.Clone();
                 _result.precr = (double[])precr.Clone();
@@ -5527,7 +5527,7 @@ public partial class alglib
             fasttransformplan plan,
             alglib.xparams _params)
         {
-            apserv.srealarray bluesteinbuf = new apserv.srealarray();
+            apserv.srealarray bluesteinbuf = new();
             int rowptr = 0;
             int bluesteinsize = 0;
             int precrptr = 0;
@@ -5711,7 +5711,7 @@ public partial class alglib
         public static bool ftbaseissmooth(int n,
             alglib.xparams _params)
         {
-            bool result = new bool();
+            bool result = new();
             int i = 0;
 
             for (i = 2; i <= ftbasemaxsmoothfactor; i++)
@@ -5922,7 +5922,7 @@ public partial class alglib
             fasttransformplan plan,
             alglib.xparams _params)
         {
-            apserv.srealarray localbuf = new apserv.srealarray();
+            apserv.srealarray localbuf = new();
             int m = 0;
             int n1 = 0;
             int n2 = 0;
@@ -7482,7 +7482,7 @@ public partial class alglib
             int i = 0;
             double bx = 0;
             double by = 0;
-            fasttransformplan plan = new fasttransformplan();
+            fasttransformplan plan = new();
 
 
             //
@@ -7673,7 +7673,7 @@ public partial class alglib
             alglib.xparams _params)
         {
             int q = 0;
-            fasttransformplan plan = new fasttransformplan();
+            fasttransformplan plan = new();
             int kiq = 0;
             double v = 0;
 
@@ -11932,7 +11932,7 @@ public partial class alglib
             int iv,
             alglib.xparams _params)
         {
-            bool result = new bool();
+            bool result = new();
 
             result = false;
             return result;
@@ -11957,7 +11957,7 @@ public partial class alglib
             int iv,
             alglib.xparams _params)
         {
-            bool result = new bool();
+            bool result = new();
 
             result = false;
             return result;
@@ -11982,7 +11982,7 @@ public partial class alglib
             int iv,
             alglib.xparams _params)
         {
-            bool result = new bool();
+            bool result = new();
 
             result = false;
             return result;
@@ -12009,7 +12009,7 @@ public partial class alglib
             int j2,
             alglib.xparams _params)
         {
-            bool result = new bool();
+            bool result = new();
 
             result = false;
             return result;
@@ -12036,7 +12036,7 @@ public partial class alglib
             int j2,
             alglib.xparams _params)
         {
-            bool result = new bool();
+            bool result = new();
 
             result = false;
             return result;
@@ -12063,7 +12063,7 @@ public partial class alglib
             int j2,
             alglib.xparams _params)
         {
-            bool result = new bool();
+            bool result = new();
 
             result = false;
             return result;
@@ -12090,7 +12090,7 @@ public partial class alglib
             int j2,
             alglib.xparams _params)
         {
-            bool result = new bool();
+            bool result = new();
 
             result = false;
             return result;
@@ -12118,7 +12118,7 @@ public partial class alglib
             bool isupper,
             alglib.xparams _params)
         {
-            bool result = new bool();
+            bool result = new();
 
             result = false;
             return result;
@@ -12146,7 +12146,7 @@ public partial class alglib
             bool isupper,
             alglib.xparams _params)
         {
-            bool result = new bool();
+            bool result = new();
 
             result = false;
             return result;
@@ -12178,7 +12178,7 @@ public partial class alglib
             int jc,
             alglib.xparams _params)
         {
-            bool result = new bool();
+            bool result = new();
 
             result = false;
             return result;
@@ -14376,7 +14376,7 @@ public partial class alglib
             int iv,
             alglib.xparams _params)
         {
-            bool result = new bool();
+            bool result = new();
 
             result = false;
             return result;
@@ -14401,7 +14401,7 @@ public partial class alglib
             int iv,
             alglib.xparams _params)
         {
-            bool result = new bool();
+            bool result = new();
 
             result = false;
             return result;
@@ -14426,7 +14426,7 @@ public partial class alglib
             int iv,
             alglib.xparams _params)
         {
-            bool result = new bool();
+            bool result = new();
 
             result = false;
             return result;
@@ -14452,7 +14452,7 @@ public partial class alglib
             int iy,
             alglib.xparams _params)
         {
-            bool result = new bool();
+            bool result = new();
 
             result = false;
             return result;
@@ -14478,7 +14478,7 @@ public partial class alglib
             int iy,
             alglib.xparams _params)
         {
-            bool result = new bool();
+            bool result = new();
 
             result = false;
             return result;
@@ -14506,7 +14506,7 @@ public partial class alglib
             int iy,
             alglib.xparams _params)
         {
-            bool result = new bool();
+            bool result = new();
 
             result = false;
             return result;
@@ -14531,7 +14531,7 @@ public partial class alglib
             int ix,
             alglib.xparams _params)
         {
-            bool result = new bool();
+            bool result = new();
 
             result = false;
             return result;
@@ -14559,7 +14559,7 @@ public partial class alglib
             bool isupper,
             alglib.xparams _params)
         {
-            bool result = new bool();
+            bool result = new();
 
             result = false;
             return result;
@@ -14587,7 +14587,7 @@ public partial class alglib
             bool isupper,
             alglib.xparams _params)
         {
-            bool result = new bool();
+            bool result = new();
 
             result = false;
             return result;
@@ -14619,7 +14619,7 @@ public partial class alglib
             int jc,
             alglib.xparams _params)
         {
-            bool result = new bool();
+            bool result = new();
 
             result = false;
             return result;
@@ -14646,7 +14646,7 @@ public partial class alglib
             int iy,
             alglib.xparams _params)
         {
-            bool result = new bool();
+            bool result = new();
 
             result = false;
             return result;
@@ -14678,7 +14678,7 @@ public partial class alglib
             int jc,
             alglib.xparams _params)
         {
-            bool result = new bool();
+            bool result = new();
 
             result = false;
             return result;
@@ -14705,7 +14705,7 @@ public partial class alglib
             int j2,
             alglib.xparams _params)
         {
-            bool result = new bool();
+            bool result = new();
 
             result = false;
             return result;
@@ -14732,7 +14732,7 @@ public partial class alglib
             int j2,
             alglib.xparams _params)
         {
-            bool result = new bool();
+            bool result = new();
 
             result = false;
             return result;
@@ -14759,7 +14759,7 @@ public partial class alglib
             int j2,
             alglib.xparams _params)
         {
-            bool result = new bool();
+            bool result = new();
 
             result = false;
             return result;
@@ -14786,7 +14786,7 @@ public partial class alglib
             int j2,
             alglib.xparams _params)
         {
-            bool result = new bool();
+            bool result = new();
 
             result = false;
             return result;
@@ -14813,7 +14813,7 @@ public partial class alglib
             ref bool cholresult,
             alglib.xparams _params)
         {
-            bool result = new bool();
+            bool result = new();
 
             result = false;
             return result;
@@ -14834,7 +14834,7 @@ public partial class alglib
             ref int[] pivots,
             alglib.xparams _params)
         {
-            bool result = new bool();
+            bool result = new();
 
             result = false;
             return result;
@@ -14860,7 +14860,7 @@ public partial class alglib
             double[] taup,
             alglib.xparams _params)
         {
-            bool result = new bool();
+            bool result = new();
 
             result = false;
             return result;
@@ -14890,7 +14890,7 @@ public partial class alglib
             bool dotranspose,
             alglib.xparams _params)
         {
-            bool result = new bool();
+            bool result = new();
 
             result = false;
             return result;
@@ -14911,7 +14911,7 @@ public partial class alglib
             double[] tau,
             alglib.xparams _params)
         {
-            bool result = new bool();
+            bool result = new();
 
             result = false;
             return result;
@@ -14933,7 +14933,7 @@ public partial class alglib
             double[,] q,
             alglib.xparams _params)
         {
-            bool result = new bool();
+            bool result = new();
 
             result = false;
             return result;
@@ -14959,7 +14959,7 @@ public partial class alglib
             double[] e,
             alglib.xparams _params)
         {
-            bool result = new bool();
+            bool result = new();
 
             result = false;
             return result;
@@ -14982,7 +14982,7 @@ public partial class alglib
             double[,] q,
             alglib.xparams _params)
         {
-            bool result = new bool();
+            bool result = new();
 
             result = false;
             return result;
@@ -15008,7 +15008,7 @@ public partial class alglib
             double[] e,
             alglib.xparams _params)
         {
-            bool result = new bool();
+            bool result = new();
 
             result = false;
             return result;
@@ -15031,7 +15031,7 @@ public partial class alglib
             complex[,] q,
             alglib.xparams _params)
         {
-            bool result = new bool();
+            bool result = new();
 
             result = false;
             return result;
@@ -15066,7 +15066,7 @@ public partial class alglib
             ref bool svdresult,
             alglib.xparams _params)
         {
-            bool result = new bool();
+            bool result = new();
 
             result = false;
             return result;
@@ -15095,7 +15095,7 @@ public partial class alglib
             ref int info,
             alglib.xparams _params)
         {
-            bool result = new bool();
+            bool result = new();
 
             result = false;
             return result;
@@ -15126,7 +15126,7 @@ public partial class alglib
             ref int info,
             alglib.xparams _params)
         {
-            bool result = new bool();
+            bool result = new();
 
             result = false;
             return result;
@@ -15158,7 +15158,7 @@ public partial class alglib
             ref bool evdresult,
             alglib.xparams _params)
         {
-            bool result = new bool();
+            bool result = new();
 
             result = false;
             return result;
@@ -15196,7 +15196,7 @@ public partial class alglib
             int iy,
             alglib.xparams _params)
         {
-            bool result = new bool();
+            bool result = new();
 
             result = false;
             return result;
@@ -15352,7 +15352,7 @@ public partial class alglib
             ref int[] p2,
             alglib.xparams _params)
         {
-            apserv.apbuffers buf = new apserv.apbuffers();
+            apserv.apbuffers buf = new();
 
             p1 = new int[0];
             p2 = new int[0];
@@ -15491,8 +15491,8 @@ public partial class alglib
         {
             int i = 0;
             int j = 0;
-            bool isascending = new bool();
-            bool isdescending = new bool();
+            bool isascending = new();
+            bool isdescending = new();
             double tmpr = 0;
             int tmpi = 0;
 
@@ -15578,8 +15578,8 @@ public partial class alglib
         {
             int i = 0;
             int j = 0;
-            bool isascending = new bool();
-            bool isdescending = new bool();
+            bool isascending = new();
+            bool isdescending = new();
             double tmpr = 0;
 
 
@@ -15662,8 +15662,8 @@ public partial class alglib
         {
             int i = 0;
             int j = 0;
-            bool isascending = new bool();
-            bool isdescending = new bool();
+            bool isascending = new();
+            bool isdescending = new();
             double tmpr = 0;
 
 
@@ -15747,7 +15747,7 @@ public partial class alglib
             int ak = 0;
             int ak1 = 0;
             double bt = 0;
-            bool isascending = new bool();
+            bool isascending = new();
 
 
             //
@@ -17296,7 +17296,7 @@ public partial class alglib
             }
             public override alglib.apobject make_copy()
             {
-                niset _result = new niset();
+                niset _result = new();
                 _result.n = n;
                 _result.nstored = nstored;
                 _result.items = (int[])items.Clone();
@@ -17341,7 +17341,7 @@ public partial class alglib
             }
             public override alglib.apobject make_copy()
             {
-                kniset _result = new kniset();
+                kniset _result = new();
                 _result.storagemode = storagemode;
                 _result.k = k;
                 _result.n = n;
@@ -17588,7 +17588,7 @@ public partial class alglib
             niset s1,
             alglib.xparams _params)
         {
-            bool result = new bool();
+            bool result = new();
             int i = 0;
             int ns0 = 0;
             int ns1 = 0;
@@ -17662,7 +17662,7 @@ public partial class alglib
             ref int i,
             alglib.xparams _params)
         {
-            bool result = new bool();
+            bool result = new();
             int k = 0;
 
             i = 0;
@@ -19576,7 +19576,7 @@ public partial class alglib
             bool isunit,
             alglib.xparams _params)
         {
-            bool normin = new bool();
+            bool normin = new();
             double[] cnorm = new double[0];
             double[,] a1 = new double[0, 0];
             double[] x1 = new double[0];
@@ -19665,9 +19665,9 @@ public partial class alglib
             double xbnd = 0;
             double xj = 0;
             double xmax = 0;
-            bool notran = new bool();
-            bool upper = new bool();
-            bool nounit = new bool();
+            bool notran = new();
+            bool upper = new();
+            bool nounit = new();
             int i_ = 0;
 
             s = 0;
@@ -20554,7 +20554,7 @@ public partial class alglib
             double maxgrowth,
             alglib.xparams _params)
         {
-            bool result = new bool();
+            bool result = new();
             double lnmax = 0;
             double nrmb = 0;
             double nrmx = 0;
@@ -20827,7 +20827,7 @@ public partial class alglib
             double maxgrowth,
             alglib.xparams _params)
         {
-            bool result = new bool();
+            bool result = new();
             double lnmax = 0;
             double nrmb = 0;
             double nrmx = 0;
@@ -21198,7 +21198,7 @@ public partial class alglib
             ref complex x,
             alglib.xparams _params)
         {
-            bool result = new bool();
+            bool result = new();
             double v = 0;
 
             x = 0;
@@ -21282,7 +21282,7 @@ public partial class alglib
             }
             public override alglib.apobject make_copy()
             {
-                linminstate _result = new linminstate();
+                linminstate _result = new();
                 _result.brackt = brackt;
                 _result.stage1 = stage1;
                 _result.infoc = infoc;
@@ -21341,7 +21341,7 @@ public partial class alglib
             }
             public override alglib.apobject make_copy()
             {
-                armijostate _result = new armijostate();
+                armijostate _result = new();
                 _result.needf = needf;
                 _result.x = (double[])x.Clone();
                 _result.f = f;
@@ -21960,7 +21960,7 @@ public partial class alglib
         public static bool armijoiteration(armijostate state,
             alglib.xparams _params)
         {
-            bool result = new bool();
+            bool result = new();
             double v = 0;
             int n = 0;
             int i_ = 0;
@@ -22272,7 +22272,7 @@ public partial class alglib
             ref int info,
             alglib.xparams _params)
         {
-            bool bound = new bool();
+            bool bound = new();
             double gamma = 0;
             double p = 0;
             double q = 0;
@@ -22729,7 +22729,7 @@ public partial class alglib
             double ln2 = 0;
             double chunk = 0;
             double invchunk = 0;
-            bool allzeros = new bool();
+            bool allzeros = new();
             int i_ = 0;
 
             r = 0;
@@ -22930,7 +22930,7 @@ public partial class alglib
             }
             public override alglib.apobject make_copy()
             {
-                mlpbuffers _result = new mlpbuffers();
+                mlpbuffers _result = new();
                 _result.chunksize = chunksize;
                 _result.ntotal = ntotal;
                 _result.nin = nin;
@@ -23078,7 +23078,7 @@ public partial class alglib
             bool naturalerrorfunc,
             alglib.xparams _params)
         {
-            bool result = new bool();
+            bool result = new();
 
             result = false;
             return result;
@@ -23100,7 +23100,7 @@ public partial class alglib
             double[] hpcbuf,
             alglib.xparams _params)
         {
-            bool result = new bool();
+            bool result = new();
 
             result = false;
             return result;
@@ -23119,7 +23119,7 @@ public partial class alglib
             double[] hpcbuf,
             alglib.xparams _params)
         {
-            bool result = new bool();
+            bool result = new();
 
             result = false;
             return result;
@@ -23138,7 +23138,7 @@ public partial class alglib
             double[] grad,
             alglib.xparams _params)
         {
-            bool result = new bool();
+            bool result = new();
 
             result = false;
             return result;

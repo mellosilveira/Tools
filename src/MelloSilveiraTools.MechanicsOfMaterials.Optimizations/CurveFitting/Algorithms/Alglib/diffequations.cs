@@ -326,7 +326,7 @@ public partial class alglib
             }
             public override alglib.apobject make_copy()
             {
-                odesolverstate _result = new odesolverstate();
+                odesolverstate _result = new();
                 _result.n = n;
                 _result.m = m;
                 _result.xscale = xscale;
@@ -370,7 +370,7 @@ public partial class alglib
             }
             public override alglib.apobject make_copy()
             {
-                odesolverreport _result = new odesolverreport();
+                odesolverreport _result = new();
                 _result.nfev = nfev;
                 _result.terminationtype = terminationtype;
                 return _result;
@@ -462,7 +462,7 @@ public partial class alglib
         public static bool odesolveriteration(odesolverstate state,
             alglib.xparams _params)
         {
-            bool result = new bool();
+            bool result = new();
             int n = 0;
             int m = 0;
             int i = 0;
@@ -472,7 +472,7 @@ public partial class alglib
             double v = 0;
             double h = 0;
             double h2 = 0;
-            bool gridpoint = new bool();
+            bool gridpoint = new();
             double err = 0;
             double maxgrowpow = 0;
             int klimit = 0;

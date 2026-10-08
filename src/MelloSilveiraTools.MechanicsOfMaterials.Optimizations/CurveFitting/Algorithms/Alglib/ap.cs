@@ -369,11 +369,11 @@ public partial class alglib
     private static ulong FLG_THREADING_PARALLEL = 0x2;
     private static ulong FLG_THREADING_SERIAL_CALLBACKS = (0x1 << 3);
     private static ulong FLG_THREADING_PARALLEL_CALLBACKS = (0x2 << 3);
-    public static xparams xdefault = new xparams(0x0);
-    public static xparams serial = new xparams(FLG_THREADING_SERIAL);
-    public static xparams parallel = new xparams(FLG_THREADING_PARALLEL);
-    public static xparams serial_callbacks = new xparams(FLG_THREADING_SERIAL_CALLBACKS);
-    public static xparams parallel_callbacks = new xparams(FLG_THREADING_PARALLEL_CALLBACKS);
+    public static xparams xdefault = new(0x0);
+    public static xparams serial = new(FLG_THREADING_SERIAL);
+    public static xparams parallel = new(FLG_THREADING_PARALLEL);
+    public static xparams serial_callbacks = new(FLG_THREADING_SERIAL_CALLBACKS);
+    public static xparams parallel_callbacks = new(FLG_THREADING_PARALLEL_CALLBACKS);
 
     /********************************************************************
     Global flags, split into several char-sized variables in order
@@ -563,7 +563,7 @@ public partial class alglib
             }
             public override alglib.apobject make_copy()
             {
-                sparsematrix _result = new sparsematrix();
+                sparsematrix _result = new();
                 _result.vals = (double[])vals.Clone();
                 _result.idx = (int[])idx.Clone();
                 _result.ridx = (int[])ridx.Clone();
@@ -633,7 +633,7 @@ public partial class alglib
             }
             public override apobject make_copy()
             {
-                rcommstate result = new rcommstate();
+                rcommstate result = new();
 
                 /* continuation */
                 result.stage = stage;
@@ -805,7 +805,7 @@ public partial class alglib
         {
             ap.rcommv2_request request = (ap.rcommv2_request)p0;
             ap.rcommv2_callbacks callbacks = (ap.rcommv2_callbacks)p1;
-            ap.rcommv2_buffers buffers = new ap.rcommv2_buffers(state.tmpx1, state.tmpc1, state.tmpf1, state.tmpg1, state.tmpj1, state.tmps1);
+            ap.rcommv2_buffers buffers = new(state.tmpx1, state.tmpc1, state.tmpf1, state.tmpg1, state.tmpj1, state.tmps1);
             request.process_standard(state, callbacks, buffers, _params);
         }
         /********************************************************************
@@ -908,7 +908,7 @@ public partial class alglib
 #endif
 
                         /* perform serial execution */
-                        alglib.sparsematrix swrapper = new alglib.sparsematrix(state.replysj);
+                        alglib.sparsematrix swrapper = new(state.replysj);
                         alglib.sparse.sparsecreatecrsemptybuf(state.queryvars, state.replysj, _params);
                         for (int qidx = 0; qidx < state.querysize; qidx++)
                             process_v2request_1(this, qidx, callbacks, buffers, swrapper);
@@ -1411,7 +1411,7 @@ public partial class alglib
             public override apobject make_copy()
             {
                 int i;
-                objarray result = new objarray();
+                objarray result = new();
                 result.cnt = cnt;
                 result.capacity = capacity;
                 result.fixed_capacity = fixed_capacity;
@@ -1701,7 +1701,7 @@ public partial class alglib
             public override apobject make_copy()
             {
                 int i;
-                nxpool result = new nxpool(datatype);
+                nxpool result = new(datatype);
                 result.array_size = array_size;
                 result.capacity = capacity;
                 result.nstored = nstored;
@@ -1973,7 +1973,7 @@ public partial class alglib
     public class math
     {
         //public static System.Random RndObject = new System.Random(System.DateTime.Now.Millisecond);
-        public static System.Random rndobject = new System.Random(System.DateTime.Now.Millisecond + 1000 * System.DateTime.Now.Second + 60 * 1000 * System.DateTime.Now.Minute);
+        public static System.Random rndobject = new(System.DateTime.Now.Millisecond + 1000 * System.DateTime.Now.Second + 60 * 1000 * System.DateTime.Now.Minute);
 
         public const double machineepsilon = 5E-16;
         public const double maxrealnumber = 1E300;
@@ -3043,7 +3043,7 @@ public partial class alglib
             //
             if (buf[offs] == '.')
             {
-                string s = new string(buf, offs, SER_ENTRY_LENGTH);
+                string s = new(buf, offs, SER_ENTRY_LENGTH);
                 if (s == ".nan_______")
                 {
                     offs += SER_ENTRY_LENGTH;
@@ -3215,7 +3215,7 @@ public partial class alglib
             public override apobject make_copy()
             {
                 sharedpoolentry ptr, buf;
-                shared_pool result = new shared_pool();
+                shared_pool result = new();
 
                 /* create lock */
                 ae_init_lock(ref result.pool_lock);
@@ -3232,7 +3232,7 @@ public partial class alglib
                 buf = null;
                 for (ptr = recycled_objects; ptr != null; ptr = ptr.next_entry)
                 {
-                    sharedpoolentry tmp = new sharedpoolentry();
+                    sharedpoolentry tmp = new();
                     tmp.obj = ptr.obj.make_copy();
                     tmp.next_entry = buf;
                     buf = tmp;
@@ -8143,7 +8143,7 @@ public partial class alglib
             //
             // Fallback pure C# code
             //
-            bool result = new bool();
+            bool result = new();
             int k = 0;
             int targetrow = 0;
             int targetcol = 0;
@@ -8613,7 +8613,7 @@ public partial class alglib
             //
             // Fallback pure C# code
             //
-            bool result = new bool();
+            bool result = new();
             int k = 0;
             int targetrow = 0;
             int offsk = 0;

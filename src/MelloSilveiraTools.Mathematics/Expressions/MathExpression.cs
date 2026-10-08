@@ -67,7 +67,7 @@ public class MathExpression : List<Function>
     public double Calculate(double variableValue)
     {
         double value = 0;
-        foreach (var function in Functions)
+        foreach (Function function in Functions)
         {
             if (function.InitialVariableValue <= variableValue && variableValue <= function.FinalVariableValue)
                 value += function.Calculate(variableValue);
@@ -81,8 +81,8 @@ public class MathExpression : List<Function>
     /// </summary>
     protected MathExpression CreateDerivative()
     {
-        var derivativeFunctions = new List<Function>();
-        foreach (var function in Functions)
+        List<Function> derivativeFunctions = [];
+        foreach (Function function in Functions)
         {
             derivativeFunctions.Add(function.Derivative);
         }
@@ -95,8 +95,8 @@ public class MathExpression : List<Function>
     /// </summary>
     protected MathExpression CreateIntegral()
     {
-        var integralFunctions = new List<Function>();
-        foreach (var function in Functions)
+        List<Function> integralFunctions = [];
+        foreach (Function function in Functions)
         {
             integralFunctions.Add(function.Integral);
         }

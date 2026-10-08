@@ -2,7 +2,7 @@ using MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels;
 using MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.NonLinear.Schapery;
 using MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.QuasiLinear;
 
-namespace UnitTests;
+namespace UnitTests.MechanicsOfMaterials.Models.MechanicalModels;
 
 /// <summary>
 /// Unit tests verifying delta and percentage delta calculations across the <see cref="MechanicalModelOutput"/> hierarchy.

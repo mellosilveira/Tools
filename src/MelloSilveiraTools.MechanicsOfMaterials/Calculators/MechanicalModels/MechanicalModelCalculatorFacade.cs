@@ -174,7 +174,7 @@ public class MechanicalModelCalculatorFacade : IMechanicalModelCalculatorFacade
 
         foreach (KeyValuePair<string, object> entry in _outputParameters)
         {
-            var setter = _outputPropertySetters![entry.Key];
+            Action<object, object> setter = _outputPropertySetters![entry.Key];
             setter(output, entry.Value);
         }
 

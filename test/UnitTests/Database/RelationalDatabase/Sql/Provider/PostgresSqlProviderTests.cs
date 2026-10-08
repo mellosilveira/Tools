@@ -1,6 +1,6 @@
 using MelloSilveiraTools.Database.RelationalDatabase.Sql.Provider;
 
-namespace UnitTests;
+namespace UnitTests.Database.RelationalDatabase.Sql.Provider;
 
 public sealed class PostgresSqlProviderTests
 {

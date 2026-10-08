@@ -1228,7 +1228,7 @@ public partial class alglib
             int n,
             alglib.xparams _params)
         {
-            ftbase.fasttransformplan plan = new ftbase.fasttransformplan();
+            ftbase.fasttransformplan plan = new();
             int i = 0;
             double[] buf = new double[0];
 
@@ -1386,7 +1386,7 @@ public partial class alglib
             complex hmnc = 0;
             complex v = 0;
             double[] buf = new double[0];
-            ftbase.fasttransformplan plan = new ftbase.fasttransformplan();
+            ftbase.fasttransformplan plan = new();
             int i_ = 0;
 
             alglib.ap.assert(n > 0, "FFTR1DBuf: incorrect N!");
@@ -1884,7 +1884,7 @@ public partial class alglib
             int p = 0;
             double[] buf = new double[0];
             double[] buf2 = new double[0];
-            ftbase.fasttransformplan plan = new ftbase.fasttransformplan();
+            ftbase.fasttransformplan plan = new();
             complex c1 = 0;
             complex c2 = 0;
             complex c3 = 0;
@@ -2106,7 +2106,7 @@ public partial class alglib
             double[] buf = new double[0];
             double[] buf2 = new double[0];
             complex[] cbuf = new complex[0];
-            ftbase.fasttransformplan plan = new ftbase.fasttransformplan();
+            ftbase.fasttransformplan plan = new();
             complex c1 = 0;
             complex c2 = 0;
             complex c3 = 0;
@@ -2323,7 +2323,7 @@ public partial class alglib
             double[] buf = new double[0];
             double[] buf2 = new double[0];
             double[] buf3 = new double[0];
-            ftbase.fasttransformplan plan = new ftbase.fasttransformplan();
+            ftbase.fasttransformplan plan = new();
             complex c1 = 0;
             complex c2 = 0;
             complex c3 = 0;
@@ -2537,7 +2537,7 @@ public partial class alglib
             double[] buf3 = new double[0];
             complex[] cbuf = new complex[0];
             complex[] cbuf2 = new complex[0];
-            ftbase.fasttransformplan plan = new ftbase.fasttransformplan();
+            ftbase.fasttransformplan plan = new();
             complex c1 = 0;
             complex c2 = 0;
             complex c3 = 0;
@@ -2700,7 +2700,7 @@ public partial class alglib
             double flopcand = 0;
             double flopbest = 0;
             int algbest = 0;
-            ftbase.fasttransformplan plan = new ftbase.fasttransformplan();
+            ftbase.fasttransformplan plan = new();
             double[] buf = new double[0];
             double[] buf2 = new double[0];
             int i_ = 0;
@@ -3184,7 +3184,7 @@ public partial class alglib
             double flopcand = 0;
             double flopbest = 0;
             int algbest = 0;
-            ftbase.fasttransformplan plan = new ftbase.fasttransformplan();
+            ftbase.fasttransformplan plan = new();
             double[] buf = new double[0];
             double[] buf2 = new double[0];
             double[] buf3 = new double[0];

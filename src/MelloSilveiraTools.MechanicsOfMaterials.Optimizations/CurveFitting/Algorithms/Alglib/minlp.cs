@@ -1788,8 +1788,8 @@ public partial class alglib
     {
         if (fvec == null)
             throw new alglibexception("ALGLIB: error in 'minlpsolveroptimize()' (fvec is null)");
-        alglib.ap.rcommv2_request request = new alglib.ap.rcommv2_request(state.innerobj.rcommv2, obj, "minlpsolver");
-        alglib.ap.rcommv2_callbacks callbacks = new alglib.ap.rcommv2_callbacks();
+        alglib.ap.rcommv2_request request = new(state.innerobj.rcommv2, obj, "minlpsolver");
+        alglib.ap.rcommv2_callbacks callbacks = new();
         callbacks.rep = rep;
         callbacks.fvec = fvec;
 
@@ -1810,8 +1810,8 @@ public partial class alglib
     {
         if (jac == null)
             throw new alglibexception("ALGLIB: error in 'minlpsolveroptimize()' (jac is null)");
-        alglib.ap.rcommv2_request request = new alglib.ap.rcommv2_request(state.innerobj.rcommv2, obj, "minlpsolver");
-        alglib.ap.rcommv2_callbacks callbacks = new alglib.ap.rcommv2_callbacks();
+        alglib.ap.rcommv2_request request = new(state.innerobj.rcommv2, obj, "minlpsolver");
+        alglib.ap.rcommv2_callbacks callbacks = new();
         callbacks.rep = rep;
         callbacks.jac = jac;
 
@@ -1832,8 +1832,8 @@ public partial class alglib
     {
         if (sjac == null)
             throw new alglibexception("ALGLIB: error in 'minlpsolveroptimize()' (sjac is null)");
-        alglib.ap.rcommv2_request request = new alglib.ap.rcommv2_request(state.innerobj.rcommv2, obj, "minlpsolver");
-        alglib.ap.rcommv2_callbacks callbacks = new alglib.ap.rcommv2_callbacks();
+        alglib.ap.rcommv2_request request = new(state.innerobj.rcommv2, obj, "minlpsolver");
+        alglib.ap.rcommv2_callbacks callbacks = new();
         callbacks.rep = rep;
         callbacks.sjac = sjac;
 
@@ -1990,7 +1990,7 @@ public partial class alglib
             }
             public override alglib.apobject make_copy()
             {
-                bbgdsubproblem _result = new bbgdsubproblem();
+                bbgdsubproblem _result = new();
                 _result.leafid = leafid;
                 _result.n = n;
                 _result.x0 = (double[])x0.Clone();
@@ -2103,7 +2103,7 @@ public partial class alglib
             }
             public override alglib.apobject make_copy()
             {
-                bbgdfrontsubsolver _result = new bbgdfrontsubsolver();
+                bbgdfrontsubsolver _result = new();
                 _result.subsolverstatus = subsolverstatus;
                 _result.subproblem = subproblem != null ? (bbgdsubproblem)subproblem.make_copy() : null;
                 _result.nlpsubsolver = nlpsubsolver != null ? (minnlc.minnlcstate)nlpsubsolver.make_copy() : null;
@@ -2222,7 +2222,7 @@ public partial class alglib
             }
             public override alglib.apobject make_copy()
             {
-                bbgdfrontentry _result = new bbgdfrontentry();
+                bbgdfrontentry _result = new();
                 _result.entrystatus = entrystatus;
                 _result.addstatussolutionsaggregated = addstatussolutionsaggregated;
                 _result.addstatusdecisionsmade = addstatusdecisionsmade;
@@ -2285,7 +2285,7 @@ public partial class alglib
             }
             public override alglib.apobject make_copy()
             {
-                bbgdfront _result = new bbgdfront();
+                bbgdfront _result = new();
                 _result.frontmode = frontmode;
                 _result.frontstatus = frontstatus;
                 _result.popmostrecent = popmostrecent;
@@ -2460,7 +2460,7 @@ public partial class alglib
             }
             public override alglib.apobject make_copy()
             {
-                bbgdstate _result = new bbgdstate();
+                bbgdstate _result = new();
                 _result.n = n;
                 _result.criteria = criteria != null ? (optserv.nlpstoppingcriteria)criteria.make_copy() : null;
                 _result.diffstep = diffstep;
@@ -2940,7 +2940,7 @@ public partial class alglib
         public static bool bbgditeration(bbgdstate state,
             alglib.xparams _params)
         {
-            bool result = new bool();
+            bool result = new();
             int n = 0;
             int i = 0;
             int k = 0;
@@ -3287,7 +3287,7 @@ public partial class alglib
         public static bool bbgdisrequestfromfront(bbgdstate state,
             alglib.xparams _params)
         {
-            bool result = new bool();
+            bool result = new();
 
             result = state.requestsource == rqsrcfront;
             return result;
@@ -3858,7 +3858,7 @@ public partial class alglib
             bbgdstate state,
             alglib.xparams _params)
         {
-            bool result = new bool();
+            bool result = new();
 
             if (state.dotrace)
             {
@@ -3986,7 +3986,7 @@ public partial class alglib
             bbgdfrontentry e = null;
             bbgdsubproblem p = null;
             int i = 0;
-            bool hasnofathom = new bool();
+            bool hasnofathom = new();
 
             alglib.ap.assert(front.frontmode == ftroot || front.frontmode == ftdynamic, "BBGD: 647012 failed");
             hasnofathom = false;
@@ -4031,7 +4031,7 @@ public partial class alglib
             bbgdstate state,
             alglib.xparams _params)
         {
-            bool result = new bool();
+            bool result = new();
 
 
             //
@@ -4095,7 +4095,7 @@ public partial class alglib
             bbgdstate state,
             alglib.xparams _params)
         {
-            bool result = new bool();
+            bool result = new();
             bbgdfrontentry e = null;
             bbgdsubproblem p = null;
             bbgdfrontsubsolver subsolver = null;
@@ -4104,10 +4104,10 @@ public partial class alglib
             int jobscnt = 0;
             int waitingforrcommcnt = 0;
             int waitingforsynccnt = 0;
-            bool bdummy = new bool();
-            bool continuediving = new bool();
-            bool handled = new bool();
-            bool someentriessolved = new bool();
+            bool bdummy = new();
+            bool continuediving = new();
+            bool handled = new();
+            bool someentriessolved = new();
 
             result = true;
 
@@ -4869,8 +4869,8 @@ public partial class alglib
             bbgdstate state,
             alglib.xparams _params)
         {
-            bool result = new bool();
-            bool done = new bool();
+            bool result = new();
+            bool done = new();
             int n = 0;
             int i = 0;
             int j = 0;
@@ -4889,7 +4889,7 @@ public partial class alglib
             int cntreliable = 0;
             int cntunreliable = 0;
             int cntchosen = 0;
-            bool isreliable = new bool();
+            bool isreliable = new();
 
             done = false;
             n = s.n;
@@ -5307,13 +5307,13 @@ public partial class alglib
             bbgdfrontsubsolver subsolver,
             alglib.xparams _params)
         {
-            bool result = new bool();
+            bool result = new();
             int i = 0;
             int terminationtype = 0;
             int repnfevinternal = 0;
-            bool uselock = new bool();
-            bool forbidrecognizingintegrality = new bool();
-            bool done = new bool();
+            bool uselock = new();
+            bool forbidrecognizingintegrality = new();
+            bool done = new();
 
 
             //
@@ -5585,7 +5585,7 @@ public partial class alglib
             int besttightensolidx = 0;
             double bestbranchscore = 0;
             double besttightenlowerscore = 0;
-            bool isinfeasible = new bool();
+            bool isinfeasible = new();
             double vscore = 0;
             double vrnddn = 0;
             double vrndup = 0;
@@ -5915,12 +5915,12 @@ public partial class alglib
             bbgdstate state,
             alglib.xparams _params)
         {
-            bool result = new bool();
+            bool result = new();
             int eligibleleafidx = 0;
             double eligibleleafdual = 0;
-            bool iseligibleleaf = new bool();
+            bool iseligibleleaf = new();
             bbgdsubproblem eligiblep = null;
-            bool bdummy = new bool();
+            bool bdummy = new();
 
             alglib.ap.assert(((entry.entrystatus == stsolved && entry.addstatussolutionsaggregated) && entry.addstatusdecisionsmade) && !entry.isrootentry, "BBGD: integrity check 905205 failed");
             eligibleleafidx = -1;
@@ -6434,8 +6434,8 @@ public partial class alglib
             double stpnrm = 0;
             double v = 0;
             double trustrad = 0;
-            bool applytrustrad = new bool();
-            bool isintfeasible = new bool();
+            bool applytrustrad = new();
+            bool isintfeasible = new();
             bbgdsubproblem subproblemtoupdate = null;
 
             alglib.ap.assert(state.objtype == 1 && state.nnlc == 0, "BBGD: integrity check 330714 failed");
@@ -6805,7 +6805,7 @@ public partial class alglib
         {
             int i = 0;
             int n = 0;
-            bool isintfeas = new bool();
+            bool isintfeas = new();
             bbgdsubproblem subproblem = null;
 
             subproblemarray.get(itemidx, ref subproblem);
@@ -7136,7 +7136,7 @@ public partial class alglib
             }
             public override alglib.apobject make_copy()
             {
-                mirbfmodel _result = new mirbfmodel();
+                mirbfmodel _result = new();
                 _result.isdense = isdense;
                 _result.n = n;
                 _result.nf = nf;
@@ -7183,7 +7183,7 @@ public partial class alglib
             }
             public override alglib.apobject make_copy()
             {
-                mirbfvnsnodesubsolver _result = new mirbfvnsnodesubsolver();
+                mirbfvnsnodesubsolver _result = new();
                 _result.trustrad = trustrad;
                 _result.sufficientcloudsize = sufficientcloudsize;
                 _result.basef = basef;
@@ -7248,7 +7248,7 @@ public partial class alglib
             }
             public override alglib.apobject make_copy()
             {
-                rbfmmtemporaries _result = new rbfmmtemporaries();
+                rbfmmtemporaries _result = new();
                 _result.crit = crit != null ? (optserv.nlpstoppingcriteria)crit.make_copy() : null;
                 _result.bndlx = (double[])bndlx.Clone();
                 _result.bndux = (double[])bndux.Clone();
@@ -7373,7 +7373,7 @@ public partial class alglib
             }
             public override alglib.apobject make_copy()
             {
-                mirbfvnstemporaries _result = new mirbfvnstemporaries();
+                mirbfvnstemporaries _result = new();
                 _result.localtimer = localtimer != null ? (apserv.stimer)localtimer.make_copy() : null;
                 _result.localrng = localrng != null ? (hqrnd.hqrndstate)localrng.make_copy() : null;
                 _result.glbbndl = (double[])glbbndl.Clone();
@@ -7448,7 +7448,7 @@ public partial class alglib
             }
             public override alglib.apobject make_copy()
             {
-                mirbfvnsgrid _result = new mirbfvnsgrid();
+                mirbfvnsgrid _result = new();
                 _result.nnodes = nnodes;
                 _result.nodesinfo = (double[,])nodesinfo.Clone();
                 _result.ptlistlength = ptlistlength;
@@ -7480,7 +7480,7 @@ public partial class alglib
             }
             public override alglib.apobject make_copy()
             {
-                mirbfvnsdataset _result = new mirbfvnsdataset();
+                mirbfvnsdataset _result = new();
                 _result.npoints = npoints;
                 _result.nvars = nvars;
                 _result.nnlc = nnlc;
@@ -7689,7 +7689,7 @@ public partial class alglib
             }
             public override alglib.apobject make_copy()
             {
-                mirbfvnsstate _result = new mirbfvnsstate();
+                mirbfvnsstate _result = new();
                 _result.n = n;
                 _result.criteria = criteria != null ? (optserv.nlpstoppingcriteria)criteria.make_copy() : null;
                 _result.algomode = algomode;
@@ -8043,7 +8043,7 @@ public partial class alglib
         public static bool mirbfvnsiteration(mirbfvnsstate state,
             alglib.xparams _params)
         {
-            bool result = new bool();
+            bool result = new();
             int n = 0;
             int nnlc = 0;
             int i = 0;
@@ -8055,7 +8055,7 @@ public partial class alglib
             double v0 = 0;
             double v1 = 0;
             double lcerr = 0;
-            bool bflag = new bool();
+            bool bflag = new();
 
 
             //
@@ -8579,7 +8579,7 @@ public partial class alglib
             ref double lcerr,
             alglib.xparams _params)
         {
-            bool result = new bool();
+            bool result = new();
             int n = 0;
             int i = 0;
 
@@ -8641,7 +8641,7 @@ public partial class alglib
             int cntu = 0;
             int st = 0;
             int n = 0;
-            bool addednodec = new bool();
+            bool addednodec = new();
             int expectedexplorationcnt = 0;
             int expectedsamplingcnt = 0;
             int expectedrbfcnt = 0;
@@ -8651,8 +8651,8 @@ public partial class alglib
             double expectedexplorationtime = 0;
             double expectedsamplingtime = 0;
             double expectedrbftime = 0;
-            bool sufficienttime = new bool();
-            bool sufficientcount = new bool();
+            bool sufficienttime = new();
+            bool sufficientcount = new();
 
             n = state.n;
             state.evalbatchsize = 0;
@@ -8978,7 +8978,7 @@ public partial class alglib
             int n = 0;
             int vidx = 0;
             mirbfvnstemporaries buf = null;
-            bool updatestats = new bool();
+            bool updatestats = new();
 
             n = state.n;
             updatestats = state.doanytrace || state.adaptiveinternalparallelism >= 0;
@@ -9041,7 +9041,7 @@ public partial class alglib
             int n = 0;
             int i = 0;
             double v = 0;
-            bool bbgdsparserequests = new bool();
+            bool bbgdsparserequests = new();
             int bbgdgroupsize = 0;
             int nmultistarts = 0;
             int timeout = 0;
@@ -9338,7 +9338,7 @@ public partial class alglib
             int nodeidx,
             alglib.xparams _params)
         {
-            bool result = new bool();
+            bool result = new();
             double k = 0;
 
             alglib.ap.assert(nodeidx >= 0 && nodeidx < grid.nnodes, "MIRBFVNS: 039445");
@@ -9363,7 +9363,7 @@ public partial class alglib
             int i = 0;
             int j = 0;
             double[] xm = new double[0];
-            bool isequal = new bool();
+            bool isequal = new();
 
             n = state.n;
             for (i = 0; i <= n - 1; i++)
@@ -9448,7 +9448,7 @@ public partial class alglib
             int n = 0;
             int i = 0;
             int j = 0;
-            bool isequal = new bool();
+            bool isequal = new();
 
             nodescnt = 0;
 
@@ -9539,7 +9539,7 @@ public partial class alglib
             ref double mxbest,
             alglib.xparams _params)
         {
-            bool result = new bool();
+            bool result = new();
             int n = 0;
             int i = 0;
             int idummy = 0;
@@ -9598,7 +9598,7 @@ public partial class alglib
             ref double mxbest,
             alglib.xparams _params)
         {
-            bool result = new bool();
+            bool result = new();
             int n = 0;
             int nnlc = 0;
             int i = 0;
@@ -9681,8 +9681,8 @@ public partial class alglib
             int newnodeidx = 0;
             double vshift = 0;
             double[] xm = new double[0];
-            bool sufficienttime = new bool();
-            bool sufficientcount = new bool();
+            bool sufficienttime = new();
+            bool sufficientcount = new();
 
             n = state.n;
             state.rpool.retrieve(ref xm);
@@ -9885,7 +9885,7 @@ public partial class alglib
             double v1 = 0;
             double mindistinf = 0;
             double vmax = 0;
-            bool updatestats = new bool();
+            bool updatestats = new();
 
             fulln = state.n;
             nfrac = state.nfrac;
@@ -10183,7 +10183,7 @@ public partial class alglib
             double v1 = 0;
             double mindistinf = 0;
             double prioratx0 = 0;
-            bool updatestats = new bool();
+            bool updatestats = new();
 
             fulln = state.n;
             nnlc = state.nnlc;
@@ -10454,7 +10454,7 @@ public partial class alglib
             int bestidx = 0;
             double v = 0;
             mirbfvnstemporaries buf = null;
-            bool updatestats = new bool();
+            bool updatestats = new();
             int terminationtype = 0;
 
             fulln = state.n;
@@ -10606,9 +10606,9 @@ public partial class alglib
             mirbfvnsnodesubsolver subsolver = null;
             double preddeltaf = 0;
             double preddeltah = 0;
-            bool acceptablebymarkovfilter = new bool();
-            bool sufficientdecreasef = new bool();
-            bool sufficientdecreaseh = new bool();
+            bool acceptablebymarkovfilter = new();
+            bool sufficientdecreasef = new();
+            bool sufficientdecreaseh = new();
 
             n = state.n;
             alglib.ap.assert(nodeidx >= 0 && nodeidx < grid.nnodes, "MIRBFVNS: 116651");
@@ -10826,7 +10826,7 @@ public partial class alglib
             int n = 0;
             int st = 0;
             int candidx = 0;
-            bool firstpoint = new bool();
+            bool firstpoint = new();
             int nextlistpos = 0;
             double f1 = 0;
             double h1 = 0;
@@ -10885,7 +10885,7 @@ public partial class alglib
             double ctol,
             alglib.xparams _params)
         {
-            bool result = new bool();
+            bool result = new();
 
             result = false;
             if (mx0 <= ctol && mx1 <= ctol)
@@ -10919,7 +10919,7 @@ public partial class alglib
             int candidx,
             alglib.xparams _params)
         {
-            bool result = new bool();
+            bool result = new();
             int n = 0;
             int st0 = 0;
             int st1 = 0;
@@ -11067,7 +11067,7 @@ public partial class alglib
             double v = 0;
             double vax = 0;
             double predsum = 0;
-            bool usedensebfgs = new bool();
+            bool usedensebfgs = new();
 
             predf = 0;
             predh = 0;
@@ -12030,7 +12030,7 @@ public partial class alglib
             }
             public override alglib.apobject make_copy()
             {
-                minlpsolverstate _result = new minlpsolverstate();
+                minlpsolverstate _result = new();
                 _result.n = n;
                 _result.algoidx = algoidx;
                 _result.criteria = criteria != null ? (optserv.nlpstoppingcriteria)criteria.make_copy() : null;
@@ -12156,7 +12156,7 @@ public partial class alglib
             }
             public override alglib.apobject make_copy()
             {
-                minlpsolverreport _result = new minlpsolverreport();
+                minlpsolverreport _result = new();
                 _result.f = f;
                 _result.nfev = nfev;
                 _result.nsubproblems = nsubproblems;
@@ -13691,14 +13691,14 @@ public partial class alglib
         public static bool minlpsolveriteration(minlpsolverstate state,
             alglib.xparams _params)
         {
-            bool result = new bool();
+            bool result = new();
             int n = 0;
             int i = 0;
             int k = 0;
             int originalrequesttype = 0;
-            bool done = new bool();
-            bool densejac = new bool();
-            bool b = new bool();
+            bool done = new();
+            bool densejac = new();
+            bool b = new();
 
 
             //

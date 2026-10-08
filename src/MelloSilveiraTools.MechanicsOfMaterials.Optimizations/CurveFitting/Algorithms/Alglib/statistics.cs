@@ -2559,8 +2559,8 @@ public partial class alglib
     {
         if (func == null)
             throw new alglibexception("ALGLIB: error in 'mcmcrun()' (func is null)");
-        alglib.ap.rcommv2_request request = new alglib.ap.rcommv2_request(state.innerobj.rcommv2, obj, "mcmc");
-        alglib.ap.rcommv2_callbacks callbacks = new alglib.ap.rcommv2_callbacks();
+        alglib.ap.rcommv2_request request = new(state.innerobj.rcommv2, obj, "mcmc");
+        alglib.ap.rcommv2_callbacks callbacks = new();
         callbacks.rep = rep;
         callbacks.func = func;
 
@@ -3556,8 +3556,8 @@ public partial class alglib
             double x0 = 0;
             double y0 = 0;
             double s = 0;
-            bool samex = new bool();
-            bool samey = new bool();
+            bool samex = new();
+            bool samey = new();
 
             alglib.ap.assert(n >= 0, "Cov2: N<0");
             alglib.ap.assert(alglib.ap.len(x) >= n, "Cov2: Length(X)<N!");
@@ -3651,8 +3651,8 @@ public partial class alglib
             double x0 = 0;
             double y0 = 0;
             double s = 0;
-            bool samex = new bool();
-            bool samey = new bool();
+            bool samex = new();
+            bool samey = new();
             double xv = 0;
             double yv = 0;
             double t1 = 0;
@@ -3756,7 +3756,7 @@ public partial class alglib
             alglib.xparams _params)
         {
             double result = 0;
-            apserv.apbuffers buf = new apserv.apbuffers();
+            apserv.apbuffers buf = new();
 
             x = (double[])x.Clone();
             y = (double[])y.Clone();
@@ -4026,13 +4026,13 @@ public partial class alglib
         {
             int i = 0;
             int j = 0;
-            apserv.apbuffers buf = new apserv.apbuffers();
+            apserv.apbuffers buf = new();
             double[,] xc = new double[0, 0];
             double[] t = new double[0];
             double v = 0;
             double vv = 0;
             double x0 = 0;
-            bool b = new bool();
+            bool b = new();
 
             c = new double[0, 0];
 
@@ -4633,7 +4633,7 @@ public partial class alglib
             double v = 0;
             double v2 = 0;
             double vv = 0;
-            bool b = new bool();
+            bool b = new();
             double[] t = new double[0];
             double x0 = 0;
             double y0 = 0;
@@ -4641,7 +4641,7 @@ public partial class alglib
             double[] sy = new double[0];
             double[,] xc = new double[0, 0];
             double[,] yc = new double[0, 0];
-            apserv.apbuffers buf = new apserv.apbuffers();
+            apserv.apbuffers buf = new();
 
             c = new double[0, 0];
 
@@ -4841,10 +4841,10 @@ public partial class alglib
             int nfeatures,
             alglib.xparams _params)
         {
-            apserv.apbuffers buf0 = new apserv.apbuffers();
-            apserv.apbuffers buf1 = new apserv.apbuffers();
+            apserv.apbuffers buf0 = new();
+            apserv.apbuffers buf1 = new();
             int basecasecost = 0;
-            alglib.smp.shared_pool pool = new alglib.smp.shared_pool();
+            alglib.smp.shared_pool pool = new();
 
             alglib.ap.assert(npoints >= 0, "RankData: NPoints<0");
             alglib.ap.assert(nfeatures >= 1, "RankData: NFeatures<1");
@@ -4926,10 +4926,10 @@ public partial class alglib
             int nfeatures,
             alglib.xparams _params)
         {
-            apserv.apbuffers buf0 = new apserv.apbuffers();
-            apserv.apbuffers buf1 = new apserv.apbuffers();
+            apserv.apbuffers buf0 = new();
+            apserv.apbuffers buf1 = new();
             int basecasecost = 0;
-            alglib.smp.shared_pool pool = new alglib.smp.shared_pool();
+            alglib.smp.shared_pool pool = new();
 
             alglib.ap.assert(npoints >= 0, "RankData: NPoints<0");
             alglib.ap.assert(nfeatures >= 1, "RankData: NFeatures<1");
@@ -11954,7 +11954,7 @@ public partial class alglib
             double xmean = 0;
             double x0 = 0;
             double v = 0;
-            bool samex = new bool();
+            bool samex = new();
             double xvariance = 0;
             double xstddev = 0;
             double v1 = 0;
@@ -12111,8 +12111,8 @@ public partial class alglib
             alglib.xparams _params)
         {
             int i = 0;
-            bool samex = new bool();
-            bool samey = new bool();
+            bool samex = new();
+            bool samey = new();
             double x0 = 0;
             double y0 = 0;
             double xmean = 0;
@@ -12281,8 +12281,8 @@ public partial class alglib
             alglib.xparams _params)
         {
             int i = 0;
-            bool samex = new bool();
-            bool samey = new bool();
+            bool samex = new();
+            bool samey = new();
             double x0 = 0;
             double y0 = 0;
             double xmean = 0;
@@ -13380,7 +13380,7 @@ public partial class alglib
             }
             public override alglib.apobject make_copy()
             {
-                mcmcstate _result = new mcmcstate();
+                mcmcstate _result = new();
                 _result.n = n;
                 _result.x0width = x0width;
                 _result.x0height = x0height;
@@ -13492,7 +13492,7 @@ public partial class alglib
             }
             public override alglib.apobject make_copy()
             {
-                mcmcreport _result = new mcmcreport();
+                mcmcreport _result = new();
                 _result.nfev = nfev;
                 _result.acceptrate = acceptrate;
                 _result.swapacceptrate = swapacceptrate;
@@ -14212,7 +14212,7 @@ public partial class alglib
         public static bool mcmciteration(mcmcstate state,
             alglib.xparams _params)
         {
-            bool result = new bool();
+            bool result = new();
             int n = 0;
             int i = 0;
             int j = 0;
@@ -15052,7 +15052,7 @@ public partial class alglib
             int epochscnt,
             alglib.xparams _params)
         {
-            bool result = new bool();
+            bool result = new();
 
             alglib.ap.assert(epochscnt >= 0, "MCMCRestart: EpochsCnt<0");
             result = state.haslastpopulation;
@@ -15267,7 +15267,7 @@ public partial class alglib
             int idx1 = 0;
             double deltabeta = 0;
             double logprob = 0;
-            bool adaptationdone = new bool();
+            bool adaptationdone = new();
             double decay = 0;
             double v = 0;
 

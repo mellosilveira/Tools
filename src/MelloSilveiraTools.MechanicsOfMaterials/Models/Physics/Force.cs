@@ -27,7 +27,7 @@ public record Force
     /// <param name="z">Component of the force along the Z axis, in N (Newton).</param>
     private Force(double x, double y, double z)
     {
-        var vector = Vector3D.Create(x, y, z);
+        Vector3D vector = Vector3D.Create(x, y, z);
         X = vector.X;
         Y = vector.Y;
         Z = vector.Z;

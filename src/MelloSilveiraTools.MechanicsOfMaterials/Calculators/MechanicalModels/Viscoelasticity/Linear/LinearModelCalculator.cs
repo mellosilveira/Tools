@@ -27,7 +27,7 @@ public abstract class LinearModelCalculator<TConstitutiveParameters>(
         if (input.RampTimeConsideration == RampTimeConsideration.Disregard)
         {
             displacement ??= input.Displacement!.InitialValue;
-            var strain = parameterConverter.CalculateStrainFromDisplacement(input.Specimen!, displacement.Value);
+            double strain = parameterConverter.CalculateStrainFromDisplacement(input.Specimen!, displacement.Value);
 
             if (input.ViscoelasticEffect == ViscoelasticEffect.Relaxation)
                 stress = CalculateStressWhenDisregardRampTime(input, time, strain);
@@ -58,7 +58,7 @@ public abstract class LinearModelCalculator<TConstitutiveParameters>(
         if (input.RampTimeConsideration == RampTimeConsideration.Disregard)
         {
             force ??= input.Force!.InitialValue;
-            var stress = parameterConverter.CalculateStressFromForce(input.Specimen!, force.Value);
+            double stress = parameterConverter.CalculateStressFromForce(input.Specimen!, force.Value);
 
             if (input.ViscoelasticEffect == ViscoelasticEffect.Relaxation)
                 strain = stress / CalculateRelaxationFunction(input, time);

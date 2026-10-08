@@ -6083,7 +6083,7 @@ public partial class alglib
             }
             public override alglib.apobject make_copy()
             {
-                densesolverreport _result = new densesolverreport();
+                densesolverreport _result = new();
                 _result.terminationtype = terminationtype;
                 _result.r1 = r1;
                 _result.rinf = rinf;
@@ -6109,7 +6109,7 @@ public partial class alglib
             }
             public override alglib.apobject make_copy()
             {
-                densesolverlsreport _result = new densesolverlsreport();
+                densesolverlsreport _result = new();
                 _result.terminationtype = terminationtype;
                 _result.r2 = r2;
                 _result.cx = (double[,])cx.Clone();
@@ -6278,7 +6278,7 @@ public partial class alglib
             double[] b,
             alglib.xparams _params)
         {
-            bool result = new bool();
+            bool result = new();
             int i = 0;
             int j = 0;
             int[] p = new int[0];
@@ -6506,7 +6506,7 @@ public partial class alglib
             int m,
             alglib.xparams _params)
         {
-            bool result = new bool();
+            bool result = new();
             double v = 0;
             int i = 0;
             int j = 0;
@@ -6683,7 +6683,7 @@ public partial class alglib
             double[] b,
             alglib.xparams _params)
         {
-            bool result = new bool();
+            bool result = new();
             int i = 0;
             int j = 0;
 
@@ -6886,7 +6886,7 @@ public partial class alglib
             int m,
             alglib.xparams _params)
         {
-            bool result = new bool();
+            bool result = new();
             double v = 0;
             int i = 0;
             int j = 0;
@@ -7267,7 +7267,7 @@ public partial class alglib
             int m,
             alglib.xparams _params)
         {
-            bool result = new bool();
+            bool result = new();
             complex v = 0;
             int i = 0;
             int j = 0;
@@ -7482,7 +7482,7 @@ public partial class alglib
             complex[] b,
             alglib.xparams _params)
         {
-            bool result = new bool();
+            bool result = new();
             int i = 0;
             int j = 0;
             int[] p = new int[0];
@@ -7676,7 +7676,7 @@ public partial class alglib
             int m,
             alglib.xparams _params)
         {
-            bool result = new bool();
+            bool result = new();
             complex v = 0;
             int i = 0;
             int j = 0;
@@ -7862,7 +7862,7 @@ public partial class alglib
             complex[] b,
             alglib.xparams _params)
         {
-            bool result = new bool();
+            bool result = new();
             int i = 0;
             int j = 0;
 
@@ -8234,7 +8234,7 @@ public partial class alglib
             int m,
             alglib.xparams _params)
         {
-            bool result = new bool();
+            bool result = new();
             int i = 0;
             int j = 0;
 
@@ -8440,7 +8440,7 @@ public partial class alglib
             double[] b,
             alglib.xparams _params)
         {
-            bool result = new bool();
+            bool result = new();
             int i = 0;
 
             a = (double[,])a.Clone();
@@ -8583,7 +8583,7 @@ public partial class alglib
             int m,
             alglib.xparams _params)
         {
-            bool result = new bool();
+            bool result = new();
             int i = 0;
             int j = 0;
             int k = 0;
@@ -8746,7 +8746,7 @@ public partial class alglib
             double[] b,
             alglib.xparams _params)
         {
-            bool result = new bool();
+            bool result = new();
             int i = 0;
             int k = 0;
 
@@ -8969,7 +8969,7 @@ public partial class alglib
             int m,
             alglib.xparams _params)
         {
-            bool result = new bool();
+            bool result = new();
             int i = 0;
             int j = 0;
 
@@ -9169,7 +9169,7 @@ public partial class alglib
             complex[] b,
             alglib.xparams _params)
         {
-            bool result = new bool();
+            bool result = new();
             int i = 0;
 
             a = (complex[,])a.Clone();
@@ -9312,7 +9312,7 @@ public partial class alglib
             int m,
             alglib.xparams _params)
         {
-            bool result = new bool();
+            bool result = new();
             int i = 0;
             int j = 0;
             int k = 0;
@@ -9475,7 +9475,7 @@ public partial class alglib
             complex[] b,
             alglib.xparams _params)
         {
-            bool result = new bool();
+            bool result = new();
             int i = 0;
             int k = 0;
 
@@ -9597,12 +9597,12 @@ public partial class alglib
             int kernelidx = 0;
             double v = 0;
             double verr = 0;
-            bool svdfailed = new bool();
-            bool zeroa = new bool();
+            bool svdfailed = new();
+            bool zeroa = new();
             int rfs = 0;
             int nrfs = 0;
-            bool terminatenexttime = new bool();
-            bool smallerr = new bool();
+            bool terminatenexttime = new();
+            bool smallerr = new();
             int i_ = 0;
 
             x = new double[0];
@@ -9846,8 +9846,8 @@ public partial class alglib
             double v = 0;
             double verr = 0;
             double mxb = 0;
-            bool smallerr = new bool();
-            bool terminatenexttime = new bool();
+            bool smallerr = new();
+            bool terminatenexttime = new();
             int i_ = 0;
 
             x = new double[0, 0];
@@ -10077,8 +10077,8 @@ public partial class alglib
             double[] tmpbuf = new double[0];
             complex v = 0;
             double verr = 0;
-            bool smallerr = new bool();
-            bool terminatenexttime = new bool();
+            bool smallerr = new();
+            bool terminatenexttime = new();
             int i_ = 0;
 
             x = new complex[0, 0];
@@ -10744,7 +10744,7 @@ public partial class alglib
             }
             public override alglib.apobject make_copy()
             {
-                linlsqrstate _result = new linlsqrstate();
+                linlsqrstate _result = new();
                 _result.nes = nes != null ? (normestimator.normestimatorstate)nes.make_copy() : null;
                 _result.rx = (double[])rx.Clone();
                 _result.b = (double[])b.Clone();
@@ -10817,7 +10817,7 @@ public partial class alglib
             }
             public override alglib.apobject make_copy()
             {
-                linlsqrreport _result = new linlsqrreport();
+                linlsqrreport _result = new();
                 _result.iterationscount = iterationscount;
                 _result.nmv = nmv;
                 _result.terminationtype = terminationtype;
@@ -11041,7 +11041,7 @@ public partial class alglib
         public static bool linlsqriteration(linlsqrstate state,
             alglib.xparams _params)
         {
-            bool result = new bool();
+            bool result = new();
             int summn = 0;
             double bnorm = 0;
             int i = 0;
@@ -11902,7 +11902,7 @@ public partial class alglib
             }
             public override alglib.apobject make_copy()
             {
-                polynomialsolverreport _result = new polynomialsolverreport();
+                polynomialsolverreport _result = new();
                 _result.maxerr = maxerr;
                 return _result;
             }
@@ -11964,7 +11964,7 @@ public partial class alglib
             double[] wi = new double[0];
             int i = 0;
             int j = 0;
-            bool status = new bool();
+            bool status = new();
             int nz = 0;
             int ne = 0;
             complex v = 0;
@@ -12085,7 +12085,7 @@ public partial class alglib
             }
             public override alglib.apobject make_copy()
             {
-                sparsesolverreport _result = new sparsesolverreport();
+                sparsesolverreport _result = new();
                 _result.terminationtype = terminationtype;
                 _result.nmv = nmv;
                 _result.iterationscount = iterationscount;
@@ -12144,7 +12144,7 @@ public partial class alglib
             }
             public override alglib.apobject make_copy()
             {
-                sparsesolverstate _result = new sparsesolverstate();
+                sparsesolverstate _result = new();
                 _result.n = n;
                 _result.x0 = (double[])x0.Clone();
                 _result.epsf = epsf;
@@ -12243,8 +12243,8 @@ public partial class alglib
             alglib.xparams _params)
         {
             int n = 0;
-            sparse.sparsematrix convbuf = new sparse.sparsematrix();
-            sparsesolverstate solver = new sparsesolverstate();
+            sparse.sparsematrix convbuf = new();
+            sparsesolverstate solver = new();
 
             x = new double[0];
 
@@ -12345,8 +12345,8 @@ public partial class alglib
             alglib.xparams _params)
         {
             int n = 0;
-            sparse.sparsematrix convbuf = new sparse.sparsematrix();
-            sparsesolverstate solver = new sparsesolverstate();
+            sparse.sparsematrix convbuf = new();
+            sparsesolverstate solver = new();
 
             x = new double[0];
 
@@ -12858,7 +12858,7 @@ public partial class alglib
         public static bool sparsesolverooccontinue(sparsesolverstate state,
             alglib.xparams _params)
         {
-            bool result = new bool();
+            bool result = new();
 
             alglib.ap.assert(state.running, "SparseSolverContinue: the solver is not running");
             result = sparsesolveriteration(state, _params);
@@ -13132,7 +13132,7 @@ public partial class alglib
         private static bool sparsesolveriteration(sparsesolverstate state,
             alglib.xparams _params)
         {
-            bool result = new bool();
+            bool result = new();
             int outeridx = 0;
             double res = 0;
             double prevres = 0;
@@ -13455,7 +13455,7 @@ public partial class alglib
             alglib.xparams _params)
         {
             int i = 0;
-            sparse.sparsematrix a2 = new sparse.sparsematrix();
+            sparse.sparsematrix a2 = new();
             int n = 0;
 
             x = new double[0];
@@ -13548,14 +13548,14 @@ public partial class alglib
             iterativesparse.sparsesolverreport rep,
             alglib.xparams _params)
         {
-            sparse.sparsematrix a2 = new sparse.sparsematrix();
-            sparse.sparsematrix a3 = new sparse.sparsematrix();
+            sparse.sparsematrix a2 = new();
+            sparse.sparsematrix a3 = new();
             int n = 0;
             int[] p = new int[0];
             int[] idummy = new int[0];
             int donotreusemem = 0;
-            spchol.spcholanalysis analysis = new spchol.spcholanalysis();
-            bool flg = new bool();
+            spchol.spcholanalysis analysis = new();
+            bool flg = new();
             int facttype = 0;
 
             x = new double[0];
@@ -13774,14 +13774,14 @@ public partial class alglib
             int j = 0;
             int n = 0;
             double v = 0;
-            sparse.sparsematrix a2 = new sparse.sparsematrix();
+            sparse.sparsematrix a2 = new();
             int[] pivp = new int[0];
             int[] pivq = new int[0];
             double[] b2 = new double[0];
             double[] sr = new double[0];
             double[] sc = new double[0];
             double reg = 0;
-            normestimator.normestimatorstate e = new normestimator.normestimatorstate();
+            normestimator.normestimatorstate e = new();
             int gmresk = 0;
             int maxits = 0;
 
@@ -13965,14 +13965,14 @@ public partial class alglib
             int n = 0;
             int m = 0;
             double v = 0;
-            sparse.sparsematrix a2 = new sparse.sparsematrix();
+            sparse.sparsematrix a2 = new();
             int[] pivp = new int[0];
             int[] pivq = new int[0];
             double[] b2 = new double[0];
             double[] sr = new double[0];
             double[] sc = new double[0];
             double augreg = 0;
-            normestimator.normestimatorstate e = new normestimator.normestimatorstate();
+            normestimator.normestimatorstate e = new();
             int gmresk = 0;
             int maxits = 0;
 
@@ -14203,12 +14203,12 @@ public partial class alglib
             int m = 0;
             int n = 0;
             int nzaug = 0;
-            sparse.sparsematrix aug = new sparse.sparsematrix();
+            sparse.sparsematrix aug = new();
             int[] priorities = new int[0];
             double[] bx = new double[0];
-            spchol.spcholanalysis analysis = new spchol.spcholanalysis();
-            iterativesparse.sparsesolverstate solver = new iterativesparse.sparsesolverstate();
-            iterativesparse.sparsesolverreport innerrep = new iterativesparse.sparsesolverreport();
+            spchol.spcholanalysis analysis = new();
+            iterativesparse.sparsesolverstate solver = new();
+            iterativesparse.sparsesolverreport innerrep = new();
             int requesttype = 0;
             double[] rr = new double[0];
             double[] q = new double[0];
@@ -14396,7 +14396,7 @@ public partial class alglib
             }
             public override alglib.apobject make_copy()
             {
-                lincgstate _result = new lincgstate();
+                lincgstate _result = new();
                 _result.rx = (double[])rx.Clone();
                 _result.b = (double[])b.Clone();
                 _result.n = n;
@@ -14453,7 +14453,7 @@ public partial class alglib
             }
             public override alglib.apobject make_copy()
             {
-                lincgreport _result = new lincgreport();
+                lincgreport _result = new();
                 _result.iterationscount = iterationscount;
                 _result.nmv = nmv;
                 _result.terminationtype = terminationtype;
@@ -14690,7 +14690,7 @@ public partial class alglib
         public static bool lincgiteration(lincgstate state,
             alglib.xparams _params)
         {
-            bool result = new bool();
+            bool result = new();
             int i = 0;
             double uvar = 0;
             double bnorm = 0;
@@ -15531,7 +15531,7 @@ public partial class alglib
             }
             public override alglib.apobject make_copy()
             {
-                nleqstate _result = new nleqstate();
+                nleqstate _result = new();
                 _result.n = n;
                 _result.m = m;
                 _result.epsf = epsf;
@@ -15576,7 +15576,7 @@ public partial class alglib
             }
             public override alglib.apobject make_copy()
             {
-                nleqreport _result = new nleqreport();
+                nleqreport _result = new();
                 _result.iterationscount = iterationscount;
                 _result.nfunc = nfunc;
                 _result.njac = njac;
@@ -15779,7 +15779,7 @@ public partial class alglib
         public static bool nleqiteration(nleqstate state,
             alglib.xparams _params)
         {
-            bool result = new bool();
+            bool result = new();
             int n = 0;
             int m = 0;
             int i = 0;
@@ -15789,7 +15789,7 @@ public partial class alglib
             double rho = 0;
             double mu = 0;
             double stepnorm = 0;
-            bool b = new bool();
+            bool b = new();
             int i_ = 0;
 
 
@@ -16286,7 +16286,7 @@ public partial class alglib
             double lambdaup,
             alglib.xparams _params)
         {
-            bool result = new bool();
+            bool result = new();
             double lnlambda = 0;
             double lnnu = 0;
             double lnlambdaup = 0;

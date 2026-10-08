@@ -10,7 +10,7 @@ using MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelast
 using MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.Linear.Maxwell;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace UnitTests;
+namespace UnitTests.MechanicsOfMaterials.Calculators.MechanicalModels;
 
 /// <summary>
 /// Unit tests for <see cref="IMechanicalModelCalculatorFactory"/> and <see cref="MechanicalModelCalculatorFactory"/>.

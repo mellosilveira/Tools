@@ -1,6 +1,6 @@
 using MelloSilveiraTools.Core.ExtensionMethods;
 
-namespace UnitTests;
+namespace UnitTests.Core.ExtensionMethods;
 
 public sealed class StringExtensionsTests
 {

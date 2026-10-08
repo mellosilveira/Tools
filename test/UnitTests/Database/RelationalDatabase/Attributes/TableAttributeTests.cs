@@ -1,6 +1,6 @@
 using MelloSilveiraTools.Database.RelationalDatabase.Attributes;
 
-namespace UnitTests;
+namespace UnitTests.Database.RelationalDatabase.Attributes;
 
 public sealed class TableAttributeTests
 {

@@ -7,7 +7,7 @@ using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.Experiment
 using Microsoft.Extensions.Logging;
 using Moq;
 
-namespace UnitTests;
+namespace UnitTests.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Steps.CurveFitter;
 
 public class SchaperyRelaxationOnlyCurveFitterStepTests
 {

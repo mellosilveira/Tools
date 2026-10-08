@@ -1291,7 +1291,7 @@ public partial class alglib
     *************************************************************************/
     public static void kdtreeserialize(kdtree obj, out string s_out)
     {
-        alglib.serializer s = new alglib.serializer();
+        alglib.serializer s = new();
         s.alloc_start();
         nearestneighbor.kdtreealloc(s, obj.innerobj, null);
         s.sstart_str();
@@ -1323,7 +1323,7 @@ public partial class alglib
     *************************************************************************/
     public static void kdtreeserialize(kdtree obj, System.IO.Stream stream_out)
     {
-        alglib.serializer s = new alglib.serializer();
+        alglib.serializer s = new();
         s.alloc_start();
         nearestneighbor.kdtreealloc(s, obj.innerobj, null);
         s.sstart_stream(stream_out);
@@ -1337,7 +1337,7 @@ public partial class alglib
     *************************************************************************/
     public static void kdtreeunserialize(string s_in, out kdtree obj)
     {
-        alglib.serializer s = new alglib.serializer();
+        alglib.serializer s = new();
         obj = new kdtree();
         s.ustart_str(s_in);
         nearestneighbor.kdtreeunserialize(s, obj.innerobj, null);
@@ -1351,7 +1351,7 @@ public partial class alglib
     public static void kdtreeunserialize(System.IO.Stream stream_in, out kdtree obj)
 
     {
-        alglib.serializer s = new alglib.serializer();
+        alglib.serializer s = new();
         obj = new kdtree();
         s.ustart_stream(stream_in);
         nearestneighbor.kdtreeunserialize(s, obj.innerobj, null);
@@ -2734,7 +2734,7 @@ public partial class alglib
             }
             public override alglib.apobject make_copy()
             {
-                xdebugrecord1 _result = new xdebugrecord1();
+                xdebugrecord1 _result = new();
                 _result.i = i;
                 _result.c = c;
                 _result.a = (double[])a.Clone();
@@ -3841,7 +3841,7 @@ public partial class alglib
             }
             public override alglib.apobject make_copy()
             {
-                hqrndstate _result = new hqrndstate();
+                hqrndstate _result = new();
                 _result.s1 = s1;
                 _result.s2 = s2;
                 _result.magicv = magicv;
@@ -4435,7 +4435,7 @@ public partial class alglib
             }
             public override alglib.apobject make_copy()
             {
-                kdtreerequestbuffer _result = new kdtreerequestbuffer();
+                kdtreerequestbuffer _result = new();
                 _result.x = (double[])x.Clone();
                 _result.boxmin = (double[])boxmin.Clone();
                 _result.boxmax = (double[])boxmax.Clone();
@@ -4489,7 +4489,7 @@ public partial class alglib
             }
             public override alglib.apobject make_copy()
             {
-                kdtree _result = new kdtree();
+                kdtree _result = new();
                 _result.n = n;
                 _result.nx = nx;
                 _result.ny = ny;
@@ -6296,7 +6296,7 @@ public partial class alglib
             int nx = 0;
             double log2n = 0;
             double avgrnn = 0;
-            hqrnd.hqrndstate rs = new hqrnd.hqrndstate();
+            hqrnd.hqrndstate rs = new();
 
             alglib.ap.assert(math.isfinite(r) && (double)(r) > (double)(0), "KDTreeApproxRNNQueryCost: incorrect R!");
             hqrnd.hqrndseed(46532, 66356, rs, _params);
@@ -6789,9 +6789,9 @@ public partial class alglib
             int childworstoffs = 0;
             int childoffs = 0;
             double prevdist = 0;
-            bool todive = new bool();
-            bool bestisleft = new bool();
-            bool updatemin = new bool();
+            bool todive = new();
+            bool bestisleft = new();
+            bool updatemin = new();
 
             alglib.ap.assert(kdt.n > 0, "KDTreeQueryNNRec: internal error");
 
@@ -7051,7 +7051,7 @@ public partial class alglib
             int offs,
             alglib.xparams _params)
         {
-            bool inbox = new bool();
+            bool inbox = new();
             int nx = 0;
             int i1 = 0;
             int i2 = 0;

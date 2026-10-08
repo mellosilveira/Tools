@@ -564,18 +564,16 @@
         </member>
         <member name="T:MelloSilveiraTools.Plugins.Infrastructure.PluginAssemblyProcessor">
             <summary>
-            Loads plugin assemblies from disk, discovers their processable types and
-            dispatches type registration to the appropriate <see cref="T:MelloSilveiraTools.Plugins.Infrastructure.IPluginTypeProcessor"/>.
-            Results are memoized in <see cref="T:MelloSilveiraTools.Plugins.Infrastructure.PluginCache"/> keyed by plugin name and version.
+            The system responsible for dynamically loading external modules ("plugins") into our application.
+            It acts like a gatekeeper that unzips or inspects new functionalities, organizing them so our software can adopt these new capabilities on the fly without requiring a full system restart.
             </summary>
             <param name="typeProcessors">Collection of type processors used to handle each <see cref="P:MelloSilveiraTools.Plugins.Infrastructure.IPluginTypeProcessor.ProcessableType"/> discovered inside a plugin assembly.</param>
             <param name="cache">Plugin cache used to memoize loaded and registered plugins by name and version.</param>
         </member>
         <member name="M:MelloSilveiraTools.Plugins.Infrastructure.PluginAssemblyProcessor.#ctor(System.Collections.Generic.IEnumerable{MelloSilveiraTools.Plugins.Infrastructure.IPluginTypeProcessor},MelloSilveiraTools.Plugins.Infrastructure.PluginCache)">
             <summary>
-            Loads plugin assemblies from disk, discovers their processable types and
-            dispatches type registration to the appropriate <see cref="T:MelloSilveiraTools.Plugins.Infrastructure.IPluginTypeProcessor"/>.
-            Results are memoized in <see cref="T:MelloSilveiraTools.Plugins.Infrastructure.PluginCache"/> keyed by plugin name and version.
+            The system responsible for dynamically loading external modules ("plugins") into our application.
+            It acts like a gatekeeper that unzips or inspects new functionalities, organizing them so our software can adopt these new capabilities on the fly without requiring a full system restart.
             </summary>
             <param name="typeProcessors">Collection of type processors used to handle each <see cref="P:MelloSilveiraTools.Plugins.Infrastructure.IPluginTypeProcessor.ProcessableType"/> discovered inside a plugin assembly.</param>
             <param name="cache">Plugin cache used to memoize loaded and registered plugins by name and version.</param>
@@ -799,7 +797,7 @@
                  .AddToolsServices(configuration)
                  .AddPluginServices(configuration);
             
-             var app = builder.Build();
+             WebApplication app = builder.Build();
              app.Services.GetRequiredService&lt;IPluginService&gt;().LoadPluginsOnStartup();
              </code>
              </example>

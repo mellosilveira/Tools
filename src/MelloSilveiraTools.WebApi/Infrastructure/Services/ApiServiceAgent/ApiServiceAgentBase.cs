@@ -75,7 +75,7 @@ public abstract class ApiServiceAgentBase : IApiServiceAgent
     /// <returns>An operation response carrying the deserialized data or the failure reason.</returns>
     protected async Task<ListedResult<TResponseData>> GetAsync<TResponseData>(string requestUri, int timeoutInMiliseconds, [CallerMemberName] string methodName = "") where TResponseData : class => await ResiliencePipeline.ExecuteAsync(async _ =>
     {
-        var token = new CancellationTokenSource(timeoutInMiliseconds).Token;
+        CancellationToken token = new CancellationTokenSource(timeoutInMiliseconds).Token;
         try
         {
             HttpResponseMessage result = await HttpClient.GetAsync(requestUri, token).ConfigureAwait(false);
@@ -85,7 +85,7 @@ public abstract class ApiServiceAgentBase : IApiServiceAgent
 
                 if (result.IsSuccessStatusCode)
                 {
-                    var responseData = JsonSerializer.Deserialize<TResponseData[]>(content, JsonSerializerOptions);
+                    TResponseData[]? responseData = JsonSerializer.Deserialize<TResponseData[]>(content, JsonSerializerOptions);
                     return Result.CreateListedSuccess((StatusCode)result.StatusCode, responseData);
                 }
 
@@ -124,7 +124,7 @@ public abstract class ApiServiceAgentBase : IApiServiceAgent
     /// </returns>
     /// <example>
     /// <code>
-    /// await foreach (var item in GetStreamAsync&lt;MyRecord&gt;("/api/stream", 30_000, nameof(MyMethodAsync)))
+    /// await foreach (MyRecord item in GetStreamAsync&lt;MyRecord&gt;("/api/stream", 30_000, nameof(MyMethodAsync)))
     ///     Process(item);
     /// </code>
     /// </example>
@@ -180,7 +180,7 @@ public abstract class ApiServiceAgentBase : IApiServiceAgent
     {
         try
         {
-            var result = await httpTask.ConfigureAwait(false);
+            HttpResponseMessage result = await httpTask.ConfigureAwait(false);
             if (result.Content != null)
             {
                 if (result.IsSuccessStatusCode)

@@ -1,6 +1,6 @@
 using System.Data;
 
-namespace UnitTests;
+namespace UnitTests.Core;
 
 /// <summary>
 /// Minimal IDataReader backed by an in-memory column array.

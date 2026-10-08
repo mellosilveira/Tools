@@ -120,7 +120,7 @@ public static class WebApiDependencyInjection
 
     private static (string Title, string Description, string Location) GetAssemblyAttributes()
     {
-        var callingAssembly = Assembly.GetCallingAssembly();
+        Assembly callingAssembly = Assembly.GetCallingAssembly();
         // AppContext.BaseDirectory is preferred over Assembly.Location which returns an empty string for
         // assemblies embedded in single-file (and AOT-published) apps. Falls back to Assembly.Location for
         // edge cases where the assembly is loaded from a side-loaded path.

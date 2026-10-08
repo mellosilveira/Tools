@@ -1,4 +1,4 @@
-﻿using MelloSilveiraTools.Mathematics.Models;
+using MelloSilveiraTools.Mathematics.Models;
 
 namespace MelloSilveiraTools.Mathematics.Functions;
 
@@ -30,7 +30,7 @@ public sealed class CosineFunction(
     protected override Function CreateDerivative()
     {
         int coefficientsLength = Coefficients.Length;
-        var derivativeCoefficients = new double[coefficientsLength];
+        double[] derivativeCoefficients = new double[coefficientsLength];
 
         for (int i = 0; i < coefficientsLength / 3; i++)
         {
@@ -46,7 +46,7 @@ public sealed class CosineFunction(
     protected override Function CreateIntegral()
     {
         int coefficientsLength = Coefficients.Length;
-        var integralCoefficients = new double[coefficientsLength];
+        double[] integralCoefficients = new double[coefficientsLength];
 
         for (int i = 0; i < coefficientsLength / 3; i++)
         {

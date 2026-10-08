@@ -19,7 +19,7 @@ public class ReadEntityPaged<TEntity, TFilter>(IRepository repository) : PagedCo
     protected override async Task<PagedResult<TEntity>> ExecuteCommandAsync(ReadEntityPagedRequest<TFilter> request)
     {
         long totalCount = await repository.CountAsync<TEntity, TFilter>(request.Filter).ConfigureAwait(false);
-        var entities = await repository
+        List<TEntity> entities = await repository
             .GetAsync<TEntity, TFilter>(request.Filter, request.Pagination)
             .ToListAsync(request.CancellationToken)
             .ConfigureAwait(false);

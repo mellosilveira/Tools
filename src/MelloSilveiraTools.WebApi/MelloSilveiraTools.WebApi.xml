@@ -369,7 +369,8 @@
         </member>
         <member name="T:MelloSilveiraTools.WebApi.Application.Middlewares.ExceptionHandlingHttpMiddleware">
             <summary>
-            Middleware that converts unhandled exceptions raised by the pipeline into a standard <see cref="T:Microsoft.AspNetCore.Mvc.ProblemDetails"/> JSON response.
+            A safety net that catches unexpected system failures during operations, ensuring users receive a clear, standardized error message rather than a complete application crash.
+            It acts as a polite translator, turning complex technical issues into predictable responses so client applications can handle them gracefully.
             </summary>
             <remarks>
             Exception-to-status mapping performed by <see cref="M:MelloSilveiraTools.WebApi.Application.Middlewares.ExceptionHandlingHttpMiddleware.InvokeAsync(Microsoft.AspNetCore.Http.HttpContext,Microsoft.Extensions.Logging.ILogger{MelloSilveiraTools.WebApi.Application.Middlewares.ExceptionHandlingHttpMiddleware})"/>:
@@ -387,7 +388,8 @@
         </member>
         <member name="M:MelloSilveiraTools.WebApi.Application.Middlewares.ExceptionHandlingHttpMiddleware.#ctor(Microsoft.AspNetCore.Http.RequestDelegate)">
             <summary>
-            Middleware that converts unhandled exceptions raised by the pipeline into a standard <see cref="T:Microsoft.AspNetCore.Mvc.ProblemDetails"/> JSON response.
+            A safety net that catches unexpected system failures during operations, ensuring users receive a clear, standardized error message rather than a complete application crash.
+            It acts as a polite translator, turning complex technical issues into predictable responses so client applications can handle them gracefully.
             </summary>
             <remarks>
             Exception-to-status mapping performed by <see cref="M:MelloSilveiraTools.WebApi.Application.Middlewares.ExceptionHandlingHttpMiddleware.InvokeAsync(Microsoft.AspNetCore.Http.HttpContext,Microsoft.Extensions.Logging.ILogger{MelloSilveiraTools.WebApi.Application.Middlewares.ExceptionHandlingHttpMiddleware})"/>:
@@ -820,7 +822,7 @@
             </returns>
             <example>
             <code>
-            await foreach (var item in GetStreamAsync&lt;MyRecord&gt;("/api/stream", 30_000, nameof(MyMethodAsync)))
+            await foreach (MyRecord item in GetStreamAsync&lt;MyRecord&gt;("/api/stream", 30_000, nameof(MyMethodAsync)))
                 Process(item);
             </code>
             </example>

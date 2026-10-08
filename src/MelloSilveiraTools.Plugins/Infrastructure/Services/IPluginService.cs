@@ -21,7 +21,7 @@ public interface IPluginService
     ///     .AddToolsServices(configuration)
     ///     .AddPluginServices(configuration);
     ///
-    /// var app = builder.Build();
+    /// WebApplication app = builder.Build();
     /// app.Services.GetRequiredService&lt;IPluginService&gt;().LoadPluginsOnStartup();
     /// </code>
     /// </example>

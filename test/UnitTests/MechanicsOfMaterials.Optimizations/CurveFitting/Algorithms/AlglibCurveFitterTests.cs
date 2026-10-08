@@ -2,7 +2,7 @@ using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Algorit
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Models;
 using Microsoft.Extensions.Logging.Abstractions;
 
-namespace UnitTests;
+namespace UnitTests.MechanicsOfMaterials.Optimizations.CurveFitting.Algorithms;
 
 public class AlglibCurveFitterTests
 {

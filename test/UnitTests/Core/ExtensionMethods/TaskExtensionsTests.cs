@@ -1,5 +1,5 @@
-using System.Threading.Tasks.Dataflow;
 using MelloSilveiraTools.Core.ExtensionMethods;
+using System.Threading.Tasks.Dataflow;
 
 namespace UnitTests.Core.ExtensionMethods;
 

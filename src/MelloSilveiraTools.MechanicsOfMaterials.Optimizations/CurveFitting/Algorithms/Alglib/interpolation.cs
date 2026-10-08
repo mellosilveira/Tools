@@ -1067,7 +1067,7 @@ public partial class alglib
     *************************************************************************/
     public static void spline1dserialize(spline1dinterpolant obj, out string s_out)
     {
-        alglib.serializer s = new alglib.serializer();
+        alglib.serializer s = new();
         s.alloc_start();
         spline1d.spline1dalloc(s, obj.innerobj, null);
         s.sstart_str();
@@ -1099,7 +1099,7 @@ public partial class alglib
     *************************************************************************/
     public static void spline1dserialize(spline1dinterpolant obj, System.IO.Stream stream_out)
     {
-        alglib.serializer s = new alglib.serializer();
+        alglib.serializer s = new();
         s.alloc_start();
         spline1d.spline1dalloc(s, obj.innerobj, null);
         s.sstart_stream(stream_out);
@@ -1113,7 +1113,7 @@ public partial class alglib
     *************************************************************************/
     public static void spline1dunserialize(string s_in, out spline1dinterpolant obj)
     {
-        alglib.serializer s = new alglib.serializer();
+        alglib.serializer s = new();
         obj = new spline1dinterpolant();
         s.ustart_str(s_in);
         spline1d.spline1dunserialize(s, obj.innerobj, null);
@@ -1127,7 +1127,7 @@ public partial class alglib
     public static void spline1dunserialize(System.IO.Stream stream_in, out spline1dinterpolant obj)
 
     {
-        alglib.serializer s = new alglib.serializer();
+        alglib.serializer s = new();
         obj = new spline1dinterpolant();
         s.ustart_stream(stream_in);
         spline1d.spline1dunserialize(s, obj.innerobj, null);
@@ -2731,7 +2731,7 @@ public partial class alglib
     *************************************************************************/
     public static void spline2dserialize(spline2dinterpolant obj, out string s_out)
     {
-        alglib.serializer s = new alglib.serializer();
+        alglib.serializer s = new();
         s.alloc_start();
         spline2d.spline2dalloc(s, obj.innerobj, null);
         s.sstart_str();
@@ -2763,7 +2763,7 @@ public partial class alglib
     *************************************************************************/
     public static void spline2dserialize(spline2dinterpolant obj, System.IO.Stream stream_out)
     {
-        alglib.serializer s = new alglib.serializer();
+        alglib.serializer s = new();
         s.alloc_start();
         spline2d.spline2dalloc(s, obj.innerobj, null);
         s.sstart_stream(stream_out);
@@ -2777,7 +2777,7 @@ public partial class alglib
     *************************************************************************/
     public static void spline2dunserialize(string s_in, out spline2dinterpolant obj)
     {
-        alglib.serializer s = new alglib.serializer();
+        alglib.serializer s = new();
         obj = new spline2dinterpolant();
         s.ustart_str(s_in);
         spline2d.spline2dunserialize(s, obj.innerobj, null);
@@ -2791,7 +2791,7 @@ public partial class alglib
     public static void spline2dunserialize(System.IO.Stream stream_in, out spline2dinterpolant obj)
 
     {
-        alglib.serializer s = new alglib.serializer();
+        alglib.serializer s = new();
         obj = new spline2dinterpolant();
         s.ustart_stream(stream_in);
         spline2d.spline2dunserialize(s, obj.innerobj, null);
@@ -8025,8 +8025,8 @@ public partial class alglib
     {
         if (func == null)
             throw new alglibexception("ALGLIB: error in 'lsfitfit()' (func is null)");
-        alglib.ap.rcommv2_request request = new alglib.ap.rcommv2_request(state.innerobj.rcommv2, obj, "lsfit");
-        alglib.ap.rcommv2_callbacks callbacks = new alglib.ap.rcommv2_callbacks();
+        alglib.ap.rcommv2_request request = new(state.innerobj.rcommv2, obj, "lsfit");
+        alglib.ap.rcommv2_callbacks callbacks = new();
         callbacks.rep = rep;
         callbacks.func_p = func;
 
@@ -8049,8 +8049,8 @@ public partial class alglib
             throw new alglibexception("ALGLIB: error in 'lsfitfit()' (func is null)");
         if (grad == null)
             throw new alglibexception("ALGLIB: error in 'lsfitfit()' (grad is null)");
-        alglib.ap.rcommv2_request request = new alglib.ap.rcommv2_request(state.innerobj.rcommv2, obj, "lsfit");
-        alglib.ap.rcommv2_callbacks callbacks = new alglib.ap.rcommv2_callbacks();
+        alglib.ap.rcommv2_request request = new(state.innerobj.rcommv2, obj, "lsfit");
+        alglib.ap.rcommv2_callbacks callbacks = new();
         callbacks.rep = rep;
         callbacks.func_p = func;
         callbacks.grad_p = grad;
@@ -9112,7 +9112,7 @@ public partial class alglib
     *************************************************************************/
     public static void rbfserialize(rbfmodel obj, out string s_out)
     {
-        alglib.serializer s = new alglib.serializer();
+        alglib.serializer s = new();
         s.alloc_start();
         rbf.rbfalloc(s, obj.innerobj, null);
         s.sstart_str();
@@ -9144,7 +9144,7 @@ public partial class alglib
     *************************************************************************/
     public static void rbfserialize(rbfmodel obj, System.IO.Stream stream_out)
     {
-        alglib.serializer s = new alglib.serializer();
+        alglib.serializer s = new();
         s.alloc_start();
         rbf.rbfalloc(s, obj.innerobj, null);
         s.sstart_stream(stream_out);
@@ -9158,7 +9158,7 @@ public partial class alglib
     *************************************************************************/
     public static void rbfunserialize(string s_in, out rbfmodel obj)
     {
-        alglib.serializer s = new alglib.serializer();
+        alglib.serializer s = new();
         obj = new rbfmodel();
         s.ustart_str(s_in);
         rbf.rbfunserialize(s, obj.innerobj, null);
@@ -9172,7 +9172,7 @@ public partial class alglib
     public static void rbfunserialize(System.IO.Stream stream_in, out rbfmodel obj)
 
     {
-        alglib.serializer s = new alglib.serializer();
+        alglib.serializer s = new();
         obj = new rbfmodel();
         s.ustart_stream(stream_in);
         rbf.rbfunserialize(s, obj.innerobj, null);
@@ -11853,7 +11853,7 @@ public partial class alglib
     *************************************************************************/
     public static void idwserialize(idwmodel obj, out string s_out)
     {
-        alglib.serializer s = new alglib.serializer();
+        alglib.serializer s = new();
         s.alloc_start();
         idw.idwalloc(s, obj.innerobj, null);
         s.sstart_str();
@@ -11885,7 +11885,7 @@ public partial class alglib
     *************************************************************************/
     public static void idwserialize(idwmodel obj, System.IO.Stream stream_out)
     {
-        alglib.serializer s = new alglib.serializer();
+        alglib.serializer s = new();
         s.alloc_start();
         idw.idwalloc(s, obj.innerobj, null);
         s.sstart_stream(stream_out);
@@ -11899,7 +11899,7 @@ public partial class alglib
     *************************************************************************/
     public static void idwunserialize(string s_in, out idwmodel obj)
     {
-        alglib.serializer s = new alglib.serializer();
+        alglib.serializer s = new();
         obj = new idwmodel();
         s.ustart_str(s_in);
         idw.idwunserialize(s, obj.innerobj, null);
@@ -11913,7 +11913,7 @@ public partial class alglib
     public static void idwunserialize(System.IO.Stream stream_in, out idwmodel obj)
 
     {
-        alglib.serializer s = new alglib.serializer();
+        alglib.serializer s = new();
         obj = new idwmodel();
         s.ustart_stream(stream_in);
         idw.idwunserialize(s, obj.innerobj, null);
@@ -13990,7 +13990,7 @@ public partial class alglib
             }
             public override alglib.apobject make_copy()
             {
-                barycentricinterpolant _result = new barycentricinterpolant();
+                barycentricinterpolant _result = new();
                 _result.n = n;
                 _result.sy = sy;
                 _result.x = (double[])x.Clone();
@@ -16267,7 +16267,7 @@ public partial class alglib
             }
             public override alglib.apobject make_copy()
             {
-                spline1dinterpolant _result = new spline1dinterpolant();
+                spline1dinterpolant _result = new();
                 _result.periodic = periodic;
                 _result.n = n;
                 _result.k = k;
@@ -16310,7 +16310,7 @@ public partial class alglib
             }
             public override alglib.apobject make_copy()
             {
-                spline1dfitreport _result = new spline1dfitreport();
+                spline1dfitreport _result = new();
                 _result.terminationtype = terminationtype;
                 _result.taskrcond = taskrcond;
                 _result.rmserror = rmserror;
@@ -16355,7 +16355,7 @@ public partial class alglib
             }
             public override alglib.apobject make_copy()
             {
-                spline1dbbasis _result = new spline1dbbasis();
+                spline1dbbasis _result = new();
                 _result.m = m;
                 _result.bfrad = bfrad;
                 _result.s0 = s0 != null ? (spline1dinterpolant)s0.make_copy() : null;
@@ -18190,7 +18190,7 @@ public partial class alglib
             double[] x = new double[0];
             double[] y = new double[0];
             double[] d = new double[0];
-            bool isperiodic = new bool();
+            bool isperiodic = new();
             int contval = 0;
 
             alglib.ap.assert(c.k == 3, "Spline1DLinTransX: internal error");
@@ -18474,9 +18474,9 @@ public partial class alglib
             double[] sx = new double[0];
             double[] sy = new double[0];
             double[] sdy = new double[0];
-            sparse.sparsematrix av = new sparse.sparsematrix();
-            sparse.sparsematrix ah = new sparse.sparsematrix();
-            sparse.sparsematrix ata = new sparse.sparsematrix();
+            sparse.sparsematrix av = new();
+            sparse.sparsematrix ah = new();
+            sparse.sparsematrix ata = new();
             double[] targets = new double[0];
             double meany = 0;
             int lsqrcnt = 0;
@@ -18487,8 +18487,8 @@ public partial class alglib
             double[] tmp0 = new double[0];
             double[] tmp1 = new double[0];
             double[] tmp2 = new double[0];
-            linlsqr.linlsqrstate solver = new linlsqr.linlsqrstate();
-            linlsqr.linlsqrreport srep = new linlsqr.linlsqrreport();
+            linlsqr.linlsqrstate solver = new();
+            linlsqr.linlsqrreport srep = new();
             double creg = 0;
             double mxata = 0;
             int bw = 0;
@@ -18503,12 +18503,12 @@ public partial class alglib
             int outrow = 0;
             double scaletargetsby = 0;
             double scalepenaltyby = 0;
-            spline1dbbasis basis = new spline1dbbasis();
-            bool dotrace = new bool();
+            spline1dbbasis basis = new();
+            bool dotrace = new();
             int itidx = 0;
             double[] tmpx = new double[0];
             double[] tmpy = new double[0];
-            spline1dinterpolant tmps = new spline1dinterpolant();
+            spline1dinterpolant tmps = new();
             int tstart = 0;
             int t1 = 0;
             double[,] densea = new double[0, 0];
@@ -19269,7 +19269,7 @@ public partial class alglib
         {
             int intervalindex = 0;
             int pointindex = 0;
-            bool havetoadvance = new bool();
+            bool havetoadvance = new();
             double c0 = 0;
             double c1 = 0;
             double c2 = 0;
@@ -19457,7 +19457,7 @@ public partial class alglib
             int tnr = 0;
             int i = 0;
             int j = 0;
-            bool nstep = new bool();
+            bool nstep = new();
 
             r = new double[0];
             nr = 0;
@@ -21676,7 +21676,7 @@ public partial class alglib
             }
             public override alglib.apobject make_copy()
             {
-                spline2dinterpolant _result = new spline2dinterpolant();
+                spline2dinterpolant _result = new();
                 _result.stype = stype;
                 _result.hasmissingcells = hasmissingcells;
                 _result.n = n;
@@ -21730,7 +21730,7 @@ public partial class alglib
             }
             public override alglib.apobject make_copy()
             {
-                spline2dbuilder _result = new spline2dbuilder();
+                spline2dbuilder _result = new();
                 _result.priorterm = priorterm;
                 _result.priortermval = priortermval;
                 _result.areatype = areatype;
@@ -21781,7 +21781,7 @@ public partial class alglib
             }
             public override alglib.apobject make_copy()
             {
-                spline2dfitreport _result = new spline2dfitreport();
+                spline2dfitreport _result = new();
                 _result.rmserror = rmserror;
                 _result.avgerror = avgerror;
                 _result.maxerror = maxerror;
@@ -21845,7 +21845,7 @@ public partial class alglib
             }
             public override alglib.apobject make_copy()
             {
-                spline2dxdesignmatrix _result = new spline2dxdesignmatrix();
+                spline2dxdesignmatrix _result = new();
                 _result.blockwidth = blockwidth;
                 _result.kx = kx;
                 _result.ky = ky;
@@ -21897,7 +21897,7 @@ public partial class alglib
             }
             public override alglib.apobject make_copy()
             {
-                spline2dblockllsbuf _result = new spline2dblockllsbuf();
+                spline2dblockllsbuf _result = new();
                 _result.solver = solver != null ? (linlsqr.linlsqrstate)solver.make_copy() : null;
                 _result.solverrep = solverrep != null ? (linlsqr.linlsqrreport)solverrep.make_copy() : null;
                 _result.blockata = (double[,])blockata.Clone();
@@ -21937,7 +21937,7 @@ public partial class alglib
             }
             public override alglib.apobject make_copy()
             {
-                spline2dfastddmbuf _result = new spline2dfastddmbuf();
+                spline2dfastddmbuf _result = new();
                 _result.xdesignmatrix = xdesignmatrix != null ? (spline2dxdesignmatrix)xdesignmatrix.make_copy() : null;
                 _result.tmp0 = (double[])tmp0.Clone();
                 _result.tmpz = (double[])tmpz.Clone();
@@ -23567,7 +23567,7 @@ public partial class alglib
             double[] d2fdxdy = new double[0];
             double[] v = new double[0];
             bool[] missing = new bool[0];
-            bool missingv = new bool();
+            bool missingv = new();
             int i = 0;
             int j = 0;
             int k = 0;
@@ -23933,7 +23933,7 @@ public partial class alglib
             double[,] buf = new double[0, 0];
             double[] x = new double[0];
             double[] y = new double[0];
-            spline1d.spline1dinterpolant c = new spline1d.spline1dinterpolant();
+            spline1d.spline1dinterpolant c = new();
             int mw = 0;
             int mh = 0;
             int i = 0;
@@ -24299,7 +24299,7 @@ public partial class alglib
             alglib.xparams _params)
         {
             double t = 0;
-            bool tb = new bool();
+            bool tb = new();
             int i = 0;
             int j = 0;
             int k = 0;
@@ -24648,7 +24648,7 @@ public partial class alglib
             int j = 0;
             int k = 0;
             int di = 0;
-            bool allzero = new bool();
+            bool allzero = new();
 
             bndbtm = (double[])bndbtm.Clone();
             bndtop = (double[])bndtop.Clone();
@@ -25034,7 +25034,7 @@ public partial class alglib
             double[,] dy = new double[0, 0];
             double[,] dxy = new double[0, 0];
             double t = 0;
-            bool tb = new bool();
+            bool tb = new();
             int i = 0;
             int j = 0;
             int k = 0;
@@ -26328,12 +26328,12 @@ public partial class alglib
             double[] meany = new double[0];
             int[] xyindex = new int[0];
             int[] tmpi = new int[0];
-            spline1d.spline1dinterpolant basis1 = new spline1d.spline1dinterpolant();
-            sparse.sparsematrix av = new sparse.sparsematrix();
-            sparse.sparsematrix ah = new sparse.sparsematrix();
-            spline2dxdesignmatrix xdesignmatrix = new spline2dxdesignmatrix();
+            spline1d.spline1dinterpolant basis1 = new();
+            sparse.sparsematrix av = new();
+            sparse.sparsematrix ah = new();
+            spline2dxdesignmatrix xdesignmatrix = new();
             double[] z = new double[0];
-            spline2dblockllsbuf blockllsbuf = new spline2dblockllsbuf();
+            spline2dblockllsbuf blockllsbuf = new();
             int sfx = 0;
             int sfy = 0;
             int sfxy = 0;
@@ -26982,7 +26982,7 @@ public partial class alglib
             double d2s = 0;
             double v0 = 0;
             double v1 = 0;
-            spline1d.spline1dinterpolant c = new spline1d.spline1dinterpolant();
+            spline1d.spline1dinterpolant c = new();
 
             dx = new double[0, 0];
             dy = new double[0, 0];
@@ -27127,7 +27127,7 @@ public partial class alglib
             double[] ft = new double[0];
             double[] t = new double[0];
             bool[] b = new bool[0];
-            spline1d.spline1dinterpolant c = new spline1d.spline1dinterpolant();
+            spline1d.spline1dinterpolant c = new();
             double s = 0;
             double ds = 0;
             double d2s = 0;
@@ -27282,7 +27282,7 @@ public partial class alglib
             ref int i2,
             alglib.xparams _params)
         {
-            bool result = new bool();
+            bool result = new();
             int i = 0;
 
             alglib.ap.assert(n >= 2, "ScanForNonmissingSegment: internal error (N<2)");
@@ -27812,11 +27812,11 @@ public partial class alglib
             int[] xyindex = new int[0];
             double[] tmp0 = new double[0];
             int[] bufi = new int[0];
-            spline2dfastddmbuf seed = new spline2dfastddmbuf();
-            alglib.smp.shared_pool pool = new alglib.smp.shared_pool();
-            spline2dxdesignmatrix xdesignmatrix = new spline2dxdesignmatrix();
-            spline2dblockllsbuf blockllsbuf = new spline2dblockllsbuf();
-            spline2dfitreport dummyrep = new spline2dfitreport();
+            spline2dfastddmbuf seed = new();
+            alglib.smp.shared_pool pool = new();
+            spline2dxdesignmatrix xdesignmatrix = new();
+            spline2dblockllsbuf blockllsbuf = new();
+            spline2dfitreport dummyrep = new();
 
 
             //
@@ -28278,7 +28278,7 @@ public partial class alglib
             int i = 0;
             int j = 0;
             double lambdachol = 0;
-            apserv.sreal mxata = new apserv.sreal();
+            apserv.sreal mxata = new();
             double v = 0;
             int celloffset = 0;
             int i0 = 0;
@@ -28543,8 +28543,8 @@ public partial class alglib
             double[] tmp0 = new double[0];
             double[] tmp1 = new double[0];
             double mxata = 0;
-            linlsqr.linlsqrstate solver = new linlsqr.linlsqrstate();
-            linlsqr.linlsqrreport solverrep = new linlsqr.linlsqrreport();
+            linlsqr.linlsqrstate solver = new();
+            linlsqr.linlsqrreport solverrep = new();
             double rss = 0;
 
             blockbandwidth = 3;
@@ -28950,7 +28950,7 @@ public partial class alglib
             ref double[] cholbuf1,
             alglib.xparams _params)
         {
-            bool result = new bool();
+            bool result = new();
             int blockbandwidth = 0;
             int blockidx = 0;
             int i = 0;
@@ -29104,8 +29104,8 @@ public partial class alglib
             spline2dinterpolant spline,
             alglib.xparams _params)
         {
-            apserv.srealarray seed = new apserv.srealarray();
-            alglib.smp.shared_pool pool = new alglib.smp.shared_pool();
+            apserv.srealarray seed = new();
+            alglib.smp.shared_pool pool = new();
             int chunksize = 0;
             double pointcost = 0;
 
@@ -30192,14 +30192,14 @@ public partial class alglib
             ref int iy,
             alglib.xparams _params)
         {
-            bool result = new bool();
+            bool result = new();
             double tol = 0;
-            bool tryleftbndx = new bool();
-            bool tryrightbndx = new bool();
-            bool trycenterx = new bool();
-            bool tryleftbndy = new bool();
-            bool tryrightbndy = new bool();
-            bool trycentery = new bool();
+            bool tryleftbndx = new();
+            bool tryrightbndx = new();
+            bool trycenterx = new();
+            bool tryleftbndy = new();
+            bool tryrightbndy = new();
+            bool trycentery = new();
 
 
             //
@@ -30471,7 +30471,7 @@ public partial class alglib
             }
             public override alglib.apobject make_copy()
             {
-                spline3dinterpolant _result = new spline3dinterpolant();
+                spline3dinterpolant _result = new();
                 _result.k = k;
                 _result.stype = stype;
                 _result.n = n;
@@ -31666,7 +31666,7 @@ public partial class alglib
             }
             public override alglib.apobject make_copy()
             {
-                biharmonicevaluator _result = new biharmonicevaluator();
+                biharmonicevaluator _result = new();
                 _result.maxp = maxp;
                 _result.precomputedcount = precomputedcount;
                 _result.tdoublefactorial = (double[])tdoublefactorial.Clone();
@@ -31755,7 +31755,7 @@ public partial class alglib
             }
             public override alglib.apobject make_copy()
             {
-                biharmonicpanel _result = new biharmonicpanel();
+                biharmonicpanel _result = new();
                 _result.c0 = c0;
                 _result.c1 = c1;
                 _result.c2 = c2;
@@ -32888,7 +32888,7 @@ public partial class alglib
             }
             public override alglib.apobject make_copy()
             {
-                rbf3evaluatorbuffer _result = new rbf3evaluatorbuffer();
+                rbf3evaluatorbuffer _result = new();
                 _result.x = (double[])x.Clone();
                 _result.y = (double[])y.Clone();
                 _result.coeffbuf = (double[])coeffbuf.Clone();
@@ -32943,7 +32943,7 @@ public partial class alglib
             }
             public override alglib.apobject make_copy()
             {
-                rbf3panel _result = new rbf3panel();
+                rbf3panel _result = new();
                 _result.paneltype = paneltype;
                 _result.clusterrad = clusterrad;
                 _result.clustercenter = (double[])clustercenter.Clone();
@@ -33006,7 +33006,7 @@ public partial class alglib
             }
             public override alglib.apobject make_copy()
             {
-                rbf3fastevaluator _result = new rbf3fastevaluator();
+                rbf3fastevaluator _result = new();
                 _result.n = n;
                 _result.nx = nx;
                 _result.ny = ny;
@@ -33062,7 +33062,7 @@ public partial class alglib
             }
             public override alglib.apobject make_copy()
             {
-                rbf3evaluator _result = new rbf3evaluator();
+                rbf3evaluator _result = new();
                 _result.n = n;
                 _result.storagetype = storagetype;
                 _result.f = (double[,])f.Clone();
@@ -33111,7 +33111,7 @@ public partial class alglib
             }
             public override alglib.apobject make_copy()
             {
-                rbfv3calcbuffer _result = new rbfv3calcbuffer();
+                rbfv3calcbuffer _result = new();
                 _result.x = (double[])x.Clone();
                 _result.evalbuf = evalbuf != null ? (rbf3evaluatorbuffer)evalbuf.make_copy() : null;
                 _result.x123 = (double[])x123.Clone();
@@ -33209,7 +33209,7 @@ public partial class alglib
             }
             public override alglib.apobject make_copy()
             {
-                acbfbuilder _result = new acbfbuilder();
+                acbfbuilder _result = new();
                 _result.dodetailedtrace = dodetailedtrace;
                 _result.ntotal = ntotal;
                 _result.nx = nx;
@@ -33314,7 +33314,7 @@ public partial class alglib
             }
             public override alglib.apobject make_copy()
             {
-                acbfbuffer _result = new acbfbuffer();
+                acbfbuffer _result = new();
                 _result.bflags = (bool[])bflags.Clone();
                 _result.kdtbuf = kdtbuf != null ? (nearestneighbor.kdtreerequestbuffer)kdtbuf.make_copy() : null;
                 _result.kdt1buf = kdt1buf != null ? (nearestneighbor.kdtreerequestbuffer)kdt1buf.make_copy() : null;
@@ -33365,7 +33365,7 @@ public partial class alglib
             }
             public override alglib.apobject make_copy()
             {
-                acbfchunk _result = new acbfchunk();
+                acbfchunk _result = new();
                 _result.ntargetrows = ntargetrows;
                 _result.ntargetcols = ntargetcols;
                 _result.targetrows = (int[])targetrows.Clone();
@@ -33415,7 +33415,7 @@ public partial class alglib
             }
             public override alglib.apobject make_copy()
             {
-                rbf3ddmbuffer _result = new rbf3ddmbuffer();
+                rbf3ddmbuffer _result = new();
                 _result.bflags = (bool[])bflags.Clone();
                 _result.idx2preccol = (int[])idx2preccol.Clone();
                 _result.kdtbuf = kdtbuf != null ? (nearestneighbor.kdtreerequestbuffer)kdtbuf.make_copy() : null;
@@ -33485,7 +33485,7 @@ public partial class alglib
             }
             public override alglib.apobject make_copy()
             {
-                rbf3ddmsubproblem _result = new rbf3ddmsubproblem();
+                rbf3ddmsubproblem _result = new();
                 _result.isvalid = isvalid;
                 _result.ntarget = ntarget;
                 _result.targetnodes = (int[])targetnodes.Clone();
@@ -33576,7 +33576,7 @@ public partial class alglib
             }
             public override alglib.apobject make_copy()
             {
-                rbf3ddmsolver _result = new rbf3ddmsolver();
+                rbf3ddmsolver _result = new();
                 _result.lambdav = lambdav;
                 _result.kdt = kdt != null ? (nearestneighbor.kdtree)kdt.make_copy() : null;
                 _result.bufferpool = bufferpool != null ? (alglib.smp.shared_pool)bufferpool.make_copy() : null;
@@ -33637,7 +33637,7 @@ public partial class alglib
             }
             public override alglib.apobject make_copy()
             {
-                rbfv3model _result = new rbfv3model();
+                rbfv3model _result = new();
                 _result.ny = ny;
                 _result.nx = nx;
                 _result.bftype = bftype;
@@ -33678,7 +33678,7 @@ public partial class alglib
             }
             public override alglib.apobject make_copy()
             {
-                rbfv3report _result = new rbfv3report();
+                rbfv3report _result = new();
                 _result.terminationtype = terminationtype;
                 _result.maxerror = maxerror;
                 _result.rmserror = rmserror;
@@ -33906,8 +33906,8 @@ public partial class alglib
             double[,] yscaled = new double[0, 0];
             double[,] xcoarse = new double[0, 0];
             double[,] x1t = new double[0, 0];
-            rbf3evaluator bfmatrix = new rbf3evaluator();
-            rbf3fastevaluator fasteval = new rbf3fastevaluator();
+            rbf3evaluator bfmatrix = new();
+            rbf3fastevaluator fasteval = new();
             double[] b = new double[0];
             double[] x0 = new double[0];
             double[] x1 = new double[0];
@@ -33924,17 +33924,17 @@ public partial class alglib
             int[] raw2wrkmap = new int[0];
             int[] wrk2rawmap = new int[0];
             int[] idummy = new int[0];
-            sparse.sparsematrix sp = new sparse.sparsematrix();
-            iterativesparse.sparsesolverstate ss = new iterativesparse.sparsesolverstate();
-            iterativesparse.sparsesolverreport ssrep = new iterativesparse.sparsesolverreport();
-            rbf3ddmsolver ddmsolver = new rbf3ddmsolver();
+            sparse.sparsematrix sp = new();
+            iterativesparse.sparsesolverstate ss = new();
+            iterativesparse.sparsesolverreport ssrep = new();
+            rbf3ddmsolver ddmsolver = new();
             double resnrm = 0;
             double res0nrm = 0;
             int iteridx = 0;
             int yidx = 0;
-            bool dotrace = new bool();
-            bool dodetailedtrace = new bool();
-            fbls.fblsgmresstate gmressolver = new fbls.fblsgmresstate();
+            bool dotrace = new();
+            bool dodetailedtrace = new();
+            fbls.fblsgmresstate gmressolver = new();
             double orterr = 0;
             double l1nrm = 0;
             double linfnrm = 0;
@@ -33946,7 +33946,7 @@ public partial class alglib
             int timecorrsolve = 0;
             int timereeval = 0;
             int timetotal = 0;
-            apserv.savgcounter dbgfarfieldspeedup = new apserv.savgcounter();
+            apserv.savgcounter dbgfarfieldspeedup = new();
             int i = 0;
             int j = 0;
             int k = 0;
@@ -34878,7 +34878,7 @@ public partial class alglib
             int i = 0;
             int j = 0;
             double smalldist2 = 0;
-            bool nograd = new bool();
+            bool nograd = new();
             int colidx = 0;
             int srcidx = 0;
             int widx = 0;
@@ -35061,9 +35061,9 @@ public partial class alglib
             int k = 0;
             int k0 = 0;
             int k1 = 0;
-            bool nearnode = new bool();
-            bool nograd = new bool();
-            bool nohess = new bool();
+            bool nearnode = new();
+            bool nograd = new();
+            bool nohess = new();
             double smalldist2 = 0;
             int colidx = 0;
             int srcidx = 0;
@@ -35269,8 +35269,8 @@ public partial class alglib
             double[] y,
             alglib.xparams _params)
         {
-            rbfv3calcbuffer bufseed = new rbfv3calcbuffer();
-            alglib.smp.shared_pool bufpool = new alglib.smp.shared_pool();
+            rbfv3calcbuffer bufseed = new();
+            alglib.smp.shared_pool bufpool = new();
             int simdwidth = 0;
             int tilescnt = 0;
 
@@ -35349,7 +35349,7 @@ public partial class alglib
             int i = 0;
             int j = 0;
             int cwwidth = 0;
-            bool recognized = new bool();
+            bool recognized = new();
 
             nx = 0;
             ny = 0;
@@ -35500,7 +35500,7 @@ public partial class alglib
         {
             int seed0 = 0;
             int seed1 = 0;
-            hqrnd.hqrndstate rs = new hqrnd.hqrndstate();
+            hqrnd.hqrndstate rs = new();
             int i = 0;
             int j = 0;
             int k = 0;
@@ -35510,7 +35510,7 @@ public partial class alglib
             double[] yb = new double[0];
             double avgrawerror = 0;
             double maxrawerror = 0;
-            rbfv3calcbuffer buf = new rbfv3calcbuffer();
+            rbfv3calcbuffer buf = new();
             double tolgrowth = 0;
             double maxtolgrowth = 0;
 
@@ -35778,7 +35778,7 @@ public partial class alglib
             int rootidx = 0;
             alglib.ap.nxpool nxpool = alglib.ap.nxpool.new_nrpool();
             int i = 0;
-            rbf3evaluatorbuffer bufseed = new rbf3evaluatorbuffer();
+            rbf3evaluatorbuffer bufseed = new();
 
             x = (double[,])x.Clone();
 
@@ -35987,7 +35987,7 @@ public partial class alglib
         {
             double childerr = 0;
             rbf3panel panel = null;
-            bool farfieldreconfigured = new bool();
+            bool farfieldreconfigured = new();
 
             eval.panels.get(treenodeidx, ref panel);
 
@@ -36063,7 +36063,7 @@ public partial class alglib
             double maxcomputeerr,
             alglib.xparams _params)
         {
-            bool dotrace = new bool();
+            bool dotrace = new();
 
             alglib.ap.assert(math.isfinite(maxcomputeerr), "FastEvaluatorPushTol: MaxComputeErr is not finite");
             alglib.ap.assert((double)(maxcomputeerr) >= (double)(0), "FastEvaluatorPushTol: MaxComputeErr<0");
@@ -36165,7 +36165,7 @@ public partial class alglib
             double v = 0;
             double vv = 0;
             double dstpaneldistance = 0;
-            bool farfieldprocessed = new bool();
+            bool farfieldprocessed = new();
             double c0 = 0;
             double c1 = 0;
             double c2 = 0;
@@ -36355,7 +36355,7 @@ public partial class alglib
             int d = 0;
             double distance0 = 0;
             double paneldistance = 0;
-            bool farfieldprocessed = new bool();
+            bool farfieldprocessed = new();
             double c0 = 0;
             double c1 = 0;
             double c2 = 0;
@@ -37348,7 +37348,7 @@ public partial class alglib
             int ns = 0;
             double[,] xs = new double[0, 0];
             int[] idx = new int[0];
-            hqrnd.hqrndstate rs = new hqrnd.hqrndstate();
+            hqrnd.hqrndstate rs = new();
 
             alglib.ap.assert(n >= 1, "BuildSimplifiedKDTree: N<1");
             alglib.ap.assert(reducefactor >= 1, "BuildSimplifiedKDTree: ReduceFactor<1");
@@ -38239,9 +38239,9 @@ public partial class alglib
             sparse.sparsematrix sp,
             alglib.xparams _params)
         {
-            acbfbuilder builder = new acbfbuilder();
-            acbfbuffer bufferseed = new acbfbuffer();
-            acbfchunk chunkseed = new acbfchunk();
+            acbfbuilder builder = new();
+            acbfbuffer bufferseed = new();
+            acbfchunk chunkseed = new();
             acbfchunk precchunk = null;
             int i = 0;
             int j = 0;
@@ -38426,7 +38426,7 @@ public partial class alglib
             double[,] q = new double[0, 0];
             double[] x0 = new double[0];
             double lurcond = 0;
-            bool lusuccess = new bool();
+            bool lusuccess = new();
             int ni = 0;
             int j0 = 0;
             int j1 = 0;
@@ -38852,8 +38852,8 @@ public partial class alglib
             int i = 0;
             int j = 0;
             int[] idx = new int[0];
-            rbf3ddmbuffer bufferseed = new rbf3ddmbuffer();
-            rbf3ddmsubproblem subproblem = new rbf3ddmsubproblem();
+            rbf3ddmbuffer bufferseed = new();
+            rbf3ddmsubproblem subproblem = new();
             rbf3ddmsubproblem p = null;
             double correctorgridseparation = 0;
             double[,] corrsys = new double[0, 0];
@@ -39341,7 +39341,7 @@ public partial class alglib
             int j = 0;
             int nq = 0;
             int nlocal = 0;
-            nearestneighbor.kdtree kdt = new nearestneighbor.kdtree();
+            nearestneighbor.kdtree kdt = new();
             double[] x = new double[0];
             double[] d = new double[0];
 
@@ -39537,7 +39537,7 @@ public partial class alglib
             int srcoffs = 0;
             int dstoffs = 0;
             int curlen = 0;
-            rbf3evaluatorbuffer bufseed = new rbf3evaluatorbuffer();
+            rbf3evaluatorbuffer bufseed = new();
 
             alglib.ap.assert(storagetype == 0 || storagetype == 1, "RBFV3: unexpected StorageType for ModelMatrixInit()");
             modelmatrix.n = n;
@@ -39902,7 +39902,7 @@ public partial class alglib
             int aterm,
             alglib.xparams _params)
         {
-            bool result = new bool();
+            bool result = new();
 
             alglib.ap.assert((aterm == 1 || aterm == 2) || aterm == 3, "RBFV3: integrity check 3563 failed");
             result = false;
@@ -39950,7 +39950,7 @@ public partial class alglib
             }
             public override alglib.apobject make_copy()
             {
-                polynomialfitreport _result = new polynomialfitreport();
+                polynomialfitreport _result = new();
                 _result.terminationtype = terminationtype;
                 _result.taskrcond = taskrcond;
                 _result.rmserror = rmserror;
@@ -39989,7 +39989,7 @@ public partial class alglib
             }
             public override alglib.apobject make_copy()
             {
-                barycentricfitreport _result = new barycentricfitreport();
+                barycentricfitreport _result = new();
                 _result.terminationtype = terminationtype;
                 _result.taskrcond = taskrcond;
                 _result.dbest = dbest;
@@ -40067,7 +40067,7 @@ public partial class alglib
             }
             public override alglib.apobject make_copy()
             {
-                lsfitreport _result = new lsfitreport();
+                lsfitreport _result = new();
                 _result.terminationtype = terminationtype;
                 _result.taskrcond = taskrcond;
                 _result.iterationscount = iterationscount;
@@ -40184,7 +40184,7 @@ public partial class alglib
             }
             public override alglib.apobject make_copy()
             {
-                lsfitstate _result = new lsfitstate();
+                lsfitstate _result = new();
                 _result.protocolversion = protocolversion;
                 _result.formulatype = formulatype;
                 _result.optalgo = optalgo;
@@ -40831,7 +40831,7 @@ public partial class alglib
             double v = 0;
             double s = 0;
             int relcnt = 0;
-            lsfitreport lrep = new lsfitreport();
+            lsfitreport lrep = new();
 
             x = (double[])x.Clone();
             y = (double[])y.Clone();
@@ -41732,9 +41732,9 @@ public partial class alglib
             double[] bndl2 = new double[0];
             double[] bndu2 = new double[0];
             double[,] z = new double[0, 0];
-            hqrnd.hqrndstate rs = new hqrnd.hqrndstate();
-            minlm.minlmstate state = new minlm.minlmstate();
-            minlm.minlmreport replm = new minlm.minlmreport();
+            hqrnd.hqrndstate rs = new();
+            minlm.minlmstate state = new();
+            minlm.minlmreport replm = new();
             int maxits = 0;
             double fbest = 0;
             double flast = 0;
@@ -42309,8 +42309,8 @@ public partial class alglib
             int i = 0;
             double wrmscur = 0;
             double wrmsbest = 0;
-            ratint.barycentricinterpolant locb = new ratint.barycentricinterpolant();
-            barycentricfitreport locrep = new barycentricfitreport();
+            ratint.barycentricinterpolant locb = new();
+            barycentricfitreport locrep = new();
             int locinfo = 0;
 
             alglib.ap.assert(n > 0, "BarycentricFitFloaterHormannWC: N<=0!");
@@ -44499,7 +44499,7 @@ public partial class alglib
         public static bool lsfititeration(lsfitstate state,
             alglib.xparams _params)
         {
-            bool result = new bool();
+            bool result = new();
             double lx = 0;
             double lf = 0;
             double ld = 0;
@@ -46413,12 +46413,12 @@ public partial class alglib
             double[] tmp = new double[0];
             double[] xoriginal = new double[0];
             double[] yoriginal = new double[0];
-            lsfitreport lrep = new lsfitreport();
+            lsfitreport lrep = new();
             double v0 = 0;
             double v1 = 0;
             double v2 = 0;
             double mx = 0;
-            spline1d.spline1dinterpolant s2 = new spline1d.spline1dinterpolant();
+            spline1d.spline1dinterpolant s2 = new();
             int i = 0;
             int j = 0;
             int relcnt = 0;
@@ -47375,11 +47375,11 @@ public partial class alglib
             double[] xoriginal = new double[0];
             double[] yoriginal = new double[0];
             double[] tmp = new double[0];
-            lsfitreport lrep = new lsfitreport();
+            lsfitreport lrep = new();
             double v0 = 0;
             double v1 = 0;
             double mx = 0;
-            ratint.barycentricinterpolant b2 = new ratint.barycentricinterpolant();
+            ratint.barycentricinterpolant b2 = new();
             int i = 0;
             int j = 0;
             int relcnt = 0;
@@ -47710,7 +47710,7 @@ public partial class alglib
             int j1 = 0;
             double v = 0;
             double noisec = 0;
-            matinv.matinvreport invrep = new matinv.matinvreport();
+            matinv.matinvreport invrep = new();
             int nzcnt = 0;
             double avg = 0;
             double rss = 0;
@@ -48044,7 +48044,7 @@ public partial class alglib
             }
             public override alglib.apobject make_copy()
             {
-                rbfv1calcbuffer _result = new rbfv1calcbuffer();
+                rbfv1calcbuffer _result = new();
                 _result.calcbufxcx = (double[])calcbufxcx.Clone();
                 _result.calcbufx = (double[,])calcbufx.Clone();
                 _result.calcbuftags = (int[])calcbuftags.Clone();
@@ -48090,7 +48090,7 @@ public partial class alglib
             }
             public override alglib.apobject make_copy()
             {
-                rbfv1model _result = new rbfv1model();
+                rbfv1model _result = new();
                 _result.ny = ny;
                 _result.nx = nx;
                 _result.nc = nc;
@@ -48148,7 +48148,7 @@ public partial class alglib
             }
             public override alglib.apobject make_copy()
             {
-                gridcalc3v1buf _result = new gridcalc3v1buf();
+                gridcalc3v1buf _result = new();
                 _result.tx = (double[])tx.Clone();
                 _result.cx = (double[])cx.Clone();
                 _result.ty = (double[])ty.Clone();
@@ -48189,7 +48189,7 @@ public partial class alglib
             }
             public override alglib.apobject make_copy()
             {
-                rbfv1report _result = new rbfv1report();
+                rbfv1report _result = new();
                 _result.arows = arows;
                 _result.acols = acols;
                 _result.annz = annz;
@@ -48351,8 +48351,8 @@ public partial class alglib
             rbfv1report rep,
             alglib.xparams _params)
         {
-            nearestneighbor.kdtree tree = new nearestneighbor.kdtree();
-            nearestneighbor.kdtree ctree = new nearestneighbor.kdtree();
+            nearestneighbor.kdtree tree = new();
+            nearestneighbor.kdtree ctree = new();
             double[] dist = new double[0];
             double[] xcx = new double[0];
             double[,] a = new double[0, 0];
@@ -48372,7 +48372,7 @@ public partial class alglib
             double[] tmp0 = new double[0];
             double[] tmp1 = new double[0];
             int layerscnt = 0;
-            bool modelstatus = new bool();
+            bool modelstatus = new();
 
             alglib.ap.assert(s.nx == 2 || s.nx == 3, "RBFBuildModel: S.NX<>2 or S.NX<>3!");
 
@@ -49497,8 +49497,8 @@ public partial class alglib
             double w0 = 0;
             double w1 = 0;
             double w2 = 0;
-            bool allnodes = new bool();
-            bool somenodes = new bool();
+            bool allnodes = new();
+            bool somenodes = new();
 
             nx = s.nx;
             ny = s.ny;
@@ -49979,7 +49979,7 @@ public partial class alglib
             ref double[,] v,
             alglib.xparams _params)
         {
-            bool result = new bool();
+            bool result = new();
             double[] tmpy = new double[0];
             double[,] a = new double[0, 0];
             double scaling = 0;
@@ -49987,7 +49987,7 @@ public partial class alglib
             double mn = 0;
             double mx = 0;
             double[] c = new double[0];
-            lsfit.lsfitreport rep = new lsfit.lsfitreport();
+            lsfit.lsfitreport rep = new();
             int i = 0;
             int j = 0;
             int k = 0;
@@ -50167,10 +50167,10 @@ public partial class alglib
             ref int nmv,
             alglib.xparams _params)
         {
-            linlsqr.linlsqrstate state = new linlsqr.linlsqrstate();
-            linlsqr.linlsqrreport lsqrrep = new linlsqr.linlsqrreport();
-            sparse.sparsematrix spg = new sparse.sparsematrix();
-            sparse.sparsematrix sps = new sparse.sparsematrix();
+            linlsqr.linlsqrstate state = new();
+            linlsqr.linlsqrreport lsqrrep = new();
+            sparse.sparsematrix spg = new();
+            sparse.sparsematrix sps = new();
             int[] nearcenterscnt = new int[0];
             int[] nearpointscnt = new int[0];
             int[] skipnearpointscnt = new int[0];
@@ -50553,9 +50553,9 @@ public partial class alglib
             ref int nmv,
             alglib.xparams _params)
         {
-            linlsqr.linlsqrstate state = new linlsqr.linlsqrstate();
-            linlsqr.linlsqrreport lsqrrep = new linlsqr.linlsqrreport();
-            sparse.sparsematrix spa = new sparse.sparsematrix();
+            linlsqr.linlsqrstate state = new();
+            linlsqr.linlsqrreport lsqrrep = new();
+            sparse.sparsematrix spa = new();
             double anorm = 0;
             double[] omega = new double[0];
             double[] xx = new double[0];
@@ -50772,7 +50772,7 @@ public partial class alglib
             }
             public override alglib.apobject make_copy()
             {
-                pspline2interpolant _result = new pspline2interpolant();
+                pspline2interpolant _result = new();
                 _result.n = n;
                 _result.periodic = periodic;
                 _result.p = (double[])p.Clone();
@@ -50810,7 +50810,7 @@ public partial class alglib
             }
             public override alglib.apobject make_copy()
             {
-                pspline3interpolant _result = new pspline3interpolant();
+                pspline3interpolant _result = new();
                 _result.n = n;
                 _result.periodic = periodic;
                 _result.p = (double[])p.Clone();
@@ -51759,8 +51759,8 @@ public partial class alglib
             alglib.xparams _params)
         {
             double result = 0;
-            autogk.autogkstate state = new autogk.autogkstate();
-            autogk.autogkreport rep = new autogk.autogkreport();
+            autogk.autogkstate state = new();
+            autogk.autogkreport rep = new();
             double sx = 0;
             double dsx = 0;
             double d2sx = 0;
@@ -51804,8 +51804,8 @@ public partial class alglib
             alglib.xparams _params)
         {
             double result = 0;
-            autogk.autogkstate state = new autogk.autogkstate();
-            autogk.autogkreport rep = new autogk.autogkreport();
+            autogk.autogkstate state = new();
+            autogk.autogkreport rep = new();
             double sx = 0;
             double dsx = 0;
             double d2sx = 0;
@@ -51903,7 +51903,7 @@ public partial class alglib
             int i = 0;
             int j = 0;
             int k = 0;
-            bool allsame = new bool();
+            bool allsame = new();
             int k0 = 0;
             int k1 = 0;
             int k2 = 0;
@@ -52318,7 +52318,7 @@ public partial class alglib
             }
             public override alglib.apobject make_copy()
             {
-                rbfv2calcbuffer _result = new rbfv2calcbuffer();
+                rbfv2calcbuffer _result = new();
                 _result.x = (double[])x.Clone();
                 _result.curboxmin = (double[])curboxmin.Clone();
                 _result.curboxmax = (double[])curboxmax.Clone();
@@ -52375,7 +52375,7 @@ public partial class alglib
             }
             public override alglib.apobject make_copy()
             {
-                rbfv2model _result = new rbfv2model();
+                rbfv2model _result = new();
                 _result.ny = ny;
                 _result.nx = nx;
                 _result.bf = bf;
@@ -52427,7 +52427,7 @@ public partial class alglib
             }
             public override alglib.apobject make_copy()
             {
-                rbfv2gridcalcbuffer _result = new rbfv2gridcalcbuffer();
+                rbfv2gridcalcbuffer _result = new();
                 _result.calcbuf = calcbuf != null ? (rbfv2calcbuffer)calcbuf.make_copy() : null;
                 _result.cx = (double[])cx.Clone();
                 _result.rx = (double[])rx.Clone();
@@ -52459,7 +52459,7 @@ public partial class alglib
             }
             public override alglib.apobject make_copy()
             {
-                rbfv2report _result = new rbfv2report();
+                rbfv2report _result = new();
                 _result.terminationtype = terminationtype;
                 _result.maxerror = maxerror;
                 _result.rmserror = rmserror;
@@ -52669,8 +52669,8 @@ public partial class alglib
             double[,] curxy = new double[0, 0];
             int curn = 0;
             int nbasis = 0;
-            nearestneighbor.kdtree curtree = new nearestneighbor.kdtree();
-            nearestneighbor.kdtree globaltree = new nearestneighbor.kdtree();
+            nearestneighbor.kdtree curtree = new();
+            nearestneighbor.kdtree globaltree = new();
             double[] x0 = new double[0];
             double[] x1 = new double[0];
             int[] tags = new int[0];
@@ -52695,12 +52695,12 @@ public partial class alglib
             double sumrowsize = 0;
             double rprogress = 0;
             int maxits = 0;
-            linlsqr.linlsqrstate linstate = new linlsqr.linlsqrstate();
-            linlsqr.linlsqrreport lsqrrep = new linlsqr.linlsqrreport();
-            sparse.sparsematrix sparseacrs = new sparse.sparsematrix();
+            linlsqr.linlsqrstate linstate = new();
+            linlsqr.linlsqrreport lsqrrep = new();
+            sparse.sparsematrix sparseacrs = new();
             double[] densew1 = new double[0];
             double[] denseb1 = new double[0];
-            rbfv2calcbuffer calcbuf = new rbfv2calcbuffer();
+            rbfv2calcbuffer calcbuf = new();
             double[] vr2 = new double[0];
             int[] voffs = new int[0];
             int[] rowindexes = new int[0];
@@ -54164,8 +54164,8 @@ public partial class alglib
             double[] z = new double[0];
             int dstoffs = 0;
             int dummy = 0;
-            rbfv2gridcalcbuffer bufseedv2 = new rbfv2gridcalcbuffer();
-            alglib.smp.shared_pool bufpool = new alglib.smp.shared_pool();
+            rbfv2gridcalcbuffer bufseedv2 = new();
+            alglib.smp.shared_pool bufpool = new();
             int rowidx = 0;
             int rowcnt = 0;
             double v = 0;
@@ -54174,7 +54174,7 @@ public partial class alglib
             double searchradius2 = 0;
             int ntrials = 0;
             double avgfuncpernode = 0;
-            hqrnd.hqrndstate rs = new hqrnd.hqrndstate();
+            hqrnd.hqrndstate rs = new();
             int[] blocks0 = new int[0];
             int[] blocks1 = new int[0];
             int[] blocks2 = new int[0];
@@ -54433,7 +54433,7 @@ public partial class alglib
             double problemcost = 0;
             int maxbs = 0;
             int midpoint = 0;
-            bool emptyrow = new bool();
+            bool emptyrow = new();
             rbfv2gridcalcbuffer buf = null;
 
             nx = s.nx;
@@ -54818,7 +54818,7 @@ public partial class alglib
             ref double[,] v,
             alglib.xparams _params)
         {
-            bool result = new bool();
+            bool result = new();
             double[] tmpy = new double[0];
             double[,] a = new double[0, 0];
             double scaling = 0;
@@ -54826,7 +54826,7 @@ public partial class alglib
             double mn = 0;
             double mx = 0;
             double[] c = new double[0];
-            lsfit.lsfitreport rep = new lsfit.lsfitreport();
+            lsfit.lsfitreport rep = new();
             int i = 0;
             int j = 0;
             int k = 0;
@@ -55251,7 +55251,7 @@ public partial class alglib
             int childle = 0;
             int childge = 0;
             int childoffs = 0;
-            bool updatemin = new bool();
+            bool updatemin = new();
             double prevdist2 = 0;
             double t1 = 0;
             int nx = 0;
@@ -55582,7 +55582,7 @@ public partial class alglib
             int childle = 0;
             int childge = 0;
             int childoffs = 0;
-            bool updatemin = new bool();
+            bool updatemin = new();
             double prevdist2 = 0;
             double t1 = 0;
             int nx = 0;
@@ -55868,7 +55868,7 @@ public partial class alglib
             int childle = 0;
             int childge = 0;
             int childoffs = 0;
-            bool updatemin = new bool();
+            bool updatemin = new();
             double prevdist2 = 0;
             double t1 = 0;
 
@@ -56058,7 +56058,7 @@ public partial class alglib
             int childle = 0;
             int childge = 0;
             int childoffs = 0;
-            bool updatemin = new bool();
+            bool updatemin = new();
             double prevdist2 = 0;
             double t1 = 0;
 
@@ -56575,7 +56575,7 @@ public partial class alglib
             }
             public override alglib.apobject make_copy()
             {
-                rbfcalcbuffer _result = new rbfcalcbuffer();
+                rbfcalcbuffer _result = new();
                 _result.modelversion = modelversion;
                 _result.bufv1 = bufv1 != null ? (rbfv1.rbfv1calcbuffer)bufv1.make_copy() : null;
                 _result.bufv2 = bufv2 != null ? (rbfv2.rbfv2calcbuffer)bufv2.make_copy() : null;
@@ -56641,7 +56641,7 @@ public partial class alglib
             }
             public override alglib.apobject make_copy()
             {
-                rbfmodel _result = new rbfmodel();
+                rbfmodel _result = new();
                 _result.nx = nx;
                 _result.ny = ny;
                 _result.modelversion = modelversion;
@@ -56704,7 +56704,7 @@ public partial class alglib
             }
             public override alglib.apobject make_copy()
             {
-                rbfreport _result = new rbfreport();
+                rbfreport _result = new();
                 _result.rmserror = rmserror;
                 _result.maxerror = maxerror;
                 _result.arows = arows;
@@ -57794,9 +57794,9 @@ public partial class alglib
             rbfreport rep,
             alglib.xparams _params)
         {
-            rbfv1.rbfv1report rep1 = new rbfv1.rbfv1report();
-            rbfv2.rbfv2report rep2 = new rbfv2.rbfv2report();
-            rbfv3.rbfv3report rep3 = new rbfv3.rbfv3report();
+            rbfv1.rbfv1report rep1 = new();
+            rbfv2.rbfv2report rep2 = new();
+            rbfv3.rbfv3report rep3 = new();
             double[,] x3 = new double[0, 0];
             double[] scalevec = new double[0];
             int i = 0;
@@ -59674,7 +59674,7 @@ public partial class alglib
             int nx = 0;
             int ny = 0;
             int ylen = 0;
-            hqrnd.hqrndstate rs = new hqrnd.hqrndstate();
+            hqrnd.hqrndstate rs = new();
             double[] dummyx2 = new double[0];
             double[] dummyx3 = new double[0];
             int i = 0;
@@ -59684,7 +59684,7 @@ public partial class alglib
             double[] tx = new double[0];
             double[] ty = new double[0];
             int dstoffs = 0;
-            rbfcalcbuffer calcbuf = new rbfcalcbuffer();
+            rbfcalcbuffer calcbuf = new();
 
             alglib.ap.assert(n0 > 0, "RBFGridCalc2VX: invalid value for N0 (N0<=0)!");
             alglib.ap.assert(n1 > 0, "RBFGridCalc2VX: invalid value for N1 (N1<=0)!");
@@ -59824,9 +59824,9 @@ public partial class alglib
             double avgfuncpernode = 0;
             int ntrials = 0;
             int maxblocksize = 0;
-            rbfv1.gridcalc3v1buf bufseedv1 = new rbfv1.gridcalc3v1buf();
-            alglib.smp.shared_pool bufpool = new alglib.smp.shared_pool();
-            hqrnd.hqrndstate rs = new hqrnd.hqrndstate();
+            rbfv1.gridcalc3v1buf bufseedv1 = new();
+            alglib.smp.shared_pool bufpool = new();
+            hqrnd.hqrndstate rs = new();
             double[] dummyx3 = new double[0];
 
             alglib.ap.assert(n0 > 0, "RBFGridCalc3V: invalid value for N0 (N0<=0)!");
@@ -60549,7 +60549,7 @@ public partial class alglib
             }
             public override alglib.apobject make_copy()
             {
-                idwcalcbuffer _result = new idwcalcbuffer();
+                idwcalcbuffer _result = new();
                 _result.x = (double[])x.Clone();
                 _result.y = (double[])y.Clone();
                 _result.tsyw = (double[])tsyw.Clone();
@@ -60588,7 +60588,7 @@ public partial class alglib
             }
             public override alglib.apobject make_copy()
             {
-                mstabbuffer _result = new mstabbuffer();
+                mstabbuffer _result = new();
                 _result.dist = (double[])dist.Clone();
                 _result.x = (double[])x.Clone();
                 _result.w = (double[])w.Clone();
@@ -60634,7 +60634,7 @@ public partial class alglib
             }
             public override alglib.apobject make_copy()
             {
-                idwmodel _result = new idwmodel();
+                idwmodel _result = new();
                 _result.nx = nx;
                 _result.ny = ny;
                 _result.globalprior = (double[])globalprior.Clone();
@@ -60701,7 +60701,7 @@ public partial class alglib
             }
             public override alglib.apobject make_copy()
             {
-                idwbuilder _result = new idwbuilder();
+                idwbuilder _result = new();
                 _result.priortermtype = priortermtype;
                 _result.priortermval = (double[])priortermval.Clone();
                 _result.algotype = algotype;
@@ -60752,7 +60752,7 @@ public partial class alglib
             }
             public override alglib.apobject make_copy()
             {
-                idwreport _result = new idwreport();
+                idwreport _result = new();
                 _result.rmserror = rmserror;
                 _result.avgerror = avgerror;
                 _result.maxerror = maxerror;
@@ -61459,7 +61459,7 @@ public partial class alglib
             double lambdadecay = 0;
             double invrdecay = 0;
             double invr = 0;
-            bool fastcalcpossible = new bool();
+            bool fastcalcpossible = new();
             double wf0 = 0;
             double ws0 = 0;
             double wf1 = 0;
@@ -61780,8 +61780,8 @@ public partial class alglib
             int ny = 0;
             double rss = 0;
             double tss = 0;
-            mstabbuffer mbuffer = new mstabbuffer();
-            alglib.smp.shared_pool mbpool = new alglib.smp.shared_pool();
+            mstabbuffer mbuffer = new();
+            alglib.smp.shared_pool mbpool = new();
             double[] layerrad = new double[0];
             double[] layerlambda = new double[0];
             double[] querycosts = new double[0];
@@ -62392,7 +62392,7 @@ public partial class alglib
             double rcur = 0;
             int ylen = 0;
             double evalcost = 0;
-            alglib.smp.shared_pool cbpool = new alglib.smp.shared_pool();
+            alglib.smp.shared_pool cbpool = new();
             idwcalcbuffer calcbuf = null;
 
             alglib.ap.assert(n0 > 0, "IDWGridCalc2VX: invalid value for N0 (N0<=0)!");
@@ -62486,7 +62486,7 @@ public partial class alglib
             idwmodel model,
             alglib.xparams _params)
         {
-            bool processed = new bool();
+            bool processed = new();
 
 
             //
@@ -62538,7 +62538,7 @@ public partial class alglib
             idwmodel model,
             alglib.xparams _params)
         {
-            bool processed = new bool();
+            bool processed = new();
 
 
             //
@@ -62590,7 +62590,7 @@ public partial class alglib
             idwmodel model,
             alglib.xparams _params)
         {
-            bool processed = new bool();
+            bool processed = new();
             int scode = 0;
 
 
@@ -62672,8 +62672,8 @@ public partial class alglib
             int i = 0;
             int j = 0;
             int k = 0;
-            bool abovepexeclevel = new bool();
-            bool abovespawnlevel = new bool();
+            bool abovepexeclevel = new();
+            bool abovespawnlevel = new();
             idwcalcbuffer calcbuf = null;
 
             nx = s.nx;
@@ -62866,8 +62866,8 @@ public partial class alglib
             int tile0 = 0;
             int tile1 = 0;
             mstabbuffer mbuffer = null;
-            bool abovepexeclevel = new bool();
-            bool abovespawnlevel = new bool();
+            bool abovepexeclevel = new();
+            bool abovespawnlevel = new();
 
 
             //
@@ -63023,7 +63023,7 @@ public partial class alglib
             }
             public override alglib.apobject make_copy()
             {
-                fitsphereinternalreport _result = new fitsphereinternalreport();
+                fitsphereinternalreport _result = new();
                 _result.nfev = nfev;
                 _result.iterationscount = iterationscount;
                 return _result;
@@ -63358,7 +63358,7 @@ public partial class alglib
             ref double rhi,
             alglib.xparams _params)
         {
-            fitsphereinternalreport rep = new fitsphereinternalreport();
+            fitsphereinternalreport rep = new();
 
             cx = new double[0];
             rlo = 0;
@@ -63449,8 +63449,8 @@ public partial class alglib
             double v = 0;
             double vv = 0;
             int cpr = 0;
-            bool userlo = new bool();
-            bool userhi = new bool();
+            bool userlo = new();
+            bool userhi = new();
             double vlo = 0;
             double vhi = 0;
             double[] vmin = new double[0];
@@ -63462,8 +63462,8 @@ public partial class alglib
             double[] bu = new double[0];
             int suboffset = 0;
             int dstrow = 0;
-            minnlc.minnlcstate nlcstate = new minnlc.minnlcstate();
-            minnlc.minnlcreport nlcrep = new minnlc.minnlcreport();
+            minnlc.minnlcstate nlcstate = new();
+            minnlc.minnlcreport nlcrep = new();
             double[,] cmatrix = new double[0, 0];
             int[] ct = new int[0];
             int outeridx = 0;
@@ -63471,11 +63471,11 @@ public partial class alglib
             int maxits = 0;
             double safeguard = 0;
             double bi = 0;
-            minbleic.minbleicstate blcstate = new minbleic.minbleicstate();
-            minbleic.minbleicreport blcrep = new minbleic.minbleicreport();
+            minbleic.minbleicstate blcstate = new();
+            minbleic.minbleicreport blcrep = new();
             double[] prevc = new double[0];
-            minlm.minlmstate lmstate = new minlm.minlmstate();
-            minlm.minlmreport lmrep = new minlm.minlmreport();
+            minlm.minlmstate lmstate = new();
+            minlm.minlmreport lmrep = new();
 
             cx = new double[0];
             rlo = 0;
@@ -64170,10 +64170,10 @@ public partial class alglib
             double[] tx = new double[0];
             double[] ty = new double[0];
             double[] td = new double[0];
-            spline1d.spline1dinterpolant bs = new spline1d.spline1dinterpolant();
+            spline1d.spline1dinterpolant bs = new();
             double[,] nmatrix = new double[0, 0];
             double[] rightpart = new double[0];
-            fbls.fblslincgstate cgstate = new fbls.fblslincgstate();
+            fbls.fblslincgstate cgstate = new();
             double[] c = new double[0];
             double[] tmp0 = new double[0];
             int i_ = 0;

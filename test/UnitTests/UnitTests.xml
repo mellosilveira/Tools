@@ -4,6 +4,12 @@
         <name>UnitTests</name>
     </assembly>
     <members>
+        <member name="T:UnitTests.FakeDataReader">
+            <summary>
+            Minimal IDataReader backed by an in-memory column array.
+            Supports a single row; subsequent Read() calls return false.
+            </summary>
+        </member>
         <member name="T:UnitTests.DomainEntitySqlSmokeTests">
             <summary>
             Smoke tests using the original domain entity graph (user / district / join table).
@@ -18,12 +24,6 @@
         <member name="T:UnitTests.MechanicalModelOutputDeltaTests">
             <summary>
             Unit tests verifying delta and percentage delta calculations across the <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalModelOutput"/> hierarchy.
-            </summary>
-        </member>
-        <member name="T:UnitTests.FakeDataReader">
-            <summary>
-            Minimal IDataReader backed by an in-memory column array.
-            Supports a single row; subsequent Read() calls return false.
             </summary>
         </member>
     </members>

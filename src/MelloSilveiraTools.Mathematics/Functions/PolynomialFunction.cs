@@ -46,7 +46,7 @@ public sealed class PolynomialFunction(
 
         // f(x) = a_0 + a_1 * x + ... + a_n * x^n
         // f'(x) = a_1 + 2 * a_2 * x + ... + n * a_n * x^(n-1)
-        var derivativeCoefficients = new double[coefficientsLength - 1];
+        double[] derivativeCoefficients = new double[coefficientsLength - 1];
         for (int i = 1; i < coefficientsLength; i++)
         {
             derivativeCoefficients[i - 1] = Coefficients[i] * i;
@@ -63,7 +63,7 @@ public sealed class PolynomialFunction(
 
         if (coefficientsLength == 1 && Coefficients[0] == 0)
         {
-            integralCoefficients = new double[] { 0 };
+            integralCoefficients = [0];
         }
         else
         {

@@ -5,9 +5,8 @@ using System.Runtime.Loader;
 namespace MelloSilveiraTools.Plugins.Infrastructure;
 
 /// <summary>
-/// Loads plugin assemblies from disk, discovers their processable types and
-/// dispatches type registration to the appropriate <see cref="IPluginTypeProcessor"/>.
-/// Results are memoized in <see cref="PluginCache"/> keyed by plugin name and version.
+/// The system responsible for dynamically loading external modules ("plugins") into our application.
+/// It acts like a gatekeeper that unzips or inspects new functionalities, organizing them so our software can adopt these new capabilities on the fly without requiring a full system restart.
 /// </summary>
 /// <param name="typeProcessors">Collection of type processors used to handle each <see cref="IPluginTypeProcessor.ProcessableType"/> discovered inside a plugin assembly.</param>
 /// <param name="cache">Plugin cache used to memoize loaded and registered plugins by name and version.</param>
@@ -26,7 +25,7 @@ public class PluginAssemblyProcessor(
         () =>
         {
             // 1. Created an isolated context and collectible for plugin.
-            var pluginContext = new AssemblyLoadContext($"PluginContext_{discovered.Name}", isCollectible: true);
+            AssemblyLoadContext pluginContext = new($"PluginContext_{discovered.Name}", isCollectible: true);
 
             // 2. Load the assembly in this new isolated context, instead of the default.
             Assembly assembly = pluginContext.LoadFromAssemblyPath(discovered.FullPath);
@@ -62,3 +61,4 @@ public class PluginAssemblyProcessor(
         return registered;
     }
 }
+
