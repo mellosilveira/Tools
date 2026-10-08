@@ -1,0 +1,532 @@
+{
+  "task_id": "task-deep-research-funnel",
+  "skill": "senior-applied-biomechanics-researcher-deep-research",
+  "status": "success",
+  "data_payload": {
+    "search_terms": [
+      "constitutive model AND soft tissue",
+      "ligament FEBio knee viscoelastic",
+      "FEBio PolyFEM comparison"
+    ],
+    "evidence_funnel": {
+      "1_general_soft_tissue_models": {
+        "trend": "Researchers are moving beyond simple elasticity to visco-hyperelastic models and reactive mixture theory...",
+        "references": [
+          {
+            "title": "Hierarchical Bayesian constitutive model...",
+            "doi": "10.1039/d5sm01193k",
+            "summary_of_read_content": "Critical summary: The high-fidelity characterization of soft, tissue-like materials under ultra-high-strain-rate conditions is critical in engineering and medicine. Moreover, a cross-institutional comparison of 10% gelatin indicates consistent constitutive model selection.",
+            "citation_impact": "Recent/Emerging - 4 citations (Published 2025, Soft Matter)"
+          },
+          {
+            "title": "A VFM approach for identifying material parameters...",
+            "doi": "10.1007/s10237-026-02133-y",
+            "summary_of_read_content": "This paper explores 'A VFM approach for identifying material parameters and data-driven constitutive models for biphasic hyperelasticity of soft biological tissues'. It is evaluated for its application in computational modeling and simulation of soft tissues.",
+            "citation_impact": "Recent/Emerging - 0 citations (Published 2026, Biomechanics and Modeling in Mechanobiology)"
+          },
+          {
+            "title": "Mechanical characterization of constrained soft materials...",
+            "doi": "10.1039/d6sm00627b",
+            "summary_of_read_content": "Critical summary: Soft materials such as gels and elastomers have widespread applications in robotics, biomedical engineering, and the food industry. Potential applications of the method will be in the continuous high-throughput monitoring of bioactuators, engineered tissues, and products in the biofabrication and food industry.",
+            "citation_impact": "Recent/Emerging - 0 citations (Published 2026, Soft Matter)"
+          },
+          {
+            "title": "Nonlinear viscoelastic effects of fascia: experimental findings...",
+            "doi": "10.1098/rsif.2026.0078",
+            "summary_of_read_content": "Critical summary: This study provides a comprehensive biomechanical characterization of the fascia lata, integrating systematic stress-relaxation protocols and, for the first time, dynamic mechanical analysis to resolve its complex dissipative mechanisms. Specifically, the dual-branch linear approach captures the tissue's fundamental dissipation more effectively than a single-branch nonlinear formulation, which tends towards over-parametrization.",
+            "citation_impact": "Recent/Emerging - 0 citations (Published 2026, Journal of the Royal Society Interface)"
+          },
+          {
+            "title": "Anisotropic hyperelastic properties of porcine pericardium...",
+            "doi": "10.3389/fbioe.2026.1840657",
+            "summary_of_read_content": "Critical summary: Background and objective Bioprosthetic aortic valves with leaflets made from porcine-derived soft tissue are used to treat aortic valve disease. Conclusion To fully characterize the mechanical response of porcine pericardium and identify the most predictive constitutive model, it is recommended to combine uniaxial tension, shear, and biaxial tests rather than relying on a single loading mode.",
+            "citation_impact": "Recent/Emerging - 0 citations (Published 2026, Frontiers in Bioengineering and Biotechnology)"
+          },
+          {
+            "title": "Development of a finite element model specific to the female thorax...",
+            "doi": "10.1177/09544119261484228",
+            "summary_of_read_content": "Critical summary: Finite element modeling in biomechanics has been widely used for several decades to investigate the injury mechanisms and tolerance limits of various biological structures. This study provides tools and data for specific investigations of female thoracic injuries, given the differences observed between males and females.",
+            "citation_impact": "Recent/Emerging - 0 citations (Published 2026, Proceedings of the Institution of mechanical engineers. Part H, journal of engineering in medicine)"
+          },
+          {
+            "title": "Fiber dispersion in the right ventricle...",
+            "doi": "10.1016/j.jbiomech.2026.113532",
+            "summary_of_read_content": "Could not retrieve full abstract for 10.1016/j.jbiomech.2026.113532. Paper appears relevant to soft-tissue constitutive behavior based on its context.",
+            "citation_impact": "Impact metrics currently unavailable due to retrieval error."
+          },
+          {
+            "title": "Stress-Constrained Physics-Informed UNet...",
+            "doi": "10.1007/s10439-026-04321-4",
+            "summary_of_read_content": "This paper explores 'Stress-Constrained Physics-Informed UNet for Voxel-Wise Multiparameter Hyperelastic Inversion in Volumetric Medical Imaging.'. It is evaluated for its application in computational modeling and simulation of soft tissues.",
+            "citation_impact": "Recent/Emerging - 0 citations (Published 2026, Annals of Biomedical Engineering)"
+          },
+          {
+            "title": "Mechanics of esophageal retraction...",
+            "doi": "10.1016/j.jmbbm.2026.107558",
+            "summary_of_read_content": "Could not retrieve full abstract for 10.1016/j.jmbbm.2026.107558. Paper appears relevant to soft-tissue constitutive behavior based on its context.",
+            "citation_impact": "Impact metrics currently unavailable due to retrieval error."
+          },
+          {
+            "title": "Integrating serial block-face SEM with voxel-based finite element...",
+            "doi": "10.1007/s10237-026-02090-6",
+            "summary_of_read_content": "Critical summary: While continuum fibre-reinforced constitutive models of collagen-rich soft tissues incorporate microstructural information via structure tensor invariants, most of their numerical implementations assume spatially uniform fibre orientations. The methodology delivers quantitative mechanistic insights into dermal micromechanics and generalises to a wide range of soft tissues from cornea and cartilage to arteries and lungs.",
+            "citation_impact": "Recent/Emerging - 0 citations (Published 2026, Biomechanics and Modeling in Mechanobiology)"
+          },
+          {
+            "title": "Experimental and numerical study of non-penetrating FMJ...",
+            "doi": "10.1016/j.forsciint.2026.113050",
+            "summary_of_read_content": "Critical summary: This study evaluates the biomechanical response of biofidelic human tissue surrogates, including embedded bone simulants, under non-penetrating ballistic impacts to bridge the gap between current armor certification standards and thoracic injury biomechanics. Ultimately, this study establishes a fundamental precursor for the analysis of increasingly complex anatomical geometries and intricate impact scenarios.",
+            "citation_impact": "Recent/Emerging - 0 citations (Published 2026, Forensic Science International)"
+          },
+          {
+            "title": "The PER2:BRCA1:POU2F1(OCT-1) ternary complex...",
+            "doi": "10.1016/j.nbscr.2025.100141",
+            "summary_of_read_content": "Critical summary: The circadian clock component PER2 coordinates daily oscillations in gene expression across multiple tissues, yet its role in assembling multi-protein regulatory complexes remains incompletely understood. These findings establish PER2 as a circadian scaffold that assembles multivalent protein complexes to temporally gate transcription, providing mechanistic insight into how circadian disruption can influence target gene expression.",
+            "citation_impact": "Recent/Emerging - 0 citations (Published 2025, Neurobiology of Sleep and Circadian Rhythms)"
+          },
+          {
+            "title": "In vivo measurements of fascia lata effective mechanics...",
+            "doi": "10.1039/d6sm00467a",
+            "summary_of_read_content": "Critical summary: The fascia lata plays a central role in force transmission and body mechanics, yet its in vivo mechanical behavior remains poorly characterized. This work provides a quantitative foundation for future in vivo investigations into how training, rehabilitation, or aging influence the evolution of fascial mechanical properties.",
+            "citation_impact": "Recent/Emerging - 0 citations (Published 2026, Soft Matter)"
+          }
+        ]
+      },
+      "2_knee_ligament_models": {
+        "references": [
+          {
+            "title": "Model Properties and Clinical Application...",
+            "doi": "10.1111/os.13980",
+            "summary_of_read_content": "Critical summary: The knee is the most complex joint in the human body, including bony structures like the femur, tibia, fibula, and patella, and soft tissues like menisci, ligaments, muscles, and tendons. Based on previous finite element studies of the knee joint, this paper summarizes various modeling strategies and applications, serving as a reference for constructing knee joint models and research design.",
+            "citation_impact": "Moderate Impact - 34 citations (Published 2024, Orthopaedic Surgery)"
+          },
+          {
+            "title": "Can lateral tenodesis improve the rotational stability...",
+            "doi": "10.1371/journal.pone.0293161",
+            "summary_of_read_content": "Critical summary: One of the most common knee injuries is the Anterior Cruciate Ligament (ACL) rupture with severe implications on knee stability. We provide open access for the FE models of this study to enhance research transparency, reproducibility and extensibility.",
+            "citation_impact": "Recent/Emerging - 7 citations (Published 2023, bioRxiv)"
+          },
+          {
+            "title": "Calibration of Holzapfel-Gasser-Ogden collateral ligament...",
+            "doi": "10.1080/10255842.2023.2253950",
+            "summary_of_read_content": "Critical summary: Abstract Knee collateral ligaments play a vital role in providing frontal-plane stability in post-total knee arthroplasty (TKA) knees. Our approach achieves comparable accuracy to spring formulations while significantly reducing coefficient calibration time and demonstrating improved correlation with reference knee kinematics and ligament strains throughout the tested loading range.",
+            "citation_impact": "Recent/Emerging - 1 citations (Published 2023, Computer Methods in Biomechanics and Biomedical Engineering)"
+          },
+          {
+            "title": "Sports Injury Modeling of the Anterior Cruciate Ligament...",
+            "doi": "10.1155/2021/3606863",
+            "summary_of_read_content": "Critical summary: In order to solve the problem of sports injury modeling of the anterior cruciate ligament, a method based on the intelligent finite element algorithm is proposed. This method proves that the intelligent finite element algorithm can effectively solve the modeling problem of sports injury of the anterior cruciate ligament.",
+            "citation_impact": "3 citations (Published 2021, Journal of Healthcare Engineering)"
+          },
+          {
+            "title": "An open-source plugin for OpenSim...",
+            "doi": "10.1016/j.compbiomed.2019.05.021",
+            "summary_of_read_content": "Critical summary: The force-length characteristics of dense connective tissues (DCTs) vary non-linearly as a function of strain rate. In summary, the developed plugin takes into account the short term viscoelastic behaviour of DCTs and hence, would help in accurate modelling of tissue behaviour specifically for dynamic situations.",
+            "citation_impact": "12 citations (Published 2019, Comput. Biol. Medicine)"
+          },
+          {
+            "title": "Femoral entheseal shape and attachment angle...",
+            "doi": "10.1016/j.jmbbm.2018.08.045",
+            "summary_of_read_content": "Critical summary: Although non-contact human ACL tears are a common knee injury, little is known about why they usually fail near the femoral enthesis. We conclude that a concave tidemark profile and acute attachment angle at the femoral ACL enthesis increase the risk for ACL failure, and that failure is most likely to begin in the most distal region of that enthesis.",
+            "citation_impact": "16 citations (Published 2018, Journal of The Mechanical Behavior of Biomedical Materials)"
+          },
+          {
+            "title": "The effect of constitutive representations and structural constituents...",
+            "doi": "10.1038/s41598-018-20739-w",
+            "summary_of_read_content": "Critical summary: Ligaments provide stability to the human knee joint and play an essential role in restraining motion during daily activities. Our results indicate that simpler material models of ligaments with similar properties in compression and tension can be used when the loading is directed primarily along the ligament axis in tension.",
+            "citation_impact": "Moderate Impact - 56 citations (Published 2018, Scientific Reports)"
+          },
+          {
+            "title": "Rheumatoid Arthritis Exacerbates the Severity of Osteonecrosis...",
+            "doi": "10.1002/jbmr.2827",
+            "summary_of_read_content": "Critical summary: Rheumatoid arthritis (RA), an autoimmune inflammatory disorder, results in persistent synovitis with severe bone and cartilage destruction. © 2016 American Society for Bone and Mineral Research.",
+            "citation_impact": "Moderate Impact - 44 citations (Published 2016, Journal of Bone and Mineral Research)"
+          },
+          {
+            "title": "The influence and biomechanical role of cartilage split line...",
+            "doi": "10.1007/s10237-015-0668-y",
+            "summary_of_read_content": "This paper explores 'The influence and biomechanical role of cartilage split line pattern on tibiofemoral cartilage stress distribution during the stance phase of gait'. It is evaluated for its application in computational modeling and simulation of soft tissues.",
+            "citation_impact": "Moderate Impact - 31 citations (Published 2015, Biomechanics and Modeling in Mechanobiology)"
+          },
+          {
+            "title": "The Effect of Ligament Modeling Technique on Knee Joint Kinematics...",
+            "doi": "10.4236/am.2013.45A011",
+            "summary_of_read_content": "Critical summary: Finite element (FE) analysis has become an increasingly popular technique in the study of human joint biomechanics, as it allows for detailed analysis of the joint/tissue behavior under complex, clinically relevant loading conditions. Findings of the current study support our hypothesis and highlight the critical role of soft tissue modeling technique on the resultant FE predicted joint kinematics.",
+            "citation_impact": "Moderate Impact - 55 citations (Published 2013, Applied Mathematics)"
+          },
+          {
+            "title": "A viscoelastic poromechanical model of the knee joint...",
+            "doi": "10.1016/j.medengphy.2014.04.004",
+            "summary_of_read_content": "This paper explores 'A viscoelastic poromechanical model of the knee joint in large compression.'. It is evaluated for its application in computational modeling and simulation of soft tissues.",
+            "citation_impact": "Moderate Impact - 48 citations (Published 2014, Medical Engineering and Physics)"
+          },
+          {
+            "title": "A finite viscoelastic-plastic model for describing the uniaxial ratchetting...",
+            "doi": "10.1016/j.jbiomech.2014.01.004",
+            "summary_of_read_content": "This paper explores 'A finite viscoelastic-plastic model for describing the uniaxial ratchetting of soft biological tissues.'. It is evaluated for its application in computational modeling and simulation of soft tissues.",
+            "citation_impact": "12 citations (Published 2014, Journal of Biomechanics)"
+          },
+          {
+            "title": "A comparison of material characterizations in frequently used constitutive models...",
+            "doi": "10.1002/cnm.2619",
+            "summary_of_read_content": "This paper explores 'A comparison of material characterizations in frequently used constitutive models of ligaments'. It is evaluated for its application in computational modeling and simulation of soft tissues.",
+            "citation_impact": "6 citations (Published 2014, International Journal for Numerical Methods in Biomedical Engineering)"
+          },
+          {
+            "title": "The effect of the variation in ACL constitutive model on joint kinematics...",
+            "doi": "10.1115/1.4023696",
+            "summary_of_read_content": "This paper explores 'The effect of the variation in ACL constitutive model on joint kinematics and biomechanics under different loads: a finite element study.'. It is evaluated for its application in computational modeling and simulation of soft tissues.",
+            "citation_impact": "Moderate Impact - 28 citations (Published 2013, Journal of Biomechanical Engineering)"
+          },
+          {
+            "title": "Inter-insertional distance is a poor correlate for ligament load...",
+            "doi": "10.1016/j.jbiomech.2013.06.023",
+            "summary_of_read_content": "This paper explores 'Inter-insertional distance is a poor correlate for ligament load: analysis from in vivo gait kinetics data.'. It is evaluated for its application in computational modeling and simulation of soft tissues.",
+            "citation_impact": "8 citations (Published 2013, Journal of Biomechanics)"
+          },
+          {
+            "title": "A multilayer braided scaffold for Anterior Cruciate Ligament...",
+            "doi": "10.1016/j.jmbbm.2012.03.005",
+            "summary_of_read_content": "This paper explores 'A multilayer braided scaffold for Anterior Cruciate Ligament: mechanical modeling at the fiber scale.'. It is evaluated for its application in computational modeling and simulation of soft tissues.",
+            "citation_impact": "Moderate Impact - 74 citations (Published 2012, Journal of The Mechanical Behavior of Biomedical Materials)"
+          }
+        ]
+      },
+      "3_computational_technologies": {
+        "references": [
+          {
+            "title": "A systematic comparison between FEBio and PolyFEM...",
+            "doi": "10.1016/j.cmpb.2023.107938",
+            "summary_of_read_content": "Critical summary: Background and Objectives. PolyFEM exhibited the ability to tackle challenging biomechanical problems where other solvers fell short, thus offering the potential to enhance the accuracy and realism of future finite element analyses.",
+            "citation_impact": "Recent/Emerging - 4 citations (Published 2023, Comput. Methods Programs Biomed.)"
+          },
+          {
+            "title": "Finite element analysis and its application...",
+            "doi": "10.1016/j.jcot.2024.102803",
+            "summary_of_read_content": "Critical summary: Orthopedic surgery and traumatology necessitate cost-effective approaches that can be replicated across multiple venues. Future FEA advances aim to improve model accuracy, add active muscle simulation, and standardize procedures, resulting in significant advancements in orthopedic research and treatment planning.",
+            "citation_impact": "Moderate Impact - 23 citations (Published 2024, Journal of Clinical Orthopaedics and Trauma)"
+          },
+          {
+            "title": "Effect of Parametric Variation of Chordae Tendineae Structure...",
+            "doi": "10.1007/s10439-026-04310-7",
+            "summary_of_read_content": "Critical summary: PURPOSE\nMany approaches have been used to model chordae tendineae geometries in finite element simulations of atrioventricular heart valves. This research contribution helps enrich our open-source workflow and brings the finite element simulations closer to use in a patient-specific clinical setting.",
+            "citation_impact": "Recent/Emerging - 0 citations (Published 2026, Annals of Biomedical Engineering)"
+          },
+          {
+            "title": "Disentangling history and propagation dependencies in cross-subject knee contact stress...",
+            "doi": "10.1088/1873-4030/ae9b0d",
+            "summary_of_read_content": "Critical summary: Background. Explicitly encoding short-horizon driver sequences enables the surrogate model to capture useful temporal context related to phase/state transitions, thereby achieving superior fidelity in peak-stress capture and high-risk-region localization compared to purely state-based approaches.",
+            "citation_impact": "Recent/Emerging - 0 citations (Published 2026, Medical Engineering and Physics)"
+          },
+          {
+            "title": "An open-source computational framework for immersed fluid-structure interaction...",
+            "doi": "10.1007/s00366-026-02371-9",
+            "summary_of_read_content": "Critical summary: Fluid–structure interaction (FSI) simulation of biological systems presents significant computational challenges, particularly for applications involving large structural deformations and contact mechanics, such as heart valve dynamics. This platform addresses a critical need for open-source immersed FSI software combining advanced biomechanics modeling with high-performance computing infrastructure.",
+            "citation_impact": "Recent/Emerging - 2 citations (Published 2026, Engineering computations)"
+          },
+          {
+            "title": "Subject-Specific Finite Element Analysis of the Human Femur Using Radiation-Free...",
+            "doi": "10.3390/life16071168",
+            "summary_of_read_content": "Critical summary: Finite element (FE) modeling is widely used in biomechanical research, enabling computational investigations of anatomical structures. Therefore, despite several simplifications, these findings confirm the feasibility of radiation-free 3D ZTE MRI for subject-specific FE modeling, enabling future simultaneous assessment of bone morphology and surrounding soft tissues.",
+            "citation_impact": "Recent/Emerging - 0 citations (Published 2026, Life)"
+          },
+          {
+            "title": "Ultrasound-based evaluation of plantar fascia and heel fat pad thickness...",
+            "doi": "10.3389/fphys.2026.1835845",
+            "summary_of_read_content": "Critical summary: Introduction The plantar fat pad plays a key role in shock absorption and heel protection. Discussion Ultrasound demonstrated high intra-observer reliability, and the findings suggest a possible load-dependent association between cT2DM and plantar fascia thickness in the present study.",
+            "citation_impact": "Recent/Emerging - 0 citations (Published 2026, Frontiers in Physiology)"
+          },
+          {
+            "title": "Computational modeling of tissue damage preceding aortic dissection...",
+            "doi": "10.1007/s10237-026-02114-1",
+            "summary_of_read_content": "Critical summary: Aortic dissection is a life-threatening pathology characterized by the progressive delamination of adjacent lamellar units within the aortic media. These results demonstrate that the model provides a physically consistent description of arterial tissue behavior under radial tension and represents a relevant tool for investigating the mechanical mechanisms preceding aortic dissection.",
+            "citation_impact": "Recent/Emerging - 0 citations (Published 2026, Biomechanics and Modeling in Mechanobiology)"
+          },
+          {
+            "title": "Integrating serial block-face SEM with voxel-based finite element...",
+            "doi": "10.1007/s10237-026-02090-6",
+            "summary_of_read_content": "Critical summary: While continuum fibre-reinforced constitutive models of collagen-rich soft tissues incorporate microstructural information via structure tensor invariants, most of their numerical implementations assume spatially uniform fibre orientations. The methodology delivers quantitative mechanistic insights into dermal micromechanics and generalises to a wide range of soft tissues from cornea and cartilage to arteries and lungs.",
+            "citation_impact": "Recent/Emerging - 0 citations (Published 2026, Biomechanics and Modeling in Mechanobiology)"
+          },
+          {
+            "title": "A computational framework for patient-specific breast modelling...",
+            "doi": "10.1016/j.clinbiomech.2026.106880",
+            "summary_of_read_content": "Critical summary: BACKGROUND\nCooper's ligaments tether the dermis to the pectoral fascia and play a key role in breast suspension, but they are still poorly represented in finite element (FE) models used for surgical planning. The proposed framework is compatible with standard clinical MRI and FE tools and provides a basis for extending patient-specific breast models towards more reliable preoperative planning for reconstruction.",
+            "citation_impact": "Recent/Emerging - 0 citations (Published 2026, Clinical Biomechanics)"
+          },
+          {
+            "title": "A fast prediction method for pre-puncture brain deformation...",
+            "doi": "10.1080/10255842.2026.2681794",
+            "summary_of_read_content": "Critical summary: Rapid prediction of meningeal deformation and puncture force is essential for surgical simulation and planning. At 5 mm puncture depth, it accurately predicted deformation and puncture force while running over two orders of magnitude faster than the conventional finite element method, enabling efficient simulation of puncture-induced tissue deformation.",
+            "citation_impact": "Recent/Emerging - 0 citations (Published 2026, Computer Methods in Biomechanics and Biomedical Engineering)"
+          },
+          {
+            "title": "GNN-based deep surrogate modeling of knee contact mechanics...",
+            "doi": "10.1016/j.knee.2026.104523",
+            "summary_of_read_content": "Critical summary: BACKGROUND\nAccumulation of abnormal contact stress is a primary biomechanical driver of acute meniscal tears and chronic osteoarthritis. This establishes GNNs as robust clinical tools capable of identifying functional injury risks that are invisible to purely geometry-based surrogate models.",
+            "citation_impact": "Recent/Emerging - 2 citations (Published 2025, Knee (Oxford))"
+          },
+          {
+            "title": "3D Fiber-Reinforced Forward Musculoskeletal Modeling of the Lower Limb...",
+            "doi": "10.1007/s10439-026-04202-w",
+            "summary_of_read_content": "This paper explores '3D Fiber-Reinforced Forward Musculoskeletal Modeling of the Lower Limb Using HD-sEMG and CFD-FE Coupling.'. It is evaluated for its application in computational modeling and simulation of soft tissues.",
+            "citation_impact": "Recent/Emerging - 0 citations (Published 2026, Annals of Biomedical Engineering)"
+          },
+          {
+            "title": "Age is associated with Achilles tendon thickness in older adults...",
+            "doi": "10.3389/fphys.2026.1821673",
+            "summary_of_read_content": "Critical summary: Introduction Obesity is associated with metabolic, inflammatory, and mechanical alterations that may affect the structure of the Achilles tendon, especially in older adults, who present increased tendon vulnerability due to age-related degenerative changes. Although obese participants showed greater tendon thickness in the unadjusted analysis, age was significantly associated with tendon thickness after adjustment, suggesting that aging may play an important role in tendon structural characteristics in this population.",
+            "citation_impact": "Recent/Emerging - 0 citations (Published 2026, Frontiers in Physiology)"
+          },
+          {
+            "title": "Biomechanical Effects of Implant-Root Fragment Contact...",
+            "doi": "10.1016/j.identj.2026.109623",
+            "summary_of_read_content": "Critical summary: Background The socket shield technique (SST) is widely applied in implant treatments in aesthetic zones, demonstrating significant advantages in preserving hard and soft tissues. Clinical studies are needed to validate these findings.",
+            "citation_impact": "Recent/Emerging - 0 citations (Published 2026, International Dental Journal)"
+          },
+          {
+            "title": "Simulation of Transcatheter Therapies for Atrioventricular Valve Regurgitation...",
+            "doi": "10.1007/s10439-025-03959-w",
+            "summary_of_read_content": "Critical summary: Purpose: Transcatheter edge-to-edge repair (TEER) and annuloplasty devices are increasingly used to treat mitral valve regurgitation, yet their mechanical effects and interactions remain poorly understood. The framework enables quantitative evaluation of the mechanical impact of different transcatheter valve repair strategies, offers a foundation for extending virtual repair analyses to additional valve geometries, and supports the broader goal of incorporating virtual repair into procedure planning.",
+            "citation_impact": "Recent/Emerging - 4 citations (Published 2025, Annals of Biomedical Engineering)"
+          },
+          {
+            "title": "Integrating Uncertainty Quantification into Computational Fluid Dynamics Models...",
+            "doi": "10.1115/1.4071773",
+            "summary_of_read_content": "Critical summary: Computational fluid dynamics simulations are increasingly being integrated into clinical medicine, where they have the potential to support clinicians in disease diagnosis, prognosis, and treatment. Collectively, this study establishes an uncertainty-aware framework to strengthen computational biomechanics model credibility, aligning with emerging regulatory guidance and enabling more trustworthy modeling-based decision support in the management of coronary artery disease.",
+            "citation_impact": "Recent/Emerging - 0 citations (Published 2025, Journal of Biomechanical Engineering)"
+          }
+        ]
+      },
+      "4_febio_applications": {
+        "references": [
+          {
+            "title": "Modeling Fatigue Failure of Cartilage...",
+            "doi": "10.1115/1.4066219",
+            "summary_of_read_content": "Critical summary: Fatigue failure in biological soft tissues plays a critical role in the etiology of chronic soft tissue injuries and diseases such as osteoarthritis. This study demonstrated the ability of theoretical models to complement and extend experimental findings, advancing our understanding of the time progression of fatigue in biological tissues.",
+            "citation_impact": "Recent/Emerging - 9 citations (Published 2024, Journal of Biomechanical Engineering)"
+          },
+          {
+            "title": "Editorial Commentary: Tibial Tubercle-Trochlear Groove Distance Should Be Prioritized...",
+            "doi": "10.1002/arj.70656",
+            "summary_of_read_content": "Could not retrieve full abstract for 10.1002/arj.70656. Paper appears relevant to soft-tissue constitutive behavior based on its context.",
+            "citation_impact": "Impact metrics currently unavailable due to retrieval error."
+          },
+          {
+            "title": "Orthobiologic Augmentation for Anterior Cruciate Ligament Reconstruction...",
+            "doi": "10.1002/arj.70638",
+            "summary_of_read_content": "Could not retrieve full abstract for 10.1002/arj.70638. Paper appears relevant to soft-tissue constitutive behavior based on its context.",
+            "citation_impact": "Impact metrics currently unavailable due to retrieval error."
+          },
+          {
+            "title": "Measurement of trainee autonomy in robotic-assisted lung resections...",
+            "doi": "10.1007/s11701-026-03622-z",
+            "summary_of_read_content": "Critical summary: Trainee autonomy in robotic-assisted thoracic surgery is critical for growth but difficult to quantify. OPIs will offer valuable metrics for surgical education and assessment as national accrediting bodies shift graduation requirements towards case component proficiency over volume.",
+            "citation_impact": "Recent/Emerging - 0 citations (Published 2026, Journal of Robotic Surgery)"
+          },
+          {
+            "title": "Commentary on Targeting ligament boundaries rather than alignment boundaries...",
+            "doi": "10.1002/ksa.70611",
+            "summary_of_read_content": "This paper explores 'Commentary on \"Targeting ligament boundaries rather than alignment boundaries in augmented-reality-assisted total knee arthroplasty ensures comparable gait patterns between operated and contralateral limbs\".'. It is evaluated for its application in computational modeling and simulation of soft tissues.",
+            "citation_impact": "Recent/Emerging - 0 citations (Published 2026, Knee Surgery, Sports Traumatology, Arthroscopy)"
+          },
+          {
+            "title": "Double-Bundle Medial Patellofemoral Ligament Reconstruction Using Free Rectus Femoris Autograft.",
+            "doi": "10.1002/atn2.70263",
+            "summary_of_read_content": "Critical summary: The rectus femoris tendon autograft represents a relatively new graft option, primarily used in anterior cruciate ligament revision surgery. Unlike the classical quadriceps tendon medial patellofemoral ligament technique, which preserves the native quadriceps insertion at the superior pole of the patella and thus deviates from true medial patellofemoral ligament anatomy, our method allows an anatomic patellar fixation.",
+            "citation_impact": "Recent/Emerging - 0 citations (Published 2026, Arthroscopy Techniques)"
+          },
+          {
+            "title": "Anatomic feasibility of using Shark Screw tendon for humeral ligament re-construction...",
+            "doi": "10.1016/j.jseint.2026.101786",
+            "summary_of_read_content": "Critical summary: Background\nMedial and posterolateral rotational instability of the elbow, often resulting from collateral ligament insufficiency, can lead to pain and functional impairment. Further biomechanical and clinical studies are needed to confirm long-term outcomes.",
+            "citation_impact": "Recent/Emerging - 0 citations (Published 2026, JSES International)"
+          },
+          {
+            "title": "A Comprehensive Guide to Revision Medial Patellofemoral Ligament Reconstruction...",
+            "doi": "10.1016/j.jposna.2026.100435",
+            "summary_of_read_content": "Critical summary: Revision medial patellofemoral ligament reconstruction (MPFL-R) in adolescents is uncommon and typically results from unappreciated or unaddressed anatomic risk factors (high-grade trochlear dysplasia, distal malalignment, patella alta, genu valgum, etc.), technical errors (graft malpositioning and length), or inappropriate patient selection. By synthesizing current literature and expert insights, this guide aims to provide surgeons with a framework to enhance the success of revision MPFL-R in adolescents.\n\n\nKey Concepts\n(1)Successful medial patellofemoral ligament revision requires distinguishing among technical errors, unaddressed anatomic risk factors, traumatic failure, and biological complications.(2)Anatomical femoral tunnel placement is a primary determinant of success because nonanatomic positioning can lead to graft overtightening, premature failure, and inferior clinical outcomes.(3)To prevent growth-related complications, such as limb-length discrepancies or angular deformities, surgeons must use biplane fluoroscopy to ensure that intraepiphyseal grafts are placed distal to the physis.(4)Comprehensive stabilization often requires concomitant procedures.",
+            "citation_impact": "Recent/Emerging - 0 citations (Published 2026, Journal of the Pediatric Orthopaedic Society of North America)"
+          },
+          {
+            "title": "Femur-First Cut Kinematically Aligned Unicompartmental Knee Arthroplasty...",
+            "doi": "10.1016/j.artd.2026.102147",
+            "summary_of_read_content": "Critical summary: Kinematic alignment (KA) is based on a resurfacing philosophy that restores the patient's native joint line orientation and preserves physiological soft-tissue balance. By establishing femoral anatomy before tibial preparation, this technique provides a reproducible and anatomically consistent resurfacing strategy and may facilitate intraoperative conversion to total knee arthroplasty when necessary.",
+            "citation_impact": "Recent/Emerging - 0 citations (Published 2026, Arthroplasty Today)"
+          },
+          {
+            "title": "Ossification of the Nuchal Ligament With Text Neck Syndrome.",
+            "doi": "10.7759/cureus.115774",
+            "summary_of_read_content": "Critical summary: Ossification of the nuchal ligament (ONL) is a common but frequently overlooked radiographic finding on lateral cervical spine imaging, characterized by ectopic bone formation within the nuchal ligament, most often at the C4/5 and C5/6 levels. Advanced cross-sectional imaging (CT or MRI) is not automatically indicated for isolated, asymptomatic ONL, but should be considered when neurological signs or symptoms, suspected myelopathy, progressive deficits, trauma, or specific manual therapy safety considerations arise.",
+            "citation_impact": "Recent/Emerging - 0 citations (Published 2026, Cureus)"
+          },
+          {
+            "title": "Comparative Evaluation of Medial Parapatellar and Transpatellar Tendon Approaches...",
+            "doi": "10.7759/cureus.115761",
+            "summary_of_read_content": "Critical summary: Introduction  Intramedullary (IM) interlocking nailing is the standard treatment for displaced tibial shaft fractures. Therefore, preservation of the patellar tendon may facilitate improved early functional recovery without compromising surgical safety, making the medial parapatellar approach a valuable alternative for the surgical management of tibial shaft fractures.",
+            "citation_impact": "Recent/Emerging - 0 citations (Published 2026, Cureus)"
+          },
+          {
+            "title": "Corrigendum to 'Bone shape changes over two years following acute anterior cruciate ligament injury...",
+            "doi": "10.1016/j.ocarto.2026.100882",
+            "summary_of_read_content": "Critical summary: [This corrects the article DOI: 10.1016/j.ocarto.2025.100652.].",
+            "citation_impact": "Recent/Emerging - 0 citations (Published 2026, Osteoarthritis and Cartilage Open)"
+          },
+          {
+            "title": "Playing the field: A retrospective analysis of anterior cruciate ligament injuries...",
+            "doi": "10.1016/j.jsampl.2026.100159",
+            "summary_of_read_content": "Critical summary: Background\nFemale football (soccer) athletes occupy different playing positions of goalkeeper, defender, midfielder, and forward that may influence ACL injury risk. A high-risk window for ACL injury in the early competitive season is a novel finding for this cohort.",
+            "citation_impact": "Recent/Emerging - 0 citations (Published 2026, JSAMS Plus)"
+          },
+          {
+            "title": "Editorial for Evaluation of Pre-Operative Cartilage and Meniscus Ultrashort Echo Time...",
+            "doi": "10.1002/jmri.70563",
+            "summary_of_read_content": "This paper explores 'Editorial for \"Evaluation of Pre-Operative Cartilage and Meniscus Ultrashort Echo Time T2* as Biomarkers of Long-Term Clinical Outcomes Following Anterior Cruciate Ligament Reconstruction\".'. It is evaluated for its application in computational modeling and simulation of soft tissues.",
+            "citation_impact": "Recent/Emerging - 0 citations (Published 2026, Journal of Magnetic Resonance Imaging)"
+          },
+          {
+            "title": "Evaluation of Pre-Operative Cartilage and Meniscus Ultrashort Echo Time T2*...",
+            "doi": "10.1002/jmri.70571",
+            "summary_of_read_content": "This paper explores 'Evaluation of Pre-Operative Cartilage and Meniscus Ultrashort Echo Time T2* as Biomarkers of Long-Term Clinical Outcomes Following Anterior Cruciate Ligament Reconstruction.'. It is evaluated for its application in computational modeling and simulation of soft tissues.",
+            "citation_impact": "Recent/Emerging - 0 citations (Published 2026, Journal of Magnetic Resonance Imaging)"
+          },
+          {
+            "title": "Anterior Cruciate Ligament Reconstruction and Mental Health: A Bidirectional Relationship.",
+            "doi": "10.1177/19417381261486640",
+            "summary_of_read_content": "Could not retrieve full abstract for 10.1177/19417381261486640. Paper appears relevant to soft-tissue constitutive behavior based on its context.",
+            "citation_impact": "Impact metrics currently unavailable due to retrieval error."
+          }
+        ]
+      },
+      "5_targeted_thesis_similarity": {
+        "trends": [
+          "Model Evolution: Transitioning from purely hyperelastic models to fibril-reinforced visco-hyperelastic or poroviscoelastic frameworks in FEBio, designed to better replicate dynamic relaxation and creep behaviors of knee ligaments.",
+          "Calibration via Uniaxial Data: Experimental uniaxial tension testing persists as the fundamental baseline for isolating and calibrating specific material parameters (such as the primary fiber modulus and viscoelastic Prony series terms) before executing full-knee simulations.",
+          "Load Distribution Sensitivity: Load-sharing models in the knee joint exhibit high sensitivity to the choice of the ligament's constitutive equations. Variations in viscoelastic decay rates significantly alter the predicted distribution of stresses across the medial and lateral compartments during gait cycles and varus-valgus loading scenarios."
+        ],
+        "references": [
+          {
+            "title": "Finite element musculoskeletal modelling of cruciate ligament contact and its effect on knee joint kinematics and biomechanics.",
+            "doi": "10.1007/s10237-026-02104-3",
+            "summary_of_read_content": "This paper explores 'Finite element musculoskeletal modelling of cruciate ligament contact and its effect on knee joint kinematics and biomechanics'. It is evaluated for its application in computational modeling and simulation of soft tissues.",
+            "citation_impact": "Recent/Emerging - 0 citations (Published 2026, Biomechanics and Modeling in Mechanobiology)"
+          },
+          {
+            "title": "The impact of early graft viscoelastic degeneration on tibiofemoral joint stress after anterior cruciate ligament reconstruction: a finite element analysis.",
+            "doi": "10.1080/10255842.2026.2662513",
+            "summary_of_read_content": "This paper explores 'The impact of early graft viscoelastic degeneration on tibiofemoral joint stress after anterior cruciate ligament reconstruction: a finite element analysis.'. It is evaluated for its application in computational modeling and simulation of soft tissues.",
+            "citation_impact": "Recent/Emerging - 0 citations (Published 2026, Computer Methods in Biomechanics and Biomedical Engineering)"
+          },
+          {
+            "title": "Biomechanical evaluation of anterolateral ligament anatomical variants in anterior cruciate ligament-injured and reconstructed knee joints.",
+            "doi": "10.1016/j.clinbiomech.2025.106709",
+            "summary_of_read_content": "Critical summary: BACKGROUND\nThe anterolateral ligament (ALL) has structural diversity and is often injured concurrently with anterior cruciate ligament (ACL) tears. For reconstruction, placing the ALL femoral insertion postero-proximal to the LCL optimizes biomechanical outcomes by improving stability and load-sharing.",
+            "citation_impact": "Recent/Emerging - 0 citations (Published 2025, Clinical Biomechanics)"
+          },
+          {
+            "title": "Ligament shear strain stiffening arises from unaligned fibers and is amplified by axial strain.",
+            "doi": "10.1016/j.jmbbm.2025.106985",
+            "summary_of_read_content": "Critical summary: The medial collateral ligament is subject to a combination of shear and tensile loading via passive joint rotation or a combination of joint rotation and valgus loading in the knee. These findings uncover an important structure-function relationship in ligaments that is relevant to the complex loading scenarios these tissues undergo in vivo, and thus should be considered for ongoing analyses of ligament mechanics.",
+            "citation_impact": "Recent/Emerging - 3 citations (Published 2025, Journal of The Mechanical Behavior of Biomedical Materials)"
+          },
+          {
+            "title": "Contribution of ankle motion pattern during landing to reduce the knee-related injury risk.",
+            "doi": "10.1016/j.compbiomed.2024.108965",
+            "summary_of_read_content": "Critical summary: BACKGROUND\nSingle-leg landing (SL) is an essential technique in sports such as basketball, soccer, and volleyball, which is often associated with a high risk of knee-related injury. The findings of this study have the potential to offer novel perspectives in the optimized application of landing strategies, thus giving crucial theoretical backing for decreasing the risk of knee-related injury.",
+            "citation_impact": "Moderate Impact - 36 citations (Published 2024, Comput. Biol. Medicine)"
+          },
+          {
+            "title": "Predictive Refined Computational Modeling of ACL Tear Injury Patterns.",
+            "doi": "10.3390/bioengineering11050413",
+            "summary_of_read_content": "Critical summary: Anterior cruciate ligament (ACL) ruptures are prevalent knee injuries, with approximately 200,000 ruptures annually, and treatment costs exceed USD two billion in the United States alone. It can aid in developing new techniques for repairing partially torn ACLs, potentially preventing more severe injuries.",
+            "citation_impact": "Recent/Emerging - 2 citations (Published 2024, Bioengineering)"
+          },
+          {
+            "title": "Finite element graft stress for anteromedial portal, transtibial, and hybrid transtibial femoral drillings under anterior translation and medial rotation: an exploratory study.",
+            "doi": "10.1038/s41598-024-61061-y",
+            "summary_of_read_content": "Critical summary: Stress concentration on the Anterior Cruciate Ligament Reconstruction (ACLr) for femoral drillings is crucial to understanding failures. The HTT better constrains the anterior tibia translation than AM and TT drillings, while AM does for medial knee rotation.",
+            "citation_impact": "Recent/Emerging - 3 citations (Published 2024, Scientific Reports)"
+          },
+          {
+            "title": "Adaptation of Fibril-Reinforced Poroviscoelastic Properties in Rabbit Collateral Ligaments 8 Weeks After Anterior Cruciate Ligament Transection.",
+            "doi": "10.1007/s10439-022-03081-1",
+            "summary_of_read_content": "Critical summary: Ligaments of the knee provide stability and prevent excessive motions of the joint. These adaptations may be important to consider when evaluating whole knee joint mechanics after ACL rupture, and the results aid in understanding the consequences of ACL rupture on other tissues.",
+            "citation_impact": "3 citations (Published 2022, Annals of Biomedical Engineering)"
+          },
+          {
+            "title": "Comparison of material models for anterior cruciate ligament in tension: from poroelastic to a novel fibril-reinforced nonlinear composite model.",
+            "doi": "10.1016/j.jbiomech.2020.110141",
+            "summary_of_read_content": "Critical summary: Computational models of the knee joint are useful for evaluating stresses and strains within the joint tissues. The results suggest that in order to replicate the multi-step stress-relaxation behavior of ACL in tension, the fibrillar network formulation should include the complex nonlinear viscoelastic phenomena.",
+            "citation_impact": "8 citations (Published 2020, Journal of Biomechanics)"
+          },
+          {
+            "title": "A full-field 3D digital image correlation and modelling technique to characterise anterior cruciate ligament mechanics ex vivo.",
+            "doi": "10.1016/j.actbio.2020.07.003",
+            "summary_of_read_content": "Critical summary: It is limiting to use conventional methods when characterising material properties of complex biological tissues with inhomogeneous and anisotropic structure, such as the anterior cruciate ligament (ACL) in the knee joint. The methodology described in this study could be adopted to investigate other biological and cultured tissues with complex structure.",
+            "citation_impact": "Moderate Impact - 22 citations (Published 2020, Acta Biomaterialia)"
+          },
+          {
+            "title": "The Influence of Anterior Cruciate Ligament Matrix Mechanical Properties on Simulated Whole-Knee Biomechanics.",
+            "doi": "10.1115/1.4047658",
+            "summary_of_read_content": "Critical summary: Knee finite element (FE) knee models are used to study tissue deformation in response to complex loads. These findings indicate that material models for the ACL must describe matrix material properties to best predict the in vivo response to applied loads.",
+            "citation_impact": "0 citations (Published 2020, Journal of Biomechanical Engineering)"
+          },
+          {
+            "title": "Changes in Knee Joint Mechanics After Medial Meniscectomy Determined With a Poromechanical Model.",
+            "doi": "10.1115/1.4047343",
+            "summary_of_read_content": "Critical summary: The menisci play a vital role in the mechanical function of knee joint. The present study has quantified the altered contact mechanics on the type and size of meniscectomies, which may be used to understand meniscal tear or support surgical decisions.",
+            "citation_impact": "19 citations (Published 2020, Journal of Biomechanical Engineering)"
+          },
+          {
+            "title": "Sensitivity of medial-lateral load sharing to changes in adduction moments or angles in an asymptomatic knee joint model during gait.",
+            "doi": "10.1016/j.gaitpost.2019.02.006",
+            "summary_of_read_content": "Critical summary: BACKGROUND\nOsteoarthritis (OA) of the knee joint is a common disease accompanied by pain and impaired mobility. Ligament forces altered at various stance periods with inconsistent trends; peak values of 418 N in the anterior cruciate ligament (90% carried by the posterolateral bundle) and 1056 N in the patellar tendon were computed both at 25% stance and minimum KAA.\n\n\nSIGNIFICANCE\nThese findings indicate a poor correlation between KAM and tibiofemoral load distribution suggesting instead that KAA and knee alignment should be in focus as the primary marker of knee joint load partitioning and associated prevention and treatment interventions.",
+            "citation_impact": "16 citations (Published 2019, Gait & Posture)"
+          },
+          {
+            "title": "Experimental strain analysis on the entire bony leg compared with FE analysis.",
+            "doi": "10.1016/j.jor.2016.10.009",
+            "summary_of_read_content": "This paper explores 'Experimental strain analysis on the entire bony leg compared with FE analysis.'. It is evaluated for its application in computational modeling and simulation of soft tissues.",
+            "citation_impact": "Moderate Impact - 23 citations (Published 2017, Journal of Orthopaedics)"
+          },
+          {
+            "title": "Material models and properties in the finite element analysis of knee ligaments: a literature review.",
+            "doi": "10.3389/fbioe.2014.00054",
+            "summary_of_read_content": "Critical summary: Knee ligaments are elastic bands of soft tissue with a complex microstructure and biomechanics, which are critical to determine the kinematics as well as the stress bearing behavior of the knee joint. This paper systematically reviews literature studies, which described finite element models of the knee, and summarizes the approaches, which have been used to model the ligaments highlighting their strengths and weaknesses.",
+            "citation_impact": "Moderate Impact - 72 citations (Published 2014, Frontiers in Bioengineering and Biotechnology)"
+          },
+          {
+            "title": "The Effect of Ligament Modeling Technique on Knee Joint Kinematics: A Finite Element Study.",
+            "doi": "10.4236/am.2013.45A011",
+            "summary_of_read_content": "Critical summary: Finite element (FE) analysis has become an increasingly popular technique in the study of human joint biomechanics, as it allows for detailed analysis of the joint/tissue behavior under complex, clinically relevant loading conditions. Findings of the current study support our hypothesis and highlight the critical role of soft tissue modeling technique on the resultant FE predicted joint kinematics.",
+            "citation_impact": "Moderate Impact - 55 citations (Published 2013, Applied Mathematics)"
+          },
+          {
+            "title": "A viscoelastic poromechanical model of the knee joint in large compression.",
+            "doi": "10.1016/j.medengphy.2014.04.004",
+            "summary_of_read_content": "This paper explores 'A viscoelastic poromechanical model of the knee joint in large compression.'. It is evaluated for its application in computational modeling and simulation of soft tissues.",
+            "citation_impact": "Moderate Impact - 48 citations (Published 2014, Medical Engineering and Physics)"
+          },
+          {
+            "title": "Load sharing and ligament strains in balanced, overstuffed and understuffed UKA. A validated finite element analysis.",
+            "doi": "10.1016/j.arth.2014.01.020",
+            "summary_of_read_content": "Critical summary: The aim of this study was to quantify the effects of understuffing and overstuffing UKA on bone stresses, load distribution and ligament strains. This study showed that, even if a medial UKA is well-aligned with normal soft tissue tension and with correct thickness of the tibia component, it induces a stiffness modification in the joint that alters the load distribution between the medial and lateral compartments, the bone stress and the ligament strain potentially leading to an osteoarthritic progression.",
+            "citation_impact": "Moderate Impact - 80 citations (Published 2014, Journal of Arthroplasty)"
+          },
+          {
+            "title": "A comparison of material characterizations in frequently used constitutive models of ligaments.",
+            "doi": "10.1002/cnm.2619",
+            "summary_of_read_content": "This paper explores 'A comparison of material characterizations in frequently used constitutive models of ligaments'. It is evaluated for its application in computational modeling and simulation of soft tissues.",
+            "citation_impact": "6 citations (Published 2014, International Journal for Numerical Methods in Biomedical Engineering)"
+          },
+          {
+            "title": "The effect of the variation in ACL constitutive model on joint kinematics and biomechanics under different loads: a finite element study.",
+            "doi": "10.1115/1.4023696",
+            "summary_of_read_content": "This paper explores 'The effect of the variation in ACL constitutive model on joint kinematics and biomechanics under different loads: a finite element study.'. It is evaluated for its application in computational modeling and simulation of soft tissues.",
+            "citation_impact": "Moderate Impact - 28 citations (Published 2013, Journal of Biomechanical Engineering)"
+          }
+        ]
+      }
+    }
+  }
+}

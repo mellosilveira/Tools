@@ -1,20 +1,19 @@
-﻿namespace MelloSilveiraTools.MechanicsOfMaterials.Models.Profiles
+﻿namespace MelloSilveiraTools.MechanicsOfMaterials.Models.Profiles;
+
+/// <summary>
+/// It represents the rectangular profile.
+/// </summary>
+public class RectangularProfile : Profile
 {
     /// <summary>
-    /// It represents the rectangular profile.
+    /// The width.
+    /// Unit: mm (milimeter).
     /// </summary>
-    public class RectangularProfile : Profile
-    {
-        /// <summary>
-        /// The width.
-        /// Unit: mm (milimeter).
-        /// </summary>
-        public double Width { get; set; }
+    public double Width { get; set; }
 
-        /// <summary>
-        /// The height.
-        /// Unit: mm (milimeter).
-        /// </summary>
-        public double Height { get; set; }
-    }
+    /// <summary>
+    /// The height.
+    /// Unit: mm (milimeter).
+    /// </summary>
+    public double Height { get; set; }
 }

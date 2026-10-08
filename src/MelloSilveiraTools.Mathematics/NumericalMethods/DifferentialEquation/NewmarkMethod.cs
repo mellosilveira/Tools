@@ -1,6 +1,5 @@
-﻿using MelloSilveiraTools.Core.Domain.Models;
-using MelloSilveiraTools.Core.ExtensionMethods;
-using MelloSilveiraTools.Mathematics.Models.NumericalMethods;
+﻿using MelloSilveiraTools.Core.ExtensionMethods;
+using MelloSilveiraTools.Mathematics.Models;
 
 namespace MelloSilveiraTools.Mathematics.NumericalMethods.DifferentialEquation;
 
@@ -13,20 +12,17 @@ public class NewmarkMethod : IDifferentialEquationMethod
     private const double Beta = (double)1 / 4;
 
     /// <inheritdoc/>
-    public DifferentialEquationMethodType Type => DifferentialEquationMethodType.Newmark;
-    
-    /// <inheritdoc/>
-    public NumericalMethodResult CalculateResult(NumericalMethodInput input, double time, NumericalMethodResult previousResult)
+    public NumericalMethodOutput Calculate(NumericalMethodInput input, double time, NumericalMethodOutput previousOutput)
     {
-        if (time < Constants.InitialTime)
-            throw new ArgumentOutOfRangeException(nameof(time), $"The time cannot be less than the initial time: {Constants.InitialTime}.");
+        if (time < MathematicConstants.InitialTime)
+            throw new ArgumentOutOfRangeException(nameof(time), $"The time cannot be less than the initial time: {MathematicConstants.InitialTime}.");
 
-        if (time == Constants.InitialTime)
-            return new NumericalMethodResult { EquivalentForce = input.EquivalentForce };
+        if (time == MathematicConstants.InitialTime)
+            return new NumericalMethodOutput { EquivalentForce = input.EquivalentForce };
 
         #region Step 1 - Calculates the equivalent stiffness and equivalent force.
         double[,] inversedEquivalentStiffness = CalculateEquivalentStiffness(input).InverseMatrix();
-        double[] equivalentForce = CalculateEquivalentForce(input, previousResult.Displacement, previousResult.Velocity, previousResult.Acceleration);
+        double[] equivalentForce = CalculateEquivalentForce(input, previousOutput.Displacement, previousOutput.Velocity, previousOutput.Acceleration);
         #endregion
 
         #region Step 2 - Calculates the displacement.
@@ -38,8 +34,8 @@ public class NewmarkMethod : IDifferentialEquationMethod
         double[] acceleration = new double[input.NumberOfBoundaryConditions];
         for (int i = 0; i < input.NumberOfBoundaryConditions; i++)
         {
-            acceleration[i] = GetA0(input.TimeStep) * (displacement[i] - previousResult.Displacement[i]) - GetA2(input.TimeStep) * previousResult.Velocity[i] - GetA3() * previousResult.Acceleration[i];
-            velocity[i] = previousResult.Velocity[i] + GetA6(input.TimeStep) * previousResult.Acceleration[i] + GetA7(input.TimeStep) * acceleration[i];
+            acceleration[i] = GetA0(input.TimeStep) * (displacement[i] - previousOutput.Displacement[i]) - GetA2(input.TimeStep) * previousOutput.Velocity[i] - GetA3() * previousOutput.Acceleration[i];
+            velocity[i] = previousOutput.Velocity[i] + GetA6(input.TimeStep) * previousOutput.Acceleration[i] + GetA7(input.TimeStep) * acceleration[i];
         }
         #endregion
 
@@ -75,7 +71,7 @@ public class NewmarkMethod : IDifferentialEquationMethod
 
     /// <summary>
     /// Builds the effective force vector F̂ = F + [C]·v_eq + [M]·a_eq, where v_eq and a_eq are
-    /// the equivalent velocity and acceleration extrapolated from the previous step. The result
+    /// the equivalent velocity and acceleration extrapolated from the previous step. The output
     /// is used together with the effective stiffness to solve for the new displacement.
     /// </summary>
     /// <param name="input">System input providing the mass and damping matrices and the current applied force.</param>
@@ -139,21 +135,14 @@ public class NewmarkMethod : IDifferentialEquationMethod
 
     #region Integration Constants
 
-    private double GetA0(double timeStep) => 1 / (Beta * Math.Pow(timeStep, 2));
-
-    private double GetA1(double timeStep) => Gama / (Beta * timeStep);
-
-    private double GetA2(double timeStep) => 1 / (Beta * timeStep);
-
-    private double GetA3() => 1 / (2 * Beta) - 1;
-
-    private double GetA4() => Gama / Beta - 1;
-
-    private double GetA5(double timeStep) => timeStep / 2 * (Gama / Beta - 2);
-
-    private double GetA6(double timeStep) => timeStep * (1 - Gama);
-
-    private double GetA7(double timeStep) => Gama * timeStep;
+    private static double GetA0(double timeStep) => 1 / (Beta * Math.Pow(timeStep, 2));
+    private static double GetA1(double timeStep) => Gama / (Beta * timeStep);
+    private static double GetA2(double timeStep) => 1 / (Beta * timeStep);
+    private static double GetA3() => 1 / (2 * Beta) - 1;
+    private static double GetA4() => Gama / Beta - 1;
+    private static double GetA5(double timeStep) => timeStep / 2 * (Gama / Beta - 2);
+    private static double GetA6(double timeStep) => timeStep * (1 - Gama);
+    private static double GetA7(double timeStep) => Gama * timeStep;
 
     #endregion
 }

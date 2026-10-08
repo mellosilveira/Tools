@@ -1,4 +1,4 @@
-﻿using MelloSilveiraTools.Mathematics.Extensions;
+using MelloSilveiraTools.Mathematics.Extensions;
 
 namespace MelloSilveiraTools.Mathematics.Models;
 
@@ -92,7 +92,7 @@ public readonly struct Vector3D
     /// <returns></returns>
     public static Vector3D Parse(string vectorAsString)
     {
-        var vec = vectorAsString.Split(',');
+        string[] vec = vectorAsString.Split(',');
         return new Vector3D
         (
             x: double.Parse(vec[0]),

@@ -4,7 +4,10 @@ using MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelast
 namespace MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Viscoelasticity.QuasiLinear.SimplifiedFung;
 
 /// <summary>
-/// Simplified Fung's quasi-linear viscoelastic model.
-/// It is characterized by using a simplified Reduced Relaxation Function that is based on <see cref="PronySeries"/>.
+/// Defines a calculator for the Simplified Fung Quasi-Linear Viscoelastic (QLV) model.
 /// </summary>
-public interface ISimplifiedFungModelCalculator : IQuasiLinearModelCalculator<SimplifiedFungModelInput, PronySeries> { }
+/// <remarks>
+/// It is characterized by using a discrete reduced relaxation function based on a <see cref="PronySeries"/>, 
+/// which significantly accelerates numerical integration compared to the classic continuous spectrum model.
+/// </remarks>
+public interface ISimplifiedFungModelCalculator : IQuasiLinearModelCalculator<SimplifiedFungConstitutiveParameters, PronySeries>;

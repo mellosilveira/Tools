@@ -9,10 +9,10 @@ on:
 env:
   CONFIGURATION: Release
   DOTNET_CORE_VERSION: 10.x
-  ARTIFACT_NAME: MelloSilveiraTools_nugetpackages_artifact
+  ARTIFACT_NAME: ${{ vars.ARTIFACT_NAME }}
   UPLOAD_PATH: build/nupkgs/
-  # ATTENTION: The path for GitHub actions runner is hard codded since it was not possible to use GITHUB_ACTION_PATH.
-  TARGET_PATH: /home/runner/work/MelloSilveiraTools/MelloSilveiraTools
+  TARGET_PATH: ${{ vars.TARGET_PATH }}
+  NUGET_USER: ${{ secrets.NUGET_USER }}
 
 jobs:
   build:
@@ -59,6 +59,9 @@ jobs:
     environment: production_pakages
     runs-on: ubuntu-latest
     needs: build
+    permissions:
+      id-token: write
+      contents: read
 
     steps:
     - name: Download nuget packages artifact
@@ -68,10 +71,14 @@ jobs:
         path: ${{ env.TARGET_PATH }}
     - name: List downloaded packages
       run: ls -la ${{ env.TARGET_PATH }}
-    # The wildcard publishes every .nupkg (and .snupkg) produced by dotnet pack — Core, Database,
-    # WebApi, Plugins, Mathematics, MechanicsOfMaterials and the meta-package.
+    # Get a short-lived NuGet API key
+    - name: NuGet login (OIDC → temp API key)
+      uses: NuGet/login@v1
+      id: login
+      with:
+        user: ${{ env.NUGET_USER }}
     - name: Publish all packages to nuget.org
-      run: dotnet nuget push "${{ env.TARGET_PATH }}/*.nupkg" --api-key ${{ secrets.NUGET_ORG_API_KEY }} --source https://api.nuget.org/v3/index.json
+      run: dotnet nuget push "${{ env.TARGET_PATH }}/*.nupkg" --api-key ${{ steps.login.outputs.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json
 
     - name: Create Release
       uses: softprops/action-gh-release@v2

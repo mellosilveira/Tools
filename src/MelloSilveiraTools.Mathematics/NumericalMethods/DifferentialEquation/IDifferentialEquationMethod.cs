@@ -1,17 +1,10 @@
-﻿using MelloSilveiraTools.Mathematics.Models.NumericalMethods;
-
-namespace MelloSilveiraTools.Mathematics.NumericalMethods.DifferentialEquation;
+﻿namespace MelloSilveiraTools.Mathematics.NumericalMethods.DifferentialEquation;
 
 /// <summary>
 /// Executes numerical method to solve Differential Equation
 /// </summary>
 public interface IDifferentialEquationMethod
 {
-    /// <summary>
-    /// The method type identifying this implementation.
-    /// </summary>
-    DifferentialEquationMethodType Type { get; }
-
     /// <summary>
     /// Advances the dynamic system by one time step, computing the state (displacement, velocity,
     /// acceleration and equivalent force) at the requested instant <paramref name="time"/>.
@@ -22,8 +15,8 @@ public interface IDifferentialEquationMethod
     /// number of boundary conditions. Δt is read from <c>input.TimeStep</c> and must be consistent
     /// across calls so that the integration constants remain valid.
     /// </param>
-    /// <param name="time">The current instant, in seconds, at which the result must be evaluated. Must be greater than or equal to the configured initial time.</param>
-    /// <param name="previousResult">
+    /// <param name="time">The current instant, in seconds, at which the output must be evaluated. Must be greater than or equal to the configured initial time.</param>
+    /// <param name="previousOutput">
     /// The state at the previous instant <c>time − Δt</c>. Must not be <see langword="null"/> for any
     /// step beyond the initial one. At the initial instant the implementation returns the initial
     /// state directly and ignores this argument.
@@ -36,5 +29,5 @@ public interface IDifferentialEquationMethod
     /// variant uses γ = 1/2, β = 1/6 (linear-acceleration), which is conditionally stable
     /// (Δt must be small relative to the highest natural period) but provides better phase accuracy.
     /// </remarks>
-    NumericalMethodResult CalculateResult(NumericalMethodInput input, double time, NumericalMethodResult previousResult);
+    NumericalMethodOutput Calculate(NumericalMethodInput input, double time, NumericalMethodOutput previousOutput);
 }

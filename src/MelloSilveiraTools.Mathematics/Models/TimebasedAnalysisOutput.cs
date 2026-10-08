@@ -1,0 +1,12 @@
+﻿namespace MelloSilveiraTools.Mathematics.Models;
+
+/// <summary>
+/// Contains the output for a generic timebased analysis.
+/// </summary>
+public abstract record TimebasedAnalysisOutput
+{
+    /// <summary>
+    /// Unit: s (second).
+    /// </summary>
+    public double Time { get; set; }
+}

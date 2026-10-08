@@ -1,11 +1,11 @@
-﻿namespace MelloSilveiraTools.Mathematics.NumericalMethods.RootFindingAlgorithms
-{
-    /// <summary>
-    /// Represents the input for the root-finding algorithm.
-    /// </summary>
-    /// <param name="InitialPoint">Initial point of interval. Unit: depends on function which is used.</param>
-    /// <param name="FinalPoint">Final point of interval. Unit: depends on function which is used.</param>
-    /// <param name="Tolerance">Maximum acceptable error.</param>
-    /// <param name="MaxIterations">Maximum number of iterations to be performed.</param>
-    public record RootFindingInput(double InitialPoint, double FinalPoint, double Tolerance, int MaxIterations);
-}
+namespace MelloSilveiraTools.Mathematics.NumericalMethods.RootFindingAlgorithms;
+
+/// <summary>
+/// Configuration parameters for finding equilibrium points, calibration roots, and zero-crossing states.
+/// Encapsulates search interval boundaries, target convergence tolerance, and computational iteration safeguards.
+/// </summary>
+/// <param name="InitialPoint">Starting boundary of the search interval.</param>
+/// <param name="FinalPoint">Ending boundary of the search interval.</param>
+/// <param name="Tolerance">Acceptable precision threshold for considering the solution converged.</param>
+/// <param name="MaxIterations">Maximum number of evaluation cycles allowed to protect computational budget.</param>
+public record RootFindingInput(double InitialPoint, double FinalPoint, double Tolerance, int MaxIterations);

@@ -8,16 +8,19 @@ namespace MelloSilveiraTools.WebApi.ExtensionMethods;
 /// </summary>
 public static class FormFileExtensions
 {
-    /// <summary>
-    /// Reads the entire <paramref name="formFile"/> content and returns it compressed using GZip.
-    /// </summary>
-    public static async Task<byte[]> ToCompressedContentAsync(this IFormFile formFile)
+    extension(IFormFile formFile)
     {
-        await using Stream stream = formFile.OpenReadStream();
-        await using MemoryStream memoryStream = new();
-        await using GZipStream gzipStream = new(memoryStream, CompressionMode.Compress, leaveOpen: true);
+        /// <summary>
+        /// Reads the entire <paramref name="formFile"/> content and returns it compressed using GZip.
+        /// </summary>
+        public async Task<byte[]> ToCompressedContentAsync()
+        {
+            await using Stream stream = formFile.OpenReadStream();
+            await using MemoryStream memoryStream = new();
+            await using GZipStream gzipStream = new(memoryStream, CompressionMode.Compress, leaveOpen: true);
 
-        await stream.CopyToAsync(gzipStream);
-        return memoryStream.ToArray();
+            await stream.CopyToAsync(gzipStream);
+            return memoryStream.ToArray();
+        }
     }
 }

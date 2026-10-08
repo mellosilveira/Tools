@@ -1,4 +1,4 @@
-﻿using MelloSilveiraTools.Mathematics.Models;
+using MelloSilveiraTools.Mathematics.Models;
 
 namespace MelloSilveiraTools.Mathematics.Functions;
 
@@ -6,30 +6,31 @@ namespace MelloSilveiraTools.Mathematics.Functions;
 /// Represents a cosine function.
 /// f(x) = a_0 * cos[a_1 * (x - a_2)] + ... + a_n-2 * cos[a_n-1 * (x - a_n)]
 /// </summary>
+/// <param name="coefficients"></param>
 /// <param name="initialVariableValue"></param>
 /// <param name="finalVariableValue"></param>
-/// <param name="coefficients"></param>
 public sealed class CosineFunction(
-    double? initialVariableValue,
-    double? finalVariableValue,
-    double[] coefficients) : Function(FunctionType.Cosine, initialVariableValue, finalVariableValue, coefficients)
+    double[] coefficients,
+    double? initialVariableValue = null,
+    double? finalVariableValue = null)
+    : Function(FunctionType.Cosine, coefficients, initialVariableValue, finalVariableValue)
 {
     /// <inheritdoc/>
     public override double Calculate(double variableValue)
     {
-        double result = 0;
+        double value = 0;
         for (int i = 0; i < Coefficients.Length / 3; i++)
         {
-            result += Coefficients[3 * i] * Math.Cos(Coefficients[3 * i + 1] * (variableValue + Coefficients[3 * i + 2]));
+            value += Coefficients[3 * i] * Math.Cos(Coefficients[3 * i + 1] * (variableValue + Coefficients[3 * i + 2]));
         }
-        return result;
+        return value;
     }
 
     /// <inheritdoc/>
     protected override Function CreateDerivative()
     {
         int coefficientsLength = Coefficients.Length;
-        var derivativeCoefficients = new double[coefficientsLength];
+        double[] derivativeCoefficients = new double[coefficientsLength];
 
         for (int i = 0; i < coefficientsLength / 3; i++)
         {
@@ -38,14 +39,14 @@ public sealed class CosineFunction(
             derivativeCoefficients[3 * i + 2] = Coefficients[3 * i + 2];
         }
 
-        return new SineFunction(InitialVariableValue, FinalVariableValue, derivativeCoefficients);
+        return new SineFunction(derivativeCoefficients, InitialVariableValue, FinalVariableValue);
     }
 
     /// <inheritdoc/>
     protected override Function CreateIntegral()
     {
         int coefficientsLength = Coefficients.Length;
-        var integralCoefficients = new double[coefficientsLength];
+        double[] integralCoefficients = new double[coefficientsLength];
 
         for (int i = 0; i < coefficientsLength / 3; i++)
         {
@@ -54,6 +55,6 @@ public sealed class CosineFunction(
             integralCoefficients[3 * i + 2] = Coefficients[3 * i + 2];
         }
 
-        return new SineFunction(InitialVariableValue, FinalVariableValue, integralCoefficients);
+        return new SineFunction(integralCoefficients, InitialVariableValue, FinalVariableValue);
     }
 }

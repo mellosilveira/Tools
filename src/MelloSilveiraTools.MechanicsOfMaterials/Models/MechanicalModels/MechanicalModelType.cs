@@ -7,7 +7,7 @@
 ///     Quasilinear viscoelastic model - 2XX.
 ///     Nonlinear viscoelastic model - 3XX.
 /// </summary>
-public enum MechanicalModel
+public enum MechanicalModel : int
 {
     /// <summary>
     /// Elastic mechanical model.

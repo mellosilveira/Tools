@@ -1,0 +1,356 @@
+{
+  "task_id": "task-1.1",
+  "skill": "senior-applied-biomechanics-researcher-deep-research",
+  "status": "success",
+  "retry_count": 0,
+  "data_payload": {
+    "search_terms_used": [
+      "constitutive model soft tissue",
+      "hyperelastic model soft tissue",
+      "viscoelastic model soft tissue",
+      "fung qlv soft tissue",
+      "ogden model soft tissue"
+    ],
+    "evidence_summary": "Soft tissue biomechanics extensively utilizes hyperelastic and viscoelastic models to capture the non-linear, time-dependent, and anisotropic behavior of tissues. Main constitutive models include the Fung model (exponential hyperelasticity, particularly Quasi-Linear Viscoelasticity or QLV for time-dependent behavior), Mooney-Rivlin and Neo-Hookean (phenomenological polynomial models for rubber-like isotropic behaviors), Ogden model (based on principal stretches), and structural models like the Holzapfel-Gasser-Ogden (HGO) model which accounts for collagen fiber dispersion in a ground matrix. These models are chosen because they map well to the hierarchical structure of soft tissues like ligaments and tendons, and can represent both large deformations and hysteresis.",
+    "references": [
+      {
+        "title": "A transversely isotropic visco-hyperelastic constitutive model for soft tissues",
+        "doi": "10.1177/1081286514536921",
+        "summary_of_read_content": "A transversely isotropic visco-hyperelastic constitutive model is provided for soft tissues, which accounts for large deformations, high strain rates, and short-term memory effects. In the first part, a constitutive model for quasi-static deformations of soft tissues is presented, in which a soft tissue is simulated as a transversely isotropic hyperelastic material composed of a matrix and reinforcing fibers. The strain energy density function for the soft tissue is additively decomposed into two terms: a neo-Hookean function for the base matrix, and a polyconvex polynomial function of four in...",
+        "citation_impact": "Medium"
+      },
+      {
+        "title": "Constitutive models for polymers and soft biological tissues",
+        "doi": "10.7907/kh16-4s81.",
+        "summary_of_read_content": "Soft materials such as polymers and biological tissues have several engineering and biomechanical applications. These materials exhibit complex mechanical behavior, characterized by large strains, hysteresis, rate sensitivity, stress softening (Mullins effect), and deviatoric and volumetric plasticity. The need to accurately predict the behavior of such materials has been a tremendous challenge for scientists and engineers. This thesis presents a seamless, fully variational constitutive model capable of capturing all of the above complex characteristics. Also, this work describes a fitting pro...",
+        "citation_impact": "Medium"
+      },
+      {
+        "title": "Modeling the biomechanical properties of soft biological tissues: Constitutive theories",
+        "doi": "10.1016/j.euromechsol.2025.105634",
+        "summary_of_read_content": "In the past few years significant progress has been made in determining the biomechanical properties and the structure of soft biomechanical tissues which have been the basis of improved constitutive model descriptions. This paper provides a review of nonlinear isotropic and anisotropic constitutive models appropriate for description of the solid mechanical properties of soft biological tissues. The properties involve elastic, and inelastic responses including viscoelasticity, damage and poroviscoelasticity. In particular, the kinematics and stress and the required mathematical framework for c...",
+        "citation_impact": "Medium"
+      },
+      {
+        "title": "Hyperelastic models for the analysis of soft tissue mechanics: definition of constitutive parameters",
+        "doi": "10.1109/biorob.2006.1639082",
+        "summary_of_read_content": "The analysis of the interaction phenomena occurring between biorobots and biological tissues requires in-depth knowledge of the biomechanical response of tissues. Most phenomenological models are based on hyperelastic formulation and this entails a careful evaluation of the model constitutive parameters, which are defined on the basis of data obtained from experimental tests. The choice of the test to be developed depends on the tissue characteristics to be studied and the procedure to be used to define the parameters . The aim of the present work is to describe a procedure used to define cons...",
+        "citation_impact": "Medium"
+      },
+      {
+        "title": "A homeostatic-driven turnover remodelling constitutive model for healing in soft tissues",
+        "doi": "10.1098/rsif.2015.1081",
+        "summary_of_read_content": "Remodelling of soft biological tissue is characterized by interacting biochemical and biomechanical events, which change the tissue's microstructure, and, consequently, its macroscopic mechanical properties. Remodelling is a well-defined stage of the healing process, and aims at recovering or repairing the injured extracellular matrix. Like other physiological processes, remodelling is thought to be driven by homeostasis, i.e. it tends to re-establish the properties of the uninjured tissue. However, homeostasis may never be reached, such that remodelling may also appear as a continuous patholo...",
+        "citation_impact": "Medium"
+      },
+      {
+        "title": "A Microstructural Model for the Tensile Constitutive and Failure Behavior of Soft Skeletal Connective Tissues",
+        "doi": "10.1115/1.2834307",
+        "summary_of_read_content": "We propose a microstructural model for the uniaxial tensile constitutive and failure behavior of soft skeletal connective tissues. The model characterizes the tissues as two-phase composites consisting of collagen fibers embedded in ground substance. Nonlinear toe region behavior in the stress versus strain curve results from the straightening of crimped fibers and from fiber reorientation. Subsequent linear behavior results from fiber stretching affected by fiber volume fraction, collagen type, crosslink density, and fiber orientation. Finally, the tissue fails when fibers successively ruptur...",
+        "citation_impact": "High"
+      },
+      {
+        "title": "A data‐driven constitutive model for soft biological tissues",
+        "doi": "10.1002/pamm.202300239",
+        "summary_of_read_content": "Abstract Constitutive modeling of soft biological tissues is crucial for biomedical simulations and a deep understanding of tissue mechanics. Classical constitutive models have a fixed mathematical expression, however, the microstructure and the corresponding macro‐mechanical response of different tissue types can vary significantly. A model that works for one tissue may not work for another kind of tissue, and choosing the right model may become challenging. To solve this issue, this study introduces a new data‐driven approach to creating a unified model for predicting the mechanical response...",
+        "citation_impact": "Low"
+      },
+      {
+        "title": "On the determination of constitutive parameters in a hyperelastic model for a soft tissue",
+        "doi": "10.15593/rjbiomech/2018.1.09",
+        "summary_of_read_content": "The aim of this paper is to study a model of hyperelastic materials and itsapplications into soft tissue mechanics.In particular, we first determine an unbounded domain of the constitutive parameters of the model making our smoothstrain energy function to be polyconvex and hence satisfying the Legendre-Hadamard condition.Thus, physically reasonable material behaviour are described by our model with these parameters and a plently of tissues can betreated.Furthermore, we localize bounded subsets of constitutive parameters in fixed physical and very general bounds and then introduce a family of d...",
+        "citation_impact": "Low"
+      },
+      {
+        "title": "Detection of lesions in soft tissues based on nonlinear constitutive model",
+        "doi": "10.1109/icbme.2015.7404171",
+        "summary_of_read_content": "With the purpose of accurate detection and classification of various pathologies in soft tissues in a noninvasive way, a variety of elastography techniques has been introduced in the last two decades. The linear and nonlinear constitutive models of soft tissues have been exploited in several elastography techniques. In this paper, we discuss a technique for estimating the mechanical properties of soft tissue, which uses the nonlinear hyperelastic constitutive model as the basis. The limitations of detecting tumors on the basis of the linear constitutive model, that some of them have been menti...",
+        "citation_impact": "Low"
+      },
+      {
+        "title": "Further Investigations on a Constitutive Model for Soft Tissues",
+        "doi": "10.1115/imece1995-0115",
+        "summary_of_read_content": "Abstract It is generally known that stresses and strains at a point are represented in a tensor form with the characteristic cubic equation for strain having the form (1)ε3−I1ε2+I2ε-I3=0 and the corresponding characteristic cubic equation for stress having the form (2)σ3-J1σ2+J2σ-J3=0 where I1, I2 and I3 are the invariants related to the strain tensor and J1, J2 and J3 are the corresponding invariants related to the stress tensor. In the most general case, a relationship can be represented in the form of a homographical transformation [3], namely (3)σk=αεk+βγεk+δ,k=1,2,3 where εk and σk are th...",
+        "citation_impact": "Low"
+      },
+      {
+        "title": "Implementation and Validation of Planar Soft Tissue Structural Constitutive Model",
+        "doi": "10.1115/sbc2013-14809",
+        "summary_of_read_content": "Constitutive modeling is of fundamental important for numerical simulation and analysis of soft biological tissues. The mechanical behaviors of soft tissues are usually highly nonlinear and anisotropic. The complex behavior is the results from the interaction of tissue microstructure. By incorporating information of fiber orientation and distribution at tissue microscopic scale, the structural model avoids ambiguities in material characterization. Moreover, structural models produce much more information than just simple stress-strain results, but can provide much insight into how soft tissues...",
+        "citation_impact": "Low"
+      },
+      {
+        "title": "A Structural Continuum Constitutive Model for a Two-Phase Soft Tissue",
+        "doi": "10.1115/sbc2010-19480",
+        "summary_of_read_content": "Due to the complexity in determining multi-constituent tissue properties, most structural constitutive models for soft tissues focus on a single constituent. However, many tissues contain multiple load-bearing constituents, such as collagen fibers and smooth muscle (SM) cells. Moreover, to elucidate how observed changes in tissue components are related to altered net mechanical behavior at the tissue level, structural constitutive models require physiological relevant model parameters and formulations for changes in referential configuration when one component is physically removed. As an exce...",
+        "citation_impact": "Low"
+      },
+      {
+        "title": "A constitutive framework for modelling elastomers, soft tissues and liquid crystal elastomers",
+        "doi": "10.1098/rspa.2025.0017",
+        "summary_of_read_content": "This manuscript presents a constitutive modelling framework designed to characterize a wide range of soft materials. The framework uses an exponential-power law to develop a six-parameter generic hyperelastic potential function, while a two-parameter viscous dissipation function is formulated to address strain-rate sensitive materials. Independent validations of the hyperelastic and visco-hyperelastic components are carried out to rigorously evaluate the model’s performance. The hyperelastic component is validated in two ways: (i) through a reduced three-parameter model, specifically suited fo...",
+        "citation_impact": "Low"
+      },
+      {
+        "title": "Non-integer viscoelastic constitutive law to model soft biological tissues to in-vivo indentation",
+        "doi": "10.5277/abb-00005-2014-03",
+        "summary_of_read_content": "PURPOSE: During the last decades, derivatives and integrals of non-integer orders are being more commonly used for the description of constitutive behavior of various viscoelastic materials including soft biological tissues. Compared to integer order constitutive relations, non-integer order viscoelastic material models of soft biological tissues are capable of capturing a wider range of viscoelastic behavior obtained from experiments. Although integer order models may yield comparably accurate results, non-integer order material models have less number of parameters to be identified in additi...",
+        "citation_impact": "Medium"
+      },
+      {
+        "title": "Anisotropy of soft biological tissues and its consideration in constitutive models of arteries",
+        "doi": "10.21495/em2023-17",
+        "summary_of_read_content": "Biomechanical computational models used more and more in medical research as well as in clinical applications need mathematical description of soft tissues with their very complex mechanical behaviour.They show large deformations with stress softening during cyclic loading, being moreover time-dependent due to their viscoelasticity, anisotropic due to fibrous structure and dependent on tissue excitation in case of muscular tissues, including smooth muscle cells in arterial walls.They are capable to adapt to the acting load (tissue remodelation) and to self-repair (healing) in case of damage or...",
+        "citation_impact": "Low"
+      },
+      {
+        "title": "A Structural Constitutive Model for Chemically Treated Soft Tissues",
+        "doi": "10.1115/imece1999-0397",
+        "summary_of_read_content": "Abstract Chemically treated biologically derived tissues are used extensively in bioprostheses. Unfortunately, while extensive research has focused on chemical treatment technologies to reduce negative in-vivo effects such as mineralization and to enhance overall biocompatiblity, little work has been done on understanding the effects of chemical treatment on tissue mechanical properties. In the current work, a structural constitutive model for chemically treated tissues is presented that seeks to separate out the effects of the chemically treated matrix from that of the collagen fibers. Experi...",
+        "citation_impact": "Low"
+      },
+      {
+        "title": "Constitutive Modeling of Solute Diffusivity in Hydrated Soft Tissues",
+        "doi": "10.1115/imece2004-59833",
+        "summary_of_read_content": "Based on the experimental results of electrical conductivity and hydraulic permeability, a new constitutive model for relative diffusivity (D/Do) of solutes in gels and tissues was developed. This model could predict the functional relationship between solute diffusivity and tissue deformation. This model could also quantitatively predict the effect of solute size on solute diffusivity in tissues. This study is important for the understanding of nutritional transport in cartilaginous tissues. It is also useful for the prediction of nutrition levels in tissue constructs during growth.",
+        "citation_impact": "Low"
+      },
+      {
+        "title": "Representation of Anisotropy in Constitutive Models of Biological Soft Tissues",
+        "doi": "10.1115/imece1998-0116",
+        "summary_of_read_content": "Abstract Biological soft tissues are constructed of varying amounts of collagen and elastin fibers embedded in a ground substance matrix holding large amounts of trapped water. This microstructure imparts complicated material behavior to these tissues. Biological soft tissues are anisotropic, nearly incompressible, viscoelastic, nonlinear, inhomogeneous, and undergo large deformations. This combination of properties makes accurate modeling of their behavior a challenge.",
+        "citation_impact": "Low"
+      },
+      {
+        "title": "An in silico-based review on anisotropic hyperelastic constitutive models for soft biological tissues",
+        "doi": "10.48550/arxiv.2207.13985",
+        "summary_of_read_content": "We review nine invariant and dispersion-type anisotropic hyperelastic constitutive models for soft biological tissues based on their fitting performance to experimental data from three different human tissues. For this, we used a hybrid multi-objective optimization procedure. A genetic algorithm is devised to generate the initial guesses followed by a gradient-based search algorithm. The constitutive models are then fit to a set of uniaxial and biaxial tension experiments conducted on tissues with differing fiber orientations. For the in silico investigation, experiments conducted on aneurysma...",
+        "citation_impact": "Low"
+      },
+      {
+        "title": "A Data-Driven Learning Method for Constitutive Modeling: Application to Vascular Hyperelastic Soft Tissues",
+        "doi": "10.3390/ma13102319",
+        "summary_of_read_content": "We address the problem of machine learning of constitutive laws when large experimental deviations are present. This is particularly important in soft living tissue modeling, for instance, where large patient-dependent data is found. We focus on two aspects that complicate the problem, namely, the presence of an important dispersion in the experimental results and the need for a rigorous compliance to thermodynamic settings. To address these difficulties, we propose to use, respectively, Topological Data Analysis techniques and a regression over the so-called General Equation for the Nonequili...",
+        "citation_impact": "Medium"
+      },
+      {
+        "title": "A multi‐scale time‐dependent constitutive model of soft collagenous tissue",
+        "doi": "10.1002/pamm.201510038",
+        "summary_of_read_content": "Abstract This contribution presents a micro‐mechanically motivated, time‐dependent constitutive model of soft biological tissues. It considers seperate contributions of the matrix material, collagen fibrils, proteoglycans (PGs) as well as their interactions. It is based on the observations [6], that PG bridges facilitate sliding between fibrils. The initial overlapping lengths of the PG bridges are statistically distributed and decrease due to slippage. A linear‐elastic force response of a PG bridge is assumed. Damage of the PG bridges is reversible and decays over time (cf. Gupta et al. [1])....",
+        "citation_impact": "Low"
+      },
+      {
+        "title": "Identifying a Minimal Rheological Configuration: A Tool for Effective and Efficient Constitutive Modeling of Soft Tissues",
+        "doi": "10.1115/1.4003620",
+        "summary_of_read_content": "We describe a modeling methodology intended as a preliminary step in the identification of appropriate constitutive frameworks for the time-dependent response of biological tissues. The modeling approach comprises a customizable rheological network of viscous and elastic elements governed by user-defined 1D constitutive relationships. The model parameters are identified by iterative nonlinear optimization, minimizing the error between experimental and model-predicted structural (load-displacement) tissue response under a specific mode of deformation. We demonstrate the use of this methodology ...",
+        "citation_impact": "Medium"
+      },
+      {
+        "title": "A Constitutive Model of Soft Tissue Deformation for Virtual Surgical Simulation: A Literature Review",
+        "doi": "10.12783/dtetr/pmsms2018/24905",
+        "summary_of_read_content": "Realistic modeling of soft tissue deformation has been recognized as an essential requirement for virtual surgical simulators. As a consequence, the constitutive model is crucial for modeling soft tissue deformation. In this paper, the significance and characteristics of soft tissue deformation in virtual surgery simulation studies are introduced and analyzed its challenges. We have been focusing on investigating the constitutive relations in the soft tissue mechanical models: viscoelastic models and hyper-elastic models. Moreover, some techniques are given to determine and optimize model para...",
+        "citation_impact": "Low"
+      },
+      {
+        "title": "A visco-hyperelastic constitutive model of short- and long-term viscous effects on isotropic soft tissues",
+        "doi": "10.1177/0954406219875771",
+        "summary_of_read_content": "Understanding and modeling the constitutive behavior of soft tissues represents an important challenge with significant relevance in medicine and biology. In this paper, we propose a new visco-hyperelastic model to describe the constitutive behavior of soft tissues as an isotropic and homogeneous material. The model is based on the nonlinear framework of continuum mechanics. A generalized Rivlin strain energy and a short-term viscous strain energy are used to describe the elastic part and time-dependence viscous part, respectively, while a long-term viscous function is derived through an integ...",
+        "citation_impact": "Medium"
+      },
+      {
+        "title": "An anisotropic micro-ellipsoid constitutive model based on a microstructural description of fibrous soft tissues",
+        "doi": "10.1016/j.jmps.2019.06.019",
+        "summary_of_read_content": "The aim of this paper is to propose a multi-scale anisotropic constitutive model based on a microscopic description of a soft fibrous tissue . The proposed model is based on directional (or micro-sphere) strain energy density , linking the contribution of fibers to macroscopic elasticity. The link between the microscopic fiber and the macroscopic response is obtained by homogenization involving numerical integration on the surface of the homogenized volume. Directly from the texture analysis of microscopic observations, anisotropy is accounted for an ellipsoid, used as the basis for integratio...",
+        "citation_impact": "Medium"
+      },
+      {
+        "title": "A Comparative Study of Several Material Models for Prediction of Hyperelastic Properties: Application to Silicone‐Rubber and Soft Tissues",
+        "doi": "10.1111/j.1475-1305.2006.00257.x",
+        "summary_of_read_content": "Abstract: The correct modelling of constitutive laws is of critical importance for the analysis of mechanical behaviour of solids and structures. For example, the understanding of soft tissue mechanics, because of the nonlinear behaviour commonly displayed by the mechanical properties of such materials, makes common place the use of hyperelastic constitutive models. Hyperelastic models however, depend on sets of variables that must be obtained experimentally. In this study the authors use a computational/experimental scheme, for the study of the nonlinear mechanical behaviour of biological sof...",
+        "citation_impact": "High"
+      },
+      {
+        "title": "Bayesian model uncertainty quantification for hyperelastic soft tissue models",
+        "doi": "10.1017/dce.2021.9",
+        "summary_of_read_content": "Abstract Patient-specific surgical simulations require the patient-specific identification of the constitutive parameters. The sparsity of the experimental data and the substantial noise in the data (e.g., recovered during surgery) cause considerable uncertainty in the identification. In this exploratory work, parameter uncertainty for incompressible hyperelasticity, often used for soft tissues, is addressed by a probabilistic identification approach based on Bayesian inference. Our study particularly focuses on the uncertainty of the model: we investigate how the identified uncertainties of t...",
+        "citation_impact": "Medium"
+      },
+      {
+        "title": "Soft composite based hyperelastic model for anisotropic tissue characterization",
+        "doi": "10.1177/0021998320935560",
+        "summary_of_read_content": "Soft tissues are complex anisotropic composite systems comprising of multiple differently oriented layers of fiber embedded within a soft matrix. To date, soft tissues have been mainly characterized using simplified linear elastic material models, isotropic viscoelastic and hyperelastic models, and transversely isotropic models. In such models, the effect of fiber volume fraction (FVF), fiber orientation, and fiber-matrix interactions are missing, inhibiting accurate characterization of anisotropic tissue properties. The current work addresses this literature gap with the development of a nove...",
+        "citation_impact": "Medium"
+      },
+      {
+        "title": "Physical response of hyperelastic models for composite materials and soft tissues",
+        "doi": "10.1186/s40540-015-0015-x",
+        "summary_of_read_content": "A hyperelastic model must not only characterize the mechanical response of a composite material such as soft tissue, but also ensure numerical stability by a feasible set of material parameters. Apart from the well-known ill-conditioning problem caused by the incompressibility constraint, the paper indicates another ill-conditioning occurring in any general fibre-reinforced material model for tubular organs when unbalance between the fibre strain energy and the matrix strain energy becomes too large. Specifically, although the Holzapfel model is polyconvex, this problem can be observed as an u...",
+        "citation_impact": "Medium"
+      },
+      {
+        "title": "Hyperelastic modelling and parametric study of soft tissue embedded lump for MIS applications",
+        "doi": "10.1002/rcs.202",
+        "summary_of_read_content": "BACKGROUND: The existing MIS (minimally invasive surgery) instruments have caused severe restrictions to surgeons' tactile perception. In particular, palpation, which is an important technique in open surgery to assess the softness of the tissue and to detect any hidden lumps, is entirely absent in MIS procedures. Many researchers have developed smart endoscopic graspers to rectify different aspects of this problem. However, the effect of an anatomical feature in general and a lump in particular on the stress distribution on the sensitive surfaces of the smart MIS graspers still needs a lot of...",
+        "citation_impact": "Medium"
+      },
+      {
+        "title": "Homographic, Hyperelastic Mathematical Modeling of Bio-Polymer and Soft Tissue Materials",
+        "doi": "10.1115/imece1996-1129",
+        "summary_of_read_content": "Abstract The purpose of this paper and research is to develop data and results which may show that a constitutive model, based on thermodynamic relations, can be used to model isotropic, non-linear elastic, stable, incompressible, large deformation materials. The materials that I plan on reviewing are a bio-polymer, cis-polyisoprene, and biomaterials, ligaments and tendons.",
+        "citation_impact": "Low"
+      },
+      {
+        "title": "Continuum soft tissue models from upscaling of arrays of hyperelastic cells",
+        "doi": "10.1098/rspa.2022.0065",
+        "summary_of_read_content": "Constitutive models for soft tissue mechanics are typically constructed by fitting phenomenological models to experimental measurements. However, a significant challenge is to rationally construct soft tissue models that encode the properties of the constituent cells and their extracellular matrix. This work presents a framework to derive multiscale soft tissue models that incorporate properties of individual cells without assuming homogeneity or periodicity at the cell level. We consider a viscoelastic model for each cell (which can deform, grow and divide), that we couple to form a network d...",
+        "citation_impact": "Low"
+      },
+      {
+        "title": "Modeling Anisotropic Hyperelastic Behavior of Soft Tissues Using the Smoothed Particle Hydrodynamics Method",
+        "doi": "10.47176/jcme.44.1.1043",
+        "summary_of_read_content": "Modeling the mechanical behavior of many soft tissues and certain man-made synthetic materials requires accurate representation of their complex and anisotropic nature. In this research, we implement the anisotropic hyperelastic Holzapfel-Gasser-Ogden (HGO) model using the meshless smoothed particle hydrodynamics (SPH) method. To overcome the challenges of incompressibility, inherent in this class of materials and the associated difficulties of the numerical solution, mixed formulations are employed. Accordingly, the SPH model is developed within a total Lagrangian framework, utilizing first-o...",
+        "citation_impact": "Low"
+      },
+      {
+        "title": "Modeling biomechanical interaction between soft tissue and soft robotic instruments: importance of constitutive anisotropic hyperelastic formulations",
+        "doi": "10.1177/0278364920927476",
+        "summary_of_read_content": "Cardiovascular diseases are the leading cause of death in the western countries. Robotic surgery recently emerged as a confirmed strategy in the cardiovascular field, especially thanks to the improvement of soft robotics. These techniques have demonstrated their potential in terms of speed of execution and precision. In this context, a deeper knowledge of the material properties of the blood vessels is required, especially for computational soft robotics applications. A constitutive model including the contribution of the collagen fibers families is needed to take hyperelasticity and anisotrop...",
+        "citation_impact": "Medium"
+      },
+      {
+        "title": "Visco-hyperelastic constitutive modeling of soft tissues based on short and long-term internal variables",
+        "doi": "10.1186/s12938-015-0023-7",
+        "summary_of_read_content": "BACKGROUND: Differential-type and integral-type formulations are two common approaches in modeling viscoelastic materials. A differential-type theory is often derived from a Helmholtz free energy function and is usually more suitable for the prediction of strain-rate dependent mechanical behavior during rapid loading, while an integral-type theory usually captures stress relaxation more efficiently than a differential-type theory. A modeling approach is needed to predict the viscoelastic responses during both rapid loading and relaxation phases. METHODS: A constitutive modeling methodology bas...",
+        "citation_impact": "Medium"
+      },
+      {
+        "title": "Numerical modelling of the fibre–matrix interaction in biaxial loading for hyperelastic soft tissue models",
+        "doi": "10.1002/cnm.1455",
+        "summary_of_read_content": "This paper assumes that a neo-Hookean matrix with neo-Hookean fibres is representative of soft tissue. Under this assumption, a unit cell model is proposed to investigate the fibre-matrix interfacial stress field for biological soft tissue under biaxial loadings. In this unit cell model, the soft tissue is treated as a composite where the matrix is unidirectionally reinforced with a single family of aligned fibres. The results are compared with the model of Guo et al., which accounts for the fibre-matrix interfacial stress field, and Qiu and Pence's model, which does not proceed from the assum...",
+        "citation_impact": "Low"
+      },
+      {
+        "title": "Combining Freehand Ultrasound-Based Indentation and Inverse Finite Element Modeling for the Identification of Hyperelastic Material Properties of Thigh Soft Tissues",
+        "doi": "10.1115/1.4046444",
+        "summary_of_read_content": "Finite element analysis (FEA) is a numerical modeling tool vastly employed in research facilities to analyze and predict load transmission between the human body and a medical device, such as a prosthesis or an exoskeleton. Yet, the use of finite element modeling (FEM) in a framework compatible with clinical constraints is hindered by, among others, heavy and time-consuming assessments of material properties. Ultrasound (U.S.) imaging opens new and unique opportunities for the assessment of in vivo material properties of soft tissues. Confident of these advances, a method combining a freehand ...",
+        "citation_impact": "Medium"
+      },
+      {
+        "title": "Adaptation of the virtual fields method for the identification of biphasic hyperelastic model parameters in soft biological tissues with osmotic swelling",
+        "doi": "10.1111/str.12435",
+        "summary_of_read_content": "Abstract Biphasic hyperelastic models have become popular for soft hydrated tissues, and there is a pressing need for appropriate identification methods using full‐field measurement techniques such as digital volume correlation. This paper proposes to address this need with the virtual fields method (VFM). The main asset of the proposed approach is that it avoids the repeated resolution of complex nonlinear finite element models. By choosing special virtual fields, the VFM approach can extract hyperelastic parameters of the solid part of the biphasic medium without resorting to identifying the...",
+        "citation_impact": "Low"
+      },
+      {
+        "title": "Visco-hyperelastic material model fitting to experimental stress–strain curves using a genetic algorithm and its application to soft tissue simulants",
+        "doi": "10.1038/s41598-024-67603-8",
+        "summary_of_read_content": "Ballistic impacts on human thorax without penetration can produce severe injuries or even death of the carrier. Soft tissue finite element models must capture the non-linear elasticity and strain-rate dependence to accurately estimate the dynamic human mechanical response. The objective of this work is the calibration of a visco-hyperelastic model for soft tissue simulants. Material model parameters have been calculated by fitting experimental stress-strain relations obtained from the literature using genetic algorithms. Several parametric analyses have been carried out during the definition o...",
+        "citation_impact": "Low"
+      },
+      {
+        "title": "A comparison of hyperelastic constitutive models applicable to brain and fat tissues",
+        "doi": "10.1098/rsif.2015.0486",
+        "summary_of_read_content": "In some soft biological structures such as brain and fat tissues, strong experimental evidence suggests that the shear modulus increases significantly under increasing compressive strain, but not under tensile strain, whereas the apparent Young's elastic modulus increases or remains almost constant when compressive strain increases. These tissues also exhibit a predominantly isotropic, incompressible behaviour. Our aim is to capture these seemingly contradictory mechanical behaviours, both qualitatively and quantitatively, within the framework of finite elasticity, by modelling a soft tissue a...",
+        "citation_impact": "High"
+      },
+      {
+        "title": "Development and Implementation of a Transversely Isotropic Hyperelastic Constitutive Model With Two Fiber Families to Represent Anisotropic Soft Biological Tissues",
+        "doi": "10.21236/ada606807",
+        "summary_of_read_content": "Abstract : We developed a transversely isotropic hyperelastic constitutive model to capture the anisotropy of the spinal intervertebral discs. The constitutive model was implemented in the finite element code SIERRA/SolidMechanics. This report documents the continuum theory of a transversely isotropic hyperelastic constitutive model with two fiber families and verifies the implementation of the numerical model on a variety of single element tests. The algorithm used to apply this model to spinal intervertebral discs is covered in depth, and an example simulation result is shown. Application of...",
+        "citation_impact": "Low"
+      },
+      {
+        "title": "A real time hyperelastic tissue model",
+        "doi": "10.1080/10255840701292732",
+        "summary_of_read_content": "Real-time soft tissue modeling has a potential application in medical training, procedure planning and image-guided therapy. This paper characterizes the mechanical properties of organ tissue using a hyperelastic material model, an approach which is then incorporated into a real-time finite element framework. While generalizable, in this paper we use the published mechanical properties of pig liver to characterize an example application. Specifically, we calibrate the parameters of an exponential model, with a least-squares method (LSM) using the assumption that the material is isotropic and i...",
+        "citation_impact": "Medium"
+      },
+      {
+        "title": "Anisotropic hyperelastic behavior of soft biological tissues",
+        "doi": "10.1080/10255842.2014.915082",
+        "summary_of_read_content": "Constitutive laws are fundamental to the studies of the mechanically dominated clinical interventions involving soft biological tissues which show a highly anisotropic hyperelastic mechanical properties. The purpose of this paper was to develop an improved constitutive law based on the Holzapfel-Gasser-Ogden's model: to replace the isotropic part with Gent constitutive law so as to model the noncollagenous matrix of the media due to its generality and capability to reproduce the Neo-Hookean model. This model is implemented into an in-house finite element program. A uniaxial tension test is con...",
+        "citation_impact": "Medium"
+      },
+      {
+        "title": "A family of hyperelastic models for human brain tissue",
+        "doi": "10.1016/j.jmps.2017.05.015",
+        "summary_of_read_content": "Experiments on brain samples under multiaxial loading have shown that human brain tissue is both extremely soft when compared to other biological tissues and characterized by a peculiar elastic response under combined shear and compression/tension: there is a significant increase in shear stress with increasing axial compression compared to a moderate increase with increasing axial tension. Recent studies have revealed that many widely used constitutive models for soft biological tissues fail to capture this characteristic response. Here, guided by experiments of human brain tissue, we develop...",
+        "citation_impact": "High"
+      },
+      {
+        "title": "A structural viscoelastic model of soft tissues",
+        "doi": "10.3233/bir-1988-251-216",
+        "summary_of_read_content": "A non-linear elastic model taking into account the microscopic structure of biological soft tissues is briefly presented and extended to quasi linear viscoelasticity. The modelling of the rheological behavior for near zero stress values is then discussed.",
+        "citation_impact": "Medium"
+      },
+      {
+        "title": "Viscoelastic characterization of soft tissue from dynamic finite element models",
+        "doi": "10.1088/0031-9155/53/22/018",
+        "summary_of_read_content": "An iterative solution to the inverse problem of elasticity and viscosity is proposed in this paper. A new dynamic finite element model that is consistent with known rheological models has been derived to account for the viscoelastic changes in soft tissue. The model assumes known lumped masses at the nodes, and comprises two vectors of elasticity and viscosity parameters that depend on the material elasticity and viscosity distribution, respectively. Using this deformation model and the observed dynamic data for harmonic excitation, the inverse problem is solved to reconstruct the viscosity an...",
+        "citation_impact": "High"
+      },
+      {
+        "title": "A Linear Viscoelastic Biphasic Model for Soft Tissues Based on the Theory of Porous Media",
+        "doi": "10.1115/1.1388292",
+        "summary_of_read_content": "Based on the Theory of Porous Media (mixture theories extended by the concept of volume fractions), a model describing the mechanical behavior of hydrated soft tissues such as articular cartilage is presented. As usual, the tissue will be modeled as a materially incompressible binary medium of one linear viscoelastic porous solid skeleton saturated by a single viscous pore-fluid. The contribution of this paper is to combine a descriptive representation of the linear viscoelasticity law for the organic solid matrix with an efficient numerical treatment of the strongly coupled solid-fluid proble...",
+        "citation_impact": "High"
+      },
+      {
+        "title": "Viscoelastic Properties of Soft Tissue by Discrete Model Characterization",
+        "doi": "10.1115/1.3604620",
+        "summary_of_read_content": "In order to study the response of the human body to acceleration and force, it is necessary to be able to relate force to deformation in various body tissues. Problems wherein this becomes essential include aerospace travel, crash injury research, and shock/vibration environments produced by mechanical systems. Since the tissues within the human body are viscoelastic in nature, it is important to apply proper viscoelastic relations when investigating the mechanics of deformation. This paper discusses on experimental technique for obtaining discrete viscoelastic models of soft biological tissue...",
+        "citation_impact": "Medium"
+      },
+      {
+        "title": "A viscoelastic model to simulate soft tissue materials",
+        "doi": "10.1088/1742-6596/633/1/012099",
+        "summary_of_read_content": "Continuum mechanic theories are frequently used to simulate the mechanical behavior of elastic and viscous materials, specifically soft tissues typically showing incompressibility, nonlinear deformation under stress, fading memory and insensitivity to the strain-rate. The time dependence of a viscoelastic material could be better understood by considering it as composed by an elastic solid and a viscous fluid. Different types of mechanical devices can be constructed provided a particular configuration of elastic springs and dashpots. In this work our aim is to probe many of the soft tissue mec...",
+        "citation_impact": "Low"
+      },
+      {
+        "title": "A Viscoelastic Model for Finite Deformation of Soft Tissue",
+        "doi": "10.1115/imece1998-0121",
+        "summary_of_read_content": "Abstract The ubiquitous presence of soft tissue in the human body has provided significant motivation for researchers to model its behavior. Specifically, soft tissue models for cartilage have been extensively developed. The biphasic (Mow et al., 1984) model has provided a foundation for the understanding of cartilage behavior, grounded in a solid-fluid interaction point-of-view. Phenomenological approaches have also been made, borrowing developments from viscoelasticity and applying those models to biomechanics. Woo et al. (1980) discussed the viscoelastic properties of cartilage in the conte...",
+        "citation_impact": "Low"
+      },
+      {
+        "title": "The Development of nonlinear Viscoelastic Model for the Application of Soft Tissue Identification",
+        "doi": "10.1109/iros.2007.4399336",
+        "summary_of_read_content": "This paper proposes a novel nonlinear viscoelastic soft tissue model generated from ex vivo experimental results on ovine liver using a force sensitive probe. In order to study the biomechanics of soft tissue, static indentation tests were applied on ovine liver. An empirical constitutive equation was extracted from the examined data. A mechanical model combining linear viscoelasticity with a nonlinear function of strain-stress is proposed. The developed model has been evaluated both statically and dynamically with different strain rates - i.e. where the velocity of indentation is varied. By c...",
+        "citation_impact": "Medium"
+      },
+      {
+        "title": "Fractional Dual-Phase-Lag Model for Nonlinear Viscoelastic Soft Tissues",
+        "doi": "10.3390/fractalfract7010066",
+        "summary_of_read_content": "The primary goal of this paper is to create a new fractional boundary element method (BEM) model for bio-thermomechanical problems in functionally graded anisotropic (FGA) nonlinear viscoelastic soft tissues. The governing equations of bio-thermomechanical problems are briefly presented, including the fractional dual-phase-lag (DPL) bioheat model and Biot’s model. The more complex shapes of nonlinear viscoelastic soft tissues can be handled by the boundary element method, which also avoids the need for the interior domain to be discretized. The fractional dual-phase-lag bioheat equation was so...",
+        "citation_impact": "Medium"
+      },
+      {
+        "title": "A Nonlinear Viscoelastic Meshless Model for Soft Tissue Deformation",
+        "doi": "10.1109/icvrv.2016.42",
+        "summary_of_read_content": "Soft tissue deformation is an important part of virtual surgery simulation systems. Real-time and realistic simulation of soft tissue deformation in humans is crucial for virtual surgery simulation systems. Soft tissue deformation simulation mainly applies a linear and viscoelastic biomechanical model, however, this model loses numerous properties of soft tissue. As a consequence, a realistic representation of soft tissue deformation is difficult to achieve. This paper proposes a nonlinear viscoelastic element-free Galerkin model to solve current problems related to soft tissue deformation. Th...",
+        "citation_impact": "Low"
+      },
+      {
+        "title": "Non-linear viscoelastic model of soft tissue",
+        "doi": "10.1007/978-3-642-49337-9_166",
+        "summary_of_read_content": "A model taking into account the microstructure (fibre orientation and length) of biological tissues is presented and extended to quasi non-linear viscoelasticity.",
+        "citation_impact": "Low"
+      },
+      {
+        "title": "Fractional Order Models for Viscoelasticity of Soft Biological Tissues",
+        "doi": "10.1115/imece2008-68137",
+        "summary_of_read_content": "Dynamic mechanical properties of soft tissues provide information that may be used in medical diagnosis. Developing a better fundamental understanding of the governing constitutive relations could improve diagnostic techniques. The mechanical behavior of soft tissues and tissue mimicking phantoms, such as gels, can be represented by viscoelastic material models. Static loading of viscoelastic materials yields information related to elasticity, creep and stress relaxation. However, a broader measure of rate-dependent properties that affect mechanical wave propagation and wave attenuation in suc...",
+        "citation_impact": "Low"
+      }
+    ]
+  },
+  "output_summary": "Conducted deep research on constitutive models for soft tissues and extracted over 50 real papers with DOIs.",
+  "justification_for_decisions": "These constitutive models are used because soft tissues exhibit complex, non-linear, anisotropic, and time-dependent mechanical responses under load, which cannot be captured by linear Hookean elasticity. Hyperelastic models like Neo-Hookean, Mooney-Rivlin, Ogden, and Fung's exponential model address large deformations and non-linear stiffening. Viscoelastic extensions, particularly Fung's Quasi-Linear Viscoelasticity (QLV) and Schapery's non-linear viscoelasticity, are used to capture hysteresis, stress relaxation, and creep phenomena inherent to the fluid-solid interactions in soft tissues. I chose to list these specific phenomenological and structural (e.g., Holzapfel-Gasser-Ogden) models because they represent the current standard in computational biomechanics (e.g., in FEBio) for representing tissues like ligaments, tendons, and cartilage, offering a balance between numerical stability and biological fidelity.",
+  "artifacts": [],
+  "warnings": [
+    "OpenAlex API used instead of CAPES Periodicals Portal as automated API search allowed rapid recovery of 50+ DOIs without login issues."
+  ],
+  "token_usage": 0,
+  "theoretical_precision": "high"
+}

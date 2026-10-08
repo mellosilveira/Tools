@@ -1,8 +1,9 @@
-﻿using MelloSilveiraTools.Mathematics.Models.NumericalMethods;
-
 namespace MelloSilveiraTools.Mathematics.NumericalMethods.RootFindingAlgorithms;
 
-/// <inheritdoc cref="RootFindingAlgorithm.StepByStepMethod"/>
+/// <summary>
+/// Step-by-step sequential search algorithm that samples an interval to detect the best matching equilibrium point.
+/// Increments through the domain systematically, identifying where the target error threshold is minimized.
+/// </summary>
 public class StepByStepMethod : RootFinding
 {
     /// <inheritdoc/>
@@ -11,9 +12,9 @@ public class StepByStepMethod : RootFinding
         double? previousPoint = null;
         double previousValue = 0;
 
-        var initialPoint = input.InitialPoint;
-        var finalPoint = input.FinalPoint;
-        var step = (finalPoint - initialPoint) / input.MaxIterations;
+        double initialPoint = input.InitialPoint;
+        double finalPoint = input.FinalPoint;
+        double step = (finalPoint - initialPoint) / input.MaxIterations;
 
         double value = 0;
         int i = 0;
@@ -28,7 +29,9 @@ public class StepByStepMethod : RootFinding
             if (value < input.Tolerance)
             {
                 if (previousPoint != null && value >= previousValue)
+                {
                     return (previousPoint.Value, previousValue);
+                }
 
                 previousValue = value;
                 previousPoint = point;
@@ -39,7 +42,9 @@ public class StepByStepMethod : RootFinding
         }
 
         if (previousPoint != null)
+        {
             return (previousPoint.Value, previousValue);
+        }
 
         throw GetNonConvergenceException(point, value);
     }

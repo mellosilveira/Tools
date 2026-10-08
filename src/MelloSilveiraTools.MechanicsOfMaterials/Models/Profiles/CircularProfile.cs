@@ -1,14 +1,13 @@
-﻿namespace MelloSilveiraTools.MechanicsOfMaterials.Models.Profiles
+﻿namespace MelloSilveiraTools.MechanicsOfMaterials.Models.Profiles;
+
+/// <summary>
+/// It represents the circular profile.
+/// </summary>
+public class CircularProfile : Profile
 {
     /// <summary>
-    /// It represents the circular profile.
+    /// The diameter.
+    /// Unit: mm (milimeter).
     /// </summary>
-    public class CircularProfile : Profile
-    {
-        /// <summary>
-        /// The diameter.
-        /// Unit: mm (milimeter).
-        /// </summary>
-        public double Diameter { get; set; }
-    }
+    public double Diameter { get; set; }
 }
