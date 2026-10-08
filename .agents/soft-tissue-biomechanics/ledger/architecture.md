@@ -1,5 +1,5 @@
-﻿# Planning: Biomechanics Research Agents Ecosystem
-*Living document - last revision: 2026-10-05*
+# Planning: Biomechanics Research Agents Ecosystem
+*Living document - last revision: 2026-10-07*
 
 > [!IMPORTANT]
 > This document is the source of truth for the agent ecosystem. Every architectural decision, interface contract, and operation rule is registered here. Always update it when a skill is modified.
@@ -8,9 +8,10 @@
 
 ## 1. Overview and Objective
 
-The ecosystem is composed of **1 Central Orchestrator** and **8 Specialist Agents** that give cadence to the research on the mechanical behavior of human soft tissues. **Current focus: knee ligaments**; after acceptable understanding, the research will migrate to other soft tissues.
+The ecosystem is composed of **1 Central Orchestrator** and **8 Specialist Agents** that give cadence to the research on the mechanical behavior of porcine soft tissues. **Strict Current Scope:** Porcine knee ligaments (Master's thesis). **Long-term Vision:** Expanding the architecture to other soft tissues (e.g., spine) is a future goal for the research group, post-thesis.
 
-**Expected Theoretical Evolution:** today the research and algorithms use **scalar mechanical models (1D)**. One of the final objectives is the **tensorial formulation (full 3D Continuum Mechanics)** - Cauchy/Piola-Kirchhoff stress tensors, deformation gradient, invariants - and the use of **FEBio** (or similar) for simulations and validations. Database, C# code, and UI must be extensible for this migration.
+**System Architecture & Strategy:** The ecosystem is designed to accelerate research rather than compete with established FEA software. It is divided into: 1) **Frontend** (dynamic plotting, interactive visual comparison); 2) **Backend** (business logic strictly separated into reusable logic in `MelloSilveiraTools` and research-specific orchestration in `SoftTissue`); and 3) **Database** (persistence).
+**Theoretical Evolution:** The internal C# computational engine will remain **scalar (1D)** to completely avoid the overhead of implementing complex finite element logic (e.g., mesh generation). The definitive output for the frontend visualizer will always contrast 3 data sources: (1) Real experimental data, (2) Scalar numerical simulation (C# Engine), and (3) 3D Tensorial numerical simulation (Open-source software, preferably FEBio).
 
 **Thermodynamic Context:** the research is not focused on thermodynamics (negligible temperature variation in ligaments). Only thermodynamic concepts used in the formulation of non-linear and hyperelastic models (e.g., Schapery) are considered.
 
@@ -64,10 +65,10 @@ The Orchestrator invokes generic subagents (`TypeName: "self"`, `Workspace: "inh
 - **Circuit Breaker:** after `execution.max_retries` failures (including timeout of `execution.micro_timeout_seconds`), consults the human.
 - **PDF:** stops and asks the human; if denied, waits for another format; if authorized, delegates conversion (`paths.pdf_converter_script`).
 
-### 5.2 Analyst Ã¢â€ â€ Backend Synergy
+### 5.2 Analyst -> Backend Synergy
 - The Analyst does not reinvent the wheel: before proposing something new, asks **once** (via Orchestrator) for the Backend's analysis on what can be used, extended, or implemented in C#.
 - Flow: Analyst -> Backend -> Analyst consolidates -> Orchestrator -> human decides.
-- Mandatory sensitivity: stress Ãƒâ€” variable (initial time), stress Ãƒâ€” variable (final time), asymptote time Ãƒâ€” variable, stress variation Ãƒâ€” variable.
+- Mandatory sensitivity: stress x variable (initial time), stress x variable (final time), asymptote time x variable, stress variation x variable (Strictly mandated for the scalar 1D formulation).
 - Metrics: RMSE and $R^2$, with consolidated error/precision across steps (e.g., 4 steps of Schapery fitting).
 
 ### 5.3 Backend Governance
@@ -76,14 +77,15 @@ The Orchestrator invokes generic subagents (`TypeName: "self"`, `Workspace: "inh
 - Microservices and definitive deletion of scientific data only with justification, explicit functionality, and human approval.
 
 ### 5.4 Secretary
-- Registers current decisions, **future works** and **opportunities/breaches**; refuses records without origin and justification.
+- Registers current decisions, **future works** and **opportunities/breaches**.
+- **CRITICAL DIRECTIVE:** The Secretary MUST enforce the documentation of the "Why" at every single step. No architectural, methodological, or technical decision is accepted without explicit, documented reasoning (e.g., explicitly noting that C# was chosen due to the need for automation and the researcher's existing expertise). The justification is strictly more important than the action itself.
 
 ### 5.5 Absolute Prohibitions
-- âŒ Executing research system codes (Backend, Frontend, Database, Python Scripts) directly on the Host operating system. EVERYTHING MUST run isolated in Docker containers.
-- âŒ Inventing links, DOIs, or references.
-- âŒ Rounding numbers outside the text written by the Writer.
-- âŒ Specialists using `ask_question` directly.
-- âŒ Orchestrator executing or converting any content.
+- ❌ Executing custom research system codes (Backend, Frontend, Database, Python Scripts) directly on the Host operating system. These MUST run isolated in Docker containers. *(Exception: Third-party native technologies like FEBio and C++ compilers must be installed on the host and documented as dependencies).*
+- ❌ Inventing links, DOIs, or references.
+- ❌ Rounding numbers outside the text written by the Writer.
+- ❌ Specialists using `ask_question` directly.
+- ❌ Orchestrator executing or converting any content.
 
 ---
 
@@ -93,6 +95,7 @@ The Orchestrator invokes generic subagents (`TypeName: "self"`, `Workspace: "inh
 |---|---|---|
 | 2026-10-02 | v1.0 | Initial creation of the architecture. |
 | 2026-10-02 | v2.0 | Fixes FR-01 to FR-07 and Planning. |
-| 2026-10-03 | v3.0 | Numerical precision (Writer only), Isolated Orchestrator with `self` subagents, knee ligament focus, incremental backend, centralized `ask_question`. |
-| 2026-10-05 | v4.0 | Coding fix (mojibake) in all files; alignment of roster and prohibitions to skills (microservices, data deletion, Analyst/Frontend stack, AI/ML); 4 sensitivity scenarios; thermodynamic context; 3D/FEBio goal; centralized schemas. |
+| 2026-10-03 | v3.0 | Numerical precision, Isolated Orchestrator, knee ligament focus, incremental backend. |
+| 2026-10-05 | v4.0 | Alignment of roster and prohibitions to skills; thermodynamic context; centralized schemas. |
 | 2026-10-05 | v5.0 | English standardization across all files. |
+| 2026-10-07 | v6.0 | Pivot to strictly porcine uniaxial tension. Open-source FEBio/C++ host exception. 5th model included. UI/Python graphing division defined. |

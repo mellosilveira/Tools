@@ -1,4 +1,4 @@
-﻿# Decisions and Scientific Traceability Ledger
+# Decisions and Scientific Traceability Ledger
 
 ## Execution: Smoke Test Validation
 - **Date**: 2026-10-06T01:00:06Z
@@ -23,7 +23,7 @@
 
 #### Previous Cycle Baseline (Execution)
 - **What**: Registered the achievements and findings of the previous cycle.
-  - **Methodology**: Developed a 1D non-linear viscoelastic load-sharing framework for porcine knee ligaments based on Schaperyâ€™s theory. Evaluated 81 combinatorial joint scenarios under a 75 N step-like vertical distraction, comparing 0% and 3% initial pre-strain.
+  - **Methodology**: Developed a 1D non-linear viscoelastic load-sharing framework for porcine knee ligaments based on Schapery’s theory. Evaluated 81 combinatorial joint scenarios under a 75 N step-like vertical distraction, comparing 0% and 3% initial pre-strain.
   - **Results**: Demonstrated viscoelasticity reduces joint load capacity over time. 0% pre-strain dropped to 43.07 N; 3% pre-strain mitigated decay to 60.48 N. MCL experienced most relative force reduction.
 - **From where**: Extracted by the Academic Writer from the user's baseline paper `Texto base para revista_Schapery.docx`.
 - **Why**: To serve as the state-of-the-art reference and methodological starting point for the next iterations of the study.
@@ -43,22 +43,16 @@
 ### 2026-10-06 Task: theoretical-advance-3d-continuum-febio
 **Category**: Decision & Future Work
 
-#### Transition to 3D Continuum Mechanics using FEBio (Decision)
-- **Date**: 2026-10-06T01:55:33Z
-- **Task IDs**: `theoretical-advance-3d-continuum-febio`
-- **What**: Transitioning the modeling approach from 1D to 3D Continuum Mechanics using FEBio. The 1D formulation is acknowledged as an initial simplification.
-- **From where**: Biomechanics Co-advisor (Payload evaluation of thesis scope).
-- **Why**: 1D models are insufficient for capturing complex rotational stability. 3D tensorial generalizations provide necessary rigor for complex 3D kinematic states.
+#### Transition to 3D Continuum Mechanics (Decision)
+- **What**: Expanding the 1D baseline modeling into a 3D Tensorial Continuum Mechanics framework.
+- **From where**: Biomechanics Co-advisor.
+- **Why**: 1D models are insufficient for capturing 3D behavior. 3D tensorial generalizations provide the necessary rigor.
 
-#### Action Plan for Theoretical Advance (Future Work)
-- **Date**: 2026-10-06T01:55:33Z
-- **Task IDs**: `theoretical-advance-3d-continuum-febio`
-- **What**: Executing the strategic roadmap:
-  - Step 1: Formulate the 3D tensorial generalization of the existing 1D Schapery non-linear viscoelastic model, defining Helmholtz free energy and Cauchy stress tensor.
-  - Step 2: Perform a benchmark validation in FEBio (single-ligament uniaxial tension test) to compare 3D results against the 1D C# baseline.
-  - Step 3: Implement the 3D anatomical geometry of the 4 knee ligaments in FEBio to simulate complex 3D kinematic states (e.g., knee rotation/torsion).
-- **From where**: Biomechanics Co-advisor (Action Plan payload).
-- **Why**: To address the thesis scope regarding knee ligament stability and successfully bridge the gap between 1D simplifications and full 3D behavior required for complex kinematics.
+#### Action Plan for Theoretical Advance
+- **What**: Formulate the 3D tensorial generalization of the existing 1D models (defining Helmholtz free energy and Cauchy stress tensor) to run in a 3D open-source FEA software.
+- **From where**: Biomechanics Co-advisor.
+- **Why**: To bridge the gap between 1D simplifications and full 3D continuum mechanics required by advanced models.
+
 #### Mandatory Human-in-the-Loop QA Gate for Automated Parsing
 - **What**: For any automated text generation or parsing loop (e.g., Vision LaTeX extraction), the system is FORBIDDEN from writing directly to the final markdown file. 
   1. The agent must process only a small batch (short loop).
@@ -67,35 +61,50 @@
   4. Only after the user expressly approves the content will the changes be migrated and merged into the final target file.
 - **From where**: User directive after observing LLM loop fatigue and lazy scripting behaviors.
 - **Why**: To prevent data corruption, AI hallucinations, "lazy shortcut" scripting, and unnecessary token burn. Ensures absolute human control over the final repository state.
+
 ### 2026-10-06 Task: safeguard-anti-hallucination-guardrails
 **Category**: Decision (System Safeguards against LLM Fatigue & Shortcuts)
 
 #### The 4 Pillars of Bulk Processing Defense
 To ensure data integrity and prevent runaway token consumption during automated text/math parsing, the ecosystem is bound by these 4 interconnected guardrails:
-
-1. **Architectural Guardrail (Short Loops & Mandatory Validation)**: 
-   - Massive batching is strictly forbidden. 
-   - All loops must be extremely short. 
-   - At the end of *every* short loop, the system MUST save the output to a temporary file, completely halt execution, and explicitly trigger the human user to validate the temporary file. Only upon human approval will the changes be migrated to the final file.
-2. **Deterministic QA Gate (Draft Verification Script)**:
-   - Before presenting the temporary draft to the human, a deterministic Python script will inspect it. The script ensures the agent wrote valid mathematical syntax (e.g., \begin{equation}) and did not simply wrap broken OCR text in $$. If it catches this "lazy shortcut," the batch is auto-rejected.
-3. **Anti-Laziness Prompt Clause**:
-   - All Vision and Parsing Workers are injected with a strict cognitive penalty clause: *"ABSOLUTE PROHIBITION: You must NEVER write scripts that use regex to blindly wrap OCR text in LaTeX tags. You MUST visually read the math and construct the LaTeX syntax from scratch. Doing otherwise is a critical failure."*
-4. **Token Budgeting & Circuit Breaker**:
-   - The Orchestrator monitors loop iterations. If an agent attempts to bypass the "short loop" rule or if context inflates dangerously, a Circuit Breaker terminates the agent immediately to prevent token drain and alerts the human.
-
+1. **Architectural Guardrail (Short Loops & Mandatory Validation)**: Massive batching is strictly forbidden. 
+2. **Deterministic QA Gate (Draft Verification Script)**: A deterministic Python script will inspect drafts for valid mathematical syntax before presenting to humans.
+3. **Anti-Laziness Prompt Clause**: Vision and Parsing Workers are injected with a strict cognitive penalty clause prohibiting blind regex wrapping.
+4. **Token Budgeting & Circuit Breaker**: Orchestrator terminates agents bypassing the "short loop" rule.
 - **From where**: User directive following the failure of blind bulk processing in Chapter 7.
-- **Why**: To lock the system into a deterministic, human-approved workflow that makes AI hallucinations or "lazy shortcuts" technically impossible to slip into the production files.
+- **Why**: To lock the system into a deterministic workflow that prevents AI hallucinations.
 
-## [2026-10-07] - Reestruturação do Prazo e Foco em Tensão Uniaxial
-**Decisão:** Escopo da dissertação reduzido para garantir defesa em 12 meses.
-**Motivo:** Simulações 3D de joelho inteiro com 4 ligamentos e carga articular complexa apresentam alto risco de não convergência no FEBio no prazo estipulado.
-**Plano de Ação (thesis_roadmap.md):** 
-1. Focar exclusivamente em carregamento uniaxial isolado para os 4 ligamentos.
-2. Extrair as constantes diretamente via C# (MelloSilveiraTools) para abandonar o MATLAB.
-3. Escolher **4 modelos constitutivos** para análise comparativa baseada na taxonomia de evidências:
-   - *Fung QLV 3D* (O padrão-ouro histórico)
-   - *Schapery Tensorial 3D* (Avanço matemático, preenchendo um gap na FEA)
-   - *Maxwell Generalizado / Série de Prony* (O padrão da indústria / FEBio)
-   - *Weiss / Transversalmente Isotrópico* (O rei anatômico hiperelástico)
-**Status Atual:** Fase de Fundamentação (Fase 1). Cheat Sheet de Fung concluído. O próximo agente deve iniciar executando o Ticket 1.5 (Schapery 3D).
+## [2026-10-07] - Deadline Restructuring and Focus on Uniaxial Tension
+**Category:** Decision (Scope Reduction)
+- **What:** Focus exclusively on isolated uniaxial loading for the 4 porcine knee ligaments.
+- **From where:** Researcher / Human directive.
+- **Why:** Full-knee 3D simulations with complex articular loading present a high risk of non-convergence in a 12-month timeframe. Complex kinematics are moved to post-thesis future works.
+
+## [2026-10-07] - The 5 Guiding Constitutive Models
+**Category:** Decision (Methodological Baseline)
+- **What:** Selected 5 models to guide the initial research development:
+  1. *Fung QLV* (Historical gold-standard)
+  2. *Schapery Tensorial* (Mathematical advance)
+  3. *Generalized Maxwell / Prony Series* (Industry standard)
+  4. *Weiss / Transversely Isotropic* (Hyperelastic anatomical baseline)
+  5. *Poroviscoelasticity* (Fluid-solid interaction)
+- **From where:** Prior preliminary analyses by the research group.
+- **Why:** To serve as a guiding hypothesis for the computational development. *Note: These are not set in stone and may oscillate or be altered as new information emerges from the evidence funnel.*
+
+## [2026-10-07] - Computational Architecture Pivot (Backend/Frontend and C# Engine)
+**Category:** Decision (Software Architecture)
+- **What:** The C# engine (`MelloSilveiraTools`) will be restricted to scalar (1D) curve fitting and data orchestration. 3D tensorial simulations will be delegated to open-source FEA software (priority: FEBio). The architecture will orchestrate 3 data sources: experimental, 1D C#, and 3D FEBio.
+- **From where:** Researcher / Human directive.
+- **Why:** To automate and accelerate research. Expanding C# to 3D tensors (meshes) would consume critical time, missing the 12-month deadline. C# serves best as an orchestrator and 1D baseline, leveraging the researcher's existing fluency.
+
+## [2026-10-07] - FEBio as the Primary 3D FEA Tool
+**Category:** Decision (Tooling)
+- **What:** Preferential selection of FEBio over other software.
+- **From where:** Prior preliminary analyses.
+- **Why:** FEBio is free, open-source, and specifically tailored for biomechanics (supporting soft tissues natively). *Note: Like the models, this is a guiding hypothesis that can change if future evidence requires.*
+
+## [2026-10-07] - Strategy for Missing Native FEA Models
+**Category:** Decision (Computational Implementation)
+- **What:** Any constitutive model lacking native support in the chosen 3D FEA software will be custom-implemented.
+- **From where:** Researcher / Human directive.
+- **Why:** To ensure all 5 hypothesized models can be compared. The ecosystem will compile User-Defined Material (UDM) plugins (e.g., in C++) to inject the custom 3D tensorial math into the solver.

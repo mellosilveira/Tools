@@ -19,6 +19,7 @@ contracts:
       "retry_count": 0,
       "data_payload": {},
       "output_summary": "Action summary",
+      "justification_for_decisions": "Detailed explanation of WHY this approach was taken",
       "artifacts": ["relative/paths/generated.md"],
       "warnings": ["Alerts"],
       "token_usage": 0,
