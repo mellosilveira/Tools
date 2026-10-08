@@ -19,24 +19,6 @@
             "citation_impact": "Recent/Emerging - 4 citations (Published 2025, Soft Matter)"
           },
           {
-            "title": "Dynamic response of muscle tissue...",
-            "doi": "10.1016/j.jmbbm.2026.107452",
-            "summary_of_read_content": "This paper explores 'Dynamic response of muscle tissue under waterjet impact based on a visco-hyperelastic constitutive model considering large deformation failure.'. It is evaluated for its application in computational modeling and simulation of soft tissues.",
-            "citation_impact": "Recent/Emerging - 0 citations (Published 2026, Journal of The Mechanical Behavior of Biomedical Materials)"
-          },
-          {
-            "title": "From Tissue to Simulation: A Review of Venous Valve Biomechanics...",
-            "doi": "10.1007/s10439-026-04412-2",
-            "summary_of_read_content": "Could not retrieve full abstract for 10.1007/s10439-026-04412-2. Paper appears relevant to soft-tissue constitutive behavior based on its context.",
-            "citation_impact": "Impact metrics currently unavailable due to retrieval error."
-          },
-          {
-            "title": "Quadtree SBFEM and MSPM Based Uncertain Damage Analysis...",
-            "doi": "10.1002/cnm.70221",
-            "summary_of_read_content": "Critical summary: This paper presents a numerical model for damage problems in soft biological tissues with random fields, integrating the advantages of the modified stochastic perturbation method (MSPM) and quadtree scaled boundary finite element method (quadtree SBFEM). Numerical examples are conducted to verify the accuracy and efficiency of the proposed approaches and to obtain the mean values and standard deviations of the random response of spatial heterogeneous soft biological tissues damage problems, including the calculation of the probability of failure (PoF) of arterial wall during atherosclerosis in angioplasty.",
-            "citation_impact": "Recent/Emerging - 0 citations (Published 2026, International Journal for Numerical Methods in Biomedical Engineering)"
-          },
-          {
             "title": "A VFM approach for identifying material parameters...",
             "doi": "10.1007/s10237-026-02133-y",
             "summary_of_read_content": "This paper explores 'A VFM approach for identifying material parameters and data-driven constitutive models for biphasic hyperelasticity of soft biological tissues'. It is evaluated for its application in computational modeling and simulation of soft tissues.",

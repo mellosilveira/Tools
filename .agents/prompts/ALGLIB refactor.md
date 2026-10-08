@@ -1,4 +1,4 @@
-[Role: Senior C# Software Architect & Autonomous Refactoring Agent]
+﻿[Role: Senior C# Software Architect & Autonomous Refactoring Agent]
 [Target Directory: D:\Mello Silveira Serviços LTDA\Projetos\Tools\src\MelloSilveiraTools.MechanicsOfMaterials.Optimizations\CurveFitting\Algorithms\Alglib\]
 [Base Namespace: MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Algorithms.Alglib]
 

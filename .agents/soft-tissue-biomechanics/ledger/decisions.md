@@ -86,3 +86,16 @@ To ensure data integrity and prevent runaway token consumption during automated 
 
 - **From where**: User directive following the failure of blind bulk processing in Chapter 7.
 - **Why**: To lock the system into a deterministic, human-approved workflow that makes AI hallucinations or "lazy shortcuts" technically impossible to slip into the production files.
+
+## [2026-10-07] - Reestruturação do Prazo e Foco em Tensão Uniaxial
+**Decisão:** Escopo da dissertação reduzido para garantir defesa em 12 meses.
+**Motivo:** Simulações 3D de joelho inteiro com 4 ligamentos e carga articular complexa apresentam alto risco de não convergência no FEBio no prazo estipulado.
+**Plano de Ação (thesis_roadmap.md):** 
+1. Focar exclusivamente em carregamento uniaxial isolado para os 4 ligamentos.
+2. Extrair as constantes diretamente via C# (MelloSilveiraTools) para abandonar o MATLAB.
+3. Escolher **4 modelos constitutivos** para análise comparativa baseada na taxonomia de evidências:
+   - *Fung QLV 3D* (O padrão-ouro histórico)
+   - *Schapery Tensorial 3D* (Avanço matemático, preenchendo um gap na FEA)
+   - *Maxwell Generalizado / Série de Prony* (O padrão da indústria / FEBio)
+   - *Weiss / Transversalmente Isotrópico* (O rei anatômico hiperelástico)
+**Status Atual:** Fase de Fundamentação (Fase 1). Cheat Sheet de Fung concluído. O próximo agente deve iniciar executando o Ticket 1.5 (Schapery 3D).
