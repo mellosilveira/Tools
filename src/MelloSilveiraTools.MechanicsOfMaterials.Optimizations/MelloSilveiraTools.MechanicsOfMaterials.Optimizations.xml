@@ -1217,6 +1217,66 @@
         <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Steps.NumericalSimulationStep.Dispose">
             <inheritdoc />
         </member>
+        <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.SensitivityAnalysis.Models.SensitivityAnalysisSettings">
+            <summary>
+            Settings for the Sensitivity Analysis pipeline.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.SensitivityAnalysis.Models.SensitivityAnalysisSettings.DefaultTrajectories">
+            <summary>
+            The default number of trajectories to run if not specified in the input.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.SensitivityAnalysis.Models.SensitivityAnalysisSettings.DefaultLevels">
+            <summary>
+            The default number of grid levels to use if not specified in the input.
+            </summary>
+        </member>
+        <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.SensitivityAnalysis.ISensitivityAnalysisPipeline">
+            <summary>
+            Defines the pipeline for executing a sensitivity analysis.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.SensitivityAnalysis.ISensitivityAnalysisPipeline.ProcessAsync(MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Morris.MorrisInput,System.Threading.CancellationToken)">
+            <summary>
+            Processes the sensitivity analysis for the given input.
+            </summary>
+            <param name="input">The input for the sensitivity analysis.</param>
+            <param name="cancellationToken">A token to monitor for cancellation requests.</param>
+            <returns>A result containing the sensitivity analysis output.</returns>
+        </member>
+        <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.SensitivityAnalysis.SensitivityAnalysisPipeline">
+            <summary>
+            Implements <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.SensitivityAnalysis.ISensitivityAnalysisPipeline"/> using TPL Dataflow.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.SensitivityAnalysis.SensitivityAnalysisPipeline.#ctor(Microsoft.Extensions.Logging.ILogger{MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.SensitivityAnalysis.SensitivityAnalysisPipeline},MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.SensitivityAnalysis.Models.SensitivityAnalysisSettings,MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.SensitivityAnalysis.Steps.MorrisAnalyzerStep)">
+            <summary>
+            Implements <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.SensitivityAnalysis.ISensitivityAnalysisPipeline"/> using TPL Dataflow.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.SensitivityAnalysis.SensitivityAnalysisPipeline.ProcessAsync(MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Morris.MorrisInput,System.Threading.CancellationToken)">
+            <inheritdoc />
+        </member>
+        <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.SensitivityAnalysis.Steps.MorrisAnalyzerStep">
+            <summary>
+            Pipeline step that runs the Morris Analyzer to calculate sensitivity indices.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.SensitivityAnalysis.Steps.MorrisAnalyzerStep.#ctor(MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Morris.MorrisAnalyzer)">
+            <summary>
+            Pipeline step that runs the Morris Analyzer to calculate sensitivity indices.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.SensitivityAnalysis.Steps.MorrisAnalyzerStep.Name">
+            <inheritdoc />
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.SensitivityAnalysis.Steps.MorrisAnalyzerStep.Execute(MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Morris.MorrisInput)">
+            <inheritdoc />
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.SensitivityAnalysis.Steps.MorrisAnalyzerStep.Dispose">
+            <inheritdoc />
+        </member>
         <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.ExpressionPathResolver.GetPath``2(System.Linq.Expressions.Expression{System.Func{``0,``1}})">
             <summary>
             Converts a lambda expression into a string path using the built-in C# compiler expression tree.

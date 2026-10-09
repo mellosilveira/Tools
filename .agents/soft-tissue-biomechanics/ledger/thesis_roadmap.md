@@ -1,4 +1,4 @@
-# Macro Research Planning (1-Year Restriction)
+﻿# Macro Research Planning (1-Year Restriction)
 
 **Provisional Title:** Comparative Analysis of Non-Linear and Viscoelastic Constitutive Models Applied to Porcine Knee Ligaments under Uniaxial Tension.
 **Deadline Restriction:** 12 months until defense.

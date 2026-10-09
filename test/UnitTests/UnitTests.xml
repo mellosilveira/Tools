@@ -4,24 +4,24 @@
         <name>UnitTests</name>
     </assembly>
     <members>
-        <member name="T:UnitTests.FakeDataReader">
+        <member name="T:UnitTests.Core.FakeDataReader">
             <summary>
             Minimal IDataReader backed by an in-memory column array.
             Supports a single row; subsequent Read() calls return false.
             </summary>
         </member>
-        <member name="T:UnitTests.DomainEntitySqlSmokeTests">
+        <member name="T:UnitTests.Database.RelationalDatabase.Sql.Provider.DomainEntitySqlSmokeTests">
             <summary>
             Smoke tests using the original domain entity graph (user / district / join table).
             These verify that the SQL provider handles FK-heavy schemas end-to-end.
             </summary>
         </member>
-        <member name="T:UnitTests.MechanicalModelCalculatorFactoryTests">
+        <member name="T:UnitTests.MechanicsOfMaterials.Calculators.MechanicalModels.MechanicalModelCalculatorFactoryTests">
             <summary>
             Unit tests for <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.IMechanicalModelCalculatorFactory"/> and <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.MechanicalModelCalculatorFactory"/>.
             </summary>
         </member>
-        <member name="T:UnitTests.MechanicalModelOutputDeltaTests">
+        <member name="T:UnitTests.MechanicsOfMaterials.Models.MechanicalModels.MechanicalModelOutputDeltaTests">
             <summary>
             Unit tests verifying delta and percentage delta calculations across the <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalModelOutput"/> hierarchy.
             </summary>

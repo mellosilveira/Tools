@@ -2422,11 +2422,11 @@
             Represents the amplitude of the viscous effects relative to the elastic response. Unit: dimensionless.
             </param>
             <param name="FastRelaxationTime">
-            The fast relaxation time constant (often denoted as τ2). 
+            The fast relaxation time constant (often denoted as τ1). 
             Governs the short-term viscous response immediately after loading. Unit: s (second).
             </param>
             <param name="SlowRelaxationTime">
-            The slow relaxation time constant (often denoted as τ1). 
+            The slow relaxation time constant (often denoted as τ2). 
             Governs the long-term viscous response, dictating when the material reaches equilibrium. Unit: s (second).
             </param>
         </member>
@@ -2439,11 +2439,11 @@
             Represents the amplitude of the viscous effects relative to the elastic response. Unit: dimensionless.
             </param>
             <param name="FastRelaxationTime">
-            The fast relaxation time constant (often denoted as τ2). 
+            The fast relaxation time constant (often denoted as τ1). 
             Governs the short-term viscous response immediately after loading. Unit: s (second).
             </param>
             <param name="SlowRelaxationTime">
-            The slow relaxation time constant (often denoted as τ1). 
+            The slow relaxation time constant (often denoted as τ2). 
             Governs the long-term viscous response, dictating when the material reaches equilibrium. Unit: s (second).
             </param>
         </member>
@@ -2455,13 +2455,13 @@
         </member>
         <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.QuasiLinear.ReducedRelaxationFunction.FastRelaxationTime">
             <summary>
-            The fast relaxation time constant (often denoted as τ2). 
+            The fast relaxation time constant (often denoted as τ1). 
             Governs the short-term viscous response immediately after loading. Unit: s (second).
             </summary>
         </member>
         <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.QuasiLinear.ReducedRelaxationFunction.SlowRelaxationTime">
             <summary>
-            The slow relaxation time constant (often denoted as τ1). 
+            The slow relaxation time constant (often denoted as τ2). 
             Governs the long-term viscous response, dictating when the material reaches equilibrium. Unit: s (second).
             </summary>
         </member>

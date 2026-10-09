@@ -19,24 +19,24 @@ public class MorrisAnalyzer
         double delta = (double)levels / (2 * (levels - 1));
 
         // Setup a dictionary to collect Elementary Effects: [Parameter][Output] -> List of EEs
-        var elementaryEffects = new Dictionary<string, Dictionary<string, List<double>>>();
-        foreach (var param in parameterPaths)
+        Dictionary<string, Dictionary<string, List<double>>> elementaryEffects = [];
+        foreach (string param in parameterPaths)
         {
-            elementaryEffects[param] = new Dictionary<string, List<double>>();
-            foreach (var output in targetOutputs)
+            elementaryEffects[param] = [];
+            foreach (string output in targetOutputs)
             {
-                elementaryEffects[param][output] = new List<double>();
+                elementaryEffects[param][output] = [];
             }
         }
 
         // 1. Calculate Elementary Effects (EE)
-        foreach (var trajectory in trajectories)
+        foreach (List<MorrisPoint> trajectory in trajectories)
         {
             // A trajectory has k+1 points. Iterate through the steps to find the deltas.
             for (int i = 0; i < trajectory.Count - 1; i++)
             {
-                var point1 = trajectory[i];
-                var point2 = trajectory[i + 1];
+                MorrisPoint point1 = trajectory[i];
+                MorrisPoint point2 = trajectory[i + 1];
 
                 string changedParam = null;
                 double sign = 1.0;
