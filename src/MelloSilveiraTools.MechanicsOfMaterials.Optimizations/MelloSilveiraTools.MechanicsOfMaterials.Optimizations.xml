@@ -1232,49 +1232,137 @@
             The default number of grid levels to use if not specified in the input.
             </summary>
         </member>
-        <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.SensitivityAnalysis.ISensitivityAnalysisPipeline">
+        <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.SensitivityAnalysis.ParametricSweepPipeline">
             <summary>
-            Defines the pipeline for executing a sensitivity analysis.
+            Orchestrates the One-At-A-Time (OAAT) Parametric Sweep using the TPL Dataflow framework.
+            Configures the linear enrichment flow, the internal 3-way fork for mechanical calculations, 
+            the synchronization joiner, and the terminal CSV writer.
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.SensitivityAnalysis.ISensitivityAnalysisPipeline.ProcessAsync(MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Morris.MorrisInput,System.Threading.CancellationToken)">
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.SensitivityAnalysis.ParametricSweepPipeline.#ctor(Microsoft.Extensions.Logging.ILogger{MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.SensitivityAnalysis.ParametricSweepPipeline},MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.IMechanicalModelCalculatorFacade,MelloSilveiraTools.Core.Providers.ServiceLocator)">
             <summary>
-            Processes the sensitivity analysis for the given input.
-            </summary>
-            <param name="input">The input for the sensitivity analysis.</param>
-            <param name="cancellationToken">A token to monitor for cancellation requests.</param>
-            <returns>A result containing the sensitivity analysis output.</returns>
-        </member>
-        <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.SensitivityAnalysis.SensitivityAnalysisPipeline">
-            <summary>
-            Implements <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.SensitivityAnalysis.ISensitivityAnalysisPipeline"/> using TPL Dataflow.
+            Orchestrates the One-At-A-Time (OAAT) Parametric Sweep using the TPL Dataflow framework.
+            Configures the linear enrichment flow, the internal 3-way fork for mechanical calculations, 
+            the synchronization joiner, and the terminal CSV writer.
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.SensitivityAnalysis.SensitivityAnalysisPipeline.#ctor(Microsoft.Extensions.Logging.ILogger{MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.SensitivityAnalysis.SensitivityAnalysisPipeline},MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.SensitivityAnalysis.Models.SensitivityAnalysisSettings,MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.SensitivityAnalysis.Steps.MorrisAnalyzerStep)">
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.SensitivityAnalysis.ParametricSweepPipeline.Build(System.Double,System.Double)">
             <summary>
-            Implements <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.SensitivityAnalysis.ISensitivityAnalysisPipeline"/> using TPL Dataflow.
+            Builds and executes the parametric sweep pipeline for a given analysis request.
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.SensitivityAnalysis.SensitivityAnalysisPipeline.ProcessAsync(MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Morris.MorrisInput,System.Threading.CancellationToken)">
+        <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.SensitivityAnalysis.Steps.AsymptoteCalculationStep">
+            <summary>
+            A pure domain-specific calculation step that evaluates the theoretical limit 
+            (asymptote) of the continuum stress as time approaches infinity.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.SensitivityAnalysis.Steps.AsymptoteCalculationStep.#ctor(MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.IMechanicalModelCalculatorFacade)">
+            <summary>
+            A pure domain-specific calculation step that evaluates the theoretical limit 
+            (asymptote) of the continuum stress as time approaches infinity.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.SensitivityAnalysis.Steps.AsymptoteCalculationStep.Name">
             <inheritdoc />
         </member>
-        <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.SensitivityAnalysis.Steps.MorrisAnalyzerStep">
-            <summary>
-            Pipeline step that runs the Morris Analyzer to calculate sensitivity indices.
-            </summary>
-        </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.SensitivityAnalysis.Steps.MorrisAnalyzerStep.#ctor(MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Morris.MorrisAnalyzer)">
-            <summary>
-            Pipeline step that runs the Morris Analyzer to calculate sensitivity indices.
-            </summary>
-        </member>
-        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.SensitivityAnalysis.Steps.MorrisAnalyzerStep.Name">
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.SensitivityAnalysis.Steps.AsymptoteCalculationStep.Execute(MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.GenericMechanicalModelInput)">
             <inheritdoc />
         </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.SensitivityAnalysis.Steps.MorrisAnalyzerStep.Execute(MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Morris.MorrisInput)">
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.SensitivityAnalysis.Steps.AsymptoteCalculationStep.Dispose">
             <inheritdoc />
         </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.SensitivityAnalysis.Steps.MorrisAnalyzerStep.Dispose">
+        <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.SensitivityAnalysis.Steps.FinalStressCalculationStep">
+            <summary>
+            A pure domain-specific calculation step that evaluates the continuum stress 
+            at the final integration time.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.SensitivityAnalysis.Steps.FinalStressCalculationStep.#ctor(MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.IMechanicalModelCalculatorFacade,System.Double)">
+            <summary>
+            A pure domain-specific calculation step that evaluates the continuum stress 
+            at the final integration time.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.SensitivityAnalysis.Steps.FinalStressCalculationStep.Name">
+            <inheritdoc />
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.SensitivityAnalysis.Steps.FinalStressCalculationStep.Execute(MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.GenericMechanicalModelInput)">
+            <inheritdoc />
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.SensitivityAnalysis.Steps.FinalStressCalculationStep.Dispose">
+            <inheritdoc />
+        </member>
+        <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.SensitivityAnalysis.Steps.InitialStressCalculationStep">
+            <summary>
+            A pure domain-specific calculation step that evaluates the continuum stress 
+            at the initial state (typically the end of the loading ramp).
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.SensitivityAnalysis.Steps.InitialStressCalculationStep.#ctor(MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.IMechanicalModelCalculatorFacade,System.Double)">
+            <summary>
+            A pure domain-specific calculation step that evaluates the continuum stress 
+            at the initial state (typically the end of the loading ramp).
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.SensitivityAnalysis.Steps.InitialStressCalculationStep.Name">
+            <inheritdoc />
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.SensitivityAnalysis.Steps.InitialStressCalculationStep.Execute(MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.GenericMechanicalModelInput)">
+            <inheritdoc />
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.SensitivityAnalysis.Steps.InitialStressCalculationStep.Dispose">
+            <inheritdoc />
+        </member>
+        <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.SensitivityAnalysis.Steps.ParametricSweepAggregatorStep">
+            <summary>
+            Aggregates the natively joined results from the 3-way Fork back into a unified metric structure.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.SensitivityAnalysis.Steps.ParametricSweepAggregatorStep.Name">
+            <inheritdoc />
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.SensitivityAnalysis.Steps.ParametricSweepAggregatorStep.Execute(System.Tuple{System.ValueTuple{System.String,System.Double,System.Double},System.Double,System.ValueTuple{System.Double,System.Double}})">
+            <inheritdoc />
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.SensitivityAnalysis.Steps.ParametricSweepAggregatorStep.Dispose">
+            <inheritdoc />
+        </member>
+        <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.SensitivityAnalysis.Steps.ParametricSweepCsvWriterStep">
+            <summary>
+            A terminal I/O boundary step that consumes strictly formatted payloads and partitions 
+            the numerical results into segregated CSV files based on the evaluated variable.
+            Maintains open stream buffers during the execution for high performance.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.SensitivityAnalysis.Steps.ParametricSweepCsvWriterStep.Name">
+            <inheritdoc />
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.SensitivityAnalysis.Steps.ParametricSweepCsvWriterStep.ExecuteAsync(MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Models.ParametricSweepFinalPayload,System.Threading.CancellationToken)">
+            <inheritdoc />
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.SensitivityAnalysis.Steps.ParametricSweepCsvWriterStep.DisposeAsync">
+            <inheritdoc />
+        </member>
+        <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.SensitivityAnalysis.Steps.SweepIngestionStep">
+            <summary>
+            Pipeline ingestion step that dynamically resolves the appropriate generator for the given mechanical model
+            and lazily yields permutations into the stream.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.SensitivityAnalysis.Steps.SweepIngestionStep.#ctor(MelloSilveiraTools.Core.Providers.ServiceLocator)">
+            <summary>
+            Pipeline ingestion step that dynamically resolves the appropriate generator for the given mechanical model
+            and lazily yields permutations into the stream.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.SensitivityAnalysis.Steps.SweepIngestionStep.Name">
+            <inheritdoc />
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.SensitivityAnalysis.Steps.SweepIngestionStep.ExecuteAsync(MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Models.ParametricSweepInput,System.Threading.CancellationToken)">
+            <inheritdoc />
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.SensitivityAnalysis.Steps.SweepIngestionStep.DisposeAsync">
             <inheritdoc />
         </member>
         <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.ExpressionPathResolver.GetPath``2(System.Linq.Expressions.Expression{System.Func{``0,``1}})">
@@ -1282,98 +1370,143 @@
             Converts a lambda expression into a string path using the built-in C# compiler expression tree.
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Morris.MorrisAnalyzer.Analyze(System.Int32,System.Collections.Generic.IReadOnlyCollection{System.String},System.Collections.Generic.IReadOnlyCollection{System.String},System.Collections.Generic.List{System.Collections.Generic.List{MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Morris.MorrisPoint}})">
+        <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Generators.FungParametricSweepGenerator">
             <summary>
-            Analyzes the trajectories and calculates Mu, MuStar, and Sigma.
-            </summary>
-            <param name="levels">The 'p' grid levels used during generation.</param>
-            <param name="targetOutputs">List of mechanical outputs (e.g., "Stress").</param>
-            <param name="parameterPaths">List of parameters analyzed (e.g., "N", "A[0]").</param>
-            <param name="trajectories">The completed simulation points grouped by trajectory.</param>
-        </member>
-        <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Morris.MorrisInput">
-            <summary>
-            The exact payload required to start a Morris Screening analysis.
+            Strongly typed OAAT generator for Fung Quasi-Linear Viscoelastic constitutive parameters.
             </summary>
         </member>
-        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Morris.MorrisInput.MechanicalModelName">
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Generators.FungParametricSweepGenerator.GeneratePropertyVariations(MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Models.ParametricSweepInput,MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.QuasiLinear.FungConstitutiveParameters,System.Double)">
+            <inheritdoc />
+        </member>
+        <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Generators.IParametricSweepGenerator">
             <summary>
-            Discriminator to identify the specific mechanical model (e.g., "Schapery", "Fung").
+            Core contract for specific constitutive mechanical model sweep generators.
+            Inheritors must implement the One-At-A-Time (OAAT) variation logic specific to their parameter type.
             </summary>
         </member>
-        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Morris.MorrisInput.BaselineConfiguration">
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Generators.IParametricSweepGenerator.GenerateCombinations(MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Models.ParametricSweepInput)">
             <summary>
-            The un-mutated biological configuration.
+            Generates combinations iterating over parameters one-at-a-time (OAAT) against a static baseline.
+            </summary>
+            <param name="input">The parametric sweep input defining ranges and limits.</param>
+            <returns>A stream of generated simulation envelopes.</returns>
+        </member>
+        <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Generators.ParametricSweepGeneratorBase`1">
+            <summary>
+            Base class for parametric sweep generators, providing common envelope creation and boundary condition iteration.
+            </summary>
+            <typeparam name="TConstitutiveParameters">The strictly typed constitutive parameters.</typeparam>
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Generators.ParametricSweepGeneratorBase`1.GenerateCombinations(MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Models.ParametricSweepInput)">
+            <inheritdoc />
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Generators.ParametricSweepGeneratorBase`1.GeneratePropertyVariations(MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Models.ParametricSweepInput,`0,System.Double)">
+            <summary>
+            Generates property-specific OAAT variations, implemented by derived strongly-typed generators.
             </summary>
         </member>
-        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Morris.MorrisInput.Boundaries">
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Generators.ParametricSweepGeneratorBase`1.CreateEnvelope(System.String,System.Double,`0,System.Double,MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Models.ParametricSweepInput)">
             <summary>
-            The list of parameters to include in the screening (defines 'k').
+            Creates a standardized envelope for the TPL Dataflow pipeline.
             </summary>
         </member>
-        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Morris.MorrisInput.TargetOutputs">
+        <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Generators.RangeParametersExtensions">
             <summary>
-            The mechanical outputs to analyze (e.g., "Stress", "Force").
+            Provides extension methods for generating discrete values from a RangeParameters definition.
             </summary>
         </member>
-        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Morris.MorrisInput.Trajectories">
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Generators.RangeParametersExtensions.GenerateValues(MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Models.Range.RangeParameters)">
             <summary>
-            Number of trajectories (r) - random starting points in the parameter space.
+            Evaluates and yields all discrete points within the specified range.
+            </summary>
+            <param name="range">The range parameters defining bounds and progression logic.</param>
+            <returns>A stream of generated values.</returns>
+        </member>
+        <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Models.ParametricSweepFinalPayload">
+            <summary>
+            Final structured payload after mathematical derivations (Absolute and Percentage Deltas).
+            Consumed by the I/O layer for CSV generation.
             </summary>
         </member>
-        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Morris.MorrisInput.Levels">
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Models.ParametricSweepFinalPayload.#ctor(System.String,System.Double,System.Double,System.Double,System.Double,System.Double,System.Double,System.Double)">
             <summary>
-            Number of levels (p) - the resolution of the normalized grid.
+            Final structured payload after mathematical derivations (Absolute and Percentage Deltas).
+            Consumed by the I/O layer for CSV generation.
             </summary>
         </member>
-        <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Morris.MorrisMetrics">
+        <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Models.ParametricSweepInput">
             <summary>
-            The core diagnostic metrics for a specific parameter against a specific mechanical output.
+            Represents the input request for a Full Factorial Parametric Sweep (Grid Search) analysis.
             </summary>
         </member>
-        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Morris.MorrisMetrics.Mu">
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Models.ParametricSweepInput.MechanicalModelName">
             <summary>
-            Standard Mean. Can indicate directional effect, but risks positive/negative cancellation.
+            Gets the name of the mechanical model to be evaluated (e.g., "Maxwell", "Fung").
             </summary>
         </member>
-        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Morris.MorrisMetrics.MuStar">
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Models.ParametricSweepInput.Baseline">
             <summary>
-            Absolute Mean. The overall magnitude of influence this parameter has on the output.
+            Gets the baseline constitutive parameters.
             </summary>
         </member>
-        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Morris.MorrisMetrics.Sigma">
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Models.ParametricSweepInput.ConstantVariables">
             <summary>
-            Standard Deviation. Measures non-linearity and interaction with other parameters.
+            Gets the ranges for constant scalar variables.
             </summary>
         </member>
-        <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Morris.MorrisOutput">
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Models.ParametricSweepInput.ArrayVariables">
             <summary>
-            The final result object containing all calculated metrics.
+            Gets the ranges for array-based variables.
             </summary>
         </member>
-        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Morris.MorrisOutput.Results">
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Models.ParametricSweepInput.StrainRange">
             <summary>
-            A flat list of every computed metric combination (Parameter x Output).
+            Gets the range of strain to be applied in the mechanical simulation.
             </summary>
         </member>
-        <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Morris.MorrisParameterBoundary">
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Models.ParametricSweepInput.RampTimeConsideration">
             <summary>
-            Maps a parameter (e.g., "N" or "A[0]") to its specific physical boundaries.
+            Gets the configuration for how ramp time is considered in the simulation.
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Morris.MorrisParameterBoundary.#ctor(System.String,MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Models.Range.RangeParameters)">
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Models.ParametricSweepInput.RampTime">
             <summary>
-            Maps a parameter (e.g., "N" or "A[0]") to its specific physical boundaries.
+            Gets the duration of the initial loading ramp, if applicable.
             </summary>
         </member>
-        <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Morris.MorrisPoint">
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Models.ParametricSweepInput.TimeStep">
             <summary>
-            Represents a single completed simulation point within a trajectory.
+            Gets the time step increment for the simulation.
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Morris.MorrisPoint.#ctor(System.Collections.Generic.IReadOnlyDictionary{System.String,System.Double},System.Collections.Generic.IReadOnlyDictionary{System.String,System.Double})">
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Models.ParametricSweepInput.InitialTime">
             <summary>
-            Represents a single completed simulation point within a trajectory.
+            Gets the initial time to evaluate the initial stress.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Models.ParametricSweepInput.FinalTime">
+            <summary>
+            Gets the final time of the simulation.
+            </summary>
+        </member>
+        <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Models.SimulationMetrics">
+            <summary>
+            Holds the raw numerical outputs of the three parallel mathematical calculations.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Models.SimulationMetrics.#ctor(System.Double,System.Double,System.Double,System.Double)">
+            <summary>
+            Holds the raw numerical outputs of the three parallel mathematical calculations.
+            </summary>
+        </member>
+        <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Models.SweepSimulationEnvelope">
+            <summary>
+            Envelope used to propagate contextual metadata through the TPL Dataflow pipeline.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Models.SweepSimulationEnvelope.#ctor(System.Guid,System.String,System.Double,MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.GenericMechanicalModelInput)">
+            <summary>
+            Envelope used to propagate contextual metadata through the TPL Dataflow pipeline.
             </summary>
         </member>
     </members>

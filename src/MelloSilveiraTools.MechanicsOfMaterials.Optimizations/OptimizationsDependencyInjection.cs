@@ -6,9 +6,9 @@ using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.Experiment
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Factories;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Steps.CurveFitter;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.SensitivityAnalysis;
+using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Generators;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.SensitivityAnalysis.Models;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.SensitivityAnalysis.Steps;
-using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Morris;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations;
@@ -51,9 +51,7 @@ public static class OptimizationsDependencyInjection
             // Register the experimental data service.
             .AddScoped<IExperimentalDataProcessingPipeline, ExperimentalDataProcessingPipeline>()
             // Register Sensitivity Analysis services.
-            .AddSingleton<SensitivityAnalysisSettings>()
-            .AddSingleton<MorrisAnalyzer>()
-            .AddSingleton<MorrisAnalyzerStep>()
-            .AddScoped<ISensitivityAnalysisPipeline, SensitivityAnalysisPipeline>();
+            .AddKeyedSingleton<IParametricSweepGenerator, FungParametricSweepGenerator>("Fung")
+            .AddScoped<ParametricSweepPipeline>();
     }
 }
