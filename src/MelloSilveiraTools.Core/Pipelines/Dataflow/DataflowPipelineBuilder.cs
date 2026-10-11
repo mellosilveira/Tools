@@ -178,6 +178,7 @@ internal class DataflowPipelineBuilder<THead, TTail>(
         ISyncPipelineStep<TTail, TOut> syncStep => builder.AddStep(syncStep),
         IAsyncPipelineStep<TTail, TOut> asyncStep => builder.AddStep(asyncStep),
         IAsyncEnumerablePipelineStep<TTail, TOut> enumStep => builder.AddStep(enumStep),
+        IEnumerablePipelineStep<TTail, TOut> syncEnumStep => builder.AddStep(syncEnumStep),
         _ => throw new NotSupportedException($"Pipeline step type '{step.GetType().Name}' is not supported in this Fork overload.")
     };
 
@@ -296,6 +297,26 @@ internal class DataflowPipelineBuilder<THead, TTail>(
 
         target.Completion.ContinueWith(source);
         return LinkAndContinue(DataflowBlock.Encapsulate(target, source));
+    }
+
+    /// <inheritdoc/>
+    public IDataflowPipelineBuilder<THead, TNextOut> AddStep<TNextOut>(IEnumerablePipelineStep<TTail, TNextOut> step, PipelineStepOptions options = default)
+    {
+        _steps.Add(step);
+        ExecutionDataflowBlockOptions dataFlowOptions = options.ToDataflowOptions(pipelineCancellationToken);
+
+        if (_deadLetterQueueEnabled)
+        {
+            TransformManyBlock<TTail, SafeResult<TTail, TNextOut>> safeBlock = new(
+                TelemetryExtensions.HandleSafeExecution<TTail, TNextOut>(logger, GetTelemetryName(step.Name), step.Execute, pipelineCancellationToken),
+                dataFlowOptions);
+            return AddSafeStep(safeBlock, dataFlowOptions);
+        }
+
+        TransformManyBlock<TTail, TNextOut> nextBlock = new(
+            TelemetryExtensions.HandleExecution<TTail, TNextOut>(logger, GetTelemetryName(step.Name), step.Execute, pipelineCancellationToken),
+            dataFlowOptions);
+        return LinkAndContinue(nextBlock);
     }
 
     /// <inheritdoc/>
@@ -465,7 +486,7 @@ internal class DataflowPipelineBuilder<THead, TTail>(
     /// <remarks>
     /// Design: Splits a single logical step into three blocks (execution wrapper, success router, failure router) to keep consumer configuration clean while satisfying complex routing constraints.
     /// </remarks>
-    private DataflowPipelineBuilder<THead, TNextOut> AddSafeStep<TNextOut>(TransformBlock<TTail, SafeResult<TTail, TNextOut>> safeBlock, ExecutionDataflowBlockOptions dataFlowOptions)
+    private DataflowPipelineBuilder<THead, TNextOut> AddSafeStep<TNextOut>(IPropagatorBlock<TTail, SafeResult<TTail, TNextOut>> safeBlock, ExecutionDataflowBlockOptions dataFlowOptions)
     {
         tailBlock.LinkTo(safeBlock);
 

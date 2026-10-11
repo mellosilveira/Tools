@@ -10,27 +10,25 @@ namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.Sensit
 /// Pipeline ingestion step that dynamically resolves the appropriate generator for the given mechanical model
 /// and lazily yields permutations into the stream.
 /// </summary>
-public sealed class SweepIngestionStep(ServiceLocator serviceLocator) : IAsyncEnumerablePipelineStep<ParametricSweepInput, SweepSimulationEnvelope>
+public sealed class SweepIngestionStep(ServiceLocator serviceLocator) : IEnumerablePipelineStep<ParametricSweepInput, SweepSimulationEnvelope>
 {
     /// <inheritdoc />
     public string Name => nameof(SweepIngestionStep);
 
     /// <inheritdoc />
-    public async IAsyncEnumerable<SweepSimulationEnvelope> ExecuteAsync(ParametricSweepInput input, [EnumeratorCancellation] CancellationToken ct)
+    public IEnumerable<SweepSimulationEnvelope> Execute(ParametricSweepInput input, CancellationToken cancellationToken)
     {
         IParametricSweepGenerator generator = serviceLocator.GetRequiredKeyedService<IParametricSweepGenerator>(input.MechanicalModelName);
-        
         foreach (SweepSimulationEnvelope envelope in generator.GenerateCombinations(input))
         {
-            ct.ThrowIfCancellationRequested();
+            cancellationToken.ThrowIfCancellationRequested();
             yield return envelope;
         }
     }
 
     /// <inheritdoc />
-    public ValueTask DisposeAsync()
+    public void Dispose()
     {
         GC.SuppressFinalize(this);
-        return ValueTask.CompletedTask;
     }
 }

@@ -1,3 +1,4 @@
+using MelloSilveiraTools.Core.Models;
 using MelloSilveiraTools.Core.Pipelines;
 using MelloSilveiraTools.Core.Pipelines.Dataflow;
 using MelloSilveiraTools.Core.Providers;
@@ -11,29 +12,31 @@ namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.Sensit
 
 /// <summary>
 /// Orchestrates the One-At-A-Time (OAAT) Parametric Sweep using the TPL Dataflow framework.
-/// Configures the linear enrichment flow, the internal 3-way fork for mechanical calculations, 
-/// the synchronization joiner, and the terminal CSV writer.
+/// Configures the linear enrichment flow, the internal 3-way fork for mechanical calculations, the synchronization joiner, and the terminal CSV writer.
 /// </summary>
 public sealed class ParametricSweepPipeline(
     ILogger<ParametricSweepPipeline> logger,
-    IMechanicalModelCalculatorFacade calculator,
+    IMechanicalModelCalculatorFactory mechanicalModelCalculatorFactory,
     ServiceLocator serviceLocator)
 {
     /// <summary>
     /// Builds and executes the parametric sweep pipeline for a given analysis request.
     /// </summary>
-    public IDataflowPipeline<ParametricSweepInput> Build(double initialTime, double finalTime)
+    public async Task<Result<string>> ProcessAsync(ParametricSweepInput input, CancellationToken cancellationToken = default)
     {
-        SweepIngestionStep ingestion = new(serviceLocator);
+        string uniqueIdentifier = string.IsNullOrWhiteSpace(input.Identifier) ? Guid.NewGuid().ToString("N") : input.Identifier;
+        
+        SweepIngestionStep ingestionStep = new(serviceLocator);
 
-        InitialStressCalculationStep initialStep = new(calculator, initialTime);
-        FinalStressCalculationStep finalStep = new(calculator, finalTime);
+        IMechanicalModelCalculatorFacade calculator = mechanicalModelCalculatorFactory.CreateCalculatorFacade(input.MechanicalModelName);
+        InitialStressCalculationStep initialStep = new(calculator, input.InitialTime);
+        FinalStressCalculationStep finalStep = new(calculator, input.FinalTime);
         AsymptoteCalculationStep asymptoteStep = new(calculator);
 
         ParametricSweepCsvWriterStep writer = new();
 
-        return PipelineFactory.StartDataflow<ParametricSweepInput>(logger)
-            .AddStep(ingestion)
+        IDataflowPipeline<ParametricSweepInput> pipeline = PipelineFactory.StartDataflow<ParametricSweepInput>(logger)
+            .AddStep(ingestionStep)
             .Fork(
                 calculationBranch => calculationBranch
                     .AddDataMapping(envelope => envelope.SimulationInput)
@@ -64,5 +67,20 @@ public sealed class ParametricSweepPipeline(
             })
             .AddBroadcastStep(writer)
             .BuildTerminal();
+
+        await using (pipeline)
+        {
+            bool accepted = await pipeline.SendAsync(input, cancellationToken).ConfigureAwait(false);
+            if (!accepted)
+            {
+                logger.LogError("Failed to ingest input into the parametric sweep pipeline. Identifier: {Identifier}. Input: {@Input}", uniqueIdentifier, input);
+                return Result.CreateBadRequest("Failed to ingest input into the parametric sweep pipeline.");
+            }
+
+            pipeline.Complete();
+            await pipeline.Completion.ConfigureAwait(false);
+
+            return uniqueIdentifier;
+        }
     }
 }

@@ -183,6 +183,15 @@ public interface IDataflowPipelineBuilder<THead, TTail>
     IDataflowPipelineBuilder<THead, TNextOut> AddStep<TNextOut>(IAsyncEnumerablePipelineStep<TTail, TNextOut> step, PipelineStepOptions options = default);
 
     /// <summary>
+    /// Appends a custom synchronous enumerable streaming step to the pipeline, expanding each input payload into multiple downstream messages.
+    /// </summary>
+    /// <typeparam name="TNextOut">The resultant output element type yielded in the enumerable sequence.</typeparam>
+    /// <param name="step">The synchronous enumerable pipeline step instance to execute.</param>
+    /// <param name="options">Concurrency and buffer options for this step.</param>
+    /// <returns>A new <see cref="IDataflowPipelineBuilder{THead, TNextOut}"/> continuing from the individual yielded elements.</returns>
+    IDataflowPipelineBuilder<THead, TNextOut> AddStep<TNextOut>(IEnumerablePipelineStep<TTail, TNextOut> step, PipelineStepOptions options = default);
+
+    /// <summary>
     /// Appends an asynchronous forking step that routes payloads to a fallback step if a specific condition is met.
     /// </summary>
     /// <typeparam name="TNextOut">The output type produced by either the primary or fallback step.</typeparam>

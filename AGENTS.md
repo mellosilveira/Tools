@@ -191,10 +191,11 @@ AI agents modifying or generating code in this repository **must strictly adhere
 - **`IAsyncPipelineStep<in TIn, TOut>`**: Asynchronous step contract (`Task<TOut> ExecuteAsync(TIn input, CancellationToken ct)`) implementing `IAsyncDisposable`.
 - **`ISyncPipelineStep<in TIn, out TOut>`**: Synchronous step contract (`TOut Execute(TIn input)`) implementing `IDisposable` (does not inherit from `IAsyncDisposable`).
 - **`IAsyncEnumerablePipelineStep<in TIn, out TOut>`**: Streaming step contract (`IAsyncEnumerable<TOut> ExecuteAsync(TIn input, CancellationToken ct)`) implementing `IAsyncDisposable`.
+- **`IEnumerablePipelineStep<in TIn, out TOut>`**: Synchronous enumerable collection step contract (`IEnumerable<TOut> Execute(TIn input, CancellationToken ct)`) implementing `IDisposable`, designed for 1-to-many fan-out transformations via TPL Dataflow `TransformManyBlock`.
 
 **Two pipeline flavors:**
 - **TPL Dataflow (streaming/push):** `PipelineFactory.StartDataflow<T>()` → `IDataflowPipelineBuilder` → `IDataflowPipeline<T>`.
-  - Supports: `AddStep` (sync, async, and `IAsyncEnumerable`), `AddDataMapping`, `AddForkingStep`, `AddFilterStep`, `AddGroupWhileStep`, `AddCollectAllStep`, `Fork` (2-way and 3-way, accepting branch delegates or step instances directly), `AddBroadcastStep` (side-effect observer and mapped transform observer), and `BuildTerminal`.
+  - Supports: `AddStep` (sync, async, `IAsyncEnumerable`, and `IEnumerable`), `AddDataMapping`, `AddForkingStep`, `AddFilterStep`, `AddGroupWhileStep`, `AddCollectAllStep`, `Fork` (2-way and 3-way, accepting branch delegates or step instances directly), `AddBroadcastStep` (side-effect observer and mapped transform observer), and `BuildTerminal`.
   - Completion propagation: `DataflowExtensions.LinkTo` C# 13 extension members override TPL Dataflow defaults by setting `PropagateCompletion = true` on block linkages, ensuring graceful graph draining upon `pipeline.Complete()`.
   - Resource cleanup: `DataflowPipeline<TIn>.DisposeAsync` encloses step disposal in a `try ... finally` block, ensuring all `IDisposable` and `IAsyncDisposable` step resources are reclaimed even if graph completion faults.
   - Dead-Letter Queue (DLQ): `WithDeadLetterQueue()` isolates faulted items via `ActionBlock<FailedPayload>`.

@@ -58,6 +58,6 @@ public abstract class ParametricSweepGeneratorBase<TConstitutiveParameters> : IP
         };
 
         GenericMechanicalModelInput simulationInput = new(baseInput, constitutiveParameters);
-        return new SweepSimulationEnvelope(Guid.NewGuid(), variableName, variableValue, simulationInput);
+        return new SweepSimulationEnvelope(variableName, variableValue, simulationInput);
     }
 }

@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [UNRELEASED]
+
+### Added
+- `IEnumerablePipelineStep<in TIn, out TOut>` in `src/MelloSilveiraTools.Core/Pipelines/Steps/IEnumerablePipelineStep.cs`: Synchronous collection and streaming 1-to-many execution step contract (`IEnumerable<TOut> Execute(TIn input, CancellationToken cancellationToken)`) implementing `IDisposable`. Designed for synchronous 1-to-many fan-out transformations via TPL Dataflow's `TransformManyBlock`, with cooperative cancellation token propagation, safe Dead-Letter Queue (DLQ) routing, and automatic resource disposal.
+- TPL Dataflow Pipelines (`IDataflowPipelineBuilder<T>`, `IDataflowPipeline<T>`): `.AddStep()` overload supporting `IEnumerablePipelineStep<TIn, TOut>` with cooperative cancellation, DLQ error handling, and `IDisposable` lifecycle management via `TransformManyBlock`.
+
 ## [2.0.0] - 2026-10-08
 ### Added
 - `LogarithmicFunction` in `MelloSilveiraTools.Mathematics.Functions`.

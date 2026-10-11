@@ -6,7 +6,6 @@ namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnaly
 /// Envelope used to propagate contextual metadata through the TPL Dataflow pipeline.
 /// </summary>
 public record SweepSimulationEnvelope(
-    Guid SweepId,
     string VariableName,
     double VariableValue,
     GenericMechanicalModelInput SimulationInput);

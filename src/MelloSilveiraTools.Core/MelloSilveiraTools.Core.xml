@@ -1919,6 +1919,9 @@
         <member name="M:MelloSilveiraTools.Core.Pipelines.Dataflow.DataflowPipelineBuilder`2.AddStep``1(MelloSilveiraTools.Core.Pipelines.Steps.IAsyncEnumerablePipelineStep{`1,``0},MelloSilveiraTools.Core.Pipelines.Models.PipelineStepOptions)">
             <inheritdoc/>
         </member>
+        <member name="M:MelloSilveiraTools.Core.Pipelines.Dataflow.DataflowPipelineBuilder`2.AddStep``1(MelloSilveiraTools.Core.Pipelines.Steps.IEnumerablePipelineStep{`1,``0},MelloSilveiraTools.Core.Pipelines.Models.PipelineStepOptions)">
+            <inheritdoc/>
+        </member>
         <member name="M:MelloSilveiraTools.Core.Pipelines.Dataflow.DataflowPipelineBuilder`2.AddForkingStep``1(MelloSilveiraTools.Core.Pipelines.Steps.ISyncPipelineStep{`1,``0},System.Func{``0,System.Boolean},MelloSilveiraTools.Core.Pipelines.Steps.ISyncPipelineStep{`1,``0},MelloSilveiraTools.Core.Pipelines.Models.PipelineStepOptions)">
             <inheritdoc/>
         </member>
@@ -1943,7 +1946,7 @@
         <member name="M:MelloSilveiraTools.Core.Pipelines.Dataflow.DataflowPipelineBuilder`2.BuildTerminal(System.String,MelloSilveiraTools.Core.Pipelines.Models.PipelineStepOptions)">
             <inheritdoc/>
         </member>
-        <member name="M:MelloSilveiraTools.Core.Pipelines.Dataflow.DataflowPipelineBuilder`2.AddSafeStep``1(System.Threading.Tasks.Dataflow.TransformBlock{`1,MelloSilveiraTools.Core.Pipelines.Models.SafeResult{`1,``0}},System.Threading.Tasks.Dataflow.ExecutionDataflowBlockOptions)">
+        <member name="M:MelloSilveiraTools.Core.Pipelines.Dataflow.DataflowPipelineBuilder`2.AddSafeStep``1(System.Threading.Tasks.Dataflow.IPropagatorBlock{`1,MelloSilveiraTools.Core.Pipelines.Models.SafeResult{`1,``0}},System.Threading.Tasks.Dataflow.ExecutionDataflowBlockOptions)">
             <summary>
             Constructs a bifurcated routing topology to handle safe result payloads.
             </summary>
@@ -2163,6 +2166,15 @@
             <param name="step">The asynchronous enumerable pipeline step instance to execute.</param>
             <param name="options">Concurrency and buffer options for this step.</param>
             <returns>A new <see cref="T:MelloSilveiraTools.Core.Pipelines.Dataflow.IDataflowPipelineBuilder`2"/> continuing from the stream items.</returns>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Pipelines.Dataflow.IDataflowPipelineBuilder`2.AddStep``1(MelloSilveiraTools.Core.Pipelines.Steps.IEnumerablePipelineStep{`1,``0},MelloSilveiraTools.Core.Pipelines.Models.PipelineStepOptions)">
+            <summary>
+            Appends a custom synchronous enumerable streaming step to the pipeline, expanding each input payload into multiple downstream messages.
+            </summary>
+            <typeparam name="TNextOut">The resultant output element type yielded in the enumerable sequence.</typeparam>
+            <param name="step">The synchronous enumerable pipeline step instance to execute.</param>
+            <param name="options">Concurrency and buffer options for this step.</param>
+            <returns>A new <see cref="T:MelloSilveiraTools.Core.Pipelines.Dataflow.IDataflowPipelineBuilder`2"/> continuing from the individual yielded elements.</returns>
         </member>
         <member name="M:MelloSilveiraTools.Core.Pipelines.Dataflow.IDataflowPipelineBuilder`2.AddForkingStep``1(MelloSilveiraTools.Core.Pipelines.Steps.IAsyncPipelineStep{`1,``0},System.Func{``0,System.Boolean},MelloSilveiraTools.Core.Pipelines.Steps.IAsyncPipelineStep{`1,``0},MelloSilveiraTools.Core.Pipelines.Models.PipelineStepOptions)">
             <summary>
@@ -2637,6 +2649,42 @@
             <param name="cancellationToken">The cooperative cancellation token injected by the pipeline lifecycle orchestrator.</param>
             <returns>A task representing the asynchronous operation, encapsulating the mutated terminal state.</returns>
         </member>
+        <member name="T:MelloSilveiraTools.Core.Pipelines.Steps.IEnumerablePipelineStep`2">
+            <summary>
+            Defines the atomic contract for an enumerable collection execution boundary within a pipeline topology.
+            Encapsulates a singular domain responsibility, transforming a single input payload into an <see cref="T:System.Collections.Generic.IEnumerable`1"/> sequence
+            of output items, intended for one-to-many fan-out transformations (e.g., via TPL Dataflow's <see cref="T:System.Threading.Tasks.Dataflow.TransformManyBlock`2"/>).
+            </summary>
+            <typeparam name="TIn">The expected input payload type ingested by this execution node.</typeparam>
+            <typeparam name="TOut">The resultant output element type yielded in the enumerable collection sequence.</typeparam>
+            <remarks>
+            <para>
+            <b>Pipeline Integration &amp; Dataflow Mapping:</b><br/>
+            This contract mirrors <see cref="T:MelloSilveiraTools.Core.Pipelines.Steps.IAsyncEnumerablePipelineStep`2"/> for scenarios where item generation is synchronous,
+            in-memory, or CPU-bound. When integrated with TPL Dataflow, this step is consumed directly by an internal
+            <see cref="T:System.Threading.Tasks.Dataflow.TransformManyBlock`2"/>, which flattens each produced collection into individual downstream messages.
+            </para>
+            <para>
+            <b>Parallelism &amp; Thread Safety:</b><br/>
+            Because the pipeline builder may configure <see cref="P:System.Threading.Tasks.Dataflow.ExecutionDataflowBlockOptions.MaxDegreeOfParallelism"/>
+            greater than 1, implementations of this step must be either stateless or thread-safe across concurrent invocations of <see cref="M:MelloSilveiraTools.Core.Pipelines.Steps.IEnumerablePipelineStep`2.Execute(`0,System.Threading.CancellationToken)"/>.
+            </para>
+            <para>
+            <b>Cancellation &amp; Resource Lifecycle:</b><br/>
+            Cooperative cancellation is propagated via <see cref="T:System.Threading.CancellationToken"/>. Step implementations generating large or deferred sequences
+            should observe the token during production and iteration. Resource cleanup is bound via <see cref="T:System.IDisposable"/>, guaranteed to be invoked
+            during pipeline termination and disposal.
+            </para>
+            </remarks>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Pipelines.Steps.IEnumerablePipelineStep`2.Execute(`0,System.Threading.CancellationToken)">
+            <summary>
+            Invokes the encapsulated domain logic synchronously, returning an enumerable sequence of resultant output items.
+            </summary>
+            <param name="input">The immutable payload propagated from the preceding pipeline node.</param>
+            <param name="cancellationToken">The cooperative cancellation token injected by the pipeline lifecycle orchestrator.</param>
+            <returns>An enumerable sequence yielding items produced by this execution node.</returns>
+        </member>
         <member name="T:MelloSilveiraTools.Core.Pipelines.Steps.IPipelineStep">
             <summary>
             Defines the core metadata contract common to all pipeline execution step topologies.
@@ -2790,6 +2838,16 @@
         <member name="M:MelloSilveiraTools.Core.Pipelines.Telemetry.TelemetryExtensions.HandleSafeExecution``2(Microsoft.Extensions.Logging.ILogger,System.String,System.Func{``0,System.Threading.CancellationToken,System.Collections.Generic.IAsyncEnumerable{``1}},System.Threading.CancellationToken)">
             <summary>
             Wraps a streaming function returning an <see cref="T:System.Collections.Generic.IAsyncEnumerable`1"/> with OpenTelemetry tracing and structured logging.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Pipelines.Telemetry.TelemetryExtensions.HandleExecution``2(Microsoft.Extensions.Logging.ILogger,System.String,System.Func{``0,System.Threading.CancellationToken,System.Collections.Generic.IEnumerable{``1}},System.Threading.CancellationToken)">
+            <summary>
+            Wraps an enumerable transformation function returning an <see cref="T:System.Collections.Generic.IEnumerable`1"/> with OpenTelemetry tracing and structured logging.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Pipelines.Telemetry.TelemetryExtensions.HandleSafeExecution``2(Microsoft.Extensions.Logging.ILogger,System.String,System.Func{``0,System.Threading.CancellationToken,System.Collections.Generic.IEnumerable{``1}},System.Threading.CancellationToken)">
+            <summary>
+            Wraps an enumerable transformation function returning an <see cref="T:System.Collections.Generic.IEnumerable`1"/> with OpenTelemetry tracing, structured logging, and safe DLQ routing.
             </summary>
         </member>
         <member name="M:MelloSilveiraTools.Core.Pipelines.Telemetry.TelemetryExtensions.ExecuteAsync``2(Microsoft.Extensions.Logging.ILogger,System.Diagnostics.Activity,``0,System.String,System.Func{``0,System.Threading.CancellationToken,System.Threading.Tasks.Task{``1}},System.Nullable{MelloSilveiraTools.Core.Pipelines.Models.RetryOptions},System.Threading.CancellationToken)">

@@ -10,6 +10,11 @@ namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnaly
 public record ParametricSweepInput
 {
     /// <summary>
+    /// Optional predefined analysis identifier. If not provided, a unique GUID-based identifier is generated.
+    /// </summary>
+    public string? Identifier { get; init; }
+
+    /// <summary>
     /// Gets the name of the mechanical model to be evaluated (e.g., "Maxwell", "Fung").
     /// </summary>
     public required string MechanicalModelName { get; init; }

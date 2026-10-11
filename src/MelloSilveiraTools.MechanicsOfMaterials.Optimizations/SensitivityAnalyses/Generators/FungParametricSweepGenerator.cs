@@ -6,7 +6,7 @@ using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.
 namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Generators;
 
 /// <summary>
-/// Strongly typed OAAT generator for Fung Quasi-Linear Viscoelastic constitutive parameters.
+/// Strongly typed OAT (One-at-a-Time) generator for Fung Quasi-Linear Viscoelastic constitutive parameters.
 /// </summary>
 public sealed class FungParametricSweepGenerator : ParametricSweepGeneratorBase<FungConstitutiveParameters>
 {

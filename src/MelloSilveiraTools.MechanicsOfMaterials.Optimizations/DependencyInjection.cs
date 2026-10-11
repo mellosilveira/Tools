@@ -7,9 +7,10 @@ using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.Experiment
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Steps.CurveFitter;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.SensitivityAnalysis;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Generators;
-using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.SensitivityAnalysis.Models;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.SensitivityAnalysis.Steps;
 using Microsoft.Extensions.DependencyInjection;
+using MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels;
+using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Models;
 
 namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations;
 
@@ -17,7 +18,7 @@ namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations;
 /// Provides extension methods to register Optimizations services
 /// (experimental data processing pipeline, curve fitter steps, and factory) into the DI container.
 /// </summary>
-public static class OptimizationsDependencyInjection
+public static class DependencyInjection
 {
     extension(IServiceCollection services)
     {
@@ -38,8 +39,8 @@ public static class OptimizationsDependencyInjection
             .AddSingleton<FungRelaxationOnlyCurveFitterStep>()
             .AddSingleton<SimplifiedFungRelaxationOnlyCurveFitterStep>()
             // Register Curve Fitter implementations.
-            .AddSingleton<ICurveFitter, AlglibCurveFitter>()
-            //.AddSingleton<ICurveFitter, MathNetCurveFitter>()
+            .AddKeyedSingleton<ICurveFitter, AlglibCurveFitter>(CurveFitterType.Alglib)
+            .AddKeyedSingleton<ICurveFitter, MathNetCurveFitter>(CurveFitterType.MathNet)
             // Register MathExpression curve fitter decorators.
             .AddKeyedSingleton<IMathExpressionCurveFitter, PronySeriesCurveFitter>(MathExpressionType.PronySeries)
             // Register MathematicalFunction curve fitter decorators.
@@ -48,10 +49,10 @@ public static class OptimizationsDependencyInjection
             .AddKeyedSingleton<IMathematicalFunctionCurveFitter, PolynomialCurveFitter>(FunctionType.Polynomial)
             // Register the step factory.
             .AddSingleton<IMechanicalModelStepFactory, MechanicalModelStepFactory>()
-            // Register the experimental data service.
+            // Register pipelines.
             .AddScoped<IExperimentalDataProcessingPipeline, ExperimentalDataProcessingPipeline>()
             // Register Sensitivity Analysis services.
-            .AddKeyedSingleton<IParametricSweepGenerator, FungParametricSweepGenerator>("Fung")
+            .AddKeyedSingleton<IParametricSweepGenerator, FungParametricSweepGenerator>(nameof(MechanicalModel.Fung))
             .AddScoped<ParametricSweepPipeline>();
     }
 }

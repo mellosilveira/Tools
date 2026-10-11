@@ -375,6 +375,34 @@ public static class TelemetryExtensions
             return ExecuteSafeStreamingAsync(logger, activity, input, callbackName, callback, cancellationToken);
         };
 
+    /// <summary>
+    /// Wraps an enumerable transformation function returning an <see cref="IEnumerable{TOut}"/> with OpenTelemetry tracing and structured logging.
+    /// </summary>
+    public static Func<TIn, IEnumerable<TOut>> HandleExecution<TIn, TOut>(
+        ILogger logger,
+        string callbackName,
+        Func<TIn, CancellationToken, IEnumerable<TOut>> callback,
+        CancellationToken cancellationToken = default)
+        => (input) =>
+        {
+            using Activity? activity = TelemetryConstants.DefaultInstance.StartActivity(callbackName, ActivityKind.Internal);
+            return ExecuteStreaming(logger, activity, input, callbackName, callback, cancellationToken);
+        };
+
+    /// <summary>
+    /// Wraps an enumerable transformation function returning an <see cref="IEnumerable{TOut}"/> with OpenTelemetry tracing, structured logging, and safe DLQ routing.
+    /// </summary>
+    public static Func<TIn, IEnumerable<SafeResult<TIn, TOut>>> HandleSafeExecution<TIn, TOut>(
+        ILogger logger,
+        string callbackName,
+        Func<TIn, CancellationToken, IEnumerable<TOut>> callback,
+        CancellationToken cancellationToken = default)
+        => (input) =>
+        {
+            using Activity? activity = TelemetryConstants.DefaultInstance.StartActivity(callbackName, ActivityKind.Internal);
+            return ExecuteSafeStreaming(logger, activity, input, callbackName, callback, cancellationToken);
+        };
+
     private static SafeResult<TIn, TOut> SafeExecute<TIn, TOut>(
         ILogger logger,
         Activity? activity,
@@ -569,12 +597,134 @@ public static class TelemetryExtensions
                     exception = ex;
                 }
 
+                if (exception is not null)
+                {
+                    yield return (callbackName, input, exception);
+                    yield break;
+                }
+
                 if (!hasNext)
                 {
                     break;
                 }
 
-                yield return exception is null ? enumerator.Current : (callbackName, input, exception);
+                yield return enumerator.Current;
+            }
+        }
+
+        LogAndTrackStepCompletion(logger, activity, startTime, callbackName);
+    }
+
+    private static IEnumerable<TOut> ExecuteStreaming<TIn, TOut>(
+        ILogger logger,
+        Activity? activity,
+        TIn input,
+        string callbackName,
+        Func<TIn, CancellationToken, IEnumerable<TOut>> callback,
+        CancellationToken cancellationToken = default)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+
+        DateTimeOffset startTime = StartTelemetry(logger, activity, callbackName);
+
+        IEnumerator<TOut> enumerator;
+        try
+        {
+            enumerator = callback(input, cancellationToken).GetEnumerator();
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            LogAndTrackStepFailure(logger, activity, startTime, callbackName, ex);
+            throw;
+        }
+
+        using (enumerator)
+        {
+            while (true)
+            {
+                cancellationToken.ThrowIfCancellationRequested();
+                bool hasNext;
+                try
+                {
+                    hasNext = enumerator.MoveNext();
+                }
+                catch (Exception ex) when (ex is not OperationCanceledException)
+                {
+                    LogAndTrackStepFailure(logger, activity, startTime, callbackName, ex);
+                    throw;
+                }
+
+                if (!hasNext)
+                {
+                    break;
+                }
+
+                yield return enumerator.Current;
+            }
+        }
+
+        LogAndTrackStepCompletion(logger, activity, startTime, callbackName);
+    }
+
+    private static IEnumerable<SafeResult<TIn, TOut>> ExecuteSafeStreaming<TIn, TOut>(
+        ILogger logger,
+        Activity? activity,
+        TIn input,
+        string callbackName,
+        Func<TIn, CancellationToken, IEnumerable<TOut>> callback,
+        CancellationToken cancellationToken = default)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+
+        DateTimeOffset startTime = StartTelemetry(logger, activity, callbackName);
+
+        IEnumerator<TOut>? enumerator = null;
+        Exception? initException = null;
+        try
+        {
+            enumerator = callback(input, cancellationToken).GetEnumerator();
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            LogAndTrackStepFailure(logger, activity, startTime, callbackName, ex);
+            initException = ex;
+        }
+
+        if (initException is not null)
+        {
+            yield return (callbackName, input, initException);
+            yield break;
+        }
+
+        using (enumerator!)
+        {
+            while (true)
+            {
+                cancellationToken.ThrowIfCancellationRequested();
+                bool hasNext = false;
+                Exception? exception = null;
+                try
+                {
+                    hasNext = enumerator.MoveNext();
+                }
+                catch (Exception ex) when (ex is not OperationCanceledException)
+                {
+                    LogAndTrackStepFailure(logger, activity, startTime, callbackName, ex);
+                    exception = ex;
+                }
+
+                if (exception is not null)
+                {
+                    yield return (callbackName, input, exception);
+                    yield break;
+                }
+
+                if (!hasNext)
+                {
+                    break;
+                }
+
+                yield return enumerator.Current;
             }
         }
 
