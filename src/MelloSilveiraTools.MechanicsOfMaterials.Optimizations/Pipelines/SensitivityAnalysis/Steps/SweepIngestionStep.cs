@@ -28,5 +28,9 @@ public sealed class SweepIngestionStep(ServiceLocator serviceLocator) : IAsyncEn
     }
 
     /// <inheritdoc />
-    public ValueTask DisposeAsync() => ValueTask.CompletedTask;
+    public ValueTask DisposeAsync()
+    {
+        GC.SuppressFinalize(this);
+        return ValueTask.CompletedTask;
+    }
 }

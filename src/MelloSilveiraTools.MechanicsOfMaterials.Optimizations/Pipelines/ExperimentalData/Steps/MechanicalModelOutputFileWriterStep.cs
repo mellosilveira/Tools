@@ -55,6 +55,7 @@ public class MechanicalModelOutputFileWriterStep(
         {
             header.Append(',').Append(activeProperties[i].Name);
         }
+
         await writer.WriteLineAsync(header.ToString()).ConfigureAwait(false);
 
         MechanicalModelOutput[] points = payload.SimulatedPoints;

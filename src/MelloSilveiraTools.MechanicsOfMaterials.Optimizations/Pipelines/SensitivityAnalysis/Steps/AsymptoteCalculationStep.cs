@@ -29,5 +29,6 @@ public sealed class AsymptoteCalculationStep(IMechanicalModelCalculatorFacade ca
     /// <inheritdoc />
     public void Dispose()
     {
+        GC.SuppressFinalize(this);
     }
 }

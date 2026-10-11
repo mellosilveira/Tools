@@ -38,7 +38,7 @@ public sealed class ParametricSweepPipeline(
                 calculationBranch => calculationBranch
                     .AddDataMapping(envelope => envelope.SimulationInput)
                     .Fork(initialStep, finalStep, asymptoteStep),
-                branch => branch
+                branch => branch.AddDataMapping(envelope => (envelope.VariableName, envelope.VariableValue))
             )
             .AddDataMapping(tuple =>
             {
@@ -49,11 +49,11 @@ public sealed class ParametricSweepPipeline(
                 double aboluteDeltaStress = finalStress - initialStress;
                 double percentualDeltaStress = initialStress.PercentageDifference(finalStress);
 
-                SweepSimulationEnvelope envelope = tuple.Item2;
+                (string variableName, double variableValue) = tuple.Item2;
 
                 return new ParametricSweepFinalPayload(
-                    envelope.VariableName,
-                    envelope.VariableValue,
+                    variableName,
+                    variableValue,
                     initialStress,
                     finalStress,
                     asymptoteTime,

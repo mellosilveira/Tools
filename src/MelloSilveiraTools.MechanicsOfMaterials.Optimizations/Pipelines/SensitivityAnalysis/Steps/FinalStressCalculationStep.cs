@@ -14,11 +14,11 @@ public sealed class FinalStressCalculationStep(IMechanicalModelCalculatorFacade 
     public string Name => nameof(FinalStressCalculationStep);
 
     /// <inheritdoc />
-    public double Execute(GenericMechanicalModelInput input)
-    {
-        return calculator.CalculateStress(input, finalTime);
-    }
+    public double Execute(GenericMechanicalModelInput input) => calculator.CalculateStress(input, finalTime);
 
     /// <inheritdoc />
-    public void Dispose() { }
+    public void Dispose()
+    {
+        GC.SuppressFinalize(this);
+    }
 }

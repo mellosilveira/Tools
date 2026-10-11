@@ -14,13 +14,11 @@ public sealed class InitialStressCalculationStep(IMechanicalModelCalculatorFacad
     public string Name => nameof(InitialStressCalculationStep);
 
     /// <inheritdoc />
-    public double Execute(GenericMechanicalModelInput input)
-    {
-        return calculator.CalculateStress(input, initialTime);
-    }
+    public double Execute(GenericMechanicalModelInput input) => calculator.CalculateStress(input, initialTime);
 
     /// <inheritdoc />
     public void Dispose()
     {
+        GC.SuppressFinalize(this);
     }
 }

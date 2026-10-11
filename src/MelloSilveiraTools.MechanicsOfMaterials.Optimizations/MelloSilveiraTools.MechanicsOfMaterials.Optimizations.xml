@@ -207,28 +207,17 @@
             <returns>A jagged array where each element is the time points array of the corresponding curve segment.</returns>
         </member>
         <!-- Badly formed XML comment ignored for member "M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExtensionMethods.CurveSegmentExtensions.GetFirstRampTime(System.Collections.Generic.IReadOnlyList{MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Models.CurveSegment})" -->
-        <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExtensionMethods.RangeExtensions">
+        <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExtensionMethods.RangeParametersExtensions">
             <summary>
-            It contains extension methods for <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Models.Range.RangeParameters"/>
+            Provides extension methods for generating discrete values from a RangeParameters definition.
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExtensionMethods.RangeExtensions.GetCombinations(System.Collections.Generic.List{MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Models.Range.RangeParameters})">
-            <inheritdoc cref="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExtensionMethods.RangeExtensions.&lt;G&gt;$8CEB18629035556C0CD30B30A84D2FB3.GetCombinations"/>
-        </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExtensionMethods.RangeExtensions.ToList(MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Models.Range.RangeParameters)">
-            <inheritdoc cref="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExtensionMethods.RangeExtensions.&lt;G&gt;$31C63A9174C62B843D4DC428F6792622.ToList"/>
-        </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExtensionMethods.RangeExtensions.&lt;G&gt;$8CEB18629035556C0CD30B30A84D2FB3.GetCombinations">
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExtensionMethods.RangeParametersExtensions.GenerateValues(MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Models.Range.RangeParameters)">
             <summary>
-            Gets all possible combinations from a list of <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Models.Range.RangeParameters"/>.
+            Evaluates and yields all discrete points within the specified range.
             </summary>
-            <returns>List of double array with all possible combinations.</returns>
-        </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExtensionMethods.RangeExtensions.&lt;G&gt;$31C63A9174C62B843D4DC428F6792622.ToList">
-            <summary>
-            Converts a <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Models.Range.RangeParameters"/> to <see cref="T:System.Collections.Generic.List`1"/> of double.
-            </summary>
-            <returns></returns>
+            <param name="range">The range parameters defining bounds and progression logic.</param>
+            <returns>A stream of generated values.</returns>
         </member>
         <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Models.Range.RangeFunction">
             <summary>
@@ -1410,18 +1399,6 @@
             Creates a standardized envelope for the TPL Dataflow pipeline.
             </summary>
         </member>
-        <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Generators.RangeParametersExtensions">
-            <summary>
-            Provides extension methods for generating discrete values from a RangeParameters definition.
-            </summary>
-        </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Generators.RangeParametersExtensions.GenerateValues(MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Models.Range.RangeParameters)">
-            <summary>
-            Evaluates and yields all discrete points within the specified range.
-            </summary>
-            <param name="range">The range parameters defining bounds and progression logic.</param>
-            <returns>A stream of generated values.</returns>
-        </member>
         <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Models.ParametricSweepFinalPayload">
             <summary>
             Final structured payload after mathematical derivations (Absolute and Percentage Deltas).
@@ -1474,14 +1451,14 @@
             Gets the duration of the initial loading ramp, if applicable.
             </summary>
         </member>
-        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Models.ParametricSweepInput.TimeStep">
-            <summary>
-            Gets the time step increment for the simulation.
-            </summary>
-        </member>
         <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Models.ParametricSweepInput.InitialTime">
             <summary>
             Gets the initial time to evaluate the initial stress.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Models.ParametricSweepInput.TimeStep">
+            <summary>
+            Gets the time step increment for the simulation.
             </summary>
         </member>
         <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Models.ParametricSweepInput.FinalTime">

@@ -20,9 +20,7 @@ public sealed class ParametricSweepCsvWriterStep : IAsyncPipelineStep<Parametric
     {
         _outputDirectory = outputDirectory;
         if (!Directory.Exists(_outputDirectory))
-        {
             Directory.CreateDirectory(_outputDirectory);
-        }
     }
 
     /// <inheritdoc />
@@ -31,10 +29,7 @@ public sealed class ParametricSweepCsvWriterStep : IAsyncPipelineStep<Parametric
     /// <inheritdoc />
     public async Task ExecuteAsync(ParametricSweepFinalPayload input, CancellationToken ct)
     {
-        if (_disposed) return;
-
         CsvFileContext context = _contexts.GetOrAdd(input.VariableName, key => new CsvFileContext(key, _outputDirectory));
-
         await context.WritePayloadAsync(input, ct).ConfigureAwait(false);
     }
 
@@ -44,7 +39,7 @@ public sealed class ParametricSweepCsvWriterStep : IAsyncPipelineStep<Parametric
         if (_disposed) return;
         _disposed = true;
 
-        foreach (var context in _contexts.Values)
+        foreach (CsvFileContext context in _contexts.Values)
         {
             await context.DisposeAsync().ConfigureAwait(false);
         }

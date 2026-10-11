@@ -1,7 +1,7 @@
 using MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.QuasiLinear;
+using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExtensionMethods;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Models.Range;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Models;
-using System.Runtime.CompilerServices;
 
 namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Generators;
 
@@ -11,71 +11,55 @@ namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnaly
 public sealed class FungParametricSweepGenerator : ParametricSweepGeneratorBase<FungConstitutiveParameters>
 {
     /// <inheritdoc />
-    protected override IEnumerable<SweepSimulationEnvelope> GeneratePropertyVariations(
-        ParametricSweepInput input,
-        FungConstitutiveParameters baseline,
-        double baseStrain)
+    protected override IEnumerable<SweepSimulationEnvelope> GeneratePropertyVariations(ParametricSweepInput input, FungConstitutiveParameters baseline)
     {
-        // 1. ElasticStressConstant
-        if (input.ConstantVariables.TryGetValue(nameof(baseline.ElasticStressConstant), out RangeParameters? stressRange))
+        string elasticStressConstantName = nameof(baseline.ElasticStressConstant);
+        if (input.ConstantVariables.TryGetValue(elasticStressConstantName, out RangeParameters? stressRange))
         {
-            foreach (double val in stressRange.GenerateValues())
+            foreach (double value in stressRange.GenerateValues())
             {
-                FungConstitutiveParameters mutated = baseline with { ElasticStressConstant = val };
-                yield return CreateEnvelope(nameof(baseline.ElasticStressConstant), val, mutated, baseStrain, input);
+                FungConstitutiveParameters mutated = baseline with { ElasticStressConstant = value };
+                yield return CreateEnvelope(elasticStressConstantName, value, mutated, input);
             }
         }
 
-        // 2. ElasticPowerConstant
-        if (input.ConstantVariables.TryGetValue(nameof(baseline.ElasticPowerConstant), out RangeParameters? powerRange))
+        string elasticPowerConstantName = nameof(baseline.ElasticPowerConstant);
+        if (input.ConstantVariables.TryGetValue(elasticPowerConstantName, out RangeParameters? powerRange))
         {
-            foreach (double val in powerRange.GenerateValues())
+            foreach (double value in powerRange.GenerateValues())
             {
-                FungConstitutiveParameters mutated = baseline with { ElasticPowerConstant = val };
-                yield return CreateEnvelope(nameof(baseline.ElasticPowerConstant), val, mutated, baseStrain, input);
+                FungConstitutiveParameters mutated = baseline with { ElasticPowerConstant = value };
+                yield return CreateEnvelope(elasticPowerConstantName, value, mutated, input);
             }
         }
 
-        // 3. ReducedRelaxationFunction parameters
-        if (baseline.ReducedRelaxationFunction is not null)
+        string relaxationStiffnessName = nameof(baseline.ReducedRelaxationFunction.RelaxationStiffness);
+        if (input.ConstantVariables.TryGetValue(relaxationStiffnessName, out RangeParameters? stiffRange))
         {
-            // RelaxationStiffness
-            if (input.ConstantVariables.TryGetValue(nameof(baseline.ReducedRelaxationFunction.RelaxationStiffness), out RangeParameters? stiffRange))
+            foreach (double value in stiffRange.GenerateValues())
             {
-                foreach (double val in stiffRange.GenerateValues())
-                {
-                    FungConstitutiveParameters mutated = baseline with 
-                    { 
-                        ReducedRelaxationFunction = baseline.ReducedRelaxationFunction with { RelaxationStiffness = val } 
-                    };
-                    yield return CreateEnvelope(nameof(baseline.ReducedRelaxationFunction.RelaxationStiffness), val, mutated, baseStrain, input);
-                }
+                FungConstitutiveParameters mutated = baseline with { ReducedRelaxationFunction = baseline.ReducedRelaxationFunction! with { RelaxationStiffness = value } };
+                yield return CreateEnvelope(relaxationStiffnessName, value, mutated, input);
             }
+        }
 
-            // FastRelaxationTime
-            if (input.ConstantVariables.TryGetValue(nameof(baseline.ReducedRelaxationFunction.FastRelaxationTime), out RangeParameters? fastRange))
+        string fastRelaxationTimeName = nameof(baseline.ReducedRelaxationFunction.FastRelaxationTime);
+        if (input.ConstantVariables.TryGetValue(fastRelaxationTimeName, out RangeParameters? fastRange))
+        {
+            foreach (double value in fastRange.GenerateValues())
             {
-                foreach (double val in fastRange.GenerateValues())
-                {
-                    FungConstitutiveParameters mutated = baseline with 
-                    { 
-                        ReducedRelaxationFunction = baseline.ReducedRelaxationFunction with { FastRelaxationTime = val } 
-                    };
-                    yield return CreateEnvelope(nameof(baseline.ReducedRelaxationFunction.FastRelaxationTime), val, mutated, baseStrain, input);
-                }
+                FungConstitutiveParameters mutated = baseline with { ReducedRelaxationFunction = baseline.ReducedRelaxationFunction! with { FastRelaxationTime = value } };
+                yield return CreateEnvelope(fastRelaxationTimeName, value, mutated, input);
             }
+        }
 
-            // SlowRelaxationTime
-            if (input.ConstantVariables.TryGetValue(nameof(baseline.ReducedRelaxationFunction.SlowRelaxationTime), out RangeParameters? slowRange))
+        string slowRelaxationTimeName = nameof(baseline.ReducedRelaxationFunction.SlowRelaxationTime);
+        if (input.ConstantVariables.TryGetValue(slowRelaxationTimeName, out RangeParameters? slowRange))
+        {
+            foreach (double value in slowRange.GenerateValues())
             {
-                foreach (double val in slowRange.GenerateValues())
-                {
-                    FungConstitutiveParameters mutated = baseline with 
-                    { 
-                        ReducedRelaxationFunction = baseline.ReducedRelaxationFunction with { SlowRelaxationTime = val } 
-                    };
-                    yield return CreateEnvelope(nameof(baseline.ReducedRelaxationFunction.SlowRelaxationTime), val, mutated, baseStrain, input);
-                }
+                FungConstitutiveParameters mutated = baseline with { ReducedRelaxationFunction = baseline.ReducedRelaxationFunction! with { SlowRelaxationTime = value } };
+                yield return CreateEnvelope(slowRelaxationTimeName, value, mutated, input);
             }
         }
     }

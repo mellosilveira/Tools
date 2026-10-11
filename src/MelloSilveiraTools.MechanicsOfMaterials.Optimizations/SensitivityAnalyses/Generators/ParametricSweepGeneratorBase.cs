@@ -1,7 +1,8 @@
-using MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels;
 using MelloSilveiraTools.MechanicsOfMaterials.Models;
+using MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels;
+using MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity;
+using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExtensionMethods;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Models;
-using System.Runtime.CompilerServices;
 
 namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Generators;
 
@@ -12,20 +13,21 @@ namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnaly
 public abstract class ParametricSweepGeneratorBase<TConstitutiveParameters> : IParametricSweepGenerator
     where TConstitutiveParameters : ConstitutiveParameters
 {
+    private const string StrainVariableName = "Strain";
+
     /// <inheritdoc />
     public IEnumerable<SweepSimulationEnvelope> GenerateCombinations(ParametricSweepInput input)
     {
         TConstitutiveParameters baseline = (TConstitutiveParameters)input.Baseline;
-        double baseStrain = input.StrainRange.InitialPoint;
 
         // 1. OAAT for Boundary Condition (Strain)
         foreach (double strain in input.StrainRange.GenerateValues())
         {
-            yield return CreateEnvelope("Strain", strain, baseline, strain, input);
+            yield return CreateEnvelope(StrainVariableName, strain, baseline, input);
         }
 
         // 2. OAAT for Constitutive Parameters
-        foreach (SweepSimulationEnvelope envelope in GeneratePropertyVariations(input, baseline, baseStrain))
+        foreach (SweepSimulationEnvelope envelope in GeneratePropertyVariations(input, baseline))
         {
             yield return envelope;
         }
@@ -34,20 +36,12 @@ public abstract class ParametricSweepGeneratorBase<TConstitutiveParameters> : IP
     /// <summary>
     /// Generates property-specific OAAT variations, implemented by derived strongly-typed generators.
     /// </summary>
-    protected abstract IEnumerable<SweepSimulationEnvelope> GeneratePropertyVariations(
-        ParametricSweepInput input,
-        TConstitutiveParameters baseline,
-        double baseStrain);
+    protected abstract IEnumerable<SweepSimulationEnvelope> GeneratePropertyVariations(ParametricSweepInput input, TConstitutiveParameters baseline);
 
     /// <summary>
     /// Creates a standardized envelope for the TPL Dataflow pipeline.
     /// </summary>
-    protected SweepSimulationEnvelope CreateEnvelope(
-        string variableName,
-        double variableValue,
-        TConstitutiveParameters mutatedParameters,
-        double appliedStrain,
-        ParametricSweepInput input)
+    protected SweepSimulationEnvelope CreateEnvelope(string variableName, double variableValue, TConstitutiveParameters constitutiveParameters, ParametricSweepInput input)
     {
         MechanicalModelInput baseInput = new()
         {
@@ -55,16 +49,15 @@ public abstract class ParametricSweepGeneratorBase<TConstitutiveParameters> : IP
             RampTimeConsideration = input.RampTimeConsideration,
             RampTime = input.RampTime,
             TimeStep = input.TimeStep,
-            Strain = new MechanicalParameter(appliedStrain),
-            AcceptedStrainRange = AcceptedRange.Default
+            AcceptedStrainRange = AcceptedRange.Default,
+            Strain = new MechanicalParameter(variableName == StrainVariableName ? variableValue : input.BaseStrain),
+            Stress = new MechanicalParameter(0),
+            // TODO: In this current version, the parametric sweep analysis only works for stress-strain and relaxation.
+            LoadResponseRelationship = LoadResponseRelationship.StressStrain,
+            ViscoelasticEffect = ViscoelasticEffect.Relaxation,
         };
 
-        GenericMechanicalModelInput simulationInput = new(baseInput, mutatedParameters);
-
-        return new SweepSimulationEnvelope(
-            Guid.NewGuid(),
-            variableName,
-            variableValue,
-            simulationInput);
+        GenericMechanicalModelInput simulationInput = new(baseInput, constitutiveParameters);
+        return new SweepSimulationEnvelope(Guid.NewGuid(), variableName, variableValue, simulationInput);
     }
 }
