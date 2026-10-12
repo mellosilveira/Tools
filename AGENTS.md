@@ -233,7 +233,7 @@ AI agents modifying or generating code in this repository **must strictly adhere
 - Located in `MelloSilveiraTools.MechanicsOfMaterials.Optimizations`.
 - Multi-modal pipeline steps:
   - `ExperimentalDataSegmenterStep`: Ingestion step implementing `IAsyncEnumerablePipelineStep<ExperimentalDataSegmenterInput, SegmentedDataPoint>`, parsing CSV streams and categorizing points across deformation phases via sliding-window numerical differentiation.
-  - `ExperimentalDataFileWriterStep`: Non-mutating persistence observer step implementing `IAsyncPipelineStep<SegmentedDataPoint>`, streaming valid points to disk via CSV format.
+  - `ExperimentalDataFileWriterStep`: Non-mutating persistence observer step implementing `IAsyncPipelineStep<SegmentedDataPoint>` (inheriting from `BaseCsvWriterStep`), streaming valid points to disk via CSV format and exposing `OutputFullFileName` and `GeneratedFilePaths`.
   - `ExperimentalDataDownsamplerStep`: Streaming downsampling step implementing `IAsyncEnumerablePipelineStep<SegmentedDataPoint, SegmentedDataPoint>`, filtering data points according to `skipTimeStep`.
   - `CurveSegmentAccumulatorStep`: Aggregation step implementing `IAsyncEnumerablePipelineStep<SegmentedDataPoint, CurveSegment>`, grouping points sequentially by `SegmentType` for continuous processing.
   - `IMechanicalModelCurveFitterStep`: Optimization step implementing `IAsyncEnumerablePipelineStep<CurveSegment, MechanicalModelCurveFitOutput>`. It yields fitted constitutive parameters and their analysis metrics sequentially as an async stream for real-time processing. Resolved via `IMechanicalModelStepFactory`.
@@ -242,7 +242,7 @@ AI agents modifying or generating code in this repository **must strictly adhere
   - `NumericalSimulationStep`: Simulation step implementing `ISyncPipelineStep<MechanicalModelCurveFitOutput, MechanicalModelSimulationPayload>`, executing forward numeric simulation using `IMechanicalModelCalculatorFactory`.
   - `AsymptoteMonitoringStep`: Analysis step implementing `ISyncPipelineStep<MechanicalModelSimulationPayload, double?>`, detecting steady-state relaxation asymptotes.
   - `DeltaCalculatorStep`: Analysis step implementing `ISyncPipelineStep<MechanicalModelSimulationPayload, SimulationDeltaOutput>`, computing initial, final, absolute, and percentage differences.
-  - `MechanicalModelOutputFileWriterStep`: Output writer step implementing `IAsyncPipelineStep<MechanicalModelSimulationPayload, FileData>`, streaming simulation time-histories to CSV.
+  - `MechanicalModelOutputFileWriterStep`: Output writer step implementing `IAsyncPipelineStep<MechanicalModelSimulationPayload, FileData>` (inheriting from `BaseCsvWriterStep`), streaming simulation time-histories to CSV, returning `FileData`, and exposing `OutputFullFileName` and `GeneratedFilePaths`.
   - `MechanicalModelOutputPersistenceStep`: Convergence persistence step implementing `IAsyncPipelineStep<MechanicalModelOutputPersistenceInput, string>`, computing a deterministic simulation hash and persisting `MechanicalModelSimulationEntity`.
 - `IExperimentalDataProcessingPipeline.ProcessAsync(input, cancellationToken)` → `Result<string>`:
   - Reactive DAG stream topology via TPL Dataflow:
@@ -270,8 +270,34 @@ AI agents modifying or generating code in this repository **must strictly adhere
   - `MechanicalModelCurveFitOutput`: Exposes `RSquared: double` ($1 - \frac{SSR}{SST}$) consistent with `CurveFitOutput`.
   - `CurveFitterBase`: Centralized evaluation of objective function (SSR), numerical gradient (finite differences), and determination coefficient ($R^2$).
 - Morris sensitivity analysis: `MorrisAnalyzer`, `MorrisInput`, `MorrisOutput`, `MorrisMetrics`.
+- `ParametricSweepCsvWriterStep`: Partitioned terminal writer step implementing `IAsyncPipelineStep<ParametricSweepFinalPayload>` (inheriting from `BaseCsvWriterStep`), segregating sensitivity results into CSV files per variable, exposing `OutputFullFileName`, `GeneratedFilePaths`, and `GeneratedFilePathsByVariable`.
 
-### 7. Database & SQL Generation
+### 7. File Writer Steps Architecture & Standardization (`BaseCsvWriterStep`)
+- Located in `MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.Common`.
+- All pipeline steps generating CSV files on disk must inherit from `BaseCsvWriterStep`:
+  - **Contracts & Inheritance:**
+    - Steps inherit directly from `BaseCsvWriterStep` (`IPipelineStep`, `IAsyncDisposable`).
+    - Steps implement their specific pipeline step contract directly (e.g. `IAsyncPipelineStep<TIn>` for terminal/observer steps, or `IAsyncPipelineStep<TIn, TOut>` for transforming steps).
+  - **File Path Tracking:**
+    - `OutputFullFileName`: Exposes the primary or first generated file path (or `string.Empty` if not yet generated).
+    - `GeneratedFilePaths`: Virtual property returning an immutable collection of all generated file paths on disk, retained even after step disposal.
+  - **Buffering & Stream Options:**
+    - Centralized in `BaseCsvWriterStep`:
+      - Buffer size: 128 KB (`BufferSize = 128 * 1024`).
+      - Batch threshold: 1,000 rows (`BatchThreshold = 1000`).
+      - Row buffer capacity: 16 KB (`BufferCapacity = 16 * 1024`).
+      - Delimiter: comma `,` (`Delimiter = ','`).
+      - Encoding: UTF-8 without BOM (`Utf8Encoding = new UTF8Encoding(false)`).
+      - Stream creation: `CreateWriter(filePath, bufferSize)` creates parent directories if needed, opens `FileStream` with `FileOptions.SequentialScan | FileOptions.Asynchronous`, and wraps it in a `StreamWriter`.
+      - High-throughput batching: `WriteRowAsync(writer, buffer, batchCount, row, cancellationToken, batchThreshold)` appends rows and flushes to disk when the threshold is reached, returning the updated batch count without allocating or locking.
+  - **Culture & Numerical Invariance:**
+    - All numerical and floating-point values must be formatted using `CultureInfo.InvariantCulture` to prevent localization conflicts with decimal delimiters in non-US cultures.
+  - **Sequential Writing & Resource Reclamation (`IAsyncDisposable`):**
+    - File writing sessions are strictly sequential per file. Parallelism and ordering are managed upstream by pipeline topologies (TPL Dataflow), ensuring zero synchronization overhead (no `SemaphoreSlim` or monitor locks inside the steps).
+    - In `DisposeAsync()`, `FlushAndDisposeAsync(writer, buffer, header, headerWritten)` writes unwritten headers (ensuring valid empty CSVs), flushes remaining buffered rows, flushes the writer, and asynchronously disposes the underlying stream before invoking `GC.SuppressFinalize(this)`.
+    - Partitioned multi-file writers dispose all active writers and propagate any failures via `AggregateException`.
+
+### 8. Database & SQL Generation
 - `PostgresSqlProvider` caches generated SQL in static `ConcurrentDictionary<(Type, Operation, int), string>`.
 - Entity metadata discovery via `[Table]`, `[PrimaryKeyColumn]`, `[Column]`, `[UniqueColumn]`, `[ForeignKeyColumn]` attributes.
 - SQL template placeholders (`#TABLE_NAME`, `#COLUMNS`, etc.) substituted statically; runtime placeholders (`#WHERE`, `#ORDERBY`, `#LIMIT`, `#OFFSET`) substituted dynamically by `PostgresRepository`.
@@ -281,7 +307,7 @@ AI agents modifying or generating code in this repository **must strictly adhere
 - `IRepository` is registered Singleton — completely stateless (opens its own connection per operation via `await using`).
 - Filter system: `[Filter(typeof(TEntity))]` on filter class, `[FilterColumn(filterClause, propertyName, tableName)]` on properties. `BuildWhereClauseAndParameters` auto-generates parameterized WHERE clauses.
 
-### 8. HTTP & Streaming Endpoints
+### 9. HTTP & Streaming Endpoints
 - WebApi provides dual surfaces:
   - Minimal APIs: `MapCrud<TEntity, TFilter>`, `MapPluginEndpoints`.
   - MVC Controllers: `CustomControllerBase`, `CrudController<TEntity, TFilter>`, `PluginController`.
@@ -289,13 +315,13 @@ AI agents modifying or generating code in this repository **must strictly adhere
 - `ExceptionHandlingHttpMiddleware`: Global error handler mapping exception types to HTTP status codes. Special-cases `NdjsonException` to avoid corrupting partial streams.
 - Content type: `application/x-ndjson` with `X-Content-Type-Options: nosniff`.
 
-### 9. JWE Authentication
+### 10. JWE Authentication
 - JWE (JSON Web Encryption) over JWS using `JsonWebTokenHandler`.
 - Signing: `HmacSha256`. Encryption: `Aes256KW` key wrap + `Aes256CbcHmacSha512` content encryption.
 - `IAuthenticationTokenService`: `Generate(long/string)`, `RefreshAsync(token)`, `IsValidAsync(token)`.
 - `AddJweAuthentication(JwtSettings)` configures `JwtBearerDefaults` scheme.
 
-### 10. Dynamic Plugin System
+### 11. Dynamic Plugin System
 - Scans `PluginSettings.Directory` for assemblies matching `^(?<name>.+)\.v(?<major>\d+)\.(?<minor>\d+)\.(?<patch>\d+)$`.
 - Pipeline: `DiscoveredPlugin` → `LoadedPlugin` → `RegisteredPlugin` (`IsFullyLoaded`, `FullyLoadedAt`).
 - Each plugin loads in isolated collectible `AssemblyLoadContext` for memory reclaimability.

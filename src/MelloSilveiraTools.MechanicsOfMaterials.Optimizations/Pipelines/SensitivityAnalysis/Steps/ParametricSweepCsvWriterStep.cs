@@ -1,6 +1,7 @@
-﻿using MelloSilveiraTools.Core.Pipelines.Steps;
+using MelloSilveiraTools.Core.Pipelines.Steps;
+using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.Common;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Models;
-using System.Collections.Concurrent;
+using System.Globalization;
 using System.Text;
 
 namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.SensitivityAnalysis.Steps;
@@ -10,121 +11,112 @@ namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.Sensit
 /// the numerical results into segregated CSV files based on the evaluated variable.
 /// Maintains open stream buffers during the execution for high performance.
 /// </summary>
-public sealed class ParametricSweepCsvWriterStep : IAsyncPipelineStep<ParametricSweepFinalPayload>
+public sealed class ParametricSweepCsvWriterStep : BaseCsvWriterStep, IAsyncPipelineStep<ParametricSweepFinalPayload>
 {
+    private const string CsvHeader = "VariableValue,InitialStress,FinalStress,AsymptoteTime,AsymptoteStress,AbsoluteDeltaStress,PercentageDeltaStress";
+
     private readonly string _outputDirectory;
-    private readonly ConcurrentDictionary<string, CsvFileContext> _contexts = new();
+    private readonly Dictionary<string, SweepFileWriter> _writers = [];
     private bool _disposed;
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="ParametricSweepCsvWriterStep"/> class.
+    /// </summary>
+    /// <param name="outputDirectory">Directory path where segregated sensitivity CSV files will be written.</param>
     public ParametricSweepCsvWriterStep(string outputDirectory = "SensitivityResults")
     {
         _outputDirectory = outputDirectory;
         if (!Directory.Exists(_outputDirectory))
+        {
             Directory.CreateDirectory(_outputDirectory);
+        }
     }
 
     /// <inheritdoc />
-    public string Name => nameof(ParametricSweepCsvWriterStep);
+    public override string Name => nameof(ParametricSweepCsvWriterStep);
+
+    /// <summary>
+    /// Gets the primary generated CSV file path, or the first generated path, or empty string if none have been created yet.
+    /// </summary>
+    public override string OutputFullFileName => _writers.Values.FirstOrDefault()?.FilePath ?? string.Empty;
 
     /// <inheritdoc />
-    public async Task ExecuteAsync(ParametricSweepFinalPayload input, CancellationToken ct)
+    public override IReadOnlyCollection<string> GeneratedFilePaths => [.. _writers.Values.Select(w => w.FilePath)];
+
+    /// <summary>
+    /// Gets a dictionary mapping evaluated variable names to their corresponding generated CSV file paths.
+    /// </summary>
+    public IReadOnlyDictionary<string, string> GeneratedFilePathsByVariable => _writers.ToDictionary(kvp => kvp.Key, kvp => kvp.Value.FilePath);
+
+    /// <inheritdoc />
+    public async Task ExecuteAsync(ParametricSweepFinalPayload input, CancellationToken cancellationToken = default)
     {
-        CsvFileContext context = _contexts.GetOrAdd(input.VariableName, key => new CsvFileContext(key, _outputDirectory));
-        await context.WritePayloadAsync(input, ct).ConfigureAwait(false);
+        cancellationToken.ThrowIfCancellationRequested();
+
+        if (!_writers.TryGetValue(input.VariableName, out SweepFileWriter? fileWriter))
+        {
+            string filePath = Path.Combine(_outputDirectory, $"{input.VariableName}_Sensitivity.csv");
+            StreamWriter writer = CreateWriter(filePath);
+            await writer.WriteLineAsync(CsvHeader).ConfigureAwait(false);
+            fileWriter = new SweepFileWriter(filePath, writer);
+            _writers[input.VariableName] = fileWriter;
+        }
+
+        string row = string.Format(
+            CultureInfo.InvariantCulture,
+            "{0:G},{1:G},{2:G},{3:G},{4:G},{5:G},{6:G}",
+            input.VariableValue,
+            input.InitialStress,
+            input.FinalStress,
+            input.AsymptoteTime,
+            input.AsymptoteStress,
+            input.AbsoluteDeltaStress,
+            input.PercentageDeltaStress);
+
+        fileWriter.BatchCount = await WriteRowAsync(fileWriter.Writer, fileWriter.Buffer, fileWriter.BatchCount, row, cancellationToken).ConfigureAwait(false);
     }
 
     /// <inheritdoc />
-    public async ValueTask DisposeAsync()
+    public override async ValueTask DisposeAsync()
     {
-        if (_disposed) return;
+        if (_disposed)
+        {
+            return;
+        }
+
         _disposed = true;
 
-        foreach (CsvFileContext context in _contexts.Values)
+        List<Exception> exceptions = [];
+        foreach (SweepFileWriter fileWriter in _writers.Values)
         {
-            await context.DisposeAsync().ConfigureAwait(false);
-        }
-
-        _contexts.Clear();
-    }
-
-    private sealed class CsvFileContext : IAsyncDisposable
-    {
-        private const int LargeFileBufferSize = 128 * 1024; // 128 KB buffer
-        private const int BatchThreshold = 1000;
-        private static readonly Encoding Utf8Encoding = new UTF8Encoding(false);
-        private static readonly FileStreamOptions LargeFileStreamOptions = new()
-        {
-            Mode = FileMode.Create,
-            Access = FileAccess.Write,
-            Share = FileShare.None,
-            Options = FileOptions.SequentialScan | FileOptions.Asynchronous,
-            BufferSize = LargeFileBufferSize
-        };
-
-        private readonly StreamWriter _writer;
-        private readonly StringBuilder _buffer;
-        private readonly SemaphoreSlim _semaphore;
-        private int _batchCount;
-        private bool _headerWritten;
-        private bool _disposed;
-
-        public CsvFileContext(string variableName, string outputDirectory)
-        {
-            string filePath = Path.Combine(outputDirectory, "${variableName}_Sensitivity.csv");
-            FileStream stream = new(filePath, LargeFileStreamOptions);
-            _writer = new StreamWriter(stream, Utf8Encoding, LargeFileBufferSize);
-            _buffer = new StringBuilder(1024 * 16);
-            _semaphore = new SemaphoreSlim(1, 1);
-        }
-
-        public async Task WritePayloadAsync(ParametricSweepFinalPayload input, CancellationToken ct)
-        {
-            await _semaphore.WaitAsync(ct).ConfigureAwait(false);
             try
             {
-                if (!_headerWritten)
-                {
-                    await _writer.WriteLineAsync("VariableValue,InitialStress,FinalStress,AsymptoteTime,AsymptoteStress,AbsoluteDeltaStress,PercentageDeltaStress").ConfigureAwait(false);
-                    _headerWritten = true;
-                }
-
-                _buffer.Append("${input.VariableValue:G},${input.InitialStress:G},${input.FinalStress:G},${input.AsymptoteTime:G},${input.AsymptoteStress:G},${input.AbsoluteDeltaStress:G},${input.PercentageDeltaStress:G}" + Environment.NewLine);
-
-                if (++_batchCount >= BatchThreshold)
-                {
-                    await _writer.WriteAsync(_buffer, ct).ConfigureAwait(false);
-                    _buffer.Clear();
-                    _batchCount = 0;
-                }
+                await fileWriter.DisposeAsync().ConfigureAwait(false);
             }
-            finally
+            catch (Exception ex)
             {
-                _semaphore.Release();
+                exceptions.Add(ex);
             }
         }
+
+        if (exceptions.Count > 0)
+        {
+            throw new AggregateException(exceptions);
+        }
+
+        GC.SuppressFinalize(this);
+    }
+
+    private sealed class SweepFileWriter(string filePath, StreamWriter writer) : IAsyncDisposable
+    {
+        public string FilePath => filePath;
+        public StreamWriter Writer => writer;
+        public StringBuilder Buffer { get; } = new(BufferCapacity);
+        public int BatchCount;
 
         public async ValueTask DisposeAsync()
         {
-            if (_disposed) return;
-            _disposed = true;
-
-            await _semaphore.WaitAsync().ConfigureAwait(false);
-            try
-            {
-                if (_buffer.Length > 0)
-                {
-                    await _writer.WriteAsync(_buffer).ConfigureAwait(false);
-                    _buffer.Clear();
-                }
-
-                await _writer.FlushAsync().ConfigureAwait(false);
-                await _writer.DisposeAsync().ConfigureAwait(false);
-            }
-            finally
-            {
-                _semaphore.Release();
-                _semaphore.Dispose();
-            }
+            await FlushAndDisposeAsync(writer, Buffer).ConfigureAwait(false);
         }
     }
 }

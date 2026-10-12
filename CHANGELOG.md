@@ -6,10 +6,17 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 ## [UNRELEASED]
-
 ### Added
 - `IEnumerablePipelineStep<in TIn, out TOut>` in `src/MelloSilveiraTools.Core/Pipelines/Steps/IEnumerablePipelineStep.cs`: Synchronous collection and streaming 1-to-many execution step contract (`IEnumerable<TOut> Execute(TIn input, CancellationToken cancellationToken)`) implementing `IDisposable`. Designed for synchronous 1-to-many fan-out transformations via TPL Dataflow's `TransformManyBlock`, with cooperative cancellation token propagation, safe Dead-Letter Queue (DLQ) routing, and automatic resource disposal.
 - TPL Dataflow Pipelines (`IDataflowPipelineBuilder<T>`, `IDataflowPipeline<T>`): `.AddStep()` overload supporting `IEnumerablePipelineStep<TIn, TOut>` with cooperative cancellation, DLQ error handling, and `IDisposable` lifecycle management via `TransformManyBlock`.
+- `BaseCsvWriterStep` in `src/MelloSilveiraTools.MechanicsOfMaterials.Optimizations/Pipelines/Common/BaseCsvWriterStep.cs`: Abstract base class establishing the standard foundation for CSV file generation across pipeline steps. Encapsulates common stream options (128 KB buffer, UTF-8 non-BOM, sequential and asynchronous file flags), batch buffering (1000-row batching threshold), delimiter specification (comma `,`), static helpers (`CreateWriter`, `WriteRowAsync`, `FlushAndDisposeAsync`), file path tracking (`OutputFullFileName`, `GeneratedFilePaths`), and clean `IAsyncDisposable` lifecycle management without locking or concurrency overhead.
+- Added `FullName` property to `FileData` in `src/MelloSilveiraTools.Core/Managers/File/FileData.cs` combining destination directory `Uri` and `Name`.
+
+### Changed
+- Standardized CSV file writing across pipeline steps by eliminating duplicated I/O, buffering, and path exposure logic via `BaseCsvWriterStep`:
+  - `ExperimentalDataFileWriterStep`: Refactored to inherit from `BaseCsvWriterStep` and implement `IAsyncPipelineStep<SegmentedDataPoint>`, streaming data points with invariant numerical formatting and exposing `OutputFullFileName` and `GeneratedFilePaths`.
+  - `MechanicalModelOutputFileWriterStep`: Refactored to inherit from `BaseCsvWriterStep` and implement `IAsyncPipelineStep<MechanicalModelSimulationPayload, FileData>`, streaming simulation time-histories to disk via `CreateWriter` and batch buffering, exposing `OutputFullFileName` and `GeneratedFilePaths`, and returning `FileData` for backwards compatibility.
+  - `ParametricSweepCsvWriterStep`: Refactored to inherit from `BaseCsvWriterStep` and implement `IAsyncPipelineStep<ParametricSweepFinalPayload>`, segregating results into distinct CSV files per variable in an internal writer dictionary, writing headers automatically, exposing `OutputFullFileName`, `GeneratedFilePaths`, and `GeneratedFilePathsByVariable`, and cleanly disposing all files on pipeline completion.
 
 ## [2.0.0] - 2026-10-08
 ### Added
