@@ -25,7 +25,7 @@
   $$ S(\tau) = \begin{cases} \frac{c}{\tau} & \text{for } \tau_1 \le \tau \le \tau_2 \\ 0 & \text{otherwise} \end{cases} $$
 - **Reduced Relaxation Function Formulation:**
   $$ G(t) = \frac{1 + c \left[ E_1(t/\tau_2) - E_1(t/\tau_1) \right]}{1 + c \ln(\tau_2/\tau_1)} $$
-- **Reference:** [Fung, 2nd Ed., p. 279]
+- **Reference:** [Fung, 2nd Ed., p. 286, Eq. (34); spectrum on p. 284, Eqs. (30)-(31); hereditary integral on p. 279, Eq. (7)]
 - **$E_1(z)$:** Exponential integral function, $E_1(z) = \int_z^\infty \frac{e^{-y}}{y} dy$.
 - **$c$:** Dimensionless viscous amplitude regulating total stress relaxation.
 - **$\tau_1$:** Short-time constant defining initial rapid relaxation.
@@ -41,6 +41,38 @@
 ## 4. Push-forward to Cauchy Stress ($\sigma_{ij}$)
 - **Formulation:**
   $$ \sigma_{ij} = \frac{1}{J} F_{iK} F_{jL} S_{KL} $$
+- **Reference:** [Fung, 2nd Ed., pp. 306-308]
 - **$\mathbf{F}$ ($F_{iK}$):** Deformation gradient tensor mapping the reference configuration to the current spatial configuration.
 - **$J$:** Volume ratio, $J = \det(\mathbf{F})$. Approximated as $J \approx 1$ for nearly incompressible biological soft tissues.
 - **$\sigma_{ij}$:** True stress (Cauchy stress) experienced by the material in the current configuration.
+
+## 5. Uniaxial 1D Reduction & Implementation in MelloSilveiraTools
+- **Kinematic Hypothesis:** Uniaxial tension along the primary collagen fiber axis ($\mathbf{e}_1$) under isochoric / nearly incompressible deformation ($J \approx 1$):
+  $$ \mathbf{F} = \operatorname{diag}\left(\lambda,\, \lambda^{-1/2},\, \lambda^{-1/2}\right) $$
+  where $\lambda = 1 + \varepsilon$ is the axial stretch ratio and $\varepsilon$ is nominal strain.
+- **Green-Lagrange Strain Tensor ($\mathbf{E}$):**
+  $$ E_{11} = \frac{1}{2}(\lambda^2 - 1) = \varepsilon + \frac{1}{2}\varepsilon^2 \approx \varepsilon $$
+- **Boundary Conditions:** Uniaxial stress state with traction-free lateral faces:
+  $$ \sigma_{11}(t) = \sigma(t), \quad \sigma_{22}(t) = \sigma_{33}(t) = 0, \quad \sigma_{ij} = 0 \; (i \neq j) $$
+- **1D Instantaneous Elastic Response ($\sigma^e$):**
+  $$ \sigma^e(\varepsilon) = A \left( e^{B \varepsilon} - 1 \right) $$
+  - **Reference:** [Fung, 2nd Ed., pp. 270-276; Rodarte Thesis, Eq. 37]
+  - **$A$ (`ElasticStressConstant`):** Elastic stress coefficient (MPa) scaling baseline stiffness.
+  - **$B$ (`ElasticPowerConstant`):** Dimensionless non-linear stiffening exponent governing toe-to-linear region curvature.
+  - **Time Derivative:**
+    $$ \frac{d\sigma^e(t)}{dt} = A B e^{B \varepsilon(t)} \dot{\varepsilon}(t) $$
+- **1D Hereditary Convolution Law:**
+  $$ \sigma(t) = \int_0^t G(t - \tau) \frac{d\sigma^e(\tau)}{d\tau} d\tau $$
+  - **Reference:** [Fung, 2nd Ed., p. 279, Eq. (7)]
+  - **Integration by Parts Representation:**
+    $$ \sigma(t) = \sigma^e(t) G(0) + \int_0^t \sigma^e(t - \tau) \frac{dG(\tau)}{d\tau} d\tau $$
+    where $G(0) = 1$ and the reduced relaxation rate is:
+    $$ \frac{dG(t)}{dt} = \frac{c \left( e^{-t/\tau_1} - e^{-t/\tau_2} \right)}{t \left[ 1 + c \ln(\tau_2/\tau_1) \right]} $$
+- **Ramp Time Considerations in Software (`MelloSilveiraTools`):**
+  1. **`Disregard` (Ideal Step Strain $\varepsilon(t) = \varepsilon_0 H(t)$):**
+     $$ \sigma(t) = G(t) \sigma^e(\varepsilon_0) = G(t) A \left( e^{B \varepsilon_0} - 1 \right) \implies \frac{\sigma(t)}{\sigma(0)} = G(t) $$
+     Enables analytical decoupling where relaxation parameters ($c, \tau_1, \tau_2$) are identified independently from elastic parameters ($A, B$).
+  2. **`ConsiderWithoutViscoelasticEffect`:**
+     Assumes the ramp phase ($t \le t_0$) is dominated by elastic deformation ($\sigma(t) = \sigma^e(t)$ for $t \le t_0$), with viscous relaxation acting over history after $t_0$.
+  3. **`ConsiderWithViscoelasticEffect`:**
+     Accounts for finite ramp duration ($t_0$) by integrating the continuous strain rate $\dot{\varepsilon} = \varepsilon_0 / t_0$ through the Boltzmann hereditary convolution from $t = 0$.
