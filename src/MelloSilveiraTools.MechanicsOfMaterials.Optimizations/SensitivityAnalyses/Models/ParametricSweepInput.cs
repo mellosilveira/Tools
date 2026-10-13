@@ -65,4 +65,6 @@ public record ParametricSweepInput
     /// Gets the final time of the simulation.
     /// </summary>
     public required double FinalTime { get; init; }
+
+    public required string OutputDirectory { get; init; }
 }

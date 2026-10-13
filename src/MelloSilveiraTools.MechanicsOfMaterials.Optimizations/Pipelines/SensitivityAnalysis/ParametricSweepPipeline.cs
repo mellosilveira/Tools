@@ -12,7 +12,8 @@ namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.Sensit
 
 /// <summary>
 /// Orchestrates the One-At-A-Time (OAAT) Parametric Sweep using the TPL Dataflow framework.
-/// Configures the linear enrichment flow, the internal 3-way fork for mechanical calculations, the synchronization joiner, and the terminal CSV writer.
+/// Configures a streamlined linear flow: parameter variation ingestion, concurrent evaluation of stresses,
+/// and terminal partitioned CSV serialization.
 /// </summary>
 public sealed class ParametricSweepPipeline(
     ILogger<ParametricSweepPipeline> logger,
@@ -25,7 +26,7 @@ public sealed class ParametricSweepPipeline(
     public async Task<Result<string>> ProcessAsync(ParametricSweepInput input, CancellationToken cancellationToken = default)
     {
         string uniqueIdentifier = string.IsNullOrWhiteSpace(input.Identifier) ? Guid.NewGuid().ToString("N") : input.Identifier;
-        
+
         SweepIngestionStep ingestionStep = new(serviceLocator);
 
         IMechanicalModelCalculatorFacade calculator = mechanicalModelCalculatorFactory.CreateCalculatorFacade(input.MechanicalModelName);
@@ -33,9 +34,9 @@ public sealed class ParametricSweepPipeline(
         FinalStressCalculationStep finalStep = new(calculator, input.FinalTime);
         AsymptoteCalculationStep asymptoteStep = new(calculator);
 
-        ParametricSweepCsvWriterStep writer = new();
+        ParametricSweepCsvWriterStep writer = new(input.OutputDirectory);
 
-        IDataflowPipeline<ParametricSweepInput> pipeline = PipelineFactory.StartDataflow<ParametricSweepInput>(logger)
+        IDataflowPipeline<ParametricSweepInput> pipeline = PipelineFactory.StartDataflow<ParametricSweepInput>(logger, cancellationToken: cancellationToken)
             .AddStep(ingestionStep)
             .Fork(
                 calculationBranch => calculationBranch

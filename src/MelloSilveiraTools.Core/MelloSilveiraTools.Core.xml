@@ -1171,6 +1171,51 @@
             Limits how many logs are held in memory before a batch insert is triggered to PostgreSQL. Defaults to 50.
             </summary>
         </member>
+        <member name="T:MelloSilveiraTools.Core.Managers.File.CsvFileWriter">
+            <summary>
+            Encapsulates a buffered asynchronous CSV file writing session.
+            Manages the underlying FileStream, StreamWriter, row batching buffer, immediate header emission, and resource disposal.
+            </summary>
+            <param name="filePath">Target destination file path.</param>
+            <param name="header">Mandatory CSV header line written immediately upon session initialization.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Managers.File.CsvFileWriter.#ctor(System.String,System.String)">
+            <summary>
+            Encapsulates a buffered asynchronous CSV file writing session.
+            Manages the underlying FileStream, StreamWriter, row batching buffer, immediate header emission, and resource disposal.
+            </summary>
+            <param name="filePath">Target destination file path.</param>
+            <param name="header">Mandatory CSV header line written immediately upon session initialization.</param>
+        </member>
+        <member name="P:MelloSilveiraTools.Core.Managers.File.CsvFileWriter.FilePath">
+            <summary>
+            Gets the destination file path.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Managers.File.CsvFileWriter.WriteRowAsync(System.String,System.Threading.CancellationToken)">
+            <summary>
+            Appends a formatted CSV row string and batch-flushes to disk when the threshold is reached.
+            </summary>
+            <param name="row">Formatted CSV row text.</param>
+            <param name="cancellationToken">Cancellation token.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Managers.File.CsvFileWriter.WriteRowAsync(System.Action{System.Text.StringBuilder},System.Threading.CancellationToken)">
+            <summary>
+            Appends a CSV row directly into the internal buffer via an action, avoiding intermediate string allocations,
+            and batch-flushes to disk when the threshold is reached.
+            </summary>
+            <param name="writeRow">Action writing column values into the provided row buffer.</param>
+            <param name="cancellationToken">Cancellation token.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Managers.File.CsvFileWriter.DisposeAllAsync(System.Collections.Generic.IEnumerable{System.IAsyncDisposable})">
+            <summary>
+            Disposes a collection of asynchronous sessions, accumulating exceptions and re-throwing as an <see cref="T:System.AggregateException"/> if any fault occurred.
+            </summary>
+            <param name="sessions">Collection of asynchronous disposable sessions.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Managers.File.CsvFileWriter.DisposeAsync">
+            <inheritdoc />
+        </member>
         <member name="T:MelloSilveiraTools.Core.Managers.File.CsvStreamReader">
             <summary>
             High-performance, streaming numeric CSV reader powered by native <see cref="T:System.IO.Pipelines.PipeReader"/> and <see cref="T:System.Buffers.Text.Utf8Parser"/>.
@@ -1236,11 +1281,6 @@
             Initializes file metadata from an existing file information handle.
             </summary>
             <param name="fileInfo">Reference to the physical file.</param>
-        </member>
-        <member name="P:MelloSilveiraTools.Core.Managers.File.FileData.FullName">
-            <summary>
-            Gets the absolute file path combining the destination directory and the file name.
-            </summary>
         </member>
         <member name="T:MelloSilveiraTools.Core.Managers.File.FileManager">
             <summary>

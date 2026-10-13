@@ -1,5 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
     <PackageId>MelloSilveiraTools</PackageId>
     <AssemblyTitle>MelloSilveira Tools</AssemblyTitle>
     <Description>Meta-package that brings in every MelloSilveiraTools feature (Core, Database, WebApi, Plugins, Mathematics, MechanicsOfMaterials). Install only the contextual packages if you do not need everything.</Description>

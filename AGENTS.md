@@ -60,7 +60,7 @@ MelloSilveiraTools (meta) → Core, Database, WebApi, Plugins, Mathematics, Mech
 - `Nullable`: `enable`
 - `GeneratePackageOnBuild`: `true`
 - `GenerateDocumentationFile`: `true`
-- `VersionPrefix`: `1.5.0-rc046`
+- `VersionPrefix`: `2.0.0`
 
 ### Per-Package NuGet Dependencies
 
@@ -233,7 +233,7 @@ AI agents modifying or generating code in this repository **must strictly adhere
 - Located in `MelloSilveiraTools.MechanicsOfMaterials.Optimizations`.
 - Multi-modal pipeline steps:
   - `ExperimentalDataSegmenterStep`: Ingestion step implementing `IAsyncEnumerablePipelineStep<ExperimentalDataSegmenterInput, SegmentedDataPoint>`, parsing CSV streams and categorizing points across deformation phases via sliding-window numerical differentiation.
-  - `ExperimentalDataFileWriterStep`: Non-mutating persistence observer step implementing `IAsyncPipelineStep<SegmentedDataPoint>` (inheriting from `BaseCsvWriterStep`), streaming valid points to disk via CSV format and exposing `OutputFullFileName` and `GeneratedFilePaths`.
+  - `ExperimentalDataFileWriterStep`: Non-mutating persistence observer step implementing `IAsyncPipelineStep<SegmentedDataPoint>`, streaming valid points to disk via CSV format using `CsvFileWriter` and exposing `GeneratedFilePaths`.
   - `ExperimentalDataDownsamplerStep`: Streaming downsampling step implementing `IAsyncEnumerablePipelineStep<SegmentedDataPoint, SegmentedDataPoint>`, filtering data points according to `skipTimeStep`.
   - `CurveSegmentAccumulatorStep`: Aggregation step implementing `IAsyncEnumerablePipelineStep<SegmentedDataPoint, CurveSegment>`, grouping points sequentially by `SegmentType` for continuous processing.
   - `IMechanicalModelCurveFitterStep`: Optimization step implementing `IAsyncEnumerablePipelineStep<CurveSegment, MechanicalModelCurveFitOutput>`. It yields fitted constitutive parameters and their analysis metrics sequentially as an async stream for real-time processing. Resolved via `IMechanicalModelStepFactory`.
@@ -242,7 +242,7 @@ AI agents modifying or generating code in this repository **must strictly adhere
   - `NumericalSimulationStep`: Simulation step implementing `ISyncPipelineStep<MechanicalModelCurveFitOutput, MechanicalModelSimulationPayload>`, executing forward numeric simulation using `IMechanicalModelCalculatorFactory`.
   - `AsymptoteMonitoringStep`: Analysis step implementing `ISyncPipelineStep<MechanicalModelSimulationPayload, double?>`, detecting steady-state relaxation asymptotes.
   - `DeltaCalculatorStep`: Analysis step implementing `ISyncPipelineStep<MechanicalModelSimulationPayload, SimulationDeltaOutput>`, computing initial, final, absolute, and percentage differences.
-  - `MechanicalModelOutputFileWriterStep`: Output writer step implementing `IAsyncPipelineStep<MechanicalModelSimulationPayload, FileData>` (inheriting from `BaseCsvWriterStep`), streaming simulation time-histories to CSV, returning `FileData`, and exposing `OutputFullFileName` and `GeneratedFilePaths`.
+  - `MechanicalModelOutputFileWriterStep`: Output writer step implementing `IAsyncPipelineStep<MechanicalModelSimulationPayload, FileData>`, streaming simulation time-histories to CSV using `CsvFileWriter`, returning `FileData`, and exposing `GeneratedFilePaths`.
   - `MechanicalModelOutputPersistenceStep`: Convergence persistence step implementing `IAsyncPipelineStep<MechanicalModelOutputPersistenceInput, string>`, computing a deterministic simulation hash and persisting `MechanicalModelSimulationEntity`.
 - `IExperimentalDataProcessingPipeline.ProcessAsync(input, cancellationToken)` → `Result<string>`:
   - Reactive DAG stream topology via TPL Dataflow:
@@ -269,33 +269,37 @@ AI agents modifying or generating code in this repository **must strictly adhere
   - `CurveFitOutput`: Exposes `OptimizedParameters: double[]`, `FinalError: double` (SSR), `RSquared: double` ($1 - \frac{SSR}{SST}$), and `Iterations: int`.
   - `MechanicalModelCurveFitOutput`: Exposes `RSquared: double` ($1 - \frac{SSR}{SST}$) consistent with `CurveFitOutput`.
   - `CurveFitterBase`: Centralized evaluation of objective function (SSR), numerical gradient (finite differences), and determination coefficient ($R^2$).
-- Morris sensitivity analysis: `MorrisAnalyzer`, `MorrisInput`, `MorrisOutput`, `MorrisMetrics`.
-- `ParametricSweepCsvWriterStep`: Partitioned terminal writer step implementing `IAsyncPipelineStep<ParametricSweepFinalPayload>` (inheriting from `BaseCsvWriterStep`), segregating sensitivity results into CSV files per variable, exposing `OutputFullFileName`, `GeneratedFilePaths`, and `GeneratedFilePathsByVariable`.
+- Parametric Sweep sensitivity analysis (`ParametricSweepPipeline`):
+  - Reactive TPL Dataflow stream: `SweepIngestionStep` (generating OAAT combinations via `IParametricSweepGenerator` resolved through `ServiceLocator`) → 2-way Fork:
+    - Branch 1: Calculation branch mapping to `SimulationInput` and forking across `InitialStressCalculationStep`, `FinalStressCalculationStep`, and `AsymptoteCalculationStep`.
+    - Branch 2: Pass-through preserving `VariableName` and `VariableValue`.
+    - Convergence: `.AddDataMapping(...)` joins calculations into `ParametricSweepFinalPayload` computing absolute and percentage delta stresses.
+    - Side-effect: `ParametricSweepCsvWriterStep` partitioning results into CSV files per variable via `ConcurrentDictionary<string, CsvFileWriter>`.
+  - Generators inherit from `ParametricSweepGeneratorBase<T>` implementing `GetPropertyVariations` yielding `(PropertyName, Mutate)` delegates for centralized range iteration and envelope creation.
 
-### 7. File Writer Steps Architecture & Standardization (`BaseCsvWriterStep`)
-- Located in `MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.Common`.
-- All pipeline steps generating CSV files on disk must inherit from `BaseCsvWriterStep`:
-  - **Contracts & Inheritance:**
-    - Steps inherit directly from `BaseCsvWriterStep` (`IPipelineStep`, `IAsyncDisposable`).
-    - Steps implement their specific pipeline step contract directly (e.g. `IAsyncPipelineStep<TIn>` for terminal/observer steps, or `IAsyncPipelineStep<TIn, TOut>` for transforming steps).
+### 7. CSV File Writing Architecture & Composition (`CsvFileWriter`)
+- Located in `MelloSilveiraTools.Core.Managers.File`.
+- All pipeline steps generating CSV files on disk use `CsvFileWriter` via **Composition over Inheritance** (no base class):
+  - **Contracts & Composition:**
+    - Steps implement their specific pipeline step contract directly (`IAsyncPipelineStep<TIn>` for terminal/observer steps, or `IAsyncPipelineStep<TIn, TOut>` for transforming steps), which natively inherits from `IPipelineStep` and `IAsyncDisposable`.
+    - Steps encapsulate one or more `CsvFileWriter` instances without artificial abstract base class coupling.
   - **File Path Tracking:**
-    - `OutputFullFileName`: Exposes the primary or first generated file path (or `string.Empty` if not yet generated).
-    - `GeneratedFilePaths`: Virtual property returning an immutable collection of all generated file paths on disk, retained even after step disposal.
-  - **Buffering & Stream Options:**
-    - Centralized in `BaseCsvWriterStep`:
-      - Buffer size: 128 KB (`BufferSize = 128 * 1024`).
-      - Batch threshold: 1,000 rows (`BatchThreshold = 1000`).
-      - Row buffer capacity: 16 KB (`BufferCapacity = 16 * 1024`).
-      - Delimiter: comma `,` (`Delimiter = ','`).
+    - `GeneratedFilePaths`: Property returning an immutable collection of all generated file paths on disk, retained even after step disposal.
+  - **Buffering & Stream Options (`CsvFileWriter`):**
+    - `CsvFileWriter(string filePath, string header)`:
+      - Mandatory header: Emitted immediately to disk upon session initialization inside `CreateWriter` before any rows are appended.
+      - Buffer size: 128 KB (`FileStream` and `StreamWriter`).
+      - Batch threshold: 1,000 rows before flushing the internal `StringBuilder` to disk.
+      - Row buffer capacity: 16 KB initial capacity.
       - Encoding: UTF-8 without BOM (`Utf8Encoding = new UTF8Encoding(false)`).
-      - Stream creation: `CreateWriter(filePath, bufferSize)` creates parent directories if needed, opens `FileStream` with `FileOptions.SequentialScan | FileOptions.Asynchronous`, and wraps it in a `StreamWriter`.
-      - High-throughput batching: `WriteRowAsync(writer, buffer, batchCount, row, cancellationToken, batchThreshold)` appends rows and flushes to disk when the threshold is reached, returning the updated batch count without allocating or locking.
+      - Stream creation: `CreateWriter(filePath, header)` creates parent directories if needed, opens `FileStream` with `FileOptions.SequentialScan | FileOptions.Asynchronous`, creates `StreamWriter`, and writes the mandatory header immediately.
+      - High-throughput batching: `WriteRowAsync(row)` and zero-allocation delegate `WriteRowAsync(Action<StringBuilder>)` append rows and batch-flush to disk when the 1,000-row threshold is reached.
   - **Culture & Numerical Invariance:**
     - All numerical and floating-point values must be formatted using `CultureInfo.InvariantCulture` to prevent localization conflicts with decimal delimiters in non-US cultures.
   - **Sequential Writing & Resource Reclamation (`IAsyncDisposable`):**
-    - File writing sessions are strictly sequential per file. Parallelism and ordering are managed upstream by pipeline topologies (TPL Dataflow), ensuring zero synchronization overhead (no `SemaphoreSlim` or monitor locks inside the steps).
-    - In `DisposeAsync()`, `FlushAndDisposeAsync(writer, buffer, header, headerWritten)` writes unwritten headers (ensuring valid empty CSVs), flushes remaining buffered rows, flushes the writer, and asynchronously disposes the underlying stream before invoking `GC.SuppressFinalize(this)`.
-    - Partitioned multi-file writers dispose all active writers and propagate any failures via `AggregateException`.
+    - File writing sessions are strictly sequential per file. Upstream parallel steps feed writers via batches or pipeline streams.
+    - In `DisposeAsync()`, `CsvFileWriter` flushes remaining buffered rows, flushes the writer, and asynchronously disposes the underlying stream before `GC.SuppressFinalize(this)`.
+    - Partitioned multi-file writers manage a collection of `CsvFileWriter` instances and dispose them via `CsvFileWriter.DisposeAllAsync`, aggregating exceptions into `AggregateException`.
 
 ### 8. Database & SQL Generation
 - `PostgresSqlProvider` caches generated SQL in static `ConcurrentDictionary<(Type, Operation, int), string>`.

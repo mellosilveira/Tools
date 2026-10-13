@@ -81,7 +81,7 @@ public sealed class CsvWriterStepsTests : IDisposable
             ProcessedDataPoint: new ProcessedDataPoint(1.0, 0.02, 0.2, 0.06, 95.3, -5.2, -0.5));
 
         // Act
-        Assert.Equal(filePath, step.OutputFullFileName);
+        Assert.Single(step.GeneratedFilePaths);
         Assert.Contains(filePath, step.GeneratedFilePaths);
 
         await step.ExecuteAsync(dataPoint1);
@@ -134,7 +134,7 @@ public sealed class CsvWriterStepsTests : IDisposable
         await step.DisposeAsync();
 
         // Assert
-        Assert.Equal(filePath, step.OutputFullFileName);
+        Assert.Single(step.GeneratedFilePaths);
         Assert.Contains(filePath, step.GeneratedFilePaths);
         Assert.True(File.Exists(filePath));
 
@@ -186,10 +186,6 @@ public sealed class CsvWriterStepsTests : IDisposable
         Assert.Contains(expectedPathTau, generatedPaths);
         Assert.True(File.Exists(expectedPathE));
         Assert.True(File.Exists(expectedPathTau));
-
-        IReadOnlyDictionary<string, string> pathsByVar = step.GeneratedFilePathsByVariable;
-        Assert.Equal(expectedPathE, pathsByVar["ElasticModulus"]);
-        Assert.Equal(expectedPathTau, pathsByVar["RelaxationTime"]);
 
         string[] linesE = await File.ReadAllLinesAsync(expectedPathE);
         Assert.Equal(2, linesE.Length);

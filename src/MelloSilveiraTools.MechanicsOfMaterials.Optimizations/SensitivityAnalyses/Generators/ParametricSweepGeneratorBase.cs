@@ -2,6 +2,7 @@ using MelloSilveiraTools.MechanicsOfMaterials.Models;
 using MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels;
 using MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExtensionMethods;
+using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Models.Range;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Models;
 
 namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Generators;
@@ -27,16 +28,22 @@ public abstract class ParametricSweepGeneratorBase<TConstitutiveParameters> : IP
         }
 
         // 2. OAAT for Constitutive Parameters
-        foreach (SweepSimulationEnvelope envelope in GeneratePropertyVariations(input, baseline))
+        foreach ((string propertyName, Func<TConstitutiveParameters, double, TConstitutiveParameters> mutate) in GetPropertyVariations(input))
         {
-            yield return envelope;
+            if (input.ConstantVariables.TryGetValue(propertyName, out RangeParameters? range))
+            {
+                foreach (double value in range.GenerateValues())
+                {
+                    yield return CreateEnvelope(propertyName, value, mutate(baseline, value), input);
+                }
+            }
         }
     }
 
     /// <summary>
     /// Generates property-specific OAAT variations, implemented by derived strongly-typed generators.
     /// </summary>
-    protected abstract IEnumerable<SweepSimulationEnvelope> GeneratePropertyVariations(ParametricSweepInput input, TConstitutiveParameters baseline);
+    protected abstract IEnumerable<(string PropertyName, Func<TConstitutiveParameters, double, TConstitutiveParameters> Mutate)> GetPropertyVariations(ParametricSweepInput input);
 
     /// <summary>
     /// Creates a standardized envelope for the TPL Dataflow pipeline.

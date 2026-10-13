@@ -2,15 +2,13 @@
 
 	<PropertyGroup>
 		<TargetFramework>net10.0</TargetFramework>
-		<ImplicitUsings>enable</ImplicitUsings>
-		<Nullable>enable</Nullable>
+		<PackageId>MelloSilveiraTools.MechanicsOfMaterials.Optimizations</PackageId>
+		<AssemblyTitle>MelloSilveira Tools - Mechanics of Materials - Optimizations</AssemblyTitle>
+		<Description>Mechanics of Materials optimization toolkit: experimental data processing, continuous stream segmentation, constitutive model curve fitting (MathNet.Numerics and ALGLIB), TPL Dataflow pipelines, and parametric sweep sensitivity analysis.</Description>
+		<PackageTags>mechanics-of-materials;optimizations;curve-fitting;alglib;mathnet;constitutive-models;dataflow;segmentation;sensitivity-analysis;dotnet</PackageTags>
+		<IsAotCompatible>true</IsAotCompatible>
 	</PropertyGroup>
 
-	<ItemGroup>
-	  <Compile Remove="scratch\**" />
-	  <EmbeddedResource Remove="scratch\**" />
-	  <None Remove="scratch\**" />
-	</ItemGroup>
 	<ItemGroup>
 		<FrameworkReference Include="Microsoft.AspNetCore.App" />
 	</ItemGroup>

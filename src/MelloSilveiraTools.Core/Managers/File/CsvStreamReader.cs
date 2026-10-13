@@ -1,3 +1,4 @@
+using MelloSilveiraTools.Core.Models;
 using System.Buffers;
 using System.Buffers.Text;
 using System.IO.Pipelines;
@@ -43,7 +44,7 @@ public class CsvStreamReader : IAsyncDisposable
     /// </summary>
     public static async Task<CsvStreamReader> CreateAsync(
         Stream stream,
-        byte delimiter = (byte)',',
+        byte delimiter = (byte)CsvSeparators.Main,
         bool leaveOpen = true,
         int bufferSize = 4096,
         bool skipInvalidLines = false,

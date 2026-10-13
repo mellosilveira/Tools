@@ -1,5 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
+		<TargetFramework>net10.0</TargetFramework>
 		<PackageId>MelloSilveiraTools.Core</PackageId>
 		<AssemblyTitle>MelloSilveira Tools Core</AssemblyTitle>
 		<Description>Core helpers for .NET: extension methods, file logger, in-memory caches, Polly resilience pipelines, encryption, SMTP email and numerical methods (Newmark / Newmark-Î²).</Description>

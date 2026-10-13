@@ -1,6 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
+		<TargetFramework>net10.0</TargetFramework>
 		<PackageId>MelloSilveiraTools.MechanicsOfMaterials</PackageId>
 		<AssemblyTitle>MelloSilveira Tools - Mechanics of Materials</AssemblyTitle>
 		<Description>Mechanics of Materials toolkit: fatigue (Goodman/Marin) analysis, constitutive equations, geometric properties (circular and rectangular profiles), 3D vector/force models, and supporting unit conversions.</Description>
