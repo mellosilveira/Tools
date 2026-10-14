@@ -15,21 +15,23 @@
             Helper for loading acceptance test data CSV files and converting them to CurveSegment arrays.
             </summary>
         </member>
-        <member name="M:AcceptanceTests.MechanicalOfMaterials.Optimizations.CurveFitterSteps.AcceptanceTestHelpers.LoadSegmentsForPrefixAsync(System.String)">
+        <member name="M:AcceptanceTests.MechanicalOfMaterials.Optimizations.CurveFitterSteps.AcceptanceTestHelpers.LoadSegmentsForPrefixAsync(System.String,System.Boolean)">
             <summary>
             Loads CurveSegment array for a given curve fitter step prefix by finding all CSV files in TestData matching [PREFIX]_[SEGMENT_TYPE].csv.
             Expected columns: Time, ExperimentalStrain, ExperimentalStress
             </summary>
             <param name="prefix">Prefix folder name under TestData.</param>
+            <param name="useSharedFiles">Whether to load shared test data files first.</param>
             <returns>An array of loaded curve segments.</returns>
         </member>
-        <member name="M:AcceptanceTests.MechanicalOfMaterials.Optimizations.CurveFitterSteps.AcceptanceTestHelpers.LoadSegmentGroupsForPrefixAsync(System.String)">
+        <member name="M:AcceptanceTests.MechanicalOfMaterials.Optimizations.CurveFitterSteps.AcceptanceTestHelpers.LoadSegmentGroupsForPrefixAsync(System.String,System.Boolean)">
             <summary>
-            Loads groups of <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Models.CurveSegment"/> arrays for a given curve fitter step prefix.
-            If the prefix folder contains subdirectories, each subdirectory is loaded as an independent group (named after the subdirectory).
-            If the prefix folder contains no subdirectories, the root folder is loaded as a single group (named after the prefix).
+            Loads groups of <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Models.CurveSegment"/> arrays for a given curve fitter step prefix and optional shared test data.
+            If <paramref name="useSharedFiles"/> is <c>true</c>, all groups from the shared folder ("Shared") under TestData
+            are loaded first. Then, all groups from the prefix-specific folder under TestData are loaded.
             </summary>
             <param name="prefix">Prefix folder name under TestData.</param>
+            <param name="useSharedFiles">Whether to load shared test data files first.</param>
             <returns>A list of tuples containing the group name and its loaded curve segments.</returns>
         </member>
         <member name="M:AcceptanceTests.MechanicalOfMaterials.Optimizations.CurveFitterSteps.AcceptanceTestHelpers.LoadSegmentsFromDirectoryAsync(System.String)">
@@ -69,6 +71,13 @@
         <member name="P:AcceptanceTests.MechanicalOfMaterials.Optimizations.CurveFitterSteps.CurveFitterAcceptanceTestBase`1.Prefix">
             <summary>
             Gets the folder name prefix under TestData where test CSV files are located.
+            </summary>
+        </member>
+        <member name="P:AcceptanceTests.MechanicalOfMaterials.Optimizations.CurveFitterSteps.CurveFitterAcceptanceTestBase`1.UseSharedFiles">
+            <summary>
+            Gets a value indicating whether this acceptance test should load and execute against shared test data files.
+            When <c>true</c>, files located in the shared folder across all acceptance tests are loaded before prefix-specific files.
+            Defaults to <c>true</c>.
             </summary>
         </member>
         <member name="P:AcceptanceTests.MechanicalOfMaterials.Optimizations.CurveFitterSteps.CurveFitterAcceptanceTestBase`1.MinimumAcceptableRSquared">
@@ -112,6 +121,20 @@
             <param name="segments">The input experimental segments.</param>
             <param name="outputs">The yielded curve fit outputs.</param>
         </member>
+        <member name="T:AcceptanceTests.MechanicalOfMaterials.Optimizations.CurveFitterSteps.FungRelaxationOnlyCurveFitterStepAcceptanceTests">
+            <summary>
+            Acceptance tests for <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Steps.CurveFitter.FungRelaxationOnlyCurveFitterStep"/> validating end-to-end curve fitting.
+            </summary>
+        </member>
+        <member name="P:AcceptanceTests.MechanicalOfMaterials.Optimizations.CurveFitterSteps.FungRelaxationOnlyCurveFitterStepAcceptanceTests.Prefix">
+            <inheritdoc/>
+        </member>
+        <member name="P:AcceptanceTests.MechanicalOfMaterials.Optimizations.CurveFitterSteps.FungRelaxationOnlyCurveFitterStepAcceptanceTests.MinimumAcceptableRSquared">
+            <inheritdoc/>
+        </member>
+        <member name="M:AcceptanceTests.MechanicalOfMaterials.Optimizations.CurveFitterSteps.FungRelaxationOnlyCurveFitterStepAcceptanceTests.AssertPhysicalConstraints(System.String,System.Collections.Generic.IReadOnlyList{MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Models.CurveSegment},System.Collections.Generic.IReadOnlyList{MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Models.MechanicalModelCurveFitOutput})">
+            <inheritdoc/>
+        </member>
         <member name="T:AcceptanceTests.MechanicalOfMaterials.Optimizations.CurveFitterSteps.SchaperyRelaxationOnlyCurveFitterStepAcceptanceTests">
             <summary>
             Acceptance tests for <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Steps.CurveFitter.SchaperyRelaxationOnlyCurveFitterStep"/> validating end-to-end curve fitting
@@ -122,6 +145,20 @@
             <inheritdoc/>
         </member>
         <member name="M:AcceptanceTests.MechanicalOfMaterials.Optimizations.CurveFitterSteps.SchaperyRelaxationOnlyCurveFitterStepAcceptanceTests.AssertPhysicalConstraints(System.String,System.Collections.Generic.IReadOnlyList{MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Models.CurveSegment},System.Collections.Generic.IReadOnlyList{MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Models.MechanicalModelCurveFitOutput})">
+            <inheritdoc/>
+        </member>
+        <member name="T:AcceptanceTests.MechanicalOfMaterials.Optimizations.CurveFitterSteps.SimplifiedFungRelaxationOnlyCurveFitterStepAcceptanceTests">
+            <summary>
+            Acceptance tests for <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Steps.CurveFitter.SimplifiedFungRelaxationOnlyCurveFitterStep"/> validating end-to-end curve fitting.
+            </summary>
+        </member>
+        <member name="P:AcceptanceTests.MechanicalOfMaterials.Optimizations.CurveFitterSteps.SimplifiedFungRelaxationOnlyCurveFitterStepAcceptanceTests.Prefix">
+            <inheritdoc/>
+        </member>
+        <member name="P:AcceptanceTests.MechanicalOfMaterials.Optimizations.CurveFitterSteps.SimplifiedFungRelaxationOnlyCurveFitterStepAcceptanceTests.MinimumAcceptableRSquared">
+            <inheritdoc/>
+        </member>
+        <member name="M:AcceptanceTests.MechanicalOfMaterials.Optimizations.CurveFitterSteps.SimplifiedFungRelaxationOnlyCurveFitterStepAcceptanceTests.AssertPhysicalConstraints(System.String,System.Collections.Generic.IReadOnlyList{MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Models.CurveSegment},System.Collections.Generic.IReadOnlyList{MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Models.MechanicalModelCurveFitOutput})">
             <inheritdoc/>
         </member>
     </members>

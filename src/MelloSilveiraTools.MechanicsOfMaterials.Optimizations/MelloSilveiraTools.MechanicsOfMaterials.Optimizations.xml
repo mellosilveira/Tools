@@ -9,6 +9,47 @@
             Exposes HTTP endpoints for performing curve fitting optimizations on mechanical models.
             </summary>
         </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Algorithms.AlglibCurveFitter.FitStandard(MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Models.CurveFitInput)">
+            <summary>
+            Executes local gradient-based optimization using ALGLIB's bounded L-BFGS solver (<c>minbleic</c>).
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Algorithms.AlglibCurveFitter.FitRuleConstrained(MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Models.CurveFitInput)">
+            <summary>
+            Executes derivative-free global optimization using ALGLIB's GDEMO (adaptive Differential Evolution / SHADE, <c>mindf</c>)
+            with box bounds and short-circuit rejection (penalty barrier 1e12) for arbitrary non-linear parameter rules,
+            followed by a secondary local gradient polish (<c>FitStandard</c>) from the best found solution.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Algorithms.CurveFitterBase.CalculateNumericalGradient(MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Models.CurveFitInput,System.Double[])">
+            <summary>
+            Computes the numerical gradient of the objective function (Sum of Squared Residuals)
+            using central finite differences with an scale-adaptive step size.
+            </summary>
+            <param name="input">The curve fitting problem input definition.</param>
+            <param name="currentParameters">The parameter vector at which the gradient is evaluated.</param>
+            <returns>The gradient vector containing partial derivatives with respect to each parameter.</returns>
+            <remarks>
+            The finite difference step size <c>h</c> is chosen adaptively as <c>Math.Max(1e-6, 1e-4 * |p_i|)</c>:
+            <list type="bullet">
+            <item>
+            <description>
+            <b>For small parameters (<c>|p_i| &lt;= 0.01</c>):</b> The absolute floor <c>1e-6</c> prevents underflow,
+            division by zero, and numerical instability near the origin.
+            </description>
+            </item>
+            <item>
+            <description>
+            <b>For large parameters (<c>|p_i| &gt;&gt; 1</c>, e.g. elastic modulus E ~ 1e4 or slow relaxation time tau_2 ~ 1e3 s):</b>
+            A fixed step like <c>1e-6</c> represents an infinitesimal relative perturbation (<c>1e-9</c> or smaller),
+            which causes catastrophic cancellation in double-precision floating-point arithmetic and leads to zero gradients,
+            causing gradient-based optimizers (such as L-BFGS) to terminate prematurely. The proportional component (<c>1e-4 * |p_i|</c>)
+            maintains a 0.01% perturbation, ensuring robust and smooth gradient estimation across diverse parameter magnitudes.
+            </description>
+            </item>
+            </list>
+            </remarks>
+        </member>
         <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Commands.DataProcessingOptions">
             <summary>
             Configuration options for the experimental data processing pipeline.
@@ -210,6 +251,17 @@
             Default tolerance used by the curve fitting algorithms.
             </summary>
         </member>
+        <member name="F:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Models.CurveFittingConstants.MaxIterations">
+            <summary>
+            Default maximum iterations / epochs used by the curve fitting algorithms.
+            </summary>
+            <remarks>
+            Configured to 500 to establish an efficient computational budget for population-based global optimizers
+            (such as ALGLIB's GDEMO differential evolution in <c>RuleConstrained</c> mode, where total evaluations equal
+            <c>MaxIterations * PopulationSize</c>), while providing sufficient iterations for gradient-based local convergence
+            (such as ALGLIB's L-BFGS / <c>minbleic</c> in <c>Standard</c> mode and subsequent polish phases).
+            </remarks>
+        </member>
         <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Models.ExperimentalDataPoint">
             <summary>
             Represents an experimental data point containing time, stress, and strain.
@@ -403,25 +455,25 @@
             Contains the input data for Reduced Relaxation Function.
             </summary>
             <param name="RelaxationStiffness">Constant C. Unit: dimensionless.</param>
-            <param name="SlowRelaxationTime">Constant tau 1. Unit: s (second).</param>
-            <param name="FastRelaxationTime">Constant tau 2. Unit: s (second).</param>
+            <param name="FastRelaxationTime">Constant tau 1. Unit: s (second).</param>
+            <param name="SlowRelaxationTime">Constant tau 2. Unit: s (second).</param>
         </member>
         <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Models.Range.RangeReducedRelaxationFunction.#ctor(MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Models.Range.RangeParameters,MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Models.Range.RangeParameters,MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Models.Range.RangeParameters)">
             <summary>
             Contains the input data for Reduced Relaxation Function.
             </summary>
             <param name="RelaxationStiffness">Constant C. Unit: dimensionless.</param>
-            <param name="SlowRelaxationTime">Constant tau 1. Unit: s (second).</param>
-            <param name="FastRelaxationTime">Constant tau 2. Unit: s (second).</param>
+            <param name="FastRelaxationTime">Constant tau 1. Unit: s (second).</param>
+            <param name="SlowRelaxationTime">Constant tau 2. Unit: s (second).</param>
         </member>
         <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Models.Range.RangeReducedRelaxationFunction.RelaxationStiffness">
             <summary>Constant C. Unit: dimensionless.</summary>
         </member>
         <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Models.Range.RangeReducedRelaxationFunction.FastRelaxationTime">
-            <summary>Constant tau 2. Unit: s (second).</summary>
+            <summary>Constant tau 1. Unit: s (second).</summary>
         </member>
         <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Models.Range.RangeReducedRelaxationFunction.SlowRelaxationTime">
-            <summary>Constant tau 1. Unit: s (second).</summary>
+            <summary>Constant tau 2. Unit: s (second).</summary>
         </member>
         <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Converters.SignificantFiguresDoubleJsonConverter">
             <summary>

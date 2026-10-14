@@ -22,6 +22,13 @@ public abstract class CurveFitterAcceptanceTestBase<TStep> where TStep : notnull
     protected abstract string Prefix { get; }
 
     /// <summary>
+    /// Gets a value indicating whether this acceptance test should load and execute against shared test data files.
+    /// When <c>true</c>, files located in the shared folder across all acceptance tests are loaded before prefix-specific files.
+    /// Defaults to <c>true</c>.
+    /// </summary>
+    protected virtual bool UseSharedFiles => true;
+
+    /// <summary>
     /// Gets the minimum acceptable coefficient of determination (R²) for fitted model outputs.
     /// Default is 0.90 across all curve fitter steps.
     /// </summary>
@@ -36,7 +43,7 @@ public abstract class CurveFitterAcceptanceTestBase<TStep> where TStep : notnull
     public async Task ExecuteAsync_WithCsvData_ShouldExecuteCurveFitting()
     {
         // Arrange
-        IReadOnlyList<(string GroupName, CurveSegment[] Segments)> groups = await AcceptanceTestHelpers.LoadSegmentGroupsForPrefixAsync(Prefix);
+        IReadOnlyList<(string GroupName, CurveSegment[] Segments)> groups = await AcceptanceTestHelpers.LoadSegmentGroupsForPrefixAsync(Prefix, UseSharedFiles);
 
         if (groups.Count == 0)
         {

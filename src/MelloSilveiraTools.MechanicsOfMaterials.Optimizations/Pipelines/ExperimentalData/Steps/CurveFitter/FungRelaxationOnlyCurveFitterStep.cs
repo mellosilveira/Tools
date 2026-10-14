@@ -18,9 +18,14 @@ public sealed class FungRelaxationOnlyCurveFitterStep(
     IFungModelCalculator mechanicalModelCalculator,
     ICurveFitter curveFitter) : MechanicalModelCurveFitterStepBase
 {
-    private static readonly double[] RelaxationLowerBounds = [0.0, 1e-4, 1.0];
-    private static readonly double[] RelaxationUpperBounds = [1.0, 0.1, 1e5];
-    private static readonly double[] RelaxationInitialParameters = [0.1, 0.01, 10.0];
+    // Continuous spectrum parameters: [0] = RelaxationStiffness (C), [1] = FastRelaxationTime (tau_1), [2] = SlowRelaxationTime (tau_2).
+    // Physical bounds for soft tissue (ligament) relaxation spanning hundreds to thousands of seconds:
+    // - FastRelaxationTime tau_1 in [1e-4, 1.0] s (short-term viscoelastic decay), initialized at 0.01 s.
+    // - SlowRelaxationTime tau_2 in [10.0, 1e6] s (long-term equilibrium decay), initialized at 1000.0 s.
+    // Box-bound separation (tau_1 <= 1.0 < 10.0 <= tau_2) guarantees tau_1 < tau_2, preventing logarithmic domain errors ln(tau_2 / tau_1) <= 0.
+    private static readonly double[] RelaxationLowerBounds = [1e-4, 1e-4, 10.0];
+    private static readonly double[] RelaxationUpperBounds = [2.0, 1.0, 1e6];
+    private static readonly double[] RelaxationInitialParameters = [0.1, 0.01, 1000.0];
     private static readonly double[] RampLowerBounds = [1e-6, 0.0];
     private static readonly double[] RampUpperBounds = [1e6, 100.0];
     private static readonly double[] RampInitialParameters = [1000.0, 1.0];
@@ -65,8 +70,8 @@ public sealed class FungRelaxationOnlyCurveFitterStep(
                 LowerBounds = RelaxationLowerBounds,
                 UpperBounds = RelaxationUpperBounds,
                 InitialParameters = RelaxationInitialParameters,
-                Profile = CurveFitProfile.Automatic,
-                // parameters[1] = FastRelaxationTime, parameters[2] = SlowRelaxationTime
+                Profile = CurveFitProfile.Standard,
+                // parameters[1] = FastRelaxationTime, parameters[2] = SlowRelaxationTime (guaranteed by UpperBounds[1] < LowerBounds[2])
                 ValidateParameters = parameters => parameters[1] < parameters[2]
             };
 

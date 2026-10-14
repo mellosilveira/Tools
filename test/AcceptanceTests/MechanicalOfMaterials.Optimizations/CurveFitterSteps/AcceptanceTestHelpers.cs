@@ -13,21 +13,23 @@ public static class AcceptanceTestHelpers
     /// Expected columns: Time, ExperimentalStrain, ExperimentalStress
     /// </summary>
     /// <param name="prefix">Prefix folder name under TestData.</param>
+    /// <param name="useSharedFiles">Whether to load shared test data files first.</param>
     /// <returns>An array of loaded curve segments.</returns>
-    public static async Task<CurveSegment[]> LoadSegmentsForPrefixAsync(string prefix)
+    public static async Task<CurveSegment[]> LoadSegmentsForPrefixAsync(string prefix, bool useSharedFiles = true)
     {
-        IReadOnlyList<(string GroupName, CurveSegment[] Segments)> groups = await LoadSegmentGroupsForPrefixAsync(prefix);
+        IReadOnlyList<(string GroupName, CurveSegment[] Segments)> groups = await LoadSegmentGroupsForPrefixAsync(prefix, useSharedFiles);
         return groups.Count > 0 ? groups[0].Segments : [];
     }
 
     /// <summary>
-    /// Loads groups of <see cref="CurveSegment"/> arrays for a given curve fitter step prefix.
-    /// If the prefix folder contains subdirectories, each subdirectory is loaded as an independent group (named after the subdirectory).
-    /// If the prefix folder contains no subdirectories, the root folder is loaded as a single group (named after the prefix).
+    /// Loads groups of <see cref="CurveSegment"/> arrays for a given curve fitter step prefix and optional shared test data.
+    /// If <paramref name="useSharedFiles"/> is <c>true</c>, all groups from the shared folder ("Shared") under TestData
+    /// are loaded first. Then, all groups from the prefix-specific folder under TestData are loaded.
     /// </summary>
     /// <param name="prefix">Prefix folder name under TestData.</param>
+    /// <param name="useSharedFiles">Whether to load shared test data files first.</param>
     /// <returns>A list of tuples containing the group name and its loaded curve segments.</returns>
-    public static async Task<IReadOnlyList<(string GroupName, CurveSegment[] Segments)>> LoadSegmentGroupsForPrefixAsync(string prefix)
+    public static async Task<IReadOnlyList<(string GroupName, CurveSegment[] Segments)>> LoadSegmentGroupsForPrefixAsync(string prefix, bool useSharedFiles = true)
     {
         string? testDataFolder = ResolveTestDataDirectory();
         if (testDataFolder == null)
@@ -35,23 +37,43 @@ public static class AcceptanceTestHelpers
             return [];
         }
 
+        List<(string GroupName, CurveSegment[] Segments)> groups = [];
+
+        // 1. First, search for shared files across all acceptance tests if enabled
+        if (useSharedFiles)
+        {
+            string sharedFolder = Path.Combine(testDataFolder, "Shared");
+            if (Directory.Exists(sharedFolder))
+            {
+                IReadOnlyList<(string GroupName, CurveSegment[] Segments)> sharedGroups = await LoadDirectoryGroupsAsync(sharedFolder, "Shared");
+                groups.AddRange(sharedGroups);
+            }
+        }
+
+        // 2. Then, fetch prefix-specific files
         string prefixFolder = Path.Combine(testDataFolder, prefix);
         if (!Directory.Exists(prefixFolder))
         {
             prefixFolder = Path.Combine(testDataFolder, $"{prefix}CurveFitterStep");
         }
 
-        if (!Directory.Exists(prefixFolder))
+        if (Directory.Exists(prefixFolder))
         {
-            return [];
+            IReadOnlyList<(string GroupName, CurveSegment[] Segments)> prefixGroups = await LoadDirectoryGroupsAsync(prefixFolder, prefix);
+            groups.AddRange(prefixGroups);
         }
 
-        string[] subDirectories = Directory.GetDirectories(prefixFolder);
+        return groups;
+    }
+
+    private static async Task<IReadOnlyList<(string GroupName, CurveSegment[] Segments)>> LoadDirectoryGroupsAsync(string folderPath, string defaultGroupName)
+    {
+        List<(string GroupName, CurveSegment[] Segments)> groups = [];
+
+        string[] subDirectories = Directory.GetDirectories(folderPath);
         if (subDirectories.Length > 0)
         {
             Array.Sort(subDirectories);
-            List<(string GroupName, CurveSegment[] Segments)> groups = [];
-
             foreach (string subDir in subDirectories)
             {
                 string groupName = Path.GetFileName(subDir);
@@ -61,12 +83,15 @@ public static class AcceptanceTestHelpers
                     groups.Add((groupName, segments));
                 }
             }
-
-            return groups;
         }
 
-        CurveSegment[] rootSegments = await LoadSegmentsFromDirectoryAsync(prefixFolder);
-        return rootSegments.Length > 0 ? [(prefix, rootSegments)] : [];
+        CurveSegment[] rootSegments = await LoadSegmentsFromDirectoryAsync(folderPath);
+        if (rootSegments.Length > 0)
+        {
+            groups.Add((defaultGroupName, rootSegments));
+        }
+
+        return groups;
     }
 
     /// <summary>
@@ -148,8 +173,18 @@ public static class AcceptanceTestHelpers
             return null;
         }
 
+        byte delimiter = (byte)';';
+        using (StreamReader sr = new(filePath))
+        {
+            string? firstLine = await sr.ReadLineAsync();
+            if (firstLine != null && !firstLine.Contains(';') && firstLine.Contains(','))
+            {
+                delimiter = (byte)',';
+            }
+        }
+
         await using FileStream stream = File.OpenRead(filePath);
-        await using CsvStreamReader reader = await CsvStreamReader.CreateAsync(stream, delimiter: (byte)';', leaveOpen: false, skipInvalidLines: true);
+        await using CsvStreamReader reader = await CsvStreamReader.CreateAsync(stream, delimiter: delimiter, leaveOpen: false, skipInvalidLines: true);
 
         List<double> timePoints = [];
         List<double> strainPoints = [];

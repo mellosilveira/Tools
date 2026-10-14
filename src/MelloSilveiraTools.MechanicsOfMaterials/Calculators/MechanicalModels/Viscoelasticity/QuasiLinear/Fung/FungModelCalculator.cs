@@ -1,4 +1,4 @@
-﻿using MelloSilveiraTools.Mathematics.Models;
+using MelloSilveiraTools.Mathematics.Models;
 using MelloSilveiraTools.Mathematics.NumericalMethods.Differentiations;
 using MelloSilveiraTools.Mathematics.NumericalMethods.Integrals;
 using MelloSilveiraTools.MechanicsOfMaterials.Converters.MechanicalParameter;
@@ -22,7 +22,16 @@ public sealed class FungModelCalculator(
     /// <inheritdoc/>
     /// <remarks>
     /// Formula: I(t) = ∫[t/τ₂, t/τ₁] e^(-x)/x dx (Projeto Final, Eq. 43).
-    /// When t → 0, the integrand e^(-x)/x ≈ 1/x, so I(0) = ln(τ₂/τ₁).
+    /// <para>
+    /// Physical Spectrum Boundaries:
+    /// <list type="bullet">
+    /// <item><description><paramref name="slowRelaxationTime"/> represents τ₂ (upper bound of the continuous relaxation spectrum, long-term equilibrium).</description></item>
+    /// <item><description><paramref name="fastRelaxationTime"/> represents τ₁ (lower bound of the continuous relaxation spectrum, short-term response).</description></item>
+    /// </list>
+    /// Since τ₁ &lt; τ₂, the substitution x = t/τ transforms the integration domain from [τ₁, τ₂] to [t/τ₂, t/τ₁],
+    /// so the lower integration limit is <c>initialTime = t / slowRelaxationTime</c> and the upper limit is <c>finalTime = t / fastRelaxationTime</c>.
+    /// When t → 0, the integrand e^(-x)/x ≈ 1/x, yielding analytically I(0) = ln(τ₂/τ₁).
+    /// </para>
     /// </remarks>
     public double CalculateI(double slowRelaxationTime, double fastRelaxationTime, double timeStep, double time)
     {
