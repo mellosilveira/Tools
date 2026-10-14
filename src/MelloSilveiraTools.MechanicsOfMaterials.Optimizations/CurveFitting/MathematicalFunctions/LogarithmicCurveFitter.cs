@@ -35,7 +35,10 @@ public sealed class LogarithmicCurveFitter(ICurveFitter curveFitter) : IMathemat
                 ValidateParameters = input.ValidateParameters,
                 TargetRSquared = input.TargetRSquared
             };
-            return curveFitter.Fit(fitInput);
+            CurveFitOutput output = curveFitter.Fit(fitInput);
+            return input.ZeroBased
+                ? output with { OptimizedParameters = [0.0, .. output.OptimizedParameters] }
+                : output;
         }
         catch (Exception ex)
         {

@@ -94,6 +94,55 @@
             The specific experimental phases where this parameter group applies.
             </summary>
         </member>
+        <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.MathematicalFunctions.PolynomialCurveFitter">
+            <summary>
+            Implements <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.MathematicalFunctions.IMathematicalFunctionCurveFitter"/> for polynomial functions,
+            leveraging analytical least-squares fitting via the Vandermonde matrix and QR decomposition
+            with fallback to the configured <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Algorithms.ICurveFitter"/> for non-linear box-constrained optimization.
+            </summary>
+            <param name="curveFitter">The underlying iterative curve fitting engine.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.MathematicalFunctions.PolynomialCurveFitter.#ctor(MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Algorithms.ICurveFitter)">
+            <summary>
+            Implements <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.MathematicalFunctions.IMathematicalFunctionCurveFitter"/> for polynomial functions,
+            leveraging analytical least-squares fitting via the Vandermonde matrix and QR decomposition
+            with fallback to the configured <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Algorithms.ICurveFitter"/> for non-linear box-constrained optimization.
+            </summary>
+            <param name="curveFitter">The underlying iterative curve fitting engine.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.MathematicalFunctions.PolynomialCurveFitter.TryFit(MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Models.MathematicalCurveFitInput)">
+            <inheritdoc/>
+        </member>
+        <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.MathematicalFunctions.VandermondeLeastSquares">
+            <summary>
+            Provides analytical least-squares fitting for polynomial functions using the Vandermonde matrix
+            and QR decomposition via Modified Gram-Schmidt orthogonalization.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.MathematicalFunctions.VandermondeLeastSquares.BuildVandermondeMatrix(System.ReadOnlySpan{System.Double},System.Int32,System.Boolean)">
+            <summary>
+            Constructs a rectangular Vandermonde matrix of size <c>N x M</c>.
+            </summary>
+            <param name="x">The independent variable data points of length <c>N</c>.</param>
+            <param name="numberOfParameters">The number of polynomial parameters <c>M</c>.</param>
+            <param name="zeroBased">
+            When <see langword="true"/>, the constant term <c>c0 = 0</c> is omitted, generating powers <c>x^1, x^2, ..., x^M</c>;
+            otherwise, generates standard powers <c>x^0, x^1, ..., x^{M-1}</c>.
+            </param>
+            <returns>A 2D array representing the Vandermonde matrix <c>V[N, M]</c>.</returns>
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.MathematicalFunctions.VandermondeLeastSquares.Fit(System.ReadOnlySpan{System.Double},System.ReadOnlySpan{System.Double},System.Int32,System.Boolean,System.Double)">
+            <summary>
+            Computes the analytical least-squares solution <c>c</c> minimizing <c>||V * c - y||^2</c>
+            using QR decomposition with Modified Gram-Schmidt orthogonalization.
+            </summary>
+            <param name="x">The independent variable values.</param>
+            <param name="y">The dependent variable values.</param>
+            <param name="numberOfParameters">The number of polynomial parameters.</param>
+            <param name="zeroBased">Whether the polynomial has a forced zero intercept (<c>c0 = 0</c>).</param>
+            <param name="tolerance">The tolerance for numerical stability.</param>
+            <returns>The optimized polynomial coefficients, or <see langword="null"/> if the matrix is rank-deficient or singular.</returns>
+        </member>
         <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.MathExpressions.IMathExpressionCurveFitter">
             <summary>
             Decorator for curve fitting that uses MathExpressions.
@@ -998,7 +1047,7 @@
             Schapery model (relaxation-only curve fitting). Implements <c>IPipelineStep</c> for telemetry.
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Steps.CurveFitter.SchaperyRelaxationOnlyCurveFitterStep.#ctor(Microsoft.Extensions.Logging.ILogger{MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Steps.CurveFitter.SchaperyRelaxationOnlyCurveFitterStep},MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Viscoelasticity.NonLinear.Schapery.ISchaperyModelCalculator,MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Algorithms.ICurveFitter,MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.MathematicalFunctions.IMathematicalFunctionCurveFitter,MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.MathematicalFunctions.IMathematicalFunctionCurveFitter,MelloSilveiraTools.Mathematics.Factories.Functions.FunctionFactory)">
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Steps.CurveFitter.SchaperyRelaxationOnlyCurveFitterStep.#ctor(Microsoft.Extensions.Logging.ILogger{MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Steps.CurveFitter.SchaperyRelaxationOnlyCurveFitterStep},MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Viscoelasticity.NonLinear.Schapery.ISchaperyModelCalculator,MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Algorithms.ICurveFitter,MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.MathematicalFunctions.IMathematicalFunctionCurveFitter,MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.MathematicalFunctions.IMathematicalFunctionCurveFitter,MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.MathematicalFunctions.IMathematicalFunctionCurveFitter,MelloSilveiraTools.Mathematics.Factories.Functions.FunctionFactory)">
             <summary>
             Thread-safe. Implements <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Steps.CurveFitter.IMechanicalModelCurveFitterStep"/> for the
             Schapery model (relaxation-only curve fitting). Implements <c>IPipelineStep</c> for telemetry.

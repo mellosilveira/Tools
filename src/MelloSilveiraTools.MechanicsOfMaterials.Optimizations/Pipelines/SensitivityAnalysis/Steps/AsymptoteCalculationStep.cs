@@ -20,9 +20,9 @@ public sealed class AsymptoteCalculationStep(IMechanicalModelCalculatorFacade ca
         // A robust simulation could analyze the constitutive constants (e.g., maximum relaxation time * factor).
         // Since the interface facade calculates stress at a given time, we use a placeholder large time.
         // In a real scenario, this might call a specific limit evaluation method if the facade supports it.
-        double asymptoteTime = 1e8; 
+        double asymptoteTime = 1e8;
         double stress = calculator.CalculateStress(input, asymptoteTime);
-        
+
         return (asymptoteTime, stress);
     }
 

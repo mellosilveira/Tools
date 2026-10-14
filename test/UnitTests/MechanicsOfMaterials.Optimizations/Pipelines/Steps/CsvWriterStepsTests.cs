@@ -9,7 +9,6 @@ using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.Sensitivit
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Models;
 using Moq;
 using System.Globalization;
-using Xunit;
 
 namespace UnitTests.MechanicsOfMaterials.Optimizations.Pipelines.Steps;
 
@@ -45,8 +44,8 @@ public sealed class CsvWriterStepsTests : IDisposable
         string filePath = Path.Combine(_testDirectory, "empty_exp.csv");
         Mock<IFileManager> fileManagerMock = new();
         fileManagerMock
-            .Setup(fm => fm.BuildTimebasedFileInfo(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
-            .Returns(new FileInfo(filePath));
+            .Setup(fm => fm.BuildTimebasedFullName(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
+            .Returns(filePath);
 
         ExperimentalDataFileWriterStep step = new(fileManagerMock.Object, _testDirectory, "empty_01");
 
@@ -67,8 +66,8 @@ public sealed class CsvWriterStepsTests : IDisposable
         string filePath = Path.Combine(_testDirectory, "experimental.csv");
         Mock<IFileManager> fileManagerMock = new();
         fileManagerMock
-            .Setup(fm => fm.BuildTimebasedFileInfo(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
-            .Returns(new FileInfo(filePath));
+            .Setup(fm => fm.BuildTimebasedFullName(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
+            .Returns(filePath);
 
         ExperimentalDataFileWriterStep step = new(fileManagerMock.Object, _testDirectory, "exp_01");
 
@@ -179,8 +178,8 @@ public sealed class CsvWriterStepsTests : IDisposable
         IReadOnlyCollection<string> generatedPaths = step.GeneratedFilePaths;
         Assert.Equal(2, generatedPaths.Count);
 
-        string expectedPathE = Path.Combine(sweepDir, "ElasticModulus_Sensitivity.csv");
-        string expectedPathTau = Path.Combine(sweepDir, "RelaxationTime_Sensitivity.csv");
+        string expectedPathE = Path.Combine(sweepDir, "ElasticModulus_SensitivityAnalysis.csv");
+        string expectedPathTau = Path.Combine(sweepDir, "RelaxationTime_SensitivityAnalysis.csv");
 
         Assert.Contains(expectedPathE, generatedPaths);
         Assert.Contains(expectedPathTau, generatedPaths);

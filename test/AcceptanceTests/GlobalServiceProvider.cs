@@ -34,6 +34,9 @@ public static class GlobalServiceProvider
             resiliencePipelineSettings: new ResiliencePipelineSettings(),
             pluginSettings: new PluginSettings { Directory = pluginsDir, DefaultCacheTarget = PluginCacheTargets.File },
             addMechanicalModels: true);
+        services.AddTransient<MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Algorithms.ICurveFitter>(sp =>
+            sp.GetRequiredKeyedService<MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Algorithms.ICurveFitter>(
+                MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Models.CurveFitterType.Alglib));
 
         Provider = services.BuildServiceProvider();
     }

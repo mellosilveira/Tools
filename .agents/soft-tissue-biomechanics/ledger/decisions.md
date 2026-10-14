@@ -158,3 +158,11 @@ To ensure data integrity and prevent runaway token consumption during automated 
 - **From where**: Outputs of deep research Task 1.3.
 - **Why**: FEBio natively supports complex biphasic and poroelastic materials critical for hydrated tissues. Its open-source nature allows for writing custom User-Defined Materials (UDMs) in C++ without licensing constraints, validating Task 3.4 of the roadmap.
 
+## Ledger Entry: 2026-10-13
+
+### Decision & Execution
+* **Task_ID:** task-2.2
+* **Date:** 2026-10-13
+* **What:** Validated, executed, and formally documented the objective functions for the Schapery Non-Linear 1D model within MelloSilveiraTools (SchaperyRelaxationOnlyCurveFitterStep.cs).
+* **From where:** senior-backend-software-engineer-net (File: outputs/task-2.2-result.json)
+* **Why:** In Schapery's non-linear formulation, decoupling the linear viscoelastic baseline ($G_e, g_1, n$) at the anchor segment from the non-linear Helmholtz multipliers ($h_e, h_2$) at higher strain segments guarantees numerical stability, eliminates parameter correlation, and permits robust continuous function fitting (Logarithmic vs Exponential) for the academic writer.

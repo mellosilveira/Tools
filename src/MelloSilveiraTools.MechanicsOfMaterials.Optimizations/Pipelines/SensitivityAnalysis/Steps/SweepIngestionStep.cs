@@ -2,7 +2,6 @@ using MelloSilveiraTools.Core.Pipelines.Steps;
 using MelloSilveiraTools.Core.Providers;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Generators;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Models;
-using System.Runtime.CompilerServices;
 
 namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.SensitivityAnalysis.Steps;
 

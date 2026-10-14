@@ -10,5 +10,119 @@
             Created exactly once per application domain (eliminates duplication across generic types).
             </summary>
         </member>
+        <member name="T:AcceptanceTests.MechanicalOfMaterials.Optimizations.CurveFitterSteps.AcceptanceTestHelpers">
+            <summary>
+            Helper for loading acceptance test data CSV files and converting them to CurveSegment arrays.
+            </summary>
+        </member>
+        <member name="M:AcceptanceTests.MechanicalOfMaterials.Optimizations.CurveFitterSteps.AcceptanceTestHelpers.LoadSegmentsForPrefixAsync(System.String)">
+            <summary>
+            Loads CurveSegment array for a given curve fitter step prefix by finding all CSV files in TestData matching [PREFIX]_[SEGMENT_TYPE].csv.
+            Expected columns: Time, ExperimentalStrain, ExperimentalStress
+            </summary>
+            <param name="prefix">Prefix folder name under TestData.</param>
+            <returns>An array of loaded curve segments.</returns>
+        </member>
+        <member name="M:AcceptanceTests.MechanicalOfMaterials.Optimizations.CurveFitterSteps.AcceptanceTestHelpers.LoadSegmentGroupsForPrefixAsync(System.String)">
+            <summary>
+            Loads groups of <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Models.CurveSegment"/> arrays for a given curve fitter step prefix.
+            If the prefix folder contains subdirectories, each subdirectory is loaded as an independent group (named after the subdirectory).
+            If the prefix folder contains no subdirectories, the root folder is loaded as a single group (named after the prefix).
+            </summary>
+            <param name="prefix">Prefix folder name under TestData.</param>
+            <returns>A list of tuples containing the group name and its loaded curve segments.</returns>
+        </member>
+        <member name="M:AcceptanceTests.MechanicalOfMaterials.Optimizations.CurveFitterSteps.AcceptanceTestHelpers.LoadSegmentsFromDirectoryAsync(System.String)">
+            <summary>
+            Loads all <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Models.CurveSegment"/> instances from CSV files in the specified directory.
+            </summary>
+            <param name="directoryPath">The absolute path to the directory containing segment CSV files.</param>
+            <returns>An array of loaded curve segments sorted in alphabetical file order.</returns>
+        </member>
+        <member name="M:AcceptanceTests.MechanicalOfMaterials.Optimizations.CurveFitterSteps.AcceptanceTestHelpers.LoadSegmentFromCsvAsync(System.String,MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Models.SegmentType)">
+            <summary>
+            Loads a single <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Models.CurveSegment"/> from a specified CSV file.
+            </summary>
+            <param name="filePath">Absolute or relative file path to the CSV file.</param>
+            <param name="segmentType">The segment type of this curve data.</param>
+            <returns>The populated curve segment, or null if empty.</returns>
+        </member>
+        <member name="M:AcceptanceTests.MechanicalOfMaterials.Optimizations.CurveFitterSteps.AcceptanceTestHelpers.CalculateRSquared(System.ReadOnlySpan{System.Double},System.ReadOnlySpan{System.Double})">
+            <summary>
+            Computes the coefficient of determination (R² = 1 - SSR/SST) comparing actual values with predicted values.
+            </summary>
+            <param name="actual">Actual observed values.</param>
+            <param name="predicted">Predicted or fitted model values.</param>
+            <returns>The calculated R² coefficient.</returns>
+        </member>
+        <member name="T:AcceptanceTests.MechanicalOfMaterials.Optimizations.CurveFitterSteps.CurveFitterAcceptanceTestBase`1">
+            <summary>
+            Abstract base class for curve fitter step acceptance tests.
+            </summary>
+            <typeparam name="TStep">The concrete curve fitter step type.</typeparam>
+        </member>
+        <member name="F:AcceptanceTests.MechanicalOfMaterials.Optimizations.CurveFitterSteps.CurveFitterAcceptanceTestBase`1.Step">
+            <summary>
+            The resolved curve fitter step instance under test.
+            </summary>
+        </member>
+        <member name="P:AcceptanceTests.MechanicalOfMaterials.Optimizations.CurveFitterSteps.CurveFitterAcceptanceTestBase`1.Prefix">
+            <summary>
+            Gets the folder name prefix under TestData where test CSV files are located.
+            </summary>
+        </member>
+        <member name="P:AcceptanceTests.MechanicalOfMaterials.Optimizations.CurveFitterSteps.CurveFitterAcceptanceTestBase`1.MinimumAcceptableRSquared">
+            <summary>
+            Gets the minimum acceptable coefficient of determination (R²) for fitted model outputs.
+            Default is 0.90 across all curve fitter steps.
+            </summary>
+        </member>
+        <member name="M:AcceptanceTests.MechanicalOfMaterials.Optimizations.CurveFitterSteps.CurveFitterAcceptanceTestBase`1.ExecuteAsync_WithCsvData_ShouldExecuteCurveFitting">
+            <summary>
+            Generic acceptance test that feeds CSV segments to the curve fitter step for all discovered groups,
+            asserts output generation and quality, and invokes <see cref="M:AcceptanceTests.MechanicalOfMaterials.Optimizations.CurveFitterSteps.CurveFitterAcceptanceTestBase`1.AssertPhysicalConstraints(System.String,System.Collections.Generic.IReadOnlyList{MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Models.CurveSegment},System.Collections.Generic.IReadOnlyList{MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Models.MechanicalModelCurveFitOutput})"/>
+            for model-specific verification.
+            </summary>
+        </member>
+        <member name="M:AcceptanceTests.MechanicalOfMaterials.Optimizations.CurveFitterSteps.CurveFitterAcceptanceTestBase`1.ExecuteStepPipelineAsync(MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Models.CurveSegment[],System.Threading.CancellationToken)">
+            <summary>
+            Executes the curve fitter step by feeding all input curve segments sequentially,
+            followed by a terminal unknown segment to drain multi-segment batch pipelines.
+            </summary>
+            <param name="segments">The input curve segments.</param>
+            <param name="cancellationToken">Optional cancellation token.</param>
+            <returns>A list of all yielded model curve fit outputs.</returns>
+        </member>
+        <member name="M:AcceptanceTests.MechanicalOfMaterials.Optimizations.CurveFitterSteps.CurveFitterAcceptanceTestBase`1.AssertPhysicalConstraints(System.String,System.Collections.Generic.IReadOnlyList{MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Models.CurveSegment},System.Collections.Generic.IReadOnlyList{MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Models.MechanicalModelCurveFitOutput})">
+            <summary>
+            Hook method for concrete curve fitter acceptance tests to assert model-specific
+            physical constraints, parameter bounds, and multi-stage convergence behaviors for a specific group.
+            Default implementation delegates to <see cref="M:AcceptanceTests.MechanicalOfMaterials.Optimizations.CurveFitterSteps.CurveFitterAcceptanceTestBase`1.AssertPhysicalConstraints(System.Collections.Generic.IReadOnlyList{MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Models.CurveSegment},System.Collections.Generic.IReadOnlyList{MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Models.MechanicalModelCurveFitOutput})"/>.
+            </summary>
+            <param name="groupName">The name of the specimen or test group.</param>
+            <param name="segments">The input experimental segments.</param>
+            <param name="outputs">The yielded curve fit outputs.</param>
+        </member>
+        <member name="M:AcceptanceTests.MechanicalOfMaterials.Optimizations.CurveFitterSteps.CurveFitterAcceptanceTestBase`1.AssertPhysicalConstraints(System.Collections.Generic.IReadOnlyList{MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Models.CurveSegment},System.Collections.Generic.IReadOnlyList{MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Models.MechanicalModelCurveFitOutput})">
+            <summary>
+            Hook method for concrete curve fitter acceptance tests to assert model-specific
+            physical constraints, parameter bounds, and multi-stage convergence behaviors.
+            Default implementation is a no-op.
+            </summary>
+            <param name="segments">The input experimental segments.</param>
+            <param name="outputs">The yielded curve fit outputs.</param>
+        </member>
+        <member name="T:AcceptanceTests.MechanicalOfMaterials.Optimizations.CurveFitterSteps.SchaperyRelaxationOnlyCurveFitterStepAcceptanceTests">
+            <summary>
+            Acceptance tests for <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Steps.CurveFitter.SchaperyRelaxationOnlyCurveFitterStep"/> validating end-to-end curve fitting
+            with real experimental ligament multi-strain data and enforcing strict biomechanical physical validity.
+            </summary>
+        </member>
+        <member name="P:AcceptanceTests.MechanicalOfMaterials.Optimizations.CurveFitterSteps.SchaperyRelaxationOnlyCurveFitterStepAcceptanceTests.Prefix">
+            <inheritdoc/>
+        </member>
+        <member name="M:AcceptanceTests.MechanicalOfMaterials.Optimizations.CurveFitterSteps.SchaperyRelaxationOnlyCurveFitterStepAcceptanceTests.AssertPhysicalConstraints(System.String,System.Collections.Generic.IReadOnlyList{MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Models.CurveSegment},System.Collections.Generic.IReadOnlyList{MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Models.MechanicalModelCurveFitOutput})">
+            <inheritdoc/>
+        </member>
     </members>
 </doc>

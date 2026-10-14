@@ -1,4 +1,4 @@
-﻿# Macro Research Planning (1-Year Restriction)
+# Macro Research Planning (1-Year Restriction)
 
 **Provisional Title:** Comparative Analysis of Non-Linear and Viscoelastic Constitutive Models Applied to Porcine Knee Ligaments under Uniaxial Tension.
 **Deadline Restriction:** 12 months until defense.
@@ -57,7 +57,7 @@
 *Status: To Do (MelloSilveiraTools + SoftTissue)*
 
 - **[x] TASK 2.1:** Develop the *Curve Fitting* objective functions for the **Fung QLV 1D** model within the **MelloSilveiraTools** package. (COMPLETED)
-- **[ ] TASK 2.2:** Develop the *Curve Fitting* objective functions for the **Schapery Non-Linear 1D** model within **MelloSilveiraTools**.
+- **[x] TASK 2.2:** Develop the *Curve Fitting* objective functions for the **Schapery Non-Linear 1D** model within **MelloSilveiraTools**. (COMPLETED)
 - **[ ] TASK 2.3:** Develop the *Curve Fitting* objective functions for the **Generalized Maxwell / Prony Series 1D** within **MelloSilveiraTools**.
 - **[ ] TASK 2.4:** Develop the *Curve Fitting* objective functions for the **Weiss Transversely Isotropic 1D** model within **MelloSilveiraTools**.
 - **[ ] TASK 2.5:** Develop the *Curve Fitting* objective functions for the **Poroviscoelasticity 1D** model within **MelloSilveiraTools**.

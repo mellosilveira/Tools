@@ -1,3 +1,4 @@
+using MelloSilveiraTools.Core.Caching;
 using MelloSilveiraTools.Plugins.Infrastructure;
 using Moq;
 
@@ -11,7 +12,7 @@ public class PluginAssemblyProcessorTests
         // Arrange
         Mock<IPluginTypeProcessor> mockProcessor = new();
         List<IPluginTypeProcessor> processors = [mockProcessor.Object];
-        Mock<PluginCache> mockCache = new();
+        Mock<PluginCache> mockCache = new(Mock.Of<ITwoLevelCache>());
 
         // Act
         PluginAssemblyProcessor processor = new(processors, mockCache.Object);

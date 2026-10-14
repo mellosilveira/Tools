@@ -26,9 +26,11 @@ public sealed class SchaperyRelaxationOnlyCurveFitterStep(
     ICurveFitter curveFitter,
     [FromKeyedServices(FunctionType.Logarithmic)] IMathematicalFunctionCurveFitter logarithmicCurveFitter,
     [FromKeyedServices(FunctionType.Exponential)] IMathematicalFunctionCurveFitter exponentialCurveFitter,
+    [FromKeyedServices(FunctionType.Polynomial)] IMathematicalFunctionCurveFitter polynomialCurveFitter,
     FunctionFactory functionFactory)
     : MechanicalModelCurveFitterStepBase
 {
+    private const double MinimumHelmholtzRSquared = 0.9;
     private static readonly double[] HelmholtzInitialParameters = [1.0, 1.0];
     private static readonly double[] HelmholtzLowerBounds = [0.0, 0.0];
     private static readonly double[] HelmholtzUpperBounds = [10.0, 10.0];
@@ -70,7 +72,7 @@ public sealed class SchaperyRelaxationOnlyCurveFitterStep(
                 (MechanicalModelCurveFitOutput anchorOutput, double[] optimizedLinearParams) = FitAnchorSegment(anchorSegment);
                 yield return anchorOutput;
 
-                (double Strain, double He, double H2)[] strainAndHelmholtzVariables = new (double Strain, double He, double H2)[relaxations.Count - 1];
+                (double Strain, double He, double H2)[] strainAndHelmholtzVariables = new (double Strain, double He, double H2)[relaxations.Count];
 
                 double weightedRSquaredSum = anchorOutput.RSquared * anchorSegment.ExperimentalStrain.Length;
                 double weightSum = anchorSegment.ExperimentalStrain.Length;
@@ -152,9 +154,9 @@ public sealed class SchaperyRelaxationOnlyCurveFitterStep(
         {
             Ge = anchorOutput.OptimizedParameters[0],
             TransientRelaxationFunction = new PowerLaw([anchorOutput.OptimizedParameters[1], anchorOutput.OptimizedParameters[2]], initialStrain, finalStrain),
-            He = new ConstantFunction(initialStrain, finalStrain, 1.0),
-            H1 = new ConstantFunction(initialStrain, finalStrain, 1.0),
-            H2 = new ConstantFunction(initialStrain, finalStrain, 1.0),
+            He = new ConstantFunction(1.0, initialStrain, finalStrain),
+            H1 = new ConstantFunction(1.0, initialStrain, finalStrain),
+            H2 = new ConstantFunction(1.0, initialStrain, finalStrain),
         };
         MechanicalModelCurveFitOutput output = CreateCurveFitOutput([anchorSegment], anchorParameters, new AcceptedRange(initialStrain, finalStrain), anchorOutput.RSquared, anchorOutput.FinalError, anchorOutput.Iterations);
         return (output, anchorOutput.OptimizedParameters);
@@ -196,9 +198,9 @@ public sealed class SchaperyRelaxationOnlyCurveFitterStep(
         {
             Ge = optimizedLinearParams[0],
             TransientRelaxationFunction = new PowerLaw([optimizedLinearParams[1], optimizedLinearParams[2]], initialAcceptedStrain, finalAcceptedStrain),
-            He = new ConstantFunction(initialAcceptedStrain, finalAcceptedStrain, he),
-            H1 = new ConstantFunction(initialAcceptedStrain, finalAcceptedStrain, 1.0),
-            H2 = new ConstantFunction(initialAcceptedStrain, finalAcceptedStrain, h2),
+            He = new ConstantFunction(he, initialAcceptedStrain, finalAcceptedStrain),
+            H1 = new ConstantFunction(1.0, initialAcceptedStrain, finalAcceptedStrain),
+            H2 = new ConstantFunction(h2, initialAcceptedStrain, finalAcceptedStrain),
         };
         AcceptedRange acceptedStrainRange = new(initialAcceptedStrain, finalAcceptedStrain);
         MechanicalModelCurveFitOutput output = CreateCurveFitOutput([segment], constitutiveParameters, acceptedStrainRange, segmentOutput.RSquared, segmentOutput.FinalError, segmentOutput.Iterations);
@@ -233,7 +235,7 @@ public sealed class SchaperyRelaxationOnlyCurveFitterStep(
             Ge = optimizedLinearParams[0],
             TransientRelaxationFunction = new PowerLaw([optimizedLinearParams[1], optimizedLinearParams[2]], initialAcceptedStrain, finalAcceptedStrain),
             He = heResult.Function,
-            H1 = new ConstantFunction(initialAcceptedStrain, finalAcceptedStrain, 1.0),
+            H1 = new ConstantFunction(1.0, initialAcceptedStrain, finalAcceptedStrain),
             H2 = h2Result.Function
         };
         return CreateCurveFitOutput(relaxations, constitutiveParameters, new AcceptedRange(initialAcceptedStrain, finalAcceptedStrain), precision, totalError, totalIterations);
@@ -243,12 +245,12 @@ public sealed class SchaperyRelaxationOnlyCurveFitterStep(
     {
         if (strain.Length == 1)
         {
-            return (new ConstantFunction(strain[0], strain[0], helmholtzVariable[0]), 1, 0.0, 0);
+            return (new ConstantFunction(helmholtzVariable[0], strain[0], strain[0]), 1.0, 0.0, 0);
         }
 
         // For logarithmic and exponential functions, we assume 2 parameters.
         const int numberOfParameters = 2;
-        MathematicalCurveFitInput curveFitterInput = new()
+        MathematicalCurveFitInput baseInput = new()
         {
             NumberOfParameters = numberOfParameters,
             IndependentVariable = strain,
@@ -256,24 +258,43 @@ public sealed class SchaperyRelaxationOnlyCurveFitterStep(
             Profile = CurveFitProfile.Automatic
         };
 
-        List<(FunctionType Type, CurveFitOutput Output)> results = [];
+        List<(FunctionType Type, CurveFitOutput Output)> candidates = [];
 
-        SafeResult<CurveFitInput, CurveFitOutput> logarithmicResult = logarithmicCurveFitter.TryFit(curveFitterInput with { ZeroBased = true });
-        if (logarithmicResult.Success)
-            results.Add((FunctionType.Logarithmic, logarithmicResult.Output!));
-        else
-            logger.LogWarning("It was not possible to fit the Helmholtz variable to a logarithmic function. Result: {@Result}", logarithmicResult);
+        // 1. Primary candidates (Logarithmic and Exponential) requiring minimum R² threshold
+        TryAddCandidate(candidates, FunctionType.Logarithmic, logarithmicCurveFitter.TryFit(baseInput with { ZeroBased = true }), MinimumHelmholtzRSquared);
+        TryAddCandidate(candidates, FunctionType.Exponential, exponentialCurveFitter.TryFit(baseInput), MinimumHelmholtzRSquared);
 
-        SafeResult<CurveFitInput, CurveFitOutput> exponentialResult = exponentialCurveFitter.TryFit(curveFitterInput);
-        if (exponentialResult.Success)
-            results.Add((FunctionType.Exponential, exponentialResult.Output!));
-        else
-            logger.LogWarning("It was not possible to fit the Helmholtz variable to a exponential function. Result: {@Result}", exponentialResult);
+        // 2. Fallback to polynomial fitting if primary candidates failed or did not meet R² threshold
+        if (candidates.Count == 0)
+        {
+            for (int parameterCount = 2; parameterCount <= strain.Length; parameterCount++)
+            {
+                SafeResult<CurveFitInput, CurveFitOutput> polynomialResult = polynomialCurveFitter.TryFit(baseInput with { NumberOfParameters = parameterCount });
+                if (polynomialResult.Success)
+                    candidates.Add((FunctionType.Polynomial, polynomialResult.Output!));
+                else
+                    logger.LogWarning("It was not possible to fit the Helmholtz variable to a polynomial function with {Count} parameters. Result: {@Result}", parameterCount, polynomialResult);
+            }
+        }
 
-        if (results.Count == 0)
+        if (candidates.Count == 0)
             throw new InvalidOperationException("All mathematical function curve fits failed.");
 
-        (FunctionType bestType, CurveFitOutput bestOutput) = results.OrderBy(o => o.Output.FinalError).First();
+        (FunctionType bestType, CurveFitOutput bestOutput) = candidates.OrderBy(o => o.Output.FinalError).First();
         return (functionFactory.Create(bestType, strain[0], strain[^1], bestOutput.OptimizedParameters), bestOutput.RSquared, bestOutput.FinalError, bestOutput.Iterations);
+    }
+
+    private void TryAddCandidate(List<(FunctionType Type, CurveFitOutput Output)> candidates, FunctionType functionType, SafeResult<CurveFitInput, CurveFitOutput> fitResult, double? minimumRSquared = null)
+    {
+        if (fitResult.Success && (minimumRSquared is null || fitResult.Output!.RSquared >= minimumRSquared.Value))
+        {
+            candidates.Add((functionType, fitResult.Output!));
+            return;
+        }
+
+        if (!fitResult.Success)
+            logger.LogWarning("It was not possible to fit the Helmholtz variable to a {Type} function. Result: {@Result}", functionType, fitResult);
+        else
+            logger.LogWarning("Helmholtz candidate {Type} fit succeeded (R² = {RSquared:F4}) but did not meet minimum threshold ({MinR2:F4}).", functionType, fitResult.Output!.RSquared, minimumRSquared);
     }
 }
