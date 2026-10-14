@@ -8,24 +8,29 @@ using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExtensionMethods;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Models;
 using System.Runtime.CompilerServices;
 
-namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Steps.CurveFitter;
+namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Steps.CurveFitter.Fung;
 
 /// <summary>
 /// Thread-safe. Implements <see cref="IMechanicalModelCurveFitterStep"/> for the
 /// Fung model (relaxation-only curve fitting). Implements <c>IPipelineStep</c> for telemetry.
+/// <para>
+/// <b>Analytical Pre-Estimation (Warm-Start):</b><br/>
+/// Employs <see cref="FungLogarithmicEstimator"/> based on Y.C. Fung (1993, Section 7.6, p. 302)
+/// to analytically deduce the logarithmic slope <c>S</c> and fast relaxation time <c>τ₁</c> from
+/// the early linear decay and transition knee. Due to experimental duration limits on soft tissue viability
+/// (<c>t_max ~ 400 - 1600 s</c>), <c>τ₂</c> is seeded beyond <c>t_max</c> and refined numerically alongside <c>C</c>.
+/// Physical parameter bounds and defaults are unified in <see cref="FungLogarithmicEstimator"/>.
+/// </para>
 /// </summary>
+/// <param name="mechanicalModelCalculator">The calculator for Fung viscoelastic constitutive calculations.</param>
+/// <param name="curveFitter">The optimization engine for non-linear regression.</param>
+/// <param name="targetRSquared">Mandatory target R² determination coefficient for early-exit and precision monitoring.</param>
 public sealed class FungRelaxationOnlyCurveFitterStep(
     IFungModelCalculator mechanicalModelCalculator,
-    ICurveFitter curveFitter) : MechanicalModelCurveFitterStepBase
+    ICurveFitter curveFitter,
+    double targetRSquared) : MechanicalModelCurveFitterStepBase(targetRSquared)
 {
-    // Continuous spectrum parameters: [0] = RelaxationStiffness (C), [1] = FastRelaxationTime (tau_1), [2] = SlowRelaxationTime (tau_2).
-    // Physical bounds for soft tissue (ligament) relaxation spanning hundreds to thousands of seconds:
-    // - FastRelaxationTime tau_1 in [1e-4, 1.0] s (short-term viscoelastic decay), initialized at 0.01 s.
-    // - SlowRelaxationTime tau_2 in [10.0, 1e6] s (long-term equilibrium decay), initialized at 1000.0 s.
-    // Box-bound separation (tau_1 <= 1.0 < 10.0 <= tau_2) guarantees tau_1 < tau_2, preventing logarithmic domain errors ln(tau_2 / tau_1) <= 0.
-    private static readonly double[] RelaxationLowerBounds = [1e-4, 1e-4, 10.0];
-    private static readonly double[] RelaxationUpperBounds = [2.0, 1.0, 1e6];
-    private static readonly double[] RelaxationInitialParameters = [0.1, 0.01, 1000.0];
+    // Ramp parameter bounds: [0] = ElasticStiffness (c), [1] = NonLinearExponent (a)
     private static readonly double[] RampLowerBounds = [1e-6, 0.0];
     private static readonly double[] RampUpperBounds = [1e6, 100.0];
     private static readonly double[] RampInitialParameters = [1000.0, 1.0];
@@ -57,6 +62,14 @@ public sealed class FungRelaxationOnlyCurveFitterStep(
             double[] relaxationTime = relaxation.TimePoints.TranslateToOrigin();
             double[] normalizedStress = relaxation.ExperimentalStress.Normalize(relaxation.ExperimentalStress[0]);
 
+            // Analytical pre-estimation using logarithmic time regression (Y.C. Fung, 1993, p. 302).
+            // Quality gate: if the logarithmic R² meets the minimum linearity threshold (>= 0.85), warm-start the optimizer
+            // with the analytically estimated parameters; otherwise, fall back safely to standard physical defaults.
+            FungLogarithmicEstimationResult logEstimation = FungLogarithmicEstimator.Estimate(relaxationTime, normalizedStress);
+            double[] initialParameters = logEstimation.RSquared >= FungLogarithmicEstimator.MinimumLogarithmicRSquared
+                ? [logEstimation.InitialC, logEstimation.FastRelaxationTime, logEstimation.SlowRelaxationTime]
+                : FungLogarithmicEstimator.DefaultInitialParameters;
+
             CurveFitInput relaxationInput = new()
             {
                 IndependentVariables = [relaxationTime],
@@ -67,12 +80,13 @@ public sealed class FungRelaxationOnlyCurveFitterStep(
                     MechanicalModelInput<FungConstitutiveParameters> currentInput = CreateModelInput(relaxation, constitutiveParameters, RampTimeConsideration.Disregard);
                     return mechanicalModelCalculator.CalculateReducedRelaxationFunction(currentInput, xValues[0]);
                 },
-                LowerBounds = RelaxationLowerBounds,
-                UpperBounds = RelaxationUpperBounds,
-                InitialParameters = RelaxationInitialParameters,
+                LowerBounds = FungLogarithmicEstimator.RelaxationLowerBounds,
+                UpperBounds = FungLogarithmicEstimator.RelaxationUpperBounds,
+                InitialParameters = initialParameters,
                 Profile = CurveFitProfile.Standard,
                 // parameters[1] = FastRelaxationTime, parameters[2] = SlowRelaxationTime (guaranteed by UpperBounds[1] < LowerBounds[2])
-                ValidateParameters = parameters => parameters[1] < parameters[2]
+                ValidateParameters = parameters => parameters[1] < parameters[2],
+                TargetRSquared = TargetRSquared
             };
 
             CurveFitOutput relaxationOutput = curveFitter.Fit(relaxationInput);
@@ -116,7 +130,8 @@ public sealed class FungRelaxationOnlyCurveFitterStep(
             LowerBounds = RampLowerBounds,
             UpperBounds = RampUpperBounds,
             InitialParameters = RampInitialParameters,
-            Profile = CurveFitProfile.Automatic
+            Profile = CurveFitProfile.Automatic,
+            TargetRSquared = TargetRSquared
         };
 
         CurveFitOutput rampOutput = curveFitter.Fit(rampInput);

@@ -45,6 +45,16 @@ public sealed record ExperimentalDataProcessingInput
     public IReadOnlyList<SegmentType> TargetSegments { get; init; } = [];
 
     /// <summary>
+    /// Type of curve fitter algorithm to execute (e.g. Alglib or MathNet). Defaults to <see cref="CurveFitterType.Alglib"/>.
+    /// </summary>
+    public required CurveFitterType CurveFitterType { get; init; }
+
+    /// <summary>
+    /// Mandatory target R² determination coefficient specified by the user for curve fitting optimization.
+    /// </summary>
+    public required double TargetRSquared { get; init; }
+
+    /// <summary>
     /// The consecutive points threshold required to detect that a steady-state asymptote has been reached.
     /// </summary>
     public int AsymptoteConsecutivePointsThreshold { get; init; }

@@ -6,7 +6,6 @@ using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.MathExp
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Models;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Factories;
-using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Steps.CurveFitter;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.SensitivityAnalysis;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Generators;
 using Microsoft.Extensions.DependencyInjection;
@@ -33,19 +32,15 @@ public static class DependencyInjection
         public IServiceCollection AddOptimizationsServices(ExperimentalDataSettings? settings = null) => services
             // Register settings.
             .AddSingleton(settings ?? new ExperimentalDataSettings())
-            // Register curve fitter steps as singletons (stateless, thread-safe).
-            .AddSingleton<SchaperyRelaxationOnlyCurveFitterStep>()
-            .AddSingleton<FungRelaxationOnlyCurveFitterStep>()
-            .AddSingleton<SimplifiedFungRelaxationOnlyCurveFitterStep>()
             // Register Curve Fitter implementations.
             .AddKeyedSingleton<ICurveFitter, AlglibCurveFitter>(CurveFitterType.Alglib)
             .AddKeyedSingleton<ICurveFitter, MathNetCurveFitter>(CurveFitterType.MathNet)
             // Register MathExpression curve fitter decorators.
             .AddKeyedSingleton<IMathExpressionCurveFitter, PronySeriesCurveFitter>(MathExpressionType.PronySeries)
             // Register MathematicalFunction curve fitter decorators.
-            .AddKeyedSingleton<IMathematicalFunctionCurveFitter, LogarithmicCurveFitter>(FunctionType.Logarithmic)
-            .AddKeyedSingleton<IMathematicalFunctionCurveFitter, ExponentialCurveFitter>(FunctionType.Exponential)
-            .AddKeyedSingleton<IMathematicalFunctionCurveFitter, PolynomialCurveFitter>(FunctionType.Polynomial)
+            .AddKeyedSingleton<IFunctionCurveFitter, LogarithmicCurveFitter>(FunctionType.Logarithmic)
+            .AddKeyedSingleton<IFunctionCurveFitter, ExponentialCurveFitter>(FunctionType.Exponential)
+            .AddKeyedSingleton<IFunctionCurveFitter, PolynomialCurveFitter>(FunctionType.Polynomial)
             // Register the step factory.
             .AddSingleton<IMechanicalModelStepFactory, MechanicalModelStepFactory>()
             // Register pipelines.

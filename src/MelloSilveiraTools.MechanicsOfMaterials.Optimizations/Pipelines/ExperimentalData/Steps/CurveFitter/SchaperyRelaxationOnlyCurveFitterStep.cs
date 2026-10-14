@@ -20,17 +20,25 @@ namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.Experi
 /// Thread-safe. Implements <see cref="IMechanicalModelCurveFitterStep"/> for the
 /// Schapery model (relaxation-only curve fitting). Implements <c>IPipelineStep</c> for telemetry.
 /// </summary>
+/// <param name="logger">The logger instance.</param>
+/// <param name="mechanicalModelCalculator">The calculator for Schapery viscoelastic constitutive equations.</param>
+/// <param name="curveFitter">The optimization engine for non-linear regression.</param>
+/// <param name="logarithmicCurveFitter">Logarithmic curve fitter for Helmholtz variables.</param>
+/// <param name="exponentialCurveFitter">Exponential curve fitter for Helmholtz variables.</param>
+/// <param name="polynomialCurveFitter">Polynomial curve fitter fallback for Helmholtz variables.</param>
+/// <param name="functionFactory">Factory constructing mathematical functions.</param>
+/// <param name="targetRSquared">Mandatory target R² determination coefficient for early-exit and precision monitoring.</param>
 public sealed class SchaperyRelaxationOnlyCurveFitterStep(
     ILogger<SchaperyRelaxationOnlyCurveFitterStep> logger,
     ISchaperyModelCalculator mechanicalModelCalculator,
     ICurveFitter curveFitter,
-    [FromKeyedServices(FunctionType.Logarithmic)] IMathematicalFunctionCurveFitter logarithmicCurveFitter,
-    [FromKeyedServices(FunctionType.Exponential)] IMathematicalFunctionCurveFitter exponentialCurveFitter,
-    [FromKeyedServices(FunctionType.Polynomial)] IMathematicalFunctionCurveFitter polynomialCurveFitter,
-    FunctionFactory functionFactory)
-    : MechanicalModelCurveFitterStepBase
+    [FromKeyedServices(FunctionType.Logarithmic)] IFunctionCurveFitter logarithmicCurveFitter,
+    [FromKeyedServices(FunctionType.Exponential)] IFunctionCurveFitter exponentialCurveFitter,
+    [FromKeyedServices(FunctionType.Polynomial)] IFunctionCurveFitter polynomialCurveFitter,
+    FunctionFactory functionFactory,
+    double targetRSquared)
+    : MechanicalModelCurveFitterStepBase(targetRSquared)
 {
-    private const double MinimumHelmholtzRSquared = 0.9;
     private static readonly double[] HelmholtzInitialParameters = [1.0, 1.0];
     private static readonly double[] HelmholtzLowerBounds = [0.0, 0.0];
     private static readonly double[] HelmholtzUpperBounds = [10.0, 10.0];
@@ -147,6 +155,7 @@ public sealed class SchaperyRelaxationOnlyCurveFitterStep(
             LowerBounds = anchorLowerBounds,
             UpperBounds = anchorUpperBounds,
             Profile = CurveFitProfile.Automatic,
+            TargetRSquared = TargetRSquared
         };
         CurveFitOutput anchorOutput = curveFitter.Fit(anchorInput);
 
@@ -186,6 +195,7 @@ public sealed class SchaperyRelaxationOnlyCurveFitterStep(
             LowerBounds = HelmholtzLowerBounds,
             UpperBounds = HelmholtzUpperBounds,
             Profile = CurveFitProfile.Automatic,
+            TargetRSquared = TargetRSquared
         };
         CurveFitOutput segmentOutput = curveFitter.Fit(segmentInput);
 
@@ -255,14 +265,15 @@ public sealed class SchaperyRelaxationOnlyCurveFitterStep(
             NumberOfParameters = numberOfParameters,
             IndependentVariable = strain,
             DependentVariable = helmholtzVariable,
-            Profile = CurveFitProfile.Automatic
+            Profile = CurveFitProfile.Automatic,
+            TargetRSquared = TargetRSquared
         };
 
         List<(FunctionType Type, CurveFitOutput Output)> candidates = [];
 
-        // 1. Primary candidates (Logarithmic and Exponential) requiring minimum R² threshold
-        TryAddCandidate(candidates, FunctionType.Logarithmic, logarithmicCurveFitter.TryFit(baseInput with { ZeroBased = true }), MinimumHelmholtzRSquared);
-        TryAddCandidate(candidates, FunctionType.Exponential, exponentialCurveFitter.TryFit(baseInput), MinimumHelmholtzRSquared);
+        // 1. Primary candidates (Logarithmic and Exponential) requiring user-specified target R² threshold
+        TryAddCandidate(candidates, FunctionType.Logarithmic, logarithmicCurveFitter.TryFit(baseInput with { ZeroBased = true }), TargetRSquared);
+        TryAddCandidate(candidates, FunctionType.Exponential, exponentialCurveFitter.TryFit(baseInput), TargetRSquared);
 
         // 2. Fallback to polynomial fitting if primary candidates failed or did not meet R² threshold
         if (candidates.Count == 0)

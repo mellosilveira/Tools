@@ -45,8 +45,7 @@ public sealed class ExperimentalDataProcessingPipeline(
         ExperimentalDataFileWriterStep fileWriterStep = new(fileManager, input.OutputFileUri, uniqueIdentifier);
         ExperimentalDataDownsamplerStep downsamplerStep = new(input.DownsamplingSkipTimeStep ?? 0);
         CurveSegmentAccumulatorStep accumulatorStep = new();
-        IMechanicalModelCurveFitterStep curveFitterStep = stepFactory.Create(input.MechanicalModelName, input.TargetSegments);
-
+        IMechanicalModelCurveFitterStep curveFitterStep = stepFactory.Create(input.MechanicalModelName, input.TargetSegments, input.CurveFitterType, input.TargetRSquared);
         IdentifierBuilderStep identifierBuilderStep = new();
         CurveFitOutputPersistenceStep curveFitPersistenceStep = new(loggerFactory.CreateLogger<CurveFitOutputPersistenceStep>(), repository);
         NumericalSimulationStep numericalSimulationStep = new(calculatorFactory, input.SimulationTimeStep, input.FinalSimulationTime);

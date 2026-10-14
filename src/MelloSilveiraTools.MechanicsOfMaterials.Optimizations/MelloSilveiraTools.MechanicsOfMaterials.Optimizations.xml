@@ -137,7 +137,7 @@
         </member>
         <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.MathematicalFunctions.PolynomialCurveFitter">
             <summary>
-            Implements <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.MathematicalFunctions.IMathematicalFunctionCurveFitter"/> for polynomial functions,
+            Implements <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.MathematicalFunctions.IFunctionCurveFitter"/> for polynomial functions,
             leveraging analytical least-squares fitting via the Vandermonde matrix and QR decomposition
             with fallback to the configured <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Algorithms.ICurveFitter"/> for non-linear box-constrained optimization.
             </summary>
@@ -145,7 +145,7 @@
         </member>
         <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.MathematicalFunctions.PolynomialCurveFitter.#ctor(MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Algorithms.ICurveFitter)">
             <summary>
-            Implements <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.MathematicalFunctions.IMathematicalFunctionCurveFitter"/> for polynomial functions,
+            Implements <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.MathematicalFunctions.IFunctionCurveFitter"/> for polynomial functions,
             leveraging analytical least-squares fitting via the Vandermonde matrix and QR decomposition
             with fallback to the configured <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Algorithms.ICurveFitter"/> for non-linear box-constrained optimization.
             </summary>
@@ -272,6 +272,85 @@
             <summary>
             Represents an experimental data point containing time, stress, and strain.
             Uses 'record struct' to avoid Heap allocations during massive reading.
+            </summary>
+        </member>
+        <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Models.FungLogarithmicEstimationResult">
+            <summary>
+            Encapsulates the results of analytical parameter pre-estimation for the continuous
+            Fung reduced relaxation function using logarithmic time-scale regression as formulated
+            by Y.C. Fung (1993, p. 302).
+            </summary>
+            <param name="InitialC">
+            The analytically estimated continuous relaxation spectrum magnitude (C), representing
+            the dimensionless relaxation stiffness or intensity of viscous damping.
+            </param>
+            <param name="FastRelaxationTime">
+            The fast relaxation time (τ₁), in seconds, corresponding to the lower cutoff of the continuous
+            relaxation spectrum (short-term viscoelastic decay). Detected at the transition from the initial
+            plateau G(0) = 1 into the linear logarithmic decay region.
+            </param>
+            <param name="SlowRelaxationTime">
+            The initial slow relaxation time (τ₂), in seconds, corresponding to the upper cutoff of the
+            continuous relaxation spectrum (long-term equilibrium). For biological soft tissues where experimental
+            testing duration is bounded to avoid specimen degradation, this represents a physically sound
+            lower bound for the unobserved long-term equilibrium.
+            </param>
+            <param name="RSquared">
+            The coefficient of determination (R²) of the linear regression in logarithmic time,
+            assessing the quality and linearity of the logarithmic decay approximation.
+            </param>
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Models.FungLogarithmicEstimationResult.#ctor(System.Double,System.Double,System.Double,System.Double)">
+            <summary>
+            Encapsulates the results of analytical parameter pre-estimation for the continuous
+            Fung reduced relaxation function using logarithmic time-scale regression as formulated
+            by Y.C. Fung (1993, p. 302).
+            </summary>
+            <param name="InitialC">
+            The analytically estimated continuous relaxation spectrum magnitude (C), representing
+            the dimensionless relaxation stiffness or intensity of viscous damping.
+            </param>
+            <param name="FastRelaxationTime">
+            The fast relaxation time (τ₁), in seconds, corresponding to the lower cutoff of the continuous
+            relaxation spectrum (short-term viscoelastic decay). Detected at the transition from the initial
+            plateau G(0) = 1 into the linear logarithmic decay region.
+            </param>
+            <param name="SlowRelaxationTime">
+            The initial slow relaxation time (τ₂), in seconds, corresponding to the upper cutoff of the
+            continuous relaxation spectrum (long-term equilibrium). For biological soft tissues where experimental
+            testing duration is bounded to avoid specimen degradation, this represents a physically sound
+            lower bound for the unobserved long-term equilibrium.
+            </param>
+            <param name="RSquared">
+            The coefficient of determination (R²) of the linear regression in logarithmic time,
+            assessing the quality and linearity of the logarithmic decay approximation.
+            </param>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Models.FungLogarithmicEstimationResult.InitialC">
+            <summary>
+            The analytically estimated continuous relaxation spectrum magnitude (C), representing
+            the dimensionless relaxation stiffness or intensity of viscous damping.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Models.FungLogarithmicEstimationResult.FastRelaxationTime">
+            <summary>
+            The fast relaxation time (τ₁), in seconds, corresponding to the lower cutoff of the continuous
+            relaxation spectrum (short-term viscoelastic decay). Detected at the transition from the initial
+            plateau G(0) = 1 into the linear logarithmic decay region.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Models.FungLogarithmicEstimationResult.SlowRelaxationTime">
+            <summary>
+            The initial slow relaxation time (τ₂), in seconds, corresponding to the upper cutoff of the
+            continuous relaxation spectrum (long-term equilibrium). For biological soft tissues where experimental
+            testing duration is bounded to avoid specimen degradation, this represents a physically sound
+            lower bound for the unobserved long-term equilibrium.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Models.FungLogarithmicEstimationResult.RSquared">
+            <summary>
+            The coefficient of determination (R²) of the linear regression in logarithmic time,
+            assessing the quality and linearity of the logarithmic decay approximation.
             </summary>
         </member>
         <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Models.MathematicalCurveFitInput.Profile">
@@ -557,42 +636,40 @@
         </member>
         <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Factories.IMechanicalModelStepFactory">
             <summary>
-            Factory responsible for creating the appropriate <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Steps.CurveFitter.IMechanicalModelCurveFitterStep"/>
-            based on the mechanical model name supplied at runtime.
+            Factory contract responsible for constructing <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Steps.CurveFitter.IMechanicalModelCurveFitterStep"/> implementations
+            using the <c>new()</c> directive and configuring the user-specified curve fitting algorithm and mandatory target R².
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Factories.IMechanicalModelStepFactory.Create(System.String,System.Collections.Generic.IReadOnlyList{MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Models.SegmentType})">
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Factories.IMechanicalModelStepFactory.Create(System.String,System.Collections.Generic.IReadOnlyList{MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Models.SegmentType},MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Models.CurveFitterType,System.Double)">
             <summary>
             Creates a concrete <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Steps.CurveFitter.IMechanicalModelCurveFitterStep"/> implementation
-            that matches the specified mechanical model.
+            that matches the specified mechanical model, instantiating the step and its dependencies directly with <c>new()</c>.
             </summary>
             <param name="modelName">The mechanical model identifier (e.g. <c>"Schapery"</c>, <c>"Fung"</c>, <c>"SimplifiedFung"</c>).</param>
-            <param name="targetSegments"></param>
+            <param name="targetSegments">The segment types to fit.</param>
+            <param name="curveFitterType">The curve fitting algorithm type to instantiate (e.g., <see cref="F:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Models.CurveFitterType.Alglib"/> or <see cref="F:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Models.CurveFitterType.MathNet"/>).</param>
+            <param name="targetRSquared">Mandatory target R² determination coefficient requested by the user.</param>
             <returns>An instance of <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Steps.CurveFitter.IMechanicalModelCurveFitterStep"/> for the given model.</returns>
         </member>
         <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Factories.MechanicalModelStepFactory">
             <summary>
-            Default implementation of <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Factories.IMechanicalModelStepFactory"/> that resolves
-            concrete <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Steps.CurveFitter.IMechanicalModelCurveFitterStep"/> instances from the DI container
-            based on a case-insensitive model name.
+            Implementation of <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Factories.IMechanicalModelStepFactory"/> that instantiates
+            concrete <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Steps.CurveFitter.IMechanicalModelCurveFitterStep"/> instances and decorators directly using
+            the <c>new()</c> directive, without relying on <see cref="T:System.IServiceProvider"/>.
             </summary>
-            <remarks>
-            Stateless and thread-safe — suitable for singleton registration.
-            Each <see cref="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Factories.MechanicalModelStepFactory.Create(System.String,System.Collections.Generic.IReadOnlyList{MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Models.SegmentType})"/> call resolves a fresh step instance from <see cref="T:System.IServiceProvider"/>.
-            </remarks>
+            <param name="serviceLocator">The service locator for resolving keyed services.</param>
+            <param name="loggerFactory">The logger factory for creating step-specific loggers.</param>
         </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Factories.MechanicalModelStepFactory.#ctor(System.IServiceProvider)">
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Factories.MechanicalModelStepFactory.#ctor(MelloSilveiraTools.Core.Providers.ServiceLocator,Microsoft.Extensions.Logging.ILoggerFactory)">
             <summary>
-            Default implementation of <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Factories.IMechanicalModelStepFactory"/> that resolves
-            concrete <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Steps.CurveFitter.IMechanicalModelCurveFitterStep"/> instances from the DI container
-            based on a case-insensitive model name.
+            Implementation of <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Factories.IMechanicalModelStepFactory"/> that instantiates
+            concrete <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Steps.CurveFitter.IMechanicalModelCurveFitterStep"/> instances and decorators directly using
+            the <c>new()</c> directive, without relying on <see cref="T:System.IServiceProvider"/>.
             </summary>
-            <remarks>
-            Stateless and thread-safe — suitable for singleton registration.
-            Each <see cref="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Factories.MechanicalModelStepFactory.Create(System.String,System.Collections.Generic.IReadOnlyList{MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Models.SegmentType})"/> call resolves a fresh step instance from <see cref="T:System.IServiceProvider"/>.
-            </remarks>
+            <param name="serviceLocator">The service locator for resolving keyed services.</param>
+            <param name="loggerFactory">The logger factory for creating step-specific loggers.</param>
         </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Factories.MechanicalModelStepFactory.Create(System.String,System.Collections.Generic.IReadOnlyList{MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Models.SegmentType})">
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Factories.MechanicalModelStepFactory.Create(System.String,System.Collections.Generic.IReadOnlyList{MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Models.SegmentType},MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Models.CurveFitterType,System.Double)">
             <inheritdoc />
         </member>
         <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.IExperimentalDataProcessingPipeline">
@@ -648,6 +725,16 @@
             <summary>
             Segment types to be processed.
             If left empty, all segment types supported by the model will be considered.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Models.ExperimentalDataProcessingInput.CurveFitterType">
+            <summary>
+            Type of curve fitter algorithm to execute (e.g. Alglib or MathNet). Defaults to <see cref="F:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Models.CurveFitterType.Alglib"/>.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Models.ExperimentalDataProcessingInput.TargetRSquared">
+            <summary>
+            Mandatory target R² determination coefficient specified by the user for curve fitting optimization.
             </summary>
         </member>
         <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Models.ExperimentalDataProcessingInput.AsymptoteConsecutivePointsThreshold">
@@ -1008,28 +1095,252 @@
         <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Steps.CurveFitOutputPersistenceStep.DisposeAsync">
             <inheritdoc />
         </member>
-        <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Steps.CurveFitter.FungRelaxationOnlyCurveFitterStep">
+        <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Steps.CurveFitter.Fung.FungLogarithmicEstimator">
+            <summary>
+            Provides analytical pre-estimation of the continuous Fung quasi-linear viscoelastic (QLV)
+            reduced relaxation function parameters using logarithmic time-scale regression as formulated
+            by Y.C. Fung (1993, Section 7.6, p. 302).
+            Acts as the single source of truth for physical bounds and default parameter values of the Fung reduced relaxation function.
+            </summary>
+            <remarks>
+            <para>
+            <b>Theoretical Foundation (Fung, 1993, p. 302):</b><br/>
+            In Fung's QLV theory, the reduced relaxation function is governed by a continuous spectrum
+            <c>S(τ) = C / τ</c> for <c>τ₁ ≤ τ ≤ τ₂</c>:
+            <code>
+            G(t) = [1 + C · (E₁(t/τ₂) - E₁(t/τ₁))] / [1 + C · ln(τ₂/τ₁)]
+            </code>
+            Taking the derivative with respect to logarithmic time u = ln(t):
+            <code>
+            dG/d(ln t) = t · (dG/dt) = C · [e^(-t/τ₁) - e^(-t/τ₂)] / [1 + C · ln(τ₂/τ₁)]
+            </code>
+            In the intermediate time domain (τ₁ &lt;&lt; t &lt;&lt; τ₂):
+            <list type="bullet">
+            <item><description><c>e^(-t/τ₁) ≈ 0</c> (since t &gt;&gt; τ₁).</description></item>
+            <item><description><c>e^(-t/τ₂) ≈ 1</c> (since t &lt;&lt; τ₂).</description></item>
+            </list>
+            Hence, the slope in semi-logarithmic coordinates is strictly constant:
+            <code>
+            dG/d(ln t) ≈ -S = -C / [1 + C · ln(τ₂/τ₁)]  ==&gt;  S &gt; 0
+            </code>
+            </para>
+            <para>
+            <b>Asymptotic Series and Analytical Extraction of τ₁:</b><br/>
+            Utilizing the series expansion for the exponential integral <c>E₁(z) = -γ - ln(z) + O(z)</c>
+            (where <c>γ</c> is the Euler-Mascheroni constant, <see cref="F:MelloSilveiraTools.Mathematics.Models.MathematicConstants.EulerMascheroniConstant"/>),
+            the intermediate relaxation function satisfies:
+            <code>
+            G(t) ≈ 1 - S · γ - S · ln(t/τ₁) = (1 - S · γ + S · ln(τ₁)) - S · ln(t) = A - S · ln(t)
+            </code>
+            Equating the linear regression intercept <c>A = 1 - S · γ + S · ln(τ₁)</c> yields:
+            <code>
+            ln(τ₁) = (A - 1) / S + γ  ==&gt;  τ₁ = exp((A - 1) / S + γ)
+            </code>
+            </para>
+            <para>
+            <b>Soft Tissue Testing Reality and Asymmetry of τ₂:</b><br/>
+            Experimental tension/relaxation tests on knee ligaments and soft tissues cannot be maintained
+            indefinitely without tissue desiccation, enzymatic degradation, and clamping slippage. Standard laboratory
+            protocols terminate after <c>t_max ~ 400 - 1600 s</c>, while the specimen is still in the linear logarithmic decay
+            phase (<c>τ₁ &lt;&lt; t &lt;&lt; τ₂</c>). Therefore, the long-term knee at <c>t ~ τ₂</c> (<c>τ₂ ~ 10³ - 10⁵ s</c>)
+            is never observed experimentally.<br/>
+            Consequently, this estimator:
+            <list type="number">
+            <item><description>Extracts <c>S</c> and <c>τ₁</c> analytically from the initial transition and linear logarithmic decay.</description></item>
+            <item><description>Initializes <c>τ₂⁰ = max(1000.0, 3.0 · t_max)</c> to strictly exceed experimental duration.</description></item>
+            <item><description>Deduces the consistent relaxation stiffness <c>C⁰ = S / [1 - S · ln(τ₂⁰ / τ₁)]</c>.</description></item>
+            </list>
+            These parameters provide an adaptive, physically grounded warm-start for numerical optimizers (e.g., L-BFGS),
+            drastically accelerating convergence and eliminating sensitivity to arbitrary initial guesses.
+            </para>
+            </remarks>
+        </member>
+        <member name="F:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Steps.CurveFitter.Fung.FungLogarithmicEstimator.DefaultC">
+            <summary>
+            Typical dimensionless relaxation stiffness (C) for biological soft tissues, used as default fallback.
+            In biological ligaments and tendons, C typically ranges between 0.05 and 0.20 (Fung, 1993).
+            </summary>
+        </member>
+        <member name="F:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Steps.CurveFitter.Fung.FungLogarithmicEstimator.DefaultFastRelaxationTime">
+            <summary>
+            Typical fast relaxation time (τ₁), in seconds, used as default fallback (10 milliseconds).
+            Represents the rapid initial viscous damping mechanism in collagenous tissue.
+            </summary>
+        </member>
+        <member name="F:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Steps.CurveFitter.Fung.FungLogarithmicEstimator.DefaultSlowRelaxationTime">
+            <summary>
+            Typical slow relaxation time (τ₂), in seconds, used as default fallback (1000 seconds ≈ 16.7 minutes).
+            Represents the long-term equilibrium transition in biological soft tissue.
+            </summary>
+        </member>
+        <member name="F:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Steps.CurveFitter.Fung.FungLogarithmicEstimator.MinimumLogarithmicRSquared">
+            <summary>
+            Minimum coefficient of determination (R²) required for the logarithmic regression
+            to be considered sufficiently linear and physically reliable for warm-starting the non-linear optimizer.
+            When R² is below this threshold, the signal is considered degraded, noisy, or non-linear,
+            warranting fallback to safe standard initial parameters.
+            </summary>
+        </member>
+        <member name="F:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Steps.CurveFitter.Fung.FungLogarithmicEstimator.NormalizedPeakStress">
+            <summary>
+            Theoretical normalized stress at origin (G(0) = σ(0) / σ(0) = 1.0).
+            The reduced relaxation function is by definition normalized to unity at the beginning of relaxation.
+            </summary>
+        </member>
+        <member name="F:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Steps.CurveFitter.Fung.FungLogarithmicEstimator.MinFastRelaxationTime">
+            <summary>
+            Minimum physical bound for fast relaxation time (τ₁), in seconds (0.1 millisecond).
+            Corresponds to the shortest observable viscoelastic relaxation timescale in collagenous matrices.
+            </summary>
+        </member>
+        <member name="F:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Steps.CurveFitter.Fung.FungLogarithmicEstimator.MaxFastRelaxationTime">
+            <summary>
+            Maximum physical bound for fast relaxation time (τ₁), in seconds (1.0 second).
+            Fast relaxation governs immediate dissipation; values above 1.0 s enter the intermediate logarithmic regime.
+            </summary>
+        </member>
+        <member name="F:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Steps.CurveFitter.Fung.FungLogarithmicEstimator.MinSlowRelaxationTime">
+            <summary>
+            Minimum physical bound for slow relaxation time (τ₂), in seconds (10.0 seconds).
+            </summary>
+        </member>
+        <member name="F:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Steps.CurveFitter.Fung.FungLogarithmicEstimator.MaxSlowRelaxationTime">
+            <summary>
+            Maximum physical bound for slow relaxation time (τ₂), in seconds (1,000,000 seconds ≈ 11.5 days).
+            Enforces an upper ceiling for asymptotic equilibrium search.
+            </summary>
+        </member>
+        <member name="F:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Steps.CurveFitter.Fung.FungLogarithmicEstimator.MinC">
+            <summary>
+            Minimum physical bound for continuous relaxation spectrum magnitude (C).
+            </summary>
+        </member>
+        <member name="F:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Steps.CurveFitter.Fung.FungLogarithmicEstimator.MaxC">
+            <summary>
+            Maximum physical bound for continuous relaxation spectrum magnitude (C).
+            In physical soft tissues, C rarely exceeds 1.0; 2.0 provides a safe numerical upper ceiling.
+            </summary>
+        </member>
+        <member name="F:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Steps.CurveFitter.Fung.FungLogarithmicEstimator.MinimumSpectrumDecadesRatio">
+            <summary>
+            Minimum required separation ratio (τ₂ / τ₁) between slow and fast relaxation times, set to 10.0.
+            According to Fung (1993, Section 7.6), the continuous spectrum S(τ) = C / τ requires τ₁ &lt; τ₂
+            spanning at least one full order of magnitude (decade in logarithmic scale).
+            This guarantees that ln(τ₂ / τ₁) ≥ ln(10) ≈ 2.3026 &gt; 0, preventing division by zero,
+            domain singularities, or negative denominators in the spectrum normalization term 1 + C · ln(τ₂ / τ₁).
+            </summary>
+        </member>
+        <member name="F:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Steps.CurveFitter.Fung.FungLogarithmicEstimator.UnobservedEquilibriumTimeMultiplier">
+            <summary>
+            Multiplier applied to the maximum observed experimental time (t_max) to initialize the slow
+            relaxation time (τ₂). Set to 3.0 because biological relaxation tests of soft tissues terminate
+            prematurely (t_max ~ 400 - 1600 s) to prevent autolysis and tissue desiccation, whereas the true
+            asymptotic equilibrium (τ₂) lies beyond the test duration. Initializing τ₂ at least 3 times t_max
+            (and at least <see cref="F:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Steps.CurveFitter.Fung.FungLogarithmicEstimator.DefaultSlowRelaxationTime"/>) ensures that the numerical optimizer begins
+            in the unobserved long-term equilibrium regime without colliding with the experimental time window.
+            </summary>
+        </member>
+        <member name="F:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Steps.CurveFitter.Fung.FungLogarithmicEstimator.MinimumInputLength">
+            <summary>
+            Minimum number of raw data points required to attempt logarithmic regression.
+            A linear fit requires at least 2 points for a line and at least 3 points to evaluate degrees of freedom (ν = N - 2 ≥ 1).
+            </summary>
+        </member>
+        <member name="F:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Steps.CurveFitter.Fung.FungLogarithmicEstimator.MinimumValidPoints">
+            <summary>
+            Minimum number of valid positive time-stress coordinate pairs required to compute linear regression.
+            </summary>
+        </member>
+        <member name="F:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Steps.CurveFitter.Fung.FungLogarithmicEstimator.RelaxationLowerBounds">
+            <summary>
+            Physical lower bounds for continuous Fung reduced relaxation parameters:
+            [0] = <see cref="F:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Steps.CurveFitter.Fung.FungLogarithmicEstimator.MinC"/> (1e-4),
+            [1] = <see cref="F:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Steps.CurveFitter.Fung.FungLogarithmicEstimator.MinFastRelaxationTime"/> (1e-4 s),
+            [2] = <see cref="F:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Steps.CurveFitter.Fung.FungLogarithmicEstimator.MinSlowRelaxationTime"/> (10.0 s).
+            </summary>
+        </member>
+        <member name="F:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Steps.CurveFitter.Fung.FungLogarithmicEstimator.RelaxationUpperBounds">
+            <summary>
+            Physical upper bounds for continuous Fung reduced relaxation parameters:
+            [0] = <see cref="F:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Steps.CurveFitter.Fung.FungLogarithmicEstimator.MaxC"/> (2.0),
+            [1] = <see cref="F:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Steps.CurveFitter.Fung.FungLogarithmicEstimator.MaxFastRelaxationTime"/> (1.0 s),
+            [2] = <see cref="F:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Steps.CurveFitter.Fung.FungLogarithmicEstimator.MaxSlowRelaxationTime"/> (1e6 s).
+            </summary>
+        </member>
+        <member name="F:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Steps.CurveFitter.Fung.FungLogarithmicEstimator.DefaultInitialParameters">
+            <summary>
+            Default fallback initial parameters for continuous Fung reduced relaxation parameters:
+            [0] = <see cref="F:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Steps.CurveFitter.Fung.FungLogarithmicEstimator.DefaultC"/> (0.1),
+            [1] = <see cref="F:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Steps.CurveFitter.Fung.FungLogarithmicEstimator.DefaultFastRelaxationTime"/> (0.01 s),
+            [2] = <see cref="F:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Steps.CurveFitter.Fung.FungLogarithmicEstimator.DefaultSlowRelaxationTime"/> (1000.0 s).
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Steps.CurveFitter.Fung.FungLogarithmicEstimator.Estimate(System.Double[],System.Double[],System.Double)">
+            <summary>
+            Estimates initial continuous Fung parameters (<c>C</c>, <c>τ₁</c>, <c>τ₂</c>) from normalized
+            stress relaxation time-series data using logarithmic linear regression.
+            </summary>
+            <param name="timePoints">
+            Array of relaxation times translated to origin (where <c>timePoints[0] = 0.0</c>), in seconds.
+            </param>
+            <param name="normalizedStress">
+            Array of normalized stress values <c>G(t) = σ(t) / σ(0)</c> (where <c>normalizedStress[0] = 1.0</c>).
+            </param>
+            <param name="tolerance">
+            The numerical tolerance threshold for detecting zero-variance or near-zero values.
+            Defaults to <see cref="F:MelloSilveiraTools.Mathematics.Models.MathematicConstants.Tolerance"/>.
+            </param>
+            <returns>
+            A <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Models.FungLogarithmicEstimationResult"/> containing the estimated initial parameters and regression metrics.
+            </returns>
+            <exception cref="T:System.ArgumentNullException">
+            Thrown when <paramref name="timePoints"/> or <paramref name="normalizedStress"/> is <c>null</c>.
+            </exception>
+        </member>
+        <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Steps.CurveFitter.Fung.FungRelaxationOnlyCurveFitterStep">
             <summary>
             Thread-safe. Implements <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Steps.CurveFitter.IMechanicalModelCurveFitterStep"/> for the
             Fung model (relaxation-only curve fitting). Implements <c>IPipelineStep</c> for telemetry.
+            <para>
+            <b>Analytical Pre-Estimation (Warm-Start):</b><br/>
+            Employs <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Steps.CurveFitter.Fung.FungLogarithmicEstimator"/> based on Y.C. Fung (1993, Section 7.6, p. 302)
+            to analytically deduce the logarithmic slope <c>S</c> and fast relaxation time <c>τ₁</c> from
+            the early linear decay and transition knee. Due to experimental duration limits on soft tissue viability
+            (<c>t_max ~ 400 - 1600 s</c>), <c>τ₂</c> is seeded beyond <c>t_max</c> and refined numerically alongside <c>C</c>.
+            Physical parameter bounds and defaults are unified in <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Steps.CurveFitter.Fung.FungLogarithmicEstimator"/>.
+            </para>
             </summary>
+            <param name="mechanicalModelCalculator">The calculator for Fung viscoelastic constitutive calculations.</param>
+            <param name="curveFitter">The optimization engine for non-linear regression.</param>
+            <param name="targetRSquared">Mandatory target R² determination coefficient for early-exit and precision monitoring.</param>
         </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Steps.CurveFitter.FungRelaxationOnlyCurveFitterStep.#ctor(MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Viscoelasticity.QuasiLinear.Fung.IFungModelCalculator,MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Algorithms.ICurveFitter)">
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Steps.CurveFitter.Fung.FungRelaxationOnlyCurveFitterStep.#ctor(MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Viscoelasticity.QuasiLinear.Fung.IFungModelCalculator,MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Algorithms.ICurveFitter,System.Double)">
             <summary>
             Thread-safe. Implements <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Steps.CurveFitter.IMechanicalModelCurveFitterStep"/> for the
             Fung model (relaxation-only curve fitting). Implements <c>IPipelineStep</c> for telemetry.
+            <para>
+            <b>Analytical Pre-Estimation (Warm-Start):</b><br/>
+            Employs <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Steps.CurveFitter.Fung.FungLogarithmicEstimator"/> based on Y.C. Fung (1993, Section 7.6, p. 302)
+            to analytically deduce the logarithmic slope <c>S</c> and fast relaxation time <c>τ₁</c> from
+            the early linear decay and transition knee. Due to experimental duration limits on soft tissue viability
+            (<c>t_max ~ 400 - 1600 s</c>), <c>τ₂</c> is seeded beyond <c>t_max</c> and refined numerically alongside <c>C</c>.
+            Physical parameter bounds and defaults are unified in <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Steps.CurveFitter.Fung.FungLogarithmicEstimator"/>.
+            </para>
             </summary>
+            <param name="mechanicalModelCalculator">The calculator for Fung viscoelastic constitutive calculations.</param>
+            <param name="curveFitter">The optimization engine for non-linear regression.</param>
+            <param name="targetRSquared">Mandatory target R² determination coefficient for early-exit and precision monitoring.</param>
         </member>
-        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Steps.CurveFitter.FungRelaxationOnlyCurveFitterStep.MechanicalModelName">
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Steps.CurveFitter.Fung.FungRelaxationOnlyCurveFitterStep.MechanicalModelName">
             <inheritdoc />
         </member>
-        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Steps.CurveFitter.FungRelaxationOnlyCurveFitterStep.LoadResponseRelationship">
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Steps.CurveFitter.Fung.FungRelaxationOnlyCurveFitterStep.LoadResponseRelationship">
             <inheritdoc />
         </member>
-        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Steps.CurveFitter.FungRelaxationOnlyCurveFitterStep.ViscoelasticEffect">
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Steps.CurveFitter.Fung.FungRelaxationOnlyCurveFitterStep.ViscoelasticEffect">
             <inheritdoc />
         </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Steps.CurveFitter.FungRelaxationOnlyCurveFitterStep.ExecuteAsync(MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Models.CurveSegment,System.Threading.CancellationToken)">
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Steps.CurveFitter.Fung.FungRelaxationOnlyCurveFitterStep.ExecuteAsync(MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Models.CurveSegment,System.Threading.CancellationToken)">
             <inheritdoc />
         </member>
         <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Steps.CurveFitter.IMechanicalModelCurveFitterStep">
@@ -1047,9 +1358,27 @@
             Implements <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Steps.CurveFitter.IMechanicalModelCurveFitterStep"/> and centralizes common pipeline metadata,
             lifecycle disposal, and output creation.
             </summary>
+            <param name="targetRSquared">
+            Mandatory target coefficient of determination (R²) specified by the user as an optimization early-exit or quality gate.
+            </param>
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Steps.CurveFitter.MechanicalModelCurveFitterStepBase.#ctor(System.Double)">
+            <summary>
+            Abstract base class for curve fitting pipeline steps targeting mechanical constitutive models.
+            Implements <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Steps.CurveFitter.IMechanicalModelCurveFitterStep"/> and centralizes common pipeline metadata,
+            lifecycle disposal, and output creation.
+            </summary>
+            <param name="targetRSquared">
+            Mandatory target coefficient of determination (R²) specified by the user as an optimization early-exit or quality gate.
+            </param>
         </member>
         <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Steps.CurveFitter.MechanicalModelCurveFitterStepBase.Name">
             <inheritdoc />
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Steps.CurveFitter.MechanicalModelCurveFitterStepBase.TargetRSquared">
+            <summary>
+            Gets the user-specified target coefficient of determination (R²) for optimization routines.
+            </summary>
         </member>
         <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Steps.CurveFitter.MechanicalModelCurveFitterStepBase.MechanicalModelName">
             <summary>
@@ -1098,12 +1427,28 @@
             Thread-safe. Implements <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Steps.CurveFitter.IMechanicalModelCurveFitterStep"/> for the
             Schapery model (relaxation-only curve fitting). Implements <c>IPipelineStep</c> for telemetry.
             </summary>
+            <param name="logger">The logger instance.</param>
+            <param name="mechanicalModelCalculator">The calculator for Schapery viscoelastic constitutive equations.</param>
+            <param name="curveFitter">The optimization engine for non-linear regression.</param>
+            <param name="logarithmicCurveFitter">Logarithmic curve fitter for Helmholtz variables.</param>
+            <param name="exponentialCurveFitter">Exponential curve fitter for Helmholtz variables.</param>
+            <param name="polynomialCurveFitter">Polynomial curve fitter fallback for Helmholtz variables.</param>
+            <param name="functionFactory">Factory constructing mathematical functions.</param>
+            <param name="targetRSquared">Mandatory target R² determination coefficient for early-exit and precision monitoring.</param>
         </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Steps.CurveFitter.SchaperyRelaxationOnlyCurveFitterStep.#ctor(Microsoft.Extensions.Logging.ILogger{MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Steps.CurveFitter.SchaperyRelaxationOnlyCurveFitterStep},MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Viscoelasticity.NonLinear.Schapery.ISchaperyModelCalculator,MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Algorithms.ICurveFitter,MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.MathematicalFunctions.IMathematicalFunctionCurveFitter,MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.MathematicalFunctions.IMathematicalFunctionCurveFitter,MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.MathematicalFunctions.IMathematicalFunctionCurveFitter,MelloSilveiraTools.Mathematics.Factories.Functions.FunctionFactory)">
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Steps.CurveFitter.SchaperyRelaxationOnlyCurveFitterStep.#ctor(Microsoft.Extensions.Logging.ILogger{MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Steps.CurveFitter.SchaperyRelaxationOnlyCurveFitterStep},MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Viscoelasticity.NonLinear.Schapery.ISchaperyModelCalculator,MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Algorithms.ICurveFitter,MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.MathematicalFunctions.IFunctionCurveFitter,MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.MathematicalFunctions.IFunctionCurveFitter,MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.MathematicalFunctions.IFunctionCurveFitter,MelloSilveiraTools.Mathematics.Factories.Functions.FunctionFactory,System.Double)">
             <summary>
             Thread-safe. Implements <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Steps.CurveFitter.IMechanicalModelCurveFitterStep"/> for the
             Schapery model (relaxation-only curve fitting). Implements <c>IPipelineStep</c> for telemetry.
             </summary>
+            <param name="logger">The logger instance.</param>
+            <param name="mechanicalModelCalculator">The calculator for Schapery viscoelastic constitutive equations.</param>
+            <param name="curveFitter">The optimization engine for non-linear regression.</param>
+            <param name="logarithmicCurveFitter">Logarithmic curve fitter for Helmholtz variables.</param>
+            <param name="exponentialCurveFitter">Exponential curve fitter for Helmholtz variables.</param>
+            <param name="polynomialCurveFitter">Polynomial curve fitter fallback for Helmholtz variables.</param>
+            <param name="functionFactory">Factory constructing mathematical functions.</param>
+            <param name="targetRSquared">Mandatory target R² determination coefficient for early-exit and precision monitoring.</param>
         </member>
         <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Steps.CurveFitter.SchaperyRelaxationOnlyCurveFitterStep.MechanicalModelName">
             <inheritdoc />
@@ -1117,18 +1462,8 @@
         <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Steps.CurveFitter.SchaperyRelaxationOnlyCurveFitterStep.ExecuteAsync(MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Models.CurveSegment,System.Threading.CancellationToken)">
             <inheritdoc />
         </member>
-        <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Steps.CurveFitter.SimplifiedFungRelaxationOnlyCurveFitterStep">
-            <summary>
-            Thread-safe. Implements <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Steps.CurveFitter.IMechanicalModelCurveFitterStep"/> for the
-            Simplified Fung model (relaxation-only curve fitting). Implements <c>IPipelineStep</c> for telemetry.
-            </summary>
-        </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Steps.CurveFitter.SimplifiedFungRelaxationOnlyCurveFitterStep.#ctor(MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Viscoelasticity.QuasiLinear.SimplifiedFung.ISimplifiedFungModelCalculator,MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Algorithms.ICurveFitter,MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.MathExpressions.IMathExpressionCurveFitter)">
-            <summary>
-            Thread-safe. Implements <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Steps.CurveFitter.IMechanicalModelCurveFitterStep"/> for the
-            Simplified Fung model (relaxation-only curve fitting). Implements <c>IPipelineStep</c> for telemetry.
-            </summary>
-        </member>
+        <!-- Badly formed XML comment ignored for member "T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Steps.CurveFitter.SimplifiedFungRelaxationOnlyCurveFitterStep" -->
+        <!-- Badly formed XML comment ignored for member "M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Steps.CurveFitter.SimplifiedFungRelaxationOnlyCurveFitterStep.#ctor(MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Viscoelasticity.QuasiLinear.SimplifiedFung.ISimplifiedFungModelCalculator,MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Algorithms.ICurveFitter,MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.MathExpressions.IMathExpressionCurveFitter,System.Double)" -->
         <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Steps.CurveFitter.SimplifiedFungRelaxationOnlyCurveFitterStep.MechanicalModelName">
             <inheritdoc />
         </member>

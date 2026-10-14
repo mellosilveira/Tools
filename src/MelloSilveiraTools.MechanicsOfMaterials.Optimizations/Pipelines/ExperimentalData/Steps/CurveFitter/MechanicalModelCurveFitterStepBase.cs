@@ -12,10 +12,18 @@ namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.Experi
 /// Implements <see cref="IMechanicalModelCurveFitterStep"/> and centralizes common pipeline metadata,
 /// lifecycle disposal, and output creation.
 /// </summary>
-public abstract class MechanicalModelCurveFitterStepBase : IMechanicalModelCurveFitterStep
+/// <param name="targetRSquared">
+/// Mandatory target coefficient of determination (R²) specified by the user as an optimization early-exit or quality gate.
+/// </param>
+public abstract class MechanicalModelCurveFitterStepBase(double targetRSquared) : IMechanicalModelCurveFitterStep
 {
     /// <inheritdoc />
     public virtual string Name => GetType().Name;
+
+    /// <summary>
+    /// Gets the user-specified target coefficient of determination (R²) for optimization routines.
+    /// </summary>
+    public double TargetRSquared { get; } = targetRSquared;
 
     /// <summary>
     /// Gets the name of the mechanical model.

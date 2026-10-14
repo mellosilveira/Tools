@@ -22,7 +22,7 @@ public interface IDynamicServiceProvider
     /// </summary>
     /// <param name="key">A unique key identifying the registration.</param>
     /// <param name="instance">The instance to register.</param>
-    void AddKeyed(string key, object instance);
+    void AddKeyed(object key, object instance);
 
     /// <summary>
     /// Resolves a service by its type.
@@ -32,10 +32,17 @@ public interface IDynamicServiceProvider
     object? GetService(Type serviceType);
 
     /// <summary>
+    /// Resolves a service by its type parameter.
+    /// </summary>
+    /// <typeparam name="T">The service type to resolve.</typeparam>
+    /// <returns>The resolved instance cast to <typeparamref name="T"/>, or <see langword="null"/> when the service is not registered.</returns>
+    T? GetService<T>() where T : class;
+
+    /// <summary>
     /// Resolves a named instance by its key.
     /// </summary>
     /// <typeparam name="T">The expected return type.</typeparam>
     /// <param name="key">The registration key.</param>
     /// <returns>The resolved instance cast to <typeparamref name="T"/>, or <see langword="null"/> when the service is not registered.</returns>
-    T? GetKeyedService<T>(string key) where T : class;
+    T? GetKeyedService<T>(object key) where T : class;
 }

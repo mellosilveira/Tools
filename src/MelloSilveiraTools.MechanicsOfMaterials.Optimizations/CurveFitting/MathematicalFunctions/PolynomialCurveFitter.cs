@@ -6,12 +6,12 @@ using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Models;
 namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.MathematicalFunctions;
 
 /// <summary>
-/// Implements <see cref="IMathematicalFunctionCurveFitter"/> for polynomial functions,
+/// Implements <see cref="IFunctionCurveFitter"/> for polynomial functions,
 /// leveraging analytical least-squares fitting via the Vandermonde matrix and QR decomposition
 /// with fallback to the configured <see cref="ICurveFitter"/> for non-linear box-constrained optimization.
 /// </summary>
 /// <param name="curveFitter">The underlying iterative curve fitting engine.</param>
-public sealed class PolynomialCurveFitter(ICurveFitter curveFitter) : IMathematicalFunctionCurveFitter
+public sealed class PolynomialCurveFitter(ICurveFitter curveFitter) : IFunctionCurveFitter
 {
     /// <inheritdoc/>
     public SafeResult<CurveFitInput, CurveFitOutput> TryFit(MathematicalCurveFitInput input)

@@ -22,7 +22,8 @@ public class SchaperyRelaxationOnlyCurveFitterStepTests
         new LogarithmicCurveFitter(_alglibCurveFitter),
         new ExponentialCurveFitter(_alglibCurveFitter),
         new PolynomialCurveFitter(_alglibCurveFitter),
-        new FunctionFactory()
+        new FunctionFactory(),
+        0.90
     );
 
     private readonly SchaperyRelaxationOnlyCurveFitterStep _stepWithMathNet = new(
@@ -32,7 +33,8 @@ public class SchaperyRelaxationOnlyCurveFitterStepTests
         new LogarithmicCurveFitter(_mathNetCurveFitter),
         new ExponentialCurveFitter(_mathNetCurveFitter),
         new PolynomialCurveFitter(_mathNetCurveFitter),
-        new FunctionFactory()
+        new FunctionFactory(),
+        0.90
     );
 
     [Theory]

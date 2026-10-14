@@ -2,6 +2,12 @@ using MelloSilveiraTools;
 using MelloSilveiraTools.Core.ResiliencePipelines;
 using MelloSilveiraTools.Core.Services.Encryption;
 using MelloSilveiraTools.Database.RelationalDatabase.Settings;
+using MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels;
+using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Algorithms;
+using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Models;
+using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Factories;
+using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Steps.CurveFitter;
+using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Steps.CurveFitter.Fung;
 using MelloSilveiraTools.Plugins.Infrastructure;
 using MelloSilveiraTools.Plugins.Infrastructure.Persistences;
 using Microsoft.Extensions.DependencyInjection;
@@ -34,9 +40,10 @@ public static class GlobalServiceProvider
             resiliencePipelineSettings: new ResiliencePipelineSettings(),
             pluginSettings: new PluginSettings { Directory = pluginsDir, DefaultCacheTarget = PluginCacheTargets.File },
             addMechanicalModels: true);
-        services.AddTransient<MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Algorithms.ICurveFitter>(sp =>
-            sp.GetRequiredKeyedService<MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Algorithms.ICurveFitter>(
-                MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Models.CurveFitterType.Alglib));
+        services.AddTransient(sp => sp.GetRequiredKeyedService<ICurveFitter>(CurveFitterType.Alglib));
+        services.AddTransient(sp => (FungRelaxationOnlyCurveFitterStep)sp.GetRequiredService<IMechanicalModelStepFactory>().Create(nameof(MechanicalModel.Fung), [SegmentType.Relaxation], CurveFitterType.Alglib, 0.90));
+        services.AddTransient(sp => (SimplifiedFungRelaxationOnlyCurveFitterStep)sp.GetRequiredService<IMechanicalModelStepFactory>().Create(nameof(MechanicalModel.SimplifiedFung), [SegmentType.Relaxation], CurveFitterType.Alglib, 0.90));
+        services.AddTransient(sp => (SchaperyRelaxationOnlyCurveFitterStep)sp.GetRequiredService<IMechanicalModelStepFactory>().Create(nameof(MechanicalModel.Schapery), [SegmentType.Relaxation], CurveFitterType.Alglib, 0.90));
 
         Provider = services.BuildServiceProvider();
     }

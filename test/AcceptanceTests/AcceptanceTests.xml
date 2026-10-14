@@ -123,7 +123,7 @@
         </member>
         <member name="T:AcceptanceTests.MechanicalOfMaterials.Optimizations.CurveFitterSteps.FungRelaxationOnlyCurveFitterStepAcceptanceTests">
             <summary>
-            Acceptance tests for <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Steps.CurveFitter.FungRelaxationOnlyCurveFitterStep"/> validating end-to-end curve fitting.
+            Acceptance tests for <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Steps.CurveFitter.Fung.FungRelaxationOnlyCurveFitterStep"/> validating end-to-end curve fitting.
             </summary>
         </member>
         <member name="P:AcceptanceTests.MechanicalOfMaterials.Optimizations.CurveFitterSteps.FungRelaxationOnlyCurveFitterStepAcceptanceTests.Prefix">

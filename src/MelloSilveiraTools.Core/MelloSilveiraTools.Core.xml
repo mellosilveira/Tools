@@ -2948,7 +2948,7 @@
             <param name="implementationType">The concrete implementation type.</param>
             <param name="parameters"></param>
         </member>
-        <member name="M:MelloSilveiraTools.Core.Providers.Dynamics.IDynamicServiceProvider.AddKeyed(System.String,System.Object)">
+        <member name="M:MelloSilveiraTools.Core.Providers.Dynamics.IDynamicServiceProvider.AddKeyed(System.Object,System.Object)">
             <summary>
             Registers a named instance directly.
             </summary>
@@ -2962,7 +2962,14 @@
             <param name="serviceType">The service type to resolve.</param>
             <returns>The resolved instance, or <see langword="null"/> when the service is not registered.</returns>
         </member>
-        <member name="M:MelloSilveiraTools.Core.Providers.Dynamics.IDynamicServiceProvider.GetKeyedService``1(System.String)">
+        <member name="M:MelloSilveiraTools.Core.Providers.Dynamics.IDynamicServiceProvider.GetService``1">
+            <summary>
+            Resolves a service by its type parameter.
+            </summary>
+            <typeparam name="T">The service type to resolve.</typeparam>
+            <returns>The resolved instance cast to <typeparamref name="T"/>, or <see langword="null"/> when the service is not registered.</returns>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Providers.Dynamics.IDynamicServiceProvider.GetKeyedService``1(System.Object)">
             <summary>
             Resolves a named instance by its key.
             </summary>
@@ -2987,13 +2994,16 @@
         <member name="M:MelloSilveiraTools.Core.Providers.Dynamics.InMemoryDynamicServiceProvider.Add(System.Type,System.Type,System.Object[])">
             <inheritdoc/>
         </member>
-        <member name="M:MelloSilveiraTools.Core.Providers.Dynamics.InMemoryDynamicServiceProvider.AddKeyed(System.String,System.Object)">
+        <member name="M:MelloSilveiraTools.Core.Providers.Dynamics.InMemoryDynamicServiceProvider.AddKeyed(System.Object,System.Object)">
             <inheritdoc/>
         </member>
         <member name="M:MelloSilveiraTools.Core.Providers.Dynamics.InMemoryDynamicServiceProvider.GetService(System.Type)">
             <inheritdoc/>
         </member>
-        <member name="M:MelloSilveiraTools.Core.Providers.Dynamics.InMemoryDynamicServiceProvider.GetKeyedService``1(System.String)">
+        <member name="M:MelloSilveiraTools.Core.Providers.Dynamics.InMemoryDynamicServiceProvider.GetService``1">
+            <inheritdoc/>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Providers.Dynamics.InMemoryDynamicServiceProvider.GetKeyedService``1(System.Object)">
             <inheritdoc/>
         </member>
         <member name="T:MelloSilveiraTools.Core.Providers.ServiceLocator">
@@ -3008,11 +3018,27 @@
             service provider with the application's static <see cref="T:System.IServiceProvider"/>.
             </summary>
         </member>
+        <member name="M:MelloSilveiraTools.Core.Providers.ServiceLocator.GetRequiredService``1">
+            <summary>
+            Resolves a required service by its type parameter. Looks up the dynamic provider first; falls back to the static
+            provider when no dynamic registration is found. Throws if neither has the type.
+            </summary>
+            <typeparam name="T">The service type to resolve.</typeparam>
+            <returns>The resolved instance of <typeparamref name="T"/>.</returns>
+        </member>
         <member name="M:MelloSilveiraTools.Core.Providers.ServiceLocator.GetRequiredService(System.Type)">
             <summary>
             Resolves a required service. Looks up the dynamic provider first; falls back to the static
             provider when no dynamic registration is found. Throws if neither has the type.
             </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Providers.ServiceLocator.GetService``1">
+            <summary>
+            Resolves an optional service by its type parameter. Looks up the dynamic provider first; falls back to the static
+            provider. Returns <see langword="null"/> when neither has the type.
+            </summary>
+            <typeparam name="T">The service type to resolve.</typeparam>
+            <returns>The resolved instance cast to <typeparamref name="T"/>, or <see langword="null"/> when neither has the type.</returns>
         </member>
         <member name="M:MelloSilveiraTools.Core.Providers.ServiceLocator.GetService(System.Type)">
             <summary>
@@ -3020,13 +3046,13 @@
             provider. Returns <see langword="null"/> when neither has the type.
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.Core.Providers.ServiceLocator.GetRequiredKeyedService``1(System.String)">
+        <member name="M:MelloSilveiraTools.Core.Providers.ServiceLocator.GetRequiredKeyedService``1(System.Object)">
             <summary>
             Resolves a required service. Looks up the dynamic provider first; falls back to the static
             provider when no dynamic registration is found. Throws if neither has the type.
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.Core.Providers.ServiceLocator.GetKeyedService``1(System.String)">
+        <member name="M:MelloSilveiraTools.Core.Providers.ServiceLocator.GetKeyedService``1(System.Object)">
             <summary>
             Resolves an optional service. Looks up the dynamic provider first; falls back to the static
             provider. Returns <see langword="null"/> when neither has the type.

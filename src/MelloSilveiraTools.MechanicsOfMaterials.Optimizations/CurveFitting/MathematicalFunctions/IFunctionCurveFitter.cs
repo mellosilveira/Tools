@@ -3,7 +3,7 @@ using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Models;
 
 namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.MathematicalFunctions;
 
-public interface IMathematicalFunctionCurveFitter
+public interface IFunctionCurveFitter
 {
     SafeResult<CurveFitInput, CurveFitOutput> TryFit(MathematicalCurveFitInput input);
 }

@@ -17,12 +17,16 @@ namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.Experi
 /// <summary>
 /// Thread-safe. Implements <see cref="IMechanicalModelCurveFitterStep"/> for the
 /// Simplified Fung model (relaxation-only curve fitting). Implements <c>IPipelineStep</c> for telemetry.
-/// </summary>
+/// <param name="mechanicalModelCalculator">The calculator for Simplified Fung viscoelastic constitutive calculations.</param>
+/// <param name="curveFitter">The optimization engine for non-linear regression.</param>
+/// <param name="pronySeriesCurveFitter">The Prony series curve fitting decorator.</param>
+/// <param name="targetRSquared">Mandatory target R² determination coefficient for early-exit and precision monitoring.</param>
 public sealed class SimplifiedFungRelaxationOnlyCurveFitterStep(
     ISimplifiedFungModelCalculator mechanicalModelCalculator,
     ICurveFitter curveFitter,
-    [FromKeyedServices(MathExpressionType.PronySeries)] IMathExpressionCurveFitter pronySeriesCurveFitter)
-    : MechanicalModelCurveFitterStepBase
+    [FromKeyedServices(MathExpressionType.PronySeries)] IMathExpressionCurveFitter pronySeriesCurveFitter,
+    double targetRSquared)
+    : MechanicalModelCurveFitterStepBase(targetRSquared)
 {
     // 3-Term Prony Series: G(t) = c + a_0 * e^(lambda_0 * t) + a_1 * e^(lambda_1 * t) + a_2 * e^(lambda_2 * t).
     // Parameter vector layout: [0] = c, [1] = a_0, [2] = lambda_0, [3] = a_1, [4] = lambda_1, [5] = a_2, [6] = lambda_2.
@@ -74,7 +78,8 @@ public sealed class SimplifiedFungRelaxationOnlyCurveFitterStep(
                 UpperBounds = RelaxationUpperBounds,
                 InitialParameters = RelaxationInitialParameters,
                 Profile = CurveFitProfile.Automatic,
-                ValidateParameters = parameters => parameters[2] > parameters[4] && parameters[4] > parameters[6]
+                ValidateParameters = parameters => parameters[2] > parameters[4] && parameters[4] > parameters[6],
+                TargetRSquared = TargetRSquared
             };
 
             CurveFitOutput relaxationOutput = pronySeriesCurveFitter.Fit(relaxationInput);
@@ -121,7 +126,8 @@ public sealed class SimplifiedFungRelaxationOnlyCurveFitterStep(
             LowerBounds = RampLowerBounds,
             UpperBounds = RampUpperBounds,
             InitialParameters = RampInitialParameters,
-            Profile = CurveFitProfile.Automatic
+            Profile = CurveFitProfile.Automatic,
+            TargetRSquared = TargetRSquared
         };
         CurveFitOutput rampOutput = curveFitter.Fit(rampInput);
 
