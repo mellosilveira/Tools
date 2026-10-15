@@ -28,7 +28,7 @@ public sealed class AsymptoteCalculationStep(
         double timeStep = input.TimeStep;
 
         // If initial relaxation rate is already within tolerance, the material has reached the asymptote
-        double initialDerivative = Math.Abs(CalculateStressDerivative(input, initialTime, initialTime, timeStep));
+        double initialDerivative = Math.Abs(CalculateStressDerivative(input, initialTime, timeStep));
         if (initialDerivative <= tolerance)
         {
             double initialStress = calculator.CalculateStress(input, initialTime);
@@ -39,7 +39,7 @@ public sealed class AsymptoteCalculationStep(
         double lowTime = initialTime;
         double highTime = initialTime + Math.Max(1.0, timeStep);
 
-        while (Math.Abs(CalculateStressDerivative(input, highTime, initialTime, timeStep)) > tolerance)
+        while (Math.Abs(CalculateStressDerivative(input, highTime, timeStep)) > tolerance)
         {
             lowTime = highTime;
             highTime *= 2.0;
@@ -49,7 +49,7 @@ public sealed class AsymptoteCalculationStep(
         for (int i = 0; i < 20; i++)
         {
             double midTime = (lowTime + highTime) * 0.5;
-            double midDerivative = Math.Abs(CalculateStressDerivative(input, midTime, initialTime, timeStep));
+            double midDerivative = Math.Abs(CalculateStressDerivative(input, midTime, timeStep));
 
             if (midDerivative <= tolerance)
             {
@@ -65,17 +65,8 @@ public sealed class AsymptoteCalculationStep(
         return (highTime, asymptoteStress);
     }
 
-    private double CalculateStressDerivative(GenericMechanicalModelInput input, double time, double initialTime, double timeStep)
-    {
-        if (time - timeStep >= initialTime)
-        {
-            return differentiation.Calculate(t => calculator.CalculateStress(input, t), timeStep, time);
-        }
-
-        double currentStress = calculator.CalculateStress(input, time);
-        double nextStress = calculator.CalculateStress(input, time + timeStep);
-        return differentiation.Calculate(currentStress, nextStress, timeStep);
-    }
+    private double CalculateStressDerivative(GenericMechanicalModelInput input, double time, double timeStep)
+        => differentiation.Calculate(t => calculator.CalculateStress(input, t), timeStep, time);
 
     /// <inheritdoc />
     public void Dispose()

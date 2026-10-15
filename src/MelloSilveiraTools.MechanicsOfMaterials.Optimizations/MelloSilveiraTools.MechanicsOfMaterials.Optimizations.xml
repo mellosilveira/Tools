@@ -1681,11 +1681,6 @@
             and terminal partitioned CSV serialization.
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.SensitivityAnalysis.ParametricSweepPipeline.#ctor(Microsoft.Extensions.Logging.ILogger{MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.SensitivityAnalysis.ParametricSweepPipeline},MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.IMechanicalModelCalculatorFactory,MelloSilveiraTools.Core.Providers.ServiceLocator)">
-            <summary>
-            Backward-compatible constructor resolving <see cref="T:MelloSilveiraTools.Mathematics.NumericalMethods.Differentiations.IDifferentiation"/> from the service locator.
-            </summary>
-        </member>
         <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.SensitivityAnalysis.ParametricSweepPipeline.ProcessAsync(MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Models.ParametricSweepInput,System.Threading.CancellationToken)">
             <summary>
             Builds and executes the parametric sweep pipeline for a given analysis request.

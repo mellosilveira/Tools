@@ -164,8 +164,36 @@
         <member name="T:AcceptanceTests.MechanicalOfMaterials.Optimizations.SensitivityAnalysis.ParametricSweepPipelineAcceptanceTests">
             <summary>
             End-to-end acceptance tests for <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.SensitivityAnalysis.ParametricSweepPipeline"/> validating 1D sensitivity analysis
-            across constitutive models, confirming numerical stability and partitioned CSV outputs.
+            driven dynamically by JSON specification files located in the TestData directory.
             </summary>
+        </member>
+        <member name="M:AcceptanceTests.MechanicalOfMaterials.Optimizations.SensitivityAnalysis.ParametricSweepPipelineAcceptanceTests.GetJsonInputFiles">
+            <summary>
+            Enumerates all JSON input files located in the TestData folder.
+            </summary>
+            <returns>A collection of file paths wrapped in <see cref="T:Xunit.TheoryData`1"/>.</returns>
+        </member>
+        <member name="M:AcceptanceTests.MechanicalOfMaterials.Optimizations.SensitivityAnalysis.ParametricSweepPipelineAcceptanceTests.ProcessAsync_FromJsonFile_ShouldExecuteSensitivityAnalysisAndGenerateValidCsvs(System.String)">
+            <summary>
+            Executes the parametric sweep pipeline using configurations defined in JSON files,
+            verifying numerical stability, convergence, and physical validity of generated CSV outputs.
+            </summary>
+            <param name="jsonFilePath">The path to the JSON input file.</param>
+        </member>
+        <member name="T:AcceptanceTests.MechanicalOfMaterials.Optimizations.SensitivityAnalysis.Serialization.ParametricSweepInputJsonParser">
+            <summary>
+            Deserializes JSON representations into strongly-typed <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Models.ParametricSweepInput"/> instances,
+            including polymorphic resolution of constitutive model parameters and mathematical functions.
+            </summary>
+        </member>
+        <member name="M:AcceptanceTests.MechanicalOfMaterials.Optimizations.SensitivityAnalysis.Serialization.ParametricSweepInputJsonParser.Parse(System.String)">
+            <summary>
+            Parses a JSON text into a <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Models.ParametricSweepInput"/> instance.
+            </summary>
+            <param name="json">The JSON payload string.</param>
+            <returns>A populated <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Models.ParametricSweepInput"/> instance.</returns>
+            <exception cref="T:System.ArgumentException">Thrown when <paramref name="json"/> is null or whitespace.</exception>
+            <exception cref="T:System.Text.Json.JsonException">Thrown when the JSON payload is malformed or missing required properties.</exception>
         </member>
     </members>
 </doc>

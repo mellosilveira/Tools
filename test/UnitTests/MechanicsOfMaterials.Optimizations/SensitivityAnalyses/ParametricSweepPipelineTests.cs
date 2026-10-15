@@ -1,6 +1,7 @@
 using MelloSilveiraTools.Core.Models;
 using MelloSilveiraTools.Core.Providers;
 using MelloSilveiraTools.Core.Providers.Dynamics;
+using MelloSilveiraTools.Mathematics.NumericalMethods.Differentiations;
 using MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels;
 using MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels;
 using MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity;
@@ -67,6 +68,7 @@ public sealed class ParametricSweepPipelineTests : IDisposable
         ParametricSweepPipeline pipeline = new(
             NullLogger<ParametricSweepPipeline>.Instance,
             factoryMock.Object,
+            Mock.Of<IDifferentiation>(),
             serviceLocator);
 
         FungConstitutiveParameters baseline = new(

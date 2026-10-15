@@ -1,21 +1,14 @@
+using AcceptanceTests.MechanicalOfMaterials.Optimizations.SensitivityAnalysis.Serialization;
 using MelloSilveiraTools.Core.Models;
-using MelloSilveiraTools.Mathematics.Expressions;
-using MelloSilveiraTools.Mathematics.Functions;
-using MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels;
-using MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity;
-using MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.NonLinear.Schapery;
-using MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.QuasiLinear;
-using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Models.Range;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.SensitivityAnalysis;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Models;
 using Microsoft.Extensions.DependencyInjection;
-using Xunit;
 
 namespace AcceptanceTests.MechanicalOfMaterials.Optimizations.SensitivityAnalysis;
 
 /// <summary>
 /// End-to-end acceptance tests for <see cref="ParametricSweepPipeline"/> validating 1D sensitivity analysis
-/// across constitutive models, confirming numerical stability and partitioned CSV outputs.
+/// driven dynamically by JSON specification files located in the TestData directory.
 /// </summary>
 public sealed class ParametricSweepPipelineAcceptanceTests : IDisposable
 {
@@ -42,39 +35,43 @@ public sealed class ParametricSweepPipelineAcceptanceTests : IDisposable
         }
     }
 
-    [Fact]
-    public async Task ProcessAsync_FungModel_ShouldExecuteSensitivityAnalysisAndGenerateValidCsvs()
+    /// <summary>
+    /// Enumerates all JSON input files located in the TestData folder.
+    /// </summary>
+    /// <returns>A collection of file paths wrapped in <see cref="TheoryData{T}"/>.</returns>
+    public static TheoryData<string> GetJsonInputFiles()
+    {
+        TheoryData<string> data = new();
+        string testDataDir = ResolveTestDataDirectory();
+        string[] jsonFiles = Directory.GetFiles(testDataDir, "*.json", SearchOption.TopDirectoryOnly);
+
+        foreach (string filePath in jsonFiles.OrderBy(f => f))
+        {
+            data.Add(filePath);
+        }
+
+        return data;
+    }
+
+    /// <summary>
+    /// Executes the parametric sweep pipeline using configurations defined in JSON files,
+    /// verifying numerical stability, convergence, and physical validity of generated CSV outputs.
+    /// </summary>
+    /// <param name="jsonFilePath">The path to the JSON input file.</param>
+    [Theory]
+    [MemberData(nameof(GetJsonInputFiles))]
+    public async Task ProcessAsync_FromJsonFile_ShouldExecuteSensitivityAnalysisAndGenerateValidCsvs(string jsonFilePath)
     {
         // Arrange
         using IServiceScope scope = GlobalServiceProvider.Provider.CreateScope();
         ParametricSweepPipeline pipeline = scope.ServiceProvider.GetRequiredService<ParametricSweepPipeline>();
 
-        FungConstitutiveParameters baseline = new(
-            elasticStressConstant: 50.0,
-            elasticPowerConstant: 1.5,
-            reducedRelaxationFunction: new ReducedRelaxationFunction(0.12, 0.02, 20.0));
+        string fileNameWithoutExtension = Path.GetFileNameWithoutExtension(jsonFilePath);
+        string caseOutputDirectory = Path.Combine(_testOutputDirectory, fileNameWithoutExtension);
+        Directory.CreateDirectory(caseOutputDirectory);
 
-        Dictionary<string, RangeParameters> constantVariables = new()
-        {
-            ["c"] = new RangeParameters { InitialPoint = 0.05, FinalPoint = 0.15, Step = 0.05 },
-            ["tau1"] = new RangeParameters { InitialPoint = 0.01, FinalPoint = 0.03, Step = 0.01 }
-        };
-
-        ParametricSweepInput input = new()
-        {
-            Identifier = "Acceptance_Fung_Sweep",
-            MechanicalModelName = nameof(MechanicalModel.Fung),
-            Baseline = baseline,
-            ConstantVariables = constantVariables,
-            ArrayVariables = [],
-            BaseStrain = 0.04,
-            StrainRange = new RangeParameters { InitialPoint = 0.02, FinalPoint = 0.06, Step = 0.02 },
-            RampTimeConsideration = RampTimeConsideration.Disregard,
-            InitialTime = 0.0,
-            FinalTime = 10.0,
-            TimeStep = 0.1,
-            OutputDirectory = _testOutputDirectory
-        };
+        ParametricSweepInput rawInput = ParametricSweepInputJsonParser.Parse(File.ReadAllText(jsonFilePath));
+        ParametricSweepInput input = rawInput with { OutputDirectory = caseOutputDirectory };
 
         // Act
         Result<string> result = await pipeline.ProcessAsync(input);
@@ -83,152 +80,47 @@ public sealed class ParametricSweepPipelineAcceptanceTests : IDisposable
         Assert.True(result.Success, result.Messages.FirstOrDefault());
         Assert.False(string.IsNullOrWhiteSpace(result.Data));
 
-        string cCsv = Path.Combine(_testOutputDirectory, "c_SensitivityAnalysis.csv");
-        string tau1Csv = Path.Combine(_testOutputDirectory, "tau1_SensitivityAnalysis.csv");
-        string strainCsv = Path.Combine(_testOutputDirectory, "Strain_SensitivityAnalysis.csv");
+        // Validate each constant variable CSV output
+        foreach (string variableName in input.ConstantVariables.Keys)
+        {
+            string csvFile = Path.Combine(caseOutputDirectory, $"{variableName}_SensitivityAnalysis.csv");
+            Assert.True(File.Exists(csvFile), $"Expected {csvFile} to exist for variable '{variableName}'.");
 
-        Assert.True(File.Exists(cCsv), $"Expected {cCsv} to exist.");
-        Assert.True(File.Exists(tau1Csv), $"Expected {tau1Csv} to exist.");
-        Assert.True(File.Exists(strainCsv), $"Expected {strainCsv} to exist.");
+            string[] lines = await File.ReadAllLinesAsync(csvFile);
+            Assert.True(lines.Length > 1, $"Expected header and at least 1 data row in {csvFile}");
+            Assert.Equal("VariableValue,InitialStress,FinalStress,AsymptoteTime,AsymptoteStress,AbsoluteDeltaStress,PercentageDeltaStress", lines[0]);
+            ValidateCsvDataRows(lines.Skip(1));
+        }
 
-        // Validate c CSV content (header + 3 values: 0.05, 0.10, 0.15)
-        string[] cLines = await File.ReadAllLinesAsync(cCsv);
-        Assert.Equal(4, cLines.Length);
-        Assert.Equal("VariableValue,InitialStress,FinalStress,AsymptoteTime,AsymptoteStress,AbsoluteDeltaStress,PercentageDeltaStress", cLines[0]);
-        ValidateCsvDataRows(cLines.Skip(1));
+        // Validate Strain variation CSV output if configured
+        if (input.StrainRange is not null)
+        {
+            string strainCsv = Path.Combine(caseOutputDirectory, "Strain_SensitivityAnalysis.csv");
+            Assert.True(File.Exists(strainCsv), $"Expected {strainCsv} to exist for Strain variation.");
 
-        // Validate tau1 CSV content (header + 3 values: 0.01, 0.02, 0.03)
-        string[] tau1Lines = await File.ReadAllLinesAsync(tau1Csv);
-        Assert.Equal(4, tau1Lines.Length);
-        ValidateCsvDataRows(tau1Lines.Skip(1));
-
-        // Validate Strain CSV content (header + 3 values: 0.02, 0.04, 0.06)
-        string[] strainLines = await File.ReadAllLinesAsync(strainCsv);
-        Assert.Equal(4, strainLines.Length);
-        ValidateCsvDataRows(strainLines.Skip(1));
+            string[] lines = await File.ReadAllLinesAsync(strainCsv);
+            Assert.True(lines.Length > 1, $"Expected header and at least 1 data row in {strainCsv}");
+            Assert.Equal("VariableValue,InitialStress,FinalStress,AsymptoteTime,AsymptoteStress,AbsoluteDeltaStress,PercentageDeltaStress", lines[0]);
+            ValidateCsvDataRows(lines.Skip(1));
+        }
     }
 
-    [Fact]
-    public async Task ProcessAsync_SimplifiedFungModel_ShouldExecuteSensitivityAnalysisAndGenerateValidCsvs()
+    private static string ResolveTestDataDirectory()
     {
-        // Arrange
-        using IServiceScope scope = GlobalServiceProvider.Provider.CreateScope();
-        ParametricSweepPipeline pipeline = scope.ServiceProvider.GetRequiredService<ParametricSweepPipeline>();
-
-        PronySeries pronySeries = new(0.4, [0.5, -0.1]);
-        SimplifiedFungConstitutiveParameters baseline = new(
-            elasticStressConstant: 80.0,
-            elasticPowerConstant: 2.0,
-            reducedRelaxationFunction: pronySeries);
-
-        Dictionary<string, RangeParameters> constantVariables = new()
+        string baseDir = AppContext.BaseDirectory;
+        string copiedDir = Path.Combine(baseDir, "MechanicalOfMaterials.Optimizations", "SensitivityAnalysis", "TestData");
+        if (Directory.Exists(copiedDir))
         {
-            ["ElasticStressConstant"] = new RangeParameters { InitialPoint = 60.0, FinalPoint = 100.0, Step = 20.0 }
-        };
+            return copiedDir;
+        }
 
-        ParametricSweepInput input = new()
+        string sourceDir = Path.GetFullPath(Path.Combine(baseDir, "..", "..", "..", "MechanicalOfMaterials.Optimizations", "SensitivityAnalysis", "TestData"));
+        if (Directory.Exists(sourceDir))
         {
-            Identifier = "Acceptance_SimplifiedFung_Sweep",
-            MechanicalModelName = nameof(MechanicalModel.SimplifiedFung),
-            Baseline = baseline,
-            ConstantVariables = constantVariables,
-            ArrayVariables = [],
-            BaseStrain = 0.05,
-            StrainRange = new RangeParameters { InitialPoint = 0.03, FinalPoint = 0.07, Step = 0.02 },
-            RampTimeConsideration = RampTimeConsideration.Disregard,
-            InitialTime = 0.0,
-            FinalTime = 5.0,
-            TimeStep = 0.1,
-            OutputDirectory = _testOutputDirectory
-        };
+            return sourceDir;
+        }
 
-        // Act
-        Result<string> result = await pipeline.ProcessAsync(input);
-
-        // Assert
-        Assert.True(result.Success, result.Messages.FirstOrDefault());
-
-        string stressConstCsv = Path.Combine(_testOutputDirectory, "ElasticStressConstant_SensitivityAnalysis.csv");
-        string strainCsv = Path.Combine(_testOutputDirectory, "Strain_SensitivityAnalysis.csv");
-
-        Assert.True(File.Exists(stressConstCsv), $"Expected {stressConstCsv} to exist.");
-        Assert.True(File.Exists(strainCsv), $"Expected {strainCsv} to exist.");
-
-        string[] stressLines = await File.ReadAllLinesAsync(stressConstCsv);
-        Assert.Equal(4, stressLines.Length);
-        ValidateCsvDataRows(stressLines.Skip(1));
-
-        string[] strainLines = await File.ReadAllLinesAsync(strainCsv);
-        Assert.Equal(4, strainLines.Length);
-        ValidateCsvDataRows(strainLines.Skip(1));
-    }
-
-    [Fact]
-    public async Task ProcessAsync_SchaperyModel_ShouldExecuteSensitivityAnalysisAndGenerateValidCsvs()
-    {
-        // Arrange
-        using IServiceScope scope = GlobalServiceProvider.Provider.CreateScope();
-        ParametricSweepPipeline pipeline = scope.ServiceProvider.GetRequiredService<ParametricSweepPipeline>();
-
-        SchaperyConstitutiveParameters baseline = new()
-        {
-            Ge = 15.0,
-            G0 = 1.0,
-            G1 = 1.0,
-            G2 = 1.0,
-            He = new PolynomialFunction([1.0]),
-            H1 = new PolynomialFunction([1.0]),
-            H2 = new PolynomialFunction([1.0]),
-            TransientRelaxationFunction = new PowerLaw([5.0, 0.2])
-        };
-
-        Dictionary<string, RangeParameters> constantVariables = new()
-        {
-            ["Ge"] = new RangeParameters { InitialPoint = 10.0, FinalPoint = 20.0, Step = 5.0 },
-            ["g1"] = new RangeParameters { InitialPoint = 4.0, FinalPoint = 6.0, Step = 1.0 }
-        };
-
-        ParametricSweepInput input = new()
-        {
-            Identifier = "Acceptance_Schapery_Sweep",
-            MechanicalModelName = nameof(MechanicalModel.Schapery),
-            Baseline = baseline,
-            ConstantVariables = constantVariables,
-            ArrayVariables = [],
-            BaseStrain = 0.05,
-            StrainRange = new RangeParameters { InitialPoint = 0.03, FinalPoint = 0.05, Step = 0.02 },
-            RampTimeConsideration = RampTimeConsideration.Disregard,
-            InitialTime = 0.5,
-            FinalTime = 10.0,
-            TimeStep = 0.1,
-            OutputDirectory = _testOutputDirectory
-        };
-
-        // Act
-        Result<string> result = await pipeline.ProcessAsync(input);
-
-        // Assert
-        Assert.True(result.Success, result.Messages.FirstOrDefault());
-
-        string geCsv = Path.Combine(_testOutputDirectory, "Ge_SensitivityAnalysis.csv");
-        string g1Csv = Path.Combine(_testOutputDirectory, "g1_SensitivityAnalysis.csv");
-        string strainCsv = Path.Combine(_testOutputDirectory, "Strain_SensitivityAnalysis.csv");
-
-        Assert.True(File.Exists(geCsv), $"Expected {geCsv} to exist.");
-        Assert.True(File.Exists(g1Csv), $"Expected {g1Csv} to exist.");
-        Assert.True(File.Exists(strainCsv), $"Expected {strainCsv} to exist.");
-
-        string[] geLines = await File.ReadAllLinesAsync(geCsv);
-        Assert.Equal(4, geLines.Length);
-        ValidateCsvDataRows(geLines.Skip(1));
-
-        string[] g1Lines = await File.ReadAllLinesAsync(g1Csv);
-        Assert.Equal(4, g1Lines.Length);
-        ValidateCsvDataRows(g1Lines.Skip(1));
-
-        string[] strainLines = await File.ReadAllLinesAsync(strainCsv);
-        Assert.Equal(3, strainLines.Length);
-        ValidateCsvDataRows(strainLines.Skip(1));
+        throw new DirectoryNotFoundException($"Could not locate TestData directory at '{copiedDir}' or '{sourceDir}'.");
     }
 
     private static void ValidateCsvDataRows(IEnumerable<string> rows)

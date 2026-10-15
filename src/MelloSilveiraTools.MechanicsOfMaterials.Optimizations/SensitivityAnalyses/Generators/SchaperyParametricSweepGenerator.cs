@@ -30,7 +30,8 @@ public sealed class SchaperyParametricSweepGenerator : ParametricSweepGeneratorB
             {
                 TransientRelaxationFunction = new PowerLaw(newCoefficients, baseline.TransientRelaxationFunction.InitialVariableValue, baseline.TransientRelaxationFunction.FinalVariableValue)
             };
-        });
+        }
+        );
 
         yield return (["n"], (baseline, value) =>
         {
@@ -44,6 +45,7 @@ public sealed class SchaperyParametricSweepGenerator : ParametricSweepGeneratorB
             {
                 TransientRelaxationFunction = new PowerLaw(newCoefficients, baseline.TransientRelaxationFunction.InitialVariableValue, baseline.TransientRelaxationFunction.FinalVariableValue)
             };
-        });
+        }
+        );
     }
 }

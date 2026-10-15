@@ -23,17 +23,6 @@ public sealed class ParametricSweepPipeline(
     ServiceLocator serviceLocator)
 {
     /// <summary>
-    /// Backward-compatible constructor resolving <see cref="IDifferentiation"/> from the service locator.
-    /// </summary>
-    public ParametricSweepPipeline(
-        ILogger<ParametricSweepPipeline> logger,
-        IMechanicalModelCalculatorFactory mechanicalModelCalculatorFactory,
-        ServiceLocator serviceLocator)
-        : this(logger, mechanicalModelCalculatorFactory, serviceLocator.GetService<IDifferentiation>() ?? new Differentiation(), serviceLocator)
-    {
-    }
-
-    /// <summary>
     /// Builds and executes the parametric sweep pipeline for a given analysis request.
     /// </summary>
     public async Task<Result<string>> ProcessAsync(ParametricSweepInput input, CancellationToken cancellationToken = default)

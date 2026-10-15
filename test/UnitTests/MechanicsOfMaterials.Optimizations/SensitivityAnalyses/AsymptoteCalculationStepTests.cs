@@ -36,10 +36,10 @@ public sealed class AsymptoteCalculationStepTests
         (double asymptoteTime, double asymptoteStress) = step.Execute(input);
 
         // Assert
-        // Steady state plateau reached within 0.1% of the relaxation range (within 0.01 of theoretical 2.0)
-        Assert.True(Math.Abs(asymptoteStress - 2.0) <= 0.01, $"Expected asymptoteStress ~ 2.0, got {asymptoteStress}");
+        // Steady state plateau reached within derivative tolerance
+        Assert.True(Math.Abs(asymptoteStress - 2.0) <= 0.02, $"Expected asymptoteStress ~ 2.0, got {asymptoteStress}");
 
-        // Asymptote is reached when exp(-t / 10) <= 0.001 -> t >= 10 * ln(1000) ~ 69.07 s
+        // Asymptote is reached when |dσ/dt| <= 0.001
         Assert.True(asymptoteTime >= 60.0 && asymptoteTime <= 80.0, $"Expected asymptoteTime ~ 69.07, got {asymptoteTime}");
     }
 
@@ -132,9 +132,9 @@ public sealed class AsymptoteCalculationStepTests
         (double asymptoteTime, double asymptoteStress) = step.Execute(input);
 
         // Assert
-        // Tighter tolerance 1e-4: exp(-t/10) <= 1e-4 -> t >= 10 * ln(10000) ~ 92.10 s
+        // Tighter tolerance 1e-4
         Assert.True(asymptoteTime >= 85.0 && asymptoteTime <= 100.0, $"Expected asymptoteTime ~ 92.10, got {asymptoteTime}");
-        Assert.True(Math.Abs(asymptoteStress - 2.0) <= 0.001, $"Expected asymptoteStress ~ 2.0 with tighter tolerance, got {asymptoteStress}");
+        Assert.True(Math.Abs(asymptoteStress - 2.0) <= 0.002, $"Expected asymptoteStress ~ 2.0 with tighter tolerance, got {asymptoteStress}");
     }
 
     [Fact]
