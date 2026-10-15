@@ -161,5 +161,11 @@
         <member name="M:AcceptanceTests.MechanicalOfMaterials.Optimizations.CurveFitterSteps.SimplifiedFungRelaxationOnlyCurveFitterStepAcceptanceTests.AssertPhysicalConstraints(System.String,System.Collections.Generic.IReadOnlyList{MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Models.CurveSegment},System.Collections.Generic.IReadOnlyList{MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Models.MechanicalModelCurveFitOutput})">
             <inheritdoc/>
         </member>
+        <member name="T:AcceptanceTests.MechanicalOfMaterials.Optimizations.SensitivityAnalysis.ParametricSweepPipelineAcceptanceTests">
+            <summary>
+            End-to-end acceptance tests for <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.SensitivityAnalysis.ParametricSweepPipeline"/> validating 1D sensitivity analysis
+            across constitutive models, confirming numerical stability and partitioned CSV outputs.
+            </summary>
+        </member>
     </members>
 </doc>

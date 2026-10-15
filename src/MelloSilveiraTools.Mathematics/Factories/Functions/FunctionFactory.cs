@@ -29,6 +29,7 @@ public class FunctionFactory
         FunctionType.Cosine => new CosineFunction(coefficients, initialVariableValue, finalVariableValue),
         FunctionType.PowerLaw => new PowerLaw(coefficients, initialVariableValue, finalVariableValue),
         FunctionType.Logarithmic => new LogarithmicFunction(coefficients, initialVariableValue, finalVariableValue),
+        FunctionType.ExponentialIntegral => new ExponentialIntegralFunction(coefficients.Length > 0 ? coefficients[0] : MathematicConstants.Tolerance, initialVariableValue, finalVariableValue),
         _ => throw new ArgumentOutOfRangeException(nameof(functionType))
     };
 }

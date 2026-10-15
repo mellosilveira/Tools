@@ -22,28 +22,64 @@ public abstract class ParametricSweepGeneratorBase<TConstitutiveParameters> : IP
         TConstitutiveParameters baseline = (TConstitutiveParameters)input.Baseline;
 
         // 1. OAAT for Boundary Condition (Strain)
-        foreach (double strain in input.StrainRange.GenerateValues())
+        if (input.StrainRange is not null)
         {
-            yield return CreateEnvelope(StrainVariableName, strain, baseline, input);
+            foreach (double strain in input.StrainRange.GenerateValues())
+            {
+                yield return CreateEnvelope(StrainVariableName, strain, baseline, input);
+            }
         }
 
         // 2. OAAT for Constitutive Parameters
-        foreach ((string propertyName, Func<TConstitutiveParameters, double, TConstitutiveParameters> mutate) in GetPropertyVariations(input))
+        if (input.ConstantVariables is not null)
         {
-            if (input.ConstantVariables.TryGetValue(propertyName, out RangeParameters? range))
+            foreach ((string[] aliases, Func<TConstitutiveParameters, double, TConstitutiveParameters> mutate) in GetPropertyVariations(input))
             {
-                foreach (double value in range.GenerateValues())
+                foreach (string alias in aliases)
                 {
-                    yield return CreateEnvelope(propertyName, value, mutate(baseline, value), input);
+                    if (input.ConstantVariables.TryGetValue(alias, out RangeParameters? range))
+                    {
+                        foreach (double value in range.GenerateValues())
+                        {
+                            yield return CreateEnvelope(alias, value, mutate(baseline, value), input);
+                        }
+
+                        break;
+                    }
+                }
+            }
+        }
+
+        // 3. OAAT for Array Constitutive Parameters
+        if (input.ArrayVariables is not null)
+        {
+            foreach ((string propertyName, int index, Func<TConstitutiveParameters, double, TConstitutiveParameters> mutate) in GetArrayPropertyVariations(input))
+            {
+                if (input.ArrayVariables.TryGetValue(propertyName, out Dictionary<int, RangeParameters>? indexDict) &&
+                    indexDict.TryGetValue(index, out RangeParameters? range))
+                {
+                    string variableKey = $"{propertyName}[{index}]";
+                    foreach (double value in range.GenerateValues())
+                    {
+                        yield return CreateEnvelope(variableKey, value, mutate(baseline, value), input);
+                    }
                 }
             }
         }
     }
 
     /// <summary>
-    /// Generates property-specific OAAT variations, implemented by derived strongly-typed generators.
+    /// Generates property-specific OAAT variations and aliases, implemented by derived strongly-typed generators.
     /// </summary>
-    protected abstract IEnumerable<(string PropertyName, Func<TConstitutiveParameters, double, TConstitutiveParameters> Mutate)> GetPropertyVariations(ParametricSweepInput input);
+    protected abstract IEnumerable<(string[] PropertyAliases, Func<TConstitutiveParameters, double, TConstitutiveParameters> Mutate)> GetPropertyVariations(ParametricSweepInput input);
+
+    /// <summary>
+    /// Generates array property-specific OAAT variations, optionally implemented by derived generators.
+    /// </summary>
+    protected virtual IEnumerable<(string PropertyName, int Index, Func<TConstitutiveParameters, double, TConstitutiveParameters> Mutate)> GetArrayPropertyVariations(ParametricSweepInput input)
+    {
+        yield break;
+    }
 
     /// <summary>
     /// Creates a standardized envelope for the TPL Dataflow pipeline.
@@ -58,7 +94,6 @@ public abstract class ParametricSweepGeneratorBase<TConstitutiveParameters> : IP
             TimeStep = input.TimeStep,
             AcceptedStrainRange = AcceptedRange.Default,
             Strain = new MechanicalParameter(variableName == StrainVariableName ? variableValue : input.BaseStrain),
-            Stress = new MechanicalParameter(0),
             // TODO: In this current version, the parametric sweep analysis only works for stress-strain and relaxation.
             LoadResponseRelationship = LoadResponseRelationship.StressStrain,
             ViscoelasticEffect = ViscoelasticEffect.Relaxation,

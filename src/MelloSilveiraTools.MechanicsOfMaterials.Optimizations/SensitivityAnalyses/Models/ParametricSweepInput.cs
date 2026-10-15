@@ -66,5 +66,23 @@ public record ParametricSweepInput
     /// </summary>
     public required double FinalTime { get; init; }
 
+    /// <summary>
+    /// Gets the relative tolerance threshold utilized by the asymptote detection step.
+    /// Defaults to 1e-3 (0.1% of the initial relaxation rate).
+    /// </summary>
+    public double AsymptoteTolerance { get; init; } = 1e-3;
+
+    /// <summary>
+    /// Alias for <see cref="AsymptoteTolerance"/> allowing fluent configuration.
+    /// </summary>
+    public double Tolerance
+    {
+        get => AsymptoteTolerance;
+        init => AsymptoteTolerance = value;
+    }
+
+    /// <summary>
+    /// Gets the destination directory where partitioned CSV sensitivity curves are generated.
+    /// </summary>
     public required string OutputDirectory { get; init; }
 }

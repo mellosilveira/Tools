@@ -3,6 +3,7 @@ using MelloSilveiraTools.Core.Pipelines;
 using MelloSilveiraTools.Core.Pipelines.Dataflow;
 using MelloSilveiraTools.Core.Providers;
 using MelloSilveiraTools.Mathematics.Extensions;
+using MelloSilveiraTools.Mathematics.NumericalMethods.Differentiations;
 using MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.SensitivityAnalysis.Steps;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Models;
@@ -18,8 +19,20 @@ namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.Sensit
 public sealed class ParametricSweepPipeline(
     ILogger<ParametricSweepPipeline> logger,
     IMechanicalModelCalculatorFactory mechanicalModelCalculatorFactory,
+    IDifferentiation differentiation,
     ServiceLocator serviceLocator)
 {
+    /// <summary>
+    /// Backward-compatible constructor resolving <see cref="IDifferentiation"/> from the service locator.
+    /// </summary>
+    public ParametricSweepPipeline(
+        ILogger<ParametricSweepPipeline> logger,
+        IMechanicalModelCalculatorFactory mechanicalModelCalculatorFactory,
+        ServiceLocator serviceLocator)
+        : this(logger, mechanicalModelCalculatorFactory, serviceLocator.GetService<IDifferentiation>() ?? new Differentiation(), serviceLocator)
+    {
+    }
+
     /// <summary>
     /// Builds and executes the parametric sweep pipeline for a given analysis request.
     /// </summary>
@@ -32,7 +45,7 @@ public sealed class ParametricSweepPipeline(
         IMechanicalModelCalculatorFacade calculator = mechanicalModelCalculatorFactory.CreateCalculatorFacade(input.MechanicalModelName);
         InitialStressCalculationStep initialStep = new(calculator, input.InitialTime);
         FinalStressCalculationStep finalStep = new(calculator, input.FinalTime);
-        AsymptoteCalculationStep asymptoteStep = new(calculator);
+        AsymptoteCalculationStep asymptoteStep = new(calculator, differentiation, input.AsymptoteTolerance);
 
         ParametricSweepCsvWriterStep writer = new(input.OutputDirectory);
 
@@ -50,7 +63,7 @@ public sealed class ParametricSweepPipeline(
                 double finalStress = tuple.Item1.Item2;
                 (double asymptoteTime, double asymptoteStress) = tuple.Item1.Item3;
 
-                double aboluteDeltaStress = finalStress - initialStress;
+                double absoluteDeltaStress = finalStress - initialStress;
                 double percentualDeltaStress = initialStress.PercentageDifference(finalStress);
 
                 (string variableName, double variableValue) = tuple.Item2;
@@ -62,7 +75,7 @@ public sealed class ParametricSweepPipeline(
                     finalStress,
                     asymptoteTime,
                     asymptoteStress,
-                    aboluteDeltaStress,
+                    absoluteDeltaStress,
                     percentualDeltaStress
                 );
             })

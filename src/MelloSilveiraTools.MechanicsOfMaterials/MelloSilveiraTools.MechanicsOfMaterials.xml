@@ -143,7 +143,7 @@
         </member>
         <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Caching.MechanicalModelTypeCache.CompileOutputFactory(System.Type)">
             <summary>
-            Compiles a parameterless constructor into a factory delegate, replacing <see cref="M:System.Activator.CreateInstance(System.String,System.String)"/>.
+            Compiles a parameterless constructor into a factory delegate, replacing <see cref="M:System.Activator.CreateInstance(System.Type)"/>.
             </summary>
         </member>
         <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Caching.MechanicalModelTypeCache.CompilePropertySetters(System.Type)">
@@ -1143,14 +1143,6 @@
         <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Viscoelasticity.QuasiLinear.Fung.FungModelCalculator.CalculateReducedRelaxationFunctionDerivative(MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalModelInput{MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.QuasiLinear.FungConstitutiveParameters},System.Double)">
             <inheritdoc/>
             <remarks>Formula: dG/dt = C · [e^(-t/τ₁) - e^(-t/τ₂)] / [t · (1 + C · ln(τ₂/τ₁))] (Projeto Final, Eq. 45).</remarks>
-        </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Viscoelasticity.QuasiLinear.Fung.FungModelCalculator.SetIntegrationStep(System.Double,System.Double)">
-            <summary>
-            Sets the dynamic time step for numerical integration based on the current integration time.
-            </summary>
-            <param name="time">Unit: s (second).</param>
-            <param name="timeStep">Unit: s (second).</param>
-            <returns>Unit: s (second).</returns>
         </member>
         <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Viscoelasticity.QuasiLinear.Fung.IFungModelCalculator">
             <summary>

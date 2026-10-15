@@ -16,6 +16,8 @@ public static class MathematicConstants
     /// </summary>
     public const double EulerMascheroniConstant = 0.5772156649015328606065120900824024310421;
 
+    public const double MachineEpsilonFloor = 1.1102230246251565e-16;
+
     /// <summary>
     /// The tolerance for time comparisons.
     /// Used to distinguish "effectively zero" from any meaningful positive value.

@@ -47,6 +47,8 @@ public static class DependencyInjection
             .AddScoped<IExperimentalDataProcessingPipeline, ExperimentalDataProcessingPipeline>()
             // Register Sensitivity Analysis services.
             .AddKeyedSingleton<IParametricSweepGenerator, FungParametricSweepGenerator>(nameof(MechanicalModel.Fung))
+            .AddKeyedSingleton<IParametricSweepGenerator, SimplifiedFungParametricSweepGenerator>(nameof(MechanicalModel.SimplifiedFung))
+            .AddKeyedSingleton<IParametricSweepGenerator, SchaperyParametricSweepGenerator>(nameof(MechanicalModel.Schapery))
             .AddScoped<ParametricSweepPipeline>();
     }
 }

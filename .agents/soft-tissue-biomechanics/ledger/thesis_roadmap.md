@@ -62,7 +62,7 @@
 - **[ ] TASK 2.4:** Develop the *Curve Fitting* objective functions for the **Weiss Transversely Isotropic 1D** model within **MelloSilveiraTools**.
 - **[ ] TASK 2.5:** Develop the *Curve Fitting* objective functions for the **Poroviscoelasticity 1D** model within **MelloSilveiraTools**.
 - **[ ] TASK 2.6:** Develop the *Curve Fitting* objective functions for the **Holzapfel-Gasser-Ogden (HGO) 1D** model within **MelloSilveiraTools**.
-- **[ ] TASK 2.7:** Develop and validate the native **1D Sensitivity Analysis Engine** (stress x time, stress x variation, asymptotes) within **MelloSilveiraTools**.
+- **[x] TASK 2.7:** Develop and validate the native **1D Sensitivity Analysis Engine** (stress x time, stress x variation, asymptotes) within **MelloSilveiraTools**. (COMPLETED)
 - **[ ] TASK 2.8:** Inspect and clean the legacy code of the **SoftTissue** project to centralize business rules.
 - **[ ] TASK 2.9:** Create the logic, pipelines, and routes in **SoftTissue** aggregating the data triad.
 - **[ ] TASK 2.10:** Structure a **Minimalist Frontend** focused exclusively on dynamic data exploration and triggering C# pipelines, strictly avoiding complex UI/UX engineering that drains research time.

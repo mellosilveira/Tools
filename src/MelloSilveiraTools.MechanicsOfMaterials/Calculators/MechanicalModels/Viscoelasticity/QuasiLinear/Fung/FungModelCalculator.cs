@@ -1,3 +1,4 @@
+using MelloSilveiraTools.Mathematics.Functions;
 using MelloSilveiraTools.Mathematics.Models;
 using MelloSilveiraTools.Mathematics.NumericalMethods.Differentiations;
 using MelloSilveiraTools.Mathematics.NumericalMethods.Integrals;
@@ -17,40 +18,17 @@ public sealed class FungModelCalculator(
     IMechanicalParameterConverter parameterConverter)
     : QuasiLinearModelCalculator<FungConstitutiveParameters, ReducedRelaxationFunction>(integration, differentiation, parameterConverter), IFungModelCalculator
 {
-    private const double EquationE1MaximumFinalTime = 11.4;
+    private readonly ExponentialIntegralFunction _exponentialIntegral = new();
 
     /// <inheritdoc/>
     public double CalculateI(double slowRelaxationTime, double fastRelaxationTime, double timeStep, double time)
     {
         if (time <= MathematicConstants.Tolerance)
-            return Math.Log(slowRelaxationTime / fastRelaxationTime);
-
-        double initialTime = time / slowRelaxationTime;
-        double step = SetIntegrationStep(initialTime, timeStep);
-        double finalTime = Math.Min(time / fastRelaxationTime, EquationE1MaximumFinalTime);
-
-        #region Here a custom Simpson Integration rule is used to adapt to this specific numerical case.
-
-        int numberOfDivisions = Convert.ToInt32((finalTime - initialTime) / step);
-        double value = 0;
-
-        for (int index = 0; index <= numberOfDivisions; index++)
         {
-            double integrationTime = initialTime + index * step;
-
-            double equationResult = Math.Exp(-integrationTime) / integrationTime;
-            if (equationResult == 0)
-                continue;
-
-            int factor = (index == 0 || index == numberOfDivisions) ? 1 : (index % 2 != 0 ? 4 : 2);
-            value += factor * equationResult * step / 3;
-
-            step = SetIntegrationStep(integrationTime, step);
+            return Math.Log(slowRelaxationTime / fastRelaxationTime);
         }
 
-        #endregion
-
-        return value;
+        return _exponentialIntegral.Calculate(time / slowRelaxationTime, time / fastRelaxationTime);
     }
 
     /// <inheritdoc/>
@@ -87,17 +65,4 @@ public sealed class FungModelCalculator(
 
     private static double CalculateReducedRelaxationFunctionDenominator(ReducedRelaxationFunction reducedRelaxationFunction)
         => 1 + reducedRelaxationFunction.RelaxationStiffness * Math.Log(reducedRelaxationFunction.SlowRelaxationTime / reducedRelaxationFunction.FastRelaxationTime);
-
-    /// <summary>
-    /// Sets the dynamic time step for numerical integration based on the current integration time.
-    /// </summary>
-    /// <param name="time">Unit: s (second).</param>
-    /// <param name="timeStep">Unit: s (second).</param>
-    /// <returns>Unit: s (second).</returns>
-    private static double SetIntegrationStep(double time, double timeStep) => time switch
-    {
-        <= 0.5 => timeStep > 1e-3 ? 1e-3 : timeStep,
-        > 0.5 and <= 1 => timeStep > 1e-2 ? 1e-2 : timeStep,
-        _ => timeStep > 1e-1 ? 1e-1 : timeStep,
-    };
 }

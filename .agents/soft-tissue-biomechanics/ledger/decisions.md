@@ -143,7 +143,7 @@ To ensure data integrity and prevent runaway token consumption during automated 
 * **Task_ID:** task-2.1
 * **Date:** 2026-10-08
 * **What:** Validated and maintained Fung QLV 1D model objective function logic using inline lambdas in FungRelaxationOnlyCurveFitterStep.cs.
-* **From where:** senior-backend-software-engineer-net (File: C:\Pessoal\Projetos\Tools\.agents\soft-tissue-biomechanics\outputs\task-2.1-result.json)
+* **From where:** senior-backend-software-engineer-net (File: .agents\soft-tissue-biomechanics\outputs\task-2.1-fung-analytical-detailing.md)
 * **Why:** To strictly adhere to the "Do Not Reinvent the Wheel" directive and maintain architectural consistency across the MelloSilveiraTools ecosystem. Avoided creating redundant custom ObjectiveFunction classes, ensuring a unified approach to curve-fitting constraints.
 ### 2026-10-08 Task: roadmap-revision-phase1-findings
 **Category**: Decision & Future Work
@@ -166,3 +166,12 @@ To ensure data integrity and prevent runaway token consumption during automated 
 * **What:** Validated, executed, and formally documented the objective functions for the Schapery Non-Linear 1D model within MelloSilveiraTools (SchaperyRelaxationOnlyCurveFitterStep.cs).
 * **From where:** senior-backend-software-engineer-net (File: outputs/task-2.2-result.json)
 * **Why:** In Schapery's non-linear formulation, decoupling the linear viscoelastic baseline ($G_e, g_1, n$) at the anchor segment from the non-linear Helmholtz multipliers ($h_e, h_2$) at higher strain segments guarantees numerical stability, eliminates parameter correlation, and permits robust continuous function fitting (Logarithmic vs Exponential) for the academic writer.
+
+## Ledger Entry: 2026-10-14
+
+### Decision & Execution
+* **Task_ID:** task-2.7
+* **Date:** 2026-10-14
+* **What:** Developed, integrated, and validated the native 1D Sensitivity Analysis Engine (OAAT) in MelloSilveiraTools via TPL Dataflow (`ParametricSweepPipeline`), covering Fung QLV, Simplified Fung, and Schapery models across all 4 mandatory sensitivity scenarios (stress at $t_0$, stress at $t_f$, asymptote time $t_{\text{asymptote}}$, and stress variation $\Delta\sigma$).
+* **From where:** senior-backend-software-engineer-net (File: outputs/task-2.7-result.md)
+* **Why:** In compliance with the experimental-data-analyst skill directive and thesis roadmap, the engine provides an automated, reactive, and non-blocking pipeline for evaluating parametric sensitivity. Dynamically compiles parameter adaptations in `MechanicalModelTypeCache` to bridge generic simulation envelopes (`GenericMechanicalModelInput`) with strongly typed constitutive calculators without reflection overhead. Output is serialized into partitioned CSVs for downstream academic visualization and thesis reporting.
