@@ -8,11 +8,13 @@ namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.Experi
 /// <param name="MechanicalModelName">The name of the mechanical model evaluated.</param>
 /// <param name="CurveFitIdentifier">The unique identifier of the associated curve fit.</param>
 /// <param name="AsymptoteTime">The calculated asymptote time if steady-state was detected.</param>
-/// <param name="Delta">The boundary delta metrics between initial and final simulation outputs.</param>
-/// <param name="FileData">The metadata for the generated simulation output file.</param>
+/// <param name="SimulationDeltaOutput">The boundary delta metrics between initial and final simulation outputs.</param>
+/// <param name="FileMetadata">The metadata for the generated simulation output file.</param>
+/// <param name="ExternalIdentifier">Optional external run or experiment identifier correlating this simulation run to business operations.</param>
 public sealed record MechanicalModelOutputPersistenceInput(
     string MechanicalModelName,
     string CurveFitIdentifier,
     double? AsymptoteTime,
-    SimulationDeltaOutput Delta,
-    FileData FileData);
+    SimulationDeltaOutput SimulationDeltaOutput,
+    FileMetadata FileMetadata,
+    string? ExternalIdentifier = null);

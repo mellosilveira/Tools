@@ -1,4 +1,9 @@
+using MelloSilveiraTools.Core.Managers.File;
+using MelloSilveiraTools.Database.ExtensionMethods;
+using MelloSilveiraTools.Database.RelationalDatabase.Models.Entities;
 using MelloSilveiraTools.Database.RelationalDatabase.Sql.Provider;
+using Npgsql;
+using NpgsqlTypes;
 
 namespace UnitTests.Database.RelationalDatabase.Sql.Provider;
 
@@ -206,5 +211,43 @@ public sealed class PostgresSqlProviderTests
     public void GetInsertSql_EntityWithoutPrimaryKey_Throws()
     {
         Assert.Throws<InvalidOperationException>(() => _provider.GetInsertSql<NoPrimaryKeyEntity>());
+    }
+
+    [Fact]
+    public void GetInsertSql_StoredFileEntity_GeneratesValidSqlWithEnumAndAuditingColumns()
+    {
+        string sql = _provider.GetInsertSql<StoredFileEntity>();
+
+        Assert.Contains("INSERT INTO stored_files", sql);
+        Assert.Contains("external_identifier", sql);
+        Assert.Contains("context", sql);
+        Assert.Contains("storage_provider", sql);
+        Assert.Contains("file_name", sql);
+        Assert.Contains("location", sql);
+        Assert.Contains("size_bytes", sql);
+        Assert.Contains("content_type", sql);
+        Assert.Contains("RETURNING id", sql);
+    }
+
+    [Fact]
+    public void BuildParameters_StoredFileEntity_CastsEnumToInteger()
+    {
+        StoredFileEntity entity = new()
+        {
+            ExternalIdentifier = "ext-123",
+            Context = "ExperimentalData",
+            StorageProvider = StorageProvider.BlobStorage,
+            FileName = "test.csv",
+            Location = "storage/test.csv",
+            SizeBytes = 1024
+        };
+
+        List<NpgsqlParameter> parameters = [.. entity.BuildParameters()];
+        Assert.NotEmpty(parameters);
+
+        NpgsqlParameter? providerParam = parameters.Find(p => p.ParameterName == "StorageProvider");
+        Assert.NotNull(providerParam);
+        Assert.Equal(NpgsqlDbType.Integer, providerParam.NpgsqlDbType);
+        Assert.Equal((int)StorageProvider.BlobStorage, providerParam.Value);
     }
 }

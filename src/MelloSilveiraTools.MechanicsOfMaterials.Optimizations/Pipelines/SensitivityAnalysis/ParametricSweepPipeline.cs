@@ -1,3 +1,4 @@
+using MelloSilveiraTools.Core.Managers.File;
 using MelloSilveiraTools.Core.Models;
 using MelloSilveiraTools.Core.Pipelines;
 using MelloSilveiraTools.Core.Pipelines.Dataflow;
@@ -20,7 +21,8 @@ public sealed class ParametricSweepPipeline(
     ILogger<ParametricSweepPipeline> logger,
     IMechanicalModelCalculatorFactory mechanicalModelCalculatorFactory,
     IDifferentiation differentiation,
-    ServiceLocator serviceLocator)
+    ServiceLocator serviceLocator,
+    IFileStorageService? fileStorageService = null)
 {
     /// <summary>
     /// Builds and executes the parametric sweep pipeline for a given analysis request.
@@ -36,7 +38,7 @@ public sealed class ParametricSweepPipeline(
         FinalStressCalculationStep finalStep = new(calculator, input.FinalTime);
         AsymptoteCalculationStep asymptoteStep = new(calculator, differentiation, input.AsymptoteTolerance);
 
-        ParametricSweepCsvWriterStep writer = new(input.OutputDirectory);
+        ParametricSweepCsvWriterStep writer = new(input.OutputDirectory, fileStorageService);
 
         IDataflowPipeline<ParametricSweepInput> pipeline = PipelineFactory.StartDataflow<ParametricSweepInput>(logger, cancellationToken: cancellationToken)
             .AddStep(ingestionStep)

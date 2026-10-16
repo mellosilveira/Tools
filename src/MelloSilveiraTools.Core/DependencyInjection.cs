@@ -27,13 +27,15 @@ public static class CoreDependencyInjection
         /// <param name="emailSettings">Settings used to send e-mails through an SMTP server.</param>
         /// <param name="loggerSettings">Settings used by logger service.</param>
         /// <param name="useDefaultLogger">Indicates if should use the default logger.</param>
+        /// <param name="fileStorageSettings">Settings used to configure root directories and storage policies.</param>
         /// <returns>The same <paramref name="services"/> instance to allow call chaining.</returns>
         public IServiceCollection AddCoreServices(
             EncryptionSettings? encryptionSettings = null,
             ResiliencePipelineSettings? smtpResiliencePipelineSettings = null,
             EmailSettings? emailSettings = null,
             LoggerSettings? loggerSettings = null,
-            bool useDefaultLogger = true)
+            bool useDefaultLogger = true,
+            FileStorageSettings? fileStorageSettings = null)
         {
             if (encryptionSettings is not null)
             {
@@ -56,7 +58,9 @@ public static class CoreDependencyInjection
             }
 
             return services
-                .AddSingleton<IFileManager, FileManager>()
+                .AddSingleton(fileStorageSettings ?? FileStorageSettings.Default)
+                .AddKeyedSingleton<IFileStorageService, LocalFileStorageService>(StorageProvider.Local)
+                .AddSingleton<IFileStorageService>(static sp => sp.GetRequiredKeyedService<IFileStorageService>(StorageProvider.Local))
                 // Register caching pipelines.
                 .AddSingleton<ISingleLevelCache, InMemorySingleLevelCache>()
                 .AddSingleton<ITwoLevelCache, InMemoryTwoLevelCache>()
@@ -65,20 +69,13 @@ public static class CoreDependencyInjection
                 .AddSingleton<IDynamicServiceProvider, InMemoryDynamicServiceProvider>();
         }
 
-        public IServiceCollection AddCoreLogging(LoggerConfiguration loggerConfiguration, LoggerSettings loggerSettings)
-        {
-            var logger = loggerConfiguration
-                .WriteToLocalFile(loggerSettings)
-                .CreateLogger();
-
-            return services
-                .AddSingleton(loggerSettings)
-                .AddLogging(loggingBuilder =>
-                {
-                    // Remove default console noise.
-                    loggingBuilder.ClearProviders();
-                    loggingBuilder.AddSerilog(logger, dispose: true);
-                });
-        }
+        public IServiceCollection AddCoreLogging(LoggerConfiguration loggerConfiguration, LoggerSettings loggerSettings) => services
+            .AddSingleton(loggerSettings)
+            .AddLogging(loggingBuilder =>
+            {
+                // Remove default console noise.
+                loggingBuilder.ClearProviders();
+                loggingBuilder.AddSerilog(loggerConfiguration.WriteToLocalFile(loggerSettings).CreateLogger(), dispose: true);
+            });
     }
 }

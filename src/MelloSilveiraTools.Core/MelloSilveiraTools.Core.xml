@@ -345,10 +345,10 @@
             Provides extension methods to register services from the MelloSilveiraTools.Core package.
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.Core.CoreDependencyInjection.AddCoreServices(Microsoft.Extensions.DependencyInjection.IServiceCollection,MelloSilveiraTools.Core.Services.Encryption.EncryptionSettings,MelloSilveiraTools.Core.ResiliencePipelines.ResiliencePipelineSettings,MelloSilveiraTools.Core.Services.Email.EmailSettings,MelloSilveiraTools.Core.Logging.LoggerSettings,System.Boolean)">
-            <inheritdoc cref="M:MelloSilveiraTools.Core.CoreDependencyInjection.&lt;G&gt;$7B30185E57B8298C6754F16C0BCF4773.AddCoreServices(MelloSilveiraTools.Core.Services.Encryption.EncryptionSettings,MelloSilveiraTools.Core.ResiliencePipelines.ResiliencePipelineSettings,MelloSilveiraTools.Core.Services.Email.EmailSettings,MelloSilveiraTools.Core.Logging.LoggerSettings,System.Boolean)"/>
+        <member name="M:MelloSilveiraTools.Core.CoreDependencyInjection.AddCoreServices(Microsoft.Extensions.DependencyInjection.IServiceCollection,MelloSilveiraTools.Core.Services.Encryption.EncryptionSettings,MelloSilveiraTools.Core.ResiliencePipelines.ResiliencePipelineSettings,MelloSilveiraTools.Core.Services.Email.EmailSettings,MelloSilveiraTools.Core.Logging.LoggerSettings,System.Boolean,MelloSilveiraTools.Core.Managers.File.FileStorageSettings)">
+            <inheritdoc cref="M:MelloSilveiraTools.Core.CoreDependencyInjection.&lt;G&gt;$7B30185E57B8298C6754F16C0BCF4773.AddCoreServices(MelloSilveiraTools.Core.Services.Encryption.EncryptionSettings,MelloSilveiraTools.Core.ResiliencePipelines.ResiliencePipelineSettings,MelloSilveiraTools.Core.Services.Email.EmailSettings,MelloSilveiraTools.Core.Logging.LoggerSettings,System.Boolean,MelloSilveiraTools.Core.Managers.File.FileStorageSettings)"/>
         </member>
-        <member name="M:MelloSilveiraTools.Core.CoreDependencyInjection.&lt;G&gt;$7B30185E57B8298C6754F16C0BCF4773.AddCoreServices(MelloSilveiraTools.Core.Services.Encryption.EncryptionSettings,MelloSilveiraTools.Core.ResiliencePipelines.ResiliencePipelineSettings,MelloSilveiraTools.Core.Services.Email.EmailSettings,MelloSilveiraTools.Core.Logging.LoggerSettings,System.Boolean)">
+        <member name="M:MelloSilveiraTools.Core.CoreDependencyInjection.&lt;G&gt;$7B30185E57B8298C6754F16C0BCF4773.AddCoreServices(MelloSilveiraTools.Core.Services.Encryption.EncryptionSettings,MelloSilveiraTools.Core.ResiliencePipelines.ResiliencePipelineSettings,MelloSilveiraTools.Core.Services.Email.EmailSettings,MelloSilveiraTools.Core.Logging.LoggerSettings,System.Boolean,MelloSilveiraTools.Core.Managers.File.FileStorageSettings)">
             <summary>
             Registers core services: settings, SMTP resilience pipeline, file logger and encryption service.
             </summary>
@@ -357,6 +357,7 @@
             <param name="emailSettings">Settings used to send e-mails through an SMTP server.</param>
             <param name="loggerSettings">Settings used by logger service.</param>
             <param name="useDefaultLogger">Indicates if should use the default logger.</param>
+            <param name="fileStorageSettings">Settings used to configure root directories and storage policies.</param>
             <returns>The same <paramref name="services"/> instance to allow call chaining.</returns>
         </member>
         <member name="T:MelloSilveiraTools.Core.ExtensionMethods.ArrayExtension">
@@ -1173,24 +1174,19 @@
         </member>
         <member name="T:MelloSilveiraTools.Core.Managers.File.CsvFileWriter">
             <summary>
-            Encapsulates a buffered asynchronous CSV file writing session.
-            Manages the underlying FileStream, StreamWriter, row batching buffer, immediate header emission, and resource disposal.
+            Encapsulates a buffered asynchronous CSV file writing session over an underlying output stream.
+            Manages row batching buffer, immediate header emission, and resource disposal.
             </summary>
-            <param name="filePath">Target destination file path.</param>
+            <param name="stream">Writable output stream.</param>
             <param name="header">Mandatory CSV header line written immediately upon session initialization.</param>
         </member>
-        <member name="M:MelloSilveiraTools.Core.Managers.File.CsvFileWriter.#ctor(System.String,System.String)">
+        <member name="M:MelloSilveiraTools.Core.Managers.File.CsvFileWriter.#ctor(System.IO.Stream,System.String)">
             <summary>
-            Encapsulates a buffered asynchronous CSV file writing session.
-            Manages the underlying FileStream, StreamWriter, row batching buffer, immediate header emission, and resource disposal.
+            Encapsulates a buffered asynchronous CSV file writing session over an underlying output stream.
+            Manages row batching buffer, immediate header emission, and resource disposal.
             </summary>
-            <param name="filePath">Target destination file path.</param>
+            <param name="stream">Writable output stream.</param>
             <param name="header">Mandatory CSV header line written immediately upon session initialization.</param>
-        </member>
-        <member name="P:MelloSilveiraTools.Core.Managers.File.CsvFileWriter.FilePath">
-            <summary>
-            Gets the destination file path.
-            </summary>
         </member>
         <member name="M:MelloSilveiraTools.Core.Managers.File.CsvFileWriter.WriteRowAsync(System.String,System.Threading.CancellationToken)">
             <summary>
@@ -1206,12 +1202,6 @@
             </summary>
             <param name="writeRow">Action writing column values into the provided row buffer.</param>
             <param name="cancellationToken">Cancellation token.</param>
-        </member>
-        <member name="M:MelloSilveiraTools.Core.Managers.File.CsvFileWriter.DisposeAllAsync(System.Collections.Generic.IEnumerable{System.IAsyncDisposable})">
-            <summary>
-            Disposes a collection of asynchronous sessions, accumulating exceptions and re-throwing as an <see cref="T:System.AggregateException"/> if any fault occurred.
-            </summary>
-            <param name="sessions">Collection of asynchronous disposable sessions.</param>
         </member>
         <member name="M:MelloSilveiraTools.Core.Managers.File.CsvFileWriter.DisposeAsync">
             <inheritdoc />
@@ -1254,82 +1244,258 @@
         <member name="M:MelloSilveiraTools.Core.Managers.File.CsvStreamReader.DisposeAsync">
             <inheritdoc/>
         </member>
-        <member name="T:MelloSilveiraTools.Core.Managers.File.FileData">
+        <member name="T:MelloSilveiraTools.Core.Managers.File.FileMetadata">
             <summary>
-            Represents the location and naming details of a document or report generated by the application.
-            Facilitates file tracking, user exports, and auditable data persistence.
-            </summary>
-            <param name="Uri">Directory path where the file is stored.</param>
-            <param name="Name">Corresponding file name.</param>
-        </member>
-        <member name="M:MelloSilveiraTools.Core.Managers.File.FileData.#ctor(System.String,System.String)">
-            <summary>
-            Represents the location and naming details of a document or report generated by the application.
-            Facilitates file tracking, user exports, and auditable data persistence.
-            </summary>
-            <param name="Uri">Directory path where the file is stored.</param>
-            <param name="Name">Corresponding file name.</param>
-        </member>
-        <member name="P:MelloSilveiraTools.Core.Managers.File.FileData.Uri">
-            <summary>Directory path where the file is stored.</summary>
-        </member>
-        <member name="P:MelloSilveiraTools.Core.Managers.File.FileData.Name">
-            <summary>Corresponding file name.</summary>
-        </member>
-        <member name="M:MelloSilveiraTools.Core.Managers.File.FileData.#ctor(System.IO.FileInfo)">
-            <summary>
-            Initializes file metadata from an existing file information handle.
-            </summary>
-            <param name="fileInfo">Reference to the physical file.</param>
-        </member>
-        <member name="T:MelloSilveiraTools.Core.Managers.File.FileManager">
-            <summary>
-            File management service responsible for structuring and safely saving files and reports to disk.
-            Employs chronological naming to protect against inadvertent file loss and ensures target directories exist.
+            Encapsulates comprehensive metadata describing a generated or stored file artifact,
+            including physical location, byte size, and creation timestamps.
+            Built to be storage-agnostic across Local File Systems, Blob Storage, and DFS providers.
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.Core.Managers.File.FileManager.BuildTimebasedFullName(System.String,System.String,System.String)">
-            <inheritdoc/>
-        </member>
-        <member name="M:MelloSilveiraTools.Core.Managers.File.FileManager.BuildTimebasedFile(System.String,System.String,System.String)">
-            <inheritdoc/>
-        </member>
-        <member name="M:MelloSilveiraTools.Core.Managers.File.FileManager.BuildTimebasedFileInfo(System.String,System.String,System.String)">
-            <inheritdoc/>
-        </member>
-        <member name="T:MelloSilveiraTools.Core.Managers.File.IFileManager">
+        <member name="P:MelloSilveiraTools.Core.Managers.File.FileMetadata.FullPath">
             <summary>
-            Contract for structured file, report, and export generation on disk.
-            Standardizes document naming by appending chronological timestamps (date and time),
-            preventing unintended overwriting of mission-critical files and preserving an auditable operational trail.
+            Gets the complete, absolute file system path or canonical storage URI (Single Source of Truth).
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.Core.Managers.File.IFileManager.BuildTimebasedFullName(System.String,System.String,System.String)">
+        <member name="P:MelloSilveiraTools.Core.Managers.File.FileMetadata.FileName">
             <summary>
-            Generates the absolute file path combining target directory, business prefix, and generation timestamp.
+            Gets the base file name with extension.
             </summary>
-            <param name="fileUri">Destination directory for saving the document.</param>
-            <param name="filePrefix">Business identifier prefix (e.g. "SalesReport", "DataExport").</param>
-            <param name="fileExtension">Target file extension (e.g. ".csv", ".json", ".txt").</param>
-            <returns>The complete absolute file path.</returns>
         </member>
-        <member name="M:MelloSilveiraTools.Core.Managers.File.IFileManager.BuildTimebasedFile(System.String,System.String,System.String)">
+        <member name="P:MelloSilveiraTools.Core.Managers.File.FileMetadata.DirectoryPath">
             <summary>
-            Builds organizational file metadata (directory and timestamped name) to simplify tracking.
+            Gets the directory, container, or virtual prefix path housing the file.
             </summary>
-            <param name="fileUri">Destination directory.</param>
+        </member>
+        <member name="P:MelloSilveiraTools.Core.Managers.File.FileMetadata.SizeBytes">
+            <summary>
+            Gets the total file size in bytes.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Core.Managers.File.FileMetadata.CreatedAt">
+            <summary>
+            Gets the timestamp when the file artifact was generated.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Managers.File.FileMetadata.#ctor(System.String,System.Int64,System.Nullable{System.DateTimeOffset},System.String)">
+            <summary>
+            Initializes a new instance of the <see cref="T:MelloSilveiraTools.Core.Managers.File.FileMetadata"/> record.
+            Resolves <see cref="P:MelloSilveiraTools.Core.Managers.File.FileMetadata.FileName"/> and <see cref="P:MelloSilveiraTools.Core.Managers.File.FileMetadata.DirectoryPath"/> concurrently from <paramref name="fullPath"/> in a single index pass.
+            </summary>
+            <param name="fullPath">Complete physical path, storage URI, or blob key.</param>
+            <param name="sizeBytes">Total file size in bytes.</param>
+            <param name="createdAt">Optional creation timestamp (defaults to UTC now).</param>
+            <param name="fileName">Optional override for the file name if different from the path segment.</param>
+        </member>
+        <member name="T:MelloSilveiraTools.Core.Managers.File.FileStorageSettings">
+            <summary>
+            Configuration settings governing internal folder layouts and root storage locations for the file storage service.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Core.Managers.File.FileStorageSettings.BaseDirectory">
+            <summary>
+            Gets the base directory or root storage path (defaults to "storage").
+            </summary>
+        </member>
+        <member name="T:MelloSilveiraTools.Core.Managers.File.IFileStorageService">
+            <summary>
+            Storage-agnostic abstraction for file and directory management, location resolution, and stream handling.
+            Encapsulates knowledge of internal canonical directory layouts ("storage/{context}/{identifier}/")
+            independent of the underlying storage technology (e.g., Local File System, Blob Storage, Distributed File System).
+            Implementations are registered in dependency injection as keyed services by <see cref="T:MelloSilveiraTools.Core.Managers.File.StorageProvider"/>.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Managers.File.IFileStorageService.GetDirectory(System.String,System.String)">
+            <summary>
+            Resolves the canonical directory path or container URI for a given domain context and unique identifier.
+            Default structure: "{BaseDirectory}/{context}/{identifier}/".
+            </summary>
+            <param name="context">Business domain context (e.g., "ExperimentalData", "SensitivityAnalysis").</param>
+            <param name="identifier">Unique run, experiment, or analysis identifier.</param>
+            <returns>The resolved directory path or container URI.</returns>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Managers.File.IFileStorageService.ResolvePath(System.String,System.String,System.String)">
+            <summary>
+            Resolves the full path or URI for a specific file within a domain context and identifier partition.
+            </summary>
+            <param name="context">Business domain context.</param>
+            <param name="identifier">Unique run, experiment, or analysis identifier.</param>
+            <param name="fileName">Target file name including extension.</param>
+            <returns>The resolved full location or URI.</returns>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Managers.File.IFileStorageService.ResolveTimebasedPath(System.String,System.String,System.String,System.String)">
+            <summary>
+            Resolves a timestamped full path or URI within a domain context and identifier partition,
+            formatted as "{filePrefix}_{timestamp}{fileExtension}".
+            </summary>
+            <param name="context">Business domain context.</param>
+            <param name="identifier">Unique run, experiment, or analysis identifier.</param>
             <param name="filePrefix">Business identifier prefix.</param>
-            <param name="fileExtension">Target file extension.</param>
-            <returns>A structured file data record.</returns>
+            <param name="fileExtension">File extension including dot (e.g., ".csv").</param>
+            <returns>The resolved timestamped full location or URI.</returns>
         </member>
-        <member name="M:MelloSilveiraTools.Core.Managers.File.IFileManager.BuildTimebasedFileInfo(System.String,System.String,System.String)">
+        <member name="M:MelloSilveiraTools.Core.Managers.File.IFileStorageService.OpenWrite(System.String)">
             <summary>
-            Prepares a physical file handle and guarantees destination directory existence, creating it automatically if missing.
+            Opens a stream for writing to the specified location, automatically creating parent directories or containers if needed.
             </summary>
-            <param name="fileUri">Destination directory.</param>
-            <param name="filePrefix">Business identifier prefix.</param>
-            <param name="fileExtension">Target file extension.</param>
-            <returns>A <see cref="T:System.IO.FileInfo"/> ready for safe disk writing with verified directory path.</returns>
+            <param name="location">Physical path or storage URI.</param>
+            <returns>A writable <see cref="T:System.IO.Stream"/>.</returns>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Managers.File.IFileStorageService.OpenWrite(System.String,System.String,System.String)">
+            <summary>
+            Opens a stream for writing to a contextually resolved file location.
+            </summary>
+            <param name="context">Business domain context.</param>
+            <param name="identifier">Unique run, experiment, or analysis identifier.</param>
+            <param name="fileName">Target file name including extension.</param>
+            <returns>A writable <see cref="T:System.IO.Stream"/>.</returns>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Managers.File.IFileStorageService.OpenRead(System.String)">
+            <summary>
+            Opens a stream for reading from the specified location.
+            </summary>
+            <param name="location">Physical path or storage URI.</param>
+            <returns>A readable <see cref="T:System.IO.Stream"/>.</returns>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Managers.File.IFileStorageService.OpenRead(System.String,System.String,System.String)">
+            <summary>
+            Opens a stream for reading from a contextually resolved file location.
+            </summary>
+            <param name="context">Business domain context.</param>
+            <param name="identifier">Unique run, experiment, or analysis identifier.</param>
+            <param name="fileName">Target file name including extension.</param>
+            <returns>A readable <see cref="T:System.IO.Stream"/>.</returns>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Managers.File.IFileStorageService.Exists(System.String)">
+            <summary>
+            Checks whether the file exists at the specified location.
+            </summary>
+            <param name="location">Physical path or storage URI.</param>
+            <returns><c>true</c> if the file exists; otherwise, <c>false</c>.</returns>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Managers.File.IFileStorageService.Exists(System.String,System.String,System.String)">
+            <summary>
+            Checks whether the file exists within the specified context and identifier partition.
+            </summary>
+            <param name="context">Business domain context.</param>
+            <param name="identifier">Unique run, experiment, or analysis identifier.</param>
+            <param name="fileName">Target file name including extension.</param>
+            <returns><c>true</c> if the file exists; otherwise, <c>false</c>.</returns>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Managers.File.IFileStorageService.GetMetadata(System.String)">
+            <summary>
+            Retrieves file metadata (file name, directory, full path, byte size, timestamps) for the specified location.
+            </summary>
+            <param name="location">Physical path or storage URI.</param>
+            <returns>A populated <see cref="T:MelloSilveiraTools.Core.Managers.File.FileMetadata"/> instance.</returns>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Managers.File.IFileStorageService.GetMetadata(System.String,System.String,System.String)">
+            <summary>
+            Retrieves file metadata for a contextually resolved file location.
+            </summary>
+            <param name="context">Business domain context.</param>
+            <param name="identifier">Unique run, experiment, or analysis identifier.</param>
+            <param name="fileName">Target file name including extension.</param>
+            <returns>A populated <see cref="T:MelloSilveiraTools.Core.Managers.File.FileMetadata"/> instance.</returns>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Managers.File.IFileStorageService.Delete(System.String)">
+            <summary>
+            Deletes the file at the specified location if it exists.
+            </summary>
+            <param name="location">Physical path or storage URI.</param>
+            <returns><c>true</c> if the file was deleted; otherwise, <c>false</c>.</returns>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Managers.File.IFileStorageService.Delete(System.String,System.String,System.String)">
+            <summary>
+            Deletes the file within the specified context and identifier partition if it exists.
+            </summary>
+            <param name="context">Business domain context.</param>
+            <param name="identifier">Unique run, experiment, or analysis identifier.</param>
+            <param name="fileName">Target file name including extension.</param>
+            <returns><c>true</c> if the file was deleted; otherwise, <c>false</c>.</returns>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Managers.File.IFileStorageService.ListFiles(System.String,System.String)">
+            <summary>
+            Lists all file metadata for files residing within the specified context and identifier partition.
+            </summary>
+            <param name="context">Business domain context.</param>
+            <param name="identifier">Unique run, experiment, or analysis identifier.</param>
+            <returns>A collection of <see cref="T:MelloSilveiraTools.Core.Managers.File.FileMetadata"/> items.</returns>
+        </member>
+        <member name="T:MelloSilveiraTools.Core.Managers.File.LocalFileStorageService">
+            <summary>
+            Storage-agnostic file management implementation targeting the local file system.
+            Implements canonical hierarchical directory structures partitioned by domain context and unique identifier ("storage/{context}/{identifier}/").
+            </summary>
+            <param name="settings">Optional file storage settings defining the root base directory. Defaults to standard settings if omitted.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Managers.File.LocalFileStorageService.#ctor(MelloSilveiraTools.Core.Managers.File.FileStorageSettings)">
+            <summary>
+            Storage-agnostic file management implementation targeting the local file system.
+            Implements canonical hierarchical directory structures partitioned by domain context and unique identifier ("storage/{context}/{identifier}/").
+            </summary>
+            <param name="settings">Optional file storage settings defining the root base directory. Defaults to standard settings if omitted.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Managers.File.LocalFileStorageService.GetDirectory(System.String,System.String)">
+            <inheritdoc />
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Managers.File.LocalFileStorageService.ResolvePath(System.String,System.String,System.String)">
+            <inheritdoc />
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Managers.File.LocalFileStorageService.ResolveTimebasedPath(System.String,System.String,System.String,System.String)">
+            <inheritdoc />
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Managers.File.LocalFileStorageService.OpenWrite(System.String)">
+            <inheritdoc />
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Managers.File.LocalFileStorageService.OpenWrite(System.String,System.String,System.String)">
+            <inheritdoc />
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Managers.File.LocalFileStorageService.OpenRead(System.String)">
+            <inheritdoc />
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Managers.File.LocalFileStorageService.OpenRead(System.String,System.String,System.String)">
+            <inheritdoc />
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Managers.File.LocalFileStorageService.Exists(System.String)">
+            <inheritdoc />
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Managers.File.LocalFileStorageService.Exists(System.String,System.String,System.String)">
+            <inheritdoc />
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Managers.File.LocalFileStorageService.GetMetadata(System.String)">
+            <inheritdoc />
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Managers.File.LocalFileStorageService.GetMetadata(System.String,System.String,System.String)">
+            <inheritdoc />
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Managers.File.LocalFileStorageService.Delete(System.String)">
+            <inheritdoc />
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Managers.File.LocalFileStorageService.Delete(System.String,System.String,System.String)">
+            <inheritdoc />
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Managers.File.LocalFileStorageService.ListFiles(System.String,System.String)">
+            <inheritdoc />
+        </member>
+        <member name="T:MelloSilveiraTools.Core.Managers.File.StorageProvider">
+            <summary>
+            Specifies the underlying storage technology provider for file persistence and retrieval.
+            </summary>
+        </member>
+        <member name="F:MelloSilveiraTools.Core.Managers.File.StorageProvider.Local">
+            <summary>
+            Local physical file system storage on the host or container machine.
+            </summary>
+        </member>
+        <member name="F:MelloSilveiraTools.Core.Managers.File.StorageProvider.BlobStorage">
+            <summary>
+            Cloud object or blob storage provider (e.g., Azure Blob Storage, AWS S3, Google Cloud Storage).
+            </summary>
+        </member>
+        <member name="F:MelloSilveiraTools.Core.Managers.File.StorageProvider.Dfs">
+            <summary>
+            Distributed file system provider (e.g., HDFS, SMB/UNC network share, Ceph).
+            </summary>
         </member>
         <member name="T:MelloSilveiraTools.Core.Models.Constants">
             <summary>

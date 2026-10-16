@@ -3,6 +3,7 @@ using MelloSilveiraTools.Core.Models;
 using MelloSilveiraTools.Core.Pipelines;
 using MelloSilveiraTools.Core.Pipelines.Dataflow;
 using MelloSilveiraTools.Core.Pipelines.Models;
+using MelloSilveiraTools.Database.RelationalDatabase.Models.Entities;
 using MelloSilveiraTools.Database.Repositories;
 using MelloSilveiraTools.Mathematics.NumericalMethods.Differentiations;
 using MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels;
@@ -18,7 +19,7 @@ namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.Experi
 /// Service responsible for orchestrating the ingestion, validation, and physical phase segmentation of experimental raw data streams.
 /// </summary>
 /// <param name="loggerFactory">The logger factory for creating step-specific loggers.</param>
-/// <param name="fileManager">The file manager used for file writing steps.</param>
+/// <param name="fileStorageService">The file storage service used for file writing steps.</param>
 /// <param name="differentiation">Numerical differentiation provider used for segment classification.</param>
 /// <param name="stepFactory">Factory resolving model-specific curve fitter steps.</param>
 /// <param name="repository">Database repository provider for persisting curve fits and simulations.</param>
@@ -26,7 +27,7 @@ namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.Experi
 /// <param name="settings">Pipeline configuration settings and step options.</param>
 public sealed class ExperimentalDataProcessingPipeline(
     ILoggerFactory loggerFactory,
-    IFileManager fileManager,
+    IFileStorageService fileStorageService,
     IDifferentiation differentiation,
     IMechanicalModelStepFactory stepFactory,
     IRepository repository,
@@ -42,7 +43,7 @@ public sealed class ExperimentalDataProcessingPipeline(
         string uniqueIdentifier = string.IsNullOrWhiteSpace(input.Identifier) ? Guid.NewGuid().ToString("N") : input.Identifier;
 
         ExperimentalDataSegmenterStep segmenterStep = new(loggerFactory.CreateLogger<ExperimentalDataSegmenterStep>(), differentiation);
-        ExperimentalDataFileWriterStep fileWriterStep = new(fileManager, input.OutputFileUri, uniqueIdentifier);
+        ExperimentalDataFileWriterStep experimentalDataFileWriterStep = new(fileStorageService, input.OutputFileUri, uniqueIdentifier);
         ExperimentalDataDownsamplerStep downsamplerStep = new(input.DownsamplingSkipTimeStep ?? 0);
         CurveSegmentAccumulatorStep accumulatorStep = new();
         IMechanicalModelCurveFitterStep curveFitterStep = stepFactory.Create(input.MechanicalModelName, input.TargetSegments, input.CurveFitterType, input.TargetRSquared);
@@ -51,14 +52,14 @@ public sealed class ExperimentalDataProcessingPipeline(
         NumericalSimulationStep numericalSimulationStep = new(calculatorFactory, input.SimulationTimeStep, input.FinalSimulationTime);
         AsymptoteMonitoringStep asymptoteStep = new(input.AsymptoteConsecutivePointsThreshold);
         DeltaCalculatorStep deltaStep = new();
-        MechanicalModelOutputFileWriterStep csvWriterStep = new(fileManager, input.OutputFileUri, uniqueIdentifier);
+        MechanicalModelOutputFileWriterStep mechanicalModelOutputFileWriterStep = new(fileStorageService, input.OutputFileUri, uniqueIdentifier);
         MechanicalModelOutputPersistenceStep mechanicalModelOutputPersistenceStep = new(loggerFactory.CreateLogger<MechanicalModelOutputPersistenceStep>(), repository);
 
         IDataflowPipeline<ExperimentalDataSegmenterInput> pipeline = PipelineFactory
             .StartDataflow<ExperimentalDataSegmenterInput>(logger, cancellationToken: cancellationToken)
             .WithLoggingErrors()
             .AddStep(segmenterStep, settings.SegmenterOptions)
-            .AddBroadcastStep(fileWriterStep, options: settings.FileWriterOptions)
+            .AddBroadcastStep(experimentalDataFileWriterStep, options: settings.FileWriterOptions)
             .AddStep(downsamplerStep, PipelineStepOptions.Synchronous)
             .AddStep(accumulatorStep, PipelineStepOptions.Synchronous)
             .AddStep(curveFitterStep, settings.CurveFitterOptions)
@@ -67,15 +68,16 @@ public sealed class ExperimentalDataProcessingPipeline(
                 identifier => identifier.AddStep(identifierBuilderStep),
                 simulation => simulation
                     .AddStep(numericalSimulationStep)
-                    .Fork(asymptoteStep, deltaStep, csvWriterStep)
+                    .Fork(asymptoteStep, deltaStep, mechanicalModelOutputFileWriterStep)
             )
             .AddBroadcastStep(curveFitPersistenceStep, t => (t.Item2, t.Item1))
             .AddDataMapping(t => new MechanicalModelOutputPersistenceInput(
                 MechanicalModelName: input.MechanicalModelName,
                 CurveFitIdentifier: t.Item2,
                 AsymptoteTime: t.Item3.Item1,
-                Delta: t.Item3.Item2,
-                FileData: t.Item3.Item3))
+                SimulationDeltaOutput: t.Item3.Item2,
+                FileMetadata: t.Item3.Item3,
+                ExternalIdentifier: uniqueIdentifier))
             .AddStep(mechanicalModelOutputPersistenceStep)
             .BuildTerminal();
 
@@ -90,6 +92,20 @@ public sealed class ExperimentalDataProcessingPipeline(
 
             pipeline.Complete();
             await pipeline.Completion.ConfigureAwait(false);
+
+            FileMetadata rawProcessedMetadata = experimentalDataFileWriterStep.FileMetadata;
+            StoredFileEntity storedFile = new()
+            {
+                ExternalIdentifier = uniqueIdentifier,
+                Context = "ExperimentalDataRawProcessed",
+                StorageProvider = StorageProvider.Local,
+                FileName = rawProcessedMetadata.FileName,
+                Location = rawProcessedMetadata.FullPath,
+                SizeBytes = rawProcessedMetadata.SizeBytes,
+                ContentType = "text/csv"
+            };
+
+            await repository.TryInsertAsync(storedFile, cancellationToken).ConfigureAwait(false);
 
             return uniqueIdentifier;
         }

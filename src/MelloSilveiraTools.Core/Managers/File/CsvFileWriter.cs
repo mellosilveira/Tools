@@ -3,23 +3,18 @@ using System.Text;
 namespace MelloSilveiraTools.Core.Managers.File;
 
 /// <summary>
-/// Encapsulates a buffered asynchronous CSV file writing session.
-/// Manages the underlying FileStream, StreamWriter, row batching buffer, immediate header emission, and resource disposal.
+/// Encapsulates a buffered asynchronous CSV file writing session over an underlying output stream.
+/// Manages row batching buffer, immediate header emission, and resource disposal.
 /// </summary>
-/// <param name="filePath">Target destination file path.</param>
+/// <param name="stream">Writable output stream.</param>
 /// <param name="header">Mandatory CSV header line written immediately upon session initialization.</param>
-public sealed class CsvFileWriter(string filePath, string header) : IAsyncDisposable
+public sealed class CsvFileWriter(Stream stream, string header) : IAsyncDisposable
 {
     private static readonly Encoding Utf8Encoding = new UTF8Encoding(false);
-    private readonly StreamWriter _writer = CreateWriter(filePath, header);
+    private readonly StreamWriter _writer = CreateWriter(stream, header);
     private readonly StringBuilder _buffer = new(16 * 1024);
     private int _batchCount;
     private bool _disposed;
-
-    /// <summary>
-    /// Gets the destination file path.
-    /// </summary>
-    public string FilePath { get; } = filePath;
 
     /// <summary>
     /// Appends a formatted CSV row string and batch-flushes to disk when the threshold is reached.
@@ -61,49 +56,8 @@ public sealed class CsvFileWriter(string filePath, string header) : IAsyncDispos
         }
     }
 
-    /// <summary>
-    /// Disposes a collection of asynchronous sessions, accumulating exceptions and re-throwing as an <see cref="AggregateException"/> if any fault occurred.
-    /// </summary>
-    /// <param name="sessions">Collection of asynchronous disposable sessions.</param>
-    public static async ValueTask DisposeAllAsync(IEnumerable<IAsyncDisposable> sessions)
+    private static StreamWriter CreateWriter(Stream stream, string header)
     {
-        List<Exception> exceptions = [];
-        foreach (IAsyncDisposable session in sessions)
-        {
-            try
-            {
-                await session.DisposeAsync().ConfigureAwait(false);
-            }
-            catch (Exception ex)
-            {
-                exceptions.Add(ex);
-            }
-        }
-
-        if (exceptions.Count > 0)
-        {
-            throw new AggregateException(exceptions);
-        }
-    }
-
-    private static StreamWriter CreateWriter(string filePath, string header)
-    {
-        string? directory = Path.GetDirectoryName(filePath);
-        if (!string.IsNullOrEmpty(directory) && !Directory.Exists(directory))
-        {
-            Directory.CreateDirectory(directory);
-        }
-
-        FileStreamOptions options = new()
-        {
-            Mode = FileMode.Create,
-            Access = FileAccess.Write,
-            Share = FileShare.None,
-            Options = FileOptions.SequentialScan | FileOptions.Asynchronous,
-            BufferSize = 128 * 1024
-        };
-
-        FileStream stream = new(filePath, options);
         StreamWriter writer = new(stream, Utf8Encoding, 128 * 1024);
         writer.WriteLine(header);
         return writer;
@@ -127,5 +81,6 @@ public sealed class CsvFileWriter(string filePath, string header) : IAsyncDispos
 
         await _writer.FlushAsync().ConfigureAwait(false);
         await _writer.DisposeAsync().ConfigureAwait(false);
+        GC.SuppressFinalize(this);
     }
 }

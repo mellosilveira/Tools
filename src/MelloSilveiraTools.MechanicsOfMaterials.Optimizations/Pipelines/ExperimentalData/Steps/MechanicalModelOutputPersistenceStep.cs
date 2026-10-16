@@ -1,5 +1,7 @@
+using MelloSilveiraTools.Core.Managers.File;
 using MelloSilveiraTools.Core.Models;
 using MelloSilveiraTools.Core.Pipelines.Steps;
+using MelloSilveiraTools.Database.RelationalDatabase.Models.Entities;
 using MelloSilveiraTools.Database.Repositories;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Models;
 using Microsoft.Extensions.Logging;
@@ -27,10 +29,10 @@ public sealed class MechanicalModelOutputPersistenceStep(
     /// <exception cref="InvalidOperationException">Thrown when insertion of the simulation output entity fails in the database.</exception>
     public async Task<string> ExecuteAsync(MechanicalModelOutputPersistenceInput input, CancellationToken cancellationToken = default)
     {
-        string initialOutputJson = JsonSerializer.Serialize(input.Delta.InitialOutput, input.Delta.InitialOutput.GetType(), OptimizationJsonOptions.SignificantFigures7);
-        string finalOutputJson = JsonSerializer.Serialize(input.Delta.FinalOutput, input.Delta.FinalOutput.GetType(), OptimizationJsonOptions.SignificantFigures7);
-        string absoluteDeltaOutputJson = JsonSerializer.Serialize(input.Delta.AbsoluteDelta, input.Delta.AbsoluteDelta.GetType(), OptimizationJsonOptions.SignificantFigures7);
-        string percentageDeltaOutputJson = JsonSerializer.Serialize(input.Delta.PercentageDelta, input.Delta.PercentageDelta.GetType(), OptimizationJsonOptions.SignificantFigures7);
+        string initialOutputJson = JsonSerializer.Serialize(input.SimulationDeltaOutput.InitialOutput, input.SimulationDeltaOutput.InitialOutput.GetType(), OptimizationJsonOptions.SignificantFigures7);
+        string finalOutputJson = JsonSerializer.Serialize(input.SimulationDeltaOutput.FinalOutput, input.SimulationDeltaOutput.FinalOutput.GetType(), OptimizationJsonOptions.SignificantFigures7);
+        string absoluteDeltaOutputJson = JsonSerializer.Serialize(input.SimulationDeltaOutput.AbsoluteDelta, input.SimulationDeltaOutput.AbsoluteDelta.GetType(), OptimizationJsonOptions.SignificantFigures7);
+        string percentageDeltaOutputJson = JsonSerializer.Serialize(input.SimulationDeltaOutput.PercentageDelta, input.SimulationDeltaOutput.PercentageDelta.GetType(), OptimizationJsonOptions.SignificantFigures7);
 
         string rawDataToHash = string.Concat(initialOutputJson, finalOutputJson, absoluteDeltaOutputJson, percentageDeltaOutputJson);
         string identifierHash = Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(rawDataToHash)));
@@ -40,7 +42,8 @@ public sealed class MechanicalModelOutputPersistenceStep(
             MechanicalModelName = input.MechanicalModelName,
             Identifier = identifierHash,
             CurveFitIdentifier = input.CurveFitIdentifier,
-            OutputFileName = input.FileData.Name,
+            ExternalIdentifier = input.ExternalIdentifier,
+            OutputFileName = input.FileMetadata.FileName,
             AsymptoteTime = input.AsymptoteTime,
             InitialOutputJson = initialOutputJson,
             FinalOutputJson = finalOutputJson,
@@ -57,6 +60,23 @@ public sealed class MechanicalModelOutputPersistenceStep(
         {
             logger.LogError("Failed to insert entity for mechanical model output. Entity: {@Entity}. Result: {@InsertResult}", entity, insertResult);
             throw new InvalidOperationException(string.Join(Environment.NewLine, insertResult.Messages));
+        }
+
+        StoredFileEntity storedFile = new()
+        {
+            ExternalIdentifier = input.ExternalIdentifier ?? identifierHash,
+            Context = "ExperimentalDataSimulation",
+            StorageProvider = StorageProvider.Local,
+            FileName = input.FileMetadata.FileName,
+            Location = input.FileMetadata.FullPath,
+            SizeBytes = input.FileMetadata.SizeBytes,
+            ContentType = "text/csv"
+        };
+
+        Result<long> fileResult = await repository.TryInsertAsync(storedFile, cancellationToken).ConfigureAwait(false);
+        if (!fileResult.Success && !fileResult.IsConflict)
+        {
+            logger.LogWarning("Failed to persist stored file record for simulation output: {Location}. Messages: {Messages}", input.FileMetadata.FullPath, string.Join("; ", fileResult.Messages));
         }
 
         return identifierHash;

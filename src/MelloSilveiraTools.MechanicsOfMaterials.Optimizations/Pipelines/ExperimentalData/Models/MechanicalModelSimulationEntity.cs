@@ -23,6 +23,12 @@ public record MechanicalModelSimulationEntity : EntityBase
     public required string CurveFitIdentifier { get; init; }
 
     /// <summary>
+    /// External run or experiment identifier correlating this simulation run to business operations.
+    /// </summary>
+    [Column]
+    public string? ExternalIdentifier { get; init; }
+
+    /// <summary>
     /// Name of the mechanical model.
     /// </summary>
     [Column]

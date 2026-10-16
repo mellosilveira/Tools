@@ -42,12 +42,8 @@ public sealed class CsvWriterStepsTests : IDisposable
     {
         // Arrange
         string filePath = Path.Combine(_testDirectory, "empty_exp.csv");
-        Mock<IFileManager> fileManagerMock = new();
-        fileManagerMock
-            .Setup(fm => fm.BuildTimebasedFullName(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
-            .Returns(filePath);
-
-        ExperimentalDataFileWriterStep step = new(fileManagerMock.Object, _testDirectory, "empty_01");
+        IFileStorageService fileStorageService = new LocalFileStorageService();
+        ExperimentalDataFileWriterStep step = new(fileStorageService, filePath, "empty_exp");
 
         // Act
         await step.DisposeAsync();
@@ -64,12 +60,8 @@ public sealed class CsvWriterStepsTests : IDisposable
     {
         // Arrange
         string filePath = Path.Combine(_testDirectory, "experimental.csv");
-        Mock<IFileManager> fileManagerMock = new();
-        fileManagerMock
-            .Setup(fm => fm.BuildTimebasedFullName(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
-            .Returns(filePath);
-
-        ExperimentalDataFileWriterStep step = new(fileManagerMock.Object, _testDirectory, "exp_01");
+        IFileStorageService fileStorageService = new LocalFileStorageService();
+        ExperimentalDataFileWriterStep step = new(fileStorageService, filePath, "experimental_01");
 
         SegmentedDataPoint dataPoint1 = new(
             SegmentType: SegmentType.Ramp,
@@ -80,8 +72,7 @@ public sealed class CsvWriterStepsTests : IDisposable
             ProcessedDataPoint: new ProcessedDataPoint(1.0, 0.02, 0.2, 0.06, 95.3, -5.2, -0.5));
 
         // Act
-        Assert.Single(step.GeneratedFilePaths);
-        Assert.Contains(filePath, step.GeneratedFilePaths);
+        Assert.Equal(filePath, step.FileMetadata.FullPath);
 
         await step.ExecuteAsync(dataPoint1);
         await step.ExecuteAsync(dataPoint2);
@@ -94,19 +85,29 @@ public sealed class CsvWriterStepsTests : IDisposable
         Assert.Equal("Time,Strain,StrainRate,StrainAcceleration,Stress,StressRate,StressAcceleration", lines[0]);
         Assert.Equal(string.Format(CultureInfo.InvariantCulture, "{0},{1},{2},{3},{4},{5},{6}", 0.0, 0.01, 0.1, 0.05, 100.5, 10.2, 1.1), lines[1]);
         Assert.Equal(string.Format(CultureInfo.InvariantCulture, "{0},{1},{2},{3},{4},{5},{6}", 1.0, 0.02, 0.2, 0.06, 95.3, -5.2, -0.5), lines[2]);
+        Assert.Equal(filePath, step.FileMetadata.FullPath);
+        Assert.True(step.FileMetadata.SizeBytes > 0);
+    }
+
+    [Theory]
+    [InlineData("")]
+    [InlineData("   ")]
+    public void ExperimentalDataFileWriterStep_Should_ThrowArgumentException_WhenIdentifierIsNullOrWhiteSpace(string identifier)
+    {
+        // Arrange
+        string filePath = Path.Combine(_testDirectory, "invalid.csv");
+        IFileStorageService fileStorageService = new LocalFileStorageService();
+
+        // Act & Assert
+        Assert.Throws<ArgumentException>(() => new ExperimentalDataFileWriterStep(fileStorageService, filePath, identifier));
     }
 
     [Fact]
-    public async Task MechanicalModelOutputFileWriterStep_Should_SerializePointsAndReturnFileData()
+    public async Task MechanicalModelOutputFileWriterStep_Should_SerializePointsAndReturnFileMetadata()
     {
         // Arrange
-        string filePath = Path.Combine(_testDirectory, "simulation.csv");
-        Mock<IFileManager> fileManagerMock = new();
-        fileManagerMock
-            .Setup(fm => fm.BuildTimebasedFileInfo(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
-            .Returns(new FileInfo(filePath));
-
-        MechanicalModelOutputFileWriterStep step = new(fileManagerMock.Object, _testDirectory, "sim_01");
+        IFileStorageService fileStorageService = new LocalFileStorageService();
+        MechanicalModelOutputFileWriterStep step = new(fileStorageService, _testDirectory, "sim_01");
 
         MechanicalModelOutput[] points =
         [
@@ -129,15 +130,17 @@ public sealed class CsvWriterStepsTests : IDisposable
             SimulatedPoints: points);
 
         // Act
-        FileData fileData = await step.ExecuteAsync(payload);
+        FileMetadata fileMetadata = await step.ExecuteAsync(payload);
         await step.DisposeAsync();
 
         // Assert
         Assert.Single(step.GeneratedFilePaths);
-        Assert.Contains(filePath, step.GeneratedFilePaths);
-        Assert.True(File.Exists(filePath));
+        string generatedPath = step.GeneratedFilePaths.First();
+        Assert.Equal(generatedPath, fileMetadata.FullPath);
+        Assert.True(File.Exists(generatedPath));
+        Assert.True(fileMetadata.SizeBytes > 0);
 
-        string[] lines = await File.ReadAllLinesAsync(filePath);
+        string[] lines = await File.ReadAllLinesAsync(generatedPath);
         Assert.True(lines.Length >= 3);
         Assert.StartsWith("Time,", lines[0]);
     }

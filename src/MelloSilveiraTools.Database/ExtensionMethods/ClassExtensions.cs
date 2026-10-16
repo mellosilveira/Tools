@@ -41,8 +41,16 @@ public static class ClassExtensions
             if (obj is null)
                 yield break;
 
-            foreach (var (prop, dbType) in GetColumnMeta<T>(useDeclaredProperties))
-                yield return new NpgsqlParameter(prop.Name, dbType) { Value = prop.GetValue(obj) ?? DBNull.Value };
+            foreach ((PropertyInfo? prop, NpgsqlDbType dbType) in GetColumnMeta<T>(useDeclaredProperties))
+            {
+                object? val = prop.GetValue(obj);
+                if (val is Enum)
+                {
+                    val = (int)val;
+                }
+
+                yield return new NpgsqlParameter(prop.Name, dbType) { Value = val ?? DBNull.Value };
+            }
         }
 
         /// <summary>
@@ -103,7 +111,15 @@ public static class ClassExtensions
             {
                 index++;
                 foreach (var (prop, dbType) in colMeta)
-                    yield return new NpgsqlParameter($"{prop.Name}_{index}", dbType) { Value = prop.GetValue(obj) ?? DBNull.Value };
+                {
+                    object? val = prop.GetValue(obj);
+                    if (val is Enum)
+                    {
+                        val = (int)val;
+                    }
+
+                    yield return new NpgsqlParameter($"{prop.Name}_{index}", dbType) { Value = val ?? DBNull.Value };
+                }
             }
         }
     }
