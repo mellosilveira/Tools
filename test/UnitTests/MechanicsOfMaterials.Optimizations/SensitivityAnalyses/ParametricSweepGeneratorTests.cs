@@ -39,8 +39,7 @@ public sealed class ParametricSweepGeneratorTests
             RampTimeConsideration = RampTimeConsideration.Disregard,
             InitialTime = 0.0,
             FinalTime = 10.0,
-            TimeStep = 0.1,
-            OutputDirectory = "output"
+            TimeStep = 0.1
         };
 
         // Act
@@ -85,8 +84,7 @@ public sealed class ParametricSweepGeneratorTests
             RampTimeConsideration = RampTimeConsideration.Disregard,
             InitialTime = 0.0,
             FinalTime = 10.0,
-            TimeStep = 0.1,
-            OutputDirectory = "output"
+            TimeStep = 0.1
         };
 
         // Act
@@ -125,8 +123,7 @@ public sealed class ParametricSweepGeneratorTests
             RampTimeConsideration = RampTimeConsideration.Disregard,
             InitialTime = 0.0,
             FinalTime = 5.0,
-            TimeStep = 0.1,
-            OutputDirectory = "output"
+            TimeStep = 0.1
         };
 
         // Act
@@ -171,8 +168,7 @@ public sealed class ParametricSweepGeneratorTests
             RampTimeConsideration = RampTimeConsideration.Disregard,
             InitialTime = 0.0,
             FinalTime = 20.0,
-            TimeStep = 0.5,
-            OutputDirectory = "output"
+            TimeStep = 0.5
         };
 
         // Act

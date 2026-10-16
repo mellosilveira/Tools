@@ -65,13 +65,9 @@ public sealed class ParametricSweepPipelineAcceptanceTests : IDisposable
         // Arrange
         using IServiceScope scope = GlobalServiceProvider.Provider.CreateScope();
         ParametricSweepPipeline pipeline = scope.ServiceProvider.GetRequiredService<ParametricSweepPipeline>();
+        MelloSilveiraTools.Core.Managers.File.IFileStorageService fileStorageService = scope.ServiceProvider.GetRequiredService<MelloSilveiraTools.Core.Managers.File.IFileStorageService>();
 
-        string fileNameWithoutExtension = Path.GetFileNameWithoutExtension(jsonFilePath);
-        string caseOutputDirectory = Path.Combine(_testOutputDirectory, fileNameWithoutExtension);
-        Directory.CreateDirectory(caseOutputDirectory);
-
-        ParametricSweepInput rawInput = ParametricSweepInputJsonParser.Parse(File.ReadAllText(jsonFilePath));
-        ParametricSweepInput input = rawInput with { OutputDirectory = caseOutputDirectory };
+        ParametricSweepInput input = ParametricSweepInputJsonParser.Parse(File.ReadAllText(jsonFilePath));
 
         // Act
         Result<string> result = await pipeline.ProcessAsync(input);
@@ -79,11 +75,12 @@ public sealed class ParametricSweepPipelineAcceptanceTests : IDisposable
         // Assert
         Assert.True(result.Success, result.Messages.FirstOrDefault());
         Assert.False(string.IsNullOrWhiteSpace(result.Data));
+        string identifier = result.Data!;
 
         // Validate each constant variable CSV output
         foreach (string variableName in input.ConstantVariables.Keys)
         {
-            string csvFile = Path.Combine(caseOutputDirectory, $"{variableName}_SensitivityAnalysis.csv");
+            string csvFile = fileStorageService.ResolvePath("SensitivityAnalysis", identifier, $"{variableName}_SensitivityAnalysis.csv");
             Assert.True(File.Exists(csvFile), $"Expected {csvFile} to exist for variable '{variableName}'.");
 
             string[] lines = await File.ReadAllLinesAsync(csvFile);
@@ -95,7 +92,7 @@ public sealed class ParametricSweepPipelineAcceptanceTests : IDisposable
         // Validate Strain variation CSV output if configured
         if (input.StrainRange is not null)
         {
-            string strainCsv = Path.Combine(caseOutputDirectory, "Strain_SensitivityAnalysis.csv");
+            string strainCsv = fileStorageService.ResolvePath("SensitivityAnalysis", identifier, "Strain_SensitivityAnalysis.csv");
             Assert.True(File.Exists(strainCsv), $"Expected {strainCsv} to exist for Strain variation.");
 
             string[] lines = await File.ReadAllLinesAsync(strainCsv);

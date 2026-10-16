@@ -14,37 +14,37 @@ public record StoredFileEntity : EntityBase
     /// External identifier correlating the file to an analysis, experiment, or simulation run (e.g., "Sim_ACL_01").
     /// </summary>
     [Column]
-    public required string ExternalIdentifier { get; init; }
+    public string ExternalIdentifier { get; init; } = string.Empty;
 
     /// <summary>
     /// Business domain context under which the file was created (e.g., "ExperimentalData", "SensitivityAnalysis", "CurveFitting").
     /// </summary>
     [Column]
-    public required string Context { get; init; }
+    public string Context { get; init; } = string.Empty;
 
     /// <summary>
     /// Storage provider technology where the artifact resides (Local, BlobStorage, Dfs).
     /// </summary>
     [Column]
-    public required StorageProvider StorageProvider { get; init; }
+    public StorageProvider StorageProvider { get; init; }
 
     /// <summary>
     /// Physical file name including extension (e.g., "valid_processed_points.csv", "c_SensitivityAnalysis.csv").
     /// </summary>
     [Column]
-    public required string FileName { get; init; }
+    public string FileName { get; init; } = string.Empty;
 
     /// <summary>
     /// Absolute file system path, URI, or cloud blob key where the file can be retrieved.
     /// </summary>
     [Column]
-    public required string Location { get; init; }
+    public string Location { get; init; } = string.Empty;
 
     /// <summary>
     /// File size in bytes.
     /// </summary>
     [Column]
-    public required long SizeBytes { get; init; }
+    public long SizeBytes { get; init; }
 
     /// <summary>
     /// MIME content type representing the file format (defaults to "text/csv").

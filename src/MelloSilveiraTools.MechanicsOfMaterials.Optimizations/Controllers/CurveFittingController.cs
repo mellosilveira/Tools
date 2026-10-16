@@ -1,27 +1,32 @@
-﻿using Microsoft.AspNetCore.Mvc;
+using MelloSilveiraTools.Core.ExtensionMethods;
+using MelloSilveiraTools.Core.Models;
+using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Commands;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 
 namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Controllers;
 
 /// <summary>
-/// Exposes HTTP endpoints for performing curve fitting optimizations on mechanical models.
+/// Exposes HTTP endpoints for standalone constitutive model curve fitting operations.
 /// </summary>
-[Route("api/V1/curve-fitting")]
 [ApiController]
+[Route("api/v1/curve-fitting")]
 public class CurveFittingController : ControllerBase
 {
     /// <summary>
-    /// Performs curve fitting optimization using experimental data provided via a CSV file.
+    /// Executes curve fitting over one or more experimental curve segments for the specified mechanical model.
     /// </summary>
-    /// <param name="command">Command that handles the curve fitting execution.</param>
-    /// <param name="request">The form-data request containing the model configurations and the CSV file.</param>
-    //[Consumes(MediaTypeNames.Multipart.FormData)]
-    //[ProducesResponseType(StatusCodes.Status200OK)]
-    //[ProducesResponseType(StatusCodes.Status400BadRequest)]
-    //[ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
-    //[ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    //[HttpPost("fit")]
-    //public async Task<ActionResult<Result<FitCurveResultData>>> FitCurve(
-    //    [FromServices] FitCurve command,
-    //    [FromForm] FitCurveRequest request)
-    //    => await command.ExecuteAsync(request).BuildHttpResponseAsync().ConfigureAwait(false);
+    /// <param name="command">The curve fitting application command.</param>
+    /// <param name="request">The curve fitting request payload.</param>
+    /// <returns>An <see cref="ActionResult{TValue}"/> containing the optimized parameter groups and fit metrics.</returns>
+    [HttpPost]
+    [ProducesResponseType(typeof(Result<FitCurveResultData>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(Result<FitCurveResultData>), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(Result<FitCurveResultData>), StatusCodes.Status500InternalServerError)]
+    public async Task<ActionResult<Result<FitCurveResultData>>> FitCurveAsync(
+        [FromServices] FitCurve command,
+        [FromBody] FitCurveRequest request)
+    {
+        return await command.ExecuteAsync(request).BuildHttpResponseAsync().ConfigureAwait(false);
+    }
 }

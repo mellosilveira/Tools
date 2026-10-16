@@ -1,6 +1,8 @@
+using MelloSilveiraTools.Core.Pipelines.Models;
 using MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels;
 using MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Models.Range;
+using System.Text.Json.Serialization;
 
 namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Models;
 
@@ -34,6 +36,9 @@ public record ParametricSweepInput
     /// </summary>
     public required Dictionary<string, Dictionary<int, RangeParameters>> ArrayVariables { get; init; }
 
+    /// <summary>
+    /// Gets the baseline strain applied in the mechanical simulation when strain is not the swept variable.
+    /// </summary>
     public required double BaseStrain { get; init; }
 
     /// <summary>
@@ -82,7 +87,8 @@ public record ParametricSweepInput
     }
 
     /// <summary>
-    /// Gets the destination directory where partitioned CSV sensitivity curves are generated.
+    /// Optional progress reporter for emitting real-time <see cref="PipelineProgressEvent"/> notifications during pipeline execution.
     /// </summary>
-    public required string OutputDirectory { get; init; }
+    [JsonIgnore]
+    public IProgress<PipelineProgressEvent>? Progress { get; init; }
 }

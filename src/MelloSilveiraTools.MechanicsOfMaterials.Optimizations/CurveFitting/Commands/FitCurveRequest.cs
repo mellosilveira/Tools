@@ -1,26 +1,40 @@
-﻿using MelloSilveiraTools.Core.Application.Commands;
-using MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels;
-using MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity;
-using Microsoft.AspNetCore.Http;
+using MelloSilveiraTools.Core.Application.Commands;
+using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Models;
 
 namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Commands;
 
+/// <summary>
+/// Request payload for executing a standalone mechanical model curve fitting command over segmented experimental data.
+/// </summary>
 public record FitCurveRequest : RequestBase
 {
+    /// <summary>
+    /// The name of the mechanical model to fit (e.g., "Fung", "SimplifiedFung", "Schapery").
+    /// </summary>
     public required string MechanicalModelName { get; init; }
-    public required ConstitutiveParameters InitialParameters { get; init; }
-    public required IFormFile ExperimentalData { get; init; }
+
+    /// <summary>
+    /// The segmented experimental curves to be fitted.
+    /// </summary>
+    public required IReadOnlyList<CurveSegment> Segments { get; init; }
+
+    /// <summary>
+    /// Optional target segment types to fit. When empty, all segment types supported by the model are fitted.
+    /// </summary>
+    public IReadOnlyList<SegmentType> TargetSegments { get; init; } = [];
+
+    /// <summary>
+    /// The curve fitting algorithm type to execute (e.g., <see cref="CurveFitterType.Alglib"/> or <see cref="CurveFitterType.MathNet"/>).
+    /// </summary>
+    public CurveFitterType CurveFitterType { get; init; } = CurveFitterType.Alglib;
+
+    /// <summary>
+    /// Target R² determination coefficient requested for the optimization. Defaults to 0.99.
+    /// </summary>
+    public double TargetRSquared { get; init; } = 0.99;
+
+    /// <summary>
+    /// Optional optimization options override.
+    /// </summary>
     public OptimizationOptionsRequest? Options { get; init; }
-
-    /// <summary>
-    /// Specifies the temporal dependency of the material's response, determining the specific viscoelastic 
-    /// phenomena to be integrated (e.g., Creep, Stress Relaxation, Constant Strain Rate).
-    /// </summary>
-    public ViscoelasticEffect ViscoelasticEffect { get; init; }
-
-    /// <summary>
-    /// Defines the integration strategy for the initial loading phase, determining whether the applied boundary 
-    /// conditions are evaluated as an instantaneous Heaviside step or a finite-time linear ramp.
-    /// </summary>
-    public RampTimeConsideration RampTimeConsideration { get; init; }
 }

@@ -520,6 +520,26 @@
             Descending order (largest value first).
             </summary>
         </member>
+        <member name="T:MelloSilveiraTools.Database.RelationalDatabase.Models.Filters.StoredFileFilter">
+            <summary>
+            Filter model used to query <see cref="T:MelloSilveiraTools.Database.RelationalDatabase.Models.Entities.StoredFileEntity"/> records by external identifier, context, or file name.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Database.RelationalDatabase.Models.Filters.StoredFileFilter.ExternalIdentifier">
+            <summary>
+            Optional external identifier correlating the file to an analysis, experiment, or simulation run.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Database.RelationalDatabase.Models.Filters.StoredFileFilter.Context">
+            <summary>
+            Optional business domain context under which the file was created.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Database.RelationalDatabase.Models.Filters.StoredFileFilter.FileName">
+            <summary>
+            Optional physical file name including extension.
+            </summary>
+        </member>
         <member name="T:MelloSilveiraTools.Database.RelationalDatabase.Models.JoinType">
             <summary>
             JOIN is an SQL clause used to query and access data from multiple tables, based on logical relationships between those tables.

@@ -1,6 +1,9 @@
+using MelloSilveiraTools.Core.Managers.File;
 using MelloSilveiraTools.Core.Models;
 using MelloSilveiraTools.Core.Providers;
 using MelloSilveiraTools.Core.Providers.Dynamics;
+using MelloSilveiraTools.Database.RelationalDatabase.Models.Entities;
+using MelloSilveiraTools.Database.Repositories;
 using MelloSilveiraTools.Mathematics.NumericalMethods.Differentiations;
 using MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels;
 using MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels;
@@ -19,11 +22,13 @@ namespace UnitTests.MechanicsOfMaterials.Optimizations.SensitivityAnalyses;
 public sealed class ParametricSweepPipelineTests : IDisposable
 {
     private readonly string _outputDirectory;
+    private readonly IFileStorageService _fileStorageService;
 
     public ParametricSweepPipelineTests()
     {
         _outputDirectory = Path.Combine(Path.GetTempPath(), "ParametricSweepPipelineTests_" + Guid.NewGuid().ToString("N"));
         Directory.CreateDirectory(_outputDirectory);
+        _fileStorageService = new LocalFileStorageService(new FileStorageSettings { BaseDirectory = _outputDirectory });
     }
 
     public void Dispose()
@@ -59,6 +64,14 @@ public sealed class ParametricSweepPipelineTests : IDisposable
             .Setup(f => f.CreateCalculatorFacade(It.IsAny<string>()))
             .Returns(facadeMock.Object);
 
+        Mock<IRepository> repositoryMock = new();
+        repositoryMock
+            .Setup(r => r.TryInsertAsync(It.IsAny<ParametricSweepEntity>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Result.CreateSuccessOk(1L));
+        repositoryMock
+            .Setup(r => r.TryInsertAsync(It.IsAny<StoredFileEntity>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Result.CreateSuccessOk(1L));
+
         ServiceCollection services = new();
         services.AddKeyedSingleton<IParametricSweepGenerator, FungParametricSweepGenerator>(nameof(MechanicalModel.Fung));
         ServiceProvider serviceProvider = services.BuildServiceProvider();
@@ -69,7 +82,9 @@ public sealed class ParametricSweepPipelineTests : IDisposable
             NullLogger<ParametricSweepPipeline>.Instance,
             factoryMock.Object,
             Mock.Of<IDifferentiation>(),
-            serviceLocator);
+            serviceLocator,
+            _fileStorageService,
+            repositoryMock.Object);
 
         FungConstitutiveParameters baseline = new(
             elasticStressConstant: 1000.0,
@@ -92,8 +107,7 @@ public sealed class ParametricSweepPipelineTests : IDisposable
             RampTimeConsideration = RampTimeConsideration.Disregard,
             InitialTime = 0.0,
             FinalTime = 10.0,
-            TimeStep = 0.1,
-            OutputDirectory = _outputDirectory
+            TimeStep = 0.1
         };
 
         // Act
@@ -102,9 +116,10 @@ public sealed class ParametricSweepPipelineTests : IDisposable
         // Assert
         Assert.True(result.Success, result.Messages.FirstOrDefault());
         Assert.False(string.IsNullOrWhiteSpace(result.Data));
+        string identifier = result.Data!;
 
-        string strainCsv = Path.Combine(_outputDirectory, "Strain_SensitivityAnalysis.csv");
-        string cCsv = Path.Combine(_outputDirectory, "c_SensitivityAnalysis.csv");
+        string strainCsv = _fileStorageService.ResolvePath("SensitivityAnalysis", identifier, "Strain_SensitivityAnalysis.csv");
+        string cCsv = _fileStorageService.ResolvePath("SensitivityAnalysis", identifier, "c_SensitivityAnalysis.csv");
 
         Assert.True(File.Exists(strainCsv), $"Expected file {strainCsv} to exist.");
         Assert.True(File.Exists(cCsv), $"Expected file {cCsv} to exist.");
@@ -116,6 +131,9 @@ public sealed class ParametricSweepPipelineTests : IDisposable
         string[] cLines = await File.ReadAllLinesAsync(cCsv);
         Assert.Equal(4, cLines.Length); // Header + 3 data rows (0.05, 0.10, 0.15)
         Assert.Equal("VariableValue,InitialStress,FinalStress,AsymptoteTime,AsymptoteStress,AbsoluteDeltaStress,PercentageDeltaStress", cLines[0]);
+
+        repositoryMock.Verify(r => r.TryInsertAsync(It.Is<ParametricSweepEntity>(e => e.ExternalIdentifier == identifier && e.MechanicalModelName == nameof(MechanicalModel.Fung)), It.IsAny<CancellationToken>()), Times.Once);
+        repositoryMock.Verify(r => r.TryInsertAsync(It.Is<StoredFileEntity>(f => f.ExternalIdentifier == identifier && f.Context == "SensitivityAnalysis" && f.SizeBytes > 0), It.IsAny<CancellationToken>()), Times.Exactly(2));
     }
 
     [Fact]
@@ -135,18 +153,28 @@ public sealed class ParametricSweepPipelineTests : IDisposable
             .Setup(f => f.CreateCalculatorFacade(It.IsAny<string>()))
             .Returns(facadeMock.Object);
 
+        Mock<IRepository> repositoryMock = new();
+        repositoryMock
+            .Setup(r => r.TryInsertAsync(It.IsAny<ParametricSweepEntity>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Result.CreateSuccessOk(1L));
+        repositoryMock
+            .Setup(r => r.TryInsertAsync(It.IsAny<StoredFileEntity>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Result.CreateSuccessOk(1L));
+
         ServiceCollection services = new();
         services.AddKeyedSingleton<IParametricSweepGenerator, FungParametricSweepGenerator>(nameof(MechanicalModel.Fung));
         ServiceProvider serviceProvider = services.BuildServiceProvider();
         InMemoryDynamicServiceProvider dynamicProvider = new(serviceProvider);
         ServiceLocator serviceLocator = new(dynamicProvider, serviceProvider);
 
-        MelloSilveiraTools.Mathematics.NumericalMethods.Differentiations.Differentiation differentiation = new();
+        Differentiation differentiation = new();
         ParametricSweepPipeline pipeline = new(
             NullLogger<ParametricSweepPipeline>.Instance,
             factoryMock.Object,
             differentiation,
-            serviceLocator);
+            serviceLocator,
+            _fileStorageService,
+            repositoryMock.Object);
 
         FungConstitutiveParameters baseline = new(
             elasticStressConstant: 1000.0,
@@ -170,8 +198,7 @@ public sealed class ParametricSweepPipelineTests : IDisposable
             InitialTime = 0.0,
             FinalTime = 10.0,
             TimeStep = 0.1,
-            AsymptoteTolerance = 1e-4,
-            OutputDirectory = _outputDirectory
+            AsymptoteTolerance = 1e-4
         };
 
         // Act

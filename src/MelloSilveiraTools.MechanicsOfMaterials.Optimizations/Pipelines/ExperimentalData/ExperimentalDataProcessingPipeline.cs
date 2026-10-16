@@ -42,8 +42,15 @@ public sealed class ExperimentalDataProcessingPipeline(
 
         string uniqueIdentifier = string.IsNullOrWhiteSpace(input.Identifier) ? Guid.NewGuid().ToString("N") : input.Identifier;
 
+        input.Progress?.Report(new PipelineProgressEvent(
+            nameof(ExperimentalDataProcessingPipeline),
+            "Experimental data processing pipeline started.",
+            PipelineStepState.Started,
+            Detail: uniqueIdentifier,
+            Timestamp: DateTimeOffset.UtcNow));
+
         ExperimentalDataSegmenterStep segmenterStep = new(loggerFactory.CreateLogger<ExperimentalDataSegmenterStep>(), differentiation);
-        ExperimentalDataFileWriterStep experimentalDataFileWriterStep = new(fileStorageService, input.OutputFileUri, uniqueIdentifier);
+        ExperimentalDataFileWriterStep experimentalDataFileWriterStep = new(fileStorageService, uniqueIdentifier);
         ExperimentalDataDownsamplerStep downsamplerStep = new(input.DownsamplingSkipTimeStep ?? 0);
         CurveSegmentAccumulatorStep accumulatorStep = new();
         IMechanicalModelCurveFitterStep curveFitterStep = stepFactory.Create(input.MechanicalModelName, input.TargetSegments, input.CurveFitterType, input.TargetRSquared);
@@ -52,11 +59,11 @@ public sealed class ExperimentalDataProcessingPipeline(
         NumericalSimulationStep numericalSimulationStep = new(calculatorFactory, input.SimulationTimeStep, input.FinalSimulationTime);
         AsymptoteMonitoringStep asymptoteStep = new(input.AsymptoteConsecutivePointsThreshold);
         DeltaCalculatorStep deltaStep = new();
-        MechanicalModelOutputFileWriterStep mechanicalModelOutputFileWriterStep = new(fileStorageService, input.OutputFileUri, uniqueIdentifier);
+        MechanicalModelOutputFileWriterStep mechanicalModelOutputFileWriterStep = new(fileStorageService, uniqueIdentifier);
         MechanicalModelOutputPersistenceStep mechanicalModelOutputPersistenceStep = new(loggerFactory.CreateLogger<MechanicalModelOutputPersistenceStep>(), repository);
 
         IDataflowPipeline<ExperimentalDataSegmenterInput> pipeline = PipelineFactory
-            .StartDataflow<ExperimentalDataSegmenterInput>(logger, cancellationToken: cancellationToken)
+            .StartDataflow<ExperimentalDataSegmenterInput>(logger, cancellationToken: cancellationToken, progress: input.Progress)
             .WithLoggingErrors()
             .AddStep(segmenterStep, settings.SegmenterOptions)
             .AddBroadcastStep(experimentalDataFileWriterStep, options: settings.FileWriterOptions)
@@ -87,27 +94,44 @@ public sealed class ExperimentalDataProcessingPipeline(
             if (!accepted)
             {
                 logger.LogError("Failed to ingest experimental data into the processing pipeline. Identifier: {Identifier}. Input: {@Input}", uniqueIdentifier, input);
+                input.Progress?.Report(new PipelineProgressEvent(
+                    nameof(ExperimentalDataProcessingPipeline),
+                    "Failed to ingest experimental data into the processing pipeline.",
+                    PipelineStepState.Faulted,
+                    Detail: uniqueIdentifier,
+                    Timestamp: DateTimeOffset.UtcNow));
                 return Result.CreateBadRequest("Failed to ingest experimental data into the processing pipeline.");
             }
 
             pipeline.Complete();
             await pipeline.Completion.ConfigureAwait(false);
-
-            FileMetadata rawProcessedMetadata = experimentalDataFileWriterStep.FileMetadata;
-            StoredFileEntity storedFile = new()
-            {
-                ExternalIdentifier = uniqueIdentifier,
-                Context = "ExperimentalDataRawProcessed",
-                StorageProvider = StorageProvider.Local,
-                FileName = rawProcessedMetadata.FileName,
-                Location = rawProcessedMetadata.FullPath,
-                SizeBytes = rawProcessedMetadata.SizeBytes,
-                ContentType = "text/csv"
-            };
-
-            await repository.TryInsertAsync(storedFile, cancellationToken).ConfigureAwait(false);
-
-            return uniqueIdentifier;
         }
+
+        FileMetadata rawProcessedMetadata = experimentalDataFileWriterStep.FileMetadata;
+        StoredFileEntity storedFile = new()
+        {
+            ExternalIdentifier = uniqueIdentifier,
+            Context = "ExperimentalDataRawProcessed",
+            StorageProvider = StorageProvider.Local,
+            FileName = rawProcessedMetadata.FileName,
+            Location = rawProcessedMetadata.FullPath,
+            SizeBytes = rawProcessedMetadata.SizeBytes,
+            ContentType = "text/csv"
+        };
+
+        Result<long> fileResult = await repository.TryInsertAsync(storedFile, cancellationToken).ConfigureAwait(false);
+        if (!fileResult.Success && !fileResult.IsConflict)
+        {
+            logger.LogWarning("Failed to persist stored file record for processed experimental data: {Location}. Messages: {Messages}", rawProcessedMetadata.FullPath, string.Join("; ", fileResult.Messages));
+        }
+
+        input.Progress?.Report(new PipelineProgressEvent(
+            nameof(ExperimentalDataProcessingPipeline),
+            "Experimental data processing pipeline completed.",
+            PipelineStepState.Completed,
+            Detail: uniqueIdentifier,
+            Timestamp: DateTimeOffset.UtcNow));
+
+        return uniqueIdentifier;
     }
 }

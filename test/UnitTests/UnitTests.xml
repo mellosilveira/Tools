@@ -4,6 +4,74 @@
         <name>UnitTests</name>
     </assembly>
     <members>
+        <member name="T:UnitTests.Core.Pipelines.Models.PipelineProgressEventTests">
+            <summary>
+            Unit tests for <see cref="T:MelloSilveiraTools.Core.Pipelines.Models.PipelineProgressEvent"/> and <see cref="T:MelloSilveiraTools.Core.Pipelines.Models.PipelineStepState"/> verifying record contract,
+            default values, and lifecycle state enumeration.
+            </summary>
+        </member>
+        <member name="M:UnitTests.Core.Pipelines.Models.PipelineProgressEventTests.Constructor_AssignsAllPropertiesCorrectly">
+            <summary>
+            Verifies that all properties are assigned correctly when initialized via primary constructor.
+            </summary>
+        </member>
+        <member name="M:UnitTests.Core.Pipelines.Models.PipelineProgressEventTests.Constructor_SetsDefaultValuesForOptionalParameters">
+            <summary>
+            Verifies that optional parameters default to null or default timestamp when omitted.
+            </summary>
+        </member>
+        <member name="M:UnitTests.Core.Pipelines.Models.PipelineProgressEventTests.RecordEquality_EvaluatesIdenticalPropertiesAsEqual">
+            <summary>
+            Verifies value-based record equality for <see cref="T:MelloSilveiraTools.Core.Pipelines.Models.PipelineProgressEvent"/>.
+            </summary>
+        </member>
+        <member name="M:UnitTests.Core.Pipelines.Models.PipelineProgressEventTests.PipelineStepState_DefinesExpectedLifecycleStates">
+            <summary>
+            Verifies that all expected lifecycle states exist in <see cref="T:MelloSilveiraTools.Core.Pipelines.Models.PipelineStepState"/>.
+            </summary>
+        </member>
+        <member name="T:UnitTests.Core.Pipelines.Telemetry.PipelineProgressEmissionTests">
+            <summary>
+            Unit tests verifying real-time emission of <see cref="T:MelloSilveiraTools.Core.Pipelines.Models.PipelineProgressEvent"/> notifications
+            across synchronous, asynchronous, streaming, and full Dataflow pipeline topologies.
+            </summary>
+        </member>
+        <member name="M:UnitTests.Core.Pipelines.Telemetry.PipelineProgressEmissionTests.HandleExecution_SyncAction_WhenSuccessful_EmitsStartedAndCompletedEvents">
+            <summary>
+            Verifies that a successful synchronous execution emits Started and Completed progress events.
+            </summary>
+        </member>
+        <member name="M:UnitTests.Core.Pipelines.Telemetry.PipelineProgressEmissionTests.HandleExecution_SyncAction_WhenFaulted_EmitsStartedAndFaultedEvents">
+            <summary>
+            Verifies that a failing synchronous execution emits Started and Faulted progress events.
+            </summary>
+        </member>
+        <member name="M:UnitTests.Core.Pipelines.Telemetry.PipelineProgressEmissionTests.HandleExecution_AsyncFunc_WhenSuccessful_EmitsStartedAndCompletedEvents">
+            <summary>
+            Verifies that a successful asynchronous function emits Started and Completed progress events.
+            </summary>
+        </member>
+        <member name="M:UnitTests.Core.Pipelines.Telemetry.PipelineProgressEmissionTests.HandleExecution_AsyncFunc_WhenRetriesExhausted_EmitsStartedAndFaultedEvents">
+            <summary>
+            Verifies that an asynchronous function failing after retries emits Started and Faulted progress events.
+            </summary>
+        </member>
+        <member name="M:UnitTests.Core.Pipelines.Telemetry.PipelineProgressEmissionTests.HandleExecution_AsyncEnumerable_EmitsStartedRunningAndCompletedEvents">
+            <summary>
+            Verifies that an asynchronous streaming enumerable emits Started, Running (with emitted counts), and Completed events.
+            </summary>
+        </member>
+        <member name="M:UnitTests.Core.Pipelines.Telemetry.PipelineProgressEmissionTests.StartDataflow_PipelineExecution_EmitsProgressEventsAcrossTopology">
+            <summary>
+            Verifies that a full TPL Dataflow pipeline initialized via <see cref="M:MelloSilveiraTools.Core.Pipelines.PipelineFactory.StartDataflow``1(Microsoft.Extensions.Logging.ILogger,System.Int32,System.Nullable{MelloSilveiraTools.Core.Pipelines.Models.RetryOptions},System.Threading.CancellationToken,System.IProgress{MelloSilveiraTools.Core.Pipelines.Models.PipelineProgressEvent})"/>
+            propagates progress events across data mapping and terminal stages.
+            </summary>
+        </member>
+        <member name="T:UnitTests.Core.Pipelines.Telemetry.PipelineProgressEmissionTests.TestProgressReporter">
+            <summary>
+            Thread-safe in-memory progress collector for testing.
+            </summary>
+        </member>
         <member name="T:UnitTests.Core.FakeDataReader">
             <summary>
             Minimal IDataReader backed by an in-memory column array.
@@ -14,6 +82,216 @@
             <summary>
             Smoke tests using the original domain entity graph (user / district / join table).
             These verify that the SQL provider handles FK-heavy schemas end-to-end.
+            </summary>
+        </member>
+        <member name="T:UnitTests.MechanicsOfMaterials.Optimizations.CurveFitting.Commands.FitCurveCommandTests">
+            <summary>
+            Unit tests for <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Commands.FitCurve"/> verifying command execution, validation short-circuiting,
+            step factory resolution, and output aggregation.
+            </summary>
+        </member>
+        <member name="M:UnitTests.MechanicsOfMaterials.Optimizations.CurveFitting.Commands.FitCurveCommandTests.ExecuteAsync_WhenValidationFails_ShortCircuitsWithoutCallingFactory">
+            <summary>
+            Verifies that when request validation fails, the command short-circuits and does not invoke the step factory.
+            </summary>
+        </member>
+        <member name="M:UnitTests.MechanicsOfMaterials.Optimizations.CurveFitting.Commands.FitCurveCommandTests.ExecuteAsync_WhenSegmentsProvided_CallsStepAndAggregatesTotalErrorAndParameterGroups">
+            <summary>
+            Verifies that when valid segments are provided, the step factory is called and outputs are aggregated.
+            </summary>
+        </member>
+        <member name="T:UnitTests.MechanicsOfMaterials.Optimizations.CurveFitting.Commands.FitCurveValidatorTests">
+            <summary>
+            Unit tests for <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Commands.FitCurveValidator"/> verifying validation constraints on curve fitting requests.
+            </summary>
+        </member>
+        <member name="M:UnitTests.MechanicsOfMaterials.Optimizations.CurveFitting.Commands.FitCurveValidatorTests.Validate_WhenRequestIsNull_ReturnsBadRequest">
+            <summary>
+            Verifies that validating a null request returns a bad request failure.
+            </summary>
+        </member>
+        <member name="M:UnitTests.MechanicsOfMaterials.Optimizations.CurveFitting.Commands.FitCurveValidatorTests.Validate_WhenMechanicalModelNameIsMissing_ReturnsBadRequest">
+            <summary>
+            Verifies that omitting the mechanical model name triggers a validation error.
+            </summary>
+        </member>
+        <member name="M:UnitTests.MechanicsOfMaterials.Optimizations.CurveFitting.Commands.FitCurveValidatorTests.Validate_WhenSegmentsIsNullOrEmpty_ReturnsBadRequest">
+            <summary>
+            Verifies that omitting segments or providing an empty segments collection triggers a validation error.
+            </summary>
+        </member>
+        <member name="M:UnitTests.MechanicsOfMaterials.Optimizations.CurveFitting.Commands.FitCurveValidatorTests.Validate_WhenTargetRSquaredIsInvalid_ReturnsBadRequest(System.Double)">
+            <summary>
+            Verifies that invalid TargetRSquared values (less than or equal to zero, or greater than 1.0) trigger validation errors.
+            </summary>
+        </member>
+        <member name="M:UnitTests.MechanicsOfMaterials.Optimizations.CurveFitting.Commands.FitCurveValidatorTests.Validate_WhenValid_ReturnsSuccess">
+            <summary>
+            Verifies that a well-formed request passes validation.
+            </summary>
+        </member>
+        <member name="T:UnitTests.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Commands.ProcessExperimentalDataCommandTests">
+            <summary>
+            Unit tests for <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Commands.ProcessExperimentalDataCommand"/> verifying orchestration, validation short-circuiting,
+            pipeline delegation, and stream resource management.
+            </summary>
+        </member>
+        <member name="M:UnitTests.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Commands.ProcessExperimentalDataCommandTests.ExecuteAsync_WhenValidationFails_ShortCircuitsWithoutCallingPipeline">
+            <summary>
+            Verifies that when request validation fails, the command short-circuits and does not invoke the pipeline.
+            </summary>
+        </member>
+        <member name="M:UnitTests.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Commands.ProcessExperimentalDataCommandTests.ExecuteAsync_WhenPipelineSucceeds_ReturnsSuccessWithIdentifier">
+            <summary>
+            Verifies that when the pipeline succeeds, the command returns a successful response containing the generated identifier.
+            </summary>
+        </member>
+        <member name="M:UnitTests.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Commands.ProcessExperimentalDataCommandTests.ExecuteAsync_WhenPipelineFails_ReturnsFailureWithPipelineStatusCodeAndMessages">
+            <summary>
+            Verifies that when the pipeline returns a failure result, the command propagates the status code and messages.
+            </summary>
+        </member>
+        <member name="M:UnitTests.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Commands.ProcessExperimentalDataCommandTests.ExecuteAsync_WhenFormFilesProvided_OpensAndDisposesStreamsInFinally">
+            <summary>
+            Verifies that when FormFiles are supplied, their opened streams are properly disposed in the finally block.
+            </summary>
+        </member>
+        <member name="T:UnitTests.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Commands.ProcessExperimentalDataCommandTests.TrackableMemoryStream">
+            <summary>
+            MemoryStream subclass tracking disposal state for verification in tests.
+            </summary>
+        </member>
+        <member name="M:UnitTests.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Commands.ProcessExperimentalDataCommandTests.TrackableMemoryStream.#ctor(System.Byte[])">
+            <summary>
+            MemoryStream subclass tracking disposal state for verification in tests.
+            </summary>
+        </member>
+        <member name="T:UnitTests.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Commands.ProcessExperimentalDataValidatorTests">
+            <summary>
+            Unit tests for <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Commands.ProcessExperimentalDataValidator"/> validating all constraint checks.
+            </summary>
+        </member>
+        <member name="M:UnitTests.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Commands.ProcessExperimentalDataValidatorTests.Validate_WhenRequestIsNull_ReturnsBadRequest">
+            <summary>
+            Verifies that validating a null request returns a bad request failure.
+            </summary>
+        </member>
+        <member name="M:UnitTests.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Commands.ProcessExperimentalDataValidatorTests.Validate_WhenMechanicalModelNameIsMissing_ReturnsBadRequest">
+            <summary>
+            Verifies that omitting the mechanical model name triggers a validation error.
+            </summary>
+        </member>
+        <member name="M:UnitTests.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Commands.ProcessExperimentalDataValidatorTests.Validate_WhenStreamsAndFilesAreMissing_ReturnsBadRequest">
+            <summary>
+            Verifies that omitting strain and stress streams or files triggers validation errors.
+            </summary>
+        </member>
+        <member name="M:UnitTests.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Commands.ProcessExperimentalDataValidatorTests.Validate_WhenFormFilesAreEmpty_ReturnsBadRequest">
+            <summary>
+            Verifies that providing an empty FormFile (0 bytes) is flagged as missing.
+            </summary>
+        </member>
+        <member name="M:UnitTests.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Commands.ProcessExperimentalDataValidatorTests.Validate_WhenTargetRSquaredIsInvalid_ReturnsBadRequest(System.Double)">
+            <summary>
+            Verifies that invalid TargetRSquared values (less than or equal to zero, or greater than 1.0) trigger validation errors.
+            </summary>
+        </member>
+        <member name="M:UnitTests.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Commands.ProcessExperimentalDataValidatorTests.Validate_WhenThresholdsOrStepsAreInvalid_ReturnsBadRequest">
+            <summary>
+            Verifies that negative thresholds and step parameters trigger validation errors.
+            </summary>
+        </member>
+        <member name="M:UnitTests.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Commands.ProcessExperimentalDataValidatorTests.Validate_WhenValidWithStreams_ReturnsSuccess">
+            <summary>
+            Verifies that a well-formed request with streams passes validation.
+            </summary>
+        </member>
+        <member name="M:UnitTests.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Commands.ProcessExperimentalDataValidatorTests.Validate_WhenValidWithFormFiles_ReturnsSuccess">
+            <summary>
+            Verifies that a well-formed request with FormFiles passes validation.
+            </summary>
+        </member>
+        <member name="T:UnitTests.MechanicsOfMaterials.Optimizations.Pipelines.SensitivityAnalysis.Steps.ParametricSweepPersistenceStepTests">
+            <summary>
+            Unit tests for <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.SensitivityAnalysis.Steps.ParametricSweepPersistenceStep"/>, verifying database persistence of
+            <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Models.ParametricSweepEntity"/> and associated <see cref="T:MelloSilveiraTools.Database.RelationalDatabase.Models.Entities.StoredFileEntity"/> records.
+            </summary>
+        </member>
+        <member name="M:UnitTests.MechanicsOfMaterials.Optimizations.Pipelines.SensitivityAnalysis.Steps.ParametricSweepPersistenceStepTests.ExecuteAsync_WhenSuccessful_PersistsEntityAndFilesAndReturnsIdentifier">
+            <summary>
+            Verifies that ExecuteAsync persists both the sweep metadata entity and all generated file records,
+            returning the external identifier on success.
+            </summary>
+        </member>
+        <member name="M:UnitTests.MechanicsOfMaterials.Optimizations.Pipelines.SensitivityAnalysis.Steps.ParametricSweepPersistenceStepTests.ExecuteAsync_WhenEntityInsertConflicts_LogsWarningAndPersistsStoredFiles">
+            <summary>
+            Verifies that when the sweep entity insertion encounters a conflict (already exists),
+            the step logs a warning and proceeds to persist stored files without throwing.
+            </summary>
+        </member>
+        <member name="M:UnitTests.MechanicsOfMaterials.Optimizations.Pipelines.SensitivityAnalysis.Steps.ParametricSweepPersistenceStepTests.ExecuteAsync_WhenEntityInsertFails_ThrowsInvalidOperationException">
+            <summary>
+            Verifies that when the sweep entity insertion fails with an error, an <see cref="T:System.InvalidOperationException"/> is thrown.
+            </summary>
+        </member>
+        <member name="M:UnitTests.MechanicsOfMaterials.Optimizations.Pipelines.SensitivityAnalysis.Steps.ParametricSweepPersistenceStepTests.ExecuteAsync_WhenStoredFileInsertFails_DoesNotThrowAndReturnsIdentifier">
+            <summary>
+            Verifies that when stored file insertion fails, the step logs a warning without throwing and returns the identifier.
+            </summary>
+        </member>
+        <member name="M:UnitTests.MechanicsOfMaterials.Optimizations.Pipelines.SensitivityAnalysis.Steps.ParametricSweepPersistenceStepTests.DisposeAsync_CompletesSuccessfully">
+            <summary>
+            Verifies that DisposeAsync completes cleanly without errors.
+            </summary>
+        </member>
+        <member name="T:UnitTests.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Commands.ExecuteParametricSweepCommandTests">
+            <summary>
+            Unit tests for <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Commands.ExecuteParametricSweepCommand"/> verifying command execution, validation, and pipeline delegation.
+            </summary>
+        </member>
+        <member name="M:UnitTests.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Commands.ExecuteParametricSweepCommandTests.ExecuteAsync_WhenValidationFails_ShortCircuitsWithoutCallingPipeline">
+            <summary>
+            Verifies that when request validation fails, the command short-circuits and does not execute the pipeline.
+            </summary>
+        </member>
+        <member name="M:UnitTests.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Commands.ExecuteParametricSweepCommandTests.ExecuteAsync_WhenPipelineSucceeds_ReturnsSuccessWithIdentifier">
+            <summary>
+            Verifies that when the pipeline executes successfully, the command returns the generated identifier.
+            </summary>
+        </member>
+        <member name="M:UnitTests.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Commands.ExecuteParametricSweepCommandTests.ExecuteAsync_WhenPipelineFails_ReturnsFailureWithPipelineStatusCodeAndMessages">
+            <summary>
+            Verifies that when the pipeline fails, the command propagates the error status and messages.
+            </summary>
+        </member>
+        <member name="T:UnitTests.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Commands.ExecuteParametricSweepValidatorTests">
+            <summary>
+            Unit tests for <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Commands.ExecuteParametricSweepValidator"/> verifying boundary and rule validation.
+            </summary>
+        </member>
+        <member name="M:UnitTests.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Commands.ExecuteParametricSweepValidatorTests.Validate_WhenRequestIsNull_ReturnsBadRequest">
+            <summary>
+            Verifies that validating a null request returns a bad request.
+            </summary>
+        </member>
+        <member name="M:UnitTests.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Commands.ExecuteParametricSweepValidatorTests.Validate_WhenRequiredParametersMissing_ReturnsBadRequest">
+            <summary>
+            Verifies that omitting required parameters (model name, baseline) triggers validation errors.
+            </summary>
+        </member>
+        <member name="M:UnitTests.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Commands.ExecuteParametricSweepValidatorTests.Validate_WhenTemporalParametersInvalid_ReturnsBadRequest">
+            <summary>
+            Verifies that invalid temporal ranges and non-positive time steps trigger validation errors.
+            </summary>
+        </member>
+        <member name="M:UnitTests.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Commands.ExecuteParametricSweepValidatorTests.Validate_WhenNoSweptVariablesProvided_ReturnsBadRequest">
+            <summary>
+            Verifies that omitting all swept variable sources triggers a validation error.
+            </summary>
+        </member>
+        <member name="M:UnitTests.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Commands.ExecuteParametricSweepValidatorTests.Validate_WhenValid_ReturnsSuccess">
+            <summary>
+            Verifies that a valid parametric sweep request passes validation.
             </summary>
         </member>
         <member name="T:UnitTests.MechanicsOfMaterials.Calculators.MechanicalModels.MechanicalModelCalculatorFactoryTests">

@@ -2063,7 +2063,7 @@
             Note: Circuit-breaker and rate-limiter resilience strategies are planned for future integration at the block level.
             </remarks>
         </member>
-        <member name="M:MelloSilveiraTools.Core.Pipelines.Dataflow.DataflowPipelineBuilder`2.#ctor(Microsoft.Extensions.Logging.ILogger,System.Threading.Tasks.Dataflow.ITargetBlock{`0},System.Threading.Tasks.Dataflow.ISourceBlock{`1},System.Threading.Tasks.Dataflow.ITargetBlock{MelloSilveiraTools.Core.Pipelines.Models.FailedPayload},System.Nullable{MelloSilveiraTools.Core.Pipelines.Models.RetryOptions},System.Threading.CancellationToken,System.Collections.Generic.List{System.Threading.Tasks.Task},System.Collections.Generic.List{MelloSilveiraTools.Core.Pipelines.Steps.IPipelineStep})">
+        <member name="M:MelloSilveiraTools.Core.Pipelines.Dataflow.DataflowPipelineBuilder`2.#ctor(Microsoft.Extensions.Logging.ILogger,System.Threading.Tasks.Dataflow.ITargetBlock{`0},System.Threading.Tasks.Dataflow.ISourceBlock{`1},System.Threading.Tasks.Dataflow.ITargetBlock{MelloSilveiraTools.Core.Pipelines.Models.FailedPayload},System.Nullable{MelloSilveiraTools.Core.Pipelines.Models.RetryOptions},System.Threading.CancellationToken,System.Collections.Generic.List{System.Threading.Tasks.Task},System.Collections.Generic.List{MelloSilveiraTools.Core.Pipelines.Steps.IPipelineStep},System.IProgress{MelloSilveiraTools.Core.Pipelines.Models.PipelineProgressEvent})">
             <summary>
             Strongly-typed fluent builder for orchestrating asynchronous data processing topologies.
             </summary>
@@ -2654,6 +2654,51 @@
             Enables precise fault localization within the pipeline's execution topology.
             </summary>
         </member>
+        <member name="T:MelloSilveiraTools.Core.Pipelines.Models.PipelineProgressEvent">
+            <summary>
+            Represents an immutable real-time notification emitted during the execution of a pipeline step.
+            </summary>
+            <param name="StepName">The unique identifier or logical name of the pipeline step emitting the event.</param>
+            <param name="Description">A human-readable description of the current step activity.</param>
+            <param name="State">The lifecycle state of the step (<see cref="T:MelloSilveiraTools.Core.Pipelines.Models.PipelineStepState"/>).</param>
+            <param name="StepIndex">Optional 1-based index of the step in the pipeline topology.</param>
+            <param name="TotalSteps">Optional total number of steps in the pipeline topology.</param>
+            <param name="Detail">Optional diagnostic or contextual detail (e.g., item count, identifier, or error message).</param>
+            <param name="Timestamp">The UTC timestamp when the progress event was generated.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Pipelines.Models.PipelineProgressEvent.#ctor(System.String,System.String,MelloSilveiraTools.Core.Pipelines.Models.PipelineStepState,System.Nullable{System.Int32},System.Nullable{System.Int32},System.String,System.DateTimeOffset)">
+            <summary>
+            Represents an immutable real-time notification emitted during the execution of a pipeline step.
+            </summary>
+            <param name="StepName">The unique identifier or logical name of the pipeline step emitting the event.</param>
+            <param name="Description">A human-readable description of the current step activity.</param>
+            <param name="State">The lifecycle state of the step (<see cref="T:MelloSilveiraTools.Core.Pipelines.Models.PipelineStepState"/>).</param>
+            <param name="StepIndex">Optional 1-based index of the step in the pipeline topology.</param>
+            <param name="TotalSteps">Optional total number of steps in the pipeline topology.</param>
+            <param name="Detail">Optional diagnostic or contextual detail (e.g., item count, identifier, or error message).</param>
+            <param name="Timestamp">The UTC timestamp when the progress event was generated.</param>
+        </member>
+        <member name="P:MelloSilveiraTools.Core.Pipelines.Models.PipelineProgressEvent.StepName">
+            <summary>The unique identifier or logical name of the pipeline step emitting the event.</summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Core.Pipelines.Models.PipelineProgressEvent.Description">
+            <summary>A human-readable description of the current step activity.</summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Core.Pipelines.Models.PipelineProgressEvent.State">
+            <summary>The lifecycle state of the step (<see cref="T:MelloSilveiraTools.Core.Pipelines.Models.PipelineStepState"/>).</summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Core.Pipelines.Models.PipelineProgressEvent.StepIndex">
+            <summary>Optional 1-based index of the step in the pipeline topology.</summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Core.Pipelines.Models.PipelineProgressEvent.TotalSteps">
+            <summary>Optional total number of steps in the pipeline topology.</summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Core.Pipelines.Models.PipelineProgressEvent.Detail">
+            <summary>Optional diagnostic or contextual detail (e.g., item count, identifier, or error message).</summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Core.Pipelines.Models.PipelineProgressEvent.Timestamp">
+            <summary>The UTC timestamp when the progress event was generated.</summary>
+        </member>
         <member name="T:MelloSilveiraTools.Core.Pipelines.Models.PipelineStepOptions">
             <summary>
             Encapsulates execution configurations for individual TPL Dataflow blocks.
@@ -2703,6 +2748,31 @@
         <member name="M:MelloSilveiraTools.Core.Pipelines.Models.PipelineStepOptions.ToDataflowOptions(System.Threading.CancellationToken)">
             <summary>
             Projects the abstracted configuration into the native TPL Dataflow options payload.
+            </summary>
+        </member>
+        <member name="T:MelloSilveiraTools.Core.Pipelines.Models.PipelineStepState">
+            <summary>
+            Represents the execution lifecycle state of a pipeline step for real-time progress reporting.
+            </summary>
+        </member>
+        <member name="F:MelloSilveiraTools.Core.Pipelines.Models.PipelineStepState.Started">
+            <summary>
+            The pipeline step has started processing an input payload.
+            </summary>
+        </member>
+        <member name="F:MelloSilveiraTools.Core.Pipelines.Models.PipelineStepState.Running">
+            <summary>
+            The pipeline step is actively running and producing or processing intermediate items.
+            </summary>
+        </member>
+        <member name="F:MelloSilveiraTools.Core.Pipelines.Models.PipelineStepState.Completed">
+            <summary>
+            The pipeline step has completed execution successfully.
+            </summary>
+        </member>
+        <member name="F:MelloSilveiraTools.Core.Pipelines.Models.PipelineStepState.Faulted">
+            <summary>
+            The pipeline step encountered an unhandled error and faulted.
             </summary>
         </member>
         <member name="T:MelloSilveiraTools.Core.Pipelines.Models.RetryOptions">
@@ -2790,7 +2860,7 @@
             and the strongly-typed pull-based Fluent request-response pipeline.
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.Core.Pipelines.PipelineFactory.StartDataflow``1(Microsoft.Extensions.Logging.ILogger,System.Int32,System.Nullable{MelloSilveiraTools.Core.Pipelines.Models.RetryOptions},System.Threading.CancellationToken)">
+        <member name="M:MelloSilveiraTools.Core.Pipelines.PipelineFactory.StartDataflow``1(Microsoft.Extensions.Logging.ILogger,System.Int32,System.Nullable{MelloSilveiraTools.Core.Pipelines.Models.RetryOptions},System.Threading.CancellationToken,System.IProgress{MelloSilveiraTools.Core.Pipelines.Models.PipelineProgressEvent})">
             <summary>
             Bootstraps a continuous TPL Dataflow pipeline topology by instantiating a <see cref="T:System.Threading.Tasks.Dataflow.BufferBlock`1"/> 
             as the ingestion head. Enforces bounded capacity backpressure and injects the unified cancellation graph 
@@ -2799,8 +2869,9 @@
             <typeparam name="T">The immutable payload type ingested at the pipeline head.</typeparam>
             <param name="logger">Structured logging provider for tracking block transitions and telemetry.</param>
             <param name="initialBufferSize">The maximum bounded capacity of the ingestion buffer block, defaulting to 10,000 items.</param>
-            <param name="retryOptions"></param>
+            <param name="retryOptions">Optional retry configuration for asynchronous pipeline steps.</param>
             <param name="cancellationToken">The unified cancellation token propagated down the entire Dataflow network.</param>
+            <param name="progress">Optional progress reporter for emitting real-time <see cref="T:MelloSilveiraTools.Core.Pipelines.Models.PipelineProgressEvent"/> notifications.</param>
             <returns>A fluent builder instance anchored to the initial buffer head.</returns>
         </member>
         <member name="M:MelloSilveiraTools.Core.Pipelines.PipelineFactory.StartFluent``1">
@@ -2946,7 +3017,7 @@
             and retry wrapper frames from cluttering application exception stack traces, keeping debugging focused on the actual business logic.
             </remarks>
         </member>
-        <member name="M:MelloSilveiraTools.Core.Pipelines.Telemetry.TelemetryExtensions.HandleExecution``1(Microsoft.Extensions.Logging.ILogger,System.String,System.Action{``0},System.Threading.CancellationToken)">
+        <member name="M:MelloSilveiraTools.Core.Pipelines.Telemetry.TelemetryExtensions.HandleExecution``1(Microsoft.Extensions.Logging.ILogger,System.String,System.Action{``0},System.Threading.CancellationToken,System.IProgress{MelloSilveiraTools.Core.Pipelines.Models.PipelineProgressEvent})">
             <summary>
             Wraps a synchronous action with OpenTelemetry tracing and structured logging, returning a new execution delegate.
             </summary>
@@ -2955,7 +3026,7 @@
             Limitation: Does not support retries. Attempting to retry a synchronous action would require thread-blocking operations, risking ThreadPool starvation.
             </remarks>
         </member>
-        <member name="M:MelloSilveiraTools.Core.Pipelines.Telemetry.TelemetryExtensions.HandleSafeExecution``1(Microsoft.Extensions.Logging.ILogger,System.String,System.Action{``0},System.Threading.CancellationToken)">
+        <member name="M:MelloSilveiraTools.Core.Pipelines.Telemetry.TelemetryExtensions.HandleSafeExecution``1(Microsoft.Extensions.Logging.ILogger,System.String,System.Action{``0},System.Threading.CancellationToken,System.IProgress{MelloSilveiraTools.Core.Pipelines.Models.PipelineProgressEvent})">
             <summary>
             Wraps a synchronous action, capturing exceptions into a <see cref="T:MelloSilveiraTools.Core.Pipelines.Models.SafeResult`1"/> envelope for centralized error routing.
             </summary>
@@ -2963,7 +3034,7 @@
             Technical Decision: Dynamically replaces the native exception-throwing behavior to prevent block faults in TPL Dataflow, routing the failure to a DLQ branch instead.
             </remarks>
         </member>
-        <member name="M:MelloSilveiraTools.Core.Pipelines.Telemetry.TelemetryExtensions.HandleExecution``1(Microsoft.Extensions.Logging.ILogger,System.String,System.Func{``0,System.Threading.CancellationToken,System.Threading.Tasks.Task},System.Nullable{MelloSilveiraTools.Core.Pipelines.Models.RetryOptions},System.Threading.CancellationToken)">
+        <member name="M:MelloSilveiraTools.Core.Pipelines.Telemetry.TelemetryExtensions.HandleExecution``1(Microsoft.Extensions.Logging.ILogger,System.String,System.Func{``0,System.Threading.CancellationToken,System.Threading.Tasks.Task},System.Nullable{MelloSilveiraTools.Core.Pipelines.Models.RetryOptions},System.Threading.CancellationToken,System.IProgress{MelloSilveiraTools.Core.Pipelines.Models.PipelineProgressEvent})">
             <summary>
             Wraps an asynchronous action with OpenTelemetry tracing, structured logging, and optional exponential backoff.
             </summary>
@@ -2972,7 +3043,7 @@
             Limitation: Unrecoverable exceptions (post-retries) will fault the pipeline block since this method does not return a <see cref="T:MelloSilveiraTools.Core.Pipelines.Models.SafeResult`1"/>.
             </remarks>
         </member>
-        <member name="M:MelloSilveiraTools.Core.Pipelines.Telemetry.TelemetryExtensions.HandleSafeExecution``1(Microsoft.Extensions.Logging.ILogger,System.String,System.Func{``0,System.Threading.CancellationToken,System.Threading.Tasks.Task},System.Nullable{MelloSilveiraTools.Core.Pipelines.Models.RetryOptions},System.Threading.CancellationToken)">
+        <member name="M:MelloSilveiraTools.Core.Pipelines.Telemetry.TelemetryExtensions.HandleSafeExecution``1(Microsoft.Extensions.Logging.ILogger,System.String,System.Func{``0,System.Threading.CancellationToken,System.Threading.Tasks.Task},System.Nullable{MelloSilveiraTools.Core.Pipelines.Models.RetryOptions},System.Threading.CancellationToken,System.IProgress{MelloSilveiraTools.Core.Pipelines.Models.PipelineProgressEvent})">
             <summary>
             Wraps an asynchronous action, combining exponential backoff with a <see cref="T:MelloSilveiraTools.Core.Pipelines.Models.SafeResult`1"/> envelope for terminal failures.
             </summary>
@@ -2980,7 +3051,7 @@
             Technical Decision: Provides the highest degree of fault tolerance for terminal pipeline steps (sinks), attempting to heal transient issues first, and gracefully failing over to a DLQ if exhaustion occurs.
             </remarks>
         </member>
-        <member name="M:MelloSilveiraTools.Core.Pipelines.Telemetry.TelemetryExtensions.HandleExecution``2(Microsoft.Extensions.Logging.ILogger,System.String,System.Func{``0,``1},System.Threading.CancellationToken)">
+        <member name="M:MelloSilveiraTools.Core.Pipelines.Telemetry.TelemetryExtensions.HandleExecution``2(Microsoft.Extensions.Logging.ILogger,System.String,System.Func{``0,``1},System.Threading.CancellationToken,System.IProgress{MelloSilveiraTools.Core.Pipelines.Models.PipelineProgressEvent})">
             <summary>
             Wraps a synchronous mapping function with OpenTelemetry tracing and structured logging, returning the mapped output.
             </summary>
@@ -2988,22 +3059,22 @@
             Technical Decision: Elides async overhead entirely. Designed for pure CPU-bound mapping logic (e.g., entity to DTO translation).
             </remarks>
         </member>
-        <member name="M:MelloSilveiraTools.Core.Pipelines.Telemetry.TelemetryExtensions.HandleSafeExecution``2(Microsoft.Extensions.Logging.ILogger,System.String,System.Func{``0,``1},System.Threading.CancellationToken)">
+        <member name="M:MelloSilveiraTools.Core.Pipelines.Telemetry.TelemetryExtensions.HandleSafeExecution``2(Microsoft.Extensions.Logging.ILogger,System.String,System.Func{``0,``1},System.Threading.CancellationToken,System.IProgress{MelloSilveiraTools.Core.Pipelines.Models.PipelineProgressEvent})">
             <summary>
             Wraps a synchronous mapping function, intercepting failures into a <see cref="T:MelloSilveiraTools.Core.Pipelines.Models.SafeResult`2"/> to permit DLQ offloading.
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.Core.Pipelines.Telemetry.TelemetryExtensions.HandleExecution``2(Microsoft.Extensions.Logging.ILogger,System.String,System.Func{``0,System.Threading.CancellationToken,System.Threading.Tasks.Task{``1}},System.Nullable{MelloSilveiraTools.Core.Pipelines.Models.RetryOptions},System.Threading.CancellationToken)">
+        <member name="M:MelloSilveiraTools.Core.Pipelines.Telemetry.TelemetryExtensions.HandleExecution``2(Microsoft.Extensions.Logging.ILogger,System.String,System.Func{``0,System.Threading.CancellationToken,System.Threading.Tasks.Task{``1}},System.Nullable{MelloSilveiraTools.Core.Pipelines.Models.RetryOptions},System.Threading.CancellationToken,System.IProgress{MelloSilveiraTools.Core.Pipelines.Models.PipelineProgressEvent})">
             <summary>
             Wraps an asynchronous mapping function with support for optional retry logic (exponential backoff) and telemetry tracking.
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.Core.Pipelines.Telemetry.TelemetryExtensions.HandleSafeExecution``2(Microsoft.Extensions.Logging.ILogger,System.String,System.Func{``0,System.Threading.CancellationToken,System.Threading.Tasks.Task{``1}},System.Nullable{MelloSilveiraTools.Core.Pipelines.Models.RetryOptions},System.Threading.CancellationToken)">
+        <member name="M:MelloSilveiraTools.Core.Pipelines.Telemetry.TelemetryExtensions.HandleSafeExecution``2(Microsoft.Extensions.Logging.ILogger,System.String,System.Func{``0,System.Threading.CancellationToken,System.Threading.Tasks.Task{``1}},System.Nullable{MelloSilveiraTools.Core.Pipelines.Models.RetryOptions},System.Threading.CancellationToken,System.IProgress{MelloSilveiraTools.Core.Pipelines.Models.PipelineProgressEvent})">
             <summary>
             Wraps an asynchronous mapping function, catching ultimate backoff failures into a bifurcated <see cref="T:MelloSilveiraTools.Core.Pipelines.Models.SafeResult`2"/>.
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.Core.Pipelines.Telemetry.TelemetryExtensions.HandleExecution``2(Microsoft.Extensions.Logging.ILogger,System.String,System.String,System.Func{``0,System.Threading.CancellationToken,System.Threading.Tasks.Task{``1}},System.Func{``0,System.Boolean},System.Func{``0,System.Threading.CancellationToken,System.Threading.Tasks.Task{``1}},System.Nullable{MelloSilveiraTools.Core.Pipelines.Models.RetryOptions},System.Threading.CancellationToken)">
+        <member name="M:MelloSilveiraTools.Core.Pipelines.Telemetry.TelemetryExtensions.HandleExecution``2(Microsoft.Extensions.Logging.ILogger,System.String,System.String,System.Func{``0,System.Threading.CancellationToken,System.Threading.Tasks.Task{``1}},System.Func{``0,System.Boolean},System.Func{``0,System.Threading.CancellationToken,System.Threading.Tasks.Task{``1}},System.Nullable{MelloSilveiraTools.Core.Pipelines.Models.RetryOptions},System.Threading.CancellationToken,System.IProgress{MelloSilveiraTools.Core.Pipelines.Models.PipelineProgressEvent})">
             <summary>
             Wraps a conditional forking operation evaluating the input payload prior to execution.
             </summary>
@@ -3012,12 +3083,12 @@
             Limitation: The condition must be synchronous. If asynchronous validation is required before branching, this pattern must be adapted.
             </remarks>
         </member>
-        <member name="M:MelloSilveiraTools.Core.Pipelines.Telemetry.TelemetryExtensions.HandleSafeExecution``2(Microsoft.Extensions.Logging.ILogger,System.String,System.String,System.Func{``0,System.Threading.CancellationToken,System.Threading.Tasks.Task{``1}},System.Func{``0,System.Boolean},System.Func{``0,System.Threading.CancellationToken,System.Threading.Tasks.Task{``1}},System.Nullable{MelloSilveiraTools.Core.Pipelines.Models.RetryOptions},System.Threading.CancellationToken)">
+        <member name="M:MelloSilveiraTools.Core.Pipelines.Telemetry.TelemetryExtensions.HandleSafeExecution``2(Microsoft.Extensions.Logging.ILogger,System.String,System.String,System.Func{``0,System.Threading.CancellationToken,System.Threading.Tasks.Task{``1}},System.Func{``0,System.Boolean},System.Func{``0,System.Threading.CancellationToken,System.Threading.Tasks.Task{``1}},System.Nullable{MelloSilveiraTools.Core.Pipelines.Models.RetryOptions},System.Threading.CancellationToken,System.IProgress{MelloSilveiraTools.Core.Pipelines.Models.PipelineProgressEvent})">
             <summary>
             Wraps a conditional forking operation evaluating the input payload, utilizing a <see cref="T:MelloSilveiraTools.Core.Pipelines.Models.SafeResult`2"/> to catch execution failures on either branch.
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.Core.Pipelines.Telemetry.TelemetryExtensions.HandleExecution``2(Microsoft.Extensions.Logging.ILogger,System.String,System.String,System.Func{``0,System.Threading.CancellationToken,System.Threading.Tasks.Task{``1}},System.Func{``1,System.Boolean},System.Func{``0,System.Threading.CancellationToken,System.Threading.Tasks.Task{``1}},System.Nullable{MelloSilveiraTools.Core.Pipelines.Models.RetryOptions},System.Threading.CancellationToken)">
+        <member name="M:MelloSilveiraTools.Core.Pipelines.Telemetry.TelemetryExtensions.HandleExecution``2(Microsoft.Extensions.Logging.ILogger,System.String,System.String,System.Func{``0,System.Threading.CancellationToken,System.Threading.Tasks.Task{``1}},System.Func{``1,System.Boolean},System.Func{``0,System.Threading.CancellationToken,System.Threading.Tasks.Task{``1}},System.Nullable{MelloSilveiraTools.Core.Pipelines.Models.RetryOptions},System.Threading.CancellationToken,System.IProgress{MelloSilveiraTools.Core.Pipelines.Models.PipelineProgressEvent})">
             <summary>
             Wraps a conditional forking operation evaluating the output payload after the primary execution completes.
             </summary>
@@ -3025,7 +3096,7 @@
             Limitation: If the primary execution applies external side effects (like updating a database) before returning its result, triggering this fallback will *not* roll back those side effects automatically.
             </remarks>
         </member>
-        <member name="M:MelloSilveiraTools.Core.Pipelines.Telemetry.TelemetryExtensions.HandleSafeExecution``2(Microsoft.Extensions.Logging.ILogger,System.String,System.String,System.Func{``0,``1},System.Func{MelloSilveiraTools.Core.Pipelines.Models.SafeResult{``0,``1},System.Boolean},System.Func{``0,``1},System.Threading.CancellationToken)">
+        <member name="M:MelloSilveiraTools.Core.Pipelines.Telemetry.TelemetryExtensions.HandleSafeExecution``2(Microsoft.Extensions.Logging.ILogger,System.String,System.String,System.Func{``0,``1},System.Func{MelloSilveiraTools.Core.Pipelines.Models.SafeResult{``0,``1},System.Boolean},System.Func{``0,``1},System.Threading.CancellationToken,System.IProgress{MelloSilveiraTools.Core.Pipelines.Models.PipelineProgressEvent})">
             <summary>
             Wraps a post-execution conditional forking operation, evaluating against the <see cref="T:MelloSilveiraTools.Core.Pipelines.Models.SafeResult`2"/> state.
             </summary>
@@ -3033,7 +3104,12 @@
             Technical Decision: Passing the entire <c>SafeResult</c> to the <paramref name="fallbackCondition"/> allows the condition to evaluate both successfully mapped outputs and handled faults to determine routing logic.
             </remarks>
         </member>
-        <member name="M:MelloSilveiraTools.Core.Pipelines.Telemetry.TelemetryExtensions.HandleSafeExecution``2(Microsoft.Extensions.Logging.ILogger,System.String,System.String,System.Func{``0,System.Threading.CancellationToken,System.Threading.Tasks.Task{``1}},System.Func{MelloSilveiraTools.Core.Pipelines.Models.SafeResult{``0,``1},System.Boolean},System.Func{``0,System.Threading.CancellationToken,System.Threading.Tasks.Task{``1}},System.Nullable{MelloSilveiraTools.Core.Pipelines.Models.RetryOptions},System.Threading.CancellationToken)">
+        <member name="M:MelloSilveiraTools.Core.Pipelines.Telemetry.TelemetryExtensions.HandleExecution``2(Microsoft.Extensions.Logging.ILogger,System.String,System.String,System.Func{``0,``1},System.Func{``1,System.Boolean},System.Func{``0,``1},System.Threading.CancellationToken,System.IProgress{MelloSilveiraTools.Core.Pipelines.Models.PipelineProgressEvent})">
+            <summary>
+            Wraps a synchronous conditional forking operation evaluating the output payload after the primary execution completes.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Pipelines.Telemetry.TelemetryExtensions.HandleSafeExecution``2(Microsoft.Extensions.Logging.ILogger,System.String,System.String,System.Func{``0,System.Threading.CancellationToken,System.Threading.Tasks.Task{``1}},System.Func{MelloSilveiraTools.Core.Pipelines.Models.SafeResult{``0,``1},System.Boolean},System.Func{``0,System.Threading.CancellationToken,System.Threading.Tasks.Task{``1}},System.Nullable{MelloSilveiraTools.Core.Pipelines.Models.RetryOptions},System.Threading.CancellationToken,System.IProgress{MelloSilveiraTools.Core.Pipelines.Models.PipelineProgressEvent})">
             <summary>
             Wraps a post-execution conditional forking operation, evaluating against the <see cref="T:MelloSilveiraTools.Core.Pipelines.Models.SafeResult`2"/> state.
             </summary>
@@ -3041,47 +3117,47 @@
             Technical Decision: Passing the entire <c>SafeResult</c> to the <paramref name="fallbackCondition"/> allows the condition to evaluate both successfully mapped outputs and handled faults to determine routing logic.
             </remarks>
         </member>
-        <member name="M:MelloSilveiraTools.Core.Pipelines.Telemetry.TelemetryExtensions.HandleExecution``2(Microsoft.Extensions.Logging.ILogger,System.String,System.Func{``0,System.Threading.CancellationToken,System.Collections.Generic.IAsyncEnumerable{``1}},System.Threading.CancellationToken)">
+        <member name="M:MelloSilveiraTools.Core.Pipelines.Telemetry.TelemetryExtensions.HandleExecution``2(Microsoft.Extensions.Logging.ILogger,System.String,System.Func{``0,System.Threading.CancellationToken,System.Collections.Generic.IAsyncEnumerable{``1}},System.Threading.CancellationToken,System.IProgress{MelloSilveiraTools.Core.Pipelines.Models.PipelineProgressEvent})">
             <summary>
             Wraps a streaming function returning an <see cref="T:System.Collections.Generic.IAsyncEnumerable`1"/> with OpenTelemetry tracing and structured logging.
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.Core.Pipelines.Telemetry.TelemetryExtensions.HandleSafeExecution``2(Microsoft.Extensions.Logging.ILogger,System.String,System.Func{``0,System.Threading.CancellationToken,System.Collections.Generic.IAsyncEnumerable{``1}},System.Threading.CancellationToken)">
+        <member name="M:MelloSilveiraTools.Core.Pipelines.Telemetry.TelemetryExtensions.HandleSafeExecution``2(Microsoft.Extensions.Logging.ILogger,System.String,System.Func{``0,System.Threading.CancellationToken,System.Collections.Generic.IAsyncEnumerable{``1}},System.Threading.CancellationToken,System.IProgress{MelloSilveiraTools.Core.Pipelines.Models.PipelineProgressEvent})">
             <summary>
             Wraps a streaming function returning an <see cref="T:System.Collections.Generic.IAsyncEnumerable`1"/> with OpenTelemetry tracing and structured logging.
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.Core.Pipelines.Telemetry.TelemetryExtensions.HandleExecution``2(Microsoft.Extensions.Logging.ILogger,System.String,System.Func{``0,System.Threading.CancellationToken,System.Collections.Generic.IEnumerable{``1}},System.Threading.CancellationToken)">
+        <member name="M:MelloSilveiraTools.Core.Pipelines.Telemetry.TelemetryExtensions.HandleExecution``2(Microsoft.Extensions.Logging.ILogger,System.String,System.Func{``0,System.Threading.CancellationToken,System.Collections.Generic.IEnumerable{``1}},System.Threading.CancellationToken,System.IProgress{MelloSilveiraTools.Core.Pipelines.Models.PipelineProgressEvent})">
             <summary>
             Wraps an enumerable transformation function returning an <see cref="T:System.Collections.Generic.IEnumerable`1"/> with OpenTelemetry tracing and structured logging.
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.Core.Pipelines.Telemetry.TelemetryExtensions.HandleSafeExecution``2(Microsoft.Extensions.Logging.ILogger,System.String,System.Func{``0,System.Threading.CancellationToken,System.Collections.Generic.IEnumerable{``1}},System.Threading.CancellationToken)">
+        <member name="M:MelloSilveiraTools.Core.Pipelines.Telemetry.TelemetryExtensions.HandleSafeExecution``2(Microsoft.Extensions.Logging.ILogger,System.String,System.Func{``0,System.Threading.CancellationToken,System.Collections.Generic.IEnumerable{``1}},System.Threading.CancellationToken,System.IProgress{MelloSilveiraTools.Core.Pipelines.Models.PipelineProgressEvent})">
             <summary>
             Wraps an enumerable transformation function returning an <see cref="T:System.Collections.Generic.IEnumerable`1"/> with OpenTelemetry tracing, structured logging, and safe DLQ routing.
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.Core.Pipelines.Telemetry.TelemetryExtensions.ExecuteAsync``2(Microsoft.Extensions.Logging.ILogger,System.Diagnostics.Activity,``0,System.String,System.Func{``0,System.Threading.CancellationToken,System.Threading.Tasks.Task{``1}},System.Nullable{MelloSilveiraTools.Core.Pipelines.Models.RetryOptions},System.Threading.CancellationToken)">
+        <member name="M:MelloSilveiraTools.Core.Pipelines.Telemetry.TelemetryExtensions.ExecuteAsync``2(Microsoft.Extensions.Logging.ILogger,System.Diagnostics.Activity,``0,System.String,System.Func{``0,System.Threading.CancellationToken,System.Threading.Tasks.Task{``1}},System.Nullable{MelloSilveiraTools.Core.Pipelines.Models.RetryOptions},System.Threading.CancellationToken,System.IProgress{MelloSilveiraTools.Core.Pipelines.Models.PipelineProgressEvent})">
             <summary>
             Encapsulates the core asynchronous execution loop with exponential backoff logic.
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.Core.Pipelines.Telemetry.TelemetryExtensions.SafeExecuteAsync``2(Microsoft.Extensions.Logging.ILogger,System.Diagnostics.Activity,``0,System.String,System.Func{``0,System.Threading.CancellationToken,System.Threading.Tasks.Task{``1}},System.Nullable{MelloSilveiraTools.Core.Pipelines.Models.RetryOptions},System.Threading.CancellationToken)">
+        <member name="M:MelloSilveiraTools.Core.Pipelines.Telemetry.TelemetryExtensions.SafeExecuteAsync``2(Microsoft.Extensions.Logging.ILogger,System.Diagnostics.Activity,``0,System.String,System.Func{``0,System.Threading.CancellationToken,System.Threading.Tasks.Task{``1}},System.Nullable{MelloSilveiraTools.Core.Pipelines.Models.RetryOptions},System.Threading.CancellationToken,System.IProgress{MelloSilveiraTools.Core.Pipelines.Models.PipelineProgressEvent})">
             <summary>
             Encapsulates the core asynchronous execution loop, returning a <see cref="T:MelloSilveiraTools.Core.Pipelines.Models.SafeResult`2"/> upon failure exhaustion.
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.Core.Pipelines.Telemetry.TelemetryExtensions.StartTelemetry(Microsoft.Extensions.Logging.ILogger,System.Diagnostics.Activity,System.String)">
+        <member name="M:MelloSilveiraTools.Core.Pipelines.Telemetry.TelemetryExtensions.StartTelemetry(Microsoft.Extensions.Logging.ILogger,System.Diagnostics.Activity,System.String,System.IProgress{MelloSilveiraTools.Core.Pipelines.Models.PipelineProgressEvent})">
             <summary>
             Initializes telemetry tags and logs the start of a pipeline execution step.
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.Core.Pipelines.Telemetry.TelemetryExtensions.LogAndTrackStepCompletion(Microsoft.Extensions.Logging.ILogger,System.Diagnostics.Activity,System.DateTimeOffset,System.String)">
+        <member name="M:MelloSilveiraTools.Core.Pipelines.Telemetry.TelemetryExtensions.LogAndTrackStepCompletion(Microsoft.Extensions.Logging.ILogger,System.Diagnostics.Activity,System.DateTimeOffset,System.String,System.IProgress{MelloSilveiraTools.Core.Pipelines.Models.PipelineProgressEvent},System.String)">
             <summary>
             Finalizes a successful execution step, updating the span status to Ok and logging the total duration.
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.Core.Pipelines.Telemetry.TelemetryExtensions.LogAndTrackStepFailure(Microsoft.Extensions.Logging.ILogger,System.Diagnostics.Activity,System.DateTimeOffset,System.String,System.Exception)">
+        <member name="M:MelloSilveiraTools.Core.Pipelines.Telemetry.TelemetryExtensions.LogAndTrackStepFailure(Microsoft.Extensions.Logging.ILogger,System.Diagnostics.Activity,System.DateTimeOffset,System.String,System.Exception,System.IProgress{MelloSilveiraTools.Core.Pipelines.Models.PipelineProgressEvent})">
             <summary>
             Finalizes a failed execution step, attaching the exception to the span, updating status to Error, and logging the fault.
             </summary>
@@ -3091,7 +3167,7 @@
             Standardized log event indicating that short-circuit or fallback conditions have been met.
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.Core.Pipelines.Telemetry.TelemetryExtensions.HandleRetryAsync(Microsoft.Extensions.Logging.ILogger,System.Diagnostics.Activity,System.String,System.Exception,System.Int32,System.Int32,System.DateTimeOffset,System.Nullable{MelloSilveiraTools.Core.Pipelines.Models.RetryOptions},System.Threading.CancellationToken)">
+        <member name="M:MelloSilveiraTools.Core.Pipelines.Telemetry.TelemetryExtensions.HandleRetryAsync(Microsoft.Extensions.Logging.ILogger,System.Diagnostics.Activity,System.String,System.Exception,System.Int32,System.Int32,System.DateTimeOffset,System.Nullable{MelloSilveiraTools.Core.Pipelines.Models.RetryOptions},System.Threading.CancellationToken,System.IProgress{MelloSilveiraTools.Core.Pipelines.Models.PipelineProgressEvent})">
             <summary>
             Evaluates backoff conditions, applies Task delays for valid retries, or returns a terminal state if limits are reached.
             </summary>

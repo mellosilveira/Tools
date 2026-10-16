@@ -12,18 +12,18 @@ namespace MelloSilveiraTools.Core.ResiliencePipelines;
 public record ResiliencePipelineSettings
 {
     /// <inheritdoc cref="DelayBackoffType"/>
-    public DelayBackoffType BackoffType { get; init; }
+    public DelayBackoffType BackoffType { get; init; } = DelayBackoffType.Constant;
 
     /// <summary>
     /// Delay between retries in milliseconds.
     /// </summary>
-    public int DelayInMilliseconds { get; init; }
+    public int DelayInMilliseconds { get; init; } = 200;
 
     /// <inheritdoc cref="RetryStrategyOptions{Object}.MaxRetryAttempts"/>
-    public int MaxRetryAttempts { get; init; }
+    public int MaxRetryAttempts { get; init; } = 3;
 
     /// <inheritdoc cref="RetryStrategyOptions{Object}.UseJitter"/>
-    public bool UseJitter { get; init; }
+    public bool UseJitter { get; init; } = true;
 
     /// <summary>
     /// Optional circuit breaker strategy options. If not provided, sensible defaults are configured.

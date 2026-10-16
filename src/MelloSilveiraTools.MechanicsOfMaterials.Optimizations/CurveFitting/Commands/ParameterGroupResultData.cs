@@ -1,7 +1,10 @@
-﻿using MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels;
+using MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels;
 
 namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Commands;
 
+/// <summary>
+/// Represents an optimized constitutive parameter group produced by a curve fitting operation.
+/// </summary>
 public record ParameterGroupResultData
 {
     /// <summary>
@@ -15,7 +18,17 @@ public record ParameterGroupResultData
     public required AcceptedRange AcceptedStrainRange { get; init; }
 
     /// <summary>
-    /// The specific experimental phases where this parameter group applies.
+    /// The coefficient of determination (R²) achieved by the fit.
     /// </summary>
-    public required MechanicalEvent ValidEvents { get; init; }
+    public double RSquared { get; init; }
+
+    /// <summary>
+    /// The sum of squared residuals (SSR) achieved by the fit.
+    /// </summary>
+    public double FinalError { get; init; }
+
+    /// <summary>
+    /// The total number of iterations executed by the optimizer.
+    /// </summary>
+    public int Iterations { get; init; }
 }

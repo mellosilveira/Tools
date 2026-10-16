@@ -1,5 +1,7 @@
+using MelloSilveiraTools.Core.Pipelines.Models;
 using MelloSilveiraTools.Mathematics.Models;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Models;
+using System.Text.Json.Serialization;
 
 namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Models;
 
@@ -11,11 +13,13 @@ public sealed record ExperimentalDataProcessingInput
     /// <summary>
     /// Stream containing raw experimental strain time-history.
     /// </summary>
+    [JsonIgnore]
     public required Stream StrainStream { get; init; }
 
     /// <summary>
     /// Stream containing raw experimental stress time-history.
     /// </summary>
+    [JsonIgnore]
     public required Stream StressStream { get; init; }
 
     /// <summary>
@@ -32,11 +36,6 @@ public sealed record ExperimentalDataProcessingInput
     /// The name of the mechanical model to fit (e.g., "Fung", "Schapery").
     /// </summary>
     public required string MechanicalModelName { get; init; }
-
-    /// <summary>
-    /// The directory URI where generated output files are saved.
-    /// </summary>
-    public required string OutputFileUri { get; init; }
 
     /// <summary>
     /// Segment types to be processed.
@@ -78,6 +77,12 @@ public sealed record ExperimentalDataProcessingInput
     /// Processing options for segmentation tolerances and smoothing.
     /// </summary>
     public required ExperimentalDataProcessingOptions Options { get; init; }
+
+    /// <summary>
+    /// Optional progress reporter for emitting real-time <see cref="PipelineProgressEvent"/> notifications during pipeline execution.
+    /// </summary>
+    [JsonIgnore]
+    public IProgress<PipelineProgressEvent>? Progress { get; init; }
 
     /// <summary>
     /// Converts this processing input into the segmenter ingestion payload.

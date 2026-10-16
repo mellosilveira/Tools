@@ -35,8 +35,8 @@ public class DefaultResiliencePipeline
             {
                 ShouldHandle = shouldHandle,
                 BackoffType = settings.BackoffType,
-                Delay = TimeSpan.FromMilliseconds(settings.DelayInMilliseconds),
-                MaxRetryAttempts = settings.MaxRetryAttempts,
+                Delay = TimeSpan.FromMilliseconds(settings.DelayInMilliseconds <= 0 ? 200 : settings.DelayInMilliseconds),
+                MaxRetryAttempts = settings.MaxRetryAttempts <= 0 ? 3 : settings.MaxRetryAttempts,
                 UseJitter = settings.UseJitter,
                 OnRetry = args =>
                 {

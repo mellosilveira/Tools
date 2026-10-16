@@ -80,8 +80,6 @@ public static class ParametricSweepInputJsonParser
             asymptoteTolerance = tolElem.GetDouble();
         }
 
-        string outputDirectory = GetStringProperty(root, "outputDirectory") ?? string.Empty;
-
         Dictionary<string, RangeParameters> constantVariables = [];
         if (TryGetPropertyIgnoreCase(root, "constantVariables", out JsonElement cvElem) && cvElem.ValueKind == JsonValueKind.Object)
         {
@@ -115,8 +113,7 @@ public static class ParametricSweepInputJsonParser
             InitialTime = initialTime,
             FinalTime = finalTime,
             TimeStep = timeStep,
-            AsymptoteTolerance = asymptoteTolerance,
-            OutputDirectory = outputDirectory
+            AsymptoteTolerance = asymptoteTolerance
         };
     }
 
