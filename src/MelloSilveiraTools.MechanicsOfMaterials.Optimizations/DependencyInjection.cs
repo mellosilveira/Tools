@@ -1,4 +1,4 @@
-using MelloSilveiraTools.Core.Validators;
+﻿using MelloSilveiraTools.Core.Validators;
 using MelloSilveiraTools.Mathematics.Models;
 using MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Algorithms;
@@ -62,6 +62,6 @@ public static class DependencyInjection
             // Register Application Commands.
             .AddScoped<ProcessExperimentalDataCommand>()
             .AddScoped<ExecuteParametricSweepCommand>()
-            .AddScoped<FitCurve>();
+            .AddScoped<FitCurveCommand>();
     }
 }

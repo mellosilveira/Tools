@@ -1,4 +1,4 @@
-using MelloSilveiraTools.Core.Models;
+﻿using MelloSilveiraTools.Core.Models;
 using MelloSilveiraTools.Core.Validators;
 
 namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Commands;
@@ -23,16 +23,14 @@ public sealed class ProcessExperimentalDataValidator : IValidator<ProcessExperim
             errors.Add("MechanicalModelName is required.");
         }
 
-        bool hasStrainStream = value.StrainStream is not null || (value.StrainFile is not null && value.StrainFile.Length > 0);
-        if (!hasStrainStream)
+        if (value.StrainFile is null || value.StrainFile.Length == 0)
         {
-            errors.Add("A non-empty StrainFile or StrainStream must be provided.");
+            errors.Add("A non-empty StrainFile must be provided.");
         }
 
-        bool hasStressStream = value.StressStream is not null || (value.StressFile is not null && value.StressFile.Length > 0);
-        if (!hasStressStream)
+        if (value.StressFile is null || value.StressFile.Length == 0)
         {
-            errors.Add("A non-empty StressFile or StressStream must be provided.");
+            errors.Add("A non-empty StressFile must be provided.");
         }
 
         if (value.TargetRSquared <= 0 || value.TargetRSquared > 1.0)

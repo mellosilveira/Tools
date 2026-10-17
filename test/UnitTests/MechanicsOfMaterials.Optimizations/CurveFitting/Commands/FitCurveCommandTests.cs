@@ -1,4 +1,4 @@
-using MelloSilveiraTools.Core.Models;
+﻿using MelloSilveiraTools.Core.Models;
 using MelloSilveiraTools.Core.Validators;
 using MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels;
 using MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity;
@@ -13,7 +13,7 @@ using Moq;
 namespace UnitTests.MechanicsOfMaterials.Optimizations.CurveFitting.Commands;
 
 /// <summary>
-/// Unit tests for <see cref="FitCurve"/> verifying command execution, validation short-circuiting,
+/// Unit tests for <see cref="FitCurveCommand"/> verifying command execution, validation short-circuiting,
 /// step factory resolution, and output aggregation.
 /// </summary>
 public sealed class FitCurveCommandTests
@@ -32,7 +32,7 @@ public sealed class FitCurveCommandTests
             .Setup(v => v.Validate(It.IsAny<FitCurveRequest>()))
             .Returns(Result.CreateBadRequest("MechanicalModelName is required."));
 
-        FitCurve command = new(_stepFactoryMock.Object, _validatorMock.Object);
+        FitCurveCommand command = new(_stepFactoryMock.Object, _validatorMock.Object);
         FitCurveRequest request = new()
         {
             MechanicalModelName = "Maxwell",
@@ -69,7 +69,7 @@ public sealed class FitCurveCommandTests
             .Setup(f => f.Create(It.IsAny<string>(), It.IsAny<IReadOnlyList<SegmentType>>(), It.IsAny<CurveFitterType>(), It.IsAny<double>()))
             .Returns(fitterStepMock.Object);
 
-        FitCurve command = new(_stepFactoryMock.Object, _validatorMock.Object);
+        FitCurveCommand command = new(_stepFactoryMock.Object, _validatorMock.Object);
         FitCurveRequest request = new()
         {
             MechanicalModelName = "Maxwell",

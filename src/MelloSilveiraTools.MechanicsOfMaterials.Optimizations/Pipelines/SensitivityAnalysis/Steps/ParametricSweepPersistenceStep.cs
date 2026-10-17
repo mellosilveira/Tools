@@ -1,4 +1,4 @@
-using MelloSilveiraTools.Core.Managers.File;
+﻿using MelloSilveiraTools.Core.Managers.File;
 using MelloSilveiraTools.Core.Models;
 using MelloSilveiraTools.Core.Pipelines.Steps;
 using MelloSilveiraTools.Database.RelationalDatabase.Models.Entities;
@@ -31,20 +31,13 @@ public sealed class ParametricSweepPersistenceStep(
     /// <exception cref="InvalidOperationException">Thrown when insertion of the parametric sweep entity fails in the database.</exception>
     public async Task<string> ExecuteAsync(ParametricSweepPersistenceInput input, CancellationToken cancellationToken = default)
     {
-        ConstitutiveParameters baseline = input.SweepInput.Baseline;
-        string baselineParametersJson = JsonSerializer.Serialize(
-            baseline,
-            baseline.GetType(),
-            OptimizationJsonOptions.SignificantFigures7);
-
-        string variableRangesJson = JsonSerializer.Serialize(
-            new
-            {
-                input.SweepInput.ConstantVariables,
-                input.SweepInput.ArrayVariables,
-                input.SweepInput.StrainRange
-            },
-            OptimizationJsonOptions.SignificantFigures7);
+        string baselineParametersJson = OptimizationJsonOptions.Serialize(input.SweepInput.Baseline);
+        string variableRangesJson = OptimizationJsonOptions.Serialize(new
+        {
+            input.SweepInput.ConstantVariables,
+            input.SweepInput.ArrayVariables,
+            input.SweepInput.StrainRange
+        });
 
         ParametricSweepEntity entity = new()
         {
@@ -72,16 +65,7 @@ public sealed class ParametricSweepPersistenceStep(
 
         foreach (FileMetadata fileMetadata in input.GeneratedFilesMetadata)
         {
-            StoredFileEntity storedFile = new()
-            {
-                ExternalIdentifier = input.ExternalIdentifier,
-                Context = Context,
-                StorageProvider = StorageProvider.Local,
-                FileName = fileMetadata.FileName,
-                Location = fileMetadata.FullPath,
-                SizeBytes = fileMetadata.SizeBytes,
-                ContentType = "text/csv"
-            };
+            StoredFileEntity storedFile = StoredFileEntity.Create(input.ExternalIdentifier, Context, fileMetadata);
 
             Result<long> fileResult = await repository.TryInsertAsync(storedFile, cancellationToken).ConfigureAwait(false);
             if (!fileResult.Success && !fileResult.IsConflict)

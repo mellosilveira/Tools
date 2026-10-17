@@ -1,4 +1,4 @@
-using MelloSilveiraTools.Core.Application.Commands;
+﻿using MelloSilveiraTools.Core.Application.Commands;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Models;
 
 namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Commands;
@@ -37,4 +37,10 @@ public record FitCurveRequest : RequestBase
     /// Optional optimization options override.
     /// </summary>
     public OptimizationOptionsRequest? Options { get; init; }
+
+    /// <summary>
+    /// Optional cooperative cancellation token for terminating fitting prematurely.
+    /// </summary>
+    [System.Text.Json.Serialization.JsonIgnore]
+    public CancellationToken CancellationToken { get; init; } = default;
 }

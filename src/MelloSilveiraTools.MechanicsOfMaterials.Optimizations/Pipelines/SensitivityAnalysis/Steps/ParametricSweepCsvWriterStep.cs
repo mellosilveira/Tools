@@ -1,4 +1,4 @@
-using MelloSilveiraTools.Core.Managers.File;
+﻿using MelloSilveiraTools.Core.Managers.File;
 using MelloSilveiraTools.Core.Pipelines.Steps;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Models;
 using System.Collections.Concurrent;
@@ -50,16 +50,7 @@ public sealed class ParametricSweepCsvWriterStep(
             return new SweepWriterEntry(fileName, writer);
         });
 
-        string row = string.Format(
-            CultureInfo.InvariantCulture,
-            "{0:G},{1:G},{2:G},{3:G},{4:G},{5:G},{6:G}",
-            input.VariableValue,
-            input.InitialStress,
-            input.FinalStress,
-            input.AsymptoteTime,
-            input.AsymptoteStress,
-            input.AbsoluteDeltaStress,
-            input.PercentageDeltaStress);
+        string row = FormattableString.Invariant($"{input.VariableValue:G},{input.InitialStress:G},{input.FinalStress:G},{input.AsymptoteTime:G},{input.AsymptoteStress:G},{input.AbsoluteDeltaStress:G},{input.PercentageDeltaStress:G}");
 
         await entry.Writer.WriteRowAsync(row, cancellationToken).ConfigureAwait(false);
     }
@@ -73,26 +64,23 @@ public sealed class ParametricSweepCsvWriterStep(
         return input;
     }
 
+    private bool _disposed;
+
     /// <inheritdoc />
     public async ValueTask DisposeAsync()
     {
-        List<Exception> exceptions = [];
-        foreach (IAsyncDisposable session in _writers.Values.Select(entry => entry.Writer))
+        if (_disposed)
         {
-            try
-            {
-                await session.DisposeAsync().ConfigureAwait(false);
-            }
-            catch (Exception ex)
-            {
-                exceptions.Add(ex);
-            }
+            return;
         }
 
-        if (exceptions.Count > 0)
+        _disposed = true;
+
+        foreach (SweepWriterEntry entry in _writers.Values)
         {
-            throw new AggregateException(exceptions);
+            await entry.Writer.DisposeAsync().ConfigureAwait(false);
         }
+
         GC.SuppressFinalize(this);
     }
 }

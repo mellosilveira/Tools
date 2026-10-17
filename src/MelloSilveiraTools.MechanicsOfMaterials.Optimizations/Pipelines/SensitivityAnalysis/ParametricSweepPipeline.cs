@@ -1,8 +1,9 @@
-using MelloSilveiraTools.Core.Managers.File;
+﻿using MelloSilveiraTools.Core.Managers.File;
 using MelloSilveiraTools.Core.Models;
 using MelloSilveiraTools.Core.Pipelines;
 using MelloSilveiraTools.Core.Pipelines.Dataflow;
 using MelloSilveiraTools.Core.Pipelines.Models;
+using MelloSilveiraTools.Core.Pipelines.Steps;
 using MelloSilveiraTools.Core.Providers;
 using MelloSilveiraTools.Database.Repositories;
 using MelloSilveiraTools.Mathematics.Extensions;
@@ -70,38 +71,10 @@ public sealed class ParametricSweepPipeline(
                     .Fork(initialStep, finalStep, asymptoteStep),
                 branch => branch.AddDataMapping(envelope => (envelope.VariableName, envelope.VariableValue))
             )
-            .AddDataMapping(tuple =>
-            {
-                double initialStress = tuple.Item1.Item1;
-                double finalStress = tuple.Item1.Item2;
-                (double asymptoteTime, double asymptoteStress) = tuple.Item1.Item3;
-
-                double absoluteDeltaStress = finalStress - initialStress;
-                double percentualDeltaStress = initialStress.PercentageDifference(finalStress);
-
-                (string variableName, double variableValue) = tuple.Item2;
-
-                return new ParametricSweepFinalPayload(
-                    variableName,
-                    variableValue,
-                    initialStress,
-                    finalStress,
-                    asymptoteTime,
-                    asymptoteStress,
-                    absoluteDeltaStress,
-                    percentualDeltaStress
-                );
-            })
+            .AddDataMapping(tuple => ParametricSweepFinalPayload.Create(tuple.Item1, tuple.Item2))
             .AddStep<ParametricSweepFinalPayload>(writer)
             .AddCollectAllStep()
-            .AddDataMapping(_ =>
-            {
-                writer.DisposeAsync().AsTask().GetAwaiter().GetResult();
-                return new ParametricSweepPersistenceInput(
-                    uniqueIdentifier,
-                    input,
-                    writer.GeneratedFilesMetadata);
-            })
+            .AddStep(new ParametricSweepFinalizationStep(writer, uniqueIdentifier, input))
             .AddStep(persistenceStep)
             .BuildTerminal();
 
@@ -131,6 +104,32 @@ public sealed class ParametricSweepPipeline(
                 Timestamp: DateTimeOffset.UtcNow));
 
             return uniqueIdentifier;
+        }
+    }
+
+    private sealed class ParametricSweepFinalizationStep(
+        ParametricSweepCsvWriterStep writer,
+        string identifier,
+        ParametricSweepInput input)
+        : IAsyncPipelineStep<IReadOnlyList<ParametricSweepFinalPayload>, ParametricSweepPersistenceInput>
+    {
+        public string Name => nameof(ParametricSweepFinalizationStep);
+
+        public async Task<ParametricSweepPersistenceInput> ExecuteAsync(
+            IReadOnlyList<ParametricSweepFinalPayload> payloads,
+            CancellationToken cancellationToken = default)
+        {
+            await writer.DisposeAsync().ConfigureAwait(false);
+            return new ParametricSweepPersistenceInput(
+                identifier,
+                input,
+                writer.GeneratedFilesMetadata);
+        }
+
+        public ValueTask DisposeAsync()
+        {
+            GC.SuppressFinalize(this);
+            return ValueTask.CompletedTask;
         }
     }
 }

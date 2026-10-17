@@ -9,99 +9,34 @@
             Exposes HTTP endpoints for standalone constitutive model curve fitting operations.
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Controllers.CurveFittingController.FitCurveAsync(MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Commands.FitCurve,MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Commands.FitCurveRequest)">
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Controllers.CurveFittingController.#ctor(MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Commands.FitCurveCommand)">
             <summary>
-            Executes curve fitting over one or more experimental curve segments for the specified mechanical model.
+            Exposes HTTP endpoints for standalone constitutive model curve fitting operations.
             </summary>
-            <param name="command">The curve fitting application command.</param>
-            <param name="request">The curve fitting request payload.</param>
-            <returns>An <see cref="T:Microsoft.AspNetCore.Mvc.ActionResult`1"/> containing the optimized parameter groups and fit metrics.</returns>
         </member>
         <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Controllers.ExperimentalDataController">
             <summary>
-            Exposes HTTP endpoints for processing experimental raw data streams, streaming real-time pipeline progress,
-            and querying or downloading generated CSV artifacts by external identifier.
+            Exposes HTTP endpoints for processing experimental raw data streams and streaming real-time pipeline progress.
+            File artifact queries and downloads are centralized in <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Controllers.StoredFilesController"/>.
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Controllers.ExperimentalDataController.ProcessAsync(MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Commands.ProcessExperimentalDataCommand,MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Commands.ProcessExperimentalDataRequest)">
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Controllers.ExperimentalDataController.#ctor(MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Commands.ProcessExperimentalDataCommand)">
             <summary>
-            Processes uploaded experimental strain and stress CSV files through the segmentation, curve fitting, and simulation pipeline.
+            Exposes HTTP endpoints for processing experimental raw data streams and streaming real-time pipeline progress.
+            File artifact queries and downloads are centralized in <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Controllers.StoredFilesController"/>.
             </summary>
-            <param name="command">The experimental data processing command.</param>
-            <param name="request">The multipart form request containing raw files and configuration.</param>
-            <returns>A <see cref="T:MelloSilveiraTools.Core.Models.Result`1"/> containing the generated or supplied external identifier.</returns>
-        </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Controllers.ExperimentalDataController.ProcessStreamAsync(MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Commands.ProcessExperimentalDataCommand,MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Commands.ProcessExperimentalDataRequest,System.Threading.CancellationToken)">
-            <summary>
-            Processes uploaded experimental strain and stress CSV files while streaming real-time <see cref="T:MelloSilveiraTools.Core.Pipelines.Models.PipelineProgressEvent"/>
-            notifications as newline-delimited JSON (<c>application/x-ndjson</c>).
-            </summary>
-            <param name="command">The experimental data processing command.</param>
-            <param name="request">The multipart form request containing raw files and configuration.</param>
-            <param name="cancellationToken">Cooperative cancellation token.</param>
-        </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Controllers.ExperimentalDataController.GetFilesAsync(MelloSilveiraTools.Database.Repositories.IRepository,System.String,System.Threading.CancellationToken)">
-            <summary>
-            Lists all stored files associated with the specified experimental data processing external identifier.
-            </summary>
-            <param name="repository">The database repository.</param>
-            <param name="externalIdentifier">The unique external identifier of the processing run.</param>
-            <param name="cancellationToken">Cooperative cancellation token.</param>
-            <returns>A <see cref="T:MelloSilveiraTools.Core.Models.ListedResult`1"/> of <see cref="T:MelloSilveiraTools.Database.RelationalDatabase.Models.Entities.StoredFileEntity"/> records.</returns>
-        </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Controllers.ExperimentalDataController.DownloadFileByIdAsync(MelloSilveiraTools.Database.Repositories.IRepository,MelloSilveiraTools.Core.Managers.File.IFileStorageService,System.String,System.Int64,System.Threading.CancellationToken)">
-            <summary>
-            Downloads a specific stored file associated with the given external identifier and file record ID.
-            </summary>
-            <param name="repository">The database repository.</param>
-            <param name="fileStorageService">The file storage service used to open the physical file stream.</param>
-            <param name="externalIdentifier">The unique external identifier of the processing run.</param>
-            <param name="fileId">The database primary key of the <see cref="T:MelloSilveiraTools.Database.RelationalDatabase.Models.Entities.StoredFileEntity"/>.</param>
-            <param name="cancellationToken">Cooperative cancellation token.</param>
-            <returns>A streaming file download response or 404 Not Found.</returns>
         </member>
         <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Controllers.ParametricSweepController">
             <summary>
-            Exposes HTTP endpoints for executing Parametric Sweep sensitivity analyses, streaming real-time pipeline progress,
-            and querying or downloading generated CSV artifacts by external identifier.
+            Exposes HTTP endpoints for executing Parametric Sweep sensitivity analyses and streaming real-time pipeline progress.
+            File artifact queries and downloads are centralized in <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Controllers.StoredFilesController"/>.
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Controllers.ParametricSweepController.ExecuteAsync(MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Commands.ExecuteParametricSweepCommand,MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Commands.ExecuteParametricSweepRequest)">
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Controllers.ParametricSweepController.#ctor(MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Commands.ExecuteParametricSweepCommand)">
             <summary>
-            Executes a Parametric Sweep sensitivity analysis and persists the resulting sweep metadata and CSV artifacts.
+            Exposes HTTP endpoints for executing Parametric Sweep sensitivity analyses and streaming real-time pipeline progress.
+            File artifact queries and downloads are centralized in <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Controllers.StoredFilesController"/>.
             </summary>
-            <param name="command">The parametric sweep execution command.</param>
-            <param name="request">The parametric sweep request payload.</param>
-            <returns>A <see cref="T:MelloSilveiraTools.Core.Models.Result`1"/> containing the generated or supplied external identifier.</returns>
-        </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Controllers.ParametricSweepController.ExecuteStreamAsync(MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Commands.ExecuteParametricSweepCommand,MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Commands.ExecuteParametricSweepRequest,System.Threading.CancellationToken)">
-            <summary>
-            Executes a Parametric Sweep sensitivity analysis while streaming real-time <see cref="T:MelloSilveiraTools.Core.Pipelines.Models.PipelineProgressEvent"/>
-            notifications as newline-delimited JSON (<c>application/x-ndjson</c>).
-            </summary>
-            <param name="command">The parametric sweep execution command.</param>
-            <param name="request">The parametric sweep request payload.</param>
-            <param name="cancellationToken">Cooperative cancellation token.</param>
-        </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Controllers.ParametricSweepController.GetFilesAsync(MelloSilveiraTools.Database.Repositories.IRepository,System.String,System.Threading.CancellationToken)">
-            <summary>
-            Lists all stored CSV files associated with the specified parametric sweep external identifier.
-            </summary>
-            <param name="repository">The database repository.</param>
-            <param name="externalIdentifier">The unique external identifier of the parametric sweep run.</param>
-            <param name="cancellationToken">Cooperative cancellation token.</param>
-            <returns>A <see cref="T:MelloSilveiraTools.Core.Models.ListedResult`1"/> of <see cref="T:MelloSilveiraTools.Database.RelationalDatabase.Models.Entities.StoredFileEntity"/> records.</returns>
-        </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Controllers.ParametricSweepController.DownloadFileByIdAsync(MelloSilveiraTools.Database.Repositories.IRepository,MelloSilveiraTools.Core.Managers.File.IFileStorageService,System.String,System.Int64,System.Threading.CancellationToken)">
-            <summary>
-            Downloads a specific stored CSV file associated with the given external identifier and file record ID.
-            </summary>
-            <param name="repository">The database repository.</param>
-            <param name="fileStorageService">The file storage service used to open the physical file stream.</param>
-            <param name="externalIdentifier">The unique external identifier of the parametric sweep run.</param>
-            <param name="fileId">The database primary key of the <see cref="T:MelloSilveiraTools.Database.RelationalDatabase.Models.Entities.StoredFileEntity"/>.</param>
-            <param name="cancellationToken">Cooperative cancellation token.</param>
-            <returns>A streaming file download response or 404 Not Found.</returns>
         </member>
         <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Controllers.PipelineProgressStreamWriter">
             <summary>
@@ -125,37 +60,11 @@
             by their <c>ExternalIdentifier</c>.
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Controllers.StoredFilesController.GetByExternalIdentifierAsync(MelloSilveiraTools.Database.Repositories.IRepository,System.String,System.String,System.Threading.CancellationToken)">
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Controllers.StoredFilesController.#ctor(MelloSilveiraTools.Database.Repositories.IRepository,MelloSilveiraTools.Core.Managers.File.IFileStorageService)">
             <summary>
-            Lists all stored files associated with the specified external identifier, optionally filtered by context.
+            Exposes unified HTTP endpoints for querying and downloading stored files (<see cref="T:MelloSilveiraTools.Database.RelationalDatabase.Models.Entities.StoredFileEntity"/>)
+            by their <c>ExternalIdentifier</c>.
             </summary>
-            <param name="repository">The database repository.</param>
-            <param name="externalIdentifier">The external identifier correlating files to an execution run.</param>
-            <param name="context">Optional domain context filter (e.g., "ExperimentalDataRawProcessed", "MechanicalModelSimulation", "SensitivityAnalysis").</param>
-            <param name="cancellationToken">Cooperative cancellation token.</param>
-            <returns>A <see cref="T:MelloSilveiraTools.Core.Models.ListedResult`1"/> containing all matching <see cref="T:MelloSilveiraTools.Database.RelationalDatabase.Models.Entities.StoredFileEntity"/> records.</returns>
-        </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Controllers.StoredFilesController.DownloadByExternalIdentifierAsync(MelloSilveiraTools.Database.Repositories.IRepository,MelloSilveiraTools.Core.Managers.File.IFileStorageService,System.String,System.String,System.Threading.CancellationToken)">
-            <summary>
-            Streams and downloads a stored file identified by its external identifier and file name (or the first matching file if <paramref name="fileName"/> is omitted).
-            </summary>
-            <param name="repository">The database repository.</param>
-            <param name="fileStorageService">The file storage service used to open the physical file stream.</param>
-            <param name="externalIdentifier">The external identifier correlating the file to an execution run.</param>
-            <param name="fileName">Optional file name when multiple files share the same external identifier.</param>
-            <param name="cancellationToken">Cooperative cancellation token.</param>
-            <returns>A streaming file download response or 404 Not Found.</returns>
-        </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Controllers.StoredFilesController.DownloadByIdAsync(MelloSilveiraTools.Database.Repositories.IRepository,MelloSilveiraTools.Core.Managers.File.IFileStorageService,System.String,System.Int64,System.Threading.CancellationToken)">
-            <summary>
-            Streams and downloads a stored file identified by its external identifier and database record ID.
-            </summary>
-            <param name="repository">The database repository.</param>
-            <param name="fileStorageService">The file storage service used to open the physical file stream.</param>
-            <param name="externalIdentifier">The external identifier correlating the file to an execution run.</param>
-            <param name="fileId">The database primary key of the <see cref="T:MelloSilveiraTools.Database.RelationalDatabase.Models.Entities.StoredFileEntity"/>.</param>
-            <param name="cancellationToken">Cooperative cancellation token.</param>
-            <returns>A streaming file download response or 404 Not Found.</returns>
         </member>
         <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Algorithms.AlglibCurveFitter.FitStandard(MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Models.CurveFitInput)">
             <summary>
@@ -198,21 +107,21 @@
             </list>
             </remarks>
         </member>
-        <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Commands.FitCurve">
+        <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Commands.FitCurveCommand">
             <summary>
             Application command that executes constitutive model curve fitting over one or more <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Models.CurveSegment"/> items.
             </summary>
             <param name="stepFactory">Factory resolving model-specific curve fitter pipeline steps.</param>
             <param name="validator">Request validator for <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Commands.FitCurveRequest"/>.</param>
         </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Commands.FitCurve.#ctor(MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Factories.IMechanicalModelStepFactory,MelloSilveiraTools.Core.Validators.IValidator{MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Commands.FitCurveRequest})">
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Commands.FitCurveCommand.#ctor(MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Factories.IMechanicalModelStepFactory,MelloSilveiraTools.Core.Validators.IValidator{MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Commands.FitCurveRequest})">
             <summary>
             Application command that executes constitutive model curve fitting over one or more <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Models.CurveSegment"/> items.
             </summary>
             <param name="stepFactory">Factory resolving model-specific curve fitter pipeline steps.</param>
             <param name="validator">Request validator for <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Commands.FitCurveRequest"/>.</param>
         </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Commands.FitCurve.ExecuteCommandAsync(MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Commands.FitCurveRequest)">
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Commands.FitCurveCommand.ExecuteCommandAsync(MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Commands.FitCurveRequest)">
             <inheritdoc/>
         </member>
         <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Commands.FitCurveRequest">
@@ -248,6 +157,11 @@
         <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Commands.FitCurveRequest.Options">
             <summary>
             Optional optimization options override.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Commands.FitCurveRequest.CancellationToken">
+            <summary>
+            Optional cooperative cancellation token for terminating fitting prematurely.
             </summary>
         </member>
         <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Commands.FitCurveResultData">
@@ -753,23 +667,11 @@
         <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Commands.ProcessExperimentalDataRequest.StrainFile">
             <summary>
             Uploaded form file containing the raw experimental strain time-history CSV.
-            Required when <see cref="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Commands.ProcessExperimentalDataRequest.StrainStream"/> is not provided.
             </summary>
         </member>
         <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Commands.ProcessExperimentalDataRequest.StressFile">
             <summary>
             Uploaded form file containing the raw experimental stress time-history CSV.
-            Required when <see cref="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Commands.ProcessExperimentalDataRequest.StressStream"/> is not provided.
-            </summary>
-        </member>
-        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Commands.ProcessExperimentalDataRequest.StrainStream">
-            <summary>
-            Optional in-memory or file stream containing raw experimental strain time-history.
-            </summary>
-        </member>
-        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Commands.ProcessExperimentalDataRequest.StressStream">
-            <summary>
-            Optional in-memory or file stream containing raw experimental stress time-history.
             </summary>
         </member>
         <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Commands.ProcessExperimentalDataRequest.StartExperimentalTimeThreshold">
@@ -831,6 +733,19 @@
             <summary>
             Optional progress reporter for emitting real-time <see cref="T:MelloSilveiraTools.Core.Pipelines.Models.PipelineProgressEvent"/> notifications.
             </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Commands.ProcessExperimentalDataRequest.CancellationToken">
+            <summary>
+            Optional cooperative cancellation token for terminating processing prematurely.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Commands.ProcessExperimentalDataRequest.ToInput(System.IO.Stream,System.IO.Stream)">
+            <summary>
+            Converts this command request and open file streams into an <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Models.ExperimentalDataProcessingInput"/> instance.
+            </summary>
+            <param name="strainStream">Open readable stream for strain data.</param>
+            <param name="stressStream">Open readable stream for stress data.</param>
+            <returns>A configured <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Models.ExperimentalDataProcessingInput"/> instance.</returns>
         </member>
         <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Commands.ProcessExperimentalDataResponse">
             <summary>
@@ -2261,6 +2176,11 @@
         <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Commands.ExecuteParametricSweepRequest.Progress">
             <summary>
             Optional progress reporter for emitting real-time <see cref="T:MelloSilveiraTools.Core.Pipelines.Models.PipelineProgressEvent"/> notifications.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Commands.ExecuteParametricSweepRequest.CancellationToken">
+            <summary>
+            Optional cooperative cancellation token for terminating processing prematurely.
             </summary>
         </member>
         <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Commands.ExecuteParametricSweepRequest.ToInput">

@@ -1,4 +1,4 @@
-using MelloSilveiraTools.Core.Managers.File;
+﻿using MelloSilveiraTools.Core.Managers.File;
 using MelloSilveiraTools.Core.Models;
 using MelloSilveiraTools.Core.Pipelines;
 using MelloSilveiraTools.Core.Pipelines.Dataflow;
@@ -108,16 +108,7 @@ public sealed class ExperimentalDataProcessingPipeline(
         }
 
         FileMetadata rawProcessedMetadata = experimentalDataFileWriterStep.FileMetadata;
-        StoredFileEntity storedFile = new()
-        {
-            ExternalIdentifier = uniqueIdentifier,
-            Context = "ExperimentalDataRawProcessed",
-            StorageProvider = StorageProvider.Local,
-            FileName = rawProcessedMetadata.FileName,
-            Location = rawProcessedMetadata.FullPath,
-            SizeBytes = rawProcessedMetadata.SizeBytes,
-            ContentType = "text/csv"
-        };
+        StoredFileEntity storedFile = StoredFileEntity.Create(uniqueIdentifier, "ExperimentalDataRawProcessed", rawProcessedMetadata);
 
         Result<long> fileResult = await repository.TryInsertAsync(storedFile, cancellationToken).ConfigureAwait(false);
         if (!fileResult.Success && !fileResult.IsConflict)

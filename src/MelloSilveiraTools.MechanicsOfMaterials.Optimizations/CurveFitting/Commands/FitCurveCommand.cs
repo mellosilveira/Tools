@@ -1,4 +1,4 @@
-using MelloSilveiraTools.Core.Application.Commands;
+﻿using MelloSilveiraTools.Core.Application.Commands;
 using MelloSilveiraTools.Core.Models;
 using MelloSilveiraTools.Core.Validators;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Models;
@@ -13,7 +13,7 @@ namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Com
 /// </summary>
 /// <param name="stepFactory">Factory resolving model-specific curve fitter pipeline steps.</param>
 /// <param name="validator">Request validator for <see cref="FitCurveRequest"/>.</param>
-public sealed class FitCurve(
+public sealed class FitCurveCommand(
     IMechanicalModelStepFactory stepFactory,
     IValidator<FitCurveRequest> validator)
     : CommandBaseWithData<FitCurveRequest, FitCurveResultData>(validator)
@@ -34,17 +34,10 @@ public sealed class FitCurve(
 
             foreach (CurveSegment segment in request.Segments)
             {
-                await foreach (MechanicalModelCurveFitOutput output in fitterStep.ExecuteAsync(segment, CancellationToken.None).ConfigureAwait(false))
+                await foreach (MechanicalModelCurveFitOutput output in fitterStep.ExecuteAsync(segment, request.CancellationToken).ConfigureAwait(false))
                 {
                     totalError += output.FinalError;
-                    groups.Add(new ParameterGroupResultData
-                    {
-                        OptimizedParameters = output.ConstitutiveParameters,
-                        AcceptedStrainRange = output.AcceptedRange,
-                        RSquared = output.RSquared,
-                        FinalError = output.FinalError,
-                        Iterations = output.Iterations
-                    });
+                    groups.Add(ParameterGroupResultData.FromOutput(output));
                 }
             }
 

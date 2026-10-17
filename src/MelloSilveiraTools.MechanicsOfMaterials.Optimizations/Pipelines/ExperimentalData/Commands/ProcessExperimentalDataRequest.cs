@@ -1,4 +1,4 @@
-using MelloSilveiraTools.Core.Application.Commands;
+﻿using MelloSilveiraTools.Core.Application.Commands;
 using MelloSilveiraTools.Core.Pipelines.Models;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Models;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Models;
@@ -14,29 +14,15 @@ public record ProcessExperimentalDataRequest : RequestBase
 {
     /// <summary>
     /// Uploaded form file containing the raw experimental strain time-history CSV.
-    /// Required when <see cref="StrainStream"/> is not provided.
     /// </summary>
     [JsonIgnore]
-    public IFormFile? StrainFile { get; init; }
+    public required IFormFile StrainFile { get; init; }
 
     /// <summary>
     /// Uploaded form file containing the raw experimental stress time-history CSV.
-    /// Required when <see cref="StressStream"/> is not provided.
     /// </summary>
     [JsonIgnore]
-    public IFormFile? StressFile { get; init; }
-
-    /// <summary>
-    /// Optional in-memory or file stream containing raw experimental strain time-history.
-    /// </summary>
-    [JsonIgnore]
-    public Stream? StrainStream { get; init; }
-
-    /// <summary>
-    /// Optional in-memory or file stream containing raw experimental stress time-history.
-    /// </summary>
-    [JsonIgnore]
-    public Stream? StressStream { get; init; }
+    public required IFormFile StressFile { get; init; }
 
     /// <summary>
     /// Optional threshold time to ignore initial transient data.
@@ -98,4 +84,34 @@ public record ProcessExperimentalDataRequest : RequestBase
     /// </summary>
     [JsonIgnore]
     public IProgress<PipelineProgressEvent>? Progress { get; init; }
+
+    /// <summary>
+    /// Optional cooperative cancellation token for terminating processing prematurely.
+    /// </summary>
+    [JsonIgnore]
+    public CancellationToken CancellationToken { get; init; } = default;
+
+    /// <summary>
+    /// Converts this command request and open file streams into an <see cref="ExperimentalDataProcessingInput"/> instance.
+    /// </summary>
+    /// <param name="strainStream">Open readable stream for strain data.</param>
+    /// <param name="stressStream">Open readable stream for stress data.</param>
+    /// <returns>A configured <see cref="ExperimentalDataProcessingInput"/> instance.</returns>
+    public ExperimentalDataProcessingInput ToInput(Stream strainStream, Stream stressStream) => new()
+    {
+        StrainStream = strainStream,
+        StressStream = stressStream,
+        StartExperimentalTimeThreshold = StartExperimentalTimeThreshold,
+        Identifier = Identifier,
+        MechanicalModelName = MechanicalModelName,
+        TargetSegments = TargetSegments,
+        CurveFitterType = CurveFitterType,
+        TargetRSquared = TargetRSquared,
+        AsymptoteConsecutivePointsThreshold = AsymptoteConsecutivePointsThreshold,
+        SimulationTimeStep = SimulationTimeStep,
+        FinalSimulationTime = FinalSimulationTime,
+        DownsamplingSkipTimeStep = DownsamplingSkipTimeStep,
+        Options = Options ?? new ExperimentalDataProcessingOptions(),
+        Progress = Progress
+    };
 }

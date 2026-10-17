@@ -1,7 +1,6 @@
-using MelloSilveiraTools.Core.Models;
+﻿using MelloSilveiraTools.Core.Models;
 using MelloSilveiraTools.Core.Pipelines.Models;
 using Microsoft.AspNetCore.Http;
-using System.Text;
 using System.Text.Json;
 using System.Threading.Channels;
 
@@ -81,8 +80,7 @@ internal static class PipelineProgressStreamWriter
 
         await foreach (PipelineProgressEvent progressEvent in channel.Reader.ReadAllAsync(cancellationToken).ConfigureAwait(false))
         {
-            string json = JsonSerializer.Serialize(progressEvent, JsonOptions);
-            byte[] bytes = Encoding.UTF8.GetBytes(json);
+            byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(progressEvent, JsonOptions);
             await response.Body.WriteAsync(bytes, cancellationToken).ConfigureAwait(false);
             await response.Body.WriteAsync(Newline, cancellationToken).ConfigureAwait(false);
             await response.Body.FlushAsync(cancellationToken).ConfigureAwait(false);

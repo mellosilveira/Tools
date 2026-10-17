@@ -1,4 +1,4 @@
-using MelloSilveiraTools.Core.Managers.File;
+﻿using MelloSilveiraTools.Core.Managers.File;
 using MelloSilveiraTools.Database.RelationalDatabase.Attributes;
 
 namespace MelloSilveiraTools.Database.RelationalDatabase.Models.Entities;
@@ -51,4 +51,32 @@ public record StoredFileEntity : EntityBase
     /// </summary>
     [Column]
     public string ContentType { get; init; } = "text/csv";
+
+    /// <summary>
+    /// Creates a new <see cref="StoredFileEntity"/> instance from the specified external identifier, context, and file metadata.
+    /// </summary>
+    /// <param name="externalIdentifier">The external correlation identifier.</param>
+    /// <param name="context">The business domain context.</param>
+    /// <param name="metadata">The file metadata describing the physical file.</param>
+    /// <param name="contentType">The MIME content type (defaults to "text/csv").</param>
+    /// <param name="storageProvider">The storage provider technology (defaults to <see cref="StorageProvider.Local"/>).</param>
+    /// <returns>A new <see cref="StoredFileEntity"/> instance.</returns>
+    public static StoredFileEntity Create(
+        string externalIdentifier,
+        string context,
+        FileMetadata metadata,
+        string contentType = "text/csv",
+        StorageProvider storageProvider = StorageProvider.Local)
+    {
+        return new StoredFileEntity
+        {
+            ExternalIdentifier = externalIdentifier,
+            Context = context,
+            StorageProvider = storageProvider,
+            FileName = metadata.FileName,
+            Location = metadata.FullPath,
+            SizeBytes = metadata.SizeBytes,
+            ContentType = contentType
+        };
+    }
 }

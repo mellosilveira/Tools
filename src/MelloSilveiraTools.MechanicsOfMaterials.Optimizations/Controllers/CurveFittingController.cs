@@ -1,4 +1,4 @@
-using MelloSilveiraTools.Core.ExtensionMethods;
+﻿using MelloSilveiraTools.Core.ExtensionMethods;
 using MelloSilveiraTools.Core.Models;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Commands;
 using Microsoft.AspNetCore.Http;
@@ -11,22 +11,16 @@ namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Controllers;
 /// </summary>
 [ApiController]
 [Route("api/v1/curve-fitting")]
-public class CurveFittingController : ControllerBase
+public class CurveFittingController(FitCurveCommand command) : ControllerBase
 {
-    /// <summary>
-    /// Executes curve fitting over one or more experimental curve segments for the specified mechanical model.
-    /// </summary>
-    /// <param name="command">The curve fitting application command.</param>
-    /// <param name="request">The curve fitting request payload.</param>
-    /// <returns>An <see cref="ActionResult{TValue}"/> containing the optimized parameter groups and fit metrics.</returns>
     [HttpPost]
     [ProducesResponseType(typeof(Result<FitCurveResultData>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(Result<FitCurveResultData>), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(Result<FitCurveResultData>), StatusCodes.Status500InternalServerError)]
     public async Task<ActionResult<Result<FitCurveResultData>>> FitCurveAsync(
-        [FromServices] FitCurve command,
-        [FromBody] FitCurveRequest request)
+        [FromBody] FitCurveRequest request,
+        CancellationToken cancellationToken = default)
     {
-        return await command.ExecuteAsync(request).BuildHttpResponseAsync().ConfigureAwait(false);
+        return await command.ExecuteAsync(request with { CancellationToken = cancellationToken }).BuildHttpResponseAsync().ConfigureAwait(false);
     }
 }

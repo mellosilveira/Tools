@@ -1,4 +1,4 @@
-using MelloSilveiraTools.Core.Application.Commands;
+﻿using MelloSilveiraTools.Core.Application.Commands;
 using MelloSilveiraTools.Core.Pipelines.Models;
 using MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels;
 using MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity;
@@ -83,6 +83,12 @@ public record ExecuteParametricSweepRequest : RequestBase
     /// </summary>
     [JsonIgnore]
     public IProgress<PipelineProgressEvent>? Progress { get; init; }
+
+    /// <summary>
+    /// Optional cooperative cancellation token for terminating processing prematurely.
+    /// </summary>
+    [JsonIgnore]
+    public CancellationToken CancellationToken { get; init; } = default;
 
     /// <summary>
     /// Converts this command request into a <see cref="ParametricSweepInput"/> instance.

@@ -1,4 +1,4 @@
-using MelloSilveiraTools.Core.Application.Commands;
+﻿using MelloSilveiraTools.Core.Application.Commands;
 using MelloSilveiraTools.Core.Models;
 using MelloSilveiraTools.Core.Validators;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.SensitivityAnalysis;
@@ -18,17 +18,10 @@ public sealed class ExecuteParametricSweepCommand(
     /// <inheritdoc/>
     protected override async Task<Result<ExecuteParametricSweepResponse>> ExecuteCommandAsync(ExecuteParametricSweepRequest request)
     {
-        Result<string> pipelineResult = await pipeline.ProcessAsync(request.ToInput(), CancellationToken.None).ConfigureAwait(false);
-        if (!pipelineResult.Success)
-        {
-            return new Result<ExecuteParametricSweepResponse>
-            {
-                Success = false,
-                StatusCode = pipelineResult.StatusCode,
-                Messages = pipelineResult.Messages
-            };
-        }
+        Result<string> pipelineResult = await pipeline.ProcessAsync(request.ToInput(), request.CancellationToken).ConfigureAwait(false);
 
-        return new ExecuteParametricSweepResponse(pipelineResult.Data!);
+        return pipelineResult.Success
+            ? new ExecuteParametricSweepResponse(pipelineResult.Data!)
+            : new Result<ExecuteParametricSweepResponse> { StatusCode = pipelineResult.StatusCode, Messages = pipelineResult.Messages };
     }
 }

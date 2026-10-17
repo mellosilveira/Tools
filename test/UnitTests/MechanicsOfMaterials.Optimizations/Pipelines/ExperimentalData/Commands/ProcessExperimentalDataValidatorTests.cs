@@ -1,4 +1,4 @@
-using MelloSilveiraTools.Core.Models;
+﻿using MelloSilveiraTools.Core.Models;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Commands;
 using Microsoft.AspNetCore.Http;
 using Moq;
@@ -34,14 +34,11 @@ public sealed class ProcessExperimentalDataValidatorTests
     public void Validate_WhenMechanicalModelNameIsMissing_ReturnsBadRequest()
     {
         // Arrange
-        using MemoryStream strainStream = new([1, 2, 3]);
-        using MemoryStream stressStream = new([4, 5, 6]);
-
         ProcessExperimentalDataRequest request = new()
         {
             MechanicalModelName = string.Empty,
-            StrainStream = strainStream,
-            StressStream = stressStream,
+            StrainFile = CreateMockFormFile(),
+            StressFile = CreateMockFormFile(),
             TargetRSquared = 0.95
         };
 
@@ -54,49 +51,17 @@ public sealed class ProcessExperimentalDataValidatorTests
     }
 
     /// <summary>
-    /// Verifies that omitting strain and stress streams or files triggers validation errors.
-    /// </summary>
-    [Fact]
-    public void Validate_WhenStreamsAndFilesAreMissing_ReturnsBadRequest()
-    {
-        // Arrange
-        ProcessExperimentalDataRequest request = new()
-        {
-            MechanicalModelName = "Maxwell",
-            StrainStream = null,
-            StressStream = null,
-            StrainFile = null,
-            StressFile = null,
-            TargetRSquared = 0.95
-        };
-
-        // Act
-        Result result = _validator.Validate(request);
-
-        // Assert
-        Assert.False(result.Success);
-        Assert.Contains("A non-empty StrainFile or StrainStream must be provided.", result.Messages);
-        Assert.Contains("A non-empty StressFile or StressStream must be provided.", result.Messages);
-    }
-
-    /// <summary>
     /// Verifies that providing an empty FormFile (0 bytes) is flagged as missing.
     /// </summary>
     [Fact]
     public void Validate_WhenFormFilesAreEmpty_ReturnsBadRequest()
     {
         // Arrange
-        Mock<IFormFile> emptyStrainMock = new();
-        emptyStrainMock.Setup(f => f.Length).Returns(0L);
-
-        Mock<IFormFile> emptyStressMock = new();
-        emptyStressMock.Setup(f => f.Length).Returns(0L);
-
         ProcessExperimentalDataRequest request = new()
         {
             MechanicalModelName = "Maxwell",
-            StrainFile = emptyStrainMock.Object,
-            StressFile = emptyStressMock.Object,
+            StrainFile = CreateMockFormFile(0L),
+            StressFile = CreateMockFormFile(0L),
             TargetRSquared = 0.95
         };
 
@@ -105,8 +70,8 @@ public sealed class ProcessExperimentalDataValidatorTests
 
         // Assert
         Assert.False(result.Success);
-        Assert.Contains("A non-empty StrainFile or StrainStream must be provided.", result.Messages);
-        Assert.Contains("A non-empty StressFile or StressStream must be provided.", result.Messages);
+        Assert.Contains("A non-empty StrainFile must be provided.", result.Messages);
+        Assert.Contains("A non-empty StressFile must be provided.", result.Messages);
     }
 
     /// <summary>
@@ -119,14 +84,11 @@ public sealed class ProcessExperimentalDataValidatorTests
     public void Validate_WhenTargetRSquaredIsInvalid_ReturnsBadRequest(double targetRSquared)
     {
         // Arrange
-        using MemoryStream strainStream = new([1, 2]);
-        using MemoryStream stressStream = new([3, 4]);
-
         ProcessExperimentalDataRequest request = new()
         {
             MechanicalModelName = "Maxwell",
-            StrainStream = strainStream,
-            StressStream = stressStream,
+            StrainFile = CreateMockFormFile(),
+            StressFile = CreateMockFormFile(),
             TargetRSquared = targetRSquared
         };
 
@@ -145,14 +107,11 @@ public sealed class ProcessExperimentalDataValidatorTests
     public void Validate_WhenThresholdsOrStepsAreInvalid_ReturnsBadRequest()
     {
         // Arrange
-        using MemoryStream strainStream = new([1, 2]);
-        using MemoryStream stressStream = new([3, 4]);
-
         ProcessExperimentalDataRequest request = new()
         {
             MechanicalModelName = "Maxwell",
-            StrainStream = strainStream,
-            StressStream = stressStream,
+            StrainFile = CreateMockFormFile(),
+            StressFile = CreateMockFormFile(),
             TargetRSquared = 0.95,
             AsymptoteConsecutivePointsThreshold = -1,
             SimulationTimeStep = -0.1,
@@ -170,20 +129,17 @@ public sealed class ProcessExperimentalDataValidatorTests
     }
 
     /// <summary>
-    /// Verifies that a well-formed request with streams passes validation.
+    /// Verifies that a well-formed request with FormFiles passes validation.
     /// </summary>
     [Fact]
-    public void Validate_WhenValidWithStreams_ReturnsSuccess()
+    public void Validate_WhenValidWithFormFiles_ReturnsSuccess()
     {
         // Arrange
-        using MemoryStream strainStream = new([1, 2, 3]);
-        using MemoryStream stressStream = new([4, 5, 6]);
-
         ProcessExperimentalDataRequest request = new()
         {
             MechanicalModelName = "Maxwell",
-            StrainStream = strainStream,
-            StressStream = stressStream,
+            StrainFile = CreateMockFormFile(100L),
+            StressFile = CreateMockFormFile(100L),
             TargetRSquared = 0.99,
             SimulationTimeStep = 0.05,
             AsymptoteConsecutivePointsThreshold = 5,
@@ -199,32 +155,10 @@ public sealed class ProcessExperimentalDataValidatorTests
         Assert.Empty(result.Messages);
     }
 
-    /// <summary>
-    /// Verifies that a well-formed request with FormFiles passes validation.
-    /// </summary>
-    [Fact]
-    public void Validate_WhenValidWithFormFiles_ReturnsSuccess()
+    private static IFormFile CreateMockFormFile(long length = 100L)
     {
-        // Arrange
-        Mock<IFormFile> strainFileMock = new();
-        strainFileMock.Setup(f => f.Length).Returns(100L);
-
-        Mock<IFormFile> stressFileMock = new();
-        stressFileMock.Setup(f => f.Length).Returns(100L);
-
-        ProcessExperimentalDataRequest request = new()
-        {
-            MechanicalModelName = "Maxwell",
-            StrainFile = strainFileMock.Object,
-            StressFile = stressFileMock.Object,
-            TargetRSquared = 0.99
-        };
-
-        // Act
-        Result result = _validator.Validate(request);
-
-        // Assert
-        Assert.True(result.Success);
-        Assert.Equal(StatusCode.OK, result.StatusCode);
+        Mock<IFormFile> mock = new();
+        mock.Setup(f => f.Length).Returns(length);
+        return mock.Object;
     }
 }

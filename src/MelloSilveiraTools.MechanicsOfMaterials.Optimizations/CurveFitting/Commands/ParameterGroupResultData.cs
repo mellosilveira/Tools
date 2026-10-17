@@ -1,4 +1,4 @@
-using MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels;
+﻿using MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels;
 
 namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Commands;
 
@@ -31,4 +31,13 @@ public record ParameterGroupResultData
     /// The total number of iterations executed by the optimizer.
     /// </summary>
     public int Iterations { get; init; }
+
+    public static ParameterGroupResultData FromOutput(Pipelines.ExperimentalData.Models.MechanicalModelCurveFitOutput output) => new()
+    {
+        OptimizedParameters = output.ConstitutiveParameters,
+        AcceptedStrainRange = output.AcceptedRange,
+        RSquared = output.RSquared,
+        FinalError = output.FinalError,
+        Iterations = output.Iterations
+    };
 }

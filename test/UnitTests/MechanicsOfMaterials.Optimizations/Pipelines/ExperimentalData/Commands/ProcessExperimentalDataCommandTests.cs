@@ -1,4 +1,4 @@
-using MelloSilveiraTools.Core.Models;
+﻿using MelloSilveiraTools.Core.Models;
 using MelloSilveiraTools.Core.Validators;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Commands;
@@ -31,7 +31,9 @@ public sealed class ProcessExperimentalDataCommandTests
         ProcessExperimentalDataCommand command = new(_pipelineMock.Object, _validatorMock.Object);
         ProcessExperimentalDataRequest request = new()
         {
-            MechanicalModelName = "Maxwell"
+            MechanicalModelName = "Maxwell",
+            StrainFile = Mock.Of<IFormFile>(),
+            StressFile = Mock.Of<IFormFile>()
         };
 
         // Act
@@ -62,14 +64,14 @@ public sealed class ProcessExperimentalDataCommandTests
 
         ProcessExperimentalDataCommand command = new(_pipelineMock.Object, _validatorMock.Object);
 
-        using MemoryStream strainStream = new([1, 2, 3]);
-        using MemoryStream stressStream = new([4, 5, 6]);
+        Mock<IFormFile> strainFileMock = CreateMockFormFile([1, 2, 3]);
+        Mock<IFormFile> stressFileMock = CreateMockFormFile([4, 5, 6]);
 
         ProcessExperimentalDataRequest request = new()
         {
             MechanicalModelName = "Maxwell",
-            StrainStream = strainStream,
-            StressStream = stressStream,
+            StrainFile = strainFileMock.Object,
+            StressFile = stressFileMock.Object,
             TargetRSquared = 0.99
         };
 
@@ -102,14 +104,14 @@ public sealed class ProcessExperimentalDataCommandTests
 
         ProcessExperimentalDataCommand command = new(_pipelineMock.Object, _validatorMock.Object);
 
-        using MemoryStream strainStream = new([1, 2]);
-        using MemoryStream stressStream = new([3, 4]);
+        Mock<IFormFile> strainFileMock = CreateMockFormFile([1, 2]);
+        Mock<IFormFile> stressFileMock = CreateMockFormFile([3, 4]);
 
         ProcessExperimentalDataRequest request = new()
         {
             MechanicalModelName = "Fung",
-            StrainStream = strainStream,
-            StressStream = stressStream
+            StrainFile = strainFileMock.Object,
+            StressFile = stressFileMock.Object
         };
 
         // Act
@@ -162,6 +164,14 @@ public sealed class ProcessExperimentalDataCommandTests
         Assert.True(result.Success);
         Assert.True(strainStream.IsDisposed, "Expected strainStream to be disposed after command execution.");
         Assert.True(stressStream.IsDisposed, "Expected stressStream to be disposed after command execution.");
+    }
+
+    private static Mock<IFormFile> CreateMockFormFile(byte[] content)
+    {
+        Mock<IFormFile> mock = new();
+        mock.Setup(f => f.Length).Returns((long)content.Length);
+        mock.Setup(f => f.OpenReadStream()).Returns(() => new MemoryStream(content));
+        return mock;
     }
 
     /// <summary>

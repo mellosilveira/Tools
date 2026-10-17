@@ -84,9 +84,40 @@
             These verify that the SQL provider handles FK-heavy schemas end-to-end.
             </summary>
         </member>
+        <member name="T:UnitTests.MechanicsOfMaterials.Optimizations.Controllers.StoredFilesControllerTests">
+            <summary>
+            Unit tests for <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Controllers.StoredFilesController"/> verifying file metadata query operations,
+            resilient physical file existence checking, and streaming download responses.
+            </summary>
+        </member>
+        <member name="M:UnitTests.MechanicsOfMaterials.Optimizations.Controllers.StoredFilesControllerTests.GetByExternalIdentifierAsync_WhenEntitiesExist_ReturnsListedResult">
+            <summary>
+            Verifies that querying by external identifier returns all associated stored file entities.
+            </summary>
+        </member>
+        <member name="M:UnitTests.MechanicsOfMaterials.Optimizations.Controllers.StoredFilesControllerTests.DownloadByExternalIdentifierAsync_WhenEntityNotFound_ReturnsNotFound">
+            <summary>
+            Verifies that downloading by external identifier returns a 404 NotFound response when the database entity is absent.
+            </summary>
+        </member>
+        <member name="M:UnitTests.MechanicsOfMaterials.Optimizations.Controllers.StoredFilesControllerTests.DownloadByExternalIdentifierAsync_WhenPhysicalFileMissing_ReturnsNotFound">
+            <summary>
+            Verifies that downloading by external identifier returns a 404 NotFound response when the physical file is missing from storage.
+            </summary>
+        </member>
+        <member name="M:UnitTests.MechanicsOfMaterials.Optimizations.Controllers.StoredFilesControllerTests.DownloadByExternalIdentifierAsync_WhenFileExists_ReturnsFileStreamResult">
+            <summary>
+            Verifies that downloading by external identifier returns a FileStreamResult when the entity and physical file exist.
+            </summary>
+        </member>
+        <member name="M:UnitTests.MechanicsOfMaterials.Optimizations.Controllers.StoredFilesControllerTests.DownloadByIdAsync_WhenPhysicalFileMissing_ReturnsNotFound">
+            <summary>
+            Verifies that downloading by ID returns a 404 NotFound response when the physical file is missing from storage.
+            </summary>
+        </member>
         <member name="T:UnitTests.MechanicsOfMaterials.Optimizations.CurveFitting.Commands.FitCurveCommandTests">
             <summary>
-            Unit tests for <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Commands.FitCurve"/> verifying command execution, validation short-circuiting,
+            Unit tests for <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Commands.FitCurveCommand"/> verifying command execution, validation short-circuiting,
             step factory resolution, and output aggregation.
             </summary>
         </member>
@@ -181,11 +212,6 @@
             Verifies that omitting the mechanical model name triggers a validation error.
             </summary>
         </member>
-        <member name="M:UnitTests.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Commands.ProcessExperimentalDataValidatorTests.Validate_WhenStreamsAndFilesAreMissing_ReturnsBadRequest">
-            <summary>
-            Verifies that omitting strain and stress streams or files triggers validation errors.
-            </summary>
-        </member>
         <member name="M:UnitTests.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Commands.ProcessExperimentalDataValidatorTests.Validate_WhenFormFilesAreEmpty_ReturnsBadRequest">
             <summary>
             Verifies that providing an empty FormFile (0 bytes) is flagged as missing.
@@ -199,11 +225,6 @@
         <member name="M:UnitTests.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Commands.ProcessExperimentalDataValidatorTests.Validate_WhenThresholdsOrStepsAreInvalid_ReturnsBadRequest">
             <summary>
             Verifies that negative thresholds and step parameters trigger validation errors.
-            </summary>
-        </member>
-        <member name="M:UnitTests.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Commands.ProcessExperimentalDataValidatorTests.Validate_WhenValidWithStreams_ReturnsSuccess">
-            <summary>
-            Verifies that a well-formed request with streams passes validation.
             </summary>
         </member>
         <member name="M:UnitTests.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Commands.ProcessExperimentalDataValidatorTests.Validate_WhenValidWithFormFiles_ReturnsSuccess">

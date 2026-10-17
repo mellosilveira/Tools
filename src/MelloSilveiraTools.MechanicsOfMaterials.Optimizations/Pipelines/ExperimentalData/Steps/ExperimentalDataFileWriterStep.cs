@@ -1,4 +1,4 @@
-using MelloSilveiraTools.Core.Managers.File;
+﻿using MelloSilveiraTools.Core.Managers.File;
 using MelloSilveiraTools.Core.Pipelines.Steps;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Models;
 using System.Globalization;
@@ -38,16 +38,7 @@ public sealed class ExperimentalDataFileWriterStep(
     public async Task ExecuteAsync(SegmentedDataPoint input, CancellationToken cancellationToken = default)
     {
         ProcessedDataPoint point = input.ProcessedDataPoint;
-        string row = string.Format(
-            CultureInfo.InvariantCulture,
-            "{0},{1},{2},{3},{4},{5},{6}",
-            point.Time,
-            point.Strain,
-            point.StrainRate,
-            point.StrainAcceleration,
-            point.Stress,
-            point.StressRate,
-            point.StressAcceleration);
+        string row = FormattableString.Invariant($"{point.Time},{point.Strain},{point.StrainRate},{point.StrainAcceleration},{point.Stress},{point.StressRate},{point.StressAcceleration}");
 
         await _writer.WriteRowAsync(row, cancellationToken).ConfigureAwait(false);
     }

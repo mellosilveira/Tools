@@ -1,4 +1,4 @@
-using MelloSilveiraTools.Database.RelationalDatabase.Attributes;
+﻿using MelloSilveiraTools.Database.RelationalDatabase.Attributes;
 using MelloSilveiraTools.Database.RelationalDatabase.Models.Entities;
 
 namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Models;
@@ -13,7 +13,6 @@ public record ParametricSweepEntity : EntityBase
     /// Unique external business or run identifier correlating the sweep execution with generated artifacts.
     /// </summary>
     [UniqueColumn]
-    [Column]
     public required string ExternalIdentifier { get; init; }
 
     /// <summary>

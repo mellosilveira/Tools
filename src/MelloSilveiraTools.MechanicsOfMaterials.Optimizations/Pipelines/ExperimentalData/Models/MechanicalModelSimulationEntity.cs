@@ -1,4 +1,4 @@
-using MelloSilveiraTools.Database.RelationalDatabase.Attributes;
+﻿using MelloSilveiraTools.Database.RelationalDatabase.Attributes;
 using MelloSilveiraTools.Database.RelationalDatabase.Models.Entities;
 
 namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Models;
@@ -13,7 +13,6 @@ public record MechanicalModelSimulationEntity : EntityBase
     /// Unique identifier for the simulation execution.
     /// </summary>
     [UniqueColumn]
-    [Column]
     public required string Identifier { get; init; }
 
     /// <summary>
