@@ -1,5 +1,6 @@
 using MelloSilveiraTools.Core.ExtensionMethods;
 using MelloSilveiraTools.Database.ExtensionMethods;
+using System.Reflection;
 using UnitTests.Database;
 
 namespace UnitTests.Core.ExtensionMethods;
@@ -136,5 +137,56 @@ public sealed class ClassExtensionsTests
         Assert.Equal(4, values.Count);
         Assert.Contains(7L, values);
         Assert.Contains("X", values);
+    }
+
+    // ── GetValueAsIntIfEnum ────────────────────────────────────────────────────
+
+    private enum TestSampleEnum
+    {
+        First = 10,
+        Second = 20
+    }
+
+    private sealed class SampleObject
+    {
+        public TestSampleEnum Status { get; set; }
+        public string? Text { get; set; }
+        public int Number { get; set; }
+    }
+
+    [Fact]
+    public void GetValueAsIntIfEnum_WhenPropertyIsEnum_ReturnsInteger()
+    {
+        SampleObject obj = new() { Status = TestSampleEnum.Second };
+        PropertyInfo prop = typeof(SampleObject).GetProperty(nameof(SampleObject.Status))!;
+
+        object? result = prop.GetCustomValue(obj);
+
+        Assert.Equal(20, result);
+    }
+
+    [Fact]
+    public void GetValueAsIntIfEnum_WhenPropertyIsNotEnum_ReturnsOriginalValue()
+    {
+        SampleObject obj = new() { Text = "hello", Number = 42 };
+        PropertyInfo textProp = typeof(SampleObject).GetProperty(nameof(SampleObject.Text))!;
+        PropertyInfo numProp = typeof(SampleObject).GetProperty(nameof(SampleObject.Number))!;
+
+        object? textResult = textProp.GetCustomValue(obj);
+        object? numResult = numProp.GetCustomValue(obj);
+
+        Assert.Equal("hello", textResult);
+        Assert.Equal(42, numResult);
+    }
+
+    [Fact]
+    public void GetValueAsIntIfEnum_WhenPropertyValueIsNull_ReturnsNull()
+    {
+        SampleObject obj = new() { Text = null };
+        PropertyInfo textProp = typeof(SampleObject).GetProperty(nameof(SampleObject.Text))!;
+
+        object? result = textProp.GetCustomValue(obj);
+
+        Assert.Null(result);
     }
 }

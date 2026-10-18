@@ -34,6 +34,9 @@ public record ParametricSweepInput
     /// </summary>
     public required Dictionary<string, Dictionary<int, RangeParameters>> ArrayVariables { get; init; }
 
+    /// <summary>
+    /// Gets the baseline strain applied in the mechanical simulation when strain is not the swept variable.
+    /// </summary>
     public required double BaseStrain { get; init; }
 
     /// <summary>
@@ -66,5 +69,9 @@ public record ParametricSweepInput
     /// </summary>
     public required double FinalTime { get; init; }
 
-    public required string OutputDirectory { get; init; }
+    /// <summary>
+    /// Gets the relative tolerance threshold utilized by the asymptote detection step.
+    /// Defaults to 1e-3 (0.1% of the initial relaxation rate).
+    /// </summary>
+    public double AsymptoteTolerance { get; init; }
 }

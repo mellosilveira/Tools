@@ -14,7 +14,7 @@
             Operation that clears the plugin cache managed by <see cref="T:MelloSilveiraTools.Plugins.Infrastructure.Services.IPluginService"/>.
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.Plugins.Application.Commands.Cache.ClearPluginCache.ExecuteCommandAsync">
+        <member name="M:MelloSilveiraTools.Plugins.Application.Commands.Cache.ClearPluginCache.ExecuteCommandAsync(System.Threading.CancellationToken)">
             <inheritdoc />
         </member>
         <member name="T:MelloSilveiraTools.Plugins.Application.Commands.Cache.PersistPluginCache">
@@ -27,7 +27,7 @@
             Operation that persists the plugin cache to the configured target (file, database, etc.) for the supplied plugin filter.
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.Plugins.Application.Commands.Cache.PersistPluginCache.ExecuteCommandAsync(MelloSilveiraTools.Plugins.Application.Commands.PluginsRequest)">
+        <member name="M:MelloSilveiraTools.Plugins.Application.Commands.Cache.PersistPluginCache.ExecuteCommandAsync(MelloSilveiraTools.Plugins.Application.Commands.PluginsRequest,System.Threading.CancellationToken)">
             <inheritdoc />
         </member>
         <member name="T:MelloSilveiraTools.Plugins.Application.Commands.Cache.RestorePluginCache">
@@ -40,7 +40,7 @@
             Operation that restores the plugin cache from the configured target (file, database, etc.) for the supplied plugin filter.
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.Plugins.Application.Commands.Cache.RestorePluginCache.ExecuteCommandAsync(MelloSilveiraTools.Plugins.Application.Commands.PluginsRequest)">
+        <member name="M:MelloSilveiraTools.Plugins.Application.Commands.Cache.RestorePluginCache.ExecuteCommandAsync(MelloSilveiraTools.Plugins.Application.Commands.PluginsRequest,System.Threading.CancellationToken)">
             <inheritdoc />
         </member>
         <member name="T:MelloSilveiraTools.Plugins.Application.Commands.Get.GetPlugins">
@@ -53,7 +53,7 @@
             Operation that retrieves registered plugins matching the supplied name, version and load-state filters.
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.Plugins.Application.Commands.Get.GetPlugins.ExecuteCommandAsync(MelloSilveiraTools.Plugins.Application.Commands.Get.GetPluginsRequest)">
+        <member name="M:MelloSilveiraTools.Plugins.Application.Commands.Get.GetPlugins.ExecuteCommandAsync(MelloSilveiraTools.Plugins.Application.Commands.Get.GetPluginsRequest,System.Threading.CancellationToken)">
             <inheritdoc />
         </member>
         <member name="T:MelloSilveiraTools.Plugins.Application.Commands.Get.GetPluginsRequest">
@@ -76,7 +76,7 @@
             Operation that loads plugins into the runtime based on the supplied name/version filter.
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.Plugins.Application.Commands.Load.LoadPlugins.ExecuteCommandAsync(MelloSilveiraTools.Plugins.Application.Commands.PluginsRequest)">
+        <member name="M:MelloSilveiraTools.Plugins.Application.Commands.Load.LoadPlugins.ExecuteCommandAsync(MelloSilveiraTools.Plugins.Application.Commands.PluginsRequest,System.Threading.CancellationToken)">
             <inheritdoc />
         </member>
         <member name="T:MelloSilveiraTools.Plugins.Application.Commands.PluginsRequest">
@@ -104,7 +104,7 @@
             Operation that reloads plugins into the runtime based on the supplied name/version filter and force flag.
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.Plugins.Application.Commands.Reload.ReloadPlugins.ExecuteCommandAsync(MelloSilveiraTools.Plugins.Application.Commands.Reload.ReloadPluginsRequest)">
+        <member name="M:MelloSilveiraTools.Plugins.Application.Commands.Reload.ReloadPlugins.ExecuteCommandAsync(MelloSilveiraTools.Plugins.Application.Commands.Reload.ReloadPluginsRequest,System.Threading.CancellationToken)">
             <inheritdoc />
         </member>
         <member name="T:MelloSilveiraTools.Plugins.Application.Commands.Reload.ReloadPluginsRequest">

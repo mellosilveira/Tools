@@ -13,7 +13,7 @@ namespace MelloSilveiraTools.Plugins.Application.Commands.Reload;
 public class ReloadPlugins(IPluginService pluginService, PluginValidator<ReloadPluginsRequest> validator) : CommandBaseWithDefaultResponse<ReloadPluginsRequest>(validator)
 {
     /// <inheritdoc />
-    protected override Task<Result> ExecuteCommandAsync(ReloadPluginsRequest request)
+    protected override Task<Result> ExecuteCommandAsync(ReloadPluginsRequest request, CancellationToken cancellationToken = default)
     {
         pluginService.ReloadPluginsOnRuntime(request.Force, request.Name, PluginVersion.SafeParse(request.Version));
         return Result.CreateSuccessOk().ToTask();

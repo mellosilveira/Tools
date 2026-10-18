@@ -1,4 +1,5 @@
 using MelloSilveiraTools.Core;
+using MelloSilveiraTools.Core.ResiliencePipelines;
 using MelloSilveiraTools.Mathematics;
 using MelloSilveiraTools.Mathematics.Functions;
 using MelloSilveiraTools.MechanicsOfMaterials;
@@ -24,7 +25,7 @@ public class MechanicalModelCalculatorFactoryTests
     {
         IServiceCollection services = new ServiceCollection();
         services.AddLogging();
-        CoreDependencyInjection.AddCoreServices(services, null, null, null, null, false);
+        CoreDependencyInjection.AddCoreServices(services, new ResiliencePipelineSettings(), null, null, null, null, false);
         services.AddMathematicsServices();
         services.AddMechanicsOfMaterialsServices(addMechanicalModels: true);
 

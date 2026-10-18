@@ -18,7 +18,4 @@ public sealed record ReadEntityPagedRequest<TFilter> : RequestBase
 
     /// <summary>Human-readable resource name used to build localized error messages.</summary>
     public string ResourceName { get; init; } = string.Empty;
-
-    /// <summary>Cancellation token (typically <c>HttpContext.RequestAborted</c>).</summary>
-    public CancellationToken CancellationToken { get; init; }
 }

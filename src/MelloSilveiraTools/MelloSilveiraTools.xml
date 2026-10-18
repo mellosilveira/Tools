@@ -9,20 +9,22 @@
             Provides extension methods to dependency injection of Tools project (meta-package).
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.DependencyInjection.AddToolsServices(Microsoft.Extensions.DependencyInjection.IServiceCollection,MelloSilveiraTools.Database.RelationalDatabase.Settings.DatabaseSettings,MelloSilveiraTools.Core.Services.Encryption.EncryptionSettings,MelloSilveiraTools.Core.ResiliencePipelines.ResiliencePipelineSettings,MelloSilveiraTools.Plugins.Infrastructure.PluginSettings,MelloSilveiraTools.Core.Services.Email.EmailSettings,MelloSilveiraTools.Core.Logging.LoggerSettings,System.Boolean,System.Boolean)">
+        <member name="M:MelloSilveiraTools.DependencyInjection.AddToolsServices(Microsoft.Extensions.DependencyInjection.IServiceCollection,MelloSilveiraTools.Core.ResiliencePipelines.ResiliencePipelineSettings,MelloSilveiraTools.Database.RelationalDatabase.Settings.DatabaseSettings,MelloSilveiraTools.Core.Services.Encryption.EncryptionSettings,MelloSilveiraTools.Plugins.Infrastructure.PluginSettings,MelloSilveiraTools.Core.Services.Email.EmailSettings,MelloSilveiraTools.Core.Logging.LoggerSettings,MelloSilveiraTools.Core.Managers.File.FileStorageSettings,MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.ExperimentalDataSettings,System.Boolean,System.Boolean)">
             <summary>
             Registers the services of every contextual MelloSilveiraTools package
-            (Core, Database, WebApi and Plugins).
+            (Core, Database, WebApi, Plugins, Mathematics, MechanicsOfMaterials, and Optimizations).
             </summary>
             <param name="services">Service collection that receives the registrations.</param>
+            <param name="defaultResiliencePipelineSettings">Settings that parameterize the resilience pipelines.</param>
             <param name="databaseSettings">Database connection and behavior settings.</param>
             <param name="encryptionSettings">Settings used by the encryption service.</param>
-            <param name="resiliencePipelineSettings">Settings that parameterize the resilience pipelines.</param>
             <param name="pluginSettings">Settings that describe plugin folders and behavior.</param>
             <param name="emailSettings">Settings used to send e-mails through an SMTP server.</param>
             <param name="loggerSettings">Settings used by logger service.</param>
+            <param name="fileStorageSettings">Settings used to configure root directories and storage policies.</param>
+            <param name="experimentalDataSettings">Settings used by experimental data processing and optimization pipelines.</param>
             <param name="useDefaultLogger">Indicates if should use the default logger.</param>
-            <param name="addMechanicalModels"></param>
+            <param name="addMechanicalModels">Indicates whether to register mechanical model calculators.</param>
             <returns>The same <paramref name="services"/> instance to allow call chaining.</returns>
         </member>
     </members>

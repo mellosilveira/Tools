@@ -13,7 +13,7 @@ namespace MelloSilveiraTools.Plugins.Application.Commands.Get;
 public class GetPlugins(IPluginService pluginService, PluginValidator<GetPluginsRequest> validator) : ListedCommandBase<GetPluginsRequest, RegisteredPlugin>(validator)
 {
     /// <inheritdoc />
-    protected override Task<ListedResult<RegisteredPlugin>> ExecuteCommandAsync(GetPluginsRequest request)
+    protected override Task<ListedResult<RegisteredPlugin>> ExecuteCommandAsync(GetPluginsRequest request, CancellationToken cancellationToken = default)
         => Result
             .CreateListedSuccessOk(pluginService
                 .GetPlugins(request.Name, PluginVersion.SafeParse(request.Version))

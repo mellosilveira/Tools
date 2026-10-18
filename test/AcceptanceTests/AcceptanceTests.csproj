@@ -24,6 +24,9 @@
     <None Update="MechanicalOfMaterials.Optimizations\CurveFitterSteps\TestData\**\*">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Update="MechanicalOfMaterials.Optimizations\SensitivityAnalysis\TestData\**\*">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
   <ItemGroup>

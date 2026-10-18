@@ -1,0 +1,47 @@
+{
+  "task_id": "task-fitcurve-command-adaptation",
+  "skill": "senior-backend-software-engineer-net",
+  "status": "success",
+  "retry_count": 0,
+  "data_payload": {
+    "test_suite_verification": {
+      "total_tests": 370,
+      "passed": 370,
+      "failed": 0,
+      "skipped": 0,
+      "status": "100% passed"
+    },
+    "build_verification": {
+      "solution": "MelloSilveiraTools.sln",
+      "errors": 0,
+      "status": "succeeded"
+    },
+    "adapted_components": {
+      "dto": "SegmentFilesGroup(SegmentType SegmentType, IReadOnlyList<IFormFile> Files) with parameterless constructor for model binding.",
+      "request": "FitCurveRequest updated with IReadOnlyList<SegmentFilesGroup> SegmentFiles replacing Segments.",
+      "command": "FitCurveCommand inherits from ListedCommandBase<FitCurveRequest, MechanicalModelCurveFitOutput>, reads multipart CSV files via CsvStreamReader (columns 0: Time, 1: Strain, 2: Stress), executes fitterStep.ExecuteAsync, emits sentinel SegmentType.Unknown for batch fitter drainage (Schapery), and returns Result.CreateListedSuccessOk(outputs).",
+      "validator": "FitCurveValidator validates SegmentFiles presence, non-empty files per group, and SegmentType != SegmentType.Unknown.",
+      "controller": "CurveFittingController updated with [FromForm] FitCurveRequest and ActionResult<ListedResult<MechanicalModelCurveFitOutput>>.",
+      "obsolete_types_removed": [
+        "FitCurveResultData",
+        "ParameterGroupResultData"
+      ]
+    }
+  },
+  "output_summary": "Adaptado o comando FitCurveCommand e seus tipos associados para upload multipart de arquivos CSV agrupados por SegmentType (SegmentFilesGroup). FitCurveCommand agora herda de ListedCommandBase<FitCurveRequest, MechanicalModelCurveFitOutput>, lê fluxos CSV via CsvStreamReader mapeando colunas para CurveSegment, executa o fitterStep, drena modelos batch (Schapery) com sentinela SegmentType.Unknown e retorna ListedResult<MechanicalModelCurveFitOutput>. Foram eliminados os DTOs obsoletos FitCurveResultData e ParameterGroupResultData, FitCurveValidator foi atualizado para validar os grupos de arquivos, CurveFittingController foi adaptado para [FromForm], e toda a suíte de testes unitários passou com 100% de sucesso (370/370 testes aprovados, 0 erros de compilação).",
+  "justification_for_decisions": "1. Compatibilidade com Upload Multipart: A criação de SegmentFilesGroup com construtor primário e construtor sem parâmetros garante compatibilidade direta com o model binder de formulários multipart do ASP.NET Core MVC ([FromForm]). 2. Streaming de Baixa Alocação: A leitura dos arquivos através de CsvStreamReader com UTF8Parser e ArrayPool garante alta performance sem alocação intermediária de strings na leitura das colunas numéricas (Time, Strain, Stress). 3. Drenagem Determinística de Fitters Batch: A emissão de um CurveSegment com SegmentType.Unknown ao término do processamento de todos os arquivos permite que algoritmos multi-estágio em lote (como SchaperyRelaxationOnlyCurveFitterStep) processem o conjunto completo de relaxações e gerem seus outputs consolidados. 4. Resposta Padronizada Monádica: A herança de ListedCommandBase elimina cálculos e acoplamentos desnecessários de soma de erros no comando de aplicação, retornando a lista canônica MechanicalModelCurveFitOutput via Result.CreateListedSuccessOk.",
+  "artifacts": [
+    ".agents/soft-tissue-biomechanics/outputs/task-fitcurve-command-adaptation.json",
+    "src/MelloSilveiraTools.MechanicsOfMaterials.Optimizations/CurveFitting/Commands/SegmentFilesGroup.cs",
+    "src/MelloSilveiraTools.MechanicsOfMaterials.Optimizations/CurveFitting/Commands/FitCurveRequest.cs",
+    "src/MelloSilveiraTools.MechanicsOfMaterials.Optimizations/CurveFitting/Commands/FitCurveCommand.cs",
+    "src/MelloSilveiraTools.MechanicsOfMaterials.Optimizations/CurveFitting/Commands/FitCurveValidator.cs",
+    "src/MelloSilveiraTools.MechanicsOfMaterials.Optimizations/Controllers/CurveFittingController.cs",
+    "test/UnitTests/MechanicsOfMaterials.Optimizations/CurveFitting/Commands/FitCurveCommandTests.cs",
+    "test/UnitTests/MechanicsOfMaterials.Optimizations/CurveFitting/Commands/FitCurveValidatorTests.cs",
+    "CHANGELOG.md"
+  ],
+  "warnings": [],
+  "token_usage": 0,
+  "theoretical_precision": "high"
+}

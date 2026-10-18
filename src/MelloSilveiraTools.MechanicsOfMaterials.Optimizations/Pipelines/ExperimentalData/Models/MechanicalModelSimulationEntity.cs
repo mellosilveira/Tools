@@ -1,4 +1,4 @@
-using MelloSilveiraTools.Database.RelationalDatabase.Attributes;
+﻿using MelloSilveiraTools.Database.RelationalDatabase.Attributes;
 using MelloSilveiraTools.Database.RelationalDatabase.Models.Entities;
 
 namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Models;
@@ -13,7 +13,6 @@ public record MechanicalModelSimulationEntity : EntityBase
     /// Unique identifier for the simulation execution.
     /// </summary>
     [UniqueColumn]
-    [Column]
     public required string Identifier { get; init; }
 
     /// <summary>
@@ -21,6 +20,12 @@ public record MechanicalModelSimulationEntity : EntityBase
     /// </summary>
     [Column]
     public required string CurveFitIdentifier { get; init; }
+
+    /// <summary>
+    /// External run or experiment identifier correlating this simulation run to business operations.
+    /// </summary>
+    [Column]
+    public string? ExternalIdentifier { get; init; }
 
     /// <summary>
     /// Name of the mechanical model.
@@ -31,8 +36,8 @@ public record MechanicalModelSimulationEntity : EntityBase
     /// <summary>
     /// Generated output simulation CSV file name.
     /// </summary>
-    [Column]
-    public string? OutputFileName { get; init; }
+    [ForeignKeyColumn(typeof(StoredFileEntity))]
+    public long StoredFileId { get; init; }
 
     /// <summary>
     /// Time when numerical asymptote convergence was detected, or null if convergence was not reached.

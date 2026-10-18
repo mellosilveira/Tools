@@ -13,7 +13,7 @@ public class CommandBaseTests
     {
         public bool Executed { get; private set; }
 
-        protected override Task<Result<string>> ExecuteCommandAsync(SampleRequest request)
+        protected override Task<Result<string>> ExecuteCommandAsync(SampleRequest request, CancellationToken cancellationToken = default)
         {
             Executed = true;
             return Task.FromResult(Result.CreateSuccessOk($"Hello, {request.Name}"));
@@ -22,7 +22,7 @@ public class CommandBaseTests
 
     private class SampleDefaultCommand : DefaultCommandBase
     {
-        protected override Task<Result> ExecuteCommandAsync()
+        protected override Task<Result> ExecuteCommandAsync(CancellationToken cancellationToken = default)
         {
             return Task.FromResult(Result.CreateSuccessOk());
         }

@@ -1,4 +1,4 @@
-using MelloSilveiraTools.Core.Models;
+﻿using MelloSilveiraTools.Core.Models;
 using MelloSilveiraTools.Core.Pipelines.Steps;
 using MelloSilveiraTools.Database.Repositories;
 using MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels;
@@ -27,7 +27,7 @@ public sealed class CurveFitOutputPersistenceStep(
     public async Task ExecuteAsync((string Identifier, MechanicalModelCurveFitOutput CurveFitOutput) input, CancellationToken cancellationToken = default)
     {
         ConstitutiveParameters constitutiveParameters = input.CurveFitOutput.ConstitutiveParameters;
-        string constitutiveParamsJson = JsonSerializer.Serialize(constitutiveParameters, constitutiveParameters.GetType(), OptimizationJsonOptions.SignificantFigures7);
+        string constitutiveParamsJson = OptimizationJsonOptions.Serialize(constitutiveParameters);
 
         MechanicalModelCurveFitEntity entity = new()
         {

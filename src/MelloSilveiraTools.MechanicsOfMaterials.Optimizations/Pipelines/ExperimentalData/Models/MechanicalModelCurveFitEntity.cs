@@ -1,4 +1,4 @@
-using MelloSilveiraTools.Database.RelationalDatabase.Attributes;
+﻿using MelloSilveiraTools.Database.RelationalDatabase.Attributes;
 using MelloSilveiraTools.Database.RelationalDatabase.Models.Entities;
 using MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels;
 using MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity;
@@ -12,7 +12,6 @@ namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.Experi
 public record MechanicalModelCurveFitEntity : EntityBase
 {
     [UniqueColumn]
-    [Column]
     public required string Identifier { get; init; }
 
     [Column]

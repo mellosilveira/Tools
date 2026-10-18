@@ -157,7 +157,7 @@ AI agents modifying or generating code in this repository **must strictly adhere
 ### DI Registration Summary by Lifetime
 
 **Singletons (stateless/thread-safe):**
-- Core: `IFileManager`, `ISingleLevelCache`, `ITwoLevelCache`, `ServiceLocator`, `IDynamicServiceProvider`, `SmtpResiliencePipeline`, `EncryptionSettings`
+- Core: `IFileStorageService` (and keyed by `StorageProvider.Local`), `ISingleLevelCache`, `ITwoLevelCache`, `ServiceLocator`, `IDynamicServiceProvider`, `SmtpResiliencePipeline`, `EncryptionSettings`
 - Database: `DatabaseSettings`, `ResiliencePipelineSettings`, `PostgresResiliencePipeline`, `ISqlProvider` → `PostgresSqlProvider`, `IRepository` → `PostgresRepository`
 - WebApi: `ApiServiceAgentResiliencePipeline`, `JwtSettings`
 - Plugins: `PluginSettings`, `PluginFileProcessor`, `PluginAssemblyProcessor`, `PluginCache`, `PluginValidator` (all variants); keyed: `JsonFilePluginCachePersistence` (key: `"file"`), `DatabasePluginCachePersistence` (key: `"database"`)
@@ -200,7 +200,11 @@ AI agents modifying or generating code in this repository **must strictly adhere
   - Resource cleanup: `DataflowPipeline<TIn>.DisposeAsync` encloses step disposal in a `try ... finally` block, ensuring all `IDisposable` and `IAsyncDisposable` step resources are reclaimed even if graph completion faults.
   - Dead-Letter Queue (DLQ): `WithDeadLetterQueue()` isolates faulted items via `ActionBlock<FailedPayload>`.
   - Backpressure: `PipelineStepOptions.MaxBufferSize` → `BoundedCapacity`.
-  - Telemetry: OpenTelemetry `ActivitySource` tracing + structured Serilog logging via `TelemetryExtensions`.
+  - Telemetry & Real-Time Progress:
+    - OpenTelemetry `ActivitySource` tracing + structured Serilog logging via `TelemetryExtensions`.
+    - `PipelineProgressEvent`: Immutable record in `MelloSilveiraTools.Core.Pipelines.Models` representing granular step execution progress (`StepName: string`, `State: PipelineStepState`, `TimestampUtc: DateTimeOffset`, `Details: string?`, `Data: object?`).
+    - `PipelineStepState`: Enum covering execution states (`Started`, `Running`, `Completed`, `Faulted`).
+    - `IProgress<PipelineProgressEvent>`: Accepted optionally across `PipelineFactory.StartDataflow<T>(progress: IProgress<PipelineProgressEvent>?)`, `DataflowPipelineBuilder<T>`, and `TelemetryExtensions` (`ExecuteWithTelemetryAsync` and `ExecuteWithTelemetryStreamingAsync`) to publish real-time notifications to callers or streaming HTTP responses without coupling pipeline internals to web protocols.
   - Retry: `RetryOptions(MaxAttempts, InitialDelayMs, BackoffFactor)` with exponential backoff.
 - **Fluent (request/response/pull):** `PipelineFactory.StartFluent<T>()` → `IFluentPipelineBuilder` → `IFluentPipeline<TIn, TOut>.ExecuteAsync()`.
   - Supports: `AddStep` (sync, async, and `IAsyncEnumerable`), `AddDataMapping`.
@@ -233,7 +237,7 @@ AI agents modifying or generating code in this repository **must strictly adhere
 - Located in `MelloSilveiraTools.MechanicsOfMaterials.Optimizations`.
 - Multi-modal pipeline steps:
   - `ExperimentalDataSegmenterStep`: Ingestion step implementing `IAsyncEnumerablePipelineStep<ExperimentalDataSegmenterInput, SegmentedDataPoint>`, parsing CSV streams and categorizing points across deformation phases via sliding-window numerical differentiation.
-  - `ExperimentalDataFileWriterStep`: Non-mutating persistence observer step implementing `IAsyncPipelineStep<SegmentedDataPoint>`, streaming valid points to disk via CSV format using `CsvFileWriter` and exposing `GeneratedFilePaths`.
+  - `ExperimentalDataFileWriterStep`: Non-mutating persistence observer step implementing `IAsyncPipelineStep<SegmentedDataPoint>`, streaming valid points to disk via CSV format using `CsvFileWriter` and exposing `FileMetadata` (path resolved via `IFileStorageService`).
   - `ExperimentalDataDownsamplerStep`: Streaming downsampling step implementing `IAsyncEnumerablePipelineStep<SegmentedDataPoint, SegmentedDataPoint>`, filtering data points according to `skipTimeStep`.
   - `CurveSegmentAccumulatorStep`: Aggregation step implementing `IAsyncEnumerablePipelineStep<SegmentedDataPoint, CurveSegment>`, grouping points sequentially by `SegmentType` for continuous processing.
   - `IMechanicalModelCurveFitterStep`: Optimization step implementing `IAsyncEnumerablePipelineStep<CurveSegment, MechanicalModelCurveFitOutput>`. It yields fitted constitutive parameters and their analysis metrics sequentially as an async stream for real-time processing. Resolved via `IMechanicalModelStepFactory`.
@@ -242,7 +246,7 @@ AI agents modifying or generating code in this repository **must strictly adhere
   - `NumericalSimulationStep`: Simulation step implementing `ISyncPipelineStep<MechanicalModelCurveFitOutput, MechanicalModelSimulationPayload>`, executing forward numeric simulation using `IMechanicalModelCalculatorFactory`.
   - `AsymptoteMonitoringStep`: Analysis step implementing `ISyncPipelineStep<MechanicalModelSimulationPayload, double?>`, detecting steady-state relaxation asymptotes.
   - `DeltaCalculatorStep`: Analysis step implementing `ISyncPipelineStep<MechanicalModelSimulationPayload, SimulationDeltaOutput>`, computing initial, final, absolute, and percentage differences.
-  - `MechanicalModelOutputFileWriterStep`: Output writer step implementing `IAsyncPipelineStep<MechanicalModelSimulationPayload, FileData>`, streaming simulation time-histories to CSV using `CsvFileWriter`, returning `FileData`, and exposing `GeneratedFilePaths`.
+  - `MechanicalModelOutputFileWriterStep`: Output writer step implementing `IAsyncPipelineStep<MechanicalModelSimulationPayload, FileMetadata>`, streaming simulation time-histories to CSV using `CsvFileWriter` and returning `FileMetadata` (path resolved via `IFileStorageService`).
   - `MechanicalModelOutputPersistenceStep`: Convergence persistence step implementing `IAsyncPipelineStep<MechanicalModelOutputPersistenceInput, string>`, computing a deterministic simulation hash and persisting `MechanicalModelSimulationEntity`.
 - `IExperimentalDataProcessingPipeline.ProcessAsync(input, cancellationToken)` → `Result<string>`:
   - Reactive DAG stream topology via TPL Dataflow:
@@ -274,8 +278,18 @@ AI agents modifying or generating code in this repository **must strictly adhere
     - Branch 1: Calculation branch mapping to `SimulationInput` and forking across `InitialStressCalculationStep`, `FinalStressCalculationStep`, and `AsymptoteCalculationStep`.
     - Branch 2: Pass-through preserving `VariableName` and `VariableValue`.
     - Convergence: `.AddDataMapping(...)` joins calculations into `ParametricSweepFinalPayload` computing absolute and percentage delta stresses.
-    - Side-effect: `ParametricSweepCsvWriterStep` partitioning results into CSV files per variable via `ConcurrentDictionary<string, CsvFileWriter>`.
+    - Side-effect: `ParametricSweepCsvWriterStep` partitioning results into CSV files per variable via `ConcurrentDictionary<string, CsvFileWriter>` and exposing `GeneratedFilesMetadata`.
+    - Terminal: `ParametricSweepPersistenceStep` persisting `ParametricSweepEntity` (table `parametric_sweeps`) with 7-significant-figure polymorphic JSON serialization and registering generated CSV artifacts in `StoredFileEntity` (table `stored_files`) under the `SensitivityAnalysis` context.
   - Generators inherit from `ParametricSweepGeneratorBase<T>` implementing `GetPropertyVariations` yielding `(PropertyName, Mutate)` delegates for centralized range iteration and envelope creation.
+- Storage, Application Commands & API Endpoints:
+  - `IFileStorageService`: Centralized file storage abstraction in `MelloSilveiraTools.Core.Managers.File` managing directory topology (`{BaseDirectory}/{context}/{identifier}/{fileName}`). Implemented by `LocalFileStorageService`. Replaces explicit `OutputFileUri` and `OutputDirectory` in pipeline inputs.
+  - Application Commands & Validators:
+    - `ProcessExperimentalDataCommand` / `ProcessExperimentalDataValidator`: Orchestrates ingestion, validation, stream lifetime, and execution of `ExperimentalDataProcessingPipeline`, returning the deterministic simulation SHA-256 identifier and `FileMetadata`.
+    - `ExecuteParametricSweepCommand` / `ExecuteParametricSweepValidator`: Validates sweeping parameter variations and executes `ParametricSweepPipeline`.
+    - `FitCurve` / `FitCurveValidator`: Validates curve segments and invokes `IMechanicalModelStepFactory` to fit constitutive parameters sequentially across experimental deformation phases.
+  - Controllers & Streaming:
+    - `ExperimentalDataController`, `ParametricSweepController`, `CurveFittingController`: Provide standard REST endpoints and real-time streaming endpoints (`POST .../stream`) utilizing `PipelineProgressStreamWriter` to emit NDJSON `PipelineProgressEvent` streams.
+    - `StoredFilesController`: Exposes file metadata queries by `ExternalIdentifier` and direct file downloads via `IFileStorageService.OpenRead`.
 
 ### 7. CSV File Writing Architecture & Composition (`CsvFileWriter`)
 - Located in `MelloSilveiraTools.Core.Managers.File`.
@@ -283,21 +297,21 @@ AI agents modifying or generating code in this repository **must strictly adhere
   - **Contracts & Composition:**
     - Steps implement their specific pipeline step contract directly (`IAsyncPipelineStep<TIn>` for terminal/observer steps, or `IAsyncPipelineStep<TIn, TOut>` for transforming steps), which natively inherits from `IPipelineStep` and `IAsyncDisposable`.
     - Steps encapsulate one or more `CsvFileWriter` instances without artificial abstract base class coupling.
-  - **File Path Tracking:**
-    - `GeneratedFilePaths`: Property returning an immutable collection of all generated file paths on disk, retained even after step disposal.
+  - **File Metadata & Path Tracking:**
+    - Steps delegate path resolution and file creation to `IFileStorageService` and expose `FileMetadata` or `GeneratedFilesMetadata`, retained even after step disposal.
   - **Buffering & Stream Options (`CsvFileWriter`):**
-    - `CsvFileWriter(string filePath, string header)`:
-      - Mandatory header: Emitted immediately to disk upon session initialization inside `CreateWriter` before any rows are appended.
-      - Buffer size: 128 KB (`FileStream` and `StreamWriter`).
+    - `CsvFileWriter(Stream stream, string header)`:
+      - Receives an open writable `Stream` and mandatory CSV header. Does not manage file paths directly (SRP).
+      - Buffer size: 128 KB (`StreamWriter`).
       - Batch threshold: 1,000 rows before flushing the internal `StringBuilder` to disk.
       - Row buffer capacity: 16 KB initial capacity.
       - Encoding: UTF-8 without BOM (`Utf8Encoding = new UTF8Encoding(false)`).
-      - Stream creation: `CreateWriter(filePath, header)` creates parent directories if needed, opens `FileStream` with `FileOptions.SequentialScan | FileOptions.Asynchronous`, creates `StreamWriter`, and writes the mandatory header immediately.
+      - Stream initialization: `CreateWriter(stream, header)` creates `StreamWriter` with `leaveOpen: false` and writes the mandatory header immediately.
       - High-throughput batching: `WriteRowAsync(row)` and zero-allocation delegate `WriteRowAsync(Action<StringBuilder>)` append rows and batch-flush to disk when the 1,000-row threshold is reached.
   - **Culture & Numerical Invariance:**
     - All numerical and floating-point values must be formatted using `CultureInfo.InvariantCulture` to prevent localization conflicts with decimal delimiters in non-US cultures.
   - **Sequential Writing & Resource Reclamation (`IAsyncDisposable`):**
-    - File writing sessions are strictly sequential per file. Upstream parallel steps feed writers via batches or pipeline streams.
+    - File writing sessions are strictly sequential per stream. Upstream parallel steps feed writers via batches or pipeline streams.
     - In `DisposeAsync()`, `CsvFileWriter` flushes remaining buffered rows, flushes the writer, and asynchronously disposes the underlying stream before `GC.SuppressFinalize(this)`.
     - Partitioned multi-file writers manage a collection of `CsvFileWriter` instances and dispose them via `CsvFileWriter.DisposeAllAsync`, aggregating exceptions into `AggregateException`.
 

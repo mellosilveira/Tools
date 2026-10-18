@@ -1,30 +1,74 @@
 using MelloSilveiraTools.Core.Pipelines.Steps;
+using MelloSilveiraTools.Mathematics.Models;
+using MelloSilveiraTools.Mathematics.NumericalMethods.Differentiations;
 using MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels;
 using MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels;
 
 namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.SensitivityAnalysis.Steps;
 
 /// <summary>
-/// A pure domain-specific calculation step that evaluates the theoretical limit 
-/// (asymptote) of the continuum stress as time approaches infinity.
+/// A domain-specific calculation step that evaluates the continuum stress asymptote
+/// by tracking the stress relaxation rate (time derivative dσ/dt) until it approaches zero.
 /// </summary>
-public sealed class AsymptoteCalculationStep(IMechanicalModelCalculatorFacade calculator) : ISyncPipelineStep<GenericMechanicalModelInput, (double AsymptoteTime, double Stress)>
+/// <param name="calculator">Mechanical model calculator facade for stress calculations.</param>
+/// <param name="differentiation">Numerical differentiation engine.</param>
+/// <param name="tolerance">User-informed relative tolerance threshold for asymptotic convergence.</param>
+public sealed class AsymptoteCalculationStep(
+    IMechanicalModelCalculatorFacade calculator,
+    IDifferentiation differentiation,
+    double tolerance) : ISyncPipelineStep<GenericMechanicalModelInput, (double AsymptoteTime, double Stress)>
 {
+    // TODO: REVISAR
+
     /// <inheritdoc />
     public string Name => nameof(AsymptoteCalculationStep);
 
     /// <inheritdoc />
     public (double AsymptoteTime, double Stress) Execute(GenericMechanicalModelInput input)
     {
-        // For a true mathematical asymptote, we approximate by evaluating at a sufficiently large time.
-        // A robust simulation could analyze the constitutive constants (e.g., maximum relaxation time * factor).
-        // Since the interface facade calculates stress at a given time, we use a placeholder large time.
-        // In a real scenario, this might call a specific limit evaluation method if the facade supports it.
-        double asymptoteTime = 1e8;
-        double stress = calculator.CalculateStress(input, asymptoteTime);
+        double initialTime = input.RampTime ?? MathematicConstants.InitialTime;
+        double timeStep = input.TimeStep;
 
-        return (asymptoteTime, stress);
+        // If initial relaxation rate is already within tolerance, the material has reached the asymptote
+        double initialDerivative = Math.Abs(CalculateStressDerivative(input, initialTime, timeStep));
+        if (initialDerivative <= tolerance)
+        {
+            double initialStress = calculator.CalculateStress(input, initialTime);
+            return (initialTime, initialStress);
+        }
+
+        // Exponential bracket search for the transition where |dσ/dt| <= tolerance
+        double lowTime = initialTime;
+        double highTime = initialTime + Math.Max(1.0, timeStep);
+
+        while (Math.Abs(CalculateStressDerivative(input, highTime, timeStep)) > tolerance)
+        {
+            lowTime = highTime;
+            highTime *= 2.0;
+        }
+
+        // Binary search refinement to locate the exact transition time
+        for (int i = 0; i < 20; i++)
+        {
+            double midTime = (lowTime + highTime) * 0.5;
+            double midDerivative = Math.Abs(CalculateStressDerivative(input, midTime, timeStep));
+
+            if (midDerivative <= tolerance)
+            {
+                highTime = midTime;
+            }
+            else
+            {
+                lowTime = midTime;
+            }
+        }
+
+        double asymptoteStress = calculator.CalculateStress(input, highTime);
+        return (highTime, asymptoteStress);
     }
+
+    private double CalculateStressDerivative(GenericMechanicalModelInput input, double time, double timeStep)
+        => differentiation.Calculate(t => calculator.CalculateStress(input, t), timeStep, time);
 
     /// <inheritdoc />
     public void Dispose()

@@ -22,17 +22,19 @@ public static class CoreDependencyInjection
         /// <summary>
         /// Registers core services: settings, SMTP resilience pipeline, file logger and encryption service.
         /// </summary>
+        /// <param name="defaultResiliencePipelineSettings">Settings that parameterize the default resilience pipelines.</param>
         /// <param name="encryptionSettings">Settings used by the encryption service.</param>
-        /// <param name="smtpResiliencePipelineSettings">Settings that parameterize the resilience pipelines.</param>
         /// <param name="emailSettings">Settings used to send e-mails through an SMTP server.</param>
         /// <param name="loggerSettings">Settings used by logger service.</param>
+        /// <param name="fileStorageSettings">Settings used to configure root directories and storage policies.</param>
         /// <param name="useDefaultLogger">Indicates if should use the default logger.</param>
         /// <returns>The same <paramref name="services"/> instance to allow call chaining.</returns>
         public IServiceCollection AddCoreServices(
+            ResiliencePipelineSettings defaultResiliencePipelineSettings,
             EncryptionSettings? encryptionSettings = null,
-            ResiliencePipelineSettings? smtpResiliencePipelineSettings = null,
             EmailSettings? emailSettings = null,
             LoggerSettings? loggerSettings = null,
+            FileStorageSettings? fileStorageSettings = null,
             bool useDefaultLogger = true)
         {
             if (encryptionSettings is not null)
@@ -42,12 +44,19 @@ public static class CoreDependencyInjection
                     .AddScoped<IEncryptionService, EncryptionService>();
             }
 
-            if (smtpResiliencePipelineSettings is not null && emailSettings is not null)
+            if (emailSettings is not null)
             {
                 services
                     .AddSingleton(emailSettings)
-                    .AddSingleton(provider => new SmtpResiliencePipeline(provider.GetRequiredService<ILogger<SmtpResiliencePipeline>>(), smtpResiliencePipelineSettings))
+                    .AddSingleton(provider => new SmtpResiliencePipeline(provider.GetRequiredService<ILogger<SmtpResiliencePipeline>>(), emailSettings.ResiliencePipelineSettings ?? defaultResiliencePipelineSettings))
                     .AddScoped<IEmailService, SmtpEmailService>();
+            }
+
+            if (fileStorageSettings is not null)
+            {
+                services
+                    .AddSingleton(fileStorageSettings)
+                    .AddKeyedSingleton<IFileStorageService, LocalFileStorageService>(StorageProvider.Local);
             }
 
             if (useDefaultLogger)
@@ -56,7 +65,6 @@ public static class CoreDependencyInjection
             }
 
             return services
-                .AddSingleton<IFileManager, FileManager>()
                 // Register caching pipelines.
                 .AddSingleton<ISingleLevelCache, InMemorySingleLevelCache>()
                 .AddSingleton<ITwoLevelCache, InMemoryTwoLevelCache>()
@@ -65,20 +73,13 @@ public static class CoreDependencyInjection
                 .AddSingleton<IDynamicServiceProvider, InMemoryDynamicServiceProvider>();
         }
 
-        public IServiceCollection AddCoreLogging(LoggerConfiguration loggerConfiguration, LoggerSettings loggerSettings)
-        {
-            var logger = loggerConfiguration
-                .WriteToLocalFile(loggerSettings)
-                .CreateLogger();
-
-            return services
-                .AddSingleton(loggerSettings)
-                .AddLogging(loggingBuilder =>
-                {
-                    // Remove default console noise.
-                    loggingBuilder.ClearProviders();
-                    loggingBuilder.AddSerilog(logger, dispose: true);
-                });
-        }
+        public IServiceCollection AddCoreLogging(LoggerConfiguration loggerConfiguration, LoggerSettings loggerSettings) => services
+            .AddSingleton(loggerSettings)
+            .AddLogging(loggingBuilder =>
+            {
+                // Remove default console noise.
+                loggingBuilder.ClearProviders();
+                loggingBuilder.AddSerilog(loggerConfiguration.WriteToLocalFile(loggerSettings).CreateLogger(), dispose: true);
+            });
     }
 }

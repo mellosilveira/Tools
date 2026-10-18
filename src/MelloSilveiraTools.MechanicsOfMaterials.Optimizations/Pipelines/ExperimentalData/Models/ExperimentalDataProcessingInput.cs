@@ -34,11 +34,6 @@ public sealed record ExperimentalDataProcessingInput
     public required string MechanicalModelName { get; init; }
 
     /// <summary>
-    /// The directory URI where generated output files are saved.
-    /// </summary>
-    public required string OutputFileUri { get; init; }
-
-    /// <summary>
     /// Segment types to be processed.
     /// If left empty, all segment types supported by the model will be considered.
     /// </summary>

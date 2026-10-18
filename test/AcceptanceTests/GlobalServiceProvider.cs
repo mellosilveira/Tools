@@ -37,7 +37,7 @@ public static class GlobalServiceProvider
         services.AddToolsServices(
             databaseSettings: new DatabaseSettings { ConnectionString = dbConnectionString },
             encryptionSettings: new EncryptionSettings(),
-            resiliencePipelineSettings: new ResiliencePipelineSettings(),
+            defaultResiliencePipelineSettings: new ResiliencePipelineSettings(),
             pluginSettings: new PluginSettings { Directory = pluginsDir, DefaultCacheTarget = PluginCacheTargets.File },
             addMechanicalModels: true);
         services.AddTransient(sp => sp.GetRequiredKeyedService<ICurveFitter>(CurveFitterType.Alglib));

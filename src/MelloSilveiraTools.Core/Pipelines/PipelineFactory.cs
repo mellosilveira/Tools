@@ -1,4 +1,4 @@
-﻿using MelloSilveiraTools.Core.Pipelines.Dataflow;
+using MelloSilveiraTools.Core.Pipelines.Dataflow;
 using MelloSilveiraTools.Core.Pipelines.Fluent;
 using MelloSilveiraTools.Core.Pipelines.Models;
 using Microsoft.Extensions.Logging;
@@ -21,17 +21,19 @@ public static class PipelineFactory
     /// <typeparam name="T">The immutable payload type ingested at the pipeline head.</typeparam>
     /// <param name="logger">Structured logging provider for tracking block transitions and telemetry.</param>
     /// <param name="initialBufferSize">The maximum bounded capacity of the ingestion buffer block, defaulting to 10,000 items.</param>
-    /// <param name="retryOptions"></param>
+    /// <param name="retryOptions">Optional retry configuration for asynchronous pipeline steps.</param>
     /// <param name="cancellationToken">The unified cancellation token propagated down the entire Dataflow network.</param>
+    /// <param name="progress">Optional progress reporter for emitting real-time <see cref="PipelineProgressEvent"/> notifications.</param>
     /// <returns>A fluent builder instance anchored to the initial buffer head.</returns>
     public static IDataflowPipelineBuilder<T, T> StartDataflow<T>(
         ILogger logger,
         int initialBufferSize = 10000,
         RetryOptions? retryOptions = null,
-        CancellationToken cancellationToken = default)
+        CancellationToken cancellationToken = default,
+        IProgress<PipelineProgressEvent>? progress = null)
     {
         BufferBlock<T> buffer = new(new DataflowBlockOptions { BoundedCapacity = initialBufferSize, CancellationToken = cancellationToken });
-        return new DataflowPipelineBuilder<T, T>(logger, buffer, buffer, null, retryOptions, cancellationToken);
+        return new DataflowPipelineBuilder<T, T>(logger, buffer, buffer, null, retryOptions, cancellationToken, progress: progress);
     }
 
     /// <summary>

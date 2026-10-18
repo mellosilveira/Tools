@@ -29,19 +29,21 @@
             Gets the validation rules assigned to inspect the incoming business request.
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.Core.Application.Commands.CommandBase`2.ExecuteAsync(`0)">
+        <member name="M:MelloSilveiraTools.Core.Application.Commands.CommandBase`2.ExecuteAsync(`0,System.Threading.CancellationToken)">
             <summary>
             Orchestrates execution: verifies input validity and executes domain logic if checks succeed.
             If validation issues are found, stops processing immediately and returns corrective guidance.
             </summary>
             <param name="request">Input data for the business operation.</param>
+            <param name="cancellationToken"></param>
             <returns>A structured business outcome confirming success or detailing validation points.</returns>
         </member>
-        <member name="M:MelloSilveiraTools.Core.Application.Commands.CommandBase`2.ExecuteCommandAsync(`0)">
+        <member name="M:MelloSilveiraTools.Core.Application.Commands.CommandBase`2.ExecuteCommandAsync(`0,System.Threading.CancellationToken)">
             <summary>
             Executes core domain business logic after request validation passes.
             </summary>
             <param name="request">Validated input data.</param>
+            <param name="cancellationToken"></param>
             <returns>The result of the business execution.</returns>
         </member>
         <member name="T:MelloSilveiraTools.Core.Application.Commands.CommandBaseWithData`2">
@@ -112,13 +114,13 @@
             </summary>
             <typeparam name="TResponseData">Type of the payload produced by the operation.</typeparam>
         </member>
-        <member name="M:MelloSilveiraTools.Core.Application.Commands.CommandBaseWithoutRequest`1.ExecuteAsync">
+        <member name="M:MelloSilveiraTools.Core.Application.Commands.CommandBaseWithoutRequest`1.ExecuteAsync(System.Threading.CancellationToken)">
             <summary>
             Executes the parameterless business operation.
             </summary>
             <returns>A structured business outcome containing output data.</returns>
         </member>
-        <member name="M:MelloSilveiraTools.Core.Application.Commands.CommandBaseWithoutRequest`1.ExecuteCommandAsync">
+        <member name="M:MelloSilveiraTools.Core.Application.Commands.CommandBaseWithoutRequest`1.ExecuteCommandAsync(System.Threading.CancellationToken)">
             <summary>
             Executes the domain logic for this parameterless operation.
             </summary>
@@ -129,13 +131,13 @@
             Business command triggered without incoming parameters that returns standard completion confirmation.
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.Core.Application.Commands.DefaultCommandBase.ExecuteAsync">
+        <member name="M:MelloSilveiraTools.Core.Application.Commands.DefaultCommandBase.ExecuteAsync(System.Threading.CancellationToken)">
             <summary>
             Executes the parameterless business operation.
             </summary>
             <returns>Standard completion confirmation.</returns>
         </member>
-        <member name="M:MelloSilveiraTools.Core.Application.Commands.DefaultCommandBase.ExecuteCommandAsync">
+        <member name="M:MelloSilveiraTools.Core.Application.Commands.DefaultCommandBase.ExecuteCommandAsync(System.Threading.CancellationToken)">
             <summary>
             Executes the domain logic for this parameterless operation.
             </summary>
@@ -345,17 +347,18 @@
             Provides extension methods to register services from the MelloSilveiraTools.Core package.
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.Core.CoreDependencyInjection.AddCoreServices(Microsoft.Extensions.DependencyInjection.IServiceCollection,MelloSilveiraTools.Core.Services.Encryption.EncryptionSettings,MelloSilveiraTools.Core.ResiliencePipelines.ResiliencePipelineSettings,MelloSilveiraTools.Core.Services.Email.EmailSettings,MelloSilveiraTools.Core.Logging.LoggerSettings,System.Boolean)">
-            <inheritdoc cref="M:MelloSilveiraTools.Core.CoreDependencyInjection.&lt;G&gt;$7B30185E57B8298C6754F16C0BCF4773.AddCoreServices(MelloSilveiraTools.Core.Services.Encryption.EncryptionSettings,MelloSilveiraTools.Core.ResiliencePipelines.ResiliencePipelineSettings,MelloSilveiraTools.Core.Services.Email.EmailSettings,MelloSilveiraTools.Core.Logging.LoggerSettings,System.Boolean)"/>
+        <member name="M:MelloSilveiraTools.Core.CoreDependencyInjection.AddCoreServices(Microsoft.Extensions.DependencyInjection.IServiceCollection,MelloSilveiraTools.Core.ResiliencePipelines.ResiliencePipelineSettings,MelloSilveiraTools.Core.Services.Encryption.EncryptionSettings,MelloSilveiraTools.Core.Services.Email.EmailSettings,MelloSilveiraTools.Core.Logging.LoggerSettings,MelloSilveiraTools.Core.Managers.File.FileStorageSettings,System.Boolean)">
+            <inheritdoc cref="M:MelloSilveiraTools.Core.CoreDependencyInjection.&lt;G&gt;$7B30185E57B8298C6754F16C0BCF4773.AddCoreServices(MelloSilveiraTools.Core.ResiliencePipelines.ResiliencePipelineSettings,MelloSilveiraTools.Core.Services.Encryption.EncryptionSettings,MelloSilveiraTools.Core.Services.Email.EmailSettings,MelloSilveiraTools.Core.Logging.LoggerSettings,MelloSilveiraTools.Core.Managers.File.FileStorageSettings,System.Boolean)"/>
         </member>
-        <member name="M:MelloSilveiraTools.Core.CoreDependencyInjection.&lt;G&gt;$7B30185E57B8298C6754F16C0BCF4773.AddCoreServices(MelloSilveiraTools.Core.Services.Encryption.EncryptionSettings,MelloSilveiraTools.Core.ResiliencePipelines.ResiliencePipelineSettings,MelloSilveiraTools.Core.Services.Email.EmailSettings,MelloSilveiraTools.Core.Logging.LoggerSettings,System.Boolean)">
+        <member name="M:MelloSilveiraTools.Core.CoreDependencyInjection.&lt;G&gt;$7B30185E57B8298C6754F16C0BCF4773.AddCoreServices(MelloSilveiraTools.Core.ResiliencePipelines.ResiliencePipelineSettings,MelloSilveiraTools.Core.Services.Encryption.EncryptionSettings,MelloSilveiraTools.Core.Services.Email.EmailSettings,MelloSilveiraTools.Core.Logging.LoggerSettings,MelloSilveiraTools.Core.Managers.File.FileStorageSettings,System.Boolean)">
             <summary>
             Registers core services: settings, SMTP resilience pipeline, file logger and encryption service.
             </summary>
+            <param name="defaultResiliencePipelineSettings">Settings that parameterize the default resilience pipelines.</param>
             <param name="encryptionSettings">Settings used by the encryption service.</param>
-            <param name="smtpResiliencePipelineSettings">Settings that parameterize the resilience pipelines.</param>
             <param name="emailSettings">Settings used to send e-mails through an SMTP server.</param>
             <param name="loggerSettings">Settings used by logger service.</param>
+            <param name="fileStorageSettings">Settings used to configure root directories and storage policies.</param>
             <param name="useDefaultLogger">Indicates if should use the default logger.</param>
             <returns>The same <paramref name="services"/> instance to allow call chaining.</returns>
         </member>
@@ -1173,24 +1176,19 @@
         </member>
         <member name="T:MelloSilveiraTools.Core.Managers.File.CsvFileWriter">
             <summary>
-            Encapsulates a buffered asynchronous CSV file writing session.
-            Manages the underlying FileStream, StreamWriter, row batching buffer, immediate header emission, and resource disposal.
+            Encapsulates a buffered asynchronous CSV file writing session over an underlying output stream.
+            Manages row batching buffer, immediate header emission, and resource disposal.
             </summary>
-            <param name="filePath">Target destination file path.</param>
+            <param name="stream">Writable output stream.</param>
             <param name="header">Mandatory CSV header line written immediately upon session initialization.</param>
         </member>
-        <member name="M:MelloSilveiraTools.Core.Managers.File.CsvFileWriter.#ctor(System.String,System.String)">
+        <member name="M:MelloSilveiraTools.Core.Managers.File.CsvFileWriter.#ctor(System.IO.Stream,System.String)">
             <summary>
-            Encapsulates a buffered asynchronous CSV file writing session.
-            Manages the underlying FileStream, StreamWriter, row batching buffer, immediate header emission, and resource disposal.
+            Encapsulates a buffered asynchronous CSV file writing session over an underlying output stream.
+            Manages row batching buffer, immediate header emission, and resource disposal.
             </summary>
-            <param name="filePath">Target destination file path.</param>
+            <param name="stream">Writable output stream.</param>
             <param name="header">Mandatory CSV header line written immediately upon session initialization.</param>
-        </member>
-        <member name="P:MelloSilveiraTools.Core.Managers.File.CsvFileWriter.FilePath">
-            <summary>
-            Gets the destination file path.
-            </summary>
         </member>
         <member name="M:MelloSilveiraTools.Core.Managers.File.CsvFileWriter.WriteRowAsync(System.String,System.Threading.CancellationToken)">
             <summary>
@@ -1206,12 +1204,6 @@
             </summary>
             <param name="writeRow">Action writing column values into the provided row buffer.</param>
             <param name="cancellationToken">Cancellation token.</param>
-        </member>
-        <member name="M:MelloSilveiraTools.Core.Managers.File.CsvFileWriter.DisposeAllAsync(System.Collections.Generic.IEnumerable{System.IAsyncDisposable})">
-            <summary>
-            Disposes a collection of asynchronous sessions, accumulating exceptions and re-throwing as an <see cref="T:System.AggregateException"/> if any fault occurred.
-            </summary>
-            <param name="sessions">Collection of asynchronous disposable sessions.</param>
         </member>
         <member name="M:MelloSilveiraTools.Core.Managers.File.CsvFileWriter.DisposeAsync">
             <inheritdoc />
@@ -1254,82 +1246,202 @@
         <member name="M:MelloSilveiraTools.Core.Managers.File.CsvStreamReader.DisposeAsync">
             <inheritdoc/>
         </member>
-        <member name="T:MelloSilveiraTools.Core.Managers.File.FileData">
+        <member name="T:MelloSilveiraTools.Core.Managers.File.FileMetadata">
             <summary>
-            Represents the location and naming details of a document or report generated by the application.
-            Facilitates file tracking, user exports, and auditable data persistence.
-            </summary>
-            <param name="Uri">Directory path where the file is stored.</param>
-            <param name="Name">Corresponding file name.</param>
-        </member>
-        <member name="M:MelloSilveiraTools.Core.Managers.File.FileData.#ctor(System.String,System.String)">
-            <summary>
-            Represents the location and naming details of a document or report generated by the application.
-            Facilitates file tracking, user exports, and auditable data persistence.
-            </summary>
-            <param name="Uri">Directory path where the file is stored.</param>
-            <param name="Name">Corresponding file name.</param>
-        </member>
-        <member name="P:MelloSilveiraTools.Core.Managers.File.FileData.Uri">
-            <summary>Directory path where the file is stored.</summary>
-        </member>
-        <member name="P:MelloSilveiraTools.Core.Managers.File.FileData.Name">
-            <summary>Corresponding file name.</summary>
-        </member>
-        <member name="M:MelloSilveiraTools.Core.Managers.File.FileData.#ctor(System.IO.FileInfo)">
-            <summary>
-            Initializes file metadata from an existing file information handle.
-            </summary>
-            <param name="fileInfo">Reference to the physical file.</param>
-        </member>
-        <member name="T:MelloSilveiraTools.Core.Managers.File.FileManager">
-            <summary>
-            File management service responsible for structuring and safely saving files and reports to disk.
-            Employs chronological naming to protect against inadvertent file loss and ensures target directories exist.
+            Encapsulates comprehensive metadata describing a generated or stored file artifact,
+            including physical location, byte size, and creation timestamps.
+            Built to be storage-agnostic across Local File Systems, Blob Storage, and DFS providers.
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.Core.Managers.File.FileManager.BuildTimebasedFullName(System.String,System.String,System.String)">
-            <inheritdoc/>
-        </member>
-        <member name="M:MelloSilveiraTools.Core.Managers.File.FileManager.BuildTimebasedFile(System.String,System.String,System.String)">
-            <inheritdoc/>
-        </member>
-        <member name="M:MelloSilveiraTools.Core.Managers.File.FileManager.BuildTimebasedFileInfo(System.String,System.String,System.String)">
-            <inheritdoc/>
-        </member>
-        <member name="T:MelloSilveiraTools.Core.Managers.File.IFileManager">
+        <member name="P:MelloSilveiraTools.Core.Managers.File.FileMetadata.FullPath">
             <summary>
-            Contract for structured file, report, and export generation on disk.
-            Standardizes document naming by appending chronological timestamps (date and time),
-            preventing unintended overwriting of mission-critical files and preserving an auditable operational trail.
+            Gets the complete, absolute file system path or canonical storage URI (Single Source of Truth).
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.Core.Managers.File.IFileManager.BuildTimebasedFullName(System.String,System.String,System.String)">
+        <member name="P:MelloSilveiraTools.Core.Managers.File.FileMetadata.FileName">
             <summary>
-            Generates the absolute file path combining target directory, business prefix, and generation timestamp.
+            Gets the base file name with extension.
             </summary>
-            <param name="fileUri">Destination directory for saving the document.</param>
-            <param name="filePrefix">Business identifier prefix (e.g. "SalesReport", "DataExport").</param>
-            <param name="fileExtension">Target file extension (e.g. ".csv", ".json", ".txt").</param>
-            <returns>The complete absolute file path.</returns>
         </member>
-        <member name="M:MelloSilveiraTools.Core.Managers.File.IFileManager.BuildTimebasedFile(System.String,System.String,System.String)">
+        <member name="P:MelloSilveiraTools.Core.Managers.File.FileMetadata.DirectoryPath">
             <summary>
-            Builds organizational file metadata (directory and timestamped name) to simplify tracking.
+            Gets the directory, container, or virtual prefix path housing the file.
             </summary>
-            <param name="fileUri">Destination directory.</param>
-            <param name="filePrefix">Business identifier prefix.</param>
-            <param name="fileExtension">Target file extension.</param>
-            <returns>A structured file data record.</returns>
         </member>
-        <member name="M:MelloSilveiraTools.Core.Managers.File.IFileManager.BuildTimebasedFileInfo(System.String,System.String,System.String)">
+        <member name="P:MelloSilveiraTools.Core.Managers.File.FileMetadata.SizeBytes">
             <summary>
-            Prepares a physical file handle and guarantees destination directory existence, creating it automatically if missing.
+            Gets the total file size in bytes.
             </summary>
-            <param name="fileUri">Destination directory.</param>
-            <param name="filePrefix">Business identifier prefix.</param>
-            <param name="fileExtension">Target file extension.</param>
-            <returns>A <see cref="T:System.IO.FileInfo"/> ready for safe disk writing with verified directory path.</returns>
+        </member>
+        <member name="P:MelloSilveiraTools.Core.Managers.File.FileMetadata.CreatedAt">
+            <summary>
+            Gets the timestamp when the file artifact was generated.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Managers.File.FileMetadata.#ctor(System.String,System.Int64,System.Nullable{System.DateTimeOffset})">
+            <summary>
+            Initializes a new instance of the <see cref="T:MelloSilveiraTools.Core.Managers.File.FileMetadata"/> record.
+            Resolves <see cref="P:MelloSilveiraTools.Core.Managers.File.FileMetadata.FileName"/> and <see cref="P:MelloSilveiraTools.Core.Managers.File.FileMetadata.DirectoryPath"/> concurrently from <paramref name="fullPath"/> in a single index pass.
+            </summary>
+            <param name="fullPath">Complete physical path, storage URI, or blob key.</param>
+            <param name="sizeBytes">Total file size in bytes.</param>
+            <param name="createdAt">Optional creation timestamp (defaults to UTC now).</param>
+        </member>
+        <member name="T:MelloSilveiraTools.Core.Managers.File.FileStorageSettings">
+            <summary>
+            Configuration settings governing internal folder layouts and root storage locations for the file storage service.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Core.Managers.File.FileStorageSettings.BaseDirectory">
+            <summary>
+            Gets the base directory or root storage path (defaults to "storage").
+            </summary>
+        </member>
+        <member name="T:MelloSilveiraTools.Core.Managers.File.IFileStorageService">
+            <summary>
+            Storage-agnostic abstraction for file and directory management, location resolution, and stream handling.
+            Encapsulates knowledge of internal canonical directory layouts ("storage/{context}/{identifier}/")
+            independent of the underlying storage technology (e.g., Local File System, Blob Storage, Distributed File System).
+            Implementations are registered in dependency injection as keyed services by <see cref="T:MelloSilveiraTools.Core.Managers.File.StorageProvider"/>.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Managers.File.IFileStorageService.Create(System.String,System.String,System.String)">
+            <summary>
+            Creates or overwrites a file at the contextually resolved location and opens a stream for writing, returning both stream and initial metadata.
+            </summary>
+            <param name="context">Business domain context.</param>
+            <param name="identifier">Unique run, experiment, or analysis identifier.</param>
+            <param name="fileName">Target file name including extension.</param>
+            <returns>A tuple containing the writable <see cref="T:System.IO.Stream"/> and the resolved <see cref="T:MelloSilveiraTools.Core.Managers.File.FileMetadata"/>.</returns>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Managers.File.IFileStorageService.CreateTimebased(System.String,System.String,System.String,System.String)">
+            <summary>
+            Creates a timestamped file at the contextually resolved location and opens a stream for writing, returning both stream and initial metadata.
+            </summary>
+            <param name="context">Business domain context.</param>
+            <param name="identifier">Unique run, experiment, or analysis identifier.</param>
+            <param name="fileExtension">File extension including dot (e.g., ".csv").</param>
+            <param name="filePrefix">Optional business identifier prefix.</param>
+            <returns>A tuple containing the writable <see cref="T:System.IO.Stream"/> and the resolved <see cref="T:MelloSilveiraTools.Core.Managers.File.FileMetadata"/>.</returns>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Managers.File.IFileStorageService.OpenRead(System.String)">
+            <summary>
+            Opens a stream for reading from the specified physical path or storage URI.
+            </summary>
+            <param name="location">Physical path or storage URI.</param>
+            <returns>A readable <see cref="T:System.IO.Stream"/>.</returns>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Managers.File.IFileStorageService.OpenRead(System.String,System.String,System.String)">
+            <summary>
+            Opens a stream for reading from a contextually resolved file location.
+            </summary>
+            <param name="context">Business domain context.</param>
+            <param name="identifier">Unique run, experiment, or analysis identifier.</param>
+            <param name="fileName">Target file name including extension.</param>
+            <returns>A readable <see cref="T:System.IO.Stream"/>.</returns>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Managers.File.IFileStorageService.Exists(System.String)">
+            <summary>
+            Checks whether the file exists at the specified physical path or storage URI.
+            </summary>
+            <param name="location">Physical path or storage URI.</param>
+            <returns><c>true</c> if the file exists; otherwise, <c>false</c>.</returns>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Managers.File.IFileStorageService.Exists(System.String,System.String,System.String)">
+            <summary>
+            Checks whether the file exists within the specified context and identifier partition.
+            </summary>
+            <param name="context">Business domain context.</param>
+            <param name="identifier">Unique run, experiment, or analysis identifier.</param>
+            <param name="fileName">Target file name including extension.</param>
+            <returns><c>true</c> if the file exists; otherwise, <c>false</c>.</returns>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Managers.File.IFileStorageService.GetMetadata(System.String,System.String,System.String)">
+            <summary>
+            Retrieves file metadata for a contextually resolved file location.
+            </summary>
+            <param name="context">Business domain context.</param>
+            <param name="identifier">Unique run, experiment, or analysis identifier.</param>
+            <param name="fileName">Target file name including extension.</param>
+            <returns>A populated <see cref="T:MelloSilveiraTools.Core.Managers.File.FileMetadata"/> instance.</returns>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Managers.File.IFileStorageService.Delete(System.String,System.String,System.String)">
+            <summary>
+            Deletes the file within the specified context and identifier partition if it exists.
+            </summary>
+            <param name="context">Business domain context.</param>
+            <param name="identifier">Unique run, experiment, or analysis identifier.</param>
+            <param name="fileName">Target file name including extension.</param>
+            <returns><c>true</c> if the file was deleted; otherwise, <c>false</c>.</returns>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Managers.File.IFileStorageService.ListFiles(System.String,System.String)">
+            <summary>
+            Lists all file metadata for files residing within the specified context and identifier partition.
+            </summary>
+            <param name="context">Business domain context.</param>
+            <param name="identifier">Unique run, experiment, or analysis identifier.</param>
+            <returns>A collection of <see cref="T:MelloSilveiraTools.Core.Managers.File.FileMetadata"/> items.</returns>
+        </member>
+        <member name="T:MelloSilveiraTools.Core.Managers.File.LocalFileStorageService">
+            <summary>
+            Storage-agnostic file management implementation targeting the local file system.
+            Implements canonical hierarchical directory structures partitioned by domain context and unique identifier ("storage/{context}/{identifier}/").
+            </summary>
+            <param name="settings">Optional file storage settings defining the root base directory. Defaults to standard settings if omitted.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Managers.File.LocalFileStorageService.#ctor(MelloSilveiraTools.Core.Managers.File.FileStorageSettings)">
+            <summary>
+            Storage-agnostic file management implementation targeting the local file system.
+            Implements canonical hierarchical directory structures partitioned by domain context and unique identifier ("storage/{context}/{identifier}/").
+            </summary>
+            <param name="settings">Optional file storage settings defining the root base directory. Defaults to standard settings if omitted.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Managers.File.LocalFileStorageService.Create(System.String,System.String,System.String)">
+            <inheritdoc />
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Managers.File.LocalFileStorageService.CreateTimebased(System.String,System.String,System.String,System.String)">
+            <inheritdoc />
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Managers.File.LocalFileStorageService.OpenRead(System.String)">
+            <inheritdoc />
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Managers.File.LocalFileStorageService.OpenRead(System.String,System.String,System.String)">
+            <inheritdoc />
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Managers.File.LocalFileStorageService.Exists(System.String)">
+            <inheritdoc />
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Managers.File.LocalFileStorageService.Exists(System.String,System.String,System.String)">
+            <inheritdoc />
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Managers.File.LocalFileStorageService.GetMetadata(System.String,System.String,System.String)">
+            <inheritdoc />
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Managers.File.LocalFileStorageService.Delete(System.String,System.String,System.String)">
+            <inheritdoc />
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Managers.File.LocalFileStorageService.ListFiles(System.String,System.String)">
+            <inheritdoc />
+        </member>
+        <member name="T:MelloSilveiraTools.Core.Managers.File.StorageProvider">
+            <summary>
+            Specifies the underlying storage technology provider for file persistence and retrieval.
+            </summary>
+        </member>
+        <member name="F:MelloSilveiraTools.Core.Managers.File.StorageProvider.Local">
+            <summary>
+            Local physical file system storage on the host or container machine.
+            </summary>
+        </member>
+        <member name="F:MelloSilveiraTools.Core.Managers.File.StorageProvider.BlobStorage">
+            <summary>
+            Cloud object or blob storage provider (e.g., Azure Blob Storage, AWS S3, Google Cloud Storage).
+            </summary>
+        </member>
+        <member name="F:MelloSilveiraTools.Core.Managers.File.StorageProvider.Dfs">
+            <summary>
+            Distributed file system provider (e.g., HDFS, SMB/UNC network share, Ceph).
+            </summary>
         </member>
         <member name="T:MelloSilveiraTools.Core.Models.Constants">
             <summary>
@@ -1474,6 +1586,13 @@
             </summary>
             <param name="message">Guidance on how to satisfy requirements.</param>
             <returns>A bad request outcome.</returns>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Models.Result.CreateBadRequest(System.Collections.Generic.List{System.String})">
+            <summary>
+            Creates an outcome indicating that the submitted data did not meet business requirements or validation rules.
+            </summary>
+            <param name="messages">Explanations detailing the required corrections.</param>
+            <returns>An invalid request result containing guidance messages.</returns>
         </member>
         <member name="M:MelloSilveiraTools.Core.Models.Result.CreateUnauthorized">
             <summary>
@@ -1897,7 +2016,7 @@
             Note: Circuit-breaker and rate-limiter resilience strategies are planned for future integration at the block level.
             </remarks>
         </member>
-        <member name="M:MelloSilveiraTools.Core.Pipelines.Dataflow.DataflowPipelineBuilder`2.#ctor(Microsoft.Extensions.Logging.ILogger,System.Threading.Tasks.Dataflow.ITargetBlock{`0},System.Threading.Tasks.Dataflow.ISourceBlock{`1},System.Threading.Tasks.Dataflow.ITargetBlock{MelloSilveiraTools.Core.Pipelines.Models.FailedPayload},System.Nullable{MelloSilveiraTools.Core.Pipelines.Models.RetryOptions},System.Threading.CancellationToken,System.Collections.Generic.List{System.Threading.Tasks.Task},System.Collections.Generic.List{MelloSilveiraTools.Core.Pipelines.Steps.IPipelineStep})">
+        <member name="M:MelloSilveiraTools.Core.Pipelines.Dataflow.DataflowPipelineBuilder`2.#ctor(Microsoft.Extensions.Logging.ILogger,System.Threading.Tasks.Dataflow.ITargetBlock{`0},System.Threading.Tasks.Dataflow.ISourceBlock{`1},System.Threading.Tasks.Dataflow.ITargetBlock{MelloSilveiraTools.Core.Pipelines.Models.FailedPayload},System.Nullable{MelloSilveiraTools.Core.Pipelines.Models.RetryOptions},System.Threading.CancellationToken,System.Collections.Generic.List{System.Threading.Tasks.Task},System.Collections.Generic.List{MelloSilveiraTools.Core.Pipelines.Steps.IPipelineStep},System.IProgress{MelloSilveiraTools.Core.Pipelines.Models.PipelineProgressEvent})">
             <summary>
             Strongly-typed fluent builder for orchestrating asynchronous data processing topologies.
             </summary>
@@ -2488,6 +2607,51 @@
             Enables precise fault localization within the pipeline's execution topology.
             </summary>
         </member>
+        <member name="T:MelloSilveiraTools.Core.Pipelines.Models.PipelineProgressEvent">
+            <summary>
+            Represents an immutable real-time notification emitted during the execution of a pipeline step.
+            </summary>
+            <param name="StepName">The unique identifier or logical name of the pipeline step emitting the event.</param>
+            <param name="Description">A human-readable description of the current step activity.</param>
+            <param name="State">The lifecycle state of the step (<see cref="T:MelloSilveiraTools.Core.Pipelines.Models.PipelineStepState"/>).</param>
+            <param name="StepIndex">Optional 1-based index of the step in the pipeline topology.</param>
+            <param name="TotalSteps">Optional total number of steps in the pipeline topology.</param>
+            <param name="Detail">Optional diagnostic or contextual detail (e.g., item count, identifier, or error message).</param>
+            <param name="Timestamp">The UTC timestamp when the progress event was generated.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Pipelines.Models.PipelineProgressEvent.#ctor(System.String,System.String,MelloSilveiraTools.Core.Pipelines.Models.PipelineStepState,System.Nullable{System.Int32},System.Nullable{System.Int32},System.String,System.DateTimeOffset)">
+            <summary>
+            Represents an immutable real-time notification emitted during the execution of a pipeline step.
+            </summary>
+            <param name="StepName">The unique identifier or logical name of the pipeline step emitting the event.</param>
+            <param name="Description">A human-readable description of the current step activity.</param>
+            <param name="State">The lifecycle state of the step (<see cref="T:MelloSilveiraTools.Core.Pipelines.Models.PipelineStepState"/>).</param>
+            <param name="StepIndex">Optional 1-based index of the step in the pipeline topology.</param>
+            <param name="TotalSteps">Optional total number of steps in the pipeline topology.</param>
+            <param name="Detail">Optional diagnostic or contextual detail (e.g., item count, identifier, or error message).</param>
+            <param name="Timestamp">The UTC timestamp when the progress event was generated.</param>
+        </member>
+        <member name="P:MelloSilveiraTools.Core.Pipelines.Models.PipelineProgressEvent.StepName">
+            <summary>The unique identifier or logical name of the pipeline step emitting the event.</summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Core.Pipelines.Models.PipelineProgressEvent.Description">
+            <summary>A human-readable description of the current step activity.</summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Core.Pipelines.Models.PipelineProgressEvent.State">
+            <summary>The lifecycle state of the step (<see cref="T:MelloSilveiraTools.Core.Pipelines.Models.PipelineStepState"/>).</summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Core.Pipelines.Models.PipelineProgressEvent.StepIndex">
+            <summary>Optional 1-based index of the step in the pipeline topology.</summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Core.Pipelines.Models.PipelineProgressEvent.TotalSteps">
+            <summary>Optional total number of steps in the pipeline topology.</summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Core.Pipelines.Models.PipelineProgressEvent.Detail">
+            <summary>Optional diagnostic or contextual detail (e.g., item count, identifier, or error message).</summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Core.Pipelines.Models.PipelineProgressEvent.Timestamp">
+            <summary>The UTC timestamp when the progress event was generated.</summary>
+        </member>
         <member name="T:MelloSilveiraTools.Core.Pipelines.Models.PipelineStepOptions">
             <summary>
             Encapsulates execution configurations for individual TPL Dataflow blocks.
@@ -2537,6 +2701,31 @@
         <member name="M:MelloSilveiraTools.Core.Pipelines.Models.PipelineStepOptions.ToDataflowOptions(System.Threading.CancellationToken)">
             <summary>
             Projects the abstracted configuration into the native TPL Dataflow options payload.
+            </summary>
+        </member>
+        <member name="T:MelloSilveiraTools.Core.Pipelines.Models.PipelineStepState">
+            <summary>
+            Represents the execution lifecycle state of a pipeline step for real-time progress reporting.
+            </summary>
+        </member>
+        <member name="F:MelloSilveiraTools.Core.Pipelines.Models.PipelineStepState.Started">
+            <summary>
+            The pipeline step has started processing an input payload.
+            </summary>
+        </member>
+        <member name="F:MelloSilveiraTools.Core.Pipelines.Models.PipelineStepState.Running">
+            <summary>
+            The pipeline step is actively running and producing or processing intermediate items.
+            </summary>
+        </member>
+        <member name="F:MelloSilveiraTools.Core.Pipelines.Models.PipelineStepState.Completed">
+            <summary>
+            The pipeline step has completed execution successfully.
+            </summary>
+        </member>
+        <member name="F:MelloSilveiraTools.Core.Pipelines.Models.PipelineStepState.Faulted">
+            <summary>
+            The pipeline step encountered an unhandled error and faulted.
             </summary>
         </member>
         <member name="T:MelloSilveiraTools.Core.Pipelines.Models.RetryOptions">
@@ -2624,7 +2813,7 @@
             and the strongly-typed pull-based Fluent request-response pipeline.
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.Core.Pipelines.PipelineFactory.StartDataflow``1(Microsoft.Extensions.Logging.ILogger,System.Int32,System.Nullable{MelloSilveiraTools.Core.Pipelines.Models.RetryOptions},System.Threading.CancellationToken)">
+        <member name="M:MelloSilveiraTools.Core.Pipelines.PipelineFactory.StartDataflow``1(Microsoft.Extensions.Logging.ILogger,System.Int32,System.Nullable{MelloSilveiraTools.Core.Pipelines.Models.RetryOptions},System.Threading.CancellationToken,System.IProgress{MelloSilveiraTools.Core.Pipelines.Models.PipelineProgressEvent})">
             <summary>
             Bootstraps a continuous TPL Dataflow pipeline topology by instantiating a <see cref="T:System.Threading.Tasks.Dataflow.BufferBlock`1"/> 
             as the ingestion head. Enforces bounded capacity backpressure and injects the unified cancellation graph 
@@ -2633,8 +2822,9 @@
             <typeparam name="T">The immutable payload type ingested at the pipeline head.</typeparam>
             <param name="logger">Structured logging provider for tracking block transitions and telemetry.</param>
             <param name="initialBufferSize">The maximum bounded capacity of the ingestion buffer block, defaulting to 10,000 items.</param>
-            <param name="retryOptions"></param>
+            <param name="retryOptions">Optional retry configuration for asynchronous pipeline steps.</param>
             <param name="cancellationToken">The unified cancellation token propagated down the entire Dataflow network.</param>
+            <param name="progress">Optional progress reporter for emitting real-time <see cref="T:MelloSilveiraTools.Core.Pipelines.Models.PipelineProgressEvent"/> notifications.</param>
             <returns>A fluent builder instance anchored to the initial buffer head.</returns>
         </member>
         <member name="M:MelloSilveiraTools.Core.Pipelines.PipelineFactory.StartFluent``1">
@@ -2780,7 +2970,7 @@
             and retry wrapper frames from cluttering application exception stack traces, keeping debugging focused on the actual business logic.
             </remarks>
         </member>
-        <member name="M:MelloSilveiraTools.Core.Pipelines.Telemetry.TelemetryExtensions.HandleExecution``1(Microsoft.Extensions.Logging.ILogger,System.String,System.Action{``0},System.Threading.CancellationToken)">
+        <member name="M:MelloSilveiraTools.Core.Pipelines.Telemetry.TelemetryExtensions.HandleExecution``1(Microsoft.Extensions.Logging.ILogger,System.String,System.Action{``0},System.Threading.CancellationToken,System.IProgress{MelloSilveiraTools.Core.Pipelines.Models.PipelineProgressEvent})">
             <summary>
             Wraps a synchronous action with OpenTelemetry tracing and structured logging, returning a new execution delegate.
             </summary>
@@ -2789,7 +2979,7 @@
             Limitation: Does not support retries. Attempting to retry a synchronous action would require thread-blocking operations, risking ThreadPool starvation.
             </remarks>
         </member>
-        <member name="M:MelloSilveiraTools.Core.Pipelines.Telemetry.TelemetryExtensions.HandleSafeExecution``1(Microsoft.Extensions.Logging.ILogger,System.String,System.Action{``0},System.Threading.CancellationToken)">
+        <member name="M:MelloSilveiraTools.Core.Pipelines.Telemetry.TelemetryExtensions.HandleSafeExecution``1(Microsoft.Extensions.Logging.ILogger,System.String,System.Action{``0},System.Threading.CancellationToken,System.IProgress{MelloSilveiraTools.Core.Pipelines.Models.PipelineProgressEvent})">
             <summary>
             Wraps a synchronous action, capturing exceptions into a <see cref="T:MelloSilveiraTools.Core.Pipelines.Models.SafeResult`1"/> envelope for centralized error routing.
             </summary>
@@ -2797,7 +2987,7 @@
             Technical Decision: Dynamically replaces the native exception-throwing behavior to prevent block faults in TPL Dataflow, routing the failure to a DLQ branch instead.
             </remarks>
         </member>
-        <member name="M:MelloSilveiraTools.Core.Pipelines.Telemetry.TelemetryExtensions.HandleExecution``1(Microsoft.Extensions.Logging.ILogger,System.String,System.Func{``0,System.Threading.CancellationToken,System.Threading.Tasks.Task},System.Nullable{MelloSilveiraTools.Core.Pipelines.Models.RetryOptions},System.Threading.CancellationToken)">
+        <member name="M:MelloSilveiraTools.Core.Pipelines.Telemetry.TelemetryExtensions.HandleExecution``1(Microsoft.Extensions.Logging.ILogger,System.String,System.Func{``0,System.Threading.CancellationToken,System.Threading.Tasks.Task},System.Nullable{MelloSilveiraTools.Core.Pipelines.Models.RetryOptions},System.Threading.CancellationToken,System.IProgress{MelloSilveiraTools.Core.Pipelines.Models.PipelineProgressEvent})">
             <summary>
             Wraps an asynchronous action with OpenTelemetry tracing, structured logging, and optional exponential backoff.
             </summary>
@@ -2806,7 +2996,7 @@
             Limitation: Unrecoverable exceptions (post-retries) will fault the pipeline block since this method does not return a <see cref="T:MelloSilveiraTools.Core.Pipelines.Models.SafeResult`1"/>.
             </remarks>
         </member>
-        <member name="M:MelloSilveiraTools.Core.Pipelines.Telemetry.TelemetryExtensions.HandleSafeExecution``1(Microsoft.Extensions.Logging.ILogger,System.String,System.Func{``0,System.Threading.CancellationToken,System.Threading.Tasks.Task},System.Nullable{MelloSilveiraTools.Core.Pipelines.Models.RetryOptions},System.Threading.CancellationToken)">
+        <member name="M:MelloSilveiraTools.Core.Pipelines.Telemetry.TelemetryExtensions.HandleSafeExecution``1(Microsoft.Extensions.Logging.ILogger,System.String,System.Func{``0,System.Threading.CancellationToken,System.Threading.Tasks.Task},System.Nullable{MelloSilveiraTools.Core.Pipelines.Models.RetryOptions},System.Threading.CancellationToken,System.IProgress{MelloSilveiraTools.Core.Pipelines.Models.PipelineProgressEvent})">
             <summary>
             Wraps an asynchronous action, combining exponential backoff with a <see cref="T:MelloSilveiraTools.Core.Pipelines.Models.SafeResult`1"/> envelope for terminal failures.
             </summary>
@@ -2814,7 +3004,7 @@
             Technical Decision: Provides the highest degree of fault tolerance for terminal pipeline steps (sinks), attempting to heal transient issues first, and gracefully failing over to a DLQ if exhaustion occurs.
             </remarks>
         </member>
-        <member name="M:MelloSilveiraTools.Core.Pipelines.Telemetry.TelemetryExtensions.HandleExecution``2(Microsoft.Extensions.Logging.ILogger,System.String,System.Func{``0,``1},System.Threading.CancellationToken)">
+        <member name="M:MelloSilveiraTools.Core.Pipelines.Telemetry.TelemetryExtensions.HandleExecution``2(Microsoft.Extensions.Logging.ILogger,System.String,System.Func{``0,``1},System.Threading.CancellationToken,System.IProgress{MelloSilveiraTools.Core.Pipelines.Models.PipelineProgressEvent})">
             <summary>
             Wraps a synchronous mapping function with OpenTelemetry tracing and structured logging, returning the mapped output.
             </summary>
@@ -2822,22 +3012,22 @@
             Technical Decision: Elides async overhead entirely. Designed for pure CPU-bound mapping logic (e.g., entity to DTO translation).
             </remarks>
         </member>
-        <member name="M:MelloSilveiraTools.Core.Pipelines.Telemetry.TelemetryExtensions.HandleSafeExecution``2(Microsoft.Extensions.Logging.ILogger,System.String,System.Func{``0,``1},System.Threading.CancellationToken)">
+        <member name="M:MelloSilveiraTools.Core.Pipelines.Telemetry.TelemetryExtensions.HandleSafeExecution``2(Microsoft.Extensions.Logging.ILogger,System.String,System.Func{``0,``1},System.Threading.CancellationToken,System.IProgress{MelloSilveiraTools.Core.Pipelines.Models.PipelineProgressEvent})">
             <summary>
             Wraps a synchronous mapping function, intercepting failures into a <see cref="T:MelloSilveiraTools.Core.Pipelines.Models.SafeResult`2"/> to permit DLQ offloading.
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.Core.Pipelines.Telemetry.TelemetryExtensions.HandleExecution``2(Microsoft.Extensions.Logging.ILogger,System.String,System.Func{``0,System.Threading.CancellationToken,System.Threading.Tasks.Task{``1}},System.Nullable{MelloSilveiraTools.Core.Pipelines.Models.RetryOptions},System.Threading.CancellationToken)">
+        <member name="M:MelloSilveiraTools.Core.Pipelines.Telemetry.TelemetryExtensions.HandleExecution``2(Microsoft.Extensions.Logging.ILogger,System.String,System.Func{``0,System.Threading.CancellationToken,System.Threading.Tasks.Task{``1}},System.Nullable{MelloSilveiraTools.Core.Pipelines.Models.RetryOptions},System.Threading.CancellationToken,System.IProgress{MelloSilveiraTools.Core.Pipelines.Models.PipelineProgressEvent})">
             <summary>
             Wraps an asynchronous mapping function with support for optional retry logic (exponential backoff) and telemetry tracking.
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.Core.Pipelines.Telemetry.TelemetryExtensions.HandleSafeExecution``2(Microsoft.Extensions.Logging.ILogger,System.String,System.Func{``0,System.Threading.CancellationToken,System.Threading.Tasks.Task{``1}},System.Nullable{MelloSilveiraTools.Core.Pipelines.Models.RetryOptions},System.Threading.CancellationToken)">
+        <member name="M:MelloSilveiraTools.Core.Pipelines.Telemetry.TelemetryExtensions.HandleSafeExecution``2(Microsoft.Extensions.Logging.ILogger,System.String,System.Func{``0,System.Threading.CancellationToken,System.Threading.Tasks.Task{``1}},System.Nullable{MelloSilveiraTools.Core.Pipelines.Models.RetryOptions},System.Threading.CancellationToken,System.IProgress{MelloSilveiraTools.Core.Pipelines.Models.PipelineProgressEvent})">
             <summary>
             Wraps an asynchronous mapping function, catching ultimate backoff failures into a bifurcated <see cref="T:MelloSilveiraTools.Core.Pipelines.Models.SafeResult`2"/>.
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.Core.Pipelines.Telemetry.TelemetryExtensions.HandleExecution``2(Microsoft.Extensions.Logging.ILogger,System.String,System.String,System.Func{``0,System.Threading.CancellationToken,System.Threading.Tasks.Task{``1}},System.Func{``0,System.Boolean},System.Func{``0,System.Threading.CancellationToken,System.Threading.Tasks.Task{``1}},System.Nullable{MelloSilveiraTools.Core.Pipelines.Models.RetryOptions},System.Threading.CancellationToken)">
+        <member name="M:MelloSilveiraTools.Core.Pipelines.Telemetry.TelemetryExtensions.HandleExecution``2(Microsoft.Extensions.Logging.ILogger,System.String,System.String,System.Func{``0,System.Threading.CancellationToken,System.Threading.Tasks.Task{``1}},System.Func{``0,System.Boolean},System.Func{``0,System.Threading.CancellationToken,System.Threading.Tasks.Task{``1}},System.Nullable{MelloSilveiraTools.Core.Pipelines.Models.RetryOptions},System.Threading.CancellationToken,System.IProgress{MelloSilveiraTools.Core.Pipelines.Models.PipelineProgressEvent})">
             <summary>
             Wraps a conditional forking operation evaluating the input payload prior to execution.
             </summary>
@@ -2846,12 +3036,12 @@
             Limitation: The condition must be synchronous. If asynchronous validation is required before branching, this pattern must be adapted.
             </remarks>
         </member>
-        <member name="M:MelloSilveiraTools.Core.Pipelines.Telemetry.TelemetryExtensions.HandleSafeExecution``2(Microsoft.Extensions.Logging.ILogger,System.String,System.String,System.Func{``0,System.Threading.CancellationToken,System.Threading.Tasks.Task{``1}},System.Func{``0,System.Boolean},System.Func{``0,System.Threading.CancellationToken,System.Threading.Tasks.Task{``1}},System.Nullable{MelloSilveiraTools.Core.Pipelines.Models.RetryOptions},System.Threading.CancellationToken)">
+        <member name="M:MelloSilveiraTools.Core.Pipelines.Telemetry.TelemetryExtensions.HandleSafeExecution``2(Microsoft.Extensions.Logging.ILogger,System.String,System.String,System.Func{``0,System.Threading.CancellationToken,System.Threading.Tasks.Task{``1}},System.Func{``0,System.Boolean},System.Func{``0,System.Threading.CancellationToken,System.Threading.Tasks.Task{``1}},System.Nullable{MelloSilveiraTools.Core.Pipelines.Models.RetryOptions},System.Threading.CancellationToken,System.IProgress{MelloSilveiraTools.Core.Pipelines.Models.PipelineProgressEvent})">
             <summary>
             Wraps a conditional forking operation evaluating the input payload, utilizing a <see cref="T:MelloSilveiraTools.Core.Pipelines.Models.SafeResult`2"/> to catch execution failures on either branch.
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.Core.Pipelines.Telemetry.TelemetryExtensions.HandleExecution``2(Microsoft.Extensions.Logging.ILogger,System.String,System.String,System.Func{``0,System.Threading.CancellationToken,System.Threading.Tasks.Task{``1}},System.Func{``1,System.Boolean},System.Func{``0,System.Threading.CancellationToken,System.Threading.Tasks.Task{``1}},System.Nullable{MelloSilveiraTools.Core.Pipelines.Models.RetryOptions},System.Threading.CancellationToken)">
+        <member name="M:MelloSilveiraTools.Core.Pipelines.Telemetry.TelemetryExtensions.HandleExecution``2(Microsoft.Extensions.Logging.ILogger,System.String,System.String,System.Func{``0,System.Threading.CancellationToken,System.Threading.Tasks.Task{``1}},System.Func{``1,System.Boolean},System.Func{``0,System.Threading.CancellationToken,System.Threading.Tasks.Task{``1}},System.Nullable{MelloSilveiraTools.Core.Pipelines.Models.RetryOptions},System.Threading.CancellationToken,System.IProgress{MelloSilveiraTools.Core.Pipelines.Models.PipelineProgressEvent})">
             <summary>
             Wraps a conditional forking operation evaluating the output payload after the primary execution completes.
             </summary>
@@ -2859,7 +3049,7 @@
             Limitation: If the primary execution applies external side effects (like updating a database) before returning its result, triggering this fallback will *not* roll back those side effects automatically.
             </remarks>
         </member>
-        <member name="M:MelloSilveiraTools.Core.Pipelines.Telemetry.TelemetryExtensions.HandleSafeExecution``2(Microsoft.Extensions.Logging.ILogger,System.String,System.String,System.Func{``0,``1},System.Func{MelloSilveiraTools.Core.Pipelines.Models.SafeResult{``0,``1},System.Boolean},System.Func{``0,``1},System.Threading.CancellationToken)">
+        <member name="M:MelloSilveiraTools.Core.Pipelines.Telemetry.TelemetryExtensions.HandleSafeExecution``2(Microsoft.Extensions.Logging.ILogger,System.String,System.String,System.Func{``0,``1},System.Func{MelloSilveiraTools.Core.Pipelines.Models.SafeResult{``0,``1},System.Boolean},System.Func{``0,``1},System.Threading.CancellationToken,System.IProgress{MelloSilveiraTools.Core.Pipelines.Models.PipelineProgressEvent})">
             <summary>
             Wraps a post-execution conditional forking operation, evaluating against the <see cref="T:MelloSilveiraTools.Core.Pipelines.Models.SafeResult`2"/> state.
             </summary>
@@ -2867,7 +3057,12 @@
             Technical Decision: Passing the entire <c>SafeResult</c> to the <paramref name="fallbackCondition"/> allows the condition to evaluate both successfully mapped outputs and handled faults to determine routing logic.
             </remarks>
         </member>
-        <member name="M:MelloSilveiraTools.Core.Pipelines.Telemetry.TelemetryExtensions.HandleSafeExecution``2(Microsoft.Extensions.Logging.ILogger,System.String,System.String,System.Func{``0,System.Threading.CancellationToken,System.Threading.Tasks.Task{``1}},System.Func{MelloSilveiraTools.Core.Pipelines.Models.SafeResult{``0,``1},System.Boolean},System.Func{``0,System.Threading.CancellationToken,System.Threading.Tasks.Task{``1}},System.Nullable{MelloSilveiraTools.Core.Pipelines.Models.RetryOptions},System.Threading.CancellationToken)">
+        <member name="M:MelloSilveiraTools.Core.Pipelines.Telemetry.TelemetryExtensions.HandleExecution``2(Microsoft.Extensions.Logging.ILogger,System.String,System.String,System.Func{``0,``1},System.Func{``1,System.Boolean},System.Func{``0,``1},System.Threading.CancellationToken,System.IProgress{MelloSilveiraTools.Core.Pipelines.Models.PipelineProgressEvent})">
+            <summary>
+            Wraps a synchronous conditional forking operation evaluating the output payload after the primary execution completes.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Pipelines.Telemetry.TelemetryExtensions.HandleSafeExecution``2(Microsoft.Extensions.Logging.ILogger,System.String,System.String,System.Func{``0,System.Threading.CancellationToken,System.Threading.Tasks.Task{``1}},System.Func{MelloSilveiraTools.Core.Pipelines.Models.SafeResult{``0,``1},System.Boolean},System.Func{``0,System.Threading.CancellationToken,System.Threading.Tasks.Task{``1}},System.Nullable{MelloSilveiraTools.Core.Pipelines.Models.RetryOptions},System.Threading.CancellationToken,System.IProgress{MelloSilveiraTools.Core.Pipelines.Models.PipelineProgressEvent})">
             <summary>
             Wraps a post-execution conditional forking operation, evaluating against the <see cref="T:MelloSilveiraTools.Core.Pipelines.Models.SafeResult`2"/> state.
             </summary>
@@ -2875,47 +3070,47 @@
             Technical Decision: Passing the entire <c>SafeResult</c> to the <paramref name="fallbackCondition"/> allows the condition to evaluate both successfully mapped outputs and handled faults to determine routing logic.
             </remarks>
         </member>
-        <member name="M:MelloSilveiraTools.Core.Pipelines.Telemetry.TelemetryExtensions.HandleExecution``2(Microsoft.Extensions.Logging.ILogger,System.String,System.Func{``0,System.Threading.CancellationToken,System.Collections.Generic.IAsyncEnumerable{``1}},System.Threading.CancellationToken)">
+        <member name="M:MelloSilveiraTools.Core.Pipelines.Telemetry.TelemetryExtensions.HandleExecution``2(Microsoft.Extensions.Logging.ILogger,System.String,System.Func{``0,System.Threading.CancellationToken,System.Collections.Generic.IAsyncEnumerable{``1}},System.Threading.CancellationToken,System.IProgress{MelloSilveiraTools.Core.Pipelines.Models.PipelineProgressEvent})">
             <summary>
             Wraps a streaming function returning an <see cref="T:System.Collections.Generic.IAsyncEnumerable`1"/> with OpenTelemetry tracing and structured logging.
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.Core.Pipelines.Telemetry.TelemetryExtensions.HandleSafeExecution``2(Microsoft.Extensions.Logging.ILogger,System.String,System.Func{``0,System.Threading.CancellationToken,System.Collections.Generic.IAsyncEnumerable{``1}},System.Threading.CancellationToken)">
+        <member name="M:MelloSilveiraTools.Core.Pipelines.Telemetry.TelemetryExtensions.HandleSafeExecution``2(Microsoft.Extensions.Logging.ILogger,System.String,System.Func{``0,System.Threading.CancellationToken,System.Collections.Generic.IAsyncEnumerable{``1}},System.Threading.CancellationToken,System.IProgress{MelloSilveiraTools.Core.Pipelines.Models.PipelineProgressEvent})">
             <summary>
             Wraps a streaming function returning an <see cref="T:System.Collections.Generic.IAsyncEnumerable`1"/> with OpenTelemetry tracing and structured logging.
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.Core.Pipelines.Telemetry.TelemetryExtensions.HandleExecution``2(Microsoft.Extensions.Logging.ILogger,System.String,System.Func{``0,System.Threading.CancellationToken,System.Collections.Generic.IEnumerable{``1}},System.Threading.CancellationToken)">
+        <member name="M:MelloSilveiraTools.Core.Pipelines.Telemetry.TelemetryExtensions.HandleExecution``2(Microsoft.Extensions.Logging.ILogger,System.String,System.Func{``0,System.Threading.CancellationToken,System.Collections.Generic.IEnumerable{``1}},System.Threading.CancellationToken,System.IProgress{MelloSilveiraTools.Core.Pipelines.Models.PipelineProgressEvent})">
             <summary>
             Wraps an enumerable transformation function returning an <see cref="T:System.Collections.Generic.IEnumerable`1"/> with OpenTelemetry tracing and structured logging.
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.Core.Pipelines.Telemetry.TelemetryExtensions.HandleSafeExecution``2(Microsoft.Extensions.Logging.ILogger,System.String,System.Func{``0,System.Threading.CancellationToken,System.Collections.Generic.IEnumerable{``1}},System.Threading.CancellationToken)">
+        <member name="M:MelloSilveiraTools.Core.Pipelines.Telemetry.TelemetryExtensions.HandleSafeExecution``2(Microsoft.Extensions.Logging.ILogger,System.String,System.Func{``0,System.Threading.CancellationToken,System.Collections.Generic.IEnumerable{``1}},System.Threading.CancellationToken,System.IProgress{MelloSilveiraTools.Core.Pipelines.Models.PipelineProgressEvent})">
             <summary>
             Wraps an enumerable transformation function returning an <see cref="T:System.Collections.Generic.IEnumerable`1"/> with OpenTelemetry tracing, structured logging, and safe DLQ routing.
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.Core.Pipelines.Telemetry.TelemetryExtensions.ExecuteAsync``2(Microsoft.Extensions.Logging.ILogger,System.Diagnostics.Activity,``0,System.String,System.Func{``0,System.Threading.CancellationToken,System.Threading.Tasks.Task{``1}},System.Nullable{MelloSilveiraTools.Core.Pipelines.Models.RetryOptions},System.Threading.CancellationToken)">
+        <member name="M:MelloSilveiraTools.Core.Pipelines.Telemetry.TelemetryExtensions.ExecuteAsync``2(Microsoft.Extensions.Logging.ILogger,System.Diagnostics.Activity,``0,System.String,System.Func{``0,System.Threading.CancellationToken,System.Threading.Tasks.Task{``1}},System.Nullable{MelloSilveiraTools.Core.Pipelines.Models.RetryOptions},System.Threading.CancellationToken,System.IProgress{MelloSilveiraTools.Core.Pipelines.Models.PipelineProgressEvent})">
             <summary>
             Encapsulates the core asynchronous execution loop with exponential backoff logic.
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.Core.Pipelines.Telemetry.TelemetryExtensions.SafeExecuteAsync``2(Microsoft.Extensions.Logging.ILogger,System.Diagnostics.Activity,``0,System.String,System.Func{``0,System.Threading.CancellationToken,System.Threading.Tasks.Task{``1}},System.Nullable{MelloSilveiraTools.Core.Pipelines.Models.RetryOptions},System.Threading.CancellationToken)">
+        <member name="M:MelloSilveiraTools.Core.Pipelines.Telemetry.TelemetryExtensions.SafeExecuteAsync``2(Microsoft.Extensions.Logging.ILogger,System.Diagnostics.Activity,``0,System.String,System.Func{``0,System.Threading.CancellationToken,System.Threading.Tasks.Task{``1}},System.Nullable{MelloSilveiraTools.Core.Pipelines.Models.RetryOptions},System.Threading.CancellationToken,System.IProgress{MelloSilveiraTools.Core.Pipelines.Models.PipelineProgressEvent})">
             <summary>
             Encapsulates the core asynchronous execution loop, returning a <see cref="T:MelloSilveiraTools.Core.Pipelines.Models.SafeResult`2"/> upon failure exhaustion.
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.Core.Pipelines.Telemetry.TelemetryExtensions.StartTelemetry(Microsoft.Extensions.Logging.ILogger,System.Diagnostics.Activity,System.String)">
+        <member name="M:MelloSilveiraTools.Core.Pipelines.Telemetry.TelemetryExtensions.StartTelemetry(Microsoft.Extensions.Logging.ILogger,System.Diagnostics.Activity,System.String,System.IProgress{MelloSilveiraTools.Core.Pipelines.Models.PipelineProgressEvent})">
             <summary>
             Initializes telemetry tags and logs the start of a pipeline execution step.
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.Core.Pipelines.Telemetry.TelemetryExtensions.LogAndTrackStepCompletion(Microsoft.Extensions.Logging.ILogger,System.Diagnostics.Activity,System.DateTimeOffset,System.String)">
+        <member name="M:MelloSilveiraTools.Core.Pipelines.Telemetry.TelemetryExtensions.LogAndTrackStepCompletion(Microsoft.Extensions.Logging.ILogger,System.Diagnostics.Activity,System.DateTimeOffset,System.String,System.IProgress{MelloSilveiraTools.Core.Pipelines.Models.PipelineProgressEvent},System.String)">
             <summary>
             Finalizes a successful execution step, updating the span status to Ok and logging the total duration.
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.Core.Pipelines.Telemetry.TelemetryExtensions.LogAndTrackStepFailure(Microsoft.Extensions.Logging.ILogger,System.Diagnostics.Activity,System.DateTimeOffset,System.String,System.Exception)">
+        <member name="M:MelloSilveiraTools.Core.Pipelines.Telemetry.TelemetryExtensions.LogAndTrackStepFailure(Microsoft.Extensions.Logging.ILogger,System.Diagnostics.Activity,System.DateTimeOffset,System.String,System.Exception,System.IProgress{MelloSilveiraTools.Core.Pipelines.Models.PipelineProgressEvent})">
             <summary>
             Finalizes a failed execution step, attaching the exception to the span, updating status to Error, and logging the fault.
             </summary>
@@ -2925,7 +3120,7 @@
             Standardized log event indicating that short-circuit or fallback conditions have been met.
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.Core.Pipelines.Telemetry.TelemetryExtensions.HandleRetryAsync(Microsoft.Extensions.Logging.ILogger,System.Diagnostics.Activity,System.String,System.Exception,System.Int32,System.Int32,System.DateTimeOffset,System.Nullable{MelloSilveiraTools.Core.Pipelines.Models.RetryOptions},System.Threading.CancellationToken)">
+        <member name="M:MelloSilveiraTools.Core.Pipelines.Telemetry.TelemetryExtensions.HandleRetryAsync(Microsoft.Extensions.Logging.ILogger,System.Diagnostics.Activity,System.String,System.Exception,System.Int32,System.Int32,System.DateTimeOffset,System.Nullable{MelloSilveiraTools.Core.Pipelines.Models.RetryOptions},System.Threading.CancellationToken,System.IProgress{MelloSilveiraTools.Core.Pipelines.Models.PipelineProgressEvent})">
             <summary>
             Evaluates backoff conditions, applies Task delays for valid retries, or returns a terminal state if limits are reached.
             </summary>

@@ -1,5 +1,6 @@
-using MelloSilveiraTools.Core;
+﻿using MelloSilveiraTools.Core;
 using MelloSilveiraTools.Core.Logging;
+using MelloSilveiraTools.Core.Managers.File;
 using MelloSilveiraTools.Core.ResiliencePipelines;
 using MelloSilveiraTools.Core.Services.Email;
 using MelloSilveiraTools.Core.Services.Encryption;
@@ -8,6 +9,7 @@ using MelloSilveiraTools.Database.RelationalDatabase.Settings;
 using MelloSilveiraTools.Mathematics;
 using MelloSilveiraTools.MechanicsOfMaterials;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations;
+using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData;
 using MelloSilveiraTools.Plugins;
 using MelloSilveiraTools.Plugins.Infrastructure;
 using MelloSilveiraTools.WebApi;
@@ -22,33 +24,38 @@ public static class DependencyInjection
 {
     /// <summary>
     /// Registers the services of every contextual MelloSilveiraTools package
-    /// (Core, Database, WebApi and Plugins).
+    /// (Core, Database, WebApi, Plugins, Mathematics, MechanicsOfMaterials, and Optimizations).
     /// </summary>
     /// <param name="services">Service collection that receives the registrations.</param>
+    /// <param name="defaultResiliencePipelineSettings">Settings that parameterize the resilience pipelines.</param>
     /// <param name="databaseSettings">Database connection and behavior settings.</param>
     /// <param name="encryptionSettings">Settings used by the encryption service.</param>
-    /// <param name="resiliencePipelineSettings">Settings that parameterize the resilience pipelines.</param>
     /// <param name="pluginSettings">Settings that describe plugin folders and behavior.</param>
     /// <param name="emailSettings">Settings used to send e-mails through an SMTP server.</param>
     /// <param name="loggerSettings">Settings used by logger service.</param>
+    /// <param name="fileStorageSettings">Settings used to configure root directories and storage policies.</param>
+    /// <param name="experimentalDataSettings">Settings used by experimental data processing and optimization pipelines.</param>
     /// <param name="useDefaultLogger">Indicates if should use the default logger.</param>
-    /// <param name="addMechanicalModels"></param>
+    /// <param name="addMechanicalModels">Indicates whether to register mechanical model calculators.</param>
     /// <returns>The same <paramref name="services"/> instance to allow call chaining.</returns>
     public static IServiceCollection AddToolsServices(this IServiceCollection services,
+        ResiliencePipelineSettings defaultResiliencePipelineSettings,
         DatabaseSettings databaseSettings,
         EncryptionSettings encryptionSettings,
-        ResiliencePipelineSettings resiliencePipelineSettings,
         PluginSettings pluginSettings,
         EmailSettings? emailSettings = null,
         LoggerSettings? loggerSettings = null,
+        FileStorageSettings? fileStorageSettings = null,
+        ExperimentalDataSettings? experimentalDataSettings = null,
         bool useDefaultLogger = true,
         bool addMechanicalModels = false)
         => services
-            .AddCoreServices(encryptionSettings, resiliencePipelineSettings, emailSettings, loggerSettings, useDefaultLogger)
-            .AddDatabaseServices(databaseSettings, resiliencePipelineSettings)
+            .AddSingleton(defaultResiliencePipelineSettings)
+            .AddCoreServices(defaultResiliencePipelineSettings, encryptionSettings, emailSettings, loggerSettings, fileStorageSettings, useDefaultLogger)
+            .AddDatabaseServices(defaultResiliencePipelineSettings, databaseSettings)
             .AddMathematicsServices()
             .AddMechanicsOfMaterialsServices(addMechanicalModels)
-            .AddOptimizationsServices()
+            .AddOptimizationsServices(experimentalDataSettings)
             .AddPluginServices(pluginSettings)
-            .AddWebApiServices(resiliencePipelineSettings);
+            .AddWebApiServices(defaultResiliencePipelineSettings);
 }

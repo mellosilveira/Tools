@@ -1,3 +1,4 @@
+using MelloSilveiraTools.Mathematics.Models;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Models.Range;
 
 namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExtensionMethods;
@@ -11,8 +12,9 @@ public static class RangeParametersExtensions
     /// Evaluates and yields all discrete points within the specified range.
     /// </summary>
     /// <param name="range">The range parameters defining bounds and progression logic.</param>
+    /// <param name="tolerance">The tolerance for comparison operations.</param>
     /// <returns>A stream of generated values.</returns>
-    public static IEnumerable<double> GenerateValues(this RangeParameters? range)
+    public static IEnumerable<double> GenerateValues(this RangeParameters? range, double tolerance = MathematicConstants.Tolerance)
     {
         if (range is null)
             yield break;
@@ -27,7 +29,7 @@ public static class RangeParametersExtensions
 
         if (range.Step.HasValue)
         {
-            while (currentValue <= range.FinalPoint.Value)
+            while (currentValue <= range.FinalPoint.Value + tolerance)
             {
                 yield return currentValue;
                 currentValue += range.Step.Value;
@@ -35,7 +37,7 @@ public static class RangeParametersExtensions
         }
         else if (range.MultiplicativeFactor.HasValue)
         {
-            while (currentValue <= range.FinalPoint.Value)
+            while (currentValue <= range.FinalPoint.Value + tolerance)
             {
                 yield return currentValue;
                 currentValue *= range.MultiplicativeFactor.Value;
