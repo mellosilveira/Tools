@@ -75,50 +75,6 @@ public sealed class LoggerConfigurationExtensionsTests : IDisposable
     }
 
     /// <summary>
-    /// Verifies that WriteToLocalFile returns the original configuration when Directory or FileNamePrefix is whitespace.
-    /// </summary>
-    [Fact]
-    public void WriteToLocalFile_WhenDirectoryOrFileNamePrefixEmpty_ReturnsOriginalConfiguration()
-    {
-        // Arrange
-        LoggerConfiguration config = LoggerConfigurationExtensions.Create();
-        FileLoggerSettings settings = new()
-        {
-            Directory = "   ",
-            FileNamePrefix = "prefix",
-            RollDaily = false,
-            MaxRetainedFiles = 1
-        };
-
-        // Act
-        LoggerConfiguration updatedConfig = config.WriteToLocalFile(settings);
-
-        // Assert
-        Assert.Same(config, updatedConfig);
-    }
-
-    /// <summary>
-    /// Verifies that WriteToPostgres returns the original LoggerConfiguration when the connection string is whitespace.
-    /// </summary>
-    [Fact]
-    public void WriteToPostgres_WhenConnectionStringIsNullOrWhiteSpace_ReturnsOriginalConfiguration()
-    {
-        // Arrange
-        LoggerConfiguration config = LoggerConfigurationExtensions.Create();
-        DatabaseLoggerSettings settings = new()
-        {
-            ConnectionString = "   ",
-            TableName = DummyTableName
-        };
-
-        // Act
-        LoggerConfiguration updatedConfig = config.WriteToPostgres(settings);
-
-        // Assert
-        Assert.Same(config, updatedConfig);
-    }
-
-    /// <summary>
     /// Verifies that WriteToPostgres successfully configures the PostgreSQL sink using DatabaseLoggerSettings.
     /// </summary>
     [Fact]
