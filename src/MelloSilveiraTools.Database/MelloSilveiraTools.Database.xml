@@ -9,16 +9,15 @@
             Provides extension methods to register services from the MelloSilveiraTools.Database package.
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.Database.DatabaseDependencyInjection.AddDatabaseServices(Microsoft.Extensions.DependencyInjection.IServiceCollection,MelloSilveiraTools.Core.ResiliencePipelines.ResiliencePipelineSettings,MelloSilveiraTools.Database.RelationalDatabase.Settings.DatabaseSettings,MelloSilveiraTools.Core.Logging.LoggerSettings)">
-            <inheritdoc cref="M:MelloSilveiraTools.Database.DatabaseDependencyInjection.&lt;G&gt;$7B30185E57B8298C6754F16C0BCF4773.AddDatabaseServices(MelloSilveiraTools.Core.ResiliencePipelines.ResiliencePipelineSettings,MelloSilveiraTools.Database.RelationalDatabase.Settings.DatabaseSettings,MelloSilveiraTools.Core.Logging.LoggerSettings)"/>
+        <member name="M:MelloSilveiraTools.Database.DatabaseDependencyInjection.AddDatabaseServices(Microsoft.Extensions.DependencyInjection.IServiceCollection,MelloSilveiraTools.Core.ResiliencePipelines.ResiliencePipelineSettings,MelloSilveiraTools.Database.RelationalDatabase.Settings.DatabaseSettings)">
+            <inheritdoc cref="M:MelloSilveiraTools.Database.DatabaseDependencyInjection.&lt;G&gt;$7B30185E57B8298C6754F16C0BCF4773.AddDatabaseServices(MelloSilveiraTools.Core.ResiliencePipelines.ResiliencePipelineSettings,MelloSilveiraTools.Database.RelationalDatabase.Settings.DatabaseSettings)"/>
         </member>
-        <member name="M:MelloSilveiraTools.Database.DatabaseDependencyInjection.&lt;G&gt;$7B30185E57B8298C6754F16C0BCF4773.AddDatabaseServices(MelloSilveiraTools.Core.ResiliencePipelines.ResiliencePipelineSettings,MelloSilveiraTools.Database.RelationalDatabase.Settings.DatabaseSettings,MelloSilveiraTools.Core.Logging.LoggerSettings)">
+        <member name="M:MelloSilveiraTools.Database.DatabaseDependencyInjection.&lt;G&gt;$7B30185E57B8298C6754F16C0BCF4773.AddDatabaseServices(MelloSilveiraTools.Core.ResiliencePipelines.ResiliencePipelineSettings,MelloSilveiraTools.Database.RelationalDatabase.Settings.DatabaseSettings)">
             <summary>
             Registers database services: settings, Postgres resilience pipeline, SQL provider and repository.
             </summary>
             <param name="defaultResiliencePipelineSettings">Settings that parameterize the default resilience pipelines.</param>
             <param name="databaseSettings">Database connection and behavior settings.</param>
-            <param name="loggerSettings">Settings used by logger service.</param>
             <returns>The same <paramref name="services"/> instance to allow call chaining.</returns>
         </member>
         <member name="T:MelloSilveiraTools.Database.ExtensionMethods.ClassExtensions">
@@ -279,14 +278,6 @@
             primitive, nullable primitive, array or generic enumerable types).
             </exception>
         </member>
-        <member name="M:MelloSilveiraTools.Database.Logging.DatabaseLoggingExtensions.WriteToPostgres(Serilog.LoggerConfiguration,MelloSilveiraTools.Core.Logging.LoggerSettings)">
-            <inheritdoc cref="M:MelloSilveiraTools.Database.Logging.DatabaseLoggingExtensions.&lt;G&gt;$6B5B6285A2C1A95C5914B27276A625A6.WriteToPostgres(MelloSilveiraTools.Core.Logging.LoggerSettings)"/>
-        </member>
-        <member name="M:MelloSilveiraTools.Database.Logging.DatabaseLoggingExtensions.&lt;G&gt;$6B5B6285A2C1A95C5914B27276A625A6.WriteToPostgres(MelloSilveiraTools.Core.Logging.LoggerSettings)">
-            <summary>
-            Adds the PostgreSQL batch-insert sink to the Serilog configuration using the unified settings.
-            </summary>
-        </member>
         <member name="T:MelloSilveiraTools.Database.RelationalDatabase.Attributes.ColumnAttribute">
             <summary>
             Specifies if a column is a primary key of table.
@@ -461,15 +452,14 @@
             MIME content type representing the file format (defaults to "text/csv").
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.Database.RelationalDatabase.Models.Entities.StoredFileEntity.Create(System.String,System.String,MelloSilveiraTools.Core.Managers.File.FileMetadata,System.String,MelloSilveiraTools.Core.Managers.File.StorageProvider)">
+        <member name="M:MelloSilveiraTools.Database.RelationalDatabase.Models.Entities.StoredFileEntity.Create(System.String,System.String,MelloSilveiraTools.Core.Managers.File.Models.StorageEntryMetadata,System.String)">
             <summary>
-            Creates a new <see cref="T:MelloSilveiraTools.Database.RelationalDatabase.Models.Entities.StoredFileEntity"/> instance from the specified external identifier, context, and file metadata.
+            Creates a new <see cref="T:MelloSilveiraTools.Database.RelationalDatabase.Models.Entities.StoredFileEntity"/> instance from the specified external identifier, context, and storage entry metadata.
             </summary>
             <param name="externalIdentifier">The external correlation identifier.</param>
             <param name="context">The business domain context.</param>
-            <param name="metadata">The file metadata describing the physical file.</param>
+            <param name="metadata">The storage entry metadata describing the physical or cloud-stored entry.</param>
             <param name="contentType">The MIME content type (defaults to "text/csv").</param>
-            <param name="storageProvider">The storage provider technology (defaults to <see cref="F:MelloSilveiraTools.Core.Managers.File.StorageProvider.Local"/>).</param>
             <returns>A new <see cref="T:MelloSilveiraTools.Database.RelationalDatabase.Models.Entities.StoredFileEntity"/> instance.</returns>
         </member>
         <member name="T:MelloSilveiraTools.Database.RelationalDatabase.Models.FilterClause">
@@ -728,6 +718,11 @@
         <member name="P:MelloSilveiraTools.Database.RelationalDatabase.Settings.DatabaseSettings.BulkOperationTimeoutInMilliseconds">
             <summary>
             Timeout, in milliseconds, applied to bulk operations that touch many rows.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Database.RelationalDatabase.Settings.DatabaseSettings.ResiliencePipelineSettings">
+            <summary>
+            Optional resilience pipeline settings applied to database operations.
             </summary>
         </member>
         <member name="T:MelloSilveiraTools.Database.RelationalDatabase.Sql.Provider.ISqlProvider">

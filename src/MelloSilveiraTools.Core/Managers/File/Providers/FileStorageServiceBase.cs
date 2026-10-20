@@ -56,7 +56,7 @@ public abstract class FileStorageServiceBase : IFileStorageService
     }
 
     /// <inheritdoc />
-    public ValueTask<FileMetadata> GetMetadataAsync(string context, string identifier, string fileName, CancellationToken cancellationToken = default)
+    public ValueTask<StorageEntryMetadata> GetMetadataAsync(string context, string identifier, string fileName, CancellationToken cancellationToken = default)
     {
         cancellationToken.ThrowIfCancellationRequested();
         string location = ResolveLocation(context, identifier, fileName);
@@ -81,13 +81,16 @@ public abstract class FileStorageServiceBase : IFileStorageService
     public abstract ValueTask<bool> ExistsAsync(string location, CancellationToken cancellationToken = default);
 
     /// <inheritdoc />
-    public abstract ValueTask<FileMetadata> GetMetadataAsync(string location, CancellationToken cancellationToken = default);
+    public abstract ValueTask<StorageEntryMetadata> GetMetadataAsync(string location, CancellationToken cancellationToken = default);
 
     /// <inheritdoc />
     public abstract ValueTask<bool> DeleteAsync(string location, CancellationToken cancellationToken = default);
 
     /// <inheritdoc />
-    public abstract ValueTask<IReadOnlyList<FileMetadata>> ListFilesAsync(string context, string identifier, CancellationToken cancellationToken = default);
+    public abstract IAsyncEnumerable<StorageEntryMetadata> ListFilesAsync(string context, string identifier, CancellationToken cancellationToken = default);
+
+    /// <inheritdoc />
+    public abstract IAsyncEnumerable<StorageEntryMetadata> ListEntriesAsync(string context, string identifier, CancellationToken cancellationToken = default);
 
     /// <inheritdoc />
     public virtual ValueTask DisposeAsync()
@@ -114,4 +117,62 @@ public abstract class FileStorageServiceBase : IFileStorageService
         string timestamp = DateTime.UtcNow.ToString("yyyy-MM-dd_HH-mm-ss");
         return $"{timestamp}{fileExtension}";
     }
+
+    /// <summary>
+    /// Builds a standardized forward-slash delimited virtual directory prefix for cloud object storage providers.
+    /// </summary>
+    /// <param name="context">The contextual domain or category.</param>
+    /// <param name="identifier">The unique identifier.</param>
+    /// <param name="basePrefix">An optional root prefix configured for the storage account or bucket.</param>
+    /// <returns>A formatted directory prefix ending with a forward slash.</returns>
+    protected static string BuildDirectoryPrefix(string context, string identifier, string? basePrefix = null)
+    {
+        string relativePrefix = string.IsNullOrEmpty(identifier) ? $"{context}/" : $"{context}/{identifier}/";
+        return string.IsNullOrEmpty(basePrefix)
+            ? relativePrefix
+            : $"{basePrefix.Trim('/')}/{relativePrefix}";
+    }
+
+    /// <summary>
+    /// Deconstructs a cloud object key or URI into its forward-slash delimited virtual directory path and file name.
+    /// Ensures consistent behavior across Windows and Unix platforms without backslash replacement.
+    /// </summary>
+    /// <param name="key">The cloud object key or URI.</param>
+    /// <returns>A tuple containing the virtual directory prefix (without trailing slash) and the file name (or <c>null</c> if the key represents a directory or ends with a slash).</returns>
+    protected static (string Directory, string? FileName) ExtractCloudPath(string key)
+    {
+        if (string.IsNullOrEmpty(key))
+            return (string.Empty, null);
+
+        if (key.EndsWith('/'))
+        {
+            string normalizedDir = key.TrimEnd('/');
+            int slashIndex = normalizedDir.LastIndexOf('/');
+            string parentDirectory = slashIndex >= 0 ? normalizedDir[..slashIndex] : string.Empty;
+            return (parentDirectory, null);
+        }
+
+        int lastSlash = key.LastIndexOf('/');
+        if (lastSlash < 0)
+            return (string.Empty, key);
+
+        string directory = key[..lastSlash];
+        string fileName = key[(lastSlash + 1)..];
+        return (directory, string.IsNullOrEmpty(fileName) ? null : fileName);
+    }
+
+    /// <summary>
+    /// Extracts the forward-slash delimited virtual directory path from a cloud object key or URI,
+    /// ensuring consistent behavior across Windows and Unix platforms without backslash replacement.
+    /// </summary>
+    /// <param name="key">The cloud object key or URI.</param>
+    /// <returns>The virtual directory prefix without a trailing slash, or an empty string if in root.</returns>
+    protected static string ExtractCloudDirectory(string key) => ExtractCloudPath(key).Directory;
+
+    /// <summary>
+    /// Extracts the file name and extension from a cloud object key or URI.
+    /// </summary>
+    /// <param name="key">The cloud object key or URI.</param>
+    /// <returns>The file name, or <c>null</c> if the key represents a directory or ends with a slash.</returns>
+    protected static string? ExtractCloudFileName(string key) => ExtractCloudPath(key).FileName;
 }

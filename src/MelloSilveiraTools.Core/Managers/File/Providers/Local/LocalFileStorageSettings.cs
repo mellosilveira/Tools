@@ -6,7 +6,7 @@ namespace MelloSilveiraTools.Core.Managers.File.Providers.Local;
 public sealed record LocalFileStorageSettings
 {
     /// <summary>
-    /// Gets the base directory or root storage path. Defaults to the system temporary directory.
+    /// Gets the base directory or root storage path.
     /// </summary>
-    public string BaseDirectory { get; init; } = Path.GetTempPath();
+    public required string BaseDirectory { get; init; }
 }

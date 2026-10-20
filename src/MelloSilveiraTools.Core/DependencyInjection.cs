@@ -1,3 +1,7 @@
+using Amazon;
+using Amazon.Runtime;
+using Amazon.S3;
+using Azure.Storage.Blobs;
 using MelloSilveiraTools.Core.Caching;
 using MelloSilveiraTools.Core.Logging;
 using MelloSilveiraTools.Core.Managers.File.Models;
@@ -25,22 +29,22 @@ public static class CoreDependencyInjection
     extension(IServiceCollection services)
     {
         /// <summary>
-        /// Registers core services: settings, SMTP resilience pipeline, file logger and encryption service.
+        /// Registers core services: settings, SMTP resilience pipeline, file storage, logging, and encryption service.
+        /// When <paramref name="loggerSettings"/> is null or specifies no sinks, Microsoft default console logging is enabled.
+        /// When file or database sink settings are provided, Serilog is configured accordingly.
         /// </summary>
         /// <param name="defaultResiliencePipelineSettings">Settings that parameterize the default resilience pipelines.</param>
         /// <param name="encryptionSettings">Settings used by the encryption service.</param>
         /// <param name="emailSettings">Settings used to send e-mails through an SMTP server.</param>
         /// <param name="fileStorageSettings">Settings used to configure storage services.</param>
-        /// <param name="loggerSettings">Settings used by logger service.</param>
-        /// <param name="useDefaultLogger">Indicates if should use the default logger.</param>
+        /// <param name="loggerSettings">Settings used by the logging service.</param>
         /// <returns>The same <paramref name="services"/> instance to allow call chaining.</returns>
         public IServiceCollection AddCoreServices(
             ResiliencePipelineSettings defaultResiliencePipelineSettings,
             EncryptionSettings? encryptionSettings = null,
             EmailSettings? emailSettings = null,
             FileStorageSettings? fileStorageSettings = null,
-            LoggerSettings? loggerSettings = null,
-            bool useDefaultLogger = true)
+            LoggerSettings? loggerSettings = null)
         {
             if (encryptionSettings is not null)
             {
@@ -63,21 +67,35 @@ public static class CoreDependencyInjection
                     services.AddKeyedSingleton<IFileStorageService>(StorageProvider.Local, (_, _) => new LocalFileStorageService(fileStorageSettings.Local));
 
                 if (fileStorageSettings.BlobStorage is not null)
-                    services.AddKeyedSingleton<IFileStorageService>(StorageProvider.BlobStorage, (_, _) => new BlobStorageFileStorageService(fileStorageSettings.BlobStorage));
+                    services
+                        .AddSingleton(provider => new BlobStorageResiliencePipeline(provider.GetRequiredService<ILogger<BlobStorageResiliencePipeline>>(), fileStorageSettings.BlobStorage.ResiliencePipelineSettings ?? defaultResiliencePipelineSettings))
+                        .AddKeyedSingleton<IFileStorageService>(
+                            StorageProvider.BlobStorage,
+                            (provider, _) => new BlobStorageFileStorageService(
+                                provider.GetRequiredService<ILogger<BlobStorageFileStorageService>>(),
+                                provider.GetRequiredService<IFileStorageService>(),
+                                CreateBlobContainerClient(fileStorageSettings.BlobStorage),
+                                fileStorageSettings.BlobStorage,
+                                provider.GetRequiredService<BlobStorageResiliencePipeline>()));
 
                 if (fileStorageSettings.Dfs is not null)
                     services.AddKeyedSingleton<IFileStorageService>(StorageProvider.Dfs, (_, _) => new DfsFileStorageService(fileStorageSettings.Dfs));
 
                 if (fileStorageSettings.AwsS3 is not null)
-                    services.AddKeyedSingleton<IFileStorageService>(
-                        StorageProvider.AwsS3,
-                        (provider, _) => new AwsS3FileStorageService(fileStorageSettings.AwsS3, provider.GetRequiredService<IFileStorageService>(), provider.GetRequiredService<ILogger<AwsS3FileStorageService>>()));
+                    services
+                        .AddSingleton(provider => new AwsS3ResiliencePipeline(provider.GetRequiredService<ILogger<AwsS3ResiliencePipeline>>(), fileStorageSettings.AwsS3.ResiliencePipelineSettings ?? defaultResiliencePipelineSettings))
+                        .AddKeyedSingleton<IFileStorageService>(
+                            StorageProvider.AwsS3,
+                            (provider, _) => new AwsS3FileStorageService(
+                                provider.GetRequiredService<ILogger<AwsS3FileStorageService>>(),
+                                provider.GetRequiredService<IFileStorageService>(),
+                                CreateClient(fileStorageSettings.AwsS3),
+                                fileStorageSettings.AwsS3,
+                                provider.GetRequiredService<AwsS3ResiliencePipeline>()));
             }
 
-            if (useDefaultLogger)
-                services.AddCoreLogging(LoggerConfigurationExtensions.Create(), loggerSettings ?? new LoggerSettings());
-
             return services
+                .AddCoreLogging(loggerSettings)
                 .AddSingleton<IFileStorageService>(_ => new LocalFileStorageService(new() { BaseDirectory = Path.Combine(Path.GetTempPath(), "storage") }))
                 // Register caching pipelines.
                 .AddSingleton<ISingleLevelCache, InMemorySingleLevelCache>()
@@ -87,13 +105,63 @@ public static class CoreDependencyInjection
                 .AddSingleton<IDynamicServiceProvider, InMemoryDynamicServiceProvider>();
         }
 
-        public IServiceCollection AddCoreLogging(LoggerConfiguration loggerConfiguration, LoggerSettings loggerSettings) => services
-            .AddSingleton(loggerSettings)
-            .AddLogging(loggingBuilder =>
+        /// <summary>
+        /// Registers logging services in the DI container using default base configuration and aggregated logger settings.
+        /// </summary>
+        /// <param name="loggerSettings">The aggregated logger settings.</param>
+        /// <returns>The same <paramref name="services"/> instance to allow call chaining.</returns>
+        public IServiceCollection AddCoreLogging(LoggerSettings? loggerSettings)
+        {
+            if (loggerSettings is null)
+                return services.AddLogging(loggingBuilder => loggingBuilder.AddConsole());
+
+            LoggerConfiguration loggerConfiguration = LoggerConfigurationExtensions.Create();
+
+            if (loggerSettings.File is not null)
+                loggerConfiguration.WriteToLocalFile(loggerSettings.File);
+
+            if (loggerSettings.Database is not null)
+                loggerConfiguration.WriteToPostgres(loggerSettings.Database);
+
+            return services.AddLogging(loggingBuilder =>
             {
-                // Remove default console noise.
                 loggingBuilder.ClearProviders();
-                loggingBuilder.AddSerilog(loggerConfiguration.WriteToLocalFile(loggerSettings).CreateLogger(), dispose: true);
+                loggingBuilder.AddSerilog(loggerConfiguration.CreateLogger(), dispose: true);
             });
+        }
+
+        private static IAmazonS3 CreateClient(AwsS3StorageSettings settings)
+        {
+            AmazonS3Config config = new() { MaxErrorRetry = 0 };
+
+            if (!string.IsNullOrWhiteSpace(settings.Region))
+                config.RegionEndpoint = RegionEndpoint.GetBySystemName(settings.Region);
+
+            if (!string.IsNullOrWhiteSpace(settings.ServiceUrl))
+            {
+                config.ServiceURL = settings.ServiceUrl;
+                config.ForcePathStyle = true;
+            }
+
+            if (!string.IsNullOrWhiteSpace(settings.AccessKey) && !string.IsNullOrWhiteSpace(settings.SecretKey))
+            {
+                BasicAWSCredentials credentials = new(settings.AccessKey, settings.SecretKey);
+                return new AmazonS3Client(credentials, config);
+            }
+
+            return new AmazonS3Client(config);
+        }
+
+        private static BlobContainerClient CreateBlobContainerClient(BlobStorageSettings settings)
+        {
+            if (!string.IsNullOrWhiteSpace(settings.ServiceUrl))
+            {
+                Uri serviceUri = new(settings.ServiceUrl);
+                BlobServiceClient serviceClient = new(serviceUri);
+                return serviceClient.GetBlobContainerClient(settings.ContainerName);
+            }
+
+            return new BlobContainerClient(settings.ConnectionString, settings.ContainerName);
+        }
     }
 }

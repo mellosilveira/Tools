@@ -1,4 +1,4 @@
-﻿using MelloSilveiraTools.Core.ResiliencePipelines;
+using MelloSilveiraTools.Core.ResiliencePipelines;
 
 namespace MelloSilveiraTools.Database.RelationalDatabase.Settings;
 
@@ -15,13 +15,16 @@ public record DatabaseSettings
     /// <summary>
     /// Timeout, in milliseconds, applied to single-row (unit) operations.
     /// </summary>
-    public int UnitOperationTimeoutInMilliseconds { get; init; }
+    public required int UnitOperationTimeoutInMilliseconds { get; init; }
 
     /// <summary>
     /// Timeout, in milliseconds, applied to bulk operations that touch many rows.
     /// </summary>
-    public int BulkOperationTimeoutInMilliseconds { get; init; }
+    public required int BulkOperationTimeoutInMilliseconds { get; init; }
 
+    /// <summary>
+    /// Optional resilience pipeline settings applied to database operations.
+    /// </summary>
     public ResiliencePipelineSettings? ResiliencePipelineSettings { get; init; }
 
     internal int UnitOperationTimeoutInSeconds => UnitOperationTimeoutInMilliseconds / 1000;

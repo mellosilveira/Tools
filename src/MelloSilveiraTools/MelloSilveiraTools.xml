@@ -9,7 +9,7 @@
             Provides extension methods to dependency injection of Tools project (meta-package).
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.DependencyInjection.AddToolsServices(Microsoft.Extensions.DependencyInjection.IServiceCollection,MelloSilveiraTools.Core.ResiliencePipelines.ResiliencePipelineSettings,MelloSilveiraTools.Database.RelationalDatabase.Settings.DatabaseSettings,MelloSilveiraTools.Core.Services.Encryption.EncryptionSettings,MelloSilveiraTools.Plugins.Infrastructure.PluginSettings,MelloSilveiraTools.Core.Services.Email.EmailSettings,MelloSilveiraTools.Core.Managers.File.Providers.FileStorageSettings,MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.ExperimentalDataSettings,MelloSilveiraTools.Core.Logging.LoggerSettings,System.Boolean,System.Boolean)">
+        <member name="M:MelloSilveiraTools.DependencyInjection.AddToolsServices(Microsoft.Extensions.DependencyInjection.IServiceCollection,MelloSilveiraTools.Core.ResiliencePipelines.ResiliencePipelineSettings,MelloSilveiraTools.Database.RelationalDatabase.Settings.DatabaseSettings,MelloSilveiraTools.Core.Services.Encryption.EncryptionSettings,MelloSilveiraTools.Plugins.Infrastructure.PluginSettings,MelloSilveiraTools.Core.Services.Email.EmailSettings,MelloSilveiraTools.Core.Managers.File.Providers.FileStorageSettings,MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.ExperimentalDataSettings,MelloSilveiraTools.Core.Logging.LoggerSettings,System.Boolean)">
             <summary>
             Registers the services of every contextual MelloSilveiraTools package
             (Core, Database, WebApi, Plugins, Mathematics, MechanicsOfMaterials, and Optimizations).
@@ -23,7 +23,6 @@
             <param name="loggerSettings">Settings used by logger service.</param>
             <param name="fileStorageSettings">Settings used to configure root directories and storage policies.</param>
             <param name="experimentalDataSettings">Settings used by experimental data processing and optimization pipelines.</param>
-            <param name="useDefaultLogger">Indicates if should use the default logger.</param>
             <param name="addMechanicalModels">Indicates whether to register mechanical model calculators.</param>
             <returns>The same <paramref name="services"/> instance to allow call chaining.</returns>
         </member>

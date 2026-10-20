@@ -35,7 +35,6 @@ public static class DependencyInjection
     /// <param name="loggerSettings">Settings used by logger service.</param>
     /// <param name="fileStorageSettings">Settings used to configure root directories and storage policies.</param>
     /// <param name="experimentalDataSettings">Settings used by experimental data processing and optimization pipelines.</param>
-    /// <param name="useDefaultLogger">Indicates if should use the default logger.</param>
     /// <param name="addMechanicalModels">Indicates whether to register mechanical model calculators.</param>
     /// <returns>The same <paramref name="services"/> instance to allow call chaining.</returns>
     public static IServiceCollection AddToolsServices(this IServiceCollection services,
@@ -47,11 +46,10 @@ public static class DependencyInjection
         FileStorageSettings? fileStorageSettings = null,
         ExperimentalDataSettings? experimentalDataSettings = null,
         LoggerSettings? loggerSettings = null,
-        bool useDefaultLogger = true,
         bool addMechanicalModels = false)
         => services
             .AddSingleton(defaultResiliencePipelineSettings)
-            .AddCoreServices(defaultResiliencePipelineSettings, encryptionSettings, emailSettings, fileStorageSettings, loggerSettings, useDefaultLogger)
+            .AddCoreServices(defaultResiliencePipelineSettings, encryptionSettings, emailSettings, fileStorageSettings, loggerSettings)
             .AddDatabaseServices(defaultResiliencePipelineSettings, databaseSettings)
             .AddMathematicsServices()
             .AddMechanicsOfMaterialsServices(addMechanicalModels)

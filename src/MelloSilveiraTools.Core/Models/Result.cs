@@ -265,7 +265,7 @@ public record Result : ResultBase
     /// <param name="data">The items belonging to the current page.</param>
     /// <returns>A paginated outcome.</returns>
     public static PagedResult<TResultData> CreatePagedSuccessOk<TResultData>(IEnumerable<TResultData>? data = null)
-        => new() { StatusCode = StatusCode.OK, Data = data?.ToList() };
+        => new() { StatusCode = StatusCode.OK, Success = true, Data = data?.ToList() };
 }
 
 /// <summary>

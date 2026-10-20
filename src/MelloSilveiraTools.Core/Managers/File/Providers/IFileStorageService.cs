@@ -100,22 +100,22 @@ public interface IFileStorageService : IAsyncDisposable
     ValueTask<bool> ExistsAsync(string context, string identifier, string fileName, CancellationToken cancellationToken = default);
 
     /// <summary>
-    /// Asynchronously retrieves file metadata for a specific physical path or storage URI.
+    /// Asynchronously retrieves storage entry metadata for a specific physical path or storage URI.
     /// </summary>
     /// <param name="location">Physical path or storage URI.</param>
     /// <param name="cancellationToken">Cancellation token.</param>
-    /// <returns>A value task returning a populated <see cref="FileMetadata"/> instance.</returns>
-    ValueTask<FileMetadata> GetMetadataAsync(string location, CancellationToken cancellationToken = default);
+    /// <returns>A value task returning a populated <see cref="StorageEntryMetadata"/> instance.</returns>
+    ValueTask<StorageEntryMetadata> GetMetadataAsync(string location, CancellationToken cancellationToken = default);
 
     /// <summary>
-    /// Asynchronously retrieves file metadata for a contextually resolved file location.
+    /// Asynchronously retrieves storage entry metadata for a contextually resolved file location.
     /// </summary>
     /// <param name="context">Business domain context.</param>
     /// <param name="identifier">Unique run, experiment, or analysis identifier.</param>
     /// <param name="fileName">Target file name including extension.</param>
     /// <param name="cancellationToken">Cancellation token.</param>
-    /// <returns>A value task returning a populated <see cref="FileMetadata"/> instance.</returns>
-    ValueTask<FileMetadata> GetMetadataAsync(string context, string identifier, string fileName, CancellationToken cancellationToken = default);
+    /// <returns>A value task returning a populated <see cref="StorageEntryMetadata"/> instance.</returns>
+    ValueTask<StorageEntryMetadata> GetMetadataAsync(string context, string identifier, string fileName, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Asynchronously deletes the file at the specified physical path or storage URI if it exists.
@@ -141,6 +141,15 @@ public interface IFileStorageService : IAsyncDisposable
     /// <param name="context">Business domain context.</param>
     /// <param name="identifier">Unique run, experiment, or analysis identifier.</param>
     /// <param name="cancellationToken">Cancellation token.</param>
-    /// <returns>A value task returning a collection of <see cref="FileMetadata"/> items.</returns>
-    ValueTask<IReadOnlyList<FileMetadata>> ListFilesAsync(string context, string identifier, CancellationToken cancellationToken = default);
+    /// <returns>An asynchronous stream of <see cref="StorageEntryMetadata"/> items.</returns>
+    IAsyncEnumerable<StorageEntryMetadata> ListFilesAsync(string context, string identifier, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Asynchronously lists all storage entry metadata (both files and directories) residing within the specified context and identifier partition.
+    /// </summary>
+    /// <param name="context">Business domain context.</param>
+    /// <param name="identifier">Unique run, experiment, or analysis identifier.</param>
+    /// <param name="cancellationToken">Cancellation token.</param>
+    /// <returns>An asynchronous stream of <see cref="StorageEntryMetadata"/> items.</returns>
+    IAsyncEnumerable<StorageEntryMetadata> ListEntriesAsync(string context, string identifier, CancellationToken cancellationToken = default);
 }

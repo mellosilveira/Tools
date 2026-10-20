@@ -347,19 +347,30 @@
             Provides extension methods to register services from the MelloSilveiraTools.Core package.
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.Core.CoreDependencyInjection.AddCoreServices(Microsoft.Extensions.DependencyInjection.IServiceCollection,MelloSilveiraTools.Core.ResiliencePipelines.ResiliencePipelineSettings,MelloSilveiraTools.Core.Services.Encryption.EncryptionSettings,MelloSilveiraTools.Core.Services.Email.EmailSettings,MelloSilveiraTools.Core.Logging.LoggerSettings,MelloSilveiraTools.Core.Managers.File.FileStorageSettings,System.Boolean)">
-            <inheritdoc cref="M:MelloSilveiraTools.Core.CoreDependencyInjection.&lt;G&gt;$7B30185E57B8298C6754F16C0BCF4773.AddCoreServices(MelloSilveiraTools.Core.ResiliencePipelines.ResiliencePipelineSettings,MelloSilveiraTools.Core.Services.Encryption.EncryptionSettings,MelloSilveiraTools.Core.Services.Email.EmailSettings,MelloSilveiraTools.Core.Logging.LoggerSettings,MelloSilveiraTools.Core.Managers.File.FileStorageSettings,System.Boolean)"/>
+        <member name="M:MelloSilveiraTools.Core.CoreDependencyInjection.AddCoreServices(Microsoft.Extensions.DependencyInjection.IServiceCollection,MelloSilveiraTools.Core.ResiliencePipelines.ResiliencePipelineSettings,MelloSilveiraTools.Core.Services.Encryption.EncryptionSettings,MelloSilveiraTools.Core.Services.Email.EmailSettings,MelloSilveiraTools.Core.Managers.File.Providers.FileStorageSettings,MelloSilveiraTools.Core.Logging.LoggerSettings)">
+            <inheritdoc cref="M:MelloSilveiraTools.Core.CoreDependencyInjection.&lt;G&gt;$7B30185E57B8298C6754F16C0BCF4773.AddCoreServices(MelloSilveiraTools.Core.ResiliencePipelines.ResiliencePipelineSettings,MelloSilveiraTools.Core.Services.Encryption.EncryptionSettings,MelloSilveiraTools.Core.Services.Email.EmailSettings,MelloSilveiraTools.Core.Managers.File.Providers.FileStorageSettings,MelloSilveiraTools.Core.Logging.LoggerSettings)"/>
         </member>
-        <member name="M:MelloSilveiraTools.Core.CoreDependencyInjection.&lt;G&gt;$7B30185E57B8298C6754F16C0BCF4773.AddCoreServices(MelloSilveiraTools.Core.ResiliencePipelines.ResiliencePipelineSettings,MelloSilveiraTools.Core.Services.Encryption.EncryptionSettings,MelloSilveiraTools.Core.Services.Email.EmailSettings,MelloSilveiraTools.Core.Logging.LoggerSettings,MelloSilveiraTools.Core.Managers.File.FileStorageSettings,System.Boolean)">
+        <member name="M:MelloSilveiraTools.Core.CoreDependencyInjection.AddCoreLogging(Microsoft.Extensions.DependencyInjection.IServiceCollection,MelloSilveiraTools.Core.Logging.LoggerSettings)">
+            <inheritdoc cref="M:MelloSilveiraTools.Core.CoreDependencyInjection.&lt;G&gt;$7B30185E57B8298C6754F16C0BCF4773.AddCoreLogging(MelloSilveiraTools.Core.Logging.LoggerSettings)"/>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.CoreDependencyInjection.&lt;G&gt;$7B30185E57B8298C6754F16C0BCF4773.AddCoreServices(MelloSilveiraTools.Core.ResiliencePipelines.ResiliencePipelineSettings,MelloSilveiraTools.Core.Services.Encryption.EncryptionSettings,MelloSilveiraTools.Core.Services.Email.EmailSettings,MelloSilveiraTools.Core.Managers.File.Providers.FileStorageSettings,MelloSilveiraTools.Core.Logging.LoggerSettings)">
             <summary>
-            Registers core services: settings, SMTP resilience pipeline, file logger and encryption service.
+            Registers core services: settings, SMTP resilience pipeline, file storage, logging, and encryption service.
+            When <paramref name="loggerSettings"/> is null or specifies no sinks, Microsoft default console logging is enabled.
+            When file or database sink settings are provided, Serilog is configured accordingly.
             </summary>
             <param name="defaultResiliencePipelineSettings">Settings that parameterize the default resilience pipelines.</param>
             <param name="encryptionSettings">Settings used by the encryption service.</param>
             <param name="emailSettings">Settings used to send e-mails through an SMTP server.</param>
-            <param name="loggerSettings">Settings used by logger service.</param>
-            <param name="fileStorageSettings">Settings used to configure root directories and storage policies.</param>
-            <param name="useDefaultLogger">Indicates if should use the default logger.</param>
+            <param name="fileStorageSettings">Settings used to configure storage services.</param>
+            <param name="loggerSettings">Settings used by the logging service.</param>
+            <returns>The same <paramref name="services"/> instance to allow call chaining.</returns>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.CoreDependencyInjection.&lt;G&gt;$7B30185E57B8298C6754F16C0BCF4773.AddCoreLogging(MelloSilveiraTools.Core.Logging.LoggerSettings)">
+            <summary>
+            Registers logging services in the DI container using default base configuration and aggregated logger settings.
+            </summary>
+            <param name="loggerSettings">The aggregated logger settings.</param>
             <returns>The same <paramref name="services"/> instance to allow call chaining.</returns>
         </member>
         <member name="T:MelloSilveiraTools.Core.ExtensionMethods.ArrayExtension">
@@ -1114,67 +1125,124 @@
             </remarks>
             <returns>The names of the public instance properties declared on <paramref name="type"/>.</returns>
         </member>
+        <member name="T:MelloSilveiraTools.Core.Logging.DatabaseLoggerSettings">
+            <summary>
+            Configuration settings governing database logging sink, including connection string,
+            destination schema and table names, batch size limits, and flush periods.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Core.Logging.DatabaseLoggerSettings.ConnectionString">
+            <summary>
+            Gets the connection string used to connect to the logging database.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Core.Logging.DatabaseLoggerSettings.TableName">
+            <summary>
+            Gets the name of the database table where log entries are stored.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Core.Logging.DatabaseLoggerSettings.SchemaName">
+            <summary>
+            Gets the optional schema name where the log table resides.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Core.Logging.DatabaseLoggerSettings.BatchSizeLimit">
+            <summary>
+            Gets the optional limit on how many log events are held in memory before triggering a batch insert.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Core.Logging.DatabaseLoggerSettings.Period">
+            <summary>
+            Gets the optional maximum time to wait before flushing queued log events to the database.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Core.Logging.DatabaseLoggerSettings.NeedAutoCreateTable">
+            <summary>
+            Gets the optional value indicating whether the logging sink should automatically create the log table if missing.
+            </summary>
+        </member>
+        <member name="T:MelloSilveiraTools.Core.Logging.FileLoggerSettings">
+            <summary>
+            Configuration settings governing local file logging sink, including target directory,
+            file naming, rotation policy, and retention limits.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Core.Logging.FileLoggerSettings.Directory">
+            <summary>
+            Gets the directory where log files are written. Created on logger startup if missing.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Core.Logging.FileLoggerSettings.FileNamePrefix">
+            <summary>
+            Gets the file name prefix (without extension).
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Core.Logging.FileLoggerSettings.RollDaily">
+            <summary>
+            Gets a value indicating whether the active file rolls every UTC day with the date embedded in the file name as
+            <c>{FileNamePrefix}yyyyMMdd.txt</c>.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Core.Logging.FileLoggerSettings.MaxFileSizeBytes">
+            <summary>
+            Gets the maximum size, in bytes, after which the active file is rolled to a new suffixed file.
+            When <c>null</c>, size-based rolling is disabled.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Core.Logging.FileLoggerSettings.MaxRetainedFiles">
+            <summary>
+            Gets the maximum number of log files to retain in <see cref="P:MelloSilveiraTools.Core.Logging.FileLoggerSettings.Directory"/>. Older files are deleted on every roll.
+            When <c>0</c> or negative, retention cleanup is disabled.
+            </summary>
+        </member>
+        <member name="T:MelloSilveiraTools.Core.Logging.LoggerConfigurationExtensions">
+            <summary>
+            Provides extension methods for configuring Serilog sinks from strongly typed settings.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Logging.LoggerConfigurationExtensions.Create">
+            <summary>
+            Creates a base Serilog configuration configured with default enrichers and minimum level.
+            </summary>
+            <returns>A new <see cref="T:Serilog.LoggerConfiguration"/> instance.</returns>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Logging.LoggerConfigurationExtensions.WriteToLocalFile(Serilog.LoggerConfiguration,MelloSilveiraTools.Core.Logging.FileLoggerSettings)">
+            <inheritdoc cref="M:MelloSilveiraTools.Core.Logging.LoggerConfigurationExtensions.&lt;G&gt;$6B5B6285A2C1A95C5914B27276A625A6.WriteToLocalFile(MelloSilveiraTools.Core.Logging.FileLoggerSettings)"/>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Logging.LoggerConfigurationExtensions.WriteToPostgres(Serilog.LoggerConfiguration,MelloSilveiraTools.Core.Logging.DatabaseLoggerSettings)">
+            <inheritdoc cref="M:MelloSilveiraTools.Core.Logging.LoggerConfigurationExtensions.&lt;G&gt;$6B5B6285A2C1A95C5914B27276A625A6.WriteToPostgres(MelloSilveiraTools.Core.Logging.DatabaseLoggerSettings)"/>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Logging.LoggerConfigurationExtensions.&lt;G&gt;$6B5B6285A2C1A95C5914B27276A625A6.WriteToLocalFile(MelloSilveiraTools.Core.Logging.FileLoggerSettings)">
+            <summary>
+            Adds a rolling local JSON file sink to the Serilog configuration using the file logger settings.
+            </summary>
+            <param name="settings">The file logging settings.</param>
+            <returns>The modified <see cref="T:Serilog.LoggerConfiguration"/>.</returns>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Logging.LoggerConfigurationExtensions.&lt;G&gt;$6B5B6285A2C1A95C5914B27276A625A6.WriteToPostgres(MelloSilveiraTools.Core.Logging.DatabaseLoggerSettings)">
+            <summary>
+            Adds the PostgreSQL batch-insert sink to the Serilog configuration using the database logger settings.
+            </summary>
+            <param name="settings">The database logger settings.</param>
+            <returns>The modified <see cref="T:Serilog.LoggerConfiguration"/>.</returns>
+        </member>
         <member name="T:MelloSilveiraTools.Core.Logging.LoggerSettings">
             <summary>
-            Configuration for the Serilog-backed logging pipeline, including target directory, file naming, 
-            rotation policy, retention, and PostgreSQL batch-insert settings.
+            Aggregated configuration settings providing a unified binding point for application logging sinks.
+            Enables simultaneous configuration of local file and database logging sinks.
             </summary>
-            <remarks>
-            Register a configured instance with <c>services.AddSingleton(new LoggerSettings { ... })</c> before calling
-            <c>AddCoreServices</c>; otherwise <c>AddCoreServices</c> registers an instance with default values.
-            </remarks>
         </member>
-        <member name="P:MelloSilveiraTools.Core.Logging.LoggerSettings.Directory">
+        <member name="P:MelloSilveiraTools.Core.Logging.LoggerSettings.File">
             <summary>
-            Directory where log files are written. Created on logger startup if missing.
-            Defaults to <c>{AppContext.BaseDirectory}/logs</c>.
+            Gets the settings governing local file logging.
             </summary>
         </member>
-        <member name="P:MelloSilveiraTools.Core.Logging.LoggerSettings.FileNamePrefix">
+        <member name="P:MelloSilveiraTools.Core.Logging.LoggerSettings.Database">
             <summary>
-            File name prefix (without extension). Defaults to <c>"log"</c>.
+            Gets the settings governing database logging.
             </summary>
         </member>
-        <member name="P:MelloSilveiraTools.Core.Logging.LoggerSettings.RollDaily">
-            <summary>
-            When <c>true</c>, the active file rolls every UTC day and the date is embedded in the file name as
-            <c>{FileNamePrefix}yyyyMMdd.txt</c>. Defaults to <c>true</c>.
-            </summary>
-        </member>
-        <member name="P:MelloSilveiraTools.Core.Logging.LoggerSettings.MaxFileSizeBytes">
-            <summary>
-            Maximum size, in bytes, after which the active file is rolled to a new suffixed file. 
-            Set to <c>null</c> to disable size-based rolling. Defaults to 10 MB.
-            </summary>
-        </member>
-        <member name="P:MelloSilveiraTools.Core.Logging.LoggerSettings.MaxRetainedFiles">
-            <summary>
-            Maximum number of log files to retain in <see cref="P:MelloSilveiraTools.Core.Logging.LoggerSettings.Directory"/>. Older files are deleted on every roll.
-            Set to <c>0</c> or negative to disable retention cleanup. Defaults to 30.
-            </summary>
-        </member>
-        <member name="P:MelloSilveiraTools.Core.Logging.LoggerSettings.PostgreSqlConnectionString">
-            <summary>
-            Connection string for the PostgreSQL database. 
-            If left null or empty, the application will only log to local files.
-            </summary>
-        </member>
-        <member name="P:MelloSilveiraTools.Core.Logging.LoggerSettings.SchemaName">
-            <summary>
-            The name of the schema where table was created.
-            </summary>
-        </member>
-        <member name="P:MelloSilveiraTools.Core.Logging.LoggerSettings.TableName">
-            <summary>
-            The name of the table where logs will be stored.
-            </summary>
-        </member>
-        <member name="P:MelloSilveiraTools.Core.Logging.LoggerSettings.BatchSizeLimit">
-            <summary>
-            Limits how many logs are held in memory before a batch insert is triggered to PostgreSQL. Defaults to 50.
-            </summary>
-        </member>
-        <member name="T:MelloSilveiraTools.Core.Managers.File.CsvFileWriter">
+        <member name="T:MelloSilveiraTools.Core.Managers.File.Csv.CsvFileWriter">
             <summary>
             Encapsulates a buffered asynchronous CSV file writing session over an underlying output stream.
             Manages row batching buffer, immediate header emission, and resource disposal.
@@ -1182,7 +1250,7 @@
             <param name="stream">Writable output stream.</param>
             <param name="header">Mandatory CSV header line written immediately upon session initialization.</param>
         </member>
-        <member name="M:MelloSilveiraTools.Core.Managers.File.CsvFileWriter.#ctor(System.IO.Stream,System.String)">
+        <member name="M:MelloSilveiraTools.Core.Managers.File.Csv.CsvFileWriter.#ctor(System.IO.Stream,System.String)">
             <summary>
             Encapsulates a buffered asynchronous CSV file writing session over an underlying output stream.
             Manages row batching buffer, immediate header emission, and resource disposal.
@@ -1190,14 +1258,14 @@
             <param name="stream">Writable output stream.</param>
             <param name="header">Mandatory CSV header line written immediately upon session initialization.</param>
         </member>
-        <member name="M:MelloSilveiraTools.Core.Managers.File.CsvFileWriter.WriteRowAsync(System.String,System.Threading.CancellationToken)">
+        <member name="M:MelloSilveiraTools.Core.Managers.File.Csv.CsvFileWriter.WriteRowAsync(System.String,System.Threading.CancellationToken)">
             <summary>
             Appends a formatted CSV row string and batch-flushes to disk when the threshold is reached.
             </summary>
             <param name="row">Formatted CSV row text.</param>
             <param name="cancellationToken">Cancellation token.</param>
         </member>
-        <member name="M:MelloSilveiraTools.Core.Managers.File.CsvFileWriter.WriteRowAsync(System.Action{System.Text.StringBuilder},System.Threading.CancellationToken)">
+        <member name="M:MelloSilveiraTools.Core.Managers.File.Csv.CsvFileWriter.WriteRowAsync(System.Action{System.Text.StringBuilder},System.Threading.CancellationToken)">
             <summary>
             Appends a CSV row directly into the internal buffer via an action, avoiding intermediate string allocations,
             and batch-flushes to disk when the threshold is reached.
@@ -1205,18 +1273,18 @@
             <param name="writeRow">Action writing column values into the provided row buffer.</param>
             <param name="cancellationToken">Cancellation token.</param>
         </member>
-        <member name="M:MelloSilveiraTools.Core.Managers.File.CsvFileWriter.DisposeAsync">
+        <member name="M:MelloSilveiraTools.Core.Managers.File.Csv.CsvFileWriter.DisposeAsync">
             <inheritdoc />
         </member>
-        <member name="T:MelloSilveiraTools.Core.Managers.File.CsvStreamReader">
+        <member name="T:MelloSilveiraTools.Core.Managers.File.Csv.CsvStreamReader">
             <summary>
             High-performance, streaming numeric CSV reader powered by native <see cref="T:System.IO.Pipelines.PipeReader"/> and <see cref="T:System.Buffers.Text.Utf8Parser"/>.
             Reads delimited rows containing an arbitrary number of numeric (<see cref="T:System.Double"/>) columns with minimal memory allocations.
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.Core.Managers.File.CsvStreamReader.#ctor(System.IO.Stream,System.Byte,System.Boolean,System.Int32,System.Boolean)">
+        <member name="M:MelloSilveiraTools.Core.Managers.File.Csv.CsvStreamReader.#ctor(System.IO.Stream,System.Byte,System.Boolean,System.Int32,System.Boolean)">
             <summary>
-            
+            Initializes a new instance of the <see cref="T:MelloSilveiraTools.Core.Managers.File.Csv.CsvStreamReader"/> class.
             </summary>
             <param name="stream">The underlying stream to read from.</param>
             <param name="delimiter">The column delimiter byte (default is comma <c>','</c>).</param>
@@ -1224,224 +1292,1102 @@
             <param name="bufferSize">The initial pipe buffer size.</param>
             <param name="skipInvalidLines">Whether to skip unparseable lines (e.g. headers) instead of stopping.</param>
         </member>
-        <member name="M:MelloSilveiraTools.Core.Managers.File.CsvStreamReader.CreateAsync(System.IO.Stream,System.Byte,System.Boolean,System.Int32,System.Boolean,System.Threading.CancellationToken)">
+        <member name="M:MelloSilveiraTools.Core.Managers.File.Csv.CsvStreamReader.CreateAsync(System.IO.Stream,System.Byte,System.Boolean,System.Int32,System.Boolean,System.Threading.CancellationToken)">
             <summary>
-            Asynchronously creates a new instance of <see cref="T:MelloSilveiraTools.Core.Managers.File.CsvStreamReader"/>, reads the header line to initialize internal buffers, and advances the stream to the first data row.
+            Asynchronously creates a new instance of <see cref="T:MelloSilveiraTools.Core.Managers.File.Csv.CsvStreamReader"/>, reads the header line to initialize internal buffers, and advances the stream to the first data row.
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.Core.Managers.File.CsvStreamReader.ReadNextRowAsync(System.Threading.CancellationToken)">
+        <member name="M:MelloSilveiraTools.Core.Managers.File.Csv.CsvStreamReader.ReadNextRowAsync(System.Threading.CancellationToken)">
             <summary>
             Reads the next numerical row asynchronously from the CSV stream, parsing all delimited numeric columns directly into an internal buffer.
             </summary>
             <param name="cancellationToken">A token to cancel the read operation.</param>
             <returns>A <see cref="T:System.ReadOnlyMemory`1"/> containing the parsed columns, or an empty memory if the end of the stream is reached or an unparseable line is encountered.</returns>
         </member>
-        <member name="M:MelloSilveiraTools.Core.Managers.File.CsvStreamReader.ReadAllRowsAsync(System.Threading.CancellationToken)">
+        <member name="M:MelloSilveiraTools.Core.Managers.File.Csv.CsvStreamReader.ReadAllRowsAsync(System.Threading.CancellationToken)">
             <summary>
             Asynchronously streams all parsed numeric rows from the CSV stream until the end of the stream or the first invalid row.
             </summary>
             <param name="cancellationToken">A token to cancel the streaming operation.</param>
             <returns>An async stream of <see cref="T:System.ReadOnlyMemory`1"/>, where each memory contains the parsed column values.</returns>
         </member>
-        <member name="M:MelloSilveiraTools.Core.Managers.File.CsvStreamReader.DisposeAsync">
+        <member name="M:MelloSilveiraTools.Core.Managers.File.Csv.CsvStreamReader.DisposeAsync">
             <inheritdoc/>
         </member>
-        <member name="T:MelloSilveiraTools.Core.Managers.File.FileMetadata">
+        <member name="T:MelloSilveiraTools.Core.Managers.File.Models.StorageEntryMetadata">
             <summary>
-            Encapsulates comprehensive metadata describing a generated or stored file artifact,
-            including physical location, byte size, and creation timestamps.
-            Built to be storage-agnostic across Local File Systems, Blob Storage, and DFS providers.
+            Immutable snapshot representing persistent storage entry (file or directory) metadata returned by <see cref="T:MelloSilveiraTools.Core.Managers.File.Providers.IFileStorageService"/>.
+            Encapsulates the resolved storage location, directory, file name, size, creation date, and underlying storage provider.
+            </summary>
+            <param name="StorageProvider">The underlying storage provider technology where the entry resides.</param>
+            <param name="FullPath">The physical path or canonical storage URI.</param>
+            <param name="Directory">The containing directory path or prefix.</param>
+            <param name="FileName">The file name with extension if this entry represents a file; otherwise, <c>null</c> if it represents a directory.</param>
+            <param name="SizeBytes">The size in bytes (file size or cumulative directory size).</param>
+            <param name="CreatedAt">UTC timestamp when the entry was created or persisted.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Managers.File.Models.StorageEntryMetadata.#ctor(MelloSilveiraTools.Core.Managers.File.Models.StorageProvider,System.String,System.String,System.String,System.Int64,System.DateTimeOffset)">
+            <summary>
+            Immutable snapshot representing persistent storage entry (file or directory) metadata returned by <see cref="T:MelloSilveiraTools.Core.Managers.File.Providers.IFileStorageService"/>.
+            Encapsulates the resolved storage location, directory, file name, size, creation date, and underlying storage provider.
+            </summary>
+            <param name="StorageProvider">The underlying storage provider technology where the entry resides.</param>
+            <param name="FullPath">The physical path or canonical storage URI.</param>
+            <param name="Directory">The containing directory path or prefix.</param>
+            <param name="FileName">The file name with extension if this entry represents a file; otherwise, <c>null</c> if it represents a directory.</param>
+            <param name="SizeBytes">The size in bytes (file size or cumulative directory size).</param>
+            <param name="CreatedAt">UTC timestamp when the entry was created or persisted.</param>
+        </member>
+        <member name="P:MelloSilveiraTools.Core.Managers.File.Models.StorageEntryMetadata.StorageProvider">
+            <summary>The underlying storage provider technology where the entry resides.</summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Core.Managers.File.Models.StorageEntryMetadata.FullPath">
+            <summary>The physical path or canonical storage URI.</summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Core.Managers.File.Models.StorageEntryMetadata.Directory">
+            <summary>The containing directory path or prefix.</summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Core.Managers.File.Models.StorageEntryMetadata.SizeBytes">
+            <summary>The size in bytes (file size or cumulative directory size).</summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Core.Managers.File.Models.StorageEntryMetadata.CreatedAt">
+            <summary>UTC timestamp when the entry was created or persisted.</summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Core.Managers.File.Models.StorageEntryMetadata.FileName">
+            <summary>
+            Gets the file name with extension if this entry represents a file; otherwise, <c>null</c> if it represents a directory.
             </summary>
         </member>
-        <member name="P:MelloSilveiraTools.Core.Managers.File.FileMetadata.FullPath">
+        <member name="P:MelloSilveiraTools.Core.Managers.File.Models.StorageEntryMetadata.IsDirectory">
             <summary>
-            Gets the complete, absolute file system path or canonical storage URI (Single Source of Truth).
+            Gets a value indicating whether this storage entry represents a directory.
             </summary>
         </member>
-        <member name="P:MelloSilveiraTools.Core.Managers.File.FileMetadata.FileName">
+        <member name="P:MelloSilveiraTools.Core.Managers.File.Models.StorageEntryMetadata.IsFile">
             <summary>
-            Gets the base file name with extension.
+            Gets a value indicating whether this storage entry represents a file.
             </summary>
         </member>
-        <member name="P:MelloSilveiraTools.Core.Managers.File.FileMetadata.DirectoryPath">
-            <summary>
-            Gets the directory, container, or virtual prefix path housing the file.
-            </summary>
-        </member>
-        <member name="P:MelloSilveiraTools.Core.Managers.File.FileMetadata.SizeBytes">
-            <summary>
-            Gets the total file size in bytes.
-            </summary>
-        </member>
-        <member name="P:MelloSilveiraTools.Core.Managers.File.FileMetadata.CreatedAt">
-            <summary>
-            Gets the timestamp when the file artifact was generated.
-            </summary>
-        </member>
-        <member name="M:MelloSilveiraTools.Core.Managers.File.FileMetadata.#ctor(System.String,System.Int64,System.Nullable{System.DateTimeOffset})">
-            <summary>
-            Initializes a new instance of the <see cref="T:MelloSilveiraTools.Core.Managers.File.FileMetadata"/> record.
-            Resolves <see cref="P:MelloSilveiraTools.Core.Managers.File.FileMetadata.FileName"/> and <see cref="P:MelloSilveiraTools.Core.Managers.File.FileMetadata.DirectoryPath"/> concurrently from <paramref name="fullPath"/> in a single index pass.
-            </summary>
-            <param name="fullPath">Complete physical path, storage URI, or blob key.</param>
-            <param name="sizeBytes">Total file size in bytes.</param>
-            <param name="createdAt">Optional creation timestamp (defaults to UTC now).</param>
-        </member>
-        <member name="T:MelloSilveiraTools.Core.Managers.File.FileStorageSettings">
-            <summary>
-            Configuration settings governing internal folder layouts and root storage locations for the file storage service.
-            </summary>
-        </member>
-        <member name="P:MelloSilveiraTools.Core.Managers.File.FileStorageSettings.BaseDirectory">
-            <summary>
-            Gets the base directory or root storage path (defaults to "storage").
-            </summary>
-        </member>
-        <member name="T:MelloSilveiraTools.Core.Managers.File.IFileStorageService">
-            <summary>
-            Storage-agnostic abstraction for file and directory management, location resolution, and stream handling.
-            Encapsulates knowledge of internal canonical directory layouts ("storage/{context}/{identifier}/")
-            independent of the underlying storage technology (e.g., Local File System, Blob Storage, Distributed File System).
-            Implementations are registered in dependency injection as keyed services by <see cref="T:MelloSilveiraTools.Core.Managers.File.StorageProvider"/>.
-            </summary>
-        </member>
-        <member name="M:MelloSilveiraTools.Core.Managers.File.IFileStorageService.Create(System.String,System.String,System.String)">
-            <summary>
-            Creates or overwrites a file at the contextually resolved location and opens a stream for writing, returning both stream and initial metadata.
-            </summary>
-            <param name="context">Business domain context.</param>
-            <param name="identifier">Unique run, experiment, or analysis identifier.</param>
-            <param name="fileName">Target file name including extension.</param>
-            <returns>A tuple containing the writable <see cref="T:System.IO.Stream"/> and the resolved <see cref="T:MelloSilveiraTools.Core.Managers.File.FileMetadata"/>.</returns>
-        </member>
-        <member name="M:MelloSilveiraTools.Core.Managers.File.IFileStorageService.CreateTimebased(System.String,System.String,System.String,System.String)">
-            <summary>
-            Creates a timestamped file at the contextually resolved location and opens a stream for writing, returning both stream and initial metadata.
-            </summary>
-            <param name="context">Business domain context.</param>
-            <param name="identifier">Unique run, experiment, or analysis identifier.</param>
-            <param name="fileExtension">File extension including dot (e.g., ".csv").</param>
-            <param name="filePrefix">Optional business identifier prefix.</param>
-            <returns>A tuple containing the writable <see cref="T:System.IO.Stream"/> and the resolved <see cref="T:MelloSilveiraTools.Core.Managers.File.FileMetadata"/>.</returns>
-        </member>
-        <member name="M:MelloSilveiraTools.Core.Managers.File.IFileStorageService.OpenRead(System.String)">
-            <summary>
-            Opens a stream for reading from the specified physical path or storage URI.
-            </summary>
-            <param name="location">Physical path or storage URI.</param>
-            <returns>A readable <see cref="T:System.IO.Stream"/>.</returns>
-        </member>
-        <member name="M:MelloSilveiraTools.Core.Managers.File.IFileStorageService.OpenRead(System.String,System.String,System.String)">
-            <summary>
-            Opens a stream for reading from a contextually resolved file location.
-            </summary>
-            <param name="context">Business domain context.</param>
-            <param name="identifier">Unique run, experiment, or analysis identifier.</param>
-            <param name="fileName">Target file name including extension.</param>
-            <returns>A readable <see cref="T:System.IO.Stream"/>.</returns>
-        </member>
-        <member name="M:MelloSilveiraTools.Core.Managers.File.IFileStorageService.Exists(System.String)">
-            <summary>
-            Checks whether the file exists at the specified physical path or storage URI.
-            </summary>
-            <param name="location">Physical path or storage URI.</param>
-            <returns><c>true</c> if the file exists; otherwise, <c>false</c>.</returns>
-        </member>
-        <member name="M:MelloSilveiraTools.Core.Managers.File.IFileStorageService.Exists(System.String,System.String,System.String)">
-            <summary>
-            Checks whether the file exists within the specified context and identifier partition.
-            </summary>
-            <param name="context">Business domain context.</param>
-            <param name="identifier">Unique run, experiment, or analysis identifier.</param>
-            <param name="fileName">Target file name including extension.</param>
-            <returns><c>true</c> if the file exists; otherwise, <c>false</c>.</returns>
-        </member>
-        <member name="M:MelloSilveiraTools.Core.Managers.File.IFileStorageService.GetMetadata(System.String,System.String,System.String)">
-            <summary>
-            Retrieves file metadata for a contextually resolved file location.
-            </summary>
-            <param name="context">Business domain context.</param>
-            <param name="identifier">Unique run, experiment, or analysis identifier.</param>
-            <param name="fileName">Target file name including extension.</param>
-            <returns>A populated <see cref="T:MelloSilveiraTools.Core.Managers.File.FileMetadata"/> instance.</returns>
-        </member>
-        <member name="M:MelloSilveiraTools.Core.Managers.File.IFileStorageService.Delete(System.String,System.String,System.String)">
-            <summary>
-            Deletes the file within the specified context and identifier partition if it exists.
-            </summary>
-            <param name="context">Business domain context.</param>
-            <param name="identifier">Unique run, experiment, or analysis identifier.</param>
-            <param name="fileName">Target file name including extension.</param>
-            <returns><c>true</c> if the file was deleted; otherwise, <c>false</c>.</returns>
-        </member>
-        <member name="M:MelloSilveiraTools.Core.Managers.File.IFileStorageService.ListFiles(System.String,System.String)">
-            <summary>
-            Lists all file metadata for files residing within the specified context and identifier partition.
-            </summary>
-            <param name="context">Business domain context.</param>
-            <param name="identifier">Unique run, experiment, or analysis identifier.</param>
-            <returns>A collection of <see cref="T:MelloSilveiraTools.Core.Managers.File.FileMetadata"/> items.</returns>
-        </member>
-        <member name="T:MelloSilveiraTools.Core.Managers.File.LocalFileStorageService">
-            <summary>
-            Storage-agnostic file management implementation targeting the local file system.
-            Implements canonical hierarchical directory structures partitioned by domain context and unique identifier ("storage/{context}/{identifier}/").
-            </summary>
-            <param name="settings">Optional file storage settings defining the root base directory. Defaults to standard settings if omitted.</param>
-        </member>
-        <member name="M:MelloSilveiraTools.Core.Managers.File.LocalFileStorageService.#ctor(MelloSilveiraTools.Core.Managers.File.FileStorageSettings)">
-            <summary>
-            Storage-agnostic file management implementation targeting the local file system.
-            Implements canonical hierarchical directory structures partitioned by domain context and unique identifier ("storage/{context}/{identifier}/").
-            </summary>
-            <param name="settings">Optional file storage settings defining the root base directory. Defaults to standard settings if omitted.</param>
-        </member>
-        <member name="M:MelloSilveiraTools.Core.Managers.File.LocalFileStorageService.Create(System.String,System.String,System.String)">
-            <inheritdoc />
-        </member>
-        <member name="M:MelloSilveiraTools.Core.Managers.File.LocalFileStorageService.CreateTimebased(System.String,System.String,System.String,System.String)">
-            <inheritdoc />
-        </member>
-        <member name="M:MelloSilveiraTools.Core.Managers.File.LocalFileStorageService.OpenRead(System.String)">
-            <inheritdoc />
-        </member>
-        <member name="M:MelloSilveiraTools.Core.Managers.File.LocalFileStorageService.OpenRead(System.String,System.String,System.String)">
-            <inheritdoc />
-        </member>
-        <member name="M:MelloSilveiraTools.Core.Managers.File.LocalFileStorageService.Exists(System.String)">
-            <inheritdoc />
-        </member>
-        <member name="M:MelloSilveiraTools.Core.Managers.File.LocalFileStorageService.Exists(System.String,System.String,System.String)">
-            <inheritdoc />
-        </member>
-        <member name="M:MelloSilveiraTools.Core.Managers.File.LocalFileStorageService.GetMetadata(System.String,System.String,System.String)">
-            <inheritdoc />
-        </member>
-        <member name="M:MelloSilveiraTools.Core.Managers.File.LocalFileStorageService.Delete(System.String,System.String,System.String)">
-            <inheritdoc />
-        </member>
-        <member name="M:MelloSilveiraTools.Core.Managers.File.LocalFileStorageService.ListFiles(System.String,System.String)">
-            <inheritdoc />
-        </member>
-        <member name="T:MelloSilveiraTools.Core.Managers.File.StorageProvider">
+        <member name="T:MelloSilveiraTools.Core.Managers.File.Models.StorageProvider">
             <summary>
             Specifies the underlying storage technology provider for file persistence and retrieval.
             </summary>
         </member>
-        <member name="F:MelloSilveiraTools.Core.Managers.File.StorageProvider.Local">
+        <member name="F:MelloSilveiraTools.Core.Managers.File.Models.StorageProvider.Local">
             <summary>
             Local physical file system storage on the host or container machine.
             </summary>
         </member>
-        <member name="F:MelloSilveiraTools.Core.Managers.File.StorageProvider.BlobStorage">
+        <member name="F:MelloSilveiraTools.Core.Managers.File.Models.StorageProvider.BlobStorage">
             <summary>
-            Cloud object or blob storage provider (e.g., Azure Blob Storage, AWS S3, Google Cloud Storage).
+            Cloud object or blob storage provider (e.g., Azure Blob Storage).
             </summary>
         </member>
-        <member name="F:MelloSilveiraTools.Core.Managers.File.StorageProvider.Dfs">
+        <member name="F:MelloSilveiraTools.Core.Managers.File.Models.StorageProvider.Dfs">
             <summary>
             Distributed file system provider (e.g., HDFS, SMB/UNC network share, Ceph).
             </summary>
+        </member>
+        <member name="F:MelloSilveiraTools.Core.Managers.File.Models.StorageProvider.AwsS3">
+            <summary>
+            Amazon Simple Storage Service (AWS S3) provider.
+            </summary>
+        </member>
+        <member name="T:MelloSilveiraTools.Core.Managers.File.Providers.AwsS3.AwsS3FileStorageService">
+            <summary>
+            Storage-agnostic file management implementation targeting Amazon Simple Storage Service (AWS S3) and S3-compatible providers.
+            Manages files using S3 object keys and streams data directly via the AWS S3 client without local disk staging for reads.
+            Writes are buffered to disk via a local storage service in the temporary directory before streaming to S3 to minimize memory overhead for large files.
+            Thread-safe for singleton lifecycle across concurrent and parallel asynchronous tasks.
+            </summary>
+            <remarks>
+            <para>
+            <b>Architectural Rationale: Disk Spooling vs. In-Memory Buffering</b>
+            </para>
+            <para>
+            High-throughput computational workloads—such as experimental data segmentation, numerical model simulations, and parametric sweep 
+            exports—frequently generate datasets exceeding tens or hundreds of megabytes. Buffering outgoing payloads entirely in RAM (e.g., 
+            via <see cref="T:System.IO.MemoryStream"/>) introduces severe reliability and scalability vulnerabilities:
+            <list type="bullet">
+            <item>
+            <term>O(1) vs. O(N) Space Complexity &amp; Memory Cost Efficiency:</term>
+            Storage disk (NVMe/SSD) is orders of magnitude less expensive per gigabyte than physical RAM. By spooling data to the OS-managed
+            temporary directory, memory allocation per active write stream remains strictly constant (<c>O(1)</c>, governed by the underlying
+            <see cref="T:System.IO.FileStream"/> page buffer of 64KB–128KB), regardless of whether the generated artifact is 1 MB or 50 GB. In contrast,
+            in-memory buffering scales linearly (<c>O(N)</c>) with file size and concurrent requests, precipitating catastrophic
+            <see cref="T:System.OutOfMemoryException"/> (OOM) failures under high concurrency.
+            </item>
+            <item>
+            <term>Garbage Collection &amp; Large Object Heap (LOH) Protection:</term>
+            In the .NET runtime, continuous byte array expansions in dynamically growing in-memory streams cross the 85,000-byte threshold,
+            landing directly on the Large Object Heap. Because the LOH is not compacted during Generation 0 or 1 GC sweeps, dynamic in-memory
+            buffering induces chronic memory fragmentation and forces expensive, blocking Generation 2 collections (Stop-the-World pauses).
+            Disk spooling completely bypasses LOH allocations during generation.
+            </item>
+            <item>
+            <term>Producer-Network Decoupling &amp; Latency Resilience:</term>
+            Writing to local disk decouples data generation from WAN throughput. The application writes at local bus speeds (GB/s via the OS page cache)
+            without stalling on cloud network latency or TCP windowing. Intermittent network degradation or slow transmission rates do not block compute 
+            threads. Furthermore, long simulation steps that experience delays between successive writes do not risk HTTP socket idle timeouts against 
+            the AWS S3 API.
+            </item>
+            <item>
+            <term>Transactional Fault Isolation &amp; Zero-Leak Lifecycle:</term>
+            If a failure occurs during file calculation or data serialization, the partial artifact remains local and is safely cleaned up, preventing 
+            orphaned partial objects or corrupted versions in the S3 bucket and avoiding wasteful AWS API PutObject costs. Upload transmission triggers 
+            only upon stream completion (<see cref="!:S3DiskUploadStream.DisposeAsync"/>), and the enclosing <c>finally</c> block guarantees deterministic 
+            destruction of both the temporary file and its isolated upload partition directory.
+            </item>
+            </list>
+            </para>
+            </remarks>
+            <param name="logger">Logger instance for structured tracing of operations and transmission progress.</param>
+            <param name="defaultStorage">The default file storage service used to buffer writes before streaming to S3. In this version, a local file storage is used.</param>
+            <param name="amazonS3Client">Amazon S3 client instance shared across the application lifecycle.</param>
+            <param name="settings">AWS S3 storage settings defining bucket, region, credentials, and virtual prefixes.</param>
+            <param name="resiliencePipeline">Resilience pipeline for AWS S3 operations providing retry, backoff, and circuit-breaker strategies.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Managers.File.Providers.AwsS3.AwsS3FileStorageService.#ctor(Microsoft.Extensions.Logging.ILogger{MelloSilveiraTools.Core.Managers.File.Providers.AwsS3.AwsS3FileStorageService},MelloSilveiraTools.Core.Managers.File.Providers.IFileStorageService,Amazon.S3.IAmazonS3,MelloSilveiraTools.Core.Managers.File.Providers.AwsS3.AwsS3StorageSettings,MelloSilveiraTools.Core.ResiliencePipelines.AwsS3ResiliencePipeline)">
+            <summary>
+            Storage-agnostic file management implementation targeting Amazon Simple Storage Service (AWS S3) and S3-compatible providers.
+            Manages files using S3 object keys and streams data directly via the AWS S3 client without local disk staging for reads.
+            Writes are buffered to disk via a local storage service in the temporary directory before streaming to S3 to minimize memory overhead for large files.
+            Thread-safe for singleton lifecycle across concurrent and parallel asynchronous tasks.
+            </summary>
+            <remarks>
+            <para>
+            <b>Architectural Rationale: Disk Spooling vs. In-Memory Buffering</b>
+            </para>
+            <para>
+            High-throughput computational workloads—such as experimental data segmentation, numerical model simulations, and parametric sweep 
+            exports—frequently generate datasets exceeding tens or hundreds of megabytes. Buffering outgoing payloads entirely in RAM (e.g., 
+            via <see cref="T:System.IO.MemoryStream"/>) introduces severe reliability and scalability vulnerabilities:
+            <list type="bullet">
+            <item>
+            <term>O(1) vs. O(N) Space Complexity &amp; Memory Cost Efficiency:</term>
+            Storage disk (NVMe/SSD) is orders of magnitude less expensive per gigabyte than physical RAM. By spooling data to the OS-managed
+            temporary directory, memory allocation per active write stream remains strictly constant (<c>O(1)</c>, governed by the underlying
+            <see cref="T:System.IO.FileStream"/> page buffer of 64KB–128KB), regardless of whether the generated artifact is 1 MB or 50 GB. In contrast,
+            in-memory buffering scales linearly (<c>O(N)</c>) with file size and concurrent requests, precipitating catastrophic
+            <see cref="T:System.OutOfMemoryException"/> (OOM) failures under high concurrency.
+            </item>
+            <item>
+            <term>Garbage Collection &amp; Large Object Heap (LOH) Protection:</term>
+            In the .NET runtime, continuous byte array expansions in dynamically growing in-memory streams cross the 85,000-byte threshold,
+            landing directly on the Large Object Heap. Because the LOH is not compacted during Generation 0 or 1 GC sweeps, dynamic in-memory
+            buffering induces chronic memory fragmentation and forces expensive, blocking Generation 2 collections (Stop-the-World pauses).
+            Disk spooling completely bypasses LOH allocations during generation.
+            </item>
+            <item>
+            <term>Producer-Network Decoupling &amp; Latency Resilience:</term>
+            Writing to local disk decouples data generation from WAN throughput. The application writes at local bus speeds (GB/s via the OS page cache)
+            without stalling on cloud network latency or TCP windowing. Intermittent network degradation or slow transmission rates do not block compute 
+            threads. Furthermore, long simulation steps that experience delays between successive writes do not risk HTTP socket idle timeouts against 
+            the AWS S3 API.
+            </item>
+            <item>
+            <term>Transactional Fault Isolation &amp; Zero-Leak Lifecycle:</term>
+            If a failure occurs during file calculation or data serialization, the partial artifact remains local and is safely cleaned up, preventing 
+            orphaned partial objects or corrupted versions in the S3 bucket and avoiding wasteful AWS API PutObject costs. Upload transmission triggers 
+            only upon stream completion (<see cref="!:S3DiskUploadStream.DisposeAsync"/>), and the enclosing <c>finally</c> block guarantees deterministic 
+            destruction of both the temporary file and its isolated upload partition directory.
+            </item>
+            </list>
+            </para>
+            </remarks>
+            <param name="logger">Logger instance for structured tracing of operations and transmission progress.</param>
+            <param name="defaultStorage">The default file storage service used to buffer writes before streaming to S3. In this version, a local file storage is used.</param>
+            <param name="amazonS3Client">Amazon S3 client instance shared across the application lifecycle.</param>
+            <param name="settings">AWS S3 storage settings defining bucket, region, credentials, and virtual prefixes.</param>
+            <param name="resiliencePipeline">Resilience pipeline for AWS S3 operations providing retry, backoff, and circuit-breaker strategies.</param>
+        </member>
+        <member name="P:MelloSilveiraTools.Core.Managers.File.Providers.AwsS3.AwsS3FileStorageService.Provider">
+            <inheritdoc />
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Managers.File.Providers.AwsS3.AwsS3FileStorageService.ResolveLocation(System.String,System.String,System.String)">
+            <inheritdoc />
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Managers.File.Providers.AwsS3.AwsS3FileStorageService.OpenWriteAsync(System.String,System.Threading.CancellationToken)">
+            <inheritdoc />
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Managers.File.Providers.AwsS3.AwsS3FileStorageService.OpenReadAsync(System.String,System.Threading.CancellationToken)">
+            <inheritdoc />
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Managers.File.Providers.AwsS3.AwsS3FileStorageService.ExistsAsync(System.String,System.Threading.CancellationToken)">
+            <inheritdoc />
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Managers.File.Providers.AwsS3.AwsS3FileStorageService.GetMetadataAsync(System.String,System.Threading.CancellationToken)">
+            <inheritdoc />
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Managers.File.Providers.AwsS3.AwsS3FileStorageService.DeleteAsync(System.String,System.Threading.CancellationToken)">
+            <inheritdoc />
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Managers.File.Providers.AwsS3.AwsS3FileStorageService.ListFilesAsync(System.String,System.String,System.Threading.CancellationToken)">
+            <inheritdoc />
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Managers.File.Providers.AwsS3.AwsS3FileStorageService.ListEntriesAsync(System.String,System.String,System.Threading.CancellationToken)">
+            <inheritdoc />
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Managers.File.Providers.AwsS3.AwsS3FileStorageService.DisposeAsync">
+            <inheritdoc />
+        </member>
+        <member name="T:MelloSilveiraTools.Core.Managers.File.Providers.AwsS3.AwsS3FileStorageService.S3DiskUploadStream">
+            <summary>
+            Disk-backed stream buffer that writes incoming data to an isolated local temporary file
+            and streams the completed payload to AWS S3 upon stream disposal.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Managers.File.Providers.AwsS3.AwsS3FileStorageService.S3DiskUploadStream.#ctor(Microsoft.Extensions.Logging.ILogger,MelloSilveiraTools.Core.Managers.File.Providers.IFileStorageService,Amazon.S3.IAmazonS3,System.String,System.String,System.IO.Stream,System.String,MelloSilveiraTools.Core.ResiliencePipelines.AwsS3ResiliencePipeline,System.Threading.CancellationToken)">
+            <summary>
+            Disk-backed stream buffer that writes incoming data to an isolated local temporary file
+            and streams the completed payload to AWS S3 upon stream disposal.
+            </summary>
+        </member>
+        <member name="T:MelloSilveiraTools.Core.Managers.File.Providers.AwsS3.AwsS3StorageSettings">
+            <summary>
+            Configuration settings governing bucket names, regions, credentials, and virtual folder layouts for Amazon Simple Storage Service (AWS S3).
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Core.Managers.File.Providers.AwsS3.AwsS3StorageSettings.BucketName">
+            <summary>
+            Gets the target Amazon S3 bucket name.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Core.Managers.File.Providers.AwsS3.AwsS3StorageSettings.Region">
+            <summary>
+            Gets the AWS region endpoint.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Core.Managers.File.Providers.AwsS3.AwsS3StorageSettings.AccessKey">
+            <summary>
+            Gets the optional AWS access key identifier.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Core.Managers.File.Providers.AwsS3.AwsS3StorageSettings.SecretKey">
+            <summary>
+            Gets the optional AWS secret access key.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Core.Managers.File.Providers.AwsS3.AwsS3StorageSettings.ServiceUrl">
+            <summary>
+            Gets the optional custom service URL for S3-compatible object storage providers (e.g., MinIO, LocalStack).
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Core.Managers.File.Providers.AwsS3.AwsS3StorageSettings.BasePrefix">
+            <summary>
+            Gets an optional base prefix or virtual folder hierarchy within the bucket.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Core.Managers.File.Providers.AwsS3.AwsS3StorageSettings.ResiliencePipelineSettings">
+            <summary>
+            Gets the optional resilience pipeline settings governing retries, backoff, and circuit breaker for AWS S3 operations.
+            </summary>
+        </member>
+        <member name="T:MelloSilveiraTools.Core.Managers.File.Providers.BlobStorage.BlobStorageFileStorageService">
+            <summary>
+            Storage-agnostic file management implementation targeting Azure Blob Storage and Azure-compatible providers.
+            Manages files using blob names and streams data directly via the Azure Blob Storage client without local disk staging for reads.
+            Writes are buffered to disk via a local storage service in the temporary directory before streaming to Azure Blob Storage to minimize memory overhead for large files.
+            Thread-safe for singleton lifecycle across concurrent and parallel asynchronous tasks.
+            </summary>
+            <remarks>
+            <para>
+            <b>Architectural Rationale: Disk Spooling vs. In-Memory Buffering</b>
+            </para>
+            <para>
+            High-throughput computational workloads—such as experimental data segmentation, numerical model simulations, and parametric sweep 
+            exports—frequently generate datasets exceeding tens or hundreds of megabytes. Buffering outgoing payloads entirely in RAM (e.g., 
+            via <see cref="T:System.IO.MemoryStream"/>) introduces severe reliability and scalability vulnerabilities:
+            <list type="bullet">
+            <item>
+            <term>O(1) vs. O(N) Space Complexity &amp; Memory Cost Efficiency:</term>
+            Storage disk (NVMe/SSD) is orders of magnitude less expensive per gigabyte than physical RAM. By spooling data to the OS-managed
+            temporary directory, memory allocation per active write stream remains strictly constant (<c>O(1)</c>, governed by the underlying
+            <see cref="T:System.IO.FileStream"/> page buffer of 64KB–128KB), regardless of whether the generated artifact is 1 MB or 50 GB. In contrast,
+            in-memory buffering scales linearly (<c>O(N)</c>) with file size and concurrent requests, precipitating catastrophic
+            <see cref="T:System.OutOfMemoryException"/> (OOM) failures under high concurrency.
+            </item>
+            <item>
+            <term>Garbage Collection &amp; Large Object Heap (LOH) Protection:</term>
+            In the .NET runtime, continuous byte array expansions in dynamically growing in-memory streams cross the 85,000-byte threshold,
+            landing directly on the Large Object Heap. Because the LOH is not compacted during Generation 0 or 1 GC sweeps, dynamic in-memory
+            buffering induces chronic memory fragmentation and forces expensive, blocking Generation 2 collections (Stop-the-World pauses).
+            Disk spooling completely bypasses LOH allocations during generation.
+            </item>
+            <item>
+            <term>Producer-Network Decoupling &amp; Latency Resilience:</term>
+            Writing to local disk decouples data generation from WAN throughput. The application writes at local bus speeds (GB/s via the OS page cache)
+            without stalling on cloud network latency or TCP windowing. Intermittent network degradation or slow transmission rates do not block compute 
+            threads. Furthermore, long simulation steps that experience delays between successive writes do not risk HTTP socket idle timeouts against 
+            the Azure Blob Storage API.
+            </item>
+            <item>
+            <term>Transactional Fault Isolation &amp; Zero-Leak Lifecycle:</term>
+            If a failure occurs during file calculation or data serialization, the partial artifact remains local and is safely cleaned up, preventing 
+            orphaned partial objects or corrupted versions in the blob container and avoiding wasteful Azure Storage API transaction costs. Upload 
+            transmission triggers only upon stream completion (<see cref="!:BlobDiskUploadStream.DisposeAsync"/>), and the enclosing <c>finally</c> 
+            block guarantees deterministic destruction of both the temporary file and its isolated upload partition directory.
+            </item>
+            </list>
+            </para>
+            </remarks>
+            <param name="logger">Logger instance for structured tracing of operations and transmission progress.</param>
+            <param name="defaultStorage">The default file storage service used to buffer writes before streaming to Blob Storage. In this version, a local file storage is used.</param>
+            <param name="containerClient">Azure Blob container client instance shared across the application lifecycle.</param>
+            <param name="settings">Azure Blob storage settings defining container, endpoints, and virtual prefixes.</param>
+            <param name="resiliencePipeline">Resilience pipeline for Azure Blob Storage operations providing retry, backoff, and circuit-breaker strategies.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Managers.File.Providers.BlobStorage.BlobStorageFileStorageService.#ctor(Microsoft.Extensions.Logging.ILogger{MelloSilveiraTools.Core.Managers.File.Providers.BlobStorage.BlobStorageFileStorageService},MelloSilveiraTools.Core.Managers.File.Providers.IFileStorageService,Azure.Storage.Blobs.BlobContainerClient,MelloSilveiraTools.Core.Managers.File.Providers.BlobStorage.BlobStorageSettings,MelloSilveiraTools.Core.ResiliencePipelines.BlobStorageResiliencePipeline)">
+            <summary>
+            Storage-agnostic file management implementation targeting Azure Blob Storage and Azure-compatible providers.
+            Manages files using blob names and streams data directly via the Azure Blob Storage client without local disk staging for reads.
+            Writes are buffered to disk via a local storage service in the temporary directory before streaming to Azure Blob Storage to minimize memory overhead for large files.
+            Thread-safe for singleton lifecycle across concurrent and parallel asynchronous tasks.
+            </summary>
+            <remarks>
+            <para>
+            <b>Architectural Rationale: Disk Spooling vs. In-Memory Buffering</b>
+            </para>
+            <para>
+            High-throughput computational workloads—such as experimental data segmentation, numerical model simulations, and parametric sweep 
+            exports—frequently generate datasets exceeding tens or hundreds of megabytes. Buffering outgoing payloads entirely in RAM (e.g., 
+            via <see cref="T:System.IO.MemoryStream"/>) introduces severe reliability and scalability vulnerabilities:
+            <list type="bullet">
+            <item>
+            <term>O(1) vs. O(N) Space Complexity &amp; Memory Cost Efficiency:</term>
+            Storage disk (NVMe/SSD) is orders of magnitude less expensive per gigabyte than physical RAM. By spooling data to the OS-managed
+            temporary directory, memory allocation per active write stream remains strictly constant (<c>O(1)</c>, governed by the underlying
+            <see cref="T:System.IO.FileStream"/> page buffer of 64KB–128KB), regardless of whether the generated artifact is 1 MB or 50 GB. In contrast,
+            in-memory buffering scales linearly (<c>O(N)</c>) with file size and concurrent requests, precipitating catastrophic
+            <see cref="T:System.OutOfMemoryException"/> (OOM) failures under high concurrency.
+            </item>
+            <item>
+            <term>Garbage Collection &amp; Large Object Heap (LOH) Protection:</term>
+            In the .NET runtime, continuous byte array expansions in dynamically growing in-memory streams cross the 85,000-byte threshold,
+            landing directly on the Large Object Heap. Because the LOH is not compacted during Generation 0 or 1 GC sweeps, dynamic in-memory
+            buffering induces chronic memory fragmentation and forces expensive, blocking Generation 2 collections (Stop-the-World pauses).
+            Disk spooling completely bypasses LOH allocations during generation.
+            </item>
+            <item>
+            <term>Producer-Network Decoupling &amp; Latency Resilience:</term>
+            Writing to local disk decouples data generation from WAN throughput. The application writes at local bus speeds (GB/s via the OS page cache)
+            without stalling on cloud network latency or TCP windowing. Intermittent network degradation or slow transmission rates do not block compute 
+            threads. Furthermore, long simulation steps that experience delays between successive writes do not risk HTTP socket idle timeouts against 
+            the Azure Blob Storage API.
+            </item>
+            <item>
+            <term>Transactional Fault Isolation &amp; Zero-Leak Lifecycle:</term>
+            If a failure occurs during file calculation or data serialization, the partial artifact remains local and is safely cleaned up, preventing 
+            orphaned partial objects or corrupted versions in the blob container and avoiding wasteful Azure Storage API transaction costs. Upload 
+            transmission triggers only upon stream completion (<see cref="!:BlobDiskUploadStream.DisposeAsync"/>), and the enclosing <c>finally</c> 
+            block guarantees deterministic destruction of both the temporary file and its isolated upload partition directory.
+            </item>
+            </list>
+            </para>
+            </remarks>
+            <param name="logger">Logger instance for structured tracing of operations and transmission progress.</param>
+            <param name="defaultStorage">The default file storage service used to buffer writes before streaming to Blob Storage. In this version, a local file storage is used.</param>
+            <param name="containerClient">Azure Blob container client instance shared across the application lifecycle.</param>
+            <param name="settings">Azure Blob storage settings defining container, endpoints, and virtual prefixes.</param>
+            <param name="resiliencePipeline">Resilience pipeline for Azure Blob Storage operations providing retry, backoff, and circuit-breaker strategies.</param>
+        </member>
+        <member name="P:MelloSilveiraTools.Core.Managers.File.Providers.BlobStorage.BlobStorageFileStorageService.Provider">
+            <inheritdoc />
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Managers.File.Providers.BlobStorage.BlobStorageFileStorageService.ResolveLocation(System.String,System.String,System.String)">
+            <inheritdoc />
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Managers.File.Providers.BlobStorage.BlobStorageFileStorageService.OpenWriteAsync(System.String,System.Threading.CancellationToken)">
+            <inheritdoc />
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Managers.File.Providers.BlobStorage.BlobStorageFileStorageService.OpenReadAsync(System.String,System.Threading.CancellationToken)">
+            <inheritdoc />
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Managers.File.Providers.BlobStorage.BlobStorageFileStorageService.ExistsAsync(System.String,System.Threading.CancellationToken)">
+            <inheritdoc />
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Managers.File.Providers.BlobStorage.BlobStorageFileStorageService.GetMetadataAsync(System.String,System.Threading.CancellationToken)">
+            <inheritdoc />
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Managers.File.Providers.BlobStorage.BlobStorageFileStorageService.DeleteAsync(System.String,System.Threading.CancellationToken)">
+            <inheritdoc />
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Managers.File.Providers.BlobStorage.BlobStorageFileStorageService.ListFilesAsync(System.String,System.String,System.Threading.CancellationToken)">
+            <inheritdoc />
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Managers.File.Providers.BlobStorage.BlobStorageFileStorageService.ListEntriesAsync(System.String,System.String,System.Threading.CancellationToken)">
+            <inheritdoc />
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Managers.File.Providers.BlobStorage.BlobStorageFileStorageService.DisposeAsync">
+            <inheritdoc />
+        </member>
+        <member name="T:MelloSilveiraTools.Core.Managers.File.Providers.BlobStorage.BlobStorageFileStorageService.BlobDiskUploadStream">
+            <summary>
+            Disk-backed stream buffer that writes incoming data to an isolated local temporary file
+            and streams the completed payload to Azure Blob Storage upon stream disposal.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Managers.File.Providers.BlobStorage.BlobStorageFileStorageService.BlobDiskUploadStream.#ctor(Microsoft.Extensions.Logging.ILogger,MelloSilveiraTools.Core.Managers.File.Providers.IFileStorageService,Azure.Storage.Blobs.BlobClient,System.String,System.String,System.IO.Stream,System.String,MelloSilveiraTools.Core.ResiliencePipelines.BlobStorageResiliencePipeline,System.Threading.CancellationToken)">
+            <summary>
+            Disk-backed stream buffer that writes incoming data to an isolated local temporary file
+            and streams the completed payload to Azure Blob Storage upon stream disposal.
+            </summary>
+        </member>
+        <member name="T:MelloSilveiraTools.Core.Managers.File.Providers.BlobStorage.BlobStorageSettings">
+            <summary>
+            Configuration settings governing connection parameters, container names, and virtual folder layouts for Azure Blob Storage.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Core.Managers.File.Providers.BlobStorage.BlobStorageSettings.ConnectionString">
+            <summary>
+            Gets the Azure Blob Storage connection string or account endpoint.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Core.Managers.File.Providers.BlobStorage.BlobStorageSettings.ContainerName">
+            <summary>
+            Gets the target container name for storing files.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Core.Managers.File.Providers.BlobStorage.BlobStorageSettings.BasePrefix">
+            <summary>
+            Gets an optional base prefix or virtual folder hierarchy within the container.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Core.Managers.File.Providers.BlobStorage.BlobStorageSettings.ServiceUrl">
+            <summary>
+            Gets an optional custom service URL for local or Azure-compatible emulator endpoints (e.g. Azurite).
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Core.Managers.File.Providers.BlobStorage.BlobStorageSettings.StagingDirectory">
+            <summary>
+            Gets an optional local staging directory used for buffering uploads. If omitted, the default file storage service temporary location is used.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Core.Managers.File.Providers.BlobStorage.BlobStorageSettings.ResiliencePipelineSettings">
+            <summary>
+            Gets the optional resilience pipeline settings governing retries, backoff, and circuit breaker for Azure Blob Storage operations.
+            </summary>
+        </member>
+        <member name="T:MelloSilveiraTools.Core.Managers.File.Providers.Dfs.DfsFileStorageService">
+            <summary>
+            Storage-agnostic file management implementation targeting distributed file systems (DFS) and network shares.
+            Inherits from <see cref="T:MelloSilveiraTools.Core.Managers.File.Providers.Local.LocalFileStorageService"/> as DFS represents a network-mounted hierarchical file system,
+            configured with <see cref="F:System.IO.FileShare.ReadWrite"/> to facilitate concurrent distributed access.
+            Validates base directory platform compatibility to prevent common deployment misconfigurations across operating systems.
+            </summary>
+            <param name="settings">DFS storage settings defining the root network share path or mount point.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Managers.File.Providers.Dfs.DfsFileStorageService.#ctor(MelloSilveiraTools.Core.Managers.File.Providers.Dfs.DfsStorageSettings)">
+            <summary>
+            Storage-agnostic file management implementation targeting distributed file systems (DFS) and network shares.
+            Inherits from <see cref="T:MelloSilveiraTools.Core.Managers.File.Providers.Local.LocalFileStorageService"/> as DFS represents a network-mounted hierarchical file system,
+            configured with <see cref="F:System.IO.FileShare.ReadWrite"/> to facilitate concurrent distributed access.
+            Validates base directory platform compatibility to prevent common deployment misconfigurations across operating systems.
+            </summary>
+            <param name="settings">DFS storage settings defining the root network share path or mount point.</param>
+        </member>
+        <member name="P:MelloSilveiraTools.Core.Managers.File.Providers.Dfs.DfsFileStorageService.Provider">
+            <inheritdoc />
+        </member>
+        <member name="P:MelloSilveiraTools.Core.Managers.File.Providers.Dfs.DfsFileStorageService.WriteFileShare">
+            <inheritdoc />
+        </member>
+        <member name="P:MelloSilveiraTools.Core.Managers.File.Providers.Dfs.DfsFileStorageService.ReadFileShare">
+            <inheritdoc />
+        </member>
+        <member name="T:MelloSilveiraTools.Core.Managers.File.Providers.Dfs.DfsStorageSettings">
+            <summary>
+            Configuration settings governing internal folder layouts and root network share locations for distributed file system (DFS) storage.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Core.Managers.File.Providers.Dfs.DfsStorageSettings.BaseDirectory">
+            <summary>
+            Gets the base network share or root DFS path.
+            </summary>
+        </member>
+        <member name="T:MelloSilveiraTools.Core.Managers.File.Providers.FileStorageServiceBase">
+            <summary>
+            Abstract base implementation of <see cref="T:MelloSilveiraTools.Core.Managers.File.Providers.IFileStorageService"/> providing common functionality,
+            path resolution, time-based file naming, and bridging between location-based and context-based operations.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Core.Managers.File.Providers.FileStorageServiceBase.Provider">
+            <inheritdoc />
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Managers.File.Providers.FileStorageServiceBase.ResolveLocation(System.String,System.String,System.String)">
+            <inheritdoc />
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Managers.File.Providers.FileStorageServiceBase.CreateWriteAsync(System.String,System.String,System.String,System.Threading.CancellationToken)">
+            <inheritdoc />
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Managers.File.Providers.FileStorageServiceBase.CreateWriteTimebasedAsync(System.String,System.String,System.String,System.String,System.Threading.CancellationToken)">
+            <inheritdoc />
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Managers.File.Providers.FileStorageServiceBase.CreateWriteTimebasedAsync(System.String,System.String,System.String,System.Threading.CancellationToken)">
+            <inheritdoc />
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Managers.File.Providers.FileStorageServiceBase.OpenReadAsync(System.String,System.String,System.String,System.Threading.CancellationToken)">
+            <inheritdoc />
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Managers.File.Providers.FileStorageServiceBase.ExistsAsync(System.String,System.String,System.String,System.Threading.CancellationToken)">
+            <inheritdoc />
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Managers.File.Providers.FileStorageServiceBase.GetMetadataAsync(System.String,System.String,System.String,System.Threading.CancellationToken)">
+            <inheritdoc />
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Managers.File.Providers.FileStorageServiceBase.DeleteAsync(System.String,System.String,System.String,System.Threading.CancellationToken)">
+            <inheritdoc />
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Managers.File.Providers.FileStorageServiceBase.OpenWriteAsync(System.String,System.Threading.CancellationToken)">
+            <inheritdoc />
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Managers.File.Providers.FileStorageServiceBase.OpenReadAsync(System.String,System.Threading.CancellationToken)">
+            <inheritdoc />
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Managers.File.Providers.FileStorageServiceBase.ExistsAsync(System.String,System.Threading.CancellationToken)">
+            <inheritdoc />
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Managers.File.Providers.FileStorageServiceBase.GetMetadataAsync(System.String,System.Threading.CancellationToken)">
+            <inheritdoc />
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Managers.File.Providers.FileStorageServiceBase.DeleteAsync(System.String,System.Threading.CancellationToken)">
+            <inheritdoc />
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Managers.File.Providers.FileStorageServiceBase.ListFilesAsync(System.String,System.String,System.Threading.CancellationToken)">
+            <inheritdoc />
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Managers.File.Providers.FileStorageServiceBase.ListEntriesAsync(System.String,System.String,System.Threading.CancellationToken)">
+            <inheritdoc />
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Managers.File.Providers.FileStorageServiceBase.DisposeAsync">
+            <inheritdoc />
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Managers.File.Providers.FileStorageServiceBase.GenerateTimebasedFileName(System.String,System.String)">
+            <summary>
+            Generates a standardized timestamped file name using UTC time ("yyyy-MM-dd_HH-mm-ss").
+            </summary>
+            <param name="filePrefix">Business prefix.</param>
+            <param name="fileExtension">File extension including the leading dot.</param>
+            <returns>A formatted timestamped file name.</returns>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Managers.File.Providers.FileStorageServiceBase.GenerateTimebasedFileName(System.String)">
+            <summary>
+            Generates a standardized timestamped file name using UTC time ("yyyy-MM-dd_HH-mm-ss").
+            </summary>
+            <param name="fileExtension">File extension including the leading dot.</param>
+            <returns>A formatted timestamped file name.</returns>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Managers.File.Providers.FileStorageServiceBase.BuildDirectoryPrefix(System.String,System.String,System.String)">
+            <summary>
+            Builds a standardized forward-slash delimited virtual directory prefix for cloud object storage providers.
+            </summary>
+            <param name="context">The contextual domain or category.</param>
+            <param name="identifier">The unique identifier.</param>
+            <param name="basePrefix">An optional root prefix configured for the storage account or bucket.</param>
+            <returns>A formatted directory prefix ending with a forward slash.</returns>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Managers.File.Providers.FileStorageServiceBase.ExtractCloudPath(System.String)">
+            <summary>
+            Deconstructs a cloud object key or URI into its forward-slash delimited virtual directory path and file name.
+            Ensures consistent behavior across Windows and Unix platforms without backslash replacement.
+            </summary>
+            <param name="key">The cloud object key or URI.</param>
+            <returns>A tuple containing the virtual directory prefix (without trailing slash) and the file name (or <c>null</c> if the key represents a directory or ends with a slash).</returns>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Managers.File.Providers.FileStorageServiceBase.ExtractCloudDirectory(System.String)">
+            <summary>
+            Extracts the forward-slash delimited virtual directory path from a cloud object key or URI,
+            ensuring consistent behavior across Windows and Unix platforms without backslash replacement.
+            </summary>
+            <param name="key">The cloud object key or URI.</param>
+            <returns>The virtual directory prefix without a trailing slash, or an empty string if in root.</returns>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Managers.File.Providers.FileStorageServiceBase.ExtractCloudFileName(System.String)">
+            <summary>
+            Extracts the file name and extension from a cloud object key or URI.
+            </summary>
+            <param name="key">The cloud object key or URI.</param>
+            <returns>The file name, or <c>null</c> if the key represents a directory or ends with a slash.</returns>
+        </member>
+        <member name="T:MelloSilveiraTools.Core.Managers.File.Providers.FileStorageSettings">
+            <summary>
+            Aggregated configuration settings providing a single unified binding point for multiple storage providers.
+            Enables simultaneous configuration of Local, DFS, Azure Blob, and AWS S3 storage under a single configuration section.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Core.Managers.File.Providers.FileStorageSettings.Local">
+            <summary>
+            Gets the settings governing local file storage.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Core.Managers.File.Providers.FileStorageSettings.Dfs">
+            <summary>
+            Gets the settings governing distributed file system (DFS) storage.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Core.Managers.File.Providers.FileStorageSettings.BlobStorage">
+            <summary>
+            Gets the settings governing Azure Blob Storage.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Core.Managers.File.Providers.FileStorageSettings.AwsS3">
+            <summary>
+            Gets the settings governing Amazon S3 storage.
+            </summary>
+        </member>
+        <member name="T:MelloSilveiraTools.Core.Managers.File.Providers.IFileStorageService">
+            <summary>
+            Storage-agnostic abstraction for file and directory management, location resolution, and stream handling.
+            Encapsulates knowledge of internal canonical directory layouts ("storage/{context}/{identifier}/")
+            independent of the underlying storage technology (e.g., Local File System, Blob Storage, Distributed File System, Amazon S3).
+            Implementations are registered in dependency injection as keyed services by <see cref="T:MelloSilveiraTools.Core.Managers.File.Models.StorageProvider"/>.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Core.Managers.File.Providers.IFileStorageService.Provider">
+            <summary>
+            Gets the storage provider technology managed by this service instance.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Managers.File.Providers.IFileStorageService.ResolveLocation(System.String,System.String,System.String)">
+            <summary>
+            Resolves the canonical storage location or URI for a file within the specified domain context and identifier partition.
+            </summary>
+            <param name="context">Business domain context.</param>
+            <param name="identifier">Unique run, experiment, or analysis identifier.</param>
+            <param name="fileName">Target file name including extension.</param>
+            <returns>The canonical physical path or storage URI.</returns>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Managers.File.Providers.IFileStorageService.OpenWriteAsync(System.String,System.Threading.CancellationToken)">
+            <summary>
+            Asynchronously opens a stream for writing to the specified physical path or storage URI.
+            </summary>
+            <param name="location">Physical path or storage URI.</param>
+            <param name="cancellationToken">Cancellation token.</param>
+            <returns>A value task representing the asynchronous operation, returning a writable <see cref="T:System.IO.Stream"/>.</returns>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Managers.File.Providers.IFileStorageService.CreateWriteAsync(System.String,System.String,System.String,System.Threading.CancellationToken)">
+            <summary>
+            Asynchronously creates or overwrites a file at the contextually resolved location and opens a stream for writing, returning both stream and canonical location.
+            </summary>
+            <param name="context">Business domain context.</param>
+            <param name="identifier">Unique run, experiment, or analysis identifier.</param>
+            <param name="fileName">Target file name including extension.</param>
+            <param name="cancellationToken">Cancellation token.</param>
+            <returns>A value task returning a tuple containing the writable <see cref="T:System.IO.Stream"/> and the canonical storage location.</returns>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Managers.File.Providers.IFileStorageService.CreateWriteTimebasedAsync(System.String,System.String,System.String,System.String,System.Threading.CancellationToken)">
+            <summary>
+            Asynchronously creates a timestamped file at the contextually resolved location and opens a stream for writing, returning both stream and canonical location.
+            </summary>
+            <param name="context">Business domain context.</param>
+            <param name="identifier">Unique run, experiment, or analysis identifier.</param>
+            <param name="filePrefix">Business identifier prefix.</param>
+            <param name="fileExtension">File extension including dot (e.g., ".csv").</param>
+            <param name="cancellationToken">Cancellation token.</param>
+            <returns>A value task returning a tuple containing the writable <see cref="T:System.IO.Stream"/> and the canonical storage location.</returns>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Managers.File.Providers.IFileStorageService.CreateWriteTimebasedAsync(System.String,System.String,System.String,System.Threading.CancellationToken)">
+            <summary>
+            Asynchronously creates a timestamped file at the contextually resolved location and opens a stream for writing, returning both stream and canonical location.
+            </summary>
+            <param name="context">Business domain context.</param>
+            <param name="identifier">Unique run, experiment, or analysis identifier.</param>
+            <param name="fileExtension">File extension including dot (e.g., ".csv").</param>
+            <param name="cancellationToken">Cancellation token.</param>
+            <returns>A value task returning a tuple containing the writable <see cref="T:System.IO.Stream"/> and the canonical storage location.</returns>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Managers.File.Providers.IFileStorageService.OpenReadAsync(System.String,System.Threading.CancellationToken)">
+            <summary>
+            Asynchronously opens a stream for reading from the specified physical path or storage URI.
+            </summary>
+            <param name="location">Physical path or storage URI.</param>
+            <param name="cancellationToken">Cancellation token.</param>
+            <returns>A value task returning a readable <see cref="T:System.IO.Stream"/>.</returns>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Managers.File.Providers.IFileStorageService.OpenReadAsync(System.String,System.String,System.String,System.Threading.CancellationToken)">
+            <summary>
+            Asynchronously opens a stream for reading from a contextually resolved file location.
+            </summary>
+            <param name="context">Business domain context.</param>
+            <param name="identifier">Unique run, experiment, or analysis identifier.</param>
+            <param name="fileName">Target file name including extension.</param>
+            <param name="cancellationToken">Cancellation token.</param>
+            <returns>A value task returning a readable <see cref="T:System.IO.Stream"/>.</returns>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Managers.File.Providers.IFileStorageService.ExistsAsync(System.String,System.Threading.CancellationToken)">
+            <summary>
+            Asynchronously checks whether the file exists at the specified physical path or storage URI.
+            </summary>
+            <param name="location">Physical path or storage URI.</param>
+            <param name="cancellationToken">Cancellation token.</param>
+            <returns>A value task returning <c>true</c> if the file exists; otherwise, <c>false</c>.</returns>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Managers.File.Providers.IFileStorageService.ExistsAsync(System.String,System.String,System.String,System.Threading.CancellationToken)">
+            <summary>
+            Asynchronously checks whether the file exists at the contextually resolved file location.
+            </summary>
+            <param name="context">Business domain context.</param>
+            <param name="identifier">Unique run, experiment, or analysis identifier.</param>
+            <param name="fileName">Target file name including extension.</param>
+            <param name="cancellationToken">Cancellation token.</param>
+            <returns>A value task returning <c>true</c> if the file exists; otherwise, <c>false</c>.</returns>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Managers.File.Providers.IFileStorageService.GetMetadataAsync(System.String,System.Threading.CancellationToken)">
+            <summary>
+            Asynchronously retrieves storage entry metadata for a specific physical path or storage URI.
+            </summary>
+            <param name="location">Physical path or storage URI.</param>
+            <param name="cancellationToken">Cancellation token.</param>
+            <returns>A value task returning a populated <see cref="T:MelloSilveiraTools.Core.Managers.File.Models.StorageEntryMetadata"/> instance.</returns>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Managers.File.Providers.IFileStorageService.GetMetadataAsync(System.String,System.String,System.String,System.Threading.CancellationToken)">
+            <summary>
+            Asynchronously retrieves storage entry metadata for a contextually resolved file location.
+            </summary>
+            <param name="context">Business domain context.</param>
+            <param name="identifier">Unique run, experiment, or analysis identifier.</param>
+            <param name="fileName">Target file name including extension.</param>
+            <param name="cancellationToken">Cancellation token.</param>
+            <returns>A value task returning a populated <see cref="T:MelloSilveiraTools.Core.Managers.File.Models.StorageEntryMetadata"/> instance.</returns>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Managers.File.Providers.IFileStorageService.DeleteAsync(System.String,System.Threading.CancellationToken)">
+            <summary>
+            Asynchronously deletes the file at the specified physical path or storage URI if it exists.
+            </summary>
+            <param name="location">Physical path or storage URI.</param>
+            <param name="cancellationToken">Cancellation token.</param>
+            <returns>A value task returning <c>true</c> if the file was deleted; otherwise, <c>false</c>.</returns>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Managers.File.Providers.IFileStorageService.DeleteAsync(System.String,System.String,System.String,System.Threading.CancellationToken)">
+            <summary>
+            Asynchronously deletes the file within the specified context and identifier partition if it exists.
+            </summary>
+            <param name="context">Business domain context.</param>
+            <param name="identifier">Unique run, experiment, or analysis identifier.</param>
+            <param name="fileName">Target file name including extension.</param>
+            <param name="cancellationToken">Cancellation token.</param>
+            <returns>A value task returning <c>true</c> if the file was deleted; otherwise, <c>false</c>.</returns>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Managers.File.Providers.IFileStorageService.ListFilesAsync(System.String,System.String,System.Threading.CancellationToken)">
+            <summary>
+            Asynchronously lists all file metadata for files residing within the specified context and identifier partition.
+            </summary>
+            <param name="context">Business domain context.</param>
+            <param name="identifier">Unique run, experiment, or analysis identifier.</param>
+            <param name="cancellationToken">Cancellation token.</param>
+            <returns>An asynchronous stream of <see cref="T:MelloSilveiraTools.Core.Managers.File.Models.StorageEntryMetadata"/> items.</returns>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Managers.File.Providers.IFileStorageService.ListEntriesAsync(System.String,System.String,System.Threading.CancellationToken)">
+            <summary>
+            Asynchronously lists all storage entry metadata (both files and directories) residing within the specified context and identifier partition.
+            </summary>
+            <param name="context">Business domain context.</param>
+            <param name="identifier">Unique run, experiment, or analysis identifier.</param>
+            <param name="cancellationToken">Cancellation token.</param>
+            <returns>An asynchronous stream of <see cref="T:MelloSilveiraTools.Core.Managers.File.Models.StorageEntryMetadata"/> items.</returns>
+        </member>
+        <member name="T:MelloSilveiraTools.Core.Managers.File.Providers.Local.LocalFileStorageService">
+            <summary>
+            Storage-agnostic file management implementation targeting the local file system.
+            Implements canonical hierarchical directory structures partitioned by domain context and unique identifier ("storage/{context}/{identifier}/").
+            </summary>
+            <param name="settings">File storage settings defining the root base directory.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Managers.File.Providers.Local.LocalFileStorageService.#ctor(MelloSilveiraTools.Core.Managers.File.Providers.Local.LocalFileStorageSettings)">
+            <summary>
+            Storage-agnostic file management implementation targeting the local file system.
+            Implements canonical hierarchical directory structures partitioned by domain context and unique identifier ("storage/{context}/{identifier}/").
+            </summary>
+            <param name="settings">File storage settings defining the root base directory.</param>
+        </member>
+        <member name="P:MelloSilveiraTools.Core.Managers.File.Providers.Local.LocalFileStorageService.Provider">
+            <inheritdoc />
+        </member>
+        <member name="P:MelloSilveiraTools.Core.Managers.File.Providers.Local.LocalFileStorageService.WriteFileShare">
+            <summary>
+            Gets the file sharing mode used when creating write streams.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Core.Managers.File.Providers.Local.LocalFileStorageService.ReadFileShare">
+            <summary>
+            Gets the file sharing mode used when opening read streams.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Managers.File.Providers.Local.LocalFileStorageService.ResolveLocation(System.String,System.String,System.String)">
+            <inheritdoc />
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Managers.File.Providers.Local.LocalFileStorageService.OpenWriteAsync(System.String,System.Threading.CancellationToken)">
+            <inheritdoc />
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Managers.File.Providers.Local.LocalFileStorageService.OpenReadAsync(System.String,System.Threading.CancellationToken)">
+            <inheritdoc />
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Managers.File.Providers.Local.LocalFileStorageService.ExistsAsync(System.String,System.Threading.CancellationToken)">
+            <inheritdoc />
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Managers.File.Providers.Local.LocalFileStorageService.GetMetadataAsync(System.String,System.Threading.CancellationToken)">
+            <inheritdoc />
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Managers.File.Providers.Local.LocalFileStorageService.DeleteAsync(System.String,System.Threading.CancellationToken)">
+            <inheritdoc />
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Managers.File.Providers.Local.LocalFileStorageService.ListFilesAsync(System.String,System.String,System.Threading.CancellationToken)">
+            <inheritdoc />
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Managers.File.Providers.Local.LocalFileStorageService.ListEntriesAsync(System.String,System.String,System.Threading.CancellationToken)">
+            <inheritdoc />
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Managers.File.Providers.Local.LocalFileStorageService.GetDirectory(System.String,System.String)">
+            <summary>
+            Computes the directory path for the given context and identifier partition.
+            </summary>
+            <param name="context">Business domain context.</param>
+            <param name="identifier">Unique run, experiment, or analysis identifier.</param>
+            <returns>The combined directory path.</returns>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Managers.File.Providers.Local.LocalFileStorageService.CreateWriteStream(System.String)">
+            <summary>
+            Creates a write stream for the specified physical location.
+            </summary>
+            <param name="location">Physical file path.</param>
+            <returns>A writable <see cref="T:System.IO.FileStream"/>.</returns>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Managers.File.Providers.Local.LocalFileStorageService.OpenReadStream(System.String)">
+            <summary>
+            Opens a read stream for the specified physical location.
+            </summary>
+            <param name="location">Physical file path.</param>
+            <returns>A readable <see cref="T:System.IO.FileStream"/>.</returns>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Managers.File.Providers.Local.LocalFileStorageService.GetDirectorySizeSecure(System.IO.DirectoryInfo)">
+            <summary>
+            Computes cumulative directory size recursively, skipping symlinks and junctions.
+            </summary>
+            <param name="directoryInfo">Directory information.</param>
+            <returns>Total size in bytes.</returns>
+        </member>
+        <member name="T:MelloSilveiraTools.Core.Managers.File.Providers.Local.LocalFileStorageSettings">
+            <summary>
+            Configuration settings governing internal folder layouts and root storage locations for the local file storage service.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Core.Managers.File.Providers.Local.LocalFileStorageSettings.BaseDirectory">
+            <summary>
+            Gets the base directory or root storage path.
+            </summary>
+        </member>
+        <member name="T:MelloSilveiraTools.Core.Managers.File.Streams.DelegatingDisposableStream">
+            <summary>
+            Decorator stream that delegates all streaming operations to an underlying inner stream while binding
+            the lifetime of an associated <see cref="T:System.IDisposable"/> owner object (such as an HTTP response or SDK client handle)
+            to the lifetime of the stream.
+            </summary>
+            <remarks>
+            Guarantees that when consumers dispose of the stream via either <see cref="M:MelloSilveiraTools.Core.Managers.File.Streams.DelegatingDisposableStream.Dispose(System.Boolean)"/> or <see cref="M:MelloSilveiraTools.Core.Managers.File.Streams.DelegatingDisposableStream.DisposeAsync"/>,
+            both the inner stream and the owner object are deterministically disposed, preventing HTTP socket exhaustion and resource leaks.
+            </remarks>
+            <param name="innerStream">The actual payload data stream.</param>
+            <param name="owner">The parent resource owner responsible for underlying socket or connection handles.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Managers.File.Streams.DelegatingDisposableStream.#ctor(System.IO.Stream,System.IDisposable)">
+            <summary>
+            Decorator stream that delegates all streaming operations to an underlying inner stream while binding
+            the lifetime of an associated <see cref="T:System.IDisposable"/> owner object (such as an HTTP response or SDK client handle)
+            to the lifetime of the stream.
+            </summary>
+            <remarks>
+            Guarantees that when consumers dispose of the stream via either <see cref="M:MelloSilveiraTools.Core.Managers.File.Streams.DelegatingDisposableStream.Dispose(System.Boolean)"/> or <see cref="M:MelloSilveiraTools.Core.Managers.File.Streams.DelegatingDisposableStream.DisposeAsync"/>,
+            both the inner stream and the owner object are deterministically disposed, preventing HTTP socket exhaustion and resource leaks.
+            </remarks>
+            <param name="innerStream">The actual payload data stream.</param>
+            <param name="owner">The parent resource owner responsible for underlying socket or connection handles.</param>
+        </member>
+        <member name="P:MelloSilveiraTools.Core.Managers.File.Streams.DelegatingDisposableStream.CanRead">
+            <inheritdoc />
+        </member>
+        <member name="P:MelloSilveiraTools.Core.Managers.File.Streams.DelegatingDisposableStream.CanSeek">
+            <inheritdoc />
+        </member>
+        <member name="P:MelloSilveiraTools.Core.Managers.File.Streams.DelegatingDisposableStream.CanWrite">
+            <inheritdoc />
+        </member>
+        <member name="P:MelloSilveiraTools.Core.Managers.File.Streams.DelegatingDisposableStream.Length">
+            <inheritdoc />
+        </member>
+        <member name="P:MelloSilveiraTools.Core.Managers.File.Streams.DelegatingDisposableStream.Position">
+            <inheritdoc />
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Managers.File.Streams.DelegatingDisposableStream.Flush">
+            <inheritdoc />
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Managers.File.Streams.DelegatingDisposableStream.FlushAsync(System.Threading.CancellationToken)">
+            <inheritdoc />
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Managers.File.Streams.DelegatingDisposableStream.Read(System.Byte[],System.Int32,System.Int32)">
+            <inheritdoc />
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Managers.File.Streams.DelegatingDisposableStream.Read(System.Span{System.Byte})">
+            <inheritdoc />
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Managers.File.Streams.DelegatingDisposableStream.ReadAsync(System.Byte[],System.Int32,System.Int32,System.Threading.CancellationToken)">
+            <inheritdoc />
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Managers.File.Streams.DelegatingDisposableStream.ReadAsync(System.Memory{System.Byte},System.Threading.CancellationToken)">
+            <inheritdoc />
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Managers.File.Streams.DelegatingDisposableStream.Seek(System.Int64,System.IO.SeekOrigin)">
+            <inheritdoc />
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Managers.File.Streams.DelegatingDisposableStream.SetLength(System.Int64)">
+            <inheritdoc />
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Managers.File.Streams.DelegatingDisposableStream.Write(System.Byte[],System.Int32,System.Int32)">
+            <inheritdoc />
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Managers.File.Streams.DelegatingDisposableStream.Write(System.ReadOnlySpan{System.Byte})">
+            <inheritdoc />
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Managers.File.Streams.DelegatingDisposableStream.WriteAsync(System.Byte[],System.Int32,System.Int32,System.Threading.CancellationToken)">
+            <inheritdoc />
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Managers.File.Streams.DelegatingDisposableStream.WriteAsync(System.ReadOnlyMemory{System.Byte},System.Threading.CancellationToken)">
+            <inheritdoc />
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Managers.File.Streams.DelegatingDisposableStream.Dispose(System.Boolean)">
+            <inheritdoc />
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Managers.File.Streams.DelegatingDisposableStream.DisposeAsync">
+            <inheritdoc />
+        </member>
+        <member name="T:MelloSilveiraTools.Core.Managers.File.Streams.DiskSpoolUploadStreamBase">
+            <summary>
+            Abstract base disk-backed stream buffer that implements the Disk Spooling Pattern for remote cloud object storage.
+            Intercepts write operations to a local temporary file stream, and upon completion/disposal, opens a read stream
+            from disk and delegates to the derived class for cloud transmission before deterministically deleting the temporary file and directory.
+            </summary>
+            <remarks>
+            <para>
+            <b>Architectural Rationale: Disk Spooling vs. In-Memory Buffering</b>
+            </para>
+            <para>
+            Buffering outgoing payloads on local disk ensures <c>O(1)</c> memory allocation, protects the Large Object Heap (LOH) from
+            fragmentation, decouples producer computational performance from WAN latency/throttling, and prevents corrupted partial objects
+            in cloud buckets when operations abort or fail mid-execution.
+            </para>
+            </remarks>
+            <param name="logger">Logger used to record progress and diagnostics.</param>
+            <param name="defaultStorage">Local file storage service used to manage the temporary spooling file.</param>
+            <param name="localWriteStream">Writable stream pointing to the local temporary file.</param>
+            <param name="tempLocation">Local path or identifier of the temporary spooling file.</param>
+            <param name="cancellationToken">Cancellation token observing operation abort signals.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Managers.File.Streams.DiskSpoolUploadStreamBase.#ctor(Microsoft.Extensions.Logging.ILogger,MelloSilveiraTools.Core.Managers.File.Providers.IFileStorageService,System.IO.Stream,System.String,System.Threading.CancellationToken)">
+            <summary>
+            Abstract base disk-backed stream buffer that implements the Disk Spooling Pattern for remote cloud object storage.
+            Intercepts write operations to a local temporary file stream, and upon completion/disposal, opens a read stream
+            from disk and delegates to the derived class for cloud transmission before deterministically deleting the temporary file and directory.
+            </summary>
+            <remarks>
+            <para>
+            <b>Architectural Rationale: Disk Spooling vs. In-Memory Buffering</b>
+            </para>
+            <para>
+            Buffering outgoing payloads on local disk ensures <c>O(1)</c> memory allocation, protects the Large Object Heap (LOH) from
+            fragmentation, decouples producer computational performance from WAN latency/throttling, and prevents corrupted partial objects
+            in cloud buckets when operations abort or fail mid-execution.
+            </para>
+            </remarks>
+            <param name="logger">Logger used to record progress and diagnostics.</param>
+            <param name="defaultStorage">Local file storage service used to manage the temporary spooling file.</param>
+            <param name="localWriteStream">Writable stream pointing to the local temporary file.</param>
+            <param name="tempLocation">Local path or identifier of the temporary spooling file.</param>
+            <param name="cancellationToken">Cancellation token observing operation abort signals.</param>
+        </member>
+        <member name="P:MelloSilveiraTools.Core.Managers.File.Streams.DiskSpoolUploadStreamBase.Logger">
+            <summary>
+            Gets the logger instance.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Core.Managers.File.Streams.DiskSpoolUploadStreamBase.TempLocation">
+            <summary>
+            Gets the resolved temporary file location on disk.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Core.Managers.File.Streams.DiskSpoolUploadStreamBase.DefaultStorage">
+            <summary>
+            Gets the underlying local storage service.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Core.Managers.File.Streams.DiskSpoolUploadStreamBase.CanRead">
+            <inheritdoc />
+        </member>
+        <member name="P:MelloSilveiraTools.Core.Managers.File.Streams.DiskSpoolUploadStreamBase.CanSeek">
+            <inheritdoc />
+        </member>
+        <member name="P:MelloSilveiraTools.Core.Managers.File.Streams.DiskSpoolUploadStreamBase.CanWrite">
+            <inheritdoc />
+        </member>
+        <member name="P:MelloSilveiraTools.Core.Managers.File.Streams.DiskSpoolUploadStreamBase.Length">
+            <inheritdoc />
+        </member>
+        <member name="P:MelloSilveiraTools.Core.Managers.File.Streams.DiskSpoolUploadStreamBase.Position">
+            <inheritdoc />
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Managers.File.Streams.DiskSpoolUploadStreamBase.Flush">
+            <inheritdoc />
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Managers.File.Streams.DiskSpoolUploadStreamBase.FlushAsync(System.Threading.CancellationToken)">
+            <inheritdoc />
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Managers.File.Streams.DiskSpoolUploadStreamBase.Read(System.Byte[],System.Int32,System.Int32)">
+            <inheritdoc />
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Managers.File.Streams.DiskSpoolUploadStreamBase.Read(System.Span{System.Byte})">
+            <inheritdoc />
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Managers.File.Streams.DiskSpoolUploadStreamBase.ReadAsync(System.Byte[],System.Int32,System.Int32,System.Threading.CancellationToken)">
+            <inheritdoc />
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Managers.File.Streams.DiskSpoolUploadStreamBase.ReadAsync(System.Memory{System.Byte},System.Threading.CancellationToken)">
+            <inheritdoc />
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Managers.File.Streams.DiskSpoolUploadStreamBase.Seek(System.Int64,System.IO.SeekOrigin)">
+            <inheritdoc />
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Managers.File.Streams.DiskSpoolUploadStreamBase.SetLength(System.Int64)">
+            <inheritdoc />
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Managers.File.Streams.DiskSpoolUploadStreamBase.Write(System.Byte[],System.Int32,System.Int32)">
+            <inheritdoc />
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Managers.File.Streams.DiskSpoolUploadStreamBase.Write(System.ReadOnlySpan{System.Byte})">
+            <inheritdoc />
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Managers.File.Streams.DiskSpoolUploadStreamBase.WriteAsync(System.Byte[],System.Int32,System.Int32,System.Threading.CancellationToken)">
+            <inheritdoc />
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Managers.File.Streams.DiskSpoolUploadStreamBase.WriteAsync(System.ReadOnlyMemory{System.Byte},System.Threading.CancellationToken)">
+            <inheritdoc />
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Managers.File.Streams.DiskSpoolUploadStreamBase.Abort">
+            <summary>
+            Explicitly aborts the upload, preventing any transmission to remote storage upon disposal.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Managers.File.Streams.DiskSpoolUploadStreamBase.UploadPayloadAsync(System.IO.Stream,System.Int64,System.Threading.CancellationToken)">
+            <summary>
+            Executes the remote cloud upload when invoked upon stream disposal.
+            </summary>
+            <param name="readStream">Readable stream opened from the spooled local file.</param>
+            <param name="fileSizeBytes">The total size of the spooled payload in bytes.</param>
+            <param name="cancellationToken">Cancellation token observing operation abort signals.</param>
+            <returns>A value task representing the asynchronous upload operation.</returns>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Managers.File.Streams.DiskSpoolUploadStreamBase.Dispose(System.Boolean)">
+            <inheritdoc />
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Managers.File.Streams.DiskSpoolUploadStreamBase.DisposeAsync">
+            <inheritdoc />
         </member>
         <member name="T:MelloSilveiraTools.Core.Models.Constants">
             <summary>
@@ -3253,6 +4199,58 @@
             provider. Returns <see langword="null"/> when neither has the type.
             </summary>
         </member>
+        <member name="T:MelloSilveiraTools.Core.ResiliencePipelines.AwsS3ResiliencePipeline">
+            <summary>
+            Resilience pipeline for AWS S3 communications providing exponential backoff with jitter and circuit-breaker capabilities.
+            Automatically handles transient cloud errors (throttling, timeouts, service unavailable) while failing fast on permanent errors.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.ResiliencePipelines.AwsS3ResiliencePipeline.#ctor(Microsoft.Extensions.Logging.ILogger{MelloSilveiraTools.Core.ResiliencePipelines.AwsS3ResiliencePipeline},MelloSilveiraTools.Core.ResiliencePipelines.ResiliencePipelineSettings)">
+            <summary>
+            Initializes a new instance of <see cref="T:MelloSilveiraTools.Core.ResiliencePipelines.AwsS3ResiliencePipeline"/>.
+            </summary>
+            <param name="logger">Logger used to record retry attempts and failures.</param>
+            <param name="settings">Pipeline settings driving retry count, backoff, and circuit-breaker behavior.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.ResiliencePipelines.AwsS3ResiliencePipeline.#ctor(Microsoft.Extensions.Logging.ILogger{MelloSilveiraTools.Core.ResiliencePipelines.AwsS3ResiliencePipeline},MelloSilveiraTools.Core.ResiliencePipelines.ResiliencePipelineSettings,System.Func{Polly.Retry.RetryPredicateArguments{System.Object},System.Threading.Tasks.ValueTask{System.Boolean}})">
+            <summary>
+            Initializes a new instance of <see cref="T:MelloSilveiraTools.Core.ResiliencePipelines.AwsS3ResiliencePipeline"/> with a custom predicate.
+            </summary>
+            <param name="logger">See reference at <see cref="T:Microsoft.Extensions.Logging.ILogger"/>.</param>
+            <param name="settings">See reference at <see cref="T:MelloSilveiraTools.Core.ResiliencePipelines.ResiliencePipelineSettings"/>.</param>
+            <param name="shouldHandle">Predicate that determines whether the retry should be executed for a given outcome.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.ResiliencePipelines.AwsS3ResiliencePipeline.IsTransientS3Error(Amazon.S3.AmazonS3Exception)">
+            <summary>
+            Determines whether a given Amazon S3 exception represents a transient fault eligible for retry.
+            </summary>
+        </member>
+        <member name="T:MelloSilveiraTools.Core.ResiliencePipelines.BlobStorageResiliencePipeline">
+            <summary>
+            Resilience pipeline for Azure Blob Storage communications providing exponential backoff with jitter and circuit-breaker capabilities.
+            Automatically handles transient cloud errors (throttling, timeouts, service unavailable) while failing fast on permanent errors.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.ResiliencePipelines.BlobStorageResiliencePipeline.#ctor(Microsoft.Extensions.Logging.ILogger{MelloSilveiraTools.Core.ResiliencePipelines.BlobStorageResiliencePipeline},MelloSilveiraTools.Core.ResiliencePipelines.ResiliencePipelineSettings)">
+            <summary>
+            Initializes a new instance of <see cref="T:MelloSilveiraTools.Core.ResiliencePipelines.BlobStorageResiliencePipeline"/>.
+            </summary>
+            <param name="logger">Logger used to record retry attempts and failures.</param>
+            <param name="settings">Pipeline settings driving retry count, backoff, and circuit-breaker behavior.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.ResiliencePipelines.BlobStorageResiliencePipeline.#ctor(Microsoft.Extensions.Logging.ILogger{MelloSilveiraTools.Core.ResiliencePipelines.BlobStorageResiliencePipeline},MelloSilveiraTools.Core.ResiliencePipelines.ResiliencePipelineSettings,System.Func{Polly.Retry.RetryPredicateArguments{System.Object},System.Threading.Tasks.ValueTask{System.Boolean}})">
+            <summary>
+            Initializes a new instance of <see cref="T:MelloSilveiraTools.Core.ResiliencePipelines.BlobStorageResiliencePipeline"/> with a custom predicate.
+            </summary>
+            <param name="logger">See reference at <see cref="T:Microsoft.Extensions.Logging.ILogger"/>.</param>
+            <param name="settings">See reference at <see cref="T:MelloSilveiraTools.Core.ResiliencePipelines.ResiliencePipelineSettings"/>.</param>
+            <param name="shouldHandle">Predicate that determines whether the retry should be executed for a given outcome.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.ResiliencePipelines.BlobStorageResiliencePipeline.IsTransientAzureError(Azure.RequestFailedException)">
+            <summary>
+            Determines whether a given Azure <see cref="T:Azure.RequestFailedException"/> represents a transient fault eligible for retry.
+            </summary>
+        </member>
         <member name="T:MelloSilveiraTools.Core.ResiliencePipelines.DefaultResiliencePipeline">
             <summary>
             Base resilience pipeline to automatically retry and log each attempt.
@@ -3404,6 +4402,11 @@
         <member name="P:MelloSilveiraTools.Core.Services.Email.EmailSettings.SmtpPort">
             <summary>
             Port number of the SMTP server.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Core.Services.Email.EmailSettings.ResiliencePipelineSettings">
+            <summary>
+            Optional resilience pipeline settings for retry and circuit breaker policies during SMTP operations.
             </summary>
         </member>
         <member name="T:MelloSilveiraTools.Core.Services.Email.IEmailService">

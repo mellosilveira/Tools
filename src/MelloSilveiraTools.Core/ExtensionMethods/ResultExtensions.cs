@@ -92,13 +92,13 @@ public static class ResultExtensions
         /// </summary>
         public T AddErrorIfNegativeOrZero(List<double> parameters, string message, StatusCode statusCode = StatusCode.BadRequest)
         {
-            result.AddErrorIfNullOrEmpty(parameters, message, statusCode);
+            result = result.AddErrorIfNullOrEmpty(parameters, message, statusCode);
             if (!result.Success)
                 return result;
 
             foreach (double parameter in parameters)
             {
-                result.AddErrorIfNegativeOrZero(parameter, message, statusCode);
+                result = result.AddErrorIfNegativeOrZero(parameter, message, statusCode);
             }
 
             return result;
@@ -115,7 +115,7 @@ public static class ResultExtensions
         /// </summary>
         public T AddErrorIfFileNotExist(string fullFileName, string message, StatusCode statusCode = StatusCode.BadRequest)
         {
-            result.AddErrorIfNullOrWhiteSpace(fullFileName, message, statusCode);
+            result = result.AddErrorIfNullOrWhiteSpace(fullFileName, message, statusCode);
             if (!result.Success)
                 return result;
 
@@ -137,7 +137,7 @@ public static class ResultExtensions
         /// </summary>
         public T AddErrorIfDirectoryNotExist(string fullDirectoryName, string parameterName, StatusCode statusCode = StatusCode.BadRequest)
         {
-            result.AddErrorIfNullOrEmpty(fullDirectoryName, parameterName, statusCode);
+            result = result.AddErrorIfNullOrEmpty(fullDirectoryName, parameterName, statusCode);
             if (!result.Success)
                 return result;
 
@@ -179,7 +179,7 @@ public static class ResultExtensions
         /// <returns>A <see cref="JsonResult"/> that serializes the operation result with the result status code.</returns>
         public async Task<JsonResult> BuildHttpResponseAsync()
         {
-            var result = await resultTask.ConfigureAwait(false);
+            TResult result = await resultTask.ConfigureAwait(false);
             return result.BuildHttpResponse();
         }
 
@@ -190,7 +190,7 @@ public static class ResultExtensions
         /// <returns>An <see cref="IResult"/> that serializes operation result as JSON with the result status code.</returns>
         public async Task<IResult> ToHttpResultAsync()
         {
-            var result = await resultTask.ConfigureAwait(false);
+            TResult result = await resultTask.ConfigureAwait(false);
             return result.ToHttpResult();
         }
     }
