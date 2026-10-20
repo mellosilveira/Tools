@@ -1,6 +1,11 @@
 using MelloSilveiraTools.Core.Caching;
 using MelloSilveiraTools.Core.Logging;
-using MelloSilveiraTools.Core.Managers.File;
+using MelloSilveiraTools.Core.Managers.File.Models;
+using MelloSilveiraTools.Core.Managers.File.Providers;
+using MelloSilveiraTools.Core.Managers.File.Providers.AwsS3;
+using MelloSilveiraTools.Core.Managers.File.Providers.BlobStorage;
+using MelloSilveiraTools.Core.Managers.File.Providers.Dfs;
+using MelloSilveiraTools.Core.Managers.File.Providers.Local;
 using MelloSilveiraTools.Core.Providers;
 using MelloSilveiraTools.Core.Providers.Dynamics;
 using MelloSilveiraTools.Core.ResiliencePipelines;
@@ -25,16 +30,16 @@ public static class CoreDependencyInjection
         /// <param name="defaultResiliencePipelineSettings">Settings that parameterize the default resilience pipelines.</param>
         /// <param name="encryptionSettings">Settings used by the encryption service.</param>
         /// <param name="emailSettings">Settings used to send e-mails through an SMTP server.</param>
+        /// <param name="fileStorageSettings">Settings used to configure storage services.</param>
         /// <param name="loggerSettings">Settings used by logger service.</param>
-        /// <param name="fileStorageSettings">Settings used to configure root directories and storage policies.</param>
         /// <param name="useDefaultLogger">Indicates if should use the default logger.</param>
         /// <returns>The same <paramref name="services"/> instance to allow call chaining.</returns>
         public IServiceCollection AddCoreServices(
             ResiliencePipelineSettings defaultResiliencePipelineSettings,
             EncryptionSettings? encryptionSettings = null,
             EmailSettings? emailSettings = null,
-            LoggerSettings? loggerSettings = null,
             FileStorageSettings? fileStorageSettings = null,
+            LoggerSettings? loggerSettings = null,
             bool useDefaultLogger = true)
         {
             if (encryptionSettings is not null)
@@ -54,17 +59,26 @@ public static class CoreDependencyInjection
 
             if (fileStorageSettings is not null)
             {
-                services
-                    .AddSingleton(fileStorageSettings)
-                    .AddKeyedSingleton<IFileStorageService, LocalFileStorageService>(StorageProvider.Local);
+                if (fileStorageSettings.Local is not null)
+                    services.AddKeyedSingleton<IFileStorageService>(StorageProvider.Local, (_, _) => new LocalFileStorageService(fileStorageSettings.Local));
+
+                if (fileStorageSettings.BlobStorage is not null)
+                    services.AddKeyedSingleton<IFileStorageService>(StorageProvider.BlobStorage, (_, _) => new BlobStorageFileStorageService(fileStorageSettings.BlobStorage));
+
+                if (fileStorageSettings.Dfs is not null)
+                    services.AddKeyedSingleton<IFileStorageService>(StorageProvider.Dfs, (_, _) => new DfsFileStorageService(fileStorageSettings.Dfs));
+
+                if (fileStorageSettings.AwsS3 is not null)
+                    services.AddKeyedSingleton<IFileStorageService>(
+                        StorageProvider.AwsS3,
+                        (provider, _) => new AwsS3FileStorageService(fileStorageSettings.AwsS3, provider.GetRequiredService<IFileStorageService>(), provider.GetRequiredService<ILogger<AwsS3FileStorageService>>()));
             }
 
             if (useDefaultLogger)
-            {
                 services.AddCoreLogging(LoggerConfigurationExtensions.Create(), loggerSettings ?? new LoggerSettings());
-            }
 
             return services
+                .AddSingleton<IFileStorageService>(_ => new LocalFileStorageService(new() { BaseDirectory = Path.Combine(Path.GetTempPath(), "storage") }))
                 // Register caching pipelines.
                 .AddSingleton<ISingleLevelCache, InMemorySingleLevelCache>()
                 .AddSingleton<ITwoLevelCache, InMemoryTwoLevelCache>()

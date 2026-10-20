@@ -1,6 +1,6 @@
-﻿namespace MelloSilveiraTools.Core.Managers.File;
+namespace MelloSilveiraTools.Core.Managers.File.Models;
 
-public class FileExtensions
+public static class FileExtensions
 {
     public const string SimpleText = ".txt";
     public const string CommaSeparatedValues = ".csv";

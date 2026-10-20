@@ -1,6 +1,6 @@
 using System.Text;
 
-namespace MelloSilveiraTools.Core.Managers.File;
+namespace MelloSilveiraTools.Core.Managers.File.Csv;
 
 /// <summary>
 /// Encapsulates a buffered asynchronous CSV file writing session over an underlying output stream.
@@ -67,9 +67,7 @@ public sealed class CsvFileWriter(Stream stream, string header) : IAsyncDisposab
     public async ValueTask DisposeAsync()
     {
         if (_disposed)
-        {
             return;
-        }
 
         _disposed = true;
 

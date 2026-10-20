@@ -4,7 +4,7 @@ using System.Buffers.Text;
 using System.IO.Pipelines;
 using System.Runtime.CompilerServices;
 
-namespace MelloSilveiraTools.Core.Managers.File;
+namespace MelloSilveiraTools.Core.Managers.File.Csv;
 
 /// <summary>
 /// High-performance, streaming numeric CSV reader powered by native <see cref="PipeReader"/> and <see cref="Utf8Parser"/>.
@@ -18,7 +18,7 @@ public class CsvStreamReader : IAsyncDisposable
     private double[] _rowBuffer = null!; // Initialized safely via CreateAsync
 
     /// <summary>
-    /// 
+    /// Initializes a new instance of the <see cref="CsvStreamReader"/> class.
     /// </summary>
     /// <param name="stream">The underlying stream to read from.</param>
     /// <param name="delimiter">The column delimiter byte (default is comma <c>','</c>).</param>
@@ -197,9 +197,7 @@ public class CsvStreamReader : IAsyncDisposable
             {
                 byte b = span[i];
                 if (b != (byte)'\r' && b != (byte)' ' && b != (byte)'\t')
-                {
                     return false;
-                }
             }
         }
 
@@ -215,9 +213,7 @@ public class CsvStreamReader : IAsyncDisposable
             for (int i = 0; i < span.Length; i++)
             {
                 if (span[i] == _delimiter)
-                {
                     count++;
-                }
             }
         }
         return count;

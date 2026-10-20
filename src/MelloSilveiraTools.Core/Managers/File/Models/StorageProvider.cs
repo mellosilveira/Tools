@@ -1,4 +1,4 @@
-namespace MelloSilveiraTools.Core.Managers.File;
+namespace MelloSilveiraTools.Core.Managers.File.Models;
 
 /// <summary>
 /// Specifies the underlying storage technology provider for file persistence and retrieval.
@@ -11,12 +11,17 @@ public enum StorageProvider
     Local = 0,
 
     /// <summary>
-    /// Cloud object or blob storage provider (e.g., Azure Blob Storage, AWS S3, Google Cloud Storage).
+    /// Cloud object or blob storage provider (e.g., Azure Blob Storage).
     /// </summary>
     BlobStorage = 1,
 
     /// <summary>
     /// Distributed file system provider (e.g., HDFS, SMB/UNC network share, Ceph).
     /// </summary>
-    Dfs = 2
+    Dfs = 2,
+
+    /// <summary>
+    /// Amazon Simple Storage Service (AWS S3) provider.
+    /// </summary>
+    AwsS3 = 3
 }

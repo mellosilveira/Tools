@@ -1,6 +1,6 @@
-﻿using MelloSilveiraTools.Core;
+using MelloSilveiraTools.Core;
 using MelloSilveiraTools.Core.Logging;
-using MelloSilveiraTools.Core.Managers.File;
+using MelloSilveiraTools.Core.Managers.File.Providers;
 using MelloSilveiraTools.Core.ResiliencePipelines;
 using MelloSilveiraTools.Core.Services.Email;
 using MelloSilveiraTools.Core.Services.Encryption;
@@ -44,14 +44,14 @@ public static class DependencyInjection
         EncryptionSettings encryptionSettings,
         PluginSettings pluginSettings,
         EmailSettings? emailSettings = null,
-        LoggerSettings? loggerSettings = null,
         FileStorageSettings? fileStorageSettings = null,
         ExperimentalDataSettings? experimentalDataSettings = null,
+        LoggerSettings? loggerSettings = null,
         bool useDefaultLogger = true,
         bool addMechanicalModels = false)
         => services
             .AddSingleton(defaultResiliencePipelineSettings)
-            .AddCoreServices(defaultResiliencePipelineSettings, encryptionSettings, emailSettings, loggerSettings, fileStorageSettings, useDefaultLogger)
+            .AddCoreServices(defaultResiliencePipelineSettings, encryptionSettings, emailSettings, fileStorageSettings, loggerSettings, useDefaultLogger)
             .AddDatabaseServices(defaultResiliencePipelineSettings, databaseSettings)
             .AddMathematicsServices()
             .AddMechanicsOfMaterialsServices(addMechanicalModels)
