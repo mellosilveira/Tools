@@ -317,12 +317,22 @@ public class AwsS3FileStorageService(
     }
 
     /// <inheritdoc />
+    public override void Dispose()
+    {
+        if (Interlocked.Exchange(ref _disposedState, 1) != 0)
+            return;
+
+        amazonS3Client.Dispose();
+        defaultStorage.Dispose();
+
+        GC.SuppressFinalize(this);
+    }
+
+    /// <inheritdoc />
     public override async ValueTask DisposeAsync()
     {
         if (Interlocked.Exchange(ref _disposedState, 1) != 0)
-        {
             return;
-        }
 
         amazonS3Client.Dispose();
         await defaultStorage.DisposeAsync().ConfigureAwait(false);

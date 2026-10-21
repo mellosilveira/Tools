@@ -8,7 +8,12 @@ namespace MelloSilveiraTools.Plugins.Infrastructure.Models;
 /// </summary>
 public record LoadedPlugin : DiscoveredPlugin
 {
-    private readonly AssemblyLoadContext _pluginContext;
+    private readonly AssemblyLoadContext? _pluginContext;
+
+    /// <summary>
+    /// Parameterless constructor required for deserialization.
+    /// </summary>
+    public LoadedPlugin() { }
 
     /// <summary>
     /// Initializes a new <see cref="LoadedPlugin"/> by wrapping a <paramref name="discovered"/> entry
@@ -21,10 +26,10 @@ public record LoadedPlugin : DiscoveredPlugin
     }
 
     /// <summary>Types found in the assembly that implement the plugin interface.</summary>
-    public Type[] ProcessableTypes { get; }
+    public Type[] ProcessableTypes { get; init; } = [];
 
     /// <summary>
     /// This must be called only when application update the plugin.
     /// </summary>
-    public void UnloadAssembly() => _pluginContext.Unload();
+    public void UnloadAssembly() => _pluginContext?.Unload();
 }

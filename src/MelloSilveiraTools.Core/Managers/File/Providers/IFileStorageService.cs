@@ -8,7 +8,7 @@ namespace MelloSilveiraTools.Core.Managers.File.Providers;
 /// independent of the underlying storage technology (e.g., Local File System, Blob Storage, Distributed File System, Amazon S3).
 /// Implementations are registered in dependency injection as keyed services by <see cref="StorageProvider"/>.
 /// </summary>
-public interface IFileStorageService : IAsyncDisposable
+public interface IFileStorageService : IDisposable, IAsyncDisposable
 {
     /// <summary>
     /// Gets the storage provider technology managed by this service instance.

@@ -93,6 +93,12 @@ public abstract class FileStorageServiceBase : IFileStorageService
     public abstract IAsyncEnumerable<StorageEntryMetadata> ListEntriesAsync(string context, string identifier, CancellationToken cancellationToken = default);
 
     /// <inheritdoc />
+    public virtual void Dispose()
+    {
+        GC.SuppressFinalize(this);
+    }
+
+    /// <inheritdoc />
     public virtual ValueTask DisposeAsync()
     {
         GC.SuppressFinalize(this);

@@ -1528,6 +1528,9 @@
         <member name="M:MelloSilveiraTools.Core.Managers.File.Providers.AwsS3.AwsS3FileStorageService.ListEntriesAsync(System.String,System.String,System.Threading.CancellationToken)">
             <inheritdoc />
         </member>
+        <member name="M:MelloSilveiraTools.Core.Managers.File.Providers.AwsS3.AwsS3FileStorageService.Dispose">
+            <inheritdoc />
+        </member>
         <member name="M:MelloSilveiraTools.Core.Managers.File.Providers.AwsS3.AwsS3FileStorageService.DisposeAsync">
             <inheritdoc />
         </member>
@@ -1718,6 +1721,9 @@
         <member name="M:MelloSilveiraTools.Core.Managers.File.Providers.BlobStorage.BlobStorageFileStorageService.ListEntriesAsync(System.String,System.String,System.Threading.CancellationToken)">
             <inheritdoc />
         </member>
+        <member name="M:MelloSilveiraTools.Core.Managers.File.Providers.BlobStorage.BlobStorageFileStorageService.Dispose">
+            <inheritdoc />
+        </member>
         <member name="M:MelloSilveiraTools.Core.Managers.File.Providers.BlobStorage.BlobStorageFileStorageService.DisposeAsync">
             <inheritdoc />
         </member>
@@ -1857,6 +1863,9 @@
             <inheritdoc />
         </member>
         <member name="M:MelloSilveiraTools.Core.Managers.File.Providers.FileStorageServiceBase.ListEntriesAsync(System.String,System.String,System.Threading.CancellationToken)">
+            <inheritdoc />
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Managers.File.Providers.FileStorageServiceBase.Dispose">
             <inheritdoc />
         </member>
         <member name="M:MelloSilveiraTools.Core.Managers.File.Providers.FileStorageServiceBase.DisposeAsync">
