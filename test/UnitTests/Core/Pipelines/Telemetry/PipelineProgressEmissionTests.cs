@@ -1,14 +1,17 @@
 using MelloSilveiraTools.Core.Pipelines;
 using MelloSilveiraTools.Core.Pipelines.Dataflow;
 using MelloSilveiraTools.Core.Pipelines.Models;
+using MelloSilveiraTools.Core.Pipelines.Notifiers;
+using MelloSilveiraTools.Core.Pipelines.Steps;
 using MelloSilveiraTools.Core.Pipelines.Telemetry;
 using Microsoft.Extensions.Logging.Abstractions;
 
 namespace UnitTests.Core.Pipelines.Telemetry;
 
 /// <summary>
-/// Unit tests verifying real-time emission of <see cref="PipelineProgressEvent"/> notifications
-/// across synchronous, asynchronous, streaming, and full Dataflow pipeline topologies.
+/// Unit tests verifying real-time emission of <see cref="PipelineProgressEvent"/> notifications,
+/// DAG topology correlation (<see cref="PipelineProgressEvent.UpstreamSteps"/>), and item-level progress tracking
+/// across synchronous, asynchronous, forking, streaming, and full Dataflow pipeline topologies.
 /// </summary>
 public sealed class PipelineProgressEmissionTests
 {
@@ -16,48 +19,54 @@ public sealed class PipelineProgressEmissionTests
     /// Verifies that a successful synchronous execution emits Started and Completed progress events.
     /// </summary>
     [Fact]
-    public void HandleExecution_SyncAction_WhenSuccessful_EmitsStartedAndCompletedEvents()
+    public async Task HandleExecution_SyncAction_WhenSuccessful_EmitsStartedAndCompletedEvents()
     {
         // Arrange
-        TestProgressReporter reporter = new();
-        Action<int> action = TelemetryExtensions.HandleExecution<int>(
+        TestProgressNotifier notifier = new();
+        Func<int, Task> action = PipelineStepExecutor.HandleExecution<int>(
             NullLogger.Instance,
+            notifier,
             "SyncStep",
-            input => { _ = input * 2; },
-            progress: reporter);
+            input => { _ = input * 2; });
 
         // Act
-        action(42);
+        await action(42);
 
         // Assert
-        IReadOnlyList<PipelineProgressEvent> events = reporter.Events;
+        IReadOnlyList<PipelineProgressEvent> events = notifier.Events;
         Assert.Equal(2, events.Count);
 
         Assert.Equal("SyncStep", events[0].StepName);
         Assert.Equal(PipelineStepState.Started, events[0].State);
+        Assert.Equal(1, events[0].ReceivedItems);
+        Assert.Equal(0, events[0].ProcessedItems);
+        Assert.Equal(0.0, events[0].ProgressPercentage);
 
         Assert.Equal("SyncStep", events[1].StepName);
         Assert.Equal(PipelineStepState.Completed, events[1].State);
+        Assert.Equal(1, events[1].ReceivedItems);
+        Assert.Equal(1, events[1].ProcessedItems);
+        Assert.Equal(100.0, events[1].ProgressPercentage);
     }
 
     /// <summary>
     /// Verifies that a failing synchronous execution emits Started and Faulted progress events.
     /// </summary>
     [Fact]
-    public void HandleExecution_SyncAction_WhenFaulted_EmitsStartedAndFaultedEvents()
+    public async Task HandleExecution_SyncAction_WhenFaulted_EmitsStartedAndFaultedEvents()
     {
         // Arrange
-        TestProgressReporter reporter = new();
-        Action<int> action = TelemetryExtensions.HandleExecution<int>(
+        TestProgressNotifier notifier = new();
+        Func<int, Task> action = PipelineStepExecutor.HandleExecution<int>(
             NullLogger.Instance,
+            notifier,
             "FailingSyncStep",
-            _ => throw new InvalidOperationException("Sync error"),
-            progress: reporter);
+            _ => throw new InvalidOperationException("Sync error"));
 
         // Act & Assert
-        Assert.Throws<InvalidOperationException>(() => action(10));
+        await Assert.ThrowsAsync<InvalidOperationException>(() => action(10));
 
-        IReadOnlyList<PipelineProgressEvent> events = reporter.Events;
+        IReadOnlyList<PipelineProgressEvent> events = notifier.Events;
         Assert.Equal(2, events.Count);
 
         Assert.Equal("FailingSyncStep", events[0].StepName);
@@ -65,7 +74,7 @@ public sealed class PipelineProgressEmissionTests
 
         Assert.Equal("FailingSyncStep", events[1].StepName);
         Assert.Equal(PipelineStepState.Faulted, events[1].State);
-        Assert.Contains("Sync error", events[1].Detail);
+        Assert.Contains("Sync error", events[1].Details);
     }
 
     /// <summary>
@@ -75,16 +84,16 @@ public sealed class PipelineProgressEmissionTests
     public async Task HandleExecution_AsyncFunc_WhenSuccessful_EmitsStartedAndCompletedEvents()
     {
         // Arrange
-        TestProgressReporter reporter = new();
-        Func<int, Task<string>> asyncFunc = TelemetryExtensions.HandleExecution<int, string>(
+        TestProgressNotifier notifier = new();
+        Func<int, Task<string>> asyncFunc = PipelineStepExecutor.HandleExecution<int, string>(
             NullLogger.Instance,
+            notifier,
             "AsyncStep",
             async (input, ct) =>
             {
                 await Task.Yield();
                 return $"Value: {input}";
-            },
-            progress: reporter);
+            });
 
         // Act
         string result = await asyncFunc(99);
@@ -92,7 +101,7 @@ public sealed class PipelineProgressEmissionTests
         // Assert
         Assert.Equal("Value: 99", result);
 
-        IReadOnlyList<PipelineProgressEvent> events = reporter.Events;
+        IReadOnlyList<PipelineProgressEvent> events = notifier.Events;
         Assert.Equal(2, events.Count);
 
         Assert.Equal("AsyncStep", events[0].StepName);
@@ -100,6 +109,7 @@ public sealed class PipelineProgressEmissionTests
 
         Assert.Equal("AsyncStep", events[1].StepName);
         Assert.Equal(PipelineStepState.Completed, events[1].State);
+        Assert.Equal(100.0, events[1].ProgressPercentage);
     }
 
     /// <summary>
@@ -109,24 +119,24 @@ public sealed class PipelineProgressEmissionTests
     public async Task HandleExecution_AsyncFunc_WhenRetriesExhausted_EmitsStartedAndFaultedEvents()
     {
         // Arrange
-        TestProgressReporter reporter = new();
+        TestProgressNotifier notifier = new();
         RetryOptions retryOptions = new(MaxAttempts: 2, InitialDelayMs: 10, BackoffFactor: 1.0);
 
-        Func<int, Task<string>> asyncFunc = TelemetryExtensions.HandleExecution<int, string>(
+        Func<int, Task<string>> asyncFunc = PipelineStepExecutor.HandleExecution<int, string>(
             NullLogger.Instance,
+            notifier,
             "FailingAsyncStep",
             async (_, ct) =>
             {
                 await Task.Yield();
                 throw new ApplicationException("Fatal error");
             },
-            retryOptions: retryOptions,
-            progress: reporter);
+            retryOptions: retryOptions);
 
         // Act & Assert
         await Assert.ThrowsAsync<ApplicationException>(() => asyncFunc(1));
 
-        IReadOnlyList<PipelineProgressEvent> events = reporter.Events;
+        IReadOnlyList<PipelineProgressEvent> events = notifier.Events;
         Assert.True(events.Count >= 2);
 
         Assert.Equal("FailingAsyncStep", events[0].StepName);
@@ -135,7 +145,42 @@ public sealed class PipelineProgressEmissionTests
         PipelineProgressEvent lastEvent = events[^1];
         Assert.Equal("FailingAsyncStep", lastEvent.StepName);
         Assert.Equal(PipelineStepState.Faulted, lastEvent.State);
-        Assert.Contains("Fatal error", lastEvent.Detail);
+        Assert.Contains("Fatal error", lastEvent.Details);
+    }
+
+    /// <summary>
+    /// Verifies that post-execution conditional forking executes the primary callback first and only executes fallback when the condition is met.
+    /// </summary>
+    [Fact]
+    public async Task HandleExecution_ForkingWithFallbackCondition_ExecutesPrimaryFirstAndFallbackWhenConditionMet()
+    {
+        // Arrange
+        TestProgressNotifier notifier = new();
+        Func<int, Task<int>> forkingFunc = PipelineStepExecutor.HandleExecution<int, int>(
+            NullLogger.Instance,
+            notifier,
+            "PrimaryStep",
+            "FallbackStep",
+            callback: x => x * 2,
+            fallbackCondition: output => output < 0,
+            fallback: _ => 0);
+
+        // Act
+        int normalOutput = await forkingFunc(5);
+        int fallbackOutput = await forkingFunc(-3);
+
+        // Assert
+        Assert.Equal(10, normalOutput);
+        Assert.Equal(0, fallbackOutput);
+
+        IReadOnlyList<PipelineProgressEvent> events = notifier.Events;
+        Assert.Equal(6, events.Count);
+        Assert.Equal("PrimaryStep", events[0].StepName);
+        Assert.Equal("PrimaryStep", events[1].StepName);
+        Assert.Equal("PrimaryStep", events[2].StepName);
+        Assert.Equal("PrimaryStep", events[3].StepName);
+        Assert.Equal("FallbackStep", events[4].StepName);
+        Assert.Equal("FallbackStep", events[5].StepName);
     }
 
     /// <summary>
@@ -145,12 +190,12 @@ public sealed class PipelineProgressEmissionTests
     public async Task HandleExecution_AsyncEnumerable_EmitsStartedRunningAndCompletedEvents()
     {
         // Arrange
-        TestProgressReporter reporter = new();
-        Func<int, IAsyncEnumerable<int>> streamFunc = TelemetryExtensions.HandleExecution<int, int>(
+        TestProgressNotifier notifier = new();
+        Func<int, IAsyncEnumerable<int>> streamFunc = PipelineStepExecutor.HandleExecution<int, int>(
             NullLogger.Instance,
+            notifier,
             "StreamStep",
-            (count, _) => GenerateNumbersAsync(count),
-            progress: reporter);
+            (count, _) => GenerateNumbersAsync(count));
 
         // Act
         List<int> results = [];
@@ -162,57 +207,99 @@ public sealed class PipelineProgressEmissionTests
         // Assert
         Assert.Equal(5, results.Count);
 
-        IReadOnlyList<PipelineProgressEvent> events = reporter.Events;
+        IReadOnlyList<PipelineProgressEvent> events = notifier.Events;
         Assert.True(events.Count >= 3);
 
         Assert.Equal("StreamStep", events[0].StepName);
         Assert.Equal(PipelineStepState.Started, events[0].State);
 
-        Assert.Contains(events, e => e.State == PipelineStepState.Running && e.Detail != null && e.Detail.Contains("Items emitted"));
+        Assert.Contains(events, e => e.State == PipelineStepState.Running && e.Details != null && e.Details.Contains("Items emitted"));
 
         PipelineProgressEvent lastEvent = events[^1];
         Assert.Equal("StreamStep", lastEvent.StepName);
         Assert.Equal(PipelineStepState.Completed, lastEvent.State);
-        Assert.Contains("Items emitted: 5", lastEvent.Detail);
+        Assert.Contains("Items emitted: 5", lastEvent.Details);
     }
 
     /// <summary>
-    /// Verifies that a full TPL Dataflow pipeline initialized via <see cref="PipelineFactory.StartDataflow"/>
-    /// propagates progress events across data mapping and terminal stages.
+    /// Verifies that a full TPL Dataflow pipeline with fan-out and forked branches emits Pending topology events upfront,
+    /// tracks UpstreamSteps accurately across forks, and tracks ReceivedItems vs. ProcessedItems per step.
     /// </summary>
     [Fact]
-    public async Task StartDataflow_PipelineExecution_EmitsProgressEventsAcrossTopology()
+    public async Task StartDataflow_ForkedDagPipeline_EmitsTopologyAndTracksItemProgress()
     {
         // Arrange
-        TestProgressReporter reporter = new();
+        TestProgressNotifier notifier = new();
         List<int> processedOutputs = [];
+
+        FanOutStep fanOutStep = new();
+        MultiplyStep branchAStep = new(factor: 2, name: "BranchA");
+        MultiplyStep branchBStep = new(factor: 3, name: "BranchB");
 
         IDataflowPipeline<int> pipeline = PipelineFactory.StartDataflow<int>(
                 NullLogger.Instance,
-                initialBufferSize: 100,
-                progress: reporter)
-            .AddDataMapping(x => x * 10)
+                notifier,
+                initialBufferSize: 100)
+            .AddStep(fanOutStep)
+            .Fork(branchAStep, branchBStep)
+            .AddDataMapping(tuple => tuple.Item1 + tuple.Item2)
             .BuildTerminal("CollectTerminal", x => processedOutputs.Add(x));
 
         await using (pipeline.ConfigureAwait(false))
         {
-            // Act
-            await pipeline.SendAsync(5);
+            // Act: send count = 4 so FanOutStep emits 4 items (1, 2, 3, 4) into the forked DAG
+            await pipeline.SendAsync(4);
             pipeline.Complete();
             await pipeline.Completion;
         }
 
-        // Assert
-        Assert.Single(processedOutputs);
-        Assert.Equal(50, processedOutputs[0]);
+        // Assert outputs: for i = 1..4, 2*i + 3*i = 5*i -> [5, 10, 15, 20]
+        Assert.Equal([5, 10, 15, 20], processedOutputs);
 
-        IReadOnlyList<PipelineProgressEvent> events = reporter.Events;
-        Assert.True(events.Count >= 4, $"Expected at least 4 progress events, got {events.Count}");
+        IReadOnlyList<PipelineProgressEvent> events = notifier.Events;
 
-        Assert.Contains(events, e => e.StepName == "Pipeline.DataMapping" && e.State == PipelineStepState.Started);
-        Assert.Contains(events, e => e.StepName == "Pipeline.DataMapping" && e.State == PipelineStepState.Completed);
-        Assert.Contains(events, e => e.StepName == "Pipeline.Step.CollectTerminal" && e.State == PipelineStepState.Started);
-        Assert.Contains(events, e => e.StepName == "Pipeline.Step.CollectTerminal" && e.State == PipelineStepState.Completed);
+        // 1. Verify upfront Pending topology events for all 4 DAG steps
+        Assert.Equal(PipelineStepState.Pending, events[0].State);
+        Assert.Equal("FanOutStep", events[0].StepName);
+        Assert.Empty(events[0].UpstreamSteps);
+
+        Assert.Equal(PipelineStepState.Pending, events[1].State);
+        Assert.Equal("BranchA", events[1].StepName);
+        Assert.Equal(["FanOutStep"], events[1].UpstreamSteps);
+
+        Assert.Equal(PipelineStepState.Pending, events[2].State);
+        Assert.Equal("BranchB", events[2].StepName);
+        Assert.Equal(["FanOutStep"], events[2].UpstreamSteps);
+
+        Assert.Equal(PipelineStepState.Pending, events[3].State);
+        Assert.Equal("CollectTerminal", events[3].StepName);
+        Assert.Equal(["BranchA", "BranchB"], events[3].UpstreamSteps);
+
+        // 2. Verify each step emitted Started once and Completed once with exact item counts
+        Assert.Single(events, e => e.StepName == "FanOutStep" && e.State == PipelineStepState.Started);
+        PipelineProgressEvent fanOutCompleted = Assert.Single(events, e => e.StepName == "FanOutStep" && e.State == PipelineStepState.Completed);
+        Assert.Equal(1, fanOutCompleted.ReceivedItems);
+        Assert.Equal(1, fanOutCompleted.ProcessedItems);
+        Assert.Equal(100.0, fanOutCompleted.ProgressPercentage);
+
+        Assert.Single(events, e => e.StepName == "BranchA" && e.State == PipelineStepState.Started);
+        PipelineProgressEvent branchACompleted = Assert.Single(events, e => e.StepName == "BranchA" && e.State == PipelineStepState.Completed);
+        Assert.Equal(4, branchACompleted.ReceivedItems);
+        Assert.Equal(4, branchACompleted.ProcessedItems);
+        Assert.Equal(100.0, branchACompleted.ProgressPercentage);
+
+        Assert.Single(events, e => e.StepName == "BranchB" && e.State == PipelineStepState.Started);
+        PipelineProgressEvent branchBCompleted = Assert.Single(events, e => e.StepName == "BranchB" && e.State == PipelineStepState.Completed);
+        Assert.Equal(4, branchBCompleted.ReceivedItems);
+        Assert.Equal(4, branchBCompleted.ProcessedItems);
+        Assert.Equal(100.0, branchBCompleted.ProgressPercentage);
+
+        Assert.Single(events, e => e.StepName == "CollectTerminal" && e.State == PipelineStepState.Started);
+        PipelineProgressEvent terminalCompleted = Assert.Single(events, e => e.StepName == "CollectTerminal" && e.State == PipelineStepState.Completed);
+        Assert.Equal(4, terminalCompleted.ReceivedItems);
+        Assert.Equal(4, terminalCompleted.ProcessedItems);
+        Assert.Equal(100.0, terminalCompleted.ProgressPercentage);
+        Assert.Equal(["BranchA", "BranchB"], terminalCompleted.UpstreamSteps);
     }
 
     private static async IAsyncEnumerable<int> GenerateNumbersAsync(int count)
@@ -224,10 +311,31 @@ public sealed class PipelineProgressEmissionTests
         }
     }
 
+    private sealed class FanOutStep : IAsyncEnumerablePipelineStep<int, int>
+    {
+        public string Name => "FanOutStep";
+
+        public IAsyncEnumerable<int> ExecuteAsync(int input, CancellationToken cancellationToken = default)
+            => GenerateNumbersAsync(input);
+
+        public ValueTask DisposeAsync() => ValueTask.CompletedTask;
+    }
+
+    private sealed class MultiplyStep(int factor, string name) : ISyncPipelineStep<int, int>
+    {
+        public string Name => name;
+
+        public int Execute(int input) => input * factor;
+
+        public void Dispose()
+        {
+        }
+    }
+
     /// <summary>
     /// Thread-safe in-memory progress collector for testing.
     /// </summary>
-    private sealed class TestProgressReporter : IProgress<PipelineProgressEvent>
+    private sealed class TestProgressNotifier : IPipelineProgressNotifier
     {
         private readonly Lock _lock = new();
         private readonly List<PipelineProgressEvent> _events = [];
@@ -243,12 +351,16 @@ public sealed class PipelineProgressEmissionTests
             }
         }
 
-        public void Report(PipelineProgressEvent value)
+        public ValueTask NotifyAsync(PipelineProgressEvent progressEvent, CancellationToken cancellationToken = default)
         {
             lock (_lock)
             {
-                _events.Add(value);
+                _events.Add(progressEvent);
             }
+
+            return ValueTask.CompletedTask;
         }
+
+        public ValueTask DisposeAsync() => ValueTask.CompletedTask;
     }
 }

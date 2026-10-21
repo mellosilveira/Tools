@@ -10,6 +10,7 @@ using MelloSilveiraTools.Core.Managers.File.Providers.AwsS3;
 using MelloSilveiraTools.Core.Managers.File.Providers.BlobStorage;
 using MelloSilveiraTools.Core.Managers.File.Providers.Dfs;
 using MelloSilveiraTools.Core.Managers.File.Providers.Local;
+using MelloSilveiraTools.Core.Pipelines.Notifiers;
 using MelloSilveiraTools.Core.Providers;
 using MelloSilveiraTools.Core.Providers.Dynamics;
 using MelloSilveiraTools.Core.ResiliencePipelines;
@@ -18,6 +19,7 @@ using MelloSilveiraTools.Core.Services.Encryption;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Serilog;
+using System.Threading.Channels;
 
 namespace MelloSilveiraTools.Core;
 
@@ -38,14 +40,27 @@ public static class CoreDependencyInjection
         /// <param name="emailSettings">Settings used to send e-mails through an SMTP server.</param>
         /// <param name="fileStorageSettings">Settings used to configure storage services.</param>
         /// <param name="loggerSettings">Settings used by the logging service.</param>
+        /// <param name="enablePipelineProgressNotifications">When true, registers <see cref="ChannelPipelineProgressNotifier"/> as the scoped <see cref="IPipelineProgressNotifier"/>; otherwise registers <see cref="NullPipelineProgressNotifier"/>.</param>
         /// <returns>The same <paramref name="services"/> instance to allow call chaining.</returns>
         public IServiceCollection AddCoreServices(
             ResiliencePipelineSettings defaultResiliencePipelineSettings,
             EncryptionSettings? encryptionSettings = null,
             EmailSettings? emailSettings = null,
             FileStorageSettings? fileStorageSettings = null,
-            LoggerSettings? loggerSettings = null)
+            LoggerSettings? loggerSettings = null,
+            bool enablePipelineProgressNotifications = false)
         {
+            if (enablePipelineProgressNotifications)
+            {
+                services
+                    .AddScoped(_ => new ChannelPipelineProgressNotifier(fullMode: BoundedChannelFullMode.DropOldest))
+                    .AddScoped<IPipelineProgressNotifier>(provider => provider.GetRequiredService<ChannelPipelineProgressNotifier>());
+            }
+            else
+            {
+                services.AddSingleton<IPipelineProgressNotifier>(NullPipelineProgressNotifier.Instance);
+            }
+
             if (encryptionSettings is not null)
             {
                 services

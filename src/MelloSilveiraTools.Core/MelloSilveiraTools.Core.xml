@@ -347,13 +347,13 @@
             Provides extension methods to register services from the MelloSilveiraTools.Core package.
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.Core.CoreDependencyInjection.AddCoreServices(Microsoft.Extensions.DependencyInjection.IServiceCollection,MelloSilveiraTools.Core.ResiliencePipelines.ResiliencePipelineSettings,MelloSilveiraTools.Core.Services.Encryption.EncryptionSettings,MelloSilveiraTools.Core.Services.Email.EmailSettings,MelloSilveiraTools.Core.Managers.File.Providers.FileStorageSettings,MelloSilveiraTools.Core.Logging.LoggerSettings)">
-            <inheritdoc cref="M:MelloSilveiraTools.Core.CoreDependencyInjection.&lt;G&gt;$7B30185E57B8298C6754F16C0BCF4773.AddCoreServices(MelloSilveiraTools.Core.ResiliencePipelines.ResiliencePipelineSettings,MelloSilveiraTools.Core.Services.Encryption.EncryptionSettings,MelloSilveiraTools.Core.Services.Email.EmailSettings,MelloSilveiraTools.Core.Managers.File.Providers.FileStorageSettings,MelloSilveiraTools.Core.Logging.LoggerSettings)"/>
+        <member name="M:MelloSilveiraTools.Core.CoreDependencyInjection.AddCoreServices(Microsoft.Extensions.DependencyInjection.IServiceCollection,MelloSilveiraTools.Core.ResiliencePipelines.ResiliencePipelineSettings,MelloSilveiraTools.Core.Services.Encryption.EncryptionSettings,MelloSilveiraTools.Core.Services.Email.EmailSettings,MelloSilveiraTools.Core.Managers.File.Providers.FileStorageSettings,MelloSilveiraTools.Core.Logging.LoggerSettings,System.Boolean)">
+            <inheritdoc cref="M:MelloSilveiraTools.Core.CoreDependencyInjection.&lt;G&gt;$7B30185E57B8298C6754F16C0BCF4773.AddCoreServices(MelloSilveiraTools.Core.ResiliencePipelines.ResiliencePipelineSettings,MelloSilveiraTools.Core.Services.Encryption.EncryptionSettings,MelloSilveiraTools.Core.Services.Email.EmailSettings,MelloSilveiraTools.Core.Managers.File.Providers.FileStorageSettings,MelloSilveiraTools.Core.Logging.LoggerSettings,System.Boolean)"/>
         </member>
         <member name="M:MelloSilveiraTools.Core.CoreDependencyInjection.AddCoreLogging(Microsoft.Extensions.DependencyInjection.IServiceCollection,MelloSilveiraTools.Core.Logging.LoggerSettings)">
             <inheritdoc cref="M:MelloSilveiraTools.Core.CoreDependencyInjection.&lt;G&gt;$7B30185E57B8298C6754F16C0BCF4773.AddCoreLogging(MelloSilveiraTools.Core.Logging.LoggerSettings)"/>
         </member>
-        <member name="M:MelloSilveiraTools.Core.CoreDependencyInjection.&lt;G&gt;$7B30185E57B8298C6754F16C0BCF4773.AddCoreServices(MelloSilveiraTools.Core.ResiliencePipelines.ResiliencePipelineSettings,MelloSilveiraTools.Core.Services.Encryption.EncryptionSettings,MelloSilveiraTools.Core.Services.Email.EmailSettings,MelloSilveiraTools.Core.Managers.File.Providers.FileStorageSettings,MelloSilveiraTools.Core.Logging.LoggerSettings)">
+        <member name="M:MelloSilveiraTools.Core.CoreDependencyInjection.&lt;G&gt;$7B30185E57B8298C6754F16C0BCF4773.AddCoreServices(MelloSilveiraTools.Core.ResiliencePipelines.ResiliencePipelineSettings,MelloSilveiraTools.Core.Services.Encryption.EncryptionSettings,MelloSilveiraTools.Core.Services.Email.EmailSettings,MelloSilveiraTools.Core.Managers.File.Providers.FileStorageSettings,MelloSilveiraTools.Core.Logging.LoggerSettings,System.Boolean)">
             <summary>
             Registers core services: settings, SMTP resilience pipeline, file storage, logging, and encryption service.
             When <paramref name="loggerSettings"/> is null or specifies no sinks, Microsoft default console logging is enabled.
@@ -364,6 +364,7 @@
             <param name="emailSettings">Settings used to send e-mails through an SMTP server.</param>
             <param name="fileStorageSettings">Settings used to configure storage services.</param>
             <param name="loggerSettings">Settings used by the logging service.</param>
+            <param name="enablePipelineProgressNotifications">When true, registers <see cref="T:MelloSilveiraTools.Core.Pipelines.Notifiers.ChannelPipelineProgressNotifier"/> as the scoped <see cref="T:MelloSilveiraTools.Core.Pipelines.Notifiers.IPipelineProgressNotifier"/>; otherwise registers <see cref="T:MelloSilveiraTools.Core.Pipelines.Notifiers.NullPipelineProgressNotifier"/>.</param>
             <returns>The same <paramref name="services"/> instance to allow call chaining.</returns>
         </member>
         <member name="M:MelloSilveiraTools.Core.CoreDependencyInjection.&lt;G&gt;$7B30185E57B8298C6754F16C0BCF4773.AddCoreLogging(MelloSilveiraTools.Core.Logging.LoggerSettings)">
@@ -2966,46 +2967,40 @@
             Strongly-typed fluent builder for orchestrating asynchronous data processing topologies.
             </summary>
             <remarks>
-            Design: Encapsulates block instantiation, telemetry wrapping, and graph linkage. Dynamically injects bifurcated routing nodes for DLQ without exposing graph complexity.
-            Constraint: Assumes a linear or singular-convergence topology. Forked branches must reconcile back to a single primary data type to proceed.
-            Note: Circuit-breaker and rate-limiter resilience strategies are planned for future integration at the block level.
+            Architectural Decisions:
+            <list type="bullet">
+            <item><description><b>DAG Topology Correlation:</b> Tracks a <see cref="T:MelloSilveiraTools.Core.Pipelines.Telemetry.PipelineFlowNode"/> and <see cref="T:MelloSilveiraTools.Core.Pipelines.Telemetry.PipelineStepTracker"/> per named domain step. Anonymous operators (<c>AddDataMapping</c>, <c>AddFilterStep</c>, <c>AddGroupWhileStep</c>, <c>JoinBlock</c>, and the default no-op <c>BuildTerminal</c>) act as transparent pass-throughs for <see cref="P:MelloSilveiraTools.Core.Pipelines.Models.PipelineProgressEvent.UpstreamSteps"/> while accurately propagating item arrival notifications (<c>ReceivedItems</c>).</description></item>
+            <item><description><b>Upfront Topology Discovery:</b> Emits <see cref="F:MelloSilveiraTools.Core.Pipelines.Models.PipelineStepState.Pending"/> notifications for all registered steps on the first <c>SendAsync</c> invocation so UI consumers can render the entire DAG before items finish flowing.</description></item>
+            <item><description><b>Bifurcated DLQ Routing:</b> When a Dead-Letter Queue is configured, steps dynamically wrap execution in <see cref="T:MelloSilveiraTools.Core.Pipelines.Models.SafeResult`2"/> and split successful vs. faulted payloads without faulting the TPL Dataflow graph.</description></item>
+            </list>
             </remarks>
         </member>
-        <member name="M:MelloSilveiraTools.Core.Pipelines.Dataflow.DataflowPipelineBuilder`2.#ctor(Microsoft.Extensions.Logging.ILogger,System.Threading.Tasks.Dataflow.ITargetBlock{`0},System.Threading.Tasks.Dataflow.ISourceBlock{`1},System.Threading.Tasks.Dataflow.ITargetBlock{MelloSilveiraTools.Core.Pipelines.Models.FailedPayload},System.Nullable{MelloSilveiraTools.Core.Pipelines.Models.RetryOptions},System.Threading.CancellationToken,System.Collections.Generic.List{System.Threading.Tasks.Task},System.Collections.Generic.List{MelloSilveiraTools.Core.Pipelines.Steps.IPipelineStep},System.IProgress{MelloSilveiraTools.Core.Pipelines.Models.PipelineProgressEvent})">
+        <member name="M:MelloSilveiraTools.Core.Pipelines.Dataflow.DataflowPipelineBuilder`2.#ctor(Microsoft.Extensions.Logging.ILogger,MelloSilveiraTools.Core.Pipelines.Notifiers.IPipelineProgressNotifier,System.Threading.Tasks.Dataflow.ITargetBlock{`0},System.Threading.Tasks.Dataflow.ISourceBlock{`1},System.Threading.Tasks.Dataflow.ITargetBlock{MelloSilveiraTools.Core.Pipelines.Models.FailedPayload},System.Nullable{MelloSilveiraTools.Core.Pipelines.Models.RetryOptions},MelloSilveiraTools.Core.Pipelines.Telemetry.PipelineFlowNode,MelloSilveiraTools.Core.Pipelines.Telemetry.PipelineFlowNode,System.Collections.Generic.List{MelloSilveiraTools.Core.Pipelines.Telemetry.PipelineStepTracker},System.Collections.Generic.List{System.Threading.Tasks.Task},System.Collections.Generic.List{MelloSilveiraTools.Core.Pipelines.Steps.IPipelineStep},System.Threading.CancellationToken)">
             <summary>
             Strongly-typed fluent builder for orchestrating asynchronous data processing topologies.
             </summary>
             <remarks>
-            Design: Encapsulates block instantiation, telemetry wrapping, and graph linkage. Dynamically injects bifurcated routing nodes for DLQ without exposing graph complexity.
-            Constraint: Assumes a linear or singular-convergence topology. Forked branches must reconcile back to a single primary data type to proceed.
-            Note: Circuit-breaker and rate-limiter resilience strategies are planned for future integration at the block level.
+            Architectural Decisions:
+            <list type="bullet">
+            <item><description><b>DAG Topology Correlation:</b> Tracks a <see cref="T:MelloSilveiraTools.Core.Pipelines.Telemetry.PipelineFlowNode"/> and <see cref="T:MelloSilveiraTools.Core.Pipelines.Telemetry.PipelineStepTracker"/> per named domain step. Anonymous operators (<c>AddDataMapping</c>, <c>AddFilterStep</c>, <c>AddGroupWhileStep</c>, <c>JoinBlock</c>, and the default no-op <c>BuildTerminal</c>) act as transparent pass-throughs for <see cref="P:MelloSilveiraTools.Core.Pipelines.Models.PipelineProgressEvent.UpstreamSteps"/> while accurately propagating item arrival notifications (<c>ReceivedItems</c>).</description></item>
+            <item><description><b>Upfront Topology Discovery:</b> Emits <see cref="F:MelloSilveiraTools.Core.Pipelines.Models.PipelineStepState.Pending"/> notifications for all registered steps on the first <c>SendAsync</c> invocation so UI consumers can render the entire DAG before items finish flowing.</description></item>
+            <item><description><b>Bifurcated DLQ Routing:</b> When a Dead-Letter Queue is configured, steps dynamically wrap execution in <see cref="T:MelloSilveiraTools.Core.Pipelines.Models.SafeResult`2"/> and split successful vs. faulted payloads without faulting the TPL Dataflow graph.</description></item>
+            </list>
             </remarks>
         </member>
         <member name="M:MelloSilveiraTools.Core.Pipelines.Dataflow.DataflowPipelineBuilder`2.WithDeadLetterQueue(System.Action{MelloSilveiraTools.Core.Pipelines.Models.FailedPayload},MelloSilveiraTools.Core.Pipelines.Models.PipelineStepOptions)">
             <inheritdoc/>
-            <remarks>
-            Design: Automatically provisions an internal ActionBlock to integrate the synchronous handler into the execution graph.
-            Constraint: Blocking I/O stalls the underlying ThreadPool thread assigned to this terminal block.
-            </remarks>
         </member>
         <member name="M:MelloSilveiraTools.Core.Pipelines.Dataflow.DataflowPipelineBuilder`2.WithDeadLetterQueue(System.Func{MelloSilveiraTools.Core.Pipelines.Models.FailedPayload,System.Threading.CancellationToken,System.Threading.Tasks.Task},MelloSilveiraTools.Core.Pipelines.Models.PipelineStepOptions)">
             <inheritdoc/>
-            <remarks>
-            Design: Provides optimal DLQ routing via async execution (e.g., remote queues), honoring configured retry constraints.
-            </remarks>
         </member>
         <member name="M:MelloSilveiraTools.Core.Pipelines.Dataflow.DataflowPipelineBuilder`2.WithLoggingErrors(MelloSilveiraTools.Core.Pipelines.Models.PipelineStepOptions)">
             <inheritdoc/>
-            <remarks>
-            Design: Fallback fault tolerance to prevent cascading block failures without complex recovery logic.
-            Constraint: Failed payloads are strictly serialized to logs and discarded from memory.
-            </remarks>
         </member>
         <member name="M:MelloSilveiraTools.Core.Pipelines.Dataflow.DataflowPipelineBuilder`2.AddDataMapping``1(System.Func{`1,``0},MelloSilveiraTools.Core.Pipelines.Models.PipelineStepOptions)">
             <inheritdoc/>
             <remarks>
-            Design: Dynamically shifts to a safe execution block if DLQ is active, routing exceptions internally without faulting the block.
-            Constraint: Purely synchronous. Retry policies are bypassed to prevent thread exhaustion.
+            Preserves upstream step names in the DAG while propagating item arrival notifications only for successfully mapped payloads.
             </remarks>
         </member>
         <member name="M:MelloSilveiraTools.Core.Pipelines.Dataflow.DataflowPipelineBuilder`2.AddFilterStep(System.Predicate{`1},MelloSilveiraTools.Core.Pipelines.Models.PipelineStepOptions)">
@@ -3058,19 +3053,11 @@
         </member>
         <member name="M:MelloSilveiraTools.Core.Pipelines.Dataflow.DataflowPipelineBuilder`2.BuildTerminal(System.String,System.Func{`1,System.Threading.CancellationToken,System.Threading.Tasks.Task},MelloSilveiraTools.Core.Pipelines.Models.PipelineStepOptions)">
             <inheritdoc/>
-            <remarks>
-            Design: Caps the underlying graph by resolving to a final asynchronous block, returning a sealed interface preventing further linkage.
-            </remarks>
         </member>
         <member name="M:MelloSilveiraTools.Core.Pipelines.Dataflow.DataflowPipelineBuilder`2.BuildTerminal(System.String,MelloSilveiraTools.Core.Pipelines.Models.PipelineStepOptions)">
             <inheritdoc/>
-        </member>
-        <member name="M:MelloSilveiraTools.Core.Pipelines.Dataflow.DataflowPipelineBuilder`2.AddSafeStep``1(System.Threading.Tasks.Dataflow.IPropagatorBlock{`1,MelloSilveiraTools.Core.Pipelines.Models.SafeResult{`1,``0}},System.Threading.Tasks.Dataflow.ExecutionDataflowBlockOptions)">
-            <summary>
-            Constructs a bifurcated routing topology to handle safe result payloads.
-            </summary>
             <remarks>
-            Design: Splits a single logical step into three blocks (execution wrapper, success router, failure router) to keep consumer configuration clean while satisfying complex routing constraints.
+            Creates an untracked drain block when no custom terminal action is provided so internal drain plumbing does not pollute user-facing DAG topology events.
             </remarks>
         </member>
         <member name="T:MelloSilveiraTools.Core.Pipelines.Dataflow.DataflowPipeline`1">
@@ -3079,7 +3066,7 @@
             Exposes inputs, triggers completion, and awaits termination while automatically disposing registered steps on shutdown.
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.Core.Pipelines.Dataflow.DataflowPipeline`1.#ctor(Microsoft.Extensions.Logging.ILogger,System.Threading.Tasks.Dataflow.ITargetBlock{`0},System.Threading.Tasks.Task,System.Collections.Generic.IReadOnlyCollection{MelloSilveiraTools.Core.Pipelines.Steps.IPipelineStep})">
+        <member name="M:MelloSilveiraTools.Core.Pipelines.Dataflow.DataflowPipeline`1.#ctor(Microsoft.Extensions.Logging.ILogger,System.Threading.Tasks.Dataflow.ITargetBlock{`0},System.Threading.Tasks.Task,System.Collections.Generic.IReadOnlyCollection{MelloSilveiraTools.Core.Pipelines.Steps.IPipelineStep},MelloSilveiraTools.Core.Pipelines.Telemetry.PipelineFlowNode,System.Collections.Generic.IReadOnlyList{MelloSilveiraTools.Core.Pipelines.Telemetry.PipelineStepTracker})">
             <summary>
             Sealed execution engine representing the finalized graph.
             Exposes inputs, triggers completion, and awaits termination while automatically disposing registered steps on shutdown.
@@ -3564,48 +3551,68 @@
         </member>
         <member name="T:MelloSilveiraTools.Core.Pipelines.Models.PipelineProgressEvent">
             <summary>
-            Represents an immutable real-time notification emitted during the execution of a pipeline step.
+            Represents an immutable real-time notification emitted during the execution of a pipeline step,
+            including DAG topology correlation (<see cref="P:MelloSilveiraTools.Core.Pipelines.Models.PipelineProgressEvent.UpstreamSteps"/>) and item-level progress counters.
             </summary>
-            <param name="StepName">The unique identifier or logical name of the pipeline step emitting the event.</param>
-            <param name="Description">A human-readable description of the current step activity.</param>
-            <param name="State">The lifecycle state of the step (<see cref="T:MelloSilveiraTools.Core.Pipelines.Models.PipelineStepState"/>).</param>
-            <param name="StepIndex">Optional 1-based index of the step in the pipeline topology.</param>
-            <param name="TotalSteps">Optional total number of steps in the pipeline topology.</param>
-            <param name="Detail">Optional diagnostic or contextual detail (e.g., item count, identifier, or error message).</param>
-            <param name="Timestamp">The UTC timestamp when the progress event was generated.</param>
-        </member>
-        <member name="M:MelloSilveiraTools.Core.Pipelines.Models.PipelineProgressEvent.#ctor(System.String,System.String,MelloSilveiraTools.Core.Pipelines.Models.PipelineStepState,System.Nullable{System.Int32},System.Nullable{System.Int32},System.String,System.DateTimeOffset)">
-            <summary>
-            Represents an immutable real-time notification emitted during the execution of a pipeline step.
-            </summary>
-            <param name="StepName">The unique identifier or logical name of the pipeline step emitting the event.</param>
-            <param name="Description">A human-readable description of the current step activity.</param>
-            <param name="State">The lifecycle state of the step (<see cref="T:MelloSilveiraTools.Core.Pipelines.Models.PipelineStepState"/>).</param>
-            <param name="StepIndex">Optional 1-based index of the step in the pipeline topology.</param>
-            <param name="TotalSteps">Optional total number of steps in the pipeline topology.</param>
-            <param name="Detail">Optional diagnostic or contextual detail (e.g., item count, identifier, or error message).</param>
-            <param name="Timestamp">The UTC timestamp when the progress event was generated.</param>
         </member>
         <member name="P:MelloSilveiraTools.Core.Pipelines.Models.PipelineProgressEvent.StepName">
-            <summary>The unique identifier or logical name of the pipeline step emitting the event.</summary>
+            <summary>
+            Gets the unique identifier or logical name of the pipeline step emitting the event.
+            </summary>
         </member>
         <member name="P:MelloSilveiraTools.Core.Pipelines.Models.PipelineProgressEvent.Description">
-            <summary>A human-readable description of the current step activity.</summary>
+            <summary>
+            Gets a human-readable description of the current step activity.
+            </summary>
         </member>
         <member name="P:MelloSilveiraTools.Core.Pipelines.Models.PipelineProgressEvent.State">
-            <summary>The lifecycle state of the step (<see cref="T:MelloSilveiraTools.Core.Pipelines.Models.PipelineStepState"/>).</summary>
-        </member>
-        <member name="P:MelloSilveiraTools.Core.Pipelines.Models.PipelineProgressEvent.StepIndex">
-            <summary>Optional 1-based index of the step in the pipeline topology.</summary>
-        </member>
-        <member name="P:MelloSilveiraTools.Core.Pipelines.Models.PipelineProgressEvent.TotalSteps">
-            <summary>Optional total number of steps in the pipeline topology.</summary>
-        </member>
-        <member name="P:MelloSilveiraTools.Core.Pipelines.Models.PipelineProgressEvent.Detail">
-            <summary>Optional diagnostic or contextual detail (e.g., item count, identifier, or error message).</summary>
+            <summary>
+            Gets the lifecycle state of the step (<see cref="T:MelloSilveiraTools.Core.Pipelines.Models.PipelineStepState"/>).
+            </summary>
         </member>
         <member name="P:MelloSilveiraTools.Core.Pipelines.Models.PipelineProgressEvent.Timestamp">
-            <summary>The UTC timestamp when the progress event was generated.</summary>
+            <summary>
+            Gets the UTC timestamp when the progress event was generated.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Core.Pipelines.Models.PipelineProgressEvent.UpstreamSteps">
+            <summary>
+            Gets the logical names of the immediate upstream steps feeding into this step in the pipeline DAG.
+            Empty for root/ingestion steps.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Core.Pipelines.Models.PipelineProgressEvent.ReceivedItems">
+            <summary>
+            Gets the cumulative number of items that have arrived at (been queued into) this step so far.
+            Enables visual representations of queued/pending items (e.g., gray progress bar segment).
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Core.Pipelines.Models.PipelineProgressEvent.ProcessedItems">
+            <summary>
+            Gets the cumulative number of items that have been processed by this step so far.
+            Enables visual representations of completed items (e.g., green progress bar segment).
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Core.Pipelines.Models.PipelineProgressEvent.ProgressPercentage">
+            <summary>
+            Gets the estimated completion percentage (0.0 to 100.0) of this step based on <see cref="P:MelloSilveiraTools.Core.Pipelines.Models.PipelineProgressEvent.ProcessedItems"/> and <see cref="P:MelloSilveiraTools.Core.Pipelines.Models.PipelineProgressEvent.ReceivedItems"/>.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Core.Pipelines.Models.PipelineProgressEvent.Details">
+            <summary>
+            Gets optional diagnostic, contextual, or JSON-formatted details (e.g., item count, identifier, or error message).
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Pipelines.Models.PipelineProgressEvent.Equals(MelloSilveiraTools.Core.Pipelines.Models.PipelineProgressEvent)">
+            <inheritdoc/>
+            <remarks>
+            Architectural Decision: Overridden explicitly because the compiler-synthesized <c>record</c> equality uses
+            <see cref="P:System.Collections.Generic.EqualityComparer`1.Default"/> on properties, which evaluates <see cref="P:MelloSilveiraTools.Core.Pipelines.Models.PipelineProgressEvent.UpstreamSteps"/> (<see cref="T:System.Collections.Generic.IReadOnlyList`1"/>)
+            by reference rather than element-by-element sequence equality (<see cref="M:System.Linq.Enumerable.SequenceEqual``1(System.Collections.Generic.IEnumerable{``0},System.Collections.Generic.IEnumerable{``0},System.Collections.Generic.IEqualityComparer{``0})"/>).
+            </remarks>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Pipelines.Models.PipelineProgressEvent.GetHashCode">
+            <inheritdoc/>
         </member>
         <member name="T:MelloSilveiraTools.Core.Pipelines.Models.PipelineStepOptions">
             <summary>
@@ -3663,9 +3670,14 @@
             Represents the execution lifecycle state of a pipeline step for real-time progress reporting.
             </summary>
         </member>
+        <member name="F:MelloSilveiraTools.Core.Pipelines.Models.PipelineStepState.Pending">
+            <summary>
+            The pipeline step is registered in the execution topology and awaiting input payloads.
+            </summary>
+        </member>
         <member name="F:MelloSilveiraTools.Core.Pipelines.Models.PipelineStepState.Started">
             <summary>
-            The pipeline step has started processing an input payload.
+            The pipeline step has started processing its first input payload.
             </summary>
         </member>
         <member name="F:MelloSilveiraTools.Core.Pipelines.Models.PipelineStepState.Running">
@@ -3675,7 +3687,7 @@
         </member>
         <member name="F:MelloSilveiraTools.Core.Pipelines.Models.PipelineStepState.Completed">
             <summary>
-            The pipeline step has completed execution successfully.
+            The pipeline step has completed execution of all items successfully.
             </summary>
         </member>
         <member name="F:MelloSilveiraTools.Core.Pipelines.Models.PipelineStepState.Faulted">
@@ -3761,6 +3773,69 @@
             from successful function executions, relying on the compiler to automatically box it into this safe envelope without manual instantiation.
             </remarks>
         </member>
+        <member name="T:MelloSilveiraTools.Core.Pipelines.Notifiers.ChannelPipelineProgressNotifier">
+            <summary>
+            High-performance, bounded-memory implementation of <see cref="T:MelloSilveiraTools.Core.Pipelines.Notifiers.IPipelineProgressNotifier"/> backed by a <see cref="T:System.Threading.Channels.Channel`1"/>.
+            Designed for real-time NDJSON or Server-Sent Events (SSE) streaming to HTTP clients with built-in backpressure.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Pipelines.Notifiers.ChannelPipelineProgressNotifier.#ctor(System.Int32,System.Threading.Channels.BoundedChannelFullMode)">
+            <summary>
+            Initializes a new instance of the <see cref="T:MelloSilveiraTools.Core.Pipelines.Notifiers.ChannelPipelineProgressNotifier"/> class with a bounded capacity.
+            </summary>
+            <param name="capacity">The maximum number of events buffered in the channel before applying backpressure or full-mode behavior. Defaults to 256.</param>
+            <param name="fullMode">The behavior to apply when the bounded channel is full. Defaults to <see cref="F:System.Threading.Channels.BoundedChannelFullMode.Wait"/>.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Pipelines.Notifiers.ChannelPipelineProgressNotifier.NotifyAsync(MelloSilveiraTools.Core.Pipelines.Models.PipelineProgressEvent,System.Threading.CancellationToken)">
+            <inheritdoc/>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Pipelines.Notifiers.ChannelPipelineProgressNotifier.TryComplete(System.Exception)">
+            <summary>
+            Attempts to mark the underlying channel as complete, signaling to consumers of <see cref="M:MelloSilveiraTools.Core.Pipelines.Notifiers.ChannelPipelineProgressNotifier.ReadAllAsync(System.Threading.CancellationToken)"/> that no further progress events will be emitted.
+            </summary>
+            <param name="error">An optional exception indicating that the pipeline terminated due to an unhandled fault.</param>
+            <returns><see langword="true"/> if this operation successfully completed the channel; otherwise, <see langword="false"/> if the channel was already marked as complete.</returns>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Pipelines.Notifiers.ChannelPipelineProgressNotifier.ReadAllAsync(System.Threading.CancellationToken)">
+            <summary>
+            Returns an <see cref="T:System.Collections.Generic.IAsyncEnumerable`1"/> that reads all emitted <see cref="T:MelloSilveiraTools.Core.Pipelines.Models.PipelineProgressEvent"/> items until the channel completes.
+            </summary>
+            <param name="cancellationToken">Token to cancel the asynchronous enumeration.</param>
+            <returns>An asynchronous stream of <see cref="T:MelloSilveiraTools.Core.Pipelines.Models.PipelineProgressEvent"/> instances.</returns>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Pipelines.Notifiers.ChannelPipelineProgressNotifier.DisposeAsync">
+            <inheritdoc/>
+        </member>
+        <member name="T:MelloSilveiraTools.Core.Pipelines.Notifiers.IPipelineProgressNotifier">
+            <summary>
+            Defines an asynchronous contract for emitting real-time <see cref="T:MelloSilveiraTools.Core.Pipelines.Models.PipelineProgressEvent"/> notifications
+            to in-memory streams (e.g., <see cref="T:MelloSilveiraTools.Core.Pipelines.Notifiers.ChannelPipelineProgressNotifier"/>) or external message brokers.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Pipelines.Notifiers.IPipelineProgressNotifier.NotifyAsync(MelloSilveiraTools.Core.Pipelines.Models.PipelineProgressEvent,System.Threading.CancellationToken)">
+            <summary>
+            Publishes a pipeline execution progress event asynchronously.
+            </summary>
+            <param name="progressEvent">The immutable progress event payload.</param>
+            <param name="cancellationToken">Token to monitor for cancellation requests.</param>
+            <returns>A <see cref="T:System.Threading.Tasks.ValueTask"/> representing the asynchronous notification operation.</returns>
+        </member>
+        <member name="T:MelloSilveiraTools.Core.Pipelines.Notifiers.NullPipelineProgressNotifier">
+            <summary>
+            A no-op implementation of <see cref="T:MelloSilveiraTools.Core.Pipelines.Notifiers.IPipelineProgressNotifier"/> that discards all progress notifications with zero allocation.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Core.Pipelines.Notifiers.NullPipelineProgressNotifier.Instance">
+            <summary>
+            Gets the shared singleton instance of <see cref="T:MelloSilveiraTools.Core.Pipelines.Notifiers.NullPipelineProgressNotifier"/>.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Pipelines.Notifiers.NullPipelineProgressNotifier.NotifyAsync(MelloSilveiraTools.Core.Pipelines.Models.PipelineProgressEvent,System.Threading.CancellationToken)">
+            <inheritdoc/>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Pipelines.Notifiers.NullPipelineProgressNotifier.DisposeAsync">
+            <inheritdoc/>
+        </member>
         <member name="T:MelloSilveiraTools.Core.Pipelines.PipelineFactory">
             <summary>
             Serves as the primary static factory for bootstrapping execution topologies.
@@ -3768,18 +3843,23 @@
             and the strongly-typed pull-based Fluent request-response pipeline.
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.Core.Pipelines.PipelineFactory.StartDataflow``1(Microsoft.Extensions.Logging.ILogger,System.Int32,System.Nullable{MelloSilveiraTools.Core.Pipelines.Models.RetryOptions},System.Threading.CancellationToken,System.IProgress{MelloSilveiraTools.Core.Pipelines.Models.PipelineProgressEvent})">
+        <member name="M:MelloSilveiraTools.Core.Pipelines.PipelineFactory.StartDataflow``1(Microsoft.Extensions.Logging.ILogger,MelloSilveiraTools.Core.Pipelines.Notifiers.IPipelineProgressNotifier,System.Int32,System.Nullable{MelloSilveiraTools.Core.Pipelines.Models.RetryOptions},System.Threading.CancellationToken)">
             <summary>
             Bootstraps a continuous TPL Dataflow pipeline topology by instantiating a <see cref="T:System.Threading.Tasks.Dataflow.BufferBlock`1"/> 
             as the ingestion head. Enforces bounded capacity backpressure and injects the unified cancellation graph 
             that dictates the lifecycle of all subsequent blocks.
             </summary>
+            <remarks>
+            Architectural Decision: <paramref name="progressNotifier"/> is mandatory and non-nullable. Dependency Injection
+            determines whether a real-time notifier (<see cref="T:MelloSilveiraTools.Core.Pipelines.Notifiers.ChannelPipelineProgressNotifier"/>) or a zero-allocation
+            no-op (<see cref="T:MelloSilveiraTools.Core.Pipelines.Notifiers.NullPipelineProgressNotifier"/>) is injected.
+            </remarks>
             <typeparam name="T">The immutable payload type ingested at the pipeline head.</typeparam>
             <param name="logger">Structured logging provider for tracking block transitions and telemetry.</param>
+            <param name="progressNotifier">Progress notifier resolved via dependency injection for emitting real-time <see cref="T:MelloSilveiraTools.Core.Pipelines.Models.PipelineProgressEvent"/> notifications.</param>
             <param name="initialBufferSize">The maximum bounded capacity of the ingestion buffer block, defaulting to 10,000 items.</param>
             <param name="retryOptions">Optional retry configuration for asynchronous pipeline steps.</param>
             <param name="cancellationToken">The unified cancellation token propagated down the entire Dataflow network.</param>
-            <param name="progress">Optional progress reporter for emitting real-time <see cref="T:MelloSilveiraTools.Core.Pipelines.Models.PipelineProgressEvent"/> notifications.</param>
             <returns>A fluent builder instance anchored to the initial buffer head.</returns>
         </member>
         <member name="M:MelloSilveiraTools.Core.Pipelines.PipelineFactory.StartFluent``1">
@@ -3911,177 +3991,254 @@
             <param name="input">The immutable payload propagated from the preceding pipeline node.</param>
             <returns>The resultant output state produced by the synchronous execution.</returns>
         </member>
-        <member name="T:MelloSilveiraTools.Core.Pipelines.Telemetry.TelemetryConstants">
+        <member name="T:MelloSilveiraTools.Core.Pipelines.Telemetry.PipelineFlowNode">
             <summary>
-            Exposes the centralized ActivitySource for tracing pipeline execution topologies.
-            </summary>
-        </member>
-        <member name="T:MelloSilveiraTools.Core.Pipelines.Telemetry.TelemetryExtensions">
-            <summary>
-            Provides structured logging wrappers, ensuring consistent tracking of execution lifecycles, durations, and failures.
+            Represents a directional emission point in the pipeline DAG, tracking the immediate upstream
+            named steps and propagating item arrival notifications to downstream step trackers.
             </summary>
             <remarks>
-            Technical Decision: Enforces the <see cref="T:System.Diagnostics.StackTraceHiddenAttribute"/> across all methods to prevent these telemetry 
-            and retry wrapper frames from cluttering application exception stack traces, keeping debugging focused on the actual business logic.
+            Architectural Decision: Anonymous plumbing blocks (such as <c>AddDataMapping</c>, <c>AddFilterStep</c>,
+            <c>AddGroupWhileStep</c>, and <c>JoinBlock</c>) create new <see cref="T:MelloSilveiraTools.Core.Pipelines.Telemetry.PipelineFlowNode"/> instances that preserve
+            the <see cref="P:MelloSilveiraTools.Core.Pipelines.Telemetry.PipelineFlowNode.UpstreamStepNames"/> of the last named domain steps. This keeps the user-facing DAG topology clean
+            while accurately propagating real-time item arrival signals (<c>ReceivedItems</c>) across filters, batches, and forks.
             </remarks>
         </member>
-        <member name="M:MelloSilveiraTools.Core.Pipelines.Telemetry.TelemetryExtensions.HandleExecution``1(Microsoft.Extensions.Logging.ILogger,System.String,System.Action{``0},System.Threading.CancellationToken,System.IProgress{MelloSilveiraTools.Core.Pipelines.Models.PipelineProgressEvent})">
+        <member name="M:MelloSilveiraTools.Core.Pipelines.Telemetry.PipelineFlowNode.#ctor(System.Collections.Generic.IReadOnlyList{System.String})">
             <summary>
-            Wraps a synchronous action with OpenTelemetry tracing and structured logging, returning a new execution delegate.
+            Represents a directional emission point in the pipeline DAG, tracking the immediate upstream
+            named steps and propagating item arrival notifications to downstream step trackers.
             </summary>
             <remarks>
-            Technical Decision: Exceptions are allowed to bubble up naturally. This is intended for use in pipeline topologies without a configured Dead-Letter Queue (DLQ).
-            Limitation: Does not support retries. Attempting to retry a synchronous action would require thread-blocking operations, risking ThreadPool starvation.
+            Architectural Decision: Anonymous plumbing blocks (such as <c>AddDataMapping</c>, <c>AddFilterStep</c>,
+            <c>AddGroupWhileStep</c>, and <c>JoinBlock</c>) create new <see cref="T:MelloSilveiraTools.Core.Pipelines.Telemetry.PipelineFlowNode"/> instances that preserve
+            the <see cref="P:MelloSilveiraTools.Core.Pipelines.Telemetry.PipelineFlowNode.UpstreamStepNames"/> of the last named domain steps. This keeps the user-facing DAG topology clean
+            while accurately propagating real-time item arrival signals (<c>ReceivedItems</c>) across filters, batches, and forks.
             </remarks>
         </member>
-        <member name="M:MelloSilveiraTools.Core.Pipelines.Telemetry.TelemetryExtensions.HandleSafeExecution``1(Microsoft.Extensions.Logging.ILogger,System.String,System.Action{``0},System.Threading.CancellationToken,System.IProgress{MelloSilveiraTools.Core.Pipelines.Models.PipelineProgressEvent})">
+        <member name="P:MelloSilveiraTools.Core.Pipelines.Telemetry.PipelineFlowNode.UpstreamStepNames">
+            <summary>
+            Gets the names of the immediate upstream named steps feeding into this node.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Pipelines.Telemetry.PipelineFlowNode.Subscribe(System.Func{System.Threading.CancellationToken,System.Threading.Tasks.ValueTask})">
+            <summary>
+            Subscribes an asynchronous handler invoked whenever an item is emitted from this node.
+            </summary>
+            <param name="handler">The asynchronous callback triggered on each item emission.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Pipelines.Telemetry.PipelineFlowNode.NotifyItemEmittedAsync(System.Threading.CancellationToken)">
+            <summary>
+            Notifies all downstream subscribers that an item has been emitted from this node.
+            </summary>
+            <param name="cancellationToken">Cancellation token.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Pipelines.Telemetry.PipelineFlowNode.CreateJoined(System.Collections.Generic.IReadOnlyList{MelloSilveiraTools.Core.Pipelines.Telemetry.PipelineFlowNode})">
+            <summary>
+            Creates a converged flow node representing a TPL Dataflow <c>JoinBlock</c> across multiple parallel branches.
+            Emits a downstream item arrival notification each time all branches have emitted a matching tuple item.
+            </summary>
+            <param name="branchNodes">The terminal flow nodes of each parallel branch converging at the JoinBlock.</param>
+            <returns>A converged <see cref="T:MelloSilveiraTools.Core.Pipelines.Telemetry.PipelineFlowNode"/> whose upstream steps are the distinct union of all branches.</returns>
+        </member>
+        <member name="T:MelloSilveiraTools.Core.Pipelines.Telemetry.PipelineStepExecutor">
+            <summary>
+            Encapsulates pipeline step execution with OpenTelemetry distributed tracing, structured logging,
+            retry orchestration, and real-time <see cref="T:MelloSilveiraTools.Core.Pipelines.Notifiers.IPipelineProgressNotifier"/> lifecycle notifications.
+            </summary>
+            <remarks>
+            Architectural Decisions:
+            <list type="bullet">
+            <item><description><b>Stack Trace Cleanliness:</b> Enforces <see cref="T:System.Diagnostics.StackTraceHiddenAttribute"/> across the class so telemetry and retry wrapper frames do not clutter application exception stack traces.</description></item>
+            <item><description><b>Unified Execution Core:</b> Synchronous and asynchronous actions, transformations, conditional forks, and enumerable streams funnel through unified core routines (<c>ExecuteCoreAsync</c>, <c>SafeExecuteCoreAsync</c>, and <c>ExecuteStreamingAsync</c>) to eliminate duplicated telemetry, retry, and error-handling logic.</description></item>
+            <item><description><b>Dual Tracking Mode:</b> When invoked with a <see cref="T:MelloSilveiraTools.Core.Pipelines.Telemetry.PipelineStepTracker"/> (inside a TPL Dataflow DAG), lifecycle events and item counters are governed by the tracker; when invoked standalone by name, single-item <c>Started</c>/<c>Completed</c>/<c>Faulted</c> events are emitted directly.</description></item>
+            </list>
+            </remarks>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Pipelines.Telemetry.PipelineStepExecutor.HandleExecution``1(Microsoft.Extensions.Logging.ILogger,MelloSilveiraTools.Core.Pipelines.Notifiers.IPipelineProgressNotifier,System.String,System.Action{``0},System.Threading.CancellationToken)">
+            <summary>
+            Wraps a synchronous action with OpenTelemetry tracing, structured logging, and progress notifications.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Pipelines.Telemetry.PipelineStepExecutor.HandleSafeExecution``1(Microsoft.Extensions.Logging.ILogger,MelloSilveiraTools.Core.Pipelines.Notifiers.IPipelineProgressNotifier,System.String,System.Action{``0},System.Threading.CancellationToken)">
             <summary>
             Wraps a synchronous action, capturing exceptions into a <see cref="T:MelloSilveiraTools.Core.Pipelines.Models.SafeResult`1"/> envelope for centralized error routing.
             </summary>
-            <remarks>
-            Technical Decision: Dynamically replaces the native exception-throwing behavior to prevent block faults in TPL Dataflow, routing the failure to a DLQ branch instead.
-            </remarks>
         </member>
-        <member name="M:MelloSilveiraTools.Core.Pipelines.Telemetry.TelemetryExtensions.HandleExecution``1(Microsoft.Extensions.Logging.ILogger,System.String,System.Func{``0,System.Threading.CancellationToken,System.Threading.Tasks.Task},System.Nullable{MelloSilveiraTools.Core.Pipelines.Models.RetryOptions},System.Threading.CancellationToken,System.IProgress{MelloSilveiraTools.Core.Pipelines.Models.PipelineProgressEvent})">
+        <member name="M:MelloSilveiraTools.Core.Pipelines.Telemetry.PipelineStepExecutor.HandleExecution``1(Microsoft.Extensions.Logging.ILogger,MelloSilveiraTools.Core.Pipelines.Notifiers.IPipelineProgressNotifier,System.String,System.Func{``0,System.Threading.CancellationToken,System.Threading.Tasks.Task},System.Nullable{MelloSilveiraTools.Core.Pipelines.Models.RetryOptions},System.Threading.CancellationToken)">
             <summary>
-            Wraps an asynchronous action with OpenTelemetry tracing, structured logging, and optional exponential backoff.
+            Wraps an asynchronous action with OpenTelemetry tracing, structured logging, progress notifications, and optional exponential backoff.
             </summary>
-            <remarks>
-            Technical Decision: Leverages asynchronous delays (<see cref="M:System.Threading.Tasks.Task.Delay(System.Int32)"/>) to perform backoff retries without blocking the ThreadPool.
-            Limitation: Unrecoverable exceptions (post-retries) will fault the pipeline block since this method does not return a <see cref="T:MelloSilveiraTools.Core.Pipelines.Models.SafeResult`1"/>.
-            </remarks>
         </member>
-        <member name="M:MelloSilveiraTools.Core.Pipelines.Telemetry.TelemetryExtensions.HandleSafeExecution``1(Microsoft.Extensions.Logging.ILogger,System.String,System.Func{``0,System.Threading.CancellationToken,System.Threading.Tasks.Task},System.Nullable{MelloSilveiraTools.Core.Pipelines.Models.RetryOptions},System.Threading.CancellationToken,System.IProgress{MelloSilveiraTools.Core.Pipelines.Models.PipelineProgressEvent})">
+        <member name="M:MelloSilveiraTools.Core.Pipelines.Telemetry.PipelineStepExecutor.HandleSafeExecution``1(Microsoft.Extensions.Logging.ILogger,MelloSilveiraTools.Core.Pipelines.Notifiers.IPipelineProgressNotifier,System.String,System.Func{``0,System.Threading.CancellationToken,System.Threading.Tasks.Task},System.Nullable{MelloSilveiraTools.Core.Pipelines.Models.RetryOptions},System.Threading.CancellationToken)">
             <summary>
             Wraps an asynchronous action, combining exponential backoff with a <see cref="T:MelloSilveiraTools.Core.Pipelines.Models.SafeResult`1"/> envelope for terminal failures.
             </summary>
-            <remarks>
-            Technical Decision: Provides the highest degree of fault tolerance for terminal pipeline steps (sinks), attempting to heal transient issues first, and gracefully failing over to a DLQ if exhaustion occurs.
-            </remarks>
         </member>
-        <member name="M:MelloSilveiraTools.Core.Pipelines.Telemetry.TelemetryExtensions.HandleExecution``2(Microsoft.Extensions.Logging.ILogger,System.String,System.Func{``0,``1},System.Threading.CancellationToken,System.IProgress{MelloSilveiraTools.Core.Pipelines.Models.PipelineProgressEvent})">
+        <member name="M:MelloSilveiraTools.Core.Pipelines.Telemetry.PipelineStepExecutor.HandleExecution``2(Microsoft.Extensions.Logging.ILogger,MelloSilveiraTools.Core.Pipelines.Notifiers.IPipelineProgressNotifier,System.String,System.Func{``0,``1},System.Threading.CancellationToken)">
             <summary>
-            Wraps a synchronous mapping function with OpenTelemetry tracing and structured logging, returning the mapped output.
+            Wraps a synchronous mapping function with OpenTelemetry tracing, structured logging, and progress notifications, returning the mapped output.
             </summary>
-            <remarks>
-            Technical Decision: Elides async overhead entirely. Designed for pure CPU-bound mapping logic (e.g., entity to DTO translation).
-            </remarks>
         </member>
-        <member name="M:MelloSilveiraTools.Core.Pipelines.Telemetry.TelemetryExtensions.HandleSafeExecution``2(Microsoft.Extensions.Logging.ILogger,System.String,System.Func{``0,``1},System.Threading.CancellationToken,System.IProgress{MelloSilveiraTools.Core.Pipelines.Models.PipelineProgressEvent})">
+        <member name="M:MelloSilveiraTools.Core.Pipelines.Telemetry.PipelineStepExecutor.HandleSafeExecution``2(Microsoft.Extensions.Logging.ILogger,MelloSilveiraTools.Core.Pipelines.Notifiers.IPipelineProgressNotifier,System.String,System.Func{``0,``1},System.Threading.CancellationToken)">
             <summary>
             Wraps a synchronous mapping function, intercepting failures into a <see cref="T:MelloSilveiraTools.Core.Pipelines.Models.SafeResult`2"/> to permit DLQ offloading.
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.Core.Pipelines.Telemetry.TelemetryExtensions.HandleExecution``2(Microsoft.Extensions.Logging.ILogger,System.String,System.Func{``0,System.Threading.CancellationToken,System.Threading.Tasks.Task{``1}},System.Nullable{MelloSilveiraTools.Core.Pipelines.Models.RetryOptions},System.Threading.CancellationToken,System.IProgress{MelloSilveiraTools.Core.Pipelines.Models.PipelineProgressEvent})">
+        <member name="M:MelloSilveiraTools.Core.Pipelines.Telemetry.PipelineStepExecutor.HandleExecution``2(Microsoft.Extensions.Logging.ILogger,MelloSilveiraTools.Core.Pipelines.Notifiers.IPipelineProgressNotifier,System.String,System.Func{``0,System.Threading.CancellationToken,System.Threading.Tasks.Task{``1}},System.Nullable{MelloSilveiraTools.Core.Pipelines.Models.RetryOptions},System.Threading.CancellationToken)">
             <summary>
             Wraps an asynchronous mapping function with support for optional retry logic (exponential backoff) and telemetry tracking.
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.Core.Pipelines.Telemetry.TelemetryExtensions.HandleSafeExecution``2(Microsoft.Extensions.Logging.ILogger,System.String,System.Func{``0,System.Threading.CancellationToken,System.Threading.Tasks.Task{``1}},System.Nullable{MelloSilveiraTools.Core.Pipelines.Models.RetryOptions},System.Threading.CancellationToken,System.IProgress{MelloSilveiraTools.Core.Pipelines.Models.PipelineProgressEvent})">
+        <member name="M:MelloSilveiraTools.Core.Pipelines.Telemetry.PipelineStepExecutor.HandleSafeExecution``2(Microsoft.Extensions.Logging.ILogger,MelloSilveiraTools.Core.Pipelines.Notifiers.IPipelineProgressNotifier,System.String,System.Func{``0,System.Threading.CancellationToken,System.Threading.Tasks.Task{``1}},System.Nullable{MelloSilveiraTools.Core.Pipelines.Models.RetryOptions},System.Threading.CancellationToken)">
             <summary>
             Wraps an asynchronous mapping function, catching ultimate backoff failures into a bifurcated <see cref="T:MelloSilveiraTools.Core.Pipelines.Models.SafeResult`2"/>.
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.Core.Pipelines.Telemetry.TelemetryExtensions.HandleExecution``2(Microsoft.Extensions.Logging.ILogger,System.String,System.String,System.Func{``0,System.Threading.CancellationToken,System.Threading.Tasks.Task{``1}},System.Func{``0,System.Boolean},System.Func{``0,System.Threading.CancellationToken,System.Threading.Tasks.Task{``1}},System.Nullable{MelloSilveiraTools.Core.Pipelines.Models.RetryOptions},System.Threading.CancellationToken,System.IProgress{MelloSilveiraTools.Core.Pipelines.Models.PipelineProgressEvent})">
-            <summary>
-            Wraps a conditional forking operation evaluating the input payload prior to execution.
-            </summary>
-            <remarks>
-            Technical Decision: Pre-execution evaluation prevents unnecessary I/O allocation on the primary branch if the short-circuit condition is met.
-            Limitation: The condition must be synchronous. If asynchronous validation is required before branching, this pattern must be adapted.
-            </remarks>
-        </member>
-        <member name="M:MelloSilveiraTools.Core.Pipelines.Telemetry.TelemetryExtensions.HandleSafeExecution``2(Microsoft.Extensions.Logging.ILogger,System.String,System.String,System.Func{``0,System.Threading.CancellationToken,System.Threading.Tasks.Task{``1}},System.Func{``0,System.Boolean},System.Func{``0,System.Threading.CancellationToken,System.Threading.Tasks.Task{``1}},System.Nullable{MelloSilveiraTools.Core.Pipelines.Models.RetryOptions},System.Threading.CancellationToken,System.IProgress{MelloSilveiraTools.Core.Pipelines.Models.PipelineProgressEvent})">
-            <summary>
-            Wraps a conditional forking operation evaluating the input payload, utilizing a <see cref="T:MelloSilveiraTools.Core.Pipelines.Models.SafeResult`2"/> to catch execution failures on either branch.
-            </summary>
-        </member>
-        <member name="M:MelloSilveiraTools.Core.Pipelines.Telemetry.TelemetryExtensions.HandleExecution``2(Microsoft.Extensions.Logging.ILogger,System.String,System.String,System.Func{``0,System.Threading.CancellationToken,System.Threading.Tasks.Task{``1}},System.Func{``1,System.Boolean},System.Func{``0,System.Threading.CancellationToken,System.Threading.Tasks.Task{``1}},System.Nullable{MelloSilveiraTools.Core.Pipelines.Models.RetryOptions},System.Threading.CancellationToken,System.IProgress{MelloSilveiraTools.Core.Pipelines.Models.PipelineProgressEvent})">
-            <summary>
-            Wraps a conditional forking operation evaluating the output payload after the primary execution completes.
-            </summary>
-            <remarks>
-            Limitation: If the primary execution applies external side effects (like updating a database) before returning its result, triggering this fallback will *not* roll back those side effects automatically.
-            </remarks>
-        </member>
-        <member name="M:MelloSilveiraTools.Core.Pipelines.Telemetry.TelemetryExtensions.HandleSafeExecution``2(Microsoft.Extensions.Logging.ILogger,System.String,System.String,System.Func{``0,``1},System.Func{MelloSilveiraTools.Core.Pipelines.Models.SafeResult{``0,``1},System.Boolean},System.Func{``0,``1},System.Threading.CancellationToken,System.IProgress{MelloSilveiraTools.Core.Pipelines.Models.PipelineProgressEvent})">
-            <summary>
-            Wraps a post-execution conditional forking operation, evaluating against the <see cref="T:MelloSilveiraTools.Core.Pipelines.Models.SafeResult`2"/> state.
-            </summary>
-            <remarks>
-            Technical Decision: Passing the entire <c>SafeResult</c> to the <paramref name="fallbackCondition"/> allows the condition to evaluate both successfully mapped outputs and handled faults to determine routing logic.
-            </remarks>
-        </member>
-        <member name="M:MelloSilveiraTools.Core.Pipelines.Telemetry.TelemetryExtensions.HandleExecution``2(Microsoft.Extensions.Logging.ILogger,System.String,System.String,System.Func{``0,``1},System.Func{``1,System.Boolean},System.Func{``0,``1},System.Threading.CancellationToken,System.IProgress{MelloSilveiraTools.Core.Pipelines.Models.PipelineProgressEvent})">
+        <member name="M:MelloSilveiraTools.Core.Pipelines.Telemetry.PipelineStepExecutor.HandleExecution``2(Microsoft.Extensions.Logging.ILogger,MelloSilveiraTools.Core.Pipelines.Notifiers.IPipelineProgressNotifier,System.String,System.String,System.Func{``0,``1},System.Func{``1,System.Boolean},System.Func{``0,``1},System.Threading.CancellationToken)">
             <summary>
             Wraps a synchronous conditional forking operation evaluating the output payload after the primary execution completes.
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.Core.Pipelines.Telemetry.TelemetryExtensions.HandleSafeExecution``2(Microsoft.Extensions.Logging.ILogger,System.String,System.String,System.Func{``0,System.Threading.CancellationToken,System.Threading.Tasks.Task{``1}},System.Func{MelloSilveiraTools.Core.Pipelines.Models.SafeResult{``0,``1},System.Boolean},System.Func{``0,System.Threading.CancellationToken,System.Threading.Tasks.Task{``1}},System.Nullable{MelloSilveiraTools.Core.Pipelines.Models.RetryOptions},System.Threading.CancellationToken,System.IProgress{MelloSilveiraTools.Core.Pipelines.Models.PipelineProgressEvent})">
+        <member name="M:MelloSilveiraTools.Core.Pipelines.Telemetry.PipelineStepExecutor.HandleSafeExecution``2(Microsoft.Extensions.Logging.ILogger,MelloSilveiraTools.Core.Pipelines.Notifiers.IPipelineProgressNotifier,System.String,System.String,System.Func{``0,``1},System.Func{MelloSilveiraTools.Core.Pipelines.Models.SafeResult{``0,``1},System.Boolean},System.Func{``0,``1},System.Threading.CancellationToken)">
             <summary>
-            Wraps a post-execution conditional forking operation, evaluating against the <see cref="T:MelloSilveiraTools.Core.Pipelines.Models.SafeResult`2"/> state.
+            Wraps a synchronous post-execution conditional forking operation, evaluating against the <see cref="T:MelloSilveiraTools.Core.Pipelines.Models.SafeResult`2"/> state.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Pipelines.Telemetry.PipelineStepExecutor.HandleExecution``2(Microsoft.Extensions.Logging.ILogger,MelloSilveiraTools.Core.Pipelines.Notifiers.IPipelineProgressNotifier,System.String,System.String,System.Func{``0,System.Threading.CancellationToken,System.Threading.Tasks.Task{``1}},System.Func{``1,System.Boolean},System.Func{``0,System.Threading.CancellationToken,System.Threading.Tasks.Task{``1}},System.Nullable{MelloSilveiraTools.Core.Pipelines.Models.RetryOptions},System.Threading.CancellationToken)">
+            <summary>
+            Wraps an asynchronous conditional forking operation evaluating the output payload after the primary execution completes.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Pipelines.Telemetry.PipelineStepExecutor.HandleSafeExecution``2(Microsoft.Extensions.Logging.ILogger,MelloSilveiraTools.Core.Pipelines.Notifiers.IPipelineProgressNotifier,System.String,System.String,System.Func{``0,System.Threading.CancellationToken,System.Threading.Tasks.Task{``1}},System.Func{MelloSilveiraTools.Core.Pipelines.Models.SafeResult{``0,``1},System.Boolean},System.Func{``0,System.Threading.CancellationToken,System.Threading.Tasks.Task{``1}},System.Nullable{MelloSilveiraTools.Core.Pipelines.Models.RetryOptions},System.Threading.CancellationToken)">
+            <summary>
+            Wraps an asynchronous post-execution conditional forking operation, evaluating against the <see cref="T:MelloSilveiraTools.Core.Pipelines.Models.SafeResult`2"/> state.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Pipelines.Telemetry.PipelineStepExecutor.HandleExecution``2(Microsoft.Extensions.Logging.ILogger,MelloSilveiraTools.Core.Pipelines.Notifiers.IPipelineProgressNotifier,System.String,System.Func{``0,System.Threading.CancellationToken,System.Collections.Generic.IAsyncEnumerable{``1}},System.Threading.CancellationToken)">
+            <summary>
+            Wraps a streaming function returning an <see cref="T:System.Collections.Generic.IAsyncEnumerable`1"/> with OpenTelemetry tracing, structured logging, and progress notifications.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Pipelines.Telemetry.PipelineStepExecutor.HandleSafeExecution``2(Microsoft.Extensions.Logging.ILogger,MelloSilveiraTools.Core.Pipelines.Notifiers.IPipelineProgressNotifier,System.String,System.Func{``0,System.Threading.CancellationToken,System.Collections.Generic.IAsyncEnumerable{``1}},System.Threading.CancellationToken)">
+            <summary>
+            Wraps a streaming function returning an <see cref="T:System.Collections.Generic.IAsyncEnumerable`1"/> with OpenTelemetry tracing, structured logging, progress notifications, and safe DLQ routing.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Pipelines.Telemetry.PipelineStepExecutor.HandleExecution``2(Microsoft.Extensions.Logging.ILogger,MelloSilveiraTools.Core.Pipelines.Notifiers.IPipelineProgressNotifier,System.String,System.Func{``0,System.Threading.CancellationToken,System.Collections.Generic.IEnumerable{``1}},System.Threading.CancellationToken)">
+            <summary>
+            Wraps an enumerable transformation function returning an <see cref="T:System.Collections.Generic.IEnumerable`1"/> with OpenTelemetry tracing, structured logging, and progress notifications.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Pipelines.Telemetry.PipelineStepExecutor.HandleSafeExecution``2(Microsoft.Extensions.Logging.ILogger,MelloSilveiraTools.Core.Pipelines.Notifiers.IPipelineProgressNotifier,System.String,System.Func{``0,System.Threading.CancellationToken,System.Collections.Generic.IEnumerable{``1}},System.Threading.CancellationToken)">
+            <summary>
+            Wraps an enumerable transformation function returning an <see cref="T:System.Collections.Generic.IEnumerable`1"/> with OpenTelemetry tracing, structured logging, progress notifications, and safe DLQ routing.
+            </summary>
+        </member>
+        <member name="T:MelloSilveiraTools.Core.Pipelines.Telemetry.PipelineStepTracker">
+            <summary>
+            Tracks the execution lifecycle, DAG topology relationships, and item counters (received vs. processed)
+            for a single logical step across a TPL Dataflow pipeline.
             </summary>
             <remarks>
-            Technical Decision: Passing the entire <c>SafeResult</c> to the <paramref name="fallbackCondition"/> allows the condition to evaluate both successfully mapped outputs and handled faults to determine routing logic.
+            Architectural Decisions:
+            <list type="bullet">
+            <item><description><b>Step-Level Lifecycle:</b> Emits <see cref="F:MelloSilveiraTools.Core.Pipelines.Models.PipelineStepState.Started"/> once when the first item begins execution and <see cref="F:MelloSilveiraTools.Core.Pipelines.Models.PipelineStepState.Completed"/> once when the underlying TPL Dataflow block drains all items (<c>block.Completion</c>), rather than falsely marking a step as completed after each individual item.</description></item>
+            <item><description><b>Lock-Free Concurrency:</b> Uses <see cref="T:System.Threading.Interlocked"/> and <see cref="T:System.Threading.Volatile"/> operations so steps configured with <c>MaxDegreeOfParallelism &gt; 1</c> can update counters without lock contention.</description></item>
+            <item><description><b>Adaptive Throttling:</b> Emits item updates for every item up to <c>50</c> items (and whenever <c>ProcessedItems == ReceivedItems</c>) to provide immediate visual feedback on low-volume steps, then throttles to every <c>500</c> items on high-frequency streams to avoid flooding NDJSON/SSE channels.</description></item>
+            </list>
             </remarks>
         </member>
-        <member name="M:MelloSilveiraTools.Core.Pipelines.Telemetry.TelemetryExtensions.HandleExecution``2(Microsoft.Extensions.Logging.ILogger,System.String,System.Func{``0,System.Threading.CancellationToken,System.Collections.Generic.IAsyncEnumerable{``1}},System.Threading.CancellationToken,System.IProgress{MelloSilveiraTools.Core.Pipelines.Models.PipelineProgressEvent})">
+        <member name="M:MelloSilveiraTools.Core.Pipelines.Telemetry.PipelineStepTracker.#ctor(Microsoft.Extensions.Logging.ILogger,MelloSilveiraTools.Core.Pipelines.Notifiers.IPipelineProgressNotifier,System.String,System.Collections.Generic.IReadOnlyList{System.String})">
             <summary>
-            Wraps a streaming function returning an <see cref="T:System.Collections.Generic.IAsyncEnumerable`1"/> with OpenTelemetry tracing and structured logging.
-            </summary>
-        </member>
-        <member name="M:MelloSilveiraTools.Core.Pipelines.Telemetry.TelemetryExtensions.HandleSafeExecution``2(Microsoft.Extensions.Logging.ILogger,System.String,System.Func{``0,System.Threading.CancellationToken,System.Collections.Generic.IAsyncEnumerable{``1}},System.Threading.CancellationToken,System.IProgress{MelloSilveiraTools.Core.Pipelines.Models.PipelineProgressEvent})">
-            <summary>
-            Wraps a streaming function returning an <see cref="T:System.Collections.Generic.IAsyncEnumerable`1"/> with OpenTelemetry tracing and structured logging.
-            </summary>
-        </member>
-        <member name="M:MelloSilveiraTools.Core.Pipelines.Telemetry.TelemetryExtensions.HandleExecution``2(Microsoft.Extensions.Logging.ILogger,System.String,System.Func{``0,System.Threading.CancellationToken,System.Collections.Generic.IEnumerable{``1}},System.Threading.CancellationToken,System.IProgress{MelloSilveiraTools.Core.Pipelines.Models.PipelineProgressEvent})">
-            <summary>
-            Wraps an enumerable transformation function returning an <see cref="T:System.Collections.Generic.IEnumerable`1"/> with OpenTelemetry tracing and structured logging.
-            </summary>
-        </member>
-        <member name="M:MelloSilveiraTools.Core.Pipelines.Telemetry.TelemetryExtensions.HandleSafeExecution``2(Microsoft.Extensions.Logging.ILogger,System.String,System.Func{``0,System.Threading.CancellationToken,System.Collections.Generic.IEnumerable{``1}},System.Threading.CancellationToken,System.IProgress{MelloSilveiraTools.Core.Pipelines.Models.PipelineProgressEvent})">
-            <summary>
-            Wraps an enumerable transformation function returning an <see cref="T:System.Collections.Generic.IEnumerable`1"/> with OpenTelemetry tracing, structured logging, and safe DLQ routing.
-            </summary>
-        </member>
-        <member name="M:MelloSilveiraTools.Core.Pipelines.Telemetry.TelemetryExtensions.ExecuteAsync``2(Microsoft.Extensions.Logging.ILogger,System.Diagnostics.Activity,``0,System.String,System.Func{``0,System.Threading.CancellationToken,System.Threading.Tasks.Task{``1}},System.Nullable{MelloSilveiraTools.Core.Pipelines.Models.RetryOptions},System.Threading.CancellationToken,System.IProgress{MelloSilveiraTools.Core.Pipelines.Models.PipelineProgressEvent})">
-            <summary>
-            Encapsulates the core asynchronous execution loop with exponential backoff logic.
-            </summary>
-        </member>
-        <member name="M:MelloSilveiraTools.Core.Pipelines.Telemetry.TelemetryExtensions.SafeExecuteAsync``2(Microsoft.Extensions.Logging.ILogger,System.Diagnostics.Activity,``0,System.String,System.Func{``0,System.Threading.CancellationToken,System.Threading.Tasks.Task{``1}},System.Nullable{MelloSilveiraTools.Core.Pipelines.Models.RetryOptions},System.Threading.CancellationToken,System.IProgress{MelloSilveiraTools.Core.Pipelines.Models.PipelineProgressEvent})">
-            <summary>
-            Encapsulates the core asynchronous execution loop, returning a <see cref="T:MelloSilveiraTools.Core.Pipelines.Models.SafeResult`2"/> upon failure exhaustion.
-            </summary>
-        </member>
-        <member name="M:MelloSilveiraTools.Core.Pipelines.Telemetry.TelemetryExtensions.StartTelemetry(Microsoft.Extensions.Logging.ILogger,System.Diagnostics.Activity,System.String,System.IProgress{MelloSilveiraTools.Core.Pipelines.Models.PipelineProgressEvent})">
-            <summary>
-            Initializes telemetry tags and logs the start of a pipeline execution step.
-            </summary>
-        </member>
-        <member name="M:MelloSilveiraTools.Core.Pipelines.Telemetry.TelemetryExtensions.LogAndTrackStepCompletion(Microsoft.Extensions.Logging.ILogger,System.Diagnostics.Activity,System.DateTimeOffset,System.String,System.IProgress{MelloSilveiraTools.Core.Pipelines.Models.PipelineProgressEvent},System.String)">
-            <summary>
-            Finalizes a successful execution step, updating the span status to Ok and logging the total duration.
-            </summary>
-        </member>
-        <member name="M:MelloSilveiraTools.Core.Pipelines.Telemetry.TelemetryExtensions.LogAndTrackStepFailure(Microsoft.Extensions.Logging.ILogger,System.Diagnostics.Activity,System.DateTimeOffset,System.String,System.Exception,System.IProgress{MelloSilveiraTools.Core.Pipelines.Models.PipelineProgressEvent})">
-            <summary>
-            Finalizes a failed execution step, attaching the exception to the span, updating status to Error, and logging the fault.
-            </summary>
-        </member>
-        <member name="M:MelloSilveiraTools.Core.Pipelines.Telemetry.TelemetryExtensions.LogFallbackConditionMet(Microsoft.Extensions.Logging.ILogger,System.String,System.String)">
-            <summary>
-            Standardized log event indicating that short-circuit or fallback conditions have been met.
-            </summary>
-        </member>
-        <member name="M:MelloSilveiraTools.Core.Pipelines.Telemetry.TelemetryExtensions.HandleRetryAsync(Microsoft.Extensions.Logging.ILogger,System.Diagnostics.Activity,System.String,System.Exception,System.Int32,System.Int32,System.DateTimeOffset,System.Nullable{MelloSilveiraTools.Core.Pipelines.Models.RetryOptions},System.Threading.CancellationToken,System.IProgress{MelloSilveiraTools.Core.Pipelines.Models.PipelineProgressEvent})">
-            <summary>
-            Evaluates backoff conditions, applies Task delays for valid retries, or returns a terminal state if limits are reached.
+            Tracks the execution lifecycle, DAG topology relationships, and item counters (received vs. processed)
+            for a single logical step across a TPL Dataflow pipeline.
             </summary>
             <remarks>
-            Technical Decision: Extracted into a distinct helper to keep the execution loops clean and testable, unifying the retry calculation logic across both Safe and Unsafe async patterns.
+            Architectural Decisions:
+            <list type="bullet">
+            <item><description><b>Step-Level Lifecycle:</b> Emits <see cref="F:MelloSilveiraTools.Core.Pipelines.Models.PipelineStepState.Started"/> once when the first item begins execution and <see cref="F:MelloSilveiraTools.Core.Pipelines.Models.PipelineStepState.Completed"/> once when the underlying TPL Dataflow block drains all items (<c>block.Completion</c>), rather than falsely marking a step as completed after each individual item.</description></item>
+            <item><description><b>Lock-Free Concurrency:</b> Uses <see cref="T:System.Threading.Interlocked"/> and <see cref="T:System.Threading.Volatile"/> operations so steps configured with <c>MaxDegreeOfParallelism &gt; 1</c> can update counters without lock contention.</description></item>
+            <item><description><b>Adaptive Throttling:</b> Emits item updates for every item up to <c>50</c> items (and whenever <c>ProcessedItems == ReceivedItems</c>) to provide immediate visual feedback on low-volume steps, then throttles to every <c>500</c> items on high-frequency streams to avoid flooding NDJSON/SSE channels.</description></item>
+            </list>
             </remarks>
+        </member>
+        <member name="P:MelloSilveiraTools.Core.Pipelines.Telemetry.PipelineStepTracker.StepName">
+            <summary>
+            Gets the logical name of the pipeline step.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Core.Pipelines.Telemetry.PipelineStepTracker.TelemetryName">
+            <summary>
+            Gets the OpenTelemetry span name prefixed with <c>Pipeline.Step.</c>.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Core.Pipelines.Telemetry.PipelineStepTracker.UpstreamSteps">
+            <summary>
+            Gets the names of the immediate upstream steps feeding into this step.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Core.Pipelines.Telemetry.PipelineStepTracker.OutputNode">
+            <summary>
+            Gets the output flow node representing items emitted by this step to downstream consumers.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Pipelines.Telemetry.PipelineStepTracker.NotifyPendingAsync(System.Threading.CancellationToken)">
+            <summary>
+            Emits the initial <see cref="F:MelloSilveiraTools.Core.Pipelines.Models.PipelineStepState.Pending"/> notification so consumers can construct the full DAG topology upfront.
+            </summary>
+            <param name="cancellationToken">Cancellation token.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Pipelines.Telemetry.PipelineStepTracker.OnItemReceivedAsync(System.Threading.CancellationToken)">
+            <summary>
+            Increments the count of items queued into this step from upstream and emits a progress update if within notification thresholds.
+            </summary>
+            <param name="cancellationToken">Cancellation token.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Pipelines.Telemetry.PipelineStepTracker.OnItemStartedAsync(System.Threading.CancellationToken)">
+            <summary>
+            Records that the step has started processing an item. Emits <see cref="F:MelloSilveiraTools.Core.Pipelines.Models.PipelineStepState.Started"/> on the first item only.
+            </summary>
+            <param name="cancellationToken">Cancellation token.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Pipelines.Telemetry.PipelineStepTracker.OnItemEmittedAsync(System.Threading.CancellationToken)">
+            <summary>
+            Notifies downstream trackers that this step has emitted an output item.
+            </summary>
+            <param name="cancellationToken">Cancellation token.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Pipelines.Telemetry.PipelineStepTracker.OnItemProcessedAsync(System.String,System.Threading.CancellationToken)">
+            <summary>
+            Records that a single input item has been completely processed by this step and emits <see cref="F:MelloSilveiraTools.Core.Pipelines.Models.PipelineStepState.Running"/>.
+            </summary>
+            <param name="details">Optional contextual details.</param>
+            <param name="cancellationToken">Cancellation token.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Pipelines.Telemetry.PipelineStepTracker.OnStreamingProgressAsync(System.Int32,System.Threading.CancellationToken)">
+            <summary>
+            Emits a periodic <see cref="F:MelloSilveiraTools.Core.Pipelines.Models.PipelineStepState.Running"/> notification while streaming items from a single input.
+            </summary>
+            <param name="emittedCount">The number of items emitted so far by the streaming step.</param>
+            <param name="cancellationToken">Cancellation token.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Pipelines.Telemetry.PipelineStepTracker.OnStepFaultedAsync(System.DateTimeOffset,System.Exception,System.Threading.CancellationToken)">
+            <summary>
+            Records that the step encountered an unhandled exception and emits <see cref="F:MelloSilveiraTools.Core.Pipelines.Models.PipelineStepState.Faulted"/>.
+            </summary>
+            <param name="itemStartTime">The timestamp when the failing item started executing.</param>
+            <param name="ex">The unhandled exception.</param>
+            <param name="cancellationToken">Cancellation token.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Pipelines.Telemetry.PipelineStepTracker.OnBlockCompletedAsync(System.Threading.CancellationToken)">
+            <summary>
+            Records that the underlying TPL Dataflow block has drained all items and completed execution,
+            emitting a single <see cref="F:MelloSilveiraTools.Core.Pipelines.Models.PipelineStepState.Completed"/> notification with 100% progress.
+            </summary>
+            <param name="cancellationToken">Cancellation token.</param>
+        </member>
+        <member name="T:MelloSilveiraTools.Core.Pipelines.Telemetry.TelemetryConstants">
+            <summary>
+            Exposes the centralized ActivitySource for tracing pipeline execution topologies.
+            </summary>
         </member>
         <member name="T:MelloSilveiraTools.Core.Providers.Dynamics.IDynamicServiceProvider">
             <summary>

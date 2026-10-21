@@ -1,6 +1,7 @@
 using MelloSilveiraTools.Core.Pipelines;
 using MelloSilveiraTools.Core.Pipelines.Dataflow;
 using MelloSilveiraTools.Core.Pipelines.Models;
+using MelloSilveiraTools.Core.Pipelines.Notifiers;
 using MelloSilveiraTools.Core.Pipelines.Steps;
 using Microsoft.Extensions.Logging;
 using Moq;
@@ -10,6 +11,7 @@ namespace UnitTests.Core.Pipelines.Dataflow;
 public class EnumerablePipelineStepTests
 {
     private readonly ILogger _logger = Mock.Of<ILogger>();
+    private readonly IPipelineProgressNotifier _progressNotifier = NullPipelineProgressNotifier.Instance;
 
     private sealed class SampleExpansionStep(int count) : IEnumerablePipelineStep<int, int>
     {
@@ -55,7 +57,7 @@ public class EnumerablePipelineStepTests
         List<int> results = [];
         SampleExpansionStep step = new(3);
 
-        await using IDataflowPipeline<int> pipeline = PipelineFactory.StartDataflow<int>(_logger)
+        await using IDataflowPipeline<int> pipeline = PipelineFactory.StartDataflow<int>(_logger, _progressNotifier)
             .AddStep(step)
             .BuildTerminal("Collector", results.Add);
 
@@ -76,7 +78,7 @@ public class EnumerablePipelineStepTests
         // Arrange
         SampleExpansionStep step = new(2);
 
-        IDataflowPipeline<int> pipeline = PipelineFactory.StartDataflow<int>(_logger)
+        IDataflowPipeline<int> pipeline = PipelineFactory.StartDataflow<int>(_logger, _progressNotifier)
             .AddStep(step)
             .BuildTerminal("Collector", _ => { });
 
@@ -95,7 +97,7 @@ public class EnumerablePipelineStepTests
         List<FailedPayload> failedPayloads = [];
         FaultingExpansionStep step = new();
 
-        await using IDataflowPipeline<int> pipeline = PipelineFactory.StartDataflow<int>(_logger)
+        await using IDataflowPipeline<int> pipeline = PipelineFactory.StartDataflow<int>(_logger, _progressNotifier)
             .WithDeadLetterQueue(failedPayloads.Add)
             .AddStep(step)
             .BuildTerminal("Collector", successResults.Add);
@@ -123,7 +125,7 @@ public class EnumerablePipelineStepTests
         SampleExpansionStep step1 = new(1);
         SampleExpansionStep step2 = new(1);
 
-        await using IDataflowPipeline<int> pipeline = PipelineFactory.StartDataflow<int>(_logger)
+        await using IDataflowPipeline<int> pipeline = PipelineFactory.StartDataflow<int>(_logger, _progressNotifier)
             .Fork(step1, step2)
             .BuildTerminal("ConvergenceCollector", convergedResults.Add);
 
