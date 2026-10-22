@@ -62,7 +62,8 @@ public sealed class PluginOrchestratorAcceptanceTests
                 scopeFactory,
                 fileProcessor,
                 cache,
-                fixture.Settings);
+                fixture.Settings,
+                TimeProvider.System);
 
             // Act: execute an orchestrator inspection pass
             await InvokeInspectPassAsync(orchestrator);
@@ -120,7 +121,8 @@ public sealed class PluginOrchestratorAcceptanceTests
                 scopeFactory,
                 fileProcessor,
                 cache,
-                fixture.Settings);
+                fixture.Settings,
+                TimeProvider.System);
 
             // Act
             await InvokeInspectPassAsync(orchestrator);
@@ -172,7 +174,8 @@ public sealed class PluginOrchestratorAcceptanceTests
                 scopeFactory,
                 fileProcessor,
                 cache,
-                fixture.Settings);
+                fixture.Settings,
+                TimeProvider.System);
 
             // Act
             await InvokeInspectPassAsync(orchestrator);

@@ -34,7 +34,7 @@ public sealed class AwsS3FileStorageServiceTests : IDisposable
         Directory.CreateDirectory(_testStagingDirectory);
 
         _s3ClientMock = new Mock<IAmazonS3>();
-        _defaultStorage = new LocalFileStorageService(new LocalFileStorageSettings { BaseDirectory = _testStagingDirectory });
+        _defaultStorage = new LocalFileStorageService(new LocalFileStorageSettings { BaseDirectory = _testStagingDirectory }, TimeProvider.System);
         _resiliencePipeline = new AwsS3ResiliencePipeline(
             NullLogger<AwsS3ResiliencePipeline>.Instance,
             new ResiliencePipelineSettings
@@ -57,7 +57,8 @@ public sealed class AwsS3FileStorageServiceTests : IDisposable
             _defaultStorage,
             _s3ClientMock.Object,
             _settings,
-            _resiliencePipeline);
+            _resiliencePipeline,
+            TimeProvider.System);
     }
 
     public void Dispose()

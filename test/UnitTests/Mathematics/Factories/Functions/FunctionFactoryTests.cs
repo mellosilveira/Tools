@@ -14,7 +14,6 @@ public class FunctionFactoryTests
     [InlineData(FunctionType.Cosine, typeof(CosineFunction))]
     [InlineData(FunctionType.PowerLaw, typeof(PowerLaw))]
     [InlineData(FunctionType.Logarithmic, typeof(LogarithmicFunction))]
-    [InlineData(FunctionType.ExponentialIntegral, typeof(ExponentialIntegralFunction))]
     public void Create_ShouldReturnCorrectFunctionType(FunctionType functionType, Type expectedType)
     {
         FunctionFactory factory = new();

@@ -54,7 +54,7 @@ public sealed class PluginServiceTests
             _persistenceMock.Object,
             _dynamicProviderMock.Object,
             new PluginFileProcessor(NullLogger<PluginFileProcessor>.Instance, _storageMock.Object, _cache, _settings),
-            new PluginAssemblyProcessor([], _storageMock.Object, _cache),
+            new PluginAssemblyProcessor([], _storageMock.Object, _cache, TimeProvider.System),
             _cache);
 
         PluginVersion version = new(1, 0, 0);
@@ -76,7 +76,7 @@ public sealed class PluginServiceTests
             _persistenceMock.Object,
             _dynamicProviderMock.Object,
             new PluginFileProcessor(NullLogger<PluginFileProcessor>.Instance, _storageMock.Object, _cache, _settings),
-            new PluginAssemblyProcessor([], _storageMock.Object, _cache),
+            new PluginAssemblyProcessor([], _storageMock.Object, _cache, TimeProvider.System),
             _cache);
 
         await service.PersistCacheAsync("PluginA", new PluginVersion(1, 0, 0));
@@ -98,7 +98,7 @@ public sealed class PluginServiceTests
             _persistenceMock.Object,
             _dynamicProviderMock.Object,
             new PluginFileProcessor(NullLogger<PluginFileProcessor>.Instance, _storageMock.Object, _cache, _settings),
-            new PluginAssemblyProcessor([], _storageMock.Object, _cache),
+            new PluginAssemblyProcessor([], _storageMock.Object, _cache, TimeProvider.System),
             _cache);
 
         await service.RestoreCacheAsync("PluginB", new PluginVersion(1, 0, 0));
@@ -151,7 +151,7 @@ public sealed class PluginServiceTests
         DummyTypeProcessor dummyProcessor = new();
 
         PluginFileProcessor fileProcessor = new(NullLogger<PluginFileProcessor>.Instance, _storageMock.Object, _cache, _settings);
-        PluginAssemblyProcessor assemblyProcessor = new([dummyProcessor], _storageMock.Object, _cache);
+        PluginAssemblyProcessor assemblyProcessor = new([dummyProcessor], _storageMock.Object, _cache, TimeProvider.System);
 
         PluginService service = new(
             _persistenceMock.Object,
@@ -212,7 +212,7 @@ public sealed class PluginServiceTests
         DummyTypeProcessor dummyProcessor = new();
 
         PluginFileProcessor fileProcessor = new(NullLogger<PluginFileProcessor>.Instance, _storageMock.Object, _cache, _settings);
-        PluginAssemblyProcessor assemblyProcessor = new([dummyProcessor], _storageMock.Object, _cache);
+        PluginAssemblyProcessor assemblyProcessor = new([dummyProcessor], _storageMock.Object, _cache, TimeProvider.System);
 
         PluginService service = new(
             _persistenceMock.Object,

@@ -16,7 +16,8 @@ public sealed class PluginOrchestratorBackgroundService(
     IServiceScopeFactory scopeFactory,
     PluginFileProcessor fileProcessor,
     PluginCache cache,
-    PluginSettings settings) : BackgroundService
+    PluginSettings settings,
+    TimeProvider timeProvider) : BackgroundService
 {
     /// <inheritdoc/>
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -95,7 +96,7 @@ public sealed class PluginOrchestratorBackgroundService(
             return;
 
         await EvictOlderVersionsAsync(discovered, cachedVersions, previousVersion: highestLoaded, cancellationToken).ConfigureAwait(false);
-        cachedVersions.Add(new CachedVersion(discovered.Version, DateTimeOffset.UtcNow));
+        cachedVersions.Add(new CachedVersion(discovered.Version, timeProvider.GetUtcNow()));
     }
 
     private async Task EvictOlderVersionsAsync(
@@ -104,7 +105,7 @@ public sealed class PluginOrchestratorBackgroundService(
         PluginVersion? previousVersion,
         CancellationToken cancellationToken)
     {
-        DateTimeOffset now = DateTimeOffset.UtcNow;
+        DateTimeOffset now = timeProvider.GetUtcNow();
         List<CachedVersion> versionsToRemove = [];
 
         foreach (CachedVersion cachedVersion in cachedVersions)

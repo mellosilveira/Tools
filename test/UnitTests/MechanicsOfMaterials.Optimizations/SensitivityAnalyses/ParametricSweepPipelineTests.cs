@@ -1,5 +1,8 @@
-using MelloSilveiraTools.Core.Managers.File;
+using MelloSilveiraTools.Core.Managers.File.Models;
+using MelloSilveiraTools.Core.Managers.File.Providers;
+using MelloSilveiraTools.Core.Managers.File.Providers.Local;
 using MelloSilveiraTools.Core.Models;
+using MelloSilveiraTools.Core.Pipelines.Notifiers;
 using MelloSilveiraTools.Core.Providers;
 using MelloSilveiraTools.Core.Providers.Dynamics;
 using MelloSilveiraTools.Database.RelationalDatabase.Models.Entities;
@@ -28,7 +31,7 @@ public sealed class ParametricSweepPipelineTests : IDisposable
     {
         _outputDirectory = Path.Combine(Path.GetTempPath(), "ParametricSweepPipelineTests_" + Guid.NewGuid().ToString("N"));
         Directory.CreateDirectory(_outputDirectory);
-        _fileStorageService = new LocalFileStorageService(new FileStorageSettings { BaseDirectory = _outputDirectory });
+        _fileStorageService = new LocalFileStorageService(new LocalFileStorageSettings { BaseDirectory = _outputDirectory }, TimeProvider.System);
     }
 
     public void Dispose()
@@ -80,20 +83,23 @@ public sealed class ParametricSweepPipelineTests : IDisposable
 
         ParametricSweepPipeline pipeline = new(
             NullLogger<ParametricSweepPipeline>.Instance,
+            NullPipelineProgressNotifier.Instance,
             factoryMock.Object,
             Mock.Of<IDifferentiation>(),
-            serviceLocator,
             _fileStorageService,
-            repositoryMock.Object);
+            repositoryMock.Object,
+            serviceLocator,
+            TimeProvider.System);
 
         FungConstitutiveParameters baseline = new(
             elasticStressConstant: 1000.0,
             elasticPowerConstant: 1.0,
             reducedRelaxationFunction: new ReducedRelaxationFunction(0.1, 0.01, 10.0));
 
+        string relaxationStiffnessName = nameof(FungConstitutiveParameters.ReducedRelaxationFunction.RelaxationStiffness);
         Dictionary<string, RangeParameters> constantVariables = new()
         {
-            ["c"] = new RangeParameters { InitialPoint = 0.05, FinalPoint = 0.15, Step = 0.05 }
+            [relaxationStiffnessName] = new RangeParameters { InitialPoint = 0.05, FinalPoint = 0.15, Step = 0.05 }
         };
 
         ParametricSweepInput input = new()
@@ -118,8 +124,8 @@ public sealed class ParametricSweepPipelineTests : IDisposable
         Assert.False(string.IsNullOrWhiteSpace(result.Data));
         string identifier = result.Data!;
 
-        string strainCsv = _fileStorageService.ResolvePath("SensitivityAnalysis", identifier, "Strain_SensitivityAnalysis.csv");
-        string cCsv = _fileStorageService.ResolvePath("SensitivityAnalysis", identifier, "c_SensitivityAnalysis.csv");
+        string strainCsv = (await _fileStorageService.GetMetadataAsync("SensitivityAnalysis", identifier, "Strain_SensitivityAnalysis.csv")).FullPath;
+        string cCsv = (await _fileStorageService.GetMetadataAsync("SensitivityAnalysis", identifier, $"{relaxationStiffnessName}_SensitivityAnalysis.csv")).FullPath;
 
         Assert.True(File.Exists(strainCsv), $"Expected file {strainCsv} to exist.");
         Assert.True(File.Exists(cCsv), $"Expected file {cCsv} to exist.");
@@ -132,8 +138,16 @@ public sealed class ParametricSweepPipelineTests : IDisposable
         Assert.Equal(4, cLines.Length); // Header + 3 data rows (0.05, 0.10, 0.15)
         Assert.Equal("VariableValue,InitialStress,FinalStress,AsymptoteTime,AsymptoteStress,AbsoluteDeltaStress,PercentageDeltaStress", cLines[0]);
 
-        repositoryMock.Verify(r => r.TryInsertAsync(It.Is<ParametricSweepEntity>(e => e.ExternalIdentifier == identifier && e.MechanicalModelName == nameof(MechanicalModel.Fung)), It.IsAny<CancellationToken>()), Times.Once);
-        repositoryMock.Verify(r => r.TryInsertAsync(It.Is<StoredFileEntity>(f => f.ExternalIdentifier == identifier && f.Context == "SensitivityAnalysis" && f.SizeBytes > 0), It.IsAny<CancellationToken>()), Times.Exactly(2));
+        repositoryMock.Verify(
+            r => r.TryInsertAsync(
+                It.Is<ParametricSweepEntity>(e => !string.IsNullOrWhiteSpace(e.Identifier) && e.ExternalIdentifier == identifier && e.MechanicalModelName == nameof(MechanicalModel.Fung)),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+        repositoryMock.Verify(
+            r => r.TryInsertAsync(
+                It.Is<StoredFileEntity>(f => f.ExternalIdentifier == identifier && f.Context == "SensitivityAnalysis" && f.SizeBytes > 0),
+                It.IsAny<CancellationToken>()),
+            Times.Exactly(2));
     }
 
     [Fact]
@@ -170,11 +184,13 @@ public sealed class ParametricSweepPipelineTests : IDisposable
         Differentiation differentiation = new();
         ParametricSweepPipeline pipeline = new(
             NullLogger<ParametricSweepPipeline>.Instance,
+            NullPipelineProgressNotifier.Instance,
             factoryMock.Object,
             differentiation,
-            serviceLocator,
             _fileStorageService,
-            repositoryMock.Object);
+            repositoryMock.Object,
+            serviceLocator,
+            TimeProvider.System);
 
         FungConstitutiveParameters baseline = new(
             elasticStressConstant: 1000.0,
@@ -183,7 +199,7 @@ public sealed class ParametricSweepPipelineTests : IDisposable
 
         Dictionary<string, RangeParameters> constantVariables = new()
         {
-            ["c"] = new RangeParameters { InitialPoint = 0.05, FinalPoint = 0.05, Step = 0.05 }
+            [nameof(FungConstitutiveParameters.ReducedRelaxationFunction.RelaxationStiffness)] = new RangeParameters { InitialPoint = 0.05, FinalPoint = 0.05, Step = 0.05 }
         };
 
         ParametricSweepInput input = new()

@@ -87,7 +87,7 @@ MelloSilveiraTools (meta) → Core, Database, WebApi, Plugins, Mathematics, Mech
 
 Each project owns a namespace that mirrors its package ID:
 
-- `MelloSilveiraTools.Core.*` (e.g. `.Caching`, `.Services.Encryption`, `.Managers.File`, `.Pipelines`, `.Pipelines.Dataflow`, `.Pipelines.Fluent`, `.Providers.Dynamics`)
+- `MelloSilveiraTools.Core.*` (e.g. `.Caching`, `.Services.Encryption`, `.Managers.File`, `.Pipelines`, `.Pipelines.Dataflow`, `.Pipelines.Fluent`, `.Pipelines.Notifiers`, `.Pipelines.Telemetry`, `.Providers.Dynamics`)
 - `MelloSilveiraTools.Database.*` (e.g. `.RelationalDatabase.Sql.Provider`, `.RelationalDatabase.Repositories`, `.RelationalDatabase.Attributes`)
 - `MelloSilveiraTools.WebApi.*` (e.g. `.Authentication`, `.Application.Commands.Crud.*`, `.Application.Controllers`, `.Application.Endpoints`)
 - `MelloSilveiraTools.Plugins.*` (e.g. `.Infrastructure`, `.Infrastructure.Models`, `.Infrastructure.Persistences`, `.Infrastructure.Services`)
@@ -109,14 +109,16 @@ AI agents modifying or generating code in this repository **must strictly adhere
 
 ### 2. Constructor & Method Body Styles
 - **Primary constructors** are preferred for dependency injection and classes/records: `csharp_style_prefer_primary_constructors = true`.
-- **Properties, indexers, accessors, and lambdas** use expression bodies (`=>`).
-- **Methods and constructors** must use standard block bodies `{ ... }` (`csharp_style_expression_bodied_methods = false`, `csharp_style_expression_bodied_constructors = false`).
+- **Properties, indexers, accessors, lambdas, and single-expression methods** use expression bodies (`=>`).
+- **Multi-statement methods and constructors** use standard block bodies `{ ... }`.
 
 ### 3. Layout, Formatting & Syntax
 - **Indentation:** 4 spaces.
 - **Line endings:** CRLF (`end_of_line = crlf`).
-- **Braces:** Always required for all control flow statements (`csharp_prefer_braces = true`).
-- **Namespaces:** Block-scoped declarations (`namespace Foo { ... }`) are configured in `.editorconfig`. Keep consistency with surrounding files.
+- **Braces:** Single-line `if` statements without braces are allowed and preferred; multi-line blocks require braces.
+- **Parameter Ordering:** 1. `ILogger` / `ILoggerFactory`, 2. interfaces (with `IPipelineProgressNotifier` first among interfaces), 3. concrete classes and primitives (with `TimeProvider` preceding other instances), ..., last: `CancellationToken`.
+- **Temporal Operations:** Mandatory use of `TimeProvider` (non-optional, non-nullable). Ambient `DateTimeOffset.UtcNow` or `DateTime.UtcNow` is forbidden in production code to guarantee testability.
+- **Namespaces:** File-scoped or block-scoped declarations consistent with surrounding files.
 - **`using` directives:** Place outside of namespaces.
 - **Private fields:** Always prefix with underscore (`_privateField`).
 - **Modern C# 13 features:**
@@ -133,8 +135,10 @@ AI agents modifying or generating code in this repository **must strictly adhere
 - Telemetry is backed by Serilog for structured JSON file logging (rolling file sink) and PostgreSQL sink (`Serilog.Sinks.Postgresql.Alternative`).
 
 ### 5. Settings & DI
-- Settings classes are `record`s with safe defaults.
-- Registered via `services.AddSingleton(settings ?? new TSettings())` to preserve fluent chaining and consumer overrides.
+- Settings classes are `record`s (or classes) whose mandatory properties are marked `required`. Settings classes must never assume default values (`= default;`); all values must be explicitly provided by the consumer.
+- Optional settings properties are declared nullable (`?`) without default initialization.
+- Registered via `services.AddSingleton(settings)` when explicitly configured by the consumer.
+- **Eager Validation:** Settings with platform constraints or critical prerequisites (e.g. `DfsStorageSettings` in `CoreDependencyInjection`) must be validated eagerly during DI container registration so misconfigurations fail fast during host startup.
 
 ### 6. Public Documentation
 - Comprehensive XML documentation comments are **mandatory** on all public types and members.
@@ -146,18 +150,18 @@ AI agents modifying or generating code in this repository **must strictly adhere
 
 | Package | Class | Method |
 |---|---|---|
-| Core | `CoreDependencyInjection` | `AddCoreServices(encryptionSettings, smtpResiliencePipelineSettings, emailSettings, loggerSettings, useDefaultLogger)` |
-| Database | `DatabaseDependencyInjection` | `AddDatabaseServices(databaseSettings, resiliencePipelineSettings, loggerSettings)` |
+| Core | `CoreDependencyInjection` | `AddCoreServices(defaultResiliencePipelineSettings, encryptionSettings, emailSettings, fileStorageSettings, loggerSettings, enablePipelineProgressNotifications)` |
+| Database | `DatabaseDependencyInjection` | `AddDatabaseServices(defaultResiliencePipelineSettings, databaseSettings, loggerSettings)` |
 | WebApi | `WebApiDependencyInjection` | `AddWebApiServices(resiliencePipelineSettings)`, `AddJweAuthentication(jwtSettings)`, `AddSwaggerWithBearerSecurity()`, `UseSwaggerDocs()`, `UseCustomMiddlewares()` |
 | Plugins | `PluginsDependencyInjection` | `AddPluginServices(pluginSettings)` |
 | Mathematics | `MathematicsDependencyInjection` | `AddMathematicsServices()` |
 | MechanicsOfMaterials | `DependencyInjection` | `AddMechanicsOfMaterialsServices(addMechanicalModels)` |
-| Meta | `DependencyInjection` | `AddToolsServices(databaseSettings, encryptionSettings, resiliencePipelineSettings, pluginSettings, emailSettings, loggerSettings, useDefaultLogger, addMechanicalModels)` |
+| Meta | `DependencyInjection` | `AddToolsServices(defaultResiliencePipelineSettings, databaseSettings, encryptionSettings, pluginSettings, emailSettings, fileStorageSettings, experimentalDataSettings, loggerSettings, addMechanicalModels, enablePipelineProgressNotifications)` |
 
 ### DI Registration Summary by Lifetime
 
 **Singletons (stateless/thread-safe):**
-- Core: `IFileStorageService` (and keyed by `StorageProvider.Local`), `ISingleLevelCache`, `ITwoLevelCache`, `ServiceLocator`, `IDynamicServiceProvider`, `SmtpResiliencePipeline`, `EncryptionSettings`
+- Core: `TimeProvider` (`TimeProvider.System`), `IFileStorageService` (and keyed by `StorageProvider.Local`), `ISingleLevelCache`, `ITwoLevelCache`, `ServiceLocator`, `IDynamicServiceProvider`, `SmtpResiliencePipeline`, `EncryptionSettings`, `IPipelineProgressNotifier` → `NullPipelineProgressNotifier.Instance` (when `enablePipelineProgressNotifications: false`)
 - Database: `DatabaseSettings`, `ResiliencePipelineSettings`, `PostgresResiliencePipeline`, `ISqlProvider` → `PostgresSqlProvider`, `IRepository` → `PostgresRepository`
 - WebApi: `ApiServiceAgentResiliencePipeline`, `JwtSettings`
 - Plugins: `PluginSettings`, `PluginFileProcessor`, `PluginAssemblyProcessor`, `PluginCache`, `PluginValidator` (all variants); keyed: `JsonFilePluginCachePersistence` (key: `"file"`), `DatabasePluginCachePersistence` (key: `"database"`)
@@ -165,7 +169,7 @@ AI agents modifying or generating code in this repository **must strictly adhere
 - MechanicsOfMaterials: all model calculators (Elastic, Maxwell, Fung, SimplifiedFung, Schapery, ModifiedSuperposition), `IConstitutiveEquationsCalculator`, `IFatigueCalculator`, `IGeometricPropertyCalculator<>`, `IMechanicalModelTypeCache`
 
 **Scoped:**
-- Core: `IEncryptionService`, `IEmailService`
+- Core: `IEncryptionService`, `IEmailService`, `IPipelineProgressNotifier` → `ChannelPipelineProgressNotifier` (when `enablePipelineProgressNotifications: true`)
 - WebApi: `IAuthenticationTokenService`, CRUD commands (`AddEntity<>`, `ReadEntityById<>`, `ReadEntityPaged<,>`, `UpdateEntity<>`, `DeleteEntity<>`)
 - Plugins: `IPluginService`, `IPluginCachePersistence` (resolved via HTTP route `{target}`), all plugin commands
 
@@ -194,17 +198,19 @@ AI agents modifying or generating code in this repository **must strictly adhere
 - **`IEnumerablePipelineStep<in TIn, out TOut>`**: Synchronous enumerable collection step contract (`IEnumerable<TOut> Execute(TIn input, CancellationToken ct)`) implementing `IDisposable`, designed for 1-to-many fan-out transformations via TPL Dataflow `TransformManyBlock`.
 
 **Two pipeline flavors:**
-- **TPL Dataflow (streaming/push):** `PipelineFactory.StartDataflow<T>()` → `IDataflowPipelineBuilder` → `IDataflowPipeline<T>`.
-  - Supports: `AddStep` (sync, async, `IAsyncEnumerable`, and `IEnumerable`), `AddDataMapping`, `AddForkingStep`, `AddFilterStep`, `AddGroupWhileStep`, `AddCollectAllStep`, `Fork` (2-way and 3-way, accepting branch delegates or step instances directly), `AddBroadcastStep` (side-effect observer and mapped transform observer), and `BuildTerminal`.
+- **TPL Dataflow (streaming/push):** `PipelineFactory.StartDataflow<T>(logger, progressNotifier, ...)` → `IDataflowPipelineBuilder` → `IDataflowPipeline<T>`.
+  - Supports: `AddStep` (sync, async, `IAsyncEnumerable`, and `IEnumerable`), `AddDataMapping`, `AddForkingStep`, `AddFilterStep`, `AddGroupWhileStep`, `AddCollectAllStep`, `Fork` (2-way and 3-way, accepting branch delegates or step instances directly), `AddBroadcastStep` (side-effect observer and mapped transform observer), `AddBroadcastFork` (concurrent branch fork observer), and `BuildTerminal`.
   - Completion propagation: `DataflowExtensions.LinkTo` C# 13 extension members override TPL Dataflow defaults by setting `PropagateCompletion = true` on block linkages, ensuring graceful graph draining upon `pipeline.Complete()`.
   - Resource cleanup: `DataflowPipeline<TIn>.DisposeAsync` encloses step disposal in a `try ... finally` block, ensuring all `IDisposable` and `IAsyncDisposable` step resources are reclaimed even if graph completion faults.
   - Dead-Letter Queue (DLQ): `WithDeadLetterQueue()` isolates faulted items via `ActionBlock<FailedPayload>`.
   - Backpressure: `PipelineStepOptions.MaxBufferSize` → `BoundedCapacity`.
   - Telemetry & Real-Time Progress:
-    - OpenTelemetry `ActivitySource` tracing + structured Serilog logging via `TelemetryExtensions`.
-    - `PipelineProgressEvent`: Immutable record in `MelloSilveiraTools.Core.Pipelines.Models` representing granular step execution progress (`StepName: string`, `State: PipelineStepState`, `TimestampUtc: DateTimeOffset`, `Details: string?`, `Data: object?`).
-    - `PipelineStepState`: Enum covering execution states (`Started`, `Running`, `Completed`, `Faulted`).
-    - `IProgress<PipelineProgressEvent>`: Accepted optionally across `PipelineFactory.StartDataflow<T>(progress: IProgress<PipelineProgressEvent>?)`, `DataflowPipelineBuilder<T>`, and `TelemetryExtensions` (`ExecuteWithTelemetryAsync` and `ExecuteWithTelemetryStreamingAsync`) to publish real-time notifications to callers or streaming HTTP responses without coupling pipeline internals to web protocols.
+    - OpenTelemetry `ActivitySource` tracing + structured Serilog logging via `PipelineStepExecutor`.
+    - `PipelineProgressEvent`: Immutable record in `MelloSilveiraTools.Core.Pipelines.Models` representing granular step execution progress (`StepName: string`, `Description: string`, `State: PipelineStepState`, `Timestamp: DateTimeOffset`, `UpstreamSteps: IReadOnlyList<string>`, `ReceivedItems: int`, `ProcessedItems: int`, `ProgressPercentage: double`, `Details: string?`).
+    - `PipelineStepState`: Enum covering execution states (`Pending`, `Started`, `Running`, `Completed`, `Faulted`).
+    - `IPipelineProgressNotifier` (in `MelloSilveiraTools.Core.Pipelines.Notifiers`): Mandatory, non-nullable dependency in `PipelineFactory.StartDataflow<T>(ILogger logger, IPipelineProgressNotifier progressNotifier, ...)`, resolved via DI (`ChannelPipelineProgressNotifier` for bounded async NDJSON/SSE streaming or `NullPipelineProgressNotifier.Instance` for zero-allocation no-op execution).
+    - `PipelineProgressNotificationSettings` (in `MelloSilveiraTools.Core.Pipelines.Telemetry`): Externalized configuration settings defining `ImmediateNotificationItemLimit` and `HighVolumeNotificationInterval` thresholds for adaptive progress notification throttling, configurable via DI and optionally overridden in `PipelineFactory.StartDataflow`.
+    - `PipelineFlowNode` & `PipelineStepTracker` (in `MelloSilveiraTools.Core.Pipelines.Telemetry`): Emit upfront `Pending` topology events on first `SendAsync`, propagate DAG dependencies (`UpstreamSteps`) and item arrival signals (`ReceivedItems` vs. `ProcessedItems`) across filters, batches, broadcasts, and forks (`JoinBlock`), and emit `Started`/`Completed` once per step lifecycle (`block.Completion`).
   - Retry: `RetryOptions(MaxAttempts, InitialDelayMs, BackoffFactor)` with exponential backoff.
 - **Fluent (request/response/pull):** `PipelineFactory.StartFluent<T>()` → `IFluentPipelineBuilder` → `IFluentPipeline<TIn, TOut>.ExecuteAsync()`.
   - Supports: `AddStep` (sync, async, and `IAsyncEnumerable`), `AddDataMapping`.
@@ -213,7 +219,8 @@ AI agents modifying or generating code in this repository **must strictly adhere
 ### 3. Command Pattern (`MelloSilveiraTools.Core.Application.Commands`)
 - `CommandBase<TRequest, TResult>` with optional `IValidator<TRequest>`.
 - Hierarchy: `CommandBaseWithData`, `ListedCommandBase`, `PagedCommandBase`, `CommandBaseWithDefaultResponse`, `CommandBaseWithoutRequest`, `DefaultCommandBase`.
-- All commands execute via `ExecuteAsync(request)` → validates → calls `ExecuteCommandAsync`.
+- All commands execute via `ExecuteAsync(request, cancellationToken)` → validates → calls `ExecuteCommandAsync(request, cancellationToken)`.
+- **Request DTOs Rule:** Request classes (`*Request`) must never contain a `CancellationToken` property. Cooperative cancellation is passed explicitly to the command execution method (`command.ExecuteAsync(request, cancellationToken)`).
 
 ### 4. Result vs. Output (Calculation Engine)
 - Mathematical and mechanical calculators emit raw projection data classes named **`*Output`** (e.g. `MechanicalModelOutput`, `ElasticModelOutput`, `FatigueOutput`), never `*Result`.
@@ -251,7 +258,7 @@ AI agents modifying or generating code in this repository **must strictly adhere
 - `IExperimentalDataProcessingPipeline.ProcessAsync(input, cancellationToken)` → `Result<string>`:
   - Reactive DAG stream topology via TPL Dataflow:
     - Ingestion: `ExperimentalDataSegmenterStep` converts raw stream pair into streaming `SegmentedDataPoint` sequence.
-    - Broadcast 1: `ExperimentalDataFileWriterStep` writes raw points to disk via `.AddBroadcastStep(fileWriterStep)`.
+    - Broadcast Fork: `ExperimentalDataFileWriterStep` and `StoredFilePersistenceStep` write raw points to disk and database via `.AddBroadcastFork(fileBranch => ...)`.
     - Downsampling & Accumulation: `ExperimentalDataDownsamplerStep` downsamples points sequentially, followed by `CurveSegmentAccumulatorStep`.
     - Fitting: `IMechanicalModelCurveFitterStep` yields `MechanicalModelCurveFitOutput`.
     - 3-Way Fork:
@@ -282,14 +289,16 @@ AI agents modifying or generating code in this repository **must strictly adhere
     - Terminal: `ParametricSweepPersistenceStep` persisting `ParametricSweepEntity` (table `parametric_sweeps`) with 7-significant-figure polymorphic JSON serialization and registering generated CSV artifacts in `StoredFileEntity` (table `stored_files`) under the `SensitivityAnalysis` context.
   - Generators inherit from `ParametricSweepGeneratorBase<T>` implementing `GetPropertyVariations` yielding `(PropertyName, Mutate)` delegates for centralized range iteration and envelope creation.
 - Storage, Application Commands & API Endpoints:
-  - `IFileStorageService`: Centralized file storage abstraction in `MelloSilveiraTools.Core.Managers.File` managing directory topology (`{BaseDirectory}/{context}/{identifier}/{fileName}`). Implemented by `LocalFileStorageService`. Replaces explicit `OutputFileUri` and `OutputDirectory` in pipeline inputs.
+  - `IFileStorageService`: Centralized file storage abstraction in `MelloSilveiraTools.Core.Managers.File` managing directory topology (`{BaseDirectory}/{context}/{identifier}/{fileName}`). Implemented by `LocalFileStorageService`, `AwsS3FileStorageService`, `BlobStorageFileStorageService`, and `DfsFileStorageService`. Implements both `IDisposable` and `IAsyncDisposable`. Replaces explicit `OutputFileUri` and `OutputDirectory` in pipeline inputs.
   - Application Commands & Validators:
-    - `ProcessExperimentalDataCommand` / `ProcessExperimentalDataValidator`: Orchestrates ingestion, validation, stream lifetime, and execution of `ExperimentalDataProcessingPipeline`, returning the deterministic simulation SHA-256 identifier and `FileMetadata`.
+    - `ProcessExperimentalDataCommand` / `ProcessExperimentalDataValidator`: Orchestrates ingestion, validation, stream lifetime, and execution of `ExperimentalDataProcessingPipeline`, returning the deterministic simulation SHA-256 identifier and `StorageEntryMetadata`.
     - `ExecuteParametricSweepCommand` / `ExecuteParametricSweepValidator`: Validates sweeping parameter variations and executes `ParametricSweepPipeline`.
     - `FitCurve` / `FitCurveValidator`: Validates curve segments and invokes `IMechanicalModelStepFactory` to fit constitutive parameters sequentially across experimental deformation phases.
+    - `UploadPlugin` / `UploadPluginValidator`: Validates uploaded plugin DLLs (verifying file extension, semantic version naming pattern, and `PEReader.HasMetadata`) and streams payloads directly to storage.
   - Controllers & Streaming:
-    - `ExperimentalDataController`, `ParametricSweepController`, `CurveFittingController`: Provide standard REST endpoints and real-time streaming endpoints (`POST .../stream`) utilizing `PipelineProgressStreamWriter` to emit NDJSON `PipelineProgressEvent` streams.
+    - `ExperimentalDataController`, `ParametricSweepController`, `CurveFittingController`: Provide standard REST endpoints and real-time streaming endpoints (`POST .../stream`) utilizing `PipelineProgressStreamWriter` to emit NDJSON `PipelineProgressEvent` streams via `IPipelineProgressNotifier`.
     - `StoredFilesController`: Exposes file metadata queries by `ExternalIdentifier` and direct file downloads via `IFileStorageService.OpenRead`.
+    - `PluginController` / `PluginEndpoints`: Exposes CRUD, lifecycle, and binary upload endpoints (`POST /api/v1/plugins/upload`).
 
 ### 7. CSV File Writing Architecture & Composition (`CsvFileWriter`)
 - Located in `MelloSilveiraTools.Core.Managers.File`.
@@ -340,12 +349,28 @@ AI agents modifying or generating code in this repository **must strictly adhere
 - `AddJweAuthentication(JwtSettings)` configures `JwtBearerDefaults` scheme.
 
 ### 11. Dynamic Plugin System
-- Scans `PluginSettings.Directory` for assemblies matching `^(?<name>.+)\.v(?<major>\d+)\.(?<minor>\d+)\.(?<patch>\d+)$`.
-- Pipeline: `DiscoveredPlugin` → `LoadedPlugin` → `RegisteredPlugin` (`IsFullyLoaded`, `FullyLoadedAt`).
-- Each plugin loads in isolated collectible `AssemblyLoadContext` for memory reclaimability.
-- Two-level cache (`name` + `version`). Keyed persistence (`PluginCacheTargets.File` and `PluginCacheTargets.Database`).
-- `PluginOrchestratorBackgroundService`: `PeriodicTimer`-based polling loop that auto-discovers, loads, promotes higher versions, and evicts older versions per `PreviousVersionRetention` (default: 24h).
-- `PluginRegistrationContext`: `ForStartup(IServiceCollection)` mutates static DI; `ForRuntime(IDynamicServiceProvider)` enables hot-swap.
+- **Storage-Agnostic Partition Topology (`PluginStoragePartitions`):**
+  - Completely decoupled from physical host disk via `IFileStorageService`, enabling plugin execution across Local, AWS S3, Azure Blob, and DFS.
+  - Canonical partitions:
+    - `incoming/`: Stage for newly placed or uploaded plugin DLLs awaiting inspection and promotion.
+    - `loaded/`: Active loaded plugin assemblies.
+    - `archive/`: Obsolete versions evicted according to retention policy, kept for rollback and telemetry.
+    - `quarantine/`: Invalid binaries (failed naming pattern or non-.NET PE headers).
+    - `cache/`: JSON cache persistence (`plugin-cache.json`).
+- **Binary & Metadata Inspection:**
+  - PE header validation via `System.Reflection.PortableExecutable.PEReader` (`peReader.HasMetadata`). Only managed .NET assemblies are permitted.
+  - Naming pattern enforcement: `^(?<name>.+)\.v(?<major>\d+)\.(?<minor>\d+)\.(?<patch>\d+)\.dll$`.
+  - Non-.NET binaries or ill-formed filenames are automatically moved to the `quarantine` partition with structured warnings.
+- **Stream-Based Assembly Execution:**
+  - `PluginAssemblyProcessor.LoadPluginAssemblyAsync` loads assemblies directly from memory streams via `pluginContext.LoadFromStream(streamToLoad)`, bypassing OS-level file locking on host operating systems and allowing direct runtime execution from cloud object storage.
+- **Plugin Lifecycle Pipeline:**
+  - Pipeline: `DiscoveredPlugin` → `LoadedPlugin` → `RegisteredPlugin` (`IsFullyLoaded`, `FullyLoadedAt`).
+  - Each plugin loads in an isolated collectible `PluginAssemblyLoadContext` for deterministic memory reclaimability.
+  - Two-level cache (`name` + `version`). Keyed persistence (`PluginCacheTargets.File` and `PluginCacheTargets.Database`).
+  - `PluginOrchestratorBackgroundService`: `PeriodicTimer`-based polling loop that auto-discovers, loads, promotes higher versions, and evicts older versions to `archive/` per `PreviousVersionRetention` (default: 24h).
+  - `PluginRegistrationContext`: `ForStartup(IServiceCollection)` mutates static DI; `ForRuntime(IDynamicServiceProvider)` enables hot-swap.
+- **Upload Pipeline:**
+  - `UploadPlugin` command and endpoint (`POST /api/v1/plugins/upload` in `PluginController` and `PluginEndpoints`) validates PE headers and writes uploaded plugins directly into `storage/{context}/incoming/`.
 
 ---
 
@@ -424,4 +449,3 @@ AI agents modifying or generating code in this repository **must strictly adhere
 - Semantic Versioning (SemVer).
 - Follow [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - All unreleased modifications must be documented in `CHANGELOG.md` under `## [Unreleased]` using sections `### Added`, `### Changed`, `### Fixed`, `### Breaking`, or `### Removed`.
-

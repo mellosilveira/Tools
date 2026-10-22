@@ -38,7 +38,7 @@ public sealed class GetPluginsTests
     public async Task ExecuteAsync_WhenFullyLoadedIsNull_ReturnsAllPlugins()
     {
         RegisteredPlugin p1 = new(new LoadedPlugin(new DiscoveredPlugin("Plugin1", new PluginVersion(1, 0, 0), "/p1", DateTimeOffset.UtcNow), [typeof(string)], null!));
-        p1.MarkTypeLoaded(typeof(string)); // FullyLoaded = true
+        p1.MarkTypeLoaded(typeof(string), TimeProvider.System); // FullyLoaded = true
 
         RegisteredPlugin p2 = new(new LoadedPlugin(new DiscoveredPlugin("Plugin2", new PluginVersion(1, 0, 0), "/p2", DateTimeOffset.UtcNow), [typeof(string)], null!)); // FullyLoaded = false
 
@@ -61,7 +61,7 @@ public sealed class GetPluginsTests
     public async Task ExecuteAsync_WhenFullyLoadedIsTrue_ReturnsOnlyFullyLoadedPlugins()
     {
         RegisteredPlugin p1 = new(new LoadedPlugin(new DiscoveredPlugin("Plugin1", new PluginVersion(1, 0, 0), "/p1", DateTimeOffset.UtcNow), [typeof(string)], null!));
-        p1.MarkTypeLoaded(typeof(string)); // FullyLoaded = true
+        p1.MarkTypeLoaded(typeof(string), TimeProvider.System); // FullyLoaded = true
 
         RegisteredPlugin p2 = new(new LoadedPlugin(new DiscoveredPlugin("Plugin2", new PluginVersion(1, 0, 0), "/p2", DateTimeOffset.UtcNow), [typeof(string)], null!)); // FullyLoaded = false
 

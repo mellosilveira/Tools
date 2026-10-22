@@ -1,4 +1,4 @@
-using MelloSilveiraTools.Core.Managers.File;
+using MelloSilveiraTools.Core.Managers.File.Models;
 using MelloSilveiraTools.Core.Models;
 using MelloSilveiraTools.Database.RelationalDatabase.Models.Entities;
 using MelloSilveiraTools.Database.Repositories;
@@ -58,10 +58,10 @@ public sealed class ParametricSweepPersistenceStepTests
             AsymptoteTolerance = 1e-5
         };
 
-        FileMetadata[] generatedFiles =
+        StorageEntryMetadata[] generatedFiles =
         [
-            new FileMetadata(@"C:\Data\SensitivityAnalysis\sweep_pers_01\Stiffness_SensitivityAnalysis.csv", 1024L, DateTimeOffset.UtcNow),
-            new FileMetadata(@"C:\Data\SensitivityAnalysis\sweep_pers_01\Strain_SensitivityAnalysis.csv", 2048L, DateTimeOffset.UtcNow)
+            new StorageEntryMetadata(StorageProvider.Local, @"C:\Data\SensitivityAnalysis\sweep_pers_01\Stiffness_SensitivityAnalysis.csv", @"C:\Data\SensitivityAnalysis\sweep_pers_01", "Stiffness_SensitivityAnalysis.csv", 1024L, DateTimeOffset.UtcNow),
+            new StorageEntryMetadata(StorageProvider.Local, @"C:\Data\SensitivityAnalysis\sweep_pers_01\Strain_SensitivityAnalysis.csv", @"C:\Data\SensitivityAnalysis\sweep_pers_01", "Strain_SensitivityAnalysis.csv", 2048L, DateTimeOffset.UtcNow)
         ];
 
         ParametricSweepPersistenceInput input = new(identifier, sweepInput, generatedFiles);
@@ -75,9 +75,11 @@ public sealed class ParametricSweepPersistenceStepTests
         _repositoryMock.Verify(
             r => r.TryInsertAsync(
                 It.Is<ParametricSweepEntity>(e =>
+                    !string.IsNullOrWhiteSpace(e.Identifier) &&
                     e.ExternalIdentifier == identifier &&
                     e.MechanicalModelName == "Maxwell" &&
                     e.BaseStrain == 0.05 &&
+                    e.RampTimeConsideration == RampTimeConsideration.Disregard &&
                     e.InitialTime == 0.0 &&
                     e.FinalTime == 10.0 &&
                     e.TimeStep == 0.1 &&
@@ -101,10 +103,10 @@ public sealed class ParametricSweepPersistenceStepTests
 
     /// <summary>
     /// Verifies that when the sweep entity insertion encounters a conflict (already exists),
-    /// the step logs a warning and proceeds to persist stored files without throwing.
+    /// the step logs a warning and completes without throwing.
     /// </summary>
     [Fact]
-    public async Task ExecuteAsync_WhenEntityInsertConflicts_LogsWarningAndPersistsStoredFiles()
+    public async Task ExecuteAsync_WhenEntityInsertConflicts_LogsWarningAndReturnsIdentifier()
     {
         // Arrange
         _repositoryMock
@@ -133,9 +135,9 @@ public sealed class ParametricSweepPersistenceStepTests
             TimeStep = 0.1
         };
 
-        FileMetadata[] generatedFiles =
+        StorageEntryMetadata[] generatedFiles =
         [
-            new FileMetadata(@"C:\Data\SensitivityAnalysis\sweep_pers_conflict\Output.csv", 512L, DateTimeOffset.UtcNow)
+            new StorageEntryMetadata(StorageProvider.Local, @"C:\Data\SensitivityAnalysis\sweep_pers_conflict\Output.csv", @"C:\Data\SensitivityAnalysis\sweep_pers_conflict", "Output.csv", 512L, DateTimeOffset.UtcNow)
         ];
 
         ParametricSweepPersistenceInput input = new(identifier, sweepInput, generatedFiles);
@@ -185,10 +187,10 @@ public sealed class ParametricSweepPersistenceStepTests
     }
 
     /// <summary>
-    /// Verifies that when stored file insertion fails, the step logs a warning without throwing and returns the identifier.
+    /// Verifies that when stored file insertion fails with a non-conflict error, an <see cref="InvalidOperationException"/> is thrown.
     /// </summary>
     [Fact]
-    public async Task ExecuteAsync_WhenStoredFileInsertFails_DoesNotThrowAndReturnsIdentifier()
+    public async Task ExecuteAsync_WhenStoredFileInsertFails_ThrowsInvalidOperationException()
     {
         // Arrange
         _repositoryMock
@@ -217,18 +219,16 @@ public sealed class ParametricSweepPersistenceStepTests
             TimeStep = 0.1
         };
 
-        FileMetadata[] generatedFiles =
+        StorageEntryMetadata[] generatedFiles =
         [
-            new FileMetadata(@"C:\Data\SensitivityAnalysis\sweep_file_fail\Output.csv", 512L, DateTimeOffset.UtcNow)
+            new StorageEntryMetadata(StorageProvider.Local, @"C:\Data\SensitivityAnalysis\sweep_file_fail\Output.csv", @"C:\Data\SensitivityAnalysis\sweep_file_fail", "Output.csv", 512L, DateTimeOffset.UtcNow)
         ];
 
         ParametricSweepPersistenceInput input = new("sweep_file_fail", sweepInput, generatedFiles);
 
-        // Act
-        string result = await step.ExecuteAsync(input);
-
-        // Assert
-        Assert.Equal("sweep_file_fail", result);
+        // Act & Assert
+        InvalidOperationException exception = await Assert.ThrowsAsync<InvalidOperationException>(() => step.ExecuteAsync(input));
+        Assert.Contains("Disk error saving metadata.", exception.Message);
     }
 
     /// <summary>

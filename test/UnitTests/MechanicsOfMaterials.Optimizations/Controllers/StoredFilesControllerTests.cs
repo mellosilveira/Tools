@@ -1,78 +1,45 @@
-using MelloSilveiraTools.Core.Managers.File;
+using MelloSilveiraTools.Core.Managers.File.Models;
+using MelloSilveiraTools.Core.Managers.File.Providers;
 using MelloSilveiraTools.Core.Models;
 using MelloSilveiraTools.Database.RelationalDatabase.Models.Entities;
-using MelloSilveiraTools.Database.RelationalDatabase.Models.Filters;
 using MelloSilveiraTools.Database.Repositories;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Controllers;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging.Abstractions;
 using Moq;
 
 namespace UnitTests.MechanicsOfMaterials.Optimizations.Controllers;
 
 /// <summary>
-/// Unit tests for <see cref="StoredFilesController"/> verifying file metadata query operations,
-/// resilient physical file existence checking, and streaming download responses.
+/// Unit tests for <see cref="StoredFilesController"/> verifying file streaming download responses,
+/// 404 handling when database records or physical storage objects are absent, and keyed storage resolution.
 /// </summary>
 public sealed class StoredFilesControllerTests
 {
     private readonly Mock<IRepository> _repositoryMock = new();
     private readonly Mock<IFileStorageService> _fileStorageServiceMock = new();
-    private readonly StoredFilesController _controller;
-
-    public StoredFilesControllerTests()
-    {
-        _controller = new(_repositoryMock.Object, _fileStorageServiceMock.Object);
-    }
+    private readonly StoredFilesController _controller = new(NullLogger<StoredFilesController>.Instance);
 
     /// <summary>
-    /// Verifies that querying by external identifier returns all associated stored file entities.
+    /// Verifies that downloading returns a 404 NotFound response when the database entity is absent.
     /// </summary>
     [Fact]
-    public async Task GetByExternalIdentifierAsync_WhenEntitiesExist_ReturnsListedResult()
+    public async Task DownloadByIdAsync_WhenEntityNotFound_ReturnsNotFound()
     {
         // Arrange
-        string externalIdentifier = "sweep-run-123";
-        StoredFileEntity entity = new()
-        {
-            Id = 1,
-            ExternalIdentifier = externalIdentifier,
-            FileName = "E_SensitivityAnalysis.csv",
-            Location = "storage/SensitivityAnalysis/sweep-run-123/E_SensitivityAnalysis.csv",
-            ContentType = "text/csv",
-            Context = "SensitivityAnalysis"
-        };
+        ServiceCollection services = new();
+        ServiceProvider serviceProvider = services.BuildServiceProvider();
 
         _repositoryMock
-            .Setup(r => r.GetAsync<StoredFileEntity, StoredFileFilter>(It.IsAny<StoredFileFilter>(), null, default))
-            .Returns(GetMockEntities([entity]));
-
-        // Act
-        ActionResult<ListedResult<StoredFileEntity>> actionResult = await _controller.GetByExternalIdentifierAsync(
-            externalIdentifier);
-
-        // Assert
-        JsonResult jsonResult = Assert.IsType<JsonResult>(actionResult.Result);
-        ListedResult<StoredFileEntity> listedResult = Assert.IsType<ListedResult<StoredFileEntity>>(jsonResult.Value);
-        Assert.True(listedResult.Success);
-        Assert.NotNull(listedResult.Data);
-        Assert.Single(listedResult.Data);
-        Assert.Equal("E_SensitivityAnalysis.csv", listedResult.Data[0].FileName);
-    }
-
-    /// <summary>
-    /// Verifies that downloading by external identifier returns a 404 NotFound response when the database entity is absent.
-    /// </summary>
-    [Fact]
-    public async Task DownloadByExternalIdentifierAsync_WhenEntityNotFound_ReturnsNotFound()
-    {
-        // Arrange
-        _repositoryMock
-            .Setup(r => r.GetFirstOrDefaultAsync<StoredFileEntity, StoredFileFilter>(It.IsAny<StoredFileFilter>(), It.IsAny<SortOrder>(), default))
+            .Setup(r => r.GetAsync<StoredFileEntity>(999L, default))
             .ReturnsAsync((StoredFileEntity?)null);
 
         // Act
-        IActionResult result = await _controller.DownloadByExternalIdentifierAsync(
-            "non-existent-id");
+        IActionResult result = await _controller.DownloadByIdAsync(
+            serviceProvider,
+            _repositoryMock.Object,
+            999L);
 
         // Assert
         JsonResult jsonResult = Assert.IsType<JsonResult>(result);
@@ -82,33 +49,35 @@ public sealed class StoredFilesControllerTests
     }
 
     /// <summary>
-    /// Verifies that downloading by external identifier returns a 404 NotFound response when the physical file is missing from storage.
+    /// Verifies that downloading returns a 404 NotFound response when the required storage provider is not configured.
     /// </summary>
     [Fact]
-    public async Task DownloadByExternalIdentifierAsync_WhenPhysicalFileMissing_ReturnsNotFound()
+    public async Task DownloadByIdAsync_WhenStorageProviderNotConfigured_ReturnsNotFound()
     {
         // Arrange
         StoredFileEntity entity = new()
         {
-            Id = 42,
-            ExternalIdentifier = "run-abc",
-            FileName = "simulation.csv",
-            Location = "storage/ExperimentalData/run-abc/simulation.csv",
+            Id = 1L,
+            ExternalIdentifier = "sweep-run-123",
+            FileName = "E_SensitivityAnalysis.csv",
+            Location = "storage/SensitivityAnalysis/sweep-run-123/E_SensitivityAnalysis.csv",
             ContentType = "text/csv",
-            Context = "ExperimentalData"
+            Context = "SensitivityAnalysis",
+            StorageProvider = StorageProvider.AwsS3
         };
 
+        ServiceCollection services = new();
+        ServiceProvider serviceProvider = services.BuildServiceProvider();
+
         _repositoryMock
-            .Setup(r => r.GetFirstOrDefaultAsync<StoredFileEntity, StoredFileFilter>(It.IsAny<StoredFileFilter>(), It.IsAny<SortOrder>(), default))
+            .Setup(r => r.GetAsync<StoredFileEntity>(1L, default))
             .ReturnsAsync(entity);
 
-        _fileStorageServiceMock
-            .Setup(f => f.Exists(entity.Location))
-            .Returns(false);
-
         // Act
-        IActionResult result = await _controller.DownloadByExternalIdentifierAsync(
-            "run-abc");
+        IActionResult result = await _controller.DownloadByIdAsync(
+            serviceProvider,
+            _repositoryMock.Object,
+            1L);
 
         // Assert
         JsonResult jsonResult = Assert.IsType<JsonResult>(result);
@@ -118,48 +87,7 @@ public sealed class StoredFilesControllerTests
     }
 
     /// <summary>
-    /// Verifies that downloading by external identifier returns a FileStreamResult when the entity and physical file exist.
-    /// </summary>
-    [Fact]
-    public async Task DownloadByExternalIdentifierAsync_WhenFileExists_ReturnsFileStreamResult()
-    {
-        // Arrange
-        StoredFileEntity entity = new()
-        {
-            Id = 42,
-            ExternalIdentifier = "run-abc",
-            FileName = "simulation.csv",
-            Location = "storage/ExperimentalData/run-abc/simulation.csv",
-            ContentType = "text/csv",
-            Context = "ExperimentalData"
-        };
-
-        using MemoryStream memoryStream = new([1, 2, 3]);
-
-        _repositoryMock
-            .Setup(r => r.GetFirstOrDefaultAsync<StoredFileEntity, StoredFileFilter>(It.IsAny<StoredFileFilter>(), It.IsAny<SortOrder>(), default))
-            .ReturnsAsync(entity);
-
-        _fileStorageServiceMock
-            .Setup(f => f.Exists(entity.Location))
-            .Returns(true);
-
-        _fileStorageServiceMock
-            .Setup(f => f.OpenRead(entity.Location))
-            .Returns(memoryStream);
-
-        // Act
-        IActionResult result = await _controller.DownloadByExternalIdentifierAsync(
-            "run-abc");
-
-        // Assert
-        FileStreamResult fileResult = Assert.IsType<FileStreamResult>(result);
-        Assert.Equal("text/csv", fileResult.ContentType);
-        Assert.Equal("simulation.csv", fileResult.FileDownloadName);
-    }
-
-    /// <summary>
-    /// Verifies that downloading by ID returns a 404 NotFound response when the physical file is missing from storage.
+    /// Verifies that downloading returns a 404 NotFound response when the physical file is missing from storage.
     /// </summary>
     [Fact]
     public async Task DownloadByIdAsync_WhenPhysicalFileMissing_ReturnsNotFound()
@@ -167,26 +95,32 @@ public sealed class StoredFilesControllerTests
         // Arrange
         StoredFileEntity entity = new()
         {
-            Id = 99,
-            ExternalIdentifier = "run-xyz",
-            FileName = "data.csv",
-            Location = "storage/SensitivityAnalysis/run-xyz/data.csv",
+            Id = 42L,
+            ExternalIdentifier = "run-abc",
+            FileName = "simulation.csv",
+            Location = "storage/ExperimentalData/run-abc/simulation.csv",
             ContentType = "text/csv",
-            Context = "SensitivityAnalysis"
+            Context = "ExperimentalData",
+            StorageProvider = StorageProvider.Local
         };
 
+        ServiceCollection services = new();
+        services.AddKeyedSingleton<IFileStorageService>(StorageProvider.Local, _fileStorageServiceMock.Object);
+        ServiceProvider serviceProvider = services.BuildServiceProvider();
+
         _repositoryMock
-            .Setup(r => r.GetAsync<StoredFileEntity>(99, default))
+            .Setup(r => r.GetAsync<StoredFileEntity>(42L, default))
             .ReturnsAsync(entity);
 
         _fileStorageServiceMock
-            .Setup(f => f.Exists(entity.Location))
-            .Returns(false);
+            .Setup(f => f.ExistsAsync(entity.Location, default))
+            .ReturnsAsync(false);
 
         // Act
         IActionResult result = await _controller.DownloadByIdAsync(
-            "run-xyz",
-            99);
+            serviceProvider,
+            _repositoryMock.Object,
+            42L);
 
         // Assert
         JsonResult jsonResult = Assert.IsType<JsonResult>(result);
@@ -195,12 +129,51 @@ public sealed class StoredFilesControllerTests
         Assert.Equal(StatusCode.NotFound, responseResult.StatusCode);
     }
 
-    private static async IAsyncEnumerable<StoredFileEntity> GetMockEntities(IEnumerable<StoredFileEntity> entities)
+    /// <summary>
+    /// Verifies that downloading returns a FileStreamResult when the entity and physical file exist.
+    /// </summary>
+    [Fact]
+    public async Task DownloadByIdAsync_WhenFileExists_ReturnsFileStreamResult()
     {
-        await Task.Yield();
-        foreach (StoredFileEntity entity in entities)
+        // Arrange
+        StoredFileEntity entity = new()
         {
-            yield return entity;
-        }
+            Id = 42L,
+            ExternalIdentifier = "run-abc",
+            FileName = "simulation.csv",
+            Location = "storage/ExperimentalData/run-abc/simulation.csv",
+            ContentType = "text/csv",
+            Context = "ExperimentalData",
+            StorageProvider = StorageProvider.Local
+        };
+
+        using MemoryStream memoryStream = new([1, 2, 3]);
+
+        ServiceCollection services = new();
+        services.AddKeyedSingleton<IFileStorageService>(StorageProvider.Local, _fileStorageServiceMock.Object);
+        ServiceProvider serviceProvider = services.BuildServiceProvider();
+
+        _repositoryMock
+            .Setup(r => r.GetAsync<StoredFileEntity>(42L, default))
+            .ReturnsAsync(entity);
+
+        _fileStorageServiceMock
+            .Setup(f => f.ExistsAsync(entity.Location, default))
+            .ReturnsAsync(true);
+
+        _fileStorageServiceMock
+            .Setup(f => f.OpenReadAsync(entity.Location, default))
+            .ReturnsAsync(memoryStream);
+
+        // Act
+        IActionResult result = await _controller.DownloadByIdAsync(
+            serviceProvider,
+            _repositoryMock.Object,
+            42L);
+
+        // Assert
+        FileStreamResult fileResult = Assert.IsType<FileStreamResult>(result);
+        Assert.Equal("text/csv", fileResult.ContentType);
+        Assert.Equal("simulation.csv", fileResult.FileDownloadName);
     }
 }

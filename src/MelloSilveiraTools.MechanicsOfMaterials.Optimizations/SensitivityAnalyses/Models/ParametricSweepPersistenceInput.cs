@@ -1,4 +1,4 @@
-using MelloSilveiraTools.Core.Managers.File;
+using MelloSilveiraTools.Core.Managers.File.Models;
 
 namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Models;
 
@@ -8,8 +8,8 @@ namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnaly
 /// </summary>
 /// <param name="ExternalIdentifier">Unique run identifier for the parametric sweep execution.</param>
 /// <param name="SweepInput">The input configuration of the parametric sweep.</param>
-/// <param name="GeneratedFilesMetadata">Collection of file metadata for all partitioned CSV files produced during the sweep.</param>
+/// <param name="GeneratedFilesMetadata">Collection of storage entry metadata for all partitioned CSV files produced during the sweep.</param>
 public sealed record ParametricSweepPersistenceInput(
     string ExternalIdentifier,
     ParametricSweepInput SweepInput,
-    IReadOnlyCollection<FileMetadata> GeneratedFilesMetadata);
+    IReadOnlyCollection<StorageEntryMetadata> GeneratedFilesMetadata);

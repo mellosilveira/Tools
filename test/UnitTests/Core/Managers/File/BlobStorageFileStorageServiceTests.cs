@@ -39,7 +39,7 @@ public sealed class BlobStorageFileStorageServiceTests : IDisposable
             .Setup(c => c.GetBlobClient(It.IsAny<string>()))
             .Returns(_blobClientMock.Object);
 
-        _defaultStorage = new LocalFileStorageService(new LocalFileStorageSettings { BaseDirectory = _testStagingDirectory });
+        _defaultStorage = new LocalFileStorageService(new LocalFileStorageSettings { BaseDirectory = _testStagingDirectory }, TimeProvider.System);
         _resiliencePipeline = new BlobStorageResiliencePipeline(
             NullLogger<BlobStorageResiliencePipeline>.Instance,
             new ResiliencePipelineSettings
@@ -62,7 +62,8 @@ public sealed class BlobStorageFileStorageServiceTests : IDisposable
             _defaultStorage,
             _containerClientMock.Object,
             _settings,
-            _resiliencePipeline);
+            _resiliencePipeline,
+            TimeProvider.System);
     }
 
     public void Dispose()

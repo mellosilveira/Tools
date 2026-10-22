@@ -10,6 +10,7 @@ using MelloSilveiraTools.Plugins.Infrastructure.Persistences;
 using MelloSilveiraTools.Plugins.Infrastructure.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Logging;
 
 namespace MelloSilveiraTools.Plugins;
@@ -27,6 +28,8 @@ public static class PluginsDependencyInjection
     /// <returns>The same <paramref name="services"/> instance to allow call chaining.</returns>
     public static IServiceCollection AddPluginServices(this IServiceCollection services, PluginSettings pluginSettings)
     {
+        services.TryAddSingleton(TimeProvider.System);
+
         services
             // Register settings.
             .AddSingleton(pluginSettings)
@@ -41,7 +44,8 @@ public static class PluginsDependencyInjection
             .AddSingleton<PluginAssemblyProcessor>((IServiceProvider serviceProvider) => new PluginAssemblyProcessor(
                 serviceProvider.GetServices<IPluginTypeProcessor>(),
                 serviceProvider.GetRequiredKeyedService<IFileStorageService>(pluginSettings.StorageProvider),
-                serviceProvider.GetRequiredService<PluginCache>()))
+                serviceProvider.GetRequiredService<PluginCache>(),
+                serviceProvider.GetRequiredService<TimeProvider>()))
             .AddSingleton<PluginCache>()
             // Register validators.
             .AddSingleton<PluginValidator<GetPluginsRequest>>()

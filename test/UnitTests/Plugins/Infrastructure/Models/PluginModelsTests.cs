@@ -84,13 +84,13 @@ public sealed class PluginModelsTests
         Assert.Null(registered.FullyLoadedAt);
 
         // Mark first type loaded
-        registered.MarkTypeLoaded(typeof(string));
+        registered.MarkTypeLoaded(typeof(string), TimeProvider.System);
         Assert.True(registered.TypesLoadedStatus[typeof(string)]);
         Assert.False(registered.IsFullyLoaded);
         Assert.Null(registered.FullyLoadedAt);
 
         // Mark second type loaded
-        registered.MarkTypeLoaded(typeof(int));
+        registered.MarkTypeLoaded(typeof(int), TimeProvider.System);
         Assert.True(registered.TypesLoadedStatus[typeof(int)]);
         Assert.True(registered.IsFullyLoaded);
         Assert.NotNull(registered.FullyLoadedAt);

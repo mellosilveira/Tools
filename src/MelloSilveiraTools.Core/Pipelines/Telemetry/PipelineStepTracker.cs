@@ -20,11 +20,12 @@ internal sealed class PipelineStepTracker(
     ILogger logger,
     IPipelineProgressNotifier progressNotifier,
     TimeProvider timeProvider,
+    PipelineProgressNotificationSettings? notificationSettings,
     string stepName,
     IReadOnlyList<string> upstreamSteps)
 {
-    private const int ImmediateNotificationItemLimit = 50;
-    private const int HighVolumeNotificationInterval = 500;
+    private readonly int _immediateNotificationItemLimit = notificationSettings?.ImmediateNotificationItemLimit ?? PipelineProgressNotificationSettings.DefaultImmediateNotificationItemLimit;
+    private readonly int _highVolumeNotificationInterval = notificationSettings?.HighVolumeNotificationInterval ?? PipelineProgressNotificationSettings.DefaultHighVolumeNotificationInterval;
 
     private int _receivedItems;
     private int _processedItems;
@@ -152,7 +153,7 @@ internal sealed class PipelineStepTracker(
     /// <param name="cancellationToken">Cancellation token.</param>
     public ValueTask OnStreamingProgressAsync(int emittedCount, CancellationToken cancellationToken = default)
     {
-        if (emittedCount % HighVolumeNotificationInterval != 0)
+        if (emittedCount % _highVolumeNotificationInterval != 0)
             return ValueTask.CompletedTask;
 
         int processed = Volatile.Read(ref _processedItems);
@@ -262,7 +263,7 @@ internal sealed class PipelineStepTracker(
         }
     }
 
-    private static bool ShouldNotifyItemUpdate(int count) => count <= ImmediateNotificationItemLimit || count % HighVolumeNotificationInterval == 0;
+    private bool ShouldNotifyItemUpdate(int count) => count <= _immediateNotificationItemLimit || count % _highVolumeNotificationInterval == 0;
 
     private static double CalculatePercentage(int processed, int received) => received > 0 ? Math.Round(Math.Min(100.0, (double)processed / received * 100.0), 2) : 0.0;
 }

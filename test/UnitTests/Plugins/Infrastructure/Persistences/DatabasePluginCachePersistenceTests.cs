@@ -42,7 +42,7 @@ public sealed class DatabasePluginCachePersistenceTests
         DiscoveredPlugin discovered = new("PluginA", new PluginVersion(1, 0, 0), "/pathA", DateTimeOffset.UtcNow);
         LoadedPlugin loaded = new(discovered, [typeof(string)], null!);
         RegisteredPlugin registered = new(loaded);
-        registered.MarkTypeLoaded(typeof(string));
+        registered.MarkTypeLoaded(typeof(string), TimeProvider.System);
 
         JsonSerializerOptions jsonOptions = new() { Converters = { new TypeJsonConverter() } };
 

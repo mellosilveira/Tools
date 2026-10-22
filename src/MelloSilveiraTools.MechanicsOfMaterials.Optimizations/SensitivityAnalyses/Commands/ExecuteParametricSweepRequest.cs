@@ -1,10 +1,8 @@
-﻿using MelloSilveiraTools.Core.Application.Commands;
-using MelloSilveiraTools.Core.Pipelines.Models;
+using MelloSilveiraTools.Core.Application.Commands;
 using MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels;
 using MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Models.Range;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Models;
-using System.Text.Json.Serialization;
 
 namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Commands;
 
@@ -79,18 +77,6 @@ public record ExecuteParametricSweepRequest : RequestBase
     public double AsymptoteTolerance { get; init; } = 1e-3;
 
     /// <summary>
-    /// Optional progress reporter for emitting real-time <see cref="PipelineProgressEvent"/> notifications.
-    /// </summary>
-    [JsonIgnore]
-    public IProgress<PipelineProgressEvent>? Progress { get; init; }
-
-    /// <summary>
-    /// Optional cooperative cancellation token for terminating processing prematurely.
-    /// </summary>
-    [JsonIgnore]
-    public CancellationToken CancellationToken { get; init; } = default;
-
-    /// <summary>
     /// Converts this command request into a <see cref="ParametricSweepInput"/> instance.
     /// </summary>
     /// <returns>A configured <see cref="ParametricSweepInput"/>.</returns>
@@ -108,7 +94,6 @@ public record ExecuteParametricSweepRequest : RequestBase
         InitialTime = InitialTime,
         TimeStep = TimeStep,
         FinalTime = FinalTime,
-        AsymptoteTolerance = AsymptoteTolerance,
-        Progress = Progress
+        AsymptoteTolerance = AsymptoteTolerance
     };
 }

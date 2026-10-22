@@ -25,7 +25,13 @@ public class MechanicalModelCalculatorFactoryTests
     {
         IServiceCollection services = new ServiceCollection();
         services.AddLogging();
-        CoreDependencyInjection.AddCoreServices(services, new ResiliencePipelineSettings(), null, null, null, null, false);
+        services.AddCoreServices(new ResiliencePipelineSettings
+        {
+            BackoffType = Polly.DelayBackoffType.Constant,
+            DelayInMilliseconds = 100,
+            MaxRetryAttempts = 3,
+            UseJitter = false
+        });
         services.AddMathematicsServices();
         services.AddMechanicsOfMaterialsServices(addMechanicalModels: true);
 

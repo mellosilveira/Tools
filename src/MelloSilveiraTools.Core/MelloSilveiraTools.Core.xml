@@ -347,13 +347,13 @@
             Provides extension methods to register services from the MelloSilveiraTools.Core package.
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.Core.CoreDependencyInjection.AddCoreServices(Microsoft.Extensions.DependencyInjection.IServiceCollection,MelloSilveiraTools.Core.ResiliencePipelines.ResiliencePipelineSettings,MelloSilveiraTools.Core.Services.Encryption.EncryptionSettings,MelloSilveiraTools.Core.Services.Email.EmailSettings,MelloSilveiraTools.Core.Managers.File.Providers.FileStorageSettings,MelloSilveiraTools.Core.Logging.LoggerSettings,System.Boolean)">
-            <inheritdoc cref="M:MelloSilveiraTools.Core.CoreDependencyInjection.&lt;G&gt;$7B30185E57B8298C6754F16C0BCF4773.AddCoreServices(MelloSilveiraTools.Core.ResiliencePipelines.ResiliencePipelineSettings,MelloSilveiraTools.Core.Services.Encryption.EncryptionSettings,MelloSilveiraTools.Core.Services.Email.EmailSettings,MelloSilveiraTools.Core.Managers.File.Providers.FileStorageSettings,MelloSilveiraTools.Core.Logging.LoggerSettings,System.Boolean)"/>
+        <member name="M:MelloSilveiraTools.Core.CoreDependencyInjection.AddCoreServices(Microsoft.Extensions.DependencyInjection.IServiceCollection,MelloSilveiraTools.Core.ResiliencePipelines.ResiliencePipelineSettings,MelloSilveiraTools.Core.Services.Encryption.EncryptionSettings,MelloSilveiraTools.Core.Services.Email.EmailSettings,MelloSilveiraTools.Core.Managers.File.Providers.FileStorageSettings,MelloSilveiraTools.Core.Logging.LoggerSettings,System.Boolean,MelloSilveiraTools.Core.Pipelines.Telemetry.PipelineProgressNotificationSettings)">
+            <inheritdoc cref="M:MelloSilveiraTools.Core.CoreDependencyInjection.&lt;G&gt;$7B30185E57B8298C6754F16C0BCF4773.AddCoreServices(MelloSilveiraTools.Core.ResiliencePipelines.ResiliencePipelineSettings,MelloSilveiraTools.Core.Services.Encryption.EncryptionSettings,MelloSilveiraTools.Core.Services.Email.EmailSettings,MelloSilveiraTools.Core.Managers.File.Providers.FileStorageSettings,MelloSilveiraTools.Core.Logging.LoggerSettings,System.Boolean,MelloSilveiraTools.Core.Pipelines.Telemetry.PipelineProgressNotificationSettings)"/>
         </member>
         <member name="M:MelloSilveiraTools.Core.CoreDependencyInjection.AddCoreLogging(Microsoft.Extensions.DependencyInjection.IServiceCollection,MelloSilveiraTools.Core.Logging.LoggerSettings)">
             <inheritdoc cref="M:MelloSilveiraTools.Core.CoreDependencyInjection.&lt;G&gt;$7B30185E57B8298C6754F16C0BCF4773.AddCoreLogging(MelloSilveiraTools.Core.Logging.LoggerSettings)"/>
         </member>
-        <member name="M:MelloSilveiraTools.Core.CoreDependencyInjection.&lt;G&gt;$7B30185E57B8298C6754F16C0BCF4773.AddCoreServices(MelloSilveiraTools.Core.ResiliencePipelines.ResiliencePipelineSettings,MelloSilveiraTools.Core.Services.Encryption.EncryptionSettings,MelloSilveiraTools.Core.Services.Email.EmailSettings,MelloSilveiraTools.Core.Managers.File.Providers.FileStorageSettings,MelloSilveiraTools.Core.Logging.LoggerSettings,System.Boolean)">
+        <member name="M:MelloSilveiraTools.Core.CoreDependencyInjection.&lt;G&gt;$7B30185E57B8298C6754F16C0BCF4773.AddCoreServices(MelloSilveiraTools.Core.ResiliencePipelines.ResiliencePipelineSettings,MelloSilveiraTools.Core.Services.Encryption.EncryptionSettings,MelloSilveiraTools.Core.Services.Email.EmailSettings,MelloSilveiraTools.Core.Managers.File.Providers.FileStorageSettings,MelloSilveiraTools.Core.Logging.LoggerSettings,System.Boolean,MelloSilveiraTools.Core.Pipelines.Telemetry.PipelineProgressNotificationSettings)">
             <summary>
             Registers core services: settings, SMTP resilience pipeline, file storage, logging, and encryption service.
             When <paramref name="loggerSettings"/> is null or specifies no sinks, Microsoft default console logging is enabled.
@@ -365,6 +365,7 @@
             <param name="fileStorageSettings">Settings used to configure storage services.</param>
             <param name="loggerSettings">Settings used by the logging service.</param>
             <param name="enablePipelineProgressNotifications">When true, registers <see cref="T:MelloSilveiraTools.Core.Pipelines.Notifiers.ChannelPipelineProgressNotifier"/> as the scoped <see cref="T:MelloSilveiraTools.Core.Pipelines.Notifiers.IPipelineProgressNotifier"/>; otherwise registers <see cref="T:MelloSilveiraTools.Core.Pipelines.Notifiers.NullPipelineProgressNotifier"/>.</param>
+            <param name="pipelineProgressNotificationSettings">Optional settings defining adaptive throttling thresholds and item notification intervals for pipeline progress.</param>
             <returns>The same <paramref name="services"/> instance to allow call chaining.</returns>
         </member>
         <member name="M:MelloSilveiraTools.Core.CoreDependencyInjection.&lt;G&gt;$7B30185E57B8298C6754F16C0BCF4773.AddCoreLogging(MelloSilveiraTools.Core.Logging.LoggerSettings)">
@@ -1447,8 +1448,9 @@
             <param name="amazonS3Client">Amazon S3 client instance shared across the application lifecycle.</param>
             <param name="settings">AWS S3 storage settings defining bucket, region, credentials, and virtual prefixes.</param>
             <param name="resiliencePipeline">Resilience pipeline for AWS S3 operations providing retry, backoff, and circuit-breaker strategies.</param>
+            <param name="timeProvider">The time provider instance used for temporal operations.</param>
         </member>
-        <member name="M:MelloSilveiraTools.Core.Managers.File.Providers.AwsS3.AwsS3FileStorageService.#ctor(Microsoft.Extensions.Logging.ILogger{MelloSilveiraTools.Core.Managers.File.Providers.AwsS3.AwsS3FileStorageService},MelloSilveiraTools.Core.Managers.File.Providers.IFileStorageService,Amazon.S3.IAmazonS3,MelloSilveiraTools.Core.Managers.File.Providers.AwsS3.AwsS3StorageSettings,MelloSilveiraTools.Core.ResiliencePipelines.AwsS3ResiliencePipeline)">
+        <member name="M:MelloSilveiraTools.Core.Managers.File.Providers.AwsS3.AwsS3FileStorageService.#ctor(Microsoft.Extensions.Logging.ILogger{MelloSilveiraTools.Core.Managers.File.Providers.AwsS3.AwsS3FileStorageService},MelloSilveiraTools.Core.Managers.File.Providers.IFileStorageService,Amazon.S3.IAmazonS3,MelloSilveiraTools.Core.Managers.File.Providers.AwsS3.AwsS3StorageSettings,MelloSilveiraTools.Core.ResiliencePipelines.AwsS3ResiliencePipeline,System.TimeProvider)">
             <summary>
             Storage-agnostic file management implementation targeting Amazon Simple Storage Service (AWS S3) and S3-compatible providers.
             Manages files using S3 object keys and streams data directly via the AWS S3 client without local disk staging for reads.
@@ -1501,6 +1503,7 @@
             <param name="amazonS3Client">Amazon S3 client instance shared across the application lifecycle.</param>
             <param name="settings">AWS S3 storage settings defining bucket, region, credentials, and virtual prefixes.</param>
             <param name="resiliencePipeline">Resilience pipeline for AWS S3 operations providing retry, backoff, and circuit-breaker strategies.</param>
+            <param name="timeProvider">The time provider instance used for temporal operations.</param>
         </member>
         <member name="P:MelloSilveiraTools.Core.Managers.File.Providers.AwsS3.AwsS3FileStorageService.Provider">
             <inheritdoc />
@@ -1640,8 +1643,9 @@
             <param name="containerClient">Azure Blob container client instance shared across the application lifecycle.</param>
             <param name="settings">Azure Blob storage settings defining container, endpoints, and virtual prefixes.</param>
             <param name="resiliencePipeline">Resilience pipeline for Azure Blob Storage operations providing retry, backoff, and circuit-breaker strategies.</param>
+            <param name="timeProvider">The time provider instance used for temporal operations.</param>
         </member>
-        <member name="M:MelloSilveiraTools.Core.Managers.File.Providers.BlobStorage.BlobStorageFileStorageService.#ctor(Microsoft.Extensions.Logging.ILogger{MelloSilveiraTools.Core.Managers.File.Providers.BlobStorage.BlobStorageFileStorageService},MelloSilveiraTools.Core.Managers.File.Providers.IFileStorageService,Azure.Storage.Blobs.BlobContainerClient,MelloSilveiraTools.Core.Managers.File.Providers.BlobStorage.BlobStorageSettings,MelloSilveiraTools.Core.ResiliencePipelines.BlobStorageResiliencePipeline)">
+        <member name="M:MelloSilveiraTools.Core.Managers.File.Providers.BlobStorage.BlobStorageFileStorageService.#ctor(Microsoft.Extensions.Logging.ILogger{MelloSilveiraTools.Core.Managers.File.Providers.BlobStorage.BlobStorageFileStorageService},MelloSilveiraTools.Core.Managers.File.Providers.IFileStorageService,Azure.Storage.Blobs.BlobContainerClient,MelloSilveiraTools.Core.Managers.File.Providers.BlobStorage.BlobStorageSettings,MelloSilveiraTools.Core.ResiliencePipelines.BlobStorageResiliencePipeline,System.TimeProvider)">
             <summary>
             Storage-agnostic file management implementation targeting Azure Blob Storage and Azure-compatible providers.
             Manages files using blob names and streams data directly via the Azure Blob Storage client without local disk staging for reads.
@@ -1694,6 +1698,7 @@
             <param name="containerClient">Azure Blob container client instance shared across the application lifecycle.</param>
             <param name="settings">Azure Blob storage settings defining container, endpoints, and virtual prefixes.</param>
             <param name="resiliencePipeline">Resilience pipeline for Azure Blob Storage operations providing retry, backoff, and circuit-breaker strategies.</param>
+            <param name="timeProvider">The time provider instance used for temporal operations.</param>
         </member>
         <member name="P:MelloSilveiraTools.Core.Managers.File.Providers.BlobStorage.BlobStorageFileStorageService.Provider">
             <inheritdoc />
@@ -1780,18 +1785,18 @@
             Storage-agnostic file management implementation targeting distributed file systems (DFS) and network shares.
             Inherits from <see cref="T:MelloSilveiraTools.Core.Managers.File.Providers.Local.LocalFileStorageService"/> as DFS represents a network-mounted hierarchical file system,
             configured with <see cref="F:System.IO.FileShare.ReadWrite"/> to facilitate concurrent distributed access.
-            Validates base directory platform compatibility to prevent common deployment misconfigurations across operating systems.
             </summary>
             <param name="settings">DFS storage settings defining the root network share path or mount point.</param>
+            <param name="timeProvider">The time provider instance used for temporal operations.</param>
         </member>
-        <member name="M:MelloSilveiraTools.Core.Managers.File.Providers.Dfs.DfsFileStorageService.#ctor(MelloSilveiraTools.Core.Managers.File.Providers.Dfs.DfsStorageSettings)">
+        <member name="M:MelloSilveiraTools.Core.Managers.File.Providers.Dfs.DfsFileStorageService.#ctor(MelloSilveiraTools.Core.Managers.File.Providers.Dfs.DfsStorageSettings,System.TimeProvider)">
             <summary>
             Storage-agnostic file management implementation targeting distributed file systems (DFS) and network shares.
             Inherits from <see cref="T:MelloSilveiraTools.Core.Managers.File.Providers.Local.LocalFileStorageService"/> as DFS represents a network-mounted hierarchical file system,
             configured with <see cref="F:System.IO.FileShare.ReadWrite"/> to facilitate concurrent distributed access.
-            Validates base directory platform compatibility to prevent common deployment misconfigurations across operating systems.
             </summary>
             <param name="settings">DFS storage settings defining the root network share path or mount point.</param>
+            <param name="timeProvider">The time provider instance used for temporal operations.</param>
         </member>
         <member name="P:MelloSilveiraTools.Core.Managers.File.Providers.Dfs.DfsFileStorageService.Provider">
             <inheritdoc />
@@ -1816,6 +1821,19 @@
             <summary>
             Abstract base implementation of <see cref="T:MelloSilveiraTools.Core.Managers.File.Providers.IFileStorageService"/> providing common functionality,
             path resolution, time-based file naming, and bridging between location-based and context-based operations.
+            </summary>
+            <param name="timeProvider">The time provider instance used for temporal operations.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Managers.File.Providers.FileStorageServiceBase.#ctor(System.TimeProvider)">
+            <summary>
+            Abstract base implementation of <see cref="T:MelloSilveiraTools.Core.Managers.File.Providers.IFileStorageService"/> providing common functionality,
+            path resolution, time-based file naming, and bridging between location-based and context-based operations.
+            </summary>
+            <param name="timeProvider">The time provider instance used for temporal operations.</param>
+        </member>
+        <member name="P:MelloSilveiraTools.Core.Managers.File.Providers.FileStorageServiceBase.TimeProvider">
+            <summary>
+            Gets the time provider used for time-based operations and file naming.
             </summary>
         </member>
         <member name="P:MelloSilveiraTools.Core.Managers.File.Providers.FileStorageServiceBase.Provider">
@@ -1874,7 +1892,7 @@
         </member>
         <member name="M:MelloSilveiraTools.Core.Managers.File.Providers.FileStorageServiceBase.GenerateTimebasedFileName(System.String,System.String)">
             <summary>
-            Generates a standardized timestamped file name using UTC time ("yyyy-MM-dd_HH-mm-ss").
+            Generates a standardized timestamped file name using UTC time ("yyyy-MM-dd_HH-mm-ss.fff").
             </summary>
             <param name="filePrefix">Business prefix.</param>
             <param name="fileExtension">File extension including the leading dot.</param>
@@ -1882,7 +1900,7 @@
         </member>
         <member name="M:MelloSilveiraTools.Core.Managers.File.Providers.FileStorageServiceBase.GenerateTimebasedFileName(System.String)">
             <summary>
-            Generates a standardized timestamped file name using UTC time ("yyyy-MM-dd_HH-mm-ss").
+            Generates a standardized timestamped file name using UTC time ("yyyy-MM-dd_HH-mm-ss.fff").
             </summary>
             <param name="fileExtension">File extension including the leading dot.</param>
             <returns>A formatted timestamped file name.</returns>
@@ -2102,13 +2120,15 @@
             Implements canonical hierarchical directory structures partitioned by domain context and unique identifier ("storage/{context}/{identifier}/").
             </summary>
             <param name="settings">File storage settings defining the root base directory.</param>
+            <param name="timeProvider">The time provider instance used for temporal operations.</param>
         </member>
-        <member name="M:MelloSilveiraTools.Core.Managers.File.Providers.Local.LocalFileStorageService.#ctor(MelloSilveiraTools.Core.Managers.File.Providers.Local.LocalFileStorageSettings)">
+        <member name="M:MelloSilveiraTools.Core.Managers.File.Providers.Local.LocalFileStorageService.#ctor(MelloSilveiraTools.Core.Managers.File.Providers.Local.LocalFileStorageSettings,System.TimeProvider)">
             <summary>
             Storage-agnostic file management implementation targeting the local file system.
             Implements canonical hierarchical directory structures partitioned by domain context and unique identifier ("storage/{context}/{identifier}/").
             </summary>
             <param name="settings">File storage settings defining the root base directory.</param>
+            <param name="timeProvider">The time provider instance used for temporal operations.</param>
         </member>
         <member name="P:MelloSilveiraTools.Core.Managers.File.Providers.Local.LocalFileStorageService.Provider">
             <inheritdoc />
@@ -2975,7 +2995,7 @@
             </list>
             </remarks>
         </member>
-        <member name="M:MelloSilveiraTools.Core.Pipelines.Dataflow.DataflowPipelineBuilder`2.#ctor(Microsoft.Extensions.Logging.ILogger,MelloSilveiraTools.Core.Pipelines.Notifiers.IPipelineProgressNotifier,System.Threading.Tasks.Dataflow.ITargetBlock{`0},System.Threading.Tasks.Dataflow.ISourceBlock{`1},System.Threading.Tasks.Dataflow.ITargetBlock{MelloSilveiraTools.Core.Pipelines.Models.FailedPayload},System.Nullable{MelloSilveiraTools.Core.Pipelines.Models.RetryOptions},MelloSilveiraTools.Core.Pipelines.Telemetry.PipelineFlowNode,MelloSilveiraTools.Core.Pipelines.Telemetry.PipelineFlowNode,System.Collections.Generic.List{MelloSilveiraTools.Core.Pipelines.Telemetry.PipelineStepTracker},System.Collections.Generic.List{System.Threading.Tasks.Task},System.Collections.Generic.List{MelloSilveiraTools.Core.Pipelines.Steps.IPipelineStep},System.Threading.CancellationToken)">
+        <member name="M:MelloSilveiraTools.Core.Pipelines.Dataflow.DataflowPipelineBuilder`2.#ctor(Microsoft.Extensions.Logging.ILogger,MelloSilveiraTools.Core.Pipelines.Notifiers.IPipelineProgressNotifier,System.Threading.Tasks.Dataflow.ITargetBlock{`0},System.Threading.Tasks.Dataflow.ISourceBlock{`1},System.Threading.Tasks.Dataflow.ITargetBlock{MelloSilveiraTools.Core.Pipelines.Models.FailedPayload},System.Nullable{MelloSilveiraTools.Core.Pipelines.Models.RetryOptions},MelloSilveiraTools.Core.Pipelines.Telemetry.PipelineFlowNode,MelloSilveiraTools.Core.Pipelines.Telemetry.PipelineFlowNode,System.TimeProvider,MelloSilveiraTools.Core.Pipelines.Telemetry.PipelineProgressNotificationSettings,System.Collections.Generic.List{MelloSilveiraTools.Core.Pipelines.Telemetry.PipelineStepTracker},System.Collections.Generic.List{System.Threading.Tasks.Task},System.Collections.Generic.List{MelloSilveiraTools.Core.Pipelines.Steps.IPipelineStep},System.Threading.CancellationToken)">
             <summary>
             Strongly-typed fluent builder for orchestrating asynchronous data processing topologies.
             </summary>
@@ -3046,6 +3066,9 @@
             <inheritdoc/>
         </member>
         <member name="M:MelloSilveiraTools.Core.Pipelines.Dataflow.DataflowPipelineBuilder`2.AddBroadcastStep``1(MelloSilveiraTools.Core.Pipelines.Steps.IAsyncPipelineStep{``0},System.Func{`1,``0},MelloSilveiraTools.Core.Pipelines.Models.PipelineStepOptions)">
+            <inheritdoc/>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Pipelines.Dataflow.DataflowPipelineBuilder`2.AddBroadcastFork``1(System.Func{MelloSilveiraTools.Core.Pipelines.Dataflow.IDataflowPipelineBuilder{`0,`1},MelloSilveiraTools.Core.Pipelines.Dataflow.IDataflowPipelineBuilder{`0,``0}},System.Func{`1,`1},MelloSilveiraTools.Core.Pipelines.Models.PipelineStepOptions)">
             <inheritdoc/>
         </member>
         <member name="M:MelloSilveiraTools.Core.Pipelines.Dataflow.DataflowPipelineBuilder`2.BuildTerminal(System.String,System.Action{`1},MelloSilveiraTools.Core.Pipelines.Models.PipelineStepOptions)">
@@ -3329,6 +3352,16 @@
             Technical Decision: Transforms and routes a payload projection to a side-effect observer without changing the primary pipeline contract.
             </remarks>
         </member>
+        <member name="M:MelloSilveiraTools.Core.Pipelines.Dataflow.IDataflowPipelineBuilder`2.AddBroadcastFork``1(System.Func{MelloSilveiraTools.Core.Pipelines.Dataflow.IDataflowPipelineBuilder{`0,`1},MelloSilveiraTools.Core.Pipelines.Dataflow.IDataflowPipelineBuilder{`0,``0}},System.Func{`1,`1},MelloSilveiraTools.Core.Pipelines.Models.PipelineStepOptions)">
+            <summary>
+            Forks the pipeline into a non-mutating broadcast branch composed of one or more pipeline steps that execute concurrently as a side-effect without altering the primary pipeline payload.
+            </summary>
+            <typeparam name="TBranchOut">The terminal output type produced by the broadcast branch.</typeparam>
+            <param name="branch">Delegate defining the pipeline topology for the broadcast branch.</param>
+            <param name="cloneFunc">An optional function to clone the payload before broadcasting.</param>
+            <param name="options">Concurrency and buffer options for the broadcast block.</param>
+            <returns>A new <see cref="T:MelloSilveiraTools.Core.Pipelines.Dataflow.IDataflowPipelineBuilder`2"/> continuing with the unmodified primary payload.</returns>
+        </member>
         <member name="M:MelloSilveiraTools.Core.Pipelines.Dataflow.IDataflowPipelineBuilder`2.BuildTerminal(System.String,System.Action{`1},MelloSilveiraTools.Core.Pipelines.Models.PipelineStepOptions)">
             <summary>
             Appends a synchronous terminal step serving as the pipeline sink. Seals the topology.
@@ -3472,6 +3505,21 @@
             </summary>
             <param name="logger">Structured logging provider injected into the execution engine for telemetry and state tracking.</param>
             <returns>The finalized pipeline instance capable of processing the sequential state transitions.</returns>
+        </member>
+        <member name="T:MelloSilveiraTools.Core.Pipelines.IPipeline`2">
+            <summary>
+            Defines a generic contract for domain processing pipelines.
+            </summary>
+            <typeparam name="TInput">The type of input configuration consumed by the pipeline.</typeparam>
+            <typeparam name="TOutput">The type of output data returned upon pipeline completion.</typeparam>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Pipelines.IPipeline`2.ProcessAsync(`0,System.Threading.CancellationToken)">
+            <summary>
+            Builds and executes the processing pipeline for the specified input.
+            </summary>
+            <param name="input">The pipeline input configuration.</param>
+            <param name="cancellationToken">A token to cancel the asynchronous operation.</param>
+            <returns>A <see cref="T:MelloSilveiraTools.Core.Models.Result`1"/> containing the result of the pipeline execution.</returns>
         </member>
         <member name="T:MelloSilveiraTools.Core.Pipelines.Models.FailedPayload">
             <summary>
@@ -3843,7 +3891,7 @@
             and the strongly-typed pull-based Fluent request-response pipeline.
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.Core.Pipelines.PipelineFactory.StartDataflow``1(Microsoft.Extensions.Logging.ILogger,MelloSilveiraTools.Core.Pipelines.Notifiers.IPipelineProgressNotifier,System.Int32,System.Nullable{MelloSilveiraTools.Core.Pipelines.Models.RetryOptions},System.Threading.CancellationToken)">
+        <member name="M:MelloSilveiraTools.Core.Pipelines.PipelineFactory.StartDataflow``1(Microsoft.Extensions.Logging.ILogger,MelloSilveiraTools.Core.Pipelines.Notifiers.IPipelineProgressNotifier,System.TimeProvider,MelloSilveiraTools.Core.Pipelines.Telemetry.PipelineProgressNotificationSettings,System.Int32,System.Nullable{MelloSilveiraTools.Core.Pipelines.Models.RetryOptions},System.Threading.CancellationToken)">
             <summary>
             Bootstraps a continuous TPL Dataflow pipeline topology by instantiating a <see cref="T:System.Threading.Tasks.Dataflow.BufferBlock`1"/> 
             as the ingestion head. Enforces bounded capacity backpressure and injects the unified cancellation graph 
@@ -3857,6 +3905,8 @@
             <typeparam name="T">The immutable payload type ingested at the pipeline head.</typeparam>
             <param name="logger">Structured logging provider for tracking block transitions and telemetry.</param>
             <param name="progressNotifier">Progress notifier resolved via dependency injection for emitting real-time <see cref="T:MelloSilveiraTools.Core.Pipelines.Models.PipelineProgressEvent"/> notifications.</param>
+            <param name="timeProvider">Mandatory time provider for timestamping pipeline events and telemetry.</param>
+            <param name="notificationSettings">Optional settings defining adaptive throttling thresholds and notification intervals.</param>
             <param name="initialBufferSize">The maximum bounded capacity of the ingestion buffer block, defaulting to 10,000 items.</param>
             <param name="retryOptions">Optional retry configuration for asynchronous pipeline steps.</param>
             <param name="cancellationToken">The unified cancellation token propagated down the entire Dataflow network.</param>
@@ -4040,6 +4090,34 @@
             <param name="branchNodes">The terminal flow nodes of each parallel branch converging at the JoinBlock.</param>
             <returns>A converged <see cref="T:MelloSilveiraTools.Core.Pipelines.Telemetry.PipelineFlowNode"/> whose upstream steps are the distinct union of all branches.</returns>
         </member>
+        <member name="T:MelloSilveiraTools.Core.Pipelines.Telemetry.PipelineProgressNotificationSettings">
+            <summary>
+            Configuration settings that define adaptive throttling thresholds and item frequency intervals 
+            for real-time pipeline progress notifications.
+            </summary>
+        </member>
+        <member name="F:MelloSilveiraTools.Core.Pipelines.Telemetry.PipelineProgressNotificationSettings.DefaultImmediateNotificationItemLimit">
+            <summary>
+            Default threshold limit up to which every individual item processed emits a progress notification event.
+            </summary>
+        </member>
+        <member name="F:MelloSilveiraTools.Core.Pipelines.Telemetry.PipelineProgressNotificationSettings.DefaultHighVolumeNotificationInterval">
+            <summary>
+            Default item interval frequency for emitting progress notification events once the processed volume exceeds <see cref="F:MelloSilveiraTools.Core.Pipelines.Telemetry.PipelineProgressNotificationSettings.DefaultImmediateNotificationItemLimit"/>.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Core.Pipelines.Telemetry.PipelineProgressNotificationSettings.ImmediateNotificationItemLimit">
+            <summary>
+            Gets the upper limit of items for which every processed item emits an individual progress event.
+            Must be greater than zero.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Core.Pipelines.Telemetry.PipelineProgressNotificationSettings.HighVolumeNotificationInterval">
+            <summary>
+            Gets the item frequency interval for emitting progress events once the volume exceeds <see cref="P:MelloSilveiraTools.Core.Pipelines.Telemetry.PipelineProgressNotificationSettings.ImmediateNotificationItemLimit"/>.
+            Must be greater than zero.
+            </summary>
+        </member>
         <member name="T:MelloSilveiraTools.Core.Pipelines.Telemetry.PipelineStepExecutor">
             <summary>
             Encapsulates pipeline step execution with OpenTelemetry distributed tracing, structured logging,
@@ -4054,82 +4132,82 @@
             </list>
             </remarks>
         </member>
-        <member name="M:MelloSilveiraTools.Core.Pipelines.Telemetry.PipelineStepExecutor.HandleExecution``1(Microsoft.Extensions.Logging.ILogger,MelloSilveiraTools.Core.Pipelines.Notifiers.IPipelineProgressNotifier,System.String,System.Action{``0},System.Threading.CancellationToken)">
+        <member name="M:MelloSilveiraTools.Core.Pipelines.Telemetry.PipelineStepExecutor.HandleExecution``1(Microsoft.Extensions.Logging.ILogger,MelloSilveiraTools.Core.Pipelines.Notifiers.IPipelineProgressNotifier,System.TimeProvider,System.String,System.Action{``0},System.Threading.CancellationToken)">
             <summary>
             Wraps a synchronous action with OpenTelemetry tracing, structured logging, and progress notifications.
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.Core.Pipelines.Telemetry.PipelineStepExecutor.HandleSafeExecution``1(Microsoft.Extensions.Logging.ILogger,MelloSilveiraTools.Core.Pipelines.Notifiers.IPipelineProgressNotifier,System.String,System.Action{``0},System.Threading.CancellationToken)">
+        <member name="M:MelloSilveiraTools.Core.Pipelines.Telemetry.PipelineStepExecutor.HandleSafeExecution``1(Microsoft.Extensions.Logging.ILogger,MelloSilveiraTools.Core.Pipelines.Notifiers.IPipelineProgressNotifier,System.TimeProvider,System.String,System.Action{``0},System.Threading.CancellationToken)">
             <summary>
             Wraps a synchronous action, capturing exceptions into a <see cref="T:MelloSilveiraTools.Core.Pipelines.Models.SafeResult`1"/> envelope for centralized error routing.
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.Core.Pipelines.Telemetry.PipelineStepExecutor.HandleExecution``1(Microsoft.Extensions.Logging.ILogger,MelloSilveiraTools.Core.Pipelines.Notifiers.IPipelineProgressNotifier,System.String,System.Func{``0,System.Threading.CancellationToken,System.Threading.Tasks.Task},System.Nullable{MelloSilveiraTools.Core.Pipelines.Models.RetryOptions},System.Threading.CancellationToken)">
+        <member name="M:MelloSilveiraTools.Core.Pipelines.Telemetry.PipelineStepExecutor.HandleExecution``1(Microsoft.Extensions.Logging.ILogger,MelloSilveiraTools.Core.Pipelines.Notifiers.IPipelineProgressNotifier,System.TimeProvider,System.String,System.Func{``0,System.Threading.CancellationToken,System.Threading.Tasks.Task},System.Nullable{MelloSilveiraTools.Core.Pipelines.Models.RetryOptions},System.Threading.CancellationToken)">
             <summary>
             Wraps an asynchronous action with OpenTelemetry tracing, structured logging, progress notifications, and optional exponential backoff.
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.Core.Pipelines.Telemetry.PipelineStepExecutor.HandleSafeExecution``1(Microsoft.Extensions.Logging.ILogger,MelloSilveiraTools.Core.Pipelines.Notifiers.IPipelineProgressNotifier,System.String,System.Func{``0,System.Threading.CancellationToken,System.Threading.Tasks.Task},System.Nullable{MelloSilveiraTools.Core.Pipelines.Models.RetryOptions},System.Threading.CancellationToken)">
+        <member name="M:MelloSilveiraTools.Core.Pipelines.Telemetry.PipelineStepExecutor.HandleSafeExecution``1(Microsoft.Extensions.Logging.ILogger,MelloSilveiraTools.Core.Pipelines.Notifiers.IPipelineProgressNotifier,System.TimeProvider,System.String,System.Func{``0,System.Threading.CancellationToken,System.Threading.Tasks.Task},System.Nullable{MelloSilveiraTools.Core.Pipelines.Models.RetryOptions},System.Threading.CancellationToken)">
             <summary>
             Wraps an asynchronous action, combining exponential backoff with a <see cref="T:MelloSilveiraTools.Core.Pipelines.Models.SafeResult`1"/> envelope for terminal failures.
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.Core.Pipelines.Telemetry.PipelineStepExecutor.HandleExecution``2(Microsoft.Extensions.Logging.ILogger,MelloSilveiraTools.Core.Pipelines.Notifiers.IPipelineProgressNotifier,System.String,System.Func{``0,``1},System.Threading.CancellationToken)">
+        <member name="M:MelloSilveiraTools.Core.Pipelines.Telemetry.PipelineStepExecutor.HandleExecution``2(Microsoft.Extensions.Logging.ILogger,MelloSilveiraTools.Core.Pipelines.Notifiers.IPipelineProgressNotifier,System.TimeProvider,System.String,System.Func{``0,``1},System.Threading.CancellationToken)">
             <summary>
             Wraps a synchronous mapping function with OpenTelemetry tracing, structured logging, and progress notifications, returning the mapped output.
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.Core.Pipelines.Telemetry.PipelineStepExecutor.HandleSafeExecution``2(Microsoft.Extensions.Logging.ILogger,MelloSilveiraTools.Core.Pipelines.Notifiers.IPipelineProgressNotifier,System.String,System.Func{``0,``1},System.Threading.CancellationToken)">
+        <member name="M:MelloSilveiraTools.Core.Pipelines.Telemetry.PipelineStepExecutor.HandleSafeExecution``2(Microsoft.Extensions.Logging.ILogger,MelloSilveiraTools.Core.Pipelines.Notifiers.IPipelineProgressNotifier,System.TimeProvider,System.String,System.Func{``0,``1},System.Threading.CancellationToken)">
             <summary>
             Wraps a synchronous mapping function, intercepting failures into a <see cref="T:MelloSilveiraTools.Core.Pipelines.Models.SafeResult`2"/> to permit DLQ offloading.
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.Core.Pipelines.Telemetry.PipelineStepExecutor.HandleExecution``2(Microsoft.Extensions.Logging.ILogger,MelloSilveiraTools.Core.Pipelines.Notifiers.IPipelineProgressNotifier,System.String,System.Func{``0,System.Threading.CancellationToken,System.Threading.Tasks.Task{``1}},System.Nullable{MelloSilveiraTools.Core.Pipelines.Models.RetryOptions},System.Threading.CancellationToken)">
+        <member name="M:MelloSilveiraTools.Core.Pipelines.Telemetry.PipelineStepExecutor.HandleExecution``2(Microsoft.Extensions.Logging.ILogger,MelloSilveiraTools.Core.Pipelines.Notifiers.IPipelineProgressNotifier,System.TimeProvider,System.String,System.Func{``0,System.Threading.CancellationToken,System.Threading.Tasks.Task{``1}},System.Nullable{MelloSilveiraTools.Core.Pipelines.Models.RetryOptions},System.Threading.CancellationToken)">
             <summary>
             Wraps an asynchronous mapping function with support for optional retry logic (exponential backoff) and telemetry tracking.
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.Core.Pipelines.Telemetry.PipelineStepExecutor.HandleSafeExecution``2(Microsoft.Extensions.Logging.ILogger,MelloSilveiraTools.Core.Pipelines.Notifiers.IPipelineProgressNotifier,System.String,System.Func{``0,System.Threading.CancellationToken,System.Threading.Tasks.Task{``1}},System.Nullable{MelloSilveiraTools.Core.Pipelines.Models.RetryOptions},System.Threading.CancellationToken)">
+        <member name="M:MelloSilveiraTools.Core.Pipelines.Telemetry.PipelineStepExecutor.HandleSafeExecution``2(Microsoft.Extensions.Logging.ILogger,MelloSilveiraTools.Core.Pipelines.Notifiers.IPipelineProgressNotifier,System.TimeProvider,System.String,System.Func{``0,System.Threading.CancellationToken,System.Threading.Tasks.Task{``1}},System.Nullable{MelloSilveiraTools.Core.Pipelines.Models.RetryOptions},System.Threading.CancellationToken)">
             <summary>
             Wraps an asynchronous mapping function, catching ultimate backoff failures into a bifurcated <see cref="T:MelloSilveiraTools.Core.Pipelines.Models.SafeResult`2"/>.
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.Core.Pipelines.Telemetry.PipelineStepExecutor.HandleExecution``2(Microsoft.Extensions.Logging.ILogger,MelloSilveiraTools.Core.Pipelines.Notifiers.IPipelineProgressNotifier,System.String,System.String,System.Func{``0,``1},System.Func{``1,System.Boolean},System.Func{``0,``1},System.Threading.CancellationToken)">
+        <member name="M:MelloSilveiraTools.Core.Pipelines.Telemetry.PipelineStepExecutor.HandleExecution``2(Microsoft.Extensions.Logging.ILogger,MelloSilveiraTools.Core.Pipelines.Notifiers.IPipelineProgressNotifier,System.TimeProvider,System.String,System.String,System.Func{``0,``1},System.Func{``1,System.Boolean},System.Func{``0,``1},System.Threading.CancellationToken)">
             <summary>
             Wraps a synchronous conditional forking operation evaluating the output payload after the primary execution completes.
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.Core.Pipelines.Telemetry.PipelineStepExecutor.HandleSafeExecution``2(Microsoft.Extensions.Logging.ILogger,MelloSilveiraTools.Core.Pipelines.Notifiers.IPipelineProgressNotifier,System.String,System.String,System.Func{``0,``1},System.Func{MelloSilveiraTools.Core.Pipelines.Models.SafeResult{``0,``1},System.Boolean},System.Func{``0,``1},System.Threading.CancellationToken)">
+        <member name="M:MelloSilveiraTools.Core.Pipelines.Telemetry.PipelineStepExecutor.HandleSafeExecution``2(Microsoft.Extensions.Logging.ILogger,MelloSilveiraTools.Core.Pipelines.Notifiers.IPipelineProgressNotifier,System.TimeProvider,System.String,System.String,System.Func{``0,``1},System.Func{MelloSilveiraTools.Core.Pipelines.Models.SafeResult{``0,``1},System.Boolean},System.Func{``0,``1},System.Threading.CancellationToken)">
             <summary>
             Wraps a synchronous post-execution conditional forking operation, evaluating against the <see cref="T:MelloSilveiraTools.Core.Pipelines.Models.SafeResult`2"/> state.
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.Core.Pipelines.Telemetry.PipelineStepExecutor.HandleExecution``2(Microsoft.Extensions.Logging.ILogger,MelloSilveiraTools.Core.Pipelines.Notifiers.IPipelineProgressNotifier,System.String,System.String,System.Func{``0,System.Threading.CancellationToken,System.Threading.Tasks.Task{``1}},System.Func{``1,System.Boolean},System.Func{``0,System.Threading.CancellationToken,System.Threading.Tasks.Task{``1}},System.Nullable{MelloSilveiraTools.Core.Pipelines.Models.RetryOptions},System.Threading.CancellationToken)">
+        <member name="M:MelloSilveiraTools.Core.Pipelines.Telemetry.PipelineStepExecutor.HandleExecution``2(Microsoft.Extensions.Logging.ILogger,MelloSilveiraTools.Core.Pipelines.Notifiers.IPipelineProgressNotifier,System.TimeProvider,System.String,System.String,System.Func{``0,System.Threading.CancellationToken,System.Threading.Tasks.Task{``1}},System.Func{``1,System.Boolean},System.Func{``0,System.Threading.CancellationToken,System.Threading.Tasks.Task{``1}},System.Nullable{MelloSilveiraTools.Core.Pipelines.Models.RetryOptions},System.Threading.CancellationToken)">
             <summary>
             Wraps an asynchronous conditional forking operation evaluating the output payload after the primary execution completes.
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.Core.Pipelines.Telemetry.PipelineStepExecutor.HandleSafeExecution``2(Microsoft.Extensions.Logging.ILogger,MelloSilveiraTools.Core.Pipelines.Notifiers.IPipelineProgressNotifier,System.String,System.String,System.Func{``0,System.Threading.CancellationToken,System.Threading.Tasks.Task{``1}},System.Func{MelloSilveiraTools.Core.Pipelines.Models.SafeResult{``0,``1},System.Boolean},System.Func{``0,System.Threading.CancellationToken,System.Threading.Tasks.Task{``1}},System.Nullable{MelloSilveiraTools.Core.Pipelines.Models.RetryOptions},System.Threading.CancellationToken)">
+        <member name="M:MelloSilveiraTools.Core.Pipelines.Telemetry.PipelineStepExecutor.HandleSafeExecution``2(Microsoft.Extensions.Logging.ILogger,MelloSilveiraTools.Core.Pipelines.Notifiers.IPipelineProgressNotifier,System.TimeProvider,System.String,System.String,System.Func{``0,System.Threading.CancellationToken,System.Threading.Tasks.Task{``1}},System.Func{MelloSilveiraTools.Core.Pipelines.Models.SafeResult{``0,``1},System.Boolean},System.Func{``0,System.Threading.CancellationToken,System.Threading.Tasks.Task{``1}},System.Nullable{MelloSilveiraTools.Core.Pipelines.Models.RetryOptions},System.Threading.CancellationToken)">
             <summary>
             Wraps an asynchronous post-execution conditional forking operation, evaluating against the <see cref="T:MelloSilveiraTools.Core.Pipelines.Models.SafeResult`2"/> state.
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.Core.Pipelines.Telemetry.PipelineStepExecutor.HandleExecution``2(Microsoft.Extensions.Logging.ILogger,MelloSilveiraTools.Core.Pipelines.Notifiers.IPipelineProgressNotifier,System.String,System.Func{``0,System.Threading.CancellationToken,System.Collections.Generic.IAsyncEnumerable{``1}},System.Threading.CancellationToken)">
+        <member name="M:MelloSilveiraTools.Core.Pipelines.Telemetry.PipelineStepExecutor.HandleExecution``2(Microsoft.Extensions.Logging.ILogger,MelloSilveiraTools.Core.Pipelines.Notifiers.IPipelineProgressNotifier,System.TimeProvider,System.String,System.Func{``0,System.Threading.CancellationToken,System.Collections.Generic.IAsyncEnumerable{``1}},System.Threading.CancellationToken)">
             <summary>
             Wraps a streaming function returning an <see cref="T:System.Collections.Generic.IAsyncEnumerable`1"/> with OpenTelemetry tracing, structured logging, and progress notifications.
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.Core.Pipelines.Telemetry.PipelineStepExecutor.HandleSafeExecution``2(Microsoft.Extensions.Logging.ILogger,MelloSilveiraTools.Core.Pipelines.Notifiers.IPipelineProgressNotifier,System.String,System.Func{``0,System.Threading.CancellationToken,System.Collections.Generic.IAsyncEnumerable{``1}},System.Threading.CancellationToken)">
+        <member name="M:MelloSilveiraTools.Core.Pipelines.Telemetry.PipelineStepExecutor.HandleSafeExecution``2(Microsoft.Extensions.Logging.ILogger,MelloSilveiraTools.Core.Pipelines.Notifiers.IPipelineProgressNotifier,System.TimeProvider,System.String,System.Func{``0,System.Threading.CancellationToken,System.Collections.Generic.IAsyncEnumerable{``1}},System.Threading.CancellationToken)">
             <summary>
             Wraps a streaming function returning an <see cref="T:System.Collections.Generic.IAsyncEnumerable`1"/> with OpenTelemetry tracing, structured logging, progress notifications, and safe DLQ routing.
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.Core.Pipelines.Telemetry.PipelineStepExecutor.HandleExecution``2(Microsoft.Extensions.Logging.ILogger,MelloSilveiraTools.Core.Pipelines.Notifiers.IPipelineProgressNotifier,System.String,System.Func{``0,System.Threading.CancellationToken,System.Collections.Generic.IEnumerable{``1}},System.Threading.CancellationToken)">
+        <member name="M:MelloSilveiraTools.Core.Pipelines.Telemetry.PipelineStepExecutor.HandleExecution``2(Microsoft.Extensions.Logging.ILogger,MelloSilveiraTools.Core.Pipelines.Notifiers.IPipelineProgressNotifier,System.TimeProvider,System.String,System.Func{``0,System.Threading.CancellationToken,System.Collections.Generic.IEnumerable{``1}},System.Threading.CancellationToken)">
             <summary>
             Wraps an enumerable transformation function returning an <see cref="T:System.Collections.Generic.IEnumerable`1"/> with OpenTelemetry tracing, structured logging, and progress notifications.
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.Core.Pipelines.Telemetry.PipelineStepExecutor.HandleSafeExecution``2(Microsoft.Extensions.Logging.ILogger,MelloSilveiraTools.Core.Pipelines.Notifiers.IPipelineProgressNotifier,System.String,System.Func{``0,System.Threading.CancellationToken,System.Collections.Generic.IEnumerable{``1}},System.Threading.CancellationToken)">
+        <member name="M:MelloSilveiraTools.Core.Pipelines.Telemetry.PipelineStepExecutor.HandleSafeExecution``2(Microsoft.Extensions.Logging.ILogger,MelloSilveiraTools.Core.Pipelines.Notifiers.IPipelineProgressNotifier,System.TimeProvider,System.String,System.Func{``0,System.Threading.CancellationToken,System.Collections.Generic.IEnumerable{``1}},System.Threading.CancellationToken)">
             <summary>
             Wraps an enumerable transformation function returning an <see cref="T:System.Collections.Generic.IEnumerable`1"/> with OpenTelemetry tracing, structured logging, progress notifications, and safe DLQ routing.
             </summary>
@@ -4148,7 +4226,7 @@
             </list>
             </remarks>
         </member>
-        <member name="M:MelloSilveiraTools.Core.Pipelines.Telemetry.PipelineStepTracker.#ctor(Microsoft.Extensions.Logging.ILogger,MelloSilveiraTools.Core.Pipelines.Notifiers.IPipelineProgressNotifier,System.String,System.Collections.Generic.IReadOnlyList{System.String})">
+        <member name="M:MelloSilveiraTools.Core.Pipelines.Telemetry.PipelineStepTracker.#ctor(Microsoft.Extensions.Logging.ILogger,MelloSilveiraTools.Core.Pipelines.Notifiers.IPipelineProgressNotifier,System.TimeProvider,MelloSilveiraTools.Core.Pipelines.Telemetry.PipelineProgressNotificationSettings,System.String,System.Collections.Generic.IReadOnlyList{System.String})">
             <summary>
             Tracks the execution lifecycle, DAG topology relationships, and item counters (received vs. processed)
             for a single logical step across a TPL Dataflow pipeline.

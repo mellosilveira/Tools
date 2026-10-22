@@ -1,4 +1,4 @@
-﻿namespace MelloSilveiraTools.WebApi.Infrastructure.Services.ApiServiceAgent.Settings;
+namespace MelloSilveiraTools.WebApi.Infrastructure.Services.ApiServiceAgent.Settings;
 
 /// <summary>
 /// General settings for an endpoint.
@@ -13,5 +13,5 @@ public class EndpointSettings
     /// <summary>
     /// Timeout in miliseconds for endpoint.
     /// </summary>
-    public int TimeoutInMiliseconds { get; set; }
+    public required int TimeoutInMiliseconds { get; set; }
 }

@@ -1,12 +1,12 @@
-﻿using MelloSilveiraTools.Core.Managers.File;
+using MelloSilveiraTools.Core.Managers.File.Providers;
 using MelloSilveiraTools.Core.Models;
 using MelloSilveiraTools.Core.Pipelines;
 using MelloSilveiraTools.Core.Pipelines.Dataflow;
 using MelloSilveiraTools.Core.Pipelines.Models;
-using MelloSilveiraTools.Core.Pipelines.Steps;
+using MelloSilveiraTools.Core.Pipelines.Notifiers;
+using MelloSilveiraTools.Core.Pipelines.Telemetry;
 using MelloSilveiraTools.Core.Providers;
 using MelloSilveiraTools.Database.Repositories;
-using MelloSilveiraTools.Mathematics.Extensions;
 using MelloSilveiraTools.Mathematics.NumericalMethods.Differentiations;
 using MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.SensitivityAnalysis.Steps;
@@ -22,20 +22,26 @@ namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.Sensit
 /// partitioned CSV serialization, and terminal database persistence.
 /// </summary>
 /// <param name="logger">The structured logger for the pipeline.</param>
+/// <param name="progressNotifier">The progress notifier for emitting real-time pipeline execution events.</param>
 /// <param name="mechanicalModelCalculatorFactory">Factory resolving mechanical model calculator facades.</param>
 /// <param name="differentiation">Numerical differentiation provider for asymptote detection.</param>
-/// <param name="serviceLocator">Service locator resolving model-specific sweep generators.</param>
 /// <param name="fileStorageService">Storage service responsible for writing partitioned sensitivity CSV files.</param>
 /// <param name="repository">Database repository provider for persisting sweep metadata and stored file records.</param>
+/// <param name="serviceLocator">Service locator resolving model-specific sweep generators.</param>
+/// <param name="timeProvider">Mandatory time provider used for timestamping pipeline events and telemetry.</param>
 /// <param name="loggerFactory">Optional logger factory for creating step-specific loggers.</param>
+/// <param name="notificationSettings">Optional settings defining adaptive throttling thresholds and item notification intervals for pipeline progress.</param>
 public sealed class ParametricSweepPipeline(
     ILogger<ParametricSweepPipeline> logger,
+    IPipelineProgressNotifier progressNotifier,
     IMechanicalModelCalculatorFactory mechanicalModelCalculatorFactory,
     IDifferentiation differentiation,
-    ServiceLocator serviceLocator,
     IFileStorageService fileStorageService,
     IRepository repository,
-    ILoggerFactory? loggerFactory = null)
+    ServiceLocator serviceLocator,
+    TimeProvider timeProvider,
+    ILoggerFactory? loggerFactory = null,
+    PipelineProgressNotificationSettings? notificationSettings = null)
     : IParametricSweepPipeline
 {
     /// <inheritdoc/>
@@ -43,12 +49,16 @@ public sealed class ParametricSweepPipeline(
     {
         string uniqueIdentifier = string.IsNullOrWhiteSpace(input.Identifier) ? Guid.NewGuid().ToString("N") : input.Identifier;
 
-        input.Progress?.Report(new PipelineProgressEvent(
-            nameof(ParametricSweepPipeline),
-            "Parametric sweep pipeline started.",
-            PipelineStepState.Started,
-            Detail: uniqueIdentifier,
-            Timestamp: DateTimeOffset.UtcNow));
+        await progressNotifier.NotifyAsync(
+            new PipelineProgressEvent
+            {
+                StepName = nameof(ParametricSweepPipeline),
+                Description = "Parametric sweep pipeline started.",
+                State = PipelineStepState.Started,
+                Timestamp = timeProvider.GetUtcNow(),
+                Details = uniqueIdentifier
+            },
+            cancellationToken).ConfigureAwait(false);
 
         SweepIngestionStep ingestionStep = new(serviceLocator);
 
@@ -63,7 +73,7 @@ public sealed class ParametricSweepPipeline(
         ParametricSweepPersistenceStep persistenceStep = new(persistenceLogger, repository);
 
         IDataflowPipeline<ParametricSweepInput> pipeline = PipelineFactory
-            .StartDataflow<ParametricSweepInput>(logger, cancellationToken: cancellationToken, progress: input.Progress)
+            .StartDataflow<ParametricSweepInput>(logger, progressNotifier, timeProvider, notificationSettings, cancellationToken: cancellationToken)
             .AddStep(ingestionStep)
             .Fork(
                 calculationBranch => calculationBranch
@@ -72,9 +82,9 @@ public sealed class ParametricSweepPipeline(
                 branch => branch.AddDataMapping(envelope => (envelope.VariableName, envelope.VariableValue))
             )
             .AddDataMapping(tuple => ParametricSweepFinalPayload.Create(tuple.Item1, tuple.Item2))
-            .AddStep<ParametricSweepFinalPayload>(writer)
             .AddCollectAllStep()
-            .AddStep(new ParametricSweepFinalizationStep(writer, uniqueIdentifier, input))
+            .AddStep(writer)
+            .AddDataMapping(metadata => new ParametricSweepPersistenceInput(uniqueIdentifier, input, metadata))
             .AddStep(persistenceStep)
             .BuildTerminal();
 
@@ -84,52 +94,34 @@ public sealed class ParametricSweepPipeline(
             if (!accepted)
             {
                 logger.LogError("Failed to ingest input into the parametric sweep pipeline. Identifier: {Identifier}. Input: {@Input}", uniqueIdentifier, input);
-                input.Progress?.Report(new PipelineProgressEvent(
-                    nameof(ParametricSweepPipeline),
-                    "Failed to ingest input into the parametric sweep pipeline.",
-                    PipelineStepState.Faulted,
-                    Detail: uniqueIdentifier,
-                    Timestamp: DateTimeOffset.UtcNow));
+                await progressNotifier.NotifyAsync(
+                    new PipelineProgressEvent
+                    {
+                        StepName = nameof(ParametricSweepPipeline),
+                        Description = "Failed to ingest input into the parametric sweep pipeline.",
+                        State = PipelineStepState.Faulted,
+                        Timestamp = timeProvider.GetUtcNow(),
+                        Details = uniqueIdentifier
+                    },
+                    cancellationToken).ConfigureAwait(false);
                 return Result.CreateBadRequest("Failed to ingest input into the parametric sweep pipeline.");
             }
 
             pipeline.Complete();
             await pipeline.Completion.ConfigureAwait(false);
 
-            input.Progress?.Report(new PipelineProgressEvent(
-                nameof(ParametricSweepPipeline),
-                "Parametric sweep pipeline completed.",
-                PipelineStepState.Completed,
-                Detail: uniqueIdentifier,
-                Timestamp: DateTimeOffset.UtcNow));
+            await progressNotifier.NotifyAsync(
+                new PipelineProgressEvent
+                {
+                    StepName = nameof(ParametricSweepPipeline),
+                    Description = "Parametric sweep pipeline completed.",
+                    State = PipelineStepState.Completed,
+                    Timestamp = timeProvider.GetUtcNow(),
+                    Details = uniqueIdentifier
+                },
+                cancellationToken).ConfigureAwait(false);
 
             return uniqueIdentifier;
-        }
-    }
-
-    private sealed class ParametricSweepFinalizationStep(
-        ParametricSweepCsvWriterStep writer,
-        string identifier,
-        ParametricSweepInput input)
-        : IAsyncPipelineStep<IReadOnlyList<ParametricSweepFinalPayload>, ParametricSweepPersistenceInput>
-    {
-        public string Name => nameof(ParametricSweepFinalizationStep);
-
-        public async Task<ParametricSweepPersistenceInput> ExecuteAsync(
-            IReadOnlyList<ParametricSweepFinalPayload> payloads,
-            CancellationToken cancellationToken = default)
-        {
-            await writer.DisposeAsync().ConfigureAwait(false);
-            return new ParametricSweepPersistenceInput(
-                identifier,
-                input,
-                writer.GeneratedFilesMetadata);
-        }
-
-        public ValueTask DisposeAsync()
-        {
-            GC.SuppressFinalize(this);
-            return ValueTask.CompletedTask;
         }
     }
 }

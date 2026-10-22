@@ -9,9 +9,9 @@ namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnaly
 public sealed class SimplifiedFungParametricSweepGenerator : ParametricSweepGeneratorBase<SimplifiedFungConstitutiveParameters>
 {
     /// <inheritdoc />
-    protected override IEnumerable<(string[] PropertyAliases, Func<SimplifiedFungConstitutiveParameters, double, SimplifiedFungConstitutiveParameters> Mutate)> GetPropertyVariations(ParametricSweepInput input)
+    protected override IEnumerable<(string PropertyName, Func<SimplifiedFungConstitutiveParameters, double, SimplifiedFungConstitutiveParameters> Mutate)> GetPropertyVariations(ParametricSweepInput input)
     {
-        yield return ([nameof(SimplifiedFungConstitutiveParameters.ElasticStressConstant), "A"], (baseline, value) => baseline with { ElasticStressConstant = value });
-        yield return ([nameof(SimplifiedFungConstitutiveParameters.ElasticPowerConstant), "B"], (baseline, value) => baseline with { ElasticPowerConstant = value });
+        yield return (nameof(SimplifiedFungConstitutiveParameters.ElasticStressConstant), (baseline, value) => baseline with { ElasticStressConstant = value });
+        yield return (nameof(SimplifiedFungConstitutiveParameters.ElasticPowerConstant), (baseline, value) => baseline with { ElasticPowerConstant = value });
     }
 }

@@ -15,6 +15,8 @@ namespace UnitTests.Core.Pipelines.Telemetry;
 /// </summary>
 public sealed class PipelineProgressEmissionTests
 {
+    private readonly TimeProvider _timeProvider = TimeProvider.System;
+
     /// <summary>
     /// Verifies that a successful synchronous execution emits Started and Completed progress events.
     /// </summary>
@@ -26,6 +28,7 @@ public sealed class PipelineProgressEmissionTests
         Func<int, Task> action = PipelineStepExecutor.HandleExecution<int>(
             NullLogger.Instance,
             notifier,
+            _timeProvider,
             "SyncStep",
             input => { _ = input * 2; });
 
@@ -60,6 +63,7 @@ public sealed class PipelineProgressEmissionTests
         Func<int, Task> action = PipelineStepExecutor.HandleExecution<int>(
             NullLogger.Instance,
             notifier,
+            _timeProvider,
             "FailingSyncStep",
             _ => throw new InvalidOperationException("Sync error"));
 
@@ -88,6 +92,7 @@ public sealed class PipelineProgressEmissionTests
         Func<int, Task<string>> asyncFunc = PipelineStepExecutor.HandleExecution<int, string>(
             NullLogger.Instance,
             notifier,
+            _timeProvider,
             "AsyncStep",
             async (input, ct) =>
             {
@@ -125,6 +130,7 @@ public sealed class PipelineProgressEmissionTests
         Func<int, Task<string>> asyncFunc = PipelineStepExecutor.HandleExecution<int, string>(
             NullLogger.Instance,
             notifier,
+            _timeProvider,
             "FailingAsyncStep",
             async (_, ct) =>
             {
@@ -159,6 +165,7 @@ public sealed class PipelineProgressEmissionTests
         Func<int, Task<int>> forkingFunc = PipelineStepExecutor.HandleExecution<int, int>(
             NullLogger.Instance,
             notifier,
+            _timeProvider,
             "PrimaryStep",
             "FallbackStep",
             callback: x => x * 2,
@@ -194,6 +201,7 @@ public sealed class PipelineProgressEmissionTests
         Func<int, IAsyncEnumerable<int>> streamFunc = PipelineStepExecutor.HandleExecution<int, int>(
             NullLogger.Instance,
             notifier,
+            _timeProvider,
             "StreamStep",
             (count, _) => GenerateNumbersAsync(count));
 
@@ -239,6 +247,7 @@ public sealed class PipelineProgressEmissionTests
         IDataflowPipeline<int> pipeline = PipelineFactory.StartDataflow<int>(
                 NullLogger.Instance,
                 notifier,
+                TimeProvider.System,
                 initialBufferSize: 100)
             .AddStep(fanOutStep)
             .Fork(branchAStep, branchBStep)
@@ -309,6 +318,43 @@ public sealed class PipelineProgressEmissionTests
             await Task.Yield();
             yield return i;
         }
+    }
+
+    [Fact]
+    public async Task StartDataflow_WithCustomPipelineProgressNotificationSettings_AppliesConfiguredThrottling()
+    {
+        // Arrange
+        TestProgressNotifier notifier = new();
+        PipelineProgressNotificationSettings settings = new()
+        {
+            ImmediateNotificationItemLimit = 2,
+            HighVolumeNotificationInterval = 3
+        };
+
+        MultiplyStep step = new(factor: 2, name: "MultiplyTest");
+
+        IDataflowPipeline<int> pipeline = PipelineFactory.StartDataflow<int>(
+                NullLogger.Instance,
+                notifier,
+                TimeProvider.System,
+                notificationSettings: settings,
+                initialBufferSize: 50)
+            .AddStep(step)
+            .BuildTerminal("Terminal", _ => { });
+
+        await using (pipeline.ConfigureAwait(false))
+        {
+            for (int i = 1; i <= 5; i++)
+            {
+                await pipeline.SendAsync(i);
+            }
+            pipeline.Complete();
+            await pipeline.Completion;
+        }
+
+        IReadOnlyList<PipelineProgressEvent> events = notifier.Events;
+        Assert.NotEmpty(events);
+        Assert.Contains(events, e => e.StepName == "MultiplyTest" && e.State == PipelineStepState.Completed && e.ProcessedItems == 5);
     }
 
     private sealed class FanOutStep : IAsyncEnumerablePipelineStep<int, int>

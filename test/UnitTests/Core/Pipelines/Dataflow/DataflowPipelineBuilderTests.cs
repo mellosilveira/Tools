@@ -16,6 +16,7 @@ public sealed class DataflowPipelineBuilderTests
 {
     private readonly ILogger _logger = Mock.Of<ILogger>();
     private readonly IPipelineProgressNotifier _progressNotifier = NullPipelineProgressNotifier.Instance;
+    private readonly TimeProvider _timeProvider = TimeProvider.System;
 
     private sealed class MultiplierStep(int factor) : ISyncPipelineStep<int, int>
     {
@@ -84,6 +85,19 @@ public sealed class DataflowPipelineBuilderTests
         public void Dispose() { }
     }
 
+    private sealed class RecordingStep(Action<int> callback) : ISyncPipelineStep<int, int>
+    {
+        public string Name => "RecordingStep";
+
+        public int Execute(int input)
+        {
+            callback(input);
+            return input;
+        }
+
+        public void Dispose() { }
+    }
+
     [Fact]
     public async Task AddStep_WithSyncAndAsyncSteps_TransformsPipelineInputs()
     {
@@ -91,7 +105,7 @@ public sealed class DataflowPipelineBuilderTests
         MultiplierStep syncStep = new(10);
         AsyncAddStep asyncStep = new(3);
 
-        await using IDataflowPipeline<int> pipeline = PipelineFactory.StartDataflow<int>(_logger, _progressNotifier)
+        await using IDataflowPipeline<int> pipeline = PipelineFactory.StartDataflow<int>(_logger, _progressNotifier, _timeProvider)
             .AddStep(syncStep)
             .AddStep(asyncStep)
             .BuildTerminal("Collector", results.Add);
@@ -111,7 +125,7 @@ public sealed class DataflowPipelineBuilderTests
     {
         List<string> results = [];
 
-        await using IDataflowPipeline<int> pipeline = PipelineFactory.StartDataflow<int>(_logger, _progressNotifier)
+        await using IDataflowPipeline<int> pipeline = PipelineFactory.StartDataflow<int>(_logger, _progressNotifier, _timeProvider)
             .AddDataMapping((int x) => x * 2)
             .AddDataMapping((int x) => $"Val: {x}")
             .BuildTerminal("Collector", results.Add);
@@ -131,7 +145,7 @@ public sealed class DataflowPipelineBuilderTests
         ObserverStep observer = new();
         MultiplierStep multiplier = new(100);
 
-        await using IDataflowPipeline<int> pipeline = PipelineFactory.StartDataflow<int>(_logger, _progressNotifier)
+        await using IDataflowPipeline<int> pipeline = PipelineFactory.StartDataflow<int>(_logger, _progressNotifier, _timeProvider)
             .AddBroadcastStep(observer)
             .AddStep(multiplier)
             .BuildTerminal("Collector", mainResults.Add);
@@ -152,7 +166,7 @@ public sealed class DataflowPipelineBuilderTests
         List<string> mainResults = [];
         ObserverStep observer = new();
 
-        await using IDataflowPipeline<string> pipeline = PipelineFactory.StartDataflow<string>(_logger, _progressNotifier)
+        await using IDataflowPipeline<string> pipeline = PipelineFactory.StartDataflow<string>(_logger, _progressNotifier, _timeProvider)
             .AddBroadcastStep(observer, (string s) => int.Parse(s))
             .BuildTerminal("Collector", mainResults.Add);
 
@@ -167,11 +181,39 @@ public sealed class DataflowPipelineBuilderTests
     }
 
     [Fact]
+    public async Task AddBroadcastFork_ExecutesBranchConcurrentlyWithoutMutatingMainFlow()
+    {
+        List<int> mainResults = [];
+        List<int> branchResults = [];
+        MultiplierStep branchMultiplier = new(10);
+        AsyncAddStep branchAdder = new(3);
+        RecordingStep branchRecorder = new(branchResults.Add);
+        MultiplierStep mainMultiplier = new(100);
+
+        await using IDataflowPipeline<int> pipeline = PipelineFactory.StartDataflow<int>(_logger, _progressNotifier, _timeProvider)
+            .AddBroadcastFork(branch => branch
+                .AddStep(branchMultiplier)
+                .AddStep(branchAdder)
+                .AddStep(branchRecorder))
+            .AddStep(mainMultiplier)
+            .BuildTerminal("Collector", mainResults.Add);
+
+        await pipeline.SendAsync(2);
+        await pipeline.SendAsync(5);
+
+        pipeline.Complete();
+        await pipeline.Completion;
+
+        Assert.Equal([23, 53], branchResults);
+        Assert.Equal([200, 500], mainResults);
+    }
+
+    [Fact]
     public async Task AddFilterStep_FiltersOutNonMatchingElements()
     {
         List<int> results = [];
 
-        await using IDataflowPipeline<int> pipeline = PipelineFactory.StartDataflow<int>(_logger, _progressNotifier)
+        await using IDataflowPipeline<int> pipeline = PipelineFactory.StartDataflow<int>(_logger, _progressNotifier, _timeProvider)
             .AddFilterStep((int x) => x % 2 == 0)
             .BuildTerminal("Collector", results.Add);
 
@@ -191,7 +233,7 @@ public sealed class DataflowPipelineBuilderTests
     {
         List<int[]> batches = [];
 
-        await using IDataflowPipeline<int> pipeline = PipelineFactory.StartDataflow<int>(_logger, _progressNotifier)
+        await using IDataflowPipeline<int> pipeline = PipelineFactory.StartDataflow<int>(_logger, _progressNotifier, _timeProvider)
             .AddGroupWhileStep((int previous, int current) => current == previous)
             .BuildTerminal("Collector", batches.Add);
 
@@ -214,7 +256,7 @@ public sealed class DataflowPipelineBuilderTests
     {
         List<int[]> collected = [];
 
-        await using IDataflowPipeline<int> pipeline = PipelineFactory.StartDataflow<int>(_logger, _progressNotifier)
+        await using IDataflowPipeline<int> pipeline = PipelineFactory.StartDataflow<int>(_logger, _progressNotifier, _timeProvider)
             .AddCollectAllStep()
             .BuildTerminal("Collector", collected.Add);
 
@@ -234,7 +276,7 @@ public sealed class DataflowPipelineBuilderTests
     {
         List<Tuple<int, string>> results = [];
 
-        await using IDataflowPipeline<int> pipeline = PipelineFactory.StartDataflow<int>(_logger, _progressNotifier)
+        await using IDataflowPipeline<int> pipeline = PipelineFactory.StartDataflow<int>(_logger, _progressNotifier, _timeProvider)
             .Fork(
                 branch1 => branch1.AddDataMapping((int x) => x * 10),
                 branch2 => branch2.AddDataMapping((int x) => $"#{x}"))
@@ -254,7 +296,7 @@ public sealed class DataflowPipelineBuilderTests
     {
         List<Tuple<int, string, bool>> results = [];
 
-        await using IDataflowPipeline<int> pipeline = PipelineFactory.StartDataflow<int>(_logger, _progressNotifier)
+        await using IDataflowPipeline<int> pipeline = PipelineFactory.StartDataflow<int>(_logger, _progressNotifier, _timeProvider)
             .Fork(
                 branch1 => branch1.AddDataMapping((int x) => x + 1),
                 branch2 => branch2.AddDataMapping((int x) => $"val:{x}"),
@@ -278,7 +320,7 @@ public sealed class DataflowPipelineBuilderTests
         List<FailedPayload> failedPayloads = [];
         FaultingStep faultingStep = new();
 
-        await using IDataflowPipeline<int> pipeline = PipelineFactory.StartDataflow<int>(_logger, _progressNotifier)
+        await using IDataflowPipeline<int> pipeline = PipelineFactory.StartDataflow<int>(_logger, _progressNotifier, _timeProvider)
             .WithDeadLetterQueue(failedPayloads.Add)
             .AddStep(faultingStep)
             .BuildTerminal("Collector", successResults.Add);
@@ -302,7 +344,7 @@ public sealed class DataflowPipelineBuilderTests
         MultiplierStep syncStep = new(2);
         AsyncAddStep asyncStep = new(5);
 
-        IDataflowPipeline<int> pipeline = PipelineFactory.StartDataflow<int>(_logger, _progressNotifier)
+        IDataflowPipeline<int> pipeline = PipelineFactory.StartDataflow<int>(_logger, _progressNotifier, _timeProvider)
             .AddStep(syncStep)
             .AddStep(asyncStep)
             .BuildTerminal("Collector", _ => { });

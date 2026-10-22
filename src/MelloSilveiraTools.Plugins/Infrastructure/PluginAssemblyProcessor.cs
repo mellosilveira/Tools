@@ -12,10 +12,12 @@ namespace MelloSilveiraTools.Plugins.Infrastructure;
 /// <param name="typeProcessors">Collection of type processors used to handle each <see cref="IPluginTypeProcessor.ProcessableType"/> discovered inside a plugin assembly.</param>
 /// <param name="fileStorageService">Storage service used to open and stream plugin assemblies into memory.</param>
 /// <param name="cache">Plugin cache used to memoize loaded and registered plugins by name and version.</param>
+/// <param name="timeProvider">The time provider used to record plugin load completion timestamps.</param>
 public class PluginAssemblyProcessor(
     IEnumerable<IPluginTypeProcessor> typeProcessors,
     IFileStorageService fileStorageService,
-    PluginCache cache)
+    PluginCache cache,
+    TimeProvider timeProvider)
 {
     private readonly IPluginTypeProcessor[] _typeProcessors = [.. typeProcessors];
 
@@ -93,7 +95,7 @@ public class PluginAssemblyProcessor(
         foreach (Type type in loaded.ProcessableTypes)
         {
             Array.Find(_typeProcessors, tp => tp.ProcessableType.IsAssignableFrom(type))!.Process(type, context);
-            registered.MarkTypeLoaded(type);
+            registered.MarkTypeLoaded(type, timeProvider);
             cache.Update(loaded.Name, loaded.Version, registered);
         }
 

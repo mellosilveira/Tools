@@ -1,13 +1,13 @@
-﻿using MelloSilveiraTools.Core.Managers.File;
+using MelloSilveiraTools.Core.Managers.File.Models;
 using MelloSilveiraTools.Core.Models;
 using MelloSilveiraTools.Core.Pipelines.Steps;
 using MelloSilveiraTools.Database.RelationalDatabase.Models.Entities;
 using MelloSilveiraTools.Database.Repositories;
-using MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Models;
 using Microsoft.Extensions.Logging;
-using System.Text.Json;
+using System.Security.Cryptography;
+using System.Text;
 
 namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.SensitivityAnalysis.Steps;
 
@@ -22,15 +22,13 @@ public sealed class ParametricSweepPersistenceStep(
     IRepository repository)
     : IAsyncPipelineStep<ParametricSweepPersistenceInput, string>
 {
-    // TODO: FAZER IGUAL PASSO DE PERSISTIR MECHANICAL MODEL OUTPUT DA ANALISE.
-
     private const string Context = "SensitivityAnalysis";
 
     /// <inheritdoc />
     public string Name => nameof(ParametricSweepPersistenceStep);
 
     /// <inheritdoc />
-    /// <exception cref="InvalidOperationException">Thrown when insertion of the parametric sweep entity fails in the database.</exception>
+    /// <exception cref="InvalidOperationException">Thrown when insertion of the parametric sweep or stored file entity fails in the database.</exception>
     public async Task<string> ExecuteAsync(ParametricSweepPersistenceInput input, CancellationToken cancellationToken = default)
     {
         string baselineParametersJson = OptimizationJsonOptions.Serialize(input.SweepInput.Baseline);
@@ -41,11 +39,26 @@ public sealed class ParametricSweepPersistenceStep(
             input.SweepInput.StrainRange
         });
 
+        string rawDataToHash = string.Concat(
+            input.SweepInput.MechanicalModelName,
+            baselineParametersJson,
+            variableRangesJson,
+            FormattableString.Invariant($"{input.SweepInput.BaseStrain:G7}|{input.SweepInput.RampTimeConsideration}|{input.SweepInput.RampTime:G7}|{input.SweepInput.InitialTime:G7}|{input.SweepInput.FinalTime:G7}|{input.SweepInput.TimeStep:G7}|{input.SweepInput.AsymptoteTolerance:G7}"));
+        string identifierHash = Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(rawDataToHash)));
+
+        foreach (StorageEntryMetadata fileMetadata in input.GeneratedFilesMetadata)
+        {
+            await InsertStoredFile(fileMetadata, input.ExternalIdentifier, cancellationToken).ConfigureAwait(false);
+        }
+
         ParametricSweepEntity entity = new()
         {
+            Identifier = identifierHash,
             ExternalIdentifier = input.ExternalIdentifier,
             MechanicalModelName = input.SweepInput.MechanicalModelName,
             BaseStrain = input.SweepInput.BaseStrain,
+            RampTimeConsideration = input.SweepInput.RampTimeConsideration,
+            RampTime = input.SweepInput.RampTime,
             InitialTime = input.SweepInput.InitialTime,
             FinalTime = input.SweepInput.FinalTime,
             TimeStep = input.SweepInput.TimeStep,
@@ -56,30 +69,29 @@ public sealed class ParametricSweepPersistenceStep(
 
         Result<long> insertResult = await repository.TryInsertAsync(entity, cancellationToken).ConfigureAwait(false);
         if (insertResult.IsConflict)
-        {
-            logger.LogWarning("Entity for parametric sweep already exists in the database. ExternalIdentifier: {ExternalIdentifier}", input.ExternalIdentifier);
-        }
+            logger.LogWarning("Entity for parametric sweep already exists in the database. Identifier: {Identifier}", identifierHash);
         else if (!insertResult.Success)
         {
             logger.LogError("Failed to insert entity for parametric sweep. Entity: {@Entity}. Result: {@InsertResult}", entity, insertResult);
-            throw new InvalidOperationException(string.Join(Environment.NewLine, insertResult.Messages));
-        }
-
-        foreach (FileMetadata fileMetadata in input.GeneratedFilesMetadata)
-        {
-            StoredFileEntity storedFile = StoredFileEntity.Create(input.ExternalIdentifier, Context, fileMetadata);
-
-            Result<long> fileResult = await repository.TryInsertAsync(storedFile, cancellationToken).ConfigureAwait(false);
-            if (!fileResult.Success && !fileResult.IsConflict)
-            {
-                logger.LogWarning(
-                    "Failed to persist stored file record for sensitivity analysis output: {Location}. Messages: {Messages}",
-                    fileMetadata.FullPath,
-                    string.Join("; ", fileResult.Messages));
-            }
+            throw new InvalidOperationException(insertResult.JoinedMessages);
         }
 
         return input.ExternalIdentifier;
+    }
+
+    private async Task<long> InsertStoredFile(StorageEntryMetadata fileMetadata, string externalIdentifier, CancellationToken cancellationToken)
+    {
+        StoredFileEntity storedFileEntity = StoredFileEntity.Create(externalIdentifier, Context, fileMetadata);
+        Result<long> fileResult = await repository.TryInsertAsync(storedFileEntity, cancellationToken).ConfigureAwait(false);
+        if (fileResult.IsConflict)
+            logger.LogWarning("Entity for stored file already exists in the database. Storage Entry Metadata: {@StorageEntryMetadata}", fileMetadata);
+        else if (!fileResult.Success)
+        {
+            logger.LogError("Failed to insert stored file entity for parametric sweep. Entity: {@Entity}. Result: {@InsertResult}", storedFileEntity, fileResult);
+            throw new InvalidOperationException(fileResult.JoinedMessages);
+        }
+
+        return fileResult.Data;
     }
 
     /// <inheritdoc />

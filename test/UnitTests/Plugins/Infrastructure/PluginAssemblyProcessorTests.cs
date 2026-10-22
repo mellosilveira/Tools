@@ -30,7 +30,7 @@ public sealed class PluginAssemblyProcessorTests
         PluginCache cache = new(new InMemoryTwoLevelCache());
         IFileStorageService mockStorage = Mock.Of<IFileStorageService>();
 
-        PluginAssemblyProcessor processor = new(processors, mockStorage, cache);
+        PluginAssemblyProcessor processor = new(processors, mockStorage, cache, TimeProvider.System);
 
         Assert.NotNull(processor);
     }
@@ -49,7 +49,7 @@ public sealed class PluginAssemblyProcessorTests
 
         TestTypeProcessor typeProcessor = new(typeof(object));
         PluginCache cache = new(new InMemoryTwoLevelCache());
-        PluginAssemblyProcessor assemblyProcessor = new([typeProcessor], storageMock.Object, cache);
+        PluginAssemblyProcessor assemblyProcessor = new([typeProcessor], storageMock.Object, cache, TimeProvider.System);
 
         DiscoveredPlugin discovered = new("MelloSilveiraTools.Plugins", new PluginVersion(2, 0, 0), assemblyPath, DateTimeOffset.UtcNow);
 
@@ -72,7 +72,7 @@ public sealed class PluginAssemblyProcessorTests
         // Arrange
         PluginCache cache = new(new InMemoryTwoLevelCache());
         IFileStorageService storage = Mock.Of<IFileStorageService>();
-        PluginAssemblyProcessor assemblyProcessor = new([], storage, cache);
+        PluginAssemblyProcessor assemblyProcessor = new([], storage, cache, TimeProvider.System);
 
         DiscoveredPlugin discovered = new("PluginX", new PluginVersion(1, 0, 0), "/pathX", DateTimeOffset.UtcNow);
         AssemblyLoadContext alc = new("TestAlc", isCollectible: true);
@@ -95,7 +95,7 @@ public sealed class PluginAssemblyProcessorTests
         PluginCache cache = new(new InMemoryTwoLevelCache());
         IFileStorageService storage = Mock.Of<IFileStorageService>();
         TestTypeProcessor typeProcessor = new(typeof(string));
-        PluginAssemblyProcessor assemblyProcessor = new([typeProcessor], storage, cache);
+        PluginAssemblyProcessor assemblyProcessor = new([typeProcessor], storage, cache, TimeProvider.System);
 
         DiscoveredPlugin discovered = new("PluginY", new PluginVersion(1, 0, 0), "/pathY", DateTimeOffset.UtcNow);
         AssemblyLoadContext alc = new("TestAlcY", isCollectible: true);

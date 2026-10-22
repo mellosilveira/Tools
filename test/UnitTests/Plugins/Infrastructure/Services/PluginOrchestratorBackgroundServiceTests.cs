@@ -64,7 +64,8 @@ public sealed class PluginOrchestratorBackgroundServiceTests
             _scopeFactoryMock.Object,
             fileProcessor,
             _cache,
-            _settings);
+            _settings,
+            TimeProvider.System);
 
         Assert.NotNull(orchestrator);
     }
@@ -100,7 +101,8 @@ public sealed class PluginOrchestratorBackgroundServiceTests
             _scopeFactoryMock.Object,
             fileProcessor,
             _cache,
-            _settings);
+            _settings,
+            TimeProvider.System);
 
         MethodInfo? inspectMethod = typeof(PluginOrchestratorBackgroundService)
             .GetMethod("InspectAsync", BindingFlags.NonPublic | BindingFlags.Instance);
@@ -143,7 +145,7 @@ public sealed class PluginOrchestratorBackgroundServiceTests
         // Pre-populate cache with v2.0.0 (fully loaded)
         PluginVersion v2 = new(2, 0, 0);
         RegisteredPlugin registeredV2 = new(new LoadedPlugin(new DiscoveredPlugin("Calculators", v2, "/p2", DateTimeOffset.UtcNow), [typeof(string)], null!));
-        registeredV2.MarkTypeLoaded(typeof(string));
+        registeredV2.MarkTypeLoaded(typeof(string), TimeProvider.System);
         _cache.Update("Calculators", v2, registeredV2);
 
         PluginFileProcessor fileProcessor = new(NullLogger<PluginFileProcessor>.Instance, _storageMock.Object, _cache, _settings);
@@ -153,7 +155,8 @@ public sealed class PluginOrchestratorBackgroundServiceTests
             _scopeFactoryMock.Object,
             fileProcessor,
             _cache,
-            _settings);
+            _settings,
+            TimeProvider.System);
 
         MethodInfo? inspectMethod = typeof(PluginOrchestratorBackgroundService)
             .GetMethod("InspectAsync", BindingFlags.NonPublic | BindingFlags.Instance);

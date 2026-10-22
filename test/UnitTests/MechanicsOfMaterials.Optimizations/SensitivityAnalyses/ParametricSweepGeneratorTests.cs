@@ -24,8 +24,8 @@ public sealed class ParametricSweepGeneratorTests
 
         Dictionary<string, RangeParameters> constantVariables = new()
         {
-            ["ElasticStressConstant"] = new RangeParameters { InitialPoint = 100.0, FinalPoint = 300.0, Step = 100.0 },
-            ["c"] = new RangeParameters { InitialPoint = 0.05, FinalPoint = 0.15, Step = 0.05 }
+            [nameof(FungConstitutiveParameters.ElasticStressConstant)] = new RangeParameters { InitialPoint = 100.0, FinalPoint = 300.0, Step = 100.0 },
+            [nameof(FungConstitutiveParameters.ReducedRelaxationFunction.RelaxationStiffness)] = new RangeParameters { InitialPoint = 0.05, FinalPoint = 0.15, Step = 0.05 }
         };
 
         ParametricSweepInput input = new()
@@ -48,12 +48,12 @@ public sealed class ParametricSweepGeneratorTests
         // Assert
         Assert.NotEmpty(envelopes);
         Assert.Contains(envelopes, e => e.VariableName == "Strain");
-        Assert.Contains(envelopes, e => e.VariableName == "ElasticStressConstant");
-        Assert.Contains(envelopes, e => e.VariableName == "c");
+        Assert.Contains(envelopes, e => e.VariableName == nameof(FungConstitutiveParameters.ElasticStressConstant));
+        Assert.Contains(envelopes, e => e.VariableName == nameof(FungConstitutiveParameters.ReducedRelaxationFunction.RelaxationStiffness));
 
         // Strain values: 0.01, 0.02, 0.03 (3)
         // ElasticStressConstant values: 100, 200, 300 (3)
-        // c values: 0.05, 0.10, 0.15 (3)
+        // RelaxationStiffness values: 0.05, 0.10, 0.15 (3)
         // Total = 9
         Assert.Equal(9, envelopes.Count);
     }
@@ -70,7 +70,7 @@ public sealed class ParametricSweepGeneratorTests
 
         Dictionary<string, RangeParameters> constantVariables = new()
         {
-            ["ElasticStressConstant"] = new RangeParameters { InitialPoint = 100.0, FinalPoint = 200.0, Step = 100.0 }
+            [nameof(FungConstitutiveParameters.ElasticStressConstant)] = new RangeParameters { InitialPoint = 100.0, FinalPoint = 200.0, Step = 100.0 }
         };
 
         ParametricSweepInput input = new()
@@ -108,8 +108,8 @@ public sealed class ParametricSweepGeneratorTests
 
         Dictionary<string, RangeParameters> constantVariables = new()
         {
-            ["A"] = new RangeParameters { InitialPoint = 400.0, FinalPoint = 600.0, Step = 200.0 },
-            ["B"] = new RangeParameters { InitialPoint = 1.0, FinalPoint = 3.0, Step = 1.0 }
+            [nameof(SimplifiedFungConstitutiveParameters.ElasticStressConstant)] = new RangeParameters { InitialPoint = 400.0, FinalPoint = 600.0, Step = 200.0 },
+            [nameof(SimplifiedFungConstitutiveParameters.ElasticPowerConstant)] = new RangeParameters { InitialPoint = 1.0, FinalPoint = 3.0, Step = 1.0 }
         };
 
         ParametricSweepInput input = new()
@@ -130,9 +130,9 @@ public sealed class ParametricSweepGeneratorTests
         List<SweepSimulationEnvelope> envelopes = generator.GenerateCombinations(input).ToList();
 
         // Assert
-        Assert.Equal(5, envelopes.Count); // A (2) + B (3)
-        Assert.Contains(envelopes, e => e.VariableName == "A");
-        Assert.Contains(envelopes, e => e.VariableName == "B");
+        Assert.Equal(5, envelopes.Count); // ElasticStressConstant (2) + ElasticPowerConstant (3)
+        Assert.Contains(envelopes, e => e.VariableName == nameof(SimplifiedFungConstitutiveParameters.ElasticStressConstant));
+        Assert.Contains(envelopes, e => e.VariableName == nameof(SimplifiedFungConstitutiveParameters.ElasticPowerConstant));
     }
 
     [Fact]
@@ -152,7 +152,7 @@ public sealed class ParametricSweepGeneratorTests
 
         Dictionary<string, RangeParameters> constantVariables = new()
         {
-            ["Ge"] = new RangeParameters { InitialPoint = 8.0, FinalPoint = 12.0, Step = 2.0 },
+            [nameof(SchaperyConstitutiveParameters.Ge)] = new RangeParameters { InitialPoint = 8.0, FinalPoint = 12.0, Step = 2.0 },
             ["g1"] = new RangeParameters { InitialPoint = 1.0, FinalPoint = 3.0, Step = 1.0 },
             ["n"] = new RangeParameters { InitialPoint = 0.05, FinalPoint = 0.15, Step = 0.05 }
         };
@@ -176,7 +176,7 @@ public sealed class ParametricSweepGeneratorTests
 
         // Assert
         Assert.NotEmpty(envelopes);
-        Assert.Contains(envelopes, e => e.VariableName == "Ge");
+        Assert.Contains(envelopes, e => e.VariableName == nameof(SchaperyConstitutiveParameters.Ge));
         Assert.Contains(envelopes, e => e.VariableName == "g1");
         Assert.Contains(envelopes, e => e.VariableName == "n");
 

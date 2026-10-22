@@ -21,7 +21,7 @@ public sealed class LocalFileStorageServiceTests : IDisposable
     {
         _testDirectory = Path.Combine(Path.GetTempPath(), $"LocalFileStorageServiceTests_{Guid.NewGuid():N}");
         LocalFileStorageSettings settings = new() { BaseDirectory = _testDirectory };
-        _service = new LocalFileStorageService(settings);
+        _service = new LocalFileStorageService(settings, TimeProvider.System);
     }
 
     public void Dispose()

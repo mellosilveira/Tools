@@ -12,6 +12,7 @@ public class EnumerablePipelineStepTests
 {
     private readonly ILogger _logger = Mock.Of<ILogger>();
     private readonly IPipelineProgressNotifier _progressNotifier = NullPipelineProgressNotifier.Instance;
+    private readonly TimeProvider _timeProvider = TimeProvider.System;
 
     private sealed class SampleExpansionStep(int count) : IEnumerablePipelineStep<int, int>
     {
@@ -57,7 +58,7 @@ public class EnumerablePipelineStepTests
         List<int> results = [];
         SampleExpansionStep step = new(3);
 
-        await using IDataflowPipeline<int> pipeline = PipelineFactory.StartDataflow<int>(_logger, _progressNotifier)
+        await using IDataflowPipeline<int> pipeline = PipelineFactory.StartDataflow<int>(_logger, _progressNotifier, _timeProvider)
             .AddStep(step)
             .BuildTerminal("Collector", results.Add);
 
@@ -78,7 +79,7 @@ public class EnumerablePipelineStepTests
         // Arrange
         SampleExpansionStep step = new(2);
 
-        IDataflowPipeline<int> pipeline = PipelineFactory.StartDataflow<int>(_logger, _progressNotifier)
+        IDataflowPipeline<int> pipeline = PipelineFactory.StartDataflow<int>(_logger, _progressNotifier, _timeProvider)
             .AddStep(step)
             .BuildTerminal("Collector", _ => { });
 
@@ -97,7 +98,7 @@ public class EnumerablePipelineStepTests
         List<FailedPayload> failedPayloads = [];
         FaultingExpansionStep step = new();
 
-        await using IDataflowPipeline<int> pipeline = PipelineFactory.StartDataflow<int>(_logger, _progressNotifier)
+        await using IDataflowPipeline<int> pipeline = PipelineFactory.StartDataflow<int>(_logger, _progressNotifier, _timeProvider)
             .WithDeadLetterQueue(failedPayloads.Add)
             .AddStep(step)
             .BuildTerminal("Collector", successResults.Add);
@@ -125,7 +126,7 @@ public class EnumerablePipelineStepTests
         SampleExpansionStep step1 = new(1);
         SampleExpansionStep step2 = new(1);
 
-        await using IDataflowPipeline<int> pipeline = PipelineFactory.StartDataflow<int>(_logger, _progressNotifier)
+        await using IDataflowPipeline<int> pipeline = PipelineFactory.StartDataflow<int>(_logger, _progressNotifier, _timeProvider)
             .Fork(step1, step2)
             .BuildTerminal("ConvergenceCollector", convergedResults.Add);
 

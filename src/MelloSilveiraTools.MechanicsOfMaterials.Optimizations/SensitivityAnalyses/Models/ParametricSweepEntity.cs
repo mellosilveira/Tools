@@ -1,9 +1,8 @@
-﻿using MelloSilveiraTools.Database.RelationalDatabase.Attributes;
+using MelloSilveiraTools.Database.RelationalDatabase.Attributes;
 using MelloSilveiraTools.Database.RelationalDatabase.Models.Entities;
+using MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity;
 
 namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Models;
-
-// TODO: REVISAR
 
 /// <summary>
 /// Database entity representing a One-At-A-Time (OAAT) parametric sensitivity sweep execution and its configuration snapshot.
@@ -12,10 +11,16 @@ namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnaly
 public record ParametricSweepEntity : EntityBase
 {
     /// <summary>
-    /// Unique external business or run identifier correlating the sweep execution with generated artifacts.
+    /// Unique deterministic hash identifier for the parametric sweep configuration.
     /// </summary>
     [UniqueColumn]
-    public required string ExternalIdentifier { get; init; }
+    public required string Identifier { get; init; }
+
+    /// <summary>
+    /// External business or run identifier correlating the sweep execution with generated artifacts.
+    /// </summary>
+    [Column]
+    public string? ExternalIdentifier { get; init; }
 
     /// <summary>
     /// Name of the evaluated mechanical constitutive model (e.g., "Fung", "SimplifiedFung", "Schapery").
@@ -28,6 +33,18 @@ public record ParametricSweepEntity : EntityBase
     /// </summary>
     [Column]
     public required double BaseStrain { get; init; }
+
+    /// <summary>
+    /// Configuration for how ramp time is considered during the simulation.
+    /// </summary>
+    [Column]
+    public required RampTimeConsideration RampTimeConsideration { get; init; }
+
+    /// <summary>
+    /// Duration of the initial loading ramp, if applicable.
+    /// </summary>
+    [Column]
+    public double? RampTime { get; init; }
 
     /// <summary>
     /// Initial simulation evaluation time ($t_0$).

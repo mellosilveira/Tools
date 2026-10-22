@@ -37,6 +37,7 @@ public sealed class PluginsDependencyInjectionTests
             .Returns(EmptyEntries());
 
         services.AddLogging();
+        services.AddSingleton(TimeProvider.System);
         services.AddSingleton<ITwoLevelCache, InMemoryTwoLevelCache>();
         services.AddSingleton<IDynamicServiceProvider>(Mock.Of<IDynamicServiceProvider>());
         services.AddKeyedSingleton<IFileStorageService>(StorageProvider.Local, localStorageMock.Object);

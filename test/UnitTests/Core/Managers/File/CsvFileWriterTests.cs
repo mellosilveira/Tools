@@ -19,7 +19,7 @@ public sealed class CsvFileWriterTests
     {
         // Arrange
         string baseDir = Path.Combine(Path.GetTempPath(), $"csv_writer_tests_{Guid.NewGuid():N}");
-        LocalFileStorageService fileStorageService = new(new LocalFileStorageSettings { BaseDirectory = baseDir });
+        LocalFileStorageService fileStorageService = new(new LocalFileStorageSettings { BaseDirectory = baseDir }, TimeProvider.System);
         string context = "UnitTests";
         string identifier = "CsvFileWriter";
         string fileName = $"test_csv_{Guid.NewGuid():N}.csv";
@@ -71,7 +71,7 @@ public sealed class CsvFileWriterTests
     {
         // Arrange
         string baseDir = Path.Combine(Path.GetTempPath(), $"csv_action_tests_{Guid.NewGuid():N}");
-        LocalFileStorageService fileStorageService = new(new LocalFileStorageSettings { BaseDirectory = baseDir });
+        LocalFileStorageService fileStorageService = new(new LocalFileStorageSettings { BaseDirectory = baseDir }, TimeProvider.System);
         string context = "UnitTests";
         string identifier = "CsvFileWriter";
         string fileName = $"test_csv_action_{Guid.NewGuid():N}.csv";
@@ -118,7 +118,7 @@ public sealed class CsvFileWriterTests
         // Arrange
         string baseDir = Path.Combine(Path.GetTempPath(), $"test_storage_{Guid.NewGuid():N}");
         LocalFileStorageSettings settings = new() { BaseDirectory = baseDir };
-        LocalFileStorageService storageService = new(settings);
+        LocalFileStorageService storageService = new(settings, TimeProvider.System);
 
         string context = "ExperimentalData";
         string identifier = "Exp_Test_001";

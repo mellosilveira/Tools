@@ -20,7 +20,7 @@ public sealed class DfsFileStorageServiceTests : IDisposable
     {
         _testDirectory = Path.Combine(Path.GetTempPath(), $"DfsFileStorageServiceTests_{Guid.NewGuid():N}");
         DfsStorageSettings settings = new() { BaseDirectory = _testDirectory };
-        _service = new DfsFileStorageService(settings);
+        _service = new DfsFileStorageService(settings, TimeProvider.System);
     }
 
     public void Dispose()
@@ -76,21 +76,6 @@ public sealed class DfsFileStorageServiceTests : IDisposable
     public void Provider_ShouldReturnDfs()
     {
         Assert.Equal(StorageProvider.Dfs, _service.Provider);
-    }
-
-    /// <summary>
-    /// Verifies that constructing DFS settings with null or whitespace base directory throws <see cref="ArgumentException"/>.
-    /// </summary>
-    [Theory]
-    [InlineData("")]
-    [InlineData("   ")]
-    public void Constructor_WithEmptyBaseDirectory_ThrowsArgumentException(string invalidPath)
-    {
-        // Act & Assert
-        Assert.Throws<ArgumentException>(() =>
-        {
-            new DfsFileStorageService(new DfsStorageSettings { BaseDirectory = invalidPath });
-        });
     }
 
     /// <summary>

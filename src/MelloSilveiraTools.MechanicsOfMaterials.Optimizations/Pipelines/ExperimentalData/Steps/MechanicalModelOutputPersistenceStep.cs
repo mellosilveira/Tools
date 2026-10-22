@@ -1,4 +1,4 @@
-﻿using MelloSilveiraTools.Core.Models;
+using MelloSilveiraTools.Core.Models;
 using MelloSilveiraTools.Core.Pipelines.Steps;
 using MelloSilveiraTools.Database.RelationalDatabase.Models.Entities;
 using MelloSilveiraTools.Database.Repositories;
@@ -67,11 +67,11 @@ public sealed class MechanicalModelOutputPersistenceStep(
 
     private async Task<long> InsertStoredFile(MechanicalModelOutputPersistenceInput input, string identifierHash, CancellationToken cancellationToken)
     {
-        StoredFileEntity storedFileEntity = StoredFileEntity.Create(identifierHash, "ExperimentalDataSimulation", input.FileMetadata);
+        StoredFileEntity storedFileEntity = StoredFileEntity.Create(identifierHash, "ExperimentalDataSimulation", input.StorageEntryMetadata);
         Result<long> fileResult = await repository.TryInsertAsync(storedFileEntity, cancellationToken).ConfigureAwait(false);
         if (fileResult.IsConflict)
         {
-            logger.LogWarning("Entity for stored file already exists in the database. File Metadata: {FileMetadata}", input.FileMetadata);
+            logger.LogWarning("Entity for stored file already exists in the database. Storage Entry Metadata: {StorageEntryMetadata}", input.StorageEntryMetadata);
         }
         else if (!fileResult.Success)
         {

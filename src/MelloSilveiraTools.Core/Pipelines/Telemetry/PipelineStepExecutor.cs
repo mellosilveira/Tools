@@ -27,16 +27,18 @@ public static class PipelineStepExecutor
     public static Func<TIn, Task> HandleExecution<TIn>(
         ILogger logger,
         IPipelineProgressNotifier progressNotifier,
+        TimeProvider timeProvider,
         string callbackName,
         Action<TIn> callback,
-        CancellationToken cancellationToken = default) => input => ExecuteCoreAsync(logger, progressNotifier, input, callbackName, WrapSyncAction(callback), null, null, false, cancellationToken);
+        CancellationToken cancellationToken = default) => input => ExecuteCoreAsync(logger, progressNotifier, timeProvider, input, callbackName, WrapSyncAction(callback), null, null, false, cancellationToken);
 
     internal static Func<TIn, Task> HandleExecution<TIn>(
         ILogger logger,
         IPipelineProgressNotifier progressNotifier,
+        TimeProvider timeProvider,
         PipelineStepTracker stepTracker,
         Action<TIn> callback,
-        CancellationToken cancellationToken = default) => input => ExecuteCoreAsync(logger, progressNotifier, input, stepTracker.TelemetryName, WrapSyncAction(callback), null, stepTracker, false, cancellationToken);
+        CancellationToken cancellationToken = default) => input => ExecuteCoreAsync(logger, progressNotifier, timeProvider, input, stepTracker.TelemetryName, WrapSyncAction(callback), null, stepTracker, false, cancellationToken);
 
     /// <summary>
     /// Wraps a synchronous action, capturing exceptions into a <see cref="SafeResult{TIn}"/> envelope for centralized error routing.
@@ -44,16 +46,18 @@ public static class PipelineStepExecutor
     public static Func<TIn, Task<SafeResult<TIn>>> HandleSafeExecution<TIn>(
         ILogger logger,
         IPipelineProgressNotifier progressNotifier,
+        TimeProvider timeProvider,
         string callbackName,
         Action<TIn> callback,
-        CancellationToken cancellationToken = default) => input => SafeExecuteActionCoreAsync(logger, progressNotifier, input, callbackName, WrapSyncAction(callback), null, null, cancellationToken);
+        CancellationToken cancellationToken = default) => input => SafeExecuteActionCoreAsync(logger, progressNotifier, timeProvider, input, callbackName, WrapSyncAction(callback), null, null, cancellationToken);
 
     internal static Func<TIn, Task<SafeResult<TIn>>> HandleSafeExecution<TIn>(
         ILogger logger,
         IPipelineProgressNotifier progressNotifier,
+        TimeProvider timeProvider,
         PipelineStepTracker stepTracker,
         Action<TIn> callback,
-        CancellationToken cancellationToken = default) => input => SafeExecuteActionCoreAsync(logger, progressNotifier, input, stepTracker.TelemetryName, WrapSyncAction(callback), null, stepTracker, cancellationToken);
+        CancellationToken cancellationToken = default) => input => SafeExecuteActionCoreAsync(logger, progressNotifier, timeProvider, input, stepTracker.TelemetryName, WrapSyncAction(callback), null, stepTracker, cancellationToken);
 
     /// <summary>
     /// Wraps an asynchronous action with OpenTelemetry tracing, structured logging, progress notifications, and optional exponential backoff.
@@ -61,18 +65,20 @@ public static class PipelineStepExecutor
     public static Func<TIn, Task> HandleExecution<TIn>(
         ILogger logger,
         IPipelineProgressNotifier progressNotifier,
+        TimeProvider timeProvider,
         string callbackName,
         Func<TIn, CancellationToken, Task> callback,
         RetryOptions? retryOptions = null,
-        CancellationToken cancellationToken = default) => input => ExecuteCoreAsync(logger, progressNotifier, input, callbackName, WrapAsyncAction(callback), retryOptions, null, false, cancellationToken);
+        CancellationToken cancellationToken = default) => input => ExecuteCoreAsync(logger, progressNotifier, timeProvider, input, callbackName, WrapAsyncAction(callback), retryOptions, null, false, cancellationToken);
 
     internal static Func<TIn, Task> HandleExecution<TIn>(
         ILogger logger,
         IPipelineProgressNotifier progressNotifier,
+        TimeProvider timeProvider,
         PipelineStepTracker stepTracker,
         Func<TIn, CancellationToken, Task> callback,
         RetryOptions? retryOptions = null,
-        CancellationToken cancellationToken = default) => input => ExecuteCoreAsync(logger, progressNotifier, input, stepTracker.TelemetryName, WrapAsyncAction(callback), retryOptions, stepTracker, false, cancellationToken);
+        CancellationToken cancellationToken = default) => input => ExecuteCoreAsync(logger, progressNotifier, timeProvider, input, stepTracker.TelemetryName, WrapAsyncAction(callback), retryOptions, stepTracker, false, cancellationToken);
 
     /// <summary>
     /// Wraps an asynchronous action, combining exponential backoff with a <see cref="SafeResult{TIn}"/> envelope for terminal failures.
@@ -80,18 +86,20 @@ public static class PipelineStepExecutor
     public static Func<TIn, Task<SafeResult<TIn>>> HandleSafeExecution<TIn>(
         ILogger logger,
         IPipelineProgressNotifier progressNotifier,
+        TimeProvider timeProvider,
         string callbackName,
         Func<TIn, CancellationToken, Task> callback,
         RetryOptions? retryOptions = null,
-        CancellationToken cancellationToken = default) => input => SafeExecuteActionCoreAsync(logger, progressNotifier, input, callbackName, WrapAsyncAction(callback), retryOptions, null, cancellationToken);
+        CancellationToken cancellationToken = default) => input => SafeExecuteActionCoreAsync(logger, progressNotifier, timeProvider, input, callbackName, WrapAsyncAction(callback), retryOptions, null, cancellationToken);
 
     internal static Func<TIn, Task<SafeResult<TIn>>> HandleSafeExecution<TIn>(
         ILogger logger,
         IPipelineProgressNotifier progressNotifier,
+        TimeProvider timeProvider,
         PipelineStepTracker stepTracker,
         Func<TIn, CancellationToken, Task> callback,
         RetryOptions? retryOptions = null,
-        CancellationToken cancellationToken = default) => input => SafeExecuteActionCoreAsync(logger, progressNotifier, input, stepTracker.TelemetryName, WrapAsyncAction(callback), retryOptions, stepTracker, cancellationToken);
+        CancellationToken cancellationToken = default) => input => SafeExecuteActionCoreAsync(logger, progressNotifier, timeProvider, input, stepTracker.TelemetryName, WrapAsyncAction(callback), retryOptions, stepTracker, cancellationToken);
 
     /// <summary>
     /// Wraps a synchronous mapping function with OpenTelemetry tracing, structured logging, and progress notifications, returning the mapped output.
@@ -99,16 +107,18 @@ public static class PipelineStepExecutor
     public static Func<TIn, Task<TOut>> HandleExecution<TIn, TOut>(
         ILogger logger,
         IPipelineProgressNotifier progressNotifier,
+        TimeProvider timeProvider,
         string callbackName,
         Func<TIn, TOut> callback,
-        CancellationToken cancellationToken = default) => input => ExecuteCoreAsync(logger, progressNotifier, input, callbackName, WrapSyncFunc(callback), null, null, true, cancellationToken);
+        CancellationToken cancellationToken = default) => input => ExecuteCoreAsync(logger, progressNotifier, timeProvider, input, callbackName, WrapSyncFunc(callback), null, null, true, cancellationToken);
 
     internal static Func<TIn, Task<TOut>> HandleExecution<TIn, TOut>(
         ILogger logger,
         IPipelineProgressNotifier progressNotifier,
+        TimeProvider timeProvider,
         PipelineStepTracker stepTracker,
         Func<TIn, TOut> callback,
-        CancellationToken cancellationToken = default) => input => ExecuteCoreAsync(logger, progressNotifier, input, stepTracker.TelemetryName, WrapSyncFunc(callback), null, stepTracker, true, cancellationToken);
+        CancellationToken cancellationToken = default) => input => ExecuteCoreAsync(logger, progressNotifier, timeProvider, input, stepTracker.TelemetryName, WrapSyncFunc(callback), null, stepTracker, true, cancellationToken);
 
     /// <summary>
     /// Wraps a synchronous mapping function, intercepting failures into a <see cref="SafeResult{TIn, TOut}"/> to permit DLQ offloading.
@@ -116,16 +126,18 @@ public static class PipelineStepExecutor
     public static Func<TIn, Task<SafeResult<TIn, TOut>>> HandleSafeExecution<TIn, TOut>(
         ILogger logger,
         IPipelineProgressNotifier progressNotifier,
+        TimeProvider timeProvider,
         string callbackName,
         Func<TIn, TOut> callback,
-        CancellationToken cancellationToken = default) => input => SafeExecuteCoreAsync(logger, progressNotifier, input, callbackName, WrapSyncFunc(callback), null, null, true, cancellationToken);
+        CancellationToken cancellationToken = default) => input => SafeExecuteCoreAsync(logger, progressNotifier, timeProvider, input, callbackName, WrapSyncFunc(callback), null, null, true, cancellationToken);
 
     internal static Func<TIn, Task<SafeResult<TIn, TOut>>> HandleSafeExecution<TIn, TOut>(
         ILogger logger,
         IPipelineProgressNotifier progressNotifier,
+        TimeProvider timeProvider,
         PipelineStepTracker stepTracker,
         Func<TIn, TOut> callback,
-        CancellationToken cancellationToken = default) => input => SafeExecuteCoreAsync(logger, progressNotifier, input, stepTracker.TelemetryName, WrapSyncFunc(callback), null, stepTracker, true, cancellationToken);
+        CancellationToken cancellationToken = default) => input => SafeExecuteCoreAsync(logger, progressNotifier, timeProvider, input, stepTracker.TelemetryName, WrapSyncFunc(callback), null, stepTracker, true, cancellationToken);
 
     /// <summary>
     /// Wraps an asynchronous mapping function with support for optional retry logic (exponential backoff) and telemetry tracking.
@@ -133,18 +145,20 @@ public static class PipelineStepExecutor
     public static Func<TIn, Task<TOut>> HandleExecution<TIn, TOut>(
         ILogger logger,
         IPipelineProgressNotifier progressNotifier,
+        TimeProvider timeProvider,
         string callbackName,
         Func<TIn, CancellationToken, Task<TOut>> callback,
         RetryOptions? retryOptions = null,
-        CancellationToken cancellationToken = default) => input => ExecuteCoreAsync(logger, progressNotifier, input, callbackName, callback, retryOptions, null, true, cancellationToken);
+        CancellationToken cancellationToken = default) => input => ExecuteCoreAsync(logger, progressNotifier, timeProvider, input, callbackName, callback, retryOptions, null, true, cancellationToken);
 
     internal static Func<TIn, Task<TOut>> HandleExecution<TIn, TOut>(
         ILogger logger,
         IPipelineProgressNotifier progressNotifier,
+        TimeProvider timeProvider,
         PipelineStepTracker stepTracker,
         Func<TIn, CancellationToken, Task<TOut>> callback,
         RetryOptions? retryOptions = null,
-        CancellationToken cancellationToken = default) => input => ExecuteCoreAsync(logger, progressNotifier, input, stepTracker.TelemetryName, callback, retryOptions, stepTracker, true, cancellationToken);
+        CancellationToken cancellationToken = default) => input => ExecuteCoreAsync(logger, progressNotifier, timeProvider, input, stepTracker.TelemetryName, callback, retryOptions, stepTracker, true, cancellationToken);
 
     /// <summary>
     /// Wraps an asynchronous mapping function, catching ultimate backoff failures into a bifurcated <see cref="SafeResult{TIn, TOut}"/>.
@@ -152,18 +166,20 @@ public static class PipelineStepExecutor
     public static Func<TIn, Task<SafeResult<TIn, TOut>>> HandleSafeExecution<TIn, TOut>(
         ILogger logger,
         IPipelineProgressNotifier progressNotifier,
+        TimeProvider timeProvider,
         string callbackName,
         Func<TIn, CancellationToken, Task<TOut>> callback,
         RetryOptions? retryOptions = null,
-        CancellationToken cancellationToken = default) => input => SafeExecuteCoreAsync(logger, progressNotifier, input, callbackName, callback, retryOptions, null, true, cancellationToken);
+        CancellationToken cancellationToken = default) => input => SafeExecuteCoreAsync(logger, progressNotifier, timeProvider, input, callbackName, callback, retryOptions, null, true, cancellationToken);
 
     internal static Func<TIn, Task<SafeResult<TIn, TOut>>> HandleSafeExecution<TIn, TOut>(
         ILogger logger,
         IPipelineProgressNotifier progressNotifier,
+        TimeProvider timeProvider,
         PipelineStepTracker stepTracker,
         Func<TIn, CancellationToken, Task<TOut>> callback,
         RetryOptions? retryOptions = null,
-        CancellationToken cancellationToken = default) => input => SafeExecuteCoreAsync(logger, progressNotifier, input, stepTracker.TelemetryName, callback, retryOptions, stepTracker, true, cancellationToken);
+        CancellationToken cancellationToken = default) => input => SafeExecuteCoreAsync(logger, progressNotifier, timeProvider, input, stepTracker.TelemetryName, callback, retryOptions, stepTracker, true, cancellationToken);
 
     /// <summary>
     /// Wraps a synchronous conditional forking operation evaluating the output payload after the primary execution completes.
@@ -171,22 +187,24 @@ public static class PipelineStepExecutor
     public static Func<TIn, Task<TOut>> HandleExecution<TIn, TOut>(
         ILogger logger,
         IPipelineProgressNotifier progressNotifier,
+        TimeProvider timeProvider,
         string callbackName,
         string fallbackName,
         Func<TIn, TOut> callback,
         Func<TOut, bool> fallbackCondition,
         Func<TIn, TOut> fallback,
-        CancellationToken cancellationToken = default) => HandleExecution(logger, progressNotifier, callbackName, fallbackName, WrapSyncFunc(callback), fallbackCondition, WrapSyncFunc(fallback), null, cancellationToken);
+        CancellationToken cancellationToken = default) => HandleExecution(logger, progressNotifier, timeProvider, callbackName, fallbackName, WrapSyncFunc(callback), fallbackCondition, WrapSyncFunc(fallback), null, cancellationToken);
 
     internal static Func<TIn, Task<TOut>> HandleExecution<TIn, TOut>(
         ILogger logger,
         IPipelineProgressNotifier progressNotifier,
+        TimeProvider timeProvider,
         PipelineStepTracker primaryTracker,
         PipelineStepTracker fallbackTracker,
         Func<TIn, TOut> callback,
         Func<TOut, bool> fallbackCondition,
         Func<TIn, TOut> fallback,
-        CancellationToken cancellationToken = default) => HandleExecution(logger, progressNotifier, primaryTracker, fallbackTracker, WrapSyncFunc(callback), fallbackCondition, WrapSyncFunc(fallback), null, cancellationToken);
+        CancellationToken cancellationToken = default) => HandleExecution(logger, progressNotifier, timeProvider, primaryTracker, fallbackTracker, WrapSyncFunc(callback), fallbackCondition, WrapSyncFunc(fallback), null, cancellationToken);
 
     /// <summary>
     /// Wraps a synchronous post-execution conditional forking operation, evaluating against the <see cref="SafeResult{TIn, TOut}"/> state.
@@ -194,22 +212,24 @@ public static class PipelineStepExecutor
     public static Func<TIn, Task<SafeResult<TIn, TOut>>> HandleSafeExecution<TIn, TOut>(
         ILogger logger,
         IPipelineProgressNotifier progressNotifier,
+        TimeProvider timeProvider,
         string callbackName,
         string fallbackName,
         Func<TIn, TOut> callback,
         Func<SafeResult<TIn, TOut>, bool> fallbackCondition,
         Func<TIn, TOut> fallback,
-        CancellationToken cancellationToken = default) => HandleSafeExecution(logger, progressNotifier, callbackName, fallbackName, WrapSyncFunc(callback), fallbackCondition, WrapSyncFunc(fallback), null, cancellationToken);
+        CancellationToken cancellationToken = default) => HandleSafeExecution(logger, progressNotifier, timeProvider, callbackName, fallbackName, WrapSyncFunc(callback), fallbackCondition, WrapSyncFunc(fallback), null, cancellationToken);
 
     internal static Func<TIn, Task<SafeResult<TIn, TOut>>> HandleSafeExecution<TIn, TOut>(
         ILogger logger,
         IPipelineProgressNotifier progressNotifier,
+        TimeProvider timeProvider,
         PipelineStepTracker primaryTracker,
         PipelineStepTracker fallbackTracker,
         Func<TIn, TOut> callback,
         Func<SafeResult<TIn, TOut>, bool> fallbackCondition,
         Func<TIn, TOut> fallback,
-        CancellationToken cancellationToken = default) => HandleSafeExecution(logger, progressNotifier, primaryTracker, fallbackTracker, WrapSyncFunc(callback), fallbackCondition, WrapSyncFunc(fallback), null, cancellationToken);
+        CancellationToken cancellationToken = default) => HandleSafeExecution(logger, progressNotifier, timeProvider, primaryTracker, fallbackTracker, WrapSyncFunc(callback), fallbackCondition, WrapSyncFunc(fallback), null, cancellationToken);
 
     /// <summary>
     /// Wraps an asynchronous conditional forking operation evaluating the output payload after the primary execution completes.
@@ -217,52 +237,48 @@ public static class PipelineStepExecutor
     public static Func<TIn, Task<TOut>> HandleExecution<TIn, TOut>(
         ILogger logger,
         IPipelineProgressNotifier progressNotifier,
+        TimeProvider timeProvider,
         string callbackName,
         string fallbackName,
         Func<TIn, CancellationToken, Task<TOut>> callback,
         Func<TOut, bool> fallbackCondition,
         Func<TIn, CancellationToken, Task<TOut>> fallback,
         RetryOptions? retryOptions = null,
-        CancellationToken cancellationToken = default)
-    {
-        return async input =>
+        CancellationToken cancellationToken = default) => async input =>
         {
-            TOut output = await ExecuteCoreAsync(logger, progressNotifier, input, callbackName, callback, retryOptions, null, false, cancellationToken).ConfigureAwait(false);
+            TOut output = await ExecuteCoreAsync(logger, progressNotifier, timeProvider, input, callbackName, callback, retryOptions, null, false, cancellationToken).ConfigureAwait(false);
             if (fallbackCondition(output))
             {
                 LogFallbackConditionMet(logger, callbackName, fallbackName);
-                return await ExecuteCoreAsync(logger, progressNotifier, input, fallbackName, fallback, retryOptions, null, false, cancellationToken).ConfigureAwait(false);
+                return await ExecuteCoreAsync(logger, progressNotifier, timeProvider, input, fallbackName, fallback, retryOptions, null, false, cancellationToken).ConfigureAwait(false);
             }
 
             return output;
         };
-    }
 
     internal static Func<TIn, Task<TOut>> HandleExecution<TIn, TOut>(
         ILogger logger,
         IPipelineProgressNotifier progressNotifier,
+        TimeProvider timeProvider,
         PipelineStepTracker primaryTracker,
         PipelineStepTracker fallbackTracker,
         Func<TIn, CancellationToken, Task<TOut>> callback,
         Func<TOut, bool> fallbackCondition,
         Func<TIn, CancellationToken, Task<TOut>> fallback,
         RetryOptions? retryOptions = null,
-        CancellationToken cancellationToken = default)
-    {
-        return async input =>
+        CancellationToken cancellationToken = default) => async input =>
         {
-            TOut output = await ExecuteCoreAsync(logger, progressNotifier, input, primaryTracker.TelemetryName, callback, retryOptions, primaryTracker, false, cancellationToken).ConfigureAwait(false);
+            TOut output = await ExecuteCoreAsync(logger, progressNotifier, timeProvider, input, primaryTracker.TelemetryName, callback, retryOptions, primaryTracker, false, cancellationToken).ConfigureAwait(false);
             if (fallbackCondition(output))
             {
                 LogFallbackConditionMet(logger, primaryTracker.TelemetryName, fallbackTracker.TelemetryName);
                 await fallbackTracker.OnItemReceivedAsync(cancellationToken).ConfigureAwait(false);
-                return await ExecuteCoreAsync(logger, progressNotifier, input, fallbackTracker.TelemetryName, fallback, retryOptions, fallbackTracker, true, cancellationToken).ConfigureAwait(false);
+                return await ExecuteCoreAsync(logger, progressNotifier, timeProvider, input, fallbackTracker.TelemetryName, fallback, retryOptions, fallbackTracker, true, cancellationToken).ConfigureAwait(false);
             }
 
             await primaryTracker.OnItemEmittedAsync(cancellationToken).ConfigureAwait(false);
             return output;
         };
-    }
 
     /// <summary>
     /// Wraps an asynchronous post-execution conditional forking operation, evaluating against the <see cref="SafeResult{TIn, TOut}"/> state.
@@ -270,46 +286,43 @@ public static class PipelineStepExecutor
     public static Func<TIn, Task<SafeResult<TIn, TOut>>> HandleSafeExecution<TIn, TOut>(
         ILogger logger,
         IPipelineProgressNotifier progressNotifier,
+        TimeProvider timeProvider,
         string callbackName,
         string fallbackName,
         Func<TIn, CancellationToken, Task<TOut>> callback,
         Func<SafeResult<TIn, TOut>, bool> fallbackCondition,
         Func<TIn, CancellationToken, Task<TOut>> fallback,
         RetryOptions? retryOptions = null,
-        CancellationToken cancellationToken = default)
-    {
-        return async input =>
+        CancellationToken cancellationToken = default) => async input =>
         {
-            SafeResult<TIn, TOut> safeResult = await SafeExecuteCoreAsync(logger, progressNotifier, input, callbackName, callback, retryOptions, null, false, cancellationToken).ConfigureAwait(false);
+            SafeResult<TIn, TOut> safeResult = await SafeExecuteCoreAsync(logger, progressNotifier, timeProvider, input, callbackName, callback, retryOptions, null, false, cancellationToken).ConfigureAwait(false);
             if (fallbackCondition(safeResult))
             {
                 LogFallbackConditionMet(logger, callbackName, fallbackName);
-                return await SafeExecuteCoreAsync(logger, progressNotifier, input, fallbackName, fallback, retryOptions, null, false, cancellationToken).ConfigureAwait(false);
+                return await SafeExecuteCoreAsync(logger, progressNotifier, timeProvider, input, fallbackName, fallback, retryOptions, null, false, cancellationToken).ConfigureAwait(false);
             }
 
             return safeResult;
         };
-    }
 
     internal static Func<TIn, Task<SafeResult<TIn, TOut>>> HandleSafeExecution<TIn, TOut>(
         ILogger logger,
         IPipelineProgressNotifier progressNotifier,
+        TimeProvider timeProvider,
         PipelineStepTracker primaryTracker,
         PipelineStepTracker fallbackTracker,
         Func<TIn, CancellationToken, Task<TOut>> callback,
         Func<SafeResult<TIn, TOut>, bool> fallbackCondition,
         Func<TIn, CancellationToken, Task<TOut>> fallback,
         RetryOptions? retryOptions = null,
-        CancellationToken cancellationToken = default)
-    {
-        return async input =>
+        CancellationToken cancellationToken = default) => async input =>
         {
-            SafeResult<TIn, TOut> safeResult = await SafeExecuteCoreAsync(logger, progressNotifier, input, primaryTracker.TelemetryName, callback, retryOptions, primaryTracker, false, cancellationToken).ConfigureAwait(false);
+            SafeResult<TIn, TOut> safeResult = await SafeExecuteCoreAsync(logger, progressNotifier, timeProvider, input, primaryTracker.TelemetryName, callback, retryOptions, primaryTracker, false, cancellationToken).ConfigureAwait(false);
             if (fallbackCondition(safeResult))
             {
                 LogFallbackConditionMet(logger, primaryTracker.TelemetryName, fallbackTracker.TelemetryName);
                 await fallbackTracker.OnItemReceivedAsync(cancellationToken).ConfigureAwait(false);
-                return await SafeExecuteCoreAsync(logger, progressNotifier, input, fallbackTracker.TelemetryName, fallback, retryOptions, fallbackTracker, true, cancellationToken).ConfigureAwait(false);
+                return await SafeExecuteCoreAsync(logger, progressNotifier, timeProvider, input, fallbackTracker.TelemetryName, fallback, retryOptions, fallbackTracker, true, cancellationToken).ConfigureAwait(false);
             }
 
             if (safeResult.Success)
@@ -317,7 +330,6 @@ public static class PipelineStepExecutor
 
             return safeResult;
         };
-    }
 
     /// <summary>
     /// Wraps a streaming function returning an <see cref="IAsyncEnumerable{TOut}"/> with OpenTelemetry tracing, structured logging, and progress notifications.
@@ -325,16 +337,18 @@ public static class PipelineStepExecutor
     public static Func<TIn, IAsyncEnumerable<TOut>> HandleExecution<TIn, TOut>(
         ILogger logger,
         IPipelineProgressNotifier progressNotifier,
+        TimeProvider timeProvider,
         string callbackName,
         Func<TIn, CancellationToken, IAsyncEnumerable<TOut>> callback,
-        CancellationToken cancellationToken = default) => input => ExecuteStreamingAsync(logger, progressNotifier, input, callbackName, callback, null, cancellationToken);
+        CancellationToken cancellationToken = default) => input => ExecuteStreamingAsync(logger, progressNotifier, timeProvider, input, callbackName, callback, null, cancellationToken);
 
     internal static Func<TIn, IAsyncEnumerable<TOut>> HandleExecution<TIn, TOut>(
         ILogger logger,
         IPipelineProgressNotifier progressNotifier,
+        TimeProvider timeProvider,
         PipelineStepTracker stepTracker,
         Func<TIn, CancellationToken, IAsyncEnumerable<TOut>> callback,
-        CancellationToken cancellationToken = default) => input => ExecuteStreamingAsync(logger, progressNotifier, input, stepTracker.TelemetryName, callback, stepTracker, cancellationToken);
+        CancellationToken cancellationToken = default) => input => ExecuteStreamingAsync(logger, progressNotifier, timeProvider, input, stepTracker.TelemetryName, callback, stepTracker, cancellationToken);
 
     /// <summary>
     /// Wraps a streaming function returning an <see cref="IAsyncEnumerable{TOut}"/> with OpenTelemetry tracing, structured logging, progress notifications, and safe DLQ routing.
@@ -342,16 +356,18 @@ public static class PipelineStepExecutor
     public static Func<TIn, IAsyncEnumerable<SafeResult<TIn, TOut>>> HandleSafeExecution<TIn, TOut>(
         ILogger logger,
         IPipelineProgressNotifier progressNotifier,
+        TimeProvider timeProvider,
         string callbackName,
         Func<TIn, CancellationToken, IAsyncEnumerable<TOut>> callback,
-        CancellationToken cancellationToken = default) => input => ExecuteSafeStreamingAsync(logger, progressNotifier, input, callbackName, callback, null, cancellationToken);
+        CancellationToken cancellationToken = default) => input => ExecuteSafeStreamingAsync(logger, progressNotifier, timeProvider, input, callbackName, callback, null, cancellationToken);
 
     internal static Func<TIn, IAsyncEnumerable<SafeResult<TIn, TOut>>> HandleSafeExecution<TIn, TOut>(
         ILogger logger,
         IPipelineProgressNotifier progressNotifier,
+        TimeProvider timeProvider,
         PipelineStepTracker stepTracker,
         Func<TIn, CancellationToken, IAsyncEnumerable<TOut>> callback,
-        CancellationToken cancellationToken = default) => input => ExecuteSafeStreamingAsync(logger, progressNotifier, input, stepTracker.TelemetryName, callback, stepTracker, cancellationToken);
+        CancellationToken cancellationToken = default) => input => ExecuteSafeStreamingAsync(logger, progressNotifier, timeProvider, input, stepTracker.TelemetryName, callback, stepTracker, cancellationToken);
 
     /// <summary>
     /// Wraps an enumerable transformation function returning an <see cref="IEnumerable{TOut}"/> with OpenTelemetry tracing, structured logging, and progress notifications.
@@ -359,16 +375,18 @@ public static class PipelineStepExecutor
     public static Func<TIn, IAsyncEnumerable<TOut>> HandleExecution<TIn, TOut>(
         ILogger logger,
         IPipelineProgressNotifier progressNotifier,
+        TimeProvider timeProvider,
         string callbackName,
         Func<TIn, CancellationToken, IEnumerable<TOut>> callback,
-        CancellationToken cancellationToken = default) => input => ExecuteStreamingAsync(logger, progressNotifier, input, callbackName, WrapSyncEnumerable(callback), null, cancellationToken);
+        CancellationToken cancellationToken = default) => input => ExecuteStreamingAsync(logger, progressNotifier, timeProvider, input, callbackName, WrapSyncEnumerable(callback), null, cancellationToken);
 
     internal static Func<TIn, IAsyncEnumerable<TOut>> HandleExecution<TIn, TOut>(
         ILogger logger,
         IPipelineProgressNotifier progressNotifier,
+        TimeProvider timeProvider,
         PipelineStepTracker stepTracker,
         Func<TIn, CancellationToken, IEnumerable<TOut>> callback,
-        CancellationToken cancellationToken = default) => input => ExecuteStreamingAsync(logger, progressNotifier, input, stepTracker.TelemetryName, WrapSyncEnumerable(callback), stepTracker, cancellationToken);
+        CancellationToken cancellationToken = default) => input => ExecuteStreamingAsync(logger, progressNotifier, timeProvider, input, stepTracker.TelemetryName, WrapSyncEnumerable(callback), stepTracker, cancellationToken);
 
     /// <summary>
     /// Wraps an enumerable transformation function returning an <see cref="IEnumerable{TOut}"/> with OpenTelemetry tracing, structured logging, progress notifications, and safe DLQ routing.
@@ -376,16 +394,18 @@ public static class PipelineStepExecutor
     public static Func<TIn, IAsyncEnumerable<SafeResult<TIn, TOut>>> HandleSafeExecution<TIn, TOut>(
         ILogger logger,
         IPipelineProgressNotifier progressNotifier,
+        TimeProvider timeProvider,
         string callbackName,
         Func<TIn, CancellationToken, IEnumerable<TOut>> callback,
-        CancellationToken cancellationToken = default) => input => ExecuteSafeStreamingAsync(logger, progressNotifier, input, callbackName, WrapSyncEnumerable(callback), null, cancellationToken);
+        CancellationToken cancellationToken = default) => input => ExecuteSafeStreamingAsync(logger, progressNotifier, timeProvider, input, callbackName, WrapSyncEnumerable(callback), null, cancellationToken);
 
     internal static Func<TIn, IAsyncEnumerable<SafeResult<TIn, TOut>>> HandleSafeExecution<TIn, TOut>(
         ILogger logger,
         IPipelineProgressNotifier progressNotifier,
+        TimeProvider timeProvider,
         PipelineStepTracker stepTracker,
         Func<TIn, CancellationToken, IEnumerable<TOut>> callback,
-        CancellationToken cancellationToken = default) => input => ExecuteSafeStreamingAsync(logger, progressNotifier, input, stepTracker.TelemetryName, WrapSyncEnumerable(callback), stepTracker, cancellationToken);
+        CancellationToken cancellationToken = default) => input => ExecuteSafeStreamingAsync(logger, progressNotifier, timeProvider, input, stepTracker.TelemetryName, WrapSyncEnumerable(callback), stepTracker, cancellationToken);
 
     private static Func<TIn, CancellationToken, Task<bool>> WrapSyncAction<TIn>(Action<TIn> callback) => (input, _) =>
     {
@@ -420,6 +440,7 @@ public static class PipelineStepExecutor
     private static async Task<TOut> ExecuteCoreAsync<TIn, TOut>(
         ILogger logger,
         IPipelineProgressNotifier progressNotifier,
+        TimeProvider timeProvider,
         TIn input,
         string callbackName,
         Func<TIn, CancellationToken, Task<TOut>> callback,
@@ -431,7 +452,7 @@ public static class PipelineStepExecutor
         cancellationToken.ThrowIfCancellationRequested();
 
         using Activity? activity = TelemetryConstants.DefaultInstance.StartActivity(callbackName, ActivityKind.Internal);
-        DateTimeOffset startTime = await StartTelemetryAsync(logger, progressNotifier, activity, callbackName, stepTracker, cancellationToken).ConfigureAwait(false);
+        DateTimeOffset startTime = await StartTelemetryAsync(logger, progressNotifier, timeProvider, activity, callbackName, stepTracker, cancellationToken).ConfigureAwait(false);
 
         int attempt = 0;
         int delayMs = retryOptions?.InitialDelayMs ?? 0;
@@ -441,12 +462,12 @@ public static class PipelineStepExecutor
             try
             {
                 TOut output = await callback(input, cancellationToken).ConfigureAwait(false);
-                await LogAndTrackStepCompletionAsync(logger, progressNotifier, activity, startTime, callbackName, stepTracker, emitToDownstream, null, cancellationToken).ConfigureAwait(false);
+                await LogAndTrackStepCompletionAsync(logger, progressNotifier, timeProvider, activity, startTime, callbackName, stepTracker, emitToDownstream, null, cancellationToken).ConfigureAwait(false);
                 return output;
             }
             catch (Exception ex) when (ex is not OperationCanceledException)
             {
-                (bool shouldRetry, attempt, delayMs) = await HandleRetryAsync(logger, progressNotifier, activity, callbackName, ex, attempt, delayMs, startTime, retryOptions, stepTracker, cancellationToken).ConfigureAwait(false);
+                (bool shouldRetry, attempt, delayMs) = await HandleRetryAsync(logger, progressNotifier, timeProvider, activity, callbackName, ex, attempt, delayMs, startTime, retryOptions, stepTracker, cancellationToken).ConfigureAwait(false);
                 if (!shouldRetry)
                     throw;
             }
@@ -456,6 +477,7 @@ public static class PipelineStepExecutor
     private static async Task<SafeResult<TIn>> SafeExecuteActionCoreAsync<TIn>(
         ILogger logger,
         IPipelineProgressNotifier progressNotifier,
+        TimeProvider timeProvider,
         TIn input,
         string callbackName,
         Func<TIn, CancellationToken, Task<bool>> callback,
@@ -465,7 +487,7 @@ public static class PipelineStepExecutor
     {
         try
         {
-            await ExecuteCoreAsync(logger, progressNotifier, input, callbackName, callback, retryOptions, stepTracker, false, cancellationToken).ConfigureAwait(false);
+            await ExecuteCoreAsync(logger, progressNotifier, timeProvider, input, callbackName, callback, retryOptions, stepTracker, false, cancellationToken).ConfigureAwait(false);
             return SafeResult<TIn>.CreateSuccess();
         }
         catch (Exception ex) when (ex is not OperationCanceledException)
@@ -477,6 +499,7 @@ public static class PipelineStepExecutor
     private static async Task<SafeResult<TIn, TOut>> SafeExecuteCoreAsync<TIn, TOut>(
         ILogger logger,
         IPipelineProgressNotifier progressNotifier,
+        TimeProvider timeProvider,
         TIn input,
         string callbackName,
         Func<TIn, CancellationToken, Task<TOut>> callback,
@@ -487,7 +510,7 @@ public static class PipelineStepExecutor
     {
         try
         {
-            return await ExecuteCoreAsync(logger, progressNotifier, input, callbackName, callback, retryOptions, stepTracker, emitToDownstream, cancellationToken).ConfigureAwait(false);
+            return await ExecuteCoreAsync(logger, progressNotifier, timeProvider, input, callbackName, callback, retryOptions, stepTracker, emitToDownstream, cancellationToken).ConfigureAwait(false);
         }
         catch (Exception ex) when (ex is not OperationCanceledException)
         {
@@ -498,6 +521,7 @@ public static class PipelineStepExecutor
     private static async IAsyncEnumerable<TOut> ExecuteStreamingAsync<TIn, TOut>(
         ILogger logger,
         IPipelineProgressNotifier progressNotifier,
+        TimeProvider timeProvider,
         TIn input,
         string callbackName,
         Func<TIn, CancellationToken, IAsyncEnumerable<TOut>> callback,
@@ -507,7 +531,7 @@ public static class PipelineStepExecutor
         cancellationToken.ThrowIfCancellationRequested();
 
         using Activity? activity = TelemetryConstants.DefaultInstance.StartActivity(callbackName, ActivityKind.Internal);
-        DateTimeOffset startTime = await StartTelemetryAsync(logger, progressNotifier, activity, callbackName, stepTracker, cancellationToken).ConfigureAwait(false);
+        DateTimeOffset startTime = await StartTelemetryAsync(logger, progressNotifier, timeProvider, activity, callbackName, stepTracker, cancellationToken).ConfigureAwait(false);
         int itemCount = 0;
 
         IAsyncEnumerator<TOut> enumerator = callback(input, cancellationToken).GetAsyncEnumerator(cancellationToken);
@@ -523,7 +547,7 @@ public static class PipelineStepExecutor
                 }
                 catch (Exception ex) when (ex is not OperationCanceledException)
                 {
-                    await LogAndTrackStepFailureAsync(logger, progressNotifier, activity, startTime, callbackName, ex, stepTracker, cancellationToken).ConfigureAwait(false);
+                    await LogAndTrackStepFailureAsync(logger, progressNotifier, timeProvider, activity, startTime, callbackName, ex, stepTracker, cancellationToken).ConfigureAwait(false);
                     throw;
                 }
 
@@ -531,7 +555,7 @@ public static class PipelineStepExecutor
                     break;
 
                 itemCount++;
-                await NotifyStreamingProgressIfNeededAsync(progressNotifier, callbackName, itemCount, stepTracker, cancellationToken).ConfigureAwait(false);
+                await NotifyStreamingProgressIfNeededAsync(progressNotifier, timeProvider, callbackName, itemCount, stepTracker, cancellationToken).ConfigureAwait(false);
                 if (stepTracker is not null)
                     await stepTracker.OnItemEmittedAsync(cancellationToken).ConfigureAwait(false);
 
@@ -539,12 +563,13 @@ public static class PipelineStepExecutor
             }
         }
 
-        await LogAndTrackStepCompletionAsync(logger, progressNotifier, activity, startTime, callbackName, stepTracker, false, $"Items emitted: {itemCount}", cancellationToken).ConfigureAwait(false);
+        await LogAndTrackStepCompletionAsync(logger, progressNotifier, timeProvider, activity, startTime, callbackName, stepTracker, false, $"Items emitted: {itemCount}", cancellationToken).ConfigureAwait(false);
     }
 
     private static async IAsyncEnumerable<SafeResult<TIn, TOut>> ExecuteSafeStreamingAsync<TIn, TOut>(
         ILogger logger,
         IPipelineProgressNotifier progressNotifier,
+        TimeProvider timeProvider,
         TIn input,
         string callbackName,
         Func<TIn, CancellationToken, IAsyncEnumerable<TOut>> callback,
@@ -554,7 +579,7 @@ public static class PipelineStepExecutor
         cancellationToken.ThrowIfCancellationRequested();
 
         using Activity? activity = TelemetryConstants.DefaultInstance.StartActivity(callbackName, ActivityKind.Internal);
-        DateTimeOffset startTime = await StartTelemetryAsync(logger, progressNotifier, activity, callbackName, stepTracker, cancellationToken).ConfigureAwait(false);
+        DateTimeOffset startTime = await StartTelemetryAsync(logger, progressNotifier, timeProvider, activity, callbackName, stepTracker, cancellationToken).ConfigureAwait(false);
         int itemCount = 0;
 
         IAsyncEnumerator<TOut> enumerator = callback(input, cancellationToken).GetAsyncEnumerator(cancellationToken);
@@ -571,7 +596,7 @@ public static class PipelineStepExecutor
                 }
                 catch (Exception ex) when (ex is not OperationCanceledException)
                 {
-                    await LogAndTrackStepFailureAsync(logger, progressNotifier, activity, startTime, callbackName, ex, stepTracker, cancellationToken).ConfigureAwait(false);
+                    await LogAndTrackStepFailureAsync(logger, progressNotifier, timeProvider, activity, startTime, callbackName, ex, stepTracker, cancellationToken).ConfigureAwait(false);
                     exception = ex;
                 }
 
@@ -585,7 +610,7 @@ public static class PipelineStepExecutor
                     break;
 
                 itemCount++;
-                await NotifyStreamingProgressIfNeededAsync(progressNotifier, callbackName, itemCount, stepTracker, cancellationToken).ConfigureAwait(false);
+                await NotifyStreamingProgressIfNeededAsync(progressNotifier, timeProvider, callbackName, itemCount, stepTracker, cancellationToken).ConfigureAwait(false);
                 if (stepTracker is not null)
                     await stepTracker.OnItemEmittedAsync(cancellationToken).ConfigureAwait(false);
 
@@ -593,11 +618,12 @@ public static class PipelineStepExecutor
             }
         }
 
-        await LogAndTrackStepCompletionAsync(logger, progressNotifier, activity, startTime, callbackName, stepTracker, false, $"Items emitted: {itemCount}", cancellationToken).ConfigureAwait(false);
+        await LogAndTrackStepCompletionAsync(logger, progressNotifier, timeProvider, activity, startTime, callbackName, stepTracker, false, $"Items emitted: {itemCount}", cancellationToken).ConfigureAwait(false);
     }
 
     private static ValueTask NotifyStreamingProgressIfNeededAsync(
         IPipelineProgressNotifier progressNotifier,
+        TimeProvider timeProvider,
         string callbackName,
         int itemCount,
         PipelineStepTracker? stepTracker,
@@ -615,7 +641,7 @@ public static class PipelineStepExecutor
                 StepName = callbackName,
                 Description = $"Streaming '{callbackName}'.",
                 State = PipelineStepState.Running,
-                Timestamp = DateTimeOffset.UtcNow,
+                Timestamp = timeProvider.GetUtcNow(),
                 ReceivedItems = 1,
                 ProcessedItems = itemCount,
                 ProgressPercentage = 0.0,
@@ -627,6 +653,7 @@ public static class PipelineStepExecutor
     private static async ValueTask<DateTimeOffset> StartTelemetryAsync(
         ILogger logger,
         IPipelineProgressNotifier progressNotifier,
+        TimeProvider timeProvider,
         Activity? activity,
         string name,
         PipelineStepTracker? stepTracker,
@@ -637,7 +664,7 @@ public static class PipelineStepExecutor
         if (stepTracker is not null)
             return await stepTracker.OnItemStartedAsync(cancellationToken).ConfigureAwait(false);
 
-        DateTimeOffset startTime = DateTimeOffset.UtcNow;
+        DateTimeOffset startTime = timeProvider.GetUtcNow();
         logger.LogInformation("{StartTime:O} - Starting '{Name}'.", startTime, name);
         await progressNotifier.NotifyAsync(
             new PipelineProgressEvent
@@ -657,6 +684,7 @@ public static class PipelineStepExecutor
     private static async ValueTask LogAndTrackStepCompletionAsync(
         ILogger logger,
         IPipelineProgressNotifier progressNotifier,
+        TimeProvider timeProvider,
         Activity? activity,
         DateTimeOffset startTime,
         string name,
@@ -676,7 +704,7 @@ public static class PipelineStepExecutor
             return;
         }
 
-        DateTimeOffset endTime = DateTimeOffset.UtcNow;
+        DateTimeOffset endTime = timeProvider.GetUtcNow();
         TimeSpan duration = endTime - startTime;
         logger.LogInformation("{EndTime:O} - Duration: {Duration} - Successfully completed '{Name}'.", endTime, duration, name);
         await progressNotifier.NotifyAsync(
@@ -697,6 +725,7 @@ public static class PipelineStepExecutor
     private static async ValueTask LogAndTrackStepFailureAsync(
         ILogger logger,
         IPipelineProgressNotifier progressNotifier,
+        TimeProvider timeProvider,
         Activity? activity,
         DateTimeOffset startTime,
         string name,
@@ -713,7 +742,7 @@ public static class PipelineStepExecutor
             return;
         }
 
-        DateTimeOffset endTime = DateTimeOffset.UtcNow;
+        DateTimeOffset endTime = timeProvider.GetUtcNow();
         TimeSpan duration = endTime - startTime;
         logger.LogError(ex, "{EndTime:O} - Duration: {Duration} - Failed '{Name}'.", endTime, duration, name);
         await progressNotifier.NotifyAsync(
@@ -737,6 +766,7 @@ public static class PipelineStepExecutor
     private static async Task<(bool ShouldRetry, int Attempt, int DelayMs)> HandleRetryAsync(
         ILogger logger,
         IPipelineProgressNotifier progressNotifier,
+        TimeProvider timeProvider,
         Activity? activity,
         string callbackName,
         Exception exception,
@@ -750,12 +780,12 @@ public static class PipelineStepExecutor
         int currentAttempt = attempt + 1;
         if (retryOptions == null || currentAttempt >= retryOptions.Value.MaxAttempts)
         {
-            await LogAndTrackStepFailureAsync(logger, progressNotifier, activity, startTime, callbackName, exception, stepTracker, cancellationToken).ConfigureAwait(false);
+            await LogAndTrackStepFailureAsync(logger, progressNotifier, timeProvider, activity, startTime, callbackName, exception, stepTracker, cancellationToken).ConfigureAwait(false);
             return (false, currentAttempt, delayMs);
         }
 
         logger.LogWarning(exception, "Attempt {Attempt} failed for '{Name}'. Retrying in {Delay}ms...", currentAttempt, callbackName, delayMs);
-        await Task.Delay(delayMs, cancellationToken).ConfigureAwait(false);
+        await Task.Delay(TimeSpan.FromMilliseconds(delayMs), timeProvider, cancellationToken).ConfigureAwait(false);
 
         int currentDelayMs = (int)(delayMs * retryOptions.Value.BackoffFactor);
         return (true, currentAttempt, currentDelayMs);

@@ -1,5 +1,4 @@
-﻿using MelloSilveiraTools.Core.Application.Commands;
-using MelloSilveiraTools.Core.Pipelines.Models;
+using MelloSilveiraTools.Core.Application.Commands;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Models;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Models;
 using Microsoft.AspNetCore.Http;
@@ -80,12 +79,6 @@ public record ProcessExperimentalDataRequest : RequestBase
     public ExperimentalDataProcessingOptions? Options { get; init; }
 
     /// <summary>
-    /// Optional progress reporter for emitting real-time <see cref="PipelineProgressEvent"/> notifications.
-    /// </summary>
-    [JsonIgnore]
-    public IProgress<PipelineProgressEvent>? Progress { get; init; }
-
-    /// <summary>
     /// Converts this command request and open file streams into an <see cref="ExperimentalDataProcessingInput"/> instance.
     /// </summary>
     /// <param name="strainStream">Open readable stream for strain data.</param>
@@ -105,7 +98,6 @@ public record ProcessExperimentalDataRequest : RequestBase
         SimulationTimeStep = SimulationTimeStep,
         FinalSimulationTime = FinalSimulationTime,
         DownsamplingSkipTimeStep = DownsamplingSkipTimeStep,
-        Options = Options ?? new ExperimentalDataProcessingOptions(),
-        Progress = Progress
+        Options = Options ?? new ExperimentalDataProcessingOptions()
     };
 }

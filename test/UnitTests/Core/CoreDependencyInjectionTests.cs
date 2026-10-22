@@ -5,6 +5,7 @@ using MelloSilveiraTools.Core.Managers.File.Models;
 using MelloSilveiraTools.Core.Managers.File.Providers;
 using MelloSilveiraTools.Core.Managers.File.Providers.Dfs;
 using MelloSilveiraTools.Core.Managers.File.Providers.Local;
+using MelloSilveiraTools.Core.Pipelines.Telemetry;
 using MelloSilveiraTools.Core.Providers;
 using MelloSilveiraTools.Core.Providers.Dynamics;
 using MelloSilveiraTools.Core.ResiliencePipelines;
@@ -142,6 +143,25 @@ public sealed class CoreDependencyInjectionTests
         Assert.NotNull(dfsService);
     }
 
+    [Theory]
+    [InlineData("")]
+    [InlineData("   ")]
+    public void AddCoreServices_WithInvalidDfsBaseDirectory_ThrowsArgumentExceptionImmediately(string invalidPath)
+    {
+        ServiceCollection services = new();
+        FileStorageSettings storageSettings = new()
+        {
+            Dfs = new DfsStorageSettings { BaseDirectory = invalidPath }
+        };
+
+        Assert.Throws<ArgumentException>(() =>
+        {
+            services.AddCoreServices(
+                defaultResiliencePipelineSettings: TestResilienceSettings,
+                fileStorageSettings: storageSettings);
+        });
+    }
+
     [Fact]
     public void AddCoreServices_WhenLoggerSettingsNull_UsesMicrosoftDefaultLogging()
     {
@@ -264,5 +284,51 @@ public sealed class CoreDependencyInjectionTests
         // Assert
         Assert.NotNull(provider.GetService<ILoggerFactory>());
         Assert.NotNull(provider.GetService<ILogger<CoreDependencyInjectionTests>>());
+    }
+
+    [Fact]
+    public void AddCoreServices_WithPipelineProgressNotificationSettings_RegistersSingleton()
+    {
+        // Arrange
+        ServiceCollection services = new();
+        PipelineProgressNotificationSettings notificationSettings = new()
+        {
+            ImmediateNotificationItemLimit = 25,
+            HighVolumeNotificationInterval = 250
+        };
+
+        // Act
+        services.AddCoreServices(
+            defaultResiliencePipelineSettings: TestResilienceSettings,
+            pipelineProgressNotificationSettings: notificationSettings);
+
+        ServiceProvider provider = services.BuildServiceProvider();
+        PipelineProgressNotificationSettings? resolvedSettings = provider.GetService<PipelineProgressNotificationSettings>();
+
+        // Assert
+        Assert.NotNull(resolvedSettings);
+        Assert.Equal(25, resolvedSettings.ImmediateNotificationItemLimit);
+        Assert.Equal(250, resolvedSettings.HighVolumeNotificationInterval);
+    }
+
+    [Theory]
+    [InlineData(0, 500)]
+    [InlineData(-1, 500)]
+    [InlineData(50, 0)]
+    [InlineData(50, -1)]
+    public void AddCoreServices_WithInvalidPipelineProgressNotificationSettings_ThrowsArgumentOutOfRangeException(int immediateLimit, int interval)
+    {
+        // Arrange
+        ServiceCollection services = new();
+        PipelineProgressNotificationSettings invalidSettings = new()
+        {
+            ImmediateNotificationItemLimit = immediateLimit,
+            HighVolumeNotificationInterval = interval
+        };
+
+        // Act & Assert
+        Assert.Throws<ArgumentOutOfRangeException>(() => services.AddCoreServices(
+            defaultResiliencePipelineSettings: TestResilienceSettings,
+            pipelineProgressNotificationSettings: invalidSettings));
     }
 }
