@@ -143,7 +143,7 @@
         </member>
         <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Caching.MechanicalModelTypeCache.CompileOutputFactory(System.Type)">
             <summary>
-            Compiles a parameterless constructor into a factory delegate, replacing <see cref="M:System.Activator.CreateInstance(System.String,System.String)"/>.
+            Compiles a parameterless constructor into a factory delegate, replacing <see cref="M:System.Activator.CreateInstance(System.Type)"/>.
             </summary>
         </member>
         <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Caching.MechanicalModelTypeCache.CompilePropertySetters(System.Type)">
@@ -1133,13 +1133,6 @@
             <param name="differentiation">See reference at <see cref="T:MelloSilveiraTools.Mathematics.NumericalMethods.Differentiations.IDifferentiation"/>.</param>
             <param name="parameterConverter">See reference at <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Converters.MechanicalParameter.IMechanicalParameterConverter"/>.</param>
         </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Viscoelasticity.QuasiLinear.Fung.FungModelCalculator.CalculateI(System.Double,System.Double,System.Double,System.Double)">
-            <inheritdoc/>
-            <remarks>
-            Formula: I(t) = ∫[t/τ₂, t/τ₁] e^(-x)/x dx (Projeto Final, Eq. 43).
-            When t → 0, the integrand e^(-x)/x ≈ 1/x, so I(0) = ln(τ₂/τ₁).
-            </remarks>
-        </member>
         <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Viscoelasticity.QuasiLinear.Fung.FungModelCalculator.CalculateReducedRelaxationFunction(MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalModelInput{MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.QuasiLinear.FungConstitutiveParameters},System.Double)">
             <inheritdoc/>
             <remarks>Formula: G(t) = (1 + C · I(t)) / (1 + C · ln(τ₂/τ₁)) (Projeto Final, Eq. 43). G(0) = 1.</remarks>
@@ -1147,14 +1140,6 @@
         <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Viscoelasticity.QuasiLinear.Fung.FungModelCalculator.CalculateReducedRelaxationFunctionDerivative(MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalModelInput{MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.QuasiLinear.FungConstitutiveParameters},System.Double)">
             <inheritdoc/>
             <remarks>Formula: dG/dt = C · [e^(-t/τ₁) - e^(-t/τ₂)] / [t · (1 + C · ln(τ₂/τ₁))] (Projeto Final, Eq. 45).</remarks>
-        </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Viscoelasticity.QuasiLinear.Fung.FungModelCalculator.SetIntegrationStep(System.Double,System.Double)">
-            <summary>
-            Sets the dynamic time step for numerical integration based on the current integration time.
-            </summary>
-            <param name="time">Unit: s (second).</param>
-            <param name="timeStep">Unit: s (second).</param>
-            <returns>Unit: s (second).</returns>
         </member>
         <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Viscoelasticity.QuasiLinear.Fung.IFungModelCalculator">
             <summary>
@@ -1164,19 +1149,6 @@
             This calculator implements the exact numerical evaluation of Fung's continuous relaxation spectrum, 
             avoiding the discrete approximations used in the simplified model.
             </remarks>
-        </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Viscoelasticity.QuasiLinear.Fung.IFungModelCalculator.CalculateI(System.Double,System.Double,System.Double,System.Double)">
-            <summary>
-            Calculates the integral function I(t), which resolves the continuous relaxation spectrum between the fast and slow relaxation times.
-            </summary>
-            <remarks>
-            Mathematically, this evaluates the exponential integral commonly represented as ∫(e^(-t/τ) / τ) dτ from τ2 to τ1.
-            </remarks>
-            <param name="slowRelaxationTime">The upper bound of the relaxation spectrum (τ1). Unit: s (second).</param>
-            <param name="fastRelaxationTime">The lower bound of the relaxation spectrum (τ2). Unit: s (second).</param>
-            <param name="timeStep">The numerical integration step. Unit: s (second).</param>
-            <param name="time">The current elapsed time. Unit: s (second).</param>
-            <returns>Unit: dimensionless.</returns>
         </member>
         <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Viscoelasticity.QuasiLinear.IQuasiLinearModelCalculator`2">
             <summary>
@@ -2422,11 +2394,11 @@
             Represents the amplitude of the viscous effects relative to the elastic response. Unit: dimensionless.
             </param>
             <param name="FastRelaxationTime">
-            The fast relaxation time constant (often denoted as τ2). 
+            The fast relaxation time constant (often denoted as τ1). 
             Governs the short-term viscous response immediately after loading. Unit: s (second).
             </param>
             <param name="SlowRelaxationTime">
-            The slow relaxation time constant (often denoted as τ1). 
+            The slow relaxation time constant (often denoted as τ2). 
             Governs the long-term viscous response, dictating when the material reaches equilibrium. Unit: s (second).
             </param>
         </member>
@@ -2439,11 +2411,11 @@
             Represents the amplitude of the viscous effects relative to the elastic response. Unit: dimensionless.
             </param>
             <param name="FastRelaxationTime">
-            The fast relaxation time constant (often denoted as τ2). 
+            The fast relaxation time constant (often denoted as τ1). 
             Governs the short-term viscous response immediately after loading. Unit: s (second).
             </param>
             <param name="SlowRelaxationTime">
-            The slow relaxation time constant (often denoted as τ1). 
+            The slow relaxation time constant (often denoted as τ2). 
             Governs the long-term viscous response, dictating when the material reaches equilibrium. Unit: s (second).
             </param>
         </member>
@@ -2455,13 +2427,13 @@
         </member>
         <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.QuasiLinear.ReducedRelaxationFunction.FastRelaxationTime">
             <summary>
-            The fast relaxation time constant (often denoted as τ2). 
+            The fast relaxation time constant (often denoted as τ1). 
             Governs the short-term viscous response immediately after loading. Unit: s (second).
             </summary>
         </member>
         <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.QuasiLinear.ReducedRelaxationFunction.SlowRelaxationTime">
             <summary>
-            The slow relaxation time constant (often denoted as τ1). 
+            The slow relaxation time constant (often denoted as τ2). 
             Governs the long-term viscous response, dictating when the material reaches equilibrium. Unit: s (second).
             </summary>
         </member>

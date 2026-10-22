@@ -11,6 +11,9 @@ public class AlglibCurveFitter(ILogger<AlglibCurveFitter> logger) : CurveFitterB
         (CurveFitProfile.Automatic, _) or (CurveFitProfile.RuleConstrained, _) => FitRuleConstrained(input),
     };
 
+    /// <summary>
+    /// Executes local gradient-based optimization using ALGLIB's bounded L-BFGS solver (<c>minbleic</c>).
+    /// </summary>
     private CurveFitOutput FitStandard(CurveFitInput input)
     {
         double[] workingParameters = (double[])input.InitialParameters.Clone();
@@ -36,6 +39,11 @@ public class AlglibCurveFitter(ILogger<AlglibCurveFitter> logger) : CurveFitterB
         throw new InvalidOperationException($"Failed to fit curve using ALGLIB (minbleic). Termination type: {optimizerReport.terminationtype}. Iterations: {optimizerReport.iterationscount}");
     }
 
+    /// <summary>
+    /// Executes derivative-free global optimization using ALGLIB's GDEMO (adaptive Differential Evolution / SHADE, <c>mindf</c>)
+    /// with box bounds and short-circuit rejection (penalty barrier 1e12) for arbitrary non-linear parameter rules,
+    /// followed by a secondary local gradient polish (<c>FitStandard</c>) from the best found solution.
+    /// </summary>
     private CurveFitOutput FitRuleConstrained(CurveFitInput input)
     {
         double[] workingParameters = (double[])input.InitialParameters.Clone();
@@ -59,9 +67,26 @@ public class AlglibCurveFitter(ILogger<AlglibCurveFitter> logger) : CurveFitterB
 
         if (optimizerReport.terminationtype > 0)
         {
-            double sumOfSquaresError = CalculateObjectiveFunction(input, workingParameters);
+            double gdemoError = CalculateObjectiveFunction(input, workingParameters);
+            try
+            {
+                // Secondary local polish phase using L-BFGS initialized at the global optimum found by GDEMO.
+                CurveFitInput polishInput = input with { InitialParameters = (double[])workingParameters.Clone() };
+                CurveFitOutput polished = FitStandard(polishInput);
+
+                // Strictly ensure polished parameters satisfy validation constraints and improve objective function error
+                if ((input.ValidateParameters == null || input.ValidateParameters(polished.OptimizedParameters)) && polished.FinalError < gdemoError)
+                {
+                    return polished;
+                }
+            }
+            catch
+            {
+                // Fall back to GDEMO global result if local gradient polish faults
+            }
+
             double rSquared = CalculateRSquared(input, workingParameters);
-            return new CurveFitOutput(workingParameters, sumOfSquaresError, rSquared, optimizerReport.iterationscount);
+            return new CurveFitOutput(workingParameters, gdemoError, rSquared, optimizerReport.iterationscount);
         }
 
         logger.LogWarning("Failed to fit curve using ALGLIB (mindf GDEMO). Report: {@Report}", optimizerReport);

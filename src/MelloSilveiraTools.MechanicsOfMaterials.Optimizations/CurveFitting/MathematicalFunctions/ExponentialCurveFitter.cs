@@ -5,7 +5,7 @@ using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Models;
 
 namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.MathematicalFunctions;
 
-public sealed class ExponentialCurveFitter(ICurveFitter curveFitter) : IMathematicalFunctionCurveFitter
+public sealed class ExponentialCurveFitter(ICurveFitter curveFitter) : IFunctionCurveFitter
 {
     public SafeResult<CurveFitInput, CurveFitOutput> TryFit(MathematicalCurveFitInput input)
     {

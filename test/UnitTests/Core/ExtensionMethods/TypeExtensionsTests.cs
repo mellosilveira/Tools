@@ -57,7 +57,7 @@ public sealed class TypeExtensionsTests
     [Fact]
     public void GetPropertiesInHierarchy_IncludesBaseAndDerivedProperties()
     {
-        var names = typeof(ProductEntity)
+        string[] names = typeof(ProductEntity)
             .GetPropertiesInHierarchy()
             .Select(p => p.Name)
             .ToArray();
@@ -71,7 +71,7 @@ public sealed class TypeExtensionsTests
     [Fact]
     public void GetPropertiesInHierarchy_BaseClassPropertiesComeBefore_DerivedOnes()
     {
-        var names = typeof(ProductEntity)
+        string[] names = typeof(ProductEntity)
             .GetPropertiesInHierarchy()
             .Select(p => p.Name)
             .ToArray();
@@ -84,7 +84,7 @@ public sealed class TypeExtensionsTests
     [Fact]
     public void GetPropertiesInHierarchyWithAttribute_FiltersToAttributedPropertiesOnly()
     {
-        var names = typeof(CategoryEntity)
+        string[] names = typeof(CategoryEntity)
             .GetPropertiesInHierarchy<UniqueColumnAttribute>()
             .Select(p => p.Name)
             .ToArray();
@@ -100,7 +100,7 @@ public sealed class TypeExtensionsTests
     [Fact]
     public void GetDeclaredProperties_ReturnsOnlyPropertiesDeclaredOnType()
     {
-        var names = typeof(ProductEntity)
+        string[] names = typeof(ProductEntity)
             .GetDeclaredProperties()
             .Select(p => p.Name)
             .ToArray();

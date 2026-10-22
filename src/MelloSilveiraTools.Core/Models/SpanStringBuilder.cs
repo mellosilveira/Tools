@@ -1,4 +1,5 @@
-﻿using System.Buffers;
+using System.Buffers;
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 
 namespace MelloSilveiraTools.Core.Models;
@@ -77,8 +78,9 @@ public ref struct SpanStringBuilder : IDisposable
     /// Uses <see cref="MethodImplOptions.AggressiveInlining"/> for near-zero overhead.
     /// Bounds check optimized using unsigned integer comparison (single branch).
     /// </remarks>
+    [UnscopedRef]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public SpanStringBuilder Append(char value)
+    public ref SpanStringBuilder Append(char value)
     {
         int pos = _bufferPosition;
         // Single branch bounds check: 
@@ -94,7 +96,7 @@ public ref struct SpanStringBuilder : IDisposable
             GrowAndAppend(value);
         }
 
-        return this;
+        return ref this;
     }
 
     /// <summary>
@@ -116,12 +118,13 @@ public ref struct SpanStringBuilder : IDisposable
     /// Uses <see cref="Span{T}.Slice(int, int)"/> with explicit length for better bounds elision.
     /// </para>
     /// </remarks>
+    [UnscopedRef]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public SpanStringBuilder Append(ReadOnlySpan<char> value)
+    public ref SpanStringBuilder Append(ReadOnlySpan<char> value)
     {
         int length = value.Length;
         if (length == 0)
-            return this;
+            return ref this;
 
         int newSize = _bufferPosition + length;
         if (newSize <= _buffer.Length)
@@ -136,7 +139,7 @@ public ref struct SpanStringBuilder : IDisposable
             GrowAndAppend(value, length, newSize);
         }
 
-        return this;
+        return ref this;
     }
 
     /// <summary>
@@ -147,7 +150,13 @@ public ref struct SpanStringBuilder : IDisposable
     /// <remarks>
     /// Newline sequence matches Environment.NewLine (CRLF on Windows, LF on Unix)
     /// </remarks>
-    public SpanStringBuilder AppendLine(char value) => Append(value).Append(Environment.NewLine);
+    [UnscopedRef]
+    public ref SpanStringBuilder AppendLine(char value)
+    {
+        Append(value);
+        Append(Environment.NewLine);
+        return ref this;
+    }
 
     /// <summary>
     /// Appends a character sequence followed by environment-specific newline
@@ -157,7 +166,13 @@ public ref struct SpanStringBuilder : IDisposable
     /// <remarks>
     /// Newline sequence matches Environment.NewLine (CRLF on Windows, LF on Unix)
     /// </remarks>
-    public SpanStringBuilder AppendLine(ReadOnlySpan<char> value) => Append(value).Append(Environment.NewLine);
+    [UnscopedRef]
+    public ref SpanStringBuilder AppendLine(ReadOnlySpan<char> value)
+    {
+        Append(value);
+        Append(Environment.NewLine);
+        return ref this;
+    }
 
     /// <summary>
     /// Constructs string from current buffer contents

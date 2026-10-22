@@ -9,27 +9,6 @@ namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.Experi
 public sealed record ExperimentalDataProcessingInput
 {
     /// <summary>
-    /// Optional predefined analysis identifier. If not provided, a unique GUID-based identifier is generated.
-    /// </summary>
-    public string? Identifier { get; init; }
-
-    /// <summary>
-    /// The name of the mechanical model to fit (e.g., "Fung", "Schapery").
-    /// </summary>
-    public required string MechanicalModelName { get; init; }
-
-    /// <summary>
-    /// The directory URI where generated output files are saved.
-    /// </summary>
-    public required string OutputFileUri { get; init; }
-
-    /// <summary>
-    /// Segment types to be processed.
-    /// If left empty, all segment types supported by the model will be considered.
-    /// </summary>
-    public IReadOnlyList<SegmentType> TargetSegments { get; init; } = [];
-
-    /// <summary>
     /// Stream containing raw experimental strain time-history.
     /// </summary>
     public required Stream StrainStream { get; init; }
@@ -43,6 +22,32 @@ public sealed record ExperimentalDataProcessingInput
     /// Optional threshold time to ignore initial transient data. When provided, all data points with time less than this threshold are ignored during processing.
     /// </summary>
     public double? StartExperimentalTimeThreshold { get; init; }
+
+    /// <summary>
+    /// Optional predefined analysis identifier. If not provided, a unique GUID-based identifier is generated.
+    /// </summary>
+    public string? Identifier { get; init; }
+
+    /// <summary>
+    /// The name of the mechanical model to fit (e.g., "Fung", "Schapery").
+    /// </summary>
+    public required string MechanicalModelName { get; init; }
+
+    /// <summary>
+    /// Segment types to be processed.
+    /// If left empty, all segment types supported by the model will be considered.
+    /// </summary>
+    public IReadOnlyList<SegmentType> TargetSegments { get; init; } = [];
+
+    /// <summary>
+    /// Type of curve fitter algorithm to execute (e.g. Alglib or MathNet). Defaults to <see cref="CurveFitterType.Alglib"/>.
+    /// </summary>
+    public required CurveFitterType CurveFitterType { get; init; }
+
+    /// <summary>
+    /// Mandatory target R² determination coefficient specified by the user for curve fitting optimization.
+    /// </summary>
+    public required double TargetRSquared { get; init; }
 
     /// <summary>
     /// The consecutive points threshold required to detect that a steady-state asymptote has been reached.
@@ -60,6 +65,11 @@ public sealed record ExperimentalDataProcessingInput
     public double? FinalSimulationTime { get; init; }
 
     /// <summary>
+    /// Optional minimal time step between consecutive points in downsampling experimental data.
+    /// </summary>
+    public double? DownsamplingSkipTimeStep { get; init; }
+
+    /// <summary>
     /// Processing options for segmentation tolerances and smoothing.
     /// </summary>
     public required ExperimentalDataProcessingOptions Options { get; init; }
@@ -68,8 +78,5 @@ public sealed record ExperimentalDataProcessingInput
     /// Converts this processing input into the segmenter ingestion payload.
     /// </summary>
     /// <returns>A new <see cref="ExperimentalDataSegmenterInput"/> configured for ingestion.</returns>
-    public ExperimentalDataSegmenterInput ToSegmenterInput()
-    {
-        return new(StartExperimentalTimeThreshold ?? MathematicConstants.InitialTime, StrainStream, StressStream, Options);
-    }
+    public ExperimentalDataSegmenterInput ToSegmenterInput() => new(StartExperimentalTimeThreshold ?? MathematicConstants.InitialTime, StrainStream, StressStream, Options);
 }

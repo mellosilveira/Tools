@@ -1,4 +1,10 @@
+using MelloSilveiraTools.Core.Managers.File;
+using MelloSilveiraTools.Core.Managers.File.Models;
+using MelloSilveiraTools.Database.ExtensionMethods;
+using MelloSilveiraTools.Database.RelationalDatabase.Models.Entities;
 using MelloSilveiraTools.Database.RelationalDatabase.Sql.Provider;
+using Npgsql;
+using NpgsqlTypes;
 
 namespace UnitTests.Database.RelationalDatabase.Sql.Provider;
 
@@ -11,7 +17,7 @@ public sealed class PostgresSqlProviderTests
     [Fact]
     public void GetInsertSql_NoUniqueColumns_ReturnsPlainInsert()
     {
-        var sql = _provider.GetInsertSql<ProductEntity>();
+        string sql = _provider.GetInsertSql<ProductEntity>();
 
         Assert.Contains("INSERT INTO product", sql);
         Assert.Contains("id, creation_timestamp, name, price", sql);
@@ -36,7 +42,7 @@ public sealed class PostgresSqlProviderTests
     [Fact]
     public void GetBulkInsertSql_TwoRows_ContainsOneBased1and2Suffixes()
     {
-        var sql = _provider.GetBulkInsertSql<ProductEntity>(2);
+        string sql = _provider.GetBulkInsertSql<ProductEntity>(2);
 
         Assert.Contains("INSERT INTO product", sql);
         Assert.Contains("@Id_1, @CreationTimestamp_1, @Name_1, @Price_1", sql);
@@ -60,8 +66,8 @@ public sealed class PostgresSqlProviderTests
     [Fact]
     public void GetBulkInsertSql_DifferentBatchSizes_ProduceDifferentSql()
     {
-        var sql1 = _provider.GetBulkInsertSql<ProductEntity>(1);
-        var sql3 = _provider.GetBulkInsertSql<ProductEntity>(3);
+        string sql1 = _provider.GetBulkInsertSql<ProductEntity>(1);
+        string sql3 = _provider.GetBulkInsertSql<ProductEntity>(3);
 
         Assert.DoesNotContain("@Id_2", sql1);
         Assert.Contains("@Id_3", sql3);
@@ -73,7 +79,7 @@ public sealed class PostgresSqlProviderTests
     [Fact]
     public void GetSelectSql_ReturnsSelectWithoutDistinct()
     {
-        var sql = _provider.GetSelectSql<ProductEntity>();
+        string sql = _provider.GetSelectSql<ProductEntity>();
 
         Assert.Contains("SELECT", sql);
         Assert.DoesNotContain("SELECT DISTINCT", sql);
@@ -87,7 +93,7 @@ public sealed class PostgresSqlProviderTests
     [Fact]
     public void GetSelectDistinctSql_ReturnsSelectDistinct()
     {
-        var sql = _provider.GetSelectDistinctSql<ProductEntity>();
+        string sql = _provider.GetSelectDistinctSql<ProductEntity>();
 
         Assert.Contains("SELECT DISTINCT", sql);
         Assert.Contains("FROM product AS prd", sql);
@@ -96,7 +102,7 @@ public sealed class PostgresSqlProviderTests
     [Fact]
     public void GetSelectSql_EntityWithForeignKey_IncludesInnerJoin()
     {
-        var sql = _provider.GetSelectSql<OrderItemEntity>();
+        string sql = _provider.GetSelectSql<OrderItemEntity>();
 
         Assert.Contains("FROM order_item AS ordi", sql);
         Assert.Contains("INNER JOIN product AS prd ON prd.id = ordi.product_id", sql);
@@ -108,7 +114,7 @@ public sealed class PostgresSqlProviderTests
     [Fact]
     public void GetSelectByPrimaryKeySql_ContainsWherePkAndNoPlaceholders()
     {
-        var sql = _provider.GetSelectByPrimaryKeySql<ProductEntity>();
+        string sql = _provider.GetSelectByPrimaryKeySql<ProductEntity>();
 
         Assert.Contains("WHERE prd.id = @Id", sql);
         Assert.DoesNotContain("#WHERE", sql);
@@ -122,7 +128,7 @@ public sealed class PostgresSqlProviderTests
     [Fact]
     public void GetCountSql_ContainsCountAndWherePlaceholder()
     {
-        var sql = _provider.GetCountSql<ProductEntity>();
+        string sql = _provider.GetCountSql<ProductEntity>();
 
         Assert.Contains("SELECT COUNT(1) FROM product AS prd", sql);
         Assert.Contains("#WHERE", sql);
@@ -131,7 +137,7 @@ public sealed class PostgresSqlProviderTests
     [Fact]
     public void GetExistByPrimaryKeySql_ContainsSelectOneWhereAndLimit()
     {
-        var sql = _provider.GetExistByPrimaryKeySql<ProductEntity>();
+        string sql = _provider.GetExistByPrimaryKeySql<ProductEntity>();
 
         Assert.Contains("SELECT 1 FROM product AS prd", sql);
         Assert.Contains("WHERE prd.id = @Id", sql);
@@ -143,7 +149,7 @@ public sealed class PostgresSqlProviderTests
     [Fact]
     public void GetDeleteSql_ContainsDeleteAndWherePlaceholder()
     {
-        var sql = _provider.GetDeleteSql<ProductEntity>();
+        string sql = _provider.GetDeleteSql<ProductEntity>();
 
         Assert.Contains("DELETE FROM product AS prd", sql);
         Assert.Contains("#WHERE", sql);
@@ -152,7 +158,7 @@ public sealed class PostgresSqlProviderTests
     [Fact]
     public void GetDeleteByPrimaryKeySql_ContainsWherePkAndNoPlaceholder()
     {
-        var sql = _provider.GetDeleteByPrimaryKeySql<ProductEntity>();
+        string sql = _provider.GetDeleteByPrimaryKeySql<ProductEntity>();
 
         Assert.Contains("DELETE FROM product AS prd", sql);
         Assert.Contains("WHERE prd.id = @Id", sql);
@@ -164,7 +170,7 @@ public sealed class PostgresSqlProviderTests
     [Fact]
     public void GetUpdateByPrimaryKeySql_ContainsSetClauseAndWherePk()
     {
-        var sql = _provider.GetUpdateByPrimaryKeySql<ProductEntity>();
+        string sql = _provider.GetUpdateByPrimaryKeySql<ProductEntity>();
 
         Assert.Contains("UPDATE product", sql);
         Assert.Contains("name = @Name", sql);
@@ -179,8 +185,8 @@ public sealed class PostgresSqlProviderTests
     public void GetInsertSql_CalledTwice_ReturnsSameStringInstance()
     {
         // Static cache means the second call returns the same object reference.
-        var sql1 = _provider.GetInsertSql<ProductEntity>();
-        var sql2 = _provider.GetInsertSql<ProductEntity>();
+        string sql1 = _provider.GetInsertSql<ProductEntity>();
+        string sql2 = _provider.GetInsertSql<ProductEntity>();
 
         Assert.Same(sql1, sql2);
     }
@@ -188,8 +194,8 @@ public sealed class PostgresSqlProviderTests
     [Fact]
     public void GetBulkInsertSql_SameBatchSizeCalledTwice_ReturnsSameStringInstance()
     {
-        var sql1 = _provider.GetBulkInsertSql<ProductEntity>(5);
-        var sql2 = _provider.GetBulkInsertSql<ProductEntity>(5);
+        string sql1 = _provider.GetBulkInsertSql<ProductEntity>(5);
+        string sql2 = _provider.GetBulkInsertSql<ProductEntity>(5);
 
         Assert.Same(sql1, sql2);
     }
@@ -206,5 +212,43 @@ public sealed class PostgresSqlProviderTests
     public void GetInsertSql_EntityWithoutPrimaryKey_Throws()
     {
         Assert.Throws<InvalidOperationException>(() => _provider.GetInsertSql<NoPrimaryKeyEntity>());
+    }
+
+    [Fact]
+    public void GetInsertSql_StoredFileEntity_GeneratesValidSqlWithEnumAndAuditingColumns()
+    {
+        string sql = _provider.GetInsertSql<StoredFileEntity>();
+
+        Assert.Contains("INSERT INTO stored_files", sql);
+        Assert.Contains("external_identifier", sql);
+        Assert.Contains("context", sql);
+        Assert.Contains("storage_provider", sql);
+        Assert.Contains("file_name", sql);
+        Assert.Contains("location", sql);
+        Assert.Contains("size_bytes", sql);
+        Assert.Contains("content_type", sql);
+        Assert.Contains("RETURNING id", sql);
+    }
+
+    [Fact]
+    public void BuildParameters_StoredFileEntity_CastsEnumToInteger()
+    {
+        StoredFileEntity entity = new()
+        {
+            ExternalIdentifier = "ext-123",
+            Context = "ExperimentalData",
+            StorageProvider = StorageProvider.BlobStorage,
+            FileName = "test.csv",
+            Location = "storage/test.csv",
+            SizeBytes = 1024
+        };
+
+        List<NpgsqlParameter> parameters = [.. entity.BuildParameters()];
+        Assert.NotEmpty(parameters);
+
+        NpgsqlParameter? providerParam = parameters.Find(p => p.ParameterName == "StorageProvider");
+        Assert.NotNull(providerParam);
+        Assert.Equal(NpgsqlDbType.Integer, providerParam.NpgsqlDbType);
+        Assert.Equal((int)StorageProvider.BlobStorage, providerParam.Value);
     }
 }

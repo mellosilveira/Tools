@@ -60,9 +60,8 @@ public static class CrudEndpoints
                 {
                     Filter = filter,
                     Pagination = pagination,
-                    ResourceName = resourceName,
-                    CancellationToken = httpContext.RequestAborted,
-                })
+                    ResourceName = resourceName
+                }, httpContext.RequestAborted)
                 .ToHttpResultAsync()
                 .ConfigureAwait(false))
             .Produces<PagedResult<TEntity>>(StatusCodes.Status200OK)

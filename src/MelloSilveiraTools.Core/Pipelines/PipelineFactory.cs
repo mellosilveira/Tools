@@ -1,6 +1,8 @@
-﻿using MelloSilveiraTools.Core.Pipelines.Dataflow;
+using MelloSilveiraTools.Core.Pipelines.Dataflow;
 using MelloSilveiraTools.Core.Pipelines.Fluent;
 using MelloSilveiraTools.Core.Pipelines.Models;
+using MelloSilveiraTools.Core.Pipelines.Notifiers;
+using MelloSilveiraTools.Core.Pipelines.Telemetry;
 using Microsoft.Extensions.Logging;
 using System.Threading.Tasks.Dataflow;
 
@@ -18,20 +20,46 @@ public static class PipelineFactory
     /// as the ingestion head. Enforces bounded capacity backpressure and injects the unified cancellation graph 
     /// that dictates the lifecycle of all subsequent blocks.
     /// </summary>
+    /// <remarks>
+    /// Architectural Decision: <paramref name="progressNotifier"/> is mandatory and non-nullable. Dependency Injection
+    /// determines whether a real-time notifier (<see cref="ChannelPipelineProgressNotifier"/>) or a zero-allocation
+    /// no-op (<see cref="NullPipelineProgressNotifier"/>) is injected.
+    /// </remarks>
     /// <typeparam name="T">The immutable payload type ingested at the pipeline head.</typeparam>
     /// <param name="logger">Structured logging provider for tracking block transitions and telemetry.</param>
+    /// <param name="progressNotifier">Progress notifier resolved via dependency injection for emitting real-time <see cref="PipelineProgressEvent"/> notifications.</param>
+    /// <param name="timeProvider">Mandatory time provider for timestamping pipeline events and telemetry.</param>
+    /// <param name="notificationSettings">Optional settings defining adaptive throttling thresholds and notification intervals.</param>
     /// <param name="initialBufferSize">The maximum bounded capacity of the ingestion buffer block, defaulting to 10,000 items.</param>
-    /// <param name="retryOptions"></param>
+    /// <param name="retryOptions">Optional retry configuration for asynchronous pipeline steps.</param>
     /// <param name="cancellationToken">The unified cancellation token propagated down the entire Dataflow network.</param>
     /// <returns>A fluent builder instance anchored to the initial buffer head.</returns>
     public static IDataflowPipelineBuilder<T, T> StartDataflow<T>(
         ILogger logger,
+        IPipelineProgressNotifier progressNotifier,
+        TimeProvider timeProvider,
+        PipelineProgressNotificationSettings? notificationSettings = null,
         int initialBufferSize = 10000,
         RetryOptions? retryOptions = null,
         CancellationToken cancellationToken = default)
     {
+        ArgumentNullException.ThrowIfNull(progressNotifier);
+        ArgumentNullException.ThrowIfNull(timeProvider);
+
         BufferBlock<T> buffer = new(new DataflowBlockOptions { BoundedCapacity = initialBufferSize, CancellationToken = cancellationToken });
-        return new DataflowPipelineBuilder<T, T>(logger, buffer, buffer, null, retryOptions, cancellationToken);
+        PipelineFlowNode rootFlowNode = new([]);
+        return new DataflowPipelineBuilder<T, T>(
+            logger,
+            progressNotifier,
+            buffer,
+            buffer,
+            null,
+            retryOptions,
+            rootFlowNode,
+            rootFlowNode,
+            timeProvider,
+            notificationSettings,
+            pipelineCancellationToken: cancellationToken);
     }
 
     /// <summary>

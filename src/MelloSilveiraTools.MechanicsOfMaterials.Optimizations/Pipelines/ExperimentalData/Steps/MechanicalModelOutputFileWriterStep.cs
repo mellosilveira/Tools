@@ -1,104 +1,114 @@
-using MelloSilveiraTools.Core.Managers.File;
+using MelloSilveiraTools.Core.ExtensionMethods;
+using MelloSilveiraTools.Core.Managers.File.Csv;
+using MelloSilveiraTools.Core.Managers.File.Models;
+using MelloSilveiraTools.Core.Managers.File.Providers;
+using MelloSilveiraTools.Core.Models;
 using MelloSilveiraTools.Core.Pipelines.Steps;
 using MelloSilveiraTools.MechanicsOfMaterials.Attributes;
 using MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels;
 using MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Models;
+using System.Collections.Concurrent;
 using System.Globalization;
+using System.Linq.Expressions;
 using System.Reflection;
 using System.Text;
 
 namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Steps;
 
 /// <summary>
-/// Pipeline step that serializes the full array of simulated output points into a CSV file.
+/// Pipeline step that serializes the full array of simulated output points into a CSV file,
+/// inspecting the full inheritance hierarchy of the runtime <see cref="MechanicalModelOutput"/> type
+/// and compiling expression-tree property getters for zero-reflection row formatting.
 /// </summary>
-public class MechanicalModelOutputFileWriterStep(
-    IFileManager fileManager,
-    string outputFileUri,
-    string uniqueIdentifier)
-    : IAsyncPipelineStep<MechanicalModelSimulationPayload, FileData>
+/// <param name="fileStorageService">Storage service responsible for resolving paths and opening file streams.</param>
+/// <param name="uniqueIdentifier">Unique business identifier prefix for the generated file.</param>
+public class MechanicalModelOutputFileWriterStep(IFileStorageService fileStorageService, string uniqueIdentifier)
+    : IAsyncPipelineStep<MechanicalModelSimulationPayload, StorageEntryMetadata>
 {
+    private const string Context = "ExperimentalData";
+    private static readonly ConcurrentDictionary<(Type OutputType, LoadResponseRelationship Relationship, ViscoelasticEffect Effect), (string Header, Func<MechanicalModelOutput, double?>[] Getters)> SchemaCache = new();
+
     /// <inheritdoc />
     public string Name => nameof(MechanicalModelOutputFileWriterStep);
 
     /// <inheritdoc />
-    public async Task<FileData> ExecuteAsync(MechanicalModelSimulationPayload payload, CancellationToken cancellationToken)
+    public async Task<StorageEntryMetadata> ExecuteAsync(MechanicalModelSimulationPayload payload, CancellationToken cancellationToken = default)
     {
-        cancellationToken.ThrowIfCancellationRequested();
-
-        string fileIdentifier = $"{uniqueIdentifier}_{payload.CurveFit.MechanicalModelName}";
-        FileInfo fileInfo = fileManager.BuildTimebasedFileInfo(outputFileUri, fileIdentifier, FileExtensions.CommaSeparatedValues);
-
-        await using FileStream stream = fileInfo.Open(new FileStreamOptions
-        {
-            Mode = FileMode.Create,
-            Access = FileAccess.Write,
-            Share = FileShare.None,
-            Options = FileOptions.SequentialScan,
-            BufferSize = 128 * 1024
-        });
-
-        await using StreamWriter writer = new(stream, new UTF8Encoding(false), 128 * 1024);
-
-        PropertyInfo[] activeProperties = DiscoverActiveProperties(typeof(MechanicalModelOutput), payload.CurveFit.LoadResponseRelationship, payload.CurveFit.ViscoelasticEffect);
-
-        var getters = new Func<MechanicalModelOutput, double?>[activeProperties.Length];
-        for (int i = 0; i < activeProperties.Length; i++)
-        {
-            getters[i] = (Func<MechanicalModelOutput, double?>)Delegate.CreateDelegate(typeof(Func<MechanicalModelOutput, double?>), activeProperties[i].GetGetMethod()!);
-        }
-
-        StringBuilder header = new();
-        header.Append(nameof(MechanicalModelOutput.Time));
-        for (int i = 0; i < activeProperties.Length; i++)
-        {
-            header.Append(',').Append(activeProperties[i].Name);
-        }
-        await writer.WriteLineAsync(header.ToString()).ConfigureAwait(false);
-
         MechanicalModelOutput[] points = payload.SimulatedPoints;
-        for (int i = 0; i < points.Length; i++)
-        {
-            if (cancellationToken.IsCancellationRequested) break;
+        Type outputType = points.Length > 0 ? points[0].GetType() : typeof(MechanicalModelOutput);
 
-            writer.Write(points[i].Time.ToString(CultureInfo.InvariantCulture));
-            for (int p = 0; p < getters.Length; p++)
+        (string header, Func<MechanicalModelOutput, double?>[] getters) = SchemaCache.GetOrAdd(
+            (outputType, payload.CurveFit.LoadResponseRelationship, payload.CurveFit.ViscoelasticEffect),
+            BuildSchema);
+
+        string filePrefix = $"{payload.CurveFit.MechanicalModelName}_{payload.CurveFit.RampTimeConsideration}";
+        (Stream stream, string location) = await fileStorageService.CreateWriteTimebasedAsync(
+            Context,
+            uniqueIdentifier,
+            filePrefix,
+            FileExtensions.CommaSeparatedValues,
+            cancellationToken).ConfigureAwait(false);
+
+        await using (stream)
+        await using (CsvFileWriter session = new(stream, header))
+        {
+            for (int i = 0; i < points.Length; i++)
             {
-                writer.Write(',');
-                double? val = getters[p](points[i]);
-                if (val.HasValue)
+                MechanicalModelOutput point = points[i];
+                await session.WriteRowAsync(buffer =>
                 {
-                    writer.Write(val.Value.ToString(CultureInfo.InvariantCulture));
-                }
+                    for (int p = 0; p < getters.Length; p++)
+                    {
+                        if (p > 0)
+                            buffer.Append(CsvSeparators.Main);
+
+                        double? val = getters[p](point);
+                        if (val.HasValue)
+                            buffer.Append(val.Value.ToString(CultureInfo.InvariantCulture));
+                    }
+                }, cancellationToken).ConfigureAwait(false);
             }
-            await writer.WriteLineAsync().ConfigureAwait(false);
         }
 
-        cancellationToken.ThrowIfCancellationRequested();
-        await writer.FlushAsync().ConfigureAwait(false);
-
-        return new FileData(fileInfo);
+        return await fileStorageService.GetMetadataAsync(location, cancellationToken).ConfigureAwait(false);
     }
 
-    private static PropertyInfo[] DiscoverActiveProperties(Type outputType, LoadResponseRelationship relationship, ViscoelasticEffect effect)
+    private static (string Header, Func<MechanicalModelOutput, double?>[] Getters) BuildSchema(
+        (Type OutputType, LoadResponseRelationship Relationship, ViscoelasticEffect Effect) key)
     {
-        PropertyInfo[] allProps = outputType.GetProperties(BindingFlags.Public | BindingFlags.Instance);
-        List<PropertyInfo> matching = [];
+        PropertyInfo[] properties = key.OutputType.GetPropertiesInHierarchy();
+        List<PropertyInfo> matching = new(properties.Length);
 
-        for (int i = 0; i < allProps.Length; i++)
+        for (int i = 0; i < properties.Length; i++)
         {
-            PropertyInfo prop = allProps[i];
-            if (prop.Name == nameof(MechanicalModelOutput.Time)) continue;
-
-            MechanicalModelParameterAttribute? attr = prop.GetCustomAttribute<MechanicalModelParameterAttribute>();
-            if (attr is not null && attr.CanMethodBeInvoked(relationship, effect))
-            {
-                matching.Add(prop);
-            }
+            PropertyInfo property = properties[i];
+            MechanicalModelParameterAttribute? attr = property.GetCustomAttribute<MechanicalModelParameterAttribute>();
+            if (attr is null || attr.CanMethodBeInvoked(key.Relationship, key.Effect))
+                matching.Add(property);
         }
 
-        return [.. matching];
+        Func<MechanicalModelOutput, double?>[] getters = new Func<MechanicalModelOutput, double?>[matching.Count];
+        StringBuilder headerBuilder = new();
+
+        for (int i = 0; i < matching.Count; i++)
+        {
+            if (i > 0)
+                headerBuilder.Append(CsvSeparators.Main);
+
+            headerBuilder.Append(matching[i].Name);
+            getters[i] = CompileGetter(matching[i]);
+        }
+
+        return (headerBuilder.ToString(), getters);
+    }
+
+    private static Func<MechanicalModelOutput, double?> CompileGetter(PropertyInfo property)
+    {
+        ParameterExpression param = Expression.Parameter(typeof(MechanicalModelOutput), "output");
+        MemberExpression access = Expression.Property(Expression.Convert(param, property.DeclaringType!), property);
+        UnaryExpression converted = Expression.Convert(access, typeof(double?));
+        return Expression.Lambda<Func<MechanicalModelOutput, double?>>(converted, param).Compile();
     }
 
     /// <inheritdoc />

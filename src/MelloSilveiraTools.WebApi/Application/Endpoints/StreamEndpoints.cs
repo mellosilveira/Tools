@@ -52,11 +52,13 @@ public static class StreamEndpoints
     /// <param name="entities">Asynchronous sequence of items to be streamed.</param>
     /// <param name="logger">Logger used to record warnings (client cancellation) and errors.</param>
     /// <param name="resourceName">Human-readable resource name used when reporting streaming failures.</param>
+    /// <param name="cancellationToken"></param>
     public static async Task WriteNdjsonAsync<T>(
         this IAsyncEnumerable<T> entities,
         HttpContext context,
         ILogger logger,
-        string resourceName)
+        string resourceName,
+        CancellationToken cancellationToken = default)
     {
         // The nosniff directive within the X-Content-Type-Options HTTP response header is a security measure designed to
         // prevent browsers from performing MIME type sniffing.
@@ -65,9 +67,9 @@ public static class StreamEndpoints
 
         try
         {
-            await foreach (T entity in entities.WithCancellation(context.RequestAborted))
+            await foreach (T entity in entities.WithCancellation(cancellationToken))
             {
-                await context.Response.WriteLineAsNdJsonAsync(entity, context.RequestAborted);
+                await context.Response.WriteLineAsNdJsonAsync(entity, cancellationToken);
             }
 
             context.Response.AppendTrailer(ApplicationConstants.StreamStatusTrailerName, ApplicationConstants.StreamSuccessfullyStatus);

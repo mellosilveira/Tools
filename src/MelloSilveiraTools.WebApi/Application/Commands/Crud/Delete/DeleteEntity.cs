@@ -13,9 +13,9 @@ namespace MelloSilveiraTools.WebApi.Application.Commands.Crud.Delete;
 public class DeleteEntity<TEntity>(IRepository repository) : CommandBaseWithDefaultResponse<DeleteEntityRequest> where TEntity : EntityBase, new()
 {
     /// <inheritdoc />
-    protected override async Task<Result> ExecuteCommandAsync(DeleteEntityRequest request)
+    protected override async Task<Result> ExecuteCommandAsync(DeleteEntityRequest request, CancellationToken cancellationToken = default)
     {
-        await repository.DeleteAsync<TEntity>(request.Id).ConfigureAwait(false);
+        await repository.DeleteAsync<TEntity>(request.Id, cancellationToken).ConfigureAwait(false);
         return Result.CreateSuccessOk();
     }
 }

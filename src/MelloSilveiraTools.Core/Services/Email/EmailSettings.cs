@@ -1,3 +1,5 @@
+using MelloSilveiraTools.Core.ResiliencePipelines;
+
 namespace MelloSilveiraTools.Core.Services.Email;
 
 /// <summary>
@@ -23,5 +25,10 @@ public record EmailSettings
     /// <summary>
     /// Port number of the SMTP server.
     /// </summary>
-    public int SmtpPort { get; init; }
+    public required int SmtpPort { get; init; }
+
+    /// <summary>
+    /// Optional resilience pipeline settings for retry and circuit breaker policies during SMTP operations.
+    /// </summary>
+    public ResiliencePipelineSettings? ResiliencePipelineSettings { get; init; }
 }

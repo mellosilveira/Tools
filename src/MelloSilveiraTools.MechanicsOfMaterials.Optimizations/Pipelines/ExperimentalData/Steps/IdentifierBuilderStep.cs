@@ -1,4 +1,4 @@
-using MelloSilveiraTools.Core.Pipelines.Steps;
+﻿using MelloSilveiraTools.Core.Pipelines.Steps;
 using MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Models;
 using System.Security.Cryptography;
@@ -18,8 +18,7 @@ public sealed class IdentifierBuilderStep : ISyncPipelineStep<MechanicalModelCur
     /// <inheritdoc />
     public string Execute(MechanicalModelCurveFitOutput output)
     {
-        ConstitutiveParameters constitutiveParameters = output.ConstitutiveParameters;
-        string constitutiveParamsJson = JsonSerializer.Serialize(constitutiveParameters, constitutiveParameters.GetType(), OptimizationJsonOptions.SignificantFigures7);
+        string constitutiveParamsJson = OptimizationJsonOptions.Serialize(output.ConstitutiveParameters);
         byte[] bytes = SHA256.HashData(Encoding.UTF8.GetBytes(constitutiveParamsJson));
         return Convert.ToHexString(bytes);
     }

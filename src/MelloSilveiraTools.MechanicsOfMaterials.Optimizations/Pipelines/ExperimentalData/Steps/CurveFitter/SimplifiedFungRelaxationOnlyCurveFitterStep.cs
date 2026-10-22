@@ -17,16 +17,27 @@ namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.Experi
 /// <summary>
 /// Thread-safe. Implements <see cref="IMechanicalModelCurveFitterStep"/> for the
 /// Simplified Fung model (relaxation-only curve fitting). Implements <c>IPipelineStep</c> for telemetry.
-/// </summary>
+/// <param name="mechanicalModelCalculator">The calculator for Simplified Fung viscoelastic constitutive calculations.</param>
+/// <param name="curveFitter">The optimization engine for non-linear regression.</param>
+/// <param name="pronySeriesCurveFitter">The Prony series curve fitting decorator.</param>
+/// <param name="targetRSquared">Mandatory target R² determination coefficient for early-exit and precision monitoring.</param>
 public sealed class SimplifiedFungRelaxationOnlyCurveFitterStep(
     ISimplifiedFungModelCalculator mechanicalModelCalculator,
     ICurveFitter curveFitter,
-    [FromKeyedServices(MathExpressionType.PronySeries)] IMathExpressionCurveFitter pronySeriesCurveFitter)
-    : MechanicalModelCurveFitterStepBase
+    [FromKeyedServices(MathExpressionType.PronySeries)] IMathExpressionCurveFitter pronySeriesCurveFitter,
+    double targetRSquared)
+    : MechanicalModelCurveFitterStepBase(targetRSquared)
 {
-    private static readonly double[] RelaxationLowerBounds = [0.1, 0.1, -1000.0, 0.1, -1000.0, 0.1, -1000.0];
-    private static readonly double[] RelaxationUpperBounds = [1.0, 1.0, 0, 1.0, 0, 1.0, 0];
-    private static readonly double[] RelaxationInitialParameters = [0.4, 0.2, -0.1, 0.2, -1.0, 0.2, -100.0];
+    // 3-Term Prony Series: G(t) = c + a_0 * e^(lambda_0 * t) + a_1 * e^(lambda_1 * t) + a_2 * e^(lambda_2 * t).
+    // Parameter vector layout: [0] = c, [1] = a_0, [2] = lambda_0, [3] = a_1, [4] = lambda_1, [5] = a_2, [6] = lambda_2.
+    // Three distinct physical relaxation scales for biological soft tissues spanning up to 1600 seconds:
+    // - Slow mode (equilibrium approach): lambda_0 in [-1.0, -1e-6] (tau_0 ~ 1 s to 1e6 s), init: lambda_0 = -0.002 (tau_0 ~ 500 s).
+    // - Medium mode (viscoelastic decay): lambda_1 in [-10.0, -1e-5] (tau_1 ~ 0.1 s to 1e5 s), init: lambda_1 = -0.04 (tau_1 ~ 25 s).
+    // - Fast mode (initial fluid/microfibril sliding): lambda_2 in [-100.0, -1e-4] (tau_2 ~ 0.01 s to 1e4 s), init: lambda_2 = -0.8 (tau_2 ~ 1.25 s).
+    // Ordered constraint (lambda_0 > lambda_1 > lambda_2) ensures parameter identifiability and prevents mode swapping.
+    private static readonly double[] RelaxationLowerBounds = [0.0, 0.0, -1.0, 0.0, -10.0, 0.0, -100.0];
+    private static readonly double[] RelaxationUpperBounds = [1.0, 1.0, -1e-6, 1.0, -1e-5, 1.0, -1e-4];
+    private static readonly double[] RelaxationInitialParameters = [0.5, 0.2, -0.002, 0.15, -0.04, 0.15, -0.8];
     private static readonly double[] RampLowerBounds = [1e-6, 0.0];
     private static readonly double[] RampUpperBounds = [1e6, 100.0];
     private static readonly double[] RampInitialParameters = [1000.0, 1.0];
@@ -67,7 +78,8 @@ public sealed class SimplifiedFungRelaxationOnlyCurveFitterStep(
                 UpperBounds = RelaxationUpperBounds,
                 InitialParameters = RelaxationInitialParameters,
                 Profile = CurveFitProfile.Automatic,
-                ValidateParameters = parameters => parameters[2] > parameters[4] && parameters[4] > parameters[6]
+                ValidateParameters = parameters => parameters[2] > parameters[4] && parameters[4] > parameters[6],
+                TargetRSquared = TargetRSquared
             };
 
             CurveFitOutput relaxationOutput = pronySeriesCurveFitter.Fit(relaxationInput);
@@ -114,7 +126,8 @@ public sealed class SimplifiedFungRelaxationOnlyCurveFitterStep(
             LowerBounds = RampLowerBounds,
             UpperBounds = RampUpperBounds,
             InitialParameters = RampInitialParameters,
-            Profile = CurveFitProfile.Automatic
+            Profile = CurveFitProfile.Automatic,
+            TargetRSquared = TargetRSquared
         };
         CurveFitOutput rampOutput = curveFitter.Fit(rampInput);
 

@@ -33,4 +33,22 @@ public class TaskExtensionsTests
         Assert.IsType<InvalidOperationException>(ex.InnerExceptions[0]);
         Assert.True(buffer.Completion.IsFaulted);
     }
+
+    [Fact]
+    public async Task ContinueWith_WithAdditionalFunc_ExecutesAdditionalFuncBeforeCompletion()
+    {
+        BufferBlock<int> buffer = new();
+        Task sourceTask = Task.CompletedTask;
+        bool additionalFuncExecuted = false;
+
+        await sourceTask.ContinueWith(buffer, async () =>
+        {
+            await Task.Yield();
+            additionalFuncExecuted = true;
+        });
+        await buffer.Completion;
+
+        Assert.True(additionalFuncExecuted);
+        Assert.True(buffer.Completion.IsCompletedSuccessfully);
+    }
 }

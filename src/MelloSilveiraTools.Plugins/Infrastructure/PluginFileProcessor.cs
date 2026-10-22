@@ -1,135 +1,256 @@
+using MelloSilveiraTools.Core.Managers.File.Models;
+using MelloSilveiraTools.Core.Managers.File.Providers;
 using MelloSilveiraTools.Plugins.Infrastructure.Models;
 using Microsoft.Extensions.Logging;
+using System.Globalization;
+using System.Reflection.PortableExecutable;
+using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
 
 namespace MelloSilveiraTools.Plugins.Infrastructure;
 
 /// <summary>
-/// File-system level operations on plugin DLLs: scanning the plugins directory,
-/// moving DLLs between the main and loaded subfolders, and parsing filenames into
-/// <see cref="DiscoveredPlugin"/> instances cached in <see cref="PluginCache"/>.
+/// Storage-level operations on plugin DLL assemblies: scanning storage partitions,
+/// validating managed .NET metadata, moving assemblies across lifecycle partitions
+/// (incoming, loaded, archive, quarantine), and caching parsed <see cref="DiscoveredPlugin"/> instances.
 /// </summary>
 /// <param name="logger">The logger instance for diagnostics and tracing.</param>
+/// <param name="fileStorageService">Storage abstraction service used for file discovery, streaming, and lifecycle movements.</param>
 /// <param name="cache">Plugin cache used to memoize the parsed <see cref="DiscoveredPlugin"/> instances by name and version.</param>
-/// <param name="settings">Plugin settings providing the root plugins directory used to locate the main and <c>loaded/</c> subfolders.</param>
+/// <param name="settings">Plugin settings providing the directory used to locate storage partitions.</param>
 public class PluginFileProcessor(
     ILogger<PluginFileProcessor> logger,
+    IFileStorageService fileStorageService,
     PluginCache cache,
     PluginSettings settings)
 {
     private static readonly Regex PluginFileRegex = new(@"^(?<name>.+)\.v(?<major>\d+)\.(?<minor>\d+)\.(?<patch>\d+)$", RegexOptions.Compiled);
-    private readonly string _pluginsDirectory = settings.Directory;
-    private readonly string _loadedDirectory = Path.Combine(settings.Directory, "loaded");
 
     /// <summary>
-    /// Scans the main plugins directory for DLLs matching the given <paramref name="pluginName"/> and <paramref name="version"/> filters.
+    /// Asynchronously scans the incoming storage partition for DLLs matching the given <paramref name="pluginName"/> and <paramref name="version"/> filters,
+    /// verifying that each candidate is a valid managed .NET assembly and isolating non-conforming binaries to quarantine.
     /// </summary>
-    /// <param name="pluginName">Optional plugin name prefix used to filter the matching files.</param>
-    /// <param name="version">Optional plugin version used to filter the matching files.</param>
-    /// <exception cref="DirectoryNotFoundException">Thrown when the configured plugins directory does not exist.</exception>
-    /// <exception cref="UnauthorizedAccessException">Thrown when the caller does not have permission to read the plugins directory.</exception>
-    /// <exception cref="IOException">Thrown when an I/O error occurs while enumerating files in the plugins directory.</exception>
-    /// <exception cref="InvalidOperationException">Thrown by the iterator when a discovered file does not match the expected plugin filename pattern.</exception>
-    public IEnumerable<DiscoveredPlugin> Scan(string? pluginName = null, PluginVersion? version = null)
-        => Scan(Directory.GetFiles(_pluginsDirectory, $"{pluginName}{version?.Name ?? string.Empty}*.dll"));
-
-    /// <summary>
-    /// Scans the <c>loaded/</c> subfolder for DLLs matching the given <paramref name="pluginName"/> and <paramref name="version"/> filters.
-    /// </summary>
-    /// <param name="pluginName">Optional plugin name prefix used to filter the matching files.</param>
-    /// <param name="version">Optional plugin version used to filter the matching files.</param>
-    /// <exception cref="DirectoryNotFoundException">Thrown when the <c>loaded/</c> subfolder does not exist.</exception>
-    /// <exception cref="UnauthorizedAccessException">Thrown when the caller does not have permission to read the <c>loaded/</c> subfolder.</exception>
-    /// <exception cref="IOException">Thrown when an I/O error occurs while enumerating files in the <c>loaded/</c> subfolder.</exception>
-    /// <exception cref="InvalidOperationException">Thrown by the iterator when a discovered file does not match the expected plugin filename pattern.</exception>
-    public IEnumerable<DiscoveredPlugin> ScanLoaded(string? pluginName = null, PluginVersion? version = null)
-        => Scan(Directory.GetFiles(_loadedDirectory, $"{pluginName}{version?.Name ?? string.Empty}*.dll"));
-
-    /// <summary>Moves a plugin DLL back from the loaded/ subfolder to the main plugins directory.</summary>
-    /// <param name="plugin">The plugin whose DLL should be moved.</param>
-    /// <exception cref="IOException">Thrown when the destination file already exists or another I/O error occurs during the move.</exception>
-    /// <exception cref="UnauthorizedAccessException">Thrown when the caller does not have permission to move the file.</exception>
-    /// <exception cref="DirectoryNotFoundException">Thrown when the source path or destination directory cannot be found.</exception>
-    public void MoveToMainFolder(DiscoveredPlugin plugin)
+    /// <param name="pluginName">Optional plugin name prefix used to filter matching files.</param>
+    /// <param name="version">Optional plugin version used to filter matching files.</param>
+    /// <param name="cancellationToken">Cancellation token.</param>
+    /// <returns>An asynchronous stream of discovered valid plugin instances.</returns>
+    public async IAsyncEnumerable<DiscoveredPlugin> ScanAsync(
+        string? pluginName = null,
+        PluginVersion? version = null,
+        [EnumeratorCancellation] CancellationToken cancellationToken = default)
     {
-        string destination = Path.Combine(_loadedDirectory, Path.GetFileName(plugin.FullPath));
-        File.Move(plugin.FullPath, destination, overwrite: false);
-    }
-
-    /// <summary>Moves a plugin DLL from the plugins directory to the loaded/ subfolder.</summary>
-    /// <param name="plugin">The plugin whose DLL should be moved.</param>
-    /// <exception cref="IOException">Thrown when the destination file already exists or another I/O error occurs during the move.</exception>
-    /// <exception cref="UnauthorizedAccessException">Thrown when the caller does not have permission to move the file.</exception>
-    /// <exception cref="DirectoryNotFoundException">Thrown when the source path or destination directory cannot be found.</exception>
-    public void MoveToLoadedFolder(DiscoveredPlugin plugin)
-    {
-        string destination = Path.Combine(_loadedDirectory, Path.GetFileName(plugin.FullPath));
-        if (File.Exists(destination))
+        await foreach (StorageEntryMetadata entry in fileStorageService.ListFilesAsync(settings.Directory, PluginStoragePartitions.Incoming, cancellationToken).ConfigureAwait(false))
         {
-            string backupFullFileName = $"{destination}.old";
-            logger.LogWarning("Destination file already exists: {DestinationFileName}. Backing up existing file to: {BackupFileName}", destination, backupFullFileName);
-            File.Move(destination, backupFullFileName, overwrite: false);
-        }
+            if (string.IsNullOrEmpty(entry.FileName) || !entry.FileName.EndsWith(".dll", StringComparison.OrdinalIgnoreCase))
+                continue;
 
-        File.Move(plugin.FullPath, destination, overwrite: false);
-    }
+            string fileNameWithoutExtension = Path.GetFileNameWithoutExtension(entry.FileName);
+            Match match = PluginFileRegex.Match(fileNameWithoutExtension);
+            if (!match.Success)
+            {
+                logger.LogWarning("Plugin candidate file '{FileName}' does not match expected pattern '{{name}}.v{{major}}.{{minor}}.{{patch}}.dll'. Moving to quarantine.", entry.FileName);
+                await MoveToQuarantineAsync(entry.FullPath, entry.FileName, cancellationToken).ConfigureAwait(false);
+                continue;
+            }
 
-    /// <summary>Replaces an existing DLL in the loaded/ subfolder with one from the plugins directory.</summary>
-    /// <param name="plugin">The plugin whose DLL should be moved into the <c>loaded/</c> subfolder, replacing any existing file with the same name.</param>
-    /// <exception cref="IOException">Thrown when an I/O error occurs while deleting the existing destination file or moving the new one.</exception>
-    /// <exception cref="UnauthorizedAccessException">Thrown when the caller does not have permission to delete or move the file.</exception>
-    /// <exception cref="DirectoryNotFoundException">Thrown when the source path or destination directory cannot be found.</exception>
-    public void ReplaceInLoadedFolder(DiscoveredPlugin plugin)
-    {
-        string destination = Path.Combine(_loadedDirectory, Path.GetFileName(plugin.FullPath));
+            bool isManaged;
+            try
+            {
+                await using Stream stream = await fileStorageService.OpenReadAsync(entry.FullPath, cancellationToken).ConfigureAwait(false);
+                isManaged = IsManagedDotNetAssembly(stream);
+            }
+            catch (Exception ex)
+            {
+                logger.LogWarning(ex, "Failed to inspect PE headers for plugin file '{FileName}'. Moving to quarantine.", entry.FileName);
+                isManaged = false;
+            }
 
-        if (File.Exists(destination))
-            File.Delete(destination);
+            if (!isManaged)
+            {
+                logger.LogWarning("Plugin candidate '{FileName}' is not a valid managed .NET assembly. Moving to quarantine.", entry.FileName);
+                await MoveToQuarantineAsync(entry.FullPath, entry.FileName, cancellationToken).ConfigureAwait(false);
+                continue;
+            }
 
-        File.Move(plugin.FullPath, destination);
-    }
-
-    /// <summary>Checks whether a DLL with the same name and version exists in the loaded/ subfolder.</summary>
-    /// <param name="plugin">The plugin whose presence in the <c>loaded/</c> subfolder is being checked.</param>
-    public bool ExistsInLoadedFolder(DiscoveredPlugin plugin)
-    {
-        string loadedPath = Path.Combine(_loadedDirectory, Path.GetFileName(plugin.FullPath));
-        return File.Exists(loadedPath);
-    }
-
-    private IEnumerable<DiscoveredPlugin> Scan(IEnumerable<string> files)
-    {
-        foreach (string file in files)
-        {
-            DiscoveredPlugin? plugin = Parse(file);
-            if (plugin != null)
-                yield return plugin;
-        }
-    }
-
-    /// <summary>
-    /// Parses a DLL file path into a <see cref="DiscoveredPlugin"/>.
-    /// Expected pattern: {name}.v{major}.{minor}.{patch}.dll.
-    /// </summary>
-    /// <param name="dllFilePath">Full path to the DLL file whose filename should be parsed.</param>
-    /// <exception cref="InvalidOperationException">Thrown when the filename does not match the expected plugin filename pattern.</exception>
-    private DiscoveredPlugin? Parse(string dllFilePath)
-    {
-        string fileName = Path.GetFileNameWithoutExtension(dllFilePath);
-        Match match = PluginFileRegex.Match(fileName);
-
-        if (match.Success)
-        {
             string name = match.Groups["name"].Value;
-            PluginVersion version = new(
-                int.Parse(match.Groups["major"].Value),
-                int.Parse(match.Groups["minor"].Value),
-                int.Parse(match.Groups["patch"].Value));
+            PluginVersion pluginVersion = new(
+                int.Parse(match.Groups["major"].Value, CultureInfo.InvariantCulture),
+                int.Parse(match.Groups["minor"].Value, CultureInfo.InvariantCulture),
+                int.Parse(match.Groups["patch"].Value, CultureInfo.InvariantCulture));
 
-            return cache.GetOrAdd(name, version, () => new(name, version, Path.GetFullPath(dllFilePath), DateTimeOffset.UtcNow));
+            if (pluginName is not null && !name.Equals(pluginName, StringComparison.OrdinalIgnoreCase))
+                continue;
+
+            if (version is not null && pluginVersion != version.Value)
+                continue;
+
+            DiscoveredPlugin discovered = cache.GetOrAdd(name, pluginVersion, () => new(name, pluginVersion, entry.FullPath, entry.CreatedAt));
+            yield return discovered;
+        }
+    }
+
+    /// <summary>
+    /// Asynchronously scans the loaded storage partition for DLLs matching the given <paramref name="pluginName"/> and <paramref name="version"/> filters.
+    /// </summary>
+    /// <param name="pluginName">Optional plugin name prefix used to filter matching files.</param>
+    /// <param name="version">Optional plugin version used to filter matching files.</param>
+    /// <param name="cancellationToken">Cancellation token.</param>
+    /// <returns>An asynchronous stream of discovered valid plugin instances residing in the loaded partition.</returns>
+    public async IAsyncEnumerable<DiscoveredPlugin> ScanLoadedAsync(
+        string? pluginName = null,
+        PluginVersion? version = null,
+        [EnumeratorCancellation] CancellationToken cancellationToken = default)
+    {
+        await foreach (StorageEntryMetadata entry in fileStorageService.ListFilesAsync(settings.Directory, PluginStoragePartitions.Loaded, cancellationToken).ConfigureAwait(false))
+        {
+            if (string.IsNullOrEmpty(entry.FileName) || !entry.FileName.EndsWith(".dll", StringComparison.OrdinalIgnoreCase))
+                continue;
+
+            string fileNameWithoutExtension = Path.GetFileNameWithoutExtension(entry.FileName);
+            Match match = PluginFileRegex.Match(fileNameWithoutExtension);
+            if (!match.Success)
+                continue;
+
+            string name = match.Groups["name"].Value;
+            PluginVersion pluginVersion = new(
+                int.Parse(match.Groups["major"].Value, CultureInfo.InvariantCulture),
+                int.Parse(match.Groups["minor"].Value, CultureInfo.InvariantCulture),
+                int.Parse(match.Groups["patch"].Value, CultureInfo.InvariantCulture));
+
+            if (pluginName is not null && !name.Equals(pluginName, StringComparison.OrdinalIgnoreCase))
+                continue;
+
+            if (version is not null && pluginVersion != version.Value)
+                continue;
+
+            DiscoveredPlugin discovered = cache.GetOrAdd(name, pluginVersion, () => new(name, pluginVersion, entry.FullPath, entry.CreatedAt));
+            yield return discovered;
+        }
+    }
+
+    /// <summary>
+    /// Asynchronously moves a plugin DLL from the incoming partition to the loaded partition.
+    /// If an assembly with the same name already exists in the loaded partition, backs it up with an <c>.old</c> suffix.
+    /// </summary>
+    /// <param name="plugin">The plugin whose DLL should be moved.</param>
+    /// <param name="cancellationToken">Cancellation token.</param>
+    public async Task MoveToLoadedFolderAsync(DiscoveredPlugin plugin, CancellationToken cancellationToken = default)
+    {
+        string fileName = Path.GetFileName(plugin.FullPath);
+        string destinationLocation = fileStorageService.ResolveLocation(settings.Directory, PluginStoragePartitions.Loaded, fileName);
+
+        if (await fileStorageService.ExistsAsync(destinationLocation, cancellationToken).ConfigureAwait(false))
+        {
+            string backupFileName = $"{fileName}.old";
+            logger.LogWarning("Destination file already exists: {DestinationFileName}. Backing up existing file to: {BackupFileName}", fileName, backupFileName);
+            string backupLocation = fileStorageService.ResolveLocation(settings.Directory, PluginStoragePartitions.Loaded, backupFileName);
+            await MoveFileAsync(destinationLocation, backupLocation, cancellationToken).ConfigureAwait(false);
         }
 
-        logger.LogWarning("File does not match the plugin filename pattern: {FilePath}", dllFilePath);
-        return null;
+        await MoveFileAsync(plugin.FullPath, destinationLocation, cancellationToken).ConfigureAwait(false);
+    }
+
+    /// <summary>
+    /// Asynchronously moves a plugin DLL back from the loaded partition to the incoming partition.
+    /// </summary>
+    /// <param name="plugin">The plugin whose DLL should be moved.</param>
+    /// <param name="cancellationToken">Cancellation token.</param>
+    public async Task<DiscoveredPlugin> MoveToMainFolderAsync(DiscoveredPlugin plugin, CancellationToken cancellationToken = default)
+    {
+        string fileName = Path.GetFileName(plugin.FullPath);
+        string destinationLocation = fileStorageService.ResolveLocation(settings.Directory, PluginStoragePartitions.Incoming, fileName);
+        await MoveFileAsync(plugin.FullPath, destinationLocation, cancellationToken).ConfigureAwait(false);
+        return new DiscoveredPlugin(plugin.Name, plugin.Version, destinationLocation, plugin.DiscoveredAt);
+    }
+
+    /// <summary>
+    /// Asynchronously replaces an existing DLL in the loaded partition with one from the incoming partition.
+    /// </summary>
+    /// <param name="plugin">The plugin whose DLL should be moved into the loaded partition.</param>
+    /// <param name="cancellationToken">Cancellation token.</param>
+    public async Task ReplaceInLoadedFolderAsync(DiscoveredPlugin plugin, CancellationToken cancellationToken = default)
+    {
+        string fileName = Path.GetFileName(plugin.FullPath);
+        string destinationLocation = fileStorageService.ResolveLocation(settings.Directory, PluginStoragePartitions.Loaded, fileName);
+
+        if (await fileStorageService.ExistsAsync(destinationLocation, cancellationToken).ConfigureAwait(false))
+            await fileStorageService.DeleteAsync(destinationLocation, cancellationToken).ConfigureAwait(false);
+
+        await MoveFileAsync(plugin.FullPath, destinationLocation, cancellationToken).ConfigureAwait(false);
+    }
+
+    /// <summary>
+    /// Asynchronously checks whether a DLL with the same name and version exists in the loaded partition.
+    /// </summary>
+    /// <param name="plugin">The plugin whose presence in the loaded partition is being checked.</param>
+    /// <param name="cancellationToken">Cancellation token.</param>
+    /// <returns>A value indicating whether the plugin file exists in the loaded partition.</returns>
+    public async ValueTask<bool> ExistsInLoadedFolderAsync(DiscoveredPlugin plugin, CancellationToken cancellationToken = default)
+    {
+        string fileName = Path.GetFileName(plugin.FullPath);
+        string location = fileStorageService.ResolveLocation(settings.Directory, PluginStoragePartitions.Loaded, fileName);
+        return await fileStorageService.ExistsAsync(location, cancellationToken).ConfigureAwait(false);
+    }
+
+    /// <summary>
+    /// Asynchronously moves an obsolete plugin DLL from the loaded partition to the archive partition.
+    /// </summary>
+    /// <param name="plugin">The plugin whose DLL should be archived.</param>
+    /// <param name="cancellationToken">Cancellation token.</param>
+    public async Task MoveToArchiveFolderAsync(DiscoveredPlugin plugin, CancellationToken cancellationToken = default)
+    {
+        string fileName = Path.GetFileName(plugin.FullPath);
+        string destinationLocation = fileStorageService.ResolveLocation(settings.Directory, PluginStoragePartitions.Archive, fileName);
+        await MoveFileAsync(plugin.FullPath, destinationLocation, cancellationToken).ConfigureAwait(false);
+    }
+
+    private async Task MoveFileAsync(string sourceLocation, string destinationLocation, CancellationToken cancellationToken = default)
+    {
+        if (string.Equals(sourceLocation, destinationLocation, StringComparison.OrdinalIgnoreCase))
+            return;
+
+        await using (Stream sourceStream = await fileStorageService.OpenReadAsync(sourceLocation, cancellationToken).ConfigureAwait(false))
+        {
+            await using (Stream destinationStream = await fileStorageService.OpenWriteAsync(destinationLocation, cancellationToken).ConfigureAwait(false))
+            {
+                await sourceStream.CopyToAsync(destinationStream, cancellationToken).ConfigureAwait(false);
+                await destinationStream.FlushAsync(cancellationToken).ConfigureAwait(false);
+            }
+        }
+
+        await fileStorageService.DeleteAsync(sourceLocation, cancellationToken).ConfigureAwait(false);
+    }
+
+    private async Task MoveToQuarantineAsync(string sourceLocation, string fileName, CancellationToken cancellationToken = default)
+    {
+        string destinationLocation = fileStorageService.ResolveLocation(settings.Directory, PluginStoragePartitions.Quarantine, fileName);
+        await MoveFileAsync(sourceLocation, destinationLocation, cancellationToken).ConfigureAwait(false);
+    }
+
+    private static bool IsManagedDotNetAssembly(Stream stream)
+    {
+        Stream seekableStream = stream;
+        MemoryStream? memoryStream = null;
+        if (!stream.CanSeek)
+        {
+            memoryStream = new MemoryStream();
+            stream.CopyTo(memoryStream);
+            memoryStream.Position = 0;
+            seekableStream = memoryStream;
+        }
+
+        try
+        {
+            using PEReader peReader = new(seekableStream, PEStreamOptions.LeaveOpen);
+            return peReader.HasMetadata;
+        }
+        catch
+        {
+            return false;
+        }
+        finally
+        {
+            memoryStream?.Dispose();
+        }
     }
 }

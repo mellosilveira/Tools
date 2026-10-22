@@ -1,0 +1,68 @@
+{
+  "task_id": "task-storage-api-phase6",
+  "skill": "senior-backend-software-engineer-net",
+  "status": "success",
+  "retry_count": 0,
+  "data_payload": {
+    "test_suite_verification": {
+      "total_tests": 362,
+      "passed": 362,
+      "failed": 0,
+      "skipped": 0,
+      "test_classes_added_or_verified": [
+        "test/UnitTests/MechanicsOfMaterials.Optimizations/Pipelines/Steps/CsvWriterStepsTests.cs",
+        "test/UnitTests/MechanicsOfMaterials.Optimizations/Pipelines/SensitivityAnalysis/Steps/ParametricSweepPersistenceStepTests.cs",
+        "test/UnitTests/MechanicsOfMaterials.Optimizations/Pipelines/ExperimentalData/Commands/ProcessExperimentalDataValidatorTests.cs",
+        "test/UnitTests/MechanicsOfMaterials.Optimizations/Pipelines/ExperimentalData/Commands/ProcessExperimentalDataCommandTests.cs",
+        "test/UnitTests/MechanicsOfMaterials.Optimizations/SensitivityAnalyses/Commands/ExecuteParametricSweepValidatorTests.cs",
+        "test/UnitTests/MechanicsOfMaterials.Optimizations/SensitivityAnalyses/Commands/ExecuteParametricSweepCommandTests.cs",
+        "test/UnitTests/MechanicsOfMaterials.Optimizations/CurveFitting/Commands/FitCurveValidatorTests.cs",
+        "test/UnitTests/MechanicsOfMaterials.Optimizations/CurveFitting/Commands/FitCurveCommandTests.cs",
+        "test/UnitTests/Core/Pipelines/Models/PipelineProgressEventTests.cs",
+        "test/UnitTests/Core/Pipelines/Telemetry/PipelineProgressEmissionTests.cs"
+      ]
+    },
+    "resilience_hardening": {
+      "file": "src/MelloSilveiraTools.Core/ResiliencePipelines/ResiliencePipelineSettings.cs",
+      "change": "Set safe non-zero defaults (MaxRetryAttempts = 3, DelayInMilliseconds = 200, BackoffType = DelayBackoffType.Constant, UseJitter = true) ensuring Polly retry strategy validation succeeds out-of-the-box and adheres to AGENTS.md settings guidelines."
+    },
+    "build_verification": {
+      "solution": "MelloSilveiraTools.sln",
+      "errors": 0,
+      "warnings": 9
+    },
+    "agents_md_proposed_changes": {
+      "requires_human_approval": true,
+      "proposed_sections": [
+        {
+          "section": "2. Pipeline Architecture (MelloSilveiraTools.Core.Pipelines)",
+          "proposed_text": "### Telemetry & Real-Time Progress Notification\n- `PipelineProgressEvent`: Immutable record in `MelloSilveiraTools.Core.Pipelines.Models` representing granular step execution progress (`StepName: string`, `State: PipelineStepState`, `TimestampUtc: DateTimeOffset`, `Details: string?`, `Data: object?`).\n- `PipelineStepState`: Enum covering execution states (`Started`, `Running`, `Completed`, `Faulted`).\n- `IProgress<PipelineProgressEvent>`: Accepted optionally across `PipelineFactory.StartDataflow<T>(progress: IProgress<PipelineProgressEvent>?)`, `DataflowPipelineBuilder<T>`, and `TelemetryExtensions` (`ExecuteWithTelemetryAsync` and `ExecuteWithTelemetryStreamingAsync`) to publish real-time notifications to callers or streaming HTTP responses without coupling pipeline internals to web protocols."
+        },
+        {
+          "section": "6. Experimental Data & Optimizations",
+          "proposed_text": "### Storage, Commands & API Endpoints\n- `IFileStorageService`: Centralized file storage abstraction in `MelloSilveiraTools.Core.Services.Storage` managing directory topology (`{BaseDirectory}/{context}/{identifier}/{fileName}`). Implemented by `LocalFileStorageService`. Replaces explicit `OutputFileUri` and `OutputDirectory` in pipeline inputs.\n- `ParametricSweepPersistenceStep`: Implements `IAsyncPipelineStep<ParametricSweepPersistenceInput, string>`, persisting `ParametricSweepEntity` (table `parametric_sweeps`) with 7-significant-figure polymorphic JSON serialization of baseline parameters and sweeps, and registering generated CSV artifacts in `StoredFileEntity` (table `stored_files`) under the `SensitivityAnalysis` context.\n- Application Commands & Validators:\n  - `ProcessExperimentalDataCommand` / `ProcessExperimentalDataValidator`: Orchestrates ingestion, validation, stream lifetime, and execution of `ExperimentalDataProcessingPipeline`, returning the deterministic simulation SHA-256 identifier.\n  - `ExecuteParametricSweepCommand` / `ExecuteParametricSweepValidator`: Validates sweeping parameter variations and executes `ParametricSweepPipeline`.\n  - `FitCurve` / `FitCurveValidator`: Validates curve segments and invokes `IMechanicalModelStepFactory` to fit constitutive parameters sequentially across experimental deformation phases.\n- Controllers & Streaming:\n  - `ExperimentalDataController`, `ParametricSweepController`, `CurveFittingController`: Provide standard REST endpoints and real-time streaming endpoints (`POST .../stream`) utilizing `PipelineProgressStreamWriter` to emit NDJSON `PipelineProgressEvent` streams.\n  - `StoredFilesController`: Exposes file metadata queries by `ExternalIdentifier` and direct file downloads via `IFileStorageService.OpenRead`."
+        }
+      ]
+    }
+  },
+  "output_summary": "Fase 6 concluída com êxito: implementada e verificada a suíte de testes unitários em test/UnitTests cobrindo passos de escrita CSV com IFileStorageService, persistência de ParametricSweepEntity e StoredFileEntity, todos os novos Commands e Validators (ProcessExperimentalData, ExecuteParametricSweep, FitCurve), e os modelos de progresso em tempo real (PipelineProgressEvent, PipelineStepState) com emissão via IProgress em pipelines síncronos, assíncronos, enumeráveis e TPL Dataflow. Solução compila com 0 erros e todos os 362 testes unitários passaram com 100% de sucesso. CHANGELOG.md atualizado e proposta de atualização do AGENTS.md formulada para aprovação humana.",
+  "justification_for_decisions": "1. Resiliência por Padrão: Ajustados os defaults de ResiliencePipelineSettings para MaxRetryAttempts = 3 e DelayInMilliseconds = 200 ms, eliminando a exceção de validação do Polly v8 quando instâncias padrão são passadas para pipelines de resiliência. 2. Isolamento de Testes: Os testes unitários dos comandos utilizaram Moq para isolar os pipelines e fábricas, assegurando validação de short-circuiting em falhas de validação, propagação de erros e descarte automático de FileStreams em blocos finally. 3. Verificação Abrangente de Telemetria: Criada suíte específica para emissão de progresso via IProgress<PipelineProgressEvent> cobrindo os 4 cenários fundamentais (ação síncrona com falha/sucesso, retentativas assíncronas com Polly, streaming com IAsyncEnumerable e grafo TPL Dataflow completo). 4. Governança e Regras de Estilo: Mantida a regra estrita de não edição direta do AGENTS.md sem aprovação humana prévia e conformidade integral com .editorconfig (sem var, blocos explícitos, documentação XML completa).",
+  "artifacts": [
+    ".agents/soft-tissue-biomechanics/outputs/task-storage-api-phase6.json",
+    "test/UnitTests/MechanicsOfMaterials.Optimizations/Pipelines/SensitivityAnalysis/Steps/ParametricSweepPersistenceStepTests.cs",
+    "test/UnitTests/MechanicsOfMaterials.Optimizations/Pipelines/ExperimentalData/Commands/ProcessExperimentalDataValidatorTests.cs",
+    "test/UnitTests/MechanicsOfMaterials.Optimizations/Pipelines/ExperimentalData/Commands/ProcessExperimentalDataCommandTests.cs",
+    "test/UnitTests/MechanicsOfMaterials.Optimizations/SensitivityAnalyses/Commands/ExecuteParametricSweepValidatorTests.cs",
+    "test/UnitTests/MechanicsOfMaterials.Optimizations/SensitivityAnalyses/Commands/ExecuteParametricSweepCommandTests.cs",
+    "test/UnitTests/MechanicsOfMaterials.Optimizations/CurveFitting/Commands/FitCurveValidatorTests.cs",
+    "test/UnitTests/MechanicsOfMaterials.Optimizations/CurveFitting/Commands/FitCurveCommandTests.cs",
+    "test/UnitTests/Core/Pipelines/Models/PipelineProgressEventTests.cs",
+    "test/UnitTests/Core/Pipelines/Telemetry/PipelineProgressEmissionTests.cs",
+    "src/MelloSilveiraTools.Core/ResiliencePipelines/ResiliencePipelineSettings.cs",
+    "src/MelloSilveiraTools.Core/ResiliencePipelines/DefaultResiliencePipeline.cs",
+    "CHANGELOG.md"
+  ],
+  "warnings": [],
+  "token_usage": 0,
+  "theoretical_precision": "high"
+}

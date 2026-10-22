@@ -1,3 +1,5 @@
+using System.Text.Json.Serialization;
+
 namespace MelloSilveiraTools.Plugins.Infrastructure.Models;
 
 /// <summary>
@@ -6,8 +8,11 @@ namespace MelloSilveiraTools.Plugins.Infrastructure.Models;
 /// </summary>
 public record RegisteredPlugin : DiscoveredPlugin
 {
-    private readonly Dictionary<Type, bool> _typeLoadedStatus;
+    private Dictionary<Type, bool> _typeLoadedStatus;
 
+    /// <summary>
+    /// Parameterless constructor required for deserialization.
+    /// </summary>
     public RegisteredPlugin() => _typeLoadedStatus = [];
 
     /// <summary>
@@ -18,7 +23,11 @@ public record RegisteredPlugin : DiscoveredPlugin
     /// <summary>
     /// Per-type flag indicating whether each processable type has been registered in the DI container.
     /// </summary>
-    public IReadOnlyDictionary<Type, bool> TypesLoadedStatus => _typeLoadedStatus ?? [];
+    public Dictionary<Type, bool> TypesLoadedStatus
+    {
+        get => _typeLoadedStatus;
+        init => _typeLoadedStatus = value ?? [];
+    }
 
     /// <summary>
     /// Returns <see langword="true"/> when all processable types have been registered.
@@ -28,16 +37,19 @@ public record RegisteredPlugin : DiscoveredPlugin
     /// <summary>
     /// Timestamp captured when the plugin transitioned to <see cref="IsFullyLoaded"/>; <see langword="null"/> while still in progress.
     /// </summary>
-    public DateTimeOffset? FullyLoadedAt { get; private set; }
+    [JsonInclude]
+    public DateTimeOffset? FullyLoadedAt { get; set; }
 
     /// <summary>
     /// Marks the given <paramref name="type"/> as registered and updates <see cref="FullyLoadedAt"/> once all types are done.
     /// </summary>
-    public void MarkTypeLoaded(Type type)
+    /// <param name="type">The type that was registered.</param>
+    /// <param name="timeProvider">The time provider used to capture the completion timestamp.</param>
+    public void MarkTypeLoaded(Type type, TimeProvider timeProvider)
     {
+        ArgumentNullException.ThrowIfNull(timeProvider);
         _typeLoadedStatus[type] = true;
-
         if (IsFullyLoaded)
-            FullyLoadedAt = DateTimeOffset.UtcNow;
+            FullyLoadedAt = timeProvider.GetUtcNow();
     }
 }

@@ -26,6 +26,8 @@ public abstract record ResultBase
     /// Indicates whether the action was halted due to conflicting business data (such as a duplicate record).
     /// </summary>
     public bool IsConflict => StatusCode == StatusCode.Conflict;
+
+    public string JoinedMessages => string.Join(Environment.NewLine, Messages);
 }
 
 /// <summary>
@@ -127,6 +129,14 @@ public record Result : ResultBase
     /// <param name="message">Guidance on how to satisfy requirements.</param>
     /// <returns>A bad request outcome.</returns>
     public static Result CreateBadRequest(string message) => CreateError(StatusCode.BadRequest, message);
+
+    /// <summary>
+    /// Creates an outcome indicating that the submitted data did not meet business requirements or validation rules.
+    /// </summary>
+    /// <param name="messages">Explanations detailing the required corrections.</param>
+    /// <returns>An invalid request result containing guidance messages.</returns>
+    public static Result CreateBadRequest(List<string> messages)
+        => new() { StatusCode = StatusCode.BadRequest, Messages = messages, Success = false };
 
     /// <summary>
     /// Creates an outcome indicating that the action requires valid user authentication or authorization.
@@ -255,7 +265,7 @@ public record Result : ResultBase
     /// <param name="data">The items belonging to the current page.</param>
     /// <returns>A paginated outcome.</returns>
     public static PagedResult<TResultData> CreatePagedSuccessOk<TResultData>(IEnumerable<TResultData>? data = null)
-        => new() { StatusCode = StatusCode.OK, Data = data?.ToList() };
+        => new() { StatusCode = StatusCode.OK, Success = true, Data = data?.ToList() };
 }
 
 /// <summary>

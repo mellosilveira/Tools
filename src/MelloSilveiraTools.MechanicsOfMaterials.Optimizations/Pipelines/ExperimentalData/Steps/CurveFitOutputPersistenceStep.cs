@@ -4,7 +4,6 @@ using MelloSilveiraTools.Database.Repositories;
 using MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Models;
 using Microsoft.Extensions.Logging;
-using System.Text.Json;
 
 namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Steps;
 
@@ -27,9 +26,9 @@ public sealed class CurveFitOutputPersistenceStep(
     public async Task ExecuteAsync((string Identifier, MechanicalModelCurveFitOutput CurveFitOutput) input, CancellationToken cancellationToken = default)
     {
         ConstitutiveParameters constitutiveParameters = input.CurveFitOutput.ConstitutiveParameters;
-        string constitutiveParamsJson = JsonSerializer.Serialize(constitutiveParameters, constitutiveParameters.GetType(), OptimizationJsonOptions.SignificantFigures7);
+        string constitutiveParamsJson = OptimizationJsonOptions.Serialize(constitutiveParameters);
 
-        MechanicalModelCurveFitEntity entity = new()
+        MechanicalModelCurveFitOutputEntity entity = new()
         {
             Identifier = input.Identifier,
             MechanicalModelName = input.CurveFitOutput.MechanicalModelName,
@@ -45,13 +44,11 @@ public sealed class CurveFitOutputPersistenceStep(
 
         Result<long> insertResult = await repository.TryInsertAsync(entity, cancellationToken).ConfigureAwait(false);
         if (insertResult.IsConflict)
-        {
             logger.LogWarning("Entity for mechanical model curve fit already exists in the database. Identifier: {Identifier}", input.Identifier);
-        }
         else if (!insertResult.Success)
         {
             logger.LogError("Failed to insert entity for mechanical model curve fit. Entity: {@Entity}. Result: {@InsertResult}", entity, insertResult);
-            throw new InvalidOperationException(string.Join(Environment.NewLine, insertResult.Messages));
+            throw new InvalidOperationException(insertResult.JoinedMessages);
         }
     }
 

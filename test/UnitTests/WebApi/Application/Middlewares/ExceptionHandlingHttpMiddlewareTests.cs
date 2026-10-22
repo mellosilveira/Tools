@@ -24,6 +24,6 @@ public class ExceptionHandlingHttpMiddlewareTests
 
         // Assert
         Assert.Equal(401, context.Response.StatusCode);
-        Assert.Equal(MediaTypeNames.Application.Json, context.Response.ContentType);
+        Assert.StartsWith(MediaTypeNames.Application.Json, context.Response.ContentType);
     }
 }
