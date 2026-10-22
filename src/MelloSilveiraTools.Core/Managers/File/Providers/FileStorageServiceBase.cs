@@ -6,8 +6,14 @@ namespace MelloSilveiraTools.Core.Managers.File.Providers;
 /// Abstract base implementation of <see cref="IFileStorageService"/> providing common functionality,
 /// path resolution, time-based file naming, and bridging between location-based and context-based operations.
 /// </summary>
-public abstract class FileStorageServiceBase : IFileStorageService
+/// <param name="timeProvider">The time provider instance used for temporal operations.</param>
+public abstract class FileStorageServiceBase(TimeProvider timeProvider) : IFileStorageService
 {
+    /// <summary>
+    /// Gets the time provider used for time-based operations and file naming.
+    /// </summary>
+    protected TimeProvider TimeProvider { get; } = timeProvider;
+
     /// <inheritdoc />
     public abstract StorageProvider Provider { get; }
 
@@ -106,23 +112,19 @@ public abstract class FileStorageServiceBase : IFileStorageService
     }
 
     /// <summary>
-    /// Generates a standardized timestamped file name using UTC time ("yyyy-MM-dd_HH-mm-ss").
+    /// Generates a standardized timestamped file name using UTC time ("yyyy-MM-dd_HH-mm-ss.fff").
     /// </summary>
     /// <param name="filePrefix">Business prefix.</param>
     /// <param name="fileExtension">File extension including the leading dot.</param>
     /// <returns>A formatted timestamped file name.</returns>
-    protected static string GenerateTimebasedFileName(string filePrefix, string fileExtension) => $"{filePrefix}_{GenerateTimebasedFileName(fileExtension)}";
+    protected string GenerateTimebasedFileName(string filePrefix, string fileExtension) => $"{filePrefix}_{GenerateTimebasedFileName(fileExtension)}";
 
     /// <summary>
-    /// Generates a standardized timestamped file name using UTC time ("yyyy-MM-dd_HH-mm-ss").
+    /// Generates a standardized timestamped file name using UTC time ("yyyy-MM-dd_HH-mm-ss.fff").
     /// </summary>
     /// <param name="fileExtension">File extension including the leading dot.</param>
     /// <returns>A formatted timestamped file name.</returns>
-    protected static string GenerateTimebasedFileName(string fileExtension)
-    {
-        string timestamp = DateTime.UtcNow.ToString("yyyy-MM-dd_HH-mm-ss");
-        return $"{timestamp}{fileExtension}";
-    }
+    protected string GenerateTimebasedFileName(string fileExtension) => $"{TimeProvider.GetUtcNow():yyyy-MM-dd_HH-mm-ss.fff}{fileExtension}";
 
     /// <summary>
     /// Builds a standardized forward-slash delimited virtual directory prefix for cloud object storage providers.

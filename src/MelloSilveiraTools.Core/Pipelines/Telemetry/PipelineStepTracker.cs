@@ -19,6 +19,7 @@ namespace MelloSilveiraTools.Core.Pipelines.Telemetry;
 internal sealed class PipelineStepTracker(
     ILogger logger,
     IPipelineProgressNotifier progressNotifier,
+    TimeProvider timeProvider,
     string stepName,
     IReadOnlyList<string> upstreamSteps)
 {
@@ -93,7 +94,7 @@ internal sealed class PipelineStepTracker(
     /// <param name="cancellationToken">Cancellation token.</param>
     public async ValueTask<DateTimeOffset> OnItemStartedAsync(CancellationToken cancellationToken = default)
     {
-        DateTimeOffset now = DateTimeOffset.UtcNow;
+        DateTimeOffset now = timeProvider.GetUtcNow();
         int processed = Volatile.Read(ref _processedItems);
         int received = EnsureReceivedAtLeast(processed + 1);
 
@@ -177,7 +178,7 @@ internal sealed class PipelineStepTracker(
     {
         Interlocked.Exchange(ref _hasFaulted, 1);
 
-        DateTimeOffset endTime = DateTimeOffset.UtcNow;
+        DateTimeOffset endTime = timeProvider.GetUtcNow();
         TimeSpan duration = endTime - itemStartTime;
         int processed = Volatile.Read(ref _processedItems);
         int received = EnsureReceivedAtLeast(Math.Max(1, processed));
@@ -204,7 +205,7 @@ internal sealed class PipelineStepTracker(
         if (Volatile.Read(ref _hasFaulted) == 1 || Interlocked.CompareExchange(ref _hasCompleted, 1, 0) != 0)
             return;
 
-        DateTimeOffset endTime = DateTimeOffset.UtcNow;
+        DateTimeOffset endTime = timeProvider.GetUtcNow();
         long startTicks = Volatile.Read(ref _startTimestampTicks);
         TimeSpan duration = startTicks > 0
             ? endTime - new DateTimeOffset(startTicks, TimeSpan.Zero)
@@ -239,7 +240,7 @@ internal sealed class PipelineStepTracker(
             StepName = stepName,
             Description = description,
             State = state,
-            Timestamp = timestamp ?? DateTimeOffset.UtcNow,
+            Timestamp = timestamp ?? timeProvider.GetUtcNow(),
             UpstreamSteps = upstreamSteps,
             ReceivedItems = received,
             ProcessedItems = processed,

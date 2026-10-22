@@ -28,6 +28,7 @@ internal class DataflowPipelineBuilder<THead, TTail>(
     RetryOptions? retryOptions,
     PipelineFlowNode rootFlowNode,
     PipelineFlowNode currentFlowNode,
+    TimeProvider timeProvider,
     List<PipelineStepTracker>? stepTrackers = null,
     List<Task>? branchCompletionTasks = null,
     List<IPipelineStep>? steps = null,
@@ -131,6 +132,7 @@ internal class DataflowPipelineBuilder<THead, TTail>(
             retryOptions,
             rootFlowNode,
             nextFlowNode,
+            timeProvider,
             _stepTrackers,
             _branchCompletionTasks,
             _steps,
@@ -172,6 +174,7 @@ internal class DataflowPipelineBuilder<THead, TTail>(
             retryOptions,
             rootFlowNode,
             joinedFlowNode,
+            timeProvider,
             _stepTrackers,
             mergedTasks,
             _steps,
@@ -216,6 +219,7 @@ internal class DataflowPipelineBuilder<THead, TTail>(
             retryOptions,
             rootFlowNode,
             joinedFlowNode,
+            timeProvider,
             _stepTrackers,
             mergedTasks,
             _steps,
@@ -350,6 +354,37 @@ internal class DataflowPipelineBuilder<THead, TTail>(
     public IDataflowPipelineBuilder<THead, TTail> AddBroadcastStep<TOut>(IAsyncPipelineStep<TOut> step, Func<TTail, TOut> mapFunc, PipelineStepOptions options = default) => AddBroadcastCore(step, (item, ct) => step.ExecuteAsync(mapFunc(item), ct), null, options);
 
     /// <inheritdoc/>
+    public IDataflowPipelineBuilder<THead, TTail> AddBroadcastFork<TBranchOut>(
+        Func<IDataflowPipelineBuilder<THead, TTail>, IDataflowPipelineBuilder<THead, TBranchOut>> branch,
+        Func<TTail, TTail>? cloneFunc = null,
+        PipelineStepOptions options = default)
+    {
+        ExecutionDataflowBlockOptions dataFlowOptions = options.ToDataflowOptions(pipelineCancellationToken);
+        BroadcastBlock<TTail> broadcastBlock = new(cloneFunc, dataFlowOptions);
+        tailBlock.LinkTo(broadcastBlock);
+
+        DataflowPipelineBuilder<THead, TBranchOut> branchBuilder = (DataflowPipelineBuilder<THead, TBranchOut>)branch(CreateBranchBuilder(broadcastBlock));
+        ActionBlock<TBranchOut> drainBlock = new(_ => { }, dataFlowOptions);
+        branchBuilder.TailBlock.LinkTo(drainBlock);
+
+        List<Task> updatedTasks = [.. branchBuilder._branchCompletionTasks, drainBlock.Completion];
+        return new DataflowPipelineBuilder<THead, TTail>(
+            logger,
+            progressNotifier,
+            headBlock,
+            broadcastBlock,
+            deadLetterQueueBlock,
+            retryOptions,
+            rootFlowNode,
+            currentFlowNode,
+            timeProvider,
+            _stepTrackers,
+            updatedTasks,
+            _steps,
+            pipelineCancellationToken);
+    }
+
+    /// <inheritdoc/>
     public IDataflowPipeline<THead> BuildTerminal(string stepName, Action<TTail> terminalAction, PipelineStepOptions options = default)
     {
         PipelineStepTracker tracker = CreateAndRegisterTracker(stepName);
@@ -396,6 +431,7 @@ internal class DataflowPipelineBuilder<THead, TTail>(
         retryOptions,
         rootFlowNode,
         currentFlowNode,
+        timeProvider,
         _stepTrackers,
         _branchCompletionTasks,
         _steps,
@@ -489,6 +525,7 @@ internal class DataflowPipelineBuilder<THead, TTail>(
             retryOptions,
             rootFlowNode,
             currentFlowNode,
+            timeProvider,
             _stepTrackers,
             updatedTasks,
             _steps,
@@ -534,6 +571,7 @@ internal class DataflowPipelineBuilder<THead, TTail>(
         retryOptions,
         rootFlowNode,
         currentFlowNode,
+        timeProvider,
         _stepTrackers,
         _branchCompletionTasks,
         _steps,
@@ -573,6 +611,7 @@ internal class DataflowPipelineBuilder<THead, TTail>(
             retryOptions,
             rootFlowNode,
             nextFlowNode,
+            timeProvider,
             _stepTrackers,
             updatedTasks,
             _steps,
@@ -598,6 +637,7 @@ internal class DataflowPipelineBuilder<THead, TTail>(
             retryOptions,
             rootFlowNode,
             nextFlowNode,
+            timeProvider,
             _stepTrackers,
             updatedTasks,
             _steps,
@@ -606,7 +646,7 @@ internal class DataflowPipelineBuilder<THead, TTail>(
 
     private PipelineStepTracker CreateAndRegisterTracker(string stepName)
     {
-        PipelineStepTracker tracker = new(logger, progressNotifier, stepName, currentFlowNode.UpstreamStepNames);
+        PipelineStepTracker tracker = new(logger, progressNotifier, timeProvider, stepName, currentFlowNode.UpstreamStepNames);
         currentFlowNode.Subscribe(tracker.OnItemReceivedAsync);
         _stepTrackers.Add(tracker);
         return tracker;
@@ -615,7 +655,7 @@ internal class DataflowPipelineBuilder<THead, TTail>(
     private (PipelineStepTracker PrimaryTracker, PipelineStepTracker FallbackTracker, PipelineFlowNode MergedOutputNode) CreateForkingTrackers(string primaryStepName, string fallbackStepName)
     {
         PipelineStepTracker primaryTracker = CreateAndRegisterTracker(primaryStepName);
-        PipelineStepTracker fallbackTracker = new(logger, progressNotifier, fallbackStepName, [primaryStepName]);
+        PipelineStepTracker fallbackTracker = new(logger, progressNotifier, timeProvider, fallbackStepName, [primaryStepName]);
         _stepTrackers.Add(fallbackTracker);
 
         PipelineFlowNode mergedOutputNode = new([primaryStepName, fallbackStepName]);

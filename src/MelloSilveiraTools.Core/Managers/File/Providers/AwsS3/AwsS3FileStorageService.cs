@@ -61,12 +61,14 @@ namespace MelloSilveiraTools.Core.Managers.File.Providers.AwsS3;
 /// <param name="amazonS3Client">Amazon S3 client instance shared across the application lifecycle.</param>
 /// <param name="settings">AWS S3 storage settings defining bucket, region, credentials, and virtual prefixes.</param>
 /// <param name="resiliencePipeline">Resilience pipeline for AWS S3 operations providing retry, backoff, and circuit-breaker strategies.</param>
+/// <param name="timeProvider">The time provider instance used for temporal operations.</param>
 public class AwsS3FileStorageService(
     ILogger<AwsS3FileStorageService> logger,
     IFileStorageService defaultStorage,
     IAmazonS3 amazonS3Client,
     AwsS3StorageSettings settings,
-    AwsS3ResiliencePipeline resiliencePipeline) : FileStorageServiceBase
+    AwsS3ResiliencePipeline resiliencePipeline,
+    TimeProvider timeProvider) : FileStorageServiceBase(timeProvider)
 {
     private int _disposedState;
 
@@ -157,7 +159,7 @@ public class AwsS3FileStorageService(
             if (response.HttpStatusCode != HttpStatusCode.OK || string.Equals(response.DeleteMarker, "true", StringComparison.OrdinalIgnoreCase))
                 throw new FileNotFoundException($"The requested S3 object does not exist or has been deleted. Bucket: '{settings.BucketName}', Key: '{location}'.", location);
 
-            DateTimeOffset createdAt = response.LastModified?.ToUniversalTime() ?? DateTimeOffset.UtcNow;
+            DateTimeOffset createdAt = response.LastModified?.ToUniversalTime() ?? TimeProvider.GetUtcNow();
             (string path, string? fileName) = ExtractCloudPath(location);
             return new StorageEntryMetadata(StorageProvider.AwsS3, location, path, fileName, response.ContentLength, createdAt);
         }
@@ -229,7 +231,7 @@ public class AwsS3FileStorageService(
                 }
 
                 (string path, string? fileName) = ExtractCloudPath(s3Obj.Key);
-                DateTimeOffset createdAt = s3Obj.LastModified?.ToUniversalTime() ?? DateTimeOffset.UtcNow;
+                DateTimeOffset createdAt = s3Obj.LastModified?.ToUniversalTime() ?? TimeProvider.GetUtcNow();
                 yield return new StorageEntryMetadata(StorageProvider.AwsS3, s3Obj.Key, path, fileName, s3Obj.Size ?? 0L, createdAt);
             }
 
@@ -268,7 +270,7 @@ public class AwsS3FileStorageService(
                 cancellationToken.ThrowIfCancellationRequested();
 
                 string directory = ExtractCloudDirectory(commonPrefix);
-                yield return new StorageEntryMetadata(StorageProvider.AwsS3, commonPrefix, directory, null, 0L, DateTimeOffset.UtcNow);
+                yield return new StorageEntryMetadata(StorageProvider.AwsS3, commonPrefix, directory, null, 0L, TimeProvider.GetUtcNow());
             }
 
             foreach (S3Object s3Obj in response.S3Objects)
@@ -281,7 +283,7 @@ public class AwsS3FileStorageService(
                 }
 
                 (string path, string? fileName) = ExtractCloudPath(s3Obj.Key);
-                DateTimeOffset createdAt = s3Obj.LastModified?.ToUniversalTime() ?? DateTimeOffset.UtcNow;
+                DateTimeOffset createdAt = s3Obj.LastModified?.ToUniversalTime() ?? TimeProvider.GetUtcNow();
                 yield return new StorageEntryMetadata(StorageProvider.AwsS3, s3Obj.Key, path, fileName, s3Obj.Size ?? 0L, createdAt);
             }
 

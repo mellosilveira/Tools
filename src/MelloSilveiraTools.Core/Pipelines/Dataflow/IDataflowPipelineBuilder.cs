@@ -239,6 +239,19 @@ public interface IDataflowPipelineBuilder<THead, TTail>
     IDataflowPipelineBuilder<THead, TTail> AddBroadcastStep<TOut>(IAsyncPipelineStep<TOut> step, Func<TTail, TOut> mapFunc, PipelineStepOptions options = default);
 
     /// <summary>
+    /// Forks the pipeline into a non-mutating broadcast branch composed of one or more pipeline steps that execute concurrently as a side-effect without altering the primary pipeline payload.
+    /// </summary>
+    /// <typeparam name="TBranchOut">The terminal output type produced by the broadcast branch.</typeparam>
+    /// <param name="branch">Delegate defining the pipeline topology for the broadcast branch.</param>
+    /// <param name="cloneFunc">An optional function to clone the payload before broadcasting.</param>
+    /// <param name="options">Concurrency and buffer options for the broadcast block.</param>
+    /// <returns>A new <see cref="IDataflowPipelineBuilder{THead, TTail}"/> continuing with the unmodified primary payload.</returns>
+    IDataflowPipelineBuilder<THead, TTail> AddBroadcastFork<TBranchOut>(
+        Func<IDataflowPipelineBuilder<THead, TTail>, IDataflowPipelineBuilder<THead, TBranchOut>> branch,
+        Func<TTail, TTail>? cloneFunc = null,
+        PipelineStepOptions options = default);
+
+    /// <summary>
     /// Appends a synchronous terminal step serving as the pipeline sink. Seals the topology.
     /// </summary>
     /// <param name="stepName">The diagnostic name of the terminal step.</param>

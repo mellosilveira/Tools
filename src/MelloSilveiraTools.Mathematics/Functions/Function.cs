@@ -1,4 +1,5 @@
-﻿using MelloSilveiraTools.Mathematics.Models;
+using MelloSilveiraTools.Mathematics.Models;
+using System.Text.Json.Serialization;
 
 namespace MelloSilveiraTools.Mathematics.Functions;
 
@@ -18,11 +19,13 @@ public abstract class Function(FunctionType functionType, double[] coefficients,
     /// <summary>
     /// Represents the function's derivative.
     /// </summary>
+    [JsonIgnore]
     public Function Derivative => _derivative ??= CreateDerivative();
 
     /// <summary>
     /// Represents the function's integral.
     /// </summary>
+    [JsonIgnore]
     public Function Integral => _integral ??= CreateIntegral();
 
     /// <inheritdoc cref="Models.FunctionType"/>

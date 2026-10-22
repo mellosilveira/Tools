@@ -62,12 +62,14 @@ namespace MelloSilveiraTools.Core.Managers.File.Providers.BlobStorage;
 /// <param name="containerClient">Azure Blob container client instance shared across the application lifecycle.</param>
 /// <param name="settings">Azure Blob storage settings defining container, endpoints, and virtual prefixes.</param>
 /// <param name="resiliencePipeline">Resilience pipeline for Azure Blob Storage operations providing retry, backoff, and circuit-breaker strategies.</param>
+/// <param name="timeProvider">The time provider instance used for temporal operations.</param>
 public class BlobStorageFileStorageService(
     ILogger<BlobStorageFileStorageService> logger,
     IFileStorageService defaultStorage,
     BlobContainerClient containerClient,
     BlobStorageSettings settings,
-    BlobStorageResiliencePipeline resiliencePipeline) : FileStorageServiceBase
+    BlobStorageResiliencePipeline resiliencePipeline,
+    TimeProvider timeProvider) : FileStorageServiceBase(timeProvider)
 {
     private int _disposedState;
 
@@ -242,7 +244,7 @@ public class BlobStorageFileStorageService(
                     continue;
 
                 (string path, string? fileName) = ExtractCloudPath(blobItem.Name);
-                DateTimeOffset createdAt = blobItem.Properties.LastModified?.ToUniversalTime() ?? DateTimeOffset.UtcNow;
+                DateTimeOffset createdAt = blobItem.Properties.LastModified?.ToUniversalTime() ?? TimeProvider.GetUtcNow();
                 yield return new StorageEntryMetadata(StorageProvider.BlobStorage, blobItem.Name, path, fileName, blobItem.Properties.ContentLength ?? 0L, createdAt);
             }
 
@@ -293,7 +295,7 @@ public class BlobStorageFileStorageService(
                 if (item.IsPrefix)
                 {
                     string directory = ExtractCloudDirectory(item.Prefix);
-                    yield return new StorageEntryMetadata(StorageProvider.BlobStorage, item.Prefix, directory, null, 0L, DateTimeOffset.UtcNow);
+                    yield return new StorageEntryMetadata(StorageProvider.BlobStorage, item.Prefix, directory, null, 0L, TimeProvider.GetUtcNow());
                 }
                 else if (item.IsBlob)
                 {
@@ -301,7 +303,7 @@ public class BlobStorageFileStorageService(
                         continue;
 
                     (string path, string? fileName) = ExtractCloudPath(item.Blob.Name);
-                    DateTimeOffset createdAt = item.Blob.Properties.LastModified?.ToUniversalTime() ?? DateTimeOffset.UtcNow;
+                    DateTimeOffset createdAt = item.Blob.Properties.LastModified?.ToUniversalTime() ?? TimeProvider.GetUtcNow();
                     yield return new StorageEntryMetadata(StorageProvider.BlobStorage, item.Blob.Name, path, fileName, item.Blob.Properties.ContentLength ?? 0L, createdAt);
                 }
             }

@@ -28,6 +28,7 @@ public static class PipelineFactory
     /// <typeparam name="T">The immutable payload type ingested at the pipeline head.</typeparam>
     /// <param name="logger">Structured logging provider for tracking block transitions and telemetry.</param>
     /// <param name="progressNotifier">Progress notifier resolved via dependency injection for emitting real-time <see cref="PipelineProgressEvent"/> notifications.</param>
+    /// <param name="timeProvider">Mandatory time provider for timestamping pipeline events and telemetry.</param>
     /// <param name="initialBufferSize">The maximum bounded capacity of the ingestion buffer block, defaulting to 10,000 items.</param>
     /// <param name="retryOptions">Optional retry configuration for asynchronous pipeline steps.</param>
     /// <param name="cancellationToken">The unified cancellation token propagated down the entire Dataflow network.</param>
@@ -35,11 +36,13 @@ public static class PipelineFactory
     public static IDataflowPipelineBuilder<T, T> StartDataflow<T>(
         ILogger logger,
         IPipelineProgressNotifier progressNotifier,
+        TimeProvider timeProvider,
         int initialBufferSize = 10000,
         RetryOptions? retryOptions = null,
         CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(progressNotifier);
+        ArgumentNullException.ThrowIfNull(timeProvider);
 
         BufferBlock<T> buffer = new(new DataflowBlockOptions { BoundedCapacity = initialBufferSize, CancellationToken = cancellationToken });
         PipelineFlowNode rootFlowNode = new([]);
@@ -52,6 +55,7 @@ public static class PipelineFactory
             retryOptions,
             rootFlowNode,
             rootFlowNode,
+            timeProvider,
             pipelineCancellationToken: cancellationToken);
     }
 
