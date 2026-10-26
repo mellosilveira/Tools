@@ -9,6 +9,8 @@ using System.Runtime.CompilerServices;
 
 namespace MelloSilveiraTools.Core.Managers.File.Providers.AwsS3;
 
+// TODO: This is a theorical implementation, since it was still not tested with Azure Blob Storage.
+
 /// <summary>
 /// Storage-agnostic file management implementation targeting Amazon Simple Storage Service (AWS S3) and S3-compatible providers.
 /// Manages files using S3 object keys and streams data directly via the AWS S3 client without local disk staging for reads.
@@ -76,18 +78,14 @@ public class AwsS3FileStorageService(
     public override StorageProvider Provider => StorageProvider.AwsS3;
 
     /// <inheritdoc />
-    public override string ResolveLocation(string context, string identifier, string fileName) => BuildDirectoryPrefix(context, identifier) + fileName;
+    public override string ResolveLocation(string identifier, string context, string fileName) => BuildDirectoryPrefix(identifier, context) + fileName;
 
     /// <inheritdoc />
     public override async ValueTask<Stream> OpenWriteAsync(string location, CancellationToken cancellationToken = default)
     {
         string fileName = ExtractCloudFileName(location)!;
         string uploadId = Guid.NewGuid().ToString("N");
-        (Stream localStream, string tempLocation) = await defaultStorage.CreateWriteAsync(
-            "s3-uploads",
-            uploadId,
-            fileName,
-            cancellationToken).ConfigureAwait(false);
+        (Stream localStream, string tempLocation) = await defaultStorage.CreateWriteAsync(uploadId, "s3-uploads", fileName, cancellationToken).ConfigureAwait(false);
 
         logger.LogDebug("Starting temporary buffer for AWS S3 upload. Bucket: {BucketName}, Key: {Key}, TempLocation: {TempLocation}", settings.BucketName, location, tempLocation);
         return new S3DiskUploadStream(logger, defaultStorage, amazonS3Client, settings.BucketName, location, localStream, tempLocation, resiliencePipeline, cancellationToken);
@@ -202,9 +200,9 @@ public class AwsS3FileStorageService(
     }
 
     /// <inheritdoc />
-    public override async IAsyncEnumerable<StorageEntryMetadata> ListFilesAsync(string context, string identifier, [EnumeratorCancellation] CancellationToken cancellationToken = default)
+    public override async IAsyncEnumerable<StorageEntryMetadata> ListFilesAsync(string identifier, string context, [EnumeratorCancellation] CancellationToken cancellationToken = default)
     {
-        string prefix = BuildDirectoryPrefix(context, identifier);
+        string prefix = BuildDirectoryPrefix(identifier, context);
         ListObjectsV2Request request = new() { BucketName = settings.BucketName, Prefix = prefix };
 
         ListObjectsV2Response response;
@@ -240,9 +238,9 @@ public class AwsS3FileStorageService(
     }
 
     /// <inheritdoc />
-    public override async IAsyncEnumerable<StorageEntryMetadata> ListEntriesAsync(string context, string identifier, [EnumeratorCancellation] CancellationToken cancellationToken = default)
+    public override async IAsyncEnumerable<StorageEntryMetadata> ListEntriesAsync(string identifier, string context, [EnumeratorCancellation] CancellationToken cancellationToken = default)
     {
-        string prefix = BuildDirectoryPrefix(context, identifier);
+        string prefix = BuildDirectoryPrefix(identifier, context);
         ListObjectsV2Request request = new()
         {
             BucketName = settings.BucketName,
@@ -291,7 +289,7 @@ public class AwsS3FileStorageService(
         } while (response.IsTruncated == true);
     }
 
-    private string BuildDirectoryPrefix(string context, string identifier) => BuildDirectoryPrefix(context, identifier, settings.BasePrefix);
+    private string BuildDirectoryPrefix(string identifier, string context) => BuildDirectoryPrefix(identifier, context, settings.BasePrefix);
 
     private void LogS3Error(Exception ex, string operation, string location)
     {
@@ -359,7 +357,7 @@ public class AwsS3FileStorageService(
     {
         protected override async ValueTask UploadPayloadAsync(Stream readStream, long fileSizeBytes, CancellationToken cancellationToken)
         {
-            logger.LogInformation(
+            Logger.LogInformation(
                 "Starting transmission to AWS S3. Bucket: {BucketName}, Key: {Key}, TempLocation: {TempLocation}, Size: {SizeBytes} bytes",
                 bucketName, key, TempLocation, fileSizeBytes);
 
@@ -382,13 +380,13 @@ public class AwsS3FileStorageService(
                         if (lastReportedPercent < 100)
                         {
                             lastReportedPercent = 100;
-                            logger.LogDebug("AWS S3 transmission reached 100%. Bucket: {BucketName}, Key: {Key}, Bytes: {TransferredBytes}", bucketName, key, args.TransferredBytes);
+                            Logger.LogDebug("AWS S3 transmission reached 100%. Bucket: {BucketName}, Key: {Key}, Bytes: {TransferredBytes}", bucketName, key, args.TransferredBytes);
                         }
                     }
                     else if (args.PercentDone >= lastReportedPercent + 10)
                     {
                         lastReportedPercent = (args.PercentDone / 10) * 10;
-                        logger.LogDebug("AWS S3 upload progress: {PercentDone}%. Bucket: {BucketName}, Key: {Key}, Bytes: {TransferredBytes}/{TotalBytes}", lastReportedPercent, bucketName, key, args.TransferredBytes, args.TotalBytes);
+                        Logger.LogDebug("AWS S3 upload progress: {PercentDone}%. Bucket: {BucketName}, Key: {Key}, Bytes: {TransferredBytes}/{TotalBytes}", lastReportedPercent, bucketName, key, args.TransferredBytes, args.TotalBytes);
                     }
                 };
 
@@ -402,20 +400,20 @@ public class AwsS3FileStorageService(
                     return await client.PutObjectAsync(request, cancellationToken).ConfigureAwait(false);
                 }).ConfigureAwait(false);
 
-                logger.LogInformation("AWS S3 upload completed successfully. Bucket: {BucketName}, Key: {Key}, Size: {SizeBytes} bytes.", bucketName, key, fileSizeBytes);
+                Logger.LogInformation("AWS S3 upload completed successfully. Bucket: {BucketName}, Key: {Key}, Size: {SizeBytes} bytes.", bucketName, key, fileSizeBytes);
             }
             catch (Exception ex)
             {
                 if (ex is AmazonS3Exception s3Ex)
                 {
-                    logger.LogError(
+                    Logger.LogError(
                         s3Ex,
                         "Failed to upload to AWS S3 due to HTTP/S3 error. Bucket: {BucketName}, Key: {Key}, TempLocation: {TempLocation}, StatusCode: {StatusCode}, ErrorCode: {ErrorCode}, RequestId: {RequestId}, AmazonId2: {AmazonId2}",
                         bucketName, key, TempLocation, (int)s3Ex.StatusCode, s3Ex.ErrorCode, s3Ex.RequestId, s3Ex.AmazonId2);
                 }
                 else
                 {
-                    logger.LogError(ex, "Failed to upload to AWS S3. Bucket: {BucketName}, Key: {Key}, TempLocation: {TempLocation}", bucketName, key, TempLocation);
+                    Logger.LogError(ex, "Failed to upload to AWS S3. Bucket: {BucketName}, Key: {Key}, TempLocation: {TempLocation}", bucketName, key, TempLocation);
                 }
 
                 throw;

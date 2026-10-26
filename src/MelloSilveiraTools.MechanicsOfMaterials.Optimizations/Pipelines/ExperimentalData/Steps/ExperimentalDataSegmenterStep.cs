@@ -1,4 +1,4 @@
-using MelloSilveiraTools.Core.Managers.File;
+using MelloSilveiraTools.Core.Managers.File.Csv;
 using MelloSilveiraTools.Core.Pipelines.Steps;
 using MelloSilveiraTools.Mathematics.Extensions;
 using MelloSilveiraTools.Mathematics.NumericalMethods.Differentiations;
@@ -26,7 +26,7 @@ public sealed class ExperimentalDataSegmenterStep(ILogger<ExperimentalDataSegmen
     {
         ExperimentalDataProcessingOptions options = input.Options;
 
-        // O uso de leaveOpen: false faz com que o stream seja fechado automaticamente ao final do uso.
+        // 'leaveOpen' is used to ensure that the input streams are closed automatically after processing, preventing resource leaks.
         await using CsvStreamReader strainReader = await CsvStreamReader.CreateAsync(input.StrainStream, leaveOpen: false, cancellationToken: cancellationToken).ConfigureAwait(false);
         await using CsvStreamReader stressReader = await CsvStreamReader.CreateAsync(input.StressStream, leaveOpen: false, cancellationToken: cancellationToken).ConfigureAwait(false);
 
@@ -89,8 +89,7 @@ public sealed class ExperimentalDataSegmenterStep(ILogger<ExperimentalDataSegmen
                         break;
                 }
 
-                ExtractSegments(differentiation, currentSegmentType, buffer.AsSpan(0, bufferCount), in options, segmentResults, logger);
-
+                segmentResults = ExtractSegments(segmentResults, currentSegmentType, buffer.AsSpan(0, bufferCount), in options);
                 foreach ((SegmentType segmentType, Range range) in segmentResults)
                 {
                     int start = range.Start.Value;
@@ -98,7 +97,7 @@ public sealed class ExperimentalDataSegmenterStep(ILogger<ExperimentalDataSegmen
                     for (int i = start; i < end; i++)
                     {
                         ref ExperimentalDataPoint pt = ref buffer[i];
-                        ProcessedDataPoint processedPoint = BuildProcessedDataPoint(differentiation, in previousPoint, in pt, in options);
+                        ProcessedDataPoint processedPoint = BuildProcessedDataPoint(in previousPoint, in pt, in options);
                         if (!ValidateStress(segmentType, processedPoint.StressRate, processedPoint.StressAcceleration))
                         {
                             logger.LogWarning("Invalid stress behavior detected for point: {@Point}.", processedPoint);
@@ -125,13 +124,7 @@ public sealed class ExperimentalDataSegmenterStep(ILogger<ExperimentalDataSegmen
         }
     }
 
-    private static void ExtractSegments(
-        IDifferentiation differentiation,
-        SegmentType currentType,
-        ReadOnlySpan<ExperimentalDataPoint> buffer,
-        in ExperimentalDataProcessingOptions options,
-        List<(SegmentType Type, Range Range)> results,
-        ILogger? logger)
+    private List<(SegmentType Type, Range Range)> ExtractSegments(List<(SegmentType Type, Range Range)> results, SegmentType currentType, ReadOnlySpan<ExperimentalDataPoint> buffer, in ExperimentalDataProcessingOptions options)
     {
         results.Clear();
         int bufferCount = buffer.Length;
@@ -177,24 +170,22 @@ public sealed class ExperimentalDataSegmenterStep(ILogger<ExperimentalDataSegmen
         {
             SegmentType type = currentType is SegmentType.Descent or SegmentType.Recovery ? SegmentType.Recovery : SegmentType.Relaxation;
             results.Add((type, 0..bufferCount));
-            return;
+            return results;
         }
 
-        if (strainRate > options.RateTolerance)
-            SliceBuffer(bufferCount, minStrainIndex, maxStrainIndex, SegmentType.Recovery, SegmentType.Ramp, SegmentType.Relaxation, results, logger);
-        else
-            SliceBuffer(bufferCount, maxStrainIndex, minStrainIndex, SegmentType.Relaxation, SegmentType.Descent, SegmentType.Recovery, results, logger);
+        return strainRate > options.RateTolerance
+            ? SliceBuffer(results, bufferCount, minStrainIndex, maxStrainIndex, SegmentType.Recovery, SegmentType.Ramp, SegmentType.Relaxation)
+            : SliceBuffer(results, bufferCount, maxStrainIndex, minStrainIndex, SegmentType.Relaxation, SegmentType.Descent, SegmentType.Recovery);
     }
 
-    private static void SliceBuffer(
+    private List<(SegmentType Type, Range Range)> SliceBuffer(
+        List<(SegmentType Type, Range Range)> results,
         int bufferCount,
         int startIndex,
         int endIndex,
         SegmentType typeBefore,
         SegmentType activeType,
-        SegmentType typeAfter,
-        List<(SegmentType Type, Range Range)> results,
-        ILogger? logger)
+        SegmentType typeAfter)
     {
         if (startIndex < 0 || endIndex >= bufferCount || startIndex > endIndex)
         {
@@ -209,9 +200,11 @@ public sealed class ExperimentalDataSegmenterStep(ILogger<ExperimentalDataSegmen
 
         if (endIndex < bufferCount - 1)
             results.Add((typeAfter, (endIndex + 1)..bufferCount));
+
+        return results;
     }
 
-    private static ProcessedDataPoint BuildProcessedDataPoint(IDifferentiation differentiation, in ProcessedDataPoint basePoint, in ExperimentalDataPoint point, in ExperimentalDataProcessingOptions options)
+    private ProcessedDataPoint BuildProcessedDataPoint(in ProcessedDataPoint basePoint, in ExperimentalDataPoint point, in ExperimentalDataProcessingOptions options)
     {
         double timeDelta = point.Time - basePoint.Time;
         double calculatedStrainRate = differentiation.Calculate(basePoint.Strain, point.Strain, timeDelta);

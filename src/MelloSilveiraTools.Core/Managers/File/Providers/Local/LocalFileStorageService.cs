@@ -5,7 +5,7 @@ namespace MelloSilveiraTools.Core.Managers.File.Providers.Local;
 
 /// <summary>
 /// Storage-agnostic file management implementation targeting the local file system.
-/// Implements canonical hierarchical directory structures partitioned by domain context and unique identifier ("storage/{context}/{identifier}/").
+/// Implements canonical hierarchical directory structures partitioned by unique identifier and domain context ("storage/{identifier}/{context}/").
 /// </summary>
 /// <param name="settings">File storage settings defining the root base directory.</param>
 /// <param name="timeProvider">The time provider instance used for temporal operations.</param>
@@ -28,9 +28,9 @@ public class LocalFileStorageService(LocalFileStorageSettings settings, TimeProv
     protected virtual FileShare ReadFileShare => FileShare.Read;
 
     /// <inheritdoc />
-    public override string ResolveLocation(string context, string identifier, string fileName)
+    public override string ResolveLocation(string identifier, string context, string fileName)
     {
-        string directory = GetDirectory(context, identifier);
+        string directory = GetDirectory(identifier, context);
         string resolvedPath = Path.GetFullPath(Path.Combine(directory, fileName));
         string fullBasePath = Path.GetFullPath(settings.BaseDirectory);
 
@@ -117,10 +117,10 @@ public class LocalFileStorageService(LocalFileStorageSettings settings, TimeProv
     }
 
     /// <inheritdoc />
-    public override async IAsyncEnumerable<StorageEntryMetadata> ListFilesAsync(string context, string identifier, [EnumeratorCancellation] CancellationToken cancellationToken = default)
+    public override async IAsyncEnumerable<StorageEntryMetadata> ListFilesAsync(string identifier, string context, [EnumeratorCancellation] CancellationToken cancellationToken = default)
     {
         cancellationToken.ThrowIfCancellationRequested();
-        string directory = GetDirectory(context, identifier);
+        string directory = GetDirectory(identifier, context);
         if (!Directory.Exists(directory))
             yield break;
 
@@ -135,10 +135,10 @@ public class LocalFileStorageService(LocalFileStorageSettings settings, TimeProv
     }
 
     /// <inheritdoc />
-    public override async IAsyncEnumerable<StorageEntryMetadata> ListEntriesAsync(string context, string identifier, [EnumeratorCancellation] CancellationToken cancellationToken = default)
+    public override async IAsyncEnumerable<StorageEntryMetadata> ListEntriesAsync(string identifier, string context, [EnumeratorCancellation] CancellationToken cancellationToken = default)
     {
         cancellationToken.ThrowIfCancellationRequested();
-        string directory = GetDirectory(context, identifier);
+        string directory = GetDirectory(identifier, context);
         if (!Directory.Exists(directory))
             yield break;
 
@@ -162,14 +162,14 @@ public class LocalFileStorageService(LocalFileStorageSettings settings, TimeProv
     }
 
     /// <summary>
-    /// Computes the directory path for the given context and identifier partition.
+    /// Computes the directory path for the given identifier and context partition.
     /// </summary>
-    /// <param name="context">Business domain context.</param>
     /// <param name="identifier">Unique run, experiment, or analysis identifier.</param>
+    /// <param name="context">Business domain context.</param>
     /// <returns>The combined directory path.</returns>
-    protected string GetDirectory(string context, string identifier) => string.IsNullOrEmpty(identifier)
-        ? Path.Combine(settings.BaseDirectory, context)
-        : Path.Combine(settings.BaseDirectory, context, identifier);
+    protected string GetDirectory(string identifier, string context) => string.IsNullOrEmpty(context)
+        ? Path.Combine(settings.BaseDirectory, identifier)
+        : Path.Combine(settings.BaseDirectory, identifier, context);
 
     /// <summary>
     /// Creates a write stream for the specified physical location.

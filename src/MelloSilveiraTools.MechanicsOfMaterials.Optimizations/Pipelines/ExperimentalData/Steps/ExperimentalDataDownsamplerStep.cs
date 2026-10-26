@@ -8,9 +8,10 @@ namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.Experi
 /// <summary>
 /// Pipeline step responsible for downsampling a stream of <see cref="SegmentedDataPoint"/> by skipping points that are too close in time.
 /// </summary>
-public sealed class ExperimentalDataDownsamplerStep(double skipTimeStep) : IAsyncEnumerablePipelineStep<SegmentedDataPoint, SegmentedDataPoint>
+public sealed class ExperimentalDataDownsamplerStep(double? skipTimeStep) : IAsyncEnumerablePipelineStep<SegmentedDataPoint, SegmentedDataPoint>
 {
     private double? _lastTime = null;
+    private readonly double _skipTimeStep = skipTimeStep ?? 0;
 
     /// <inheritdoc/>
     public string Name => nameof(ExperimentalDataDownsamplerStep);
@@ -27,7 +28,7 @@ public sealed class ExperimentalDataDownsamplerStep(double skipTimeStep) : IAsyn
             yield break;
         }
 
-        if (_lastTime is null || (input.ProcessedDataPoint.Time - _lastTime.Value) >= skipTimeStep)
+        if (_lastTime is null || (input.ProcessedDataPoint.Time - _lastTime.Value) >= _skipTimeStep)
         {
             _lastTime = input.ProcessedDataPoint.Time;
             yield return input;

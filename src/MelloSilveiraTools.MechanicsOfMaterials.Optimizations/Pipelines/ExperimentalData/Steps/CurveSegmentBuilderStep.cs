@@ -9,15 +9,15 @@ namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.Experi
 /// Pipeline step responsible for accumulating <see cref="SegmentedDataPoint"/> sequentially and yielding a <see cref="CurveSegment"/> 
 /// when the <see cref="SegmentType"/> changes.
 /// </summary>
-public sealed class CurveSegmentAccumulatorStep : IAsyncEnumerablePipelineStep<SegmentedDataPoint, CurveSegment>
+public sealed class CurveSegmentBuilderStep : IAsyncEnumerablePipelineStep<SegmentedDataPoint, CurveSegment>
 {
     private SegmentType _currentType = SegmentType.Unknown;
-    private readonly List<double> _timePoints = new();
-    private readonly List<double> _strainPoints = new();
-    private readonly List<double> _stressPoints = new();
+    private readonly List<double> _timePoints = [];
+    private readonly List<double> _strainPoints = [];
+    private readonly List<double> _stressPoints = [];
 
     /// <inheritdoc/>
-    public string Name => nameof(CurveSegmentAccumulatorStep);
+    public string Name => nameof(CurveSegmentBuilderStep);
 
     /// <inheritdoc/>
     public async IAsyncEnumerable<CurveSegment> ExecuteAsync(SegmentedDataPoint input, [EnumeratorCancellation] CancellationToken cancellationToken)

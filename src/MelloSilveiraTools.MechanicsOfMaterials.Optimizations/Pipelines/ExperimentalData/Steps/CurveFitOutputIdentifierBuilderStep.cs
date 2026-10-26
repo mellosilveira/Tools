@@ -1,19 +1,17 @@
 ﻿using MelloSilveiraTools.Core.Pipelines.Steps;
-using MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Models;
 using System.Security.Cryptography;
 using System.Text;
-using System.Text.Json;
 
 namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Steps;
 
 /// <summary>
 /// Pipeline step that generates a unique deterministic identifier for the curve-fitted parameters.
 /// </summary>
-public sealed class IdentifierBuilderStep : ISyncPipelineStep<MechanicalModelCurveFitOutput, string>
+public sealed class CurveFitOutputIdentifierBuilderStep : ISyncPipelineStep<MechanicalModelCurveFitOutput, string>
 {
     /// <inheritdoc />
-    public string Name => nameof(IdentifierBuilderStep);
+    public string Name => nameof(CurveFitOutputIdentifierBuilderStep);
 
     /// <inheritdoc />
     public string Execute(MechanicalModelCurveFitOutput output)

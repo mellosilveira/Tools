@@ -8,7 +8,6 @@ namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.Experi
 /// Output for mechanical model curve fitting steps containing optimized constitutive parameters and fit quality metrics.
 /// </summary>
 /// <param name="CurveSegments">The experimental curve segments associated with this fit.</param>
-/// <param name="MechanicalModelName">The name of the mechanical model evaluated.</param>
 /// <param name="ConstitutiveParameters">The optimized material constitutive parameters.</param>
 /// <param name="AcceptedRange">The strain range within which the parameters are valid.</param>
 /// <param name="LoadResponseRelationship">The physical load-response relationship (e.g. StressStrain).</param>
@@ -19,7 +18,6 @@ namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.Experi
 /// <param name="Iterations">The total number of optimization iterations executed.</param>
 public sealed record MechanicalModelCurveFitOutput(
     IReadOnlyList<CurveSegment> CurveSegments,
-    string MechanicalModelName,
     ConstitutiveParameters ConstitutiveParameters,
     AcceptedRange AcceptedRange,
     LoadResponseRelationship LoadResponseRelationship,

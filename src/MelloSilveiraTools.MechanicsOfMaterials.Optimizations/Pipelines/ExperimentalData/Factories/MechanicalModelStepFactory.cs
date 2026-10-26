@@ -1,5 +1,3 @@
-namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Factories;
-
 using MelloSilveiraTools.Core.Providers;
 using MelloSilveiraTools.Mathematics.Factories.Functions;
 using MelloSilveiraTools.Mathematics.Models;
@@ -15,6 +13,8 @@ using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.Experiment
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Steps.CurveFitter.Fung;
 using Microsoft.Extensions.Logging;
 
+namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Factories;
+
 /// <summary>
 /// Implementation of <see cref="IMechanicalModelStepFactory"/> that instantiates
 /// concrete <see cref="IMechanicalModelCurveFitterStep"/> instances and decorators directly using
@@ -25,7 +25,7 @@ using Microsoft.Extensions.Logging;
 public sealed class MechanicalModelStepFactory(ServiceLocator serviceLocator, ILoggerFactory loggerFactory) : IMechanicalModelStepFactory
 {
     /// <inheritdoc />
-    public IMechanicalModelCurveFitterStep Create(string mechanicalModelName, IReadOnlyList<SegmentType> targetSegments, CurveFitterType curveFitterType, double targetRSquared)
+    public IMechanicalModelCurveFitterStep CreateCurveFitterStep(string mechanicalModelName, IReadOnlyList<SegmentType> targetSegments, CurveFitterType curveFitterType, double targetRSquared)
     {
         ICurveFitter curveFitter = serviceLocator.GetRequiredKeyedService<ICurveFitter>(curveFitterType);
 

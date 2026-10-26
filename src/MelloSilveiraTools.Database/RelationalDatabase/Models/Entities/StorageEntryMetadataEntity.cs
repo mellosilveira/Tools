@@ -8,37 +8,34 @@ namespace MelloSilveiraTools.Database.RelationalDatabase.Models.Entities;
 /// recording operational context, storage provider technology, and file size metrics.
 /// </summary>
 [Table("stored_files")]
-public record StoredFileEntity : EntityBase
+public record StorageEntryMetadataEntity : EntityBase
 {
     /// <summary>
     /// External identifier correlating the file to an analysis, experiment, or simulation run (e.g., "Sim_ACL_01").
     /// </summary>
     [Column]
-    public string ExternalIdentifier { get; init; } = string.Empty;
-
-    /// <summary>
-    /// Business domain context under which the file was created (e.g., "ExperimentalData", "SensitivityAnalysis", "CurveFitting").
-    /// </summary>
-    [Column]
-    public string Context { get; init; } = string.Empty;
+    public string? ExternalIdentifier { get; init; }
 
     /// <summary>
     /// Storage provider technology where the artifact resides (Local, BlobStorage, Dfs).
     /// </summary>
     [Column]
-    public StorageProvider StorageProvider { get; init; }
+    public required StorageProvider StorageProvider { get; init; }
+
+    /// <summary>
+    /// Absolute file system path, URI, or cloud blob key where the file can be retrieved.
+    /// </summary>
+    [Column]
+    public required string Location { get; init; }
+
+    [Column]
+    public required string Directory { get; init; }
 
     /// <summary>
     /// Physical file name including extension (e.g., "valid_processed_points.csv", "c_SensitivityAnalysis.csv").
     /// </summary>
     [Column]
     public string? FileName { get; init; } = null;
-
-    /// <summary>
-    /// Absolute file system path, URI, or cloud blob key where the file can be retrieved.
-    /// </summary>
-    [Column]
-    public string Location { get; init; } = string.Empty;
 
     /// <summary>
     /// File size in bytes.
@@ -53,20 +50,19 @@ public record StoredFileEntity : EntityBase
     public string ContentType { get; init; } = "text/csv";
 
     /// <summary>
-    /// Creates a new <see cref="StoredFileEntity"/> instance from the specified external identifier, context, and storage entry metadata.
+    /// Creates a new <see cref="StorageEntryMetadataEntity"/> instance from the specified external identifier, context, and storage entry metadata.
     /// </summary>
-    /// <param name="externalIdentifier">The external correlation identifier.</param>
-    /// <param name="context">The business domain context.</param>
     /// <param name="metadata">The storage entry metadata describing the physical or cloud-stored entry.</param>
+    /// <param name="externalIdentifier">The external correlation identifier.</param>
     /// <param name="contentType">The MIME content type (defaults to "text/csv").</param>
-    /// <returns>A new <see cref="StoredFileEntity"/> instance.</returns>
-    public static StoredFileEntity Create(string externalIdentifier, string context, StorageEntryMetadata metadata, string contentType = "text/csv") => new()
+    /// <returns>A new <see cref="StorageEntryMetadataEntity"/> instance.</returns>
+    public static StorageEntryMetadataEntity Create(StorageEntryMetadata metadata, string? externalIdentifier = null, string contentType = "text/csv") => new()
     {
         ExternalIdentifier = externalIdentifier,
-        Context = context,
         StorageProvider = metadata.StorageProvider,
+        Location = metadata.Location,
+        Directory = metadata.Directory,
         FileName = metadata.FileName,
-        Location = metadata.FullPath,
         SizeBytes = metadata.SizeBytes,
         ContentType = contentType
     };

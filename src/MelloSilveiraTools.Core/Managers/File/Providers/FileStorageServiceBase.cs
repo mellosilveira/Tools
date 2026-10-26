@@ -18,62 +18,62 @@ public abstract class FileStorageServiceBase(TimeProvider timeProvider) : IFileS
     public abstract StorageProvider Provider { get; }
 
     /// <inheritdoc />
-    public abstract string ResolveLocation(string context, string identifier, string fileName);
+    public abstract string ResolveLocation(string identifier, string context, string fileName);
 
     /// <inheritdoc />
-    public async ValueTask<(Stream Stream, string Location)> CreateWriteAsync(string context, string identifier, string fileName, CancellationToken cancellationToken = default)
+    public async ValueTask<(Stream Stream, string Location)> CreateWriteAsync(string identifier, string context, string fileName, CancellationToken cancellationToken = default)
     {
         cancellationToken.ThrowIfCancellationRequested();
-        string location = ResolveLocation(context, identifier, fileName);
+        string location = ResolveLocation(identifier, context, fileName);
         Stream stream = await OpenWriteAsync(location, cancellationToken).ConfigureAwait(false);
         return (stream, location);
     }
 
     /// <inheritdoc />
-    public ValueTask<(Stream Stream, string Location)> CreateWriteTimebasedAsync(string context, string identifier, string filePrefix, string fileExtension, CancellationToken cancellationToken = default)
+    public ValueTask<(Stream Stream, string Location)> CreateWriteTimebasedAsync(string identifier, string context, string filePrefix, string fileExtension, CancellationToken cancellationToken = default)
     {
         cancellationToken.ThrowIfCancellationRequested();
         string timestampedName = GenerateTimebasedFileName(filePrefix, fileExtension);
-        return CreateWriteAsync(context, identifier, timestampedName, cancellationToken);
+        return CreateWriteAsync(identifier, context, timestampedName, cancellationToken);
     }
 
     /// <inheritdoc />
-    public ValueTask<(Stream Stream, string Location)> CreateWriteTimebasedAsync(string context, string identifier, string fileExtension, CancellationToken cancellationToken = default)
+    public ValueTask<(Stream Stream, string Location)> CreateWriteTimebasedAsync(string identifier, string context, string fileExtension, CancellationToken cancellationToken = default)
     {
         cancellationToken.ThrowIfCancellationRequested();
         string timestampedName = GenerateTimebasedFileName(fileExtension);
-        return CreateWriteAsync(context, identifier, timestampedName, cancellationToken);
+        return CreateWriteAsync(identifier, context, timestampedName, cancellationToken);
     }
 
     /// <inheritdoc />
-    public ValueTask<Stream> OpenReadAsync(string context, string identifier, string fileName, CancellationToken cancellationToken = default)
+    public ValueTask<Stream> OpenReadAsync(string identifier, string context, string fileName, CancellationToken cancellationToken = default)
     {
         cancellationToken.ThrowIfCancellationRequested();
-        string location = ResolveLocation(context, identifier, fileName);
+        string location = ResolveLocation(identifier, context, fileName);
         return OpenReadAsync(location, cancellationToken);
     }
 
     /// <inheritdoc />
-    public ValueTask<bool> ExistsAsync(string context, string identifier, string fileName, CancellationToken cancellationToken = default)
+    public ValueTask<bool> ExistsAsync(string identifier, string context, string fileName, CancellationToken cancellationToken = default)
     {
         cancellationToken.ThrowIfCancellationRequested();
-        string location = ResolveLocation(context, identifier, fileName);
+        string location = ResolveLocation(identifier, context, fileName);
         return ExistsAsync(location, cancellationToken);
     }
 
     /// <inheritdoc />
-    public ValueTask<StorageEntryMetadata> GetMetadataAsync(string context, string identifier, string fileName, CancellationToken cancellationToken = default)
+    public ValueTask<StorageEntryMetadata> GetMetadataAsync(string identifier, string context, string fileName, CancellationToken cancellationToken = default)
     {
         cancellationToken.ThrowIfCancellationRequested();
-        string location = ResolveLocation(context, identifier, fileName);
+        string location = ResolveLocation(identifier, context, fileName);
         return GetMetadataAsync(location, cancellationToken);
     }
 
     /// <inheritdoc />
-    public ValueTask<bool> DeleteAsync(string context, string identifier, string fileName, CancellationToken cancellationToken = default)
+    public ValueTask<bool> DeleteAsync(string identifier, string context, string fileName, CancellationToken cancellationToken = default)
     {
         cancellationToken.ThrowIfCancellationRequested();
-        string location = ResolveLocation(context, identifier, fileName);
+        string location = ResolveLocation(identifier, context, fileName);
         return DeleteAsync(location, cancellationToken);
     }
 
@@ -93,10 +93,10 @@ public abstract class FileStorageServiceBase(TimeProvider timeProvider) : IFileS
     public abstract ValueTask<bool> DeleteAsync(string location, CancellationToken cancellationToken = default);
 
     /// <inheritdoc />
-    public abstract IAsyncEnumerable<StorageEntryMetadata> ListFilesAsync(string context, string identifier, CancellationToken cancellationToken = default);
+    public abstract IAsyncEnumerable<StorageEntryMetadata> ListFilesAsync(string identifier, string context, CancellationToken cancellationToken = default);
 
     /// <inheritdoc />
-    public abstract IAsyncEnumerable<StorageEntryMetadata> ListEntriesAsync(string context, string identifier, CancellationToken cancellationToken = default);
+    public abstract IAsyncEnumerable<StorageEntryMetadata> ListEntriesAsync(string identifier, string context, CancellationToken cancellationToken = default);
 
     /// <inheritdoc />
     public virtual void Dispose()
@@ -129,16 +129,16 @@ public abstract class FileStorageServiceBase(TimeProvider timeProvider) : IFileS
     /// <summary>
     /// Builds a standardized forward-slash delimited virtual directory prefix for cloud object storage providers.
     /// </summary>
-    /// <param name="context">The contextual domain or category.</param>
     /// <param name="identifier">The unique identifier.</param>
+    /// <param name="context">The contextual domain or category.</param>
     /// <param name="basePrefix">An optional root prefix configured for the storage account or bucket.</param>
     /// <returns>A formatted directory prefix ending with a forward slash.</returns>
-    protected static string BuildDirectoryPrefix(string context, string identifier, string? basePrefix = null)
+    protected static string BuildDirectoryPrefix(string identifier, string context, string? basePrefix = null)
     {
-        string relativePrefix = string.IsNullOrEmpty(identifier) ? $"{context}/" : $"{context}/{identifier}/";
+        string relativePrefix = string.IsNullOrEmpty(context) ? identifier : Path.Combine(identifier, context);
         return string.IsNullOrEmpty(basePrefix)
             ? relativePrefix
-            : $"{basePrefix.Trim('/')}/{relativePrefix}";
+            : Path.Combine(basePrefix.Trim('/'), relativePrefix);
     }
 
     /// <summary>

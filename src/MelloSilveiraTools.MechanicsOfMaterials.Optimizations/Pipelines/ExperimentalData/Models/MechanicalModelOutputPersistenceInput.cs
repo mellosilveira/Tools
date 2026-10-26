@@ -1,20 +1,18 @@
-using MelloSilveiraTools.Core.Managers.File;
+using MelloSilveiraTools.Core.Managers.File.Models;
 
 namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Models;
 
 /// <summary>
 /// Strongly-typed payload encapsulating the converging branches of a mechanical simulation.
 /// </summary>
-/// <param name="MechanicalModelName">The name of the mechanical model evaluated.</param>
-/// <param name="CurveFitIdentifier">The unique identifier of the associated curve fit.</param>
+/// <param name="CurveFitOutputIdentifier">The unique identifier of the associated curve fit.</param>
+/// <param name="ExperimentalDataFileLocation"></param>
 /// <param name="AsymptoteTime">The calculated asymptote time if steady-state was detected.</param>
 /// <param name="SimulationDeltaOutput">The boundary delta metrics between initial and final simulation outputs.</param>
-/// <param name="FileMetadata">The metadata for the generated simulation output file.</param>
-/// <param name="ExternalIdentifier">Optional external run or experiment identifier correlating this simulation run to business operations.</param>
+/// <param name="SimulationOutputFileMetadata">The storage entry metadata for the generated simulation output file.</param>
 public sealed record MechanicalModelOutputPersistenceInput(
-    string ExternalIdentifier,
-    string MechanicalModelName,
-    string CurveFitIdentifier,
+    string ExperimentalDataFileLocation,
+    string CurveFitOutputIdentifier,
     double? AsymptoteTime,
     SimulationDeltaOutput SimulationDeltaOutput,
-    FileMetadata FileMetadata);
+    StorageEntryMetadata SimulationOutputFileMetadata);

@@ -33,11 +33,14 @@ public record MechanicalModelSimulationEntity : EntityBase
     [Column]
     public required string MechanicalModelName { get; init; }
 
+    [ForeignKeyColumn(typeof(StorageEntryMetadataEntity))]
+    public long ExperimentalDataFileMetadataId { get; init; }
+
     /// <summary>
     /// Generated output simulation CSV file name.
     /// </summary>
-    [ForeignKeyColumn(typeof(StoredFileEntity))]
-    public long StoredFileId { get; init; }
+    [ForeignKeyColumn(typeof(StorageEntryMetadataEntity))]
+    public long SimulationOutputFileMetadataId { get; init; }
 
     /// <summary>
     /// Time when numerical asymptote convergence was detected, or null if convergence was not reached.

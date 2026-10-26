@@ -4,9 +4,9 @@ using MelloSilveiraTools.Database.RelationalDatabase.Models.Entities;
 namespace MelloSilveiraTools.Database.RelationalDatabase.Models.Filters;
 
 /// <summary>
-/// Filter model used to query <see cref="StoredFileEntity"/> records by external identifier, context, or file name.
+/// Filter model used to query <see cref="StorageEntryMetadataEntity"/> records by external identifier, context, or file name.
 /// </summary>
-[Filter(typeof(StoredFileEntity))]
+[Filter(typeof(StorageEntryMetadataEntity))]
 public record StoredFileFilter : FilterBase
 {
     /// <summary>

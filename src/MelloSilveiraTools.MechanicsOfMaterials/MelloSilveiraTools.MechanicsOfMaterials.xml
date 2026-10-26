@@ -528,14 +528,6 @@
             <param name="mechanicalModelName">The unique registry name of the mechanical model.</param>
             <returns>A configured <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.IMechanicalModelCalculatorFacade"/> instance.</returns>
         </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.IMechanicalModelCalculatorFactory.CreateCalculatorFacade(System.String,MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.GenericMechanicalModelInput)">
-            <summary>
-            Creates a new instance of <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.IMechanicalModelCalculatorFacade"/> for the specified mechanical model and input.
-            </summary>
-            <param name="mechanicalModelName">The unique registry name of the mechanical model.</param>
-            <param name="input">The generic mechanical model input containing parameters, boundary conditions, and time configuration.</param>
-            <returns>A configured <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.IMechanicalModelCalculatorFacade"/> instance.</returns>
-        </member>
         <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.IMechanicalModelCalculatorFactory.CreateCalculatorFacade(MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.GenericMechanicalModelInput)">
             <summary>
             Creates a new instance of <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.IMechanicalModelCalculatorFacade"/> for the provided generic input.
@@ -695,10 +687,10 @@
         <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.MechanicalModelCalculatorFactory.CreateCalculatorFacade(System.String)">
             <inheritdoc/>
         </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.MechanicalModelCalculatorFactory.CreateCalculatorFacade(System.String,MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.GenericMechanicalModelInput)">
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.MechanicalModelCalculatorFactory.CreateCalculatorFacade(MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.GenericMechanicalModelInput)">
             <inheritdoc/>
         </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.MechanicalModelCalculatorFactory.CreateCalculatorFacade(MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.GenericMechanicalModelInput)">
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.MechanicalModelCalculatorFactory.CreateCalculatorFacade(MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.TypeResolvers.IMechanicalModelTypeResolver,MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.GenericMechanicalModelInput)">
             <inheritdoc/>
         </member>
         <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.TypeResolvers.ElasticModelTypeResolver">
@@ -1469,6 +1461,19 @@
             geometric property calculators) as singletons into the dependency injection container.
             </summary>
             <returns>The same service collection so additional registrations can be chained.</returns>
+        </member>
+        <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Files.MechanicalModelOutputCsvFileWriter">
+            <summary>
+            Writes the mechanical model result to a CSV file.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Files.MechanicalModelOutputCsvFileWriter.WriteLineAsync(MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalModelOutput)">
+            <inheritdoc/>
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Files.MechanicalModelOutputCsvFileWriter.CompileGetter(System.Reflection.PropertyInfo)">
+            <summary>
+            Compiles a property getter into a delegate, replacing PropertyInfo.GetValue on every CSV line.
+            </summary>
         </member>
         <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Models.AnalysisParameter">
             <summary>

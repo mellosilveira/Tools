@@ -10,6 +10,8 @@ using System.Runtime.CompilerServices;
 
 namespace MelloSilveiraTools.Core.Managers.File.Providers.BlobStorage;
 
+// TODO: This is a theorical implementation, since it was still not tested with Azure Blob Storage.
+
 /// <summary>
 /// Storage-agnostic file management implementation targeting Azure Blob Storage and Azure-compatible providers.
 /// Manages files using blob names and streams data directly via the Azure Blob Storage client without local disk staging for reads.
@@ -77,18 +79,14 @@ public class BlobStorageFileStorageService(
     public override StorageProvider Provider => StorageProvider.BlobStorage;
 
     /// <inheritdoc />
-    public override string ResolveLocation(string context, string identifier, string fileName) => BuildDirectoryPrefix(context, identifier) + fileName;
+    public override string ResolveLocation(string identifier, string context, string fileName) => BuildDirectoryPrefix(identifier, context) + fileName;
 
     /// <inheritdoc />
     public override async ValueTask<Stream> OpenWriteAsync(string location, CancellationToken cancellationToken = default)
     {
         string fileName = ExtractCloudFileName(location)!;
         string uploadId = Guid.NewGuid().ToString("N");
-        (Stream localStream, string tempLocation) = await defaultStorage.CreateWriteAsync(
-            "blob-uploads",
-            uploadId,
-            fileName,
-            cancellationToken).ConfigureAwait(false);
+        (Stream localStream, string tempLocation) = await defaultStorage.CreateWriteAsync(uploadId, "blob-uploads", fileName, cancellationToken).ConfigureAwait(false);
 
         logger.LogDebug("Starting temporary buffer for Azure Blob Storage upload. Container: {ContainerName}, Blob: {BlobName}, TempLocation: {TempLocation}", settings.ContainerName, location, tempLocation);
         return new BlobDiskUploadStream(logger, defaultStorage, containerClient.GetBlobClient(location), settings.ContainerName, location, localStream, tempLocation, resiliencePipeline, cancellationToken);
@@ -200,11 +198,11 @@ public class BlobStorageFileStorageService(
 
     /// <inheritdoc />
     public override async IAsyncEnumerable<StorageEntryMetadata> ListFilesAsync(
-        string context,
         string identifier,
+        string context,
         [EnumeratorCancellation] CancellationToken cancellationToken = default)
     {
-        string prefix = BuildDirectoryPrefix(context, identifier);
+        string prefix = BuildDirectoryPrefix(identifier, context);
         string? continuationToken = null;
 
         do
@@ -253,9 +251,9 @@ public class BlobStorageFileStorageService(
     }
 
     /// <inheritdoc />
-    public override async IAsyncEnumerable<StorageEntryMetadata> ListEntriesAsync(string context, string identifier, [EnumeratorCancellation] CancellationToken cancellationToken = default)
+    public override async IAsyncEnumerable<StorageEntryMetadata> ListEntriesAsync(string identifier, string context, [EnumeratorCancellation] CancellationToken cancellationToken = default)
     {
-        string prefix = BuildDirectoryPrefix(context, identifier);
+        string prefix = BuildDirectoryPrefix(identifier, context);
         string? continuationToken = null;
 
         do
@@ -312,7 +310,7 @@ public class BlobStorageFileStorageService(
         } while (!string.IsNullOrEmpty(continuationToken));
     }
 
-    private string BuildDirectoryPrefix(string context, string identifier) => BuildDirectoryPrefix(context, identifier, settings.BasePrefix);
+    private string BuildDirectoryPrefix(string identifier, string context) => BuildDirectoryPrefix(identifier, context, settings.BasePrefix);
 
     private void LogBlobError(Exception ex, string operation, string location)
     {
@@ -375,7 +373,7 @@ public class BlobStorageFileStorageService(
     {
         protected override async ValueTask UploadPayloadAsync(Stream readStream, long fileSizeBytes, CancellationToken cancellationToken)
         {
-            logger.LogInformation(
+            Logger.LogInformation(
                 "Starting transmission to Azure Blob Storage. Container: {ContainerName}, Blob: {BlobName}, TempLocation: {TempLocation}, Size: {SizeBytes} bytes",
                 containerName, blobName, TempLocation, fileSizeBytes);
 
@@ -388,12 +386,12 @@ public class BlobStorageFileStorageService(
                     {
                         if (fileSizeBytes > 0 && transferredBytes >= fileSizeBytes)
                         {
-                            logger.LogDebug("Azure Blob Storage transmission reached 100%. Container: {ContainerName}, Blob: {BlobName}, Bytes: {TransferredBytes}", containerName, blobName, transferredBytes);
+                            Logger.LogDebug("Azure Blob Storage transmission reached 100%. Container: {ContainerName}, Blob: {BlobName}, Bytes: {TransferredBytes}", containerName, blobName, transferredBytes);
                         }
                         else if (transferredBytes - lastReportedBytes >= 10 * 1024 * 1024)
                         {
                             lastReportedBytes = transferredBytes;
-                            logger.LogDebug("Azure Blob Storage upload progress: Container: {ContainerName}, Blob: {BlobName}, Bytes: {TransferredBytes}/{TotalBytes}", containerName, blobName, transferredBytes, fileSizeBytes);
+                            Logger.LogDebug("Azure Blob Storage upload progress: Container: {ContainerName}, Blob: {BlobName}, Bytes: {TransferredBytes}/{TotalBytes}", containerName, blobName, transferredBytes, fileSizeBytes);
                         }
                     })
                 };
@@ -406,20 +404,20 @@ public class BlobStorageFileStorageService(
                     return await blobClient.UploadAsync(readStream, uploadOptions, cancellationToken).ConfigureAwait(false);
                 }).ConfigureAwait(false);
 
-                logger.LogInformation("Azure Blob Storage upload completed successfully. Container: {ContainerName}, Blob: {BlobName}, Size: {SizeBytes} bytes.", containerName, blobName, fileSizeBytes);
+                Logger.LogInformation("Azure Blob Storage upload completed successfully. Container: {ContainerName}, Blob: {BlobName}, Size: {SizeBytes} bytes.", containerName, blobName, fileSizeBytes);
             }
             catch (Exception ex)
             {
                 if (ex is RequestFailedException reqEx)
                 {
-                    logger.LogError(
+                    Logger.LogError(
                         reqEx,
                         "Failed to upload to Azure Blob Storage due to HTTP error. Container: {ContainerName}, Blob: {BlobName}, TempLocation: {TempLocation}, Status: {Status}, ErrorCode: {ErrorCode}",
                         containerName, blobName, TempLocation, reqEx.Status, reqEx.ErrorCode);
                 }
                 else
                 {
-                    logger.LogError(ex, "Failed to upload to Azure Blob Storage. Container: {ContainerName}, Blob: {BlobName}, TempLocation: {TempLocation}", containerName, blobName, TempLocation);
+                    Logger.LogError(ex, "Failed to upload to Azure Blob Storage. Container: {ContainerName}, Blob: {BlobName}, TempLocation: {TempLocation}", containerName, blobName, TempLocation);
                 }
 
                 throw;

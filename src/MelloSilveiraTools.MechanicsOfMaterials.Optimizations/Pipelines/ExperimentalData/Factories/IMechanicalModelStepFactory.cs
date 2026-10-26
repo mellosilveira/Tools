@@ -1,7 +1,7 @@
-namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Factories;
-
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Models;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Steps.CurveFitter;
+
+namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Factories;
 
 /// <summary>
 /// Factory contract responsible for constructing <see cref="IMechanicalModelCurveFitterStep"/> implementations
@@ -18,5 +18,5 @@ public interface IMechanicalModelStepFactory
     /// <param name="curveFitterType">The curve fitting algorithm type to instantiate (e.g., <see cref="CurveFitterType.Alglib"/> or <see cref="CurveFitterType.MathNet"/>).</param>
     /// <param name="targetRSquared">Mandatory target R² determination coefficient requested by the user.</param>
     /// <returns>An instance of <see cref="IMechanicalModelCurveFitterStep"/> for the given model.</returns>
-    IMechanicalModelCurveFitterStep Create(string modelName, IReadOnlyList<SegmentType> targetSegments, CurveFitterType curveFitterType, double targetRSquared);
+    IMechanicalModelCurveFitterStep CreateCurveFitterStep(string modelName, IReadOnlyList<SegmentType> targetSegments, CurveFitterType curveFitterType, double targetRSquared);
 }

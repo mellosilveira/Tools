@@ -1,4 +1,6 @@
-﻿using MelloSilveiraTools.Core.Models;
+﻿using MelloSilveiraTools.Core.Managers.File.Models;
+using MelloSilveiraTools.Core.Managers.File.Providers;
+using MelloSilveiraTools.Core.Models;
 using MelloSilveiraTools.Core.Pipelines.Steps;
 using MelloSilveiraTools.Database.RelationalDatabase.Models.Entities;
 using MelloSilveiraTools.Database.Repositories;
@@ -13,10 +15,16 @@ namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.Experi
 /// Pipeline step that converges all simulation analysis branches (Identifier, Asymptote, Delta, CSV) 
 /// and persists the final simulation entity to the database.
 /// </summary>
+/// <param name="pipelineIdentifier"></param>
+/// <param name="mechanicalModelName"></param>
 /// <param name="logger">The structured logger instance.</param>
+/// <param name="fileStorageService"></param>
 /// <param name="repository">The database repository provider for persistence.</param>
 public sealed class MechanicalModelOutputPersistenceStep(
+    string pipelineIdentifier,
+    string mechanicalModelName,
     ILogger<MechanicalModelOutputPersistenceStep> logger,
+    IFileStorageService fileStorageService,
     IRepository repository)
     : IAsyncPipelineStep<MechanicalModelOutputPersistenceInput, string>
 {
@@ -34,21 +42,25 @@ public sealed class MechanicalModelOutputPersistenceStep(
 
         string rawDataToHash = string.Concat(initialOutputJson, finalOutputJson, absoluteDeltaOutputJson, percentageDeltaOutputJson);
         string identifierHash = Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(rawDataToHash)));
-        
-        long storedFileId = await InsertStoredFile(input, identifierHash, cancellationToken).ConfigureAwait(false);
+
+        StorageEntryMetadata experimentalDataFileMetadata = await fileStorageService.GetMetadataAsync(input.ExperimentalDataFileLocation, cancellationToken).ConfigureAwait(false);
+        long experimentalDataFileMetadataEntityId = await InsertStorageEntryMetadataAsync(experimentalDataFileMetadata, cancellationToken).ConfigureAwait(false);
+
+        long simulationOutputFileMetadataEntityId = await InsertStorageEntryMetadataAsync(input.SimulationOutputFileMetadata, cancellationToken).ConfigureAwait(false);
 
         MechanicalModelSimulationEntity entity = new()
         {
             Identifier = identifierHash,
-            MechanicalModelName = input.MechanicalModelName,
-            CurveFitIdentifier = input.CurveFitIdentifier,
-            ExternalIdentifier = input.ExternalIdentifier,
+            ExternalIdentifier = pipelineIdentifier,
+            MechanicalModelName = mechanicalModelName,
+            CurveFitIdentifier = input.CurveFitOutputIdentifier,
             AsymptoteTime = input.AsymptoteTime,
-            StoredFileId = storedFileId,
             InitialOutputJson = initialOutputJson,
             FinalOutputJson = finalOutputJson,
             AbsoluteDeltaOutputJson = absoluteDeltaOutputJson,
-            PercentageDeltaOutputJson = percentageDeltaOutputJson
+            PercentageDeltaOutputJson = percentageDeltaOutputJson,
+            ExperimentalDataFileMetadataId = experimentalDataFileMetadataEntityId,
+            SimulationOutputFileMetadataId = simulationOutputFileMetadataEntityId,
         };
 
         Result<long> insertResult = await repository.TryInsertAsync(entity, cancellationToken).ConfigureAwait(false);
@@ -65,19 +77,21 @@ public sealed class MechanicalModelOutputPersistenceStep(
         return identifierHash;
     }
 
-    private async Task<long> InsertStoredFile(MechanicalModelOutputPersistenceInput input, string identifierHash, CancellationToken cancellationToken)
+    private async Task<long> InsertStorageEntryMetadataAsync(StorageEntryMetadata storageEntryMetadata, CancellationToken cancellationToken)
     {
-        StoredFileEntity storedFileEntity = StoredFileEntity.Create(identifierHash, "ExperimentalDataSimulation", input.FileMetadata);
-        Result<long> fileResult = await repository.TryInsertAsync(storedFileEntity, cancellationToken).ConfigureAwait(false);
+        StorageEntryMetadataEntity entity = StorageEntryMetadataEntity.Create(storageEntryMetadata, pipelineIdentifier);
+        Result<long> fileResult = await repository.TryInsertAsync(entity, cancellationToken).ConfigureAwait(false);
         if (fileResult.IsConflict)
-        {
-            logger.LogWarning("Entity for stored file already exists in the database. File Metadata: {FileMetadata}", input.FileMetadata);
-        }
+            logger.LogWarning(
+                "Entity for storage entry metadata already exists in the database. Pipeline: {PipelineIdentifier}. Storage Entry Metadata entity: {@Entity}", 
+                pipelineIdentifier,
+                entity);
         else if (!fileResult.Success)
-        {
-            logger.LogError("Failed to insert entity for mechanical model output. Entity: {@Entity}. Result: {@InsertResult}", storedFileEntity, fileResult);
-            throw new InvalidOperationException(fileResult.JoinedMessages);
-        }
+            logger.LogError(
+                "Failed to insert entity for storage entry metadata. Pipeline: {PipelineIdentifier}. Entity: {@Entity}. Result: {@InsertResult}", 
+                pipelineIdentifier, 
+                entity, 
+                fileResult);
 
         return fileResult.Data;
     }

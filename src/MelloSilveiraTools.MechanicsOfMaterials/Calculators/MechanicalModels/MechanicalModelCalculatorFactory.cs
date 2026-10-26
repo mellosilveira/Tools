@@ -19,17 +19,17 @@ public class MechanicalModelCalculatorFactory(ServiceLocator serviceLocator, IMe
     }
 
     /// <inheritdoc/>
-    public IMechanicalModelCalculatorFacade CreateCalculatorFacade(string mechanicalModelName, GenericMechanicalModelInput input)
+    public IMechanicalModelCalculatorFacade CreateCalculatorFacade(GenericMechanicalModelInput input)
     {
-        IMechanicalModelTypeResolver typeResolver = serviceLocator.GetRequiredKeyedService<IMechanicalModelTypeResolver>(mechanicalModelName);
+        IMechanicalModelTypeResolver typeResolver = serviceLocator.GetRequiredKeyedService<IMechanicalModelTypeResolver>(input.MechanicalModelName);
         object calculator = serviceLocator.GetService(typeResolver.Calculator)!;
         return new MechanicalModelCalculatorFacade(cache, typeResolver.Output, calculator, input);
     }
 
     /// <inheritdoc/>
-    public IMechanicalModelCalculatorFacade CreateCalculatorFacade(GenericMechanicalModelInput input)
+    public IMechanicalModelCalculatorFacade CreateCalculatorFacade(IMechanicalModelTypeResolver typeResolver, GenericMechanicalModelInput input)
     {
-        ArgumentNullException.ThrowIfNull(input);
-        return CreateCalculatorFacade(input.MechanicalModelName, input);
+        object calculator = serviceLocator.GetService(typeResolver.Calculator)!;
+        return new MechanicalModelCalculatorFacade(cache, typeResolver.Output, calculator, input);
     }
 }

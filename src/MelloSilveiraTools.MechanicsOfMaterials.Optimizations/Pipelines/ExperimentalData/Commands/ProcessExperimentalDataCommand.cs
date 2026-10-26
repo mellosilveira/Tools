@@ -1,4 +1,4 @@
-﻿using MelloSilveiraTools.Core.Application.Commands;
+using MelloSilveiraTools.Core.Application.Commands;
 using MelloSilveiraTools.Core.Models;
 using MelloSilveiraTools.Core.Validators;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Models;
@@ -15,7 +15,7 @@ public sealed class ProcessExperimentalDataCommand(
     IValidator<ProcessExperimentalDataRequest> validator)
     : CommandBaseWithData<ProcessExperimentalDataRequest, ProcessExperimentalDataResponse>(validator)
 {
-    // TODO: REVISAR
+    // TODO: ARQUIVOS DEVEM VIR DO PROVEDOR DE ARQUIVOS UTILIZADO PELA APLICAÇÃO E NÃO ARQUIVO SUBMETIDO VIA REQUEST
     /// <inheritdoc/>
     protected override async Task<Result<ProcessExperimentalDataResponse>> ExecuteCommandAsync(ProcessExperimentalDataRequest request, CancellationToken cancellationToken = default)
     {

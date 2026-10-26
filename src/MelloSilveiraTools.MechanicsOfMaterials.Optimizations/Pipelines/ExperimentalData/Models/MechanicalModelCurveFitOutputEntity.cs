@@ -6,13 +6,16 @@ using MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelast
 namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Models;
 
 /// <summary>
-/// Database entity for mechanical model curve fits.
+/// Database entity for mechanical model curve fit outputs.
 /// </summary>
-[Table("mechanical_model_curve_fits")]
-public record MechanicalModelCurveFitEntity : EntityBase
+[Table("mechanical_model_curve_fit_outputs")]
+public record MechanicalModelCurveFitOutputEntity : EntityBase
 {
     [UniqueColumn]
     public required string Identifier { get; init; }
+
+    [Column]
+    public string? ExtenalIdentifier { get; init; }
 
     [Column]
     public required string MechanicalModelName { get; init; }

@@ -203,7 +203,7 @@ public class MechanicalModelCalculatorFacade : IMechanicalModelCalculatorFacade
     /// <summary>
     /// Contains standard literal parameter name constants used across the meta-programming routing infrastructure.
     /// </summary>
-    public class ParameterNameConstant
+    private class ParameterNameConstant
     {
         /// <summary>Identifier for the configuration parameter model instance argument.</summary>
         public const string MechanicalModelInput = "input";
