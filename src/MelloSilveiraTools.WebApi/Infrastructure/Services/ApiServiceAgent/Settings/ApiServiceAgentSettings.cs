@@ -1,4 +1,4 @@
-﻿namespace MelloSilveiraTools.WebApi.Infrastructure.Services.ApiServiceAgent.Settings;
+namespace MelloSilveiraTools.WebApi.Infrastructure.Services.ApiServiceAgent.Settings;
 
 /// <summary>
 /// Settings for integrations with an API.
@@ -13,5 +13,5 @@ public abstract class ApiServiceAgentSettings
     /// <summary>
     /// Default timeout in seconds for conection with API.
     /// </summary>
-    public int DefaultTimeoutInSeconds { get; set; }
+    public required int DefaultTimeoutInSeconds { get; set; }
 }

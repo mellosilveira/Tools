@@ -16,10 +16,10 @@ namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.Sensit
 public sealed class AsymptoteCalculationStep(
     IMechanicalModelCalculatorFacade calculator,
     IDifferentiation differentiation,
-    double tolerance) : ISyncPipelineStep<GenericMechanicalModelInput, (double AsymptoteTime, double Stress)>
+    double tolerance,
+    int maxBracketIterations = 64,
+    int binarySearchIterations = 20) : ISyncPipelineStep<GenericMechanicalModelInput, (double AsymptoteTime, double Stress)>
 {
-    // TODO: REVISAR
-
     /// <inheritdoc />
     public string Name => nameof(AsymptoteCalculationStep);
 
@@ -32,47 +32,37 @@ public sealed class AsymptoteCalculationStep(
         // If initial relaxation rate is already within tolerance, the material has reached the asymptote
         double initialDerivative = Math.Abs(CalculateStressDerivative(input, initialTime, timeStep));
         if (initialDerivative <= tolerance)
-        {
-            double initialStress = calculator.CalculateStress(input, initialTime);
-            return (initialTime, initialStress);
-        }
+            return (initialTime, calculator.CalculateStress(input, initialTime));
 
         // Exponential bracket search for the transition where |dσ/dt| <= tolerance
         double lowTime = initialTime;
         double highTime = initialTime + Math.Max(1.0, timeStep);
+        int bracketIterations = 0;
 
-        while (Math.Abs(CalculateStressDerivative(input, highTime, timeStep)) > tolerance)
+        while (bracketIterations++ < maxBracketIterations && Math.Abs(CalculateStressDerivative(input, highTime, timeStep)) > tolerance)
         {
             lowTime = highTime;
             highTime *= 2.0;
         }
 
         // Binary search refinement to locate the exact transition time
-        for (int i = 0; i < 20; i++)
+        for (int i = 0; i < binarySearchIterations; i++)
         {
             double midTime = (lowTime + highTime) * 0.5;
             double midDerivative = Math.Abs(CalculateStressDerivative(input, midTime, timeStep));
 
             if (midDerivative <= tolerance)
-            {
                 highTime = midTime;
-            }
             else
-            {
                 lowTime = midTime;
-            }
         }
 
-        double asymptoteStress = calculator.CalculateStress(input, highTime);
-        return (highTime, asymptoteStress);
+        return (highTime, calculator.CalculateStress(input, highTime));
     }
 
     private double CalculateStressDerivative(GenericMechanicalModelInput input, double time, double timeStep)
         => differentiation.Calculate(t => calculator.CalculateStress(input, t), timeStep, time);
 
     /// <inheritdoc />
-    public void Dispose()
-    {
-        GC.SuppressFinalize(this);
-    }
+    public void Dispose() => GC.SuppressFinalize(this);
 }

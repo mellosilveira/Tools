@@ -2,6 +2,7 @@
 using MelloSilveiraTools.Core.Pipelines.Steps;
 using MelloSilveiraTools.Database.Repositories;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Models;
+using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Serializers.Json;
 using Microsoft.Extensions.Logging;
 
 namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Steps;

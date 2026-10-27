@@ -501,10 +501,12 @@
             Timestamp captured when the plugin transitioned to <see cref="P:MelloSilveiraTools.Plugins.Infrastructure.Models.RegisteredPlugin.IsFullyLoaded"/>; <see langword="null"/> while still in progress.
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.Plugins.Infrastructure.Models.RegisteredPlugin.MarkTypeLoaded(System.Type)">
+        <member name="M:MelloSilveiraTools.Plugins.Infrastructure.Models.RegisteredPlugin.MarkTypeLoaded(System.Type,System.TimeProvider)">
             <summary>
             Marks the given <paramref name="type"/> as registered and updates <see cref="P:MelloSilveiraTools.Plugins.Infrastructure.Models.RegisteredPlugin.FullyLoadedAt"/> once all types are done.
             </summary>
+            <param name="type">The type that was registered.</param>
+            <param name="timeProvider">The time provider used to capture the completion timestamp.</param>
         </member>
         <member name="T:MelloSilveiraTools.Plugins.Infrastructure.Persistences.DatabasePluginCachePersistence">
             <summary>
@@ -667,8 +669,9 @@
             <param name="typeProcessors">Collection of type processors used to handle each <see cref="P:MelloSilveiraTools.Plugins.Infrastructure.IPluginTypeProcessor.ProcessableType"/> discovered inside a plugin assembly.</param>
             <param name="fileStorageService">Storage service used to open and stream plugin assemblies into memory.</param>
             <param name="cache">Plugin cache used to memoize loaded and registered plugins by name and version.</param>
+            <param name="timeProvider">The time provider used to record plugin load completion timestamps.</param>
         </member>
-        <member name="M:MelloSilveiraTools.Plugins.Infrastructure.PluginAssemblyProcessor.#ctor(System.Collections.Generic.IEnumerable{MelloSilveiraTools.Plugins.Infrastructure.IPluginTypeProcessor},MelloSilveiraTools.Core.Managers.File.Providers.IFileStorageService,MelloSilveiraTools.Plugins.Infrastructure.PluginCache)">
+        <member name="M:MelloSilveiraTools.Plugins.Infrastructure.PluginAssemblyProcessor.#ctor(System.Collections.Generic.IEnumerable{MelloSilveiraTools.Plugins.Infrastructure.IPluginTypeProcessor},MelloSilveiraTools.Core.Managers.File.Providers.IFileStorageService,MelloSilveiraTools.Plugins.Infrastructure.PluginCache,System.TimeProvider)">
             <summary>
             The system responsible for dynamically loading external modules ("plugins") into our application.
             It acts like a gatekeeper that inspects new functionalities, organizing them so our software can adopt these new capabilities on the fly without requiring a full system restart.
@@ -676,6 +679,7 @@
             <param name="typeProcessors">Collection of type processors used to handle each <see cref="P:MelloSilveiraTools.Plugins.Infrastructure.IPluginTypeProcessor.ProcessableType"/> discovered inside a plugin assembly.</param>
             <param name="fileStorageService">Storage service used to open and stream plugin assemblies into memory.</param>
             <param name="cache">Plugin cache used to memoize loaded and registered plugins by name and version.</param>
+            <param name="timeProvider">The time provider used to record plugin load completion timestamps.</param>
         </member>
         <member name="M:MelloSilveiraTools.Plugins.Infrastructure.PluginAssemblyProcessor.LoadAsync(MelloSilveiraTools.Plugins.Infrastructure.Models.DiscoveredPlugin,System.Threading.CancellationToken)">
             <summary>
@@ -1013,7 +1017,7 @@
             cached versions according to <see cref="P:MelloSilveiraTools.Plugins.Infrastructure.PluginSettings.PreviousVersionRetention"/>.
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.Plugins.Infrastructure.Services.PluginOrchestratorBackgroundService.#ctor(Microsoft.Extensions.Logging.ILogger{MelloSilveiraTools.Plugins.Infrastructure.Services.PluginOrchestratorBackgroundService},Microsoft.Extensions.DependencyInjection.IServiceScopeFactory,MelloSilveiraTools.Plugins.Infrastructure.PluginFileProcessor,MelloSilveiraTools.Plugins.Infrastructure.PluginCache,MelloSilveiraTools.Plugins.Infrastructure.PluginSettings)">
+        <member name="M:MelloSilveiraTools.Plugins.Infrastructure.Services.PluginOrchestratorBackgroundService.#ctor(Microsoft.Extensions.Logging.ILogger{MelloSilveiraTools.Plugins.Infrastructure.Services.PluginOrchestratorBackgroundService},Microsoft.Extensions.DependencyInjection.IServiceScopeFactory,MelloSilveiraTools.Plugins.Infrastructure.PluginFileProcessor,MelloSilveiraTools.Plugins.Infrastructure.PluginCache,MelloSilveiraTools.Plugins.Infrastructure.PluginSettings,System.TimeProvider)">
             <summary>
             Periodically inspects the plugin folder, loads newer plugin versions through
             <see cref="M:MelloSilveiraTools.Plugins.Infrastructure.Services.IPluginService.LoadPluginsOnRuntimeAsync(System.String,System.Nullable{MelloSilveiraTools.Plugins.Infrastructure.Models.PluginVersion},System.Threading.CancellationToken)"/> and evicts obsolete

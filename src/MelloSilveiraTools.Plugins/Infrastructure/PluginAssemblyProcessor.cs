@@ -11,10 +11,12 @@ namespace MelloSilveiraTools.Plugins.Infrastructure;
 /// </summary>
 /// <param name="typeProcessors">Collection of type processors used to handle each <see cref="IPluginTypeProcessor.ProcessableType"/> discovered inside a plugin assembly.</param>
 /// <param name="fileStorageService">Storage service used to open and stream plugin assemblies into memory.</param>
+/// <param name="timeProvider">The time provider used to record plugin load completion timestamps.</param>
 /// <param name="cache">Plugin cache used to memoize loaded and registered plugins by name and version.</param>
 public class PluginAssemblyProcessor(
     IEnumerable<IPluginTypeProcessor> typeProcessors,
     IFileStorageService fileStorageService,
+    TimeProvider timeProvider,
     PluginCache cache)
 {
     private readonly IPluginTypeProcessor[] _typeProcessors = [.. typeProcessors];
@@ -26,58 +28,52 @@ public class PluginAssemblyProcessor(
     /// <param name="discovered">Discovered plugin metadata holding the assembly location.</param>
     /// <param name="cancellationToken">Cancellation token.</param>
     /// <returns>A loaded plugin representation holding the collectible assembly load context and discovered processable types.</returns>
-    public Task<LoadedPlugin> LoadAsync(DiscoveredPlugin discovered, CancellationToken cancellationToken = default)
-    {
-        return cache.GetOrAddAsync(
-            discovered.Name,
-            discovered.Version,
-            async () =>
+    public Task<LoadedPlugin> LoadAsync(DiscoveredPlugin discovered, CancellationToken cancellationToken = default) => cache.GetOrAddAsync(
+        discovered.Name,
+        discovered.Version,
+        async () =>
+        {
+            AssemblyLoadContext pluginContext = new($"PluginContext_{discovered.Name}", isCollectible: true);
+
+            await using Stream assemblyStream = await fileStorageService.OpenReadAsync(discovered.FullPath, cancellationToken).ConfigureAwait(false);
+
+            Stream streamToLoad = assemblyStream;
+            MemoryStream? memoryStream = null;
+            if (!assemblyStream.CanSeek)
             {
-                AssemblyLoadContext pluginContext = new($"PluginContext_{discovered.Name}", isCollectible: true);
+                memoryStream = new MemoryStream();
+                await assemblyStream.CopyToAsync(memoryStream, cancellationToken).ConfigureAwait(false);
+                memoryStream.Position = 0;
+                streamToLoad = memoryStream;
+            }
 
-                await using Stream assemblyStream = await fileStorageService.OpenReadAsync(discovered.FullPath, cancellationToken).ConfigureAwait(false);
-
-                Stream streamToLoad = assemblyStream;
-                MemoryStream? memoryStream = null;
-                if (!assemblyStream.CanSeek)
+            Assembly assembly;
+            try
+            {
+                assembly = pluginContext.LoadFromStream(streamToLoad);
+            }
+            finally
+            {
+                if (memoryStream is not null)
                 {
-                    memoryStream = new MemoryStream();
-                    await assemblyStream.CopyToAsync(memoryStream, cancellationToken).ConfigureAwait(false);
-                    memoryStream.Position = 0;
-                    streamToLoad = memoryStream;
+                    await memoryStream.DisposeAsync().ConfigureAwait(false);
                 }
+            }
 
-                Assembly assembly;
-                try
-                {
-                    assembly = pluginContext.LoadFromStream(streamToLoad);
-                }
-                finally
-                {
-                    if (memoryStream is not null)
-                    {
-                        await memoryStream.DisposeAsync().ConfigureAwait(false);
-                    }
-                }
+            Type[] processableTypes = [.. assembly.GetTypes().Where(t =>
+                !t.IsInterface &&
+                !t.IsAbstract &&
+                Array.Exists(_typeProcessors, tp => tp.ProcessableType.IsAssignableFrom(t)))];
 
-                Type[] processableTypes = [.. assembly.GetTypes().Where(t =>
-                    !t.IsInterface &&
-                    !t.IsAbstract &&
-                    Array.Exists(_typeProcessors, tp => tp.ProcessableType.IsAssignableFrom(t)))];
-
-                return new LoadedPlugin(discovered, processableTypes, pluginContext);
-            });
-    }
+            return new LoadedPlugin(discovered, processableTypes, pluginContext);
+        });
 
     /// <summary>
     /// Returns a <see cref="RegisteredPlugin"/> instance for <paramref name="loaded"/>, creating a cache entry when missing.
     /// </summary>
     /// <param name="loaded">The loaded plugin instance.</param>
     /// <returns>A registered plugin metadata entry.</returns>
-    public RegisteredPlugin GetInfo(LoadedPlugin loaded)
-    {
-        return cache.GetOrAdd(loaded.Name, loaded.Version, () => new(loaded));
-    }
+    public RegisteredPlugin GetInfo(LoadedPlugin loaded) => cache.GetOrAdd(loaded.Name, loaded.Version, () => new(loaded));
 
     /// <summary>
     /// Runs each processable type of <paramref name="loaded"/> through its matching <see cref="IPluginTypeProcessor"/>
@@ -93,7 +89,7 @@ public class PluginAssemblyProcessor(
         foreach (Type type in loaded.ProcessableTypes)
         {
             Array.Find(_typeProcessors, tp => tp.ProcessableType.IsAssignableFrom(type))!.Process(type, context);
-            registered.MarkTypeLoaded(type);
+            registered.MarkTypeLoaded(type, timeProvider.GetUtcNow());
             cache.Update(loaded.Name, loaded.Version, registered);
         }
 

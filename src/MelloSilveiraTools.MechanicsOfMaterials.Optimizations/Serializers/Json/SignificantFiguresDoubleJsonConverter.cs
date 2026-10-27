@@ -2,7 +2,7 @@ using System.Globalization;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Converters;
+namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Serializers.Json;
 
 /// <summary>
 /// A JSON converter that writes double values using a specified number of significant digits.

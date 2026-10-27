@@ -49,14 +49,14 @@ public class PluginFileProcessor(
             if (!match.Success)
             {
                 logger.LogWarning("Plugin candidate file '{FileName}' does not match expected pattern '{{name}}.v{{major}}.{{minor}}.{{patch}}.dll'. Moving to quarantine.", entry.FileName);
-                await MoveToQuarantineAsync(entry.FullPath, entry.FileName, cancellationToken).ConfigureAwait(false);
+                await MoveToQuarantineAsync(entry.Location, entry.FileName, cancellationToken).ConfigureAwait(false);
                 continue;
             }
 
             bool isManaged;
             try
             {
-                await using Stream stream = await fileStorageService.OpenReadAsync(entry.FullPath, cancellationToken).ConfigureAwait(false);
+                await using Stream stream = await fileStorageService.OpenReadAsync(entry.Location, cancellationToken).ConfigureAwait(false);
                 isManaged = IsManagedDotNetAssembly(stream);
             }
             catch (Exception ex)
@@ -68,7 +68,7 @@ public class PluginFileProcessor(
             if (!isManaged)
             {
                 logger.LogWarning("Plugin candidate '{FileName}' is not a valid managed .NET assembly. Moving to quarantine.", entry.FileName);
-                await MoveToQuarantineAsync(entry.FullPath, entry.FileName, cancellationToken).ConfigureAwait(false);
+                await MoveToQuarantineAsync(entry.Location, entry.FileName, cancellationToken).ConfigureAwait(false);
                 continue;
             }
 
@@ -84,7 +84,7 @@ public class PluginFileProcessor(
             if (version is not null && pluginVersion != version.Value)
                 continue;
 
-            DiscoveredPlugin discovered = cache.GetOrAdd(name, pluginVersion, () => new(name, pluginVersion, entry.FullPath, entry.CreatedAt));
+            DiscoveredPlugin discovered = cache.GetOrAdd(name, pluginVersion, () => new(name, pluginVersion, entry.Location, entry.CreatedAt));
             yield return discovered;
         }
     }
@@ -123,7 +123,7 @@ public class PluginFileProcessor(
             if (version is not null && pluginVersion != version.Value)
                 continue;
 
-            DiscoveredPlugin discovered = cache.GetOrAdd(name, pluginVersion, () => new(name, pluginVersion, entry.FullPath, entry.CreatedAt));
+            DiscoveredPlugin discovered = cache.GetOrAdd(name, pluginVersion, () => new(name, pluginVersion, entry.Location, entry.CreatedAt));
             yield return discovered;
         }
     }
@@ -229,28 +229,14 @@ public class PluginFileProcessor(
 
     private static bool IsManagedDotNetAssembly(Stream stream)
     {
-        Stream seekableStream = stream;
-        MemoryStream? memoryStream = null;
-        if (!stream.CanSeek)
+        using MemoryStream? buffer = stream.CanSeek ? null : new();
+        if (buffer is not null)
         {
-            memoryStream = new MemoryStream();
-            stream.CopyTo(memoryStream);
-            memoryStream.Position = 0;
-            seekableStream = memoryStream;
+            stream.CopyTo(buffer);
+            buffer.Position = 0;
         }
 
-        try
-        {
-            using PEReader peReader = new(seekableStream, PEStreamOptions.LeaveOpen);
-            return peReader.HasMetadata;
-        }
-        catch
-        {
-            return false;
-        }
-        finally
-        {
-            memoryStream?.Dispose();
-        }
+        using PEReader peReader = new(buffer ?? stream, PEStreamOptions.LeaveOpen);
+        return peReader.HasMetadata;
     }
 }

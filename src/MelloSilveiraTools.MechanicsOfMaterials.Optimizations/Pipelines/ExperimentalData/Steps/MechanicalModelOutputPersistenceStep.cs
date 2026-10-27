@@ -5,6 +5,7 @@ using MelloSilveiraTools.Core.Pipelines.Steps;
 using MelloSilveiraTools.Database.RelationalDatabase.Models.Entities;
 using MelloSilveiraTools.Database.Repositories;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Models;
+using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Serializers.Json;
 using Microsoft.Extensions.Logging;
 using System.Security.Cryptography;
 using System.Text;

@@ -43,10 +43,11 @@ public record RegisteredPlugin : DiscoveredPlugin
     /// <summary>
     /// Marks the given <paramref name="type"/> as registered and updates <see cref="FullyLoadedAt"/> once all types are done.
     /// </summary>
-    public void MarkTypeLoaded(Type type)
+    /// <param name="type">The type that was registered.</param>
+    public void MarkTypeLoaded(Type type, DateTimeOffset fullyLoadedAt)
     {
         _typeLoadedStatus[type] = true;
         if (IsFullyLoaded)
-            FullyLoadedAt = DateTimeOffset.UtcNow;
+            FullyLoadedAt = fullyLoadedAt;
     }
 }

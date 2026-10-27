@@ -10,42 +10,36 @@ namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnaly
 public sealed class SchaperyParametricSweepGenerator : ParametricSweepGeneratorBase<SchaperyConstitutiveParameters>
 {
     /// <inheritdoc />
-    protected override IEnumerable<(string[] PropertyAliases, Func<SchaperyConstitutiveParameters, double, SchaperyConstitutiveParameters> Mutate)> GetPropertyVariations(ParametricSweepInput input)
+    protected override IEnumerable<(string PropertyName, Func<SchaperyConstitutiveParameters, double, SchaperyConstitutiveParameters> Mutate)> GetPropertyVariations(ParametricSweepInput input)
     {
-        yield return ([nameof(SchaperyConstitutiveParameters.G0), "g0"], (baseline, value) => baseline with { G0 = value });
-        yield return ([nameof(SchaperyConstitutiveParameters.G1)], (baseline, value) => baseline with { G1 = value });
-        yield return ([nameof(SchaperyConstitutiveParameters.G2)], (baseline, value) => baseline with { G2 = value });
-        yield return ([nameof(SchaperyConstitutiveParameters.J0), "j0"], (baseline, value) => baseline with { J0 = value });
-        yield return ([nameof(SchaperyConstitutiveParameters.Ge), "ge"], (baseline, value) => baseline with { Ge = value });
+        yield return (nameof(SchaperyConstitutiveParameters.G0), (baseline, value) => baseline with { G0 = value });
+        yield return (nameof(SchaperyConstitutiveParameters.G1), (baseline, value) => baseline with { G1 = value });
+        yield return (nameof(SchaperyConstitutiveParameters.G2), (baseline, value) => baseline with { G2 = value });
+        yield return (nameof(SchaperyConstitutiveParameters.J0), (baseline, value) => baseline with { J0 = value });
+        yield return (nameof(SchaperyConstitutiveParameters.Ge), (baseline, value) => baseline with { Ge = value });
 
-        yield return (["g1"], (baseline, value) =>
+        yield return ("g1", (baseline, value) =>
         {
             if (baseline.TransientRelaxationFunction is null)
-            {
                 return baseline;
-            }
 
             double[] newCoefficients = [value, baseline.TransientRelaxationFunction.Coefficients[1]];
             return baseline with
             {
                 TransientRelaxationFunction = new PowerLaw(newCoefficients, baseline.TransientRelaxationFunction.InitialVariableValue, baseline.TransientRelaxationFunction.FinalVariableValue)
             };
-        }
-        );
+        });
 
-        yield return (["n"], (baseline, value) =>
+        yield return ("n", (baseline, value) =>
         {
             if (baseline.TransientRelaxationFunction is null)
-            {
                 return baseline;
-            }
 
             double[] newCoefficients = [baseline.TransientRelaxationFunction.Coefficients[0], value];
             return baseline with
             {
                 TransientRelaxationFunction = new PowerLaw(newCoefficients, baseline.TransientRelaxationFunction.InitialVariableValue, baseline.TransientRelaxationFunction.FinalVariableValue)
             };
-        }
-        );
+        });
     }
 }

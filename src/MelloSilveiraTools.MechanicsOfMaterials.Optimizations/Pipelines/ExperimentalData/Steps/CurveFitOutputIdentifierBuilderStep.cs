@@ -1,5 +1,6 @@
 ﻿using MelloSilveiraTools.Core.Pipelines.Steps;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Models;
+using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Serializers.Json;
 using System.Security.Cryptography;
 using System.Text;
 

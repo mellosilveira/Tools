@@ -1,8 +1,7 @@
-﻿using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Converters;
-using System.Text.Json;
+﻿using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData;
+namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Serializers.Json;
 
 /// <summary>
 /// Centralized JSON serialization options for optimization pipeline steps.

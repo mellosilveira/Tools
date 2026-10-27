@@ -15,39 +15,15 @@ namespace MelloSilveiraTools.WebApi.Authentication.Services;
 /// exactly 32 bytes (256 bits) in UTF-8. A shorter or longer encryption key will cause the constructor
 /// to throw when the underlying cryptographic provider rejects the key length.
 /// </remarks>
-public class AuthenticationJweTokenService : IAuthenticationTokenService
+/// <param name="settings">JWT settings carrying the signing key, encryption key, issuer, audience and lifetime configuration.</param>
+/// <param name="timeProvider">Mandatory time provider used for timestamping and token lifetime validation.</param>
+public class AuthenticationJweTokenService(TimeProvider timeProvider, JwtSettings settings) : IAuthenticationTokenService
 {
     private static readonly JsonWebTokenHandler _handler = new();
 
-    private readonly JwtSettings _settings;
-    private readonly SigningCredentials _signingCredentials;
-    private readonly EncryptingCredentials _encryptingCredentials;
-    private readonly TokenValidationParameters _validationParameters;
-
-    /// <summary>
-    /// Initializes the service with the provided JWT settings, building the signing and encrypting credentials
-    /// along with the token validation parameters used to validate incoming tokens.
-    /// </summary>
-    /// <param name="settings">JWT settings carrying the signing key, encryption key, issuer, audience and lifetime configuration.</param>
-    /// <exception cref="ArgumentException">
-    /// Thrown when <see cref="JwtSettings.EncryptionKey"/> or <see cref="JwtSettings.SigningKey"/> has a length
-    /// that is not compatible with the underlying symmetric algorithms (AES-256 KW requires 32 UTF-8 bytes for the encryption key).
-    /// </exception>
-    /// <exception cref="System.Security.Cryptography.CryptographicException">
-    /// Thrown when the cryptographic provider rejects the supplied key material while building the encrypting credentials.
-    /// </exception>
-    /// <exception cref="ArgumentOutOfRangeException">
-    /// Thrown when <see cref="JwtSettings.SecurityKeyType"/> is not a supported value.
-    /// </exception>
-    public AuthenticationJweTokenService(JwtSettings settings)
-    {
-        _settings = settings;
-        SecurityKey signingKey = CreateSecurityKey(settings.SigningKey, settings.SecurityKeyType);
-        SecurityKey encryptionKey = CreateSecurityKey(settings.EncryptionKey, settings.SecurityKeyType);
-        _signingCredentials = new SigningCredentials(signingKey, SecurityAlgorithms.HmacSha256);
-        _encryptingCredentials = new EncryptingCredentials(encryptionKey, SecurityAlgorithms.Aes256KW, SecurityAlgorithms.Aes256CbcHmacSha512);
-        _validationParameters = BuildTokenValidationParameters(settings);
-    }
+    private readonly SigningCredentials _signingCredentials = new(CreateSecurityKey(settings.SigningKey, settings.SecurityKeyType), SecurityAlgorithms.HmacSha256);
+    private readonly EncryptingCredentials _encryptingCredentials = new(CreateSecurityKey(settings.EncryptionKey, settings.SecurityKeyType), SecurityAlgorithms.Aes256KW, SecurityAlgorithms.Aes256CbcHmacSha512);
+    private readonly TokenValidationParameters _validationParameters = BuildTokenValidationParameters(settings);
 
     /// <inheritdoc/>
     public AuthenticationToken Generate(long userIdentifier) => Generate(userIdentifier.ToString());
@@ -55,8 +31,8 @@ public class AuthenticationJweTokenService : IAuthenticationTokenService
     /// <inheritdoc/>
     public AuthenticationToken Generate(string userIdentifier)
     {
-        DateTimeOffset utcNow = DateTimeOffset.UtcNow;
-        DateTimeOffset expiresOn = utcNow.AddMinutes(_settings.TokenExperitationTimeInMinutes);
+        DateTimeOffset utcNow = timeProvider.GetUtcNow();
+        DateTimeOffset expiresOn = utcNow.AddMinutes(settings.TokenExperitationTimeInMinutes);
 
         SecurityTokenDescriptor descriptor = new()
         {
@@ -65,8 +41,8 @@ public class AuthenticationJweTokenService : IAuthenticationTokenService
                 new Claim(JwtRegisteredClaimNames.Sub, userIdentifier),
                 new Claim(JwtRegisteredClaimNames.Iat, utcNow.ToUnixTimeSeconds().ToString(), ClaimValueTypes.Integer64)
             ]),
-            Audience = _settings.Audience,
-            Issuer = _settings.Issuer,
+            Audience = settings.Audience,
+            Issuer = settings.Issuer,
             Expires = expiresOn.UtcDateTime,
             SigningCredentials = _signingCredentials,
             EncryptingCredentials = _encryptingCredentials
@@ -99,8 +75,7 @@ public class AuthenticationJweTokenService : IAuthenticationTokenService
         return result.IsValid;
     }
 
-    private Task<TokenValidationResult> ValidateTokenAsync(string token)
-        => _handler.ValidateTokenAsync(token, _validationParameters);
+    private Task<TokenValidationResult> ValidateTokenAsync(string token) => _handler.ValidateTokenAsync(token, _validationParameters);
 
     /// <summary>
     /// Builds the <see cref="TokenValidationParameters"/> used to validate tokens based on the supplied settings.

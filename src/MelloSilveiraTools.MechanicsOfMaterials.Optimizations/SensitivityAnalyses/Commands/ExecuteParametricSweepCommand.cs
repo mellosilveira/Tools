@@ -15,13 +15,10 @@ public sealed class ExecuteParametricSweepCommand(
     IValidator<ExecuteParametricSweepRequest> validator)
     : CommandBaseWithData<ExecuteParametricSweepRequest, ExecuteParametricSweepResponse>(validator)
 {
-    // TODO: REVISAR
-
     /// <inheritdoc/>
     protected override async Task<Result<ExecuteParametricSweepResponse>> ExecuteCommandAsync(ExecuteParametricSweepRequest request, CancellationToken cancellationToken = default)
     {
-        CancellationToken effectiveToken = cancellationToken != default ? cancellationToken : request.CancellationToken;
-        Result<string> pipelineResult = await pipeline.ProcessAsync(request.ToInput(), effectiveToken).ConfigureAwait(false);
+        Result<string> pipelineResult = await pipeline.ProcessAsync(request.ToInput(), cancellationToken).ConfigureAwait(false);
 
         return pipelineResult.Success
             ? new ExecuteParametricSweepResponse(pipelineResult.Data!)
