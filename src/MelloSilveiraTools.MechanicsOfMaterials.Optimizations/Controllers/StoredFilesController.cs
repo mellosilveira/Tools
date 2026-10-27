@@ -13,12 +13,12 @@ using Microsoft.Extensions.Logging;
 namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Controllers;
 
 /// <summary>
-/// Exposes unified HTTP endpoints for querying and downloading stored files (<see cref="StoredFileEntity"/>)
+/// Exposes unified HTTP endpoints for querying and downloading stored files (<see cref="StorageEntryMetadataEntity"/>)
 /// by their <c>ExternalIdentifier</c>.
 /// </summary>
 [ApiController]
 [Route("api/v1/stored-files")]
-public class StoredFilesController(ILogger<StoredFilesController> logger) : CrudController<StoredFileEntity, StoredFileFilter>(logger)
+public class StoredFilesController(ILogger<StoredFilesController> logger) : CrudController<StorageEntryMetadataEntity, StoredFileFilter>(logger)
 {
     protected override string ResourceName => "stored file";
 
@@ -31,7 +31,7 @@ public class StoredFilesController(ILogger<StoredFilesController> logger) : Crud
         [FromRoute] long fileId,
         CancellationToken cancellationToken = default)
     {
-        StoredFileEntity? entity = await repository.GetAsync<StoredFileEntity>(fileId, cancellationToken).ConfigureAwait(false);
+        StorageEntryMetadataEntity? entity = await repository.GetAsync<StorageEntryMetadataEntity>(fileId, cancellationToken).ConfigureAwait(false);
         if (entity is null)
             return Result.CreateNotFound($"Stored file with id '{fileId}' was not found.").BuildHttpResponse();
 

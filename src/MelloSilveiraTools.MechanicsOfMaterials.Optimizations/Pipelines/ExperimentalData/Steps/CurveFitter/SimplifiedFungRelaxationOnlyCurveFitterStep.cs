@@ -17,6 +17,7 @@ namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.Experi
 /// <summary>
 /// Thread-safe. Implements <see cref="IMechanicalModelCurveFitterStep"/> for the
 /// Simplified Fung model (relaxation-only curve fitting). Implements <c>IPipelineStep</c> for telemetry.
+/// </summary>
 /// <param name="mechanicalModelCalculator">The calculator for Simplified Fung viscoelastic constitutive calculations.</param>
 /// <param name="curveFitter">The optimization engine for non-linear regression.</param>
 /// <param name="pronySeriesCurveFitter">The Prony series curve fitting decorator.</param>

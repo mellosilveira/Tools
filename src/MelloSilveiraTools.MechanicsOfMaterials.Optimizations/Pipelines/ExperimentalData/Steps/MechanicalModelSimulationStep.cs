@@ -26,7 +26,7 @@ namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.Experi
 /// <param name="calculatorFactory">Factory providing calculator facades for specific mechanical formulations.</param>
 /// <param name="fileStorageService">Storage service responsible for resolving paths and opening file streams.</param>
 /// <param name="pipelineIdentifier">Unique business identifier prefix for the generated CSV simulation file.</param>
-/// <param name="simulationTimeStep">Optional explicit simulation time increment (&Delta;t). If omitted, the average experimental time step is computed.</param>
+/// <param name="simulationTimeStep">Optional explicit simulation time increment (Δt). If omitted, the average experimental time step is computed.</param>
 /// <param name="finalSimulationTime">Optional target final simulation time for extrapolation beyond the experimental regime.</param>
 /// <param name="asymptoteConsecutivePointsThreshold">Number of consecutive stable points required to detect steady-state convergence.</param>
 public sealed class MechanicalModelSimulationStep(

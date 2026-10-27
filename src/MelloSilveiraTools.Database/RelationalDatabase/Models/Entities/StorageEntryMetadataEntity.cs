@@ -20,16 +20,16 @@ public record StorageEntryMetadataEntity : EntityBase
     /// Storage provider technology where the artifact resides (Local, BlobStorage, Dfs).
     /// </summary>
     [Column]
-    public required StorageProvider StorageProvider { get; init; }
+    public StorageProvider StorageProvider { get; init; }
 
     /// <summary>
     /// Absolute file system path, URI, or cloud blob key where the file can be retrieved.
     /// </summary>
     [Column]
-    public required string Location { get; init; }
+    public string Location { get; init; } = string.Empty;
 
     [Column]
-    public required string Directory { get; init; }
+    public string Directory { get; init; } = string.Empty;
 
     /// <summary>
     /// Physical file name including extension (e.g., "valid_processed_points.csv", "c_SensitivityAnalysis.csv").

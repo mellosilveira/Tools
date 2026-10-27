@@ -1,4 +1,4 @@
-﻿using MelloSilveiraTools.Core.Managers.File.Models;
+using MelloSilveiraTools.Core.Managers.File.Models;
 using MelloSilveiraTools.Core.Managers.File.Providers;
 using MelloSilveiraTools.Core.Models;
 using MelloSilveiraTools.Core.Pipelines;
@@ -32,10 +32,10 @@ namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.Experi
 /// <param name="settings">Pipeline configuration settings and step options.</param>
 public sealed class ExperimentalDataProcessingPipeline(
     ILoggerFactory loggerFactory,
-    IFileStorageService fileStorageService,
     IDifferentiation differentiation,
-    IMechanicalModelStepFactory mechanicalModelStepFactory,
+    IFileStorageService fileStorageService,
     IMechanicalModelCalculatorFactory mechanicalModelCalculatorFactory,
+    IMechanicalModelStepFactory mechanicalModelStepFactory,
     IRepository repository,
     PipelineFactory pipelineFactory,
     ServiceLocator serviceLocator,

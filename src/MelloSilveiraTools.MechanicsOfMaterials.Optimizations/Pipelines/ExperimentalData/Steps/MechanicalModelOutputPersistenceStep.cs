@@ -65,14 +65,19 @@ public sealed class MechanicalModelOutputPersistenceStep(
 
         Result<long> insertResult = await repository.TryInsertAsync(entity, cancellationToken).ConfigureAwait(false);
         if (insertResult.IsConflict)
-        {
-            logger.LogWarning("Entity for mechanical model output already exists in the database. Identifier: {Identifier}", identifierHash);
-        }
+            logger.LogWarning(
+                "Entity for mechanical model output already exists in the database. Pipeline identifier: {PipelineIdentifier}. Mechanical Model: {MechanicalModelName}. Identifier: {Identifier}", 
+                pipelineIdentifier,
+                mechanicalModelName,
+                identifierHash);
         else if (!insertResult.Success)
-        {
-            logger.LogError("Failed to insert entity for mechanical model output. Entity: {@Entity}. Result: {@InsertResult}", entity, insertResult);
-            throw new InvalidOperationException(insertResult.JoinedMessages);
-        }
+            logger.LogError(
+                "Failed to insert entity for mechanical model output. Pipeline identifier: {PipelineIdentifier}. Mechanical Model: {MechanicalModelName}. Identifier: {Identifier} Entity: {@Entity}. Result: {@InsertResult}", 
+                pipelineIdentifier,
+                mechanicalModelName,
+                identifierHash,
+                entity, 
+                insertResult);
 
         return identifierHash;
     }
