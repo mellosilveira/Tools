@@ -38,7 +38,6 @@ public static class DependencyInjection
     /// <param name="experimentalDataSettings">Settings used by experimental data processing and optimization pipelines.</param>
     /// <param name="addMechanicalModels">Indicates whether to register mechanical model calculators.</param>
     /// <param name="enablePipelineProgressNotifications">Indicates whether to enable real-time pipeline progress notifications via <see cref="MelloSilveiraTools.Core.Pipelines.Notifiers.ChannelPipelineProgressNotifier"/>.</param>
-    /// <param name="pipelineProgressNotificationSettings">Optional settings defining adaptive throttling thresholds and item notification intervals for pipeline progress.</param>
     /// <returns>The same <paramref name="services"/> instance to allow call chaining.</returns>
     public static IServiceCollection AddToolsServices(this IServiceCollection services,
         ResiliencePipelineSettings defaultResiliencePipelineSettings,
@@ -49,12 +48,11 @@ public static class DependencyInjection
         FileStorageSettings? fileStorageSettings = null,
         ExperimentalDataSettings? experimentalDataSettings = null,
         LoggerSettings? loggerSettings = null,
-        PipelineProgressNotificationSettings? pipelineProgressNotificationSettings = null,
         bool addMechanicalModels = false,
         bool enablePipelineProgressNotifications = false)
         => services
             .AddSingleton(defaultResiliencePipelineSettings)
-            .AddCoreServices(defaultResiliencePipelineSettings, encryptionSettings, emailSettings, fileStorageSettings, loggerSettings, pipelineProgressNotificationSettings, enablePipelineProgressNotifications)
+            .AddCoreServices(defaultResiliencePipelineSettings, encryptionSettings, emailSettings, fileStorageSettings, loggerSettings, enablePipelineProgressNotifications)
             .AddDatabaseServices(defaultResiliencePipelineSettings, databaseSettings)
             .AddMathematicsServices()
             .AddMechanicsOfMaterialsServices(addMechanicalModels)

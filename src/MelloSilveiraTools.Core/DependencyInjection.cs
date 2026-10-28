@@ -12,7 +12,6 @@ using MelloSilveiraTools.Core.Managers.File.Providers.Dfs;
 using MelloSilveiraTools.Core.Managers.File.Providers.Local;
 using MelloSilveiraTools.Core.Pipelines;
 using MelloSilveiraTools.Core.Pipelines.Notifiers;
-using MelloSilveiraTools.Core.Pipelines.Telemetry;
 using MelloSilveiraTools.Core.Providers;
 using MelloSilveiraTools.Core.Providers.Dynamics;
 using MelloSilveiraTools.Core.ResiliencePipelines;
@@ -43,7 +42,6 @@ public static class CoreDependencyInjection
         /// <param name="fileStorageSettings">Settings used to configure storage services.</param>
         /// <param name="loggerSettings">Settings used by the logging service.</param>
         /// <param name="enablePipelineProgressNotifications">When true, registers <see cref="ChannelPipelineProgressNotifier"/> as the <see cref="IPipelineProgressNotifier"/>; otherwise registers <see cref="NullPipelineProgressNotifier"/>.</param>
-        /// <param name="pipelineProgressNotificationSettings">Optional settings defining adaptive throttling thresholds and item notification intervals for pipeline progress.</param>
         /// <returns>The same <paramref name="services"/> instance to allow call chaining.</returns>
         public IServiceCollection AddCoreServices(
             ResiliencePipelineSettings defaultResiliencePipelineSettings,
@@ -51,10 +49,11 @@ public static class CoreDependencyInjection
             EmailSettings? emailSettings = null,
             FileStorageSettings? fileStorageSettings = null,
             LoggerSettings? loggerSettings = null,
-            PipelineProgressNotificationSettings? pipelineProgressNotificationSettings = null,
             bool enablePipelineProgressNotifications = false)
         {
-            services.AddSingleton(TimeProvider.System);
+            services
+                .AddSingleton(TimeProvider.System)
+                .AddSingleton<PipelineFactory>();
 
             if (enablePipelineProgressNotifications)
             {
@@ -65,14 +64,6 @@ public static class CoreDependencyInjection
             else
             {
                 services.AddSingleton<IPipelineProgressNotifier>(NullPipelineProgressNotifier.Instance);
-            }
-
-            if (pipelineProgressNotificationSettings is not null)
-            {
-                services
-                    .AddSingleton(pipelineProgressNotificationSettings)
-                    .AddSingleton<PipelineFactory>()
-                    .AddSingleton<IPipelineProgressNotifierFactory, PipelineProgressNotifierFactory>();
             }
 
             if (encryptionSettings is not null)
@@ -113,7 +104,7 @@ public static class CoreDependencyInjection
                     ValidateDfsStorageSettings(fileStorageSettings.Dfs);
                     services.AddKeyedSingleton<IFileStorageService>(
                         StorageProvider.Dfs,
-                        (provider, _) => new DfsFileStorageService(fileStorageSettings.Dfs, provider.GetRequiredService<TimeProvider>()));
+                        (provider, _) => new DfsFileStorageService(provider.GetRequiredService<TimeProvider>(), fileStorageSettings.Dfs));
                 }
 
                 if (fileStorageSettings.AwsS3 is not null)
