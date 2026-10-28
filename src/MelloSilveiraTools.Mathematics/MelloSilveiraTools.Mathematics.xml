@@ -1222,9 +1222,9 @@
             <summary>
             Class constructor.
             </summary>
-            <param name="x"></param>
-            <param name="y"></param>
-            <param name="z"></param>
+            <param name="x">The value at axis X.</param>
+            <param name="y">The value at axis Y.</param>
+            <param name="z">The value at axis Z.</param>
         </member>
         <member name="P:MelloSilveiraTools.Mathematics.Models.Vector3D.X">
             <summary>
@@ -1267,50 +1267,50 @@
         </member>
         <member name="M:MelloSilveiraTools.Mathematics.Models.Vector3D.Create(MelloSilveiraTools.Mathematics.Models.Point3D,MelloSilveiraTools.Mathematics.Models.Point3D)">
             <summary>
-            Creates a <see cref="T:MelloSilveiraTools.Mathematics.Models.Vector3D"/> based on two <see cref="T:MelloSilveiraTools.Mathematics.Models.Point3D"/>.
+            Creates a <see cref="T:MelloSilveiraTools.Mathematics.Models.Vector3D"/> based on two <see cref="T:MelloSilveiraTools.Mathematics.Models.Point3D"/> instances.
             </summary>
-            <param name="point1"></param>
-            <param name="point2"></param>
-            <returns></returns>
+            <param name="point1">Starting point.</param>
+            <param name="point2">Ending point.</param>
+            <returns>A new <see cref="T:MelloSilveiraTools.Mathematics.Models.Vector3D"/> representing the difference vector from <paramref name="point1"/> to <paramref name="point2"/>.</returns>
         </member>
         <member name="M:MelloSilveiraTools.Mathematics.Models.Vector3D.Create(System.String,System.String)">
             <summary>
-            Creates a <see cref="T:MelloSilveiraTools.Mathematics.Models.Vector3D"/> based on two <see cref="T:MelloSilveiraTools.Mathematics.Models.Point3D"/>.
+            Creates a <see cref="T:MelloSilveiraTools.Mathematics.Models.Vector3D"/> based on two point coordinate strings in millimeters.
             </summary>
-            <param name="point1">The points as string at millimeters.</param>
-            <param name="point2">The points as string at millimeters.</param>
-            <returns></returns>
+            <param name="point1">The starting point as a comma-separated string in millimeters.</param>
+            <param name="point2">The ending point as a comma-separated string in millimeters.</param>
+            <returns>A new <see cref="T:MelloSilveiraTools.Mathematics.Models.Vector3D"/> representing the difference vector.</returns>
         </member>
         <member name="M:MelloSilveiraTools.Mathematics.Models.Vector3D.Create(System.Double,System.Double,System.Double)">
             <summary>
-            Creates a <see cref="T:MelloSilveiraTools.Mathematics.Models.Vector3D"/> based on the axis x, y and z.
+            Creates a <see cref="T:MelloSilveiraTools.Mathematics.Models.Vector3D"/> based on the axis x, y and z components.
             </summary>
-            <param name="x"></param>
-            <param name="y"></param>
-            <param name="z"></param>
-            <returns></returns>
+            <param name="x">The value at axis X.</param>
+            <param name="y">The value at axis Y.</param>
+            <param name="z">The value at axis Z.</param>
+            <returns>A new <see cref="T:MelloSilveiraTools.Mathematics.Models.Vector3D"/> instance.</returns>
         </member>
         <member name="M:MelloSilveiraTools.Mathematics.Models.Vector3D.Parse(System.String)">
             <summary>
-            Creates a <see cref="T:MelloSilveiraTools.Mathematics.Models.Vector3D"/> based on a string.
+            Creates a <see cref="T:MelloSilveiraTools.Mathematics.Models.Vector3D"/> based on a comma-separated string representation.
             </summary>
-            <param name="vectorAsString"></param>
-            <returns></returns>
+            <param name="vectorAsString">Comma-separated string representing the X, Y, and Z coordinates.</param>
+            <returns>A new <see cref="T:MelloSilveiraTools.Mathematics.Models.Vector3D"/> instance initialized with the parsed coordinates.</returns>
         </member>
         <member name="M:MelloSilveiraTools.Mathematics.Models.Vector3D.SafeParse(System.String)">
             <summary>
-            Safely creates a <see cref="T:MelloSilveiraTools.Mathematics.Models.Vector3D"/> based on a string, returning <see cref="F:MelloSilveiraTools.Mathematics.Models.Vector3D.Empty"/> for null or whitespace input.
+            Safely creates a <see cref="T:MelloSilveiraTools.Mathematics.Models.Vector3D"/> based on a comma-separated string, returning <see cref="F:MelloSilveiraTools.Mathematics.Models.Vector3D.Empty"/> for null or whitespace input.
             </summary>
-            <param name="vectorAsString"></param>
-            <returns></returns>
+            <param name="vectorAsString">Comma-separated string representing the X, Y, and Z coordinates.</param>
+            <returns>A new <see cref="T:MelloSilveiraTools.Mathematics.Models.Vector3D"/> instance initialized with the parsed coordinates, or <see cref="F:MelloSilveiraTools.Mathematics.Models.Vector3D.Empty"/> if the input is null or whitespace.</returns>
         </member>
         <member name="M:MelloSilveiraTools.Mathematics.Models.Vector3D.TryParse(System.String,System.Nullable{MelloSilveiraTools.Mathematics.Models.Vector3D}@)">
             <summary>
-            Creates a <see cref="T:MelloSilveiraTools.Mathematics.Models.Vector3D"/> based on a string.
+            Attempts to parse a comma-separated string representation into a <see cref="T:MelloSilveiraTools.Mathematics.Models.Vector3D"/>.
             </summary>
-            <param name="vectorAsString"></param>
-            <param name="vector3D"></param>
-            <returns></returns>
+            <param name="vectorAsString">Comma-separated string representing the X, Y, and Z coordinates.</param>
+            <param name="vector3D">When this method returns, contains the parsed <see cref="T:MelloSilveiraTools.Mathematics.Models.Vector3D"/> if parsing succeeded, or <c>null</c> if parsing failed.</param>
+            <returns><c>true</c> if parsing succeeded; otherwise, <c>false</c>.</returns>
         </member>
         <member name="M:MelloSilveiraTools.Mathematics.Models.Vector3D.op_Equality(MelloSilveiraTools.Mathematics.Models.Vector3D,MelloSilveiraTools.Mathematics.Models.Vector3D)">
             <summary>

@@ -31,15 +31,15 @@ public static class PluginsDependencyInjection
         // Required so plugin cache operations can read the {target} route value.
         .AddHttpContextAccessor()
         // Register plugin processors and cache configured with the specified storage provider.
-        .AddSingleton<PluginFileProcessor>((IServiceProvider serviceProvider) => new PluginFileProcessor(
+        .AddSingleton(serviceProvider => new PluginFileProcessor(
             serviceProvider.GetRequiredService<ILogger<PluginFileProcessor>>(),
             serviceProvider.GetRequiredKeyedService<IFileStorageService>(pluginSettings.StorageProvider),
             serviceProvider.GetRequiredService<PluginCache>(),
             serviceProvider.GetRequiredService<PluginSettings>()))
-        .AddSingleton<PluginAssemblyProcessor>((IServiceProvider serviceProvider) => new PluginAssemblyProcessor(
+        .AddSingleton(serviceProvider => new PluginAssemblyProcessor(
             serviceProvider.GetServices<IPluginTypeProcessor>(),
-            serviceProvider.GetRequiredKeyedService<IFileStorageService>(pluginSettings.StorageProvider),
             serviceProvider.GetRequiredService<TimeProvider>(),
+            serviceProvider.GetRequiredService<PluginFileProcessor>(),
             serviceProvider.GetRequiredService<PluginCache>()))
         .AddSingleton<PluginCache>()
         // Register validators.

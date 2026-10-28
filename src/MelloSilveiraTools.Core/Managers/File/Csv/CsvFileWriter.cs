@@ -5,11 +5,13 @@ namespace MelloSilveiraTools.Core.Managers.File.Csv;
 /// <summary>
 /// Encapsulates a buffered asynchronous CSV file writing session over an underlying output stream.
 /// Manages row batching buffer, immediate header emission, and resource disposal.
+/// Standardizes all line endings to CRLF (<c>\n</c>, RFC 4180) to eliminate file size discrepancies and SHA-256 checksum mismatches across operating systems.
 /// </summary>
 /// <param name="stream">Writable output stream.</param>
 /// <param name="header">Mandatory CSV header line written immediately upon session initialization.</param>
 public sealed class CsvFileWriter(Stream stream, string header) : IAsyncDisposable
 {
+    private const string CsvNewLine = "\n";
     private static readonly Encoding Utf8Encoding = new UTF8Encoding(false);
     private readonly StreamWriter _writer = CreateWriter(stream, header);
     private readonly StringBuilder _buffer = new(16 * 1024);
@@ -18,6 +20,7 @@ public sealed class CsvFileWriter(Stream stream, string header) : IAsyncDisposab
 
     /// <summary>
     /// Appends a formatted CSV row string and batch-flushes to disk when the threshold is reached.
+    /// Delimited with standard CRLF (<c>\n</c>) per RFC 4180.
     /// </summary>
     /// <param name="row">Formatted CSV row text.</param>
     /// <param name="cancellationToken">Cancellation token.</param>
@@ -25,7 +28,7 @@ public sealed class CsvFileWriter(Stream stream, string header) : IAsyncDisposab
     {
         cancellationToken.ThrowIfCancellationRequested();
 
-        _buffer.Append(row).Append(Environment.NewLine);
+        _buffer.Append(row).Append(CsvNewLine);
 
         if (++_batchCount >= 1000)
         {
@@ -38,6 +41,7 @@ public sealed class CsvFileWriter(Stream stream, string header) : IAsyncDisposab
     /// <summary>
     /// Appends a CSV row directly into the internal buffer via an action, avoiding intermediate string allocations,
     /// and batch-flushes to disk when the threshold is reached.
+    /// Delimited with standard CRLF (<c>\n</c>) per RFC 4180.
     /// </summary>
     /// <param name="writeRow">Action writing column values into the provided row buffer.</param>
     /// <param name="cancellationToken">Cancellation token.</param>
@@ -46,7 +50,7 @@ public sealed class CsvFileWriter(Stream stream, string header) : IAsyncDisposab
         cancellationToken.ThrowIfCancellationRequested();
 
         writeRow(_buffer);
-        _buffer.Append(Environment.NewLine);
+        _buffer.Append(CsvNewLine);
 
         if (++_batchCount >= 1000)
         {
@@ -58,7 +62,7 @@ public sealed class CsvFileWriter(Stream stream, string header) : IAsyncDisposab
 
     private static StreamWriter CreateWriter(Stream stream, string header)
     {
-        StreamWriter writer = new(stream, Utf8Encoding, 128 * 1024);
+        StreamWriter writer = new(stream, Utf8Encoding, 128 * 1024) { NewLine = CsvNewLine };
         writer.WriteLine(header);
         return writer;
     }

@@ -1,115 +1,215 @@
-# Planejamento Técnico: Execução Assíncrona (HTTP 202 Accepted), Monitoramento SSE, Topologia Simplificada e Purga de Códigos Legados
+# Planejamento Técnico: Execução Assíncrona (HTTP 202), Monitoramento SSE, Topologia Declarativa e Purga de Legados
 
-## 1. Visão de Negócio e Arquitetura de Execução
+> **Documento mestre.** Única fonte de verdade deste planejamento. A cópia em `.agents/prompt/` é apenas um redirecionamento.
+>
+> **Revisão 4 (2026-10-27).** Mudanças em relação à rev. 3:
+> 1. Fase 0 simplificada: remove os endpoints `/stream` já na estabilização, eliminando a regressão do notifier **sem alterar a assinatura de `PipelineFactory`** (D1 revista).
+> 2. Localização de cada componente por pacote (§2), respeitando o grafo real de referências.
+> 3. SSE com mecanismo único de *polling* temporal (sem `WaitForTopologyAsync` nem eventos de mudança de estado) e `heartbeat` como evento (comentários SSE não são garantidos por `SseItem<T>`).
+> 4. Regras explícitas para: falhas de item contadas antes do tratamento de erro, cancelamento de job ainda na fila, distinção `Cancelled` × `Interrupted`, execuções que terminam sem topologia, corrida de descarte do `CancellationTokenSource`, conflito de unicidade no banco.
+> 5. D4 antecipada para antes da Fase 1 (os testes da Fase 1 dependem dela).
+
+---
+
+## 0. Estado Atual e Premissas
+
+### 0.1 Estado do repositório no início deste plano
+| Item | Situação | Tratamento |
+|---|---|---|
+| Build da solução | **Quebrado** — 10 erros em `MelloSilveiraTools.MechanicsOfMaterials.Optimizations` | Fase 0 |
+| `ChannelPipelineProgressNotifier` registrado como **Singleton** (alteração da sessão anterior) | **Regressão**: canal único compartilhado entre requisições (`SingleReader = true`) e encerrado para sempre pelo primeiro `TryComplete()` em `PipelineProgressStreamWriter` | Fase 0 (D1) |
+| `CHANGELOG.md` e `CoreDependencyInjectionTests` | Documentam/validam a regressão como comportamento correto | Fase 0 |
+| `StorageEntryMetadataEntity` | `required` removido de `StorageProvider`, `Location`, `Directory` para satisfazer `new()` de `CrudController` — decisão não aprovada | D2 |
+| Avisos de build | ~6.250, majoritariamente no código-fonte ALGLIB embarcado | Fase 0 |
+| `AGENTS.md` | Exige `IPipelineProgressNotifier` obrigatório e descreve `Optimizations → MechanicsOfMaterials` apenas; na prática `Optimizations` também referencia `Database` e `WebApi` | D3 |
+| Schema do banco | Não há DDL em `src/`; tabelas são provisionadas fora do código | §7.8 |
+
+### 0.2 Premissas e limitações explícitas
+1. **Instância única da API.** Fila e monitores vivem na memória do processo. Múltiplas réplicas **não são suportadas** nesta versão.
+2. **Sem reexecução automática após queda.** Execuções interrompidas são marcadas `Interrupted` (§7.6); reexecução é por nova submissão.
+3. **Sem progresso em tempo real entre a Fase 0 e a Fase 4.** O streaming atual (`/stream`) já está quebrado; ele é removido na Fase 0 e substituído pelo SSE na Fase 4.
+4. **Toda fase termina com build verde e testes passando.**
+
+---
+
+## 1. Arquitetura de Execução
 
 ### 1.1 Fluxo Operacional
-O fluxo de execução e monitoramento de pipelines de processamento numérico e análise de dados experimentais é estruturado da seguinte forma:
 
 ```mermaid
 sequenceDiagram
     autonumber
     actor User as Usuário / Frontend
-    participant API as WebApi (Controller / Command)
+    participant API as Command (Optimizations)
+    participant Store as IPipelineRunStore
     participant Storage as IFileStorageService
     participant Registry as PipelineMonitorRegistry
-    participant Queue as PipelineRunQueue (Channel)
+    participant Queue as PipelineRunQueue
     participant Worker as PipelineRunBackgroundService
-    participant Pipeline as TPL Dataflow Pipeline
-    participant Monitor as PipelineMonitor (In-Memory)
-    participant SSE as SSE Endpoint (/events)
+    participant Handler as IPipelineRunHandler (escopo)
+    participant Monitor as PipelineMonitor
+    participant SSE as Endpoint SSE
 
-    User->>API: 1. POST /process (Upload CSV / Parâmetros)
-    API->>Storage: 2. Persiste arquivos brutos (identifier, "uploads", fileName)
-    API->>Registry: 3. Cria e registra PipelineMonitor(identifier)
-    API->>Queue: 4. Enfileira PipelineRunJob(identifier, payload)
-    API-->>User: 5. HTTP 202 Accepted { identifier, statusUrl }
-    
-    par Execução em Background
-        Worker->>Queue: 6. Desenfileira Job
-        Worker->>Pipeline: 7. Executa ProcessAsync(payload, monitor, ct)
-        loop Processamento dos Itens
-            Pipeline->>Monitor: 8. Atualiza nós atômicos (ItemStarted, ItemSucceeded, ItemFailed)
+    User->>API: POST /process
+    API->>API: Valida payload e resolve identifier
+    API->>Store: TryReserve (INSERT Queued, UNIQUE identifier)
+    alt identifier já existe
+        API-->>User: 409 Conflict
+    end
+    API->>Storage: Persiste uploads (identifier, uploads, nomes fixos)
+    API->>Registry: Register (Queued)
+    API->>Queue: TryEnqueue(job)
+    alt fila cheia
+        API->>Registry: Compensação: remove monitor
+        API->>Storage: Compensação: remove uploads
+        API->>Store: Compensação: Rejected
+        API-->>User: 503 + Retry-After
+    end
+    API-->>User: 202 Accepted
+
+    par Execução
+        Worker->>Queue: Lê job
+        alt cancelamento solicitado enquanto na fila
+            Worker->>Store: Cancelled
+        else
+            Worker->>Store: Running
+            Worker->>Handler: Executa no escopo
+            Handler->>Monitor: Publica topologia (BuildTerminal)
+            Handler->>Monitor: Contadores por item
+            Worker->>Monitor: Estado terminal
+            Worker->>Store: Estado terminal
         end
-        Pipeline->>Monitor: 9. Marca conclusão global (Completed / Faulted)
-    and Streaming em Tempo Real (Sem intervenção do usuário)
-        User->>SSE: 10. GET /api/v1/pipeline-runs/{identifier}/events
-        SSE->>Monitor: 11. Lê topologia inicial
-        SSE-->>User: 12. event: topology (Grafo: name, previousSteps)
-        loop Snapshot temporal a cada PublishInterval (ex: 250ms)
-            SSE->>Monitor: 13. Obtém snapshots de nós alterados (Version > lastSeen)
-            SSE-->>User: 14. event: steps (Snapshots incrementais)
+    and Streaming (polling temporal)
+        User->>SSE: GET /pipeline-runs/{identifier}/events
+        loop A cada PublishInterval
+            SSE->>Monitor: Lê estado, topologia e versões
+            SSE-->>User: run / topology / steps / heartbeat
         end
-        SSE-->>User: 15. event: run (Status final da execução)
+        SSE-->>User: run terminal (id: final)
     end
 ```
 
-### 1.2 Regras de Ouro da Arquitetura
-1. **Zero Retrocompatibilidade e Purga Radical de Código Morto:**
-   - Não serão mantidas interfaces, parâmetros ou métodos obsoletos por compatibilidade.
-   - Qualquer componente que não sirva à arquitetura simplificada será excluído imediatamente.
-2. **Princípio de Responsabilidade Única (SRP):**
-   - **`PipelineStepExecutor`**: Focado estritamente na execução do passo, gerenciamento do ciclo de vida de `Activity` (OpenTelemetry), log estruturado e política de retry. Não faz throttling, não conhece HTTP e não envia eventos pela rede.
-   - **`PipelineFlowNode`**: Estrutura unificada que encapsula o bloco TPL Dataflow, as dependências topológicas imediatas (`PreviousSteps`) e os contadores atômicos em memória.
-   - **`PipelineMonitor`**: Concentra o estado da execução e a coleção de `PipelineFlowNode` de um determinado `identifier`.
-   - **`PipelineMonitorRegistry`**: Gerencia instâncias de `PipelineMonitor` em memória (`ConcurrentDictionary`) com expiração temporal (TTL) controlada por `TimeProvider`.
-   - **`PipelineMonitoringSettings`**: Configuração centralizada para o host (Background Service, Registry, Endpoint SSE). **NUNCA** atravessada para construtores de builders ou steps da pipeline.
-3. **Consumo por Pull Temporal no SSE em vez de Push por Item:**
-   - O pipeline processa dados em velocidade nativa sem overhead de sincronização de rede ou lock em canais.
-   - O endpoint SSE extrai snapshots em intervalos regulares (`PublishInterval`) usando `TypedResults.ServerSentEvents`, notificando apenas etapas cuja `Version` sofreu alteração.
+> Quem grava o estado no banco é o **worker** (ou o command, na admissão). Pipelines de domínio não conhecem `pipeline_runs`.
+
+### 1.2 Regras de Ouro
+1. **Zero retrocompatibilidade:** legados são excluídos, não marcados como obsoletos.
+2. **SRP:**
+   - `PipelineFactory` — Singleton stateless. Após a Fase 2: construtor `(TimeProvider timeProvider)`; `CreateDataflow<T>(ILogger logger, PipelineMonitor monitor, ...)`. Nunca armazena o monitor em campo.
+   - `PipelineStepExecutor` — execução, OpenTelemetry, log, retry e atualização atômica do nó. Não conhece HTTP.
+   - `PipelineFlowNode` — bloco TPL + predecessores + contadores.
+   - `PipelineMonitor` — topologia, nós e estado global de **uma** execução. Não emite eventos; é apenas lido.
+   - `PipelineMonitorRegistry` — monitores ativos, solicitações de cancelamento e retenção.
+   - `IPipelineRunStore` — ciclo de vida durável. Usado só pelo command (admissão) e pelo worker.
+   - `PipelineRunBackgroundService` — consumo da fila, escopos, concorrência, cancelamento, reconciliação.
+   - `PipelineMonitoringSettings` — configuração do host. Nunca atravessa builders ou steps.
+3. **Dois níveis de estado:** RAM para telemetria fina (efêmera); PostgreSQL para ciclo de vida (auditoria — não recupera execuções).
+4. **Desconectar o SSE nunca cancela a execução.**
 
 ---
 
-## 2. Inventário Exaustivo de Remoção de Códigos Legados
+## 2. Localização por Pacote
 
-### 2.1 Classes e Arquivos a Serem Excluídos Definitivamente
+Respeita as referências reais: `Database → Core`, `WebApi → Core, Database`, `Optimizations → MechanicsOfMaterials, Database, WebApi`.
 
-| Arquivo / Componente Legado | Motivo da Remoção |
+| Pacote | Componentes |
 |---|---|
-| `src/MelloSilveiraTools.Core/Pipelines/Notifiers/IPipelineProgressNotifier.cs` | Conceito per-request (scoped) incompatível com desacoplamento assíncrono 202. Gerava duplicidade com o tracker. |
-| `src/MelloSilveiraTools.Core/Pipelines/Notifiers/ChannelPipelineProgressNotifier.cs` | Canal per-request que gerava contenção de memória e sobrecarga no TPL Dataflow. |
-| `src/MelloSilveiraTools.Core/Pipelines/Notifiers/NullPipelineProgressNotifier.cs` | Desnecessário após a eliminação da abstração de notifiers. |
-| `src/MelloSilveiraTools.Core/Pipelines/Telemetry/PipelineFlowNode.cs` | Versão antiga pesada substituída pelo `PipelineFlowNode` unificado (bloco + topologia + contadores). |
-| `src/MelloSilveiraTools.Core/Pipelines/Telemetry/PipelineStepTracker.cs` | Classe sobrecarregada que misturava contagem, envio de eventos e decisões de throttling. Totalmente absorvida pelo `PipelineFlowNode`. |
-| `src/MelloSilveiraTools.Core/Pipelines/Telemetry/PipelineProgressNotificationSettings.cs` | Parâmetro atravessado em construtores para controlar números mágicos (50/500). Totalmente removido de builders e steps. |
-| `src/MelloSilveiraTools.Core/Pipelines/Models/PipelineProgressEvent.cs` | DTO push legado com heurísticas desnecessárias e campos calculados imprecisos. |
-| `src/MelloSilveiraTools.Core/Pipelines/Models/PipelineStepState.cs` | Substituído pelo novo enum simplificado `PipelineStepExecutionState`. |
-| `src/MelloSilveiraTools.MechanicsOfMaterials.Optimizations/Controllers/PipelineProgressStreamWriter.cs` | Anti-pattern de executar a pipeline síncrona dentro da requisição HTTP de stream NDJSON. |
-| `test/UnitTests/Core/Pipelines/Models/PipelineProgressEventTests.cs` | Testes do DTO legado excluído. |
-| `test/UnitTests/Core/Pipelines/Notifiers/ChannelPipelineProgressNotifierTests.cs` | Testes da classe excluída. |
-| `test/UnitTests/Core/Pipelines/Telemetry/PipelineProgressEmissionTests.cs` | Testes acoplados à lógica antiga de throttling e notifiers. |
-
-### 2.2 Endpoints Legados a Serem Removidos
-- `POST /api/v1/experimental-data/process/stream` em `ExperimentalDataController.cs`.
-- `POST /api/v1/parametric-sweeps/stream` em `ParametricSweepController.cs`.
-
-### 2.3 Parâmetros Atravessados a Serem Purgados
-- **Dependency Injection:**
-  - Remover `bool enablePipelineProgressNotifications` e `PipelineProgressNotificationSettings?` de `CoreDependencyInjection` e `DependencyInjection`.
-  - Registrar exclusivamente `PipelineMonitoringSettings` no container de injeção de dependência com validação eager.
-- **Builders e Factories:**
-  - Remover `IPipelineProgressNotifier` e `PipelineProgressNotificationSettings` de `PipelineFactory.StartDataflow<T>` e `DataflowPipelineBuilder`.
-- **Pipelines de Domínio (`ExperimentalDataProcessingPipeline`, `ParametricSweepPipeline`):**
-  - Remover referências a notifiers ou configurações de notificação de seus construtores.
-  - A execução recebe o monitor correspondente à análise: `ProcessAsync(payload, monitor, cancellationToken)`.
-- **`PipelineStepExecutor`:**
-  - Redução de ~800 linhas para ~120-150 linhas.
-  - Eliminar verificações de throttling (`itemCount % 500 == 0`) e bifurcações condicionais (`stepTracker != null`).
+| **Core** (`MelloSilveiraTools.Core.Pipelines.Monitoring`) | Enums e records (§4.1), `PipelineFlowNode`, `PipelineFlowNode<T>`, `PipelineMonitor`, `PipelineMonitorRegistry`, `PipelineRunQueue`, `PipelineRunJob` (base abstrata), `IPipelineRunHandler`, `IPipelineRunStore`, `PipelineMonitoringSettings`; `StatusCode.Accepted` e `Result.CreateAccepted<T>` (`Core.Models`); `StorageContexts` (`Core.Managers.File`) |
+| **Database** | `PipelineRunEntity`, `PostgresPipelineRunStore : IPipelineRunStore` |
+| **WebApi** | `PipelineRunBackgroundService`, endpoints genéricos `PipelineRunsEndpoints` (status, eventos SSE, cancelamento), `AddPipelineMonitoring(settings)` em `WebApiDependencyInjection` |
+| **Optimizations** | `ExperimentalDataRunJob`, `ParametricSweepRunJob`, `ExperimentalDataRunHandler`, `ParametricSweepRunHandler`, commands de admissão |
+| **Meta** | `AddToolsServices` repassa `PipelineMonitoringSettings` |
 
 ---
 
-## 3. Unificação de Bloco e Topologia em `PipelineFlowNode`
+## 3. Inventário de Remoção de Legados
 
-### 3.1 O Problema da Redundância no `DataflowPipelineBuilder`
-No construtor atual de `DataflowPipelineBuilder<THead, TTail>`, existiam 4 variáveis separadas representando os extremos da pipeline, além de rastreadores externos:
-- `ITargetBlock<THead> headBlock` (bloco de entrada inicial)
-- `ISourceBlock<TTail> tailBlock` (bloco de saída da etapa anterior/atual)
-- `PipelineFlowNode rootFlowNode` (raiz da telemetria)
-- `PipelineFlowNode currentFlowNode` (nó de telemetria da etapa anterior/atual)
-- `List<PipelineStepTracker> _stepTrackers` (rastreadores de métricas)
+| Arquivo / elemento | Fase | Motivo |
+|---|---|---|
+| `Optimizations/Controllers/PipelineProgressStreamWriter.cs` | **0** | Consumidor do notifier; quebrado pela regressão |
+| Endpoints `POST .../experimental-data/process/stream` e `POST .../parametric-sweeps/stream` | **0** | Idem |
+| Registro de `ChannelPipelineProgressNotifier` em DI | **0** | Causa da regressão |
+| `Core/Pipelines/Notifiers/IPipelineProgressNotifier.cs`, `ChannelPipelineProgressNotifier.cs`, `NullPipelineProgressNotifier.cs` | 2 | Substituídos por `PipelineMonitor` |
+| `Core/Pipelines/Telemetry/PipelineFlowNode.cs` (versão atual) | 2 | Substituído pelo nó unificado em `Pipelines.Monitoring` |
+| `Core/Pipelines/Telemetry/PipelineStepTracker.cs` | 2 | Absorvido pelo nó unificado |
+| `Core/Pipelines/Telemetry/PipelineProgressNotificationSettings.cs` | 2 | Throttling deixa de existir |
+| `Core/Pipelines/Models/PipelineProgressEvent.cs`, `PipelineStepState.cs` | 2 | Substituídos pelos contratos do §4.1 |
+| Parâmetros `enablePipelineProgressNotifications` e `pipelineProgressNotificationSettings` de `AddCoreServices` / `AddToolsServices` | 2 | Idem |
+| Testes `PipelineProgressEventTests`, `ChannelPipelineProgressNotifierTests`, `PipelineProgressEmissionTests` | 2 | Cobrem código excluído |
 
-### 3.2 A Solução: Modelo Unificado
-Unificamos os blocos TPL Dataflow, a topologia e as métricas de monitoramento em uma única estrutura coesa: **`PipelineFlowNode`**.
+---
 
+## 4. Modelos de Monitoramento
+
+### 4.1 Contratos
+```csharp
+public enum PipelineStepExecutionState { Pending = 0, Running = 1, Completed = 2, Faulted = 3 }
+
+public enum PipelineRunState
+{
+    Queued = 0,
+    Running = 1,
+    Completed = 2,
+    CompletedWithErrors = 3,
+    Faulted = 4,
+    Cancelled = 5,
+    Interrupted = 6,
+    Rejected = 7
+}
+
+public sealed record PipelineTopologyNode(string Name, IReadOnlyList<string> PreviousSteps);
+
+public sealed record PipelineStepStatus(
+    string Name,
+    PipelineStepExecutionState State,
+    int Processed,
+    int Failed,
+    int InFlight,
+    DateTimeOffset? StartedAt,
+    DateTimeOffset? CompletedAt,
+    string? LastError);
+
+public sealed record PipelineRunSummary(
+    string Identifier,
+    string PipelineType,
+    PipelineRunState State,
+    DateTimeOffset CreatedAt,
+    DateTimeOffset? StartedAt,
+    DateTimeOffset? CompletedAt,
+    string? Error);
+```
+
+### 4.2 Semântica de estados
+**Passo:**
+- `Pending` → `Running` no primeiro `ItemStarted`.
+- `Completed` quando `block.Completion` conclui com sucesso — inclusive diretamente de `Pending`, se o passo não recebeu itens.
+- `Faulted` quando `block.Completion` falha. Falhas isoladas de item não mudam o estado do passo.
+
+**Contagem de falhas:** o `PipelineStepExecutor` chama `ItemFailed` **antes** de delegar ao tratamento configurado (`WithLoggingErrors`, DLQ ou propagação). Assim, falhas engolidas continuam visíveis.
+
+**Execução** (decidida pelo worker, nesta ordem de precedência):
+| Condição | Estado |
+|---|---|
+| Fila cheia na admissão | `Rejected` (gravado pelo command) |
+| `stoppingToken` cancelado durante a execução | `Interrupted` |
+| Cancelamento explícito (antes ou durante a execução) | `Cancelled` |
+| Exceção escapou do handler ou `pipeline.Completion` falhou | `Faulted` |
+| Concluiu com algum nó `Failed > 0` | `CompletedWithErrors` |
+| Concluiu sem falhas | `Completed` |
+
+**Execuções sem topologia:** `Rejected`, `Cancelled` antes de iniciar, `Interrupted` antes de iniciar e `Faulted` antes de `BuildTerminal()` (ex.: modelo mecânico inválido) terminam sem topologia publicada. O cliente deve tratar `run` terminal sem `topology` prévia.
+
+### 4.3 Concorrência nos nós
+- `InFlight`, `Processed`, `Failed`: `Interlocked`.
+- `StartedAt`: `long` (ticks UTC) gravado uma única vez via `Interlocked.CompareExchange`.
+- `CompletedAt`, `LastError`, `State`: `Volatile.Write` / `Volatile.Read`.
+- `Version`: `Interlocked.Increment` **após** cada mutação.
+- **Snapshot com consistência eventual:** campos lidos individualmente podem refletir instantes ligeiramente diferentes. O snapshot final de um passo só é considerado estável após `block.Completion`.
+
+---
+
+## 5. Modelo de Nós e Regras de Topologia
+
+### 5.1 Hierarquia
 ```mermaid
 classDiagram
     class PipelineFlowNode {
@@ -125,273 +225,350 @@ classDiagram
         +long Version
         +ItemStarted()
         +ItemSucceeded()
-        +ItemFailed(Exception ex)
+        +ItemFailed(Exception exception)
         +MarkCompleted()
-        +MarkFaulted(Exception ex)
+        +MarkFaulted(Exception exception)
         +ToSnapshot() PipelineStepStatus
     }
     class PipelineFlowNode_T["PipelineFlowNode&lt;T&gt;"] {
         +ISourceBlock~T~ SourceBlock
     }
-    class PipelineHeadNode_T["PipelineHeadNode&lt;T&gt;"] {
-        +ITargetBlock~T~ TargetBlock
-        +ISourceBlock~T~ SourceBlock
-    }
     PipelineFlowNode <|-- PipelineFlowNode_T
-    PipelineFlowNode_T <|-- PipelineHeadNode_T
 ```
 
-Cada método do `DataflowPipelineBuilder` cria o seu respectivo `PipelineFlowNode`, interligando o `SourceBlock` do passo anterior ao `TargetBlock` do passo atual, e repassando o nome do passo anterior para compor `PreviousSteps`.
+### 5.2 Nós nomeados × conectores transparentes
+Só **passos `IPipelineStep`** viram nós visíveis. Os demais elementos são conectores transparentes que apenas propagam predecessores.
 
-### 3.3 Construtor do Builder Simplificado
-```csharp
-internal class DataflowPipelineBuilder<THead, TTail>(
-    ILogger logger,
-    PipelineHeadNode<THead> rootNode,
-    PipelineFlowNode<TTail> currentNode,
-    TimeProvider timeProvider,
-    ITargetBlock<FailedPayload>? deadLetterQueueBlock = null,
-    RetryOptions? retryOptions = null,
-    List<PipelineFlowNode>? nodes = null,
-    List<Task>? branchCompletionTasks = null,
-    List<IPipelineStep>? steps = null,
-    CancellationToken pipelineCancellationToken = default)
-```
+| Elemento do builder | Visível? | Predecessores propagados |
+|---|---|---|
+| Buffer de entrada | Não | `[]` |
+| `AddStep(step)` | Sim (`step.Name`) | — |
+| `AddBroadcastStep(step, ...)` (observador) | Sim (`step.Name`) | O fluxo principal mantém os predecessores **anteriores** ao observador |
+| `AddDataMapping`, `AddFilterStep`, `AddCollectAllStep`, `AddGroupWhileStep` | Não | Repassa os recebidos |
+| Ramo de `Fork` sem passos (`branch => branch`) | Não | Predecessores da origem do fork |
+| `JoinBlock` do `Fork` | Não | União **deduplicada, em ordem de declaração**, dos predecessores finais de cada ramo |
 
-- **`rootNode`**: Fornece o `TargetBlock` inicial de entrada da pipeline onde `SendAsync` injeta os dados.
-- **`currentNode`**: Fornece o `SourceBlock` de onde o próximo passo se conectará (`currentNode.SourceBlock.LinkTo(...)`) e indica quem é o predecessor (`currentNode.Name`).
-- **`nodes`**: Coleção acumulada de todos os nós criados para composição do grafo.
+O builder carrega `IReadOnlyList<string> CurrentPredecessors` em vez de `currentNode.Name`. Cada nó nomeado recebe `PreviousSteps = CurrentPredecessors` e redefine `CurrentPredecessors = [step.Name]`.
 
----
+### 5.3 Unicidade e congelamento
+- Nomes de passos são únicos por execução; `BuildTerminal()` valida e lança `InvalidOperationException` listando duplicatas. Não há nomes reservados.
+- `BuildTerminal()` chama `monitor.PublishTopology(...)` **uma única vez**; segunda chamada lança `InvalidOperationException`.
+- `PipelineMonitor.Topology` é `null` até a publicação (o SSE apenas verifica a cada tick).
 
-## 4. Topologia Mínima: "Antes e Atual"
-
-### 4.1 Estrutura do Grafo
-Para que o frontend desenhe qualquer grafo (linear, bifurcado ou convergente), **é necessário apenas saber quem é o passo atual e quais foram os passos imediatamente anteriores**.
-
-#### Exemplo (Bifurcação e Convergência):
-- **Passo 1:** antes: `[]` (nada); atual: `"Passo1"`
-- **Passo 2:** antes: `["Passo1"]`; atual: `"Passo2"`
-- **Passo 3:** antes: `["Passo1"]`; atual: `"Passo3"`
-- **Passo 4:** antes: `["Passo2", "Passo3"]`; atual: `"Passo4"`
+### 5.4 Topologia esperada — `ExperimentalDataProcessingPipeline`
+Derivada do código atual: `Fork` de 3 ramos (`originalBranch` vazio) → `JoinBlock` → observador `CurveFitOutputPersistence` → mapeamento → `MechanicalModelOutputPersistence`.
 
 ```mermaid
 flowchart TD
-    Passo1["Passo 1 (Início)"] --> Passo2["Passo 2"]
-    Passo1 --> Passo3["Passo 3"]
-    Passo2 --> Passo4["Passo 4 (Convergência)"]
-    Passo3 --> Passo4
+    Segmenter["ExperimentalDataSegmenter"] --> FileWriter["ExperimentalDataFileWriter (observador)"]
+    Segmenter --> Downsampler["ExperimentalDataDownsampler"]
+    Downsampler --> SegmentBuilder["CurveSegmentBuilder"]
+    SegmentBuilder --> CurveFitter["MechanicalModelCurveFitter"]
+    CurveFitter --> IdBuilder["CurveFitOutputIdentifierBuilder"]
+    CurveFitter --> Simulation["MechanicalModelSimulation"]
+    CurveFitter --> FitPersistence["CurveFitOutputPersistence (observador)"]
+    IdBuilder --> FitPersistence
+    Simulation --> FitPersistence
+    CurveFitter --> ModelPersistence["MechanicalModelOutputPersistence"]
+    IdBuilder --> ModelPersistence
+    Simulation --> ModelPersistence
 ```
 
-A partir desta lista simples, o frontend constrói as arestas sem ambiguidades:
-- `Passo1` $\rightarrow$ `Passo2`
-- `Passo1` $\rightarrow$ `Passo3`
-- `Passo2` $\rightarrow$ `Passo4`
-- `Passo3` $\rightarrow$ `Passo4`
+| Nó | `previousSteps` |
+|---|---|
+| ExperimentalDataSegmenter | `[]` |
+| ExperimentalDataFileWriter | `["ExperimentalDataSegmenter"]` |
+| ExperimentalDataDownsampler | `["ExperimentalDataSegmenter"]` |
+| CurveSegmentBuilder | `["ExperimentalDataDownsampler"]` |
+| MechanicalModelCurveFitter | `["CurveSegmentBuilder"]` |
+| CurveFitOutputIdentifierBuilder | `["MechanicalModelCurveFitter"]` |
+| MechanicalModelSimulation | `["MechanicalModelCurveFitter"]` |
+| CurveFitOutputPersistence | `["MechanicalModelCurveFitter", "CurveFitOutputIdentifierBuilder", "MechanicalModelSimulation"]` |
+| MechanicalModelOutputPersistence | `["MechanicalModelCurveFitter", "CurveFitOutputIdentifierBuilder", "MechanicalModelSimulation"]` |
 
-### 4.2 Dinâmica nos Métodos do Builder
+### 5.5 Topologia esperada — `ParametricSweepPipeline`
+Derivada do código atual: `Fork` externo (ramo de cálculo com mapeamento + `Fork` interno de 3 passos; ramo de variável só com mapeamento) → mapeamento → escritor → `AddCollectAllStep` → finalização → persistência.
 
-1. **`PipelineFactory.StartDataflow<T>`:**
-   - Cria o bloco de buffer inicial: `BufferBlock<T> buffer`.
-   - Instancia: `PipelineHeadNode<T> root = new("Start", previousSteps: [], buffer, timeProvider);`
-   - O builder inicial recebe `root` como `rootNode` e `currentNode`.
+| Nó | `previousSteps` |
+|---|---|
+| SweepIngestion | `[]` |
+| InitialStressCalculation | `["SweepIngestion"]` |
+| FinalStressCalculation | `["SweepIngestion"]` |
+| AsymptoteCalculation | `["SweepIngestion"]` |
+| ParametricSweepCsvWriter | `["InitialStressCalculation", "FinalStressCalculation", "AsymptoteCalculation", "SweepIngestion"]` |
+| ParametricSweepFinalization | `["ParametricSweepCsvWriter"]` |
+| ParametricSweepPersistence | `["ParametricSweepFinalization"]` |
 
-2. **`AddStep<TNextOut>(step)`:**
-   - Predecessores: se `currentNode.Name == "Start"`, `previousSteps = []`; caso contrário, `previousSteps = [currentNode.Name]`.
-   - Cria o bloco de execução TPL Dataflow (ex.: `TransformBlock<TTail, TNextOut>`).
-   - Conecta: `currentNode.SourceBlock.LinkTo(nextBlock);`
-   - Cria `PipelineFlowNode<TNextOut> nextNode = new(step.Name, previousSteps, nextBlock, timeProvider);`
-   - Registra `nextNode` na lista `nodes`.
-   - Retorna novo builder com `currentNode = nextNode`.
-
-3. **`Fork(branch1, branch2)`:**
-   - Conecta um `BroadcastBlock<TTail>` em `currentNode.SourceBlock`.
-   - Executa as branches a partir de builders derivados com `currentNode`.
-   - Ambas registram seus primeiros passos tendo `previousSteps = [currentNode.Name]`.
-   - O `JoinBlock` une as saídas das duas branches (`resolvedBranch1.CurrentNode` e `resolvedBranch2.CurrentNode`).
-   - O passo imediatamente seguinte que consome a tupla unificada recebe:
-     `previousSteps = [resolvedBranch1.CurrentNode.Name, resolvedBranch2.CurrentNode.Name]`.
-
-4. **`AddBroadcastStep(sideEffectStep)` (Observer):**
-   - Cria um passo que roda em paralelo (ex.: gravação de dados intermediários em disco).
-   - O nó observador é registrado com `Name = sideEffectStep.Name` e `previousSteps = [currentNode.Name]`.
-   - O builder principal continua fluindo a partir do `currentNode` original, permitindo novas ramificações paralelas.
+> Nomes esperados; os valores reais vêm de `IPipelineStep.Name` e são fixados por teste de topologia (Fase 5). Se algum `Name` atual divergir, ajustar a tabela — não o teste.
 
 ---
 
-## 5. Informações Críticas de Cada Etapa e Contrato SSE
+## 6. Contrato SSE
 
-### 5.1 O que o Usuário Precisa Saber Durante a Execução
-Como as etapas de uma pipeline orientada a fluxo (Dataflow) executam de forma assíncrona, não há uma ordem cronológica rígida entre passos (um step pode estar finalizando itens do lote anterior enquanto o próximo já começou a processar os primeiros itens). As informações essenciais para acompanhamento em tempo real são:
+### 6.1 Rota e autenticação
+- `GET /api/v1/pipeline-runs/{identifier}/events`, mesma política de autorização das demais rotas.
+- O `EventSource` nativo não envia `Authorization` (**D5**; recomendado: cliente baseado em `fetch` enviando `Authorization: Bearer`).
 
-1. **Identificação e Topologia:** `name` e `previousSteps` (para situar a etapa no fluxograma visual).
-2. **Estado de Execução:** `Pending`, `Started`, `Running`, `Completed` ou `Faulted`.
-3. **Volume e Taxa de Processamento:**
-   - `processed`: Quantidade de itens que concluíram a etapa com sucesso.
-   - `inFlight`: Quantidade de itens sendo processados no momento exato (indica se o nó está ativo).
-   - `failed`: Quantidade de falhas ou descartes ocorridos na etapa.
-4. **Janela Temporal:**
-   - `startedAt`: Momento do início do primeiro item.
-   - `completedAt`: Momento em que o bloco encerrou o processamento de todos os itens.
-5. **Diagnóstico de Falhas:**
-   - `lastError`: Detalhe da mensagem de exceção caso o nó tenha falhado.
+### 6.2 Serialização
+- `TypedResults.ServerSentEvents(IAsyncEnumerable<SseItem<string>>)` com JSON pré-serializado (eventos heterogêneos).
+- `System.Text.Json` com `JsonSerializerDefaults.Web` e `JsonStringEnumConverter`.
 
-### 5.2 Contrato do Snapshot de Etapa
-```csharp
-public sealed record PipelineStepStatus(
-    string Name,
-    IReadOnlyList<string> PreviousSteps,
-    PipelineStepExecutionState State,
-    int Processed,
-    int Failed,
-    int InFlight,
-    DateTimeOffset? StartedAt,
-    DateTimeOffset? CompletedAt,
-    string? LastError);
-```
+### 6.3 Eventos
+| Evento | Quando | `id` | Payload |
+|---|---|---|---|
+| `run` | Na abertura e sempre que `State` mudar | `final` somente no estado terminal | `PipelineRunSummary` |
+| `topology` | Uma vez, no primeiro tick em que `monitor.Topology != null` | — | `PipelineTopologyNode[]` |
+| `steps` | Completo logo após `topology`; depois, apenas nós com `Version` acima da última vista nesta conexão | — | `PipelineStepStatus[]` |
+| `heartbeat` | Quando nada foi emitido durante `KeepAliveInterval` | — | `{}` |
 
-### 5.3 Contrato de Eventos Server-Sent Events (SSE)
-**Rota:** `GET /api/v1/pipeline-runs/{identifier}/events`
+### 6.4 Algoritmo (mecanismo único de *polling*)
+1. Se `Last-Event-ID == "final"` → `204 No Content` (encerra o ciclo de reconexão automática).
+2. Monitor ausente no registro:
+   - linha inexistente em `pipeline_runs` → `404`;
+   - linha terminal → `204` (o cliente usa `GET /pipeline-runs/{identifier}`);
+   - linha `Queued`/`Running` sem monitor (não deve ocorrer após reconciliação) → `404` com log de aviso.
+3. Emitir `run` com o estado atual.
+4. Laço com `PeriodicTimer(PublishInterval, timeProvider)` e `Dictionary<string, long> lastSeenVersions` por conexão. A cada tick:
+   1. Se o estado mudou → emitir `run`.
+   2. Se a topologia ficou disponível e ainda não foi enviada → emitir `topology` e `steps` completo.
+   3. Senão, se há nós com versão nova → emitir `steps` incremental.
+   4. Se nada foi emitido durante `KeepAliveInterval` → emitir `heartbeat`.
+   5. Se o estado é terminal → emitir `steps` incremental pendente (se houver topologia), `run` com `id: final` e encerrar.
+5. `HttpContext.RequestAborted` encerra apenas o laço desta conexão.
 
-#### Evento 1: `topology` (Emitido uma única vez logo após a abertura da conexão)
-```sse
-event: topology
-data: [
-  { "name": "ExperimentalDataSegmenter", "previousSteps": [] },
-  { "name": "ExperimentalDataFileWriter", "previousSteps": ["ExperimentalDataSegmenter"] },
-  { "name": "CurveSegmentAccumulator", "previousSteps": ["ExperimentalDataSegmenter"] },
-  { "name": "MechanicalModelCurveFitter", "previousSteps": ["CurveSegmentAccumulator"] },
-  { "name": "IdentifierBuilder", "previousSteps": ["MechanicalModelCurveFitter"] },
-  { "name": "NumericalSimulation", "previousSteps": ["MechanicalModelCurveFitter"] },
-  { "name": "DeltaCalculator", "previousSteps": ["NumericalSimulation"] },
-  { "name": "AsymptoteMonitoring", "previousSteps": ["NumericalSimulation"] },
-  { "name": "MechanicalModelOutputFileWriter", "previousSteps": ["NumericalSimulation"] },
-  { "name": "MechanicalModelOutputPersistence", "previousSteps": ["NumericalSimulation"] }
-]
-```
+Uma conexão aberta com a execução já terminal (dentro da retenção) percorre o mesmo laço: no primeiro tick recebe `topology` + `steps` completo (se houver) e o `run` final.
 
-#### Evento 2: `steps` (Emitido a cada `PublishInterval`, contendo apenas os nós alterados)
-```sse
-event: steps
-data: [
-  {
-    "name": "ExperimentalDataSegmenter",
-    "previousSteps": [],
-    "state": "Completed",
-    "processed": 15420,
-    "failed": 0,
-    "inFlight": 0,
-    "startedAt": "2026-10-23T08:30:01.120Z",
-    "completedAt": "2026-10-23T08:30:02.450Z",
-    "lastError": null
-  },
-  {
-    "name": "MechanicalModelCurveFitter",
-    "previousSteps": ["CurveSegmentAccumulator"],
-    "state": "Running",
-    "processed": 3,
-    "failed": 0,
-    "inFlight": 2,
-    "startedAt": "2026-10-23T08:30:02.500Z",
-    "completedAt": null,
-    "lastError": null
-  }
-]
-```
-
-#### Evento 3: `run` (Emitido no encerramento da execução global)
+### 6.5 Exemplo
 ```sse
 event: run
-data: {
-  "identifier": "exp-20261023-9c8e1a",
-  "state": "Completed",
-  "startedAt": "2026-10-23T08:30:01.120Z",
-  "completedAt": "2026-10-23T08:30:07.890Z",
-  "error": null
-}
+data: {"identifier":"exp-9c8e1a","pipelineType":"ExperimentalData","state":"Running","createdAt":"2026-10-27T08:30:00.900Z","startedAt":"2026-10-27T08:30:01.120Z","completedAt":null,"error":null}
+
+event: topology
+data: [{"name":"ExperimentalDataSegmenter","previousSteps":[]},{"name":"ExperimentalDataFileWriter","previousSteps":["ExperimentalDataSegmenter"]}]
+
+event: steps
+data: [{"name":"ExperimentalDataSegmenter","state":"Completed","processed":15420,"failed":0,"inFlight":0,"startedAt":"2026-10-27T08:30:01.120Z","completedAt":"2026-10-27T08:30:02.450Z","lastError":null}]
+
+event: heartbeat
+data: {}
+
+id: final
+event: run
+data: {"identifier":"exp-9c8e1a","pipelineType":"ExperimentalData","state":"CompletedWithErrors","createdAt":"2026-10-27T08:30:00.900Z","startedAt":"2026-10-27T08:30:01.120Z","completedAt":"2026-10-27T08:30:08.500Z","error":null}
 ```
 
 ---
 
-## 6. Governança de Storage: `(string identifier, string context)`
+## 7. Ciclo de Vida do Job
 
-Em conformidade com a convenção estabelecida no sistema, toda e qualquer operação de arquivos organiza-se sob a premissa de que a **identidade da análise** precede o contexto funcional:
-- **Ordem dos parâmetros:** `(string identifier, string context, string fileName)`
-- **Layout de pastas em disco / S3 / Blob:** `{BaseDirectory}/{identifier}/{context}/{fileName}`
+### 7.1 Modelo de job
+```csharp
+public abstract record PipelineRunJob(string Identifier, string PipelineType);
 
+public sealed record ExperimentalDataRunJob(string Identifier, ExperimentalDataProcessingParameters Parameters)
+    : PipelineRunJob(Identifier, PipelineTypes.ExperimentalData);
+
+public sealed record ParametricSweepRunJob(string Identifier, ParametricSweepInput Input)
+    : PipelineRunJob(Identifier, PipelineTypes.ParametricSweep);
 ```
-storage/
-└── exp-20261023-9c8e1a/                <-- identifier da análise
-    ├── uploads/                        <-- contexto de arquivos brutos enviados
-    │   └── ensaio_tracao.csv
-    ├── curves/                         <-- contexto de segmentos e ajustes
-    │   └── relaxation_segment.csv
-    └── simulations/                    <-- contexto de simulações numéricas
-        └── viscoelastic_history.csv
-```
+- O job **nunca** carrega `Stream` nem `IFormFile`.
+- `ExperimentalDataProcessingInput` deixa de conter `StrainStream`/`StressStream`. O handler abre os streams via `IFileStorageService.OpenReadAsync(identifier, StorageContexts.Uploads, fileName)` dentro do escopo e os descarta ao final com `await using`.
 
-Todos os métodos de `IFileStorageService` e implementações (`LocalFileStorageService`, `AwsS3FileStorageService`, `BlobStorageFileStorageService`, `DfsFileStorageService`) adotam estritamente essa assinatura, permitindo exclusão em lote de uma análise completa com base apenas no seu `identifier`.
+### 7.2 Handlers
+`IPipelineRunHandler` (`Task ExecuteAsync(PipelineRunJob job, PipelineMonitor monitor, CancellationToken cancellationToken)`) registrado como serviço **keyed Scoped** por `PipelineType`.
+
+### 7.3 Admissão (command) — ordem e compensação
+1. Validar o payload.
+2. Resolver o identifier: ausente → `Guid.NewGuid().ToString("N")`; informado → validar `^[a-zA-Z0-9_-]{1,64}$`.
+3. `IPipelineRunStore.TryReserveAsync(identifier, pipelineType, parametersJson)` → `INSERT` com `UNIQUE(identifier)`. Violação de unicidade (SQLSTATE `23505`) → `409`. *Verificar se `PostgresRepository.TryInsertAsync` distingue esse caso; se não, `PostgresPipelineRunStore` trata `PostgresException` diretamente.*
+4. Persistir uploads com **nomes fixos** (`strain.csv`, `stress.csv`) — nunca o nome enviado pelo cliente.
+5. `PipelineMonitorRegistry.Register(identifier)`.
+6. `PipelineRunQueue.TryEnqueue(job)`; falha → compensação em ordem inversa e `503` + `Retry-After`.
+7. Responder `202` com `Location: statusUrl`.
+
+Falha em qualquer passo de 4 a 6 desfaz os passos já realizados. A remoção de uploads na compensação é um *rollback* técnico de uma admissão que nunca executou — não se confunde com a regra de purga de dados científicos (§7.8). A linha `Rejected` é mantida para auditoria.
+
+### 7.4 Worker
+- `MaxConcurrentRuns` consumidores concorrentes sobre o mesmo `ChannelReader`.
+- Por job:
+  1. Se `registry.IsCancellationRequested(identifier)` → gravar `Cancelled` no monitor e no store; não executar.
+  2. Criar escopo e `CancellationTokenSource` vinculado ao `stoppingToken`; anexá-lo ao registro.
+  3. Gravar `Running`, executar o handler e decidir o estado terminal (§4.2).
+  4. Em `finally`: **desanexar** o `CancellationTokenSource` do registro e só então descartá-lo.
+  ```csharp
+  await using AsyncServiceScope scope = serviceScopeFactory.CreateAsyncScope();
+  using CancellationTokenSource runCancellation = CancellationTokenSource.CreateLinkedTokenSource(stoppingToken);
+  registry.AttachCancellation(job.Identifier, runCancellation);
+  try
+  {
+      IPipelineRunHandler handler = scope.ServiceProvider.GetRequiredKeyedService<IPipelineRunHandler>(job.PipelineType);
+      await handler.ExecuteAsync(job, monitor, runCancellation.Token).ConfigureAwait(false);
+  }
+  finally
+  {
+      registry.DetachCancellation(job.Identifier);
+  }
+  ```
+- `RequestCancellation` acessa o `CancellationTokenSource` sob `System.Threading.Lock` compartilhado com `Attach`/`Detach`, eliminando corrida com o descarte.
+- Falha ao gravar no store é logada e não altera o estado já definido no monitor.
+
+### 7.5 Cancelamento e desligamento
+- `POST .../cancel`: registra a solicitação no registro; se houver `CancellationTokenSource` anexado, cancela-o.
+- Distinção: cancelamento com `stoppingToken.IsCancellationRequested == true` → `Interrupted`; caso contrário → `Cancelled`.
+- Jobs ainda na fila no desligamento se perdem com o `Channel`; suas linhas ficam `Queued` e são resolvidas pela reconciliação (§7.6).
+
+### 7.6 Reconciliação na inicialização
+No `StartAsync` do worker, antes de consumir a fila: linhas em `Queued` ou `Running` → `Interrupted`, `error = "Host restarted before completion."`.
+
+### 7.7 Retenção em memória
+- Monitores terminais são removidos após `RetentionAfterCompletion`.
+- Varredura via `timeProvider.CreateTimer(...)` com período `RetentionSweepInterval`; o timer é descartado com o registro.
+- Monitores `Queued`/`Running` nunca expiram por tempo.
+
+### 7.8 Persistência — `pipeline_runs`
+| Coluna | Tipo | Observação |
+|---|---|---|
+| `id` | `bigserial` | PK (`EntityBase`) |
+| `identifier` | `varchar(64)` | `UNIQUE` |
+| `pipeline_type` | `varchar(64)` | |
+| `state` | `smallint` | `PipelineRunState` |
+| `parameters_json` | `jsonb` | Serialização polimórfica com **precisão completa** (não usar `SignificantFigures7`) |
+| `created_at`, `started_at`, `completed_at` | `timestamptz` | Via `TimeProvider` |
+| `error_message` | `text` | |
+
+- Entregar **script DDL versionado** junto com a entidade, seguindo a forma atual de provisionamento das tabelas existentes (`stored_files`, etc.).
+- Exclusão definitiva de linhas e arquivos de uma execução só por funcionalidade de purga explícita e isolada.
 
 ---
 
-## 7. Fases de Execução e Checklist de Implementação
+## 8. Endpoints REST e Contrato HTTP
 
-### Fase 1: Núcleo Unificado de `PipelineFlowNode` e Enfileiramento
-- [ ] Criar enum `PipelineStepExecutionState` (`Pending`, `Started`, `Running`, `Completed`, `Faulted`) e `PipelineRunState`.
-- [ ] Criar os records DTO: `PipelineStepStatus`, `PipelineTopologyNode` e `PipelineRunSummary` sob `MelloSilveiraTools.Core.Pipelines.Monitoring.Models`.
-- [ ] Implementar a hierarquia unificada de nós sob `MelloSilveiraTools.Core.Pipelines.Dataflow`:
-  - `PipelineFlowNode`: Contadores atômicos (`Interlocked`), estado, `TimeProvider`, `Version` incremental e método `ToSnapshot()`.
-  - `PipelineFlowNode<T>`: Herda de `PipelineFlowNode` e adiciona `ISourceBlock<T> SourceBlock`.
-  - `PipelineHeadNode<T>`: Herda de `PipelineFlowNode<T>` e adiciona `ITargetBlock<T> TargetBlock`.
-- [ ] Criar `PipelineMonitor` para gerenciar a coleção de nós de uma execução e seu estado global.
-- [ ] Criar `PipelineMonitorRegistry` baseado em `ConcurrentDictionary<string, PipelineMonitor>` com descarte automático por TTL via `TimeProvider`.
-- [ ] Criar a fila de execução em memória `PipelineRunQueue` baseada em `Channel<PipelineRunJob>` (bounded).
-- [ ] Criar `PipelineRunBackgroundService` (`BackgroundService`) para consumir a fila em escopo de DI.
-- [ ] Criar `PipelineMonitoringSettings` com validação eager (`PublishInterval > 0`, `RetentionAfterCompletion > 0`, `MaxConcurrentRuns > 0`).
+### 8.1 Suporte a 202 no `Result`
+`StatusCode` atual não possui `Accepted`. Adicionar `StatusCode.Accepted = 202`, `Result.CreateAccepted<T>(T data)` e o mapeamento em `ToHttpResult` / `BuildHttpResponse`. O cabeçalho `Location` é definido pelo endpoint. Para `503`, usar o existente `CreateServiceUnavailable` + cabeçalho `Retry-After` definido pelo endpoint.
 
-### Fase 2: Purga de Legados e Refatoração de Builder e Executor
-- [ ] **Excluir arquivos legados:**
-  - `IPipelineProgressNotifier.cs`, `ChannelPipelineProgressNotifier.cs`, `NullPipelineProgressNotifier.cs`.
-  - `PipelineStepTracker.cs`, `PipelineProgressNotificationSettings.cs`.
-  - `PipelineProgressEvent.cs`, `PipelineStepState.cs`.
-  - Arquivos de teste associados a notifiers e eventos legados.
-- [ ] **Refatorar `PipelineStepExecutor`:**
-  - Enxugar código para ~120-150 linhas focadas estritamente em telemetria OpenTelemetry, logs Serilog, retry com backoff e atualização atômica de `PipelineFlowNode` (`ItemStarted`, `ItemSucceeded`, `ItemFailed`).
-- [ ] **Refatorar `DataflowPipelineBuilder`:**
-  - Simplificar construtor para receber apenas `PipelineHeadNode<THead> rootNode` e `PipelineFlowNode<TTail> currentNode`.
-  - Atualizar cada método (`AddStep`, `AddDataMapping`, `Fork`, `AddBroadcastStep`, etc.) para instanciar o respectivo `PipelineFlowNode`, amarrando `PreviousSteps = [currentNode.Name]`.
-- [ ] **Atualizar DI:**
-  - Purgar parâmetros antigos de `CoreDependencyInjection` e registrar serviços de monitoramento e background worker.
-
-### Fase 3: Adaptação das Pipelines de Domínio (`Optimizations`)
-- [ ] Refatorar `ExperimentalDataProcessingPipeline` e `ParametricSweepPipeline`:
-  - Remover notifiers e trackers de seus construtores.
-  - Ajustar o método `ProcessAsync` para aceitar `PipelineMonitor monitor`.
-- [ ] Atualizar steps de persistência de arquivo (`ExperimentalDataFileWriterStep`, `MechanicalModelOutputFileWriterStep`, `ParametricSweepCsvWriterStep`) para utilizar a convenção de storage `(identifier, context, ...)`.
-
-### Fase 4: WebApi (Command HTTP 202 Accepted + Endpoint SSE)
-- [ ] Refatorar comandos (`ProcessExperimentalDataCommand`, `ExecuteParametricSweepCommand`):
-  - Validar payload e persistir arquivos enviados no `IFileStorageService` sob `(identifier, "uploads", fileName)`.
-  - Registrar novo `PipelineMonitor` no `PipelineMonitorRegistry`.
-  - Enfileirar `PipelineRunJob` na `PipelineRunQueue`.
-  - Retornar imediatamente `Result.CreateAccepted(...)` com HTTP 202 e cabeçalhos de status.
-- [ ] Criar endpoint SSE (`PipelineRunsEndpoints` ou Controller):
-  - Rota `GET /api/v1/pipeline-runs/{identifier}/events`.
-  - Utilizar `TypedResults.ServerSentEvents(...)` para emitir `topology`, snapshots incrementais em `steps` e encerramento em `run`.
-- [ ] Excluir `PipelineProgressStreamWriter.cs` e rotas legadas `/stream` e `/process/stream`.
-
-### Fase 5: Validação, Testes e Documentação
-- [ ] Implementar testes unitários para `PipelineFlowNode` (operações atômicas e snapshots).
-- [ ] Implementar testes para o enfileiramento e execução via `PipelineRunBackgroundService`.
-- [ ] Implementar testes de integração para o endpoint SSE e resposta HTTP 202.
-- [ ] Executar suíte completa de testes: `dotnet test test/UnitTests/UnitTests.csproj`.
-- [ ] Atualizar `AGENTS.md` e `CHANGELOG.md` documentando a nova arquitetura e a remoção dos termos legados.
+### 8.2 Rotas
+| Método e rota | Respostas |
+|---|---|
+| `POST /api/v1/experimental-data/process` | `202 {identifier, statusUrl, eventsUrl, cancelUrl}` · `400` · `409` · `503` + `Retry-After` |
+| `POST /api/v1/parametric-sweeps` | Idem |
+| `GET /api/v1/pipeline-runs/{identifier}` | `200 PipelineRunSummary` (registro → fallback `pipeline_runs`) · `404` |
+| `GET /api/v1/pipeline-runs/{identifier}/events` | §6 |
+| `POST /api/v1/pipeline-runs/{identifier}/cancel` | `202` · `409` (já terminal) · `404` |
 
 ---
 
-## 8. Critérios de Aceite
-1. **Compilação Limpa:** 0 erros e 0 warnings no build completo da solução (`dotnet build MelloSilveiraTools.sln`).
-2. **Eliminação de Termos Obsoletos:** `git grep` para `IPipelineProgressNotifier`, `PipelineStepTracker` e `PipelineProgressNotificationSettings` deve retornar 0 ocorrências no código de produção.
-3. **Simplicidade do Grafo:** A topologia retornada ao frontend é puramente declarativa com base em `{ name, previousSteps }`.
-4. **Isolamento Completo (SRP):** Nenhuma classe de pipeline, builder ou step conhece `PipelineMonitoringSettings`.
-5. **Eficiência de Rede:** O streaming SSE opera por amostragem temporal no servidor, garantindo que o processamento numérico de alta performance não sofra lentidão por I/O de rede.
+## 9. Storage
+- Layout canônico (já implementado): `{BaseDirectory}/{identifier}/{context}/{fileName}`.
+- Contextos em constantes `StorageContexts` (`Uploads`, `Processed`, `Simulations`, `SensitivityAnalysis`), substituindo strings soltas.
+- Uploads: nomes fixos, `RequestSizeLimit` no endpoint, validação de tipo de conteúdo.
+
+---
+
+## 10. Configuração — `PipelineMonitoringSettings`
+| Propriedade | Validação eager |
+|---|---|
+| `required TimeSpan PublishInterval` | `> 0` |
+| `required TimeSpan KeepAliveInterval` | `> PublishInterval` |
+| `required TimeSpan RetentionAfterCompletion` | `> 0` |
+| `required TimeSpan RetentionSweepInterval` | `> 0` |
+| `required int MaxConcurrentRuns` | `≥ 1` |
+| `required int QueueCapacity` | `≥ 1` |
+| `required TimeSpan RetryAfter` | `> 0` |
+
+Sem valores padrão. Validação no registro em DI (`AddPipelineMonitoring`).
+
+---
+
+## 11. Fases de Implementação
+
+Cada fase termina com **build verde** e **suíte de testes passando**.
+
+### Fase 0 — Estabilização (requer D1 e D2)
+- [ ] Remover `PipelineProgressStreamWriter`, os endpoints `/stream` e o registro de `ChannelPipelineProgressNotifier`; registrar apenas `NullPipelineProgressNotifier.Instance` (Singleton) — `PipelineFactory` permanece Singleton com a assinatura atual.
+- [ ] Corrigir os erros de compilação restantes:
+  - construtor de `MechanicalModelCurveFitOutput` em `MechanicalModelCurveFitterStepBase`;
+  - ordem dos argumentos de `StorageEntryMetadataEntity.Create` em `StoredFilePersistenceStep` e `ParametricSweepPersistenceStep`;
+  - `ParametricSweepCsvWriterStep` (interface esperada por `AddStep<ParametricSweepFinalPayload>` e `GeneratedFilesMetadata`);
+  - erros dos controllers que sobrarem após a remoção dos endpoints `/stream`.
+- [ ] Aplicar D2 em `StorageEntryMetadataEntity`.
+- [ ] Corrigir a entrada do `CHANGELOG.md` e o teste de DI que validam a regressão.
+- [ ] Marcar `CurveFitting/Algorithms/Alglib/**` como `generated_code = true` no `.editorconfig` e confirmar que os avisos nullable desses arquivos desaparecem.
+- [ ] Registrar a linha de base de avisos fora do ALGLIB.
+
+### Fase 1 — Núcleo de monitoramento (Core) (requer D4)
+- [ ] Contratos do §4.1.
+- [ ] `PipelineFlowNode` / `PipelineFlowNode<T>` com a concorrência do §4.3.
+- [ ] `PipelineMonitor` (topologia congelada, estado global, snapshots).
+- [ ] `PipelineMonitorRegistry` (registro, cancelamento com `Lock`, retenção por `ITimer`).
+- [ ] `PipelineRunQueue`, `PipelineRunJob`, `IPipelineRunHandler`, `IPipelineRunStore`.
+- [ ] `PipelineMonitoringSettings`.
+- [ ] `StatusCode.Accepted`, `Result.CreateAccepted<T>` e mapeamentos HTTP.
+- [ ] Testes unitários dos itens acima.
+
+### Fase 2 — Builder, executor e purga (requer D3)
+- [ ] `PipelineFactory`: construtor `(TimeProvider timeProvider)`; `CreateDataflow<T>(ILogger logger, PipelineMonitor monitor, ...)`.
+- [ ] `DataflowPipelineBuilder`: `CurrentPredecessors`, regras do §5.2, validação de unicidade e publicação da topologia.
+- [ ] `PipelineStepExecutor`: remover throttling e trackers; `ItemFailed` antes do tratamento de erro.
+- [ ] Excluir os itens da Fase 2 do §3.
+- [ ] Atualizar DI do Core e do meta-pacote.
+- [ ] Adaptar `DataflowPipelineBuilderTests`, `EnumerablePipelineStepTests`, `FluentPipelineTests` à instância de `PipelineFactory`.
+- [ ] Pipelines de domínio passam a receber `PipelineMonitor` (chamadas atuais usam um monitor local até a Fase 3).
+
+### Fase 3 — Execução em background
+- [ ] `PipelineRunEntity`, `PostgresPipelineRunStore` e script DDL (Database).
+- [ ] `PipelineRunBackgroundService` com concorrência, cancelamento, desligamento e reconciliação (WebApi).
+- [ ] Jobs e handlers keyed (Optimizations).
+- [ ] `ExperimentalDataProcessingInput` sem streams.
+- [ ] `StorageContexts`.
+
+### Fase 4 — WebApi
+- [ ] Commands com admissão e compensação (§7.3).
+- [ ] `PipelineRunsEndpoints`: status, SSE e cancelamento.
+- [ ] `AddPipelineMonitoring` e integração em `AddToolsServices`.
+
+### Fase 5 — Testes e governança
+- [ ] Teste de topologia exata das duas pipelines (§5.4, §5.5).
+- [ ] Worker: sucesso, `Faulted`, `CompletedWithErrors`, cancelamento na fila, cancelamento em execução, desligamento (`Interrupted`), reconciliação.
+- [ ] SSE: conexão em `Queued`, em `Running`, após o término, reconexão com `Last-Event-ID: final`, execução terminal sem topologia, desconexão sem cancelar a execução, `heartbeat`.
+- [ ] Admissão: `409`, `503` com compensação completa.
+- [ ] `CHANGELOG.md` e `AGENTS.md` atualizados.
+
+---
+
+## 12. Critérios de Aceite
+1. `dotnet build MelloSilveiraTools.sln`: **0 erros** e nenhum aviso novo fora de `Alglib/**` em relação à linha de base da Fase 0.
+2. `dotnet test test/UnitTests/UnitTests.csproj`: todos os testes passando.
+3. Após o build (que regenera os `.xml` de documentação), `git grep` em `src/` por `IPipelineProgressNotifier`, `ChannelPipelineProgressNotifier`, `PipelineStepTracker`, `PipelineProgressNotificationSettings`, `PipelineProgressEvent`: 0 ocorrências.
+4. Topologias iguais às tabelas §5.4 e §5.5 (verificado por teste).
+5. Nenhum builder, step ou pipeline de domínio referencia `PipelineMonitoringSettings`, `HttpContext` ou `IPipelineRunStore`.
+6. Cliente conectado antes, durante ou depois da execução recebe o estado final e não entra em ciclo de reconexão.
+7. Nenhuma linha de `pipeline_runs` permanece `Queued`/`Running` após reinicialização do host.
+
+---
+
+## 13. Decisões Pendentes
+
+| ID | Decisão | Opções | Recomendação | Necessária antes de |
+|---|---|---|---|---|
+| **D1** | Como eliminar a regressão do notifier | **A.** Remover `/stream` e registrar só `NullPipelineProgressNotifier` (sem progresso em tempo real até a Fase 4) · **B.** Tornar `PipelineFactory` Scoped temporariamente · **C.** Mover o notifier do construtor para parâmetro de `CreateDataflow` | **A** — mantém a `PipelineFactory` Singleton como você definiu e remove código que a Fase 2 apagaria de qualquer forma | Fase 0 |
+| **D2** | `StorageEntryMetadataEntity` sem `required` | **A.** Manter sem `required`, com valores padrão · **B.** Restaurar `required` e remover `new()` de `CrudController` e comandos CRUD | **B** — preserva a invariância da entidade; impacto maior | Fase 0 |
+| **D3** | Alterar `AGENTS.md` (novo modelo de monitoramento; grafo real de pacotes) | Aprovar · Rejeitar | Aprovar | Fase 2 |
+| **D4** | Dependência de testes `Microsoft.Extensions.TimeProvider.Testing` | Adicionar · `TimeProvider` fake próprio | Adicionar — sem sobreposição com dependências atuais | Fase 1 |
+| **D5** | Autenticação do SSE | **A.** Cliente `fetch` com `Authorization` · **B.** Token de uso único na query | **A** | Fase 4 |
+
+---
+
+## 14. Riscos Residuais
+| Risco | Mitigação |
+|---|---|
+| Múltiplas réplicas da API | Limitação declarada (§0.2) |
+| Perda de execução em queda do host | Reconciliação marca `Interrupted`; reexecução manual |
+| Saturação de CPU | `MaxConcurrentRuns` × paralelismo interno do Dataflow, ajustável por configuração |
+| Proxies que fecham conexões ociosas | `heartbeat` |
+| Snapshot parcialmente inconsistente | Documentado (§4.3) |
+| Lacuna de progresso entre Fases 0 e 4 | Declarada (§0.2); `GET` de status fica disponível desde a Fase 4 |
+
+## 15. Trabalho Futuro
+- `POST /pipeline-runs/{identifier}/retry` a partir de `parameters_json` e uploads.
+- Fila distribuída e backplane para múltiplas réplicas.
+- Controle de acesso por dono da execução (coluna `owner`).

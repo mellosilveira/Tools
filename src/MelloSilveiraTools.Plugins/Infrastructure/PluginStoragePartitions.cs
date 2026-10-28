@@ -29,4 +29,9 @@ public static class PluginStoragePartitions
     /// Partition containing application-level cache persistence files (e.g. <c>plugin-cache.json</c>).
     /// </summary>
     public const string Cache = "cache";
+
+    /// <summary>
+    /// Partition containing shadow copies of loaded assemblies to prevent persistent OS file locks.
+    /// </summary>
+    public const string Shadow = "shadow";
 }

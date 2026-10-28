@@ -567,7 +567,7 @@
             <param name="settings">JWT settings carrying the signing key, encryption key, issuer, audience and lifetime configuration.</param>
             <param name="timeProvider">Mandatory time provider used for timestamping and token lifetime validation.</param>
         </member>
-        <member name="M:MelloSilveiraTools.WebApi.Authentication.Services.AuthenticationJweTokenService.#ctor(MelloSilveiraTools.WebApi.Authentication.JwtSettings,System.TimeProvider)">
+        <member name="M:MelloSilveiraTools.WebApi.Authentication.Services.AuthenticationJweTokenService.#ctor(System.TimeProvider,MelloSilveiraTools.WebApi.Authentication.JwtSettings)">
             <summary>
             Service that handles an encrypted and signed JSON Web token for authentication.
             </summary>

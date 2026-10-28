@@ -7,9 +7,9 @@ namespace MelloSilveiraTools.Core.Managers.File.Providers.Local;
 /// Storage-agnostic file management implementation targeting the local file system.
 /// Implements canonical hierarchical directory structures partitioned by unique identifier and domain context ("storage/{identifier}/{context}/").
 /// </summary>
-/// <param name="settings">File storage settings defining the root base directory.</param>
 /// <param name="timeProvider">The time provider instance used for temporal operations.</param>
-public class LocalFileStorageService(LocalFileStorageSettings settings, TimeProvider timeProvider) : FileStorageServiceBase(timeProvider)
+/// <param name="settings">File storage settings defining the root base directory.</param>
+public class LocalFileStorageService(TimeProvider timeProvider, LocalFileStorageSettings settings) : FileStorageServiceBase(timeProvider)
 {
     private const FileOptions FileOptions = System.IO.FileOptions.SequentialScan | System.IO.FileOptions.Asynchronous;
     private const int BufferSize = 128 * 1024;

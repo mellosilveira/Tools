@@ -3,8 +3,16 @@ using Microsoft.Extensions.Logging;
 
 namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Algorithms;
 
-public class AlglibCurveFitter(ILogger<AlglibCurveFitter> logger) : CurveFitterBase
+/// <summary>
+/// Numerical curve fitting solver utilizing the ALGLIB mathematical library.
+/// Supports bounded L-BFGS gradient-based optimization (<c>minbleic</c>) and derivative-free
+/// adaptive Differential Evolution (<c>mindf</c> GDEMO) with deterministic pseudo-random seeding.
+/// </summary>
+/// <param name="logger">The logger instance for diagnostics and reporting.</param>
+/// <param name="options">Optional curve fitter configuration options controlling deterministic seeding.</param>
+public class AlglibCurveFitter(ILogger<AlglibCurveFitter> logger, CurveFitterOptions options) : CurveFitterBase
 {
+    /// <inheritdoc />
     public override CurveFitOutput Fit(CurveFitInput input) => (input.Profile, input.ValidateParameters) switch
     {
         (CurveFitProfile.Automatic, null) or (CurveFitProfile.Standard, _) => FitStandard(input),
@@ -51,6 +59,9 @@ public class AlglibCurveFitter(ILogger<AlglibCurveFitter> logger) : CurveFitterB
 
         alglib.mindfcreate(workingParameters, out alglib.mindfstate optimizerState);
         alglib.mindfsetbc(optimizerState, input.LowerBounds, input.UpperBounds);
+
+        int seed = options.Seed;
+        alglib.mindfsetseed(optimizerState, seed);
 
         double[] parameterScales = [.. Enumerable.Repeat(1.0, parameterCount)];
         alglib.mindfsetscale(optimizerState, parameterScales);

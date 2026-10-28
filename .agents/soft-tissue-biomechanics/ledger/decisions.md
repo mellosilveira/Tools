@@ -303,3 +303,170 @@ To ensure data integrity and prevent runaway token consumption during automated 
   4. Verified 100% test pass rate (371/371 passed) and 0 errors across the solution.
 * **From where:** User directive, implemented and verified in `MelloSilveiraTools.Core` and `MelloSilveiraTools.MechanicsOfMaterials.Optimizations`.
 * **Why:** To make initial file metadata (path, directory, filename) immediately accessible upon stream creation and simplify time-based file generation when an explicit prefix is not needed.
+
+
+## Ledger Entry: 2026-10-27
+
+### Decision (Pre-Execution Strategy QA Gate Approved: Phased Mutex Parallel Orchestration)
+* **Task_ID:** task-orchestration-plan-and-pre-qa-gate
+* **Date:** 2026-10-27
+* **Category:** Decision
+* **What:** Formally evaluated and approved the "Phased Mutex Strategy" (Esteira Desacoplada) for parallel execution of two major architectural plans:
+  1. *Cross-Platform & Multi-Architecture (.NET 10) Portability Audit & Remediation Plan* (`.agents/prompts/cross-platform-portability-audit-and-remediation.md`).
+  2. *Staff Technical Plan: Biomechanics Processing Pipelines, Topology Exposure, and Dynamic Notification* (`.agents/prompts/biomechanics-pipeline-and-sensitivity-plan.md`).
+  - **Isolated Block 1A (Assigned to Senior Backend Engineer - Portability):** Zero-risk cross-platform hotfixes targeting `MelloSilveiraTools.Plugins` and `MelloSilveiraTools.Mathematics`:
+    - Finding 01: Stream scoping and atomic rename in `JsonFilePluginCachePersistence.cs`.
+    - Finding 05: Destination folder fix in `PluginFileProcessor.MoveToMainFolder`.
+    - Finding 10: Invariant culture parsing (`CultureInfo.InvariantCulture`) in `Vector3D.cs`.
+  - **Isolated Block 1B (Assigned to Senior Backend Engineer - Biomechanics):** Domain models definition in `MelloSilveiraTools.MechanicsOfMaterials.Optimizations.VariableRelationships.Models`:
+    - `ParameterBound.cs`, `VariableRelationshipInput.cs`, `VariableCombinationPoint.cs`, and `VariableRelationshipOutput.cs`.
+  - **Mutex Synchronization QA Gate:** Strict serialization and barrier synchronization enforced before any modifications to the shared critical core (`MelloSilveiraTools.Core`: `DataflowPipelineBuilder.cs`, `IDataflowPipeline.cs`, `CoreDependencyInjection.cs`, `MelloSilveiraTools.Core.csproj`), preventing merge conflicts, race conditions, and regressions.
+* **From where:** Orchestrated and approved by `documentation-and-tracking-secretary` acting as Pre-Execution Strategy QA Gate, following consensus between the Human User and the Central Biomechanics Research Orchestrator.
+* **Why:** Disjoint file set verification confirmed zero file overlap between Block 1A (`Plugins`, `Mathematics`) and Block 1B (`MechanicsOfMaterials.Optimizations`), completely eliminating concurrent modification hazards. Furthermore, the domain models in 1B conform to DDD conventions, C# 13 explicit typing (no `var`), primary constructors, and `*Output` calculation naming, while avoiding premature code reinvention. Protecting the shared `MelloSilveiraTools.Core` pipeline infrastructure behind a mutex gate ensures solution stability and deterministic build integrity.
+
+
+### Execution: Zero-Risk Portability Hotfixes (Block 1A)
+* **Task_ID:** task-portability-phase1-hotfixes
+* **Date:** 2026-10-27
+* **Category:** Execution
+* **What:** Implemented and validated Phase 1 zero-risk cross-platform portability hotfixes across `MelloSilveiraTools.Plugins` and `MelloSilveiraTools.Mathematics`:
+  1. **FINDING-01 (`JsonFilePluginCachePersistence.cs`):** Enclosed `Stream` and `Utf8JsonWriter` in explicit nested `await using` scopes within `SaveAsync` to guarantee deterministic flush and disposal ordering before file handle release, preventing Windows sharing lock violations (`ERROR_SHARING_VIOLATION`) and file locking latency.
+  2. **FINDING-05 (`PluginFileProcessor.cs`):** Standardized `MoveToMainFolderAsync` destination routing to canonical `PluginStoragePartitions.Incoming` partition, preventing assembly isolation in the loaded partition and adhering to the storage-agnostic partition topology. Enriched method with complete XML documentation.
+  3. **FINDING-10 (`Vector3D.cs` & `Vector3DTests.cs`):** Enforced `CultureInfo.InvariantCulture` across all coordinate parsing (`double.Parse` in `Parse` and `TryParse`) and standardized `ToString` formatting. Created comprehensive test suite in `test/UnitTests/Mathematics/Models/Vector3DTests.cs` validating culture invariance across comma-decimal locales (e.g., `pt-BR`, `de-DE`).
+  4. Updated `CHANGELOG.md` under `[UNRELEASED]` with Phase 1 fixes. Verified 0 compilation errors across both modified packages.
+* **From where:** Executed by `senior-backend-software-engineer-net` (Block 1A delivery: `.agents/soft-tissue-biomechanics/outputs/task-portability-phase1-hotfixes.json`), derived from the *Cross-Platform & Multi-Architecture Portability Audit Report* (`.agents/prompts/cross-platform-portability-audit-and-remediation.md`), audited and approved by `documentation-and-tracking-secretary` (`task-qa-ledger-phase1-deliveries`).
+* **Why:** To eliminate Windows-specific file locking race conditions during dynamic plugin cache serialization, prevent partition drift in the plugin discovery lifecycle, and protect numerical calculations against locale-dependent string parsing corruption or format exceptions on systems using comma decimal separators.
+
+### Execution: Domain Models & Notification Mode for Biomechanics Pipelines (Block 1B)
+* **Task_ID:** task-biomechanics-phase3-models
+* **Date:** 2026-10-27
+* **Category:** Execution
+* **What:** Defined domain models and notification mode types for biomechanics processing and variable relationship pipelines adhering strictly to .NET 10 / C# 13 conventions (explicit typing, primary constructors, comprehensive XML documentation, CRLF line endings):
+  1. **`ProgressNotificationMode` (`MelloSilveiraTools.Core.Pipelines.Notifiers`):** Enum specifying execution progress delivery channels (`None = 0`, `StreamNdjson = 1`, `MessageQueue = 2`) for pipeline decoupling.
+  2. **Domain Models (`MelloSilveiraTools.MechanicsOfMaterials.Optimizations.VariableRelationships.Models`):**
+     - `ParameterBound`: Strongly-typed record encapsulating parameter boundaries (`LowerBound`, `UpperBound`) and discretization `Step`.
+     - `VariableCombinationPoint`: Strongly-typed record encapsulating evaluated parameter combination coordinates, calculated stress (`CalculatedStress`), and difference residual (`Residual`).
+     - `VariableRelationshipInput`: Strongly-typed request record encapsulating target stress (`TargetStress`), target time (`TargetTime`), relative tolerance (`ToleranceThreshold`), parameter bounds dictionary, and optional `NotificationMode`.
+     - `VariableRelationshipOutput`: Strongly-typed calculation output record (`*Output`) encapsulating correlation identifier (`CorrelationId`), evaluated valid points collection, and CSV export metadata (`StorageEntryMetadata FileMetadata`).
+  3. Documented additions in `CHANGELOG.md` under `[UNRELEASED]`. Verified 0 compilation errors in `MelloSilveiraTools.Core` and isolated compilation of newly introduced domain models.
+* **From where:** Executed by `senior-backend-software-engineer-net` (Block 1B delivery: `.agents/soft-tissue-biomechanics/outputs/task-biomechanics-phase3-models.json`), derived from the *Staff Technical Plan: Biomechanics Processing Pipelines, Topology Exposure, and Dynamic Notification* (`.agents/prompts/biomechanics-pipeline-and-sensitivity-plan.md`), audited and approved by `documentation-and-tracking-secretary` (`task-qa-ledger-phase1-deliveries`).
+* **Why:** To establish the foundational DDD value objects and data contracts required for multi-parameter sensitivity, variable relationship sweeps, and iso-stress surface generation in knee ligament constitutive modeling, while decoupling real-time progress transport (NDJSON vs MessageQueue) from pipeline execution logic.
+
+
+## Ledger Entry: 2026-10-28
+
+### Decision (Pre-Execution Strategy QA Gate Approved: Batch 2 Phased Mutex)
+* **Task_ID:** task-pre-qa-gate-batch-2
+* **Date:** 2026-10-28T01:00:00Z
+* **Category:** Decision
+* **What:** Formally evaluated, audited, and approved the Pre-Execution Strategy QA Gate for Batch 2 under the Phased Mutex Orchestration (Esteira Desacoplada):
+  1. **Subtask 2A (Assigned to Agent 1 - Portability & Infrastructure):**
+     - Target: BCL Cryptography Decoupling, Storage Sanitization, and Case-Insensitive Scanning (Findings 02 [partial], 06, 07, 08, 14).
+     - Target Files:
+       - `src/MelloSilveiraTools.Core/Services/Encryption/EncryptionService.cs` (migrate from `Microsoft.AspNetCore.Cryptography.KeyDerivation` to BCL `Rfc2898DeriveBytes.Pbkdf2`).
+       - `src/MelloSilveiraTools.Core/Managers/File/LocalFileStorageService.cs` (path traversal sanitization, canonical path root verification, and `LastWriteTimeUtc`).
+       - `src/MelloSilveiraTools.Core/Managers/File/FileStorageSettings.cs` (safe base directory resolution / container fallback).
+       - `src/MelloSilveiraTools.Core/Logging/LoggerSettings.cs` (safe log directory resolution).
+       - `src/MelloSilveiraTools.Plugins/Infrastructure/PluginFileProcessor.cs` (cross-platform case-insensitive enumeration via `MatchCasing.CaseInsensitive`).
+  2. **Subtask 2B (Assigned to Agent 2 - Biomecânica):**
+     - Target: Canonical `IPipeline<TIn, TOut>` Injection in Commands and Variable-Grouped CSV Partitioning for OAAT Sensitivity (Phase 2 of Biomechanics Plan).
+     - Target Files:
+       - `src/MelloSilveiraTools.MechanicsOfMaterials.Optimizations/Pipelines/ExperimentalData/Commands/ProcessExperimentalDataCommand.cs` (consume canonical `IPipeline<ExperimentalDataProcessingInput, string>`).
+       - `src/MelloSilveiraTools.MechanicsOfMaterials.Optimizations/SensitivityAnalyses/Commands/ExecuteParametricSweepCommand.cs` (consume canonical `IPipeline<ParametricSweepInput, string>`).
+       - `src/MelloSilveiraTools.MechanicsOfMaterials.Optimizations/Pipelines/SensitivityAnalysis/Steps/ParametricSweepCsvWriterStep.cs` (group curve payloads by `VariableName` into partitioned `{VariableName}_SensitivityAnalysis.csv`).
+       - `src/MelloSilveiraTools.MechanicsOfMaterials.Optimizations/DependencyInjection.cs` (register canonical `IPipeline<ExperimentalDataProcessingInput, string>` and `IPipeline<ParametricSweepInput, string>`).
+  3. **Independence & QA Evaluation:**
+     - Verified absolute disjointness of target file sets ($Files(2A) \cap Files(2B) = \emptyset$).
+     - Confirmed package-level decoupling: 2A operates strictly on `MelloSilveiraTools.Core` and `MelloSilveiraTools.Plugins`, whereas 2B operates strictly on `MelloSilveiraTools.MechanicsOfMaterials.Optimizations`.
+     - Confirmed that neither subtask modifies the shared TPL Dataflow pipeline engine (`DataflowPipelineBuilder.cs`, `IDataflowPipeline.cs`, `PipelineFlowNode.cs`), keeping the critical core intact during this batch.
+     - Confirmed zero code reinvention: 2A adopts standard BCL APIs (`Rfc2898DeriveBytes`, `EnumerationOptions`) and 2B converges on existing core pipeline abstractions (`IPipeline<,>`) and `CsvFileWriter`.
+* **From where:** Evaluated and approved by `documentation-and-tracking-secretary` acting as Pre-Execution Strategy QA Gate, based on directives from the Central Biomechanics Research Orchestrator and user authorization for Phased Mutex execution.
+* **Why:** To eliminate merge conflicts and concurrency race hazards between parallel development streams, enforce strict BCL security and cross-platform portability across Windows and Linux environments, eliminate redundant sub-interfaces (`IExperimentalDataProcessingPipeline`, `IParametricSweepPipeline`) in favor of canonical `IPipeline<TIn, TOut>`, and partition OAAT sensitivity curves by parameter to feed downstream academic analysis and thesis visualization without data corruption.
+
+
+### Execution: Batch 2 - Security Hardening & Storage Portability (Subtask 2A)
+* **Task_ID:** task-portability-phase2-security-storage
+* **Date:** 2026-10-28
+* **Category:** Execution
+* **What:** Implemented security, storage sanitization, and cross-platform portability remediations across `MelloSilveiraTools.Core` and `MelloSilveiraTools.Plugins`:
+  1. Migrated `EncryptionService` PBKDF2 key derivation from `Microsoft.AspNetCore.Cryptography.KeyDerivation` to BCL `System.Security.Cryptography.Rfc2898DeriveBytes.Pbkdf2` [Finding 02].
+  2. Implemented strict anti-path-traversal validation in `LocalFileStorageService` against traversal segments (`..`), path separators (`/`, `\`), control/dangerous characters, and Windows reserved device names (CON, PRN, AUX, NUL, COM1-9, LPT1-9) across identifier, context, and file names, validating containment via `Path.GetRelativePath` and canonical prefix checks [Finding 07].
+  3. Added `FileStorageSettings.CanonicalizePath` and automatic canonicalization in `LocalFileStorageSettings` to resolve relative paths against a secure application data root (`Environment.SpecialFolder.LocalApplicationData` or `STORAGE_BASE_DIRECTORY`) instead of `System32` or root `/` [Finding 06].
+  4. Configured `EnumerationOptions` with `MatchCasing.CaseInsensitive` in `LocalFileStorageService` (for directory segment resolution and file listing) and `PluginFileProcessor`, ensuring robust cross-platform directory matching on Linux case-sensitive filesystems (ext4) [Finding 08].
+  5. Standardized `LocalFileStorageService` metadata timestamp extraction to use `LastWriteTimeUtc` instead of `CreationTimeUtc` to avoid birth time discrepancies in Linux POSIX/container overlayfs environments [Finding 14].
+* **From where:** Executed by `senior-backend-software-engineer-net` (Delivery: `.agents/soft-tissue-biomechanics/outputs/task-portability-phase2-security-storage.json`), audited and approved by `documentation-and-tracking-secretary`.
+* **Why:** Eliminates runtime dependency on ASP.NET Core in Core cryptographic services, prevents arbitrary filesystem traversal or device name collisions, prevents daemon writes to system folders, guarantees consistent filesystem matching across Linux and Windows, and ensures reliable UTC file timestamps across containerized environments.
+
+
+### Execution: Batch 2 - Canonical IPipeline Injection and Sensitivity CSV Partitioning (Subtask 2B)
+* **Task_ID:** task-biomechanics-phase2-canonical-pipeline-and-csv
+* **Date:** 2026-10-28
+* **Category:** Execution
+* **What:** Implemented canonical pipeline architecture and OAAT sensitivity CSV partitioning in `MelloSilveiraTools.MechanicsOfMaterials.Optimizations`:
+  1. Replaced domain sub-interfaces (`IExperimentalDataProcessingPipeline`, `IParametricSweepPipeline`) with canonical `IPipeline<ExperimentalDataProcessingInput, string>` and `IPipeline<ParametricSweepInput, string>` in `ProcessExperimentalDataCommand` and `ExecuteParametricSweepCommand`.
+  2. Registered singleton canonical pipelines in `DependencyInjection.AddOptimizationsServices`.
+  3. Refactored `ParametricSweepCsvWriterStep` to partition OAAT sensitivity results grouped by `VariableName`, writing `{VariableName}_SensitivityAnalysis.csv` under storage context `SensitivityAnalysis` with thread-safe file writer lifecycle and batch execution overload.
+  4. Enforced standardized 6-column CSV schema (`VariableValue,InitialStress,FinalStress,AbsoluteDeltaStress,PercentageDeltaStress,AsymptoteTime`) formatted with `CultureInfo.InvariantCulture` and general `:G` numeric formatting.
+  5. Fixed `StorageEntryMetadataEntity.Create` argument ordering in `ParametricSweepPersistenceStep` and aligned `ParametricSweepController` and `ExperimentalDataController` streaming invocations. Validated production build with 0 errors.
+* **From where:** Executed by `senior-backend-software-engineer-net` (Delivery: `.agents/soft-tissue-biomechanics/outputs/task-biomechanics-phase2-canonical-pipeline-and-csv.json`), audited and approved by `documentation-and-tracking-secretary`.
+* **Why:** Enforces Interface Segregation Principle (ISP) and KISS by standardizing command execution on canonical `IPipeline<TIn, TOut>`, eliminates redundant interface bloat, structures sensitivity outputs for downstream academic visualization and thesis analysis, and guarantees numerical format consistency across locales.
+
+
+### Decision: Production-First Development Principle / Anti-TDD Directive
+* **Task_ID:** task-human-directive-anti-tdd
+* **Date:** 2026-10-28
+* **Category:** Decision
+* **What:** Established the Inviolable Architectural Development Directive: "Production-First / Anti-TDD".
+  - Testes de unidade não podem, sob nenhuma hipótese, guiar, ditar ou influenciar o design, a arquitetura ou o fluxo de desenvolvimento do código de produção.
+  - O uso de Test-Driven Development (TDD) é estritamente proibido no ecossistema.
+  - O código de produção deve ser projetado exclusivamente para atender aos requisitos de domínio, performance, robustez, conformidade com .NET 10 / C# 13 e integridade científica.
+  - Os testes de unidade existem única e exclusivamente para assegurar, a posteriori (após a implementação de produção estar concluída), que a implementação funciona sem bugs e sem regressões.
+  - Nenhum artifício, concessão arquitetural, acoplamento artificial ou simplificação no código de produção pode ser feito com o objetivo de "facilitar" ou "atender" a escrita de testes.
+* **From where:** Diretriz Inviolável do Usuário Humano ("Os testes de unidade não podem influenciar no desenvolvimento, nunca deve-se usar TDD. Os testes de unidade devem única e exclusivamente assegurar que a implementação funciona sem bugs, portanto, nenhum desenvolvimento pode ser feito para facilitar ou atender testes.").
+* **Why:** Garantir que o design do software permaneça limpo, robusto, idiomático e orientado estritamente aos problemas de domínio e desempenho da engenharia biomecânica, evitando distorções arquiteturais, sobrecargas de mocks artificiais, ou violações de encapsulamento frequentemente induzidas pelo desenvolvimento centrado em testes (TDD).
+
+
+### Decision (Pre-Execution Strategy QA Gate Approved: Batch 3 Phased Mutex)
+* **Task_ID:** task-pre-qa-gate-batch-3
+* **Date:** 2026-10-28
+* **Category:** Decision
+* **What:** Formally evaluated, audited, and approved the Pre-Execution Strategy QA Gate for Batch 3 under Phased Mutex Orchestration (Esteira Desacoplada):
+  1. **Subtask 3A (Assigned to Agent 1 - Portability & Infrastructure):**
+     - Target: Plugin isolation, shadow copying, deterministic RNG seed, and newline normalization.
+     - Scope:
+       - `PluginAssemblyProcessor.cs` / `PluginLoadContext.cs`: Custom `AssemblyLoadContext` with `AssemblyDependencyResolver` and PE header validation (`IMAGE_DOS_SIGNATURE` 0x5A4D, `IMAGE_NT_SIGNATURE` 0x00004550) [Finding 04].
+       - `PluginAssemblyProcessor.cs` / shadow copy: Shadow copying plugin assemblies to a temporary workspace prior to loading to prevent file locking on Windows during hot-reload [Finding 05].
+       - `AlglibCurveFitter.cs`: Expose explicit RNG `Seed` in options and configure `alglib.mindfsetseed(state, seed)` [Finding 09].
+       - `CsvFileWriter.cs` and `SpanStringBuilder.cs`: Standardize newline characters (`\r\n` or configurable RFC 4180 CRLF) across environments [Finding 12].
+     - Target Files:
+       - `src/MelloSilveiraTools.Plugins/Infrastructure/PluginAssemblyProcessor.cs`
+       - `src/MelloSilveiraTools.Plugins/Infrastructure/PluginLoadContext.cs` (if needed)
+       - `src/MelloSilveiraTools.MechanicsOfMaterials.Optimizations/CurveFitting/Algorithms/AlglibCurveFitter.cs`
+       - `src/MelloSilveiraTools.Core/Managers/File/Csv/CsvFileWriter.cs`
+       - `src/MelloSilveiraTools.Core/Models/SpanStringBuilder.cs`
+  2. **Subtask 3B (Assigned to Agent 2 - Biomecânica):**
+     - Target: Variable Relationships Pipeline Implementation (IsoStress Esteira) in `MelloSilveiraTools.MechanicsOfMaterials.Optimizations.VariableRelationships`.
+     - Scope:
+       - `VariableGridGeneratorStep`: Cartesian discretization of $n-1$ parameters based on `ParameterBound` ranges.
+       - `IsoStressNewtonRaphsonStep`: 1D numerical root-solving for parameter $p_k$ to achieve `TargetStress` at `TargetTime` using central difference gradient from `IDifferentiation`.
+       - `IsoStressFilterStep`: Retention of valid combinations within parameter bounds and relative tolerance.
+       - `IsoStressCsvWriterStep`: Partitioned CSV export emitting `{Identifier}_IsoStress_Combinations.csv` under storage context `VariableRelationships`.
+       - `VariableRelationshipPersistenceStep`: Persistence and return of `VariableRelationshipOutput`.
+       - `VariableRelationshipPipeline`: TPL Dataflow pipeline implementing canonical `IPipeline<VariableRelationshipInput, VariableRelationshipOutput>`.
+       - `DependencyInjection.cs`: Registration of steps and pipeline as singletons.
+     - Target Files:
+       - `src/MelloSilveiraTools.MechanicsOfMaterials.Optimizations/VariableRelationships/Steps/VariableGridGeneratorStep.cs`
+       - `src/MelloSilveiraTools.MechanicsOfMaterials.Optimizations/VariableRelationships/Steps/IsoStressNewtonRaphsonStep.cs`
+       - `src/MelloSilveiraTools.MechanicsOfMaterials.Optimizations/VariableRelationships/Steps/IsoStressFilterStep.cs`
+       - `src/MelloSilveiraTools.MechanicsOfMaterials.Optimizations/VariableRelationships/Steps/IsoStressCsvWriterStep.cs`
+       - `src/MelloSilveiraTools.MechanicsOfMaterials.Optimizations/VariableRelationships/Steps/VariableRelationshipPersistenceStep.cs`
+       - `src/MelloSilveiraTools.MechanicsOfMaterials.Optimizations/VariableRelationships/VariableRelationshipPipeline.cs`
+       - `src/MelloSilveiraTools.MechanicsOfMaterials.Optimizations/DependencyInjection.cs`
+  3. **Disjointness & Pre-Execution QA Evaluation:**
+     - Confirmed zero file overlap between Subtask 3A and Subtask 3B ($Files(3A) \cap Files(3B) = \emptyset$).
+     - 3A touches `Plugins/Infrastructure/`, `CurveFitting/Algorithms/AlglibCurveFitter.cs`, and `Core/Managers/File/Csv/CsvFileWriter.cs` + `SpanStringBuilder.cs`.
+     - 3B touches exclusively the new folder `VariableRelationships/` and registers in `Optimizations/DependencyInjection.cs`.
+     - Neither subtask modifies the shared TPL Dataflow core (`DataflowPipelineBuilder.cs`, `IDataflowPipeline.cs`).
+     - Verified no code reinvention: 3A leverages BCL `AssemblyLoadContext` and ALGLIB native seeding; 3B builds on previously committed models (`ParameterBound`, `VariableRelationshipInput`, `VariableRelationshipOutput`), `IDifferentiation`, and canonical `IPipeline<,>`.
+* **From where:** Evaluated and approved by `documentation-and-tracking-secretary` acting as Pre-Execution Strategy QA Gate, following consensus and directives from the Orchestrator.
+* **Why:** Guarantees parallel execution safety with zero merge conflicts or race conditions across working trees, fulfills the cross-platform portability requirements for dynamic plugins and deterministic curve fitting, and delivers the IsoStress variable relationship optimization pipeline for biomechanical soft tissue modeling.

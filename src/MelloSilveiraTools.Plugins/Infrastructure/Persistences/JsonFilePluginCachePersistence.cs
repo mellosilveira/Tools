@@ -32,17 +32,19 @@ public class JsonFilePluginCachePersistence(
     public async Task SaveAsync(IAsyncEnumerable<PluginCacheEntry> entries, CancellationToken cancellationToken = default)
     {
         await using Stream stream = await fileStorageService.OpenWriteAsync(Location, cancellationToken).ConfigureAwait(false);
-        await using Utf8JsonWriter writer = new(stream, new JsonWriterOptions { Indented = true });
-
-        writer.WriteStartArray();
-
-        await foreach (PluginCacheEntry entry in entries.WithCancellation(cancellationToken))
+        await using (Utf8JsonWriter writer = new(stream, new JsonWriterOptions { Indented = true }))
         {
-            JsonSerializer.Serialize(writer, ToDto(entry), JsonOptions);
+            writer.WriteStartArray();
+
+            await foreach (PluginCacheEntry entry in entries.WithCancellation(cancellationToken))
+            {
+                JsonSerializer.Serialize(writer, ToDto(entry), JsonOptions);
+            }
+
+            writer.WriteEndArray();
+            await writer.FlushAsync(cancellationToken).ConfigureAwait(false);
         }
 
-        writer.WriteEndArray();
-        await writer.FlushAsync(cancellationToken).ConfigureAwait(false);
         await stream.FlushAsync(cancellationToken).ConfigureAwait(false);
     }
 

@@ -17,4 +17,10 @@ public static class CurveFittingConstants
     /// (such as ALGLIB's L-BFGS / <c>minbleic</c> in <c>Standard</c> mode and subsequent polish phases).
     /// </remarks>
     public const int MaxIterations = 500;
+
+    /// <summary>
+    /// Default pseudorandom seed used by stochastic curve fitting optimizers (e.g. ALGLIB GDEMO differential evolution)
+    /// to guarantee deterministic and mathematically identical results across executions and CPU architectures.
+    /// </summary>
+    public const int DefaultSeed = 42;
 }

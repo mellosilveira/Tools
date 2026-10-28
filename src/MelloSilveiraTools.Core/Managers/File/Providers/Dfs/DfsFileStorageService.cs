@@ -8,10 +8,10 @@ namespace MelloSilveiraTools.Core.Managers.File.Providers.Dfs;
 /// Inherits from <see cref="LocalFileStorageService"/> as DFS represents a network-mounted hierarchical file system,
 /// configured with <see cref="FileShare.ReadWrite"/> to facilitate concurrent distributed access.
 /// </summary>
-/// <param name="settings">DFS storage settings defining the root network share path or mount point.</param>
 /// <param name="timeProvider">The time provider instance used for temporal operations.</param>
-public class DfsFileStorageService(DfsStorageSettings settings, TimeProvider timeProvider)
-    : LocalFileStorageService(new LocalFileStorageSettings { BaseDirectory = settings.BaseDirectory }, timeProvider)
+/// <param name="settings">DFS storage settings defining the root network share path or mount point.</param>
+public class DfsFileStorageService(TimeProvider timeProvider, DfsStorageSettings settings)
+    : LocalFileStorageService(timeProvider, new LocalFileStorageSettings { BaseDirectory = settings.BaseDirectory })
 {
     /// <inheritdoc />
     public override StorageProvider Provider => StorageProvider.Dfs;

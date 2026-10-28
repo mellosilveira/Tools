@@ -42,6 +42,7 @@ public ref struct SpanStringBuilder : IDisposable
     private int _bufferPosition;
     private char[]? _arrayFromPool;
     private Span<char> _buffer;
+    private const string DefaultNewLine = "\n";
 
     /// <summary>
     /// Initializes a new instance with optimized initial capacity
@@ -143,34 +144,45 @@ public ref struct SpanStringBuilder : IDisposable
     }
 
     /// <summary>
-    /// Appends a character followed by environment-specific newline
+    /// Appends a character followed by standardized LF newline ("\n")
     /// </summary>
     /// <param name="value">Character to append</param>
     /// <returns>Chainable reference</returns>
     /// <remarks>
-    /// Newline sequence matches Environment.NewLine (CRLF on Windows, LF on Unix)
+    /// Newline sequence matches Environment.NewLine (LF on Windows, LF on Unix)
     /// </remarks>
     [UnscopedRef]
     public ref SpanStringBuilder AppendLine(char value)
     {
         Append(value);
-        Append(Environment.NewLine);
+        Append(DefaultNewLine);
         return ref this;
     }
 
     /// <summary>
-    /// Appends a character sequence followed by environment-specific newline
+    /// Appends a character sequence followed by standardized LF newline ("\n")
     /// </summary>
     /// <param name="value">Character sequence to append</param>
     /// <returns>Chainable reference</returns>
     /// <remarks>
-    /// Newline sequence matches Environment.NewLine (CRLF on Windows, LF on Unix)
+    /// Newline sequence matches Environment.NewLine (LF on Windows, LF on Unix)
     /// </remarks>
     [UnscopedRef]
     public ref SpanStringBuilder AppendLine(ReadOnlySpan<char> value)
     {
         Append(value);
-        Append(Environment.NewLine);
+        Append(DefaultNewLine);
+        return ref this;
+    }
+
+    /// <summary>
+    /// Appends a standardized LF newline ("\n", RFC 4180) without preceding content.
+    /// </summary>
+    /// <returns>Chainable reference</returns>
+    [UnscopedRef]
+    public ref SpanStringBuilder AppendLine()
+    {
+        Append(DefaultNewLine);
         return ref this;
     }
 

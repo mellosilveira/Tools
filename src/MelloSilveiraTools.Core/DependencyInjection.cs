@@ -10,7 +10,9 @@ using MelloSilveiraTools.Core.Managers.File.Providers.AwsS3;
 using MelloSilveiraTools.Core.Managers.File.Providers.BlobStorage;
 using MelloSilveiraTools.Core.Managers.File.Providers.Dfs;
 using MelloSilveiraTools.Core.Managers.File.Providers.Local;
+using MelloSilveiraTools.Core.Pipelines;
 using MelloSilveiraTools.Core.Pipelines.Notifiers;
+using MelloSilveiraTools.Core.Pipelines.Telemetry;
 using MelloSilveiraTools.Core.Providers;
 using MelloSilveiraTools.Core.Providers.Dynamics;
 using MelloSilveiraTools.Core.ResiliencePipelines;
@@ -40,7 +42,8 @@ public static class CoreDependencyInjection
         /// <param name="emailSettings">Settings used to send e-mails through an SMTP server.</param>
         /// <param name="fileStorageSettings">Settings used to configure storage services.</param>
         /// <param name="loggerSettings">Settings used by the logging service.</param>
-        /// <param name="enablePipelineProgressNotifications">When true, registers <see cref="ChannelPipelineProgressNotifier"/> as the scoped <see cref="IPipelineProgressNotifier"/>; otherwise registers <see cref="NullPipelineProgressNotifier"/>.</param>
+        /// <param name="enablePipelineProgressNotifications">When true, registers <see cref="ChannelPipelineProgressNotifier"/> as the <see cref="IPipelineProgressNotifier"/>; otherwise registers <see cref="NullPipelineProgressNotifier"/>.</param>
+        /// <param name="pipelineProgressNotificationSettings">Optional settings defining adaptive throttling thresholds and item notification intervals for pipeline progress.</param>
         /// <returns>The same <paramref name="services"/> instance to allow call chaining.</returns>
         public IServiceCollection AddCoreServices(
             ResiliencePipelineSettings defaultResiliencePipelineSettings,
@@ -48,17 +51,28 @@ public static class CoreDependencyInjection
             EmailSettings? emailSettings = null,
             FileStorageSettings? fileStorageSettings = null,
             LoggerSettings? loggerSettings = null,
+            PipelineProgressNotificationSettings? pipelineProgressNotificationSettings = null,
             bool enablePipelineProgressNotifications = false)
         {
+            services.AddSingleton(TimeProvider.System);
+
             if (enablePipelineProgressNotifications)
             {
                 services
-                    .AddScoped(_ => new ChannelPipelineProgressNotifier(fullMode: BoundedChannelFullMode.DropOldest))
-                    .AddScoped<IPipelineProgressNotifier>(provider => provider.GetRequiredService<ChannelPipelineProgressNotifier>());
+                    .AddSingleton(_ => new ChannelPipelineProgressNotifier(fullMode: BoundedChannelFullMode.DropOldest))
+                    .AddSingleton<IPipelineProgressNotifier>(provider => provider.GetRequiredService<ChannelPipelineProgressNotifier>());
             }
             else
             {
                 services.AddSingleton<IPipelineProgressNotifier>(NullPipelineProgressNotifier.Instance);
+            }
+
+            if (pipelineProgressNotificationSettings is not null)
+            {
+                services
+                    .AddSingleton(pipelineProgressNotificationSettings)
+                    .AddSingleton<PipelineFactory>()
+                    .AddSingleton<IPipelineProgressNotifierFactory, PipelineProgressNotifierFactory>();
             }
 
             if (encryptionSettings is not null)
@@ -79,7 +93,7 @@ public static class CoreDependencyInjection
             if (fileStorageSettings is not null)
             {
                 if (fileStorageSettings.Local is not null)
-                    services.AddKeyedSingleton<IFileStorageService>(StorageProvider.Local, (_, _) => new LocalFileStorageService(fileStorageSettings.Local));
+                    services.AddKeyedSingleton<IFileStorageService>(StorageProvider.Local, (provider, _) => new LocalFileStorageService(provider.GetRequiredService<TimeProvider>(), fileStorageSettings.Local));
 
                 if (fileStorageSettings.BlobStorage is not null)
                     services
@@ -91,10 +105,16 @@ public static class CoreDependencyInjection
                                 provider.GetRequiredService<IFileStorageService>(),
                                 CreateBlobContainerClient(fileStorageSettings.BlobStorage),
                                 fileStorageSettings.BlobStorage,
-                                provider.GetRequiredService<BlobStorageResiliencePipeline>()));
+                                provider.GetRequiredService<BlobStorageResiliencePipeline>(),
+                                provider.GetRequiredService<TimeProvider>()));
 
                 if (fileStorageSettings.Dfs is not null)
-                    services.AddKeyedSingleton<IFileStorageService>(StorageProvider.Dfs, (_, _) => new DfsFileStorageService(fileStorageSettings.Dfs));
+                {
+                    ValidateDfsStorageSettings(fileStorageSettings.Dfs);
+                    services.AddKeyedSingleton<IFileStorageService>(
+                        StorageProvider.Dfs,
+                        (provider, _) => new DfsFileStorageService(fileStorageSettings.Dfs, provider.GetRequiredService<TimeProvider>()));
+                }
 
                 if (fileStorageSettings.AwsS3 is not null)
                     services
@@ -106,12 +126,13 @@ public static class CoreDependencyInjection
                                 provider.GetRequiredService<IFileStorageService>(),
                                 CreateClient(fileStorageSettings.AwsS3),
                                 fileStorageSettings.AwsS3,
-                                provider.GetRequiredService<AwsS3ResiliencePipeline>()));
+                                provider.GetRequiredService<AwsS3ResiliencePipeline>(),
+                                provider.GetRequiredService<TimeProvider>()));
             }
 
             return services
                 .AddCoreLogging(loggerSettings)
-                .AddSingleton<IFileStorageService>(_ => new LocalFileStorageService(new() { BaseDirectory = Path.Combine(Path.GetTempPath(), "storage") }))
+                .AddSingleton<IFileStorageService>(provider => new LocalFileStorageService(provider.GetRequiredService<TimeProvider>(), new() { BaseDirectory = Path.Combine(Path.GetTempPath(), "storage") }))
                 // Register caching pipelines.
                 .AddSingleton<ISingleLevelCache, InMemorySingleLevelCache>()
                 .AddSingleton<ITwoLevelCache, InMemoryTwoLevelCache>()
@@ -177,6 +198,41 @@ public static class CoreDependencyInjection
             }
 
             return new BlobContainerClient(settings.ConnectionString, settings.ContainerName);
+        }
+
+        private static void ValidateDfsStorageSettings(DfsStorageSettings settings)
+        {
+            ArgumentNullException.ThrowIfNull(settings);
+            ArgumentException.ThrowIfNullOrWhiteSpace(settings.BaseDirectory);
+
+            string baseDirectory = settings.BaseDirectory.Trim();
+
+            if (!OperatingSystem.IsWindows())
+                ValidateNonWindowsDfsPath(baseDirectory);
+        }
+
+        private static void ValidateNonWindowsDfsPath(string path)
+        {
+            if (path.StartsWith(@"\\", StringComparison.Ordinal))
+            {
+                string platformName = OperatingSystem.IsLinux()
+                    ? "Linux"
+                    : OperatingSystem.IsMacOS() ? "macOS" : "Unix-like";
+
+                string exampleMount = OperatingSystem.IsMacOS() ? "/Volumes/dfs" : "/mnt/dfs";
+
+                throw new PlatformNotSupportedException(
+                    $"Windows UNC network share path '{path}' cannot be accessed directly on {platformName}. " +
+                    $"In {platformName} and containerized environments, mount the network share to a local directory (e.g., '{exampleMount}') " +
+                    "and configure BaseDirectory with the mount point path.");
+            }
+
+            if (path.Length >= 2 && char.IsAsciiLetter(path[0]) && path[1] == ':')
+            {
+                throw new PlatformNotSupportedException(
+                    $"Windows drive path '{path}' is not valid on non-Windows operating systems. " +
+                    "Configure BaseDirectory with the local directory or mount point path (e.g., '/mnt/dfs' or './data/dfs').");
+            }
         }
     }
 }
