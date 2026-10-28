@@ -3000,10 +3000,11 @@
             <list type="bullet">
             <item><description><b>Bifurcated DLQ Routing:</b> When a Dead-Letter Queue is configured, steps dynamically wrap execution in <see cref="T:MelloSilveiraTools.Core.Pipelines.Models.SafeResult`2"/> and split successful vs. faulted payloads without faulting the TPL Dataflow graph.</description></item>
             <item><description><b>Topology Tracking:</b> Collects ordered <c>(PreviousStepName, CurrentStep)</c> node pairs. Main-flow operators track <c>currentStepName</c>, while side-effect observers (<c>AddBroadcastStep</c>) preserve the upstream predecessor for subsequent steps.</description></item>
+            <item><description><b>Unified Observability:</b> All pipeline operations route through <see cref="T:MelloSilveiraTools.Core.Pipelines.Telemetry.ObservabilityExtensions"/> to capture distributed tracing, structured logging, and non-blocking real-time progress notifications.</description></item>
             </list>
             </remarks>
         </member>
-        <member name="M:MelloSilveiraTools.Core.Pipelines.Dataflow.DataflowPipelineBuilder`2.#ctor(Microsoft.Extensions.Logging.ILogger,System.Threading.Tasks.Dataflow.ITargetBlock{`0},System.Threading.Tasks.Dataflow.ISourceBlock{`1},System.Threading.Tasks.Dataflow.ITargetBlock{MelloSilveiraTools.Core.Pipelines.Models.FailedPayload},System.TimeProvider,System.Collections.Generic.List{System.Threading.Tasks.Task},System.Collections.Generic.List{System.ValueTuple{System.String,MelloSilveiraTools.Core.Pipelines.Steps.IPipelineStep}},System.String,System.Threading.CancellationToken)">
+        <member name="M:MelloSilveiraTools.Core.Pipelines.Dataflow.DataflowPipelineBuilder`2.#ctor(Microsoft.Extensions.Logging.ILogger,MelloSilveiraTools.Core.Pipelines.Notifiers.IPipelineProgressNotifier,System.Threading.Tasks.Dataflow.ITargetBlock{`0},System.Threading.Tasks.Dataflow.ISourceBlock{`1},System.Threading.Tasks.Dataflow.ITargetBlock{MelloSilveiraTools.Core.Pipelines.Models.FailedPayload},System.TimeProvider,System.Collections.Generic.List{System.Threading.Tasks.Task},System.Collections.Generic.List{System.ValueTuple{System.String,MelloSilveiraTools.Core.Pipelines.Steps.IPipelineStep}},System.String,System.Threading.CancellationToken)">
             <summary>
             Strongly-typed fluent builder for orchestrating asynchronous data processing topologies.
             </summary>
@@ -3012,6 +3013,7 @@
             <list type="bullet">
             <item><description><b>Bifurcated DLQ Routing:</b> When a Dead-Letter Queue is configured, steps dynamically wrap execution in <see cref="T:MelloSilveiraTools.Core.Pipelines.Models.SafeResult`2"/> and split successful vs. faulted payloads without faulting the TPL Dataflow graph.</description></item>
             <item><description><b>Topology Tracking:</b> Collects ordered <c>(PreviousStepName, CurrentStep)</c> node pairs. Main-flow operators track <c>currentStepName</c>, while side-effect observers (<c>AddBroadcastStep</c>) preserve the upstream predecessor for subsequent steps.</description></item>
+            <item><description><b>Unified Observability:</b> All pipeline operations route through <see cref="T:MelloSilveiraTools.Core.Pipelines.Telemetry.ObservabilityExtensions"/> to capture distributed tracing, structured logging, and non-blocking real-time progress notifications.</description></item>
             </list>
             </remarks>
         </member>
@@ -3657,7 +3659,7 @@
         </member>
         <member name="P:MelloSilveiraTools.Core.Pipelines.Models.PipelineProgressEvent.Details">
             <summary>
-            Gets optional diagnostic, contextual, or JSON-formatted details (e.g., item count, identifier, or error message).
+            Gets optional diagnostic, contextual, or execution details serialized as a JSON string (e.g., error payloads, item counters, or execution metrics).
             </summary>
         </member>
         <member name="M:MelloSilveiraTools.Core.Pipelines.Models.PipelineProgressEvent.Equals(MelloSilveiraTools.Core.Pipelines.Models.PipelineProgressEvent)">
@@ -3883,11 +3885,22 @@
             </summary>
             <param name="timeProvider">The time provider instance used for timing and timeouts.</param>
         </member>
-        <member name="M:MelloSilveiraTools.Core.Pipelines.PipelineFactory.CreateDataflow``1(Microsoft.Extensions.Logging.ILogger,System.Int32,System.Threading.CancellationToken)">
+        <member name="M:MelloSilveiraTools.Core.Pipelines.PipelineFactory.CreateDataflow``1(Microsoft.Extensions.Logging.ILogger,MelloSilveiraTools.Core.Pipelines.Notifiers.IPipelineProgressNotifier,System.Int32,System.Threading.CancellationToken)">
             <summary>
             Bootstraps a continuous TPL Dataflow pipeline topology by instantiating a <see cref="T:System.Threading.Tasks.Dataflow.BufferBlock`1"/> 
-            as the ingestion head. Enforces bounded capacity backpressure and injects the unified cancellation graph 
-            that dictates the lifecycle of all subsequent blocks.
+            as the ingestion head. Enforces bounded capacity backpressure, binds the mandatory progress notifier, 
+            and injects the unified cancellation graph that dictates the lifecycle of all subsequent blocks.
+            </summary>
+            <typeparam name="T">The immutable payload type ingested at the pipeline head.</typeparam>
+            <param name="logger">Structured logging provider for tracking block transitions and telemetry.</param>
+            <param name="progressNotifier">Mandatory pipeline progress notifier.</param>
+            <param name="initialBufferSize">The maximum bounded capacity of the ingestion buffer block, defaulting to 10,000 items.</param>
+            <param name="cancellationToken">The unified cancellation token propagated down the entire Dataflow network.</param>
+            <returns>A fluent builder instance anchored to the initial buffer head.</returns>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Pipelines.PipelineFactory.CreateDataflow``1(Microsoft.Extensions.Logging.ILogger,System.Int32,System.Threading.CancellationToken)">
+            <summary>
+            Bootstraps a continuous TPL Dataflow pipeline topology using <see cref="P:MelloSilveiraTools.Core.Pipelines.Notifiers.NullPipelineProgressNotifier.Instance"/> as the default progress notifier.
             </summary>
             <typeparam name="T">The immutable payload type ingested at the pipeline head.</typeparam>
             <param name="logger">Structured logging provider for tracking block transitions and telemetry.</param>
@@ -4024,150 +4037,162 @@
             <param name="input">The immutable payload propagated from the preceding pipeline node.</param>
             <returns>The resultant output state produced by the synchronous execution.</returns>
         </member>
-        <member name="T:MelloSilveiraTools.Core.Pipelines.Telemetry.TelemetryConstants">
+        <member name="T:MelloSilveiraTools.Core.Pipelines.Telemetry.ObservabilityExtensions">
             <summary>
-            Exposes the centralized ActivitySource for tracing pipeline execution topologies.
+            Provides unified observability extensions combining OpenTelemetry distributed tracing,
+            structured logging, and non-blocking real-time pipeline progress notifications.
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.Core.Pipelines.Telemetry.TelemetryExtensions.HandleExecution``1(Microsoft.Extensions.Logging.ILogger,System.TimeProvider,System.String,System.Action{``0},System.Threading.CancellationToken)">
+        <member name="M:MelloSilveiraTools.Core.Pipelines.Telemetry.ObservabilityExtensions.HandleExecution``1(Microsoft.Extensions.Logging.ILogger,MelloSilveiraTools.Core.Pipelines.Notifiers.IPipelineProgressNotifier,System.TimeProvider,System.String,System.Action{``0},System.Threading.CancellationToken)">
             <summary>
-            Wraps a synchronous action with OpenTelemetry tracing and structured logging.
+            Wraps a synchronous action with OpenTelemetry tracing, structured logging, and progress notification.
             </summary>
             <typeparam name="TIn">Input message type.</typeparam>
             <param name="logger">Structured logger instance.</param>
+            <param name="progressNotifier">Mandatory pipeline progress notifier.</param>
             <param name="timeProvider">Time provider instance.</param>
             <param name="callbackName">Logical callback name for telemetry.</param>
             <param name="callback">Synchronous delegate executed for each input.</param>
             <param name="cancellationToken">Cancellation token.</param>
             <returns>Asynchronous wrapped delegate.</returns>
         </member>
-        <member name="M:MelloSilveiraTools.Core.Pipelines.Telemetry.TelemetryExtensions.HandleSafeExecution``1(Microsoft.Extensions.Logging.ILogger,System.TimeProvider,System.String,System.Action{``0},System.Threading.CancellationToken)">
+        <member name="M:MelloSilveiraTools.Core.Pipelines.Telemetry.ObservabilityExtensions.HandleSafeExecution``1(Microsoft.Extensions.Logging.ILogger,MelloSilveiraTools.Core.Pipelines.Notifiers.IPipelineProgressNotifier,System.TimeProvider,System.String,System.Action{``0},System.Threading.CancellationToken)">
             <summary>
             Wraps a synchronous action, capturing exceptions into a <see cref="T:MelloSilveiraTools.Core.Pipelines.Models.SafeResult`1"/> envelope for centralized error routing.
             </summary>
             <typeparam name="TIn">Input message type.</typeparam>
             <param name="logger">Structured logger instance.</param>
+            <param name="progressNotifier">Mandatory pipeline progress notifier.</param>
             <param name="timeProvider">Time provider instance.</param>
             <param name="callbackName">Logical callback name for telemetry.</param>
             <param name="callback">Synchronous delegate executed for each input.</param>
             <param name="cancellationToken">Cancellation token.</param>
             <returns>Safe execution delegate returning <see cref="T:MelloSilveiraTools.Core.Pipelines.Models.SafeResult`1"/>.</returns>
         </member>
-        <member name="M:MelloSilveiraTools.Core.Pipelines.Telemetry.TelemetryExtensions.HandleExecution``1(Microsoft.Extensions.Logging.ILogger,System.TimeProvider,System.String,System.Func{``0,System.Threading.CancellationToken,System.Threading.Tasks.Task},System.Threading.CancellationToken)">
+        <member name="M:MelloSilveiraTools.Core.Pipelines.Telemetry.ObservabilityExtensions.HandleExecution``1(Microsoft.Extensions.Logging.ILogger,MelloSilveiraTools.Core.Pipelines.Notifiers.IPipelineProgressNotifier,System.TimeProvider,System.String,System.Func{``0,System.Threading.CancellationToken,System.Threading.Tasks.Task},System.Threading.CancellationToken)">
             <summary>
-            Wraps an asynchronous action with OpenTelemetry tracing and structured logging.
+            Wraps an asynchronous action with OpenTelemetry tracing, structured logging, and progress notification.
             </summary>
             <typeparam name="TIn">Input message type.</typeparam>
             <param name="logger">Structured logger instance.</param>
+            <param name="progressNotifier">Mandatory pipeline progress notifier.</param>
             <param name="timeProvider">Time provider instance.</param>
             <param name="callbackName">Logical callback name for telemetry.</param>
             <param name="callback">Asynchronous delegate executed for each input.</param>
             <param name="cancellationToken">Cancellation token.</param>
             <returns>Asynchronous wrapped delegate.</returns>
         </member>
-        <member name="M:MelloSilveiraTools.Core.Pipelines.Telemetry.TelemetryExtensions.HandleSafeExecution``1(Microsoft.Extensions.Logging.ILogger,System.TimeProvider,System.String,System.Func{``0,System.Threading.CancellationToken,System.Threading.Tasks.Task},System.Threading.CancellationToken)">
+        <member name="M:MelloSilveiraTools.Core.Pipelines.Telemetry.ObservabilityExtensions.HandleSafeExecution``1(Microsoft.Extensions.Logging.ILogger,MelloSilveiraTools.Core.Pipelines.Notifiers.IPipelineProgressNotifier,System.TimeProvider,System.String,System.Func{``0,System.Threading.CancellationToken,System.Threading.Tasks.Task},System.Threading.CancellationToken)">
             <summary>
             Wraps an asynchronous action, combining execution with a <see cref="T:MelloSilveiraTools.Core.Pipelines.Models.SafeResult`1"/> envelope for terminal failures.
             </summary>
             <typeparam name="TIn">Input message type.</typeparam>
             <param name="logger">Structured logger instance.</param>
+            <param name="progressNotifier">Mandatory pipeline progress notifier.</param>
             <param name="timeProvider">Time provider instance.</param>
             <param name="callbackName">Logical callback name for telemetry.</param>
             <param name="callback">Asynchronous delegate executed for each input.</param>
             <param name="cancellationToken">Cancellation token.</param>
             <returns>Safe execution delegate returning <see cref="T:MelloSilveiraTools.Core.Pipelines.Models.SafeResult`1"/>.</returns>
         </member>
-        <member name="M:MelloSilveiraTools.Core.Pipelines.Telemetry.TelemetryExtensions.HandleExecution``2(Microsoft.Extensions.Logging.ILogger,System.TimeProvider,System.String,System.Func{``0,``1},System.Threading.CancellationToken)">
+        <member name="M:MelloSilveiraTools.Core.Pipelines.Telemetry.ObservabilityExtensions.HandleExecution``2(Microsoft.Extensions.Logging.ILogger,MelloSilveiraTools.Core.Pipelines.Notifiers.IPipelineProgressNotifier,System.TimeProvider,System.String,System.Func{``0,``1},System.Threading.CancellationToken)">
             <summary>
             Wraps a synchronous mapping function with OpenTelemetry tracing and structured logging, returning the mapped output.
             </summary>
             <typeparam name="TIn">Input message type.</typeparam>
             <typeparam name="TOut">Output message type.</typeparam>
             <param name="logger">Structured logger instance.</param>
+            <param name="progressNotifier">Mandatory pipeline progress notifier.</param>
             <param name="timeProvider">Time provider instance.</param>
             <param name="callbackName">Logical callback name for telemetry.</param>
             <param name="callback">Synchronous transform function.</param>
             <param name="cancellationToken">Cancellation token.</param>
             <returns>Asynchronous transform delegate.</returns>
         </member>
-        <member name="M:MelloSilveiraTools.Core.Pipelines.Telemetry.TelemetryExtensions.HandleSafeExecution``2(Microsoft.Extensions.Logging.ILogger,System.TimeProvider,System.String,System.Func{``0,``1},System.Threading.CancellationToken)">
+        <member name="M:MelloSilveiraTools.Core.Pipelines.Telemetry.ObservabilityExtensions.HandleSafeExecution``2(Microsoft.Extensions.Logging.ILogger,MelloSilveiraTools.Core.Pipelines.Notifiers.IPipelineProgressNotifier,System.TimeProvider,System.String,System.Func{``0,``1},System.Threading.CancellationToken)">
             <summary>
             Wraps a synchronous mapping function, intercepting failures into a <see cref="T:MelloSilveiraTools.Core.Pipelines.Models.SafeResult`2"/> to permit DLQ offloading.
             </summary>
             <typeparam name="TIn">Input message type.</typeparam>
             <typeparam name="TOut">Output message type.</typeparam>
             <param name="logger">Structured logger instance.</param>
+            <param name="progressNotifier">Mandatory pipeline progress notifier.</param>
             <param name="timeProvider">Time provider instance.</param>
             <param name="callbackName">Logical callback name for telemetry.</param>
             <param name="callback">Synchronous transform function.</param>
             <param name="cancellationToken">Cancellation token.</param>
             <returns>Safe execution delegate returning <see cref="T:MelloSilveiraTools.Core.Pipelines.Models.SafeResult`2"/>.</returns>
         </member>
-        <member name="M:MelloSilveiraTools.Core.Pipelines.Telemetry.TelemetryExtensions.HandleExecution``2(Microsoft.Extensions.Logging.ILogger,System.TimeProvider,System.String,System.Func{``0,System.Threading.CancellationToken,System.Threading.Tasks.Task{``1}},System.Threading.CancellationToken)">
+        <member name="M:MelloSilveiraTools.Core.Pipelines.Telemetry.ObservabilityExtensions.HandleExecution``2(Microsoft.Extensions.Logging.ILogger,MelloSilveiraTools.Core.Pipelines.Notifiers.IPipelineProgressNotifier,System.TimeProvider,System.String,System.Func{``0,System.Threading.CancellationToken,System.Threading.Tasks.Task{``1}},System.Threading.CancellationToken)">
             <summary>
             Wraps an asynchronous mapping function with support for telemetry tracking and structured logging.
             </summary>
             <typeparam name="TIn">Input message type.</typeparam>
             <typeparam name="TOut">Output message type.</typeparam>
             <param name="logger">Structured logger instance.</param>
+            <param name="progressNotifier">Mandatory pipeline progress notifier.</param>
             <param name="timeProvider">Time provider instance.</param>
             <param name="callbackName">Logical callback name for telemetry.</param>
             <param name="callback">Asynchronous transform function.</param>
             <param name="cancellationToken">Cancellation token.</param>
             <returns>Asynchronous transform delegate.</returns>
         </member>
-        <member name="M:MelloSilveiraTools.Core.Pipelines.Telemetry.TelemetryExtensions.HandleSafeExecution``2(Microsoft.Extensions.Logging.ILogger,System.TimeProvider,System.String,System.Func{``0,System.Threading.CancellationToken,System.Threading.Tasks.Task{``1}},System.Threading.CancellationToken)">
+        <member name="M:MelloSilveiraTools.Core.Pipelines.Telemetry.ObservabilityExtensions.HandleSafeExecution``2(Microsoft.Extensions.Logging.ILogger,MelloSilveiraTools.Core.Pipelines.Notifiers.IPipelineProgressNotifier,System.TimeProvider,System.String,System.Func{``0,System.Threading.CancellationToken,System.Threading.Tasks.Task{``1}},System.Threading.CancellationToken)">
             <summary>
             Wraps an asynchronous mapping function, catching failures into a bifurcated <see cref="T:MelloSilveiraTools.Core.Pipelines.Models.SafeResult`2"/>.
             </summary>
             <typeparam name="TIn">Input message type.</typeparam>
             <typeparam name="TOut">Output message type.</typeparam>
             <param name="logger">Structured logger instance.</param>
+            <param name="progressNotifier">Mandatory pipeline progress notifier.</param>
             <param name="timeProvider">Time provider instance.</param>
             <param name="callbackName">Logical callback name for telemetry.</param>
             <param name="callback">Asynchronous transform function.</param>
             <param name="cancellationToken">Cancellation token.</param>
             <returns>Safe execution delegate returning <see cref="T:MelloSilveiraTools.Core.Pipelines.Models.SafeResult`2"/>.</returns>
         </member>
-        <member name="M:MelloSilveiraTools.Core.Pipelines.Telemetry.TelemetryExtensions.HandleExecution``2(Microsoft.Extensions.Logging.ILogger,System.TimeProvider,System.String,System.String,System.Func{``0,``1},System.Func{``1,System.Boolean},System.Func{``0,``1},System.Threading.CancellationToken)">
+        <member name="M:MelloSilveiraTools.Core.Pipelines.Telemetry.ObservabilityExtensions.HandleExecution``2(Microsoft.Extensions.Logging.ILogger,MelloSilveiraTools.Core.Pipelines.Notifiers.IPipelineProgressNotifier,System.TimeProvider,System.String,System.String,System.Func{``0,``1},System.Func{``1,System.Boolean},System.Func{``0,``1},System.Threading.CancellationToken)">
             <summary>
-            Wraps a synchronous conditional forking operation evaluating the output payload after the primary execution completes.
+            Wraps a synchronous conditional forking operation with execution telemetry.
             </summary>
             <typeparam name="TIn">Input message type.</typeparam>
             <typeparam name="TOut">Output message type.</typeparam>
             <param name="logger">Structured logger instance.</param>
+            <param name="progressNotifier">Mandatory pipeline progress notifier.</param>
             <param name="timeProvider">Time provider instance.</param>
             <param name="callbackName">Logical callback name for primary step.</param>
             <param name="fallbackName">Logical callback name for fallback step.</param>
-            <param name="callback">Primary transform function.</param>
+            <param name="callback">Primary synchronous transform function.</param>
             <param name="fallbackCondition">Predicate determining if fallback is needed.</param>
-            <param name="fallback">Fallback transform function.</param>
+            <param name="fallback">Fallback synchronous transform function.</param>
             <param name="cancellationToken">Cancellation token.</param>
             <returns>Asynchronous conditional fork delegate.</returns>
         </member>
-        <member name="M:MelloSilveiraTools.Core.Pipelines.Telemetry.TelemetryExtensions.HandleSafeExecution``2(Microsoft.Extensions.Logging.ILogger,System.TimeProvider,System.String,System.String,System.Func{``0,``1},System.Func{MelloSilveiraTools.Core.Pipelines.Models.SafeResult{``0,``1},System.Boolean},System.Func{``0,``1},System.Threading.CancellationToken)">
+        <member name="M:MelloSilveiraTools.Core.Pipelines.Telemetry.ObservabilityExtensions.HandleSafeExecution``2(Microsoft.Extensions.Logging.ILogger,MelloSilveiraTools.Core.Pipelines.Notifiers.IPipelineProgressNotifier,System.TimeProvider,System.String,System.String,System.Func{``0,``1},System.Func{MelloSilveiraTools.Core.Pipelines.Models.SafeResult{``0,``1},System.Boolean},System.Func{``0,``1},System.Threading.CancellationToken)">
             <summary>
-            Wraps a synchronous post-execution conditional forking operation, evaluating against the <see cref="T:MelloSilveiraTools.Core.Pipelines.Models.SafeResult`2"/> state.
+            Wraps a synchronous conditional forking operation, evaluating against the <see cref="T:MelloSilveiraTools.Core.Pipelines.Models.SafeResult`2"/> state.
             </summary>
             <typeparam name="TIn">Input message type.</typeparam>
             <typeparam name="TOut">Output message type.</typeparam>
             <param name="logger">Structured logger instance.</param>
+            <param name="progressNotifier">Mandatory pipeline progress notifier.</param>
             <param name="timeProvider">Time provider instance.</param>
             <param name="callbackName">Logical callback name for primary step.</param>
             <param name="fallbackName">Logical callback name for fallback step.</param>
-            <param name="callback">Primary transform function.</param>
+            <param name="callback">Primary synchronous transform function.</param>
             <param name="fallbackCondition">Predicate determining if fallback is needed.</param>
-            <param name="fallback">Fallback transform function.</param>
+            <param name="fallback">Fallback synchronous transform function.</param>
             <param name="cancellationToken">Cancellation token.</param>
             <returns>Safe execution delegate returning <see cref="T:MelloSilveiraTools.Core.Pipelines.Models.SafeResult`2"/>.</returns>
         </member>
-        <member name="M:MelloSilveiraTools.Core.Pipelines.Telemetry.TelemetryExtensions.HandleExecution``2(Microsoft.Extensions.Logging.ILogger,System.TimeProvider,System.String,System.String,System.Func{``0,System.Threading.CancellationToken,System.Threading.Tasks.Task{``1}},System.Func{``1,System.Boolean},System.Func{``0,System.Threading.CancellationToken,System.Threading.Tasks.Task{``1}},System.Threading.CancellationToken)">
+        <member name="M:MelloSilveiraTools.Core.Pipelines.Telemetry.ObservabilityExtensions.HandleExecution``2(Microsoft.Extensions.Logging.ILogger,MelloSilveiraTools.Core.Pipelines.Notifiers.IPipelineProgressNotifier,System.TimeProvider,System.String,System.String,System.Func{``0,System.Threading.CancellationToken,System.Threading.Tasks.Task{``1}},System.Func{``1,System.Boolean},System.Func{``0,System.Threading.CancellationToken,System.Threading.Tasks.Task{``1}},System.Threading.CancellationToken)">
             <summary>
             Wraps an asynchronous conditional forking operation evaluating the output payload after the primary execution completes.
             </summary>
             <typeparam name="TIn">Input message type.</typeparam>
             <typeparam name="TOut">Output message type.</typeparam>
             <param name="logger">Structured logger instance.</param>
+            <param name="progressNotifier">Mandatory pipeline progress notifier.</param>
             <param name="timeProvider">Time provider instance.</param>
             <param name="callbackName">Logical callback name for primary step.</param>
             <param name="fallbackName">Logical callback name for fallback step.</param>
@@ -4177,13 +4202,14 @@
             <param name="cancellationToken">Cancellation token.</param>
             <returns>Asynchronous conditional fork delegate.</returns>
         </member>
-        <member name="M:MelloSilveiraTools.Core.Pipelines.Telemetry.TelemetryExtensions.HandleSafeExecution``2(Microsoft.Extensions.Logging.ILogger,System.TimeProvider,System.String,System.String,System.Func{``0,System.Threading.CancellationToken,System.Threading.Tasks.Task{``1}},System.Func{MelloSilveiraTools.Core.Pipelines.Models.SafeResult{``0,``1},System.Boolean},System.Func{``0,System.Threading.CancellationToken,System.Threading.Tasks.Task{``1}},System.Threading.CancellationToken)">
+        <member name="M:MelloSilveiraTools.Core.Pipelines.Telemetry.ObservabilityExtensions.HandleSafeExecution``2(Microsoft.Extensions.Logging.ILogger,MelloSilveiraTools.Core.Pipelines.Notifiers.IPipelineProgressNotifier,System.TimeProvider,System.String,System.String,System.Func{``0,System.Threading.CancellationToken,System.Threading.Tasks.Task{``1}},System.Func{MelloSilveiraTools.Core.Pipelines.Models.SafeResult{``0,``1},System.Boolean},System.Func{``0,System.Threading.CancellationToken,System.Threading.Tasks.Task{``1}},System.Threading.CancellationToken)">
             <summary>
             Wraps an asynchronous post-execution conditional forking operation, evaluating against the <see cref="T:MelloSilveiraTools.Core.Pipelines.Models.SafeResult`2"/> state.
             </summary>
             <typeparam name="TIn">Input message type.</typeparam>
             <typeparam name="TOut">Output message type.</typeparam>
             <param name="logger">Structured logger instance.</param>
+            <param name="progressNotifier">Mandatory pipeline progress notifier.</param>
             <param name="timeProvider">Time provider instance.</param>
             <param name="callbackName">Logical callback name for primary step.</param>
             <param name="fallbackName">Logical callback name for fallback step.</param>
@@ -4193,57 +4219,66 @@
             <param name="cancellationToken">Cancellation token.</param>
             <returns>Safe execution delegate returning <see cref="T:MelloSilveiraTools.Core.Pipelines.Models.SafeResult`2"/>.</returns>
         </member>
-        <member name="M:MelloSilveiraTools.Core.Pipelines.Telemetry.TelemetryExtensions.HandleExecution``2(Microsoft.Extensions.Logging.ILogger,System.TimeProvider,System.String,System.Func{``0,System.Threading.CancellationToken,System.Collections.Generic.IAsyncEnumerable{``1}},System.Threading.CancellationToken)">
+        <member name="M:MelloSilveiraTools.Core.Pipelines.Telemetry.ObservabilityExtensions.HandleExecution``2(Microsoft.Extensions.Logging.ILogger,MelloSilveiraTools.Core.Pipelines.Notifiers.IPipelineProgressNotifier,System.TimeProvider,System.String,System.Func{``0,System.Threading.CancellationToken,System.Collections.Generic.IAsyncEnumerable{``1}},System.Threading.CancellationToken)">
             <summary>
-            Wraps a streaming function returning an <see cref="T:System.Collections.Generic.IAsyncEnumerable`1"/> with OpenTelemetry tracing and structured logging.
+            Wraps a streaming function returning an <see cref="T:System.Collections.Generic.IAsyncEnumerable`1"/> with OpenTelemetry tracing, structured logging, and progress notification.
             </summary>
             <typeparam name="TIn">Input message type.</typeparam>
             <typeparam name="TOut">Output message type.</typeparam>
             <param name="logger">Structured logger instance.</param>
+            <param name="progressNotifier">Mandatory pipeline progress notifier.</param>
             <param name="timeProvider">Time provider instance.</param>
             <param name="callbackName">Logical callback name for telemetry.</param>
             <param name="callback">Asynchronous enumerable generator.</param>
             <param name="cancellationToken">Cancellation token.</param>
             <returns>Streaming execution delegate.</returns>
         </member>
-        <member name="M:MelloSilveiraTools.Core.Pipelines.Telemetry.TelemetryExtensions.HandleSafeExecution``2(Microsoft.Extensions.Logging.ILogger,System.TimeProvider,System.String,System.Func{``0,System.Threading.CancellationToken,System.Collections.Generic.IAsyncEnumerable{``1}},System.Threading.CancellationToken)">
+        <member name="M:MelloSilveiraTools.Core.Pipelines.Telemetry.ObservabilityExtensions.HandleSafeExecution``2(Microsoft.Extensions.Logging.ILogger,MelloSilveiraTools.Core.Pipelines.Notifiers.IPipelineProgressNotifier,System.TimeProvider,System.String,System.Func{``0,System.Threading.CancellationToken,System.Collections.Generic.IAsyncEnumerable{``1}},System.Threading.CancellationToken)">
             <summary>
             Wraps a streaming function returning an <see cref="T:System.Collections.Generic.IAsyncEnumerable`1"/> with OpenTelemetry tracing, structured logging, and safe DLQ routing.
             </summary>
             <typeparam name="TIn">Input message type.</typeparam>
             <typeparam name="TOut">Output message type.</typeparam>
             <param name="logger">Structured logger instance.</param>
+            <param name="progressNotifier">Mandatory pipeline progress notifier.</param>
             <param name="timeProvider">Time provider instance.</param>
             <param name="callbackName">Logical callback name for telemetry.</param>
             <param name="callback">Asynchronous enumerable generator.</param>
             <param name="cancellationToken">Cancellation token.</param>
             <returns>Safe streaming execution delegate returning <see cref="T:MelloSilveiraTools.Core.Pipelines.Models.SafeResult`2"/>.</returns>
         </member>
-        <member name="M:MelloSilveiraTools.Core.Pipelines.Telemetry.TelemetryExtensions.HandleExecution``2(Microsoft.Extensions.Logging.ILogger,System.TimeProvider,System.String,System.Func{``0,System.Threading.CancellationToken,System.Collections.Generic.IEnumerable{``1}},System.Threading.CancellationToken)">
+        <member name="M:MelloSilveiraTools.Core.Pipelines.Telemetry.ObservabilityExtensions.HandleExecution``2(Microsoft.Extensions.Logging.ILogger,MelloSilveiraTools.Core.Pipelines.Notifiers.IPipelineProgressNotifier,System.TimeProvider,System.String,System.Func{``0,System.Threading.CancellationToken,System.Collections.Generic.IEnumerable{``1}},System.Threading.CancellationToken)">
             <summary>
-            Wraps an enumerable transformation function returning an <see cref="T:System.Collections.Generic.IEnumerable`1"/> with OpenTelemetry tracing and structured logging.
+            Wraps an enumerable transformation function returning an <see cref="T:System.Collections.Generic.IEnumerable`1"/> with OpenTelemetry tracing, structured logging, and progress notification.
             </summary>
             <typeparam name="TIn">Input message type.</typeparam>
             <typeparam name="TOut">Output message type.</typeparam>
             <param name="logger">Structured logger instance.</param>
+            <param name="progressNotifier">Mandatory pipeline progress notifier.</param>
             <param name="timeProvider">Time provider instance.</param>
             <param name="callbackName">Logical callback name for telemetry.</param>
             <param name="callback">Synchronous enumerable transform function.</param>
             <param name="cancellationToken">Cancellation token.</param>
             <returns>Streaming execution delegate.</returns>
         </member>
-        <member name="M:MelloSilveiraTools.Core.Pipelines.Telemetry.TelemetryExtensions.HandleSafeExecution``2(Microsoft.Extensions.Logging.ILogger,System.TimeProvider,System.String,System.Func{``0,System.Threading.CancellationToken,System.Collections.Generic.IEnumerable{``1}},System.Threading.CancellationToken)">
+        <member name="M:MelloSilveiraTools.Core.Pipelines.Telemetry.ObservabilityExtensions.HandleSafeExecution``2(Microsoft.Extensions.Logging.ILogger,MelloSilveiraTools.Core.Pipelines.Notifiers.IPipelineProgressNotifier,System.TimeProvider,System.String,System.Func{``0,System.Threading.CancellationToken,System.Collections.Generic.IEnumerable{``1}},System.Threading.CancellationToken)">
             <summary>
             Wraps an enumerable transformation function returning an <see cref="T:System.Collections.Generic.IEnumerable`1"/> with OpenTelemetry tracing, structured logging, and safe DLQ routing.
             </summary>
             <typeparam name="TIn">Input message type.</typeparam>
             <typeparam name="TOut">Output message type.</typeparam>
             <param name="logger">Structured logger instance.</param>
+            <param name="progressNotifier">Mandatory pipeline progress notifier.</param>
             <param name="timeProvider">Time provider instance.</param>
             <param name="callbackName">Logical callback name for telemetry.</param>
             <param name="callback">Synchronous enumerable transform function.</param>
             <param name="cancellationToken">Cancellation token.</param>
             <returns>Safe streaming execution delegate returning <see cref="T:MelloSilveiraTools.Core.Pipelines.Models.SafeResult`2"/>.</returns>
+        </member>
+        <member name="T:MelloSilveiraTools.Core.Pipelines.Telemetry.TelemetryConstants">
+            <summary>
+            Exposes the centralized ActivitySource for tracing pipeline execution topologies.
+            </summary>
         </member>
         <member name="T:MelloSilveiraTools.Core.Providers.Dynamics.IDynamicServiceProvider">
             <summary>

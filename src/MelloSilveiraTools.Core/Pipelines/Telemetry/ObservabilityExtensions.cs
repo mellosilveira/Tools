@@ -1,18 +1,27 @@
 using MelloSilveiraTools.Core.Pipelines.Models;
+using MelloSilveiraTools.Core.Pipelines.Notifiers;
 using Microsoft.Extensions.Logging;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
+using System.Text.Json;
 
 namespace MelloSilveiraTools.Core.Pipelines.Telemetry;
 
+/// <summary>
+/// Provides unified observability extensions combining OpenTelemetry distributed tracing,
+/// structured logging, and non-blocking real-time pipeline progress notifications.
+/// </summary>
 [StackTraceHidden]
-public static class TelemetryExtensions
+public static class ObservabilityExtensions
 {
+    private static readonly JsonSerializerOptions JsonOptions = new() { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
+
     /// <summary>
-    /// Wraps a synchronous action with OpenTelemetry tracing and structured logging.
+    /// Wraps a synchronous action with OpenTelemetry tracing, structured logging, and progress notification.
     /// </summary>
     /// <typeparam name="TIn">Input message type.</typeparam>
     /// <param name="logger">Structured logger instance.</param>
+    /// <param name="progressNotifier">Mandatory pipeline progress notifier.</param>
     /// <param name="timeProvider">Time provider instance.</param>
     /// <param name="callbackName">Logical callback name for telemetry.</param>
     /// <param name="callback">Synchronous delegate executed for each input.</param>
@@ -20,17 +29,19 @@ public static class TelemetryExtensions
     /// <returns>Asynchronous wrapped delegate.</returns>
     public static Func<TIn, Task> HandleExecution<TIn>(
         ILogger logger,
+        IPipelineProgressNotifier progressNotifier,
         TimeProvider timeProvider,
         string callbackName,
         Action<TIn> callback,
         CancellationToken cancellationToken = default)
-        => input => ExecuteCoreAsync(logger, timeProvider, input, callbackName, WrapSyncAction(callback), cancellationToken);
+        => input => ExecuteCoreAsync(logger, progressNotifier, timeProvider, input, callbackName, WrapSyncAction(callback), cancellationToken);
 
     /// <summary>
     /// Wraps a synchronous action, capturing exceptions into a <see cref="SafeResult{TIn}"/> envelope for centralized error routing.
     /// </summary>
     /// <typeparam name="TIn">Input message type.</typeparam>
     /// <param name="logger">Structured logger instance.</param>
+    /// <param name="progressNotifier">Mandatory pipeline progress notifier.</param>
     /// <param name="timeProvider">Time provider instance.</param>
     /// <param name="callbackName">Logical callback name for telemetry.</param>
     /// <param name="callback">Synchronous delegate executed for each input.</param>
@@ -38,17 +49,19 @@ public static class TelemetryExtensions
     /// <returns>Safe execution delegate returning <see cref="SafeResult{TIn}"/>.</returns>
     public static Func<TIn, Task<SafeResult<TIn>>> HandleSafeExecution<TIn>(
         ILogger logger,
+        IPipelineProgressNotifier progressNotifier,
         TimeProvider timeProvider,
         string callbackName,
         Action<TIn> callback,
         CancellationToken cancellationToken = default)
-        => input => SafeExecuteActionCoreAsync(logger, timeProvider, input, callbackName, WrapSyncAction(callback), cancellationToken);
+        => input => SafeExecuteActionCoreAsync(logger, progressNotifier, timeProvider, input, callbackName, WrapSyncAction(callback), cancellationToken);
 
     /// <summary>
-    /// Wraps an asynchronous action with OpenTelemetry tracing and structured logging.
+    /// Wraps an asynchronous action with OpenTelemetry tracing, structured logging, and progress notification.
     /// </summary>
     /// <typeparam name="TIn">Input message type.</typeparam>
     /// <param name="logger">Structured logger instance.</param>
+    /// <param name="progressNotifier">Mandatory pipeline progress notifier.</param>
     /// <param name="timeProvider">Time provider instance.</param>
     /// <param name="callbackName">Logical callback name for telemetry.</param>
     /// <param name="callback">Asynchronous delegate executed for each input.</param>
@@ -56,17 +69,19 @@ public static class TelemetryExtensions
     /// <returns>Asynchronous wrapped delegate.</returns>
     public static Func<TIn, Task> HandleExecution<TIn>(
         ILogger logger,
+        IPipelineProgressNotifier progressNotifier,
         TimeProvider timeProvider,
         string callbackName,
         Func<TIn, CancellationToken, Task> callback,
         CancellationToken cancellationToken = default)
-        => input => ExecuteCoreAsync(logger, timeProvider, input, callbackName, WrapAsyncAction(callback), cancellationToken);
+        => input => ExecuteCoreAsync(logger, progressNotifier, timeProvider, input, callbackName, WrapAsyncAction(callback), cancellationToken);
 
     /// <summary>
     /// Wraps an asynchronous action, combining execution with a <see cref="SafeResult{TIn}"/> envelope for terminal failures.
     /// </summary>
     /// <typeparam name="TIn">Input message type.</typeparam>
     /// <param name="logger">Structured logger instance.</param>
+    /// <param name="progressNotifier">Mandatory pipeline progress notifier.</param>
     /// <param name="timeProvider">Time provider instance.</param>
     /// <param name="callbackName">Logical callback name for telemetry.</param>
     /// <param name="callback">Asynchronous delegate executed for each input.</param>
@@ -74,11 +89,12 @@ public static class TelemetryExtensions
     /// <returns>Safe execution delegate returning <see cref="SafeResult{TIn}"/>.</returns>
     public static Func<TIn, Task<SafeResult<TIn>>> HandleSafeExecution<TIn>(
         ILogger logger,
+        IPipelineProgressNotifier progressNotifier,
         TimeProvider timeProvider,
         string callbackName,
         Func<TIn, CancellationToken, Task> callback,
         CancellationToken cancellationToken = default)
-        => input => SafeExecuteActionCoreAsync(logger, timeProvider, input, callbackName, WrapAsyncAction(callback), cancellationToken);
+        => input => SafeExecuteActionCoreAsync(logger, progressNotifier, timeProvider, input, callbackName, WrapAsyncAction(callback), cancellationToken);
 
     /// <summary>
     /// Wraps a synchronous mapping function with OpenTelemetry tracing and structured logging, returning the mapped output.
@@ -86,6 +102,7 @@ public static class TelemetryExtensions
     /// <typeparam name="TIn">Input message type.</typeparam>
     /// <typeparam name="TOut">Output message type.</typeparam>
     /// <param name="logger">Structured logger instance.</param>
+    /// <param name="progressNotifier">Mandatory pipeline progress notifier.</param>
     /// <param name="timeProvider">Time provider instance.</param>
     /// <param name="callbackName">Logical callback name for telemetry.</param>
     /// <param name="callback">Synchronous transform function.</param>
@@ -93,11 +110,12 @@ public static class TelemetryExtensions
     /// <returns>Asynchronous transform delegate.</returns>
     public static Func<TIn, Task<TOut>> HandleExecution<TIn, TOut>(
         ILogger logger,
+        IPipelineProgressNotifier progressNotifier,
         TimeProvider timeProvider,
         string callbackName,
         Func<TIn, TOut> callback,
         CancellationToken cancellationToken = default)
-        => input => ExecuteCoreAsync(logger, timeProvider, input, callbackName, WrapSyncFunc(callback), cancellationToken);
+        => input => ExecuteCoreAsync(logger, progressNotifier, timeProvider, input, callbackName, WrapSyncFunc(callback), cancellationToken);
 
     /// <summary>
     /// Wraps a synchronous mapping function, intercepting failures into a <see cref="SafeResult{TIn, TOut}"/> to permit DLQ offloading.
@@ -105,6 +123,7 @@ public static class TelemetryExtensions
     /// <typeparam name="TIn">Input message type.</typeparam>
     /// <typeparam name="TOut">Output message type.</typeparam>
     /// <param name="logger">Structured logger instance.</param>
+    /// <param name="progressNotifier">Mandatory pipeline progress notifier.</param>
     /// <param name="timeProvider">Time provider instance.</param>
     /// <param name="callbackName">Logical callback name for telemetry.</param>
     /// <param name="callback">Synchronous transform function.</param>
@@ -112,11 +131,12 @@ public static class TelemetryExtensions
     /// <returns>Safe execution delegate returning <see cref="SafeResult{TIn, TOut}"/>.</returns>
     public static Func<TIn, Task<SafeResult<TIn, TOut>>> HandleSafeExecution<TIn, TOut>(
         ILogger logger,
+        IPipelineProgressNotifier progressNotifier,
         TimeProvider timeProvider,
         string callbackName,
         Func<TIn, TOut> callback,
         CancellationToken cancellationToken = default)
-        => input => SafeExecuteCoreAsync(logger, timeProvider, input, callbackName, WrapSyncFunc(callback), cancellationToken);
+        => input => SafeExecuteCoreAsync(logger, progressNotifier, timeProvider, input, callbackName, WrapSyncFunc(callback), cancellationToken);
 
     /// <summary>
     /// Wraps an asynchronous mapping function with support for telemetry tracking and structured logging.
@@ -124,6 +144,7 @@ public static class TelemetryExtensions
     /// <typeparam name="TIn">Input message type.</typeparam>
     /// <typeparam name="TOut">Output message type.</typeparam>
     /// <param name="logger">Structured logger instance.</param>
+    /// <param name="progressNotifier">Mandatory pipeline progress notifier.</param>
     /// <param name="timeProvider">Time provider instance.</param>
     /// <param name="callbackName">Logical callback name for telemetry.</param>
     /// <param name="callback">Asynchronous transform function.</param>
@@ -131,11 +152,12 @@ public static class TelemetryExtensions
     /// <returns>Asynchronous transform delegate.</returns>
     public static Func<TIn, Task<TOut>> HandleExecution<TIn, TOut>(
         ILogger logger,
+        IPipelineProgressNotifier progressNotifier,
         TimeProvider timeProvider,
         string callbackName,
         Func<TIn, CancellationToken, Task<TOut>> callback,
         CancellationToken cancellationToken = default)
-        => input => ExecuteCoreAsync(logger, timeProvider, input, callbackName, callback, cancellationToken);
+        => input => ExecuteCoreAsync(logger, progressNotifier, timeProvider, input, callbackName, callback, cancellationToken);
 
     /// <summary>
     /// Wraps an asynchronous mapping function, catching failures into a bifurcated <see cref="SafeResult{TIn, TOut}"/>.
@@ -143,6 +165,7 @@ public static class TelemetryExtensions
     /// <typeparam name="TIn">Input message type.</typeparam>
     /// <typeparam name="TOut">Output message type.</typeparam>
     /// <param name="logger">Structured logger instance.</param>
+    /// <param name="progressNotifier">Mandatory pipeline progress notifier.</param>
     /// <param name="timeProvider">Time provider instance.</param>
     /// <param name="callbackName">Logical callback name for telemetry.</param>
     /// <param name="callback">Asynchronous transform function.</param>
@@ -150,28 +173,31 @@ public static class TelemetryExtensions
     /// <returns>Safe execution delegate returning <see cref="SafeResult{TIn, TOut}"/>.</returns>
     public static Func<TIn, Task<SafeResult<TIn, TOut>>> HandleSafeExecution<TIn, TOut>(
         ILogger logger,
+        IPipelineProgressNotifier progressNotifier,
         TimeProvider timeProvider,
         string callbackName,
         Func<TIn, CancellationToken, Task<TOut>> callback,
         CancellationToken cancellationToken = default)
-        => input => SafeExecuteCoreAsync(logger, timeProvider, input, callbackName, callback, cancellationToken);
+        => input => SafeExecuteCoreAsync(logger, progressNotifier, timeProvider, input, callbackName, callback, cancellationToken);
 
     /// <summary>
-    /// Wraps a synchronous conditional forking operation evaluating the output payload after the primary execution completes.
+    /// Wraps a synchronous conditional forking operation with execution telemetry.
     /// </summary>
     /// <typeparam name="TIn">Input message type.</typeparam>
     /// <typeparam name="TOut">Output message type.</typeparam>
     /// <param name="logger">Structured logger instance.</param>
+    /// <param name="progressNotifier">Mandatory pipeline progress notifier.</param>
     /// <param name="timeProvider">Time provider instance.</param>
     /// <param name="callbackName">Logical callback name for primary step.</param>
     /// <param name="fallbackName">Logical callback name for fallback step.</param>
-    /// <param name="callback">Primary transform function.</param>
+    /// <param name="callback">Primary synchronous transform function.</param>
     /// <param name="fallbackCondition">Predicate determining if fallback is needed.</param>
-    /// <param name="fallback">Fallback transform function.</param>
+    /// <param name="fallback">Fallback synchronous transform function.</param>
     /// <param name="cancellationToken">Cancellation token.</param>
     /// <returns>Asynchronous conditional fork delegate.</returns>
     public static Func<TIn, Task<TOut>> HandleExecution<TIn, TOut>(
         ILogger logger,
+        IPipelineProgressNotifier progressNotifier,
         TimeProvider timeProvider,
         string callbackName,
         string fallbackName,
@@ -179,24 +205,26 @@ public static class TelemetryExtensions
         Func<TOut, bool> fallbackCondition,
         Func<TIn, TOut> fallback,
         CancellationToken cancellationToken = default)
-        => HandleExecution(logger, timeProvider, callbackName, fallbackName, WrapSyncFunc(callback), fallbackCondition, WrapSyncFunc(fallback), cancellationToken);
+        => HandleExecution(logger, progressNotifier, timeProvider, callbackName, fallbackName, WrapSyncFunc(callback), fallbackCondition, WrapSyncFunc(fallback), cancellationToken);
 
     /// <summary>
-    /// Wraps a synchronous post-execution conditional forking operation, evaluating against the <see cref="SafeResult{TIn, TOut}"/> state.
+    /// Wraps a synchronous conditional forking operation, evaluating against the <see cref="SafeResult{TIn, TOut}"/> state.
     /// </summary>
     /// <typeparam name="TIn">Input message type.</typeparam>
     /// <typeparam name="TOut">Output message type.</typeparam>
     /// <param name="logger">Structured logger instance.</param>
+    /// <param name="progressNotifier">Mandatory pipeline progress notifier.</param>
     /// <param name="timeProvider">Time provider instance.</param>
     /// <param name="callbackName">Logical callback name for primary step.</param>
     /// <param name="fallbackName">Logical callback name for fallback step.</param>
-    /// <param name="callback">Primary transform function.</param>
+    /// <param name="callback">Primary synchronous transform function.</param>
     /// <param name="fallbackCondition">Predicate determining if fallback is needed.</param>
-    /// <param name="fallback">Fallback transform function.</param>
+    /// <param name="fallback">Fallback synchronous transform function.</param>
     /// <param name="cancellationToken">Cancellation token.</param>
     /// <returns>Safe execution delegate returning <see cref="SafeResult{TIn, TOut}"/>.</returns>
     public static Func<TIn, Task<SafeResult<TIn, TOut>>> HandleSafeExecution<TIn, TOut>(
         ILogger logger,
+        IPipelineProgressNotifier progressNotifier,
         TimeProvider timeProvider,
         string callbackName,
         string fallbackName,
@@ -204,7 +232,7 @@ public static class TelemetryExtensions
         Func<SafeResult<TIn, TOut>, bool> fallbackCondition,
         Func<TIn, TOut> fallback,
         CancellationToken cancellationToken = default)
-        => HandleSafeExecution(logger, timeProvider, callbackName, fallbackName, WrapSyncFunc(callback), fallbackCondition, WrapSyncFunc(fallback), cancellationToken);
+        => HandleSafeExecution(logger, progressNotifier, timeProvider, callbackName, fallbackName, WrapSyncFunc(callback), fallbackCondition, WrapSyncFunc(fallback), cancellationToken);
 
     /// <summary>
     /// Wraps an asynchronous conditional forking operation evaluating the output payload after the primary execution completes.
@@ -212,6 +240,7 @@ public static class TelemetryExtensions
     /// <typeparam name="TIn">Input message type.</typeparam>
     /// <typeparam name="TOut">Output message type.</typeparam>
     /// <param name="logger">Structured logger instance.</param>
+    /// <param name="progressNotifier">Mandatory pipeline progress notifier.</param>
     /// <param name="timeProvider">Time provider instance.</param>
     /// <param name="callbackName">Logical callback name for primary step.</param>
     /// <param name="fallbackName">Logical callback name for fallback step.</param>
@@ -222,6 +251,7 @@ public static class TelemetryExtensions
     /// <returns>Asynchronous conditional fork delegate.</returns>
     public static Func<TIn, Task<TOut>> HandleExecution<TIn, TOut>(
         ILogger logger,
+        IPipelineProgressNotifier progressNotifier,
         TimeProvider timeProvider,
         string callbackName,
         string fallbackName,
@@ -230,11 +260,11 @@ public static class TelemetryExtensions
         Func<TIn, CancellationToken, Task<TOut>> fallback,
         CancellationToken cancellationToken = default) => async input =>
     {
-        TOut output = await ExecuteCoreAsync(logger, timeProvider, input, callbackName, callback, cancellationToken).ConfigureAwait(false);
+        TOut output = await ExecuteCoreAsync(logger, progressNotifier, timeProvider, input, callbackName, callback, cancellationToken).ConfigureAwait(false);
         if (fallbackCondition(output))
         {
             LogFallbackConditionMet(logger, callbackName, fallbackName);
-            return await ExecuteCoreAsync(logger, timeProvider, input, fallbackName, fallback, cancellationToken).ConfigureAwait(false);
+            return await ExecuteCoreAsync(logger, progressNotifier, timeProvider, input, fallbackName, fallback, cancellationToken).ConfigureAwait(false);
         }
 
         return output;
@@ -246,6 +276,7 @@ public static class TelemetryExtensions
     /// <typeparam name="TIn">Input message type.</typeparam>
     /// <typeparam name="TOut">Output message type.</typeparam>
     /// <param name="logger">Structured logger instance.</param>
+    /// <param name="progressNotifier">Mandatory pipeline progress notifier.</param>
     /// <param name="timeProvider">Time provider instance.</param>
     /// <param name="callbackName">Logical callback name for primary step.</param>
     /// <param name="fallbackName">Logical callback name for fallback step.</param>
@@ -256,6 +287,7 @@ public static class TelemetryExtensions
     /// <returns>Safe execution delegate returning <see cref="SafeResult{TIn, TOut}"/>.</returns>
     public static Func<TIn, Task<SafeResult<TIn, TOut>>> HandleSafeExecution<TIn, TOut>(
         ILogger logger,
+        IPipelineProgressNotifier progressNotifier,
         TimeProvider timeProvider,
         string callbackName,
         string fallbackName,
@@ -264,22 +296,23 @@ public static class TelemetryExtensions
         Func<TIn, CancellationToken, Task<TOut>> fallback,
         CancellationToken cancellationToken = default) => async input =>
     {
-        SafeResult<TIn, TOut> safeResult = await SafeExecuteCoreAsync(logger, timeProvider, input, callbackName, callback, cancellationToken).ConfigureAwait(false);
+        SafeResult<TIn, TOut> safeResult = await SafeExecuteCoreAsync(logger, progressNotifier, timeProvider, input, callbackName, callback, cancellationToken).ConfigureAwait(false);
         if (fallbackCondition(safeResult))
         {
             LogFallbackConditionMet(logger, callbackName, fallbackName);
-            return await SafeExecuteCoreAsync(logger, timeProvider, input, fallbackName, fallback, cancellationToken).ConfigureAwait(false);
+            return await SafeExecuteCoreAsync(logger, progressNotifier, timeProvider, input, fallbackName, fallback, cancellationToken).ConfigureAwait(false);
         }
 
         return safeResult;
     };
 
     /// <summary>
-    /// Wraps a streaming function returning an <see cref="IAsyncEnumerable{TOut}"/> with OpenTelemetry tracing and structured logging.
+    /// Wraps a streaming function returning an <see cref="IAsyncEnumerable{TOut}"/> with OpenTelemetry tracing, structured logging, and progress notification.
     /// </summary>
     /// <typeparam name="TIn">Input message type.</typeparam>
     /// <typeparam name="TOut">Output message type.</typeparam>
     /// <param name="logger">Structured logger instance.</param>
+    /// <param name="progressNotifier">Mandatory pipeline progress notifier.</param>
     /// <param name="timeProvider">Time provider instance.</param>
     /// <param name="callbackName">Logical callback name for telemetry.</param>
     /// <param name="callback">Asynchronous enumerable generator.</param>
@@ -287,11 +320,12 @@ public static class TelemetryExtensions
     /// <returns>Streaming execution delegate.</returns>
     public static Func<TIn, IAsyncEnumerable<TOut>> HandleExecution<TIn, TOut>(
         ILogger logger,
+        IPipelineProgressNotifier progressNotifier,
         TimeProvider timeProvider,
         string callbackName,
         Func<TIn, CancellationToken, IAsyncEnumerable<TOut>> callback,
         CancellationToken cancellationToken = default)
-        => input => ExecuteStreamingAsync(logger, timeProvider, input, callbackName, callback, cancellationToken);
+        => input => ExecuteStreamingAsync(logger, progressNotifier, timeProvider, input, callbackName, callback, cancellationToken);
 
     /// <summary>
     /// Wraps a streaming function returning an <see cref="IAsyncEnumerable{TOut}"/> with OpenTelemetry tracing, structured logging, and safe DLQ routing.
@@ -299,6 +333,7 @@ public static class TelemetryExtensions
     /// <typeparam name="TIn">Input message type.</typeparam>
     /// <typeparam name="TOut">Output message type.</typeparam>
     /// <param name="logger">Structured logger instance.</param>
+    /// <param name="progressNotifier">Mandatory pipeline progress notifier.</param>
     /// <param name="timeProvider">Time provider instance.</param>
     /// <param name="callbackName">Logical callback name for telemetry.</param>
     /// <param name="callback">Asynchronous enumerable generator.</param>
@@ -306,18 +341,20 @@ public static class TelemetryExtensions
     /// <returns>Safe streaming execution delegate returning <see cref="SafeResult{TIn, TOut}"/>.</returns>
     public static Func<TIn, IAsyncEnumerable<SafeResult<TIn, TOut>>> HandleSafeExecution<TIn, TOut>(
         ILogger logger,
+        IPipelineProgressNotifier progressNotifier,
         TimeProvider timeProvider,
         string callbackName,
         Func<TIn, CancellationToken, IAsyncEnumerable<TOut>> callback,
         CancellationToken cancellationToken = default)
-        => input => ExecuteSafeStreamingAsync(logger, timeProvider, input, callbackName, callback, cancellationToken);
+        => input => ExecuteSafeStreamingAsync(logger, progressNotifier, timeProvider, input, callbackName, callback, cancellationToken);
 
     /// <summary>
-    /// Wraps an enumerable transformation function returning an <see cref="IEnumerable{TOut}"/> with OpenTelemetry tracing and structured logging.
+    /// Wraps an enumerable transformation function returning an <see cref="IEnumerable{TOut}"/> with OpenTelemetry tracing, structured logging, and progress notification.
     /// </summary>
     /// <typeparam name="TIn">Input message type.</typeparam>
     /// <typeparam name="TOut">Output message type.</typeparam>
     /// <param name="logger">Structured logger instance.</param>
+    /// <param name="progressNotifier">Mandatory pipeline progress notifier.</param>
     /// <param name="timeProvider">Time provider instance.</param>
     /// <param name="callbackName">Logical callback name for telemetry.</param>
     /// <param name="callback">Synchronous enumerable transform function.</param>
@@ -325,11 +362,12 @@ public static class TelemetryExtensions
     /// <returns>Streaming execution delegate.</returns>
     public static Func<TIn, IAsyncEnumerable<TOut>> HandleExecution<TIn, TOut>(
         ILogger logger,
+        IPipelineProgressNotifier progressNotifier,
         TimeProvider timeProvider,
         string callbackName,
         Func<TIn, CancellationToken, IEnumerable<TOut>> callback,
         CancellationToken cancellationToken = default)
-        => input => ExecuteStreamingAsync(logger, timeProvider, input, callbackName, WrapSyncEnumerable(callback), cancellationToken);
+        => input => ExecuteStreamingAsync(logger, progressNotifier, timeProvider, input, callbackName, WrapSyncEnumerable(callback), cancellationToken);
 
     /// <summary>
     /// Wraps an enumerable transformation function returning an <see cref="IEnumerable{TOut}"/> with OpenTelemetry tracing, structured logging, and safe DLQ routing.
@@ -337,6 +375,7 @@ public static class TelemetryExtensions
     /// <typeparam name="TIn">Input message type.</typeparam>
     /// <typeparam name="TOut">Output message type.</typeparam>
     /// <param name="logger">Structured logger instance.</param>
+    /// <param name="progressNotifier">Mandatory pipeline progress notifier.</param>
     /// <param name="timeProvider">Time provider instance.</param>
     /// <param name="callbackName">Logical callback name for telemetry.</param>
     /// <param name="callback">Synchronous enumerable transform function.</param>
@@ -344,11 +383,12 @@ public static class TelemetryExtensions
     /// <returns>Safe streaming execution delegate returning <see cref="SafeResult{TIn, TOut}"/>.</returns>
     public static Func<TIn, IAsyncEnumerable<SafeResult<TIn, TOut>>> HandleSafeExecution<TIn, TOut>(
         ILogger logger,
+        IPipelineProgressNotifier progressNotifier,
         TimeProvider timeProvider,
         string callbackName,
         Func<TIn, CancellationToken, IEnumerable<TOut>> callback,
         CancellationToken cancellationToken = default)
-        => input => ExecuteSafeStreamingAsync(logger, timeProvider, input, callbackName, WrapSyncEnumerable(callback), cancellationToken);
+        => input => ExecuteSafeStreamingAsync(logger, progressNotifier, timeProvider, input, callbackName, WrapSyncEnumerable(callback), cancellationToken);
 
     private static Func<TIn, CancellationToken, Task<bool>> WrapSyncAction<TIn>(Action<TIn> callback) => (input, _) =>
     {
@@ -382,6 +422,7 @@ public static class TelemetryExtensions
 
     private static async Task<TOut> ExecuteCoreAsync<TIn, TOut>(
         ILogger logger,
+        IPipelineProgressNotifier progressNotifier,
         TimeProvider timeProvider,
         TIn input,
         string callbackName,
@@ -396,18 +437,35 @@ public static class TelemetryExtensions
         try
         {
             TOut output = await callback(input, cancellationToken).ConfigureAwait(false);
-            LogAndTrackStepCompletion(logger, timeProvider, activity, startTime, callbackName);
+            DateTimeOffset endTime = timeProvider.GetUtcNow();
+            TimeSpan duration = endTime - startTime;
+            string detailsJson = JsonSerializer.Serialize(new { durationMs = duration.TotalMilliseconds }, JsonOptions);
+
+            LogAndTrackStepCompletion(logger, timeProvider, activity, startTime, callbackName, detailsJson);
+            NotifyProgressSafe(logger, progressNotifier, timeProvider, callbackName, PipelineStepState.Running, $"Successfully processed item in '{callbackName}'.", detailsJson, cancellationToken);
             return output;
         }
         catch (Exception ex) when (ex is not OperationCanceledException)
         {
+            DateTimeOffset endTime = timeProvider.GetUtcNow();
+            TimeSpan duration = endTime - startTime;
+            string errorDetailsJson = JsonSerializer.Serialize(new
+            {
+                exceptionType = ex.GetType().FullName,
+                message = ex.Message,
+                stackTrace = ex.StackTrace,
+                durationMs = duration.TotalMilliseconds
+            }, JsonOptions);
+
             LogAndTrackStepFailure(logger, timeProvider, activity, startTime, callbackName, ex);
+            NotifyProgressSafe(logger, progressNotifier, timeProvider, callbackName, PipelineStepState.Faulted, $"Failed '{callbackName}': {ex.Message}", errorDetailsJson, cancellationToken);
             throw;
         }
     }
 
     private static async Task<SafeResult<TIn>> SafeExecuteActionCoreAsync<TIn>(
         ILogger logger,
+        IPipelineProgressNotifier progressNotifier,
         TimeProvider timeProvider,
         TIn input,
         string callbackName,
@@ -416,7 +474,7 @@ public static class TelemetryExtensions
     {
         try
         {
-            await ExecuteCoreAsync(logger, timeProvider, input, callbackName, callback, cancellationToken).ConfigureAwait(false);
+            await ExecuteCoreAsync(logger, progressNotifier, timeProvider, input, callbackName, callback, cancellationToken).ConfigureAwait(false);
             return SafeResult<TIn>.CreateSuccess();
         }
         catch (Exception ex) when (ex is not OperationCanceledException)
@@ -427,6 +485,7 @@ public static class TelemetryExtensions
 
     private static async Task<SafeResult<TIn, TOut>> SafeExecuteCoreAsync<TIn, TOut>(
         ILogger logger,
+        IPipelineProgressNotifier progressNotifier,
         TimeProvider timeProvider,
         TIn input,
         string callbackName,
@@ -435,7 +494,7 @@ public static class TelemetryExtensions
     {
         try
         {
-            TOut output = await ExecuteCoreAsync(logger, timeProvider, input, callbackName, callback, cancellationToken).ConfigureAwait(false);
+            TOut output = await ExecuteCoreAsync(logger, progressNotifier, timeProvider, input, callbackName, callback, cancellationToken).ConfigureAwait(false);
             return new(output);
         }
         catch (Exception ex) when (ex is not OperationCanceledException)
@@ -446,6 +505,7 @@ public static class TelemetryExtensions
 
     private static async IAsyncEnumerable<TOut> ExecuteStreamingAsync<TIn, TOut>(
         ILogger logger,
+        IPipelineProgressNotifier progressNotifier,
         TimeProvider timeProvider,
         TIn input,
         string callbackName,
@@ -469,7 +529,15 @@ public static class TelemetryExtensions
                 }
                 catch (Exception ex) when (ex is not OperationCanceledException)
                 {
+                    string errorDetailsJson = JsonSerializer.Serialize(new
+                    {
+                        exceptionType = ex.GetType().FullName,
+                        message = ex.Message,
+                        itemsEmittedBeforeFailure = itemCount
+                    }, JsonOptions);
+
                     LogAndTrackStepFailure(logger, timeProvider, activity, startTime, callbackName, ex);
+                    NotifyProgressSafe(logger, progressNotifier, timeProvider, callbackName, PipelineStepState.Faulted, $"Failed '{callbackName}': {ex.Message}", errorDetailsJson, cancellationToken);
                     throw;
                 }
 
@@ -477,15 +545,20 @@ public static class TelemetryExtensions
                     break;
 
                 itemCount++;
+                string itemDetailsJson = JsonSerializer.Serialize(new { itemIndex = itemCount }, JsonOptions);
+                NotifyProgressSafe(logger, progressNotifier, timeProvider, callbackName, PipelineStepState.Running, $"Emitted item #{itemCount} from '{callbackName}'.", itemDetailsJson, cancellationToken);
                 yield return enumerator.Current;
             }
         }
 
-        LogAndTrackStepCompletion(logger, timeProvider, activity, startTime, callbackName, $"Items emitted: {itemCount}");
+        string detailsJson = JsonSerializer.Serialize(new { itemsEmitted = itemCount }, JsonOptions);
+        LogAndTrackStepCompletion(logger, timeProvider, activity, startTime, callbackName, detailsJson);
+        NotifyProgressSafe(logger, progressNotifier, timeProvider, callbackName, PipelineStepState.Completed, $"Completed streaming from '{callbackName}'.", detailsJson, cancellationToken);
     }
 
     private static async IAsyncEnumerable<SafeResult<TIn, TOut>> ExecuteSafeStreamingAsync<TIn, TOut>(
         ILogger logger,
+        IPipelineProgressNotifier progressNotifier,
         TimeProvider timeProvider,
         TIn input,
         string callbackName,
@@ -510,7 +583,15 @@ public static class TelemetryExtensions
                 }
                 catch (Exception ex) when (ex is not OperationCanceledException)
                 {
+                    string errorDetailsJson = JsonSerializer.Serialize(new
+                    {
+                        exceptionType = ex.GetType().FullName,
+                        message = ex.Message,
+                        itemsEmittedBeforeFailure = itemCount
+                    }, JsonOptions);
+
                     LogAndTrackStepFailure(logger, timeProvider, activity, startTime, callbackName, ex);
+                    NotifyProgressSafe(logger, progressNotifier, timeProvider, callbackName, PipelineStepState.Faulted, $"Failed '{callbackName}': {ex.Message}", errorDetailsJson, cancellationToken);
                     exception = ex;
                     hasNext = false;
                 }
@@ -525,11 +606,60 @@ public static class TelemetryExtensions
                     break;
 
                 itemCount++;
+                string itemDetailsJson = JsonSerializer.Serialize(new { itemIndex = itemCount }, JsonOptions);
+                NotifyProgressSafe(logger, progressNotifier, timeProvider, callbackName, PipelineStepState.Running, $"Emitted item #{itemCount} from '{callbackName}'.", itemDetailsJson, cancellationToken);
                 yield return enumerator.Current;
             }
         }
 
-        LogAndTrackStepCompletion(logger, timeProvider, activity, startTime, callbackName, $"Items emitted: {itemCount}");
+        string detailsJson = JsonSerializer.Serialize(new { itemsEmitted = itemCount }, JsonOptions);
+        LogAndTrackStepCompletion(logger, timeProvider, activity, startTime, callbackName, detailsJson);
+        NotifyProgressSafe(logger, progressNotifier, timeProvider, callbackName, PipelineStepState.Completed, $"Completed streaming from '{callbackName}'.", detailsJson, cancellationToken);
+    }
+
+    private static void NotifyProgressSafe(
+        ILogger logger,
+        IPipelineProgressNotifier progressNotifier,
+        TimeProvider timeProvider,
+        string stepName,
+        PipelineStepState state,
+        string description,
+        string? detailsJson = null,
+        CancellationToken cancellationToken = default)
+    {
+        PipelineProgressEvent progressEvent = new()
+        {
+            StepName = stepName,
+            Description = description,
+            State = state,
+            Timestamp = timeProvider.GetUtcNow(),
+            Details = detailsJson
+        };
+
+        try
+        {
+            ValueTask notifyTask = progressNotifier.NotifyAsync(progressEvent, cancellationToken);
+            if (!notifyTask.IsCompletedSuccessfully)
+            {
+                _ = notifyTask.AsTask().ContinueWith(
+                    static (task, stateObj) =>
+                    {
+                        if (task.IsFaulted && task.Exception is not null)
+                        {
+                            (ILogger log, PipelineProgressEvent evt) = ((ILogger, PipelineProgressEvent))stateObj!;
+                            log.LogWarning(task.Exception.InnerException, "Failed to deliver background pipeline progress notification for step '{StepName}'. Event: {@ProgressEvent}", evt.StepName, evt);
+                        }
+                    },
+                    (logger, progressEvent),
+                    CancellationToken.None,
+                    TaskContinuationOptions.OnlyOnFaulted | TaskContinuationOptions.ExecuteSynchronously,
+                    TaskScheduler.Default);
+            }
+        }
+        catch (Exception ex)
+        {
+            logger.LogWarning(ex, "Unexpected error dispatching pipeline progress notification for step '{StepName}'. Event: {@ProgressEvent}", stepName, progressEvent);
+        }
     }
 
     private static DateTimeOffset StartTelemetry(
@@ -580,5 +710,6 @@ public static class TelemetryExtensions
         logger.LogError(ex, "{EndTime:O} - Duration: {Duration} - Failed '{Name}'.", endTime, duration, name);
     }
 
-    private static void LogFallbackConditionMet(ILogger logger, string callbackName, string fallbackName) => logger.LogInformation("Fallback condition met for '{CallbackName}'. Rerouting to '{FallbackName}'.", callbackName, fallbackName);
+    private static void LogFallbackConditionMet(ILogger logger, string callbackName, string fallbackName)
+        => logger.LogInformation("Fallback condition met for '{CallbackName}'. Rerouting to '{FallbackName}'.", callbackName, fallbackName);
 }

@@ -672,22 +672,20 @@
             Uses shadow copying and <see cref="T:MelloSilveiraTools.Plugins.Infrastructure.PluginLoadContext"/> to isolate dependencies and prevent operating system file locking.
             </summary>
             <param name="typeProcessors">Collection of type processors used to handle each <see cref="P:MelloSilveiraTools.Plugins.Infrastructure.IPluginTypeProcessor.ProcessableType"/> discovered inside a plugin assembly.</param>
-            <param name="fileStorageService">Storage service used to open and stream plugin assemblies into memory.</param>
             <param name="timeProvider">The time provider used to record plugin load completion timestamps.</param>
+            <param name="fileProcessor">File processor used for storage and shadow copy operations.</param>
             <param name="cache">Plugin cache used to memoize loaded and registered plugins by name and version.</param>
-            <param name="fileProcessor">Optional file processor used for storage and shadow copy operations.</param>
         </member>
-        <member name="M:MelloSilveiraTools.Plugins.Infrastructure.PluginAssemblyProcessor.#ctor(System.Collections.Generic.IEnumerable{MelloSilveiraTools.Plugins.Infrastructure.IPluginTypeProcessor},MelloSilveiraTools.Core.Managers.File.Providers.IFileStorageService,System.TimeProvider,MelloSilveiraTools.Plugins.Infrastructure.PluginCache,MelloSilveiraTools.Plugins.Infrastructure.PluginFileProcessor)">
+        <member name="M:MelloSilveiraTools.Plugins.Infrastructure.PluginAssemblyProcessor.#ctor(System.Collections.Generic.IEnumerable{MelloSilveiraTools.Plugins.Infrastructure.IPluginTypeProcessor},System.TimeProvider,MelloSilveiraTools.Plugins.Infrastructure.PluginFileProcessor,MelloSilveiraTools.Plugins.Infrastructure.PluginCache)">
             <summary>
             The system responsible for dynamically loading external modules ("plugins") into our application.
             It acts like a gatekeeper that inspects new functionalities, organizing them so our software can adopt these new capabilities on the fly without requiring a full system restart.
             Uses shadow copying and <see cref="T:MelloSilveiraTools.Plugins.Infrastructure.PluginLoadContext"/> to isolate dependencies and prevent operating system file locking.
             </summary>
             <param name="typeProcessors">Collection of type processors used to handle each <see cref="P:MelloSilveiraTools.Plugins.Infrastructure.IPluginTypeProcessor.ProcessableType"/> discovered inside a plugin assembly.</param>
-            <param name="fileStorageService">Storage service used to open and stream plugin assemblies into memory.</param>
             <param name="timeProvider">The time provider used to record plugin load completion timestamps.</param>
+            <param name="fileProcessor">File processor used for storage and shadow copy operations.</param>
             <param name="cache">Plugin cache used to memoize loaded and registered plugins by name and version.</param>
-            <param name="fileProcessor">Optional file processor used for storage and shadow copy operations.</param>
         </member>
         <member name="M:MelloSilveiraTools.Plugins.Infrastructure.PluginAssemblyProcessor.LoadAsync(MelloSilveiraTools.Plugins.Infrastructure.Models.DiscoveredPlugin,System.Threading.CancellationToken)">
             <summary>
@@ -837,8 +835,7 @@
         <member name="M:MelloSilveiraTools.Plugins.Infrastructure.PluginFileProcessor.ScanAsync(System.String,System.Nullable{MelloSilveiraTools.Plugins.Infrastructure.Models.PluginVersion},System.Threading.CancellationToken)">
             <summary>
             Asynchronously scans the incoming storage partition for DLLs matching the given <paramref name="pluginName"/> and <paramref name="version"/> filters,
-            verifying that each candidate is a valid managed .NET assembly compatible with the host process architecture,
-            and isolating non-conforming or incompatible binaries to quarantine.
+            verifying that each candidate is a valid managed .NET assembly compatible with the host process architecture, and isolating non-conforming or incompatible binaries to quarantine.
             </summary>
             <param name="pluginName">Optional plugin name prefix used to filter matching files.</param>
             <param name="version">Optional plugin version used to filter matching files.</param>

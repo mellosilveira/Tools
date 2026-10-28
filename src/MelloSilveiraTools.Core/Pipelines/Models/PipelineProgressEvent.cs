@@ -50,7 +50,7 @@ public sealed record PipelineProgressEvent
     public double ProgressPercentage { get; init; }
 
     /// <summary>
-    /// Gets optional diagnostic, contextual, or JSON-formatted details (e.g., item count, identifier, or error message).
+    /// Gets optional diagnostic, contextual, or execution details serialized as a JSON string (e.g., error payloads, item counters, or execution metrics).
     /// </summary>
     public string? Details { get; init; }
 
