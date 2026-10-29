@@ -533,8 +533,7 @@ file sealed class DataflowPipeline<TIn>(
     }
 
     /// <inheritdoc/>
-    public Task<bool> SendAsync(TIn item, CancellationToken cancellationToken = default)
-        => headBlock.SendAsync(item, cancellationToken);
+    public Task<bool> SendAsync(TIn item, CancellationToken cancellationToken = default) => headBlock.SendAsync(item, cancellationToken);
 
     /// <inheritdoc/>
     public void Complete()

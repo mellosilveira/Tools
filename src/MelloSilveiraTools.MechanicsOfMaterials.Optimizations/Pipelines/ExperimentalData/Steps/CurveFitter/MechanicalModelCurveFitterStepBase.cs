@@ -84,7 +84,7 @@ public abstract class MechanicalModelCurveFitterStepBase(double targetRSquared) 
     /// Creates a new <see cref="MechanicalModelCurveFitOutput"/> with model metadata and fitting metrics.
     /// </summary>
     protected MechanicalModelCurveFitOutput CreateCurveFitOutput(IReadOnlyList<CurveSegment> segments, ConstitutiveParameters constitutiveParameters, AcceptedRange acceptedRange, RampTimeConsideration rampTimeConsideration, double precision, double finalError, int iterations)
-        => new(segments, MechanicalModelName, constitutiveParameters, acceptedRange, LoadResponseRelationship, ViscoelasticEffect, rampTimeConsideration, precision, finalError, iterations);
+        => new(segments, constitutiveParameters, acceptedRange, LoadResponseRelationship, ViscoelasticEffect, rampTimeConsideration, precision, finalError, iterations);
 
     /// <summary>
     /// Creates a new <see cref="MechanicalModelCurveFitOutput"/> with model metadata and fitting metrics, defaulting the ramp time consideration to <see cref="RampTimeConsideration.Disregard"/>.
