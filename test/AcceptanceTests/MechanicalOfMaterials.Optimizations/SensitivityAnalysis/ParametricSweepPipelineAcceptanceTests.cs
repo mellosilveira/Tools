@@ -65,7 +65,7 @@ public sealed class ParametricSweepPipelineAcceptanceTests : IDisposable
         // Arrange
         using IServiceScope scope = GlobalServiceProvider.Provider.CreateScope();
         ParametricSweepPipeline pipeline = scope.ServiceProvider.GetRequiredService<ParametricSweepPipeline>();
-        MelloSilveiraTools.Core.Managers.File.IFileStorageService fileStorageService = scope.ServiceProvider.GetRequiredService<MelloSilveiraTools.Core.Managers.File.IFileStorageService>();
+        MelloSilveiraTools.Core.Managers.File.Providers.IFileStorageService fileStorageService = scope.ServiceProvider.GetRequiredService<MelloSilveiraTools.Core.Managers.File.Providers.IFileStorageService>();
 
         ParametricSweepInput input = ParametricSweepInputJsonParser.Parse(File.ReadAllText(jsonFilePath));
 
@@ -80,7 +80,7 @@ public sealed class ParametricSweepPipelineAcceptanceTests : IDisposable
         // Validate each constant variable CSV output
         foreach (string variableName in input.ConstantVariables.Keys)
         {
-            string csvFile = fileStorageService.ResolvePath("SensitivityAnalysis", identifier, $"{variableName}_SensitivityAnalysis.csv");
+            string csvFile = fileStorageService.ResolveLocation(identifier, "SensitivityAnalysis", $"{variableName}_SensitivityAnalysis.csv");
             Assert.True(File.Exists(csvFile), $"Expected {csvFile} to exist for variable '{variableName}'.");
 
             string[] lines = await File.ReadAllLinesAsync(csvFile);
@@ -92,7 +92,7 @@ public sealed class ParametricSweepPipelineAcceptanceTests : IDisposable
         // Validate Strain variation CSV output if configured
         if (input.StrainRange is not null)
         {
-            string strainCsv = fileStorageService.ResolvePath("SensitivityAnalysis", identifier, "Strain_SensitivityAnalysis.csv");
+            string strainCsv = fileStorageService.ResolveLocation(identifier, "SensitivityAnalysis", "Strain_SensitivityAnalysis.csv");
             Assert.True(File.Exists(strainCsv), $"Expected {strainCsv} to exist for Strain variation.");
 
             string[] lines = await File.ReadAllLinesAsync(strainCsv);

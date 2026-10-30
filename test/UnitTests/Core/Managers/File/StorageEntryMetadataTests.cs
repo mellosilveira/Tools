@@ -35,7 +35,7 @@ public sealed class StorageEntryMetadataTests
 
         // Assert
         Assert.Equal(StorageProvider.Local, metadata.StorageProvider);
-        Assert.Equal(fullPath, metadata.FullPath);
+        Assert.Equal(fullPath, metadata.Location);
         Assert.Equal(directory, metadata.Directory);
         Assert.Equal(fileName, metadata.FileName);
         Assert.Equal(sizeBytes, metadata.SizeBytes);
@@ -91,7 +91,7 @@ public sealed class StorageEntryMetadataTests
 
         // Assert
         Assert.Equal(1024L, sizeUpdated.SizeBytes);
-        Assert.Equal(metadata.FullPath, sizeUpdated.FullPath);
+        Assert.Equal(metadata.Location, sizeUpdated.Location);
         Assert.Equal(metadata.FileName, sizeUpdated.FileName);
         Assert.True(sizeUpdated.IsFile);
 

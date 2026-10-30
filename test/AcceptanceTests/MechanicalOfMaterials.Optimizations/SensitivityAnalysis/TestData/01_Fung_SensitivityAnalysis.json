@@ -22,12 +22,12 @@
     }
   },
   "constantVariables": {
-    "c": {
+    "RelaxationStiffness": {
       "initialPoint": 0.05,
       "finalPoint": 0.15,
       "step": 0.05
     },
-    "tau1": {
+    "FastRelaxationTime": {
       "initialPoint": 0.01,
       "finalPoint": 0.03,
       "step": 0.01

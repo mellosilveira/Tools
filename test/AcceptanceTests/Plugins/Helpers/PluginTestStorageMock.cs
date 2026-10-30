@@ -44,9 +44,9 @@ public sealed class PluginTestStorageMock
     /// <param name="partition">Canonical storage partition name.</param>
     /// <param name="fileName">File name with extension.</param>
     /// <param name="content">Raw file payload bytes.</param>
-    public void AddFile(string context, string partition, string fileName, byte[] content)
+    public void AddFile(string identifier, string partition, string fileName, byte[] content)
     {
-        string location = ResolveLocationCore(context, partition, fileName);
+        string location = ResolveLocationCore(identifier, partition, fileName);
         string normalized = NormalizeLocation(location);
         _files[normalized] = (content, DateTimeOffset.UtcNow);
     }
@@ -58,9 +58,9 @@ public sealed class PluginTestStorageMock
     /// <param name="partition">Canonical storage partition name.</param>
     /// <param name="fileName">File name with extension.</param>
     /// <returns><c>true</c> if the file exists; otherwise, <c>false</c>.</returns>
-    public bool FileExists(string context, string partition, string fileName)
+    public bool FileExists(string identifier, string partition, string fileName)
     {
-        string location = ResolveLocationCore(context, partition, fileName);
+        string location = ResolveLocationCore(identifier, partition, fileName);
         return _files.ContainsKey(NormalizeLocation(location));
     }
 
@@ -71,9 +71,9 @@ public sealed class PluginTestStorageMock
     /// <param name="partition">Canonical storage partition name.</param>
     /// <param name="fileName">File name with extension.</param>
     /// <returns>The raw byte array, or <c>null</c>.</returns>
-    public byte[]? GetFileBytes(string context, string partition, string fileName)
+    public byte[]? GetFileBytes(string identifier, string partition, string fileName)
     {
-        string location = ResolveLocationCore(context, partition, fileName);
+        string location = ResolveLocationCore(identifier, partition, fileName);
         return _files.TryGetValue(NormalizeLocation(location), out (byte[] Data, DateTimeOffset CreatedAt) item)
             ? item.Data
             : null;
@@ -85,11 +85,11 @@ public sealed class PluginTestStorageMock
     /// <param name="context">Business domain context.</param>
     /// <param name="partition">Canonical storage partition name.</param>
     /// <returns>A read-only list of file names.</returns>
-    public IReadOnlyList<string> GetFilesInPartition(string context, string partition)
+    public IReadOnlyList<string> GetFilesInPartition(string identifier, string partition)
     {
-        string normContext = context.Replace('\\', '/').Trim('/');
+        string normIdentifier = identifier.Replace('\\', '/').Trim('/');
         string normPartition = partition.Replace('\\', '/').Trim('/');
-        string prefix = $"{normContext}/{normPartition}/";
+        string prefix = $"{normIdentifier}/{normPartition}/";
 
         List<string> names = [];
         foreach (string key in _files.Keys)
@@ -116,7 +116,7 @@ public sealed class PluginTestStorageMock
         Mock.SetupGet(s => s.Provider).Returns(Provider);
 
         Mock.Setup(s => s.ResolveLocation(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
-            .Returns<string, string, string>((context, identifier, fileName) => ResolveLocationCore(context, identifier, fileName));
+            .Returns<string, string, string>((identifier, context, fileName) => ResolveLocationCore(identifier, context, fileName));
 
         Mock.Setup(s => s.OpenWriteAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
             .Returns<string, CancellationToken>((location, ct) =>
@@ -128,10 +128,10 @@ public sealed class PluginTestStorageMock
             });
 
         Mock.Setup(s => s.CreateWriteAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
-            .Returns<string, string, string, CancellationToken>((context, identifier, fileName, ct) =>
+            .Returns<string, string, string, CancellationToken>((identifier, context, fileName, ct) =>
             {
                 ct.ThrowIfCancellationRequested();
-                string location = ResolveLocationCore(context, identifier, fileName);
+                string location = ResolveLocationCore(identifier, context, fileName);
                 string normalized = NormalizeLocation(location);
                 Stream stream = new CommitOnFlushMemoryStream(normalized, _files);
                 return ValueTask.FromResult((stream, location));
@@ -152,9 +152,9 @@ public sealed class PluginTestStorageMock
             });
 
         Mock.Setup(s => s.OpenReadAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
-            .Returns<string, string, string, CancellationToken>((context, identifier, fileName, ct) =>
+            .Returns<string, string, string, CancellationToken>((identifier, context, fileName, ct) =>
             {
-                string location = ResolveLocationCore(context, identifier, fileName);
+                string location = ResolveLocationCore(identifier, context, fileName);
                 return Mock.Object.OpenReadAsync(location, ct);
             });
 
@@ -167,9 +167,9 @@ public sealed class PluginTestStorageMock
             });
 
         Mock.Setup(s => s.ExistsAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
-            .Returns<string, string, string, CancellationToken>((context, identifier, fileName, ct) =>
+            .Returns<string, string, string, CancellationToken>((identifier, context, fileName, ct) =>
             {
-                string location = ResolveLocationCore(context, identifier, fileName);
+                string location = ResolveLocationCore(identifier, context, fileName);
                 return Mock.Object.ExistsAsync(location, ct);
             });
 
@@ -197,9 +197,9 @@ public sealed class PluginTestStorageMock
             });
 
         Mock.Setup(s => s.GetMetadataAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
-            .Returns<string, string, string, CancellationToken>((context, identifier, fileName, ct) =>
+            .Returns<string, string, string, CancellationToken>((identifier, context, fileName, ct) =>
             {
-                string location = ResolveLocationCore(context, identifier, fileName);
+                string location = ResolveLocationCore(identifier, context, fileName);
                 return Mock.Object.GetMetadataAsync(location, ct);
             });
 
@@ -213,30 +213,30 @@ public sealed class PluginTestStorageMock
             });
 
         Mock.Setup(s => s.DeleteAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
-            .Returns<string, string, string, CancellationToken>((context, identifier, fileName, ct) =>
+            .Returns<string, string, string, CancellationToken>((identifier, context, fileName, ct) =>
             {
-                string location = ResolveLocationCore(context, identifier, fileName);
+                string location = ResolveLocationCore(identifier, context, fileName);
                 return Mock.Object.DeleteAsync(location, ct);
             });
 
         Mock.Setup(s => s.ListFilesAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
-            .Returns((string context, string identifier, CancellationToken ct) => ListFilesCore(context, identifier, ct));
+            .Returns((string identifier, string context, CancellationToken ct) => ListFilesCore(identifier, context, ct));
 
         Mock.Setup(s => s.ListEntriesAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
-            .Returns((string context, string identifier, CancellationToken ct) => ListFilesCore(context, identifier, ct));
+            .Returns((string identifier, string context, CancellationToken ct) => ListFilesCore(identifier, context, ct));
 
         Mock.Setup(s => s.Dispose());
         Mock.Setup(s => s.DisposeAsync()).Returns(ValueTask.CompletedTask);
     }
 
     private async IAsyncEnumerable<StorageEntryMetadata> ListFilesCore(
-        string context,
         string identifier,
+        string context,
         [EnumeratorCancellation] CancellationToken cancellationToken)
     {
-        string normContext = context.Replace('\\', '/').Trim('/');
         string normIdentifier = identifier.Replace('\\', '/').Trim('/');
-        string prefix = $"{normContext}/{normIdentifier}/";
+        string normContext = context.Replace('\\', '/').Trim('/');
+        string prefix = $"{normIdentifier}/{normContext}/";
 
         foreach (KeyValuePair<string, (byte[] Data, DateTimeOffset CreatedAt)> kvp in _files)
         {
@@ -244,7 +244,7 @@ public sealed class PluginTestStorageMock
             if (kvp.Key.StartsWith(prefix, StringComparison.OrdinalIgnoreCase))
             {
                 string fileName = Path.GetFileName(kvp.Key);
-                string directory = $"{normContext}/{normIdentifier}";
+                string directory = $"{normIdentifier}/{normContext}";
                 yield return new StorageEntryMetadata(
                     Provider,
                     kvp.Key,
@@ -263,11 +263,11 @@ public sealed class PluginTestStorageMock
         return location.Replace('\\', '/').TrimStart('/');
     }
 
-    private static string ResolveLocationCore(string context, string identifier, string fileName)
+    private static string ResolveLocationCore(string identifier, string context, string fileName)
     {
-        string normContext = context.Replace('\\', '/').Trim('/');
         string normIdentifier = identifier.Replace('\\', '/').Trim('/');
-        return $"{normContext}/{normIdentifier}/{fileName}";
+        string normContext = context.Replace('\\', '/').Trim('/');
+        return $"{normIdentifier}/{normContext}/{fileName}";
     }
 
     private sealed class CommitOnFlushMemoryStream : MemoryStream

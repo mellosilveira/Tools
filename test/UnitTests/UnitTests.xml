@@ -4,25 +4,167 @@
         <name>UnitTests</name>
     </assembly>
     <members>
+        <member name="T:UnitTests.Core.Logging.LoggerConfigurationExtensionsTests">
+            <summary>
+            Unit tests for <see cref="T:MelloSilveiraTools.Core.Logging.LoggerConfigurationExtensions"/>, <see cref="T:MelloSilveiraTools.Core.Logging.FileLoggerSettings"/>, and <see cref="T:MelloSilveiraTools.Core.Logging.LoggerSettings"/>
+            verifying logger bootstrapping, file and database sink registrations, and DI service container integration.
+            </summary>
+        </member>
+        <member name="M:UnitTests.Core.Logging.LoggerConfigurationExtensionsTests.Create_ReturnsConfiguredLoggerConfiguration">
+            <summary>
+            Verifies that LoggerConfigurationExtensions.Create returns a non-null LoggerConfiguration.
+            </summary>
+        </member>
+        <member name="M:UnitTests.Core.Logging.LoggerConfigurationExtensionsTests.WriteToLocalFile_WithFileLoggerSettings_CreatesDirectoryAndAppliesFileSink">
+            <summary>
+            Verifies that WriteToLocalFile creates the target directory and returns the LoggerConfiguration when using FileLoggerSettings directly.
+            </summary>
+        </member>
+        <member name="M:UnitTests.Core.Logging.LoggerConfigurationExtensionsTests.WriteToPostgres_WithDatabaseLoggerSettings_ConfiguresSink">
+            <summary>
+            Verifies that WriteToPostgres successfully configures the PostgreSQL sink using DatabaseLoggerSettings.
+            </summary>
+        </member>
+        <member name="M:UnitTests.Core.Logging.LoggerConfigurationExtensionsTests.AddCoreLogging_WhenLoggerSettingsNull_EnablesDefaultConsoleLogging">
+            <summary>
+            Verifies that AddCoreLogging with null LoggerSettings registers Microsoft default console logging.
+            </summary>
+        </member>
+        <member name="M:UnitTests.Core.Logging.LoggerConfigurationExtensionsTests.AddCoreLogging_WithFileSettings_RegistersLoggingServices">
+            <summary>
+            Verifies that AddCoreLogging with File settings registers Serilog and ILoggerFactory in the DI container.
+            </summary>
+        </member>
+        <member name="M:UnitTests.Core.Logging.LoggerConfigurationExtensionsTests.AddCoreLogging_WithDatabaseSettings_RegistersLoggingServices">
+            <summary>
+            Verifies that AddCoreLogging with Database settings registers Serilog and ILoggerFactory in the DI container.
+            </summary>
+        </member>
+        <member name="M:UnitTests.Core.Logging.LoggerConfigurationExtensionsTests.AddCoreLogging_WithBothFileAndDatabase_RegistersBothSinks">
+            <summary>
+            Verifies that AddCoreLogging with both File and Database configured enables both sinks and registers ILoggerFactory.
+            </summary>
+        </member>
+        <member name="T:UnitTests.Core.Managers.File.CsvStreamReaderTests">
+            <summary>
+            Contains unit tests verifying the high-performance streaming functionality of <see cref="T:MelloSilveiraTools.Core.Managers.File.Csv.CsvStreamReader"/>.
+            </summary>
+        </member>
+        <member name="M:UnitTests.Core.Managers.File.CsvStreamReaderTests.ReadNextRowAsync_WithTwoColumns_ParsesCorrectly">
+            <summary>
+            Verifies that <see cref="M:MelloSilveiraTools.Core.Managers.File.Csv.CsvStreamReader.ReadNextRowAsync(System.Threading.CancellationToken)"/> correctly parses two-column numerical rows after skipping the header.
+            </summary>
+        </member>
+        <member name="M:UnitTests.Core.Managers.File.CsvStreamReaderTests.ReadNextRowAsync_WithMultipleColumns_ParsesAllColumns">
+            <summary>
+            Verifies that <see cref="M:MelloSilveiraTools.Core.Managers.File.Csv.CsvStreamReader.ReadNextRowAsync(System.Threading.CancellationToken)"/> parses rows containing more than two columns.
+            </summary>
+        </member>
+        <member name="M:UnitTests.Core.Managers.File.CsvStreamReaderTests.ReadNextRowAsync_WithEmptyLinesAndWhitespace_SkipsEmptyLines">
+            <summary>
+            Verifies that empty lines and whitespace lines are ignored while streaming data rows.
+            </summary>
+        </member>
+        <member name="M:UnitTests.Core.Managers.File.CsvStreamReaderTests.ReadNextRowAsync_WithCustomDelimiter_ParsesCorrectly">
+            <summary>
+            Verifies that <see cref="T:MelloSilveiraTools.Core.Managers.File.Csv.CsvStreamReader"/> works properly with a non-comma delimiter (e.g. semicolon).
+            </summary>
+        </member>
+        <member name="M:UnitTests.Core.Managers.File.CsvStreamReaderTests.ReadAllRowsAsync_StreamsAllRowsCorrectly">
+            <summary>
+            Verifies that <see cref="M:MelloSilveiraTools.Core.Managers.File.Csv.CsvStreamReader.ReadAllRowsAsync(System.Threading.CancellationToken)"/> streams all valid numeric rows until the end of stream.
+            </summary>
+        </member>
+        <member name="M:UnitTests.Core.Managers.File.CsvStreamReaderTests.ReadNextRowAsync_WithSkipInvalidLines_SkipsCorruptedLines">
+            <summary>
+            Verifies that setting <c>skipInvalidLines: true</c> causes invalid rows to be ignored instead of terminating reading.
+            </summary>
+        </member>
+        <member name="M:UnitTests.Core.Managers.File.CsvStreamReaderTests.ReadNextRowAsync_WithoutSkipInvalidLines_StopsAtInvalidLine">
+            <summary>
+            Verifies that setting <c>skipInvalidLines: false</c> terminates streaming upon encountering the first unparseable row.
+            </summary>
+        </member>
+        <member name="M:UnitTests.Core.Managers.File.CsvStreamReaderTests.DisposeAsync_CanBeCalledSafely">
+            <summary>
+            Verifies that <see cref="M:MelloSilveiraTools.Core.Managers.File.Csv.CsvStreamReader.DisposeAsync"/> executes cleanly without throwing exceptions.
+            </summary>
+        </member>
+        <member name="T:UnitTests.Core.Managers.File.StorageEntryMetadataTests">
+            <summary>
+            Unit tests for <see cref="T:MelloSilveiraTools.Core.Managers.File.Models.StorageEntryMetadata"/> verifying property resolution,
+            file vs directory discrimination, file name normalization, and non-destructive record mutations.
+            </summary>
+        </member>
+        <member name="M:UnitTests.Core.Managers.File.StorageEntryMetadataTests.Constructor_ForFile_PreservesPropertiesAndFlagsAsFile(System.String,System.String,System.String,System.Int64)">
+            <summary>
+            Verifies that constructing metadata for a file preserves the file name and correctly identifies it as a file.
+            </summary>
+        </member>
+        <member name="M:UnitTests.Core.Managers.File.StorageEntryMetadataTests.Constructor_WithNullOrEmptyFileName_NormalizesToNullAndFlagsAsDirectory(System.String)">
+            <summary>
+            Verifies that constructing metadata with null or empty file name normalizes it to null and flags as directory.
+            </summary>
+        </member>
+        <member name="M:UnitTests.Core.Managers.File.StorageEntryMetadataTests.RecordWith_AllowsNonDestructiveMutationAndNormalizesFileName">
+            <summary>
+            Verifies that non-destructive record mutation via 'with' preserves unchanged fields and normalizes modified file names.
+            </summary>
+        </member>
+        <member name="T:UnitTests.Core.Models.SpanStringBuilderTests">
+            <summary>
+            Unit tests for <see cref="T:MelloSilveiraTools.Core.Models.SpanStringBuilder"/> verifying stack-based string building,
+            pooled buffer growth, indexer access, line formatting, and deterministic disposal.
+            </summary>
+        </member>
+        <member name="M:UnitTests.Core.Models.SpanStringBuilderTests.Append_Characters_BuildsExpectedString">
+            <summary>
+            Verifies that appending characters builds the expected string.
+            </summary>
+        </member>
+        <member name="M:UnitTests.Core.Models.SpanStringBuilderTests.Append_ReadOnlySpan_BuildsExpectedString">
+            <summary>
+            Verifies that appending string spans builds the expected composite string.
+            </summary>
+        </member>
+        <member name="M:UnitTests.Core.Models.SpanStringBuilderTests.Append_ExceedingInitialCapacity_GrowsBufferAutomatically">
+            <summary>
+            Verifies that appending past initial capacity grows the buffer seamlessly without data loss.
+            </summary>
+        </member>
+        <member name="M:UnitTests.Core.Models.SpanStringBuilderTests.AppendLine_AppendsEnvironmentNewLine">
+            <summary>
+            Verifies that AppendLine appends content followed by Environment.NewLine.
+            </summary>
+        </member>
+        <member name="M:UnitTests.Core.Models.SpanStringBuilderTests.Indexer_AllowsInPlaceReadAndMutation">
+            <summary>
+            Verifies that character indexer allows reading and mutating characters in place.
+            </summary>
+        </member>
+        <member name="M:UnitTests.Core.Models.SpanStringBuilderTests.Dispose_CalledMultipleTimes_IsSafeAndIdempotent">
+            <summary>
+            Verifies that calling Dispose multiple times is idempotent and resets the buffer.
+            </summary>
+        </member>
         <member name="T:UnitTests.Core.Pipelines.Models.PipelineProgressEventTests">
             <summary>
-            Unit tests for <see cref="T:MelloSilveiraTools.Core.Pipelines.Models.PipelineProgressEvent"/> and <see cref="T:MelloSilveiraTools.Core.Pipelines.Models.PipelineStepState"/> verifying record contract,
-            default values, and lifecycle state enumeration.
+            Unit tests for <see cref="T:MelloSilveiraTools.Core.Pipelines.Models.PipelineProgressEvent"/> and <see cref="T:MelloSilveiraTools.Core.Pipelines.Models.PipelineStepState"/>.
             </summary>
         </member>
-        <member name="M:UnitTests.Core.Pipelines.Models.PipelineProgressEventTests.Constructor_AssignsAllPropertiesCorrectly">
+        <member name="M:UnitTests.Core.Pipelines.Models.PipelineProgressEventTests.ObjectInitializer_AssignsAllPropertiesCorrectly">
             <summary>
-            Verifies that all properties are assigned correctly when initialized via primary constructor.
+            Verifies that all properties are assigned correctly when initialized via object initializer.
             </summary>
         </member>
-        <member name="M:UnitTests.Core.Pipelines.Models.PipelineProgressEventTests.Constructor_SetsDefaultValuesForOptionalParameters">
+        <member name="M:UnitTests.Core.Pipelines.Models.PipelineProgressEventTests.ObjectInitializer_SetsDefaultValuesForOptionalProperties">
             <summary>
-            Verifies that optional parameters default to null or default timestamp when omitted.
+            Verifies that optional properties default to expected values when omitted.
             </summary>
         </member>
         <member name="M:UnitTests.Core.Pipelines.Models.PipelineProgressEventTests.RecordEquality_EvaluatesIdenticalPropertiesAsEqual">
             <summary>
-            Verifies value-based record equality for <see cref="T:MelloSilveiraTools.Core.Pipelines.Models.PipelineProgressEvent"/>.
+            Verifies value-based record equality for <see cref="T:MelloSilveiraTools.Core.Pipelines.Models.PipelineProgressEvent"/> including sequence equality of <see cref="P:MelloSilveiraTools.Core.Pipelines.Models.PipelineProgressEvent.UpstreamSteps"/>.
             </summary>
         </member>
         <member name="M:UnitTests.Core.Pipelines.Models.PipelineProgressEventTests.PipelineStepState_DefinesExpectedLifecycleStates">
@@ -30,46 +172,105 @@
             Verifies that all expected lifecycle states exist in <see cref="T:MelloSilveiraTools.Core.Pipelines.Models.PipelineStepState"/>.
             </summary>
         </member>
-        <member name="T:UnitTests.Core.Pipelines.Telemetry.PipelineProgressEmissionTests">
+        <member name="T:UnitTests.Core.Pipelines.Notifiers.ChannelPipelineProgressNotifierTests">
             <summary>
-            Unit tests verifying real-time emission of <see cref="T:MelloSilveiraTools.Core.Pipelines.Models.PipelineProgressEvent"/> notifications
-            across synchronous, asynchronous, streaming, and full Dataflow pipeline topologies.
+            Unit tests for <see cref="T:MelloSilveiraTools.Core.Pipelines.Notifiers.ChannelPipelineProgressNotifier"/> and <see cref="T:MelloSilveiraTools.Core.Pipelines.Notifiers.NullPipelineProgressNotifier"/>.
             </summary>
         </member>
-        <member name="M:UnitTests.Core.Pipelines.Telemetry.PipelineProgressEmissionTests.HandleExecution_SyncAction_WhenSuccessful_EmitsStartedAndCompletedEvents">
+        <member name="M:UnitTests.Core.Pipelines.Notifiers.ChannelPipelineProgressNotifierTests.NotifyAsync_StreamsEmittedEventsInOrderAndCompletesCleanly">
             <summary>
-            Verifies that a successful synchronous execution emits Started and Completed progress events.
+            Verifies that <see cref="T:MelloSilveiraTools.Core.Pipelines.Notifiers.ChannelPipelineProgressNotifier"/> streams emitted events in order and completes cleanly.
             </summary>
         </member>
-        <member name="M:UnitTests.Core.Pipelines.Telemetry.PipelineProgressEmissionTests.HandleExecution_SyncAction_WhenFaulted_EmitsStartedAndFaultedEvents">
+        <member name="M:UnitTests.Core.Pipelines.Notifiers.ChannelPipelineProgressNotifierTests.NullPipelineProgressNotifier_NotifyAsync_CompletesSynchronously">
             <summary>
-            Verifies that a failing synchronous execution emits Started and Faulted progress events.
+            Verifies that <see cref="T:MelloSilveiraTools.Core.Pipelines.Notifiers.NullPipelineProgressNotifier"/> completes synchronously with no side effects.
             </summary>
         </member>
-        <member name="M:UnitTests.Core.Pipelines.Telemetry.PipelineProgressEmissionTests.HandleExecution_AsyncFunc_WhenSuccessful_EmitsStartedAndCompletedEvents">
+        <member name="T:UnitTests.Core.Providers.Dynamics.InMemoryDynamicServiceProviderTests">
             <summary>
-            Verifies that a successful asynchronous function emits Started and Completed progress events.
+            Unit tests for <see cref="T:MelloSilveiraTools.Core.Providers.Dynamics.InMemoryDynamicServiceProvider"/> verifying dynamic service registration,
+            lazy factory activation, keyed instance storage, and typed resolution.
             </summary>
         </member>
-        <member name="M:UnitTests.Core.Pipelines.Telemetry.PipelineProgressEmissionTests.HandleExecution_AsyncFunc_WhenRetriesExhausted_EmitsStartedAndFaultedEvents">
+        <member name="M:UnitTests.Core.Providers.Dynamics.InMemoryDynamicServiceProviderTests.Add_And_GetService_ResolvesLazyInstanceWithParameters">
             <summary>
-            Verifies that an asynchronous function failing after retries emits Started and Faulted progress events.
+            Verifies that dynamic types can be registered and lazily resolved with custom constructor parameters.
             </summary>
         </member>
-        <member name="M:UnitTests.Core.Pipelines.Telemetry.PipelineProgressEmissionTests.HandleExecution_AsyncEnumerable_EmitsStartedRunningAndCompletedEvents">
+        <member name="M:UnitTests.Core.Providers.Dynamics.InMemoryDynamicServiceProviderTests.Add_InterfaceMapping_ResolvesGenericType">
             <summary>
-            Verifies that an asynchronous streaming enumerable emits Started, Running (with emitted counts), and Completed events.
+            Verifies that interface mappings can be added and resolved via generic GetService.
             </summary>
         </member>
-        <member name="M:UnitTests.Core.Pipelines.Telemetry.PipelineProgressEmissionTests.StartDataflow_PipelineExecution_EmitsProgressEventsAcrossTopology">
+        <member name="M:UnitTests.Core.Providers.Dynamics.InMemoryDynamicServiceProviderTests.AddKeyed_And_GetKeyedService_ResolvesByKey">
             <summary>
-            Verifies that a full TPL Dataflow pipeline initialized via <see cref="M:MelloSilveiraTools.Core.Pipelines.PipelineFactory.StartDataflow``1(Microsoft.Extensions.Logging.ILogger,System.Int32,System.Nullable{MelloSilveiraTools.Core.Pipelines.Models.RetryOptions},System.Threading.CancellationToken,System.IProgress{MelloSilveiraTools.Core.Pipelines.Models.PipelineProgressEvent})"/>
-            propagates progress events across data mapping and terminal stages.
+            Verifies that keyed instances can be stored and retrieved by key.
             </summary>
         </member>
-        <member name="T:UnitTests.Core.Pipelines.Telemetry.PipelineProgressEmissionTests.TestProgressReporter">
+        <member name="M:UnitTests.Core.Providers.Dynamics.InMemoryDynamicServiceProviderTests.GetService_UnregisteredType_ReturnsNull">
             <summary>
-            Thread-safe in-memory progress collector for testing.
+            Verifies that resolving an unregistered type returns null.
+            </summary>
+        </member>
+        <member name="T:UnitTests.Core.ResiliencePipelines.ResiliencePipelineTests">
+            <summary>
+            Unit tests for <see cref="T:MelloSilveiraTools.Core.ResiliencePipelines.DefaultResiliencePipeline"/>, <see cref="T:MelloSilveiraTools.Core.ResiliencePipelines.AwsS3ResiliencePipeline"/>,
+            <see cref="T:MelloSilveiraTools.Core.ResiliencePipelines.BlobStorageResiliencePipeline"/>, and <see cref="T:MelloSilveiraTools.Core.ResiliencePipelines.SmtpResiliencePipeline"/>
+            verifying transient retry execution, fast-failure on permanent errors, and delegate overloads.
+            </summary>
+        </member>
+        <member name="T:UnitTests.Core.Services.Email.SmtpEmailServiceTests">
+            <summary>
+            Unit tests for <see cref="T:MelloSilveiraTools.Core.Services.Email.SmtpEmailService"/>, <see cref="T:MelloSilveiraTools.Core.Services.Email.EmailSettings"/>, and <see cref="T:MelloSilveiraTools.Core.ResiliencePipelines.SmtpResiliencePipeline"/>
+            verifying resilience error handling, graceful fallback on transport failures, and DI registration.
+            </summary>
+        </member>
+        <member name="M:UnitTests.Core.Services.Email.SmtpEmailServiceTests.SendAsync_WhenHostUnreachable_InvokesFallbackAndReturnsFalseAsync">
+            <summary>
+            Verifies that SendAsync invokes the resilience fallback and returns false when SMTP transmission fails.
+            </summary>
+        </member>
+        <member name="M:UnitTests.Core.Services.Email.SmtpEmailServiceTests.KeyedRegistration_AddCoreServices_RegistersEmailServiceAndPipeline">
+            <summary>
+            Verifies that AddCoreServices registers IEmailService and SmtpResiliencePipeline when emailSettings are provided.
+            </summary>
+        </member>
+        <member name="T:UnitTests.Core.Services.Encryption.EncryptionServiceTests">
+            <summary>
+            Unit tests for <see cref="T:MelloSilveiraTools.Core.Services.Encryption.EncryptionService"/> and <see cref="T:MelloSilveiraTools.Core.Services.Encryption.EncryptionSettings"/> verifying
+            password hash generation, salt randomization, PBKDF2 hash verification, malformed input handling,
+            and dependency injection registration.
+            </summary>
+        </member>
+        <member name="M:UnitTests.Core.Services.Encryption.EncryptionServiceTests.GeneratePasswordHash_ShouldReturnColonSeparatedBase64String">
+            <summary>
+            Verifies that GeneratePasswordHash produces a colon-separated salt and hash in Base64 format.
+            </summary>
+        </member>
+        <member name="M:UnitTests.Core.Services.Encryption.EncryptionServiceTests.GeneratePasswordHash_SamePassword_ProducesUniqueHashesDueToSalt">
+            <summary>
+            Verifies that hashing the same password twice yields different hashes due to unique cryptographic salts.
+            </summary>
+        </member>
+        <member name="M:UnitTests.Core.Services.Encryption.EncryptionServiceTests.IsPasswordValid_WithCorrectPassword_ReturnsTrue">
+            <summary>
+            Verifies that IsPasswordValid returns true when the correct password is provided.
+            </summary>
+        </member>
+        <member name="M:UnitTests.Core.Services.Encryption.EncryptionServiceTests.IsPasswordValid_WithIncorrectPassword_ReturnsFalse">
+            <summary>
+            Verifies that IsPasswordValid returns false when an incorrect password is provided.
+            </summary>
+        </member>
+        <member name="M:UnitTests.Core.Services.Encryption.EncryptionServiceTests.IsPasswordValid_WithMalformedHash_ReturnsFalse(System.String)">
+            <summary>
+            Verifies that IsPasswordValid returns false for malformed hash strings without throwing exceptions.
+            </summary>
+        </member>
+        <member name="M:UnitTests.Core.Services.Encryption.EncryptionServiceTests.KeyedRegistration_AddCoreServices_RegistersEncryptionService">
+            <summary>
+            Verifies that AddCoreServices registers IEncryptionService when encryptionSettings are provided.
             </summary>
         </member>
         <member name="T:UnitTests.Core.FakeDataReader">
@@ -78,139 +279,51 @@
             Supports a single row; subsequent Read() calls return false.
             </summary>
         </member>
+        <member name="T:UnitTests.Database.DatabaseDependencyInjectionTests">
+            <summary>
+            Unit tests for <see cref="M:MelloSilveiraTools.Database.DatabaseDependencyInjection.AddDatabaseServices(Microsoft.Extensions.DependencyInjection.IServiceCollection,MelloSilveiraTools.Core.ResiliencePipelines.ResiliencePipelineSettings,MelloSilveiraTools.Database.RelationalDatabase.Settings.DatabaseSettings)"/> verifying DI registration
+            of database settings, resilience pipelines, SQL provider, and repository.
+            </summary>
+        </member>
+        <member name="M:UnitTests.Database.DatabaseDependencyInjectionTests.AddDatabaseServices_RegistersExpectedSingletons">
+            <summary>
+            Verifies that AddDatabaseServices registers settings, resilience pipeline, SQL provider, and repository singletons.
+            </summary>
+        </member>
         <member name="T:UnitTests.Database.RelationalDatabase.Sql.Provider.DomainEntitySqlSmokeTests">
             <summary>
             Smoke tests using the original domain entity graph (user / district / join table).
             These verify that the SQL provider handles FK-heavy schemas end-to-end.
             </summary>
         </member>
-        <member name="T:UnitTests.MechanicsOfMaterials.Optimizations.Controllers.StoredFilesControllerTests">
+        <member name="T:UnitTests.Mathematics.Models.Vector3DTests">
             <summary>
-            Unit tests for <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Controllers.StoredFilesController"/> verifying file metadata query operations,
-            resilient physical file existence checking, and streaming download responses.
+            Unit tests for <see cref="T:MelloSilveiraTools.Mathematics.Models.Vector3D"/> verifying culture-invariant parsing, formatting, and operations.
             </summary>
         </member>
-        <member name="M:UnitTests.MechanicsOfMaterials.Optimizations.Controllers.StoredFilesControllerTests.GetByExternalIdentifierAsync_WhenEntitiesExist_ReturnsListedResult">
+        <member name="M:UnitTests.Mathematics.Models.Vector3DTests.Parse_WithInvariantCultureDecimals_ParsesCorrectlyRegardlessOfCurrentCulture">
             <summary>
-            Verifies that querying by external identifier returns all associated stored file entities.
+            Verifies that <see cref="M:MelloSilveiraTools.Mathematics.Models.Vector3D.Parse(System.String)"/> parses decimal components using invariant culture regardless of thread culture.
             </summary>
         </member>
-        <member name="M:UnitTests.MechanicsOfMaterials.Optimizations.Controllers.StoredFilesControllerTests.DownloadByExternalIdentifierAsync_WhenEntityNotFound_ReturnsNotFound">
+        <member name="M:UnitTests.Mathematics.Models.Vector3DTests.TryParse_WithValidString_ReturnsTrueAndSetsVector">
             <summary>
-            Verifies that downloading by external identifier returns a 404 NotFound response when the database entity is absent.
+            Verifies that <see cref="M:MelloSilveiraTools.Mathematics.Models.Vector3D.TryParse(System.String,System.Nullable{MelloSilveiraTools.Mathematics.Models.Vector3D}@)"/> returns true and populates the vector under culture-sensitive environments.
             </summary>
         </member>
-        <member name="M:UnitTests.MechanicsOfMaterials.Optimizations.Controllers.StoredFilesControllerTests.DownloadByExternalIdentifierAsync_WhenPhysicalFileMissing_ReturnsNotFound">
+        <member name="M:UnitTests.Mathematics.Models.Vector3DTests.TryParse_WithInvalidString_ReturnsFalseAndNull(System.String)">
             <summary>
-            Verifies that downloading by external identifier returns a 404 NotFound response when the physical file is missing from storage.
+            Verifies that <see cref="M:MelloSilveiraTools.Mathematics.Models.Vector3D.TryParse(System.String,System.Nullable{MelloSilveiraTools.Mathematics.Models.Vector3D}@)"/> returns false and null when given an invalid string.
             </summary>
         </member>
-        <member name="M:UnitTests.MechanicsOfMaterials.Optimizations.Controllers.StoredFilesControllerTests.DownloadByExternalIdentifierAsync_WhenFileExists_ReturnsFileStreamResult">
+        <member name="M:UnitTests.Mathematics.Models.Vector3DTests.SafeParse_ReturnsExpectedVector(System.String,System.Double,System.Double,System.Double)">
             <summary>
-            Verifies that downloading by external identifier returns a FileStreamResult when the entity and physical file exist.
+            Verifies that <see cref="M:MelloSilveiraTools.Mathematics.Models.Vector3D.SafeParse(System.String)"/> returns <see cref="F:MelloSilveiraTools.Mathematics.Models.Vector3D.Empty"/> for null or whitespace, and parses valid strings.
             </summary>
         </member>
-        <member name="M:UnitTests.MechanicsOfMaterials.Optimizations.Controllers.StoredFilesControllerTests.DownloadByIdAsync_WhenPhysicalFileMissing_ReturnsNotFound">
+        <member name="M:UnitTests.Mathematics.Models.Vector3DTests.ToString_FormatsWithInvariantCulture">
             <summary>
-            Verifies that downloading by ID returns a 404 NotFound response when the physical file is missing from storage.
-            </summary>
-        </member>
-        <member name="T:UnitTests.MechanicsOfMaterials.Optimizations.CurveFitting.Commands.FitCurveCommandTests">
-            <summary>
-            Unit tests for <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Commands.FitCurveCommand"/> verifying command execution, validation short-circuiting,
-            step factory resolution, CSV file reading, and listed output collection.
-            </summary>
-        </member>
-        <member name="M:UnitTests.MechanicsOfMaterials.Optimizations.CurveFitting.Commands.FitCurveCommandTests.ExecuteAsync_WhenValidationFails_ShortCircuitsWithoutCallingFactory">
-            <summary>
-            Verifies that when request validation fails, the command short-circuits and does not invoke the step factory.
-            </summary>
-        </member>
-        <member name="M:UnitTests.MechanicsOfMaterials.Optimizations.CurveFitting.Commands.FitCurveCommandTests.ExecuteAsync_WhenSegmentFilesProvided_ParsesCsvAndCallsStepAndReturnsListedOutputs">
-            <summary>
-            Verifies that when valid segment CSV files are provided, the CSV rows are parsed, the step factory is called,
-            segments and sentinel are executed, and outputs are returned as a listed result.
-            </summary>
-        </member>
-        <member name="T:UnitTests.MechanicsOfMaterials.Optimizations.CurveFitting.Commands.FitCurveValidatorTests">
-            <summary>
-            Unit tests for <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Commands.FitCurveValidator"/> verifying validation constraints on curve fitting requests.
-            </summary>
-        </member>
-        <member name="M:UnitTests.MechanicsOfMaterials.Optimizations.CurveFitting.Commands.FitCurveValidatorTests.Validate_WhenRequestIsNull_ReturnsBadRequest">
-            <summary>
-            Verifies that validating a null request returns a bad request failure.
-            </summary>
-        </member>
-        <member name="M:UnitTests.MechanicsOfMaterials.Optimizations.CurveFitting.Commands.FitCurveValidatorTests.Validate_WhenMechanicalModelNameIsMissing_ReturnsBadRequest">
-            <summary>
-            Verifies that omitting the mechanical model name triggers a validation error.
-            </summary>
-        </member>
-        <member name="M:UnitTests.MechanicsOfMaterials.Optimizations.CurveFitting.Commands.FitCurveValidatorTests.Validate_WhenSegmentFilesIsNullOrEmpty_ReturnsBadRequest">
-            <summary>
-            Verifies that omitting segment files or providing an empty collection triggers a validation error.
-            </summary>
-        </member>
-        <member name="M:UnitTests.MechanicsOfMaterials.Optimizations.CurveFitting.Commands.FitCurveValidatorTests.Validate_WhenGroupHasUnknownSegmentType_ReturnsBadRequest">
-            <summary>
-            Verifies that a segment files group with an unknown segment type triggers a validation error.
-            </summary>
-        </member>
-        <member name="M:UnitTests.MechanicsOfMaterials.Optimizations.CurveFitting.Commands.FitCurveValidatorTests.Validate_WhenGroupHasNoFiles_ReturnsBadRequest">
-            <summary>
-            Verifies that a segment files group with empty files collection triggers a validation error.
-            </summary>
-        </member>
-        <member name="M:UnitTests.MechanicsOfMaterials.Optimizations.CurveFitting.Commands.FitCurveValidatorTests.Validate_WhenGroupHasEmptyFile_ReturnsBadRequest">
-            <summary>
-            Verifies that a segment files group containing an empty or zero-length file triggers a validation error.
-            </summary>
-        </member>
-        <member name="M:UnitTests.MechanicsOfMaterials.Optimizations.CurveFitting.Commands.FitCurveValidatorTests.Validate_WhenTargetRSquaredIsInvalid_ReturnsBadRequest(System.Double)">
-            <summary>
-            Verifies that invalid TargetRSquared values (less than or equal to zero, or greater than 1.0) trigger validation errors.
-            </summary>
-        </member>
-        <member name="M:UnitTests.MechanicsOfMaterials.Optimizations.CurveFitting.Commands.FitCurveValidatorTests.Validate_WhenValid_ReturnsSuccess">
-            <summary>
-            Verifies that a well-formed request passes validation.
-            </summary>
-        </member>
-        <member name="T:UnitTests.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Commands.ProcessExperimentalDataCommandTests">
-            <summary>
-            Unit tests for <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Commands.ProcessExperimentalDataCommand"/> verifying orchestration, validation short-circuiting,
-            pipeline delegation, and stream resource management.
-            </summary>
-        </member>
-        <member name="M:UnitTests.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Commands.ProcessExperimentalDataCommandTests.ExecuteAsync_WhenValidationFails_ShortCircuitsWithoutCallingPipeline">
-            <summary>
-            Verifies that when request validation fails, the command short-circuits and does not invoke the pipeline.
-            </summary>
-        </member>
-        <member name="M:UnitTests.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Commands.ProcessExperimentalDataCommandTests.ExecuteAsync_WhenPipelineSucceeds_ReturnsSuccessWithIdentifier">
-            <summary>
-            Verifies that when the pipeline succeeds, the command returns a successful response containing the generated identifier.
-            </summary>
-        </member>
-        <member name="M:UnitTests.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Commands.ProcessExperimentalDataCommandTests.ExecuteAsync_WhenPipelineFails_ReturnsFailureWithPipelineStatusCodeAndMessages">
-            <summary>
-            Verifies that when the pipeline returns a failure result, the command propagates the status code and messages.
-            </summary>
-        </member>
-        <member name="M:UnitTests.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Commands.ProcessExperimentalDataCommandTests.ExecuteAsync_WhenFormFilesProvided_OpensAndDisposesStreamsInFinally">
-            <summary>
-            Verifies that when FormFiles are supplied, their opened streams are properly disposed in the finally block.
-            </summary>
-        </member>
-        <member name="T:UnitTests.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Commands.ProcessExperimentalDataCommandTests.TrackableMemoryStream">
-            <summary>
-            MemoryStream subclass tracking disposal state for verification in tests.
-            </summary>
-        </member>
-        <member name="M:UnitTests.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Commands.ProcessExperimentalDataCommandTests.TrackableMemoryStream.#ctor(System.Byte[])">
-            <summary>
-            MemoryStream subclass tracking disposal state for verification in tests.
+            Verifies that <see cref="M:MelloSilveiraTools.Mathematics.Models.Vector3D.ToString"/> formats components using invariant culture periods as decimal separator.
             </summary>
         </member>
         <member name="T:UnitTests.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Commands.ProcessExperimentalDataValidatorTests">
@@ -246,59 +359,6 @@
         <member name="M:UnitTests.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Commands.ProcessExperimentalDataValidatorTests.Validate_WhenValidWithFormFiles_ReturnsSuccess">
             <summary>
             Verifies that a well-formed request with FormFiles passes validation.
-            </summary>
-        </member>
-        <member name="T:UnitTests.MechanicsOfMaterials.Optimizations.Pipelines.SensitivityAnalysis.Steps.ParametricSweepPersistenceStepTests">
-            <summary>
-            Unit tests for <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.SensitivityAnalysis.Steps.ParametricSweepPersistenceStep"/>, verifying database persistence of
-            <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Models.ParametricSweepEntity"/> and associated <see cref="T:MelloSilveiraTools.Database.RelationalDatabase.Models.Entities.StoredFileEntity"/> records.
-            </summary>
-        </member>
-        <member name="M:UnitTests.MechanicsOfMaterials.Optimizations.Pipelines.SensitivityAnalysis.Steps.ParametricSweepPersistenceStepTests.ExecuteAsync_WhenSuccessful_PersistsEntityAndFilesAndReturnsIdentifier">
-            <summary>
-            Verifies that ExecuteAsync persists both the sweep metadata entity and all generated file records,
-            returning the external identifier on success.
-            </summary>
-        </member>
-        <member name="M:UnitTests.MechanicsOfMaterials.Optimizations.Pipelines.SensitivityAnalysis.Steps.ParametricSweepPersistenceStepTests.ExecuteAsync_WhenEntityInsertConflicts_LogsWarningAndPersistsStoredFiles">
-            <summary>
-            Verifies that when the sweep entity insertion encounters a conflict (already exists),
-            the step logs a warning and proceeds to persist stored files without throwing.
-            </summary>
-        </member>
-        <member name="M:UnitTests.MechanicsOfMaterials.Optimizations.Pipelines.SensitivityAnalysis.Steps.ParametricSweepPersistenceStepTests.ExecuteAsync_WhenEntityInsertFails_ThrowsInvalidOperationException">
-            <summary>
-            Verifies that when the sweep entity insertion fails with an error, an <see cref="T:System.InvalidOperationException"/> is thrown.
-            </summary>
-        </member>
-        <member name="M:UnitTests.MechanicsOfMaterials.Optimizations.Pipelines.SensitivityAnalysis.Steps.ParametricSweepPersistenceStepTests.ExecuteAsync_WhenStoredFileInsertFails_DoesNotThrowAndReturnsIdentifier">
-            <summary>
-            Verifies that when stored file insertion fails, the step logs a warning without throwing and returns the identifier.
-            </summary>
-        </member>
-        <member name="M:UnitTests.MechanicsOfMaterials.Optimizations.Pipelines.SensitivityAnalysis.Steps.ParametricSweepPersistenceStepTests.DisposeAsync_CompletesSuccessfully">
-            <summary>
-            Verifies that DisposeAsync completes cleanly without errors.
-            </summary>
-        </member>
-        <member name="T:UnitTests.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Commands.ExecuteParametricSweepCommandTests">
-            <summary>
-            Unit tests for <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Commands.ExecuteParametricSweepCommand"/> verifying command execution, validation, and pipeline delegation.
-            </summary>
-        </member>
-        <member name="M:UnitTests.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Commands.ExecuteParametricSweepCommandTests.ExecuteAsync_WhenValidationFails_ShortCircuitsWithoutCallingPipeline">
-            <summary>
-            Verifies that when request validation fails, the command short-circuits and does not execute the pipeline.
-            </summary>
-        </member>
-        <member name="M:UnitTests.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Commands.ExecuteParametricSweepCommandTests.ExecuteAsync_WhenPipelineSucceeds_ReturnsSuccessWithIdentifier">
-            <summary>
-            Verifies that when the pipeline executes successfully, the command returns the generated identifier.
-            </summary>
-        </member>
-        <member name="M:UnitTests.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Commands.ExecuteParametricSweepCommandTests.ExecuteAsync_WhenPipelineFails_ReturnsFailureWithPipelineStatusCodeAndMessages">
-            <summary>
-            Verifies that when the pipeline fails, the command propagates the error status and messages.
             </summary>
         </member>
         <member name="T:UnitTests.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Commands.ExecuteParametricSweepValidatorTests">
@@ -339,6 +399,12 @@
         <member name="T:UnitTests.MechanicsOfMaterials.Models.MechanicalModels.MechanicalModelOutputDeltaTests">
             <summary>
             Unit tests verifying delta and percentage delta calculations across the <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalModelOutput"/> hierarchy.
+            </summary>
+        </member>
+        <member name="T:UnitTests.Plugins.PluginsDependencyInjectionTests">
+            <summary>
+            Unit tests for <see cref="M:MelloSilveiraTools.Plugins.PluginsDependencyInjection.AddPluginServices(Microsoft.Extensions.DependencyInjection.IServiceCollection,MelloSilveiraTools.Plugins.Infrastructure.PluginSettings)"/> and <see cref="M:MelloSilveiraTools.Plugins.PluginsDependencyInjection.AddPluginServicesAsync(Microsoft.Extensions.DependencyInjection.IServiceCollection,MelloSilveiraTools.Plugins.Infrastructure.PluginSettings,System.Threading.CancellationToken)"/>
+            verifying service registrations, keyed storage provider resolution according to <see cref="P:MelloSilveiraTools.Plugins.Infrastructure.PluginSettings.StorageProvider"/>, and lifecycle scopes.
             </summary>
         </member>
     </members>

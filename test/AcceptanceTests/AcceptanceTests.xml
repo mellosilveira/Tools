@@ -419,30 +419,6 @@
             leaving local storage untouched.
             </summary>
         </member>
-        <member name="T:AcceptanceTests.Plugins.PluginOrchestratorAcceptanceTests">
-            <summary>
-            Acceptance tests for <see cref="T:MelloSilveiraTools.Plugins.Infrastructure.Services.PluginOrchestratorBackgroundService"/>, verifying automated
-            runtime inspection, newer version promotion, and archival of superseded versions past retention.
-            </summary>
-        </member>
-        <member name="M:AcceptanceTests.Plugins.PluginOrchestratorAcceptanceTests.Orchestrator_WhenNewVersionArrivesAndRetentionElapsed_ShouldPromoteAndArchiveOldVersion">
-            <summary>
-            Verifies that when a newer version arrives in the incoming partition and the previous version's
-            retention period has elapsed, the orchestrator promotes the new version to loaded and archives the old version.
-            </summary>
-        </member>
-        <member name="M:AcceptanceTests.Plugins.PluginOrchestratorAcceptanceTests.Orchestrator_WhenNewVersionArrivesAndRetentionActive_ShouldPromoteAndRetainPreviousVersion">
-            <summary>
-            Verifies that when a newer version arrives and the retention period for the previous version
-            has not yet elapsed, the orchestrator promotes the new version without evicting the previous one yet.
-            </summary>
-        </member>
-        <member name="M:AcceptanceTests.Plugins.PluginOrchestratorAcceptanceTests.Orchestrator_WhenOlderVersionArrivesInIncoming_ShouldIgnoreFile">
-            <summary>
-            Verifies that if an older plugin version file is placed in incoming while a higher version
-            is already loaded, the orchestrator ignores the older file without modifying loaded state.
-            </summary>
-        </member>
         <member name="T:AcceptanceTests.Plugins.PluginQuarantineAcceptanceTests">
             <summary>
             Acceptance tests verifying quarantine isolation: files in the incoming storage partition
