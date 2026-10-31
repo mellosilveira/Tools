@@ -5,6 +5,8 @@ using MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelast
 
 namespace MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels;
 
+// TODO: TRANSFORMAR EM UM DICIONÁRIO STRING-DOUBLE PORQUE ISSO É APENAS UM DTO QUE TRAFEGA DADOS, PARA SABER O QUE O MODELO CALCULA PODE-SE OLHAR DIRETO NO CALCULATOR
+
 /// <summary>
 /// Contains the output for a generic mechanical model.
 /// </summary>

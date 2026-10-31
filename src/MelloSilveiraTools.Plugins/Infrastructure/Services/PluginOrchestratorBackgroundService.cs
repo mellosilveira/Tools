@@ -1,4 +1,5 @@
 using MelloSilveiraTools.Plugins.Infrastructure.Models;
+using MelloSilveiraTools.Plugins.Infrastructure.Persistences;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -7,12 +8,13 @@ namespace MelloSilveiraTools.Plugins.Infrastructure.Services;
 
 /// <summary>
 /// Periodically inspects the plugin folder, loads newer plugin versions through
-/// <see cref="IPluginService.LoadPluginsOnRuntime(string?, PluginVersion?)"/> and evicts obsolete
+/// <see cref="IPluginService.LoadPluginsOnRuntimeAsync(string?, PluginVersion?, CancellationToken)"/> and evicts obsolete
 /// cached versions according to <see cref="PluginSettings.PreviousVersionRetention"/>.
 /// </summary>
 public sealed class PluginOrchestratorBackgroundService(
     ILogger<PluginOrchestratorBackgroundService> logger,
     IServiceScopeFactory scopeFactory,
+    TimeProvider timeProvider,
     PluginFileProcessor fileProcessor,
     PluginCache cache,
     PluginSettings settings) : BackgroundService
@@ -26,39 +28,54 @@ public sealed class PluginOrchestratorBackgroundService(
         {
             try
             {
-                await InspectAsync(stoppingToken);
-                await timer.WaitForNextTickAsync(stoppingToken);
+                await InspectAsync(stoppingToken).ConfigureAwait(false);
+                await timer.WaitForNextTickAsync(stoppingToken).ConfigureAwait(false);
             }
-            catch (OperationCanceledException) { return; }
-            catch (Exception ex) { logger.LogError(ex, "Plugin orchestrator pass failed."); }
+            catch (OperationCanceledException ex)
+            {
+                logger.LogWarning(ex, "Plugin orchestrator timer canceled.");
+                return;
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "Plugin orchestrator pass failed.");
+            }
         }
     }
 
     private async Task InspectAsync(CancellationToken cancellationToken)
     {
-        foreach (IGrouping<string, DiscoveredPlugin> pluginGroup in fileProcessor.Scan().GroupBy(discovered => discovered.Name))
+        List<DiscoveredPlugin> discoveredPlugins = [];
+        await foreach (DiscoveredPlugin discovered in fileProcessor.ScanAsync(cancellationToken: cancellationToken).ConfigureAwait(false))
+        {
+            discoveredPlugins.Add(discovered);
+        }
+
+        foreach (IGrouping<string, DiscoveredPlugin> pluginGroup in discoveredPlugins.GroupBy(discovered => discovered.Name))
         {
             cancellationToken.ThrowIfCancellationRequested();
 
             // One snapshot per plugin name, kept in sync as we promote new versions in-loop.
-            List<CachedVersion> cachedVersions = await SnapshotCacheAsync(pluginGroup.Key, cancellationToken);
+            List<CachedVersion> cachedVersions = await SnapshotCacheAsync(pluginGroup.Key, cancellationToken).ConfigureAwait(false);
             PluginVersion? highestLoaded = cachedVersions
                 .Where(cachedVersion => cachedVersion.IsFullyLoaded)
                 .Max(cachedVersion => (PluginVersion?)cachedVersion.Version);
 
             // Descending: the highest folder version is processed first; lower files in the same
-            // group are then automatically warn-ignored against the just-promoted snapshot, which
-            // avoids redundant LoadPluginsOnRuntime calls (e.g. folder has 1.4 and 1.5 while only
-            // 1.2 is loaded → only 1.5 is promoted, 1.4 is ignored).
+            // group are then automatically warn-ignored against the just-promoted snapshot.
             foreach (DiscoveredPlugin discovered in pluginGroup.OrderByDescending(discovered => discovered.Version))
             {
                 cancellationToken.ThrowIfCancellationRequested();
-                Process(discovered, cachedVersions, highestLoaded);
+                await ProcessAsync(discovered, cachedVersions, highestLoaded, cancellationToken).ConfigureAwait(false);
             }
         }
     }
 
-    private void Process(DiscoveredPlugin discovered, List<CachedVersion> cachedVersions, PluginVersion? highestLoaded)
+    private async Task ProcessAsync(
+        DiscoveredPlugin discovered,
+        List<CachedVersion> cachedVersions,
+        PluginVersion? highestLoaded,
+        CancellationToken cancellationToken)
     {
         // Newer version already in place → ignore the old file.
         if (highestLoaded is PluginVersion highest && discovered.Version < highest)
@@ -75,40 +92,68 @@ public sealed class PluginOrchestratorBackgroundService(
         if (cachedVersions.Any(cachedVersion => cachedVersion.Version == discovered.Version && cachedVersion.IsFullyLoaded))
             return;
 
-        if (!TryLoad(discovered))
+        if (!await TryLoadAsync(discovered, cancellationToken).ConfigureAwait(false))
             return;
 
-        EvictOlderVersions(discovered, cachedVersions, previousVersion: highestLoaded);
-        cachedVersions.Add(new CachedVersion(discovered.Version, DateTimeOffset.UtcNow));
+        await EvictOlderVersionsAsync(discovered, cachedVersions, previousVersion: highestLoaded, cancellationToken).ConfigureAwait(false);
+        cachedVersions.Add(new CachedVersion(discovered.Version, timeProvider.GetUtcNow()));
     }
 
-    private void EvictOlderVersions(DiscoveredPlugin discovered, List<CachedVersion> cachedVersions, PluginVersion? previousVersion)
+    private async Task EvictOlderVersionsAsync(
+        DiscoveredPlugin discovered,
+        List<CachedVersion> cachedVersions,
+        PluginVersion? previousVersion,
+        CancellationToken cancellationToken)
     {
-        DateTimeOffset now = DateTimeOffset.UtcNow;
+        DateTimeOffset now = timeProvider.GetUtcNow();
+        List<CachedVersion> versionsToRemove = [];
 
-        cachedVersions.RemoveAll(cachedVersion =>
+        foreach (CachedVersion cachedVersion in cachedVersions)
         {
             if (cachedVersion.Version >= discovered.Version)
-                return false;
+                continue;
 
             bool keepInRetention = cachedVersion.Version == previousVersion
                 && cachedVersion.FullyLoadedAt is DateTimeOffset loadedAt
                 && now - loadedAt < settings.PreviousVersionRetention;
 
             if (keepInRetention)
-                return false;
+                continue;
 
             cache.Clear(discovered.Name, cachedVersion.Version);
-            return true;
-        });
+            logger.LogInformation("Evicted obsolete version {PluginVersion} of '{PluginName}'.", cachedVersion.Version.Name, discovered.Name);
+
+            await foreach (DiscoveredPlugin obsoletePlugin in fileProcessor.ScanLoadedAsync(discovered.Name, cachedVersion.Version, cancellationToken).ConfigureAwait(false))
+            {
+                try
+                {
+                    await fileProcessor.MoveToArchiveFolderAsync(obsoletePlugin, cancellationToken).ConfigureAwait(false);
+                    logger.LogInformation("Archived obsolete plugin file '{FileName}'.", Path.GetFileName(obsoletePlugin.FullPath));
+                }
+                catch (Exception ex)
+                {
+                    logger.LogWarning(ex, "Failed to archive obsolete plugin file '{FileName}'.", Path.GetFileName(obsoletePlugin.FullPath));
+                }
+            }
+
+            versionsToRemove.Add(cachedVersion);
+        }
+
+        foreach (CachedVersion toRemove in versionsToRemove)
+        {
+            cachedVersions.Remove(toRemove);
+        }
     }
 
-    private bool TryLoad(DiscoveredPlugin discovered)
+    private async Task<bool> TryLoadAsync(DiscoveredPlugin discovered, CancellationToken cancellationToken)
     {
         try
         {
             using IServiceScope scope = scopeFactory.CreateScope();
-            scope.ServiceProvider.GetRequiredService<IPluginService>().LoadPluginsOnRuntime(discovered.Name, discovered.Version);
+            await scope.ServiceProvider
+                .GetRequiredService<IPluginService>()
+                .LoadPluginsOnRuntimeAsync(discovered.Name, discovered.Version, cancellationToken)
+                .ConfigureAwait(false);
             return true;
         }
         catch (Exception ex)
@@ -122,11 +167,18 @@ public sealed class PluginOrchestratorBackgroundService(
         }
     }
 
-    private ValueTask<List<CachedVersion>> SnapshotCacheAsync(string pluginName, CancellationToken cancellationToken)
-        => cache
-            .Stream(pluginName, version: null, cancellationToken)
-            .Select(entry => new CachedVersion(entry.Version, entry.State))
-            .ToListAsync(cancellationToken);
+    private async ValueTask<List<CachedVersion>> SnapshotCacheAsync(string pluginName, CancellationToken cancellationToken)
+    {
+        Dictionary<PluginVersion, CachedVersion> dict = [];
+        await foreach (PluginCacheEntry entry in cache.Stream(pluginName, version: null, cancellationToken).ConfigureAwait(false))
+        {
+            CachedVersion current = new(entry.Version, entry.State);
+            if (!dict.TryGetValue(current.Version, out CachedVersion existing) || (!existing.IsFullyLoaded && current.IsFullyLoaded))
+                dict[current.Version] = current;
+        }
+
+        return [.. dict.Values];
+    }
 
     private readonly record struct CachedVersion
     {

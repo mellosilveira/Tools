@@ -1,4 +1,3 @@
-﻿using Microsoft.AspNetCore.Cryptography.KeyDerivation;
 using System.Security.Cryptography;
 
 namespace MelloSilveiraTools.Core.Services.Encryption;
@@ -31,5 +30,5 @@ public class EncryptionService(EncryptionSettings settings) : IEncryptionService
         return CryptographicOperations.FixedTimeEquals(storedHash, hash);
     }
 
-    private byte[] BuildDerivedKey(string password, byte[] salt) => KeyDerivation.Pbkdf2(password, salt, KeyDerivationPrf.HMACSHA256, settings.Iterations, settings.HashSize);
+    private byte[] BuildDerivedKey(string password, byte[] salt) => Rfc2898DeriveBytes.Pbkdf2(password, salt, settings.Iterations, HashAlgorithmName.SHA256, settings.HashSize);
 }

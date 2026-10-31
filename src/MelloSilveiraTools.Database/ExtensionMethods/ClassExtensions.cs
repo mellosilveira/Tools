@@ -41,8 +41,8 @@ public static class ClassExtensions
             if (obj is null)
                 yield break;
 
-            foreach (var (prop, dbType) in GetColumnMeta<T>(useDeclaredProperties))
-                yield return new NpgsqlParameter(prop.Name, dbType) { Value = prop.GetValue(obj) ?? DBNull.Value };
+            foreach ((PropertyInfo? prop, NpgsqlDbType dbType) in GetColumnMeta<T>(useDeclaredProperties))
+                yield return new NpgsqlParameter(prop.Name, dbType) { Value = prop.GetCustomValue(obj) ?? DBNull.Value };
         }
 
         /// <summary>
@@ -97,14 +97,28 @@ public static class ClassExtensions
             if (collection.IsNullOrEmpty())
                 yield break;
 
-            var colMeta = GetColumnMeta<T>(declaredOnly: false);
             int index = 0;
+            (PropertyInfo Prop, NpgsqlDbType DbType)[] colMeta = GetColumnMeta<T>(declaredOnly: false);
             foreach (T obj in collection)
             {
                 index++;
-                foreach (var (prop, dbType) in colMeta)
-                    yield return new NpgsqlParameter($"{prop.Name}_{index}", dbType) { Value = prop.GetValue(obj) ?? DBNull.Value };
+                foreach ((PropertyInfo? prop, NpgsqlDbType dbType) in colMeta)
+                    yield return new NpgsqlParameter($"{prop.Name}_{index}", dbType) { Value = prop.GetCustomValue(obj) ?? DBNull.Value };
             }
+        }
+    }
+
+    extension(PropertyInfo property)
+    {
+        /// <summary>
+        /// Gets the value of the property for the specified object, converting it to an <see cref="int"/> if it is an <see cref="Enum"/>.
+        /// </summary>
+        /// <param name="obj">The object whose property value will be returned.</param>
+        /// <returns>The property value, or its integer representation if the value is an <see cref="Enum"/>.</returns>
+        public object? GetCustomValue(object? obj)
+        {
+            object? val = property.GetValue(obj);
+            return val is Enum ? (int)val : val;
         }
     }
 
@@ -134,9 +148,9 @@ public static class ClassExtensions
 
         List<string> whereClauses = [];
 
-        foreach (var (property, filterColumnAttribute) in GetFilterColumnMeta(type))
+        foreach ((PropertyInfo? property, FilterColumnAttribute? filterColumnAttribute) in GetFilterColumnMeta(type))
         {
-            object? propertyValue = property.GetValue(obj);
+            object? propertyValue = property.GetCustomValue(obj);
             if (propertyValue is null || propertyValue is string str && string.IsNullOrWhiteSpace(str))
                 continue;
 
@@ -147,12 +161,9 @@ public static class ClassExtensions
             string columnName = (filterColumnAttribute.PropertyName ?? property.Name).ToSnakeCase();
             whereClauses.Add($"{tableAlias}.{columnName} {filterColumnAttribute.FilterClause} @{property.Name}");
 
-            if (propertyValue is Enum)
-                propertyValue = (int)propertyValue;
-
             if (filterColumnAttribute.FilterClause is FilterClause.Like or FilterClause.ILike)
                 propertyValue = $"%{propertyValue}%";
-
+            
             addParam(property.Name, property.PropertyType, propertyValue);
         }
 

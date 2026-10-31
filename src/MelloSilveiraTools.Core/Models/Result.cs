@@ -26,6 +26,8 @@ public abstract record ResultBase
     /// Indicates whether the action was halted due to conflicting business data (such as a duplicate record).
     /// </summary>
     public bool IsConflict => StatusCode == StatusCode.Conflict;
+
+    public string JoinedMessages => string.Join(Environment.NewLine, Messages);
 }
 
 /// <summary>
@@ -129,6 +131,14 @@ public record Result : ResultBase
     public static Result CreateBadRequest(string message) => CreateError(StatusCode.BadRequest, message);
 
     /// <summary>
+    /// Creates an outcome indicating that the submitted data did not meet business requirements or validation rules.
+    /// </summary>
+    /// <param name="messages">Explanations detailing the required corrections.</param>
+    /// <returns>An invalid request result containing guidance messages.</returns>
+    public static Result CreateBadRequest(List<string> messages)
+        => new() { StatusCode = StatusCode.BadRequest, Messages = messages, Success = false };
+
+    /// <summary>
     /// Creates an outcome indicating that the action requires valid user authentication or authorization.
     /// </summary>
     /// <returns>An unauthorized outcome.</returns>
@@ -202,6 +212,15 @@ public record Result : ResultBase
         => CreateSuccess(StatusCode.OK, resultData);
 
     /// <summary>
+    /// Creates a standard successful outcome delivering business data.
+    /// </summary>
+    /// <typeparam name="TResultData">The type of business data payload.</typeparam>
+    /// <param name="resultData">The business payload delivered to the client.</param>
+    /// <returns>A successful 200 OK outcome carrying data.</returns>
+    public static Result<TResultData> CreateSuccessAccepted<TResultData>(TResultData? resultData = default)
+        => CreateSuccess(StatusCode.Accepted, resultData);
+
+    /// <summary>
     /// Creates an outcome confirming that a new record was created, delivering the created record details.
     /// </summary>
     /// <typeparam name="TResultData">The type of business data payload.</typeparam>
@@ -255,7 +274,7 @@ public record Result : ResultBase
     /// <param name="data">The items belonging to the current page.</param>
     /// <returns>A paginated outcome.</returns>
     public static PagedResult<TResultData> CreatePagedSuccessOk<TResultData>(IEnumerable<TResultData>? data = null)
-        => new() { StatusCode = StatusCode.OK, Data = data?.ToList() };
+        => new() { StatusCode = StatusCode.OK, Success = true, Data = data?.ToList() };
 }
 
 /// <summary>

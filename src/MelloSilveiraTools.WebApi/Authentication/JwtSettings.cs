@@ -28,15 +28,15 @@ public record JwtSettings
     /// <summary>
     /// Clock skew, in seconds, tolerated when validating token lifetime claims.
     /// </summary>
-    public int ClockSkewInSeconds { get; init; }
+    public required int ClockSkewInSeconds { get; init; }
 
     /// <summary>
     /// The kind of security key used by <see cref="EncryptionKey"/> and <see cref="SigningKey"/>.
     /// </summary>
-    public SecurityKeyType SecurityKeyType { get; init; }
+    public required SecurityKeyType SecurityKeyType { get; init; }
 
     /// <summary>
     /// Expiration time in minutes for access token.
     /// </summary>
-    public int TokenExperitationTimeInMinutes { get; init; }
+    public required int TokenExperitationTimeInMinutes { get; init; }
 }

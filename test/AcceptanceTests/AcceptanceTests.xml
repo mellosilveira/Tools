@@ -10,5 +10,475 @@
             Created exactly once per application domain (eliminates duplication across generic types).
             </summary>
         </member>
+        <member name="T:AcceptanceTests.MechanicalOfMaterials.Optimizations.CurveFitterSteps.AcceptanceTestHelpers">
+            <summary>
+            Helper for loading acceptance test data CSV files and converting them to CurveSegment arrays.
+            </summary>
+        </member>
+        <member name="M:AcceptanceTests.MechanicalOfMaterials.Optimizations.CurveFitterSteps.AcceptanceTestHelpers.LoadSegmentsForPrefixAsync(System.String,System.Boolean)">
+            <summary>
+            Loads CurveSegment array for a given curve fitter step prefix by finding all CSV files in TestData matching [PREFIX]_[SEGMENT_TYPE].csv.
+            Expected columns: Time, ExperimentalStrain, ExperimentalStress
+            </summary>
+            <param name="prefix">Prefix folder name under TestData.</param>
+            <param name="useSharedFiles">Whether to load shared test data files first.</param>
+            <returns>An array of loaded curve segments.</returns>
+        </member>
+        <member name="M:AcceptanceTests.MechanicalOfMaterials.Optimizations.CurveFitterSteps.AcceptanceTestHelpers.LoadSegmentGroupsForPrefixAsync(System.String,System.Boolean)">
+            <summary>
+            Loads groups of <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Models.CurveSegment"/> arrays for a given curve fitter step prefix and optional shared test data.
+            If <paramref name="useSharedFiles"/> is <c>true</c>, all groups from the shared folder ("Shared") under TestData
+            are loaded first. Then, all groups from the prefix-specific folder under TestData are loaded.
+            </summary>
+            <param name="prefix">Prefix folder name under TestData.</param>
+            <param name="useSharedFiles">Whether to load shared test data files first.</param>
+            <returns>A list of tuples containing the group name and its loaded curve segments.</returns>
+        </member>
+        <member name="M:AcceptanceTests.MechanicalOfMaterials.Optimizations.CurveFitterSteps.AcceptanceTestHelpers.LoadSegmentsFromDirectoryAsync(System.String)">
+            <summary>
+            Loads all <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Models.CurveSegment"/> instances from CSV files in the specified directory.
+            </summary>
+            <param name="directoryPath">The absolute path to the directory containing segment CSV files.</param>
+            <returns>An array of loaded curve segments sorted in alphabetical file order.</returns>
+        </member>
+        <member name="M:AcceptanceTests.MechanicalOfMaterials.Optimizations.CurveFitterSteps.AcceptanceTestHelpers.LoadSegmentFromCsvAsync(System.String,MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Models.SegmentType)">
+            <summary>
+            Loads a single <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Models.CurveSegment"/> from a specified CSV file.
+            </summary>
+            <param name="filePath">Absolute or relative file path to the CSV file.</param>
+            <param name="segmentType">The segment type of this curve data.</param>
+            <returns>The populated curve segment, or null if empty.</returns>
+        </member>
+        <member name="M:AcceptanceTests.MechanicalOfMaterials.Optimizations.CurveFitterSteps.AcceptanceTestHelpers.CalculateRSquared(System.ReadOnlySpan{System.Double},System.ReadOnlySpan{System.Double})">
+            <summary>
+            Computes the coefficient of determination (R² = 1 - SSR/SST) comparing actual values with predicted values.
+            </summary>
+            <param name="actual">Actual observed values.</param>
+            <param name="predicted">Predicted or fitted model values.</param>
+            <returns>The calculated R² coefficient.</returns>
+        </member>
+        <member name="T:AcceptanceTests.MechanicalOfMaterials.Optimizations.CurveFitterSteps.CurveFitterAcceptanceTestBase`1">
+            <summary>
+            Abstract base class for curve fitter step acceptance tests.
+            </summary>
+            <typeparam name="TStep">The concrete curve fitter step type.</typeparam>
+        </member>
+        <member name="F:AcceptanceTests.MechanicalOfMaterials.Optimizations.CurveFitterSteps.CurveFitterAcceptanceTestBase`1.Step">
+            <summary>
+            The resolved curve fitter step instance under test.
+            </summary>
+        </member>
+        <member name="P:AcceptanceTests.MechanicalOfMaterials.Optimizations.CurveFitterSteps.CurveFitterAcceptanceTestBase`1.Prefix">
+            <summary>
+            Gets the folder name prefix under TestData where test CSV files are located.
+            </summary>
+        </member>
+        <member name="P:AcceptanceTests.MechanicalOfMaterials.Optimizations.CurveFitterSteps.CurveFitterAcceptanceTestBase`1.UseSharedFiles">
+            <summary>
+            Gets a value indicating whether this acceptance test should load and execute against shared test data files.
+            When <c>true</c>, files located in the shared folder across all acceptance tests are loaded before prefix-specific files.
+            Defaults to <c>true</c>.
+            </summary>
+        </member>
+        <member name="P:AcceptanceTests.MechanicalOfMaterials.Optimizations.CurveFitterSteps.CurveFitterAcceptanceTestBase`1.MinimumAcceptableRSquared">
+            <summary>
+            Gets the minimum acceptable coefficient of determination (R²) for fitted model outputs.
+            Default is 0.90 across all curve fitter steps.
+            </summary>
+        </member>
+        <member name="M:AcceptanceTests.MechanicalOfMaterials.Optimizations.CurveFitterSteps.CurveFitterAcceptanceTestBase`1.ExecuteAsync_WithCsvData_ShouldExecuteCurveFitting">
+            <summary>
+            Generic acceptance test that feeds CSV segments to the curve fitter step for all discovered groups,
+            asserts output generation and quality, and invokes <see cref="M:AcceptanceTests.MechanicalOfMaterials.Optimizations.CurveFitterSteps.CurveFitterAcceptanceTestBase`1.AssertPhysicalConstraints(System.String,System.Collections.Generic.IReadOnlyList{MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Models.CurveSegment},System.Collections.Generic.IReadOnlyList{MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Models.MechanicalModelCurveFitOutput})"/>
+            for model-specific verification.
+            </summary>
+        </member>
+        <member name="M:AcceptanceTests.MechanicalOfMaterials.Optimizations.CurveFitterSteps.CurveFitterAcceptanceTestBase`1.ExecuteStepPipelineAsync(MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Models.CurveSegment[],System.Threading.CancellationToken)">
+            <summary>
+            Executes the curve fitter step by feeding all input curve segments sequentially,
+            followed by a terminal unknown segment to drain multi-segment batch pipelines.
+            </summary>
+            <param name="segments">The input curve segments.</param>
+            <param name="cancellationToken">Optional cancellation token.</param>
+            <returns>A list of all yielded model curve fit outputs.</returns>
+        </member>
+        <member name="M:AcceptanceTests.MechanicalOfMaterials.Optimizations.CurveFitterSteps.CurveFitterAcceptanceTestBase`1.AssertPhysicalConstraints(System.String,System.Collections.Generic.IReadOnlyList{MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Models.CurveSegment},System.Collections.Generic.IReadOnlyList{MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Models.MechanicalModelCurveFitOutput})">
+            <summary>
+            Hook method for concrete curve fitter acceptance tests to assert model-specific
+            physical constraints, parameter bounds, and multi-stage convergence behaviors for a specific group.
+            Default implementation delegates to <see cref="M:AcceptanceTests.MechanicalOfMaterials.Optimizations.CurveFitterSteps.CurveFitterAcceptanceTestBase`1.AssertPhysicalConstraints(System.Collections.Generic.IReadOnlyList{MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Models.CurveSegment},System.Collections.Generic.IReadOnlyList{MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Models.MechanicalModelCurveFitOutput})"/>.
+            </summary>
+            <param name="groupName">The name of the specimen or test group.</param>
+            <param name="segments">The input experimental segments.</param>
+            <param name="outputs">The yielded curve fit outputs.</param>
+        </member>
+        <member name="M:AcceptanceTests.MechanicalOfMaterials.Optimizations.CurveFitterSteps.CurveFitterAcceptanceTestBase`1.AssertPhysicalConstraints(System.Collections.Generic.IReadOnlyList{MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Models.CurveSegment},System.Collections.Generic.IReadOnlyList{MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Models.MechanicalModelCurveFitOutput})">
+            <summary>
+            Hook method for concrete curve fitter acceptance tests to assert model-specific
+            physical constraints, parameter bounds, and multi-stage convergence behaviors.
+            Default implementation is a no-op.
+            </summary>
+            <param name="segments">The input experimental segments.</param>
+            <param name="outputs">The yielded curve fit outputs.</param>
+        </member>
+        <member name="T:AcceptanceTests.MechanicalOfMaterials.Optimizations.CurveFitterSteps.FungRelaxationOnlyCurveFitterStepAcceptanceTests">
+            <summary>
+            Acceptance tests for <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Pipelines.Steps.CurveFitter.Fung.FungRelaxationOnlyCurveFitterStep"/> validating end-to-end curve fitting.
+            </summary>
+        </member>
+        <member name="P:AcceptanceTests.MechanicalOfMaterials.Optimizations.CurveFitterSteps.FungRelaxationOnlyCurveFitterStepAcceptanceTests.Prefix">
+            <inheritdoc/>
+        </member>
+        <member name="P:AcceptanceTests.MechanicalOfMaterials.Optimizations.CurveFitterSteps.FungRelaxationOnlyCurveFitterStepAcceptanceTests.MinimumAcceptableRSquared">
+            <inheritdoc/>
+        </member>
+        <member name="M:AcceptanceTests.MechanicalOfMaterials.Optimizations.CurveFitterSteps.FungRelaxationOnlyCurveFitterStepAcceptanceTests.AssertPhysicalConstraints(System.String,System.Collections.Generic.IReadOnlyList{MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Models.CurveSegment},System.Collections.Generic.IReadOnlyList{MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Models.MechanicalModelCurveFitOutput})">
+            <inheritdoc/>
+        </member>
+        <member name="T:AcceptanceTests.MechanicalOfMaterials.Optimizations.CurveFitterSteps.SchaperyRelaxationOnlyCurveFitterStepAcceptanceTests">
+            <summary>
+            Acceptance tests for <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Pipelines.Steps.CurveFitter.SchaperyRelaxationOnlyCurveFitterStep"/> validating end-to-end curve fitting
+            with real experimental ligament multi-strain data and enforcing strict biomechanical physical validity.
+            </summary>
+        </member>
+        <member name="P:AcceptanceTests.MechanicalOfMaterials.Optimizations.CurveFitterSteps.SchaperyRelaxationOnlyCurveFitterStepAcceptanceTests.Prefix">
+            <inheritdoc/>
+        </member>
+        <member name="M:AcceptanceTests.MechanicalOfMaterials.Optimizations.CurveFitterSteps.SchaperyRelaxationOnlyCurveFitterStepAcceptanceTests.AssertPhysicalConstraints(System.String,System.Collections.Generic.IReadOnlyList{MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Models.CurveSegment},System.Collections.Generic.IReadOnlyList{MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Models.MechanicalModelCurveFitOutput})">
+            <inheritdoc/>
+        </member>
+        <member name="T:AcceptanceTests.MechanicalOfMaterials.Optimizations.CurveFitterSteps.SimplifiedFungRelaxationOnlyCurveFitterStepAcceptanceTests">
+            <summary>
+            Acceptance tests for <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Pipelines.Steps.CurveFitter.SimplifiedFungRelaxationOnlyCurveFitterStep"/> validating end-to-end curve fitting.
+            </summary>
+        </member>
+        <member name="P:AcceptanceTests.MechanicalOfMaterials.Optimizations.CurveFitterSteps.SimplifiedFungRelaxationOnlyCurveFitterStepAcceptanceTests.Prefix">
+            <inheritdoc/>
+        </member>
+        <member name="P:AcceptanceTests.MechanicalOfMaterials.Optimizations.CurveFitterSteps.SimplifiedFungRelaxationOnlyCurveFitterStepAcceptanceTests.MinimumAcceptableRSquared">
+            <inheritdoc/>
+        </member>
+        <member name="M:AcceptanceTests.MechanicalOfMaterials.Optimizations.CurveFitterSteps.SimplifiedFungRelaxationOnlyCurveFitterStepAcceptanceTests.AssertPhysicalConstraints(System.String,System.Collections.Generic.IReadOnlyList{MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Models.CurveSegment},System.Collections.Generic.IReadOnlyList{MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Models.MechanicalModelCurveFitOutput})">
+            <inheritdoc/>
+        </member>
+        <member name="T:AcceptanceTests.MechanicalOfMaterials.Optimizations.SensitivityAnalysis.ParametricSweepPipelineAcceptanceTests">
+            <summary>
+            End-to-end acceptance tests for <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.SensitivityAnalysis.ParametricSweepPipeline"/> validating 1D sensitivity analysis
+            driven dynamically by JSON specification files located in the TestData directory.
+            </summary>
+        </member>
+        <member name="M:AcceptanceTests.MechanicalOfMaterials.Optimizations.SensitivityAnalysis.ParametricSweepPipelineAcceptanceTests.GetJsonInputFiles">
+            <summary>
+            Enumerates all JSON input files located in the TestData folder.
+            </summary>
+            <returns>A collection of file paths wrapped in <see cref="T:Xunit.TheoryData`1"/>.</returns>
+        </member>
+        <member name="M:AcceptanceTests.MechanicalOfMaterials.Optimizations.SensitivityAnalysis.ParametricSweepPipelineAcceptanceTests.ProcessAsync_FromJsonFile_ShouldExecuteSensitivityAnalysisAndGenerateValidCsvs(System.String)">
+            <summary>
+            Executes the parametric sweep pipeline using configurations defined in JSON files,
+            verifying numerical stability, convergence, and physical validity of generated CSV outputs.
+            </summary>
+            <param name="jsonFilePath">The path to the JSON input file.</param>
+        </member>
+        <member name="T:AcceptanceTests.MechanicalOfMaterials.Optimizations.SensitivityAnalysis.Serialization.ParametricSweepInputJsonParser">
+            <summary>
+            Deserializes JSON representations into strongly-typed <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Models.ParametricSweepInput"/> instances,
+            including polymorphic resolution of constitutive model parameters and mathematical functions.
+            </summary>
+        </member>
+        <member name="M:AcceptanceTests.MechanicalOfMaterials.Optimizations.SensitivityAnalysis.Serialization.ParametricSweepInputJsonParser.Parse(System.String)">
+            <summary>
+            Parses a JSON text into a <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Models.ParametricSweepInput"/> instance.
+            </summary>
+            <param name="json">The JSON payload string.</param>
+            <returns>A populated <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Models.ParametricSweepInput"/> instance.</returns>
+            <exception cref="T:System.ArgumentException">Thrown when <paramref name="json"/> is null or whitespace.</exception>
+            <exception cref="T:System.Text.Json.JsonException">Thrown when the JSON payload is malformed or missing required properties.</exception>
+        </member>
+        <member name="T:AcceptanceTests.Plugins.Helpers.TestPluginTypeProcessor">
+            <summary>
+            Custom test processor tracking processable types found within loaded plugin assemblies.
+            </summary>
+        </member>
+        <member name="P:AcceptanceTests.Plugins.Helpers.TestPluginTypeProcessor.ProcessableType">
+            <inheritdoc/>
+        </member>
+        <member name="P:AcceptanceTests.Plugins.Helpers.TestPluginTypeProcessor.ProcessedTypes">
+            <summary>
+            Gets the list of types successfully processed by this instance.
+            </summary>
+        </member>
+        <member name="M:AcceptanceTests.Plugins.Helpers.TestPluginTypeProcessor.Process(System.Type,MelloSilveiraTools.Plugins.Infrastructure.Models.PluginRegistrationContext)">
+            <inheritdoc/>
+        </member>
+        <member name="T:AcceptanceTests.Plugins.Helpers.PluginTestFixture">
+            <summary>
+            Test fixture managing an isolated dependency injection container, mocked file storage instances,
+            and configured plugin settings for acceptance test executions.
+            </summary>
+        </member>
+        <member name="P:AcceptanceTests.Plugins.Helpers.PluginTestFixture.LocalStorage">
+            <summary>
+            In-memory storage mock targeting <see cref="F:MelloSilveiraTools.Core.Managers.File.Models.StorageProvider.Local"/>.
+            </summary>
+        </member>
+        <member name="P:AcceptanceTests.Plugins.Helpers.PluginTestFixture.AwsS3Storage">
+            <summary>
+            In-memory storage mock targeting <see cref="F:MelloSilveiraTools.Core.Managers.File.Models.StorageProvider.AwsS3"/>.
+            </summary>
+        </member>
+        <member name="P:AcceptanceTests.Plugins.Helpers.PluginTestFixture.TypeProcessor">
+            <summary>
+            Custom type processor observing discovered types.
+            </summary>
+        </member>
+        <member name="P:AcceptanceTests.Plugins.Helpers.PluginTestFixture.Settings">
+            <summary>
+            Configured plugin settings for the container.
+            </summary>
+        </member>
+        <member name="P:AcceptanceTests.Plugins.Helpers.PluginTestFixture.Services">
+            <summary>
+            The service collection defining all application and plugin service registrations.
+            </summary>
+        </member>
+        <member name="P:AcceptanceTests.Plugins.Helpers.PluginTestFixture.ServiceProvider">
+            <summary>
+            The active service provider instance.
+            </summary>
+        </member>
+        <member name="M:AcceptanceTests.Plugins.Helpers.PluginTestFixture.#ctor(MelloSilveiraTools.Core.Managers.File.Models.StorageProvider,System.String,System.Nullable{System.TimeSpan},System.Nullable{System.TimeSpan})">
+            <summary>
+            Initializes a new instance of the <see cref="T:AcceptanceTests.Plugins.Helpers.PluginTestFixture"/> class.
+            </summary>
+            <param name="storageProvider">The storage provider technology to configure in settings.</param>
+            <param name="directory">Root directory or context name for plugins.</param>
+            <param name="pollInterval">Poll interval for the orchestrator background service.</param>
+            <param name="retention">Retention period for previous plugin versions.</param>
+        </member>
+        <member name="M:AcceptanceTests.Plugins.Helpers.PluginTestFixture.CreateScope">
+            <summary>
+            Creates a new scoped lifetime container.
+            </summary>
+            <returns>A newly created <see cref="T:Microsoft.Extensions.DependencyInjection.IServiceScope"/>.</returns>
+        </member>
+        <member name="M:AcceptanceTests.Plugins.Helpers.PluginTestFixture.RebuildServiceProvider">
+            <summary>
+            Rebuilds the root service provider after registering additional services into <see cref="P:AcceptanceTests.Plugins.Helpers.PluginTestFixture.Services"/>.
+            </summary>
+        </member>
+        <member name="M:AcceptanceTests.Plugins.Helpers.PluginTestFixture.GetValidPluginBytes">
+            <summary>
+            Gets a byte buffer representing a valid managed .NET assembly read from the current runtime.
+            </summary>
+            <returns>The raw assembly bytes.</returns>
+        </member>
+        <member name="M:AcceptanceTests.Plugins.Helpers.PluginTestFixture.GetNonManagedPluginBytes">
+            <summary>
+            Gets a byte buffer representing an unmanaged native PE binary without CLR metadata.
+            </summary>
+            <returns>The raw byte array.</returns>
+        </member>
+        <member name="M:AcceptanceTests.Plugins.Helpers.PluginTestFixture.GetCorruptedPluginBytes">
+            <summary>
+            Gets a byte buffer representing arbitrary corrupted, non-PE binary bytes.
+            </summary>
+            <returns>The raw byte array.</returns>
+        </member>
+        <member name="M:AcceptanceTests.Plugins.Helpers.PluginTestFixture.Dispose">
+            <inheritdoc/>
+        </member>
+        <member name="M:AcceptanceTests.Plugins.Helpers.PluginTestFixture.DisposeAsync">
+            <inheritdoc/>
+        </member>
+        <member name="T:AcceptanceTests.Plugins.Helpers.PluginTestStorageMock">
+            <summary>
+            High-fidelity in-memory test double and mock for <see cref="T:MelloSilveiraTools.Core.Managers.File.Providers.IFileStorageService"/>,
+            backing file operations across canonical partitions (incoming, loaded, archive, quarantine, cache)
+            in an in-memory thread-safe dictionary.
+            </summary>
+        </member>
+        <member name="P:AcceptanceTests.Plugins.Helpers.PluginTestStorageMock.Mock">
+            <summary>
+            Gets the underlying Moq instance configured with in-memory storage semantics.
+            </summary>
+        </member>
+        <member name="P:AcceptanceTests.Plugins.Helpers.PluginTestStorageMock.Provider">
+            <summary>
+            Gets the storage provider technology simulated by this mock instance.
+            </summary>
+        </member>
+        <member name="M:AcceptanceTests.Plugins.Helpers.PluginTestStorageMock.#ctor(MelloSilveiraTools.Core.Managers.File.Models.StorageProvider)">
+            <summary>
+            Initializes a new instance of the <see cref="T:AcceptanceTests.Plugins.Helpers.PluginTestStorageMock"/> class.
+            </summary>
+            <param name="provider">The storage provider technology to simulate.</param>
+        </member>
+        <member name="M:AcceptanceTests.Plugins.Helpers.PluginTestStorageMock.AddFile(System.String,System.String,System.String,System.Byte[])">
+            <summary>
+            Seeds or overwrites a file directly into the specified context and partition.
+            </summary>
+            <param name="context">Business domain context.</param>
+            <param name="partition">Canonical storage partition name.</param>
+            <param name="fileName">File name with extension.</param>
+            <param name="content">Raw file payload bytes.</param>
+        </member>
+        <member name="M:AcceptanceTests.Plugins.Helpers.PluginTestStorageMock.FileExists(System.String,System.String,System.String)">
+            <summary>
+            Checks whether a file exists at the specified context and partition.
+            </summary>
+            <param name="context">Business domain context.</param>
+            <param name="partition">Canonical storage partition name.</param>
+            <param name="fileName">File name with extension.</param>
+            <returns><c>true</c> if the file exists; otherwise, <c>false</c>.</returns>
+        </member>
+        <member name="M:AcceptanceTests.Plugins.Helpers.PluginTestStorageMock.GetFileBytes(System.String,System.String,System.String)">
+            <summary>
+            Retrieves file bytes for a specific file residing in the specified partition, or <c>null</c> if not found.
+            </summary>
+            <param name="context">Business domain context.</param>
+            <param name="partition">Canonical storage partition name.</param>
+            <param name="fileName">File name with extension.</param>
+            <returns>The raw byte array, or <c>null</c>.</returns>
+        </member>
+        <member name="M:AcceptanceTests.Plugins.Helpers.PluginTestStorageMock.GetFilesInPartition(System.String,System.String)">
+            <summary>
+            Lists all file names currently stored in the given context and partition.
+            </summary>
+            <param name="context">Business domain context.</param>
+            <param name="partition">Canonical storage partition name.</param>
+            <returns>A read-only list of file names.</returns>
+        </member>
+        <member name="M:AcceptanceTests.Plugins.Helpers.PluginTestStorageMock.Clear">
+            <summary>
+            Clears all stored files from memory.
+            </summary>
+        </member>
+        <member name="T:AcceptanceTests.Plugins.PluginCacheAcceptanceTests">
+            <summary>
+            Acceptance tests for plugin cache persistence, verifying that memory cache states
+            serialize accurately into the cache storage partition (e.g. <c>plugin-cache.json</c>)
+            and survive memory purges through full state restoration.
+            </summary>
+        </member>
+        <member name="M:AcceptanceTests.Plugins.PluginCacheAcceptanceTests.PersistAndRestoreCacheAsync_ShouldRoundTripRegisteredPluginsThroughStoragePartition">
+            <summary>
+            Verifies that registered plugin states can be persisted to a JSON file in the cache partition,
+            survive an in-memory cache purge, and be successfully restored.
+            </summary>
+        </member>
+        <member name="M:AcceptanceTests.Plugins.PluginCacheAcceptanceTests.ClearCacheAsync_ShouldPurgeInMemoryEntries">
+            <summary>
+            Verifies that calling <see cref="M:MelloSilveiraTools.Plugins.Infrastructure.Services.IPluginService.ClearAsync"/> flushes all active
+            memory cache entries across versions.
+            </summary>
+        </member>
+        <member name="T:AcceptanceTests.Plugins.PluginLifecycleAcceptanceTests">
+            <summary>
+            Acceptance tests for plugin discovery and loading lifecycles, verifying that assemblies
+            are inspected, processable types are wired into static or dynamic DI containers, and
+            files transition safely from incoming to loaded storage partitions.
+            </summary>
+        </member>
+        <member name="M:AcceptanceTests.Plugins.PluginLifecycleAcceptanceTests.AddPluginServicesAsync_WithIncomingPlugin_ShouldPromoteToLoadedAndRegisterTypes">
+            <summary>
+            Verifies that executing the startup DI bootstrapping extension <see cref="M:MelloSilveiraTools.Plugins.PluginsDependencyInjection.AddPluginServicesAsync(Microsoft.Extensions.DependencyInjection.IServiceCollection,MelloSilveiraTools.Plugins.Infrastructure.PluginSettings,System.Threading.CancellationToken)"/>
+            scans incoming files, executes type processing into the static container, and promotes the assembly to the loaded partition.
+            </summary>
+        </member>
+        <member name="M:AcceptanceTests.Plugins.PluginLifecycleAcceptanceTests.LoadPluginsOnStartupAsync_WithDiscoveredIncomingAssembly_ShouldPromoteToLoadedFolder">
+            <summary>
+            Verifies that <see cref="M:MelloSilveiraTools.Plugins.Infrastructure.Services.IPluginService.LoadPluginsOnStartupAsync(Microsoft.Extensions.DependencyInjection.IServiceCollection,System.String,System.Nullable{MelloSilveiraTools.Plugins.Infrastructure.Models.PluginVersion},System.Threading.CancellationToken)"/> reads an incoming plugin assembly,
+            marks it as fully loaded in cache, and moves the physical file from incoming to loaded partition.
+            </summary>
+        </member>
+        <member name="M:AcceptanceTests.Plugins.PluginLifecycleAcceptanceTests.LoadPluginsOnRuntimeAsync_WithNewerVersion_ShouldPromoteToLoadedAndRegisterInDynamicProvider">
+            <summary>
+            Verifies that loading a newer plugin version at runtime registers the exported types into
+            <see cref="T:MelloSilveiraTools.Core.Providers.Dynamics.IDynamicServiceProvider"/> and moves the new assembly into the loaded partition.
+            </summary>
+        </member>
+        <member name="M:AcceptanceTests.Plugins.PluginLifecycleAcceptanceTests.ReloadPluginsOnStartupAsync_WithLoadedPlugin_ShouldMoveBackToIncomingAndReload">
+            <summary>
+            Verifies that calling <see cref="M:MelloSilveiraTools.Plugins.Infrastructure.Services.IPluginService.ReloadPluginsOnStartupAsync(Microsoft.Extensions.DependencyInjection.IServiceCollection,System.Boolean,System.String,System.Nullable{MelloSilveiraTools.Plugins.Infrastructure.Models.PluginVersion},System.Threading.CancellationToken)"/> on an already loaded plugin
+            re-reads the assembly from storage and ensures type registrations are re-evaluated.
+            </summary>
+        </member>
+        <member name="T:AcceptanceTests.Plugins.PluginMultiStorageAcceptanceTests">
+            <summary>
+            Acceptance tests verifying that <see cref="N:MelloSilveiraTools.Plugins"/> is fully storage-agnostic:
+            changing <see cref="P:MelloSilveiraTools.Plugins.Infrastructure.PluginSettings.StorageProvider"/> to an external cloud or alternative provider
+            (e.g. <see cref="F:MelloSilveiraTools.Core.Managers.File.Models.StorageProvider.AwsS3"/>) binds all operations to that keyed storage implementation
+            without modifying application behavior.
+            </summary>
+        </member>
+        <member name="M:AcceptanceTests.Plugins.PluginMultiStorageAcceptanceTests.PluginSystem_WhenConfiguredWithAwsS3_ShouldOperateExclusivelyOnAwsS3Storage">
+            <summary>
+            Verifies that when configured with <see cref="F:MelloSilveiraTools.Core.Managers.File.Models.StorageProvider.AwsS3"/>, upload, startup discovery,
+            promotion, and cache persistence execute exclusively against the AWS S3 storage mock,
+            leaving local storage untouched.
+            </summary>
+        </member>
+        <member name="T:AcceptanceTests.Plugins.PluginQuarantineAcceptanceTests">
+            <summary>
+            Acceptance tests verifying quarantine isolation: files in the incoming storage partition
+            that do not conform to naming conventions or lack valid managed .NET metadata must be
+            automatically moved to the quarantine partition without crashing or halting valid processing.
+            </summary>
+        </member>
+        <member name="M:AcceptanceTests.Plugins.PluginQuarantineAcceptanceTests.ScanAsync_WithMalformedFileNameInIncoming_ShouldMoveToQuarantinePartition">
+            <summary>
+            Verifies that an assembly in incoming storage lacking the mandatory versioning pattern
+            is isolated into the quarantine partition and removed from incoming.
+            </summary>
+        </member>
+        <member name="M:AcceptanceTests.Plugins.PluginQuarantineAcceptanceTests.ScanAsync_WithCorruptedNonManagedBinaryInIncoming_ShouldMoveToQuarantinePartition">
+            <summary>
+            Verifies that a binary file having a valid naming convention but containing corrupted
+            non-managed PE headers is moved to the quarantine partition.
+            </summary>
+        </member>
+        <member name="M:AcceptanceTests.Plugins.PluginQuarantineAcceptanceTests.ScanAsync_WithMixedCandidates_ShouldQuarantineInvalidAndDiscoverValid">
+            <summary>
+            Verifies that when valid and invalid candidate files coexist in the incoming storage partition,
+            invalid candidates are quarantined while valid assemblies are successfully discovered and returned.
+            </summary>
+        </member>
+        <member name="T:AcceptanceTests.Plugins.PluginUploadAcceptanceTests">
+            <summary>
+            Acceptance tests for plugin file uploads, verifying that valid managed .NET assemblies
+            are safely streamed to the incoming storage partition, while non-conforming or corrupted files
+            are rejected before persisting to storage.
+            </summary>
+        </member>
+        <member name="M:AcceptanceTests.Plugins.PluginUploadAcceptanceTests.UploadAsync_WithValidManagedAssembly_ShouldWriteToIncomingPartitionAndReturnMetadata">
+            <summary>
+            Verifies that uploading a valid managed .NET assembly with conforming naming convention
+            streams the payload to the incoming partition and returns accurate storage metadata.
+            </summary>
+        </member>
+        <member name="M:AcceptanceTests.Plugins.PluginUploadAcceptanceTests.UploadAsync_WithNonDllExtension_ShouldReturnBadRequestAndNotStoreFile">
+            <summary>
+            Verifies that uploading a file with a non-.dll extension is rejected with HTTP 400 Bad Request
+            and never touches storage.
+            </summary>
+        </member>
+        <member name="M:AcceptanceTests.Plugins.PluginUploadAcceptanceTests.UploadAsync_WithMalformedFileNamePattern_ShouldReturnBadRequestAndNotStoreFile">
+            <summary>
+            Verifies that uploading a file without the mandatory .v{major}.{minor}.{patch} version pattern
+            is rejected with HTTP 400 Bad Request and not persisted to storage.
+            </summary>
+        </member>
+        <member name="M:AcceptanceTests.Plugins.PluginUploadAcceptanceTests.UploadAsync_WithCorruptedOrNonManagedBinary_ShouldReturnBadRequestAndNotStoreFile">
+            <summary>
+            Verifies that uploading an unmanaged or corrupted binary file named as a DLL is rejected
+            by the PE validator and not persisted to storage.
+            </summary>
+        </member>
+        <member name="M:AcceptanceTests.Plugins.PluginUploadAcceptanceTests.UploadAsync_WithEmptyFile_ShouldReturnBadRequestAndNotStoreFile">
+            <summary>
+            Verifies that uploading an empty zero-byte file is rejected before any PE header processing.
+            </summary>
+        </member>
     </members>
 </doc>

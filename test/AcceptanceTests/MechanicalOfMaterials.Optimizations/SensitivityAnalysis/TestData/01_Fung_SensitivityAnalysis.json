@@ -1,0 +1,37 @@
+{
+  "identifier": "Acceptance_Fung_Sweep",
+  "mechanicalModelName": "Fung",
+  "baseStrain": 0.04,
+  "strainRange": {
+    "initialPoint": 0.02,
+    "finalPoint": 0.06,
+    "step": 0.02
+  },
+  "rampTimeConsideration": "Disregard",
+  "initialTime": 0.0,
+  "finalTime": 10.0,
+  "timeStep": 0.1,
+  "tolerance": 0.001,
+  "baseline": {
+    "elasticStressConstant": 50.0,
+    "elasticPowerConstant": 1.5,
+    "reducedRelaxationFunction": {
+      "relaxationStiffness": 0.12,
+      "fastRelaxationTime": 0.02,
+      "slowRelaxationTime": 20.0
+    }
+  },
+  "constantVariables": {
+    "RelaxationStiffness": {
+      "initialPoint": 0.05,
+      "finalPoint": 0.15,
+      "step": 0.05
+    },
+    "FastRelaxationTime": {
+      "initialPoint": 0.01,
+      "finalPoint": 0.03,
+      "step": 0.01
+    }
+  },
+  "arrayVariables": {}
+}
