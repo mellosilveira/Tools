@@ -1,4 +1,5 @@
 using MelloSilveiraTools.Core.Pipelines.Models;
+using System.Runtime.CompilerServices;
 
 namespace MelloSilveiraTools.Core.Pipelines.Notifiers;
 
@@ -15,7 +16,17 @@ public sealed class NullPipelineProgressNotifier : IPipelineProgressNotifier
     private NullPipelineProgressNotifier() { }
 
     /// <inheritdoc/>
-    public ValueTask NotifyAsync(PipelineProgressEvent progressEvent, CancellationToken cancellationToken = default) => ValueTask.CompletedTask;
+    public ValueTask NotifyAsync(string analysisIdentifier, PipelineProgressEvent progressEvent, CancellationToken cancellationToken = default) => ValueTask.CompletedTask;
+
+    /// <inheritdoc/>
+    public async IAsyncEnumerable<PipelineProgressEvent> ReadAllAsync(string analysisIdentifier, [EnumeratorCancellation] CancellationToken cancellationToken = default)
+    {
+        await Task.CompletedTask;
+        yield break;
+    }
+
+    /// <inheritdoc/>
+    public bool TryComplete(string analysisIdentifier, Exception? error = null) => true;
 
     /// <inheritdoc/>
     public ValueTask DisposeAsync() => ValueTask.CompletedTask;

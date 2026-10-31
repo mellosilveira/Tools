@@ -7,6 +7,11 @@ namespace MelloSilveiraTools.Core.Pipelines.Models;
 public sealed record PipelineProgressEvent
 {
     /// <summary>
+    /// Gets the unique analysis or pipeline run business identifier correlating the emitted event.
+    /// </summary>
+    public string? AnalysisIdentifier { get; init; }
+
+    /// <summary>
     /// Gets the unique identifier or logical name of the pipeline step emitting the event.
     /// </summary>
     public required string StepName { get; init; }
@@ -67,7 +72,8 @@ public sealed record PipelineProgressEvent
         if (ReferenceEquals(this, other))
             return true;
 
-        return string.Equals(StepName, other.StepName, StringComparison.Ordinal)
+        return string.Equals(AnalysisIdentifier, other.AnalysisIdentifier, StringComparison.Ordinal)
+            && string.Equals(StepName, other.StepName, StringComparison.Ordinal)
             && string.Equals(Description, other.Description, StringComparison.Ordinal)
             && State == other.State
             && Timestamp.Equals(other.Timestamp)
@@ -82,6 +88,7 @@ public sealed record PipelineProgressEvent
     public override int GetHashCode()
     {
         HashCode hash = new();
+        hash.Add(AnalysisIdentifier, StringComparer.Ordinal);
         hash.Add(StepName, StringComparer.Ordinal);
         hash.Add(Description, StringComparer.Ordinal);
         hash.Add(State);

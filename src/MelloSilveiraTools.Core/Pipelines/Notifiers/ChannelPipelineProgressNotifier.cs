@@ -1,53 +1,150 @@
 using MelloSilveiraTools.Core.Pipelines.Models;
+using System.Collections.Concurrent;
+using System.Runtime.CompilerServices;
 using System.Threading.Channels;
 
 namespace MelloSilveiraTools.Core.Pipelines.Notifiers;
 
 /// <summary>
-/// High-performance, bounded-memory implementation of <see cref="IPipelineProgressNotifier"/> backed by a <see cref="Channel{T}"/>.
-/// Designed for real-time NDJSON or Server-Sent Events (SSE) streaming to HTTP clients with built-in backpressure.
+/// High-performance, singleton implementation of <see cref="IPipelineProgressNotifier"/> backed by discrete bounded <see cref="Channel{T}"/>
+/// instances correlated by analysis identifier in an internal concurrent dictionary.
+/// Channels are evicted deterministically upon the completion of reader consumption, with an upper bound on active channels.
 /// </summary>
-public sealed class ChannelPipelineProgressNotifier : IPipelineProgressNotifier
+/// <param name="settings">Mandatory configuration settings defining buffer capacities, full mode policies, and maximum channel limits.</param>
+/// <param name="timeProvider">Mandatory time provider for recording creation timestamps to support LRU eviction if capacity is reached.</param>
+public sealed class ChannelPipelineProgressNotifier(
+    PipelineProgressNotifierSettings settings,
+    TimeProvider timeProvider)
+    : IPipelineProgressNotifier
 {
-    private readonly Channel<PipelineProgressEvent> _channel;
+    private readonly ConcurrentDictionary<string, ChannelEntry> _channels = new(StringComparer.Ordinal);
 
-    /// <summary>
-    /// Initializes a new instance of the <see cref="ChannelPipelineProgressNotifier"/> class with a bounded capacity.
-    /// </summary>
-    /// <param name="capacity">The maximum number of events buffered in the channel before applying backpressure or full-mode behavior. Defaults to 256.</param>
-    /// <param name="fullMode">The behavior to apply when the bounded channel is full. Defaults to <see cref="BoundedChannelFullMode.Wait"/>.</param>
-    public ChannelPipelineProgressNotifier(int capacity = 256, BoundedChannelFullMode fullMode = BoundedChannelFullMode.Wait)
+    /// <inheritdoc/>
+    public ValueTask NotifyAsync(string analysisIdentifier, PipelineProgressEvent progressEvent, CancellationToken cancellationToken = default)
     {
-        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(capacity);
-        _channel = Channel.CreateBounded<PipelineProgressEvent>(new BoundedChannelOptions(capacity)
-        {
-            FullMode = fullMode,
-            SingleReader = true,
-            SingleWriter = false
-        });
+        ArgumentException.ThrowIfNullOrWhiteSpace(analysisIdentifier);
+        ChannelEntry entry = GetOrCreateEntry(analysisIdentifier);
+        return entry.Channel.Writer.WriteAsync(progressEvent, cancellationToken);
     }
 
     /// <inheritdoc/>
-    public ValueTask NotifyAsync(PipelineProgressEvent progressEvent, CancellationToken cancellationToken = default) => _channel.Writer.WriteAsync(progressEvent, cancellationToken);
+    public async IAsyncEnumerable<PipelineProgressEvent> ReadAllAsync(
+        string analysisIdentifier,
+        [EnumeratorCancellation] CancellationToken cancellationToken = default)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(analysisIdentifier);
+        ChannelEntry entry = GetOrCreateEntry(analysisIdentifier);
 
-    /// <summary>
-    /// Attempts to mark the underlying channel as complete, signaling to consumers of <see cref="ReadAllAsync"/> that no further progress events will be emitted.
-    /// </summary>
-    /// <param name="error">An optional exception indicating that the pipeline terminated due to an unhandled fault.</param>
-    /// <returns><see langword="true"/> if this operation successfully completed the channel; otherwise, <see langword="false"/> if the channel was already marked as complete.</returns>
-    public bool TryComplete(Exception? error = null) => _channel.Writer.TryComplete(error);
+        try
+        {
+            await foreach (PipelineProgressEvent item in entry.Channel.Reader.ReadAllAsync(cancellationToken).ConfigureAwait(false))
+            {
+                yield return item;
+            }
+        }
+        finally
+        {
+            _channels.TryRemove(analysisIdentifier, out _);
+        }
+    }
 
-    /// <summary>
-    /// Returns an <see cref="IAsyncEnumerable{T}"/> that reads all emitted <see cref="PipelineProgressEvent"/> items until the channel completes.
-    /// </summary>
-    /// <param name="cancellationToken">Token to cancel the asynchronous enumeration.</param>
-    /// <returns>An asynchronous stream of <see cref="PipelineProgressEvent"/> instances.</returns>
-    public IAsyncEnumerable<PipelineProgressEvent> ReadAllAsync(CancellationToken cancellationToken = default) => _channel.Reader.ReadAllAsync(cancellationToken);
+    /// <inheritdoc/>
+    public bool TryComplete(string analysisIdentifier, Exception? error = null)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(analysisIdentifier);
+        if (_channels.TryGetValue(analysisIdentifier, out ChannelEntry? entry))
+        {
+            entry.IsCompleted = true;
+            return entry.Channel.Writer.TryComplete(error);
+        }
+
+        return false;
+    }
 
     /// <inheritdoc/>
     public ValueTask DisposeAsync()
     {
-        TryComplete();
+        foreach (KeyValuePair<string, ChannelEntry> pair in _channels)
+        {
+            pair.Value.Channel.Writer.TryComplete();
+        }
+
+        _channels.Clear();
         return ValueTask.CompletedTask;
+    }
+
+    private ChannelEntry GetOrCreateEntry(string analysisIdentifier)
+    {
+        if (_channels.TryGetValue(analysisIdentifier, out ChannelEntry? existing))
+        {
+            return existing;
+        }
+
+        EnsureCapacityLimit();
+
+        return _channels.GetOrAdd(analysisIdentifier, _ =>
+        {
+            Channel<PipelineProgressEvent> channel = Channel.CreateBounded<PipelineProgressEvent>(new BoundedChannelOptions(settings.ChannelCapacity)
+            {
+                FullMode = settings.FullMode,
+                SingleReader = false,
+                SingleWriter = false
+            });
+
+            return new ChannelEntry(channel, timeProvider.GetUtcNow());
+        });
+    }
+
+    private void EnsureCapacityLimit()
+    {
+        if (_channels.Count < settings.MaxChannels)
+        {
+            return;
+        }
+
+        // 1. Purge completed channels that were abandoned without reading.
+        KeyValuePair<string, ChannelEntry>[] completedEntries = _channels
+            .Where(pair => pair.Value.IsCompleted)
+            .OrderBy(pair => pair.Value.CreatedAt)
+            .ToArray();
+
+        foreach (KeyValuePair<string, ChannelEntry> pair in completedEntries)
+        {
+            if (_channels.TryRemove(pair))
+            {
+                if (_channels.Count < settings.MaxChannels)
+                {
+                    return;
+                }
+            }
+        }
+
+        // 2. If still over capacity, purge oldest channels to enforce bounded memory.
+        KeyValuePair<string, ChannelEntry>[] oldestEntries = _channels
+            .OrderBy(pair => pair.Value.CreatedAt)
+            .ToArray();
+
+        foreach (KeyValuePair<string, ChannelEntry> pair in oldestEntries)
+        {
+            if (_channels.TryRemove(pair))
+            {
+                pair.Value.Channel.Writer.TryComplete();
+                if (_channels.Count < settings.MaxChannels)
+                {
+                    return;
+                }
+            }
+        }
+    }
+
+    private sealed class ChannelEntry(
+        Channel<PipelineProgressEvent> channel,
+        DateTimeOffset createdAt)
+    {
+        public Channel<PipelineProgressEvent> Channel { get; } = channel;
+
+        public DateTimeOffset CreatedAt { get; } = createdAt;
+
+        public bool IsCompleted { get; set; }
     }
 }

@@ -1,12 +1,10 @@
-﻿using MelloSilveiraTools.Core.Managers.File;
+using MelloSilveiraTools.Core.Managers.File.Providers;
 using MelloSilveiraTools.Core.Models;
 using MelloSilveiraTools.Core.Pipelines;
 using MelloSilveiraTools.Core.Pipelines.Dataflow;
-using MelloSilveiraTools.Core.Pipelines.Models;
 using MelloSilveiraTools.Core.Pipelines.Steps;
 using MelloSilveiraTools.Core.Providers;
 using MelloSilveiraTools.Database.Repositories;
-using MelloSilveiraTools.Mathematics.Extensions;
 using MelloSilveiraTools.Mathematics.NumericalMethods.Differentiations;
 using MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.SensitivityAnalysis.Steps;
@@ -24,31 +22,28 @@ namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.Sensit
 /// <param name="logger">The structured logger for the pipeline.</param>
 /// <param name="mechanicalModelCalculatorFactory">Factory resolving mechanical model calculator facades.</param>
 /// <param name="differentiation">Numerical differentiation provider for asymptote detection.</param>
-/// <param name="serviceLocator">Service locator resolving model-specific sweep generators.</param>
 /// <param name="fileStorageService">Storage service responsible for writing partitioned sensitivity CSV files.</param>
 /// <param name="repository">Database repository provider for persisting sweep metadata and stored file records.</param>
+/// <param name="pipelineFactory">Factory responsible for bootstrapping Dataflow execution topologies.</param>
+/// <param name="serviceLocator">Service locator resolving model-specific sweep generators.</param>
+/// <param name="settings">Mandatory execution topology settings for the parametric sweep pipeline.</param>
 /// <param name="loggerFactory">Optional logger factory for creating step-specific loggers.</param>
 public sealed class ParametricSweepPipeline(
     ILogger<ParametricSweepPipeline> logger,
     IMechanicalModelCalculatorFactory mechanicalModelCalculatorFactory,
     IDifferentiation differentiation,
-    ServiceLocator serviceLocator,
     IFileStorageService fileStorageService,
     IRepository repository,
+    PipelineFactory pipelineFactory,
+    ServiceLocator serviceLocator,
+    ParametricSweepSettings settings,
     ILoggerFactory? loggerFactory = null)
-    : IParametricSweepPipeline
+    : IPipeline<ParametricSweepInput, string>
 {
     /// <inheritdoc/>
     public async Task<Result<string>> ProcessAsync(ParametricSweepInput input, CancellationToken cancellationToken = default)
     {
         string uniqueIdentifier = string.IsNullOrWhiteSpace(input.Identifier) ? Guid.NewGuid().ToString("N") : input.Identifier;
-
-        input.Progress?.Report(new PipelineProgressEvent(
-            nameof(ParametricSweepPipeline),
-            "Parametric sweep pipeline started.",
-            PipelineStepState.Started,
-            Detail: uniqueIdentifier,
-            Timestamp: DateTimeOffset.UtcNow));
 
         SweepIngestionStep ingestionStep = new(serviceLocator);
 
@@ -62,8 +57,8 @@ public sealed class ParametricSweepPipeline(
             ?? NullLogger<ParametricSweepPersistenceStep>.Instance;
         ParametricSweepPersistenceStep persistenceStep = new(persistenceLogger, repository);
 
-        IDataflowPipeline<ParametricSweepInput> pipeline = PipelineFactory
-            .StartDataflow<ParametricSweepInput>(logger, cancellationToken: cancellationToken, progress: input.Progress)
+        IDataflowPipeline<ParametricSweepInput> pipeline = pipelineFactory
+            .CreateDataflow<ParametricSweepInput>(logger, pipelineIdentifier: uniqueIdentifier, initialBufferSize: settings.IngestionBufferCapacity, cancellationToken: cancellationToken)
             .AddStep(ingestionStep)
             .Fork(
                 calculationBranch => calculationBranch
@@ -84,24 +79,11 @@ public sealed class ParametricSweepPipeline(
             if (!accepted)
             {
                 logger.LogError("Failed to ingest input into the parametric sweep pipeline. Identifier: {Identifier}. Input: {@Input}", uniqueIdentifier, input);
-                input.Progress?.Report(new PipelineProgressEvent(
-                    nameof(ParametricSweepPipeline),
-                    "Failed to ingest input into the parametric sweep pipeline.",
-                    PipelineStepState.Faulted,
-                    Detail: uniqueIdentifier,
-                    Timestamp: DateTimeOffset.UtcNow));
                 return Result.CreateBadRequest("Failed to ingest input into the parametric sweep pipeline.");
             }
 
             pipeline.Complete();
             await pipeline.Completion.ConfigureAwait(false);
-
-            input.Progress?.Report(new PipelineProgressEvent(
-                nameof(ParametricSweepPipeline),
-                "Parametric sweep pipeline completed.",
-                PipelineStepState.Completed,
-                Detail: uniqueIdentifier,
-                Timestamp: DateTimeOffset.UtcNow));
 
             return uniqueIdentifier;
         }

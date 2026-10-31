@@ -1,7 +1,7 @@
 using MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.QuasiLinear;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Models;
-using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Models;
-using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Steps.CurveFitter.Fung;
+using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Models;
+using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Pipelines.Steps.CurveFitter.Fung;
 
 namespace AcceptanceTests.MechanicalOfMaterials.Optimizations.CurveFitterSteps;
 

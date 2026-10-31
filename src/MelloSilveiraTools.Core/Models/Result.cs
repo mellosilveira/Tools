@@ -212,6 +212,15 @@ public record Result : ResultBase
         => CreateSuccess(StatusCode.OK, resultData);
 
     /// <summary>
+    /// Creates a standard successful outcome delivering business data.
+    /// </summary>
+    /// <typeparam name="TResultData">The type of business data payload.</typeparam>
+    /// <param name="resultData">The business payload delivered to the client.</param>
+    /// <returns>A successful 200 OK outcome carrying data.</returns>
+    public static Result<TResultData> CreateSuccessAccepted<TResultData>(TResultData? resultData = default)
+        => CreateSuccess(StatusCode.Accepted, resultData);
+
+    /// <summary>
     /// Creates an outcome confirming that a new record was created, delivering the created record details.
     /// </summary>
     /// <typeparam name="TResultData">The type of business data payload.</typeparam>

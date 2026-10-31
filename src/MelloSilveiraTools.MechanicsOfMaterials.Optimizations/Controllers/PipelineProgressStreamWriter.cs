@@ -1,8 +1,8 @@
-﻿using MelloSilveiraTools.Core.Models;
+using MelloSilveiraTools.Core.Models;
 using MelloSilveiraTools.Core.Pipelines.Models;
+using MelloSilveiraTools.Core.Pipelines.Notifiers;
 using Microsoft.AspNetCore.Http;
 using System.Text.Json;
-using System.Threading.Channels;
 
 namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Controllers;
 
@@ -10,10 +10,9 @@ namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Controllers;
 /// Provides real-time NDJSON (<c>application/x-ndjson</c>) streaming of <see cref="PipelineProgressEvent"/> notifications
 /// over an active <see cref="HttpResponse"/> while an asynchronous pipeline command executes.
 /// </summary>
+// TODO: DEVE SER AGNÓSTICO A IPipelineProgressNotifier E FUNCIONAR PARA QUALQUER NOTIFICAÇÃO
 internal static class PipelineProgressStreamWriter
 {
-    // TODO: REVISAR
-
     private static readonly byte[] Newline = [(byte)'\n'];
 
     private static readonly JsonSerializerOptions JsonOptions = new()
@@ -26,76 +25,86 @@ internal static class PipelineProgressStreamWriter
     /// in real time as newline-delimited JSON (NDJSON) to the HTTP response body.
     /// </summary>
     /// <typeparam name="TResponse">The response payload type wrapped in the final <see cref="Result{T}"/>.</typeparam>
+    /// <param name="analysisIdentifier">Mandatory business identifier correlating the analysis.</param>
+    /// <param name="progressNotifier">The progress notifier resolved via dependency injection.</param>
+    /// <param name="timeProvider">Mandatory time provider for timestamping execution events.</param>
     /// <param name="httpContext">The active HTTP context.</param>
-    /// <param name="executeAsync">Delegate that accepts an <see cref="IProgress{T}"/> instance and executes the command.</param>
+    /// <param name="executeAsync">Delegate that executes the command.</param>
     /// <param name="cancellationToken">Cooperative cancellation token.</param>
     public static async Task StreamProgressAsync<TResponse>(
+        string analysisIdentifier,
+        IPipelineProgressNotifier progressNotifier,
+        TimeProvider timeProvider,
         HttpContext httpContext,
-        Func<IProgress<PipelineProgressEvent>, CancellationToken, Task<Result<TResponse>>> executeAsync,
+        Func<CancellationToken, Task<Result<TResponse>>> executeAsync,
         CancellationToken cancellationToken = default)
     {
+        ArgumentNullException.ThrowIfNull(timeProvider);
+        ArgumentException.ThrowIfNullOrWhiteSpace(analysisIdentifier);
+
         HttpResponse response = httpContext.Response;
         response.StatusCode = StatusCodes.Status200OK;
         response.ContentType = "application/x-ndjson; charset=utf-8";
         response.Headers.CacheControl = "no-cache";
         response.Headers["X-Accel-Buffering"] = "no";
 
-        Channel<PipelineProgressEvent> channel = Channel.CreateUnbounded<PipelineProgressEvent>(new UnboundedChannelOptions
-        {
-            SingleReader = true,
-            SingleWriter = false
-        });
-
-        ChannelProgressReporter reporter = new(channel.Writer);
+        ChannelPipelineProgressNotifier? channelNotifier = progressNotifier as ChannelPipelineProgressNotifier;
 
         Task<Result<TResponse>> executionTask = Task.Run(async () =>
         {
             try
             {
-                Result<TResponse> result = await executeAsync(reporter, cancellationToken).ConfigureAwait(false);
+                Result<TResponse> result = await executeAsync(cancellationToken).ConfigureAwait(false);
                 if (!result.Success)
                 {
-                    reporter.Report(new PipelineProgressEvent(
-                        "Command",
-                        string.Join("; ", result.Messages),
-                        PipelineStepState.Faulted,
-                        Timestamp: DateTimeOffset.UtcNow));
+                    await progressNotifier.NotifyAsync(
+                        analysisIdentifier,
+                        new PipelineProgressEvent
+                        {
+                            AnalysisIdentifier = analysisIdentifier,
+                            StepName = "Command",
+                            Description = string.Join("; ", result.Messages),
+                            State = PipelineStepState.Faulted,
+                            Timestamp = timeProvider.GetUtcNow()
+                        },
+                        cancellationToken).ConfigureAwait(false);
                 }
 
                 return result;
             }
             catch (Exception ex) when (ex is not OperationCanceledException)
             {
-                reporter.Report(new PipelineProgressEvent(
-                    "Command",
-                    ex.Message,
-                    PipelineStepState.Faulted,
-                    Detail: ex.GetType().Name,
-                    Timestamp: DateTimeOffset.UtcNow));
+                await progressNotifier.NotifyAsync(
+                    analysisIdentifier,
+                    new PipelineProgressEvent
+                    {
+                        AnalysisIdentifier = analysisIdentifier,
+                        StepName = "Command",
+                        Description = ex.Message,
+                        State = PipelineStepState.Faulted,
+                        Timestamp = timeProvider.GetUtcNow(),
+                        Details = ex.GetType().Name
+                    },
+                    cancellationToken).ConfigureAwait(false);
                 throw;
             }
             finally
             {
-                channel.Writer.TryComplete();
+                channelNotifier?.TryComplete(analysisIdentifier);
             }
         }, cancellationToken);
 
-        await foreach (PipelineProgressEvent progressEvent in channel.Reader.ReadAllAsync(cancellationToken).ConfigureAwait(false))
+        if (channelNotifier is not null)
         {
-            byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(progressEvent, JsonOptions);
-            await response.Body.WriteAsync(bytes, cancellationToken).ConfigureAwait(false);
-            await response.Body.WriteAsync(Newline, cancellationToken).ConfigureAwait(false);
-            await response.Body.FlushAsync(cancellationToken).ConfigureAwait(false);
+            await foreach (PipelineProgressEvent progressEvent in channelNotifier.ReadAllAsync(analysisIdentifier, cancellationToken).ConfigureAwait(false))
+            {
+                byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(progressEvent, JsonOptions);
+                await response.Body.WriteAsync(bytes, cancellationToken).ConfigureAwait(false);
+                await response.Body.WriteAsync(Newline, cancellationToken).ConfigureAwait(false);
+                await response.Body.FlushAsync(cancellationToken).ConfigureAwait(false);
+            }
         }
 
         await executionTask.ConfigureAwait(false);
-    }
-
-    private sealed class ChannelProgressReporter(ChannelWriter<PipelineProgressEvent> writer) : IProgress<PipelineProgressEvent>
-    {
-        public void Report(PipelineProgressEvent value)
-        {
-            writer.TryWrite(value);
-        }
     }
 }

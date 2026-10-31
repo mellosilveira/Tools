@@ -1,17 +1,19 @@
 using MelloSilveiraTools.Core.Application.Commands;
 using MelloSilveiraTools.Core.Models;
+using MelloSilveiraTools.Core.Pipelines;
 using MelloSilveiraTools.Core.Validators;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.SensitivityAnalysis;
+using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Models;
 
 namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Commands;
 
 /// <summary>
-/// Application command that validates and executes a parametric sweep sensitivity analysis via <see cref="IParametricSweepPipeline"/>.
+/// Application command that validates and executes a parametric sweep sensitivity analysis via <see cref="IPipeline{TInput, TOutput}"/>.
 /// </summary>
 /// <param name="pipeline">The parametric sweep pipeline.</param>
 /// <param name="validator">Request validator for <see cref="ExecuteParametricSweepRequest"/>.</param>
 public sealed class ExecuteParametricSweepCommand(
-    IParametricSweepPipeline pipeline,
+    IPipeline<ParametricSweepInput, string> pipeline,
     IValidator<ExecuteParametricSweepRequest> validator)
     : CommandBaseWithData<ExecuteParametricSweepRequest, ExecuteParametricSweepResponse>(validator)
 {

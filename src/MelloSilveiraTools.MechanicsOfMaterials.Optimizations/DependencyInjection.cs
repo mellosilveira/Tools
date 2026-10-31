@@ -6,14 +6,19 @@ using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Algorit
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.MathematicalFunctions;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.MathExpressions;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Models;
-using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData;
-using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Commands;
-using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Factories;
-using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Models;
+using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData;
+using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Commands;
+using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Factories;
+using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Models;
+using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Pipelines;
+using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Services;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.SensitivityAnalysis;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Commands;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Generators;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Models;
+using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.VariableRelationships;
+using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.VariableRelationships.Commands;
+using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.VariableRelationships.Models;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations;
@@ -27,24 +32,32 @@ public static class DependencyInjection
     extension(IServiceCollection services)
     {
         /// <summary>
-        /// Registers the Mechanics of Materials Optimizations services
-        /// (curve fitter steps, step factory, experimental data pipeline, parametric sweep pipeline, validators, and commands)
-        /// into the dependency injection container.
+        /// Registers optimization services into the service collection.
+        /// When <paramref name="settings"/> is provided, registers <see cref="ExperimentalDataSettings"/> as a singleton
+        /// and wires up the experimental data processing pipeline.
         /// </summary>
         /// <param name="settings">
         /// Optional experimental data settings. When provided, registered as a singleton into DI.
         /// </param>
+        /// <param name="curveFitterOptions">
+        /// Optional curve fitter configuration options controlling deterministic seeding. When provided, registered as a singleton into DI.
+        /// </param>
         /// <returns>The same service collection so additional registrations can be chained.</returns>
-        public IServiceCollection AddOptimizationsServices(ExperimentalDataSettings? settings = null)
+        public IServiceCollection AddOptimizationsServices(ExperimentalDataSettings? settings = null, CurveFitterOptions? curveFitterOptions = null)
         {
             if (settings is not null)
             {
-                services
-                    .AddSingleton(settings)
-                    .AddScoped<IPipeline<ExperimentalDataProcessingInput, string>, ExperimentalDataProcessingPipeline>();
+                services.AddSingleton(settings);
+            }
+
+            if (curveFitterOptions is not null)
+            {
+                services.AddSingleton(curveFitterOptions);
             }
 
             return services
+                // Register Step Execution Manager.
+                .AddSingleton<IStepExecutionManager, StepExecutionManager>()
                 // Register Curve Fitter implementations.
                 .AddKeyedSingleton<ICurveFitter, AlglibCurveFitter>(CurveFitterType.Alglib)
                 .AddKeyedSingleton<ICurveFitter, MathNetCurveFitter>(CurveFitterType.MathNet)
@@ -56,18 +69,22 @@ public static class DependencyInjection
                 .AddKeyedSingleton<IFunctionCurveFitter, PolynomialCurveFitter>(FunctionType.Polynomial)
                 // Register the step factory.
                 .AddSingleton<IMechanicalModelStepFactory, MechanicalModelStepFactory>()
-                // Register pipelines.
                 // Register Sensitivity Analysis services.
                 .AddKeyedSingleton<IParametricSweepGenerator, FungParametricSweepGenerator>(nameof(MechanicalModel.Fung))
                 .AddKeyedSingleton<IParametricSweepGenerator, SimplifiedFungParametricSweepGenerator>(nameof(MechanicalModel.SimplifiedFung))
                 .AddKeyedSingleton<IParametricSweepGenerator, SchaperyParametricSweepGenerator>(nameof(MechanicalModel.Schapery))
-                .AddScoped<IPipeline<ParametricSweepInput, string>, ParametricSweepPipeline>()
+                // Register pipelines.
+                .AddSingleton<IPipeline<ExperimentalDataProcessingInput, string>, ExperimentalDataProcessingPipeline>()
+                .AddSingleton<IPipeline<ParametricSweepInput, string>, ParametricSweepPipeline>()
+                .AddSingleton<IPipeline<VariableRelationshipInput, VariableRelationshipOutput>, VariableRelationshipPipeline>()
                 // Register Request Validators.
                 .AddSingleton<IValidator<ProcessExperimentalDataRequest>, ProcessExperimentalDataValidator>()
                 .AddSingleton<IValidator<ExecuteParametricSweepRequest>, ExecuteParametricSweepValidator>()
                 // Register Application Commands.
                 .AddScoped<ProcessExperimentalDataCommand>()
-                .AddScoped<ExecuteParametricSweepCommand>();
+                .AddScoped<ResumeExperimentalDataStepCommand>()
+                .AddScoped<ExecuteParametricSweepCommand>()
+                .AddScoped<ExecuteVariableRelationshipCommand>();
         }
     }
 }

@@ -1,6 +1,6 @@
 using MelloSilveiraTools.Mathematics.Models;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Models;
-using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Steps.CurveFitter.Fung;
+using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Pipelines.Steps.CurveFitter.Fung;
 
 namespace UnitTests.MechanicsOfMaterials.Optimizations.CurveFitting.Algorithms;
 

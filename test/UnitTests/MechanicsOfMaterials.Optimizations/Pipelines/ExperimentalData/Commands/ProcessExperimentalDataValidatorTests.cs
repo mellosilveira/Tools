@@ -1,7 +1,5 @@
-﻿using MelloSilveiraTools.Core.Models;
-using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Commands;
-using Microsoft.AspNetCore.Http;
-using Moq;
+using MelloSilveiraTools.Core.Models;
+using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Commands;
 
 namespace UnitTests.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Commands;
 
@@ -37,8 +35,8 @@ public sealed class ProcessExperimentalDataValidatorTests
         ProcessExperimentalDataRequest request = new()
         {
             MechanicalModelName = string.Empty,
-            StrainFile = CreateMockFormFile(),
-            StressFile = CreateMockFormFile(),
+            StrainFileLocation = "raw/strain.csv",
+            StressFileLocation = "raw/stress.csv",
             TargetRSquared = 0.95
         };
 
@@ -51,17 +49,17 @@ public sealed class ProcessExperimentalDataValidatorTests
     }
 
     /// <summary>
-    /// Verifies that providing an empty FormFile (0 bytes) is flagged as missing.
+    /// Verifies that providing empty or whitespace file locations triggers validation errors.
     /// </summary>
     [Fact]
-    public void Validate_WhenFormFilesAreEmpty_ReturnsBadRequest()
+    public void Validate_WhenFileLocationsAreMissing_ReturnsBadRequest()
     {
         // Arrange
         ProcessExperimentalDataRequest request = new()
         {
             MechanicalModelName = "Maxwell",
-            StrainFile = CreateMockFormFile(0L),
-            StressFile = CreateMockFormFile(0L),
+            StrainFileLocation = "   ",
+            StressFileLocation = string.Empty,
             TargetRSquared = 0.95
         };
 
@@ -70,8 +68,8 @@ public sealed class ProcessExperimentalDataValidatorTests
 
         // Assert
         Assert.False(result.Success);
-        Assert.Contains("A non-empty StrainFile must be provided.", result.Messages);
-        Assert.Contains("A non-empty StressFile must be provided.", result.Messages);
+        Assert.Contains("StrainFileLocation must be provided.", result.Messages);
+        Assert.Contains("StressFileLocation must be provided.", result.Messages);
     }
 
     /// <summary>
@@ -87,8 +85,8 @@ public sealed class ProcessExperimentalDataValidatorTests
         ProcessExperimentalDataRequest request = new()
         {
             MechanicalModelName = "Maxwell",
-            StrainFile = CreateMockFormFile(),
-            StressFile = CreateMockFormFile(),
+            StrainFileLocation = "raw/strain.csv",
+            StressFileLocation = "raw/stress.csv",
             TargetRSquared = targetRSquared
         };
 
@@ -110,8 +108,8 @@ public sealed class ProcessExperimentalDataValidatorTests
         ProcessExperimentalDataRequest request = new()
         {
             MechanicalModelName = "Maxwell",
-            StrainFile = CreateMockFormFile(),
-            StressFile = CreateMockFormFile(),
+            StrainFileLocation = "raw/strain.csv",
+            StressFileLocation = "raw/stress.csv",
             TargetRSquared = 0.95,
             AsymptoteConsecutivePointsThreshold = -1,
             SimulationTimeStep = -0.1,
@@ -129,17 +127,17 @@ public sealed class ProcessExperimentalDataValidatorTests
     }
 
     /// <summary>
-    /// Verifies that a well-formed request with FormFiles passes validation.
+    /// Verifies that a well-formed request with valid storage locations passes validation.
     /// </summary>
     [Fact]
-    public void Validate_WhenValidWithFormFiles_ReturnsSuccess()
+    public void Validate_WhenValidWithFileLocations_ReturnsSuccess()
     {
         // Arrange
         ProcessExperimentalDataRequest request = new()
         {
             MechanicalModelName = "Maxwell",
-            StrainFile = CreateMockFormFile(100L),
-            StressFile = CreateMockFormFile(100L),
+            StrainFileLocation = "raw/strain.csv",
+            StressFileLocation = "raw/stress.csv",
             TargetRSquared = 0.99,
             SimulationTimeStep = 0.05,
             AsymptoteConsecutivePointsThreshold = 5,
@@ -153,12 +151,5 @@ public sealed class ProcessExperimentalDataValidatorTests
         Assert.True(result.Success);
         Assert.Equal(StatusCode.OK, result.StatusCode);
         Assert.Empty(result.Messages);
-    }
-
-    private static IFormFile CreateMockFormFile(long length = 100L)
-    {
-        Mock<IFormFile> mock = new();
-        mock.Setup(f => f.Length).Returns(length);
-        return mock.Object;
     }
 }

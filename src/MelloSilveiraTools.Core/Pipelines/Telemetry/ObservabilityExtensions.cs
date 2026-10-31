@@ -638,7 +638,7 @@ public static class ObservabilityExtensions
 
         try
         {
-            ValueTask notifyTask = progressNotifier.NotifyAsync(progressEvent, cancellationToken);
+            ValueTask notifyTask = progressNotifier.NotifyAsync(progressEvent.AnalysisIdentifier ?? string.Empty, progressEvent, cancellationToken);
             if (!notifyTask.IsCompletedSuccessfully)
             {
                 _ = notifyTask.AsTask().ContinueWith(

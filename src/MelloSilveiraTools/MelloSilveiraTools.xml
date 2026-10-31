@@ -9,7 +9,7 @@
             Provides extension methods to dependency injection of Tools project (meta-package).
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.DependencyInjection.AddToolsServices(Microsoft.Extensions.DependencyInjection.IServiceCollection,MelloSilveiraTools.Core.ResiliencePipelines.ResiliencePipelineSettings,MelloSilveiraTools.Database.RelationalDatabase.Settings.DatabaseSettings,MelloSilveiraTools.Core.Services.Encryption.EncryptionSettings,MelloSilveiraTools.Plugins.Infrastructure.PluginSettings,MelloSilveiraTools.Core.Services.Email.EmailSettings,MelloSilveiraTools.Core.Managers.File.Providers.FileStorageSettings,MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.ExperimentalDataSettings,MelloSilveiraTools.Core.Logging.LoggerSettings,System.Boolean,System.Boolean)">
+        <member name="M:MelloSilveiraTools.DependencyInjection.AddToolsServices(Microsoft.Extensions.DependencyInjection.IServiceCollection,MelloSilveiraTools.Core.ResiliencePipelines.ResiliencePipelineSettings,MelloSilveiraTools.Database.RelationalDatabase.Settings.DatabaseSettings,MelloSilveiraTools.Core.Services.Encryption.EncryptionSettings,MelloSilveiraTools.Plugins.Infrastructure.PluginSettings,MelloSilveiraTools.Core.Services.Email.EmailSettings,MelloSilveiraTools.Core.Managers.File.Providers.FileStorageSettings,MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.ExperimentalDataSettings,MelloSilveiraTools.Core.Logging.LoggerSettings,MelloSilveiraTools.Core.Pipelines.Notifiers.PipelineProgressNotifierSettings,System.Boolean)">
             <summary>
             Registers the services of every contextual MelloSilveiraTools package
             (Core, Database, WebApi, Plugins, Mathematics, MechanicsOfMaterials, and Optimizations).
@@ -21,10 +21,10 @@
             <param name="pluginSettings">Settings that describe plugin folders and behavior.</param>
             <param name="emailSettings">Settings used to send e-mails through an SMTP server.</param>
             <param name="loggerSettings">Settings used by logger service.</param>
+            <param name="pipelineProgressNotifierSettings">Configuration settings for real-time progress notifications.</param>
             <param name="fileStorageSettings">Settings used to configure root directories and storage policies.</param>
             <param name="experimentalDataSettings">Settings used by experimental data processing and optimization pipelines.</param>
             <param name="addMechanicalModels">Indicates whether to register mechanical model calculators.</param>
-            <param name="enablePipelineProgressNotifications">Indicates whether to enable real-time pipeline progress notifications via <see cref="T:MelloSilveiraTools.Core.Pipelines.Notifiers.ChannelPipelineProgressNotifier"/>.</param>
             <returns>The same <paramref name="services"/> instance to allow call chaining.</returns>
         </member>
     </members>

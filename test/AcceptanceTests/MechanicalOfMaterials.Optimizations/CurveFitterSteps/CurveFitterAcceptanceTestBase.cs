@@ -1,6 +1,6 @@
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Models;
-using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Models;
-using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Steps.CurveFitter;
+using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Models;
+using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Pipelines.Steps.CurveFitter;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace AcceptanceTests.MechanicalOfMaterials.Optimizations.CurveFitterSteps;

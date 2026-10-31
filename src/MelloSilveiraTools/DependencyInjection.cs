@@ -1,6 +1,7 @@
 using MelloSilveiraTools.Core;
 using MelloSilveiraTools.Core.Logging;
 using MelloSilveiraTools.Core.Managers.File.Providers;
+using MelloSilveiraTools.Core.Pipelines.Notifiers;
 using MelloSilveiraTools.Core.Pipelines.Telemetry;
 using MelloSilveiraTools.Core.ResiliencePipelines;
 using MelloSilveiraTools.Core.Services.Email;
@@ -10,7 +11,7 @@ using MelloSilveiraTools.Database.RelationalDatabase.Settings;
 using MelloSilveiraTools.Mathematics;
 using MelloSilveiraTools.MechanicsOfMaterials;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations;
-using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData;
+using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData;
 using MelloSilveiraTools.Plugins;
 using MelloSilveiraTools.Plugins.Infrastructure;
 using MelloSilveiraTools.WebApi;
@@ -34,10 +35,10 @@ public static class DependencyInjection
     /// <param name="pluginSettings">Settings that describe plugin folders and behavior.</param>
     /// <param name="emailSettings">Settings used to send e-mails through an SMTP server.</param>
     /// <param name="loggerSettings">Settings used by logger service.</param>
+    /// <param name="pipelineProgressNotifierSettings">Configuration settings for real-time progress notifications.</param>
     /// <param name="fileStorageSettings">Settings used to configure root directories and storage policies.</param>
     /// <param name="experimentalDataSettings">Settings used by experimental data processing and optimization pipelines.</param>
     /// <param name="addMechanicalModels">Indicates whether to register mechanical model calculators.</param>
-    /// <param name="enablePipelineProgressNotifications">Indicates whether to enable real-time pipeline progress notifications via <see cref="MelloSilveiraTools.Core.Pipelines.Notifiers.ChannelPipelineProgressNotifier"/>.</param>
     /// <returns>The same <paramref name="services"/> instance to allow call chaining.</returns>
     public static IServiceCollection AddToolsServices(this IServiceCollection services,
         ResiliencePipelineSettings defaultResiliencePipelineSettings,
@@ -48,11 +49,11 @@ public static class DependencyInjection
         FileStorageSettings? fileStorageSettings = null,
         ExperimentalDataSettings? experimentalDataSettings = null,
         LoggerSettings? loggerSettings = null,
-        bool addMechanicalModels = false,
-        bool enablePipelineProgressNotifications = false)
+        PipelineProgressNotifierSettings? pipelineProgressNotifierSettings = null,
+        bool addMechanicalModels = false)
         => services
             .AddSingleton(defaultResiliencePipelineSettings)
-            .AddCoreServices(defaultResiliencePipelineSettings, encryptionSettings, emailSettings, fileStorageSettings, loggerSettings, enablePipelineProgressNotifications)
+            .AddCoreServices(defaultResiliencePipelineSettings, encryptionSettings, emailSettings, fileStorageSettings, loggerSettings, pipelineProgressNotifierSettings)
             .AddDatabaseServices(defaultResiliencePipelineSettings, databaseSettings)
             .AddMathematicsServices()
             .AddMechanicsOfMaterialsServices(addMechanicalModels)

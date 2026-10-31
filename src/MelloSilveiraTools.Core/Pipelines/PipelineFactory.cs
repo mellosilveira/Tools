@@ -23,21 +23,26 @@ public class PipelineFactory(IPipelineProgressNotifier progressNotifier, TimePro
     /// </summary>
     /// <typeparam name="T">The immutable payload type ingested at the pipeline head.</typeparam>
     /// <param name="logger">Structured logging provider for tracking block transitions and telemetry.</param>
-    /// <param name="initialBufferSize">The maximum bounded capacity of the ingestion buffer block, defaulting to 10,000 items.</param>
+    /// <param name="pipelineIdentifier">Mandatory unique business identifier correlating the pipeline run with real-time notifications.</param>
+    /// <param name="initialBufferSize">Mandatory maximum bounded capacity of the ingestion buffer block.</param>
     /// <param name="cancellationToken">The unified cancellation token propagated down the entire Dataflow network.</param>
     /// <returns>A fluent builder instance anchored to the initial buffer head.</returns>
     public IDataflowPipelineBuilder<T, T> CreateDataflow<T>(
         ILogger logger,
-        int initialBufferSize = 10000,
+        string pipelineIdentifier,
+        int initialBufferSize,
         CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(timeProvider);
         ArgumentNullException.ThrowIfNull(progressNotifier);
+        ArgumentException.ThrowIfNullOrWhiteSpace(pipelineIdentifier);
+
+        IPipelineProgressNotifier activeNotifier = new ContextPipelineProgressNotifier(progressNotifier, pipelineIdentifier);
 
         BufferBlock<T> buffer = new(new DataflowBlockOptions { BoundedCapacity = initialBufferSize, CancellationToken = cancellationToken });
         return new DataflowPipelineBuilder<T, T>(
             logger,
-            progressNotifier,
+            activeNotifier,
             buffer,
             buffer,
             null,

@@ -347,13 +347,13 @@
             Provides extension methods to register services from the MelloSilveiraTools.Core package.
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.Core.CoreDependencyInjection.AddCoreServices(Microsoft.Extensions.DependencyInjection.IServiceCollection,MelloSilveiraTools.Core.ResiliencePipelines.ResiliencePipelineSettings,MelloSilveiraTools.Core.Services.Encryption.EncryptionSettings,MelloSilveiraTools.Core.Services.Email.EmailSettings,MelloSilveiraTools.Core.Managers.File.Providers.FileStorageSettings,MelloSilveiraTools.Core.Logging.LoggerSettings,System.Boolean)">
-            <inheritdoc cref="M:MelloSilveiraTools.Core.CoreDependencyInjection.&lt;G&gt;$7B30185E57B8298C6754F16C0BCF4773.AddCoreServices(MelloSilveiraTools.Core.ResiliencePipelines.ResiliencePipelineSettings,MelloSilveiraTools.Core.Services.Encryption.EncryptionSettings,MelloSilveiraTools.Core.Services.Email.EmailSettings,MelloSilveiraTools.Core.Managers.File.Providers.FileStorageSettings,MelloSilveiraTools.Core.Logging.LoggerSettings,System.Boolean)"/>
+        <member name="M:MelloSilveiraTools.Core.CoreDependencyInjection.AddCoreServices(Microsoft.Extensions.DependencyInjection.IServiceCollection,MelloSilveiraTools.Core.ResiliencePipelines.ResiliencePipelineSettings,MelloSilveiraTools.Core.Services.Encryption.EncryptionSettings,MelloSilveiraTools.Core.Services.Email.EmailSettings,MelloSilveiraTools.Core.Managers.File.Providers.FileStorageSettings,MelloSilveiraTools.Core.Logging.LoggerSettings,MelloSilveiraTools.Core.Pipelines.Notifiers.PipelineProgressNotifierSettings)">
+            <inheritdoc cref="M:MelloSilveiraTools.Core.CoreDependencyInjection.&lt;G&gt;$7B30185E57B8298C6754F16C0BCF4773.AddCoreServices(MelloSilveiraTools.Core.ResiliencePipelines.ResiliencePipelineSettings,MelloSilveiraTools.Core.Services.Encryption.EncryptionSettings,MelloSilveiraTools.Core.Services.Email.EmailSettings,MelloSilveiraTools.Core.Managers.File.Providers.FileStorageSettings,MelloSilveiraTools.Core.Logging.LoggerSettings,MelloSilveiraTools.Core.Pipelines.Notifiers.PipelineProgressNotifierSettings)"/>
         </member>
         <member name="M:MelloSilveiraTools.Core.CoreDependencyInjection.AddCoreLogging(Microsoft.Extensions.DependencyInjection.IServiceCollection,MelloSilveiraTools.Core.Logging.LoggerSettings)">
             <inheritdoc cref="M:MelloSilveiraTools.Core.CoreDependencyInjection.&lt;G&gt;$7B30185E57B8298C6754F16C0BCF4773.AddCoreLogging(MelloSilveiraTools.Core.Logging.LoggerSettings)"/>
         </member>
-        <member name="M:MelloSilveiraTools.Core.CoreDependencyInjection.&lt;G&gt;$7B30185E57B8298C6754F16C0BCF4773.AddCoreServices(MelloSilveiraTools.Core.ResiliencePipelines.ResiliencePipelineSettings,MelloSilveiraTools.Core.Services.Encryption.EncryptionSettings,MelloSilveiraTools.Core.Services.Email.EmailSettings,MelloSilveiraTools.Core.Managers.File.Providers.FileStorageSettings,MelloSilveiraTools.Core.Logging.LoggerSettings,System.Boolean)">
+        <member name="M:MelloSilveiraTools.Core.CoreDependencyInjection.&lt;G&gt;$7B30185E57B8298C6754F16C0BCF4773.AddCoreServices(MelloSilveiraTools.Core.ResiliencePipelines.ResiliencePipelineSettings,MelloSilveiraTools.Core.Services.Encryption.EncryptionSettings,MelloSilveiraTools.Core.Services.Email.EmailSettings,MelloSilveiraTools.Core.Managers.File.Providers.FileStorageSettings,MelloSilveiraTools.Core.Logging.LoggerSettings,MelloSilveiraTools.Core.Pipelines.Notifiers.PipelineProgressNotifierSettings)">
             <summary>
             Registers core services: settings, SMTP resilience pipeline, file storage, logging, and encryption service.
             When <paramref name="loggerSettings"/> is null or specifies no sinks, Microsoft default console logging is enabled.
@@ -364,7 +364,7 @@
             <param name="emailSettings">Settings used to send e-mails through an SMTP server.</param>
             <param name="fileStorageSettings">Settings used to configure storage services.</param>
             <param name="loggerSettings">Settings used by the logging service.</param>
-            <param name="enablePipelineProgressNotifications">When true, registers <see cref="T:MelloSilveiraTools.Core.Pipelines.Notifiers.ChannelPipelineProgressNotifier"/> as the <see cref="T:MelloSilveiraTools.Core.Pipelines.Notifiers.IPipelineProgressNotifier"/>; otherwise registers <see cref="T:MelloSilveiraTools.Core.Pipelines.Notifiers.NullPipelineProgressNotifier"/>.</param>
+            <param name="pipelineProgressNotifierSettings">Mandatory configuration settings when real-time pipeline notifications are enabled.</param>
             <returns>The same <paramref name="services"/> instance to allow call chaining.</returns>
         </member>
         <member name="M:MelloSilveiraTools.Core.CoreDependencyInjection.&lt;G&gt;$7B30185E57B8298C6754F16C0BCF4773.AddCoreLogging(MelloSilveiraTools.Core.Logging.LoggerSettings)">
@@ -2644,6 +2644,14 @@
             <param name="resultData">The business payload delivered to the client.</param>
             <returns>A successful 200 OK outcome carrying data.</returns>
         </member>
+        <member name="M:MelloSilveiraTools.Core.Models.Result.CreateSuccessAccepted``1(``0)">
+            <summary>
+            Creates a standard successful outcome delivering business data.
+            </summary>
+            <typeparam name="TResultData">The type of business data payload.</typeparam>
+            <param name="resultData">The business payload delivered to the client.</param>
+            <returns>A successful 200 OK outcome carrying data.</returns>
+        </member>
         <member name="M:MelloSilveiraTools.Core.Models.Result.CreateSuccessCreated``1(``0)">
             <summary>
             Creates an outcome confirming that a new record was created, delivering the created record details.
@@ -3614,6 +3622,11 @@
             including DAG topology correlation (<see cref="P:MelloSilveiraTools.Core.Pipelines.Models.PipelineProgressEvent.UpstreamSteps"/>) and item-level progress counters.
             </summary>
         </member>
+        <member name="P:MelloSilveiraTools.Core.Pipelines.Models.PipelineProgressEvent.AnalysisIdentifier">
+            <summary>
+            Gets the unique analysis or pipeline run business identifier correlating the emitted event.
+            </summary>
+        </member>
         <member name="P:MelloSilveiraTools.Core.Pipelines.Models.PipelineProgressEvent.StepName">
             <summary>
             Gets the unique identifier or logical name of the pipeline step emitting the event.
@@ -3808,50 +3821,98 @@
         </member>
         <member name="T:MelloSilveiraTools.Core.Pipelines.Notifiers.ChannelPipelineProgressNotifier">
             <summary>
-            High-performance, bounded-memory implementation of <see cref="T:MelloSilveiraTools.Core.Pipelines.Notifiers.IPipelineProgressNotifier"/> backed by a <see cref="T:System.Threading.Channels.Channel`1"/>.
-            Designed for real-time NDJSON or Server-Sent Events (SSE) streaming to HTTP clients with built-in backpressure.
+            High-performance, singleton implementation of <see cref="T:MelloSilveiraTools.Core.Pipelines.Notifiers.IPipelineProgressNotifier"/> backed by discrete bounded <see cref="T:System.Threading.Channels.Channel`1"/>
+            instances correlated by analysis identifier in an internal concurrent dictionary.
+            Channels are evicted deterministically upon the completion of reader consumption, with an upper bound on active channels.
             </summary>
+            <param name="settings">Mandatory configuration settings defining buffer capacities, full mode policies, and maximum channel limits.</param>
+            <param name="timeProvider">Mandatory time provider for recording creation timestamps to support LRU eviction if capacity is reached.</param>
         </member>
-        <member name="M:MelloSilveiraTools.Core.Pipelines.Notifiers.ChannelPipelineProgressNotifier.#ctor(System.Int32,System.Threading.Channels.BoundedChannelFullMode)">
+        <member name="M:MelloSilveiraTools.Core.Pipelines.Notifiers.ChannelPipelineProgressNotifier.#ctor(MelloSilveiraTools.Core.Pipelines.Notifiers.PipelineProgressNotifierSettings,System.TimeProvider)">
             <summary>
-            Initializes a new instance of the <see cref="T:MelloSilveiraTools.Core.Pipelines.Notifiers.ChannelPipelineProgressNotifier"/> class with a bounded capacity.
+            High-performance, singleton implementation of <see cref="T:MelloSilveiraTools.Core.Pipelines.Notifiers.IPipelineProgressNotifier"/> backed by discrete bounded <see cref="T:System.Threading.Channels.Channel`1"/>
+            instances correlated by analysis identifier in an internal concurrent dictionary.
+            Channels are evicted deterministically upon the completion of reader consumption, with an upper bound on active channels.
             </summary>
-            <param name="capacity">The maximum number of events buffered in the channel before applying backpressure or full-mode behavior. Defaults to 256.</param>
-            <param name="fullMode">The behavior to apply when the bounded channel is full. Defaults to <see cref="F:System.Threading.Channels.BoundedChannelFullMode.Wait"/>.</param>
+            <param name="settings">Mandatory configuration settings defining buffer capacities, full mode policies, and maximum channel limits.</param>
+            <param name="timeProvider">Mandatory time provider for recording creation timestamps to support LRU eviction if capacity is reached.</param>
         </member>
-        <member name="M:MelloSilveiraTools.Core.Pipelines.Notifiers.ChannelPipelineProgressNotifier.NotifyAsync(MelloSilveiraTools.Core.Pipelines.Models.PipelineProgressEvent,System.Threading.CancellationToken)">
+        <member name="M:MelloSilveiraTools.Core.Pipelines.Notifiers.ChannelPipelineProgressNotifier.NotifyAsync(System.String,MelloSilveiraTools.Core.Pipelines.Models.PipelineProgressEvent,System.Threading.CancellationToken)">
             <inheritdoc/>
         </member>
-        <member name="M:MelloSilveiraTools.Core.Pipelines.Notifiers.ChannelPipelineProgressNotifier.TryComplete(System.Exception)">
-            <summary>
-            Attempts to mark the underlying channel as complete, signaling to consumers of <see cref="M:MelloSilveiraTools.Core.Pipelines.Notifiers.ChannelPipelineProgressNotifier.ReadAllAsync(System.Threading.CancellationToken)"/> that no further progress events will be emitted.
-            </summary>
-            <param name="error">An optional exception indicating that the pipeline terminated due to an unhandled fault.</param>
-            <returns><see langword="true"/> if this operation successfully completed the channel; otherwise, <see langword="false"/> if the channel was already marked as complete.</returns>
+        <member name="M:MelloSilveiraTools.Core.Pipelines.Notifiers.ChannelPipelineProgressNotifier.ReadAllAsync(System.String,System.Threading.CancellationToken)">
+            <inheritdoc/>
         </member>
-        <member name="M:MelloSilveiraTools.Core.Pipelines.Notifiers.ChannelPipelineProgressNotifier.ReadAllAsync(System.Threading.CancellationToken)">
-            <summary>
-            Returns an <see cref="T:System.Collections.Generic.IAsyncEnumerable`1"/> that reads all emitted <see cref="T:MelloSilveiraTools.Core.Pipelines.Models.PipelineProgressEvent"/> items until the channel completes.
-            </summary>
-            <param name="cancellationToken">Token to cancel the asynchronous enumeration.</param>
-            <returns>An asynchronous stream of <see cref="T:MelloSilveiraTools.Core.Pipelines.Models.PipelineProgressEvent"/> instances.</returns>
+        <member name="M:MelloSilveiraTools.Core.Pipelines.Notifiers.ChannelPipelineProgressNotifier.TryComplete(System.String,System.Exception)">
+            <inheritdoc/>
         </member>
         <member name="M:MelloSilveiraTools.Core.Pipelines.Notifiers.ChannelPipelineProgressNotifier.DisposeAsync">
             <inheritdoc/>
         </member>
-        <member name="T:MelloSilveiraTools.Core.Pipelines.Notifiers.IPipelineProgressNotifier">
+        <member name="T:MelloSilveiraTools.Core.Pipelines.Notifiers.ContextPipelineProgressNotifier">
             <summary>
-            Defines an asynchronous contract for emitting real-time <see cref="T:MelloSilveiraTools.Core.Pipelines.Models.PipelineProgressEvent"/> notifications
-            to in-memory streams (e.g., <see cref="T:MelloSilveiraTools.Core.Pipelines.Notifiers.ChannelPipelineProgressNotifier"/>) or external message brokers.
+            Context-bound adapter for <see cref="T:MelloSilveiraTools.Core.Pipelines.Notifiers.IPipelineProgressNotifier"/> that automatically enriches emitted events
+            with a designated <see cref="P:MelloSilveiraTools.Core.Pipelines.Notifiers.ContextPipelineProgressNotifier.AnalysisIdentifier"/> and routes notifications to that specific channel in the singleton notifier.
+            </summary>
+            <param name="innerNotifier">The underlying progress notifier instance.</param>
+            <param name="analysisIdentifier">Mandatory unique business identifier correlating the analysis or pipeline execution.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Pipelines.Notifiers.ContextPipelineProgressNotifier.#ctor(MelloSilveiraTools.Core.Pipelines.Notifiers.IPipelineProgressNotifier,System.String)">
+            <summary>
+            Context-bound adapter for <see cref="T:MelloSilveiraTools.Core.Pipelines.Notifiers.IPipelineProgressNotifier"/> that automatically enriches emitted events
+            with a designated <see cref="P:MelloSilveiraTools.Core.Pipelines.Notifiers.ContextPipelineProgressNotifier.AnalysisIdentifier"/> and routes notifications to that specific channel in the singleton notifier.
+            </summary>
+            <param name="innerNotifier">The underlying progress notifier instance.</param>
+            <param name="analysisIdentifier">Mandatory unique business identifier correlating the analysis or pipeline execution.</param>
+        </member>
+        <member name="P:MelloSilveiraTools.Core.Pipelines.Notifiers.ContextPipelineProgressNotifier.AnalysisIdentifier">
+            <summary>
+            Gets the unique analysis identifier bound to this context.
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.Core.Pipelines.Notifiers.IPipelineProgressNotifier.NotifyAsync(MelloSilveiraTools.Core.Pipelines.Models.PipelineProgressEvent,System.Threading.CancellationToken)">
+        <member name="M:MelloSilveiraTools.Core.Pipelines.Notifiers.ContextPipelineProgressNotifier.NotifyAsync(System.String,MelloSilveiraTools.Core.Pipelines.Models.PipelineProgressEvent,System.Threading.CancellationToken)">
+            <inheritdoc/>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Pipelines.Notifiers.ContextPipelineProgressNotifier.ReadAllAsync(System.String,System.Threading.CancellationToken)">
+            <inheritdoc/>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Pipelines.Notifiers.ContextPipelineProgressNotifier.TryComplete(System.String,System.Exception)">
+            <inheritdoc/>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Pipelines.Notifiers.ContextPipelineProgressNotifier.DisposeAsync">
+            <inheritdoc/>
+        </member>
+        <member name="T:MelloSilveiraTools.Core.Pipelines.Notifiers.IPipelineProgressNotifier">
             <summary>
-            Publishes a pipeline execution progress event asynchronously.
+            Defines an asynchronous contract for emitting and consuming real-time <see cref="T:MelloSilveiraTools.Core.Pipelines.Models.PipelineProgressEvent"/> notifications
+            correlated by a mandatory unique analysis or pipeline execution identifier.
             </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Pipelines.Notifiers.IPipelineProgressNotifier.NotifyAsync(System.String,MelloSilveiraTools.Core.Pipelines.Models.PipelineProgressEvent,System.Threading.CancellationToken)">
+            <summary>
+            Publishes a pipeline execution progress event asynchronously for the specified analysis identifier.
+            </summary>
+            <param name="analysisIdentifier">Mandatory unique business identifier correlating the analysis or pipeline execution.</param>
             <param name="progressEvent">The immutable progress event payload.</param>
             <param name="cancellationToken">Token to monitor for cancellation requests.</param>
             <returns>A <see cref="T:System.Threading.Tasks.ValueTask"/> representing the asynchronous notification operation.</returns>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Pipelines.Notifiers.IPipelineProgressNotifier.ReadAllAsync(System.String,System.Threading.CancellationToken)">
+            <summary>
+            Returns an <see cref="T:System.Collections.Generic.IAsyncEnumerable`1"/> that reads all emitted <see cref="T:MelloSilveiraTools.Core.Pipelines.Models.PipelineProgressEvent"/> items
+            for the specified analysis identifier until its channel completes.
+            </summary>
+            <param name="analysisIdentifier">Mandatory unique business identifier correlating the analysis or pipeline execution.</param>
+            <param name="cancellationToken">Token to cancel the asynchronous enumeration.</param>
+            <returns>An asynchronous stream of <see cref="T:MelloSilveiraTools.Core.Pipelines.Models.PipelineProgressEvent"/> instances.</returns>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Pipelines.Notifiers.IPipelineProgressNotifier.TryComplete(System.String,System.Exception)">
+            <summary>
+            Signals completion for the channel associated with the specified analysis identifier.
+            </summary>
+            <param name="analysisIdentifier">Mandatory unique business identifier correlating the analysis or pipeline execution.</param>
+            <param name="error">Optional exception if the pipeline terminated with a fault.</param>
+            <returns><see langword="true"/> if the channel was found and successfully marked complete; otherwise, <see langword="false"/>.</returns>
         </member>
         <member name="T:MelloSilveiraTools.Core.Pipelines.Notifiers.NullPipelineProgressNotifier">
             <summary>
@@ -3863,11 +3924,38 @@
             Gets the shared singleton instance of <see cref="T:MelloSilveiraTools.Core.Pipelines.Notifiers.NullPipelineProgressNotifier"/>.
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.Core.Pipelines.Notifiers.NullPipelineProgressNotifier.NotifyAsync(MelloSilveiraTools.Core.Pipelines.Models.PipelineProgressEvent,System.Threading.CancellationToken)">
+        <member name="M:MelloSilveiraTools.Core.Pipelines.Notifiers.NullPipelineProgressNotifier.NotifyAsync(System.String,MelloSilveiraTools.Core.Pipelines.Models.PipelineProgressEvent,System.Threading.CancellationToken)">
+            <inheritdoc/>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Pipelines.Notifiers.NullPipelineProgressNotifier.ReadAllAsync(System.String,System.Threading.CancellationToken)">
+            <inheritdoc/>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Pipelines.Notifiers.NullPipelineProgressNotifier.TryComplete(System.String,System.Exception)">
             <inheritdoc/>
         </member>
         <member name="M:MelloSilveiraTools.Core.Pipelines.Notifiers.NullPipelineProgressNotifier.DisposeAsync">
             <inheritdoc/>
+        </member>
+        <member name="T:MelloSilveiraTools.Core.Pipelines.Notifiers.PipelineProgressNotifierSettings">
+            <summary>
+            Externalized configuration settings defining buffer capacities, full mode behaviors,
+            and maximum channel retention limits for the singleton <see cref="T:MelloSilveiraTools.Core.Pipelines.Notifiers.ChannelPipelineProgressNotifier"/>.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Core.Pipelines.Notifiers.PipelineProgressNotifierSettings.ChannelCapacity">
+            <summary>
+            The maximum number of events buffered in each analysis channel before applying backpressure or dropping events.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Core.Pipelines.Notifiers.PipelineProgressNotifierSettings.FullMode">
+            <summary>
+            The behavior applied when a bounded analysis channel reaches maximum capacity.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Core.Pipelines.Notifiers.PipelineProgressNotifierSettings.MaxChannels">
+            <summary>
+            The maximum number of concurrent active channels retained in memory before purging abandoned completed channels.
+            </summary>
         </member>
         <member name="T:MelloSilveiraTools.Core.Pipelines.PipelineFactory">
             <summary>
@@ -3887,7 +3975,7 @@
             <param name="progressNotifier">Mandatory pipeline progress notifier.</param>
             <param name="timeProvider">The time provider instance used for timing and timeouts.</param>
         </member>
-        <member name="M:MelloSilveiraTools.Core.Pipelines.PipelineFactory.CreateDataflow``1(Microsoft.Extensions.Logging.ILogger,System.Int32,System.Threading.CancellationToken)">
+        <member name="M:MelloSilveiraTools.Core.Pipelines.PipelineFactory.CreateDataflow``1(Microsoft.Extensions.Logging.ILogger,System.String,System.Int32,System.Threading.CancellationToken)">
             <summary>
             Bootstraps a continuous TPL Dataflow pipeline topology by instantiating a <see cref="T:System.Threading.Tasks.Dataflow.BufferBlock`1"/> 
             as the ingestion head. Enforces bounded capacity backpressure, binds the mandatory progress notifier, 
@@ -3895,7 +3983,8 @@
             </summary>
             <typeparam name="T">The immutable payload type ingested at the pipeline head.</typeparam>
             <param name="logger">Structured logging provider for tracking block transitions and telemetry.</param>
-            <param name="initialBufferSize">The maximum bounded capacity of the ingestion buffer block, defaulting to 10,000 items.</param>
+            <param name="pipelineIdentifier">Mandatory unique business identifier correlating the pipeline run with real-time notifications.</param>
+            <param name="initialBufferSize">Mandatory maximum bounded capacity of the ingestion buffer block.</param>
             <param name="cancellationToken">The unified cancellation token propagated down the entire Dataflow network.</param>
             <returns>A fluent builder instance anchored to the initial buffer head.</returns>
         </member>

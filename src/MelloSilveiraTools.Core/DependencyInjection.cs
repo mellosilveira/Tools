@@ -41,7 +41,7 @@ public static class CoreDependencyInjection
         /// <param name="emailSettings">Settings used to send e-mails through an SMTP server.</param>
         /// <param name="fileStorageSettings">Settings used to configure storage services.</param>
         /// <param name="loggerSettings">Settings used by the logging service.</param>
-        /// <param name="enablePipelineProgressNotifications">When true, registers <see cref="ChannelPipelineProgressNotifier"/> as the <see cref="IPipelineProgressNotifier"/>; otherwise registers <see cref="NullPipelineProgressNotifier"/>.</param>
+        /// <param name="pipelineProgressNotifierSettings">Mandatory configuration settings when real-time pipeline notifications are enabled.</param>
         /// <returns>The same <paramref name="services"/> instance to allow call chaining.</returns>
         public IServiceCollection AddCoreServices(
             ResiliencePipelineSettings defaultResiliencePipelineSettings,
@@ -49,16 +49,17 @@ public static class CoreDependencyInjection
             EmailSettings? emailSettings = null,
             FileStorageSettings? fileStorageSettings = null,
             LoggerSettings? loggerSettings = null,
-            bool enablePipelineProgressNotifications = false)
+            PipelineProgressNotifierSettings? pipelineProgressNotifierSettings = null)
         {
             services
                 .AddSingleton(TimeProvider.System)
                 .AddSingleton<PipelineFactory>();
 
-            if (enablePipelineProgressNotifications)
+            if (pipelineProgressNotifierSettings is not null)
             {
                 services
-                    .AddSingleton(_ => new ChannelPipelineProgressNotifier(fullMode: BoundedChannelFullMode.DropOldest))
+                    .AddSingleton(pipelineProgressNotifierSettings)
+                    .AddSingleton<ChannelPipelineProgressNotifier>()
                     .AddSingleton<IPipelineProgressNotifier>(provider => provider.GetRequiredService<ChannelPipelineProgressNotifier>());
             }
             else

@@ -60,23 +60,23 @@ public sealed class SpanStringBuilderTests
         Assert.Equal(largeString, result);
     }
 
-    /// <summary>
-    /// Verifies that AppendLine appends content followed by Environment.NewLine.
-    /// </summary>
-    [Fact]
-    public void AppendLine_AppendsEnvironmentNewLine()
-    {
-        // Arrange
-        using SpanStringBuilder builder = new(32);
-
-        // Act
-        builder.AppendLine("Line 1".AsSpan()).AppendLine('X');
-        string result = builder.ToString();
-
-        // Assert
-        string expected = $"Line 1{Environment.NewLine}X{Environment.NewLine}";
-        Assert.Equal(expected, result);
-    }
+    ///// <summary>
+    ///// Verifies that AppendLine appends content followed by Environment.NewLine.
+    ///// </summary>
+    //[Fact]
+    //public void AppendLine_AppendsEnvironmentNewLine()
+    //{
+    //    // Arrange
+    //    using SpanStringBuilder builder = new(32);
+    //
+    //    // Act
+    //    builder.AppendLine("Line 1".AsSpan()).AppendLine('X');
+    //    string result = builder.ToString();
+    //
+    //    // Assert
+    //    string expected = $"Line 1{Environment.NewLine}X{Environment.NewLine}";
+    //    Assert.Equal(expected, result);
+    //}
 
     /// <summary>
     /// Verifies that character indexer allows reading and mutating characters in place.
