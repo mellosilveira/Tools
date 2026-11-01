@@ -6,6 +6,8 @@ namespace MelloSilveiraTools.Core.Pipelines.Models;
 /// </summary>
 public sealed record PipelineProgressEvent
 {
+    public required string PipelineIdentifier { get; init; }
+
     /// <summary>
     /// Gets the unique identifier or logical name of the pipeline step emitting the event.
     /// </summary>

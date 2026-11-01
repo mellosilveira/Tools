@@ -31,10 +31,11 @@ public static class ObservabilityExtensions
         ILogger logger,
         IPipelineProgressNotifier progressNotifier,
         TimeProvider timeProvider,
+        string pipelineIdentifier,
         string callbackName,
         Action<TIn> callback,
         CancellationToken cancellationToken = default)
-        => input => ExecuteCoreAsync(logger, progressNotifier, timeProvider, input, callbackName, WrapSyncAction(callback), cancellationToken);
+        => input => ExecuteCoreAsync(logger, progressNotifier, timeProvider, pipelineIdentifier, input, callbackName, WrapSyncAction(callback), cancellationToken);
 
     /// <summary>
     /// Wraps a synchronous action, capturing exceptions into a <see cref="SafeResult{TIn}"/> envelope for centralized error routing.
@@ -51,10 +52,11 @@ public static class ObservabilityExtensions
         ILogger logger,
         IPipelineProgressNotifier progressNotifier,
         TimeProvider timeProvider,
+        string pipelineIdentifier,
         string callbackName,
         Action<TIn> callback,
         CancellationToken cancellationToken = default)
-        => input => SafeExecuteActionCoreAsync(logger, progressNotifier, timeProvider, input, callbackName, WrapSyncAction(callback), cancellationToken);
+        => input => SafeExecuteActionCoreAsync(logger, progressNotifier, timeProvider, pipelineIdentifier, input, callbackName, WrapSyncAction(callback), cancellationToken);
 
     /// <summary>
     /// Wraps an asynchronous action with OpenTelemetry tracing, structured logging, and progress notification.
@@ -71,10 +73,11 @@ public static class ObservabilityExtensions
         ILogger logger,
         IPipelineProgressNotifier progressNotifier,
         TimeProvider timeProvider,
+        string pipelineIdentifier,
         string callbackName,
         Func<TIn, CancellationToken, Task> callback,
         CancellationToken cancellationToken = default)
-        => input => ExecuteCoreAsync(logger, progressNotifier, timeProvider, input, callbackName, WrapAsyncAction(callback), cancellationToken);
+        => input => ExecuteCoreAsync(logger, progressNotifier, timeProvider, pipelineIdentifier, input, callbackName, WrapAsyncAction(callback), cancellationToken);
 
     /// <summary>
     /// Wraps an asynchronous action, combining execution with a <see cref="SafeResult{TIn}"/> envelope for terminal failures.
@@ -91,10 +94,11 @@ public static class ObservabilityExtensions
         ILogger logger,
         IPipelineProgressNotifier progressNotifier,
         TimeProvider timeProvider,
+        string pipelineIdentifier,
         string callbackName,
         Func<TIn, CancellationToken, Task> callback,
         CancellationToken cancellationToken = default)
-        => input => SafeExecuteActionCoreAsync(logger, progressNotifier, timeProvider, input, callbackName, WrapAsyncAction(callback), cancellationToken);
+        => input => SafeExecuteActionCoreAsync(logger, progressNotifier, timeProvider, pipelineIdentifier, input, callbackName, WrapAsyncAction(callback), cancellationToken);
 
     /// <summary>
     /// Wraps a synchronous mapping function with OpenTelemetry tracing and structured logging, returning the mapped output.
@@ -112,10 +116,11 @@ public static class ObservabilityExtensions
         ILogger logger,
         IPipelineProgressNotifier progressNotifier,
         TimeProvider timeProvider,
+        string pipelineIdentifier,
         string callbackName,
         Func<TIn, TOut> callback,
         CancellationToken cancellationToken = default)
-        => input => ExecuteCoreAsync(logger, progressNotifier, timeProvider, input, callbackName, WrapSyncFunc(callback), cancellationToken);
+        => input => ExecuteCoreAsync(logger, progressNotifier, timeProvider, pipelineIdentifier, input, callbackName, WrapSyncFunc(callback), cancellationToken);
 
     /// <summary>
     /// Wraps a synchronous mapping function, intercepting failures into a <see cref="SafeResult{TIn, TOut}"/> to permit DLQ offloading.
@@ -133,10 +138,11 @@ public static class ObservabilityExtensions
         ILogger logger,
         IPipelineProgressNotifier progressNotifier,
         TimeProvider timeProvider,
+        string pipelineIdentifier,
         string callbackName,
         Func<TIn, TOut> callback,
         CancellationToken cancellationToken = default)
-        => input => SafeExecuteCoreAsync(logger, progressNotifier, timeProvider, input, callbackName, WrapSyncFunc(callback), cancellationToken);
+        => input => SafeExecuteCoreAsync(logger, progressNotifier, timeProvider, pipelineIdentifier, input, callbackName, WrapSyncFunc(callback), cancellationToken);
 
     /// <summary>
     /// Wraps an asynchronous mapping function with support for telemetry tracking and structured logging.
@@ -154,10 +160,11 @@ public static class ObservabilityExtensions
         ILogger logger,
         IPipelineProgressNotifier progressNotifier,
         TimeProvider timeProvider,
+        string pipelineIdentifier,
         string callbackName,
         Func<TIn, CancellationToken, Task<TOut>> callback,
         CancellationToken cancellationToken = default)
-        => input => ExecuteCoreAsync(logger, progressNotifier, timeProvider, input, callbackName, callback, cancellationToken);
+        => input => ExecuteCoreAsync(logger, progressNotifier, timeProvider, pipelineIdentifier, input, callbackName, callback, cancellationToken);
 
     /// <summary>
     /// Wraps an asynchronous mapping function, catching failures into a bifurcated <see cref="SafeResult{TIn, TOut}"/>.
@@ -175,10 +182,11 @@ public static class ObservabilityExtensions
         ILogger logger,
         IPipelineProgressNotifier progressNotifier,
         TimeProvider timeProvider,
+        string pipelineIdentifier,
         string callbackName,
         Func<TIn, CancellationToken, Task<TOut>> callback,
         CancellationToken cancellationToken = default)
-        => input => SafeExecuteCoreAsync(logger, progressNotifier, timeProvider, input, callbackName, callback, cancellationToken);
+        => input => SafeExecuteCoreAsync(logger, progressNotifier, timeProvider, pipelineIdentifier, input, callbackName, callback, cancellationToken);
 
     /// <summary>
     /// Wraps a synchronous conditional forking operation with execution telemetry.
@@ -199,13 +207,14 @@ public static class ObservabilityExtensions
         ILogger logger,
         IPipelineProgressNotifier progressNotifier,
         TimeProvider timeProvider,
+        string pipelineIdentifier,
         string callbackName,
         string fallbackName,
         Func<TIn, TOut> callback,
         Func<TOut, bool> fallbackCondition,
         Func<TIn, TOut> fallback,
         CancellationToken cancellationToken = default)
-        => HandleExecution(logger, progressNotifier, timeProvider, callbackName, fallbackName, WrapSyncFunc(callback), fallbackCondition, WrapSyncFunc(fallback), cancellationToken);
+        => HandleExecution(logger, progressNotifier, timeProvider, pipelineIdentifier, callbackName, fallbackName, WrapSyncFunc(callback), fallbackCondition, WrapSyncFunc(fallback), cancellationToken);
 
     /// <summary>
     /// Wraps a synchronous conditional forking operation, evaluating against the <see cref="SafeResult{TIn, TOut}"/> state.
@@ -226,13 +235,14 @@ public static class ObservabilityExtensions
         ILogger logger,
         IPipelineProgressNotifier progressNotifier,
         TimeProvider timeProvider,
+        string pipelineIdentifier,
         string callbackName,
         string fallbackName,
         Func<TIn, TOut> callback,
         Func<SafeResult<TIn, TOut>, bool> fallbackCondition,
         Func<TIn, TOut> fallback,
         CancellationToken cancellationToken = default)
-        => HandleSafeExecution(logger, progressNotifier, timeProvider, callbackName, fallbackName, WrapSyncFunc(callback), fallbackCondition, WrapSyncFunc(fallback), cancellationToken);
+        => HandleSafeExecution(logger, progressNotifier, timeProvider, pipelineIdentifier, callbackName, fallbackName, WrapSyncFunc(callback), fallbackCondition, WrapSyncFunc(fallback), cancellationToken);
 
     /// <summary>
     /// Wraps an asynchronous conditional forking operation evaluating the output payload after the primary execution completes.
@@ -253,6 +263,7 @@ public static class ObservabilityExtensions
         ILogger logger,
         IPipelineProgressNotifier progressNotifier,
         TimeProvider timeProvider,
+        string pipelineIdentifier,
         string callbackName,
         string fallbackName,
         Func<TIn, CancellationToken, Task<TOut>> callback,
@@ -260,11 +271,11 @@ public static class ObservabilityExtensions
         Func<TIn, CancellationToken, Task<TOut>> fallback,
         CancellationToken cancellationToken = default) => async input =>
     {
-        TOut output = await ExecuteCoreAsync(logger, progressNotifier, timeProvider, input, callbackName, callback, cancellationToken).ConfigureAwait(false);
+        TOut output = await ExecuteCoreAsync(logger, progressNotifier, timeProvider, pipelineIdentifier, input, callbackName, callback, cancellationToken).ConfigureAwait(false);
         if (fallbackCondition(output))
         {
             LogFallbackConditionMet(logger, callbackName, fallbackName);
-            return await ExecuteCoreAsync(logger, progressNotifier, timeProvider, input, fallbackName, fallback, cancellationToken).ConfigureAwait(false);
+            return await ExecuteCoreAsync(logger, progressNotifier, timeProvider, pipelineIdentifier, input, fallbackName, fallback, cancellationToken).ConfigureAwait(false);
         }
 
         return output;
@@ -289,6 +300,7 @@ public static class ObservabilityExtensions
         ILogger logger,
         IPipelineProgressNotifier progressNotifier,
         TimeProvider timeProvider,
+        string pipelineIdentifier,
         string callbackName,
         string fallbackName,
         Func<TIn, CancellationToken, Task<TOut>> callback,
@@ -296,11 +308,11 @@ public static class ObservabilityExtensions
         Func<TIn, CancellationToken, Task<TOut>> fallback,
         CancellationToken cancellationToken = default) => async input =>
     {
-        SafeResult<TIn, TOut> safeResult = await SafeExecuteCoreAsync(logger, progressNotifier, timeProvider, input, callbackName, callback, cancellationToken).ConfigureAwait(false);
+        SafeResult<TIn, TOut> safeResult = await SafeExecuteCoreAsync(logger, progressNotifier, timeProvider, pipelineIdentifier, input, callbackName, callback, cancellationToken).ConfigureAwait(false);
         if (fallbackCondition(safeResult))
         {
             LogFallbackConditionMet(logger, callbackName, fallbackName);
-            return await SafeExecuteCoreAsync(logger, progressNotifier, timeProvider, input, fallbackName, fallback, cancellationToken).ConfigureAwait(false);
+            return await SafeExecuteCoreAsync(logger, progressNotifier, timeProvider, pipelineIdentifier, input, fallbackName, fallback, cancellationToken).ConfigureAwait(false);
         }
 
         return safeResult;
@@ -322,10 +334,11 @@ public static class ObservabilityExtensions
         ILogger logger,
         IPipelineProgressNotifier progressNotifier,
         TimeProvider timeProvider,
+        string pipelineIdentifier,
         string callbackName,
         Func<TIn, CancellationToken, IAsyncEnumerable<TOut>> callback,
         CancellationToken cancellationToken = default)
-        => input => ExecuteStreamingAsync(logger, progressNotifier, timeProvider, input, callbackName, callback, cancellationToken);
+        => input => ExecuteStreamingAsync(logger, progressNotifier, timeProvider, pipelineIdentifier, input, callbackName, callback, cancellationToken);
 
     /// <summary>
     /// Wraps a streaming function returning an <see cref="IAsyncEnumerable{TOut}"/> with OpenTelemetry tracing, structured logging, and safe DLQ routing.
@@ -343,10 +356,11 @@ public static class ObservabilityExtensions
         ILogger logger,
         IPipelineProgressNotifier progressNotifier,
         TimeProvider timeProvider,
+        string pipelineIdentifier,
         string callbackName,
         Func<TIn, CancellationToken, IAsyncEnumerable<TOut>> callback,
         CancellationToken cancellationToken = default)
-        => input => ExecuteSafeStreamingAsync(logger, progressNotifier, timeProvider, input, callbackName, callback, cancellationToken);
+        => input => ExecuteSafeStreamingAsync(logger, progressNotifier, timeProvider, pipelineIdentifier, input, callbackName, callback, cancellationToken);
 
     /// <summary>
     /// Wraps an enumerable transformation function returning an <see cref="IEnumerable{TOut}"/> with OpenTelemetry tracing, structured logging, and progress notification.
@@ -364,10 +378,11 @@ public static class ObservabilityExtensions
         ILogger logger,
         IPipelineProgressNotifier progressNotifier,
         TimeProvider timeProvider,
+        string pipelineIdentifier,
         string callbackName,
         Func<TIn, CancellationToken, IEnumerable<TOut>> callback,
         CancellationToken cancellationToken = default)
-        => input => ExecuteStreamingAsync(logger, progressNotifier, timeProvider, input, callbackName, WrapSyncEnumerable(callback), cancellationToken);
+        => input => ExecuteStreamingAsync(logger, progressNotifier, timeProvider, pipelineIdentifier, input, callbackName, WrapSyncEnumerable(callback), cancellationToken);
 
     /// <summary>
     /// Wraps an enumerable transformation function returning an <see cref="IEnumerable{TOut}"/> with OpenTelemetry tracing, structured logging, and safe DLQ routing.
@@ -385,10 +400,11 @@ public static class ObservabilityExtensions
         ILogger logger,
         IPipelineProgressNotifier progressNotifier,
         TimeProvider timeProvider,
+        string pipelineIdentifier,
         string callbackName,
         Func<TIn, CancellationToken, IEnumerable<TOut>> callback,
         CancellationToken cancellationToken = default)
-        => input => ExecuteSafeStreamingAsync(logger, progressNotifier, timeProvider, input, callbackName, WrapSyncEnumerable(callback), cancellationToken);
+        => input => ExecuteSafeStreamingAsync(logger, progressNotifier, timeProvider, pipelineIdentifier, input, callbackName, WrapSyncEnumerable(callback), cancellationToken);
 
     private static Func<TIn, CancellationToken, Task<bool>> WrapSyncAction<TIn>(Action<TIn> callback) => (input, _) =>
     {
@@ -424,6 +440,7 @@ public static class ObservabilityExtensions
         ILogger logger,
         IPipelineProgressNotifier progressNotifier,
         TimeProvider timeProvider,
+        string pipelineIdentifier,
         TIn input,
         string callbackName,
         Func<TIn, CancellationToken, Task<TOut>> callback,
@@ -442,7 +459,7 @@ public static class ObservabilityExtensions
             string detailsJson = JsonSerializer.Serialize(new { durationMs = duration.TotalMilliseconds }, JsonOptions);
 
             LogAndTrackStepCompletion(logger, timeProvider, activity, startTime, callbackName, detailsJson);
-            NotifyProgressSafe(logger, progressNotifier, timeProvider, callbackName, PipelineStepState.Running, $"Successfully processed item in '{callbackName}'.", detailsJson, cancellationToken);
+            NotifyProgressSafe(logger, progressNotifier, timeProvider, pipelineIdentifier, callbackName, PipelineStepState.Running, $"Successfully processed item in '{callbackName}'.", detailsJson, cancellationToken);
             return output;
         }
         catch (Exception ex) when (ex is not OperationCanceledException)
@@ -458,7 +475,7 @@ public static class ObservabilityExtensions
             }, JsonOptions);
 
             LogAndTrackStepFailure(logger, timeProvider, activity, startTime, callbackName, ex);
-            NotifyProgressSafe(logger, progressNotifier, timeProvider, callbackName, PipelineStepState.Faulted, $"Failed '{callbackName}': {ex.Message}", errorDetailsJson, cancellationToken);
+            NotifyProgressSafe(logger, progressNotifier, timeProvider, pipelineIdentifier, callbackName, PipelineStepState.Faulted, $"Failed '{callbackName}': {ex.Message}", errorDetailsJson, cancellationToken);
             throw;
         }
     }
@@ -467,6 +484,7 @@ public static class ObservabilityExtensions
         ILogger logger,
         IPipelineProgressNotifier progressNotifier,
         TimeProvider timeProvider,
+        string pipelineIdentifier,
         TIn input,
         string callbackName,
         Func<TIn, CancellationToken, Task<bool>> callback,
@@ -474,7 +492,7 @@ public static class ObservabilityExtensions
     {
         try
         {
-            await ExecuteCoreAsync(logger, progressNotifier, timeProvider, input, callbackName, callback, cancellationToken).ConfigureAwait(false);
+            await ExecuteCoreAsync(logger, progressNotifier, timeProvider, pipelineIdentifier, input, callbackName, callback, cancellationToken).ConfigureAwait(false);
             return SafeResult<TIn>.CreateSuccess();
         }
         catch (Exception ex) when (ex is not OperationCanceledException)
@@ -487,6 +505,7 @@ public static class ObservabilityExtensions
         ILogger logger,
         IPipelineProgressNotifier progressNotifier,
         TimeProvider timeProvider,
+        string pipelineIdentifier,
         TIn input,
         string callbackName,
         Func<TIn, CancellationToken, Task<TOut>> callback,
@@ -494,7 +513,7 @@ public static class ObservabilityExtensions
     {
         try
         {
-            TOut output = await ExecuteCoreAsync(logger, progressNotifier, timeProvider, input, callbackName, callback, cancellationToken).ConfigureAwait(false);
+            TOut output = await ExecuteCoreAsync(logger, progressNotifier, timeProvider, pipelineIdentifier, input, callbackName, callback, cancellationToken).ConfigureAwait(false);
             return new(output);
         }
         catch (Exception ex) when (ex is not OperationCanceledException)
@@ -507,6 +526,7 @@ public static class ObservabilityExtensions
         ILogger logger,
         IPipelineProgressNotifier progressNotifier,
         TimeProvider timeProvider,
+        string pipelineIdentifier,
         TIn input,
         string callbackName,
         Func<TIn, CancellationToken, IAsyncEnumerable<TOut>> callback,
@@ -537,7 +557,7 @@ public static class ObservabilityExtensions
                     }, JsonOptions);
 
                     LogAndTrackStepFailure(logger, timeProvider, activity, startTime, callbackName, ex);
-                    NotifyProgressSafe(logger, progressNotifier, timeProvider, callbackName, PipelineStepState.Faulted, $"Failed '{callbackName}': {ex.Message}", errorDetailsJson, cancellationToken);
+                    NotifyProgressSafe(logger, progressNotifier, timeProvider, pipelineIdentifier, callbackName, PipelineStepState.Faulted, $"Failed '{callbackName}': {ex.Message}", errorDetailsJson, cancellationToken);
                     throw;
                 }
 
@@ -546,20 +566,21 @@ public static class ObservabilityExtensions
 
                 itemCount++;
                 string itemDetailsJson = JsonSerializer.Serialize(new { itemIndex = itemCount }, JsonOptions);
-                NotifyProgressSafe(logger, progressNotifier, timeProvider, callbackName, PipelineStepState.Running, $"Emitted item #{itemCount} from '{callbackName}'.", itemDetailsJson, cancellationToken);
+                NotifyProgressSafe(logger, progressNotifier, timeProvider, pipelineIdentifier, callbackName, PipelineStepState.Running, $"Emitted item #{itemCount} from '{callbackName}'.", itemDetailsJson, cancellationToken);
                 yield return enumerator.Current;
             }
         }
 
         string detailsJson = JsonSerializer.Serialize(new { itemsEmitted = itemCount }, JsonOptions);
         LogAndTrackStepCompletion(logger, timeProvider, activity, startTime, callbackName, detailsJson);
-        NotifyProgressSafe(logger, progressNotifier, timeProvider, callbackName, PipelineStepState.Completed, $"Completed streaming from '{callbackName}'.", detailsJson, cancellationToken);
+        NotifyProgressSafe(logger, progressNotifier, timeProvider, pipelineIdentifier, callbackName, PipelineStepState.Completed, $"Completed streaming from '{callbackName}'.", detailsJson, cancellationToken);
     }
 
     private static async IAsyncEnumerable<SafeResult<TIn, TOut>> ExecuteSafeStreamingAsync<TIn, TOut>(
         ILogger logger,
         IPipelineProgressNotifier progressNotifier,
         TimeProvider timeProvider,
+        string pipelineIdentifier,
         TIn input,
         string callbackName,
         Func<TIn, CancellationToken, IAsyncEnumerable<TOut>> callback,
@@ -591,7 +612,7 @@ public static class ObservabilityExtensions
                     }, JsonOptions);
 
                     LogAndTrackStepFailure(logger, timeProvider, activity, startTime, callbackName, ex);
-                    NotifyProgressSafe(logger, progressNotifier, timeProvider, callbackName, PipelineStepState.Faulted, $"Failed '{callbackName}': {ex.Message}", errorDetailsJson, cancellationToken);
+                    NotifyProgressSafe(logger, progressNotifier, timeProvider, pipelineIdentifier, callbackName, PipelineStepState.Faulted, $"Failed '{callbackName}': {ex.Message}", errorDetailsJson, cancellationToken);
                     exception = ex;
                     hasNext = false;
                 }
@@ -607,20 +628,21 @@ public static class ObservabilityExtensions
 
                 itemCount++;
                 string itemDetailsJson = JsonSerializer.Serialize(new { itemIndex = itemCount }, JsonOptions);
-                NotifyProgressSafe(logger, progressNotifier, timeProvider, callbackName, PipelineStepState.Running, $"Emitted item #{itemCount} from '{callbackName}'.", itemDetailsJson, cancellationToken);
+                NotifyProgressSafe(logger, progressNotifier, timeProvider, pipelineIdentifier, callbackName, PipelineStepState.Running, $"Emitted item #{itemCount} from '{callbackName}'.", itemDetailsJson, cancellationToken);
                 yield return enumerator.Current;
             }
         }
 
         string detailsJson = JsonSerializer.Serialize(new { itemsEmitted = itemCount }, JsonOptions);
         LogAndTrackStepCompletion(logger, timeProvider, activity, startTime, callbackName, detailsJson);
-        NotifyProgressSafe(logger, progressNotifier, timeProvider, callbackName, PipelineStepState.Completed, $"Completed streaming from '{callbackName}'.", detailsJson, cancellationToken);
+        NotifyProgressSafe(logger, progressNotifier, timeProvider, pipelineIdentifier, callbackName, PipelineStepState.Completed, $"Completed streaming from '{callbackName}'.", detailsJson, cancellationToken);
     }
 
     private static void NotifyProgressSafe(
         ILogger logger,
         IPipelineProgressNotifier progressNotifier,
         TimeProvider timeProvider,
+        string pipelineIdentifier,
         string stepName,
         PipelineStepState state,
         string description,
@@ -629,6 +651,7 @@ public static class ObservabilityExtensions
     {
         PipelineProgressEvent progressEvent = new()
         {
+            PipelineIdentifier = pipelineIdentifier,
             StepName = stepName,
             Description = description,
             State = state,
