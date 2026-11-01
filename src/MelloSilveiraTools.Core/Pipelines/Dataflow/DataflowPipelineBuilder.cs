@@ -228,7 +228,7 @@ internal class DataflowPipelineBuilder<THead, TTail>(
     public IDataflowPipelineBuilder<THead, TNextOut> AddStep<TNextOut>(ISyncPipelineStep<TTail, TNextOut> step, PipelineStepOptions options = default) => AddTransformStep(
         step,
         ObservabilityExtensions.HandleExecution<TTail, TNextOut>(logger, progressNotifier, timeProvider, pipelineIdentifier, step.Name, step.Execute, pipelineCancellationToken),
-        ObservabilityExtensions.HandleSafeExecution<TTail, TNextOut>(logger, progressNotifier, timeProvider, pipelineIdentifier,        step.Name, step.Execute, pipelineCancellationToken),
+        ObservabilityExtensions.HandleSafeExecution<TTail, TNextOut>(logger, progressNotifier, timeProvider, pipelineIdentifier, step.Name, step.Execute, pipelineCancellationToken),
         options);
 
     /// <inheritdoc/>

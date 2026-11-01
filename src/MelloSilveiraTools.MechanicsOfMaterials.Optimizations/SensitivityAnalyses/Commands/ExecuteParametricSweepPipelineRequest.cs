@@ -2,14 +2,13 @@ using MelloSilveiraTools.Core.Application.Commands;
 using MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels;
 using MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Models.Range;
-using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Models;
 
 namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Commands;
 
 /// <summary>
 /// Request payload for executing a Parametric Sweep sensitivity analysis via the Command pattern.
 /// </summary>
-public record ExecuteParametricSweepRequest : RequestBase
+public record ExecuteParametricSweepPipelineRequest : RequestBase
 {
     /// <summary>
     /// Optional predefined analysis identifier. If not provided, a unique GUID-based identifier is generated.
@@ -71,29 +70,12 @@ public record ExecuteParametricSweepRequest : RequestBase
     /// </summary>
     public required double FinalTime { get; init; }
 
+    public required int MaxBracketIterations { get; init; }
+
+    public required int BinarySearchIterations { get; init; }
+
     /// <summary>
     /// Gets the relative tolerance threshold utilized by the asymptote detection step. Defaults to 1e-3.
     /// </summary>
     public double AsymptoteTolerance { get; init; } = 1e-3;
-
-    /// <summary>
-    /// Converts this command request into a <see cref="ParametricSweepInput"/> instance.
-    /// </summary>
-    /// <returns>A configured <see cref="ParametricSweepInput"/>.</returns>
-    public ParametricSweepInput ToInput() => new()
-    {
-        Identifier = Identifier,
-        MechanicalModelName = MechanicalModelName,
-        Baseline = Baseline,
-        ConstantVariables = ConstantVariables,
-        ArrayVariables = ArrayVariables,
-        BaseStrain = BaseStrain,
-        StrainRange = StrainRange,
-        RampTimeConsideration = RampTimeConsideration,
-        RampTime = RampTime,
-        InitialTime = InitialTime,
-        TimeStep = TimeStep,
-        FinalTime = FinalTime,
-        AsymptoteTolerance = AsymptoteTolerance
-    };
 }

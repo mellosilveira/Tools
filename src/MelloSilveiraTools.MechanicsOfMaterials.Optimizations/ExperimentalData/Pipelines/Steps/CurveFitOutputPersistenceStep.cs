@@ -49,15 +49,15 @@ public sealed class CurveFitOutputPersistenceStep(
         Result<long> insertResult = await repository.TryInsertAsync(entity, cancellationToken).ConfigureAwait(false);
         if (insertResult.IsConflict)
             logger.LogWarning(
-                "Entity for mechanical model curve fit already exists in the database. Pipeline identifier: {PipelineIdentifier}. Identifier: {Identifier}", 
-                pipelineIdentifier, 
+                "Entity for mechanical model curve fit already exists in the database. Pipeline identifier: {PipelineIdentifier}. Identifier: {Identifier}",
+                pipelineIdentifier,
                 identifier);
         else if (!insertResult.Success)
             logger.LogError(
-                "Failed to insert entity for mechanical model curve fit. Pipeline identifier: {PipelineIdentifier}. Identifier: {Identifier}. Entity: {@Entity}. Result: {@InsertResult}", 
-                pipelineIdentifier, 
-                identifier, 
-                entity, 
+                "Failed to insert entity for mechanical model curve fit. Pipeline identifier: {PipelineIdentifier}. Identifier: {Identifier}. Entity: {@Entity}. Result: {@InsertResult}",
+                pipelineIdentifier,
+                identifier,
+                entity,
                 insertResult);
     }
 

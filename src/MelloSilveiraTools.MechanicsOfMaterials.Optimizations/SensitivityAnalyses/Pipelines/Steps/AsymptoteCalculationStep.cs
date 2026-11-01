@@ -4,7 +4,7 @@ using MelloSilveiraTools.Mathematics.NumericalMethods.Differentiations;
 using MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels;
 using MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels;
 
-namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.SensitivityAnalysis.Steps;
+namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Pipelines.Steps;
 
 /// <summary>
 /// A domain-specific calculation step that evaluates the continuum stress asymptote
@@ -16,9 +16,10 @@ namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.Sensit
 public sealed class AsymptoteCalculationStep(
     IMechanicalModelCalculatorFacade calculator,
     IDifferentiation differentiation,
-    double tolerance,
-    int maxBracketIterations = 64,
-    int binarySearchIterations = 20) : ISyncPipelineStep<GenericMechanicalModelInput, (double AsymptoteTime, double Stress)>
+    int maxBracketIterations,
+    int binarySearchIterations,
+    double tolerance)
+    : ISyncPipelineStep<GenericMechanicalModelInput, (double AsymptoteTime, double Stress)>
 {
     /// <inheritdoc />
     public string Name => nameof(AsymptoteCalculationStep);

@@ -2955,6 +2955,9 @@
             </list>
             </remarks>
         </member>
+        <member name="M:MelloSilveiraTools.Core.Pipelines.Commands.ExecutePipeline`3.ExecuteCommandAsync(`0,System.Threading.CancellationToken)">
+            <inheritdoc/>
+        </member>
         <member name="T:MelloSilveiraTools.Core.Pipelines.Dataflow.DataflowExtensions">
             <summary>
             Provides streamlined linkage operations for TPL Dataflow blocks.

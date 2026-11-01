@@ -68,17 +68,17 @@ public sealed class MechanicalModelOutputPersistenceStep(
         Result<long> insertResult = await repository.TryInsertAsync(entity, cancellationToken).ConfigureAwait(false);
         if (insertResult.IsConflict)
             logger.LogWarning(
-                "Entity for mechanical model output already exists in the database. Pipeline identifier: {PipelineIdentifier}. Mechanical Model: {MechanicalModelName}. Identifier: {Identifier}", 
+                "Entity for mechanical model output already exists in the database. Pipeline identifier: {PipelineIdentifier}. Mechanical Model: {MechanicalModelName}. Identifier: {Identifier}",
                 pipelineIdentifier,
                 mechanicalModelName,
                 identifierHash);
         else if (!insertResult.Success)
             logger.LogError(
-                "Failed to insert entity for mechanical model output. Pipeline identifier: {PipelineIdentifier}. Mechanical Model: {MechanicalModelName}. Identifier: {Identifier} Entity: {@Entity}. Result: {@InsertResult}", 
+                "Failed to insert entity for mechanical model output. Pipeline identifier: {PipelineIdentifier}. Mechanical Model: {MechanicalModelName}. Identifier: {Identifier} Entity: {@Entity}. Result: {@InsertResult}",
                 pipelineIdentifier,
                 mechanicalModelName,
                 identifierHash,
-                entity, 
+                entity,
                 insertResult);
 
         return identifierHash;
@@ -90,14 +90,14 @@ public sealed class MechanicalModelOutputPersistenceStep(
         Result<long> fileResult = await repository.TryInsertAsync(entity, cancellationToken).ConfigureAwait(false);
         if (fileResult.IsConflict)
             logger.LogWarning(
-                "Entity for storage entry metadata already exists in the database. Pipeline: {PipelineIdentifier}. Storage Entry Metadata entity: {@Entity}", 
+                "Entity for storage entry metadata already exists in the database. Pipeline: {PipelineIdentifier}. Storage Entry Metadata entity: {@Entity}",
                 pipelineIdentifier,
                 entity);
         else if (!fileResult.Success)
             logger.LogError(
-                "Failed to insert entity for storage entry metadata. Pipeline: {PipelineIdentifier}. Entity: {@Entity}. Result: {@InsertResult}", 
-                pipelineIdentifier, 
-                entity, 
+                "Failed to insert entity for storage entry metadata. Pipeline: {PipelineIdentifier}. Entity: {@Entity}. Result: {@InsertResult}",
+                pipelineIdentifier,
+                entity,
                 fileResult);
 
         return fileResult.Data;

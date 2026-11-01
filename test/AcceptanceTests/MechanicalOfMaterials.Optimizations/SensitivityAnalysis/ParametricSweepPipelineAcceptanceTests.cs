@@ -1,7 +1,7 @@
 using AcceptanceTests.MechanicalOfMaterials.Optimizations.SensitivityAnalysis.Serialization;
 using MelloSilveiraTools.Core.Models;
-using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.SensitivityAnalysis;
-using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Models;
+using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Pipelines;
+using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Pipelines.Models;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace AcceptanceTests.MechanicalOfMaterials.Optimizations.SensitivityAnalysis;

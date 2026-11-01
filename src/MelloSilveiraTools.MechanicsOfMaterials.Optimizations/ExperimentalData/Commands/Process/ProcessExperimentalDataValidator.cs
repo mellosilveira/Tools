@@ -5,12 +5,12 @@ using MelloSilveiraTools.Core.Validators;
 namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Commands.Process;
 
 /// <summary>
-/// Validates <see cref="ProcessExperimentalDataRequest"/> payloads prior to pipeline execution.
+/// Validates <see cref="ExecuteExperimentalDataPipelineRequest"/> payloads prior to pipeline execution.
 /// </summary>
-public sealed class ProcessExperimentalDataValidator : IValidator<ProcessExperimentalDataRequest>
+public sealed class ProcessExperimentalDataValidator : IValidator<ExecuteExperimentalDataPipelineRequest>
 {
     /// <inheritdoc/>
-    public Result Validate(ProcessExperimentalDataRequest value)
+    public Result Validate(ExecuteExperimentalDataPipelineRequest value)
     {
         if (value is null)
             return Result.CreateBadRequest("Experimental data processing request cannot be null.");

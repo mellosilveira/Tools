@@ -1,4 +1,5 @@
 using MelloSilveiraTools.Core.Models;
+using MelloSilveiraTools.Core.Pipelines.Models;
 
 namespace MelloSilveiraTools.Core.Pipelines;
 
@@ -7,7 +8,7 @@ namespace MelloSilveiraTools.Core.Pipelines;
 /// </summary>
 /// <typeparam name="TInput">The type of input configuration consumed by the pipeline.</typeparam>
 /// <typeparam name="TOutput">The type of output data returned upon pipeline completion.</typeparam>
-public interface IPipeline<in TInput, TOutput>
+public interface IPipeline<in TInput, TOutput> where TInput : PipelineInputBase
 {
     /// <summary>
     /// Builds and executes the processing pipeline for the specified input.

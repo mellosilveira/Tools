@@ -35,7 +35,7 @@ public sealed class ExecuteParametricSweepValidatorTests
     public void Validate_WhenRequiredParametersMissing_ReturnsBadRequest()
     {
         // Arrange
-        ExecuteParametricSweepRequest request = new()
+        ExecuteParametricSweepPipelineRequest request = new()
         {
             MechanicalModelName = string.Empty,
             Baseline = null!,
@@ -67,7 +67,7 @@ public sealed class ExecuteParametricSweepValidatorTests
     public void Validate_WhenTemporalParametersInvalid_ReturnsBadRequest()
     {
         // Arrange
-        ExecuteParametricSweepRequest request = new()
+        ExecuteParametricSweepPipelineRequest request = new()
         {
             MechanicalModelName = "Maxwell",
             Baseline = new MaxwellConstitutiveParameters { Stiffness = 100.0, Viscosity = 10.0 },
@@ -100,7 +100,7 @@ public sealed class ExecuteParametricSweepValidatorTests
     public void Validate_WhenNoSweptVariablesProvided_ReturnsBadRequest()
     {
         // Arrange
-        ExecuteParametricSweepRequest request = new()
+        ExecuteParametricSweepPipelineRequest request = new()
         {
             MechanicalModelName = "Maxwell",
             Baseline = new MaxwellConstitutiveParameters { Stiffness = 100.0, Viscosity = 10.0 },
@@ -130,7 +130,7 @@ public sealed class ExecuteParametricSweepValidatorTests
     public void Validate_WhenValid_ReturnsSuccess()
     {
         // Arrange
-        ExecuteParametricSweepRequest request = new()
+        ExecuteParametricSweepPipelineRequest request = new()
         {
             MechanicalModelName = "Maxwell",
             Baseline = new MaxwellConstitutiveParameters { Stiffness = 100.0, Viscosity = 10.0 },

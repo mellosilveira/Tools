@@ -1,19 +1,15 @@
+using MelloSilveiraTools.Core.Pipelines.Models;
 using MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels;
 using MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Models.Range;
 
-namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Models;
+namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Pipelines.Models;
 
 /// <summary>
 /// Represents the input request for a Full Factorial Parametric Sweep (Grid Search) analysis.
 /// </summary>
-public record ParametricSweepInput
+public record ParametricSweepInput : PipelineInputBase
 {
-    /// <summary>
-    /// Optional predefined analysis identifier. If not provided, a unique GUID-based identifier is generated.
-    /// </summary>
-    public string? Identifier { get; init; }
-
     /// <summary>
     /// Gets the name of the mechanical model to be evaluated (e.g., "Maxwell", "Fung").
     /// </summary>
@@ -68,6 +64,10 @@ public record ParametricSweepInput
     /// Gets the final time of the simulation.
     /// </summary>
     public required double FinalTime { get; init; }
+
+    public required int MaxBracketIterations { get; init; }
+
+    public required int BinarySearchIterations { get; init; }
 
     /// <summary>
     /// Gets the relative tolerance threshold utilized by the asymptote detection step.

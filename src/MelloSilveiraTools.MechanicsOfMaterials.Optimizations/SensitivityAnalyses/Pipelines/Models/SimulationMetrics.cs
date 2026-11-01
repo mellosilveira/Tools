@@ -1,4 +1,4 @@
-namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Models;
+namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Pipelines.Models;
 
 /// <summary>
 /// Holds the raw numerical outputs of the three parallel mathematical calculations.

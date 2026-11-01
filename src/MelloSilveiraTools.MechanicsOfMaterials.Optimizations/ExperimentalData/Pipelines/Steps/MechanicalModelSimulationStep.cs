@@ -12,7 +12,6 @@ using MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels;
 using MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Models;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Pipelines.Models;
-using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Readers;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExtensionMethods;
 using System.Collections.Concurrent;
 using System.Reflection;

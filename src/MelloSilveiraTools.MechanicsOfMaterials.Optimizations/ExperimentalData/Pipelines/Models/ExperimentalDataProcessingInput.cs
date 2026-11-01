@@ -1,3 +1,4 @@
+using MelloSilveiraTools.Core.Pipelines.Models;
 using MelloSilveiraTools.Mathematics.Models;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Models;
 
@@ -6,7 +7,7 @@ namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData
 /// <summary>
 /// Input parameters for processing experimental raw data streams through the segmentation and optimization pipeline via storage locations.
 /// </summary>
-public sealed record ExperimentalDataProcessingInput
+public sealed record ExperimentalDataProcessingInput : PipelineInputBase
 {
     /// <summary>
     /// Storage location URI or path for the raw experimental strain time-history CSV.
@@ -22,11 +23,6 @@ public sealed record ExperimentalDataProcessingInput
     /// Optional threshold time to ignore initial transient data. When provided, all data points with time less than this threshold are ignored during processing.
     /// </summary>
     public double? StartExperimentalTimeThreshold { get; init; }
-
-    /// <summary>
-    /// Predefined analysis identifier.
-    /// </summary>
-    public required string Identifier { get; init; }
 
     /// <summary>
     /// The name of the mechanical model to fit (e.g., "Fung", "Schapery").

@@ -20,7 +20,6 @@ using MelloSilveiraTools.Core.Services.Encryption;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Serilog;
-using System.Threading.Channels;
 
 namespace MelloSilveiraTools.Core;
 

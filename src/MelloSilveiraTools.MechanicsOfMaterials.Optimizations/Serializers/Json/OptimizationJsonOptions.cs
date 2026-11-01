@@ -1,4 +1,4 @@
-﻿using System.Text.Json;
+using System.Text.Json;
 using System.Text.Json.Serialization;
 
 namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Serializers.Json;
@@ -19,4 +19,8 @@ internal static class OptimizationJsonOptions
     };
 
     internal static string Serialize(object value) => JsonSerializer.Serialize(value, value.GetType(), SignificantFigures7);
+
+    internal static object? Deserialize(string json, Type returnType) => JsonSerializer.Deserialize(json, returnType, SignificantFigures7);
+
+    internal static T? Deserialize<T>(string json) => JsonSerializer.Deserialize<T>(json, SignificantFigures7);
 }

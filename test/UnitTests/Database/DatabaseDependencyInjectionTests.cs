@@ -6,7 +6,6 @@ using MelloSilveiraTools.Database.RelationalDatabase.Sql.Provider;
 using MelloSilveiraTools.Database.Repositories;
 using MelloSilveiraTools.Database.ResiliencePipelines;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 using Polly;
 
 namespace UnitTests.Database;

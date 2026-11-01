@@ -1,6 +1,6 @@
 using MelloSilveiraTools.Mathematics.Functions;
 using MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.NonLinear.Schapery;
-using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Models;
+using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Pipelines.Models;
 
 namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Generators;
 
@@ -28,7 +28,8 @@ public sealed class SchaperyParametricSweepGenerator : ParametricSweepGeneratorB
             {
                 TransientRelaxationFunction = new PowerLaw(newCoefficients, baseline.TransientRelaxationFunction.InitialVariableValue, baseline.TransientRelaxationFunction.FinalVariableValue)
             };
-        });
+        }
+        );
 
         yield return ("n", (baseline, value) =>
         {
@@ -40,6 +41,7 @@ public sealed class SchaperyParametricSweepGenerator : ParametricSweepGeneratorB
             {
                 TransientRelaxationFunction = new PowerLaw(newCoefficients, baseline.TransientRelaxationFunction.InitialVariableValue, baseline.TransientRelaxationFunction.FinalVariableValue)
             };
-        });
+        }
+        );
     }
 }

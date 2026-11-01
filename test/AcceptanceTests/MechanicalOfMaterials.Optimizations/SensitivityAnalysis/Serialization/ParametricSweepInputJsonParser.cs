@@ -10,7 +10,7 @@ using MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelast
 using MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.NonLinear.Schapery;
 using MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.QuasiLinear;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Models.Range;
-using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Models;
+using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Pipelines.Models;
 using System.Text.Json;
 
 namespace AcceptanceTests.MechanicalOfMaterials.Optimizations.SensitivityAnalysis.Serialization;
@@ -113,7 +113,9 @@ public static class ParametricSweepInputJsonParser
             InitialTime = initialTime,
             FinalTime = finalTime,
             TimeStep = timeStep,
-            AsymptoteTolerance = asymptoteTolerance
+            AsymptoteTolerance = asymptoteTolerance,
+            BinarySearchIterations = 1,
+            MaxBracketIterations = 1,
         };
     }
 

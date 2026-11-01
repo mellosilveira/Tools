@@ -7,7 +7,7 @@ namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData
 /// <summary>
 /// Request payload for executing the experimental data processing and optimization pipeline via storage-backed file references.
 /// </summary>
-public record ProcessExperimentalDataRequest : RequestBase
+public record ExecuteExperimentalDataPipelineRequest : RequestBase
 {
     /// <summary>
     /// Storage location URI or path for the raw experimental strain time-history CSV.
@@ -73,26 +73,4 @@ public record ProcessExperimentalDataRequest : RequestBase
     /// Optional processing options for segmentation tolerances and smoothing.
     /// </summary>
     public ExperimentalDataProcessingOptions? Options { get; init; }
-
-    /// <summary>
-    /// Converts this command request into an <see cref="ExperimentalDataProcessingInput"/> instance.
-    /// </summary>
-    /// <returns>A configured <see cref="ExperimentalDataProcessingInput"/> instance.</returns>
-    public ExperimentalDataProcessingInput ToInput() => new()
-    {
-        StrainFileLocation = StrainFileLocation,
-        StressFileLocation = StressFileLocation,
-        StartExperimentalTimeThreshold = StartExperimentalTimeThreshold,
-        Identifier = string.IsNullOrWhiteSpace(Identifier) ? Guid.NewGuid().ToString("N") : Identifier,
-        MechanicalModelName = MechanicalModelName,
-        TargetSegments = TargetSegments,
-        CurveFitterType = CurveFitterType,
-        TargetRSquared = TargetRSquared,
-        AsymptoteConsecutivePointsThreshold = AsymptoteConsecutivePointsThreshold,
-        SimulationTimeStep = SimulationTimeStep,
-        FinalSimulationTime = FinalSimulationTime,
-        DownsamplingSkipTimeStep = DownsamplingSkipTimeStep,
-        // TODO: In next versions, analyze if it must be a settings.
-        Options = Options ?? new ExperimentalDataProcessingOptions()
-    };
 }

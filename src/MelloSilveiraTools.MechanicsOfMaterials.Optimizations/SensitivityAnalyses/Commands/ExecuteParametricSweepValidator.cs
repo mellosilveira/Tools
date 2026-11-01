@@ -4,12 +4,12 @@ using MelloSilveiraTools.Core.Validators;
 namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Commands;
 
 /// <summary>
-/// Validates <see cref="ExecuteParametricSweepRequest"/> payloads prior to parametric sweep execution.
+/// Validates <see cref="ExecuteParametricSweepPipelineRequest"/> payloads prior to parametric sweep execution.
 /// </summary>
-public sealed class ExecuteParametricSweepValidator : IValidator<ExecuteParametricSweepRequest>
+public sealed class ExecuteParametricSweepValidator : IValidator<ExecuteParametricSweepPipelineRequest>
 {
     /// <inheritdoc/>
-    public Result Validate(ExecuteParametricSweepRequest value)
+    public Result Validate(ExecuteParametricSweepPipelineRequest value)
     {
         if (value is null)
         {

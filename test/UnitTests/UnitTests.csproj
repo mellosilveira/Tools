@@ -33,4 +33,9 @@
     <Using Include="Xunit" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="MechanicsOfMaterials.Optimizations\Pipelines\ExperimentalData\Serialization\" />
+    <Folder Include="MechanicsOfMaterials.Optimizations\Pipelines\ExperimentalData\Services\" />
+  </ItemGroup>
+
 </Project>

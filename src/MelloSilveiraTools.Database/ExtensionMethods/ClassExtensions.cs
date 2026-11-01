@@ -163,7 +163,7 @@ public static class ClassExtensions
 
             if (filterColumnAttribute.FilterClause is FilterClause.Like or FilterClause.ILike)
                 propertyValue = $"%{propertyValue}%";
-            
+
             addParam(property.Name, property.PropertyType, propertyValue);
         }
 
