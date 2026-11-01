@@ -89,7 +89,7 @@
         <member name="M:AcceptanceTests.MechanicalOfMaterials.Optimizations.CurveFitterSteps.CurveFitterAcceptanceTestBase`1.ExecuteAsync_WithCsvData_ShouldExecuteCurveFitting">
             <summary>
             Generic acceptance test that feeds CSV segments to the curve fitter step for all discovered groups,
-            asserts output generation and quality, and invokes <see cref="M:AcceptanceTests.MechanicalOfMaterials.Optimizations.CurveFitterSteps.CurveFitterAcceptanceTestBase`1.AssertPhysicalConstraints(System.String,System.Collections.Generic.IReadOnlyList{MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Models.CurveSegment},System.Collections.Generic.IReadOnlyList{MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Models.MechanicalModelCurveFitOutput})"/>
+            asserts output generation and quality, and invokes <see cref="M:AcceptanceTests.MechanicalOfMaterials.Optimizations.CurveFitterSteps.CurveFitterAcceptanceTestBase`1.AssertPhysicalConstraints(System.String,System.Collections.Generic.IReadOnlyList{MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Models.CurveSegment},System.Collections.Generic.IReadOnlyList{MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Pipelines.Models.MechanicalModelCurveFitOutput})"/>
             for model-specific verification.
             </summary>
         </member>
@@ -102,17 +102,17 @@
             <param name="cancellationToken">Optional cancellation token.</param>
             <returns>A list of all yielded model curve fit outputs.</returns>
         </member>
-        <member name="M:AcceptanceTests.MechanicalOfMaterials.Optimizations.CurveFitterSteps.CurveFitterAcceptanceTestBase`1.AssertPhysicalConstraints(System.String,System.Collections.Generic.IReadOnlyList{MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Models.CurveSegment},System.Collections.Generic.IReadOnlyList{MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Models.MechanicalModelCurveFitOutput})">
+        <member name="M:AcceptanceTests.MechanicalOfMaterials.Optimizations.CurveFitterSteps.CurveFitterAcceptanceTestBase`1.AssertPhysicalConstraints(System.String,System.Collections.Generic.IReadOnlyList{MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Models.CurveSegment},System.Collections.Generic.IReadOnlyList{MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Pipelines.Models.MechanicalModelCurveFitOutput})">
             <summary>
             Hook method for concrete curve fitter acceptance tests to assert model-specific
             physical constraints, parameter bounds, and multi-stage convergence behaviors for a specific group.
-            Default implementation delegates to <see cref="M:AcceptanceTests.MechanicalOfMaterials.Optimizations.CurveFitterSteps.CurveFitterAcceptanceTestBase`1.AssertPhysicalConstraints(System.Collections.Generic.IReadOnlyList{MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Models.CurveSegment},System.Collections.Generic.IReadOnlyList{MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Models.MechanicalModelCurveFitOutput})"/>.
+            Default implementation delegates to <see cref="M:AcceptanceTests.MechanicalOfMaterials.Optimizations.CurveFitterSteps.CurveFitterAcceptanceTestBase`1.AssertPhysicalConstraints(System.Collections.Generic.IReadOnlyList{MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Models.CurveSegment},System.Collections.Generic.IReadOnlyList{MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Pipelines.Models.MechanicalModelCurveFitOutput})"/>.
             </summary>
             <param name="groupName">The name of the specimen or test group.</param>
             <param name="segments">The input experimental segments.</param>
             <param name="outputs">The yielded curve fit outputs.</param>
         </member>
-        <member name="M:AcceptanceTests.MechanicalOfMaterials.Optimizations.CurveFitterSteps.CurveFitterAcceptanceTestBase`1.AssertPhysicalConstraints(System.Collections.Generic.IReadOnlyList{MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Models.CurveSegment},System.Collections.Generic.IReadOnlyList{MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Models.MechanicalModelCurveFitOutput})">
+        <member name="M:AcceptanceTests.MechanicalOfMaterials.Optimizations.CurveFitterSteps.CurveFitterAcceptanceTestBase`1.AssertPhysicalConstraints(System.Collections.Generic.IReadOnlyList{MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Models.CurveSegment},System.Collections.Generic.IReadOnlyList{MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Pipelines.Models.MechanicalModelCurveFitOutput})">
             <summary>
             Hook method for concrete curve fitter acceptance tests to assert model-specific
             physical constraints, parameter bounds, and multi-stage convergence behaviors.
@@ -132,7 +132,7 @@
         <member name="P:AcceptanceTests.MechanicalOfMaterials.Optimizations.CurveFitterSteps.FungRelaxationOnlyCurveFitterStepAcceptanceTests.MinimumAcceptableRSquared">
             <inheritdoc/>
         </member>
-        <member name="M:AcceptanceTests.MechanicalOfMaterials.Optimizations.CurveFitterSteps.FungRelaxationOnlyCurveFitterStepAcceptanceTests.AssertPhysicalConstraints(System.String,System.Collections.Generic.IReadOnlyList{MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Models.CurveSegment},System.Collections.Generic.IReadOnlyList{MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Models.MechanicalModelCurveFitOutput})">
+        <member name="M:AcceptanceTests.MechanicalOfMaterials.Optimizations.CurveFitterSteps.FungRelaxationOnlyCurveFitterStepAcceptanceTests.AssertPhysicalConstraints(System.String,System.Collections.Generic.IReadOnlyList{MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Models.CurveSegment},System.Collections.Generic.IReadOnlyList{MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Pipelines.Models.MechanicalModelCurveFitOutput})">
             <inheritdoc/>
         </member>
         <member name="T:AcceptanceTests.MechanicalOfMaterials.Optimizations.CurveFitterSteps.SchaperyRelaxationOnlyCurveFitterStepAcceptanceTests">
@@ -144,7 +144,7 @@
         <member name="P:AcceptanceTests.MechanicalOfMaterials.Optimizations.CurveFitterSteps.SchaperyRelaxationOnlyCurveFitterStepAcceptanceTests.Prefix">
             <inheritdoc/>
         </member>
-        <member name="M:AcceptanceTests.MechanicalOfMaterials.Optimizations.CurveFitterSteps.SchaperyRelaxationOnlyCurveFitterStepAcceptanceTests.AssertPhysicalConstraints(System.String,System.Collections.Generic.IReadOnlyList{MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Models.CurveSegment},System.Collections.Generic.IReadOnlyList{MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Models.MechanicalModelCurveFitOutput})">
+        <member name="M:AcceptanceTests.MechanicalOfMaterials.Optimizations.CurveFitterSteps.SchaperyRelaxationOnlyCurveFitterStepAcceptanceTests.AssertPhysicalConstraints(System.String,System.Collections.Generic.IReadOnlyList{MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Models.CurveSegment},System.Collections.Generic.IReadOnlyList{MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Pipelines.Models.MechanicalModelCurveFitOutput})">
             <inheritdoc/>
         </member>
         <member name="T:AcceptanceTests.MechanicalOfMaterials.Optimizations.CurveFitterSteps.SimplifiedFungRelaxationOnlyCurveFitterStepAcceptanceTests">
@@ -158,12 +158,12 @@
         <member name="P:AcceptanceTests.MechanicalOfMaterials.Optimizations.CurveFitterSteps.SimplifiedFungRelaxationOnlyCurveFitterStepAcceptanceTests.MinimumAcceptableRSquared">
             <inheritdoc/>
         </member>
-        <member name="M:AcceptanceTests.MechanicalOfMaterials.Optimizations.CurveFitterSteps.SimplifiedFungRelaxationOnlyCurveFitterStepAcceptanceTests.AssertPhysicalConstraints(System.String,System.Collections.Generic.IReadOnlyList{MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Models.CurveSegment},System.Collections.Generic.IReadOnlyList{MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Models.MechanicalModelCurveFitOutput})">
+        <member name="M:AcceptanceTests.MechanicalOfMaterials.Optimizations.CurveFitterSteps.SimplifiedFungRelaxationOnlyCurveFitterStepAcceptanceTests.AssertPhysicalConstraints(System.String,System.Collections.Generic.IReadOnlyList{MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Models.CurveSegment},System.Collections.Generic.IReadOnlyList{MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Pipelines.Models.MechanicalModelCurveFitOutput})">
             <inheritdoc/>
         </member>
         <member name="T:AcceptanceTests.MechanicalOfMaterials.Optimizations.SensitivityAnalysis.ParametricSweepPipelineAcceptanceTests">
             <summary>
-            End-to-end acceptance tests for <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.SensitivityAnalysis.ParametricSweepPipeline"/> validating 1D sensitivity analysis
+            End-to-end acceptance tests for <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Pipelines.ParametricSweepPipeline"/> validating 1D sensitivity analysis
             driven dynamically by JSON specification files located in the TestData directory.
             </summary>
         </member>
@@ -182,16 +182,16 @@
         </member>
         <member name="T:AcceptanceTests.MechanicalOfMaterials.Optimizations.SensitivityAnalysis.Serialization.ParametricSweepInputJsonParser">
             <summary>
-            Deserializes JSON representations into strongly-typed <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Models.ParametricSweepInput"/> instances,
+            Deserializes JSON representations into strongly-typed <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Pipelines.Models.ParametricSweepInput"/> instances,
             including polymorphic resolution of constitutive model parameters and mathematical functions.
             </summary>
         </member>
         <member name="M:AcceptanceTests.MechanicalOfMaterials.Optimizations.SensitivityAnalysis.Serialization.ParametricSweepInputJsonParser.Parse(System.String)">
             <summary>
-            Parses a JSON text into a <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Models.ParametricSweepInput"/> instance.
+            Parses a JSON text into a <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Pipelines.Models.ParametricSweepInput"/> instance.
             </summary>
             <param name="json">The JSON payload string.</param>
-            <returns>A populated <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Models.ParametricSweepInput"/> instance.</returns>
+            <returns>A populated <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Pipelines.Models.ParametricSweepInput"/> instance.</returns>
             <exception cref="T:System.ArgumentException">Thrown when <paramref name="json"/> is null or whitespace.</exception>
             <exception cref="T:System.Text.Json.JsonException">Thrown when the JSON payload is malformed or missing required properties.</exception>
         </member>

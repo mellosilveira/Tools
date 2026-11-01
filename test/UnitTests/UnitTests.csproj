@@ -34,6 +34,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="MechanicsOfMaterials.Optimizations\Pipelines\ExperimentalData\Readers\" />
     <Folder Include="MechanicsOfMaterials.Optimizations\Pipelines\ExperimentalData\Serialization\" />
     <Folder Include="MechanicsOfMaterials.Optimizations\Pipelines\ExperimentalData\Services\" />
   </ItemGroup>

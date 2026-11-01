@@ -167,42 +167,6 @@
             Verifies that all expected lifecycle states exist in <see cref="T:MelloSilveiraTools.Core.Pipelines.Models.PipelineStepState"/>.
             </summary>
         </member>
-        <member name="T:UnitTests.Core.Pipelines.Notifiers.ChannelPipelineProgressNotifierTests">
-            <summary>
-            Unit tests for <see cref="T:MelloSilveiraTools.Core.Pipelines.Notifiers.ChannelPipelineProgressNotifier"/>, <see cref="T:MelloSilveiraTools.Core.Pipelines.Notifiers.ContextPipelineProgressNotifier"/>, and <see cref="T:MelloSilveiraTools.Core.Pipelines.Notifiers.NullPipelineProgressNotifier"/>.
-            </summary>
-        </member>
-        <member name="M:UnitTests.Core.Pipelines.Notifiers.ChannelPipelineProgressNotifierTests.NotifyAsync_StreamsEmittedEventsInOrderAndCompletesCleanly">
-            <summary>
-            Verifies that <see cref="T:MelloSilveiraTools.Core.Pipelines.Notifiers.ChannelPipelineProgressNotifier"/> streams emitted events in order and completes cleanly.
-            </summary>
-        </member>
-        <member name="M:UnitTests.Core.Pipelines.Notifiers.ChannelPipelineProgressNotifierTests.NotifyAsync_WithAnalysisIdentifier_IsolatesStreamsPerAnalysisIdentifier">
-            <summary>
-            Verifies that <see cref="T:MelloSilveiraTools.Core.Pipelines.Notifiers.ChannelPipelineProgressNotifier"/> isolates event streams by distinct analysis identifiers.
-            </summary>
-        </member>
-        <member name="M:UnitTests.Core.Pipelines.Notifiers.ChannelPipelineProgressNotifierTests.ReadAllAsync_WhenWriterCompletesBeforeReaderConnects_StillDrainsAllEventsAndEvicts">
-            <summary>
-            Verifies that when the writer completes before the reader connects, all buffered events are still drained
-            and the channel is subsequently evicted from the dictionary.
-            </summary>
-        </member>
-        <member name="M:UnitTests.Core.Pipelines.Notifiers.ChannelPipelineProgressNotifierTests.GetOrCreateEntry_WhenCapacityExceeded_PurgesAbandonedCompletedChannels">
-            <summary>
-            Verifies that when the maximum channel limit is exceeded, abandoned completed channels are purged.
-            </summary>
-        </member>
-        <member name="M:UnitTests.Core.Pipelines.Notifiers.ChannelPipelineProgressNotifierTests.ContextPipelineProgressNotifier_EnrichesEventsWithAnalysisIdentifier">
-            <summary>
-            Verifies that <see cref="T:MelloSilveiraTools.Core.Pipelines.Notifiers.ContextPipelineProgressNotifier"/> enriches emitted events with the bound analysis identifier.
-            </summary>
-        </member>
-        <member name="M:UnitTests.Core.Pipelines.Notifiers.ChannelPipelineProgressNotifierTests.NullPipelineProgressNotifier_NotifyAsync_CompletesSynchronously">
-            <summary>
-            Verifies that <see cref="T:MelloSilveiraTools.Core.Pipelines.Notifiers.NullPipelineProgressNotifier"/> completes synchronously with no side effects.
-            </summary>
-        </member>
         <member name="T:UnitTests.Core.Providers.Dynamics.InMemoryDynamicServiceProviderTests">
             <summary>
             Unit tests for <see cref="T:MelloSilveiraTools.Core.Providers.Dynamics.InMemoryDynamicServiceProvider"/> verifying dynamic service registration,
@@ -344,13 +308,13 @@
         </member>
         <member name="T:UnitTests.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Commands.ProcessExperimentalDataCommandTests">
             <summary>
-            Unit tests for <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Commands.ProcessExperimentalDataCommand"/> verifying orchestration, validation short-circuiting,
+            Unit tests for <see cref="!:ExecutePipeline"/> verifying orchestration, validation short-circuiting,
             and pipeline delegation.
             </summary>
         </member>
         <member name="T:UnitTests.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Commands.ProcessExperimentalDataValidatorTests">
             <summary>
-            Unit tests for <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Commands.ProcessExperimentalDataValidator"/> validating all constraint checks.
+            Unit tests for <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Commands.Process.ProcessExperimentalDataValidator"/> validating all constraint checks.
             </summary>
         </member>
         <member name="M:UnitTests.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Commands.ProcessExperimentalDataValidatorTests.Validate_WhenRequestIsNull_ReturnsBadRequest">
@@ -381,39 +345,6 @@
         <member name="M:UnitTests.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Commands.ProcessExperimentalDataValidatorTests.Validate_WhenValidWithFileLocations_ReturnsSuccess">
             <summary>
             Verifies that a well-formed request with valid storage locations passes validation.
-            </summary>
-        </member>
-        <member name="T:UnitTests.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Readers.CurveSegmentCsvReaderTests">
-            <summary>
-            Unit tests for <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Readers.CurveSegmentCsvReader"/> ensuring segmented experimental CSV data
-            containing numeric segment type enumerations is parsed and grouped into <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Models.CurveSegment"/> instances correctly.
-            </summary>
-        </member>
-        <member name="T:UnitTests.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Serialization.StepPayloadCompressorTests">
-            <summary>
-            Unit tests for <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Serialization.StepPayloadCompressor"/> verifying Brotli compression, decompression,
-            and fidelity of serialized step payload models.
-            </summary>
-        </member>
-        <member name="M:UnitTests.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Serialization.StepPayloadCompressorTests.CompressAndDecompress_WhenGivenCheckpointInput_ReturnsIdenticalObject">
-            <summary>
-            Verifies that compressing a payload produces non-empty byte array and decompresses back to equivalent data.
-            </summary>
-        </member>
-        <member name="M:UnitTests.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Serialization.StepPayloadCompressorTests.Decompress_WhenGivenEmptyOrNullBytes_ReturnsDefault">
-            <summary>
-            Verifies that decompressing a null or empty byte array returns default or null without throwing exceptions.
-            </summary>
-        </member>
-        <member name="M:UnitTests.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Serialization.StepPayloadCompressorTests.CompressAndDecompress_WhenGivenSimulationOutput_PreservesNestedDeltas">
-            <summary>
-            Verifies that simulation checkpoint output with nested delta structures is preserved through compression round-trip.
-            </summary>
-        </member>
-        <member name="T:UnitTests.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Services.StepExecutionManagerTests">
-            <summary>
-            Unit tests for <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Services.StepExecutionManager"/> verifying checkpoint tracking, state transitions,
-            payload compression persistence, and rollback purging.
             </summary>
         </member>
         <member name="T:UnitTests.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Commands.ExecuteParametricSweepValidatorTests">

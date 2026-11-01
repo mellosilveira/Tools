@@ -3,7 +3,7 @@ namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Mod
 /// <summary>
 /// Configuration options for curve fitting algorithms, controlling deterministic execution and numerical behavior.
 /// </summary>
-public record CurveFitterOptions
+public record CurveFitterSettings
 {
     /// <summary>
     /// Gets or sets the random seed used by stochastic optimizers (such as ALGLIB's GDEMO differential evolution)

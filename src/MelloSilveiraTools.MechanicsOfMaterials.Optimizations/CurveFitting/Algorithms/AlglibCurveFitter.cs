@@ -9,8 +9,7 @@ namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Alg
 /// adaptive Differential Evolution (<c>mindf</c> GDEMO) with deterministic pseudo-random seeding.
 /// </summary>
 /// <param name="logger">The logger instance for diagnostics and reporting.</param>
-/// <param name="options">Optional curve fitter configuration options controlling deterministic seeding.</param>
-public class AlglibCurveFitter(ILogger<AlglibCurveFitter> logger, CurveFitterOptions options) : CurveFitterBase
+public class AlglibCurveFitter(ILogger<AlglibCurveFitter> logger, CurveFitterSettings settings) : CurveFitterBase
 {
     /// <inheritdoc />
     public override CurveFitOutput Fit(CurveFitInput input) => (input.Profile, input.ValidateParameters) switch
@@ -60,7 +59,7 @@ public class AlglibCurveFitter(ILogger<AlglibCurveFitter> logger, CurveFitterOpt
         alglib.mindfcreate(workingParameters, out alglib.mindfstate optimizerState);
         alglib.mindfsetbc(optimizerState, input.LowerBounds, input.UpperBounds);
 
-        int seed = options.Seed;
+        int seed = settings.Seed;
         alglib.mindfsetseed(optimizerState, seed);
 
         double[] parameterScales = [.. Enumerable.Repeat(1.0, parameterCount)];

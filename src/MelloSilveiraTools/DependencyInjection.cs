@@ -10,6 +10,7 @@ using MelloSilveiraTools.Database.RelationalDatabase.Settings;
 using MelloSilveiraTools.Mathematics;
 using MelloSilveiraTools.MechanicsOfMaterials;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations;
+using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Models;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData;
 using MelloSilveiraTools.Plugins;
 using MelloSilveiraTools.Plugins.Infrastructure;
@@ -46,8 +47,9 @@ public static class DependencyInjection
         PluginSettings pluginSettings,
         EmailSettings? emailSettings = null,
         FileStorageSettings? fileStorageSettings = null,
-        ExperimentalDataSettings? experimentalDataSettings = null,
         LoggerSettings? loggerSettings = null,
+        CurveFitterSettings? curveFitterOptions = null,
+        ExperimentalDataSettings? experimentalDataSettings = null,
         PipelineProgressNotifierSettings? pipelineProgressNotifierSettings = null,
         bool addMechanicalModels = false)
         => services
@@ -56,7 +58,7 @@ public static class DependencyInjection
             .AddDatabaseServices(defaultResiliencePipelineSettings, databaseSettings)
             .AddMathematicsServices()
             .AddMechanicsOfMaterialsServices(addMechanicalModels)
-            .AddOptimizationsServices(experimentalDataSettings)
+            .AddOptimizationsServices(curveFitterOptions, experimentalDataSettings)
             .AddPluginServices(pluginSettings)
             .AddWebApiServices(defaultResiliencePipelineSettings);
 }

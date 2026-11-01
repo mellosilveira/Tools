@@ -48,7 +48,9 @@ public sealed class ExecuteParametricSweepValidatorTests
             ConstantVariables = new Dictionary<string, RangeParameters>
             {
                 ["Stiffness"] = new RangeParameters { InitialPoint = 10.0, FinalPoint = 20.0, Step = 5.0 }
-            }
+            },
+            BinarySearchIterations = 1,
+            MaxBracketIterations = 1,
         };
 
         // Act
@@ -80,7 +82,9 @@ public sealed class ExecuteParametricSweepValidatorTests
             ConstantVariables = new Dictionary<string, RangeParameters>
             {
                 ["Stiffness"] = new RangeParameters { InitialPoint = 10.0, FinalPoint = 20.0, Step = 5.0 }
-            }
+            },
+            BinarySearchIterations = 1,
+            MaxBracketIterations = 1,
         };
 
         // Act
@@ -112,7 +116,9 @@ public sealed class ExecuteParametricSweepValidatorTests
             AsymptoteTolerance = 1e-4,
             ConstantVariables = [],
             ArrayVariables = [],
-            StrainRange = null
+            StrainRange = null,
+            BinarySearchIterations = 1,
+            MaxBracketIterations = 1,
         };
 
         // Act
@@ -140,7 +146,9 @@ public sealed class ExecuteParametricSweepValidatorTests
             InitialTime = 0.0,
             FinalTime = 10.0,
             AsymptoteTolerance = 1e-4,
-            StrainRange = new RangeParameters { InitialPoint = 0.01, FinalPoint = 0.05, Step = 0.01 }
+            StrainRange = new RangeParameters { InitialPoint = 0.01, FinalPoint = 0.05, Step = 0.01 },
+            BinarySearchIterations = 1,
+            MaxBracketIterations = 1,
         };
 
         // Act

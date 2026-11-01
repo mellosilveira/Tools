@@ -19,6 +19,7 @@ public sealed class PipelineProgressEventTests
         // Act
         PipelineProgressEvent progressEvent = new()
         {
+            PipelineIdentifier = "Test",
             StepName = "TestStep",
             Description = "Processing test batch",
             State = PipelineStepState.Running,
@@ -54,6 +55,7 @@ public sealed class PipelineProgressEventTests
         // Act
         PipelineProgressEvent progressEvent = new()
         {
+            PipelineIdentifier = "Test",
             StepName = "StepA",
             Description = "Initial step",
             State = PipelineStepState.Started,
@@ -83,6 +85,7 @@ public sealed class PipelineProgressEventTests
 
         PipelineProgressEvent event1 = new()
         {
+            PipelineIdentifier = "Test",
             StepName = "Step1",
             Description = "Desc",
             State = PipelineStepState.Completed,
@@ -95,6 +98,7 @@ public sealed class PipelineProgressEventTests
         };
         PipelineProgressEvent event2 = new()
         {
+            PipelineIdentifier = "Test",
             StepName = "Step1",
             Description = "Desc",
             State = PipelineStepState.Completed,

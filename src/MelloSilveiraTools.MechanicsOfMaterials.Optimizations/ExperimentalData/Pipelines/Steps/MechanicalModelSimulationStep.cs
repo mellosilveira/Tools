@@ -52,11 +52,7 @@ public sealed class MechanicalModelSimulationStep(
     {
         cancellationToken.ThrowIfCancellationRequested();
 
-        IReadOnlyList<CurveSegment> segments = curveFit.CurveSegments is { Count: > 0 }
-            ? curveFit.CurveSegments
-            : await CurveSegmentCsvReader.ReadSegmentsAsync(fileStorageService, experimentalDataFileLocation, cancellationToken).ConfigureAwait(false);
-
-        double timeStep = simulationTimeStep ?? CustomMath.CalculateAverageTimeStep(segments.GetTimePoints());
+        double timeStep = simulationTimeStep ?? CustomMath.CalculateAverageTimeStep(curveFit.CurveSegments.GetTimePoints());
         GenericMechanicalModelInput baseInput = new()
         {
             MechanicalModelName = mechanicalModelTypeResolver.MechanicalModelName,
@@ -64,7 +60,7 @@ public sealed class MechanicalModelSimulationStep(
             LoadResponseRelationship = curveFit.LoadResponseRelationship,
             ViscoelasticEffect = curveFit.ViscoelasticEffect,
             RampTimeConsideration = curveFit.RampTimeConsideration,
-            RampTime = segments.GetFirstRampTime(),
+            RampTime = curveFit.CurveSegments.GetFirstRampTime(),
             TimeStep = timeStep,
             ConstitutiveParameters = curveFit.ConstitutiveParameters
         };
@@ -80,7 +76,7 @@ public sealed class MechanicalModelSimulationStep(
         await using (writer)
         {
             IMechanicalModelCalculatorFacade facade = null!;
-            foreach (CurveSegment segment in segments)
+            foreach (CurveSegment segment in curveFit.CurveSegments)
             {
                 GenericMechanicalModelInput input = baseInput with { Strain = BuildStrainParameter(segment), Stress = new MechanicalParameter(segment.ExperimentalStress[0]) };
                 facade = calculatorFactory.CreateCalculatorFacade(mechanicalModelTypeResolver, input);
@@ -102,10 +98,10 @@ public sealed class MechanicalModelSimulationStep(
                 }
             }
 
-            if (finalSimulationTime is not null && segments.Count > 0)
+            if (finalSimulationTime is not null)
             {
                 int asymptoteCount = 0;
-                double time = segments[^1].TimePoints[^1];
+                double time = curveFit.CurveSegments[^1].TimePoints[^1];
                 while (time < finalSimulationTime + timeStep)
                 {
                     MechanicalModelOutput output = facade.Calculate(time);
