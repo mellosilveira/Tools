@@ -64,14 +64,14 @@ public sealed class ExperimentalDataProcessingPipeline(
             .AddStep(segmenterStep, settings.SegmenterOptions)
             .AddBroadcastStep(experimentalDataFileWriterStep, options: settings.FileWriterOptions)
             .AddStep(downsamplerStep, PipelineStepOptions.Synchronous)
-            .AddStep(curveSegmentBuilderStep, PipelineStepOptions.Synchronous)
+            .AddStep(curveSegmentBuilderStep, settings.SegmentBuilderOptions)
             .AddStep(curveFitterStep, settings.CurveFitterOptions)
             .Fork(
                 originalBranch => originalBranch,
                 identifierBranch => identifierBranch.AddStep(curveFitOutputIdentifierBuilderStep),
-                simulationBranch => simulationBranch.AddStep(mechanicalModelSimulationStep)
+                simulationBranch => simulationBranch.AddStep(mechanicalModelSimulationStep, settings.SimulationInputBuilderOptions)
             )
-            .AddBroadcastStep(curveFitPersistenceStep, t => (t.Item2, t.Item1))
+            .AddBroadcastStep(curveFitPersistenceStep, t => (t.Item2, t.Item1), settings.PersistanceOptions)
             .AddDataMapping(t => new MechanicalModelOutputPersistenceInput(
                 experimentalDataFileLocation,
                 CurveFitOutputIdentifier: t.Item2,
@@ -79,7 +79,7 @@ public sealed class ExperimentalDataProcessingPipeline(
                 t.Item3.DeltaOutput,
                 t.Item3.OutputFileMetadata)
             )
-            .AddStep(mechanicalModelOutputPersistenceStep)
+            .AddStep(mechanicalModelOutputPersistenceStep, settings.PersistanceOptions)
             .BuildTerminal();
 
         await using (pipeline)
