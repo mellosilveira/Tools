@@ -1,0 +1,50 @@
+{
+  "identifier": "Acceptance_Schapery_Sweep",
+  "mechanicalModelName": "Schapery",
+  "baseStrain": 0.05,
+  "strainRange": {
+    "initialPoint": 0.03,
+    "finalPoint": 0.05,
+    "step": 0.02
+  },
+  "rampTimeConsideration": "Disregard",
+  "initialTime": 0.5,
+  "finalTime": 10.0,
+  "timeStep": 0.1,
+  "tolerance": 0.001,
+  "baseline": {
+    "ge": 15.0,
+    "g0": 1.0,
+    "g1": 1.0,
+    "g2": 1.0,
+    "he": {
+      "type": "Polynomial",
+      "coefficients": [1.0]
+    },
+    "h1": {
+      "type": "Polynomial",
+      "coefficients": [1.0]
+    },
+    "h2": {
+      "type": "Polynomial",
+      "coefficients": [1.0]
+    },
+    "transientRelaxationFunction": {
+      "type": "PowerLaw",
+      "coefficients": [5.0, 0.2]
+    }
+  },
+  "constantVariables": {
+    "Ge": {
+      "initialPoint": 10.0,
+      "finalPoint": 20.0,
+      "step": 5.0
+    },
+    "g1": {
+      "initialPoint": 4.0,
+      "finalPoint": 6.0,
+      "step": 1.0
+    }
+  },
+  "arrayVariables": {}
+}

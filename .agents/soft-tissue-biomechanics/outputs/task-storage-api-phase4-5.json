@@ -1,0 +1,54 @@
+{
+  "task_id": "task-storage-api-phase4-5",
+  "status": "completed",
+  "ConfidenceScore": 0.99,
+  "model_used": "inherit",
+  "summary": "Concluídas as Fases 4 e 5 do plano experimental-data-and-storage-api-plan.md com 0 erros de compilação. Fase 4: Criados PipelineStepState e PipelineProgressEvent em MelloSilveiraTools.Core.Pipelines.Models, integrados ao PipelineFactory.StartDataflow, DataflowPipelineBuilder e TelemetryExtensions para emissão automática de eventos em tempo real (Started, Running, Completed, Faulted), e adicionada a propriedade Progress em ExperimentalDataProcessingInput e ParametricSweepInput. Fase 5: Implementados Commands e Validators (ProcessExperimentalDataCommand/Request/Response/Validator, ExecuteParametricSweepCommand/Request/Response/Validator, FitCurve/Request/ResultData/Validator), StoredFileFilter e Controllers Web API (ExperimentalDataController, ParametricSweepController, CurveFittingController e StoredFilesController) suportando execução tradicional POST, streaming NDJSON em tempo real (POST .../stream via PipelineProgressStreamWriter) e listagem/download de arquivos gerados por ExternalIdentifier via IFileStorageService.OpenRead. Registrados os serviços em DependencyInjection.cs e atualizado o CHANGELOG.md.",
+  "artifacts_modified": [
+    "src/MelloSilveiraTools.Core/Pipelines/Models/PipelineStepState.cs",
+    "src/MelloSilveiraTools.Core/Pipelines/Models/PipelineProgressEvent.cs",
+    "src/MelloSilveiraTools.Core/Pipelines/PipelineFactory.cs",
+    "src/MelloSilveiraTools.Core/Pipelines/Dataflow/DataflowPipelineBuilder.cs",
+    "src/MelloSilveiraTools.Core/Pipelines/Telemetry/TelemetryExtensions.cs",
+    "src/MelloSilveiraTools.Database/RelationalDatabase/Models/Entities/StoredFileEntity.cs",
+    "src/MelloSilveiraTools.Database/RelationalDatabase/Models/Filters/StoredFileFilter.cs",
+    "src/MelloSilveiraTools.MechanicsOfMaterials.Optimizations/Pipelines/ExperimentalData/Models/ExperimentalDataProcessingInput.cs",
+    "src/MelloSilveiraTools.MechanicsOfMaterials.Optimizations/Pipelines/ExperimentalData/ExperimentalDataProcessingPipeline.cs",
+    "src/MelloSilveiraTools.MechanicsOfMaterials.Optimizations/Pipelines/ExperimentalData/Commands/ProcessExperimentalDataRequest.cs",
+    "src/MelloSilveiraTools.MechanicsOfMaterials.Optimizations/Pipelines/ExperimentalData/Commands/ProcessExperimentalDataResponse.cs",
+    "src/MelloSilveiraTools.MechanicsOfMaterials.Optimizations/Pipelines/ExperimentalData/Commands/ProcessExperimentalDataValidator.cs",
+    "src/MelloSilveiraTools.MechanicsOfMaterials.Optimizations/Pipelines/ExperimentalData/Commands/ProcessExperimentalDataCommand.cs",
+    "src/MelloSilveiraTools.MechanicsOfMaterials.Optimizations/SensitivityAnalyses/Models/ParametricSweepInput.cs",
+    "src/MelloSilveiraTools.MechanicsOfMaterials.Optimizations/Pipelines/SensitivityAnalysis/IParametricSweepPipeline.cs",
+    "src/MelloSilveiraTools.MechanicsOfMaterials.Optimizations/Pipelines/SensitivityAnalysis/ParametricSweepPipeline.cs",
+    "src/MelloSilveiraTools.MechanicsOfMaterials.Optimizations/SensitivityAnalyses/Commands/ExecuteParametricSweepRequest.cs",
+    "src/MelloSilveiraTools.MechanicsOfMaterials.Optimizations/SensitivityAnalyses/Commands/ExecuteParametricSweepResponse.cs",
+    "src/MelloSilveiraTools.MechanicsOfMaterials.Optimizations/SensitivityAnalyses/Commands/ExecuteParametricSweepValidator.cs",
+    "src/MelloSilveiraTools.MechanicsOfMaterials.Optimizations/SensitivityAnalyses/Commands/ExecuteParametricSweepCommand.cs",
+    "src/MelloSilveiraTools.MechanicsOfMaterials.Optimizations/CurveFitting/Commands/FitCurveRequest.cs",
+    "src/MelloSilveiraTools.MechanicsOfMaterials.Optimizations/CurveFitting/Commands/ParameterGroupResultData.cs",
+    "src/MelloSilveiraTools.MechanicsOfMaterials.Optimizations/CurveFitting/Commands/FitCurveValidator.cs",
+    "src/MelloSilveiraTools.MechanicsOfMaterials.Optimizations/CurveFitting/Commands/FitCurve.cs",
+    "src/MelloSilveiraTools.MechanicsOfMaterials.Optimizations/Controllers/PipelineProgressStreamWriter.cs",
+    "src/MelloSilveiraTools.MechanicsOfMaterials.Optimizations/Controllers/ExperimentalDataController.cs",
+    "src/MelloSilveiraTools.MechanicsOfMaterials.Optimizations/Controllers/ParametricSweepController.cs",
+    "src/MelloSilveiraTools.MechanicsOfMaterials.Optimizations/Controllers/CurveFittingController.cs",
+    "src/MelloSilveiraTools.MechanicsOfMaterials.Optimizations/Controllers/StoredFilesController.cs",
+    "src/MelloSilveiraTools.MechanicsOfMaterials.Optimizations/DependencyInjection.cs",
+    "CHANGELOG.md"
+  ],
+  "agents_md_Proposed_Updates": [
+    "Em '2. Pipeline Architecture', documentar PipelineStepState e PipelineProgressEvent em MelloSilveiraTools.Core.Pipelines.Models e o suporte a IProgress<PipelineProgressEvent> em PipelineFactory.StartDataflow, DataflowPipelineBuilder e TelemetryExtensions.",
+    "Em '6. Experimental Data & Optimizations', documentar os comandos (ProcessExperimentalDataCommand, ExecuteParametricSweepCommand, FitCurve), validadores correspondentes e os controllers Web API (ExperimentalDataController, ParametricSweepController, CurveFittingController, StoredFilesController) com suporte a execução REST tradicional, streaming NDJSON em tempo real (/stream) e listagem/download de arquivos gerados por ExternalIdentifier."
+  ],
+  "validation": {
+    "build_status": "succeeded (0 errors)",
+    "strict_rules_checked": [
+      "No var used anywhere",
+      "Primary constructors and block bodies for methods/constructors",
+      "Mandatory XML documentation on all public types and members",
+      "CHANGELOG.md updated",
+      "AGENTS.md not modified directly"
+    ]
+  }
+}

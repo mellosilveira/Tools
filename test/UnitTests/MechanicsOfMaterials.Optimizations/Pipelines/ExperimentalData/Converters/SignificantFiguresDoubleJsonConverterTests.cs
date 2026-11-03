@@ -1,4 +1,4 @@
-using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Converters;
+using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Serializers.Json;
 using System.Text.Json;
 
 namespace UnitTests.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Converters;

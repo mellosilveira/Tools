@@ -1,0 +1,31 @@
+{
+  "identifier": "Acceptance_SimplifiedFung_Sweep",
+  "mechanicalModelName": "SimplifiedFung",
+  "baseStrain": 0.05,
+  "strainRange": {
+    "initialPoint": 0.03,
+    "finalPoint": 0.07,
+    "step": 0.02
+  },
+  "rampTimeConsideration": "Disregard",
+  "initialTime": 0.0,
+  "finalTime": 5.0,
+  "timeStep": 0.1,
+  "tolerance": 0.001,
+  "baseline": {
+    "elasticStressConstant": 80.0,
+    "elasticPowerConstant": 2.0,
+    "reducedRelaxationFunction": {
+      "independentParameter": 0.4,
+      "iteratorCoefficients": [0.5, -0.1]
+    }
+  },
+  "constantVariables": {
+    "ElasticStressConstant": {
+      "initialPoint": 60.0,
+      "finalPoint": 100.0,
+      "step": 20.0
+    }
+  },
+  "arrayVariables": {}
+}

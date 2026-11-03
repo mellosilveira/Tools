@@ -1,6 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
+		<TargetFramework>net10.0</TargetFramework>
 		<PackageId>MelloSilveiraTools.Mathematics</PackageId>
 		<AssemblyTitle>MelloSilveira Tools - Mathematics</AssemblyTitle>
 		<Description>Mathematics toolkit: differential equation solvers (Newmark, Newmark-β), expressions, functions, derivatives, integrals and supporting numerical primitives.</Description>

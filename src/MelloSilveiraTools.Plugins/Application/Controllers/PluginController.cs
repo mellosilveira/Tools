@@ -1,10 +1,12 @@
 using MelloSilveiraTools.Core.ExtensionMethods;
+using MelloSilveiraTools.Core.Managers.File.Models;
 using MelloSilveiraTools.Core.Models;
 using MelloSilveiraTools.Plugins.Application.Commands;
 using MelloSilveiraTools.Plugins.Application.Commands.Cache;
 using MelloSilveiraTools.Plugins.Application.Commands.Get;
 using MelloSilveiraTools.Plugins.Application.Commands.Load;
 using MelloSilveiraTools.Plugins.Application.Commands.Reload;
+using MelloSilveiraTools.Plugins.Application.Commands.Upload;
 using MelloSilveiraTools.Plugins.Infrastructure.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -104,4 +106,17 @@ public class PluginController : ControllerBase
     [HttpPost("cache/{target}/restore")]
     public async Task<ActionResult<Result>> RestoreCache([FromServices] RestorePluginCache command, [FromQuery] PluginsRequest request)
         => await command.ExecuteAsync(request).BuildHttpResponseAsync().ConfigureAwait(false);
+
+    /// <summary>
+    /// Uploads a plugin assembly to the incoming storage partition.
+    /// </summary>
+    /// <param name="command">Command that validates and writes the assembly to storage.</param>
+    /// <param name="file">The plugin assembly file (.dll).</param>
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    [HttpPost("upload")]
+    [Consumes("multipart/form-data")]
+    public async Task<ActionResult<Result<StorageEntryMetadata>>> Upload([FromServices] UploadPlugin command, IFormFile file)
+        => await command.ExecuteAsync(new UploadPluginRequest { File = file }).BuildHttpResponseAsync().ConfigureAwait(false);
 }

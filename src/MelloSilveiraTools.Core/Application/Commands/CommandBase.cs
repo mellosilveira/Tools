@@ -25,12 +25,13 @@ public abstract class CommandBase<TRequest, TResult>(IValidator<TRequest>? valid
     /// If validation issues are found, stops processing immediately and returns corrective guidance.
     /// </summary>
     /// <param name="request">Input data for the business operation.</param>
+    /// <param name="cancellationToken"></param>
     /// <returns>A structured business outcome confirming success or detailing validation points.</returns>
-    public Task<TResult> ExecuteAsync(TRequest request)
+    public Task<TResult> ExecuteAsync(TRequest request, CancellationToken cancellationToken = default)
     {
         Result? result = Validator?.Validate(request);
         return result is null || result.Success
-            ? ExecuteCommandAsync(request)
+            ? ExecuteCommandAsync(request, cancellationToken)
             : Task.FromResult(Result.Create<TResult>(result));
     }
 
@@ -38,8 +39,9 @@ public abstract class CommandBase<TRequest, TResult>(IValidator<TRequest>? valid
     /// Executes core domain business logic after request validation passes.
     /// </summary>
     /// <param name="request">Validated input data.</param>
+    /// <param name="cancellationToken"></param>
     /// <returns>The result of the business execution.</returns>
-    protected abstract Task<TResult> ExecuteCommandAsync(TRequest request);
+    protected abstract Task<TResult> ExecuteCommandAsync(TRequest request, CancellationToken cancellationToken = default);
 }
 
 /// <summary>
@@ -92,13 +94,13 @@ public abstract class CommandBaseWithoutRequest<TResponseData> where TResponseDa
     /// Executes the parameterless business operation.
     /// </summary>
     /// <returns>A structured business outcome containing output data.</returns>
-    public async Task<Result<TResponseData>> ExecuteAsync() => await ExecuteCommandAsync().ConfigureAwait(false);
+    public async Task<Result<TResponseData>> ExecuteAsync(CancellationToken cancellationToken = default) => await ExecuteCommandAsync(cancellationToken).ConfigureAwait(false);
 
     /// <summary>
     /// Executes the domain logic for this parameterless operation.
     /// </summary>
     /// <returns>The operation result.</returns>
-    protected abstract Task<Result<TResponseData>> ExecuteCommandAsync();
+    protected abstract Task<Result<TResponseData>> ExecuteCommandAsync(CancellationToken cancellationToken = default);
 }
 
 /// <summary>
@@ -110,11 +112,11 @@ public abstract class DefaultCommandBase
     /// Executes the parameterless business operation.
     /// </summary>
     /// <returns>Standard completion confirmation.</returns>
-    public async Task<Result> ExecuteAsync() => await ExecuteCommandAsync().ConfigureAwait(false);
+    public async Task<Result> ExecuteAsync(CancellationToken cancellationToken = default) => await ExecuteCommandAsync(cancellationToken).ConfigureAwait(false);
 
     /// <summary>
     /// Executes the domain logic for this parameterless operation.
     /// </summary>
     /// <returns>Standard completion confirmation.</returns>
-    protected abstract Task<Result> ExecuteCommandAsync();
+    protected abstract Task<Result> ExecuteCommandAsync(CancellationToken cancellationToken = default);
 }

@@ -1,4 +1,4 @@
-﻿namespace MelloSilveiraTools.Core.Pipelines.Dataflow;
+namespace MelloSilveiraTools.Core.Pipelines.Dataflow;
 
 /// <summary>
 /// Exposes the operational ingestion surface of the continuous Dataflow pipeline.
@@ -6,6 +6,11 @@
 /// </summary>
 public interface IDataflowPipeline<in TIn> : IAsyncDisposable
 {
+    /// <summary>
+    /// Gets the flat topological DAG description of all registered steps and their direct upstream dependencies.
+    /// </summary>
+    IReadOnlyList<(string StepName, IReadOnlyList<string> UpstreamSteps)> Topology { get; }
+
     /// <summary>
     /// Asynchronously posts a message to the pipeline's head block.
     /// Will yield the calling thread if the head block's BoundedCapacity is exhausted.

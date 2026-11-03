@@ -1,0 +1,64 @@
+{
+  "task_id": "task-storage-api-phase2-3",
+  "skill": "senior-backend-software-engineer-net",
+  "status": "success",
+  "retry_count": 0,
+  "data_payload": {
+    "phase_2_completed": {
+      "removed_input_properties": [
+        "ExperimentalDataProcessingInput.OutputFileUri",
+        "ParametricSweepInput.OutputDirectory"
+      ],
+      "standardized_csv_writer_steps": [
+        "ExperimentalDataFileWriterStep(IFileStorageService fileStorageService, string identifier)",
+        "MechanicalModelOutputFileWriterStep(IFileStorageService fileStorageService, string uniqueIdentifier)",
+        "ParametricSweepCsvWriterStep(IFileStorageService fileStorageService, string identifier)"
+      ]
+    },
+    "phase_3_completed": {
+      "experimental_data_persistence": {
+        "simulation_entity": "MechanicalModelSimulationEntity (stores ExternalIdentifier)",
+        "stored_files_contexts": [
+          "ExperimentalDataRawProcessed",
+          "ExperimentalDataSimulation"
+        ]
+      },
+      "parametric_sweep_persistence": {
+        "entity": "ParametricSweepEntity ([Table(\"parametric_sweeps\")])",
+        "persistence_input": "ParametricSweepPersistenceInput",
+        "persistence_step": "ParametricSweepPersistenceStep",
+        "stored_files_context": "SensitivityAnalysis"
+      }
+    },
+    "build_verification": {
+      "project": "src/MelloSilveiraTools.MechanicsOfMaterials.Optimizations/MelloSilveiraTools.MechanicsOfMaterials.Optimizations.csproj",
+      "errors": 0
+    },
+    "agents_md_update_proposal": {
+      "requires_human_approval": true,
+      "proposed_changes": [
+        "Update section '6. Experimental Data & Optimizations' in AGENTS.md to reflect that IFileStorageService governs all file locations without user-provided OutputFileUri or OutputDirectory.",
+        "Update ExperimentalDataFileWriterStep, MechanicalModelOutputFileWriterStep, and ParametricSweepCsvWriterStep descriptions in AGENTS.md to reflect FileMetadata / GeneratedFilesMetadata instead of GeneratedFilePaths / FileData.",
+        "Document ParametricSweepEntity (table 'parametric_sweeps'), ParametricSweepPersistenceInput, and ParametricSweepPersistenceStep in AGENTS.md under Parametric Sweep sensitivity analysis."
+      ]
+    }
+  },
+  "output_summary": "Completed Phase 2 and Phase 3 of the storage and database persistence architecture: removed OutputFileUri and OutputDirectory from pipeline inputs, standardized all three CSV writer steps to delegate path resolution exclusively to IFileStorageService, ensured ExperimentalDataProcessingPipeline persists both raw processed and simulation files in stored_files after stream flushing, and implemented ParametricSweepEntity, ParametricSweepPersistenceInput, and ParametricSweepPersistenceStep in ParametricSweepPipeline.",
+  "justification_for_decisions": "1. Strict SRP in CSV Writer Steps: Removed path manipulation logic (ResolveLocation, OutputFileUri, OutputDirectory) from ExperimentalDataFileWriterStep, MechanicalModelOutputFileWriterStep, and ParametricSweepCsvWriterStep so that IFileStorageService is the sole owner of directory layout ('{BaseDirectory}/{context}/{identifier}/{fileName}') while CsvFileWriter handles buffered stream writing. 2. Stream Flush Ordering Before Metadata Extraction: Moved experimentalDataFileWriterStep.FileMetadata inspection in ExperimentalDataProcessingPipeline to execute immediately after 'await using (pipeline)' disposal, and ensured ParametricSweepCsvWriterStep disposes/flushes its buffered writers prior to constructing ParametricSweepPersistenceInput, guaranteeing that OS file lengths (SizeBytes) are accurately persisted in stored_files. 3. Polymorphic 7-Significant-Figure Serialization: Used OptimizationJsonOptions.SignificantFigures7 and runtime type resolution (baseline.GetType()) in ParametricSweepPersistenceStep to preserve full constitutive parameter hierarchy fidelity in ParametricSweepEntity.",
+  "artifacts": [
+    "src/MelloSilveiraTools.MechanicsOfMaterials.Optimizations/Pipelines/ExperimentalData/Models/ExperimentalDataProcessingInput.cs",
+    "src/MelloSilveiraTools.MechanicsOfMaterials.Optimizations/Pipelines/ExperimentalData/Steps/ExperimentalDataFileWriterStep.cs",
+    "src/MelloSilveiraTools.MechanicsOfMaterials.Optimizations/Pipelines/ExperimentalData/Steps/MechanicalModelOutputFileWriterStep.cs",
+    "src/MelloSilveiraTools.MechanicsOfMaterials.Optimizations/Pipelines/ExperimentalData/ExperimentalDataProcessingPipeline.cs",
+    "src/MelloSilveiraTools.MechanicsOfMaterials.Optimizations/SensitivityAnalyses/Models/ParametricSweepInput.cs",
+    "src/MelloSilveiraTools.MechanicsOfMaterials.Optimizations/SensitivityAnalyses/Models/ParametricSweepEntity.cs",
+    "src/MelloSilveiraTools.MechanicsOfMaterials.Optimizations/SensitivityAnalyses/Models/ParametricSweepPersistenceInput.cs",
+    "src/MelloSilveiraTools.MechanicsOfMaterials.Optimizations/Pipelines/SensitivityAnalysis/Steps/ParametricSweepCsvWriterStep.cs",
+    "src/MelloSilveiraTools.MechanicsOfMaterials.Optimizations/Pipelines/SensitivityAnalysis/Steps/ParametricSweepPersistenceStep.cs",
+    "src/MelloSilveiraTools.MechanicsOfMaterials.Optimizations/Pipelines/SensitivityAnalysis/ParametricSweepPipeline.cs",
+    "CHANGELOG.md"
+  ],
+  "warnings": [],
+  "token_usage": 28500,
+  "theoretical_precision": "high"
+}

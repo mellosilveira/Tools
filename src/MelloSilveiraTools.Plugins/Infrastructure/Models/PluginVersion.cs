@@ -1,14 +1,17 @@
+using System.Text.Json.Serialization;
+
 namespace MelloSilveiraTools.Plugins.Infrastructure.Models;
 
 /// <summary>
 /// Represents a semantic version parsed from a plugin DLL filename.
 /// </summary>
+[JsonConverter(typeof(PluginVersionJsonConverter))]
 public readonly record struct PluginVersion(int Major, int Minor, int Patch) : IComparable<PluginVersion>
 {
     /// <summary>
     /// String representation in the form <c>v{major}.{minor}.{patch}</c>.
     /// </summary>
-    public string Name { get; } = $"v{Major}.{Minor}.{Patch}";
+    public string Name => $"v{Major}.{Minor}.{Patch}";
 
     /// <summary>
     /// The default "v0.0.0" version.
@@ -45,7 +48,8 @@ public readonly record struct PluginVersion(int Major, int Minor, int Patch) : I
     /// </summary>
     public static PluginVersion Parse(string version)
     {
-        string[] parts = version.TrimStart('v').Split('.');
+        string cleanVersion = version.Contains('_') ? version[..version.IndexOf('_')] : version;
+        string[] parts = cleanVersion.TrimStart('v').Split('.');
         return new PluginVersion(int.Parse(parts[0]), int.Parse(parts[1]), int.Parse(parts[2]));
     }
 

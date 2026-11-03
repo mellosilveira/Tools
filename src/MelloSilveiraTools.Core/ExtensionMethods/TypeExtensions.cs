@@ -1,4 +1,4 @@
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Concurrent;
 using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
@@ -61,7 +61,7 @@ public static class TypeExtensions
 
                 while (localType != null)
                 {
-                    properties.InsertRange(0, localType.GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.DeclaredOnly).Where(p => p.GetCustomAttribute(key.Attr) != null));
+                    properties.InsertRange(0, localType.GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.DeclaredOnly).Where(p => Attribute.IsDefined(p, key.Attr)));
                     localType = localType.BaseType;
                 }
 

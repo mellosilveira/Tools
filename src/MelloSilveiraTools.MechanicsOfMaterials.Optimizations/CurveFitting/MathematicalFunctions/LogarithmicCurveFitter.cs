@@ -5,7 +5,7 @@ using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Models;
 
 namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.MathematicalFunctions;
 
-public sealed class LogarithmicCurveFitter(ICurveFitter curveFitter) : IMathematicalFunctionCurveFitter
+public sealed class LogarithmicCurveFitter(ICurveFitter curveFitter) : IFunctionCurveFitter
 {
     public SafeResult<CurveFitInput, CurveFitOutput> TryFit(MathematicalCurveFitInput input)
     {
@@ -35,7 +35,10 @@ public sealed class LogarithmicCurveFitter(ICurveFitter curveFitter) : IMathemat
                 ValidateParameters = input.ValidateParameters,
                 TargetRSquared = input.TargetRSquared
             };
-            return curveFitter.Fit(fitInput);
+            CurveFitOutput output = curveFitter.Fit(fitInput);
+            return input.ZeroBased
+                ? output with { OptimizedParameters = [0.0, .. output.OptimizedParameters] }
+                : output;
         }
         catch (Exception ex)
         {

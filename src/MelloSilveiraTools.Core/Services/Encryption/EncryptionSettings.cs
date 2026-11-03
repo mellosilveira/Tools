@@ -8,15 +8,15 @@ public record EncryptionSettings
     /// <summary>
     /// Size, in bytes, of the random salt generated for each password.
     /// </summary>
-    public int SaltSize { get; init; }
+    public required int SaltSize { get; init; }
 
     /// <summary>
     /// Size, in bytes, of the derived key produced by the hashing algorithm.
     /// </summary>
-    public int HashSize { get; init; }
+    public required int HashSize { get; init; }
 
     /// <summary>
     /// Number of iterations used by the key derivation function.
     /// </summary>
-    public int Iterations { get; init; }
+    public required int Iterations { get; init; }
 }

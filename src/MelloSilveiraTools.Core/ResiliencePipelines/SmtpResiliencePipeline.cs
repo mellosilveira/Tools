@@ -18,13 +18,12 @@ public class SmtpResiliencePipeline : DefaultResiliencePipeline
     public SmtpResiliencePipeline(ILogger<SmtpResiliencePipeline> logger, ResiliencePipelineSettings settings)
         : base(logger, settings, new PredicateBuilder()
             .Handle<SmtpFailedRecipientException>()
-            .Handle<SmtpException>(ex => ex.StatusCode is
-                SmtpStatusCode.ServiceNotAvailable or
-                SmtpStatusCode.MailboxBusy or
-                SmtpStatusCode.InsufficientStorage or
-                SmtpStatusCode.LocalErrorInProcessing or
-                SmtpStatusCode.TransactionFailed or
-                SmtpStatusCode.GeneralFailure))
+            .Handle<SmtpException>(ex => ex.StatusCode is SmtpStatusCode.ServiceNotAvailable
+                or SmtpStatusCode.MailboxBusy
+                or SmtpStatusCode.InsufficientStorage
+                or SmtpStatusCode.LocalErrorInProcessing
+                or SmtpStatusCode.TransactionFailed
+                or SmtpStatusCode.GeneralFailure))
     { }
 
     /// <summary>

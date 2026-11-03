@@ -55,7 +55,7 @@ public static class DoubleExtensions
         /// </summary>
         /// <param name="value2"></param>
         /// <returns></returns>
-        public double PercentageDifference(double value2) => value == 0 ? 0 : 100.0 * (value - value2) / value;
+        public double PercentageDifference(double value2) => value.RelativeDifference(value2) * 100.0;
 
         /// <summary>
         /// Calculates the relative absolut difference between two values.

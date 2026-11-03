@@ -9,16 +9,15 @@
             Provides extension methods to register services from the MelloSilveiraTools.Database package.
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.Database.DatabaseDependencyInjection.AddDatabaseServices(Microsoft.Extensions.DependencyInjection.IServiceCollection,MelloSilveiraTools.Database.RelationalDatabase.Settings.DatabaseSettings,MelloSilveiraTools.Core.ResiliencePipelines.ResiliencePipelineSettings,MelloSilveiraTools.Core.Logging.LoggerSettings)">
-            <inheritdoc cref="M:MelloSilveiraTools.Database.DatabaseDependencyInjection.&lt;G&gt;$7B30185E57B8298C6754F16C0BCF4773.AddDatabaseServices(MelloSilveiraTools.Database.RelationalDatabase.Settings.DatabaseSettings,MelloSilveiraTools.Core.ResiliencePipelines.ResiliencePipelineSettings,MelloSilveiraTools.Core.Logging.LoggerSettings)"/>
+        <member name="M:MelloSilveiraTools.Database.DatabaseDependencyInjection.AddDatabaseServices(Microsoft.Extensions.DependencyInjection.IServiceCollection,MelloSilveiraTools.Core.ResiliencePipelines.ResiliencePipelineSettings,MelloSilveiraTools.Database.RelationalDatabase.Settings.DatabaseSettings)">
+            <inheritdoc cref="M:MelloSilveiraTools.Database.DatabaseDependencyInjection.&lt;G&gt;$7B30185E57B8298C6754F16C0BCF4773.AddDatabaseServices(MelloSilveiraTools.Core.ResiliencePipelines.ResiliencePipelineSettings,MelloSilveiraTools.Database.RelationalDatabase.Settings.DatabaseSettings)"/>
         </member>
-        <member name="M:MelloSilveiraTools.Database.DatabaseDependencyInjection.&lt;G&gt;$7B30185E57B8298C6754F16C0BCF4773.AddDatabaseServices(MelloSilveiraTools.Database.RelationalDatabase.Settings.DatabaseSettings,MelloSilveiraTools.Core.ResiliencePipelines.ResiliencePipelineSettings,MelloSilveiraTools.Core.Logging.LoggerSettings)">
+        <member name="M:MelloSilveiraTools.Database.DatabaseDependencyInjection.&lt;G&gt;$7B30185E57B8298C6754F16C0BCF4773.AddDatabaseServices(MelloSilveiraTools.Core.ResiliencePipelines.ResiliencePipelineSettings,MelloSilveiraTools.Database.RelationalDatabase.Settings.DatabaseSettings)">
             <summary>
             Registers database services: settings, Postgres resilience pipeline, SQL provider and repository.
             </summary>
+            <param name="defaultResiliencePipelineSettings">Settings that parameterize the default resilience pipelines.</param>
             <param name="databaseSettings">Database connection and behavior settings.</param>
-            <param name="resiliencePipelineSettings">Settings that parameterize the resilience pipelines.</param>
-            <param name="loggerSettings">Settings used by logger service.</param>
             <returns>The same <paramref name="services"/> instance to allow call chaining.</returns>
         </member>
         <member name="T:MelloSilveiraTools.Database.ExtensionMethods.ClassExtensions">
@@ -40,6 +39,9 @@
         </member>
         <member name="M:MelloSilveiraTools.Database.ExtensionMethods.ClassExtensions.BuildParametersFromCollection``1(System.Collections.Generic.ICollection{``0})">
             <inheritdoc cref="M:MelloSilveiraTools.Database.ExtensionMethods.ClassExtensions.&lt;G&gt;$847CB318C385471B1F4E7BD0A197DBCA`1.BuildParametersFromCollection"/>
+        </member>
+        <member name="M:MelloSilveiraTools.Database.ExtensionMethods.ClassExtensions.GetCustomValue(System.Reflection.PropertyInfo,System.Object)">
+            <inheritdoc cref="M:MelloSilveiraTools.Database.ExtensionMethods.ClassExtensions.&lt;G&gt;$A68E0825C8469CCB2F38F50C7F6F03AB.GetCustomValue(System.Object)"/>
         </member>
         <member name="T:MelloSilveiraTools.Database.ExtensionMethods.ClassExtensions.&lt;G&gt;$8048A6C8BE30A622530249B904B537EB`1.&lt;M&gt;$9693FCD04DC098E818044F36B6B87842">
             <summary>
@@ -79,6 +81,13 @@
             Builds an enumerable with <see cref="T:Npgsql.NpgsqlParameter"/>.
             </summary>
             <returns>A <see cref="T:System.Collections.Generic.IEnumerable`1"/> with <see cref="T:Npgsql.NpgsqlParameter"/>.</returns>
+        </member>
+        <member name="M:MelloSilveiraTools.Database.ExtensionMethods.ClassExtensions.&lt;G&gt;$A68E0825C8469CCB2F38F50C7F6F03AB.GetCustomValue(System.Object)">
+            <summary>
+            Gets the value of the property for the specified object, converting it to an <see cref="T:System.Int32"/> if it is an <see cref="T:System.Enum"/>.
+            </summary>
+            <param name="obj">The object whose property value will be returned.</param>
+            <returns>The property value, or its integer representation if the value is an <see cref="T:System.Enum"/>.</returns>
         </member>
         <member name="T:MelloSilveiraTools.Database.ExtensionMethods.DbDataReaderExtensions">
             <summary>
@@ -269,14 +278,6 @@
             primitive, nullable primitive, array or generic enumerable types).
             </exception>
         </member>
-        <member name="M:MelloSilveiraTools.Database.Logging.DatabaseLoggingExtensions.WriteToPostgres(Serilog.LoggerConfiguration,MelloSilveiraTools.Core.Logging.LoggerSettings)">
-            <inheritdoc cref="M:MelloSilveiraTools.Database.Logging.DatabaseLoggingExtensions.&lt;G&gt;$6B5B6285A2C1A95C5914B27276A625A6.WriteToPostgres(MelloSilveiraTools.Core.Logging.LoggerSettings)"/>
-        </member>
-        <member name="M:MelloSilveiraTools.Database.Logging.DatabaseLoggingExtensions.&lt;G&gt;$6B5B6285A2C1A95C5914B27276A625A6.WriteToPostgres(MelloSilveiraTools.Core.Logging.LoggerSettings)">
-            <summary>
-            Adds the PostgreSQL batch-insert sink to the Serilog configuration using the unified settings.
-            </summary>
-        </member>
         <member name="T:MelloSilveiraTools.Database.RelationalDatabase.Attributes.ColumnAttribute">
             <summary>
             Specifies if a column is a primary key of table.
@@ -410,6 +411,51 @@
             Moment (UTC) in which the entity was created.
             </summary>
         </member>
+        <member name="T:MelloSilveiraTools.Database.RelationalDatabase.Models.Entities.StorageEntryMetadataEntity">
+            <summary>
+            Generic entity for auditing and tracking physical and cloud-stored files generated by the application,
+            recording operational context, storage provider technology, and file size metrics.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Database.RelationalDatabase.Models.Entities.StorageEntryMetadataEntity.ExternalIdentifier">
+            <summary>
+            External identifier correlating the file to an analysis, experiment, or simulation run (e.g., "Sim_ACL_01").
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Database.RelationalDatabase.Models.Entities.StorageEntryMetadataEntity.StorageProvider">
+            <summary>
+            Storage provider technology where the artifact resides (Local, BlobStorage, Dfs).
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Database.RelationalDatabase.Models.Entities.StorageEntryMetadataEntity.Location">
+            <summary>
+            Absolute file system path, URI, or cloud blob key where the file can be retrieved.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Database.RelationalDatabase.Models.Entities.StorageEntryMetadataEntity.FileName">
+            <summary>
+            Physical file name including extension (e.g., "valid_processed_points.csv", "c_SensitivityAnalysis.csv").
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Database.RelationalDatabase.Models.Entities.StorageEntryMetadataEntity.SizeBytes">
+            <summary>
+            File size in bytes.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Database.RelationalDatabase.Models.Entities.StorageEntryMetadataEntity.ContentType">
+            <summary>
+            MIME content type representing the file format (defaults to "text/csv").
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Database.RelationalDatabase.Models.Entities.StorageEntryMetadataEntity.Create(MelloSilveiraTools.Core.Managers.File.Models.StorageEntryMetadata,System.String,System.String)">
+            <summary>
+            Creates a new <see cref="T:MelloSilveiraTools.Database.RelationalDatabase.Models.Entities.StorageEntryMetadataEntity"/> instance from the specified external identifier, context, and storage entry metadata.
+            </summary>
+            <param name="metadata">The storage entry metadata describing the physical or cloud-stored entry.</param>
+            <param name="externalIdentifier">The external correlation identifier.</param>
+            <param name="contentType">The MIME content type (defaults to "text/csv").</param>
+            <returns>A new <see cref="T:MelloSilveiraTools.Database.RelationalDatabase.Models.Entities.StorageEntryMetadataEntity"/> instance.</returns>
+        </member>
         <member name="T:MelloSilveiraTools.Database.RelationalDatabase.Models.FilterClause">
             <summary>
             SQL comparison operators used by filter columns when building WHERE clauses.
@@ -477,6 +523,26 @@
         <member name="F:MelloSilveiraTools.Database.RelationalDatabase.Models.Filters.SortOrder.Desc">
             <summary>
             Descending order (largest value first).
+            </summary>
+        </member>
+        <member name="T:MelloSilveiraTools.Database.RelationalDatabase.Models.Filters.StoredFileFilter">
+            <summary>
+            Filter model used to query <see cref="T:MelloSilveiraTools.Database.RelationalDatabase.Models.Entities.StorageEntryMetadataEntity"/> records by external identifier, context, or file name.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Database.RelationalDatabase.Models.Filters.StoredFileFilter.ExternalIdentifier">
+            <summary>
+            Optional external identifier correlating the file to an analysis, experiment, or simulation run.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Database.RelationalDatabase.Models.Filters.StoredFileFilter.Context">
+            <summary>
+            Optional business domain context under which the file was created.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Database.RelationalDatabase.Models.Filters.StoredFileFilter.FileName">
+            <summary>
+            Optional physical file name including extension.
             </summary>
         </member>
         <member name="T:MelloSilveiraTools.Database.RelationalDatabase.Models.JoinType">
@@ -646,6 +712,11 @@
         <member name="P:MelloSilveiraTools.Database.RelationalDatabase.Settings.DatabaseSettings.BulkOperationTimeoutInMilliseconds">
             <summary>
             Timeout, in milliseconds, applied to bulk operations that touch many rows.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Database.RelationalDatabase.Settings.DatabaseSettings.ResiliencePipelineSettings">
+            <summary>
+            Optional resilience pipeline settings applied to database operations.
             </summary>
         </member>
         <member name="T:MelloSilveiraTools.Database.RelationalDatabase.Sql.Provider.ISqlProvider">

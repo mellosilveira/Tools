@@ -9,9 +9,9 @@ public sealed class DictionaryExtensionsTests
     [Fact]
     public void ConvertTo_StringAndIntProperties_AreMappedByName()
     {
-        var reader = new FakeDataReader(("Name", "Widget"), ("Count", 7));
+        FakeDataReader reader = new(("Name", "Widget"), ("Count", 7));
 
-        var result = reader.ConvertTo<SimpleDto>();
+        SimpleDto result = reader.ConvertTo<SimpleDto>();
 
         Assert.Equal("Widget", result.Name);
         Assert.Equal(7, result.Count);
@@ -20,9 +20,9 @@ public sealed class DictionaryExtensionsTests
     [Fact]
     public void ConvertTo_DbNullColumn_LeavesPropertyAtDefault()
     {
-        var reader = new FakeDataReader(("Name", DBNull.Value), ("Count", 0));
+        FakeDataReader reader = new(("Name", DBNull.Value), ("Count", 0));
 
-        var result = reader.ConvertTo<SimpleDto>();
+        SimpleDto result = reader.ConvertTo<SimpleDto>();
 
         // DBNull is skipped — property stays at its type default
         Assert.Null(result.Name);
@@ -32,9 +32,9 @@ public sealed class DictionaryExtensionsTests
     [Fact]
     public void ConvertTo_UnknownColumnName_IsIgnored()
     {
-        var reader = new FakeDataReader(("NonExistent", "ignored"), ("Name", "Widget"));
+        FakeDataReader reader = new(("NonExistent", "ignored"), ("Name", "Widget"));
 
-        var result = reader.ConvertTo<SimpleDto>();
+        SimpleDto result = reader.ConvertTo<SimpleDto>();
 
         Assert.Equal("Widget", result.Name);
     }
@@ -45,10 +45,10 @@ public sealed class DictionaryExtensionsTests
     public void ConvertTo_DateTimeOffsetProperty_FromDateTimeValue()
     {
         // Npgsql can return DateTime for timestamptz columns in legacy mode.
-        var dt = new DateTime(2024, 6, 15, 12, 0, 0, DateTimeKind.Utc);
-        var reader = new FakeDataReader(("Timestamp", dt));
+        DateTime dt = new(2024, 6, 15, 12, 0, 0, DateTimeKind.Utc);
+        FakeDataReader reader = new(("Timestamp", dt));
 
-        var result = reader.ConvertTo<TimestampDto>();
+        TimestampDto result = reader.ConvertTo<TimestampDto>();
 
         Assert.Equal(new DateTimeOffset(dt), result.Timestamp);
     }
@@ -56,10 +56,10 @@ public sealed class DictionaryExtensionsTests
     [Fact]
     public void ConvertTo_DateTimeOffsetProperty_FromDateTimeOffsetValue()
     {
-        var dto = new DateTimeOffset(2024, 6, 15, 12, 0, 0, TimeSpan.Zero);
-        var reader = new FakeDataReader(("Timestamp", dto));
+        DateTimeOffset dto = new(2024, 6, 15, 12, 0, 0, TimeSpan.Zero);
+        FakeDataReader reader = new(("Timestamp", dto));
 
-        var result = reader.ConvertTo<TimestampDto>();
+        TimestampDto result = reader.ConvertTo<TimestampDto>();
 
         Assert.Equal(dto, result.Timestamp);
     }
@@ -69,10 +69,10 @@ public sealed class DictionaryExtensionsTests
     {
         // Regression: before the fix, DateTimeOffset? fell through to Convert.ChangeType
         // which threw InvalidCastException for DateTime→DateTimeOffset.
-        var dt = new DateTime(2025, 1, 1, 0, 0, 0, DateTimeKind.Utc);
-        var reader = new FakeDataReader(("Timestamp", dt));
+        DateTime dt = new(2025, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+        FakeDataReader reader = new(("Timestamp", dt));
 
-        var result = reader.ConvertTo<NullableTimestampDto>();
+        NullableTimestampDto result = reader.ConvertTo<NullableTimestampDto>();
 
         Assert.Equal(new DateTimeOffset(dt), result.Timestamp);
     }
@@ -80,9 +80,9 @@ public sealed class DictionaryExtensionsTests
     [Fact]
     public void ConvertTo_NullableDateTimeOffsetProperty_DbNull_RemainsNull()
     {
-        var reader = new FakeDataReader(("Timestamp", DBNull.Value));
+        FakeDataReader reader = new(("Timestamp", DBNull.Value));
 
-        var result = reader.ConvertTo<NullableTimestampDto>();
+        NullableTimestampDto result = reader.ConvertTo<NullableTimestampDto>();
 
         Assert.Null(result.Timestamp);
     }
@@ -92,9 +92,9 @@ public sealed class DictionaryExtensionsTests
     [Fact]
     public void ConvertTo_EnumProperty_MappedFromIntValue()
     {
-        var reader = new FakeDataReader(("Status", 1));
+        FakeDataReader reader = new(("Status", 1));
 
-        var result = reader.ConvertTo<EnumDto>();
+        EnumDto result = reader.ConvertTo<EnumDto>();
 
         Assert.Equal(TestStatus.Active, result.Status);
     }
@@ -102,9 +102,9 @@ public sealed class DictionaryExtensionsTests
     [Fact]
     public void ConvertTo_NullableEnumProperty_MappedFromIntValue()
     {
-        var reader = new FakeDataReader(("Status", 2));
+        FakeDataReader reader = new(("Status", 2));
 
-        var result = reader.ConvertTo<NullableEnumDto>();
+        NullableEnumDto result = reader.ConvertTo<NullableEnumDto>();
 
         Assert.Equal(TestStatus.Inactive, result.Status);
     }
@@ -114,11 +114,11 @@ public sealed class DictionaryExtensionsTests
     [Fact]
     public void ConvertTo_CalledTwice_ProducesSameResult()
     {
-        var reader1 = new FakeDataReader(("Name", "A"), ("Count", 1));
-        var reader2 = new FakeDataReader(("Name", "B"), ("Count", 2));
+        FakeDataReader reader1 = new(("Name", "A"), ("Count", 1));
+        FakeDataReader reader2 = new(("Name", "B"), ("Count", 2));
 
-        var r1 = reader1.ConvertTo<SimpleDto>();
-        var r2 = reader2.ConvertTo<SimpleDto>();
+        SimpleDto r1 = reader1.ConvertTo<SimpleDto>();
+        SimpleDto r2 = reader2.ConvertTo<SimpleDto>();
 
         Assert.Equal("A", r1.Name);
         Assert.Equal("B", r2.Name);

@@ -39,7 +39,7 @@ public static class CustomMath
     public static double Average(params IReadOnlyCollection<double> values) => Sum(values) / values.Count;
 
     /// <summary>
-    /// Calculates the average time step (&Delta;t) across multiple arrays of time points.
+    /// Calculates the average time step (Δt) across multiple arrays of time points.
     /// </summary>
     /// <param name="timePointsArrays">The arrays containing ordered time points.</param>
     /// <returns>The average interval between consecutive time points across all arrays, or 0 if no intervals exist.</returns>

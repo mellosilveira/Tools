@@ -183,6 +183,15 @@ public interface IDataflowPipelineBuilder<THead, TTail>
     IDataflowPipelineBuilder<THead, TNextOut> AddStep<TNextOut>(IAsyncEnumerablePipelineStep<TTail, TNextOut> step, PipelineStepOptions options = default);
 
     /// <summary>
+    /// Appends a custom synchronous enumerable streaming step to the pipeline, expanding each input payload into multiple downstream messages.
+    /// </summary>
+    /// <typeparam name="TNextOut">The resultant output element type yielded in the enumerable sequence.</typeparam>
+    /// <param name="step">The synchronous enumerable pipeline step instance to execute.</param>
+    /// <param name="options">Concurrency and buffer options for this step.</param>
+    /// <returns>A new <see cref="IDataflowPipelineBuilder{THead, TNextOut}"/> continuing from the individual yielded elements.</returns>
+    IDataflowPipelineBuilder<THead, TNextOut> AddStep<TNextOut>(IEnumerablePipelineStep<TTail, TNextOut> step, PipelineStepOptions options = default);
+
+    /// <summary>
     /// Appends an asynchronous forking step that routes payloads to a fallback step if a specific condition is met.
     /// </summary>
     /// <typeparam name="TNextOut">The output type produced by either the primary or fallback step.</typeparam>
@@ -228,6 +237,19 @@ public interface IDataflowPipelineBuilder<THead, TTail>
     /// Technical Decision: Transforms and routes a payload projection to a side-effect observer without changing the primary pipeline contract.
     /// </remarks>
     IDataflowPipelineBuilder<THead, TTail> AddBroadcastStep<TOut>(IAsyncPipelineStep<TOut> step, Func<TTail, TOut> mapFunc, PipelineStepOptions options = default);
+
+    /// <summary>
+    /// Forks the pipeline into a non-mutating broadcast branch composed of one or more pipeline steps that execute concurrently as a side-effect without altering the primary pipeline payload.
+    /// </summary>
+    /// <typeparam name="TBranchOut">The terminal output type produced by the broadcast branch.</typeparam>
+    /// <param name="branch">Delegate defining the pipeline topology for the broadcast branch.</param>
+    /// <param name="cloneFunc">An optional function to clone the payload before broadcasting.</param>
+    /// <param name="options">Concurrency and buffer options for the broadcast block.</param>
+    /// <returns>A new <see cref="IDataflowPipelineBuilder{THead, TTail}"/> continuing with the unmodified primary payload.</returns>
+    IDataflowPipelineBuilder<THead, TTail> AddBroadcastFork<TBranchOut>(
+        Func<IDataflowPipelineBuilder<THead, TTail>, IDataflowPipelineBuilder<THead, TBranchOut>> branch,
+        Func<TTail, TTail>? cloneFunc = null,
+        PipelineStepOptions options = default);
 
     /// <summary>
     /// Appends a synchronous terminal step serving as the pipeline sink. Seals the topology.
