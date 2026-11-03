@@ -17,4 +17,7 @@ public sealed class FungParametricSweepGenerator : ParametricSweepGeneratorBase<
         yield return (nameof(FungConstitutiveParameters.ReducedRelaxationFunction.FastRelaxationTime), (baseline, value) => baseline with { ReducedRelaxationFunction = baseline.ReducedRelaxationFunction! with { FastRelaxationTime = value } });
         yield return (nameof(FungConstitutiveParameters.ReducedRelaxationFunction.SlowRelaxationTime), (baseline, value) => baseline with { ReducedRelaxationFunction = baseline.ReducedRelaxationFunction! with { SlowRelaxationTime = value } });
     }
+
+    /// <inheritdoc />
+    protected override IEnumerable<(string PropertyName, int Index, Func<FungConstitutiveParameters, int, double, FungConstitutiveParameters> Mutate)> GetArrayPropertyVariations(ParametricSweepInput input) => [];
 }

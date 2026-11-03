@@ -61,7 +61,7 @@ public sealed class ParametricSweepPipeline(
             .AddDataMapping(tuple =>
             {
                 ((double initialStress, double finalStress, (double asymptoteTime, double asymptoteStress)), (string variableName, double variableValue)) = tuple;
-                return new ParametricSweepFinalPayload(
+                return new ParametricSweepOutput(
                     variableName,
                     variableValue,
                     initialStress,
@@ -97,12 +97,12 @@ public sealed class ParametricSweepPipeline(
         ParametricSweepCsvWriterStep writer,
         string identifier,
         ParametricSweepInput input)
-        : IAsyncPipelineStep<IReadOnlyList<ParametricSweepFinalPayload>, ParametricSweepPersistenceInput>
+        : IAsyncPipelineStep<IReadOnlyList<ParametricSweepOutput>, ParametricSweepPersistenceInput>
     {
         public string Name => nameof(ParametricSweepFinalizationStep);
 
         public async Task<ParametricSweepPersistenceInput> ExecuteAsync(
-            IReadOnlyList<ParametricSweepFinalPayload> payloads,
+            IReadOnlyList<ParametricSweepOutput> payloads,
             CancellationToken cancellationToken = default)
         {
             await writer.DisposeAsync().ConfigureAwait(false);

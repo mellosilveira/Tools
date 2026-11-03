@@ -48,7 +48,7 @@ public abstract class ParametricSweepGeneratorBase<TConstitutiveParameters> : IP
         // 3. OAAT for Array Constitutive Parameters
         if (input.ArrayVariables is not null)
         {
-            foreach ((string propertyName, int index, Func<TConstitutiveParameters, double, TConstitutiveParameters> mutate) in GetArrayPropertyVariations(input))
+            foreach ((string propertyName, int index, Func<TConstitutiveParameters, int, double, TConstitutiveParameters> mutate) in GetArrayPropertyVariations(input))
             {
                 if (input.ArrayVariables.TryGetValue(propertyName, out Dictionary<int, RangeParameters>? indexDict)
                     && indexDict.TryGetValue(index, out RangeParameters? range))
@@ -56,7 +56,7 @@ public abstract class ParametricSweepGeneratorBase<TConstitutiveParameters> : IP
                     string variableKey = $"{propertyName}[{index}]";
                     foreach (double value in range.GenerateValues())
                     {
-                        yield return CreateEnvelope(variableKey, value, mutate(baseline, value), input);
+                        yield return CreateEnvelope(variableKey, value, mutate(baseline, index, value), input);
                     }
                 }
             }
@@ -71,7 +71,7 @@ public abstract class ParametricSweepGeneratorBase<TConstitutiveParameters> : IP
     /// <summary>
     /// Generates array property-specific OAAT variations, optionally implemented by derived generators.
     /// </summary>
-    protected virtual IEnumerable<(string PropertyName, int Index, Func<TConstitutiveParameters, double, TConstitutiveParameters> Mutate)> GetArrayPropertyVariations(ParametricSweepInput input) => [];
+    protected abstract IEnumerable<(string PropertyName, int Index, Func<TConstitutiveParameters, int, double, TConstitutiveParameters> Mutate)> GetArrayPropertyVariations(ParametricSweepInput input);
 
     /// <summary>
     /// Creates a standardized envelope for the TPL Dataflow pipeline.

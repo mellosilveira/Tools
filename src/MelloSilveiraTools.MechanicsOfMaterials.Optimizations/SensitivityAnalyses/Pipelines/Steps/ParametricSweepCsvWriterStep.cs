@@ -16,8 +16,8 @@ namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnaly
 public sealed class ParametricSweepCsvWriterStep(
     IFileStorageService fileStorageService,
     string identifier)
-    : IAsyncPipelineStep<ParametricSweepFinalPayload>,
-      IAsyncPipelineStep<ParametricSweepFinalPayload, ParametricSweepFinalPayload>
+    : IAsyncPipelineStep<ParametricSweepOutput>,
+      IAsyncPipelineStep<ParametricSweepOutput, ParametricSweepOutput>
 {
     private const string Context = "SensitivityAnalysis";
     private const string CsvHeader = "VariableValue,InitialStress,FinalStress,AbsoluteDeltaStress,PercentageDeltaStress,AsymptoteTime";
@@ -35,7 +35,7 @@ public sealed class ParametricSweepCsvWriterStep(
     public IReadOnlyCollection<StorageEntryMetadata> GeneratedFilesMetadata => [.. _generatedMetadata.Values];
 
     /// <inheritdoc />
-    public async Task<ParametricSweepFinalPayload> ExecuteAsync(ParametricSweepFinalPayload input, CancellationToken cancellationToken = default)
+    public async Task<ParametricSweepOutput> ExecuteAsync(ParametricSweepOutput input, CancellationToken cancellationToken = default)
     {
         cancellationToken.ThrowIfCancellationRequested();
 
@@ -56,7 +56,7 @@ public sealed class ParametricSweepCsvWriterStep(
     }
 
     /// <inheritdoc />
-    async Task IAsyncPipelineStep<ParametricSweepFinalPayload>.ExecuteAsync(ParametricSweepFinalPayload input, CancellationToken cancellationToken)
+    async Task IAsyncPipelineStep<ParametricSweepOutput>.ExecuteAsync(ParametricSweepOutput input, CancellationToken cancellationToken)
     {
         await ExecuteAsync(input, cancellationToken).ConfigureAwait(false);
     }
@@ -68,12 +68,12 @@ public sealed class ParametricSweepCsvWriterStep(
     /// <param name="cancellationToken">Cooperative cancellation token.</param>
     /// <returns>A collection of storage entry metadata for all partitioned CSV files written.</returns>
     public async Task<IReadOnlyCollection<StorageEntryMetadata>> ExecuteAsync(
-        IEnumerable<ParametricSweepFinalPayload> payloads,
+        IEnumerable<ParametricSweepOutput> payloads,
         CancellationToken cancellationToken = default)
     {
         cancellationToken.ThrowIfCancellationRequested();
 
-        foreach (ParametricSweepFinalPayload payload in payloads)
+        foreach (ParametricSweepOutput payload in payloads)
         {
             await ExecuteAsync(payload, cancellationToken).ConfigureAwait(false);
         }

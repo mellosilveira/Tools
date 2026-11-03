@@ -4,7 +4,7 @@
 /// Final structured payload after mathematical derivations (Absolute and Percentage Deltas).
 /// Consumed by the I/O layer for CSV generation.
 /// </summary>
-public record ParametricSweepFinalPayload(
+public record ParametricSweepOutput(
     string VariableName,
     double VariableValue,
     double InitialStress,

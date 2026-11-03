@@ -347,36 +347,6 @@
             Verifies that a well-formed request with valid storage locations passes validation.
             </summary>
         </member>
-        <member name="T:UnitTests.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Commands.ExecuteParametricSweepValidatorTests">
-            <summary>
-            Unit tests for <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Commands.ExecuteParametricSweepValidator"/> verifying boundary and rule validation.
-            </summary>
-        </member>
-        <member name="M:UnitTests.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Commands.ExecuteParametricSweepValidatorTests.Validate_WhenRequestIsNull_ReturnsBadRequest">
-            <summary>
-            Verifies that validating a null request returns a bad request.
-            </summary>
-        </member>
-        <member name="M:UnitTests.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Commands.ExecuteParametricSweepValidatorTests.Validate_WhenRequiredParametersMissing_ReturnsBadRequest">
-            <summary>
-            Verifies that omitting required parameters (model name, baseline) triggers validation errors.
-            </summary>
-        </member>
-        <member name="M:UnitTests.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Commands.ExecuteParametricSweepValidatorTests.Validate_WhenTemporalParametersInvalid_ReturnsBadRequest">
-            <summary>
-            Verifies that invalid temporal ranges and non-positive time steps trigger validation errors.
-            </summary>
-        </member>
-        <member name="M:UnitTests.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Commands.ExecuteParametricSweepValidatorTests.Validate_WhenNoSweptVariablesProvided_ReturnsBadRequest">
-            <summary>
-            Verifies that omitting all swept variable sources triggers a validation error.
-            </summary>
-        </member>
-        <member name="M:UnitTests.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Commands.ExecuteParametricSweepValidatorTests.Validate_WhenValid_ReturnsSuccess">
-            <summary>
-            Verifies that a valid parametric sweep request passes validation.
-            </summary>
-        </member>
         <member name="T:UnitTests.MechanicsOfMaterials.Calculators.MechanicalModels.MechanicalModelCalculatorFactoryTests">
             <summary>
             Unit tests for <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.IMechanicalModelCalculatorFactory"/> and <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.MechanicalModelCalculatorFactory"/>.
