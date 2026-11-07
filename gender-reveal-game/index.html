@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>Super Bebê Runner 2D - Chá Revelação Arcade</title>
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎮</text></svg>" />
+    <link rel="stylesheet" href="./src/style.css" />
+  </head>
+  <body>
+    <div id="game-container">
+      <canvas id="game-canvas"></canvas>
+
+      <!-- TOP-RIGHT HUD CONTROLS -->
+      <div class="hud-controls-bar">
+        <button id="btn-open-skins" class="hud-btn highlight" title="Escolher Visual dos Personagens / Choose Skins">
+          🎨 <span id="skins-label">Skins</span>
+        </button>
+        <button id="btn-lang-toggle" class="hud-btn" title="Alternar Idioma / Toggle Language">
+          🌐 <span id="lang-label">PT</span>
+        </button>
+        <button id="btn-sound-toggle" class="hud-btn" title="Ativar/Desativar Som / Mute Audio">
+          <span id="sound-icon">🔊</span>
+        </button>
+        <button id="btn-fullscreen-toggle" class="hud-btn" title="Tela Cheia / Fullscreen">
+          ⛶
+        </button>
+        <button id="btn-admin-gear" class="hud-btn" title="Painel Secreto (C) / Customizer">
+          ⚙️
+        </button>
+      </div>
+
+      <!-- TITLE SCREEN QUICK THEME SELECTOR & ACTIONS -->
+      <div id="title-action-bar" class="title-action-bar">
+        <div class="title-theme-pills">
+          <button class="theme-pill-btn active" data-quick-theme="casual">
+            👕 Festa Casual
+          </button>
+          <button class="theme-pill-btn" data-quick-theme="cyberpunk">
+            ⚡ Cyberpunk 2077
+          </button>
+          <button class="theme-pill-btn" data-quick-theme="dragon_knight">
+            🐉 RPG Dragões
+          </button>
+        </div>
+        <div class="title-main-buttons">
+          <button id="btn-title-more-skins" class="title-sub-btn">
+            🎨 Escolher Skins (P1 & P2 / Pet)
+          </button>
+          <button id="btn-title-start" class="title-start-btn">
+            ▶ INICIAR ANIMAÇÃO 🚀
+          </button>
+        </div>
+      </div>
+
+      <!-- FINALE ACTIONS (Shown on Reveal Screen) -->
+      <div id="finale-actions" class="finale-action-bar" style="display: none;">
+        <button id="btn-finale-replay" class="finale-btn">
+          ↺ Rever Animação
+        </button>
+        <button id="btn-finale-fireworks" class="finale-btn secondary">
+          🎆 Mais Fogos!
+        </button>
+      </div>
+    </div>
+
+    <script type="module" src="./src/main.ts"></script>
+  </body>
+</html>
