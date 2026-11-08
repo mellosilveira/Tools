@@ -1,8 +1,8 @@
 # PLANO DE TRABALHO DO TCC - LICENCIATURA EM LETRAS-LIBRAS E LÍNGUA PORTUGUESA
 
 > **Documento Âncora de Diretrizes, Decisões e Acompanhamento**
-> Atualizado em: 02/11/2026
-> Status: Fase 2 (Tema e Problematização Aprovados - Rumo à Redação da Introdução)
+> Atualizado em: 08/11/2026
+> Status: Fase 2 Concluída (Tema 4 Consolidado) ──> Rumo à Redação da Introdução (Seção 1)
 
 ---
 
@@ -59,22 +59,22 @@ BIBLIOGRAFIA (referências citadas no projeto conforme ABNT)
 
 ---
 
-## 4. REGISTRO METODOLÓGICO CONSOLIDADO (SÍNTESE PROPOSTA 1 + 3)
+## 4. REGISTRO METODOLÓGICO CONSOLIDADO: TEMA 4
 
-- **Título Provisório do Projeto:**
-  *O Par Linguístico Libras/Língua Portuguesa no Ensino Superior: A Mediação do Tradutor e Intérprete de Libras e os Desafios da Escrita Acadêmica do Estudante Surdo.*
-- **Eixo da Pesquisa:** Bilinguismo, Mediação do TILSP e Ensino de Português como L2 no Ensino Superior (atende perfeitamente à dupla habilitação Licenciatura em Letras-Libras e Língua Portuguesa).
-- **Âncora Empírica e Pessoal (Item 1.1):** Vivência de 16 anos na comunidade surda (iniciada na esfera comunitária aos 14 anos) e atuação no último ano como intérprete educacional na Universidade Federal Fluminense (UFF).
+- **Título do Projeto:**
+  > **Inclusão e Permanência do Estudante Surdo no Ensino Superior: Acessibilidade e Barreiras Institucionais**
+- **Eixo da Pesquisa:** Políticas Públicas de Acessibilidade, Permanência Universitária e Educação de Surdos no Ensino Superior.
+- **Âncora Empírica e Pessoal (Item 1.1):** Vivência de 16 anos com a comunidade surda (desde os 14 anos na igreja) e atuação durante o último ano como intérprete na Universidade Federal Fluminense (UFF), acompanhando de perto os desafios extraclasse e institucionais vivenciados pelos acadêmicos surdos.
 - **Pergunta Norteadora de Pesquisa (Item 1.2):**
-  *De que maneira a mediação linguística realizada pelo Tradutor e Intérprete de Libras articula-se com os desafios de compreensão e produção da Língua Portuguesa escrita acadêmica (L2) vivenciados por estudantes universitários surdos?*
+  > *Quais são os principais fatores institucionais, comunicacionais e atitudinais que influenciam a permanência e a inclusão efetiva de estudantes surdos no Ensino Superior público?*
 - **Hipótese Central (Item 1.3):**
-  A interpretação em Libras em sala de aula universitária é indispensável para o acesso aos conteúdos teóricos, mas precisa atuar em sinergia com a mediação pedagógica do par linguístico, uma vez que as barreiras na modalidade escrita da Língua Portuguesa (L2 acadêmica) exigem estratégias docentes e tradutórias conscientes para garantir a efetiva aprendizagem e permanência do estudante surdo no Ensino Superior.
+  A garantia legal de ingresso por cotas e a presença de intérpretes de Libras em sala de aula são condições fundamentais, mas insuficientes por si sós para garantir a permanência qualificada do acadêmico surdo; barreiras atitudinais, ausência de acessibilidade em espaços extraclasse (bibliotecas, secretarias, eventos acadêmicos) e o isolamento comunicacional ampliam a vulnerabilidade e os índices de evasão universitária.
 - **Objetivo Geral (Item 1.4):**
-  Investigar a interface entre a atuação mediadora do Tradutor e Intérprete de Libras e os desafios da apropriação da Língua Portuguesa escrita acadêmica (L2) por estudantes surdos no âmbito do Ensino Superior.
+  Investigar os fatores institucionais, comunicacionais e atitudinais que condicionam a permanência de estudantes surdos no âmbito do Ensino Superior público.
 - **Objetivos Específicos (Item 1.4):**
-  1. Contextualizar as políticas de inclusão bilíngue, as bases legais e as condições de permanência de acadêmicos surdos nas universidades públicas brasileiras;
-  2. Analisar como a mediação do intérprete de Libras no Ensino Superior transpõe conceitos técnico-científicos articulando a Libras (L1) e o vocabulário acadêmico da Língua Portuguesa (L2);
-  3. Mapear os principais desafios enfrentados por universitários surdos na leitura e na produção de textos acadêmicos em Língua Portuguesa;
-  4. Apontar diretrizes e práticas pedagógicas integradas entre o corpo docente e os intérpretes de Libras para favorecer a equidade avaliativa e textual de acadêmicos surdos.
-- **Tipo de Pesquisa (Item 3):** Pesquisa qualitativa, de natureza exploratória e descritiva, com delineamento bibliográfico e documental (legislações, diretrizes da educação bilíngue e produções acadêmicas do campo).
-- **Autores de Referência:** Cristina Broglia Feitosa de Lacerda, Ronice Müller de Quadros, Sueli Fernandes, Ana Paula Santana, Carlos Skliar.
+  1. *Contextualizar* o percurso histórico e os marcos normativos (Lei 10.436/2002, Decreto 5.626/2005 e Lei 13.146/2015) que asseguram o acesso e a permanência de estudantes surdos na universidade pública;
+  2. *Mapear* as principais barreiras comunicacionais e institucionais enfrentadas por acadêmicos surdos no cotidiano universitário, tanto dentro quanto fora da sala de aula;
+  3. *Analisar* o papel articulador dos intérpretes de Libras e dos Núcleos de Acessibilidade / Inclusão na mediação e no combate à evasão universitária de surdos;
+  4. *Apontar* diretrizes e práticas institucionais que promovam a acolhida, o pertencimento cultural e a permanência com êxito de estudantes surdos no Ensino Superior.
+- **Tipo de Pesquisa (Item 3):** Qualitativa, de caráter exploratório e descritivo, fundamentada em pesquisa bibliográfica e documental (legislações de inclusão e estudos empíricos sobre evasão/permanência no ensino superior).
+- **Autores Seminais de Referência:** Carlos Skliar, Ronice Müller de Quadros, Cristina Broglia Feitosa de Lacerda, Marianne Stumpf, Karin Strobel.

@@ -2,6 +2,7 @@ using MelloSilveiraTools.Core.Managers.File.Csv;
 using MelloSilveiraTools.Core.Managers.File.Models;
 using MelloSilveiraTools.Core.Managers.File.Providers;
 using MelloSilveiraTools.Core.Pipelines.Steps;
+using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Models.Range;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Pipelines.Models;
 
 namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Pipelines.Steps;
@@ -12,8 +13,12 @@ namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnaly
 /// </summary>
 /// <param name="fileStorageService">Storage service responsible for resolving paths and opening file streams.</param>
 /// <param name="identifier">Mandatory unique business identifier partitioning the generated sensitivity CSV files.</param>
-public sealed class ParametricSweepCsvWriterStep(IFileStorageService fileStorageService, string identifier)
-    : IAsyncPipelineStep<IGrouping<string, ParametricSweepOutput>, (string VariableName, StorageEntryMetadata FileMetadata)>
+public sealed class ParametricSweepCsvWriterStep(
+    IFileStorageService fileStorageService, 
+    string identifier)
+    : IAsyncPipelineStep<
+        (string VariableName, RangeParameters VariableRange, IReadOnlyList<ParametricSweepOutput> Outputs), 
+        (string VariableName, RangeParameters VariableRange, StorageEntryMetadata VariableOutputFile)>
 {
     private const string Context = "SensitivityAnalysis";
     private const string CsvHeader = "VariableValue,InitialStress,FinalStress,AbsoluteDeltaStress,PercentageDeltaStress,AsymptoteTime";
@@ -22,15 +27,17 @@ public sealed class ParametricSweepCsvWriterStep(IFileStorageService fileStorage
     public string Name => nameof(ParametricSweepCsvWriterStep);
 
     /// <inheritdoc />
-    public async Task<(string VariableName, StorageEntryMetadata FileMetadata)> ExecuteAsync(IGrouping<string, ParametricSweepOutput> input, CancellationToken cancellationToken = default)
+    public async Task<(string VariableName, RangeParameters VariableRange, StorageEntryMetadata VariableOutputFile)> ExecuteAsync(
+        (string VariableName, RangeParameters VariableRange, IReadOnlyList<ParametricSweepOutput> Outputs) input,
+        CancellationToken cancellationToken = default)
     {
         (Stream stream, string location) = await fileStorageService
-            .CreateWriteTimebasedAsync(identifier, Context, input.Key, FileExtensions.CommaSeparatedValues, cancellationToken)
+            .CreateWriteTimebasedAsync(identifier, Context, input.VariableName, FileExtensions.CommaSeparatedValues, cancellationToken)
             .ConfigureAwait(false);
 
         await using (CsvFileWriter writer = new(stream, CsvHeader))
         {
-            foreach (ParametricSweepOutput payload in input)
+            foreach (ParametricSweepOutput payload in input.Outputs)
             {
                 await writer
                     .WriteRowAsync(cancellationToken, payload.VariableValue, payload.InitialStress, payload.FinalStress, payload.AbsoluteDeltaStress, payload.PercentageDeltaStress, payload.AsymptoteTime)
@@ -39,7 +46,7 @@ public sealed class ParametricSweepCsvWriterStep(IFileStorageService fileStorage
         }
 
         StorageEntryMetadata fileMetadata = await fileStorageService.GetMetadataAsync(location, cancellationToken).ConfigureAwait(false);
-        return (input.Key, fileMetadata);
+        return (input.VariableName, input.VariableRange, fileMetadata);
     }
 
     /// <inheritdoc />

@@ -7,7 +7,7 @@ using MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelast
 using MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.NonLinear.Schapery;
 using MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.QuasiLinear;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Models.Range;
-using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Generators;
+using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Pipelines.Steps;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Pipelines.Models;
 
 namespace UnitTests.MechanicsOfMaterials.Optimizations.SensitivityAnalyses;
@@ -18,7 +18,7 @@ public sealed class ParametricSweepGeneratorTests
     public void FungParametricSweepGenerator_GenerateCombinations_ShouldYieldStrainAndConstantVariablesWithoutDuplicates()
     {
         // Arrange
-        FungParametricSweepGenerator generator = new();
+        FungParametricSweepGeneratorStep generator = new();
         FungConstitutiveParameters baseline = new(
             elasticStressConstant: 1000.0,
             elasticPowerConstant: 1.0,
@@ -69,7 +69,7 @@ public sealed class ParametricSweepGeneratorTests
     public void SimplifiedFungParametricSweepGenerator_GenerateCombinations_ShouldYieldElasticAndIndexedArrayVariables()
     {
         // Arrange
-        SimplifiedFungParametricSweepGenerator generator = new();
+        SimplifiedFungParametricSweepGeneratorStep generator = new();
         SimplifiedFungConstitutiveParameters baseline = new(
             elasticStressConstant: 500.0,
             elasticPowerConstant: 2.0,
@@ -125,7 +125,7 @@ public sealed class ParametricSweepGeneratorTests
     public void SchaperyParametricSweepGenerator_GenerateCombinations_ShouldYieldScalarAndPowerLawVariables()
     {
         // Arrange
-        SchaperyParametricSweepGenerator generator = new();
+        SchaperyParametricSweepGeneratorStep generator = new();
         SchaperyConstitutiveParameters baseline = new()
         {
             Ge = 10.0,

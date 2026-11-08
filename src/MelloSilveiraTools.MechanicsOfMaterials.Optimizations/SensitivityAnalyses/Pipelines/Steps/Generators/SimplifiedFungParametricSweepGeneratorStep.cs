@@ -1,11 +1,11 @@
 using MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.QuasiLinear;
 
-namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Generators;
+namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Pipelines.Steps.Generators;
 
 /// <summary>
-/// Strongly typed OAT (One-at-a-Time) generator for Simplified Fung Quasi-Linear Viscoelastic constitutive parameters.
+/// Strongly typed OAT (One-at-a-Time) generator pipeline step for Simplified Fung Quasi-Linear Viscoelastic constitutive parameters.
 /// </summary>
-public sealed class SimplifiedFungParametricSweepGenerator : ParametricSweepGeneratorBase<SimplifiedFungConstitutiveParameters>
+public sealed class SimplifiedFungParametricSweepGeneratorStep : ParametricSweepGeneratorStepBase<SimplifiedFungConstitutiveParameters>
 {
     /// <inheritdoc />
     protected override IEnumerable<(string VariableName, Func<SimplifiedFungConstitutiveParameters, double, SimplifiedFungConstitutiveParameters> Mutate)> GetVariableVariations()

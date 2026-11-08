@@ -6,26 +6,29 @@ using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExtensionMethods;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Models.Range;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Pipelines.Models;
 
-namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Generators;
+namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Pipelines.Steps.Generators;
 
 /// <summary>
-/// Base class for parametric sweep generators, providing common envelope creation and boundary condition iteration.
+/// Base class for parametric sweep generators, providing common envelope creation and boundary condition iteration as a pipeline step.
 /// </summary>
 /// <typeparam name="TConstitutiveParameters">The strictly typed constitutive parameters.</typeparam>
-public abstract class ParametricSweepGeneratorBase<TConstitutiveParameters> : IParametricSweepGenerator
+public abstract class ParametricSweepGeneratorStepBase<TConstitutiveParameters> : IParametricSweepGeneratorStep
     where TConstitutiveParameters : ConstitutiveParameters
 {
     private const string StrainVariableName = "Strain";
 
     /// <inheritdoc />
-    public IEnumerable<(string VariableName, IEnumerable<ParametricSweepInput> Inputs)> GenerateCombinations(ParametricSweepPipelineInput input)
+    public string Name => GetType().Name;
+
+    /// <inheritdoc />
+    public IEnumerable<(string VariableName, RangeParameters VariableRange, IEnumerable<ParametricSweepInput> Inputs)> Execute(ParametricSweepPipelineInput input, CancellationToken cancellationToken = default)
     {
         TConstitutiveParameters baseline = (TConstitutiveParameters)input.Baseline;
 
         // 1. OAAT for Boundary Condition (Strain)
         if (input.StrainRange is not null)
         {
-            yield return (StrainVariableName, CreateInputs(StrainVariableName, input.StrainRange, _ => baseline, input));
+            yield return (StrainVariableName, input.StrainRange, CreateInputs(StrainVariableName, input.StrainRange, _ => baseline, input));
         }
 
         // 2. OAAT for Constitutive Parameters
@@ -34,9 +37,7 @@ public abstract class ParametricSweepGeneratorBase<TConstitutiveParameters> : IP
             foreach ((string variableName, Func<TConstitutiveParameters, double, TConstitutiveParameters> mutate) in GetVariableVariations())
             {
                 if (input.ConstantVariables.TryGetValue(variableName, out RangeParameters? range))
-                {
-                    yield return (variableName, CreateInputs(variableName, range, value => mutate(baseline, value), input));
-                }
+                    yield return (variableName, range, CreateInputs(variableName, range, value => mutate(baseline, value), input));
             }
         }
 
@@ -50,7 +51,7 @@ public abstract class ParametricSweepGeneratorBase<TConstitutiveParameters> : IP
                     foreach ((int index, RangeParameters range) in indexDict)
                     {
                         string variableKey = $"{variableName}[{index}]";
-                        yield return (variableKey, CreateInputs(variableKey, range, value => mutate(baseline, index, value), input));
+                        yield return (variableKey, range, CreateInputs(variableKey, range, value => mutate(baseline, index, value), input));
                     }
                 }
             }
@@ -104,5 +105,11 @@ public abstract class ParametricSweepGeneratorBase<TConstitutiveParameters> : IP
         double[] coefficients = [baseline.IndependentParameter, .. baseline.IteratorCoefficients];
         coefficients[index] = value;
         return new PronySeries(coefficients[0], coefficients[1..], baseline.InitialVariableValue, baseline.FinalVariableValue);
+    }
+
+    /// <inheritdoc />
+    public void Dispose()
+    {
+        GC.SuppressFinalize(this);
     }
 }

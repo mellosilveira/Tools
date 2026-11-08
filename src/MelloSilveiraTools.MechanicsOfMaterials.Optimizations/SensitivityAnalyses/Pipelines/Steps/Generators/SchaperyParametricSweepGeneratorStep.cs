@@ -1,12 +1,12 @@
 using MelloSilveiraTools.Mathematics.Functions;
 using MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.NonLinear.Schapery;
 
-namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Generators;
+namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Pipelines.Steps.Generators;
 
 /// <summary>
-/// Strongly typed OAT (One-at-a-Time) generator for Schapery non-linear viscoelastic constitutive parameters.
+/// Strongly typed OAT (One-at-a-Time) generator pipeline step for Schapery non-linear viscoelastic constitutive parameters.
 /// </summary>
-public sealed class SchaperyParametricSweepGenerator : ParametricSweepGeneratorBase<SchaperyConstitutiveParameters>
+public sealed class SchaperyParametricSweepGeneratorStep : ParametricSweepGeneratorStepBase<SchaperyConstitutiveParameters>
 {
     /// <inheritdoc />
     protected override IEnumerable<(string VariableName, Func<SchaperyConstitutiveParameters, double, SchaperyConstitutiveParameters> Mutate)> GetVariableVariations()

@@ -12,7 +12,8 @@ using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Fac
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Pipelines;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Pipelines.Models;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Commands;
-using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Generators;
+using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Pipelines.Steps;
+using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Pipelines.Steps.Generators;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Pipelines;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Pipelines.Models;
 using Microsoft.Extensions.DependencyInjection;
@@ -65,9 +66,9 @@ public static class DependencyInjection
                 // Register the step factory.
                 .AddSingleton<IMechanicalModelStepFactory, MechanicalModelStepFactory>()
                 // Register Sensitivity Analysis services.
-                .AddKeyedSingleton<IParametricSweepGenerator, FungParametricSweepGenerator>(nameof(MechanicalModel.Fung))
-                .AddKeyedSingleton<IParametricSweepGenerator, SimplifiedFungParametricSweepGenerator>(nameof(MechanicalModel.SimplifiedFung))
-                .AddKeyedSingleton<IParametricSweepGenerator, SchaperyParametricSweepGenerator>(nameof(MechanicalModel.Schapery))
+                .AddKeyedSingleton<IParametricSweepGeneratorStep, FungParametricSweepGeneratorStep>(nameof(MechanicalModel.Fung))
+                .AddKeyedSingleton<IParametricSweepGeneratorStep, SimplifiedFungParametricSweepGeneratorStep>(nameof(MechanicalModel.SimplifiedFung))
+                .AddKeyedSingleton<IParametricSweepGeneratorStep, SchaperyParametricSweepGeneratorStep>(nameof(MechanicalModel.Schapery))
                 // Register pipelines.
                 .AddSingleton<IPipeline<ParametricSweepPipelineInput, string>, ParametricSweepPipeline>()
                 // Register Request Validators.

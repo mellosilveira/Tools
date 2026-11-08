@@ -4,21 +4,20 @@ using MelloSilveiraTools.Core.Pipelines;
 using MelloSilveiraTools.Core.Pipelines.Dataflow;
 using MelloSilveiraTools.Core.Providers;
 using MelloSilveiraTools.Database.Repositories;
-using MelloSilveiraTools.Mathematics.Extensions;
 using MelloSilveiraTools.Mathematics.NumericalMethods.Differentiations;
 using MelloSilveiraTools.Mathematics.NumericalMethods.RootFindingAlgorithms;
 using MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels;
-using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Generators;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Pipelines.Models;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Pipelines.Steps;
+using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Pipelines.Steps.Generators;
 using Microsoft.Extensions.Logging;
 
 namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Pipelines;
 
 /// <summary>
 /// Orchestrates the One-At-A-Time (OAAT) Parametric Sweep using the TPL Dataflow framework.
-/// Configures a streamlined linear flow: parameter variation ingestion, concurrent evaluation of stresses,
-/// partitioned CSV serialization, and terminal database persistence.
+/// Configures a streamlined linear flow: parameter variation ingestion as a generator step,
+/// simulation of stresses and asymptotes, partitioned CSV serialization, item accumulation, and terminal persistence.
 /// </summary>
 /// <param name="loggerFactory">Logger factory for creating step-specific loggers.</param>
 /// <param name="mechanicalModelCalculatorFactory">Factory resolving mechanical model calculator facades.</param>
@@ -26,7 +25,7 @@ namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnaly
 /// <param name="fileStorageService">Storage service responsible for writing partitioned sensitivity CSV files.</param>
 /// <param name="repository">Database repository provider for persisting sweep metadata and stored file records.</param>
 /// <param name="pipelineFactory">Factory responsible for bootstrapping Dataflow execution topologies.</param>
-/// <param name="serviceLocator">Service locator resolving model-specific sweep generators and root-finding engines.</param>
+/// <param name="serviceLocator">Service locator resolving model-specific sweep generator steps and root-finding engines.</param>
 /// <param name="settings">Mandatory execution topology settings for the parametric sweep pipeline.</param>
 public sealed class ParametricSweepPipeline(
     ILoggerFactory loggerFactory,
@@ -43,52 +42,40 @@ public sealed class ParametricSweepPipeline(
     public async Task<Result<string>> ProcessAsync(ParametricSweepPipelineInput input, CancellationToken cancellationToken = default)
     {
         ILogger<ParametricSweepPipeline> logger = loggerFactory.CreateLogger<ParametricSweepPipeline>();
+
         IMechanicalModelCalculatorFacade calculator = mechanicalModelCalculatorFactory.CreateCalculatorFacade(input.MechanicalModelName);
-        IParametricSweepGenerator generator = serviceLocator.GetRequiredKeyedService<IParametricSweepGenerator>(input.MechanicalModelName);
+        IParametricSweepGeneratorStep generator = serviceLocator.GetRequiredKeyedService<IParametricSweepGeneratorStep>(input.MechanicalModelName);
         IRootFinding rootFinding = serviceLocator.GetRequiredKeyedService<IRootFinding>(input.RootFindingAlgorithm);
 
-        IDataflowPipeline<ParametricSweepInput> pipeline = pipelineFactory
-            .CreateDataflow<ParametricSweepInput>(logger, input.Identifier, initialBufferSize: settings.IngestionBufferCapacity, cancellationToken: cancellationToken)
-            .Fork(
-                branch => branch.AddDataMapping(envelope => (envelope.VariableName, envelope.VariableValue)),
-                calculationBranch => calculationBranch
-                    .AddDataMapping(envelope => envelope.SimulationInput)
-                    .Fork(
-                        new InitialStressCalculationStep(calculator, input.InitialTime),
-                        new FinalStressCalculationStep(calculator, input.FinalTime),
-                        new AsymptoteCalculationStep(calculator, differentiation, rootFinding, input.BaseRootFindingInput))
-            )
-            .AddDataMapping(tuple =>
-            {
-                ((string variableName, double variableValue), (double initialStress, double finalStress, (double asymptoteTime, double asymptoteError, double asymptoteStress))) = tuple;
-                return new ParametricSweepOutput(
-                    variableName,
-                    variableValue,
-                    initialStress,
-                    finalStress,
-                    asymptoteTime,
-                    asymptoteError,
-                    asymptoteStress,
-                    finalStress - initialStress,
-                    initialStress.PercentageDifference(finalStress));
-            })
-            .AddGroupWhileStep(output => output.VariableName)
-            .AddStep(new ParametricSweepCsvWriterStep(fileStorageService, input.Identifier))
+        ParametricSweepSimulationStep simulationStep = new(
+            calculator,
+            differentiation,
+            rootFinding,
+            input.BaseRootFindingInput,
+            input.InitialTime,
+            input.FinalTime);
+        ParametricSweepCsvWriterStep csvWriterStep = new(fileStorageService, input.Identifier);
+        ParametricSweepPersistenceStep persistenceStep = new(
+            loggerFactory.CreateLogger<ParametricSweepPersistenceStep>(),
+            repository,
+            input);
+
+        IDataflowPipeline<ParametricSweepPipelineInput> pipeline = pipelineFactory
+            .CreateDataflow<ParametricSweepPipelineInput>(logger, input.Identifier, initialBufferSize: settings.IngestionBufferCapacity, cancellationToken: cancellationToken)
+            .AddStep(generator)
+            .AddStep(simulationStep)
+            .AddStep(csvWriterStep)
             .AddCollectAllStep()
-            .AddDataMapping(generatedFiles => new ParametricSweepPersistenceInput(input.Identifier, input, generatedFiles))
-            .AddStep(new ParametricSweepPersistenceStep(loggerFactory.CreateLogger<ParametricSweepPersistenceStep>(), repository))
+            .AddStep(persistenceStep)
             .BuildTerminal();
 
         await using (pipeline)
         {
-            foreach ((string variableName, IEnumerable<ParametricSweepInput> pipelineInputs) in generator.GenerateCombinations(input))
+            bool accepted = await pipeline.SendAsync(input, cancellationToken).ConfigureAwait(false);
+            if (!accepted)
             {
-                foreach (ParametricSweepInput pipelineInput in pipelineInputs)
-                {
-                    bool accepted = await pipeline.SendAsync(pipelineInput, cancellationToken).ConfigureAwait(false);
-                    if (!accepted)
-                        logger.LogError("Failed to ingest input into the parametric sweep pipeline for variable {variableName}. Input: {@Input}", variableName, pipelineInput);
-                }
+                logger.LogError("Failed to ingest input into the parametric sweep pipeline. Input: {@Input}", input);
+                return Result.CreateBadRequest("Failed to ingest input into the parametric sweep pipeline.");
             }
 
             pipeline.Complete();

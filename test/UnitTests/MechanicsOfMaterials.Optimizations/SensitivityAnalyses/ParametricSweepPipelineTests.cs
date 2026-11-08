@@ -16,7 +16,7 @@ using MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelast
 using MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.QuasiLinear;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Models.Range;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses;
-using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Generators;
+using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Pipelines.Steps;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Pipelines;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Pipelines.Entities;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Pipelines.Models;
@@ -85,7 +85,7 @@ public sealed class ParametricSweepPipelineTests : IDisposable
             .ReturnsAsync(Result.CreateSuccessOk(1L));
 
         ServiceCollection services = new();
-        services.AddKeyedSingleton<IParametricSweepGenerator, FungParametricSweepGenerator>(nameof(MechanicalModel.Fung));
+        services.AddKeyedSingleton<IParametricSweepGeneratorStep, FungParametricSweepGeneratorStep>(nameof(MechanicalModel.Fung));
         services.AddKeyedSingleton<IRootFinding, StepByStepMethod>(RootFindingAlgorithm.StepByStepMethod);
         using ServiceProvider serviceProvider = services.BuildServiceProvider();
         InMemoryDynamicServiceProvider dynamicProvider = new(serviceProvider);
@@ -168,10 +168,10 @@ public sealed class ParametricSweepPipelineTests : IDisposable
         Assert.NotNull(sweptVariables);
         Assert.Equal(2, sweptVariables.Count);
 
-        Assert.Equal(501L, sweptVariables["Strain"].OutputFileMetadataId);
+        Assert.Equal(strainFileEntity.Location, sweptVariables["Strain"].FileMetadata.Location);
         Assert.Equal(strainRange, sweptVariables["Strain"].Range);
 
-        Assert.Equal(502L, sweptVariables[nameof(FungConstitutiveParameters.ReducedRelaxationFunction.RelaxationStiffness)].OutputFileMetadataId);
+        Assert.Equal(cFileEntity.Location, sweptVariables[nameof(FungConstitutiveParameters.ReducedRelaxationFunction.RelaxationStiffness)].FileMetadata.Location);
         Assert.Equal(cRange, sweptVariables[nameof(FungConstitutiveParameters.ReducedRelaxationFunction.RelaxationStiffness)].Range);
     }
 }

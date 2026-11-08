@@ -356,8 +356,8 @@
         <member name="M:UnitTests.MechanicsOfMaterials.Optimizations.Pipelines.SensitivityAnalysis.Steps.ParametricSweepPersistenceStepTests.ExecuteAsync_WhenSuccessful_PersistsEntityWithSweptVariablesDictionaryAndFiles">
             <summary>
             Verifies that ExecuteAsync persists all generated file records, correlates each swept variable
-            (strain, constant, and array) with its <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Models.Range.RangeParameters"/> and generated file metadata ID
-            inside <see cref="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Pipelines.Entities.ParametricSweepEntity.SweptVariablesJson"/>, and returns the external identifier.
+            with its <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Models.Range.RangeParameters"/> and <see cref="T:MelloSilveiraTools.Core.Managers.File.Models.StorageEntryMetadata"/> inside <see cref="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Pipelines.Entities.ParametricSweepEntity.SweptVariablesJson"/>,
+            and returns the external identifier.
             </summary>
         </member>
         <member name="M:UnitTests.MechanicsOfMaterials.Optimizations.Pipelines.SensitivityAnalysis.Steps.ParametricSweepPersistenceStepTests.ExecuteAsync_WhenEntityInsertConflicts_LogsWarningAndReturnsIdentifier">
@@ -374,11 +374,6 @@
         <member name="M:UnitTests.MechanicsOfMaterials.Optimizations.Pipelines.SensitivityAnalysis.Steps.ParametricSweepPersistenceStepTests.ExecuteAsync_WhenStoredFileInsertFails_ThrowsInvalidOperationException">
             <summary>
             Verifies that when stored file insertion fails with a non-conflict error, an <see cref="T:System.InvalidOperationException"/> is thrown.
-            </summary>
-        </member>
-        <member name="M:UnitTests.MechanicsOfMaterials.Optimizations.Pipelines.SensitivityAnalysis.Steps.ParametricSweepPersistenceStepTests.ExecuteAsync_WhenVariableRangeCannotBeResolved_ThrowsInvalidOperationException">
-            <summary>
-            Verifies that when a generated file references an unknown variable name without a configured range, an <see cref="T:System.InvalidOperationException"/> is thrown.
             </summary>
         </member>
         <member name="M:UnitTests.MechanicsOfMaterials.Optimizations.Pipelines.SensitivityAnalysis.Steps.ParametricSweepPersistenceStepTests.DisposeAsync_CompletesSuccessfully">
