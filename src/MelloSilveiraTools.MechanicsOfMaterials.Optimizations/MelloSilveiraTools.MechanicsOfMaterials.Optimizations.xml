@@ -1661,15 +1661,20 @@
             <summary>
             Application command that validates and executes a parametric sweep sensitivity analysis via <see cref="T:MelloSilveiraTools.Core.Pipelines.IPipeline`2"/>.
             </summary>
+            <param name="logger">The structured logger instance.</param>
             <param name="pipeline">The parametric sweep pipeline.</param>
             <param name="validator">Request validator for <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Commands.ExecuteParametricSweepPipelineRequest"/>.</param>
         </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Commands.ExecuteParametricSweepPipeline.#ctor(Microsoft.Extensions.Logging.ILogger{MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Commands.ExecuteParametricSweepPipeline},MelloSilveiraTools.Core.Pipelines.IPipeline{MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Pipelines.Models.ParametricSweepInput,System.String},MelloSilveiraTools.Core.Validators.IValidator{MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Commands.ExecuteParametricSweepPipelineRequest})">
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Commands.ExecuteParametricSweepPipeline.#ctor(Microsoft.Extensions.Logging.ILogger{MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Commands.ExecuteParametricSweepPipeline},MelloSilveiraTools.Core.Pipelines.IPipeline{MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Pipelines.Models.ParametricSweepPipelineInput,System.String},MelloSilveiraTools.Core.Validators.IValidator{MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Commands.ExecuteParametricSweepPipelineRequest})">
             <summary>
             Application command that validates and executes a parametric sweep sensitivity analysis via <see cref="T:MelloSilveiraTools.Core.Pipelines.IPipeline`2"/>.
             </summary>
+            <param name="logger">The structured logger instance.</param>
             <param name="pipeline">The parametric sweep pipeline.</param>
             <param name="validator">Request validator for <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Commands.ExecuteParametricSweepPipelineRequest"/>.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Commands.ExecuteParametricSweepPipeline.MapToInput(MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Commands.ExecuteParametricSweepPipelineRequest)">
+            <inheritdoc/>
         </member>
         <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Commands.ExecuteParametricSweepPipelineRequest">
             <summary>
@@ -1736,9 +1741,14 @@
             Gets the final time of the simulation.
             </summary>
         </member>
-        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Commands.ExecuteParametricSweepPipelineRequest.AsymptoteTolerance">
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Commands.ExecuteParametricSweepPipelineRequest.RootFindingAlgorithm">
             <summary>
-            Gets the relative tolerance threshold utilized by the asymptote detection step. Defaults to 1e-3.
+            Gets the root-finding algorithm used to locate steady-state relaxation asymptotes.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Commands.ExecuteParametricSweepPipelineRequest.BaseRootFindingInput">
+            <summary>
+            Gets the base root-finding configuration parameters for asymptote detection.
             </summary>
         </member>
         <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Commands.ExecuteParametricSweepValidator">
@@ -1766,7 +1776,10 @@
             Strongly typed OAT (One-at-a-Time) generator for Fung Quasi-Linear Viscoelastic constitutive parameters.
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Generators.FungParametricSweepGenerator.GetPropertyVariations(MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Pipelines.Models.ParametricSweepInput)">
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Generators.FungParametricSweepGenerator.GetVariableVariations">
+            <inheritdoc />
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Generators.FungParametricSweepGenerator.GetArrayVariableVariations">
             <inheritdoc />
         </member>
         <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Generators.IParametricSweepGenerator">
@@ -1775,7 +1788,7 @@
             Inheritors must implement the One-At-A-Time (OAAT) variation logic specific to their parameter type.
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Generators.IParametricSweepGenerator.GenerateCombinations(MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Pipelines.Models.ParametricSweepInput)">
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Generators.IParametricSweepGenerator.GenerateCombinations(MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Pipelines.Models.ParametricSweepPipelineInput)">
             <summary>
             Generates combinations iterating over parameters one-at-a-time (OAAT) against a static baseline.
             </summary>
@@ -1788,38 +1801,53 @@
             </summary>
             <typeparam name="TConstitutiveParameters">The strictly typed constitutive parameters.</typeparam>
         </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Generators.ParametricSweepGeneratorBase`1.GenerateCombinations(MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Pipelines.Models.ParametricSweepInput)">
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Generators.ParametricSweepGeneratorBase`1.GenerateCombinations(MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Pipelines.Models.ParametricSweepPipelineInput)">
             <inheritdoc />
         </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Generators.ParametricSweepGeneratorBase`1.GetPropertyVariations(MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Pipelines.Models.ParametricSweepInput)">
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Generators.ParametricSweepGeneratorBase`1.GetVariableVariations">
             <summary>
-            Generates property-specific OAAT variations, implemented by derived strongly-typed generators.
+            Generates variable-specific OAAT variations, implemented by derived strongly-typed generators.
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Generators.ParametricSweepGeneratorBase`1.GetArrayPropertyVariations(MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Pipelines.Models.ParametricSweepInput)">
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Generators.ParametricSweepGeneratorBase`1.GetArrayVariableVariations">
             <summary>
-            Generates array property-specific OAAT variations, optionally implemented by derived generators.
+            Generates array variable-specific OAAT variations, optionally implemented by derived generators.
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Generators.ParametricSweepGeneratorBase`1.CreateEnvelope(System.String,System.Double,`0,MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Pipelines.Models.ParametricSweepInput)">
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Generators.ParametricSweepGeneratorBase`1.CreateInputs(System.String,MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Models.Range.RangeParameters,System.Func{System.Double,`0},MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Pipelines.Models.ParametricSweepPipelineInput)">
             <summary>
             Creates a standardized envelope for the TPL Dataflow pipeline.
             </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Generators.ParametricSweepGeneratorBase`1.GetPronySeriesVariation(MelloSilveiraTools.Mathematics.Expressions.PronySeries,System.Int32,System.Double)">
+            <summary>
+            Produces a mutated <see cref="T:MelloSilveiraTools.Mathematics.Expressions.PronySeries"/> instance with the coefficient at the specified index replaced.
+            </summary>
+            <param name="baseline">The baseline Prony series.</param>
+            <param name="index">Zero-based index across the combined independent and iterator coefficients array.</param>
+            <param name="value">The swept coefficient value.</param>
+            <returns>A new <see cref="T:MelloSilveiraTools.Mathematics.Expressions.PronySeries"/> instance reflecting the mutated coefficient.</returns>
         </member>
         <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Generators.SchaperyParametricSweepGenerator">
             <summary>
             Strongly typed OAT (One-at-a-Time) generator for Schapery non-linear viscoelastic constitutive parameters.
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Generators.SchaperyParametricSweepGenerator.GetPropertyVariations(MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Pipelines.Models.ParametricSweepInput)">
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Generators.SchaperyParametricSweepGenerator.GetVariableVariations">
             <inheritdoc />
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Generators.SchaperyParametricSweepGenerator.GetArrayVariableVariations">
+            <inheritdoc/>
         </member>
         <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Generators.SimplifiedFungParametricSweepGenerator">
             <summary>
             Strongly typed OAT (One-at-a-Time) generator for Simplified Fung Quasi-Linear Viscoelastic constitutive parameters.
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Generators.SimplifiedFungParametricSweepGenerator.GetPropertyVariations(MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Pipelines.Models.ParametricSweepInput)">
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Generators.SimplifiedFungParametricSweepGenerator.GetVariableVariations">
+            <inheritdoc />
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Generators.SimplifiedFungParametricSweepGenerator.GetArrayVariableVariations">
             <inheritdoc />
         </member>
         <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.ParametricSweepSettings">
@@ -1883,9 +1911,14 @@
             Time step increment ($\Delta t$) used during numerical integration.
             </summary>
         </member>
-        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Pipelines.Entities.ParametricSweepEntity.AsymptoteTolerance">
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Pipelines.Entities.ParametricSweepEntity.RootFindingAlgorithm">
             <summary>
-            Relative tolerance threshold utilized for steady-state asymptote detection.
+            Root-finding algorithm utilized to locate steady-state relaxation asymptotes.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Pipelines.Entities.ParametricSweepEntity.BaseRootFindingInputJson">
+            <summary>
+            JSON snapshot of the base root-finding configuration parameters formatted to 7 significant figures.
             </summary>
         </member>
         <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Pipelines.Entities.ParametricSweepEntity.BaselineParametersJson">
@@ -1893,106 +1926,50 @@
             Polymorphic JSON snapshot of the baseline constitutive parameters formatted to 7 significant figures.
             </summary>
         </member>
-        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Pipelines.Entities.ParametricSweepEntity.VariableRangesJson">
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Pipelines.Entities.ParametricSweepEntity.SweptVariablesJson">
             <summary>
-            JSON snapshot of the swept variable ranges (constant, array, and strain ranges) formatted to 7 significant figures.
-            </summary>
-        </member>
-        <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Pipelines.Models.ParametricSweepFinalPayload">
-            <summary>
-            Final structured payload after mathematical derivations (Absolute and Percentage Deltas).
-            Consumed by the I/O layer for CSV generation.
-            </summary>
-        </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Pipelines.Models.ParametricSweepFinalPayload.#ctor(System.String,System.Double,System.Double,System.Double,System.Double,System.Double,System.Double,System.Double)">
-            <summary>
-            Final structured payload after mathematical derivations (Absolute and Percentage Deltas).
-            Consumed by the I/O layer for CSV generation.
+            JSON snapshot of the dictionary mapping each swept variable name to its range parameters and generated CSV file metadata identifier, formatted to 7 significant figures.
             </summary>
         </member>
         <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Pipelines.Models.ParametricSweepInput">
             <summary>
-            Represents the input request for a Full Factorial Parametric Sweep (Grid Search) analysis.
+            Envelope used to propagate contextual metadata through the TPL Dataflow pipeline.
             </summary>
         </member>
-        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Pipelines.Models.ParametricSweepInput.MechanicalModelName">
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Pipelines.Models.ParametricSweepInput.#ctor(System.String,System.Double,MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.GenericMechanicalModelInput)">
             <summary>
-            Gets the name of the mechanical model to be evaluated (e.g., "Maxwell", "Fung").
+            Envelope used to propagate contextual metadata through the TPL Dataflow pipeline.
             </summary>
         </member>
-        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Pipelines.Models.ParametricSweepInput.Baseline">
+        <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Pipelines.Models.ParametricSweepOutput">
             <summary>
-            Gets the baseline constitutive parameters.
+            Final structured payload after mathematical derivations (Absolute and Percentage Deltas).
+            Consumed by the I/O layer for CSV generation.
             </summary>
         </member>
-        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Pipelines.Models.ParametricSweepInput.ConstantVariables">
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Pipelines.Models.ParametricSweepOutput.#ctor(System.String,System.Double,System.Double,System.Double,System.Double,System.Double,System.Double,System.Double,System.Double)">
             <summary>
-            Gets the ranges for constant scalar variables.
-            </summary>
-        </member>
-        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Pipelines.Models.ParametricSweepInput.ArrayVariables">
-            <summary>
-            Gets the ranges for array-based variables.
-            </summary>
-        </member>
-        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Pipelines.Models.ParametricSweepInput.BaseStrain">
-            <summary>
-            Gets the baseline strain applied in the mechanical simulation when strain is not the swept variable.
-            </summary>
-        </member>
-        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Pipelines.Models.ParametricSweepInput.StrainRange">
-            <summary>
-            Gets the range of strain to be applied in the mechanical simulation.
-            </summary>
-        </member>
-        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Pipelines.Models.ParametricSweepInput.RampTimeConsideration">
-            <summary>
-            Gets the configuration for how ramp time is considered in the simulation.
-            </summary>
-        </member>
-        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Pipelines.Models.ParametricSweepInput.RampTime">
-            <summary>
-            Gets the duration of the initial loading ramp, if applicable.
-            </summary>
-        </member>
-        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Pipelines.Models.ParametricSweepInput.InitialTime">
-            <summary>
-            Gets the initial time to evaluate the initial stress.
-            </summary>
-        </member>
-        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Pipelines.Models.ParametricSweepInput.TimeStep">
-            <summary>
-            Gets the time step increment for the simulation.
-            </summary>
-        </member>
-        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Pipelines.Models.ParametricSweepInput.FinalTime">
-            <summary>
-            Gets the final time of the simulation.
-            </summary>
-        </member>
-        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Pipelines.Models.ParametricSweepInput.AsymptoteTolerance">
-            <summary>
-            Gets the relative tolerance threshold utilized by the asymptote detection step.
-            Defaults to 1e-3 (0.1% of the initial relaxation rate).
+            Final structured payload after mathematical derivations (Absolute and Percentage Deltas).
+            Consumed by the I/O layer for CSV generation.
             </summary>
         </member>
         <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Pipelines.Models.ParametricSweepPersistenceInput">
             <summary>
-            Strongly-typed input payload for <see cref="!:Pipelines.SensitivityAnalysis.Steps.ParametricSweepPersistenceStep"/>,
-            aggregating the run identifier, sweep configuration, and metadata of all generated CSV files.
+            Strongly-typed input payload for <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Pipelines.Steps.ParametricSweepPersistenceStep"/>,
+            aggregating the run identifier, sweep configuration, and metadata of all generated partitioned CSV files.
             </summary>
             <param name="ExternalIdentifier">Unique run identifier for the parametric sweep execution.</param>
             <param name="SweepInput">The input configuration of the parametric sweep.</param>
-            <param name="GeneratedFilesMetadata">Collection of storage entry metadata for all partitioned CSV files produced during the sweep.</param>
+            <param name="GeneratedFiles">Collection of swept variable names paired with the storage entry metadata of their generated CSV files.</param>
         </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Pipelines.Models.ParametricSweepPersistenceInput.#ctor(System.String,MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Pipelines.Models.ParametricSweepInput,System.Collections.Generic.IReadOnlyCollection{MelloSilveiraTools.Core.Managers.File.Models.StorageEntryMetadata})">
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Pipelines.Models.ParametricSweepPersistenceInput.#ctor(System.String,MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Pipelines.Models.ParametricSweepPipelineInput,System.Collections.Generic.IReadOnlyCollection{System.ValueTuple{System.String,MelloSilveiraTools.Core.Managers.File.Models.StorageEntryMetadata}})">
             <summary>
-            Strongly-typed input payload for <see cref="!:Pipelines.SensitivityAnalysis.Steps.ParametricSweepPersistenceStep"/>,
-            aggregating the run identifier, sweep configuration, and metadata of all generated CSV files.
+            Strongly-typed input payload for <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Pipelines.Steps.ParametricSweepPersistenceStep"/>,
+            aggregating the run identifier, sweep configuration, and metadata of all generated partitioned CSV files.
             </summary>
             <param name="ExternalIdentifier">Unique run identifier for the parametric sweep execution.</param>
             <param name="SweepInput">The input configuration of the parametric sweep.</param>
-            <param name="GeneratedFilesMetadata">Collection of storage entry metadata for all partitioned CSV files produced during the sweep.</param>
+            <param name="GeneratedFiles">Collection of swept variable names paired with the storage entry metadata of their generated CSV files.</param>
         </member>
         <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Pipelines.Models.ParametricSweepPersistenceInput.ExternalIdentifier">
             <summary>Unique run identifier for the parametric sweep execution.</summary>
@@ -2000,8 +1977,78 @@
         <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Pipelines.Models.ParametricSweepPersistenceInput.SweepInput">
             <summary>The input configuration of the parametric sweep.</summary>
         </member>
-        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Pipelines.Models.ParametricSweepPersistenceInput.GeneratedFilesMetadata">
-            <summary>Collection of storage entry metadata for all partitioned CSV files produced during the sweep.</summary>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Pipelines.Models.ParametricSweepPersistenceInput.GeneratedFiles">
+            <summary>Collection of swept variable names paired with the storage entry metadata of their generated CSV files.</summary>
+        </member>
+        <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Pipelines.Models.ParametricSweepPipelineInput">
+            <summary>
+            Represents the input request for a Full Factorial Parametric Sweep (Grid Search) analysis.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Pipelines.Models.ParametricSweepPipelineInput.MechanicalModelName">
+            <summary>
+            Gets the name of the mechanical model to be evaluated (e.g., "Maxwell", "Fung").
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Pipelines.Models.ParametricSweepPipelineInput.Baseline">
+            <summary>
+            Gets the baseline constitutive parameters.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Pipelines.Models.ParametricSweepPipelineInput.ConstantVariables">
+            <summary>
+            Gets the ranges for constant scalar variables.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Pipelines.Models.ParametricSweepPipelineInput.ArrayVariables">
+            <summary>
+            Gets the ranges for array-based variables.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Pipelines.Models.ParametricSweepPipelineInput.BaseStrain">
+            <summary>
+            Gets the baseline strain applied in the mechanical simulation when strain is not the swept variable.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Pipelines.Models.ParametricSweepPipelineInput.StrainRange">
+            <summary>
+            Gets the range of strain to be applied in the mechanical simulation.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Pipelines.Models.ParametricSweepPipelineInput.RampTimeConsideration">
+            <summary>
+            Gets the configuration for how ramp time is considered in the simulation.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Pipelines.Models.ParametricSweepPipelineInput.RampTime">
+            <summary>
+            Gets the duration of the initial loading ramp, if applicable.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Pipelines.Models.ParametricSweepPipelineInput.InitialTime">
+            <summary>
+            Gets the initial time to evaluate the initial stress.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Pipelines.Models.ParametricSweepPipelineInput.TimeStep">
+            <summary>
+            Gets the time step increment for the simulation.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Pipelines.Models.ParametricSweepPipelineInput.FinalTime">
+            <summary>
+            Gets the final time of the simulation.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Pipelines.Models.ParametricSweepPipelineInput.RootFindingAlgorithm">
+            <summary>
+            Gets the root-finding algorithm used to locate steady-state relaxation asymptotes.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Pipelines.Models.ParametricSweepPipelineInput.BaseRootFindingInput">
+            <summary>
+            Gets the base root-finding configuration parameters for asymptote detection.
+            </summary>
         </member>
         <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Pipelines.Models.SimulationMetrics">
             <summary>
@@ -2013,15 +2060,27 @@
             Holds the raw numerical outputs of the three parallel mathematical calculations.
             </summary>
         </member>
-        <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Pipelines.Models.SweepSimulationEnvelope">
+        <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Pipelines.Models.SweptVariableFileMetadata">
             <summary>
-            Envelope used to propagate contextual metadata through the TPL Dataflow pipeline.
+            Associates the numerical range parameters of a swept variable with the database identifier
+            of the storage entry metadata record for its generated sensitivity CSV file.
             </summary>
+            <param name="Range">The numerical range parameters applied to sweep the variable.</param>
+            <param name="OutputFileMetadataId">The primary key identifier of the persisted <c>stored_files</c> metadata record.</param>
         </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Pipelines.Models.SweepSimulationEnvelope.#ctor(System.String,System.Double,MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.GenericMechanicalModelInput)">
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Pipelines.Models.SweptVariableFileMetadata.#ctor(MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Models.Range.RangeParameters,System.Int64)">
             <summary>
-            Envelope used to propagate contextual metadata through the TPL Dataflow pipeline.
+            Associates the numerical range parameters of a swept variable with the database identifier
+            of the storage entry metadata record for its generated sensitivity CSV file.
             </summary>
+            <param name="Range">The numerical range parameters applied to sweep the variable.</param>
+            <param name="OutputFileMetadataId">The primary key identifier of the persisted <c>stored_files</c> metadata record.</param>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Pipelines.Models.SweptVariableFileMetadata.Range">
+            <summary>The numerical range parameters applied to sweep the variable.</summary>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Pipelines.Models.SweptVariableFileMetadata.OutputFileMetadataId">
+            <summary>The primary key identifier of the persisted <c>stored_files</c> metadata record.</summary>
         </member>
         <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Pipelines.ParametricSweepPipeline">
             <summary>
@@ -2029,13 +2088,13 @@
             Configures a streamlined linear flow: parameter variation ingestion, concurrent evaluation of stresses,
             partitioned CSV serialization, and terminal database persistence.
             </summary>
-            <param name="loggerFactory">Optional logger factory for creating step-specific loggers.</param>
+            <param name="loggerFactory">Logger factory for creating step-specific loggers.</param>
             <param name="mechanicalModelCalculatorFactory">Factory resolving mechanical model calculator facades.</param>
             <param name="differentiation">Numerical differentiation provider for asymptote detection.</param>
             <param name="fileStorageService">Storage service responsible for writing partitioned sensitivity CSV files.</param>
             <param name="repository">Database repository provider for persisting sweep metadata and stored file records.</param>
             <param name="pipelineFactory">Factory responsible for bootstrapping Dataflow execution topologies.</param>
-            <param name="serviceLocator">Service locator resolving model-specific sweep generators.</param>
+            <param name="serviceLocator">Service locator resolving model-specific sweep generators and root-finding engines.</param>
             <param name="settings">Mandatory execution topology settings for the parametric sweep pipeline.</param>
         </member>
         <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Pipelines.ParametricSweepPipeline.#ctor(Microsoft.Extensions.Logging.ILoggerFactory,MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.IMechanicalModelCalculatorFactory,MelloSilveiraTools.Mathematics.NumericalMethods.Differentiations.IDifferentiation,MelloSilveiraTools.Core.Managers.File.Providers.IFileStorageService,MelloSilveiraTools.Database.Repositories.IRepository,MelloSilveiraTools.Core.Pipelines.PipelineFactory,MelloSilveiraTools.Core.Providers.ServiceLocator,MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.ParametricSweepSettings)">
@@ -2044,35 +2103,35 @@
             Configures a streamlined linear flow: parameter variation ingestion, concurrent evaluation of stresses,
             partitioned CSV serialization, and terminal database persistence.
             </summary>
-            <param name="loggerFactory">Optional logger factory for creating step-specific loggers.</param>
+            <param name="loggerFactory">Logger factory for creating step-specific loggers.</param>
             <param name="mechanicalModelCalculatorFactory">Factory resolving mechanical model calculator facades.</param>
             <param name="differentiation">Numerical differentiation provider for asymptote detection.</param>
             <param name="fileStorageService">Storage service responsible for writing partitioned sensitivity CSV files.</param>
             <param name="repository">Database repository provider for persisting sweep metadata and stored file records.</param>
             <param name="pipelineFactory">Factory responsible for bootstrapping Dataflow execution topologies.</param>
-            <param name="serviceLocator">Service locator resolving model-specific sweep generators.</param>
+            <param name="serviceLocator">Service locator resolving model-specific sweep generators and root-finding engines.</param>
             <param name="settings">Mandatory execution topology settings for the parametric sweep pipeline.</param>
         </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Pipelines.ParametricSweepPipeline.ProcessAsync(MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Pipelines.Models.ParametricSweepInput,System.Threading.CancellationToken)">
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Pipelines.ParametricSweepPipeline.ProcessAsync(MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Pipelines.Models.ParametricSweepPipelineInput,System.Threading.CancellationToken)">
             <inheritdoc/>
         </member>
         <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Pipelines.Steps.AsymptoteCalculationStep">
             <summary>
-            A domain-specific calculation step that evaluates the continuum stress asymptote
-            by tracking the stress relaxation rate (time derivative dσ/dt) until it approaches zero.
+            A domain-specific calculation step that evaluates the continuum stress asymptote by tracking the stress relaxation rate (time derivative dσ/dt) 
+            until it approaches zero, utilizing an <see cref="T:MelloSilveiraTools.Mathematics.NumericalMethods.RootFindingAlgorithms.IRootFinding"/> engine to locate the convergence point.
             </summary>
             <param name="calculator">Mechanical model calculator facade for stress calculations.</param>
             <param name="differentiation">Numerical differentiation engine.</param>
-            <param name="tolerance">User-informed relative tolerance threshold for asymptotic convergence.</param>
+            <param name="rootFinding">Root-finding algorithm engine.</param>
         </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Pipelines.Steps.AsymptoteCalculationStep.#ctor(MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.IMechanicalModelCalculatorFacade,MelloSilveiraTools.Mathematics.NumericalMethods.Differentiations.IDifferentiation,System.Int32,System.Int32,System.Double)">
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Pipelines.Steps.AsymptoteCalculationStep.#ctor(MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.IMechanicalModelCalculatorFacade,MelloSilveiraTools.Mathematics.NumericalMethods.Differentiations.IDifferentiation,MelloSilveiraTools.Mathematics.NumericalMethods.RootFindingAlgorithms.IRootFinding,MelloSilveiraTools.Mathematics.NumericalMethods.RootFindingAlgorithms.RootFindingInput)">
             <summary>
-            A domain-specific calculation step that evaluates the continuum stress asymptote
-            by tracking the stress relaxation rate (time derivative dσ/dt) until it approaches zero.
+            A domain-specific calculation step that evaluates the continuum stress asymptote by tracking the stress relaxation rate (time derivative dσ/dt) 
+            until it approaches zero, utilizing an <see cref="T:MelloSilveiraTools.Mathematics.NumericalMethods.RootFindingAlgorithms.IRootFinding"/> engine to locate the convergence point.
             </summary>
             <param name="calculator">Mechanical model calculator facade for stress calculations.</param>
             <param name="differentiation">Numerical differentiation engine.</param>
-            <param name="tolerance">User-informed relative tolerance threshold for asymptotic convergence.</param>
+            <param name="rootFinding">Root-finding algorithm engine.</param>
         </member>
         <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Pipelines.Steps.AsymptoteCalculationStep.Name">
             <inheritdoc />
@@ -2144,40 +2203,24 @@
         <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Pipelines.Steps.ParametricSweepCsvWriterStep.Name">
             <inheritdoc />
         </member>
-        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Pipelines.Steps.ParametricSweepCsvWriterStep.GeneratedFilesMetadata">
-            <summary>
-            Gets the collection of storage entry metadata snapshots for all partitioned sensitivity CSV files generated by this writer step.
-            </summary>
-        </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Pipelines.Steps.ParametricSweepCsvWriterStep.ExecuteAsync(MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Pipelines.Models.ParametricSweepFinalPayload,System.Threading.CancellationToken)">
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Pipelines.Steps.ParametricSweepCsvWriterStep.ExecuteAsync(System.Linq.IGrouping{System.String,MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Pipelines.Models.ParametricSweepOutput},System.Threading.CancellationToken)">
             <inheritdoc />
-        </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Pipelines.Steps.ParametricSweepCsvWriterStep.MelloSilveiraTools#Core#Pipelines#Steps#IAsyncPipelineStep{MelloSilveiraTools#MechanicsOfMaterials#Optimizations#SensitivityAnalyses#Pipelines#Models#ParametricSweepFinalPayload}#ExecuteAsync(MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Pipelines.Models.ParametricSweepFinalPayload,System.Threading.CancellationToken)">
-            <inheritdoc />
-        </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Pipelines.Steps.ParametricSweepCsvWriterStep.ExecuteAsync(System.Collections.Generic.IEnumerable{MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Pipelines.Models.ParametricSweepFinalPayload},System.Threading.CancellationToken)">
-            <summary>
-            Executes the step on a collection of payloads, grouping them by variable name and writing each partition into its dedicated CSV file.
-            </summary>
-            <param name="payloads">The collection of evaluated sensitivity payloads.</param>
-            <param name="cancellationToken">Cooperative cancellation token.</param>
-            <returns>A collection of storage entry metadata for all partitioned CSV files written.</returns>
         </member>
         <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Pipelines.Steps.ParametricSweepCsvWriterStep.DisposeAsync">
             <inheritdoc />
         </member>
         <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Pipelines.Steps.ParametricSweepPersistenceStep">
             <summary>
-            Terminal pipeline step that persists the parametric sweep metadata entity (<see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Pipelines.Entities.ParametricSweepEntity"/>)
-            and registers all generated partitioned CSV files into the <c>stored_files</c> table (<see cref="T:MelloSilveiraTools.Database.RelationalDatabase.Models.Entities.StorageEntryMetadataEntity"/>).
+            Terminal pipeline step that registers all generated partitioned CSV files into the <c>stored_files</c> table (<see cref="T:MelloSilveiraTools.Database.RelationalDatabase.Models.Entities.StorageEntryMetadataEntity"/>)
+            and persists the parametric sweep metadata entity (<see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Pipelines.Entities.ParametricSweepEntity"/>) correlating each swept variable with its range and file metadata identifier.
             </summary>
             <param name="logger">The structured logger instance.</param>
             <param name="repository">The database repository provider for persistence.</param>
         </member>
         <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Pipelines.Steps.ParametricSweepPersistenceStep.#ctor(Microsoft.Extensions.Logging.ILogger{MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Pipelines.Steps.ParametricSweepPersistenceStep},MelloSilveiraTools.Database.Repositories.IRepository)">
             <summary>
-            Terminal pipeline step that persists the parametric sweep metadata entity (<see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Pipelines.Entities.ParametricSweepEntity"/>)
-            and registers all generated partitioned CSV files into the <c>stored_files</c> table (<see cref="T:MelloSilveiraTools.Database.RelationalDatabase.Models.Entities.StorageEntryMetadataEntity"/>).
+            Terminal pipeline step that registers all generated partitioned CSV files into the <c>stored_files</c> table (<see cref="T:MelloSilveiraTools.Database.RelationalDatabase.Models.Entities.StorageEntryMetadataEntity"/>)
+            and persists the parametric sweep metadata entity (<see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Pipelines.Entities.ParametricSweepEntity"/>) correlating each swept variable with its range and file metadata identifier.
             </summary>
             <param name="logger">The structured logger instance.</param>
             <param name="repository">The database repository provider for persistence.</param>
@@ -2187,30 +2230,9 @@
         </member>
         <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Pipelines.Steps.ParametricSweepPersistenceStep.ExecuteAsync(MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Pipelines.Models.ParametricSweepPersistenceInput,System.Threading.CancellationToken)">
             <inheritdoc />
-            <exception cref="T:System.InvalidOperationException">Thrown when insertion of the parametric sweep or stored file entity fails in the database.</exception>
+            <exception cref="T:System.InvalidOperationException">Thrown when variable range resolution fails or when insertion of the parametric sweep or stored file entity fails in the database.</exception>
         </member>
         <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Pipelines.Steps.ParametricSweepPersistenceStep.DisposeAsync">
-            <inheritdoc />
-        </member>
-        <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Pipelines.Steps.SweepIngestionStep">
-            <summary>
-            Pipeline ingestion step that dynamically resolves the appropriate generator for the given mechanical model
-            and lazily yields permutations into the stream.
-            </summary>
-        </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Pipelines.Steps.SweepIngestionStep.#ctor(MelloSilveiraTools.Core.Providers.ServiceLocator)">
-            <summary>
-            Pipeline ingestion step that dynamically resolves the appropriate generator for the given mechanical model
-            and lazily yields permutations into the stream.
-            </summary>
-        </member>
-        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Pipelines.Steps.SweepIngestionStep.Name">
-            <inheritdoc />
-        </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Pipelines.Steps.SweepIngestionStep.Execute(MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Pipelines.Models.ParametricSweepInput,System.Threading.CancellationToken)">
-            <inheritdoc />
-        </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Pipelines.Steps.SweepIngestionStep.Dispose">
             <inheritdoc />
         </member>
         <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Serializers.Json.OptimizationJsonOptions">

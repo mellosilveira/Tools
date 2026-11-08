@@ -1,5 +1,4 @@
 using MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.QuasiLinear;
-using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Pipelines.Models;
 
 namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Generators;
 
@@ -9,7 +8,7 @@ namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnaly
 public sealed class FungParametricSweepGenerator : ParametricSweepGeneratorBase<FungConstitutiveParameters>
 {
     /// <inheritdoc />
-    protected override IEnumerable<(string PropertyName, Func<FungConstitutiveParameters, double, FungConstitutiveParameters> Mutate)> GetPropertyVariations(ParametricSweepInput input)
+    protected override IEnumerable<(string VariableName, Func<FungConstitutiveParameters, double, FungConstitutiveParameters> Mutate)> GetVariableVariations()
     {
         yield return (nameof(FungConstitutiveParameters.ElasticStressConstant), (baseline, value) => baseline with { ElasticStressConstant = value });
         yield return (nameof(FungConstitutiveParameters.ElasticPowerConstant), (baseline, value) => baseline with { ElasticPowerConstant = value });
@@ -19,5 +18,5 @@ public sealed class FungParametricSweepGenerator : ParametricSweepGeneratorBase<
     }
 
     /// <inheritdoc />
-    protected override IEnumerable<(string PropertyName, int Index, Func<FungConstitutiveParameters, int, double, FungConstitutiveParameters> Mutate)> GetArrayPropertyVariations(ParametricSweepInput input) => [];
+    protected override IEnumerable<(string VariableName, Func<FungConstitutiveParameters, int, double, FungConstitutiveParameters> Mutate)> GetArrayVariableVariations() => [];
 }

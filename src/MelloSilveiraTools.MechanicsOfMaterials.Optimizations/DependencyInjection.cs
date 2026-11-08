@@ -69,7 +69,7 @@ public static class DependencyInjection
                 .AddKeyedSingleton<IParametricSweepGenerator, SimplifiedFungParametricSweepGenerator>(nameof(MechanicalModel.SimplifiedFung))
                 .AddKeyedSingleton<IParametricSweepGenerator, SchaperyParametricSweepGenerator>(nameof(MechanicalModel.Schapery))
                 // Register pipelines.
-                .AddSingleton<IPipeline<ParametricSweepInput, string>, ParametricSweepPipeline>()
+                .AddSingleton<IPipeline<ParametricSweepPipelineInput, string>, ParametricSweepPipeline>()
                 // Register Request Validators.
                 .AddSingleton<IValidator<ExecuteParametricSweepPipelineRequest>, ExecuteParametricSweepValidator>()
                 // Register Application Commands.

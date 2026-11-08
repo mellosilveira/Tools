@@ -1,3 +1,4 @@
+using MelloSilveiraTools.Mathematics.Expressions;
 using MelloSilveiraTools.MechanicsOfMaterials.Models;
 using MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels;
 using MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity;
@@ -17,30 +18,24 @@ public abstract class ParametricSweepGeneratorBase<TConstitutiveParameters> : IP
     private const string StrainVariableName = "Strain";
 
     /// <inheritdoc />
-    public IEnumerable<SweepSimulationEnvelope> GenerateCombinations(ParametricSweepInput input)
+    public IEnumerable<(string VariableName, IEnumerable<ParametricSweepInput> Inputs)> GenerateCombinations(ParametricSweepPipelineInput input)
     {
         TConstitutiveParameters baseline = (TConstitutiveParameters)input.Baseline;
 
         // 1. OAAT for Boundary Condition (Strain)
         if (input.StrainRange is not null)
         {
-            foreach (double strain in input.StrainRange.GenerateValues())
-            {
-                yield return CreateEnvelope(StrainVariableName, strain, baseline, input);
-            }
+            yield return (StrainVariableName, CreateInputs(StrainVariableName, input.StrainRange, _ => baseline, input));
         }
 
         // 2. OAAT for Constitutive Parameters
         if (input.ConstantVariables is not null)
         {
-            foreach ((string propertyName, Func<TConstitutiveParameters, double, TConstitutiveParameters> mutate) in GetPropertyVariations(input))
+            foreach ((string variableName, Func<TConstitutiveParameters, double, TConstitutiveParameters> mutate) in GetVariableVariations())
             {
-                if (input.ConstantVariables.TryGetValue(propertyName, out RangeParameters? range))
+                if (input.ConstantVariables.TryGetValue(variableName, out RangeParameters? range))
                 {
-                    foreach (double value in range.GenerateValues())
-                    {
-                        yield return CreateEnvelope(propertyName, value, mutate(baseline, value), input);
-                    }
+                    yield return (variableName, CreateInputs(variableName, range, value => mutate(baseline, value), input));
                 }
             }
         }
@@ -48,15 +43,14 @@ public abstract class ParametricSweepGeneratorBase<TConstitutiveParameters> : IP
         // 3. OAAT for Array Constitutive Parameters
         if (input.ArrayVariables is not null)
         {
-            foreach ((string propertyName, int index, Func<TConstitutiveParameters, int, double, TConstitutiveParameters> mutate) in GetArrayPropertyVariations(input))
+            foreach ((string variableName, Func<TConstitutiveParameters, int, double, TConstitutiveParameters> mutate) in GetArrayVariableVariations())
             {
-                if (input.ArrayVariables.TryGetValue(propertyName, out Dictionary<int, RangeParameters>? indexDict)
-                    && indexDict.TryGetValue(index, out RangeParameters? range))
+                if (input.ArrayVariables.TryGetValue(variableName, out Dictionary<int, RangeParameters>? indexDict) && indexDict is not null)
                 {
-                    string variableKey = $"{propertyName}[{index}]";
-                    foreach (double value in range.GenerateValues())
+                    foreach ((int index, RangeParameters range) in indexDict)
                     {
-                        yield return CreateEnvelope(variableKey, value, mutate(baseline, index, value), input);
+                        string variableKey = $"{variableName}[{index}]";
+                        yield return (variableKey, CreateInputs(variableKey, range, value => mutate(baseline, index, value), input));
                     }
                 }
             }
@@ -64,34 +58,51 @@ public abstract class ParametricSweepGeneratorBase<TConstitutiveParameters> : IP
     }
 
     /// <summary>
-    /// Generates property-specific OAAT variations, implemented by derived strongly-typed generators.
+    /// Generates variable-specific OAAT variations, implemented by derived strongly-typed generators.
     /// </summary>
-    protected abstract IEnumerable<(string PropertyName, Func<TConstitutiveParameters, double, TConstitutiveParameters> Mutate)> GetPropertyVariations(ParametricSweepInput input);
+    protected abstract IEnumerable<(string VariableName, Func<TConstitutiveParameters, double, TConstitutiveParameters> Mutate)> GetVariableVariations();
 
     /// <summary>
-    /// Generates array property-specific OAAT variations, optionally implemented by derived generators.
+    /// Generates array variable-specific OAAT variations, optionally implemented by derived generators.
     /// </summary>
-    protected abstract IEnumerable<(string PropertyName, int Index, Func<TConstitutiveParameters, int, double, TConstitutiveParameters> Mutate)> GetArrayPropertyVariations(ParametricSweepInput input);
+    protected abstract IEnumerable<(string VariableName, Func<TConstitutiveParameters, int, double, TConstitutiveParameters> Mutate)> GetArrayVariableVariations();
 
     /// <summary>
     /// Creates a standardized envelope for the TPL Dataflow pipeline.
     /// </summary>
-    protected SweepSimulationEnvelope CreateEnvelope(string variableName, double variableValue, TConstitutiveParameters constitutiveParameters, ParametricSweepInput input)
+    protected IEnumerable<ParametricSweepInput> CreateInputs(string variableName, RangeParameters variableRange, Func<double, TConstitutiveParameters> mutate, ParametricSweepPipelineInput input)
     {
-        MechanicalModelInput baseInput = new()
+        foreach (double value in variableRange.GenerateValues())
         {
-            MechanicalModelName = input.MechanicalModelName,
-            RampTimeConsideration = input.RampTimeConsideration,
-            RampTime = input.RampTime,
-            TimeStep = input.TimeStep,
-            AcceptedStrainRange = AcceptedRange.Default,
-            Strain = new MechanicalParameter(variableName == StrainVariableName ? variableValue : input.BaseStrain),
-            // TODO: In this current version, the parametric sweep analysis only works for stress-strain and relaxation.
-            LoadResponseRelationship = LoadResponseRelationship.StressStrain,
-            ViscoelasticEffect = ViscoelasticEffect.Relaxation,
-        };
+            MechanicalModelInput baseInput = new()
+            {
+                MechanicalModelName = input.MechanicalModelName,
+                RampTimeConsideration = input.RampTimeConsideration,
+                RampTime = input.RampTime,
+                TimeStep = input.TimeStep,
+                AcceptedStrainRange = AcceptedRange.Default,
+                Strain = new MechanicalParameter(variableName == StrainVariableName ? value : input.BaseStrain),
+                // TODO: In this current version, the parametric sweep analysis only works for stress-strain and relaxation.
+                LoadResponseRelationship = LoadResponseRelationship.StressStrain,
+                ViscoelasticEffect = ViscoelasticEffect.Relaxation,
+            };
 
-        GenericMechanicalModelInput simulationInput = new(baseInput, constitutiveParameters);
-        return new SweepSimulationEnvelope(variableName, variableValue, simulationInput);
+            GenericMechanicalModelInput simulationInput = new(baseInput, mutate(value));
+            yield return new ParametricSweepInput(variableName, value, simulationInput);
+        }
+    }
+
+    /// <summary>
+    /// Produces a mutated <see cref="PronySeries"/> instance with the coefficient at the specified index replaced.
+    /// </summary>
+    /// <param name="baseline">The baseline Prony series.</param>
+    /// <param name="index">Zero-based index across the combined independent and iterator coefficients array.</param>
+    /// <param name="value">The swept coefficient value.</param>
+    /// <returns>A new <see cref="PronySeries"/> instance reflecting the mutated coefficient.</returns>
+    protected static PronySeries GetPronySeriesVariation(PronySeries baseline, int index, double value)
+    {
+        double[] coefficients = [baseline.IndependentParameter, .. baseline.IteratorCoefficients];
+        coefficients[index] = value;
+        return new PronySeries(coefficients[0], coefficients[1..], baseline.InitialVariableValue, baseline.FinalVariableValue);
     }
 }

@@ -347,6 +347,45 @@
             Verifies that a well-formed request with valid storage locations passes validation.
             </summary>
         </member>
+        <member name="T:UnitTests.MechanicsOfMaterials.Optimizations.Pipelines.SensitivityAnalysis.Steps.ParametricSweepPersistenceStepTests">
+            <summary>
+            Unit tests for <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Pipelines.Steps.ParametricSweepPersistenceStep"/>, verifying database persistence of
+            <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Pipelines.Entities.ParametricSweepEntity"/> and associated <see cref="T:MelloSilveiraTools.Database.RelationalDatabase.Models.Entities.StorageEntryMetadataEntity"/> records.
+            </summary>
+        </member>
+        <member name="M:UnitTests.MechanicsOfMaterials.Optimizations.Pipelines.SensitivityAnalysis.Steps.ParametricSweepPersistenceStepTests.ExecuteAsync_WhenSuccessful_PersistsEntityWithSweptVariablesDictionaryAndFiles">
+            <summary>
+            Verifies that ExecuteAsync persists all generated file records, correlates each swept variable
+            (strain, constant, and array) with its <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Models.Range.RangeParameters"/> and generated file metadata ID
+            inside <see cref="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Pipelines.Entities.ParametricSweepEntity.SweptVariablesJson"/>, and returns the external identifier.
+            </summary>
+        </member>
+        <member name="M:UnitTests.MechanicsOfMaterials.Optimizations.Pipelines.SensitivityAnalysis.Steps.ParametricSweepPersistenceStepTests.ExecuteAsync_WhenEntityInsertConflicts_LogsWarningAndReturnsIdentifier">
+            <summary>
+            Verifies that when the sweep entity insertion encounters a conflict (already exists),
+            the step logs a warning and completes without throwing.
+            </summary>
+        </member>
+        <member name="M:UnitTests.MechanicsOfMaterials.Optimizations.Pipelines.SensitivityAnalysis.Steps.ParametricSweepPersistenceStepTests.ExecuteAsync_WhenEntityInsertFails_ThrowsInvalidOperationException">
+            <summary>
+            Verifies that when the sweep entity insertion fails with an error, an <see cref="T:System.InvalidOperationException"/> is thrown.
+            </summary>
+        </member>
+        <member name="M:UnitTests.MechanicsOfMaterials.Optimizations.Pipelines.SensitivityAnalysis.Steps.ParametricSweepPersistenceStepTests.ExecuteAsync_WhenStoredFileInsertFails_ThrowsInvalidOperationException">
+            <summary>
+            Verifies that when stored file insertion fails with a non-conflict error, an <see cref="T:System.InvalidOperationException"/> is thrown.
+            </summary>
+        </member>
+        <member name="M:UnitTests.MechanicsOfMaterials.Optimizations.Pipelines.SensitivityAnalysis.Steps.ParametricSweepPersistenceStepTests.ExecuteAsync_WhenVariableRangeCannotBeResolved_ThrowsInvalidOperationException">
+            <summary>
+            Verifies that when a generated file references an unknown variable name without a configured range, an <see cref="T:System.InvalidOperationException"/> is thrown.
+            </summary>
+        </member>
+        <member name="M:UnitTests.MechanicsOfMaterials.Optimizations.Pipelines.SensitivityAnalysis.Steps.ParametricSweepPersistenceStepTests.DisposeAsync_CompletesSuccessfully">
+            <summary>
+            Verifies that DisposeAsync completes cleanly without errors.
+            </summary>
+        </member>
         <member name="T:UnitTests.MechanicsOfMaterials.Calculators.MechanicalModels.MechanicalModelCalculatorFactoryTests">
             <summary>
             Unit tests for <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.IMechanicalModelCalculatorFactory"/> and <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.MechanicalModelCalculatorFactory"/>.

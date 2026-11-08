@@ -1,248 +1,289 @@
-//using MelloSilveiraTools.Core.Managers.File.Models;
-//using MelloSilveiraTools.Core.Models;
-//using MelloSilveiraTools.Database.RelationalDatabase.Models.Entities;
-//using MelloSilveiraTools.Database.Repositories;
-//using MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity;
-//using MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.Linear.Maxwell;
-//using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Models.Range;
-//using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.SensitivityAnalysis.Steps;
-//using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Models;
-//using Microsoft.Extensions.Logging.Abstractions;
-//using Moq;
+using MelloSilveiraTools.Core.Managers.File.Models;
+using MelloSilveiraTools.Core.Models;
+using MelloSilveiraTools.Database.RelationalDatabase.Models.Entities;
+using MelloSilveiraTools.Database.Repositories;
+using MelloSilveiraTools.Mathematics.Expressions;
+using MelloSilveiraTools.Mathematics.Models.NumericalMethods;
+using MelloSilveiraTools.Mathematics.NumericalMethods.RootFindingAlgorithms;
+using MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity;
+using MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.Linear.Maxwell;
+using MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.QuasiLinear;
+using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Models.Range;
+using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Pipelines.Entities;
+using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Pipelines.Models;
+using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Pipelines.Steps;
+using Microsoft.Extensions.Logging.Abstractions;
+using Moq;
+using System.Text.Json;
 
-//namespace UnitTests.MechanicsOfMaterials.Optimizations.Pipelines.SensitivityAnalysis.Steps;
+namespace UnitTests.MechanicsOfMaterials.Optimizations.Pipelines.SensitivityAnalysis.Steps;
 
-///// <summary>
-///// Unit tests for <see cref="ParametricSweepPersistenceStep"/>, verifying database persistence of
-///// <see cref="ParametricSweepEntity"/> and associated <see cref="StorageEntryMetadataEntity"/> records.
-///// </summary>
-//public sealed class ParametricSweepPersistenceStepTests
-//{
-//    private readonly Mock<IRepository> _repositoryMock = new();
+/// <summary>
+/// Unit tests for <see cref="ParametricSweepPersistenceStep"/>, verifying database persistence of
+/// <see cref="ParametricSweepEntity"/> and associated <see cref="StorageEntryMetadataEntity"/> records.
+/// </summary>
+public sealed class ParametricSweepPersistenceStepTests
+{
+    private readonly Mock<IRepository> _repositoryMock = new();
 
-//    /// <summary>
-//    /// Verifies that ExecuteAsync persists both the sweep metadata entity and all generated file records,
-//    /// returning the external identifier on success.
-//    /// </summary>
-//    [Fact]
-//    public async Task ExecuteAsync_WhenSuccessful_PersistsEntityAndFilesAndReturnsIdentifier()
-//    {
-//        // Arrange
-//        _repositoryMock
-//            .Setup(r => r.TryInsertAsync(It.IsAny<ParametricSweepEntity>(), It.IsAny<CancellationToken>()))
-//            .ReturnsAsync(Result.CreateSuccessOk(1L));
+    /// <summary>
+    /// Verifies that ExecuteAsync persists all generated file records, correlates each swept variable
+    /// (strain, constant, and array) with its <see cref="RangeParameters"/> and generated file metadata ID
+    /// inside <see cref="ParametricSweepEntity.SweptVariablesJson"/>, and returns the external identifier.
+    /// </summary>
+    [Fact]
+    public async Task ExecuteAsync_WhenSuccessful_PersistsEntityWithSweptVariablesDictionaryAndFiles()
+    {
+        // Arrange
+        long nextFileId = 100L;
+        _repositoryMock
+            .Setup(r => r.TryInsertAsync(It.IsAny<StorageEntryMetadataEntity>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(() => Result.CreateSuccessOk(++nextFileId));
 
-//        _repositoryMock
-//            .Setup(r => r.TryInsertAsync(It.IsAny<StorageEntryMetadataEntity>(), It.IsAny<CancellationToken>()))
-//            .ReturnsAsync(Result.CreateSuccessOk(1L));
+        ParametricSweepEntity? capturedEntity = null;
+        _repositoryMock
+            .Setup(r => r.TryInsertAsync(It.IsAny<ParametricSweepEntity>(), It.IsAny<CancellationToken>()))
+            .Callback<ParametricSweepEntity, CancellationToken>((entity, _) => capturedEntity = entity)
+            .ReturnsAsync(Result.CreateSuccessOk(1L));
 
-//        ParametricSweepPersistenceStep step = new(
-//            NullLogger<ParametricSweepPersistenceStep>.Instance,
-//            _repositoryMock.Object);
+        ParametricSweepPersistenceStep step = new(
+            NullLogger<ParametricSweepPersistenceStep>.Instance,
+            _repositoryMock.Object);
 
-//        string identifier = "sweep_pers_01";
-//        ParametricSweepInput sweepInput = new()
-//        {
-//            MechanicalModelName = "Maxwell",
-//            Baseline = new MaxwellConstitutiveParameters { Stiffness = 100.0, Viscosity = 10.0 },
-//            ConstantVariables = new Dictionary<string, RangeParameters>
-//            {
-//                ["Stiffness"] = new RangeParameters { InitialPoint = 50.0, FinalPoint = 150.0, Step = 50.0 }
-//            },
-//            ArrayVariables = [],
-//            BaseStrain = 0.05,
-//            RampTimeConsideration = RampTimeConsideration.Disregard,
-//            InitialTime = 0.0,
-//            FinalTime = 10.0,
-//            TimeStep = 0.1,
-//            AsymptoteTolerance = 1e-5
-//        };
+        string identifier = "sweep_pers_01";
+        RangeParameters strainRange = new() { InitialPoint = 0.02, FinalPoint = 0.06, Step = 0.02 };
+        RangeParameters constantRange = new() { InitialPoint = 50.0, FinalPoint = 150.0, Step = 50.0 };
+        RangeParameters arrayRange = new() { InitialPoint = 0.1, FinalPoint = 0.3, Step = 0.1 };
 
-//        StorageEntryMetadata[] generatedFiles =
-//        [
-//            new StorageEntryMetadata(StorageProvider.Local, @"C:\Data\SensitivityAnalysis\sweep_pers_01\Stiffness_SensitivityAnalysis.csv", @"C:\Data\SensitivityAnalysis\sweep_pers_01", "Stiffness_SensitivityAnalysis.csv", 1024L, DateTimeOffset.UtcNow),
-//            new StorageEntryMetadata(StorageProvider.Local, @"C:\Data\SensitivityAnalysis\sweep_pers_01\Strain_SensitivityAnalysis.csv", @"C:\Data\SensitivityAnalysis\sweep_pers_01", "Strain_SensitivityAnalysis.csv", 2048L, DateTimeOffset.UtcNow)
-//        ];
+        ParametricSweepPipelineInput sweepInput = new()
+        {
+            Identifier = identifier,
+            MechanicalModelName = "SimplifiedFung",
+            Baseline = new SimplifiedFungConstitutiveParameters(80.0, 2.0, new PronySeries(0.4, [0.5, -0.1])),
+            ConstantVariables = new Dictionary<string, RangeParameters>
+            {
+                ["ElasticStressConstant"] = constantRange
+            },
+            ArrayVariables = new Dictionary<string, Dictionary<int, RangeParameters>>
+            {
+                ["ReducedRelaxationFunction"] = new Dictionary<int, RangeParameters>
+                {
+                    [0] = arrayRange
+                }
+            },
+            BaseStrain = 0.05,
+            StrainRange = strainRange,
+            RampTimeConsideration = RampTimeConsideration.Disregard,
+            InitialTime = 0.0,
+            FinalTime = 10.0,
+            TimeStep = 0.1,
+            RootFindingAlgorithm = RootFindingAlgorithm.StepByStepMethod,
+            BaseRootFindingInput = new RootFindingInput(0.0, 1000.0, 1e-5, 1000)
+        };
 
-//        ParametricSweepPersistenceInput input = new(identifier, sweepInput, generatedFiles);
+        (string VariableName, StorageEntryMetadata FileMetadata)[] generatedFiles =
+        [
+            ("Strain", new StorageEntryMetadata(StorageProvider.Local, @"C:\Data\sweep_pers_01\SensitivityAnalysis\Strain.csv", @"C:\Data\sweep_pers_01\SensitivityAnalysis", "Strain.csv", 1024L, DateTimeOffset.UtcNow)),
+            ("ElasticStressConstant", new StorageEntryMetadata(StorageProvider.Local, @"C:\Data\sweep_pers_01\SensitivityAnalysis\ElasticStressConstant.csv", @"C:\Data\sweep_pers_01\SensitivityAnalysis", "ElasticStressConstant.csv", 2048L, DateTimeOffset.UtcNow)),
+            ("ReducedRelaxationFunction[0]", new StorageEntryMetadata(StorageProvider.Local, @"C:\Data\sweep_pers_01\SensitivityAnalysis\ReducedRelaxationFunction[0].csv", @"C:\Data\sweep_pers_01\SensitivityAnalysis", "ReducedRelaxationFunction[0].csv", 3072L, DateTimeOffset.UtcNow))
+        ];
 
-//        // Act
-//        string result = await step.ExecuteAsync(input);
+        ParametricSweepPersistenceInput input = new(identifier, sweepInput, generatedFiles);
 
-//        // Assert
-//        Assert.Equal(identifier, result);
+        // Act
+        string result = await step.ExecuteAsync(input);
 
-//        _repositoryMock.Verify(
-//            r => r.TryInsertAsync(
-//                It.Is<ParametricSweepEntity>(e =>
-//                    !string.IsNullOrWhiteSpace(e.Identifier) &&
-//                    e.ExternalIdentifier == identifier &&
-//                    e.MechanicalModelName == "Maxwell" &&
-//                    e.BaseStrain == 0.05 &&
-//                    e.RampTimeConsideration == RampTimeConsideration.Disregard &&
-//                    e.InitialTime == 0.0 &&
-//                    e.FinalTime == 10.0 &&
-//                    e.TimeStep == 0.1 &&
-//                    e.AsymptoteTolerance == 1e-5 &&
-//                    !string.IsNullOrWhiteSpace(e.BaselineParametersJson) &&
-//                    !string.IsNullOrWhiteSpace(e.VariableRangesJson)),
-//                It.IsAny<CancellationToken>()),
-//            Times.Once);
+        // Assert
+        Assert.Equal(identifier, result);
+        Assert.NotNull(capturedEntity);
+        Assert.False(string.IsNullOrWhiteSpace(capturedEntity.Identifier));
+        Assert.Equal(identifier, capturedEntity.ExternalIdentifier);
+        Assert.Equal("SimplifiedFung", capturedEntity.MechanicalModelName);
+        Assert.Equal(0.05, capturedEntity.BaseStrain);
+        Assert.Equal(RampTimeConsideration.Disregard, capturedEntity.RampTimeConsideration);
+        Assert.Equal(0.0, capturedEntity.InitialTime);
+        Assert.Equal(10.0, capturedEntity.FinalTime);
+        Assert.Equal(0.1, capturedEntity.TimeStep);
+        Assert.Equal(RootFindingAlgorithm.StepByStepMethod, capturedEntity.RootFindingAlgorithm);
+        Assert.False(string.IsNullOrWhiteSpace(capturedEntity.BaseRootFindingInputJson));
+        Assert.False(string.IsNullOrWhiteSpace(capturedEntity.BaselineParametersJson));
 
-//        _repositoryMock.Verify(
-//            r => r.TryInsertAsync(
-//                It.Is<StorageEntryMetadataEntity>(f =>
-//                    f.ExternalIdentifier == identifier &&
-//                    f.Context == "SensitivityAnalysis" &&
-//                    f.StorageProvider == StorageProvider.Local &&
-//                    f.ContentType == "text/csv" &&
-//                    f.SizeBytes > 0),
-//                It.IsAny<CancellationToken>()),
-//            Times.Exactly(2));
-//    }
+        Dictionary<string, SweptVariableFileMetadata>? sweptVariables =
+            JsonSerializer.Deserialize<Dictionary<string, SweptVariableFileMetadata>>(capturedEntity.SweptVariablesJson);
+        Assert.NotNull(sweptVariables);
+        Assert.Equal(3, sweptVariables.Count);
 
-//    /// <summary>
-//    /// Verifies that when the sweep entity insertion encounters a conflict (already exists),
-//    /// the step logs a warning and completes without throwing.
-//    /// </summary>
-//    [Fact]
-//    public async Task ExecuteAsync_WhenEntityInsertConflicts_LogsWarningAndReturnsIdentifier()
-//    {
-//        // Arrange
-//        _repositoryMock
-//            .Setup(r => r.TryInsertAsync(It.IsAny<ParametricSweepEntity>(), It.IsAny<CancellationToken>()))
-//            .ReturnsAsync(Result.CreateConflict(0L, "Entity already exists."));
+        Assert.Equal(101L, sweptVariables["Strain"].OutputFileMetadataId);
+        Assert.Equal(strainRange, sweptVariables["Strain"].Range);
 
-//        _repositoryMock
-//            .Setup(r => r.TryInsertAsync(It.IsAny<StorageEntryMetadataEntity>(), It.IsAny<CancellationToken>()))
-//            .ReturnsAsync(Result.CreateSuccessOk(1L));
+        Assert.Equal(102L, sweptVariables["ElasticStressConstant"].OutputFileMetadataId);
+        Assert.Equal(constantRange, sweptVariables["ElasticStressConstant"].Range);
 
-//        ParametricSweepPersistenceStep step = new(
-//            NullLogger<ParametricSweepPersistenceStep>.Instance,
-//            _repositoryMock.Object);
+        Assert.Equal(103L, sweptVariables["ReducedRelaxationFunction[0]"].OutputFileMetadataId);
+        Assert.Equal(arrayRange, sweptVariables["ReducedRelaxationFunction[0]"].Range);
 
-//        string identifier = "sweep_pers_conflict";
-//        ParametricSweepInput sweepInput = new()
-//        {
-//            MechanicalModelName = "Maxwell",
-//            Baseline = new MaxwellConstitutiveParameters { Stiffness = 100.0, Viscosity = 10.0 },
-//            ConstantVariables = [],
-//            ArrayVariables = [],
-//            BaseStrain = 0.05,
-//            RampTimeConsideration = RampTimeConsideration.Disregard,
-//            InitialTime = 0.0,
-//            FinalTime = 5.0,
-//            TimeStep = 0.1
-//        };
+        // Re-running with different database-generated file IDs must produce the exact same deterministic Identifier hash
+        string firstHash = capturedEntity.Identifier;
+        await step.ExecuteAsync(input);
+        Assert.Equal(firstHash, capturedEntity.Identifier);
 
-//        StorageEntryMetadata[] generatedFiles =
-//        [
-//            new StorageEntryMetadata(StorageProvider.Local, @"C:\Data\SensitivityAnalysis\sweep_pers_conflict\Output.csv", @"C:\Data\SensitivityAnalysis\sweep_pers_conflict", "Output.csv", 512L, DateTimeOffset.UtcNow)
-//        ];
+        _repositoryMock.Verify(
+            r => r.TryInsertAsync(
+                It.Is<StorageEntryMetadataEntity>(f =>
+                    f.ExternalIdentifier == identifier &&
+                    f.StorageProvider == StorageProvider.Local &&
+                    f.ContentType == "text/csv" &&
+                    f.SizeBytes > 0),
+                It.IsAny<CancellationToken>()),
+            Times.Exactly(6));
+    }
 
-//        ParametricSweepPersistenceInput input = new(identifier, sweepInput, generatedFiles);
+    /// <summary>
+    /// Verifies that when the sweep entity insertion encounters a conflict (already exists),
+    /// the step logs a warning and completes without throwing.
+    /// </summary>
+    [Fact]
+    public async Task ExecuteAsync_WhenEntityInsertConflicts_LogsWarningAndReturnsIdentifier()
+    {
+        // Arrange
+        _repositoryMock
+            .Setup(r => r.TryInsertAsync(It.IsAny<ParametricSweepEntity>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Result.CreateConflict(1L, "Entity already exists."));
 
-//        // Act
-//        string result = await step.ExecuteAsync(input);
+        _repositoryMock
+            .Setup(r => r.TryInsertAsync(It.IsAny<StorageEntryMetadataEntity>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Result.CreateSuccessOk(42L));
 
-//        // Assert
-//        Assert.Equal(identifier, result);
-//        _repositoryMock.Verify(r => r.TryInsertAsync(It.IsAny<StorageEntryMetadataEntity>(), It.IsAny<CancellationToken>()), Times.Once);
-//    }
+        ParametricSweepPersistenceStep step = new(
+            NullLogger<ParametricSweepPersistenceStep>.Instance,
+            _repositoryMock.Object);
 
-//    /// <summary>
-//    /// Verifies that when the sweep entity insertion fails with an error, an <see cref="InvalidOperationException"/> is thrown.
-//    /// </summary>
-//    [Fact]
-//    public async Task ExecuteAsync_WhenEntityInsertFails_ThrowsInvalidOperationException()
-//    {
-//        // Arrange
-//        Result<long> badRequestResult = Result.CreateBadRequest("Database constraint violation.");
-//        _repositoryMock
-//            .Setup(r => r.TryInsertAsync(It.IsAny<ParametricSweepEntity>(), It.IsAny<CancellationToken>()))
-//            .ReturnsAsync(badRequestResult);
+        string identifier = "sweep_pers_conflict";
+        ParametricSweepPipelineInput sweepInput = CreateMaxwellSweepInput(identifier);
 
-//        ParametricSweepPersistenceStep step = new(
-//            NullLogger<ParametricSweepPersistenceStep>.Instance,
-//            _repositoryMock.Object);
+        (string VariableName, StorageEntryMetadata FileMetadata)[] generatedFiles =
+        [
+            ("Stiffness", new StorageEntryMetadata(StorageProvider.Local, @"C:\Data\sweep_pers_conflict\Stiffness.csv", @"C:\Data\sweep_pers_conflict", "Stiffness.csv", 512L, DateTimeOffset.UtcNow))
+        ];
 
-//        ParametricSweepInput sweepInput = new()
-//        {
-//            MechanicalModelName = "Maxwell",
-//            Baseline = new MaxwellConstitutiveParameters { Stiffness = 100.0, Viscosity = 10.0 },
-//            ConstantVariables = [],
-//            ArrayVariables = [],
-//            BaseStrain = 0.05,
-//            RampTimeConsideration = RampTimeConsideration.Disregard,
-//            InitialTime = 0.0,
-//            FinalTime = 5.0,
-//            TimeStep = 0.1
-//        };
+        ParametricSweepPersistenceInput input = new(identifier, sweepInput, generatedFiles);
 
-//        ParametricSweepPersistenceInput input = new("sweep_fail", sweepInput, []);
+        // Act
+        string result = await step.ExecuteAsync(input);
 
-//        // Act & Assert
-//        InvalidOperationException exception = await Assert.ThrowsAsync<InvalidOperationException>(() => step.ExecuteAsync(input));
-//        Assert.Contains("Database constraint violation.", exception.Message);
-//    }
+        // Assert
+        Assert.Equal(identifier, result);
+        _repositoryMock.Verify(r => r.TryInsertAsync(It.IsAny<StorageEntryMetadataEntity>(), It.IsAny<CancellationToken>()), Times.Once);
+    }
 
-//    /// <summary>
-//    /// Verifies that when stored file insertion fails with a non-conflict error, an <see cref="InvalidOperationException"/> is thrown.
-//    /// </summary>
-//    [Fact]
-//    public async Task ExecuteAsync_WhenStoredFileInsertFails_ThrowsInvalidOperationException()
-//    {
-//        // Arrange
-//        _repositoryMock
-//            .Setup(r => r.TryInsertAsync(It.IsAny<ParametricSweepEntity>(), It.IsAny<CancellationToken>()))
-//            .ReturnsAsync(Result.CreateSuccessOk(1L));
+    /// <summary>
+    /// Verifies that when the sweep entity insertion fails with an error, an <see cref="InvalidOperationException"/> is thrown.
+    /// </summary>
+    [Fact]
+    public async Task ExecuteAsync_WhenEntityInsertFails_ThrowsInvalidOperationException()
+    {
+        // Arrange
+        Result<long> badRequestResult = Result.CreateBadRequest("Database constraint violation.");
+        _repositoryMock
+            .Setup(r => r.TryInsertAsync(It.IsAny<ParametricSweepEntity>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(badRequestResult);
 
-//        Result<long> badRequestResult = Result.CreateBadRequest("Disk error saving metadata.");
-//        _repositoryMock
-//            .Setup(r => r.TryInsertAsync(It.IsAny<StorageEntryMetadataEntity>(), It.IsAny<CancellationToken>()))
-//            .ReturnsAsync(badRequestResult);
+        ParametricSweepPersistenceStep step = new(
+            NullLogger<ParametricSweepPersistenceStep>.Instance,
+            _repositoryMock.Object);
 
-//        ParametricSweepPersistenceStep step = new(
-//            NullLogger<ParametricSweepPersistenceStep>.Instance,
-//            _repositoryMock.Object);
+        ParametricSweepPipelineInput sweepInput = CreateMaxwellSweepInput("sweep_fail");
+        ParametricSweepPersistenceInput input = new("sweep_fail", sweepInput, []);
 
-//        ParametricSweepInput sweepInput = new()
-//        {
-//            MechanicalModelName = "Maxwell",
-//            Baseline = new MaxwellConstitutiveParameters { Stiffness = 100.0, Viscosity = 10.0 },
-//            ConstantVariables = [],
-//            ArrayVariables = [],
-//            BaseStrain = 0.05,
-//            RampTimeConsideration = RampTimeConsideration.Disregard,
-//            InitialTime = 0.0,
-//            FinalTime = 5.0,
-//            TimeStep = 0.1
-//        };
+        // Act & Assert
+        InvalidOperationException exception = await Assert.ThrowsAsync<InvalidOperationException>(() => step.ExecuteAsync(input));
+        Assert.Contains("Database constraint violation.", exception.Message);
+    }
 
-//        StorageEntryMetadata[] generatedFiles =
-//        [
-//            new StorageEntryMetadata(StorageProvider.Local, @"C:\Data\SensitivityAnalysis\sweep_file_fail\Output.csv", @"C:\Data\SensitivityAnalysis\sweep_file_fail", "Output.csv", 512L, DateTimeOffset.UtcNow)
-//        ];
+    /// <summary>
+    /// Verifies that when stored file insertion fails with a non-conflict error, an <see cref="InvalidOperationException"/> is thrown.
+    /// </summary>
+    [Fact]
+    public async Task ExecuteAsync_WhenStoredFileInsertFails_ThrowsInvalidOperationException()
+    {
+        // Arrange
+        Result<long> badRequestResult = Result.CreateBadRequest("Disk error saving metadata.");
+        _repositoryMock
+            .Setup(r => r.TryInsertAsync(It.IsAny<StorageEntryMetadataEntity>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(badRequestResult);
 
-//        ParametricSweepPersistenceInput input = new("sweep_file_fail", sweepInput, generatedFiles);
+        ParametricSweepPersistenceStep step = new(
+            NullLogger<ParametricSweepPersistenceStep>.Instance,
+            _repositoryMock.Object);
 
-//        // Act & Assert
-//        InvalidOperationException exception = await Assert.ThrowsAsync<InvalidOperationException>(() => step.ExecuteAsync(input));
-//        Assert.Contains("Disk error saving metadata.", exception.Message);
-//    }
+        ParametricSweepPipelineInput sweepInput = CreateMaxwellSweepInput("sweep_file_fail");
+        (string VariableName, StorageEntryMetadata FileMetadata)[] generatedFiles =
+        [
+            ("Stiffness", new StorageEntryMetadata(StorageProvider.Local, @"C:\Data\sweep_file_fail\Stiffness.csv", @"C:\Data\sweep_file_fail", "Stiffness.csv", 512L, DateTimeOffset.UtcNow))
+        ];
 
-//    /// <summary>
-//    /// Verifies that DisposeAsync completes cleanly without errors.
-//    /// </summary>
-//    [Fact]
-//    public async Task DisposeAsync_CompletesSuccessfully()
-//    {
-//        // Arrange
-//        ParametricSweepPersistenceStep step = new(
-//            NullLogger<ParametricSweepPersistenceStep>.Instance,
-//            _repositoryMock.Object);
+        ParametricSweepPersistenceInput input = new("sweep_file_fail", sweepInput, generatedFiles);
 
-//        // Act & Assert
-//        await step.DisposeAsync();
-//    }
-//}
+        // Act & Assert
+        InvalidOperationException exception = await Assert.ThrowsAsync<InvalidOperationException>(() => step.ExecuteAsync(input));
+        Assert.Contains("Disk error saving metadata.", exception.Message);
+    }
+
+    /// <summary>
+    /// Verifies that when a generated file references an unknown variable name without a configured range, an <see cref="InvalidOperationException"/> is thrown.
+    /// </summary>
+    [Fact]
+    public async Task ExecuteAsync_WhenVariableRangeCannotBeResolved_ThrowsInvalidOperationException()
+    {
+        // Arrange
+        ParametricSweepPersistenceStep step = new(
+            NullLogger<ParametricSweepPersistenceStep>.Instance,
+            _repositoryMock.Object);
+
+        ParametricSweepPipelineInput sweepInput = CreateMaxwellSweepInput("sweep_unknown_var");
+        (string VariableName, StorageEntryMetadata FileMetadata)[] generatedFiles =
+        [
+            ("UnknownVariable", new StorageEntryMetadata(StorageProvider.Local, @"C:\Data\Unknown.csv", @"C:\Data", "Unknown.csv", 256L, DateTimeOffset.UtcNow))
+        ];
+
+        ParametricSweepPersistenceInput input = new("sweep_unknown_var", sweepInput, generatedFiles);
+
+        // Act & Assert
+        InvalidOperationException exception = await Assert.ThrowsAsync<InvalidOperationException>(() => step.ExecuteAsync(input));
+        Assert.Contains("UnknownVariable", exception.Message);
+    }
+
+    /// <summary>
+    /// Verifies that DisposeAsync completes cleanly without errors.
+    /// </summary>
+    [Fact]
+    public async Task DisposeAsync_CompletesSuccessfully()
+    {
+        // Arrange
+        ParametricSweepPersistenceStep step = new(
+            NullLogger<ParametricSweepPersistenceStep>.Instance,
+            _repositoryMock.Object);
+
+        // Act & Assert
+        await step.DisposeAsync();
+    }
+
+    private static ParametricSweepPipelineInput CreateMaxwellSweepInput(string identifier) => new()
+    {
+        Identifier = identifier,
+        MechanicalModelName = "Maxwell",
+        Baseline = new MaxwellConstitutiveParameters { Stiffness = 100.0, Viscosity = 10.0 },
+        ConstantVariables = new Dictionary<string, RangeParameters>
+        {
+            ["Stiffness"] = new RangeParameters { InitialPoint = 50.0, FinalPoint = 150.0, Step = 50.0 }
+        },
+        ArrayVariables = [],
+        BaseStrain = 0.05,
+        RampTimeConsideration = RampTimeConsideration.Disregard,
+        InitialTime = 0.0,
+        FinalTime = 5.0,
+        TimeStep = 0.1,
+        RootFindingAlgorithm = RootFindingAlgorithm.StepByStepMethod,
+        BaseRootFindingInput = new RootFindingInput(0.0, 500.0, 1e-4, 500)
+    };
+}

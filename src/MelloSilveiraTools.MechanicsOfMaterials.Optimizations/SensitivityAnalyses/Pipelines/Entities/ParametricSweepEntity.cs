@@ -1,5 +1,6 @@
 using MelloSilveiraTools.Database.RelationalDatabase.Attributes;
 using MelloSilveiraTools.Database.RelationalDatabase.Models.Entities;
+using MelloSilveiraTools.Mathematics.Models.NumericalMethods;
 using MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity;
 
 namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Pipelines.Entities;
@@ -65,10 +66,16 @@ public record ParametricSweepEntity : EntityBase
     public required double TimeStep { get; init; }
 
     /// <summary>
-    /// Relative tolerance threshold utilized for steady-state asymptote detection.
+    /// Root-finding algorithm utilized to locate steady-state relaxation asymptotes.
     /// </summary>
     [Column]
-    public required double AsymptoteTolerance { get; init; }
+    public required RootFindingAlgorithm RootFindingAlgorithm { get; init; }
+
+    /// <summary>
+    /// JSON snapshot of the base root-finding configuration parameters formatted to 7 significant figures.
+    /// </summary>
+    [Column]
+    public required string BaseRootFindingInputJson { get; init; }
 
     /// <summary>
     /// Polymorphic JSON snapshot of the baseline constitutive parameters formatted to 7 significant figures.
@@ -77,8 +84,8 @@ public record ParametricSweepEntity : EntityBase
     public required string BaselineParametersJson { get; init; }
 
     /// <summary>
-    /// JSON snapshot of the swept variable ranges (constant, array, and strain ranges) formatted to 7 significant figures.
+    /// JSON snapshot of the dictionary mapping each swept variable name to its range parameters and generated CSV file metadata identifier, formatted to 7 significant figures.
     /// </summary>
     [Column]
-    public required string VariableRangesJson { get; init; }
+    public required string SweptVariablesJson { get; init; }
 }

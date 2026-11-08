@@ -67,7 +67,7 @@ public sealed class ParametricSweepPipelineAcceptanceTests : IDisposable
         ParametricSweepPipeline pipeline = scope.ServiceProvider.GetRequiredService<ParametricSweepPipeline>();
         MelloSilveiraTools.Core.Managers.File.Providers.IFileStorageService fileStorageService = scope.ServiceProvider.GetRequiredService<MelloSilveiraTools.Core.Managers.File.Providers.IFileStorageService>();
 
-        ParametricSweepInput input = ParametricSweepInputJsonParser.Parse(File.ReadAllText(jsonFilePath));
+        ParametricSweepPipelineInput input = ParametricSweepInputJsonParser.Parse(File.ReadAllText(jsonFilePath));
 
         // Act
         Result<string> result = await pipeline.ProcessAsync(input);

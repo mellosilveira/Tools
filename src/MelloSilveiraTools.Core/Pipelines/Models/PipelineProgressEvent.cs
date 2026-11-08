@@ -6,6 +6,9 @@ namespace MelloSilveiraTools.Core.Pipelines.Models;
 /// </summary>
 public sealed record PipelineProgressEvent
 {
+    /// <summary>
+    /// Gets the unique identifier of the pipeline execution emitting the event.
+    /// </summary>
     public required string PipelineIdentifier { get; init; }
 
     /// <summary>
@@ -47,11 +50,6 @@ public sealed record PipelineProgressEvent
     public int ProcessedItems { get; init; }
 
     /// <summary>
-    /// Gets the estimated completion percentage (0.0 to 100.0) of this step based on <see cref="ProcessedItems"/> and <see cref="ReceivedItems"/>.
-    /// </summary>
-    public double ProgressPercentage { get; init; }
-
-    /// <summary>
     /// Gets optional diagnostic, contextual, or execution details serialized as a JSON string (e.g., error payloads, item counters, or execution metrics).
     /// </summary>
     public string? Details { get; init; }
@@ -69,13 +67,13 @@ public sealed record PipelineProgressEvent
         if (ReferenceEquals(this, other))
             return true;
 
-        return string.Equals(StepName, other.StepName, StringComparison.Ordinal)
+        return string.Equals(PipelineIdentifier, other.PipelineIdentifier, StringComparison.Ordinal)
+            && string.Equals(StepName, other.StepName, StringComparison.Ordinal)
             && string.Equals(Description, other.Description, StringComparison.Ordinal)
             && State == other.State
             && Timestamp.Equals(other.Timestamp)
             && ReceivedItems == other.ReceivedItems
             && ProcessedItems == other.ProcessedItems
-            && ProgressPercentage.Equals(other.ProgressPercentage)
             && string.Equals(Details, other.Details, StringComparison.Ordinal)
             && UpstreamSteps.SequenceEqual(other.UpstreamSteps, StringComparer.Ordinal);
     }
@@ -84,13 +82,13 @@ public sealed record PipelineProgressEvent
     public override int GetHashCode()
     {
         HashCode hash = new();
+        hash.Add(PipelineIdentifier, StringComparer.Ordinal);
         hash.Add(StepName, StringComparer.Ordinal);
         hash.Add(Description, StringComparer.Ordinal);
         hash.Add(State);
         hash.Add(Timestamp);
         hash.Add(ReceivedItems);
         hash.Add(ProcessedItems);
-        hash.Add(ProgressPercentage);
         hash.Add(Details, StringComparer.Ordinal);
         for (int i = 0; i < UpstreamSteps.Count; i++)
         {

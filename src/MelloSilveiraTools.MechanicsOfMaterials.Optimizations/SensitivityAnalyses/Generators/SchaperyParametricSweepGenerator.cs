@@ -1,7 +1,5 @@
 using MelloSilveiraTools.Mathematics.Functions;
 using MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.NonLinear.Schapery;
-using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Models.Range;
-using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Pipelines.Models;
 
 namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Generators;
 
@@ -11,7 +9,7 @@ namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnaly
 public sealed class SchaperyParametricSweepGenerator : ParametricSweepGeneratorBase<SchaperyConstitutiveParameters>
 {
     /// <inheritdoc />
-    protected override IEnumerable<(string PropertyName, Func<SchaperyConstitutiveParameters, double, SchaperyConstitutiveParameters> Mutate)> GetPropertyVariations()
+    protected override IEnumerable<(string VariableName, Func<SchaperyConstitutiveParameters, double, SchaperyConstitutiveParameters> Mutate)> GetVariableVariations()
     {
         yield return (nameof(SchaperyConstitutiveParameters.G0), (baseline, value) => baseline with { G0 = value });
         yield return (nameof(SchaperyConstitutiveParameters.G1), (baseline, value) => baseline with { G1 = value });
@@ -21,8 +19,8 @@ public sealed class SchaperyParametricSweepGenerator : ParametricSweepGeneratorB
         yield return (nameof(SchaperyConstitutiveParameters.He), (baseline, value) => baseline with { He = new ConstantFunction(value) });
         yield return (nameof(SchaperyConstitutiveParameters.H1), (baseline, value) => baseline with { H1 = new ConstantFunction(value) });
         yield return (nameof(SchaperyConstitutiveParameters.H2), (baseline, value) => baseline with { H2 = new ConstantFunction(value) });
-        yield return ($"{nameof(SchaperyConstitutiveParameters.TransientRelaxationFunction)}.C", (baseline, value) => GetTransientRelaxationFunction(baseline, [value, baseline.TransientRelaxationFunction!.Coefficients[1]]));
-        yield return ($"{nameof(SchaperyConstitutiveParameters.TransientRelaxationFunction)}.n", (baseline, value) => GetTransientRelaxationFunction(baseline, [baseline.TransientRelaxationFunction!.Coefficients[0], value]));
+        yield return ($"{nameof(SchaperyConstitutiveParameters.TransientRelaxationFunction)}.C", static (baseline, value) => GetTransientRelaxationFunction(baseline, [value, baseline.TransientRelaxationFunction!.Coefficients[1]]));
+        yield return ($"{nameof(SchaperyConstitutiveParameters.TransientRelaxationFunction)}.n", static (baseline, value) => GetTransientRelaxationFunction(baseline, [baseline.TransientRelaxationFunction!.Coefficients[0], value]));
 
         static SchaperyConstitutiveParameters GetTransientRelaxationFunction(SchaperyConstitutiveParameters baseline, double[] coefficients)
         {
@@ -35,13 +33,11 @@ public sealed class SchaperyParametricSweepGenerator : ParametricSweepGeneratorB
     }
 
     /// <inheritdoc/>
-    protected override IEnumerable<(string PropertyName, int Index, Func<SchaperyConstitutiveParameters, int, double, SchaperyConstitutiveParameters> Mutate)> GetArrayPropertyVariations(ParametricSweepInput input)
+    protected override IEnumerable<(string VariableName, Func<SchaperyConstitutiveParameters, int, double, SchaperyConstitutiveParameters> Mutate)> GetArrayVariableVariations()
     {
-        foreach ((string variableName, Dictionary<int, RangeParameters> indexedRangeParameters) in input.ArrayVariables)
-        {
-            yield return (nameof(SchaperyConstitutiveParameters.TransientCreepCompliance), (baseline, index, value) => { });
-        }
-
-        yield break;
+        yield return (
+            nameof(SchaperyConstitutiveParameters.TransientCreepCompliance),
+            static (baseline, index, value) => baseline with { TransientCreepCompliance = GetPronySeriesVariation(baseline.TransientCreepCompliance!, index, value) }
+        );
     }
 }

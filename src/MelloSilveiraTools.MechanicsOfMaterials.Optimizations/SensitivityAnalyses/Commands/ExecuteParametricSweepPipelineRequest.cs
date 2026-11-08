@@ -1,4 +1,6 @@
 using MelloSilveiraTools.Core.Application.Commands;
+using MelloSilveiraTools.Mathematics.Models.NumericalMethods;
+using MelloSilveiraTools.Mathematics.NumericalMethods.RootFindingAlgorithms;
 using MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels;
 using MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Models.Range;
@@ -70,12 +72,13 @@ public record ExecuteParametricSweepPipelineRequest : RequestBase
     /// </summary>
     public required double FinalTime { get; init; }
 
-    public required int MaxBracketIterations { get; init; }
-
-    public required int BinarySearchIterations { get; init; }
+    /// <summary>
+    /// Gets the root-finding algorithm used to locate steady-state relaxation asymptotes.
+    /// </summary>
+    public required RootFindingAlgorithm RootFindingAlgorithm { get; init; }
 
     /// <summary>
-    /// Gets the relative tolerance threshold utilized by the asymptote detection step. Defaults to 1e-3.
+    /// Gets the base root-finding configuration parameters for asymptote detection.
     /// </summary>
-    public double AsymptoteTolerance { get; init; } = 1e-3;
+    public required RootFindingInput BaseRootFindingInput { get; init; }
 }

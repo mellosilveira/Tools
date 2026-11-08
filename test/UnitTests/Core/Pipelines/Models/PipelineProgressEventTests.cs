@@ -27,7 +27,6 @@ public sealed class PipelineProgressEventTests
             UpstreamSteps = ["ParentStepA", "ParentStepB"],
             ReceivedItems = 10,
             ProcessedItems = 5,
-            ProgressPercentage = 50.0,
             Details = "Batch 1 of 5"
         };
 
@@ -38,7 +37,6 @@ public sealed class PipelineProgressEventTests
         Assert.Equal(["ParentStepA", "ParentStepB"], progressEvent.UpstreamSteps);
         Assert.Equal(10, progressEvent.ReceivedItems);
         Assert.Equal(5, progressEvent.ProcessedItems);
-        Assert.Equal(50.0, progressEvent.ProgressPercentage);
         Assert.Equal("Batch 1 of 5", progressEvent.Details);
         Assert.Equal(now, progressEvent.Timestamp);
     }
@@ -69,7 +67,6 @@ public sealed class PipelineProgressEventTests
         Assert.Empty(progressEvent.UpstreamSteps);
         Assert.Equal(0, progressEvent.ReceivedItems);
         Assert.Equal(0, progressEvent.ProcessedItems);
-        Assert.Equal(0.0, progressEvent.ProgressPercentage);
         Assert.Null(progressEvent.Details);
         Assert.Equal(now, progressEvent.Timestamp);
     }
@@ -93,7 +90,6 @@ public sealed class PipelineProgressEventTests
             UpstreamSteps = ["RootStep"],
             ReceivedItems = 4,
             ProcessedItems = 4,
-            ProgressPercentage = 100.0,
             Details = "OK"
         };
         PipelineProgressEvent event2 = new()
@@ -106,7 +102,6 @@ public sealed class PipelineProgressEventTests
             UpstreamSteps = new List<string> { "RootStep" },
             ReceivedItems = 4,
             ProcessedItems = 4,
-            ProgressPercentage = 100.0,
             Details = "OK"
         };
         PipelineProgressEvent event3 = event1 with { State = PipelineStepState.Faulted };

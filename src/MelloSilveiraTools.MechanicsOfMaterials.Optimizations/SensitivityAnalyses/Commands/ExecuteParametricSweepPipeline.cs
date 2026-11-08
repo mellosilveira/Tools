@@ -9,15 +9,17 @@ namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnaly
 /// <summary>
 /// Application command that validates and executes a parametric sweep sensitivity analysis via <see cref="IPipeline{TInput, TOutput}"/>.
 /// </summary>
+/// <param name="logger">The structured logger instance.</param>
 /// <param name="pipeline">The parametric sweep pipeline.</param>
 /// <param name="validator">Request validator for <see cref="ExecuteParametricSweepPipelineRequest"/>.</param>
 public sealed class ExecuteParametricSweepPipeline(
     ILogger<ExecuteParametricSweepPipeline> logger,
-    IPipeline<ParametricSweepInput, string> pipeline,
+    IPipeline<ParametricSweepPipelineInput, string> pipeline,
     IValidator<ExecuteParametricSweepPipelineRequest> validator)
-    : ExecutePipeline<ExecuteParametricSweepPipelineRequest, ParametricSweepInput, string>(logger, pipeline, validator)
+    : ExecutePipeline<ExecuteParametricSweepPipelineRequest, ParametricSweepPipelineInput, string>(logger, pipeline, validator)
 {
-    protected override ParametricSweepInput MapToInput(ExecuteParametricSweepPipelineRequest request) => new()
+    /// <inheritdoc/>
+    protected override ParametricSweepPipelineInput MapToInput(ExecuteParametricSweepPipelineRequest request) => new()
     {
         Identifier = string.IsNullOrWhiteSpace(request.Identifier) ? Guid.NewGuid().ToString("N") : request.Identifier,
         MechanicalModelName = request.MechanicalModelName,
@@ -31,8 +33,7 @@ public sealed class ExecuteParametricSweepPipeline(
         InitialTime = request.InitialTime,
         TimeStep = request.TimeStep,
         FinalTime = request.FinalTime,
-        AsymptoteTolerance = request.AsymptoteTolerance,
-        BinarySearchIterations = request.BinarySearchIterations,
-        MaxBracketIterations = request.MaxBracketIterations,
+        RootFindingAlgorithm = request.RootFindingAlgorithm,
+        BaseRootFindingInput = request.BaseRootFindingInput,
     };
 }

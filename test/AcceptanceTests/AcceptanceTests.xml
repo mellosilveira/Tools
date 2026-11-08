@@ -182,16 +182,16 @@
         </member>
         <member name="T:AcceptanceTests.MechanicalOfMaterials.Optimizations.SensitivityAnalysis.Serialization.ParametricSweepInputJsonParser">
             <summary>
-            Deserializes JSON representations into strongly-typed <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Pipelines.Models.ParametricSweepInput"/> instances,
+            Deserializes JSON representations into strongly-typed <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Pipelines.Models.ParametricSweepPipelineInput"/> instances,
             including polymorphic resolution of constitutive model parameters and mathematical functions.
             </summary>
         </member>
         <member name="M:AcceptanceTests.MechanicalOfMaterials.Optimizations.SensitivityAnalysis.Serialization.ParametricSweepInputJsonParser.Parse(System.String)">
             <summary>
-            Parses a JSON text into a <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Pipelines.Models.ParametricSweepInput"/> instance.
+            Parses a JSON text into a <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Pipelines.Models.ParametricSweepPipelineInput"/> instance.
             </summary>
             <param name="json">The JSON payload string.</param>
-            <returns>A populated <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Pipelines.Models.ParametricSweepInput"/> instance.</returns>
+            <returns>A populated <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Pipelines.Models.ParametricSweepPipelineInput"/> instance.</returns>
             <exception cref="T:System.ArgumentException">Thrown when <paramref name="json"/> is null or whitespace.</exception>
             <exception cref="T:System.Text.Json.JsonException">Thrown when the JSON payload is malformed or missing required properties.</exception>
         </member>

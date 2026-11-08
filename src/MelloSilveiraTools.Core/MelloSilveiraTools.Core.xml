@@ -1278,6 +1278,30 @@
             <param name="writeRow">Action writing column values into the provided row buffer.</param>
             <param name="cancellationToken">Cancellation token.</param>
         </member>
+        <member name="M:MelloSilveiraTools.Core.Managers.File.Csv.CsvFileWriter.WriteRowAsync(System.Threading.CancellationToken,System.ReadOnlySpan{System.Double})">
+            <summary>
+            Appends a CSV row by formatting a sequence of numeric values with invariant culture,
+            delimiting them with commas and batch-flushing to disk when the threshold is reached.
+            </summary>
+            <param name="cancellationToken">Cancellation token.</param>
+            <param name="values">Sequence of double-precision floating-point values to format and append as columns.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Managers.File.Csv.CsvFileWriter.WriteRowAsync(System.ReadOnlySpan{System.Double})">
+            <summary>
+            Appends a CSV row by formatting a sequence of numeric values with invariant culture,
+            delimiting them with commas and batch-flushing to disk when the threshold is reached.
+            </summary>
+            <param name="values">Sequence of double-precision floating-point values to format and append as columns.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Managers.File.Csv.CsvFileWriter.WriteRowAsync(System.ReadOnlySpan{System.Double},System.String,System.Threading.CancellationToken)">
+            <summary>
+            Appends a CSV row by formatting a sequence of numeric values with a custom format and invariant culture,
+            delimiting them with commas and batch-flushing to disk when the threshold is reached.
+            </summary>
+            <param name="values">Sequence of double-precision floating-point values to format and append as columns.</param>
+            <param name="format">Optional numeric format string (e.g. "G7", "G", "F4"). If null, standard invariant representation is used.</param>
+            <param name="cancellationToken">Cancellation token.</param>
+        </member>
         <member name="M:MelloSilveiraTools.Core.Managers.File.Csv.CsvFileWriter.DisposeAsync">
             <inheritdoc />
         </member>
@@ -3010,12 +3034,12 @@
             Architectural Decisions:
             <list type="bullet">
             <item><description><b>Bifurcated DLQ Routing:</b> When a Dead-Letter Queue is configured, steps dynamically wrap execution in <see cref="T:MelloSilveiraTools.Core.Pipelines.Models.SafeResult`2"/> and split successful vs. faulted payloads without faulting the TPL Dataflow graph.</description></item>
-            <item><description><b>Topology Tracking:</b> Collects ordered <c>(PreviousStepName, CurrentStep)</c> node pairs. Main-flow operators track <c>currentStepName</c>, while side-effect observers (<c>AddBroadcastStep</c>) preserve the upstream predecessor for subsequent steps.</description></item>
+            <item><description><b>Topology Tracking:</b> Collects ordered <c>(PreviousStepNames, CurrentStep)</c> node pairs. Main-flow operators track <c>currentStepNames</c>, while side-effect observers (<c>AddBroadcastStep</c>) preserve the upstream predecessors for subsequent steps.</description></item>
             <item><description><b>Unified Observability:</b> All pipeline operations route through <see cref="T:MelloSilveiraTools.Core.Pipelines.Telemetry.ObservabilityExtensions"/> to capture distributed tracing, structured logging, and non-blocking real-time progress notifications.</description></item>
             </list>
             </remarks>
         </member>
-        <member name="M:MelloSilveiraTools.Core.Pipelines.Dataflow.DataflowPipelineBuilder`2.#ctor(Microsoft.Extensions.Logging.ILogger,MelloSilveiraTools.Core.Pipelines.Notifiers.IPipelineProgressNotifier,System.Threading.Tasks.Dataflow.ITargetBlock{`0},System.Threading.Tasks.Dataflow.ISourceBlock{`1},System.Threading.Tasks.Dataflow.ITargetBlock{MelloSilveiraTools.Core.Pipelines.Models.FailedPayload},System.TimeProvider,System.String,System.Collections.Generic.List{System.Threading.Tasks.Task},System.Collections.Generic.List{System.ValueTuple{System.String,MelloSilveiraTools.Core.Pipelines.Steps.IPipelineStep}},System.String,System.Threading.CancellationToken)">
+        <member name="M:MelloSilveiraTools.Core.Pipelines.Dataflow.DataflowPipelineBuilder`2.#ctor(Microsoft.Extensions.Logging.ILogger,MelloSilveiraTools.Core.Pipelines.Notifiers.IPipelineProgressNotifier,System.Threading.Tasks.Dataflow.ITargetBlock{`0},System.Threading.Tasks.Dataflow.ISourceBlock{`1},System.Threading.Tasks.Dataflow.ITargetBlock{MelloSilveiraTools.Core.Pipelines.Models.FailedPayload},System.TimeProvider,System.String,System.Collections.Generic.List{System.Threading.Tasks.Task},System.Collections.Generic.List{System.ValueTuple{System.String[],MelloSilveiraTools.Core.Pipelines.Steps.IPipelineStep}},System.String[],System.Threading.CancellationToken)">
             <summary>
             Strongly-typed fluent builder for orchestrating asynchronous data processing topologies.
             </summary>
@@ -3023,7 +3047,7 @@
             Architectural Decisions:
             <list type="bullet">
             <item><description><b>Bifurcated DLQ Routing:</b> When a Dead-Letter Queue is configured, steps dynamically wrap execution in <see cref="T:MelloSilveiraTools.Core.Pipelines.Models.SafeResult`2"/> and split successful vs. faulted payloads without faulting the TPL Dataflow graph.</description></item>
-            <item><description><b>Topology Tracking:</b> Collects ordered <c>(PreviousStepName, CurrentStep)</c> node pairs. Main-flow operators track <c>currentStepName</c>, while side-effect observers (<c>AddBroadcastStep</c>) preserve the upstream predecessor for subsequent steps.</description></item>
+            <item><description><b>Topology Tracking:</b> Collects ordered <c>(PreviousStepNames, CurrentStep)</c> node pairs. Main-flow operators track <c>currentStepNames</c>, while side-effect observers (<c>AddBroadcastStep</c>) preserve the upstream predecessors for subsequent steps.</description></item>
             <item><description><b>Unified Observability:</b> All pipeline operations route through <see cref="T:MelloSilveiraTools.Core.Pipelines.Telemetry.ObservabilityExtensions"/> to capture distributed tracing, structured logging, and non-blocking real-time progress notifications.</description></item>
             </list>
             </remarks>
@@ -3055,7 +3079,10 @@
         <member name="M:MelloSilveiraTools.Core.Pipelines.Dataflow.DataflowPipelineBuilder`2.Fork``3(MelloSilveiraTools.Core.Pipelines.Steps.IPipelineStep{`1,``0},MelloSilveiraTools.Core.Pipelines.Steps.IPipelineStep{`1,``1},MelloSilveiraTools.Core.Pipelines.Steps.IPipelineStep{`1,``2},MelloSilveiraTools.Core.Pipelines.Models.PipelineStepOptions)">
             <inheritdoc/>
         </member>
-        <member name="M:MelloSilveiraTools.Core.Pipelines.Dataflow.DataflowPipelineBuilder`2.AddGroupWhileStep(System.Func{`1,`1,System.Boolean},MelloSilveiraTools.Core.Pipelines.Models.PipelineStepOptions)">
+        <member name="M:MelloSilveiraTools.Core.Pipelines.Dataflow.DataflowPipelineBuilder`2.AddGroupWhileStep``1(System.Func{`1,``0},MelloSilveiraTools.Core.Pipelines.Models.PipelineStepOptions)">
+            <inheritdoc/>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Pipelines.Dataflow.DataflowPipelineBuilder`2.AddGroupWhileStep``1(System.Func{`1,`1,System.Boolean},System.Func{`1,``0},MelloSilveiraTools.Core.Pipelines.Models.PipelineStepOptions)">
             <inheritdoc/>
         </member>
         <member name="M:MelloSilveiraTools.Core.Pipelines.Dataflow.DataflowPipelineBuilder`2.AddCollectAllStep(MelloSilveiraTools.Core.Pipelines.Models.PipelineStepOptions)">
@@ -3103,7 +3130,7 @@
             Exposes inputs, triggers completion, and awaits termination while automatically disposing registered steps on shutdown.
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.Core.Pipelines.Dataflow.DataflowPipeline`1.#ctor(Microsoft.Extensions.Logging.ILogger,System.Threading.Tasks.Dataflow.ITargetBlock{`0},System.Threading.Tasks.Task,System.Collections.Generic.IReadOnlyList{System.ValueTuple{System.String,MelloSilveiraTools.Core.Pipelines.Steps.IPipelineStep}})">
+        <member name="M:MelloSilveiraTools.Core.Pipelines.Dataflow.DataflowPipeline`1.#ctor(Microsoft.Extensions.Logging.ILogger,MelloSilveiraTools.Core.Pipelines.Notifiers.IPipelineProgressNotifier,System.Threading.Tasks.Dataflow.ITargetBlock{`0},System.TimeProvider,System.String,System.Threading.Tasks.Task,System.Collections.Generic.IReadOnlyList{System.ValueTuple{System.String[],MelloSilveiraTools.Core.Pipelines.Steps.IPipelineStep}})">
             <summary>
             Sealed execution engine representing the finalized graph.
             Exposes inputs, triggers completion, and awaits termination while automatically disposing registered steps on shutdown.
@@ -3272,16 +3299,31 @@
             <param name="options">Concurrency and buffer options for the branching blocks.</param>
             <returns>A new <see cref="T:MelloSilveiraTools.Core.Pipelines.Dataflow.IDataflowPipelineBuilder`2"/> converging all three step results into a joined tuple.</returns>
         </member>
-        <member name="M:MelloSilveiraTools.Core.Pipelines.Dataflow.IDataflowPipelineBuilder`2.AddGroupWhileStep(System.Func{`1,`1,System.Boolean},MelloSilveiraTools.Core.Pipelines.Models.PipelineStepOptions)">
+        <member name="M:MelloSilveiraTools.Core.Pipelines.Dataflow.IDataflowPipelineBuilder`2.AddGroupWhileStep``1(System.Func{`1,``0},MelloSilveiraTools.Core.Pipelines.Models.PipelineStepOptions)">
             <summary>
-            Appends a stateful batching step that accumulates messages into an array until the condition evaluates false.
+            Appends a stateful batching step that groups consecutive messages by a key selector into an <see cref="T:System.Linq.IGrouping`2"/>.
             </summary>
-            <param name="groupingCondition">The function comparing previous and current items. Returns true to group them.</param>
+            <typeparam name="TKey">The type of the key used to partition the stream.</typeparam>
+            <param name="keySelector">A function to extract the key from each item.</param>
             <param name="options">Concurrency and buffer options for this step.</param>
-            <returns>A new <see cref="T:MelloSilveiraTools.Core.Pipelines.Dataflow.IDataflowPipelineBuilder`2"/> emitting dynamically grouped arrays.</returns>
+            <returns>A new <see cref="T:MelloSilveiraTools.Core.Pipelines.Dataflow.IDataflowPipelineBuilder`2"/> emitting grouped batches as <see cref="T:System.Linq.IGrouping`2"/>.</returns>
             <remarks>
-            Technical Decision: Overcomes static size-based batching limits by utilizing an encapsulated state machine for dynamic grouping.
-            Limitation: Forces sequential execution (<c>MaxDegreeOfParallelism = 1</c>) to guarantee deterministic state accumulation. 
+            Technical Decision: Consecutive items sharing the same key are accumulated into an <see cref="T:System.Linq.IGrouping`2"/>.
+            Limitation: Forces sequential execution (<c>MaxDegreeOfParallelism = 1</c>) to guarantee deterministic state accumulation.
+            </remarks>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Pipelines.Dataflow.IDataflowPipelineBuilder`2.AddGroupWhileStep``1(System.Func{`1,`1,System.Boolean},System.Func{`1,``0},MelloSilveiraTools.Core.Pipelines.Models.PipelineStepOptions)">
+            <summary>
+            Appends a stateful batching step that groups consecutive messages while the condition evaluates true, associating them with a key extracted via <paramref name="keySelector"/> and emitting an <see cref="T:System.Linq.IGrouping`2"/>.
+            </summary>
+            <typeparam name="TKey">The type of the key associated with the group.</typeparam>
+            <param name="groupingCondition">The function comparing previous and current items. Returns true to group them.</param>
+            <param name="keySelector">A function to extract the key from each item.</param>
+            <param name="options">Concurrency and buffer options for this step.</param>
+            <returns>A new <see cref="T:MelloSilveiraTools.Core.Pipelines.Dataflow.IDataflowPipelineBuilder`2"/> emitting grouped batches as <see cref="T:System.Linq.IGrouping`2"/>.</returns>
+            <remarks>
+            Technical Decision: Overcomes static size-based batching limits by utilizing an encapsulated state machine for dynamic grouping with key correlation.
+            Limitation: Forces sequential execution (<c>MaxDegreeOfParallelism = 1</c>) to guarantee deterministic state accumulation.
             </remarks>
         </member>
         <member name="M:MelloSilveiraTools.Core.Pipelines.Dataflow.IDataflowPipelineBuilder`2.AddCollectAllStep(MelloSilveiraTools.Core.Pipelines.Models.PipelineStepOptions)">
@@ -3593,6 +3635,36 @@
             Limitation: Implicit operators that throw exceptions are generally considered an anti-pattern because the cast happens silently in the compiler, meaning the <see cref="T:System.ArgumentNullException"/> can surface unexpectedly at runtime. Ensure the source payload is strictly validated before this conversion occurs.
             </remarks>
         </member>
+        <member name="T:MelloSilveiraTools.Core.Pipelines.Models.Grouping`2">
+            <summary>
+            Represents a collection of objects that have a common key, implementing <see cref="T:System.Linq.IGrouping`2"/> and <see cref="T:System.Collections.Generic.IReadOnlyList`1"/>.
+            </summary>
+            <typeparam name="TKey">The type of the key.</typeparam>
+            <typeparam name="TElement">The type of elements in the group.</typeparam>
+            <param name="key">The key of the group.</param>
+            <param name="elements">The elements contained in the group.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Pipelines.Models.Grouping`2.#ctor(`0,`1[])">
+            <summary>
+            Represents a collection of objects that have a common key, implementing <see cref="T:System.Linq.IGrouping`2"/> and <see cref="T:System.Collections.Generic.IReadOnlyList`1"/>.
+            </summary>
+            <typeparam name="TKey">The type of the key.</typeparam>
+            <typeparam name="TElement">The type of elements in the group.</typeparam>
+            <param name="key">The key of the group.</param>
+            <param name="elements">The elements contained in the group.</param>
+        </member>
+        <member name="P:MelloSilveiraTools.Core.Pipelines.Models.Grouping`2.Key">
+            <inheritdoc/>
+        </member>
+        <member name="P:MelloSilveiraTools.Core.Pipelines.Models.Grouping`2.Count">
+            <inheritdoc/>
+        </member>
+        <member name="P:MelloSilveiraTools.Core.Pipelines.Models.Grouping`2.Item(System.Int32)">
+            <inheritdoc/>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Pipelines.Models.Grouping`2.GetEnumerator">
+            <inheritdoc/>
+        </member>
         <member name="T:MelloSilveiraTools.Core.Pipelines.Models.PipelineExecutionException">
             <summary>
             Represents a terminal fault encountered during the traversal of the pipeline execution graph.
@@ -3623,6 +3695,11 @@
             <summary>
             Represents an immutable real-time notification emitted during the execution of a pipeline step,
             including DAG topology correlation (<see cref="P:MelloSilveiraTools.Core.Pipelines.Models.PipelineProgressEvent.UpstreamSteps"/>) and item-level progress counters.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Core.Pipelines.Models.PipelineProgressEvent.PipelineIdentifier">
+            <summary>
+            Gets the unique identifier of the pipeline execution emitting the event.
             </summary>
         </member>
         <member name="P:MelloSilveiraTools.Core.Pipelines.Models.PipelineProgressEvent.StepName">
@@ -3661,11 +3738,6 @@
             <summary>
             Gets the cumulative number of items that have been processed by this step so far.
             Enables visual representations of completed items (e.g., green progress bar segment).
-            </summary>
-        </member>
-        <member name="P:MelloSilveiraTools.Core.Pipelines.Models.PipelineProgressEvent.ProgressPercentage">
-            <summary>
-            Gets the estimated completion percentage (0.0 to 100.0) of this step based on <see cref="P:MelloSilveiraTools.Core.Pipelines.Models.PipelineProgressEvent.ProcessedItems"/> and <see cref="P:MelloSilveiraTools.Core.Pipelines.Models.PipelineProgressEvent.ReceivedItems"/>.
             </summary>
         </member>
         <member name="P:MelloSilveiraTools.Core.Pipelines.Models.PipelineProgressEvent.Details">
@@ -4086,6 +4158,18 @@
             structured logging, and non-blocking real-time pipeline progress notifications.
             </summary>
         </member>
+        <member name="F:MelloSilveiraTools.Core.Pipelines.Telemetry.ObservabilityExtensions.JsonOptions">
+            <summary>
+            Default JSON serializer options used for formatting diagnostic details payloads.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Pipelines.Telemetry.ObservabilityExtensions.SerializeDetails(System.Object)">
+            <summary>
+            Safely serializes diagnostic details into JSON using <see cref="F:MelloSilveiraTools.Core.Pipelines.Telemetry.ObservabilityExtensions.JsonOptions"/> without faulting pipeline execution on non-serializable runtime types.
+            </summary>
+            <param name="details">Optional diagnostic payload to serialize.</param>
+            <returns>The serialized JSON string, or <see langword="null"/> if <paramref name="details"/> is <see langword="null"/> or cannot be serialized.</returns>
+        </member>
         <member name="M:MelloSilveiraTools.Core.Pipelines.Telemetry.ObservabilityExtensions.HandleExecution``1(Microsoft.Extensions.Logging.ILogger,MelloSilveiraTools.Core.Pipelines.Notifiers.IPipelineProgressNotifier,System.TimeProvider,System.String,System.String,System.Action{``0},System.Threading.CancellationToken)">
             <summary>
             Wraps a synchronous action with OpenTelemetry tracing, structured logging, and progress notification.
@@ -4094,6 +4178,7 @@
             <param name="logger">Structured logger instance.</param>
             <param name="progressNotifier">Mandatory pipeline progress notifier.</param>
             <param name="timeProvider">Time provider instance.</param>
+            <param name="pipelineIdentifier">Unique pipeline execution identifier.</param>
             <param name="callbackName">Logical callback name for telemetry.</param>
             <param name="callback">Synchronous delegate executed for each input.</param>
             <param name="cancellationToken">Cancellation token.</param>
@@ -4107,6 +4192,7 @@
             <param name="logger">Structured logger instance.</param>
             <param name="progressNotifier">Mandatory pipeline progress notifier.</param>
             <param name="timeProvider">Time provider instance.</param>
+            <param name="pipelineIdentifier">Unique pipeline execution identifier.</param>
             <param name="callbackName">Logical callback name for telemetry.</param>
             <param name="callback">Synchronous delegate executed for each input.</param>
             <param name="cancellationToken">Cancellation token.</param>
@@ -4120,6 +4206,7 @@
             <param name="logger">Structured logger instance.</param>
             <param name="progressNotifier">Mandatory pipeline progress notifier.</param>
             <param name="timeProvider">Time provider instance.</param>
+            <param name="pipelineIdentifier">Unique pipeline execution identifier.</param>
             <param name="callbackName">Logical callback name for telemetry.</param>
             <param name="callback">Asynchronous delegate executed for each input.</param>
             <param name="cancellationToken">Cancellation token.</param>
@@ -4133,6 +4220,7 @@
             <param name="logger">Structured logger instance.</param>
             <param name="progressNotifier">Mandatory pipeline progress notifier.</param>
             <param name="timeProvider">Time provider instance.</param>
+            <param name="pipelineIdentifier">Unique pipeline execution identifier.</param>
             <param name="callbackName">Logical callback name for telemetry.</param>
             <param name="callback">Asynchronous delegate executed for each input.</param>
             <param name="cancellationToken">Cancellation token.</param>
@@ -4147,6 +4235,7 @@
             <param name="logger">Structured logger instance.</param>
             <param name="progressNotifier">Mandatory pipeline progress notifier.</param>
             <param name="timeProvider">Time provider instance.</param>
+            <param name="pipelineIdentifier">Unique pipeline execution identifier.</param>
             <param name="callbackName">Logical callback name for telemetry.</param>
             <param name="callback">Synchronous transform function.</param>
             <param name="cancellationToken">Cancellation token.</param>
@@ -4161,6 +4250,7 @@
             <param name="logger">Structured logger instance.</param>
             <param name="progressNotifier">Mandatory pipeline progress notifier.</param>
             <param name="timeProvider">Time provider instance.</param>
+            <param name="pipelineIdentifier">Unique pipeline execution identifier.</param>
             <param name="callbackName">Logical callback name for telemetry.</param>
             <param name="callback">Synchronous transform function.</param>
             <param name="cancellationToken">Cancellation token.</param>
@@ -4175,6 +4265,7 @@
             <param name="logger">Structured logger instance.</param>
             <param name="progressNotifier">Mandatory pipeline progress notifier.</param>
             <param name="timeProvider">Time provider instance.</param>
+            <param name="pipelineIdentifier">Unique pipeline execution identifier.</param>
             <param name="callbackName">Logical callback name for telemetry.</param>
             <param name="callback">Asynchronous transform function.</param>
             <param name="cancellationToken">Cancellation token.</param>
@@ -4189,6 +4280,7 @@
             <param name="logger">Structured logger instance.</param>
             <param name="progressNotifier">Mandatory pipeline progress notifier.</param>
             <param name="timeProvider">Time provider instance.</param>
+            <param name="pipelineIdentifier">Unique pipeline execution identifier.</param>
             <param name="callbackName">Logical callback name for telemetry.</param>
             <param name="callback">Asynchronous transform function.</param>
             <param name="cancellationToken">Cancellation token.</param>
@@ -4203,6 +4295,7 @@
             <param name="logger">Structured logger instance.</param>
             <param name="progressNotifier">Mandatory pipeline progress notifier.</param>
             <param name="timeProvider">Time provider instance.</param>
+            <param name="pipelineIdentifier">Unique pipeline execution identifier.</param>
             <param name="callbackName">Logical callback name for primary step.</param>
             <param name="fallbackName">Logical callback name for fallback step.</param>
             <param name="callback">Primary synchronous transform function.</param>
@@ -4220,6 +4313,7 @@
             <param name="logger">Structured logger instance.</param>
             <param name="progressNotifier">Mandatory pipeline progress notifier.</param>
             <param name="timeProvider">Time provider instance.</param>
+            <param name="pipelineIdentifier">Unique pipeline execution identifier.</param>
             <param name="callbackName">Logical callback name for primary step.</param>
             <param name="fallbackName">Logical callback name for fallback step.</param>
             <param name="callback">Primary synchronous transform function.</param>
@@ -4237,6 +4331,7 @@
             <param name="logger">Structured logger instance.</param>
             <param name="progressNotifier">Mandatory pipeline progress notifier.</param>
             <param name="timeProvider">Time provider instance.</param>
+            <param name="pipelineIdentifier">Unique pipeline execution identifier.</param>
             <param name="callbackName">Logical callback name for primary step.</param>
             <param name="fallbackName">Logical callback name for fallback step.</param>
             <param name="callback">Primary asynchronous transform function.</param>
@@ -4254,6 +4349,7 @@
             <param name="logger">Structured logger instance.</param>
             <param name="progressNotifier">Mandatory pipeline progress notifier.</param>
             <param name="timeProvider">Time provider instance.</param>
+            <param name="pipelineIdentifier">Unique pipeline execution identifier.</param>
             <param name="callbackName">Logical callback name for primary step.</param>
             <param name="fallbackName">Logical callback name for fallback step.</param>
             <param name="callback">Primary asynchronous transform function.</param>
@@ -4271,6 +4367,7 @@
             <param name="logger">Structured logger instance.</param>
             <param name="progressNotifier">Mandatory pipeline progress notifier.</param>
             <param name="timeProvider">Time provider instance.</param>
+            <param name="pipelineIdentifier">Unique pipeline execution identifier.</param>
             <param name="callbackName">Logical callback name for telemetry.</param>
             <param name="callback">Asynchronous enumerable generator.</param>
             <param name="cancellationToken">Cancellation token.</param>
@@ -4285,6 +4382,7 @@
             <param name="logger">Structured logger instance.</param>
             <param name="progressNotifier">Mandatory pipeline progress notifier.</param>
             <param name="timeProvider">Time provider instance.</param>
+            <param name="pipelineIdentifier">Unique pipeline execution identifier.</param>
             <param name="callbackName">Logical callback name for telemetry.</param>
             <param name="callback">Asynchronous enumerable generator.</param>
             <param name="cancellationToken">Cancellation token.</param>
@@ -4299,6 +4397,7 @@
             <param name="logger">Structured logger instance.</param>
             <param name="progressNotifier">Mandatory pipeline progress notifier.</param>
             <param name="timeProvider">Time provider instance.</param>
+            <param name="pipelineIdentifier">Unique pipeline execution identifier.</param>
             <param name="callbackName">Logical callback name for telemetry.</param>
             <param name="callback">Synchronous enumerable transform function.</param>
             <param name="cancellationToken">Cancellation token.</param>
@@ -4313,6 +4412,7 @@
             <param name="logger">Structured logger instance.</param>
             <param name="progressNotifier">Mandatory pipeline progress notifier.</param>
             <param name="timeProvider">Time provider instance.</param>
+            <param name="pipelineIdentifier">Unique pipeline execution identifier.</param>
             <param name="callbackName">Logical callback name for telemetry.</param>
             <param name="callback">Synchronous enumerable transform function.</param>
             <param name="cancellationToken">Cancellation token.</param>

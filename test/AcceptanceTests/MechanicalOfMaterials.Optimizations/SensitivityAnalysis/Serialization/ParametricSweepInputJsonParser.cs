@@ -2,6 +2,8 @@ using MelloSilveiraTools.Mathematics.Expressions;
 using MelloSilveiraTools.Mathematics.Factories.Functions;
 using MelloSilveiraTools.Mathematics.Functions;
 using MelloSilveiraTools.Mathematics.Models;
+using MelloSilveiraTools.Mathematics.Models.NumericalMethods;
+using MelloSilveiraTools.Mathematics.NumericalMethods.RootFindingAlgorithms;
 using MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels;
 using MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Elasticity;
 using MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity;
@@ -16,7 +18,7 @@ using System.Text.Json;
 namespace AcceptanceTests.MechanicalOfMaterials.Optimizations.SensitivityAnalysis.Serialization;
 
 /// <summary>
-/// Deserializes JSON representations into strongly-typed <see cref="ParametricSweepInput"/> instances,
+/// Deserializes JSON representations into strongly-typed <see cref="ParametricSweepPipelineInput"/> instances,
 /// including polymorphic resolution of constitutive model parameters and mathematical functions.
 /// </summary>
 public static class ParametricSweepInputJsonParser
@@ -24,20 +26,20 @@ public static class ParametricSweepInputJsonParser
     private static readonly JsonSerializerOptions DefaultOptions = new() { PropertyNameCaseInsensitive = true };
 
     /// <summary>
-    /// Parses a JSON text into a <see cref="ParametricSweepInput"/> instance.
+    /// Parses a JSON text into a <see cref="ParametricSweepPipelineInput"/> instance.
     /// </summary>
     /// <param name="json">The JSON payload string.</param>
-    /// <returns>A populated <see cref="ParametricSweepInput"/> instance.</returns>
+    /// <returns>A populated <see cref="ParametricSweepPipelineInput"/> instance.</returns>
     /// <exception cref="ArgumentException">Thrown when <paramref name="json"/> is null or whitespace.</exception>
     /// <exception cref="JsonException">Thrown when the JSON payload is malformed or missing required properties.</exception>
-    public static ParametricSweepInput Parse(string json)
+    public static ParametricSweepPipelineInput Parse(string json)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(json);
 
         using JsonDocument document = JsonDocument.Parse(json);
         JsonElement root = document.RootElement;
 
-        string? identifier = GetStringProperty(root, "identifier");
+        string identifier = GetStringProperty(root, "identifier") ?? Guid.NewGuid().ToString("N");
         string mechanicalModelName = GetStringProperty(root, "mechanicalModelName")
             ?? throw new JsonException("Property 'mechanicalModelName' is required in ParametricSweepInput JSON.");
 
@@ -80,6 +82,30 @@ public static class ParametricSweepInputJsonParser
             asymptoteTolerance = tolElem.GetDouble();
         }
 
+        RootFindingAlgorithm rootFindingAlgorithm = RootFindingAlgorithm.StepByStepMethod;
+        if (TryGetPropertyIgnoreCase(root, "rootFindingAlgorithm", out JsonElement rfaElem))
+        {
+            if (rfaElem.ValueKind == JsonValueKind.String)
+            {
+                rootFindingAlgorithm = Enum.Parse<RootFindingAlgorithm>(rfaElem.GetString()!, true);
+            }
+            else if (rfaElem.ValueKind == JsonValueKind.Number)
+            {
+                rootFindingAlgorithm = (RootFindingAlgorithm)rfaElem.GetInt32();
+            }
+        }
+
+        RootFindingInput baseRootFindingInput;
+        if (TryGetPropertyIgnoreCase(root, "baseRootFindingInput", out JsonElement rfiElem) && rfiElem.ValueKind == JsonValueKind.Object)
+        {
+            baseRootFindingInput = rfiElem.Deserialize<RootFindingInput>(DefaultOptions)
+                ?? new RootFindingInput(initialTime, Math.Max(finalTime * 100.0, 1000.0), asymptoteTolerance, 1000);
+        }
+        else
+        {
+            baseRootFindingInput = new RootFindingInput(initialTime, Math.Max(finalTime * 100.0, 1000.0), asymptoteTolerance, 1000);
+        }
+
         Dictionary<string, RangeParameters> constantVariables = [];
         if (TryGetPropertyIgnoreCase(root, "constantVariables", out JsonElement cvElem) && cvElem.ValueKind == JsonValueKind.Object)
         {
@@ -99,7 +125,7 @@ public static class ParametricSweepInputJsonParser
 
         ConstitutiveParameters baseline = ParseBaseline(mechanicalModelName, baselineElem);
 
-        return new ParametricSweepInput
+        return new ParametricSweepPipelineInput
         {
             Identifier = identifier,
             MechanicalModelName = mechanicalModelName,
@@ -113,9 +139,8 @@ public static class ParametricSweepInputJsonParser
             InitialTime = initialTime,
             FinalTime = finalTime,
             TimeStep = timeStep,
-            AsymptoteTolerance = asymptoteTolerance,
-            BinarySearchIterations = 1,
-            MaxBracketIterations = 1,
+            RootFindingAlgorithm = rootFindingAlgorithm,
+            BaseRootFindingInput = baseRootFindingInput,
         };
     }
 

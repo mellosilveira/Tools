@@ -13,5 +13,5 @@ public interface IParametricSweepGenerator
     /// </summary>
     /// <param name="input">The parametric sweep input defining ranges and limits.</param>
     /// <returns>A stream of generated simulation envelopes.</returns>
-    IEnumerable<SweepSimulationEnvelope> GenerateCombinations(ParametricSweepInput input);
+    IEnumerable<(string VariableName, IEnumerable<ParametricSweepInput> Inputs)> GenerateCombinations(ParametricSweepPipelineInput input);
 }

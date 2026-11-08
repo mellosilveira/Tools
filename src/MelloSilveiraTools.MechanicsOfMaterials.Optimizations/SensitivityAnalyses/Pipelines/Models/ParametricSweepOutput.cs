@@ -10,6 +10,7 @@ public record ParametricSweepOutput(
     double InitialStress,
     double FinalStress,
     double AsymptoteTime,
+    double AsymptoteError,
     double AsymptoteStress,
     double AbsoluteDeltaStress,
     double PercentageDeltaStress);

@@ -47,8 +47,16 @@ public sealed class ExperimentalDataFileWriterStep : IAsyncPipelineStep<Segmente
     public async Task ExecuteAsync(SegmentedDataPoint input, CancellationToken cancellationToken = default)
     {
         ProcessedDataPoint point = input.ProcessedDataPoint;
-        string row = FormattableString.Invariant($"{point.Time:G7},{point.Strain:G7},{point.Stress:G7},{(int)input.SegmentType},{point.StrainRate:G7},{point.StrainAcceleration:G7},{point.StressRate:G7},{point.StressAcceleration:G7}");
-        await _writer.WriteRowAsync(row, cancellationToken).ConfigureAwait(false);
+        await _writer.WriteRowAsync(
+            cancellationToken,
+            point.Time,
+            point.Strain,
+            point.Stress,
+            (int)input.SegmentType,
+            point.StrainRate,
+            point.StrainAcceleration,
+            point.StressRate,
+            point.StressAcceleration).ConfigureAwait(false);
     }
 
     /// <inheritdoc />

@@ -137,16 +137,31 @@ public interface IDataflowPipelineBuilder<THead, TTail>
         PipelineStepOptions options = default);
 
     /// <summary>
-    /// Appends a stateful batching step that accumulates messages into an array until the condition evaluates false.
+    /// Appends a stateful batching step that groups consecutive messages by a key selector into an <see cref="IGrouping{TKey, TTail}"/>.
     /// </summary>
-    /// <param name="groupingCondition">The function comparing previous and current items. Returns true to group them.</param>
+    /// <typeparam name="TKey">The type of the key used to partition the stream.</typeparam>
+    /// <param name="keySelector">A function to extract the key from each item.</param>
     /// <param name="options">Concurrency and buffer options for this step.</param>
-    /// <returns>A new <see cref="IDataflowPipelineBuilder{THead, TTail}"/> emitting dynamically grouped arrays.</returns>
+    /// <returns>A new <see cref="IDataflowPipelineBuilder{THead, TNextOut}"/> emitting grouped batches as <see cref="IGrouping{TKey, TTail}"/>.</returns>
     /// <remarks>
-    /// Technical Decision: Overcomes static size-based batching limits by utilizing an encapsulated state machine for dynamic grouping.
-    /// Limitation: Forces sequential execution (<c>MaxDegreeOfParallelism = 1</c>) to guarantee deterministic state accumulation. 
+    /// Technical Decision: Consecutive items sharing the same key are accumulated into an <see cref="IGrouping{TKey, TTail}"/>.
+    /// Limitation: Forces sequential execution (<c>MaxDegreeOfParallelism = 1</c>) to guarantee deterministic state accumulation.
     /// </remarks>
-    IDataflowPipelineBuilder<THead, TTail[]> AddGroupWhileStep(Func<TTail, TTail, bool> groupingCondition, PipelineStepOptions options = default);
+    IDataflowPipelineBuilder<THead, IGrouping<TKey, TTail>> AddGroupWhileStep<TKey>(Func<TTail, TKey> keySelector, PipelineStepOptions options = default);
+
+    /// <summary>
+    /// Appends a stateful batching step that groups consecutive messages while the condition evaluates true, associating them with a key extracted via <paramref name="keySelector"/> and emitting an <see cref="IGrouping{TKey, TTail}"/>.
+    /// </summary>
+    /// <typeparam name="TKey">The type of the key associated with the group.</typeparam>
+    /// <param name="groupingCondition">The function comparing previous and current items. Returns true to group them.</param>
+    /// <param name="keySelector">A function to extract the key from each item.</param>
+    /// <param name="options">Concurrency and buffer options for this step.</param>
+    /// <returns>A new <see cref="IDataflowPipelineBuilder{THead, TNextOut}"/> emitting grouped batches as <see cref="IGrouping{TKey, TTail}"/>.</returns>
+    /// <remarks>
+    /// Technical Decision: Overcomes static size-based batching limits by utilizing an encapsulated state machine for dynamic grouping with key correlation.
+    /// Limitation: Forces sequential execution (<c>MaxDegreeOfParallelism = 1</c>) to guarantee deterministic state accumulation.
+    /// </remarks>
+    IDataflowPipelineBuilder<THead, IGrouping<TKey, TTail>> AddGroupWhileStep<TKey>(Func<TTail, TTail, bool> groupingCondition, Func<TTail, TKey> keySelector, PipelineStepOptions options = default);
 
     /// <summary>
     /// Appends a collection step that aggregates all remaining pipeline payloads into a single array.

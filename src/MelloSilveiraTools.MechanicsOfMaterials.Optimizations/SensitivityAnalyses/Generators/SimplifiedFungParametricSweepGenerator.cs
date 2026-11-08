@@ -1,5 +1,4 @@
 using MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.QuasiLinear;
-using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Pipelines.Models;
 
 namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Generators;
 
@@ -9,9 +8,18 @@ namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnaly
 public sealed class SimplifiedFungParametricSweepGenerator : ParametricSweepGeneratorBase<SimplifiedFungConstitutiveParameters>
 {
     /// <inheritdoc />
-    protected override IEnumerable<(string PropertyName, Func<SimplifiedFungConstitutiveParameters, double, SimplifiedFungConstitutiveParameters> Mutate)> GetPropertyVariations(ParametricSweepInput input)
+    protected override IEnumerable<(string VariableName, Func<SimplifiedFungConstitutiveParameters, double, SimplifiedFungConstitutiveParameters> Mutate)> GetVariableVariations()
     {
         yield return (nameof(SimplifiedFungConstitutiveParameters.ElasticStressConstant), (baseline, value) => baseline with { ElasticStressConstant = value });
         yield return (nameof(SimplifiedFungConstitutiveParameters.ElasticPowerConstant), (baseline, value) => baseline with { ElasticPowerConstant = value });
+    }
+
+    /// <inheritdoc />
+    protected override IEnumerable<(string VariableName, Func<SimplifiedFungConstitutiveParameters, int, double, SimplifiedFungConstitutiveParameters> Mutate)> GetArrayVariableVariations()
+    {
+        yield return (
+            nameof(SimplifiedFungConstitutiveParameters.ReducedRelaxationFunction),
+            static (baseline, index, value) => baseline with { ReducedRelaxationFunction = GetPronySeriesVariation(baseline.ReducedRelaxationFunction!, index, value) }
+        );
     }
 }

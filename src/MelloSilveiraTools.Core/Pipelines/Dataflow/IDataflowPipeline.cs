@@ -9,7 +9,7 @@ public interface IDataflowPipeline<in TIn> : IAsyncDisposable
     /// <summary>
     /// Gets the flat topological DAG description of all registered steps and their direct upstream dependencies.
     /// </summary>
-    IReadOnlyList<(string StepName, IReadOnlyList<string> UpstreamSteps)> Topology { get; }
+    IReadOnlyList<(string[] UpstreamSteps, string StepName)> Topology { get; }
 
     /// <summary>
     /// Asynchronously posts a message to the pipeline's head block.
