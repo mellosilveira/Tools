@@ -447,7 +447,7 @@
             MIME content type representing the file format (defaults to "text/csv").
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.Database.RelationalDatabase.Models.Entities.StorageEntryMetadataEntity.Create(MelloSilveiraTools.Core.Managers.File.Models.StorageEntryMetadata,System.String,System.String)">
+        <member name="M:MelloSilveiraTools.Database.RelationalDatabase.Models.Entities.StorageEntryMetadataEntity.Create(MelloSilveiraTools.Core.Files.Models.StorageEntryMetadata,System.String,System.String)">
             <summary>
             Creates a new <see cref="T:MelloSilveiraTools.Database.RelationalDatabase.Models.Entities.StorageEntryMetadataEntity"/> instance from the specified external identifier, context, and storage entry metadata.
             </summary>

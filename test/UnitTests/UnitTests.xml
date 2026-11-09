@@ -47,17 +47,17 @@
         </member>
         <member name="T:UnitTests.Core.Managers.File.CsvStreamReaderTests">
             <summary>
-            Contains unit tests verifying the high-performance streaming functionality of <see cref="T:MelloSilveiraTools.Core.Managers.File.Csv.CsvStreamReader"/>.
+            Contains unit tests verifying the high-performance streaming functionality of <see cref="T:MelloSilveiraTools.Core.Files.Csv.CsvStreamReader"/>.
             </summary>
         </member>
         <member name="M:UnitTests.Core.Managers.File.CsvStreamReaderTests.ReadNextRowAsync_WithTwoColumns_ParsesCorrectly">
             <summary>
-            Verifies that <see cref="M:MelloSilveiraTools.Core.Managers.File.Csv.CsvStreamReader.ReadNextRowAsync(System.Threading.CancellationToken)"/> correctly parses two-column numerical rows after skipping the header.
+            Verifies that <see cref="M:MelloSilveiraTools.Core.Files.Csv.CsvStreamReader.ReadNextRowAsync(System.Threading.CancellationToken)"/> correctly parses two-column numerical rows after skipping the header.
             </summary>
         </member>
         <member name="M:UnitTests.Core.Managers.File.CsvStreamReaderTests.ReadNextRowAsync_WithMultipleColumns_ParsesAllColumns">
             <summary>
-            Verifies that <see cref="M:MelloSilveiraTools.Core.Managers.File.Csv.CsvStreamReader.ReadNextRowAsync(System.Threading.CancellationToken)"/> parses rows containing more than two columns.
+            Verifies that <see cref="M:MelloSilveiraTools.Core.Files.Csv.CsvStreamReader.ReadNextRowAsync(System.Threading.CancellationToken)"/> parses rows containing more than two columns.
             </summary>
         </member>
         <member name="M:UnitTests.Core.Managers.File.CsvStreamReaderTests.ReadNextRowAsync_WithEmptyLinesAndWhitespace_SkipsEmptyLines">
@@ -67,12 +67,12 @@
         </member>
         <member name="M:UnitTests.Core.Managers.File.CsvStreamReaderTests.ReadNextRowAsync_WithCustomDelimiter_ParsesCorrectly">
             <summary>
-            Verifies that <see cref="T:MelloSilveiraTools.Core.Managers.File.Csv.CsvStreamReader"/> works properly with a non-comma delimiter (e.g. semicolon).
+            Verifies that <see cref="T:MelloSilveiraTools.Core.Files.Csv.CsvStreamReader"/> works properly with a non-comma delimiter (e.g. semicolon).
             </summary>
         </member>
         <member name="M:UnitTests.Core.Managers.File.CsvStreamReaderTests.ReadAllRowsAsync_StreamsAllRowsCorrectly">
             <summary>
-            Verifies that <see cref="M:MelloSilveiraTools.Core.Managers.File.Csv.CsvStreamReader.ReadAllRowsAsync(System.Threading.CancellationToken)"/> streams all valid numeric rows until the end of stream.
+            Verifies that <see cref="M:MelloSilveiraTools.Core.Files.Csv.CsvStreamReader.ReadAllRowsAsync(System.Threading.CancellationToken)"/> streams all valid numeric rows until the end of stream.
             </summary>
         </member>
         <member name="M:UnitTests.Core.Managers.File.CsvStreamReaderTests.ReadNextRowAsync_WithSkipInvalidLines_SkipsCorruptedLines">
@@ -87,12 +87,12 @@
         </member>
         <member name="M:UnitTests.Core.Managers.File.CsvStreamReaderTests.DisposeAsync_CanBeCalledSafely">
             <summary>
-            Verifies that <see cref="M:MelloSilveiraTools.Core.Managers.File.Csv.CsvStreamReader.DisposeAsync"/> executes cleanly without throwing exceptions.
+            Verifies that <see cref="M:MelloSilveiraTools.Core.Files.Csv.CsvStreamReader.DisposeAsync"/> executes cleanly without throwing exceptions.
             </summary>
         </member>
         <member name="T:UnitTests.Core.Managers.File.StorageEntryMetadataTests">
             <summary>
-            Unit tests for <see cref="T:MelloSilveiraTools.Core.Managers.File.Models.StorageEntryMetadata"/> verifying property resolution,
+            Unit tests for <see cref="T:MelloSilveiraTools.Core.Files.Models.StorageEntryMetadata"/> verifying property resolution,
             file vs directory discrimination, file name normalization, and non-destructive record mutations.
             </summary>
         </member>

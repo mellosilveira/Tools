@@ -126,7 +126,7 @@
             <param name="validator">Validator ensuring the file is a conforming managed .NET assembly.</param>
             <param name="settings">Plugin settings defining the storage context.</param>
         </member>
-        <member name="M:MelloSilveiraTools.Plugins.Application.Commands.Upload.UploadPlugin.#ctor(Microsoft.Extensions.Logging.ILogger{MelloSilveiraTools.Plugins.Application.Commands.Upload.UploadPlugin},MelloSilveiraTools.Core.Managers.File.Providers.IFileStorageService,MelloSilveiraTools.Plugins.Application.Validators.UploadPluginValidator,MelloSilveiraTools.Plugins.Infrastructure.PluginSettings)">
+        <member name="M:MelloSilveiraTools.Plugins.Application.Commands.Upload.UploadPlugin.#ctor(Microsoft.Extensions.Logging.ILogger{MelloSilveiraTools.Plugins.Application.Commands.Upload.UploadPlugin},MelloSilveiraTools.Core.Files.Providers.IFileStorageService,MelloSilveiraTools.Plugins.Application.Validators.UploadPluginValidator,MelloSilveiraTools.Plugins.Infrastructure.PluginSettings)">
             <summary>
             Operation that receives and writes an uploaded plugin assembly into the incoming storage partition.
             </summary>
@@ -560,7 +560,7 @@
             <param name="fileStorageService">The file storage service used to read and write the cache file.</param>
             <param name="settings">Plugin settings providing the directory or context in which the <c>plugin-cache.json</c> file is created and read.</param>
         </member>
-        <member name="M:MelloSilveiraTools.Plugins.Infrastructure.Persistences.JsonFilePluginCachePersistence.#ctor(MelloSilveiraTools.Core.Managers.File.Providers.IFileStorageService,MelloSilveiraTools.Plugins.Infrastructure.PluginSettings)">
+        <member name="M:MelloSilveiraTools.Plugins.Infrastructure.Persistences.JsonFilePluginCachePersistence.#ctor(MelloSilveiraTools.Core.Files.Providers.IFileStorageService,MelloSilveiraTools.Plugins.Infrastructure.PluginSettings)">
             <summary>
             Persists plugin cache to a JSON file using the configured storage service.
             Each entry is stored with a type discriminator so the correct
@@ -815,7 +815,7 @@
             <param name="cache">Plugin cache used to memoize the parsed <see cref="T:MelloSilveiraTools.Plugins.Infrastructure.Models.DiscoveredPlugin"/> instances by name and version.</param>
             <param name="settings">Plugin settings providing the directory used to locate storage partitions.</param>
         </member>
-        <member name="M:MelloSilveiraTools.Plugins.Infrastructure.PluginFileProcessor.#ctor(Microsoft.Extensions.Logging.ILogger{MelloSilveiraTools.Plugins.Infrastructure.PluginFileProcessor},MelloSilveiraTools.Core.Managers.File.Providers.IFileStorageService,MelloSilveiraTools.Plugins.Infrastructure.PluginCache,MelloSilveiraTools.Plugins.Infrastructure.PluginSettings)">
+        <member name="M:MelloSilveiraTools.Plugins.Infrastructure.PluginFileProcessor.#ctor(Microsoft.Extensions.Logging.ILogger{MelloSilveiraTools.Plugins.Infrastructure.PluginFileProcessor},MelloSilveiraTools.Core.Files.Providers.IFileStorageService,MelloSilveiraTools.Plugins.Infrastructure.PluginCache,MelloSilveiraTools.Plugins.Infrastructure.PluginSettings)">
             <summary>
             Storage-level operations on plugin DLL assemblies: scanning storage partitions,
             validating managed .NET metadata and host architecture compatibility, shadow copying,

@@ -1,7 +1,6 @@
 using MelloSilveiraTools.Core.Pipelines;
 using MelloSilveiraTools.Core.Validators;
 using MelloSilveiraTools.Mathematics.Models;
-using MelloSilveiraTools.MechanicsOfMaterials;
 using MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Algorithms;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.MathematicalFunctions;
@@ -37,7 +36,7 @@ public static class DependencyInjection
         /// When <paramref name="parametricSweepSettings"/> is provided, registers <see cref="ParametricSweepSettings"/> as a singleton
         /// and wires up the parametric sweep pipeline.
         /// </summary>
-        /// <param name="curveFitterOptions">
+        /// <param name="curveFitterSettings">
         /// Optional curve fitter configuration options controlling deterministic seeding and default fitter engine. When omitted, default settings are used.
         /// </param>
         /// <param name="experimentalDataSettings">
@@ -48,10 +47,27 @@ public static class DependencyInjection
         /// </param>
         /// <returns>The same service collection so additional registrations can be chained.</returns>
         public IServiceCollection AddOptimizationsServices(
-            CurveFitterSettings? curveFitterOptions = null,
+            CurveFitterSettings? curveFitterSettings = null,
             ExperimentalDataSettings? experimentalDataSettings = null,
             ParametricSweepSettings? parametricSweepSettings = null)
         {
+            if (curveFitterSettings is not null)
+            {
+                services
+                    .AddSingleton(curveFitterSettings)
+                    .AddSingleton<IMechanicalModelStepFactory, MechanicalModelStepFactory>()
+                    .AddSingleton(provider => provider.GetRequiredKeyedService<ICurveFitter>(curveFitterSettings.DefaultCurveFitter))
+                    // Register Curve Fitter implementations.
+                    .AddKeyedSingleton<ICurveFitter, AlglibCurveFitter>(CurveFitterType.Alglib)
+                    .AddKeyedSingleton<ICurveFitter, MathNetCurveFitter>(CurveFitterType.MathNet)
+                    // Register MathExpression curve fitter decorators.
+                    .AddKeyedSingleton<IMathExpressionCurveFitter, PronySeriesCurveFitter>(MathExpressionType.PronySeries)
+                    // Register MathematicalFunction curve fitter decorators.
+                    .AddKeyedSingleton<IFunctionCurveFitter, LogarithmicCurveFitter>(FunctionType.Logarithmic)
+                    .AddKeyedSingleton<IFunctionCurveFitter, ExponentialCurveFitter>(FunctionType.Exponential)
+                    .AddKeyedSingleton<IFunctionCurveFitter, PolynomialCurveFitter>(FunctionType.Polynomial);
+            }
+
             if (experimentalDataSettings is not null)
             {
                 services
@@ -67,28 +83,13 @@ public static class DependencyInjection
                     .AddSingleton(parametricSweepSettings)
                     .AddSingleton<ExecuteParametricSweepPipeline>()
                     .AddSingleton<IValidator<ExecuteParametricSweepPipelineRequest>, ExecuteParametricSweepValidator>()
-                    .AddSingleton<IPipeline<ParametricSweepPipelineInput, string>, ParametricSweepPipeline>();
+                    .AddSingleton<IPipeline<ParametricSweepPipelineInput, string>, ParametricSweepPipeline>()
+                    .AddKeyedSingleton<IParametricSweepGeneratorStep, FungParametricSweepGeneratorStep>(nameof(MechanicalModel.Fung))
+                    .AddKeyedSingleton<IParametricSweepGeneratorStep, SimplifiedFungParametricSweepGeneratorStep>(nameof(MechanicalModel.SimplifiedFung))
+                    .AddKeyedSingleton<IParametricSweepGeneratorStep, SchaperyParametricSweepGeneratorStep>(nameof(MechanicalModel.Schapery));
             }
 
-            return services
-                .AddSingleton(curveFitterOptions ?? new CurveFitterSettings())
-                // Register Curve Fitter implementations.
-                .AddKeyedSingleton<ICurveFitter, AlglibCurveFitter>(CurveFitterType.Alglib)
-                .AddKeyedSingleton<ICurveFitter, MathNetCurveFitter>(CurveFitterType.MathNet)
-                // Register default unkeyed Curve Fitter implementation.
-                .AddSingleton<ICurveFitter>(provider => provider.GetRequiredKeyedService<ICurveFitter>(curveFitterSettings.DefaultCurveFitter))
-                // Register MathExpression curve fitter decorators.
-                .AddKeyedSingleton<IMathExpressionCurveFitter, PronySeriesCurveFitter>(MathExpressionType.PronySeries)
-                // Register MathematicalFunction curve fitter decorators.
-                .AddKeyedSingleton<IFunctionCurveFitter, LogarithmicCurveFitter>(FunctionType.Logarithmic)
-                .AddKeyedSingleton<IFunctionCurveFitter, ExponentialCurveFitter>(FunctionType.Exponential)
-                .AddKeyedSingleton<IFunctionCurveFitter, PolynomialCurveFitter>(FunctionType.Polynomial)
-                // Register the step factory.
-                .AddSingleton<IMechanicalModelStepFactory, MechanicalModelStepFactory>()
-                // Register Sensitivity Analysis services.
-                .AddKeyedSingleton<IParametricSweepGeneratorStep, FungParametricSweepGeneratorStep>(nameof(MechanicalModel.Fung))
-                .AddKeyedSingleton<IParametricSweepGeneratorStep, SimplifiedFungParametricSweepGeneratorStep>(nameof(MechanicalModel.SimplifiedFung))
-                .AddKeyedSingleton<IParametricSweepGeneratorStep, SchaperyParametricSweepGeneratorStep>(nameof(MechanicalModel.Schapery));
+            return services;
         }
     }
 }

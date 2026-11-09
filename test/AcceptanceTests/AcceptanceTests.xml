@@ -185,12 +185,12 @@
         </member>
         <member name="P:AcceptanceTests.Plugins.Helpers.PluginTestFixture.LocalStorage">
             <summary>
-            In-memory storage mock targeting <see cref="F:MelloSilveiraTools.Core.Managers.File.Models.StorageProvider.Local"/>.
+            In-memory storage mock targeting <see cref="F:MelloSilveiraTools.Core.Files.Models.StorageProvider.Local"/>.
             </summary>
         </member>
         <member name="P:AcceptanceTests.Plugins.Helpers.PluginTestFixture.AwsS3Storage">
             <summary>
-            In-memory storage mock targeting <see cref="F:MelloSilveiraTools.Core.Managers.File.Models.StorageProvider.AwsS3"/>.
+            In-memory storage mock targeting <see cref="F:MelloSilveiraTools.Core.Files.Models.StorageProvider.AwsS3"/>.
             </summary>
         </member>
         <member name="P:AcceptanceTests.Plugins.Helpers.PluginTestFixture.TypeProcessor">
@@ -213,7 +213,7 @@
             The active service provider instance.
             </summary>
         </member>
-        <member name="M:AcceptanceTests.Plugins.Helpers.PluginTestFixture.#ctor(MelloSilveiraTools.Core.Managers.File.Models.StorageProvider,System.String,System.Nullable{System.TimeSpan},System.Nullable{System.TimeSpan})">
+        <member name="M:AcceptanceTests.Plugins.Helpers.PluginTestFixture.#ctor(MelloSilveiraTools.Core.Files.Models.StorageProvider,System.String,System.Nullable{System.TimeSpan},System.Nullable{System.TimeSpan})">
             <summary>
             Initializes a new instance of the <see cref="T:AcceptanceTests.Plugins.Helpers.PluginTestFixture"/> class.
             </summary>
@@ -259,7 +259,7 @@
         </member>
         <member name="T:AcceptanceTests.Plugins.Helpers.PluginTestStorageMock">
             <summary>
-            High-fidelity in-memory test double and mock for <see cref="T:MelloSilveiraTools.Core.Managers.File.Providers.IFileStorageService"/>,
+            High-fidelity in-memory test double and mock for <see cref="T:MelloSilveiraTools.Core.Files.Providers.IFileStorageService"/>,
             backing file operations across canonical partitions (incoming, loaded, archive, quarantine, cache)
             in an in-memory thread-safe dictionary.
             </summary>
@@ -274,7 +274,7 @@
             Gets the storage provider technology simulated by this mock instance.
             </summary>
         </member>
-        <member name="M:AcceptanceTests.Plugins.Helpers.PluginTestStorageMock.#ctor(MelloSilveiraTools.Core.Managers.File.Models.StorageProvider)">
+        <member name="M:AcceptanceTests.Plugins.Helpers.PluginTestStorageMock.#ctor(MelloSilveiraTools.Core.Files.Models.StorageProvider)">
             <summary>
             Initializes a new instance of the <see cref="T:AcceptanceTests.Plugins.Helpers.PluginTestStorageMock"/> class.
             </summary>
@@ -374,13 +374,13 @@
             <summary>
             Acceptance tests verifying that <see cref="N:MelloSilveiraTools.Plugins"/> is fully storage-agnostic:
             changing <see cref="P:MelloSilveiraTools.Plugins.Infrastructure.PluginSettings.StorageProvider"/> to an external cloud or alternative provider
-            (e.g. <see cref="F:MelloSilveiraTools.Core.Managers.File.Models.StorageProvider.AwsS3"/>) binds all operations to that keyed storage implementation
+            (e.g. <see cref="F:MelloSilveiraTools.Core.Files.Models.StorageProvider.AwsS3"/>) binds all operations to that keyed storage implementation
             without modifying application behavior.
             </summary>
         </member>
         <member name="M:AcceptanceTests.Plugins.PluginMultiStorageAcceptanceTests.PluginSystem_WhenConfiguredWithAwsS3_ShouldOperateExclusivelyOnAwsS3Storage">
             <summary>
-            Verifies that when configured with <see cref="F:MelloSilveiraTools.Core.Managers.File.Models.StorageProvider.AwsS3"/>, upload, startup discovery,
+            Verifies that when configured with <see cref="F:MelloSilveiraTools.Core.Files.Models.StorageProvider.AwsS3"/>, upload, startup discovery,
             promotion, and cache persistence execute exclusively against the AWS S3 storage mock,
             leaving local storage untouched.
             </summary>

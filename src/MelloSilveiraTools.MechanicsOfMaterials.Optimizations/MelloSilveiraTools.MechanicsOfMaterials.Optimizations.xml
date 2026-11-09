@@ -357,7 +357,7 @@
             When <paramref name="parametricSweepSettings"/> is provided, registers <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.ParametricSweep.ParametricSweepSettings"/> as a singleton
             and wires up the parametric sweep pipeline.
             </summary>
-            <param name="curveFitterOptions">
+            <param name="curveFitterSettings">
             Optional curve fitter configuration options controlling deterministic seeding and default fitter engine. When omitted, default settings are used.
             </param>
             <param name="experimentalDataSettings">
@@ -610,7 +610,7 @@
             <param name="serviceLocator">Service locator resolving keyed model type resolvers.</param>
             <param name="settings">Pipeline configuration settings and step options.</param>
         </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Pipelines.ExperimentalDataProcessingPipeline.#ctor(Microsoft.Extensions.Logging.ILoggerFactory,MelloSilveiraTools.Mathematics.NumericalMethods.Differentiations.IDifferentiation,MelloSilveiraTools.Core.Managers.File.Providers.IFileStorageService,MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.IMechanicalModelCalculatorFactory,MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Factories.IMechanicalModelStepFactory,MelloSilveiraTools.Database.Repositories.IRepository,MelloSilveiraTools.Core.Pipelines.PipelineFactory,MelloSilveiraTools.Core.Providers.ServiceLocator,MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.ExperimentalDataSettings)">
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Pipelines.ExperimentalDataProcessingPipeline.#ctor(Microsoft.Extensions.Logging.ILoggerFactory,MelloSilveiraTools.Mathematics.NumericalMethods.Differentiations.IDifferentiation,MelloSilveiraTools.Core.Files.Providers.IFileStorageService,MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.IMechanicalModelCalculatorFactory,MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Factories.IMechanicalModelStepFactory,MelloSilveiraTools.Database.Repositories.IRepository,MelloSilveiraTools.Core.Pipelines.PipelineFactory,MelloSilveiraTools.Core.Providers.ServiceLocator,MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.ExperimentalDataSettings)">
             <summary>
             Service responsible for orchestrating the ingestion, validation, and physical phase segmentation of experimental raw data streams.
             </summary>
@@ -794,7 +794,7 @@
             <param name="SimulationDeltaOutput">The boundary delta metrics between initial and final simulation outputs.</param>
             <param name="SimulationOutputFileMetadata">The storage entry metadata for the generated simulation output file.</param>
         </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Pipelines.Models.MechanicalModelOutputPersistenceInput.#ctor(System.String,System.String,System.Nullable{System.Double},MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Pipelines.Models.SimulationDeltaOutput,MelloSilveiraTools.Core.Managers.File.Models.StorageEntryMetadata)">
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Pipelines.Models.MechanicalModelOutputPersistenceInput.#ctor(System.String,System.String,System.Nullable{System.Double},MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Pipelines.Models.SimulationDeltaOutput,MelloSilveiraTools.Core.Files.Models.StorageEntryMetadata)">
             <summary>
             Strongly-typed payload encapsulating the converging branches of a mechanical simulation.
             </summary>
@@ -1390,7 +1390,7 @@
         <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Pipelines.Steps.ExperimentalDataFileWriterStep.Name">
             <inheritdoc />
         </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Pipelines.Steps.ExperimentalDataFileWriterStep.CreateAsync(MelloSilveiraTools.Core.Managers.File.Providers.IFileStorageService,System.String)">
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Pipelines.Steps.ExperimentalDataFileWriterStep.CreateAsync(MelloSilveiraTools.Core.Files.Providers.IFileStorageService,System.String)">
             <summary>
             Asynchronously creates a new <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Pipelines.Steps.ExperimentalDataFileWriterStep"/> instance initialized with a timestamped writable storage stream.
             </summary>
@@ -1413,7 +1413,7 @@
             <param name="differentiation">The differentiation calculator used to compute strain and stress rates and accelerations.</param>
             <param name="fileStorageService">Storage service responsible for resolving and opening raw file streams.</param>
         </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Pipelines.Steps.ExperimentalDataSegmenterStep.#ctor(Microsoft.Extensions.Logging.ILogger{MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Pipelines.Steps.ExperimentalDataSegmenterStep},MelloSilveiraTools.Mathematics.NumericalMethods.Differentiations.IDifferentiation,MelloSilveiraTools.Core.Managers.File.Providers.IFileStorageService)">
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Pipelines.Steps.ExperimentalDataSegmenterStep.#ctor(Microsoft.Extensions.Logging.ILogger{MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Pipelines.Steps.ExperimentalDataSegmenterStep},MelloSilveiraTools.Mathematics.NumericalMethods.Differentiations.IDifferentiation,MelloSilveiraTools.Core.Files.Providers.IFileStorageService)">
             <summary>
             Pipeline step responsible for parsing and streaming raw experimental strain and stress data from persistent storage,
             segmenting points into physical deformation phases (Ramp, Relaxation, Descent, Recovery) using numerical differentiation.
@@ -1442,7 +1442,7 @@
             <param name="pipelineIdentifier">Unique business identifier correlating the pipeline run.</param>
             <param name="mechanicalModelName">Name of the mechanical constitutive model evaluated.</param>
         </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Pipelines.Steps.MechanicalModelOutputPersistenceStep.#ctor(Microsoft.Extensions.Logging.ILogger{MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Pipelines.Steps.MechanicalModelOutputPersistenceStep},MelloSilveiraTools.Core.Managers.File.Providers.IFileStorageService,MelloSilveiraTools.Database.Repositories.IRepository,System.String,System.String)">
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Pipelines.Steps.MechanicalModelOutputPersistenceStep.#ctor(Microsoft.Extensions.Logging.ILogger{MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Pipelines.Steps.MechanicalModelOutputPersistenceStep},MelloSilveiraTools.Core.Files.Providers.IFileStorageService,MelloSilveiraTools.Database.Repositories.IRepository,System.String,System.String)">
             <summary>
             Pipeline step that converges all simulation analysis branches (Identifier, Asymptote, Delta, CSV) 
             and persists the final simulation entity to the database.
@@ -1478,7 +1478,7 @@
             <param name="finalSimulationTime">Optional target final simulation time for extrapolation beyond the experimental regime.</param>
             <param name="asymptoteConsecutivePointsThreshold">Number of consecutive stable points required to detect steady-state convergence.</param>
         </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Pipelines.Steps.MechanicalModelSimulationStep.#ctor(MelloSilveiraTools.Core.Managers.File.Providers.IFileStorageService,MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.TypeResolvers.IMechanicalModelTypeResolver,MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.IMechanicalModelCalculatorFactory,System.String,System.String,System.Nullable{System.Double},System.Nullable{System.Double},System.Int32)">
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Pipelines.Steps.MechanicalModelSimulationStep.#ctor(MelloSilveiraTools.Core.Files.Providers.IFileStorageService,MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.TypeResolvers.IMechanicalModelTypeResolver,MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.IMechanicalModelCalculatorFactory,System.String,System.String,System.Nullable{System.Double},System.Nullable{System.Double},System.Int32)">
             <summary>
             Unified pipeline step that executes the forward numerical simulation across experimental curve segments,
             computes absolute and percentage stress deltas, monitors asymptotic steady-state convergence,
@@ -1981,7 +1981,7 @@
             <param name="serviceLocator">Service locator resolving model-specific sweep generator steps and root-finding engines.</param>
             <param name="settings">Mandatory execution topology settings for the parametric sweep pipeline.</param>
         </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.ParametricSweep.Pipelines.ParametricSweepPipeline.#ctor(Microsoft.Extensions.Logging.ILoggerFactory,MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.IMechanicalModelCalculatorFactory,MelloSilveiraTools.Mathematics.NumericalMethods.Differentiations.IDifferentiation,MelloSilveiraTools.Core.Managers.File.Providers.IFileStorageService,MelloSilveiraTools.Database.Repositories.IRepository,MelloSilveiraTools.Core.Pipelines.PipelineFactory,MelloSilveiraTools.Core.Providers.ServiceLocator,MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.ParametricSweep.ParametricSweepSettings)">
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.ParametricSweep.Pipelines.ParametricSweepPipeline.#ctor(Microsoft.Extensions.Logging.ILoggerFactory,MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.IMechanicalModelCalculatorFactory,MelloSilveiraTools.Mathematics.NumericalMethods.Differentiations.IDifferentiation,MelloSilveiraTools.Core.Files.Providers.IFileStorageService,MelloSilveiraTools.Database.Repositories.IRepository,MelloSilveiraTools.Core.Pipelines.PipelineFactory,MelloSilveiraTools.Core.Providers.ServiceLocator,MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.ParametricSweep.ParametricSweepSettings)">
             <summary>
             Orchestrates the One-At-A-Time (OAAT) Parametric Sweep using the TPL Dataflow framework.
             Configures a streamlined linear flow: parameter variation ingestion as a generator step,
@@ -2086,7 +2086,7 @@
             <param name="fileStorageService">Storage service responsible for resolving paths and opening file streams.</param>
             <param name="identifier">Mandatory unique business identifier partitioning the generated sensitivity CSV files.</param>
         </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.ParametricSweep.Pipelines.Steps.ParametricSweepCsvWriterStep.#ctor(MelloSilveiraTools.Core.Managers.File.Providers.IFileStorageService,System.String)">
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.ParametricSweep.Pipelines.Steps.ParametricSweepCsvWriterStep.#ctor(MelloSilveiraTools.Core.Files.Providers.IFileStorageService,System.String)">
             <summary>
             Pipeline step that partitions evaluated parametric sweep payloads by variable name
             and serializes each variable's sensitivity results into a dedicated CSV file.
@@ -2125,7 +2125,7 @@
         <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.ParametricSweep.Pipelines.Steps.ParametricSweepPersistenceStep.Name">
             <inheritdoc />
         </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.ParametricSweep.Pipelines.Steps.ParametricSweepPersistenceStep.ExecuteAsync(System.ValueTuple{System.String,MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Models.Range.RangeParameters,MelloSilveiraTools.Core.Managers.File.Models.StorageEntryMetadata}[],System.Threading.CancellationToken)">
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.ParametricSweep.Pipelines.Steps.ParametricSweepPersistenceStep.ExecuteAsync(System.ValueTuple{System.String,MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Models.Range.RangeParameters,MelloSilveiraTools.Core.Files.Models.StorageEntryMetadata}[],System.Threading.CancellationToken)">
             <inheritdoc />
             <exception cref="T:System.InvalidOperationException">Thrown when insertion of the stored file entity or parametric sweep entity fails in the database.</exception>
         </member>
