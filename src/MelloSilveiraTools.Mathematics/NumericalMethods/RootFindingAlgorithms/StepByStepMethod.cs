@@ -1,10 +1,13 @@
+using Microsoft.Extensions.Logging;
+
 namespace MelloSilveiraTools.Mathematics.NumericalMethods.RootFindingAlgorithms;
 
 /// <summary>
 /// Step-by-step sequential search algorithm that samples an interval to detect the best matching equilibrium point.
 /// Increments through the domain systematically, identifying where the target error threshold is minimized.
 /// </summary>
-public class StepByStepMethod : RootFinding
+/// <param name="logger">Optional logger for telemetry and failure reporting.</param>
+public class StepByStepMethod(ILogger<StepByStepMethod>? logger = null) : RootFinding(logger)
 {
     /// <inheritdoc/>
     public override (double Root, double Error) FindRoot(RootFindingInput input, Func<double, double> function)

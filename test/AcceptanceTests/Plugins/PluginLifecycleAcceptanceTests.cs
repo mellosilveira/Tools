@@ -48,6 +48,7 @@ public sealed class PluginLifecycleAcceptanceTests
 
         ServiceCollection services = new();
         services.AddLogging();
+        services.AddSingleton(TimeProvider.System);
         services.AddSingleton<ITwoLevelCache, InMemoryTwoLevelCache>();
         services.AddSingleton<IDynamicServiceProvider, InMemoryDynamicServiceProvider>();
         services.AddSingleton<IPluginTypeProcessor>(typeProcessor);

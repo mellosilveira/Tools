@@ -109,6 +109,7 @@ public sealed class PluginTestFixture : IAsyncDisposable, IDisposable
 
         Services = new ServiceCollection();
         Services.AddLogging();
+        Services.AddSingleton(TimeProvider.System);
         Services.AddSingleton<ITwoLevelCache, InMemoryTwoLevelCache>();
         Services.AddSingleton<IDynamicServiceProvider, InMemoryDynamicServiceProvider>();
         Services.AddSingleton<IPluginTypeProcessor>(TypeProcessor);

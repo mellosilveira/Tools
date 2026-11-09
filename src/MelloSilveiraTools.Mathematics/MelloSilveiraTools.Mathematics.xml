@@ -1629,12 +1629,25 @@
             Bisection search algorithm for finding equilibrium points within an interval of opposite signs.
             Halves the search range iteratively to guarantee convergence towards the exact target condition.
             </summary>
+            <param name="logger">Optional logger for telemetry and failure reporting.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.Mathematics.NumericalMethods.RootFindingAlgorithms.BisectionMethod.#ctor(Microsoft.Extensions.Logging.ILogger{MelloSilveiraTools.Mathematics.NumericalMethods.RootFindingAlgorithms.BisectionMethod})">
+            <summary>
+            Bisection search algorithm for finding equilibrium points within an interval of opposite signs.
+            Halves the search range iteratively to guarantee convergence towards the exact target condition.
+            </summary>
+            <param name="logger">Optional logger for telemetry and failure reporting.</param>
         </member>
         <member name="M:MelloSilveiraTools.Mathematics.NumericalMethods.RootFindingAlgorithms.BisectionMethod.FindRoot(MelloSilveiraTools.Mathematics.NumericalMethods.RootFindingAlgorithms.RootFindingInput,System.Func{System.Double,System.Double})">
             <inheritdoc/>
         </member>
         <member name="T:MelloSilveiraTools.Mathematics.NumericalMethods.RootFindingAlgorithms.BrentMethod">
             <inheritdoc cref="F:MelloSilveiraTools.Mathematics.Models.NumericalMethods.RootFindingAlgorithm.BrentMethod"/>
+            <param name="logger">Optional logger for telemetry and failure reporting.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.Mathematics.NumericalMethods.RootFindingAlgorithms.BrentMethod.#ctor(Microsoft.Extensions.Logging.ILogger{MelloSilveiraTools.Mathematics.NumericalMethods.RootFindingAlgorithms.BrentMethod})">
+            <inheritdoc cref="F:MelloSilveiraTools.Mathematics.Models.NumericalMethods.RootFindingAlgorithm.BrentMethod"/>
+            <param name="logger">Optional logger for telemetry and failure reporting.</param>
         </member>
         <member name="M:MelloSilveiraTools.Mathematics.NumericalMethods.RootFindingAlgorithms.BrentMethod.FindRoot(MelloSilveiraTools.Mathematics.NumericalMethods.RootFindingAlgorithms.RootFindingInput,System.Func{System.Double,System.Double})">
             <inheritdoc/>
@@ -1655,13 +1668,32 @@
             <returns>The root of the continuous function and its error.</returns>
             <exception cref="T:MelloSilveiraTools.Mathematics.Models.NumericalMethods.NonConvergenceException">When it was not possible to converge to a value.</exception>
         </member>
+        <member name="M:MelloSilveiraTools.Mathematics.NumericalMethods.RootFindingAlgorithms.IRootFinding.TryFindRoot(MelloSilveiraTools.Mathematics.NumericalMethods.RootFindingAlgorithms.RootFindingInput,System.Func{System.Double,System.Double})">
+            <summary>
+            Attempts to find the root of a continuous <paramref name="function"/> within the interval specified in <paramref name="input"/> without throwing an exception when convergence fails.
+            </summary>
+            <param name="input">Contains the inputs for the root-finding algorithm.</param>
+            <param name="function">Represents the continuous function.</param>
+            <returns>A <see cref="T:MelloSilveiraTools.Core.Models.Result`1"/> containing the approximate root and its residual error on success, or failure details when convergence fails.</returns>
+        </member>
         <member name="T:MelloSilveiraTools.Mathematics.NumericalMethods.RootFindingAlgorithms.RootFinding">
             <summary>
             Base class providing standardized error reporting and execution scaffolding for root-finding algorithms.
             Solves for balance points, zero-crossing thresholds, or parameter calibrations where opposing terms reach equilibrium.
             </summary>
+            <param name="logger">Optional logger for telemetry and failure reporting.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.Mathematics.NumericalMethods.RootFindingAlgorithms.RootFinding.#ctor(Microsoft.Extensions.Logging.ILogger)">
+            <summary>
+            Base class providing standardized error reporting and execution scaffolding for root-finding algorithms.
+            Solves for balance points, zero-crossing thresholds, or parameter calibrations where opposing terms reach equilibrium.
+            </summary>
+            <param name="logger">Optional logger for telemetry and failure reporting.</param>
         </member>
         <member name="M:MelloSilveiraTools.Mathematics.NumericalMethods.RootFindingAlgorithms.RootFinding.FindRoot(MelloSilveiraTools.Mathematics.NumericalMethods.RootFindingAlgorithms.RootFindingInput,System.Func{System.Double,System.Double})">
+            <inheritdoc/>
+        </member>
+        <member name="M:MelloSilveiraTools.Mathematics.NumericalMethods.RootFindingAlgorithms.RootFinding.TryFindRoot(MelloSilveiraTools.Mathematics.NumericalMethods.RootFindingAlgorithms.RootFindingInput,System.Func{System.Double,System.Double})">
             <inheritdoc/>
         </member>
         <member name="M:MelloSilveiraTools.Mathematics.NumericalMethods.RootFindingAlgorithms.RootFinding.GetNonConvergenceException(System.Double,System.Double)">
@@ -1709,6 +1741,14 @@
             Step-by-step sequential search algorithm that samples an interval to detect the best matching equilibrium point.
             Increments through the domain systematically, identifying where the target error threshold is minimized.
             </summary>
+            <param name="logger">Optional logger for telemetry and failure reporting.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.Mathematics.NumericalMethods.RootFindingAlgorithms.StepByStepMethod.#ctor(Microsoft.Extensions.Logging.ILogger{MelloSilveiraTools.Mathematics.NumericalMethods.RootFindingAlgorithms.StepByStepMethod})">
+            <summary>
+            Step-by-step sequential search algorithm that samples an interval to detect the best matching equilibrium point.
+            Increments through the domain systematically, identifying where the target error threshold is minimized.
+            </summary>
+            <param name="logger">Optional logger for telemetry and failure reporting.</param>
         </member>
         <member name="M:MelloSilveiraTools.Mathematics.NumericalMethods.RootFindingAlgorithms.StepByStepMethod.FindRoot(MelloSilveiraTools.Mathematics.NumericalMethods.RootFindingAlgorithms.RootFindingInput,System.Func{System.Double,System.Double})">
             <inheritdoc/>

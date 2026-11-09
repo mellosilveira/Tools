@@ -1,4 +1,5 @@
 using MelloSilveiraTools.Mathematics.Models;
+using Microsoft.Extensions.Logging;
 
 namespace MelloSilveiraTools.Mathematics.NumericalMethods.RootFindingAlgorithms;
 
@@ -6,7 +7,8 @@ namespace MelloSilveiraTools.Mathematics.NumericalMethods.RootFindingAlgorithms;
 /// Bisection search algorithm for finding equilibrium points within an interval of opposite signs.
 /// Halves the search range iteratively to guarantee convergence towards the exact target condition.
 /// </summary>
-public class BisectionMethod : RootFinding
+/// <param name="logger">Optional logger for telemetry and failure reporting.</param>
+public class BisectionMethod(ILogger<BisectionMethod>? logger = null) : RootFinding(logger)
 {
     /// <inheritdoc/>
     public override (double Root, double Error) FindRoot(RootFindingInput input, Func<double, double> function)

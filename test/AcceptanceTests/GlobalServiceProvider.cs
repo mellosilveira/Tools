@@ -1,5 +1,7 @@
 using MelloSilveiraTools;
 using MelloSilveiraTools.Core.Files.Models;
+using MelloSilveiraTools.Core.Files.Providers;
+using MelloSilveiraTools.Core.Files.Providers.Local;
 using MelloSilveiraTools.Core.Models;
 using MelloSilveiraTools.Core.ResiliencePipelines;
 using MelloSilveiraTools.Core.Services.Encryption;
@@ -12,6 +14,7 @@ using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Models;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Factories;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Pipelines.Steps.CurveFitter;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Pipelines.Steps.CurveFitter.Fung;
+using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.ParametricSweep;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.ParametricSweep.Pipelines.Entities;
 using MelloSilveiraTools.Plugins.Infrastructure;
 using MelloSilveiraTools.Plugins.Infrastructure.Persistences;
@@ -33,15 +36,28 @@ public static class GlobalServiceProvider
     {
         string dbConnectionString = Environment.GetEnvironmentVariable("TEST_DB_CONNECTION_STRING") ?? "Host=localhost;Database=tests;Username=postgres;Password=postgres";
         string pluginsDir = Environment.GetEnvironmentVariable("TEST_PLUGINS_DIRECTORY") ?? Path.Combine(AppContext.BaseDirectory, "plugins");
+        string storageDir = Environment.GetEnvironmentVariable("TEST_STORAGE_DIRECTORY") ?? Path.Combine(AppContext.BaseDirectory, "storage");
 
         if (!Directory.Exists(pluginsDir))
         {
             Directory.CreateDirectory(pluginsDir);
         }
 
+        if (!Directory.Exists(storageDir))
+        {
+            Directory.CreateDirectory(storageDir);
+        }
+
         IServiceCollection services = new ServiceCollection();
         services.AddLogging();
         services.AddToolsServices(
+            defaultResiliencePipelineSettings: new ResiliencePipelineSettings
+            {
+                BackoffType = DelayBackoffType.Constant,
+                DelayInMilliseconds = 100,
+                MaxRetryAttempts = 3,
+                UseJitter = false
+            },
             databaseSettings: new DatabaseSettings
             {
                 ConnectionString = dbConnectionString,
@@ -54,13 +70,6 @@ public static class GlobalServiceProvider
                 HashSize = 32,
                 Iterations = 100_000
             },
-            defaultResiliencePipelineSettings: new ResiliencePipelineSettings
-            {
-                BackoffType = DelayBackoffType.Constant,
-                DelayInMilliseconds = 100,
-                MaxRetryAttempts = 3,
-                UseJitter = false
-            },
             pluginSettings: new PluginSettings
             {
                 StorageProvider = StorageProvider.Local,
@@ -68,6 +77,18 @@ public static class GlobalServiceProvider
                 DefaultCacheTarget = PluginCacheTargets.File,
                 PollInterval = TimeSpan.FromSeconds(30),
                 PreviousVersionRetention = TimeSpan.FromHours(24)
+            },
+            fileStorageSettings: new FileStorageSettings
+            {
+                Local = new LocalFileStorageSettings { BaseDirectory = storageDir }
+            },
+            curveFitterOptions: new CurveFitterSettings
+            {
+                DefaultCurveFitter = CurveFitterType.Alglib
+            },
+            parametricSweepSettings: new ParametricSweepSettings
+            {
+                IngestionBufferCapacity = 100
             },
             addMechanicalModels: true);
 

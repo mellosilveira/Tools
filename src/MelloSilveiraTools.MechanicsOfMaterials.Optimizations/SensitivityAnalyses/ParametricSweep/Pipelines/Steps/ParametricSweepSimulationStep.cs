@@ -1,3 +1,4 @@
+using MelloSilveiraTools.Core.Models;
 using MelloSilveiraTools.Core.Pipelines.Steps;
 using MelloSilveiraTools.Mathematics.Extensions;
 using MelloSilveiraTools.Mathematics.Models.NumericalMethods;
@@ -45,13 +46,17 @@ public sealed class ParametricSweepSimulationStep(
                 ? baseRootFindingInput with { InitialPoint = sweepInput.SimulationInput.RampTime.Value }
                 : baseRootFindingInput;
 
-            (double asymptoteTime, double error) = rootFinding.FindRoot(rootFindingInput, time =>
+            Result<(double Root, double Error)> rootResult = rootFinding.TryFindRoot(rootFindingInput, time =>
             {
                 double derivative = differentiation.Calculate(t => calculator.CalculateStress(sweepInput.SimulationInput, t), sweepInput.SimulationInput.TimeStep, time);
                 return Math.Abs(derivative);
             });
 
-            double asymptoteStress = calculator.CalculateStress(sweepInput.SimulationInput, asymptoteTime);
+            double asymptoteTime = rootResult.Success ? rootResult.Data.Root : double.NaN;
+            double error = rootResult.Success ? rootResult.Data.Error : double.NaN;
+            double asymptoteStress = double.IsNaN(asymptoteTime)
+                ? double.NaN
+                : calculator.CalculateStress(sweepInput.SimulationInput, asymptoteTime);
 
             yield return new ParametricSweepOutput(
                 sweepInput.VariableName,
