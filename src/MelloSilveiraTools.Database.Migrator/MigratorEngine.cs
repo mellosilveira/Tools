@@ -26,8 +26,8 @@ public static class MigratorEngine
     /// <summary>
     /// Executes schema migrations according to the provided options.
     /// </summary>
+    /// <param name="logger">Logger for telemetry and execution output.</param>
     /// <param name="options">The contextual migration options containing the connection string and target context.</param>
-    /// <param name="logger">Optional logger for telemetry and execution output.</param>
     /// <returns>A <see cref="Result"/> indicating success or containing details of failure.</returns>
     public static Result UpgradeDatabase(ILogger logger, MigratorOptions options)
     {
