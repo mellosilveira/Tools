@@ -1,0 +1,24 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <PackageId>MelloSilveiraTools.Database.Migrator</PackageId>
+    <AssemblyTitle>MelloSilveira Tools Database Migrator</AssemblyTitle>
+    <Description>Database schema migrator utility powered by DbUp, executing contextual DDL migrations exclusively against PostgreSQL.</Description>
+    <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+    <IsAotCompatible>false</IsAotCompatible>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\MelloSilveiraTools.Core\MelloSilveiraTools.Core.csproj" />
+    <ProjectReference Include="..\MelloSilveiraTools.Database\MelloSilveiraTools.Database.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="dbup-postgresql" Version="6.1.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\**\*.sql" />
+  </ItemGroup>
+</Project>
