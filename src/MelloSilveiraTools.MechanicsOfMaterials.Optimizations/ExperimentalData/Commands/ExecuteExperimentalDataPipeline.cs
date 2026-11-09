@@ -4,7 +4,7 @@ using MelloSilveiraTools.Core.Validators;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Pipelines.Models;
 using Microsoft.Extensions.Logging;
 
-namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Commands.Process;
+namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Commands;
 
 public class ExecuteExperimentalDataPipeline(
     ILogger<ExecuteExperimentalDataPipeline> logger,

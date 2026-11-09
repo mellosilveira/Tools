@@ -7,7 +7,7 @@ using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Mathema
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.MathExpressions;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Models;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData;
-using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Commands.Process;
+using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Commands;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Factories;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Pipelines;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Pipelines.Models;
@@ -46,7 +46,7 @@ public static class DependencyInjection
                 services
                     .AddSingleton(settings)
                     .AddSingleton<ExecuteExperimentalDataPipeline>()
-                    .AddSingleton<IValidator<ExecuteExperimentalDataPipelineRequest>, ProcessExperimentalDataValidator>()
+                    .AddSingleton<IValidator<ExecuteExperimentalDataPipelineRequest>, ExecuteExperimentalDataPipelineValidator>()
                     .AddSingleton<IPipeline<ExperimentalDataProcessingInput, string>, ExperimentalDataProcessingPipeline>()
                     ;
             }

@@ -2,12 +2,12 @@ using MelloSilveiraTools.Core.ExtensionMethods;
 using MelloSilveiraTools.Core.Models;
 using MelloSilveiraTools.Core.Validators;
 
-namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Commands.Process;
+namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Commands;
 
 /// <summary>
 /// Validates <see cref="ExecuteExperimentalDataPipelineRequest"/> payloads prior to pipeline execution.
 /// </summary>
-public sealed class ProcessExperimentalDataValidator : IValidator<ExecuteExperimentalDataPipelineRequest>
+public sealed class ExecuteExperimentalDataPipelineValidator : IValidator<ExecuteExperimentalDataPipelineRequest>
 {
     /// <inheritdoc/>
     public Result Validate(ExecuteExperimentalDataPipelineRequest value)

@@ -1,6 +1,6 @@
 using MelloSilveiraTools.Core.Pipelines;
 using MelloSilveiraTools.Core.Validators;
-using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Commands.Process;
+using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Commands;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Pipelines.Models;
 using Moq;
 

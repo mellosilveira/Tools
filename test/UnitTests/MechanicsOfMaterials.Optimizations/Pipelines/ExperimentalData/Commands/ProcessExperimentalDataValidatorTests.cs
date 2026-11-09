@@ -1,14 +1,14 @@
 using MelloSilveiraTools.Core.Models;
-using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Commands.Process;
+using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Commands;
 
 namespace UnitTests.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Commands;
 
 /// <summary>
-/// Unit tests for <see cref="ProcessExperimentalDataValidator"/> validating all constraint checks.
+/// Unit tests for <see cref="ExecuteExperimentalDataPipelineValidator"/> validating all constraint checks.
 /// </summary>
 public sealed class ProcessExperimentalDataValidatorTests
 {
-    private readonly ProcessExperimentalDataValidator _validator = new();
+    private readonly ExecuteExperimentalDataPipelineValidator _validator = new();
 
     /// <summary>
     /// Verifies that validating a null request returns a bad request failure.

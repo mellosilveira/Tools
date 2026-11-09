@@ -2,7 +2,7 @@ using MelloSilveiraTools.Core.Application.Commands;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Models;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Pipelines.Models;
 
-namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Commands.Process;
+namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Commands;
 
 /// <summary>
 /// Request payload for executing the experimental data processing and optimization pipeline via storage-backed file references.

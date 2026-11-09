@@ -1,6 +1,6 @@
 using MelloSilveiraTools.Core.ExtensionMethods;
 using MelloSilveiraTools.Core.Pipelines.Notifiers;
-using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Commands.Process;
+using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Commands;
 using MelloSilveiraTools.WebApi.Application.Endpoints;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
