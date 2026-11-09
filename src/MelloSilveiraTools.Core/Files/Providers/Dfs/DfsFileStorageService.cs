@@ -1,6 +1,5 @@
 using MelloSilveiraTools.Core.Files.Models;
 using MelloSilveiraTools.Core.Files.Providers.Local;
-using MelloSilveiraTools.Core.Managers.File.Providers.Local;
 
 namespace MelloSilveiraTools.Core.Files.Providers.Dfs;
 
