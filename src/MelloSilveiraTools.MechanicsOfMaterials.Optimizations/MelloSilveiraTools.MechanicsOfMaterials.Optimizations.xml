@@ -1990,20 +1990,22 @@
         <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Pipelines.Steps.AsymptoteCalculationStep">
             <summary>
             A domain-specific calculation step that evaluates the continuum stress asymptote by tracking the stress relaxation rate (time derivative dσ/dt) 
-            until it approaches zero, utilizing an <see cref="T:MelloSilveiraTools.Mathematics.NumericalMethods.RootFindingAlgorithms.IRootFinding"/> engine to locate the convergence point.
+            until it approaches zero, utilizing an <see cref="T:MelloSilveiraTools.Mathematics.NumericalMethods.RootFindingAlgorithms.IRootFinding"/> engine to locate the convergence point with stress memoization and zero-allocation differentiation.
             </summary>
             <param name="calculator">Mechanical model calculator facade for stress calculations.</param>
             <param name="differentiation">Numerical differentiation engine.</param>
             <param name="rootFinding">Root-finding algorithm engine.</param>
+            <param name="baseRootFindingInput">Base root-finding configuration parameters.</param>
         </member>
         <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Pipelines.Steps.AsymptoteCalculationStep.#ctor(MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.IMechanicalModelCalculatorFacade,MelloSilveiraTools.Mathematics.NumericalMethods.Differentiations.IDifferentiation,MelloSilveiraTools.Mathematics.NumericalMethods.RootFindingAlgorithms.IRootFinding,MelloSilveiraTools.Mathematics.NumericalMethods.RootFindingAlgorithms.RootFindingInput)">
             <summary>
             A domain-specific calculation step that evaluates the continuum stress asymptote by tracking the stress relaxation rate (time derivative dσ/dt) 
-            until it approaches zero, utilizing an <see cref="T:MelloSilveiraTools.Mathematics.NumericalMethods.RootFindingAlgorithms.IRootFinding"/> engine to locate the convergence point.
+            until it approaches zero, utilizing an <see cref="T:MelloSilveiraTools.Mathematics.NumericalMethods.RootFindingAlgorithms.IRootFinding"/> engine to locate the convergence point with stress memoization and zero-allocation differentiation.
             </summary>
             <param name="calculator">Mechanical model calculator facade for stress calculations.</param>
             <param name="differentiation">Numerical differentiation engine.</param>
             <param name="rootFinding">Root-finding algorithm engine.</param>
+            <param name="baseRootFindingInput">Base root-finding configuration parameters.</param>
         </member>
         <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Pipelines.Steps.AsymptoteCalculationStep.Name">
             <inheritdoc />
@@ -2060,6 +2062,13 @@
         </member>
         <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Pipelines.Steps.Generators.ParametricSweepGeneratorStepBase`1.Name">
             <inheritdoc />
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Pipelines.Steps.Generators.ParametricSweepGeneratorStepBase`1.GenerateCombinations(MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Pipelines.Models.ParametricSweepPipelineInput)">
+            <summary>
+            Generates OAAT parameter combinations for the specified sweep input.
+            </summary>
+            <param name="input">The parametric sweep pipeline input.</param>
+            <returns>A collection of swept variables paired with their range and input envelopes.</returns>
         </member>
         <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Pipelines.Steps.Generators.ParametricSweepGeneratorStepBase`1.Execute(MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Pipelines.Models.ParametricSweepPipelineInput,System.Threading.CancellationToken)">
             <inheritdoc />
@@ -2138,6 +2147,7 @@
             <summary>
             Pipeline step that partitions evaluated parametric sweep payloads by variable name
             and serializes each variable's sensitivity results into a dedicated CSV file.
+            Streams records continuously to disk as each parameter variation completes.
             </summary>
             <param name="fileStorageService">Storage service responsible for resolving paths and opening file streams.</param>
             <param name="identifier">Mandatory unique business identifier partitioning the generated sensitivity CSV files.</param>
@@ -2146,6 +2156,7 @@
             <summary>
             Pipeline step that partitions evaluated parametric sweep payloads by variable name
             and serializes each variable's sensitivity results into a dedicated CSV file.
+            Streams records continuously to disk as each parameter variation completes.
             </summary>
             <param name="fileStorageService">Storage service responsible for resolving paths and opening file streams.</param>
             <param name="identifier">Mandatory unique business identifier partitioning the generated sensitivity CSV files.</param>
@@ -2153,7 +2164,7 @@
         <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Pipelines.Steps.ParametricSweepCsvWriterStep.Name">
             <inheritdoc />
         </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Pipelines.Steps.ParametricSweepCsvWriterStep.ExecuteAsync(System.ValueTuple{System.String,MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Models.Range.RangeParameters,System.Collections.Generic.IReadOnlyList{MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Pipelines.Models.ParametricSweepOutput}},System.Threading.CancellationToken)">
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Pipelines.Steps.ParametricSweepCsvWriterStep.ExecuteAsync(System.ValueTuple{System.String,MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Models.Range.RangeParameters,System.Collections.Generic.IAsyncEnumerable{MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Pipelines.Models.ParametricSweepOutput}},System.Threading.CancellationToken)">
             <inheritdoc />
         </member>
         <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Pipelines.Steps.ParametricSweepCsvWriterStep.DisposeAsync">
@@ -2204,7 +2215,7 @@
         <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Pipelines.Steps.ParametricSweepSimulationStep">
             <summary>
             Pipeline step that executes the forward numerical simulations across all parameter variations of a swept variable,
-            detects relaxation asymptotes, and computes stress deltas.
+            detects relaxation asymptotes, and computes stress deltas using asynchronous streaming, memoization, and zero-allocation root-finding.
             </summary>
             <param name="calculator">Mechanical model calculator facade for stress calculations.</param>
             <param name="differentiation">Numerical differentiation engine for asymptote detection.</param>
@@ -2216,7 +2227,7 @@
         <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Pipelines.Steps.ParametricSweepSimulationStep.#ctor(MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.IMechanicalModelCalculatorFacade,MelloSilveiraTools.Mathematics.NumericalMethods.Differentiations.IDifferentiation,MelloSilveiraTools.Mathematics.NumericalMethods.RootFindingAlgorithms.IRootFinding,MelloSilveiraTools.Mathematics.NumericalMethods.RootFindingAlgorithms.RootFindingInput,System.Double,System.Double)">
             <summary>
             Pipeline step that executes the forward numerical simulations across all parameter variations of a swept variable,
-            detects relaxation asymptotes, and computes stress deltas.
+            detects relaxation asymptotes, and computes stress deltas using asynchronous streaming, memoization, and zero-allocation root-finding.
             </summary>
             <param name="calculator">Mechanical model calculator facade for stress calculations.</param>
             <param name="differentiation">Numerical differentiation engine for asymptote detection.</param>
@@ -2233,6 +2244,12 @@
         </member>
         <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Pipelines.Steps.ParametricSweepSimulationStep.DisposeAsync">
             <inheritdoc />
+        </member>
+        <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Pipelines.Steps.ParametricSweepSimulationStep.AsymptoteSolverContext">
+            <summary>
+            Encapsulates the numerical evaluation state for asymptote detection, memoizing stress calculations
+            and eliminating heap delegate closures inside the inner root-finding solver loop.
+            </summary>
         </member>
         <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Serializers.Json.OptimizationJsonOptions">
             <summary>

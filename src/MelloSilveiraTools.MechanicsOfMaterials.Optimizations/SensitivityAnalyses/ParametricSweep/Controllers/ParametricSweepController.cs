@@ -1,0 +1,40 @@
+using MelloSilveiraTools.Core.ExtensionMethods;
+using MelloSilveiraTools.Core.Pipelines.Notifiers;
+using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Controllers;
+using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.ParametricSweep.Commands;
+using MelloSilveiraTools.WebApi.Application.Endpoints;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
+
+namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.ParametricSweep.Controllers;
+
+/// <summary>
+/// Exposes HTTP endpoints for executing Parametric Sweep sensitivity analyses and streaming real-time pipeline progress.
+/// File artifact queries and downloads are centralized in <see cref="StoredFilesController"/>.
+/// </summary>
+[ApiController]
+[Route("api/v1/parametric-sweeps")]
+public class ParametricSweepController(ILogger logger) : ControllerBase
+{
+    [HttpPost("process")]
+    [ProducesResponseType(StatusCodes.Status202Accepted)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> Process(
+        [FromServices] ExecuteParametricSweepPipeline command, 
+        [FromBody] ExecuteParametricSweepPipelineRequest request, 
+        CancellationToken cancellationToken = default)
+        => await command.ExecuteAsync(request, cancellationToken).BuildHttpResponseAsync().ConfigureAwait(false);
+
+    [HttpGet("{identifier}/stream")]
+    [Produces("application/x-ndjson")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    public async Task ProcessStreamAsync(
+        [FromServices] IPipelineProgressNotifier progressNotifier,
+        [FromRoute] string identifier,
+        CancellationToken cancellationToken = default) 
+        => await progressNotifier
+            .ReadAllAsync(identifier, cancellationToken)
+            .WriteNdjsonAsync(HttpContext, logger, "Progress for parametric sweep pipeline", cancellationToken)
+            .ConfigureAwait(false);
+}

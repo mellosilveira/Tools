@@ -37,6 +37,7 @@
     <Folder Include="MechanicsOfMaterials.Optimizations\Pipelines\ExperimentalData\Readers\" />
     <Folder Include="MechanicsOfMaterials.Optimizations\Pipelines\ExperimentalData\Serialization\" />
     <Folder Include="MechanicsOfMaterials.Optimizations\Pipelines\ExperimentalData\Services\" />
+    <Folder Include="MechanicsOfMaterials.Optimizations\Pipelines\SensitivityAnalysis\Steps\" />
   </ItemGroup>
 
 </Project>
