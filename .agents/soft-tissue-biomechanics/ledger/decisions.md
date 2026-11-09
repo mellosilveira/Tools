@@ -470,3 +470,26 @@ To ensure data integrity and prevent runaway token consumption during automated 
      - Verified no code reinvention: 3A leverages BCL `AssemblyLoadContext` and ALGLIB native seeding; 3B builds on previously committed models (`ParameterBound`, `VariableRelationshipInput`, `VariableRelationshipOutput`), `IDifferentiation`, and canonical `IPipeline<,>`.
 * **From where:** Evaluated and approved by `documentation-and-tracking-secretary` acting as Pre-Execution Strategy QA Gate, following consensus and directives from the Orchestrator.
 * **Why:** Guarantees parallel execution safety with zero merge conflicts or race conditions across working trees, fulfills the cross-platform portability requirements for dynamic plugins and deterministic curve fitting, and delivers the IsoStress variable relationship optimization pipeline for biomechanical soft tissue modeling.
+
+
+---
+
+### 2026-11-09 Task: register-sensitivity-theory-basis
+* **Task_ID:** task-register-sensitivity-theory-basis
+* **Date:** 2026-11-09
+* **Category:** Execution & Decision
+* **What:** Formally documented and cataloged the theoretical and mathematical foundation for parameter sensitivity analysis, iso-stress manifold continuation, and asymptotic relaxation settling time into `.agents/soft-tissue-biomechanics/base_literature/theory_cheat_sheets/sensitivity_analysis_and_continuation.md`.
+  - Registered all 8 primary journal articles and digital books with 100% CrossRef API-verified DOIs:
+    1. Sauren & Rousseau (1983) — DOI: `10.1115/1.3138391`
+    2. Abramowitch & Woo (2004) — DOI: `10.1115/1.1645528`
+    3. Saltelli et al. (2008) — DOI: `10.1002/9780470725184`
+    4. Haut & Little (1972) — DOI: `10.1016/0021-9290(72)90001-2`
+    5. Fung (1993, 2nd ed.) — DOI: `10.1007/978-1-4757-2257-4`
+    6. Fung (1967) — DOI: `10.1152/ajplegacy.1967.213.6.1532`
+    7. Allgower & Georg (2003) — DOI: `10.1137/1.9780898719154`
+    8. Dennis & Schnabel (1996) — DOI: `10.1137/1.9781611971200`
+  - Registered classical printed monographs (pre-DOI era) with verified ISBNs:
+    9. Kleiber et al. (1997) — ISBN-13: `978-0471968542`
+    10. Holzapfel (2000) — ISBN-13: `978-0471823193`
+* **From where:** Curated and verified via CrossRef REST API (`https://api.crossref.org/works/{doi}`) by `senior-applied-biomechanics-researcher-deep-research`.
+* **Why:** To eliminate hallucinations, comply with the strict scientific traceability standard of the research ecosystem, and provide the exact mathematical backing for the C#/.NET 10 implementations of `ParametricSweepSimulationStep`, `VariableRelationshipPipeline`, and `NewtonRaphsonMethod`.
