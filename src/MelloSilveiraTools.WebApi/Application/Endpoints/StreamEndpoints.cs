@@ -34,7 +34,7 @@ public static class StreamEndpoints
         where TEntity : EntityBase, new()
         where TFilter : FilterBase, new()
         => builder
-            .MapGet(pattern, async (HttpContext httpContext, IRepository repository, ILogger logger, [AsParameters] TFilter filter) => repository
+            .MapGet(pattern, async (HttpContext httpContext, IRepository repository, ILogger<TEntity> logger, [AsParameters] TFilter filter) => repository
                 .GetAsync<TEntity, TFilter>(filter, cancellationToken: httpContext.RequestAborted)
                 .WriteNdjsonAsync(httpContext, logger, resourceName))
             .Produces(StatusCodes.Status200OK)

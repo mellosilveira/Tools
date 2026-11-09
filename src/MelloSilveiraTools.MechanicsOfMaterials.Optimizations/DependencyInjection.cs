@@ -1,6 +1,7 @@
 using MelloSilveiraTools.Core.Pipelines;
 using MelloSilveiraTools.Core.Validators;
 using MelloSilveiraTools.Mathematics.Models;
+using MelloSilveiraTools.MechanicsOfMaterials;
 using MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Algorithms;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.MathematicalFunctions;
@@ -11,6 +12,7 @@ using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Com
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Factories;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Pipelines;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Pipelines.Models;
+using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.ParametricSweep;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.ParametricSweep.Commands;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.ParametricSweep.Pipelines;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.ParametricSweep.Pipelines.Models;
@@ -29,51 +31,64 @@ public static class DependencyInjection
     {
         /// <summary>
         /// Registers optimization services into the service collection.
-        /// When <paramref name="settings"/> is provided, registers <see cref="ExperimentalDataSettings"/> as a singleton
+        /// Mechanical models are registered automatically as required dependencies.
+        /// When <paramref name="experimentalDataSettings"/> is provided, registers <see cref="ExperimentalDataSettings"/> as a singleton
         /// and wires up the experimental data processing pipeline.
+        /// When <paramref name="parametricSweepSettings"/> is provided, registers <see cref="ParametricSweepSettings"/> as a singleton
+        /// and wires up the parametric sweep pipeline.
         /// </summary>
-        /// <param name="settings">
+        /// <param name="curveFitterOptions">
+        /// Optional curve fitter configuration options controlling deterministic seeding and default fitter engine. When omitted, default settings are used.
+        /// </param>
+        /// <param name="experimentalDataSettings">
         /// Optional experimental data settings. When provided, registered as a singleton into DI.
         /// </param>
-        /// <param name="curveFitterOptions">
-        /// Optional curve fitter configuration options controlling deterministic seeding. When provided, registered as a singleton into DI.
+        /// <param name="parametricSweepSettings">
+        /// Optional parametric sweep settings. When provided, registered as a singleton into DI.
         /// </param>
         /// <returns>The same service collection so additional registrations can be chained.</returns>
-        public IServiceCollection AddOptimizationsServices(CurveFitterSettings? curveFitterOptions = null, ExperimentalDataSettings ? settings = null)
+        public IServiceCollection AddOptimizationsServices(
+            CurveFitterSettings? curveFitterOptions = null,
+            ExperimentalDataSettings? experimentalDataSettings = null,
+            ParametricSweepSettings? parametricSweepSettings = null)
         {
-            if (settings is not null)
+            if (experimentalDataSettings is not null)
             {
                 services
-                    .AddSingleton(settings)
+                    .AddSingleton(experimentalDataSettings)
                     .AddSingleton<ExecuteExperimentalDataPipeline>()
                     .AddSingleton<IValidator<ExecuteExperimentalDataPipelineRequest>, ExecuteExperimentalDataPipelineValidator>()
-                    .AddSingleton<IPipeline<ExperimentalDataProcessingInput, string>, ExperimentalDataProcessingPipeline>()
-                    ;
+                    .AddSingleton<IPipeline<ExperimentalDataProcessingInput, string>, ExperimentalDataProcessingPipeline>();
+            }
+
+            if (parametricSweepSettings is not null)
+            {
+                services
+                    .AddSingleton(parametricSweepSettings)
+                    .AddSingleton<ExecuteParametricSweepPipeline>()
+                    .AddSingleton<IValidator<ExecuteParametricSweepPipelineRequest>, ExecuteParametricSweepValidator>()
+                    .AddSingleton<IPipeline<ParametricSweepPipelineInput, string>, ParametricSweepPipeline>();
             }
 
             return services
                 .AddSingleton(curveFitterOptions ?? new CurveFitterSettings())
+                // Register Curve Fitter implementations.
+                .AddKeyedSingleton<ICurveFitter, AlglibCurveFitter>(CurveFitterType.Alglib)
+                .AddKeyedSingleton<ICurveFitter, MathNetCurveFitter>(CurveFitterType.MathNet)
+                // Register default unkeyed Curve Fitter implementation.
+                .AddSingleton<ICurveFitter>(provider => provider.GetRequiredKeyedService<ICurveFitter>(curveFitterSettings.DefaultCurveFitter))
                 // Register MathExpression curve fitter decorators.
                 .AddKeyedSingleton<IMathExpressionCurveFitter, PronySeriesCurveFitter>(MathExpressionType.PronySeries)
                 // Register MathematicalFunction curve fitter decorators.
                 .AddKeyedSingleton<IFunctionCurveFitter, LogarithmicCurveFitter>(FunctionType.Logarithmic)
                 .AddKeyedSingleton<IFunctionCurveFitter, ExponentialCurveFitter>(FunctionType.Exponential)
                 .AddKeyedSingleton<IFunctionCurveFitter, PolynomialCurveFitter>(FunctionType.Polynomial)
-                // Register Curve Fitter implementations.
-                .AddKeyedSingleton<ICurveFitter, AlglibCurveFitter>(CurveFitterType.Alglib)
-                .AddKeyedSingleton<ICurveFitter, MathNetCurveFitter>(CurveFitterType.MathNet)
                 // Register the step factory.
                 .AddSingleton<IMechanicalModelStepFactory, MechanicalModelStepFactory>()
                 // Register Sensitivity Analysis services.
                 .AddKeyedSingleton<IParametricSweepGeneratorStep, FungParametricSweepGeneratorStep>(nameof(MechanicalModel.Fung))
                 .AddKeyedSingleton<IParametricSweepGeneratorStep, SimplifiedFungParametricSweepGeneratorStep>(nameof(MechanicalModel.SimplifiedFung))
-                .AddKeyedSingleton<IParametricSweepGeneratorStep, SchaperyParametricSweepGeneratorStep>(nameof(MechanicalModel.Schapery))
-                // Register pipelines.
-                .AddSingleton<IPipeline<ParametricSweepPipelineInput, string>, ParametricSweepPipeline>()
-                // Register Request Validators.
-                .AddSingleton<IValidator<ExecuteParametricSweepPipelineRequest>, ExecuteParametricSweepValidator>()
-                // Register Application Commands.
-                .AddScoped<ExecuteParametricSweepPipeline>();
+                .AddKeyedSingleton<IParametricSweepGeneratorStep, SchaperyParametricSweepGeneratorStep>(nameof(MechanicalModel.Schapery));
         }
     }
 }

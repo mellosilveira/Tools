@@ -11,4 +11,10 @@ public record CurveFitterSettings
     /// Defaults to <see cref="CurveFittingConstants.DefaultSeed"/>.
     /// </summary>
     public int Seed { get; init; } = CurveFittingConstants.DefaultSeed;
+
+    /// <summary>
+    /// Gets the default curve fitter implementation type registered as the unkeyed <see cref="Algorithms.ICurveFitter"/> in the DI container.
+    /// Defaults to <see cref="CurveFitterType.Alglib"/>.
+    /// </summary>
+    public CurveFitterType DefaultCurveFitter { get; init; } = CurveFitterType.Alglib;
 }

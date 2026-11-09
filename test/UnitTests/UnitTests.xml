@@ -314,7 +314,7 @@
         </member>
         <member name="T:UnitTests.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Commands.ProcessExperimentalDataValidatorTests">
             <summary>
-            Unit tests for <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Commands.Process.ProcessExperimentalDataValidator"/> validating all constraint checks.
+            Unit tests for <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Commands.ExecuteExperimentalDataPipelineValidator"/> validating all constraint checks.
             </summary>
         </member>
         <member name="M:UnitTests.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Commands.ProcessExperimentalDataValidatorTests.Validate_WhenRequestIsNull_ReturnsBadRequest">

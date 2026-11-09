@@ -1,4 +1,4 @@
-namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses;
+namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.ParametricSweep;
 
 /// <summary>
 /// Infrastructure and execution topology configuration settings for parametric sensitivity sweep pipelines.

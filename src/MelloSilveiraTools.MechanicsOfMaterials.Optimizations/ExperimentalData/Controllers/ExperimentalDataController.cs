@@ -14,7 +14,7 @@ namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData
 /// </summary>
 [ApiController]
 [Route("api/v1/experimental-data")]
-public class ExperimentalDataController(ILogger logger) : ControllerBase
+public class ExperimentalDataController(ILogger<ExperimentalDataController> logger) : ControllerBase
 {
     [HttpPost("process")]
     [ProducesResponseType(StatusCodes.Status202Accepted)]

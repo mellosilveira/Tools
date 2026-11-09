@@ -639,10 +639,10 @@
         </member>
         <member name="M:MelloSilveiraTools.WebApi.WebApiDependencyInjection.AddWebApiServices(Microsoft.Extensions.DependencyInjection.IServiceCollection,MelloSilveiraTools.Core.ResiliencePipelines.ResiliencePipelineSettings)">
             <summary>
-            Registers Web API services: API service agent resilience pipeline.
+            Registers Web API services: API service agent resilience pipeline (when settings are provided) and generic CRUD operations.
             </summary>
             <param name="services">Service collection that receives the registrations.</param>
-            <param name="resiliencePipelineSettings">Settings that parameterize the resilience pipelines.</param>
+            <param name="resiliencePipelineSettings">Optional settings that parameterize the resilience pipelines.</param>
             <returns>The same <paramref name="services"/> instance to allow call chaining.</returns>
         </member>
         <member name="M:MelloSilveiraTools.WebApi.WebApiDependencyInjection.AddJweAuthentication(Microsoft.Extensions.DependencyInjection.IServiceCollection,MelloSilveiraTools.WebApi.Authentication.JwtSettings)">

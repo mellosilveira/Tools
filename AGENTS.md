@@ -116,7 +116,7 @@ AI agents modifying or generating code in this repository **must strictly adhere
 - **Indentation:** 4 spaces.
 - **Line endings:** CRLF (`end_of_line = crlf`).
 - **Braces:** Single-line `if` statements without braces are allowed and preferred; multi-line blocks require braces.
-- **Parameter Ordering:** 1. `ILogger` / `ILoggerFactory`, 2. interfaces (with `IPipelineProgressNotifier` first among interfaces), 3. concrete classes and primitives (with `TimeProvider` preceding other instances), ..., last: `CancellationToken`.
+- **Parameter Ordering:** 1. `ILogger` / `ILogger<T>` / `ILoggerFactory`, 2. interfaces (with `IPipelineProgressNotifier` first among interfaces), 3. concrete classes and primitives (with `TimeProvider` preceding other instances), ..., last: `CancellationToken`.
 - **Temporal Operations:** Mandatory use of `TimeProvider` (non-optional, non-nullable). Ambient `DateTimeOffset.UtcNow` or `DateTime.UtcNow` is forbidden in production code to guarantee testability.
 - **Namespaces:** File-scoped or block-scoped declarations consistent with surrounding files.
 - **`using` directives:** Place outside of namespaces.
@@ -131,7 +131,7 @@ AI agents modifying or generating code in this repository **must strictly adhere
   - `ref struct` where stack-only allocation semantics are needed (`SpanStringBuilder`).
 
 ### 4. Logging
-- Use standard **`Microsoft.Extensions.Logging.ILogger<T>`** across all packages.
+- Use standard **`Microsoft.Extensions.Logging.ILogger<T>`** across all packages for dependency injection into controllers, commands, and services.
 - Telemetry is backed by Serilog for structured JSON file logging (rolling file sink) and PostgreSQL sink (`Serilog.Sinks.Postgresql.Alternative`).
 
 ### 5. Settings & DI
@@ -150,28 +150,30 @@ AI agents modifying or generating code in this repository **must strictly adhere
 
 | Package | Class | Method |
 |---|---|---|
-| Core | `CoreDependencyInjection` | `AddCoreServices(defaultResiliencePipelineSettings, encryptionSettings, emailSettings, fileStorageSettings, loggerSettings, enablePipelineProgressNotifications)` |
-| Database | `DatabaseDependencyInjection` | `AddDatabaseServices(defaultResiliencePipelineSettings, databaseSettings, loggerSettings)` |
+| Core | `CoreDependencyInjection` | `AddCoreServices(defaultResiliencePipelineSettings, encryptionSettings, emailSettings, fileStorageSettings, loggerSettings, pipelineProgressNotifierSettings)` |
+| Database | `DatabaseDependencyInjection` | `AddDatabaseServices(defaultResiliencePipelineSettings, databaseSettings)` |
 | WebApi | `WebApiDependencyInjection` | `AddWebApiServices(resiliencePipelineSettings)`, `AddJweAuthentication(jwtSettings)`, `AddSwaggerWithBearerSecurity()`, `UseSwaggerDocs()`, `UseCustomMiddlewares()` |
-| Plugins | `PluginsDependencyInjection` | `AddPluginServices(pluginSettings)` |
+| Plugins | `PluginsDependencyInjection` | `AddPluginServices(pluginSettings)`, `AddPluginServicesAsync(pluginSettings, cancellationToken)` |
 | Mathematics | `MathematicsDependencyInjection` | `AddMathematicsServices()` |
-| MechanicsOfMaterials | `DependencyInjection` | `AddMechanicsOfMaterialsServices(addMechanicalModels)` |
-| Meta | `DependencyInjection` | `AddToolsServices(defaultResiliencePipelineSettings, databaseSettings, encryptionSettings, pluginSettings, emailSettings, fileStorageSettings, experimentalDataSettings, loggerSettings, addMechanicalModels, enablePipelineProgressNotifications)` |
+| MechanicsOfMaterials | `DependencyInjection` | `AddMechanicsOfMaterialsServices(addMechanicalModels)`, `AddMechanicalModels()` |
+| Optimizations | `DependencyInjection` | `AddOptimizationsServices(curveFitterOptions, experimentalDataSettings, parametricSweepSettings)` |
+| Meta | `DependencyInjection` | `AddToolsServices(defaultResiliencePipelineSettings, databaseSettings, encryptionSettings, pluginSettings, emailSettings, fileStorageSettings, loggerSettings, curveFitterOptions, experimentalDataSettings, parametricSweepSettings, pipelineProgressNotifierSettings, addMechanicalModels)` |
 
 ### DI Registration Summary by Lifetime
 
 **Singletons (stateless/thread-safe):**
-- Core: `TimeProvider` (`TimeProvider.System`), `IFileStorageService` (and keyed by `StorageProvider.Local`), `ISingleLevelCache`, `ITwoLevelCache`, `ServiceLocator`, `IDynamicServiceProvider`, `SmtpResiliencePipeline`, `EncryptionSettings`, `IPipelineProgressNotifier` → `NullPipelineProgressNotifier.Instance` (when `enablePipelineProgressNotifications: false`)
+- Core: `TimeProvider` (`TimeProvider.System`), `PipelineFactory`, `IFileStorageService` (and keyed by `StorageProvider.Local`), `ISingleLevelCache`, `ITwoLevelCache`, `ServiceLocator`, `IDynamicServiceProvider`, `SmtpResiliencePipeline`, `BlobStorageResiliencePipeline`, `AwsS3ResiliencePipeline`, `EncryptionSettings`, `IPipelineProgressNotifier` (`ChannelPipelineProgressNotifier` when `pipelineProgressNotifierSettings` is configured, or `NullPipelineProgressNotifier.Instance`)
 - Database: `DatabaseSettings`, `ResiliencePipelineSettings`, `PostgresResiliencePipeline`, `ISqlProvider` → `PostgresSqlProvider`, `IRepository` → `PostgresRepository`
 - WebApi: `ApiServiceAgentResiliencePipeline`, `JwtSettings`
 - Plugins: `PluginSettings`, `PluginFileProcessor`, `PluginAssemblyProcessor`, `PluginCache`, `PluginValidator` (all variants); keyed: `JsonFilePluginCachePersistence` (key: `"file"`), `DatabasePluginCachePersistence` (key: `"database"`)
 - Mathematics: `IDifferentiation`, `IIntegration`, `FunctionFactory`, `IStatisticsCalculator`; keyed: `IDifferentialEquationMethod` (Newmark/NewmarkBeta), `IRootFinding` (Bisection/Brent/StepByStep)
-- MechanicsOfMaterials: all model calculators (Elastic, Maxwell, Fung, SimplifiedFung, Schapery, ModifiedSuperposition), `IConstitutiveEquationsCalculator`, `IFatigueCalculator`, `IGeometricPropertyCalculator<>`, `IMechanicalModelTypeCache`
+- MechanicsOfMaterials: all model calculators (Elastic, Maxwell, Fung, SimplifiedFung, Schapery, ModifiedSuperposition), `IMechanicalParameterConverter`, `IConstitutiveEquationsCalculator`, `IFatigueCalculator`, `IGeometricPropertyCalculator<>`, `IMechanicalModelTypeCache`, `IMechanicalModelCalculatorFactory`; keyed: `IMechanicalModelTypeResolver` (Elastic, Maxwell, Fung, SimplifiedFung, Schapery, ModifiedSuperpositionMethod)
+- Optimizations: `CurveFitterSettings`, `ICurveFitter` (unkeyed default resolved via `CurveFitterSettings.DefaultCurveFitter`, and keyed: `Alglib`/`MathNet`), `IMechanicalModelStepFactory`; keyed: `IMathExpressionCurveFitter` (PronySeries), `IFunctionCurveFitter` (Logarithmic, Exponential, Polynomial), `IParametricSweepGeneratorStep` (Fung, SimplifiedFung, Schapery); when configured: `ExperimentalDataSettings`, `ParametricSweepSettings`, `IPipeline<ExperimentalDataProcessingInput, string>`, `IPipeline<ParametricSweepPipelineInput, string>`, `ExecuteExperimentalDataPipeline`, `ExecuteParametricSweepPipeline`, `IValidator<ExecuteExperimentalDataPipelineRequest>`, `IValidator<ExecuteParametricSweepPipelineRequest>`
 
 **Scoped:**
-- Core: `IEncryptionService`, `IEmailService`, `IPipelineProgressNotifier` → `ChannelPipelineProgressNotifier` (when `enablePipelineProgressNotifications: true`)
+- Core: `IEncryptionService`, `IEmailService`
 - WebApi: `IAuthenticationTokenService`, CRUD commands (`AddEntity<>`, `ReadEntityById<>`, `ReadEntityPaged<,>`, `UpdateEntity<>`, `DeleteEntity<>`)
-- Plugins: `IPluginService`, `IPluginCachePersistence` (resolved via HTTP route `{target}`), all plugin commands
+- Plugins: `IPluginService`, `IPluginCachePersistence` (resolved via HTTP route `{target}`), all plugin commands (`GetPlugins`, `LoadPlugins`, `ReloadPlugins`, `ClearPluginCache`, `PersistPluginCache`, `RestorePluginCache`, `UploadPlugin`)
 
 **Hosted:**
 - Plugins: `PluginOrchestratorBackgroundService`
@@ -254,16 +256,16 @@ AI agents modifying or generating code in this repository **must strictly adhere
   - `DeltaCalculatorStep`: Analysis step implementing `ISyncPipelineStep<MechanicalModelSimulationPayload, SimulationDeltaOutput>`, computing initial, final, absolute, and percentage differences.
   - `MechanicalModelOutputFileWriterStep`: Output writer step implementing `IAsyncPipelineStep<MechanicalModelSimulationPayload, FileMetadata>`, streaming simulation time-histories to CSV using `CsvFileWriter` and returning `FileMetadata` (path resolved via `IFileStorageService`).
   - `MechanicalModelOutputPersistenceStep`: Convergence persistence step implementing `IAsyncPipelineStep<MechanicalModelOutputPersistenceInput, string>`, computing a deterministic simulation hash and persisting `MechanicalModelSimulationEntity`.
-- `IExperimentalDataProcessingPipeline.ProcessAsync(input, cancellationToken)` → `Result<string>`:
+- `IPipeline<ExperimentalDataProcessingInput, string>.ProcessAsync(input, cancellationToken)` → `Result<string>`:
   - Reactive DAG stream topology via TPL Dataflow:
     - Ingestion: `ExperimentalDataSegmenterStep` converts raw stream pair into streaming `SegmentedDataPoint` sequence.
-    - Broadcast Fork: `ExperimentalDataFileWriterStep` and `StoredFilePersistenceStep` write raw points to disk and database via `.AddBroadcastFork(fileBranch => ...)`.
+    - Broadcast Fork: `ExperimentalDataFileWriterStep` writes raw points to disk via `.AddBroadcastStep(experimentalDataFileWriterStep, ...)`.
     - Downsampling & Accumulation: `ExperimentalDataDownsamplerStep` downsamples points sequentially, followed by `CurveSegmentAccumulatorStep`.
     - Fitting: `IMechanicalModelCurveFitterStep` yields `MechanicalModelCurveFitOutput`.
     - 3-Way Fork:
       - Branch 1: Pass-through preserving `MechanicalModelCurveFitOutput`.
       - Branch 2: `IdentifierBuilderStep` producing the deterministic SHA-256 fit identifier string.
-      - Branch 3: `NumericalSimulationStep` followed by an inner 3-way fork (`AsymptoteMonitoringStep`, `DeltaCalculatorStep`, `MechanicalModelOutputFileWriterStep`).
+      - Branch 3: `MechanicalModelSimulationStep`.
     - Mapped Broadcast: `.AddBroadcastStep(curveFitPersistenceStep, t => (t.Item2, t.Item1))` persisting fitted parameters without mutating the primary stream.
     - Convergence: `.AddDataMapping(...)` constructs `MechanicalModelOutputPersistenceInput` from the joined tuple.
     - Terminal: `MechanicalModelOutputPersistenceStep` saves the simulation entity and returns the identifier.
@@ -279,24 +281,19 @@ AI agents modifying or generating code in this repository **must strictly adhere
   - `CurveFitOutput`: Exposes `OptimizedParameters: double[]`, `FinalError: double` (SSR), `RSquared: double` ($1 - \frac{SSR}{SST}$), and `Iterations: int`.
   - `MechanicalModelCurveFitOutput`: Exposes `RSquared: double` ($1 - \frac{SSR}{SST}$) consistent with `CurveFitOutput`.
   - `CurveFitterBase`: Centralized evaluation of objective function (SSR), numerical gradient (finite differences), and determination coefficient ($R^2$).
+  - Default selection: `CurveFitterSettings.DefaultCurveFitter` (defaults to `CurveFitterType.Alglib`) exposes the unkeyed `ICurveFitter` singleton in DI.
 - Parametric Sweep sensitivity analysis (`ParametricSweepPipeline`):
-  - Reactive TPL Dataflow stream: `SweepIngestionStep` (generating OAAT combinations via `IParametricSweepGenerator` resolved through `ServiceLocator`) → 2-way Fork:
-    - Branch 1: Calculation branch mapping to `SimulationInput` and forking across `InitialStressCalculationStep`, `FinalStressCalculationStep`, and `AsymptoteCalculationStep`.
-    - Branch 2: Pass-through preserving `VariableName` and `VariableValue`.
-    - Convergence: `.AddDataMapping(...)` joins calculations into `ParametricSweepFinalPayload` computing absolute and percentage delta stresses.
-    - Side-effect: `ParametricSweepCsvWriterStep` partitioning results into CSV files per variable via `ConcurrentDictionary<string, CsvFileWriter>` and exposing `GeneratedFilesMetadata`.
-    - Terminal: `ParametricSweepPersistenceStep` persisting `ParametricSweepEntity` (table `parametric_sweeps`) with 7-significant-figure polymorphic JSON serialization and registering generated CSV artifacts in `StoredFileEntity` (table `stored_files`) under the `SensitivityAnalysis` context.
-  - Generators inherit from `ParametricSweepGeneratorBase<T>` implementing `GetPropertyVariations` yielding `(PropertyName, Mutate)` delegates for centralized range iteration and envelope creation.
+  - Reactive TPL Dataflow stream: `ParametricSweepGeneratorStepBase<T>` (generating OAAT combinations via `IParametricSweepGeneratorStep` resolved through `ServiceLocator`) → `ParametricSweepSimulationStep` → `ParametricSweepCsvWriterStep` → `AddCollectAllStep` → `ParametricSweepPersistenceStep`.
+  - Configuration: `ParametricSweepSettings` (`IngestionBufferCapacity`).
 - Storage, Application Commands & API Endpoints:
-  - `IFileStorageService`: Centralized file storage abstraction in `MelloSilveiraTools.Core.Managers.File` managing directory topology (`{BaseDirectory}/{context}/{identifier}/{fileName}`). Implemented by `LocalFileStorageService`, `AwsS3FileStorageService`, `BlobStorageFileStorageService`, and `DfsFileStorageService`. Implements both `IDisposable` and `IAsyncDisposable`. Replaces explicit `OutputFileUri` and `OutputDirectory` in pipeline inputs.
+  - `IFileStorageService`: Centralized file storage abstraction in `MelloSilveiraTools.Core.Managers.File` managing directory topology (`{BaseDirectory}/{context}/{identifier}/{fileName}`). Implemented by `LocalFileStorageService`, `AwsS3FileStorageService`, `BlobStorageFileStorageService`, and `DfsFileStorageService`. Implements both `IDisposable` and `IAsyncDisposable`.
   - Application Commands & Validators:
-    - `ProcessExperimentalDataCommand` / `ProcessExperimentalDataValidator`: Orchestrates ingestion, validation, stream lifetime, and execution of `ExperimentalDataProcessingPipeline`, returning the deterministic simulation SHA-256 identifier and `StorageEntryMetadata`.
-    - `ExecuteParametricSweepCommand` / `ExecuteParametricSweepValidator`: Validates sweeping parameter variations and executes `ParametricSweepPipeline`.
-    - `FitCurve` / `FitCurveValidator`: Validates curve segments and invokes `IMechanicalModelStepFactory` to fit constitutive parameters sequentially across experimental deformation phases.
+    - `ExecuteExperimentalDataPipeline` / `ExecuteExperimentalDataPipelineValidator`: Orchestrates ingestion, validation, stream lifetime, and execution of `ExperimentalDataProcessingPipeline`, returning the deterministic simulation SHA-256 identifier. Registered as Singleton.
+    - `ExecuteParametricSweepPipeline` / `ExecuteParametricSweepValidator`: Validates sweeping parameter variations and executes `ParametricSweepPipeline`. Registered as Singleton.
     - `UploadPlugin` / `UploadPluginValidator`: Validates uploaded plugin DLLs (verifying file extension, semantic version naming pattern, and `PEReader.HasMetadata`) and streams payloads directly to storage.
   - Controllers & Streaming:
-    - `ExperimentalDataController`, `ParametricSweepController`, `CurveFittingController`: Provide standard REST endpoints and real-time streaming endpoints (`POST .../stream`) utilizing `PipelineProgressStreamWriter` to emit NDJSON `PipelineProgressEvent` streams via `IPipelineProgressNotifier`.
-    - `StoredFilesController`: Exposes file metadata queries by `ExternalIdentifier` and direct file downloads via `IFileStorageService.OpenRead`.
+    - `ExperimentalDataController`, `ParametricSweepController`: Provide standard REST endpoints and real-time streaming endpoints (`GET .../{identifier}/stream`) utilizing `WriteNdjsonAsync` to emit NDJSON `PipelineProgressEvent` streams via `IPipelineProgressNotifier`. Activated via `ILogger<T>` constructor injection.
+    - `StoredFilesController`: Exposes file metadata queries by `fileId` and direct file downloads via `IFileStorageService.OpenReadAsync`.
     - `PluginController` / `PluginEndpoints`: Exposes CRUD, lifecycle, and binary upload endpoints (`POST /api/v1/plugins/upload`).
 
 ### 7. CSV File Writing Architecture & Composition (`CsvFileWriter`)
@@ -335,7 +332,7 @@ AI agents modifying or generating code in this repository **must strictly adhere
 
 ### 9. HTTP & Streaming Endpoints
 - WebApi provides dual surfaces:
-  - Minimal APIs: `MapCrud<TEntity, TFilter>`, `MapPluginEndpoints`.
+  - Minimal APIs: `MapCrud<TEntity, TFilter>`, `MapPluginEndpoints`, `MapStream<TEntity, TFilter>`.
   - MVC Controllers: `CustomControllerBase`, `CrudController<TEntity, TFilter>`, `PluginController`.
 - NDJSON streaming: `HttpContext.WriteNdjsonAsync<T>(IAsyncEnumerable<T>, ...)` emits an `X-Stream-Status: true` trailer after consuming the full body. `ApiServiceAgentBase.GetStreamAsync<T>` verifies this trailer.
 - `ExceptionHandlingHttpMiddleware`: Global error handler mapping exception types to HTTP status codes. Special-cases `NdjsonException` to avoid corrupting partial streams.

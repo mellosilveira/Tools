@@ -15,7 +15,7 @@ namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnaly
 /// </summary>
 [ApiController]
 [Route("api/v1/parametric-sweeps")]
-public class ParametricSweepController(ILogger logger) : ControllerBase
+public class ParametricSweepController(ILogger<ParametricSweepController> logger) : ControllerBase
 {
     [HttpPost("process")]
     [ProducesResponseType(StatusCodes.Status202Accepted)]
