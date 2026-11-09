@@ -1,5 +1,5 @@
-using MelloSilveiraTools.Core.Managers.File.Csv;
-using MelloSilveiraTools.Core.Managers.File.Providers;
+using MelloSilveiraTools.Core.Files.Csv;
+using MelloSilveiraTools.Core.Files.Providers;
 using MelloSilveiraTools.Core.Pipelines.Steps;
 using MelloSilveiraTools.Mathematics.Extensions;
 using MelloSilveiraTools.Mathematics.NumericalMethods.Differentiations;

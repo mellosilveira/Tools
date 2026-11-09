@@ -1,4 +1,4 @@
-namespace MelloSilveiraTools.Core.Managers.File.Providers.Local;
+namespace MelloSilveiraTools.Core.Files.Providers.Local;
 
 /// <summary>
 /// Configuration settings governing internal folder layouts and root storage locations for the local file storage service.

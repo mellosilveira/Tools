@@ -1,4 +1,4 @@
-namespace MelloSilveiraTools.Core.Managers.File.Streams;
+namespace MelloSilveiraTools.Core.Files.Streams;
 
 /// <summary>
 /// Decorator stream that delegates all streaming operations to an underlying inner stream while binding

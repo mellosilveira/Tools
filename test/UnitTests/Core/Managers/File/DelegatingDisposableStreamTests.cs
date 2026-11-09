@@ -1,4 +1,4 @@
-using MelloSilveiraTools.Core.Managers.File.Streams;
+using MelloSilveiraTools.Core.Files.Streams;
 
 namespace UnitTests.Core.Managers.File;
 

@@ -4,7 +4,7 @@ using System.Buffers.Text;
 using System.IO.Pipelines;
 using System.Runtime.CompilerServices;
 
-namespace MelloSilveiraTools.Core.Managers.File.Csv;
+namespace MelloSilveiraTools.Core.Files.Csv;
 
 /// <summary>
 /// High-performance, streaming numeric CSV reader powered by native <see cref="PipeReader"/> and <see cref="Utf8Parser"/>.

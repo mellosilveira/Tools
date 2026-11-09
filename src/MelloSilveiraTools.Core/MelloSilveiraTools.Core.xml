@@ -359,7 +359,7 @@
             When <paramref name="loggerSettings"/> is null or specifies no sinks, Microsoft default console logging is enabled.
             When file or database sink settings are provided, Serilog is configured accordingly.
             </summary>
-            <param name="defaultResiliencePipelineSettings">Optional settings that parameterize the default resilience pipelines.</param>
+            <param name="defaultResiliencePipelineSettings">Settings that parameterize the default resilience pipelines.</param>
             <param name="encryptionSettings">Settings used by the encryption service.</param>
             <param name="emailSettings">Settings used to send e-mails through an SMTP server.</param>
             <param name="fileStorageSettings">Settings used to configure storage services.</param>

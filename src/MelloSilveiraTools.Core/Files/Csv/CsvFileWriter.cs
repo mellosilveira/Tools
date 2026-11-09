@@ -2,7 +2,7 @@ using MelloSilveiraTools.Core.Models;
 using System.Globalization;
 using System.Text;
 
-namespace MelloSilveiraTools.Core.Managers.File.Csv;
+namespace MelloSilveiraTools.Core.Files.Csv;
 
 /// <summary>
 /// Encapsulates a buffered asynchronous CSV file writing session over an underlying output stream.

@@ -1,4 +1,4 @@
-using MelloSilveiraTools.Core.Managers.File.Models;
+using MelloSilveiraTools.Core.Files.Models;
 
 namespace UnitTests.Core.Managers.File;
 

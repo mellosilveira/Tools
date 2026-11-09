@@ -1,7 +1,8 @@
-using MelloSilveiraTools.Core.Managers.File.Models;
+using MelloSilveiraTools.Core.Files.Models;
+using MelloSilveiraTools.Core.Files.Providers;
 using System.Runtime.CompilerServices;
 
-namespace MelloSilveiraTools.Core.Managers.File.Providers.Local;
+namespace MelloSilveiraTools.Core.Files.Providers.Local;
 
 /// <summary>
 /// Storage-agnostic file management implementation targeting the local file system.

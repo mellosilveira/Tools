@@ -1,4 +1,4 @@
-using MelloSilveiraTools.Core.Managers.File.Providers;
+using MelloSilveiraTools.Core.Files.Providers;
 using MelloSilveiraTools.Plugins.Application.Commands.Cache;
 using MelloSilveiraTools.Plugins.Application.Commands.Get;
 using MelloSilveiraTools.Plugins.Application.Commands.Load;

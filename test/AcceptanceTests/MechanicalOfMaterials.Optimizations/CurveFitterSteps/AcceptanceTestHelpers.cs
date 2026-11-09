@@ -1,4 +1,4 @@
-using MelloSilveiraTools.Core.Managers.File.Csv;
+using MelloSilveiraTools.Core.Files.Csv;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Models;
 
 namespace AcceptanceTests.MechanicalOfMaterials.Optimizations.CurveFitterSteps;

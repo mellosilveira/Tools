@@ -1,13 +1,14 @@
 using Amazon.S3;
 using Amazon.S3.Model;
-using MelloSilveiraTools.Core.Managers.File.Models;
-using MelloSilveiraTools.Core.Managers.File.Streams;
+using MelloSilveiraTools.Core.Files.Models;
+using MelloSilveiraTools.Core.Files.Providers;
+using MelloSilveiraTools.Core.Files.Streams;
 using MelloSilveiraTools.Core.ResiliencePipelines;
 using Microsoft.Extensions.Logging;
 using System.Net;
 using System.Runtime.CompilerServices;
 
-namespace MelloSilveiraTools.Core.Managers.File.Providers.AwsS3;
+namespace MelloSilveiraTools.Core.Files.Providers.AwsS3;
 
 // TODO: This is a theorical implementation, since it was still not tested with Azure Blob Storage.
 

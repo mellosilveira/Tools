@@ -1,8 +1,8 @@
-using MelloSilveiraTools.Core.Managers.File.Models;
-using MelloSilveiraTools.Core.Managers.File.Providers;
+using MelloSilveiraTools.Core.Files.Models;
+using MelloSilveiraTools.Core.Files.Providers;
 using Microsoft.Extensions.Logging;
 
-namespace MelloSilveiraTools.Core.Managers.File.Streams;
+namespace MelloSilveiraTools.Core.Files.Streams;
 
 /// <summary>
 /// Abstract base disk-backed stream buffer that implements the Disk Spooling Pattern for remote cloud object storage.

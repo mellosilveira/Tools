@@ -1,5 +1,5 @@
 using AcceptanceTests.Plugins.Helpers;
-using MelloSilveiraTools.Core.Managers.File.Models;
+using MelloSilveiraTools.Core.Files.Models;
 using MelloSilveiraTools.Core.Models;
 using MelloSilveiraTools.Plugins.Application.Commands.Upload;
 using MelloSilveiraTools.Plugins.Infrastructure;

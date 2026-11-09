@@ -1,6 +1,6 @@
-using MelloSilveiraTools.Core.Managers.File.Models;
-using MelloSilveiraTools.Core.Managers.File.Providers;
-using MelloSilveiraTools.Core.Managers.File.Streams;
+using MelloSilveiraTools.Core.Files.Models;
+using MelloSilveiraTools.Core.Files.Providers;
+using MelloSilveiraTools.Core.Files.Streams;
 using Microsoft.Extensions.Logging.Abstractions;
 using Moq;
 

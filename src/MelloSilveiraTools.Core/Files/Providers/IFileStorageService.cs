@@ -1,6 +1,6 @@
-using MelloSilveiraTools.Core.Managers.File.Models;
+using MelloSilveiraTools.Core.Files.Models;
 
-namespace MelloSilveiraTools.Core.Managers.File.Providers;
+namespace MelloSilveiraTools.Core.Files.Providers;
 
 /// <summary>
 /// Storage-agnostic abstraction for file and directory management, location resolution, and stream handling.

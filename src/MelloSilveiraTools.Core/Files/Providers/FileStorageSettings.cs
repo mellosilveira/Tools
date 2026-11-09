@@ -1,9 +1,9 @@
-using MelloSilveiraTools.Core.Managers.File.Providers.AwsS3;
-using MelloSilveiraTools.Core.Managers.File.Providers.BlobStorage;
-using MelloSilveiraTools.Core.Managers.File.Providers.Dfs;
-using MelloSilveiraTools.Core.Managers.File.Providers.Local;
+using MelloSilveiraTools.Core.Files.Providers.AwsS3;
+using MelloSilveiraTools.Core.Files.Providers.BlobStorage;
+using MelloSilveiraTools.Core.Files.Providers.Dfs;
+using MelloSilveiraTools.Core.Files.Providers.Local;
 
-namespace MelloSilveiraTools.Core.Managers.File.Providers;
+namespace MelloSilveiraTools.Core.Files.Providers;
 
 /// <summary>
 /// Aggregated configuration settings providing a single unified binding point for multiple storage providers.

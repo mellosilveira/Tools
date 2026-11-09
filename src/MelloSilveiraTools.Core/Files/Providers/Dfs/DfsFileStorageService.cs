@@ -1,7 +1,8 @@
-using MelloSilveiraTools.Core.Managers.File.Models;
+using MelloSilveiraTools.Core.Files.Models;
+using MelloSilveiraTools.Core.Files.Providers.Local;
 using MelloSilveiraTools.Core.Managers.File.Providers.Local;
 
-namespace MelloSilveiraTools.Core.Managers.File.Providers.Dfs;
+namespace MelloSilveiraTools.Core.Files.Providers.Dfs;
 
 /// <summary>
 /// Storage-agnostic file management implementation targeting distributed file systems (DFS) and network shares.

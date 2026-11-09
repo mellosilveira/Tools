@@ -1,5 +1,5 @@
 using MelloSilveiraTools;
-using MelloSilveiraTools.Core.Managers.File.Models;
+using MelloSilveiraTools.Core.Files.Models;
 using MelloSilveiraTools.Core.Models;
 using MelloSilveiraTools.Core.ResiliencePipelines;
 using MelloSilveiraTools.Core.Services.Encryption;

@@ -1,4 +1,4 @@
-using MelloSilveiraTools.Core.Managers.File.Providers;
+using MelloSilveiraTools.Core.Files.Providers;
 using MelloSilveiraTools.Core.Models;
 using MelloSilveiraTools.Core.Pipelines;
 using MelloSilveiraTools.Core.Pipelines.Dataflow;

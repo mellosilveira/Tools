@@ -1,6 +1,6 @@
 using MelloSilveiraTools.Core.ResiliencePipelines;
 
-namespace MelloSilveiraTools.Core.Managers.File.Providers.BlobStorage;
+namespace MelloSilveiraTools.Core.Files.Providers.BlobStorage;
 
 /// <summary>
 /// Configuration settings governing connection parameters, container names, and virtual folder layouts for Azure Blob Storage.

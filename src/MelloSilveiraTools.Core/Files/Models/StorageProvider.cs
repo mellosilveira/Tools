@@ -1,4 +1,4 @@
-namespace MelloSilveiraTools.Core.Managers.File.Models;
+namespace MelloSilveiraTools.Core.Files.Models;
 
 /// <summary>
 /// Specifies the underlying storage technology provider for file persistence and retrieval.

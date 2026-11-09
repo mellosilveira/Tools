@@ -1,6 +1,6 @@
 using MelloSilveiraTools.Core.Application.Commands;
-using MelloSilveiraTools.Core.Managers.File.Models;
-using MelloSilveiraTools.Core.Managers.File.Providers;
+using MelloSilveiraTools.Core.Files.Models;
+using MelloSilveiraTools.Core.Files.Providers;
 using MelloSilveiraTools.Core.Models;
 using MelloSilveiraTools.Plugins.Application.Validators;
 using MelloSilveiraTools.Plugins.Infrastructure;

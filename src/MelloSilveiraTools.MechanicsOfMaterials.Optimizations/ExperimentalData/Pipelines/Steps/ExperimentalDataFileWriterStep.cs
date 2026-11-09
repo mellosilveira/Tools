@@ -1,6 +1,6 @@
-using MelloSilveiraTools.Core.Managers.File.Csv;
-using MelloSilveiraTools.Core.Managers.File.Models;
-using MelloSilveiraTools.Core.Managers.File.Providers;
+using MelloSilveiraTools.Core.Files.Csv;
+using MelloSilveiraTools.Core.Files.Models;
+using MelloSilveiraTools.Core.Files.Providers;
 using MelloSilveiraTools.Core.Pipelines.Steps;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Pipelines.Models;
 

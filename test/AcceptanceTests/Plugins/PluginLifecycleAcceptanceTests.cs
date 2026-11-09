@@ -1,7 +1,7 @@
 using AcceptanceTests.Plugins.Helpers;
 using MelloSilveiraTools.Core.Caching;
-using MelloSilveiraTools.Core.Managers.File.Models;
-using MelloSilveiraTools.Core.Managers.File.Providers;
+using MelloSilveiraTools.Core.Files.Models;
+using MelloSilveiraTools.Core.Files.Providers;
 using MelloSilveiraTools.Core.Providers.Dynamics;
 using MelloSilveiraTools.Database.Repositories;
 using MelloSilveiraTools.Plugins;

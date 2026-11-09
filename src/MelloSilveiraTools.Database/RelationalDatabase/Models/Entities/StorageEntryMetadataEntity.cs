@@ -1,4 +1,4 @@
-using MelloSilveiraTools.Core.Managers.File.Models;
+using MelloSilveiraTools.Core.Files.Models;
 using MelloSilveiraTools.Database.RelationalDatabase.Attributes;
 
 namespace MelloSilveiraTools.Database.RelationalDatabase.Models.Entities;

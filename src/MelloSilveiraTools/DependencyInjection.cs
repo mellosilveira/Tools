@@ -1,6 +1,6 @@
 using MelloSilveiraTools.Core;
+using MelloSilveiraTools.Core.Files.Providers;
 using MelloSilveiraTools.Core.Logging;
-using MelloSilveiraTools.Core.Managers.File.Providers;
 using MelloSilveiraTools.Core.Pipelines.Notifiers;
 using MelloSilveiraTools.Core.ResiliencePipelines;
 using MelloSilveiraTools.Core.Services.Email;

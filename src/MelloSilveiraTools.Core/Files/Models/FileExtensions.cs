@@ -1,4 +1,4 @@
-namespace MelloSilveiraTools.Core.Managers.File.Models;
+namespace MelloSilveiraTools.Core.Files.Models;
 
 public static class FileExtensions
 {

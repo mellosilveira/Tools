@@ -1,5 +1,5 @@
 using MelloSilveiraTools.Core.ExtensionMethods;
-using MelloSilveiraTools.Core.Managers.File.Models;
+using MelloSilveiraTools.Core.Files.Models;
 using MelloSilveiraTools.Core.Models;
 using MelloSilveiraTools.Plugins.Application.Commands;
 using MelloSilveiraTools.Plugins.Application.Commands.Cache;

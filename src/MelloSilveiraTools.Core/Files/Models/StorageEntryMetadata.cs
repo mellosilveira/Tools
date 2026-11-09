@@ -1,4 +1,4 @@
-namespace MelloSilveiraTools.Core.Managers.File.Models;
+namespace MelloSilveiraTools.Core.Files.Models;
 
 /// <summary>
 /// Immutable snapshot representing persistent storage entry (file or directory) metadata returned by <see cref="Providers.IFileStorageService"/>.

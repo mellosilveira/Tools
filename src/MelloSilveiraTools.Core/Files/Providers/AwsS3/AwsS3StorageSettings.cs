@@ -1,6 +1,6 @@
 using MelloSilveiraTools.Core.ResiliencePipelines;
 
-namespace MelloSilveiraTools.Core.Managers.File.Providers.AwsS3;
+namespace MelloSilveiraTools.Core.Files.Providers.AwsS3;
 
 /// <summary>
 /// Configuration settings governing bucket names, regions, credentials, and virtual folder layouts for Amazon Simple Storage Service (AWS S3).

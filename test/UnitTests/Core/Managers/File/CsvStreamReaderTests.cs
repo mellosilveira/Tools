@@ -1,4 +1,4 @@
-using MelloSilveiraTools.Core.Managers.File.Csv;
+using MelloSilveiraTools.Core.Files.Csv;
 using System.Text;
 
 namespace UnitTests.Core.Managers.File;

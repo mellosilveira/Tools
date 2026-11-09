@@ -1,4 +1,4 @@
-namespace MelloSilveiraTools.Core.Managers.File.Providers.Dfs;
+namespace MelloSilveiraTools.Core.Files.Providers.Dfs;
 
 /// <summary>
 /// Configuration settings governing internal folder layouts and root network share locations for distributed file system (DFS) storage.

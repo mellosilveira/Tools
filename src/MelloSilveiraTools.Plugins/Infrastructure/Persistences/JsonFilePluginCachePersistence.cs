@@ -1,4 +1,4 @@
-using MelloSilveiraTools.Core.Managers.File.Providers;
+using MelloSilveiraTools.Core.Files.Providers;
 using MelloSilveiraTools.Plugins.Infrastructure.Models;
 using System.Runtime.CompilerServices;
 using System.Text.Json;
