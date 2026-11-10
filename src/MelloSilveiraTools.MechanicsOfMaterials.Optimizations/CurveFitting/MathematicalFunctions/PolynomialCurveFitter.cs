@@ -26,21 +26,21 @@ public sealed class PolynomialCurveFitter(ICurveFitter curveFitter) : IFunctionC
             double maxX = input.IndependentVariable[^1];
 
             // 1. Analytical least-squares estimation via Vandermonde Matrix
-            double[]? analyticalParameters = input.InitialParameters ?? VandermondeLeastSquares.Fit(input.IndependentVariable, input.DependentVariable, input.NumberOfParameters, input.ZeroBased, input.Tolerance);
+            (double[]? analyticalInitialParameters, double[]? diagonalInvJtJ) = CalculateAnalyticalParameters(input);
 
             // 2. Analytical shortcut evaluation
-            CurveFitOutput? analyticalOutput = TryEvaluateAnalyticalSolution(input, analyticalParameters, minX, maxX);
+            CurveFitOutput? analyticalOutput = TryEvaluateAnalyticalSolution(input, analyticalInitialParameters, diagonalInvJtJ, minX, maxX);
             if (analyticalOutput is not null)
                 return analyticalOutput;
 
             // 3. Fallback to iterative optimization via innerFitter initialized with the analytical Vandermonde parameters
-            double[] initialParameters = analyticalParameters ?? [.. Enumerable.Repeat(1.0, input.NumberOfParameters)];
+            double[] initialParameters = analyticalInitialParameters ?? [.. Enumerable.Repeat(1.0, input.NumberOfParameters)];
             fitInput = new()
             {
                 IndependentVariables = [input.IndependentVariable],
                 DependentVariable = input.DependentVariable,
                 Calculate = input.ZeroBased
-                    ? (p, xValues) => new PolynomialFunction([0, .. p], minX, maxX).Calculate(xValues[0])
+                    ? (p, xValues) => new PolynomialFunction([0.0, .. p], minX, maxX).Calculate(xValues[0])
                     : (p, xValues) => new PolynomialFunction(p, minX, maxX).Calculate(xValues[0]),
                 LowerBounds = input.LowerBounds ?? [.. Enumerable.Repeat(double.MinValue, input.NumberOfParameters)],
                 UpperBounds = input.UpperBounds ?? [.. Enumerable.Repeat(double.MaxValue, input.NumberOfParameters)],
@@ -49,12 +49,26 @@ public sealed class PolynomialCurveFitter(ICurveFitter curveFitter) : IFunctionC
                 Tolerance = input.Tolerance,
                 Profile = input.Profile,
                 ValidateParameters = input.ValidateParameters,
-                TargetRSquared = input.TargetRSquared
+                TargetRSquared = input.TargetRSquared,
+                ConfidenceLevel = input.ConfidenceLevel
             };
+
             CurveFitOutput output = curveFitter.Fit(fitInput);
-            return input.ZeroBased
-                ? output with { OptimizedParameters = [0.0, .. output.OptimizedParameters] }
-                : output;
+
+            if (input.ZeroBased)
+            {
+                ParameterConfidenceInterval zeroParam = new(0, 0.0, 0.0, 0.0, 0.0, input.ConfidenceLevel);
+                List<ParameterConfidenceInterval> shifted = [zeroParam];
+                for (int i = 0; i < output.Parameters.Count; i++)
+                {
+                    ParameterConfidenceInterval p = output.Parameters[i];
+                    shifted.Add(new ParameterConfidenceInterval(i + 1, p.Value, p.LowerBound, p.UpperBound, p.StandardError, p.ConfidenceLevel));
+                }
+
+                return output with { Parameters = shifted };
+            }
+
+            return output;
         }
         catch (Exception ex)
         {
@@ -62,7 +76,21 @@ public sealed class PolynomialCurveFitter(ICurveFitter curveFitter) : IFunctionC
         }
     }
 
-    private static CurveFitOutput? TryEvaluateAnalyticalSolution(MathematicalCurveFitInput input, double[]? analyticalParameters, double minX, double maxX)
+    private static (double[]? AnalyticalInitialParameters, double[]? DiagonalInvJtJ) CalculateAnalyticalParameters(MathematicalCurveFitInput input)
+    {
+        if (input.InitialParameters is not null)
+            return (input.InitialParameters, null);
+
+        (double[] Parameters, double[] DiagonalInvJtJ)? vandermondeFit = VandermondeLeastSquares.Fit(input.IndependentVariable, input.DependentVariable, input.NumberOfParameters, input.ZeroBased, input.Tolerance);
+        return (vandermondeFit?.Parameters, vandermondeFit?.DiagonalInvJtJ);
+    }
+
+    private static CurveFitOutput? TryEvaluateAnalyticalSolution(
+        MathematicalCurveFitInput input,
+        double[]? analyticalParameters,
+        double[]? diagonalInvJtJ,
+        double minX,
+        double maxX)
     {
         if (analyticalParameters is null || input.InitialParameters is not null || input.Profile == CurveFitProfile.RuleConstrained)
             return null;
@@ -97,7 +125,7 @@ public sealed class PolynomialCurveFitter(ICurveFitter curveFitter) : IFunctionC
             double y = input.DependentVariable[i];
             sumY += y;
             double yPred = input.ZeroBased
-                ? new PolynomialFunction([0, .. analyticalParameters], minX, maxX).Calculate(x)
+                ? new PolynomialFunction([0.0, .. analyticalParameters], minX, maxX).Calculate(x)
                 : new PolynomialFunction(analyticalParameters, minX, maxX).Calculate(x);
             double diff = y - yPred;
             ssr += diff * diff;
@@ -115,8 +143,66 @@ public sealed class PolynomialCurveFitter(ICurveFitter curveFitter) : IFunctionC
         if (rSquared < 0.0)
             rSquared = 0.0;
 
-        return input.TargetRSquared is not null && rSquared < input.TargetRSquared.Value
-            ? null
-            : new CurveFitOutput(input.ZeroBased ? [0.0, .. analyticalParameters] : analyticalParameters, ssr, rSquared, 1);
+        if (input.TargetRSquared is not null && rSquared < input.TargetRSquared.Value)
+            return null;
+
+        int m = analyticalParameters.Length;
+        int degreesOfFreedom = n - m;
+        ParameterConfidenceInterval[] intervals = new ParameterConfidenceInterval[m];
+
+        if (degreesOfFreedom <= 0 || diagonalInvJtJ is null)
+        {
+            for (int j = 0; j < m; j++)
+            {
+                intervals[j] = new ParameterConfidenceInterval(
+                    j,
+                    analyticalParameters[j],
+                    analyticalParameters[j],
+                    analyticalParameters[j],
+                    0.0,
+                    input.ConfidenceLevel);
+            }
+        }
+        else
+        {
+            double sSquared = Math.Max(0.0, ssr / degreesOfFreedom);
+            double alpha = 1.0 - input.ConfidenceLevel;
+            double pStudent = 1.0 - (alpha / 2.0);
+            double tCrit = MathNet.Numerics.Distributions.StudentT.InvCDF(0.0, 1.0, degreesOfFreedom, pStudent);
+
+            for (int j = 0; j < m; j++)
+            {
+                double variance = Math.Max(0.0, diagonalInvJtJ[j] * sSquared);
+                double standardError = Math.Sqrt(variance);
+                double marginOfError = tCrit * standardError;
+                double paramVal = analyticalParameters[j];
+
+                intervals[j] = new ParameterConfidenceInterval(
+                    j,
+                    paramVal,
+                    paramVal - marginOfError,
+                    paramVal + marginOfError,
+                    standardError,
+                    input.ConfidenceLevel);
+            }
+        }
+
+        List<ParameterConfidenceInterval> finalParameters;
+        if (input.ZeroBased)
+        {
+            ParameterConfidenceInterval zeroParam = new(0, 0.0, 0.0, 0.0, 0.0, input.ConfidenceLevel);
+            finalParameters = [zeroParam];
+            for (int j = 0; j < m; j++)
+            {
+                ParameterConfidenceInterval p = intervals[j];
+                finalParameters.Add(new ParameterConfidenceInterval(j + 1, p.Value, p.LowerBound, p.UpperBound, p.StandardError, p.ConfidenceLevel));
+            }
+        }
+        else
+        {
+            finalParameters = [.. intervals];
+        }
+
+        return new CurveFitOutput(finalParameters, ssr, rSquared, 1);
     }
 }

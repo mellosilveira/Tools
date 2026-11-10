@@ -17,6 +17,7 @@ public interface IMechanicalModelStepFactory
     /// <param name="targetSegments">The segment types to fit.</param>
     /// <param name="curveFitterType">The curve fitting algorithm type to instantiate (e.g., <see cref="CurveFitterType.Alglib"/> or <see cref="CurveFitterType.MathNet"/>).</param>
     /// <param name="targetRSquared">Mandatory target R² determination coefficient requested by the user.</param>
+    /// <param name="confidenceLevel">Desired confidence level for parameter interval estimation (e.g. 0.95 for 95%). Defaults to 0.95.</param>
     /// <returns>An instance of <see cref="IMechanicalModelCurveFitterStep"/> for the given model.</returns>
-    IMechanicalModelCurveFitterStep CreateCurveFitterStep(string modelName, IReadOnlyList<SegmentType> targetSegments, CurveFitterType curveFitterType, double targetRSquared);
+    IMechanicalModelCurveFitterStep CreateCurveFitterStep(string modelName, IReadOnlyList<SegmentType> targetSegments, CurveFitterType curveFitterType, double targetRSquared, double confidenceLevel = 0.95);
 }

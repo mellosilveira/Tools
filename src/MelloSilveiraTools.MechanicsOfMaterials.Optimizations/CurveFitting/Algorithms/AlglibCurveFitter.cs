@@ -9,6 +9,7 @@ namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Alg
 /// adaptive Differential Evolution (<c>mindf</c> GDEMO) with deterministic pseudo-random seeding.
 /// </summary>
 /// <param name="logger">The logger instance for diagnostics and reporting.</param>
+/// <param name="settings">Curve fitter configuration settings including deterministic seed.</param>
 public class AlglibCurveFitter(ILogger<AlglibCurveFitter> logger, CurveFitterSettings settings) : CurveFitterBase
 {
     /// <inheritdoc />
@@ -39,7 +40,8 @@ public class AlglibCurveFitter(ILogger<AlglibCurveFitter> logger, CurveFitterSet
         if (optimizerReport.terminationtype > 0)
         {
             double rSquared = CalculateRSquared(input, workingParameters);
-            return new CurveFitOutput(workingParameters, optimizerState.f, rSquared, optimizerReport.iterationscount);
+            ParameterConfidenceInterval[] parameters = CalculateConfidenceIntervals(input, workingParameters, optimizerState.f);
+            return new CurveFitOutput(parameters, optimizerState.f, rSquared, optimizerReport.iterationscount);
         }
 
         logger.LogWarning("Failed to fit curve using ALGLIB (minbleic). Report: {@Report}", optimizerReport);
@@ -86,20 +88,96 @@ public class AlglibCurveFitter(ILogger<AlglibCurveFitter> logger, CurveFitterSet
 
                 // Strictly ensure polished parameters satisfy validation constraints and improve objective function error
                 if ((input.ValidateParameters == null || input.ValidateParameters(polished.OptimizedParameters)) && polished.FinalError < gdemoError)
-                {
                     return polished;
-                }
             }
-            catch
-            {
-                // Fall back to GDEMO global result if local gradient polish faults
-            }
+            // Fall back to GDEMO global result if local gradient polish faults
+            catch { }
 
             double rSquared = CalculateRSquared(input, workingParameters);
-            return new CurveFitOutput(workingParameters, gdemoError, rSquared, optimizerReport.iterationscount);
+            ParameterConfidenceInterval[] parameters = CalculateConfidenceIntervals(input, workingParameters, gdemoError);
+            return new CurveFitOutput(parameters, gdemoError, rSquared, optimizerReport.iterationscount);
         }
 
         logger.LogWarning("Failed to fit curve using ALGLIB (mindf GDEMO). Report: {@Report}", optimizerReport);
         throw new InvalidOperationException($"Failed to fit curve using ALGLIB (mindf GDEMO). Termination type: {optimizerReport.terminationtype}. Iterations: {optimizerReport.iterationscount}");
+    }
+
+    /// <summary>
+    /// Computes statistical parameter confidence intervals using ALGLIB matrix inversion and Student-t distribution routines.
+    /// </summary>
+    private ParameterConfidenceInterval[] CalculateConfidenceIntervals(
+        CurveFitInput input,
+        double[] optimizedParameters,
+        double finalError)
+    {
+        int parameterCount = optimizedParameters.Length;
+        int sampleCount = input.DependentVariable.Length;
+        int degreesOfFreedom = sampleCount - parameterCount;
+        double confidenceLevel = input.ConfidenceLevel;
+
+        if (degreesOfFreedom <= 0 || sampleCount == 0)
+        {
+            ParameterConfidenceInterval[] fallback = new ParameterConfidenceInterval[parameterCount];
+            for (int i = 0; i < parameterCount; i++)
+            {
+                fallback[i] = new ParameterConfidenceInterval(
+                    i,
+                    optimizedParameters[i],
+                    optimizedParameters[i],
+                    optimizedParameters[i],
+                    0.0,
+                    confidenceLevel);
+            }
+
+            return fallback;
+        }
+
+        double[,] jacobian = CalculateNumericalJacobian(input, optimizedParameters);
+        double[,] jtj = new double[parameterCount, parameterCount];
+
+        for (int r = 0; r < parameterCount; r++)
+        {
+            for (int c = r; c < parameterCount; c++)
+            {
+                double sum = 0.0;
+                for (int i = 0; i < sampleCount; i++)
+                {
+                    sum += jacobian[i, r] * jacobian[i, c];
+                }
+
+                jtj[r, c] = sum;
+                jtj[c, r] = sum;
+            }
+        }
+
+        double[,] invJtj = (double[,])jtj.Clone();
+        alglib.rmatrixinverse(invJtj, parameterCount, out alglib.matinvreport invReport);
+
+        double sSquared = Math.Max(0.0, finalError / degreesOfFreedom);
+        double alpha = 1.0 - confidenceLevel;
+        double pStudent = 1.0 - (alpha / 2.0);
+        double tCrit = alglib.invstudenttdistribution(degreesOfFreedom, pStudent);
+
+        ParameterConfidenceInterval[] intervals = new ParameterConfidenceInterval[parameterCount];
+        for (int j = 0; j < parameterCount; j++)
+        {
+            double variance = invReport.terminationtype > 0
+                ? Math.Max(0.0, invJtj[j, j] * sSquared)
+                : 0.0;
+
+            double standardError = Math.Sqrt(variance);
+            double marginOfError = tCrit * standardError;
+            double paramVal = optimizedParameters[j];
+
+            intervals[j] = new ParameterConfidenceInterval(
+                j,
+                paramVal,
+                paramVal - marginOfError,
+                paramVal + marginOfError,
+                standardError,
+                confidenceLevel);
+        }
+
+        return intervals;
     }
 }

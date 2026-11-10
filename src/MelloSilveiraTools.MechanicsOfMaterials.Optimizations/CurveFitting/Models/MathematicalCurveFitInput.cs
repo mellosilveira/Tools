@@ -1,5 +1,8 @@
 namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Models;
 
+/// <summary>
+/// Input parameters definition for mathematical function curve fitting optimization problems.
+/// </summary>
 public record MathematicalCurveFitInput
 {
     public required int NumberOfParameters { get; init; }
@@ -13,18 +16,23 @@ public record MathematicalCurveFitInput
     public double[]? InitialParameters { get; init; }
 
     /// <summary>
-    /// Perfil de otimização selecionado (padrão: Automatic).
+    /// Selected optimization profile (default: Automatic).
     /// </summary>
     public CurveFitProfile Profile { get; init; } = CurveFitProfile.Automatic;
 
     /// <summary>
-    /// Motor de regras booleanas de curto-circuito.
-    /// Retorne false para combinações fisicamente ou comercialmente inadmissíveis.
+    /// Short-circuit boolean rule validator. Return false for physically or commercially inadmissible combinations.
     /// </summary>
     public Func<double[], bool>? ValidateParameters { get; init; }
 
     /// <summary>
-    /// Meta dinâmica de qualidade do ajuste (Coeficiente de Determinação).
+    /// Dynamic target fit quality goal (Coefficient of Determination, R²).
     /// </summary>
     public double? TargetRSquared { get; init; }
+
+    /// <summary>
+    /// Desired confidence level for parameter interval estimation as a fraction in (0, 1) (e.g. 0.95 for 95% confidence).
+    /// Defaults to 0.95.
+    /// </summary>
+    public double ConfidenceLevel { get; init; } = 0.95;
 }

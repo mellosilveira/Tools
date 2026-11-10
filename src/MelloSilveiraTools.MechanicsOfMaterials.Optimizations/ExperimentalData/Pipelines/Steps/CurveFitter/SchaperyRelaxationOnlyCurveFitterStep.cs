@@ -28,6 +28,7 @@ namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData
 /// <param name="polynomialCurveFitter">Polynomial curve fitter fallback for Helmholtz variables.</param>
 /// <param name="functionFactory">Factory constructing mathematical functions.</param>
 /// <param name="targetRSquared">Mandatory target R² determination coefficient for early-exit and precision monitoring.</param>
+/// <param name="confidenceLevel">Desired confidence level for parameter interval estimation (e.g. 0.95 for 95%). Defaults to 0.95.</param>
 public sealed class SchaperyRelaxationOnlyCurveFitterStep(
     ILogger<SchaperyRelaxationOnlyCurveFitterStep> logger,
     ISchaperyModelCalculator mechanicalModelCalculator,
@@ -36,8 +37,9 @@ public sealed class SchaperyRelaxationOnlyCurveFitterStep(
     [FromKeyedServices(FunctionType.Exponential)] IFunctionCurveFitter exponentialCurveFitter,
     [FromKeyedServices(FunctionType.Polynomial)] IFunctionCurveFitter polynomialCurveFitter,
     FunctionFactory functionFactory,
-    double targetRSquared)
-    : MechanicalModelCurveFitterStepBase(targetRSquared)
+    double targetRSquared,
+    double confidenceLevel = 0.95)
+    : MechanicalModelCurveFitterStepBase(targetRSquared, confidenceLevel)
 {
     private static readonly double[] HelmholtzInitialParameters = [1.0, 1.0];
     private static readonly double[] HelmholtzLowerBounds = [0.0, 0.0];
@@ -77,7 +79,7 @@ public sealed class SchaperyRelaxationOnlyCurveFitterStep(
                 cancellationToken.ThrowIfCancellationRequested();
 
                 CurveSegment anchorSegment = relaxations[i];
-                (MechanicalModelCurveFitOutput anchorOutput, double[] optimizedLinearParams) = FitAnchorSegment(anchorSegment);
+                (MechanicalModelCurveFitOutput anchorOutput, IReadOnlyList<MechanicalModelParameterConfidenceInterval> linearParameters) = FitAnchorSegment(anchorSegment);
                 yield return anchorOutput;
 
                 (double Strain, double He, double H2)[] strainAndHelmholtzVariables = new (double Strain, double He, double H2)[relaxations.Count];
@@ -98,23 +100,24 @@ public sealed class SchaperyRelaxationOnlyCurveFitterStep(
                     }
 
                     CurveSegment currentSegment = relaxations[j];
-                    (MechanicalModelCurveFitOutput segmentFitResult, double he, double h2) = FitRemainingSegment(currentSegment, optimizedLinearParams);
+                    (MechanicalModelCurveFitOutput remainingOutput, double he, double h2) = FitRemainingSegment(currentSegment, linearParameters);
+                    yield return remainingOutput;
 
                     strainAndHelmholtzVariables[j] = (currentSegment.ExperimentalStrain[0], he, h2);
 
-                    int segmentPoints = currentSegment.ExperimentalStrain.Length;
-                    weightedRSquaredSum += segmentFitResult.RSquared * segmentPoints;
-                    weightSum += segmentPoints;
-                    errorSum += segmentFitResult.FinalError;
-                    totalIterations += segmentFitResult.Iterations;
-
-                    yield return segmentFitResult;
+                    weightedRSquaredSum += remainingOutput.RSquared * currentSegment.ExperimentalStrain.Length;
+                    weightSum += currentSegment.ExperimentalStrain.Length;
+                    errorSum += remainingOutput.FinalError;
+                    totalIterations += remainingOutput.Iterations;
                 }
 
-                double precision = weightedRSquaredSum / weightSum;
-                double totalError = errorSum / weightSum;
+                cancellationToken.ThrowIfCancellationRequested();
 
-                yield return BuildFinalOutput(relaxations, optimizedLinearParams, strainAndHelmholtzVariables, precision, totalError, totalIterations);
+                double precision = weightedRSquaredSum / weightSum;
+                double totalError = errorSum / relaxations.Count;
+
+                MechanicalModelCurveFitOutput finalOutput = BuildFinalOutput(relaxations, linearParameters, strainAndHelmholtzVariables, precision, totalError, totalIterations);
+                yield return finalOutput;
             }
 
             _relaxations.Clear();
@@ -123,7 +126,7 @@ public sealed class SchaperyRelaxationOnlyCurveFitterStep(
         await Task.CompletedTask;
     }
 
-    private (MechanicalModelCurveFitOutput CurveFitOutput, double[] OptimizedLinearParams) FitAnchorSegment(CurveSegment anchorSegment)
+    private (MechanicalModelCurveFitOutput CurveFitOutput, IReadOnlyList<MechanicalModelParameterConfidenceInterval> LinearParameters) FitAnchorSegment(CurveSegment anchorSegment)
     {
         double initialStrain = anchorSegment.ExperimentalStrain[0];
         double finalStrain = anchorSegment.ExperimentalStrain[^1];
@@ -155,25 +158,34 @@ public sealed class SchaperyRelaxationOnlyCurveFitterStep(
             LowerBounds = anchorLowerBounds,
             UpperBounds = anchorUpperBounds,
             Profile = CurveFitProfile.Automatic,
-            TargetRSquared = TargetRSquared
+            TargetRSquared = TargetRSquared,
+            ConfidenceLevel = ConfidenceLevel
         };
         CurveFitOutput anchorOutput = curveFitter.Fit(anchorInput);
 
         SchaperyConstitutiveParameters anchorParameters = new()
         {
-            Ge = anchorOutput.OptimizedParameters[0],
-            TransientRelaxationFunction = new PowerLaw([anchorOutput.OptimizedParameters[1], anchorOutput.OptimizedParameters[2]], initialStrain, finalStrain),
+            Ge = anchorOutput.Parameters[0].Value,
+            TransientRelaxationFunction = new PowerLaw([anchorOutput.Parameters[1].Value, anchorOutput.Parameters[2].Value], initialStrain, finalStrain),
             He = new ConstantFunction(1.0, initialStrain, finalStrain),
             H1 = new ConstantFunction(1.0, initialStrain, finalStrain),
             H2 = new ConstantFunction(1.0, initialStrain, finalStrain),
         };
-        MechanicalModelCurveFitOutput output = CreateCurveFitOutput([anchorSegment], anchorParameters, new AcceptedRange(initialStrain, finalStrain), anchorOutput.RSquared, anchorOutput.FinalError, anchorOutput.Iterations);
-        return (output, anchorOutput.OptimizedParameters);
+
+        List<MechanicalModelParameterConfidenceInterval> labeledLinearParameters =
+        [
+            new(0, anchorOutput.Parameters[0].Value, anchorOutput.Parameters[0].LowerBound, anchorOutput.Parameters[0].UpperBound, anchorOutput.Parameters[0].StandardError, anchorOutput.Parameters[0].ConfidenceLevel, nameof(SchaperyConstitutiveParameters.Ge)),
+            new(1, anchorOutput.Parameters[1].Value, anchorOutput.Parameters[1].LowerBound, anchorOutput.Parameters[1].UpperBound, anchorOutput.Parameters[1].StandardError, anchorOutput.Parameters[1].ConfidenceLevel, $"{nameof(SchaperyConstitutiveParameters.TransientRelaxationFunction)}_A"),
+            new(2, anchorOutput.Parameters[2].Value, anchorOutput.Parameters[2].LowerBound, anchorOutput.Parameters[2].UpperBound, anchorOutput.Parameters[2].StandardError, anchorOutput.Parameters[2].ConfidenceLevel, $"{nameof(SchaperyConstitutiveParameters.TransientRelaxationFunction)}_n")
+        ];
+
+        MechanicalModelCurveFitOutput output = CreateCurveFitOutput([anchorSegment], anchorParameters, new AcceptedRange(initialStrain, finalStrain), anchorOutput.RSquared, anchorOutput.FinalError, anchorOutput.Iterations, labeledLinearParameters);
+        return (output, labeledLinearParameters);
     }
 
-    private (MechanicalModelCurveFitOutput Output, double He, double H2) FitRemainingSegment(CurveSegment segment, double[] optimizedLinearParams)
+    private (MechanicalModelCurveFitOutput Output, double He, double H2) FitRemainingSegment(CurveSegment segment, IReadOnlyList<MechanicalModelParameterConfidenceInterval> linearParameters)
     {
-        PowerLaw transientRelaxationFunction = new([optimizedLinearParams[1], optimizedLinearParams[2]]);
+        PowerLaw transientRelaxationFunction = new([linearParameters[1].Value, linearParameters[2].Value]);
         CurveFitInput segmentInput = new()
         {
             IndependentVariables = [segment.TimePoints, segment.ExperimentalStrain],
@@ -182,7 +194,7 @@ public sealed class SchaperyRelaxationOnlyCurveFitterStep(
             {
                 SchaperyConstitutiveParameters constitutiveParameters = new()
                 {
-                    Ge = optimizedLinearParams[0],
+                    Ge = linearParameters[0].Value,
                     TransientRelaxationFunction = transientRelaxationFunction,
                     He = new ConstantFunction(parameters[0]),
                     H1 = AnchorHelmholtzFunction,
@@ -195,29 +207,43 @@ public sealed class SchaperyRelaxationOnlyCurveFitterStep(
             LowerBounds = HelmholtzLowerBounds,
             UpperBounds = HelmholtzUpperBounds,
             Profile = CurveFitProfile.Automatic,
-            TargetRSquared = TargetRSquared
+            TargetRSquared = TargetRSquared,
+            ConfidenceLevel = ConfidenceLevel
         };
         CurveFitOutput segmentOutput = curveFitter.Fit(segmentInput);
 
-        double he = segmentOutput.OptimizedParameters[0];
-        double h2 = segmentOutput.OptimizedParameters[1];
+        double he = segmentOutput.Parameters[0].Value;
+        double h2 = segmentOutput.Parameters[1].Value;
 
         double initialAcceptedStrain = segment.ExperimentalStrain[0];
         double finalAcceptedStrain = segment.ExperimentalStrain[^1];
         SchaperyConstitutiveParameters constitutiveParameters = new()
         {
-            Ge = optimizedLinearParams[0],
-            TransientRelaxationFunction = new PowerLaw([optimizedLinearParams[1], optimizedLinearParams[2]], initialAcceptedStrain, finalAcceptedStrain),
+            Ge = linearParameters[0].Value,
+            TransientRelaxationFunction = new PowerLaw([linearParameters[1].Value, linearParameters[2].Value], initialAcceptedStrain, finalAcceptedStrain),
             He = new ConstantFunction(he, initialAcceptedStrain, finalAcceptedStrain),
             H1 = new ConstantFunction(1.0, initialAcceptedStrain, finalAcceptedStrain),
             H2 = new ConstantFunction(h2, initialAcceptedStrain, finalAcceptedStrain),
         };
         AcceptedRange acceptedStrainRange = new(initialAcceptedStrain, finalAcceptedStrain);
-        MechanicalModelCurveFitOutput output = CreateCurveFitOutput([segment], constitutiveParameters, acceptedStrainRange, segmentOutput.RSquared, segmentOutput.FinalError, segmentOutput.Iterations);
+
+        List<MechanicalModelParameterConfidenceInterval> labeledSegmentParameters =
+        [
+            new(0, segmentOutput.Parameters[0].Value, segmentOutput.Parameters[0].LowerBound, segmentOutput.Parameters[0].UpperBound, segmentOutput.Parameters[0].StandardError, segmentOutput.Parameters[0].ConfidenceLevel, nameof(SchaperyConstitutiveParameters.He)),
+            new(1, segmentOutput.Parameters[1].Value, segmentOutput.Parameters[1].LowerBound, segmentOutput.Parameters[1].UpperBound, segmentOutput.Parameters[1].StandardError, segmentOutput.Parameters[1].ConfidenceLevel, nameof(SchaperyConstitutiveParameters.H2))
+        ];
+
+        MechanicalModelCurveFitOutput output = CreateCurveFitOutput([segment], constitutiveParameters, acceptedStrainRange, segmentOutput.RSquared, segmentOutput.FinalError, segmentOutput.Iterations, labeledSegmentParameters);
         return (output, he, h2);
     }
 
-    private MechanicalModelCurveFitOutput BuildFinalOutput(List<CurveSegment> relaxations, double[] optimizedLinearParams, (double Strain, double He, double H2)[] strainAndHelmholtzVariables, double precision, double totalError, int totalIterations)
+    private MechanicalModelCurveFitOutput BuildFinalOutput(
+        List<CurveSegment> relaxations,
+        IReadOnlyList<MechanicalModelParameterConfidenceInterval> linearParameters,
+        (double Strain, double He, double H2)[] strainAndHelmholtzVariables,
+        double precision,
+        double totalError,
+        int totalIterations)
     {
         double[] strains = new double[strainAndHelmholtzVariables.Length];
         double[] hePoints = new double[strainAndHelmholtzVariables.Length];
@@ -230,11 +256,11 @@ public sealed class SchaperyRelaxationOnlyCurveFitterStep(
             h2Points[i] = strainAndHelmholtzVariables[i].H2;
         }
 
-        (Function Function, double Precision, double Error, int Iterations) heResult = FitHelmholtzVariable(strains, hePoints);
-        (Function Function, double Precision, double Error, int Iterations) h2Result = FitHelmholtzVariable(strains, h2Points);
+        (Function Function, double Precision, double Error, int Iterations, IReadOnlyList<ParameterConfidenceInterval> Parameters) heResult = FitHelmholtzVariable(strains, hePoints);
+        (Function Function, double Precision, double Error, int Iterations, IReadOnlyList<ParameterConfidenceInterval> Parameters) h2Result = FitHelmholtzVariable(strains, h2Points);
 
         // Incorporate error and iterations
-        precision = (precision + heResult.Precision + h2Result.Precision) / 3;
+        precision = (precision + heResult.Precision + h2Result.Precision) / 3.0;
         totalError *= (heResult.Error * h2Result.Error);
         totalIterations += (heResult.Iterations + h2Result.Iterations);
 
@@ -242,20 +268,42 @@ public sealed class SchaperyRelaxationOnlyCurveFitterStep(
         double finalAcceptedStrain = relaxations[^1].ExperimentalStrain[^1];
         SchaperyConstitutiveParameters constitutiveParameters = new()
         {
-            Ge = optimizedLinearParams[0],
-            TransientRelaxationFunction = new PowerLaw([optimizedLinearParams[1], optimizedLinearParams[2]], initialAcceptedStrain, finalAcceptedStrain),
+            Ge = linearParameters[0].Value,
+            TransientRelaxationFunction = new PowerLaw([linearParameters[1].Value, linearParameters[2].Value], initialAcceptedStrain, finalAcceptedStrain),
             He = heResult.Function,
             H1 = new ConstantFunction(1.0, initialAcceptedStrain, finalAcceptedStrain),
             H2 = h2Result.Function
         };
-        return CreateCurveFitOutput(relaxations, constitutiveParameters, new AcceptedRange(initialAcceptedStrain, finalAcceptedStrain), precision, totalError, totalIterations);
+
+        List<MechanicalModelParameterConfidenceInterval> combinedParameters = [];
+        int index = 0;
+        for (int k = 0; k < linearParameters.Count; k++)
+        {
+            MechanicalModelParameterConfidenceInterval p = linearParameters[k];
+            combinedParameters.Add(p with { Index = index++ });
+        }
+
+        for (int k = 0; k < heResult.Parameters.Count; k++)
+        {
+            ParameterConfidenceInterval p = heResult.Parameters[k];
+            combinedParameters.Add(new MechanicalModelParameterConfidenceInterval(index++, p.Value, p.LowerBound, p.UpperBound, p.StandardError, p.ConfidenceLevel, $"{nameof(SchaperyConstitutiveParameters.He)}_{k}"));
+        }
+
+        for (int k = 0; k < h2Result.Parameters.Count; k++)
+        {
+            ParameterConfidenceInterval p = h2Result.Parameters[k];
+            combinedParameters.Add(new MechanicalModelParameterConfidenceInterval(index++, p.Value, p.LowerBound, p.UpperBound, p.StandardError, p.ConfidenceLevel, $"{nameof(SchaperyConstitutiveParameters.H2)}_{k}"));
+        }
+
+        return CreateCurveFitOutput(relaxations, constitutiveParameters, new AcceptedRange(initialAcceptedStrain, finalAcceptedStrain), precision, totalError, totalIterations, combinedParameters);
     }
 
-    internal (Function Function, double Precision, double Error, int Iterations) FitHelmholtzVariable(double[] strain, double[] helmholtzVariable)
+    private (Function Function, double Precision, double Error, int Iterations, IReadOnlyList<ParameterConfidenceInterval> Parameters) FitHelmholtzVariable(double[] strain, double[] helmholtzVariable)
     {
         if (strain.Length == 1)
         {
-            return (new ConstantFunction(helmholtzVariable[0], strain[0], strain[0]), 1.0, 0.0, 0);
+            ParameterConfidenceInterval constantParam = new(0, helmholtzVariable[0], helmholtzVariable[0], helmholtzVariable[0], 0.0, ConfidenceLevel);
+            return (new ConstantFunction(helmholtzVariable[0], strain[0], strain[0]), 1.0, 0.0, 0, [constantParam]);
         }
 
         // For logarithmic and exponential functions, we assume 2 parameters.
@@ -266,7 +314,8 @@ public sealed class SchaperyRelaxationOnlyCurveFitterStep(
             IndependentVariable = strain,
             DependentVariable = helmholtzVariable,
             Profile = CurveFitProfile.Automatic,
-            TargetRSquared = TargetRSquared
+            TargetRSquared = TargetRSquared,
+            ConfidenceLevel = ConfidenceLevel
         };
 
         List<(FunctionType Type, CurveFitOutput Output)> candidates = [];
@@ -292,7 +341,7 @@ public sealed class SchaperyRelaxationOnlyCurveFitterStep(
             throw new InvalidOperationException("All mathematical function curve fits failed.");
 
         (FunctionType bestType, CurveFitOutput bestOutput) = candidates.OrderBy(o => o.Output.FinalError).First();
-        return (functionFactory.Create(bestType, strain[0], strain[^1], bestOutput.OptimizedParameters), bestOutput.RSquared, bestOutput.FinalError, bestOutput.Iterations);
+        return (functionFactory.Create(bestType, strain[0], strain[^1], bestOutput.OptimizedParameters), bestOutput.RSquared, bestOutput.FinalError, bestOutput.Iterations, bestOutput.Parameters);
     }
 
     private void TryAddCandidate(List<(FunctionType Type, CurveFitOutput Output)> candidates, FunctionType functionType, SafeResult<CurveFitInput, CurveFitOutput> fitResult, double? minimumRSquared = null)

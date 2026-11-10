@@ -16,6 +16,7 @@ namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData
 /// <param name="RSquared">The coefficient of determination (R²) of the fit.</param>
 /// <param name="FinalError">The sum of squared residuals (SSR) achieved by the optimization routine.</param>
 /// <param name="Iterations">The total number of optimization iterations executed.</param>
+/// <param name="Parameters">The list of optimized parameters with their point estimates, confidence intervals, and property names.</param>
 public sealed record MechanicalModelCurveFitOutput(
     IReadOnlyList<CurveSegment> CurveSegments,
     ConstitutiveParameters ConstitutiveParameters,
@@ -25,4 +26,5 @@ public sealed record MechanicalModelCurveFitOutput(
     RampTimeConsideration RampTimeConsideration,
     double RSquared,
     double FinalError,
-    int Iterations);
+    int Iterations,
+    IReadOnlyList<MechanicalModelParameterConfidenceInterval> Parameters);

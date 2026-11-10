@@ -99,6 +99,33 @@ public sealed class ProcessExperimentalDataValidatorTests
     }
 
     /// <summary>
+    /// Verifies that invalid ConfidenceLevel values (less than or equal to zero, or greater than or equal to 1.0) trigger validation errors.
+    /// </summary>
+    [Theory]
+    [InlineData(0.0)]
+    [InlineData(-0.1)]
+    [InlineData(1.0)]
+    [InlineData(1.05)]
+    public void Validate_WhenConfidenceLevelIsInvalid_ReturnsBadRequest(double confidenceLevel)
+    {
+        // Arrange
+        ExecuteExperimentalDataPipelineRequest request = new()
+        {
+            MechanicalModelName = "Maxwell",
+            StrainFileLocation = "raw/strain.csv",
+            StressFileLocation = "raw/stress.csv",
+            ConfidenceLevel = confidenceLevel
+        };
+
+        // Act
+        Result result = _validator.Validate(request);
+
+        // Assert
+        Assert.False(result.Success);
+        Assert.Contains("ConfidenceLevel must be strictly between 0 and 1 (e.g. 0.95 for 95% confidence).", result.Messages);
+    }
+
+    /// <summary>
     /// Verifies that negative thresholds and step parameters trigger validation errors.
     /// </summary>
     [Fact]
@@ -113,7 +140,7 @@ public sealed class ProcessExperimentalDataValidatorTests
             TargetRSquared = 0.95,
             AsymptoteConsecutivePointsThreshold = -1,
             SimulationTimeStep = -0.1,
-            DownsamplingSkipTimeStep = -1
+            DownsamplingSkipTimeStep = -0.01
         };
 
         // Act

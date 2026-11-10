@@ -25,10 +25,12 @@ namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData
 /// <param name="mechanicalModelCalculator">The calculator for Fung viscoelastic constitutive calculations.</param>
 /// <param name="curveFitter">The optimization engine for non-linear regression.</param>
 /// <param name="targetRSquared">Mandatory target R² determination coefficient for early-exit and precision monitoring.</param>
+/// <param name="confidenceLevel">Desired confidence level for parameter interval estimation (e.g. 0.95 for 95%). Defaults to 0.95.</param>
 public sealed class FungRelaxationOnlyCurveFitterStep(
     IFungModelCalculator mechanicalModelCalculator,
     ICurveFitter curveFitter,
-    double targetRSquared) : MechanicalModelCurveFitterStepBase(targetRSquared)
+    double targetRSquared,
+    double confidenceLevel = 0.95) : MechanicalModelCurveFitterStepBase(targetRSquared, confidenceLevel)
 {
     // Ramp parameter bounds: [0] = ElasticStiffness (c), [1] = NonLinearExponent (a)
     private static readonly double[] RampLowerBounds = [1e-6, 0.0];
@@ -86,11 +88,15 @@ public sealed class FungRelaxationOnlyCurveFitterStep(
                 Profile = CurveFitProfile.Standard,
                 // parameters[1] = FastRelaxationTime, parameters[2] = SlowRelaxationTime (guaranteed by UpperBounds[1] < LowerBounds[2])
                 ValidateParameters = parameters => parameters[1] < parameters[2],
-                TargetRSquared = TargetRSquared
+                TargetRSquared = TargetRSquared,
+                ConfidenceLevel = ConfidenceLevel
             };
 
             CurveFitOutput relaxationOutput = curveFitter.Fit(relaxationInput);
-            ReducedRelaxationFunction reducedRelaxationFunction = new(relaxationOutput.OptimizedParameters[0], relaxationOutput.OptimizedParameters[1], relaxationOutput.OptimizedParameters[2]);
+            ReducedRelaxationFunction reducedRelaxationFunction = new(
+                relaxationOutput.Parameters[0].Value,
+                relaxationOutput.Parameters[1].Value,
+                relaxationOutput.Parameters[2].Value);
 
             if (_currentRamp != null)
             {
@@ -101,7 +107,13 @@ public sealed class FungRelaxationOnlyCurveFitterStep(
             {
                 FungConstitutiveParameters constitutiveParameters = new(0.0, 0.0, reducedRelaxationFunction);
                 AcceptedRange acceptedStrainRange = new(relaxation.ExperimentalStrain[0], relaxation.ExperimentalStrain[^1]);
-                yield return CreateCurveFitOutput([relaxation], constitutiveParameters, acceptedStrainRange, relaxationOutput.RSquared, relaxationOutput.FinalError, relaxationOutput.Iterations);
+                List<MechanicalModelParameterConfidenceInterval> relaxationParameters =
+                [
+                    new(0, relaxationOutput.Parameters[0].Value, relaxationOutput.Parameters[0].LowerBound, relaxationOutput.Parameters[0].UpperBound, relaxationOutput.Parameters[0].StandardError, relaxationOutput.Parameters[0].ConfidenceLevel, nameof(ReducedRelaxationFunction.RelaxationStiffness)),
+                    new(1, relaxationOutput.Parameters[1].Value, relaxationOutput.Parameters[1].LowerBound, relaxationOutput.Parameters[1].UpperBound, relaxationOutput.Parameters[1].StandardError, relaxationOutput.Parameters[1].ConfidenceLevel, nameof(ReducedRelaxationFunction.FastRelaxationTime)),
+                    new(2, relaxationOutput.Parameters[2].Value, relaxationOutput.Parameters[2].LowerBound, relaxationOutput.Parameters[2].UpperBound, relaxationOutput.Parameters[2].StandardError, relaxationOutput.Parameters[2].ConfidenceLevel, nameof(ReducedRelaxationFunction.SlowRelaxationTime))
+                ];
+                yield return CreateCurveFitOutput([relaxation], constitutiveParameters, acceptedStrainRange, relaxationOutput.RSquared, relaxationOutput.FinalError, relaxationOutput.Iterations, relaxationParameters);
             }
 
             _currentRamp = null;
@@ -131,7 +143,8 @@ public sealed class FungRelaxationOnlyCurveFitterStep(
             UpperBounds = RampUpperBounds,
             InitialParameters = RampInitialParameters,
             Profile = CurveFitProfile.Automatic,
-            TargetRSquared = TargetRSquared
+            TargetRSquared = TargetRSquared,
+            ConfidenceLevel = ConfidenceLevel
         };
 
         CurveFitOutput rampOutput = curveFitter.Fit(rampInput);
@@ -144,8 +157,17 @@ public sealed class FungRelaxationOnlyCurveFitterStep(
         double totalError = (rampPoints * rampOutput.FinalError + relaxationPoints * relaxationOutput.FinalError) / totalPoints;
         int totalIterations = rampOutput.Iterations + relaxationOutput.Iterations;
 
-        FungConstitutiveParameters constitutiveParameters = new(rampOutput.OptimizedParameters[0], rampOutput.OptimizedParameters[1], reducedRelaxationFunction);
-        AcceptedRange accepteStrainRange = new(ramp.ExperimentalStrain[0], relaxation.ExperimentalStrain[^1]);
-        return CreateCurveFitOutput([ramp, relaxation], constitutiveParameters, accepteStrainRange, rampTimeConsideration, precision, totalError, totalIterations);
+        List<MechanicalModelParameterConfidenceInterval> combinedParameters =
+        [
+            new(0, rampOutput.Parameters[0].Value, rampOutput.Parameters[0].LowerBound, rampOutput.Parameters[0].UpperBound, rampOutput.Parameters[0].StandardError, rampOutput.Parameters[0].ConfidenceLevel, nameof(FungConstitutiveParameters.ElasticStressConstant)),
+            new(1, rampOutput.Parameters[1].Value, rampOutput.Parameters[1].LowerBound, rampOutput.Parameters[1].UpperBound, rampOutput.Parameters[1].StandardError, rampOutput.Parameters[1].ConfidenceLevel, nameof(FungConstitutiveParameters.ElasticPowerConstant)),
+            new(2, relaxationOutput.Parameters[0].Value, relaxationOutput.Parameters[0].LowerBound, relaxationOutput.Parameters[0].UpperBound, relaxationOutput.Parameters[0].StandardError, relaxationOutput.Parameters[0].ConfidenceLevel, nameof(ReducedRelaxationFunction.RelaxationStiffness)),
+            new(3, relaxationOutput.Parameters[1].Value, relaxationOutput.Parameters[1].LowerBound, relaxationOutput.Parameters[1].UpperBound, relaxationOutput.Parameters[1].StandardError, relaxationOutput.Parameters[1].ConfidenceLevel, nameof(ReducedRelaxationFunction.FastRelaxationTime)),
+            new(4, relaxationOutput.Parameters[2].Value, relaxationOutput.Parameters[2].LowerBound, relaxationOutput.Parameters[2].UpperBound, relaxationOutput.Parameters[2].StandardError, relaxationOutput.Parameters[2].ConfidenceLevel, nameof(ReducedRelaxationFunction.SlowRelaxationTime))
+        ];
+
+        FungConstitutiveParameters constitutiveParameters = new(rampOutput.Parameters[0].Value, rampOutput.Parameters[1].Value, reducedRelaxationFunction);
+        AcceptedRange acceptedStrainRange = new(ramp.ExperimentalStrain[0], relaxation.ExperimentalStrain[^1]);
+        return CreateCurveFitOutput([ramp, relaxation], constitutiveParameters, acceptedStrainRange, rampTimeConsideration, precision, totalError, totalIterations, combinedParameters);
     }
 }

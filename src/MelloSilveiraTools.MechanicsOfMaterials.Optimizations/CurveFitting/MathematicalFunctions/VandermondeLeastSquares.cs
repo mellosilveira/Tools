@@ -18,7 +18,7 @@ public static class VandermondeLeastSquares
     /// otherwise, generates standard powers <c>x^0, x^1, ..., x^{M-1}</c>.
     /// </param>
     /// <returns>A 2D array representing the Vandermonde matrix <c>V[N, M]</c>.</returns>
-    public static double[,] BuildVandermondeMatrix(ReadOnlySpan<double> x, int numberOfParameters, bool zeroBased)
+    private static double[,] BuildVandermondeMatrix(ReadOnlySpan<double> x, int numberOfParameters, bool zeroBased)
     {
         int n = x.Length;
         int m = numberOfParameters;
@@ -42,15 +42,24 @@ public static class VandermondeLeastSquares
 
     /// <summary>
     /// Computes the analytical least-squares solution <c>c</c> minimizing <c>||V * c - y||^2</c>
-    /// using QR decomposition with Modified Gram-Schmidt orthogonalization.
+    /// along with the diagonal elements of <c>(V^T * V)^-1</c> for parameter confidence interval estimation
+    /// using QR decomposition with Modified Gram-Schmidt orthogonalization and triangular back-substitution.
     /// </summary>
     /// <param name="x">The independent variable values.</param>
     /// <param name="y">The dependent variable values.</param>
     /// <param name="numberOfParameters">The number of polynomial parameters.</param>
     /// <param name="zeroBased">Whether the polynomial has a forced zero intercept (<c>c0 = 0</c>).</param>
     /// <param name="tolerance">The tolerance for numerical stability.</param>
-    /// <returns>The optimized polynomial coefficients, or <see langword="null"/> if the matrix is rank-deficient or singular.</returns>
-    public static double[]? Fit(ReadOnlySpan<double> x, ReadOnlySpan<double> y, int numberOfParameters, bool zeroBased, double tolerance = MathematicConstants.Tolerance)
+    /// <returns>
+    /// A tuple containing the optimal parameter vector and the diagonal elements of <c>(V^T * V)^-1</c>,
+    /// or <see langword="null"/> if the matrix is rank-deficient or singular.
+    /// </returns>
+    public static (double[] Parameters, double[] DiagonalInvJtJ)? Fit(
+        ReadOnlySpan<double> x,
+        ReadOnlySpan<double> y,
+        int numberOfParameters,
+        bool zeroBased,
+        double tolerance = MathematicConstants.Tolerance)
     {
         int n = x.Length;
         int m = numberOfParameters;
@@ -140,6 +149,34 @@ public static class VandermondeLeastSquares
             }
         }
 
-        return c;
+        // Invert upper triangular matrix R to obtain (V^T * V)^-1 = R^-1 * (R^-1)^T
+        double[,] invR = new double[m, m];
+        for (int col = 0; col < m; col++)
+        {
+            for (int row = col; row >= 0; row--)
+            {
+                double sum = (row == col) ? 1.0 : 0.0;
+                for (int k = row + 1; k <= col; k++)
+                {
+                    sum -= r[row, k] * invR[k, col];
+                }
+
+                invR[row, col] = sum / r[row, row];
+            }
+        }
+
+        double[] diagonalInvJtJ = new double[m];
+        for (int j = 0; j < m; j++)
+        {
+            double sum = 0.0;
+            for (int k = j; k < m; k++)
+            {
+                sum += invR[j, k] * invR[j, k];
+            }
+
+            diagonalInvJtJ[j] = sum;
+        }
+
+        return (c, diagonalInvJtJ);
     }
 }

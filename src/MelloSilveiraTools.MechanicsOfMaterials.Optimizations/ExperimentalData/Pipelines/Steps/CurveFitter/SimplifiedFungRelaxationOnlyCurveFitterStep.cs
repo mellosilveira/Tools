@@ -22,12 +22,14 @@ namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData
 /// <param name="curveFitter">The optimization engine for non-linear regression.</param>
 /// <param name="pronySeriesCurveFitter">The Prony series curve fitting decorator.</param>
 /// <param name="targetRSquared">Mandatory target R² determination coefficient for early-exit and precision monitoring.</param>
+/// <param name="confidenceLevel">Desired confidence level for parameter interval estimation (e.g. 0.95 for 95%). Defaults to 0.95.</param>
 public sealed class SimplifiedFungRelaxationOnlyCurveFitterStep(
     ISimplifiedFungModelCalculator mechanicalModelCalculator,
     ICurveFitter curveFitter,
     [FromKeyedServices(MathExpressionType.PronySeries)] IMathExpressionCurveFitter pronySeriesCurveFitter,
-    double targetRSquared)
-    : MechanicalModelCurveFitterStepBase(targetRSquared)
+    double targetRSquared,
+    double confidenceLevel = 0.95)
+    : MechanicalModelCurveFitterStepBase(targetRSquared, confidenceLevel)
 {
     // 3-Term Prony Series: G(t) = c + a_0 * e^(lambda_0 * t) + a_1 * e^(lambda_1 * t) + a_2 * e^(lambda_2 * t).
     // Parameter vector layout: [0] = c, [1] = a_0, [2] = lambda_0, [3] = a_1, [4] = lambda_1, [5] = a_2, [6] = lambda_2.
@@ -80,14 +82,22 @@ public sealed class SimplifiedFungRelaxationOnlyCurveFitterStep(
                 InitialParameters = RelaxationInitialParameters,
                 Profile = CurveFitProfile.Automatic,
                 ValidateParameters = parameters => parameters[2] > parameters[4] && parameters[4] > parameters[6],
-                TargetRSquared = TargetRSquared
+                TargetRSquared = TargetRSquared,
+                ConfidenceLevel = ConfidenceLevel
             };
 
             CurveFitOutput relaxationOutput = pronySeriesCurveFitter.Fit(relaxationInput);
 
             PronySeries reducedRelaxationFunction = new(
-                independentParameter: relaxationOutput.OptimizedParameters[0],
-                iteratorCoefficients: [relaxationOutput.OptimizedParameters[1], relaxationOutput.OptimizedParameters[2], relaxationOutput.OptimizedParameters[3], relaxationOutput.OptimizedParameters[4], relaxationOutput.OptimizedParameters[5], relaxationOutput.OptimizedParameters[6]]);
+                independentParameter: relaxationOutput.Parameters[0].Value,
+                iteratorCoefficients: [
+                    relaxationOutput.Parameters[1].Value,
+                    relaxationOutput.Parameters[2].Value,
+                    relaxationOutput.Parameters[3].Value,
+                    relaxationOutput.Parameters[4].Value,
+                    relaxationOutput.Parameters[5].Value,
+                    relaxationOutput.Parameters[6].Value
+                ]);
 
             if (_currentRamp != null)
             {
@@ -98,7 +108,16 @@ public sealed class SimplifiedFungRelaxationOnlyCurveFitterStep(
             {
                 SimplifiedFungConstitutiveParameters constitutiveParameters = new(0, 0, reducedRelaxationFunction);
                 AcceptedRange acceptedStrainRange = new(relaxation.ExperimentalStrain[0], relaxation.ExperimentalStrain[^1]);
-                yield return CreateCurveFitOutput([relaxation], constitutiveParameters, acceptedStrainRange, relaxationOutput.RSquared, relaxationOutput.FinalError, relaxationOutput.Iterations);
+                List<MechanicalModelParameterConfidenceInterval> relaxationParameters = [];
+                for (int i = 0; i < relaxationOutput.Parameters.Count; i++)
+                {
+                    ParameterConfidenceInterval ci = relaxationOutput.Parameters[i];
+                    string paramName = i == 0
+                        ? nameof(PronySeries.IndependentParameter)
+                        : $"{nameof(PronySeries.IteratorCoefficients)}_{i - 1}";
+                    relaxationParameters.Add(new MechanicalModelParameterConfidenceInterval(i, ci.Value, ci.LowerBound, ci.UpperBound, ci.StandardError, ci.ConfidenceLevel, paramName));
+                }
+                yield return CreateCurveFitOutput([relaxation], constitutiveParameters, acceptedStrainRange, relaxationOutput.RSquared, relaxationOutput.FinalError, relaxationOutput.Iterations, relaxationParameters);
             }
 
             _currentRamp = null;
@@ -128,7 +147,8 @@ public sealed class SimplifiedFungRelaxationOnlyCurveFitterStep(
             UpperBounds = RampUpperBounds,
             InitialParameters = RampInitialParameters,
             Profile = CurveFitProfile.Automatic,
-            TargetRSquared = TargetRSquared
+            TargetRSquared = TargetRSquared,
+            ConfidenceLevel = ConfidenceLevel
         };
         CurveFitOutput rampOutput = curveFitter.Fit(rampInput);
 
@@ -140,8 +160,23 @@ public sealed class SimplifiedFungRelaxationOnlyCurveFitterStep(
         double totalError = (rampPoints * rampOutput.FinalError + relaxationPoints * relaxationOutput.FinalError) / totalPoints;
         int totalIterations = relaxationOutput.Iterations + rampOutput.Iterations;
 
-        SimplifiedFungConstitutiveParameters constitutiveParameters = new(rampOutput.OptimizedParameters[0], rampOutput.OptimizedParameters[1], reducedRelaxationFunction);
+        List<MechanicalModelParameterConfidenceInterval> combinedParameters =
+        [
+            new(0, rampOutput.Parameters[0].Value, rampOutput.Parameters[0].LowerBound, rampOutput.Parameters[0].UpperBound, rampOutput.Parameters[0].StandardError, rampOutput.Parameters[0].ConfidenceLevel, nameof(SimplifiedFungConstitutiveParameters.ElasticStressConstant)),
+            new(1, rampOutput.Parameters[1].Value, rampOutput.Parameters[1].LowerBound, rampOutput.Parameters[1].UpperBound, rampOutput.Parameters[1].StandardError, rampOutput.Parameters[1].ConfidenceLevel, nameof(SimplifiedFungConstitutiveParameters.ElasticPowerConstant))
+        ];
+
+        for (int i = 0; i < relaxationOutput.Parameters.Count; i++)
+        {
+            ParameterConfidenceInterval ci = relaxationOutput.Parameters[i];
+            string paramName = i == 0
+                ? nameof(PronySeries.IndependentParameter)
+                : $"{nameof(PronySeries.IteratorCoefficients)}_{i - 1}";
+            combinedParameters.Add(new MechanicalModelParameterConfidenceInterval(combinedParameters.Count, ci.Value, ci.LowerBound, ci.UpperBound, ci.StandardError, ci.ConfidenceLevel, paramName));
+        }
+
+        SimplifiedFungConstitutiveParameters constitutiveParameters = new(rampOutput.Parameters[0].Value, rampOutput.Parameters[1].Value, reducedRelaxationFunction);
         AcceptedRange acceptedStrainRange = new(relaxation.ExperimentalStrain[0], relaxation.ExperimentalStrain[^1]);
-        return CreateCurveFitOutput([ramp, relaxation], constitutiveParameters, acceptedStrainRange, rampTimeConsideration, precision, totalError, totalIterations);
+        return CreateCurveFitOutput([ramp, relaxation], constitutiveParameters, acceptedStrainRange, rampTimeConsideration, precision, totalError, totalIterations, combinedParameters);
     }
 }

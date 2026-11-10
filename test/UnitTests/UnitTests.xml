@@ -337,6 +337,11 @@
             Verifies that invalid TargetRSquared values (less than or equal to zero, or greater than 1.0) trigger validation errors.
             </summary>
         </member>
+        <member name="M:UnitTests.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Commands.ProcessExperimentalDataValidatorTests.Validate_WhenConfidenceLevelIsInvalid_ReturnsBadRequest(System.Double)">
+            <summary>
+            Verifies that invalid ConfidenceLevel values (less than or equal to zero, or greater than or equal to 1.0) trigger validation errors.
+            </summary>
+        </member>
         <member name="M:UnitTests.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Commands.ProcessExperimentalDataValidatorTests.Validate_WhenThresholdsOrStepsAreInvalid_ReturnsBadRequest">
             <summary>
             Verifies that negative thresholds and step parameters trigger validation errors.

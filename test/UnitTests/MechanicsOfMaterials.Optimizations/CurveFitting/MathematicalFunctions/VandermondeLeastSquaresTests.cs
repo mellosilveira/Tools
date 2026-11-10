@@ -11,12 +11,17 @@ public class VandermondeLeastSquaresTests
         double[] x = [1.0, 2.0, 3.0, 4.0, 5.0];
         double[] y = [5.0, 7.0, 9.0, 11.0, 13.0];
 
-        double[]? coefficients = VandermondeLeastSquares.Fit(x, y, 2, zeroBased: false);
+        (double[] Parameters, double[] DiagonalInvJtJ)? fitResult = VandermondeLeastSquares.Fit(x, y, 2, zeroBased: false);
 
-        Assert.NotNull(coefficients);
+        Assert.NotNull(fitResult);
+        double[] coefficients = fitResult.Value.Parameters;
+        double[] diagonalInvJtJ = fitResult.Value.DiagonalInvJtJ;
+
         Assert.Equal(2, coefficients.Length);
         Assert.Equal(3.0, coefficients[0], precision: 6);
         Assert.Equal(2.0, coefficients[1], precision: 6);
+        Assert.Equal(2, diagonalInvJtJ.Length);
+        Assert.All(diagonalInvJtJ, d => Assert.True(d > 0.0));
     }
 
     [Fact]
@@ -26,13 +31,18 @@ public class VandermondeLeastSquaresTests
         double[] x = [0.0, 1.0, 2.0, 3.0, 4.0, 5.0];
         double[] y = [1.0, 3.0, 13.0, 31.0, 57.0, 91.0];
 
-        double[]? coefficients = VandermondeLeastSquares.Fit(x, y, 3, zeroBased: false);
+        (double[] Parameters, double[] DiagonalInvJtJ)? fitResult = VandermondeLeastSquares.Fit(x, y, 3, zeroBased: false);
 
-        Assert.NotNull(coefficients);
+        Assert.NotNull(fitResult);
+        double[] coefficients = fitResult.Value.Parameters;
+        double[] diagonalInvJtJ = fitResult.Value.DiagonalInvJtJ;
+
         Assert.Equal(3, coefficients.Length);
         Assert.Equal(1.0, coefficients[0], precision: 6);
         Assert.Equal(-2.0, coefficients[1], precision: 6);
         Assert.Equal(4.0, coefficients[2], precision: 6);
+        Assert.Equal(3, diagonalInvJtJ.Length);
+        Assert.All(diagonalInvJtJ, d => Assert.True(d > 0.0));
     }
 
     [Fact]
@@ -42,12 +52,17 @@ public class VandermondeLeastSquaresTests
         double[] x = [1.0, 2.0, 3.0, 4.0, 5.0];
         double[] y = [8.0, 22.0, 42.0, 68.0, 100.0];
 
-        double[]? coefficients = VandermondeLeastSquares.Fit(x, y, 2, zeroBased: true);
+        (double[] Parameters, double[] DiagonalInvJtJ)? fitResult = VandermondeLeastSquares.Fit(x, y, 2, zeroBased: true);
 
-        Assert.NotNull(coefficients);
+        Assert.NotNull(fitResult);
+        double[] coefficients = fitResult.Value.Parameters;
+        double[] diagonalInvJtJ = fitResult.Value.DiagonalInvJtJ;
+
         Assert.Equal(2, coefficients.Length);
         Assert.Equal(5.0, coefficients[0], precision: 6);
         Assert.Equal(3.0, coefficients[1], precision: 6);
+        Assert.Equal(2, diagonalInvJtJ.Length);
+        Assert.All(diagonalInvJtJ, d => Assert.True(d > 0.0));
     }
 
     [Fact]
@@ -56,9 +71,9 @@ public class VandermondeLeastSquaresTests
         double[] x = [1.0, 2.0];
         double[] y = [3.0, 4.0];
 
-        double[]? coefficients = VandermondeLeastSquares.Fit(x, y, 3, zeroBased: false);
+        (double[] Parameters, double[] DiagonalInvJtJ)? fitResult = VandermondeLeastSquares.Fit(x, y, 3, zeroBased: false);
 
-        Assert.Null(coefficients);
+        Assert.Null(fitResult);
     }
 
     [Fact]
@@ -67,8 +82,8 @@ public class VandermondeLeastSquaresTests
         double[] x = [2.0, 2.0, 2.0];
         double[] y = [1.0, 2.0, 3.0];
 
-        double[]? coefficients = VandermondeLeastSquares.Fit(x, y, 2, zeroBased: false);
+        (double[] Parameters, double[] DiagonalInvJtJ)? fitResult = VandermondeLeastSquares.Fit(x, y, 2, zeroBased: false);
 
-        Assert.Null(coefficients);
+        Assert.Null(fitResult);
     }
 }

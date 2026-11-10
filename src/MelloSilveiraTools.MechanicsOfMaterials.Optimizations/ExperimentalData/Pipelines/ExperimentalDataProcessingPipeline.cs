@@ -51,7 +51,7 @@ public sealed class ExperimentalDataProcessingPipeline(
         (string experimentalDataFileLocation, ExperimentalDataFileWriterStep experimentalDataFileWriterStep) = await ExperimentalDataFileWriterStep.CreateAsync(fileStorageService, input.Identifier).ConfigureAwait(false);
         ExperimentalDataDownsamplerStep downsamplerStep = new(input.DownsamplingSkipTimeStep);
         CurveSegmentBuilderStep curveSegmentBuilderStep = new();
-        IMechanicalModelCurveFitterStep curveFitterStep = mechanicalModelStepFactory.CreateCurveFitterStep(input.MechanicalModelName, input.TargetSegments, input.CurveFitterType, input.TargetRSquared);
+        IMechanicalModelCurveFitterStep curveFitterStep = mechanicalModelStepFactory.CreateCurveFitterStep(input.MechanicalModelName, input.TargetSegments, input.CurveFitterType, input.TargetRSquared, input.ConfidenceLevel);
         CurveFitOutputIdentifierBuilderStep curveFitOutputIdentifierBuilderStep = new();
         MechanicalModelSimulationStep mechanicalModelSimulationStep = new(fileStorageService, mechanicalModelTypeResolver, mechanicalModelCalculatorFactory, input.Identifier, experimentalDataFileLocation, input.SimulationTimeStep, input.FinalSimulationTime, input.AsymptoteConsecutivePointsThreshold);
         CurveFitOutputPersistenceStep curveFitPersistenceStep = new(loggerFactory.CreateLogger<CurveFitOutputPersistenceStep>(), repository, input.Identifier, input.MechanicalModelName);

@@ -22,6 +22,7 @@ public class ExecuteExperimentalDataPipeline(
         TargetSegments = request.TargetSegments,
         CurveFitterType = request.CurveFitterType,
         TargetRSquared = request.TargetRSquared,
+        ConfidenceLevel = request.ConfidenceLevel,
         AsymptoteConsecutivePointsThreshold = request.AsymptoteConsecutivePointsThreshold,
         SimulationTimeStep = request.SimulationTimeStep,
         FinalSimulationTime = request.FinalSimulationTime,

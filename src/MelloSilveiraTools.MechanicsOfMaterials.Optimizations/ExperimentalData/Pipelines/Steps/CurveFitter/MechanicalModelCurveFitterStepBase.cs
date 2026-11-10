@@ -15,7 +15,10 @@ namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData
 /// <param name="targetRSquared">
 /// Mandatory target coefficient of determination (R²) specified by the user as an optimization early-exit or quality gate.
 /// </param>
-public abstract class MechanicalModelCurveFitterStepBase(double targetRSquared) : IMechanicalModelCurveFitterStep
+/// <param name="confidenceLevel">
+/// Desired confidence level for parameter interval estimation (e.g. 0.95 for 95%). Defaults to 0.95.
+/// </param>
+public abstract class MechanicalModelCurveFitterStepBase(double targetRSquared, double confidenceLevel = 0.95) : IMechanicalModelCurveFitterStep
 {
     /// <inheritdoc />
     public virtual string Name => GetType().Name;
@@ -24,6 +27,11 @@ public abstract class MechanicalModelCurveFitterStepBase(double targetRSquared) 
     /// Gets the user-specified target coefficient of determination (R²) for optimization routines.
     /// </summary>
     public double TargetRSquared { get; } = targetRSquared;
+
+    /// <summary>
+    /// Gets the desired confidence level for parameter interval estimation (e.g. 0.95 for 95%).
+    /// </summary>
+    public double ConfidenceLevel { get; } = confidenceLevel;
 
     /// <summary>
     /// Gets the name of the mechanical model.
@@ -81,17 +89,32 @@ public abstract class MechanicalModelCurveFitterStepBase(double targetRSquared) 
     }
 
     /// <summary>
-    /// Creates a new <see cref="MechanicalModelCurveFitOutput"/> with model metadata and fitting metrics.
+    /// Creates a new <see cref="MechanicalModelCurveFitOutput"/> with model metadata, fitting metrics, and parameter intervals.
     /// </summary>
-    protected MechanicalModelCurveFitOutput CreateCurveFitOutput(IReadOnlyList<CurveSegment> segments, ConstitutiveParameters constitutiveParameters, AcceptedRange acceptedRange, RampTimeConsideration rampTimeConsideration, double precision, double finalError, int iterations)
-        => new(segments, constitutiveParameters, acceptedRange, LoadResponseRelationship, ViscoelasticEffect, rampTimeConsideration, precision, finalError, iterations);
+    protected MechanicalModelCurveFitOutput CreateCurveFitOutput(
+        IReadOnlyList<CurveSegment> segments,
+        ConstitutiveParameters constitutiveParameters,
+        AcceptedRange acceptedRange,
+        RampTimeConsideration rampTimeConsideration,
+        double precision,
+        double finalError,
+        int iterations,
+        IReadOnlyList<MechanicalModelParameterConfidenceInterval> parameters)
+        => new(segments, constitutiveParameters, acceptedRange, LoadResponseRelationship, ViscoelasticEffect, rampTimeConsideration, precision, finalError, iterations, parameters);
 
     /// <summary>
-    /// Creates a new <see cref="MechanicalModelCurveFitOutput"/> with model metadata and fitting metrics, defaulting the ramp time consideration to <see cref="RampTimeConsideration.Disregard"/>.
+    /// Creates a new <see cref="MechanicalModelCurveFitOutput"/> with model metadata, fitting metrics, and parameter intervals, defaulting the ramp time consideration to <see cref="RampTimeConsideration.Disregard"/>.
     /// </summary>
-    protected MechanicalModelCurveFitOutput CreateCurveFitOutput(IReadOnlyList<CurveSegment> segments, ConstitutiveParameters constitutiveParameters, AcceptedRange acceptedRange, double precision, double finalError, int iterations)
-        => CreateCurveFitOutput(segments, constitutiveParameters, acceptedRange, RampTimeConsideration.Disregard, precision, finalError, iterations);
-
+    protected MechanicalModelCurveFitOutput CreateCurveFitOutput(
+        IReadOnlyList<CurveSegment> segments,
+        ConstitutiveParameters constitutiveParameters,
+        AcceptedRange acceptedRange,
+        double precision,
+        double finalError,
+        int iterations,
+        IReadOnlyList<MechanicalModelParameterConfidenceInterval> parameters)
+        => CreateCurveFitOutput(segments, constitutiveParameters, acceptedRange, RampTimeConsideration.Disregard, precision, finalError, iterations, parameters);
+    
     /// <inheritdoc />
     public virtual ValueTask DisposeAsync()
     {

@@ -23,6 +23,7 @@
             adaptive Differential Evolution (<c>mindf</c> GDEMO) with deterministic pseudo-random seeding.
             </summary>
             <param name="logger">The logger instance for diagnostics and reporting.</param>
+            <param name="settings">Curve fitter configuration settings including deterministic seed.</param>
         </member>
         <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Algorithms.AlglibCurveFitter.#ctor(Microsoft.Extensions.Logging.ILogger{MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Algorithms.AlglibCurveFitter},MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Models.CurveFitterSettings)">
             <summary>
@@ -31,6 +32,7 @@
             adaptive Differential Evolution (<c>mindf</c> GDEMO) with deterministic pseudo-random seeding.
             </summary>
             <param name="logger">The logger instance for diagnostics and reporting.</param>
+            <param name="settings">Curve fitter configuration settings including deterministic seed.</param>
         </member>
         <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Algorithms.AlglibCurveFitter.Fit(MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Models.CurveFitInput)">
             <inheritdoc />
@@ -47,34 +49,84 @@
             followed by a secondary local gradient polish (<c>FitStandard</c>) from the best found solution.
             </summary>
         </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Algorithms.AlglibCurveFitter.CalculateConfidenceIntervals(MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Models.CurveFitInput,System.Double[],System.Double)">
+            <summary>
+            Computes statistical parameter confidence intervals using ALGLIB matrix inversion and Student-t distribution routines.
+            </summary>
+        </member>
+        <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Algorithms.CurveFitterBase">
+            <summary>
+            Abstract base class for numerical curve fitting algorithms.
+            Provides core numerical methods for objective function evaluation, numerical gradient estimation,
+            Jacobian matrix computation, and coefficient of determination (R²).
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Algorithms.CurveFitterBase.CalculateObjectiveFunction(MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Models.CurveFitInput,System.Double[])">
+            <summary>
+            Computes the sum of squared residuals (SSR) of the model for a given parameter vector.
+            </summary>
+            <param name="input">The curve fitting problem input definition.</param>
+            <param name="currentParameters">The parameter vector to evaluate.</param>
+            <returns>The sum of squared residuals.</returns>
+        </member>
         <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Algorithms.CurveFitterBase.CalculateNumericalGradient(MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Models.CurveFitInput,System.Double[])">
             <summary>
             Computes the numerical gradient of the objective function (Sum of Squared Residuals)
-            using central finite differences with an scale-adaptive step size.
+            using central finite differences with a scale-adaptive step size.
             </summary>
             <param name="input">The curve fitting problem input definition.</param>
             <param name="currentParameters">The parameter vector at which the gradient is evaluated.</param>
             <returns>The gradient vector containing partial derivatives with respect to each parameter.</returns>
-            <remarks>
-            The finite difference step size <c>h</c> is chosen adaptively as <c>Math.Max(1e-6, 1e-4 * |p_i|)</c>:
-            <list type="bullet">
-            <item>
-            <description>
-            <b>For small parameters (<c>|p_i| &lt;= 0.01</c>):</b> The absolute floor <c>1e-6</c> prevents underflow,
-            division by zero, and numerical instability near the origin.
-            </description>
-            </item>
-            <item>
-            <description>
-            <b>For large parameters (<c>|p_i| &gt;&gt; 1</c>, e.g. elastic modulus E ~ 1e4 or slow relaxation time tau_2 ~ 1e3 s):</b>
-            A fixed step like <c>1e-6</c> represents an infinitesimal relative perturbation (<c>1e-9</c> or smaller),
-            which causes catastrophic cancellation in double-precision floating-point arithmetic and leads to zero gradients,
-            causing gradient-based optimizers (such as L-BFGS) to terminate prematurely. The proportional component (<c>1e-4 * |p_i|</c>)
-            maintains a 0.01% perturbation, ensuring robust and smooth gradient estimation across diverse parameter magnitudes.
-            </description>
-            </item>
-            </list>
-            </remarks>
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Algorithms.CurveFitterBase.CalculateNumericalJacobian(MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Models.CurveFitInput,System.Double[])">
+            <summary>
+            Computes the numerical Jacobian matrix of the model function using central finite differences.
+            Dimensions: N x P, where N is the number of data points and P is the number of parameters.
+            </summary>
+            <param name="input">The curve fitting problem input definition.</param>
+            <param name="currentParameters">The parameter vector at which the Jacobian is evaluated.</param>
+            <returns>A 2D array of size [N, P] representing partial derivatives of the model with respect to each parameter.</returns>
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Algorithms.CurveFitterBase.CalculateRSquared(MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Models.CurveFitInput,System.Double[])">
+            <summary>
+            Calculates the coefficient of determination (R²) for the given parameter set.
+            </summary>
+            <param name="input">The curve fitting problem input definition.</param>
+            <param name="currentParameters">The parameter vector to evaluate.</param>
+            <returns>The calculated R² value.</returns>
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Algorithms.CurveFitterBase.Fit(MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Models.CurveFitInput)">
+            <inheritdoc />
+        </member>
+        <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Algorithms.MathNetCurveFitter">
+            <summary>
+            Numerical curve fitting solver utilizing the MathNet.Numerics library.
+            Executes two-stage optimization (unconstrained BFGS followed by Nelder-Mead simplex local search)
+            and calculates parameter confidence intervals via MathNet linear algebra and Student-t distribution routines.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Algorithms.MathNetCurveFitter.Fit(MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Models.CurveFitInput)">
+            <inheritdoc />
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Algorithms.MathNetCurveFitter.CalculateConfidenceIntervals(MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Models.CurveFitInput,System.Double[],System.Double)">
+            <summary>
+            Computes statistical parameter confidence intervals using MathNet matrix operations and Student-t distribution routines.
+            </summary>
+        </member>
+        <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.MathematicalFunctions.LogarithmicCurveFitter">
+            <summary>
+            Implements <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.MathematicalFunctions.IFunctionCurveFitter"/> for logarithmic functions.
+            </summary>
+            <param name="curveFitter">The underlying iterative curve fitting engine.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.MathematicalFunctions.LogarithmicCurveFitter.#ctor(MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Algorithms.ICurveFitter)">
+            <summary>
+            Implements <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.MathematicalFunctions.IFunctionCurveFitter"/> for logarithmic functions.
+            </summary>
+            <param name="curveFitter">The underlying iterative curve fitting engine.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.MathematicalFunctions.LogarithmicCurveFitter.TryFit(MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Models.MathematicalCurveFitInput)">
+            <inheritdoc/>
         </member>
         <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.MathematicalFunctions.PolynomialCurveFitter">
             <summary>
@@ -116,14 +168,18 @@
         <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.MathematicalFunctions.VandermondeLeastSquares.Fit(System.ReadOnlySpan{System.Double},System.ReadOnlySpan{System.Double},System.Int32,System.Boolean,System.Double)">
             <summary>
             Computes the analytical least-squares solution <c>c</c> minimizing <c>||V * c - y||^2</c>
-            using QR decomposition with Modified Gram-Schmidt orthogonalization.
+            along with the diagonal elements of <c>(V^T * V)^-1</c> for parameter confidence interval estimation
+            using QR decomposition with Modified Gram-Schmidt orthogonalization and triangular back-substitution.
             </summary>
             <param name="x">The independent variable values.</param>
             <param name="y">The dependent variable values.</param>
             <param name="numberOfParameters">The number of polynomial parameters.</param>
             <param name="zeroBased">Whether the polynomial has a forced zero intercept (<c>c0 = 0</c>).</param>
             <param name="tolerance">The tolerance for numerical stability.</param>
-            <returns>The optimized polynomial coefficients, or <see langword="null"/> if the matrix is rank-deficient or singular.</returns>
+            <returns>
+            A tuple containing the optimal parameter vector and the diagonal elements of <c>(V^T * V)^-1</c>,
+            or <see langword="null"/> if the matrix is rank-deficient or singular.
+            </returns>
         </member>
         <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.MathExpressions.IMathExpressionCurveFitter">
             <summary>
@@ -148,20 +204,67 @@
         <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.MathExpressions.PronySeriesCurveFitter.Fit(MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Models.MathematicalCurveFitInput)">
             <inheritdoc />
         </member>
+        <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Models.CurveFitInput">
+            <summary>
+            Input parameters definition for numerical curve fitting optimization problems.
+            </summary>
+        </member>
         <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Models.CurveFitInput.Profile">
             <summary>
-            Perfil de otimização selecionado (padrão: Automatic).
+            Selected optimization profile (default: Automatic).
             </summary>
         </member>
         <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Models.CurveFitInput.ValidateParameters">
             <summary>
-            Motor de regras booleanas de curto-circuito.
-            Retorne false para combinações fisicamente ou comercialmente inadmissíveis.
+            Short-circuit boolean rule validator. Return false for physically or commercially inadmissible combinations.
             </summary>
         </member>
         <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Models.CurveFitInput.TargetRSquared">
             <summary>
-            Meta dinâmica de qualidade do ajuste (Coeficiente de Determinação).
+            Dynamic target fit quality goal (Coefficient of Determination, R²).
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Models.CurveFitInput.ConfidenceLevel">
+            <summary>
+            Desired confidence level for parameter interval estimation as a fraction in (0, 1) (e.g. 0.95 for 95% confidence).
+            Defaults to 0.95.
+            </summary>
+        </member>
+        <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Models.CurveFitOutput">
+            <summary>
+            Output data structure resulting from numerical curve fitting optimization.
+            Unifies optimized parameter values and their statistical confidence intervals in a single collection.
+            </summary>
+            <param name="Parameters">The list of optimized parameters with their point estimates and confidence intervals.</param>
+            <param name="FinalError">The final sum of squared residuals (SSR) achieved by the optimizer.</param>
+            <param name="RSquared">The coefficient of determination (R²) of the fit.</param>
+            <param name="Iterations">The total number of iterations executed by the optimizer.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Models.CurveFitOutput.#ctor(System.Collections.Generic.IReadOnlyList{MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Models.ParameterConfidenceInterval},System.Double,System.Double,System.Int32)">
+            <summary>
+            Output data structure resulting from numerical curve fitting optimization.
+            Unifies optimized parameter values and their statistical confidence intervals in a single collection.
+            </summary>
+            <param name="Parameters">The list of optimized parameters with their point estimates and confidence intervals.</param>
+            <param name="FinalError">The final sum of squared residuals (SSR) achieved by the optimizer.</param>
+            <param name="RSquared">The coefficient of determination (R²) of the fit.</param>
+            <param name="Iterations">The total number of iterations executed by the optimizer.</param>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Models.CurveFitOutput.Parameters">
+            <summary>The list of optimized parameters with their point estimates and confidence intervals.</summary>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Models.CurveFitOutput.FinalError">
+            <summary>The final sum of squared residuals (SSR) achieved by the optimizer.</summary>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Models.CurveFitOutput.RSquared">
+            <summary>The coefficient of determination (R²) of the fit.</summary>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Models.CurveFitOutput.Iterations">
+            <summary>The total number of iterations executed by the optimizer.</summary>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Models.CurveFitOutput.OptimizedParameters">
+            <summary>
+            Gets the raw array of optimized parameter point estimates extracted from <see cref="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Models.CurveFitOutput.Parameters"/>.
             </summary>
         </member>
         <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Models.CurveFitProfile">
@@ -318,21 +421,71 @@
             assessing the quality and linearity of the logarithmic decay approximation.
             </summary>
         </member>
+        <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Models.MathematicalCurveFitInput">
+            <summary>
+            Input parameters definition for mathematical function curve fitting optimization problems.
+            </summary>
+        </member>
         <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Models.MathematicalCurveFitInput.Profile">
             <summary>
-            Perfil de otimização selecionado (padrão: Automatic).
+            Selected optimization profile (default: Automatic).
             </summary>
         </member>
         <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Models.MathematicalCurveFitInput.ValidateParameters">
             <summary>
-            Motor de regras booleanas de curto-circuito.
-            Retorne false para combinações fisicamente ou comercialmente inadmissíveis.
+            Short-circuit boolean rule validator. Return false for physically or commercially inadmissible combinations.
             </summary>
         </member>
         <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Models.MathematicalCurveFitInput.TargetRSquared">
             <summary>
-            Meta dinâmica de qualidade do ajuste (Coeficiente de Determinação).
+            Dynamic target fit quality goal (Coefficient of Determination, R²).
             </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Models.MathematicalCurveFitInput.ConfidenceLevel">
+            <summary>
+            Desired confidence level for parameter interval estimation as a fraction in (0, 1) (e.g. 0.95 for 95% confidence).
+            Defaults to 0.95.
+            </summary>
+        </member>
+        <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Models.ParameterConfidenceInterval">
+            <summary>
+            Represents the statistical confidence interval for an individual optimized model parameter.
+            </summary>
+            <param name="Index">The zero-based position index of the parameter in the parameter vector.</param>
+            <param name="Value">The optimized point estimate of the parameter value.</param>
+            <param name="LowerBound">The lower bound of the estimated confidence interval.</param>
+            <param name="UpperBound">The upper bound of the estimated confidence interval.</param>
+            <param name="StandardError">The estimated standard error (SE) of the parameter.</param>
+            <param name="ConfidenceLevel">The confidence level represented as a fraction in the range (0, 1) (e.g. 0.95 for 95%).</param>
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Models.ParameterConfidenceInterval.#ctor(System.Int32,System.Double,System.Double,System.Double,System.Double,System.Double)">
+            <summary>
+            Represents the statistical confidence interval for an individual optimized model parameter.
+            </summary>
+            <param name="Index">The zero-based position index of the parameter in the parameter vector.</param>
+            <param name="Value">The optimized point estimate of the parameter value.</param>
+            <param name="LowerBound">The lower bound of the estimated confidence interval.</param>
+            <param name="UpperBound">The upper bound of the estimated confidence interval.</param>
+            <param name="StandardError">The estimated standard error (SE) of the parameter.</param>
+            <param name="ConfidenceLevel">The confidence level represented as a fraction in the range (0, 1) (e.g. 0.95 for 95%).</param>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Models.ParameterConfidenceInterval.Index">
+            <summary>The zero-based position index of the parameter in the parameter vector.</summary>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Models.ParameterConfidenceInterval.Value">
+            <summary>The optimized point estimate of the parameter value.</summary>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Models.ParameterConfidenceInterval.LowerBound">
+            <summary>The lower bound of the estimated confidence interval.</summary>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Models.ParameterConfidenceInterval.UpperBound">
+            <summary>The upper bound of the estimated confidence interval.</summary>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Models.ParameterConfidenceInterval.StandardError">
+            <summary>The estimated standard error (SE) of the parameter.</summary>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Models.ParameterConfidenceInterval.ConfidenceLevel">
+            <summary>The confidence level represented as a fraction in the range (0, 1) (e.g. 0.95 for 95%).</summary>
         </member>
         <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Models.SegmentType">
             <summary>
@@ -411,6 +564,11 @@
         <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Commands.ExecuteExperimentalDataPipelineRequest.TargetRSquared">
             <summary>
             Target R² determination coefficient specified for curve fitting optimization. Defaults to 0.99.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Commands.ExecuteExperimentalDataPipelineRequest.ConfidenceLevel">
+            <summary>
+            Desired confidence level for parameter interval estimation (e.g. 0.95 or 95.0 for 95% confidence). Defaults to 0.95.
             </summary>
         </member>
         <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Commands.ExecuteExperimentalDataPipelineRequest.AsymptoteConsecutivePointsThreshold">
@@ -504,7 +662,7 @@
             using the <c>new()</c> directive and configuring the user-specified curve fitting algorithm and mandatory target R².
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Factories.IMechanicalModelStepFactory.CreateCurveFitterStep(System.String,System.Collections.Generic.IReadOnlyList{MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Models.SegmentType},MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Models.CurveFitterType,System.Double)">
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Factories.IMechanicalModelStepFactory.CreateCurveFitterStep(System.String,System.Collections.Generic.IReadOnlyList{MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Models.SegmentType},MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Models.CurveFitterType,System.Double,System.Double)">
             <summary>
             Creates a concrete <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Pipelines.Steps.CurveFitter.IMechanicalModelCurveFitterStep"/> implementation
             that matches the specified mechanical model, instantiating the step and its dependencies directly with <c>new()</c>.
@@ -513,6 +671,7 @@
             <param name="targetSegments">The segment types to fit.</param>
             <param name="curveFitterType">The curve fitting algorithm type to instantiate (e.g., <see cref="F:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Models.CurveFitterType.Alglib"/> or <see cref="F:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Models.CurveFitterType.MathNet"/>).</param>
             <param name="targetRSquared">Mandatory target R² determination coefficient requested by the user.</param>
+            <param name="confidenceLevel">Desired confidence level for parameter interval estimation (e.g. 0.95 for 95%). Defaults to 0.95.</param>
             <returns>An instance of <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Pipelines.Steps.CurveFitter.IMechanicalModelCurveFitterStep"/> for the given model.</returns>
         </member>
         <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Factories.MechanicalModelStepFactory">
@@ -533,7 +692,7 @@
             <param name="serviceLocator">The service locator for resolving keyed services.</param>
             <param name="loggerFactory">The logger factory for creating step-specific loggers.</param>
         </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Factories.MechanicalModelStepFactory.CreateCurveFitterStep(System.String,System.Collections.Generic.IReadOnlyList{MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Models.SegmentType},MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Models.CurveFitterType,System.Double)">
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Factories.MechanicalModelStepFactory.CreateCurveFitterStep(System.String,System.Collections.Generic.IReadOnlyList{MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Models.SegmentType},MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Models.CurveFitterType,System.Double,System.Double)">
             <inheritdoc />
         </member>
         <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Pipelines.Entities.MechanicalModelCurveFitOutputEntity">
@@ -668,6 +827,11 @@
             Mandatory target R² determination coefficient specified by the user for curve fitting optimization.
             </summary>
         </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Pipelines.Models.ExperimentalDataProcessingInput.ConfidenceLevel">
+            <summary>
+            Desired confidence level for parameter interval estimation (e.g. 0.95 or 95.0 for 95% confidence). Defaults to 0.95.
+            </summary>
+        </member>
         <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Pipelines.Models.ExperimentalDataProcessingInput.AsymptoteConsecutivePointsThreshold">
             <summary>
             The consecutive points threshold required to detect that a steady-state asymptote has been reached.
@@ -742,8 +906,9 @@
             <param name="RSquared">The coefficient of determination (R²) of the fit.</param>
             <param name="FinalError">The sum of squared residuals (SSR) achieved by the optimization routine.</param>
             <param name="Iterations">The total number of optimization iterations executed.</param>
+            <param name="Parameters">The list of optimized parameters with their point estimates, confidence intervals, and property names.</param>
         </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Pipelines.Models.MechanicalModelCurveFitOutput.#ctor(System.Collections.Generic.IReadOnlyList{MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Models.CurveSegment},MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.ConstitutiveParameters,MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.AcceptedRange,MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.LoadResponseRelationship,MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.ViscoelasticEffect,MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.RampTimeConsideration,System.Double,System.Double,System.Int32)">
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Pipelines.Models.MechanicalModelCurveFitOutput.#ctor(System.Collections.Generic.IReadOnlyList{MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Models.CurveSegment},MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.ConstitutiveParameters,MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.AcceptedRange,MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.LoadResponseRelationship,MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.ViscoelasticEffect,MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.RampTimeConsideration,System.Double,System.Double,System.Int32,System.Collections.Generic.IReadOnlyList{MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Pipelines.Models.MechanicalModelParameterConfidenceInterval})">
             <summary>
             Output for mechanical model curve fitting steps containing optimized constitutive parameters and fit quality metrics.
             </summary>
@@ -756,6 +921,7 @@
             <param name="RSquared">The coefficient of determination (R²) of the fit.</param>
             <param name="FinalError">The sum of squared residuals (SSR) achieved by the optimization routine.</param>
             <param name="Iterations">The total number of optimization iterations executed.</param>
+            <param name="Parameters">The list of optimized parameters with their point estimates, confidence intervals, and property names.</param>
         </member>
         <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Pipelines.Models.MechanicalModelCurveFitOutput.CurveSegments">
             <summary>The experimental curve segments associated with this fit (ignored during JSON serialization to prevent persisting massive raw point arrays in database payloads).</summary>
@@ -783,6 +949,9 @@
         </member>
         <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Pipelines.Models.MechanicalModelCurveFitOutput.Iterations">
             <summary>The total number of optimization iterations executed.</summary>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Pipelines.Models.MechanicalModelCurveFitOutput.Parameters">
+            <summary>The list of optimized parameters with their point estimates, confidence intervals, and property names.</summary>
         </member>
         <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Pipelines.Models.MechanicalModelOutputPersistenceInput">
             <summary>
@@ -818,6 +987,33 @@
         </member>
         <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Pipelines.Models.MechanicalModelOutputPersistenceInput.SimulationOutputFileMetadata">
             <summary>The storage entry metadata for the generated simulation output file.</summary>
+        </member>
+        <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Pipelines.Models.MechanicalModelParameterConfidenceInterval">
+            <summary>
+            Represents the statistical confidence interval for an individual optimized parameter of a mechanical constitutive model, including its property name.
+            </summary>
+            <param name="Index">The zero-based position index of the parameter in the parameter vector.</param>
+            <param name="Value">The optimized point estimate of the parameter value.</param>
+            <param name="LowerBound">The lower bound of the estimated confidence interval.</param>
+            <param name="UpperBound">The upper bound of the estimated confidence interval.</param>
+            <param name="StandardError">The estimated standard error (SE) of the parameter.</param>
+            <param name="ConfidenceLevel">The confidence level represented as a fraction in the range (0, 1) (e.g. 0.95 for 95%).</param>
+            <param name="ParameterName">The exact property name of the constitutive model parameter.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Pipelines.Models.MechanicalModelParameterConfidenceInterval.#ctor(System.Int32,System.Double,System.Double,System.Double,System.Double,System.Double,System.String)">
+            <summary>
+            Represents the statistical confidence interval for an individual optimized parameter of a mechanical constitutive model, including its property name.
+            </summary>
+            <param name="Index">The zero-based position index of the parameter in the parameter vector.</param>
+            <param name="Value">The optimized point estimate of the parameter value.</param>
+            <param name="LowerBound">The lower bound of the estimated confidence interval.</param>
+            <param name="UpperBound">The upper bound of the estimated confidence interval.</param>
+            <param name="StandardError">The estimated standard error (SE) of the parameter.</param>
+            <param name="ConfidenceLevel">The confidence level represented as a fraction in the range (0, 1) (e.g. 0.95 for 95%).</param>
+            <param name="ParameterName">The exact property name of the constitutive model parameter.</param>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Pipelines.Models.MechanicalModelParameterConfidenceInterval.ParameterName">
+            <summary>The exact property name of the constitutive model parameter.</summary>
         </member>
         <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Pipelines.Models.MechanicalModelSimulationOutput">
             <summary>
@@ -1161,8 +1357,9 @@
             <param name="mechanicalModelCalculator">The calculator for Fung viscoelastic constitutive calculations.</param>
             <param name="curveFitter">The optimization engine for non-linear regression.</param>
             <param name="targetRSquared">Mandatory target R² determination coefficient for early-exit and precision monitoring.</param>
+            <param name="confidenceLevel">Desired confidence level for parameter interval estimation (e.g. 0.95 for 95%). Defaults to 0.95.</param>
         </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Pipelines.Steps.CurveFitter.Fung.FungRelaxationOnlyCurveFitterStep.#ctor(MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Viscoelasticity.QuasiLinear.Fung.IFungModelCalculator,MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Algorithms.ICurveFitter,System.Double)">
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Pipelines.Steps.CurveFitter.Fung.FungRelaxationOnlyCurveFitterStep.#ctor(MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Viscoelasticity.QuasiLinear.Fung.IFungModelCalculator,MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Algorithms.ICurveFitter,System.Double,System.Double)">
             <summary>
             Thread-safe. Implements <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Pipelines.Steps.CurveFitter.IMechanicalModelCurveFitterStep"/> for the
             Fung model (relaxation-only curve fitting). Implements <c>IPipelineStep</c> for telemetry.
@@ -1178,6 +1375,7 @@
             <param name="mechanicalModelCalculator">The calculator for Fung viscoelastic constitutive calculations.</param>
             <param name="curveFitter">The optimization engine for non-linear regression.</param>
             <param name="targetRSquared">Mandatory target R² determination coefficient for early-exit and precision monitoring.</param>
+            <param name="confidenceLevel">Desired confidence level for parameter interval estimation (e.g. 0.95 for 95%). Defaults to 0.95.</param>
         </member>
         <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Pipelines.Steps.CurveFitter.Fung.FungRelaxationOnlyCurveFitterStep.MechanicalModelName">
             <inheritdoc />
@@ -1209,8 +1407,11 @@
             <param name="targetRSquared">
             Mandatory target coefficient of determination (R²) specified by the user as an optimization early-exit or quality gate.
             </param>
+            <param name="confidenceLevel">
+            Desired confidence level for parameter interval estimation (e.g. 0.95 for 95%). Defaults to 0.95.
+            </param>
         </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Pipelines.Steps.CurveFitter.MechanicalModelCurveFitterStepBase.#ctor(System.Double)">
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Pipelines.Steps.CurveFitter.MechanicalModelCurveFitterStepBase.#ctor(System.Double,System.Double)">
             <summary>
             Abstract base class for curve fitting pipeline steps targeting mechanical constitutive models.
             Implements <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Pipelines.Steps.CurveFitter.IMechanicalModelCurveFitterStep"/> and centralizes common pipeline metadata,
@@ -1219,6 +1420,9 @@
             <param name="targetRSquared">
             Mandatory target coefficient of determination (R²) specified by the user as an optimization early-exit or quality gate.
             </param>
+            <param name="confidenceLevel">
+            Desired confidence level for parameter interval estimation (e.g. 0.95 for 95%). Defaults to 0.95.
+            </param>
         </member>
         <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Pipelines.Steps.CurveFitter.MechanicalModelCurveFitterStepBase.Name">
             <inheritdoc />
@@ -1226,6 +1430,11 @@
         <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Pipelines.Steps.CurveFitter.MechanicalModelCurveFitterStepBase.TargetRSquared">
             <summary>
             Gets the user-specified target coefficient of determination (R²) for optimization routines.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Pipelines.Steps.CurveFitter.MechanicalModelCurveFitterStepBase.ConfidenceLevel">
+            <summary>
+            Gets the desired confidence level for parameter interval estimation (e.g. 0.95 for 95%).
             </summary>
         </member>
         <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Pipelines.Steps.CurveFitter.MechanicalModelCurveFitterStepBase.MechanicalModelName">
@@ -1257,14 +1466,14 @@
             <param name="rampTime">Optional loading ramp duration.</param>
             <returns>A populated model input ready for numerical evaluation.</returns>
         </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Pipelines.Steps.CurveFitter.MechanicalModelCurveFitterStepBase.CreateCurveFitOutput(System.Collections.Generic.IReadOnlyList{MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Models.CurveSegment},MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.ConstitutiveParameters,MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.AcceptedRange,MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.RampTimeConsideration,System.Double,System.Double,System.Int32)">
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Pipelines.Steps.CurveFitter.MechanicalModelCurveFitterStepBase.CreateCurveFitOutput(System.Collections.Generic.IReadOnlyList{MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Models.CurveSegment},MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.ConstitutiveParameters,MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.AcceptedRange,MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.RampTimeConsideration,System.Double,System.Double,System.Int32,System.Collections.Generic.IReadOnlyList{MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Pipelines.Models.MechanicalModelParameterConfidenceInterval})">
             <summary>
-            Creates a new <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Pipelines.Models.MechanicalModelCurveFitOutput"/> with model metadata and fitting metrics.
+            Creates a new <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Pipelines.Models.MechanicalModelCurveFitOutput"/> with model metadata, fitting metrics, and parameter intervals.
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Pipelines.Steps.CurveFitter.MechanicalModelCurveFitterStepBase.CreateCurveFitOutput(System.Collections.Generic.IReadOnlyList{MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Models.CurveSegment},MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.ConstitutiveParameters,MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.AcceptedRange,System.Double,System.Double,System.Int32)">
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Pipelines.Steps.CurveFitter.MechanicalModelCurveFitterStepBase.CreateCurveFitOutput(System.Collections.Generic.IReadOnlyList{MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Models.CurveSegment},MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.ConstitutiveParameters,MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.AcceptedRange,System.Double,System.Double,System.Int32,System.Collections.Generic.IReadOnlyList{MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Pipelines.Models.MechanicalModelParameterConfidenceInterval})">
             <summary>
-            Creates a new <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Pipelines.Models.MechanicalModelCurveFitOutput"/> with model metadata and fitting metrics, defaulting the ramp time consideration to <see cref="F:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.RampTimeConsideration.Disregard"/>.
+            Creates a new <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Pipelines.Models.MechanicalModelCurveFitOutput"/> with model metadata, fitting metrics, and parameter intervals, defaulting the ramp time consideration to <see cref="F:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.RampTimeConsideration.Disregard"/>.
             </summary>
         </member>
         <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Pipelines.Steps.CurveFitter.MechanicalModelCurveFitterStepBase.DisposeAsync">
@@ -1283,8 +1492,9 @@
             <param name="polynomialCurveFitter">Polynomial curve fitter fallback for Helmholtz variables.</param>
             <param name="functionFactory">Factory constructing mathematical functions.</param>
             <param name="targetRSquared">Mandatory target R² determination coefficient for early-exit and precision monitoring.</param>
+            <param name="confidenceLevel">Desired confidence level for parameter interval estimation (e.g. 0.95 for 95%). Defaults to 0.95.</param>
         </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Pipelines.Steps.CurveFitter.SchaperyRelaxationOnlyCurveFitterStep.#ctor(Microsoft.Extensions.Logging.ILogger{MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Pipelines.Steps.CurveFitter.SchaperyRelaxationOnlyCurveFitterStep},MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Viscoelasticity.NonLinear.Schapery.ISchaperyModelCalculator,MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Algorithms.ICurveFitter,MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.MathematicalFunctions.IFunctionCurveFitter,MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.MathematicalFunctions.IFunctionCurveFitter,MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.MathematicalFunctions.IFunctionCurveFitter,MelloSilveiraTools.Mathematics.Factories.Functions.FunctionFactory,System.Double)">
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Pipelines.Steps.CurveFitter.SchaperyRelaxationOnlyCurveFitterStep.#ctor(Microsoft.Extensions.Logging.ILogger{MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Pipelines.Steps.CurveFitter.SchaperyRelaxationOnlyCurveFitterStep},MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Viscoelasticity.NonLinear.Schapery.ISchaperyModelCalculator,MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Algorithms.ICurveFitter,MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.MathematicalFunctions.IFunctionCurveFitter,MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.MathematicalFunctions.IFunctionCurveFitter,MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.MathematicalFunctions.IFunctionCurveFitter,MelloSilveiraTools.Mathematics.Factories.Functions.FunctionFactory,System.Double,System.Double)">
             <summary>
             Thread-safe. Implements <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Pipelines.Steps.CurveFitter.IMechanicalModelCurveFitterStep"/> for the
             Schapery model (relaxation-only curve fitting). Implements <c>IPipelineStep</c> for telemetry.
@@ -1297,6 +1507,7 @@
             <param name="polynomialCurveFitter">Polynomial curve fitter fallback for Helmholtz variables.</param>
             <param name="functionFactory">Factory constructing mathematical functions.</param>
             <param name="targetRSquared">Mandatory target R² determination coefficient for early-exit and precision monitoring.</param>
+            <param name="confidenceLevel">Desired confidence level for parameter interval estimation (e.g. 0.95 for 95%). Defaults to 0.95.</param>
         </member>
         <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Pipelines.Steps.CurveFitter.SchaperyRelaxationOnlyCurveFitterStep.MechanicalModelName">
             <inheritdoc />
@@ -1319,8 +1530,9 @@
             <param name="curveFitter">The optimization engine for non-linear regression.</param>
             <param name="pronySeriesCurveFitter">The Prony series curve fitting decorator.</param>
             <param name="targetRSquared">Mandatory target R² determination coefficient for early-exit and precision monitoring.</param>
+            <param name="confidenceLevel">Desired confidence level for parameter interval estimation (e.g. 0.95 for 95%). Defaults to 0.95.</param>
         </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Pipelines.Steps.CurveFitter.SimplifiedFungRelaxationOnlyCurveFitterStep.#ctor(MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Viscoelasticity.QuasiLinear.SimplifiedFung.ISimplifiedFungModelCalculator,MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Algorithms.ICurveFitter,MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.MathExpressions.IMathExpressionCurveFitter,System.Double)">
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Pipelines.Steps.CurveFitter.SimplifiedFungRelaxationOnlyCurveFitterStep.#ctor(MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Viscoelasticity.QuasiLinear.SimplifiedFung.ISimplifiedFungModelCalculator,MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Algorithms.ICurveFitter,MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.MathExpressions.IMathExpressionCurveFitter,System.Double,System.Double)">
             <summary>
             Thread-safe. Implements <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Pipelines.Steps.CurveFitter.IMechanicalModelCurveFitterStep"/> for the
             Simplified Fung model (relaxation-only curve fitting). Implements <c>IPipelineStep</c> for telemetry.
@@ -1329,6 +1541,7 @@
             <param name="curveFitter">The optimization engine for non-linear regression.</param>
             <param name="pronySeriesCurveFitter">The Prony series curve fitting decorator.</param>
             <param name="targetRSquared">Mandatory target R² determination coefficient for early-exit and precision monitoring.</param>
+            <param name="confidenceLevel">Desired confidence level for parameter interval estimation (e.g. 0.95 for 95%). Defaults to 0.95.</param>
         </member>
         <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Pipelines.Steps.CurveFitter.SimplifiedFungRelaxationOnlyCurveFitterStep.MechanicalModelName">
             <inheritdoc />

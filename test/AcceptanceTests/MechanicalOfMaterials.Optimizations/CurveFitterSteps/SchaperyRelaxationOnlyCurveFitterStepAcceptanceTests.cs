@@ -64,6 +64,20 @@ public class SchaperyRelaxationOnlyCurveFitterStepAcceptanceTests : CurveFitterA
         Assert.NotNull(finalParams.He);
         Assert.NotNull(finalParams.H2);
 
+        // Stage 3.1: Parameter confidence intervals validation
+        Assert.NotEmpty(finalOutput.Parameters);
+        Assert.True(finalOutput.Parameters.Count >= 5, $"Group '{groupName}': Expected at least 5 parameters (Ge, A, n, and Helmholtz functions parameters), got {finalOutput.Parameters.Count}.");
+        Assert.Contains(finalOutput.Parameters, p => p.ParameterName == nameof(SchaperyConstitutiveParameters.Ge));
+        Assert.Contains(finalOutput.Parameters, p => p.ParameterName == $"{nameof(SchaperyConstitutiveParameters.TransientRelaxationFunction)}_A");
+        Assert.Contains(finalOutput.Parameters, p => p.ParameterName == $"{nameof(SchaperyConstitutiveParameters.TransientRelaxationFunction)}_n");
+        Assert.Contains(finalOutput.Parameters, p => p.ParameterName.StartsWith($"{nameof(SchaperyConstitutiveParameters.He)}_"));
+        Assert.Contains(finalOutput.Parameters, p => p.ParameterName.StartsWith($"{nameof(SchaperyConstitutiveParameters.H2)}_"));
+        Assert.All(finalOutput.Parameters, p =>
+        {
+            Assert.True(p.LowerBound <= p.UpperBound, $"Group '{groupName}': Parameter {p.ParameterName} lower bound ({p.LowerBound}) exceeds upper bound ({p.UpperBound})");
+            Assert.True(p.ConfidenceLevel > 0.0 && p.ConfidenceLevel < 1.0);
+        });
+
         // Continuous Helmholtz functions must evaluate to strictly positive values across the entire physical strain range
         double[] testStrains = [0.03, 0.04, 0.05, 0.06];
         foreach (double eps in testStrains)

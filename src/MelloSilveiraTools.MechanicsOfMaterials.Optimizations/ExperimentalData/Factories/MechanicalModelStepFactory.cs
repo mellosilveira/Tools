@@ -25,7 +25,7 @@ namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData
 public sealed class MechanicalModelStepFactory(ServiceLocator serviceLocator, ILoggerFactory loggerFactory) : IMechanicalModelStepFactory
 {
     /// <inheritdoc />
-    public IMechanicalModelCurveFitterStep CreateCurveFitterStep(string mechanicalModelName, IReadOnlyList<SegmentType> targetSegments, CurveFitterType curveFitterType, double targetRSquared)
+    public IMechanicalModelCurveFitterStep CreateCurveFitterStep(string mechanicalModelName, IReadOnlyList<SegmentType> targetSegments, CurveFitterType curveFitterType, double targetRSquared, double confidenceLevel = 0.95)
     {
         ICurveFitter curveFitter = serviceLocator.GetRequiredKeyedService<ICurveFitter>(curveFitterType);
         return (mechanicalModelName, targetSegments) switch
@@ -33,13 +33,15 @@ public sealed class MechanicalModelStepFactory(ServiceLocator serviceLocator, IL
             (nameof(MechanicalModel.Fung), [SegmentType.Relaxation]) => new FungRelaxationOnlyCurveFitterStep(
                 serviceLocator.GetRequiredService<IFungModelCalculator>(),
                 curveFitter,
-                targetRSquared),
+                targetRSquared,
+                confidenceLevel),
 
             (nameof(MechanicalModel.SimplifiedFung), [SegmentType.Relaxation]) => new SimplifiedFungRelaxationOnlyCurveFitterStep(
                 serviceLocator.GetRequiredService<ISimplifiedFungModelCalculator>(),
                 curveFitter,
                 new PronySeriesCurveFitter(curveFitter),
-                targetRSquared),
+                targetRSquared,
+                confidenceLevel),
 
             (nameof(MechanicalModel.Schapery), [SegmentType.Relaxation]) => new SchaperyRelaxationOnlyCurveFitterStep(
                 loggerFactory.CreateLogger<SchaperyRelaxationOnlyCurveFitterStep>(),
@@ -49,7 +51,8 @@ public sealed class MechanicalModelStepFactory(ServiceLocator serviceLocator, IL
                 serviceLocator.GetRequiredKeyedService<IFunctionCurveFitter>(FunctionType.Exponential),
                 serviceLocator.GetRequiredKeyedService<IFunctionCurveFitter>(FunctionType.Polynomial),
                 serviceLocator.GetRequiredService<FunctionFactory>(),
-                targetRSquared),
+                targetRSquared,
+                confidenceLevel),
 
             _ => throw new ArgumentException($"Unknown mechanical model or unsupported segment configuration: '{mechanicalModelName}'.", nameof(mechanicalModelName))
         };

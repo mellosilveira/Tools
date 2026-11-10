@@ -20,10 +20,11 @@ public sealed class ExecuteExperimentalDataPipelineValidator : IValidator<Execut
             .FluentAddIf(string.IsNullOrWhiteSpace(value.MechanicalModelName), "MechanicalModelName is required.")
             .FluentAddIf(string.IsNullOrWhiteSpace(value.StrainFileLocation), "StrainFileLocation must be provided.")
             .FluentAddIf(string.IsNullOrWhiteSpace(value.StressFileLocation), "StressFileLocation must be provided.")
-            .FluentAddIf(value.TargetRSquared <= 0 || value.TargetRSquared > 1.0, "TargetRSquared must be within the interval (0, 1].")
+            .FluentAddIf(value.TargetRSquared <= 0.0 || value.TargetRSquared > 1.0, "TargetRSquared must be within the interval (0, 1].")
+            .FluentAddIf(value.ConfidenceLevel <= 0.0 || value.ConfidenceLevel >= 1.0, "ConfidenceLevel must be strictly between 0 and 1 (e.g. 0.95 for 95% confidence).")
             .FluentAddIf(value.AsymptoteConsecutivePointsThreshold < 0, "AsymptoteConsecutivePointsThreshold cannot be negative.")
-            .FluentAddIf(value.SimulationTimeStep is <= 0, "SimulationTimeStep must be greater than zero when specified.")
-            .FluentAddIf(value.DownsamplingSkipTimeStep is < 0, "DownsamplingSkipTimeStep cannot be negative.");
+            .FluentAddIf(value.SimulationTimeStep is <= 0.0, "SimulationTimeStep must be greater than zero when specified.")
+            .FluentAddIf(value.DownsamplingSkipTimeStep is < 0.0, "DownsamplingSkipTimeStep cannot be negative.");
 
         return errors.Count == 0
             ? Result.CreateSuccessOk()

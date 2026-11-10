@@ -46,6 +46,11 @@ public sealed record ExperimentalDataProcessingInput : PipelineInputBase
     public required double TargetRSquared { get; init; }
 
     /// <summary>
+    /// Desired confidence level for parameter interval estimation (e.g. 0.95 or 95.0 for 95% confidence). Defaults to 0.95.
+    /// </summary>
+    public double ConfidenceLevel { get; init; } = 0.95;
+
+    /// <summary>
     /// The consecutive points threshold required to detect that a steady-state asymptote has been reached.
     /// </summary>
     public int AsymptoteConsecutivePointsThreshold { get; init; }

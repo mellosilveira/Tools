@@ -45,7 +45,14 @@ public class PolynomialCurveFitterTests
         double[] x = [0.0, 1.0, 2.0, 3.0];
         double[] y = [2.0, 5.0, 8.0, 11.0];
 
-        CurveFitOutput expectedOutput = new([2.0, 1.0], 5.0, 0.85, 10);
+        CurveFitOutput expectedOutput = new(
+            [
+                new ParameterConfidenceInterval(0, 2.0, 1.9, 2.1, 0.05, 0.95),
+                new ParameterConfidenceInterval(1, 1.0, 0.9, 1.1, 0.05, 0.95)
+            ],
+            5.0,
+            0.85,
+            10);
         Mock<ICurveFitter> mockInnerFitter = new();
         mockInnerFitter.Setup(f => f.Fit(It.IsAny<CurveFitInput>())).Returns(expectedOutput);
 
