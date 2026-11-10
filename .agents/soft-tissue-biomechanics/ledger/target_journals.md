@@ -2,7 +2,7 @@
 
 - **Date**: 2026-10-16
 - **Applied Skills**: `senior-applied-biomechanics-researcher-deep-research` and `biomechanics-co-advisor`
-- **Context**: Master's Thesis at PPEMM/CEFET-RJ (Advisor: Prof. Paulo Pedro Kenedi) — Constitutive characterization and modeling of the mechanical behavior of knee ligaments (ACL, PCL, MCL, LCL).
+- **Context**: Master's Thesis at PPEMM/CEFET-RJ (Advisor: Prof. Dr. Paulo Pedro Kenedi) — Constitutive characterization and modeling of the mechanical behavior of knee ligaments (ACL, PCL, MCL, LCL).
 - **Audited Dataset**: 358 reference records (301 unique DOIs) fully extracted from the files in `.agents/soft-tissue-biomechanics/outputs/` (`task-1.1_result.json`, `task-1.2-results.json`, `task-1.3-payload.json`, `task-deep-research-funnel.json`, and `task-deep-research-unified.json`), validated via Crossref and EuropePMC APIs.
 - **Scope of the Manuscript to be Submitted**:
   1. Rigorous comparison between the **Continuous Spectrum Fung QLV Model** ([`FungModelCalculator`](file:///c:/Pessoal/Projetos/Tools/src/MelloSilveiraTools.MechanicsOfMaterials/Calculators/MechanicalModels/Viscoelasticity/QuasiLinear/Fung/FungModelCalculator.cs)) and the **Discrete QLV / Generalized Maxwell Model with Prony Series** ([`SimplifiedFungModelCalculator`](file:///c:/Pessoal/Projetos/Tools/src/MelloSilveiraTools.MechanicsOfMaterials/Calculators/MechanicalModels/Viscoelasticity/QuasiLinear/SimplifiedFung/SimplifiedFungModelCalculator.cs)), both incorporating the exponential elastic response $\sigma^e(\varepsilon) = A(e^{B\varepsilon}-1)$ under three ramp conditions (`Disregard`, `ConsiderWithoutViscoelasticEffect`, and `ConsiderWithViscoelasticEffect`);

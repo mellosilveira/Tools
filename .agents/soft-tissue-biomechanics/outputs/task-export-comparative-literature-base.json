@@ -1,0 +1,39 @@
+{
+  "task_id": "task-export-comparative-literature-base",
+  "skill": "academic-writer-biomechanics-specialist",
+  "status": "success",
+  "retry_count": 0,
+  "data_payload": {
+    "total_studies_cataloged": 60,
+    "categories": {
+      "category_A_polyurethanes_and_tpu": 19,
+      "category_B_hydrogels_and_double_networks": 24,
+      "category_C_high_strength_braided_and_fiber_polymers": 10,
+      "category_D_elastomers_and_silicones": 7
+    },
+    "theoretical_domains_analyzed": 5,
+    "constitutive_models_formulated": [
+      "Holzapfel-Gasser-Ogden (HGO) Anisotropic Continuum Model",
+      "Fung Anisotropic Exponential Pseudo-Strain Energy Function",
+      "Mooney-Rivlin Hyperelastic Model",
+      "Ogden Principal Stretch Hyperelastic Model",
+      "Yeoh Reduced Polynomial Hyperelastic Model"
+    ],
+    "viscoelastic_models_formulated": [
+      "Fung QLV Continuous Relaxation Spectrum (c, tau1, tau2)",
+      "Discrete Maxwell / Multi-Term Prony Series",
+      "Fractional Viscoelasticity & Biphasic Darcy Poroelasticity"
+    ],
+    "output_document": ".agents/soft-tissue-biomechanics/base_literature/comparative_mechanics_soft_tissues_vs_polymers.md",
+    "updated_readme": ".agents/soft-tissue-biomechanics/base_literature/README.md"
+  },
+  "output_summary": "Successfully synthesized and exported the comprehensive comparative mechanics framework and 60-study CrossRef-verified literature catalog to .agents/soft-tissue-biomechanics/base_literature/comparative_mechanics_soft_tissues_vs_polymers.md, and updated base_literature/README.md with folder structure indexing.",
+  "justification_for_decisions": "In strict adherence to the persona guidelines (academic-writer-biomechanics-specialist) and PPEMM/CEFET-RJ standards: (1) All 60 studies from the verified deep research payload were categorized into four logical material classes (TPU, Hydrogels, Braided Fibers, Elastomers) with active verified DOIs, materials compared, experimental assays, and synthesized findings. (2) The five mechanical domains were formulated starting from 3D Continuum Mechanics tensorial kinematics (F, C, E, S, sigma) prior to 1D uniaxial reduction. (3) Explicit constitutive models (HGO, Fung exponential, Mooney-Rivlin, Ogden, Yeoh) were formulated with complete variable definitions and mandatory page citations (Holzapfel 2000, Fung 1990/1993, Ogden 1972, Yeoh 1990, Lake & Thomas 1967). (4) The 3 significant figures rule was strictly enforced for continuous values. (5) Full integration pathways into MelloSilveiraTools.MechanicsOfMaterials.Optimizations and FEBio 4.0 were documented.",
+  "artifacts": [
+    ".agents/soft-tissue-biomechanics/base_literature/comparative_mechanics_soft_tissues_vs_polymers.md",
+    ".agents/soft-tissue-biomechanics/base_literature/README.md"
+  ],
+  "warnings": [],
+  "token_usage": 0,
+  "theoretical_precision": "high"
+}
