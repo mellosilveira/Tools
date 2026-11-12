@@ -4,20 +4,24 @@ using MelloSilveiraTools.Core.Validators;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Pipelines.Models;
 using Microsoft.Extensions.Logging;
 
-namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Commands;
+namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Commands.Process.Single;
 
+/// <summary>
+/// Executes the experimental data processing pipeline for a single pair of stress and strain files.
+/// </summary>
 public class ExecuteExperimentalDataPipeline(
     ILogger<ExecuteExperimentalDataPipeline> logger,
     IPipeline<ExperimentalDataProcessingInput, string> pipeline,
     IValidator<ExecuteExperimentalDataPipelineRequest> validator)
     : ExecutePipeline<ExecuteExperimentalDataPipelineRequest, ExperimentalDataProcessingInput, string>(logger, pipeline, validator)
 {
+    /// <inheritdoc/>
     protected override ExperimentalDataProcessingInput MapToInput(ExecuteExperimentalDataPipelineRequest request) => new()
     {
-        Identifier = string.IsNullOrWhiteSpace(request.Identifier) ? Guid.NewGuid().ToString("N") : request.Identifier,
-        StrainFileLocation = request.StrainFileLocation,
-        StressFileLocation = request.StressFileLocation,
-        StartExperimentalTimeThreshold = request.StartExperimentalTimeThreshold,
+        Identifier = string.IsNullOrWhiteSpace(request.ExperimentalDataGroupRequest.Identifier) ? Guid.NewGuid().ToString("N") : request.ExperimentalDataGroupRequest.Identifier,
+        StrainFileLocation = request.ExperimentalDataGroupRequest.StrainFileLocation,
+        StressFileLocation = request.ExperimentalDataGroupRequest.StressFileLocation,
+        StartExperimentalTimeThreshold = request.ExperimentalDataGroupRequest.StartExperimentalTimeThreshold,
         MechanicalModelName = request.MechanicalModelName,
         TargetSegments = request.TargetSegments,
         CurveFitterType = request.CurveFitterType,

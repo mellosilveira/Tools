@@ -1,7 +1,9 @@
 using MelloSilveiraTools.Core.ExtensionMethods;
+using MelloSilveiraTools.Core.Models;
 using MelloSilveiraTools.Core.Pipelines.Notifiers;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Controllers;
-using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.ParametricSweep.Commands;
+using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.ParametricSweep.Commands.Process;
+using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.ParametricSweep.Commands.ProcessFromExperimentalData;
 using MelloSilveiraTools.WebApi.Application.Endpoints;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -25,6 +27,25 @@ public class ParametricSweepController(ILogger<ParametricSweepController> logger
         [FromBody] ExecuteParametricSweepPipelineRequest request, 
         CancellationToken cancellationToken = default)
         => await command.ExecuteAsync(request, cancellationToken).BuildHttpResponseAsync().ConfigureAwait(false);
+
+    [HttpPost("process-from-experimental-data")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> ProcessFromExperimentalData(
+        [FromServices] ExecuteParametricSweepFromExperimentalDataCommand command,
+        [FromBody] ExecuteParametricSweepFromExperimentalDataRequest request,
+        CancellationToken cancellationToken = default)
+    {
+        Result<IAsyncEnumerable<string>> result = await command.ExecuteAsync(request, cancellationToken).ConfigureAwait(false);
+        if (!result.Success)
+            return result.BuildHttpResponse();
+
+        // Sets the HTTP SatatusCode as 202 Accepted to indicate that the request has been accepted for processing, but the processing has not been completed yet.
+        HttpContext.Response.StatusCode = StatusCodes.Status202Accepted;
+        await result.Data!.WriteNdjsonAsync(HttpContext, logger, "Progress for parametric sweep pipelines", cancellationToken).ConfigureAwait(false);
+        return Result.CreateSuccessOk().BuildHttpResponse();
+    }
 
     [HttpGet("{identifier}/stream")]
     [Produces("application/x-ndjson")]

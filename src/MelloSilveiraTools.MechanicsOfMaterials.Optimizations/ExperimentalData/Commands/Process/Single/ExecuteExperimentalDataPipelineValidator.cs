@@ -2,7 +2,7 @@ using MelloSilveiraTools.Core.ExtensionMethods;
 using MelloSilveiraTools.Core.Models;
 using MelloSilveiraTools.Core.Validators;
 
-namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Commands;
+namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Commands.Process.Single;
 
 /// <summary>
 /// Validates <see cref="ExecuteExperimentalDataPipelineRequest"/> payloads prior to pipeline execution.
@@ -18,8 +18,8 @@ public sealed class ExecuteExperimentalDataPipelineValidator : IValidator<Execut
         List<string> errors = [];
         errors
             .FluentAddIf(string.IsNullOrWhiteSpace(value.MechanicalModelName), "MechanicalModelName is required.")
-            .FluentAddIf(string.IsNullOrWhiteSpace(value.StrainFileLocation), "StrainFileLocation must be provided.")
-            .FluentAddIf(string.IsNullOrWhiteSpace(value.StressFileLocation), "StressFileLocation must be provided.")
+            .FluentAddIf(string.IsNullOrWhiteSpace(value.ExperimentalDataGroupRequest.StrainFileLocation), "StrainFileLocation must be provided.")
+            .FluentAddIf(string.IsNullOrWhiteSpace(value.ExperimentalDataGroupRequest.StressFileLocation), "StressFileLocation must be provided.")
             .FluentAddIf(value.TargetRSquared <= 0.0 || value.TargetRSquared > 1.0, "TargetRSquared must be within the interval (0, 1].")
             .FluentAddIf(value.ConfidenceLevel <= 0.0 || value.ConfidenceLevel >= 1.0, "ConfidenceLevel must be strictly between 0 and 1 (e.g. 0.95 for 95% confidence).")
             .FluentAddIf(value.AsymptoteConsecutivePointsThreshold < 0, "AsymptoteConsecutivePointsThreshold cannot be negative.")

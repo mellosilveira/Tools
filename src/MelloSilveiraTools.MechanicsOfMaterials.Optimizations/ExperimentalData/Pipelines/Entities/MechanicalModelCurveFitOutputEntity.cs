@@ -1,4 +1,5 @@
-﻿using MelloSilveiraTools.Database.RelationalDatabase.Attributes;
+using System.Diagnostics.CodeAnalysis;
+using MelloSilveiraTools.Database.RelationalDatabase.Attributes;
 using MelloSilveiraTools.Database.RelationalDatabase.Models.Entities;
 using MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels;
 using MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity;
@@ -11,6 +12,14 @@ namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData
 [Table("mechanical_model_curve_fit_outputs")]
 public record MechanicalModelCurveFitOutputEntity : EntityBase
 {
+    /// <summary>
+    /// Initializes a new instance of <see cref="MechanicalModelCurveFitOutputEntity"/> for persistence mapping and deserialization.
+    /// </summary>
+    [SetsRequiredMembers]
+    public MechanicalModelCurveFitOutputEntity()
+    {
+    }
+
     [UniqueColumn]
     public required string Identifier { get; init; }
 

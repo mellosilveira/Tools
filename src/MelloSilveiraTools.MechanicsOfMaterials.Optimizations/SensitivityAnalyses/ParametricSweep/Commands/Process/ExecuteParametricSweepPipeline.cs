@@ -4,7 +4,7 @@ using MelloSilveiraTools.Core.Validators;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.ParametricSweep.Pipelines.Models;
 using Microsoft.Extensions.Logging;
 
-namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.ParametricSweep.Commands;
+namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.ParametricSweep.Commands.Process;
 
 /// <summary>
 /// Application command that validates and executes a parametric sweep sensitivity analysis via <see cref="IPipeline{TInput, TOutput}"/>.

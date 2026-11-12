@@ -2,7 +2,7 @@ using MelloSilveiraTools.Core.ExtensionMethods;
 using MelloSilveiraTools.Core.Models;
 using MelloSilveiraTools.Core.Validators;
 
-namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.ParametricSweep.Commands;
+namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.ParametricSweep.Commands.Process;
 
 /// <summary>
 /// Validates <see cref="ExecuteParametricSweepPipelineRequest"/> payloads prior to parametric sweep execution.

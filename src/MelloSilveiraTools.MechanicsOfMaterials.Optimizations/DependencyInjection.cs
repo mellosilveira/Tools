@@ -7,12 +7,15 @@ using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Mathema
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.MathExpressions;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Models;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData;
-using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Commands;
+using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Commands.Process;
+using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Commands.Process.Batch;
+using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Commands.Process.Single;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Factories;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Pipelines;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Pipelines.Models;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.ParametricSweep;
-using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.ParametricSweep.Commands;
+using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.ParametricSweep.Commands.Process;
+using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.ParametricSweep.Commands.ProcessFromExperimentalData;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.ParametricSweep.Pipelines;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.ParametricSweep.Pipelines.Models;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.ParametricSweep.Pipelines.Steps.Generators;
@@ -73,7 +76,9 @@ public static class DependencyInjection
                 services
                     .AddSingleton(experimentalDataSettings)
                     .AddSingleton<ExecuteExperimentalDataPipeline>()
+                    .AddSingleton<ExecuteBatchExperimentalDataPipeline>()
                     .AddSingleton<IValidator<ExecuteExperimentalDataPipelineRequest>, ExecuteExperimentalDataPipelineValidator>()
+                    .AddSingleton<IValidator<ExecuteBatchExperimentalDataPipelineRequest>, ExecuteBatchExperimentalDataPipelineValidator>()
                     .AddSingleton<IPipeline<ExperimentalDataProcessingInput, string>, ExperimentalDataProcessingPipeline>();
             }
 
@@ -82,7 +87,9 @@ public static class DependencyInjection
                 services
                     .AddSingleton(parametricSweepSettings)
                     .AddSingleton<ExecuteParametricSweepPipeline>()
+                    .AddSingleton<ExecuteParametricSweepFromExperimentalDataCommand>()
                     .AddSingleton<IValidator<ExecuteParametricSweepPipelineRequest>, ExecuteParametricSweepValidator>()
+                    .AddSingleton<IValidator<ExecuteParametricSweepFromExperimentalDataRequest>, ExecuteParametricSweepFromExperimentalDataValidator>()
                     .AddSingleton<IPipeline<ParametricSweepPipelineInput, string>, ParametricSweepPipeline>()
                     .AddKeyedSingleton<IParametricSweepGeneratorStep, FungParametricSweepGeneratorStep>(nameof(MechanicalModel.Fung))
                     .AddKeyedSingleton<IParametricSweepGeneratorStep, SimplifiedFungParametricSweepGeneratorStep>(nameof(MechanicalModel.SimplifiedFung))

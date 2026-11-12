@@ -1,31 +1,17 @@
 using MelloSilveiraTools.Core.Application.Commands;
 using MelloSilveiraTools.Mathematics.Models.NumericalMethods;
 using MelloSilveiraTools.Mathematics.NumericalMethods.RootFindingAlgorithms;
-using MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels;
 using MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Models.Range;
 
 namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.ParametricSweep.Commands;
 
-/// <summary>
-/// Request payload for executing a Parametric Sweep sensitivity analysis via the Command pattern.
-/// </summary>
-public record ExecuteParametricSweepPipelineRequest : RequestBase
+public record ExecuteParametricSweepPipelineRequestBase : RequestBase
 {
-    /// <summary>
-    /// Optional predefined analysis identifier. If not provided, a unique GUID-based identifier is generated.
-    /// </summary>
-    public string? Identifier { get; init; }
-
     /// <summary>
     /// Gets the name of the mechanical model to be evaluated (e.g., "Maxwell", "Fung", "SimplifiedFung", "Schapery").
     /// </summary>
     public required string MechanicalModelName { get; init; }
-
-    /// <summary>
-    /// Gets the baseline constitutive parameters.
-    /// </summary>
-    public required ConstitutiveParameters Baseline { get; init; }
 
     /// <summary>
     /// Gets the ranges for constant scalar variables.

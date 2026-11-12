@@ -521,99 +521,294 @@
             </param>
             <returns>The same service collection so additional registrations can be chained.</returns>
         </member>
-        <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Commands.ExecuteExperimentalDataPipelineRequest">
+        <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Commands.ProcessBatch.BatchGroupExecutionResult">
             <summary>
-            Request payload for executing the experimental data processing and optimization pipeline via storage-backed file references.
+            Represents the execution outcome for an individual experimental data group within a batch pipeline run.
+            </summary>
+            <param name="Identifier">The business identifier assigned to the pipeline execution run.</param>
+            <param name="GroupName">The optional group or sample name.</param>
+            <param name="Success">Whether the pipeline processing completed successfully.</param>
+            <param name="ErrorMessage">Error details if the pipeline execution failed.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Commands.ProcessBatch.BatchGroupExecutionResult.#ctor(System.String,System.String,System.Boolean,System.String)">
+            <summary>
+            Represents the execution outcome for an individual experimental data group within a batch pipeline run.
+            </summary>
+            <param name="Identifier">The business identifier assigned to the pipeline execution run.</param>
+            <param name="GroupName">The optional group or sample name.</param>
+            <param name="Success">Whether the pipeline processing completed successfully.</param>
+            <param name="ErrorMessage">Error details if the pipeline execution failed.</param>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Commands.ProcessBatch.BatchGroupExecutionResult.Identifier">
+            <summary>The business identifier assigned to the pipeline execution run.</summary>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Commands.ProcessBatch.BatchGroupExecutionResult.GroupName">
+            <summary>The optional group or sample name.</summary>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Commands.ProcessBatch.BatchGroupExecutionResult.Success">
+            <summary>Whether the pipeline processing completed successfully.</summary>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Commands.ProcessBatch.BatchGroupExecutionResult.ErrorMessage">
+            <summary>Error details if the pipeline execution failed.</summary>
+        </member>
+        <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Commands.ProcessBatch.ExecuteBatchExperimentalDataPipeline">
+            <summary>
+            Executes the experimental data processing and optimization pipeline across multiple file groups either sequentially or in parallel.
+            </summary>
+            <param name="logger">Structured logger instance for telemetry and diagnostic logging.</param>
+            <param name="pipeline">Canonical experimental data processing pipeline implementation.</param>
+            <param name="validator">Validator for the batch request payload.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Commands.ProcessBatch.ExecuteBatchExperimentalDataPipeline.#ctor(Microsoft.Extensions.Logging.ILogger{MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Commands.ProcessBatch.ExecuteBatchExperimentalDataPipeline},MelloSilveiraTools.Core.Pipelines.IPipeline{MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Pipelines.Models.ExperimentalDataProcessingInput,System.String},MelloSilveiraTools.Core.Validators.IValidator{MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Commands.ProcessBatch.ExecuteBatchExperimentalDataPipelineRequest})">
+            <summary>
+            Executes the experimental data processing and optimization pipeline across multiple file groups either sequentially or in parallel.
+            </summary>
+            <param name="logger">Structured logger instance for telemetry and diagnostic logging.</param>
+            <param name="pipeline">Canonical experimental data processing pipeline implementation.</param>
+            <param name="validator">Validator for the batch request payload.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Commands.ProcessBatch.ExecuteBatchExperimentalDataPipeline.ExecuteCommandAsync(MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Commands.ProcessBatch.ExecuteBatchExperimentalDataPipelineRequest,System.Threading.CancellationToken)">
+            <inheritdoc/>
+        </member>
+        <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Commands.ProcessBatch.ExecuteBatchExperimentalDataPipelineRequest">
+            <summary>
+            Request payload for executing the experimental data processing pipeline over multiple groups of stress.csv and strain.csv files.
             </summary>
         </member>
-        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Commands.ExecuteExperimentalDataPipelineRequest.StrainFileLocation">
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Commands.ProcessBatch.ExecuteBatchExperimentalDataPipelineRequest.Groups">
             <summary>
-            Storage location URI or path for the raw experimental strain time-history CSV.
+            The collection of experimental data groups to be processed.
             </summary>
         </member>
-        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Commands.ExecuteExperimentalDataPipelineRequest.StressFileLocation">
-            <summary>
-            Storage location URI or path for the raw experimental stress time-history CSV.
-            </summary>
-        </member>
-        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Commands.ExecuteExperimentalDataPipelineRequest.StartExperimentalTimeThreshold">
-            <summary>
-            Optional threshold time to ignore initial transient data.
-            </summary>
-        </member>
-        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Commands.ExecuteExperimentalDataPipelineRequest.Identifier">
-            <summary>
-            Optional predefined analysis identifier. If not provided, a unique GUID-based identifier is generated.
-            </summary>
-        </member>
-        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Commands.ExecuteExperimentalDataPipelineRequest.MechanicalModelName">
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Commands.ProcessBatch.ExecuteBatchExperimentalDataPipelineRequest.MechanicalModelName">
             <summary>
             The name of the mechanical model to fit (e.g., "Fung", "SimplifiedFung", "Schapery").
             </summary>
         </member>
-        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Commands.ExecuteExperimentalDataPipelineRequest.TargetSegments">
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Commands.ProcessBatch.ExecuteBatchExperimentalDataPipelineRequest.TargetSegments">
             <summary>
             Segment types to be processed. If empty, all segment types supported by the model are considered.
             </summary>
         </member>
-        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Commands.ExecuteExperimentalDataPipelineRequest.CurveFitterType">
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Commands.ProcessBatch.ExecuteBatchExperimentalDataPipelineRequest.CurveFitterType">
             <summary>
             Type of curve fitter algorithm to execute (e.g. Alglib or MathNet). Defaults to <see cref="F:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Models.CurveFitterType.Alglib"/>.
             </summary>
         </member>
-        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Commands.ExecuteExperimentalDataPipelineRequest.TargetRSquared">
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Commands.ProcessBatch.ExecuteBatchExperimentalDataPipelineRequest.TargetRSquared">
             <summary>
             Target R² determination coefficient specified for curve fitting optimization. Defaults to 0.99.
             </summary>
         </member>
-        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Commands.ExecuteExperimentalDataPipelineRequest.ConfidenceLevel">
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Commands.ProcessBatch.ExecuteBatchExperimentalDataPipelineRequest.ConfidenceLevel">
             <summary>
-            Desired confidence level for parameter interval estimation (e.g. 0.95 or 95.0 for 95% confidence). Defaults to 0.95.
+            Desired confidence level for parameter interval estimation (e.g. 0.95 for 95% confidence). Defaults to 0.95.
             </summary>
         </member>
-        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Commands.ExecuteExperimentalDataPipelineRequest.AsymptoteConsecutivePointsThreshold">
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Commands.ProcessBatch.ExecuteBatchExperimentalDataPipelineRequest.AsymptoteConsecutivePointsThreshold">
             <summary>
             The consecutive points threshold required to detect that a steady-state asymptote has been reached. Defaults to 5.
             </summary>
         </member>
-        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Commands.ExecuteExperimentalDataPipelineRequest.SimulationTimeStep">
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Commands.ProcessBatch.ExecuteBatchExperimentalDataPipelineRequest.SimulationTimeStep">
             <summary>
             Optional time step used during extended simulation. If omitted, defaults to the experimental time step.
             </summary>
         </member>
-        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Commands.ExecuteExperimentalDataPipelineRequest.FinalSimulationTime">
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Commands.ProcessBatch.ExecuteBatchExperimentalDataPipelineRequest.FinalSimulationTime">
             <summary>
             Optional target final simulation time.
             </summary>
         </member>
-        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Commands.ExecuteExperimentalDataPipelineRequest.DownsamplingSkipTimeStep">
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Commands.ProcessBatch.ExecuteBatchExperimentalDataPipelineRequest.DownsamplingSkipTimeStep">
             <summary>
             Optional minimal time step between consecutive points in downsampling experimental data.
             </summary>
         </member>
-        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Commands.ExecuteExperimentalDataPipelineRequest.Options">
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Commands.ProcessBatch.ExecuteBatchExperimentalDataPipelineRequest.Options">
             <summary>
             Optional processing options for segmentation tolerances and smoothing.
             </summary>
         </member>
-        <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Commands.ExecuteExperimentalDataPipelineValidator">
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Commands.ProcessBatch.ExecuteBatchExperimentalDataPipelineRequest.ExecutionMode">
             <summary>
-            Validates <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Commands.ExecuteExperimentalDataPipelineRequest"/> payloads prior to pipeline execution.
+            Execution mode: Sequential or Parallel. Defaults to <see cref="F:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Models.PipelineExecutionMode.Sequential"/>.
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Commands.ExecuteExperimentalDataPipelineValidator.Validate(MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Commands.ExecuteExperimentalDataPipelineRequest)">
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Commands.ProcessBatch.ExecuteBatchExperimentalDataPipelineRequest.MaxDegreeOfParallelism">
+            <summary>
+            Maximum degree of parallelism when executing in parallel. If null or not specified, defaults to <see cref="P:System.Environment.ProcessorCount"/>.
+            </summary>
+        </member>
+        <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Commands.ProcessBatch.ExecuteBatchExperimentalDataPipelineResponse">
+            <summary>
+            Response payload containing individual execution results for all groups processed in a batch pipeline run.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Commands.ProcessBatch.ExecuteBatchExperimentalDataPipelineResponse.Results">
+            <summary>
+            Gets the list of execution results for each group.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Commands.ProcessBatch.ExecuteBatchExperimentalDataPipelineResponse.TotalGroups">
+            <summary>
+            Gets the total number of groups in the batch.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Commands.ProcessBatch.ExecuteBatchExperimentalDataPipelineResponse.SucceededCount">
+            <summary>
+            Gets the count of groups that completed successfully.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Commands.ProcessBatch.ExecuteBatchExperimentalDataPipelineResponse.FailedCount">
+            <summary>
+            Gets the count of groups that faulted or failed.
+            </summary>
+        </member>
+        <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Commands.ProcessBatch.ExecuteBatchExperimentalDataPipelineValidator">
+            <summary>
+            Validates <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Commands.ProcessBatch.ExecuteBatchExperimentalDataPipelineRequest"/> payloads prior to batch pipeline execution.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Commands.ProcessBatch.ExecuteBatchExperimentalDataPipelineValidator.Validate(MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Commands.ProcessBatch.ExecuteBatchExperimentalDataPipelineRequest)">
+            <inheritdoc/>
+        </member>
+        <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Commands.ProcessBatch.ExperimentalDataGroupRequest">
+            <summary>
+            Represents an individual experimental data group (strain.csv and stress.csv pair) within a batch pipeline execution request.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Commands.ProcessBatch.ExperimentalDataGroupRequest.StrainFileLocation">
+            <summary>
+            Storage location URI or path for the raw experimental strain time-history CSV.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Commands.ProcessBatch.ExperimentalDataGroupRequest.StressFileLocation">
+            <summary>
+            Storage location URI or path for the raw experimental stress time-history CSV.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Commands.ProcessBatch.ExperimentalDataGroupRequest.GroupName">
+            <summary>
+            Optional group or sample name for tracking and reporting purposes.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Commands.ProcessBatch.ExperimentalDataGroupRequest.Identifier">
+            <summary>
+            Optional predefined analysis identifier. If not provided, a unique GUID-based identifier is generated.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Commands.ProcessBatch.ExperimentalDataGroupRequest.StartExperimentalTimeThreshold">
+            <summary>
+            Optional threshold time to ignore initial transient data for this specific group.
+            </summary>
+        </member>
+        <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Commands.Process.ExecuteExperimentalDataPipeline">
+            <summary>
+            Executes the experimental data processing pipeline for a single pair of stress and strain files.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Commands.Process.ExecuteExperimentalDataPipeline.#ctor(Microsoft.Extensions.Logging.ILogger{MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Commands.Process.ExecuteExperimentalDataPipeline},MelloSilveiraTools.Core.Pipelines.IPipeline{MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Pipelines.Models.ExperimentalDataProcessingInput,System.String},MelloSilveiraTools.Core.Validators.IValidator{MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Commands.Process.ExecuteExperimentalDataPipelineRequest})">
+            <summary>
+            Executes the experimental data processing pipeline for a single pair of stress and strain files.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Commands.Process.ExecuteExperimentalDataPipeline.MapToInput(MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Commands.Process.ExecuteExperimentalDataPipelineRequest)">
+            <inheritdoc/>
+        </member>
+        <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Commands.Process.ExecuteExperimentalDataPipelineRequest">
+            <summary>
+            Request payload for executing the experimental data processing and optimization pipeline via storage-backed file references.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Commands.Process.ExecuteExperimentalDataPipelineRequest.StrainFileLocation">
+            <summary>
+            Storage location URI or path for the raw experimental strain time-history CSV.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Commands.Process.ExecuteExperimentalDataPipelineRequest.StressFileLocation">
+            <summary>
+            Storage location URI or path for the raw experimental stress time-history CSV.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Commands.Process.ExecuteExperimentalDataPipelineRequest.StartExperimentalTimeThreshold">
+            <summary>
+            Optional threshold time to ignore initial transient data.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Commands.Process.ExecuteExperimentalDataPipelineRequest.Identifier">
+            <summary>
+            Optional predefined analysis identifier. If not provided, a unique GUID-based identifier is generated.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Commands.Process.ExecuteExperimentalDataPipelineRequest.MechanicalModelName">
+            <summary>
+            The name of the mechanical model to fit (e.g., "Fung", "SimplifiedFung", "Schapery").
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Commands.Process.ExecuteExperimentalDataPipelineRequest.TargetSegments">
+            <summary>
+            Segment types to be processed. If empty, all segment types supported by the model are considered.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Commands.Process.ExecuteExperimentalDataPipelineRequest.CurveFitterType">
+            <summary>
+            Type of curve fitter algorithm to execute (e.g. Alglib or MathNet). Defaults to <see cref="F:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Models.CurveFitterType.Alglib"/>.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Commands.Process.ExecuteExperimentalDataPipelineRequest.TargetRSquared">
+            <summary>
+            Target R² determination coefficient specified for curve fitting optimization. Defaults to 0.99.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Commands.Process.ExecuteExperimentalDataPipelineRequest.ConfidenceLevel">
+            <summary>
+            Desired confidence level for parameter interval estimation (e.g. 0.95 or 95.0 for 95% confidence). Defaults to 0.95.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Commands.Process.ExecuteExperimentalDataPipelineRequest.AsymptoteConsecutivePointsThreshold">
+            <summary>
+            The consecutive points threshold required to detect that a steady-state asymptote has been reached. Defaults to 5.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Commands.Process.ExecuteExperimentalDataPipelineRequest.SimulationTimeStep">
+            <summary>
+            Optional time step used during extended simulation. If omitted, defaults to the experimental time step.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Commands.Process.ExecuteExperimentalDataPipelineRequest.FinalSimulationTime">
+            <summary>
+            Optional target final simulation time.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Commands.Process.ExecuteExperimentalDataPipelineRequest.DownsamplingSkipTimeStep">
+            <summary>
+            Optional minimal time step between consecutive points in downsampling experimental data.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Commands.Process.ExecuteExperimentalDataPipelineRequest.Options">
+            <summary>
+            Optional processing options for segmentation tolerances and smoothing.
+            </summary>
+        </member>
+        <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Commands.Process.ExecuteExperimentalDataPipelineValidator">
+            <summary>
+            Validates <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Commands.Process.ExecuteExperimentalDataPipelineRequest"/> payloads prior to pipeline execution.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Commands.Process.ExecuteExperimentalDataPipelineValidator.Validate(MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Commands.Process.ExecuteExperimentalDataPipelineRequest)">
             <inheritdoc/>
         </member>
         <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Controllers.ExperimentalDataController">
             <summary>
-            Exposes HTTP endpoints for processing experimental raw data streams, polling step checkpoints,
-            retrying analyses from specific steps, and streaming real-time NDJSON progress notifications.
+            Exposes HTTP endpoints for processing experimental raw data streams,
+            executing batch analyses across multiple groups, and streaming real-time NDJSON progress notifications.
             </summary>
         </member>
         <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Controllers.ExperimentalDataController.#ctor(Microsoft.Extensions.Logging.ILogger{MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Controllers.ExperimentalDataController})">
             <summary>
-            Exposes HTTP endpoints for processing experimental raw data streams, polling step checkpoints,
-            retrying analyses from specific steps, and streaming real-time NDJSON progress notifications.
+            Exposes HTTP endpoints for processing experimental raw data streams,
+            executing batch analyses across multiple groups, and streaming real-time NDJSON progress notifications.
             </summary>
         </member>
         <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.ExperimentalDataSettings">
@@ -698,6 +893,26 @@
         <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Pipelines.Entities.MechanicalModelCurveFitOutputEntity">
             <summary>
             Database entity for mechanical model curve fit outputs.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Pipelines.Entities.MechanicalModelCurveFitOutputEntity.#ctor">
+            <summary>
+            Initializes a new instance of <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Pipelines.Entities.MechanicalModelCurveFitOutputEntity"/> for persistence mapping and deserialization.
+            </summary>
+        </member>
+        <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Pipelines.Entities.MechanicalModelCurveFitOutputFilter">
+            <summary>
+            Filter model used to query <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Pipelines.Entities.MechanicalModelCurveFitOutputEntity"/> records by external identifier and optional mechanical model name.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Pipelines.Entities.MechanicalModelCurveFitOutputFilter.ExtenalIdentifier">
+            <summary>
+            External pipeline identifier correlating the experimental run.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Pipelines.Entities.MechanicalModelCurveFitOutputFilter.MechanicalModelName">
+            <summary>
+            Optional filter by mechanical model name (e.g., "Fung", "SimplifiedFung", "Schapery").
             </summary>
         </member>
         <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Pipelines.Entities.MechanicalModelSimulationEntity">
@@ -1747,6 +1962,21 @@
             <param name="tolerance">The tolerance for comparison operations.</param>
             <returns>A stream of generated values.</returns>
         </member>
+        <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Models.PipelineExecutionMode">
+            <summary>
+            Defines the execution strategy for batch pipeline operations.
+            </summary>
+        </member>
+        <member name="F:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Models.PipelineExecutionMode.Sequential">
+            <summary>
+            Executes tasks sequentially one after another.
+            </summary>
+        </member>
+        <member name="F:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Models.PipelineExecutionMode.Parallel">
+            <summary>
+            Executes tasks concurrently in parallel with controlled degree of parallelism.
+            </summary>
+        </member>
         <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Models.Range.RangeFunction">
             <summary>
             Represents the data contract for a range of unique dimension mathematical function, f(x).
@@ -1882,106 +2112,279 @@
         <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Models.Range.RangeReducedRelaxationFunction.SlowRelaxationTime">
             <summary>Constant tau 2. Unit: s (second).</summary>
         </member>
-        <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.ParametricSweep.Commands.ExecuteParametricSweepPipeline">
+        <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.ParametricSweep.Commands.ProcessFromExperimentalData.ExecuteParametricSweepFromExperimentalDataCommand">
             <summary>
-            Application command that validates and executes a parametric sweep sensitivity analysis via <see cref="T:MelloSilveiraTools.Core.Pipelines.IPipeline`2"/>.
+            Executes parametric sweep sensitivity analyses across all fitted constitutive parameters generated from an experimental data pipeline run.
+            Supports both sequential and concurrent (parallel) execution modes with error isolation per model.
             </summary>
-            <param name="logger">The structured logger instance.</param>
-            <param name="pipeline">The parametric sweep pipeline.</param>
-            <param name="validator">Request validator for <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.ParametricSweep.Commands.ExecuteParametricSweepPipelineRequest"/>.</param>
+            <param name="logger">Structured logger instance for diagnostic and operational logging.</param>
+            <param name="repository">Database repository provider used to query fitted constitutive models.</param>
+            <param name="serviceLocator">Service locator resolving keyed model type resolvers and sweep generators.</param>
+            <param name="pipeline">Canonical parametric sweep pipeline implementation.</param>
+            <param name="validator">Request validator for <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.ParametricSweep.Commands.ProcessFromExperimentalData.ExecuteParametricSweepFromExperimentalDataRequest"/>.</param>
         </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.ParametricSweep.Commands.ExecuteParametricSweepPipeline.#ctor(Microsoft.Extensions.Logging.ILogger{MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.ParametricSweep.Commands.ExecuteParametricSweepPipeline},MelloSilveiraTools.Core.Pipelines.IPipeline{MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.ParametricSweep.Pipelines.Models.ParametricSweepPipelineInput,System.String},MelloSilveiraTools.Core.Validators.IValidator{MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.ParametricSweep.Commands.ExecuteParametricSweepPipelineRequest})">
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.ParametricSweep.Commands.ProcessFromExperimentalData.ExecuteParametricSweepFromExperimentalDataCommand.#ctor(Microsoft.Extensions.Logging.ILogger{MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.ParametricSweep.Commands.ProcessFromExperimentalData.ExecuteParametricSweepFromExperimentalDataCommand},MelloSilveiraTools.Database.Repositories.IRepository,MelloSilveiraTools.Core.Providers.ServiceLocator,MelloSilveiraTools.Core.Pipelines.IPipeline{MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.ParametricSweep.Pipelines.Models.ParametricSweepPipelineInput,System.String},MelloSilveiraTools.Core.Validators.IValidator{MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.ParametricSweep.Commands.ProcessFromExperimentalData.ExecuteParametricSweepFromExperimentalDataRequest})">
             <summary>
-            Application command that validates and executes a parametric sweep sensitivity analysis via <see cref="T:MelloSilveiraTools.Core.Pipelines.IPipeline`2"/>.
+            Executes parametric sweep sensitivity analyses across all fitted constitutive parameters generated from an experimental data pipeline run.
+            Supports both sequential and concurrent (parallel) execution modes with error isolation per model.
             </summary>
-            <param name="logger">The structured logger instance.</param>
-            <param name="pipeline">The parametric sweep pipeline.</param>
-            <param name="validator">Request validator for <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.ParametricSweep.Commands.ExecuteParametricSweepPipelineRequest"/>.</param>
+            <param name="logger">Structured logger instance for diagnostic and operational logging.</param>
+            <param name="repository">Database repository provider used to query fitted constitutive models.</param>
+            <param name="serviceLocator">Service locator resolving keyed model type resolvers and sweep generators.</param>
+            <param name="pipeline">Canonical parametric sweep pipeline implementation.</param>
+            <param name="validator">Request validator for <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.ParametricSweep.Commands.ProcessFromExperimentalData.ExecuteParametricSweepFromExperimentalDataRequest"/>.</param>
         </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.ParametricSweep.Commands.ExecuteParametricSweepPipeline.MapToInput(MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.ParametricSweep.Commands.ExecuteParametricSweepPipelineRequest)">
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.ParametricSweep.Commands.ProcessFromExperimentalData.ExecuteParametricSweepFromExperimentalDataCommand.ExecuteCommandAsync(MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.ParametricSweep.Commands.ProcessFromExperimentalData.ExecuteParametricSweepFromExperimentalDataRequest,System.Threading.CancellationToken)">
             <inheritdoc/>
         </member>
-        <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.ParametricSweep.Commands.ExecuteParametricSweepPipelineRequest">
+        <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.ParametricSweep.Commands.ProcessFromExperimentalData.ExecuteParametricSweepFromExperimentalDataRequest">
+            <summary>
+            Request payload for executing parametric sweeps on all constitutive parameters generated from an experimental data pipeline run.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.ParametricSweep.Commands.ProcessFromExperimentalData.ExecuteParametricSweepFromExperimentalDataRequest.ExperimentalDataIdentifier">
+            <summary>
+            Identifier of the experimental data pipeline run whose fitted constitutive parameters are to be analyzed.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.ParametricSweep.Commands.ProcessFromExperimentalData.ExecuteParametricSweepFromExperimentalDataRequest.MechanicalModelName">
+            <summary>
+            Optional mechanical model filter (e.g., "Fung", "SimplifiedFung", "Schapery"). When omitted, all fitted models for the experiment are analyzed.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.ParametricSweep.Commands.ProcessFromExperimentalData.ExecuteParametricSweepFromExperimentalDataRequest.ConstantVariables">
+            <summary>
+            Ranges for constant scalar variables.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.ParametricSweep.Commands.ProcessFromExperimentalData.ExecuteParametricSweepFromExperimentalDataRequest.ArrayVariables">
+            <summary>
+            Ranges for array-based variables.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.ParametricSweep.Commands.ProcessFromExperimentalData.ExecuteParametricSweepFromExperimentalDataRequest.BaseStrain">
+            <summary>
+            Baseline strain applied in the mechanical simulation when strain is not the swept variable.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.ParametricSweep.Commands.ProcessFromExperimentalData.ExecuteParametricSweepFromExperimentalDataRequest.StrainRange">
+            <summary>
+            Range of strain to be applied in the mechanical simulation.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.ParametricSweep.Commands.ProcessFromExperimentalData.ExecuteParametricSweepFromExperimentalDataRequest.RampTimeConsideration">
+            <summary>
+            Optional configuration for ramp time consideration. If not specified, the fitted model's original ramp time consideration is used.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.ParametricSweep.Commands.ProcessFromExperimentalData.ExecuteParametricSweepFromExperimentalDataRequest.RampTime">
+            <summary>
+            Duration of the initial loading ramp, if applicable.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.ParametricSweep.Commands.ProcessFromExperimentalData.ExecuteParametricSweepFromExperimentalDataRequest.InitialTime">
+            <summary>
+            Initial time to evaluate the initial stress.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.ParametricSweep.Commands.ProcessFromExperimentalData.ExecuteParametricSweepFromExperimentalDataRequest.TimeStep">
+            <summary>
+            Time step increment for the simulation.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.ParametricSweep.Commands.ProcessFromExperimentalData.ExecuteParametricSweepFromExperimentalDataRequest.FinalTime">
+            <summary>
+            Final time of the simulation.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.ParametricSweep.Commands.ProcessFromExperimentalData.ExecuteParametricSweepFromExperimentalDataRequest.RootFindingAlgorithm">
+            <summary>
+            Root-finding algorithm used to locate steady-state relaxation asymptotes.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.ParametricSweep.Commands.ProcessFromExperimentalData.ExecuteParametricSweepFromExperimentalDataRequest.BaseRootFindingInput">
+            <summary>
+            Base root-finding configuration parameters for asymptote detection.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.ParametricSweep.Commands.ProcessFromExperimentalData.ExecuteParametricSweepFromExperimentalDataRequest.ExecutionMode">
+            <summary>
+            Execution strategy: Sequential (default) or Parallel.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.ParametricSweep.Commands.ProcessFromExperimentalData.ExecuteParametricSweepFromExperimentalDataRequest.MaxDegreeOfParallelism">
+            <summary>
+            Maximum degree of parallelism when executing concurrently. Defaults to processor count if omitted or non-positive.
+            </summary>
+        </member>
+        <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.ParametricSweep.Commands.ProcessFromExperimentalData.ExecuteParametricSweepFromExperimentalDataResponse">
+            <summary>
+            Response payload returned after executing parametric sweeps across constitutive models from an experimental data run.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.ParametricSweep.Commands.ProcessFromExperimentalData.ExecuteParametricSweepFromExperimentalDataResponse.Results">
+            <summary>
+            Detailed execution results for each swept constitutive model.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.ParametricSweep.Commands.ProcessFromExperimentalData.ExecuteParametricSweepFromExperimentalDataResponse.TotalSweeps">
+            <summary>
+            Total number of constitutive models evaluated.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.ParametricSweep.Commands.ProcessFromExperimentalData.ExecuteParametricSweepFromExperimentalDataResponse.SucceededCount">
+            <summary>
+            Number of parametric sweeps that succeeded.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.ParametricSweep.Commands.ProcessFromExperimentalData.ExecuteParametricSweepFromExperimentalDataResponse.FailedCount">
+            <summary>
+            Number of parametric sweeps that failed.
+            </summary>
+        </member>
+        <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.ParametricSweep.Commands.ProcessFromExperimentalData.ExecuteParametricSweepFromExperimentalDataValidator">
+            <summary>
+            Validates <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.ParametricSweep.Commands.ProcessFromExperimentalData.ExecuteParametricSweepFromExperimentalDataRequest"/> payloads prior to parametric sweep execution.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.ParametricSweep.Commands.ProcessFromExperimentalData.ExecuteParametricSweepFromExperimentalDataValidator.Validate(MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.ParametricSweep.Commands.ProcessFromExperimentalData.ExecuteParametricSweepFromExperimentalDataRequest)">
+            <inheritdoc/>
+        </member>
+        <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.ParametricSweep.Commands.ProcessFromExperimentalData.ParametricSweepExecutionResult">
+            <summary>
+            Represents the outcome of executing a parametric sweep for a specific fitted mechanical model.
+            </summary>
+            <param name="CurveFitOutputIdentifier">Unique identifier of the source curve fit output record.</param>
+            <param name="MechanicalModelName">Name of the mechanical model evaluated.</param>
+            <param name="SweepIdentifier">The unique identifier of the executed parametric sweep pipeline run, or null if execution failed.</param>
+            <param name="Success">Indicates whether the parametric sweep completed successfully.</param>
+            <param name="ErrorMessage">Contextual error message explaining the failure when unsuccessful.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.ParametricSweep.Commands.ProcessFromExperimentalData.ParametricSweepExecutionResult.#ctor(System.String,System.String,System.String,System.Boolean,System.String)">
+            <summary>
+            Represents the outcome of executing a parametric sweep for a specific fitted mechanical model.
+            </summary>
+            <param name="CurveFitOutputIdentifier">Unique identifier of the source curve fit output record.</param>
+            <param name="MechanicalModelName">Name of the mechanical model evaluated.</param>
+            <param name="SweepIdentifier">The unique identifier of the executed parametric sweep pipeline run, or null if execution failed.</param>
+            <param name="Success">Indicates whether the parametric sweep completed successfully.</param>
+            <param name="ErrorMessage">Contextual error message explaining the failure when unsuccessful.</param>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.ParametricSweep.Commands.ProcessFromExperimentalData.ParametricSweepExecutionResult.CurveFitOutputIdentifier">
+            <summary>Unique identifier of the source curve fit output record.</summary>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.ParametricSweep.Commands.ProcessFromExperimentalData.ParametricSweepExecutionResult.MechanicalModelName">
+            <summary>Name of the mechanical model evaluated.</summary>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.ParametricSweep.Commands.ProcessFromExperimentalData.ParametricSweepExecutionResult.SweepIdentifier">
+            <summary>The unique identifier of the executed parametric sweep pipeline run, or null if execution failed.</summary>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.ParametricSweep.Commands.ProcessFromExperimentalData.ParametricSweepExecutionResult.Success">
+            <summary>Indicates whether the parametric sweep completed successfully.</summary>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.ParametricSweep.Commands.ProcessFromExperimentalData.ParametricSweepExecutionResult.ErrorMessage">
+            <summary>Contextual error message explaining the failure when unsuccessful.</summary>
+        </member>
+        <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.ParametricSweep.Commands.Process.ExecuteParametricSweepPipeline">
+            <summary>
+            Application command that validates and executes a parametric sweep sensitivity analysis via <see cref="T:MelloSilveiraTools.Core.Pipelines.IPipeline`2"/>.
+            </summary>
+            <param name="logger">The structured logger instance.</param>
+            <param name="pipeline">The parametric sweep pipeline.</param>
+            <param name="validator">Request validator for <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.ParametricSweep.Commands.Process.ExecuteParametricSweepPipelineRequest"/>.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.ParametricSweep.Commands.Process.ExecuteParametricSweepPipeline.#ctor(Microsoft.Extensions.Logging.ILogger{MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.ParametricSweep.Commands.Process.ExecuteParametricSweepPipeline},MelloSilveiraTools.Core.Pipelines.IPipeline{MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.ParametricSweep.Pipelines.Models.ParametricSweepPipelineInput,System.String},MelloSilveiraTools.Core.Validators.IValidator{MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.ParametricSweep.Commands.Process.ExecuteParametricSweepPipelineRequest})">
+            <summary>
+            Application command that validates and executes a parametric sweep sensitivity analysis via <see cref="T:MelloSilveiraTools.Core.Pipelines.IPipeline`2"/>.
+            </summary>
+            <param name="logger">The structured logger instance.</param>
+            <param name="pipeline">The parametric sweep pipeline.</param>
+            <param name="validator">Request validator for <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.ParametricSweep.Commands.Process.ExecuteParametricSweepPipelineRequest"/>.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.ParametricSweep.Commands.Process.ExecuteParametricSweepPipeline.MapToInput(MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.ParametricSweep.Commands.Process.ExecuteParametricSweepPipelineRequest)">
+            <inheritdoc/>
+        </member>
+        <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.ParametricSweep.Commands.Process.ExecuteParametricSweepPipelineRequest">
             <summary>
             Request payload for executing a Parametric Sweep sensitivity analysis via the Command pattern.
             </summary>
         </member>
-        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.ParametricSweep.Commands.ExecuteParametricSweepPipelineRequest.Identifier">
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.ParametricSweep.Commands.Process.ExecuteParametricSweepPipelineRequest.Identifier">
             <summary>
             Optional predefined analysis identifier. If not provided, a unique GUID-based identifier is generated.
             </summary>
         </member>
-        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.ParametricSweep.Commands.ExecuteParametricSweepPipelineRequest.MechanicalModelName">
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.ParametricSweep.Commands.Process.ExecuteParametricSweepPipelineRequest.MechanicalModelName">
             <summary>
             Gets the name of the mechanical model to be evaluated (e.g., "Maxwell", "Fung", "SimplifiedFung", "Schapery").
             </summary>
         </member>
-        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.ParametricSweep.Commands.ExecuteParametricSweepPipelineRequest.Baseline">
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.ParametricSweep.Commands.Process.ExecuteParametricSweepPipelineRequest.Baseline">
             <summary>
             Gets the baseline constitutive parameters.
             </summary>
         </member>
-        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.ParametricSweep.Commands.ExecuteParametricSweepPipelineRequest.ConstantVariables">
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.ParametricSweep.Commands.Process.ExecuteParametricSweepPipelineRequest.ConstantVariables">
             <summary>
             Gets the ranges for constant scalar variables.
             </summary>
         </member>
-        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.ParametricSweep.Commands.ExecuteParametricSweepPipelineRequest.ArrayVariables">
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.ParametricSweep.Commands.Process.ExecuteParametricSweepPipelineRequest.ArrayVariables">
             <summary>
             Gets the ranges for array-based variables.
             </summary>
         </member>
-        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.ParametricSweep.Commands.ExecuteParametricSweepPipelineRequest.BaseStrain">
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.ParametricSweep.Commands.Process.ExecuteParametricSweepPipelineRequest.BaseStrain">
             <summary>
             Gets the baseline strain applied in the mechanical simulation when strain is not the swept variable.
             </summary>
         </member>
-        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.ParametricSweep.Commands.ExecuteParametricSweepPipelineRequest.StrainRange">
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.ParametricSweep.Commands.Process.ExecuteParametricSweepPipelineRequest.StrainRange">
             <summary>
             Gets the range of strain to be applied in the mechanical simulation.
             </summary>
         </member>
-        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.ParametricSweep.Commands.ExecuteParametricSweepPipelineRequest.RampTimeConsideration">
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.ParametricSweep.Commands.Process.ExecuteParametricSweepPipelineRequest.RampTimeConsideration">
             <summary>
             Gets the configuration for how ramp time is considered in the simulation.
             </summary>
         </member>
-        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.ParametricSweep.Commands.ExecuteParametricSweepPipelineRequest.RampTime">
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.ParametricSweep.Commands.Process.ExecuteParametricSweepPipelineRequest.RampTime">
             <summary>
             Gets the duration of the initial loading ramp, if applicable.
             </summary>
         </member>
-        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.ParametricSweep.Commands.ExecuteParametricSweepPipelineRequest.InitialTime">
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.ParametricSweep.Commands.Process.ExecuteParametricSweepPipelineRequest.InitialTime">
             <summary>
             Gets the initial time to evaluate the initial stress.
             </summary>
         </member>
-        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.ParametricSweep.Commands.ExecuteParametricSweepPipelineRequest.TimeStep">
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.ParametricSweep.Commands.Process.ExecuteParametricSweepPipelineRequest.TimeStep">
             <summary>
             Gets the time step increment for the simulation.
             </summary>
         </member>
-        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.ParametricSweep.Commands.ExecuteParametricSweepPipelineRequest.FinalTime">
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.ParametricSweep.Commands.Process.ExecuteParametricSweepPipelineRequest.FinalTime">
             <summary>
             Gets the final time of the simulation.
             </summary>
         </member>
-        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.ParametricSweep.Commands.ExecuteParametricSweepPipelineRequest.RootFindingAlgorithm">
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.ParametricSweep.Commands.Process.ExecuteParametricSweepPipelineRequest.RootFindingAlgorithm">
             <summary>
             Gets the root-finding algorithm used to locate steady-state relaxation asymptotes.
             </summary>
         </member>
-        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.ParametricSweep.Commands.ExecuteParametricSweepPipelineRequest.BaseRootFindingInput">
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.ParametricSweep.Commands.Process.ExecuteParametricSweepPipelineRequest.BaseRootFindingInput">
             <summary>
             Gets the base root-finding configuration parameters for asymptote detection.
             </summary>
         </member>
-        <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.ParametricSweep.Commands.ExecuteParametricSweepValidator">
+        <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.ParametricSweep.Commands.Process.ExecuteParametricSweepValidator">
             <summary>
-            Validates <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.ParametricSweep.Commands.ExecuteParametricSweepPipelineRequest"/> payloads prior to parametric sweep execution.
+            Validates <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.ParametricSweep.Commands.Process.ExecuteParametricSweepPipelineRequest"/> payloads prior to parametric sweep execution.
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.ParametricSweep.Commands.ExecuteParametricSweepValidator.Validate(MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.ParametricSweep.Commands.ExecuteParametricSweepPipelineRequest)">
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.ParametricSweep.Commands.Process.ExecuteParametricSweepValidator.Validate(MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.ParametricSweep.Commands.Process.ExecuteParametricSweepPipelineRequest)">
             <inheritdoc/>
         </member>
         <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.ParametricSweep.Controllers.ParametricSweepController">

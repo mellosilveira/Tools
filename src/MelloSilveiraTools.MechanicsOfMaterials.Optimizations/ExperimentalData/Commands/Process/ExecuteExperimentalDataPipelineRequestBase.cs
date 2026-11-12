@@ -2,33 +2,10 @@ using MelloSilveiraTools.Core.Application.Commands;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Models;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Pipelines.Models;
 
-namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Commands;
+namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Commands.Process;
 
-/// <summary>
-/// Request payload for executing the experimental data processing and optimization pipeline via storage-backed file references.
-/// </summary>
-public record ExecuteExperimentalDataPipelineRequest : RequestBase
+public record ExecuteExperimentalDataPipelineRequestBase : RequestBase
 {
-    /// <summary>
-    /// Storage location URI or path for the raw experimental strain time-history CSV.
-    /// </summary>
-    public required string StrainFileLocation { get; init; }
-
-    /// <summary>
-    /// Storage location URI or path for the raw experimental stress time-history CSV.
-    /// </summary>
-    public required string StressFileLocation { get; init; }
-
-    /// <summary>
-    /// Optional threshold time to ignore initial transient data.
-    /// </summary>
-    public double? StartExperimentalTimeThreshold { get; init; }
-
-    /// <summary>
-    /// Optional predefined analysis identifier. If not provided, a unique GUID-based identifier is generated.
-    /// </summary>
-    public string? Identifier { get; init; }
-
     /// <summary>
     /// The name of the mechanical model to fit (e.g., "Fung", "SimplifiedFung", "Schapery").
     /// </summary>
