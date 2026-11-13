@@ -25,10 +25,10 @@ public static class WebApiDependencyInjection
     /// Registers Web API services: API service agent resilience pipeline.
     /// </summary>
     /// <param name="services">Service collection that receives the registrations.</param>
-    /// <param name="resiliencePipelineSettings">Settings that parameterize the resilience pipelines.</param>
+    /// <param name="defaultResiliencePipelineSettings">Settings that parameterize the resilience pipelines.</param>
     /// <returns>The same <paramref name="services"/> instance to allow call chaining.</returns>
-    public static IServiceCollection AddWebApiServices(this IServiceCollection services, ResiliencePipelineSettings resiliencePipelineSettings) => services
-        .AddSingleton(provider => new ApiServiceAgentResiliencePipeline(provider.GetRequiredService<ILogger<ApiServiceAgentResiliencePipeline>>(), resiliencePipelineSettings))
+    public static IServiceCollection AddWebApiServices(this IServiceCollection services, ResiliencePipelineSettings defaultResiliencePipelineSettings) => services
+        .AddSingleton(provider => new ApiServiceAgentResiliencePipeline(provider.GetRequiredService<ILogger<ApiServiceAgentResiliencePipeline>>(), defaultResiliencePipelineSettings))
         // Register generic CRUD operations as open generics so any TEntity / TFilter pair resolves
         // through DI without per-entity registrations. Both CrudController<TEntity, TFilter> and
         // the MapCrud<TEntity, TFilter> minimal-API extension consume them.

@@ -1,4 +1,6 @@
+using MelloSilveiraTools.Core.Models;
 using MelloSilveiraTools.Mathematics.Models.NumericalMethods;
+using Microsoft.Extensions.Logging;
 
 namespace MelloSilveiraTools.Mathematics.NumericalMethods.RootFindingAlgorithms;
 
@@ -6,10 +8,26 @@ namespace MelloSilveiraTools.Mathematics.NumericalMethods.RootFindingAlgorithms;
 /// Base class providing standardized error reporting and execution scaffolding for root-finding algorithms.
 /// Solves for balance points, zero-crossing thresholds, or parameter calibrations where opposing terms reach equilibrium.
 /// </summary>
-public abstract class RootFinding : IRootFinding
+/// <param name="logger">Optional logger for telemetry and failure reporting.</param>
+public abstract class RootFinding(ILogger? logger = null) : IRootFinding
 {
     /// <inheritdoc/>
     public abstract (double Root, double Error) FindRoot(RootFindingInput input, Func<double, double> function);
+
+    /// <inheritdoc/>
+    public Result<(double Root, double Error)> TryFindRoot(RootFindingInput input, Func<double, double> function)
+    {
+        try
+        {
+            (double Root, double Error) result = FindRoot(input, function);
+            return Result.CreateSuccessOk(result);
+        }
+        catch (Exception ex)
+        {
+            logger?.LogError(ex, "Failed to converge to root for function. Algorithm: {Algorithm}, InitialPoint: {InitialPoint}, FinalPoint: {FinalPoint}.", GetType().Name, input.InitialPoint, input.FinalPoint);
+            return Result.CreateUnknownError(ex.Message);
+        }
+    }
 
     /// <summary>
     /// Creates an exception when the algorithm cannot reach the desired convergence criteria within limits.

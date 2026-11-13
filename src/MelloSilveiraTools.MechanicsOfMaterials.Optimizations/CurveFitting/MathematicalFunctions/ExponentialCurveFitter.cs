@@ -5,7 +5,7 @@ using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Models;
 
 namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.MathematicalFunctions;
 
-public sealed class ExponentialCurveFitter(ICurveFitter curveFitter) : IMathematicalFunctionCurveFitter
+public sealed class ExponentialCurveFitter(ICurveFitter curveFitter) : IFunctionCurveFitter
 {
     public SafeResult<CurveFitInput, CurveFitOutput> TryFit(MathematicalCurveFitInput input)
     {
@@ -31,7 +31,8 @@ public sealed class ExponentialCurveFitter(ICurveFitter curveFitter) : IMathemat
                 Tolerance = input.Tolerance,
                 Profile = input.Profile,
                 ValidateParameters = input.ValidateParameters,
-                TargetRSquared = input.TargetRSquared
+                TargetRSquared = input.TargetRSquared,
+                ConfidenceLevel = input.ConfidenceLevel
             };
 
             return curveFitter.Fit(fitInput);
@@ -48,10 +49,9 @@ public sealed class ExponentialCurveFitter(ICurveFitter curveFitter) : IMathemat
             return input.InitialParameters;
 
         double[] initialParameters = new double[parameterCount];
-        for (int i = 0; i < input.NumberOfParameters; i++)
-            initialParameters[2 * i] = 1.0;
+        for (int i = 0; i < parameterCount; i++)
+            initialParameters[i] = i % 2 == 0 ? 1.0 : -1.0;
 
         return initialParameters;
     }
 }
-

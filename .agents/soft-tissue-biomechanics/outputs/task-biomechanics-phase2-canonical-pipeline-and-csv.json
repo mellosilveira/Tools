@@ -1,0 +1,26 @@
+{
+  "task_id": "task-biomechanics-phase2-canonical-pipeline-and-csv",
+  "skill": "senior-backend-software-engineer-net",
+  "status": "success",
+  "retry_count": 0,
+  "data_payload": {
+    "modified_files": [
+      "src/MelloSilveiraTools.MechanicsOfMaterials.Optimizations/Pipelines/ExperimentalData/Commands/ProcessExperimentalDataCommand.cs",
+      "src/MelloSilveiraTools.MechanicsOfMaterials.Optimizations/SensitivityAnalyses/Commands/ExecuteParametricSweepCommand.cs",
+      "src/MelloSilveiraTools.MechanicsOfMaterials.Optimizations/DependencyInjection.cs",
+      "src/MelloSilveiraTools.MechanicsOfMaterials.Optimizations/Pipelines/SensitivityAnalysis/Steps/ParametricSweepCsvWriterStep.cs",
+      "src/MelloSilveiraTools.MechanicsOfMaterials.Optimizations/Pipelines/SensitivityAnalysis/Steps/ParametricSweepPersistenceStep.cs",
+      "src/MelloSilveiraTools.MechanicsOfMaterials.Optimizations/Pipelines/ExperimentalData/Steps/CurveFitter/MechanicalModelCurveFitterStepBase.cs",
+      "src/MelloSilveiraTools.MechanicsOfMaterials.Optimizations/Controllers/ParametricSweepController.cs",
+      "src/MelloSilveiraTools.MechanicsOfMaterials.Optimizations/Controllers/ExperimentalDataController.cs"
+    ],
+    "build_status": "Build succeeded with 0 errors (dotnet build src/MelloSilveiraTools.MechanicsOfMaterials.Optimizations/MelloSilveiraTools.MechanicsOfMaterials.Optimizations.csproj)",
+    "changelog_entry": "### Added\n- Canonical generic pipeline injection (`IPipeline<ExperimentalDataProcessingInput, string>` and `IPipeline<ParametricSweepInput, string>`) replacing obsolete sub-interfaces in `ProcessExperimentalDataCommand` and `ExecuteParametricSweepCommand`.\n- Partitioned OAAT Sensitivity Analysis CSV serialization grouped by `VariableName` in `ParametricSweepCsvWriterStep` emitting `{VariableName}_SensitivityAnalysis.csv` under storage context `SensitivityAnalysis`.\n- Standardized 6-column CSV schema: `VariableValue,InitialStress,FinalStress,AbsoluteDeltaStress,PercentageDeltaStress,AsymptoteTime`.\n- Canonical singleton pipeline registrations in `DependencyInjection.AddOptimizationsServices`.\n\n### Fixed\n- Resolved argument ordering in `StorageEntryMetadataEntity.Create(fileMetadata, externalIdentifier)` within `ParametricSweepPersistenceStep`.\n- Aligned `MechanicalModelCurveFitterStepBase` factory invocation with `MechanicalModelCurveFitOutput` parameter signature.\n- Aligned `ParametricSweepController` and `ExperimentalDataController` invocation with `PipelineProgressStreamWriter`."
+  },
+  "output_summary": "Injeção canônica implementada nos comandos ProcessExperimentalDataCommand e ExecuteParametricSweepCommand via IPipeline<TIn, TOut>, registro Singleton canônico no DependencyInjection.cs e particionamento de CSVs OAAT por VariableName com o esquema estrito de 6 colunas em ParametricSweepCsvWriterStep. Compilação de produção validada com 0 erros.",
+  "justification_for_decisions": "1. Injeção Canônica: Conforme o item 2.1 do plano e convenção de interfaces do ecossistema, os comandos agora consomem diretamente IPipeline<TIn, TOut>, eliminando sub-interfaces desnecessárias (ISP/KISS). 2. Particionamento e Agrupamento OAAT: O ParametricSweepCsvWriterStep agora organiza o fluxo de dados em arquivos segregados por variável ({VariableName}_SensitivityAnalysis.csv) mantendo concorrência segura com TaskCompletionSource e semáforos assíncronos por arquivo, além de fornecer sobrecarga de coleção para execução em lote e cálculo exato de metadados pós-disposal. 3. Schema Estrito de 6 Colunas: Cabeçalho 'VariableValue,InitialStress,FinalStress,AbsoluteDeltaStress,PercentageDeltaStress,AsymptoteTime' formatado com CultureInfo invariant e formato geral (:G) para garantir precisão e interoperabilidade com o frontend. 4. BCL e Código Estrito: 100% livre do uso de 'var', coleções com expressões [...], primary constructors e documentação XML pública.",
+  "artifacts": [],
+  "warnings": [],
+  "token_usage": 0,
+  "theoretical_precision": "high"
+}

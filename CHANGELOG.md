@@ -5,6 +5,184 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [UNRELEASED]
+### Added: Biomechanics Canonical Pipeline Injections & OAAT CSV Partitioning (Phase 2)
+- Replaced obsolete sub-interfaces with canonical generic pipeline injections (`IPipeline<ExperimentalDataProcessingInput, string>` and `IPipeline<ParametricSweepInput, string>`) in `ProcessExperimentalDataCommand` and `ExecuteParametricSweepCommand`.
+- Partitioned OAAT Sensitivity Analysis CSV serialization grouped by `VariableName` in `ParametricSweepCsvWriterStep`, streaming `{VariableName}_SensitivityAnalysis.csv` under the `SensitivityAnalysis` storage context.
+- Standardized 6-column sensitivity CSV schema: `VariableValue,InitialStress,FinalStress,AbsoluteDeltaStress,PercentageDeltaStress,AsymptoteTime`.
+- Registered canonical singleton pipelines in `DependencyInjection.AddOptimizationsServices`.
+
+### Security & Cross-Platform Portability (Storage & Encryption - Phase 2)
+- Replaced `Microsoft.AspNetCore.Cryptography.KeyDerivation.KeyDerivation.Pbkdf2` in `EncryptionService.cs` with BCL standard `System.Security.Cryptography.Rfc2898DeriveBytes.Pbkdf2`, eliminating ASP.NET Core runtime dependency in core encryption [FINDING-02].
+- Hardened `LocalFileStorageService.cs` against path traversal attacks by introducing strict validation against traversal segments (`..`), path separators (`/`, `\\`), control/dangerous characters, and reserved device names across identifier, context, and file names [FINDING-07].
+- Added `FileStorageSettings.CanonicalizePath` and automatic canonicalization in `LocalFileStorageSettings.cs` to resolve relative paths against a secure application directory rather than working directories like System32 or '/' [FINDING-06].
+- Configured `EnumerationOptions` with `MatchCasing.CaseInsensitive` in `LocalFileStorageService.cs` and `PluginFileProcessor.cs`, preventing filesystem casing collisions on Linux ext4 [FINDING-08].
+- Adopted `LastWriteTimeUtc` instead of `CreationTimeUtc` in `LocalFileStorageService.cs` for reliable cross-platform POSIX file metadata [FINDING-14].
+
+### Added: Biomechanics Variable Relationship Models & Notification Modes
+- Added `ProgressNotificationMode` enum (`None = 0`, `StreamNdjson = 1`, `MessageQueue = 2`) in `MelloSilveiraTools.Core.Pipelines.Notifiers` to decouple pipeline execution from delivery transport.
+- Added domain models for variable relationship explorations under `MelloSilveiraTools.MechanicsOfMaterials.Optimizations.VariableRelationships.Models`:
+  - `ParameterBound`: Encapsulates parameter names, lower/upper boundaries, and discretization steps.
+  - `VariableCombinationPoint`: Encapsulates evaluated parameter combinations, calculated stresses, and residuals.
+  - `VariableRelationshipInput`: Encapsulates target stress, target time, tolerance threshold, parameter boundaries, and notification mode.
+  - `VariableRelationshipOutput`: Encapsulates correlation identifier, valid combinations, and CSV file metadata (`StorageEntryMetadata`).
+
+### Fixed: Portability Hotfixes (Phase 1)
+- Explicit Invariant Culture Parsing (`MelloSilveiraTools.Mathematics`):
+  - Updated `Vector3D.Parse` and `Vector3D.TryParse` to explicitly pass `CultureInfo.InvariantCulture` across all coordinate `double.Parse` invocations, preventing `FormatException` or incorrect numerical parsing in locales using comma decimal separators (e.g., pt-BR, de-DE) [FINDING-10].
+  - Updated `Vector3D.ToString` to format coordinates using `CultureInfo.InvariantCulture` via `string.Create(CultureInfo.InvariantCulture, $"{X},{Y},{Z}")`, guaranteeing roundtrip consistency across cultures.
+  - Added comprehensive XML documentation to all `Vector3D` coordinate construction, parsing, and serialization methods.
+  - Added unit test suite `Vector3DTests` in `test/UnitTests/Mathematics/Models/Vector3DTests.cs` verifying culture-invariant parsing and formatting under Portuguese (`pt-BR`) and English (`en-US`) thread cultures.
+- Cache Persistence Stream Scoping & Windows Sharing Violation Elimination (`MelloSilveiraTools.Plugins`):
+  - Scoped `Stream` and `Utf8JsonWriter` instances in `JsonFilePluginCachePersistence.SaveAsync` within explicit nested `await using` blocks, guaranteeing that `writer` flushes and disposes and `stream` is completely flushed and closed prior to completing asynchronous execution, eliminating file handle leaks and Windows file sharing lock violations (`ERROR_SHARING_VIOLATION`) [FINDING-01].
+- Plugin Orchestration Canonical Destination Partition Validation (`MelloSilveiraTools.Plugins`):
+  - Validated and documented `PluginFileProcessor.MoveToMainFolderAsync` routing to the canonical `PluginStoragePartitions.Incoming` partition (correcting the legacy folder targeting) with complete XML documentation [FINDING-05].
+
+- PipelineFactory Singleton Refactoring & DI Registration (`MelloSilveiraTools.Core.Pipelines`):
+  - Refactored `PipelineFactory` from a static helper class into a stateful, singleton service (`PipelineFactory(IPipelineProgressNotifier progressNotifier, TimeProvider timeProvider)`).
+  - Configured `PipelineFactory` as a singleton in `CoreDependencyInjection.AddCoreServices` (`services.AddSingleton<PipelineFactory>()`).
+  - Standardized `IPipelineProgressNotifier` registration as a singleton across both modes (`ChannelPipelineProgressNotifier` when `enablePipelineProgressNotifications: true` and `NullPipelineProgressNotifier.Instance` when `false`), preventing captive dependency exceptions when injected into singleton `PipelineFactory`.
+  - Updated downstream domain pipelines (`ExperimentalDataProcessingPipeline`, `ParametricSweepPipeline`) to inject `PipelineFactory` as a constructor dependency instead of invoking static methods.
+- CSV Serialization Modernization (`MelloSilveiraTools.MechanicsOfMaterials`):
+  - Refactored `MechanicalModelOutputCsvFileWriter` to encapsulate `CsvFileWriter` from `MelloSilveiraTools.Core.Managers.File.Csv`, standardizing buffered batch emission and stream disposal across output writers.
+  - Implemented unboxed compiled expression tree getters (`Func<MechanicalModelOutput, double?>`) cached in a static `ConcurrentDictionary`, eliminating reflection and value-type boxing overhead during row serialization.
+  - Added multi-source constructor supporting arbitrary writable `Stream` instances alongside physical filesystem destinations.
+  - Integrated `TimeProvider` support for deterministic timestamp generation in generated file names.
+  - Implemented dual-disposal (`IAsyncDisposable` and `IDisposable`).
+- Numerical Simulation Step Consolidation & Multi-Segment Mechanical Optimization (`MelloSilveiraTools.MechanicsOfMaterials.Optimizations`):
+  - Unified `NumericalSimulationStep`, `AsymptoteMonitoringStep`, `DeltaCalculatorStep`, and `MechanicalModelOutputFileWriterStep` into a single high-performance pipeline step (`NumericalSimulationStep`).
+  - Implemented segment-aware generic input building:
+    - Constructs distinct `GenericMechanicalModelInput` instances per `CurveSegment`, mutating only `Strain`.
+    - `Ramp` and `Descent` segments synthesize dynamic kinematic histories via `new MechanicalParameter(initialStrain, new PolynomialFunction([0, (finalStrain - initialStrain) / rampTime.Value]))`.
+    - `Relaxation` and `Recovery` segments synthesize constant kinematic boundary conditions via `new MechanicalParameter(initialStrain)`.
+  - Streamed zero-reflection simulation calculations directly to CSV storage:
+    - Pre-compiles property getters via expression trees mapped to runtime output projections.
+    - Evaluates model output per time step against experimental data, computing absolute stress deltas (`simulated - experimental`) and percentage stress deltas (`simulated.PercentageDifference(experimental)`).
+    - Serializes CSV headers: `Time`, `RealStress`, `AbsoluteDifference`, `PercentageDifference`, followed by model output projection properties.
+  - Conditional asymptotic steady-state convergence: evaluates asymptote time only when extrapolation is requested (`finalSimulationTime != null`) and the final segment represents a viscoelastic relaxation or recovery phase (`Relaxation` or `Recovery`).
+  - Removed obsolete legacy step classes (`AsymptoteMonitoringStep`, `DeltaCalculatorStep`, `MechanicalModelOutputFileWriterStep`) following complete unification into `NumericalSimulationStep`.
+- Mandatory `TimeProvider` Adoption for Temporal Operations & Unit Testing Determinism:
+  - Replaced ambient `DateTimeOffset.UtcNow` invocations across all libraries with mandatory, non-nullable `TimeProvider` dependencies (`timeProvider.GetUtcNow()`).
+  - `TimeProvider` is non-optional and required via constructor injection in:
+    - Core: `FileStorageServiceBase`, `LocalFileStorageService`, `DfsFileStorageService`, `AwsS3FileStorageService`, `BlobStorageFileStorageService`, `PipelineStepTracker`, `DataflowPipelineBuilder`, `PipelineFactory`.
+    - WebApi: `AuthenticationJweTokenService`.
+    - Plugins: `PluginAssemblyProcessor`, `PluginOrchestratorBackgroundService`, `RegisteredPlugin.MarkTypeLoaded`.
+    - Optimizations: `PipelineProgressStreamWriter`, `ExperimentalDataProcessingPipeline`, `ParametricSweepPipeline`.
+  - Registered `TimeProvider.System` as singleton in `CoreDependencyInjection.AddCoreServices` and defensively via `TryAddSingleton(TimeProvider.System)` in `PluginsDependencyInjection.AddPluginServices`.
+  - Fully decoupled time-sensitive logic from system clocks, enabling mockable and fake time providers in unit tests.
+- Pipeline File Persistence Simplification & Accidental Complexity Removal:
+  - Consolidated single entry-point DI registration in `MelloSilveiraTools` meta-package (`AddToolsServices`).
+  - Renamed the multi-step broadcast branch overload from `AddBroadcastStep` to `AddBroadcastFork` in `IDataflowPipelineBuilder` and `DataflowPipelineBuilder`, clearly distinguishing side-effect observer steps (`AddBroadcastStep`) from concurrent branch forks (`AddBroadcastFork`).
+  - Enforced Command Pattern convention prohibiting `CancellationToken` in Request DTOs: removed `CancellationToken` property from `ExecuteParametricSweepRequest`, updated `ExecuteParametricSweepCommand` to consume the parameter passed directly to `ExecuteCommandAsync(request, cancellationToken)`, and simplified `ParametricSweepController` invocations.
+  - Eager DFS Storage Settings Validation in Dependency Injection: moved DFS settings validation completely out of `DfsFileStorageService` and into `CoreDependencyInjection.AddCoreServices`, keeping the service class lean and focused while guaranteeing that applications fail fast at startup if DFS path or operating system compatibility configurations are invalid.
+  - Unified file persistence steps across experimental and sensitivity analysis pipelines (`StoredFilePersistenceStep`, `ExperimentalDataFileWriterStep`, `MechanicalModelOutputFileWriterStep`, `ParametricSweepCsvWriterStep`).
+  - Standardized expression-bodied members (`=>`) for single-expression methods across pipeline builders and executors.
+  - Symmetrized `IPipelineProgressNotifier.Complete` to return `bool`, matching underlying `ChannelWriter.TryComplete`.
+- Pipeline Progress Notifier, DAG Topology Correlation & Item-Level Progress Tracking (`MelloSilveiraTools.Core.Pipelines`):
+  - Created `PipelineProgressNotificationSettings` in `MelloSilveiraTools.Core.Pipelines.Telemetry` to externalize adaptive notification throttling parameters (`ImmediateNotificationItemLimit` and `HighVolumeNotificationInterval`) into a validated configuration record registered via DI (`AddCoreServices` / `AddToolsServices`) and accepted optionally by `PipelineFactory.StartDataflow`.
+  - Replaced `IProgress<PipelineProgressEvent>` with `IPipelineProgressNotifier` (`ChannelPipelineProgressNotifier` for bounded async NDJSON/SSE streaming and `NullPipelineProgressNotifier.Instance` for zero-allocation no-op execution) in `MelloSilveiraTools.Core.Pipelines.Notifiers`.
+  - Made `IPipelineProgressNotifier` mandatory (non-nullable) in `PipelineFactory.StartDataflow` as the 2nd parameter after `ILogger`, resolving the active implementation via Dependency Injection (`enablePipelineProgressNotifications` in `AddCoreServices` / `AddToolsServices`) and removing notifier coupling from request/input DTOs.
+  - Added `PipelineStepState.Pending` and enriched `PipelineProgressEvent` with `UpstreamSteps` (`IReadOnlyList<string>`), `ReceivedItems` (`int`), `ProcessedItems` (`int`), and `ProgressPercentage` (`double`) with structural sequence equality on `UpstreamSteps`.
+  - Implemented `PipelineFlowNode` and lock-free `PipelineStepTracker` in `MelloSilveiraTools.Core.Pipelines.Telemetry` to emit upfront `Pending` topology events on first `SendAsync`, propagate DAG dependencies and item arrivals across filters, batches, broadcasts, and forks (`JoinBlock`), and emit `Started`/`Completed` once per step lifecycle (`block.Completion`).
+  - Simplified `PipelineStepExecutor` and `DataflowPipelineBuilder` by consolidating synchronous/asynchronous/enumerable execution wrappers and step builders into unified core routines.
+- Storage-Agnostic Dynamic Plugin Management & Upload Pipeline (`MelloSilveiraTools.Plugins`):
+  - Modernized `PluginFileProcessor`, `PluginAssemblyProcessor`, `JsonFilePluginCachePersistence`, and `PluginOrchestratorBackgroundService` to decouple completely from physical disk paths and leverage `IFileStorageService` across all storage providers (Local, AWS S3, Azure Blob Storage, DFS).
+  - Created `PluginStoragePartitions` defining canonical partition topology: `incoming` (newly uploaded plugins pending inspection/promotion), `loaded` (active running assemblies), `archive` (obsolete versions evicted according to retention policy), `quarantine` (rejected files that fail naming pattern or PE metadata inspection), and `cache` (JSON metadata cache).
+  - Enforced strict managed .NET DLL validation: `System.Reflection.PortableExecutable.PEReader` validates PE metadata (`peReader.HasMetadata`); non-.NET binaries or files failing regex `{name}.v{major}.{minor}.{patch}.dll` are quarantined with structured warnings.
+  - Refactored `PluginAssemblyProcessor.LoadPluginAssemblyAsync` to load assemblies into `PluginAssemblyLoadContext` directly from stream (`pluginContext.LoadFromStream(streamToLoad)`), eliminating OS-level file locking on host operating systems and enabling execution directly from cloud storage.
+  - Fixed `MoveToMainFolderAsync` to move plugins back to the canonical `incoming` partition.
+  - Implemented plugin upload pipeline: created `UploadPluginRequest`, `UploadPluginValidator`, and `UploadPlugin` command in `Application/Commands/Upload/`, along with HTTP endpoints in `PluginController` (`POST /api/V1/plugins/upload`) and `PluginEndpoints` (`POST /api/v1/plugins/upload`), streaming multipart form files directly to the storage's `incoming` partition.
+  - Integrated automatic archival in `PluginOrchestratorBackgroundService`: when an older version is evicted after `PreviousVersionRetention`, the obsolete assembly is moved from `loaded/` to `archive/`.
+  - Added comprehensive unit test coverage (`UploadPluginValidatorTests`, `UploadPluginTests`, `PluginFileProcessorTests`, `JsonFilePluginCachePersistenceTests`, `PluginAssemblyProcessorTests`), maintaining 528 passing unit tests with 0 failures and 0 skipped.
+- File Storage Dual-Disposal Architecture (`MelloSilveiraTools.Core`):
+  - Enhanced `IFileStorageService` and `FileStorageServiceBase` to implement both `IDisposable` and `IAsyncDisposable`.
+  - Implemented deterministic synchronous `Dispose(bool disposing)` alongside `DisposeAsync()` in `AwsS3FileStorageService` and `BlobStorageFileStorageService`.
+  - Guarantees seamless disposal when dependency injection scopes or containers are disposed synchronously (preventing `InvalidOperationException: '{TypeName}' type only implements IAsyncDisposable. Use DisposeAsync to dispose the container`).
+- Mathematical Function Graph Serialization & Cycle Prevention (`MelloSilveiraTools.Mathematics` & `MelloSilveiraTools.MechanicsOfMaterials.Optimizations`):
+  - Decorated lazy computed calculus properties `Derivative` and `Integral` on `Function` and `MathExpression` with `[JsonIgnore]`, preventing infinite recursive serialization cycles.
+  - Configured `ReferenceHandler.IgnoreCycles` in `OptimizationJsonOptions.SignificantFigures7` for defensive serialization across parametric sweeps and optimization models.
+- Logging Architecture and Multi-Sink Configuration Consolidation (`MelloSilveiraTools.Core` & `MelloSilveiraTools.Database`):
+  - Enforced strict sink activation semantics across the suite:
+    - When `LoggerSettings` is omitted (null) or empty without sinks configured, defaults to standard Microsoft logging with Console output (`services.AddLogging(builder => builder.AddConsole())`).
+    - When `LoggerSettings.File` is provided, enables rolling JSON file logging via `WriteToLocalFile`.
+    - When `LoggerSettings.Database` is provided, enables PostgreSQL batch insert logging via `WriteToPostgres`.
+    - When both `File` and `Database` are configured, both sinks are enabled simultaneously within the same Serilog pipeline.
+  - Created `FileLoggerSettings` and `DatabaseLoggerSettings` sealed records in `MelloSilveiraTools.Core.Logging`, separating file sink parameters (`Directory`, `FileNamePrefix`, `RollDaily`, `MaxFileSizeBytes`, `MaxRetainedFiles`) and database PostgreSQL sink parameters (`ConnectionString`, `TableName`, `SchemaName`, `BatchSizeLimit`, `Period`, `NeedAutoCreateTable`).
+  - Refactored `LoggerSettings` to aggregate optional `File` (`FileLoggerSettings?`) and `Database` (`DatabaseLoggerSettings?`) sub-records, mirroring `FileStorageSettings`.
+  - Consolidated Serilog PostgreSQL sink (`Serilog.Sinks.Postgresql.Alternative`) directly in `MelloSilveiraTools.Core`, eliminating duplicate logging registration and resolving the legacy TODO in `DatabaseDependencyInjection.AddDatabaseLogging`.
+  - Re-registered singletons defensively in `CoreDependencyInjection.AddCoreLogging` (`LoggerSettings`, `FileLoggerSettings`, `DatabaseLoggerSettings`), preventing double-registration when multiple contextual DI extensions are chained.
+  - Expanded unit test suite with 18 dedicated tests across `UnitTests.Core.Logging.LoggerConfigurationExtensionsTests`, `UnitTests.Database.Logging.DatabaseLoggingExtensionsTests`, and `UnitTests.Core.CoreDependencyInjectionTests`, bringing total passing tests to 520 with 0 failures and 0 skipped.
+- Storage Architecture Hardening & Cloud Path Extraction Consolidation (`MelloSilveiraTools.Core` & `MelloSilveiraTools.Database`):
+  - Implemented unified `ExtractCloudPath` method in `FileStorageServiceBase` returning `(string Directory, string? FileName)` decomposed from forward-slash delimited cloud keys, with `ExtractCloudDirectory` and `ExtractCloudFileName` delegating to it using target discards (`_`).
+  - Updated `AwsS3FileStorageService` and `BlobStorageFileStorageService` to use `ExtractCloudPath` / `ExtractCloudDirectory` / `ExtractCloudFileName`, eliminating Windows-specific backslash conversions induced by `Path.GetDirectoryName`.
+  - Hardened directory traversal safeguard in `LocalFileStorageService.ResolveLocation` via `Path.GetRelativePath`, preventing prefix-similarity directory escapes (e.g., `C:\storage` vs `C:\storage_leaked`).
+  - Added defensive argument validation in `StoredFileEntity.Create` in `MelloSilveiraTools.Database`.
+  - Eliminated all remaining `var` declarations in `test/UnitTests/Database`, bringing total passing unit tests in `UnitTests.csproj` to 502 with 0 failures and 0 skipped.
+- Core Library Bugfixes and Unit Test Suite Consolidation (`MelloSilveiraTools.Core`):
+  - Fixed `Result.CreatePagedSuccessOk` in `MelloSilveiraTools.Core.Models.Result`: explicitly initialize `Success = true` to match `CreateListedSuccessOk`.
+  - Fixed immutable record chaining in `MelloSilveiraTools.Core.ExtensionMethods.ResultExtensions`: ensured `result` reassignment on validation calls (`AddErrorIfNegativeOrZero`, `AddErrorIfFileNotExist`, `AddErrorIfDirectoryNotExist`) so validation errors on immutable records are not discarded.
+  - Replaced implicit `var` declarations with explicit types across `ResultExtensions.cs` and all test suites under `test/UnitTests/Core`.
+  - Re-implemented and enabled `CsvStreamReaderTests.cs` (8 tests) testing high-performance zero-allocation streaming via `PipeReader`, custom delimiters, empty line skipping, and error resilience.
+  - Expanded unit test coverage across all Core subsystems (Dataflow Pipelines, Resilience Pipelines, Caching, Encryption, Email, File Storage, Dependency Injection, Result Monad, Extensions), reaching 296 passing unit tests for `UnitTests.Core` and 502 passing unit tests across the entire solution with 0 failures and 0 skipped.
+- Azure Blob Storage & AWS S3 Storage Providers Architecture Consolidation (`MelloSilveiraTools.Core`):
+  - Created reusable `DiskSpoolUploadStreamBase` in `MelloSilveiraTools.Core.Managers.File.Streams`, centralizing local disk staging via `defaultStorage` (`LocalFileStorageService`), tracking faults (`Abort()`, `_faulted`), atomic partition directory deletion on cleanup, and upload coordination, eliminating duplicate stream boilerplate across `S3DiskUploadStream` and `BlobDiskUploadStream`.
+  - Created reusable `DelegatingDisposableStream` in `MelloSilveiraTools.Core.Managers.File.Streams`, wrapping streaming reads with `IDisposable` / `IAsyncDisposable` lifecycle management for both `GetObjectResponse` (AWS S3) and `BlobDownloadStreamingResult` (Azure Blob Storage).
+  - Aligned Azure Blob Storage with AWS S3 by removing `NormalizeBlobName`, passing locations directly to the SDK client.
+  - Updated `BlobStorageResiliencePipeline` to use `(int)HttpStatusCode.*` (`RequestTimeout`, `TooManyRequests`, `InternalServerError`, `BadGateway`, `ServiceUnavailable`, `GatewayTimeout`) instead of magic numbers.
+  - Updated `BlobStorageFileStorageService` to use `(int)HttpStatusCode.NotFound` and `.AsPages(...)` continuation-token pagination for directory and file enumeration.
+  - Centralized directory prefix resolution via `BuildDirectoryPrefix` in `FileStorageServiceBase`.
+  - Added `BlobStorageSettings` requiring explicit properties without default values, and registered keyed singleton in `CoreDependencyInjection`.
+  - Dedicated unit tests for `DiskSpoolUploadStreamBaseTests` (4 tests) and `DelegatingDisposableStreamTests` (5 tests), bringing total passing unit tests in `UnitTests.csproj` to 429.
+- Mathematics Function Factory Bugfix:
+  - Fixed `FunctionFactory.Create` to instantiate `ExponentialIntegralFunction` when `FunctionType.ExponentialIntegral` is requested.
+- `StorageEntryMetadata` Refactor and File Storage Enhancements:
+  - Replaced `FileMetadata` entirely with `StorageEntryMetadata`, making `FileName` nullable to natively represent both files and directories.
+  - Encapsulated null-normalization within `StorageEntryMetadata` (`if (string.IsNullOrEmpty(fileName)) fileName = null;`).
+  - Added `ListEntriesAsync` across `IFileStorageService`, `FileStorageServiceBase`, `LocalFileStorageService`, `DfsFileStorageService`, `AwsS3FileStorageService`, and `BlobStorageFileStorageService` for unified file and directory enumeration.
+  - Enforced strict settings requirement across all libraries (`LocalFileStorageSettings`, `BlobStorageSettings`, `AwsS3StorageSettings`, `DfsStorageSettings`, `DatabaseSettings`, `JwtSettings`, `LoggerSettings`, `EncryptionSettings`, `EmailSettings`, `PluginSettings`), disallowing implicit default values.
+  - `FitCurveCommandTests` and `FitCurveValidatorTests` in `test/UnitTests/MechanicsOfMaterials.Optimizations/CurveFitting/Commands`: Verifies curve fitting request validation, step factory instantiation, async stream execution, and parameter group / `FinalError` aggregation.
+  - `PipelineProgressEventTests` and `PipelineProgressEmissionTests` in `test/UnitTests/Core/Pipelines`: Verifies `PipelineProgressEvent` record immutability and equality, `PipelineStepState` enum values, and real-time progress reporting through `IPipelineProgressNotifier` across synchronous (`HandleExecution`), asynchronous with retries, streaming (`IAsyncEnumerable`), and full TPL Dataflow pipelines (`PipelineFactory.StartDataflow`).
+  - Hardened Polly resilience pipeline configuration with safe defaults in `ResiliencePipelineSettings` (`MaxRetryAttempts = 3`, `DelayInMilliseconds = 200`, `BackoffType = Constant`, `UseJitter = true`) and fallback guards in `DefaultResiliencePipeline` to prevent validation exceptions when default settings are supplied.
+- Application Commands, Validators, and Web API Controllers in `MelloSilveiraTools.MechanicsOfMaterials.Optimizations`:
+  - `ProcessExperimentalDataCommand`, `ProcessExperimentalDataRequest`, `ProcessExperimentalDataResponse`, and `ProcessExperimentalDataValidator` for experimental raw data processing.
+  - `ExecuteParametricSweepCommand`, `ExecuteParametricSweepRequest`, `ExecuteParametricSweepResponse`, `ExecuteParametricSweepValidator`, and `IParametricSweepPipeline` for parametric sweep sensitivity analyses.
+  - Updated `FitCurve`, `FitCurveRequest`, `ParameterGroupResultData`, and `FitCurveValidator` using `IMechanicalModelStepFactory`.
+  - `StoredFileFilter` in `MelloSilveiraTools.Database.RelationalDatabase.Models.Filters` for querying `StoredFileEntity` records by `ExternalIdentifier`, `Context`, and `FileName`.
+  - `ExperimentalDataController` (`api/v1/experimental-data`), `ParametricSweepController` (`api/v1/parametric-sweeps`), `CurveFittingController` (`api/v1/curve-fitting`), and `StoredFilesController` (`api/v1/stored-files`) supporting standard `POST` execution, real-time NDJSON progress streaming (`POST .../stream` via `PipelineProgressStreamWriter`), and file listing/download (`GET`) by `ExternalIdentifier` via `IFileStorageService.OpenRead`.
+- `ParametricSweepEntity` (`[Table("parametric_sweeps")]`), `ParametricSweepPersistenceInput`, and `ParametricSweepPersistenceStep` in `MelloSilveiraTools.MechanicsOfMaterials.Optimizations`: Terminal database persistence step for `ParametricSweepPipeline` persisting sweep configuration snapshots (`BaselineParametersJson`, `VariableRangesJson` formatted via `OptimizationJsonOptions.SignificantFigures7`) and registering all partitioned sensitivity CSV files in `stored_files` (`StoredFileEntity` with `Context = "SensitivityAnalysis"`).
+- `IEnumerablePipelineStep<in TIn, out TOut>` in `src/MelloSilveiraTools.Core/Pipelines/Steps/IEnumerablePipelineStep.cs`: Synchronous collection and streaming 1-to-many execution step contract (`IEnumerable<TOut> Execute(TIn input, CancellationToken cancellationToken)`) implementing `IDisposable`. Designed for synchronous 1-to-many fan-out transformations via TPL Dataflow's `TransformManyBlock`, with cooperative cancellation token propagation, safe Dead-Letter Queue (DLQ) routing, and automatic resource disposal.
+- TPL Dataflow Pipelines (`IDataflowPipelineBuilder<T>`, `IDataflowPipeline<T>`): `.AddStep()` overload supporting `IEnumerablePipelineStep<TIn, TOut>` with cooperative cancellation, DLQ error handling, and `IDisposable` lifecycle management via `TransformManyBlock`.
+- `CsvFileWriter` in `src/MelloSilveiraTools.Core/Managers/File/CsvFileWriter.cs`: High-performance, domain-agnostic buffered asynchronous CSV writer encapsulating stream creation, sequential/async file flags, 128 KB buffer, UTF-8 non-BOM, 1,000-row batching threshold, immediate mandatory header emission, and graceful async disposal with `DisposeAllAsync` aggregate exception handling.
+- Formalized and documented Schapery Non-Linear 1D curve fitting objective functions and three-stage hierarchical identification strategy (anchor linear baseline, pointwise non-linear Helmholtz multipliers, and continuous function fitting) in `MelloSilveiraTools.MechanicsOfMaterials.Optimizations` for Task 2.2 (`outputs/task-2.2-result.json`).
+- Re-enabled and enhanced `SchaperyRelaxationOnlyCurveFitterStepAcceptanceTests` validating 3-stage curve fitting against real experimental multi-strain ligament data (ACL specimen `02-07-21 - L38 - D11` from `SoftTissue/experimental results/Schapery/Stress`), asserting strict biomechanical physical validity ($G_e > 0$, $g_1 > 0$, $0 < n < 1$, discrete $h_e, h_2 > 0$, continuous positive Helmholtz functions across $[0.03, 0.06]$) and proving direct resolution of unphysical legacy parameters from `Populate_database.sql`.
+- Fixed array sizing bug in `SchaperyRelaxationOnlyCurveFitterStep.cs` where `strainAndHelmholtzVariables` allocated `[relaxations.Count - 1]` instead of `[relaxations.Count]`, preventing an `IndexOutOfRangeException` when iterating across all segments.
+- Fixed `LogarithmicCurveFitter.cs` where `ZeroBased = true` optimization returned parameters without the leading `0.0`, scrambling coefficient indexing in `LogarithmicFunction` and resulting in `NaN` log arguments.
+- Implemented downsampling with $\Delta t \ge 1.0\text{ s}$ across all multi-strain relaxation test segments in `TestData/SchaperyRelaxationOnly/` (`01_Relaxation_Strain003.csv`, `02_Relaxation_Strain004.csv`, `03_Relaxation_Strain005.csv`, `04_Relaxation_Strain006.csv`), achieving $R^2 \ge 0.95 > 0.90$ across all four individual strain levels consistent with `Populate_database.sql` benchmark cases.
+- Added `VandermondeLeastSquares` in `src/MelloSilveiraTools.MechanicsOfMaterials.Optimizations/CurveFitting/MathematicalFunctions/VandermondeLeastSquares.cs`: High-performance analytical polynomial curve fitting engine constructing the Vandermonde matrix and solving the linear least-squares problem via QR decomposition with Modified Gram-Schmidt orthogonalization.
+- Enhanced `PolynomialCurveFitter.cs` with closed-form analytical least-squares fitting and optimal initial parameter estimation via `VandermondeLeastSquares`, preserving full decoupling from third-party libraries and delegating to `innerFitter` for constrained optimization.
+- Injected `[FromKeyedServices(FunctionType.Polynomial)] IMathematicalFunctionCurveFitter` into `SchaperyRelaxationOnlyCurveFitterStep.cs` and evaluated polynomial fitting candidates in `FitHelmholtzVariable`, guaranteeing $R^2 \ge 0.90$ for continuous Helmholtz functions $h_e(\varepsilon)$ and $h_2(\varepsilon)$ and lifting the consolidated composite fit to $R^2 = 0.9880 \ge 0.90$.
+- Fixed argument order inversion in `ConstantFunction` constructor calls across `SchaperyRelaxationOnlyCurveFitterStep.cs`, `ConstantFunction.CreateDerivative()`, and `PolynomialFunction.CreateDerivative()` where interval boundaries were incorrectly passed into the `coefficient` parameter.
+- **Task 2.7: Native 1D Sensitivity Analysis Engine (OAAT)** in `MelloSilveiraTools.MechanicsOfMaterials.Optimizations`:
+  - Added reactive TPL Dataflow pipeline (`ParametricSweepPipeline`) orchestrating parameter variation ingestion, concurrent 3-way stress evaluation ($\sigma(t_0)$, $\sigma(t_f)$, and $t_{\text{asymptote}}$), delta metrics calculation, and partitioned CSV writing.
+  - Ensured strict coverage of all 4 mandatory sensitivity scenarios defined in `experimental-data-analyst/SKILL.md`: Stress at initial time ($t_0$), stress at final time ($t_f$), asymptote time ($t_{\text{asymptote}}$), and stress variation ($\Delta\sigma$ and $\% \Delta\sigma$).
+  - Implemented domain-specific numerical asymptote detection in `AsymptoteCalculationStep` based on the time derivative of stress approaching zero ($|\frac{d\sigma}{dt}| \le \epsilon$) via strictly mandatory `IDifferentiation` and user-informed `tolerance` parameters (central and boundary forward differences), eliminating artificial time bounds and using exponential bracket search followed by binary search refinement.
+  - Added constitutive parameter alias support (e.g., $A$, $B$, $c$, $\tau_1$, $\tau_2$, $g_0$, $G_e$, $g_1$, $n$) in `ParametricSweepGeneratorBase`, `FungParametricSweepGenerator`, `SimplifiedFungParametricSweepGenerator`, and `SchaperyParametricSweepGenerator`, ensuring seamless mapping between mathematical symbols and programmatic property names in partitioned CSV generation.
+  - Fixed floating-point step truncation in `RangeParametersExtensions.GenerateValues` with relative tolerance `Math.Abs(range.Step.Value) * 1e-6`.
+  - Added dynamic polymorphic parameter adaptation in `MechanicalModelTypeCache.CompileMethodInvoker` via `ConvertMechanicalModelInput<T>`, bridging generic simulation envelopes (`GenericMechanicalModelInput`) to strongly typed `MechanicalModelInput<T>` without reflection overhead.
+  - Implemented `ParametricSweepInputJsonParser` and factory methods `ParametricSweepInput.FromFile(filePath)` / `ParametricSweepInput.FromJson(json)` in `MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.Serialization`, enabling deserialization of parametric sweep configurations directly from JSON files with polymorphic resolution of constitutive parameters (`Fung`, `SimplifiedFung`, `Schapery`, `Maxwell`, `Elastic`, `ModifiedSuperpositionMethod`) and mathematical functions (`PolynomialFunction`, `PowerLaw`, `PronySeries`, `ConstantFunction`).
+- Refactored `ParametricSweepPipelineAcceptanceTests` into a data-driven test suite using xUnit `[Theory]` and `[MemberData(nameof(GetJsonInputFiles))]` that automatically discovers, parses, and executes all JSON input files residing in `MechanicalOfMaterials.Optimizations/SensitivityAnalysis/TestData/` (`01_Fung_SensitivityAnalysis.json`, `02_SimplifiedFung_SensitivityAnalysis.json`, `03_Schapery_SensitivityAnalysis.json`), verifying physical integrity, stress relaxation monotonicity, asymptote detection, and partitioned CSV outputs with complete test isolation per scenario.
+- Simplified `AsymptoteCalculationStep` by eliminating threshold constants (`StationaryDerivativeThreshold`, `AbsoluteDerivativeFloor`) in favor of the user-informed `tolerance`, removing internal perturbation constants to directly utilize `input.TimeStep`, and streamlining stress derivative calculations via direct finite differences.
+- Created end-to-end acceptance tests in `test/AcceptanceTests/MechanicalOfMaterials.Optimizations/SensitivityAnalysis/ParametricSweepPipelineAcceptanceTests.cs` and unit tests in `test/UnitTests/MechanicsOfMaterials.Optimizations/SensitivityAnalyses/`.
+
+### Changed
+- Standardized and decoupled CSV file writing across pipeline steps by introducing domain-agnostic `CsvFileWriter` and `IFileStorageService` in `MelloSilveiraTools.Core.Managers.File`, removing `BaseCsvWriterStep` and user-provided output paths (`OutputFileUri` / `OutputDirectory`):
+  - `ExperimentalDataProcessingInput` and `ParametricSweepInput`: Removed `OutputFileUri` and `OutputDirectory` so storage resolution is governed exclusively by `IFileStorageService`.
+  - `ExperimentalDataFileWriterStep`: Standardized primary constructor `(IFileStorageService fileStorageService, string identifier)` opening streams under `"ExperimentalData"` context and exposing `FileMetadata`.
+  - `MechanicalModelOutputFileWriterStep`: Standardized primary constructor `(IFileStorageService fileStorageService, string uniqueIdentifier)` opening streams under `"ExperimentalData"` context and returning `FileMetadata` directly from `ExecuteAsync`.
+  - `ParametricSweepCsvWriterStep`: Standardized primary constructor `(IFileStorageService fileStorageService, string identifier)` opening variable-partitioned streams under `"SensitivityAnalysis"` context and exposing `GeneratedFilesMetadata`.
+- `CsvStreamReader`: Default delimiter updated to `CsvSeparators.Main` (from `','`).
+- `ParametricSweepGeneratorBase` and `FungParametricSweepGenerator`: Simplified OAAT variable mutation by introducing template method `GetPropertyVariations(input)` returning `(string PropertyName, Func<TConstitutiveParameters, double, TConstitutiveParameters> Mutate)` delegates, centralizing range iteration and simulation envelope construction in the base class.
+
 ## [2.0.0] - 2026-10-08
 ### Added
 - `LogarithmicFunction` in `MelloSilveiraTools.Mathematics.Functions`.
@@ -62,7 +240,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
     - Fluent stage configuration: `.AddStep()` (overloaded for sync, async, and `IAsyncEnumerable`), `.AddDataMapping()`, `.AddForkingStep()`, `.AddFilterStep()`, `.AddGroupWhileStep()`, `.AddCollectAllStep()`, `Fork` (2-way and 3-way, accepting branch delegates or step instances directly), `AddBroadcastStep` (side-effect observer and mapped transform observer), and `BuildTerminal()`.
     - Completion propagation: `DataflowExtensions.LinkTo` C# 13 extension members overriding TPL Dataflow defaults with `PropagateCompletion = true` on block linkages, guaranteeing automatic and graceful graph draining on `pipeline.Complete()`.
     - Resource cleanup: `DataflowPipeline<TIn>.DisposeAsync` encloses step disposal in a `try ... finally` block, ensuring all `IDisposable` and `IAsyncDisposable` step resources are reclaimed even if graph completion faults.
-    - Integrated resilience: exponential backoff retry policies (`RetryOptions`), dead-letter queue routing (`WithDeadLetterQueue()`) to isolate faulted items without halting pipeline throughput, and bounded capacity backpressure (`PipelineStepOptions.MaxBufferSize`).
+    - Integrated resilience: dead-letter queue routing (`WithDeadLetterQueue()`) to isolate faulted items without halting pipeline throughput, and bounded capacity backpressure (`PipelineStepOptions.MaxBufferSize`).
     - Telemetry and tracing: OpenTelemetry `ActivitySource` tracing and structured Serilog logging via `TelemetryExtensions`.
   - Fluent Pipelines (`IFluentPipelineBuilder`, `IFluentPipeline<TIn, TOut>`): Composable sequential step execution for request/response operations with `.AddStep()` supporting sync, async, and streaming steps.
 - **Command Pattern Infrastructure (`MelloSilveiraTools.Core.Application.Commands`)**:

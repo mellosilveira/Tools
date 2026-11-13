@@ -23,7 +23,7 @@ public static class CurveSegmentExtensions
     }
 
     /// <summary>
-    /// Retrieves the elapsed time duration (&Delta;t) of the first ramp segment found in the collection.
+    /// Retrieves the elapsed time duration (Δt) of the first ramp segment found in the collection.
     /// </summary>
     /// <param name="curveSegments">The read-only collection of curve segments.</param>
     /// <returns>The duration of the first ramp segment if found and non-empty; otherwise, <see langword="null"/>.</returns>

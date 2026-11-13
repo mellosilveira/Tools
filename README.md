@@ -1,158 +1,218 @@
 # MelloSilveiraTools
 
-A suite of .NET 10 NuGet packages with helpers for system development: extension methods, infrastructure (database, logging, resilience, encryption), web-API helpers, a runtime plugin system, and engineering toolkits (mathematics, mechanics of materials).
+[![Build and Publish NuGet](https://github.com/mellosilveira/Tools/actions/workflows/publish_nuget_package.yml/badge.svg)](https://github.com/mellosilveira/Tools/actions/workflows/publish_nuget_package.yml)
+[![JOSS Draft PDF](https://github.com/mellosilveira/Tools/actions/workflows/draft-pdf.yml/badge.svg)](https://github.com/mellosilveira/Tools/actions/workflows/draft-pdf.yml)
+[![License: AGPL v3](https://img.shields.io/badge/License-AGPL_v3-blue.svg)](https://www.gnu.org/licenses/agpl-3.0)
+
+A modular .NET 10 suite of open-source NuGet packages for **computational mechanics of materials, viscoelastic constitutive modeling, numerical analysis, and experimental data optimization**, backed by high-throughput TPL Dataflow pipelines, relational persistence, web-API helpers, and a dynamic plugin runtime.
+
+---
 
 ## Packages
 
-Pick the contextual packages your application actually needs, or install the meta-package for everything.
+Pick the contextual packages your research or engineering application needs, or install the meta-package for the entire suite:
 
 | Package | What it ships | Depends on |
 |---|---|---|
-| `MelloSilveiraTools.Core` | Extension methods, `ILogger` + file logger, in-memory single/two-level caches, Polly resilience pipelines, encryption (PBKDF2), SMTP email | — |
+| `MelloSilveiraTools.Mathematics` | Differential equation solvers (Newmark, Newmark-$\beta$), symbolic-like function hierarchy (constant, polynomial, exponential, sine, cosine, power-law + factory) with lazy analytical derivatives/integrals, expressions (`PronySeries`), numerical integration (Simpson's rule), finite-difference differentiation, root-finding (Bisection, Brent, Step-by-Step), statistics, 3D geometry (`Point3D`, `Vector3D`), unit converter | Core |
+| `MelloSilveiraTools.MechanicsOfMaterials` | Fatigue (Goodman/Marin), constitutive equations, geometric properties (circular/rectangular profiles), 3D vector/force models, mechanical models (elastic, linear Maxwell, non-linear Schapery & Modified Superposition Method, quasi-linear Fung & Simplified Fung viscoelasticity), 3D tissue load-sharing calculator | Mathematics |
+| `MelloSilveiraTools.MechanicsOfMaterials.Optimizations` | TPL Dataflow pipelines for experimental mechanics, automated CSV phase segmentation (`Ramp`, `Relaxation`, `Descent`, `Recovery`), constrained curve fitting (`AlglibCurveFitter` L-BFGS / GDEMO Differential Evolution and `MathNetCurveFitter` BFGS / Nelder-Mead), Prony-series & constitutive parameter identification, and One-At-A-Time (OAAT) parametric sensitivity sweeps | MechanicsOfMaterials, WebApi |
+| `MelloSilveiraTools.Core` | TPL Dataflow & fluent pipeline builders with real-time progress telemetry (`IPipelineProgressNotifier`), extension methods, `ILogger` + structured file logger, in-memory single/two-level caches, Polly v8 resilience pipelines, encryption (PBKDF2), file storage (`Local`/`DFS`), SMTP email | — |
 | `MelloSilveiraTools.Database` | `IRepository`, `PostgresRepository`, `ISqlProvider`, attribute-driven SQL generation, filter clauses, Npgsql/Dapper extensions, dedicated Postgres resilience pipeline | Core |
-| `MelloSilveiraTools.WebApi` | `CustomControllerBase`, `CrudController<TEntity, TFilter>`, `ExceptionHandlingMiddleware`, NDJSON streaming, JWE bearer authentication, Swagger bootstrap, `ApiServiceAgent`, `OperationBase` / `OperationResponseBase` / `OperationResponse` (factory helpers `CreateSuccessOk`, `CreateConflict`, `CreateUnprocessableEntity`) | Core, Database |
+| `MelloSilveiraTools.WebApi` | `CustomControllerBase`, `CrudController<TEntity, TFilter>`, minimal API `MapCrud`, `ExceptionHandlingMiddleware`, NDJSON streaming, JWE bearer authentication, Swagger bootstrap, `ApiServiceAgent`, `Result<T>` HTTP projections | Core, Database |
 | `MelloSilveiraTools.Plugins` | File-based plugin runtime, two-level cache, dynamic DI, persistence (file/database), HTTP-friendly operations, background orchestrator | Core, Database, WebApi |
-| `MelloSilveiraTools.Mathematics` | Differential equation solvers (Newmark, Newmark-β), function system (constant/polynomial/exponential/sine/cosine/power-law + factory), expressions (PronySeries), numerical integration (Simpson), differentiation, root-finding (Bisection, Brent), statistics, 3D geometry (Point3D, Vector3D), unit converter | Core |
-| `MelloSilveiraTools.MechanicsOfMaterials` | Fatigue (Goodman/Marin), constitutive equations, geometric properties (circular/rectangular profiles), 3D vector/force models, mechanical models (elastic, linear/non-linear/quasi-linear viscoelastic), load-sharing calculator | Mathematics |
-| `MelloSilveiraTools` | Meta-package: ProjectReferences for every package above; install once and get everything | all of the above |
+| `MelloSilveiraTools` | Meta-package: aggregates every package above; install once and get everything | all of the above |
 
-## Quick start
+---
+
+## Installation
+
+Requires the [.NET 10.0 SDK](https://dotnet.microsoft.com/download/dotnet/10.0) or later.
+
+Install the specific scientific packages via the .NET CLI:
+
+```bash
+dotnet add package MelloSilveiraTools.Mathematics
+dotnet add package MelloSilveiraTools.MechanicsOfMaterials
+dotnet add package MelloSilveiraTools.MechanicsOfMaterials.Optimizations
+```
+
+Or install the full meta-package:
+
+```bash
+dotnet add package MelloSilveiraTools
+```
+
+---
+
+## Scientific Quick Start (Viscoelastic Modeling & Curve Fitting)
+
+### 1. Evaluating a Quasi-Linear Viscoelastic (Simplified Fung / Prony Series) Model
+
+```csharp
+using MelloSilveiraTools.Mathematics.Expressions;
+using MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Viscoelasticity.QuasiLinear.SimplifiedFung;
+using MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels;
+using MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity;
+using MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.QuasiLinear;
+
+// Define a 2-branch Prony series reduced relaxation function: G(t) = c + a1*exp(-t/tau1) + a2*exp(-t/tau2)
+PronySeries relaxationFunction = new(
+    independentParameter: 0.60,
+    iteratorCoefficients: [0.25, -0.10, 0.15, -0.01],
+    initialVariableValue: 0.0,
+    finalVariableValue: 100.0);
+
+SimplifiedFungConstitutiveParameters parameters = new()
+{
+    ElasticStressConstant = 12.5,
+    ElasticPowerConstant = 18.0,
+    ReducedRelaxationFunction = relaxationFunction
+};
+
+SimplifiedFungModelCalculator calculator = new();
+MechanicalModelInput<SimplifiedFungConstitutiveParameters> input = new()
+{
+    ConstitutiveParameters = parameters,
+    Strain = 0.04,
+    Time = 30.0,
+    RampTime = 1.0,
+    RampTimeConsideration = RampTimeConsideration.ConsiderWithViscoelasticEffect
+};
+
+double stress = calculator.CalculateStress(input);
+```
+
+### 2. Constrained Non-Linear Curve Fitting (`MelloSilveiraTools.MechanicsOfMaterials.Optimizations`)
+
+```csharp
+using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Algorithms;
+using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Models;
+using Microsoft.Extensions.Logging.Abstractions;
+
+// Fit an exponential elastic response sigma(epsilon) = A * (exp(B * epsilon) - 1)
+double[] strains = [0.00, 0.01, 0.02, 0.03, 0.04, 0.05];
+double[] measuredStresses = [0.00, 2.46, 5.42, 8.98, 13.25, 18.39];
+
+AlglibCurveFitter fitter = new(NullLogger<AlglibCurveFitter>.Instance, new CurveFitterSettings { Seed = 42 });
+
+CurveFitInput fitInput = new(
+    IndependentVariable: strains,
+    DependentVariable: measuredStresses,
+    ModelFunction: (eps, p) => p[0] * (Math.Exp(p[1] * eps) - 1.0),
+    InitialParameters: [5.0, 10.0],
+    LowerBounds: [0.001, 0.001],
+    UpperBounds: [500.0, 200.0],
+    Profile: CurveFitProfile.Standard);
+
+CurveFitOutput fitOutput = fitter.Fit(fitInput);
+// fitOutput.OptimizedParameters -> [A ≈ 12.5, B ≈ 18.0], fitOutput.RSquared -> > 0.9999
+```
+
+---
+
+## Dependency Injection Wire-Up
 
 ### Everything in one go
 
 ```csharp
 services.AddToolsServices(
+    defaultResiliencePipelineSettings,
     databaseSettings,
     encryptionSettings,
-    resiliencePipelineSettings,
     pluginSettings,
-    loggerSettings);
+    emailSettings,
+    fileStorageSettings,
+    loggerSettings,
+    curveFitterOptions,
+    experimentalDataSettings,
+    parametricSweepSettings,
+    pipelineProgressNotifierSettings,
+    addMechanicalModels: true);
 ```
 
-`AddToolsServices` (from the meta-package) chains `AddCoreServices`, `AddDatabaseServices`, `AddMathematicsServices`, `AddMechanicsOfMaterialsServices`, `AddPluginServices` and `AddWebApiServices`. JWE auth and Swagger remain opt-in.
+`AddToolsServices` (from the meta-package) chains `AddCoreServices`, `AddDatabaseServices`, `AddMathematicsServices`, `AddMechanicsOfMaterialsServices`, `AddOptimizationsServices`, `AddPluginServices` and `AddWebApiServices`. JWE auth and Swagger remain opt-in.
 
 ### Granular wire-up
 
 ```csharp
 services
-    .AddCoreServices(encryptionSettings, resiliencePipelineSettings, loggerSettings)
-    .AddDatabaseServices(databaseSettings, resiliencePipelineSettings)
-    .AddWebApiServices(resiliencePipelineSettings)
+    .AddCoreServices(defaultResiliencePipelineSettings, encryptionSettings, emailSettings, fileStorageSettings, loggerSettings, pipelineProgressNotifierSettings)
+    .AddDatabaseServices(defaultResiliencePipelineSettings, databaseSettings)
+    .AddWebApiServices(defaultResiliencePipelineSettings)
     .AddJweAuthentication(jwtSettings)
     .AddSwaggerWithBearerSecurity()
     .AddMathematicsServices()
-    .AddMechanicsOfMaterialsServices()
+    .AddMechanicsOfMaterialsServices(addMechanicalModels: true)
+    .AddOptimizationsServices(curveFitterOptions, experimentalDataSettings, parametricSweepSettings)
     .AddPluginServices(pluginSettings);
 ```
 
-A worker that just talks to PostgreSQL and writes file logs only needs:
+---
 
-```csharp
-services
-    .AddCoreServices(encryptionSettings, resiliencePipelineSettings)
-    .AddDatabaseServices(databaseSettings, resiliencePipelineSettings);
+## Mathematics (`MelloSilveiraTools.Mathematics`)
+
+- **Differential equation solvers** — `NewmarkMethod`, `NewmarkBetaMethod` (registered via DI as keyed `IDifferentialEquationMethod`).
+- **Function system** — `Function` abstract class with lazy analytical `Derivative` / `Integral` properties. Concrete types: `ConstantFunction`, `PolynomialFunction`, `ExponencialFunction`, `SineFunction`, `CosineFunction`, `PowerLaw`, `GenericFunction`. Create by enum via `FunctionFactory`.
+- **Expressions** — `MathExpression` (linear combination of `Function` instances) and `PronySeries` ($c + \sum a_n e^{b_n x}$).
+- **Numerical methods** — `SimpsonRuleIntegration` (`IIntegration`), `FiniteDifferenceDifferentiation` (`IDifferentiation`), and `BisectionMethod` / `BrentMethod` / `StepByStepMethod` (keyed `IRootFinding`).
+- **Statistics & 3D Geometry** — `IStatisticsCalculator` / `StatisticsCalculator`, `Point3D`, `Vector3D`, `UnitConverter`.
+
+---
+
+## Mechanics of Materials (`MelloSilveiraTools.MechanicsOfMaterials`)
+
+- **Fatigue** — `IFatigueCalculator` / `FatigueCalculator` (Goodman and Marin criteria).
+- **Constitutive equations** — `IConstitutiveEquationsCalculator` / `ConstitutiveEquationsCalculator`.
+- **Geometric properties** — `IGeometricPropertyCalculator<CircularProfile>` / `IGeometricPropertyCalculator<RectangularProfile>`.
+- **Viscoelastic & Mechanical models** — `IMechanicalModelCalculator<TConstitutiveParameters>` hierarchy:
+  - Linear elastic: `ElasticModelCalculator`
+  - Linear viscoelastic: `MaxwellModelCalculator`
+  - Quasi-linear viscoelastic (QLV): `FungModelCalculator` (continuous spectrum with exponential integral $E_1$) and `SimplifiedFungModelCalculator` (discrete Prony-series relaxation)
+  - Non-linear viscoelastic: `SchaperyModelCalculator` and `ModifiedSuperpositionMethodCalculator`
+- **Load sharing** — `ILoadSharingCalculator` / `LoadShare1DTissueThreeDimensionalSpaceCalculator` (specimen displacement, angle, force projection and derivatives in 3D space).
+
+---
+
+## Experimental Data & Optimizations (`MelloSilveiraTools.MechanicsOfMaterials.Optimizations`)
+
+Provides streaming TPL Dataflow pipelines and numerical optimizers for experimental characterization:
+
+- **Experimental Phase Segmentation (`ExperimentalDataSegmenterStep`)** — Streams raw CSV time-series and classifies points into `Ramp`, `Relaxation`, `Descent`, and `Recovery` phases using sliding-window numerical differentiation.
+- **Downsampling & Accumulation (`ExperimentalDataDownsamplerStep`, `CurveSegmentAccumulatorStep`)** — Applies temporal filtering and groups contiguous deformation phases into `CurveSegment` batches.
+- **Constitutive Curve Fitting (`IMechanicalModelCurveFitterStep`, `AlglibCurveFitter`, `MathNetCurveFitter`)** — Calibrates viscoelastic constitutive models using bounded L-BFGS (`minbleic`), derivative-free adaptive Differential Evolution (`mindf` GDEMO) with non-linear parameter admissibility rules, and BFGS + Nelder-Mead simplex polishing, outputting $R^2$, RMSE, and Student-$t$ confidence intervals.
+- **Parametric Sensitivity Analysis (`ParametricSweepPipeline`)** — Executes One-At-A-Time (OAAT) sweeps across scalar and array-indexed constitutive parameters, computing initial/final stress responses and steady-state relaxation asymptotes.
+
+---
+
+## HTTP Endpoints & Plugin System
+
+Both MVC controllers and minimal-API endpoint extensions ship side-by-side (`app.MapCrud<TEntity, TFilter>("/api/v1/things", "thing")`, `app.MapPluginEndpoints("/api/v1/plugins")`), with built-in support for `application/x-ndjson` real-time streaming (`WriteNdjsonAsync`).
+
+`MelloSilveiraTools.Plugins` enables file-based discovery (`{name}.v{major}.{minor}.{patch}.dll`), two-level caching, startup/runtime dynamic DI registration (`IDynamicServiceProvider`), and background hot-swapping (`PluginOrchestratorBackgroundService`).
+
+---
+
+## Building & Running Automated Tests
+
+Clone the repository, build the solution, and execute the automated unit test suite (439 unit tests in `test/UnitTests`):
+
+```bash
+git clone https://github.com/mellosilveira/Tools.git
+cd Tools
+dotnet restore MelloSilveiraTools.sln
+dotnet build MelloSilveiraTools.sln --configuration Release --no-restore
+dotnet test test/UnitTests/UnitTests.csproj --configuration Release --no-build
 ```
 
-— no ASP.NET, JWT, Swagger, plugins or Polly-for-SMTP transitive dependencies.
+---
 
-## HTTP endpoints
+## Contributing & Community Guidelines
 
-Both MVC controllers and minimal-API endpoint extensions ship side-by-side; consumers pick whichever style matches their host. The classic controllers (`CustomControllerBase`, `CrudController<TEntity, TFilter>`, `PluginController`) remain available for hosts that already wire `app.MapControllers()`. New projects can use the equivalent minimal-API extensions instead:
+Contributions, bug reports, and scientific model proposals are welcome! Please read our [Contributing Guidelines](CONTRIBUTING.md) and [Code of Conduct](CODE_OF_CONDUCT.md) before opening an issue or submitting a Pull Request.
 
-```csharp
-// Generic CRUD over an entity + filter pair (alongside CrudController<TEntity, TFilter>):
-app.MapCrud<MyEntity, MyFilter>(pattern: "/api/v1/things", resourceName: "thing");
+---
 
-// Plugin management (alongside PluginController):
-app.MapPluginEndpoints("/api/v1/plugins");
-```
+## License
 
-`MapCrud` exposes the same surface the controller does: `POST /`, `GET /{id:long}`, `GET /` (filter + pagination), `PUT /{id:long}`, `DELETE /{id:long}` and `GET /stream` (NDJSON). NDJSON streaming is also available standalone via `httpContext.WriteNdjsonAsync(asyncSequence, logger, resourceName)`.
-
-## AOT compatibility
-
-Every package opts in to `<IsAotCompatible>true</IsAotCompatible>`. The trim/AOT diagnostic warnings (`IL2026`, `IL3050`, etc.) are silenced via `<NoWarn>` at the project level, so the toolkit doesn't propagate `[RequiresUnreferencedCode]`/`[RequiresDynamicCode]` annotations on its public surface. Where reflection-target preservation matters, `[DynamicallyAccessedMembers]` annotations are kept so the trimmer keeps the right members.
-
-In prose: **Core**, **Mathematics** and **MechanicsOfMaterials** are AOT-clean. **Database** and **WebApi** build AOT-clean but exercise reflection at runtime (Dapper materialization, attribute-driven SQL, Swashbuckle's Newtonsoft adapter); consumers publishing AOT will see those trim warnings in their own analyzers when they call into those paths and must accept them or replace with source-generated equivalents. **Plugins** is fundamentally not AOT-publishable: `AssemblyLoadContext.LoadFromAssemblyPath` cannot work in a published AOT app.
-
-## Plugin system
-
-A complete plugin architecture that lets a host application discover, load and hot-swap external assemblies dropped into a folder, with their services automatically registered into the DI container.
-
-### Capabilities
-
-- **File-based discovery.** DLLs named `{name}.v{major}.{minor}.{patch}.dll` are scanned from the configured plugin directory. Once loaded they are moved to a `loaded/` subfolder.
-- **Two registration modes.**
-  - *Startup:* services registered against the root `IServiceCollection` (`IPluginService.LoadPluginsOnStartup`).
-  - *Runtime:* services registered against an `IDynamicServiceProvider` (`IPluginService.LoadPluginsOnRuntime`), so plugins can come and go without restarting the host.
-- **Type processors.** Implement `IPluginTypeProcessor` to teach the system how to register a particular base type (interface or class) found inside a plugin assembly. The processor receives a `PluginRegistrationContext` that exposes either the `IServiceCollection` (startup) or the `IDynamicServiceProvider` (runtime).
-- **Two-level cache.** `PluginCache` keys by plugin name and `PluginVersion`. Entries progress through `DiscoveredPlugin` -> `LoadedPlugin` -> `RegisteredPlugin`, with `RegisteredPlugin.IsFullyLoaded` / `FullyLoadedAt` marking the final stage.
-- **Persistence.** `IPluginCachePersistence` snapshots the cache to non-volatile storage. Two implementations ship out of the box (`PluginCacheTargets.File`, `PluginCacheTargets.Database`); consumers can add their own keyed implementations and the existing endpoints route to them via the `{target}` route value. The fallback used outside an HTTP request is configurable via `PluginSettings.DefaultCacheTarget`.
-- **Background orchestrator.** `PluginOrchestratorBackgroundService` polls the plugin folder periodically (`PluginSettings.PollInterval`) and:
-  - ignores files whose version is lower than the highest currently-loaded version, logging a warning;
-  - skips files already fully loaded;
-  - loads higher versions through `LoadPluginsOnRuntime` and evicts older cached versions, keeping the version immediately below the new one until `PluginSettings.PreviousVersionRetention` elapses.
-- **Application operations.** Ready-to-use operations (`GetPlugins`, `LoadPlugins`, `ReloadPlugins`, `ClearPluginCache`, `PersistPluginCache`, `RestorePluginCache`) wrap `IPluginService` for HTTP exposure.
-
-### Wire-up
-
-```csharp
-services.AddPluginServices(new PluginSettings
-{
-    Directory = "/var/app/plugins",
-    PollInterval = TimeSpan.FromSeconds(30),
-    PreviousVersionRetention = TimeSpan.FromHours(24),
-    DefaultCacheTarget = PluginCacheTargets.File
-});
-```
-
-`AddPluginServices` registers everything needed (cache, persistences, processors, orchestrator) **and** eagerly runs `LoadPluginsOnStartup` against the supplied `IServiceCollection` before returning. This must happen during DI configuration: once the host is built the collection is sealed, so any later registration would be discarded.
-
-### File naming
-
-```
-MyCompany.Plugins.Reporting.v1.2.3.dll
-^---------- name -----------^^ version ^
-```
-
-`PluginVersion` parses the `v{major}.{minor}.{patch}` suffix and supports comparison operators, so the orchestrator can decide whether a file is newer than what is already loaded.
-
-## Mathematics
-
-`MelloSilveiraTools.Mathematics` ships the following toolkits. The DI entry point (`AddMathematicsServices`) registers only the differential-equation solvers; the rest are used directly without injection.
-
-**Differential equation solvers** — `NewmarkMethod`, `NewmarkBetaMethod` (registered via DI), `DifferentialEquationMethodFactory`.
-
-**Function system** — `Function` abstract class with lazy `Derivative` / `Integral` properties. Concrete types: `ConstantFunction`, `PolynomialFunction`, `ExponencialFunction`, `SineFunction`, `CosineFunction`, `PowerLaw`, `GenericFunction`. Create by enum via `FunctionFactory`.
-
-**Expressions** — `Expression` (sum of `Function` instances) and `PronySeries` (`c + Σ aₙ·e^(aₙx)`).
-
-**Numerical methods** — `SimpsonRuleIntegration` (integral), `Derivative` (finite-difference), `BisectionMethod` / `BrentMethod` / `RootFinding` / `StepByStepMethod` (root-finding, all implement `IRootFinding`).
-
-**Statistics** — `IStatisticsCalculator` / `StatisticsCalculator`.
-
-**Geometry and utilities** — `Point3D`, `Vector3D`, `UnitConverter`, `CustomMath` / `MathematicConstants`, `Vector3DExtension`, `DoubleExtensions`.
-
-```csharp
-services.AddMathematicsServices();
-```
-
-## Mechanics of Materials
-
-`MelloSilveiraTools.MechanicsOfMaterials` provides the following calculators. The DI entry point (`AddMechanicsOfMaterialsServices`) registers only the fatigue, constitutive equations, and geometric-property calculators; mechanical models and load sharing are used directly.
-
-**Fatigue** — `IFatigueCalculator` / `FatigueCalculator` (Goodman/Marin criteria, registered via DI).
-
-**Constitutive equations** — `IConstitutiveEquationsCalculator` / `ConstitutiveEquationsCalculator` (registered via DI).
-
-**Geometric properties** — `IGeometricPropertyCalculator<CircularProfile>` / `IGeometricPropertyCalculator<RectangularProfile>` (registered via DI).
-
-**Mechanical models** — generic `IMechanicalModelCalculator<TInput>` (force, displacement, stress, strain). Implementations: `ElasticModelCalculator`; linear viscoelastic `MaxwellModelCalculator`; non-linear viscoelastic `SchaperyModelCalculator`, `ModifiedSuperpositionMethodCalculator`; quasi-linear viscoelastic `FungModelCalculator`, `SimplifiedFungModelCalculator`.
-
-**Load sharing** — `ILoadSharingCalculator` / `LoadShare1DTissueThreeDimensionalSpaceCalculator` (specimen displacement, angle, force projection and derivatives in 3-D space).
-
-**3D force model** — immutable `Force` struct; use `Sum`/`Subtract`/`Round`/`Divide`/`Abs`/`Create` to derive new instances.
-
-```csharp
-services.AddMechanicsOfMaterialsServices();
-```
+This project is licensed under the **GNU Affero General Public License v3.0 or later (`AGPL-3.0-or-later`)** — see the [LICENSE](LICENSE) file for full details.

@@ -14,9 +14,9 @@ namespace MelloSilveiraTools.WebApi.Application.Commands.Crud.Update;
 public class UpdateEntity<TEntity>(IRepository repository) : CommandBaseWithDefaultResponse<UpdateEntityRequest<TEntity>> where TEntity : EntityBase, new()
 {
     /// <inheritdoc />
-    protected override async Task<Result> ExecuteCommandAsync(UpdateEntityRequest<TEntity> request)
+    protected override async Task<Result> ExecuteCommandAsync(UpdateEntityRequest<TEntity> request, CancellationToken cancellationToken = default)
     {
         TEntity entityToUpdate = request.Entity with { Id = request.Id };
-        return await repository.TryUpdateAsync(entityToUpdate).ConfigureAwait(false) ? Result.CreateSuccessCreated() : Result.CreateNoContent();
+        return await repository.TryUpdateAsync(entityToUpdate, cancellationToken).ConfigureAwait(false) ? Result.CreateSuccessCreated() : Result.CreateNoContent();
     }
 }

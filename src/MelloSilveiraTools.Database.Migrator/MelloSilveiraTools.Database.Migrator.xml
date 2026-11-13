@@ -1,0 +1,117 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>MelloSilveiraTools.Database.Migrator</name>
+    </assembly>
+    <members>
+        <member name="T:MelloSilveiraTools.Database.Migrator.MigrationContext">
+            <summary>
+            Defines the available contextual scopes for database schema migrations.
+            </summary>
+            <remarks>
+            <para>
+            <b>Notice:</b> The application exclusively supports PostgreSQL. All migrations target PostgreSQL dialect.
+            </para>
+            </remarks>
+        </member>
+        <member name="F:MelloSilveiraTools.Database.Migrator.MigrationContext.All">
+            <summary>
+            Executes all migration scripts across every domain context (Common, Optimizations, Plugins).
+            </summary>
+        </member>
+        <member name="F:MelloSilveiraTools.Database.Migrator.MigrationContext.Common">
+            <summary>
+            Executes common baseline migrations only (e.g., stored_files).
+            </summary>
+        </member>
+        <member name="F:MelloSilveiraTools.Database.Migrator.MigrationContext.Optimizations">
+            <summary>
+            Executes experimental data, constitutive modeling, and parametric sweep migrations (includes Common as a prerequisite).
+            </summary>
+        </member>
+        <member name="F:MelloSilveiraTools.Database.Migrator.MigrationContext.Plugins">
+            <summary>
+            Executes dynamic plugin cache persistence migrations.
+            </summary>
+        </member>
+        <member name="T:MelloSilveiraTools.Database.Migrator.MigratorEngine">
+            <summary>
+            Executes contextual DDL database schema migrations against PostgreSQL using DbUp.
+            </summary>
+            <remarks>
+            <para>
+            <b>Notice:</b> The application exclusively supports PostgreSQL. All migration scripts, connection builders,
+            and journal tables are explicitly designed for and limited to PostgreSQL.
+            </para>
+            </remarks>
+        </member>
+        <member name="F:MelloSilveiraTools.Database.Migrator.MigratorEngine.SupportedDatabaseEngine">
+            <summary>
+            Supported database engine name for diagnostic logs and documentation.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Database.Migrator.MigratorEngine.UpgradeDatabase(Microsoft.Extensions.Logging.ILogger,MelloSilveiraTools.Database.Migrator.MigratorOptions)">
+            <summary>
+            Executes schema migrations according to the provided options.
+            </summary>
+            <param name="logger">Logger for telemetry and execution output.</param>
+            <param name="options">The contextual migration options containing the connection string and target context.</param>
+            <returns>A <see cref="T:MelloSilveiraTools.Core.Models.Result"/> indicating success or containing details of failure.</returns>
+        </member>
+        <member name="M:MelloSilveiraTools.Database.Migrator.MigratorEngine.FilterScriptByContext(System.String,MelloSilveiraTools.Database.Migrator.MigrationContext)">
+            <summary>
+            Filters embedded SQL migration scripts based on the target migration context.
+            </summary>
+            <param name="scriptName">The fully qualified resource name of the embedded script.</param>
+            <param name="context">The target context.</param>
+            <returns><c>true</c> if the script belongs to the target context; otherwise, <c>false</c>.</returns>
+        </member>
+        <member name="T:MelloSilveiraTools.Database.Migrator.MigratorOptions">
+            <summary>
+            Configuration options for executing contextual database schema migrations.
+            </summary>
+            <remarks>
+            <para>
+            <b>Notice:</b> The application exclusively supports PostgreSQL. The connection string must target a PostgreSQL database instance.
+            </para>
+            </remarks>
+            <param name="ConnectionString">The PostgreSQL connection string.</param>
+            <param name="Context">The target domain migration context.</param>
+            <param name="CommandTimeoutInSeconds">Timeout in seconds for individual DDL script execution.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.Database.Migrator.MigratorOptions.#ctor(System.String,MelloSilveiraTools.Database.Migrator.MigrationContext,System.Int32)">
+            <summary>
+            Configuration options for executing contextual database schema migrations.
+            </summary>
+            <remarks>
+            <para>
+            <b>Notice:</b> The application exclusively supports PostgreSQL. The connection string must target a PostgreSQL database instance.
+            </para>
+            </remarks>
+            <param name="ConnectionString">The PostgreSQL connection string.</param>
+            <param name="Context">The target domain migration context.</param>
+            <param name="CommandTimeoutInSeconds">Timeout in seconds for individual DDL script execution.</param>
+        </member>
+        <member name="P:MelloSilveiraTools.Database.Migrator.MigratorOptions.ConnectionString">
+            <summary>The PostgreSQL connection string.</summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Database.Migrator.MigratorOptions.Context">
+            <summary>The target domain migration context.</summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Database.Migrator.MigratorOptions.CommandTimeoutInSeconds">
+            <summary>Timeout in seconds for individual DDL script execution.</summary>
+        </member>
+        <member name="T:MelloSilveiraTools.Database.Migrator.Program">
+            <summary>
+            Command-line entry point for executing contextual PostgreSQL database schema migrations.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Database.Migrator.Program.Main(System.String[])">
+            <summary>
+            Application main method.
+            </summary>
+            <param name="args">Command-line arguments.</param>
+            <returns>Exit code: 0 for success, 1 for failure.</returns>
+        </member>
+    </members>
+</doc>

@@ -17,6 +17,11 @@ public static class MathematicConstants
     public const double EulerMascheroniConstant = 0.5772156649015328606065120900824024310421;
 
     /// <summary>
+    /// Unit roundoff (half machine epsilon, 2^-53) to avoid summing terms below double-precision resolution.
+    /// </summary>
+    public const double MachineEpsilonFloor = 1.1102230246251565e-16;
+
+    /// <summary>
     /// The tolerance for time comparisons.
     /// Used to distinguish "effectively zero" from any meaningful positive value.
     /// Chosen as 1e-10 s (0.1 nanosecond), well below any physically relevant time in the simulation.

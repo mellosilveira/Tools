@@ -1,0 +1,34 @@
+{
+  "task_id": "task-portability-phase2-security-storage",
+  "skill": "senior-backend-software-engineer-net",
+  "status": "success",
+  "retry_count": 0,
+  "data_payload": {
+    "modified_files": [
+      "src/MelloSilveiraTools.Core/Services/Encryption/EncryptionService.cs",
+      "src/MelloSilveiraTools.Core/Managers/File/Providers/FileStorageSettings.cs",
+      "src/MelloSilveiraTools.Core/Managers/File/Providers/Local/LocalFileStorageSettings.cs",
+      "src/MelloSilveiraTools.Core/Managers/File/Providers/Local/LocalFileStorageService.cs",
+      "src/MelloSilveiraTools.Plugins/Infrastructure/PluginFileProcessor.cs",
+      "test/UnitTests/Core/Managers/File/LocalFileStorageServiceTests.cs"
+    ],
+    "findings_resolved": [
+      "FINDING-02 (partial): Decoupled EncryptionService from Microsoft.AspNetCore.Cryptography.KeyDerivation by migrating to standard BCL System.Security.Cryptography.Rfc2898DeriveBytes.Pbkdf2.",
+      "FINDING-06: Introduced FileStorageSettings.CanonicalizePath and LocalFileStorageSettings automatic canonicalization to resolve relative paths against a safe application data root (LocalApplicationData/MelloSilveiraTools or STORAGE_BASE_DIRECTORY) instead of System32 or '/'.",
+      "FINDING-07: Implemented strict path traversal validation against '..', path separators ('/', '\\'), control/dangerous characters, and Windows reserved device names in identifier, context, and fileName. Verified path containment within BaseDirectory via Path.GetRelativePath and prefix checks.",
+      "FINDING-08: Configured EnumerationOptions with MatchCasing = MatchCasing.CaseInsensitive in LocalFileStorageService (for file/directory enumerations and case-insensitive directory segment resolution) and in PluginFileProcessor, ensuring full compatibility with Linux case-sensitive filesystems (ext4).",
+      "FINDING-14: Standardized LocalFileStorageService metadata extraction to use LastWriteTimeUtc instead of CreationTimeUtc to avoid unreliable birth time behavior in Linux POSIX environments."
+    ],
+    "compilation_status": {
+      "MelloSilveiraTools.Core": "Succeeded (0 errors)",
+      "MelloSilveiraTools.Plugins": "Succeeded (0 errors)"
+    },
+    "changelog_entry": "### Security & Cross-Platform Portability (Storage & Encryption)\n- Replaced `Microsoft.AspNetCore.Cryptography.KeyDerivation.KeyDerivation.Pbkdf2` in `EncryptionService.cs` with BCL standard `System.Security.Cryptography.Rfc2898DeriveBytes.Pbkdf2`, eliminating ASP.NET Core runtime dependency in core encryption [FINDING-02].\n- Hardened `LocalFileStorageService.cs` against path traversal attacks by introducing strict validation against traversal segments (`..`), path separators (`/`, `\\\\`), control/dangerous characters, and reserved device names across identifier, context, and file names [FINDING-07].\n- Added `FileStorageSettings.CanonicalizePath` and automatic canonicalization in `LocalFileStorageSettings.cs` to resolve relative paths against a secure application directory rather than working directories like System32 or '/' [FINDING-06].\n- Configured `EnumerationOptions` with `MatchCasing.CaseInsensitive` in `LocalFileStorageService.cs` and `PluginFileProcessor.cs`, preventing filesystem casing collisions on Linux ext4 [FINDING-08].\n- Adopted `LastWriteTimeUtc` instead of `CreationTimeUtc` in `LocalFileStorageService.cs` for reliable cross-platform POSIX file metadata [FINDING-14]."
+  },
+  "output_summary": "Implemented security and cross-platform portability remediations across Core and Plugins: migrated PBKDF2 to standard BCL API, added strict path traversal and device name safeguards, canonicalized relative storage paths, enabled case-insensitive filesystem enumeration, and adopted LastWriteTimeUtc metadata timestamps.",
+  "justification_for_decisions": "1. BCL PBKDF2: Utilizing Rfc2898DeriveBytes.Pbkdf2 eliminates runtime reliance on Microsoft.AspNetCore.Cryptography.KeyDerivation, ensuring Core can run in lean container and console environments without ASP.NET Core runtime. 2. Path Traversal & Device Name Validation: Proactive validation of identifier, context, and fileName before IO operations prevents directory traversal (../, ..\\\\) and reserved device name collisions on Windows/Linux. 3. Safe Path Canonicalization: Relative storage paths resolve to Environment.SpecialFolder.LocalApplicationData or STORAGE_BASE_DIRECTORY to prevent service daemons from writing to System32 or filesystem root. 4. Case-Insensitive Matching: Linux ext4 filesystems treat casing strictly; using EnumerationOptions.MatchCasing = CaseInsensitive ensures directory and file resolution matches existing entities regardless of input casing variations. 5. LastWriteTimeUtc: Statx creation times are unreliable or zeroed in Linux containers/overlayfs, whereas LastWriteTimeUtc is universally supported.",
+  "artifacts": [],
+  "warnings": [],
+  "token_usage": 0,
+  "theoretical_precision": "high"
+}

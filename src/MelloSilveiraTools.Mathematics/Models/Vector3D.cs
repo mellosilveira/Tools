@@ -1,4 +1,5 @@
 using MelloSilveiraTools.Mathematics.Extensions;
+using System.Globalization;
 
 namespace MelloSilveiraTools.Mathematics.Models;
 
@@ -10,9 +11,9 @@ public readonly struct Vector3D
     /// <summary>
     /// Class constructor.
     /// </summary>
-    /// <param name="x"></param>
-    /// <param name="y"></param>
-    /// <param name="z"></param>
+    /// <param name="x">The value at axis X.</param>
+    /// <param name="y">The value at axis Y.</param>
+    /// <param name="z">The value at axis Z.</param>
     private Vector3D(double x, double y, double z)
     {
         X = x;
@@ -46,7 +47,7 @@ public readonly struct Vector3D
     public double LengthSquared => X.Squared() + Y.Squared() + Z.Squared();
 
     /// <inheritdoc/>
-    public override string ToString() => $"{X},{Y},{Z}";
+    public override string ToString() => string.Create(CultureInfo.InvariantCulture, $"{X},{Y},{Z}");
 
     /// <inheritdoc/>
     public override bool Equals(object? obj)
@@ -61,59 +62,59 @@ public readonly struct Vector3D
     public static readonly Vector3D Empty = new(0.0, 0.0, 0.0);
 
     /// <summary>
-    /// Creates a <see cref="Vector3D"/> based on two <see cref="Point3D"/>.
+    /// Creates a <see cref="Vector3D"/> based on two <see cref="Point3D"/> instances.
     /// </summary>
-    /// <param name="point1"></param>
-    /// <param name="point2"></param>
-    /// <returns></returns>
+    /// <param name="point1">Starting point.</param>
+    /// <param name="point2">Ending point.</param>
+    /// <returns>A new <see cref="Vector3D"/> representing the difference vector from <paramref name="point1"/> to <paramref name="point2"/>.</returns>
     public static Vector3D Create(Point3D point1, Point3D point2) => new(point2.X - point1.X, point2.Y - point1.Y, point2.Z - point1.Z);
 
     /// <summary>
-    /// Creates a <see cref="Vector3D"/> based on two <see cref="Point3D"/>.
+    /// Creates a <see cref="Vector3D"/> based on two point coordinate strings in millimeters.
     /// </summary>
-    /// <param name="point1">The points as string at millimeters.</param>
-    /// <param name="point2">The points as string at millimeters.</param>
-    /// <returns></returns>
+    /// <param name="point1">The starting point as a comma-separated string in millimeters.</param>
+    /// <param name="point2">The ending point as a comma-separated string in millimeters.</param>
+    /// <returns>A new <see cref="Vector3D"/> representing the difference vector.</returns>
     public static Vector3D Create(string point1, string point2) => Create(Point3D.Parse(point1), Point3D.Parse(point2));
 
     /// <summary>
-    /// Creates a <see cref="Vector3D"/> based on the axis x, y and z.
+    /// Creates a <see cref="Vector3D"/> based on the axis x, y and z components.
     /// </summary>
-    /// <param name="x"></param>
-    /// <param name="y"></param>
-    /// <param name="z"></param>
-    /// <returns></returns>
+    /// <param name="x">The value at axis X.</param>
+    /// <param name="y">The value at axis Y.</param>
+    /// <param name="z">The value at axis Z.</param>
+    /// <returns>A new <see cref="Vector3D"/> instance.</returns>
     public static Vector3D Create(double x, double y, double z) => new(x, y, z);
 
     /// <summary>
-    /// Creates a <see cref="Vector3D"/> based on a string.
+    /// Creates a <see cref="Vector3D"/> based on a comma-separated string representation.
     /// </summary>
-    /// <param name="vectorAsString"></param>
-    /// <returns></returns>
+    /// <param name="vectorAsString">Comma-separated string representing the X, Y, and Z coordinates.</param>
+    /// <returns>A new <see cref="Vector3D"/> instance initialized with the parsed coordinates.</returns>
     public static Vector3D Parse(string vectorAsString)
     {
         string[] vec = vectorAsString.Split(',');
         return new Vector3D
         (
-            x: double.Parse(vec[0]),
-            y: double.Parse(vec[1]),
-            z: double.Parse(vec[2])
+            x: double.Parse(vec[0], CultureInfo.InvariantCulture),
+            y: double.Parse(vec[1], CultureInfo.InvariantCulture),
+            z: double.Parse(vec[2], CultureInfo.InvariantCulture)
         );
     }
 
     /// <summary>
-    /// Safely creates a <see cref="Vector3D"/> based on a string, returning <see cref="Empty"/> for null or whitespace input.
+    /// Safely creates a <see cref="Vector3D"/> based on a comma-separated string, returning <see cref="Empty"/> for null or whitespace input.
     /// </summary>
-    /// <param name="vectorAsString"></param>
-    /// <returns></returns>
+    /// <param name="vectorAsString">Comma-separated string representing the X, Y, and Z coordinates.</param>
+    /// <returns>A new <see cref="Vector3D"/> instance initialized with the parsed coordinates, or <see cref="Empty"/> if the input is null or whitespace.</returns>
     public static Vector3D SafeParse(string vectorAsString) => string.IsNullOrWhiteSpace(vectorAsString) ? Empty : Parse(vectorAsString);
 
     /// <summary>
-    /// Creates a <see cref="Vector3D"/> based on a string.
+    /// Attempts to parse a comma-separated string representation into a <see cref="Vector3D"/>.
     /// </summary>
-    /// <param name="vectorAsString"></param>
-    /// <param name="vector3D"></param>
-    /// <returns></returns>
+    /// <param name="vectorAsString">Comma-separated string representing the X, Y, and Z coordinates.</param>
+    /// <param name="vector3D">When this method returns, contains the parsed <see cref="Vector3D"/> if parsing succeeded, or <c>null</c> if parsing failed.</param>
+    /// <returns><c>true</c> if parsing succeeded; otherwise, <c>false</c>.</returns>
     public static bool TryParse(string vectorAsString, out Vector3D? vector3D)
     {
         try
@@ -121,9 +122,9 @@ public readonly struct Vector3D
             string[] vec = vectorAsString.Split(',');
             vector3D = new Vector3D
             (
-                x: double.Parse(vec[0]),
-                y: double.Parse(vec[1]),
-                z: double.Parse(vec[2])
+                x: double.Parse(vec[0], CultureInfo.InvariantCulture),
+                y: double.Parse(vec[1], CultureInfo.InvariantCulture),
+                z: double.Parse(vec[2], CultureInfo.InvariantCulture)
             );
 
             return true;

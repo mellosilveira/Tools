@@ -46,6 +46,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MelloSilveiraTools.Mechanic
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AcceptanceTests", "test\AcceptanceTests\AcceptanceTests.csproj", "{EE7E8767-2D4B-4904-AA02-74F020320593}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MelloSilveiraTools.Database.Migrator", "src\MelloSilveiraTools.Database.Migrator\MelloSilveiraTools.Database.Migrator.csproj", "{8FA887B1-4A2D-4E9A-8C37-B302F93C4E51}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -176,6 +178,18 @@ Global
 		{EE7E8767-2D4B-4904-AA02-74F020320593}.Release|x64.Build.0 = Release|Any CPU
 		{EE7E8767-2D4B-4904-AA02-74F020320593}.Release|x86.ActiveCfg = Release|Any CPU
 		{EE7E8767-2D4B-4904-AA02-74F020320593}.Release|x86.Build.0 = Release|Any CPU
+		{8FA887B1-4A2D-4E9A-8C37-B302F93C4E51}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8FA887B1-4A2D-4E9A-8C37-B302F93C4E51}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8FA887B1-4A2D-4E9A-8C37-B302F93C4E51}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{8FA887B1-4A2D-4E9A-8C37-B302F93C4E51}.Debug|x64.Build.0 = Debug|Any CPU
+		{8FA887B1-4A2D-4E9A-8C37-B302F93C4E51}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{8FA887B1-4A2D-4E9A-8C37-B302F93C4E51}.Debug|x86.Build.0 = Debug|Any CPU
+		{8FA887B1-4A2D-4E9A-8C37-B302F93C4E51}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8FA887B1-4A2D-4E9A-8C37-B302F93C4E51}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8FA887B1-4A2D-4E9A-8C37-B302F93C4E51}.Release|x64.ActiveCfg = Release|Any CPU
+		{8FA887B1-4A2D-4E9A-8C37-B302F93C4E51}.Release|x64.Build.0 = Release|Any CPU
+		{8FA887B1-4A2D-4E9A-8C37-B302F93C4E51}.Release|x86.ActiveCfg = Release|Any CPU
+		{8FA887B1-4A2D-4E9A-8C37-B302F93C4E51}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -192,8 +206,11 @@ Global
 		{0DB915F2-9604-4870-B5AF-9B050C3E1297} = {92D89A6E-7E8A-4E65-955F-ECAC80987E27}
 		{C0459F81-106C-4D77-AFB7-5403EA69CB68} = {92D89A6E-7E8A-4E65-955F-ECAC80987E27}
 		{EE7E8767-2D4B-4904-AA02-74F020320593} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
+		{8FA887B1-4A2D-4E9A-8C37-B302F93C4E51} = {92D89A6E-7E8A-4E65-955F-ECAC80987E27}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {6138CFB8-82E9-45F6-B28F-BF93F657D839}
 	EndGlobalSection
-EndGlobal
+EndProject("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MelloSilveiraTools.Database.Migrator", "src\MelloSilveiraTools.Database.Migrator\MelloSilveiraTools.Database.Migrator.csproj", "{8FA887B1-4A2D-4E9A-8C37-B302F93C4E51}"
+EndProject
+Global

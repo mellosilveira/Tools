@@ -8,11 +8,11 @@
 /// Represents the amplitude of the viscous effects relative to the elastic response. Unit: dimensionless.
 /// </param>
 /// <param name="FastRelaxationTime">
-/// The fast relaxation time constant (often denoted as τ2). 
+/// The fast relaxation time constant (often denoted as τ1). 
 /// Governs the short-term viscous response immediately after loading. Unit: s (second).
 /// </param>
 /// <param name="SlowRelaxationTime">
-/// The slow relaxation time constant (often denoted as τ1). 
+/// The slow relaxation time constant (often denoted as τ2). 
 /// Governs the long-term viscous response, dictating when the material reaches equilibrium. Unit: s (second).
 /// </param>
 public sealed record ReducedRelaxationFunction(double RelaxationStiffness, double FastRelaxationTime, double SlowRelaxationTime);

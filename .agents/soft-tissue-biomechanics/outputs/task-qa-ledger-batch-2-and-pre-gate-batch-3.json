@@ -1,0 +1,65 @@
+{
+  "task_id": "task-qa-ledger-batch-2-and-pre-gate-batch-3",
+  "skill": "documentation-and-tracking-secretary",
+  "status": "success",
+  "retry_count": 0,
+  "data_payload": {
+    "registered_executions": [
+      {
+        "task_id": "task-portability-phase2-security-storage",
+        "category": "Execution",
+        "agent": "senior-backend-software-engineer-net (Portabilidade)",
+        "summary": "Migração PBKDF2 para BCL Rfc2898DeriveBytes, validação estrita anti-path-traversal em LocalFileStorageService, canonicalização de FileStorageSettings, MatchCasing.CaseInsensitive e LastWriteTimeUtc."
+      },
+      {
+        "task_id": "task-biomechanics-phase2-canonical-pipeline-and-csv",
+        "category": "Execution",
+        "agent": "senior-backend-software-engineer-net (Biomecânica)",
+        "summary": "Injeção canônica de IPipeline<TIn, TOut> em ProcessExperimentalDataCommand e ExecuteParametricSweepCommand, registro Singleton canônico em DependencyInjection, e agrupamento/particionamento OAAT por variável em ParametricSweepCsvWriterStep gerando CSVs com 6 colunas padronizadas."
+      }
+    ],
+    "registered_decisions": [
+      {
+        "task_id": "task-human-directive-anti-tdd",
+        "category": "Decision",
+        "origin": "Usuário Humano",
+        "principle": "Production-First / Anti-TDD Directive",
+        "rule": "Os testes de unidade não podem influenciar no desenvolvimento; nunca deve-se usar TDD. Os testes devem única e exclusivamente assegurar que a implementação funciona sem bugs a posteriori, sem qualquer concessão arquitetural para facilitar testes."
+      },
+      {
+        "task_id": "task-pre-qa-gate-batch-3",
+        "category": "Decision",
+        "status": "APPROVED",
+        "evaluation": "Zero sobreposição de arquivos entre Subtask 3A e Subtask 3B (Files(3A) ∩ Files(3B) = ∅). Núcleo TPL Dataflow preservado intacto. Sem reinvenção de código."
+      }
+    ],
+    "batch_3_disjointness_matrix": {
+      "subtask_3a_files": [
+        "src/MelloSilveiraTools.Plugins/Infrastructure/PluginAssemblyProcessor.cs",
+        "src/MelloSilveiraTools.Plugins/Infrastructure/PluginLoadContext.cs",
+        "src/MelloSilveiraTools.MechanicsOfMaterials.Optimizations/CurveFitting/Algorithms/AlglibCurveFitter.cs",
+        "src/MelloSilveiraTools.Core/Managers/File/Csv/CsvFileWriter.cs",
+        "src/MelloSilveiraTools.Core/Models/SpanStringBuilder.cs"
+      ],
+      "subtask_3b_files": [
+        "src/MelloSilveiraTools.MechanicsOfMaterials.Optimizations/VariableRelationships/Steps/VariableGridGeneratorStep.cs",
+        "src/MelloSilveiraTools.MechanicsOfMaterials.Optimizations/VariableRelationships/Steps/IsoStressNewtonRaphsonStep.cs",
+        "src/MelloSilveiraTools.MechanicsOfMaterials.Optimizations/VariableRelationships/Steps/IsoStressFilterStep.cs",
+        "src/MelloSilveiraTools.MechanicsOfMaterials.Optimizations/VariableRelationships/Steps/IsoStressCsvWriterStep.cs",
+        "src/MelloSilveiraTools.MechanicsOfMaterials.Optimizations/VariableRelationships/Steps/VariableRelationshipPersistenceStep.cs",
+        "src/MelloSilveiraTools.MechanicsOfMaterials.Optimizations/VariableRelationships/VariableRelationshipPipeline.cs",
+        "src/MelloSilveiraTools.MechanicsOfMaterials.Optimizations/DependencyInjection.cs"
+      ],
+      "overlap_detected": false,
+      "shared_core_modified": false
+    }
+  },
+  "output_summary": "Registradas com sucesso as execuções do Batch 2 no Ledger de Decisões, incorporada a Diretriz Inviolável do Usuário (Production-First / Anti-TDD), e avaliado e APROVADO o Pre-Execution Strategy QA Gate para o Batch 3 com confirmação de sobreposição nula de arquivos entre 3A e 3B.",
+  "justification_for_decisions": "1. QA Transversal do Batch 2: Ambas as entregas (2A e 2B) atenderam integralmente os critérios de aceitação, compilação sem erros e padrões arquiteturais do ecossistema, sendo registradas no Ledger sob a categoria Execution com o padrão triplo [O quê], [De onde], [Por quê]. 2. Diretriz Anti-TDD: A determinação humana foi formalmente codificada como Princípio Arquitetural Inviolável, assegurando que testes de unidade existam estritamente como mecanismo posterior de salvaguarda de qualidade, sem ditar nem corromper o design de produção. 3. Pre-Execution QA Gate do Batch 3: A análise de grafo de arquivos confirmou que Files(3A) e Files(3B) são completamente disjuntos (Files(3A) ∩ Files(3B) = ∅), com a esteira 3A focando em Plugins, AlglibCurveFitter e CsvFileWriter/SpanStringBuilder, enquanto a 3B atua exclusivamente na nova pasta VariableRelationships e registro no DependencyInjection de Optimizations, mantendo o núcleo TPL Dataflow intocado.",
+  "artifacts": [
+    ".agents/soft-tissue-biomechanics/ledger/decisions.md"
+  ],
+  "warnings": [],
+  "token_usage": 0,
+  "theoretical_precision": "high"
+}

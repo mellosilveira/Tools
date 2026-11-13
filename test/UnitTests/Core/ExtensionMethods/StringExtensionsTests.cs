@@ -45,7 +45,7 @@ public sealed class StringExtensionsTests
     {
         // Regression test: the old code used `input.Replace` instead of `result.Replace`,
         // so only the last substitution had any effect.
-        var result = "#WHERE #ORDERBY #LIMIT".Remove("#WHERE ", "#ORDERBY ");
+        string result = "#WHERE #ORDERBY #LIMIT".Remove("#WHERE ", "#ORDERBY ");
 
         Assert.Equal("#LIMIT", result);
     }
@@ -53,7 +53,7 @@ public sealed class StringExtensionsTests
     [Fact]
     public void Remove_MultipleArgs_CanRemoveAll()
     {
-        var result = "abc".Remove("a", "b", "c");
+        string result = "abc".Remove("a", "b", "c");
 
         Assert.Equal(string.Empty, result);
     }

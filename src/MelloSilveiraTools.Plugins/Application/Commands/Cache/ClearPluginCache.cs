@@ -10,9 +10,9 @@ namespace MelloSilveiraTools.Plugins.Application.Commands.Cache;
 public class ClearPluginCache(IPluginService pluginService) : DefaultCommandBase
 {
     /// <inheritdoc />
-    protected override async Task<Result> ExecuteCommandAsync()
+    protected override async Task<Result> ExecuteCommandAsync(CancellationToken cancellationToken = default)
     {
-        await pluginService.ClearAsync();
+        await pluginService.ClearAsync().ConfigureAwait(false);
         return Result.CreateSuccessOk();
     }
 }

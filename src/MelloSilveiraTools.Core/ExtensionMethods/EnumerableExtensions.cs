@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using System.Diagnostics.CodeAnalysis;
+using Microsoft.Extensions.Logging;
 
 namespace MelloSilveiraTools.Core.ExtensionMethods;
 
@@ -53,18 +54,6 @@ public static class EnumerableExtensions
         /// </summary>
         /// <returns>True, if <paramref name="sources"/> is empty. False, otherwise.</returns>
         public bool IsEmpty() => !sources.Any();
-
-        /// <summary>
-        /// Indicates if <paramref name="sources"/> is null or empty.
-        /// </summary>
-        /// <returns>True, if <paramref name="sources"/> is null or empty. False, otherwise.</returns>
-        public bool IsNullOrEmpty() => sources is null || sources.IsEmpty();
-
-        /// <summary>
-        /// Indicates if <paramref name="sources"/> is not null nor empty.
-        /// </summary>
-        /// <returns>True, if <paramref name="sources"/> is not null nor empty. False, otherwise.</returns>
-        public bool IsNotNullOrEmpty() => sources is not null && sources.Any();
 
         /// <summary>
         /// Gets the runtime <see cref="Type"/> of the actual elements stored in <paramref name="sources"/>.
@@ -354,10 +343,26 @@ public static class EnumerableExtensions
         /// <returns>A lazy sequence of arrays where each array is one combination drawn from <paramref name="lists"/>.</returns>
         public IEnumerable<T[]> GetCombinations()
         {
-            var materialized = lists.ToList();
+            List<List<T>> materialized = [.. lists];
             return GetCombinationsRecursive(materialized, new T[materialized.Count]);
         }
     }
+
+    /// <summary>
+    /// Indicates if <paramref name="sources"/> is null or empty.
+    /// </summary>
+    /// <typeparam name="TSource">The type of the elements of <paramref name="sources"/>.</typeparam>
+    /// <param name="sources">The sequence to check for null or emptiness.</param>
+    /// <returns>True, if <paramref name="sources"/> is null or empty. False, otherwise.</returns>
+    public static bool IsNullOrEmpty<TSource>([NotNullWhen(false)] this IEnumerable<TSource>? sources) => sources is null || sources.IsEmpty();
+
+    /// <summary>
+    /// Indicates if <paramref name="sources"/> is not null nor empty.
+    /// </summary>
+    /// <typeparam name="TSource">The type of the elements of <paramref name="sources"/>.</typeparam>
+    /// <param name="sources">The sequence to check for elements.</param>
+    /// <returns>True, if <paramref name="sources"/> is not null nor empty. False, otherwise.</returns>
+    public static bool IsNotNullOrEmpty<TSource>([NotNullWhen(true)] this IEnumerable<TSource>? sources) => sources is not null && sources.Any();
 
     /// <summary>
     /// Recursive worker that walks <paramref name="lists"/> depth-first, fixing one element of
@@ -380,7 +385,7 @@ public static class EnumerableExtensions
         for (int i = 0; i < currentValues.Count; i++)
         {
             current[depth] = currentValues[i];
-            foreach (var combination in GetCombinationsRecursive(lists, current, depth + 1))
+            foreach (T[] combination in GetCombinationsRecursive(lists, current, depth + 1))
             {
                 yield return combination;
             }

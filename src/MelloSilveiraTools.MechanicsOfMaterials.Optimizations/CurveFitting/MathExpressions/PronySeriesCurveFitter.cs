@@ -36,7 +36,8 @@ public sealed class PronySeriesCurveFitter(ICurveFitter innerFitter) : IMathExpr
 
                 return sum - initialValue > input.Tolerance;
             }),
-            TargetRSquared = input.TargetRSquared
+            TargetRSquared = input.TargetRSquared,
+            ConfidenceLevel = input.ConfidenceLevel
         };
         return innerFitter.Fit(fitInput);
     }

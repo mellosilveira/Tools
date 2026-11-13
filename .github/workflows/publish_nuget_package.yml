@@ -45,6 +45,10 @@ jobs:
       run: dotnet restore MelloSilveiraTools.sln
     - name: Build solution
       run: dotnet build MelloSilveiraTools.sln --configuration ${{ env.CONFIGURATION }} --no-restore
+    - name: Run unit tests
+      run: dotnet test test/UnitTests/UnitTests.csproj --configuration ${{ env.CONFIGURATION }} --no-build
+    - name: Run acceptance tests
+      run: dotnet test test/AcceptanceTests/AcceptanceTests.csproj --configuration ${{ env.CONFIGURATION }} --no-build
     - name: Pack every NuGet package
       run: dotnet pack MelloSilveiraTools.sln --configuration ${{ env.CONFIGURATION }} --no-build --output ${{ env.UPLOAD_PATH }}
     - name: List produced packages

@@ -1,0 +1,61 @@
+{
+  "task_id": "task-review-comparative-literature-base",
+  "skill": "high-standard-paper-reviewer",
+  "status": "partial",
+  "retry_count": 0,
+  "data_payload": {
+    "verdict": "Approved with methodological and textual reservations",
+    "evaluation_summary": {
+      "continuum_kinematics_and_1d_reduction": "High rigor: exact tensor mappings (F, C, E, S, sigma), proper isochoric-volumetric decomposition, and flawless 1D uniaxial reduction under transverse isotropy and incompressibility (J = 1). Methodological gap: omission of tare pre-load / initial pre-strain boundary condition to establish gauge length L_0 and reference configuration Omega_0.",
+      "constitutive_formulations_and_citations": "All 6 constitutive models (HGO, Fung exponential, Mooney-Rivlin, Ogden, Yeoh, Fung QLV continuous spectrum) formulated with parameter definitions and specific page citations. Flaws: C_10 mislabeled as shear modulus instead of neo-Hookean parameter in HGO; missing Gasser et al. (2006) citation for fiber dispersion kappa; and line 643 contains an incomplete/flawed ramp-corrected QLV integral during the relaxation hold phase.",
+      "catalog_and_doi_verification": "60 of 60 studies independently verified and active via direct doi.org/CrossRef resolution (100% active, zero hallucination). Distributed across 4 classes: 19 TPU/PU, 24 Hydrogels/IPN, 10 Braided/Fibers, 7 Elastomers/Silicones. Textual glitches: Study 6 has a truncated opening with a dangling closing parenthesis, and Study 54 starts with an incomplete lowercase clause.",
+      "formatting_math_and_sig_figs": "Strict adherence to GitHub Markdown and KaTeX math delimiters ($...$ inline and $$...$$ display). Significant figures policy (3 sig figs) adhered to across text, with minor 2-sig-fig parameter specifications in the FEBio XML snippet."
+    },
+    "actionable_feedback": [
+      {
+        "priority": "high",
+        "location": "Section 3.1, paragraph 2, line 643",
+        "issue": "Incomplete and mathematically flawed formulation of the ramp-corrected Fung QLV hereditary integral during the relaxation holding phase (t > t_0). For s > t_0, strain is constant (d(epsilon)/ds = 0), so the second integral vanishes identically; the formula also terminates abruptly with '\\dots'.",
+        "fix": "Replace line 643 with the exact closed-form ramp-corrected QLV integral for a constant strain rate ramp: \\sigma(t) = \\frac{\\varepsilon_0}{t_0} \\int_0^{t_0} G(t - s) \\left.\\frac{\\partial \\sigma^e}{\\partial \\varepsilon}\\right|_{\\varepsilon(s)} ds for t \\ge t_0."
+      },
+      {
+        "priority": "high",
+        "location": "Section 1.1.1 and Section 3.1",
+        "issue": "Hidden boundary condition: omission of tare pre-load / initial pre-strain boundary condition to establish reference configuration Omega_0 and gauge length L_0. In flaccid ligaments and tendons, strain origin is indeterminate without specifying tare pre-load.",
+        "fix": "Explicitly declare the experimental tare pre-load protocol (e.g. F_0 = 0.100 - 0.500 N applied quasi-statically at <= 0.100 mm/s) required to establish the undeformed reference configuration Omega_0 (where E = 0, \\lambda = 1.00) prior to tensile assay."
+      },
+      {
+        "priority": "high",
+        "location": "Section 1.2, Domain (e), Subsection 1 (HGO Model), lines 147, 151, 156",
+        "issue": "(a) Dispersion parameter \\kappa in [0, 1/3] was introduced by Gasser, Ogden, and Holzapfel (2006), but only Holzapfel et al. (2000) is cited. (b) C_10 is mislabeled as 'isotropic matrix shear modulus' instead of neo-Hookean stress-scaling parameter (ground shear modulus \\mu_m = 2 C_10).",
+        "fix": "(a) Append canonical citation: Gasser, T. C., Ogden, R. W., Holzapfel, G. A., Hyperelastic modelling of arterial layers with distributed collagen fibre orientations, J. R. Soc. Interface, vol. 3, 2006, pp. 15-35, specifically pp. 17-20. (b) Amend line 151 to: 'C_{10} > 0: isotropic matrix stress-scaling parameter (where ground shear modulus \\mu_m = 2 C_{10}, in MPa)'."
+      },
+      {
+        "priority": "low",
+        "location": "Section 2, Category A, Study 6, line 216",
+        "issue": "Truncated opening sentence and dangling closing parenthesis in abstract: 'Background: ) remains a significant challenge due to their nonlinear...'",
+        "fix": "Restore complete opening clause: 'Background: Characterizing dynamic fracture and rate-dependent cavitation in soft materials remains a significant challenge due to their nonlinear, large-deformation, and rate-dependent mechanical behavior...'"
+      },
+      {
+        "priority": "low",
+        "location": "Section 2, Category B, Study 54, line 479",
+        "issue": "Incomplete opening sentence starting with lowercase: 'forming hydrogels were composed of different ionic crosslinked alginate concentrations...'",
+        "fix": "Capitalize and complete opening sentence: 'In situ forming hydrogels were composed of different ionic crosslinked alginate concentrations with 1% w/v enzymatically crosslinked phenolized cartilage ECM, resulting in an interpenetrating polymer network (IPN)...'"
+      },
+      {
+        "priority": "low",
+        "location": "Section 3.2, XML snippet, lines 657-674",
+        "issue": "Simulation parameters in FEBio XML snippet are formatted with 2 significant figures (1.5e-15, 2.2, 0.50, 0.10, 2.5), departing from the project-wide 3 significant figures policy.",
+        "fix": "Format all continuous simulation parameters to 3 significant figures: <perm>1.50e-15</perm>, <M>2.20</M>, <c1>0.500</c1>, <c2>0.100</c2>, <alpha>2.50</alpha>."
+      }
+    ]
+  },
+  "output_summary": "Comprehensive editorial and scientific peer review of comparative_mechanics_soft_tissues_vs_polymers.md completed. All 60 DOIs verified.",
+  "justification_for_decisions": "Strict peer review checklist applied.",
+  "artifacts": [
+    ".agents/soft-tissue-biomechanics/base_literature/comparative_mechanics_soft_tissues_vs_polymers.md"
+  ],
+  "warnings": [],
+  "token_usage": 0,
+  "theoretical_precision": "high"
+}

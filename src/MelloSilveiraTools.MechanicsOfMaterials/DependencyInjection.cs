@@ -1,5 +1,3 @@
-using MelloSilveiraTools.Core.Providers;
-using MelloSilveiraTools.Core.Providers.Dynamics;
 using MelloSilveiraTools.Mathematics.Expressions;
 using MelloSilveiraTools.MechanicsOfMaterials.Caching;
 using MelloSilveiraTools.MechanicsOfMaterials.Calculators.ConstitutiveEquations;
@@ -54,8 +52,6 @@ public static class DependencyInjection
                 .AddSingleton<IGeometricPropertyCalculator<CircularProfile>, CircularProfileGeometricPropertyCalculator>()
                 .AddSingleton<IGeometricPropertyCalculator<RectangularProfile>, RectangularProfileGeometricPropertyCalculator>()
                 // Register service dependencies.
-                .AddSingleton<IDynamicServiceProvider, InMemoryDynamicServiceProvider>()
-                .AddSingleton<ServiceLocator>()
                 .AddSingleton<IMechanicalModelTypeCache, MechanicalModelTypeCache>()
                 .AddSingleton<IMechanicalModelCalculatorFactory, MechanicalModelCalculatorFactory>()
                 // Register mechanical-model type resolvers.
