@@ -54,7 +54,7 @@ namespace MelloSilveiraTools.Core.Files.Providers.BlobStorage;
 /// <term>Transactional Fault Isolation &amp; Zero-Leak Lifecycle:</term>
 /// If a failure occurs during file calculation or data serialization, the partial artifact remains local and is safely cleaned up, preventing 
 /// orphaned partial objects or corrupted versions in the blob container and avoiding wasteful Azure Storage API transaction costs. Upload 
-/// transmission triggers only upon stream completion (<see cref="BlobDiskUploadStream.DisposeAsync"/>), and the enclosing <c>finally</c> 
+/// transmission triggers only upon stream completion (<c>BlobDiskUploadStream.DisposeAsync</c>), and the enclosing <c>finally</c> 
 /// block guarantees deterministic destruction of both the temporary file and its isolated upload partition directory.
 /// </item>
 /// </list>

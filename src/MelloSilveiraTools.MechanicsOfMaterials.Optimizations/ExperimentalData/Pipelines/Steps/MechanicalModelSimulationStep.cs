@@ -27,7 +27,6 @@ namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData
 /// <param name="mechanicalModelTypeResolver">Resolver mapping model names to typed parameters, calculators, and outputs.</param>
 /// <param name="calculatorFactory">Factory providing calculator facades for specific mechanical formulations.</param>
 /// <param name="pipelineIdentifier">Unique business identifier prefix for the generated CSV simulation file.</param>
-/// <param name="experimentalDataFileLocation">Optional persistent storage location of the segmented experimental CSV file used when curve segments are not present in memory.</param>
 /// <param name="simulationTimeStep">Optional explicit simulation time increment (Δt). If omitted, the average experimental time step is computed.</param>
 /// <param name="finalSimulationTime">Optional target final simulation time for extrapolation beyond the experimental regime.</param>
 /// <param name="asymptoteConsecutivePointsThreshold">Number of consecutive stable points required to detect steady-state convergence.</param>
@@ -36,7 +35,6 @@ public sealed class MechanicalModelSimulationStep(
     IMechanicalModelTypeResolver mechanicalModelTypeResolver,
     IMechanicalModelCalculatorFactory calculatorFactory,
     string pipelineIdentifier,
-    string experimentalDataFileLocation,
     double? simulationTimeStep,
     double? finalSimulationTime,
     int asymptoteConsecutivePointsThreshold)

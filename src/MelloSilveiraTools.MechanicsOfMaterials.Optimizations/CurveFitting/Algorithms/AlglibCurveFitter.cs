@@ -17,6 +17,7 @@ public class AlglibCurveFitter(ILogger<AlglibCurveFitter> logger, CurveFitterSet
     {
         (CurveFitProfile.Automatic, null) or (CurveFitProfile.Standard, _) => FitStandard(input),
         (CurveFitProfile.Automatic, _) or (CurveFitProfile.RuleConstrained, _) => FitRuleConstrained(input),
+        _ => throw new ArgumentOutOfRangeException(nameof(input), input.Profile, "Unsupported curve fit profile.")
     };
 
     /// <summary>
@@ -34,7 +35,7 @@ public class AlglibCurveFitter(ILogger<AlglibCurveFitter> logger, CurveFitterSet
             objectiveFunctionValue = CalculateObjectiveFunction(input, currentParameters);
             double[] computedGradientVector = CalculateNumericalGradient(input, currentParameters);
             Array.Copy(computedGradientVector, gradientVector, currentParameters.Length);
-        }, null, null);
+        }, null!, null!);
         alglib.minbleicresults(optimizerState, out workingParameters, out alglib.minbleicreport optimizerReport);
 
         if (optimizerReport.terminationtype > 0)
@@ -73,7 +74,7 @@ public class AlglibCurveFitter(ILogger<AlglibCurveFitter> logger, CurveFitterSet
         alglib.mindfoptimize(optimizerState, (double[] currentParameters, double[] objectiveFunctionValues, object callbackContext) =>
         {
             objectiveFunctionValues[0] = input.ValidateParameters != null && !input.ValidateParameters(currentParameters) ? 1e12 : CalculateObjectiveFunction(input, currentParameters);
-        }, null, null);
+        }, null!, null!);
 
         alglib.mindfresults(optimizerState, out workingParameters, out alglib.mindfreport optimizerReport);
 

@@ -107,13 +107,13 @@ public sealed class ExecuteParametricSweepFromExperimentalDataCommand(
                             ArrayVariables = request.ArrayVariables,
                             BaseStrain = request.BaseStrain,
                             StrainRange = request.StrainRange,
-                            RampTimeConsideration = request.RampTimeConsideration ?? entity.RampTimeConsideration,
+                            RampTimeConsideration = request.RampTimeConsideration,
                             RampTime = request.RampTime,
                             InitialTime = request.InitialTime,
                             TimeStep = request.TimeStep,
                             FinalTime = request.FinalTime,
                             RootFindingAlgorithm = request.RootFindingAlgorithm,
-                            BaseRootFindingInput = request.BaseRootFindingInput
+                            BaseRootFindingInput = request.BaseRootFindingInput,
                         };
 
                         logger.LogInformation("Starting parametric sweep pipeline. Input: {@Input}.", input);
@@ -130,7 +130,7 @@ public sealed class ExecuteParametricSweepFromExperimentalDataCommand(
                     {
                         semaphoreSlim.Release();
                     }
-                });
+                }, cancellationToken);
 
                 yield return identifier;
             }

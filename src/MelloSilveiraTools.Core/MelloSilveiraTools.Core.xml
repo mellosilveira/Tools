@@ -524,12 +524,6 @@
         <member name="M:MelloSilveiraTools.Core.ExtensionMethods.EnumerableExtensions.IsEmpty``1(System.Collections.Generic.IEnumerable{``0})">
             <inheritdoc cref="M:MelloSilveiraTools.Core.ExtensionMethods.EnumerableExtensions.&lt;G&gt;$E09FCB5EB13C1AE2FC524F6744DE5322`1.IsEmpty"/>
         </member>
-        <member name="M:MelloSilveiraTools.Core.ExtensionMethods.EnumerableExtensions.IsNullOrEmpty``1(System.Collections.Generic.IEnumerable{``0})">
-            <inheritdoc cref="M:MelloSilveiraTools.Core.ExtensionMethods.EnumerableExtensions.&lt;G&gt;$E09FCB5EB13C1AE2FC524F6744DE5322`1.IsNullOrEmpty"/>
-        </member>
-        <member name="M:MelloSilveiraTools.Core.ExtensionMethods.EnumerableExtensions.IsNotNullOrEmpty``1(System.Collections.Generic.IEnumerable{``0})">
-            <inheritdoc cref="M:MelloSilveiraTools.Core.ExtensionMethods.EnumerableExtensions.&lt;G&gt;$E09FCB5EB13C1AE2FC524F6744DE5322`1.IsNotNullOrEmpty"/>
-        </member>
         <member name="M:MelloSilveiraTools.Core.ExtensionMethods.EnumerableExtensions.GetSourceType``1(System.Collections.Generic.IEnumerable{``0})">
             <inheritdoc cref="M:MelloSilveiraTools.Core.ExtensionMethods.EnumerableExtensions.&lt;G&gt;$E09FCB5EB13C1AE2FC524F6744DE5322`1.GetSourceType"/>
         </member>
@@ -568,6 +562,22 @@
         </member>
         <member name="M:MelloSilveiraTools.Core.ExtensionMethods.EnumerableExtensions.GetCombinations``1(System.Collections.Generic.IEnumerable{System.Collections.Generic.List{``0}})">
             <inheritdoc cref="M:MelloSilveiraTools.Core.ExtensionMethods.EnumerableExtensions.&lt;G&gt;$978691D79689A87F2101F53723C48369`1.GetCombinations"/>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.ExtensionMethods.EnumerableExtensions.IsNullOrEmpty``1(System.Collections.Generic.IEnumerable{``0})">
+            <summary>
+            Indicates if <paramref name="sources"/> is null or empty.
+            </summary>
+            <typeparam name="TSource">The type of the elements of <paramref name="sources"/>.</typeparam>
+            <param name="sources">The sequence to check for null or emptiness.</param>
+            <returns>True, if <paramref name="sources"/> is null or empty. False, otherwise.</returns>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.ExtensionMethods.EnumerableExtensions.IsNotNullOrEmpty``1(System.Collections.Generic.IEnumerable{``0})">
+            <summary>
+            Indicates if <paramref name="sources"/> is not null nor empty.
+            </summary>
+            <typeparam name="TSource">The type of the elements of <paramref name="sources"/>.</typeparam>
+            <param name="sources">The sequence to check for elements.</param>
+            <returns>True, if <paramref name="sources"/> is not null nor empty. False, otherwise.</returns>
         </member>
         <member name="M:MelloSilveiraTools.Core.ExtensionMethods.EnumerableExtensions.GetCombinationsRecursive``1(System.Collections.Generic.List{System.Collections.Generic.List{``0}},``0[],System.Int32)">
             <summary>
@@ -608,18 +618,6 @@
             Indicates if <paramref name="sources"/> is empty.
             </summary>
             <returns>True, if <paramref name="sources"/> is empty. False, otherwise.</returns>
-        </member>
-        <member name="M:MelloSilveiraTools.Core.ExtensionMethods.EnumerableExtensions.&lt;G&gt;$E09FCB5EB13C1AE2FC524F6744DE5322`1.IsNullOrEmpty">
-            <summary>
-            Indicates if <paramref name="sources"/> is null or empty.
-            </summary>
-            <returns>True, if <paramref name="sources"/> is null or empty. False, otherwise.</returns>
-        </member>
-        <member name="M:MelloSilveiraTools.Core.ExtensionMethods.EnumerableExtensions.&lt;G&gt;$E09FCB5EB13C1AE2FC524F6744DE5322`1.IsNotNullOrEmpty">
-            <summary>
-            Indicates if <paramref name="sources"/> is not null nor empty.
-            </summary>
-            <returns>True, if <paramref name="sources"/> is not null nor empty. False, otherwise.</returns>
         </member>
         <member name="M:MelloSilveiraTools.Core.ExtensionMethods.EnumerableExtensions.&lt;G&gt;$E09FCB5EB13C1AE2FC524F6744DE5322`1.GetSourceType">
             <summary>
@@ -1347,7 +1345,7 @@
             <term>Transactional Fault Isolation &amp; Zero-Leak Lifecycle:</term>
             If a failure occurs during file calculation or data serialization, the partial artifact remains local and is safely cleaned up, preventing 
             orphaned partial objects or corrupted versions in the S3 bucket and avoiding wasteful AWS API PutObject costs. Upload transmission triggers 
-            only upon stream completion (<see cref="!:S3DiskUploadStream.DisposeAsync"/>), and the enclosing <c>finally</c> block guarantees deterministic 
+            only upon stream completion (<c>S3DiskUploadStream.DisposeAsync</c>), and the enclosing <c>finally</c> block guarantees deterministic 
             destruction of both the temporary file and its isolated upload partition directory.
             </item>
             </list>
@@ -1402,7 +1400,7 @@
             <term>Transactional Fault Isolation &amp; Zero-Leak Lifecycle:</term>
             If a failure occurs during file calculation or data serialization, the partial artifact remains local and is safely cleaned up, preventing 
             orphaned partial objects or corrupted versions in the S3 bucket and avoiding wasteful AWS API PutObject costs. Upload transmission triggers 
-            only upon stream completion (<see cref="!:S3DiskUploadStream.DisposeAsync"/>), and the enclosing <c>finally</c> block guarantees deterministic 
+            only upon stream completion (<c>S3DiskUploadStream.DisposeAsync</c>), and the enclosing <c>finally</c> block guarantees deterministic 
             destruction of both the temporary file and its isolated upload partition directory.
             </item>
             </list>
@@ -1542,7 +1540,7 @@
             <term>Transactional Fault Isolation &amp; Zero-Leak Lifecycle:</term>
             If a failure occurs during file calculation or data serialization, the partial artifact remains local and is safely cleaned up, preventing 
             orphaned partial objects or corrupted versions in the blob container and avoiding wasteful Azure Storage API transaction costs. Upload 
-            transmission triggers only upon stream completion (<see cref="!:BlobDiskUploadStream.DisposeAsync"/>), and the enclosing <c>finally</c> 
+            transmission triggers only upon stream completion (<c>BlobDiskUploadStream.DisposeAsync</c>), and the enclosing <c>finally</c> 
             block guarantees deterministic destruction of both the temporary file and its isolated upload partition directory.
             </item>
             </list>
@@ -1597,7 +1595,7 @@
             <term>Transactional Fault Isolation &amp; Zero-Leak Lifecycle:</term>
             If a failure occurs during file calculation or data serialization, the partial artifact remains local and is safely cleaned up, preventing 
             orphaned partial objects or corrupted versions in the blob container and avoiding wasteful Azure Storage API transaction costs. Upload 
-            transmission triggers only upon stream completion (<see cref="!:BlobDiskUploadStream.DisposeAsync"/>), and the enclosing <c>finally</c> 
+            transmission triggers only upon stream completion (<c>BlobDiskUploadStream.DisposeAsync</c>), and the enclosing <c>finally</c> 
             block guarantees deterministic destruction of both the temporary file and its isolated upload partition directory.
             </item>
             </list>
@@ -4019,6 +4017,7 @@
             </summary>
             <typeparam name="T">The immutable payload type ingested at the pipeline head.</typeparam>
             <param name="logger">Structured logging provider for tracking block transitions and telemetry.</param>
+            <param name="pipelineIdentifier">Unique identifier for correlating telemetry and progress events of the pipeline instance.</param>
             <param name="initialBufferSize">Mandatory maximum bounded capacity of the ingestion buffer block.</param>
             <param name="cancellationToken">The unified cancellation token propagated down the entire Dataflow network.</param>
             <returns>A fluent builder instance anchored to the initial buffer head.</returns>

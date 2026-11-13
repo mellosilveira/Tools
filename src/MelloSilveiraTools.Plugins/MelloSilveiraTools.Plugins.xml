@@ -511,6 +511,7 @@
             Marks the given <paramref name="type"/> as registered and updates <see cref="P:MelloSilveiraTools.Plugins.Infrastructure.Models.RegisteredPlugin.FullyLoadedAt"/> once all types are done.
             </summary>
             <param name="type">The type that was registered.</param>
+            <param name="fullyLoadedAt">The timestamp recorded if this registration completes the plugin load.</param>
         </member>
         <member name="T:MelloSilveiraTools.Plugins.Infrastructure.Persistences.DatabasePluginCachePersistence">
             <summary>

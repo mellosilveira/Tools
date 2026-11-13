@@ -5,5 +5,8 @@ namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData
 /// </summary>
 public record ExecuteExperimentalDataPipelineRequest : ExecuteExperimentalDataPipelineRequestBase
 {
-    public ExperimentalDataGroupRequest ExperimentalDataGroupRequest { get; init; }
+    /// <summary>
+    /// Gets the experimental data group configuration containing the target storage reference and strain range.
+    /// </summary>
+    public required ExperimentalDataGroupRequest ExperimentalDataGroupRequest { get; init; }
 }

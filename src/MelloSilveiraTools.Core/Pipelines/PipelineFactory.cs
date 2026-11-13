@@ -22,6 +22,7 @@ public class PipelineFactory(IPipelineProgressNotifier progressNotifier, TimePro
     /// </summary>
     /// <typeparam name="T">The immutable payload type ingested at the pipeline head.</typeparam>
     /// <param name="logger">Structured logging provider for tracking block transitions and telemetry.</param>
+    /// <param name="pipelineIdentifier">Unique identifier for correlating telemetry and progress events of the pipeline instance.</param>
     /// <param name="initialBufferSize">Mandatory maximum bounded capacity of the ingestion buffer block.</param>
     /// <param name="cancellationToken">The unified cancellation token propagated down the entire Dataflow network.</param>
     /// <returns>A fluent builder instance anchored to the initial buffer head.</returns>

@@ -80,7 +80,7 @@ public class MechanicalModelOutputCsvFileWriter : IAsyncDisposable
     private static Func<MechanicalModelOutput, object> CompileGetter(PropertyInfo property)
     {
         ParameterExpression param = Expression.Parameter(typeof(MechanicalModelOutput), "result");
-        Expression access = Expression.Property(Expression.Convert(param, property.DeclaringType), property);
+        Expression access = Expression.Property(Expression.Convert(param, property.DeclaringType!), property);
         Expression boxed = Expression.Convert(access, typeof(object));
         return Expression.Lambda<Func<MechanicalModelOutput, object>>(boxed, param).Compile();
     }

@@ -53,7 +53,7 @@ namespace MelloSilveiraTools.Core.Files.Providers.AwsS3;
 /// <term>Transactional Fault Isolation &amp; Zero-Leak Lifecycle:</term>
 /// If a failure occurs during file calculation or data serialization, the partial artifact remains local and is safely cleaned up, preventing 
 /// orphaned partial objects or corrupted versions in the S3 bucket and avoiding wasteful AWS API PutObject costs. Upload transmission triggers 
-/// only upon stream completion (<see cref="S3DiskUploadStream.DisposeAsync"/>), and the enclosing <c>finally</c> block guarantees deterministic 
+/// only upon stream completion (<c>S3DiskUploadStream.DisposeAsync</c>), and the enclosing <c>finally</c> block guarantees deterministic 
 /// destruction of both the temporary file and its isolated upload partition directory.
 /// </item>
 /// </list>

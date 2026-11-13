@@ -40,7 +40,7 @@ public sealed class PluginTestStorageMock
     /// <summary>
     /// Seeds or overwrites a file directly into the specified context and partition.
     /// </summary>
-    /// <param name="context">Business domain context.</param>
+    /// <param name="identifier">Business domain identifier.</param>
     /// <param name="partition">Canonical storage partition name.</param>
     /// <param name="fileName">File name with extension.</param>
     /// <param name="content">Raw file payload bytes.</param>
@@ -54,7 +54,7 @@ public sealed class PluginTestStorageMock
     /// <summary>
     /// Checks whether a file exists at the specified context and partition.
     /// </summary>
-    /// <param name="context">Business domain context.</param>
+    /// <param name="identifier">Business domain identifier.</param>
     /// <param name="partition">Canonical storage partition name.</param>
     /// <param name="fileName">File name with extension.</param>
     /// <returns><c>true</c> if the file exists; otherwise, <c>false</c>.</returns>
@@ -67,7 +67,7 @@ public sealed class PluginTestStorageMock
     /// <summary>
     /// Retrieves file bytes for a specific file residing in the specified partition, or <c>null</c> if not found.
     /// </summary>
-    /// <param name="context">Business domain context.</param>
+    /// <param name="identifier">Business domain identifier.</param>
     /// <param name="partition">Canonical storage partition name.</param>
     /// <param name="fileName">File name with extension.</param>
     /// <returns>The raw byte array, or <c>null</c>.</returns>
@@ -82,7 +82,7 @@ public sealed class PluginTestStorageMock
     /// <summary>
     /// Lists all file names currently stored in the given context and partition.
     /// </summary>
-    /// <param name="context">Business domain context.</param>
+    /// <param name="identifier">Business domain identifier.</param>
     /// <param name="partition">Canonical storage partition name.</param>
     /// <returns>A read-only list of file names.</returns>
     public IReadOnlyList<string> GetFilesInPartition(string identifier, string partition)

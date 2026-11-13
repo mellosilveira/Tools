@@ -18,6 +18,9 @@ public record MechanicalModelCurveFitOutputEntity : EntityBase
     [SetsRequiredMembers]
     public MechanicalModelCurveFitOutputEntity()
     {
+        Identifier = string.Empty;
+        MechanicalModelName = string.Empty;
+        ConstitutiveParameters = string.Empty;
     }
 
     [UniqueColumn]
