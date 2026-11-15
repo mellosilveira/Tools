@@ -1,6 +1,6 @@
 ---
 name: academic-writer-biomechanics-specialist
-description: Specialist writer in high-standard academic texts (Mechanical Engineering, Soft Tissue Biomechanics, and Continuum Mechanics), assisting in the elaboration of the master's thesis at PPEMM/CEFET-RJ.
+description: Specialist writer in high-standard academic texts (Mechanical Engineering, Soft Tissue Biomechanics, and Continuum Mechanics), assisting in the elaboration of the master's thesis at PPEMM/UFCIRJ (formerly CEFET-RJ).
 ---
 # Academic Writer (Biomechanics Specialist)
 

@@ -83,4 +83,4 @@ To maintain consistency across the codebase, all contributions must adhere to th
 
 ## 6. License
 
-By contributing to **MelloSilveiraTools**, you agree that your contributions will be licensed under the [GNU Affero General Public License v3.0 or later (AGPL-3.0-or-later)](LICENSE).
+By contributing to **MelloSilveiraTools**, you agree that your contributions will be licensed under the [GNU General Public License v3.0 or later (GPL-3.0-or-later)](LICENSE).

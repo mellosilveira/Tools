@@ -17,8 +17,10 @@ src/MelloSilveiraTools.MechanicsOfMaterials/           — Fatigue, constitutive
 src/MelloSilveiraTools.MechanicsOfMaterials.Optimizations/ — TPL Dataflow pipelines, experimental data segmentation (Ramp/Relaxation/Descent/Recovery), curve fitting via MathNet.Numerics & ALGLIB
 test/UnitTests/                                        — xUnit test suite, references the meta-package and Optimizations
 build/                                                 — Centralized bin/obj output redirected via Directory.Build.props
-Directory.Build.props                                  — Common metadata: net10.0, Authors, License, VersionPrefix, AOT/trim warning suppressions
+Directory.Build.props                                  — Common metadata: net10.0, Authors, License (GPL-3.0-or-later), VersionPrefix, AOT/trim warning suppressions
 CHANGELOG.md                                           — Keep-a-Changelog format, SemVer
+paper/                                                 — JOSS manuscript (paper.md) and bibliography (paper.bib)
+.github/workflows/                                     — GitHub Actions: CI / NuGet publish and JOSS draft PDF compilation
 ```
 
 Build the entire solution:
@@ -27,10 +29,23 @@ dotnet build MelloSilveiraTools.sln
 ```
 Each project generates its own `.nupkg` and `.snupkg` under `build/bin/Debug/<PackageId>/`.
 
-Run tests:
+Run unit tests (fast, in-memory, no external dependencies — 439 tests):
 ```powershell
 dotnet test test/UnitTests/UnitTests.csproj
 ```
+
+Run acceptance & integration tests (runs real ligament data against containerized PostgreSQL — requires Docker daemon):
+```powershell
+dotnet test test/AcceptanceTests/AcceptanceTests.csproj
+```
+
+---
+
+## Licensing & JOSS Compliance
+
+- **Project License:** GNU General Public License v3.0 or later (`GPL-3.0-or-later`) declared in `Directory.Build.props` and [LICENSE](file:///d:/Mello%20Silveira%20Servi%C3%A7os%20LTDA/Projetos/Tools/LICENSE).
+- **ALGLIB Bundling:** `MelloSilveiraTools.MechanicsOfMaterials.Optimizations` embeds C# source files from ALGLIB Free Edition (`GPL-2.0-or-later`). Licensing the suite under GPLv3 is strictly required to comply with ALGLIB, the Open Source Initiative (OSI), and JOSS review criteria.
+- **JOSS Submission:** The repository contains the complete JOSS paper draft in `paper/paper.md` and bibliography in `paper/paper.bib`, verified by `.github/workflows/draft-pdf.yml`.
 
 ---
 
@@ -288,9 +303,17 @@ AI agents modifying or generating code in this repository **must strictly adhere
 - Storage, Application Commands & API Endpoints:
   - `IFileStorageService`: Centralized file storage abstraction in `MelloSilveiraTools.Core.Managers.File` managing directory topology (`{BaseDirectory}/{context}/{identifier}/{fileName}`). Implemented by `LocalFileStorageService`, `AwsS3FileStorageService`, `BlobStorageFileStorageService`, and `DfsFileStorageService`. Implements both `IDisposable` and `IAsyncDisposable`.
   - Application Commands & Validators:
-    - `ExecuteExperimentalDataPipeline` / `ExecuteExperimentalDataPipelineValidator`: Orchestrates ingestion, validation, stream lifetime, and execution of `ExperimentalDataProcessingPipeline`, returning the deterministic simulation SHA-256 identifier. Registered as Singleton.
-    - `ExecuteParametricSweepPipeline` / `ExecuteParametricSweepValidator`: Validates sweeping parameter variations and executes `ParametricSweepPipeline`. Registered as Singleton.
+    - `ExecuteExperimentalDataPipeline` / `ExecuteExperimentalDataPipelineValidator`: Orchestrates ingestion of a single `stress.csv` and `strain.csv` pair, validation, stream lifetime, and execution of `ExperimentalDataProcessingPipeline`, returning the deterministic simulation SHA-256 identifier. Registered as Singleton.
+    - `ExecuteBatchExperimentalDataPipeline` / `ExecuteBatchExperimentalDataPipelineValidator`: Manages batch processing across multiple specimen groups (`ExperimentalDataGroupRequest`), executing sequentially or concurrently in parallel via `SemaphoreSlim` (`MaxDegreeOfParallelism`) with per-group error isolation.
+    - `ExecuteParametricSweepPipeline` / `ExecuteParametricSweepValidator`: Validates sweeping parameter variations and executes `ParametricSweepPipeline` for a single baseline parameter set. Registered as Singleton.
+    - `ExecuteParametricSweepFromExperimentalDataCommand` / `ExecuteParametricSweepFromExperimentalDataValidator`: Queries all fitted constitutive parameter entities associated with an experimental `Identifier`, deserializes parameter records, and executes parametric sweeps across all models sequentially or in parallel.
     - `UploadPlugin` / `UploadPluginValidator`: Validates uploaded plugin DLLs (verifying file extension, semantic version naming pattern, and `PEReader.HasMetadata`) and streams payloads directly to storage.
+  - Core Computational Workflows:
+    1. *Single Group Execution:* Ingests single `stress.csv` and `strain.csv` pair via `ExecuteExperimentalDataPipeline`.
+    2. *Batch Folder Preparation:* Prepares specimen file groups from directory containing raw experimental tests.
+    3. *Batch Multi-Group Processing:* Executes multiple experimental pairs via `ExecuteBatchExperimentalDataPipeline` (Sequential or Parallel).
+    4. *Single-Baseline Parametric Sweep:* Runs OAAT sensitivity sweep on single constitutive baseline via `ExecuteParametricSweepPipeline`.
+    5. *Multi-Model Parametric Sweep by Identifier:* Runs batch sensitivity sweeps on all models produced by an experimental run via `ExecuteParametricSweepFromExperimentalDataCommand` (Sequential or Parallel).
   - Controllers & Streaming:
     - `ExperimentalDataController`, `ParametricSweepController`: Provide standard REST endpoints and real-time streaming endpoints (`GET .../{identifier}/stream`) utilizing `WriteNdjsonAsync` to emit NDJSON `PipelineProgressEvent` streams via `IPipelineProgressNotifier`. Activated via `ILogger<T>` constructor injection.
     - `StoredFilesController`: Exposes file metadata queries by `fileId` and direct file downloads via `IFileStorageService.OpenReadAsync`.

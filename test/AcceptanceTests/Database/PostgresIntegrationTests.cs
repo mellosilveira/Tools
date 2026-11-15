@@ -42,8 +42,7 @@ public sealed class PostgresIntegrationTests
             // 1. Attempt to launch an isolated PostgreSQL container via Testcontainers.
             try
             {
-                container = new PostgreSqlBuilder()
-                    .WithImage("postgres:17-alpine")
+                container = new PostgreSqlBuilder("postgres:17-alpine")
                     .WithDatabase("tools_db")
                     .WithUsername("postgres")
                     .WithPassword("postgres")

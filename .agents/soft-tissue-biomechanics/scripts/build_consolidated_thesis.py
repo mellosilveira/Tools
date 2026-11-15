@@ -284,7 +284,7 @@ def build_thesis_document(output_path):
     p_inst.alignment = WD_ALIGN_PARAGRAPH.CENTER
     p_inst.paragraph_format.space_before = Pt(20)
     p_inst.paragraph_format.space_after = Pt(2)
-    r_inst = p_inst.add_run("CENTRO FEDERAL DE EDUCAÇÃO TECNOLÓGICA CELSO SUCKOW DA FONSECA (CEFET-RJ)\nPROGRAMA DE PÓS-GRADUAÇÃO EM ENGENHARIA MECÂNICA E TECNOLOGIA DE MATERIAIS (PPEMM)")
+    r_inst = p_inst.add_run("UNIVERSIDADE FEDERAL DE CIÊNCIA E INOVAÇÃO DO RIO DE JANEIRO (UFCIRJ)\nPROGRAMA DE PÓS-GRADUAÇÃO EM ENGENHARIA MECÂNICA E TECNOLOGIA DE MATERIAIS (PPEMM)")
     r_inst.font.name = 'Times New Roman'
     r_inst.font.size = Pt(11)
     r_inst.font.bold = True

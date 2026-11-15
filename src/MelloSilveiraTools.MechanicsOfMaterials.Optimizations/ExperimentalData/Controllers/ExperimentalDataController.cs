@@ -1,6 +1,5 @@
 using MelloSilveiraTools.Core.ExtensionMethods;
 using MelloSilveiraTools.Core.Models;
-using MelloSilveiraTools.Core.Pipelines.Notifiers;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Commands.Process;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Commands.Process.Batch;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Commands.Process.Single;
@@ -47,16 +46,4 @@ public class ExperimentalDataController(ILogger<ExperimentalDataController> logg
         await result.Data!.WriteNdjsonAsync(HttpContext, logger, "Progress for experimental data pipelines", cancellationToken).ConfigureAwait(false);
         return Result.CreateSuccessOk().BuildHttpResponse();
     }
-
-    [HttpGet("{identifier}/stream")]
-    [Produces("application/x-ndjson")]
-    [ProducesResponseType(StatusCodes.Status200OK)]
-    public async Task StreamPipelineProcessingAsync(
-        [FromServices] IPipelineProgressNotifier progressNotifier,
-        [FromRoute] string identifier,
-        CancellationToken cancellationToken = default) 
-        => await progressNotifier
-            .ReadAllAsync(identifier, cancellationToken)
-            .WriteNdjsonAsync(HttpContext, logger, "Progress for experimental data pipeline", cancellationToken)
-            .ConfigureAwait(false);
 }

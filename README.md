@@ -1,218 +1,183 @@
 # MelloSilveiraTools
 
-[![Build and Publish NuGet](https://github.com/mellosilveira/Tools/actions/workflows/publish_nuget_package.yml/badge.svg)](https://github.com/mellosilveira/Tools/actions/workflows/publish_nuget_package.yml)
+[![Build and Test](https://github.com/mellosilveira/Tools/actions/workflows/publish_release_candidate_nuget_package.yml/badge.svg)](https://github.com/mellosilveira/Tools/actions/workflows/publish_release_candidate_nuget_package.yml)
 [![JOSS Draft PDF](https://github.com/mellosilveira/Tools/actions/workflows/draft-pdf.yml/badge.svg)](https://github.com/mellosilveira/Tools/actions/workflows/draft-pdf.yml)
-[![License: AGPL v3](https://img.shields.io/badge/License-AGPL_v3-blue.svg)](https://www.gnu.org/licenses/agpl-3.0)
+[![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
+[![Target: .NET 10](https://img.shields.io/badge/.NET-10.0-purple.svg)](https://dotnet.microsoft.com/download/dotnet/10.0)
 
-A modular .NET 10 suite of open-source NuGet packages for **computational mechanics of materials, viscoelastic constitutive modeling, numerical analysis, and experimental data optimization**, backed by high-throughput TPL Dataflow pipelines, relational persistence, web-API helpers, and a dynamic plugin runtime.
-
----
-
-## Packages
-
-Pick the contextual packages your research or engineering application needs, or install the meta-package for the entire suite:
-
-| Package | What it ships | Depends on |
-|---|---|---|
-| `MelloSilveiraTools.Mathematics` | Differential equation solvers (Newmark, Newmark-$\beta$), symbolic-like function hierarchy (constant, polynomial, exponential, sine, cosine, power-law + factory) with lazy analytical derivatives/integrals, expressions (`PronySeries`), numerical integration (Simpson's rule), finite-difference differentiation, root-finding (Bisection, Brent, Step-by-Step), statistics, 3D geometry (`Point3D`, `Vector3D`), unit converter | Core |
-| `MelloSilveiraTools.MechanicsOfMaterials` | Fatigue (Goodman/Marin), constitutive equations, geometric properties (circular/rectangular profiles), 3D vector/force models, mechanical models (elastic, linear Maxwell, non-linear Schapery & Modified Superposition Method, quasi-linear Fung & Simplified Fung viscoelasticity), 3D tissue load-sharing calculator | Mathematics |
-| `MelloSilveiraTools.MechanicsOfMaterials.Optimizations` | TPL Dataflow pipelines for experimental mechanics, automated CSV phase segmentation (`Ramp`, `Relaxation`, `Descent`, `Recovery`), constrained curve fitting (`AlglibCurveFitter` L-BFGS / GDEMO Differential Evolution and `MathNetCurveFitter` BFGS / Nelder-Mead), Prony-series & constitutive parameter identification, and One-At-A-Time (OAAT) parametric sensitivity sweeps | MechanicsOfMaterials, WebApi |
-| `MelloSilveiraTools.Core` | TPL Dataflow & fluent pipeline builders with real-time progress telemetry (`IPipelineProgressNotifier`), extension methods, `ILogger` + structured file logger, in-memory single/two-level caches, Polly v8 resilience pipelines, encryption (PBKDF2), file storage (`Local`/`DFS`), SMTP email | — |
-| `MelloSilveiraTools.Database` | `IRepository`, `PostgresRepository`, `ISqlProvider`, attribute-driven SQL generation, filter clauses, Npgsql/Dapper extensions, dedicated Postgres resilience pipeline | Core |
-| `MelloSilveiraTools.WebApi` | `CustomControllerBase`, `CrudController<TEntity, TFilter>`, minimal API `MapCrud`, `ExceptionHandlingMiddleware`, NDJSON streaming, JWE bearer authentication, Swagger bootstrap, `ApiServiceAgent`, `Result<T>` HTTP projections | Core, Database |
-| `MelloSilveiraTools.Plugins` | File-based plugin runtime, two-level cache, dynamic DI, persistence (file/database), HTTP-friendly operations, background orchestrator | Core, Database, WebApi |
-| `MelloSilveiraTools` | Meta-package: aggregates every package above; install once and get everything | all of the above |
+A modular .NET 10 suite of high-performance packages designed for computational mechanics of materials, viscoelastic constitutive modeling, experimental data optimization, dynamic plugin execution, and enterprise-grade system foundations.
 
 ---
 
-## Installation
+## 1. About the Project
 
-Requires the [.NET 10.0 SDK](https://dotnet.microsoft.com/download/dotnet/10.0) or later.
+`MelloSilveiraTools` originated from a practical, real-world initiative: centralizing and standardizing battle-tested, recurring code patterns across multiple mission-critical software systems and research initiatives. Rather than an abstract theoretical framework, every capability in this suite was born out of genuine, demanding requirements encountered in real-world projects.
 
-Install the specific scientific packages via the .NET CLI:
+The project provides a comprehensive, unified foundation for engineering high-complexity, high-performance .NET applications. It combines advanced mathematical modeling, biomechanical constitutive characterization, and high-throughput streaming pipelines with production-grade architectural utilities (resilience pipelines, relational database providers, dynamic plugin loading, and robust file management).
 
-```bash
-dotnet add package MelloSilveiraTools.Mathematics
-dotnet add package MelloSilveiraTools.MechanicsOfMaterials
-dotnet add package MelloSilveiraTools.MechanicsOfMaterials.Optimizations
+---
+
+## 2. Technical Decisions & Architectural Patterns
+
+The suite is architected around strict engineering principles to guarantee high throughput, maintainability, and clean separation of concerns:
+
+- **Domain-Driven Design (DDD):** Pure domain logic is encapsulated inside dedicated core packages (`Mathematics`, `MechanicsOfMaterials`), free from infrastructure leakage. Models, constitutive parameters, and geometric profiles are represented as immutable, strongly typed records enforcing thermodynamic and physical validity bounds.
+- **Clean Architecture:** Strict unidirectional dependency flow. Calculation engines and mathematical abstractions have zero knowledge of databases, web frameworks, or operating system storage abstractions. Infrastructure layers (`Database`, `WebApi`, `Plugins`) act purely as external adapters.
+- **Plugin Architecture (Extensibility):** Features a dynamic, file-based and in-memory plugin runtime utilizing collectible .NET `AssemblyLoadContext` instances and two-level caching. Currently functional and specialized for mechanical constitutive models (`IMechanicalModelCalculator`, `ConstitutiveParameters`), allowing researchers and engineers to hot-load new material models into running systems without modifying or redeploying the core application.
+- **Native AOT & High Performance:** Core libraries target Ahead-of-Time (AOT) compilation and trimming compatibility (`<IsAotCompatible>true</IsAotCompatible>`). Reflection is eliminated in critical simulation paths through compiled expression trees, and performance is optimized using modern C# 13 features (`ref struct`, `Span<T>`, `ArrayPool<T>`), along with non-blocking concurrency primitives (`SemaphoreSlim`, `System.Threading.Channels`, and concurrent collections).
+- **Minimal APIs, Controllers & Swagger:** The web layer provides a versatile, dual-surface HTTP exposure: ultra-fast ASP.NET Core Minimal APIs alongside structured MVC controllers (`CrudController<TEntity, TFilter>` with automated generic CRUD, filtering, and pagination). Complete OpenAPI/Swagger documentation with Bearer security is configured out-of-the-box.
+- **Strict Dependency Discipline (Minimal Third-Party NuGets):** To prevent supply-chain vulnerabilities, breaking transitive dependencies, and framework bloat, the suite strictly restricts external dependencies. It relies almost exclusively on official, first-party Microsoft/C# runtime libraries (`Microsoft.Extensions.*`, `System.Threading.Channels`, TPL Dataflow) and the official `Npgsql` driver for PostgreSQL.
+
+---
+
+## 3. Project Modules & Dependencies
+
+The solution is partitioned into contextual, decoupled NuGet packages:
+
+```
+Core ←─── Mathematics ←─── MechanicsOfMaterials ←─── MechanicsOfMaterials.Optimizations
+  ↑
+  └── Database ←── WebApi ←── Plugins
+
+MelloSilveiraTools (meta) → Aggregates all above packages
 ```
 
-Or install the full meta-package:
+| Package | Key Features & Responsibilities | Dependencies |
+|---|---|---|
+| **`MelloSilveiraTools.Core`** | TPL Dataflow & fluent pipeline builders with real-time telemetry, Polly v8 resilience pipelines, in-memory caches, cryptography, file storage providers (`Local`, `AWS S3`, `Azure Blob`, `DFS`), and extension methods. | BCL, `Microsoft.Extensions.*`, `Polly` |
+| **`MelloSilveiraTools.Database`** | High-performance relational database provider for PostgreSQL, Dapper extensions, attribute-driven SQL generation, dynamic filtering clauses, and resilient transaction handling. | `Core`, `Npgsql`, `Dapper` |
+| **`MelloSilveiraTools.WebApi`** | Base controllers (`CustomControllerBase`, `CrudController`), Minimal API mappings (`MapCrud`), NDJSON real-time streaming, JWE bearer authentication, and Swagger configuration. | `Core`, `Database`, `Microsoft.AspNetCore.App` |
+| **`MelloSilveiraTools.Plugins`** | Dynamic plugin loader with collectible `AssemblyLoadContext`, two-level caching, storage-agnostic binary inspection, dynamic DI registration, and background file orchestrator. | `WebApi`, `Core`, `Database` |
+| **`MelloSilveiraTools.Mathematics`** | Symbolic-like function hierarchy (`FunctionFactory`), numerical integration (Simpson's rule), differentiation, root finding (Brent, Bisection), ODE solvers (Newmark, Newmark-$\beta$), 3D vectors, and statistics. | `Core` (zero external dependencies) |
+| **`MelloSilveiraTools.MechanicsOfMaterials`** | Linear and non-linear viscoelastic constitutive models (Fung QLV, Simplified Fung with Prony series, Schapery, Maxwell), classical fatigue criteria (Goodman/Marin), geometric profiles, and 3D ligament load sharing. | `Mathematics` |
+| **`MelloSilveiraTools.MechanicsOfMaterials.Optimizations`** | TPL Dataflow experimental data pipelines: CSV phase segmentation (`Ramp`, `Relaxation`, `Descent`, `Recovery`), downsampling, constrained curve fitting (embedded ALGLIB L-BFGS & MathNet.Numerics), and parametric sensitivity sweeps. | `MechanicsOfMaterials`, `WebApi`, `MathNet.Numerics` |
+| **`MelloSilveiraTools`** | Meta-package aggregating all packages above into a single reference with unified dependency injection (`AddToolsServices`). | All suite packages |
+
+---
+
+## 4. How to Install NuGet Packages
+
+The suite is available on [NuGet.org](https://www.nuget.org/). Install the full meta-package via the .NET CLI:
 
 ```bash
 dotnet add package MelloSilveiraTools
 ```
 
----
+Or install individual packages according to your system's specific requirements:
 
-## Scientific Quick Start (Viscoelastic Modeling & Curve Fitting)
+```bash
+# Core utilities and data pipelines
+dotnet add package MelloSilveiraTools.Core
 
-### 1. Evaluating a Quasi-Linear Viscoelastic (Simplified Fung / Prony Series) Model
+# Mathematics and numerical methods
+dotnet add package MelloSilveiraTools.Mathematics
 
-```csharp
-using MelloSilveiraTools.Mathematics.Expressions;
-using MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Viscoelasticity.QuasiLinear.SimplifiedFung;
-using MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels;
-using MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity;
-using MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.QuasiLinear;
+# Biomechanics and constitutive modeling
+dotnet add package MelloSilveiraTools.MechanicsOfMaterials
 
-// Define a 2-branch Prony series reduced relaxation function: G(t) = c + a1*exp(-t/tau1) + a2*exp(-t/tau2)
-PronySeries relaxationFunction = new(
-    independentParameter: 0.60,
-    iteratorCoefficients: [0.25, -0.10, 0.15, -0.01],
-    initialVariableValue: 0.0,
-    finalVariableValue: 100.0);
+# Experimental data optimization and curve fitting
+dotnet add package MelloSilveiraTools.MechanicsOfMaterials.Optimizations
 
-SimplifiedFungConstitutiveParameters parameters = new()
-{
-    ElasticStressConstant = 12.5,
-    ElasticPowerConstant = 18.0,
-    ReducedRelaxationFunction = relaxationFunction
-};
-
-SimplifiedFungModelCalculator calculator = new();
-MechanicalModelInput<SimplifiedFungConstitutiveParameters> input = new()
-{
-    ConstitutiveParameters = parameters,
-    Strain = 0.04,
-    Time = 30.0,
-    RampTime = 1.0,
-    RampTimeConsideration = RampTimeConsideration.ConsiderWithViscoelasticEffect
-};
-
-double stress = calculator.CalculateStress(input);
-```
-
-### 2. Constrained Non-Linear Curve Fitting (`MelloSilveiraTools.MechanicsOfMaterials.Optimizations`)
-
-```csharp
-using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Algorithms;
-using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Models;
-using Microsoft.Extensions.Logging.Abstractions;
-
-// Fit an exponential elastic response sigma(epsilon) = A * (exp(B * epsilon) - 1)
-double[] strains = [0.00, 0.01, 0.02, 0.03, 0.04, 0.05];
-double[] measuredStresses = [0.00, 2.46, 5.42, 8.98, 13.25, 18.39];
-
-AlglibCurveFitter fitter = new(NullLogger<AlglibCurveFitter>.Instance, new CurveFitterSettings { Seed = 42 });
-
-CurveFitInput fitInput = new(
-    IndependentVariable: strains,
-    DependentVariable: measuredStresses,
-    ModelFunction: (eps, p) => p[0] * (Math.Exp(p[1] * eps) - 1.0),
-    InitialParameters: [5.0, 10.0],
-    LowerBounds: [0.001, 0.001],
-    UpperBounds: [500.0, 200.0],
-    Profile: CurveFitProfile.Standard);
-
-CurveFitOutput fitOutput = fitter.Fit(fitInput);
-// fitOutput.OptimizedParameters -> [A ≈ 12.5, B ≈ 18.0], fitOutput.RSquared -> > 0.9999
+# PostgreSQL database provider
+dotnet add package MelloSilveiraTools.Database
 ```
 
 ---
 
-## Dependency Injection Wire-Up
+## 5. Web API Usage (In Development)
 
-### Everything in one go
+A turnkey, standalone REST and streaming Web API application is currently under development to expose the computational engine as a headless microservice. 
 
-```csharp
-services.AddToolsServices(
-    defaultResiliencePipelineSettings,
-    databaseSettings,
-    encryptionSettings,
-    pluginSettings,
-    emailSettings,
-    fileStorageSettings,
-    loggerSettings,
-    curveFitterOptions,
-    experimentalDataSettings,
-    parametricSweepSettings,
-    pipelineProgressNotifierSettings,
-    addMechanicalModels: true);
-```
-
-`AddToolsServices` (from the meta-package) chains `AddCoreServices`, `AddDatabaseServices`, `AddMathematicsServices`, `AddMechanicsOfMaterialsServices`, `AddOptimizationsServices`, `AddPluginServices` and `AddWebApiServices`. JWE auth and Swagger remain opt-in.
-
-### Granular wire-up
-
-```csharp
-services
-    .AddCoreServices(defaultResiliencePipelineSettings, encryptionSettings, emailSettings, fileStorageSettings, loggerSettings, pipelineProgressNotifierSettings)
-    .AddDatabaseServices(defaultResiliencePipelineSettings, databaseSettings)
-    .AddWebApiServices(defaultResiliencePipelineSettings)
-    .AddJweAuthentication(jwtSettings)
-    .AddSwaggerWithBearerSecurity()
-    .AddMathematicsServices()
-    .AddMechanicsOfMaterialsServices(addMechanicalModels: true)
-    .AddOptimizationsServices(curveFitterOptions, experimentalDataSettings, parametricSweepSettings)
-    .AddPluginServices(pluginSettings);
-```
+Planned API endpoints and capabilities:
+- **Asynchronous Processing (`POST /api/v1/experimental-data/process`):** Accepts `stress.csv` and `strain.csv` uploads, returning `202 Accepted` with a deterministic execution identifier.
+- **Batch Processing (`POST /api/v1/experimental-data/process/batch`):** Ingests batches of experimental datasets with configurable sequential or parallel execution.
+- **Parametric Sweeps (`POST /api/v1/parametric-sweeps/process-from-experimental-data`):** Triggers sensitivity sweeps across all calibrated constitutive models for an experimental identifier.
+- **Real-Time Progress Streaming (`GET /api/v1/pipeline-runs/{id}/events`):** Emits Server-Sent Events (SSE) and NDJSON streams providing item-level progress counters and DAG step topology updates.
 
 ---
 
-## Mathematics (`MelloSilveiraTools.Mathematics`)
+## 6. Frontend Usage (In Development)
 
-- **Differential equation solvers** — `NewmarkMethod`, `NewmarkBetaMethod` (registered via DI as keyed `IDifferentialEquationMethod`).
-- **Function system** — `Function` abstract class with lazy analytical `Derivative` / `Integral` properties. Concrete types: `ConstantFunction`, `PolynomialFunction`, `ExponencialFunction`, `SineFunction`, `CosineFunction`, `PowerLaw`, `GenericFunction`. Create by enum via `FunctionFactory`.
-- **Expressions** — `MathExpression` (linear combination of `Function` instances) and `PronySeries` ($c + \sum a_n e^{b_n x}$).
-- **Numerical methods** — `SimpsonRuleIntegration` (`IIntegration`), `FiniteDifferenceDifferentiation` (`IDifferentiation`), and `BisectionMethod` / `BrentMethod` / `StepByStepMethod` (keyed `IRootFinding`).
-- **Statistics & 3D Geometry** — `IStatisticsCalculator` / `StatisticsCalculator`, `Point3D`, `Vector3D`, `UnitConverter`.
-
----
-
-## Mechanics of Materials (`MelloSilveiraTools.MechanicsOfMaterials`)
-
-- **Fatigue** — `IFatigueCalculator` / `FatigueCalculator` (Goodman and Marin criteria).
-- **Constitutive equations** — `IConstitutiveEquationsCalculator` / `ConstitutiveEquationsCalculator`.
-- **Geometric properties** — `IGeometricPropertyCalculator<CircularProfile>` / `IGeometricPropertyCalculator<RectangularProfile>`.
-- **Viscoelastic & Mechanical models** — `IMechanicalModelCalculator<TConstitutiveParameters>` hierarchy:
-  - Linear elastic: `ElasticModelCalculator`
-  - Linear viscoelastic: `MaxwellModelCalculator`
-  - Quasi-linear viscoelastic (QLV): `FungModelCalculator` (continuous spectrum with exponential integral $E_1$) and `SimplifiedFungModelCalculator` (discrete Prony-series relaxation)
-  - Non-linear viscoelastic: `SchaperyModelCalculator` and `ModifiedSuperpositionMethodCalculator`
-- **Load sharing** — `ILoadSharingCalculator` / `LoadShare1DTissueThreeDimensionalSpaceCalculator` (specimen displacement, angle, force projection and derivatives in 3D space).
+An accessible, interactive web frontend is currently under active development. Designed with high synergy for the .NET backend, it will provide:
+- **Experimental Curve Visualization:** Interactive plotting of raw experimental stress-strain time histories.
+- **Automated Phase Inspection:** Visual validation of the sliding-window phase segmentation (`Ramp`, `Relaxation`, `Descent`, `Recovery`).
+- **Interactive Model Fitting:** Real-time visual comparison between experimental data and calibrated constitutive models (Fung QLV, Simplified Fung, and Schapery) with parameter confidence interval displays.
+- **Parametric Sensitivity Graphs:** Multi-dimensional visualization of One-At-A-Time (OAAT) parametric sweeps.
 
 ---
 
-## Experimental Data & Optimizations (`MelloSilveiraTools.MechanicsOfMaterials.Optimizations`)
+## 7. Project-Specific Documentation
 
-Provides streaming TPL Dataflow pipelines and numerical optimizers for experimental characterization:
+For in-depth architectural notes, class references, and specialized usage guides, please refer to the dedicated `README.md` file located inside each project directory:
 
-- **Experimental Phase Segmentation (`ExperimentalDataSegmenterStep`)** — Streams raw CSV time-series and classifies points into `Ramp`, `Relaxation`, `Descent`, and `Recovery` phases using sliding-window numerical differentiation.
-- **Downsampling & Accumulation (`ExperimentalDataDownsamplerStep`, `CurveSegmentAccumulatorStep`)** — Applies temporal filtering and groups contiguous deformation phases into `CurveSegment` batches.
-- **Constitutive Curve Fitting (`IMechanicalModelCurveFitterStep`, `AlglibCurveFitter`, `MathNetCurveFitter`)** — Calibrates viscoelastic constitutive models using bounded L-BFGS (`minbleic`), derivative-free adaptive Differential Evolution (`mindf` GDEMO) with non-linear parameter admissibility rules, and BFGS + Nelder-Mead simplex polishing, outputting $R^2$, RMSE, and Student-$t$ confidence intervals.
-- **Parametric Sensitivity Analysis (`ParametricSweepPipeline`)** — Executes One-At-A-Time (OAAT) sweeps across scalar and array-indexed constitutive parameters, computing initial/final stress responses and steady-state relaxation asymptotes.
-
----
-
-## HTTP Endpoints & Plugin System
-
-Both MVC controllers and minimal-API endpoint extensions ship side-by-side (`app.MapCrud<TEntity, TFilter>("/api/v1/things", "thing")`, `app.MapPluginEndpoints("/api/v1/plugins")`), with built-in support for `application/x-ndjson` real-time streaming (`WriteNdjsonAsync`).
-
-`MelloSilveiraTools.Plugins` enables file-based discovery (`{name}.v{major}.{minor}.{patch}.dll`), two-level caching, startup/runtime dynamic DI registration (`IDynamicServiceProvider`), and background hot-swapping (`PluginOrchestratorBackgroundService`).
+- [**`src/MelloSilveiraTools/README.md`**](src/MelloSilveiraTools/README.md) — Meta-package overview and unified DI setup.
+- [**`src/MelloSilveiraTools.Core/README.md`**](src/MelloSilveiraTools.Core/README.md) — Pipelines (TPL Dataflow/Fluent), resilience, caching, and storage.
+- [**`src/MelloSilveiraTools.Database/README.md`**](src/MelloSilveiraTools.Database/README.md) — PostgreSQL repositories, SQL generators, and filtering.
+- [**`src/MelloSilveiraTools.Database.Migrator/README.md`**](src/MelloSilveiraTools.Database.Migrator/README.md) — Contextual DDL schema migrations powered by DbUp.
+- [**`src/MelloSilveiraTools.Mathematics/README.md`**](src/MelloSilveiraTools.Mathematics/README.md) — Functions, expressions, numerical integration, differentiation, and ODE solvers.
+- [**`src/MelloSilveiraTools.MechanicsOfMaterials/README.md`**](src/MelloSilveiraTools.MechanicsOfMaterials/README.md) — Viscoelastic constitutive equations, fatigue, and load-sharing models.
+- [**`src/MelloSilveiraTools.MechanicsOfMaterials.Optimizations/README.md`**](src/MelloSilveiraTools.MechanicsOfMaterials.Optimizations/README.md) — Curve fitting, phase segmentation, and parametric sweeps.
+- [**`src/MelloSilveiraTools.Plugins/README.md`**](src/MelloSilveiraTools.Plugins/README.md) — Dynamic plugin loader, collectible contexts, and caching.
+- [**`src/MelloSilveiraTools.WebApi/README.md`**](src/MelloSilveiraTools.WebApi/README.md) — Minimal APIs, generic CRUD controllers, NDJSON streaming, and authentication.
 
 ---
 
-## Building & Running Automated Tests
+## 8. Running Automated Tests & Dependencies
 
-Clone the repository, build the solution, and execute the automated unit test suite (439 unit tests in `test/UnitTests`):
+The solution is thoroughly validated with automated test suites verifying mathematical accuracy, numerical convergence, and pipeline resilience.
+
+Clone and build the solution:
 
 ```bash
 git clone https://github.com/mellosilveira/Tools.git
 cd Tools
 dotnet restore MelloSilveiraTools.sln
 dotnet build MelloSilveiraTools.sln --configuration Release --no-restore
+```
+
+### 8.1. Unit Tests (Fast, In-Memory — No External Dependencies)
+
+Executes **449 unit tests** covering all analytical solvers, constitutive equations, and pipeline components in ~4 seconds without requiring any database or Docker container:
+
+```bash
 dotnet test test/UnitTests/UnitTests.csproj --configuration Release --no-build
+```
+
+### 8.2. Acceptance Tests (Requires Docker)
+
+Executes **23 end-to-end integration tests** validating real knee ligament tensile test data (ACL, PCL, MCL, LCL) and database persistence using [Testcontainers](https://dotnet.testcontainers.org/) to spin up a containerized PostgreSQL instance.
+
+> [!IMPORTANT]
+> The **Docker daemon must be running** on the host machine before executing acceptance tests.
+
+```bash
+dotnet test test/AcceptanceTests/AcceptanceTests.csproj --configuration Release
 ```
 
 ---
 
-## Contributing & Community Guidelines
+## 9. JOSS Publication
 
-Contributions, bug reports, and scientific model proposals are welcome! Please read our [Contributing Guidelines](CONTRIBUTING.md) and [Code of Conduct](CODE_OF_CONDUCT.md) before opening an issue or submitting a Pull Request.
+`MelloSilveiraTools` is prepared for submission to the *Journal of Open Source Software* (JOSS). 
+
+- **Manuscript:** The full paper draft is available in [`paper/paper.md`](paper/paper.md).
+- **Bibliography:** The complete BibTeX references are available in [`paper/paper.bib`](paper/paper.bib).
+- **Automated Draft Compilation:** A GitHub Actions workflow ([`.github/workflows/draft-pdf.yml`](.github/workflows/draft-pdf.yml)) compiles the paper into a draft PDF using `openjournals/openjournals-draft-action`.
 
 ---
 
-## License
+## 10. Contributing & Community Guidelines
 
-This project is licensed under the **GNU Affero General Public License v3.0 or later (`AGPL-3.0-or-later`)** — see the [LICENSE](LICENSE) file for full details.
+Contributions, bug reports, and scientific feedback are warmly encouraged!
+
+- **Guidelines:** Review our [Contributing Guidelines](CONTRIBUTING.md) for pull request workflows, coding style, and testing requirements.
+- **Code of Conduct:** We adhere to the [Contributor Covenant v2.1](CODE_OF_CONDUCT.md).
+- **Issue Templates:** Use the GitHub issue templates for bug reports and feature requests.
+
+---
+
+## 11. License
+
+This project is licensed under the **GNU General Public License v3.0 or later (`GPL-3.0-or-later`)** — see the [LICENSE](LICENSE) file for details.
+
+*Notice:* `MelloSilveiraTools.MechanicsOfMaterials.Optimizations` embeds C# source files from ALGLIB Free Edition (`GPL-2.0-or-later`). Licensing the suite under GPLv3 complies with ALGLIB, the Open Source Initiative (OSI), and JOSS criteria.

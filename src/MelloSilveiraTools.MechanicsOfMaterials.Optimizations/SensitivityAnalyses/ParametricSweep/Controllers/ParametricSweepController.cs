@@ -1,6 +1,5 @@
 using MelloSilveiraTools.Core.ExtensionMethods;
 using MelloSilveiraTools.Core.Models;
-using MelloSilveiraTools.Core.Pipelines.Notifiers;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Controllers;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.ParametricSweep.Commands.Process;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.ParametricSweep.Commands.ProcessFromExperimentalData;
@@ -46,16 +45,4 @@ public class ParametricSweepController(ILogger<ParametricSweepController> logger
         await result.Data!.WriteNdjsonAsync(HttpContext, logger, "Progress for parametric sweep pipelines", cancellationToken).ConfigureAwait(false);
         return Result.CreateSuccessOk().BuildHttpResponse();
     }
-
-    [HttpGet("{identifier}/stream")]
-    [Produces("application/x-ndjson")]
-    [ProducesResponseType(StatusCodes.Status200OK)]
-    public async Task ProcessStreamAsync(
-        [FromServices] IPipelineProgressNotifier progressNotifier,
-        [FromRoute] string identifier,
-        CancellationToken cancellationToken = default) 
-        => await progressNotifier
-            .ReadAllAsync(identifier, cancellationToken)
-            .WriteNdjsonAsync(HttpContext, logger, "Progress for parametric sweep pipeline", cancellationToken)
-            .ConfigureAwait(false);
 }

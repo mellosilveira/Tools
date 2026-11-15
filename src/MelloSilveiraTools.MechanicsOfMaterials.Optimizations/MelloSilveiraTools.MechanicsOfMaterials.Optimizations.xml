@@ -4,6 +4,28 @@
         <name>MelloSilveiraTools.MechanicsOfMaterials.Optimizations</name>
     </assembly>
     <members>
+        <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Controllers.PipelineProgressController">
+            <summary>
+            Exposes HTTP endpoints for streaming real-time pipeline execution progress notifications.
+            </summary>
+            <param name="logger">Structured logger instance for telemetry.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Controllers.PipelineProgressController.#ctor(Microsoft.Extensions.Logging.ILogger{MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Controllers.PipelineProgressController})">
+            <summary>
+            Exposes HTTP endpoints for streaming real-time pipeline execution progress notifications.
+            </summary>
+            <param name="logger">Structured logger instance for telemetry.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Controllers.PipelineProgressController.StreamProgressAsync(MelloSilveiraTools.Core.Pipelines.Notifiers.IPipelineProgressNotifier,System.String,System.Threading.CancellationToken)">
+            <summary>
+            Streams real-time <see cref="T:MelloSilveiraTools.Core.Pipelines.Models.PipelineProgressEvent"/> notifications for a specific pipeline execution
+            formatted as an NDJSON (<c>application/x-ndjson</c>) response stream.
+            </summary>
+            <param name="progressNotifier">The progress notifier service resolving the pipeline execution channel.</param>
+            <param name="pipelineId">The unique business identifier correlating the pipeline run.</param>
+            <param name="cancellationToken">Cancellation token to terminate the response stream.</param>
+            <returns>A task representing the ongoing NDJSON response write operation.</returns>
+        </member>
         <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Controllers.StoredFilesController">
             <summary>
             Exposes unified HTTP endpoints for querying and downloading stored files (<see cref="T:MelloSilveiraTools.Database.RelationalDatabase.Models.Entities.StorageEntryMetadataEntity"/>)

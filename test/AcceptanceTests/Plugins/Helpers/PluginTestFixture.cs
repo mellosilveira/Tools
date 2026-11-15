@@ -35,7 +35,7 @@ public sealed class TestPluginTypeProcessor : IPluginTypeProcessor
 
             if (context.IsStartup && context.Services is not null)
             {
-                context.Services.AddKeyedTransient("TestPlugin", (IServiceProvider _, object _) => type.Name);
+                context.Services.AddKeyedTransient<string>("TestPlugin", (sp, key) => type.Name);
             }
             else if (context.DynamicProvider is not null)
             {
