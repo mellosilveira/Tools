@@ -1,4 +1,3 @@
-using MelloSilveiraTools.Core.ExtensionMethods;
 using MelloSilveiraTools.Core.Pipelines.Models;
 using MelloSilveiraTools.Core.Pipelines.Notifiers;
 using MelloSilveiraTools.WebApi.Application.Endpoints;
@@ -25,7 +24,6 @@ public class PipelineProgressController(ILogger<PipelineProgressController> logg
     /// <param name="cancellationToken">Cancellation token to terminate the response stream.</param>
     /// <returns>A task representing the ongoing NDJSON response write operation.</returns>
     [HttpGet("{pipelineId}/progress")]
-    [HttpGet("{pipelineId}/progress/stream")]
     [Produces("application/x-ndjson")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     public async Task StreamProgressAsync(
