@@ -296,4 +296,71 @@ public class ResultExtensionsTests
 
         Assert.NotNull(httpResult);
     }
+
+    private enum SampleStatus
+    {
+        Active = 1
+    }
+
+    [Fact]
+    public async Task ValidationAndMonadicBranches_CoverRemainingPaths()
+    {
+        Result invalidEnum = Result.CreateSuccessOk().AddErrorIfInvalidEnum((SampleStatus)999, "Bad enum");
+        Result validEnum = Result.CreateSuccessOk().AddErrorIfInvalidEnum(SampleStatus.Active, "Bad enum");
+        Assert.False(invalidEnum.Success);
+        Assert.True(validEnum.Success);
+
+        Result nullListError = Result.CreateSuccessOk().AddErrorIfNegativeOrZero((List<double>)null!, "List invalid");
+        Result emptyListError = Result.CreateSuccessOk().AddErrorIfNegativeOrZero([], "List invalid");
+        Result negElementError = Result.CreateSuccessOk().AddErrorIfNegativeOrZero([1.0, 0.0, 2.0], "Non-positive");
+        Result validList = Result.CreateSuccessOk().AddErrorIfNegativeOrZero([1.0, 2.0], "Non-positive");
+        Assert.False(nullListError.Success);
+        Assert.False(emptyListError.Success);
+        Assert.False(negElementError.Success);
+        Assert.True(validList.Success);
+
+        string tempDir = Path.Combine(Path.GetTempPath(), $"mst_re_{Guid.NewGuid():N}");
+        Directory.CreateDirectory(tempDir);
+        string existingFile = Path.Combine(tempDir, "exists.txt");
+        await File.WriteAllTextAsync(existingFile, "data");
+        string missingFile = Path.Combine(tempDir, "missing.txt");
+
+        try
+        {
+            Assert.False(Result.CreateSuccessOk().AddErrorIfFileNotExist("   ", "Blank").Success);
+            Assert.False(Result.CreateSuccessOk().AddErrorIfFileNotExist(missingFile, "Missing").Success);
+            Assert.True(Result.CreateSuccessOk().AddErrorIfFileNotExist(existingFile, "Missing").Success);
+
+            Assert.False(Result.CreateSuccessOk().AddErrorIfFileExist(existingFile).Success);
+            Assert.True(Result.CreateSuccessOk().AddErrorIfFileExist(missingFile).Success);
+
+            Assert.False(Result.CreateSuccessOk().AddErrorIfDirectoryNotExist(string.Empty, "Empty dir").Success);
+            Assert.False(Result.CreateSuccessOk().AddErrorIfDirectoryNotExist(Path.Combine(tempDir, "nope"), "Missing dir").Success);
+            Assert.True(Result.CreateSuccessOk().AddErrorIfDirectoryNotExist(tempDir, "Valid dir").Success);
+        }
+        finally
+        {
+            Directory.Delete(tempDir, true);
+        }
+
+        Result ok = Result.CreateSuccessOk();
+        Result err = Result.CreateBadRequest("err");
+
+        Assert.Same(ok, ok.OnError(() => Result.CreateBadRequest("never")));
+        Assert.Same(ok, await ok.OnError(() => Task.FromResult(Result.CreateBadRequest("never"))));
+        Assert.Same(err, err.OnSuccess(() => Result.CreateSuccessCreated()));
+        Assert.Same(err, await err.OnSuccess(() => Task.FromResult(Result.CreateSuccessCreated())));
+
+        Result syncMatchOk = ok.Match(() => Result.CreateSuccessCreated(), r => r);
+        Result syncMatchErr = err.Match(() => Result.CreateSuccessCreated(), _ => Result.CreateNotFound("mapped"));
+        Result asyncMatchOk = await ok.Match(() => Task.FromResult(Result.CreateSuccessCreated()), r => r);
+        Result asyncMatchErr = await err.Match(() => Task.FromResult(Result.CreateSuccessCreated()), _ => Result.CreateNotFound("mapped"));
+        Result nullMatchOk = await ((Result)null!).Match(() => Task.FromResult(Result.CreateSuccessOk()), r => r);
+
+        Assert.Equal(StatusCode.Created, syncMatchOk.StatusCode);
+        Assert.Equal(StatusCode.NotFound, syncMatchErr.StatusCode);
+        Assert.Equal(StatusCode.Created, asyncMatchOk.StatusCode);
+        Assert.Equal(StatusCode.NotFound, asyncMatchErr.StatusCode);
+        Assert.True(nullMatchOk.Success);
+    }
 }

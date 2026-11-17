@@ -32,7 +32,6 @@ public sealed class ChannelPipelineProgressNotifier(
         if (!_channels.TryGetValue(pipelineIdentifier, out ChannelEntry? entry) || entry is null)
             throw new KeyNotFoundException($"Pipeline with identifier '{pipelineIdentifier}' not found.");
 
-
         try
         {
             await foreach (PipelineProgressEvent item in entry.Channel.Reader.ReadAllAsync(cancellationToken).ConfigureAwait(false))
@@ -42,7 +41,8 @@ public sealed class ChannelPipelineProgressNotifier(
         }
         finally
         {
-            _channels.TryRemove(pipelineIdentifier, out _);
+            if (entry.IsCompleted)
+                _channels.TryRemove(pipelineIdentifier, out _);
         }
     }
 

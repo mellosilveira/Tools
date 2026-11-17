@@ -101,12 +101,9 @@ public class PostgresSqlProvider : ISqlProvider
     private static EntityMetadata GetMetadata(Type type)
         => _metadataCache.GetOrAdd(type, t =>
         {
-            var tableAttr = t.GetCustomAttribute<TableAttribute>()
-                ?? throw new InvalidOperationException($"O tipo {t.Name} não possui TableAttribute.");
-
-            var props = t.GetPropertiesInHierarchy<ColumnAttribute>();
-            var pk = props.FirstOrDefault(p => p.GetCustomAttribute<PrimaryKeyColumnAttribute>() != null)
-                ?? throw new InvalidOperationException($"O tipo {t.Name} não possui uma PrimaryKey definida.");
+            TableAttribute tableAttr = t.GetCustomAttribute<TableAttribute>() ?? throw new InvalidOperationException($"O tipo {t.Name} não possui TableAttribute.");
+            PropertyInfo[] props = t.GetPropertiesInHierarchy<ColumnAttribute>();
+            PropertyInfo pk = props.FirstOrDefault(p => p.GetCustomAttribute<PrimaryKeyColumnAttribute>() != null) ?? throw new InvalidOperationException($"O tipo {t.Name} não possui uma PrimaryKey definida.");
 
             return new EntityMetadata(
                 tableAttr.Name,
@@ -124,25 +121,25 @@ public class PostgresSqlProvider : ISqlProvider
 
     private static string CreateBatchInsertSql(Type type, int batchSize)
     {
-        var meta = GetMetadata(type);
-        var cols = string.Join(", ", meta.AllColumns.Select(c => c.ColName));
+        EntityMetadata meta = GetMetadata(type);
+        string cols = string.Join(", ", meta.AllColumns.Select(c => c.ColName));
 
         // Os sufixos devem ser 1-based (_1, _2, ...) para coincidir com BuildParametersFromCollection.
-        var valueLines = new StringBuilder();
+        StringBuilder valueLines = new();
         for (int i = 0; i < batchSize; i++)
         {
-            var suffix = $"_{i + 1}";
+            string suffix = $"_{i + 1}";
             valueLines.Append('(')
                       .Append(string.Join(", ", meta.AllColumns.Select(c => $"@{c.Prop.Name}{suffix}")))
                       .Append(')');
             if (i < batchSize - 1) valueLines.Append(",\r\n\t");
         }
 
-        var template = meta.UniqueColumns.Count != 0
+        string template = meta.UniqueColumns.Count != 0
             ? SqlResource.BulkInsertWithUniqueKeyTemplate
             : SqlResource.BulkInsertTemplate;
 
-        var sql = template
+        string sql = template
             .Replace("#TABLE_NAME", meta.TableName)
             .Replace("#COLUMNS", cols)
             .Replace("#VALUES", valueLines.ToString())
@@ -150,8 +147,8 @@ public class PostgresSqlProvider : ISqlProvider
 
         if (meta.UniqueColumns.Count != 0)
         {
-            var uniqueCols = string.Join(", ", meta.UniqueColumns.Select(c => c.ColName));
-            var uniqueUpdates = BuildUniqueUpdates(meta);
+            string uniqueCols = string.Join(", ", meta.UniqueColumns.Select(c => c.ColName));
+            string uniqueUpdates = BuildUniqueUpdates(meta);
             sql = sql
                 .Replace("#UNIQUE_COLUMNS", uniqueCols)
                 .Replace("#UNIQUE_UPDATES", uniqueUpdates);
@@ -162,25 +159,25 @@ public class PostgresSqlProvider : ISqlProvider
 
     private static string CreateCountSql(Type type)
     {
-        var meta = GetMetadata(type);
+        EntityMetadata meta = GetMetadata(type);
         return $"SELECT COUNT(1) FROM {meta.TableName} AS {meta.Alias}\r\n#WHERE";
     }
 
     private static string CreateExistByPrimaryKeySql(Type type)
     {
-        var meta = GetMetadata(type);
+        EntityMetadata meta = GetMetadata(type);
         return $"SELECT 1 FROM {meta.TableName} AS {meta.Alias}\r\nWHERE {meta.Alias}.{meta.PrimaryKeyCol} = @{meta.PrimaryKey.Name}\r\nLIMIT 1";
     }
 
     private static string CreateBaseSelectSql(Type type, bool isDistinct = false)
     {
-        var meta = GetMetadata(type);
-        var columns = meta.AllColumns.Select(c => $"{meta.Alias}.{c.ColName} AS \"{c.Prop.Name}\"").ToList();
+        EntityMetadata meta = GetMetadata(type);
+        List<string> columns = [.. meta.AllColumns.Select(c => $"{meta.Alias}.{c.ColName} AS \"{c.Prop.Name}\"")];
 
-        var joins = new StringBuilder();
-        foreach (var (prop, colName) in meta.AllColumns)
+        StringBuilder joins = new();
+        foreach ((PropertyInfo prop, string colName) in meta.AllColumns)
         {
-            var fk = prop.GetCustomAttribute<ForeignKeyColumnAttribute>();
+            ForeignKeyColumnAttribute? fk = prop.GetCustomAttribute<ForeignKeyColumnAttribute>();
             if (fk == null)
                 continue;
 
@@ -188,7 +185,7 @@ public class PostgresSqlProvider : ISqlProvider
             joins.AppendLine($"{fk.JoinType} JOIN {refMeta.TableName} AS {refMeta.Alias} ON {refMeta.Alias}.{refMeta.PrimaryKeyCol} = {meta.Alias}.{colName}");
         }
 
-        var sql = SqlResource.SelectTemplate;
+        string sql = SqlResource.SelectTemplate;
         if (!isDistinct)
             sql = sql.Replace("SELECT DISTINCT", "SELECT");
 
@@ -205,7 +202,7 @@ public class PostgresSqlProvider : ISqlProvider
 
     private static string CreateSelectByPrimaryKeySql(Type type)
     {
-        var meta = GetMetadata(type);
+        EntityMetadata meta = GetMetadata(type);
         return CreateSelectSql(type)
             .Replace("#WHERE", $"WHERE {meta.Alias}.{meta.PrimaryKeyCol} = @{meta.PrimaryKey.Name}")
             .Remove("#ORDERBY").Remove("#OFFSET").Remove("#LIMIT");
@@ -213,8 +210,8 @@ public class PostgresSqlProvider : ISqlProvider
 
     private static string CreateSelectByUniqueColumnSql(Type type)
     {
-        var meta = GetMetadata(type);
-        var (_, colName) = meta.UniqueColumns[0];
+        EntityMetadata meta = GetMetadata(type);
+        (_, string colName) = meta.UniqueColumns[0];
         return CreateSelectSql(type)
             .Replace("#WHERE", $"WHERE {meta.Alias}.{colName} = @UniqueColumnValue")
             .Remove("#ORDERBY").Remove("#OFFSET").Remove("#LIMIT");
@@ -222,9 +219,9 @@ public class PostgresSqlProvider : ISqlProvider
 
     private static string CreateInsertSql(Type type)
     {
-        var meta = GetMetadata(type);
-        var cols = string.Join(", ", meta.AllColumns.Select(c => c.ColName));
-        var pars = string.Join(", ", meta.AllColumns.Select(c => $"@{c.Prop.Name}"));
+        EntityMetadata meta = GetMetadata(type);
+        string cols = string.Join(", ", meta.AllColumns.Select(c => c.ColName));
+        string pars = string.Join(", ", meta.AllColumns.Select(c => $"@{c.Prop.Name}"));
 
         string sql = meta.UniqueColumns.Count == 0
             ? SqlResource.InsertTemplate
@@ -241,11 +238,11 @@ public class PostgresSqlProvider : ISqlProvider
 
     private static string CreateTryInsertSql(Type type)
     {
-        var meta = GetMetadata(type);
-        var cols = string.Join(", ", meta.AllColumns.Select(c => c.ColName));
-        var pars = string.Join(", ", meta.AllColumns.Select(c => $"@{c.Prop.Name}"));
-        var uniqueCols = string.Join(", ", meta.UniqueColumns.Select(c => c.ColName));
-        var uniqueWhere = string.Join(" AND ", meta.UniqueColumns.Select(c => $"{c.ColName} = @{c.Prop.Name}"));
+        EntityMetadata meta = GetMetadata(type);
+        string cols = string.Join(", ", meta.AllColumns.Select(c => c.ColName));
+        string pars = string.Join(", ", meta.AllColumns.Select(c => $"@{c.Prop.Name}"));
+        string uniqueCols = string.Join(", ", meta.UniqueColumns.Select(c => c.ColName));
+        string uniqueWhere = string.Join(" AND ", meta.UniqueColumns.Select(c => $"{c.ColName} = @{c.Prop.Name}"));
 
         return SqlResource.TryInsertWithUniqueKeyTemplate
             .Replace("#TABLE_NAME", meta.TableName)
@@ -258,8 +255,8 @@ public class PostgresSqlProvider : ISqlProvider
 
     private static string CreateUpdateSql(Type type)
     {
-        var meta = GetMetadata(type);
-        var updates = string.Join(",\r\n\t", meta.AllColumns.Select(c => $"{c.ColName} = @{c.Prop.Name}"));
+        EntityMetadata meta = GetMetadata(type);
+        string updates = string.Join(",\r\n\t", meta.AllColumns.Select(c => $"{c.ColName} = @{c.Prop.Name}"));
 
         return SqlResource.UpdateTemplate
             .Replace("#TABLE_NAME", meta.TableName)
@@ -268,14 +265,14 @@ public class PostgresSqlProvider : ISqlProvider
 
     private static string CreateUpdateByPrimaryKeySql(Type type)
     {
-        var meta = GetMetadata(type);
+        EntityMetadata meta = GetMetadata(type);
         return CreateUpdateSql(type)
             .Replace("#WHERE", $"WHERE {meta.PrimaryKeyCol} = @{meta.PrimaryKey.Name};");
     }
 
     private static string CreateDeleteSql(Type type)
     {
-        var meta = GetMetadata(type);
+        EntityMetadata meta = GetMetadata(type);
         return SqlResource.DeleteTemplate
             .Replace("#TABLE_NAME", meta.TableName)
             .Replace("#TABLE_ALIAS", meta.Alias);
@@ -283,7 +280,7 @@ public class PostgresSqlProvider : ISqlProvider
 
     private static string CreateDeleteByPrimaryKeySql(Type type)
     {
-        var meta = GetMetadata(type);
+        EntityMetadata meta = GetMetadata(type);
         return CreateDeleteSql(type)
             .Replace("#WHERE", $"WHERE {meta.Alias}.{meta.PrimaryKeyCol} = @{meta.PrimaryKey.Name};");
     }
@@ -294,10 +291,12 @@ public class PostgresSqlProvider : ISqlProvider
     /// </summary>
     private static string BuildUniqueUpdates(EntityMetadata meta)
     {
-        var payloadCols = meta.AllColumns
-            .Where(c => c.Prop.GetCustomAttribute<PrimaryKeyColumnAttribute>() == null &&
-                        c.Prop.GetCustomAttribute<UniqueColumnAttribute>() == null)
-            .ToList();
+        List<(PropertyInfo Prop, string ColName)> payloadCols =
+        [
+            .. meta.AllColumns
+                .Where(c => c.Prop.GetCustomAttribute<PrimaryKeyColumnAttribute>() == null &&
+                            c.Prop.GetCustomAttribute<UniqueColumnAttribute>() == null)
+        ];
 
         return payloadCols.Count > 0
             ? string.Join(", ", payloadCols.Select(c => $"{c.ColName} = EXCLUDED.{c.ColName}"))

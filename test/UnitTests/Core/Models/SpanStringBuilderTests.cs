@@ -60,23 +60,59 @@ public sealed class SpanStringBuilderTests
         Assert.Equal(largeString, result);
     }
 
-    ///// <summary>
-    ///// Verifies that AppendLine appends content followed by Environment.NewLine.
-    ///// </summary>
-    //[Fact]
-    //public void AppendLine_AppendsEnvironmentNewLine()
-    //{
-    //    // Arrange
-    //    using SpanStringBuilder builder = new(32);
-    //
-    //    // Act
-    //    builder.AppendLine("Line 1".AsSpan()).AppendLine('X');
-    //    string result = builder.ToString();
-    //
-    //    // Assert
-    //    string expected = $"Line 1{Environment.NewLine}X{Environment.NewLine}";
-    //    Assert.Equal(expected, result);
-    //}
+    /// <summary>
+    /// Verifies that AppendLine overloads append content followed by standardized LF newline ("\n").
+    /// </summary>
+    [Fact]
+    public void AppendLine_AppendsStandardizedLfNewLine()
+    {
+        // Arrange
+        using SpanStringBuilder builder = new(32);
+
+        // Act
+        builder.AppendLine("Line 1".AsSpan()).AppendLine('X').AppendLine();
+        string result = builder.ToString();
+
+        // Assert
+        Assert.Equal("Line 1\nX\n\n", result);
+    }
+
+    /// <summary>
+    /// Verifies that appending an empty span leaves the builder contents unchanged.
+    /// </summary>
+    [Fact]
+    public void Append_EmptySpan_DoesNotModifyBuilder()
+    {
+        // Arrange
+        using SpanStringBuilder builder = new(8);
+        builder.Append("Init".AsSpan());
+
+        // Act
+        builder.Append(ReadOnlySpan<char>.Empty);
+        string result = builder.ToString();
+
+        // Assert
+        Assert.Equal("Init", result);
+    }
+
+    /// <summary>
+    /// Verifies that appending single characters past initial capacity triggers GrowAndAppend seamlessly.
+    /// </summary>
+    [Fact]
+    public void Append_CharactersExceedingInitialCapacity_GrowsBufferAndPreservesContent()
+    {
+        // Arrange
+        using SpanStringBuilder builder = new(1);
+        string expected = new('Z', 64);
+
+        // Act
+        for (int index = 0; index < 64; index++)
+            builder.Append('Z');
+        string result = builder.ToString();
+
+        // Assert
+        Assert.Equal(expected, result);
+    }
 
     /// <summary>
     /// Verifies that character indexer allows reading and mutating characters in place.

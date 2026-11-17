@@ -171,6 +171,89 @@ public sealed class JsonFilePluginCachePersistenceTests
         Assert.Empty(loaded);
     }
 
+    private sealed class NonSeekableJsonStream(byte[] bytes) : MemoryStream(bytes)
+    {
+        public override bool CanSeek => false;
+    }
+
+    [Fact]
+    public async Task LoadAsync_HandlesRegisteredLoadedNullElementsNonArrayRootInvalidJsonAndNonSeekableStreams()
+    {
+        string cacheLocation = "storage/plugins/cache/plugin-cache.json";
+        _storageMock
+            .Setup(s => s.ResolveLocation("plugins", PluginStoragePartitions.Cache, "plugin-cache.json"))
+            .Returns(cacheLocation);
+        _storageMock
+            .Setup(s => s.ExistsAsync(cacheLocation, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(true);
+
+        JsonFilePluginCachePersistence persistence = new(_storageMock.Object, _settings);
+
+        // 1. RegisteredPlugin, LoadedPlugin, unknown StateType (falls back to DiscoveredPlugin), and null State
+        DateTimeOffset now = new(2026, 6, 1, 12, 0, 0, TimeSpan.Zero);
+        DiscoveredPlugin disc = new("P1", new PluginVersion(1, 0, 0), "/p1", now);
+        string mixedJson = """
+        [
+          {"Name":"Reg","Version":"1.0.0","StateType":"RegisteredPlugin","State":{"Name":"Reg","Version":"1.0.0","FullPath":"/r","DiscoveredAt":"2026-06-01T12:00:00Z"}},
+          {"Name":"Ld","Version":"1.0.0","StateType":"LoadedPlugin","State":{"Name":"Ld","Version":"1.0.0","FullPath":"/l","DiscoveredAt":"2026-06-01T12:00:00Z"}},
+          {"Name":"Other","Version":"1.0.0","StateType":"CustomState","State":{"Name":"Other","Version":"1.0.0","FullPath":"/o","DiscoveredAt":"2026-06-01T12:00:00Z"}},
+          {"Name":"NullState","Version":"1.0.0","StateType":"DiscoveredPlugin","State":null},
+          null
+        ]
+        """;
+
+        _storageMock
+            .Setup(s => s.OpenReadAsync(cacheLocation, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(() => new NonSeekableJsonStream(System.Text.Encoding.UTF8.GetBytes(mixedJson)));
+
+        List<PluginCacheEntry> mixedEntries = [];
+        await foreach (PluginCacheEntry entry in persistence.LoadAsync())
+        {
+            mixedEntries.Add(entry);
+        }
+
+        Assert.Equal(3, mixedEntries.Count);
+        Assert.IsType<RegisteredPlugin>(mixedEntries[0].State);
+        Assert.IsType<LoadedPlugin>(mixedEntries[1].State);
+        Assert.IsType<DiscoveredPlugin>(mixedEntries[2].State);
+
+        // 2. Non-array JSON root object yields empty
+        _storageMock
+            .Setup(s => s.OpenReadAsync(cacheLocation, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(() => new NonSeekableJsonStream("{}"u8.ToArray()));
+
+        List<PluginCacheEntry> objectRootEntries = [];
+        await foreach (PluginCacheEntry entry in persistence.LoadAsync())
+        {
+            objectRootEntries.Add(entry);
+        }
+        Assert.Empty(objectRootEntries);
+
+        // 3. Invalid JSON yields empty cleanly
+        _storageMock
+            .Setup(s => s.OpenReadAsync(cacheLocation, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(() => new MemoryStream("{invalid"u8.ToArray()));
+
+        List<PluginCacheEntry> corruptEntries = [];
+        await foreach (PluginCacheEntry entry in persistence.LoadAsync())
+        {
+            corruptEntries.Add(entry);
+        }
+        Assert.Empty(corruptEntries);
+
+        // 4. Empty non-seekable stream yields empty
+        _storageMock
+            .Setup(s => s.OpenReadAsync(cacheLocation, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(() => new NonSeekableJsonStream([]));
+
+        List<PluginCacheEntry> emptyNonSeekable = [];
+        await foreach (PluginCacheEntry entry in persistence.LoadAsync())
+        {
+            emptyNonSeekable.Add(entry);
+        }
+        Assert.Empty(emptyNonSeekable);
+    }
+
     private static async IAsyncEnumerable<PluginCacheEntry> CreateAsyncEnumerable(IEnumerable<PluginCacheEntry> items)
     {
         foreach (PluginCacheEntry item in items)

@@ -2,6 +2,7 @@ using MelloSilveiraTools.Core.Caching;
 using MelloSilveiraTools.Plugins.Infrastructure;
 using MelloSilveiraTools.Plugins.Infrastructure.Models;
 using MelloSilveiraTools.Plugins.Infrastructure.Persistences;
+using Moq;
 using System.Runtime.Loader;
 
 namespace UnitTests.Plugins.Infrastructure;
@@ -176,5 +177,56 @@ public sealed class PluginCacheTests
 
         Assert.Single(filtered);
         Assert.Equal("v1.1.0", filtered[0].Version);
+    }
+
+    [Fact]
+    public async Task ClearAsync_IgnoresNonVersionKeysInBackingCache()
+    {
+        PluginCache cache = new(_twoLevelCache);
+        _twoLevelCache.Set("RawGroup", "not-a-version", "raw");
+
+        await cache.ClearAsync();
+
+        Assert.True(_twoLevelCache.TryGet("RawGroup", "not-a-version", out string? raw));
+        Assert.Equal("raw", raw);
+    }
+
+    [Fact]
+    public async Task ClearAsync_And_Stream_HandleNullKeysAndNullPluginEntries()
+    {
+        Mock<ITwoLevelCache> mockCache = new();
+        mockCache
+            .Setup(c => c.StreamAll(It.IsAny<CancellationToken>()))
+            .Returns(YieldRawAsync());
+        mockCache
+            .Setup(c => c.StreamAll<DiscoveredPlugin>(It.IsAny<CancellationToken>()))
+            .Returns(YieldTypedAsync());
+
+        PluginCache pluginCache = new(mockCache.Object);
+        await pluginCache.ClearAsync();
+
+        List<PluginCacheEntry> entries = [];
+        await foreach (PluginCacheEntry entry in pluginCache.Stream())
+        {
+            entries.Add(entry);
+        }
+
+        Assert.Equal(2, entries.Count);
+        Assert.Equal("v1.0.0", entries[0].Version);
+        Assert.Equal("v2.0.0", entries[1].Version);
+
+        static async IAsyncEnumerable<(string Group, string Key, object Value)> YieldRawAsync()
+        {
+            await Task.Yield();
+            yield return (null!, "v1.0.0", new object());
+            yield return ("GroupA", null!, new object());
+        }
+
+        static async IAsyncEnumerable<(string Group, string Key, DiscoveredPlugin Value)> YieldTypedAsync()
+        {
+            await Task.Yield();
+            yield return ("GroupA", "v1.0.0_DiscoveredPlugin", null!);
+            yield return ("GroupA", "v2.0.0", null!);
+        }
     }
 }

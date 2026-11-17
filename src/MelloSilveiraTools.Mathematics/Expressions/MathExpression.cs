@@ -1,13 +1,15 @@
 using MelloSilveiraTools.Mathematics.Functions;
 using MelloSilveiraTools.Mathematics.Models;
+using System.Text.Json.Serialization;
 
 namespace MelloSilveiraTools.Mathematics.Expressions;
 
 /// <summary>
 /// Represents an unique dimension mathematical expression.
 /// </summary>
-public class MathExpression : List<Function>
+public class MathExpression
 {
+    private readonly List<Function> _functions;
     private MathExpression? _derivative;
     private MathExpression? _integral;
 
@@ -19,7 +21,7 @@ public class MathExpression : List<Function>
     /// <param name="finalVariableValue"></param>
     /// <param name="functions"></param>
     /// <exception cref="ArgumentNullException">When <paramref name="functions"/> is null or empty.</exception>
-    public MathExpression(MathExpressionType type, List<Function> functions, double? initialVariableValue = null, double? finalVariableValue = null) : base(functions)
+    public MathExpression(MathExpressionType type, List<Function> functions, double? initialVariableValue = null, double? finalVariableValue = null)
     {
         Type = type;
         InitialVariableValue = initialVariableValue ?? double.NegativeInfinity;
@@ -28,17 +30,19 @@ public class MathExpression : List<Function>
         // Build an internal sorted copy so the caller's list is never mutated.
         List<Function> sorted = [.. functions];
         sorted.Sort((f1, f2) => f1.InitialVariableValue.CompareTo(f2.InitialVariableValue));
-        Functions = sorted;
+        _functions = sorted;
     }
 
     /// <summary>
     /// Represents the expression's derivative.
     /// </summary>
+    [JsonIgnore]
     public MathExpression Derivative => _derivative ??= CreateDerivative();
 
     /// <summary>
     /// Represents the expression's integral.
     /// </summary>
+    [JsonIgnore]
     public MathExpression Integral => _integral ??= CreateIntegral();
 
     /// <inheritdoc cref="Models.MathExpressionType"/>
@@ -55,9 +59,11 @@ public class MathExpression : List<Function>
     public double FinalVariableValue { get; }
 
     /// <summary>
-    /// List of functions.
+    /// Gets the <see cref="Function"/> at the specified index.
     /// </summary>
-    public List<Function> Functions { get; }
+    /// <param name="index">The zero-based index of the function to retrieve.</param>
+    /// <returns>The <see cref="Function"/> at the specified index.</returns>
+    public Function this[int index] => _functions[index];
 
     /// <summary>
     /// Calculates the value for the expression.
@@ -67,7 +73,7 @@ public class MathExpression : List<Function>
     public double Calculate(double variableValue)
     {
         double value = 0;
-        foreach (Function function in Functions)
+        foreach (Function function in _functions)
         {
             if (function.InitialVariableValue <= variableValue && variableValue <= function.FinalVariableValue)
                 value += function.Calculate(variableValue);
@@ -82,7 +88,7 @@ public class MathExpression : List<Function>
     protected MathExpression CreateDerivative()
     {
         List<Function> derivativeFunctions = [];
-        foreach (Function function in Functions)
+        foreach (Function function in _functions)
         {
             derivativeFunctions.Add(function.Derivative);
         }
@@ -96,7 +102,7 @@ public class MathExpression : List<Function>
     protected MathExpression CreateIntegral()
     {
         List<Function> integralFunctions = [];
-        foreach (Function function in Functions)
+        foreach (Function function in _functions)
         {
             integralFunctions.Add(function.Integral);
         }

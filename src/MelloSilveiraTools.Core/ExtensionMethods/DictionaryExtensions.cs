@@ -22,20 +22,20 @@ public static class DictionaryExtensions
         /// <returns></returns>
         public T ConvertTo<T>() where T : class, new()
         {
-            var setters = _typeCache.GetOrAdd(typeof(T), BuildSetters);
-            var obj = new T();
+            Dictionary<string, (Action<object, object> Setter, Type PropertyType)> setters = _typeCache.GetOrAdd(typeof(T), BuildSetters);
+            T obj = new();
 
             for (int i = 0; i < sqlDataReader.FieldCount; i++)
             {
                 if (sqlDataReader.IsDBNull(i))
                     continue;
 
-                var fieldName = sqlDataReader.GetName(i);
-                if (!setters.TryGetValue(fieldName, out var entry))
+                string fieldName = sqlDataReader.GetName(i);
+                if (!setters.TryGetValue(fieldName, out (Action<object, object> Setter, Type PropertyType) entry))
                     continue;
 
                 object fieldValue = sqlDataReader.GetValue(i);
-                var underlyingType = Nullable.GetUnderlyingType(entry.PropertyType) ?? entry.PropertyType;
+                Type underlyingType = Nullable.GetUnderlyingType(entry.PropertyType) ?? entry.PropertyType;
 
                 object propertyValue;
                 if (underlyingType == typeof(DateTimeOffset) && fieldValue is DateTime dt)
@@ -56,17 +56,17 @@ public static class DictionaryExtensions
 
     private static Dictionary<string, (Action<object, object> Setter, Type PropertyType)> BuildSetters([DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicProperties)] Type type)
     {
-        var setters = new Dictionary<string, (Action<object, object>, Type)>(StringComparer.Ordinal);
+        Dictionary<string, (Action<object, object> Setter, Type PropertyType)> setters = new(StringComparer.Ordinal);
 
-        foreach (var prop in type.GetProperties(BindingFlags.Instance | BindingFlags.Public))
+        foreach (PropertyInfo prop in type.GetProperties(BindingFlags.Instance | BindingFlags.Public))
         {
             if (!prop.CanWrite)
                 continue;
 
-            var instance = Expression.Parameter(typeof(object), "instance");
-            var value = Expression.Parameter(typeof(object), "value");
+            ParameterExpression instance = Expression.Parameter(typeof(object), "instance");
+            ParameterExpression value = Expression.Parameter(typeof(object), "value");
 
-            var setter = Expression.Lambda<Action<object, object>>(
+            Action<object, object> setter = Expression.Lambda<Action<object, object>>(
                 Expression.Assign(
                     Expression.Property(Expression.Convert(instance, type), prop),
                     Expression.Convert(value, prop.PropertyType)),

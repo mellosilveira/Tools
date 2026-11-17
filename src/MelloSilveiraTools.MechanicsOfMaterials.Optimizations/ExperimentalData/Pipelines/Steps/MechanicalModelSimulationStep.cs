@@ -50,7 +50,7 @@ public sealed class MechanicalModelSimulationStep(
     {
         cancellationToken.ThrowIfCancellationRequested();
 
-        double timeStep = simulationTimeStep ?? CustomMath.CalculateAverageTimeStep(curveFit.CurveSegments.GetTimePoints());
+        double timeStep = simulationTimeStep ?? curveFit.CurveSegments.CalculateAverageTimeStep();
         GenericMechanicalModelInput baseInput = new()
         {
             MechanicalModelName = mechanicalModelTypeResolver.MechanicalModelName,
@@ -88,7 +88,7 @@ public sealed class MechanicalModelSimulationStep(
                 {
                     double time = segment.TimePoints[i];
                     MechanicalModelOutput output = facade.Calculate(time);
-                    if (HasReachedAsymptote(lastOutput, output, ref asymptoteCount))
+                    if (asymptoteTime is null && HasReachedAsymptote(lastOutput, output, ref asymptoteCount))
                         asymptoteTime = time;
 
                     await writer.WriteLineAsync(output).ConfigureAwait(false);
@@ -103,7 +103,7 @@ public sealed class MechanicalModelSimulationStep(
                 while (time < finalSimulationTime + timeStep)
                 {
                     MechanicalModelOutput output = facade.Calculate(time);
-                    if (asymptoteTime is not null && HasReachedAsymptote(lastOutput, output, ref asymptoteCount))
+                    if (asymptoteTime is null && HasReachedAsymptote(lastOutput, output, ref asymptoteCount))
                         asymptoteTime = time;
 
                     await writer.WriteLineAsync(output).ConfigureAwait(false);
@@ -122,8 +122,8 @@ public sealed class MechanicalModelSimulationStep(
 
     private SimulationDeltaOutput CalculateDelta(MechanicalModelOutput initialOutput, MechanicalModelOutput lastOutput)
     {
-        MechanicalModelOutput absoluteDelta = new();
-        MechanicalModelOutput percentageDelta = new();
+        MechanicalModelOutput absoluteDelta = (MechanicalModelOutput)Activator.CreateInstance(mechanicalModelTypeResolver.Output)!;
+        MechanicalModelOutput percentageDelta = (MechanicalModelOutput)Activator.CreateInstance(mechanicalModelTypeResolver.Output)!;
 
         foreach (PropertyInfo property in mechanicalModelTypeResolver.Output.GetPropertiesInHierarchy())
         {

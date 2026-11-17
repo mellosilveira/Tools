@@ -20,13 +20,29 @@ public static class TaskExtensions
         /// </remarks>
         public Task ContinueWith(IDataflowBlock dataflowBlock, Func<Task>? additionalFunc = null) => task.ContinueWith(async t =>
         {
-            if (additionalFunc is not null)
-                await additionalFunc().ConfigureAwait(false);
-
             if (t.IsFaulted)
+            {
                 dataflowBlock.Fault(t.Exception!);
-            else
+                return;
+            }
+
+            if (t.IsCanceled)
+            {
+                dataflowBlock.Fault(new TaskCanceledException(t));
+                return;
+            }
+
+            try
+            {
+                if (additionalFunc is not null)
+                    await additionalFunc().ConfigureAwait(false);
+
                 dataflowBlock.Complete();
+            }
+            catch (Exception ex)
+            {
+                dataflowBlock.Fault(ex);
+            }
         }, CancellationToken.None, TaskContinuationOptions.ExecuteSynchronously, TaskScheduler.Default).Unwrap();
     }
 }

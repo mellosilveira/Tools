@@ -68,7 +68,8 @@ public abstract class QuasiLinearModelCalculator<TConstitutiveParameters, TReduc
                 force ??= input.Force!.InitialValue;
                 double stress = parameterConverter.CalculateStressFromForce(input.Specimen!, force.Value);
                 double reducedRelaxationFunction = CalculateReducedRelaxationFunction(input, time);
-                return Math.Log(stress / (input.ConstitutiveParameters.ElasticStressConstant * reducedRelaxationFunction) + 1) / input.ConstitutiveParameters.ElasticPowerConstant;
+                double strain = Math.Log(stress / (input.ConstitutiveParameters.ElasticStressConstant * reducedRelaxationFunction) + 1) / input.ConstitutiveParameters.ElasticPowerConstant;
+                return parameterConverter.CalculateDisplacementFromStrain(input.Specimen!, strain);
             }
 
             if (input.ViscoelasticEffect == ViscoelasticEffect.Creep)
@@ -180,14 +181,16 @@ public abstract class QuasiLinearModelCalculator<TConstitutiveParameters, TReduc
         }
 
         return differentiation.Calculate(
-            (derivativeTime) => Integration.Calculate(
-                (integrationTime) =>
-                {
-                    double elasticResponse = CalculateElasticResponse(input, derivativeTime - integrationTime);
-                    double reducedRelaxationFunction = CalculateReducedRelaxationFunction(input, integrationTime);
-                    return elasticResponse * reducedRelaxationFunction;
-                },
-                new IntegralInput(time, input.TimeStep)),
+            (derivativeTime) => derivativeTime <= MathematicConstants.Tolerance
+                ? 0
+                : Integration.Calculate(
+                    (integrationTime) =>
+                    {
+                        double elasticResponse = CalculateElasticResponse(input, derivativeTime - integrationTime);
+                        double reducedRelaxationFunction = CalculateReducedRelaxationFunction(input, integrationTime);
+                        return elasticResponse * reducedRelaxationFunction;
+                    },
+                    new IntegralInput(derivativeTime, input.TimeStep)),
             input.TimeStep,
             time);
     }

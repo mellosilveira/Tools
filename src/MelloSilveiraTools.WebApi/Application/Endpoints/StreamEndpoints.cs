@@ -34,9 +34,10 @@ public static class StreamEndpoints
         where TEntity : EntityBase, new()
         where TFilter : FilterBase, new()
         => builder
-            .MapGet(pattern, async (HttpContext httpContext, IRepository repository, ILogger<TEntity> logger, [AsParameters] TFilter filter) => repository
+            .MapGet(pattern, async (HttpContext httpContext, IRepository repository, ILogger<TEntity> logger, [AsParameters] TFilter filter) => await repository
                 .GetAsync<TEntity, TFilter>(filter, cancellationToken: httpContext.RequestAborted)
-                .WriteNdjsonAsync(httpContext, logger, resourceName))
+                .WriteNdjsonAsync(httpContext, logger, resourceName, httpContext.RequestAborted)
+                .ConfigureAwait(false))
             .Produces(StatusCodes.Status200OK)
             .Produces(StatusCodes.Status500InternalServerError)
             .WithName($"Stream_{resourceName}")

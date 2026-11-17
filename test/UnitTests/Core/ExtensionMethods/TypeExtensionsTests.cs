@@ -109,5 +109,9 @@ public sealed class TypeExtensionsTests
         Assert.Contains("Price", names);
         Assert.DoesNotContain("Id", names);
         Assert.DoesNotContain("CreationTimestamp", names);
+
+        Assert.True(typeof(int[]).IsEnumerable());
+        Assert.False(typeof(string).IsEnumerable());
+        Assert.False(typeof(int).IsEnumerable());
     }
 }

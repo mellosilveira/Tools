@@ -17,6 +17,6 @@ public class UpdateEntity<TEntity>(IRepository repository) : CommandBaseWithDefa
     protected override async Task<Result> ExecuteCommandAsync(UpdateEntityRequest<TEntity> request, CancellationToken cancellationToken = default)
     {
         TEntity entityToUpdate = request.Entity with { Id = request.Id };
-        return await repository.TryUpdateAsync(entityToUpdate, cancellationToken).ConfigureAwait(false) ? Result.CreateSuccessCreated() : Result.CreateNoContent();
+        return await repository.TryUpdateAsync(entityToUpdate, cancellationToken).ConfigureAwait(false) ? Result.CreateSuccessOk() : Result.CreateNoContent();
     }
 }

@@ -125,4 +125,33 @@ public sealed class Vector3DTests
             CultureInfo.CurrentCulture = originalCulture;
         }
     }
+
+    [Fact]
+    public void VectorOperations_EqualityArithmeticLengthAndCreateOverloads_WorkCorrectly()
+    {
+        Point3D p1 = Point3D.Create(1.0, 2.0, 3.0);
+        Point3D p2 = Point3D.Create(4.0, 6.0, 3.0);
+        Vector3D fromPoints = Vector3D.Create(p1, p2);
+        Vector3D fromStrings = Vector3D.Create("1000,2000,3000", "4000,6000,3000");
+
+        Assert.Equal(3.0, fromPoints.X, 10);
+        Assert.Equal(4.0, fromPoints.Y, 10);
+        Assert.Equal(0.0, fromPoints.Z, 10);
+        Assert.Equal(25.0, fromPoints.LengthSquared, 10);
+        Assert.Equal(5.0, fromPoints.Length, 10);
+
+        Assert.True(fromPoints.Equals(fromStrings));
+        Assert.True(fromPoints == fromStrings);
+        Assert.False(fromPoints != fromStrings);
+        Assert.False(fromPoints.Equals("other"));
+        Assert.Equal(fromPoints.GetHashCode(), fromStrings.GetHashCode());
+
+        Vector3D a = Vector3D.Create(1.0, 2.0, 3.0);
+        Vector3D b = Vector3D.Create(4.0, 5.0, 6.0);
+        Assert.Equal(Vector3D.Create(5.0, 7.0, 9.0), a + b);
+        Assert.Equal(Vector3D.Create(-3.0, -3.0, -3.0), a - b);
+        Assert.Equal(Vector3D.Create(2.0, 4.0, 6.0), a * 2.0);
+        Assert.Equal(Vector3D.Create(0.5, 1.0, 1.5), a / 2.0);
+        Assert.True(a != b);
+    }
 }

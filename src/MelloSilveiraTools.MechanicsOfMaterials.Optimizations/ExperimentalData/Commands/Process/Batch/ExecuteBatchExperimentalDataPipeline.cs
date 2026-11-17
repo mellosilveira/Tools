@@ -22,47 +22,47 @@ public class ExecuteBatchExperimentalDataPipeline(
     : CommandBaseWithData<ExecuteBatchExperimentalDataPipelineRequest, IAsyncEnumerable<string>>(validator)
 {
     /// <inheritdoc/>
-    protected override async Task<Result<IAsyncEnumerable<string>>> ExecuteCommandAsync(ExecuteBatchExperimentalDataPipelineRequest request, CancellationToken cancellationToken = default)
+    protected override Task<Result<IAsyncEnumerable<string>>> ExecuteCommandAsync(ExecuteBatchExperimentalDataPipelineRequest request, CancellationToken cancellationToken = default)
     {
         IAsyncEnumerable<string> identifiers = ExecutePipelinesAsync(request, cancellationToken);
-        return Result.CreateSuccessAccepted(identifiers);
+        return Task.FromResult(Result.CreateSuccessAccepted(identifiers));
     }
 
     private async IAsyncEnumerable<string> ExecutePipelinesAsync(ExecuteBatchExperimentalDataPipelineRequest request, [EnumeratorCancellation] CancellationToken cancellationToken)
     {
         int maxDegreeOfParallelism = request.ExecutionMode == PipelineExecutionMode.Sequential ? 1 : Math.Max(1, request.MaxDegreeOfParallelism ?? Environment.ProcessorCount);
-        using (SemaphoreSlim semaphoreSlim = new(maxDegreeOfParallelism, maxDegreeOfParallelism))
+        SemaphoreSlim semaphoreSlim = new(maxDegreeOfParallelism, maxDegreeOfParallelism);
+
+        foreach (ExperimentalDataGroupRequest group in request.Groups)
         {
-            foreach (ExperimentalDataGroupRequest group in request.Groups)
+            await semaphoreSlim.WaitAsync(cancellationToken).ConfigureAwait(false);
+
+            string identifier = string.IsNullOrWhiteSpace(group.Identifier) ? Guid.NewGuid().ToString("N") : group.Identifier;
+            ExperimentalDataProcessingInput input = MapToInput(request, group, identifier);
+
+            _ = Task.Run(async () =>
             {
-                await semaphoreSlim.WaitAsync(cancellationToken).ConfigureAwait(false);
-
-                string identifier = string.IsNullOrWhiteSpace(group.Identifier) ? Guid.NewGuid().ToString("N") : group.Identifier;
-                ExperimentalDataProcessingInput input = MapToInput(request, group, identifier);
-
-                _ = Task.Run(async () =>
+                try
                 {
-                    try
-                    {
-                        logger.LogInformation("Starting experimental data pipeline. Input: {@Input}.", input);
+                    logger.LogInformation("Starting experimental data pipeline. Input: {@Input}.", input);
 
-                        // TODO: TENTAR REPASSAR O CANCELLATION TOKEN PARA O PIPELINE
-                        Result<string> result = await pipeline.ProcessAsync(input).ConfigureAwait(false);
+                    Result<string> result = await pipeline.ProcessAsync(input).ConfigureAwait(false);
+                    if (result.Success)
+                        logger.LogInformation("Experimental data pipeline completed successfully. Input: {@Input}. Result: {@Result}", input, result);
+                    else
+                        logger.LogError("Experimental data pipeline failed. Input: {@Input}. Result: {@Result}", input, result);
+                }
+                catch (Exception ex)
+                {
+                    logger.LogError(ex, "Experimental data pipeline faulted. Request: {@Request}. Input: {@Input}.", request, input);
+                }
+                finally
+                {
+                    semaphoreSlim.Release();
+                }
+            }, CancellationToken.None);
 
-                        logger.LogInformation("Experimental data pipeline completed successfully. Input: {@Input}. Result: {@Result}", request, input);
-                    }
-                    catch (Exception ex)
-                    {
-                        logger.LogError(ex, "Experimental data pipeline faulted. Request: {@Request}. Input: {@Input}.", request, input);
-                    }
-                    finally
-                    {
-                        semaphoreSlim.Release();
-                    }
-                }, cancellationToken);
-
-                yield return identifier;
-            }
+            yield return identifier;
         }
     }
 

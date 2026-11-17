@@ -165,6 +165,7 @@ public sealed class PolynomialCurveFitter(ICurveFitter curveFitter) : IFunctionC
         }
         else
         {
+            double confidenceLevel = input.ConfidenceLevel;
             double sSquared = Math.Max(0.0, ssr / degreesOfFreedom);
             double alpha = 1.0 - input.ConfidenceLevel;
             double pStudent = 1.0 - (alpha / 2.0);
@@ -183,7 +184,7 @@ public sealed class PolynomialCurveFitter(ICurveFitter curveFitter) : IFunctionC
                     paramVal - marginOfError,
                     paramVal + marginOfError,
                     standardError,
-                    input.ConfidenceLevel);
+                    confidenceLevel);
             }
         }
 

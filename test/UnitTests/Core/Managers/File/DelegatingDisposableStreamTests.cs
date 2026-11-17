@@ -107,4 +107,28 @@ public sealed class DelegatingDisposableStreamTests
         Assert.True(owner.IsAsyncDisposed);
         Assert.Throws<ObjectDisposedException>(() => innerStream.ReadByte());
     }
+
+    [Fact]
+    public async Task SpanMemoryAndSetLength_ForwardToInnerStream()
+    {
+        using MemoryStream innerStream = new();
+        using DisposableSpy owner = new();
+        await using DelegatingDisposableStream stream = new(innerStream, owner);
+
+        stream.Write([7, 8]);
+        await stream.WriteAsync(new ReadOnlyMemory<byte>([9, 10]));
+        Assert.Equal(4L, stream.Length);
+
+        stream.SetLength(2L);
+        Assert.Equal(2L, stream.Length);
+
+        stream.Seek(0, SeekOrigin.Begin);
+        byte[] spanBuf = new byte[1];
+        Assert.Equal(1, stream.Read(spanBuf.AsSpan()));
+        Assert.Equal(7, spanBuf[0]);
+
+        byte[] memBuf = new byte[1];
+        Assert.Equal(1, await stream.ReadAsync(memBuf.AsMemory()));
+        Assert.Equal(8, memBuf[0]);
+    }
 }

@@ -33,63 +33,69 @@ public static class PluginEndpoints
         RouteGroupBuilder group = builder.MapGroup(pattern);
 
         group
-            .MapGet("/", async (GetPlugins operation, [AsParameters] GetPluginsRequest request) => await operation.ExecuteAsync(request).ToHttpResultAsync().ConfigureAwait(false))
+            .MapGet("/", async (HttpContext httpContext, GetPlugins operation, [AsParameters] GetPluginsRequest request) => await operation.ExecuteAsync(request, httpContext.RequestAborted).ToHttpResultAsync().ConfigureAwait(false))
             .Produces<ListedResult<RegisteredPlugin>>(StatusCodes.Status200OK)
+            .Produces<Result>(StatusCodes.Status400BadRequest)
             .Produces<Result>(StatusCodes.Status500InternalServerError)
             .WithName("GetPlugins")
             .WithSummary("Returns the plugins currently known to the host.");
 
         group
-            .MapPost("/load", async (LoadPlugins operation, [AsParameters] PluginsRequest request) => await operation.ExecuteAsync(request).ToHttpResultAsync().ConfigureAwait(false))
+            .MapPost("/load", async (HttpContext httpContext, LoadPlugins operation, [AsParameters] PluginsRequest request) => await operation.ExecuteAsync(request, httpContext.RequestAborted).ToHttpResultAsync().ConfigureAwait(false))
             .Produces<Result>(StatusCodes.Status200OK)
+            .Produces<Result>(StatusCodes.Status400BadRequest)
             .Produces<Result>(StatusCodes.Status500InternalServerError)
             .WithName("LoadPlugins")
             .WithSummary("Loads plugins matching the supplied name and/or version.");
 
         group
-            .MapPost("/load/all", async (LoadPlugins operation) => await operation.ExecuteAsync(new PluginsRequest()).ToHttpResultAsync().ConfigureAwait(false))
+            .MapPost("/load/all", async (HttpContext httpContext, LoadPlugins operation) => await operation.ExecuteAsync(new PluginsRequest(), httpContext.RequestAborted).ToHttpResultAsync().ConfigureAwait(false))
             .Produces<Result>(StatusCodes.Status200OK)
             .Produces<Result>(StatusCodes.Status500InternalServerError)
             .WithName("LoadAllPlugins")
             .WithSummary("Loads every plugin known to the host.");
 
         group
-            .MapPost("/reload", async (ReloadPlugins operation, [AsParameters] ReloadPluginsRequest request) => await operation.ExecuteAsync(request).ToHttpResultAsync().ConfigureAwait(false))
+            .MapPost("/reload", async (HttpContext httpContext, ReloadPlugins operation, [AsParameters] ReloadPluginsRequest request) => await operation.ExecuteAsync(request, httpContext.RequestAborted).ToHttpResultAsync().ConfigureAwait(false))
             .Produces<Result>(StatusCodes.Status200OK)
+            .Produces<Result>(StatusCodes.Status400BadRequest)
             .Produces<Result>(StatusCodes.Status500InternalServerError)
             .WithName("ReloadPlugins")
             .WithSummary("Reloads plugins matching the supplied name and/or version.");
 
         group
-            .MapPost("/reload/all", async (ReloadPlugins operation) => await operation.ExecuteAsync(new ReloadPluginsRequest()).ToHttpResultAsync().ConfigureAwait(false))
+            .MapPost("/reload/all", async (HttpContext httpContext, ReloadPlugins operation) => await operation.ExecuteAsync(new ReloadPluginsRequest(), httpContext.RequestAborted).ToHttpResultAsync().ConfigureAwait(false))
             .Produces<Result>(StatusCodes.Status200OK)
             .Produces<Result>(StatusCodes.Status500InternalServerError)
             .WithName("ReloadAllPlugins")
             .WithSummary("Reloads every plugin known to the host.");
 
         group
-            .MapDelete("/cache", async (ClearPluginCache operation) => await operation.ExecuteAsync().ToHttpResultAsync().ConfigureAwait(false))
+            .MapDelete("/cache", async (HttpContext httpContext, ClearPluginCache operation) => await operation.ExecuteAsync(httpContext.RequestAborted).ToHttpResultAsync().ConfigureAwait(false))
             .Produces<Result>(StatusCodes.Status200OK)
+            .Produces<Result>(StatusCodes.Status400BadRequest)
             .Produces<Result>(StatusCodes.Status500InternalServerError)
             .WithName("ClearPluginCache")
             .WithSummary("Clears the plugin cache.");
 
         group
-            .MapPost("/cache/{target}/persist", async (PersistPluginCache operation, [AsParameters] PluginsRequest request) => await operation.ExecuteAsync(request).ToHttpResultAsync().ConfigureAwait(false))
+            .MapPost("/cache/{target}/persist", async (HttpContext httpContext, PersistPluginCache operation, [AsParameters] PluginsRequest request) => await operation.ExecuteAsync(request, httpContext.RequestAborted).ToHttpResultAsync().ConfigureAwait(false))
             .Produces<Result>(StatusCodes.Status200OK)
+            .Produces<Result>(StatusCodes.Status400BadRequest)
             .Produces<Result>(StatusCodes.Status500InternalServerError)
             .WithName("PersistPluginCache")
             .WithSummary("Persists the plugin cache to the target identified by the {target} route segment.");
 
         group
-            .MapPost("/cache/{target}/restore", async (RestorePluginCache operation, [AsParameters] PluginsRequest request) => await operation.ExecuteAsync(request).ToHttpResultAsync().ConfigureAwait(false))
+            .MapPost("/cache/{target}/restore", async (HttpContext httpContext, RestorePluginCache operation, [AsParameters] PluginsRequest request) => await operation.ExecuteAsync(request, httpContext.RequestAborted).ToHttpResultAsync().ConfigureAwait(false))
             .Produces<Result>(StatusCodes.Status200OK)
+            .Produces<Result>(StatusCodes.Status400BadRequest)
             .Produces<Result>(StatusCodes.Status500InternalServerError)
             .WithName("RestorePluginCache")
             .WithSummary("Restores the plugin cache from the target identified by the {target} route segment.");
 
         group
-            .MapPost("/upload", async (UploadPlugin operation, IFormFile file) => await operation.ExecuteAsync(new UploadPluginRequest { File = file }).ToHttpResultAsync().ConfigureAwait(false))
+            .MapPost("/upload", async (HttpContext httpContext, UploadPlugin operation, IFormFile file) => await operation.ExecuteAsync(new UploadPluginRequest { File = file }, httpContext.RequestAborted).ToHttpResultAsync().ConfigureAwait(false))
             .DisableAntiforgery()
             .Produces<Result<StorageEntryMetadata>>(StatusCodes.Status200OK)
             .Produces<Result<StorageEntryMetadata>>(StatusCodes.Status400BadRequest)

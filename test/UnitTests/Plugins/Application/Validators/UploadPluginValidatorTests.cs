@@ -117,4 +117,43 @@ public sealed class UploadPluginValidatorTests
         Assert.True(result.Success);
         Assert.Equal(StatusCode.OK, result.StatusCode);
     }
+
+    [Fact]
+    public void Validate_WhenStreamIsNotSeekable_CopiesAndValidatesSuccessfully()
+    {
+        byte[] validAssemblyBytes = File.ReadAllBytes(typeof(UploadPluginValidator).Assembly.Location);
+        Mock<IFormFile> fileMock = new();
+        fileMock.Setup(f => f.Length).Returns(validAssemblyBytes.Length);
+        fileMock.Setup(f => f.FileName).Returns("Contoso.NonSeekable.v1.0.0.dll");
+        fileMock.Setup(f => f.OpenReadStream()).Returns(new NonSeekableMemoryStream(validAssemblyBytes));
+
+        Result result = _validator.Validate(new UploadPluginRequest { File = fileMock.Object });
+
+        Assert.True(result.Success);
+        Assert.Equal(StatusCode.OK, result.StatusCode);
+    }
+
+    [Fact]
+    public void Validate_WhenNativePeWithoutManagedMetadata_ReturnsBadRequest()
+    {
+        string nativeDllPath = Path.Combine(Environment.SystemDirectory, "kernel32.dll");
+        if (!File.Exists(nativeDllPath))
+            return;
+
+        byte[] nativeBytes = File.ReadAllBytes(nativeDllPath);
+        Mock<IFormFile> fileMock = new();
+        fileMock.Setup(f => f.Length).Returns(nativeBytes.Length);
+        fileMock.Setup(f => f.FileName).Returns("NativePe.v1.0.0.dll");
+        fileMock.Setup(f => f.OpenReadStream()).Returns(new MemoryStream(nativeBytes));
+
+        Result result = _validator.Validate(new UploadPluginRequest { File = fileMock.Object });
+
+        Assert.False(result.Success);
+        Assert.Equal(StatusCode.BadRequest, result.StatusCode);
+    }
+
+    private sealed class NonSeekableMemoryStream(byte[] buffer) : MemoryStream(buffer)
+    {
+        public override bool CanSeek => false;
+    }
 }

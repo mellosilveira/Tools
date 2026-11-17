@@ -153,65 +153,74 @@
             Exposes HTTP endpoints for inspecting and managing the plugin runtime (discovery, loading, reloading and cache management).
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.Plugins.Application.Controllers.PluginController.Get(MelloSilveiraTools.Plugins.Application.Commands.Get.GetPlugins,MelloSilveiraTools.Plugins.Application.Commands.Get.GetPluginsRequest)">
+        <member name="M:MelloSilveiraTools.Plugins.Application.Controllers.PluginController.Get(MelloSilveiraTools.Plugins.Application.Commands.Get.GetPlugins,MelloSilveiraTools.Plugins.Application.Commands.Get.GetPluginsRequest,System.Threading.CancellationToken)">
             <summary>
             Returns the plugins currently known to the host, optionally filtered by name, version and load state.
             </summary>
             <param name="command">Command that resolves the matching plugins.</param>
             <param name="request">Filter criteria applied to the plugin lookup.</param>
+            <param name="cancellationToken">Token to cancel the request.</param>
         </member>
-        <member name="M:MelloSilveiraTools.Plugins.Application.Controllers.PluginController.Load(MelloSilveiraTools.Plugins.Application.Commands.Load.LoadPlugins,MelloSilveiraTools.Plugins.Application.Commands.PluginsRequest)">
+        <member name="M:MelloSilveiraTools.Plugins.Application.Controllers.PluginController.Load(MelloSilveiraTools.Plugins.Application.Commands.Load.LoadPlugins,MelloSilveiraTools.Plugins.Application.Commands.PluginsRequest,System.Threading.CancellationToken)">
             <summary>
             Loads the plugins that match the supplied name and/or version.
             </summary>
             <param name="command">Command that performs the plugin load.</param>
             <param name="request">Filter identifying the plugins to load.</param>
+            <param name="cancellationToken">Token to cancel the request.</param>
         </member>
-        <member name="M:MelloSilveiraTools.Plugins.Application.Controllers.PluginController.LoadAll(MelloSilveiraTools.Plugins.Application.Commands.Load.LoadPlugins)">
+        <member name="M:MelloSilveiraTools.Plugins.Application.Controllers.PluginController.LoadAll(MelloSilveiraTools.Plugins.Application.Commands.Load.LoadPlugins,System.Threading.CancellationToken)">
             <summary>
             Loads every plugin known to the host.
             </summary>
             <param name="command">Command that performs the plugin load.</param>
+            <param name="cancellationToken">Token to cancel the request.</param>
         </member>
-        <member name="M:MelloSilveiraTools.Plugins.Application.Controllers.PluginController.Reload(MelloSilveiraTools.Plugins.Application.Commands.Reload.ReloadPlugins,MelloSilveiraTools.Plugins.Application.Commands.Reload.ReloadPluginsRequest)">
+        <member name="M:MelloSilveiraTools.Plugins.Application.Controllers.PluginController.Reload(MelloSilveiraTools.Plugins.Application.Commands.Reload.ReloadPlugins,MelloSilveiraTools.Plugins.Application.Commands.Reload.ReloadPluginsRequest,System.Threading.CancellationToken)">
             <summary>
             Reloads plugins that match the supplied name and/or version, optionally forcing a reload.
             </summary>
             <param name="command">Command that performs the plugin reload.</param>
             <param name="request">Filter identifying the plugins to reload.</param>
+            <param name="cancellationToken">Token to cancel the request.</param>
         </member>
-        <member name="M:MelloSilveiraTools.Plugins.Application.Controllers.PluginController.ReloadAll(MelloSilveiraTools.Plugins.Application.Commands.Reload.ReloadPlugins)">
+        <member name="M:MelloSilveiraTools.Plugins.Application.Controllers.PluginController.ReloadAll(MelloSilveiraTools.Plugins.Application.Commands.Reload.ReloadPlugins,System.Threading.CancellationToken)">
             <summary>
             Reloads every plugin known to the host.
             </summary>
             <param name="command">Command that performs the plugin reload.</param>
+            <param name="cancellationToken">Token to cancel the request.</param>
         </member>
-        <member name="M:MelloSilveiraTools.Plugins.Application.Controllers.PluginController.ClearCache(MelloSilveiraTools.Plugins.Application.Commands.Cache.ClearPluginCache)">
+        <member name="M:MelloSilveiraTools.Plugins.Application.Controllers.PluginController.ClearCache(MelloSilveiraTools.Plugins.Application.Commands.Cache.ClearPluginCache,System.Threading.CancellationToken)">
             <summary>
             Clears the plugin cache.
             </summary>
             <param name="command">Command that clears the plugin cache.</param>
+            <param name="cancellationToken">Token to cancel the request.</param>
         </member>
-        <member name="M:MelloSilveiraTools.Plugins.Application.Controllers.PluginController.PersistCache(MelloSilveiraTools.Plugins.Application.Commands.Cache.PersistPluginCache,MelloSilveiraTools.Plugins.Application.Commands.PluginsRequest)">
+        <member name="M:MelloSilveiraTools.Plugins.Application.Controllers.PluginController.PersistCache(MelloSilveiraTools.Plugins.Application.Commands.Cache.PersistPluginCache,MelloSilveiraTools.Plugins.Application.Commands.PluginsRequest,System.Threading.CancellationToken)">
             <summary>
             Persists the plugin cache to the target identified by the {target} route segment (e.g. file or database).
             </summary>
             <param name="command">Command that persists the plugin cache.</param>
             <param name="request">Filter identifying the plugins to persist.</param>
+            <param name="cancellationToken">Token to cancel the request.</param>
         </member>
-        <member name="M:MelloSilveiraTools.Plugins.Application.Controllers.PluginController.RestoreCache(MelloSilveiraTools.Plugins.Application.Commands.Cache.RestorePluginCache,MelloSilveiraTools.Plugins.Application.Commands.PluginsRequest)">
+        <member name="M:MelloSilveiraTools.Plugins.Application.Controllers.PluginController.RestoreCache(MelloSilveiraTools.Plugins.Application.Commands.Cache.RestorePluginCache,MelloSilveiraTools.Plugins.Application.Commands.PluginsRequest,System.Threading.CancellationToken)">
             <summary>
             Restores the plugin cache from the target identified by the {target} route segment (e.g. file or database).
             </summary>
             <param name="command">Command that restores the plugin cache.</param>
             <param name="request">Filter identifying the plugins to restore.</param>
+            <param name="cancellationToken">Token to cancel the request.</param>
         </member>
-        <member name="M:MelloSilveiraTools.Plugins.Application.Controllers.PluginController.Upload(MelloSilveiraTools.Plugins.Application.Commands.Upload.UploadPlugin,Microsoft.AspNetCore.Http.IFormFile)">
+        <member name="M:MelloSilveiraTools.Plugins.Application.Controllers.PluginController.Upload(MelloSilveiraTools.Plugins.Application.Commands.Upload.UploadPlugin,Microsoft.AspNetCore.Http.IFormFile,System.Threading.CancellationToken)">
             <summary>
             Uploads a plugin assembly to the incoming storage partition.
             </summary>
             <param name="command">Command that validates and writes the assembly to storage.</param>
             <param name="file">The plugin assembly file (.dll).</param>
+            <param name="cancellationToken">Token to cancel the request.</param>
         </member>
         <member name="T:MelloSilveiraTools.Plugins.Application.Endpoints.PluginEndpoints">
             <summary>

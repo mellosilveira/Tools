@@ -9,10 +9,8 @@ using MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Pipelines.Entities;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Models;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.ParametricSweep.Pipelines.Models;
-using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.ParametricSweep.Pipelines.Steps.Generators;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Serializers.Json;
 using Microsoft.Extensions.Logging;
-using System.Collections.Concurrent;
 using System.Runtime.CompilerServices;
 
 namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.ParametricSweep.Commands.ProcessFromExperimentalData;
@@ -78,62 +76,64 @@ public sealed class ExecuteParametricSweepFromExperimentalDataCommand(
         [EnumeratorCancellation] CancellationToken cancellationToken)
     {
         int maxDegreeOfParallelism = request.ExecutionMode == PipelineExecutionMode.Sequential ? 1 : Math.Max(1, request.MaxDegreeOfParallelism ?? Environment.ProcessorCount);
-        using (SemaphoreSlim semaphoreSlim = new(maxDegreeOfParallelism, maxDegreeOfParallelism))
+        SemaphoreSlim semaphoreSlim = new(maxDegreeOfParallelism, maxDegreeOfParallelism);
+
+        foreach (MechanicalModelCurveFitOutputEntity entity in entities)
         {
-            foreach (MechanicalModelCurveFitOutputEntity entity in entities)
+            await semaphoreSlim.WaitAsync(cancellationToken).ConfigureAwait(false);
+
+            string identifier = $"{entity.ExtenalIdentifier}_{entity.MechanicalModelName}_{Guid.NewGuid():N}";
+
+            _ = Task.Run(async () =>
             {
-                await semaphoreSlim.WaitAsync(cancellationToken).ConfigureAwait(false);
-
-                string identifier = $"{entity.ExtenalIdentifier}_{entity.MechanicalModelName}_{Guid.NewGuid():N}";
-
-                _ = Task.Run(async () =>
+                ParametricSweepPipelineInput input = null!;
+                try
                 {
-                    ParametricSweepPipelineInput input = null!;
-                    try
+                    object? deserialized = OptimizationJsonOptions.Deserialize(entity.ConstitutiveParameters, resolver.ConstitutiveParameters);
+                    if (deserialized is not ConstitutiveParameters baseline)
                     {
-                        object? deserialized = OptimizationJsonOptions.Deserialize(entity.ConstitutiveParameters, resolver.ConstitutiveParameters);
-                        if (deserialized is not ConstitutiveParameters baseline)
-                        {
-                            logger.LogError("Failed to deserialize constitutive parameters for model '{ModelName}' from entity '{Identifier}'.", entity.MechanicalModelName, entity.Identifier);
-                            return;
-                        }
-
-                        input = new()
-                        {
-                            Identifier = identifier,
-                            MechanicalModelName = entity.MechanicalModelName,
-                            Baseline = baseline,
-                            ConstantVariables = request.ConstantVariables,
-                            ArrayVariables = request.ArrayVariables,
-                            BaseStrain = request.BaseStrain,
-                            StrainRange = request.StrainRange,
-                            RampTimeConsideration = request.RampTimeConsideration,
-                            RampTime = request.RampTime,
-                            InitialTime = request.InitialTime,
-                            TimeStep = request.TimeStep,
-                            FinalTime = request.FinalTime,
-                            RootFindingAlgorithm = request.RootFindingAlgorithm,
-                            BaseRootFindingInput = request.BaseRootFindingInput,
-                        };
-
-                        logger.LogInformation("Starting parametric sweep pipeline. Input: {@Input}.", input);
-
-                        Result<string> pipelineResult = await pipeline.ProcessAsync(input, cancellationToken).ConfigureAwait(false);
-
-                        logger.LogInformation("Parametric sweep pipeline completed successfully. Input: {@Input}. Result: {@Result}", request, input);
+                        logger.LogError("Failed to deserialize constitutive parameters for model '{ModelName}' from entity '{Identifier}'.", entity.MechanicalModelName, entity.Identifier);
+                        return;
                     }
-                    catch (Exception ex)
+
+                    input = new()
                     {
-                        logger.LogError(ex, "Parametric sweep pipeline faulted. Request: {@Request}. Input: {@Input}.", request, input);
-                    }
-                    finally
-                    {
-                        semaphoreSlim.Release();
-                    }
-                }, cancellationToken);
+                        Identifier = identifier,
+                        MechanicalModelName = entity.MechanicalModelName,
+                        Baseline = baseline,
+                        ConstantVariables = request.ConstantVariables,
+                        ArrayVariables = request.ArrayVariables,
+                        BaseStrain = request.BaseStrain,
+                        StrainRange = request.StrainRange,
+                        RampTimeConsideration = request.RampTimeConsideration,
+                        RampTime = request.RampTime,
+                        InitialTime = request.InitialTime,
+                        TimeStep = request.TimeStep,
+                        FinalTime = request.FinalTime,
+                        RootFindingAlgorithm = request.RootFindingAlgorithm,
+                        BaseRootFindingInput = request.BaseRootFindingInput,
+                    };
 
-                yield return identifier;
-            }
+                    logger.LogInformation("Starting parametric sweep pipeline. Input: {@Input}.", input);
+
+                    Result<string> pipelineResult = await pipeline.ProcessAsync(input).ConfigureAwait(false);
+
+                    if (pipelineResult.Success)
+                        logger.LogInformation("Parametric sweep pipeline completed successfully. Input: {@Input}. Result: {@Result}", input, pipelineResult);
+                    else
+                        logger.LogError("Parametric sweep pipeline failed. Input: {@Input}. Result: {@Result}", input, pipelineResult);
+                }
+                catch (Exception ex)
+                {
+                    logger.LogError(ex, "Parametric sweep pipeline faulted. Request: {@Request}. Input: {@Input}.", request, input);
+                }
+                finally
+                {
+                    semaphoreSlim.Release();
+                }
+            }, CancellationToken.None);
+
+            yield return identifier;
         }
     }
 }

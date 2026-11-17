@@ -17,8 +17,8 @@ public class MathNetCurveFitter : CurveFitterBase
     public override CurveFitOutput Fit(CurveFitInput input)
     {
         IObjectiveFunction objectiveFunction = ObjectiveFunction.Gradient(
-            (vector) => CalculateObjectiveFunction(input, [.. vector]),
-            (vector) => DenseVector.OfArray(CalculateNumericalGradient(input, [.. vector]))
+            vector => CalculateObjectiveFunction(input, [.. vector]),
+            vector => DenseVector.OfArray(CalculateNumericalGradient(input, [.. vector]))
         );
 
         DenseVector initialGuess = DenseVector.OfArray(input.InitialParameters);
@@ -29,16 +29,17 @@ public class MathNetCurveFitter : CurveFitterBase
 
         // Stage 2: Nelder-Mead simplex search starting from the BFGS minimizing point
         IObjectiveFunction unconstrainedObjectiveFunction = ObjectiveFunction.Value(
-            (vector) => CalculateObjectiveFunction(input, [.. vector])
+            vector => CalculateObjectiveFunction(input, [.. vector])
         );
         NelderMeadSimplex solverNelderMead = new(input.Tolerance, input.MaxIterations);
         MinimizationResult finalResult = solverNelderMead.FindMinimum(unconstrainedObjectiveFunction, resultBfgs.MinimizingPoint);
 
         double[] finalParameters = [.. finalResult.MinimizingPoint];
+        double finalError = finalResult.FunctionInfoAtMinimum.Value;
         double rSquared = CalculateRSquared(input, finalParameters);
-        ParameterConfidenceInterval[] parameters = CalculateConfidenceIntervals(input, finalParameters, finalResult.FunctionInfoAtMinimum.Value);
+        ParameterConfidenceInterval[] parameters = CalculateConfidenceIntervals(input, finalParameters, finalError);
 
-        return new CurveFitOutput(parameters, finalResult.FunctionInfoAtMinimum.Value, rSquared, finalResult.Iterations);
+        return new CurveFitOutput(parameters, finalError, rSquared, finalResult.Iterations);
     }
 
     /// <summary>

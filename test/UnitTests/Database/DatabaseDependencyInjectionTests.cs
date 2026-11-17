@@ -61,5 +61,14 @@ public sealed class DatabaseDependencyInjectionTests
         Assert.IsType<PostgresSqlProvider>(resolvedSqlProvider);
         Assert.NotNull(resolvedRepository);
         Assert.IsType<PostgresRepository>(resolvedRepository);
+
+        // Also exercise explicit per-database ResiliencePipelineSettings override branch
+        ServiceCollection overrideServices = new();
+        overrideServices.AddLogging();
+        overrideServices.AddDatabaseServices(
+            TestResilienceSettings,
+            TestDatabaseSettings with { ResiliencePipelineSettings = TestResilienceSettings });
+        ServiceProvider overrideProvider = overrideServices.BuildServiceProvider();
+        Assert.NotNull(overrideProvider.GetService<PostgresResiliencePipeline>());
     }
 }

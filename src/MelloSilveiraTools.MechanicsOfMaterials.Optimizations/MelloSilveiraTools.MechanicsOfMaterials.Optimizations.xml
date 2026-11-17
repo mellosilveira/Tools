@@ -26,13 +26,13 @@
             <param name="cancellationToken">Cancellation token to terminate the response stream.</param>
             <returns>A task representing the ongoing NDJSON response write operation.</returns>
         </member>
-        <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Controllers.StoredFilesController">
+        <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Controllers.StorageEntryMetadataController">
             <summary>
             Exposes unified HTTP endpoints for querying and downloading stored files (<see cref="T:MelloSilveiraTools.Database.RelationalDatabase.Models.Entities.StorageEntryMetadataEntity"/>)
             by their <c>ExternalIdentifier</c>.
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Controllers.StoredFilesController.#ctor(Microsoft.Extensions.Logging.ILogger{MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Controllers.StoredFilesController})">
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Controllers.StorageEntryMetadataController.#ctor(Microsoft.Extensions.Logging.ILogger{MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Controllers.StorageEntryMetadataController})">
             <summary>
             Exposes unified HTTP endpoints for querying and downloading stored files (<see cref="T:MelloSilveiraTools.Database.RelationalDatabase.Models.Entities.StorageEntryMetadataEntity"/>)
             by their <c>ExternalIdentifier</c>.
@@ -567,7 +567,7 @@
             Validates <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Commands.Process.ExecuteBatchExperimentalDataPipelineRequest"/> payloads prior to batch pipeline execution.
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Commands.Process.Batch.ExecuteBatchExperimentalDataPipelineValidator.Validate(MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Commands.Process.ExecuteBatchExperimentalDataPipelineRequest)">
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Commands.Process.Batch.ExecuteBatchExperimentalDataPipelineValidator.ValidateComplementary(MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Commands.Process.ExecuteBatchExperimentalDataPipelineRequest,System.Collections.Generic.List{System.String})">
             <inheritdoc/>
         </member>
         <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Commands.Process.ExecuteBatchExperimentalDataPipelineRequest">
@@ -650,6 +650,22 @@
             Optional processing options for segmentation tolerances and smoothing.
             </summary>
         </member>
+        <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Commands.Process.ExecuteExperimentalDataPipelineValidatorBase`1">
+            <summary>
+            Base validator providing common validation logic for experimental data pipeline requests inheriting from <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Commands.Process.ExecuteExperimentalDataPipelineRequestBase"/>.
+            </summary>
+            <typeparam name="TRequest">The request type to validate, deriving from <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Commands.Process.ExecuteExperimentalDataPipelineRequestBase"/>.</typeparam>
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Commands.Process.ExecuteExperimentalDataPipelineValidatorBase`1.Validate(`0)">
+            <inheritdoc/>
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Commands.Process.ExecuteExperimentalDataPipelineValidatorBase`1.ValidateComplementary(`0,System.Collections.Generic.List{System.String})">
+            <summary>
+            Executes complementary validations specific to the concrete request type.
+            </summary>
+            <param name="value">The request payload instance being validated.</param>
+            <param name="errors">Accumulator list of validation error messages.</param>
+        </member>
         <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Commands.Process.ExperimentalDataGroupRequest">
             <summary>
             Represents an individual experimental data group (strain.csv and stress.csv pair) within a batch pipeline execution request.
@@ -693,7 +709,7 @@
             Validates <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Commands.Process.ExecuteExperimentalDataPipelineRequest"/> payloads prior to pipeline execution.
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Commands.Process.Single.ExecuteExperimentalDataPipelineValidator.Validate(MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Commands.Process.ExecuteExperimentalDataPipelineRequest)">
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Commands.Process.Single.ExecuteExperimentalDataPipelineValidator.ValidateComplementary(MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Commands.Process.ExecuteExperimentalDataPipelineRequest,System.Collections.Generic.List{System.String})">
             <inheritdoc/>
         </member>
         <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Controllers.ExperimentalDataController">
@@ -1246,7 +1262,6 @@
         </member>
         <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Pipelines.Steps.CurveFitOutputPersistenceStep.ExecuteAsync(System.ValueTuple{System.String,MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Pipelines.Models.MechanicalModelCurveFitOutput},System.Threading.CancellationToken)">
             <inheritdoc />
-            <exception cref="T:System.InvalidOperationException">Thrown when insertion of the curve fit entity fails in the database.</exception>
         </member>
         <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Pipelines.Steps.CurveFitOutputPersistenceStep.DisposeAsync">
             <inheritdoc />
@@ -1715,12 +1730,13 @@
         <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Pipelines.Steps.ExperimentalDataFileWriterStep.Name">
             <inheritdoc />
         </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Pipelines.Steps.ExperimentalDataFileWriterStep.CreateAsync(MelloSilveiraTools.Core.Files.Providers.IFileStorageService,System.String)">
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Pipelines.Steps.ExperimentalDataFileWriterStep.CreateAsync(MelloSilveiraTools.Core.Files.Providers.IFileStorageService,System.String,System.Threading.CancellationToken)">
             <summary>
             Asynchronously creates a new <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Pipelines.Steps.ExperimentalDataFileWriterStep"/> instance initialized with a timestamped writable storage stream.
             </summary>
             <param name="fileStorageService">The file storage service used to allocate and open the target CSV stream.</param>
             <param name="pipelineIdentifier">Unique business identifier prefix for the created storage artifact.</param>
+            <param name="cancellationToken">Token to monitor for cancellation requests.</param>
             <returns>A tuple containing the resolved storage location and the initialized writer step.</returns>
         </member>
         <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Pipelines.Steps.ExperimentalDataFileWriterStep.ExecuteAsync(MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Pipelines.Models.SegmentedDataPoint,System.Threading.CancellationToken)">
@@ -1783,7 +1799,6 @@
         </member>
         <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Pipelines.Steps.MechanicalModelOutputPersistenceStep.ExecuteAsync(MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Pipelines.Models.MechanicalModelOutputPersistenceInput,System.Threading.CancellationToken)">
             <inheritdoc />
-            <exception cref="T:System.InvalidOperationException">Thrown when insertion of the simulation output entity fails in the database.</exception>
         </member>
         <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Pipelines.Steps.MechanicalModelOutputPersistenceStep.DisposeAsync">
             <inheritdoc />
@@ -1829,6 +1844,14 @@
             <summary>
             Provides extension methods for collections of <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Models.CurveSegment"/>.
             </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExtensionMethods.CurveSegmentExtensions.CalculateAverageTimeStep(System.Collections.Generic.IReadOnlyList{MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Models.CurveSegment})">
+            <summary>
+            Calculates the average time step (Δt) directly across all curve segments in the collection.
+            Utilizes the telescoping property of consecutive intervals for O(N_segments) complexity and zero heap allocations.
+            </summary>
+            <param name="curveSegments">The read-only collection of curve segments.</param>
+            <returns>The average interval between consecutive time points across all segments, or 0.0 if no intervals exist.</returns>
         </member>
         <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExtensionMethods.CurveSegmentExtensions.GetTimePoints(System.Collections.Generic.IReadOnlyList{MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Models.CurveSegment})">
             <summary>
@@ -2067,6 +2090,30 @@
             Gets the base root-finding configuration parameters for asymptote detection.
             </summary>
         </member>
+        <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.ParametricSweep.Commands.ExecuteParametricSweepValidatorBase`1">
+            <summary>
+            Base validator providing common validation logic for parametric sweep requests inheriting from <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.ParametricSweep.Commands.ExecuteParametricSweepPipelineRequestBase"/>.
+            </summary>
+            <typeparam name="TRequest">The request type to validate, deriving from <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.ParametricSweep.Commands.ExecuteParametricSweepPipelineRequestBase"/>.</typeparam>
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.ParametricSweep.Commands.ExecuteParametricSweepValidatorBase`1.Validate(`0)">
+            <inheritdoc/>
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.ParametricSweep.Commands.ExecuteParametricSweepValidatorBase`1.ValidateComplementary(`0,System.Collections.Generic.List{System.String})">
+            <summary>
+            Executes complementary validations specific to the concrete request type.
+            </summary>
+            <param name="value">The request payload instance being validated.</param>
+            <param name="errors">Accumulator list of validation error messages.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.ParametricSweep.Commands.ExecuteParametricSweepValidatorBase`1.ValidateRangeParameters(System.String,MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Models.Range.RangeParameters,System.Collections.Generic.List{System.String})">
+            <summary>
+            Validates numeric bounds and progression parameters of a <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Models.Range.RangeParameters"/> instance.
+            </summary>
+            <param name="name">Descriptive name of the parameter being validated.</param>
+            <param name="range">The range parameters instance.</param>
+            <param name="errors">Accumulator list of validation error messages.</param>
+        </member>
         <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.ParametricSweep.Commands.ProcessFromExperimentalData.ExecuteParametricSweepFromExperimentalDataCommand">
             <summary>
             Executes parametric sweep sensitivity analyses across all fitted constitutive parameters generated from an experimental data pipeline run.
@@ -2117,7 +2164,7 @@
             Validates <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.ParametricSweep.Commands.ProcessFromExperimentalData.ExecuteParametricSweepFromExperimentalDataRequest"/> payloads prior to parametric sweep execution.
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.ParametricSweep.Commands.ProcessFromExperimentalData.ExecuteParametricSweepFromExperimentalDataValidator.Validate(MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.ParametricSweep.Commands.ProcessFromExperimentalData.ExecuteParametricSweepFromExperimentalDataRequest)">
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.ParametricSweep.Commands.ProcessFromExperimentalData.ExecuteParametricSweepFromExperimentalDataValidator.ValidateComplementary(MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.ParametricSweep.Commands.ProcessFromExperimentalData.ExecuteParametricSweepFromExperimentalDataRequest,System.Collections.Generic.List{System.String})">
             <inheritdoc/>
         </member>
         <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.ParametricSweep.Commands.ProcessFromExperimentalData.ParametricSweepExecutionResult">
@@ -2194,19 +2241,19 @@
             Validates <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.ParametricSweep.Commands.Process.ExecuteParametricSweepPipelineRequest"/> payloads prior to parametric sweep execution.
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.ParametricSweep.Commands.Process.ExecuteParametricSweepValidator.Validate(MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.ParametricSweep.Commands.Process.ExecuteParametricSweepPipelineRequest)">
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.ParametricSweep.Commands.Process.ExecuteParametricSweepValidator.ValidateComplementary(MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.ParametricSweep.Commands.Process.ExecuteParametricSweepPipelineRequest,System.Collections.Generic.List{System.String})">
             <inheritdoc/>
         </member>
         <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.ParametricSweep.Controllers.ParametricSweepController">
             <summary>
             Exposes HTTP endpoints for executing Parametric Sweep sensitivity analyses and streaming real-time pipeline progress.
-            File artifact queries and downloads are centralized in <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Controllers.StoredFilesController"/>.
+            File artifact queries and downloads are centralized in <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Controllers.StorageEntryMetadataController"/>.
             </summary>
         </member>
         <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.ParametricSweep.Controllers.ParametricSweepController.#ctor(Microsoft.Extensions.Logging.ILogger{MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.ParametricSweep.Controllers.ParametricSweepController})">
             <summary>
             Exposes HTTP endpoints for executing Parametric Sweep sensitivity analyses and streaming real-time pipeline progress.
-            File artifact queries and downloads are centralized in <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Controllers.StoredFilesController"/>.
+            File artifact queries and downloads are centralized in <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Controllers.StorageEntryMetadataController"/>.
             </summary>
         </member>
         <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.ParametricSweep.ParametricSweepSettings">
@@ -2553,7 +2600,6 @@
         </member>
         <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.ParametricSweep.Pipelines.Steps.ParametricSweepPersistenceStep.ExecuteAsync(System.ValueTuple{System.String,MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Models.Range.RangeParameters,MelloSilveiraTools.Core.Files.Models.StorageEntryMetadata}[],System.Threading.CancellationToken)">
             <inheritdoc />
-            <exception cref="T:System.InvalidOperationException">Thrown when insertion of the stored file entity or parametric sweep entity fails in the database.</exception>
         </member>
         <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.ParametricSweep.Pipelines.Steps.ParametricSweepPersistenceStep.PersistSweepEntityAsync(System.Collections.Generic.IReadOnlyDictionary{System.String,System.ValueTuple{MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Models.Range.RangeParameters,System.Nullable{System.Int64}}},System.Threading.CancellationToken)">
             <summary>

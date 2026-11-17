@@ -34,7 +34,6 @@ public sealed class MechanicalModelOutputPersistenceStep(
     public string Name => nameof(MechanicalModelOutputPersistenceStep);
 
     /// <inheritdoc />
-    /// <exception cref="InvalidOperationException">Thrown when insertion of the simulation output entity fails in the database.</exception>
     public async Task<string> ExecuteAsync(MechanicalModelOutputPersistenceInput input, CancellationToken cancellationToken = default)
     {
         string initialOutputJson = OptimizationJsonOptions.Serialize(input.SimulationDeltaOutput.InitialOutput);

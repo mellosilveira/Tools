@@ -82,4 +82,17 @@ public class StepByStepMethodTests
                 It.Is<Func<It.IsAnyType, Exception?, string>>((v, t) => true)),
             Times.Once);
     }
+
+    [Fact]
+    public void FindRoot_WithSignedFunctionAndZeroWidthBracket_AvoidsFalseEarlyMatchAndInfiniteLoop()
+    {
+        StepByStepMethod method = new();
+        (double root, double error) = method.FindRoot(new RootFindingInput(0.0, 6.0, 0.1, 60), x => x - 3.0);
+
+        Assert.Equal(3.0, root, precision: 6);
+        Assert.True(Math.Abs(error) < 0.1);
+
+        (double zeroWidthRoot, _) = method.FindRoot(new RootFindingInput(2.0, 2.0, 0.1, 5), x => x - 2.0);
+        Assert.Equal(2.0, zeroWidthRoot);
+    }
 }

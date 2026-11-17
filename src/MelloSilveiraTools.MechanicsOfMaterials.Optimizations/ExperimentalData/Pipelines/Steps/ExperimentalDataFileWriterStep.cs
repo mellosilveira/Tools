@@ -2,6 +2,7 @@ using MelloSilveiraTools.Core.Files.Csv;
 using MelloSilveiraTools.Core.Files.Models;
 using MelloSilveiraTools.Core.Files.Providers;
 using MelloSilveiraTools.Core.Pipelines.Steps;
+using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Models;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Pipelines.Models;
 
 namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Pipelines.Steps;
@@ -35,10 +36,11 @@ public sealed class ExperimentalDataFileWriterStep : IAsyncPipelineStep<Segmente
     /// </summary>
     /// <param name="fileStorageService">The file storage service used to allocate and open the target CSV stream.</param>
     /// <param name="pipelineIdentifier">Unique business identifier prefix for the created storage artifact.</param>
+    /// <param name="cancellationToken">Token to monitor for cancellation requests.</param>
     /// <returns>A tuple containing the resolved storage location and the initialized writer step.</returns>
-    public static async Task<(string Location, ExperimentalDataFileWriterStep Step)> CreateAsync(IFileStorageService fileStorageService, string pipelineIdentifier)
+    public static async Task<(string Location, ExperimentalDataFileWriterStep Step)> CreateAsync(IFileStorageService fileStorageService, string pipelineIdentifier, CancellationToken cancellationToken = default)
     {
-        (Stream stream, string location) = await fileStorageService.CreateWriteTimebasedAsync(Context, pipelineIdentifier, FileExtensions.CommaSeparatedValues).ConfigureAwait(false);
+        (Stream stream, string location) = await fileStorageService.CreateWriteTimebasedAsync(Context, pipelineIdentifier, FileExtensions.CommaSeparatedValues, cancellationToken).ConfigureAwait(false);
         CsvFileWriter writer = new(stream, CsvHeader);
         return (location, new ExperimentalDataFileWriterStep(location, writer));
     }
@@ -46,6 +48,9 @@ public sealed class ExperimentalDataFileWriterStep : IAsyncPipelineStep<Segmente
     /// <inheritdoc />
     public async Task ExecuteAsync(SegmentedDataPoint input, CancellationToken cancellationToken = default)
     {
+        if (input.SegmentType == SegmentType.Unknown)
+            return;
+
         ProcessedDataPoint point = input.ProcessedDataPoint;
         await _writer.WriteRowAsync(
             cancellationToken,

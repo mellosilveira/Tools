@@ -27,8 +27,8 @@ public static class AddEndpoints
         string resourceName)
         where TEntity : EntityBase, new()
         => builder
-            .MapPost(pattern, async (AddEntity<TEntity> operation, TEntity entity) => await operation
-                .ExecuteAsync(new AddEntityRequest<TEntity> { Entity = entity, ResourceName = resourceName })
+            .MapPost(pattern, async (HttpContext httpContext, AddEntity<TEntity> operation, TEntity entity) => await operation
+                .ExecuteAsync(new AddEntityRequest<TEntity> { Entity = entity, ResourceName = resourceName }, httpContext.RequestAborted)
                 .ToHttpResultAsync()
                 .ConfigureAwait(false))
             .Produces<AddResult>(StatusCodes.Status201Created)

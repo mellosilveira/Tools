@@ -27,7 +27,6 @@ public sealed class CurveFitOutputPersistenceStep(
     public string Name => nameof(CurveFitOutputPersistenceStep);
 
     /// <inheritdoc />
-    /// <exception cref="InvalidOperationException">Thrown when insertion of the curve fit entity fails in the database.</exception>
     public async Task ExecuteAsync((string Identifier, MechanicalModelCurveFitOutput CurveFitOutput) input, CancellationToken cancellationToken = default)
     {
         (string identifier, MechanicalModelCurveFitOutput curveFitOutput) = input;

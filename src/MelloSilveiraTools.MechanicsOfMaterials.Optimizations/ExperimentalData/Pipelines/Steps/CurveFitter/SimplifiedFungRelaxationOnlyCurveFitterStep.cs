@@ -133,6 +133,7 @@ public sealed class SimplifiedFungRelaxationOnlyCurveFitterStep(
     private MechanicalModelCurveFitOutput FitRamp(PronySeries reducedRelaxationFunction, CurveFitOutput relaxationOutput, CurveSegment relaxation, CurveSegment ramp, RampTimeConsideration rampTimeConsideration)
     {
         double[] rampTimePoints = ramp.TimePoints.TranslateToOrigin();
+        double rampDuration = ramp.TimePoints[^1] - ramp.TimePoints[0];
         CurveFitInput rampInput = new()
         {
             IndependentVariables = [rampTimePoints, ramp.ExperimentalStrain],
@@ -140,7 +141,7 @@ public sealed class SimplifiedFungRelaxationOnlyCurveFitterStep(
             Calculate = (parameters, xValues) =>
             {
                 SimplifiedFungConstitutiveParameters constitutiveParameters = new(parameters[0], parameters[1], reducedRelaxationFunction);
-                MechanicalModelInput<SimplifiedFungConstitutiveParameters> currentInput = CreateModelInput(ramp, constitutiveParameters, rampTimeConsideration, relaxation.TimePoints[0]);
+                MechanicalModelInput<SimplifiedFungConstitutiveParameters> currentInput = CreateModelInput(ramp, constitutiveParameters, rampTimeConsideration, rampDuration);
                 return mechanicalModelCalculator.CalculateStress(currentInput, xValues[0], xValues[1]);
             },
             LowerBounds = RampLowerBounds,

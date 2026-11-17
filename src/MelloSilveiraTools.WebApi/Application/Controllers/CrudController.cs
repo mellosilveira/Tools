@@ -100,6 +100,7 @@ public abstract class CrudController<TEntity, TFilter>(ILogger logger) : CustomC
     /// <param name="entity">Updated entity payload.</param>
     /// <param name="cancellationToken"></param>
     [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]

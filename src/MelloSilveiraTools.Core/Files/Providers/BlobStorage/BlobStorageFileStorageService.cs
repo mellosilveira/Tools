@@ -2,7 +2,6 @@ using Azure;
 using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
 using MelloSilveiraTools.Core.Files.Models;
-using MelloSilveiraTools.Core.Files.Providers;
 using MelloSilveiraTools.Core.Files.Streams;
 using MelloSilveiraTools.Core.ResiliencePipelines;
 using Microsoft.Extensions.Logging;
@@ -10,8 +9,6 @@ using System.Net;
 using System.Runtime.CompilerServices;
 
 namespace MelloSilveiraTools.Core.Files.Providers.BlobStorage;
-
-// TODO: This is a theorical implementation, since it was still not tested with Azure Blob Storage.
 
 /// <summary>
 /// Storage-agnostic file management implementation targeting Azure Blob Storage and Azure-compatible providers.

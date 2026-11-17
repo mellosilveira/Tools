@@ -1,5 +1,7 @@
 using MelloSilveiraTools.Mathematics.Converters;
+using MelloSilveiraTools.Mathematics.Models;
 using MelloSilveiraTools.MechanicsOfMaterials.Attributes;
+using MelloSilveiraTools.MechanicsOfMaterials.Converters.MechanicalParameter;
 using MelloSilveiraTools.MechanicsOfMaterials.Models;
 using MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels;
 using MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Elasticity;
@@ -8,7 +10,8 @@ using MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelast
 namespace MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Elasticity;
 
 /// <inheritdoc cref="IElasticModelCalculator"/>
-public class ElasticModelCalculator : IElasticModelCalculator
+/// <param name="parameterConverter">See reference at <see cref="IMechanicalParameterConverter"/>.</param>
+public class ElasticModelCalculator(IMechanicalParameterConverter parameterConverter) : IElasticModelCalculator
 {
     /// <inheritdoc/>
     [MechanicalModelParameterCalculation(nameof(ElasticModelOutput.Stiffness), LoadResponseRelationship.ForceDisplacement, ViscoelasticEffect.Relaxation)]
@@ -30,14 +33,18 @@ public class ElasticModelCalculator : IElasticModelCalculator
     public double CalculateForce(MechanicalModelInput<ElasticConstitutiveParameters> input, double time, double? displacement = null)
     {
         displacement ??= input.Displacement!.CalculateValue(time);
-        return displacement.Value * CalculateStiffness(input, time, displacement: displacement);
+        double strain = parameterConverter.CalculateStrainFromDisplacement(input.Specimen!, displacement.Value);
+        double stress = CalculateStress(input, time, strain);
+        return parameterConverter.CalculateForceFromStress(input.Specimen!, stress);
     }
 
     /// <inheritdoc/>
     public double CalculateDisplacement(MechanicalModelInput<ElasticConstitutiveParameters> input, double time, double? force = null)
     {
         force ??= input.Force!.CalculateValue(time);
-        return force.Value / CalculateStiffness(input, time, force: force);
+        double stress = parameterConverter.CalculateStressFromForce(input.Specimen!, force.Value);
+        double strain = CalculateStrain(input, time, stress);
+        return parameterConverter.CalculateDisplacementFromStrain(input.Specimen!, strain);
     }
 
     /// <inheritdoc/>
@@ -56,12 +63,14 @@ public class ElasticModelCalculator : IElasticModelCalculator
 
     private double CalculateStiffness(MechanicalModelInput<ElasticConstitutiveParameters> input, double time, double? force = null, double? displacement = null)
     {
-        SpecimenParameter specimen = input.Specimen!;
-        if (!specimen.ConsiderLargeDisplacement)
-            return specimen.Area * UnitConverter.ConvertMPaToPa(input.ConstitutiveParameters.YoungModulus) / specimen.PreLoadLength;
+        if (displacement is not null && Math.Abs(displacement.Value) > MathematicConstants.Tolerance)
+            return CalculateForce(input, time, displacement.Value) / displacement.Value;
 
-        force ??= CalculateForce(input, time);
-        displacement ??= CalculateDisplacement(input, time);
-        return force.Value / displacement.Value;
+        if (force is not null && Math.Abs(force.Value) > MathematicConstants.Tolerance)
+            return force.Value / CalculateDisplacement(input, time, force.Value);
+
+        SpecimenParameter specimen = input.Specimen!;
+        double length = specimen.ConsiderLargeDisplacement ? specimen.InitialLength : specimen.PreLoadLength;
+        return specimen.Area * UnitConverter.ConvertMPaToPa(input.ConstitutiveParameters.YoungModulus) / length;
     }
 }

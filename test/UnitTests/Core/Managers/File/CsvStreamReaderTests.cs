@@ -205,4 +205,56 @@ public class CsvStreamReaderTests
         await reader.DisposeAsync();
         await reader.DisposeAsync();
     }
+
+    [Fact]
+    public async Task ReadNextRowAsync_LeadingBlankHeaderRowsAndBufferGrowthAndTrailingRowWithoutNewline_ParsesCorrectly()
+    {
+        string csvContent = "\r\n   \t\r\nC1,C2\r\n1.0,2.0,3.0,4.0,5.0\r\n6.0,7.0";
+        byte[] bytes = Encoding.UTF8.GetBytes(csvContent);
+        using MemoryStream stream = new(bytes);
+        await using CsvStreamReader reader = await CsvStreamReader.CreateAsync(stream);
+
+        ReadOnlyMemory<double> row1 = await reader.ReadNextRowAsync();
+        Assert.Equal([1.0, 2.0, 3.0, 4.0, 5.0], row1.ToArray());
+
+        ReadOnlyMemory<double> row2 = await reader.ReadNextRowAsync();
+        Assert.Equal([6.0, 7.0], row2.ToArray());
+
+        ReadOnlyMemory<double> eof = await reader.ReadNextRowAsync();
+        Assert.True(eof.IsEmpty);
+    }
+
+    [Fact]
+    public async Task CreateAsync_EmptyOrHeaderOnlyStreamWithoutNewline_ReturnsEmptyOnRead()
+    {
+        using MemoryStream emptyStream = new([]);
+        await using CsvStreamReader emptyReader = await CsvStreamReader.CreateAsync(emptyStream);
+        Assert.True((await emptyReader.ReadNextRowAsync()).IsEmpty);
+
+        using MemoryStream headerOnlyStream = new(Encoding.UTF8.GetBytes("ColA,ColB"));
+        await using CsvStreamReader headerReader = await CsvStreamReader.CreateAsync(headerOnlyStream);
+        Assert.True((await headerReader.ReadNextRowAsync()).IsEmpty);
+    }
+
+    [Fact]
+    public async Task ReadNextRowAsync_MultiSegmentLinesShortAndLong_ParsesUsingStackAndRentedBuffers()
+    {
+        string mediumCols = string.Join(",", Enumerable.Range(1, 50).Select(static i => i.ToString(System.Globalization.CultureInfo.InvariantCulture)));
+        string longCols = string.Join(",", Enumerable.Range(1, 180).Select(static i => i.ToString(System.Globalization.CultureInfo.InvariantCulture)));
+        string csvContent = $"H1,H2\n{mediumCols}\n{longCols}\n1.0,,3.0\n4.0,5abc\n6.0,7.0\n";
+
+        using MemoryStream stream = new(Encoding.UTF8.GetBytes(csvContent));
+        // Small bufferSize forces multi-segment ReadOnlySequence<byte> in PipeReader.
+        await using CsvStreamReader reader = await CsvStreamReader.CreateAsync(stream, bufferSize: 128, skipInvalidLines: true);
+
+        double[] rowMedium = (await reader.ReadNextRowAsync()).ToArray();
+        double[] rowLong = (await reader.ReadNextRowAsync()).ToArray();
+        double[] rowFinal = (await reader.ReadNextRowAsync()).ToArray();
+
+        Assert.Equal(50, rowMedium.Length);
+        Assert.Equal(50.0, rowMedium[49]);
+        Assert.Equal(180, rowLong.Length);
+        Assert.Equal(180.0, rowLong[179]);
+        Assert.Equal([6.0, 7.0], rowFinal);
+    }
 }

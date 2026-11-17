@@ -131,7 +131,11 @@ public class ArrayExtensionTests
     {
         double[] v1 = [1.0, 2.0];
         double[] v2 = [1.0, 2.0, 3.0];
+        double[] v3 = [1.0, 2.0];
 
         Assert.Throws<ArgumentOutOfRangeException>(() => v1.MathOperation((a, b) => a + b, v2));
+        Assert.Throws<ArgumentOutOfRangeException>(() => v1.Subtract(v2, v3));
+        Assert.Throws<ArgumentOutOfRangeException>(() => v1.Subtract(v3, v2));
+        Assert.Throws<DivideByZeroException>(() => new double[,] { { 0, 1 }, { 1, 1 } }.InverseMatrix());
     }
 }

@@ -64,6 +64,7 @@ public sealed class StringExtensionsTests
     [InlineData("user_id", "UserId")]
     [InlineData("creation_timestamp", "CreationTimestamp")]
     [InlineData("id", "Id")]
+    [InlineData("a__b", "AB")]
     public void FromSnakeCaseToPascalCase_ConvertsCorrectly(string input, string expected)
     {
         Assert.Equal(expected, input.FromSnakeCaseToPascalCase());
@@ -73,6 +74,7 @@ public sealed class StringExtensionsTests
     [InlineData("user_id", "userId")]
     [InlineData("creation_timestamp", "creationTimestamp")]
     [InlineData("id", "id")]
+    [InlineData("a__b", "aB")]
     public void FromSnakeCaseToCamelCase_ConvertsCorrectly(string input, string expected)
     {
         Assert.Equal(expected, input.FromSnakeCaseToCamelCase());
@@ -85,8 +87,10 @@ public sealed class StringExtensionsTests
     [InlineData("camelCase", "camel Case")]
     [InlineData("ABC", "A B C")]
     [InlineData("single", "single")]
-    public void AddSpaceBeforeUpperCase_InsertsSpacesCorrectly(string input, string expected)
+    [InlineData("", "")]
+    [InlineData(null, null)]
+    public void AddSpaceBeforeUpperCase_InsertsSpacesCorrectly(string? input, string? expected)
     {
-        Assert.Equal(expected, input.AddSpaceBeforeUpperCase());
+        Assert.Equal(expected, input!.AddSpaceBeforeUpperCase());
     }
 }

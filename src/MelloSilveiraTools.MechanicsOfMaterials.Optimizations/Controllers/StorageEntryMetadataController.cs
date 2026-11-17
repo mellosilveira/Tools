@@ -17,10 +17,10 @@ namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Controllers;
 /// by their <c>ExternalIdentifier</c>.
 /// </summary>
 [ApiController]
-[Route("api/v1/stored-files")]
-public class StoredFilesController(ILogger<StoredFilesController> logger) : CrudController<StorageEntryMetadataEntity, StoredFileFilter>(logger)
+[Route("api/v1/storage-entry-metadata")]
+public class StorageEntryMetadataController(ILogger<StorageEntryMetadataController> logger) : CrudController<StorageEntryMetadataEntity, StorageEntryMetadataFilter>(logger)
 {
-    protected override string ResourceName => "stored file";
+    protected override string ResourceName => "Storage entry metadata";
 
     [HttpGet("{fileId:long}/download")]
     [ProducesResponseType(StatusCodes.Status200OK)]

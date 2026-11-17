@@ -15,8 +15,10 @@ public abstract class ExecutePipeline<TRequest, TInput, TOutput>(
     where TInput : PipelineInputBase
 {
     /// <inheritdoc/>
-    protected override async Task<Result<string>> ExecuteCommandAsync(TRequest request, CancellationToken cancellationToken = default)
+    protected override Task<Result<string>> ExecuteCommandAsync(TRequest request, CancellationToken cancellationToken = default)
     {
+        cancellationToken.ThrowIfCancellationRequested();
+
         string pipelineTypeName = pipeline.GetType().Name;
         TInput input = MapToInput(request);
 
@@ -26,18 +28,20 @@ public abstract class ExecutePipeline<TRequest, TInput, TOutput>(
             {
                 logger.LogInformation("Starting pipeline. Pipeline: {Pipeline}. Input: {@Input}.", pipelineTypeName, input);
 
-                // TODO: TENTAR REPASSAR O CANCELLATION TOKEN PARA O PIPELINE
                 Result<TOutput> result = await pipeline.ProcessAsync(input).ConfigureAwait(false);
 
-                logger.LogInformation("Pipeline completed successfully. Pipeline: {Pipeline}. Input: {@Input}. Result: {@Result}", pipelineTypeName, request, input);
+                if (result.Success)
+                    logger.LogInformation("Pipeline completed successfully. Pipeline: {Pipeline}. Input: {@Input}. Result: {@Result}", pipelineTypeName, input, result);
+                else
+                    logger.LogError("Pipeline failed. Pipeline: {Pipeline}. Input: {@Input}. Result: {@Result}", pipelineTypeName, input, result);
             }
             catch (Exception ex)
             {
                 logger.LogError(ex, "Pipeline faulted. Pipeline: {Pipeline}. Request: {@Request}. Input: {@Input}.", pipelineTypeName, request, input);
             }
-        }, cancellationToken);
+        }, CancellationToken.None);
 
-        return Result.CreateSuccessAccepted(input.Identifier);
+        return Task.FromResult(Result.CreateSuccessAccepted(input.Identifier));
     }
 
     protected abstract TInput MapToInput(TRequest request);

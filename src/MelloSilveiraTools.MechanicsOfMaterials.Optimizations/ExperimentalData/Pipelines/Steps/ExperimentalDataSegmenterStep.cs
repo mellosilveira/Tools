@@ -32,15 +32,15 @@ public sealed class ExperimentalDataSegmenterStep(
     {
         ExperimentalDataProcessingOptions options = input.Options;
 
-        Stream strainStream = await fileStorageService.OpenReadAsync(input.StrainFileLocation, cancellationToken).ConfigureAwait(false);
-        Stream stressStream = await fileStorageService.OpenReadAsync(input.StressFileLocation, cancellationToken).ConfigureAwait(false);
+        await using Stream strainStream = await fileStorageService.OpenReadAsync(input.StrainFileLocation, cancellationToken).ConfigureAwait(false);
+        await using Stream stressStream = await fileStorageService.OpenReadAsync(input.StressFileLocation, cancellationToken).ConfigureAwait(false);
 
-        // 'leaveOpen' is used to ensure that the input streams are closed automatically after processing, preventing resource leaks.
+        // 'leaveOpen' is false so the readers own stream closure upon normal disposal; Stream 'await using' also guarantees cleanup if reader creation throws.
         await using CsvStreamReader strainReader = await CsvStreamReader.CreateAsync(strainStream, leaveOpen: false, cancellationToken: cancellationToken).ConfigureAwait(false);
         await using CsvStreamReader stressReader = await CsvStreamReader.CreateAsync(stressStream, leaveOpen: false, cancellationToken: cancellationToken).ConfigureAwait(false);
 
         double? firstValidTime = null;
-        ProcessedDataPoint previousPoint = default;
+        ProcessedDataPoint? previousPoint = null;
         SegmentType currentSegmentType = SegmentType.Unknown;
 
         ExperimentalDataPoint[] buffer = ArrayPool<ExperimentalDataPoint>.Shared.Rent(options.BufferSize);
@@ -76,6 +76,12 @@ public sealed class ExperimentalDataSegmenterStep(
                         continue;
                     }
 
+                    if (bufferCount > 0 && time - buffer[bufferCount].Time <= options.Tolerance)
+                    {
+                        logger.LogTrace("Skipping point at Time={Time} due to timestamp too close to previous point: {LastTime}.", time, buffer[bufferCount].Time);
+                        continue;
+                    }
+
                     firstValidTime ??= time;
                     double normalizedTime = time - firstValidTime.Value;
 
@@ -105,8 +111,9 @@ public sealed class ExperimentalDataSegmenterStep(
                     int end = range.End.Value;
                     for (int i = start; i < end; i++)
                     {
-                        ref ExperimentalDataPoint pt = ref buffer[i];
-                        ProcessedDataPoint processedPoint = BuildProcessedDataPoint(in previousPoint, in pt, in options);
+                        ref ExperimentalDataPoint experimentalDataPoint = ref buffer[i];
+                        ProcessedDataPoint processedPoint = previousPoint is null ? CreateBaselinePoint(in experimentalDataPoint, in options) : BuildProcessedDataPoint(previousPoint.Value, in experimentalDataPoint, in options);
+
                         if (!ValidateStress(segmentType, processedPoint.StressRate, processedPoint.StressAcceleration))
                         {
                             logger.LogWarning("Invalid stress behavior detected for point: {@Point}.", processedPoint);
@@ -173,7 +180,7 @@ public sealed class ExperimentalDataSegmenterStep(
         }
 
         double stepTime = buffer[maxStrainIndex].Time - buffer[minStrainIndex].Time;
-        double strainRate = differentiation.Calculate(minStrain, maxStrain, stepTime == 0 ? double.Epsilon : stepTime);
+        double strainRate = differentiation.Calculate(minStrain, maxStrain, stepTime > options.Tolerance ? stepTime : double.Epsilon);
 
         if (Math.Abs(strainRate) <= options.RateTolerance)
         {
@@ -213,7 +220,7 @@ public sealed class ExperimentalDataSegmenterStep(
         return results;
     }
 
-    private ProcessedDataPoint BuildProcessedDataPoint(in ProcessedDataPoint basePoint, in ExperimentalDataPoint point, in ExperimentalDataProcessingOptions options)
+    private ProcessedDataPoint BuildProcessedDataPoint(ProcessedDataPoint basePoint, in ExperimentalDataPoint point, in ExperimentalDataProcessingOptions options)
     {
         double timeDelta = point.Time - basePoint.Time;
         double calculatedStrainRate = differentiation.Calculate(basePoint.Strain, point.Strain, timeDelta);
@@ -231,6 +238,15 @@ public sealed class ExperimentalDataSegmenterStep(
             StressAcceleration: Math.Abs(calculatedStressAcceleration) > options.AccelerationTolerance ? calculatedStressAcceleration : 0
         );
     }
+
+    private static ProcessedDataPoint CreateBaselinePoint(in ExperimentalDataPoint point, in ExperimentalDataProcessingOptions options) => new(
+        point.Time,
+        Strain: Math.Abs(point.Strain) > options.Tolerance ? point.Strain : 0,
+        StrainRate: 0,
+        StrainAcceleration: 0,
+        Stress: Math.Abs(point.Stress) > options.Tolerance ? point.Stress : 0,
+        StressRate: 0,
+        StressAcceleration: 0);
 
     private static bool ValidateStress(SegmentType segment, double stressRate, double stressAcceleration) => segment switch
     {

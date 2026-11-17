@@ -128,4 +128,74 @@ public sealed class DiskSpoolUploadStreamBaseTests
         defaultStorageMock.Verify(s => s.DeleteAsync(tempLocation, It.IsAny<CancellationToken>()), Times.Once);
         defaultStorageMock.Verify(s => s.DeleteAsync(expectedDir, It.IsAny<CancellationToken>()), Times.Once);
     }
+
+    [Fact]
+    public async Task PropertiesSeekSetLengthWriteOverloadsAndUnsupportedReads_BehaveCorrectly()
+    {
+        Mock<IFileStorageService> defaultStorageMock = new();
+        defaultStorageMock.Setup(s => s.DeleteAsync(It.IsAny<string>(), It.IsAny<CancellationToken>())).Returns(ValueTask.FromResult(true));
+        using MemoryStream localStream = new();
+        await using TestDiskSpoolUploadStream stream = new(defaultStorageMock.Object, localStream, "temp/u/f.bin");
+        stream.Abort();
+
+        Assert.False(stream.CanRead);
+        Assert.True(stream.CanSeek);
+        Assert.True(stream.CanWrite);
+
+        stream.Write([1, 2], 0, 2);
+        stream.Write([3, 4]);
+        await stream.WriteAsync([5, 6], 0, 2, CancellationToken.None);
+        stream.Flush();
+
+        Assert.Equal(6L, stream.Length);
+        stream.Position = 2L;
+        Assert.Equal(2L, stream.Position);
+        Assert.Equal(4L, stream.Seek(2L, SeekOrigin.Current));
+        stream.SetLength(4L);
+        Assert.Equal(4L, stream.Length);
+
+        byte[] readBuf = new byte[4];
+        Assert.Throws<NotSupportedException>(() => stream.Read(readBuf, 0, 4));
+        Assert.Throws<NotSupportedException>(() => stream.Read(readBuf.AsSpan()));
+        await Assert.ThrowsAsync<NotSupportedException>(() => stream.ReadAsync(readBuf, 0, 4, CancellationToken.None));
+        await Assert.ThrowsAsync<NotSupportedException>(() => stream.ReadAsync(readBuf.AsMemory()).AsTask());
+    }
+
+    private sealed class FailingStream : Stream
+    {
+        public override bool CanRead => false;
+        public override bool CanSeek => false;
+        public override bool CanWrite => true;
+        public override long Length => 0;
+        public override long Position { get => 0; set => throw new IOException("disk full"); }
+        public override void Flush() => throw new IOException("disk full");
+        public override int Read(byte[] buffer, int offset, int count) => throw new NotSupportedException();
+        public override long Seek(long offset, SeekOrigin origin) => throw new IOException("disk full");
+        public override void SetLength(long value) => throw new IOException("disk full");
+        public override void Write(byte[] buffer, int offset, int count) => throw new IOException("disk full");
+        public override void Write(ReadOnlySpan<byte> buffer) => throw new IOException("disk full");
+        public override Task WriteAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken) => Task.FromException(new IOException("disk full"));
+        public override ValueTask WriteAsync(ReadOnlyMemory<byte> buffer, CancellationToken cancellationToken = default) => ValueTask.FromException(new IOException("disk full"));
+    }
+
+    [Fact]
+    public async Task WriteFaultAndCleanupExceptions_MarkFaultedAndDoNotThrowDuringDispose()
+    {
+        Mock<IFileStorageService> defaultStorageMock = new();
+        defaultStorageMock
+            .Setup(s => s.DeleteAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .Throws(new IOException("cleanup failed"));
+        FailingStream failingStream = new();
+
+        TestDiskSpoolUploadStream stream = new(defaultStorageMock.Object, failingStream, "temp/u/fault.bin");
+
+        Assert.Throws<IOException>(() => stream.SetLength(10));
+        Assert.Throws<IOException>(() => stream.Write([1], 0, 1));
+        Assert.Throws<IOException>(() => stream.Write([1]));
+        await Assert.ThrowsAsync<IOException>(() => stream.WriteAsync([1], 0, 1, CancellationToken.None));
+        await Assert.ThrowsAsync<IOException>(() => stream.WriteAsync(new ReadOnlyMemory<byte>([1])).AsTask());
+
+        await stream.DisposeAsync();
+        Assert.False(stream.UploadPayloadInvoked);
+    }
 }

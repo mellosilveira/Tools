@@ -67,6 +67,8 @@ public abstract class MechanicalModelCurveFitterStepBase(double targetRSquared, 
         double finalStrain = segment.ExperimentalStrain[^1];
         double initialTime = segment.TimePoints[0];
         double finalTime = segment.TimePoints[^1];
+        double timeSpan = finalTime - initialTime;
+        double rampRate = (finalStrain - initialStrain) / timeSpan;
 
         return new()
         {
@@ -78,12 +80,12 @@ public abstract class MechanicalModelCurveFitterStepBase(double targetRSquared, 
             RampTime = rampTime,
             Strain = segment.Type switch
             {
-                SegmentType.Ramp => new MechanicalParameter(initialStrain, new PolynomialFunction([0, (finalStrain - initialStrain) / (finalTime - initialTime)])),
+                SegmentType.Ramp => new MechanicalParameter(initialStrain, new PolynomialFunction([0, rampRate])),
                 SegmentType.Relaxation => new MechanicalParameter(initialStrain),
                 _ => throw new ArgumentOutOfRangeException(nameof(segment.Type), segment.Type, null)
             },
             Stress = new MechanicalParameter(segment.ExperimentalStress[0]),
-            TimeStep = (finalTime - initialTime) / segment.TimePoints.Length,
+            TimeStep = timeSpan / segment.TimePoints.Length,
             ConstitutiveParameters = constitutiveParameters
         };
     }

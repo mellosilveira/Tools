@@ -46,17 +46,17 @@ public abstract class CurveFitterBase : ICurveFitter
 
         for (int i = 0; i < parameterCount; i++)
         {
-            // Scale-adaptive perturbation: balances truncation error O(h^2) against floating-point cancellation
-            double h = Math.Max(1e-6, 1e-4 * Math.Abs(currentParameters[i]));
-            tempParams[i] += h;
+            double originalParam = currentParameters[i];
+            double h = Math.Max(1e-6, 1e-4 * Math.Abs(originalParam));
+
+            tempParams[i] = originalParam + h;
             double forwardCost = CalculateObjectiveFunction(input, tempParams);
 
-            tempParams[i] -= 2.0 * h;
+            tempParams[i] = originalParam - h;
             double backwardCost = CalculateObjectiveFunction(input, tempParams);
 
             gradient[i] = (forwardCost - backwardCost) / (2.0 * h);
-
-            tempParams[i] += h;
+            tempParams[i] = originalParam;
         }
 
         return gradient;

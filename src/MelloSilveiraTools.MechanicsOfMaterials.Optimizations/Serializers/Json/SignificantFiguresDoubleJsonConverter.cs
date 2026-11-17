@@ -11,7 +11,22 @@ namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Serializers.Json
 public class SignificantFiguresDoubleJsonConverter(int significantDigits = 7) : JsonConverter<double>
 {
     public override double Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
-        => reader.GetDouble();
+    {
+        if (reader.TokenType == JsonTokenType.String)
+        {
+            return reader.GetString() switch
+            {
+                "NaN" => double.NaN,
+                "Infinity" => double.PositiveInfinity,
+                "-Infinity" => double.NegativeInfinity,
+                string raw when double.TryParse(raw, NumberStyles.Float | NumberStyles.AllowThousands, CultureInfo.InvariantCulture, out double parsed) => parsed,
+                string unexpected => throw new JsonException($"Invalid double string representation: '{unexpected}'."),
+                null => throw new JsonException("Unexpected null string value when reading double.")
+            };
+        }
+
+        return reader.GetDouble();
+    }
 
     public override void Write(Utf8JsonWriter writer, double value, JsonSerializerOptions options)
     {

@@ -525,24 +525,39 @@
             Descending order (largest value first).
             </summary>
         </member>
-        <member name="T:MelloSilveiraTools.Database.RelationalDatabase.Models.Filters.StoredFileFilter">
+        <member name="T:MelloSilveiraTools.Database.RelationalDatabase.Models.Filters.StorageEntryMetadataFilter">
             <summary>
-            Filter model used to query <see cref="T:MelloSilveiraTools.Database.RelationalDatabase.Models.Entities.StorageEntryMetadataEntity"/> records by external identifier, context, or file name.
+            Filter model used to query <see cref="T:MelloSilveiraTools.Database.RelationalDatabase.Models.Entities.StorageEntryMetadataEntity"/> records in the <c>stored_files</c> table.
             </summary>
         </member>
-        <member name="P:MelloSilveiraTools.Database.RelationalDatabase.Models.Filters.StoredFileFilter.ExternalIdentifier">
+        <member name="P:MelloSilveiraTools.Database.RelationalDatabase.Models.Filters.StorageEntryMetadataFilter.ExternalIdentifier">
             <summary>
             Optional external identifier correlating the file to an analysis, experiment, or simulation run.
             </summary>
         </member>
-        <member name="P:MelloSilveiraTools.Database.RelationalDatabase.Models.Filters.StoredFileFilter.Context">
+        <member name="P:MelloSilveiraTools.Database.RelationalDatabase.Models.Filters.StorageEntryMetadataFilter.StorageProvider">
             <summary>
-            Optional business domain context under which the file was created.
+            Optional storage provider technology where the artifact resides.
             </summary>
         </member>
-        <member name="P:MelloSilveiraTools.Database.RelationalDatabase.Models.Filters.StoredFileFilter.FileName">
+        <member name="P:MelloSilveiraTools.Database.RelationalDatabase.Models.Filters.StorageEntryMetadataFilter.Location">
+            <summary>
+            Optional absolute file system path, URI, or cloud blob key where the file can be retrieved.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Database.RelationalDatabase.Models.Filters.StorageEntryMetadataFilter.Directory">
+            <summary>
+            Optional directory path or prefix where the file is stored.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Database.RelationalDatabase.Models.Filters.StorageEntryMetadataFilter.FileName">
             <summary>
             Optional physical file name including extension.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Database.RelationalDatabase.Models.Filters.StorageEntryMetadataFilter.ContentType">
+            <summary>
+            Optional MIME content type representing the file format.
             </summary>
         </member>
         <member name="T:MelloSilveiraTools.Database.RelationalDatabase.Models.JoinType">

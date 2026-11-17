@@ -261,7 +261,7 @@ public sealed class SchaperyRelaxationOnlyCurveFitterStep(
 
         // Incorporate error and iterations
         precision = (precision + heResult.Precision + h2Result.Precision) / 3.0;
-        totalError *= (heResult.Error * h2Result.Error);
+        totalError = (totalError + heResult.Error + h2Result.Error) / 3.0;
         totalIterations += (heResult.Iterations + h2Result.Iterations);
 
         double initialAcceptedStrain = relaxations[0].ExperimentalStrain[0];

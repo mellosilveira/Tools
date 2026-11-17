@@ -12,7 +12,7 @@ namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnaly
 
 /// <summary>
 /// Exposes HTTP endpoints for executing Parametric Sweep sensitivity analyses and streaming real-time pipeline progress.
-/// File artifact queries and downloads are centralized in <see cref="StoredFilesController"/>.
+/// File artifact queries and downloads are centralized in <see cref="StorageEntryMetadataController"/>.
 /// </summary>
 [ApiController]
 [Route("api/v1/parametric-sweeps")]
@@ -22,13 +22,14 @@ public class ParametricSweepController(ILogger<ParametricSweepController> logger
     [ProducesResponseType(StatusCodes.Status202Accepted)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> Process(
-        [FromServices] ExecuteParametricSweepPipeline command, 
-        [FromBody] ExecuteParametricSweepPipelineRequest request, 
+        [FromServices] ExecuteParametricSweepPipeline command,
+        [FromBody] ExecuteParametricSweepPipelineRequest request,
         CancellationToken cancellationToken = default)
         => await command.ExecuteAsync(request, cancellationToken).BuildHttpResponseAsync().ConfigureAwait(false);
 
     [HttpPost("process-from-experimental-data")]
-    [ProducesResponseType(StatusCodes.Status200OK)]
+    [Produces("application/x-ndjson")]
+    [ProducesResponseType(StatusCodes.Status202Accepted)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> ProcessFromExperimentalData(
@@ -40,9 +41,9 @@ public class ParametricSweepController(ILogger<ParametricSweepController> logger
         if (!result.Success)
             return result.BuildHttpResponse();
 
-        // Sets the HTTP SatatusCode as 202 Accepted to indicate that the request has been accepted for processing, but the processing has not been completed yet.
+        // Sets the HTTP StatusCode as 202 Accepted to indicate that the request has been accepted for processing, but the processing has not been completed yet.
         HttpContext.Response.StatusCode = StatusCodes.Status202Accepted;
         await result.Data!.WriteNdjsonAsync(HttpContext, logger, "Progress for parametric sweep pipelines", cancellationToken).ConfigureAwait(false);
-        return Result.CreateSuccessOk().BuildHttpResponse();
+        return Empty;
     }
 }

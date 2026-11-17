@@ -26,8 +26,8 @@ public static class ResultExtensions
         /// </summary>
         public T AddError(string errorMessage, StatusCode statusCode = StatusCode.BadRequest)
         {
-            result.Messages.Add(errorMessage);
-            return result with { StatusCode = statusCode, Success = false };
+            List<string> updatedMessages = [.. result.Messages, errorMessage];
+            return result with { Messages = updatedMessages, StatusCode = statusCode, Success = false };
         }
 
         /// <summary>
@@ -92,9 +92,8 @@ public static class ResultExtensions
         /// </summary>
         public T AddErrorIfNegativeOrZero(List<double> parameters, string message, StatusCode statusCode = StatusCode.BadRequest)
         {
-            result = result.AddErrorIfNullOrEmpty(parameters, message, statusCode);
-            if (!result.Success)
-                return result;
+            if (parameters.IsNullOrEmpty())
+                return result.AddError(message, statusCode);
 
             foreach (double parameter in parameters)
             {
@@ -137,7 +136,7 @@ public static class ResultExtensions
         /// </summary>
         public T AddErrorIfDirectoryNotExist(string fullDirectoryName, string parameterName, StatusCode statusCode = StatusCode.BadRequest)
         {
-            result = result.AddErrorIfNullOrEmpty(fullDirectoryName, parameterName, statusCode);
+            result = result.AddErrorIfNullOrWhiteSpace(fullDirectoryName, $"Directory parameter '{parameterName}' cannot be null or whitespace.", statusCode);
             if (!result.Success)
                 return result;
 

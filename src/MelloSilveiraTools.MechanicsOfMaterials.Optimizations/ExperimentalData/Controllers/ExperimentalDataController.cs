@@ -22,14 +22,13 @@ public class ExperimentalDataController(ILogger<ExperimentalDataController> logg
     [ProducesResponseType(StatusCodes.Status202Accepted)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> Process(
-        [FromServices] ExecuteExperimentalDataPipeline command, 
-        [FromBody] ExecuteExperimentalDataPipelineRequest request, 
+        [FromServices] ExecuteExperimentalDataPipeline command,
+        [FromBody] ExecuteExperimentalDataPipelineRequest request,
         CancellationToken cancellationToken = default)
         => await command.ExecuteAsync(request, cancellationToken).BuildHttpResponseAsync().ConfigureAwait(false);
 
     [HttpPost("process/batch")]
     [Produces("application/x-ndjson")]
-    [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status202Accepted)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> ProcessBatch(
@@ -41,9 +40,9 @@ public class ExperimentalDataController(ILogger<ExperimentalDataController> logg
         if (!result.Success)
             return result.BuildHttpResponse();
 
-        // Sets the HTTP SatatusCode as 202 Accepted to indicate that the request has been accepted for processing, but the processing has not been completed yet.
+        // Sets the HTTP StatusCode as 202 Accepted to indicate that the request has been accepted for processing, but the processing has not been completed yet.
         HttpContext.Response.StatusCode = StatusCodes.Status202Accepted;
         await result.Data!.WriteNdjsonAsync(HttpContext, logger, "Progress for experimental data pipelines", cancellationToken).ConfigureAwait(false);
-        return Result.CreateSuccessOk().BuildHttpResponse();
+        return Empty;
     }
 }

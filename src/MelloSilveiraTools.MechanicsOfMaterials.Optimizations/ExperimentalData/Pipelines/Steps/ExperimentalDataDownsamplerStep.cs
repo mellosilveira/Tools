@@ -13,6 +13,8 @@ public sealed class ExperimentalDataDownsamplerStep(double? skipTimeStep) : IAsy
     private double? _lastTime = null;
     private readonly double _skipTimeStep = skipTimeStep ?? 0;
 
+    private SegmentType? _lastSegmentType;
+
     /// <inheritdoc/>
     public string Name => nameof(ExperimentalDataDownsamplerStep);
 
@@ -28,8 +30,9 @@ public sealed class ExperimentalDataDownsamplerStep(double? skipTimeStep) : IAsy
             yield break;
         }
 
-        if (_lastTime is null || (input.ProcessedDataPoint.Time - _lastTime.Value) >= _skipTimeStep)
+        if (_lastTime is null || _lastSegmentType != input.SegmentType || (input.ProcessedDataPoint.Time - _lastTime.Value) >= _skipTimeStep)
         {
+            _lastSegmentType = input.SegmentType;
             _lastTime = input.ProcessedDataPoint.Time;
             yield return input;
         }

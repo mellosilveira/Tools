@@ -11,13 +11,16 @@ namespace MelloSilveiraTools.Plugins.Application.Validators;
 /// </summary>
 public class UploadPluginValidator : IValidator<UploadPluginRequest>
 {
-    private static readonly Regex PluginFileRegex = new(@"^(?<name>.+)\.v(?<major>\d+)\.(?<minor>\d+)\.(?<patch>\d+)\.dll$", RegexOptions.Compiled);
+    private static readonly Regex PluginFileRegex = new(@"^(?<name>[^\\/]+)\.v(?<major>\d+)\.(?<minor>\d+)\.(?<patch>\d+)\.dll$", RegexOptions.Compiled);
 
     /// <inheritdoc/>
     public Result Validate(UploadPluginRequest value)
     {
-        if (value.File is null || value.File.Length == 0)
+        if (value is null || value.File is null || value.File.Length == 0)
             return Result.CreateBadRequest("Plugin file is required and cannot be empty.");
+
+        if (!value.File.FileName.Equals(Path.GetFileName(value.File.FileName), StringComparison.Ordinal) || value.File.FileName.Contains("..", StringComparison.Ordinal))
+            return Result.CreateBadRequest("Plugin filename must not contain directory separators or path traversal segments.");
 
         if (!value.File.FileName.EndsWith(".dll", StringComparison.OrdinalIgnoreCase))
             return Result.CreateBadRequest("Only .dll assembly files are permitted.");

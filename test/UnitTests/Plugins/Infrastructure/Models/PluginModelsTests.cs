@@ -1,132 +1,132 @@
-//using MelloSilveiraTools.Core.Providers.Dynamics;
-//using MelloSilveiraTools.Plugins.Infrastructure.Models;
-//using Microsoft.Extensions.DependencyInjection;
-//using Moq;
-//using System.Runtime.Loader;
+using MelloSilveiraTools.Core.Providers.Dynamics;
+using MelloSilveiraTools.Plugins.Infrastructure;
+using MelloSilveiraTools.Plugins.Infrastructure.Models;
+using Microsoft.Extensions.DependencyInjection;
+using Moq;
+using System.Reflection;
+using System.Runtime.Loader;
+using System.Text.Json;
 
-//namespace UnitTests.Plugins.Infrastructure.Models;
+namespace UnitTests.Plugins.Infrastructure.Models;
 
-//public sealed class PluginModelsTests
-//{
-//    [Fact]
-//    public void DiscoveredPlugin_ParameterizedConstructor_SetsAllProperties()
-//    {
-//        DateTimeOffset now = DateTimeOffset.UtcNow;
-//        PluginVersion version = new(1, 0, 0);
+public sealed class PluginModelsTests
+{
+    [Fact]
+    public void DiscoveredPlugin_Constructors_SetProperties()
+    {
+        DateTimeOffset now = DateTimeOffset.UtcNow;
+        PluginVersion version = new(1, 0, 0);
 
-//        DiscoveredPlugin plugin = new("Calculators", version, "/storage/Calculators.v1.0.0.dll", now);
+        DiscoveredPlugin parameterized = new("Calculators", version, "/storage/Calculators.v1.0.0.dll", now);
+        Assert.Equal("Calculators", parameterized.Name);
+        Assert.Equal(version, parameterized.Version);
+        Assert.Equal("/storage/Calculators.v1.0.0.dll", parameterized.FullPath);
+        Assert.Equal(now, parameterized.DiscoveredAt);
 
-//        Assert.Equal("Calculators", plugin.Name);
-//        Assert.Equal(version, plugin.Version);
-//        Assert.Equal("/storage/Calculators.v1.0.0.dll", plugin.FullPath);
-//        Assert.Equal(now, plugin.DiscoveredAt);
-//    }
+        DiscoveredPlugin parameterless = new();
+        Assert.Equal(string.Empty, parameterless.Name);
+        Assert.Equal(PluginVersion.Default, parameterless.Version);
+        Assert.Equal(string.Empty, parameterless.FullPath);
+        Assert.Equal(default, parameterless.DiscoveredAt);
+    }
 
-//    [Fact]
-//    public void DiscoveredPlugin_ParameterlessConstructor_InitializesDefaults()
-//    {
-//        DiscoveredPlugin plugin = new();
+    [Fact]
+    public void LoadedPlugin_ConstructorsAndUnloadAssembly_CleanupShadowDirectory()
+    {
+        string tempShadowDir = Path.Combine(Path.GetTempPath(), "mst-loaded-plugin-test", Guid.NewGuid().ToString("N"));
+        Directory.CreateDirectory(tempShadowDir);
+        File.WriteAllText(Path.Combine(tempShadowDir, "dummy.txt"), "x");
 
-//        Assert.Equal(string.Empty, plugin.Name);
-//        Assert.Equal(PluginVersion.Default, plugin.Version);
-//        Assert.Equal(string.Empty, plugin.FullPath);
-//        Assert.Equal(default, plugin.DiscoveredAt);
-//    }
+        DateTimeOffset now = DateTimeOffset.UtcNow;
+        PluginVersion version = new(2, 0, 0);
+        DiscoveredPlugin discovered = new("Mechanics", version, "/storage/Mechanics.v2.0.0.dll", now);
+        Type[] types = [typeof(string), typeof(int)];
+        AssemblyLoadContext context = new("TestContext", isCollectible: true);
 
-//    [Fact]
-//    public void LoadedPlugin_Constructor_WrapsDiscoveredPluginAndSetsProcessableTypes()
-//    {
-//        DateTimeOffset now = DateTimeOffset.UtcNow;
-//        PluginVersion version = new(2, 0, 0);
-//        DiscoveredPlugin discovered = new("Mechanics", version, "/storage/Mechanics.v2.0.0.dll", now);
-//        Type[] types = [typeof(string), typeof(int)];
-//        AssemblyLoadContext context = new("TestContext", isCollectible: true);
+        LoadedPlugin loaded = new(discovered, types, context, tempShadowDir);
+        Assert.Equal("Mechanics", loaded.Name);
+        Assert.Equal(version, loaded.Version);
+        Assert.Equal(types, loaded.ProcessableTypes);
 
-//        LoadedPlugin loaded = new(discovered, types, context);
+        loaded.UnloadAssembly();
+        Assert.False(Directory.Exists(tempShadowDir));
 
-//        Assert.Equal("Mechanics", loaded.Name);
-//        Assert.Equal(version, loaded.Version);
-//        Assert.Equal("/storage/Mechanics.v2.0.0.dll", loaded.FullPath);
-//        Assert.Equal(now, loaded.DiscoveredAt);
-//        Assert.Equal(types, loaded.ProcessableTypes);
+        LoadedPlugin empty = new();
+        Assert.Empty(empty.ProcessableTypes);
+        empty.UnloadAssembly();
+    }
 
-//        // Test UnloadAssembly does not throw
-//        loaded.UnloadAssembly();
-//    }
+    [Fact]
+    public void RegisteredPlugin_MarkTypeLoaded_TransitionsToFullyLoadedWhenAllTypesRegistered()
+    {
+        DateTimeOffset now = DateTimeOffset.UtcNow;
+        DateTimeOffset t1 = new(2026, 6, 1, 10, 0, 0, TimeSpan.Zero);
+        DateTimeOffset t2 = t1.AddSeconds(5);
+        DiscoveredPlugin discovered = new("TestPlugin", new PluginVersion(1, 2, 0), "/storage/TestPlugin.v1.2.0.dll", now);
+        AssemblyLoadContext context = new("TestContext2", isCollectible: true);
+        LoadedPlugin loaded = new(discovered, [typeof(string), typeof(int)], context);
+        context.Unload();
 
-//    [Fact]
-//    public void LoadedPlugin_ParameterlessConstructor_InitializesDefaults()
-//    {
-//        LoadedPlugin loaded = new();
+        RegisteredPlugin registered = new(loaded);
+        Assert.Equal(2, registered.TypesLoadedStatus.Count);
+        Assert.False(registered.IsFullyLoaded);
+        Assert.Null(registered.FullyLoadedAt);
 
-//        Assert.Empty(loaded.ProcessableTypes);
-//        loaded.UnloadAssembly();
-//    }
+        registered.MarkTypeLoaded(typeof(string), t1);
+        Assert.False(registered.IsFullyLoaded);
+        Assert.Null(registered.FullyLoadedAt);
 
-//    [Fact]
-//    public void RegisteredPlugin_ConstructorFromLoaded_InitializesStatusAsFalse()
-//    {
-//        DateTimeOffset now = DateTimeOffset.UtcNow;
-//        PluginVersion version = new(1, 2, 0);
-//        DiscoveredPlugin discovered = new("TestPlugin", version, "/storage/TestPlugin.v1.2.0.dll", now);
-//        Type[] types = [typeof(string), typeof(int)];
-//        AssemblyLoadContext context = new("TestContext2", isCollectible: true);
-//        LoadedPlugin loaded = new(discovered, types, context);
+        registered.MarkTypeLoaded(typeof(int), t2);
+        Assert.True(registered.IsFullyLoaded);
+        Assert.Equal(t2, registered.FullyLoadedAt);
 
-//        RegisteredPlugin registered = new(loaded);
+        RegisteredPlugin empty = new();
+        Assert.Empty(empty.TypesLoadedStatus);
+        Assert.False(empty.IsFullyLoaded);
+    }
 
-//        Assert.Equal("TestPlugin", registered.Name);
-//        Assert.Equal(version, registered.Version);
-//        Assert.Equal(2, registered.TypesLoadedStatus.Count);
-//        Assert.False(registered.TypesLoadedStatus[typeof(string)]);
-//        Assert.False(registered.TypesLoadedStatus[typeof(int)]);
-//        Assert.False(registered.IsFullyLoaded);
-//        Assert.Null(registered.FullyLoadedAt);
+    [Fact]
+    public void PluginRegistrationContext_FactoryMethods_SetExpectedTargets()
+    {
+        ServiceCollection services = new();
+        PluginRegistrationContext startup = PluginRegistrationContext.ForStartup(services);
+        Assert.True(startup.IsStartup);
+        Assert.Same(services, startup.Services);
+        Assert.Null(startup.DynamicProvider);
 
-//        // Mark first type loaded
-//        registered.MarkTypeLoaded(typeof(string), TimeProvider.System);
-//        Assert.True(registered.TypesLoadedStatus[typeof(string)]);
-//        Assert.False(registered.IsFullyLoaded);
-//        Assert.Null(registered.FullyLoadedAt);
+        Mock<IDynamicServiceProvider> dynamicMock = new();
+        PluginRegistrationContext runtime = PluginRegistrationContext.ForRuntime(dynamicMock.Object);
+        Assert.False(runtime.IsStartup);
+        Assert.Null(runtime.Services);
+        Assert.Same(dynamicMock.Object, runtime.DynamicProvider);
+    }
 
-//        // Mark second type loaded
-//        registered.MarkTypeLoaded(typeof(int), TimeProvider.System);
-//        Assert.True(registered.TypesLoadedStatus[typeof(int)]);
-//        Assert.True(registered.IsFullyLoaded);
-//        Assert.NotNull(registered.FullyLoadedAt);
-//    }
+    [Fact]
+    public void PluginVersionJsonConverter_HandlesObjectFieldsDefaultsEmptyStringAndOtherTokens()
+    {
+        JsonSerializerOptions options = new() { Converters = { new PluginVersionJsonConverter() } };
 
-//    [Fact]
-//    public void RegisteredPlugin_ParameterlessConstructor_InitializesEmpty()
-//    {
-//        RegisteredPlugin registered = new();
+        Assert.Equal(PluginVersion.Default, JsonSerializer.Deserialize<PluginVersion>("\"\"", options));
+        Assert.Equal(new PluginVersion(2, 3, 4), JsonSerializer.Deserialize<PluginVersion>("{\"Major\":2,\"Minor\":3,\"Patch\":4}", options));
+        Assert.Equal(new PluginVersion(0, 0, 0), JsonSerializer.Deserialize<PluginVersion>("{}", options));
+        Assert.Equal(PluginVersion.Default, JsonSerializer.Deserialize<PluginVersion>("42", options));
+    }
 
-//        Assert.Empty(registered.TypesLoadedStatus);
-//        Assert.False(registered.IsFullyLoaded);
-//        Assert.Null(registered.FullyLoadedAt);
-//    }
+    [Fact]
+    public void PluginLoadContext_UnresolvedManagedAndUnmanaged_ReturnFallbackDefaults()
+    {
+        PluginLoadContext alc = new(typeof(PluginLoadContext).Assembly.Location, isCollectible: true);
+        try
+        {
+            MethodInfo loadMethod = typeof(PluginLoadContext).GetMethod("Load", BindingFlags.Instance | BindingFlags.NonPublic)!;
+            MethodInfo loadUnmanagedMethod = typeof(PluginLoadContext).GetMethod("LoadUnmanagedDll", BindingFlags.Instance | BindingFlags.NonPublic)!;
 
-//    [Fact]
-//    public void PluginRegistrationContext_ForStartup_SetsServicesAndFlagsIsStartupTrue()
-//    {
-//        ServiceCollection services = new();
-
-//        PluginRegistrationContext context = PluginRegistrationContext.ForStartup(services);
-
-//        Assert.Same(services, context.Services);
-//        Assert.Null(context.DynamicProvider);
-//        Assert.True(context.IsStartup);
-//    }
-
-//    [Fact]
-//    public void PluginRegistrationContext_ForRuntime_SetsDynamicProviderAndFlagsIsStartupFalse()
-//    {
-//        Mock<IDynamicServiceProvider> dynamicMock = new();
-
-//        PluginRegistrationContext context = PluginRegistrationContext.ForRuntime(dynamicMock.Object);
-
-//        Assert.Null(context.Services);
-//        Assert.Same(dynamicMock.Object, context.DynamicProvider);
-//        Assert.False(context.IsStartup);
-//    }
-//}
+            Assert.Null(loadMethod.Invoke(alc, [new AssemblyName("NonExistent.Plugin.Dep")]));
+            Assert.Equal(IntPtr.Zero, (IntPtr)loadUnmanagedMethod.Invoke(alc, ["nonexistent_native_lib"])!);
+        }
+        finally
+        {
+            alc.Unload();
+        }
+    }
+}

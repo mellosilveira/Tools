@@ -29,15 +29,17 @@ public class PipelineFactory(IPipelineProgressNotifier progressNotifier, TimePro
     public IDataflowPipelineBuilder<T, T> CreateDataflow<T>(ILogger logger, string pipelineIdentifier, int initialBufferSize, CancellationToken cancellationToken = default)
     {
         BufferBlock<T> buffer = new(new DataflowBlockOptions { BoundedCapacity = initialBufferSize, CancellationToken = cancellationToken });
-        return new DataflowPipelineBuilder<T, T>(
+        PipelineBuildContext<T> context = new(
             logger,
             progressNotifier,
-            buffer,
             buffer,
             null,
             timeProvider,
             pipelineIdentifier,
-            pipelineCancellationToken: cancellationToken);
+            [],
+            cancellationToken);
+
+        return new DataflowPipelineBuilder<T, T>(context, buffer);
     }
 
     /// <summary>

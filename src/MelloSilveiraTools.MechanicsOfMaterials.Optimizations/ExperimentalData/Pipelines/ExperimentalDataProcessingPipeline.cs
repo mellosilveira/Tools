@@ -57,14 +57,18 @@ public sealed class ExperimentalDataProcessingPipeline(
         CurveFitOutputPersistenceStep curveFitPersistenceStep = new(loggerFactory.CreateLogger<CurveFitOutputPersistenceStep>(), repository, input.Identifier, input.MechanicalModelName);
         MechanicalModelOutputPersistenceStep mechanicalModelOutputPersistenceStep = new(loggerFactory.CreateLogger<MechanicalModelOutputPersistenceStep>(), fileStorageService, repository, input.Identifier, input.MechanicalModelName);
 
+        PipelineStepOptions fileWriterOptions = ResolveSequentialStepOptions(logger, nameof(ExperimentalDataFileWriterStep), settings.FileWriterOptions);
+        PipelineStepOptions segmentBuilderOptions = ResolveSequentialStepOptions(logger, nameof(CurveSegmentBuilderStep), settings.SegmentBuilderOptions);
+        PipelineStepOptions curveFitterOptions = ResolveSequentialStepOptions(logger, curveFitterStep.GetType().Name, settings.CurveFitterOptions);
+
         IDataflowPipeline<ExperimentalDataSegmenterInput> pipeline = pipelineFactory
             .CreateDataflow<ExperimentalDataSegmenterInput>(logger, input.Identifier, initialBufferSize: settings.IngestionBufferCapacity, cancellationToken: cancellationToken)
             .WithLoggingErrors()
             .AddStep(segmenterStep, settings.SegmenterOptions)
-            .AddBroadcastStep(experimentalDataFileWriterStep, options: settings.FileWriterOptions)
+            .AddBroadcastStep(experimentalDataFileWriterStep, options: fileWriterOptions)
             .AddStep(downsamplerStep, PipelineStepOptions.Synchronous)
-            .AddStep(curveSegmentBuilderStep, settings.SegmentBuilderOptions)
-            .AddStep(curveFitterStep, settings.CurveFitterOptions)
+            .AddStep(curveSegmentBuilderStep, segmentBuilderOptions)
+            .AddStep(curveFitterStep, curveFitterOptions)
             .Fork(
                 originalBranch => originalBranch,
                 identifierBranch => identifierBranch.AddStep(curveFitOutputIdentifierBuilderStep),
@@ -95,5 +99,24 @@ public sealed class ExperimentalDataProcessingPipeline(
         }
 
         return input.Identifier;
+    }
+
+    private static PipelineStepOptions ResolveSequentialStepOptions(
+        ILogger logger,
+        string stepName,
+        PipelineStepOptions options)
+    {
+        if (options.MaxWorkers != 1 || !options.KeepOrder)
+        {
+            logger.LogWarning(
+                "Invalid pipeline step configuration detected for '{StepName}': MaxWorkers={MaxWorkers} and KeepOrder={KeepOrder} are invalid for this step and are being overridden to MaxWorkers=1 and KeepOrder=true to preserve sequential ordering.",
+                stepName,
+                options.MaxWorkers,
+                options.KeepOrder);
+
+            return options with { MaxWorkers = 1, KeepOrder = true };
+        }
+
+        return options;
     }
 }

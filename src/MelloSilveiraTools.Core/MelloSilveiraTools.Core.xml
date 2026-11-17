@@ -3024,29 +3024,82 @@
             teardowns without requiring developers to repeatedly manually allocate <see cref="T:System.Threading.Tasks.Dataflow.DataflowLinkOptions"/> at every step.
             </remarks>
         </member>
+        <member name="T:MelloSilveiraTools.Core.Pipelines.Dataflow.DataflowFanOut">
+            <summary>
+            Provides lossless, backpressure-aware fan-out dispatch across multiple downstream TPL Dataflow targets.
+            </summary>
+            <remarks>
+            Why TPL Dataflow's native <see cref="T:System.Threading.Tasks.Dataflow.BroadcastBlock`1"/> is intentionally NOT used:
+            <list type="bullet">
+            <item><description><b>Lossy ("last-value-wins") semantics:</b> <see cref="T:System.Threading.Tasks.Dataflow.BroadcastBlock`1"/> overwrites unconsumed items and silently drops deliveries whenever a downstream target is busy or its bounded buffer is full (<see cref="F:System.Threading.Tasks.Dataflow.DataflowMessageStatus.Declined"/>).</description></item>
+            <item><description><b>Broken Fork/Join pairing and observer data loss:</b> In <c>Fork</c> topologies converging into a <see cref="T:System.Threading.Tasks.Dataflow.JoinBlock`2"/>, dropping an item in one branch breaks tuple pairing and deadlocks the join; in <c>AddBroadcastStep</c>/<c>AddBroadcastFork</c>, slower observers (e.g., disk or database persistence) would silently lose records without raising errors.</description></item>
+            <item><description><b>Missing end-to-end backpressure:</b> Because <see cref="T:System.Threading.Tasks.Dataflow.BroadcastBlock`1"/> advances without waiting for all targets to accept the message, upstream producers are not throttled by slower branches.</description></item>
+            </list>
+            <see cref="T:MelloSilveiraTools.Core.Pipelines.Dataflow.DataflowFanOut"/> enforces <c>SendAsync</c> acceptance across all targets, selective cloning for secondary branches (<c>index &gt; 0</c>), and deterministic completion/fault propagation.
+            </remarks>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Pipelines.Dataflow.DataflowFanOut.LinkDispatcher``1(System.Threading.Tasks.Dataflow.ISourceBlock{``0},System.Threading.Tasks.Dataflow.ExecutionDataflowBlockOptions,System.Threading.Tasks.Dataflow.ITargetBlock{``0}[],System.Func{``0,``0},System.Threading.CancellationToken)">
+            <summary>
+            Links <paramref name="source"/> to a sequential dispatcher that delivers every item to all <paramref name="targets"/> with backpressure.
+            </summary>
+            <typeparam name="T">The payload type broadcast to all targets.</typeparam>
+            <param name="source">The upstream source block feeding the fan-out.</param>
+            <param name="dataFlowOptions">Concurrency and buffer configuration whose <c>BoundedCapacity</c> governs dispatcher backpressure.</param>
+            <param name="targets">Downstream target blocks that must each receive every payload.</param>
+            <param name="cloneFunc">Optional cloning function applied only to secondary targets (<c>index &gt; 0</c>), preserving the original instance on the primary path (<c>index == 0</c>).</param>
+            <param name="cancellationToken">Pipeline-wide cancellation token.</param>
+            <returns>A completion task that finishes after completion or fault signals have been propagated to every target.</returns>
+        </member>
+        <member name="T:MelloSilveiraTools.Core.Pipelines.Dataflow.DataflowPipeline`1">
+            <summary>
+            Sealed execution engine representing the finalized TPL Dataflow graph.
+            Exposes inputs, triggers completion, and awaits termination while automatically disposing registered steps on shutdown.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Pipelines.Dataflow.DataflowPipeline`1.#ctor(MelloSilveiraTools.Core.Pipelines.Dataflow.PipelineBuildContext{`0},System.Threading.Tasks.Task)">
+            <summary>
+            Sealed execution engine representing the finalized TPL Dataflow graph.
+            Exposes inputs, triggers completion, and awaits termination while automatically disposing registered steps on shutdown.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Core.Pipelines.Dataflow.DataflowPipeline`1.Topology">
+            <inheritdoc/>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Pipelines.Dataflow.DataflowPipeline`1.SendAsync(`0,System.Threading.CancellationToken)">
+            <inheritdoc/>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Pipelines.Dataflow.DataflowPipeline`1.Complete">
+            <inheritdoc/>
+        </member>
+        <member name="P:MelloSilveiraTools.Core.Pipelines.Dataflow.DataflowPipeline`1.Completion">
+            <inheritdoc/>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Pipelines.Dataflow.DataflowPipeline`1.DisposeAsync">
+            <inheritdoc/>
+        </member>
         <member name="T:MelloSilveiraTools.Core.Pipelines.Dataflow.DataflowPipelineBuilder`2">
             <summary>
-            Strongly-typed fluent builder for orchestrating asynchronous data processing topologies.
+            Strongly-typed fluent builder for orchestrating asynchronous TPL Dataflow processing topologies.
             </summary>
             <remarks>
             Architectural Decisions:
             <list type="bullet">
             <item><description><b>Bifurcated DLQ Routing:</b> When a Dead-Letter Queue is configured, steps dynamically wrap execution in <see cref="T:MelloSilveiraTools.Core.Pipelines.Models.SafeResult`2"/> and split successful vs. faulted payloads without faulting the TPL Dataflow graph.</description></item>
-            <item><description><b>Topology Tracking:</b> Collects ordered <c>(PreviousStepNames, CurrentStep)</c> node pairs. Main-flow operators track <c>currentStepNames</c>, while side-effect observers (<c>AddBroadcastStep</c>) preserve the upstream predecessors for subsequent steps.</description></item>
-            <item><description><b>Unified Observability:</b> All pipeline operations route through <see cref="T:MelloSilveiraTools.Core.Pipelines.Telemetry.ObservabilityExtensions"/> to capture distributed tracing, structured logging, and non-blocking real-time progress notifications.</description></item>
+            <item><description><b>Lossless Fan-Out Dispatch:</b> Fork and broadcast operators use <see cref="T:MelloSilveiraTools.Core.Pipelines.Dataflow.DataflowFanOut"/> instead of TPL Dataflow's native <see cref="T:System.Threading.Tasks.Dataflow.BroadcastBlock`1"/> to guarantee 100% delivery, backpressure, and ordered tuple pairing.</description></item>
+            <item><description><b>Topology Tracking:</b> Collects ordered <c>(PreviousStepNames, CurrentStep)</c> node pairs while preserving upstream predecessors across side-effect observers (<c>AddBroadcastStep</c>, <c>AddBroadcastFork</c>).</description></item>
             </list>
             </remarks>
         </member>
-        <member name="M:MelloSilveiraTools.Core.Pipelines.Dataflow.DataflowPipelineBuilder`2.#ctor(Microsoft.Extensions.Logging.ILogger,MelloSilveiraTools.Core.Pipelines.Notifiers.IPipelineProgressNotifier,System.Threading.Tasks.Dataflow.ITargetBlock{`0},System.Threading.Tasks.Dataflow.ISourceBlock{`1},System.Threading.Tasks.Dataflow.ITargetBlock{MelloSilveiraTools.Core.Pipelines.Models.FailedPayload},System.TimeProvider,System.String,System.Collections.Generic.List{System.Threading.Tasks.Task},System.Collections.Generic.List{System.ValueTuple{System.String[],MelloSilveiraTools.Core.Pipelines.Steps.IPipelineStep}},System.String[],System.Threading.CancellationToken)">
+        <member name="M:MelloSilveiraTools.Core.Pipelines.Dataflow.DataflowPipelineBuilder`2.#ctor(MelloSilveiraTools.Core.Pipelines.Dataflow.PipelineBuildContext{`0},System.Threading.Tasks.Dataflow.ISourceBlock{`1},System.Collections.Generic.List{System.Threading.Tasks.Task},System.String[])">
             <summary>
-            Strongly-typed fluent builder for orchestrating asynchronous data processing topologies.
+            Strongly-typed fluent builder for orchestrating asynchronous TPL Dataflow processing topologies.
             </summary>
             <remarks>
             Architectural Decisions:
             <list type="bullet">
             <item><description><b>Bifurcated DLQ Routing:</b> When a Dead-Letter Queue is configured, steps dynamically wrap execution in <see cref="T:MelloSilveiraTools.Core.Pipelines.Models.SafeResult`2"/> and split successful vs. faulted payloads without faulting the TPL Dataflow graph.</description></item>
-            <item><description><b>Topology Tracking:</b> Collects ordered <c>(PreviousStepNames, CurrentStep)</c> node pairs. Main-flow operators track <c>currentStepNames</c>, while side-effect observers (<c>AddBroadcastStep</c>) preserve the upstream predecessors for subsequent steps.</description></item>
-            <item><description><b>Unified Observability:</b> All pipeline operations route through <see cref="T:MelloSilveiraTools.Core.Pipelines.Telemetry.ObservabilityExtensions"/> to capture distributed tracing, structured logging, and non-blocking real-time progress notifications.</description></item>
+            <item><description><b>Lossless Fan-Out Dispatch:</b> Fork and broadcast operators use <see cref="T:MelloSilveiraTools.Core.Pipelines.Dataflow.DataflowFanOut"/> instead of TPL Dataflow's native <see cref="T:System.Threading.Tasks.Dataflow.BroadcastBlock`1"/> to guarantee 100% delivery, backpressure, and ordered tuple pairing.</description></item>
+            <item><description><b>Topology Tracking:</b> Collects ordered <c>(PreviousStepNames, CurrentStep)</c> node pairs while preserving upstream predecessors across side-effect observers (<c>AddBroadcastStep</c>, <c>AddBroadcastFork</c>).</description></item>
             </list>
             </remarks>
         </member>
@@ -3106,12 +3159,24 @@
         </member>
         <member name="M:MelloSilveiraTools.Core.Pipelines.Dataflow.DataflowPipelineBuilder`2.AddBroadcastStep(MelloSilveiraTools.Core.Pipelines.Steps.IAsyncPipelineStep{`1},System.Func{`1,`1},MelloSilveiraTools.Core.Pipelines.Models.PipelineStepOptions)">
             <inheritdoc/>
+            <remarks>
+            Intentionally uses <see cref="T:MelloSilveiraTools.Core.Pipelines.Dataflow.DataflowFanOut"/> instead of <see cref="T:System.Threading.Tasks.Dataflow.BroadcastBlock`1"/> so slow side-effect
+            observers apply backpressure and never lose messages silently.
+            </remarks>
         </member>
         <member name="M:MelloSilveiraTools.Core.Pipelines.Dataflow.DataflowPipelineBuilder`2.AddBroadcastStep``1(MelloSilveiraTools.Core.Pipelines.Steps.IAsyncPipelineStep{``0},System.Func{`1,``0},MelloSilveiraTools.Core.Pipelines.Models.PipelineStepOptions)">
             <inheritdoc/>
+            <remarks>
+            Intentionally uses <see cref="T:MelloSilveiraTools.Core.Pipelines.Dataflow.DataflowFanOut"/> instead of <see cref="T:System.Threading.Tasks.Dataflow.BroadcastBlock`1"/> so slow side-effect
+            observers apply backpressure and never lose messages silently.
+            </remarks>
         </member>
         <member name="M:MelloSilveiraTools.Core.Pipelines.Dataflow.DataflowPipelineBuilder`2.AddBroadcastFork``1(System.Func{MelloSilveiraTools.Core.Pipelines.Dataflow.IDataflowPipelineBuilder{`0,`1},MelloSilveiraTools.Core.Pipelines.Dataflow.IDataflowPipelineBuilder{`0,``0}},System.Func{`1,`1},MelloSilveiraTools.Core.Pipelines.Models.PipelineStepOptions)">
             <inheritdoc/>
+            <remarks>
+            Intentionally uses <see cref="T:MelloSilveiraTools.Core.Pipelines.Dataflow.DataflowFanOut"/> instead of <see cref="T:System.Threading.Tasks.Dataflow.BroadcastBlock`1"/> so the secondary
+            branch receives every item with full backpressure without affecting the primary stream.
+            </remarks>
         </member>
         <member name="M:MelloSilveiraTools.Core.Pipelines.Dataflow.DataflowPipelineBuilder`2.BuildTerminal(System.String,System.Action{`1},MelloSilveiraTools.Core.Pipelines.Models.PipelineStepOptions)">
             <inheritdoc/>
@@ -3120,33 +3185,6 @@
             <inheritdoc/>
         </member>
         <member name="M:MelloSilveiraTools.Core.Pipelines.Dataflow.DataflowPipelineBuilder`2.BuildTerminal(System.String,MelloSilveiraTools.Core.Pipelines.Models.PipelineStepOptions)">
-            <inheritdoc/>
-        </member>
-        <member name="T:MelloSilveiraTools.Core.Pipelines.Dataflow.DataflowPipeline`1">
-            <summary>
-            Sealed execution engine representing the finalized graph.
-            Exposes inputs, triggers completion, and awaits termination while automatically disposing registered steps on shutdown.
-            </summary>
-        </member>
-        <member name="M:MelloSilveiraTools.Core.Pipelines.Dataflow.DataflowPipeline`1.#ctor(Microsoft.Extensions.Logging.ILogger,MelloSilveiraTools.Core.Pipelines.Notifiers.IPipelineProgressNotifier,System.Threading.Tasks.Dataflow.ITargetBlock{`0},System.TimeProvider,System.String,System.Threading.Tasks.Task,System.Collections.Generic.IReadOnlyList{System.ValueTuple{System.String[],MelloSilveiraTools.Core.Pipelines.Steps.IPipelineStep}})">
-            <summary>
-            Sealed execution engine representing the finalized graph.
-            Exposes inputs, triggers completion, and awaits termination while automatically disposing registered steps on shutdown.
-            </summary>
-        </member>
-        <member name="P:MelloSilveiraTools.Core.Pipelines.Dataflow.DataflowPipeline`1.Topology">
-            <inheritdoc/>
-        </member>
-        <member name="M:MelloSilveiraTools.Core.Pipelines.Dataflow.DataflowPipeline`1.SendAsync(`0,System.Threading.CancellationToken)">
-            <inheritdoc/>
-        </member>
-        <member name="M:MelloSilveiraTools.Core.Pipelines.Dataflow.DataflowPipeline`1.Complete">
-            <inheritdoc/>
-        </member>
-        <member name="P:MelloSilveiraTools.Core.Pipelines.Dataflow.DataflowPipeline`1.Completion">
-            <inheritdoc/>
-        </member>
-        <member name="M:MelloSilveiraTools.Core.Pipelines.Dataflow.DataflowPipeline`1.DisposeAsync">
             <inheritdoc/>
         </member>
         <member name="T:MelloSilveiraTools.Core.Pipelines.Dataflow.IDataflowPipeline`1">
@@ -3460,6 +3498,18 @@
             <remarks>
             Technical Decision: Acts as a semantic drain for unconsumed payloads at the end of a pipeline graph.
             </remarks>
+        </member>
+        <member name="T:MelloSilveiraTools.Core.Pipelines.Dataflow.PipelineBuildContext`1">
+            <summary>
+            Shared immutable construction context propagated across <see cref="T:MelloSilveiraTools.Core.Pipelines.Dataflow.DataflowPipelineBuilder`2"/> transitions
+            and passed to the sealed <see cref="T:MelloSilveiraTools.Core.Pipelines.Dataflow.DataflowPipeline`1"/> runtime.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Pipelines.Dataflow.PipelineBuildContext`1.#ctor(Microsoft.Extensions.Logging.ILogger,MelloSilveiraTools.Core.Pipelines.Notifiers.IPipelineProgressNotifier,System.Threading.Tasks.Dataflow.ITargetBlock{`0},System.Threading.Tasks.Dataflow.ITargetBlock{MelloSilveiraTools.Core.Pipelines.Models.FailedPayload},System.TimeProvider,System.String,System.Collections.Generic.List{System.ValueTuple{System.String[],MelloSilveiraTools.Core.Pipelines.Steps.IPipelineStep}},System.Threading.CancellationToken)">
+            <summary>
+            Shared immutable construction context propagated across <see cref="T:MelloSilveiraTools.Core.Pipelines.Dataflow.DataflowPipelineBuilder`2"/> transitions
+            and passed to the sealed <see cref="T:MelloSilveiraTools.Core.Pipelines.Dataflow.DataflowPipeline`1"/> runtime.
+            </summary>
         </member>
         <member name="T:MelloSilveiraTools.Core.Pipelines.Fluent.FluentPipelineBuilder`2">
             <summary>

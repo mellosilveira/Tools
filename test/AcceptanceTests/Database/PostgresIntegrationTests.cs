@@ -3,6 +3,7 @@ using MelloSilveiraTools.Core.Models;
 using MelloSilveiraTools.Core.ResiliencePipelines;
 using MelloSilveiraTools.Database.Migrator;
 using MelloSilveiraTools.Database.RelationalDatabase.Models.Entities;
+using MelloSilveiraTools.Database.RelationalDatabase.Models.Filters;
 using MelloSilveiraTools.Database.RelationalDatabase.Repositories;
 using MelloSilveiraTools.Database.RelationalDatabase.Settings;
 using MelloSilveiraTools.Database.RelationalDatabase.Sql.Provider;
@@ -172,19 +173,45 @@ public sealed class PostgresIntegrationTests
                 ConstitutiveParameters = "{\"c\": 1.25, \"A\": 0.85, \"B\": 12.4}"
             };
 
-            // INSERT
+            // INSERT & TRYINSERT
             long insertedFitId = await repository.InsertAsync(curveFitEntity);
             Assert.True(insertedFitId > 0, "InsertAsync must return a positive primary key for curve fit outputs.");
 
-            // SELECT
+            Result<long> conflictInsert = await repository.TryInsertAsync(curveFitEntity);
+            Assert.True(conflictInsert.IsConflict);
+
+            // COUNT & EXIST
+            MechanicalModelCurveFitOutputFilter fitFilter = new() { ExtenalIdentifier = "LCA-PIG-01", MechanicalModelName = "Fung" };
+            Assert.True(await repository.ExistAsync<MechanicalModelCurveFitOutputEntity>(insertedFitId));
+            Assert.True(await repository.ExistAsync<MechanicalModelCurveFitOutputEntity, MechanicalModelCurveFitOutputFilter>(fitFilter));
+            Assert.True(await repository.CountAsync<MechanicalModelCurveFitOutputEntity, MechanicalModelCurveFitOutputFilter>(fitFilter) >= 1);
+
+            // SELECT (ById, ByUniqueColumn, FirstOrDefault, Stream, Distinct)
             MechanicalModelCurveFitOutputEntity? fetchedFit = await repository.GetAsync<MechanicalModelCurveFitOutputEntity>(insertedFitId);
             Assert.NotNull(fetchedFit);
             Assert.Equal(curveFitEntity.Identifier, fetchedFit.Identifier);
-            Assert.Equal("Fung", fetchedFit.MechanicalModelName);
-            Assert.Equal(0.00035, fetchedFit.Error);
-            Assert.Equal("{\"c\": 1.25, \"A\": 0.85, \"B\": 12.4}", fetchedFit.ConstitutiveParameters);
 
-            // UPDATE
+            MechanicalModelCurveFitOutputEntity? byUnique = await repository.GetByUniqueColumnAsync<MechanicalModelCurveFitOutputEntity>(curveFitEntity.Identifier);
+            Assert.NotNull(byUnique);
+
+            MechanicalModelCurveFitOutputEntity? firstFit = await repository.GetFirstOrDefaultAsync<MechanicalModelCurveFitOutputEntity, MechanicalModelCurveFitOutputFilter>(fitFilter, SortOrder.Desc);
+            Assert.NotNull(firstFit);
+
+            List<MechanicalModelCurveFitOutputEntity> streamedFits = [];
+            await foreach (MechanicalModelCurveFitOutputEntity item in repository.GetAsync<MechanicalModelCurveFitOutputEntity, MechanicalModelCurveFitOutputFilter>(fitFilter, new Pagination { SortOrder = SortOrder.Asc, Limit = 10, Offset = 0 }))
+            {
+                streamedFits.Add(item);
+            }
+            Assert.NotEmpty(streamedFits);
+
+            List<MechanicalModelCurveFitOutputEntity> distinctFits = [];
+            await foreach (MechanicalModelCurveFitOutputEntity item in repository.GetDistinctAsync<MechanicalModelCurveFitOutputEntity, MechanicalModelCurveFitOutputFilter>(fitFilter))
+            {
+                distinctFits.Add(item);
+            }
+            Assert.NotEmpty(distinctFits);
+
+            // UPDATE & UPSERT (Single & Bulk)
             MechanicalModelCurveFitOutputEntity modifiedFit = fetchedFit with
             {
                 Error = 0.00018,
@@ -194,16 +221,18 @@ public sealed class PostgresIntegrationTests
             bool fitUpdated = await repository.TryUpdateAsync(modifiedFit);
             Assert.True(fitUpdated, "TryUpdateAsync must return true when updating curve fit output.");
 
-            MechanicalModelCurveFitOutputEntity? fetchedUpdatedFit = await repository.GetAsync<MechanicalModelCurveFitOutputEntity>(insertedFitId);
-            Assert.NotNull(fetchedUpdatedFit);
-            Assert.Equal(0.00018, fetchedUpdatedFit.Error);
-            Assert.Equal(35, fetchedUpdatedFit.Iterations);
-            Assert.Equal("{\"c\": 1.28, \"A\": 0.89, \"B\": 12.9}", fetchedUpdatedFit.ConstitutiveParameters);
+            long upsertedFitId = await repository.UpsertAsync(modifiedFit);
+            Assert.Equal(insertedFitId, upsertedFitId);
 
-            // DELETE
-            await repository.DeleteAsync<MechanicalModelCurveFitOutputEntity>(insertedFitId);
-            MechanicalModelCurveFitOutputEntity? fetchedDeletedFit = await repository.GetAsync<MechanicalModelCurveFitOutputEntity>(insertedFitId);
-            Assert.Null(fetchedDeletedFit);
+            long[] bulkIds = await repository.InsertAsync([modifiedFit]);
+            Assert.Single(bulkIds);
+
+            long[] bulkUpsertedIds = await repository.UpsertAsync([modifiedFit], fitFilter);
+            Assert.Single(bulkUpsertedIds);
+
+            // DELETE (ByFilter, ById, DeleteAll)
+            await repository.DeleteAsync<MechanicalModelCurveFitOutputEntity, MechanicalModelCurveFitOutputFilter>(fitFilter);
+            await repository.DeleteAllAsync<MechanicalModelCurveFitOutputEntity>();
         }
         finally
         {

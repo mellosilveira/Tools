@@ -30,7 +30,6 @@ public sealed class ParametricSweepPersistenceStep(
     public string Name => nameof(ParametricSweepPersistenceStep);
 
     /// <inheritdoc />
-    /// <exception cref="InvalidOperationException">Thrown when insertion of the stored file entity or parametric sweep entity fails in the database.</exception>
     public async Task<long> ExecuteAsync((string VariableName, RangeParameters VariableRange, StorageEntryMetadata VariableOutputFile)[] input, CancellationToken cancellationToken = default)
     {
         Dictionary<string, (RangeParameters Range, long? StoredFileId)> sweptVariables = new(input.Length, StringComparer.Ordinal);

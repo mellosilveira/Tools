@@ -116,4 +116,39 @@ public class ServiceLocatorTests
 
         Assert.Null(resolved);
     }
+
+    [Fact]
+    public void ServiceLocator_NonGenericAndKeyedOverloads_ResolveDynamicFallbackAndNullOrThrow()
+    {
+        TestService staticService = new();
+        TestService keyedStaticService = new();
+        IServiceCollection staticServices = new ServiceCollection();
+        staticServices.AddSingleton<ITestService>(staticService);
+        staticServices.AddKeyedSingleton<ITestService>("k-static", keyedStaticService);
+        ServiceProvider staticProvider = staticServices.BuildServiceProvider();
+
+        TestService dynamicService = new();
+        TestService keyedDynamicService = new();
+        Mock<IDynamicServiceProvider> dynamicProviderMock = new();
+        dynamicProviderMock.Setup(d => d.GetService(typeof(ITestService))).Returns(dynamicService);
+        dynamicProviderMock.Setup(d => d.GetService(typeof(OtherService))).Returns((object?)null);
+        dynamicProviderMock.Setup(d => d.GetKeyedService<ITestService>("k-dynamic")).Returns(keyedDynamicService);
+        dynamicProviderMock.Setup(d => d.GetKeyedService<ITestService>("k-static")).Returns((ITestService?)null);
+        dynamicProviderMock.Setup(d => d.GetKeyedService<ITestService>("k-missing")).Returns((ITestService?)null);
+
+        ServiceLocator locator = new(dynamicProviderMock.Object, staticProvider);
+
+        Assert.Same(dynamicService, locator.GetRequiredService(typeof(ITestService)));
+        Assert.Same(dynamicService, locator.GetService(typeof(ITestService)));
+        Assert.Null(locator.GetService(typeof(OtherService)));
+        Assert.Throws<InvalidOperationException>(() => locator.GetRequiredService(typeof(OtherService)));
+
+        Assert.Same(keyedDynamicService, locator.GetRequiredKeyedService<ITestService>("k-dynamic"));
+        Assert.Same(keyedStaticService, locator.GetRequiredKeyedService<ITestService>("k-static"));
+        Assert.Throws<InvalidOperationException>(() => locator.GetRequiredKeyedService<ITestService>("k-missing"));
+
+        Assert.Same(keyedDynamicService, locator.GetKeyedService<ITestService>("k-dynamic"));
+        Assert.Same(keyedStaticService, locator.GetKeyedService<ITestService>("k-static"));
+        Assert.Null(locator.GetKeyedService<ITestService>("k-missing"));
+    }
 }

@@ -19,10 +19,10 @@ public class FilterAttribute : Attribute
         TableDefinition = entityToBeFiltered.GetCustomAttribute<TableAttribute>()!;
         JoinTablesDefinition = [];
 
-        var properties = entityToBeFiltered.GetPropertiesInHierarchy();
-        foreach (var property in properties)
+        PropertyInfo[] properties = entityToBeFiltered.GetPropertiesInHierarchy();
+        foreach (PropertyInfo property in properties)
         {
-            var foreignKeyAttribute = property.GetCustomAttribute<ForeignKeyColumnAttribute>();
+            ForeignKeyColumnAttribute? foreignKeyAttribute = property.GetCustomAttribute<ForeignKeyColumnAttribute>();
             if (foreignKeyAttribute != null)
             {
                 TableAttribute? tableDefinitionAttribute = foreignKeyAttribute.ReferencedTableType.GetCustomAttribute<TableAttribute>();

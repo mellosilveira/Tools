@@ -110,6 +110,8 @@ public sealed class PipelineProgressEventTests
         Assert.Equal(event1, event2);
         Assert.Equal(event1.GetHashCode(), event2.GetHashCode());
         Assert.NotEqual(event1, event3);
+        Assert.False(event1.Equals((PipelineProgressEvent?)null));
+        Assert.True(event1.Equals(event1));
     }
 
     /// <summary>

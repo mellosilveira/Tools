@@ -73,7 +73,9 @@ public class AlglibCurveFitter(ILogger<AlglibCurveFitter> logger, CurveFitterSet
 
         alglib.mindfoptimize(optimizerState, (double[] currentParameters, double[] objectiveFunctionValues, object callbackContext) =>
         {
-            objectiveFunctionValues[0] = input.ValidateParameters != null && !input.ValidateParameters(currentParameters) ? 1e12 : CalculateObjectiveFunction(input, currentParameters);
+            objectiveFunctionValues[0] = input.ValidateParameters != null && !input.ValidateParameters(currentParameters)
+                ? 1e12
+                : CalculateObjectiveFunction(input, currentParameters);
         }, null!, null!);
 
         alglib.mindfresults(optimizerState, out workingParameters, out alglib.mindfreport optimizerReport);
@@ -92,7 +94,11 @@ public class AlglibCurveFitter(ILogger<AlglibCurveFitter> logger, CurveFitterSet
                     return polished;
             }
             // Fall back to GDEMO global result if local gradient polish faults
-            catch { }
+            catch (Exception ex)
+            {
+                // Fall back to GDEMO global result if local gradient polish faults
+                logger.LogDebug(ex, "Local gradient polish failed after ALGLIB GDEMO optimization; retaining global optimum.");
+            }
 
             double rSquared = CalculateRSquared(input, workingParameters);
             ParameterConfidenceInterval[] parameters = CalculateConfidenceIntervals(input, workingParameters, gdemoError);
@@ -163,8 +169,8 @@ public class AlglibCurveFitter(ILogger<AlglibCurveFitter> logger, CurveFitterSet
         for (int j = 0; j < parameterCount; j++)
         {
             double variance = invReport.terminationtype > 0
-                ? Math.Max(0.0, invJtj[j, j] * sSquared)
-                : 0.0;
+               ? Math.Max(0.0, invJtj[j, j] * sSquared)
+               : 0.0;
 
             double standardError = Math.Sqrt(variance);
             double marginOfError = tCrit * standardError;
