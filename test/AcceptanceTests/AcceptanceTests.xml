@@ -4,6 +4,66 @@
         <name>AcceptanceTests</name>
     </assembly>
     <members>
+        <member name="T:AcceptanceTests.Core.Pipelines.DataflowBackpressureDlqAndTelemetryAcceptanceTests">
+            <summary>
+            Acceptance tests validating TPL Dataflow DAG topology correlation, real-time progress emission via
+            <see cref="T:MelloSilveiraTools.Core.Pipelines.Notifiers.ChannelPipelineProgressNotifier"/>, bounded backpressure, Dead-Letter Queue (DLQ) fault isolation,
+            and guaranteed step disposal upon unhandled exceptions.
+            </summary>
+        </member>
+        <member name="M:AcceptanceTests.Core.Pipelines.DataflowBackpressureDlqAndTelemetryAcceptanceTests.RealTimeTelemetryAndTopology_WithSharedSpecimenGroups_EmitsAccurateDagAndCounters">
+            <summary>
+            Verifies that <see cref="P:MelloSilveiraTools.Core.Pipelines.Dataflow.IDataflowPipeline`1.Topology"/> captures upstream dependencies accurately across
+            streaming, forking, and grouping stages, and that <see cref="T:MelloSilveiraTools.Core.Pipelines.Notifiers.ChannelPipelineProgressNotifier"/> delivers
+            lifecycle state transitions and consistent item counters for every step.
+            </summary>
+        </member>
+        <member name="M:AcceptanceTests.Core.Pipelines.DataflowBackpressureDlqAndTelemetryAcceptanceTests.BackpressureAndDeadLetterQueue_IsolatesFaultsAndGuaranteesDisposalOnFailure">
+            <summary>
+            Verifies that bounded backpressure (<see cref="P:MelloSilveiraTools.Core.Pipelines.Models.PipelineStepOptions.MaxBufferSize"/> = 2) and Dead-Letter Queue
+            routing isolate faults on a specific specimen group while allowing all healthy groups to complete, and that
+            non-DLQ pipeline faults emit <see cref="F:MelloSilveiraTools.Core.Pipelines.Models.PipelineStepState.Faulted"/> and still dispose all registered steps.
+            </summary>
+        </member>
+        <member name="T:AcceptanceTests.Core.Pipelines.DataflowStepByStepExecutionAcceptanceTests">
+            <summary>
+            Acceptance tests validating step-by-step TPL Dataflow execution across all step contracts,
+            fan-out/fan-in joins, broadcasts, ordering guarantees, and deterministic resource disposal
+            using real experimental curve segments from <c>TestData</c>.
+            </summary>
+        </member>
+        <member name="M:AcceptanceTests.Core.Pipelines.DataflowStepByStepExecutionAcceptanceTests.DataflowPipeline_AllStepContractsAndOperators_ExecuteStepByStepAndDisposeAllSteps">
+            <summary>
+            Verifies that a multi-contract TPL Dataflow DAG executes every step in exact topological order,
+            preserves item pairing across forks, triggers broadcast observers without mutating the primary stream,
+            groups and collects batches accurately, and disposes 100% of registered steps.
+            </summary>
+        </member>
+        <member name="M:AcceptanceTests.Core.Pipelines.DataflowStepByStepExecutionAcceptanceTests.DataflowPipeline_ThreeWayStepFork_PreservesSynchronizedTriplesAndKeepOrder">
+            <summary>
+            Verifies that the 3-way <see cref="M:MelloSilveiraTools.Core.Pipelines.Dataflow.IDataflowPipelineBuilder`2.Fork``3(MelloSilveiraTools.Core.Pipelines.Steps.IPipelineStep{`1,``0},MelloSilveiraTools.Core.Pipelines.Steps.IPipelineStep{`1,``1},MelloSilveiraTools.Core.Pipelines.Steps.IPipelineStep{`1,``2},MelloSilveiraTools.Core.Pipelines.Models.PipelineStepOptions)"/>
+            overload accepting step instances joins synchronized triples in exact order under concurrent execution.
+            </summary>
+        </member>
+        <member name="T:AcceptanceTests.Core.Pipelines.FluentPipelineStepByStepAcceptanceTests">
+            <summary>
+            Acceptance tests validating step-by-step execution, chronological state transitions, cooperative cancellation,
+            and deterministic exception wrapping in the pull-based Fluent pipeline engine (<see cref="M:MelloSilveiraTools.Core.Pipelines.PipelineFactory.StartFluent``1"/>)
+            over real experimental CSV curve segments.
+            </summary>
+        </member>
+        <member name="M:AcceptanceTests.Core.Pipelines.FluentPipelineStepByStepAcceptanceTests.StartFluent_WithRealDatasetSegments_ExecutesAllStepsSequentiallyAndComputesMetrics(System.String)">
+            <summary>
+            Verifies that a multi-step Fluent pipeline executes synchronous and asynchronous delegates sequentially
+            on real <c>FungRelaxationOnly</c> and <c>SimplifiedFungRelaxationOnly</c> CSV segments without skipping steps.
+            </summary>
+        </member>
+        <member name="M:AcceptanceTests.Core.Pipelines.FluentPipelineStepByStepAcceptanceTests.StartFluent_MidChainCancellationAndFault_HaltDownstreamStepsAndPreserveContext">
+            <summary>
+            Verifies that mid-chain cancellation halts subsequent steps with <see cref="T:System.OperationCanceledException"/>
+            and that unhandled step failures wrap the failing step name in <see cref="T:MelloSilveiraTools.Core.Pipelines.Models.PipelineExecutionException"/>.
+            </summary>
+        </member>
         <member name="T:AcceptanceTests.Database.PostgresIntegrationTests">
             <summary>
             Integration test verifying end-to-end database operations against a live PostgreSQL container,
@@ -174,6 +234,56 @@
         <member name="M:AcceptanceTests.MechanicalOfMaterials.Optimizations.CurveFitterSteps.SimplifiedFungRelaxationOnlyCurveFitterStepAcceptanceTests.AssertPhysicalConstraints(System.String,System.Collections.Generic.IReadOnlyList{MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Models.CurveSegment},System.Collections.Generic.IReadOnlyList{MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Pipelines.Models.MechanicalModelCurveFitOutput})">
             <inheritdoc/>
         </member>
+        <member name="T:AcceptanceTests.MechanicalOfMaterials.Optimizations.Pipelines.BatchAndParametricSweepStepByStepAcceptanceTests">
+            <summary>
+            Acceptance tests verifying end-to-end execution of <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Commands.Process.Batch.ExecuteBatchExperimentalDataPipeline"/>
+            in both sequential and parallel modes, as well as the experimental-data-to-parametric-sweep bridge
+            via <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.ParametricSweep.Commands.ProcessFromExperimentalData.ExecuteParametricSweepFromExperimentalDataCommand"/> across multiple constitutive models.
+            </summary>
+        </member>
+        <member name="M:AcceptanceTests.MechanicalOfMaterials.Optimizations.Pipelines.BatchAndParametricSweepStepByStepAcceptanceTests.#ctor">
+            <summary>
+            Initializes a self-contained DI container wired for batch experimental processing and
+            experimental-to-parametric-sweep chaining with an in-memory <see cref="T:MelloSilveiraTools.Database.Repositories.IRepository"/> mock.
+            </summary>
+        </member>
+        <member name="M:AcceptanceTests.MechanicalOfMaterials.Optimizations.Pipelines.BatchAndParametricSweepStepByStepAcceptanceTests.ExecuteBatchExperimentalDataPipeline_WithTwoRealGroups_ShouldYieldIdentifiersAndCompleteBothRunsAsync(MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Models.PipelineExecutionMode)">
+            <summary>
+            Verifies that <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Commands.Process.Batch.ExecuteBatchExperimentalDataPipeline"/> yields identifiers for each
+            experimental data group, processes all groups completely in both sequential and parallel modes,
+            and persists entities and CSV artifacts for every group.
+            </summary>
+            <param name="executionMode">Batch execution strategy (Sequential or Parallel).</param>
+        </member>
+        <member name="M:AcceptanceTests.MechanicalOfMaterials.Optimizations.Pipelines.BatchAndParametricSweepStepByStepAcceptanceTests.ExecuteExperimentalDataThenParametricSweepFromExperimentalData_EndToEnd_ShouldBridgeCurveFitsIntoSweepCsvsAndEntitiesAsync">
+            <summary>
+            Verifies the full bridge from experimental data processing into parametric sensitivity sweeps:
+            runs <see cref="T:MelloSilveiraTools.Core.Pipelines.IPipeline`2"/> to fit real ligament data for "Fung",
+            stores the fitted constitutive parameters in <see cref="T:MelloSilveiraTools.Database.Repositories.IRepository"/>, then invokes
+            <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.ParametricSweep.Commands.ProcessFromExperimentalData.ExecuteParametricSweepFromExperimentalDataCommand"/> and verifies persisted sweep entities
+            and sensitivity CSV files.
+            </summary>
+        </member>
+        <member name="M:AcceptanceTests.MechanicalOfMaterials.Optimizations.Pipelines.BatchAndParametricSweepStepByStepAcceptanceTests.ExecuteCurveFit_ThenParametricSweepPipeline_AcrossAllMechanicalModels_ShouldGenerateSweepCsvsAndPersistSweepEntityAsync(System.String)">
+            <summary>
+            Fits real multi-strain <c>LCA_02_07_21_L38_D11</c> relaxation segments via <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Pipelines.Steps.CurveFitter.IMechanicalModelCurveFitterStep"/>,
+            persists the curve fit output, and runs <see cref="T:MelloSilveiraTools.Core.Pipelines.IPipeline`2"/> directly with
+            the fitted constitutive parameters baseline across "Fung", "SimplifiedFung", and "Schapery", verifying
+            step-by-step telemetry, generated sensitivity CSVs, and persisted <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.ParametricSweep.Pipelines.Entities.ParametricSweepEntity"/> records.
+            </summary>
+            <param name="modelName">Constitutive model name to evaluate.</param>
+        </member>
+        <member name="M:AcceptanceTests.MechanicalOfMaterials.Optimizations.Pipelines.BatchAndParametricSweepStepByStepAcceptanceTests.InitializeAsync">
+            <summary>
+            No-op async initialization required by <see cref="T:Xunit.IAsyncLifetime"/>.
+            </summary>
+        </member>
+        <member name="M:AcceptanceTests.MechanicalOfMaterials.Optimizations.Pipelines.BatchAndParametricSweepStepByStepAcceptanceTests.DisposeAsync">
+            <summary>
+            Disposes the async service provider and cleans up temporary storage folders written under
+            <c>%TEMP%\storage\&lt;identifier&gt;</c>.
+            </summary>
+        </member>
         <member name="T:AcceptanceTests.MechanicalOfMaterials.Optimizations.Pipelines.ExperimentalDataAndSweepIntegrationAcceptanceTests">
             <summary>
             End-to-end acceptance tests integrating real SoftTissue ligament experimental CSV datasets across
@@ -199,6 +309,53 @@
         </member>
         <member name="M:AcceptanceTests.MechanicalOfMaterials.Optimizations.Pipelines.ExperimentalDataAndSweepIntegrationAcceptanceTests.Dispose">
             <inheritdoc/>
+        </member>
+        <member name="T:AcceptanceTests.MechanicalOfMaterials.Optimizations.Pipelines.ExperimentalDataPipelineStepByStepAcceptanceTests">
+            <summary>
+            Acceptance tests for <see cref="T:MelloSilveiraTools.Core.Pipelines.IPipeline`2"/> executing the experimental data
+            processing DAG step-by-step across constitutive mechanical models ("Fung", "SimplifiedFung", "Schapery"),
+            validating real-time progress notifications, generated physical CSV artifacts, and persisted entities.
+            </summary>
+        </member>
+        <member name="M:AcceptanceTests.MechanicalOfMaterials.Optimizations.Pipelines.ExperimentalDataPipelineStepByStepAcceptanceTests.#ctor">
+            <summary>
+            Initializes a self-contained dependency injection container mirroring production wiring
+            for <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Commands.Process.Single.ExecuteExperimentalDataPipeline"/> with an in-memory <see cref="T:MelloSilveiraTools.Database.Repositories.IRepository"/> double.
+            </summary>
+        </member>
+        <member name="M:AcceptanceTests.MechanicalOfMaterials.Optimizations.Pipelines.ExperimentalDataPipelineStepByStepAcceptanceTests.ExecuteExperimentalDataPipeline_AcrossMechanicalModels_ShouldExecuteEveryStepAndPersistValidOutputsAsync(System.String)">
+            <summary>
+            Verifies that <see cref="T:MelloSilveiraTools.Core.Pipelines.IPipeline`2"/> executes every DAG step in order for
+            "Fung" and "SimplifiedFung" on the real <c>LCA_02_07_21_L38_D11</c> experimental raw CSV pair,
+            emits expected step telemetry states, writes valid physical CSV outputs, and persists database entities.
+            </summary>
+            <param name="modelName">The constitutive mechanical model name to fit and simulate.</param>
+        </member>
+        <member name="M:AcceptanceTests.MechanicalOfMaterials.Optimizations.Pipelines.ExperimentalDataPipelineStepByStepAcceptanceTests.ExecuteSchaperySteps_OnRealMultiStrainLigamentSegments_ShouldFitSimulateAndPersistAllArtifactsAsync">
+            <summary>
+            Verifies that <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Pipelines.Steps.CurveFitter.SchaperyRelaxationOnlyCurveFitterStep"/> followed by
+            <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Pipelines.Steps.CurveFitOutputIdentifierBuilderStep"/>, <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Pipelines.Steps.MechanicalModelSimulationStep"/>,
+            <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Pipelines.Steps.CurveFitOutputPersistenceStep"/>, and <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Pipelines.Steps.MechanicalModelOutputPersistenceStep"/>
+            processes real multi-strain <c>LCA_02_07_21_L38_D11</c> relaxation segments and persists all artifacts.
+            </summary>
+        </member>
+        <member name="M:AcceptanceTests.MechanicalOfMaterials.Optimizations.Pipelines.ExperimentalDataPipelineStepByStepAcceptanceTests.ExecuteExperimentalDataPipeline_WithDownsamplingSkipTimeStep_ShouldReduceSegmentedPointsAndCompleteAllStepsAsync">
+            <summary>
+            Verifies that executing <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Commands.Process.Single.ExecuteExperimentalDataPipeline"/> command with a non-zero
+            <see cref="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Commands.Process.ExecuteExperimentalDataPipelineRequestBase.DownsamplingSkipTimeStep"/> returns
+            202 Accepted immediately, downsamples the raw data stream cleanly, and persists curve fit and simulation entities.
+            </summary>
+        </member>
+        <member name="M:AcceptanceTests.MechanicalOfMaterials.Optimizations.Pipelines.ExperimentalDataPipelineStepByStepAcceptanceTests.InitializeAsync">
+            <summary>
+            No-op async initialization required by <see cref="T:Xunit.IAsyncLifetime"/>.
+            </summary>
+        </member>
+        <member name="M:AcceptanceTests.MechanicalOfMaterials.Optimizations.Pipelines.ExperimentalDataPipelineStepByStepAcceptanceTests.DisposeAsync">
+            <summary>
+            Disposes the async service provider (including <see cref="T:MelloSilveiraTools.Core.Pipelines.Notifiers.ChannelPipelineProgressNotifier"/>)
+            and cleans up temporary storage folders written to <c>%TEMP%\storage\&lt;identifier&gt;</c>.
+            </summary>
         </member>
         <member name="T:AcceptanceTests.MechanicalOfMaterials.Optimizations.SensitivityAnalysis.ParametricSweepPipelineAcceptanceTests">
             <summary>
@@ -405,6 +562,51 @@
             memory cache entries across versions.
             </summary>
         </member>
+        <member name="T:AcceptanceTests.Plugins.PluginCacheAndDynamicDiAcceptanceTests">
+            <summary>
+            Acceptance tests validating runtime plugin registration into <see cref="T:MelloSilveiraTools.Core.Providers.Dynamics.IDynamicServiceProvider"/>
+            and resolution via <see cref="T:MelloSilveiraTools.Core.Providers.ServiceLocator"/>, plus round-trip cache persistence and restoration
+            against both physical JSON files (<c>plugin-cache.json</c>) and <see cref="T:MelloSilveiraTools.Database.Repositories.IRepository"/> database routing.
+            </summary>
+        </member>
+        <member name="M:AcceptanceTests.Plugins.PluginCacheAndDynamicDiAcceptanceTests.#ctor">
+            <summary>
+            Initializes an isolated DI container backed by real <see cref="T:MelloSilveiraTools.Core.Files.Providers.Local.LocalFileStorageService"/>,
+            <see cref="T:MelloSilveiraTools.Core.Providers.Dynamics.IDynamicServiceProvider"/>, <see cref="T:MelloSilveiraTools.Core.Providers.ServiceLocator"/>, and an in-memory
+            <see cref="T:MelloSilveiraTools.Database.Repositories.IRepository"/> spy for database cache persistence testing.
+            </summary>
+        </member>
+        <member name="M:AcceptanceTests.Plugins.PluginCacheAndDynamicDiAcceptanceTests.LoadPluginsOnRuntime_ShouldRegisterPluginTypesInDynamicServiceProviderAndResolveViaServiceLocatorAsync">
+            <summary>
+            Verifies that loading a plugin at runtime registers its processable types in
+            <see cref="T:MelloSilveiraTools.Core.Providers.Dynamics.IDynamicServiceProvider"/> and resolves singleton instances identically via
+            both <see cref="T:MelloSilveiraTools.Core.Providers.Dynamics.IDynamicServiceProvider"/> and <see cref="T:MelloSilveiraTools.Core.Providers.ServiceLocator"/>.
+            </summary>
+        </member>
+        <member name="M:AcceptanceTests.Plugins.PluginCacheAndDynamicDiAcceptanceTests.PersistAndRestoreCache_ToFileTargetOnPhysicalDisk_ShouldWriteJsonAndRestoreAfterClearAsync">
+            <summary>
+            Verifies that persisting the two-level <see cref="T:MelloSilveiraTools.Plugins.Infrastructure.PluginCache"/> to the <c>file</c> target
+            writes a real <c>plugin-cache.json</c> file on physical disk and accurately restores cached entries
+            across multiple versions after <see cref="M:MelloSilveiraTools.Plugins.Infrastructure.Services.IPluginService.ClearAsync"/>.
+            </summary>
+        </member>
+        <member name="M:AcceptanceTests.Plugins.PluginCacheAndDynamicDiAcceptanceTests.PersistAndRestoreCache_ToDatabaseTargetViaHttpContextRouteValue_ShouldUpsertAndRestoreFromRepositoryAsync">
+            <summary>
+            Verifies that routing <c>{target} = "database"</c> via <see cref="P:Microsoft.AspNetCore.Http.HttpContext.Request"/>
+            resolves <see cref="T:MelloSilveiraTools.Plugins.Infrastructure.Persistences.DatabasePluginCachePersistence"/>, upserts <see cref="T:MelloSilveiraTools.Plugins.Infrastructure.Persistences.PluginCacheEntity"/> rows
+            via <see cref="T:MelloSilveiraTools.Database.Repositories.IRepository"/>, clears the in-memory cache, and restores entries back from repository rows.
+            </summary>
+        </member>
+        <member name="M:AcceptanceTests.Plugins.PluginCacheAndDynamicDiAcceptanceTests.InitializeAsync">
+            <summary>
+            No-op async initialization required by <see cref="T:Xunit.IAsyncLifetime"/>.
+            </summary>
+        </member>
+        <member name="M:AcceptanceTests.Plugins.PluginCacheAndDynamicDiAcceptanceTests.DisposeAsync">
+            <summary>
+            Disposes the DI container and cleans up temporary plugin storage directories on disk.
+            </summary>
+        </member>
         <member name="T:AcceptanceTests.Plugins.PluginLifecycleAcceptanceTests">
             <summary>
             Acceptance tests for plugin discovery and loading lifecycles, verifying that assemblies
@@ -475,6 +677,52 @@
             is already loaded, the orchestrator ignores the older file without modifying loaded state.
             </summary>
         </member>
+        <member name="T:AcceptanceTests.Plugins.PluginPhysicalDiskLifecycleAcceptanceTests">
+            <summary>
+            Physical-disk acceptance tests for plugin assembly upload, startup/runtime loading,
+            partition movement across <c>incoming</c>, <c>loaded</c>, and <c>quarantine</c> using real
+            <see cref="T:MelloSilveiraTools.Core.Files.Providers.Local.LocalFileStorageService"/> on Windows disk (without storage mocks).
+            </summary>
+        </member>
+        <member name="M:AcceptanceTests.Plugins.PluginPhysicalDiskLifecycleAcceptanceTests.#ctor">
+            <summary>
+            Initializes an isolated DI container backed by a unique temporary local storage directory
+            and real <see cref="T:MelloSilveiraTools.Core.Files.Providers.Local.LocalFileStorageService"/> registrations.
+            </summary>
+        </member>
+        <member name="M:AcceptanceTests.Plugins.PluginPhysicalDiskLifecycleAcceptanceTests.UploadAndLoadPluginsOnStartup_OnPhysicalDisk_ShouldWriteToIncomingMoveToLoadedAndRegisterInServicesAsync">
+            <summary>
+            Uploads a valid managed .NET assembly via <see cref="T:MelloSilveiraTools.Plugins.Application.Commands.Upload.UploadPlugin"/> to physical disk,
+            invokes <see cref="M:MelloSilveiraTools.Plugins.Infrastructure.Services.IPluginService.LoadPluginsOnStartupAsync(Microsoft.Extensions.DependencyInjection.IServiceCollection,System.String,System.Nullable{MelloSilveiraTools.Plugins.Infrastructure.Models.PluginVersion},System.Threading.CancellationToken)"/>, and verifies that the DLL
+            physically moves from <c>incoming</c> to <c>loaded</c>, enters <see cref="T:MelloSilveiraTools.Plugins.Infrastructure.PluginCache"/>,
+            and registers its types in the startup <see cref="T:Microsoft.Extensions.DependencyInjection.IServiceCollection"/>.
+            </summary>
+        </member>
+        <member name="M:AcceptanceTests.Plugins.PluginPhysicalDiskLifecycleAcceptanceTests.LoadAndReloadPluginsOnRuntime_WithForceLoadFalseAndTrue_ShouldMovePhysicalDllBetweenIncomingAndLoadedAsync">
+            <summary>
+            Verifies physical disk partition transitions during runtime load and reload operations:
+            loading v1 and v2 moves both DLLs to <c>loaded</c>, <c>forceLoad: false</c> moves v1 back to
+            <c>incoming</c> while leaving v2 in <c>loaded</c>, and <c>forceLoad: true</c> reloads v2
+            back into <c>loaded</c>.
+            </summary>
+        </member>
+        <member name="M:AcceptanceTests.Plugins.PluginPhysicalDiskLifecycleAcceptanceTests.UploadAndScan_WithCorruptedOrInvalidDllOnPhysicalDisk_ShouldRejectUploadAndQuarantineStagedBinaryAsync">
+            <summary>
+            Verifies physical disk security and quarantine behavior:
+            <see cref="T:MelloSilveiraTools.Plugins.Application.Commands.Upload.UploadPlugin"/> rejects non-managed binaries before touching disk, whereas a corrupted
+            binary placed directly inside <c>incoming</c> is quarantined to <c>quarantine</c> during scanning.
+            </summary>
+        </member>
+        <member name="M:AcceptanceTests.Plugins.PluginPhysicalDiskLifecycleAcceptanceTests.InitializeAsync">
+            <summary>
+            No-op async initialization required by <see cref="T:Xunit.IAsyncLifetime"/>.
+            </summary>
+        </member>
+        <member name="M:AcceptanceTests.Plugins.PluginPhysicalDiskLifecycleAcceptanceTests.DisposeAsync">
+            <summary>
+            Disposes the DI container and deletes temporary plugin storage directories on disk.
+            </summary>
+        </member>
         <member name="T:AcceptanceTests.Plugins.PluginQuarantineAcceptanceTests">
             <summary>
             Acceptance tests verifying quarantine isolation: files in the incoming storage partition
@@ -534,6 +782,95 @@
         <member name="M:AcceptanceTests.Plugins.PluginUploadAcceptanceTests.UploadAsync_WithEmptyFile_ShouldReturnBadRequestAndNotStoreFile">
             <summary>
             Verifies that uploading an empty zero-byte file is rejected before any PE header processing.
+            </summary>
+        </member>
+        <member name="T:AcceptanceTests.WebApi.WebApiEndpointsAndStreamingAcceptanceTests">
+            <summary>
+            Full-stack HTTP client-server acceptance tests over real Kestrel TCP sockets validating:
+            NDJSON streaming with HTTP chunked trailers (<see cref="F:MelloSilveiraTools.WebApi.Application.Models.ApplicationConstants.StreamStatusTrailerName"/>),
+            <see cref="M:MelloSilveiraTools.Plugins.Application.Endpoints.PluginEndpoints.MapPluginEndpoints(Microsoft.AspNetCore.Routing.IEndpointRouteBuilder,System.String)"/> multipart upload/load/list/cache routes,
+            Optimizations controllers (<c>ExperimentalDataController</c>, <c>ParametricSweepController</c>,
+            <c>PipelineProgressController</c>, and <c>StorageEntryMetadataController</c> CSV downloads).
+            </summary>
+        </member>
+        <member name="M:AcceptanceTests.WebApi.WebApiEndpointsAndStreamingAcceptanceTests.InitializeAsync">
+            <summary>
+            Starts a live Kestrel host bound to <c>http://127.0.0.1:0</c> hosting all MVC controllers,
+            plugin minimal API endpoints, CRUD streaming endpoints, and diagnostic streaming error routes.
+            </summary>
+        </member>
+        <member name="M:AcceptanceTests.WebApi.WebApiEndpointsAndStreamingAcceptanceTests.DisposeAsync">
+            <summary>
+            Stops the Kestrel host and deletes temporary plugin and storage folders from disk.
+            </summary>
+        </member>
+        <member name="M:AcceptanceTests.WebApi.WebApiEndpointsAndStreamingAcceptanceTests.CrudStreamEndpoint_AndMidStreamError_OverRealKestrel_ShouldStreamNdjsonItemsAndEmitStatusTrailersAsync">
+            <summary>
+            Validates real Kestrel HTTP/1.1 chunked NDJSON streaming: verifies <c>/stream</c> delivers all items
+            and commits the <c>X-Stream-Status: success</c> trailer, while a mid-stream failure delivers initial
+            chunks followed by <c>X-Stream-Status: Faulted</c> readable over <see cref="T:System.Net.Http.HttpClient"/>.
+            </summary>
+        </member>
+        <member name="M:AcceptanceTests.WebApi.WebApiEndpointsAndStreamingAcceptanceTests.PluginEndpoints_OverRealKestrel_ShouldUploadMultipartLoadPersistClearAndRestorePluginsAsync">
+            <summary>
+            Validates <see cref="M:MelloSilveiraTools.Plugins.Application.Endpoints.PluginEndpoints.MapPluginEndpoints(Microsoft.AspNetCore.Routing.IEndpointRouteBuilder,System.String)"/> over real Kestrel HTTP requests:
+            multipart DLL upload to physical disk, loading all staged plugins, querying the plugin registry,
+            persisting cache to file, clearing cache, and restoring cache from disk.
+            </summary>
+        </member>
+        <member name="M:AcceptanceTests.WebApi.WebApiEndpointsAndStreamingAcceptanceTests.OptimizationsControllers_OverRealKestrel_ShouldProcessExperimentalDataStreamProgressRunSweepAndDownloadCsvAsync">
+            <summary>
+            Executes a complete Optimizations workflow over real Kestrel HTTP calls:
+            submits <c>POST /api/v1/experimental-data/process</c> for "Fung" using the real <c>LCA_02_07_21_L38_D11</c>
+            CSV files, streams live <see cref="T:MelloSilveiraTools.Core.Pipelines.Models.PipelineProgressEvent"/> NDJSON chunks via
+            <c>GET /api/v1/pipelines/{id}/progress</c>, chains <c>POST /api/v1/parametric-sweeps/process-from-experimental-data</c>,
+            streams the sweep progress NDJSON, and downloads generated physical CSV artifacts via
+            <c>GET /api/v1/storage-entry-metadata/{fileId}/download</c>.
+            </summary>
+        </member>
+        <member name="T:AcceptanceTests.WebApi.WebApiKestrelClientServerAcceptanceTests">
+            <summary>
+            End-to-end client-server acceptance tests running a real Kestrel HTTP server bound to an
+            ephemeral loopback TCP port (<c>127.0.0.1:0</c>), validating full CRUD round-trips,
+            <see cref="T:MelloSilveiraTools.WebApi.Infrastructure.ResiliencePipelines.ApiServiceAgentResiliencePipeline"/> Polly retries against real 503 responses,
+            JWE bearer authentication and token refresh, and <c>ExceptionHandlingHttpMiddleware</c>.
+            </summary>
+        </member>
+        <member name="M:AcceptanceTests.WebApi.WebApiKestrelClientServerAcceptanceTests.InitializeAsync">
+            <summary>
+            Starts a live Kestrel host bound to <c>http://127.0.0.1:0</c> with real WebApi DI wiring,
+            JWE authentication, exception middleware, CRUD endpoints for <see cref="T:MelloSilveiraTools.Database.RelationalDatabase.Models.Entities.StorageEntryMetadataEntity"/>,
+            and deterministic transient-503 / unhandled-exception diagnostic endpoints.
+            </summary>
+        </member>
+        <member name="M:AcceptanceTests.WebApi.WebApiKestrelClientServerAcceptanceTests.DisposeAsync">
+            <summary>
+            Stops and disposes the Kestrel host instance cleanly after test execution.
+            </summary>
+        </member>
+        <member name="M:AcceptanceTests.WebApi.WebApiKestrelClientServerAcceptanceTests.ApiServiceAgent_OverRealKestrelTcp_ShouldExecuteFullCrudLifecycleForStorageEntryMetadataEntityAsync">
+            <summary>
+            Executes the full HTTP CRUD lifecycle (POST, GET by id, GET paged, PUT, DELETE, GET after delete)
+            over real Kestrel TCP sockets using <see cref="T:MelloSilveiraTools.WebApi.Infrastructure.Services.ApiServiceAgent.ApiServiceAgentBase"/> against
+            <c>MapCrud&lt;StorageEntryMetadataEntity, StorageEntryMetadataFilter&gt;</c>.
+            </summary>
+        </member>
+        <member name="M:AcceptanceTests.WebApi.WebApiKestrelClientServerAcceptanceTests.ApiServiceAgent_WhenServerReturnsTransient503Twice_ShouldRetryViaPollyPipelineAndSucceedOnThirdAttemptAsync">
+            <summary>
+            Verifies that <see cref="T:MelloSilveiraTools.WebApi.Infrastructure.ResiliencePipelines.ApiServiceAgentResiliencePipeline"/> automatically retries twice when the real
+            Kestrel endpoint returns HTTP <c>503 Service Unavailable</c> and succeeds cleanly on the 3rd attempt.
+            </summary>
+        </member>
+        <member name="M:AcceptanceTests.WebApi.WebApiKestrelClientServerAcceptanceTests.JweAuthentication_OverRealKestrel_ShouldRejectMissingOrTamperedTokenWith401AndAcceptValidJweTokenAsync">
+            <summary>
+            Verifies encrypted JWE token generation, real Kestrel <c>JwtBearer</c> middleware enforcement
+            (401 on missing/tampered token, 200 on valid JWE token), and token refresh lifecycle.
+            </summary>
+        </member>
+        <member name="M:AcceptanceTests.WebApi.WebApiKestrelClientServerAcceptanceTests.ExceptionHandlingHttpMiddleware_WhenEndpointThrows_ShouldReturnStructured500JsonResultAsync">
+            <summary>
+            Verifies that unhandled exceptions raised inside Kestrel request execution are intercepted by
+            <c>ExceptionHandlingHttpMiddleware</c> and mapped to an HTTP 500 JSON <see cref="T:MelloSilveiraTools.Core.Models.Result"/> response.
             </summary>
         </member>
     </members>
