@@ -73,15 +73,20 @@ public static class StreamEndpoints
                 await context.Response.WriteLineAsNdJsonAsync(entity, cancellationToken);
             }
 
-            context.Response.AppendTrailer(ApplicationConstants.StreamStatusTrailerName, ApplicationConstants.StreamSuccessfullyStatus);
+            if (context.Response.SupportsTrailers())
+                context.Response.AppendTrailer(ApplicationConstants.StreamStatusTrailerName, ApplicationConstants.StreamSuccessfullyStatus);
         }
         catch (OperationCanceledException ex)
         {
             logger.LogWarning(ex, "A conexão foi fechada pelo cliente durante o streaming.");
+            if (context.Response.SupportsTrailers())
+                context.Response.AppendTrailer(ApplicationConstants.StreamStatusTrailerName, "Canceled");
         }
         catch (Exception ex)
         {
             logger.LogError(ex, "Falha durante o streaming de {resourceName}.", resourceName);
+            if (context.Response.SupportsTrailers())
+                context.Response.AppendTrailer(ApplicationConstants.StreamStatusTrailerName, "Faulted");
         }
     }
 }

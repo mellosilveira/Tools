@@ -211,6 +211,4 @@ Global
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {6138CFB8-82E9-45F6-B28F-BF93F657D839}
 	EndGlobalSection
-EndProject("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MelloSilveiraTools.Database.Migrator", "src\MelloSilveiraTools.Database.Migrator\MelloSilveiraTools.Database.Migrator.csproj", "{8FA887B1-4A2D-4E9A-8C37-B302F93C4E51}"
-EndProject
-Global
+EndGlobal

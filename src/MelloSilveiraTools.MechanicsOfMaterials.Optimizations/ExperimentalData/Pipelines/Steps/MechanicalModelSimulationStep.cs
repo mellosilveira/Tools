@@ -127,6 +127,9 @@ public sealed class MechanicalModelSimulationStep(
 
         foreach (PropertyInfo property in mechanicalModelTypeResolver.Output.GetPropertiesInHierarchy())
         {
+            if (!property.CanWrite)
+                continue;
+
             double? initialValue = (double?)property.GetValue(initialOutput);
             double? lastValue = (double?)property.GetValue(lastOutput);
 
@@ -134,7 +137,9 @@ public sealed class MechanicalModelSimulationStep(
             {
                 double absoluteDeltaValue = lastValue.Value - initialValue.Value;
                 property.SetValue(absoluteDelta, absoluteDeltaValue);
-                property.SetValue(percentageDelta, 100 * absoluteDeltaValue / initialValue.Value);
+
+                double percentage = initialValue.Value != 0.0 ? 100 * absoluteDeltaValue / initialValue.Value : 0.0;
+                property.SetValue(percentageDelta, percentage);
             }
         }
 
