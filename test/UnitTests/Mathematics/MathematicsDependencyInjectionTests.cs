@@ -19,6 +19,7 @@ public sealed class MathematicsDependencyInjectionTests
     public void AddMathematicsServices_RegistersExpectedServicesAndKeyedImplementations()
     {
         ServiceCollection services = new();
+        services.AddLogging();
 
         IServiceCollection returned = services.AddMathematicsServices();
 

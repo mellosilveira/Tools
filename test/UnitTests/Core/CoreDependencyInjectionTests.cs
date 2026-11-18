@@ -222,7 +222,8 @@ public sealed class CoreDependencyInjectionTests : IDisposable
             AwsS3 = new AwsS3StorageSettings
             {
                 BucketName = "test-bucket",
-                Region = "us-east-1"
+                Region = string.Empty,
+                ServiceUrl = "http://127.0.0.1:4566"
             }
         };
 
@@ -233,6 +234,31 @@ public sealed class CoreDependencyInjectionTests : IDisposable
         // Assert
         Assert.IsType<BlobStorageFileStorageService>(provider.GetRequiredKeyedService<IFileStorageService>(StorageProvider.BlobStorage));
         Assert.IsType<AwsS3FileStorageService>(provider.GetRequiredKeyedService<IFileStorageService>(StorageProvider.AwsS3));
+    }
+
+    /// <summary>
+    /// Verifies ValidateNonWindowsDfsPath rejects UNC and Windows drive paths and accepts POSIX paths.
+    /// </summary>
+    [Fact]
+    public void ValidateNonWindowsDfsPath_RejectsUncAndDrivePathsAndAcceptsPosixMountPaths()
+    {
+        System.Reflection.MethodInfo? method = typeof(CoreDependencyInjection).GetMethod(
+            "ValidateNonWindowsDfsPath",
+            System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.NonPublic);
+        Assert.NotNull(method);
+
+        System.Reflection.TargetInvocationException uncEx = Assert.Throws<System.Reflection.TargetInvocationException>(
+            () => method.Invoke(null, [@"\\server\share"]));
+        Assert.IsType<PlatformNotSupportedException>(uncEx.InnerException);
+
+        System.Reflection.TargetInvocationException driveEx = Assert.Throws<System.Reflection.TargetInvocationException>(
+            () => method.Invoke(null, [@"C:\dfs"]));
+        Assert.IsType<PlatformNotSupportedException>(driveEx.InnerException);
+
+        method.Invoke(null, ["/mnt/dfs"]);
+        method.Invoke(null, ["a"]);
+        method.Invoke(null, ["1:path"]);
+        method.Invoke(null, ["a/path"]);
     }
 
     /// <summary>

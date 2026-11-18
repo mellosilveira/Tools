@@ -129,7 +129,7 @@ public class CrudCommandsTests
             Entity = new WebApiTestEntity { Id = 1L, Name = "Updated" },
             ResourceName = "item"
         });
-        Assert.Equal(StatusCode.Created, updated.StatusCode);
+        Assert.Equal(StatusCode.OK, updated.StatusCode);
 
         Result missing = await command.ExecuteAsync(new UpdateEntityRequest<WebApiTestEntity>
         {

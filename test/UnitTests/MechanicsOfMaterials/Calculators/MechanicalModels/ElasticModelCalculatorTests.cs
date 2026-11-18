@@ -1,6 +1,7 @@
 using MelloSilveiraTools.Mathematics.Functions;
 using MelloSilveiraTools.Mathematics.Models;
 using MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Elasticity;
+using MelloSilveiraTools.MechanicsOfMaterials.Converters.MechanicalParameter;
 using MelloSilveiraTools.MechanicsOfMaterials.Models;
 using MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels;
 using MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Elasticity;
@@ -27,7 +28,7 @@ public sealed class ElasticModelCalculatorTests
     [Fact]
     public void SmallDisplacementElasticCalculations_ReturnExactLinearElasticResponses()
     {
-        ElasticModelCalculator calc = new();
+        ElasticModelCalculator calc = new(new MechanicalParameterConverter());
         MechanicalModelInput<ElasticConstitutiveParameters> input = CreateInput();
 
         // K = A * (E * 1e6) / L = 0.0002 * 200e6 / 0.1 = 400_000 N/m
@@ -46,7 +47,7 @@ public sealed class ElasticModelCalculatorTests
     [Fact]
     public void LargeDisplacementElasticCalculations_AvoidRecursionAndMatchLogarithmicKinematics()
     {
-        ElasticModelCalculator calc = new();
+        ElasticModelCalculator calc = new(new MechanicalParameterConverter());
         MechanicalModelInput<ElasticConstitutiveParameters> baseInput = CreateInput();
         SpecimenParameter largeSpecimen = new(true, false, 0.0, 0.1, 0.0002, Vector3D.Empty);
         MechanicalModelInput<ElasticConstitutiveParameters> input = baseInput with { Specimen = largeSpecimen };

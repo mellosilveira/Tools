@@ -16,7 +16,7 @@ public sealed class ExecuteBatchExperimentalDataPipelineValidatorTests
         Result result = _validator.Validate(null!);
 
         Assert.False(result.Success);
-        Assert.Contains("Batch experimental data processing request cannot be null.", result.Messages);
+        Assert.Contains("Experimental data processing request cannot be null.", result.Messages);
     }
 
     [Fact]

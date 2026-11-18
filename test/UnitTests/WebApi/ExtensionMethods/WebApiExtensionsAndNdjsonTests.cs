@@ -21,21 +21,21 @@ public class WebApiExtensionsAndNdjsonTests
     }
 
     [Fact]
-    public async Task FormFileExtensions_ToCompressedContentAsync_CurrentBehaviorReturnsEmptyBecauseGzipStreamDisposesOnReturn()
+    public async Task FormFileExtensions_ToCompressedContentAsync_CompressesAndDecompressesRoundTrip()
     {
-        byte[] raw = Encoding.UTF8.GetBytes(new string('A', 256));
+        string expected = new('A', 256);
+        byte[] raw = Encoding.UTF8.GetBytes(expected);
         using MemoryStream sourceStream = new(raw);
         FormFile formFile = new(sourceStream, 0, raw.Length, "file", "sample.txt");
 
         byte[] compressed = await formFile.ToCompressedContentAsync();
-        // Currently GZipStream only disposes on method return, leaving only the 10-byte gzip header flushed.
-        Assert.Equal(10, compressed.Length);
+        Assert.True(compressed.Length > 10);
 
         using MemoryStream compressedStream = new(compressed);
         await using GZipStream decompress = new(compressedStream, CompressionMode.Decompress);
         using StreamReader reader = new(decompress);
         string restored = await reader.ReadToEndAsync();
-        Assert.Equal(string.Empty, restored);
+        Assert.Equal(expected, restored);
     }
 
     [Fact]

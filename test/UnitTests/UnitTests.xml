@@ -40,6 +40,11 @@
             Verifies fallback branches for BlobStorage (ConnectionString) and AWS S3 (default credential chain, default resilience settings).
             </summary>
         </member>
+        <member name="M:UnitTests.Core.CoreDependencyInjectionTests.ValidateNonWindowsDfsPath_RejectsUncAndDrivePathsAndAcceptsPosixMountPaths">
+            <summary>
+            Verifies ValidateNonWindowsDfsPath rejects UNC and Windows drive paths and accepts POSIX paths.
+            </summary>
+        </member>
         <member name="M:UnitTests.Core.CoreDependencyInjectionTests.AddCoreServices_WithInvalidDfsBaseDirectory_ThrowsArgumentException(System.String)">
             <summary>
             Verifies that an invalid DFS BaseDirectory triggers eager ArgumentException during AddCoreServices.
@@ -819,7 +824,7 @@
         </member>
         <member name="T:UnitTests.MechanicsOfMaterials.Optimizations.Controllers.StoredFilesControllerTests">
             <summary>
-            Unit tests for <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Controllers.StoredFilesController"/> verifying file streaming downloads
+            Unit tests for <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Controllers.StorageEntryMetadataController"/> verifying file streaming downloads
             and 404 responses when database metadata, storage providers, or physical files are missing.
             </summary>
         </member>
@@ -930,9 +935,9 @@
             Verifies GenerateValues handles null, single-point, additive step, and multiplicative factor ranges.
             </summary>
         </member>
-        <member name="M:UnitTests.MechanicsOfMaterials.Optimizations.OptimizationsExtensionsTests.ArrayAndRangeParametersExtensions_InvalidAndEmptyInputs_AreHandledOrThrow">
+        <member name="M:UnitTests.MechanicsOfMaterials.Optimizations.OptimizationsExtensionsTests.ArrayCurveSegmentAndRangeParametersExtensions_EdgeInputs_BehaveAsExpected">
             <summary>
-            Verifies guard clauses on ArrayExtensions and RangeParametersExtensions for empty and invalid inputs.
+            Verifies edge cases on ArrayExtensions, CurveSegmentExtensions, and RangeParametersExtensions.
             </summary>
         </member>
         <member name="T:UnitTests.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.ExperimentalDataStepsTests">
@@ -950,7 +955,7 @@
         <member name="M:UnitTests.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.ExperimentalDataStepsTests.ExperimentalDataSegmenterStep_InvalidStrainPattern_ThrowsInvalidOperationException">
             <summary>
             Verifies ExperimentalDataSegmenterStep throws InvalidOperationException on incoherent strain pattern
-            where decreasing strain occurs in a non-contiguous/invalid configuration during buffer slicing.
+            where startIndex > endIndex during buffer slicing.
             </summary>
         </member>
         <member name="M:UnitTests.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.ExperimentalDataStepsTests.DownsamplerAndCurveSegmentBuilder_FilterAndGroupCorrectly">

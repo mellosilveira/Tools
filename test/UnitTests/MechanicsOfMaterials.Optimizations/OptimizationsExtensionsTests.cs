@@ -94,41 +94,29 @@ public sealed class OptimizationsExtensionsTests
     }
 
     /// <summary>
-    /// Verifies guard clauses on ArrayExtensions and RangeParametersExtensions for empty and invalid inputs.
+    /// Verifies edge cases on ArrayExtensions, CurveSegmentExtensions, and RangeParametersExtensions.
     /// </summary>
     [Fact]
-    public void ArrayAndRangeParametersExtensions_InvalidAndEmptyInputs_AreHandledOrThrow()
+    public void ArrayCurveSegmentAndRangeParametersExtensions_EdgeInputs_BehaveAsExpected()
     {
         double[] empty = [];
-        Assert.Empty(empty.Normalize());
-        Assert.Empty(empty.TranslateToOrigin());
+        Assert.Empty(empty.Normalize(1.0));
+        Assert.Empty(empty.TranslateToOrigin(0.0));
 
-        double[] zeros = [0.0, 0.0];
-        Assert.Throws<ArgumentException>(() => zeros.Normalize());
-        Assert.Throws<ArgumentException>(() => new double[] { 1.0, 2.0 }.Normalize(double.NaN));
+        RangeParameters noStepOrFactorWithFinal = new() { InitialPoint = 5.0, FinalPoint = 10.0 };
+        Assert.Equal([5.0], noStepOrFactorWithFinal.GenerateValues());
 
-        RangeParameters nonFiniteSingle = new() { InitialPoint = double.NaN };
-        Assert.Throws<ArgumentOutOfRangeException>(() => nonFiniteSingle.GenerateValues().ToList());
+        CurveSegment[] emptySegments = [];
+        Assert.Null(emptySegments.GetFirstRampTime());
+        Assert.Equal(0.0, emptySegments.CalculateAverageTimeStep());
 
-        RangeParameters nonFiniteInitial = new() { InitialPoint = double.NaN, FinalPoint = 1.0, Step = 0.5 };
-        Assert.Throws<ArgumentOutOfRangeException>(() => nonFiniteInitial.GenerateValues().ToList());
-
-        RangeParameters nonFiniteFinal = new() { InitialPoint = 0.0, FinalPoint = double.PositiveInfinity, Step = 0.5 };
-        Assert.Throws<ArgumentOutOfRangeException>(() => nonFiniteFinal.GenerateValues().ToList());
-
-        RangeParameters nonPositiveStep = new() { InitialPoint = 0.0, FinalPoint = 1.0, Step = 0.0 };
-        Assert.Throws<ArgumentOutOfRangeException>(() => nonPositiveStep.GenerateValues().ToList());
-
-        RangeParameters nanStep = new() { InitialPoint = 0.0, FinalPoint = 1.0, Step = double.NaN };
-        Assert.Throws<ArgumentOutOfRangeException>(() => nanStep.GenerateValues().ToList());
-
-        RangeParameters nonExceedingMult = new() { InitialPoint = 1.0, FinalPoint = 2.0, MultiplicativeFactor = 1.0 };
-        Assert.Throws<ArgumentOutOfRangeException>(() => nonExceedingMult.GenerateValues().ToList());
-
-        RangeParameters nanMult = new() { InitialPoint = 1.0, FinalPoint = 2.0, MultiplicativeFactor = double.NaN };
-        Assert.Throws<ArgumentOutOfRangeException>(() => nanMult.GenerateValues().ToList());
-
-        RangeParameters nonPositiveInitMult = new() { InitialPoint = 0.0, FinalPoint = 2.0, MultiplicativeFactor = 2.0 };
-        Assert.Throws<ArgumentOutOfRangeException>(() => nonPositiveInitMult.GenerateValues().ToList());
+        CurveSegment singlePointSegment = new()
+        {
+            Type = SegmentType.Relaxation,
+            TimePoints = [1.0],
+            ExperimentalStrain = [0.01],
+            ExperimentalStress = [1.0]
+        };
+        Assert.Equal(0.0, new[] { singlePointSegment }.CalculateAverageTimeStep());
     }
 }

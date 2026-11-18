@@ -136,11 +136,12 @@ public sealed class MathematicalFunctionsTests
         Assert.IsType<LogarithmicFunction>(reciprocalIntegral);
         Assert.Equal(3.0 * Math.Log(2.0), reciprocalIntegral.Calculate(2.0), 10);
 
-        // Special case a_1 = 0 or a_0 = 0: derivative collapses to constant 0.
+        // Special case a_1 = 0: derivative is PowerLaw([0.0, 1.0]) which evaluates to 0.
         PowerLaw constantLike = new([3.0, 0.0], 0.0, 5.0);
         Function zeroDerivative = constantLike.Derivative;
-        Assert.IsType<ConstantFunction>(zeroDerivative);
-        Assert.Equal(0.0, zeroDerivative.Calculate(0.0));
+        Assert.IsType<PowerLaw>(zeroDerivative);
+        Assert.Equal([0.0, 1.0], zeroDerivative.Coefficients);
+        Assert.Equal(0.0, zeroDerivative.Calculate(2.0));
     }
 
     [Fact]

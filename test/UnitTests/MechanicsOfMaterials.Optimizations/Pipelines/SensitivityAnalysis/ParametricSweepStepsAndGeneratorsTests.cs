@@ -243,12 +243,12 @@ public sealed class ParametricSweepStepsAndGeneratorsTests
         Mock<IRepository> repoMock = new();
         repoMock.SetupSequence(r => r.TryInsertAsync(It.IsAny<StorageEntryMetadataEntity>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(Result.CreateSuccessOk(10L))
-            .ReturnsAsync(Result.CreateError(StatusCode.BadRequest, "file err"))
-            .ReturnsAsync(Result.CreateSuccessOk(11L));
+            .ReturnsAsync(Result.CreateConflict(77L, "file dup"))
+            .ReturnsAsync(Result.CreateError(StatusCode.BadRequest, "file err"));
 
         repoMock.SetupSequence(r => r.TryInsertAsync(It.IsAny<ParametricSweepEntity>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(Result.CreateSuccessOk(100L))
-            .ReturnsAsync(Result.CreateConflict(0L, "dup"))
+            .ReturnsAsync(Result.CreateConflict(200L, "dup"))
             .ReturnsAsync(Result.CreateError(StatusCode.BadRequest, "err"));
 
         RangeParameters range = new() { InitialPoint = 1.0, Step = 1.0, FinalPoint = 2.0 };
@@ -277,7 +277,7 @@ public sealed class ParametricSweepStepsAndGeneratorsTests
 
         StorageEntryMetadata fileMeta = new(StorageProvider.Local, "f.csv", "dir", "f.csv", 12, DateTimeOffset.UtcNow);
         Assert.Equal(100L, await step.ExecuteAsync([("ElasticStressConstant", range, fileMeta)]));
-        Assert.Equal(0L, await step.ExecuteAsync([("ElasticStressConstant", range, fileMeta)]));
+        Assert.Equal(200L, await step.ExecuteAsync([("ElasticStressConstant", range, fileMeta)]));
         Assert.Equal(0L, await step.ExecuteAsync([("ElasticStressConstant", range, fileMeta)]));
     }
 

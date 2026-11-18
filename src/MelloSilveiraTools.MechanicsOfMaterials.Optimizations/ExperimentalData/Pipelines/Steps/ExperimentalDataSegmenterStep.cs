@@ -180,7 +180,7 @@ public sealed class ExperimentalDataSegmenterStep(
         }
 
         double stepTime = buffer[maxStrainIndex].Time - buffer[minStrainIndex].Time;
-        double strainRate = differentiation.Calculate(minStrain, maxStrain, stepTime > options.Tolerance ? stepTime : double.Epsilon);
+        double strainRate = differentiation.Calculate(minStrain, maxStrain, Math.MaxMagnitude(stepTime, options.Tolerance));
 
         if (Math.Abs(strainRate) <= options.RateTolerance)
         {

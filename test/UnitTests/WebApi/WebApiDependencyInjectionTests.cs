@@ -122,4 +122,41 @@ public class WebApiDependencyInjectionTests
 
         await app.StopAsync();
     }
+
+    [Fact]
+    public void GetAssemblyAttributes_CoversNullEntryAssemblyAndDynamicAssemblyWithoutAttributesOrLocation()
+    {
+        System.Reflection.MethodInfo? getAttrs = typeof(WebApiDependencyInjection).GetMethod(
+            "GetAssemblyAttributes",
+            System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.NonPublic);
+        Assert.NotNull(getAttrs);
+
+        System.Reflection.MethodInfo? setEntry = typeof(System.Reflection.Assembly).GetMethod(
+            "SetEntryAssembly",
+            System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.NonPublic);
+        System.Reflection.Assembly? originalEntry = System.Reflection.Assembly.GetEntryAssembly();
+
+        try
+        {
+            if (setEntry is not null)
+            {
+                // 1. EntryAssembly is null -> falls back to GetCallingAssembly()
+                setEntry.Invoke(null, [null]);
+                object? resNullEntry = getAttrs.Invoke(null, null);
+                Assert.NotNull(resNullEntry);
+
+                // 2. Dynamic assembly with empty Location and no AssemblyTitleAttribute / AssemblyDescriptionAttribute
+                System.Reflection.Emit.AssemblyBuilder dynAsm = System.Reflection.Emit.AssemblyBuilder.DefineDynamicAssembly(
+                    new System.Reflection.AssemblyName("DynNoAttrs"),
+                    System.Reflection.Emit.AssemblyBuilderAccess.Run);
+                setEntry.Invoke(null, [dynAsm]);
+                object? resDyn = getAttrs.Invoke(null, null);
+                Assert.NotNull(resDyn);
+            }
+        }
+        finally
+        {
+            setEntry?.Invoke(null, [originalEntry]);
+        }
+    }
 }

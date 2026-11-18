@@ -8,6 +8,7 @@ using MelloSilveiraTools.MechanicsOfMaterials;
 using MelloSilveiraTools.MechanicsOfMaterials.Caching;
 using MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels;
 using MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.TypeResolvers;
+using MelloSilveiraTools.MechanicsOfMaterials.Converters.MechanicalParameter;
 using MelloSilveiraTools.MechanicsOfMaterials.Models;
 using MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels;
 using MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Elasticity;
@@ -127,7 +128,7 @@ public sealed class MechanicalModelCalculatorFacadeAndCacheTests
         Assert.Throws<ArgumentNullException>(() => new MechanicalModelCalculatorFacade(
             cache,
             typeof(ElasticModelOutput),
-            new MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Elasticity.ElasticModelCalculator(),
+            new MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Elasticity.ElasticModelCalculator(new MechanicalParameterConverter()),
             null!));
         Assert.Throws<ArgumentOutOfRangeException>(() => factory.CreateCalculatorFacade(directInput with
         {
@@ -160,13 +161,14 @@ public sealed class MechanicalModelCalculatorFacadeAndCacheTests
             ConstitutiveParameters = new MaxwellConstitutiveParameters { Stiffness = 10, Viscosity = 20 },
             Strain = new MechanicalParameter(0.1)
         };
+        MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Elasticity.ElasticModelCalculator elasticCalc = new(new MechanicalParameterConverter());
         Assert.Throws<InvalidCastException>(() => stressInvoker(
-            new MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Elasticity.ElasticModelCalculator(),
+            elasticCalc,
             [mismatched, 0.0, 0.1]));
 
         // Passing null MechanicalModelInput returns null (hits ConvertMechanicalModelInput null guard before deref)
         Assert.Throws<NullReferenceException>(() => stressInvoker(
-            new MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Elasticity.ElasticModelCalculator(),
+            elasticCalc,
             [null, 0.0, 0.1]));
 
         // Passing custom MechanicalModelInput subclass (non-generic baseInput branch) and invalid cast branches
@@ -177,12 +179,12 @@ public sealed class MechanicalModelCalculatorFacadeAndCacheTests
             Strain = new MechanicalParameter(0.1)
         };
         double customStress = Assert.IsType<double>(stressInvoker(
-            new MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Elasticity.ElasticModelCalculator(),
+            elasticCalc,
             [customDerived, 0.0, 0.1]));
         Assert.Equal(20.0, customStress, 6);
 
         Assert.Throws<InvalidCastException>(() => stressInvoker(
-            new MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Elasticity.ElasticModelCalculator(),
+            elasticCalc,
             ["not-an-input", 0.0, 0.1]));
     }
 }

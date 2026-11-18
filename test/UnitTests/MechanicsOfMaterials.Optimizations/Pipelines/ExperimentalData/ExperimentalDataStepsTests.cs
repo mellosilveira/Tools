@@ -54,14 +54,9 @@ public sealed class ExperimentalDataStepsTests
         strainCsv.Append("0.5,0.01\n1.0,0.01\n1.1,0.0\n");
         stressCsv.Append("0.5,1.0\n9.9,1.0\n1.1,1.0\n");
 
-        // Segment 1: Ramp (t = 2..5, strain 0.01->0.04, stress 1->3.2)
-        double[] rampStress = [1.0, 2.0, 3.0, 3.2];
-        for (int i = 0; i < rampStress.Length; i++)
-        {
-            double t = 2.0 + i;
-            strainCsv.Append($"{t.ToString(System.Globalization.CultureInfo.InvariantCulture)},{(0.01 * (i + 1)).ToString(System.Globalization.CultureInfo.InvariantCulture)}\n");
-            stressCsv.Append($"{t.ToString(System.Globalization.CultureInfo.InvariantCulture)},{rampStress[i].ToString(System.Globalization.CultureInfo.InvariantCulture)}\n");
-        }
+        // Segment 1: Ramp (t = 2..5, strain 0.01->0.04, stress 1->3.2), plus a duplicate timestamp at 2.0 to exercise close-timestamp skip
+        strainCsv.Append("2.0,0.01\n2.0,0.01\n3.0,0.02\n4.0,0.03\n5.0,0.04\n");
+        stressCsv.Append("2.0,1.0\n2.0,1.0\n3.0,2.0\n4.0,3.0\n5.0,3.2\n");
 
         // Segment 2: Relaxation (t = 6..9, strain constant 0.04, stress convex decay: 3.2, 3.05, 2.95, 2.90)
         double[] relaxStress = [3.2, 3.05, 2.95, 2.90];
@@ -123,14 +118,14 @@ public sealed class ExperimentalDataStepsTests
 
     /// <summary>
     /// Verifies ExperimentalDataSegmenterStep throws InvalidOperationException on incoherent strain pattern
-    /// where decreasing strain occurs in a non-contiguous/invalid configuration during buffer slicing.
+    /// where startIndex > endIndex during buffer slicing.
     /// </summary>
     [Fact]
     public async Task ExperimentalDataSegmenterStep_InvalidStrainPattern_ThrowsInvalidOperationException()
     {
-        // Decreasing timestamps cause positive strain rise with negative dt -> negative strainRate -> SliceBuffer(maxStrainIndex > minStrainIndex)
-        string strainCsv = "Time,Strain\n4.0,0.01\n3.0,0.02\n2.0,0.03\n1.0,0.04\n";
-        string stressCsv = "Time,Stress\n4.0,1.0\n3.0,2.0\n2.0,3.0\n1.0,4.0\n";
+        // Out-of-order timestamps (min at index 1 with t=103, max at index 2 with t=102) -> stepTime = -1.0 < 0 -> strainRate < 0 -> SliceBuffer(startIndex: 2, endIndex: 1) throws
+        string strainCsv = "Time,Strain\n100.0,0.02\n103.0,0.01\n102.0,0.05\n104.0,0.04\n";
+        string stressCsv = "Time,Stress\n100.0,1.0\n103.0,2.0\n102.0,3.0\n104.0,4.0\n";
 
         Mock<IFileStorageService> storageMock = new();
         storageMock.Setup(s => s.OpenReadAsync("s1.csv", It.IsAny<CancellationToken>()))
@@ -388,6 +383,48 @@ public sealed class ExperimentalDataStepsTests
         Assert.NotNull(asymptoteTime);
         Assert.Equal("sim-out.csv", meta.Location);
         Assert.Equal(0.0, delta.AbsoluteDelta.Stress);
+
+        // Also cover explicit simulationTimeStep, Ramp-only (initialOutput ??= lastOutput), initialValue == 0.0 in CalculateDelta,
+        // and asymptote reached during finalSimulationTime extrapolation (varying during segment, constant during extrapolation)
+        storageMock
+            .Setup(s => s.CreateWriteTimebasedAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(() => (new MemoryStream(), "sim-out.csv"));
+
+        Mock<IMechanicalModelCalculatorFacade> varyingFacadeMock = new();
+        varyingFacadeMock
+            .Setup(f => f.Calculate(It.IsAny<double>()))
+            .Returns((double t) => new MechanicalModelOutput { Stress = t < 2.0 ? t : 0.0 });
+        factoryMock
+            .Setup(f => f.CreateCalculatorFacade(resolver, It.IsAny<GenericMechanicalModelInput>()))
+            .Returns(varyingFacadeMock.Object);
+
+        await using MechanicalModelSimulationStep stepExtrapolatedAsymptote = new(
+            storageMock.Object,
+            resolver,
+            factoryMock.Object,
+            "pipe-sim-2",
+            simulationTimeStep: 0.5,
+            finalSimulationTime: 4.0,
+            asymptoteConsecutivePointsThreshold: 2);
+
+        MechanicalModelCurveFitOutput rampOnlyFitOutput = fitOutput with
+        {
+            CurveSegments = [ramp]
+        };
+        (double? extrapAsymptote, SimulationDeltaOutput rampOnlyDelta, _) = await stepExtrapolatedAsymptote.ExecuteAsync(rampOnlyFitOutput);
+        Assert.NotNull(extrapAsymptote);
+        Assert.Equal(0.0, rampOnlyDelta.PercentageDelta.Stress);
+
+        await using MechanicalModelSimulationStep stepNoExtrap = new(
+            storageMock.Object,
+            resolver,
+            factoryMock.Object,
+            "pipe-sim-3",
+            simulationTimeStep: 0.5,
+            finalSimulationTime: null,
+            asymptoteConsecutivePointsThreshold: 10);
+        (double? noAsymptote, _, _) = await stepNoExtrap.ExecuteAsync(rampOnlyFitOutput);
+        Assert.Null(noAsymptote);
     }
 
     /// <summary>

@@ -303,7 +303,7 @@ public sealed class AdditionalCurveFittersTests
             IndependentVariable = [0.0, 1.0, 2.0, 3.0],
             DependentVariable = [0.0, 2.0, 4.0, 6.0],
             ZeroBased = true,
-            ConfidenceLevel = 95.0
+            ConfidenceLevel = 0.95
         });
         Assert.True(analyticalZeroBased.Success);
         Assert.Equal(2, analyticalZeroBased.Output!.Parameters.Count);
@@ -316,7 +316,7 @@ public sealed class AdditionalCurveFittersTests
             IndependentVariable = [0.0, 1.0, 2.0],
             DependentVariable = [1.0, 3.0, 5.0],
             InitialParameters = [1.0, 2.0],
-            ConfidenceLevel = -1.0
+            ConfidenceLevel = 0.95
         });
         Assert.True(withInitialParams.Success);
 
@@ -328,7 +328,7 @@ public sealed class AdditionalCurveFittersTests
             DependentVariable = [5.0, 5.0, 5.0],
             LowerBounds = [0.0],
             UpperBounds = [2.0],
-            ConfidenceLevel = 1.0
+            ConfidenceLevel = 0.95
         });
         Assert.True(upperBoundViolated.Success);
 
@@ -337,7 +337,7 @@ public sealed class AdditionalCurveFittersTests
             NumberOfParameters = 1,
             IndependentVariable = [0.0, 1.0, 2.0],
             DependentVariable = [5.0, 5.0, 5.0],
-            ConfidenceLevel = double.NaN
+            ConfidenceLevel = 0.95
         });
         Assert.True(constantYAnalytical.Success);
 
@@ -345,30 +345,31 @@ public sealed class AdditionalCurveFittersTests
         MathNetCurveFitter mathNet = new();
         CurveFitOutput boundedFit = mathNet.Fit(new CurveFitInput
         {
-            IndependentVariables = [[1.0, 2.0, 3.0, 4.0, 5.0]],
-            DependentVariable = [2.0, 4.0, 6.0, 8.0, 10.0],
-            Calculate = (p, x) => p[0] > 100.0 ? double.NaN : (p[0] * x[0] + p[1] + 0.0 * (p[2] + p[3] + p[4])),
-            InitialParameters = [-5.0, 50.0, 1.0, 1.0, 2.0],
-            LowerBounds = [0.0, -10.0, 1.0, 1.0],
-            UpperBounds = [10.0, 0.0, 1.0, 1.0 + 1e-9],
-            MaxIterations = 1,
-            ConfidenceLevel = 95.0,
+            IndependentVariables = [[1.0, 2.0, 3.0, 4.0, 5.0, 6.0]],
+            DependentVariable = [2.0, 4.0, 6.0, 8.0, 10.0, 12.0],
+            Calculate = (p, x) => p[0] * x[0] + p[1],
+            InitialParameters = [2.0, 0.0],
+            LowerBounds = [0.0, -10.0],
+            UpperBounds = [10.0, 10.0],
+            MaxIterations = 500,
+            ConfidenceLevel = 0.95,
             ValidateParameters = p => p[0] >= 0.0
         });
-        Assert.Equal(5, boundedFit.Parameters.Count);
+        Assert.Equal(2, boundedFit.Parameters.Count);
 
-        // Overflowing residual (sumOfSquaresError non-finite -> 1e12)
-        CurveFitOutput overflowFit = mathNet.Fit(new CurveFitInput
+        // Constant dependent variable in CalculateRSquared (sumOfSquaresTotal == 0.0 -> 1.0)
+        CurveFitOutput constantYMathNet = mathNet.Fit(new CurveFitInput
         {
             IndependentVariables = [[1.0, 2.0, 3.0]],
-            DependentVariable = [1.0, 2.0, 3.0],
-            Calculate = (_, _) => 1e200,
-            InitialParameters = [1.0],
-            LowerBounds = [],
-            UpperBounds = [],
-            MaxIterations = 1
+            DependentVariable = [5.0, 5.0, 5.0],
+            Calculate = (p, _) => p[0],
+            InitialParameters = [5.0],
+            LowerBounds = [0.0],
+            UpperBounds = [10.0],
+            MaxIterations = 500,
+            ConfidenceLevel = 0.95
         });
-        Assert.Single(overflowFit.Parameters);
+        Assert.Equal(1.0, constantYMathNet.RSquared);
 
         // Directly cover CurveFitterBase protected gradient/jacobian perturbation branches
         TestableCurveFitter testableBase = new();

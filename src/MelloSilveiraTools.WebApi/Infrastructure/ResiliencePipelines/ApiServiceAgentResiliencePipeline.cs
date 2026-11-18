@@ -21,7 +21,7 @@ public class ApiServiceAgentResiliencePipeline : DefaultResiliencePipeline
     public ApiServiceAgentResiliencePipeline(ILogger<ApiServiceAgentResiliencePipeline> logger, ResiliencePipelineSettings settings)
         : base(logger, settings, new PredicateBuilder()
             .Handle<Exception>()
-            .HandleResult(new Func<Result, bool>(r => StatusCodesToRetry.Contains(r.StatusCode))))
+            .HandleResult(r => r is Result result && StatusCodesToRetry.Contains(result.StatusCode)))
     { }
 
     /// <summary>

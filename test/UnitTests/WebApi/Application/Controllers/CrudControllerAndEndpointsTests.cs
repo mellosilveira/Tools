@@ -71,7 +71,7 @@ public class CrudControllerAndEndpointsTests
 
         ActionResult<Result> updateResult = await controller.Update(new UpdateEntity<WebApiTestEntity>(repositoryMock.Object), 12L, entity);
         JsonResult updateJson = Assert.IsType<JsonResult>(updateResult.Result);
-        Assert.Equal(StatusCodes.Status201Created, updateJson.StatusCode);
+        Assert.Equal(StatusCodes.Status200OK, updateJson.StatusCode);
 
         ActionResult<Result> deleteResult = await controller.Delete(new DeleteEntity<WebApiTestEntity>(repositoryMock.Object), 12L);
         JsonResult deleteJson = Assert.IsType<JsonResult>(deleteResult.Result);
@@ -121,7 +121,7 @@ public class CrudControllerAndEndpointsTests
         Assert.Equal(HttpStatusCode.OK, getPagedResp.StatusCode);
 
         HttpResponseMessage putResp = await client.PutAsJsonAsync("/api/test-items/7", stored);
-        Assert.Equal(HttpStatusCode.Created, putResp.StatusCode);
+        Assert.Equal(HttpStatusCode.OK, putResp.StatusCode);
 
         HttpResponseMessage deleteResp = await client.DeleteAsync("/api/test-items/7");
         Assert.Equal(HttpStatusCode.OK, deleteResp.StatusCode);
@@ -135,13 +135,28 @@ public class CrudControllerAndEndpointsTests
     }
 
     [Fact]
-    public async Task WriteNdjsonAsync_HandlesCancellationAndUnexpectedExceptionsByLogging()
+    public async Task WriteNdjsonAsync_HandlesCancellationAndUnexpectedExceptionsByLoggingAndSettingTrailers()
     {
         Mock<ILogger> loggerMock = new();
-        DefaultHttpContext context = new();
-        context.Response.Body = new MemoryStream();
+        DefaultHttpContext contextWithoutTrailers = new();
+        contextWithoutTrailers.Response.Body = new MemoryStream();
 
-        await CancelledStream().WriteNdjsonAsync(context, loggerMock.Object, "test-resource");
+        await StreamItems([new WebApiTestEntity { Id = 1L, Name = "NoTrailer" }]).WriteNdjsonAsync(contextWithoutTrailers, loggerMock.Object, "test-resource");
+        await CancelledStream().WriteNdjsonAsync(contextWithoutTrailers, loggerMock.Object, "test-resource");
+        await FaultingStream().WriteNdjsonAsync(contextWithoutTrailers, loggerMock.Object, "test-resource");
+
+        DefaultHttpContext contextWithTrailers = new();
+        contextWithTrailers.Response.Body = new MemoryStream();
+        FakeResponseTrailersFeature trailersFeature = new();
+        contextWithTrailers.Features.Set<IHttpResponseTrailersFeature>(trailersFeature);
+
+        await CancelledStream().WriteNdjsonAsync(contextWithTrailers, loggerMock.Object, "test-resource");
+        Assert.Equal("Canceled", trailersFeature.Trailers[ApplicationConstants.StreamStatusTrailerName].ToString());
+
+        trailersFeature.Trailers.Clear();
+        await FaultingStream().WriteNdjsonAsync(contextWithTrailers, loggerMock.Object, "test-resource");
+        Assert.Equal("Faulted", trailersFeature.Trailers[ApplicationConstants.StreamStatusTrailerName].ToString());
+
         loggerMock.Verify(
             l => l.Log(
                 LogLevel.Warning,
@@ -149,9 +164,8 @@ public class CrudControllerAndEndpointsTests
                 It.IsAny<It.IsAnyType>(),
                 It.IsAny<OperationCanceledException>(),
                 It.IsAny<Func<It.IsAnyType, Exception?, string>>()),
-            Times.Once);
+            Times.Exactly(2));
 
-        await FaultingStream().WriteNdjsonAsync(context, loggerMock.Object, "test-resource");
         loggerMock.Verify(
             l => l.Log(
                 LogLevel.Error,
@@ -159,7 +173,7 @@ public class CrudControllerAndEndpointsTests
                 It.IsAny<It.IsAnyType>(),
                 It.IsAny<InvalidOperationException>(),
                 It.IsAny<Func<It.IsAnyType, Exception?, string>>()),
-            Times.Once);
+            Times.Exactly(2));
     }
 
     private static async IAsyncEnumerable<WebApiTestEntity> StreamItems(WebApiTestEntity[] items)

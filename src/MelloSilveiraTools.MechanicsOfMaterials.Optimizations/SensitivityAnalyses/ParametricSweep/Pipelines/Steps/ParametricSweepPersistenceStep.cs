@@ -48,14 +48,15 @@ public sealed class ParametricSweepPersistenceStep(
         StorageEntryMetadataEntity storedFileEntity = StorageEntryMetadataEntity.Create(fileMetadata, externalIdentifier);
         Result<long> fileResult = await repository.TryInsertAsync(storedFileEntity, cancellationToken).ConfigureAwait(false);
 
-        if (!fileResult.Success)
+        if (fileResult.IsConflict)
+        {
+            logger.LogWarning("Entity for stored file already exists in the database. Storage Entry Metadata: {@StorageEntryMetadata}", fileMetadata);
+        }
+        else if (!fileResult.Success)
         {
             logger.LogError("Failed to insert stored file entity for parametric sweep. Entity: {@Entity}. Result: {@InsertResult}", storedFileEntity, fileResult);
             return null;
         }
-
-        if (fileResult.IsConflict)
-            logger.LogWarning("Entity for stored file already exists in the database. Storage Entry Metadata: {@StorageEntryMetadata}", fileMetadata);
 
         return fileResult.Data;
     }

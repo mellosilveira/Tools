@@ -53,10 +53,10 @@ public sealed class OptimizationsDependencyInjectionAndJsonTests
         PipelineStepOptions stepOptions = new() { MaxBufferSize = 10 };
         return new ExperimentalDataSettings
         {
-            SegmenterOptions = stepOptions,
+            SegmenterOptions = new() { MaxBufferSize = 10, MaxWorkers = 2, KeepOrder = false },
             FileWriterOptions = stepOptions,
             PersistanceOptions = stepOptions,
-            SegmentBuilderOptions = stepOptions,
+            SegmentBuilderOptions = new() { MaxBufferSize = 10, MaxWorkers = 1, KeepOrder = false },
             CurveFitterOptions = stepOptions,
             SimulationInputBuilderOptions = stepOptions,
             IngestionBufferCapacity = 10
