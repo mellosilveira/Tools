@@ -41,8 +41,8 @@ public class StepByStepMethod(ILogger<StepByStepMethod>? logger = null) : RootFi
             }
         }
 
-        return previousPoint != null 
-            ? (previousPoint.Value, previousValue) 
+        return previousPoint != null
+            ? (previousPoint.Value, previousValue)
             : throw GetNonConvergenceException(point, value);
     }
 }

@@ -29,11 +29,9 @@ public class UploadPlugin(
 
         await using (Stream sourceStream = request.File.OpenReadStream())
         {
-            await using (Stream targetStream = await fileStorageService.OpenWriteAsync(location, cancellationToken).ConfigureAwait(false))
-            {
-                await sourceStream.CopyToAsync(targetStream, cancellationToken).ConfigureAwait(false);
-                await targetStream.FlushAsync(cancellationToken).ConfigureAwait(false);
-            }
+            await using Stream targetStream = await fileStorageService.OpenWriteAsync(location, cancellationToken).ConfigureAwait(false);
+            await sourceStream.CopyToAsync(targetStream, cancellationToken).ConfigureAwait(false);
+            await targetStream.FlushAsync(cancellationToken).ConfigureAwait(false);
         }
 
         StorageEntryMetadata metadata = await fileStorageService.GetMetadataAsync(location, cancellationToken).ConfigureAwait(false);

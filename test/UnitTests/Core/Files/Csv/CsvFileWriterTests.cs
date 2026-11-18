@@ -1,5 +1,5 @@
-using System.Text;
 using MelloSilveiraTools.Core.Files.Csv;
+using System.Text;
 
 namespace UnitTests.Core.Files.Csv;
 

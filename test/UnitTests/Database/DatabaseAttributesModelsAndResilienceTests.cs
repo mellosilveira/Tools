@@ -10,7 +10,6 @@ using Microsoft.Extensions.Logging.Abstractions;
 using Npgsql;
 using Polly;
 using System.Globalization;
-using System.Net;
 using System.Net.Sockets;
 using System.Reflection;
 

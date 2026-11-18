@@ -15,10 +15,10 @@ namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnaly
 /// <param name="fileStorageService">Storage service responsible for resolving paths and opening file streams.</param>
 /// <param name="identifier">Mandatory unique business identifier partitioning the generated sensitivity CSV files.</param>
 public sealed class ParametricSweepCsvWriterStep(
-    IFileStorageService fileStorageService, 
+    IFileStorageService fileStorageService,
     string identifier)
     : IAsyncPipelineStep<
-        (string VariableName, RangeParameters VariableRange, IEnumerable<ParametricSweepOutput> Outputs), 
+        (string VariableName, RangeParameters VariableRange, IEnumerable<ParametricSweepOutput> Outputs),
         (string VariableName, RangeParameters VariableRange, StorageEntryMetadata VariableOutputFile)>
 {
     private const string Context = "SensitivityAnalysis";

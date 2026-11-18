@@ -1,6 +1,6 @@
-using System.Text;
 using MelloSilveiraTools.Core.Files.Models;
 using MelloSilveiraTools.Core.Files.Providers.Dfs;
+using System.Text;
 
 namespace UnitTests.Core.Files.Providers;
 

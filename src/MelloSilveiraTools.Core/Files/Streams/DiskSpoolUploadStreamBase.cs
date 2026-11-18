@@ -221,10 +221,8 @@ public abstract class DiskSpoolUploadStreamBase(
                         logger.LogWarning(ex, "Failed to retrieve temporary file metadata before upload: {TempLocation}", tempLocation);
                     }
 
-                    using (Stream readStream = defaultStorage.OpenReadAsync(tempLocation).AsTask().GetAwaiter().GetResult())
-                    {
-                        UploadPayloadAsync(readStream, fileSizeBytes, cancellationToken).AsTask().GetAwaiter().GetResult();
-                    }
+                    using Stream readStream = defaultStorage.OpenReadAsync(tempLocation).AsTask().GetAwaiter().GetResult();
+                    UploadPayloadAsync(readStream, fileSizeBytes, cancellationToken).AsTask().GetAwaiter().GetResult();
                 }
             }
             finally
@@ -259,10 +257,8 @@ public abstract class DiskSpoolUploadStreamBase(
                         logger.LogWarning(ex, "Failed to retrieve temporary file metadata before upload: {TempLocation}", tempLocation);
                     }
 
-                    await using (Stream readStream = await defaultStorage.OpenReadAsync(tempLocation).ConfigureAwait(false))
-                    {
-                        await UploadPayloadAsync(readStream, fileSizeBytes, cancellationToken).ConfigureAwait(false);
-                    }
+                    await using Stream readStream = await defaultStorage.OpenReadAsync(tempLocation).ConfigureAwait(false);
+                    await UploadPayloadAsync(readStream, fileSizeBytes, cancellationToken).ConfigureAwait(false);
                 }
             }
             finally

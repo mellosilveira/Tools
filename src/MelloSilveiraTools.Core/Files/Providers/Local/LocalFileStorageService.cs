@@ -1,5 +1,4 @@
 using MelloSilveiraTools.Core.Files.Models;
-using MelloSilveiraTools.Core.Files.Providers;
 using System.Runtime.CompilerServices;
 
 namespace MelloSilveiraTools.Core.Files.Providers.Local;

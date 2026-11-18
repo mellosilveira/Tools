@@ -1,5 +1,3 @@
-using System.Net;
-using System.Text;
 using Azure;
 using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
@@ -10,6 +8,7 @@ using MelloSilveiraTools.Core.ResiliencePipelines;
 using Microsoft.Extensions.Logging.Abstractions;
 using Moq;
 using Polly;
+using System.Net;
 
 namespace UnitTests.Core.Files.Providers;
 

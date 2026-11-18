@@ -1,4 +1,3 @@
-using System.Threading.Channels;
 using MelloSilveiraTools.Core;
 using MelloSilveiraTools.Core.Caching;
 using MelloSilveiraTools.Core.Files.Models;
@@ -18,6 +17,7 @@ using MelloSilveiraTools.Core.Services.Encryption;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Polly;
+using System.Threading.Channels;
 
 namespace UnitTests.Core;
 

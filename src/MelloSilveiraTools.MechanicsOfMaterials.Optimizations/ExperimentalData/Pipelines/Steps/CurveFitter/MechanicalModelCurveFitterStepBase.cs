@@ -116,7 +116,7 @@ public abstract class MechanicalModelCurveFitterStepBase(double targetRSquared, 
         int iterations,
         IReadOnlyList<MechanicalModelParameterConfidenceInterval> parameters)
         => CreateCurveFitOutput(segments, constitutiveParameters, acceptedRange, RampTimeConsideration.Disregard, precision, finalError, iterations, parameters);
-    
+
     /// <inheritdoc />
     public virtual ValueTask DisposeAsync()
     {

@@ -1,6 +1,6 @@
-using System.Threading.Channels;
 using MelloSilveiraTools.Core.Pipelines.Models;
 using MelloSilveiraTools.Core.Pipelines.Notifiers;
+using System.Threading.Channels;
 
 namespace UnitTests.Core.Pipelines.Notifiers;
 

@@ -1,9 +1,3 @@
-using System.Buffers.Binary;
-using System.Data.Common;
-using System.Globalization;
-using System.Net;
-using System.Net.Sockets;
-using System.Text;
 using Dapper;
 using MelloSilveiraTools.Core.Models;
 using MelloSilveiraTools.Core.ResiliencePipelines;
@@ -18,6 +12,11 @@ using MelloSilveiraTools.Database.ResiliencePipelines;
 using Microsoft.Extensions.Logging.Abstractions;
 using Npgsql;
 using Polly;
+using System.Buffers.Binary;
+using System.Globalization;
+using System.Net;
+using System.Net.Sockets;
+using System.Text;
 
 namespace UnitTests.Database;
 
@@ -405,7 +404,7 @@ public sealed class PostgresRepositoryAndExtensionsTests
                 bool rowDescSent = false;
 
                 byte[] msgHeader = new byte[5];
-                while ( await ReadExactAsync(stream, msgHeader, ct))
+                while (await ReadExactAsync(stream, msgHeader, ct))
                 {
                     char msgType = (char)msgHeader[0];
                     int len = BinaryPrimitives.ReadInt32BigEndian(msgHeader.AsSpan(1, 4));

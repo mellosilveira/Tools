@@ -1,7 +1,6 @@
 using MelloSilveiraTools.Core.Models;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Commands.Process;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Commands.Process.Single;
-using Xunit;
 
 namespace UnitTests.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Commands.Process;
 

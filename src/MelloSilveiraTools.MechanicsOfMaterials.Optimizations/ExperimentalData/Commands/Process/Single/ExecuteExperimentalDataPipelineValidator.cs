@@ -1,5 +1,4 @@
 using MelloSilveiraTools.Core.ExtensionMethods;
-using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Commands.Process;
 
 namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Commands.Process.Single;
 

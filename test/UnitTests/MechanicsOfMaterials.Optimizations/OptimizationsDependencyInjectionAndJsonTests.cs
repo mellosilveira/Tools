@@ -1,4 +1,3 @@
-using System.Text.Json;
 using MelloSilveiraTools.Core;
 using MelloSilveiraTools.Core.Files.Providers;
 using MelloSilveiraTools.Core.Pipelines;
@@ -32,6 +31,7 @@ using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Serializers.Json;
 using Microsoft.Extensions.DependencyInjection;
 using Moq;
 using Polly;
+using System.Text.Json;
 
 namespace UnitTests.MechanicsOfMaterials.Optimizations;
 

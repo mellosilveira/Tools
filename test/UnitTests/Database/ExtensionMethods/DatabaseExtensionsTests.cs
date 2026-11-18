@@ -1,5 +1,4 @@
 using Dapper;
-using MelloSilveiraTools.Core.Files.Models;
 using MelloSilveiraTools.Database.ExtensionMethods;
 using MelloSilveiraTools.Database.RelationalDatabase.Attributes;
 using MelloSilveiraTools.Database.RelationalDatabase.Models;

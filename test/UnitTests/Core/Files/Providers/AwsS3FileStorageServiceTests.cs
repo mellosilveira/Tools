@@ -1,5 +1,3 @@
-using System.Net;
-using System.Text;
 using Amazon.S3;
 using Amazon.S3.Model;
 using MelloSilveiraTools.Core.Files.Models;
@@ -11,6 +9,8 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using Moq;
 using Polly;
+using System.Net;
+using System.Text;
 
 namespace UnitTests.Core.Files.Providers;
 

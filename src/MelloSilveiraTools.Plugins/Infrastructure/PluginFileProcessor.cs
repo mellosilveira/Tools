@@ -182,10 +182,8 @@ public class PluginFileProcessor(
 
         await using (Stream sourceStream = await fileStorageService.OpenReadAsync(plugin.FullPath, cancellationToken).ConfigureAwait(false))
         {
-            await using (FileStream destinationStream = new(shadowPath, FileMode.Create, FileAccess.Write, FileShare.None))
-            {
-                await sourceStream.CopyToAsync(destinationStream, cancellationToken).ConfigureAwait(false);
-            }
+            await using FileStream destinationStream = new(shadowPath, FileMode.Create, FileAccess.Write, FileShare.None);
+            await sourceStream.CopyToAsync(destinationStream, cancellationToken).ConfigureAwait(false);
         }
 
         string depsFileName = $"{Path.GetFileNameWithoutExtension(fileName)}.deps.json";
@@ -381,11 +379,9 @@ public class PluginFileProcessor(
 
         await using (Stream sourceStream = await fileStorageService.OpenReadAsync(sourceLocation, cancellationToken).ConfigureAwait(false))
         {
-            await using (Stream destinationStream = await fileStorageService.OpenWriteAsync(destinationLocation, cancellationToken).ConfigureAwait(false))
-            {
-                await sourceStream.CopyToAsync(destinationStream, cancellationToken).ConfigureAwait(false);
-                await destinationStream.FlushAsync(cancellationToken).ConfigureAwait(false);
-            }
+            await using Stream destinationStream = await fileStorageService.OpenWriteAsync(destinationLocation, cancellationToken).ConfigureAwait(false);
+            await sourceStream.CopyToAsync(destinationStream, cancellationToken).ConfigureAwait(false);
+            await destinationStream.FlushAsync(cancellationToken).ConfigureAwait(false);
         }
 
         await fileStorageService.DeleteAsync(sourceLocation, cancellationToken).ConfigureAwait(false);

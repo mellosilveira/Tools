@@ -1,5 +1,3 @@
-using System.Collections.Concurrent;
-using System.Runtime.CompilerServices;
 using MelloSilveiraTools;
 using MelloSilveiraTools.Core.Files.Models;
 using MelloSilveiraTools.Core.Files.Providers;
@@ -12,16 +10,12 @@ using MelloSilveiraTools.Core.Services.Encryption;
 using MelloSilveiraTools.Database.RelationalDatabase.Models.Entities;
 using MelloSilveiraTools.Database.RelationalDatabase.Settings;
 using MelloSilveiraTools.Database.Repositories;
-using MelloSilveiraTools.Mathematics.Models;
 using MelloSilveiraTools.Mathematics.Models.NumericalMethods;
 using MelloSilveiraTools.Mathematics.NumericalMethods.RootFindingAlgorithms;
 using MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels;
 using MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity;
-using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Algorithms;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Models;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData;
-using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Commands.Process.Batch;
-using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Commands.Process.Single;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Factories;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Pipelines.Entities;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Pipelines.Models;
@@ -38,6 +32,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Moq;
 using Polly;
+using System.Collections.Concurrent;
+using System.Runtime.CompilerServices;
 
 namespace AcceptanceTests.MechanicalOfMaterials.Optimizations.Pipelines;
 
@@ -51,6 +47,7 @@ public sealed class ExperimentalDataAndSweepIntegrationAcceptanceTests : IDispos
     private readonly string _storageDir;
     private readonly ServiceProvider _serviceProvider;
     private readonly ConcurrentBag<MechanicalModelCurveFitOutputEntity> _savedCurveFits = [];
+    private readonly ConcurrentBag<MechanicalModelSimulationEntity> _savedSimulations = [];
     private readonly ConcurrentBag<ParametricSweepEntity> _savedSweeps = [];
     private readonly ConcurrentBag<StorageEntryMetadataEntity> _savedFiles = [];
     private readonly ConcurrentQueue<string> _logs = [];
@@ -72,6 +69,7 @@ public sealed class ExperimentalDataAndSweepIntegrationAcceptanceTests : IDispos
             .ReturnsAsync(Result.CreateSuccessOk(1L));
         repositoryMock
             .Setup(r => r.TryInsertAsync(It.IsAny<MechanicalModelSimulationEntity>(), It.IsAny<CancellationToken>()))
+            .Callback<MechanicalModelSimulationEntity, CancellationToken>((entity, _) => _savedSimulations.Add(entity))
             .ReturnsAsync(Result.CreateSuccessOk(1L));
         repositoryMock
             .Setup(r => r.TryInsertAsync(It.IsAny<ParametricSweepEntity>(), It.IsAny<CancellationToken>()))
@@ -179,8 +177,9 @@ public sealed class ExperimentalDataAndSweepIntegrationAcceptanceTests : IDispos
 
         Assert.True(result.Success);
         Assert.Equal(identifier, result.Data);
-        string logText = string.Join("\n", _logs);
-        Assert.Contains("FungRelaxationOnlyCurveFitterStep", logText);
+        Assert.Contains(_savedCurveFits, e => e.ExtenalIdentifier == identifier);
+        Assert.Contains(_savedSimulations, e => e.ExternalIdentifier == identifier);
+        Assert.True(_savedFiles.Count(f => f.ExternalIdentifier == identifier) >= 2);
 
         // Clean up unkeyed LocalFileStorageService default path created in CoreDependencyInjection
         string defaultTempStorage = Path.Combine(Path.GetTempPath(), "storage", identifier);

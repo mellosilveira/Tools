@@ -1,10 +1,10 @@
-using System.Diagnostics;
-using System.Runtime.CompilerServices;
 using MelloSilveiraTools.Core.Pipelines.Models;
 using MelloSilveiraTools.Core.Pipelines.Notifiers;
 using MelloSilveiraTools.Core.Pipelines.Telemetry;
 using Microsoft.Extensions.Logging.Abstractions;
 using Moq;
+using System.Diagnostics;
+using System.Runtime.CompilerServices;
 
 namespace UnitTests.Core.Pipelines.Telemetry;
 
