@@ -33,6 +33,6 @@ def extract_pdf_to_markdown(pdf_path, output_md_path):
 
 if __name__ == '__main__':
     if len(sys.argv) < 3:
-        print("Usage: python phase1_generator.py <pdf_path> <output_md_path>")
+        print("Usage: python phase1-generator.py <pdf_path> <output_md_path>")
     else:
         extract_pdf_to_markdown(sys.argv[1], sys.argv[2])

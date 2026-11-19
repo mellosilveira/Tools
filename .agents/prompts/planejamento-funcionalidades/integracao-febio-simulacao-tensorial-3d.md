@@ -1,130 +1,95 @@
-# Plano Arquitetural e de Implementação: Integração com FEBio e Simulação Tensorial 3D
+# Plano Arquitetural e de Implementação — Módulo 07: Integração com FEBio e Simulação Tensorial 3D
 
 ## 1. Visão Geral e Objetivos
 
-Este documento especifica a fundamentação teórica, a arquitetura de software e as etapas de implementação para viabilizar a **Simulação Tensorial Tridimensional em Elementos Finitos via FEBio** e sua integração automatizada ao ecossistema `MelloSilveiraTools`.
+Especifica a fundamentação teórica, a arquitetura de software e as etapas de implementação para a **Simulação Tensorial 3D em Elementos Finitos via FEBio** integrada ao ecossistema `MelloSilveiraTools`:
 
-Os objetivos específicos compreendem:
-1. Fechar a **Tríade de Dados** da pesquisa (1. Dados Experimentais Reais, 2. Simulação Numérica 1D em C#, 3. Simulação Tensorial 3D em FEBio).
-2. Formular matematicamente a generalização para a mecânica dos meios contínuos 3D dos modelos constitutivos investigados.
-3. Desenvolver a rotina analítica de recalibração paramétrica, convertendo os parâmetros escalares 1D identificados no C# em constantes tensoriais equivalentes para tração uniaxial em corpos de prova de ligamentos.
-4. Implementar sub-rotinas de material customizado (*User-Defined Material* - UDM) em C++ para os modelos que não possuem implementação nativa no FEBio (foco no modelo não linear de Schapery).
-5. Construir um motor automatizado de execução (*Headless Runner*) que gere arquivos de entrada `.feb`, execute o solver em lote, extraia as curvas temporais resultantes e persista os dados no PostgreSQL via `StoredFileEntity`.
+1. Fechar a **Tríade de Dados** da pesquisa: (1) Dados Experimentais Reais, (2) Simulação Analítico-Numérica 1D em C# e (3) Simulação Tensorial 3D em FEBio.
+2. Formular matematicamente a generalização 3D (mecânica dos meios contínuos) dos modelos constitutivos investigados.
+3. Implementar rotina analítica de recalibração paramétrica ($1\text{D} \to 3\text{D}$), convertendo parâmetros escalares 1D identificados no C# em constantes tensoriais equivalentes para tração uniaxial em ligamentos.
+4. Desenvolver sub-rotina de material customizado (*User-Defined Material* — UDM) em C++ para modelos sem suporte nativo no FEBio (foco no modelo não linear de Schapery), sob orçamento fechado de esforço.
+5. Construir motor automatizado (*Headless Runner*) que gera `.feb`, executa o solver em lote, extrai curvas temporais e persiste resultados no PostgreSQL (`stored_files` via `StorageEntryMetadataEntity`).
 
 ---
 
 ## 2. Justificativa Estratégica e Metodológica (The "Why")
 
-* **Por que FEBio e não Solvers Proprietários (Abaqus, Ansys, COMSOL):**
-  * *Transparência e Ciência Aberta:* O FEBio é uma plataforma de elementos finitos totalmente aberta, gratuita e desenvolvida especificamente para biomecânica e mecânica computacional de tecidos moles. Permite auditoria completa do código-fonte das formulações não lineares e bifásicas.
-  * *Independência de Licenças:* Elimina qualquer dependência de servidores de licença comercial nas máquinas do laboratório, garantindo reprodutibilidade irrestrita dos ensaios computacionais.
-* **Por que Simulação 3D no FEBio em vez de Implementação Nativa em C#:**
-  * O motor em C# (`MelloSilveiraTools`) permanece estritamente escalar (1D). Construir geradores de malha tridimensional, integração numérica isoparamétrica de Gauss, rotinas de contato e resolutores de matrizes esparsas não lineares em C# demandaria um esforço excessivo de engenharia, desviando o foco do objetivo científico central. O C# atua como calibrador ágil de parâmetros 1D e orquestrador de dados.
-* **Por que Ensaio de Tração Uniaxial Isolado:**
-  * Simulações envolvendo o joelho anatômico completo com articulação tridimensional complexa e contato entre superfícies articulares apresentam alta taxa de não convergência e demandam tempos computacionais proibitivos. O foco no ligamento isolado submetido à tração uniaxial pura reproduz com fidelidade as condições do ensaio de bancada experimental, permitindo isolar os efeitos puramente constitutivos do material sem interferência de instabilidades de contato.
-* **Por que Esforço com Orçamento Fechado e Gatilho de Contingência no UDM C++:**
-  * O desenvolvimento de materiais customizados em C++ para o FEBio exige a dedução e programação das derivadas analíticas do tensor de Cauchy em relação à deformação (tensor tangente elasto-viscoelástico $C_{ijkl} = 2 \frac{\partial \boldsymbol{S}}{\partial \boldsymbol{C}}$). Para mitigar o risco de divergência matemática ou perda excessiva de tempo em depuração numérica de baixo nível, estabelece-se um ciclo de desenvolvimento delimitado por esforço (4 iterações de desenvolvimento). Se a convergência numérica não for alcançada, ativa-se o plano de contingência aprovado: o modelo de Schapery permanece na dissertação na comparação analítica 1D (onde sua eficácia já está comprovada), e a simulação 3D no FEBio é executada com os modelos suportados nativamente (Fung QLV e Holzapfel-Gasser-Ogden - HGO).
+* **FEBio em vez de solvers proprietários (Abaqus, Ansys, COMSOL):** Plataforma open-source, gratuita e dedicada à biomecânica de tecidos moles; permite auditoria completa do código-fonte das formulações não lineares e bifásicas e elimina dependência de servidores de licença no laboratório, garantindo reprodutibilidade irrestrita.
+* **Simulação 3D no FEBio em vez de implementação nativa em C#:** O motor `MelloSilveiraTools` permanece estritamente escalar (1D) como calibrador ágil e orquestrador. Implementar malhadores 3D, integração isoparamétrica de Gauss, rotinas de contato e solvers esparsos não lineares em C# desviaria esforço de engenharia do objetivo científico central.
+* **Tração uniaxial em ligamento isolado:** Simulações do joelho anatômico completo com contato articular apresentam alta taxa de não convergência e custo computacional proibitivo. O ligamento isolado em tração uniaxial reproduz a bancada experimental e isola os efeitos puramente constitutivos sem instabilidades de contato.
+* **Orçamento fechado (4 ciclos) e gatilho de contingência no UDM C++:** Materiais customizados no FEBio exigem a dedução e implementação do tensor tangente elasto-viscoelástico consistente ($C_{ijkl} = 2\frac{\partial \boldsymbol{S}}{\partial \boldsymbol{C}}$). Para mitigar risco de divergência numérica e depuração excessiva de baixo nível, limita-se o esforço a 4 ciclos; caso não convirja, ativa-se a contingência aprovada no *Scientific Ledger* (manter Schapery na análise comparativa 1D em C# e rodar o FEBio com modelos nativos: Fung QLV e HGO).
+
+> Referências consolidadas: [`consolidated-thesis-guide.md`](../../soft-tissue-biomechanics/consolidated-thesis-guide.md) e [`ledger/decisions.md`](../../soft-tissue-biomechanics/ledger/decisions.md).
 
 ---
 
-## 3. Arquitetura da Integração
+## 3. Arquitetura e Componentes
 
-```
-┌────────────────────────────────────────────────────────┐
-│  MelloSilveiraTools (C# 10 / Optimizations)            │
-│  - Identificação de Parâmetros 1D                      │
-│  - Recalibrador Analítico (1D -> 3D)                   │
-└──────────────────────────┬─────────────────────────────┘
-                           │ Constantes 3D Recalibradas
-                           ▼
-┌────────────────────────────────────────────────────────┐
-│  FebioAutomationRunner (Headless CLI / Automation)     │
-│  - Injeção de Parâmetros no Template XML (.feb)        │
-│  - Execução: febio4 -i input.feb -silent               │
-│  - Parsing de Resultados (.xplt / .log)                │
-└──────────────────────────┬─────────────────────────────┘
-                           │ Séries Temporais σ(t) e F(t) 3D
-                           ▼
-┌────────────────────────────────────────────────────────┐
-│  Persistência Relacional e Visualização                │
-│  - Armazenamento em disco via IFileStorageService      │
-│  - Registro no banco de dados via StoredFileEntity     │
-│  - Consumo pela Camada Frontend (Tríade de Dados)      │
-└────────────────────────────────────────────────────────┘
-```
+**Fluxo da Integração:**
+`MelloSilveiraTools (Fit 1D + Recalibrador Analítico 1D→3D)` → `FebioAutomationRunner` (injeção no template XML `.feb` → `febio4 -i input.feb -silent` → parse `.xplt`/`.log` → séries $\sigma(t)$ e $F(t)$ 3D) → `IFileStorageService` + `StorageEntryMetadataEntity` (`stored_files`) → Camada Frontend e Esteira de Publicação (Tríade de Dados).
 
----
-
-## 4. Componentes e Estrutura de Arquivos
-
-### 4.1 Extensão no Backend (`MelloSilveiraTools.MechanicsOfMaterials.Optimizations`)
+### 3.1 Extensão no Backend (`MelloSilveiraTools.MechanicsOfMaterials.Optimizations`)
 * `ConstitutiveModels/Recalibration/IConstitutiveParameter3DRecalibrator.cs`: Contrato para mapeamento analítico de parâmetros escalares 1D em tensores de material 3D.
 * `ConstitutiveModels/Recalibration/FungQlv3DRecalibrator.cs`: Recalibração para a formulação quase-linear de Fung no FEBio.
 * `ConstitutiveModels/Recalibration/Hgo3DRecalibrator.cs`: Recalibração para a formulação estrutural de fibras colágenas do HGO.
 * `ExternalSolvers/Febio/FebioInputGenerator.cs`: Gerador de arquivos XML `.feb` a partir de templates paramétricos.
-* `ExternalSolvers/Febio/FebioLogParser.cs`: Leitor de arquivos de log e extração de tensão axial Cauchy e força resultante.
+* `ExternalSolvers/Febio/FebioLogParser.cs`: Leitor de logs/saídas para extração de tensão axial de Cauchy e força resultante.
 
-### 4.2 Sub-rotina UDM em C++ (`external/febio-udm/`)
+### 3.2 Sub-rotina UDM em C++ (`external/febio-udm/`)
 * `SchaperyMaterial.h`: Declaração da classe derivada de `FEViscoElasticMaterial` (ou `FEMaterial`).
-* `SchaperyMaterial.cpp`: Implementação do cálculo da tensão de Cauchy $\boldsymbol{\sigma}(t)$, variáveis de história interna e tensor tangente espacial $\mathbb{C}$.
-* `CMakeLists.txt`: Configuração de compilação multi-plataforma (gerando `.dll` no Windows ou `.so` no Linux para carga dinâmica pelo solver `febio4`).
+* `SchaperyMaterial.cpp`: Cálculo do tensor de Cauchy $\boldsymbol{\sigma}(t)$, variáveis de história interna e tensor tangente espacial $\mathbb{C}$.
+* `CMakeLists.txt`: Build multiplataforma gerando biblioteca dinâmica (`.dll` no Windows / `.so` no Linux) para carga pelo `febio4`.
 
 ---
 
-## 5. Fases de Implementação
+## 4. Fases de Implementação
 
 ### Fase 1: Dedução Matemática dos Cheat Sheets Tensoriais 3D
-1. Redigir os Cheat Sheets matemáticos formais na pasta de literatura teórica (`.agents/soft-tissue-biomechanics/base_literature/theory_cheat_sheets/`):
-   * `schapery_3d_tensorial.md`: Dedução da forma integral tensorial sob tensão uniaxial.
-   * `generalized_maxwell_prony_3d.md`: Formulação da série de Prony tensorial.
-   * `weiss_transversely_isotropic_3d.md`: Formulação hiperelástica anisotrópica.
-   * `poroviscoelasticity_3d.md`: Formulação bifásica poroelástica para tecidos hidratados.
-   * `hgo_collagen_dispersion_3d.md`: Formulação estrutural de Holzapfel-Gasser-Ogden com dispersão contínua de fibras.
-2. Validar cada dedução quanto à consistência termodinâmica e definição explícita de variáveis com o agente *Co-Advisor*.
+1. Redigir os 5 Cheat Sheets formais em `.agents/soft-tissue-biomechanics/base-literature/theory-cheat-sheets/`:
+   * `schapery-3d-tensorial.md`: Dedução da forma integral tensorial sob tensão uniaxial.
+   * `generalized-maxwell-prony-3d.md`: Formulação da série de Prony tensorial.
+   * `weiss-transversely-isotropic-3d.md`: Formulação hiperelástica anisotrópica.
+   * `poroviscoelasticity-3d.md`: Formulação bifásica poroelástica para tecidos hidratados *(condicionada à manutenção no escopo da dissertação)*.
+   * `hgo-collagen-dispersion-3d.md`: Formulação estrutural de Holzapfel-Gasser-Ogden com dispersão contínua de fibras.
+2. Validar consistência termodinâmica e definição explícita de variáveis com o agente `biomechanics-co-advisor`.
 
-### Fase 2: Metodologia e Rotina de Recalibração Paramétrica (1D $\to$ 3D)
-1. Formular as equações de equivalência uniaxial:
-   * Sob incompressibilidade e tração ao longo do eixo 1: $\lambda_1 = \lambda$, $\lambda_2 = \lambda_3 = \lambda^{-1/2}$.
-   * Tensor de deformação de Green-Lagrange: $\boldsymbol{E} = \frac{1}{2}(\boldsymbol{C} - \boldsymbol{I})$.
-   * Mapeamento entre as constantes 1D extraídas ($G_e, g_1, n, c, A, B$) e os coeficientes de material do FEBio.
-2. Implementar as classes de recalibração em C# com cobertura completa de testes em `test/UnitTests`.
+### Fase 2: Metodologia e Rotina de Recalibração Paramétrica ($1\text{D} \to 3\text{D}$)
+1. Formular equivalência uniaxial sob incompressibilidade ao longo do eixo 1: $\lambda_1 = \lambda$, $\lambda_2 = \lambda_3 = \lambda^{-1/2}$; tensor de Green-Lagrange $\boldsymbol{E} = \frac{1}{2}(\boldsymbol{C} - \boldsymbol{I})$; mapeamento das constantes 1D ($G_e, g_1, n, c, A, B$) para coeficientes de material do FEBio.
+2. Implementar as classes de recalibração em C# com cobertura completa de testes unitários em `test/UnitTests`.
 3. Validar numericamente que, sob o mesmo histórico de deformação uniaxial, o modelo analítico 3D uniaxial degenera exatamente na curva escalar 1D.
 
-### Fase 3: Desenvolvimento UDM C++ e Verificação dos Modelos Nativos (Ciclo com Gatilho de Contingência)
+### Fase 3: Modelos Nativos e Ciclo UDM C++ (com Gatilho de Contingência)
 1. **Modelos Nativos:**
-   * Configurar templates `.feb` para os modelos nativos do FEBio: *Fung QLV* (hiperelástico transversalmente isotrópico acoplado a relaxação QLV) e *HGO* (Holzapfel-Gasser-Ogden).
+   * Configurar templates `.feb` para **Fung QLV** (hiperelástico transversalmente isotrópico acoplado a relaxação QLV) e **HGO** (Holzapfel-Gasser-Ogden).
    * Validar malha padrão de corpo de prova cilíndrico uniaxial sob passos de tempo idênticos aos dos ensaios de relaxação.
-2. **Modelo Não Linear de Schapery (Ciclo de Desenvolvimento com Gatilho de Contingência):**
-   * Executar o desenvolvimento da sub-rotina C++ UDM com orçamento delimitado em 4 ciclos sucessivos de esforço técnico:
-     * *Ciclo 1:* Implementação do tensor de tensões e variáveis de história.
-     * *Ciclo 2:* Implementação do tensor elasto-viscoelástico tangente consistente.
-     * *Ciclo 3:* Compilação da biblioteca dinâmica e integração com a interface de plugins do FEBio.
-     * *Ciclo 4:* Testes de convergência uniaxial sob grandes deformações.
-   * **Critério de Parada e Gatilho de Contingência:**
-     * Caso a sub-rotina atinja convergência e estabilidade numérica ao final do 4º ciclo, o UDM é homologado para a produção de dados 3D.
-     * Caso persista instabilidade ou divergência após os 4 ciclos, aplica-se a decisão registrada no *Ledger*: interrompe-se a depuração C++, mantém-se o modelo de Schapery na dissertação na análise comparativa 1D em C#, e o FEBio é executado exclusivamente com os modelos nativos (Fung QLV e HGO), registrando detalhadamente as razões físicas e computacionais no capítulo de Discussão.
+2. **Modelo Não Linear de Schapery (Orçamento Máximo de 4 Ciclos):**
+   * *Ciclo 1:* Implementação do tensor de tensões e variáveis de história interna.
+   * *Ciclo 2:* Implementação do tensor elasto-viscoelástico tangente consistente.
+   * *Ciclo 3:* Compilação da biblioteca dinâmica (`.dll`/`.so`) e integração com a interface de plugins do FEBio.
+   * *Ciclo 4:* Testes de convergência uniaxial sob grandes deformações.
+   * **Critério de Parada e Gatilho de Contingência:** Se convergir com estabilidade ao final do 4º ciclo, homologar o UDM para produção 3D. Caso persista instabilidade/divergência após o 4º ciclo, interromper depuração C++, manter Schapery na análise comparativa 1D em C#, executar FEBio exclusivamente com modelos nativos (Fung QLV e HGO) e **registrar detalhadamente as razões físicas e computacionais no capítulo de Discussão**.
 
 ### Fase 4: Automação Headless e Ingestão de Resultados
-1. Implementar o serviço de automação `FebioAutomationRunner` no ecossistema:
-   * Leitura das constantes recalibradas no banco de dados.
-   * Geração do arquivo XML de entrada `.feb` customizado.
-   * Invocação do binário do FEBio em modo em lote (`febio4 -i input.feb -silent`).
-   * Captura dos dados nodais de deslocamento e força de reação no topo do modelo.
-   * Cálculo da curva de tensão Cauchy ($\sigma(t) = F(t) / A(t)$) sob conservação de volume.
-2. Persistir o arquivo de saída gerado através de `IFileStorageService` e registrar o histórico na tabela `stored_files` (`Context = "FEBio3DSimulation"`).
+1. Implementar `FebioAutomationRunner`:
+   * Ler constantes recalibradas no banco de dados.
+   * Gerar arquivo XML `.feb` customizado a partir dos templates.
+   * Invocar o binário em modo lote: `febio4 -i input.feb -silent`.
+   * Capturar dados nodais de deslocamento e força de reação no topo do modelo.
+   * Calcular a curva de tensão de Cauchy $\sigma(t) = F(t)/A(t)$ sob conservação de volume.
+2. Persistir o arquivo de saída via `IFileStorageService` e registrar metadados na tabela `stored_files` via `StorageEntryMetadataEntity` (correlacionado por `ExternalIdentifier`, ex.: `"FEBio3DSimulation_{SampleId}"`).
 
 ### Fase 5: Validação da Tríade de Dados
 1. Executar a cadeia completa para um conjunto de ensaios de ligamentos suínos.
-2. Confirmar a convergência e comparar a curva 3D extraída do FEBio com a curva 1D em C# e os dados experimentais brutos.
-3. Expor os resultados 3D nos endpoints da API para consumo direto pelo frontend e pelos scripts de publicação.
+2. Confirmar convergência e comparar a curva 3D extraída do FEBio com a curva 1D em C# e os dados experimentais brutos.
+3. Expor os resultados 3D nos endpoints da API para consumo direto pelo frontend e pela esteira de publicação.
 
 ---
 
-## 6. Critérios de Aceite e Validação
+## 5. Critérios de Aceite e Validação
 
-* [ ] Todos os 5 Cheat Sheets tensoriais 3D matematicamente deduzidos e aprovados pelo coorientador.
-* [ ] Recalibrador analítico (1D $\to$ 3D) implementado em C# e validado por testes unitários.
-* [ ] Simulações nativas no FEBio (Fung QLV e HGO) rodando com sucesso para corpos de prova uniaxiais sob histórico de rampa e relaxação escalonada.
-* [ ] Gatilho de contingência do Schapery UDM rigorosamente executado após o orçamento de 4 ciclos de desenvolvimento.
-* [ ] Runner headless executando a simulação 3D em modo lote e gravando os resultados no PostgreSQL sem intervenção manual.
+* [ ] Todos os 5 Cheat Sheets tensoriais 3D matematicamente deduzidos e aprovados pelo `biomechanics-co-advisor`.
+* [ ] Recalibrador analítico ($1\text{D} \to 3\text{D}$) implementado em C# e validado por testes unitários em `test/UnitTests`.
+* [ ] Simulações nativas no FEBio (Fung QLV e HGO) convergindo para corpos de prova uniaxiais sob histórico de rampa e relaxação escalonada.
+* [ ] Gatilho de contingência do Schapery UDM rigorosamente respeitado após o orçamento de 4 ciclos de desenvolvimento.
+* [ ] `FebioAutomationRunner` executando em modo lote e gravando resultados em `stored_files` (`StorageEntryMetadataEntity`) sem intervenção manual.
 * [ ] Curvas 3D disponíveis para sobreposição visual na camada frontend e na esteira de publicação.

@@ -23,8 +23,8 @@ Domain library for computational mechanics of materials, viscoelastic constituti
   - Uniaxial fatigue life and safety factors under Goodman and Marin failure criteria.
 - **Geometric Properties:**
   - `IGeometricPropertyCalculator<CircularProfile>` and `IGeometricPropertyCalculator<RectangularProfile>`.
-- **3D Soft-Tissue Load Sharing (`ILoadSharingCalculator`):**
-  - Models load projection, displacement, and spatial kinematics of ligament structures in 3D coordinate space.
+- **3D Forces & Spatial Kinematics (`Force` / `Vector3D`):**
+  - Immutable 3D Cartesian force and vector operations supporting spatial load projection and mechanical modeling.
 
 ---
 
@@ -76,7 +76,19 @@ double predictedStress = calculator.CalculateStress(input);
 
 ---
 
-## 4. Dependencies
+## 4. Dependency Injection & Technical Invariants
+
+- **DI Entry Points:** `DependencyInjection.AddMechanicsOfMaterialsServices(addMechanicalModels)` and `AddMechanicalModels()`.
+  - **Singletons (thread-safe):** Model calculators (`Elastic`, `Maxwell`, `Fung`, `SimplifiedFung`, `Schapery`, `ModifiedSuperposition`), `IMechanicalParameterConverter`, `IConstitutiveEquationsCalculator`, `IFatigueCalculator`, `IGeometricPropertyCalculator<>`, `IMechanicalModelTypeCache`, `IMechanicalModelCalculatorFactory`; keyed: `IMechanicalModelTypeResolver`.
+- **Contracts & Hierarchy:**
+  - All physical parameter records inherit `ConstitutiveParameters` (`*ConstitutiveParameters` suffix) and wrap execution via `MechanicalModelInput<T>`.
+  - Calculators emit raw `*Output` models (`MechanicalModelOutput`, `FatigueOutput`) — never `Result<T>` monads.
+  - Hierarchy: `IMechanicalModelCalculator<T>` ← `IViscoelasticModelCalculator<T>` ← `IQuasiLinearModelCalculator<T, TRelax>` (`IFungModelCalculator`, `ISimplifiedFungModelCalculator`), `IMaxwellModelCalculator`, `ISchaperyModelCalculator`, `IModifiedSuperpositionMethodCalculator`.
+  - `IMechanicalModelCalculatorFacade` uses `ServiceLocator` + pre-compiled expression trees (`IMechanicalModelTypeCache`) to avoid reflection overhead during time-history sweeps.
+
+---
+
+## 5. Dependencies
 
 - `MelloSilveiraTools.Mathematics`
 - `Microsoft.Extensions.DependencyInjection.Abstractions` (10.0.11)

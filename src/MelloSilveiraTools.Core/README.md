@@ -6,7 +6,7 @@ The foundational infrastructure library of the **MelloSilveiraTools** suite. It 
 
 ## 1. Key Capabilities
 
-- **Streaming Pipelines (TPL Dataflow):** Build concurrent, backpressure-aware processing graphs with fork/join branching, broadcast observers, dead-letter queues (DLQ), and DAG progress telemetry (`PipelineFactory.StartDataflow<T>`).
+- **Streaming Pipelines (TPL Dataflow):** Build concurrent, backpressure-aware processing graphs with fork/join branching, lossless fan-out (`DataflowFanOut`), broadcast observers, dead-letter queues (DLQ), and DAG progress telemetry (`PipelineFactory.CreateDataflow<T>`).
 - **Sequential Fluent Pipelines:** Build lightweight, pull-based request/response pipelines with type-safe transformations (`PipelineFactory.StartFluent<T>`).
 - **Result Monad (`Result<T>`):** Functional error handling eliminating exceptions for business validation failures (`Result.CreateSuccessOk()`, `Result.CreateBadRequest()`, `Result.CreateNotFound()`), with HTTP projection extensions.
 - **Storage-Agnostic File Management (`IFileStorageService`):** Uniform file operations across `Local`, `AWS S3`, `Azure Blob Storage`, and `Distributed File System (DFS)` providers.
@@ -52,18 +52,32 @@ using Microsoft.Extensions.Logging.Abstractions;
 PipelineFactory factory = new(NullPipelineProgressNotifier.Instance, TimeProvider.System);
 
 IDataflowPipeline<int> pipeline = factory
-    .StartDataflow<int>(NullLogger.Instance, NullPipelineProgressNotifier.Instance)
-    .AddStep("MultiplyByTwo", (int x) => x * 2)
-    .AddStep("FilterEven", (int x) => x % 4 == 0)
+    .CreateDataflow<int>(NullLogger.Instance, "sample-pipeline", initialBufferSize: 16)
+    .AddDataMapping(x => x * 2)
+    .AddFilterStep(x => x % 4 == 0)
     .BuildTerminal();
 
 await pipeline.SendAsync(10);
-await pipeline.Complete();
+pipeline.Complete();
+await pipeline.Completion;
 ```
 
 ---
 
-## 4. Dependencies
+## 4. Dependency Injection & Technical Invariants
+
+- **DI Entry Point:** `CoreDependencyInjection.AddCoreServices(defaultResiliencePipelineSettings, encryptionSettings, emailSettings, fileStorageSettings, loggerSettings, pipelineProgressNotifierSettings)`.
+  - **Singletons (thread-safe):** `TimeProvider.System`, `PipelineFactory`, `IFileStorageService` (default `LocalFileStorageService` at `%TEMP%/storage` + keyed `StorageProvider.*`, path topology `{BaseDirectory}/{context}/{identifier}/{fileName}`), `ISingleLevelCache`, `ITwoLevelCache`, `ServiceLocator`, `IDynamicServiceProvider` (`InMemoryDynamicServiceProvider` using `Lazy<object>`), resilience pipelines (`Smtp`, `BlobStorage`, `AwsS3`), `IPipelineProgressNotifier` (`ChannelPipelineProgressNotifier` or `NullPipelineProgressNotifier.Instance`).
+  - **Scoped:** `IEncryptionService`, `IEmailService`.
+- **Result Monad & Command Pattern:** `ResultBase` → `Result` → `Result<T>` → `ListedResult<T>` → `PagedResult<T>` with factories (`Result.CreateSuccessOk`, `CreateBadRequest`, `CreateNotFound`), fluent validation (`.AddErrorIf()`, `.AddErrorIfNull()`, `.AddErrorIfNegativeOrZero()`), branching (`.OnSuccess()`, `.OnError()`, `.Match()`), and HTTP projections (`.ToHttpResult()`, `.BuildHttpResponse()`). `CommandBase<TRequest, TResult>` hierarchy with optional `IValidator<TRequest>`; `*Request` DTOs never carry `CancellationToken`.
+- **Pipelines (`IDataflowPipeline` & `IFluentPipeline`):**
+  - *TPL Dataflow (`DataflowFanOut`):* Forks and broadcasts intentionally avoid native `BroadcastBlock<T>` (lossy last-value-wins) and dispatch sequentially via `ActionBlock` + `SendAsync` to bounded `BufferBlock` targets to guarantee 100% delivery, end-to-end backpressure, selective cloning (`i > 0`), and deterministic completion/fault propagation (`DataflowExtensions.LinkTo` defaults to `PropagateCompletion = true`).
+  - *Fluent (`IFluentPipeline<TIn, TOut>`):* Pull-based sequential chains via `AddStep` (sync, async, `IAsyncEnumerable`) and `AddDataMapping`.
+- **Low-Allocation Primitives & CSV Composition:** `SpanStringBuilder` (`ref struct` + `ArrayPool<char>.Shared`, stack-only across non-`await` scopes), `CsvStreamReader` (`PipeReader` + `MemoryPool<byte>.Shared` + `stackalloc` ≤ 512 B), `CsvFileWriter` (composition over inheritance, UTF-8 without BOM, 128 KB `StreamWriter` buffer, 16 KB row `StringBuilder`, 1,000-row batch flush, `CultureInfo.InvariantCulture`, `IAsyncDisposable`, `CsvFileWriter.DisposeAllAsync`), `DefaultResiliencePipeline` (`ResilienceContextPool.Shared` + `[CallerMemberName]`), `EnumerableExtensions.ForeachAsync` (`SemaphoreSlim` bounded parallelism).
+
+---
+
+## 5. Dependencies
 
 - `Polly` (8.7.0)
 - `Polly.RateLimiting` (8.7.0)

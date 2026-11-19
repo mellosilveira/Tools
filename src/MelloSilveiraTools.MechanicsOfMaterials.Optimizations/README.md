@@ -9,7 +9,7 @@ High-throughput experimental data processing, phase segmentation, constrained nu
 - **Automated Phase Segmentation (`ExperimentalDataSegmenterStep`):**
   - Streams raw experimental CSV files and classifies deformation data points into mechanical phases: `Ramp`, `Relaxation`, `Descent`, and `Recovery` via sliding-window numerical differentiation.
 - **Adaptive Downsampling & Segment Accumulation:**
-  - `ExperimentalDataDownsamplerStep` and `CurveSegmentAccumulatorStep` group contiguous deformation segments into clean batches for optimization.
+  - `ExperimentalDataDownsamplerStep` and `CurveSegmentBuilderStep` group contiguous deformation segments into clean batches for optimization.
 - **Constrained Constitutive Curve Fitting (`ICurveFitter`):**
   - **`AlglibCurveFitter`:** Bundles ALGLIB Free Edition routines. Supports fast local gradient convergence via bounded L-BFGS (`alglib.minbleic`) and derivative-free global optimization via adaptive Differential Evolution (`alglib.mindf` GDEMO) with penalty barriers for physical/thermodynamic rules. Computes $R^2$, RMSE, and Student-$t$ parameter confidence intervals.
   - **`MathNetCurveFitter`:** Alternative unconstrained local minimizer using BFGS and Nelder-Mead simplex.
@@ -92,7 +92,19 @@ Result<IAsyncEnumerable<string>> result = await batchCommand.ExecuteAsync(batchR
 
 ---
 
-## 4. Dependencies & Licensing
+## 4. Dependency Injection & Technical Invariants
+
+- **DI Entry Point:** `DependencyInjection.AddOptimizationsServices(curveFitterOptions, experimentalDataSettings, parametricSweepSettings)`.
+  - **Singletons (thread-safe):** `CurveFitterSettings`, `ICurveFitter` (default via `DefaultCurveFitter` + keyed `Alglib`/`MathNet`), `IMechanicalModelStepFactory`; keyed: `IMathExpressionCurveFitter` (`PronySeries`), `IFunctionCurveFitter` (`Logarithmic`/`Exponential`/`Polynomial`), `IParametricSweepGeneratorStep` (`Fung`/`SimplifiedFung`/`Schapery`); when configured: `ExperimentalDataSettings`, `ParametricSweepSettings`, `IPipeline<ExperimentalDataProcessingInput, string>`, `IPipeline<ParametricSweepPipelineInput, string>`, pipeline commands & validators.
+- **Pipeline Topologies & Profiles:**
+  - *Experimental Data DAG:* `ExperimentalDataSegmenterStep` (`ArrayPool<ExperimentalDataPoint>.Shared` sliding window) → broadcast `ExperimentalDataFileWriterStep` → `ExperimentalDataDownsamplerStep` → `CurveSegmentBuilderStep` → `IMechanicalModelCurveFitterStep` (`FungRelaxationOnlyCurveFitterStep`, `SimplifiedFungRelaxationOnlyCurveFitterStep`, `SchaperyRelaxationOnlyCurveFitterStep`) → 3-way Fork (`CurveFitOutput`, SHA-256 `CurveFitOutputIdentifierBuilderStep`, `MechanicalModelSimulationStep`) → broadcast `CurveFitOutputPersistenceStep` → `MechanicalModelOutputPersistenceStep`.
+  - *Parametric Sweep DAG:* `ParametricSweepGeneratorStepBase<T>` → `ParametricSweepSimulationStep` → `ParametricSweepCsvWriterStep` → `AddCollectAllStep` → `ParametricSweepPersistenceStep`.
+  - *Curve Fit Profiles:* `CurveFitProfile.Automatic` selects `RuleConstrained` (`alglib.mindf` GDEMO with `1e12` barrier) when `ValidateParameters` is set, otherwise `Standard` (`alglib.minbleic` L-BFGS).
+  - *Commands, Serialization & Controllers:* Commands `ExecuteExperimentalDataPipeline`, `ExecuteBatchExperimentalDataPipeline` (`SemaphoreSlim` throttling), `ExecuteParametricSweepPipeline`, `ExecuteParametricSweepFromExperimentalDataCommand`; serialization via `OptimizationJsonOptions.SignificantFigures7` (`SignificantFiguresDoubleJsonConverter(7)`); controllers `ExperimentalDataController`, `ParametricSweepController`, `PipelineProgressController` (`GET api/v1/pipelines/{pipelineId}/progress` NDJSON), and `StorageEntryMetadataController`.
+
+---
+
+## 5. Dependencies & Licensing
 
 - `MelloSilveiraTools.MechanicsOfMaterials`
 - `MelloSilveiraTools.WebApi`

@@ -7,7 +7,7 @@ High-performance numerical analysis and mathematical calculation library designe
 ## 1. Key Capabilities
 
 - **Symbolic-Like Function Hierarchy:** Base `Function` class with lazy analytical `Derivative` and `Integral` properties. Concrete implementations include:
-  - `PolynomialFunction`, `ExponencialFunction`, `PowerLaw`, `SineFunction`, `CosineFunction`, and `ConstantFunction`.
+  - `PolynomialFunction`, `ExponentialFunction`, `PowerLaw`, `SineFunction`, `CosineFunction`, and `ConstantFunction`.
   - Instantiated dynamically via `FunctionFactory`.
 - **Mathematical Expressions:**
   - `MathExpression`: Linear combinations of heterogeneous functions.
@@ -53,17 +53,27 @@ double slopeAt2 = derivative.Evaluate(2.0); // 3 + 16 = 19.0
 ### Root-Finding with Brent's Method
 
 ```csharp
-using MelloSilveiraTools.Mathematics.NumericalMethods.RootFinding;
+using MelloSilveiraTools.Mathematics.NumericalMethods.RootFindingAlgorithms;
 
 BrentMethod brent = new();
+RootFindingInput input = new(InitialPoint: 0.0, FinalPoint: 5.0, Tolerance: 1e-7, MaxIterations: 100);
 // Find root of f(x) = x^2 - 4 in interval [0, 5]
-double root = brent.FindRoot(x => x * x - 4.0, lowerBound: 0.0, upperBound: 5.0, tolerance: 1e-7);
+(double root, double error) = brent.FindRoot(input, x => x * x - 4.0);
 // root ≈ 2.0
 ```
 
 ---
 
-## 4. Dependencies
+## 4. Dependency Injection & Technical Invariants
+
+- **DI Entry Point:** `MathematicsDependencyInjection.AddMathematicsServices()`.
+  - **Singletons (thread-safe):** `IDifferentiation`, `IIntegration`, `FunctionFactory`, `IStatisticsCalculator`; keyed: `IDifferentialEquationMethod` (`Newmark`, `NewmarkBeta`), `IRootFinding` (`BisectionMethod`, `BrentMethod`, `StepByStepMethod`).
+- **Serialization:** `PronySeries` primary constructor is annotated with `[method: JsonConstructor]` for deterministic `System.Text.Json` round-trips.
+- **AOT & Culture Invariance:** Zero third-party NuGet dependencies; `IsAotCompatible = true`; invariant-culture numerical parsing/formatting throughout.
+
+---
+
+## 5. Dependencies
 
 - `MelloSilveiraTools.Core`
 - *Zero third-party NuGet dependencies*

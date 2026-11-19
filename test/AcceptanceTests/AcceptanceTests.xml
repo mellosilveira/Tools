@@ -720,7 +720,7 @@
         </member>
         <member name="M:AcceptanceTests.Plugins.PluginPhysicalDiskLifecycleAcceptanceTests.DisposeAsync">
             <summary>
-            Disposes the DI container and deletes temporary plugin storage directories on disk.
+            Disposes the DI container, cleans plugin shadow copies, and deletes temporary plugin storage directories on disk.
             </summary>
         </member>
         <member name="T:AcceptanceTests.Plugins.PluginQuarantineAcceptanceTests">
@@ -845,7 +845,7 @@
         </member>
         <member name="M:AcceptanceTests.WebApi.WebApiKestrelClientServerAcceptanceTests.DisposeAsync">
             <summary>
-            Stops and disposes the Kestrel host instance cleanly after test execution.
+            Stops and disposes the Kestrel host instance and ephemeral TLS certificate cleanly after test execution.
             </summary>
         </member>
         <member name="M:AcceptanceTests.WebApi.WebApiKestrelClientServerAcceptanceTests.ApiServiceAgent_OverRealKestrelTcp_ShouldExecuteFullCrudLifecycleForStorageEntryMetadataEntityAsync">
@@ -865,6 +865,12 @@
             <summary>
             Verifies encrypted JWE token generation, real Kestrel <c>JwtBearer</c> middleware enforcement
             (401 on missing/tampered token, 200 on valid JWE token), and token refresh lifecycle.
+            </summary>
+        </member>
+        <member name="M:AcceptanceTests.WebApi.WebApiKestrelClientServerAcceptanceTests.HttpsWithSelfSignedCertificate_OverRealKestrel_ShouldEstablishTlsAndServeProtectedJweEndpointAsync">
+            <summary>
+            Establishes a real TLS 1.2/1.3 HTTPS connection over Kestrel using an ephemeral self-signed X.509 certificate
+            and verifies authenticated JWE bearer access over HTTPS.
             </summary>
         </member>
         <member name="M:AcceptanceTests.WebApi.WebApiKestrelClientServerAcceptanceTests.ExceptionHandlingHttpMiddleware_WhenEndpointThrows_ShouldReturnStructured500JsonResultAsync">

@@ -35,14 +35,17 @@ Register the entire suite in a single call inside `Program.cs`:
 using MelloSilveiraTools;
 using MelloSilveiraTools.Core.ResiliencePipelines;
 using Microsoft.Extensions.DependencyInjection;
+using Polly;
 
-var services = new ServiceCollection();
+ServiceCollection services = new();
 
 // Configure the default resilience pipeline (Polly v8)
 ResiliencePipelineSettings resilienceSettings = new()
 {
+    BackoffType = DelayBackoffType.Exponential,
+    DelayInMilliseconds = 500,
     MaxRetryAttempts = 3,
-    DelayMilliseconds = 500
+    UseJitter = true
 };
 
 // Register all suite services in one go
@@ -50,7 +53,7 @@ services.AddToolsServices(
     defaultResiliencePipelineSettings: resilienceSettings,
     databaseSettings: null,           // Configure when using PostgreSQL
     encryptionSettings: null,         // Configure when using encryption
-    pluginSettings: null,             // Configure when using dynamic plugins
+    pluginSettings: null,             // Configure for dynamic plugins
     fileStorageSettings: null,        // Configure for local/cloud file storage
     curveFitterOptions: null,         // Configure for curve fitting defaults
     experimentalDataSettings: null,   // Configure for experimental data pipelines
@@ -60,13 +63,13 @@ services.AddToolsServices(
 
 ---
 
-## 4. Dependencies
+## 4. Dependencies & Module Reference
 
-- `MelloSilveiraTools.Core`
-- `MelloSilveiraTools.Database`
-- `MelloSilveiraTools.WebApi`
-- `MelloSilveiraTools.Plugins`
-- `MelloSilveiraTools.Mathematics`
-- `MelloSilveiraTools.MechanicsOfMaterials`
-- `MelloSilveiraTools.MechanicsOfMaterials.Optimizations`
+- [`MelloSilveiraTools.Core`](../MelloSilveiraTools.Core/README.md)
+- [`MelloSilveiraTools.Database`](../MelloSilveiraTools.Database/README.md)
+- [`MelloSilveiraTools.WebApi`](../MelloSilveiraTools.WebApi/README.md)
+- [`MelloSilveiraTools.Plugins`](../MelloSilveiraTools.Plugins/README.md)
+- [`MelloSilveiraTools.Mathematics`](../MelloSilveiraTools.Mathematics/README.md)
+- [`MelloSilveiraTools.MechanicsOfMaterials`](../MelloSilveiraTools.MechanicsOfMaterials/README.md)
+- [`MelloSilveiraTools.MechanicsOfMaterials.Optimizations`](../MelloSilveiraTools.MechanicsOfMaterials.Optimizations/README.md)
 - `Microsoft.Extensions.DependencyInjection.Abstractions`

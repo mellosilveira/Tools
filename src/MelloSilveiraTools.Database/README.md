@@ -72,7 +72,17 @@ public class SpecimenService(IRepository repository)
 
 ---
 
-## 4. Dependencies
+## 4. Dependency Injection & Technical Invariants
+
+- **DI Entry Point:** `DatabaseDependencyInjection.AddDatabaseServices(defaultResiliencePipelineSettings, databaseSettings)`.
+  - **Singletons (thread-safe):** `DatabaseSettings`, `PostgresResiliencePipeline`, `ISqlProvider` (`PostgresSqlProvider`), `IRepository` (`PostgresRepository`).
+- **Stateless Connections & Caching:** `PostgresRepository` opens a fresh `NpgsqlConnection` per call via `await using`. `PostgresSqlProvider` caches entity metadata and generated SQL in static `ConcurrentDictionary`s (`_metadataCache`, `_sqlCache`).
+- **Two-Stage SQL Placeholders:** Static compile-time placeholders (`#TABLE_NAME`, `#COLUMNS`) remain strictly separated from runtime clauses (`#WHERE`, `#ORDERBY`, `#LIMIT`, `#OFFSET`). Batch parameter suffixes are **1-based** (`@Name_1`, `@Name_2`).
+- **Key Operations:** `TryInsertAsync<TEntity>` (single-statement CTE returning `Result<long>`), `GetByUniqueColumnAsync<TEntity>`, multi-row `ON CONFLICT (...) DO UPDATE` (`BuildUniqueUpdates`).
+
+---
+
+## 5. Dependencies
 
 - `MelloSilveiraTools.Core`
 - `Npgsql` (10.0.3)

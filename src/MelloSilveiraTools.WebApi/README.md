@@ -35,8 +35,8 @@ dotnet add package MelloSilveiraTools.WebApi
 ```csharp
 using MelloSilveiraTools.WebApi.Application.Endpoints;
 
-var builder = WebApplication.CreateBuilder(args);
-var app = builder.Build();
+WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
+WebApplication app = builder.Build();
 
 // Map full CRUD endpoints for an entity with filtering in a single line
 app.MapCrud<SpecimenEntity, SpecimenFilter>("/api/v1/specimens", "specimen");
@@ -46,7 +46,17 @@ app.Run();
 
 ---
 
-## 4. Dependencies
+## 4. Dependency Injection & Technical Invariants
+
+- **DI Entry Points (`WebApiDependencyInjection`):** `AddWebApiServices(resiliencePipelineSettings)`, `AddJweAuthentication(jwtSettings)`, `AddSwaggerWithBearerSecurity()`, `UseSwaggerDocs()`, `UseCustomMiddlewares()`.
+  - **Singletons:** `ApiServiceAgentResiliencePipeline`, `JwtSettings`.
+  - **Scoped:** `IAuthenticationTokenService`, open-generic CRUD commands (`AddEntity<>`, `ReadEntityById<>`, `ReadEntityPaged<,>`, `UpdateEntity<>`, `DeleteEntity<>`).
+- **NDJSON Streaming:** `WriteNdjsonAsync` sets `application/x-ndjson`, `X-Content-Type-Options: nosniff`, and appends the `X-Stream-Status` trailer only when `context.Response.SupportsTrailers()` is true. `ExceptionHandlingHttpMiddleware` special-cases `NdjsonException` to avoid corrupting partial streams.
+- **JWE Authentication:** `JsonWebTokenHandler` using `HmacSha256` signing + `Aes256KW` key wrap + `Aes256CbcHmacSha512` content encryption.
+
+---
+
+## 5. Dependencies
 
 - `MelloSilveiraTools.Core`
 - `MelloSilveiraTools.Database`

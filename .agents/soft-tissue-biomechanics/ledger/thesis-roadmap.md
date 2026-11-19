@@ -56,13 +56,13 @@
 ## PHASE 2: Computational Engineering (C# Architecture)
 *Status: To Do (MelloSilveiraTools + SoftTissue)*
 
-- **[x] TASK 2.1:** Develop the *Curve Fitting* objective functions for the **Fung QLV 1D** model within the **MelloSilveiraTools** package. (COMPLETED)
-- **[x] TASK 2.2:** Develop the *Curve Fitting* objective functions for the **Schapery Non-Linear 1D** model within **MelloSilveiraTools**. (COMPLETED)
-- **[ ] TASK 2.3:** Develop the *Curve Fitting* objective functions for the **Generalized Maxwell / Prony Series 1D** within **MelloSilveiraTools**.
+- **[x] TASK 2.1:** Develop the *Curve Fitting* objective functions for the **Fung QLV 1D** model within the **MelloSilveiraTools** package. *(COMPLETED — relaxation-only fitter implemented; ramp/combined expansion tracked in [`consolidated-thesis-guide.md`](../consolidated-thesis-guide.md)).*
+- **[x] TASK 2.2:** Develop the *Curve Fitting* objective functions for the **Schapery Non-Linear 1D** model within **MelloSilveiraTools**. *(COMPLETED — relaxation-only 3-stage fitter implemented).*
+- **[ ] TASK 2.3:** Develop the *Curve Fitting* objective functions for the **Generalized Maxwell / Prony Series 1D** within **MelloSilveiraTools**. *(Note: `MaxwellModelCalculator` and `PronySeriesCurveFitter` already exist; only fitter step/factory wiring remains).*
 - **[ ] TASK 2.4:** Develop the *Curve Fitting* objective functions for the **Weiss Transversely Isotropic 1D** model within **MelloSilveiraTools**.
-- **[ ] TASK 2.5:** Develop the *Curve Fitting* objective functions for the **Poroviscoelasticity 1D** model within **MelloSilveiraTools**.
+- **[ ] TASK 2.5:** Develop the *Curve Fitting* objective functions for the **Poroviscoelasticity 1D** model within **MelloSilveiraTools**. *(Candidate for Future Works if schedule tightens).*
 - **[ ] TASK 2.6:** Develop the *Curve Fitting* objective functions for the **Holzapfel-Gasser-Ogden (HGO) 1D** model within **MelloSilveiraTools**.
-- **[x] TASK 2.7:** Develop and validate the native **1D Sensitivity Analysis Engine** (stress x time, stress x variation, asymptotes) within **MelloSilveiraTools**. (COMPLETED)
+- **[x] TASK 2.7:** Develop and validate the native **1D Sensitivity Analysis Engine** (stress x time, stress x variation, asymptotes) within **MelloSilveiraTools**. *(COMPLETED for Fung, Simplified Fung, and Schapery; extend as new models are added).*
 - **[ ] TASK 2.8:** Inspect and clean the legacy code of the **SoftTissue** project to centralize business rules.
 - **[ ] TASK 2.9:** Create the logic, pipelines, and routes in **SoftTissue** aggregating the data triad.
 - **[ ] TASK 2.10:** Structure a **Minimalist Frontend** focused exclusively on dynamic data exploration and triggering C# pipelines, strictly avoiding complex UI/UX engineering that drains research time.
@@ -84,7 +84,7 @@
 ## PHASE 4: Comparative Analysis and Writing (The Thesis Document)
 *Status: To Do*
 
-- **[ ] TASK 4.1:** Calculate statistical error metrics (RMSE, $R^2$) and extract execution metadata (machine resources, execution time, precision, number of iterations) comparing the 1D, 3D, and experimental results for all 5 models.
+- **[ ] TASK 4.1:** Calculate statistical error metrics (RMSE, $R^2$, AIC/BIC) and extract execution metadata (machine resources, execution time, precision, number of iterations) comparing the 1D, 3D, and experimental results across the active constitutive models (Fung, Simplified Fung/Maxwell, Schapery, Weiss, HGO, and Poroviscoelasticity if retained).
 - **[ ] TASK 4.2:** Plot static Comparative Graphs (via Python script for high-res publication) superimposing experimental data and theoretical curves for **Fung, Schapery, Maxwell, Weiss, Poroviscoelasticity, and HGO**.
 - **[ ] TASK 4.3:** Write the **"Introduction and Theoretical Framework"** chapters.
 - **[ ] TASK 4.4:** Write the **"Materials and Methods"** chapter.
