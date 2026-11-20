@@ -23,7 +23,9 @@ public class PluginValidator<TRequest> : IValidator<TRequest> where TRequest : P
     /// </summary>
     /// <param name="value">The plugin request instance to validate.</param>
     /// <returns>A successful <see cref="Result"/> when the version is omitted, empty, or valid; otherwise, a 400 Bad Request <see cref="Result"/>.</returns>
-    public Result Validate(TRequest value) => string.IsNullOrWhiteSpace(value.Version) || PluginVersion.TryParse(value.Version, out _)
-        ? Result.CreateSuccessOk()
-        : Result.CreateBadRequest("Invalid plugin version.");
+    public Result Validate(TRequest value) => value is null
+        ? Result.CreateBadRequest("Plugin request cannot be null.")
+        : string.IsNullOrWhiteSpace(value.Version) || PluginVersion.TryParse(value.Version, out _)
+            ? Result.CreateSuccessOk()
+            : Result.CreateBadRequest("Invalid plugin version.");
 }

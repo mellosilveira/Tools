@@ -34,9 +34,10 @@ public static class StreamEndpoints
         where TEntity : EntityBase, new()
         where TFilter : FilterBase, new()
         => builder
-            .MapGet(pattern, async (HttpContext httpContext, IRepository repository, ILogger logger, [AsParameters] TFilter filter) => repository
+            .MapGet(pattern, async (HttpContext httpContext, IRepository repository, ILogger<TEntity> logger, [AsParameters] TFilter filter) => await repository
                 .GetAsync<TEntity, TFilter>(filter, cancellationToken: httpContext.RequestAborted)
-                .WriteNdjsonAsync(httpContext, logger, resourceName))
+                .WriteNdjsonAsync(httpContext, logger, resourceName, httpContext.RequestAborted)
+                .ConfigureAwait(false))
             .Produces(StatusCodes.Status200OK)
             .Produces(StatusCodes.Status500InternalServerError)
             .WithName($"Stream_{resourceName}")
@@ -52,11 +53,13 @@ public static class StreamEndpoints
     /// <param name="entities">Asynchronous sequence of items to be streamed.</param>
     /// <param name="logger">Logger used to record warnings (client cancellation) and errors.</param>
     /// <param name="resourceName">Human-readable resource name used when reporting streaming failures.</param>
+    /// <param name="cancellationToken"></param>
     public static async Task WriteNdjsonAsync<T>(
         this IAsyncEnumerable<T> entities,
         HttpContext context,
         ILogger logger,
-        string resourceName)
+        string resourceName,
+        CancellationToken cancellationToken = default)
     {
         // The nosniff directive within the X-Content-Type-Options HTTP response header is a security measure designed to
         // prevent browsers from performing MIME type sniffing.
@@ -65,20 +68,25 @@ public static class StreamEndpoints
 
         try
         {
-            await foreach (T entity in entities.WithCancellation(context.RequestAborted))
+            await foreach (T entity in entities.WithCancellation(cancellationToken))
             {
-                await context.Response.WriteLineAsNdJsonAsync(entity, context.RequestAborted);
+                await context.Response.WriteLineAsNdJsonAsync(entity, cancellationToken);
             }
 
-            context.Response.AppendTrailer(ApplicationConstants.StreamStatusTrailerName, ApplicationConstants.StreamSuccessfullyStatus);
+            if (context.Response.SupportsTrailers())
+                context.Response.AppendTrailer(ApplicationConstants.StreamStatusTrailerName, ApplicationConstants.StreamSuccessfullyStatus);
         }
         catch (OperationCanceledException ex)
         {
             logger.LogWarning(ex, "A conexão foi fechada pelo cliente durante o streaming.");
+            if (context.Response.SupportsTrailers())
+                context.Response.AppendTrailer(ApplicationConstants.StreamStatusTrailerName, "Canceled");
         }
         catch (Exception ex)
         {
             logger.LogError(ex, "Falha durante o streaming de {resourceName}.", resourceName);
+            if (context.Response.SupportsTrailers())
+                context.Response.AppendTrailer(ApplicationConstants.StreamStatusTrailerName, "Faulted");
         }
     }
 }

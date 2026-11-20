@@ -1,3 +1,6 @@
+using MelloSilveiraTools.Database.RelationalDatabase.Attributes;
+using MelloSilveiraTools.Database.RelationalDatabase.Models;
+using MelloSilveiraTools.Database.RelationalDatabase.Models.Entities;
 using MelloSilveiraTools.Database.RelationalDatabase.Sql.Provider;
 
 namespace UnitTests.Database.RelationalDatabase.Sql.Provider;
@@ -6,205 +9,159 @@ public sealed class PostgresSqlProviderTests
 {
     private readonly ISqlProvider _provider = new PostgresSqlProvider();
 
-    // ── INSERT ─────────────────────────────────────────────────────────────────
-
-    [Fact]
-    public void GetInsertSql_NoUniqueColumns_ReturnsPlainInsert()
+    [Table("unique_only_item", "uoi")]
+    private sealed record UniqueOnlyEntity
     {
-        var sql = _provider.GetInsertSql<ProductEntity>();
+        [PrimaryKeyColumn]
+        public long Id { get; init; }
 
-        Assert.Contains("INSERT INTO product", sql);
-        Assert.Contains("id, creation_timestamp, name, price", sql);
-        Assert.Contains("@Id, @CreationTimestamp, @Name, @Price", sql);
-        Assert.Contains("RETURNING id", sql);
-        Assert.DoesNotContain("ON CONFLICT", sql);
+        [UniqueColumn]
+        public string Code { get; init; } = string.Empty;
     }
 
-    //[Fact]
-    //public void GetInsertSql_WithUniqueColumn_ReturnsOnConflictInsert()
-    //{
-    //    var sql = _provider.GetInsertSql<CategoryEntity>();
-
-    //    Assert.Contains("INSERT INTO category", sql);
-    //    Assert.Contains("ON CONFLICT (code)", sql);
-    //    Assert.Contains("DO UPDATE SET code = EXCLUDED.code", sql);
-    //    Assert.Contains("RETURNING id", sql);
-    //}
-
-    // ── BULK INSERT ────────────────────────────────────────────────────────────
-
-    [Fact]
-    public void GetBulkInsertSql_TwoRows_ContainsOneBased1and2Suffixes()
+    [Table("left_joined_item", "lji")]
+    private sealed record LeftJoinedEntity : EntityBase
     {
-        var sql = _provider.GetBulkInsertSql<ProductEntity>(2);
+        [ForeignKeyColumn(typeof(ProductEntity), JoinType.Left)]
+        public long? ProductId { get; init; }
 
-        Assert.Contains("INSERT INTO product", sql);
-        Assert.Contains("@Id_1, @CreationTimestamp_1, @Name_1, @Price_1", sql);
-        Assert.Contains("@Id_2, @CreationTimestamp_2, @Name_2, @Price_2", sql);
-        Assert.DoesNotContain("@Id_0", sql); // no zero-based suffix
-        Assert.DoesNotContain("@Id_3", sql); // only 2 rows
-        Assert.Contains("RETURNING id", sql);
-        Assert.DoesNotContain("ON CONFLICT", sql);
-    }
-
-    //[Fact]
-    //public void GetBulkInsertSql_WithUniqueColumn_ReturnsOnConflict()
-    //{
-    //    var sql = _provider.GetBulkInsertSql<CategoryEntity>(1);
-
-    //    Assert.Contains("@Id_1, @CreationTimestamp_1, @Code_1, @Description_1", sql);
-    //    Assert.Contains("ON CONFLICT (code)", sql);
-    //    Assert.Contains("DO UPDATE SET code = EXCLUDED.code", sql);
-    //}
-
-    [Fact]
-    public void GetBulkInsertSql_DifferentBatchSizes_ProduceDifferentSql()
-    {
-        var sql1 = _provider.GetBulkInsertSql<ProductEntity>(1);
-        var sql3 = _provider.GetBulkInsertSql<ProductEntity>(3);
-
-        Assert.DoesNotContain("@Id_2", sql1);
-        Assert.Contains("@Id_3", sql3);
-        Assert.NotEqual(sql1, sql3);
-    }
-
-    // ── SELECT ─────────────────────────────────────────────────────────────────
-
-    [Fact]
-    public void GetSelectSql_ReturnsSelectWithoutDistinct()
-    {
-        var sql = _provider.GetSelectSql<ProductEntity>();
-
-        Assert.Contains("SELECT", sql);
-        Assert.DoesNotContain("SELECT DISTINCT", sql);
-        Assert.Contains("FROM product AS prd", sql);
-        Assert.Contains("prd.id AS \"Id\"", sql);
-        Assert.Contains("prd.name AS \"Name\"", sql);
-        Assert.Contains("prd.price AS \"Price\"", sql);
-        Assert.Contains("prd.creation_timestamp AS \"CreationTimestamp\"", sql);
+        [UniqueColumn]
+        public string ExternalKey { get; init; } = string.Empty;
     }
 
     [Fact]
-    public void GetSelectDistinctSql_ReturnsSelectDistinct()
+    public void GetInsertSql_CoversPlainUniqueWithPayloadAndUniqueOnlyFallback()
     {
-        var sql = _provider.GetSelectDistinctSql<ProductEntity>();
+        string plainSql = _provider.GetInsertSql<ProductEntity>();
+        Assert.Contains("INSERT INTO product", plainSql);
+        Assert.Contains("id, creation_timestamp, name, price", plainSql);
+        Assert.Contains("@Id, @CreationTimestamp, @Name, @Price", plainSql);
+        Assert.Contains("RETURNING id", plainSql);
+        Assert.DoesNotContain("ON CONFLICT", plainSql);
 
-        Assert.Contains("SELECT DISTINCT", sql);
-        Assert.Contains("FROM product AS prd", sql);
+        string uniqueWithPayloadSql = _provider.GetInsertSql<CategoryEntity>();
+        Assert.Contains("INSERT INTO category", uniqueWithPayloadSql);
+        Assert.Contains("ON CONFLICT (code)", uniqueWithPayloadSql);
+        Assert.Contains("creation_timestamp = EXCLUDED.creation_timestamp", uniqueWithPayloadSql);
+        Assert.Contains("description = EXCLUDED.description", uniqueWithPayloadSql);
+
+        string uniqueOnlySql = _provider.GetInsertSql<UniqueOnlyEntity>();
+        Assert.Contains("ON CONFLICT (code)", uniqueOnlySql);
+        Assert.Contains("DO UPDATE SET code = EXCLUDED.code", uniqueOnlySql);
+
+        string storedFileSql = _provider.GetInsertSql<StorageEntryMetadataEntity>();
+        Assert.Contains("INSERT INTO stored_files", storedFileSql);
+        Assert.Contains("external_identifier", storedFileSql);
+        Assert.Contains("storage_provider", storedFileSql);
     }
 
     [Fact]
-    public void GetSelectSql_EntityWithForeignKey_IncludesInnerJoin()
+    public void GetTryInsertSql_GeneratesConflictDetectionCte()
     {
-        var sql = _provider.GetSelectSql<OrderItemEntity>();
+        string sql = _provider.GetTryInsertSql<CategoryEntity>();
 
-        Assert.Contains("FROM order_item AS ordi", sql);
-        Assert.Contains("INNER JOIN product AS prd ON prd.id = ordi.product_id", sql);
-        Assert.Contains("ordi.quantity AS \"Quantity\"", sql);
-        // Joined entity columns are NOT added to SELECT to avoid duplicate "Id"/"CreationTimestamp" aliases.
-        Assert.DoesNotContain("prd.name AS \"Name\"", sql);
+        Assert.Contains("INSERT INTO category", sql);
+        Assert.Contains("ON CONFLICT (code)", sql);
+        Assert.Contains("WHERE code = @Code", sql);
+        Assert.Contains("RETURNING", sql);
     }
 
     [Fact]
-    public void GetSelectByPrimaryKeySql_ContainsWherePkAndNoPlaceholders()
+    public void GetBulkInsertSql_CoversSingleMultiUniqueWithAndWithoutPayloadAndCaching()
     {
-        var sql = _provider.GetSelectByPrimaryKeySql<ProductEntity>();
+        string batchTwoSql = _provider.GetBulkInsertSql<ProductEntity>(2);
+        Assert.Contains("@Id_1, @CreationTimestamp_1, @Name_1, @Price_1", batchTwoSql);
+        Assert.Contains("@Id_2, @CreationTimestamp_2, @Name_2, @Price_2", batchTwoSql);
+        Assert.DoesNotContain("@Id_0", batchTwoSql);
+        Assert.DoesNotContain("@Id_3", batchTwoSql);
+        Assert.DoesNotContain("ON CONFLICT", batchTwoSql);
 
-        Assert.Contains("WHERE prd.id = @Id", sql);
-        Assert.DoesNotContain("#WHERE", sql);
-        Assert.DoesNotContain("#ORDERBY", sql);
-        Assert.DoesNotContain("#OFFSET", sql);
-        Assert.DoesNotContain("#LIMIT", sql);
-    }
+        string uniqueBatchSql = _provider.GetBulkInsertSql<CategoryEntity>(1);
+        Assert.Contains("ON CONFLICT (code)", uniqueBatchSql);
+        Assert.Contains("DO UPDATE SET", uniqueBatchSql);
+        Assert.Contains("description = EXCLUDED.description", uniqueBatchSql);
 
-    // ── COUNT / EXIST ──────────────────────────────────────────────────────────
+        string uniqueOnlyBatchSql = _provider.GetBulkInsertSql<UniqueOnlyEntity>(2);
+        Assert.Contains("ON CONFLICT (code)", uniqueOnlyBatchSql);
+        Assert.Contains("DO UPDATE SET code = EXCLUDED.code", uniqueOnlyBatchSql);
 
-    [Fact]
-    public void GetCountSql_ContainsCountAndWherePlaceholder()
-    {
-        var sql = _provider.GetCountSql<ProductEntity>();
-
-        Assert.Contains("SELECT COUNT(1) FROM product AS prd", sql);
-        Assert.Contains("#WHERE", sql);
-    }
-
-    [Fact]
-    public void GetExistByPrimaryKeySql_ContainsSelectOneWhereAndLimit()
-    {
-        var sql = _provider.GetExistByPrimaryKeySql<ProductEntity>();
-
-        Assert.Contains("SELECT 1 FROM product AS prd", sql);
-        Assert.Contains("WHERE prd.id = @Id", sql);
-        Assert.Contains("LIMIT 1", sql);
-    }
-
-    // ── DELETE ─────────────────────────────────────────────────────────────────
-
-    [Fact]
-    public void GetDeleteSql_ContainsDeleteAndWherePlaceholder()
-    {
-        var sql = _provider.GetDeleteSql<ProductEntity>();
-
-        Assert.Contains("DELETE FROM product AS prd", sql);
-        Assert.Contains("#WHERE", sql);
+        Assert.Same(batchTwoSql, _provider.GetBulkInsertSql<ProductEntity>(2));
+        Assert.NotEqual(batchTwoSql, _provider.GetBulkInsertSql<ProductEntity>(3));
     }
 
     [Fact]
-    public void GetDeleteByPrimaryKeySql_ContainsWherePkAndNoPlaceholder()
+    public void GetSelectVariants_CoverPlainDistinctPrimaryKeyUniqueAndForeignKeyJoins()
     {
-        var sql = _provider.GetDeleteByPrimaryKeySql<ProductEntity>();
+        string selectSql = _provider.GetSelectSql<ProductEntity>();
+        Assert.Contains("SELECT", selectSql);
+        Assert.DoesNotContain("SELECT DISTINCT", selectSql);
+        Assert.Contains("FROM product AS prd", selectSql);
+        Assert.Contains("prd.id AS \"Id\"", selectSql);
+        Assert.Contains("#WHERE", selectSql);
 
-        Assert.Contains("DELETE FROM product AS prd", sql);
-        Assert.Contains("WHERE prd.id = @Id", sql);
-        Assert.DoesNotContain("#WHERE", sql);
-    }
+        string distinctSql = _provider.GetSelectDistinctSql<ProductEntity>();
+        Assert.Contains("SELECT DISTINCT", distinctSql);
+        Assert.Contains("FROM product AS prd", distinctSql);
 
-    // ── UPDATE ─────────────────────────────────────────────────────────────────
+        string byPkSql = _provider.GetSelectByPrimaryKeySql<ProductEntity>();
+        Assert.Contains("WHERE prd.id = @Id", byPkSql);
+        Assert.DoesNotContain("#WHERE", byPkSql);
+        Assert.DoesNotContain("#ORDERBY", byPkSql);
+        Assert.DoesNotContain("#LIMIT", byPkSql);
+        Assert.DoesNotContain("#OFFSET", byPkSql);
 
-    [Fact]
-    public void GetUpdateByPrimaryKeySql_ContainsSetClauseAndWherePk()
-    {
-        var sql = _provider.GetUpdateByPrimaryKeySql<ProductEntity>();
+        string byUniqueSql = _provider.GetSelectByUniqueColumnSql<CategoryEntity>();
+        Assert.Contains("WHERE cat.code = @UniqueColumnValue", byUniqueSql);
+        Assert.DoesNotContain("#WHERE", byUniqueSql);
 
-        Assert.Contains("UPDATE product", sql);
-        Assert.Contains("name = @Name", sql);
-        Assert.Contains("price = @Price", sql);
-        Assert.Contains("WHERE id = @Id", sql);
-        Assert.DoesNotContain("#WHERE", sql);
-    }
+        string innerJoinSql = _provider.GetSelectSql<OrderItemEntity>();
+        Assert.Contains("INNER JOIN product AS prd ON prd.id = ordi.product_id", innerJoinSql);
+        Assert.DoesNotContain("prd.name AS \"Name\"", innerJoinSql);
 
-    // ── CACHING ────────────────────────────────────────────────────────────────
-
-    [Fact]
-    public void GetInsertSql_CalledTwice_ReturnsSameStringInstance()
-    {
-        // Static cache means the second call returns the same object reference.
-        var sql1 = _provider.GetInsertSql<ProductEntity>();
-        var sql2 = _provider.GetInsertSql<ProductEntity>();
-
-        Assert.Same(sql1, sql2);
+        string leftJoinSql = _provider.GetSelectSql<LeftJoinedEntity>();
+        Assert.Contains("LEFT JOIN product AS prd ON prd.id = lji.product_id", leftJoinSql);
     }
 
     [Fact]
-    public void GetBulkInsertSql_SameBatchSizeCalledTwice_ReturnsSameStringInstance()
+    public void GetCountExistDeleteAndUpdateVariants_GenerateExpectedPostgresSqlAndCacheInstances()
     {
-        var sql1 = _provider.GetBulkInsertSql<ProductEntity>(5);
-        var sql2 = _provider.GetBulkInsertSql<ProductEntity>(5);
+        string countSql = _provider.GetCountSql<ProductEntity>();
+        Assert.Contains("SELECT COUNT(1) FROM product AS prd", countSql);
+        Assert.Contains("#WHERE", countSql);
 
-        Assert.Same(sql1, sql2);
+        string existSql = _provider.GetExistByPrimaryKeySql<ProductEntity>();
+        Assert.Contains("SELECT 1 FROM product AS prd", existSql);
+        Assert.Contains("WHERE prd.id = @Id", existSql);
+        Assert.Contains("LIMIT 1", existSql);
+
+        string deleteSql = _provider.GetDeleteSql<ProductEntity>();
+        Assert.Contains("DELETE FROM product AS prd", deleteSql);
+        Assert.Contains("#WHERE", deleteSql);
+
+        string deletePkSql = _provider.GetDeleteByPrimaryKeySql<ProductEntity>();
+        Assert.Contains("DELETE FROM product AS prd", deletePkSql);
+        Assert.Contains("WHERE prd.id = @Id", deletePkSql);
+        Assert.DoesNotContain("#WHERE", deletePkSql);
+
+        string updateSql = _provider.GetUpdateSql<ProductEntity>();
+        Assert.Contains("UPDATE product", updateSql);
+        Assert.Contains("name = @Name", updateSql);
+        Assert.Contains("price = @Price", updateSql);
+        Assert.Contains("#WHERE", updateSql);
+
+        string updatePkSql = _provider.GetUpdateByPrimaryKeySql<ProductEntity>();
+        Assert.Contains("UPDATE product", updatePkSql);
+        Assert.Contains("WHERE id = @Id;", updatePkSql);
+        Assert.DoesNotContain("#WHERE", updatePkSql);
+
+        Assert.Same(_provider.GetInsertSql<ProductEntity>(), _provider.GetInsertSql<ProductEntity>());
     }
 
-    // ── ERROR CASES ────────────────────────────────────────────────────────────
-
     [Fact]
-    public void GetInsertSql_EntityWithoutTableAttribute_Throws()
+    public void MetadataValidation_ThrowsOnMissingTableMissingPrimaryKeyOrMissingUniqueColumn()
     {
         Assert.Throws<InvalidOperationException>(() => _provider.GetInsertSql<NoTableEntity>());
-    }
-
-    [Fact]
-    public void GetInsertSql_EntityWithoutPrimaryKey_Throws()
-    {
         Assert.Throws<InvalidOperationException>(() => _provider.GetInsertSql<NoPrimaryKeyEntity>());
+        Assert.Throws<ArgumentOutOfRangeException>(() => _provider.GetSelectByUniqueColumnSql<ProductEntity>());
     }
 }

@@ -1,51 +1,48 @@
+using Microsoft.Extensions.Logging;
+
 namespace MelloSilveiraTools.Mathematics.NumericalMethods.RootFindingAlgorithms;
 
 /// <summary>
 /// Step-by-step sequential search algorithm that samples an interval to detect the best matching equilibrium point.
 /// Increments through the domain systematically, identifying where the target error threshold is minimized.
 /// </summary>
-public class StepByStepMethod : RootFinding
+/// <param name="logger">Optional logger for telemetry and failure reporting.</param>
+public class StepByStepMethod(ILogger<StepByStepMethod>? logger = null) : RootFinding(logger)
 {
     /// <inheritdoc/>
     public override (double Root, double Error) FindRoot(RootFindingInput input, Func<double, double> function)
     {
         double? previousPoint = null;
         double previousValue = 0;
+        double previousAbsValue = double.PositiveInfinity;
 
         double initialPoint = input.InitialPoint;
         double finalPoint = input.FinalPoint;
         double step = (finalPoint - initialPoint) / input.MaxIterations;
 
         double value = 0;
-        int i = 0;
         double point = initialPoint;
 
-        // Integer counter avoids floating-point accumulation drift.
-        // Loop condition includes a half-step margin so the final point is always reached despite
-        // floating-point representation (e.g. 1199.9999 < 1200 would otherwise skip the last step).
-        while (point <= finalPoint + step * 0.5)
+        // Bounded integer iteration prevents infinite loops when initialPoint == finalPoint (step == 0).
+        for (int i = 0; i <= input.MaxIterations; i++)
         {
+            point = initialPoint + i * step;
             value = function(point);
-            if (value < input.Tolerance)
+            double absValue = Math.Abs(value);
+
+            if (absValue < input.Tolerance)
             {
-                if (previousPoint != null && value >= previousValue)
-                {
+                if (previousPoint != null && absValue >= previousAbsValue)
                     return (previousPoint.Value, previousValue);
-                }
 
                 previousValue = value;
+                previousAbsValue = absValue;
                 previousPoint = point;
             }
-
-            i++;
-            point = initialPoint + i * step;
         }
 
-        if (previousPoint != null)
-        {
-            return (previousPoint.Value, previousValue);
-        }
-
-        throw GetNonConvergenceException(point, value);
+        return previousPoint != null
+            ? (previousPoint.Value, previousValue)
+            : throw GetNonConvergenceException(point, value);
     }
 }

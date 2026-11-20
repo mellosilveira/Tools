@@ -43,8 +43,8 @@ public static class CrudEndpoints
         group.MapAdd<TEntity>("/", resourceName);
 
         group
-            .MapGet("/{id:long}", async (ReadEntityById<TEntity> operation, long id) => await operation
-                .ExecuteAsync(new ReadEntityByIdRequest { Id = id, ResourceName = resourceName })
+            .MapGet("/{id:long}", async (HttpContext httpContext, ReadEntityById<TEntity> operation, long id) => await operation
+                .ExecuteAsync(new ReadEntityByIdRequest { Id = id, ResourceName = resourceName }, httpContext.RequestAborted)
                 .ToHttpResultAsync()
                 .ConfigureAwait(false))
             .Produces<Result<TEntity>>(StatusCodes.Status200OK)
@@ -60,9 +60,8 @@ public static class CrudEndpoints
                 {
                     Filter = filter,
                     Pagination = pagination,
-                    ResourceName = resourceName,
-                    CancellationToken = httpContext.RequestAborted,
-                })
+                    ResourceName = resourceName
+                }, httpContext.RequestAborted)
                 .ToHttpResultAsync()
                 .ConfigureAwait(false))
             .Produces<PagedResult<TEntity>>(StatusCodes.Status200OK)
@@ -71,8 +70,8 @@ public static class CrudEndpoints
             .WithSummary($"Retrieves a paginated list of {resourceName}.");
 
         group
-            .MapPut("/{id:long}", async (UpdateEntity<TEntity> operation, long id, TEntity entity) => await operation
-                .ExecuteAsync(new UpdateEntityRequest<TEntity> { Id = id, Entity = entity, ResourceName = resourceName })
+            .MapPut("/{id:long}", async (HttpContext httpContext, UpdateEntity<TEntity> operation, long id, TEntity entity) => await operation
+                .ExecuteAsync(new UpdateEntityRequest<TEntity> { Id = id, Entity = entity, ResourceName = resourceName }, httpContext.RequestAborted)
                 .ToHttpResultAsync()
                 .ConfigureAwait(false))
             .Produces<Result>(StatusCodes.Status200OK)
@@ -82,8 +81,8 @@ public static class CrudEndpoints
             .WithSummary($"Updates an existing {resourceName}.");
 
         group
-            .MapDelete("/{id:long}", async (DeleteEntity<TEntity> operation, long id) => await operation
-                .ExecuteAsync(new DeleteEntityRequest { Id = id, ResourceName = resourceName })
+            .MapDelete("/{id:long}", async (HttpContext httpContext, DeleteEntity<TEntity> operation, long id) => await operation
+                .ExecuteAsync(new DeleteEntityRequest { Id = id, ResourceName = resourceName }, httpContext.RequestAborted)
                 .ToHttpResultAsync()
                 .ConfigureAwait(false))
             .Produces<Result>(StatusCodes.Status200OK)

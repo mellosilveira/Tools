@@ -1,0 +1,157 @@
+using MelloSilveiraTools.Mathematics.Models;
+using System.Globalization;
+
+namespace UnitTests.Mathematics.Models;
+
+/// <summary>
+/// Unit tests for <see cref="Vector3D"/> verifying culture-invariant parsing, formatting, and operations.
+/// </summary>
+public sealed class Vector3DTests
+{
+    /// <summary>
+    /// Verifies that <see cref="Vector3D.Parse"/> parses decimal components using invariant culture regardless of thread culture.
+    /// </summary>
+    [Fact]
+    public void Parse_WithInvariantCultureDecimals_ParsesCorrectlyRegardlessOfCurrentCulture()
+    {
+        // Arrange
+        CultureInfo originalCulture = CultureInfo.CurrentCulture;
+        try
+        {
+            CultureInfo.CurrentCulture = new CultureInfo("pt-BR");
+            string vectorString = "1.5,2.75,3.125";
+
+            // Act
+            Vector3D vector = Vector3D.Parse(vectorString);
+
+            // Assert
+            Assert.Equal(1.5, vector.X);
+            Assert.Equal(2.75, vector.Y);
+            Assert.Equal(3.125, vector.Z);
+        }
+        finally
+        {
+            CultureInfo.CurrentCulture = originalCulture;
+        }
+    }
+
+    /// <summary>
+    /// Verifies that <see cref="Vector3D.TryParse"/> returns true and populates the vector under culture-sensitive environments.
+    /// </summary>
+    [Fact]
+    public void TryParse_WithValidString_ReturnsTrueAndSetsVector()
+    {
+        // Arrange
+        CultureInfo originalCulture = CultureInfo.CurrentCulture;
+        try
+        {
+            CultureInfo.CurrentCulture = new CultureInfo("pt-BR");
+            string vectorString = "10.25,-5.5,0.0";
+
+            // Act
+            bool success = Vector3D.TryParse(vectorString, out Vector3D? vector);
+
+            // Assert
+            Assert.True(success);
+            Assert.NotNull(vector);
+            Assert.Equal(10.25, vector.Value.X);
+            Assert.Equal(-5.5, vector.Value.Y);
+            Assert.Equal(0.0, vector.Value.Z);
+        }
+        finally
+        {
+            CultureInfo.CurrentCulture = originalCulture;
+        }
+    }
+
+    /// <summary>
+    /// Verifies that <see cref="Vector3D.TryParse"/> returns false and null when given an invalid string.
+    /// </summary>
+    [Theory]
+    [InlineData("invalid")]
+    [InlineData("1.0,2.0")]
+    [InlineData("1.0,abc,3.0")]
+    [InlineData("")]
+    public void TryParse_WithInvalidString_ReturnsFalseAndNull(string invalidString)
+    {
+        // Act
+        bool success = Vector3D.TryParse(invalidString, out Vector3D? vector);
+
+        // Assert
+        Assert.False(success);
+        Assert.Null(vector);
+    }
+
+    /// <summary>
+    /// Verifies that <see cref="Vector3D.SafeParse"/> returns <see cref="Vector3D.Empty"/> for null or whitespace, and parses valid strings.
+    /// </summary>
+    [Theory]
+    [InlineData(null, 0.0, 0.0, 0.0)]
+    [InlineData("", 0.0, 0.0, 0.0)]
+    [InlineData("   ", 0.0, 0.0, 0.0)]
+    [InlineData("1.0,2.0,3.0", 1.0, 2.0, 3.0)]
+    public void SafeParse_ReturnsExpectedVector(string? input, double expectedX, double expectedY, double expectedZ)
+    {
+        // Act
+        Vector3D vector = Vector3D.SafeParse(input!);
+
+        // Assert
+        Assert.Equal(expectedX, vector.X);
+        Assert.Equal(expectedY, vector.Y);
+        Assert.Equal(expectedZ, vector.Z);
+    }
+
+    /// <summary>
+    /// Verifies that <see cref="Vector3D.ToString"/> formats components using invariant culture periods as decimal separator.
+    /// </summary>
+    [Fact]
+    public void ToString_FormatsWithInvariantCulture()
+    {
+        // Arrange
+        CultureInfo originalCulture = CultureInfo.CurrentCulture;
+        try
+        {
+            CultureInfo.CurrentCulture = new CultureInfo("pt-BR");
+            Vector3D vector = Vector3D.Create(1.5, 2.5, 3.5);
+
+            // Act
+            string formatted = vector.ToString();
+
+            // Assert
+            Assert.Equal("1.5,2.5,3.5", formatted);
+        }
+        finally
+        {
+            CultureInfo.CurrentCulture = originalCulture;
+        }
+    }
+
+    [Fact]
+    public void VectorOperations_EqualityArithmeticLengthAndCreateOverloads_WorkCorrectly()
+    {
+        Point3D p1 = Point3D.Create(1.0, 2.0, 3.0);
+        Point3D p2 = Point3D.Create(4.0, 6.0, 3.0);
+        Vector3D fromPoints = Vector3D.Create(p1, p2);
+        Vector3D fromStrings = Vector3D.Create("1000,2000,3000", "4000,6000,3000");
+
+        Assert.Equal(3.0, fromPoints.X, 10);
+        Assert.Equal(4.0, fromPoints.Y, 10);
+        Assert.Equal(0.0, fromPoints.Z, 10);
+        Assert.Equal(25.0, fromPoints.LengthSquared, 10);
+        Assert.Equal(5.0, fromPoints.Length, 10);
+
+        Assert.True(fromPoints.Equals(fromStrings));
+        Assert.True(fromPoints == fromStrings);
+        Assert.False(fromPoints != fromStrings);
+        Assert.False(fromPoints.Equals("other"));
+        Assert.Equal(fromPoints.GetHashCode(), fromStrings.GetHashCode());
+
+        Vector3D a = Vector3D.Create(1.0, 2.0, 3.0);
+        Vector3D b = Vector3D.Create(4.0, 5.0, 6.0);
+        Assert.Equal(Vector3D.Create(5.0, 7.0, 9.0), a + b);
+        Assert.Equal(Vector3D.Create(-3.0, -3.0, -3.0), a - b);
+        Assert.Equal(Vector3D.Create(2.0, 4.0, 6.0), a * 2.0);
+        Assert.Equal(Vector3D.Create(0.5, 1.0, 1.5), a / 2.0);
+        Assert.True(a != b);
+    }
+}

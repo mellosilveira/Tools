@@ -132,9 +132,12 @@ public class PostgresRepository(ISqlProvider sqlProvider, PostgresResiliencePipe
             await using NpgsqlConnection connection = await GetNewOpenedConnectionAsync(cancellationToken).ConfigureAwait(false);
             await using NpgsqlCommand command = new(sql, connection);
 
-            foreach (var parameter in parameters!)
+            if (parameters is not null)
             {
-                command.Parameters.Add(parameter);
+                foreach (NpgsqlParameter parameter in parameters)
+                {
+                    command.Parameters.Add(parameter);
+                }
             }
 
             await command.ExecuteNonQueryAsync(cancellationToken).ConfigureAwait(false);

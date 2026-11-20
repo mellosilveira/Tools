@@ -1,3 +1,4 @@
+#nullable disable
 /*************************************************************************
 ALGLIB 4.08.0 (source code generated 2026-06-08)
 Copyright (c) Sergey Bochkanov (ALGLIB project).

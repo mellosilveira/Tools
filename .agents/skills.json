@@ -1,5 +1,6 @@
 {
   "entries": [
-    { "path": ".agents/soft-tissue-biomechanics/skills" }
+    { "path": ".agents/soft-tissue-biomechanics/skills" },
+    { "path": ".agents/libras-portuguese-education/skills" }
   ]
 }

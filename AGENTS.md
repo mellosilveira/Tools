@@ -1,382 +1,85 @@
 # AGENTS.md
 
-Project notes and developer guidelines for AI agents working on **MelloSilveiraTools** — a .NET 10 suite of NuGet packages split into contextual libraries: core utilities, relational database provider, web-API helpers, dynamic plugin runtime, mathematics, mechanics of materials, and experimental data optimizations.
+Developer and AI agent guidelines for **MelloSilveiraTools** — a modular `.NET 10` / `C# 13` suite of NuGet packages for scientific computing, viscoelastic constitutive modeling, experimental data optimization, relational persistence, Web APIs, and dynamic plugins.
+
+> **On-Demand Documentation (Single Source of Truth — load only when working on those subsystems):**
+> - Suite overview & architecture: [`README.md`](README.md)
+> - Module-specific DI lifetimes, capabilities & technical invariants: each package's `README.md` (`src/<Package>/README.md`, e.g., [`Core`](src/MelloSilveiraTools.Core/README.md), [`Database`](src/MelloSilveiraTools.Database/README.md), [`WebApi`](src/MelloSilveiraTools.WebApi/README.md), [`Plugins`](src/MelloSilveiraTools.Plugins/README.md), [`Mathematics`](src/MelloSilveiraTools.Mathematics/README.md), [`MechanicsOfMaterials`](src/MelloSilveiraTools.MechanicsOfMaterials/README.md), [`Optimizations`](src/MelloSilveiraTools.MechanicsOfMaterials.Optimizations/README.md), [`Migrator`](src/MelloSilveiraTools.Database.Migrator/README.md))
+> - Biomechanics Master's Thesis Guide (PPEMM/UFCIRJ): [`.agents/soft-tissue-biomechanics/consolidated-thesis-guide.md`](.agents/soft-tissue-biomechanics/consolidated-thesis-guide.md)
+> - JOSS Submission & Target Journals Guide: [`.agents/soft-tissue-biomechanics/consolidated-joss-and-publications.md`](.agents/soft-tissue-biomechanics/consolidated-joss-and-publications.md)
 
 ---
 
-## Solution Layout
+## Solution Layout & Commands
 
-```
+```text
 src/MelloSilveiraTools/                                — Meta-package (aggregates all packages; meta DI entry)
-src/MelloSilveiraTools.Core/                           — Extensions, in-memory caches, Polly v8 pipelines, encryption, email, file management, TPL Dataflow & fluent pipelines
-src/MelloSilveiraTools.Database/                       — IRepository, PostgresRepository, ISqlProvider, attributes, FilterClauses, Npgsql/Dapper
-src/MelloSilveiraTools.WebApi/                         — Controllers (Custom/Crud), minimal endpoints, NDJSON streaming, Swagger, JWE auth, ApiServiceAgent, Commands (Crud)
-src/MelloSilveiraTools.Plugins/                        — File-based plugin runtime, two-level cache, dynamic DI, persistence, background orchestrator
-src/MelloSilveiraTools.Mathematics/                    — Differential equation solvers (Newmark, Newmark-β), Function hierarchy, expressions, numerical calculus, root-finding, 3D geometry, statistics
-src/MelloSilveiraTools.MechanicsOfMaterials/           — Fatigue, constitutive equations, geometric profiles, force/vector models, viscoelastic models
-src/MelloSilveiraTools.MechanicsOfMaterials.Optimizations/ — TPL Dataflow pipelines, experimental data segmentation (Ramp/Relaxation/Descent/Recovery), curve fitting via MathNet.Numerics & ALGLIB
-test/UnitTests/                                        — xUnit test suite, references the meta-package and Optimizations
-build/                                                 — Centralized bin/obj output redirected via Directory.Build.props
-Directory.Build.props                                  — Common metadata: net10.0, Authors, License, VersionPrefix, AOT/trim warning suppressions
-CHANGELOG.md                                           — Keep-a-Changelog format, SemVer
+src/MelloSilveiraTools.Core/                           — Result monad, caches, Polly v8, crypto, email, IFileStorageService, TPL Dataflow & fluent pipelines
+src/MelloSilveiraTools.Database/                       — IRepository, PostgresRepository, PostgresSqlProvider, attributes, filters (Npgsql/Dapper)
+src/MelloSilveiraTools.Database.Migrator/              — PostgreSQL schema migrator / migration runner for stored_files and optimization tables
+src/MelloSilveiraTools.WebApi/                         — Controllers, minimal endpoints, NDJSON streaming, Swagger, JWE auth, ApiServiceAgent, CRUD commands
+src/MelloSilveiraTools.Plugins/                        — Storage-agnostic collectible plugin runtime, two-level cache, dynamic DI, background orchestrator
+src/MelloSilveiraTools.Mathematics/                    — Function hierarchy, PronySeries, Simpson integration, differentiation, Brent/Bisection, Newmark-β
+src/MelloSilveiraTools.MechanicsOfMaterials/           — Fatigue, profiles, 3D forces, constitutive calculators (Elastic, Maxwell, Fung, SimplifiedFung, Schapery, MSM)
+src/MelloSilveiraTools.MechanicsOfMaterials.Optimizations/ — Experimental segmentation/fitting pipelines (ALGLIB/MathNet), OAAT parametric sweep, API controllers
+test/UnitTests/                                        — Fast in-memory xUnit test suite (no external dependencies)
+test/AcceptanceTests/                                  — End-to-end ligament tests against Testcontainers PostgreSQL (requires Docker)
+build/                                                 — Centralized bin/obj output via Directory.Build.props
+paper/                                                 — JOSS manuscript (paper.md, paper.bib), compiled by .github/workflows/draft-pdf.yml
 ```
 
-Build the entire solution:
 ```powershell
-dotnet build MelloSilveiraTools.sln
-```
-Each project generates its own `.nupkg` and `.snupkg` under `build/bin/Debug/<PackageId>/`.
-
-Run tests:
-```powershell
-dotnet test test/UnitTests/UnitTests.csproj
+dotnet build MelloSilveiraTools.sln                    # Builds all projects + .nupkg/.snupkg in build/bin/Debug/
+dotnet test test/UnitTests/UnitTests.csproj            # Fast in-memory unit tests
+dotnet test test/AcceptanceTests/AcceptanceTests.csproj # Integration tests (requires Docker)
 ```
 
 ---
 
-## Package Dependency Graph
+## Licensing, Dependency Graph & Package Policy
 
-```
-Core ←─── Mathematics ←─── MechanicsOfMaterials ←─── MechanicsOfMaterials.Optimizations
-  ↑
-  └── Database ←── WebApi ←── Plugins
-
-MelloSilveiraTools (meta) → Core, Database, WebApi, Plugins, Mathematics, MechanicsOfMaterials, MechanicsOfMaterials.Optimizations
-```
-
-### Notable Constraints
-- `WebApi → Database`: `CrudController` and `MapCrud` consume `IRepository`, `EntityBase`, and `FilterBase`.
-- `Plugins → WebApi`: `PluginController` extends `ControllerBase`; `PluginEndpoints` uses minimal API routing.
-- `MechanicsOfMaterials → Mathematics`: Calculator interfaces use `Vector3D`, `MathExpression`, `PronySeries` from Mathematics.
-- `MechanicsOfMaterials.Optimizations → MechanicsOfMaterials`: Builds on model calculators, curve segments, and numerical routines.
-
----
-
-## Target Frameworks & Dependencies
-
-### Common (Directory.Build.props)
-- `TargetFramework`: `net10.0`
-- `ImplicitUsings`: `enable`
-- `Nullable`: `enable`
-- `GeneratePackageOnBuild`: `true`
-- `GenerateDocumentationFile`: `true`
-- `VersionPrefix`: `1.5.0-rc046`
-
-### Per-Package NuGet Dependencies
-
-| Package | Key Dependencies |
-|---|---|
-| **Core** | `Polly` 8.7.0, `Polly.RateLimiting` 8.7.0, `Microsoft.Extensions.Logging` 10.0.11, `Microsoft.AspNetCore.Cryptography.KeyDerivation` 10.0.11, `Serilog.Extensions.Logging` 10.0.0, `Serilog.Sinks.File` 7.0.0, `Serilog.Enrichers.Environment` 3.0.1, `Microsoft.AspNet.Mvc` 5.3.0, `FrameworkReference: Microsoft.AspNetCore.App` |
-| **Database** | `Dapper` 2.1.79, `Npgsql` 10.0.3, `Serilog.Sinks.Postgresql.Alternative` 4.3.0, ProjectRef → Core |
-| **WebApi** | `Microsoft.AspNetCore.Authentication.JwtBearer` 10.0.11, `Microsoft.IdentityModel.JsonWebTokens` 8.22.0, `Swashbuckle.AspNetCore` 10.2.3, `Swashbuckle.AspNetCore.Newtonsoft` 10.2.3, ProjectRef → Core, Database |
-| **Plugins** | ProjectRef → WebApi (transitively: Core, Database) |
-| **Mathematics** | ProjectRef → Core (zero external NuGet deps) |
-| **MechanicsOfMaterials** | `Microsoft.Extensions.DependencyInjection.Abstractions` 10.0.11, ProjectRef → Mathematics |
-| **Optimizations** | `MathNet.Numerics` 5.0.0, ProjectRef → MechanicsOfMaterials, `FrameworkReference: Microsoft.AspNetCore.App` |
-| **Meta** | `Microsoft.Extensions.DependencyInjection.Abstractions` 10.0.11, ProjectRef → all above |
-| **UnitTests** | `xunit` 2.9.3, `Moq` 4.20.72, `Microsoft.NET.Test.Sdk` 18.9.0, `coverlet.collector` 10.0.1, `Npgsql` 10.0.3, ProjectRef → Meta |
-
-### Dependency Policy
-- Do NOT add NuGet dependencies without confirming they don't overlap with existing ones.
-- Core, Mathematics, and MechanicsOfMaterials are AOT-clean — avoid adding reflection-heavy dependencies.
-- Optimizations bundles ALGLIB source files directly (`Algorithms/CurveFitting/Alglib/`), not as a NuGet reference.
-
----
-
-## Namespaces
-
-Each project owns a namespace that mirrors its package ID:
-
-- `MelloSilveiraTools.Core.*` (e.g. `.Caching`, `.Services.Encryption`, `.Managers.File`, `.Pipelines`, `.Pipelines.Dataflow`, `.Pipelines.Fluent`, `.Providers.Dynamics`)
-- `MelloSilveiraTools.Database.*` (e.g. `.RelationalDatabase.Sql.Provider`, `.RelationalDatabase.Repositories`, `.RelationalDatabase.Attributes`)
-- `MelloSilveiraTools.WebApi.*` (e.g. `.Authentication`, `.Application.Commands.Crud.*`, `.Application.Controllers`, `.Application.Endpoints`)
-- `MelloSilveiraTools.Plugins.*` (e.g. `.Infrastructure`, `.Infrastructure.Models`, `.Infrastructure.Persistences`, `.Infrastructure.Services`)
-- `MelloSilveiraTools.Mathematics.*` (e.g. `.Functions`, `.Expressions`, `.NumericalMethods.DifferentialEquation`, `.Models`)
-- `MelloSilveiraTools.MechanicsOfMaterials.*` (e.g. `.Calculators.MechanicalModels`, `.Models.MechanicalModels`)
-- `MelloSilveiraTools.MechanicsOfMaterials.Optimizations.*` (e.g. `.Services.ExperimentalData`, `.Algorithms.CurveFitting`)
-- `MelloSilveiraTools` (meta DI only)
-
----
-
-## Coding Conventions & Style (.editorconfig Rules)
-
-AI agents modifying or generating code in this repository **must strictly adhere** to the following rules:
-
-### 1. Type Declarations: No `var`
-- **Explicit types are mandatory:** `csharp_style_var_for_built_in_types = false`, `csharp_style_var_when_type_is_apparent = false`, `csharp_style_var_elsewhere = false`.
-- Never use `var` for local variable declarations. Always write explicit type names (e.g., `int count = 0;`, `string name = string.Empty;`, `List<T> items = new();`).
-- Target-typed `new()` is encouraged when the type is explicitly stated on the left-hand side (e.g., `MyService service = new(options);`).
-
-### 2. Constructor & Method Body Styles
-- **Primary constructors** are preferred for dependency injection and classes/records: `csharp_style_prefer_primary_constructors = true`.
-- **Properties, indexers, accessors, and lambdas** use expression bodies (`=>`).
-- **Methods and constructors** must use standard block bodies `{ ... }` (`csharp_style_expression_bodied_methods = false`, `csharp_style_expression_bodied_constructors = false`).
-
-### 3. Layout, Formatting & Syntax
-- **Indentation:** 4 spaces.
-- **Line endings:** CRLF (`end_of_line = crlf`).
-- **Braces:** Always required for all control flow statements (`csharp_prefer_braces = true`).
-- **Namespaces:** Block-scoped declarations (`namespace Foo { ... }`) are configured in `.editorconfig`. Keep consistency with surrounding files.
-- **`using` directives:** Place outside of namespaces.
-- **Private fields:** Always prefix with underscore (`_privateField`).
-- **Modern C# 13 features:**
-  - `extension(Type)` blocks for extension methods (C# 13 extension members).
-  - Collection expressions `[...]` instead of `new[] { ... }` or `new List<T>()`.
-  - `System.Threading.Lock` over `object` monitor locks (`csharp_prefer_system_threading_lock = true`).
-  - Pattern matching with switch expressions and extended property patterns.
-  - Slices and spans (`span[..index]`, `AsSpan()`).
-  - `readonly record struct` for value-type immutable DTOs.
-  - `ref struct` where stack-only allocation semantics are needed (`SpanStringBuilder`).
-
-### 4. Logging
-- Use standard **`Microsoft.Extensions.Logging.ILogger<T>`** across all packages.
-- Telemetry is backed by Serilog for structured JSON file logging (rolling file sink) and PostgreSQL sink (`Serilog.Sinks.Postgresql.Alternative`).
-
-### 5. Settings & DI
-- Settings classes are `record`s with safe defaults.
-- Registered via `services.AddSingleton(settings ?? new TSettings())` to preserve fluent chaining and consumer overrides.
-
-### 6. Public Documentation
-- Comprehensive XML documentation comments are **mandatory** on all public types and members.
-- Must include `<summary>`, `<param>`, `<returns>`, and where applicable `<exception>`, `<remarks>`, and `<example>`.
-
----
-
-## Dependency Injection Entry Points
-
-| Package | Class | Method |
-|---|---|---|
-| Core | `CoreDependencyInjection` | `AddCoreServices(encryptionSettings, smtpResiliencePipelineSettings, emailSettings, loggerSettings, useDefaultLogger)` |
-| Database | `DatabaseDependencyInjection` | `AddDatabaseServices(databaseSettings, resiliencePipelineSettings, loggerSettings)` |
-| WebApi | `WebApiDependencyInjection` | `AddWebApiServices(resiliencePipelineSettings)`, `AddJweAuthentication(jwtSettings)`, `AddSwaggerWithBearerSecurity()`, `UseSwaggerDocs()`, `UseCustomMiddlewares()` |
-| Plugins | `PluginsDependencyInjection` | `AddPluginServices(pluginSettings)` |
-| Mathematics | `MathematicsDependencyInjection` | `AddMathematicsServices()` |
-| MechanicsOfMaterials | `DependencyInjection` | `AddMechanicsOfMaterialsServices(addMechanicalModels)` |
-| Meta | `DependencyInjection` | `AddToolsServices(databaseSettings, encryptionSettings, resiliencePipelineSettings, pluginSettings, emailSettings, loggerSettings, useDefaultLogger, addMechanicalModels)` |
-
-### DI Registration Summary by Lifetime
-
-**Singletons (stateless/thread-safe):**
-- Core: `IFileManager`, `ISingleLevelCache`, `ITwoLevelCache`, `ServiceLocator`, `IDynamicServiceProvider`, `SmtpResiliencePipeline`, `EncryptionSettings`
-- Database: `DatabaseSettings`, `ResiliencePipelineSettings`, `PostgresResiliencePipeline`, `ISqlProvider` → `PostgresSqlProvider`, `IRepository` → `PostgresRepository`
-- WebApi: `ApiServiceAgentResiliencePipeline`, `JwtSettings`
-- Plugins: `PluginSettings`, `PluginFileProcessor`, `PluginAssemblyProcessor`, `PluginCache`, `PluginValidator` (all variants); keyed: `JsonFilePluginCachePersistence` (key: `"file"`), `DatabasePluginCachePersistence` (key: `"database"`)
-- Mathematics: `IDifferentiation`, `IIntegration`, `FunctionFactory`, `IStatisticsCalculator`; keyed: `IDifferentialEquationMethod` (Newmark/NewmarkBeta), `IRootFinding` (Bisection/Brent/StepByStep)
-- MechanicsOfMaterials: all model calculators (Elastic, Maxwell, Fung, SimplifiedFung, Schapery, ModifiedSuperposition), `IConstitutiveEquationsCalculator`, `IFatigueCalculator`, `IGeometricPropertyCalculator<>`, `IMechanicalModelTypeCache`
-
-**Scoped:**
-- Core: `IEncryptionService`, `IEmailService`
-- WebApi: `IAuthenticationTokenService`, CRUD commands (`AddEntity<>`, `ReadEntityById<>`, `ReadEntityPaged<,>`, `UpdateEntity<>`, `DeleteEntity<>`)
-- Plugins: `IPluginService`, `IPluginCachePersistence` (resolved via HTTP route `{target}`), all plugin commands
-
-**Hosted:**
-- Plugins: `PluginOrchestratorBackgroundService`
-
----
-
-## Domain Architecture & Patterns
-
-### 1. Result Monad (`MelloSilveiraTools.Core.Models`)
-- `ResultBase` → `Result` → `Result<T>` → `ListedResult<T>` → `PagedResult<T>`.
-- Factory methods: `Result.CreateSuccessOk()`, `Result.CreateBadRequest(msg)`, `Result.CreateNotFound(msg)`, etc.
-- Fluent validation: `.AddErrorIf()`, `.AddErrorIfNull()`, `.AddErrorIfNegativeOrZero()`, etc.
-- Monadic branching: `.OnSuccess()`, `.OnError()`, `.Match()`.
-- HTTP projection: `.ToHttpResult()` → `IResult` (minimal APIs), `.BuildHttpResponse()` → `JsonResult` (MVC).
-- Async equivalents: `.ToHttpResultAsync()`, `.BuildHttpResponseAsync()`.
-
-### 2. Pipeline Architecture (`MelloSilveiraTools.Core.Pipelines`)
-**Step contracts:**
-- **`IPipelineStep`**: Base metadata contract defining `string Name { get; }` for telemetry, distributed tracing, and fault localization.
-- **`IAsyncPipelineStep<in TIn>`**: Consumer/terminal asynchronous step contract (`Task ExecuteAsync(TIn input, CancellationToken ct)`) implementing `IAsyncDisposable`.
-- **`IAsyncPipelineStep<in TIn, TOut>`**: Asynchronous step contract (`Task<TOut> ExecuteAsync(TIn input, CancellationToken ct)`) implementing `IAsyncDisposable`.
-- **`ISyncPipelineStep<in TIn, out TOut>`**: Synchronous step contract (`TOut Execute(TIn input)`) implementing `IDisposable` (does not inherit from `IAsyncDisposable`).
-- **`IAsyncEnumerablePipelineStep<in TIn, out TOut>`**: Streaming step contract (`IAsyncEnumerable<TOut> ExecuteAsync(TIn input, CancellationToken ct)`) implementing `IAsyncDisposable`.
-
-**Two pipeline flavors:**
-- **TPL Dataflow (streaming/push):** `PipelineFactory.StartDataflow<T>()` → `IDataflowPipelineBuilder` → `IDataflowPipeline<T>`.
-  - Supports: `AddStep` (sync, async, and `IAsyncEnumerable`), `AddDataMapping`, `AddForkingStep`, `AddFilterStep`, `AddGroupWhileStep`, `AddCollectAllStep`, `Fork` (2-way and 3-way, accepting branch delegates or step instances directly), `AddBroadcastStep` (side-effect observer and mapped transform observer), and `BuildTerminal`.
-  - Completion propagation: `DataflowExtensions.LinkTo` C# 13 extension members override TPL Dataflow defaults by setting `PropagateCompletion = true` on block linkages, ensuring graceful graph draining upon `pipeline.Complete()`.
-  - Resource cleanup: `DataflowPipeline<TIn>.DisposeAsync` encloses step disposal in a `try ... finally` block, ensuring all `IDisposable` and `IAsyncDisposable` step resources are reclaimed even if graph completion faults.
-  - Dead-Letter Queue (DLQ): `WithDeadLetterQueue()` isolates faulted items via `ActionBlock<FailedPayload>`.
-  - Backpressure: `PipelineStepOptions.MaxBufferSize` → `BoundedCapacity`.
-  - Telemetry: OpenTelemetry `ActivitySource` tracing + structured Serilog logging via `TelemetryExtensions`.
-  - Retry: `RetryOptions(MaxAttempts, InitialDelayMs, BackoffFactor)` with exponential backoff.
-- **Fluent (request/response/pull):** `PipelineFactory.StartFluent<T>()` → `IFluentPipelineBuilder` → `IFluentPipeline<TIn, TOut>.ExecuteAsync()`.
-  - Supports: `AddStep` (sync, async, and `IAsyncEnumerable`), `AddDataMapping`.
-  - Sequential step chain; type-erased internal delegates.
-
-### 3. Command Pattern (`MelloSilveiraTools.Core.Application.Commands`)
-- `CommandBase<TRequest, TResult>` with optional `IValidator<TRequest>`.
-- Hierarchy: `CommandBaseWithData`, `ListedCommandBase`, `PagedCommandBase`, `CommandBaseWithDefaultResponse`, `CommandBaseWithoutRequest`, `DefaultCommandBase`.
-- All commands execute via `ExecuteAsync(request)` → validates → calls `ExecuteCommandAsync`.
-
-### 4. Result vs. Output (Calculation Engine)
-- Mathematical and mechanical calculators emit raw projection data classes named **`*Output`** (e.g. `MechanicalModelOutput`, `ElasticModelOutput`, `FatigueOutput`), never `*Result`.
-- Calculator blocks are decoupled from application/API status monads (`Result<T>` / `OperationResponse`).
-
-### 5. Constitutive Modeling (Mechanics of Materials)
-- Physical material parameters inherit from the **`ConstitutiveParameters`** abstract base record.
-- Concrete types: `ElasticConstitutiveParameters`, `MaxwellConstitutiveParameters`, `SchaperyConstitutiveParameters`, `ModifiedSuperpositionMethodConstitutiveParameters`, `FungConstitutiveParameters`, `SimplifiedFungConstitutiveParameters`.
-- Calculator execution uses the strongly-typed wrapper `MechanicalModelInput<TConstitutiveParameters>`.
-- Calculator interface hierarchy:
+- **License:** `GPL-3.0-or-later` (mandatory for OSI/JOSS compliance because `Optimizations` bundles ALGLIB Free Edition C# source under `GPL-2.0-or-later`).
+- **Common Build Props (`Directory.Build.props`):** `net10.0`, `ImplicitUsings=enable`, `Nullable=enable`, `GeneratePackageOnBuild=true`, `GenerateDocumentationFile=true`, `VersionPrefix=2.0.0-thesis-softtissue-rc01`.
+- **Dependency Graph:**
+  ```text
+  Core ←─── Mathematics ←─── MechanicsOfMaterials ←─── MechanicsOfMaterials.Optimizations
+    ↑
+    └── Database ←── WebApi ←── Plugins
+  MelloSilveiraTools (meta) → all packages above
   ```
-  IMechanicalModelCalculator<T> ← IViscoelasticModelCalculator<T>
-      ← IQuasiLinearModelCalculator<T, TRelax> ← IFungModelCalculator, ISimplifiedFungModelCalculator
-      ← IMaxwellModelCalculator
-      ← ISchaperyModelCalculator, IModifiedSuperpositionMethodCalculator
-  ```
-- **Type Resolvers & Factory:** The `IMechanicalModelCalculatorFactory` resolves the correct `ConstitutiveParameters`, `MechanicalModelOutput`, and `IMechanicalModelCalculator` types via `IMechanicalModelTypeResolver` keyed singletons (found in `TypeResolvers/` directory).
-- `IMechanicalModelCalculatorFacade`: Uses `ServiceLocator` + `IMechanicalModelTypeCache` to wrap the dynamic reflection logic required for time-history numeric simulations, offering pre-compiled execution paths for high performance.
-
-### 6. Experimental Data & Optimizations
-- Located in `MelloSilveiraTools.MechanicsOfMaterials.Optimizations`.
-- Multi-modal pipeline steps:
-  - `ExperimentalDataSegmenterStep`: Ingestion step implementing `IAsyncEnumerablePipelineStep<ExperimentalDataSegmenterInput, SegmentedDataPoint>`, parsing CSV streams and categorizing points across deformation phases via sliding-window numerical differentiation.
-  - `ExperimentalDataFileWriterStep`: Non-mutating persistence observer step implementing `IAsyncPipelineStep<SegmentedDataPoint>`, streaming valid points to disk via CSV format.
-  - `ExperimentalDataDownsamplerStep`: Streaming downsampling step implementing `IAsyncEnumerablePipelineStep<SegmentedDataPoint, SegmentedDataPoint>`, filtering data points according to `skipTimeStep`.
-  - `CurveSegmentAccumulatorStep`: Aggregation step implementing `IAsyncEnumerablePipelineStep<SegmentedDataPoint, CurveSegment>`, grouping points sequentially by `SegmentType` for continuous processing.
-  - `IMechanicalModelCurveFitterStep`: Optimization step implementing `IAsyncEnumerablePipelineStep<CurveSegment, MechanicalModelCurveFitOutput>`. It yields fitted constitutive parameters and their analysis metrics sequentially as an async stream for real-time processing. Resolved via `IMechanicalModelStepFactory`.
-  - `IdentifierBuilderStep`: Deterministic identification step implementing `ISyncPipelineStep<MechanicalModelCurveFitOutput, string>`, generating a SHA-256 hex hash from model metadata, range, and polymorphic constitutive parameters.
-  - `CurveFitOutputPersistenceStep`: Persistence observer step implementing `IAsyncPipelineStep<(string Identifier, MechanicalModelCurveFitOutput CurveFitOutput)>`, writing fit parameters to the database via `TryInsertAsync` using polymorphic `.GetType()` serialization and `OptimizationJsonOptions.SignificantFigures7`.
-  - `NumericalSimulationStep`: Simulation step implementing `ISyncPipelineStep<MechanicalModelCurveFitOutput, MechanicalModelSimulationPayload>`, executing forward numeric simulation using `IMechanicalModelCalculatorFactory`.
-  - `AsymptoteMonitoringStep`: Analysis step implementing `ISyncPipelineStep<MechanicalModelSimulationPayload, double?>`, detecting steady-state relaxation asymptotes.
-  - `DeltaCalculatorStep`: Analysis step implementing `ISyncPipelineStep<MechanicalModelSimulationPayload, SimulationDeltaOutput>`, computing initial, final, absolute, and percentage differences.
-  - `MechanicalModelOutputFileWriterStep`: Output writer step implementing `IAsyncPipelineStep<MechanicalModelSimulationPayload, FileData>`, streaming simulation time-histories to CSV.
-  - `MechanicalModelOutputPersistenceStep`: Convergence persistence step implementing `IAsyncPipelineStep<MechanicalModelOutputPersistenceInput, string>`, computing a deterministic simulation hash and persisting `MechanicalModelSimulationEntity`.
-- `IExperimentalDataProcessingPipeline.ProcessAsync(input, cancellationToken)` → `Result<string>`:
-  - Reactive DAG stream topology via TPL Dataflow:
-    - Ingestion: `ExperimentalDataSegmenterStep` converts raw stream pair into streaming `SegmentedDataPoint` sequence.
-    - Broadcast 1: `ExperimentalDataFileWriterStep` writes raw points to disk via `.AddBroadcastStep(fileWriterStep)`.
-    - Downsampling & Accumulation: `ExperimentalDataDownsamplerStep` downsamples points sequentially, followed by `CurveSegmentAccumulatorStep`.
-    - Fitting: `IMechanicalModelCurveFitterStep` yields `MechanicalModelCurveFitOutput`.
-    - 3-Way Fork:
-      - Branch 1: Pass-through preserving `MechanicalModelCurveFitOutput`.
-      - Branch 2: `IdentifierBuilderStep` producing the deterministic SHA-256 fit identifier string.
-      - Branch 3: `NumericalSimulationStep` followed by an inner 3-way fork (`AsymptoteMonitoringStep`, `DeltaCalculatorStep`, `MechanicalModelOutputFileWriterStep`).
-    - Mapped Broadcast: `.AddBroadcastStep(curveFitPersistenceStep, t => (t.Item2, t.Item1))` persisting fitted parameters without mutating the primary stream.
-    - Convergence: `.AddDataMapping(...)` constructs `MechanicalModelOutputPersistenceInput` from the joined tuple.
-    - Terminal: `MechanicalModelOutputPersistenceStep` saves the simulation entity and returns the identifier.
-  - Configuration: `ExperimentalDataSettings` (`FileWriterOptions`, `SegmenterOptions`, `CurveFitterOptions`, `SegmentBuilderOptions`, `SimulationInputBuilderOptions` via `PipelineStepOptions`).
-  - Serialization: Centralized `OptimizationJsonOptions.SignificantFigures7` with `SignificantFiguresDoubleJsonConverter(7)`.
-  - Segment types: `Ramp`, `Relaxation`, `Descent`, `Recovery`.
-- `ICurveFitter` interface with `MathNetCurveFitter` and `AlglibCurveFitter` (bundled ALGLIB):
-  - Domain-agnostic `CurveFitProfile` (`Automatic`, `Standard`, `RuleConstrained`):
-    - `Standard`: Local gradient optimization via `alglib.minbleic` (L-BFGS with box bounds) for fast, quadratic convergence in smooth analytical problems.
-    - `RuleConstrained`: Derivative-free global optimization via `alglib.mindf` with GDEMO (adaptive Differential Evolution / SHADE), executing short-circuit rejection (`1e12` barrier) on unphysical or forbidden parameter combinations.
-    - `Automatic`: Automatically routes to `RuleConstrained` if `ValidateParameters` is provided; defaults to `Standard` otherwise.
-  - `CurveFitInput`: Encapsulates independent/dependent variables, box bounds, initial parameters, `Profile`, `ValidateParameters: Func<double[], bool>?`, `TargetRSquared: double?`, and `PopulationMultiplier: int` (default 10).
-  - `CurveFitOutput`: Exposes `OptimizedParameters: double[]`, `FinalError: double` (SSR), `RSquared: double` ($1 - \frac{SSR}{SST}$), and `Iterations: int`.
-  - `MechanicalModelCurveFitOutput`: Exposes `RSquared: double` ($1 - \frac{SSR}{SST}$) consistent with `CurveFitOutput`.
-  - `CurveFitterBase`: Centralized evaluation of objective function (SSR), numerical gradient (finite differences), and determination coefficient ($R^2$).
-- Morris sensitivity analysis: `MorrisAnalyzer`, `MorrisInput`, `MorrisOutput`, `MorrisMetrics`.
-
-### 7. Database & SQL Generation
-- `PostgresSqlProvider` caches generated SQL in static `ConcurrentDictionary<(Type, Operation, int), string>`.
-- Entity metadata discovery via `[Table]`, `[PrimaryKeyColumn]`, `[Column]`, `[UniqueColumn]`, `[ForeignKeyColumn]` attributes.
-- SQL template placeholders (`#TABLE_NAME`, `#COLUMNS`, etc.) substituted statically; runtime placeholders (`#WHERE`, `#ORDERBY`, `#LIMIT`, `#OFFSET`) substituted dynamically by `PostgresRepository`.
-- Supports single and multi-row batch insert with `ON CONFLICT (unique_columns) DO UPDATE SET ...`.
-- `IRepository.TryInsertAsync<TEntity>`: Insert-or-get-existing single statement CTE returning `Result<long>`.
-- `IRepository.GetByUniqueColumnAsync<TEntity>`: Typed lookup via single `[UniqueColumn]` property.
-- `IRepository` is registered Singleton — completely stateless (opens its own connection per operation via `await using`).
-- Filter system: `[Filter(typeof(TEntity))]` on filter class, `[FilterColumn(filterClause, propertyName, tableName)]` on properties. `BuildWhereClauseAndParameters` auto-generates parameterized WHERE clauses.
-
-### 8. HTTP & Streaming Endpoints
-- WebApi provides dual surfaces:
-  - Minimal APIs: `MapCrud<TEntity, TFilter>`, `MapPluginEndpoints`.
-  - MVC Controllers: `CustomControllerBase`, `CrudController<TEntity, TFilter>`, `PluginController`.
-- NDJSON streaming: `HttpContext.WriteNdjsonAsync<T>(IAsyncEnumerable<T>, ...)` emits an `X-Stream-Status: true` trailer after consuming the full body. `ApiServiceAgentBase.GetStreamAsync<T>` verifies this trailer.
-- `ExceptionHandlingHttpMiddleware`: Global error handler mapping exception types to HTTP status codes. Special-cases `NdjsonException` to avoid corrupting partial streams.
-- Content type: `application/x-ndjson` with `X-Content-Type-Options: nosniff`.
-
-### 9. JWE Authentication
-- JWE (JSON Web Encryption) over JWS using `JsonWebTokenHandler`.
-- Signing: `HmacSha256`. Encryption: `Aes256KW` key wrap + `Aes256CbcHmacSha512` content encryption.
-- `IAuthenticationTokenService`: `Generate(long/string)`, `RefreshAsync(token)`, `IsValidAsync(token)`.
-- `AddJweAuthentication(JwtSettings)` configures `JwtBearerDefaults` scheme.
-
-### 10. Dynamic Plugin System
-- Scans `PluginSettings.Directory` for assemblies matching `^(?<name>.+)\.v(?<major>\d+)\.(?<minor>\d+)\.(?<patch>\d+)$`.
-- Pipeline: `DiscoveredPlugin` → `LoadedPlugin` → `RegisteredPlugin` (`IsFullyLoaded`, `FullyLoadedAt`).
-- Each plugin loads in isolated collectible `AssemblyLoadContext` for memory reclaimability.
-- Two-level cache (`name` + `version`). Keyed persistence (`PluginCacheTargets.File` and `PluginCacheTargets.Database`).
-- `PluginOrchestratorBackgroundService`: `PeriodicTimer`-based polling loop that auto-discovers, loads, promotes higher versions, and evicts older versions per `PreviousVersionRetention` (default: 24h).
-- `PluginRegistrationContext`: `ForStartup(IServiceCollection)` mutates static DI; `ForRuntime(IDynamicServiceProvider)` enables hot-swap.
+- **Namespaces:** Mirror each package ID (`MelloSilveiraTools.<Package>.*`).
+- **Dependency Policy:** Never add overlapping NuGet dependencies; keep `Core`, `Mathematics`, and `MechanicsOfMaterials` AOT-clean (avoid reflection-heavy dependencies).
 
 ---
 
-## Thread-Safety & Concurrency
+## Coding Conventions & Style (`.editorconfig` — Mandatory)
 
-### Static Caches (ConcurrentDictionary)
-- `PostgresSqlProvider._metadataCache`: `ConcurrentDictionary<Type, EntityMetadata>` — deterministic, never evicted.
-- `PostgresSqlProvider._sqlCache`: `ConcurrentDictionary<(Type, Operation, int), string>` — keyed on batch size.
-- `ClassExtensions._columnMetaCache`, `_filterColumnMetaCache`, `_filterAttributeCache`: reflection metadata caches.
-- `DictionaryExtensions._typeCache`: compiled `Action<object, object>` property setters for `IDataReader.ConvertTo<T>()`.
-- `TypeExtensions._hierarchyCache`, `_hierarchyAttrCache`, `_propertyNamesCache`: reflection hierarchy caches.
-
-### Connection Management
-- `PostgresRepository`: Stateless singleton. Every operation opens its own `NpgsqlConnection` via `await using`. Safe for concurrent invocations.
-
-### Memory Allocation
-- `SpanStringBuilder`: `ref struct` using `ArrayPool<char>.Shared`. Stack-only; cannot cross `await` boundaries.
-- `CsvStreamReader`: `PipeReader` + `MemoryPool<byte>.Shared`, `stackalloc` for lines ≤ 512 bytes, `ArrayPool<byte/double>.Shared` for larger buffers.
-- `ExperimentalDataService`: `ArrayPool<ExperimentalDataPoint>.Shared` for sliding-window segmentation, returned in `finally`.
-
-### Resilience
-- `DefaultResiliencePipeline`: Uses `ResilienceContextPool.Shared.Get()/Return()` — zero per-call allocation.
-- Polly v8 retry with exponential backoff, jitter, and caller context injection via `[CallerMemberName]` / `[CallerFilePath]`.
-
-### Concurrency Primitives
-- `SemaphoreSlim`: Used in `EnumerableExtensions.ForeachAsync` for bounded-parallel iteration.
-- `Lazy<object>`: Used in `InMemoryDynamicServiceProvider` for thread-safe single-instantiation of plugin services.
-- `ConcurrentDictionary` + `Lazy<T>`: Standard double-checked locking pattern throughout.
+1. **No `var`:** Explicit types are mandatory for every local variable (`int count = 0;`, `List<T> items = [];`). Target-typed `new()` is encouraged when the left-hand type is explicit.
+2. **Constructors & Bodies:** Prefer **primary constructors**; use expression bodies (`=>`) for properties, indexers, accessors, lambdas, and single-expression methods; use block bodies `{ ... }` for multi-statement methods/constructors.
+3. **Layout:** 4 spaces indentation, **CRLF** line endings (`end_of_line = crlf`), `using` directives outside namespaces, private fields prefixed with `_`, single-line `if` without braces allowed/preferred, multi-line blocks require braces.
+4. **Parameter Ordering:** (1) `ILogger`/`ILogger<T>`/`ILoggerFactory`, (2) interfaces (with `IPipelineProgressNotifier` first), (3) concrete classes and primitives (with `TimeProvider` preceding other instances), ..., (last) `CancellationToken`.
+5. **Temporal Operations:** Mandatory non-optional, non-nullable `TimeProvider`. Ambient `DateTime.UtcNow` / `DateTimeOffset.UtcNow` is **forbidden** in production code.
+6. **Modern C# 13:** Use `extension(Type)` blocks, collection expressions `[...]`, `System.Threading.Lock`, switch/property pattern matching, spans/slices, `readonly record struct` for immutable value DTOs, `ref struct` for stack-only builders.
+7. **Logging:** Inject standard `Microsoft.Extensions.Logging.ILogger<T>` (backed by Serilog file/PostgreSQL sinks).
+8. **Settings & DI:** Settings are `record`/class types with `required` mandatory properties and nullable (`?`) optional properties — **never** assume silent default values (`= default;`). Validate platform/critical prerequisites eagerly at DI registration.
+9. **XML Documentation:** Mandatory on all `public` types and members (`<summary>`, `<param>`, `<returns>`, plus `<exception>`/`<remarks>` where applicable).
 
 ---
 
-## AOT & Trimming Policy
+## Strict Architectural Rules & Constraints
 
-- Projects declare `<IsAotCompatible>true</IsAotCompatible>`.
-- Trim/AOT warning noise (`IL2026`, `IL2046`, `IL2050`, `IL2067`, `IL2070`–`IL2095`, `IL2111`, `IL3000`, `IL3050`–`IL3052`) is silenced at the solution level in `Directory.Build.props`.
-- Do **not** pollute public API signatures with `[RequiresUnreferencedCode]` or `[RequiresDynamicCode]`.
-- Use `[DynamicallyAccessedMembers]` where reflection target preservation has functional runtime requirements.
-- Core, Mathematics, and MechanicsOfMaterials are AOT-clean. Database and WebApi use reflection internally. Plugins is fundamentally non-AOT (`AssemblyLoadContext.LoadFromAssemblyPath`).
+### Contracts & Naming
+- **Result vs. Output:** Calculators emit raw `*Output` models (`MechanicalModelOutput`, `FatigueOutput`) — never `*Result` monads.
+- **Constitutive Parameters:** Inherit `ConstitutiveParameters` with `*ConstitutiveParameters` suffix.
+- **Request DTOs:** `*Request` classes must **never** carry a `CancellationToken` property; pass cancellation explicitly to `command.ExecuteAsync(request, cancellationToken)`.
+- **Database Entities & SQL:** PascalCase `record` inheriting `EntityBase`; `[Table("snake_case")]`; properties map via `ToSnakeCase()`. Keep static compile-time placeholders (`#TABLE_NAME`) separate from runtime clauses (`#WHERE`, `#LIMIT`). Batch SQL parameter suffixes are **1-based** (`@Name_1`, `@Name_2`).
+- **Breaking Changes:** Published NuGet suite — do **not** rename, remove, or alter signatures of existing `public` members or change DI lifetimes without explicit human approval.
 
----
+### Concurrency, Safety & AOT
+- **Thread-Safety:** Every **Singleton** service (calculators, caches, `PostgresRepository`, `PostgresSqlProvider`, resilience pipelines, storage services) MUST be thread-safe. `PostgresRepository` opens per-call `NpgsqlConnection` via `await using` (no mutable instance state); static metadata/SQL caches must remain `ConcurrentDictionary`.
+- **Lossless Fan-Out:** Never use native `BroadcastBlock<T>` in TPL Dataflow forks/broadcasts; use `DataflowFanOut` (`ActionBlock` + bounded `BufferBlock`s) for lossless delivery and end-to-end backpressure.
+- **AOT & Trimming:** Projects set `<IsAotCompatible>true</IsAotCompatible>` (trim warnings suppressed in `Directory.Build.props`). Do **not** pollute public APIs with `[RequiresUnreferencedCode]` / `[RequiresDynamicCode]`; use `[DynamicallyAccessedMembers]` only when functionally required.
 
-## Strict Constraints & Rules
-
-### Breaking Changes
-- This is a published NuGet library. Do NOT rename, remove, or change signatures of existing `public` members without explicit approval.
-- Adding new `public` members is acceptable. Changing `internal` or `private` members is acceptable.
-- Do not change DI lifetimes (Singleton → Scoped, etc.) without full impact analysis.
-
-### Thread-Safety Requirements
-- All services registered as **Singleton** MUST be thread-safe. This includes all calculators, caches, repositories, SQL providers, resilience pipelines, and file manager.
-- `PostgresRepository` achieves thread-safety via per-call `NpgsqlConnection` — do NOT add instance-level mutable state.
-- `PostgresSqlProvider` caches are static `ConcurrentDictionary` with deterministic factories — do NOT change to non-concurrent collections.
-
-### SQL Generation
-- SQL template placeholders are split into two stages: compile-time static substitution and runtime dynamic substitution. Do NOT mix them.
-- Batch parameter suffixes are **1-based** (`@Name_1`, `@Name_2`), NOT 0-based. This is validated by unit tests.
-- `BuildUniqueUpdates` updates non-PK, non-unique payload columns; falls back to unique column update if no payload columns exist.
-
-### Naming Conventions
-- Entity classes: PascalCase record inheriting `EntityBase`.
-- Table names: `snake_case` via `[Table("table_name")]`.
-- Column mapping: Property `Name` → column `name` via `ToSnakeCase()`.
-- Calculator outputs: `*Output` suffix (never `*Result`).
-- Constitutive parameter records: `*ConstitutiveParameters` suffix inheriting `ConstitutiveParameters`.
-
-### Test Coverage
-- Tests use xUnit 2.9.3 with `Moq` 4.20.72.
-- Test patterns: AAA, `[Fact]`, `[Theory]` with `[InlineData]` and `[MemberData]`.
-- Fake `IDataReader` via `FakeDataReader` for DB-free `ConvertTo<T>()` testing.
-- SQL generation tests verify exact string content AND reference identity (`Assert.Same`) for cache validation.
-
----
-
-## Versioning & Changelog
-
-- Semantic Versioning (SemVer).
-- Follow [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
-- All unreleased modifications must be documented in `CHANGELOG.md` under `## [Unreleased]` using sections `### Added`, `### Changed`, `### Fixed`, `### Breaking`, or `### Removed`.
-
+### Testing & Versioning
+- **Tests:** xUnit 2.9.3 + Moq 4.20.72, AAA pattern (`[Fact]`, `[Theory]`), `FakeDataReader` for DB-free reader tests, exact string + `Assert.Same` cache checks for SQL generation tests.
+- **Changelog:** SemVer following Keep a Changelog — record unreleased changes in `CHANGELOG.md` under `## [Unreleased]` (`Added`, `Changed`, `Fixed`, `Breaking`, `Removed`).

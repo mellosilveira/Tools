@@ -1,0 +1,58 @@
+using MelloSilveiraTools.Core.Application.Commands;
+using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Models;
+using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Pipelines.Models;
+
+namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Commands.Process;
+
+public record ExecuteExperimentalDataPipelineRequestBase : RequestBase
+{
+    /// <summary>
+    /// The name of the mechanical model to fit (e.g., "Fung", "SimplifiedFung", "Schapery").
+    /// </summary>
+    public required string MechanicalModelName { get; init; }
+
+    /// <summary>
+    /// Segment types to be processed. If empty, all segment types supported by the model are considered.
+    /// </summary>
+    public IReadOnlyList<SegmentType> TargetSegments { get; init; } = [];
+
+    /// <summary>
+    /// Type of curve fitter algorithm to execute (e.g. Alglib or MathNet). Defaults to <see cref="CurveFitterType.Alglib"/>.
+    /// </summary>
+    public CurveFitterType CurveFitterType { get; init; } = CurveFitterType.Alglib;
+
+    /// <summary>
+    /// Target R² determination coefficient specified for curve fitting optimization. Defaults to 0.99.
+    /// </summary>
+    public double TargetRSquared { get; init; } = 0.99;
+
+    /// <summary>
+    /// Desired confidence level for parameter interval estimation (e.g. 0.95 or 95.0 for 95% confidence). Defaults to 0.95.
+    /// </summary>
+    public double ConfidenceLevel { get; init; } = 0.95;
+
+    /// <summary>
+    /// The consecutive points threshold required to detect that a steady-state asymptote has been reached. Defaults to 5.
+    /// </summary>
+    public int AsymptoteConsecutivePointsThreshold { get; init; } = 5;
+
+    /// <summary>
+    /// Optional time step used during extended simulation. If omitted, defaults to the experimental time step.
+    /// </summary>
+    public double? SimulationTimeStep { get; init; }
+
+    /// <summary>
+    /// Optional target final simulation time.
+    /// </summary>
+    public double? FinalSimulationTime { get; init; }
+
+    /// <summary>
+    /// Optional minimal time step between consecutive points in downsampling experimental data.
+    /// </summary>
+    public double? DownsamplingSkipTimeStep { get; init; }
+
+    /// <summary>
+    /// Optional processing options for segmentation tolerances and smoothing.
+    /// </summary>
+    public ExperimentalDataProcessingOptions? Options { get; init; }
+}

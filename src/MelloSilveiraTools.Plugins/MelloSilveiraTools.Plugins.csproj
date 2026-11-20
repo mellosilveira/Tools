@@ -1,5 +1,6 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
     <PackageId>MelloSilveiraTools.Plugins</PackageId>
     <AssemblyTitle>MelloSilveira Tools Plugins</AssemblyTitle>
     <Description>Plugin runtime: file-based discovery, two-level cache, dynamic DI, persistence (file/database), HTTP-friendly operations and a background orchestrator that hot-swaps assemblies at runtime.</Description>

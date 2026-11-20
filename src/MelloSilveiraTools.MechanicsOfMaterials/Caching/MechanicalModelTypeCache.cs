@@ -41,7 +41,7 @@ public class MechanicalModelTypeCache(ISingleLevelCache cache) : IMechanicalMode
 
     /// <summary>
     /// Compiles a <see cref="MethodInfo"/> into a delegate, eliminating reflection overhead on every call.
-    /// The compiled delegate is ~10-50x faster than <see cref="MethodBase.Invoke"/>.
+    /// The compiled delegate is ~10-50x faster than <see cref="MethodBase.Invoke(object?, object?[])"/>.
     /// </summary>
     private static Func<object, object?[], object> CompileMethodInvoker(MethodInfo method)
     {
@@ -52,9 +52,24 @@ public class MechanicalModelTypeCache(ISingleLevelCache cache) : IMechanicalMode
         Expression[] paramExpressions = new Expression[parameters.Length];
         for (int i = 0; i < parameters.Length; i++)
         {
-            paramExpressions[i] = Expression.Convert(
-                Expression.ArrayIndex(args, Expression.Constant(i)),
-                parameters[i].ParameterType);
+            Type paramType = parameters[i].ParameterType;
+            if (paramType.IsGenericType && paramType.GetGenericTypeDefinition() == typeof(MechanicalModelInput<>))
+            {
+                Type constitutiveType = paramType.GetGenericArguments()[0];
+                MethodInfo convertMethod = typeof(MechanicalModelTypeCache)
+                    .GetMethod(nameof(ConvertMechanicalModelInput), BindingFlags.NonPublic | BindingFlags.Static)!
+                    .MakeGenericMethod(constitutiveType);
+
+                paramExpressions[i] = Expression.Call(
+                    convertMethod,
+                    Expression.ArrayIndex(args, Expression.Constant(i)));
+            }
+            else
+            {
+                paramExpressions[i] = Expression.Convert(
+                    Expression.ArrayIndex(args, Expression.Constant(i)),
+                    paramType);
+            }
         }
 
         Expression call = Expression.Call(
@@ -70,13 +85,13 @@ public class MechanicalModelTypeCache(ISingleLevelCache cache) : IMechanicalMode
     }
 
     /// <summary>
-    /// Compiles a parameterless constructor into a factory delegate, replacing <see cref="Activator.CreateInstance"/>.
+    /// Compiles a parameterless constructor into a factory delegate, replacing <see cref="Activator.CreateInstance(Type)"/>.
     /// </summary>
     private static Func<MechanicalModelOutput> CompileOutputFactory(Type outputType)
         => Expression.Lambda<Func<MechanicalModelOutput>>(Expression.New(outputType)).Compile();
 
     /// <summary>
-    /// Compiles property setters for all settable properties of a type, replacing <see cref="PropertyInfo.SetValue"/>.
+    /// Compiles property setters for all settable properties of a type, replacing <see cref="PropertyInfo.SetValue(object?, object?)"/>.
     /// </summary>
     private static Dictionary<string, Action<object, object>> CompilePropertySetters(Type type)
         => type.GetProperties().Where(p => p.SetMethod != null).ToDictionary(p => p.Name, CompilePropertySetter);
@@ -91,6 +106,41 @@ public class MechanicalModelTypeCache(ISingleLevelCache cache) : IMechanicalMode
             Expression.Convert(value, property.PropertyType));
 
         return Expression.Lambda<Action<object, object>>(body, instance, value).Compile();
+    }
+
+    private static MechanicalModelInput<TConstitutiveParameters>? ConvertMechanicalModelInput<TConstitutiveParameters>(object? rawInput)
+        where TConstitutiveParameters : ConstitutiveParameters
+    {
+        if (rawInput is null)
+        {
+            return null;
+        }
+
+        if (rawInput is MechanicalModelInput<TConstitutiveParameters> typedInput)
+        {
+            return typedInput;
+        }
+
+        if (rawInput is MechanicalModelInput<ConstitutiveParameters> genericInput)
+        {
+            if (genericInput.ConstitutiveParameters is TConstitutiveParameters typedParameters)
+            {
+                return new MechanicalModelInput<TConstitutiveParameters>(genericInput, typedParameters);
+            }
+
+            throw new InvalidCastException($"Cannot convert constitutive parameters of type '{genericInput.ConstitutiveParameters?.GetType().Name}' to expected type '{typeof(TConstitutiveParameters).Name}'.");
+        }
+
+        if (rawInput is MechanicalModelInput baseInput)
+        {
+            PropertyInfo? property = rawInput.GetType().GetProperty(nameof(MechanicalModelInput<ConstitutiveParameters>.ConstitutiveParameters));
+            if (property?.GetValue(rawInput) is TConstitutiveParameters constitutive)
+            {
+                return new MechanicalModelInput<TConstitutiveParameters>(baseInput, constitutive);
+            }
+        }
+
+        return (MechanicalModelInput<TConstitutiveParameters>)rawInput;
     }
 }
 

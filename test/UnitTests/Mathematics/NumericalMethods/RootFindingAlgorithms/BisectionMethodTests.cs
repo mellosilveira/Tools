@@ -1,3 +1,4 @@
+using MelloSilveiraTools.Core.Models;
 using MelloSilveiraTools.Mathematics.Models.NumericalMethods;
 using MelloSilveiraTools.Mathematics.NumericalMethods.RootFindingAlgorithms;
 
@@ -44,5 +45,43 @@ public class BisectionMethodTests
         {
             bisection.FindRoot(input, func);
         });
+    }
+
+    [Fact]
+    public void TryFindRoot_ShouldReturnSuccess_WhenConvergenceSucceeds()
+    {
+        BisectionMethod bisection = new();
+        Func<double, double> func = x => x * x - 4.0;
+        RootFindingInput input = new(InitialPoint: 0.0, FinalPoint: 3.0, Tolerance: 1e-5, MaxIterations: 100);
+
+        Result<(double Root, double Error)> result = bisection.TryFindRoot(input, func);
+
+        Assert.True(result.Success);
+        Assert.Equal(2.0, result.Data.Root, precision: 4);
+        Assert.True(Math.Abs(result.Data.Error) < 1e-4);
+    }
+
+    [Fact]
+    public void TryFindRoot_ShouldReturnFailure_WhenSignsDoNotDiffer()
+    {
+        BisectionMethod bisection = new();
+        Func<double, double> func = x => x * x - 4.0;
+        RootFindingInput input = new(InitialPoint: 3.0, FinalPoint: 5.0, Tolerance: 1e-5, MaxIterations: 100);
+
+        Result<(double Root, double Error)> result = bisection.TryFindRoot(input, func);
+
+        Assert.False(result.Success);
+    }
+
+    [Fact]
+    public void TryFindRoot_ShouldReturnFailure_WhenMaxIterationsExceeded()
+    {
+        BisectionMethod bisection = new();
+        Func<double, double> func = x => x * x - 4.0;
+        RootFindingInput input = new(InitialPoint: 0.0, FinalPoint: 3.0, Tolerance: 1e-12, MaxIterations: 2);
+
+        Result<(double Root, double Error)> result = bisection.TryFindRoot(input, func);
+
+        Assert.False(result.Success);
     }
 }

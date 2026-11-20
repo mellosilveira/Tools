@@ -1,4 +1,5 @@
 using MelloSilveiraTools.Core.ExtensionMethods;
+using Microsoft.Extensions.Logging.Abstractions;
 
 namespace UnitTests.Core.ExtensionMethods;
 
@@ -18,6 +19,43 @@ public class EnumerableExtensionsTests
         List<int> items = [1, 2, 3];
 
         Assert.False(items.IsEmpty());
+    }
+
+    [Fact]
+    public void IsNullOrEmpty_ShouldCorrectlyDetectNullOrEmpty()
+    {
+        List<int>? nullList = null;
+        List<int> emptyList = [];
+        List<int> populatedList = [1, 2];
+
+        Assert.True(nullList.IsNullOrEmpty());
+        Assert.True(emptyList.IsNullOrEmpty());
+        Assert.False(populatedList.IsNullOrEmpty());
+    }
+
+    [Fact]
+    public void IsNotNullOrEmpty_ShouldCorrectlyDetectPopulated()
+    {
+        List<int>? nullList = null;
+        List<int> emptyList = [];
+        List<int> populatedList = [10];
+
+        Assert.False(nullList.IsNotNullOrEmpty());
+        Assert.False(emptyList.IsNotNullOrEmpty());
+        Assert.True(populatedList.IsNotNullOrEmpty());
+    }
+
+    [Fact]
+    public void GetSourceType_ShouldReturnRuntimeTypeOfFirstElementOrGenericType()
+    {
+        object[] objects = ["string item", 123];
+        List<int> emptyInts = [];
+
+        Type populatedType = objects.GetSourceType();
+        Type emptyType = emptyInts.GetSourceType();
+
+        Assert.Equal(typeof(string), populatedType);
+        Assert.Equal(typeof(int), emptyType);
     }
 
     [Fact]
@@ -44,5 +82,118 @@ public class EnumerableExtensionsTests
         {
             numbers.FirstWithoutValidate(n => n > 100);
         });
+    }
+
+    [Fact]
+    public async Task ForeachAsync_DispatchesParallelItemsWithinConcurrencyLimit()
+    {
+        List<int> numbers = [1, 2, 3, 4, 5];
+        System.Collections.Concurrent.ConcurrentBag<int> processed = [];
+
+        await numbers.ForeachAsync(async n =>
+        {
+            await Task.Yield();
+            processed.Add(n * 10);
+        }, maxDegreeOfParallelism: 2, NullLogger.Instance);
+
+        Assert.Equal(5, processed.Count);
+        Assert.Contains(10, processed);
+        Assert.Contains(50, processed);
+    }
+
+    [Fact]
+    public void GetCombinations_ComputesCartesianProductCorrectly()
+    {
+        List<List<string>> lists =
+        [
+            ["A", "B"],
+            ["1", "2"]
+        ];
+
+        List<string[]> combinations = lists.GetCombinations().ToList();
+
+        // Should produce 2x2 = 4 combinations: ["A","1"], ["A","2"], ["B","1"], ["B","2"]
+        Assert.Equal(4, combinations.Count);
+        Assert.Equal(["A", "1"], combinations[0]);
+        Assert.Equal(["A", "2"], combinations[1]);
+        Assert.Equal(["B", "1"], combinations[2]);
+        Assert.Equal(["B", "2"], combinations[3]);
+    }
+
+    [Fact]
+    public async Task ForeachAsync_AllOverloadsAndExceptionHandling_ExecuteCleanly()
+    {
+        List<int> items = [1, 2, 3];
+        System.Collections.Concurrent.ConcurrentBag<int> bag1 = [];
+        System.Collections.Concurrent.ConcurrentBag<int> bag2 = [];
+        System.Collections.Concurrent.ConcurrentBag<int> bag3 = [];
+
+        // Async without logger
+        await items.ForeachAsync(async n =>
+        {
+            await Task.Yield();
+            bag1.Add(n);
+        }, 2);
+
+        // Async with logger & exception
+        await items.ForeachAsync(async n =>
+        {
+            await Task.Yield();
+            if (n == 2)
+                throw new InvalidOperationException("err");
+            bag2.Add(n);
+        }, 2, NullLogger.Instance);
+
+        // Sync with logger & exception
+        await items.ForeachAsync(n =>
+        {
+            if (n == 2)
+                throw new InvalidOperationException("err");
+            bag3.Add(n);
+        }, 2, NullLogger.Instance);
+
+        // Sync without logger
+        System.Collections.Concurrent.ConcurrentBag<int> bag4 = [];
+        await items.ForeachAsync(n => bag4.Add(n), 2);
+
+        Assert.Equal([1, 2, 3], bag1.Order().ToArray());
+        Assert.Equal([1, 3], bag2.Order().ToArray());
+        Assert.Equal([1, 3], bag3.Order().ToArray());
+        Assert.Equal([1, 2, 3], bag4.Order().ToArray());
+    }
+
+    [Fact]
+    public void Foreach_SyncOverloadsAndFluentListHelpers_BehaveCorrectly()
+    {
+        List<int> items = [1, 2, 3];
+        List<int> seenWithLogger = [];
+        List<int> seenWithoutLogger = [];
+
+        items.Foreach(n =>
+        {
+            if (n == 2)
+                throw new InvalidOperationException("swallowed");
+            seenWithLogger.Add(n);
+        }, NullLogger.Instance);
+
+        items.Foreach(n => seenWithoutLogger.Add(n));
+
+        Assert.Equal([1, 3], seenWithLogger);
+        Assert.Equal([1, 2, 3], seenWithoutLogger);
+
+        List<double> doubles = [];
+        doubles.FluentAddIfNotNull(null).FluentAddIfNotNull(3.5);
+        Assert.Equal([3.5], doubles);
+
+        List<string> strings = [];
+        strings.FluentAdd("a").FluentAddIf(false, "b").FluentAddIf(true, "c").FluentAddRange(["d"]);
+        strings.FluentAddRangeIfNotNull((IEnumerable<string>)null!);
+        strings.FluentAddRangeIfNotNull(["e"]);
+        Assert.Equal(["a", "c", "d", "e"], strings);
+
+        object[] heterogeneous = ["text"];
+        object[] emptySeq = [];
+        Assert.Equal(typeof(string), heterogeneous.GetSourceType());
+        Assert.Equal(typeof(object), emptySeq.GetSourceType());
     }
 }

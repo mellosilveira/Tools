@@ -101,12 +101,12 @@ public class FatigueCalculator : IFatigueCalculator
             _ => 0
         };
 
-        if (2.79 <= equivalentDiameter * 1000 && equivalentDiameter <= 51)
+        if (2.79 <= equivalentDiameter && equivalentDiameter <= 51)
         {
             return Math.Pow(equivalentDiameter / 7.62, -0.107);
         }
 
-        if (51 < equivalentDiameter * 1000 && equivalentDiameter <= 254)
+        if (51 < equivalentDiameter && equivalentDiameter <= 254)
         {
             return 1.51 * Math.Pow(equivalentDiameter, -0.157);
         }

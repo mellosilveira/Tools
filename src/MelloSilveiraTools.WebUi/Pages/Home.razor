@@ -1,0 +1,456 @@
+@page "/"
+@inject ApiClientService ApiClient
+
+<div class="container">
+    <header class="header">
+        <div>
+            <h1>MelloSilveiraTools Workbench</h1>
+            <p>Viscoelastic Constitutive Modeling, Curve Fitting &amp; Parametric Sensitivity Quickstart</p>
+        </div>
+
+        <div class="auth-bar">
+            @if (ApiClient.IsAuthenticated)
+            {
+                <span class="badge badge-ok">JWE Authenticated</span>
+                <span style="font-size: 0.8rem; color: var(--muted);">
+                    Expires: @ApiClient.TokenExpiresOn?.ToLocalTime().ToString("HH:mm:ss")
+                </span>
+                <button class="btn btn-secondary" @onclick="RefreshAuthAsync" disabled="@_isBusy">Refresh JWE</button>
+            }
+            else
+            {
+                <span class="badge badge-warn">Not Authenticated</span>
+                <button class="btn btn-primary" @onclick="AuthenticateDemoAsync" disabled="@_isBusy">
+                    Generate Demo JWE Token
+                </button>
+            }
+            <a href="/swagger" target="_blank" class="btn btn-secondary" style="text-decoration: none;">Swagger API</a>
+        </div>
+    </header>
+
+    @if (!string.IsNullOrWhiteSpace(_statusMessage))
+    {
+        <div class="alert @(_isError ? "alert-error" : "alert-info")">@_statusMessage</div>
+    }
+
+    <div class="grid">
+        <section class="card">
+            <h2>1. Experimental Dataset (Sample or CSV Upload)</h2>
+
+            <div class="form-group">
+                <label>Pre-bundled Knee Ligament Sample</label>
+                <div style="display: flex; gap: 0.5rem;">
+                    <select class="form-control" @bind="_selectedSampleId">
+                        @foreach (SampleDatasetDto sample in _samples)
+                        {
+                            <option value="@sample.Id">@sample.Name</option>
+                        }
+                    </select>
+                    <button class="btn btn-secondary" @onclick="LoadSamplesAsync" disabled="@(!ApiClient.IsAuthenticated || _isBusy)">Reload</button>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Or Upload Custom Raw CSV Pair (strain.csv &amp; stress.csv)</label>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem;">
+                    <div>
+                        <small style="color: var(--muted);">Strain CSV</small>
+                        <InputFile OnChange="OnStrainFileSelected" accept=".csv" class="form-control" />
+                    </div>
+                    <div>
+                        <small style="color: var(--muted);">Stress CSV</small>
+                        <InputFile OnChange="OnStressFileSelected" accept=".csv" class="form-control" />
+                    </div>
+                </div>
+            </div>
+
+            @if (_strainUploadFile is not null && _stressUploadFile is not null)
+            {
+                <button class="btn btn-secondary" @onclick="UploadCustomCsvPairAsync" disabled="@(!ApiClient.IsAuthenticated || _isBusy)">
+                    Upload Selected CSVs
+                </button>
+            }
+        </section>
+
+        <section class="card">
+            <h2>2. Constitutive Model &amp; Fitting Configuration</h2>
+
+            <div class="form-group">
+                <label>Viscoelastic Constitutive Model</label>
+                <select class="form-control" @bind="_selectedModel">
+                    <option value="Fung">Fung QLV (Continuous Spectrum)</option>
+                    <option value="SimplifiedFung">Simplified Fung (Prony Series)</option>
+                    <option value="Schapery">Schapery Non-Linear Viscoelasticity</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>Target R² Threshold</label>
+                <input type="number" step="0.01" min="0.50" max="0.999" class="form-control" @bind="_targetRSquared" />
+            </div>
+
+            <div style="display: flex; gap: 0.75rem; align-items: center;">
+                <button class="btn btn-primary" @onclick="RunExperimentalPipelineAsync" disabled="@(!ApiClient.IsAuthenticated || _isBusy)">
+                    @(_isRunningPipeline ? "Running Pipeline..." : "Run Segmentation & Curve Fit")
+                </button>
+                @if (!string.IsNullOrWhiteSpace(_currentPipelineId))
+                {
+                    <span class="badge badge-info">Run ID: @_currentPipelineId</span>
+                }
+            </div>
+        </section>
+    </div>
+
+    <PipelineProgressMonitor Events="@_progressEvents" />
+
+    @if (_curveFits.Count > 0)
+    {
+        <div class="card" style="margin-top: 1.25rem;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+                <h2>3. Calibrated Constitutive Parameters</h2>
+                <button class="btn btn-primary" @onclick="RunOaatSweepAsync" disabled="@_isBusy">
+                    Run OAAT Sensitivity Sweep
+                </button>
+            </div>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Model</th>
+                        <th>Target Regime</th>
+                        <th>Error</th>
+                        <th>Iterations</th>
+                        <th>Calibrated Parameters (JSON)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (MechanicalModelCurveFitOutputDto fit in _curveFits)
+                    {
+                        <tr>
+                            <td><strong>@fit.MechanicalModelName</strong></td>
+                            <td>@fit.Identifier</td>
+                            <td>@fit.Error.ToString("E4")</td>
+                            <td>@fit.Iterations</td>
+                            <td><div class="code-block">@fit.ConstitutiveParameters</div></td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+
+    @if (_experimentalChartPoints.Count > 0)
+    {
+        <div class="card" style="margin-top: 1.25rem;">
+            <h2>4. Stress-Time Segmentation &amp; Constitutive Fit Overlay</h2>
+            <BiomechanicsChart ElementId="exp-sim-chart"
+                               Title="@($"Experimental vs. {_selectedModel} Model Fit")"
+                               ExperimentalPoints="@_experimentalChartPoints"
+                               SimulationPoints="@_simulationChartPoints" />
+        </div>
+    }
+
+    @if (_sensitivityChartPoints.Count > 0)
+    {
+        <div class="card" style="margin-top: 1.25rem;">
+            <h2>5. One-At-A-Time (OAAT) Parametric Sensitivity Analysis</h2>
+            <BiomechanicsChart ElementId="oaat-chart"
+                               Title="@($"OAAT Sensitivity Sweep ({_selectedSensitivityFileName})")"
+                               SensitivityPoints="@_sensitivityChartPoints"
+                               IsSensitivityChart="true" />
+        </div>
+    }
+</div>
+
+@code {
+    private List<SampleDatasetDto> _samples = [];
+    private string _selectedSampleId = string.Empty;
+    private string _selectedModel = "Fung";
+    private double _targetRSquared = 0.90;
+
+    private IBrowserFile? _strainUploadFile;
+    private IBrowserFile? _stressUploadFile;
+    private ExperimentalUploadResponseDto? _uploadedLocations;
+
+    private string? _currentPipelineId;
+    private string? _statusMessage;
+    private bool _isError;
+    private bool _isBusy;
+    private bool _isRunningPipeline;
+
+    private List<PipelineProgressEventDto> _progressEvents = [];
+    private List<MechanicalModelCurveFitOutputDto> _curveFits = [];
+    private List<ChartDataPoint> _experimentalChartPoints = [];
+    private List<ChartDataPoint> _simulationChartPoints = [];
+    private List<SensitivityPoint> _sensitivityChartPoints = [];
+    private string _selectedSensitivityFileName = string.Empty;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await AuthenticateDemoAsync();
+    }
+
+    private async Task AuthenticateDemoAsync()
+    {
+        _isBusy = true;
+        _isError = false;
+        _statusMessage = null;
+        try
+        {
+            AuthTokenDto? token = await ApiClient.AuthenticateDemoAsync();
+            if (token is null)
+            {
+                _isError = true;
+                _statusMessage = "Failed to obtain demo JWE token from /api/v1/auth/demo-token.";
+                return;
+            }
+            await LoadSamplesAsync();
+            _statusMessage = "Authenticated via JWE Bearer token and loaded bundled samples.";
+        }
+        catch (Exception ex)
+        {
+            _isError = true;
+            _statusMessage = $"Authentication error: {ex.Message}";
+        }
+        finally
+        {
+            _isBusy = false;
+        }
+    }
+
+    private async Task RefreshAuthAsync()
+    {
+        _isBusy = true;
+        _isError = false;
+        try
+        {
+            AuthTokenDto? refreshed = await ApiClient.RefreshTokenAsync();
+            _statusMessage = refreshed is not null ? "JWE token refreshed." : "Failed to refresh JWE token.";
+            _isError = refreshed is null;
+        }
+        catch (Exception ex)
+        {
+            _isError = true;
+            _statusMessage = $"Token refresh error: {ex.Message}";
+        }
+        finally
+        {
+            _isBusy = false;
+        }
+    }
+
+    private async Task LoadSamplesAsync()
+    {
+        _samples = await ApiClient.GetSamplesAsync();
+        if (_samples.Count > 0 && string.IsNullOrWhiteSpace(_selectedSampleId))
+            _selectedSampleId = _samples[0].Id;
+    }
+
+    private void OnStrainFileSelected(InputFileChangeEventArgs args)
+    {
+        _strainUploadFile = args.File;
+        _uploadedLocations = null;
+    }
+
+    private void OnStressFileSelected(InputFileChangeEventArgs args)
+    {
+        _stressUploadFile = args.File;
+        _uploadedLocations = null;
+    }
+
+    private async Task UploadCustomCsvPairAsync()
+    {
+        if (_strainUploadFile is null || _stressUploadFile is null)
+            return;
+
+        _isBusy = true;
+        _isError = false;
+        try
+        {
+            ApiResultDto<ExperimentalUploadResponseDto> response = await ApiClient.UploadExperimentalCsvAsync(_strainUploadFile, _stressUploadFile);
+            if (!response.Success || response.Data is null)
+            {
+                _isError = true;
+                _statusMessage = string.IsNullOrWhiteSpace(response.JoinedMessages) ? "Upload failed." : response.JoinedMessages;
+                return;
+            }
+
+            _uploadedLocations = response.Data;
+            _statusMessage = $"Uploaded custom CSV pair ({_uploadedLocations.UploadIdentifier}). Ready to run pipeline.";
+        }
+        catch (Exception ex)
+        {
+            _isError = true;
+            _statusMessage = $"Upload error: {ex.Message}";
+        }
+        finally
+        {
+            _isBusy = false;
+        }
+    }
+
+    private async Task RunExperimentalPipelineAsync()
+    {
+        SampleDatasetDto? sample = _samples.FirstOrDefault(s => s.Id == _selectedSampleId);
+        string? strainLoc = _uploadedLocations?.StrainFileLocation ?? sample?.StrainFileLocation;
+        string? stressLoc = _uploadedLocations?.StressFileLocation ?? sample?.StressFileLocation;
+
+        if (string.IsNullOrWhiteSpace(strainLoc) || string.IsNullOrWhiteSpace(stressLoc))
+        {
+            _isError = true;
+            _statusMessage = "Please select a bundled sample or upload a custom strain/stress CSV pair first.";
+            return;
+        }
+
+        _isBusy = true;
+        _isRunningPipeline = true;
+        _isError = false;
+        _progressEvents = [];
+        _curveFits = [];
+        _experimentalChartPoints = [];
+        _simulationChartPoints = [];
+        _sensitivityChartPoints = [];
+
+        try
+        {
+            ExecuteExperimentalDataRequestDto request = new()
+            {
+                ExperimentalDataGroupRequest = new ExperimentalDataGroupDto
+                {
+                    StrainFileLocation = strainLoc,
+                    StressFileLocation = stressLoc
+                },
+                MechanicalModelName = _selectedModel,
+                TargetRSquared = _targetRSquared,
+                TargetSegments = ["Relaxation"]
+            };
+
+            ApiResultDto<string> startResult = await ApiClient.StartExperimentalPipelineAsync(request);
+            if (!startResult.Success || string.IsNullOrWhiteSpace(startResult.Data))
+            {
+                _isError = true;
+                _statusMessage = string.IsNullOrWhiteSpace(startResult.JoinedMessages) ? "Failed to start experimental data pipeline." : startResult.JoinedMessages;
+                return;
+            }
+
+            _currentPipelineId = startResult.Data;
+            _statusMessage = $"Pipeline started (ID: {_currentPipelineId}). Streaming NDJSON telemetry...";
+            StateHasChanged();
+
+            await foreach (PipelineProgressEventDto evt in ApiClient.StreamPipelineProgressAsync(_currentPipelineId))
+            {
+                _progressEvents.Add(evt);
+                StateHasChanged();
+                if (evt.State == "Faulted")
+                {
+                    _isError = true;
+                    _statusMessage = $"Pipeline faulted at step '{evt.StepName}': {evt.Description}";
+                    return;
+                }
+                if (evt.StepName.Contains("MechanicalModelOutputPersistence", StringComparison.OrdinalIgnoreCase) && evt.State == "Completed")
+                    break;
+            }
+
+            await LoadExperimentalResultsAsync(_currentPipelineId);
+        }
+        catch (Exception ex)
+        {
+            _isError = true;
+            _statusMessage = $"Pipeline execution error: {ex.Message}";
+        }
+        finally
+        {
+            _isRunningPipeline = false;
+            _isBusy = false;
+        }
+    }
+
+    private async Task LoadExperimentalResultsAsync(string externalIdentifier)
+    {
+        _curveFits = await ApiClient.GetCurveFitsAsync(externalIdentifier);
+        List<MechanicalModelSimulationDto> simulations = await ApiClient.GetSimulationsAsync(externalIdentifier);
+        if (simulations.Count > 0)
+        {
+            MechanicalModelSimulationDto sim = simulations[0];
+            if (sim.ExperimentalDataFileMetadataId > 0)
+            {
+                string expCsv = await ApiClient.DownloadStoredFileCsvAsync(sim.ExperimentalDataFileMetadataId);
+                _experimentalChartPoints = ApiClientService.ParseStressStrainCsv(expCsv);
+            }
+            if (sim.SimulationOutputFileMetadataId > 0)
+            {
+                string simCsv = await ApiClient.DownloadStoredFileCsvAsync(sim.SimulationOutputFileMetadataId);
+                _simulationChartPoints = ApiClientService.ParseStressStrainCsv(simCsv);
+            }
+        }
+        _statusMessage = $"Completed pipeline {externalIdentifier}. Found {_curveFits.Count} calibrated model(s).";
+    }
+
+    private async Task RunOaatSweepAsync()
+    {
+        if (string.IsNullOrWhiteSpace(_currentPipelineId))
+            return;
+
+        _isBusy = true;
+        _isError = false;
+        try
+        {
+            ExecuteParametricSweepFromExperimentalDataRequestDto sweepRequest = new()
+            {
+                ExperimentalDataIdentifier = _currentPipelineId,
+                MechanicalModelName = _selectedModel,
+                ExecutionMode = "Sequential",
+                BaseStrain = 0.04,
+                StrainRange = new RangeParametersDto { InitialPoint = 0.03, FinalPoint = 0.05, Step = 0.01 },
+                RampTimeConsideration = "Disregard",
+                InitialTime = 1.0,
+                TimeStep = 10.0,
+                FinalTime = 51.0,
+                RootFindingAlgorithm = "StepByStepMethod",
+                BaseRootFindingInput = new RootFindingInputDto(1.0, 51.0, 1e-2, 50)
+            };
+
+            List<string> sweepIds = await ApiClient.StartParametricSweepFromExperimentalDataAsync(sweepRequest);
+            if (sweepIds.Count == 0)
+            {
+                _isError = true;
+                _statusMessage = "Parametric sweep returned no execution identifiers.";
+                return;
+            }
+
+            string sweepId = sweepIds[0];
+            await foreach (PipelineProgressEventDto evt in ApiClient.StreamPipelineProgressAsync(sweepId))
+            {
+                _progressEvents.Add(evt);
+                StateHasChanged();
+                if (evt.State == "Faulted")
+                {
+                    _isError = true;
+                    _statusMessage = $"OAAT sweep faulted at step '{evt.StepName}': {evt.Description}";
+                    return;
+                }
+                if (evt.StepName.Contains("Persistence", StringComparison.OrdinalIgnoreCase) && evt.State == "Completed")
+                    break;
+            }
+
+            List<StorageEntryMetadataDto> files = await ApiClient.GetStoredFilesAsync(sweepId);
+            StorageEntryMetadataDto? csvFile = files.FirstOrDefault(f => f.FileName.EndsWith(".csv", StringComparison.OrdinalIgnoreCase));
+            if (csvFile is not null)
+            {
+                _selectedSensitivityFileName = csvFile.FileName;
+                string csv = await ApiClient.DownloadStoredFileCsvAsync(csvFile.Id);
+                _sensitivityChartPoints = ApiClientService.ParseSensitivityCsv(csv);
+            }
+
+            _statusMessage = $"OAAT sweep completed (ID: {sweepId}).";
+        }
+        catch (Exception ex)
+        {
+            _isError = true;
+            _statusMessage = $"OAAT sweep error: {ex.Message}";
+        }
+        finally
+        {
+            _isBusy = false;
+        }
+    }
+}

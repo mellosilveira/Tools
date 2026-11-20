@@ -23,5 +23,5 @@ public class ApplicationConstants
     /// <summary>
     /// Value written to the stream status trailer when streaming completes successfully.
     /// </summary>
-    public const string StreamSuccessfullyStatus = "true";
+    public const string StreamSuccessfullyStatus = "success";
 }

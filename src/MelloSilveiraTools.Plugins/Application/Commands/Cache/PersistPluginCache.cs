@@ -12,9 +12,9 @@ namespace MelloSilveiraTools.Plugins.Application.Commands.Cache;
 public class PersistPluginCache(IPluginService pluginService, PluginValidator validator) : CommandBaseWithDefaultResponse<PluginsRequest>(validator)
 {
     /// <inheritdoc />
-    protected override async Task<Result> ExecuteCommandAsync(PluginsRequest request)
+    protected override async Task<Result> ExecuteCommandAsync(PluginsRequest request, CancellationToken cancellationToken = default)
     {
-        await pluginService.PersistCacheAsync(request.Name, PluginVersion.SafeParse(request.Version)).ConfigureAwait(false);
+        await pluginService.PersistCacheAsync(request.Name, PluginVersion.SafeParse(request.Version), cancellationToken).ConfigureAwait(false);
         return Result.CreateSuccessOk();
     }
 }

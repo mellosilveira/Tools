@@ -16,7 +16,9 @@ public class PluginCache(ITwoLevelCache cache)
     /// Returns the cached <see cref="DiscoveredPlugin"/> for (<paramref name="name"/>, <paramref name="version"/>) or adds the one produced by <paramref name="factory"/>.
     /// </summary>
     public DiscoveredPlugin GetOrAdd(string name, PluginVersion version, Func<DiscoveredPlugin> factory)
-        => cache.GetOrAdd(name, $"{version.Name}_DiscoveredPlugin", factory);
+    {
+        return cache.GetOrAdd(name, $"{version.Name}_DiscoveredPlugin", factory);
+    }
 
     /// <summary>
     /// Returns the cached <see cref="LoadedPlugin"/> for (<paramref name="name"/>, <paramref name="version"/>) or adds the one produced by <paramref name="factory"/>.
@@ -25,6 +27,26 @@ public class PluginCache(ITwoLevelCache cache)
     {
         cache.Remove(name, $"{version.Name}_DiscoveredPlugin");
         return cache.GetOrAdd(name, $"{version.Name}_LoadedPlugin", factory);
+    }
+
+    /// <summary>
+    /// Asynchronously returns the cached <see cref="LoadedPlugin"/> for (<paramref name="name"/>, <paramref name="version"/>) or adds the one produced by <paramref name="factory"/>.
+    /// </summary>
+    /// <param name="name">Plugin name.</param>
+    /// <param name="version">Plugin version.</param>
+    /// <param name="factory">Asynchronous factory that loads the plugin when absent from cache.</param>
+    /// <returns>The loaded plugin instance.</returns>
+    public async Task<LoadedPlugin> GetOrAddAsync(string name, PluginVersion version, Func<Task<LoadedPlugin>> factory)
+    {
+        cache.Remove(name, $"{version.Name}_DiscoveredPlugin");
+        if (cache.TryGet(name, $"{version.Name}_LoadedPlugin", out LoadedPlugin? cached) && cached is not null)
+        {
+            return cached;
+        }
+
+        LoadedPlugin loaded = await factory().ConfigureAwait(false);
+        cache.Set(name, $"{version.Name}_LoadedPlugin", loaded);
+        return loaded;
     }
 
     /// <summary>
@@ -40,13 +62,28 @@ public class PluginCache(ITwoLevelCache cache)
     /// Attempts to retrieve the cached plugin state for (<paramref name="name"/>, <paramref name="version"/>) as <typeparamref name="T"/>.
     /// </summary>
     public bool TryGet<T>(string name, PluginVersion version, out T? value) where T : DiscoveredPlugin
-        => cache.TryGet(name, version.Name, out value);
+    {
+        if (cache.TryGet(name, version.Name, out value) && value is not null)
+        {
+            return true;
+        }
+
+        if (cache.TryGet(name, $"{version.Name}_{typeof(T).Name}", out value) && value is not null)
+        {
+            return true;
+        }
+
+        value = null;
+        return false;
+    }
 
     /// <summary>
     /// Replaces the cached state for (<paramref name="name"/>, <paramref name="version"/>) with <paramref name="plugin"/>.
     /// </summary>
     public void Update(string name, PluginVersion version, DiscoveredPlugin plugin)
-        => cache.Set(name, version.Name, plugin);
+    {
+        cache.Set(name, version.Name, plugin);
+    }
 
     /// <summary>
     /// Removes every cached plugin entry.
@@ -55,7 +92,10 @@ public class PluginCache(ITwoLevelCache cache)
     {
         await foreach ((string? name, string? versionAsString, object _) in cache.StreamAll())
         {
-            Clear(name, PluginVersion.Parse(versionAsString));
+            if (name is not null && versionAsString is not null && PluginVersion.TryParse(versionAsString, out PluginVersion parsedVersion))
+            {
+                Clear(name, parsedVersion);
+            }
         }
     }
 
@@ -68,16 +108,23 @@ public class PluginCache(ITwoLevelCache cache)
     {
         // If assembly is loaded, unload it before removing the cache entry.
         if (TryGet<LoadedPlugin>(name, version, out LoadedPlugin? plugin))
+        {
             plugin!.UnloadAssembly();
+        }
 
         cache.Remove(name, version.Name);
+        cache.Remove(name, $"{version.Name}_DiscoveredPlugin");
+        cache.Remove(name, $"{version.Name}_LoadedPlugin");
+        cache.Remove(name, $"{version.Name}_RegisteredPlugin");
     }
 
     /// <summary>
     /// Streams all entries currently held in cache, regardless of pipeline stage.
     /// </summary>
     public IAsyncEnumerable<PluginCacheEntry> Stream(CancellationToken cancellationToken = default)
-        => cache.StreamAll<DiscoveredPlugin>(cancellationToken).Select(MapToEntry);
+    {
+        return cache.StreamAll<DiscoveredPlugin>(cancellationToken).Select(MapToEntry);
+    }
 
     /// <summary>
     /// Streams entries filtered by <paramref name="name"/> and optionally <paramref name="version"/>.
@@ -90,7 +137,15 @@ public class PluginCache(ITwoLevelCache cache)
     /// <see langword="null"/> as "match all" for that level.
     /// </remarks>
     public IAsyncEnumerable<PluginCacheEntry> Stream(string? name, PluginVersion? version, CancellationToken cancellationToken = default)
-        => cache.StreamAll<DiscoveredPlugin>(name, version?.Name, cancellationToken).Select(MapToEntry);
+    {
+        return cache.StreamAll<DiscoveredPlugin>(name, version?.Name, cancellationToken).Select(MapToEntry);
+    }
 
-    private static PluginCacheEntry MapToEntry((string Group, string Key, DiscoveredPlugin Plugin) tuple) => new(tuple.Group, tuple.Key, tuple.Plugin);
+    private static PluginCacheEntry MapToEntry((string Group, string Key, DiscoveredPlugin Plugin) tuple)
+    {
+        string key = tuple.Plugin is not null
+            ? tuple.Plugin.Version.Name
+            : (tuple.Key.Contains('_') ? tuple.Key[..tuple.Key.IndexOf('_')] : tuple.Key);
+        return new(tuple.Group, key, tuple.Plugin!);
+    }
 }

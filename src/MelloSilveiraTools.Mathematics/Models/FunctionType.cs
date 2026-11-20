@@ -49,4 +49,9 @@ public enum FunctionType : int
     /// f(x) = a_0 + a_1 * ln(a_2 * x) + ... + a_n-1 * ln(a_n * x)
     /// </summary>
     Logarithmic = 8,
+
+    /// <summary>
+    /// f(x) = a_0 * E_1(a_1 * x) + ... + a_n-1 * E_1(a_n * x)
+    /// </summary>
+    ExponentialIntegral = 9,
 }

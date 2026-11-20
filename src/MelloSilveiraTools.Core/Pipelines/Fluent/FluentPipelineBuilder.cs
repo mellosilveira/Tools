@@ -60,13 +60,13 @@ file class PipelineEngine<TInitialIn, TFinalOut>(
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            logger.LogInformation("Executing step: '{StepName}'. Input type: {CurrentDataType}. Input Data: {@StepInput}", stepName, currentData.GetType().Name, currentData);
+            logger.LogInformation("Executing step: '{StepName}'. Input type: {CurrentDataType}. Input Data: {@StepInput}", stepName, currentData?.GetType().Name ?? "null", currentData);
 
             try
             {
-                currentData = await stepFunc(currentData, cancellationToken).ConfigureAwait(false);
+                currentData = await stepFunc(currentData!, cancellationToken).ConfigureAwait(false);
 
-                logger.LogInformation("Step '{StepName}' completed successfully. Output type: {OutputDataType}. Output Data: {@StepOutput}", stepName, currentData.GetType().Name, currentData);
+                logger.LogInformation("Step '{StepName}' completed successfully. Output type: {OutputDataType}. Output Data: {@StepOutput}", stepName, currentData?.GetType().Name ?? "null", currentData);
             }
             catch (Exception ex) when (ex is not OperationCanceledException)
             {
@@ -76,7 +76,7 @@ file class PipelineEngine<TInitialIn, TFinalOut>(
         }
 
         logger.LogInformation("Pipeline execution finished successfully. Final output type: {FinalOutputType}. Final Data: {@FinalOutput}", typeof(TFinalOut).Name, currentData);
-        return (TFinalOut)currentData;
+        return (TFinalOut)currentData!;
     }
 
     public async ValueTask DisposeAsync()

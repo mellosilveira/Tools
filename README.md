@@ -1,158 +1,198 @@
 # MelloSilveiraTools
 
-A suite of .NET 10 NuGet packages with helpers for system development: extension methods, infrastructure (database, logging, resilience, encryption), web-API helpers, a runtime plugin system, and engineering toolkits (mathematics, mechanics of materials).
+[![Build and Test](https://github.com/mellosilveira/Tools/actions/workflows/publish_release_candidate_nuget_package.yml/badge.svg)](https://github.com/mellosilveira/Tools/actions/workflows/publish_release_candidate_nuget_package.yml)
+[![JOSS Draft PDF](https://github.com/mellosilveira/Tools/actions/workflows/draft-pdf.yml/badge.svg)](https://github.com/mellosilveira/Tools/actions/workflows/draft-pdf.yml)
+[![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
+[![Target: .NET 10](https://img.shields.io/badge/.NET-10.0-purple.svg)](https://dotnet.microsoft.com/download/dotnet/10.0)
 
-## Packages
+A modular .NET 10 suite of high-performance packages designed for computational mechanics of materials, viscoelastic constitutive modeling, experimental data optimization, dynamic plugin execution, and enterprise-grade system foundations.
 
-Pick the contextual packages your application actually needs, or install the meta-package for everything.
+---
 
-| Package | What it ships | Depends on |
+## 1. About the Project
+
+`MelloSilveiraTools` originated from a practical, real-world initiative: centralizing and standardizing battle-tested, recurring code patterns across multiple mission-critical software systems and research initiatives. Rather than an abstract theoretical framework, every capability in this suite was born out of genuine, demanding requirements encountered in real-world projects.
+
+The project provides a comprehensive, unified foundation for engineering high-complexity, high-performance .NET applications. It combines advanced mathematical modeling, biomechanical constitutive characterization, and high-throughput streaming pipelines with production-grade architectural utilities (resilience pipelines, relational database providers, dynamic plugin loading, and robust file management).
+
+---
+
+## 2. Technical Decisions & Architectural Patterns
+
+The suite is architected around strict engineering principles to guarantee high throughput, maintainability, and clean separation of concerns:
+
+- **Domain-Driven Design (DDD):** Pure domain logic is encapsulated inside dedicated core packages (`Mathematics`, `MechanicsOfMaterials`), free from infrastructure leakage. Models, constitutive parameters, and geometric profiles are represented as immutable, strongly typed records enforcing thermodynamic and physical validity bounds.
+- **Clean Architecture:** Strict unidirectional dependency flow. Calculation engines and mathematical abstractions have zero knowledge of databases, web frameworks, or operating system storage abstractions. Infrastructure layers (`Database`, `WebApi`, `Plugins`) act purely as external adapters.
+- **Plugin Architecture (Extensibility):** Features a dynamic, file-based and in-memory plugin runtime utilizing collectible .NET `AssemblyLoadContext` instances and two-level caching. Currently functional and specialized for mechanical constitutive models (`IMechanicalModelCalculator`, `ConstitutiveParameters`), allowing researchers and engineers to hot-load new material models into running systems without modifying or redeploying the core application.
+- **Native AOT & High Performance:** Core libraries target Ahead-of-Time (AOT) compilation and trimming compatibility (`<IsAotCompatible>true</IsAotCompatible>`). Reflection is eliminated in critical simulation paths through compiled expression trees, and performance is optimized using modern C# 13 features (`ref struct`, `Span<T>`, `ArrayPool<T>`), along with non-blocking concurrency primitives (`SemaphoreSlim`, `System.Threading.Channels`, and concurrent collections).
+- **Minimal APIs, Controllers & Swagger:** The web layer provides a versatile, dual-surface HTTP exposure: ultra-fast ASP.NET Core Minimal APIs alongside structured MVC controllers (`CrudController<TEntity, TFilter>` with automated generic CRUD, filtering, and pagination). Complete OpenAPI/Swagger documentation with Bearer security is configured out-of-the-box.
+- **Strict Dependency Discipline (Minimal Third-Party NuGets):** To prevent supply-chain vulnerabilities, breaking transitive dependencies, and framework bloat, the suite strictly restricts external dependencies. It relies almost exclusively on official, first-party Microsoft/C# runtime libraries (`Microsoft.Extensions.*`, `System.Threading.Channels`, TPL Dataflow) and the official `Npgsql` driver for PostgreSQL.
+
+---
+
+## 3. Project Modules & Dependencies
+
+The solution is partitioned into contextual, decoupled NuGet packages:
+
+```
+Core ←─── Mathematics ←─── MechanicsOfMaterials ←─── MechanicsOfMaterials.Optimizations
+  ↑
+  └── Database ←── WebApi ←── Plugins
+
+MelloSilveiraTools (meta) → Aggregates all above packages
+```
+
+| Package | Key Features & Responsibilities | Dependencies |
 |---|---|---|
-| `MelloSilveiraTools.Core` | Extension methods, `ILogger` + file logger, in-memory single/two-level caches, Polly resilience pipelines, encryption (PBKDF2), SMTP email | — |
-| `MelloSilveiraTools.Database` | `IRepository`, `PostgresRepository`, `ISqlProvider`, attribute-driven SQL generation, filter clauses, Npgsql/Dapper extensions, dedicated Postgres resilience pipeline | Core |
-| `MelloSilveiraTools.WebApi` | `CustomControllerBase`, `CrudController<TEntity, TFilter>`, `ExceptionHandlingMiddleware`, NDJSON streaming, JWE bearer authentication, Swagger bootstrap, `ApiServiceAgent`, `OperationBase` / `OperationResponseBase` / `OperationResponse` (factory helpers `CreateSuccessOk`, `CreateConflict`, `CreateUnprocessableEntity`) | Core, Database |
-| `MelloSilveiraTools.Plugins` | File-based plugin runtime, two-level cache, dynamic DI, persistence (file/database), HTTP-friendly operations, background orchestrator | Core, Database, WebApi |
-| `MelloSilveiraTools.Mathematics` | Differential equation solvers (Newmark, Newmark-β), function system (constant/polynomial/exponential/sine/cosine/power-law + factory), expressions (PronySeries), numerical integration (Simpson), differentiation, root-finding (Bisection, Brent), statistics, 3D geometry (Point3D, Vector3D), unit converter | Core |
-| `MelloSilveiraTools.MechanicsOfMaterials` | Fatigue (Goodman/Marin), constitutive equations, geometric properties (circular/rectangular profiles), 3D vector/force models, mechanical models (elastic, linear/non-linear/quasi-linear viscoelastic), load-sharing calculator | Mathematics |
-| `MelloSilveiraTools` | Meta-package: ProjectReferences for every package above; install once and get everything | all of the above |
+| **`MelloSilveiraTools.Core`** | TPL Dataflow & fluent pipeline builders with real-time telemetry, Polly v8 resilience pipelines, in-memory caches, cryptography, file storage providers (`Local`, `AWS S3`, `Azure Blob`, `DFS`), and extension methods. | BCL, `Microsoft.Extensions.*`, `Polly` |
+| **`MelloSilveiraTools.Database`** | High-performance relational database provider for PostgreSQL, Dapper extensions, attribute-driven SQL generation, dynamic filtering clauses, and resilient transaction handling. | `Core`, `Npgsql`, `Dapper` |
+| **`MelloSilveiraTools.WebApi`** | Base controllers (`CustomControllerBase`, `CrudController`), Minimal API mappings (`MapCrud`), NDJSON real-time streaming, JWE bearer authentication, and Swagger configuration. | `Core`, `Database`, `Microsoft.AspNetCore.App` |
+| **`MelloSilveiraTools.Plugins`** | Dynamic plugin loader with collectible `AssemblyLoadContext`, two-level caching, storage-agnostic binary inspection, dynamic DI registration, and background file orchestrator. | `WebApi`, `Core`, `Database` |
+| **`MelloSilveiraTools.Mathematics`** | Symbolic-like function hierarchy (`FunctionFactory`), numerical integration (Simpson's rule), differentiation, root finding (Brent, Bisection), ODE solvers (Newmark, Newmark-$\beta$), 3D vectors, and statistics. | `Core` (zero external dependencies) |
+| **`MelloSilveiraTools.MechanicsOfMaterials`** | Linear and non-linear viscoelastic constitutive models (Fung QLV, Simplified Fung with Prony series, Schapery, Maxwell), classical fatigue criteria (Goodman/Marin), geometric profiles, and 3D ligament load sharing. | `Mathematics` |
+| **`MelloSilveiraTools.MechanicsOfMaterials.Optimizations`** | TPL Dataflow experimental data pipelines: CSV phase segmentation (`Ramp`, `Relaxation`, `Descent`, `Recovery`), downsampling, constrained curve fitting (embedded ALGLIB L-BFGS & MathNet.Numerics), and parametric sensitivity sweeps. | `MechanicsOfMaterials`, `WebApi`, `MathNet.Numerics` |
+| **`MelloSilveiraTools`** | Meta-package aggregating all packages above into a single reference with unified dependency injection (`AddToolsServices`). | All suite packages |
 
-## Quick start
+---
 
-### Everything in one go
+## 4. How to Install NuGet Packages
 
-```csharp
-services.AddToolsServices(
-    databaseSettings,
-    encryptionSettings,
-    resiliencePipelineSettings,
-    pluginSettings,
-    loggerSettings);
+The suite is available on [NuGet.org](https://www.nuget.org/). Install the full meta-package via the .NET CLI:
+
+```bash
+dotnet add package MelloSilveiraTools
 ```
 
-`AddToolsServices` (from the meta-package) chains `AddCoreServices`, `AddDatabaseServices`, `AddMathematicsServices`, `AddMechanicsOfMaterialsServices`, `AddPluginServices` and `AddWebApiServices`. JWE auth and Swagger remain opt-in.
+Or install individual packages according to your system's specific requirements:
 
-### Granular wire-up
+```bash
+# Core utilities and data pipelines
+dotnet add package MelloSilveiraTools.Core
 
-```csharp
-services
-    .AddCoreServices(encryptionSettings, resiliencePipelineSettings, loggerSettings)
-    .AddDatabaseServices(databaseSettings, resiliencePipelineSettings)
-    .AddWebApiServices(resiliencePipelineSettings)
-    .AddJweAuthentication(jwtSettings)
-    .AddSwaggerWithBearerSecurity()
-    .AddMathematicsServices()
-    .AddMechanicsOfMaterialsServices()
-    .AddPluginServices(pluginSettings);
+# Mathematics and numerical methods
+dotnet add package MelloSilveiraTools.Mathematics
+
+# Biomechanics and constitutive modeling
+dotnet add package MelloSilveiraTools.MechanicsOfMaterials
+
+# Experimental data optimization and curve fitting
+dotnet add package MelloSilveiraTools.MechanicsOfMaterials.Optimizations
+
+# PostgreSQL database provider
+dotnet add package MelloSilveiraTools.Database
 ```
 
-A worker that just talks to PostgreSQL and writes file logs only needs:
+---
 
-```csharp
-services
-    .AddCoreServices(encryptionSettings, resiliencePipelineSettings)
-    .AddDatabaseServices(databaseSettings, resiliencePipelineSettings);
+## 5. Web API Usage (`MelloSilveiraTools.WebApi.Host`)
+
+A turnkey ASP.NET Core Web API host (`src/MelloSilveiraTools.WebApi.Host`) exposes the computational engine via JWE-secured REST endpoints, Swagger UI (`/swagger`), and real-time NDJSON progress streaming.
+
+### Quickstart via Cross-Platform Launcher
+```bash
+dotnet run --project src/MelloSilveiraTools.Launcher/
+```
+The launcher validates Docker / PostgreSQL availability, runs idempotent DbUp migrations (`MelloSilveiraTools.Database.Migrator`), starts `WebApi.Host` at `http://localhost:5080`, and opens the browser automatically.
+
+### Quickstart via Docker Compose
+```bash
+docker compose up --build
 ```
 
-— no ASP.NET, JWT, Swagger, plugins or Polly-for-SMTP transitive dependencies.
+### Core Endpoints
+- **JWE Authentication (`POST /api/v1/auth/demo-token`, `POST /api/v1/auth/refresh`):** Issues signed and encrypted JWE bearer tokens for Swagger and WebUi sessions.
+- **Bundled Samples (`GET /api/v1/samples`):** Lists pre-loaded knee ligament datasets (`LCA_02_07_21_L38_D11`).
+- **CSV Upload (`POST /api/v1/experimental-data/upload`):** Accepts `multipart/form-data` pairs (`strainFile`, `stressFile`) into `IFileStorageService`.
+- **Asynchronous Processing (`POST /api/v1/experimental-data/process` & `/process/batch`):** Executes experimental segmentation, curve fitting, and simulation, returning `202 Accepted` with the execution identifier.
+- **Parametric Sweeps (`POST /api/v1/parametric-sweeps/process` & `/process-from-experimental-data`):** Triggers OAAT sensitivity sweeps across calibrated constitutive models.
+- **Real-Time Progress Streaming (`GET /api/v1/pipelines/{pipelineId}/progress`):** Emits `application/x-ndjson` streams providing item-level progress counters and DAG step topology updates.
+- **Result Queries (`GET /api/v1/curve-fit-outputs`, `/api/v1/mechanical-model-simulations`, `/api/v1/parametric-sweeps`, `/api/v1/storage-entry-metadata/{id}/download`):** Paginated queries and CSV artifact downloads.
 
-## HTTP endpoints
+---
 
-Both MVC controllers and minimal-API endpoint extensions ship side-by-side; consumers pick whichever style matches their host. The classic controllers (`CustomControllerBase`, `CrudController<TEntity, TFilter>`, `PluginController`) remain available for hosts that already wire `app.MapControllers()`. New projects can use the equivalent minimal-API extensions instead:
+## 6. Frontend Usage (`MelloSilveiraTools.WebUi`)
 
-```csharp
-// Generic CRUD over an entity + filter pair (alongside CrudController<TEntity, TFilter>):
-app.MapCrud<MyEntity, MyFilter>(pattern: "/api/v1/things", resourceName: "thing");
+An interactive **Blazor WebAssembly (.NET 10)** workbench (`src/MelloSilveiraTools.WebUi`, served directly by `MelloSilveiraTools.WebApi.Host` at `http://localhost:5080`) using Canvas-accelerated **Apache ECharts** provides:
+- **JWE Session Management:** 1-click demonstration JWE token generation and refresh.
+- **Sample & CSV Ingestion:** Instant selection of bundled knee ligament samples or browser CSV pair upload.
+- **Live NDJSON Telemetry:** Step-by-step progress table (`Pending`, `Started`, `Completed`) during pipeline execution.
+- **Experimental Segmentation & Model Fit Overlay:** Interactive zoomable plotting of `Ramp`, `Relaxation`, `Descent`, and `Recovery` phases overlaid with calibrated constitutive model simulations (`Fung`, `SimplifiedFung`, `Schapery`).
+- **Parametric Sensitivity Graphs:** Interactive visualization of One-At-A-Time (OAAT) parametric sweeps.
 
-// Plugin management (alongside PluginController):
-app.MapPluginEndpoints("/api/v1/plugins");
+---
+
+## 7. Project-Specific Documentation
+
+For in-depth architectural notes, class references, and specialized usage guides, please refer to the dedicated `README.md` file located inside each project directory:
+
+- [**`src/MelloSilveiraTools/README.md`**](src/MelloSilveiraTools/README.md) — Meta-package overview and unified DI setup.
+- [**`src/MelloSilveiraTools.Core/README.md`**](src/MelloSilveiraTools.Core/README.md) — Pipelines (TPL Dataflow/Fluent), resilience, caching, and storage.
+- [**`src/MelloSilveiraTools.Database/README.md`**](src/MelloSilveiraTools.Database/README.md) — PostgreSQL repositories, SQL generators, and filtering.
+- [**`src/MelloSilveiraTools.Database.Migrator/README.md`**](src/MelloSilveiraTools.Database.Migrator/README.md) — Contextual DDL schema migrations powered by DbUp.
+- [**`src/MelloSilveiraTools.Mathematics/README.md`**](src/MelloSilveiraTools.Mathematics/README.md) — Functions, expressions, numerical integration, differentiation, and ODE solvers.
+- [**`src/MelloSilveiraTools.MechanicsOfMaterials/README.md`**](src/MelloSilveiraTools.MechanicsOfMaterials/README.md) — Viscoelastic constitutive equations, fatigue, and load-sharing models.
+- [**`src/MelloSilveiraTools.MechanicsOfMaterials.Optimizations/README.md`**](src/MelloSilveiraTools.MechanicsOfMaterials.Optimizations/README.md) — Curve fitting, phase segmentation, and parametric sweeps.
+- [**`src/MelloSilveiraTools.Plugins/README.md`**](src/MelloSilveiraTools.Plugins/README.md) — Dynamic plugin loader, collectible contexts, and caching.
+- [**`src/MelloSilveiraTools.WebApi/README.md`**](src/MelloSilveiraTools.WebApi/README.md) — Minimal APIs, generic CRUD controllers, NDJSON streaming, and authentication.
+
+---
+
+## 8. Running Automated Tests & Dependencies
+
+The solution is thoroughly validated with automated test suites verifying mathematical accuracy, numerical convergence, and pipeline resilience.
+
+Clone and build the solution:
+
+```bash
+git clone https://github.com/mellosilveira/Tools.git
+cd Tools
+dotnet restore MelloSilveiraTools.sln
+dotnet build MelloSilveiraTools.sln --configuration Release --no-restore
 ```
 
-`MapCrud` exposes the same surface the controller does: `POST /`, `GET /{id:long}`, `GET /` (filter + pagination), `PUT /{id:long}`, `DELETE /{id:long}` and `GET /stream` (NDJSON). NDJSON streaming is also available standalone via `httpContext.WriteNdjsonAsync(asyncSequence, logger, resourceName)`.
+### 8.1. Unit Tests (Fast, In-Memory — No External Dependencies)
 
-## AOT compatibility
+Executes the automated in-memory unit test suite covering analytical solvers, constitutive equations, and pipeline components in seconds without requiring any database or Docker container:
 
-Every package opts in to `<IsAotCompatible>true</IsAotCompatible>`. The trim/AOT diagnostic warnings (`IL2026`, `IL3050`, etc.) are silenced via `<NoWarn>` at the project level, so the toolkit doesn't propagate `[RequiresUnreferencedCode]`/`[RequiresDynamicCode]` annotations on its public surface. Where reflection-target preservation matters, `[DynamicallyAccessedMembers]` annotations are kept so the trimmer keeps the right members.
-
-In prose: **Core**, **Mathematics** and **MechanicsOfMaterials** are AOT-clean. **Database** and **WebApi** build AOT-clean but exercise reflection at runtime (Dapper materialization, attribute-driven SQL, Swashbuckle's Newtonsoft adapter); consumers publishing AOT will see those trim warnings in their own analyzers when they call into those paths and must accept them or replace with source-generated equivalents. **Plugins** is fundamentally not AOT-publishable: `AssemblyLoadContext.LoadFromAssemblyPath` cannot work in a published AOT app.
-
-## Plugin system
-
-A complete plugin architecture that lets a host application discover, load and hot-swap external assemblies dropped into a folder, with their services automatically registered into the DI container.
-
-### Capabilities
-
-- **File-based discovery.** DLLs named `{name}.v{major}.{minor}.{patch}.dll` are scanned from the configured plugin directory. Once loaded they are moved to a `loaded/` subfolder.
-- **Two registration modes.**
-  - *Startup:* services registered against the root `IServiceCollection` (`IPluginService.LoadPluginsOnStartup`).
-  - *Runtime:* services registered against an `IDynamicServiceProvider` (`IPluginService.LoadPluginsOnRuntime`), so plugins can come and go without restarting the host.
-- **Type processors.** Implement `IPluginTypeProcessor` to teach the system how to register a particular base type (interface or class) found inside a plugin assembly. The processor receives a `PluginRegistrationContext` that exposes either the `IServiceCollection` (startup) or the `IDynamicServiceProvider` (runtime).
-- **Two-level cache.** `PluginCache` keys by plugin name and `PluginVersion`. Entries progress through `DiscoveredPlugin` -> `LoadedPlugin` -> `RegisteredPlugin`, with `RegisteredPlugin.IsFullyLoaded` / `FullyLoadedAt` marking the final stage.
-- **Persistence.** `IPluginCachePersistence` snapshots the cache to non-volatile storage. Two implementations ship out of the box (`PluginCacheTargets.File`, `PluginCacheTargets.Database`); consumers can add their own keyed implementations and the existing endpoints route to them via the `{target}` route value. The fallback used outside an HTTP request is configurable via `PluginSettings.DefaultCacheTarget`.
-- **Background orchestrator.** `PluginOrchestratorBackgroundService` polls the plugin folder periodically (`PluginSettings.PollInterval`) and:
-  - ignores files whose version is lower than the highest currently-loaded version, logging a warning;
-  - skips files already fully loaded;
-  - loads higher versions through `LoadPluginsOnRuntime` and evicts older cached versions, keeping the version immediately below the new one until `PluginSettings.PreviousVersionRetention` elapses.
-- **Application operations.** Ready-to-use operations (`GetPlugins`, `LoadPlugins`, `ReloadPlugins`, `ClearPluginCache`, `PersistPluginCache`, `RestorePluginCache`) wrap `IPluginService` for HTTP exposure.
-
-### Wire-up
-
-```csharp
-services.AddPluginServices(new PluginSettings
-{
-    Directory = "/var/app/plugins",
-    PollInterval = TimeSpan.FromSeconds(30),
-    PreviousVersionRetention = TimeSpan.FromHours(24),
-    DefaultCacheTarget = PluginCacheTargets.File
-});
+```bash
+dotnet test test/UnitTests/UnitTests.csproj --configuration Release --no-build
 ```
 
-`AddPluginServices` registers everything needed (cache, persistences, processors, orchestrator) **and** eagerly runs `LoadPluginsOnStartup` against the supplied `IServiceCollection` before returning. This must happen during DI configuration: once the host is built the collection is sealed, so any later registration would be discarded.
+### 8.2. Acceptance Tests (Requires Docker)
 
-### File naming
+Executes the end-to-end integration and acceptance test suite validating real knee ligament tensile test data (ACL, PCL, MCL, LCL), HTTP/NDJSON streaming, dynamic plugin lifecycles, and PostgreSQL persistence using [Testcontainers](https://dotnet.testcontainers.org/) to spin up a containerized database instance.
 
-```
-MyCompany.Plugins.Reporting.v1.2.3.dll
-^---------- name -----------^^ version ^
-```
+> [!IMPORTANT]
+> The **Docker daemon must be running** on the host machine before executing acceptance tests.
 
-`PluginVersion` parses the `v{major}.{minor}.{patch}` suffix and supports comparison operators, so the orchestrator can decide whether a file is newer than what is already loaded.
-
-## Mathematics
-
-`MelloSilveiraTools.Mathematics` ships the following toolkits. The DI entry point (`AddMathematicsServices`) registers only the differential-equation solvers; the rest are used directly without injection.
-
-**Differential equation solvers** — `NewmarkMethod`, `NewmarkBetaMethod` (registered via DI), `DifferentialEquationMethodFactory`.
-
-**Function system** — `Function` abstract class with lazy `Derivative` / `Integral` properties. Concrete types: `ConstantFunction`, `PolynomialFunction`, `ExponencialFunction`, `SineFunction`, `CosineFunction`, `PowerLaw`, `GenericFunction`. Create by enum via `FunctionFactory`.
-
-**Expressions** — `Expression` (sum of `Function` instances) and `PronySeries` (`c + Σ aₙ·e^(aₙx)`).
-
-**Numerical methods** — `SimpsonRuleIntegration` (integral), `Derivative` (finite-difference), `BisectionMethod` / `BrentMethod` / `RootFinding` / `StepByStepMethod` (root-finding, all implement `IRootFinding`).
-
-**Statistics** — `IStatisticsCalculator` / `StatisticsCalculator`.
-
-**Geometry and utilities** — `Point3D`, `Vector3D`, `UnitConverter`, `CustomMath` / `MathematicConstants`, `Vector3DExtension`, `DoubleExtensions`.
-
-```csharp
-services.AddMathematicsServices();
+```bash
+dotnet test test/AcceptanceTests/AcceptanceTests.csproj --configuration Release
 ```
 
-## Mechanics of Materials
+---
 
-`MelloSilveiraTools.MechanicsOfMaterials` provides the following calculators. The DI entry point (`AddMechanicsOfMaterialsServices`) registers only the fatigue, constitutive equations, and geometric-property calculators; mechanical models and load sharing are used directly.
+## 9. JOSS Publication
 
-**Fatigue** — `IFatigueCalculator` / `FatigueCalculator` (Goodman/Marin criteria, registered via DI).
+`MelloSilveiraTools` is prepared for submission to the *Journal of Open Source Software* (JOSS). 
 
-**Constitutive equations** — `IConstitutiveEquationsCalculator` / `ConstitutiveEquationsCalculator` (registered via DI).
+- **Manuscript:** The full paper draft is available in [`paper/paper.md`](paper/paper.md).
+- **Bibliography:** The complete BibTeX references are available in [`paper/paper.bib`](paper/paper.bib).
+- **Automated Draft Compilation:** A GitHub Actions workflow ([`.github/workflows/draft-pdf.yml`](.github/workflows/draft-pdf.yml)) compiles the paper into a draft PDF using `openjournals/openjournals-draft-action`.
 
-**Geometric properties** — `IGeometricPropertyCalculator<CircularProfile>` / `IGeometricPropertyCalculator<RectangularProfile>` (registered via DI).
+---
 
-**Mechanical models** — generic `IMechanicalModelCalculator<TInput>` (force, displacement, stress, strain). Implementations: `ElasticModelCalculator`; linear viscoelastic `MaxwellModelCalculator`; non-linear viscoelastic `SchaperyModelCalculator`, `ModifiedSuperpositionMethodCalculator`; quasi-linear viscoelastic `FungModelCalculator`, `SimplifiedFungModelCalculator`.
+## 10. Contributing & Community Guidelines
 
-**Load sharing** — `ILoadSharingCalculator` / `LoadShare1DTissueThreeDimensionalSpaceCalculator` (specimen displacement, angle, force projection and derivatives in 3-D space).
+Contributions, bug reports, and scientific feedback are warmly encouraged!
 
-**3D force model** — immutable `Force` struct; use `Sum`/`Subtract`/`Round`/`Divide`/`Abs`/`Create` to derive new instances.
+- **Guidelines:** Review our [Contributing Guidelines](CONTRIBUTING.md) for pull request workflows, coding style, and testing requirements.
+- **Code of Conduct:** We adhere to the [Contributor Covenant v2.1](CODE_OF_CONDUCT.md).
+- **Issue Templates:** Use the GitHub issue templates for bug reports and feature requests.
 
-```csharp
-services.AddMechanicsOfMaterialsServices();
-```
+---
+
+## 11. License
+
+This project is licensed under the **GNU General Public License v3.0 or later (`GPL-3.0-or-later`)** — see the [LICENSE](LICENSE) file for details.
+
+*Notice:* `MelloSilveiraTools.MechanicsOfMaterials.Optimizations` embeds C# source files from ALGLIB Free Edition (`GPL-2.0-or-later`). Licensing the suite under GPLv3 complies with ALGLIB, the Open Source Initiative (OSI), and JOSS criteria.

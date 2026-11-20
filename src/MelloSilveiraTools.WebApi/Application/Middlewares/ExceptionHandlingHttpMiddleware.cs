@@ -44,6 +44,12 @@ public class ExceptionHandlingHttpMiddleware(RequestDelegate next)
                 return;
             }
 
+            if (context.Response.HasStarted)
+            {
+                logger.LogError(ex, "Unhandled exception occurred after the HTTP response had already started. Method: {Method}, Path: {Path}", context.Request.Method, context.Request.Path.Value);
+                return;
+            }
+
             StatusCode statusCode = ex switch
             {
                 UnauthorizedAccessException => StatusCode.Unauthorized,

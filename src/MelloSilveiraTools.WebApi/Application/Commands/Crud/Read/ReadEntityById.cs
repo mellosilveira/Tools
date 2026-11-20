@@ -13,9 +13,9 @@ namespace MelloSilveiraTools.WebApi.Application.Commands.Crud.Read;
 public class ReadEntityById<TEntity>(IRepository repository) : CommandBaseWithData<ReadEntityByIdRequest, TEntity> where TEntity : EntityBase, new()
 {
     /// <inheritdoc />
-    protected override async Task<Result<TEntity>> ExecuteCommandAsync(ReadEntityByIdRequest request)
+    protected override async Task<Result<TEntity>> ExecuteCommandAsync(ReadEntityByIdRequest request, CancellationToken cancellationToken = default)
     {
-        TEntity? entity = await repository.GetAsync<TEntity>(request.Id).ConfigureAwait(false);
+        TEntity? entity = await repository.GetAsync<TEntity>(request.Id, cancellationToken).ConfigureAwait(false);
         return entity is null ? Result.CreateNotFound() : Result.CreateSuccessOk(entity);
     }
 }

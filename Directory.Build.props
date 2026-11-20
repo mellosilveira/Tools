@@ -17,7 +17,7 @@
 		<PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
 
 		<!-- Versioning (common). -->
-		<VersionPrefix>2.0.0</VersionPrefix>
+		<VersionPrefix>2.0.0-thesis-softtissue-rc01</VersionPrefix>
 		<PackageReleaseNotes>See CHANGELOG.md for the full list of changes.</PackageReleaseNotes>
 
 		<!-- Setup initial variables if not defined. -->
@@ -49,7 +49,7 @@
 		<!-- Suppress CS1591 on generated resources and other deliberately undocumented internals,
 		     plus the trim/AOT diagnostic warnings — we keep [DynamicallyAccessedMembers] where it
 		     matters but don't propagate [RequiresUnreferencedCode]/[RequiresDynamicCode] noise. -->
-		<NoWarn>$(NoWarn);CS1591;IL2026;IL2046;IL2050;IL2067;IL2070;IL2072;IL2075;IL2077;IL2080;IL2087;IL2090;IL2091;IL2092;IL2093;IL2094;IL2095;IL2111;IL3000;IL3050;IL3051;IL3052</NoWarn>
+		<NoWarn>$(NoWarn);CS1591;IL2026;IL2046;IL2050;IL2057;IL2067;IL2070;IL2072;IL2075;IL2077;IL2080;IL2087;IL2090;IL2091;IL2092;IL2093;IL2094;IL2095;IL2111;IL3000;IL3050;IL3051;IL3052;RDG011;AD0001</NoWarn>
 	</PropertyGroup>
 
 	<!-- Deterministic build on CI. -->
