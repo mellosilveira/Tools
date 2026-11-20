@@ -84,25 +84,40 @@ dotnet add package MelloSilveiraTools.Database
 
 ---
 
-## 5. Web API Usage (In Development)
+## 5. Web API Usage (`MelloSilveiraTools.WebApi.Host`)
 
-A turnkey, standalone REST and streaming Web API application is currently under development to expose the computational engine as a headless microservice. 
+A turnkey ASP.NET Core Web API host (`src/MelloSilveiraTools.WebApi.Host`) exposes the computational engine via JWE-secured REST endpoints, Swagger UI (`/swagger`), and real-time NDJSON progress streaming.
 
-Planned API endpoints and capabilities:
-- **Asynchronous Processing (`POST /api/v1/experimental-data/process`):** Accepts `stress.csv` and `strain.csv` uploads, returning `202 Accepted` with a deterministic execution identifier.
-- **Batch Processing (`POST /api/v1/experimental-data/process/batch`):** Ingests batches of experimental datasets with configurable sequential or parallel execution.
-- **Parametric Sweeps (`POST /api/v1/parametric-sweeps/process-from-experimental-data`):** Triggers sensitivity sweeps across all calibrated constitutive models for an experimental identifier.
-- **Real-Time Progress Streaming (`GET /api/v1/pipeline-runs/{id}/events`):** Emits Server-Sent Events (SSE) and NDJSON streams providing item-level progress counters and DAG step topology updates.
+### Quickstart via Cross-Platform Launcher
+```bash
+dotnet run --project src/MelloSilveiraTools.Launcher/
+```
+The launcher validates Docker / PostgreSQL availability, runs idempotent DbUp migrations (`MelloSilveiraTools.Database.Migrator`), starts `WebApi.Host` at `http://localhost:5080`, and opens the browser automatically.
+
+### Quickstart via Docker Compose
+```bash
+docker compose up --build
+```
+
+### Core Endpoints
+- **JWE Authentication (`POST /api/v1/auth/demo-token`, `POST /api/v1/auth/refresh`):** Issues signed and encrypted JWE bearer tokens for Swagger and WebUi sessions.
+- **Bundled Samples (`GET /api/v1/samples`):** Lists pre-loaded knee ligament datasets (`LCA_02_07_21_L38_D11`).
+- **CSV Upload (`POST /api/v1/experimental-data/upload`):** Accepts `multipart/form-data` pairs (`strainFile`, `stressFile`) into `IFileStorageService`.
+- **Asynchronous Processing (`POST /api/v1/experimental-data/process` & `/process/batch`):** Executes experimental segmentation, curve fitting, and simulation, returning `202 Accepted` with the execution identifier.
+- **Parametric Sweeps (`POST /api/v1/parametric-sweeps/process` & `/process-from-experimental-data`):** Triggers OAAT sensitivity sweeps across calibrated constitutive models.
+- **Real-Time Progress Streaming (`GET /api/v1/pipelines/{pipelineId}/progress`):** Emits `application/x-ndjson` streams providing item-level progress counters and DAG step topology updates.
+- **Result Queries (`GET /api/v1/curve-fit-outputs`, `/api/v1/mechanical-model-simulations`, `/api/v1/parametric-sweeps`, `/api/v1/storage-entry-metadata/{id}/download`):** Paginated queries and CSV artifact downloads.
 
 ---
 
-## 6. Frontend Usage (In Development)
+## 6. Frontend Usage (`MelloSilveiraTools.WebUi`)
 
-An accessible, interactive web frontend is currently under active development. Designed with high synergy for the .NET backend, it will provide:
-- **Experimental Curve Visualization:** Interactive plotting of raw experimental stress-strain time histories.
-- **Automated Phase Inspection:** Visual validation of the sliding-window phase segmentation (`Ramp`, `Relaxation`, `Descent`, `Recovery`).
-- **Interactive Model Fitting:** Real-time visual comparison between experimental data and calibrated constitutive models (Fung QLV, Simplified Fung, and Schapery) with parameter confidence interval displays.
-- **Parametric Sensitivity Graphs:** Multi-dimensional visualization of One-At-A-Time (OAAT) parametric sweeps.
+An interactive **Blazor WebAssembly (.NET 10)** workbench (`src/MelloSilveiraTools.WebUi`, served directly by `MelloSilveiraTools.WebApi.Host` at `http://localhost:5080`) using Canvas-accelerated **Apache ECharts** provides:
+- **JWE Session Management:** 1-click demonstration JWE token generation and refresh.
+- **Sample & CSV Ingestion:** Instant selection of bundled knee ligament samples or browser CSV pair upload.
+- **Live NDJSON Telemetry:** Step-by-step progress table (`Pending`, `Started`, `Completed`) during pipeline execution.
+- **Experimental Segmentation & Model Fit Overlay:** Interactive zoomable plotting of `Ramp`, `Relaxation`, `Descent`, and `Recovery` phases overlaid with calibrated constitutive model simulations (`Fung`, `SimplifiedFung`, `Schapery`).
+- **Parametric Sensitivity Graphs:** Interactive visualization of One-At-A-Time (OAAT) parametric sweeps.
 
 ---
 
@@ -137,7 +152,7 @@ dotnet build MelloSilveiraTools.sln --configuration Release --no-restore
 
 ### 8.1. Unit Tests (Fast, In-Memory — No External Dependencies)
 
-Executes **449 unit tests** covering all analytical solvers, constitutive equations, and pipeline components in ~4 seconds without requiring any database or Docker container:
+Executes the automated in-memory unit test suite covering analytical solvers, constitutive equations, and pipeline components in seconds without requiring any database or Docker container:
 
 ```bash
 dotnet test test/UnitTests/UnitTests.csproj --configuration Release --no-build
@@ -145,7 +160,7 @@ dotnet test test/UnitTests/UnitTests.csproj --configuration Release --no-build
 
 ### 8.2. Acceptance Tests (Requires Docker)
 
-Executes **23 end-to-end integration tests** validating real knee ligament tensile test data (ACL, PCL, MCL, LCL) and database persistence using [Testcontainers](https://dotnet.testcontainers.org/) to spin up a containerized PostgreSQL instance.
+Executes the end-to-end integration and acceptance test suite validating real knee ligament tensile test data (ACL, PCL, MCL, LCL), HTTP/NDJSON streaming, dynamic plugin lifecycles, and PostgreSQL persistence using [Testcontainers](https://dotnet.testcontainers.org/) to spin up a containerized database instance.
 
 > [!IMPORTANT]
 > The **Docker daemon must be running** on the host machine before executing acceptance tests.

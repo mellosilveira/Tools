@@ -9,15 +9,16 @@
 * **Autores:** Bruno Mello Silveira (`ORCID: 0000-0001-6793-9387`, correspondente) e Prof. Dr. Paulo Pedro Kenedi (`ORCID: 0000-0001-5563-843X`) — PPEMM/UFCIRJ & Mello Silveira Serviços LTDA.
 * **Licença:** `GPL-3.0-or-later` (compatível com ALGLIB Free Edition `GPL-2.0-or-later`).
 * **Arquivos Comunitários:** `LICENSE`, `CONTRIBUTING.md`, `CODE_OF_CONDUCT.md`, `.github/ISSUE_TEMPLATE/` presentes.
-* **Solução (`.NET 10` / `C# 13`):** 9 projetos em `src/` (8 pacotes NuGet + `Database.Migrator`) compilando com **0 avisos e 0 erros**, documentação XML completa e suítes automatizadas (`UnitTests` em memória + `AcceptanceTests` com Testcontainers PostgreSQL).
+* **Solução (`.NET 10` / `C# 13`):** 12 projetos em `src/` (8 pacotes NuGet + `Database.Migrator` + `WebApi.Host` + `WebUi` + `Launcher`) compilando com **0 avisos e 0 erros**, documentação XML completa e suítes automatizadas (`UnitTests` em memória + `AcceptanceTests` com Testcontainers PostgreSQL).
 
 ## Pendências para Submissão Formal
-1. [ ] **Web API Executável (Quickstart)** com `AddToolsServices`, CORS, `/swagger` e dados amostrais (`data/samples/knee-ligaments/`). *(Decisão: Web API + Frontend em vez de console app.)*
-2. [ ] **Frontend Web Leve** (upload/amostras com 1 clique, segmentação, ajuste Fung/SimplifiedFung/Schapery + $R^2 \ge 0.90$ e sensibilidade OAAT).
-3. [ ] **Workflow de CI (`.github/workflows/ci.yml`)** com `actions/setup-dotnet@v4` em `push`/`pull_request` (`main` e `feature/*`) + badge no `README.md`.
-4. [ ] **Figura Ilustrativa em `paper/`** referenciada no corpo de `paper/paper.md`.
-5. [ ] **Execução Final em `Release` & Revisão do PDF:** sincronizar contagem exata de testes em `paper/paper.md` e inspecionar `paper.pdf` gerado pelo workflow `draft-pdf.yml`.
-6. [ ] **Submissão:** enviar em [https://joss.theoj.org/papers/new](https://joss.theoj.org/papers/new). *(Tag de release e arquivamento com DOI no Zenodo ocorrem somente após o aceite da revisão por pares.)*
+1. [x] **Web API Executável (`MelloSilveiraTools.WebApi.Host`)** com `AddToolsServices`, JWE obrigatória (`/api/v1/auth/demo-token`), CORS, `/swagger`, upload `multipart/form-data`, consultas de resultados e dados amostrais (`SamplesData/`).
+2. [x] **Frontend Web (`MelloSilveiraTools.WebUi` Blazor WASM + ECharts) & `MelloSilveiraTools.Launcher`:** Interface interativa servida pelo host + orquestrador multiplataforma (Docker -> PostgreSQL local -> prompt de instalação -> Migrator -> Host).
+3. [ ] **Figura Ilustrativa em `paper/`** referenciada no corpo de `paper/paper.md` *(última etapa a partir do que foi implementado)*.
+4. [ ] **Execução Final em `Release` & Revisão do PDF:** executar as suítes completas em `Release` e inspecionar `paper.pdf` gerado pelo workflow `draft-pdf.yml`.
+5. [ ] **Submissão:** enviar em [https://joss.theoj.org/papers/new](https://joss.theoj.org/papers/new). *(Tag de release e arquivamento com DOI no Zenodo ocorrem somente após o aceite da revisão por pares.)*
+
+> *(Nota: A automação de build e execução de testes no GitHub Actions já é coberta pelos workflows existentes em `.github/workflows/publish_release_candidate_nuget_package.yml` e `.github/workflows/publish_nuget_package.yml`, dispensando um `ci.yml` adicional.)*
 
 ## Comandos Rápidos
 ```powershell

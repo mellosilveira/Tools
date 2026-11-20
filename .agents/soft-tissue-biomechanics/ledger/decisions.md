@@ -107,7 +107,7 @@
 * **Category:** Decision
 * **What:** Established **Production-First** engineering workflow (implement and stabilize clean production code and contracts before building/updating unit and acceptance test suites), explicitly avoiding test-first scaffolding churn.
 * **From where:** User directive.
-* **Why:** Prevents wasted effort refactoring brittle tests during rapid scientific API evolution while maintaining high final test coverage (757 unit tests + Testcontainers acceptance tests).
+* **Why:** Prevents wasted effort refactoring brittle tests during rapid scientific API evolution while maintaining high final test coverage (automated unit tests + Testcontainers acceptance tests).
 
 ---
 

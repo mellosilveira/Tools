@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [UNRELEASED]
 ### Added
+- **Turnkey Quickstart Stack (`WebApi.Host`, `WebUi`, `Launcher`, and Entity Filters)**:
+  - Added `MechanicalModelSimulationFilter` and `ParametricSweepFilter` in `MelloSilveiraTools.MechanicsOfMaterials.Optimizations`, plus parameterless `[SetsRequiredMembers]` constructors on `MechanicalModelSimulationEntity` and `ParametricSweepEntity` for `MapCrud` / Dapper queryability.
+  - Added `src/MelloSilveiraTools.WebApi.Host` (ASP.NET Core `.NET 10`): unified host enforcing JWE Bearer authentication (`FallbackPolicy` + `AuthController` demo-token/refresh), `ExperimentalDataUploadController` (`multipart/form-data` CSV ingestion), `SamplesController` (bundled `LCA_02_07_21_L38_D11` dataset), `/health` PostgreSQL readiness probe, Swagger with Bearer security, CORS, `MapCrud` query endpoints, and Blazor WebAssembly static hosting.
+  - Added `src/MelloSilveiraTools.WebUi` (Blazor WebAssembly `.NET 10` + Canvas-accelerated Apache ECharts): interactive workbench for JWE authentication, 1-click sample/CSV upload, live NDJSON progress telemetry, phase-segmented stress-strain vs. fitted model plots, and OAAT sensitivity charts.
+  - Added `src/MelloSilveiraTools.Launcher` (cross-platform `.NET 10` console orchestrator): step-by-step infrastructure bootstrapper (Docker -> local PostgreSQL -> interactive OS installer prompt -> DbUp `MigratorEngine` -> `WebApi.Host` + browser launch).
+  - Added `Dockerfile`s for `Database.Migrator` and `WebApi.Host`, updated `docker-compose.yml` (`postgres` -> `migrator` -> `webapi`), and added unit tests in `UnitTests.WebApi.Host.WebApiHostAndQuickstartTests`.
 - **Documentation Architecture & Sub-Project READMEs**:
   - Restructured the root `README.md` into strictly ordered sections covering project origin, architectural patterns (DDD, Clean Architecture, Plugins, Native AOT, Minimal APIs/Controllers, third-party NuGet restrictions), package dependencies, testing instructions, and JOSS publication.
   - Created dedicated, comprehensive `README.md` files for all eight subprojects in `src/` (`MelloSilveiraTools`, `Core`, `Database`, `Mathematics`, `MechanicsOfMaterials`, `Optimizations`, `Plugins`, `WebApi`), each including package overview, key capabilities, quickstart code examples, and dependency lists.
@@ -14,7 +20,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
   - Added `ExecuteBatchExperimentalDataPipeline` and `ExecuteBatchExperimentalDataPipelineRequest`, enabling batch execution across multiple `stress.csv` and `strain.csv` pairs in `Sequential` or `Parallel` modes with non-blocking `SemaphoreSlim` throttling (`MaxDegreeOfParallelism`) and per-group error isolation.
   - Added `ExecuteParametricSweepFromExperimentalDataCommand` and `ExecuteParametricSweepFromExperimentalDataRequest`, allowing researchers to run sensitivity sweeps across all calibrated constitutive models sharing a common experimental `Identifier`.
   - Added controller endpoints: `POST api/v1/experimental-data/process/batch` in `ExperimentalDataController` and `POST api/v1/parametric-sweeps/process-from-experimental-data` in `ParametricSweepController` with real-time NDJSON streaming.
-  - Added unit test suites covering command validators (`ExecuteBatchExperimentalDataPipelineValidatorTests`, `ExecuteExperimentalDataPipelineValidatorTests`, and `ExecuteParametricSweepFromExperimentalDataValidatorTests`), raising unit test coverage to 449 passing tests.
+  - Added unit test suites covering command validators (`ExecuteBatchExperimentalDataPipelineValidatorTests`, `ExecuteExperimentalDataPipelineValidatorTests`, and `ExecuteParametricSweepFromExperimentalDataValidatorTests`), alongside broad unit and acceptance test coverage expansion across all suite packages.
 - **JOSS Submission Preparation & Community Governance**:
   - Re-licensed repository and sub-packages under the **GNU General Public License v3.0 or later (`GPL-3.0-or-later`)**, aligning with the Open Source Initiative (OSI) and the GPL license of embedded ALGLIB Free Edition source files.
   - Added JOSS publication manuscript in `paper/paper.md` (1,377 words) adhering to JOSS guidelines (Summary, Statement of need, State of the field, Software design, Research impact statement, and AI usage disclosure).
@@ -63,7 +69,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
   - Refactored `LoggerSettings` to aggregate optional `File` (`FileLoggerSettings?`) and `Database` (`DatabaseLoggerSettings?`) sub-records, mirroring `FileStorageSettings`.
   - Consolidated Serilog PostgreSQL sink (`Serilog.Sinks.Postgresql.Alternative`) directly in `MelloSilveiraTools.Core`, eliminating duplicate logging registration and resolving the legacy TODO in `DatabaseDependencyInjection.AddDatabaseLogging`.
   - Re-registered singletons defensively in `CoreDependencyInjection.AddCoreLogging` (`LoggerSettings`, `FileLoggerSettings`, `DatabaseLoggerSettings`), preventing double-registration when multiple contextual DI extensions are chained.
-  - Expanded unit test suite with 18 dedicated tests across `UnitTests.Core.Logging.LoggerConfigurationExtensionsTests`, `UnitTests.Database.Logging.DatabaseLoggingExtensionsTests`, and `UnitTests.Core.CoreDependencyInjectionTests`.
+  - Expanded unit test suite across `UnitTests.Core.Logging.LoggerConfigurationExtensionsTests`, `UnitTests.Database.Logging.DatabaseLoggingExtensionsTests`, and `UnitTests.Core.CoreDependencyInjectionTests`.
 - **Storage Architecture Hardening & Cloud Path Extraction Consolidation (`MelloSilveiraTools.Core` & `MelloSilveiraTools.Database`)**:
   - Implemented unified `ExtractCloudPath` method in `FileStorageServiceBase` returning `(string Directory, string? FileName)` decomposed from forward-slash delimited cloud keys, with `ExtractCloudDirectory` and `ExtractCloudFileName` delegating to it using target discards (`_`).
   - Updated `AwsS3FileStorageService` and `BlobStorageFileStorageService` to use `ExtractCloudPath` / `ExtractCloudDirectory` / `ExtractCloudFileName`, eliminating Windows-specific backslash conversions induced by `Path.GetDirectoryName`.
@@ -77,7 +83,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
   - Updated `BlobStorageResiliencePipeline` to use `(int)HttpStatusCode.*` instead of magic numbers.
   - Updated `BlobStorageFileStorageService` to use `(int)HttpStatusCode.NotFound` and `.AsPages(...)` continuation-token pagination for directory and file enumeration.
   - Centralized directory prefix resolution via `BuildDirectoryPrefix` in `FileStorageServiceBase`.
-  - Dedicated unit tests for `DiskSpoolUploadStreamBaseTests` (4 tests) and `DelegatingDisposableStreamTests` (5 tests).
+  - Added dedicated unit tests for `DiskSpoolUploadStreamBaseTests` and `DelegatingDisposableStreamTests`.
 - **CSV Serialization Modernization (`MelloSilveiraTools.MechanicsOfMaterials`)**:
   - Refactored `MechanicalModelOutputCsvFileWriter` to encapsulate `CsvFileWriter` from `MelloSilveiraTools.Core.Managers.File.Csv`, standardizing buffered batch emission and stream disposal across output writers.
   - Implemented unboxed compiled expression tree getters (`Func<MechanicalModelOutput, double?>`) cached in a static `ConcurrentDictionary`, eliminating reflection and value-type boxing overhead during row serialization.

@@ -17,5 +17,34 @@ services:
       timeout: 5s
       retries: 5
 
+  migrator:
+    build:
+      context: .
+      dockerfile: src/MelloSilveiraTools.Database.Migrator/Dockerfile
+    container_name: tools_migrator
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      CONNECTION_STRING: Host=postgres;Port=5432;Database=tools_db;Username=postgres;Password=postgres;
+    restart: "no"
+
+  webapi:
+    build:
+      context: .
+      dockerfile: src/MelloSilveiraTools.WebApi.Host/Dockerfile
+    container_name: tools_webapi
+    depends_on:
+      postgres:
+        condition: service_healthy
+      migrator:
+        condition: service_completed_successfully
+    ports:
+      - "5080:8080"
+    volumes:
+      - tools_storage_data:/app/storage
+    restart: unless-stopped
+
 volumes:
   tools_postgres_data:
+  tools_storage_data:

@@ -60,7 +60,7 @@ However, existing .NET numerical libraries do not provide domain-specific abstra
   4. *Multi-Model Sweep from Experimental Pipeline Runs (`ExecuteParametricSweepFromExperimentalDataCommand`):* Retrieves all calibrated constitutive parameter entities produced by an experimental pipeline run sharing a common `Identifier`, deserializes polymorphic parameter payloads, and dispatches parametric sweeps across all identified models in sequential or parallel modes.
 - **Supporting Infrastructure (`Core`, `Database`, `WebApi`, `Plugins`):** Designed as an integrated, battery-included scientific suite rather than isolated numerical snippets, the platform pairs its core mathematical and constitutive engines (`Mathematics` and `MechanicsOfMaterials`, both completely headless) with the full execution infrastructure required to run, monitor, and persist end-to-end experimental campaigns: TPL Dataflow and fluent pipeline builders, Polly v8 resilience pipelines, Dapper/PostgreSQL persistence, dynamic plugin loading, ASP.NET Core MVC (`CrudController`, `ExperimentalDataController`, `ParametricSweepController`, `PipelineProgressController`, `StoredFilesController`), and NDJSON progress streaming without compromising standalone unit testability of the computational kernels.
 
-All packages target `.NET 10.0` with strict nullable reference types and include an automated unit test suite of 757 tests verifying analytical solutions, numerical convergence, and pipeline topology.
+All packages target `.NET 10.0` with strict nullable reference types and include a comprehensive automated unit and acceptance test suite verifying analytical solutions, numerical convergence, and pipeline topology.
 
 # Research impact statement
 
