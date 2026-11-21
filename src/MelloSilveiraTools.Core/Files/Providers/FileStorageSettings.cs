@@ -1,3 +1,4 @@
+using MelloSilveiraTools.Core.Files.Models;
 using MelloSilveiraTools.Core.Files.Providers.AwsS3;
 using MelloSilveiraTools.Core.Files.Providers.BlobStorage;
 using MelloSilveiraTools.Core.Files.Providers.Dfs;
@@ -11,6 +12,8 @@ namespace MelloSilveiraTools.Core.Files.Providers;
 /// </summary>
 public sealed record FileStorageSettings
 {
+    public StorageProvider DefaultStorageProvider { get; init; }
+
     /// <summary>
     /// Gets the settings governing local file storage.
     /// </summary>

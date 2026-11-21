@@ -59,7 +59,8 @@ public sealed class OptimizationsDependencyInjectionAndJsonTests
             SegmentBuilderOptions = new() { MaxBufferSize = 10, MaxWorkers = 1, KeepOrder = false },
             CurveFitterOptions = stepOptions,
             SimulationInputBuilderOptions = stepOptions,
-            IngestionBufferCapacity = 10
+            IngestionBufferCapacity = 10,
+        MaxCsvSizeBytes = 50L * 1024 * 1024
         };
     }
 

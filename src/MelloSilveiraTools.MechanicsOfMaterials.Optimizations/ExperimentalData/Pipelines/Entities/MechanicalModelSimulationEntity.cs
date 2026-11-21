@@ -1,4 +1,5 @@
-﻿using MelloSilveiraTools.Database.RelationalDatabase.Attributes;
+﻿using System.Diagnostics.CodeAnalysis;
+using MelloSilveiraTools.Database.RelationalDatabase.Attributes;
 using MelloSilveiraTools.Database.RelationalDatabase.Models.Entities;
 
 namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Pipelines.Entities;
@@ -9,6 +10,20 @@ namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData
 [Table("mechanical_model_simulations")]
 public record MechanicalModelSimulationEntity : EntityBase
 {
+    /// <summary>
+    /// Initializes a new instance of <see cref="MechanicalModelSimulationEntity"/> for persistence mapping and deserialization.
+    /// </summary>
+    [SetsRequiredMembers]
+    public MechanicalModelSimulationEntity()
+    {
+        Identifier = string.Empty;
+        CurveFitIdentifier = string.Empty;
+        MechanicalModelName = string.Empty;
+        InitialOutputJson = string.Empty;
+        FinalOutputJson = string.Empty;
+        AbsoluteDeltaOutputJson = string.Empty;
+        PercentageDeltaOutputJson = string.Empty;
+    }
     /// <summary>
     /// Unique identifier for the simulation execution.
     /// </summary>
@@ -33,6 +48,9 @@ public record MechanicalModelSimulationEntity : EntityBase
     [Column]
     public required string MechanicalModelName { get; init; }
 
+    /// <summary>
+    /// Foreign key identifier of the segmented experimental CSV file metadata record.
+    /// </summary>
     [ForeignKeyColumn(typeof(StorageEntryMetadataEntity))]
     public long ExperimentalDataFileMetadataId { get; init; }
 

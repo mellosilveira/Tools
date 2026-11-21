@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using MelloSilveiraTools.Database.RelationalDatabase.Attributes;
 using MelloSilveiraTools.Database.RelationalDatabase.Models.Entities;
 using MelloSilveiraTools.Mathematics.Models.NumericalMethods;
@@ -11,6 +12,18 @@ namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnaly
 [Table("parametric_sweeps")]
 public record ParametricSweepEntity : EntityBase
 {
+    /// <summary>
+    /// Initializes a new instance of <see cref="ParametricSweepEntity"/> for persistence mapping and deserialization.
+    /// </summary>
+    [SetsRequiredMembers]
+    public ParametricSweepEntity()
+    {
+        Identifier = string.Empty;
+        MechanicalModelName = string.Empty;
+        BaseRootFindingInputJson = string.Empty;
+        BaselineParametersJson = string.Empty;
+        SweptVariablesJson = string.Empty;
+    }
     /// <summary>
     /// Unique deterministic hash identifier for the parametric sweep configuration.
     /// </summary>

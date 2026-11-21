@@ -128,6 +128,7 @@ public sealed class ExperimentalDataAndSweepIntegrationAcceptanceTests : IDispos
             experimentalDataSettings: new ExperimentalDataSettings
             {
                 IngestionBufferCapacity = 32,
+        MaxCsvSizeBytes = 50L * 1024 * 1024,
                 SegmenterOptions = stepOptions,
                 FileWriterOptions = stepOptions,
                 PersistanceOptions = stepOptions,

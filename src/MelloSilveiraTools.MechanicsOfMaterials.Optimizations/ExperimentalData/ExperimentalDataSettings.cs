@@ -41,4 +41,9 @@ public record ExperimentalDataSettings
     /// Mandatory maximum bounded capacity for the initial ingestion buffer block of the experimental data Dataflow pipeline.
     /// </summary>
     public required int IngestionBufferCapacity { get; init; }
+
+    /// <summary>
+    /// Optional maximum allowed size in bytes for each uploaded experimental CSV file.
+    /// </summary>
+    public required long MaxCsvSizeBytes { get; init; }
 }

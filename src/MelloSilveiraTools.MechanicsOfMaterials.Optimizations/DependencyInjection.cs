@@ -10,6 +10,7 @@ using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Commands.Process;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Commands.Process.Batch;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Commands.Process.Single;
+using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Commands.Upload;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Factories;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Pipelines;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Pipelines.Models;
@@ -77,8 +78,10 @@ public static class DependencyInjection
                     .AddSingleton(experimentalDataSettings)
                     .AddSingleton<ExecuteExperimentalDataPipeline>()
                     .AddSingleton<ExecuteBatchExperimentalDataPipeline>()
+                    .AddSingleton<UploadExperimentalDataCommand>()
                     .AddSingleton<IValidator<ExecuteExperimentalDataPipelineRequest>, ExecuteExperimentalDataPipelineValidator>()
                     .AddSingleton<IValidator<ExecuteBatchExperimentalDataPipelineRequest>, ExecuteBatchExperimentalDataPipelineValidator>()
+                    .AddSingleton<IValidator<UploadExperimentalDataRequest>, UploadExperimentalDataValidator>()
                     .AddSingleton<IPipeline<ExperimentalDataProcessingInput, string>, ExperimentalDataProcessingPipeline>();
             }
 

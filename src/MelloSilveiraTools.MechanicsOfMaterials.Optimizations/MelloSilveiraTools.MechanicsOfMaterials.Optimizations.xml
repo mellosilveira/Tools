@@ -712,17 +712,108 @@
         <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Commands.Process.Single.ExecuteExperimentalDataPipelineValidator.ValidateComplementary(MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Commands.Process.ExecuteExperimentalDataPipelineRequest,System.Collections.Generic.List{System.String})">
             <inheritdoc/>
         </member>
+        <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Commands.Upload.UploadExperimentalDataCommand">
+            <summary>
+            Validates, stores, and registers metadata for a pair of uploaded experimental strain and stress CSV files.
+            </summary>
+            <param name="validator">Validator for uploaded CSV file requests.</param>
+            <param name="fileStorageService">Local file storage service.</param>
+            <param name="repository">Relational repository for file metadata persistence.</param>
+            <param name="timeProvider">Time provider for metadata timestamps.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Commands.Upload.UploadExperimentalDataCommand.#ctor(MelloSilveiraTools.Core.Validators.IValidator{MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Commands.Upload.UploadExperimentalDataRequest},MelloSilveiraTools.Core.Files.Providers.IFileStorageService,MelloSilveiraTools.Database.Repositories.IRepository,System.TimeProvider)">
+            <summary>
+            Validates, stores, and registers metadata for a pair of uploaded experimental strain and stress CSV files.
+            </summary>
+            <param name="validator">Validator for uploaded CSV file requests.</param>
+            <param name="fileStorageService">Local file storage service.</param>
+            <param name="repository">Relational repository for file metadata persistence.</param>
+            <param name="timeProvider">Time provider for metadata timestamps.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Commands.Upload.UploadExperimentalDataCommand.ExecuteCommandAsync(MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Commands.Upload.UploadExperimentalDataRequest,System.Threading.CancellationToken)">
+            <inheritdoc/>
+        </member>
+        <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Commands.Upload.UploadExperimentalDataRequest">
+            <summary>
+            Request payload for uploading a pair of experimental strain and stress CSV files.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Commands.Upload.UploadExperimentalDataRequest.StrainFile">
+            <summary>
+            Raw experimental strain CSV file.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Commands.Upload.UploadExperimentalDataRequest.StressFile">
+            <summary>
+            Raw experimental stress CSV file.
+            </summary>
+        </member>
+        <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Commands.Upload.UploadExperimentalDataResultData">
+            <summary>
+            Response payload containing canonical storage locations and persisted metadata IDs for uploaded CSV files.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Commands.Upload.UploadExperimentalDataResultData.UploadIdentifier">
+            <summary>
+            Unique correlation identifier assigned to the uploaded pair.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Commands.Upload.UploadExperimentalDataResultData.StrainFileLocation">
+            <summary>
+            Canonical storage location for the uploaded strain CSV.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Commands.Upload.UploadExperimentalDataResultData.StressFileLocation">
+            <summary>
+            Canonical storage location for the uploaded stress CSV.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Commands.Upload.UploadExperimentalDataResultData.StrainStorageEntryId">
+            <summary>
+            Database ID of the stored strain file metadata record.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Commands.Upload.UploadExperimentalDataResultData.StressStorageEntryId">
+            <summary>
+            Database ID of the stored stress file metadata record.
+            </summary>
+        </member>
+        <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Commands.Upload.UploadExperimentalDataValidator">
+            <summary>
+            Validates <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Commands.Upload.UploadExperimentalDataRequest"/> payloads prior to storing experimental CSV files.
+            </summary>
+            <param name="experimentalDataSettings">Experimental data settings providing the maximum allowed CSV file size.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Commands.Upload.UploadExperimentalDataValidator.#ctor(MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.ExperimentalDataSettings)">
+            <summary>
+            Validates <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Commands.Upload.UploadExperimentalDataRequest"/> payloads prior to storing experimental CSV files.
+            </summary>
+            <param name="experimentalDataSettings">Experimental data settings providing the maximum allowed CSV file size.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Commands.Upload.UploadExperimentalDataValidator.Validate(MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Commands.Upload.UploadExperimentalDataRequest)">
+            <inheritdoc/>
+        </member>
         <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Controllers.ExperimentalDataController">
             <summary>
-            Exposes HTTP endpoints for processing experimental raw data streams,
+            Exposes HTTP endpoints for uploading raw experimental CSV pairs, processing experimental data streams,
             executing batch analyses across multiple groups, and streaming real-time NDJSON progress notifications.
             </summary>
         </member>
         <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Controllers.ExperimentalDataController.#ctor(Microsoft.Extensions.Logging.ILogger{MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Controllers.ExperimentalDataController})">
             <summary>
-            Exposes HTTP endpoints for processing experimental raw data streams,
+            Exposes HTTP endpoints for uploading raw experimental CSV pairs, processing experimental data streams,
             executing batch analyses across multiple groups, and streaming real-time NDJSON progress notifications.
             </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Controllers.ExperimentalDataController.UploadAsync(MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Commands.Upload.UploadExperimentalDataCommand,Microsoft.AspNetCore.Http.IFormFile,Microsoft.AspNetCore.Http.IFormFile,System.Threading.CancellationToken)">
+            <summary>
+            Uploads a pair of raw experimental CSV files (<c>strainFile</c> and <c>stressFile</c>) via <c>multipart/form-data</c>.
+            </summary>
+            <param name="command">Command that validates, stores, and registers the uploaded CSV pair.</param>
+            <param name="strainFile">Raw experimental strain CSV file.</param>
+            <param name="stressFile">Raw experimental stress CSV file.</param>
+            <param name="cancellationToken">Cancellation token.</param>
+            <returns>Storage locations and metadata IDs wrapped in <see cref="T:MelloSilveiraTools.Core.Models.Result`1"/>.</returns>
         </member>
         <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.ExperimentalDataSettings">
             <summary>
@@ -762,6 +853,11 @@
         <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.ExperimentalDataSettings.IngestionBufferCapacity">
             <summary>
             Mandatory maximum bounded capacity for the initial ingestion buffer block of the experimental data Dataflow pipeline.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.ExperimentalDataSettings.MaxCsvSizeBytes">
+            <summary>
+            Optional maximum allowed size in bytes for each uploaded experimental CSV file.
             </summary>
         </member>
         <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Factories.IMechanicalModelStepFactory">
@@ -833,6 +929,11 @@
             Database entity for forward numerical simulations of mechanical constitutive models.
             </summary>
         </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Pipelines.Entities.MechanicalModelSimulationEntity.#ctor">
+            <summary>
+            Initializes a new instance of <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Pipelines.Entities.MechanicalModelSimulationEntity"/> for persistence mapping and deserialization.
+            </summary>
+        </member>
         <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Pipelines.Entities.MechanicalModelSimulationEntity.Identifier">
             <summary>
             Unique identifier for the simulation execution.
@@ -851,6 +952,11 @@
         <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Pipelines.Entities.MechanicalModelSimulationEntity.MechanicalModelName">
             <summary>
             Name of the mechanical model.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Pipelines.Entities.MechanicalModelSimulationEntity.ExperimentalDataFileMetadataId">
+            <summary>
+            Foreign key identifier of the segmented experimental CSV file metadata record.
             </summary>
         </member>
         <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Pipelines.Entities.MechanicalModelSimulationEntity.SimulationOutputFileMetadataId">
@@ -881,6 +987,27 @@
         <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Pipelines.Entities.MechanicalModelSimulationEntity.PercentageDeltaOutputJson">
             <summary>
             Serialized JSON snapshot of the percentage output variation.
+            </summary>
+        </member>
+        <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Pipelines.Entities.MechanicalModelSimulationFilter">
+            <summary>
+            Filter model used to query <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Pipelines.Entities.MechanicalModelSimulationEntity"/> records by external identifier,
+            curve fit identifier, and optional mechanical model name.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Pipelines.Entities.MechanicalModelSimulationFilter.ExternalIdentifier">
+            <summary>
+            External pipeline identifier correlating the simulation execution.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Pipelines.Entities.MechanicalModelSimulationFilter.CurveFitIdentifier">
+            <summary>
+            Correlated identifier of the curve fit parameter set.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Pipelines.Entities.MechanicalModelSimulationFilter.MechanicalModelName">
+            <summary>
+            Optional filter by mechanical model name (e.g., "Fung", "SimplifiedFung", "Schapery").
             </summary>
         </member>
         <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Pipelines.ExperimentalDataProcessingPipeline">
@@ -2272,6 +2399,11 @@
             Database entity representing a One-At-A-Time (OAAT) parametric sensitivity sweep execution and its configuration snapshot.
             </summary>
         </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.ParametricSweep.Pipelines.Entities.ParametricSweepEntity.#ctor">
+            <summary>
+            Initializes a new instance of <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.ParametricSweep.Pipelines.Entities.ParametricSweepEntity"/> for persistence mapping and deserialization.
+            </summary>
+        </member>
         <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.ParametricSweep.Pipelines.Entities.ParametricSweepEntity.Identifier">
             <summary>
             Unique deterministic hash identifier for the parametric sweep configuration.
@@ -2335,6 +2467,22 @@
         <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.ParametricSweep.Pipelines.Entities.ParametricSweepEntity.SweptVariablesJson">
             <summary>
             JSON snapshot of the dictionary mapping each swept variable name to its range parameters and generated CSV file metadata identifier, formatted to 7 significant figures.
+            </summary>
+        </member>
+        <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.ParametricSweep.Pipelines.Entities.ParametricSweepFilter">
+            <summary>
+            Filter model used to query <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.ParametricSweep.Pipelines.Entities.ParametricSweepEntity"/> records by external identifier
+            and optional mechanical model name.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.ParametricSweep.Pipelines.Entities.ParametricSweepFilter.ExternalIdentifier">
+            <summary>
+            External pipeline identifier correlating the parametric sweep execution.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.ParametricSweep.Pipelines.Entities.ParametricSweepFilter.MechanicalModelName">
+            <summary>
+            Optional filter by mechanical model name (e.g., "Fung", "SimplifiedFung", "Schapery").
             </summary>
         </member>
         <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.ParametricSweep.Pipelines.Models.ParametricSweepInput">

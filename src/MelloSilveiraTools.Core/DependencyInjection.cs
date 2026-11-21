@@ -119,11 +119,12 @@ public static class CoreDependencyInjection
                                 fileStorageSettings.AwsS3,
                                 provider.GetRequiredService<AwsS3ResiliencePipeline>(),
                                 provider.GetRequiredService<TimeProvider>()));
+
+                services.AddSingleton(provider => provider.GetRequiredKeyedService<IFileStorageService>(fileStorageSettings.DefaultStorageProvider));
             }
 
             return services
                 .AddCoreLogging(loggerSettings)
-                .AddSingleton<IFileStorageService>(provider => new LocalFileStorageService(provider.GetRequiredService<TimeProvider>(), new() { BaseDirectory = Path.Combine(Path.GetTempPath(), "storage") }))
                 // Register caching pipelines.
                 .AddSingleton<ISingleLevelCache, InMemorySingleLevelCache>()
                 .AddSingleton<ITwoLevelCache, InMemoryTwoLevelCache>()

@@ -6,6 +6,7 @@
     <AssemblyTitle>MelloSilveira Tools Database Migrator</AssemblyTitle>
     <Description>Database schema migrator utility powered by DbUp, executing contextual DDL migrations exclusively against PostgreSQL.</Description>
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+    <PublishReadyToRun Condition="'$(EnableReadyToRun)' == 'true'">true</PublishReadyToRun>
     <IsAotCompatible>false</IsAotCompatible>
   </PropertyGroup>
 

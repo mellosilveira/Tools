@@ -41,7 +41,9 @@ public static class MigratorEngine
 
         try
         {
-            EnsureDatabase.For.PostgresqlDatabase(options.ConnectionString);
+            DbUpUpgradeLogAdapter upgradeLog = new(logger);
+
+            EnsureDatabase.For.PostgresqlDatabase(options.ConnectionString, upgradeLog);
 
             Assembly assembly = Assembly.GetExecutingAssembly();
 
@@ -50,7 +52,8 @@ public static class MigratorEngine
                 .WithScriptsEmbeddedInAssembly(assembly, scriptName => FilterScriptByContext(scriptName, options.Context))
                 .WithTransactionPerScript()
                 .WithExecutionTimeout(TimeSpan.FromSeconds(options.CommandTimeoutInSeconds))
-                .JournalToPostgresqlTable("public", "schemaversions");
+                .JournalToPostgresqlTable("public", "schemaversions")
+                .LogTo(upgradeLog);
 
             UpgradeEngine upgradeEngine = builder.Build();
 

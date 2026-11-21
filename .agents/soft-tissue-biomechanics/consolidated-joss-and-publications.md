@@ -39,9 +39,9 @@ A profundidade arquitetural e científica construída sustenta **duas publicaç�
   * **Orquestração Científica & Otimização:** `MelloSilveiraTools.MechanicsOfMaterials.Optimizations`.
   * **Infraestrutura Integrada & Meta-pacote:** `Core`, `Database`, `WebApi`, `Plugins`, `MelloSilveiraTools` (e `Database.Migrator`).
 * **Testes e CI/CD:**
-  * Testes unitários rápidos em memória (`test/UnitTests/UnitTests.csproj` — referenciados como 757 testes em `paper/paper.md`);
+  * Testes unitários rápidos em memória (`test/UnitTests/UnitTests.csproj`);
   * Testes de aceitação/integração ponta a ponta com dados reais de ligamentos (ACL, PCL, MCL, LCL) e Testcontainers PostgreSQL (`test/AcceptanceTests/AcceptanceTests.csproj`);
-  * Workflows ativos em `.github/workflows/` (`publish_nuget_package.yml`, `publish_release_candidate_nuget_package.yml`, `draft-pdf.yml`).
+  * Workflows ativos em `.github/workflows/` (`publish_nuget_package.yml`, `publish_release_candidate_nuget_package.yml`, `draft-pdf.yml` — já cobrindo build e execução de testes em PRs e `main`, dispensando `ci.yml` adicional).
 
 ### 2.3. Estratégia de Demonstração / Quickstart (Decisão Arquitetural)
 > [!IMPORTANT]
@@ -56,10 +56,11 @@ A profundidade arquitetural e científica construída sustenta **duas publicaç�
    * `POST /api/v1/parametric-sweeps/process-from-experimental-data`
    * `GET /api/v1/pipelines/{pipelineId}/progress` (streaming NDJSON `application/x-ndjson`)
 2. [ ] **Frontend Web Leve (Acessibilidade para Revisores sem perfil C#):** Upload CSV ou seleção com 1 clique de amostras pré-carregadas (ACL, PCL, etc.), gráfico de segmentação (`Ramp`, `Relaxation`, `Descent`, `Recovery`), sobreposição Experimental vs. Fung QLV / Simplified Fung / Schapery exibindo parâmetros identificados e $R^2 \ge 0.90$, e visualização OAAT.
-3. [ ] **Workflow de CI para PRs e Pushes (`.github/workflows/ci.yml`):** Disparar em `push` e `pull_request` (`main` e `feature/*`), instalar `.NET 10` (`actions/setup-dotnet@v4`), executar `dotnet build MelloSilveiraTools.sln --configuration Release` e `dotnet test test/UnitTests/UnitTests.csproj --configuration Release --no-build`, e adicionar badge de status no `README.md`.
-4. [ ] **Figura Ilustrativa em `paper/`:** Adicionar figura explicativa de alta qualidade em `paper/` (arquitetura TPL Dataflow e/ou comparativo experimental vs. Fung QLV vs. Simplified Fung vs. Schapery) e referenciá-la em `paper/paper.md` (`![...](figure.png)`).
-5. [ ] **Sincronizar Contagem de Testes & Verificar PDF:** Reexecutar suítes completas (`UnitTests` + `AcceptanceTests` em `Release`), garantir consistência exata da contagem entre `paper/paper.md`, `README.md` e `JOSS_RECOMMENDATIONS.md`, e disparar `.github/workflows/draft-pdf.yml` para inspecionar o `paper.pdf` final.
-6. [ ] **Submissão Formal:** Abrir submissão em [https://joss.theoj.org/papers/new](https://joss.theoj.org/papers/new).
+3. [ ] **Figura Ilustrativa em `paper/`:** Adicionar figura explicativa de alta qualidade em `paper/` (arquitetura TPL Dataflow e/ou comparativo experimental vs. Fung QLV vs. Simplified Fung vs. Schapery) e referenciá-la em `paper/paper.md` (`![...](figure.png)`).
+4. [ ] **Execução Final dos Testes & Verificar PDF:** Reexecutar suítes completas (`UnitTests` + `AcceptanceTests` em `Release`) e disparar `.github/workflows/draft-pdf.yml` para inspecionar o `paper.pdf` final.
+5. [ ] **Submissão Formal:** Abrir submissão em [https://joss.theoj.org/papers/new](https://joss.theoj.org/papers/new).
+
+> *(Nota: A automação de CI para build e execução de testes já é atendida pelos workflows existentes `publish_release_candidate_nuget_package.yml` e `publish_nuget_package.yml`, não sendo necessário criar um `ci.yml`.)*
 
 #### Pós-Aceite da Revisão por Pares JOSS
 * [ ] Criar tag de release final no GitHub (ex.: `v2.0.0`).

@@ -17,12 +17,29 @@ public static class Program
     /// <returns>Exit code: 0 for success, 1 for failure.</returns>
     public static int Main(string[] args)
     {
-        Console.WriteLine("================================================================================");
-        Console.WriteLine(" MelloSilveiraTools - Contextual Database Migrator (DbUp)");
-        Console.WriteLine(" NOTICE: Today this application exclusively supports PostgreSQL.");
-        Console.WriteLine("================================================================================");
+        for (int i = 0; i < args.Length; i++)
+        {
+            if (args[i].Equals("--help", StringComparison.OrdinalIgnoreCase)
+                || args[i].Equals("-h", StringComparison.OrdinalIgnoreCase))
+            {
+                PrintHelp();
+                return 0;
+            }
+        }
 
-        string connectionString = Environment.GetEnvironmentVariable("CONNECTION_STRING") ?? DefaultConnectionString;
+        using ILoggerFactory loggerFactory = LoggerFactory.Create(builder =>
+        {
+            builder.AddConsole();
+            builder.SetMinimumLevel(LogLevel.Information);
+        });
+        ILogger logger = loggerFactory.CreateLogger("DatabaseMigrator");
+
+        logger.LogInformation("================================================================================");
+        logger.LogInformation(" MelloSilveiraTools - Contextual Database Migrator (DbUp)");
+        logger.LogInformation(" NOTICE: Today this application exclusively supports PostgreSQL.");
+        logger.LogInformation("================================================================================");
+
+        string connectionString = DefaultConnectionString;
         MigrationContext context = MigrationContext.All;
         int timeoutSeconds = 60;
 
@@ -30,66 +47,67 @@ public static class Program
         {
             string arg = args[i];
 
-            if ((arg.Equals("--help", StringComparison.OrdinalIgnoreCase) || arg.Equals("-h", StringComparison.OrdinalIgnoreCase)))
+            if (arg.Equals("--context", StringComparison.OrdinalIgnoreCase) || arg.Equals("-c", StringComparison.OrdinalIgnoreCase))
             {
-                PrintHelp();
-                return 0;
-            }
-
-            if ((arg.Equals("--context", StringComparison.OrdinalIgnoreCase) || arg.Equals("-c", StringComparison.OrdinalIgnoreCase)) && i + 1 < args.Length)
-            {
-                string contextValue = args[++i];
-                if (Enum.TryParse(contextValue, ignoreCase: true, out MigrationContext parsedContext))
+                if (i + 1 >= args.Length)
                 {
-                    context = parsedContext;
-                }
-                else
-                {
-                    Console.ForegroundColor = ConsoleColor.Red;
-                    Console.WriteLine($"Invalid context '{contextValue}'. Valid options are: All, Common, Optimizations, Plugins.");
-                    Console.ResetColor();
+                    logger.LogError("Missing value for {Option}. Valid options are: All, Common, Optimizations, Plugins.", arg);
                     return 1;
                 }
+
+                string contextValue = args[++i];
+                if (!Enum.TryParse(contextValue, ignoreCase: true, out MigrationContext parsedContext))
+                {
+                    logger.LogError("Invalid context '{Context}'. Valid options are: All, Common, Optimizations, Plugins.", contextValue);
+                    return 1;
+                }
+
+                context = parsedContext;
             }
-            else if ((arg.Equals("--connection-string", StringComparison.OrdinalIgnoreCase) || arg.Equals("-s", StringComparison.OrdinalIgnoreCase)) && i + 1 < args.Length)
+            else if (arg.Equals("--connection-string", StringComparison.OrdinalIgnoreCase) || arg.Equals("-s", StringComparison.OrdinalIgnoreCase))
             {
+                if (i + 1 >= args.Length || string.IsNullOrWhiteSpace(args[i + 1]))
+                {
+                    logger.LogError("Missing or empty value for {Option}.", arg);
+                    return 1;
+                }
+
                 connectionString = args[++i];
             }
-            else if ((arg.Equals("--timeout", StringComparison.OrdinalIgnoreCase) || arg.Equals("-t", StringComparison.OrdinalIgnoreCase)) && i + 1 < args.Length)
+            else if (arg.Equals("--timeout", StringComparison.OrdinalIgnoreCase) || arg.Equals("-t", StringComparison.OrdinalIgnoreCase))
             {
-                if (int.TryParse(args[++i], out int parsedTimeout) && parsedTimeout > 0)
-                    timeoutSeconds = parsedTimeout;
+                if (i + 1 >= args.Length || !int.TryParse(args[i + 1], out int parsedTimeout) || parsedTimeout <= 0)
+                {
+                    logger.LogError("Invalid or missing value for {Option}. Expected a positive integer in seconds.", arg);
+                    return 1;
+                }
+
+                timeoutSeconds = parsedTimeout;
+                i++;
+            }
+            else
+            {
+                logger.LogError("Unknown argument '{Argument}'. Run with --help to see supported options.", arg);
+                return 1;
             }
         }
 
-        Console.WriteLine($"Target Database Engine: {MigratorEngine.SupportedDatabaseEngine}");
-        Console.WriteLine($"Target Context        : {context}");
-        Console.WriteLine($"Connection String     : {MaskConnectionString(connectionString)}");
-        Console.WriteLine($"Execution Timeout     : {timeoutSeconds}s");
-        Console.WriteLine("--------------------------------------------------------------------------------");
-
-        ILogger logger = LoggerFactory
-            .Create(builder =>
-            {
-                builder.AddConsole();
-                builder.SetMinimumLevel(LogLevel.Information);
-            })
-            .CreateLogger("DatabaseMigrator");
+        logger.LogInformation("Target Database Engine: {Engine}", MigratorEngine.SupportedDatabaseEngine);
+        logger.LogInformation("Target Context        : {Context}", context);
+        logger.LogInformation("Connection String     : {ConnectionString}", MaskConnectionString(connectionString));
+        logger.LogInformation("Execution Timeout     : {TimeoutSeconds}s", timeoutSeconds);
+        logger.LogInformation("--------------------------------------------------------------------------------");
 
         MigratorOptions options = new(connectionString, context, timeoutSeconds);
         Result result = MigratorEngine.UpgradeDatabase(logger, options);
 
         if (result.Success)
         {
-            Console.ForegroundColor = ConsoleColor.Green;
-            Console.WriteLine("\n[SUCCESS] All schema migrations for the selected context completed successfully.");
-            Console.ResetColor();
+            logger.LogInformation("All schema migrations for the selected context completed successfully.");
             return 0;
         }
 
-        Console.ForegroundColor = ConsoleColor.Red;
-        Console.WriteLine($"\n[ERROR] Migration failed: {result.JoinedMessages}");
-        Console.ResetColor();
+        logger.LogError("Migration failed: {Result}", result);
         return 1;
     }
 
@@ -99,7 +117,7 @@ public static class Program
         Console.WriteLine();
         Console.WriteLine("Options:");
         Console.WriteLine("  -c, --context <Context>            Target migration context: All (default), Common, Optimizations, Plugins.");
-        Console.WriteLine("  -s, --connection-string <String>   PostgreSQL connection string (defaults to CONNECTION_STRING env var or localhost).");
+        Console.WriteLine("  -s, --connection-string <String>   PostgreSQL connection string (default: Host=localhost;Port=5432;Database=tools_db;Username=postgres;Password=********;).");
         Console.WriteLine("  -t, --timeout <Seconds>            Command timeout in seconds (default: 60).");
         Console.WriteLine("  -h, --help                         Show this help message.");
         Console.WriteLine();

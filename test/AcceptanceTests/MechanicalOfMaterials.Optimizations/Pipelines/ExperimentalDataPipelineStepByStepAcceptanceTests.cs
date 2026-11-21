@@ -113,7 +113,8 @@ public sealed class ExperimentalDataPipelineStepByStepAcceptanceTests : IAsyncLi
                     SegmentBuilderOptions = new PipelineStepOptions(1, 256, true),
                     CurveFitterOptions = new PipelineStepOptions(1, 64, true),
                     SimulationInputBuilderOptions = new PipelineStepOptions(1, 64, true),
-                    IngestionBufferCapacity = 32
+                    IngestionBufferCapacity = 32,
+        MaxCsvSizeBytes = 50L * 1024 * 1024
                 },
                 new ParametricSweepSettings
                 {
