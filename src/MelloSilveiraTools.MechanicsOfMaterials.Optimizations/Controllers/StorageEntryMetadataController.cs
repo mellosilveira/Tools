@@ -1,49 +1,92 @@
+using MelloSilveiraTools.Core.Commands.StorageEntryMetadata.Create;
+using MelloSilveiraTools.Core.Commands.StorageEntryMetadata.Delete;
+using MelloSilveiraTools.Core.Commands.StorageEntryMetadata.Download;
 using MelloSilveiraTools.Core.ExtensionMethods;
-using MelloSilveiraTools.Core.Files.Providers;
 using MelloSilveiraTools.Core.Models;
 using MelloSilveiraTools.Database.RelationalDatabase.Models.Entities;
-using MelloSilveiraTools.Database.RelationalDatabase.Models.Filters;
-using MelloSilveiraTools.Database.Repositories;
-using MelloSilveiraTools.WebApi.Application.Controllers;
+using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Commands.StorageEntryMetadata;
+using MelloSilveiraTools.WebApi.Application.Commands.StorageEntryMetadata;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 
 namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Controllers;
 
 /// <summary>
-/// Exposes unified HTTP endpoints for querying and downloading stored files (<see cref="StorageEntryMetadataEntity"/>)
-/// by their <c>ExternalIdentifier</c>.
+/// Exposes unified HTTP CRUD and download endpoints for stored files (<see cref="StorageEntryMetadataEntity"/>)
+/// and their underlying physical/cloud storage entries.
 /// </summary>
 [ApiController]
 [Route("api/v1/storage-entry-metadata")]
-public class StorageEntryMetadataController(ILogger<StorageEntryMetadataController> logger) : CrudController<StorageEntryMetadataEntity, StorageEntryMetadataFilter>(logger)
+public class StorageEntryMetadataController : ControllerBase
 {
-    protected override string ResourceName => "Storage entry metadata";
+    /// <summary>
+    /// Stores a file in the requested (or default) <see cref="Core.Files.Providers.IFileStorageService"/> and persists its metadata.
+    /// </summary>
+    [HttpPost]
+    [ProducesResponseType(typeof(Result<StorageEntryMetadataEntity>), StatusCodes.Status201Created)]
+    [ProducesResponseType(typeof(Result), StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> CreateAsync(
+        [FromServices] AddStorageEntryCommand command,
+        [FromForm] AddStorageEntryRequest request,
+        CancellationToken cancellationToken = default)
+        => await command.ExecuteAsync(request, cancellationToken).BuildHttpResponseAsync().ConfigureAwait(false);
 
+    /// <summary>
+    /// Reads stored file metadata from storage and database, grouped by identifier, context, and file extension.
+    /// </summary>
+    [HttpGet]
+    [ProducesResponseType(typeof(ListedResult<StorageEntryResultData>), StatusCodes.Status200OK)]
+    public async Task<IActionResult> ReadAsync(
+        [FromServices] ReadStorageEntriesCommand command,
+        [FromQuery] ReadStorageEntriesRequest request,
+        CancellationToken cancellationToken = default)
+        => await command.ExecuteAsync(request, cancellationToken).BuildHttpResponseAsync().ConfigureAwait(false);
+
+    /// <summary>
+    /// Overwrites only the physical file for an existing entry, replacing the database metadata record.
+    /// </summary>
+    [HttpPut("{fileId:long}")]
+    [ProducesResponseType(typeof(Result<StorageEntryMetadataEntity>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(Result), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(Result), StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> UpdateAsync(
+        [FromServices] UpdateStorageEntryFileCommand command,
+        [FromRoute] long fileId,
+        [FromForm] IFormFile file,
+        CancellationToken cancellationToken = default)
+        => await command
+            .ExecuteAsync(new UpdateStorageEntryFileRequest { FileId = fileId, File = file }, cancellationToken)
+            .BuildHttpResponseAsync()
+            .ConfigureAwait(false);
+
+    /// <summary>
+    /// Idempotently deletes a file from storage and/or database, failing only if absent from both.
+    /// </summary>
+    [HttpDelete]
+    [HttpDelete("{fileId:long}")]
+    [ProducesResponseType(typeof(Result), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(Result), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(Result), StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> DeleteAsync(
+        [FromServices] DeleteStorageEntryCommand command,
+        [FromBody] DeleteStorageEntryRequest request,
+        CancellationToken cancellationToken = default)
+        => await command.ExecuteAsync(request, cancellationToken).BuildHttpResponseAsync().ConfigureAwait(false);
+
+    /// <summary>
+    /// Streams a stored file by its metadata entity ID.
+    /// </summary>
     [HttpGet("{fileId:long}/download")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> DownloadByIdAsync(
-        [FromServices] IServiceProvider serviceProvider,
-        [FromServices] IRepository repository,
+        [FromServices] DownloadStoredFileCommand command,
         [FromRoute] long fileId,
         CancellationToken cancellationToken = default)
     {
-        StorageEntryMetadataEntity? entity = await repository.GetAsync<StorageEntryMetadataEntity>(fileId, cancellationToken).ConfigureAwait(false);
-        if (entity is null)
-            return Result.CreateNotFound($"Stored file with id '{fileId}' was not found.").BuildHttpResponse();
-
-        IFileStorageService? fileStorageService = serviceProvider.GetKeyedService<IFileStorageService>(entity.StorageProvider);
-        if (fileStorageService is null)
-            return Result.CreateNotFound($"Storage provider '{entity.StorageProvider}' is not configured.").BuildHttpResponse();
-
-        bool exists = await fileStorageService.ExistsAsync(entity.Location, cancellationToken).ConfigureAwait(false);
-        if (!exists)
-            return Result.CreateNotFound($"Physical file for '{entity.FileName}' was not found on storage.").BuildHttpResponse();
-
-        Stream fileStream = await fileStorageService.OpenReadAsync(entity.Location, cancellationToken).ConfigureAwait(false);
-        return File(fileStream, entity.ContentType, entity.FileName);
+        Result<DownloadStoredFileResultData> result = await command.ExecuteAsync(new DownloadStoredFileRequest { FileId = fileId }, cancellationToken).ConfigureAwait(false);
+        return result.Success
+            ? File(result.Data!.FileStream, result.Data.ContentType, result.Data.FileName)
+            : result.BuildHttpResponse();
     }
 }

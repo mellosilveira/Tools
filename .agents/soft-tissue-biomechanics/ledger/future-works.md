@@ -34,3 +34,23 @@ Este documento centraliza as oportunidades de melhoria, expansões e próximos p
     4. **Message Queues / Brokers (`ProgressNotificationMode.MessageQueue`):** Implementação concreta do modo já previsto no enum `ProgressNotificationMode` (ex.: RabbitMQ, Redis Streams ou Azure Service Bus) para desacoplar otimizações em lote (Differential Evolution + L-BFGS) para *background workers* escaláveis horizontalmente.
     5. **IPC Local (`Named Pipes` / `Unix Domain Sockets`):** Comunicação interprocesso de latência mínima na mesma máquina para solvers locais ou aplicações desktop sem sobrecarga de pilha TCP/HTTP.
   - **Justificativa/Objetivo:** Garantir simplicidade e zero dependências extras no Quickstart JOSS atual, preservando uma trilha clara de evolução para alta densidade numérica, mensageria distribuída e acoplamento científico multi-linguagem.
+
+- **Adequação Completa da Aplicação para NativeAOT (`PublishAot=true`)**
+  - **Contexto:** Camada de Hospedagem Web, Persistência e Sistema de Plugins (`MelloSilveiraTools.WebApi.Host`, `WebApi`, `Database`, `Database.Migrator`, `Plugins`).
+  - **Descrição:** Refatorar a aplicação backend para suportar compilação estrita com NativeAOT (`PublishAot=true`):
+    1. Migrar controllers ASP.NET Core MVC (`AddControllers()`, `AddApplicationPart`) para **Minimal APIs** sem reflexão;
+    2. Substituir `Swashbuckle` (`AddSwaggerWithBearerSecurity`) por `Microsoft.AspNetCore.OpenApi` + UI estática;
+    3. Registrar todos os DTOs de request/response em `JsonSerializerContext` (source generation);
+    4. Substituir `Dapper` (que gera IL em runtime via `Reflection.Emit`) por `Dapper.AOT` ou mapeamento estático com `NpgsqlDataReader`, e revisar `Expression.Compile()` em `MechanicalModelTypeCache`;
+    5. Desacoplar ou isolar `MelloSilveiraTools.Plugins` do host NativeAOT, pois o carregamento dinâmico de assemblies externos em runtime (`AssemblyLoadContext`) não é suportado em binários NativeAOT fechados;
+    6. Remover a supressão de avisos `IL2xxx`/`IL3xxx` do `Directory.Build.props`.
+  - **Principais Benefícios do NativeAOT:**
+    - Redução expressiva do tamanho da imagem de container e do binário final (dispensa runtime .NET completo);
+    - Inicialização (*cold-start*) praticamente instantânea e menor consumo base de memória RAM;
+    - Eliminação do overhead de compilação JIT em runtime, entregando binário nativo único.
+  - **Principais Malefícios e Custos do NativeAOT:**
+    - Complexidade arquitetural **alta** (refatoração ampla de MVC, Swagger, Dapper e serialização);
+    - **Incompatibilidade estrutural com carregamento dinâmico de plugins** em runtime (`MelloSilveiraTools.Plugins`);
+    - `Expression.Compile()` passa a executar em modo interpretado (potencial regressão de desempenho em avaliações repetidas se não convertido para source generation);
+    - Exigência de **toolchain/linker C++ instalado na máquina** para compilação local (Visual Studio *Desktop Development with C++* no Windows, `clang`/headers no Linux, Xcode CLT no macOS), aumentando a fricção para revisores da JOSS.
+  - **Justificativa da Tomada de Decisão:** Para a entrega `v2.0.0` (submissão JOSS), optou-se por **`--self-contained` + `PublishReadyToRun=true` (AOT gerenciado / ReadyToRun)** nos containers Docker (`runtime-deps:10.0`) e no modo `Local` do `Launcher`, mantendo **NativeAOT (`PublishAot=true`) como trabalho futuro**. Essa decisão entrega pré-compilação AOT dos assemblies da aplicação e containers totalmente autocontidos sem exigir linker C++ na máquina do usuário/revisor e sem quebrar MVC, Swagger, Dapper ou o sistema de plugins dinâmicos.

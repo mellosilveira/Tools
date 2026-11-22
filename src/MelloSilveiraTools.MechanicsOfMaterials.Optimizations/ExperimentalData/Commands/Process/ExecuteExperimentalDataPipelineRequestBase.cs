@@ -1,4 +1,4 @@
-using MelloSilveiraTools.Core.Application.Commands;
+using MelloSilveiraTools.Core.Commands;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Models;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Pipelines.Models;
 

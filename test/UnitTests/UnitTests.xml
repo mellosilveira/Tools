@@ -824,28 +824,7 @@
         </member>
         <member name="T:UnitTests.MechanicsOfMaterials.Optimizations.Controllers.StoredFilesControllerTests">
             <summary>
-            Unit tests for <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Controllers.StorageEntryMetadataController"/> verifying file streaming downloads
-            and 404 responses when database metadata, storage providers, or physical files are missing.
-            </summary>
-        </member>
-        <member name="M:UnitTests.MechanicsOfMaterials.Optimizations.Controllers.StoredFilesControllerTests.DownloadByIdAsync_WhenEntityNotFound_ReturnsNotFound">
-            <summary>
-            Verifies that DownloadByIdAsync returns NotFound when the metadata entity does not exist.
-            </summary>
-        </member>
-        <member name="M:UnitTests.MechanicsOfMaterials.Optimizations.Controllers.StoredFilesControllerTests.DownloadByIdAsync_WhenStorageProviderNotConfigured_ReturnsNotFound">
-            <summary>
-            Verifies that DownloadByIdAsync returns NotFound when the keyed storage provider is not registered.
-            </summary>
-        </member>
-        <member name="M:UnitTests.MechanicsOfMaterials.Optimizations.Controllers.StoredFilesControllerTests.DownloadByIdAsync_WhenPhysicalFileMissing_ReturnsNotFound">
-            <summary>
-            Verifies that DownloadByIdAsync returns NotFound when the physical file is missing in storage.
-            </summary>
-        </member>
-        <member name="M:UnitTests.MechanicsOfMaterials.Optimizations.Controllers.StoredFilesControllerTests.DownloadByIdAsync_WhenFileExists_ReturnsFileStreamResult">
-            <summary>
-            Verifies that DownloadByIdAsync returns a FileStreamResult when entity and physical file exist.
+            Unit tests for <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Controllers.StorageEntryMetadataController"/> and its CRUD/download commands.
             </summary>
         </member>
         <member name="T:UnitTests.MechanicsOfMaterials.Optimizations.CurveFitting.AdditionalCurveFittersTests">

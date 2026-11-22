@@ -1,4 +1,4 @@
-using MelloSilveiraTools.Core.Application.Commands;
+using MelloSilveiraTools.Core.Commands;
 
 namespace MelloSilveiraTools.WebApi.Application.Commands.Crud.Read;
 

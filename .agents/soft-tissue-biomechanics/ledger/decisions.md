@@ -140,3 +140,13 @@
 * **What:** Any final analysis, conclusion, or report — even when synthesized by AI agents — must explicitly expose: (1) full step-by-step analytical/computational derivation; (2) formal theoretical backing (kinematic hypotheses, tensors/scalars, constitutive equations); and (3) contextualized experimental grounding (specimen, $L_0$, deformation phase segmentation, fitted parameters, $R^2$/RMSE).
 * **From where:** User directive (2026-11-17).
 * **Why:** Eliminates black-box outputs and guarantees full scientific auditability for the Master's defense and international peer-reviewed journals.
+
+
+---
+
+### 2026-11-20 — Self-Contained Docker & ReadyToRun AOT (`PublishReadyToRun=true`) vs. NativeAOT (`PublishAot=true`)
+* **Task_ID:** `launcher-docker-self-contained-and-aot-evaluation`
+* **Category:** Decision & Architecture
+* **What:** Evaluated `PublishAot=true` on `MelloSilveiraTools.WebApi.Host` (blocked by missing C++ platform linker locally and architectural incompatibilities with MVC `AddControllers`, Swashbuckle, Dapper IL emit, `Plugins` dynamic loading, and `WebUi` `browser-wasm` propagation). Adopted `--self-contained true` + `PublishReadyToRun=true` (`EnableReadyToRun=true` scoped to `WebApi.Host` and `Database.Migrator`) on `mcr.microsoft.com/dotnet/runtime-deps:10.0` for Docker mode, and `EnableReadyToRun=true` for `Launcher` Local mode, registering full NativeAOT migration in [`future-works.md`](./future-works.md).
+* **From where:** Empirical `dotnet publish` validation and user directive (2026-11-20).
+* **Why:** Guarantees AOT-compiled ReadyToRun startup performance and self-contained Docker images without imposing C++ linker prerequisites or breaking MVC/Swagger/Dapper/Plugins before JOSS submission.

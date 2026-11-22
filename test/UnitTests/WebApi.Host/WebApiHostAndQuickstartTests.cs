@@ -115,7 +115,7 @@ public class WebApiHostAndQuickstartTests
         Mock<IRepository> repoMock = new();
         ExperimentalDataController controller = new(Mock.Of<ILogger<ExperimentalDataController>>());
 
-        IActionResult actionResult = await controller.UploadAsync(new UploadExperimentalDataCommand(new UploadExperimentalDataValidator(CreateExperimentalDataSettings()), storageMock.Object, repoMock.Object, TimeProvider.System), null, null);
+        IActionResult actionResult = await controller.UploadAsync(new UploadExperimentalDataCommand(new UploadExperimentalDataValidator(CreateExperimentalDataSettings()), storageMock.Object, repoMock.Object), null, null);
 
         JsonResult jsonResult = Assert.IsType<JsonResult>(actionResult);
         Assert.Equal(StatusCodes.Status400BadRequest, jsonResult.StatusCode);
@@ -130,7 +130,7 @@ public class WebApiHostAndQuickstartTests
         IFormFile validStress = new FormFile(new MemoryStream(Encoding.UTF8.GetBytes("Time,Stress\n0,0\n")), 0, 14, "stressFile", "stress.csv");
 
         ExperimentalDataController controller = new(Mock.Of<ILogger<ExperimentalDataController>>());
-        IActionResult actionResult = await controller.UploadAsync(new UploadExperimentalDataCommand(new UploadExperimentalDataValidator(CreateExperimentalDataSettings()), storageMock.Object, repoMock.Object, TimeProvider.System), emptyStrain, validStress);
+        IActionResult actionResult = await controller.UploadAsync(new UploadExperimentalDataCommand(new UploadExperimentalDataValidator(CreateExperimentalDataSettings()), storageMock.Object, repoMock.Object), emptyStrain, validStress);
 
         JsonResult jsonResult = Assert.IsType<JsonResult>(actionResult);
         Assert.Equal(StatusCodes.Status400BadRequest, jsonResult.StatusCode);
@@ -146,7 +146,7 @@ public class WebApiHostAndQuickstartTests
         IFormFile csvStress = new FormFile(new MemoryStream(content), 0, content.Length, "stressFile", "stress.csv");
 
         ExperimentalDataController controller = new(Mock.Of<ILogger<ExperimentalDataController>>());
-        IActionResult actionResult = await controller.UploadAsync(new UploadExperimentalDataCommand(new UploadExperimentalDataValidator(CreateExperimentalDataSettings()), storageMock.Object, repoMock.Object, TimeProvider.System), txtStrain, csvStress);
+        IActionResult actionResult = await controller.UploadAsync(new UploadExperimentalDataCommand(new UploadExperimentalDataValidator(CreateExperimentalDataSettings()), storageMock.Object, repoMock.Object), txtStrain, csvStress);
 
         JsonResult jsonResult = Assert.IsType<JsonResult>(actionResult);
         Assert.Equal(StatusCodes.Status400BadRequest, jsonResult.StatusCode);
@@ -165,7 +165,7 @@ public class WebApiHostAndQuickstartTests
         IFormFile validStress = new FormFile(new MemoryStream(content), 0, content.Length, "stressFile", "stress.csv");
 
         ExperimentalDataController controller = new(Mock.Of<ILogger<ExperimentalDataController>>());
-        IActionResult actionResult = await controller.UploadAsync(new UploadExperimentalDataCommand(new UploadExperimentalDataValidator(CreateExperimentalDataSettings()), storageMock.Object, repoMock.Object, TimeProvider.System), oversizedStrain.Object, validStress);
+        IActionResult actionResult = await controller.UploadAsync(new UploadExperimentalDataCommand(new UploadExperimentalDataValidator(CreateExperimentalDataSettings()), storageMock.Object, repoMock.Object), oversizedStrain.Object, validStress);
 
         JsonResult jsonResult = Assert.IsType<JsonResult>(actionResult);
         Assert.Equal(StatusCodes.Status400BadRequest, jsonResult.StatusCode);
@@ -176,8 +176,9 @@ public class WebApiHostAndQuickstartTests
     {
         Mock<IFileStorageService> storageMock = new();
         storageMock
-            .Setup(s => s.CreateWriteAsync(It.IsAny<string>(), "ExperimentalUploads", "strain.csv", It.IsAny<CancellationToken>()))
-            .ReturnsAsync((new MemoryStream(), "/storage/upload-1/ExperimentalUploads/strain.csv"));
+            .Setup(s => s.CreateWriteAsync(It.IsAny<string>(), "ExperimentalUploads", It.Is<string>(n => n.Contains("strain")), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(((Stream)new MemoryStream(), "/storage/upload-1/ExperimentalUploads/strain.csv"));
+        storageMock.Setup(s => s.GetMetadataAsync("/storage/upload-1/ExperimentalUploads/strain.csv", It.IsAny<CancellationToken>())).ReturnsAsync(new StorageEntryMetadata(StorageProvider.Local, "/storage/upload-1/ExperimentalUploads/strain.csv", "/storage/upload-1/ExperimentalUploads", "strain.csv", 14, DateTimeOffset.UtcNow));
 
         Mock<IRepository> repoMock = new();
         repoMock
@@ -189,7 +190,7 @@ public class WebApiHostAndQuickstartTests
         IFormFile stressForm = new FormFile(new MemoryStream(content), 0, content.Length, "stressFile", "stress.csv");
 
         ExperimentalDataController controller = new(Mock.Of<ILogger<ExperimentalDataController>>());
-        IActionResult actionResult = await controller.UploadAsync(new UploadExperimentalDataCommand(new UploadExperimentalDataValidator(CreateExperimentalDataSettings()), storageMock.Object, repoMock.Object, TimeProvider.System), strainForm, stressForm);
+        IActionResult actionResult = await controller.UploadAsync(new UploadExperimentalDataCommand(new UploadExperimentalDataValidator(CreateExperimentalDataSettings()), storageMock.Object, repoMock.Object), strainForm, stressForm);
 
         JsonResult jsonResult = Assert.IsType<JsonResult>(actionResult);
         Assert.Equal(StatusCodes.Status500InternalServerError, jsonResult.StatusCode);
@@ -203,11 +204,13 @@ public class WebApiHostAndQuickstartTests
     {
         Mock<IFileStorageService> storageMock = new();
         storageMock
-            .Setup(s => s.CreateWriteAsync(It.IsAny<string>(), "ExperimentalUploads", "strain.csv", It.IsAny<CancellationToken>()))
-            .ReturnsAsync((new MemoryStream(), "/storage/upload-1/ExperimentalUploads/strain.csv"));
+            .Setup(s => s.CreateWriteAsync(It.IsAny<string>(), "ExperimentalUploads", It.Is<string>(n => n.Contains("strain")), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(((Stream)new MemoryStream(), "/storage/upload-1/ExperimentalUploads/strain.csv"));
+        storageMock.Setup(s => s.GetMetadataAsync("/storage/upload-1/ExperimentalUploads/strain.csv", It.IsAny<CancellationToken>())).ReturnsAsync(new StorageEntryMetadata(StorageProvider.Local, "/storage/upload-1/ExperimentalUploads/strain.csv", "/storage/upload-1/ExperimentalUploads", "strain.csv", 14, DateTimeOffset.UtcNow));
         storageMock
-            .Setup(s => s.CreateWriteAsync(It.IsAny<string>(), "ExperimentalUploads", "stress.csv", It.IsAny<CancellationToken>()))
-            .ReturnsAsync((new MemoryStream(), "/storage/upload-1/ExperimentalUploads/stress.csv"));
+            .Setup(s => s.CreateWriteAsync(It.IsAny<string>(), "ExperimentalUploads", It.Is<string>(n => n.Contains("stress")), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(((Stream)new MemoryStream(), "/storage/upload-1/ExperimentalUploads/stress.csv"));
+        storageMock.Setup(s => s.GetMetadataAsync("/storage/upload-1/ExperimentalUploads/stress.csv", It.IsAny<CancellationToken>())).ReturnsAsync(new StorageEntryMetadata(StorageProvider.Local, "/storage/upload-1/ExperimentalUploads/stress.csv", "/storage/upload-1/ExperimentalUploads", "stress.csv", 14, DateTimeOffset.UtcNow));
 
         Mock<IRepository> repoMock = new();
         repoMock
@@ -220,7 +223,7 @@ public class WebApiHostAndQuickstartTests
         IFormFile stressForm = new FormFile(new MemoryStream(content), 0, content.Length, "stressFile", "stress.csv");
 
         ExperimentalDataController controller = new(Mock.Of<ILogger<ExperimentalDataController>>());
-        IActionResult actionResult = await controller.UploadAsync(new UploadExperimentalDataCommand(new UploadExperimentalDataValidator(CreateExperimentalDataSettings()), storageMock.Object, repoMock.Object, TimeProvider.System), strainForm, stressForm);
+        IActionResult actionResult = await controller.UploadAsync(new UploadExperimentalDataCommand(new UploadExperimentalDataValidator(CreateExperimentalDataSettings()), storageMock.Object, repoMock.Object), strainForm, stressForm);
 
         JsonResult jsonResult = Assert.IsType<JsonResult>(actionResult);
         Assert.Equal(StatusCodes.Status500InternalServerError, jsonResult.StatusCode);
@@ -234,11 +237,13 @@ public class WebApiHostAndQuickstartTests
     {
         Mock<IFileStorageService> storageMock = new();
         storageMock
-            .Setup(s => s.CreateWriteAsync(It.IsAny<string>(), "ExperimentalUploads", "strain.csv", It.IsAny<CancellationToken>()))
-            .ReturnsAsync((new MemoryStream(), "/storage/upload-1/ExperimentalUploads/strain.csv"));
+            .Setup(s => s.CreateWriteAsync(It.IsAny<string>(), "ExperimentalUploads", It.Is<string>(n => n.Contains("strain")), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(((Stream)new MemoryStream(), "/storage/upload-1/ExperimentalUploads/strain.csv"));
+        storageMock.Setup(s => s.GetMetadataAsync("/storage/upload-1/ExperimentalUploads/strain.csv", It.IsAny<CancellationToken>())).ReturnsAsync(new StorageEntryMetadata(StorageProvider.Local, "/storage/upload-1/ExperimentalUploads/strain.csv", "/storage/upload-1/ExperimentalUploads", "strain.csv", 14, DateTimeOffset.UtcNow));
         storageMock
-            .Setup(s => s.CreateWriteAsync(It.IsAny<string>(), "ExperimentalUploads", "stress.csv", It.IsAny<CancellationToken>()))
-            .ReturnsAsync((new MemoryStream(), "/storage/upload-1/ExperimentalUploads/stress.csv"));
+            .Setup(s => s.CreateWriteAsync(It.IsAny<string>(), "ExperimentalUploads", It.Is<string>(n => n.Contains("stress")), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(((Stream)new MemoryStream(), "/storage/upload-1/ExperimentalUploads/stress.csv"));
+        storageMock.Setup(s => s.GetMetadataAsync("/storage/upload-1/ExperimentalUploads/stress.csv", It.IsAny<CancellationToken>())).ReturnsAsync(new StorageEntryMetadata(StorageProvider.Local, "/storage/upload-1/ExperimentalUploads/stress.csv", "/storage/upload-1/ExperimentalUploads", "stress.csv", 14, DateTimeOffset.UtcNow));
 
         Mock<IRepository> repoMock = new();
         repoMock
@@ -252,7 +257,7 @@ public class WebApiHostAndQuickstartTests
         IFormFile stressForm = new FormFile(new MemoryStream(stressBytes), 0, stressBytes.Length, "stressFile", "stress.csv");
 
         ExperimentalDataController controller = new(Mock.Of<ILogger<ExperimentalDataController>>());
-        IActionResult actionResult = await controller.UploadAsync(new UploadExperimentalDataCommand(new UploadExperimentalDataValidator(CreateExperimentalDataSettings()), storageMock.Object, repoMock.Object, TimeProvider.System), strainForm, stressForm);
+        IActionResult actionResult = await controller.UploadAsync(new UploadExperimentalDataCommand(new UploadExperimentalDataValidator(CreateExperimentalDataSettings()), storageMock.Object, repoMock.Object), strainForm, stressForm);
 
         JsonResult jsonResult = Assert.IsType<JsonResult>(actionResult);
         Assert.Equal(StatusCodes.Status200OK, jsonResult.StatusCode);

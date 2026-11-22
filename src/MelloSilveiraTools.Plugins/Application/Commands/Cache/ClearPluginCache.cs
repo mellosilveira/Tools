@@ -1,4 +1,4 @@
-using MelloSilveiraTools.Core.Application.Commands;
+using MelloSilveiraTools.Core.Commands;
 using MelloSilveiraTools.Core.Models;
 using MelloSilveiraTools.Plugins.Infrastructure.Services;
 

@@ -329,6 +329,8 @@ public record ListedResult<TResultData> : ResultBase
     /// Implicitly converts a general result into a listed result structure.
     /// </summary>
     public static implicit operator ListedResult<TResultData>(Result response) => new() { Messages = response.Messages, StatusCode = response.StatusCode, Success = response.Success };
+
+    public static implicit operator ListedResult<TResultData>(List<TResultData> data) => new() { StatusCode = StatusCode.OK, Success = true, Data = data };
 }
 
 /// <summary>

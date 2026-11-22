@@ -1,7 +1,7 @@
 using MelloSilveiraTools.Core.Models;
 using MelloSilveiraTools.Core.Validators;
 
-namespace MelloSilveiraTools.Core.Application.Commands;
+namespace MelloSilveiraTools.Core.Commands;
 
 /// <summary>
 /// Foundational structure for orchestrating business operations within the application.

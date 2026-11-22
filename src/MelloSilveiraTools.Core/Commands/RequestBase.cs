@@ -1,4 +1,4 @@
-﻿namespace MelloSilveiraTools.Core.Application.Commands;
+﻿namespace MelloSilveiraTools.Core.Commands;
 
 /// <summary>
 /// Request content to all operations.

@@ -1,4 +1,4 @@
-using MelloSilveiraTools.Core.Application.Commands;
+using MelloSilveiraTools.Core.Commands;
 using MelloSilveiraTools.Core.Files.Models;
 using MelloSilveiraTools.Core.Files.Providers;
 using MelloSilveiraTools.Core.Models;
@@ -24,13 +24,13 @@ public sealed class UploadExperimentalDataCommand(
     /// <inheritdoc/>
     protected override async Task<Result<UploadExperimentalDataResultData>> ExecuteCommandAsync(UploadExperimentalDataRequest request, CancellationToken cancellationToken = default)
     {
-        string uploadId = $"upload-{Guid.NewGuid():N}";
+        string uploadIdentifier = $"upload-{Guid.NewGuid():N}";
 
-        Result<(long EntityId, StorageEntryMetadata Metadata)> strainResult = await SaveUploadedCsvAsync(uploadId, "strain.csv", request.StrainFile, cancellationToken).ConfigureAwait(false);
+        Result<(long EntityId, StorageEntryMetadata Metadata)> strainResult = await SaveUploadedCsvAsync(uploadIdentifier, "strain.csv", request.StrainFile, cancellationToken).ConfigureAwait(false);
         if (!strainResult.Success)
             return Result.CreateError(strainResult.StatusCode, $"Failed to save uploaded strain file: {strainResult.JoinedMessages}");
 
-        Result<(long EntityId, StorageEntryMetadata Metadata)> stressResult = await SaveUploadedCsvAsync(uploadId, "stress.csv", request.StrainFile, cancellationToken).ConfigureAwait(false);
+        Result<(long EntityId, StorageEntryMetadata Metadata)> stressResult = await SaveUploadedCsvAsync(uploadIdentifier, "stress.csv", request.StrainFile, cancellationToken).ConfigureAwait(false);
         if (!strainResult.Success)
         {
             (long strainEntityId, StorageEntryMetadata strainMetadata) = strainResult.Data;
@@ -40,7 +40,7 @@ public sealed class UploadExperimentalDataCommand(
 
         return Result.CreateSuccessOk(new UploadExperimentalDataResultData
         {
-            UploadIdentifier = uploadId,
+            UploadIdentifier = uploadIdentifier,
             StrainFileMetadata = strainResult.Data.Metadata,
             StrainStorageEntryId = strainResult.Data.EntityId,
             StressFileMetadata = stressResult.Data.Metadata,
@@ -49,13 +49,13 @@ public sealed class UploadExperimentalDataCommand(
     }
 
     private async Task<Result<(long EntityId, StorageEntryMetadata Metadata)>> SaveUploadedCsvAsync(
-        string uploadId,
+        string uploadIdentifier,
         string targetFileName,
         IFormFile file,
         CancellationToken cancellationToken)
     {
         (Stream targetStream, string location) = await fileStorageService
-            .CreateWriteAsync(uploadId, "ExperimentalUploads", $"{file.FileName}_{targetFileName}", cancellationToken)
+            .CreateWriteAsync(uploadIdentifier, "ExperimentalUploads", $"{file.FileName}_{targetFileName}", cancellationToken)
             .ConfigureAwait(false);
 
         try
@@ -66,7 +66,7 @@ public sealed class UploadExperimentalDataCommand(
             }
 
             StorageEntryMetadata metadata = await fileStorageService.GetMetadataAsync(location, cancellationToken).ConfigureAwait(false);
-            StorageEntryMetadataEntity entity = StorageEntryMetadataEntity.Create(metadata, uploadId);
+            StorageEntryMetadataEntity entity = StorageEntryMetadataEntity.Create(metadata, uploadIdentifier);
 
             Result<long> insertResult = await repository.TryInsertAsync(entity, cancellationToken).ConfigureAwait(false);
             if (insertResult.Success || insertResult.IsConflict)

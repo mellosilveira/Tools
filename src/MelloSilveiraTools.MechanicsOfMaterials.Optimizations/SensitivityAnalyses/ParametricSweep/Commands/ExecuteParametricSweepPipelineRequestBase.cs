@@ -1,4 +1,4 @@
-using MelloSilveiraTools.Core.Application.Commands;
+using MelloSilveiraTools.Core.Commands;
 using MelloSilveiraTools.Mathematics.Models.NumericalMethods;
 using MelloSilveiraTools.Mathematics.NumericalMethods.RootFindingAlgorithms;
 using MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity;

@@ -25,8 +25,8 @@ public record StorageEntryMetadataFilter : FilterBase
     /// <summary>
     /// Optional absolute file system path, URI, or cloud blob key where the file can be retrieved.
     /// </summary>
-    [FilterColumn(FilterClause.Equal)]
-    public string? Location { get; init; }
+    [FilterColumn(FilterClause.Like)]
+    public string? Location => string.IsNullOrWhiteSpace(Identifier) && string.IsNullOrWhiteSpace(Context) ? null : string.Join('%', Identifier, Context);
 
     /// <summary>
     /// Optional directory path or prefix where the file is stored.
@@ -45,4 +45,8 @@ public record StorageEntryMetadataFilter : FilterBase
     /// </summary>
     [FilterColumn(FilterClause.Equal)]
     public string? ContentType { get; init; }
+
+    public string? Identifier { get; init; }
+
+    public string? Context { get; init; }
 }
