@@ -2,26 +2,28 @@ using MelloSilveiraTools.Core.Files.Models;
 using MelloSilveiraTools.Core.Files.Providers;
 using MelloSilveiraTools.Core.Models;
 using MelloSilveiraTools.Core.Pipelines.Models;
+using MelloSilveiraTools.Core.Services.Encryption;
 using MelloSilveiraTools.Database.RelationalDatabase.Models.Entities;
+using MelloSilveiraTools.Database.RelationalDatabase.Models.Filters;
 using MelloSilveiraTools.Database.Repositories;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Models;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Commands.Process;
-using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Pipelines.Entities;
-using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.ParametricSweep.Pipelines.Entities;
-using MelloSilveiraTools.WebApi.Authentication;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Commands.Upload;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Controllers;
+using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Pipelines.Entities;
+using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.ParametricSweep.Pipelines.Entities;
 using MelloSilveiraTools.WebApi.Application.Controllers;
+using MelloSilveiraTools.WebApi.Authentication;
 using MelloSilveiraTools.WebApi.Authentication.Commands;
 using MelloSilveiraTools.WebApi.Authentication.Services;
 using MelloSilveiraTools.WebApi.Host.Commands;
-using Microsoft.Extensions.Logging;
 using MelloSilveiraTools.WebApi.Host.Controllers;
 using MelloSilveiraTools.WebUi.Models;
 using MelloSilveiraTools.WebUi.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using Moq;
 using System.Text;
@@ -50,20 +52,107 @@ public class WebApiHostAndQuickstartTests
     };
 
     [Fact]
-    public async Task AuthController_GenerateDemoToken_ReturnsOkResultWithToken()
+    public async Task AuthController_RegisterAsync_CreatesUserAndReturnsCreatedToken()
     {
         AuthenticationToken expectedToken = new("jwe-token-value", TimeProvider.System.GetUtcNow().AddHours(2));
-        Mock<IAuthenticationTokenService> tokenServiceMock = new();
-        tokenServiceMock.Setup(s => s.Generate("researcher")).Returns(expectedToken);
+        Mock<IRepository> repoMock = new();
+        repoMock
+            .Setup(r => r.GetAsync<UserEntity, UserFilter>(It.IsAny<UserFilter>(), null, It.IsAny<CancellationToken>()))
+            .Returns(ToAsyncEnumerable<UserEntity>([]));
+        repoMock
+            .Setup(r => r.TryInsertAsync(It.IsAny<UserEntity>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Result.CreateSuccessCreated(42L));
 
+        Mock<IEncryptionService> encryptionMock = new();
+        encryptionMock.Setup(e => e.GeneratePasswordHash("secret123")).Returns("hashed-secret");
+
+        Mock<IAuthenticationTokenService> tokenServiceMock = new();
+        tokenServiceMock.Setup(s => s.Generate(42L)).Returns(expectedToken);
+
+        RegisterUserCommand command = new(new RegisterUserValidator(), repoMock.Object, encryptionMock.Object, tokenServiceMock.Object);
         AuthController controller = new();
-        IActionResult actionResult = await controller.GenerateDemoToken(new GenerateDemoTokenCommand(tokenServiceMock.Object), new GenerateDemoTokenRequest { Username = "researcher" });
+        IActionResult actionResult = await controller.RegisterAsync(command, new RegisterUserRequest { Username = "researcher", Password = "secret123" });
+
+        JsonResult jsonResult = Assert.IsType<JsonResult>(actionResult);
+        Assert.Equal(StatusCodes.Status201Created, jsonResult.StatusCode);
+        Result<AuthenticationToken> payload = Assert.IsType<Result<AuthenticationToken>>(jsonResult.Value);
+        Assert.True(payload.Success);
+        Assert.Equal(expectedToken, payload.Data);
+    }
+
+    [Fact]
+    public async Task AuthController_LoginAsync_WithValidCredentials_ReturnsOkToken()
+    {
+        AuthenticationToken expectedToken = new("jwe-login-token", TimeProvider.System.GetUtcNow().AddHours(2));
+        UserEntity user = new() { Id = 7L, Username = "researcher", PasswordHash = "stored-hash", IsActive = true };
+
+        Mock<IRepository> repoMock = new();
+        repoMock
+            .Setup(r => r.GetAsync<UserEntity, UserFilter>(It.IsAny<UserFilter>(), null, It.IsAny<CancellationToken>()))
+            .Returns(ToAsyncEnumerable([user]));
+
+        Mock<IEncryptionService> encryptionMock = new();
+        encryptionMock.Setup(e => e.IsPasswordValid("secret123", "stored-hash")).Returns(true);
+
+        Mock<IAuthenticationTokenService> tokenServiceMock = new();
+        tokenServiceMock.Setup(s => s.Generate(7L)).Returns(expectedToken);
+
+        LoginCommand command = new(new LoginValidator(), repoMock.Object, encryptionMock.Object, tokenServiceMock.Object);
+        AuthController controller = new();
+        IActionResult actionResult = await controller.LoginAsync(command, new LoginRequest { Username = "researcher", Password = "secret123" });
 
         JsonResult jsonResult = Assert.IsType<JsonResult>(actionResult);
         Assert.Equal(StatusCodes.Status200OK, jsonResult.StatusCode);
         Result<AuthenticationToken> payload = Assert.IsType<Result<AuthenticationToken>>(jsonResult.Value);
         Assert.True(payload.Success);
         Assert.Equal(expectedToken, payload.Data);
+    }
+
+    [Fact]
+    public async Task AuthController_LoginAsync_WithInvalidPassword_ReturnsUnauthorized()
+    {
+        UserEntity user = new() { Id = 7L, Username = "researcher", PasswordHash = "stored-hash", IsActive = true };
+
+        Mock<IRepository> repoMock = new();
+        repoMock
+            .Setup(r => r.GetAsync<UserEntity, UserFilter>(It.IsAny<UserFilter>(), null, It.IsAny<CancellationToken>()))
+            .Returns(ToAsyncEnumerable([user]));
+
+        Mock<IEncryptionService> encryptionMock = new();
+        encryptionMock.Setup(e => e.IsPasswordValid("wrong-pass", "stored-hash")).Returns(false);
+
+        Mock<IAuthenticationTokenService> tokenServiceMock = new();
+        LoginCommand command = new(new LoginValidator(), repoMock.Object, encryptionMock.Object, tokenServiceMock.Object);
+        AuthController controller = new();
+        IActionResult actionResult = await controller.LoginAsync(command, new LoginRequest { Username = "researcher", Password = "wrong-pass" });
+
+        JsonResult jsonResult = Assert.IsType<JsonResult>(actionResult);
+        Assert.Equal(StatusCodes.Status401Unauthorized, jsonResult.StatusCode);
+    }
+
+    [Fact]
+    public async Task AuthController_ValidateAsync_WithValidToken_ReturnsIsValidTrue()
+    {
+        Mock<IAuthenticationTokenService> tokenServiceMock = new();
+        tokenServiceMock.Setup(s => s.IsValidAsync("valid-jwe")).ReturnsAsync(true);
+
+        AuthController controller = new();
+        IActionResult actionResult = await controller.ValidateAsync(new ValidateAuthenticationTokenCommand(tokenServiceMock.Object), new ValidateTokenRequest { Token = "valid-jwe" });
+
+        JsonResult jsonResult = Assert.IsType<JsonResult>(actionResult);
+        Assert.Equal(StatusCodes.Status200OK, jsonResult.StatusCode);
+        Result<TokenValidationResponse> payload = Assert.IsType<Result<TokenValidationResponse>>(jsonResult.Value);
+        Assert.True(payload.Success);
+        Assert.True(payload.Data!.IsValid);
+    }
+
+    private static async IAsyncEnumerable<T> ToAsyncEnumerable<T>(IEnumerable<T> items)
+    {
+        foreach (T item in items)
+        {
+            yield return item;
+            await Task.Yield();
+        }
     }
 
     [Fact]

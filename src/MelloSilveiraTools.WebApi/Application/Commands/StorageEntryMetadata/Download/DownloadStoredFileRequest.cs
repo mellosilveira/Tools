@@ -1,4 +1,4 @@
-namespace MelloSilveiraTools.Core.Commands.StorageEntryMetadata.Download;
+namespace MelloSilveiraTools.WebApi.Application.Commands.StorageEntryMetadata.Download;
 
 /// <summary>
 /// Request payload for downloading a stored file by its metadata entity ID.

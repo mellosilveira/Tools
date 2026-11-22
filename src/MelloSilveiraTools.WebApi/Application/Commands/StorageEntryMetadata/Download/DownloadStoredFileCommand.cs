@@ -1,10 +1,11 @@
+using MelloSilveiraTools.Core.Commands;
 using MelloSilveiraTools.Core.Files.Providers;
 using MelloSilveiraTools.Core.Models;
 using MelloSilveiraTools.Core.Providers;
 using MelloSilveiraTools.Database.RelationalDatabase.Models.Entities;
 using MelloSilveiraTools.Database.Repositories;
 
-namespace MelloSilveiraTools.Core.Commands.StorageEntryMetadata.Download;
+namespace MelloSilveiraTools.WebApi.Application.Commands.StorageEntryMetadata.Download;
 
 /// <summary>
 /// Resolves and opens a readable stream for a stored file identified by its metadata entity ID.

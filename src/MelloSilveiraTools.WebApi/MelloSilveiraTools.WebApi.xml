@@ -192,6 +192,38 @@
         <member name="P:MelloSilveiraTools.WebApi.Application.Commands.Crud.Update.UpdateEntityRequest`1.ResourceName">
             <summary>Human-readable resource name used to build localized error messages.</summary>
         </member>
+        <member name="T:MelloSilveiraTools.WebApi.Application.Controllers.AuthController">
+            <summary>
+            Exposes JWE authentication endpoints for issuing, refreshing, and validating bearer tokens.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.WebApi.Application.Controllers.AuthController.GenerateDemoToken(MelloSilveiraTools.WebApi.Authentication.Commands.GenerateDemoTokenCommand,MelloSilveiraTools.WebApi.Authentication.Commands.GenerateDemoTokenRequest,System.Threading.CancellationToken)">
+            <summary>
+            Issues a signed and encrypted JWE token for local quickstart, Swagger, and WebUi sessions.
+            </summary>
+            <param name="command">Command that issues the demonstration token.</param>
+            <param name="request">Optional demonstration user payload.</param>
+            <param name="cancellationToken">Cancellation token.</param>
+            <returns>An <see cref="T:MelloSilveiraTools.WebApi.Authentication.AuthenticationToken"/> wrapped in <see cref="T:MelloSilveiraTools.Core.Models.Result`1"/>.</returns>
+        </member>
+        <member name="M:MelloSilveiraTools.WebApi.Application.Controllers.AuthController.RefreshAsync(MelloSilveiraTools.WebApi.Authentication.Commands.RefreshAuthenticationTokenCommand,MelloSilveiraTools.WebApi.Authentication.Commands.RefreshTokenRequest,System.Threading.CancellationToken)">
+            <summary>
+            Validates and refreshes an existing JWE token.
+            </summary>
+            <param name="command">Command that refreshes the token.</param>
+            <param name="request">Payload containing the active JWE token.</param>
+            <param name="cancellationToken">Cancellation token.</param>
+            <returns>A refreshed <see cref="T:MelloSilveiraTools.WebApi.Authentication.AuthenticationToken"/> wrapped in <see cref="T:MelloSilveiraTools.Core.Models.Result`1"/>.</returns>
+        </member>
+        <member name="M:MelloSilveiraTools.WebApi.Application.Controllers.AuthController.ValidateAsync(MelloSilveiraTools.WebApi.Authentication.Commands.ValidateAuthenticationTokenCommand,MelloSilveiraTools.WebApi.Authentication.Commands.ValidateTokenRequest,System.Threading.CancellationToken)">
+            <summary>
+            Validates whether a JWE token is authentic and active.
+            </summary>
+            <param name="command">Command that validates the token.</param>
+            <param name="request">Payload containing the JWE token to validate.</param>
+            <param name="cancellationToken">Cancellation token.</param>
+            <returns>A <see cref="T:MelloSilveiraTools.WebApi.Authentication.Commands.TokenValidationResponse"/> wrapped in <see cref="T:MelloSilveiraTools.Core.Models.Result`1"/>.</returns>
+        </member>
         <member name="T:MelloSilveiraTools.WebApi.Application.Controllers.CrudController`2">
             <summary>
             Generic controller exposing standard CRUD and streaming endpoints for an entity and its filter.
@@ -503,6 +535,91 @@
             <summary>
             The instant (in UTC offset) at which the token stops being valid.
             </summary>
+        </member>
+        <member name="T:MelloSilveiraTools.WebApi.Authentication.Commands.GenerateDemoTokenRequest">
+            <summary>
+            Request payload for generating a demonstration JWE token.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.WebApi.Authentication.Commands.GenerateDemoTokenRequest.Username">
+            <summary>
+            Optional user identifier embedded as the JWT subject (<c>sub</c>) claim.
+            </summary>
+        </member>
+        <member name="T:MelloSilveiraTools.WebApi.Authentication.Commands.GenerateDemoTokenCommand">
+            <summary>
+            Issues a signed and encrypted JWE token for local quickstart, Swagger, and WebUi sessions.
+            </summary>
+            <param name="tokenService">Authentication token service.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.WebApi.Authentication.Commands.GenerateDemoTokenCommand.#ctor(MelloSilveiraTools.WebApi.Authentication.Services.IAuthenticationTokenService)">
+            <summary>
+            Issues a signed and encrypted JWE token for local quickstart, Swagger, and WebUi sessions.
+            </summary>
+            <param name="tokenService">Authentication token service.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.WebApi.Authentication.Commands.GenerateDemoTokenCommand.ExecuteCommandAsync(MelloSilveiraTools.WebApi.Authentication.Commands.GenerateDemoTokenRequest,System.Threading.CancellationToken)">
+            <inheritdoc/>
+        </member>
+        <member name="T:MelloSilveiraTools.WebApi.Authentication.Commands.RefreshTokenRequest">
+            <summary>
+            Request payload for refreshing an active JWE token.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.WebApi.Authentication.Commands.RefreshTokenRequest.Token">
+            <summary>
+            Active JWE bearer token to refresh.
+            </summary>
+        </member>
+        <member name="T:MelloSilveiraTools.WebApi.Authentication.Commands.RefreshAuthenticationTokenCommand">
+            <summary>
+            Validates and refreshes an existing JWE token.
+            </summary>
+            <param name="tokenService">Authentication token service.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.WebApi.Authentication.Commands.RefreshAuthenticationTokenCommand.#ctor(MelloSilveiraTools.WebApi.Authentication.Services.IAuthenticationTokenService)">
+            <summary>
+            Validates and refreshes an existing JWE token.
+            </summary>
+            <param name="tokenService">Authentication token service.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.WebApi.Authentication.Commands.RefreshAuthenticationTokenCommand.ExecuteCommandAsync(MelloSilveiraTools.WebApi.Authentication.Commands.RefreshTokenRequest,System.Threading.CancellationToken)">
+            <inheritdoc/>
+        </member>
+        <member name="T:MelloSilveiraTools.WebApi.Authentication.Commands.ValidateTokenRequest">
+            <summary>
+            Request payload for validating an existing JWE token.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.WebApi.Authentication.Commands.ValidateTokenRequest.Token">
+            <summary>
+            JWE bearer token to validate.
+            </summary>
+        </member>
+        <member name="T:MelloSilveiraTools.WebApi.Authentication.Commands.TokenValidationResponse">
+            <summary>
+            Response payload indicating whether a JWE token passed validation.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.WebApi.Authentication.Commands.TokenValidationResponse.IsValid">
+            <summary>
+            Whether the token is valid and not expired.
+            </summary>
+        </member>
+        <member name="T:MelloSilveiraTools.WebApi.Authentication.Commands.ValidateAuthenticationTokenCommand">
+            <summary>
+            Validates whether a JWE token is authentic and active.
+            </summary>
+            <param name="tokenService">Authentication token service.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.WebApi.Authentication.Commands.ValidateAuthenticationTokenCommand.#ctor(MelloSilveiraTools.WebApi.Authentication.Services.IAuthenticationTokenService)">
+            <summary>
+            Validates whether a JWE token is authentic and active.
+            </summary>
+            <param name="tokenService">Authentication token service.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.WebApi.Authentication.Commands.ValidateAuthenticationTokenCommand.ExecuteCommandAsync(MelloSilveiraTools.WebApi.Authentication.Commands.ValidateTokenRequest,System.Threading.CancellationToken)">
+            <inheritdoc/>
         </member>
         <member name="T:MelloSilveiraTools.WebApi.Authentication.JwtSettings">
             <summary>

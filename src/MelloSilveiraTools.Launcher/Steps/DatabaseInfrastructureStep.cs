@@ -1,7 +1,7 @@
-using System.Diagnostics;
-using System.Net.Sockets;
 using MelloSilveiraTools.Launcher.Infrastructure;
 using Microsoft.Extensions.Logging;
+using System.Diagnostics;
+using System.Net.Sockets;
 
 namespace MelloSilveiraTools.Launcher.Steps;
 

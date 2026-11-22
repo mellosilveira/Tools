@@ -2,7 +2,7 @@ using MelloSilveiraTools.Core.Files.Models;
 using MelloSilveiraTools.Core.Files.Providers;
 using Microsoft.AspNetCore.Http;
 
-namespace MelloSilveiraTools.Core.Commands.StorageEntryMetadata.Create;
+namespace MelloSilveiraTools.WebApi.Application.Commands.StorageEntryMetadata.Create;
 
 /// <summary>
 /// Request payload for creating and persisting a stored file alongside its database metadata.

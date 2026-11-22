@@ -1,11 +1,3 @@
-using System.Collections.Concurrent;
-using System.Net;
-using System.Net.Http.Headers;
-using System.Net.Http.Json;
-using System.Text;
-using System.Text.Json;
-using System.Text.Json.Serialization;
-using System.Threading.Channels;
 using AcceptanceTests.Plugins.Helpers;
 using MelloSilveiraTools.Core;
 using MelloSilveiraTools.Core.Files.Models;
@@ -24,7 +16,6 @@ using MelloSilveiraTools.Mathematics.NumericalMethods.RootFindingAlgorithms;
 using MelloSilveiraTools.MechanicsOfMaterials;
 using MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations;
-using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Controllers;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Models;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Commands.Process;
@@ -44,7 +35,6 @@ using MelloSilveiraTools.Plugins.Infrastructure.Persistences;
 using MelloSilveiraTools.WebApi;
 using MelloSilveiraTools.WebApi.Application.Endpoints;
 using MelloSilveiraTools.WebApi.Application.Models;
-using MelloSilveiraTools.WebApi.ExtensionMethods;
 using MelloSilveiraTools.WebApi.Infrastructure.ResiliencePipelines;
 using MelloSilveiraTools.WebApi.Infrastructure.Services.ApiServiceAgent;
 using MelloSilveiraTools.WebApi.Infrastructure.Services.ApiServiceAgent.Settings;
@@ -56,6 +46,14 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Moq;
 using Polly;
+using System.Collections.Concurrent;
+using System.Net;
+using System.Net.Http.Headers;
+using System.Net.Http.Json;
+using System.Text;
+using System.Text.Json;
+using System.Text.Json.Serialization;
+using System.Threading.Channels;
 
 namespace AcceptanceTests.WebApi;
 
@@ -205,7 +203,7 @@ public sealed class WebApiEndpointsAndStreamingAcceptanceTests : IAsyncLifetime
                     CurveFitterOptions = new PipelineStepOptions(1, 64, true),
                     SimulationInputBuilderOptions = new PipelineStepOptions(1, 64, true),
                     IngestionBufferCapacity = 32,
-        MaxCsvSizeBytes = 50L * 1024 * 1024
+                    MaxCsvSizeBytes = 50L * 1024 * 1024
                 },
                 new ParametricSweepSettings
                 {

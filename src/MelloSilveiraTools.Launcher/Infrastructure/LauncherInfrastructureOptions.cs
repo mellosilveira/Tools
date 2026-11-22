@@ -1,6 +1,6 @@
-using System.Globalization;
 using MelloSilveiraTools.Database.Migrator;
 using Microsoft.Extensions.Logging;
+using System.Globalization;
 
 namespace MelloSilveiraTools.Launcher.Infrastructure;
 

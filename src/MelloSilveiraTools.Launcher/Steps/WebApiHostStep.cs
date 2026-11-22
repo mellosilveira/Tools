@@ -1,6 +1,6 @@
-using System.Diagnostics;
 using MelloSilveiraTools.Launcher.Infrastructure;
 using Microsoft.Extensions.Logging;
+using System.Diagnostics;
 
 namespace MelloSilveiraTools.Launcher.Steps;
 

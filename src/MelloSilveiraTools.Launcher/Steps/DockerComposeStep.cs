@@ -1,7 +1,7 @@
-using System.Diagnostics;
-using System.Globalization;
 using MelloSilveiraTools.Launcher.Infrastructure;
 using Microsoft.Extensions.Logging;
+using System.Diagnostics;
+using System.Globalization;
 
 namespace MelloSilveiraTools.Launcher.Steps;
 

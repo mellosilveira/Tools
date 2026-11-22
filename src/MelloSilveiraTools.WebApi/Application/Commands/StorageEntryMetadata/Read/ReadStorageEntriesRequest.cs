@@ -1,6 +1,6 @@
 using MelloSilveiraTools.Core.Files.Models;
 
-namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Commands.StorageEntryMetadata;
+namespace MelloSilveiraTools.WebApi.Application.Commands.StorageEntryMetadata.Read;
 
 /// <summary>
 /// Query parameters for reading and grouping stored file entries from both storage and database.

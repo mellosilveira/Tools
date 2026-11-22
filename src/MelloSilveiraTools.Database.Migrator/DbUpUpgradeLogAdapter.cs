@@ -1,6 +1,6 @@
-using System.Globalization;
 using DbUp.Engine.Output;
 using Microsoft.Extensions.Logging;
+using System.Globalization;
 
 namespace MelloSilveiraTools.Database.Migrator;
 

@@ -1,10 +1,17 @@
 using MelloSilveiraTools.Core.ResiliencePipelines;
+using MelloSilveiraTools.Core.Validators;
 using MelloSilveiraTools.WebApi.Application.Commands.Crud.Add;
 using MelloSilveiraTools.WebApi.Application.Commands.Crud.Delete;
 using MelloSilveiraTools.WebApi.Application.Commands.Crud.Read;
 using MelloSilveiraTools.WebApi.Application.Commands.Crud.Update;
+using MelloSilveiraTools.WebApi.Application.Commands.StorageEntryMetadata.Create;
+using MelloSilveiraTools.WebApi.Application.Commands.StorageEntryMetadata.Delete;
+using MelloSilveiraTools.WebApi.Application.Commands.StorageEntryMetadata.Download;
+using MelloSilveiraTools.WebApi.Application.Commands.StorageEntryMetadata.Read;
+using MelloSilveiraTools.WebApi.Application.Commands.StorageEntryMetadata.Upload;
 using MelloSilveiraTools.WebApi.Application.Middlewares;
 using MelloSilveiraTools.WebApi.Authentication;
+using MelloSilveiraTools.WebApi.Authentication.Commands;
 using MelloSilveiraTools.WebApi.Authentication.Services;
 using MelloSilveiraTools.WebApi.Infrastructure.ResiliencePipelines;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -33,10 +40,18 @@ public static class WebApiDependencyInjection
         // through DI without per-entity registrations. Both CrudController<TEntity, TFilter> and
         // the MapCrud<TEntity, TFilter> minimal-API extension consume them.
         .AddScoped(typeof(AddEntity<>))
+        .AddScoped(typeof(DeleteEntity<>))
         .AddScoped(typeof(ReadEntityById<>))
         .AddScoped(typeof(ReadEntityPaged<,>))
         .AddScoped(typeof(UpdateEntity<>))
-        .AddScoped(typeof(DeleteEntity<>));
+        .AddSingleton<IValidator<AddStorageEntryRequest>, AddStorageEntryValidator>()
+        .AddSingleton<IValidator<DeleteStorageEntryRequest>, DeleteStorageEntryValidator>()
+        .AddSingleton<IValidator<UpdateStorageEntryFileRequest>, UpdateStorageEntryFileValidator>()
+        .AddSingleton<AddStorageEntryCommand>()
+        .AddSingleton<DeleteStorageEntryCommand>()
+        .AddSingleton<DownloadStoredFileCommand>()
+        .AddSingleton<ReadStorageEntriesCommand>()
+        .AddSingleton<UpdateStorageEntryFileCommand>();
 
     /// <summary>
     /// Registers the authentication for AdmMaster users using JWT.
@@ -49,6 +64,12 @@ public static class WebApiDependencyInjection
         services
             .AddSingleton(jwtSettings)
             .AddScoped<IAuthenticationTokenService, AuthenticationJweTokenService>()
+            .AddScoped<RegisterUserCommand>()
+            .AddScoped<IValidator<RegisterUserRequest>, RegisterUserValidator>()
+            .AddScoped<LoginCommand>()
+            .AddScoped<IValidator<LoginRequest>, LoginValidator>()
+            .AddScoped<RefreshAuthenticationTokenCommand>()
+            .AddScoped<ValidateAuthenticationTokenCommand>()
             .AddAuthentication(options =>
             {
                 options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;

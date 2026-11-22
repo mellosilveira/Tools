@@ -1,4 +1,4 @@
-namespace MelloSilveiraTools.Core.Commands.StorageEntryMetadata.Download;
+namespace MelloSilveiraTools.WebApi.Application.Commands.StorageEntryMetadata.Download;
 
 /// <summary>
 /// Stream and metadata payload for an HTTP file download response.

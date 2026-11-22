@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Http;
 
-namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Commands.StorageEntryMetadata;
+namespace MelloSilveiraTools.WebApi.Application.Commands.StorageEntryMetadata.Upload;
 
 /// <summary>
 /// Request payload for overwriting the physical file of an existing storage entry.

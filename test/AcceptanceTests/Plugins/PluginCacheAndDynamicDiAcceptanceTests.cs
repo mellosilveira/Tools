@@ -1,4 +1,3 @@
-using System.Collections.Concurrent;
 using AcceptanceTests.Plugins.Helpers;
 using MelloSilveiraTools.Core;
 using MelloSilveiraTools.Core.Files.Models;
@@ -18,6 +17,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Moq;
 using Polly;
+using System.Collections.Concurrent;
 
 namespace AcceptanceTests.Plugins;
 

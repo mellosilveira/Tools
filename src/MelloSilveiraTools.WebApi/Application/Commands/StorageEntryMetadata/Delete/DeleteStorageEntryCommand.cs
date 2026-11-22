@@ -1,3 +1,4 @@
+using MelloSilveiraTools.Core.Commands;
 using MelloSilveiraTools.Core.Files.Providers;
 using MelloSilveiraTools.Core.Models;
 using MelloSilveiraTools.Core.Providers;
@@ -6,7 +7,7 @@ using MelloSilveiraTools.Database.RelationalDatabase.Models.Entities;
 using MelloSilveiraTools.Database.Repositories;
 using Microsoft.Extensions.Logging;
 
-namespace MelloSilveiraTools.Core.Commands.StorageEntryMetadata.Delete;
+namespace MelloSilveiraTools.WebApi.Application.Commands.StorageEntryMetadata.Delete;
 
 /// <summary>
 /// Idempotently deletes a file from both <see cref="IFileStorageService"/> and the database repository,
@@ -29,7 +30,7 @@ public sealed class DeleteStorageEntryCommand(
         CancellationToken cancellationToken = default)
     {
         IFileStorageService fileStorageService = request.StorageProvider.HasValue
-            ? serviceLocator.GetRequiredKeyedService<IFileStorageService>(request.StorageProvider - +.Value)
+            ? serviceLocator.GetRequiredKeyedService<IFileStorageService>(request.StorageProvider.Value)
             : serviceLocator.GetRequiredService<IFileStorageService>();
 
         StorageEntryMetadataEntity? entity = request.FileId > 0 ? await repository.GetAsync<StorageEntryMetadataEntity>(request.FileId.Value, cancellationToken).ConfigureAwait(false) : null;

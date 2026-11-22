@@ -16,8 +16,8 @@ namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData
 /// <param name="fileStorageService">Local file storage service.</param>
 /// <param name="repository">Relational repository for file metadata persistence.</param>
 public sealed class UploadExperimentalDataCommand(
-    IValidator<UploadExperimentalDataRequest> validator, 
-    IFileStorageService fileStorageService, 
+    IValidator<UploadExperimentalDataRequest> validator,
+    IFileStorageService fileStorageService,
     IRepository repository)
     : CommandBaseWithData<UploadExperimentalDataRequest, UploadExperimentalDataResultData>(validator)
 {

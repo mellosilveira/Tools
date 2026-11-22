@@ -7,7 +7,7 @@ using MelloSilveiraTools.Database.RelationalDatabase.Models.Filters;
 using MelloSilveiraTools.Database.Repositories;
 using MelloSilveiraTools.WebApi.Application.Commands.StorageEntryMetadata;
 
-namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Commands.StorageEntryMetadata;
+namespace MelloSilveiraTools.WebApi.Application.Commands.StorageEntryMetadata.Read;
 
 /// <summary>
 /// Reads file metadata from both the database repository and <see cref="IFileStorageService"/>.

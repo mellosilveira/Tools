@@ -1,7 +1,7 @@
 using MelloSilveiraTools.Core.Models;
 using MelloSilveiraTools.Core.Validators;
 
-namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Commands.StorageEntryMetadata;
+namespace MelloSilveiraTools.WebApi.Application.Commands.StorageEntryMetadata.Upload;
 
 /// <summary>
 /// Validates <see cref="UpdateStorageEntryFileRequest"/> payloads prior to overwriting a stored file.

@@ -1,6 +1,3 @@
-using System.Collections.Concurrent;
-using System.Globalization;
-using System.Threading.Channels;
 using AcceptanceTests.MechanicalOfMaterials.Optimizations.CurveFitterSteps;
 using MelloSilveiraTools.Core;
 using MelloSilveiraTools.Core.Files.Models;
@@ -33,6 +30,9 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Logging;
 using Moq;
 using Polly;
+using System.Collections.Concurrent;
+using System.Globalization;
+using System.Threading.Channels;
 
 namespace AcceptanceTests.MechanicalOfMaterials.Optimizations.Pipelines;
 
@@ -114,7 +114,7 @@ public sealed class ExperimentalDataPipelineStepByStepAcceptanceTests : IAsyncLi
                     CurveFitterOptions = new PipelineStepOptions(1, 64, true),
                     SimulationInputBuilderOptions = new PipelineStepOptions(1, 64, true),
                     IngestionBufferCapacity = 32,
-        MaxCsvSizeBytes = 50L * 1024 * 1024
+                    MaxCsvSizeBytes = 50L * 1024 * 1024
                 },
                 new ParametricSweepSettings
                 {

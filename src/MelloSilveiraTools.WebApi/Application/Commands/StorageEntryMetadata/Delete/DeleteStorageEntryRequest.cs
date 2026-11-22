@@ -1,7 +1,7 @@
 using MelloSilveiraTools.Core.Files.Models;
 using MelloSilveiraTools.Core.Files.Providers;
 
-namespace MelloSilveiraTools.Core.Commands.StorageEntryMetadata.Delete;
+namespace MelloSilveiraTools.WebApi.Application.Commands.StorageEntryMetadata.Delete;
 
 /// <summary>
 /// Request payload for idempotently deleting a stored file and its database metadata.

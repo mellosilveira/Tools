@@ -8,7 +8,7 @@ using MelloSilveiraTools.Database.Repositories;
 using MelloSilveiraTools.WebApi.Application.Commands.StorageEntryMetadata;
 using Microsoft.Extensions.Logging;
 
-namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Commands.StorageEntryMetadata;
+namespace MelloSilveiraTools.WebApi.Application.Commands.StorageEntryMetadata.Upload;
 
 /// <summary>
 /// Overwrites only the physical file in <see cref="IFileStorageService"/>, deletes the old metadata record,

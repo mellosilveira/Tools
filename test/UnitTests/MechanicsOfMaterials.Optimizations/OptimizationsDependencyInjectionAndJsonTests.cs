@@ -60,7 +60,7 @@ public sealed class OptimizationsDependencyInjectionAndJsonTests
             CurveFitterOptions = stepOptions,
             SimulationInputBuilderOptions = stepOptions,
             IngestionBufferCapacity = 10,
-        MaxCsvSizeBytes = 50L * 1024 * 1024
+            MaxCsvSizeBytes = 50L * 1024 * 1024
         };
     }
 

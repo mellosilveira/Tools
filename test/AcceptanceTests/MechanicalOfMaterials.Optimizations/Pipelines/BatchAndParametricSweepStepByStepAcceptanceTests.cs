@@ -1,8 +1,5 @@
-using System.Collections.Concurrent;
-using System.Threading.Channels;
 using AcceptanceTests.MechanicalOfMaterials.Optimizations.CurveFitterSteps;
 using MelloSilveiraTools.Core;
-using MelloSilveiraTools.Core.Files.Models;
 using MelloSilveiraTools.Core.Models;
 using MelloSilveiraTools.Core.Pipelines;
 using MelloSilveiraTools.Core.Pipelines.Models;
@@ -16,7 +13,6 @@ using MelloSilveiraTools.Mathematics.Models.NumericalMethods;
 using MelloSilveiraTools.Mathematics.NumericalMethods.RootFindingAlgorithms;
 using MelloSilveiraTools.MechanicsOfMaterials;
 using MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity;
-using MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.NonLinear.Schapery;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Models;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData;
@@ -36,8 +32,10 @@ using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Logging;
-using Polly;
 using Moq;
+using Polly;
+using System.Collections.Concurrent;
+using System.Threading.Channels;
 
 namespace AcceptanceTests.MechanicalOfMaterials.Optimizations.Pipelines;
 
@@ -139,7 +137,7 @@ public sealed class BatchAndParametricSweepStepByStepAcceptanceTests : IAsyncLif
                     CurveFitterOptions = new PipelineStepOptions(1, 64, true),
                     SimulationInputBuilderOptions = new PipelineStepOptions(1, 64, true),
                     IngestionBufferCapacity = 32,
-        MaxCsvSizeBytes = 50L * 1024 * 1024
+                    MaxCsvSizeBytes = 50L * 1024 * 1024
                 },
                 new ParametricSweepSettings
                 {

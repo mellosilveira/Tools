@@ -1,3 +1,4 @@
+using MelloSilveiraTools.Core.Commands;
 using MelloSilveiraTools.Core.Files.Providers;
 using MelloSilveiraTools.Core.Models;
 using MelloSilveiraTools.Core.Providers;
@@ -7,7 +8,7 @@ using MelloSilveiraTools.Database.Repositories;
 using MelloSilveiraTools.WebApi.Application.Commands.StorageEntryMetadata;
 using Microsoft.Extensions.Logging;
 
-namespace MelloSilveiraTools.Core.Commands.StorageEntryMetadata.Create;
+namespace MelloSilveiraTools.WebApi.Application.Commands.StorageEntryMetadata.Create;
 
 /// <summary>
 /// Stores a file in the resolved <see cref="IFileStorageService"/> and persists its <see cref="StorageEntryMetadataEntity"/> record.
@@ -60,7 +61,7 @@ public sealed class AddStorageEntryCommand(
         catch (Exception ex)
         {
             logger.LogError(ex, "Failed to write file '{FileName}' to storage at '{Location}'.", fileName, location);
-     
+
             await fileStorageService.DeleteAsync(location, cancellationToken).ConfigureAwait(false);
             return Result.CreateUnknownError($"Failed to write file to storage: {ex.Message}");
         }

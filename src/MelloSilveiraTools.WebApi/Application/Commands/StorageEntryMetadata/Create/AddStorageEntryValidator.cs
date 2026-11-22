@@ -1,7 +1,7 @@
 using MelloSilveiraTools.Core.Models;
 using MelloSilveiraTools.Core.Validators;
 
-namespace MelloSilveiraTools.Core.Commands.StorageEntryMetadata.Create;
+namespace MelloSilveiraTools.WebApi.Application.Commands.StorageEntryMetadata.Create;
 
 /// <summary>
 /// Validates <see cref="AddStorageEntryRequest"/> payloads prior to storage creation.

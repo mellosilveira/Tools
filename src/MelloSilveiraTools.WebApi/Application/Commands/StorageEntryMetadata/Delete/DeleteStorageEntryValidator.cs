@@ -1,7 +1,7 @@
 using MelloSilveiraTools.Core.Models;
 using MelloSilveiraTools.Core.Validators;
 
-namespace MelloSilveiraTools.Core.Commands.StorageEntryMetadata.Delete;
+namespace MelloSilveiraTools.WebApi.Application.Commands.StorageEntryMetadata.Delete;
 
 /// <summary>
 /// Validates <see cref="DeleteStorageEntryRequest"/> payloads prior to deletion.
