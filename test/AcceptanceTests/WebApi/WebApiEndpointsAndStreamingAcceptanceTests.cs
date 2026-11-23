@@ -209,6 +209,7 @@ public sealed class WebApiEndpointsAndStreamingAcceptanceTests : IAsyncLifetime
                 {
                     IngestionBufferCapacity = 32
                 })
+            .AddSingleton(provider => provider.GetRequiredKeyedService<IFileStorageService>(StorageProvider.Local))
             .AddWebApiServices(resilienceSettings)
             .AddSingleton<IPluginTypeProcessor, ParameterlessPluginTypeProcessor>()
             .AddPluginServices(new PluginSettings

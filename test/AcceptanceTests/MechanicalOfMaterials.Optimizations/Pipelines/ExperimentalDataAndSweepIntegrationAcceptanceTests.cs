@@ -142,6 +142,7 @@ public sealed class ExperimentalDataAndSweepIntegrationAcceptanceTests : IDispos
             },
             addMechanicalModels: true);
 
+        services.AddSingleton(provider => provider.GetRequiredKeyedService<IFileStorageService>(StorageProvider.Local));
         services.AddSingleton(repositoryMock.Object);
         _serviceProvider = services.BuildServiceProvider();
     }

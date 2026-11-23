@@ -10,7 +10,7 @@ using MelloSilveiraTools.WebApi.Application.Commands.StorageEntryMetadata.Upload
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
-namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Controllers;
+namespace MelloSilveiraTools.WebApi.Application.Controllers;
 
 /// <summary>
 /// Exposes unified HTTP CRUD and download endpoints for stored files (<see cref="StorageEntryMetadataEntity"/>)

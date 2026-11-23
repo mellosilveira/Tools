@@ -427,12 +427,152 @@
         <member name="M:MelloSilveiraTools.WebApi.Application.Commands.StorageEntryMetadata.Upload.UpdateStorageEntryFileValidator.Validate(MelloSilveiraTools.WebApi.Application.Commands.StorageEntryMetadata.Upload.UpdateStorageEntryFileRequest)">
             <inheritdoc/>
         </member>
+        <member name="T:MelloSilveiraTools.WebApi.Application.Commands.Users.Login.LoginCommand">
+            <summary>
+            Authenticates a user against persisted credentials and issues a signed and encrypted JWE token.
+            </summary>
+            <param name="validator">Validator for login requests.</param>
+            <param name="repository">Relational repository for looking up <see cref="T:MelloSilveiraTools.Database.RelationalDatabase.Models.Entities.UserEntity"/> records.</param>
+            <param name="encryptionService">Password verification service.</param>
+            <param name="tokenService">Authentication token service.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.WebApi.Application.Commands.Users.Login.LoginCommand.#ctor(MelloSilveiraTools.Core.Validators.IValidator{MelloSilveiraTools.WebApi.Application.Commands.Users.Login.LoginRequest},MelloSilveiraTools.Database.Repositories.IRepository,MelloSilveiraTools.Core.Services.Encryption.IEncryptionService,MelloSilveiraTools.WebApi.Authentication.Services.IAuthenticationTokenService)">
+            <summary>
+            Authenticates a user against persisted credentials and issues a signed and encrypted JWE token.
+            </summary>
+            <param name="validator">Validator for login requests.</param>
+            <param name="repository">Relational repository for looking up <see cref="T:MelloSilveiraTools.Database.RelationalDatabase.Models.Entities.UserEntity"/> records.</param>
+            <param name="encryptionService">Password verification service.</param>
+            <param name="tokenService">Authentication token service.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.WebApi.Application.Commands.Users.Login.LoginCommand.ExecuteCommandAsync(MelloSilveiraTools.WebApi.Application.Commands.Users.Login.LoginRequest,System.Threading.CancellationToken)">
+            <inheritdoc/>
+        </member>
+        <member name="T:MelloSilveiraTools.WebApi.Application.Commands.Users.Login.LoginRequest">
+            <summary>
+            Request payload for authenticating an existing user account.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.WebApi.Application.Commands.Users.Login.LoginRequest.Username">
+            <summary>
+            Registered login username.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.WebApi.Application.Commands.Users.Login.LoginRequest.Password">
+            <summary>
+            Plain-text password.
+            </summary>
+        </member>
+        <member name="T:MelloSilveiraTools.WebApi.Application.Commands.Users.Login.LoginValidator">
+            <summary>
+            Validates <see cref="T:MelloSilveiraTools.WebApi.Application.Commands.Users.Login.LoginRequest"/> payloads prior to authentication.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.WebApi.Application.Commands.Users.Login.LoginValidator.Validate(MelloSilveiraTools.WebApi.Application.Commands.Users.Login.LoginRequest)">
+            <inheritdoc/>
+        </member>
+        <member name="T:MelloSilveiraTools.WebApi.Application.Commands.Users.RefreshToken.RefreshAuthenticationTokenCommand">
+            <summary>
+            Validates and refreshes an existing JWE token.
+            </summary>
+            <param name="tokenService">Authentication token service.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.WebApi.Application.Commands.Users.RefreshToken.RefreshAuthenticationTokenCommand.#ctor(MelloSilveiraTools.WebApi.Authentication.Services.IAuthenticationTokenService)">
+            <summary>
+            Validates and refreshes an existing JWE token.
+            </summary>
+            <param name="tokenService">Authentication token service.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.WebApi.Application.Commands.Users.RefreshToken.RefreshAuthenticationTokenCommand.ExecuteCommandAsync(MelloSilveiraTools.WebApi.Application.Commands.Users.RefreshToken.RefreshTokenRequest,System.Threading.CancellationToken)">
+            <inheritdoc/>
+        </member>
+        <member name="T:MelloSilveiraTools.WebApi.Application.Commands.Users.RefreshToken.RefreshTokenRequest">
+            <summary>
+            Request payload for refreshing an active JWE token.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.WebApi.Application.Commands.Users.RefreshToken.RefreshTokenRequest.Token">
+            <summary>
+            Active JWE bearer token to refresh.
+            </summary>
+        </member>
+        <member name="T:MelloSilveiraTools.WebApi.Application.Commands.Users.Register.RegisterUserCommand">
+            <summary>
+            Registers a new user in the database with a salted PBKDF2 password hash, provisions dedicated
+            PostgreSQL partitions for the user's tenant-isolated tables, and issues a JWE token.
+            </summary>
+            <param name="validator">Validator for registration requests.</param>
+            <param name="repository">Relational repository for persisting <see cref="T:MelloSilveiraTools.Database.RelationalDatabase.Models.Entities.UserEntity"/> records and provisioning user partitions.</param>
+            <param name="encryptionService">Password hashing service.</param>
+            <param name="tokenService">Authentication token service.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.WebApi.Application.Commands.Users.Register.RegisterUserCommand.#ctor(MelloSilveiraTools.Core.Validators.IValidator{MelloSilveiraTools.WebApi.Application.Commands.Users.Register.RegisterUserRequest},MelloSilveiraTools.Database.Repositories.IRepository,MelloSilveiraTools.Core.Services.Encryption.IEncryptionService,MelloSilveiraTools.WebApi.Authentication.Services.IAuthenticationTokenService)">
+            <summary>
+            Registers a new user in the database with a salted PBKDF2 password hash, provisions dedicated
+            PostgreSQL partitions for the user's tenant-isolated tables, and issues a JWE token.
+            </summary>
+            <param name="validator">Validator for registration requests.</param>
+            <param name="repository">Relational repository for persisting <see cref="T:MelloSilveiraTools.Database.RelationalDatabase.Models.Entities.UserEntity"/> records and provisioning user partitions.</param>
+            <param name="encryptionService">Password hashing service.</param>
+            <param name="tokenService">Authentication token service.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.WebApi.Application.Commands.Users.Register.RegisterUserCommand.ExecuteCommandAsync(MelloSilveiraTools.WebApi.Application.Commands.Users.Register.RegisterUserRequest,System.Threading.CancellationToken)">
+            <inheritdoc/>
+        </member>
+        <member name="T:MelloSilveiraTools.WebApi.Application.Commands.Users.Register.RegisterUserRequest">
+            <summary>
+            Request payload for registering a new user account.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.WebApi.Application.Commands.Users.Register.RegisterUserRequest.Username">
+            <summary>
+            Unique login username (minimum 3 characters).
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.WebApi.Application.Commands.Users.Register.RegisterUserRequest.Password">
+            <summary>
+            Plain-text password (minimum 6 characters).
+            </summary>
+        </member>
+        <member name="T:MelloSilveiraTools.WebApi.Application.Commands.Users.Register.RegisterUserValidator">
+            <summary>
+            Validates <see cref="T:MelloSilveiraTools.WebApi.Application.Commands.Users.Register.RegisterUserRequest"/> payloads prior to user creation.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.WebApi.Application.Commands.Users.Register.RegisterUserValidator.Validate(MelloSilveiraTools.WebApi.Application.Commands.Users.Register.RegisterUserRequest)">
+            <inheritdoc/>
+        </member>
+        <member name="T:MelloSilveiraTools.WebApi.Application.Commands.Users.ValidateToken.ValidateAuthenticationTokenCommand">
+            <summary>
+            Validates whether a JWE token is authentic and active.
+            </summary>
+            <param name="tokenService">Authentication token service.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.WebApi.Application.Commands.Users.ValidateToken.ValidateAuthenticationTokenCommand.#ctor(MelloSilveiraTools.WebApi.Authentication.Services.IAuthenticationTokenService)">
+            <summary>
+            Validates whether a JWE token is authentic and active.
+            </summary>
+            <param name="tokenService">Authentication token service.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.WebApi.Application.Commands.Users.ValidateToken.ValidateAuthenticationTokenCommand.ExecuteCommandAsync(MelloSilveiraTools.WebApi.Application.Commands.Users.ValidateToken.ValidateTokenRequest,System.Threading.CancellationToken)">
+            <inheritdoc/>
+        </member>
+        <member name="T:MelloSilveiraTools.WebApi.Application.Commands.Users.ValidateToken.ValidateTokenRequest">
+            <summary>
+            Request payload for validating an existing JWE token.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.WebApi.Application.Commands.Users.ValidateToken.ValidateTokenRequest.Token">
+            <summary>
+            JWE bearer token to validate.
+            </summary>
+        </member>
         <member name="T:MelloSilveiraTools.WebApi.Application.Controllers.AuthController">
             <summary>
             Exposes JWE authentication endpoints for registering users, logging in, refreshing, and validating bearer tokens.
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.WebApi.Application.Controllers.AuthController.RegisterAsync(MelloSilveiraTools.WebApi.Authentication.Commands.RegisterUserCommand,MelloSilveiraTools.WebApi.Authentication.Commands.RegisterUserRequest,System.Threading.CancellationToken)">
+        <member name="M:MelloSilveiraTools.WebApi.Application.Controllers.AuthController.RegisterAsync(MelloSilveiraTools.WebApi.Application.Commands.Users.Register.RegisterUserCommand,MelloSilveiraTools.WebApi.Application.Commands.Users.Register.RegisterUserRequest,System.Threading.CancellationToken)">
             <summary>
             Registers a new user account and issues an initial signed and encrypted JWE token.
             </summary>
@@ -441,7 +581,7 @@
             <param name="cancellationToken">Cancellation token.</param>
             <returns>An <see cref="T:MelloSilveiraTools.WebApi.Authentication.AuthenticationToken"/> wrapped in <see cref="T:MelloSilveiraTools.Core.Models.Result`1"/>.</returns>
         </member>
-        <member name="M:MelloSilveiraTools.WebApi.Application.Controllers.AuthController.LoginAsync(MelloSilveiraTools.WebApi.Authentication.Commands.LoginCommand,MelloSilveiraTools.WebApi.Authentication.Commands.LoginRequest,System.Threading.CancellationToken)">
+        <member name="M:MelloSilveiraTools.WebApi.Application.Controllers.AuthController.LoginAsync(MelloSilveiraTools.WebApi.Application.Commands.Users.Login.LoginCommand,MelloSilveiraTools.WebApi.Application.Commands.Users.Login.LoginRequest,System.Threading.CancellationToken)">
             <summary>
             Authenticates an existing user and issues a signed and encrypted JWE token.
             </summary>
@@ -450,7 +590,7 @@
             <param name="cancellationToken">Cancellation token.</param>
             <returns>An <see cref="T:MelloSilveiraTools.WebApi.Authentication.AuthenticationToken"/> wrapped in <see cref="T:MelloSilveiraTools.Core.Models.Result`1"/>.</returns>
         </member>
-        <member name="M:MelloSilveiraTools.WebApi.Application.Controllers.AuthController.RefreshAsync(MelloSilveiraTools.WebApi.Authentication.Commands.RefreshAuthenticationTokenCommand,MelloSilveiraTools.WebApi.Authentication.Commands.RefreshTokenRequest,System.Threading.CancellationToken)">
+        <member name="M:MelloSilveiraTools.WebApi.Application.Controllers.AuthController.RefreshAsync(MelloSilveiraTools.WebApi.Application.Commands.Users.RefreshToken.RefreshAuthenticationTokenCommand,MelloSilveiraTools.WebApi.Application.Commands.Users.RefreshToken.RefreshTokenRequest,System.Threading.CancellationToken)">
             <summary>
             Validates and refreshes an existing JWE token.
             </summary>
@@ -459,14 +599,14 @@
             <param name="cancellationToken">Cancellation token.</param>
             <returns>A refreshed <see cref="T:MelloSilveiraTools.WebApi.Authentication.AuthenticationToken"/> wrapped in <see cref="T:MelloSilveiraTools.Core.Models.Result`1"/>.</returns>
         </member>
-        <member name="M:MelloSilveiraTools.WebApi.Application.Controllers.AuthController.ValidateAsync(MelloSilveiraTools.WebApi.Authentication.Commands.ValidateAuthenticationTokenCommand,MelloSilveiraTools.WebApi.Authentication.Commands.ValidateTokenRequest,System.Threading.CancellationToken)">
+        <member name="M:MelloSilveiraTools.WebApi.Application.Controllers.AuthController.ValidateAsync(MelloSilveiraTools.WebApi.Application.Commands.Users.ValidateToken.ValidateAuthenticationTokenCommand,MelloSilveiraTools.WebApi.Application.Commands.Users.ValidateToken.ValidateTokenRequest,System.Threading.CancellationToken)">
             <summary>
             Validates whether a JWE token is authentic and active.
             </summary>
             <param name="command">Command that validates the token.</param>
             <param name="request">Payload containing the JWE token to validate.</param>
             <param name="cancellationToken">Cancellation token.</param>
-            <returns>A <see cref="T:MelloSilveiraTools.WebApi.Authentication.Commands.TokenValidationResponse"/> wrapped in <see cref="T:MelloSilveiraTools.Core.Models.Result`1"/>.</returns>
+            <returns>A <see cref="T:MelloSilveiraTools.Core.Models.Result"/> indicating if token is valid.</returns>
         </member>
         <member name="T:MelloSilveiraTools.WebApi.Application.Controllers.CrudController`2">
             <summary>
@@ -813,156 +953,6 @@
             <summary>
             The instant (in UTC offset) at which the token stops being valid.
             </summary>
-        </member>
-        <member name="T:MelloSilveiraTools.WebApi.Authentication.Commands.RegisterUserRequest">
-            <summary>
-            Request payload for registering a new user account.
-            </summary>
-        </member>
-        <member name="P:MelloSilveiraTools.WebApi.Authentication.Commands.RegisterUserRequest.Username">
-            <summary>
-            Unique login username (minimum 3 characters).
-            </summary>
-        </member>
-        <member name="P:MelloSilveiraTools.WebApi.Authentication.Commands.RegisterUserRequest.Password">
-            <summary>
-            Plain-text password (minimum 6 characters).
-            </summary>
-        </member>
-        <member name="T:MelloSilveiraTools.WebApi.Authentication.Commands.RegisterUserValidator">
-            <summary>
-            Validates <see cref="T:MelloSilveiraTools.WebApi.Authentication.Commands.RegisterUserRequest"/> payloads prior to user creation.
-            </summary>
-        </member>
-        <member name="M:MelloSilveiraTools.WebApi.Authentication.Commands.RegisterUserValidator.Validate(MelloSilveiraTools.WebApi.Authentication.Commands.RegisterUserRequest)">
-            <inheritdoc/>
-        </member>
-        <member name="T:MelloSilveiraTools.WebApi.Authentication.Commands.RegisterUserCommand">
-            <summary>
-            Registers a new user in the database with a salted PBKDF2 password hash, provisions dedicated
-            PostgreSQL partitions for the user's tenant-isolated tables, and issues a JWE token.
-            </summary>
-            <param name="validator">Validator for registration requests.</param>
-            <param name="repository">Relational repository for persisting <see cref="T:MelloSilveiraTools.Database.RelationalDatabase.Models.Entities.UserEntity"/> records and provisioning user partitions.</param>
-            <param name="encryptionService">Password hashing service.</param>
-            <param name="tokenService">Authentication token service.</param>
-        </member>
-        <member name="M:MelloSilveiraTools.WebApi.Authentication.Commands.RegisterUserCommand.#ctor(MelloSilveiraTools.Core.Validators.IValidator{MelloSilveiraTools.WebApi.Authentication.Commands.RegisterUserRequest},MelloSilveiraTools.Database.Repositories.IRepository,MelloSilveiraTools.Core.Services.Encryption.IEncryptionService,MelloSilveiraTools.WebApi.Authentication.Services.IAuthenticationTokenService)">
-            <summary>
-            Registers a new user in the database with a salted PBKDF2 password hash, provisions dedicated
-            PostgreSQL partitions for the user's tenant-isolated tables, and issues a JWE token.
-            </summary>
-            <param name="validator">Validator for registration requests.</param>
-            <param name="repository">Relational repository for persisting <see cref="T:MelloSilveiraTools.Database.RelationalDatabase.Models.Entities.UserEntity"/> records and provisioning user partitions.</param>
-            <param name="encryptionService">Password hashing service.</param>
-            <param name="tokenService">Authentication token service.</param>
-        </member>
-        <member name="M:MelloSilveiraTools.WebApi.Authentication.Commands.RegisterUserCommand.ExecuteCommandAsync(MelloSilveiraTools.WebApi.Authentication.Commands.RegisterUserRequest,System.Threading.CancellationToken)">
-            <inheritdoc/>
-        </member>
-        <member name="T:MelloSilveiraTools.WebApi.Authentication.Commands.LoginRequest">
-            <summary>
-            Request payload for authenticating an existing user account.
-            </summary>
-        </member>
-        <member name="P:MelloSilveiraTools.WebApi.Authentication.Commands.LoginRequest.Username">
-            <summary>
-            Registered login username.
-            </summary>
-        </member>
-        <member name="P:MelloSilveiraTools.WebApi.Authentication.Commands.LoginRequest.Password">
-            <summary>
-            Plain-text password.
-            </summary>
-        </member>
-        <member name="T:MelloSilveiraTools.WebApi.Authentication.Commands.LoginValidator">
-            <summary>
-            Validates <see cref="T:MelloSilveiraTools.WebApi.Authentication.Commands.LoginRequest"/> payloads prior to authentication.
-            </summary>
-        </member>
-        <member name="M:MelloSilveiraTools.WebApi.Authentication.Commands.LoginValidator.Validate(MelloSilveiraTools.WebApi.Authentication.Commands.LoginRequest)">
-            <inheritdoc/>
-        </member>
-        <member name="T:MelloSilveiraTools.WebApi.Authentication.Commands.LoginCommand">
-            <summary>
-            Authenticates a user against persisted credentials and issues a signed and encrypted JWE token.
-            </summary>
-            <param name="validator">Validator for login requests.</param>
-            <param name="repository">Relational repository for looking up <see cref="T:MelloSilveiraTools.Database.RelationalDatabase.Models.Entities.UserEntity"/> records.</param>
-            <param name="encryptionService">Password verification service.</param>
-            <param name="tokenService">Authentication token service.</param>
-        </member>
-        <member name="M:MelloSilveiraTools.WebApi.Authentication.Commands.LoginCommand.#ctor(MelloSilveiraTools.Core.Validators.IValidator{MelloSilveiraTools.WebApi.Authentication.Commands.LoginRequest},MelloSilveiraTools.Database.Repositories.IRepository,MelloSilveiraTools.Core.Services.Encryption.IEncryptionService,MelloSilveiraTools.WebApi.Authentication.Services.IAuthenticationTokenService)">
-            <summary>
-            Authenticates a user against persisted credentials and issues a signed and encrypted JWE token.
-            </summary>
-            <param name="validator">Validator for login requests.</param>
-            <param name="repository">Relational repository for looking up <see cref="T:MelloSilveiraTools.Database.RelationalDatabase.Models.Entities.UserEntity"/> records.</param>
-            <param name="encryptionService">Password verification service.</param>
-            <param name="tokenService">Authentication token service.</param>
-        </member>
-        <member name="M:MelloSilveiraTools.WebApi.Authentication.Commands.LoginCommand.ExecuteCommandAsync(MelloSilveiraTools.WebApi.Authentication.Commands.LoginRequest,System.Threading.CancellationToken)">
-            <inheritdoc/>
-        </member>
-        <member name="T:MelloSilveiraTools.WebApi.Authentication.Commands.RefreshTokenRequest">
-            <summary>
-            Request payload for refreshing an active JWE token.
-            </summary>
-        </member>
-        <member name="P:MelloSilveiraTools.WebApi.Authentication.Commands.RefreshTokenRequest.Token">
-            <summary>
-            Active JWE bearer token to refresh.
-            </summary>
-        </member>
-        <member name="T:MelloSilveiraTools.WebApi.Authentication.Commands.RefreshAuthenticationTokenCommand">
-            <summary>
-            Validates and refreshes an existing JWE token.
-            </summary>
-            <param name="tokenService">Authentication token service.</param>
-        </member>
-        <member name="M:MelloSilveiraTools.WebApi.Authentication.Commands.RefreshAuthenticationTokenCommand.#ctor(MelloSilveiraTools.WebApi.Authentication.Services.IAuthenticationTokenService)">
-            <summary>
-            Validates and refreshes an existing JWE token.
-            </summary>
-            <param name="tokenService">Authentication token service.</param>
-        </member>
-        <member name="M:MelloSilveiraTools.WebApi.Authentication.Commands.RefreshAuthenticationTokenCommand.ExecuteCommandAsync(MelloSilveiraTools.WebApi.Authentication.Commands.RefreshTokenRequest,System.Threading.CancellationToken)">
-            <inheritdoc/>
-        </member>
-        <member name="T:MelloSilveiraTools.WebApi.Authentication.Commands.ValidateTokenRequest">
-            <summary>
-            Request payload for validating an existing JWE token.
-            </summary>
-        </member>
-        <member name="P:MelloSilveiraTools.WebApi.Authentication.Commands.ValidateTokenRequest.Token">
-            <summary>
-            JWE bearer token to validate.
-            </summary>
-        </member>
-        <member name="T:MelloSilveiraTools.WebApi.Authentication.Commands.TokenValidationResponse">
-            <summary>
-            Response payload indicating whether a JWE token passed validation.
-            </summary>
-        </member>
-        <member name="P:MelloSilveiraTools.WebApi.Authentication.Commands.TokenValidationResponse.IsValid">
-            <summary>
-            Whether the token is valid and not expired.
-            </summary>
-        </member>
-        <member name="T:MelloSilveiraTools.WebApi.Authentication.Commands.ValidateAuthenticationTokenCommand">
-            <summary>
-            Validates whether a JWE token is authentic and active.
-            </summary>
-            <param name="tokenService">Authentication token service.</param>
-        </member>
-        <member name="M:MelloSilveiraTools.WebApi.Authentication.Commands.ValidateAuthenticationTokenCommand.#ctor(MelloSilveiraTools.WebApi.Authentication.Services.IAuthenticationTokenService)">
-            <summary>
-            Validates whether a JWE token is authentic and active.
-            </summary>
-            <param name="tokenService">Authentication token service.</param>
-        </member>
-        <member name="M:MelloSilveiraTools.WebApi.Authentication.Commands.ValidateAuthenticationTokenCommand.ExecuteCommandAsync(MelloSilveiraTools.WebApi.Authentication.Commands.ValidateTokenRequest,System.Threading.CancellationToken)">
-            <inheritdoc/>
         </member>
         <member name="T:MelloSilveiraTools.WebApi.Authentication.JwtSettings">
             <summary>

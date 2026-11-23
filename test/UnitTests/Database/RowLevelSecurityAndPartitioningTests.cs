@@ -392,13 +392,13 @@ public sealed class RowLevelSecurityAndPartitioningTests
         Assert.Same(userProvider1, userProvider2);
         Assert.IsType<PostgresRepository>(repository);
 
-        // 2. Custom ICurrentUserProvider registered prior to AddDatabaseServices / AddJweAuthentication is preserved.
+        // 2. Custom ICurrentUserProvider registered after AddDatabaseServices is preserved by AddJweAuthentication.
         Mock<ICurrentUserProvider> customMock = new();
         ServiceCollection customServices = new();
         customServices.AddLogging();
         customServices.AddSingleton(TimeProvider.System);
-        customServices.AddSingleton(customMock.Object);
         customServices.AddDatabaseServices(resilience, dbSettings);
+        customServices.AddSingleton(customMock.Object);
         customServices.AddJweAuthentication(jwtSettings);
 
         using ServiceProvider customProvider = customServices.BuildServiceProvider();
@@ -411,8 +411,8 @@ public sealed class RowLevelSecurityAndPartitioningTests
         // Case 1: Successful insert -> provisions partitions once
         Mock<IRepository> repoSuccessMock = new();
         repoSuccessMock
-            .Setup(r => r.GetAsync<UserEntity, UserFilter>(It.IsAny<UserFilter>(), null, It.IsAny<CancellationToken>()))
-            .Returns(EmptyUsersAsync());
+            .Setup(r => r.GetFirstOrDefaultAsync<UserEntity, UserFilter>(It.IsAny<UserFilter>(), It.IsAny<SortOrder>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((UserEntity?)null);
         repoSuccessMock
             .Setup(r => r.TryInsertAsync(It.IsAny<UserEntity>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(Result.CreateSuccessOk(42L));
@@ -446,8 +446,8 @@ public sealed class RowLevelSecurityAndPartitioningTests
         // Case 2: Existing username (conflict) -> must NOT provision partitions
         Mock<IRepository> repoConflictMock = new();
         repoConflictMock
-            .Setup(r => r.GetAsync<UserEntity, UserFilter>(It.IsAny<UserFilter>(), null, It.IsAny<CancellationToken>()))
-            .Returns(SingleUserAsync(new UserEntity { Id = 7L, Username = "researcher", PasswordHash = "h" }));
+            .Setup(r => r.GetFirstOrDefaultAsync<UserEntity, UserFilter>(It.IsAny<UserFilter>(), It.IsAny<SortOrder>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new UserEntity { Id = 7L, Username = "researcher", PasswordHash = "h" });
 
         RegisterUserCommand conflictCommand = new(
             new RegisterUserValidator(),
@@ -468,8 +468,8 @@ public sealed class RowLevelSecurityAndPartitioningTests
         // Case 3: Insert failure -> must NOT provision partitions
         Mock<IRepository> repoFailureMock = new();
         repoFailureMock
-            .Setup(r => r.GetAsync<UserEntity, UserFilter>(It.IsAny<UserFilter>(), null, It.IsAny<CancellationToken>()))
-            .Returns(EmptyUsersAsync());
+            .Setup(r => r.GetFirstOrDefaultAsync<UserEntity, UserFilter>(It.IsAny<UserFilter>(), It.IsAny<SortOrder>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((UserEntity?)null);
         repoFailureMock
             .Setup(r => r.TryInsertAsync(It.IsAny<UserEntity>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(Result.CreateUnknownError<Result<long>>("Insert failed"));

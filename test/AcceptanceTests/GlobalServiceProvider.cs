@@ -92,6 +92,8 @@ public static class GlobalServiceProvider
             },
             addMechanicalModels: true);
 
+        services.AddSingleton(provider => provider.GetRequiredKeyedService<IFileStorageService>(StorageProvider.Local));
+
         Mock<IRepository> repositoryMock = new();
         repositoryMock
             .Setup(r => r.TryInsertAsync(It.IsAny<ParametricSweepEntity>(), It.IsAny<CancellationToken>()))

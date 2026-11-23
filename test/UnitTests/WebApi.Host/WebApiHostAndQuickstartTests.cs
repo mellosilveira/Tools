@@ -60,8 +60,8 @@ public class WebApiHostAndQuickstartTests
         AuthenticationToken expectedToken = new("jwe-token-value", TimeProvider.System.GetUtcNow().AddHours(2));
         Mock<IRepository> repoMock = new();
         repoMock
-            .Setup(r => r.GetAsync<UserEntity, UserFilter>(It.IsAny<UserFilter>(), null, It.IsAny<CancellationToken>()))
-            .Returns(ToAsyncEnumerable<UserEntity>([]));
+            .Setup(r => r.GetFirstOrDefaultAsync<UserEntity, UserFilter>(It.IsAny<UserFilter>(), It.IsAny<SortOrder>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((UserEntity?)null);
         repoMock
             .Setup(r => r.TryInsertAsync(It.IsAny<UserEntity>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(Result.CreateSuccessCreated(42L));
@@ -77,7 +77,7 @@ public class WebApiHostAndQuickstartTests
         IActionResult actionResult = await controller.RegisterAsync(command, new RegisterUserRequest { Username = "researcher", Password = "secret123" });
 
         JsonResult jsonResult = Assert.IsType<JsonResult>(actionResult);
-        Assert.Equal(StatusCodes.Status201Created, jsonResult.StatusCode);
+        Assert.Equal(StatusCodes.Status200OK, jsonResult.StatusCode);
         Result<AuthenticationToken> payload = Assert.IsType<Result<AuthenticationToken>>(jsonResult.Value);
         Assert.True(payload.Success);
         Assert.Equal(expectedToken, payload.Data);
@@ -91,8 +91,8 @@ public class WebApiHostAndQuickstartTests
 
         Mock<IRepository> repoMock = new();
         repoMock
-            .Setup(r => r.GetAsync<UserEntity, UserFilter>(It.IsAny<UserFilter>(), null, It.IsAny<CancellationToken>()))
-            .Returns(ToAsyncEnumerable([user]));
+            .Setup(r => r.GetFirstOrDefaultAsync<UserEntity, UserFilter>(It.IsAny<UserFilter>(), It.IsAny<SortOrder>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(user);
 
         Mock<IEncryptionService> encryptionMock = new();
         encryptionMock.Setup(e => e.IsPasswordValid("secret123", "stored-hash")).Returns(true);
@@ -118,8 +118,8 @@ public class WebApiHostAndQuickstartTests
 
         Mock<IRepository> repoMock = new();
         repoMock
-            .Setup(r => r.GetAsync<UserEntity, UserFilter>(It.IsAny<UserFilter>(), null, It.IsAny<CancellationToken>()))
-            .Returns(ToAsyncEnumerable([user]));
+            .Setup(r => r.GetFirstOrDefaultAsync<UserEntity, UserFilter>(It.IsAny<UserFilter>(), It.IsAny<SortOrder>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(user);
 
         Mock<IEncryptionService> encryptionMock = new();
         encryptionMock.Setup(e => e.IsPasswordValid("wrong-pass", "stored-hash")).Returns(false);
