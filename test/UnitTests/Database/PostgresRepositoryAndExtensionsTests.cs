@@ -1,18 +1,22 @@
 using Dapper;
+using MelloSilveiraTools.Core.Files.Models;
 using MelloSilveiraTools.Core.Models;
 using MelloSilveiraTools.Core.ResiliencePipelines;
 using MelloSilveiraTools.Database.ExtensionMethods;
 using MelloSilveiraTools.Database.RelationalDatabase.Attributes;
 using MelloSilveiraTools.Database.RelationalDatabase.Models;
+using MelloSilveiraTools.Database.RelationalDatabase.Models.Entities;
 using MelloSilveiraTools.Database.RelationalDatabase.Models.Filters;
 using MelloSilveiraTools.Database.RelationalDatabase.Repositories;
 using MelloSilveiraTools.Database.RelationalDatabase.Settings;
 using MelloSilveiraTools.Database.RelationalDatabase.Sql.Provider;
 using MelloSilveiraTools.Database.ResiliencePipelines;
+using MelloSilveiraTools.Database.Security;
 using Microsoft.Extensions.Logging.Abstractions;
 using Npgsql;
 using Polly;
 using System.Buffers.Binary;
+using System.Collections.Concurrent;
 using System.Globalization;
 using System.Net;
 using System.Net.Sockets;
@@ -68,7 +72,7 @@ public sealed class PostgresRepositoryAndExtensionsTests
         };
         PostgresResiliencePipeline resiliencePipeline = new(NullLogger<PostgresResiliencePipeline>.Instance, resilienceSettings);
         ISqlProvider sqlProvider = new PostgresSqlProvider();
-        PostgresRepository repository = new(sqlProvider, resiliencePipeline, settings);
+        PostgresRepository repository = new(sqlProvider, new CurrentUserProvider(), resiliencePipeline, settings);
 
         // 1. CountAsync
         server.EnqueueScalarLong(5L);
@@ -193,6 +197,10 @@ public sealed class PostgresRepositoryAndExtensionsTests
         server.EnqueueNonQuery(0);
         Assert.False(await repository.TryUpdateAsync(new SimpleItemEntity { Id = 1L, Code = "UPD" }));
 
+        Assert.True(server.SetConfigCallCount > 0);
+        server.EnqueueNonQuery(1);
+        await repository.EnsureUserPartitionsAsync(42L);
+
         // 13. Direct NpgsqlConnectionExtensions overloads (QueryFirstOrDefaultAsync without timeout, QueryAsync)
         await using NpgsqlConnection conn = new(server.ConnectionString);
         await conn.OpenAsync();
@@ -254,11 +262,107 @@ public sealed class PostgresRepositoryAndExtensionsTests
         await Assert.ThrowsAsync<PostgresException>(() => repository.TryUpdateAsync(new SimpleItemEntity { Id = 1L, Code = "E" }));
     }
 
+    /// <summary>
+    /// Verifies over the PostgreSQL v3 wire protocol that <see cref="PostgresRepository"/>:
+    /// (1) sends <c>set_config('app.current_user_id', '', false)</c> when unauthenticated (fail-closed),
+    /// (2) sends <c>set_config('app.current_user_id', '&lt;userId&gt;', false)</c> when authenticated,
+    /// (3) automatically binds <c>@UserId</c> from <see cref="ICurrentUserProvider"/> when left as <c>0</c>
+    ///     for single insert, bulk insert, and update on <see cref="UserScopedEntityBase"/> entities, and
+    /// (4) preserves explicitly assigned non-zero <c>UserId</c> values.
+    /// </summary>
+    [Fact]
+    public async Task PostgresRepository_PropagatesRlsSessionConfig_And_AutoPopulatesUserIdOnWireProtocol()
+    {
+        await using FakePostgresWireServer server = new();
+        server.Start();
+
+        DatabaseSettings settings = new()
+        {
+            ConnectionString = server.ConnectionString,
+            UnitOperationTimeoutInMilliseconds = 5_000,
+            BulkOperationTimeoutInMilliseconds = 10_000
+        };
+        ResiliencePipelineSettings resilienceSettings = new()
+        {
+            BackoffType = DelayBackoffType.Constant,
+            MaxRetryAttempts = 1,
+            DelayInMilliseconds = 1,
+            UseJitter = false
+        };
+        PostgresResiliencePipeline resiliencePipeline = new(NullLogger<PostgresResiliencePipeline>.Instance, resilienceSettings);
+        ISqlProvider sqlProvider = new PostgresSqlProvider();
+        CurrentUserProvider currentUserProvider = new();
+        PostgresRepository repository = new(sqlProvider, currentUserProvider, resiliencePipeline, settings);
+
+        // 1. Unauthenticated call -> set_config must receive empty string "" (fail-closed)
+        server.EnqueueScalarLong(0L);
+        await repository.ExistAsync<StorageEntryMetadataEntity>(1L);
+        Assert.Equal([""], server.RecordedSetConfigUserIds);
+
+        // 2. Authenticated InsertAsync with UserId == 0 -> set_config receives "42" and @UserId parameter is auto-populated with 42L
+        StorageEntryMetadata metadata = new(StorageProvider.Local, "loc/a.csv", "loc", "a.csv", 10, DateTimeOffset.UtcNow);
+        StorageEntryMetadataEntity defaultUserEntity = StorageEntryMetadataEntity.Create(metadata, "EXP-1");
+
+        using (currentUserProvider.BeginScope(42L))
+        {
+            server.EnqueueScalarLong(100L);
+            long id = await repository.InsertAsync(defaultUserEntity);
+            Assert.Equal(100L, id);
+
+            // 3. Explicit non-zero UserId == 99L is preserved on the wire (enforced by PostgreSQL RLS WITH CHECK)
+            server.EnqueueScalarLong(101L);
+            StorageEntryMetadataEntity explicitUserEntity = defaultUserEntity with { UserId = 99L };
+            await repository.InsertAsync(explicitUserEntity);
+
+            // 4. Bulk InsertAsync with UserId == 0 auto-populates both @UserId_1 and @UserId_2 with 42L
+            server.EnqueueLongRows(201L, 202L);
+            await repository.InsertAsync([defaultUserEntity, defaultUserEntity]);
+
+            // 5. TryUpdateAsync with UserId == 0 auto-populates @UserId with 42L
+            server.EnqueueNonQuery(1);
+            Assert.True(await repository.TryUpdateAsync(defaultUserEntity with { Id = 100L }));
+        }
+
+        // 6. Back outside scope -> set_config returns to "" (fail-closed)
+        server.EnqueueScalarLong(0L);
+        await repository.ExistAsync<StorageEntryMetadataEntity>(1L);
+
+        Assert.Equal(["", "42", "42", "42", "42", ""], server.RecordedSetConfigUserIds);
+
+        List<(string Query, List<byte[]?> Params)> nonSetConfig = [.. server.RecordedBoundQueries
+            .Where(q => !q.Query.Contains("set_config('app.current_user_id'", StringComparison.Ordinal))];
+
+        List<(string Query, List<byte[]?> Params)> storedFileInserts = [.. nonSetConfig.Where(q =>
+            q.Query.Contains("INSERT INTO stored_files", StringComparison.Ordinal))];
+        Assert.Equal(3, storedFileInserts.Count);
+
+        // Single inserts: first parameter bound in BuildParameters(useDeclaredProperties: true) is UserId (index 0)
+        Assert.Equal(42L, DecodeInt64Param(storedFileInserts[0].Params[0]!));
+        Assert.Equal(99L, DecodeInt64Param(storedFileInserts[1].Params[0]!));
+
+        // Bulk insert with 2 entities: AllColumns has 10 cols (Id=0, CreationTimestamp=1, UserId=2, ...), so UserId_1 is index 2 and UserId_2 is index 12
+        List<byte[]?> bulkParams = storedFileInserts[2].Params;
+        Assert.Equal(20, bulkParams.Count);
+        Assert.Equal(42L, DecodeInt64Param(bulkParams[2]!));
+        Assert.Equal(42L, DecodeInt64Param(bulkParams[12]!));
+
+        // TryUpdateAsync: AllColumns has UserId at index 2
+        (string _, List<byte[]?> updateParams) = nonSetConfig.First(q => q.Query.Contains("UPDATE stored_files", StringComparison.Ordinal));
+        Assert.Equal(42L, DecodeInt64Param(updateParams[2]!));
+    }
+
+    private static long DecodeInt64Param(byte[] bytes)
+        => bytes.Length == 8
+            ? BinaryPrimitives.ReadInt64BigEndian(bytes)
+            : long.Parse(Encoding.UTF8.GetString(bytes), CultureInfo.InvariantCulture);
+
     private sealed class FakePostgresWireServer : IAsyncDisposable
     {
         private readonly TcpListener _listener = new(IPAddress.Loopback, 0);
         private readonly CancellationTokenSource _cts = new();
         private readonly Queue<QueryReply> _replies = new();
+        private readonly ConcurrentQueue<string> _setConfigUserIds = new();
+        private readonly ConcurrentQueue<(string Query, List<byte[]?> Params)> _boundQueries = new();
         private Task? _acceptLoop;
 
         public int Port { get; private set; }
@@ -400,6 +504,7 @@ public sealed class PostgresRepositoryAndExtensionsTests
                 await stream.FlushAsync(ct);
 
                 short[] currentFormatCodes = [];
+                string currentParsedQuery = string.Empty;
                 QueryReply? activeReply = null;
                 bool rowDescSent = false;
 
@@ -418,7 +523,7 @@ public sealed class PostgresRepositoryAndExtensionsTests
                             return;
 
                         case 'Q':
-                            activeReply = DequeueOrDefault();
+                            activeReply = IsRlsSetConfigQuery(payload) ? HandleRlsSetConfigQuery() : DequeueOrDefault();
                             if (activeReply.Columns.Count > 0)
                             {
                                 await WriteRowDescriptionAsync(stream, activeReply.Columns, [], ct);
@@ -432,13 +537,17 @@ public sealed class PostgresRepositoryAndExtensionsTests
                             break;
 
                         case 'P':
-                            activeReply = DequeueOrDefault();
+                            currentParsedQuery = ExtractParseQuery(payload);
+                            activeReply = IsRlsSetConfigQuery(payload) ? HandleRlsSetConfigQuery() : DequeueOrDefault();
                             rowDescSent = false;
                             await WriteSimpleFrameAsync(stream, '1', [], ct);
                             break;
 
                         case 'B':
-                            currentFormatCodes = ParseBindResultFormats(payload);
+                            (currentFormatCodes, List<byte[]?> boundParams) = ParseBindMessage(payload);
+                            _boundQueries.Enqueue((currentParsedQuery, boundParams));
+                            if (currentParsedQuery.Contains("set_config('app.current_user_id'", StringComparison.Ordinal) && boundParams.Count > 0)
+                                _setConfigUserIds.Enqueue(boundParams[0] is null ? string.Empty : Encoding.UTF8.GetString(boundParams[0]!));
                             await WriteSimpleFrameAsync(stream, '2', [], ct);
                             break;
 
@@ -500,6 +609,33 @@ public sealed class PostgresRepositoryAndExtensionsTests
             }
         }
 
+        public int SetConfigCallCount => _setConfigCallCount;
+
+        public IReadOnlyList<string> RecordedSetConfigUserIds => [.. _setConfigUserIds];
+
+        public IReadOnlyList<(string Query, List<byte[]?> Params)> RecordedBoundQueries => [.. _boundQueries];
+
+        private static string ExtractParseQuery(byte[] payload)
+        {
+            int pos = 0;
+            while (pos < payload.Length && payload[pos] != 0) pos++;
+            pos++; // skip stmt\0
+            int start = pos;
+            while (pos < payload.Length && payload[pos] != 0) pos++;
+            return Encoding.UTF8.GetString(payload, start, pos - start);
+        }
+
+        private int _setConfigCallCount;
+
+        private bool IsRlsSetConfigQuery(byte[] payload)
+            => Encoding.UTF8.GetString(payload).Contains("set_config('app.current_user_id'", StringComparison.Ordinal);
+
+        private QueryReply HandleRlsSetConfigQuery()
+        {
+            Interlocked.Increment(ref _setConfigCallCount);
+            return new QueryReply([], [], "SELECT 1");
+        }
+
         private QueryReply DequeueOrDefault()
         {
             lock (_replies)
@@ -508,6 +644,48 @@ public sealed class PostgresRepositoryAndExtensionsTests
                     ? _replies.Dequeue()
                     : new QueryReply([], [], "SELECT 0");
             }
+        }
+
+        private static (short[] ResultFormats, List<byte[]?> ParamValues) ParseBindMessage(byte[] payload)
+        {
+            int pos = 0;
+            while (pos < payload.Length && payload[pos] != 0) pos++;
+            pos++; // skip portal\0
+            while (pos < payload.Length && payload[pos] != 0) pos++;
+            pos++; // skip stmt\0
+
+            short numParamFormats = BinaryPrimitives.ReadInt16BigEndian(payload.AsSpan(pos, 2));
+            pos += 2 + (numParamFormats * 2);
+
+            short numParams = BinaryPrimitives.ReadInt16BigEndian(payload.AsSpan(pos, 2));
+            pos += 2;
+            List<byte[]?> paramValues = new(numParams);
+            for (int i = 0; i < numParams; i++)
+            {
+                int pLen = BinaryPrimitives.ReadInt32BigEndian(payload.AsSpan(pos, 4));
+                pos += 4;
+                if (pLen < 0)
+                {
+                    paramValues.Add(null);
+                }
+                else
+                {
+                    byte[] valueBytes = new byte[pLen];
+                    Buffer.BlockCopy(payload, pos, valueBytes, 0, pLen);
+                    paramValues.Add(valueBytes);
+                    pos += pLen;
+                }
+            }
+
+            short numResultFormats = BinaryPrimitives.ReadInt16BigEndian(payload.AsSpan(pos, 2));
+            pos += 2;
+            short[] formats = new short[numResultFormats];
+            for (int i = 0; i < numResultFormats; i++)
+            {
+                formats[i] = BinaryPrimitives.ReadInt16BigEndian(payload.AsSpan(pos, 2));
+                pos += 2;
+            }
+            return (formats, paramValues);
         }
 
         private static short[] ParseBindResultFormats(byte[] payload)

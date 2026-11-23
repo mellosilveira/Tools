@@ -79,6 +79,16 @@
             Builds a Docker-network-safe PostgreSQL connection string, mapping <c>localhost</c>/<c>127.0.0.1</c> to the <c>postgres</c> service.
             </summary>
         </member>
+        <member name="M:MelloSilveiraTools.Launcher.Infrastructure.LauncherInfrastructureOptions.BuildApplicationConnectionString(System.Boolean)">
+            <summary>
+            Builds the application-level PostgreSQL connection string used by <c>MelloSilveiraTools.WebApi.Host</c>.
+            When the configured user is the <c>postgres</c> superuser (which bypasses PostgreSQL Row-Level Security),
+            swaps credentials to the non-superuser <c>tools_app</c> role provisioned by migrations so RLS is enforced.
+            Custom non-superuser roles supplied explicitly by the user are preserved untouched.
+            </summary>
+            <param name="forDocker">When <see langword="true"/>, maps <c>localhost</c>/<c>127.0.0.1</c> to the Docker <c>postgres</c> service.</param>
+            <returns>The resolved application connection string.</returns>
+        </member>
         <member name="M:MelloSilveiraTools.Launcher.Infrastructure.LauncherInfrastructureOptions.ExtractHostAndPort">
             <summary>
             Extracts the PostgreSQL host and port from <see cref="P:MelloSilveiraTools.Launcher.Infrastructure.LauncherInfrastructureOptions.ConnectionString"/>, falling back to <c>localhost:5432</c>.

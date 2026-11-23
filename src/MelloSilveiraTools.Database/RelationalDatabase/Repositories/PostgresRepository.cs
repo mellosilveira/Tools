@@ -2,15 +2,18 @@ using Dapper;
 using MelloSilveiraTools.Core.ExtensionMethods;
 using MelloSilveiraTools.Core.Models;
 using MelloSilveiraTools.Database.ExtensionMethods;
+using MelloSilveiraTools.Database.RelationalDatabase.Models.Entities;
 using MelloSilveiraTools.Database.RelationalDatabase.Models.Filters;
 using MelloSilveiraTools.Database.RelationalDatabase.Settings;
 using MelloSilveiraTools.Database.RelationalDatabase.Sql.Provider;
 using MelloSilveiraTools.Database.Repositories;
 using MelloSilveiraTools.Database.ResiliencePipelines;
+using MelloSilveiraTools.Database.Security;
 using Npgsql;
 using NpgsqlTypes;
 using System.Data;
 using System.Data.Common;
+using System.Globalization;
 using System.Runtime.CompilerServices;
 
 namespace MelloSilveiraTools.Database.RelationalDatabase.Repositories;
@@ -41,8 +44,22 @@ namespace MelloSilveiraTools.Database.RelationalDatabase.Repositories;
 /// <see cref="Attributes.ForeignKeyColumnAttribute"/>, using the
 /// join type configured on the attribute and the metadata of the referenced entity type.
 /// </para>
+/// <para>
+/// Every opened connection executes <c>SELECT set_config('app.current_user_id', @UserId, false)</c>
+/// using the injected <see cref="ICurrentUserProvider"/> before running the target command so
+/// PostgreSQL Row-Level Security (RLS) policies isolate data per user with zero cross-request leakage
+/// across pooled connections.
+/// </para>
 /// </remarks>
-public class PostgresRepository(ISqlProvider sqlProvider, PostgresResiliencePipeline resiliencePipeline, DatabaseSettings databaseSettings) : IRepository
+/// <param name="sqlProvider">Provider responsible for generating and caching PostgreSQL statements.</param>
+/// <param name="currentUserProvider">Mandatory provider resolving the active user identifier for PostgreSQL RLS session scoping.</param>
+/// <param name="resiliencePipeline">Resilience pipeline wrapping transient PostgreSQL failures.</param>
+/// <param name="databaseSettings">Database connection string and command timeout settings.</param>
+public class PostgresRepository(
+    ISqlProvider sqlProvider,
+    ICurrentUserProvider currentUserProvider,
+    PostgresResiliencePipeline resiliencePipeline,
+    DatabaseSettings databaseSettings) : IRepository
 {
     /// <summary>
     /// Database settings used to configure connections and command timeouts.
@@ -223,7 +240,7 @@ public class PostgresRepository(ISqlProvider sqlProvider, PostgresResiliencePipe
     public async Task<long> InsertAsync<TEntity>(TEntity entity, CancellationToken cancellationToken = default)
     {
         string sql = sqlProvider.GetInsertSql<TEntity>();
-        IEnumerable<NpgsqlParameter> parameters = entity.BuildParameters(useDeclaredProperties: true);
+        IEnumerable<NpgsqlParameter> parameters = ApplyCurrentUserIdParameters(entity, true);
 
         return await resiliencePipeline.ExecuteAsync(async _ =>
         {
@@ -242,7 +259,7 @@ public class PostgresRepository(ISqlProvider sqlProvider, PostgresResiliencePipe
     public async Task<long[]> InsertAsync<TEntity>(TEntity[] entities, CancellationToken cancellationToken = default)
     {
         string sql = sqlProvider.GetBulkInsertSql<TEntity>(entities.Length);
-        IEnumerable<NpgsqlParameter> parameters = entities.BuildParametersFromCollection();
+        IEnumerable<NpgsqlParameter> parameters = ApplyCurrentUserIdParameters(entities);
 
         return await resiliencePipeline.ExecuteAsync(async _ =>
         {
@@ -266,7 +283,7 @@ public class PostgresRepository(ISqlProvider sqlProvider, PostgresResiliencePipe
     public async Task<Result<long>> TryInsertAsync<TEntity>(TEntity entity, CancellationToken cancellationToken = default)
     {
         string sql = sqlProvider.GetTryInsertSql<TEntity>();
-        IEnumerable<NpgsqlParameter> parameters = entity.BuildParameters(useDeclaredProperties: true);
+        IEnumerable<NpgsqlParameter> parameters = ApplyCurrentUserIdParameters(entity, true);
 
         return await resiliencePipeline.ExecuteAsync(async _ =>
         {
@@ -290,7 +307,7 @@ public class PostgresRepository(ISqlProvider sqlProvider, PostgresResiliencePipe
     public async Task<long> UpsertAsync<TEntity>(TEntity entity, CancellationToken cancellationToken = default)
     {
         string sql = sqlProvider.GetInsertSql<TEntity>();
-        IEnumerable<NpgsqlParameter> parameters = entity.BuildParameters(useDeclaredProperties: true);
+        IEnumerable<NpgsqlParameter> parameters = ApplyCurrentUserIdParameters(entity, true);
 
         return await resiliencePipeline.ExecuteAsync(async _ =>
         {
@@ -311,9 +328,9 @@ public class PostgresRepository(ISqlProvider sqlProvider, PostgresResiliencePipe
         (string? sqlWhereClause, List<NpgsqlParameter> deleteParameters) = filter.BuildWhereClauseAndNpgsqlParameters();
         string deleteSql = sqlProvider.GetDeleteSql<TEntity>().Replace("#WHERE", sqlWhereClause);
 
-        IEnumerable<NpgsqlParameter> insertParameters = entities.BuildParametersFromCollection();
-        string insertSql = sqlProvider.GetBulkInsertSql<TEntity>(entities.Length);
+        IEnumerable<NpgsqlParameter> insertParameters = ApplyCurrentUserIdParameters(entities);
 
+        string insertSql = sqlProvider.GetBulkInsertSql<TEntity>(entities.Length);
         string sql = BuildUpsertSql(deleteSql, insertSql);
 
         return await resiliencePipeline.ExecuteAsync(async _ =>
@@ -341,7 +358,7 @@ public class PostgresRepository(ISqlProvider sqlProvider, PostgresResiliencePipe
     public async Task<bool> TryUpdateAsync<TEntity>(TEntity entity, CancellationToken cancellationToken = default)
     {
         string sql = sqlProvider.GetUpdateByPrimaryKeySql<TEntity>();
-        IEnumerable<NpgsqlParameter> parameters = entity.BuildParameters();
+        IEnumerable<NpgsqlParameter> parameters = ApplyCurrentUserIdParameters(entity);
 
         return await resiliencePipeline.ExecuteAsync(async _ =>
         {
@@ -352,6 +369,21 @@ public class PostgresRepository(ISqlProvider sqlProvider, PostgresResiliencePipe
                 .ExecuteNonQueryAsync(cancellationToken)
                 .ConfigureAwait(false);
             return affectedRows > 0;
+        }).ConfigureAwait(false);
+    }
+
+    /// <inheritdoc/>
+    public async Task EnsureUserPartitionsAsync(long userId, CancellationToken cancellationToken = default)
+    {
+        await resiliencePipeline.ExecuteAsync(async _ =>
+        {
+            await using NpgsqlConnection connection = await GetNewOpenedConnectionAsync(cancellationToken).ConfigureAwait(false);
+            await using NpgsqlCommand command = new("SELECT public.ensure_user_partitions(@UserId);", connection)
+            {
+                CommandTimeout = DatabaseSettings.UnitOperationTimeoutInSeconds
+            };
+            command.Parameters.AddWithValue("@UserId", NpgsqlDbType.Bigint, userId);
+            await command.ExecuteNonQueryAsync(cancellationToken).ConfigureAwait(false);
         }).ConfigureAwait(false);
     }
 
@@ -373,6 +405,39 @@ public class PostgresRepository(ISqlProvider sqlProvider, PostgresResiliencePipe
         }
     }
 
+    private IEnumerable<NpgsqlParameter> ApplyCurrentUserIdParameters<TEntity>(TEntity[] entities) => ApplyCurrentUserIdParameters(
+            entities.BuildParametersFromCollection(),
+            typeof(UserScopedEntityBase).IsAssignableFrom(typeof(TEntity)));
+
+    private IEnumerable<NpgsqlParameter> ApplyCurrentUserIdParameters<TEntity>(TEntity entity, bool useDeclaredProperties = false) => ApplyCurrentUserIdParameters(
+        entity.BuildParameters(useDeclaredProperties),
+        typeof(UserScopedEntityBase).IsAssignableFrom(typeof(TEntity)));
+
+    private IEnumerable<NpgsqlParameter> ApplyCurrentUserIdParameters(IEnumerable<NpgsqlParameter> parameters, bool isUserScoped)
+    {
+        if (!isUserScoped)
+            return parameters;
+
+        long? currentUserId = currentUserProvider.GetCurrentUserId();
+        if (!currentUserId.HasValue)
+            return parameters;
+
+        List<NpgsqlParameter> resolved = [];
+        foreach (NpgsqlParameter parameter in parameters)
+        {
+            if ((parameter.ParameterName.Equals(nameof(UserScopedEntityBase.UserId), StringComparison.Ordinal)
+                 || parameter.ParameterName.StartsWith($"{nameof(UserScopedEntityBase.UserId)}_", StringComparison.Ordinal))
+                && (parameter.Value is null or DBNull || (parameter.Value is long existingId && existingId == 0L)))
+            {
+                parameter.Value = currentUserId.Value;
+            }
+
+            resolved.Add(parameter);
+        }
+
+        return resolved;
+    }
+
     private static string BuildUpsertSql(string deleteSql, string insertSql)
     {
         using SpanStringBuilder ssb = new();
@@ -381,7 +446,9 @@ public class PostgresRepository(ISqlProvider sqlProvider, PostgresResiliencePipe
     }
 
     /// <summary>
-    /// Creates and opens a new Npgsql connection using the configured connection string.
+    /// Creates and opens a new Npgsql connection using the configured connection string,
+    /// propagating the active user identifier from <see cref="ICurrentUserProvider"/> into
+    /// PostgreSQL session setting <c>app.current_user_id</c>.
     /// </summary>
     /// <param name="cancellationToken">Token used to cancel the asynchronous open operation.</param>
     /// <returns>An opened <see cref="NpgsqlConnection"/>.</returns>
@@ -389,6 +456,19 @@ public class PostgresRepository(ISqlProvider sqlProvider, PostgresResiliencePipe
     {
         NpgsqlConnection connection = new(DatabaseSettings.ConnectionString);
         await connection.OpenAsync(cancellationToken).ConfigureAwait(false);
+
+        long? currentUserId = currentUserProvider.GetCurrentUserId();
+        string userIdValue = currentUserId.HasValue
+            ? currentUserId.Value.ToString(CultureInfo.InvariantCulture)
+            : string.Empty;
+
+        await using NpgsqlCommand sessionCommand = new("SELECT set_config('app.current_user_id', @UserId, false);", connection)
+        {
+            CommandTimeout = DatabaseSettings.UnitOperationTimeoutInSeconds
+        };
+        sessionCommand.Parameters.AddWithValue("@UserId", NpgsqlDbType.Text, userIdValue);
+        await sessionCommand.ExecuteNonQueryAsync(cancellationToken).ConfigureAwait(false);
+
         return connection;
     }
 }

@@ -2,6 +2,7 @@ using Dapper;
 using MelloSilveiraTools.Core.ExtensionMethods;
 using MelloSilveiraTools.Database.RelationalDatabase.Attributes;
 using MelloSilveiraTools.Database.RelationalDatabase.Models;
+using MelloSilveiraTools.Database.RelationalDatabase.Models.Entities;
 using Npgsql;
 using NpgsqlTypes;
 using System.Collections.Concurrent;
@@ -130,6 +131,17 @@ public static class ClassExtensions
                 PropertyInfo[] props = key.DeclaredOnly
                     ? key.Type.GetDeclaredProperties<ColumnAttribute>()
                     : key.Type.GetPropertiesInHierarchy<ColumnAttribute>();
+
+                if (key.DeclaredOnly
+                    && typeof(UserScopedEntityBase).IsAssignableFrom(key.Type)
+                    && !props.Any(p => p.Name == nameof(UserScopedEntityBase.UserId)))
+                {
+                    PropertyInfo? userIdProp = key.Type.GetPropertiesInHierarchy<ColumnAttribute>().FirstOrDefault(p => p.Name == nameof(UserScopedEntityBase.UserId));
+                    
+                    if (userIdProp is not null)
+                        props = [userIdProp, .. props];
+                }
+
                 return [.. props.Select(p => (p, p.PropertyType.GetDbTypeFromPropertyType()))];
             });
 

@@ -13,9 +13,12 @@ using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Com
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Controllers;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Pipelines.Entities;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.ParametricSweep.Pipelines.Entities;
+using MelloSilveiraTools.WebApi.Application.Commands.Users.Login;
+using MelloSilveiraTools.WebApi.Application.Commands.Users.RefreshToken;
+using MelloSilveiraTools.WebApi.Application.Commands.Users.Register;
+using MelloSilveiraTools.WebApi.Application.Commands.Users.ValidateToken;
 using MelloSilveiraTools.WebApi.Application.Controllers;
 using MelloSilveiraTools.WebApi.Authentication;
-using MelloSilveiraTools.WebApi.Authentication.Commands;
 using MelloSilveiraTools.WebApi.Authentication.Services;
 using MelloSilveiraTools.WebApi.Host.Commands;
 using MelloSilveiraTools.WebApi.Host.Controllers;
@@ -141,9 +144,8 @@ public class WebApiHostAndQuickstartTests
 
         JsonResult jsonResult = Assert.IsType<JsonResult>(actionResult);
         Assert.Equal(StatusCodes.Status200OK, jsonResult.StatusCode);
-        Result<TokenValidationResponse> payload = Assert.IsType<Result<TokenValidationResponse>>(jsonResult.Value);
+        Result payload = Assert.IsType<Result>(jsonResult.Value);
         Assert.True(payload.Success);
-        Assert.True(payload.Data!.IsValid);
     }
 
     private static async IAsyncEnumerable<T> ToAsyncEnumerable<T>(IEnumerable<T> items)
@@ -204,7 +206,7 @@ public class WebApiHostAndQuickstartTests
         Mock<IRepository> repoMock = new();
         ExperimentalDataController controller = new(Mock.Of<ILogger<ExperimentalDataController>>());
 
-        IActionResult actionResult = await controller.UploadAsync(new UploadExperimentalDataCommand(new UploadExperimentalDataValidator(CreateExperimentalDataSettings()), storageMock.Object, repoMock.Object), null, null);
+        IActionResult actionResult = await controller.UploadAsync(new UploadExperimentalDataCommand(new UploadExperimentalDataValidator(CreateExperimentalDataSettings()), storageMock.Object, repoMock.Object), null!, null!);
 
         JsonResult jsonResult = Assert.IsType<JsonResult>(actionResult);
         Assert.Equal(StatusCodes.Status400BadRequest, jsonResult.StatusCode);

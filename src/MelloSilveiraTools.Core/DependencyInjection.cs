@@ -81,10 +81,12 @@ public static class CoreDependencyInjection
                     .AddScoped<IEmailService, SmtpEmailService>();
             }
 
+            LocalFileStorageSettings tempLocalFileStorageSettings = new() { BaseDirectory = Path.Combine(Path.GetTempPath(), "storage") };
             if (fileStorageSettings is not null)
             {
-                if (fileStorageSettings.Local is not null)
-                    services.AddKeyedSingleton<IFileStorageService>(StorageProvider.Local, (provider, _) => new LocalFileStorageService(provider.GetRequiredService<TimeProvider>(), fileStorageSettings.Local));
+                services.AddKeyedSingleton<IFileStorageService>(
+                    StorageProvider.Local,
+                    (provider, _) => new LocalFileStorageService(provider.GetRequiredService<TimeProvider>(), fileStorageSettings.Local ?? tempLocalFileStorageSettings));
 
                 if (fileStorageSettings.BlobStorage is not null)
                     services
@@ -93,7 +95,7 @@ public static class CoreDependencyInjection
                             StorageProvider.BlobStorage,
                             (provider, _) => new BlobStorageFileStorageService(
                                 provider.GetRequiredService<ILogger<BlobStorageFileStorageService>>(),
-                                provider.GetRequiredService<IFileStorageService>(),
+                                provider.GetRequiredKeyedService<IFileStorageService>(StorageProvider.Local),
                                 CreateBlobContainerClient(fileStorageSettings.BlobStorage),
                                 fileStorageSettings.BlobStorage,
                                 provider.GetRequiredService<BlobStorageResiliencePipeline>(),
@@ -114,13 +116,17 @@ public static class CoreDependencyInjection
                             StorageProvider.AwsS3,
                             (provider, _) => new AwsS3FileStorageService(
                                 provider.GetRequiredService<ILogger<AwsS3FileStorageService>>(),
-                                provider.GetRequiredService<IFileStorageService>(),
+                                provider.GetRequiredKeyedService<IFileStorageService>(StorageProvider.Local),
                                 CreateClient(fileStorageSettings.AwsS3),
                                 fileStorageSettings.AwsS3,
                                 provider.GetRequiredService<AwsS3ResiliencePipeline>(),
                                 provider.GetRequiredService<TimeProvider>()));
-
-                services.AddSingleton(provider => provider.GetRequiredKeyedService<IFileStorageService>(fileStorageSettings.DefaultStorageProvider));
+            }
+            else
+            {
+                services
+                    .AddKeyedSingleton<IFileStorageService>(StorageProvider.Local, (provider, _) => new LocalFileStorageService(provider.GetRequiredService<TimeProvider>(), tempLocalFileStorageSettings))
+                    .AddSingleton(provider => provider.GetRequiredKeyedService<IFileStorageService>(StorageProvider.Local));
             }
 
             return services

@@ -1,4 +1,5 @@
 using MelloSilveiraTools.Database.RelationalDatabase.Attributes;
+using System.Diagnostics.CodeAnalysis;
 
 namespace MelloSilveiraTools.Database.RelationalDatabase.Models.Entities;
 
@@ -8,6 +9,16 @@ namespace MelloSilveiraTools.Database.RelationalDatabase.Models.Entities;
 [Table("users")]
 public record UserEntity : EntityBase
 {
+    /// <summary>
+    /// Initializes a new instance of <see cref="UserEntity"/> for persistence mapping and deserialization.
+    /// </summary>
+    [SetsRequiredMembers]
+    public UserEntity()
+    {
+        Username = string.Empty;
+        PasswordHash = string.Empty;
+    }
+
     /// <summary>
     /// Unique user login name.
     /// </summary>

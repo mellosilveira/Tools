@@ -30,12 +30,12 @@ public sealed class UploadExperimentalDataCommand(
         if (!strainResult.Success)
             return Result.CreateError(strainResult.StatusCode, $"Failed to save uploaded strain file: {strainResult.JoinedMessages}");
 
-        Result<(long EntityId, StorageEntryMetadata Metadata)> stressResult = await SaveUploadedCsvAsync(uploadIdentifier, "stress.csv", request.StrainFile, cancellationToken).ConfigureAwait(false);
-        if (!strainResult.Success)
+        Result<(long EntityId, StorageEntryMetadata Metadata)> stressResult = await SaveUploadedCsvAsync(uploadIdentifier, "stress.csv", request.StressFile, cancellationToken).ConfigureAwait(false);
+        if (!stressResult.Success)
         {
             (long strainEntityId, StorageEntryMetadata strainMetadata) = strainResult.Data;
             await CleanupUploadedEntryAsync(strainMetadata.Location, strainEntityId, cancellationToken).ConfigureAwait(false);
-            return Result.CreateError(strainResult.StatusCode, $"Failed to save uploaded stress file: {strainResult.JoinedMessages}");
+            return Result.CreateError(stressResult.StatusCode, $"Failed to save uploaded stress file: {stressResult.JoinedMessages}");
         }
 
         return Result.CreateSuccessOk(new UploadExperimentalDataResultData

@@ -77,14 +77,17 @@ public sealed class DatabaseAttributesModelsAndResilienceTests
         {
             ExternalIdentifier = "ext",
             StorageProvider = StorageProvider.Local,
-            Location = "storage/exp/data.csv",
+            Identifier = "exp-01",
+            Context = "ExperimentalData",
             Directory = "storage/exp",
             FileName = "data.csv",
             ContentType = "text/csv"
         };
         Assert.Equal("ext", filter.ExternalIdentifier);
         Assert.Equal(StorageProvider.Local, filter.StorageProvider);
-        Assert.Equal("storage/exp/data.csv", filter.Location);
+        Assert.Equal("exp-01", filter.Identifier);
+        Assert.Equal("ExperimentalData", filter.Context);
+        Assert.Equal("exp-01%ExperimentalData", filter.Location);
         Assert.Equal("storage/exp", filter.Directory);
         Assert.Equal("data.csv", filter.FileName);
         Assert.Equal("text/csv", filter.ContentType);

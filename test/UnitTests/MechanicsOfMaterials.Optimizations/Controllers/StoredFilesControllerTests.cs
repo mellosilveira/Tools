@@ -1,5 +1,3 @@
-using MelloSilveiraTools.Core.Commands.StorageEntryMetadata.Create;
-using MelloSilveiraTools.Core.Commands.StorageEntryMetadata.Delete;
 using MelloSilveiraTools.Core.Files.Models;
 using MelloSilveiraTools.Core.Files.Providers;
 using MelloSilveiraTools.Core.Models;
@@ -8,8 +6,8 @@ using MelloSilveiraTools.Core.Providers.Dynamics;
 using MelloSilveiraTools.Database.RelationalDatabase.Models.Entities;
 using MelloSilveiraTools.Database.RelationalDatabase.Models.Filters;
 using MelloSilveiraTools.Database.Repositories;
-using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Commands.StorageEntryMetadata;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Controllers;
+using MelloSilveiraTools.WebApi.Application.Commands.StorageEntryMetadata;
 using MelloSilveiraTools.WebApi.Application.Commands.StorageEntryMetadata.Create;
 using MelloSilveiraTools.WebApi.Application.Commands.StorageEntryMetadata.Delete;
 using MelloSilveiraTools.WebApi.Application.Commands.StorageEntryMetadata.Download;
@@ -163,10 +161,17 @@ public sealed class StoredFilesControllerTests
     [Fact]
     public async Task CreateAsync_WithoutStorageProvider_UsesDefaultNonKeyedServiceAndPersistsMetadata()
     {
+        const string location = "storage/exp-1/ExperimentalData/strain.csv";
+        DateTimeOffset now = TimeProvider.System.GetUtcNow();
+        StorageEntryMetadata storedMetadata = new(StorageProvider.Local, location, "storage/exp-1/ExperimentalData", "strain.csv", 8, now);
+
         _fileStorageServiceMock.SetupGet(s => s.Provider).Returns(StorageProvider.Local);
         _fileStorageServiceMock
             .Setup(s => s.CreateWriteAsync("exp-1", "ExperimentalData", "strain.csv", It.IsAny<CancellationToken>()))
-            .ReturnsAsync((new MemoryStream(), "storage/exp-1/ExperimentalData/strain.csv"));
+            .ReturnsAsync((new MemoryStream(), location));
+        _fileStorageServiceMock
+            .Setup(s => s.GetMetadataAsync(location, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(storedMetadata);
 
         _repositoryMock
             .Setup(r => r.TryInsertAsync(It.IsAny<StorageEntryMetadataEntity>(), It.IsAny<CancellationToken>()))
@@ -178,8 +183,7 @@ public sealed class StoredFilesControllerTests
             NullLogger<AddStorageEntryCommand>.Instance,
             new AddStorageEntryValidator(),
             _repositoryMock.Object,
-            serviceLocator,
-            TimeProvider.System);
+            serviceLocator);
 
         byte[] content = Encoding.UTF8.GetBytes("t,e\n0,0\n");
         IFormFile formFile = new FormFile(new MemoryStream(content), 0, content.Length, "file", "strain.csv")
@@ -191,16 +195,18 @@ public sealed class StoredFilesControllerTests
         IActionResult result = await _controller.CreateAsync(command, new AddStorageEntryRequest
         {
             File = formFile,
+            Identifier = "exp-1",
             ExternalIdentifier = "exp-1",
             Context = "ExperimentalData",
             StorageProvider = null
         });
 
         JsonResult jsonResult = Assert.IsType<JsonResult>(result);
-        Assert.Equal(StatusCodes.Status201Created, jsonResult.StatusCode);
-        Result<StorageEntryMetadataEntity> payload = Assert.IsType<Result<StorageEntryMetadataEntity>>(jsonResult.Value);
+        Assert.Equal(StatusCodes.Status200OK, jsonResult.StatusCode);
+        Result<StorageEntryResultData> payload = Assert.IsType<Result<StorageEntryResultData>>(jsonResult.Value);
         Assert.True(payload.Success);
-        Assert.Equal(77L, payload.Data!.Id);
+        Assert.Equal(77L, payload.Data!.EntityId);
+        Assert.Equal(location, payload.Data.Metadata.Location);
     }
 
     [Fact]
@@ -216,6 +222,13 @@ public sealed class StoredFilesControllerTests
             ContentType = "text/csv",
             StorageProvider = StorageProvider.Local
         };
+        StorageEntryMetadata updatedMetadata = new(
+            StorageProvider.Local,
+            existing.Location,
+            existing.Directory,
+            existing.FileName,
+            10,
+            TimeProvider.System.GetUtcNow());
 
         _repositoryMock
             .Setup(r => r.GetAsync<StorageEntryMetadataEntity>(10L, It.IsAny<CancellationToken>()))
@@ -223,6 +236,9 @@ public sealed class StoredFilesControllerTests
         _fileStorageServiceMock
             .Setup(s => s.OpenWriteAsync(existing.Location, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new MemoryStream());
+        _fileStorageServiceMock
+            .Setup(s => s.GetMetadataAsync(existing.Location, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(updatedMetadata);
         _repositoryMock
             .Setup(r => r.DeleteAsync<StorageEntryMetadataEntity>(10L, It.IsAny<CancellationToken>()))
             .ThrowsAsync(new InvalidOperationException("DB constraint failure"));
@@ -233,8 +249,7 @@ public sealed class StoredFilesControllerTests
             NullLogger<UpdateStorageEntryFileCommand>.Instance,
             new UpdateStorageEntryFileValidator(),
             _repositoryMock.Object,
-            serviceLocator,
-            TimeProvider.System);
+            serviceLocator);
 
         byte[] content = Encoding.UTF8.GetBytes("t,e\n0,0.1\n");
         IFormFile formFile = new FormFile(new MemoryStream(content), 0, content.Length, "file", "strain.csv");
@@ -243,9 +258,9 @@ public sealed class StoredFilesControllerTests
 
         JsonResult jsonResult = Assert.IsType<JsonResult>(result);
         Assert.Equal(StatusCodes.Status500InternalServerError, jsonResult.StatusCode);
-        Result<StorageEntryMetadataEntity> payload = Assert.IsType<Result<StorageEntryMetadataEntity>>(jsonResult.Value);
+        Result<StorageEntryResultData> payload = Assert.IsType<Result<StorageEntryResultData>>(jsonResult.Value);
         Assert.False(payload.Success);
-        Assert.Equal("Não foi possível sobrescrever os metadados.", payload.JoinedMessages);
+        Assert.Equal("It was not possible to override metadata.", payload.JoinedMessages);
     }
 
     [Fact]
@@ -268,7 +283,12 @@ public sealed class StoredFilesControllerTests
             _repositoryMock.Object,
             serviceLocator);
 
-        IActionResult result = await _controller.DeleteAsync(command, null, location, null);
+        IActionResult result = await _controller.DeleteAsync(command, new DeleteStorageEntryRequest
+        {
+            FileId = null,
+            Location = location,
+            StorageProvider = null
+        });
 
         JsonResult jsonResult = Assert.IsType<JsonResult>(result);
         Assert.Equal(StatusCodes.Status200OK, jsonResult.StatusCode);
@@ -295,14 +315,19 @@ public sealed class StoredFilesControllerTests
             _repositoryMock.Object,
             serviceLocator);
 
-        IActionResult result = await _controller.DeleteAsync(command, 55L, location, null);
+        IActionResult result = await _controller.DeleteAsync(command, new DeleteStorageEntryRequest
+        {
+            FileId = 55L,
+            Location = location,
+            StorageProvider = null
+        });
 
         JsonResult jsonResult = Assert.IsType<JsonResult>(result);
         Assert.Equal(StatusCodes.Status404NotFound, jsonResult.StatusCode);
     }
 
     [Fact]
-    public async Task ReadAsync_GroupsEntriesByIdentifierContextAndFileExtension()
+    public async Task ReadAsync_ReturnsStoredEntriesWithResolvedStorageMetadata()
     {
         DateTimeOffset now = TimeProvider.System.GetUtcNow();
         StorageEntryMetadataEntity entity1 = new()
@@ -328,6 +353,9 @@ public sealed class StoredFilesControllerTests
             CreationTimestamp = now
         };
 
+        StorageEntryMetadata metadata1 = new(StorageProvider.Local, entity1.Location, entity1.Directory, entity1.FileName, entity1.SizeBytes, now);
+        StorageEntryMetadata metadata2 = new(StorageProvider.Local, entity2.Location, entity2.Directory, entity2.FileName, entity2.SizeBytes, now);
+
         _repositoryMock
             .Setup(r => r.GetAsync<StorageEntryMetadataEntity, StorageEntryMetadataFilter>(
                 It.IsAny<StorageEntryMetadataFilter>(),
@@ -336,26 +364,27 @@ public sealed class StoredFilesControllerTests
             .Returns(ToAsyncEnumerable([entity1, entity2]));
 
         _fileStorageServiceMock
-            .Setup(s => s.ExistsAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(false);
+            .Setup(s => s.GetMetadataAsync(entity1.Location, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(metadata1);
+        _fileStorageServiceMock
+            .Setup(s => s.GetMetadataAsync(entity2.Location, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(metadata2);
 
         ServiceLocator serviceLocator = CreateServiceLocator(services =>
-            services.AddKeyedSingleton<IFileStorageService>(StorageProvider.Local, _fileStorageServiceMock.Object));
+            services.AddSingleton(_fileStorageServiceMock.Object));
         ReadStorageEntriesCommand command = new(_repositoryMock.Object, serviceLocator);
 
         IActionResult result = await _controller.ReadAsync(command, new ReadStorageEntriesRequest());
 
         JsonResult jsonResult = Assert.IsType<JsonResult>(result);
         Assert.Equal(StatusCodes.Status200OK, jsonResult.StatusCode);
-        Result<List<StorageEntriesResultData>> payload = Assert.IsType<Result<List<StorageEntriesResultData>>>(jsonResult.Value);
+        ListedResult<StorageEntryResultData> payload = Assert.IsType<ListedResult<StorageEntryResultData>>(jsonResult.Value);
         Assert.True(payload.Success);
-        StorageEntriesResultData group = Assert.Single(payload.Data!);
-        Assert.Equal("exp-1", group.Identifier);
-        Assert.Equal("ExperimentalData", group.Context);
-        Assert.Equal(".csv", group.FileExtension);
-        Assert.Equal(2, group.Items.Count);
-        Assert.Equal(1L, group.Items[0].EntityId);
-        Assert.Equal("strain.csv", group.Items[0].FileName);
+        Assert.Equal(2, payload.Data!.Count);
+        Assert.Equal(1L, payload.Data[0].EntityId);
+        Assert.Equal("strain.csv", payload.Data[0].Metadata.FileName);
+        Assert.Equal(2L, payload.Data[1].EntityId);
+        Assert.Equal("stress.csv", payload.Data[1].Metadata.FileName);
     }
 
     private static async IAsyncEnumerable<T> ToAsyncEnumerable<T>(IEnumerable<T> items)

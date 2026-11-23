@@ -49,8 +49,7 @@ public sealed record LauncherInfrastructureOptions(
     /// <summary>
     /// Builds a Docker-network-safe PostgreSQL connection string, mapping <c>localhost</c>/<c>127.0.0.1</c> to the <c>postgres</c> service.
     /// </summary>
-    public string
-        BuildDockerConnectionString()
+    public string BuildDockerConnectionString()
     {
         string[] parts = ConnectionString.Split(';', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
         List<string> updatedParts = new(parts.Length);
@@ -66,6 +65,70 @@ public sealed record LauncherInfrastructureOptions(
                     && (value.Equals("localhost", StringComparison.OrdinalIgnoreCase) || value.Equals("127.0.0.1", StringComparison.Ordinal)))
                 {
                     updatedParts.Add($"{key}=postgres");
+                    continue;
+                }
+            }
+
+            updatedParts.Add(part);
+        }
+
+        return string.Join(";", updatedParts) + ";";
+    }
+
+    /// <summary>
+    /// Builds the application-level PostgreSQL connection string used by <c>MelloSilveiraTools.WebApi.Host</c>.
+    /// When the configured user is the <c>postgres</c> superuser (which bypasses PostgreSQL Row-Level Security),
+    /// swaps credentials to the non-superuser <c>tools_app</c> role provisioned by migrations so RLS is enforced.
+    /// Custom non-superuser roles supplied explicitly by the user are preserved untouched.
+    /// </summary>
+    /// <param name="forDocker">When <see langword="true"/>, maps <c>localhost</c>/<c>127.0.0.1</c> to the Docker <c>postgres</c> service.</param>
+    /// <returns>The resolved application connection string.</returns>
+    public string BuildApplicationConnectionString(bool forDocker = false)
+    {
+        string source = forDocker ? BuildDockerConnectionString() : ConnectionString;
+        string[] parts = source.Split(';', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+
+        bool usesPostgresSuperuser = false;
+        foreach (string part in parts)
+        {
+            int separatorIndex = part.IndexOf('=');
+            if (separatorIndex <= 0)
+                continue;
+
+            string key = part[..separatorIndex].Trim();
+            string value = part[(separatorIndex + 1)..].Trim();
+            if ((key.Equals("Username", StringComparison.OrdinalIgnoreCase)
+                 || key.Equals("User Id", StringComparison.OrdinalIgnoreCase)
+                 || key.Equals("UID", StringComparison.OrdinalIgnoreCase))
+                && value.Equals("postgres", StringComparison.OrdinalIgnoreCase))
+            {
+                usesPostgresSuperuser = true;
+                break;
+            }
+        }
+
+        if (!usesPostgresSuperuser)
+            return source;
+
+        List<string> updatedParts = new(parts.Length);
+        foreach (string part in parts)
+        {
+            int separatorIndex = part.IndexOf('=');
+            if (separatorIndex > 0)
+            {
+                string key = part[..separatorIndex].Trim();
+                if (key.Equals("Username", StringComparison.OrdinalIgnoreCase)
+                    || key.Equals("User Id", StringComparison.OrdinalIgnoreCase)
+                    || key.Equals("UID", StringComparison.OrdinalIgnoreCase))
+                {
+                    updatedParts.Add($"{key}=tools_app");
+                    continue;
+                }
+
+                if (key.Equals("Password", StringComparison.OrdinalIgnoreCase)
+                    || key.Equals("Pwd", StringComparison.OrdinalIgnoreCase))
+                {
+                    updatedParts.Add($"{key}=tools_app_pass");
                     continue;
                 }
             }

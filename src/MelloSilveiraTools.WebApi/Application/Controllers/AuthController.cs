@@ -1,7 +1,10 @@
 using MelloSilveiraTools.Core.ExtensionMethods;
 using MelloSilveiraTools.Core.Models;
+using MelloSilveiraTools.WebApi.Application.Commands.Users.Login;
+using MelloSilveiraTools.WebApi.Application.Commands.Users.RefreshToken;
+using MelloSilveiraTools.WebApi.Application.Commands.Users.Register;
+using MelloSilveiraTools.WebApi.Application.Commands.Users.ValidateToken;
 using MelloSilveiraTools.WebApi.Authentication;
-using MelloSilveiraTools.WebApi.Authentication.Commands;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -75,11 +78,12 @@ public class AuthController : ControllerBase
     /// <param name="command">Command that validates the token.</param>
     /// <param name="request">Payload containing the JWE token to validate.</param>
     /// <param name="cancellationToken">Cancellation token.</param>
-    /// <returns>A <see cref="TokenValidationResponse"/> wrapped in <see cref="Result{T}"/>.</returns>
+    /// <returns>A <see cref="Result"/> indicating if token is valid.</returns>
     [AllowAnonymous]
     [HttpPost("validate")]
-    [ProducesResponseType(typeof(Result<TokenValidationResponse>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(Result), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(Result), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(Result), StatusCodes.Status401Unauthorized)]
     public async Task<IActionResult> ValidateAsync(
         [FromServices] ValidateAuthenticationTokenCommand command,
         [FromBody] ValidateTokenRequest request,

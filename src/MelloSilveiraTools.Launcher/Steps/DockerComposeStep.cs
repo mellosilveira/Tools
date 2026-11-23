@@ -100,7 +100,8 @@ public sealed class DockerComposeStep(ILogger<DockerComposeStep> logger, string 
         startInfo.Environment["TOOLS_WEBAPI_PORT"] = options.WebApiPort.ToString(CultureInfo.InvariantCulture);
         startInfo.Environment["TOOLS_MIGRATION_CONTEXT"] = options.MigrationContext.ToString();
         startInfo.Environment["TOOLS_MIGRATION_TIMEOUT"] = options.MigrationTimeoutSeconds.ToString(CultureInfo.InvariantCulture);
-        startInfo.Environment["TOOLS_DOCKER_CONNECTION_STRING"] = options.BuildDockerConnectionString();
+        startInfo.Environment["TOOLS_DOCKER_MIGRATOR_CONNECTION_STRING"] = options.BuildDockerConnectionString();
+        startInfo.Environment["TOOLS_DOCKER_APP_CONNECTION_STRING"] = options.BuildApplicationConnectionString(forDocker: true);
         return startInfo;
     }
 

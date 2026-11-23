@@ -1,4 +1,4 @@
-﻿using MelloSilveiraTools.Database.RelationalDatabase.Attributes;
+using MelloSilveiraTools.Database.RelationalDatabase.Attributes;
 using MelloSilveiraTools.Database.RelationalDatabase.Models.Entities;
 using System.Diagnostics.CodeAnalysis;
 
@@ -8,7 +8,7 @@ namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData
 /// Database entity for forward numerical simulations of mechanical constitutive models.
 /// </summary>
 [Table("mechanical_model_simulations")]
-public record MechanicalModelSimulationEntity : EntityBase
+public record MechanicalModelSimulationEntity : UserScopedEntityBase
 {
     /// <summary>
     /// Initializes a new instance of <see cref="MechanicalModelSimulationEntity"/> for persistence mapping and deserialization.

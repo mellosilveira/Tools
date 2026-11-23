@@ -1,7 +1,6 @@
 using MelloSilveiraTools.Core.ExtensionMethods;
 using MelloSilveiraTools.Core.Models;
 using MelloSilveiraTools.Database.RelationalDatabase.Models.Entities;
-using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Commands.StorageEntryMetadata;
 using MelloSilveiraTools.WebApi.Application.Commands.StorageEntryMetadata;
 using MelloSilveiraTools.WebApi.Application.Commands.StorageEntryMetadata.Create;
 using MelloSilveiraTools.WebApi.Application.Commands.StorageEntryMetadata.Delete;

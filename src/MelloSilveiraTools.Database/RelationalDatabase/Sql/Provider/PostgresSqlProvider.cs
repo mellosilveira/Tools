@@ -1,5 +1,6 @@
 using MelloSilveiraTools.Core.ExtensionMethods;
 using MelloSilveiraTools.Database.RelationalDatabase.Attributes;
+using MelloSilveiraTools.Database.RelationalDatabase.Models.Entities;
 using System.Collections.Concurrent;
 using System.Reflection;
 using System.Text;
@@ -23,9 +24,10 @@ namespace MelloSilveiraTools.Database.RelationalDatabase.Sql.Provider;
 /// is deterministic for a given type and only one instance is retained.
 /// </para>
 /// <para>
-/// This provider is NOT multi-tenant safe when different tenants map the same CLR type to different schemas
-/// or table names: the cached SQL is keyed only by <see cref="Type"/>, not by tenant context. Use a separate
-/// provider instance (or distinct entity types per tenant) when schema isolation is required.
+/// For entities inheriting from <see cref="UserScopedEntityBase"/> that declare one or more
+/// <see cref="UniqueColumnAttribute"/> properties, <c>user_id</c> is automatically appended to the
+/// <c>ON CONFLICT</c> unique key list so conflict resolution aligns with PostgreSQL partitioned table
+/// composite unique constraints (<c>UNIQUE (..., user_id)</c>).
 /// </para>
 /// </remarks>
 public class PostgresSqlProvider : ISqlProvider
@@ -105,13 +107,23 @@ public class PostgresSqlProvider : ISqlProvider
             PropertyInfo[] props = t.GetPropertiesInHierarchy<ColumnAttribute>();
             PropertyInfo pk = props.FirstOrDefault(p => p.GetCustomAttribute<PrimaryKeyColumnAttribute>() != null) ?? throw new InvalidOperationException($"O tipo {t.Name} não possui uma PrimaryKey definida.");
 
+            List<(PropertyInfo Prop, string ColName)> allColumns = [.. props.Select(p => (p, p.Name.ToSnakeCase()))];
+            List<(PropertyInfo Prop, string ColName)> uniqueColumns = [.. props.Where(p => p.GetCustomAttribute<UniqueColumnAttribute>() != null).Select(p => (p, p.Name.ToSnakeCase()))];
+
+            if (uniqueColumns.Count > 0 && typeof(UserScopedEntityBase).IsAssignableFrom(t))
+            {
+                (PropertyInfo Prop, string ColName) userIdCol = allColumns.FirstOrDefault(c => c.Prop.Name == nameof(UserScopedEntityBase.UserId));
+                if (userIdCol.Prop is not null && !uniqueColumns.Any(c => c.Prop.Name == nameof(UserScopedEntityBase.UserId)))
+                    uniqueColumns.Add(userIdCol);
+            }
+
             return new EntityMetadata(
                 tableAttr.Name,
                 tableAttr.Alias,
                 pk,
                 pk.Name.ToSnakeCase(),
-                [.. props.Select(p => (p, p.Name.ToSnakeCase()))],
-                [.. props.Where(p => p.GetCustomAttribute<UniqueColumnAttribute>() != null).Select(p => (p, p.Name.ToSnakeCase()))]
+                allColumns,
+                uniqueColumns
             );
         });
 
@@ -291,11 +303,12 @@ public class PostgresSqlProvider : ISqlProvider
     /// </summary>
     private static string BuildUniqueUpdates(EntityMetadata meta)
     {
+        HashSet<string> uniquePropNames = [.. meta.UniqueColumns.Select(c => c.Prop.Name)];
         List<(PropertyInfo Prop, string ColName)> payloadCols =
         [
-            .. meta.AllColumns
-                .Where(c => c.Prop.GetCustomAttribute<PrimaryKeyColumnAttribute>() == null &&
-                            c.Prop.GetCustomAttribute<UniqueColumnAttribute>() == null)
+            .. meta.AllColumns.Where(
+                c => c.Prop.GetCustomAttribute<PrimaryKeyColumnAttribute>() == null
+                && !uniquePropNames.Contains(c.Prop.Name))
         ];
 
         return payloadCols.Count > 0

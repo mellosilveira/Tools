@@ -26,6 +26,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\src\MelloSilveiraTools.Database.Migrator\MelloSilveiraTools.Database.Migrator.csproj" />
     <ProjectReference Include="..\..\src\MelloSilveiraTools\MelloSilveiraTools.csproj" />
     <ProjectReference Include="..\..\src\MelloSilveiraTools.WebApi.Host\MelloSilveiraTools.WebApi.Host.csproj" />
   </ItemGroup>

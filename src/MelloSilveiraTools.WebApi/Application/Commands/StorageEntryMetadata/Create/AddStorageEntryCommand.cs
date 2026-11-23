@@ -44,7 +44,7 @@ public sealed class AddStorageEntryCommand(
                 await request.File.CopyToAsync(targetStream, cancellationToken).ConfigureAwait(false);
             }
 
-            Files.Models.StorageEntryMetadata metadata = await fileStorageService.GetMetadataAsync(location, cancellationToken).ConfigureAwait(false);
+            Core.Files.Models.StorageEntryMetadata metadata = await fileStorageService.GetMetadataAsync(location, cancellationToken).ConfigureAwait(false);
 
             string contentType = request.File.Headers is null || string.IsNullOrWhiteSpace(request.File.ContentType) ? "application/octet-stream" : request.File.ContentType;
             StorageEntryMetadataEntity entity = StorageEntryMetadataEntity.Create(metadata, request.ExternalIdentifier, contentType);

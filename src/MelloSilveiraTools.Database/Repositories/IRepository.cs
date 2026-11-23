@@ -127,4 +127,12 @@ public interface IRepository
     /// Attempts to update the supplied entity, returning <c>true</c> only when a record was actually changed.
     /// </summary>
     Task<bool> TryUpdateAsync<TEntity>(TEntity entity, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Idempotently ensures dedicated per-user partitions exist across all user-partitioned database tables
+    /// for the specified <paramref name="userId"/>.
+    /// </summary>
+    /// <param name="userId">Positive identifier of the registered user.</param>
+    /// <param name="cancellationToken">Token used to cancel the operation.</param>
+    Task EnsureUserPartitionsAsync(long userId, CancellationToken cancellationToken = default) => Task.CompletedTask;
 }

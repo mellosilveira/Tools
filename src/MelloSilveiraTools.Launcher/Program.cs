@@ -59,7 +59,7 @@ DatabaseMigrationStep migrationStep = new(loggerFactory, 2, 3, infrastructure.Co
 if (!migrationStep.Execute())
     return 1;
 
-WebApiHostStep webApiStep = new(loggerFactory.CreateLogger<WebApiHostStep>(), 3, 3, repoRoot, infrastructure.ConnectionString, infrastructure.BuildWebApiBaseUrl(), infrastructure.OpenBrowser);
+WebApiHostStep webApiStep = new(loggerFactory.CreateLogger<WebApiHostStep>(), 3, 3, repoRoot, infrastructure.BuildApplicationConnectionString(), infrastructure.BuildWebApiBaseUrl(), infrastructure.OpenBrowser);
 if (!await webApiStep.ExecuteAsync(cts.Token).ConfigureAwait(false))
     return 1;
 

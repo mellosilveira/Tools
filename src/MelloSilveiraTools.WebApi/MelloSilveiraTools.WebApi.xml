@@ -192,17 +192,261 @@
         <member name="P:MelloSilveiraTools.WebApi.Application.Commands.Crud.Update.UpdateEntityRequest`1.ResourceName">
             <summary>Human-readable resource name used to build localized error messages.</summary>
         </member>
-        <member name="T:MelloSilveiraTools.WebApi.Application.Controllers.AuthController">
+        <member name="T:MelloSilveiraTools.WebApi.Application.Commands.StorageEntryMetadata.Create.AddStorageEntryCommand">
             <summary>
-            Exposes JWE authentication endpoints for issuing, refreshing, and validating bearer tokens.
+            Stores a file in the resolved <see cref="T:MelloSilveiraTools.Core.Files.Providers.IFileStorageService"/> and persists its <see cref="T:MelloSilveiraTools.Database.RelationalDatabase.Models.Entities.StorageEntryMetadataEntity"/> record.
+            </summary>
+            <param name="logger">Logger for storage and persistence diagnostics.</param>
+            <param name="validator">Validator for create requests.</param>
+            <param name="repository">Relational repository for metadata persistence.</param>
+            <param name="serviceLocator">Service locator used to resolve keyed or default <see cref="T:MelloSilveiraTools.Core.Files.Providers.IFileStorageService"/>.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.WebApi.Application.Commands.StorageEntryMetadata.Create.AddStorageEntryCommand.#ctor(Microsoft.Extensions.Logging.ILogger{MelloSilveiraTools.WebApi.Application.Commands.StorageEntryMetadata.Create.AddStorageEntryCommand},MelloSilveiraTools.Core.Validators.IValidator{MelloSilveiraTools.WebApi.Application.Commands.StorageEntryMetadata.Create.AddStorageEntryRequest},MelloSilveiraTools.Database.Repositories.IRepository,MelloSilveiraTools.Core.Providers.ServiceLocator)">
+            <summary>
+            Stores a file in the resolved <see cref="T:MelloSilveiraTools.Core.Files.Providers.IFileStorageService"/> and persists its <see cref="T:MelloSilveiraTools.Database.RelationalDatabase.Models.Entities.StorageEntryMetadataEntity"/> record.
+            </summary>
+            <param name="logger">Logger for storage and persistence diagnostics.</param>
+            <param name="validator">Validator for create requests.</param>
+            <param name="repository">Relational repository for metadata persistence.</param>
+            <param name="serviceLocator">Service locator used to resolve keyed or default <see cref="T:MelloSilveiraTools.Core.Files.Providers.IFileStorageService"/>.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.WebApi.Application.Commands.StorageEntryMetadata.Create.AddStorageEntryCommand.ExecuteCommandAsync(MelloSilveiraTools.WebApi.Application.Commands.StorageEntryMetadata.Create.AddStorageEntryRequest,System.Threading.CancellationToken)">
+            <inheritdoc/>
+        </member>
+        <member name="T:MelloSilveiraTools.WebApi.Application.Commands.StorageEntryMetadata.Create.AddStorageEntryRequest">
+            <summary>
+            Request payload for creating and persisting a stored file alongside its database metadata.
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.WebApi.Application.Controllers.AuthController.GenerateDemoToken(MelloSilveiraTools.WebApi.Authentication.Commands.GenerateDemoTokenCommand,MelloSilveiraTools.WebApi.Authentication.Commands.GenerateDemoTokenRequest,System.Threading.CancellationToken)">
+        <member name="P:MelloSilveiraTools.WebApi.Application.Commands.StorageEntryMetadata.Create.AddStorageEntryRequest.File">
             <summary>
-            Issues a signed and encrypted JWE token for local quickstart, Swagger, and WebUi sessions.
+            Uploaded file to store.
             </summary>
-            <param name="command">Command that issues the demonstration token.</param>
-            <param name="request">Optional demonstration user payload.</param>
+        </member>
+        <member name="P:MelloSilveiraTools.WebApi.Application.Commands.StorageEntryMetadata.Create.AddStorageEntryRequest.Context">
+            <summary>
+            Storage context partition.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.WebApi.Application.Commands.StorageEntryMetadata.Create.AddStorageEntryRequest.ExternalIdentifier">
+            <summary>
+            Optional external correlation identifier (defaults to a generated GUID when omitted).
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.WebApi.Application.Commands.StorageEntryMetadata.Create.AddStorageEntryRequest.StorageProvider">
+            <summary>
+            Optional storage provider key; when omitted, resolves the default non-keyed <see cref="T:MelloSilveiraTools.Core.Files.Providers.IFileStorageService"/>.
+            </summary>
+        </member>
+        <member name="T:MelloSilveiraTools.WebApi.Application.Commands.StorageEntryMetadata.Create.AddStorageEntryValidator">
+            <summary>
+            Validates <see cref="T:MelloSilveiraTools.WebApi.Application.Commands.StorageEntryMetadata.Create.AddStorageEntryRequest"/> payloads prior to storage creation.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.WebApi.Application.Commands.StorageEntryMetadata.Create.AddStorageEntryValidator.Validate(MelloSilveiraTools.WebApi.Application.Commands.StorageEntryMetadata.Create.AddStorageEntryRequest)">
+            <inheritdoc/>
+        </member>
+        <member name="T:MelloSilveiraTools.WebApi.Application.Commands.StorageEntryMetadata.Delete.DeleteStorageEntryCommand">
+            <summary>
+            Idempotently deletes a file from both <see cref="T:MelloSilveiraTools.Core.Files.Providers.IFileStorageService"/> and the database repository,
+            failing only if the target is missing in both locations or if deletion fails in either store.
+            </summary>
+            <param name="logger">Logger for deletion diagnostics.</param>
+            <param name="validator">Validator for delete requests.</param>
+            <param name="repository">Relational repository for metadata deletion.</param>
+            <param name="serviceLocator">Service locator used to resolve <see cref="T:MelloSilveiraTools.Core.Files.Providers.IFileStorageService"/>.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.WebApi.Application.Commands.StorageEntryMetadata.Delete.DeleteStorageEntryCommand.#ctor(Microsoft.Extensions.Logging.ILogger{MelloSilveiraTools.WebApi.Application.Commands.StorageEntryMetadata.Delete.DeleteStorageEntryCommand},MelloSilveiraTools.Core.Validators.IValidator{MelloSilveiraTools.WebApi.Application.Commands.StorageEntryMetadata.Delete.DeleteStorageEntryRequest},MelloSilveiraTools.Database.Repositories.IRepository,MelloSilveiraTools.Core.Providers.ServiceLocator)">
+            <summary>
+            Idempotently deletes a file from both <see cref="T:MelloSilveiraTools.Core.Files.Providers.IFileStorageService"/> and the database repository,
+            failing only if the target is missing in both locations or if deletion fails in either store.
+            </summary>
+            <param name="logger">Logger for deletion diagnostics.</param>
+            <param name="validator">Validator for delete requests.</param>
+            <param name="repository">Relational repository for metadata deletion.</param>
+            <param name="serviceLocator">Service locator used to resolve <see cref="T:MelloSilveiraTools.Core.Files.Providers.IFileStorageService"/>.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.WebApi.Application.Commands.StorageEntryMetadata.Delete.DeleteStorageEntryCommand.ExecuteCommandAsync(MelloSilveiraTools.WebApi.Application.Commands.StorageEntryMetadata.Delete.DeleteStorageEntryRequest,System.Threading.CancellationToken)">
+            <inheritdoc/>
+        </member>
+        <member name="T:MelloSilveiraTools.WebApi.Application.Commands.StorageEntryMetadata.Delete.DeleteStorageEntryRequest">
+            <summary>
+            Request payload for idempotently deleting a stored file and its database metadata.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.WebApi.Application.Commands.StorageEntryMetadata.Delete.DeleteStorageEntryRequest.FileId">
+            <summary>
+            Optional database metadata entity ID.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.WebApi.Application.Commands.StorageEntryMetadata.Delete.DeleteStorageEntryRequest.Location">
+            <summary>
+            Optional physical path or storage URI used when no database record exists.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.WebApi.Application.Commands.StorageEntryMetadata.Delete.DeleteStorageEntryRequest.StorageProvider">
+            <summary>
+            Optional storage provider key used when no database record exists; defaults to the non-keyed <see cref="T:MelloSilveiraTools.Core.Files.Providers.IFileStorageService"/>.
+            </summary>
+        </member>
+        <member name="T:MelloSilveiraTools.WebApi.Application.Commands.StorageEntryMetadata.Delete.DeleteStorageEntryValidator">
+            <summary>
+            Validates <see cref="T:MelloSilveiraTools.WebApi.Application.Commands.StorageEntryMetadata.Delete.DeleteStorageEntryRequest"/> payloads prior to deletion.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.WebApi.Application.Commands.StorageEntryMetadata.Delete.DeleteStorageEntryValidator.Validate(MelloSilveiraTools.WebApi.Application.Commands.StorageEntryMetadata.Delete.DeleteStorageEntryRequest)">
+            <inheritdoc/>
+        </member>
+        <member name="T:MelloSilveiraTools.WebApi.Application.Commands.StorageEntryMetadata.Download.DownloadStoredFileCommand">
+            <summary>
+            Resolves and opens a readable stream for a stored file identified by its metadata entity ID.
+            </summary>
+            <param name="repository">Relational repository for metadata lookup.</param>
+            <param name="serviceLocator">Service locator used to resolve the keyed <see cref="T:MelloSilveiraTools.Core.Files.Providers.IFileStorageService"/>.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.WebApi.Application.Commands.StorageEntryMetadata.Download.DownloadStoredFileCommand.#ctor(MelloSilveiraTools.Database.Repositories.IRepository,MelloSilveiraTools.Core.Providers.ServiceLocator)">
+            <summary>
+            Resolves and opens a readable stream for a stored file identified by its metadata entity ID.
+            </summary>
+            <param name="repository">Relational repository for metadata lookup.</param>
+            <param name="serviceLocator">Service locator used to resolve the keyed <see cref="T:MelloSilveiraTools.Core.Files.Providers.IFileStorageService"/>.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.WebApi.Application.Commands.StorageEntryMetadata.Download.DownloadStoredFileCommand.ExecuteCommandAsync(MelloSilveiraTools.WebApi.Application.Commands.StorageEntryMetadata.Download.DownloadStoredFileRequest,System.Threading.CancellationToken)">
+            <inheritdoc/>
+        </member>
+        <member name="T:MelloSilveiraTools.WebApi.Application.Commands.StorageEntryMetadata.Download.DownloadStoredFileRequest">
+            <summary>
+            Request payload for downloading a stored file by its metadata entity ID.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.WebApi.Application.Commands.StorageEntryMetadata.Download.DownloadStoredFileRequest.FileId">
+            <summary>
+            Database ID of the stored file metadata record.
+            </summary>
+        </member>
+        <member name="T:MelloSilveiraTools.WebApi.Application.Commands.StorageEntryMetadata.Download.DownloadStoredFileResultData">
+            <summary>
+            Stream and metadata payload for an HTTP file download response.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.WebApi.Application.Commands.StorageEntryMetadata.Download.DownloadStoredFileResultData.FileStream">
+            <summary>
+            Readable stream of the physical file.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.WebApi.Application.Commands.StorageEntryMetadata.Download.DownloadStoredFileResultData.ContentType">
+            <summary>
+            MIME content type of the file.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.WebApi.Application.Commands.StorageEntryMetadata.Download.DownloadStoredFileResultData.FileName">
+            <summary>
+            Download file name including extension.
+            </summary>
+        </member>
+        <member name="T:MelloSilveiraTools.WebApi.Application.Commands.StorageEntryMetadata.Read.ReadStorageEntriesCommand">
+            <summary>
+            Reads file metadata from both the database repository and <see cref="T:MelloSilveiraTools.Core.Files.Providers.IFileStorageService"/>.
+            </summary>
+            <param name="repository">Relational repository for persisted metadata.</param>
+            <param name="serviceLocator">Service locator used to resolve <see cref="T:MelloSilveiraTools.Core.Files.Providers.IFileStorageService"/>.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.WebApi.Application.Commands.StorageEntryMetadata.Read.ReadStorageEntriesCommand.#ctor(MelloSilveiraTools.Database.Repositories.IRepository,MelloSilveiraTools.Core.Providers.ServiceLocator)">
+            <summary>
+            Reads file metadata from both the database repository and <see cref="T:MelloSilveiraTools.Core.Files.Providers.IFileStorageService"/>.
+            </summary>
+            <param name="repository">Relational repository for persisted metadata.</param>
+            <param name="serviceLocator">Service locator used to resolve <see cref="T:MelloSilveiraTools.Core.Files.Providers.IFileStorageService"/>.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.WebApi.Application.Commands.StorageEntryMetadata.Read.ReadStorageEntriesCommand.ExecuteCommandAsync(MelloSilveiraTools.WebApi.Application.Commands.StorageEntryMetadata.Read.ReadStorageEntriesRequest,System.Threading.CancellationToken)">
+            <inheritdoc/>
+        </member>
+        <member name="T:MelloSilveiraTools.WebApi.Application.Commands.StorageEntryMetadata.Read.ReadStorageEntriesRequest">
+            <summary>
+            Query parameters for reading and grouping stored file entries from both storage and database.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.WebApi.Application.Commands.StorageEntryMetadata.Read.ReadStorageEntriesRequest.ExternalIdentifier">
+            <summary>
+            Optional external correlation identifier filter.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.WebApi.Application.Commands.StorageEntryMetadata.Read.ReadStorageEntriesRequest.Context">
+            <summary>
+            Optional context partition filter.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.WebApi.Application.Commands.StorageEntryMetadata.Read.ReadStorageEntriesRequest.StorageProvider">
+            <summary>
+            Optional storage provider filter.
+            </summary>
+        </member>
+        <member name="T:MelloSilveiraTools.WebApi.Application.Commands.StorageEntryMetadata.Upload.UpdateStorageEntryFileCommand">
+            <summary>
+            Overwrites only the physical file in <see cref="T:MelloSilveiraTools.Core.Files.Providers.IFileStorageService"/>, deletes the old metadata record,
+            and inserts a new metadata record in the repository.
+            </summary>
+            <param name="logger">Logger for repository and storage diagnostics.</param>
+            <param name="validator">Validator for update requests.</param>
+            <param name="repository">Relational repository for metadata persistence.</param>
+            <param name="serviceLocator">Service locator used to resolve the target <see cref="T:MelloSilveiraTools.Core.Files.Providers.IFileStorageService"/>.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.WebApi.Application.Commands.StorageEntryMetadata.Upload.UpdateStorageEntryFileCommand.#ctor(Microsoft.Extensions.Logging.ILogger{MelloSilveiraTools.WebApi.Application.Commands.StorageEntryMetadata.Upload.UpdateStorageEntryFileCommand},MelloSilveiraTools.Core.Validators.IValidator{MelloSilveiraTools.WebApi.Application.Commands.StorageEntryMetadata.Upload.UpdateStorageEntryFileRequest},MelloSilveiraTools.Database.Repositories.IRepository,MelloSilveiraTools.Core.Providers.ServiceLocator)">
+            <summary>
+            Overwrites only the physical file in <see cref="T:MelloSilveiraTools.Core.Files.Providers.IFileStorageService"/>, deletes the old metadata record,
+            and inserts a new metadata record in the repository.
+            </summary>
+            <param name="logger">Logger for repository and storage diagnostics.</param>
+            <param name="validator">Validator for update requests.</param>
+            <param name="repository">Relational repository for metadata persistence.</param>
+            <param name="serviceLocator">Service locator used to resolve the target <see cref="T:MelloSilveiraTools.Core.Files.Providers.IFileStorageService"/>.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.WebApi.Application.Commands.StorageEntryMetadata.Upload.UpdateStorageEntryFileCommand.ExecuteCommandAsync(MelloSilveiraTools.WebApi.Application.Commands.StorageEntryMetadata.Upload.UpdateStorageEntryFileRequest,System.Threading.CancellationToken)">
+            <inheritdoc/>
+        </member>
+        <member name="T:MelloSilveiraTools.WebApi.Application.Commands.StorageEntryMetadata.Upload.UpdateStorageEntryFileRequest">
+            <summary>
+            Request payload for overwriting the physical file of an existing storage entry.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.WebApi.Application.Commands.StorageEntryMetadata.Upload.UpdateStorageEntryFileRequest.FileId">
+            <summary>
+            Identifier of the existing metadata record.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.WebApi.Application.Commands.StorageEntryMetadata.Upload.UpdateStorageEntryFileRequest.File">
+            <summary>
+            Replacement file content.
+            </summary>
+        </member>
+        <member name="T:MelloSilveiraTools.WebApi.Application.Commands.StorageEntryMetadata.Upload.UpdateStorageEntryFileValidator">
+            <summary>
+            Validates <see cref="T:MelloSilveiraTools.WebApi.Application.Commands.StorageEntryMetadata.Upload.UpdateStorageEntryFileRequest"/> payloads prior to overwriting a stored file.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.WebApi.Application.Commands.StorageEntryMetadata.Upload.UpdateStorageEntryFileValidator.Validate(MelloSilveiraTools.WebApi.Application.Commands.StorageEntryMetadata.Upload.UpdateStorageEntryFileRequest)">
+            <inheritdoc/>
+        </member>
+        <member name="T:MelloSilveiraTools.WebApi.Application.Controllers.AuthController">
+            <summary>
+            Exposes JWE authentication endpoints for registering users, logging in, refreshing, and validating bearer tokens.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.WebApi.Application.Controllers.AuthController.RegisterAsync(MelloSilveiraTools.WebApi.Authentication.Commands.RegisterUserCommand,MelloSilveiraTools.WebApi.Authentication.Commands.RegisterUserRequest,System.Threading.CancellationToken)">
+            <summary>
+            Registers a new user account and issues an initial signed and encrypted JWE token.
+            </summary>
+            <param name="command">Command that validates and registers the user.</param>
+            <param name="request">User registration credentials.</param>
+            <param name="cancellationToken">Cancellation token.</param>
+            <returns>An <see cref="T:MelloSilveiraTools.WebApi.Authentication.AuthenticationToken"/> wrapped in <see cref="T:MelloSilveiraTools.Core.Models.Result`1"/>.</returns>
+        </member>
+        <member name="M:MelloSilveiraTools.WebApi.Application.Controllers.AuthController.LoginAsync(MelloSilveiraTools.WebApi.Authentication.Commands.LoginCommand,MelloSilveiraTools.WebApi.Authentication.Commands.LoginRequest,System.Threading.CancellationToken)">
+            <summary>
+            Authenticates an existing user and issues a signed and encrypted JWE token.
+            </summary>
+            <param name="command">Command that verifies user credentials and issues the token.</param>
+            <param name="request">User login credentials.</param>
             <param name="cancellationToken">Cancellation token.</param>
             <returns>An <see cref="T:MelloSilveiraTools.WebApi.Authentication.AuthenticationToken"/> wrapped in <see cref="T:MelloSilveiraTools.Core.Models.Result`1"/>.</returns>
         </member>
@@ -450,6 +694,40 @@
             <param name="context">The current HTTP context.</param>
             <param name="logger">Logger used to record handled streaming exceptions.</param>
         </member>
+        <member name="T:MelloSilveiraTools.WebApi.Application.Middlewares.UserContextMiddleware">
+            <summary>
+            Captures the authenticated HTTP <see cref="P:Microsoft.AspNetCore.Http.HttpContext.User"/> identifier into the injected
+            <see cref="T:MelloSilveiraTools.Database.Security.ICurrentUserProvider"/> scope so PostgreSQL Row-Level Security (RLS) session scoping is active
+            throughout the request and flows automatically into background <see cref="T:System.Threading.Tasks.Task"/> and TPL Dataflow
+            executions started during the request.
+            </summary>
+            <param name="next">Next middleware delegate in the ASP.NET Core pipeline.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.WebApi.Application.Middlewares.UserContextMiddleware.#ctor(Microsoft.AspNetCore.Http.RequestDelegate)">
+            <summary>
+            Captures the authenticated HTTP <see cref="P:Microsoft.AspNetCore.Http.HttpContext.User"/> identifier into the injected
+            <see cref="T:MelloSilveiraTools.Database.Security.ICurrentUserProvider"/> scope so PostgreSQL Row-Level Security (RLS) session scoping is active
+            throughout the request and flows automatically into background <see cref="T:System.Threading.Tasks.Task"/> and TPL Dataflow
+            executions started during the request.
+            </summary>
+            <param name="next">Next middleware delegate in the ASP.NET Core pipeline.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.WebApi.Application.Middlewares.UserContextMiddleware.InvokeAsync(Microsoft.AspNetCore.Http.HttpContext,MelloSilveiraTools.Database.Security.ICurrentUserProvider)">
+            <summary>
+            Captures the authenticated user identifier into <paramref name="currentUserProvider"/> and invokes the next middleware.
+            </summary>
+            <param name="context">Current HTTP context.</param>
+            <param name="currentUserProvider">Provider holding the active user scope for the execution flow.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.WebApi.Application.Middlewares.UserContextMiddleware.TryExtractUserId(System.Security.Claims.ClaimsPrincipal,System.Int64@)">
+            <summary>
+            Attempts to extract a positive numeric user identifier from the <c>sub</c> or
+            <see cref="F:System.Security.Claims.ClaimTypes.NameIdentifier"/> claim of the supplied <paramref name="principal"/>.
+            </summary>
+            <param name="principal">Authenticated claims principal, if any.</param>
+            <param name="userId">Extracted user identifier when parsing succeeds.</param>
+            <returns><see langword="true"/> when a positive user identifier was extracted; otherwise <see langword="false"/>.</returns>
+        </member>
         <member name="T:MelloSilveiraTools.WebApi.Application.Models.ApplicationConstants">
             <summary>
             Provides constants used by the application layer.
@@ -536,29 +814,94 @@
             The instant (in UTC offset) at which the token stops being valid.
             </summary>
         </member>
-        <member name="T:MelloSilveiraTools.WebApi.Authentication.Commands.GenerateDemoTokenRequest">
+        <member name="T:MelloSilveiraTools.WebApi.Authentication.Commands.RegisterUserRequest">
             <summary>
-            Request payload for generating a demonstration JWE token.
+            Request payload for registering a new user account.
             </summary>
         </member>
-        <member name="P:MelloSilveiraTools.WebApi.Authentication.Commands.GenerateDemoTokenRequest.Username">
+        <member name="P:MelloSilveiraTools.WebApi.Authentication.Commands.RegisterUserRequest.Username">
             <summary>
-            Optional user identifier embedded as the JWT subject (<c>sub</c>) claim.
+            Unique login username (minimum 3 characters).
             </summary>
         </member>
-        <member name="T:MelloSilveiraTools.WebApi.Authentication.Commands.GenerateDemoTokenCommand">
+        <member name="P:MelloSilveiraTools.WebApi.Authentication.Commands.RegisterUserRequest.Password">
             <summary>
-            Issues a signed and encrypted JWE token for local quickstart, Swagger, and WebUi sessions.
+            Plain-text password (minimum 6 characters).
             </summary>
+        </member>
+        <member name="T:MelloSilveiraTools.WebApi.Authentication.Commands.RegisterUserValidator">
+            <summary>
+            Validates <see cref="T:MelloSilveiraTools.WebApi.Authentication.Commands.RegisterUserRequest"/> payloads prior to user creation.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.WebApi.Authentication.Commands.RegisterUserValidator.Validate(MelloSilveiraTools.WebApi.Authentication.Commands.RegisterUserRequest)">
+            <inheritdoc/>
+        </member>
+        <member name="T:MelloSilveiraTools.WebApi.Authentication.Commands.RegisterUserCommand">
+            <summary>
+            Registers a new user in the database with a salted PBKDF2 password hash, provisions dedicated
+            PostgreSQL partitions for the user's tenant-isolated tables, and issues a JWE token.
+            </summary>
+            <param name="validator">Validator for registration requests.</param>
+            <param name="repository">Relational repository for persisting <see cref="T:MelloSilveiraTools.Database.RelationalDatabase.Models.Entities.UserEntity"/> records and provisioning user partitions.</param>
+            <param name="encryptionService">Password hashing service.</param>
             <param name="tokenService">Authentication token service.</param>
         </member>
-        <member name="M:MelloSilveiraTools.WebApi.Authentication.Commands.GenerateDemoTokenCommand.#ctor(MelloSilveiraTools.WebApi.Authentication.Services.IAuthenticationTokenService)">
+        <member name="M:MelloSilveiraTools.WebApi.Authentication.Commands.RegisterUserCommand.#ctor(MelloSilveiraTools.Core.Validators.IValidator{MelloSilveiraTools.WebApi.Authentication.Commands.RegisterUserRequest},MelloSilveiraTools.Database.Repositories.IRepository,MelloSilveiraTools.Core.Services.Encryption.IEncryptionService,MelloSilveiraTools.WebApi.Authentication.Services.IAuthenticationTokenService)">
             <summary>
-            Issues a signed and encrypted JWE token for local quickstart, Swagger, and WebUi sessions.
+            Registers a new user in the database with a salted PBKDF2 password hash, provisions dedicated
+            PostgreSQL partitions for the user's tenant-isolated tables, and issues a JWE token.
             </summary>
+            <param name="validator">Validator for registration requests.</param>
+            <param name="repository">Relational repository for persisting <see cref="T:MelloSilveiraTools.Database.RelationalDatabase.Models.Entities.UserEntity"/> records and provisioning user partitions.</param>
+            <param name="encryptionService">Password hashing service.</param>
             <param name="tokenService">Authentication token service.</param>
         </member>
-        <member name="M:MelloSilveiraTools.WebApi.Authentication.Commands.GenerateDemoTokenCommand.ExecuteCommandAsync(MelloSilveiraTools.WebApi.Authentication.Commands.GenerateDemoTokenRequest,System.Threading.CancellationToken)">
+        <member name="M:MelloSilveiraTools.WebApi.Authentication.Commands.RegisterUserCommand.ExecuteCommandAsync(MelloSilveiraTools.WebApi.Authentication.Commands.RegisterUserRequest,System.Threading.CancellationToken)">
+            <inheritdoc/>
+        </member>
+        <member name="T:MelloSilveiraTools.WebApi.Authentication.Commands.LoginRequest">
+            <summary>
+            Request payload for authenticating an existing user account.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.WebApi.Authentication.Commands.LoginRequest.Username">
+            <summary>
+            Registered login username.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.WebApi.Authentication.Commands.LoginRequest.Password">
+            <summary>
+            Plain-text password.
+            </summary>
+        </member>
+        <member name="T:MelloSilveiraTools.WebApi.Authentication.Commands.LoginValidator">
+            <summary>
+            Validates <see cref="T:MelloSilveiraTools.WebApi.Authentication.Commands.LoginRequest"/> payloads prior to authentication.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.WebApi.Authentication.Commands.LoginValidator.Validate(MelloSilveiraTools.WebApi.Authentication.Commands.LoginRequest)">
+            <inheritdoc/>
+        </member>
+        <member name="T:MelloSilveiraTools.WebApi.Authentication.Commands.LoginCommand">
+            <summary>
+            Authenticates a user against persisted credentials and issues a signed and encrypted JWE token.
+            </summary>
+            <param name="validator">Validator for login requests.</param>
+            <param name="repository">Relational repository for looking up <see cref="T:MelloSilveiraTools.Database.RelationalDatabase.Models.Entities.UserEntity"/> records.</param>
+            <param name="encryptionService">Password verification service.</param>
+            <param name="tokenService">Authentication token service.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.WebApi.Authentication.Commands.LoginCommand.#ctor(MelloSilveiraTools.Core.Validators.IValidator{MelloSilveiraTools.WebApi.Authentication.Commands.LoginRequest},MelloSilveiraTools.Database.Repositories.IRepository,MelloSilveiraTools.Core.Services.Encryption.IEncryptionService,MelloSilveiraTools.WebApi.Authentication.Services.IAuthenticationTokenService)">
+            <summary>
+            Authenticates a user against persisted credentials and issues a signed and encrypted JWE token.
+            </summary>
+            <param name="validator">Validator for login requests.</param>
+            <param name="repository">Relational repository for looking up <see cref="T:MelloSilveiraTools.Database.RelationalDatabase.Models.Entities.UserEntity"/> records.</param>
+            <param name="encryptionService">Password verification service.</param>
+            <param name="tokenService">Authentication token service.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.WebApi.Authentication.Commands.LoginCommand.ExecuteCommandAsync(MelloSilveiraTools.WebApi.Authentication.Commands.LoginRequest,System.Threading.CancellationToken)">
             <inheritdoc/>
         </member>
         <member name="T:MelloSilveiraTools.WebApi.Authentication.Commands.RefreshTokenRequest">
@@ -759,12 +1102,13 @@
             Registers Web API services: API service agent resilience pipeline.
             </summary>
             <param name="services">Service collection that receives the registrations.</param>
-            <param name="defaultResiliencePipelineSettings">Settings that parameterize the resilience pipelines.</param>
+            <param name="defaultResiliencePipelineSettings">Settings that parameterize the default resilience pipelines.</param>
             <returns>The same <paramref name="services"/> instance to allow call chaining.</returns>
         </member>
         <member name="M:MelloSilveiraTools.WebApi.WebApiDependencyInjection.AddJweAuthentication(Microsoft.Extensions.DependencyInjection.IServiceCollection,MelloSilveiraTools.WebApi.Authentication.JwtSettings)">
             <summary>
-            Registers the authentication for AdmMaster users using JWT.
+            Registers JWE authentication, authentication commands, and ensures <see cref="T:MelloSilveiraTools.Database.Security.ICurrentUserProvider"/>
+            is registered for PostgreSQL Row-Level Security (RLS) propagation.
             </summary>
             <param name="services">Service collection that receives the registrations.</param>
             <param name="jwtSettings">Settings used to build and validate JWT tokens.</param>
@@ -779,6 +1123,20 @@
             <summary>
             Adds Swagger documentations to ApplicationBuilder.
             </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.WebApi.WebApiDependencyInjection.UseCustomMiddlewares(Microsoft.AspNetCore.Builder.IApplicationBuilder)">
+            <summary>
+            Registers custom HTTP exception handling middleware.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.WebApi.WebApiDependencyInjection.UseUserContext(Microsoft.AspNetCore.Builder.IApplicationBuilder)">
+            <summary>
+            Registers <see cref="T:MelloSilveiraTools.WebApi.Application.Middlewares.UserContextMiddleware"/> to propagate the authenticated user's identifier into
+            <see cref="T:MelloSilveiraTools.Database.Security.ICurrentUserProvider"/> for PostgreSQL Row-Level Security (RLS) and background pipelines.
+            Must be invoked after <c>UseAuthentication()</c>.
+            </summary>
+            <param name="app">Application builder.</param>
+            <returns>The same <paramref name="app"/> instance for chaining.</returns>
         </member>
         <member name="T:MelloSilveiraTools.WebApi.ExtensionMethods.FormFileExtensions">
             <summary>

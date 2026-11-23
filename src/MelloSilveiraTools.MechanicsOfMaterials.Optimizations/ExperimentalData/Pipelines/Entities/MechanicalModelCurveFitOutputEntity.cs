@@ -10,7 +10,7 @@ namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData
 /// Database entity for mechanical model curve fit outputs.
 /// </summary>
 [Table("mechanical_model_curve_fit_outputs")]
-public record MechanicalModelCurveFitOutputEntity : EntityBase
+public record MechanicalModelCurveFitOutputEntity : UserScopedEntityBase
 {
     /// <summary>
     /// Initializes a new instance of <see cref="MechanicalModelCurveFitOutputEntity"/> for persistence mapping and deserialization.

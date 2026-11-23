@@ -713,10 +713,27 @@
             as well as <see cref="T:MelloSilveiraTools.Database.ExtensionMethods.NpgsqlConnectionExtensions"/> helper overloads.
             </summary>
         </member>
+        <member name="M:UnitTests.Database.PostgresRepositoryAndExtensionsTests.PostgresRepository_PropagatesRlsSessionConfig_And_AutoPopulatesUserIdOnWireProtocol">
+            <summary>
+            Verifies over the PostgreSQL v3 wire protocol that <see cref="T:MelloSilveiraTools.Database.RelationalDatabase.Repositories.PostgresRepository"/>:
+            (1) sends <c>set_config('app.current_user_id', '', false)</c> when unauthenticated (fail-closed),
+            (2) sends <c>set_config('app.current_user_id', '&lt;userId&gt;', false)</c> when authenticated,
+            (3) automatically binds <c>@UserId</c> from <see cref="T:MelloSilveiraTools.Database.Security.ICurrentUserProvider"/> when left as <c>0</c>
+                for single insert, bulk insert, and update on <see cref="T:MelloSilveiraTools.Database.RelationalDatabase.Models.Entities.UserScopedEntityBase"/> entities, and
+            (4) preserves explicitly assigned non-zero <c>UserId</c> values.
+            </summary>
+        </member>
         <member name="T:UnitTests.Database.RelationalDatabase.Sql.Provider.DomainEntitySqlSmokeTests">
             <summary>
             Smoke tests using the original domain entity graph (user / district / join table).
             These verify that the SQL provider handles FK-heavy schemas end-to-end.
+            </summary>
+        </member>
+        <member name="T:UnitTests.Database.RowLevelSecurityAndPartitioningTests">
+            <summary>
+            Exhaustive unit tests covering PostgreSQL Row-Level Security (RLS), <c>PARTITION BY LIST (user_id)</c> SQL generation,
+            instance-scoped <see cref="T:MelloSilveiraTools.Database.Security.CurrentUserProvider"/> concurrency/isolation/idempotency, <see cref="T:MelloSilveiraTools.WebApi.Application.Middlewares.UserContextMiddleware"/>
+            claim extraction and exception safety, DI registration, and per-user partition provisioning during registration.
             </summary>
         </member>
         <member name="T:UnitTests.Mathematics.Converters.UnitConverterTests">

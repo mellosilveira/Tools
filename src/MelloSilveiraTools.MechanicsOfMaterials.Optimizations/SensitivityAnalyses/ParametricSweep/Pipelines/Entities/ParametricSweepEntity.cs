@@ -10,7 +10,7 @@ namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnaly
 /// Database entity representing a One-At-A-Time (OAAT) parametric sensitivity sweep execution and its configuration snapshot.
 /// </summary>
 [Table("parametric_sweeps")]
-public record ParametricSweepEntity : EntityBase
+public record ParametricSweepEntity : UserScopedEntityBase
 {
     /// <summary>
     /// Initializes a new instance of <see cref="ParametricSweepEntity"/> for persistence mapping and deserialization.

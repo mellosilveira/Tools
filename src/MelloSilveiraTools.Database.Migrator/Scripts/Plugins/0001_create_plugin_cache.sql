@@ -1,14 +1,13 @@
 -- ============================================================================
 -- Migration: 0001_create_plugin_cache.sql
 -- Context: Plugins
--- Description: Creates the plugin_cache table for persisting dynamic plugin states and metadata.
+-- Description: Creates the global plugin_cache table for persisting dynamic plugin states and metadata.
 -- Database Target: PostgreSQL ONLY (Current application design supports PostgreSQL exclusively).
 -- ============================================================================
 
 CREATE TABLE IF NOT EXISTS plugin_cache (
     id BIGSERIAL PRIMARY KEY,
-    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-    updated_at TIMESTAMPTZ,
+    creation_timestamp TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     plugin_name TEXT NOT NULL,
     plugin_version TEXT NOT NULL,
     state_type TEXT NOT NULL,
@@ -17,3 +16,12 @@ CREATE TABLE IF NOT EXISTS plugin_cache (
 );
 
 CREATE INDEX IF NOT EXISTS ix_plugin_cache_plugin_name ON plugin_cache (plugin_name);
+
+DO $$
+BEGIN
+    IF EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'tools_app') THEN
+        GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE plugin_cache TO tools_app;
+        GRANT USAGE, SELECT ON SEQUENCE plugin_cache_id_seq TO tools_app;
+    END IF;
+END
+$$;

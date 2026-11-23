@@ -8,7 +8,7 @@ namespace MelloSilveiraTools.Database.RelationalDatabase.Models.Entities;
 /// recording operational context, storage provider technology, and file size metrics.
 /// </summary>
 [Table("stored_files")]
-public record StorageEntryMetadataEntity : EntityBase
+public record StorageEntryMetadataEntity : UserScopedEntityBase
 {
     /// <summary>
     /// External identifier correlating the file to an analysis, experiment, or simulation run (e.g., "Sim_ACL_01").
@@ -28,6 +28,9 @@ public record StorageEntryMetadataEntity : EntityBase
     [Column]
     public string Location { get; init; } = string.Empty;
 
+    /// <summary>
+    /// Logical or physical directory path containing the stored artifact.
+    /// </summary>
     [Column]
     public string Directory { get; init; } = string.Empty;
 

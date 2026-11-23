@@ -8,6 +8,7 @@ using MelloSilveiraTools.Database.RelationalDatabase.Repositories;
 using MelloSilveiraTools.Database.RelationalDatabase.Settings;
 using MelloSilveiraTools.Database.RelationalDatabase.Sql.Provider;
 using MelloSilveiraTools.Database.ResiliencePipelines;
+using MelloSilveiraTools.Database.Security;
 using MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels;
 using MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Pipelines.Entities;
@@ -106,7 +107,7 @@ public sealed class PostgresIntegrationTests
             };
             ILogger<PostgresResiliencePipeline> pipelineLogger = Mock.Of<ILogger<PostgresResiliencePipeline>>();
             PostgresResiliencePipeline resiliencePipeline = new(pipelineLogger, resilienceSettings);
-            PostgresRepository repository = new(sqlProvider, resiliencePipeline, databaseSettings);
+            PostgresRepository repository = new(sqlProvider, new CurrentUserProvider(), resiliencePipeline, databaseSettings);
 
             // =========================================================================
             // CRUD Test 1: StorageEntryMetadataEntity (stored_files table)

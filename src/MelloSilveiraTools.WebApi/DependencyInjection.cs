@@ -1,5 +1,6 @@
 using MelloSilveiraTools.Core.ResiliencePipelines;
 using MelloSilveiraTools.Core.Validators;
+using MelloSilveiraTools.Database.Security;
 using MelloSilveiraTools.WebApi.Application.Commands.Crud.Add;
 using MelloSilveiraTools.WebApi.Application.Commands.Crud.Delete;
 using MelloSilveiraTools.WebApi.Application.Commands.Crud.Read;
@@ -9,9 +10,12 @@ using MelloSilveiraTools.WebApi.Application.Commands.StorageEntryMetadata.Delete
 using MelloSilveiraTools.WebApi.Application.Commands.StorageEntryMetadata.Download;
 using MelloSilveiraTools.WebApi.Application.Commands.StorageEntryMetadata.Read;
 using MelloSilveiraTools.WebApi.Application.Commands.StorageEntryMetadata.Upload;
+using MelloSilveiraTools.WebApi.Application.Commands.Users.Login;
+using MelloSilveiraTools.WebApi.Application.Commands.Users.RefreshToken;
+using MelloSilveiraTools.WebApi.Application.Commands.Users.Register;
+using MelloSilveiraTools.WebApi.Application.Commands.Users.ValidateToken;
 using MelloSilveiraTools.WebApi.Application.Middlewares;
 using MelloSilveiraTools.WebApi.Authentication;
-using MelloSilveiraTools.WebApi.Authentication.Commands;
 using MelloSilveiraTools.WebApi.Authentication.Services;
 using MelloSilveiraTools.WebApi.Infrastructure.ResiliencePipelines;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -32,7 +36,7 @@ public static class WebApiDependencyInjection
     /// Registers Web API services: API service agent resilience pipeline.
     /// </summary>
     /// <param name="services">Service collection that receives the registrations.</param>
-    /// <param name="defaultResiliencePipelineSettings">Settings that parameterize the resilience pipelines.</param>
+    /// <param name="defaultResiliencePipelineSettings">Settings that parameterize the default resilience pipelines.</param>
     /// <returns>The same <paramref name="services"/> instance to allow call chaining.</returns>
     public static IServiceCollection AddWebApiServices(this IServiceCollection services, ResiliencePipelineSettings defaultResiliencePipelineSettings) => services
         .AddSingleton(provider => new ApiServiceAgentResiliencePipeline(provider.GetRequiredService<ILogger<ApiServiceAgentResiliencePipeline>>(), defaultResiliencePipelineSettings))
@@ -54,7 +58,8 @@ public static class WebApiDependencyInjection
         .AddSingleton<UpdateStorageEntryFileCommand>();
 
     /// <summary>
-    /// Registers the authentication for AdmMaster users using JWT.
+    /// Registers JWE authentication, authentication commands, and ensures <see cref="ICurrentUserProvider"/>
+    /// is registered for PostgreSQL Row-Level Security (RLS) propagation.
     /// </summary>
     /// <param name="services">Service collection that receives the registrations.</param>
     /// <param name="jwtSettings">Settings used to build and validate JWT tokens.</param>
@@ -64,12 +69,12 @@ public static class WebApiDependencyInjection
         services
             .AddSingleton(jwtSettings)
             .AddScoped<IAuthenticationTokenService, AuthenticationJweTokenService>()
-            .AddScoped<RegisterUserCommand>()
-            .AddScoped<IValidator<RegisterUserRequest>, RegisterUserValidator>()
             .AddScoped<LoginCommand>()
-            .AddScoped<IValidator<LoginRequest>, LoginValidator>()
             .AddScoped<RefreshAuthenticationTokenCommand>()
+            .AddScoped<RegisterUserCommand>()
             .AddScoped<ValidateAuthenticationTokenCommand>()
+            .AddScoped<IValidator<RegisterUserRequest>, RegisterUserValidator>()
+            .AddScoped<IValidator<LoginRequest>, LoginValidator>()
             .AddAuthentication(options =>
             {
                 options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -136,8 +141,19 @@ public static class WebApiDependencyInjection
             c.EnableValidator(null);
         });
 
-    public static IApplicationBuilder UseCustomMiddlewares(this IApplicationBuilder app)
-        => app.UseMiddleware<ExceptionHandlingHttpMiddleware>();
+    /// <summary>
+    /// Registers custom HTTP exception handling middleware.
+    /// </summary>
+    public static IApplicationBuilder UseCustomMiddlewares(this IApplicationBuilder app) => app.UseMiddleware<ExceptionHandlingHttpMiddleware>();
+
+    /// <summary>
+    /// Registers <see cref="UserContextMiddleware"/> to propagate the authenticated user's identifier into
+    /// <see cref="ICurrentUserProvider"/> for PostgreSQL Row-Level Security (RLS) and background pipelines.
+    /// Must be invoked after <c>UseAuthentication()</c>.
+    /// </summary>
+    /// <param name="app">Application builder.</param>
+    /// <returns>The same <paramref name="app"/> instance for chaining.</returns>
+    public static IApplicationBuilder UseUserContext(this IApplicationBuilder app) => app.UseMiddleware<UserContextMiddleware>();
 
     private static (string Title, string Description, string Location) GetAssemblyAttributes()
     {

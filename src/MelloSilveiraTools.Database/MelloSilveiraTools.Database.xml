@@ -14,7 +14,7 @@
         </member>
         <member name="M:MelloSilveiraTools.Database.DatabaseDependencyInjection.&lt;G&gt;$7B30185E57B8298C6754F16C0BCF4773.AddDatabaseServices(MelloSilveiraTools.Core.ResiliencePipelines.ResiliencePipelineSettings,MelloSilveiraTools.Database.RelationalDatabase.Settings.DatabaseSettings)">
             <summary>
-            Registers database services: settings, Postgres resilience pipeline, SQL provider and repository.
+            Registers database services: settings, Postgres resilience pipeline, SQL provider, current-user RLS provider, and repository.
             </summary>
             <param name="defaultResiliencePipelineSettings">Settings that parameterize the default resilience pipelines.</param>
             <param name="databaseSettings">Database connection and behavior settings.</param>
@@ -432,6 +432,11 @@
             Absolute file system path, URI, or cloud blob key where the file can be retrieved.
             </summary>
         </member>
+        <member name="P:MelloSilveiraTools.Database.RelationalDatabase.Models.Entities.StorageEntryMetadataEntity.Directory">
+            <summary>
+            Logical or physical directory path containing the stored artifact.
+            </summary>
+        </member>
         <member name="P:MelloSilveiraTools.Database.RelationalDatabase.Models.Entities.StorageEntryMetadataEntity.FileName">
             <summary>
             Physical file name including extension (e.g., "valid_processed_points.csv", "c_SensitivityAnalysis.csv").
@@ -461,6 +466,11 @@
             Represents an authenticated user account persisted in the <c>users</c> table.
             </summary>
         </member>
+        <member name="M:MelloSilveiraTools.Database.RelationalDatabase.Models.Entities.UserEntity.#ctor">
+            <summary>
+            Initializes a new instance of <see cref="T:MelloSilveiraTools.Database.RelationalDatabase.Models.Entities.UserEntity"/> for persistence mapping and deserialization.
+            </summary>
+        </member>
         <member name="P:MelloSilveiraTools.Database.RelationalDatabase.Models.Entities.UserEntity.Username">
             <summary>
             Unique user login name.
@@ -474,6 +484,18 @@
         <member name="P:MelloSilveiraTools.Database.RelationalDatabase.Models.Entities.UserEntity.IsActive">
             <summary>
             Indicates whether the user account is active and allowed to authenticate.
+            </summary>
+        </member>
+        <member name="T:MelloSilveiraTools.Database.RelationalDatabase.Models.Entities.UserScopedEntityBase">
+            <summary>
+            Base record for user-scoped entities stored in PostgreSQL tables partitioned by <c>user_id</c>
+            and protected by Row-Level Security (RLS).
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Database.RelationalDatabase.Models.Entities.UserScopedEntityBase.UserId">
+            <summary>
+            Identifier of the owning user. When left as <c>0</c>, <c>PostgresRepository</c> automatically populates 
+            it from the active <see cref="T:MelloSilveiraTools.Database.Security.ICurrentUserProvider"/> before executing write statements.
             </summary>
         </member>
         <member name="T:MelloSilveiraTools.Database.RelationalDatabase.Models.FilterClause">
@@ -642,9 +664,19 @@
             <see cref="T:MelloSilveiraTools.Database.RelationalDatabase.Attributes.ForeignKeyColumnAttribute"/>, using the
             join type configured on the attribute and the metadata of the referenced entity type.
             </para>
+            <para>
+            Every opened connection executes <c>SELECT set_config('app.current_user_id', @UserId, false)</c>
+            using the injected <see cref="T:MelloSilveiraTools.Database.Security.ICurrentUserProvider"/> before running the target command so
+            PostgreSQL Row-Level Security (RLS) policies isolate data per user with zero cross-request leakage
+            across pooled connections.
+            </para>
             </remarks>
+            <param name="sqlProvider">Provider responsible for generating and caching PostgreSQL statements.</param>
+            <param name="currentUserProvider">Mandatory provider resolving the active user identifier for PostgreSQL RLS session scoping.</param>
+            <param name="resiliencePipeline">Resilience pipeline wrapping transient PostgreSQL failures.</param>
+            <param name="databaseSettings">Database connection string and command timeout settings.</param>
         </member>
-        <member name="M:MelloSilveiraTools.Database.RelationalDatabase.Repositories.PostgresRepository.#ctor(MelloSilveiraTools.Database.RelationalDatabase.Sql.Provider.ISqlProvider,MelloSilveiraTools.Database.ResiliencePipelines.PostgresResiliencePipeline,MelloSilveiraTools.Database.RelationalDatabase.Settings.DatabaseSettings)">
+        <member name="M:MelloSilveiraTools.Database.RelationalDatabase.Repositories.PostgresRepository.#ctor(MelloSilveiraTools.Database.RelationalDatabase.Sql.Provider.ISqlProvider,MelloSilveiraTools.Database.Security.ICurrentUserProvider,MelloSilveiraTools.Database.ResiliencePipelines.PostgresResiliencePipeline,MelloSilveiraTools.Database.RelationalDatabase.Settings.DatabaseSettings)">
             <summary>
             Repository that contains methods to deal with Postgres database.
             Registered as Singleton in DI. Opens a new connection per call. Safe for concurrent use.
@@ -671,7 +703,17 @@
             <see cref="T:MelloSilveiraTools.Database.RelationalDatabase.Attributes.ForeignKeyColumnAttribute"/>, using the
             join type configured on the attribute and the metadata of the referenced entity type.
             </para>
+            <para>
+            Every opened connection executes <c>SELECT set_config('app.current_user_id', @UserId, false)</c>
+            using the injected <see cref="T:MelloSilveiraTools.Database.Security.ICurrentUserProvider"/> before running the target command so
+            PostgreSQL Row-Level Security (RLS) policies isolate data per user with zero cross-request leakage
+            across pooled connections.
+            </para>
             </remarks>
+            <param name="sqlProvider">Provider responsible for generating and caching PostgreSQL statements.</param>
+            <param name="currentUserProvider">Mandatory provider resolving the active user identifier for PostgreSQL RLS session scoping.</param>
+            <param name="resiliencePipeline">Resilience pipeline wrapping transient PostgreSQL failures.</param>
+            <param name="databaseSettings">Database connection string and command timeout settings.</param>
         </member>
         <member name="P:MelloSilveiraTools.Database.RelationalDatabase.Repositories.PostgresRepository.DatabaseSettings">
             <summary>
@@ -729,6 +771,9 @@
         <member name="M:MelloSilveiraTools.Database.RelationalDatabase.Repositories.PostgresRepository.TryUpdateAsync``1(``0,System.Threading.CancellationToken)">
             <inheritdoc/>
         </member>
+        <member name="M:MelloSilveiraTools.Database.RelationalDatabase.Repositories.PostgresRepository.EnsureUserPartitionsAsync(System.Int64,System.Threading.CancellationToken)">
+            <inheritdoc/>
+        </member>
         <member name="M:MelloSilveiraTools.Database.RelationalDatabase.Repositories.PostgresRepository.GetAsync``1(System.String,Dapper.DynamicParameters,System.Threading.CancellationToken)">
             <summary>
             Streams rows returned by <paramref name="sql"/> and materializes each of them into a <typeparamref name="TEntity"/>.
@@ -739,7 +784,9 @@
         </member>
         <member name="M:MelloSilveiraTools.Database.RelationalDatabase.Repositories.PostgresRepository.GetNewOpenedConnectionAsync(System.Threading.CancellationToken)">
             <summary>
-            Creates and opens a new Npgsql connection using the configured connection string.
+            Creates and opens a new Npgsql connection using the configured connection string,
+            propagating the active user identifier from <see cref="T:MelloSilveiraTools.Database.Security.ICurrentUserProvider"/> into
+            PostgreSQL session setting <c>app.current_user_id</c>.
             </summary>
             <param name="cancellationToken">Token used to cancel the asynchronous open operation.</param>
             <returns>An opened <see cref="T:Npgsql.NpgsqlConnection"/>.</returns>
@@ -892,9 +939,10 @@
             is deterministic for a given type and only one instance is retained.
             </para>
             <para>
-            This provider is NOT multi-tenant safe when different tenants map the same CLR type to different schemas
-            or table names: the cached SQL is keyed only by <see cref="T:System.Type"/>, not by tenant context. Use a separate
-            provider instance (or distinct entity types per tenant) when schema isolation is required.
+            For entities inheriting from <see cref="T:MelloSilveiraTools.Database.RelationalDatabase.Models.Entities.UserScopedEntityBase"/> that declare one or more
+            <see cref="T:MelloSilveiraTools.Database.RelationalDatabase.Attributes.UniqueColumnAttribute"/> properties, <c>user_id</c> is automatically appended to the
+            <c>ON CONFLICT</c> unique key list so conflict resolution aligns with PostgreSQL partitioned table
+            composite unique constraints (<c>UNIQUE (..., user_id)</c>).
             </para>
             </remarks>
         </member>
@@ -1173,6 +1221,14 @@
             Attempts to update the supplied entity, returning <c>true</c> only when a record was actually changed.
             </summary>
         </member>
+        <member name="M:MelloSilveiraTools.Database.Repositories.IRepository.EnsureUserPartitionsAsync(System.Int64,System.Threading.CancellationToken)">
+            <summary>
+            Idempotently ensures dedicated per-user partitions exist across all user-partitioned database tables
+            for the specified <paramref name="userId"/>.
+            </summary>
+            <param name="userId">Positive identifier of the registered user.</param>
+            <param name="cancellationToken">Token used to cancel the operation.</param>
+        </member>
         <member name="T:MelloSilveiraTools.Database.ResiliencePipelines.PostgresResiliencePipeline">
             <summary>
             Resilience pipeline for PostgreSQL repositories that provides a strategy to handle retriable exceptions.
@@ -1192,6 +1248,43 @@
             <param name="logger">See reference at <see cref="T:Microsoft.Extensions.Logging.ILogger"/>.</param>
             <param name="settings">See reference at <see cref="T:MelloSilveiraTools.Core.ResiliencePipelines.ResiliencePipelineSettings"/>.</param>
             <param name="shouldHandle">Predicate that determines whether the retry should be executed for a given outcome.</param>
+        </member>
+        <member name="T:MelloSilveiraTools.Database.Security.CurrentUserProvider">
+            <summary>
+            Default <see cref="T:MelloSilveiraTools.Database.Security.ICurrentUserProvider"/> backed by an instance-scoped <see cref="T:System.Threading.AsyncLocal`1"/> slot so
+            Row-Level Security (RLS) user context flows automatically across asynchronous continuations,
+            <see cref="M:System.Threading.Tasks.Task.Run(System.Action)"/>, and background TPL Dataflow stages without static global state.
+            Registered as Singleton in DI; safe for concurrent use across threads and requests.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Database.Security.CurrentUserProvider.GetCurrentUserId">
+            <inheritdoc/>
+        </member>
+        <member name="M:MelloSilveiraTools.Database.Security.CurrentUserProvider.BeginScope(System.Nullable{System.Int64})">
+            <inheritdoc/>
+        </member>
+        <member name="T:MelloSilveiraTools.Database.Security.ICurrentUserProvider">
+            <summary>
+            Manages and resolves the identifier of the currently authenticated user for PostgreSQL Row-Level Security (RLS)
+            session scoping and user-partitioned entity persistence.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Database.Security.ICurrentUserProvider.GetCurrentUserId">
+            <summary>
+            Returns the authenticated user's database identifier for the current asynchronous execution flow,
+            or <see langword="null"/> when executing outside an authenticated user context
+            (e.g., anonymous login/registration or system maintenance).
+            </summary>
+            <returns>The current user identifier, or <see langword="null"/> if unavailable.</returns>
+        </member>
+        <member name="M:MelloSilveiraTools.Database.Security.ICurrentUserProvider.BeginScope(System.Nullable{System.Int64})">
+            <summary>
+            Establishes a user scope for the current asynchronous execution flow until the returned
+            <see cref="T:System.IDisposable"/> is disposed, flowing automatically across <see cref="T:System.Threading.Tasks.Task"/> continuations
+            and background TPL Dataflow stages.
+            </summary>
+            <param name="userId">Authenticated user identifier, or <see langword="null"/> to clear the active user scope.</param>
+            <returns>An <see cref="T:System.IDisposable"/> handle that restores the previous user scope upon disposal.</returns>
         </member>
     </members>
 </doc>

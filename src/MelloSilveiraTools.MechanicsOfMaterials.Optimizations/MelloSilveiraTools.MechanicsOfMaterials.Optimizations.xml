@@ -4,302 +4,6 @@
         <name>MelloSilveiraTools.MechanicsOfMaterials.Optimizations</name>
     </assembly>
     <members>
-        <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Commands.StorageEntryMetadata.CreateStorageEntryRequest">
-            <summary>
-            Request payload for creating and persisting a stored file alongside its database metadata.
-            </summary>
-        </member>
-        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Commands.StorageEntryMetadata.CreateStorageEntryRequest.File">
-            <summary>
-            Uploaded file to store.
-            </summary>
-        </member>
-        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Commands.StorageEntryMetadata.CreateStorageEntryRequest.ExternalIdentifier">
-            <summary>
-            Optional external correlation identifier (defaults to a generated GUID when omitted).
-            </summary>
-        </member>
-        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Commands.StorageEntryMetadata.CreateStorageEntryRequest.Context">
-            <summary>
-            Optional storage context partition (defaults to <c>General</c> when omitted).
-            </summary>
-        </member>
-        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Commands.StorageEntryMetadata.CreateStorageEntryRequest.StorageProvider">
-            <summary>
-            Optional storage provider key; when omitted, resolves the default non-keyed <see cref="T:MelloSilveiraTools.Core.Files.Providers.IFileStorageService"/>.
-            </summary>
-        </member>
-        <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Commands.StorageEntryMetadata.CreateStorageEntryValidator">
-            <summary>
-            Validates <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Commands.StorageEntryMetadata.CreateStorageEntryRequest"/> payloads prior to storage creation.
-            </summary>
-        </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Commands.StorageEntryMetadata.CreateStorageEntryValidator.Validate(MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Commands.StorageEntryMetadata.CreateStorageEntryRequest)">
-            <inheritdoc/>
-        </member>
-        <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Commands.StorageEntryMetadata.CreateStorageEntryCommand">
-            <summary>
-            Stores a file in the resolved <see cref="T:MelloSilveiraTools.Core.Files.Providers.IFileStorageService"/> and persists its <see cref="T:MelloSilveiraTools.Database.RelationalDatabase.Models.Entities.StorageEntryMetadataEntity"/> record.
-            </summary>
-            <param name="logger">Logger for storage and persistence diagnostics.</param>
-            <param name="validator">Validator for create requests.</param>
-            <param name="repository">Relational repository for metadata persistence.</param>
-            <param name="serviceLocator">Service locator used to resolve keyed or default <see cref="T:MelloSilveiraTools.Core.Files.Providers.IFileStorageService"/>.</param>
-            <param name="timeProvider">Time provider for metadata timestamps.</param>
-        </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Commands.StorageEntryMetadata.CreateStorageEntryCommand.#ctor(Microsoft.Extensions.Logging.ILogger{MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Commands.StorageEntryMetadata.CreateStorageEntryCommand},MelloSilveiraTools.Core.Validators.IValidator{MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Commands.StorageEntryMetadata.CreateStorageEntryRequest},MelloSilveiraTools.Database.Repositories.IRepository,MelloSilveiraTools.Core.Providers.ServiceLocator,System.TimeProvider)">
-            <summary>
-            Stores a file in the resolved <see cref="T:MelloSilveiraTools.Core.Files.Providers.IFileStorageService"/> and persists its <see cref="T:MelloSilveiraTools.Database.RelationalDatabase.Models.Entities.StorageEntryMetadataEntity"/> record.
-            </summary>
-            <param name="logger">Logger for storage and persistence diagnostics.</param>
-            <param name="validator">Validator for create requests.</param>
-            <param name="repository">Relational repository for metadata persistence.</param>
-            <param name="serviceLocator">Service locator used to resolve keyed or default <see cref="T:MelloSilveiraTools.Core.Files.Providers.IFileStorageService"/>.</param>
-            <param name="timeProvider">Time provider for metadata timestamps.</param>
-        </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Commands.StorageEntryMetadata.CreateStorageEntryCommand.ExecuteCommandAsync(MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Commands.StorageEntryMetadata.CreateStorageEntryRequest,System.Threading.CancellationToken)">
-            <inheritdoc/>
-        </member>
-        <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Commands.StorageEntryMetadata.DeleteStorageEntryRequest">
-            <summary>
-            Request payload for idempotently deleting a stored file and its database metadata.
-            </summary>
-        </member>
-        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Commands.StorageEntryMetadata.DeleteStorageEntryRequest.FileId">
-            <summary>
-            Optional database metadata entity ID.
-            </summary>
-        </member>
-        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Commands.StorageEntryMetadata.DeleteStorageEntryRequest.Location">
-            <summary>
-            Optional physical path or storage URI used when no database record exists.
-            </summary>
-        </member>
-        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Commands.StorageEntryMetadata.DeleteStorageEntryRequest.StorageProvider">
-            <summary>
-            Optional storage provider key used when no database record exists; defaults to the non-keyed <see cref="T:MelloSilveiraTools.Core.Files.Providers.IFileStorageService"/>.
-            </summary>
-        </member>
-        <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Commands.StorageEntryMetadata.DeleteStorageEntryValidator">
-            <summary>
-            Validates <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Commands.StorageEntryMetadata.DeleteStorageEntryRequest"/> payloads prior to deletion.
-            </summary>
-        </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Commands.StorageEntryMetadata.DeleteStorageEntryValidator.Validate(MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Commands.StorageEntryMetadata.DeleteStorageEntryRequest)">
-            <inheritdoc/>
-        </member>
-        <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Commands.StorageEntryMetadata.DeleteStorageEntryCommand">
-            <summary>
-            Idempotently deletes a file from both <see cref="T:MelloSilveiraTools.Core.Files.Providers.IFileStorageService"/> and the database repository,
-            failing only if the target is missing in both locations or if deletion fails in either store.
-            </summary>
-            <param name="logger">Logger for deletion diagnostics.</param>
-            <param name="validator">Validator for delete requests.</param>
-            <param name="repository">Relational repository for metadata deletion.</param>
-            <param name="serviceLocator">Service locator used to resolve <see cref="T:MelloSilveiraTools.Core.Files.Providers.IFileStorageService"/>.</param>
-        </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Commands.StorageEntryMetadata.DeleteStorageEntryCommand.#ctor(Microsoft.Extensions.Logging.ILogger{MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Commands.StorageEntryMetadata.DeleteStorageEntryCommand},MelloSilveiraTools.Core.Validators.IValidator{MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Commands.StorageEntryMetadata.DeleteStorageEntryRequest},MelloSilveiraTools.Database.Repositories.IRepository,MelloSilveiraTools.Core.Providers.ServiceLocator)">
-            <summary>
-            Idempotently deletes a file from both <see cref="T:MelloSilveiraTools.Core.Files.Providers.IFileStorageService"/> and the database repository,
-            failing only if the target is missing in both locations or if deletion fails in either store.
-            </summary>
-            <param name="logger">Logger for deletion diagnostics.</param>
-            <param name="validator">Validator for delete requests.</param>
-            <param name="repository">Relational repository for metadata deletion.</param>
-            <param name="serviceLocator">Service locator used to resolve <see cref="T:MelloSilveiraTools.Core.Files.Providers.IFileStorageService"/>.</param>
-        </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Commands.StorageEntryMetadata.DeleteStorageEntryCommand.ExecuteCommandAsync(MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Commands.StorageEntryMetadata.DeleteStorageEntryRequest,System.Threading.CancellationToken)">
-            <inheritdoc/>
-        </member>
-        <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Commands.StorageEntryMetadata.DownloadStoredFileRequest">
-            <summary>
-            Request payload for downloading a stored file by its metadata entity ID.
-            </summary>
-        </member>
-        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Commands.StorageEntryMetadata.DownloadStoredFileRequest.FileId">
-            <summary>
-            Database ID of the stored file metadata record.
-            </summary>
-        </member>
-        <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Commands.StorageEntryMetadata.DownloadStoredFileResultData">
-            <summary>
-            Stream and metadata payload for an HTTP file download response.
-            </summary>
-        </member>
-        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Commands.StorageEntryMetadata.DownloadStoredFileResultData.FileStream">
-            <summary>
-            Readable stream of the physical file.
-            </summary>
-        </member>
-        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Commands.StorageEntryMetadata.DownloadStoredFileResultData.ContentType">
-            <summary>
-            MIME content type of the file.
-            </summary>
-        </member>
-        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Commands.StorageEntryMetadata.DownloadStoredFileResultData.FileName">
-            <summary>
-            Download file name including extension.
-            </summary>
-        </member>
-        <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Commands.StorageEntryMetadata.DownloadStoredFileCommand">
-            <summary>
-            Resolves and opens a readable stream for a stored file identified by its metadata entity ID.
-            </summary>
-            <param name="repository">Relational repository for metadata lookup.</param>
-            <param name="serviceLocator">Service locator used to resolve the keyed <see cref="T:MelloSilveiraTools.Core.Files.Providers.IFileStorageService"/>.</param>
-        </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Commands.StorageEntryMetadata.DownloadStoredFileCommand.#ctor(MelloSilveiraTools.Database.Repositories.IRepository,MelloSilveiraTools.Core.Providers.ServiceLocator)">
-            <summary>
-            Resolves and opens a readable stream for a stored file identified by its metadata entity ID.
-            </summary>
-            <param name="repository">Relational repository for metadata lookup.</param>
-            <param name="serviceLocator">Service locator used to resolve the keyed <see cref="T:MelloSilveiraTools.Core.Files.Providers.IFileStorageService"/>.</param>
-        </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Commands.StorageEntryMetadata.DownloadStoredFileCommand.ExecuteCommandAsync(MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Commands.StorageEntryMetadata.DownloadStoredFileRequest,System.Threading.CancellationToken)">
-            <inheritdoc/>
-        </member>
-        <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Commands.StorageEntryMetadata.ReadStorageEntriesRequest">
-            <summary>
-            Query parameters for reading and grouping stored file entries from both storage and database.
-            </summary>
-        </member>
-        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Commands.StorageEntryMetadata.ReadStorageEntriesRequest.ExternalIdentifier">
-            <summary>
-            Optional external correlation identifier filter.
-            </summary>
-        </member>
-        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Commands.StorageEntryMetadata.ReadStorageEntriesRequest.Context">
-            <summary>
-            Optional context partition filter.
-            </summary>
-        </member>
-        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Commands.StorageEntryMetadata.ReadStorageEntriesRequest.FileExtension">
-            <summary>
-            Optional file extension filter (e.g., <c>.csv</c>).
-            </summary>
-        </member>
-        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Commands.StorageEntryMetadata.ReadStorageEntriesRequest.StorageProvider">
-            <summary>
-            Optional storage provider filter.
-            </summary>
-        </member>
-        <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Commands.StorageEntryMetadata.StorageEntryItemDto">
-            <summary>
-            Individual stored file summary returned inside a grouped read response.
-            </summary>
-        </member>
-        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Commands.StorageEntryMetadata.StorageEntryItemDto.FileName">
-            <summary>
-            File name including extension.
-            </summary>
-        </member>
-        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Commands.StorageEntryMetadata.StorageEntryItemDto.SizeBytes">
-            <summary>
-            File size in bytes.
-            </summary>
-        </member>
-        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Commands.StorageEntryMetadata.StorageEntryItemDto.CreatedAt">
-            <summary>
-            UTC creation timestamp.
-            </summary>
-        </member>
-        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Commands.StorageEntryMetadata.StorageEntryItemDto.EntityId">
-            <summary>
-            Database entity ID when persisted in the repository; <c>null</c> if present only in storage.
-            </summary>
-        </member>
-        <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Commands.StorageEntryMetadata.StorageEntryGroupDto">
-            <summary>
-            Group of stored file entries keyed by identifier, context, and file extension.
-            </summary>
-        </member>
-        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Commands.StorageEntryMetadata.StorageEntryGroupDto.Identifier">
-            <summary>
-            Correlation identifier of the group.
-            </summary>
-        </member>
-        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Commands.StorageEntryMetadata.StorageEntryGroupDto.Context">
-            <summary>
-            Storage context partition of the group.
-            </summary>
-        </member>
-        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Commands.StorageEntryMetadata.StorageEntryGroupDto.FileExtension">
-            <summary>
-            File extension of the group (e.g., <c>.csv</c>).
-            </summary>
-        </member>
-        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Commands.StorageEntryMetadata.StorageEntryGroupDto.Items">
-            <summary>
-            Stored files belonging to this group.
-            </summary>
-        </member>
-        <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Commands.StorageEntryMetadata.ReadStorageEntriesGroupedCommand">
-            <summary>
-            Reads file metadata from both the database repository and <see cref="T:MelloSilveiraTools.Core.Files.Providers.IFileStorageService"/>,
-            grouping entries by identifier, context, and file extension.
-            </summary>
-            <param name="repository">Relational repository for persisted metadata.</param>
-            <param name="serviceLocator">Service locator used to resolve <see cref="T:MelloSilveiraTools.Core.Files.Providers.IFileStorageService"/>.</param>
-        </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Commands.StorageEntryMetadata.ReadStorageEntriesGroupedCommand.#ctor(MelloSilveiraTools.Database.Repositories.IRepository,MelloSilveiraTools.Core.Providers.ServiceLocator)">
-            <summary>
-            Reads file metadata from both the database repository and <see cref="T:MelloSilveiraTools.Core.Files.Providers.IFileStorageService"/>,
-            grouping entries by identifier, context, and file extension.
-            </summary>
-            <param name="repository">Relational repository for persisted metadata.</param>
-            <param name="serviceLocator">Service locator used to resolve <see cref="T:MelloSilveiraTools.Core.Files.Providers.IFileStorageService"/>.</param>
-        </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Commands.StorageEntryMetadata.ReadStorageEntriesGroupedCommand.ExecuteCommandAsync(MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Commands.StorageEntryMetadata.ReadStorageEntriesRequest,System.Threading.CancellationToken)">
-            <inheritdoc/>
-        </member>
-        <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Commands.StorageEntryMetadata.UpdateStorageEntryFileRequest">
-            <summary>
-            Request payload for overwriting the physical file of an existing storage entry.
-            </summary>
-        </member>
-        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Commands.StorageEntryMetadata.UpdateStorageEntryFileRequest.FileId">
-            <summary>
-            Identifier of the existing metadata record.
-            </summary>
-        </member>
-        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Commands.StorageEntryMetadata.UpdateStorageEntryFileRequest.File">
-            <summary>
-            Replacement file content.
-            </summary>
-        </member>
-        <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Commands.StorageEntryMetadata.UpdateStorageEntryFileValidator">
-            <summary>
-            Validates <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Commands.StorageEntryMetadata.UpdateStorageEntryFileRequest"/> payloads prior to overwriting a stored file.
-            </summary>
-        </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Commands.StorageEntryMetadata.UpdateStorageEntryFileValidator.Validate(MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Commands.StorageEntryMetadata.UpdateStorageEntryFileRequest)">
-            <inheritdoc/>
-        </member>
-        <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Commands.StorageEntryMetadata.UpdateStorageEntryFileCommand">
-            <summary>
-            Overwrites only the physical file in <see cref="T:MelloSilveiraTools.Core.Files.Providers.IFileStorageService"/>, deletes the old metadata record,
-            and inserts a new metadata record in the repository.
-            </summary>
-            <param name="logger">Logger for repository and storage diagnostics.</param>
-            <param name="validator">Validator for update requests.</param>
-            <param name="repository">Relational repository for metadata persistence.</param>
-            <param name="serviceLocator">Service locator used to resolve the target <see cref="T:MelloSilveiraTools.Core.Files.Providers.IFileStorageService"/>.</param>
-            <param name="timeProvider">Time provider for updated metadata timestamps.</param>
-        </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Commands.StorageEntryMetadata.UpdateStorageEntryFileCommand.#ctor(Microsoft.Extensions.Logging.ILogger{MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Commands.StorageEntryMetadata.UpdateStorageEntryFileCommand},MelloSilveiraTools.Core.Validators.IValidator{MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Commands.StorageEntryMetadata.UpdateStorageEntryFileRequest},MelloSilveiraTools.Database.Repositories.IRepository,MelloSilveiraTools.Core.Providers.ServiceLocator,System.TimeProvider)">
-            <summary>
-            Overwrites only the physical file in <see cref="T:MelloSilveiraTools.Core.Files.Providers.IFileStorageService"/>, deletes the old metadata record,
-            and inserts a new metadata record in the repository.
-            </summary>
-            <param name="logger">Logger for repository and storage diagnostics.</param>
-            <param name="validator">Validator for update requests.</param>
-            <param name="repository">Relational repository for metadata persistence.</param>
-            <param name="serviceLocator">Service locator used to resolve the target <see cref="T:MelloSilveiraTools.Core.Files.Providers.IFileStorageService"/>.</param>
-            <param name="timeProvider">Time provider for updated metadata timestamps.</param>
-        </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Commands.StorageEntryMetadata.UpdateStorageEntryFileCommand.ExecuteCommandAsync(MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Commands.StorageEntryMetadata.UpdateStorageEntryFileRequest,System.Threading.CancellationToken)">
-            <inheritdoc/>
-        </member>
         <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Controllers.PipelineProgressController">
             <summary>
             Exposes HTTP endpoints for streaming real-time pipeline execution progress notifications.
@@ -328,27 +32,27 @@
             and their underlying physical/cloud storage entries.
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Controllers.StorageEntryMetadataController.CreateAsync(MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Commands.StorageEntryMetadata.CreateStorageEntryCommand,MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Commands.StorageEntryMetadata.CreateStorageEntryRequest,System.Threading.CancellationToken)">
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Controllers.StorageEntryMetadataController.CreateAsync(MelloSilveiraTools.WebApi.Application.Commands.StorageEntryMetadata.Create.AddStorageEntryCommand,MelloSilveiraTools.WebApi.Application.Commands.StorageEntryMetadata.Create.AddStorageEntryRequest,System.Threading.CancellationToken)">
             <summary>
             Stores a file in the requested (or default) <see cref="T:MelloSilveiraTools.Core.Files.Providers.IFileStorageService"/> and persists its metadata.
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Controllers.StorageEntryMetadataController.ReadAsync(MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Commands.StorageEntryMetadata.ReadStorageEntriesGroupedCommand,MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Commands.StorageEntryMetadata.ReadStorageEntriesRequest,System.Threading.CancellationToken)">
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Controllers.StorageEntryMetadataController.ReadAsync(MelloSilveiraTools.WebApi.Application.Commands.StorageEntryMetadata.Read.ReadStorageEntriesCommand,MelloSilveiraTools.WebApi.Application.Commands.StorageEntryMetadata.Read.ReadStorageEntriesRequest,System.Threading.CancellationToken)">
             <summary>
             Reads stored file metadata from storage and database, grouped by identifier, context, and file extension.
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Controllers.StorageEntryMetadataController.UpdateAsync(MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Commands.StorageEntryMetadata.UpdateStorageEntryFileCommand,System.Int64,Microsoft.AspNetCore.Http.IFormFile,System.Threading.CancellationToken)">
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Controllers.StorageEntryMetadataController.UpdateAsync(MelloSilveiraTools.WebApi.Application.Commands.StorageEntryMetadata.Upload.UpdateStorageEntryFileCommand,System.Int64,Microsoft.AspNetCore.Http.IFormFile,System.Threading.CancellationToken)">
             <summary>
             Overwrites only the physical file for an existing entry, replacing the database metadata record.
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Controllers.StorageEntryMetadataController.DeleteAsync(MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Commands.StorageEntryMetadata.DeleteStorageEntryCommand,System.Nullable{System.Int64},System.String,System.Nullable{MelloSilveiraTools.Core.Files.Models.StorageProvider},System.Threading.CancellationToken)">
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Controllers.StorageEntryMetadataController.DeleteAsync(MelloSilveiraTools.WebApi.Application.Commands.StorageEntryMetadata.Delete.DeleteStorageEntryCommand,MelloSilveiraTools.WebApi.Application.Commands.StorageEntryMetadata.Delete.DeleteStorageEntryRequest,System.Threading.CancellationToken)">
             <summary>
             Idempotently deletes a file from storage and/or database, failing only if absent from both.
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Controllers.StorageEntryMetadataController.DownloadByIdAsync(MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Commands.StorageEntryMetadata.DownloadStoredFileCommand,System.Int64,System.Threading.CancellationToken)">
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Controllers.StorageEntryMetadataController.DownloadByIdAsync(MelloSilveiraTools.WebApi.Application.Commands.StorageEntryMetadata.Download.DownloadStoredFileCommand,System.Int64,System.Threading.CancellationToken)">
             <summary>
             Streams a stored file by its metadata entity ID.
             </summary>
