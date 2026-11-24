@@ -256,6 +256,30 @@
             <typeparam name="TResponseData">Type of the payload returned upon success.</typeparam>
             <param name="validator">Optional request validator.</param>
         </member>
+        <member name="T:MelloSilveiraTools.Core.Commands.ListedCommandBaseWithoutRequest`1">
+            <summary>
+            Business command that returns a list of items matching the query or filter criteria.
+            </summary>
+            <typeparam name="TResponseData">Type of each item returned in the list.</typeparam>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Commands.ListedCommandBaseWithoutRequest`1.#ctor">
+            <summary>
+            Business command that returns a list of items matching the query or filter criteria.
+            </summary>
+            <typeparam name="TResponseData">Type of each item returned in the list.</typeparam>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Commands.ListedCommandBaseWithoutRequest`1.ExecuteAsync(System.Threading.CancellationToken)">
+            <summary>
+            Executes the parameterless business operation.
+            </summary>
+            <returns>A structured business outcome containing output data.</returns>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Commands.ListedCommandBaseWithoutRequest`1.ExecuteCommandAsync(System.Threading.CancellationToken)">
+            <summary>
+            Executes the domain logic for this parameterless operation.
+            </summary>
+            <returns>The operation result.</returns>
+        </member>
         <member name="T:MelloSilveiraTools.Core.Commands.ListedCommandBase`2">
             <summary>
             Business command that returns a list of items matching the query or filter criteria.
@@ -2107,6 +2131,7 @@
         <member name="T:MelloSilveiraTools.Core.Files.Providers.Local.LocalFileStorageSettings">
             <summary>
             Configuration settings governing internal folder layouts and root storage locations for the local file storage service.
+            Supports leading <c>~</c> (expanded to the current user's profile directory) and environment variable placeholders.
             </summary>
         </member>
         <member name="P:MelloSilveiraTools.Core.Files.Providers.Local.LocalFileStorageSettings.BaseDirectory">
@@ -4516,6 +4541,13 @@
             <param name="key">The registration key.</param>
             <returns>The resolved instance cast to <typeparamref name="T"/>, or <see langword="null"/> when the service is not registered.</returns>
         </member>
+        <member name="M:MelloSilveiraTools.Core.Providers.Dynamics.IDynamicServiceProvider.GetAllServices``1">
+            <summary>
+            Resolves all registered instances (both unkeyed and keyed) assignable to <typeparamref name="T"/>.
+            </summary>
+            <typeparam name="T">The service type to resolve.</typeparam>
+            <returns>All matching registered instances.</returns>
+        </member>
         <member name="T:MelloSilveiraTools.Core.Providers.Dynamics.InMemoryDynamicServiceProvider">
             <summary>
             Thread-safe implementation of <see cref="T:MelloSilveiraTools.Core.Providers.Dynamics.IDynamicServiceProvider"/> using
@@ -4543,6 +4575,9 @@
             <inheritdoc/>
         </member>
         <member name="M:MelloSilveiraTools.Core.Providers.Dynamics.InMemoryDynamicServiceProvider.GetKeyedService``1(System.Object)">
+            <inheritdoc/>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Providers.Dynamics.InMemoryDynamicServiceProvider.GetAllServices``1">
             <inheritdoc/>
         </member>
         <member name="T:MelloSilveiraTools.Core.Providers.ServiceLocator">
@@ -4596,6 +4631,14 @@
             Resolves an optional service. Looks up the dynamic provider first; falls back to the static
             provider. Returns <see langword="null"/> when neither has the type.
             </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Providers.ServiceLocator.GetServices``1">
+            <summary>
+            Resolves all registered instances of <typeparamref name="T"/> across the dynamic provider,
+            static unkeyed registrations, and static keyed registrations.
+            </summary>
+            <typeparam name="T">The service type to resolve.</typeparam>
+            <returns>All unique registered instances of <typeparamref name="T"/>.</returns>
         </member>
         <member name="T:MelloSilveiraTools.Core.ResiliencePipelines.AwsS3ResiliencePipeline">
             <summary>

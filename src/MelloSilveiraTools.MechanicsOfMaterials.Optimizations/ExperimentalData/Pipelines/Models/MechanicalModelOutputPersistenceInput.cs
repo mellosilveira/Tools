@@ -1,4 +1,5 @@
 using MelloSilveiraTools.Core.Files.Models;
+using MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels;
 
 namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Pipelines.Models;
 

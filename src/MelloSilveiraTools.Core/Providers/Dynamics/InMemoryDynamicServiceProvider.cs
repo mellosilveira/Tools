@@ -31,4 +31,12 @@ public class InMemoryDynamicServiceProvider(IServiceProvider serviceProvider) : 
 
     /// <inheritdoc/>
     public T? GetKeyedService<T>(object key) where T : class => _keyedInstances.TryGetValue(key, out object? instance) ? (T)instance : null;
+
+    /// <inheritdoc/>
+    public IEnumerable<T> GetAllServices<T>() where T : class => _serviceInstances
+        .Where(pair => typeof(T).IsAssignableFrom(pair.Key))
+        .Select(pair => pair.Value.Value)
+        .OfType<T>()
+        .Concat(_keyedInstances.Values.OfType<T>())
+        .Distinct();
 }

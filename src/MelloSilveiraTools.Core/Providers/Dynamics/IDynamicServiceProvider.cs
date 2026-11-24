@@ -45,4 +45,11 @@ public interface IDynamicServiceProvider
     /// <param name="key">The registration key.</param>
     /// <returns>The resolved instance cast to <typeparamref name="T"/>, or <see langword="null"/> when the service is not registered.</returns>
     T? GetKeyedService<T>(object key) where T : class;
+
+    /// <summary>
+    /// Resolves all registered instances (both unkeyed and keyed) assignable to <typeparamref name="T"/>.
+    /// </summary>
+    /// <typeparam name="T">The service type to resolve.</typeparam>
+    /// <returns>All matching registered instances.</returns>
+    IEnumerable<T> GetAllServices<T>() where T : class;
 }

@@ -50,4 +50,15 @@ public class ServiceLocator(
     /// provider. Returns <see langword="null"/> when neither has the type.
     /// </summary>
     public T? GetKeyedService<T>(object key) where T : class => dynamicServiceProvider.GetKeyedService<T>(key) ?? serviceProvider.GetKeyedService<T>(key);
+
+    /// <summary>
+    /// Resolves all registered instances of <typeparamref name="T"/> across the dynamic provider,
+    /// static unkeyed registrations, and static keyed registrations.
+    /// </summary>
+    /// <typeparam name="T">The service type to resolve.</typeparam>
+    /// <returns>All unique registered instances of <typeparamref name="T"/>.</returns>
+    public IEnumerable<T> GetServices<T>() where T : class => dynamicServiceProvider
+        .GetAllServices<T>()
+        .Concat(serviceProvider.GetServices<T>())
+        .Concat(serviceProvider.GetKeyedServices<T>(KeyedService.AnyKey)).Distinct();
 }

@@ -58,6 +58,25 @@ public abstract class CommandBaseWithData<TRequest, TResponseData>(IValidator<TR
 /// <summary>
 /// Business command that returns a list of items matching the query or filter criteria.
 /// </summary>
+/// <typeparam name="TResponseData">Type of each item returned in the list.</typeparam>
+public abstract class ListedCommandBaseWithoutRequest<TResponseData>() where TResponseData : class
+{
+    /// <summary>
+    /// Executes the parameterless business operation.
+    /// </summary>
+    /// <returns>A structured business outcome containing output data.</returns>
+    public async Task<ListedResult<TResponseData>> ExecuteAsync(CancellationToken cancellationToken = default) => await ExecuteCommandAsync(cancellationToken).ConfigureAwait(false);
+
+    /// <summary>
+    /// Executes the domain logic for this parameterless operation.
+    /// </summary>
+    /// <returns>The operation result.</returns>
+    protected abstract Task<ListedResult<TResponseData>> ExecuteCommandAsync(CancellationToken cancellationToken = default);
+}
+
+/// <summary>
+/// Business command that returns a list of items matching the query or filter criteria.
+/// </summary>
 /// <typeparam name="TRequest">Filter or query parameter type.</typeparam>
 /// <typeparam name="TResponseData">Type of each item returned in the list.</typeparam>
 /// <param name="validator">Optional request validator.</param>

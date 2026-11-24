@@ -13,7 +13,6 @@ using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Models;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Pipelines.Models;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExtensionMethods;
 using System.Collections.Concurrent;
-using System.Reflection;
 
 namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Pipelines.Steps;
 
@@ -113,36 +112,10 @@ public sealed class MechanicalModelSimulationStep(
         }
 
         initialOutput ??= lastOutput;
-        SimulationDeltaOutput simulationDeltaOutput = CalculateDelta(initialOutput, lastOutput);
+        SimulationDeltaOutput simulationDeltaOutput = SimulationDeltaOutput.Calculate(mechanicalModelTypeResolver, initialOutput, lastOutput);
         StorageEntryMetadata outputFileMetadata = await fileStorageService.GetMetadataAsync(location, cancellationToken).ConfigureAwait(false);
 
         return (asymptoteTime, simulationDeltaOutput, outputFileMetadata);
-    }
-
-    private SimulationDeltaOutput CalculateDelta(MechanicalModelOutput initialOutput, MechanicalModelOutput lastOutput)
-    {
-        MechanicalModelOutput absoluteDelta = (MechanicalModelOutput)Activator.CreateInstance(mechanicalModelTypeResolver.Output)!;
-        MechanicalModelOutput percentageDelta = (MechanicalModelOutput)Activator.CreateInstance(mechanicalModelTypeResolver.Output)!;
-
-        foreach (PropertyInfo property in mechanicalModelTypeResolver.Output.GetPropertiesInHierarchy())
-        {
-            if (!property.CanWrite)
-                continue;
-
-            double? initialValue = (double?)property.GetValue(initialOutput);
-            double? lastValue = (double?)property.GetValue(lastOutput);
-
-            if (initialValue.HasValue && lastValue.HasValue)
-            {
-                double absoluteDeltaValue = lastValue.Value - initialValue.Value;
-                property.SetValue(absoluteDelta, absoluteDeltaValue);
-
-                double percentage = initialValue.Value != 0.0 ? 100 * absoluteDeltaValue / initialValue.Value : 0.0;
-                property.SetValue(percentageDelta, percentage);
-            }
-        }
-
-        return new SimulationDeltaOutput(initialOutput, lastOutput, absoluteDelta, percentageDelta);
     }
 
     private bool HasReachedAsymptote(MechanicalModelOutput lastOutput, MechanicalModelOutput output, ref int asymptoteCount)

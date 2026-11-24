@@ -1,37 +1,62 @@
+using MelloSilveiraTools.Core.Caching;
 using MelloSilveiraTools.Core.Files.Models;
 using MelloSilveiraTools.Core.Files.Providers;
 using MelloSilveiraTools.Core.Models;
 using MelloSilveiraTools.Core.Pipelines.Models;
+using MelloSilveiraTools.Core.Providers;
+using MelloSilveiraTools.Core.Providers.Dynamics;
 using MelloSilveiraTools.Core.Services.Encryption;
 using MelloSilveiraTools.Database.RelationalDatabase.Models.Entities;
 using MelloSilveiraTools.Database.RelationalDatabase.Models.Filters;
 using MelloSilveiraTools.Database.Repositories;
+using MelloSilveiraTools.Mathematics;
+using MelloSilveiraTools.MechanicsOfMaterials;
+using MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.TypeResolvers;
+using MelloSilveiraTools.MechanicsOfMaterials.Commands.MechanicalModels.Get;
+using MelloSilveiraTools.MechanicsOfMaterials.Commands.SpecimenAnalysis;
+using MelloSilveiraTools.MechanicsOfMaterials.Controllers;
+using MelloSilveiraTools.MechanicsOfMaterials.Endpoints;
+using MelloSilveiraTools.MechanicsOfMaterials.Models;
+using MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels;
+using MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Elasticity;
+using MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Models;
+using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Endpoints;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Commands.Process;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Commands.Upload;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Controllers;
+using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Endpoints;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Pipelines.Entities;
+using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.ParametricSweep.Endpoints;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.ParametricSweep.Pipelines.Entities;
+using MelloSilveiraTools.Plugins.Application.Endpoints;
 using MelloSilveiraTools.WebApi.Application.Commands.Users.Login;
 using MelloSilveiraTools.WebApi.Application.Commands.Users.RefreshToken;
 using MelloSilveiraTools.WebApi.Application.Commands.Users.Register;
 using MelloSilveiraTools.WebApi.Application.Commands.Users.ValidateToken;
 using MelloSilveiraTools.WebApi.Application.Controllers;
+using MelloSilveiraTools.WebApi.Application.Endpoints;
 using MelloSilveiraTools.WebApi.Authentication;
 using MelloSilveiraTools.WebApi.Authentication.Services;
 using MelloSilveiraTools.WebApi.Host.Commands;
 using MelloSilveiraTools.WebApi.Host.Controllers;
+using MelloSilveiraTools.WebApi.Host.Endpoints;
 using MelloSilveiraTools.WebUi.Models;
 using MelloSilveiraTools.WebUi.Services;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Routing;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using Moq;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using HostSettings = MelloSilveiraTools.WebApi.Host.Settings;
 
 namespace UnitTests.WebApi.Host;
 
@@ -456,5 +481,242 @@ public class WebApiHostAndQuickstartTests
         Assert.Single(sweepPoints);
         Assert.Equal(0.03, sweepPoints[0].VariableValue, precision: 6);
         Assert.Equal(-27.27, sweepPoints[0].PercentageDeltaStress, precision: 6);
+    }
+
+    [Theory]
+    [InlineData("appsettings.json")]
+    [InlineData("appsettings.Docker.json")]
+    public void WebApiHost_Settings_BindsCompletelyFromAppSettingsAndSecrets(string appSettingsFileName)
+    {
+        string hostDir = Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", "..", "src", "MelloSilveiraTools.WebApi.Host"));
+        string appSettingsPath = Path.Combine(hostDir, appSettingsFileName);
+        string secretsExamplePath = Path.Combine(hostDir, "secrets.example.json");
+
+        IConfigurationRoot configuration = new ConfigurationBuilder()
+            .AddJsonFile(appSettingsPath, optional: false)
+            .AddJsonFile(secretsExamplePath, optional: false)
+            .Build();
+
+        HostSettings? settings = configuration.Get<HostSettings>();
+        Assert.NotNull(settings);
+        settings.Validate();
+
+        Assert.True(settings.AddMechanicalModels);
+        Assert.Equal(3, settings.DefaultResiliencePipeline.MaxRetryAttempts);
+        Assert.Equal(100_000, settings.Encryption.Iterations);
+        Assert.Equal(StorageProvider.Local, settings.FileStorage.DefaultStorageProvider);
+        if (appSettingsFileName == "appsettings.json")
+            Assert.StartsWith(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), settings.FileStorage.Local!.BaseDirectory, StringComparison.OrdinalIgnoreCase);
+        Assert.Equal(CurveFitterType.Alglib, settings.CurveFitter.DefaultCurveFitter);
+        Assert.Equal(256, settings.ExperimentalData.IngestionBufferCapacity);
+        Assert.Equal(256, settings.ExperimentalData.SegmenterOptions.MaxBufferSize);
+        Assert.Equal(52_428_800L, settings.ExperimentalData.MaxCsvSizeBytes);
+        Assert.Equal(256, settings.ParametricSweep.IngestionBufferCapacity);
+        Assert.Equal(512, settings.PipelineProgressNotifier.ChannelCapacity);
+        Assert.Equal("MelloSilveiraTools.WebApi.Host", settings.Jwt.Issuer);
+        Assert.Equal("plugins", settings.Plugins.Directory);
+    }
+
+    [Fact]
+    public void WebApiHost_Settings_Validate_ThrowsWhenSecretsAreMissing()
+    {
+        string hostDir = Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", "..", "src", "MelloSilveiraTools.WebApi.Host"));
+        IConfigurationRoot configuration = new ConfigurationBuilder()
+            .AddJsonFile(Path.Combine(hostDir, "appsettings.json"), optional: false)
+            .Build();
+
+        HostSettings? settings = configuration.Get<HostSettings>();
+        Assert.NotNull(settings);
+        Assert.Throws<InvalidOperationException>(() => settings.Validate());
+    }
+
+    [Fact]
+    public async Task MechanicsOfMaterialsController_GetModels_ResolvesStaticAndDynamicResolversWithJsonSchemas()
+    {
+        ServiceCollection services = new();
+        services.AddSingleton<IDynamicServiceProvider, InMemoryDynamicServiceProvider>();
+        services.AddSingleton<ServiceLocator>();
+        services.AddMechanicsOfMaterialsServices();
+
+        using ServiceProvider provider = services.BuildServiceProvider();
+        IDynamicServiceProvider dynamicProvider = provider.GetRequiredService<IDynamicServiceProvider>();
+        Mock<IMechanicalModelTypeResolver> pluginResolver = new();
+        pluginResolver.SetupGet(r => r.MechanicalModelName).Returns("CustomPluginModel");
+        pluginResolver.SetupGet(r => r.Calculator).Returns(typeof(ElasticModelTypeResolver));
+        pluginResolver.SetupGet(r => r.ConstitutiveParameters).Returns(typeof(ElasticConstitutiveParameters));
+        pluginResolver.SetupGet(r => r.Output).Returns(typeof(ElasticModelOutput));
+        dynamicProvider.AddKeyed("CustomPluginModel", pluginResolver.Object);
+
+        GetMechanicalModelsCommand command = provider.GetRequiredService<GetMechanicalModelsCommand>();
+        MechanicsOfMaterialsController controller = new();
+
+        JsonResult modelsResult = Assert.IsType<JsonResult>(await controller.GetModelsAsync(command));
+        Assert.Equal(StatusCodes.Status200OK, modelsResult.StatusCode);
+
+        ListedResult<MechanicalModelMetadata> payload =
+            Assert.IsType<ListedResult<MechanicalModelMetadata>>(modelsResult.Value);
+        Assert.True(payload.Success);
+        Assert.NotNull(payload.Data);
+        Assert.Equal(7, payload.Data.Count());
+
+        Assert.Contains(payload.Data, m => m.MechanicalModelName == nameof(MechanicalModel.Fung) && m.CalculatorTypeName == "IFungModelCalculator");
+        Assert.Contains(payload.Data, m => m.MechanicalModelName == "CustomPluginModel");
+
+        foreach (MechanicalModelMetadata model in payload.Data)
+        {
+            Assert.False(string.IsNullOrWhiteSpace(model.MechanicalModelName));
+            Assert.False(string.IsNullOrWhiteSpace(model.CalculatorTypeName));
+            Assert.NotNull(model.ConstitutiveParameters);
+            Assert.NotNull(model.Output);
+            Assert.Contains("properties", model.ConstitutiveParameters.ToJsonString());
+            Assert.Contains("properties", model.Output.ToJsonString());
+        }
+    }
+
+    [Fact]
+    public void MinimalApiEndpoints_RegisterAllSuiteRoutes()
+    {
+        WebApplicationBuilder builder = WebApplication.CreateBuilder();
+        using WebApplication app = builder.Build();
+
+        app.MapAuthEndpoints();
+        app.MapStorageEntryMetadataEndpoints();
+        app.MapSamplesEndpoints();
+        app.MapExperimentalDataEndpoints();
+        app.MapParametricSweepEndpoints();
+        app.MapPipelineProgressEndpoints();
+        app.MapPluginEndpoints("/api/v1/plugins");
+        app.MapMechanicsOfMaterialsEndpoints();
+
+        List<string> routes = ((IEndpointRouteBuilder)app).DataSources
+            .SelectMany(dataSource => dataSource.Endpoints)
+            .OfType<RouteEndpoint>()
+            .Select(endpoint => endpoint.RoutePattern.RawText ?? string.Empty)
+            .ToList();
+
+        Assert.Contains("/api/v1/auth/register", routes);
+        Assert.Contains("/api/v1/auth/login", routes);
+        Assert.Contains("/api/v1/auth/refresh", routes);
+        Assert.Contains("/api/v1/auth/validate", routes);
+        Assert.Contains("/api/v1/storage-entry-metadata/{fileId:long}/download", routes);
+        Assert.Contains("/api/v1/samples/", routes);
+        Assert.Contains("/api/v1/experimental-data/upload", routes);
+        Assert.Contains("/api/v1/experimental-data/process", routes);
+        Assert.Contains("/api/v1/experimental-data/process/batch", routes);
+        Assert.Contains("/api/v1/parametric-sweeps/process", routes);
+        Assert.Contains("/api/v1/parametric-sweeps/process/experimental-data", routes);
+        Assert.Contains("/api/v1/pipelines/{pipelineId}/progress", routes);
+        Assert.Contains("/api/v1/plugins/upload", routes);
+        Assert.Contains("/api/v1/mechanics/models", routes);
+        Assert.Contains("/api/v1/mechanics/specimen-analysis/execute", routes);
+        Assert.Contains("/api/v1/mechanics/fatigue/calculate", routes);
+        Assert.Contains("/api/v1/mechanics/fatigue/calculate/endurance-limit", routes);
+    }
+
+    [Fact]
+    public async Task ExecuteSpecimenAnalysisCommand_WithElasticModel_StreamsCsvAndDeletesFileAfterDownload()
+    {
+        MemoryStream captureStream = new();
+        Mock<IFileStorageService> storageMock = new();
+        storageMock
+            .Setup(s => s.CreateWriteTimebasedAsync(
+                It.IsAny<string>(),
+                nameof(MechanicalModel.Elastic),
+                nameof(RampTimeConsideration.Disregard),
+                FileExtensions.CommaSeparatedValues,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(() => ((Stream)captureStream, "/storage/spec-1/Elastic/Disregard.csv"));
+        storageMock
+            .Setup(s => s.OpenReadAsync("/storage/spec-1/Elastic/Disregard.csv", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(() => new MemoryStream(captureStream.ToArray()));
+        storageMock
+            .Setup(s => s.DeleteAsync("/storage/spec-1/Elastic/Disregard.csv", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(true);
+
+        ServiceCollection services = new();
+        services.AddLogging();
+        services.AddSingleton<ISingleLevelCache, InMemorySingleLevelCache>();
+        services.AddSingleton<IDynamicServiceProvider, InMemoryDynamicServiceProvider>();
+        services.AddSingleton<ServiceLocator>();
+        services.AddSingleton(storageMock.Object);
+        services.AddMathematicsServices();
+        services.AddMechanicsOfMaterialsServices(addMechanicalModels: true);
+
+        using ServiceProvider provider = services.BuildServiceProvider();
+        ExecuteSpecimenAnalysisCommand command = provider.GetRequiredService<ExecuteSpecimenAnalysisCommand>();
+        MechanicsOfMaterialsController controller = new();
+
+        using JsonDocument constitutiveJson = JsonDocument.Parse("""{"youngModulus": 100.0}""");
+        ExecuteSpecimenAnalysisRequest request = new()
+        {
+            MechanicalModelName = nameof(MechanicalModel.Elastic),
+            AnalysisIdentifier = "spec-1",
+            AnalysisParameter = new AnalysisParameter
+            {
+                InitialDependentMechanicalParameterValue = 0.0,
+                IndependentMechanicalParameter = new MechanicalParameter(0.05)
+            },
+            LoadResponseRelationship = LoadResponseRelationship.StressStrain,
+            ViscoelasticEffect = ViscoelasticEffect.Relaxation,
+            RampTimeConsideration = RampTimeConsideration.Disregard,
+            InitialTime = 0.0,
+            TimeStep = 0.5,
+            FinalTime = 1.0,
+            ConstitutiveParameters = constitutiveJson.RootElement.Clone()
+        };
+
+        FileStreamResult fileResult = Assert.IsType<FileStreamResult>(await controller.ExecuteSpecimenAnalysisAsync(command, request));
+        Assert.Equal("text/csv", fileResult.ContentType);
+        Assert.Equal("Disregard.csv", fileResult.FileDownloadName);
+
+        using (StreamReader reader = new(fileResult.FileStream, Encoding.UTF8, leaveOpen: true))
+        {
+            string csvText = await reader.ReadToEndAsync();
+            Assert.Contains("Time", csvText);
+            Assert.True(csvText.Split('\n', StringSplitOptions.RemoveEmptyEntries).Length >= 4);
+        }
+
+        storageMock.Verify(s => s.DeleteAsync("/storage/spec-1/Elastic/Disregard.csv", It.IsAny<CancellationToken>()), Times.Never);
+
+        await fileResult.FileStream.DisposeAsync();
+
+        storageMock.Verify(s => s.DeleteAsync("/storage/spec-1/Elastic/Disregard.csv", It.IsAny<CancellationToken>()), Times.Once);
+    }
+
+    [Fact]
+    public async Task ExecuteSpecimenAnalysisCommand_WithUnknownModel_ReturnsNotFound()
+    {
+        ServiceCollection services = new();
+        services.AddLogging();
+        services.AddSingleton<ISingleLevelCache, InMemorySingleLevelCache>();
+        services.AddSingleton<IDynamicServiceProvider, InMemoryDynamicServiceProvider>();
+        services.AddSingleton<ServiceLocator>();
+        services.AddSingleton(Mock.Of<IFileStorageService>());
+        services.AddMathematicsServices();
+        services.AddMechanicsOfMaterialsServices(addMechanicalModels: true);
+
+        using ServiceProvider provider = services.BuildServiceProvider();
+        ExecuteSpecimenAnalysisCommand command = provider.GetRequiredService<ExecuteSpecimenAnalysisCommand>();
+
+        using JsonDocument constitutiveJson = JsonDocument.Parse("""{"youngModulus": 100.0}""");
+        ExecuteSpecimenAnalysisRequest request = new()
+        {
+            MechanicalModelName = "NonExistentModel",
+            AnalysisParameter = new AnalysisParameter
+            {
+                InitialDependentMechanicalParameterValue = 0.0,
+                IndependentMechanicalParameter = new MechanicalParameter(0.05)
+            },
+            LoadResponseRelationship = LoadResponseRelationship.StressStrain,
+            ViscoelasticEffect = ViscoelasticEffect.Relaxation,
+            RampTimeConsideration = RampTimeConsideration.Disregard,
+            TimeStep = 0.5,
+            FinalTime = 1.0,
+            ConstitutiveParameters = constitutiveJson.RootElement.Clone()
+        };
+
+        Result<ExecuteSpecimenAnalysisResultData> result = await command.ExecuteAsync(request);
+        Assert.False(result.Success);
+        Assert.Equal(MelloSilveiraTools.Core.Models.StatusCode.NotFound, result.StatusCode);
     }
 }

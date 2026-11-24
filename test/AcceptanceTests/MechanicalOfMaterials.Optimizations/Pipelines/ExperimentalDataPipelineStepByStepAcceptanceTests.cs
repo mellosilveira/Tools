@@ -13,6 +13,7 @@ using MelloSilveiraTools.Mathematics;
 using MelloSilveiraTools.MechanicsOfMaterials;
 using MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels;
 using MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.TypeResolvers;
+using MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels;
 using MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.NonLinear.Schapery;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Models;
