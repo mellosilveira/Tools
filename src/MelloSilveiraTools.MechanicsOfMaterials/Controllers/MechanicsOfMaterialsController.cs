@@ -48,12 +48,7 @@ public class MechanicsOfMaterialsController : ControllerBase
         [FromServices] ExecuteSpecimenAnalysisCommand command,
         [FromBody] ExecuteSpecimenAnalysisRequest request,
         CancellationToken cancellationToken = default)
-    {
-        Result<ExecuteSpecimenAnalysisResultData> result = await command.ExecuteAsync(request, cancellationToken).ConfigureAwait(false);
-        return result.Success
-            ? File(result.Data!.FileStream, result.Data.ContentType, result.Data.FileName)
-            : result.BuildHttpResponse();
-    }
+        => await command.ExecuteAsync(request, cancellationToken).BuildHttpResponseAsync().ConfigureAwait(false);
 
     /// <summary>
     /// Runs a complete high-cycle Goodman/Marin fatigue analysis.

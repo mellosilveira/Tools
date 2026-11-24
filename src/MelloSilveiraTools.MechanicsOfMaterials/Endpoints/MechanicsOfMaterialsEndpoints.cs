@@ -41,13 +41,10 @@ public static class MechanicsOfMaterialsEndpoints
             .WithSummary("Lists every registered mechanical model resolver with its calculator type and JSON structures for constitutive parameters and output.");
 
         group
-            .MapPost("/specimen-analysis/execute", async (HttpContext httpContext, [FromServices] ExecuteSpecimenAnalysisCommand command, [FromBody] ExecuteSpecimenAnalysisRequest request) =>
-            {
-                Result<ExecuteSpecimenAnalysisResultData> result = await command.ExecuteAsync(request, httpContext.RequestAborted).ConfigureAwait(false);
-                return result.Success
-                    ? Results.File(result.Data!.FileStream, result.Data.ContentType, result.Data.FileName)
-                    : result.ToHttpResult();
-            })
+            .MapPost("/specimen-analysis/execute", async (HttpContext httpContext, [FromServices] ExecuteSpecimenAnalysisCommand command, [FromBody] ExecuteSpecimenAnalysisRequest request) => await command
+                .ExecuteAsync(request, httpContext.RequestAborted)
+                .ToHttpResultAsync()
+                .ConfigureAwait(false))
             .Produces(StatusCodes.Status200OK, contentType: "text/csv")
             .Produces<Result>(StatusCodes.Status400BadRequest)
             .Produces<Result>(StatusCodes.Status404NotFound)

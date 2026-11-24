@@ -1,8 +1,11 @@
 using MelloSilveiraTools.Core.Commands;
+using MelloSilveiraTools.Core.Files.Models;
 using MelloSilveiraTools.Core.Files.Providers;
 using MelloSilveiraTools.Core.Models;
 using MelloSilveiraTools.Core.Providers;
 using MelloSilveiraTools.Core.Validators;
+using MelloSilveiraTools.Database.RelationalDatabase.Models.Entities;
+using MelloSilveiraTools.Database.Repositories;
 using MelloSilveiraTools.Mathematics.Converters;
 using MelloSilveiraTools.Mathematics.Models;
 using MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels;
@@ -25,12 +28,14 @@ namespace MelloSilveiraTools.MechanicsOfMaterials.Commands.SpecimenAnalysis;
 /// <param name="validator">Validator enforcing request invariants prior to numerical integration.</param>
 /// <param name="calculatorFactory">Factory that constructs the compiled <see cref="IMechanicalModelCalculatorFacade"/> for the resolved model.</param>
 /// <param name="fileStorageService">Default file storage service used to persist generated CSV outputs.</param>
+/// <param name="repository">Repository for managing storage entry metadata.</param>
 /// <param name="serviceLocator">Service locator used to resolve the keyed <see cref="IMechanicalModelTypeResolver"/> and <see cref="IFileStorageService"/>.</param>
 public sealed class ExecuteSpecimenAnalysisCommand(
     ILogger<ExecuteSpecimenAnalysisCommand> logger,
     IValidator<ExecuteSpecimenAnalysisRequest> validator,
     IMechanicalModelCalculatorFactory calculatorFactory,
     IFileStorageService fileStorageService,
+    IRepository repository,
     ServiceLocator serviceLocator)
     : CommandBaseWithData<ExecuteSpecimenAnalysisRequest, ExecuteSpecimenAnalysisResultData>(validator)
 {
@@ -59,49 +64,32 @@ public sealed class ExecuteSpecimenAnalysisCommand(
         double? asymptoteTime = null;
         int asymptoteCount = 0;
 
-        try
+        await using (fileWriter)
         {
-            await using (fileWriter)
+            lastOutput = initialOutput = calculatorFacade.Calculate(initialTime);
+            await fileWriter.WriteLineAsync(initialOutput).ConfigureAwait(false);
+
+            int totalSteps = (int)Math.Round((request.FinalTime - initialTime) / request.TimeStep);
+            for (int i = 1; i <= totalSteps; i++)
             {
-                lastOutput = initialOutput = calculatorFacade.Calculate(initialTime);
-                await fileWriter.WriteLineAsync(initialOutput).ConfigureAwait(false);
+                cancellationToken.ThrowIfCancellationRequested();
 
-                int totalSteps = (int)Math.Round((request.FinalTime - initialTime) / request.TimeStep);
-                for (int i = 1; i <= totalSteps; i++)
-                {
-                    cancellationToken.ThrowIfCancellationRequested();
+                double time = initialTime + i * request.TimeStep;
+                MechanicalModelOutput output = calculatorFacade.Calculate(time);
 
-                    double time = initialTime + i * request.TimeStep;
-                    MechanicalModelOutput output = calculatorFacade.Calculate(time);
+                if (HasReachedAsymptote(lastOutput, output, request.AsymptoticConvergenceThreshold, ref asymptoteCount))
+                    asymptoteTime ??= time;
 
-                    if (HasReachedAsymptote(lastOutput, output, request.AsymptoticConvergenceThreshold, ref asymptoteCount))
-                        asymptoteTime ??= time;
-
-                    await fileWriter.WriteLineAsync(output).ConfigureAwait(false);
-                    lastOutput = output;
-                }
+                await fileWriter.WriteLineAsync(output).ConfigureAwait(false);
+                lastOutput = output;
             }
-
-            Stream rawStream = await fileStorageService.OpenReadAsync(location, cancellationToken).ConfigureAwait(false);
-            Stream downloadableStream = new DeleteOnDisposeStream(logger, fileStorageService, rawStream, location);
-            SimulationDeltaOutput deltaOutput = SimulationDeltaOutput.Calculate(typeResolver, initialOutput, lastOutput);
-            return new ExecuteSpecimenAnalysisResultData(deltaOutput, asymptoteTime, downloadableStream, Path.GetFileName(location), "text/csv");
         }
-        catch (Exception ex)
-        {
-            logger.LogError(ex, "An error occurred while executing specimen analysis for model '{MechanicalModelName}' with identifier '{Identifier}'. {@Request}", request.MechanicalModelName, identifier, request);
 
-            try
-            {
-                await fileStorageService.DeleteAsync(location, CancellationToken.None).ConfigureAwait(false);
-            }
-            catch (Exception cleanupEx)
-            {
-                logger.LogWarning(cleanupEx, "Failed to clean up temporary specimen analysis file at '{Location}' after execution error.", location);
-            }
+        StorageEntryMetadata outputFileMetadata = await fileStorageService.GetMetadataAsync(location, cancellationToken).ConfigureAwait(false);
+        long outputMetadataEntityId = await repository.InsertAsync(StorageEntryMetadataEntity.Create(outputFileMetadata, identifier), cancellationToken).ConfigureAwait(false);
 
-            throw;
-        }
+        SimulationDeltaOutput deltaOutput = SimulationDeltaOutput.Calculate(typeResolver, initialOutput, lastOutput);
+        return new ExecuteSpecimenAnalysisResultData(deltaOutput, asymptoteTime, outputMetadataEntityId);
     }
 
     private static GenericMechanicalModelInput BuildInput(ExecuteSpecimenAnalysisRequest request, string identifier, ConstitutiveParameters constitutiveParameters)

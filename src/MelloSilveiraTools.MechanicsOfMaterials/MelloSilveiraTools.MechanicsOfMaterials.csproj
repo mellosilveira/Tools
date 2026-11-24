@@ -14,6 +14,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
+	  <ProjectReference Include="..\MelloSilveiraTools.Database\MelloSilveiraTools.Database.csproj" />
 	  <ProjectReference Include="..\MelloSilveiraTools.Mathematics\MelloSilveiraTools.Mathematics.csproj" />
 	</ItemGroup>
 
