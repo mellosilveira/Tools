@@ -112,9 +112,9 @@ public class PostgresSqlProvider : ISqlProvider
 
     private static EntityMetadata BuildMetadata([DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicProperties)] Type type)
     {
-        TableAttribute tableAttr = type.GetCustomAttribute<TableAttribute>() ?? throw new InvalidOperationException($"O tipo {type.Name} não possui TableAttribute.");
+        TableAttribute tableAttr = type.GetCustomAttribute<TableAttribute>() ?? throw new InvalidOperationException($"Type {type.Name} does not have TableAttribute.");
         PropertyInfo[] props = type.GetPropertiesInHierarchy<ColumnAttribute>();
-        PropertyInfo pk = props.FirstOrDefault(p => p.GetCustomAttribute<PrimaryKeyColumnAttribute>() != null) ?? throw new InvalidOperationException($"O tipo {type.Name} não possui uma PrimaryKey definida.");
+        PropertyInfo pk = props.FirstOrDefault(p => p.GetCustomAttribute<PrimaryKeyColumnAttribute>() != null) ?? throw new InvalidOperationException($"Type {type.Name} does not have a PrimaryKey defined.");
 
         List<(PropertyInfo Prop, string ColName)> allColumns = [.. props.Select(p => (p, p.Name.ToSnakeCase()))];
         List<(PropertyInfo Prop, string ColName)> insertColumns =
@@ -152,7 +152,7 @@ public class PostgresSqlProvider : ISqlProvider
         EntityMetadata meta = GetMetadata(type);
         string cols = string.Join(", ", meta.InsertColumns.Select(c => c.ColName));
 
-        // Os sufixos devem ser 1-based (_1, _2, ...) para coincidir com BuildParametersFromCollection.
+        // Suffixes must be 1-based (_1, _2, ...) to match BuildParametersFromCollection.
         StringBuilder valueLines = new();
         for (int i = 0; i < batchSize; i++)
         {

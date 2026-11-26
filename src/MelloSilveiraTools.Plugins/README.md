@@ -23,7 +23,8 @@ Dynamic, storage-agnostic plugin engine for .NET 10, featuring collectible assem
     - `quarantine/`: Invalid binaries (failed naming pattern, mixed-mode/non-IL-only, or incompatible PE headers).
     - `cache/`: JSON cache persistence.
 - **Model 2 Community Security & Governance:**
-  - **Public consumption (`GET /api/v1/plugins`):** Open to all users (anonymous and authenticated); reads exclusively from in-memory `PluginCache` and emits sanitized `PublicPluginInfo` DTOs without internal server paths (`FullPath`).
+  - **Public consumption (`GET /api/v1/plugins`):** Open to all users (anonymous and authenticated); reads exclusively from in-memory `PluginCache` and emits sanitized `PluginInfo` DTOs without internal server paths (`FullPath`).
+  - **Superuser storage inspection (`GET /api/v1/plugins/inspect`):** Inspects plugin binaries across all main partitions (`loaded`, `incoming`, `pending`, `archive`, `quarantine`, `rejected`), validating PE/architecture status and runtime registration (`SuperuserOnly`).
   - **Authenticated community submissions (`POST /submissions`, `GET /submissions`, `DELETE /submissions/{id}`):** Regular authenticated users submit into `pending/` via `SubmitPlugin` with SHA-256 hashing, per-plugin author ownership enforcement (anti-version-hijacking), `MaxPluginSizeBytes`, `MaxPendingSubmissionsPerUser`, and dedicated upload rate limiting; authors may cancel only their own `Pending` submissions.
   - **Superuser direct publish & moderation (`POST /upload`, `POST /submissions/{id}/approve`, `/reject`):** Superusers publish directly into `incoming/` via `UploadPlugin` (auto-approved, `SuperuserOnly`) or review community submissions with constant-time SHA-256 anti-TOCTOU verification, atomic promotion `pending/` → `incoming/`, and immediate runtime loading.
   - **Strict PE & Unmanaged Isolation:** Enforces `PEReader.GetMetadataReader().IsAssembly`, `CorFlags.ILOnly` (unless `AllowUnmanagedDlls = true`), and disables native library resolution in `PluginLoadContext` by default.
@@ -50,6 +51,7 @@ dotnet add package MelloSilveiraTools.Plugins
 ### Registering Plugin Services in Dependency Injection
 
 ```csharp
+using MelloSilveiraTools.Core.Files.Models;
 using MelloSilveiraTools.Plugins;
 using MelloSilveiraTools.Plugins.Infrastructure;
 using Microsoft.Extensions.DependencyInjection;
@@ -58,9 +60,13 @@ ServiceCollection services = new();
 
 PluginSettings pluginSettings = new()
 {
-    RootPath = "plugins",
-    ScanIntervalSeconds = 30,
-    PreviousVersionRetentionHours = 24
+    StorageProvider = StorageProvider.Local,
+    Directory = "plugins",
+    PollInterval = TimeSpan.FromMinutes(5),
+    PreviousVersionRetention = TimeSpan.FromHours(24),
+    DefaultCacheTarget = PluginCacheTargets.File,
+    MaxPluginSizeBytes = 10 * 1024 * 1024,
+    MaxPendingSubmissionsPerUser = 5
 };
 
 services.AddPluginServices(pluginSettings);
@@ -71,10 +77,10 @@ services.AddPluginServices(pluginSettings);
 ## 4. Dependency Injection & Technical Invariants
 
 - **DI Entry Points:** `PluginsDependencyInjection.AddPluginServices(pluginSettings)` and `AddPluginServicesAsync(pluginSettings, cancellationToken)`.
-  - **Singletons:** `PluginSettings`, `PluginFileProcessor`, `PluginAssemblyProcessor`, `PluginCache`, `PluginValidator` variants; keyed: `JsonFilePluginCachePersistence` (`"file"`), `DatabasePluginCachePersistence` (`"database"`).
-  - **Scoped:** `IPluginService`, `IPluginCachePersistence`, plugin commands (`UploadPlugin` / `POST /api/v1/plugins/upload`).
+  - **Singletons:** `PluginSettings`, `PluginFileProcessor`, `PluginAssemblyProcessor`, `PluginCache`, `PluginSubmissionPersistence`, `PluginValidator<T>`, `UploadPluginValidator`; keyed: `JsonFilePluginCachePersistence` (`"file"`), `DatabasePluginCachePersistence` (`"database"`).
+  - **Scoped:** `IPluginService`, `IPluginCachePersistence`, plugin commands (`GetPlugins`, `InspectPlugins`, `LoadPlugins`, `ReloadPlugins`, `ClearPluginCache`, `PersistPluginCache`, `RestorePluginCache`, `GetPluginSubmissions`, `SubmitPlugin`, `UploadPlugin`, `ApprovePluginSubmission`, `RejectPluginSubmission`, `CancelPluginSubmission`).
   - **Hosted:** `PluginOrchestratorBackgroundService` (`PeriodicTimer` polling loop, 24h default retention in `archive/`).
-- **Storage Partitions & Validation:** Storage-agnostic partitions (`incoming/`, `loaded/`, `archive/`, `quarantine/`, `cache/` with `plugin-cache.json`) via `IFileStorageService`; validates managed PE metadata via `PEReader.HasMetadata` and filename regex `^(?<name>.+)\.v(?<major>\d+)\.(?<minor>\d+)\.(?<patch>\d+)\.dll$` (invalid binaries moved to `quarantine/`).
+- **Storage Partitions & Validation:** Storage-agnostic partitions (`pending/`, `rejected/`, `incoming/`, `loaded/`, `archive/`, `quarantine/`, `cache/` with `plugin-cache.json`) via `IFileStorageService`; validates managed PE metadata via `PEReader.HasMetadata`, `CorFlags.ILOnly`, and filename regex `^(?<name>.+)\.v(?<major>\d+)\.(?<minor>\d+)\.(?<patch>\d+)\.dll$` (invalid binaries moved to `quarantine/`).
 - **Lifecycle & Registration:** `DiscoveredPlugin` → `LoadedPlugin` → `RegisteredPlugin` (`IsFullyLoaded`, `FullyLoadedAt`) in isolated collectible `PluginLoadContext`; `PluginRegistrationContext.ForStartup(IServiceCollection)` mutates static DI while `ForRuntime(IDynamicServiceProvider)` enables hot-swap. Fundamentally non-AOT due to dynamic `AssemblyLoadContext` loading.
 
 ---

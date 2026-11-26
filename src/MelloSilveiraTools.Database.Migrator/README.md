@@ -16,7 +16,7 @@ The `MelloSilveiraTools.Database.Migrator` project was developed as an independe
    * **`All`**: Applies all embedded migration scripts across the ecosystem (`Common`, `Optimizations`, and `Plugins`).
    * **`Common`**: Applies essential cross-cutting tables, such as `users` (with `tools_app` role and DB-backed RLS helpers) and `storage_entry_metadata` (file metadata audit with nullable `user_id` RLS).
    * **`Optimizations`**: Applies tables for the biomechanical constitutive model fitting and sensitivity analysis pipelines (`mechanical_model_curve_fit_outputs`, `mechanical_model_simulations`, and `parametric_sweeps`), automatically including the `Common` prerequisites.
-   * **`Plugins`**: Applies persistence tables for dynamic plugin runtime caches (`plugin_cache`).
+   * **`Plugins`**: Applies persistence tables for dynamic plugin runtime caches (`plugin_cache`) and Model 2 community submissions (`plugin_submissions`), automatically including `Common` prerequisites.
 3. **Declarative and Idiomatic SQL Scripts:**
    * Exclusively utilizes **pure `TEXT`** for textual columns and opaque JSON audit/traceability payloads, taking full advantage of PostgreSQL's `varlena` storage layout and native transparent TOAST compression (LZ4/PGLZ).
    * Idempotent DDL execution (`CREATE TABLE IF NOT EXISTS`, `CREATE INDEX IF NOT EXISTS`, and named constraints).

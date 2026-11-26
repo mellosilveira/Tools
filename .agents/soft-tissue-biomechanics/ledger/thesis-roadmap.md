@@ -65,7 +65,7 @@
 - **[x] TASK 2.7:** Develop and validate the native **1D Sensitivity Analysis Engine** (stress x time, stress x variation, asymptotes) within **MelloSilveiraTools**. *(COMPLETED for Fung, Simplified Fung, and Schapery; extend as new models are added).*
 - **[ ] TASK 2.8:** Inspect and clean the legacy code of the **SoftTissue** project to centralize business rules.
 - **[ ] TASK 2.9:** Create the logic, pipelines, and routes in **SoftTissue** aggregating the data triad.
-- **[ ] TASK 2.10:** Structure a **Minimalist Frontend** focused exclusively on dynamic data exploration and triggering C# pipelines, strictly avoiding complex UI/UX engineering that drains research time.
+- **[x] TASK 2.10:** Structure a **Minimalist Frontend** focused exclusively on dynamic data exploration and triggering C# pipelines, strictly avoiding complex UI/UX engineering that drains research time. *(COMPLETED for 1D & platform exploration via `src/MelloSilveiraTools.WebUi` Blazor WASM + Apache ECharts + `WebApi.Host` + `Launcher`; extend plot series slot when 3D FEBio Phase 3 lands.)*
 
 ---
 

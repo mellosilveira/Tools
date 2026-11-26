@@ -78,8 +78,8 @@ double predictedStress = calculator.CalculateStress(input);
 
 ## 4. Dependency Injection & Technical Invariants
 
-- **DI Entry Points:** `DependencyInjection.AddMechanicsOfMaterialsServices(addMechanicalModels)` and `AddMechanicalModels()`.
-  - **Singletons (thread-safe):** Model calculators (`Elastic`, `Maxwell`, `Fung`, `SimplifiedFung`, `Schapery`, `ModifiedSuperposition`), `IMechanicalParameterConverter`, `IConstitutiveEquationsCalculator`, `IFatigueCalculator`, `IGeometricPropertyCalculator<>`, `IMechanicalModelTypeCache`, `IMechanicalModelCalculatorFactory`; keyed: `IMechanicalModelTypeResolver`.
+- **DI Entry Points:** `DependencyInjection.AddMechanicsOfMaterialsServices(addMechanicalModels)` and `AddMechanicalModels()`, plus `MechanicsOfMaterialsEndpoints.MapMechanicsOfMaterialsEndpoints("/api/v1/mechanics")` and `MechanicsOfMaterialsController` (`GET /models`, `POST /specimen-analysis/execute`, `POST /fatigue/calculate`, `POST /fatigue/calculate/endurance-limit`).
+  - **Singletons (thread-safe):** Model calculators (`Elastic`, `Maxwell`, `Fung`, `SimplifiedFung`, `Schapery`, `ModifiedSuperposition`), `IMechanicalParameterConverter`, `IConstitutiveEquationsCalculator`, `IFatigueCalculator`, `IGeometricPropertyCalculator<>`, `IMechanicalModelTypeCache`, `IMechanicalModelCalculatorFactory`, `GetMechanicalModelsCommand`, `ExecuteSpecimenAnalysisCommand` (+ `ExecuteSpecimenAnalysisValidator`); keyed: `IMechanicalModelTypeResolver`.
 - **Contracts & Hierarchy:**
   - All physical parameter records inherit `ConstitutiveParameters` (`*ConstitutiveParameters` suffix) and wrap execution via `MechanicalModelInput<T>`.
   - Calculators emit raw `*Output` models (`MechanicalModelOutput`, `FatigueOutput`) — never `Result<T>` monads.
@@ -91,4 +91,5 @@ double predictedStress = calculator.CalculateStress(input);
 ## 5. Dependencies
 
 - `MelloSilveiraTools.Mathematics`
-- `Microsoft.Extensions.DependencyInjection.Abstractions` (10.0.11)
+- `MelloSilveiraTools.Database`
+- `Microsoft.Extensions.DependencyInjection.Abstractions` (10.0.15)

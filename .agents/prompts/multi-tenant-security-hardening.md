@@ -1,21 +1,24 @@
-# Hardening de Segurança Multi-Tenant (`userId` Isolation)
+# Multi-Tenant Security Hardening (`userId` Isolation)
 
-## Contexto Atual (Já Implementado — Não Refazer)
-- **PostgreSQL RLS + Particionamento:** `stored_files`, `mechanical_model_curve_fit_outputs`, `mechanical_model_simulations` e `parametric_sweeps` utilizam `PARTITION BY LIST (user_id)` + partições `_default` + `ENABLE`/`FORCE ROW LEVEL SECURITY` (`user_id = public.current_app_user_id()`).
-- **Role não-superusuário:** `tools_app` (`NOSUPERUSER NOCREATEDB NOCREATEROLE NOBYPASSRLS`) provisionado em `src/MelloSilveiraTools.Database.Migrator/Scripts/Common/0001_create_users.sql`, com `public.ensure_user_partitions(BIGINT)` (`SECURITY DEFINER`) chamado em `RegisterUserCommand`.
-- **Propagação de usuário:** implementação única singleton `CurrentUserProvider : ICurrentUserProvider` (`src/MelloSilveiraTools.Database/Security/CurrentUserProvider.cs`) com `AsyncLocal<long?>` de instância (sem estado estático), populada por `UserContextMiddleware` (`src/MelloSilveiraTools.WebApi/Application/Middlewares/UserContextMiddleware.cs`) e consumida obrigatoriamente por `PostgresRepository` (`SELECT set_config('app.current_user_id', @UserId, false);`).
+> [!NOTE]
+> **Current Status (2026-11-26 — Historical Reference):** Blocks 1 and 2 have been largely implemented and evolved in key architectural areas: `stored_files` was renamed to `storage_entry_metadata`; `Dapper` was removed in favor of pure `Npgsql` (`NpgsqlBatch` with `set_config(..., true)`); `PARTITION BY LIST (user_id)` / `ensure_user_partitions` was replaced by non-partitioned Row-Level Security with nullable `user_id` (`NULL` for public records); and `AddJweAuthentication` / `AddDefaultRateLimiting` / `AddDefaultCors` / `EnsureDatabaseRlsSafetyAsync` were centralized in `WebApiDependencyInjection`. Consult `CHANGELOG.md` and `src/MelloSilveiraTools.WebApi/README.md` before taking action.
 
----
-
-## Objetivo
-Fechar as brechas de isolamento multi-tenant identificadas na auditoria de segurança **fora do banco de dados** (storage de arquivos, canais em memória, autenticação JWE, rate limiting e defesa em profundidade), mantendo **0 avisos / 0 erros** no build e todos os testes unitários passando.
+## Original Context (Prior Snapshot)
+- **PostgreSQL RLS + Partitioning:** Originally `stored_files`, `mechanical_model_curve_fit_outputs`, `mechanical_model_simulations`, and `parametric_sweeps` used `PARTITION BY LIST (user_id)` + `_default` partitions + `ENABLE`/`FORCE ROW LEVEL SECURITY` (`user_id = public.current_app_user_id()`).
+- **Non-Superuser Role:** `tools_app` (`NOSUPERUSER NOCREATEDB NOCREATEROLE NOBYPASSRLS`) provisioned in `src/MelloSilveiraTools.Database.Migrator/Scripts/Common/0001_create_users.sql`.
+- **User Propagation:** Single singleton implementation `CurrentUserProvider : ICurrentUserProvider` using instance `AsyncLocal<long?>` (no static state), populated by `UserContextMiddleware` (`src/MelloSilveiraTools.WebApi/Application/Middlewares/UserContextMiddleware.cs`) and enforced by `PostgresRepository`.
 
 ---
 
-## Bloco 1 — Isolamento de Storage e Pipelines em Memória (Prioridade Máxima)
+## Objective
+Close multi-tenant isolation gaps identified outside the database (file storage, in-memory channels, JWE authentication, rate limiting, and defense in depth), maintaining **0 warnings / 0 errors** on build and passing all unit tests.
 
-### 1. [CRÍTICA] Storage de arquivos sem isolamento por `user_id` + acesso/deleção por `Location` cru
-- **Arquivos afetados:**
+---
+
+## Block 1 — Storage & In-Memory Pipeline Isolation (Highest Priority)
+
+### 1. [CRITICAL] File storage without `user_id` isolation + raw `Location` access/deletion
+- **Affected files:**
   - `src/MelloSilveiraTools.Core/Files/Providers/FileStorageServiceBase.cs`
   - `src/MelloSilveiraTools.Core/Files/Providers/Local/LocalFileStorageService.cs`
   - `src/MelloSilveiraTools.WebApi/Application/Commands/StorageEntryMetadata/Create/AddStorageEntryCommand.cs`
@@ -25,82 +28,71 @@ Fechar as brechas de isolamento multi-tenant identificadas na auditoria de segur
   - `src/MelloSilveiraTools.MechanicsOfMaterials.Optimizations/ExperimentalData/Commands/Process/Single/ExecuteExperimentalDataPipeline.cs`
   - `src/MelloSilveiraTools.MechanicsOfMaterials.Optimizations/ExperimentalData/Commands/Process/Single/ExecuteExperimentalDataPipelineValidator.cs`
   - `src/MelloSilveiraTools.MechanicsOfMaterials.Optimizations/ExperimentalData/Pipelines/Steps/ExperimentalDataSegmenterStep.cs`
-- **Vulnerabilidades:**
-  1. `LocalFileStorageService` só valida path traversal em `ResolveLocation`, mas `OpenReadAsync`, `OpenWriteAsync`, `ExistsAsync`, `GetMetadataAsync` e `DeleteAsync` aceitam caminhos crus e executam `File.Delete`/`Directory.Delete(location, recursive: true)` diretamente.
-  2. `DeleteStorageEntryCommand` aceita `request.Location` cru quando `FileId` não é encontrado/informado, permitindo apagar arquivos de outros usuários ou diretórios arbitrários sem passar pelo RLS de `stored_files`.
-  3. `ExecuteExperimentalDataPipeline` / `ExperimentalDataSegmenterStep` recebem `StrainFileLocation` e `StressFileLocation` diretamente no payload JSON e abrem os arquivos sem checar propriedade em `stored_files`, permitindo processar e exfiltrar CSVs de outros usuários.
-  4. `AddStorageEntryCommand` / `FileStorageServiceBase` gravam em `storage/{identifier}/{context}/{fileName}` sem prefixo de `user_id`: dois usuários com o mesmo `Identifier`/`Context`/`FileName` sobrescrevem arquivos físicos um do outro.
-- **Ajustes necessários:**
-  1. Validar em **todos** os métodos `location`-based de `LocalFileStorageService` (e demais providers, quando aplicável) que `Path.GetFullPath(location)` permanece estritamente dentro de `BaseDirectory` (e dentro do escopo do usuário quando autenticado), bloqueando path traversal (`..`, caminhos absolutos fora da raiz, symlinks/escape).
-  2. Particionar fisicamente os caminhos de storage por usuário (ex.: `u_{userId}/{identifier}/{context}/{fileName}`) para evitar colisão/sobrescrita entre usuários no disco e em object storage (Blob/S3/DFS).
-  3. Em `DeleteStorageEntryCommand`, não permitir deleção arbitrária de caminho físico fora do escopo do usuário; preferir resolução via `FileId` em `stored_files` (RLS) e, caso mantenha fallback por `Location` para idempotência, exigir que o caminho esteja estritamente dentro do diretório do usuário autenticado.
-  4. Em `ExecuteExperimentalDataPipeline` (e batch/sweep correlatos), validar que `StrainFileLocation`/`StressFileLocation` pertencem ao usuário atual (idealmente recebendo `StrainFileId`/`StressFileId` e resolvendo `Location` via `stored_files` protegida por RLS, ou verificando existência na tabela `stored_files` filtrada por RLS antes de abrir o stream).
+- **Vulnerabilities:**
+  1. `LocalFileStorageService` only validated path traversal in `ResolveLocation`, while location-based methods accepted raw paths before calling `File.Delete`/`Directory.Delete`.
+  2. `DeleteStorageEntryCommand` accepted raw `request.Location` when `FileId` was omitted/not found.
+  3. `ExecuteExperimentalDataPipeline` / `ExperimentalDataSegmenterStep` opened `StrainFileLocation` and `StressFileLocation` directly from JSON payloads without verifying RLS ownership.
+  4. Shared `storage/{identifier}/{context}/{fileName}` lacked `user_id` prefixing, risking cross-user file overwrites.
+- **Required Measures:**
+  1. Validate in **all** location-based methods of `LocalFileStorageService` (and sibling providers where applicable) that `Path.GetFullPath(location)` stays strictly inside `BaseDirectory` and the authenticated user's scope, blocking path traversal (`..`, escaping absolute paths, symlinks).
+  2. Physically partition user storage paths (e.g., `u_{userId}/{identifier}/{context}/{fileName}`) to prevent collisions across disk and object storage.
+  3. Disallow arbitrary path deletion outside user scope in `DeleteStorageEntryCommand`; prefer `FileId` resolution via RLS-protected metadata or constrain fallback paths strictly to the user directory.
+  4. Verify ownership of `StrainFileLocation`/`StressFileLocation` via RLS metadata before opening streams.
 
-### 2. [ALTA] Canais de progresso em memória sem isolamento por `user_id`
-- **Arquivos afetados:**
+### 2. [HIGH] In-memory progress channels without `user_id` isolation
+- **Affected files:**
   - `src/MelloSilveiraTools.Core/Pipelines/Notifiers/ChannelPipelineProgressNotifier.cs`
   - `src/MelloSilveiraTools.MechanicsOfMaterials.Optimizations/Controllers/PipelineProgressController.cs`
-- **Vulnerabilidade:** `_channels` é chaveado apenas por `pipelineId` (frequentemente escolhido pelo usuário). Qualquer usuário autenticado que chame `GET /api/v1/pipelines/{pipelineId}/progress` pode ler e consumir (roubar) eventos de progresso/erro de pipelines de outros usuários, ou colidir canais com o mesmo identificador.
-- **Ajuste necessário:** escopar os canais de progresso por usuário (chave composta `(userId, pipelineIdentifier)` ou resolução via abstração de contexto de usuário), garantindo que `ReadAllAsync` só acesse canais do usuário autenticado (retornando `404 NotFound` se pertencer a outro usuário).
+- **Vulnerability:** `_channels` keyed solely by `pipelineId` allows another authenticated caller who knows or guesses `pipelineId` to consume progress/error events.
+- **Required Measure:** Scope progress channels by user (composite key `(userId, pipelineIdentifier)`), returning `404 NotFound` when accessed by another user.
 
 ---
 
-## Bloco 2 — Autenticação, Rate Limiting e Defesa em Profundidade
+## Block 2 — Authentication, Rate Limiting, and Defense in Depth
 
-### 3. [CRÍTICA] Chaves JWE hardcoded em `appsettings.json`
-- **Arquivos afetados:**
+### 3. [CRITICAL] Hardcoded JWE keys in `appsettings.json`
+- **Affected files:**
   - `src/MelloSilveiraTools.WebApi.Host/appsettings.json`
   - `src/MelloSilveiraTools.WebApi.Host/Program.cs`
-- **Vulnerabilidade:** `Jwt:EncryptionKey` e `Jwt:SigningKey` versionadas em texto puro permitem a qualquer pessoa com acesso ao repositório forjar tokens JWE válidos com qualquer `sub` (`user_id`), contornando 100% do RLS.
-- **Ajuste necessário:**
-  1. Mover segredos de desenvolvimento para `dotnet user-secrets` / `appsettings.Development.json` (ou geração/injeção via variáveis de ambiente em Docker/CI) e remover chaves reais de `appsettings.json`.
-  2. Adicionar validação no startup de `WebApi.Host` recusando chaves vazias, com tamanho inválido (< 32 bytes UTF-8 para AES-256) ou valores placeholder quando `!app.Environment.IsDevelopment()`.
+- **Vulnerability:** Plaintext versioned `Jwt:EncryptionKey` and `Jwt:SigningKey` allow anyone reading the repository to forge JWE tokens with arbitrary `sub` (`user_id`), bypassing RLS.
+- **Required Measures:**
+  1. Move development secrets to `dotnet user-secrets` / runtime injection (Docker/Launcher/CI) and remove real keys from `appsettings.json`.
+  2. Enforce startup validation rejecting empty, short (< 32 UTF-8 bytes for AES-256), or placeholder keys outside Development.
 
-### 4. [ALTA] `/api/v1/auth/refresh` não verifica `users.is_active`
-- **Arquivos afetados:**
-  - `src/MelloSilveiraTools.WebApi/Authentication/Commands/AuthenticationCommands.cs` (`RefreshAuthenticationTokenCommand`)
+### 4. [HIGH] `/api/v1/auth/refresh` did not verify `users.is_active`
+- **Affected files:**
+  - `src/MelloSilveiraTools.WebApi/Authentication/Commands/` (`RefreshAuthenticationTokenCommand`)
   - `src/MelloSilveiraTools.WebApi/Authentication/Services/AuthenticationJweTokenService.cs`
-- **Vulnerabilidade:** um usuário desativado (`is_active = false`) com token ainda não expirado consegue renovar o token indefinidamente.
-- **Ajuste necessário:** no `RefreshAuthenticationTokenCommand`, extrair o `userId` (`sub`), consultar `UserEntity` via `IRepository` e retornar `401 Unauthorized` caso o usuário não exista ou `user.IsActive == false`.
+- **Vulnerability:** A deactivated user (`is_active = false`) holding an unexpired token could refresh it indefinitely.
+- **Required Measure:** Query `UserEntity` via `IRepository` inside `RefreshAuthenticationTokenCommand` and return `401 Unauthorized` when missing or inactive.
 
-### 5. [ALTA] Rate Limiting nos endpoints de autenticação e mitigação de DoS de DDL no `/register`
-- **Arquivos afetados:**
+### 5. [HIGH] Rate Limiting on authentication endpoints
+- **Affected files:**
   - `src/MelloSilveiraTools.WebApi.Host/Program.cs`
   - `src/MelloSilveiraTools.WebApi/Application/Controllers/AuthController.cs`
-- **Vulnerabilidade:** `/api/v1/auth/register` é `[AllowAnonymous]` e cria 4 partições físicas no PostgreSQL por conta (`ensure_user_partitions`), criando vetor de DoS de catálogo (`pg_class`) e brute-force em `/login`.
-- **Ajuste necessário:** configurar `AddRateLimiter` / `UseRateLimiter` (ASP.NET Core nativo) com políticas restritivas por IP para `/api/v1/auth/register`, `/login`, `/refresh` e `/validate`.
+- **Vulnerability:** Anonymous `/register`, `/login`, `/refresh`, and `/validate` endpoints lack IP rate limiting against abuse/brute force.
+- **Required Measure:** Configure native ASP.NET Core `AddRateLimiter` / `UseRateLimiter` with restrictive fixed-window IP policies.
 
-### 6. [MÉDIA] Startup guard contra conexão como superusuário / `BYPASSRLS` no PostgreSQL
-- **Arquivos afetados:**
+### 6. [MEDIUM] Startup guard against PostgreSQL `SUPERUSER` / `BYPASSRLS`
+- **Affected files:**
   - `src/MelloSilveiraTools.WebApi.Host/Program.cs`
-- **Vulnerabilidade:** no PostgreSQL, roles `SUPERUSER` ou `BYPASSRLS` ignoram `FORCE ROW LEVEL SECURITY` silenciosamente. Uma connection string incorreta desativa o RLS sem aviso.
-- **Ajuste necessário:** no startup de `WebApi.Host`, executar `SELECT rolsuper OR rolbypassrls FROM pg_roles WHERE rolname = current_user;` e abortar a inicialização (`InvalidOperationException`) se retornar `true` (permitindo opt-out explícito apenas se desejado em cenário controlado de desenvolvimento).
+- **Vulnerability:** In PostgreSQL, `SUPERUSER` or `BYPASSRLS` roles silently bypass `FORCE ROW LEVEL SECURITY`.
+- **Required Measure:** Execute `SELECT rolsuper OR rolbypassrls FROM pg_roles WHERE rolname = current_user;` at startup and abort initialization unless explicitly opted out via configuration.
 
-### 7. [MÉDIA] Bloquear controle de `UserId` via JSON em endpoints CRUD e forçar `UserId` no repositório
-- **Arquivos afetados:**
+### 7. [MEDIUM] Enforce server-side `UserId` isolation in payloads and repository writes
+- **Affected files:**
   - `src/MelloSilveiraTools.Database/RelationalDatabase/Models/Entities/UserScopedEntityBase.cs`
-  - `src/MelloSilveiraTools.Database/RelationalDatabase/Repositories/PostgresRepository.cs` (`ApplyCurrentUserIdParameters`)
-- **Ajuste necessário:**
-  1. Avaliar `[JsonIgnore]` em `UserScopedEntityBase.UserId` (verificando impacto nos clientes/WebUi) para impedir que o payload HTTP tente definir `userId`.
-  2. Em `PostgresRepository.ApplyCurrentUserIdParameters`, decidir se deve **sempre** sobrescrever `@UserId` com `currentUserProvider.GetCurrentUserId()` quando houver usuário autenticado (em vez de apenas quando `== 0`), mantendo o RLS `WITH CHECK` como segunda barreira.
+  - `src/MelloSilveiraTools.Database/RelationalDatabase/Repositories/PostgresRepository.cs`
+- **Required Measures:** Prevent HTTP JSON payloads from spoofing `userId` (`[JsonIgnore]` or middleware/RLS enforcement) and enforce `ICurrentUserProvider` parameters in `PostgresRepository` alongside PostgreSQL RLS `WITH CHECK` policies.
 
-### 8. [MÉDIA] Restringir CORS em produção e documentar isolamento de cache em memória
-- **Arquivos afetados:**
+### 8. [MEDIUM] Restrict CORS in production and document in-memory cache isolation
+- **Affected files:**
   - `src/MelloSilveiraTools.WebApi.Host/Program.cs`
-- **Ajuste necessário:** configurar origens permitidas via `appsettings` (`Cors:AllowedOrigins`), evitando `AllowAnyOrigin()` em produção.
+- **Required Measure:** Configure explicit allowed origins (`AllowedCorsOrigins`) instead of `AllowAnyOrigin()` in production.
 
 ---
 
-## Diretrizes Obrigatórias (`AGENTS.md`)
-- C# 13 / `.NET 10`: **proibido usar `var`** (tipos explícitos obrigatórios), finais de linha **CRLF**, 4 espaços de indentação, primary constructors, XML docs obrigatórios em todos os tipos e membros `public`, `TimeProvider` obrigatório (sem `DateTime.UtcNow` / `DateTimeOffset.UtcNow` em código de produção).
-- Controllers não podem conter lógica de negócio (delegar sempre para `Command` + `IValidator`).
-- Não alterar assinaturas públicas sem alinhar antes com o usuário (especialmente se mudar contratos de `IFileStorageService` ou requests HTTP como `ExecuteExperimentalDataPipelineRequest`).
-- Criar testes unitários determinísticos cobrindo cada brecha corrigida (path traversal, tentativa de acesso/deleção cross-user, colisão de `ChannelPipelineProgressNotifier`, refresh de usuário inativo, startup guard contra superuser, rate limiting).
-
----
-
-## Como Executar em Nova Conversa
-1. **Para executar o Bloco 1:**
-   > Leia `.agents/prompts/multi-tenant-security-hardening.md` e planeje/implemente o **Bloco 1** (itens #1 e #2), propondo primeiro as decisões de contrato antes de editar código.
-2. **Para executar o Bloco 2:**
-   > Leia `.agents/prompts/multi-tenant-security-hardening.md` e implemente o **Bloco 2** (itens #3 a #8) com testes unitários e validação via `dotnet build` e `dotnet test`.
+## Mandatory Guidelines (`AGENTS.md`)
+- C# 13 / `.NET 10`: **no `var`** (explicit types mandatory), **CRLF** line endings, 4-space indentation, primary constructors, XML docs on all `public` types and members, mandatory `TimeProvider` (never ambient `DateTime.UtcNow` / `DateTimeOffset.UtcNow`).
+- Controllers/Endpoints must contain zero business logic (delegate to `Command` + `IValidator`).
+- Add deterministic unit tests covering every mitigated gap and verify with `dotnet build` and `dotnet test`.

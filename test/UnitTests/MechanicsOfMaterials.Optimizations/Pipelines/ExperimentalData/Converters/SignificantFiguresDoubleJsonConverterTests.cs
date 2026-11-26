@@ -14,24 +14,24 @@ public class SignificantFiguresDoubleJsonConverterTests
     }
 
     [Theory]
-    // Ruído de ponto flutuante (perto de 2)
+    // Floating-point noise (near 2)
     [InlineData(1.9999999999, 2.0)]
     [InlineData(2.0000000001, 2.0)]
 
-    // Valores pequenos em notação científica (exemplo do usuário)
+    // Small values in scientific notation
     [InlineData(3.50000000001E-07, 3.5E-07)]
     [InlineData(1.23456789E-12, 1.234568E-12)]
 
-    // Valores muito grandes
+    // Very large values
     [InlineData(1.23456789E+20, 1.234568E+20)]
 
-    // Valores exatos sem ruído
+    // Exact values without noise
     [InlineData(2.5, 2.5)]
     [InlineData(-150.0, -150.0)]
     [InlineData(0.0, 0.0)]
 
-    // Teste de truncamento com exatamente 7 algarismos significativos
-    [InlineData(1234.56789, 1234.568)] // arredonda no 7º algarismo
+    // Truncation test with exactly 7 significant figures
+    [InlineData(1234.56789, 1234.568)] // rounds on the 7th significant figure
     [InlineData(-0.000123456789, -0.0001234568)]
     public void Should_Cleanse_FloatingPoint_Noise_When_Serializing(double input, double expectedOutput)
     {

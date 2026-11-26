@@ -4,7 +4,7 @@ services:
     container_name: tools_postgres
     restart: unless-stopped
     ports:
-      - "5432:5432"
+      - "${TOOLS_POSTGRES_PORT:-5432}:5432"
     environment:
       POSTGRES_DB: tools_db
       POSTGRES_USER: postgres
@@ -17,5 +17,45 @@ services:
       timeout: 5s
       retries: 5
 
+  migrator:
+    build:
+      context: .
+      dockerfile: src/MelloSilveiraTools.Database.Migrator/Dockerfile
+    container_name: tools_migrator
+    depends_on:
+      postgres:
+        condition: service_healthy
+    command:
+      - "--connection-string"
+      - "${TOOLS_DOCKER_MIGRATOR_CONNECTION_STRING:-Host=postgres;Port=5432;Database=tools_db;Username=postgres;Password=postgres;}"
+      - "--context"
+      - "${TOOLS_MIGRATION_CONTEXT:-All}"
+      - "--timeout"
+      - "${TOOLS_MIGRATION_TIMEOUT:-60}"
+    restart: "no"
+
+  webapi:
+    build:
+      context: .
+      dockerfile: src/MelloSilveiraTools.WebApi.Host/Dockerfile
+    container_name: tools_webapi
+    depends_on:
+      postgres:
+        condition: service_healthy
+      migrator:
+        condition: service_completed_successfully
+    environment:
+      # Supplied automatically by MelloSilveiraTools.Launcher (--docker), or provide non-placeholder host env vars.
+      Database__ConnectionString: ${TOOLS_DOCKER_APP_CONNECTION_STRING:-Host=postgres;Port=5432;Database=tools_db;Username=tools_app;Password=tools_app_pass;}
+      Jwt__EncryptionKey: ${JWT__ENCRYPTIONKEY:-}
+      Jwt__SigningKey: ${JWT__SIGNINGKEY:-}
+      Superuser__Password: ${SUPERUSER__PASSWORD:-}
+    ports:
+      - "${TOOLS_WEBAPI_PORT:-24263}:8080"
+    volumes:
+      - tools_storage_data:/app/storage
+    restart: unless-stopped
+
 volumes:
   tools_postgres_data:
+  tools_storage_data:

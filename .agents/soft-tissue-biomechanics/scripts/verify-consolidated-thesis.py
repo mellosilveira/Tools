@@ -61,7 +61,7 @@ print(f"Leaked raw LaTeX occurrences in paragraphs: {len(leaked_latex)}")
 for idx, txt in leaked_latex:
     print(f"  P[{idx}]: {txt}")
 
-# 4. Check Colors (Preto Automático)
+# 4. Check Colors (Auto Black)
 with zipfile.ZipFile(DOCX_PATH) as z:
     xml_content = z.read('word/document.xml')
     root = ET.fromstring(xml_content)
@@ -80,7 +80,7 @@ print(f"Non-automatic / non-black color tags: {len(non_auto_colors)}")
 if non_auto_colors:
     print(f"  Distinct non-auto colors found: {set(non_auto_colors)}")
 else:
-    print("  SUCCESS: 100% Preto Automático confirmed across all elements!")
+    print("  SUCCESS: 100% Auto Black confirmed across all elements!")
 
 # 5. Check OMML Math Elements
 m_ns = '{http://schemas.openxmlformats.org/officeDocument/2006/math}'

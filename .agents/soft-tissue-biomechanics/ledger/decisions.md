@@ -24,6 +24,8 @@
 | 2026-11-09 | `streamline-axial-single-ligament-scope` | Scope Refinement | Pruned rotational kinematics (Polar Decomposition, Spin, dynamic inertia) for coaxial quasi-static uniaxial tension; retained dual Lagrangian/Eulerian kinematics, experimental bridge, and 4 major 3D continuum theories in `Consolidated_Biomechanical_Formulations.docx` (246 eqs). |
 | 2026-11-10 | `soft-tissue-vs-polymers-comparative-mechanics` | Execution & Gap | 60 CrossRef-verified papers comparing native soft tissues vs. synthetic polymers (`comparative-mechanics-soft-tissues-vs-polymers.md`). |
 | 2026-11-17 | `future-works-explainable-ai-traceability` | Future Work & Directive | Mandatory Explainable AI (XAI) step-by-step theoretical and experimental traceability in any AI-synthesized final analysis. |
+| 2026-11-20 | `launcher-docker-self-contained-and-aot-evaluation` | Decision & Architecture | Self-contained Docker + ReadyToRun AOT (`PublishReadyToRun=true`); full `PublishAot` recorded in `future-works.md`. |
+| 2026-11-26 | `pure-npgsql-webui-governance-and-qa-hardening` | Execution & Architecture | Pure Npgsql (`NpgsqlSlimDataSourceBuilder`/`NpgsqlBatch`, zero `Dapper`), non-partitioned RLS (`storage_entry_metadata`), `WebApi.Host` + `WebUi` + `Launcher`, Model 2 plugin governance, distributed health checks (`AddWebApiHealthChecks`), `EnablePackageValidation=true`, and `coverlet.runsettings` scope. |
 
 ---
 
@@ -83,7 +85,7 @@
 * **Task_ID:** `task-storage-api-phase2-3`, `task-storage-api-phase4-5`, `task-storage-write-simplification`, `task-storage-create-and-optional-prefix`
 * **Category:** Decision & Execution (Software Architecture)
 * **What:**
-  1. Standardized `IFileStorageService` with storage-agnostic partitioned paths (`Create` / `CreateTimebased`, optional prefix, `StorageEntryMetadataEntity` persisted in PostgreSQL `stored_files`).
+  1. Standardized `IFileStorageService` with storage-agnostic partitioned paths (`Create` / `CreateTimebased`, optional prefix, `StorageEntryMetadataEntity` persisted in PostgreSQL `storage_entry_metadata`, formerly `stored_files`).
   2. Standardized CSV pipeline persistence via composition (`CsvFileWriter` — 128 KB buffer, 1,000-row batching, UTF-8 no-BOM, `CultureInfo.InvariantCulture`).
   3. Adopted real-time pipeline progress streaming via `IPipelineProgressNotifier` (`ChannelPipelineProgressNotifier`) exposed as `application/x-ndjson` (`WriteNdjsonAsync` with `X-Stream-Status: true` trailer).
 * **From where:** `senior-backend-software-engineer-net` (details tracked in `CHANGELOG.md` and package `README.md` files).
@@ -150,3 +152,15 @@
 * **What:** Evaluated `PublishAot=true` on `MelloSilveiraTools.WebApi.Host` (blocked by missing C++ platform linker locally and architectural incompatibilities with MVC `AddControllers`, Swashbuckle, Dapper IL emit, `Plugins` dynamic loading, and `WebUi` `browser-wasm` propagation). Adopted `--self-contained true` + `PublishReadyToRun=true` (`EnableReadyToRun=true` scoped to `WebApi.Host` and `Database.Migrator`) on `mcr.microsoft.com/dotnet/runtime-deps:10.0` for Docker mode, and `EnableReadyToRun=true` for `Launcher` Local mode, registering full NativeAOT migration in [`future-works.md`](./future-works.md).
 * **From where:** Empirical `dotnet publish` validation and user directive (2026-11-20).
 * **Why:** Guarantees AOT-compiled ReadyToRun startup performance and self-contained Docker images without imposing C++ linker prerequisites or breaking MVC/Swagger/Dapper/Plugins before JOSS submission.
+
+---
+
+### 2026-11-26 — Pure Npgsql Persistence, Interactive Quickstart (`WebApi.Host` / `WebUi` / `Launcher`), Health Checks & QA Governance
+* **Task_ID:** `pure-npgsql-webui-governance-and-qa-hardening`
+* **Category:** Execution & Software Architecture
+* **What:**
+  1. Removed `Dapper` completely and migrated `MelloSilveiraTools.Database` to pure `Npgsql` (`NpgsqlSlimDataSourceBuilder`, `NpgsqlBatch` single-round-trip transaction-local RLS scoping, `[DynamicallyAccessedMembers(PublicProperties)]`, `<IsAotCompatible>true</IsAotCompatible>` across the 8 NuGet packages).
+  2. Replaced `PARTITION BY LIST (user_id)` with non-partitioned Row-Level Security across `storage_entry_metadata` (renamed from `stored_files`), `mechanical_model_curve_fit_outputs`, `mechanical_model_simulations`, `parametric_sweeps`, `plugin_cache`, and `plugin_submissions` (Model 2 community plugin governance).
+  3. Delivered the turnkey runtime stack (`src/MelloSilveiraTools.WebApi.Host`, `src/MelloSilveiraTools.WebUi` Blazor WASM + Apache ECharts, `src/MelloSilveiraTools.Launcher`), distributed health checks (`AddWebApiHealthChecks`, `FileStorageHealthCheck`, `PostgresHealthCheck`, `HealthCheckEntryResultData`), NuGet package validation (`Directory.Build.targets`), and `coverlet.runsettings` broad coverage scope (8 core NuGet packages vs. 4 exempted app/UI/CLI projects).
+* **From where:** Repository implementation commits (`b6c6e56`–`5d60f11`), `CHANGELOG.md`, `Directory.Build.targets`, `coverlet.runsettings`, and user architectural directives.
+* **Why:** Eliminates Dapper reflection/IL-emit overhead, simplifies PostgreSQL RLS without partition DDL churn, delivers interactive zero-C#-setup execution for JOSS reviewers and thesis analysis, and stabilizes NuGet ABI/coverage governance.

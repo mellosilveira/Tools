@@ -1,4 +1,4 @@
-# Detalhamento Analítico & Metadados — Fung Quasi-Linear Viscoelastic (QLV) 1D & Integral Exponencial E1(x)
+# Analytical Detailing & Metadata — Fung Quasi-Linear Viscoelastic (QLV) 1D & Exponential Integral E1(x)
 
 ```json
 {
@@ -93,7 +93,7 @@
       "coefficient_of_determination_definition": "R2 = 1 - (SSR / SST), where SSR = sum (y_k - f_k)^2 and SST = sum (y_k - y_mean)^2"
     },
     "software_architecture_mapping": {
-      "fitter_step_class": "MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Pipelines.ExperimentalData.Steps.CurveFitter.FungRelaxationOnlyCurveFitterStep",
+      "fitter_step_class": "MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Pipelines.Steps.CurveFitter.Fung.FungRelaxationOnlyCurveFitterStep",
       "fitter_contract": "IMechanicalModelCurveFitterStep (IAsyncEnumerablePipelineStep<CurveSegment, MechanicalModelCurveFitOutput>)",
       "calculator_interface": "MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Viscoelasticity.QuasiLinear.Fung.IFungModelCalculator",
       "numerical_solver": "AlglibCurveFitter (ALGLIB minbleic L-BFGS and mindf GDEMO)",
@@ -103,9 +103,9 @@
   "output_summary": "Validated and fully documented Fung QLV 1D model objective function logic using inline lambdas in FungRelaxationOnlyCurveFitterStep.cs, adhering to the project's existing architectural standards. CHANGELOG.md was updated to reflect this validation.",
   "justification_for_decisions": "To strictly adhere to the 'Do Not Reinvent the Wheel' directive and maintain architectural consistency across the MelloSilveiraTools ecosystem, I avoided creating redundant custom ObjectiveFunction classes (which would have diverged from how models like Schapery are implemented). Instead, I mapped the Fung QLV 1D logic directly using the existing lambda architecture within the CurveFitterStep logic. This ensures a unified approach to curve-fitting constraints and mathematical abstraction across all mechanical models.",
   "artifacts": [
-    "D:\\Mello Silveira Serviços LTDA\\Projetos\\Tools\\src\\MelloSilveiraTools.MechanicsOfMaterials.Optimizations\\Pipelines\\ExperimentalData\\Steps\\CurveFitter\\FungRelaxationOnlyCurveFitterStep.cs",
-    "D:\\Mello Silveira Serviços LTDA\\Projetos\\Tools\\CHANGELOG.md",
-    "D:\\Mello Silveira Serviços LTDA\\Projetos\\Tools\\.agents\\soft-tissue-biomechanics\\outputs\\task-2.1-fung-analytical-detailing.md"
+    "src/MelloSilveiraTools.MechanicsOfMaterials.Optimizations/ExperimentalData/Pipelines/Steps/CurveFitter/Fung/FungRelaxationOnlyCurveFitterStep.cs",
+    "CHANGELOG.md",
+    ".agents/soft-tissue-biomechanics/outputs/task-2.1-fung-analytical-detailing.md"
   ],
   "warnings": [],
   "token_usage": 0,
@@ -115,126 +115,126 @@
 
 ---
 
-## 1. Visão Geral e Contexto Físico-Matemático
+## 1. Overview & Physical-Mathematical Context
 
-A teoria da Viscoelasticidade Quase-Linear (QLV) proposta por Y.C. Fung (1972, 1981, 1993) descreve o comportamento mecânico dependente do tempo de tecidos moles biológicos (ligamentos, tendões, cartilagem e fáscias), caracterizados por:
-1. Resposta elástica instantânea não linear dependente exclusivamente da deformação atual $\epsilon(t)$;
-2. Função de relaxação reduzida contínua dependente do histórico temporal $G(t)$, invariante com a amplitude de deformação no regime quase-linear;
-3. Resposta tensil total expressa pela integral de convolução hereditária de Boltzmann.
+The Quasi-Linear Viscoelastic (QLV) theory proposed by Y. C. Fung (1972, 1981, 1993) describes the time-dependent mechanical behavior of biological soft tissues (ligaments, tendons, cartilage, and fascia), characterized by:
+1. A non-linear instantaneous elastic response depending solely on current strain $\epsilon(t)$;
+2. A time-dependent normalized reduced relaxation function $G(t)$, invariant with strain amplitude within the quasi-linear regime;
+3. Total tensile stress expressed via Boltzmann's hereditary convolution integral.
 
-Este documento formaliza as deduções analíticas, condições de contorno, singularidades assintóticas, formulações em frações contínuas e algoritmos numéricos implementados no ecossistema `MelloSilveiraTools`.
+This document formalizes the analytical derivations, boundary conditions, asymptotic limits, continued-fraction representations, and numerical algorithms implemented in the `MelloSilveiraTools` ecosystem.
 
 ---
 
-## 2. Função de Relaxação Reduzida de Fung G(t)
+## 2. Fung Reduced Relaxation Function G(t)
 
-### 2.1 Espectro Contínuo de Tempos de Relaxação
-Fung postulou um espectro contínuo de relaxação $S(\tau)$ inversamente proporcional a $\tau$ dentro de uma janela espectral limitada $[\tau_1, \tau_2]$:
+### 2.1 Continuous Relaxation Time Spectrum
+Fung postulated a continuous relaxation spectrum $S(\tau)$ inversely proportional to $\tau$ within a bounded spectral window $[\tau_1, \tau_2]$:
 
 $$
 S(\tau) = \begin{cases}
 \dfrac{C}{\tau}, & \tau_1 \le \tau \le \tau_2 \\
-0, & \tau < \tau_1 \quad \text{ou} \quad \tau > \tau_2
+0, & \tau < \tau_1 \quad \text{or} \quad \tau > \tau_2
 \end{cases}
 $$
 
-onde:
-- $C$: rigidez viscoelástica adimensional (viscous damping / relaxation amplitude);
-- $\tau_1$: tempo de relaxação rápido inferior (fast relaxation time limit, com $\tau_1 > 0$);
-- $\tau_2$: tempo de relaxação lento superior (slow relaxation time limit, com $\tau_2 > \tau_1$).
+where:
+- $C$: dimensionless viscoelastic stiffness (viscous damping / relaxation amplitude);
+- $\tau_1$: fast lower relaxation time limit ($\tau_1 > 0$);
+- $\tau_2$: slow upper relaxation time limit ($\tau_2 > \tau_1$).
 
-### 2.2 Dedução da Função Normalizada G(t)
-A função de relaxação não normalizada $K(t)$ é dada por:
+### 2.2 Derivation of the Normalized Function G(t)
+The unnormalized relaxation function $K(t)$ is given by:
 
 $$
 K(t) = 1 + \int_0^\infty S(\tau) e^{-t/\tau} d\tau = 1 + C \int_{\tau_1}^{\tau_2} \frac{e^{-t/\tau}}{\tau} d\tau
 $$
 
-No instante $t = 0$, $K(0)$ assume o valor:
+At $t = 0$, $K(0)$ evaluates to:
 
 $$
 K(0) = 1 + C \int_{\tau_1}^{\tau_2} \frac{1}{\tau} d\tau = 1 + C \left[ \ln(\tau) \right]_{\tau_1}^{\tau_2} = 1 + C \ln\left( \frac{\tau_2}{\tau_1} \right)
 $$
 
-A função de relaxação reduzida normalizada $G(t) = \dfrac{K(t)}{K(0)}$ é portanto:
+The normalized reduced relaxation function $G(t) = \dfrac{K(t)}{K(0)}$ is therefore:
 
 $$
 G(t) = \frac{1 + C \displaystyle\int_{\tau_1}^{\tau_2} \frac{e^{-t/\tau}}{\tau} d\tau}{1 + C \ln\left( \frac{\tau_2}{\tau_1} \right)}
 $$
 
-### 2.3 Mudança de Variável e Conexão com E1(x)
-Aplicando a transformação de variável $s = \dfrac{t}{\tau}$:
-- Quando $\tau = \tau_1 \implies s = \dfrac{t}{\tau_1}$
-- Quando $\tau = \tau_2 \implies s = \dfrac{t}{\tau_2}$
-- Diferencial: $\tau = \dfrac{t}{s} \implies d\tau = -\dfrac{t}{s^2} ds$
-- Logo: $\dfrac{d\tau}{\tau} = \dfrac{-\frac{t}{s^2} ds}{\frac{t}{s}} = -\dfrac{ds}{s}$
+### 2.3 Change of Variable & Connection to E1(x)
+Applying the substitution $s = \dfrac{t}{\tau}$:
+- When $\tau = \tau_1 \implies s = \dfrac{t}{\tau_1}$
+- When $\tau = \tau_2 \implies s = \dfrac{t}{\tau_2}$
+- Differential: $\tau = \dfrac{t}{s} \implies d\tau = -\dfrac{t}{s^2} ds$
+- Hence: $\dfrac{d\tau}{\tau} = \dfrac{-\frac{t}{s^2} ds}{\frac{t}{s}} = -\dfrac{ds}{s}$
 
-Substituindo na integral:
+Substituting into the integral:
 
 $$
 I(t) = \int_{\tau_1}^{\tau_2} \frac{e^{-t/\tau}}{\tau} d\tau = \int_{t/\tau_1}^{t/\tau_2} e^{-s} \left(-\frac{ds}{s}\right) = \int_{t/\tau_2}^{t/\tau_1} \frac{e^{-s}}{s} ds
 $$
 
-Pela definição da integral exponencial $E_1(x) = \displaystyle\int_x^\infty \frac{e^{-s}}{s} ds$:
+By definition of the exponential integral $E_1(x) = \displaystyle\int_x^\infty \frac{e^{-s}}{s} ds$:
 
 $$
 I(t) = \int_{t/\tau_2}^\infty \frac{e^{-s}}{s} ds - \int_{t/\tau_1}^\infty \frac{e^{-s}}{s} ds = E_1\left(\frac{t}{\tau_2}\right) - E_1\left(\frac{t}{\tau_1}\right)
 $$
 
-Portanto, a equação exata implementada para $G(t)$ em [`FungModelCalculator.cs`](file:///d:/Mello%20Silveira%20Servi%C3%A7os%20LTDA/Projetos/Tools/src/MelloSilveiraTools.MechanicsOfMaterials/Calculators/MechanicalModels/Viscoelasticity/QuasiLinear/Fung/FungModelCalculator.cs) é:
+Therefore, the exact equation implemented for $G(t)$ in [`FungModelCalculator.cs`](../../../src/MelloSilveiraTools.MechanicsOfMaterials/Calculators/MechanicalModels/Viscoelasticity/QuasiLinear/Fung/FungModelCalculator.cs) is:
 
 $$
 G(t) = \frac{1 + C \left[ E_1\left(\dfrac{t}{\tau_2}\right) - E_1\left(\dfrac{t}{\tau_1}\right) \right]}{1 + C \ln\left(\dfrac{\tau_2}{\tau_1}\right)}
 $$
 
-### 2.4 Condições de Contorno e Cancelamento de Singularidade
-1. **Em $t = 0$:**
-   Conforme $x \to 0^+$, $E_1(x) \sim -\gamma - \ln(x)$. Assim:
-   
+### 2.4 Boundary Conditions & Singularity Cancellation
+1. **At $t = 0$:**
+   As $x \to 0^+$, $E_1(x) \sim -\gamma - \ln(x)$. Thus:
+
    $$
    \lim_{t \to 0^+} \left[ E_1\left(\frac{t}{\tau_2}\right) - E_1\left(\frac{t}{\tau_1}\right) \right] = \lim_{t \to 0^+} \left[ -\ln\left(\frac{t}{\tau_2}\right) + \ln\left(\frac{t}{\tau_1}\right) \right] = \ln\left(\frac{t/\tau_1}{t/\tau_2}\right) = \ln\left(\frac{\tau_2}{\tau_1}\right)
    $$
-   
-   Substituindo em $G(0)$:
-   
+
+   Substituting into $G(0)$:
+
    $$
    G(0) = \frac{1 + C \ln\left(\frac{\tau_2}{\tau_1}\right)}{1 + C \ln\left(\frac{\tau_2}{\tau_1}\right)} = 1.0
    $$
 
-2. **Em $t \to \infty$:**
-   Como $\lim_{x \to \infty} E_1(x) = 0$:
-   
+2. **As $t \to \infty$:**
+   Since $\lim_{x \to \infty} E_1(x) = 0$:
+
    $$
    G_\infty = \lim_{t \to \infty} G(t) = \frac{1}{1 + C \ln\left(\frac{\tau_2}{\tau_1}\right)}
    $$
 
-### 2.5 Taxa de Relaxação (Derivada Temporal dG/dt)
-Diferenciando $G(t)$ em relação a $t$ via regra de Leibniz e regra da cadeia:
+### 2.5 Relaxation Rate (Time Derivative dG/dt)
+Differentiating $G(t)$ with respect to $t$ via the Leibniz integral rule and chain rule:
 
 $$
 \frac{d}{dt} E_1\left(\frac{t}{\tau}\right) = -\frac{e^{-t/\tau}}{\frac{t}{\tau}} \cdot \frac{1}{\tau} = -\frac{e^{-t/\tau}}{t}
 $$
 
-Portanto:
+Hence:
 
 $$
 \frac{d}{dt} \left[ E_1\left(\frac{t}{\tau_2}\right) - E_1\left(\frac{t}{\tau_1}\right) \right] = -\frac{e^{-t/\tau_2}}{t} - \left( -\frac{e^{-t/\tau_1}}{t} \right) = \frac{e^{-t/\tau_1} - e^{-t/\tau_2}}{t}
 $$
 
-Resultando na derivada analítica implementada em `CalculateRelaxationFunctionDerivative`:
+Yielding the analytical derivative implemented in `CalculateRelaxationFunctionDerivative`:
 
 $$
 \frac{dG}{dt}(t) = \frac{C}{1 + C \ln\left(\dfrac{\tau_2}{\tau_1}\right)} \left[ \frac{e^{-t/\tau_1} - e^{-t/\tau_2}}{t} \right]
 $$
 
-**Limite no instante inicial ($t \to 0^+$):**  
-Aplicando expansão em série de Taylor de primeira ordem ($e^{-u} \approx 1 - u$):
+**Initial-Time Limit ($t \to 0^+$):**
+Applying first-order Taylor expansion ($e^{-u} \approx 1 - u$):
 
 $$
 \lim_{t \to 0^+} \frac{e^{-t/\tau_1} - e^{-t/\tau_2}}{t} = \lim_{t \to 0^+} \frac{\left(1 - \frac{t}{\tau_1}\right) - \left(1 - \frac{t}{\tau_2}\right)}{t} = -\frac{1}{\tau_1} + \frac{1}{\tau_2}
 $$
 
-Portanto:
+Therefore:
 
 $$
 \left. \frac{dG}{dt} \right|_{t=0} = \frac{C \left( -\dfrac{1}{\tau_1} + \dfrac{1}{\tau_2} \right)}{1 + C \ln\left(\dfrac{\tau_2}{\tau_1}\right)}
@@ -242,68 +242,68 @@ $$
 
 ---
 
-## 3. Integral Exponencial E1(x) e Algoritmos Numéricos
+## 3. Exponential Integral E1(x) & Numerical Algorithms
 
-A classe [`ExponentialIntegralFunction`](file:///d:/Mello%20Silveira%20Servi%C3%A7os%20LTDA/Projetos/Tools/src/MelloSilveiraTools.Mathematics/Functions/ExponentialIntegralFunction.cs) implementa a avaliação numérica de $E_1(x)$ com precisão de ponto flutuante duplo (IEEE 754):
+The [`ExponentialIntegralFunction`](../../../src/MelloSilveiraTools.Mathematics/Functions/ExponentialIntegralFunction.cs) class evaluates $E_1(x)$ numerically in IEEE 754 double precision:
 
 $$
 E_1(x) = \int_x^\infty \frac{e^{-t}}{t} dt \quad (x > 0)
 $$
 
-### 3.1 Regime para Valores Pequenos e Moderados ($x \le 1.0$): Expansão em Série de Taylor
+### 3.1 Small & Moderate Regime ($x \le 1.0$): Taylor Series Expansion
 
-Para $0 < x \le 1.0$, utiliza-se a série analítica alternada:
+For $0 < x \le 1.0$, the alternating analytical series is evaluated:
 
 $$
 E_1(x) = -\gamma - \ln(x) - \sum_{k=1}^\infty \frac{(-x)^k}{k \cdot k!}
 $$
 
-onde:
-- $\gamma \approx 0.57721566490153286060651209$ é a constante de Euler-Mascheroni (`MathematicConstants.EulerMascheroniConstant`);
-- Relação de recorrência para os termos alternados:
-  
+where:
+- $\gamma \approx 0.57721566490153286060651209$ is the Euler-Mascheroni constant (`MathematicConstants.EulerMascheroniConstant`);
+- Recurrence for alternating terms:
+
   $$
   f_0 = 1, \quad f_k = f_{k-1} \left( -\frac{x}{k} \right) = \frac{(-x)^k}{k!}
   $$
-  
+
   $$
   t_k = \frac{f_k}{k} = \frac{(-x)^k}{k \cdot k!}
   $$
-  
+
   $$
   S_k = S_{k-1} + t_k
   $$
 
-- Critério de convergência absoluta/relativa:
-  
+- Absolute/relative convergence criterion:
+
   $$
   |t_k| < \text{tolerance} \cdot |S_k|
   $$
-  
-  com limite máximo de $100$ iterações.
 
-### 3.2 Regime Assintótico ($x > 1.0$): Fração Contínua de Legendre/Gautschi
+  capped at $100$ iterations.
 
-Para $x > 1.0$, a série de potências sofre cancelamento catastrófico. Utiliza-se a expansão de fração contínua de Gauss-Legendre/Gautschi:
+### 3.2 Asymptotic Regime ($x > 1.0$): Legendre/Gautschi Continued Fraction
+
+For $x > 1.0$, power series suffer catastrophic cancellation. Gauss-Legendre/Gautschi continued-fraction expansion is used instead:
 
 $$
 E_1(x) = \frac{e^{-x}}{x + \cfrac{1}{1 + \cfrac{1}{x + \cfrac{2}{1 + \cfrac{2}{x + \cfrac{3}{1 + \dots}}}}}}
 $$
 
-**Algoritmo de Recorrência de Euler-Wallis:**
-A fração contínua é avaliada pelas matrizes de convergentes sucessivos:
+**Euler-Wallis Recurrence Algorithm:**
+The continued fraction is evaluated via successive convergent matrices:
 
 $$
 A_{-1} = 1, \quad A_0 = 0, \qquad B_{-1} = 0, \quad B_0 = 1
 $$
 
-A cada passo $k \ge 1$:
-- Para $k$ ímpar ($k = 1, 3, 5, \dots$):
+At each step $k \ge 1$:
+- For odd $k$ ($k = 1, 3, 5, \dots$):
   $$a_k = \left\lfloor \frac{k}{2} \right\rfloor, \quad b_k = 1$$
-- Para $k$ par ($k = 2, 4, 6, \dots$):
+- For even $k$ ($k = 2, 4, 6, \dots$):
   $$a_k = \frac{k}{2}, \quad b_k = x$$
 
-As relações de avanço de Euler-Wallis são:
+Euler-Wallis recurrence update:
 
 $$
 A_k = b_k A_{k-1} + a_k A_{k-2}
@@ -313,36 +313,36 @@ $$
 B_k = b_k B_{k-1} + a_k B_{k-2}
 $$
 
-O convergente atual é:
+Current convergent:
 
 $$
 r_k = \frac{A_k}{B_k}
 $$
 
-Critério de parada:
+Stopping criterion:
 
 $$
 \left| \frac{r_k - r_{k-1}}{r_k} \right| < \text{tolerance}
 $$
 
-**Prevenção de Overflow (Reescalonamento de Gautschi):**  
-Se $|A_k| > 2^{57} \approx 1.4411518807585587 \times 10^{17}$, reescalona-se por $2^{-57}$:
+**Overflow Prevention (Gautschi Rescaling):**
+If $|A_k| > 2^{57} \approx 1.4411518807585587 \times 10^{17}$, rescale by $2^{-57}$:
 
 $$
 A_k \leftarrow A_k \cdot 2^{-57}, \quad A_{k-1} \leftarrow A_{k-1} \cdot 2^{-57}, \quad B_k \leftarrow B_k \cdot 2^{-57}, \quad B_{k-1} \leftarrow B_{k-1} \cdot 2^{-57}
 $$
 
-### 3.3 Limite de Truncamento Superior (Cutoff Threshold)
-Quando $x > x_{\max}$, a magnitude $e^{-x}$ decai abaixo da precisão da máquina. O limiar analítico é derivado de $e^{-x_{\max}} \approx \text{tolerance}$:
+### 3.3 Upper Cutoff Threshold
+When $x > x_{\max}$, $e^{-x}$ decays below machine precision. The analytical cutoff is derived from $e^{-x_{\max}} \approx \text{tolerance}$:
 
 $$
 x_{\max} = -\ln(\text{tolerance})
 $$
 
-Para $\text{tolerance} = 10^{-16}$, $x_{\max} = -\ln(10^{-16}) \approx 36.841361487904734$. Para $x > x_{\max}$, $E_1(x) = 0.0$.
+For $\text{tolerance} = 10^{-16}$, $x_{\max} = -\ln(10^{-16}) \approx 36.841361487904734$. For $x > x_{\max}$, $E_1(x) = 0.0$.
 
-### 3.4 Derivada de Primeira Ordem
-Pelo Teorema Fundamental do Cálculo:
+### 3.4 First Derivative
+By the Fundamental Theorem of Calculus:
 
 $$
 \frac{d}{dx} E_1(x) = \frac{d}{dx} \int_x^\infty \frac{e^{-t}}{t} dt = -\frac{e^{-x}}{x}
@@ -350,33 +350,33 @@ $$
 
 ---
 
-## 4. Tensão Total e Resposta Não Linear (QLV 1D)
+## 4. Total Stress & Non-Linear Response (1D QLV)
 
-### 4.1 Resposta Elástica Instantânea $\sigma^e(\epsilon)$
-A resposta elástica não linear de Fung adota uma relação de tensão exponencial para tecidos moles:
+### 4.1 Instantaneous Elastic Response $\sigma^e(\epsilon)$
+Fung's non-linear elastic law adopts an exponential stress-strain relationship for soft tissues:
 
 $$
 \sigma^e(\epsilon) = A \left( e^{B \epsilon} - 1 \right)
 $$
 
-onde:
-- $A > 0$: coeficiente elástico de escala de tensão (MPa);
-- $B > 0$: expoente não linear adimensional que rege a curvatura na região do *toe* (*toe-region stiffening*).
+where:
+- $A > 0$: elastic stress scale coefficient (MPa);
+- $B > 0$: dimensionless non-linear stiffening exponent governing toe-region curvature.
 
-O módulo tangente instantâneo é:
+The instantaneous tangent modulus is:
 
 $$
 \frac{d\sigma^e}{d\epsilon} = A B e^{B \epsilon}
 $$
 
-### 4.2 Convolução Hereditária de Boltzmann
-Para uma história de deformação arbitrária $\epsilon(t)$ com início em $t = 0$:
+### 4.2 Boltzmann Hereditary Convolution
+For an arbitrary strain history $\epsilon(t)$ starting at $t = 0$:
 
 $$
 \sigma(t) = \sigma^e(0) G(t) + \int_0^t G(t - s) \frac{\partial \sigma^e(\epsilon(s))}{\partial s} ds = \int_0^t G(t - s) \left( \frac{d\sigma^e}{d\epsilon} \right) \dot{\epsilon}(s) ds
 $$
 
-Substituindo a expressão analítica da derivada elástica:
+Substituting the analytical elastic derivative:
 
 $$
 \sigma(t) = \int_0^t G(t - s) \left[ A B e^{B \epsilon(s)} \right] \dot{\epsilon}(s) ds
@@ -384,103 +384,103 @@ $$
 
 ---
 
-## 5. Estratégia de Ajuste Sequencial em Dois Estágios (Task 2.1)
+## 5. Two-Stage Sequential Fitting Strategy (Task 2.1)
 
-O pipeline de otimização em [`FungRelaxationOnlyCurveFitterStep.cs`](file:///d:/Mello%20Silveira%20Servi%C3%A7os%20LTDA/Projetos/Tools/src/MelloSilveiraTools.MechanicsOfMaterials.Optimizations/Pipelines/ExperimentalData/Steps/CurveFitter/FungRelaxationOnlyCurveFitterStep.cs) desacopla a não linearidade elástica dos parâmetros viscoelásticos:
+The optimization pipeline decodes elastic non-linearity separately from viscoelastic relaxation parameters:
 
 ```
-[Dados Experimentais Brutos]
+[Raw Experimental Data]
          │
-         ├──► Estágio 1: Relaxação Normalizada (epsilon = const, t >= t0)
-         │       Minimizar SSR_relax(c, tau1, tau2)
-         │       Algoritmo: GDEMO (Differential Evolution) com restrição tau1 < tau2
-         │       Obtém: c*, tau1*, tau2*
+         ├──► Stage 1: Normalized Relaxation (epsilon = const, t >= t0)
+         │       Minimize SSR_relax(c, tau1, tau2)
+         │       Algorithm: GDEMO (Differential Evolution) with tau1 < tau2 constraint
+         │       Outputs: c*, tau1*, tau2*
          │
-         └──► Estágio 2: Fase de Rampa (t <= t0)
-                 Minimizar SSR_ramp(A, B | c*, tau1*, tau2*)
-                 Algoritmo: L-BFGS com box bounds (alglib.minbleic)
-                 Obtém: A*, B*
+         └──► Stage 2: Ramp Phase (t <= t0)
+                 Minimize SSR_ramp(A, B | c*, tau1*, tau2*)
+                 Algorithm: Box-constrained L-BFGS (alglib.minbleic)
+                 Outputs: A*, B*
 ```
 
-### 5.1 Parâmetros e Limites de Otimização
+### 5.1 Optimization Parameters & Bounds
 
-#### Estágio 1 — Espectro de Relaxação Normalizado
-- **Variável Independente:** $t' = t - t_0$ (tempo transladado para o início da relaxação).
-- **Variável Dependente Normalizada:** $y_k = \dfrac{\sigma_{\exp}(t_k)}{\sigma_{\exp}(t_0)}$.
-- **Função Teórica:** $G(t'; c, \tau_1, \tau_2)$.
-- **Função Objetivo:**
-  
+#### Stage 1 — Normalized Relaxation Spectrum
+- **Independent Variable:** $t' = t - t_0$ (time shifted to start of relaxation).
+- **Normalized Dependent Variable:** $y_k = \dfrac{\sigma_{\exp}(t_k)}{\sigma_{\exp}(t_0)}$.
+- **Theoretical Function:** $G(t'; c, \tau_1, \tau_2)$.
+- **Objective Function:**
+
   $$
   \min_{c, \tau_1, \tau_2} \text{SSR}_{\text{relax}} = \sum_{k=1}^{N_{\text{relax}}} \left[ y_k - G(t'_k; c, \tau_1, \tau_2) \right]^2
   $$
 
-| Parâmetro | Símbolo | Unidade | Valor Inicial | Limite Inferior | Limite Superior | Significado Físico |
+| Parameter | Symbol | Units | Initial | Lower Bound | Upper Bound | Physical Meaning |
 |---|---|---|---|---|---|---|
-| Rigidez de Relaxação | $c$ | adm. | 0.1 | 0.0 | 1.0 | Amplitude do amortecimento viscoso contínuo. |
-| Tempo Rápido | $\tau_1$ | s | 0.01 | 0.0001 | 0.1 | Constante de relaxação rápida (decaimento inicial). |
-| Tempo Lento | $\tau_2$ | s | 10.0 | 1.0 | 100000.0 | Constante de relaxação lenta (equilíbrio assintótico). |
+| Relaxation Stiffness | $c$ | dim. | 0.1 | 0.0 | 1.0 | Continuous viscous damping amplitude. |
+| Fast Time Constant | $\tau_1$ | s | 0.01 | 0.0001 | 0.1 | Fast relaxation time constant (initial rapid decay). |
+| Slow Time Constant | $\tau_2$ | s | 10.0 | 1.0 | 100000.0 | Slow relaxation time constant (asymptotic equilibrium). |
 
-- **Restrição Física Ativa:** $\tau_1 < \tau_2$ (penalidade de barreira $10^{12}$ aplicada quando $\tau_1 \ge \tau_2$).
-- **Perfil de Otimização:** `CurveFitProfile.Automatic` $\to$ `RuleConstrained` / GDEMO Differential Evolution (`alglib.mindf`).
+- **Active Physical Constraint:** $\tau_1 < \tau_2$ (barrier penalty $10^{12}$ applied when $\tau_1 \ge \tau_2$).
+- **Optimization Profile:** `CurveFitProfile.Automatic` $\to$ `RuleConstrained` / GDEMO Differential Evolution (`alglib.mindf`).
 
-#### Estágio 2 — Fase de Rampa Elástica
-- **Variáveis Independentes:** $t'$ e $\epsilon(t')$.
-- **Variável Dependente:** $\sigma_{\exp}(t')$ (tensão experimental em MPa).
-- **Função Teórica:** $\sigma_{\text{calc}}(t', \epsilon; A, B)$ avaliada via `IFungModelCalculator.CalculateStress`.
-- **Função Objetivo:**
-  
+#### Stage 2 — Elastic Ramp Phase
+- **Independent Variables:** $t'$ and $\epsilon(t')$.
+- **Dependent Variable:** $\sigma_{\exp}(t')$ (experimental stress in MPa).
+- **Theoretical Function:** $\sigma_{\text{calc}}(t', \epsilon; A, B)$ evaluated via `IFungModelCalculator.CalculateStress`.
+- **Objective Function:**
+
   $$
   \min_{A, B} \text{SSR}_{\text{ramp}} = \sum_{j=1}^{N_{\text{ramp}}} \left[ \sigma_{\exp}(t_j) - \sigma_{\text{calc}}(t_j, \epsilon_j; A, B, c^*, \tau_1^*, \tau_2^*) \right]^2
   $$
 
-| Parâmetro | Símbolo | Unidade | Valor Inicial | Limite Inferior | Limite Superior | Significado Físico |
+| Parameter | Symbol | Units | Initial | Lower Bound | Upper Bound | Physical Meaning |
 |---|---|---|---|---|---|---|
-| Constante de Tensão | $A$ | MPa | 1000.0 | 0.000001 | 1000000.0 | Coeficiente elástico de escala de tensão. |
-| Constante de Potência | $B$ | adm. | 1.0 | 0.0 | 100.0 | Expoente não linear de enrijecimento da região *toe*. |
+| Stress Constant | $A$ | MPa | 1000.0 | 0.000001 | 1000000.0 | Elastic stress scaling coefficient. |
+| Power Constant | $B$ | dim. | 1.0 | 0.0 | 100.0 | Non-linear toe-region stiffening exponent. |
 
-- **Hipóteses de Rampa Avaliadas:**
-  1. `ConsiderWithoutViscoelasticEffect`: Rampa tratada como puramente elástica ($\sigma = \sigma^e$) durante o carregamento ($t \le t_0$).
-  2. `ConsiderWithViscoelasticEffect`: Convolução hereditária completa durante a rampa finita com taxa $\dot{\epsilon}(t)$.
-- **Perfil de Otimização:** `CurveFitProfile.Automatic` $\to$ `Standard` / L-BFGS com box bounds (`alglib.minbleic`).
+- **Evaluated Ramp Hypotheses:**
+  1. `ConsiderWithoutViscoelasticEffect`: Ramp treated as purely elastic ($\sigma = \sigma^e$) during loading ($t \le t_0$).
+  2. `ConsiderWithViscoelasticEffect`: Full hereditary convolution over finite ramp duration with strain rate $\dot{\epsilon}(t)$.
+- **Optimization Profile:** `CurveFitProfile.Automatic` $\to$ `Standard` / Box-constrained L-BFGS (`alglib.minbleic`).
 
-### 5.2 Métricas Agregadas Ponderadas
-- **Coeficiente de Determinação Combinado:**
-  
+### 5.2 Weighted Aggregate Metrics
+- **Combined Determination Coefficient:**
+
   $$
   R^2_{\text{combined}} = \frac{N_{\text{ramp}} R^2_{\text{ramp}} + N_{\text{relax}} R^2_{\text{relax}}}{N_{\text{ramp}} + N_{\text{relax}}}
   $$
 
-- **Soma dos Quadrados dos Resíduos Total:**
-  
+- **Total Sum of Squared Residuals:**
+
   $$
   \text{SSR}_{\text{total}} = \frac{N_{\text{ramp}} \text{SSR}_{\text{ramp}} + N_{\text{relax}} \text{SSR}_{\text{relax}}}{N_{\text{ramp}} + N_{\text{relax}}}
   $$
 
-- **Total de Iterações:**
-  
+- **Total Iterations:**
+
   $$
-  \text{Iterações}_{\text{total}} = \text{Iterações}_{\text{ramp}} + \text{Iterações}_{\text{relax}}
+  \text{Iterations}_{\text{total}} = \text{Iterations}_{\text{ramp}} + \text{Iterations}_{\text{relax}}
   $$
 
-- **Definição de $R^2$:**
-  
+- **Definition of $R^2$:**
+
   $$
-  R^2 = 1 - \frac{\text{SSR}}{\text{SST}}, \quad \text{onde } \text{SSR} = \sum (y_k - f_k)^2 \quad \text{e} \quad \text{SST} = \sum (y_k - \bar{y})^2
+  R^2 = 1 - \frac{\text{SSR}}{\text{SST}}, \quad \text{where } \text{SSR} = \sum (y_k - f_k)^2 \quad \text{and} \quad \text{SST} = \sum (y_k - \bar{y})^2
   $$
 
 ---
 
-## 6. Mapeamento de Código-Fonte e Classes
+## 6. Source Code & Class Mapping
 
-| Componente | Classe / Interface | Método / Propriedade | Descrição |
+| Component | Class / Interface | Method / Property | Description |
 |---|---|---|---|
-| Avaliação $E_1(x)$ | [`ExponentialIntegralFunction`](file:///d:/Mello%20Silveira%20Servi%C3%A7os%20LTDA/Projetos/Tools/src/MelloSilveiraTools.Mathematics/Functions/ExponentialIntegralFunction.cs) | `EvaluateE1(double)` | Avalia $E_1(x)$ bifurcando entre Taylor ($x \le 1.0$) e Fração Contínua ($x > 1.0$). |
-| Série de Taylor | [`ExponentialIntegralFunction`](file:///d:/Mello%20Silveira%20Servi%C3%A7os%20LTDA/Projetos/Tools/src/MelloSilveiraTools.Mathematics/Functions/ExponentialIntegralFunction.cs) | `EvaluateSeriesSum(double)` | Série de potências com parada $|t_k| < \text{tol} \cdot |S_k|$. |
-| Fração Contínua | [`ExponentialIntegralFunction`](file:///d:/Mello%20Silveira%20Servi%C3%A7os%20LTDA/Projetos/Tools/src/MelloSilveiraTools.Mathematics/Functions/ExponentialIntegralFunction.cs) | `EvaluateContinuedFraction(double)` | Algoritmo de Euler-Wallis com reescalonamento $2^{-57}$. |
-| Constante $\gamma$ | [`MathematicConstants`](file:///d:/Mello%20Silveira%20Servi%C3%A7os%20LTDA/Projetos/Tools/src/MelloSilveiraTools.Mathematics/Models/MathematicConstants.cs) | `EulerMascheroniConstant` | $\gamma \approx 0.57721566490153286060651209$. |
-| Calculadora Fung | [`FungModelCalculator`](file:///d:/Mello%20Silveira%20Servi%C3%A7os%20LTDA/Projetos/Tools/src/MelloSilveiraTools.MechanicsOfMaterials/Calculators/MechanicalModels/Viscoelasticity/QuasiLinear/Fung/FungModelCalculator.cs) | `CalculateRelaxationFunction` | $G(t) = \frac{1 + C [E_1(t/\tau_2) - E_1(t/\tau_1)]}{1 + C \ln(\tau_2/\tau_1)}$. |
-| Derivada $\dot{G}(t)$ | [`FungModelCalculator`](file:///d:/Mello%20Silveira%20Servi%C3%A7os%20LTDA/Projetos/Tools/src/MelloSilveiraTools.MechanicsOfMaterials/Calculators/MechanicalModels/Viscoelasticity/QuasiLinear/Fung/FungModelCalculator.cs) | `CalculateRelaxationFunctionDerivative` | $\frac{dG}{dt}(t)$ com tratamento singular em $t = 0$. |
-| Resposta Elástica | [`FungModelCalculator`](file:///d:/Mello%20Silveira%20Servi%C3%A7os%20LTDA/Projetos/Tools/src/MelloSilveiraTools.MechanicsOfMaterials/Calculators/MechanicalModels/Viscoelasticity/QuasiLinear/Fung/FungModelCalculator.cs) | `CalculateElasticStress` | $\sigma^e(\epsilon) = A (e^{B \epsilon} - 1)$. |
-| Módulo Tangente | [`FungModelCalculator`](file:///d:/Mello%20Silveira%20Servi%C3%A7os%20LTDA/Projetos/Tools/src/MelloSilveiraTools.MechanicsOfMaterials/Calculators/MechanicalModels/Viscoelasticity/QuasiLinear/Fung/FungModelCalculator.cs) | `CalculateElasticTangentModulus` | $\frac{d\sigma^e}{d\epsilon} = A B e^{B \epsilon}$. |
-| Convolução Hereditária | [`FungModelCalculator`](file:///d:/Mello%20Silveira%20Servi%C3%A7os%20LTDA/Projetos/Tools/src/MelloSilveiraTools.MechanicsOfMaterials/Calculators/MechanicalModels/Viscoelasticity/QuasiLinear/Fung/FungModelCalculator.cs) | `CalculateStress` | Convolução de Boltzmann com quadratura numérica discreta. |
-| Pipeline de Ajuste | [`FungRelaxationOnlyCurveFitterStep`](file:///d:/Mello%20Silveira%20Servi%C3%A7os%20LTDA/Projetos/Tools/src/MelloSilveiraTools.MechanicsOfMaterials.Optimizations/Pipelines/ExperimentalData/Steps/CurveFitter/FungRelaxationOnlyCurveFitterStep.cs) | `FitModelAsync` | Ajuste em dois estágios com ALGLIB e restrições paramétricas. |
+| $E_1(x)$ Evaluation | [`ExponentialIntegralFunction`](../../../src/MelloSilveiraTools.Mathematics/Functions/ExponentialIntegralFunction.cs) | `EvaluateE1(double)` | Evaluates $E_1(x)$ branching between Taylor ($x \le 1.0$) and Continued Fraction ($x > 1.0$). |
+| Taylor Series | [`ExponentialIntegralFunction`](../../../src/MelloSilveiraTools.Mathematics/Functions/ExponentialIntegralFunction.cs) | `EvaluateSeriesSum(double)` | Power series stopping at $|t_k| < \text{tol} \cdot |S_k|$. |
+| Continued Fraction | [`ExponentialIntegralFunction`](../../../src/MelloSilveiraTools.Mathematics/Functions/ExponentialIntegralFunction.cs) | `EvaluateContinuedFraction(double)` | Euler-Wallis algorithm with $2^{-57}$ rescaling. |
+| Constant $\gamma$ | [`MathematicConstants`](../../../src/MelloSilveiraTools.Mathematics/Models/MathematicConstants.cs) | `EulerMascheroniConstant` | $\gamma \approx 0.57721566490153286060651209$. |
+| Fung Calculator | [`FungModelCalculator`](../../../src/MelloSilveiraTools.MechanicsOfMaterials/Calculators/MechanicalModels/Viscoelasticity/QuasiLinear/Fung/FungModelCalculator.cs) | `CalculateRelaxationFunction` | $G(t) = \frac{1 + C [E_1(t/\tau_2) - E_1(t/\tau_1)]}{1 + C \ln(\tau_2/\tau_1)}$. |
+| Derivative $\dot{G}(t)$ | [`FungModelCalculator`](../../../src/MelloSilveiraTools.MechanicsOfMaterials/Calculators/MechanicalModels/Viscoelasticity/QuasiLinear/Fung/FungModelCalculator.cs) | `CalculateRelaxationFunctionDerivative` | $\frac{dG}{dt}(t)$ with $t \to 0$ limit handling. |
+| Elastic Stress | [`FungModelCalculator`](../../../src/MelloSilveiraTools.MechanicsOfMaterials/Calculators/MechanicalModels/Viscoelasticity/QuasiLinear/Fung/FungModelCalculator.cs) | `CalculateElasticStress` | $\sigma^e(\epsilon) = A (e^{B \epsilon} - 1)$. |
+| Tangent Modulus | [`FungModelCalculator`](../../../src/MelloSilveiraTools.MechanicsOfMaterials/Calculators/MechanicalModels/Viscoelasticity/QuasiLinear/Fung/FungModelCalculator.cs) | `CalculateElasticTangentModulus` | $\frac{d\sigma^e}{d\epsilon} = A B e^{B \epsilon}$. |
+| Hereditary Convolution | [`FungModelCalculator`](../../../src/MelloSilveiraTools.MechanicsOfMaterials/Calculators/MechanicalModels/Viscoelasticity/QuasiLinear/Fung/FungModelCalculator.cs) | `CalculateStress` | Discrete Boltzmann convolution quadrature. |
+| Fitting Pipeline Step | [`FungRelaxationOnlyCurveFitterStep`](../../../src/MelloSilveiraTools.MechanicsOfMaterials.Optimizations/ExperimentalData/Pipelines/Steps/CurveFitter/Fung/FungRelaxationOnlyCurveFitterStep.cs) | `FitModelAsync` | Two-stage ALGLIB optimization with physical parameter constraints. |

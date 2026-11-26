@@ -66,10 +66,10 @@ await pipeline.Completion;
 
 ## 4. Dependency Injection & Technical Invariants
 
-- **DI Entry Point:** `CoreDependencyInjection.AddCoreServices(defaultResiliencePipelineSettings, encryptionSettings, emailSettings, fileStorageSettings, loggerSettings, pipelineProgressNotifierSettings)`.
-  - **Singletons (thread-safe):** `TimeProvider.System`, `PipelineFactory`, `IFileStorageService` (default `LocalFileStorageService` at `%TEMP%/storage` + keyed `StorageProvider.*`, path topology `{BaseDirectory}/{context}/{identifier}/{fileName}`), `ISingleLevelCache`, `ITwoLevelCache`, `ServiceLocator`, `IDynamicServiceProvider` (`InMemoryDynamicServiceProvider` using `Lazy<object>`), resilience pipelines (`Smtp`, `BlobStorage`, `AwsS3`), `IPipelineProgressNotifier` (`ChannelPipelineProgressNotifier` or `NullPipelineProgressNotifier.Instance`).
-  - **Scoped:** `IEncryptionService`, `IEmailService`.
-- **Result Monad & Command Pattern:** `ResultBase` → `Result` → `Result<T>` → `ListedResult<T>` → `PagedResult<T>` with factories (`Result.CreateSuccessOk`, `CreateBadRequest`, `CreateNotFound`), fluent validation (`.AddErrorIf()`, `.AddErrorIfNull()`, `.AddErrorIfNegativeOrZero()`), branching (`.OnSuccess()`, `.OnError()`, `.Match()`), and HTTP projections (`.ToHttpResult()`, `.BuildHttpResponse()`). `CommandBase<TRequest, TResult>` hierarchy with optional `IValidator<TRequest>`; `*Request` DTOs never carry `CancellationToken`.
+- **DI Entry Points:** `CoreDependencyInjection.AddCoreServices(defaultResiliencePipelineSettings, encryptionSettings, emailSettings, fileStorageSettings, loggerSettings, pipelineProgressNotifierSettings)`, `AddCoreLogging(loggerSettings)`, and `AddFileStorageHealthCheck(name, tags)` (both on `IHealthChecksBuilder` and `IServiceCollection`).
+  - **Singletons (thread-safe):** `TimeProvider.System`, `ICurrentUserProvider`, `PipelineFactory`, `IFileStorageService` (default `LocalFileStorageService` at `%TEMP%/storage` + keyed `StorageProvider.*`, path topology `{BaseDirectory}/{context}/{identifier}/{fileName}`, fail-closed `IsHealthAsync` probes + `FileStorageHealthCheck`), `ISingleLevelCache`, `ITwoLevelCache`, `ServiceLocator`, `IDynamicServiceProvider` (`InMemoryDynamicServiceProvider` using `Lazy<object>`), resilience pipelines (`Smtp`, `BlobStorage`, `AwsS3`), `IPipelineProgressNotifier` (`ChannelPipelineProgressNotifier` or `NullPipelineProgressNotifier.Instance`).
+  - **Singletons / Scoped Services:** `IEncryptionService` (`Singleton`), `IEmailService` (`Scoped`).
+- **Result Monad & Command Pattern:** `ResultBase` → `Result` → `Result<T>` → `ListedResult<T>` → `PagedResult<T>` with factories (`Result.CreateSuccessOk`, `CreateBadRequest`, `CreateUnauthorized`, `CreateForbidden`, `CreateNotFound`, `CreateServiceUnavailable`), fluent validation (`.AddErrorIf()`, `.AddErrorIfNull()`, `.AddErrorIfNegativeOrZero()`), branching (`.OnSuccess()`, `.OnError()`, `.Match()`), and HTTP projections (`.ToHttpResult()`, `.BuildHttpResponse()`). `CommandBase<TRequest, TResult>` / `CommandBaseWithoutRequest<TResult>` with async `IValidator<TRequest>` (`ValueTask<Result> ValidateAsync(...)`); `*Request` DTOs never carry `CancellationToken`.
 - **Pipelines (`IDataflowPipeline` & `IFluentPipeline`):**
   - *TPL Dataflow (`DataflowFanOut`):* Forks and broadcasts intentionally avoid native `BroadcastBlock<T>` (lossy last-value-wins) and dispatch sequentially via `ActionBlock` + `SendAsync` to bounded `BufferBlock` targets to guarantee 100% delivery, end-to-end backpressure, selective cloning (`i > 0`), and deterministic completion/fault propagation (`DataflowExtensions.LinkTo` defaults to `PropagateCompletion = true`).
   - *Fluent (`IFluentPipeline<TIn, TOut>`):* Pull-based sequential chains via `AddStep` (sync, async, `IAsyncEnumerable`) and `AddDataMapping`.
@@ -79,8 +79,12 @@ await pipeline.Completion;
 
 ## 5. Dependencies
 
-- `Polly` (8.7.0)
-- `Polly.RateLimiting` (8.7.0)
-- `Microsoft.Extensions.Logging` (10.0.11)
+- `Microsoft.AspNetCore.App` (FrameworkReference)
+- `AWSSDK.S3` (4.1.0)
+- `Azure.Storage.Blobs` (12.30.1)
+- `Polly` (8.9.1)
+- `Polly.RateLimiting` (8.9.1)
+- `Serilog.Enrichers.Environment` (3.0.1)
 - `Serilog.Extensions.Logging` (10.0.0)
 - `Serilog.Sinks.File` (7.0.0)
+- `Serilog.Sinks.Postgresql.Alternative` (4.3.0)

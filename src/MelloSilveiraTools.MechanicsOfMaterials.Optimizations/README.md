@@ -16,10 +16,10 @@ High-throughput experimental data processing, phase segmentation, constrained nu
 - **Parametric Sensitivity Analysis (`ParametricSweepPipeline`):**
   - Executes One-At-A-Time (OAAT) sweeps across scalar and array-indexed constitutive parameters, computing initial/final stress responses and steady-state relaxation asymptotes.
 - **Five Core Computational Workflows:**
-  1. *Single-Dataset Processing (`ExecuteExperimentalDataPipeline`):* Ingests synchronized `strain.csv` and `stress.csv` pairs.
-  2. *Batch Folder Preparation:* Prepares specimen test datasets from raw testing machine directories.
+  1. *Experimental Dataset Upload (`UploadExperimentalDataCommand`):* Stores paired `strain.csv` and `stress.csv` files and persists `StorageEntryMetadataEntity` rows.
+  2. *Single-Dataset Processing (`ExecuteExperimentalDataPipeline`):* Ingests synchronized `strain.csv` and `stress.csv` pairs for segmentation, downsampling, curve fitting, simulation, and persistence.
   3. *Batch Multi-Dataset Execution (`ExecuteBatchExperimentalDataPipeline`):* Executes multiple specimen groups in `Sequential` or `Parallel` modes with non-blocking `SemaphoreSlim` throttling (`MaxDegreeOfParallelism`).
-  4. *Single Baseline Parametric Sweep (`ExecuteParametricSweepPipeline`):* Evaluates sensitivity on a single constitutive baseline.
+  4. *Single Baseline Parametric Sweep (`ExecuteParametricSweepPipeline`):* Evaluates OAAT sensitivity on a single constitutive baseline.
   5. *Multi-Model Sweep by Identifier (`ExecuteParametricSweepFromExperimentalDataCommand`):* Evaluates sensitivity sweeps across all calibrated models generated from an experimental run.
 
 ---
@@ -94,19 +94,20 @@ Result<IAsyncEnumerable<string>> result = await batchCommand.ExecuteAsync(batchR
 
 ## 4. Dependency Injection & Technical Invariants
 
-- **DI Entry Point:** `DependencyInjection.AddOptimizationsServices(curveFitterOptions, experimentalDataSettings, parametricSweepSettings)`.
+- **DI Entry Point:** `DependencyInjection.AddOptimizationsServices(curveFitterSettings, experimentalDataSettings, parametricSweepSettings)`.
   - **Singletons (thread-safe):** `CurveFitterSettings`, `ICurveFitter` (default via `DefaultCurveFitter` + keyed `Alglib`/`MathNet`), `IMechanicalModelStepFactory`; keyed: `IMathExpressionCurveFitter` (`PronySeries`), `IFunctionCurveFitter` (`Logarithmic`/`Exponential`/`Polynomial`), `IParametricSweepGeneratorStep` (`Fung`/`SimplifiedFung`/`Schapery`); when configured: `ExperimentalDataSettings`, `ParametricSweepSettings`, `IPipeline<ExperimentalDataProcessingInput, string>`, `IPipeline<ParametricSweepPipelineInput, string>`, pipeline commands & validators.
 - **Pipeline Topologies & Profiles:**
   - *Experimental Data DAG:* `ExperimentalDataSegmenterStep` (`ArrayPool<ExperimentalDataPoint>.Shared` sliding window) → broadcast `ExperimentalDataFileWriterStep` → `ExperimentalDataDownsamplerStep` → `CurveSegmentBuilderStep` → `IMechanicalModelCurveFitterStep` (`FungRelaxationOnlyCurveFitterStep`, `SimplifiedFungRelaxationOnlyCurveFitterStep`, `SchaperyRelaxationOnlyCurveFitterStep`) → 3-way Fork (`CurveFitOutput`, SHA-256 `CurveFitOutputIdentifierBuilderStep`, `MechanicalModelSimulationStep`) → broadcast `CurveFitOutputPersistenceStep` → `MechanicalModelOutputPersistenceStep`.
   - *Parametric Sweep DAG:* `ParametricSweepGeneratorStepBase<T>` → `ParametricSweepSimulationStep` → `ParametricSweepCsvWriterStep` → `AddCollectAllStep` → `ParametricSweepPersistenceStep`.
   - *Curve Fit Profiles:* `CurveFitProfile.Automatic` selects `RuleConstrained` (`alglib.mindf` GDEMO with `1e12` barrier) when `ValidateParameters` is set, otherwise `Standard` (`alglib.minbleic` L-BFGS).
-  - *Commands, Serialization & Controllers:* Commands `ExecuteExperimentalDataPipeline`, `ExecuteBatchExperimentalDataPipeline` (`SemaphoreSlim` throttling), `ExecuteParametricSweepPipeline`, `ExecuteParametricSweepFromExperimentalDataCommand`; serialization via `OptimizationJsonOptions.SignificantFigures7` (`SignificantFiguresDoubleJsonConverter(7)`); controllers `ExperimentalDataController`, `ParametricSweepController`, `PipelineProgressController` (`GET api/v1/pipelines/{pipelineId}/progress` NDJSON), and `StorageEntryMetadataController`.
+  - *Commands, Serialization & HTTP Surface:* Commands `UploadExperimentalDataCommand`, `ExecuteExperimentalDataPipeline`, `ExecuteBatchExperimentalDataPipeline` (`SemaphoreSlim` throttling), `ExecuteParametricSweepPipeline`, `ExecuteParametricSweepFromExperimentalDataCommand`; serialization via `OptimizationJsonOptions.SignificantFigures7` (`SignificantFiguresDoubleJsonConverter(7)`); controllers (`ExperimentalDataController`, `ParametricSweepController`, `PipelineProgressController`) and Minimal API extensions (`MapExperimentalDataEndpoints`, `MapParametricSweepEndpoints`, `MapPipelineProgressEndpoints`, `MapOptimizationsCrudEndpoints`).
 
 ---
 
 ## 5. Dependencies & Licensing
 
 - `MelloSilveiraTools.MechanicsOfMaterials`
+- `MelloSilveiraTools.Database`
 - `MelloSilveiraTools.WebApi`
 - `MathNet.Numerics` (5.0.0)
 - *Notice:* This package bundles C# source code from ALGLIB Free Edition (`GPL-2.0-or-later`). In compliance with ALGLIB, the entire suite is licensed under **GNU GPLv3 or later (`GPL-3.0-or-later`)**.

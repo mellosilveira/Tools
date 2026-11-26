@@ -16,7 +16,7 @@ High-performance numerical analysis and mathematical calculation library designe
   - Second-order dynamic ODE solvers: `NewmarkMethod` and `NewmarkBetaMethod` (keyed `IDifferentialEquationMethod`).
 - **Numerical Calculus:**
   - Numerical Integration: `SimpsonRuleIntegration` (`IIntegration`).
-  - Finite Difference Differentiation: `FiniteDifferenceDifferentiation` (`IDifferentiation`).
+  - Finite Difference Differentiation: `Differentiation` (`IDifferentiation`).
 - **Root-Finding Algorithms (`IRootFinding`):**
   - High-precision, non-throwing bracketed root-finders: `BrentMethod`, `BisectionMethod`, and `StepByStepMethod`.
 - **Statistics & 3D Geometry:**

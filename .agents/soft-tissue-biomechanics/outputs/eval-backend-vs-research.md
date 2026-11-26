@@ -5,7 +5,7 @@
   "status": "success",
   "retry_count": 0,
   "data_payload": {
-    "levels": "1=atende completamente; 2=parcialmente; 3=indefinido; 4=não atende parcialmente; 5=não atende completamente",
+    "levels": "1=fully meets; 2=partially meets; 3=undefined; 4=partially does not meet; 5=does not meet at all",
     "scope": "Tools/src + Tools/test (MelloSilveiraTools.*), read-only. SoftTissue/ and FEBio/ sibling repos NOT audited in depth.",
     "items": [
       {"item":"Fung QLV 1D fitting (TASK 2.1)","level":2,"task":"2.1"},

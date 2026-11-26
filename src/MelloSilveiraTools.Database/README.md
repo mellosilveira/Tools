@@ -75,11 +75,11 @@ public class SpecimenService(IRepository repository)
 
 ## 4. Dependency Injection & Technical Invariants
 
-- **DI Entry Point:** `DatabaseDependencyInjection.AddDatabaseServices(defaultResiliencePipelineSettings, databaseSettings)`.
-  - **Singletons (thread-safe):** `DatabaseSettings`, `NpgsqlDataSource` (built via `NpgsqlSlimDataSourceBuilder` and disposed by the DI container on shutdown), `PostgresResiliencePipeline`, `ISqlProvider` (`PostgresSqlProvider`), `IRepository` (`PostgresRepository`).
+- **DI Entry Points:** `DatabaseDependencyInjection.AddDatabaseServices(defaultResiliencePipelineSettings, databaseSettings)`, `CreateDataSource(databaseSettings, loggerFactory)`, and `AddDatabaseHealthCheck(databaseSettings, name, tags)` (both on `IHealthChecksBuilder` and `IServiceCollection`, registering native `PostgresHealthCheck` with `UnitOperationTimeoutInMilliseconds`).
+  - **Singletons (thread-safe):** `DatabaseSettings` (with opt-in `AllowSuperuserDatabaseConnection`), `NpgsqlDataSource` (built via `NpgsqlSlimDataSourceBuilder` and disposed by the DI container on shutdown), `PostgresResiliencePipeline`, `ISqlProvider` (`PostgresSqlProvider`), `IRepository` (`PostgresRepository`).
 - **Single-Round-Trip RLS & Pooling:** `PostgresRepository` uses `dataSource.CreateBatch()` to pipeline `SELECT set_config('app.current_user_id', @UserId, true)` with the target statement(s) in a single extended-query batch; PostgreSQL executes the batch atomically in an implicit transaction block and resets `app.current_user_id` automatically before the connection returns to the pool.
 - **Two-Stage SQL Placeholders:** Static compile-time placeholders (`#TABLE_NAME`, `#COLUMNS`) remain strictly separated from runtime clauses (`#WHERE`, `#ORDERBY`, `#LIMIT`, `#OFFSET`). Batch parameter suffixes are **1-based** (`@Name_1`, `@Name_2`).
-- **Key Operations:** `TryInsertAsync<TEntity>` (single-statement CTE with `IS NOT DISTINCT FROM` returning `Result<long>`), `GetByUniqueColumnAsync<TEntity>`, multi-row `ON CONFLICT (...) DO UPDATE` (`BuildUniqueUpdates`).
+- **Key Operations & Extensions:** `TryInsertAsync<TEntity>` (single-statement CTE with `IS NOT DISTINCT FROM` returning `Result<long>`), `GetByUniqueColumnAsync<TEntity>`, multi-row `ON CONFLICT (...) DO UPDATE` (`BuildUniqueUpdates`), plus `NpgsqlDataSource` extensions `EnsureNonSuperuserRoleAsync` and `PingAsync`.
 
 ---
 

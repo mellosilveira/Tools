@@ -279,25 +279,25 @@
         </member>
         <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Models.CurveFitProfile">
             <summary>
-            Define o perfil de comportamento e restrições para o ajuste de curvas.
+            Defines behavior and constraint profiles for curve fitting.
             </summary>
         </member>
         <member name="F:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Models.CurveFitProfile.Automatic">
             <summary>
-            Seleção automática. Se houver regras de validação booleana informadas,
-            assume RuleConstrained; caso contrário, Standard.
+            Automatic selection. If boolean validation rules are provided,
+            selects RuleConstrained; otherwise, Standard.
             </summary>
         </member>
         <member name="F:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Models.CurveFitProfile.Standard">
             <summary>
-            Ajuste analítico rápido para funções suaves e limites simples de caixa (Min/Max).
-            Execução na ordem de milissegundos via L-BFGS.
+            Fast analytical fitting for smooth functions and simple box bounds (Min/Max).
+            Runs in milliseconds via L-BFGS.
             </summary>
         </member>
         <member name="F:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Models.CurveFitProfile.RuleConstrained">
             <summary>
-            Busca global estocástica (Evolução Diferencial / GDEMO).
-            Suporta validações booleanas de consistência e descarta combinações inválidas sem quebrar derivadas.
+            Stochastic global search (Differential Evolution / GDEMO).
+            Supports boolean consistency validations and discards invalid combinations without breaking derivatives.
             </summary>
         </member>
         <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Models.CurveFitterSettings">

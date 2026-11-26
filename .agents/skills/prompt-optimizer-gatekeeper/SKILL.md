@@ -34,19 +34,19 @@ Evaluate every raw prompt against (distinguishing stated vs. underlying intent):
 ## Compact Output Format
 Always respond concisely in up to 3 tight sections (omit section 1 if zero issues were found):
 
-### 1. Brechas, Fragilidades ou Erros Identificados
-- **[Tipo: Ambiguidade | Erro | Inconsistência | Escopo]:** Explicação direta em 1 linha + impacto/risco.
+### 1. Gaps, Weaknesses, or Errors Identified
+- **[Type: Ambiguity | Error | Inconsistency | Scope]:** Direct 1-line explanation + impact/risk.
 
-### 2. Perguntas de Alinhamento *(apenas se houver lacunas reais — máx. 4)*
-- Perguntas cirúrgicas (preferir `ask_question` para escolhas fechadas) expondo trade-offs objetivos (ex.: Opção A vs. Opção B).
+### 2. Alignment Questions *(only if real gaps exist — max 4)*
+- Surgical questions (prefer `ask_question` for closed choices) presenting objective trade-offs (e.g., Option A vs. Option B).
 
-### 3. Prompt Otimizado (Pronto para Execução)
+### 3. Optimized Prompt (Ready for Execution)
 ```markdown
-- **Contexto / Skill:** <domínio> → <skill alvo> | **Tier de Modelo:** <flash | padrão | pro>
-- **Contexto Mínimo:** <caminhos exatos dos arquivos necessários>
-- **Objetivo:** <instrução direta, inequívoca e verificável>
-- **Restrições / Guardrails:** <regras do contexto ativo aplicáveis>
-- **Critério de Pronto (DoD):** <validação objetiva esperada>
+- **Context / Skill:** <domain> → <target skill> | **Model Tier:** <flash | inherit | pro>
+- **Minimal Context:** <exact file paths required>
+- **Objective:** <direct, unambiguous, verifiable instruction>
+- **Constraints / Guardrails:** <applicable rules from the active context>
+- **Definition of Done (DoD):** <expected objective validation>
 ```
 
-> *Confirme ou responda às perguntas acima para iniciar a execução.*
+> *Please confirm or answer the questions above to begin execution.*

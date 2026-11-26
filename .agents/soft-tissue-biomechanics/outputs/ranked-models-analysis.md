@@ -1,27 +1,27 @@
-﻿# Análise de Modelos Constitutivos para Ligamentos de Joelho
-*Rankeamento baseado em volume de uso na literatura e integração em pacotes de Elementos Finitos (FEA)*
+# Analysis of Constitutive Models for Knee Ligaments
+*Ranking based on literature prevalence and Finite Element Analysis (FEA) solver integration*
 
-Abaixo está a síntese dos achados do Funil de Pesquisa Bibliográfica, categorizando e rankeando os modelos constitucionais aplicados especificamente a ligamentos do joelho.
+Below is the synthesis of findings from the Bibliographic Evidence Funnel, categorizing and ranking constitutive models specifically applied to knee ligaments.
 
-## 1. Família Hiperelástica + Maxwell Generalizado (Série de Prony)
-**Nível de Uso na Literatura:** Altíssimo (O Padrão da Indústria)
-**Motivo do Domínio:** É a formulação "nativa" (Built-in) de softwares como Abaqus, ANSYS e FEBio. Consiste em utilizar um modelo hiperelástico para a resposta imediata, acoplado a uma Série de Prony para computar o relaxamento de tensão via Variáveis Internas de Estado.
-- **Sub-modelos embutidos:**
-  - **Mooney-Rivlin / Neo-Hookeano:** Usados para tecidos mais isotrópicos ou matriz base.
-  - **Holzapfel-Gasser-Ogden (HGO):** Extremamente utilizado por permitir a definição da dispersão angular (bagunça) das fibras de colágeno, tornando-se o padrão-ouro moderno para hiperelasticidade anisotrópica.
+## 1. Hyperelastic + Generalized Maxwell Family (Prony Series)
+**Literature Prevalence:** Very High (Industry Standard)
+**Reason for Dominance:** Native ("Built-in") viscoelastic formulation across Abaqus, ANSYS, and FEBio. Pairs a hyperelastic strain-energy potential for instantaneous elastic response with a Prony series to compute stress relaxation via Internal State Variables.
+- **Sub-models included:**
+  - **Mooney-Rivlin / Neo-Hookean:** Used for more isotropic tissues or isotropic base matrix.
+  - **Holzapfel-Gasser-Ogden (HGO):** Widely adopted because it captures angular dispersion ($\kappa$) of collagen fibers, becoming the modern gold standard for anisotropic hyperelasticity.
 
-## 2. Modelo Hiperelástico Transversalmente Isotrópico de Weiss
-**Nível de Uso na Literatura:** Muito Alto (Especialmente no FEBio)
-**Motivo do Domínio:** Foi desenhado especificamente para ligamentos. Ele divide a energia de deformação do ligamento matematicamente em duas partes: a matriz isotrópica (o material base) e as fibras de colágeno (que só resistem à tração). É a base de quase todas as simulações de ligamento cruzado anterior (LCA) no FEBio.
+## 2. Weiss Transversely Isotropic Hyperelastic Model
+**Literature Prevalence:** Very High (Especially in FEBio)
+**Reason for Dominance:** Designed specifically for ligaments. Mathematically splits ligament strain energy into an isotropic ground matrix contribution and tension-only collagen fibers. Forms the basis of a large share of Anterior Cruciate Ligament (ACL) simulations in FEBio.
 
-## 3. Viscoelasticidade Quase-Linear de Fung (QLV - Quasi-Linear Viscoelasticity)
-**Nível de Uso na Literatura:** Alto (O Padrão-Ouro Histórico)
-**Motivo do Domínio:** Fung é o "pai" da biomecânica. Seu modelo QLV assume que a resposta elástica (energia de deformação exponencial) e o relaxamento viscoso podem ser separados e multiplicados. É o modelo mais validado experimentalmente em ensaios uniaxiais *ex vivo* nas últimas 3 décadas. Seu uso em FEA 3D diminuiu ligeiramente devido ao custo computacional da integral de convolução contínua, mas continua sendo a referência analítica.
+## 3. Fung Quasi-Linear Viscoelasticity (QLV)
+**Literature Prevalence:** High (Historical Gold Standard)
+**Reason for Dominance:** Introduced by Y. C. Fung, QLV assumes multiplicative separability between non-linear instantaneous elastic stress and normalized continuous viscous relaxation. Remains the most extensively validated model in *ex vivo* uniaxial tests over recent decades. Somewhat less common in 3D FEA due to the history-integral cost compared to Prony series, while retaining foundational analytical significance.
 
-## 4. Modelos Poroelásticos / Poroviscoelásticos (Bifásicos)
-**Nível de Uso na Literatura:** Médio para Ligamentos (Altíssimo para Cartilagem/Menisco)
-**Motivo do Domínio:** Modelam o ligamento como uma esponja permeável contendo fluido intersticial (água). A viscoelasticidade emerge não das moléculas da fibra, mas da fricção da água escoando pelos poros do tecido quando o ligamento é torcido ou comprimido. Modelos avançados do joelho inteiro (Full-Knee FEA) usam poroelasticidade para prever o fluxo de fluidos articulares, mas o custo de simulação é brutal (requer solver acoplado de mecânica e fluidos).
+## 4. Poroelastic / Poroviscoelastic Models (Biphasic)
+**Literature Prevalence:** Medium for Ligaments (Very High for Cartilage/Meniscus)
+**Reason for Dominance:** Models soft tissue as a permeable porous solid matrix saturated with interstitial fluid (water), where apparent viscoelasticity emerges from fluid drag under compression or complex multi-axial loading. Common in full-knee contact FEA, though computationally expensive due to coupled solid-fluid solvers.
 
-## 5. Viscoelasticidade Integral Não-Linear de Schapery
-**Nível de Uso na Literatura:** Baixo/Emergente na Biomecânica 3D
-**Motivo do Domínio:** Nasceu na engenharia de polímeros (materiais aeroespaciais). É termodinamicamente mais robusto e não-linear do que Fung, porém, a extração de suas constantes e a sua formulação matemática tensorial 3D em Elementos Finitos resultam em Jacobianos muitas vezes assimétricos. O seu uso é mais comum em modelos 1D uniaxiais. Migrar Schapery para o 3D, como proposto no Ticket 1.5 da sua tese, é justamente um diferencial científico (gap na literatura).
+## 5. Schapery Non-Linear Integral Viscoelasticity
+**Literature Prevalence:** Low / Emerging in 3D Biomechanics
+**Reason for Dominance:** Originated in polymer rheology and aerospace composites. Provides strong thermodynamic rigor and strain-dependent non-linearity (`h_e`, `h_1`, `h_2`, `a_sigma`) beyond Fung QLV, though 3D finite-element implementations often produce asymmetric tangent Jacobians. Widely tractable in 1D uniaxial testing; extending Schapery into 3D FEBio (Task 1.5 / Task 3.4) represents a key scientific differentiator in the thesis.
