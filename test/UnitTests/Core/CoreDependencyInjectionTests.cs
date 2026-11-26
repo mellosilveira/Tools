@@ -320,4 +320,59 @@ public sealed class CoreDependencyInjectionTests : IDisposable
         Assert.NotNull(logger);
         Assert.True(Directory.Exists(_tempDirectory));
     }
+
+    /// <summary>
+    /// Verifies that fallback temp storage is created by AddCoreServices (and passes health check),
+    /// while an explicit Local BaseDirectory is NOT auto-created and fails health check until provisioned.
+    /// </summary>
+    [Fact]
+    public async Task AddCoreServices_CreatesFallbackTempStorageOnly_AndDoesNotAutoCreateExplicitLocalDirectory()
+    {
+        // Fallback temp/storage is created and healthy
+        ServiceCollection fallbackServices = new();
+        fallbackServices.AddCoreServices(CreateResilienceSettings());
+        using ServiceProvider fallbackProvider = fallbackServices.BuildServiceProvider();
+        IFileStorageService fallbackStorage = fallbackProvider.GetRequiredService<IFileStorageService>();
+        Assert.True(await fallbackStorage.IsHealthAsync());
+
+        // Explicit missing Local.BaseDirectory is NOT created and reports unhealthy (false)
+        string missingExplicitDir = Path.Combine(_tempDirectory, "missing-local-root");
+        ServiceCollection explicitServices = new();
+        explicitServices.AddCoreServices(
+            CreateResilienceSettings(),
+            fileStorageSettings: new FileStorageSettings
+            {
+                DefaultStorageProvider = StorageProvider.Local,
+                Local = new LocalFileStorageSettings { BaseDirectory = missingExplicitDir }
+            });
+        using ServiceProvider explicitProvider = explicitServices.BuildServiceProvider();
+        IFileStorageService explicitStorage = explicitProvider.GetRequiredService<IFileStorageService>();
+        Assert.False(Directory.Exists(missingExplicitDir));
+        Assert.False(await explicitStorage.IsHealthAsync());
+        Assert.False(Directory.Exists(missingExplicitDir));
+    }
+
+    /// <summary>
+    /// Verifies that invalid DFS HealthMarkerFileName containing separators or traversal throws ArgumentException eagerly.
+    /// </summary>
+    [Theory]
+    [InlineData("../marker.txt")]
+    [InlineData("sub/marker.txt")]
+    [InlineData(@"sub\marker.txt")]
+    public void AddCoreServices_WithInvalidDfsHealthMarkerFileName_ThrowsArgumentException(string invalidMarkerName)
+    {
+        ServiceCollection services = new();
+        FileStorageSettings fileStorageSettings = new()
+        {
+            Dfs = new DfsStorageSettings
+            {
+                BaseDirectory = _tempDirectory,
+                HealthMarkerFileName = invalidMarkerName
+            }
+        };
+
+        Assert.Throws<ArgumentException>(() => services.AddCoreServices(
+            CreateResilienceSettings(),
+            fileStorageSettings: fileStorageSettings));
+    }
 }

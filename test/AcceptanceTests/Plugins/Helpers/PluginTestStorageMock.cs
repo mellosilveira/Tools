@@ -289,6 +289,9 @@ public sealed class PluginTestStorageMock
                 return (location, directory, sha256Hash, (long)bytes.Length);
             });
 
+        Mock.Setup(s => s.IsHealthAsync(It.IsAny<CancellationToken>()))
+            .Returns(ValueTask.FromResult(true));
+
         Mock.Setup(s => s.Dispose());
         Mock.Setup(s => s.DisposeAsync()).Returns(ValueTask.CompletedTask);
     }

@@ -31,7 +31,7 @@ public sealed class AwsS3FileStorageServiceTests : IDisposable
     public AwsS3FileStorageServiceTests()
     {
         Directory.CreateDirectory(_stagingDirectory);
-        _defaultStorage = new LocalFileStorageService(_timeProvider, new LocalFileStorageSettings { BaseDirectory = _stagingDirectory });
+        _defaultStorage = new LocalFileStorageService(NullLoggerFactory.Instance, _timeProvider, new LocalFileStorageSettings { BaseDirectory = _stagingDirectory });
         _pipeline = new AwsS3ResiliencePipeline(
             NullLogger<AwsS3ResiliencePipeline>.Instance,
             new ResiliencePipelineSettings
@@ -516,5 +516,81 @@ public sealed class AwsS3FileStorageServiceTests : IDisposable
         Assert.Throws<FormatException>(() => _service.ParseLocation("other-prefix/run-1/exports/data.csv"));
         Assert.Throws<FormatException>(() => _service.ParseLocation("prefix/run-1/exports/"));
         Assert.Throws<FormatException>(() => _service.ParseLocation("prefix/only-one"));
+    }
+
+    /// <summary>
+    /// Verifies end-to-end <c>CheckHealthAsync</c> across write (with local spooling), read verification, delete,
+    /// content mismatch, failed delete, read error cleanup, and disposed guard.
+    /// </summary>
+    [Fact]
+    public async Task CheckHealthAsync_ValidatesWriteReadDeleteAndDisposedState()
+    {
+        // 1. Healthy round-trip (write -> read matching bytes -> delete)
+        byte[]? uploadedBytes = null;
+        string? uploadedKey = null;
+        bool deletedCalled = false;
+
+        _s3Mock
+            .Setup(c => c.PutObjectAsync(It.IsAny<PutObjectRequest>(), It.IsAny<CancellationToken>()))
+            .Callback<PutObjectRequest, CancellationToken>((req, _) =>
+            {
+                uploadedKey = req.Key;
+                using MemoryStream ms = new();
+                req.InputStream.CopyTo(ms);
+                uploadedBytes = ms.ToArray();
+            })
+            .ReturnsAsync(new PutObjectResponse { HttpStatusCode = HttpStatusCode.OK });
+
+        _s3Mock
+            .Setup(c => c.GetObjectAsync(It.IsAny<GetObjectRequest>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(() => new GetObjectResponse { HttpStatusCode = HttpStatusCode.OK, ResponseStream = new MemoryStream(uploadedBytes!) });
+
+        _s3Mock
+            .Setup(c => c.DeleteObjectAsync(It.IsAny<DeleteObjectRequest>(), It.IsAny<CancellationToken>()))
+            .Callback(() => deletedCalled = true)
+            .ReturnsAsync(new DeleteObjectResponse { HttpStatusCode = HttpStatusCode.NoContent });
+
+        Assert.True(await _service.IsHealthAsync());
+        Assert.NotNull(uploadedBytes);
+        Assert.Equal(16, uploadedBytes.Length);
+        Assert.NotNull(uploadedKey);
+        Assert.Contains("__health/probe/.health-probe-", uploadedKey);
+        Assert.True(deletedCalled);
+
+        // 2. Corrupted read bytes -> cleans up probe object and returns false
+        deletedCalled = false;
+        _s3Mock
+            .Setup(c => c.GetObjectAsync(It.IsAny<GetObjectRequest>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(() => new GetObjectResponse { HttpStatusCode = HttpStatusCode.OK, ResponseStream = new MemoryStream([0x0A, 0x0B]) });
+
+        Assert.False(await _service.IsHealthAsync());
+        Assert.True(deletedCalled);
+
+        // 3. Delete returning non-2xx -> DeleteAsync returns false -> CheckHealthAsync returns false
+        _s3Mock
+            .Setup(c => c.GetObjectAsync(It.IsAny<GetObjectRequest>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(() => new GetObjectResponse { HttpStatusCode = HttpStatusCode.OK, ResponseStream = new MemoryStream(uploadedBytes!) });
+        _s3Mock
+            .Setup(c => c.DeleteObjectAsync(It.IsAny<DeleteObjectRequest>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new DeleteObjectResponse { HttpStatusCode = HttpStatusCode.BadRequest });
+
+        Assert.False(await _service.IsHealthAsync());
+
+        // 4. Read failure after write -> attempts cleanup and preserves original exception
+        deletedCalled = false;
+        _s3Mock
+            .Setup(c => c.GetObjectAsync(It.IsAny<GetObjectRequest>(), It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new AmazonS3Exception("AccessDenied") { StatusCode = HttpStatusCode.Forbidden, ErrorCode = "AccessDenied" });
+        _s3Mock
+            .Setup(c => c.DeleteObjectAsync(It.IsAny<DeleteObjectRequest>(), It.IsAny<CancellationToken>()))
+            .Callback(() => deletedCalled = true)
+            .ThrowsAsync(new InvalidOperationException("Cleanup failed"));
+
+        await Assert.ThrowsAsync<AmazonS3Exception>(() => _service.IsHealthAsync().AsTask());
+        Assert.True(deletedCalled);
+
+        // 5. Disposed service -> throws ObjectDisposedException
+        _service.Dispose();
+        await Assert.ThrowsAsync<ObjectDisposedException>(() => _service.IsHealthAsync().AsTask());
     }
 }

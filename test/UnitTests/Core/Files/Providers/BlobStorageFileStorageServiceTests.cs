@@ -30,7 +30,7 @@ public sealed class BlobStorageFileStorageServiceTests : IDisposable
     public BlobStorageFileStorageServiceTests()
     {
         Directory.CreateDirectory(_stagingDirectory);
-        _defaultStorage = new LocalFileStorageService(_timeProvider, new LocalFileStorageSettings { BaseDirectory = _stagingDirectory });
+        _defaultStorage = new LocalFileStorageService(NullLoggerFactory.Instance, _timeProvider, new LocalFileStorageSettings { BaseDirectory = _stagingDirectory });
         _pipeline = new BlobStorageResiliencePipeline(
             NullLogger<BlobStorageResiliencePipeline>.Instance,
             new ResiliencePipelineSettings
@@ -421,5 +421,85 @@ public sealed class BlobStorageFileStorageServiceTests : IDisposable
         {
             await foreach (StorageEntryMetadata _ in _service.ListEntriesAsync("id", "ctx")) { }
         });
+    }
+
+    /// <summary>
+    /// Verifies end-to-end <c>CheckHealthAsync</c> across write (with local spooling), read verification, delete,
+    /// content mismatch, failed delete, read error cleanup, and disposed guard.
+    /// </summary>
+    [Fact]
+    public async Task CheckHealthAsync_ValidatesWriteReadDeleteAndDisposedState()
+    {
+        // 1. Healthy round-trip (write -> read matching bytes -> delete)
+        byte[]? uploadedBytes = null;
+        string? probeBlobName = null;
+        bool deletedCalled = false;
+
+        _containerMock
+            .Setup(c => c.GetBlobClient(It.IsAny<string>()))
+            .Callback<string>(name => probeBlobName = name)
+            .Returns(_blobMock.Object);
+
+        _blobMock
+            .Setup(b => b.UploadAsync(It.IsAny<Stream>(), It.IsAny<BlobUploadOptions>(), It.IsAny<CancellationToken>()))
+            .Callback<Stream, BlobUploadOptions, CancellationToken>((stream, _, _) =>
+            {
+                using MemoryStream ms = new();
+                stream.CopyTo(ms);
+                uploadedBytes = ms.ToArray();
+            })
+            .ReturnsAsync(Response.FromValue(BlobsModelFactory.BlobContentInfo(default, DateTimeOffset.UtcNow, [], "", 0), Mock.Of<Response>()));
+
+        _blobMock
+            .Setup(b => b.DownloadStreamingAsync(It.IsAny<HttpRange>(), It.IsAny<BlobRequestConditions>(), It.IsAny<bool>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(() => Response.FromValue(BlobsModelFactory.BlobDownloadStreamingResult(new MemoryStream(uploadedBytes!)), Mock.Of<Response>()));
+
+        _blobMock
+            .Setup(b => b.DeleteIfExistsAsync(It.IsAny<DeleteSnapshotsOption>(), It.IsAny<BlobRequestConditions>(), It.IsAny<CancellationToken>()))
+            .Callback(() => deletedCalled = true)
+            .ReturnsAsync(Response.FromValue(true, Mock.Of<Response>()));
+
+        Assert.True(await _service.IsHealthAsync());
+        Assert.NotNull(uploadedBytes);
+        Assert.Equal(16, uploadedBytes.Length);
+        Assert.NotNull(probeBlobName);
+        Assert.Contains("__health/probe/.health-probe-", probeBlobName);
+        Assert.True(deletedCalled);
+
+        // 2. Corrupted read bytes -> cleans up probe blob and returns false
+        deletedCalled = false;
+        _blobMock
+            .Setup(b => b.DownloadStreamingAsync(It.IsAny<HttpRange>(), It.IsAny<BlobRequestConditions>(), It.IsAny<bool>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(() => Response.FromValue(BlobsModelFactory.BlobDownloadStreamingResult(new MemoryStream([0x01, 0x02])), Mock.Of<Response>()));
+
+        Assert.False(await _service.IsHealthAsync());
+        Assert.True(deletedCalled);
+
+        // 3. Delete returning false -> returns false
+        _blobMock
+            .Setup(b => b.DownloadStreamingAsync(It.IsAny<HttpRange>(), It.IsAny<BlobRequestConditions>(), It.IsAny<bool>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(() => Response.FromValue(BlobsModelFactory.BlobDownloadStreamingResult(new MemoryStream(uploadedBytes!)), Mock.Of<Response>()));
+        _blobMock
+            .Setup(b => b.DeleteIfExistsAsync(It.IsAny<DeleteSnapshotsOption>(), It.IsAny<BlobRequestConditions>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Response.FromValue(false, Mock.Of<Response>()));
+
+        Assert.False(await _service.IsHealthAsync());
+
+        // 4. Read failure after write -> attempts cleanup and preserves original exception
+        deletedCalled = false;
+        _blobMock
+            .Setup(b => b.DownloadStreamingAsync(It.IsAny<HttpRange>(), It.IsAny<BlobRequestConditions>(), It.IsAny<bool>(), It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new RequestFailedException((int)HttpStatusCode.Forbidden, "Read denied"));
+        _blobMock
+            .Setup(b => b.DeleteIfExistsAsync(It.IsAny<DeleteSnapshotsOption>(), It.IsAny<BlobRequestConditions>(), It.IsAny<CancellationToken>()))
+            .Callback(() => deletedCalled = true)
+            .ThrowsAsync(new InvalidOperationException("Cleanup failed"));
+
+        await Assert.ThrowsAsync<RequestFailedException>(() => _service.IsHealthAsync().AsTask());
+        Assert.True(deletedCalled);
+
+        // 5. Disposed service -> throws ObjectDisposedException
+        _service.Dispose();
+        await Assert.ThrowsAsync<ObjectDisposedException>(() => _service.IsHealthAsync().AsTask());
     }
 }

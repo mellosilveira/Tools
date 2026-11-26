@@ -117,7 +117,7 @@ public sealed class PluginEndpointsTests
             builder.Services.AddSingleton(repoMock.Object);
             builder.Services.AddKeyedSingleton<IFileStorageService>(
                 StorageProvider.Local,
-                (_, _) => new LocalFileStorageService(TimeProvider.System, new LocalFileStorageSettings { BaseDirectory = tempRoot }));
+                (sp, _) => new LocalFileStorageService(sp.GetRequiredService<Microsoft.Extensions.Logging.ILoggerFactory>(), TimeProvider.System, new LocalFileStorageSettings { BaseDirectory = tempRoot }));
             builder.Services.AddSingleton<IFileStorageService>(sp => sp.GetRequiredKeyedService<IFileStorageService>(StorageProvider.Local));
             builder.Services.AddPluginServices(settings);
 

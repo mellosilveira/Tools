@@ -55,6 +55,17 @@
             Verifies that AddCoreLogging configures Serilog sinks when File and Database logger settings are provided.
             </summary>
         </member>
+        <member name="M:UnitTests.Core.CoreDependencyInjectionTests.AddCoreServices_CreatesFallbackTempStorageOnly_AndDoesNotAutoCreateExplicitLocalDirectory">
+            <summary>
+            Verifies that fallback temp storage is created by AddCoreServices (and passes health check),
+            while an explicit Local BaseDirectory is NOT auto-created and fails health check until provisioned.
+            </summary>
+        </member>
+        <member name="M:UnitTests.Core.CoreDependencyInjectionTests.AddCoreServices_WithInvalidDfsHealthMarkerFileName_ThrowsArgumentException(System.String)">
+            <summary>
+            Verifies that invalid DFS HealthMarkerFileName containing separators or traversal throws ArgumentException eagerly.
+            </summary>
+        </member>
         <member name="T:UnitTests.Core.Files.Csv.CsvFileWriterTests">
             <summary>
             Unit tests for <see cref="T:MelloSilveiraTools.Core.Files.Csv.CsvFileWriter"/> verifying header emission, row formatting,
@@ -155,6 +166,12 @@
             for canonical 3-segment keys and rejects invalid layouts.
             </summary>
         </member>
+        <member name="M:UnitTests.Core.Files.Providers.AwsS3FileStorageServiceTests.CheckHealthAsync_ValidatesWriteReadDeleteAndDisposedState">
+            <summary>
+            Verifies end-to-end <c>CheckHealthAsync</c> across write (with local spooling), read verification, delete,
+            content mismatch, failed delete, read error cleanup, and disposed guard.
+            </summary>
+        </member>
         <member name="T:UnitTests.Core.Files.Providers.BlobStorageFileStorageServiceTests">
             <summary>
             Unit tests for <see cref="T:MelloSilveiraTools.Core.Files.Providers.BlobStorage.BlobStorageFileStorageService"/> verifying Azure Blob read/write disk spooling,
@@ -217,6 +234,12 @@
             Verifies empty pageable results, null LastModified/ContentLength fallbacks, and listing error propagation.
             </summary>
         </member>
+        <member name="M:UnitTests.Core.Files.Providers.BlobStorageFileStorageServiceTests.CheckHealthAsync_ValidatesWriteReadDeleteAndDisposedState">
+            <summary>
+            Verifies end-to-end <c>CheckHealthAsync</c> across write (with local spooling), read verification, delete,
+            content mismatch, failed delete, read error cleanup, and disposed guard.
+            </summary>
+        </member>
         <member name="T:UnitTests.Core.Files.Providers.DfsFileStorageServiceTests">
             <summary>
             Unit tests for <see cref="T:MelloSilveiraTools.Core.Files.Providers.Dfs.DfsFileStorageService"/> verifying DFS provider identity
@@ -226,6 +249,21 @@
         <member name="M:UnitTests.Core.Files.Providers.DfsFileStorageServiceTests.ProviderAndStreams_AllowConcurrentReadWhileWriteStreamIsOpen">
             <summary>
             Verifies that Provider returns StorageProvider.Dfs and write/read shares permit concurrent read while write is open.
+            </summary>
+        </member>
+        <member name="M:UnitTests.Core.Files.Providers.DfsFileStorageServiceTests.CheckHealthAsync_WhenDirectoryExists_ReturnsTrueAndCleansUpProbeFile">
+            <summary>
+            Verifies that <c>CheckHealthAsync</c> validates write, read, and delete on an existing DFS directory without leaving probe files behind.
+            </summary>
+        </member>
+        <member name="M:UnitTests.Core.Files.Providers.DfsFileStorageServiceTests.CheckHealthAsync_WhenDirectoryDoesNotExist_ReturnsFalseWithoutCreatingDirectory">
+            <summary>
+            Verifies that <c>CheckHealthAsync</c> returns <see langword="false"/> without creating the directory when the DFS root is missing.
+            </summary>
+        </member>
+        <member name="M:UnitTests.Core.Files.Providers.DfsFileStorageServiceTests.CheckHealthAsync_WithHealthMarkerFileName_RequiresMarkerFileInsideBaseDirectory">
+            <summary>
+            Verifies that <c>CheckHealthAsync</c> enforces optional <c>HealthMarkerFileName</c> to detect unmounted empty mount points.
             </summary>
         </member>
         <member name="T:UnitTests.Core.Files.Providers.LocalFileStorageServiceTests">
@@ -279,6 +317,21 @@
             <summary>
             Verifies <c>ExtractDirectory</c>, <c>MoveAsync</c>, <c>ComputeSha256Async</c>, and <c>WriteAndHashAsync</c>
             inherited from <c>FileStorageServiceBase</c>.
+            </summary>
+        </member>
+        <member name="M:UnitTests.Core.Files.Providers.LocalFileStorageServiceTests.CheckHealthAsync_SucceedsAndLeavesNoProbeFilesBehind">
+            <summary>
+            Verifies that <c>CheckHealthAsync</c> validates write, read, and delete operations and leaves no temporary probe artifacts behind.
+            </summary>
+        </member>
+        <member name="M:UnitTests.Core.Files.Providers.LocalFileStorageServiceTests.CheckHealthAsync_WhenBaseDirectoryDoesNotExist_ReturnsFalseWithoutCreatingDirectory">
+            <summary>
+            Verifies that <c>CheckHealthAsync</c> returns <see langword="false"/> without creating <c>BaseDirectory</c> when the root directory does not exist.
+            </summary>
+        </member>
+        <member name="M:UnitTests.Core.Files.Providers.LocalFileStorageServiceTests.CheckHealthAsync_WhenCancelled_ThrowsOperationCanceledException">
+            <summary>
+            Verifies that <c>CheckHealthAsync</c> honors cancellation tokens.
             </summary>
         </member>
         <member name="T:UnitTests.Core.Logging.LoggerConfigurationExtensionsTests">

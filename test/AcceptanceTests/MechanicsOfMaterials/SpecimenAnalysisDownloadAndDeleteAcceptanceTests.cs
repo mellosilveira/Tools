@@ -260,6 +260,9 @@ public sealed class SpecimenAnalysisDownloadAndDeleteAcceptanceTests
         public ValueTask<(string Location, string Directory, string Sha256Hash, long SizeBytes)> WriteAndHashAsync(string identifier, string context, string fileName, Stream sourceStream, CancellationToken cancellationToken = default)
             => inner.WriteAndHashAsync(identifier, context, fileName, sourceStream, cancellationToken);
 
+        public ValueTask<bool> IsHealthAsync(CancellationToken cancellationToken = default)
+            => inner.IsHealthAsync(cancellationToken);
+
         public void Dispose() => inner.Dispose();
 
         public ValueTask DisposeAsync() => inner.DisposeAsync();

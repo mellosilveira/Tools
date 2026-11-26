@@ -1,5 +1,13 @@
+using MelloSilveiraTools.Core;
+using MelloSilveiraTools.Core.Files.HealthChecks;
+using MelloSilveiraTools.Core.Files.Models;
+using MelloSilveiraTools.Core.Files.Providers;
+using MelloSilveiraTools.Core.Files.Providers.Local;
+using MelloSilveiraTools.Core.Models;
+using MelloSilveiraTools.Core.ResiliencePipelines;
 using MelloSilveiraTools.Core.Security;
 using MelloSilveiraTools.Database;
+using MelloSilveiraTools.Database.RelationalDatabase.HealthChecks;
 using MelloSilveiraTools.Database.RelationalDatabase.Models.Entities;
 using MelloSilveiraTools.Database.RelationalDatabase.Models.Filters;
 using MelloSilveiraTools.Database.RelationalDatabase.Settings;
@@ -7,8 +15,8 @@ using MelloSilveiraTools.Database.Repositories;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Endpoints;
 using MelloSilveiraTools.Plugins.Application.Endpoints;
 using MelloSilveiraTools.WebApi;
+using MelloSilveiraTools.WebApi.Application.Controllers;
 using MelloSilveiraTools.WebApi.Application.Endpoints;
-using MelloSilveiraTools.WebApi.Application.HealthChecks;
 using MelloSilveiraTools.WebApi.Application.Models;
 using MelloSilveiraTools.WebApi.Application.RateLimiting;
 using MelloSilveiraTools.WebApi.Authentication;
@@ -29,6 +37,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 using Moq;
 using Npgsql;
+using Polly;
 using System.Net;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
@@ -141,7 +150,7 @@ public sealed class WebApiHostExtensionsTests
     }
 
     [Fact]
-    public async Task AddDatabaseHealthCheck_And_MapHealthEndpoint_UseConfiguredTimeoutExposeSwaggerAndHideErrorsInProduction()
+    public async Task DistributedHealthChecks_CoreAndDatabase_WorkAcrossMinimalApiAndHealthControllerWithSwaggerVisibility()
     {
         DatabaseSettings invalidSettings = new()
         {
@@ -155,8 +164,8 @@ public sealed class WebApiHostExtensionsTests
 
         DatabaseSettings unreachableSettings = invalidSettings with { UnitOperationTimeoutInMilliseconds = 2500 };
 
-        await VerifyHealthStatusAsync(Environments.Development, unreachableSettings, expectErrorField: true);
-        await VerifyHealthStatusAsync(Environments.Production, unreachableSettings, expectErrorField: false);
+        await VerifyHealthStatusAsync(Environments.Development, unreachableSettings, useController: false);
+        await VerifyHealthStatusAsync(Environments.Production, unreachableSettings, useController: true);
     }
 
     [Fact]
@@ -193,10 +202,8 @@ public sealed class WebApiHostExtensionsTests
         WebApplicationBuilder prodBuilder = WebApplication.CreateBuilder(new WebApplicationOptions { EnvironmentName = Environments.Production });
         prodBuilder.Services.AddSingleton(strictSettings);
         prodBuilder.Services.AddSingleton(_ => DatabaseDependencyInjection.CreateDataSource(strictSettings));
-        await using (WebApplication prodApp = prodBuilder.Build())
-        {
-            await Assert.ThrowsAsync<NpgsqlException>(() => prodApp.EnsureDatabaseRlsSafetyAsync());
-        }
+        await using WebApplication prodApp = prodBuilder.Build();
+        await Assert.ThrowsAsync<NpgsqlException>(() => prodApp.EnsureDatabaseRlsSafetyAsync());
     }
 
     [Fact]
@@ -232,57 +239,188 @@ public sealed class WebApiHostExtensionsTests
         Assert.Contains("Plugins", pluginsGet.Metadata.GetMetadata<ITagsMetadata>()!.Tags);
     }
 
-    private static async Task VerifyHealthStatusAsync(string environmentName, DatabaseSettings settings, bool expectErrorField)
+    private static async Task VerifyHealthStatusAsync(string environmentName, DatabaseSettings settings, bool useController)
     {
-        WebApplicationBuilder builder = WebApplication.CreateBuilder(new WebApplicationOptions { EnvironmentName = environmentName });
-        builder.WebHost.UseUrls("http://127.0.0.1:0");
-        builder.Services.AddEndpointsApiExplorer();
-        builder.Services.AddSingleton(settings);
-        builder.Services.AddSingleton(_ => DatabaseDependencyInjection.CreateDataSource(settings));
-        builder.Services
-            .AddDatabaseHealthCheck(settings, tags: ["ready"])
-            .AddCheck("self", () => HealthCheckResult.Healthy("Process alive."), tags: ["live"]);
+        string tempStorageDir = Path.Combine(Path.GetTempPath(), $"mst-health-{Guid.NewGuid():N}");
+        Directory.CreateDirectory(tempStorageDir);
+        try
+        {
+            ResiliencePipelineSettings resilience = new()
+            {
+                BackoffType = DelayBackoffType.Constant,
+                DelayInMilliseconds = 1,
+                MaxRetryAttempts = 1,
+                UseJitter = false
+            };
+            FileStorageSettings fileStorageSettings = new()
+            {
+                DefaultStorageProvider = StorageProvider.Local,
+                Local = new LocalFileStorageSettings { BaseDirectory = tempStorageDir }
+            };
 
-        await using WebApplication app = builder.Build();
-        HealthCheckServiceOptions healthOptions = app.Services.GetRequiredService<IOptions<HealthCheckServiceOptions>>().Value;
-        HealthCheckRegistration dbRegistration = Assert.Single(healthOptions.Registrations, r => r.Name == PostgresHealthCheck.DefaultName);
-        Assert.Equal(TimeSpan.FromMilliseconds(settings.UnitOperationTimeoutInMilliseconds), dbRegistration.Timeout);
+            WebApplicationBuilder builder = WebApplication.CreateBuilder(new WebApplicationOptions { EnvironmentName = environmentName });
+            builder.WebHost.UseUrls("http://127.0.0.1:0");
+            builder.Services.AddEndpointsApiExplorer();
+            builder.Services.AddCoreServices(resilience, fileStorageSettings: fileStorageSettings);
+            builder.Services.AddDatabaseServices(resilience, settings);
+            builder.Services.AddWebApiServices(resilience);
+            builder.Services.AddWebApiHealthChecks(settings);
+            builder.Services.AddHealthChecks().AddCheck("self", () => HealthCheckResult.Healthy("Process alive."), tags: ["live"]);
 
-        app.MapHealthEndpoint();
-        app.MapHealthEndpoint("/health/live", r => r.Tags.Contains("live"));
-        await app.StartAsync();
+            if (useController)
+                builder.Services.AddControllers().AddApplicationPart(typeof(HealthController).Assembly);
 
-        // Discoverable in ApiExplorer / Swagger regardless of Controller vs. Minimal API host style
-        IApiDescriptionGroupCollectionProvider apiExplorer = app.Services.GetRequiredService<IApiDescriptionGroupCollectionProvider>();
-        List<string?> relativePaths = apiExplorer.ApiDescriptionGroups.Items
-            .SelectMany(g => g.Items)
-            .Select(d => d.RelativePath)
-            .ToList();
-        Assert.Contains("health", relativePaths);
+            await using WebApplication app = builder.Build();
+            HealthCheckServiceOptions healthOptions = app.Services.GetRequiredService<IOptions<HealthCheckServiceOptions>>().Value;
+            HealthCheckRegistration dbRegistration = Assert.Single(healthOptions.Registrations, r => r.Name == PostgresHealthCheck.DefaultName);
+            Assert.Equal(TimeSpan.FromMilliseconds(settings.UnitOperationTimeoutInMilliseconds), dbRegistration.Timeout);
+            Assert.Contains(healthOptions.Registrations, r => r.Name == FileStorageHealthCheck.DefaultName);
 
-        using HttpClient client = new() { BaseAddress = new Uri(app.Urls.Single()) };
+            if (useController)
+                app.MapControllers();
+            else
+                app.MapHealthEndpoint();
 
-        // Full /health evaluates PostgreSQL + self -> 503 Unhealthy when Postgres is unreachable
-        HttpResponseMessage response = await client.GetAsync("/health");
-        string body = await response.Content.ReadAsStringAsync();
+            await app.StartAsync();
 
-        Assert.Equal(HttpStatusCode.ServiceUnavailable, response.StatusCode);
-        Assert.Contains("Unhealthy", body);
-        Assert.Contains(PostgresHealthCheck.DefaultName, body);
-        if (expectErrorField)
+            // Discoverable in ApiExplorer / Swagger for both Controller and Minimal API hosts
+            IApiDescriptionGroupCollectionProvider apiExplorer = app.Services.GetRequiredService<IApiDescriptionGroupCollectionProvider>();
+            List<string?> relativePaths = apiExplorer.ApiDescriptionGroups.Items
+                .SelectMany(g => g.Items)
+                .Select(d => d.RelativePath)
+                .ToList();
+            Assert.Contains("api/health", relativePaths);
+
+            using HttpClient client = new() { BaseAddress = new Uri(app.Urls.Single()) };
+
+            // Full /api/health always executes every registered check: Core (file-storage) + Database (postgresql) + self
+            HttpResponseMessage response = await client.GetAsync("/api/health");
+            string body = await response.Content.ReadAsStringAsync();
+
+            Assert.Equal(HttpStatusCode.ServiceUnavailable, response.StatusCode);
+            Assert.Contains("Unhealthy", body);
+            Assert.Contains(PostgresHealthCheck.DefaultName, body);
+            Assert.Contains(FileStorageHealthCheck.DefaultName, body);
             Assert.Contains("\"error\"", body, StringComparison.OrdinalIgnoreCase);
-        else
-            Assert.DoesNotContain("\"error\"", body, StringComparison.OrdinalIgnoreCase);
 
-        // Filtered /health/live evaluates only "live" checks -> 200 Healthy
-        HttpResponseMessage liveResponse = await client.GetAsync("/health/live");
-        Assert.Equal(HttpStatusCode.OK, liveResponse.StatusCode);
-        HealthCheckResponse? livePayload = await liveResponse.Content.ReadFromJsonAsync<HealthCheckResponse>();
-        Assert.NotNull(livePayload);
-        Assert.Equal("Healthy", livePayload.Status);
-        Assert.Single(livePayload.Checks);
-        Assert.Equal("Healthy", livePayload.Checks["self"].Status);
+            Result<HealthCheckResultData>? healthResult = System.Text.Json.JsonSerializer.Deserialize<Result<HealthCheckResultData>>(
+                body,
+                new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+            Assert.NotNull(healthResult?.Data);
+            Assert.Equal("Unhealthy", healthResult.Data.Status);
+            Assert.Equal(3, healthResult.Data.Checks.Count);
+            HealthCheckEntryResultData postgresEntry = healthResult.Data.Checks[PostgresHealthCheck.DefaultName];
+            Assert.Equal("Unhealthy", postgresEntry.Status);
+            Assert.False(string.IsNullOrWhiteSpace(postgresEntry.Description));
+            Assert.False(string.IsNullOrWhiteSpace(postgresEntry.Error));
+            Assert.Equal("Healthy", healthResult.Data.Checks["self"].Status);
 
-        await app.StopAsync();
+            HealthCheckEntryResultData storageEntry = healthResult.Data.Checks[FileStorageHealthCheck.DefaultName];
+            Assert.Equal("Healthy", storageEntry.Status);
+            Assert.NotNull(storageEntry.Data);
+            Assert.Equal("Healthy", storageEntry.Data[nameof(StorageProvider.Local)]?.ToString());
+
+            await app.StopAsync();
+        }
+        finally
+        {
+            if (Directory.Exists(tempStorageDir))
+                Directory.Delete(tempStorageDir, recursive: true);
+        }
+    }
+
+    [Fact]
+    public async Task FileStorageHealthCheck_ValidatesAllRegisteredProviders_AndFailsClosedWhenAnyProviderFails()
+    {
+        string tempStorageDir = Path.Combine(Path.GetTempPath(), $"mst-multi-storage-{Guid.NewGuid():N}");
+        Directory.CreateDirectory(tempStorageDir);
+        try
+        {
+            ResiliencePipelineSettings resilience = new()
+            {
+                BackoffType = DelayBackoffType.Constant,
+                DelayInMilliseconds = 1,
+                MaxRetryAttempts = 1,
+                UseJitter = false
+            };
+            FileStorageSettings fileStorageSettings = new()
+            {
+                DefaultStorageProvider = StorageProvider.Local,
+                Local = new LocalFileStorageSettings { BaseDirectory = tempStorageDir }
+            };
+
+            string s3Mode = "healthy";
+            Mock<IFileStorageService> s3Mock = new();
+            s3Mock.SetupGet(s => s.Provider).Returns(StorageProvider.AwsS3);
+            s3Mock.Setup(s => s.IsHealthAsync(It.IsAny<CancellationToken>()))
+                .Returns(() => s3Mode switch
+                {
+                    "healthy" => ValueTask.FromResult(true),
+                    "false" => ValueTask.FromResult(false),
+                    _ => ValueTask.FromException<bool>(new IOException("S3 bucket unreachable"))
+                });
+
+            WebApplicationBuilder builder = WebApplication.CreateBuilder(new WebApplicationOptions { EnvironmentName = Environments.Production });
+            builder.WebHost.UseUrls("http://127.0.0.1:0");
+            builder.Services.AddCoreServices(resilience, fileStorageSettings: fileStorageSettings);
+            builder.Services.AddKeyedSingleton<IFileStorageService>(StorageProvider.AwsS3, s3Mock.Object);
+            builder.Services.AddWebApiServices(resilience);
+            builder.Services.AddWebApiHealthChecks();
+
+            await using WebApplication app = builder.Build();
+            app.MapHealthEndpoint();
+            await app.StartAsync();
+
+            using HttpClient client = new() { BaseAddress = new Uri(app.Urls.Single()) };
+
+            // Both Local and AwsS3 healthy -> 200 OK with per-provider status in Data
+            HttpResponseMessage healthyResp = await client.GetAsync("/api/health");
+            Assert.Equal(HttpStatusCode.OK, healthyResp.StatusCode);
+            Result<HealthCheckResultData>? healthyResult = await healthyResp.Content.ReadFromJsonAsync<Result<HealthCheckResultData>>();
+            Assert.NotNull(healthyResult?.Data);
+            Assert.Equal("Healthy", healthyResult.Data.Status);
+            HealthCheckEntryResultData healthyEntry = healthyResult.Data.Checks[FileStorageHealthCheck.DefaultName];
+            Assert.NotNull(healthyEntry.Data);
+            Assert.Equal("Healthy", healthyEntry.Data[nameof(StorageProvider.Local)]?.ToString());
+            Assert.Equal("Healthy", healthyEntry.Data[nameof(StorageProvider.AwsS3)]?.ToString());
+
+            // Non-throwing false return -> fail-closed 503 Unhealthy
+            s3Mode = "false";
+            HttpResponseMessage falseResp = await client.GetAsync("/api/health");
+            Assert.Equal(HttpStatusCode.ServiceUnavailable, falseResp.StatusCode);
+            Result<HealthCheckResultData>? falseResult = await falseResp.Content.ReadFromJsonAsync<Result<HealthCheckResultData>>();
+            Assert.NotNull(falseResult?.Data);
+            Assert.Equal("Unhealthy", falseResult.Data.Status);
+            HealthCheckEntryResultData falseEntry = falseResult.Data.Checks[FileStorageHealthCheck.DefaultName];
+            Assert.Equal("Unhealthy", falseEntry.Status);
+            Assert.NotNull(falseEntry.Data);
+            Assert.Equal("Healthy", falseEntry.Data[nameof(StorageProvider.Local)]?.ToString());
+            Assert.Equal("Unhealthy", falseEntry.Data[nameof(StorageProvider.AwsS3)]?.ToString());
+
+            // Partial failure via exception (AwsS3 throws while Local succeeds) -> fail-closed 503 Unhealthy with description, error, and provider details even in Production
+            s3Mode = "throw";
+            HttpResponseMessage failedResp = await client.GetAsync("/api/health");
+            string failedBody = await failedResp.Content.ReadAsStringAsync();
+            Assert.Equal(HttpStatusCode.ServiceUnavailable, failedResp.StatusCode);
+            Assert.Contains("S3 bucket unreachable", failedBody);
+
+            Result<HealthCheckResultData>? failedResult = await failedResp.Content.ReadFromJsonAsync<Result<HealthCheckResultData>>();
+            Assert.NotNull(failedResult?.Data);
+            Assert.Equal("Unhealthy", failedResult.Data.Status);
+            HealthCheckEntryResultData failedEntry = failedResult.Data.Checks[FileStorageHealthCheck.DefaultName];
+            Assert.Equal("Unhealthy", failedEntry.Status);
+            Assert.False(string.IsNullOrWhiteSpace(failedEntry.Description));
+            Assert.Equal("S3 bucket unreachable", failedEntry.Error);
+            Assert.NotNull(failedEntry.Data);
+            Assert.Equal("Healthy", failedEntry.Data[nameof(StorageProvider.Local)]?.ToString());
+            Assert.Equal("Unhealthy", failedEntry.Data[nameof(StorageProvider.AwsS3)]?.ToString());
+
+            await app.StopAsync();
+        }
+        finally
+        {
+            if (Directory.Exists(tempStorageDir))
+                Directory.Delete(tempStorageDir, recursive: true);
+        }
     }
 }

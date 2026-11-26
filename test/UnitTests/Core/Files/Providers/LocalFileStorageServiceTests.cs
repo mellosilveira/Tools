@@ -1,5 +1,6 @@
 using MelloSilveiraTools.Core.Files.Models;
 using MelloSilveiraTools.Core.Files.Providers.Local;
+using Microsoft.Extensions.Logging.Abstractions;
 using System.Text;
 
 namespace UnitTests.Core.Files.Providers;
@@ -17,7 +18,7 @@ public sealed class LocalFileStorageServiceTests : IDisposable
     public LocalFileStorageServiceTests()
     {
         Directory.CreateDirectory(_baseDirectory);
-        _service = new LocalFileStorageService(_timeProvider, new LocalFileStorageSettings { BaseDirectory = _baseDirectory });
+        _service = new LocalFileStorageService(NullLoggerFactory.Instance, _timeProvider, new LocalFileStorageSettings { BaseDirectory = _baseDirectory });
     }
 
     public void Dispose()
@@ -276,5 +277,45 @@ public sealed class LocalFileStorageServiceTests : IDisposable
         await _service.MoveAsync(otherLocation, incomingLocation, overwrite: true);
         Assert.False(await _service.ExistsAsync(otherLocation));
         Assert.Equal(Convert.ToHexStringLower(System.Security.Cryptography.SHA256.HashData("other"u8.ToArray())), await _service.ComputeSha256Async(incomingLocation));
+    }
+
+    /// <summary>
+    /// Verifies that <c>CheckHealthAsync</c> validates write, read, and delete operations and leaves no temporary probe artifacts behind.
+    /// </summary>
+    [Fact]
+    public async Task CheckHealthAsync_SucceedsAndLeavesNoProbeFilesBehind()
+    {
+        bool healthy = await _service.IsHealthAsync();
+        Assert.True(healthy);
+
+        string[] leftoverProbes = Directory.GetFiles(_baseDirectory, ".health-probe-*.tmp");
+        Assert.Empty(leftoverProbes);
+    }
+
+    /// <summary>
+    /// Verifies that <c>CheckHealthAsync</c> returns <see langword="false"/> without creating <c>BaseDirectory</c> when the root directory does not exist.
+    /// </summary>
+    [Fact]
+    public async Task CheckHealthAsync_WhenBaseDirectoryDoesNotExist_ReturnsFalseWithoutCreatingDirectory()
+    {
+        string missingDirectory = Path.Combine(_baseDirectory, "nonexistent-root");
+        using LocalFileStorageService service = new(NullLoggerFactory.Instance, _timeProvider, new LocalFileStorageSettings { BaseDirectory = missingDirectory });
+
+        bool healthy = await service.IsHealthAsync();
+
+        Assert.False(healthy);
+        Assert.False(Directory.Exists(missingDirectory));
+    }
+
+    /// <summary>
+    /// Verifies that <c>CheckHealthAsync</c> honors cancellation tokens.
+    /// </summary>
+    [Fact]
+    public async Task CheckHealthAsync_WhenCancelled_ThrowsOperationCanceledException()
+    {
+        using CancellationTokenSource cts = new();
+        cts.Cancel();
+
+        await Assert.ThrowsAsync<OperationCanceledException>(() => _service.IsHealthAsync(cts.Token).AsTask());
     }
 }

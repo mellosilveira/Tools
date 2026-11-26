@@ -5,11 +5,11 @@ using MelloSilveiraTools.Core.Models;
 using MelloSilveiraTools.Core.Pipelines.Models;
 using MelloSilveiraTools.Core.Providers;
 using MelloSilveiraTools.Core.Providers.Dynamics;
+using MelloSilveiraTools.Core.Security;
 using MelloSilveiraTools.Core.Services.Encryption;
 using MelloSilveiraTools.Database.RelationalDatabase.Models.Entities;
 using MelloSilveiraTools.Database.RelationalDatabase.Models.Filters;
 using MelloSilveiraTools.Database.Repositories;
-using MelloSilveiraTools.Core.Security;
 using MelloSilveiraTools.Mathematics;
 using MelloSilveiraTools.MechanicsOfMaterials;
 using MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.TypeResolvers;
@@ -309,7 +309,7 @@ public class WebApiHostAndQuickstartTests
         Mock<IRepository> repoMock = new();
         repoMock
             .Setup(r => r.TryInsertAsync(It.IsAny<StorageEntryMetadataEntity>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new Result<long> { Success = false, StatusCode = MelloSilveiraTools.Core.Models.StatusCode.UnknownError, Messages = ["DB offline"] });
+            .ReturnsAsync(new Result<long> { Success = false, StatusCode = StatusCode.UnknownError, Messages = ["DB offline"] });
 
         byte[] content = Encoding.UTF8.GetBytes("Time,Data\n0,1\n");
         IFormFile strainForm = new FormFile(new MemoryStream(content), 0, content.Length, "strainFile", "strain.csv");
@@ -342,7 +342,7 @@ public class WebApiHostAndQuickstartTests
         repoMock
             .SetupSequence(r => r.TryInsertAsync(It.IsAny<StorageEntryMetadataEntity>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(Result.CreateSuccessOk(201L))
-            .ReturnsAsync(new Result<long> { Success = false, StatusCode = MelloSilveiraTools.Core.Models.StatusCode.UnknownError, Messages = ["DB write failed"] });
+            .ReturnsAsync(new Result<long> { Success = false, StatusCode = StatusCode.UnknownError, Messages = ["DB write failed"] });
 
         byte[] content = Encoding.UTF8.GetBytes("Time,Data\n0,1\n");
         IFormFile strainForm = new FormFile(new MemoryStream(content), 0, content.Length, "strainFile", "strain.csv");
@@ -452,7 +452,7 @@ public class WebApiHostAndQuickstartTests
         Assert.Equal("Completed", clientEvent.State);
         Assert.Equal(100.0, clientEvent.ProgressPercentage, precision: 6);
 
-        Result<string> serverResult = new() { Success = false, StatusCode = MelloSilveiraTools.Core.Models.StatusCode.BadRequest, Messages = ["Invalid input"] };
+        Result<string> serverResult = new() { Success = false, StatusCode = StatusCode.BadRequest, Messages = ["Invalid input"] };
         string resultJson = JsonSerializer.Serialize(serverResult, _serverJsonOptions);
         ApiResultDto<string>? clientResult = JsonSerializer.Deserialize<ApiResultDto<string>>(resultJson, _serverJsonOptions);
         Assert.NotNull(clientResult);
@@ -529,7 +529,7 @@ public class WebApiHostAndQuickstartTests
 
         Result validationResult = settings.Validate();
         Assert.False(validationResult.Success);
-        Assert.Equal(MelloSilveiraTools.Core.Models.StatusCode.BadRequest, validationResult.StatusCode);
+        Assert.Equal(StatusCode.BadRequest, validationResult.StatusCode);
         Assert.NotEmpty(validationResult.Messages);
     }
 
@@ -599,7 +599,7 @@ public class WebApiHostAndQuickstartTests
             .Select(endpoint => endpoint.RoutePattern.RawText ?? string.Empty)
             .ToList();
 
-        Assert.Contains("/health", routes);
+        Assert.Contains("/api/health", routes);
         Assert.Contains("/api/v1/auth/register", routes);
         Assert.Contains("/api/v1/auth/login", routes);
         Assert.Contains("/api/v1/auth/refresh", routes);
@@ -728,7 +728,7 @@ public class WebApiHostAndQuickstartTests
 
         Result<ExecuteSpecimenAnalysisResultData> result = await command.ExecuteAsync(request);
         Assert.False(result.Success);
-        Assert.Equal(MelloSilveiraTools.Core.Models.StatusCode.NotFound, result.StatusCode);
+        Assert.Equal(StatusCode.NotFound, result.StatusCode);
     }
 
     [Fact]
