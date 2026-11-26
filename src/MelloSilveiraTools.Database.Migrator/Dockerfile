@@ -1,7 +1,7 @@
 FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 WORKDIR /src
 
-COPY Directory.Build.props NuGet.Config ./
+COPY Directory.Build.props NuGet.Config README.md CHANGELOG.md LICENSE ./
 COPY src/MelloSilveiraTools.Core/MelloSilveiraTools.Core.csproj src/MelloSilveiraTools.Core/
 COPY src/MelloSilveiraTools.Database/MelloSilveiraTools.Database.csproj src/MelloSilveiraTools.Database/
 COPY src/MelloSilveiraTools.Database.Migrator/MelloSilveiraTools.Database.Migrator.csproj src/MelloSilveiraTools.Database.Migrator/

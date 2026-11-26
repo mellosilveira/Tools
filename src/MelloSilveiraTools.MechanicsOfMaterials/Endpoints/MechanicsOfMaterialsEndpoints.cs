@@ -45,11 +45,11 @@ public static class MechanicsOfMaterialsEndpoints
                 .ExecuteAsync(request, httpContext.RequestAborted)
                 .ToHttpResultAsync()
                 .ConfigureAwait(false))
-            .Produces(StatusCodes.Status200OK, contentType: "text/csv")
+            .Produces<Result<ExecuteSpecimenAnalysisResultData>>(StatusCodes.Status200OK)
             .Produces<Result>(StatusCodes.Status400BadRequest)
             .Produces<Result>(StatusCodes.Status404NotFound)
             .WithName("ExecuteSpecimenAnalysis")
-            .WithSummary("Executes a deterministic specimen mechanical analysis and streams the generated CSV file, deleting it after download.");
+            .WithSummary("Executes a deterministic specimen mechanical analysis, persists the generated CSV file, and returns delta metrics and metadata ID.");
 
         group
             .MapPost("/fatigue/calculate", ([FromServices] IFatigueCalculator calculator, [FromBody] FatigueInput input) =>

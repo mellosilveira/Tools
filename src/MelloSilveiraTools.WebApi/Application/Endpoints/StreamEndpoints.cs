@@ -5,6 +5,7 @@ using MelloSilveiraTools.WebApi.Application.Models;
 using MelloSilveiraTools.WebApi.ExtensionMethods;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Logging;
 using Microsoft.Net.Http.Headers;
@@ -34,7 +35,7 @@ public static class StreamEndpoints
         where TEntity : EntityBase, new()
         where TFilter : FilterBase, new()
         => builder
-            .MapGet(pattern, async (HttpContext httpContext, IRepository repository, ILogger<TEntity> logger, [AsParameters] TFilter filter) => await repository
+            .MapGet(pattern, async (HttpContext httpContext, [FromServices] IRepository repository, [FromServices] ILogger<TEntity> logger, [AsParameters] TFilter filter) => await repository
                 .GetAsync<TEntity, TFilter>(filter, cancellationToken: httpContext.RequestAborted)
                 .WriteNdjsonAsync(httpContext, logger, resourceName, httpContext.RequestAborted)
                 .ConfigureAwait(false))
@@ -76,15 +77,23 @@ public static class StreamEndpoints
             if (context.Response.SupportsTrailers())
                 context.Response.AppendTrailer(ApplicationConstants.StreamStatusTrailerName, ApplicationConstants.StreamSuccessfullyStatus);
         }
+        catch (KeyNotFoundException ex)
+        {
+            logger.LogWarning(ex, "Resource not found during streaming of {resourceName}.", resourceName);
+            if (!context.Response.HasStarted)
+                context.Response.StatusCode = StatusCodes.Status404NotFound;
+            if (context.Response.SupportsTrailers())
+                context.Response.AppendTrailer(ApplicationConstants.StreamStatusTrailerName, "NotFound");
+        }
         catch (OperationCanceledException ex)
         {
-            logger.LogWarning(ex, "A conexão foi fechada pelo cliente durante o streaming.");
+            logger.LogWarning(ex, "The connection was closed by the client during streaming.");
             if (context.Response.SupportsTrailers())
                 context.Response.AppendTrailer(ApplicationConstants.StreamStatusTrailerName, "Canceled");
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "Falha durante o streaming de {resourceName}.", resourceName);
+            logger.LogError(ex, "Failure during streaming of {resourceName}.", resourceName);
             if (context.Response.SupportsTrailers())
                 context.Response.AppendTrailer(ApplicationConstants.StreamStatusTrailerName, "Faulted");
         }

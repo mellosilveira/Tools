@@ -49,13 +49,26 @@ public interface IPluginService
     Task ReloadPluginsOnRuntimeAsync(bool forceLoad, string? name = null, PluginVersion? version = null, CancellationToken cancellationToken = default);
 
     /// <summary>
-    /// Asynchronously streams plugins available in storage that match the provided filters, returning registry information for each one.
+    /// Asynchronously streams registered runtime plugins currently held in the in-memory cache that match the provided filters.
     /// </summary>
     /// <param name="name">Optional plugin name filter. When empty, all plugins are considered.</param>
     /// <param name="version">Optional version filter. When <c>null</c>, all versions are considered.</param>
     /// <param name="cancellationToken">Cancellation token.</param>
-    /// <returns>An asynchronous stream of registered plugins discovered in storage.</returns>
+    /// <returns>An asynchronous stream of registered plugins from memory cache.</returns>
     IAsyncEnumerable<RegisteredPlugin> GetPluginsAsync(string? name = null, PluginVersion? version = null, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Asynchronously inspects plugin binaries across the main plugin storage partitions
+    /// (<c>loaded</c>, <c>incoming</c>, <c>pending</c>, <c>archive</c>, <c>quarantine</c>, <c>rejected</c>)
+    /// for superuser validation, returning physical <see cref="Core.Files.Models.StorageEntryMetadata"/>,
+    /// static PE/architecture validation status, and runtime type registration details for active partitions.
+    /// </summary>
+    /// <param name="name">Optional plugin name filter. When empty, all plugins are considered.</param>
+    /// <param name="version">Optional version filter. When <c>null</c>, all versions are considered.</param>
+    /// <param name="partition">Optional canonical storage partition filter. When empty, all main partitions are scanned.</param>
+    /// <param name="cancellationToken">Cancellation token.</param>
+    /// <returns>An asynchronous stream of <see cref="PluginInfo"/> diagnostic entries.</returns>
+    IAsyncEnumerable<PluginInfo> InspectPluginsAsync(string? name = null, PluginVersion? version = null, string? partition = null, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Clears the plugin cache entirely.

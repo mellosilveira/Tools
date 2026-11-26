@@ -28,7 +28,9 @@ public sealed class PluginAssemblyProcessorTests
         Directory = "plugins",
         DefaultCacheTarget = "file",
         PollInterval = TimeSpan.FromSeconds(30),
-        PreviousVersionRetention = TimeSpan.FromHours(24)
+        PreviousVersionRetention = TimeSpan.FromHours(24),
+        MaxPluginSizeBytes = 10L * 1024 * 1024,
+        MaxPendingSubmissionsPerUser = 5
     };
 
     [Fact]
@@ -42,10 +44,11 @@ public sealed class PluginAssemblyProcessorTests
             .Setup(s => s.OpenReadAsync(assemblyPath, It.IsAny<CancellationToken>()))
             .ReturnsAsync(() => new MemoryStream(assemblyBytes));
 
+        PluginSettings settings = CreateSettings();
         PluginCache cache = new(new InMemoryTwoLevelCache());
-        PluginFileProcessor fileProcessor = new(NullLogger<PluginFileProcessor>.Instance, storageMock.Object, cache, CreateSettings());
+        PluginFileProcessor fileProcessor = new(NullLogger<PluginFileProcessor>.Instance, storageMock.Object, cache, settings);
         TestTypeProcessor typeProcessor = new(typeof(object));
-        PluginAssemblyProcessor assemblyProcessor = new([typeProcessor], TimeProvider.System, fileProcessor, cache);
+        PluginAssemblyProcessor assemblyProcessor = new([typeProcessor], TimeProvider.System, fileProcessor, cache, settings);
 
         DiscoveredPlugin discovered = new("MelloSilveiraTools.Plugins", new PluginVersion(2, 0, 0), assemblyPath, DateTimeOffset.UtcNow);
 
@@ -73,9 +76,10 @@ public sealed class PluginAssemblyProcessorTests
             .Setup(s => s.OpenReadAsync(assemblyPath, It.IsAny<CancellationToken>()))
             .ReturnsAsync(() => new MemoryStream(garbageBytes));
 
+        PluginSettings settings = CreateSettings();
         PluginCache cache = new(new InMemoryTwoLevelCache());
-        PluginFileProcessor fileProcessor = new(NullLogger<PluginFileProcessor>.Instance, storageMock.Object, cache, CreateSettings());
-        PluginAssemblyProcessor assemblyProcessor = new([], TimeProvider.System, fileProcessor, cache);
+        PluginFileProcessor fileProcessor = new(NullLogger<PluginFileProcessor>.Instance, storageMock.Object, cache, settings);
+        PluginAssemblyProcessor assemblyProcessor = new([], TimeProvider.System, fileProcessor, cache, settings);
 
         DiscoveredPlugin discovered = new("Corrupt", new PluginVersion(1, 0, 0), assemblyPath, DateTimeOffset.UtcNow);
 
@@ -103,10 +107,11 @@ public sealed class PluginAssemblyProcessorTests
     {
         DateTimeOffset fixedNow = new(2026, 5, 1, 12, 0, 0, TimeSpan.Zero);
         FixedTimeProvider timeProvider = new(fixedNow);
+        PluginSettings settings = CreateSettings();
         PluginCache cache = new(new InMemoryTwoLevelCache());
-        PluginFileProcessor fileProcessor = new(NullLogger<PluginFileProcessor>.Instance, Mock.Of<IFileStorageService>(), cache, CreateSettings());
+        PluginFileProcessor fileProcessor = new(NullLogger<PluginFileProcessor>.Instance, Mock.Of<IFileStorageService>(), cache, settings);
         TestTypeProcessor typeProcessor = new(typeof(string));
-        PluginAssemblyProcessor assemblyProcessor = new([typeProcessor], timeProvider, fileProcessor, cache);
+        PluginAssemblyProcessor assemblyProcessor = new([typeProcessor], timeProvider, fileProcessor, cache, settings);
 
         DiscoveredPlugin discovered = new("PluginY", new PluginVersion(1, 0, 0), "/pathY", DateTimeOffset.UtcNow);
         AssemblyLoadContext alc = new("TestAlcY", isCollectible: true);

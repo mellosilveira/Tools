@@ -10,7 +10,12 @@ public static class ProcessRunner
     /// <summary>
     /// Executes a command synchronously with captured stdout/stderr and returns its exit code and output.
     /// </summary>
-    public static async Task<(int ExitCode, string StdOut, string StdErr)> RunCommandAsync(string fileName, string arguments, string? workingDirectory = null, CancellationToken cancellationToken = default)
+    public static async Task<(int ExitCode, string StdOut, string StdErr)> RunCommandAsync(
+        string fileName,
+        string arguments,
+        string? workingDirectory = null,
+        IReadOnlyDictionary<string, string>? environmentVariables = null,
+        CancellationToken cancellationToken = default)
     {
         try
         {
@@ -24,6 +29,12 @@ public static class ProcessRunner
                 UseShellExecute = false,
                 CreateNoWindow = true
             };
+
+            if (environmentVariables is not null)
+            {
+                foreach (KeyValuePair<string, string> pair in environmentVariables)
+                    startInfo.Environment[pair.Key] = pair.Value;
+            }
 
             using Process? process = Process.Start(startInfo);
             if (process is null)

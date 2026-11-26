@@ -1,8 +1,15 @@
+using MelloSilveiraTools.Core.Caching;
+using MelloSilveiraTools.Core.Files.Models;
+using MelloSilveiraTools.Core.Files.Providers;
+using MelloSilveiraTools.Core.Models;
+using MelloSilveiraTools.Database.Repositories;
 using MelloSilveiraTools.Plugins.Application.Commands.Upload;
 using MelloSilveiraTools.Plugins.Application.Validators;
+using MelloSilveiraTools.Plugins.Infrastructure;
 using MelloSilveiraTools.Plugins.Infrastructure.Models;
 using MelloSilveiraTools.Plugins.Infrastructure.Persistences;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Logging.Abstractions;
 using Moq;
 using System.Text.Json;
 
@@ -94,7 +101,7 @@ public sealed class TypeJsonConverterTests
     }
 
     [Fact]
-    public void Write_And_WriteAsPropertyName_WhenAssemblyQualifiedNameOrFullNameAreNull_UsesFallbacks()
+    public async Task Write_And_WriteAsPropertyName_WhenAssemblyQualifiedNameOrFullNameAreNull_UsesFallbacks()
     {
         TypeJsonConverter converter = new();
 
@@ -127,17 +134,32 @@ public sealed class TypeJsonConverterTests
         Assert.Empty(reg.TypesLoadedStatus);
 
         PluginValidator validator = new();
-        Assert.False(validator.Validate(null!).Success);
+        Result nullPluginResult = await validator.ValidateAsync(null!);
+        Assert.False(nullPluginResult.Success);
 
-        UploadPluginValidator uploadValidator = new();
+        PluginSettings settings = new()
+        {
+            StorageProvider = StorageProvider.Local,
+            Directory = "plugins",
+            DefaultCacheTarget = "file",
+            PollInterval = TimeSpan.FromSeconds(30),
+            PreviousVersionRetention = TimeSpan.FromHours(1),
+            MaxPluginSizeBytes = 10L * 1024 * 1024,
+            MaxPendingSubmissionsPerUser = 5
+        };
+        PluginFileProcessor fileProcessor = new(NullLogger<PluginFileProcessor>.Instance, Mock.Of<IFileStorageService>(), new PluginCache(new InMemoryTwoLevelCache()), settings);
+        UploadPluginValidator uploadValidator = new(fileProcessor, new PluginSubmissionPersistence(NullLogger<PluginSubmissionPersistence>.Instance, Mock.Of<IFileStorageService>(), Mock.Of<IRepository>(), settings), settings);
+
         Mock<IFormFile> pathSepFile = new();
         pathSepFile.SetupGet(f => f.Length).Returns(10);
         pathSepFile.SetupGet(f => f.FileName).Returns("folder/Plugin.v1.0.0.dll");
-        Assert.False(uploadValidator.Validate(new UploadPluginRequest { File = pathSepFile.Object }).Success);
+        Result pathSepResult = await uploadValidator.ValidateAsync(new UploadPluginRequest { File = pathSepFile.Object });
+        Assert.False(pathSepResult.Success);
 
         Mock<IFormFile> dotDotFile = new();
         dotDotFile.SetupGet(f => f.Length).Returns(10);
         dotDotFile.SetupGet(f => f.FileName).Returns("Plugin..v1.0.0.dll");
-        Assert.False(uploadValidator.Validate(new UploadPluginRequest { File = dotDotFile.Object }).Success);
+        Result dotDotResult = await uploadValidator.ValidateAsync(new UploadPluginRequest { File = dotDotFile.Object });
+        Assert.False(dotDotResult.Success);
     }
 }

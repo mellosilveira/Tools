@@ -27,12 +27,16 @@ public abstract class CommandBase<TRequest, TResult>(IValidator<TRequest>? valid
     /// <param name="request">Input data for the business operation.</param>
     /// <param name="cancellationToken"></param>
     /// <returns>A structured business outcome confirming success or detailing validation points.</returns>
-    public Task<TResult> ExecuteAsync(TRequest request, CancellationToken cancellationToken = default)
+    public async Task<TResult> ExecuteAsync(TRequest request, CancellationToken cancellationToken = default)
     {
-        Result? result = Validator?.Validate(request);
-        return result is null || result.Success
-            ? ExecuteCommandAsync(request, cancellationToken)
-            : Task.FromResult(Result.Create<TResult>(result));
+        if (Validator is not null)
+        {
+            Result validationResult = await Validator.ValidateAsync(request, cancellationToken).ConfigureAwait(false);
+            if (!validationResult.Success)
+                return Result.Create<TResult>(validationResult);
+        }
+
+        return await ExecuteCommandAsync(request, cancellationToken).ConfigureAwait(false);
     }
 
     /// <summary>

@@ -1,4 +1,5 @@
 using MelloSilveiraTools.Core.Files.Models;
+using System.Security.Cryptography;
 
 namespace MelloSilveiraTools.Core.Files.Providers;
 
@@ -19,6 +20,17 @@ public abstract class FileStorageServiceBase(TimeProvider timeProvider) : IFileS
 
     /// <inheritdoc />
     public abstract string ResolveLocation(string identifier, string context, string fileName);
+
+    /// <inheritdoc />
+    public abstract (string Identifier, string Context, string FileName) ParseLocation(string location);
+
+    /// <inheritdoc />
+    public string ExtractDirectory(string location, string? fallbackDirectory = null)
+    {
+        string normalized = location.Replace('\\', '/');
+        int lastSlash = normalized.LastIndexOf('/');
+        return lastSlash > 0 ? normalized[..lastSlash] : fallbackDirectory ?? string.Empty;
+    }
 
     /// <inheritdoc />
     public async ValueTask<(Stream Stream, string Location)> CreateWriteAsync(string identifier, string context, string fileName, CancellationToken cancellationToken = default)
@@ -78,6 +90,77 @@ public abstract class FileStorageServiceBase(TimeProvider timeProvider) : IFileS
     }
 
     /// <inheritdoc />
+    public async ValueTask MoveAsync(string sourceLocation, string destinationLocation, bool overwrite = true, CancellationToken cancellationToken = default)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+        if (string.Equals(sourceLocation, destinationLocation, StringComparison.OrdinalIgnoreCase))
+            return;
+
+        if (!overwrite && await ExistsAsync(destinationLocation, cancellationToken).ConfigureAwait(false))
+            throw new IOException($"Destination storage location '{destinationLocation}' already exists.");
+
+        await using (Stream sourceStream = await OpenReadAsync(sourceLocation, cancellationToken).ConfigureAwait(false))
+        {
+            await using Stream destinationStream = await OpenWriteAsync(destinationLocation, cancellationToken).ConfigureAwait(false);
+            await sourceStream.CopyToAsync(destinationStream, cancellationToken).ConfigureAwait(false);
+            await destinationStream.FlushAsync(cancellationToken).ConfigureAwait(false);
+        }
+
+        await DeleteAsync(sourceLocation, cancellationToken).ConfigureAwait(false);
+    }
+
+    /// <inheritdoc />
+    public async ValueTask<string> MoveAsync(string sourceLocation, string destinationIdentifier, string destinationContext, string destinationFileName, bool overwrite = true, CancellationToken cancellationToken = default)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+        string destinationLocation = ResolveLocation(destinationIdentifier, destinationContext, destinationFileName);
+        await MoveAsync(sourceLocation, destinationLocation, overwrite, cancellationToken).ConfigureAwait(false);
+        return destinationLocation;
+    }
+
+    /// <inheritdoc />
+    public async ValueTask<string> ComputeSha256Async(string location, CancellationToken cancellationToken = default)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+        await using Stream stream = await OpenReadAsync(location, cancellationToken).ConfigureAwait(false);
+        byte[] hashBytes = await SHA256.HashDataAsync(stream, cancellationToken).ConfigureAwait(false);
+        return Convert.ToHexStringLower(hashBytes);
+    }
+
+    /// <inheritdoc />
+    public ValueTask<string> ComputeSha256Async(string identifier, string context, string fileName, CancellationToken cancellationToken = default)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+        string location = ResolveLocation(identifier, context, fileName);
+        return ComputeSha256Async(location, cancellationToken);
+    }
+
+    /// <inheritdoc />
+    public async ValueTask<(string Location, string Directory, string Sha256Hash, long SizeBytes)> WriteAndHashAsync(string identifier, string context, string fileName, Stream sourceStream, CancellationToken cancellationToken = default)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+        string targetLocation = ResolveLocation(identifier, context, fileName);
+        long bytesWritten = 0;
+
+        using IncrementalHash hasher = IncrementalHash.CreateHash(HashAlgorithmName.SHA256);
+        await using Stream targetStream = await OpenWriteAsync(targetLocation, cancellationToken).ConfigureAwait(false);
+
+        byte[] buffer = new byte[81920];
+        int read;
+        while ((read = await sourceStream.ReadAsync(buffer, cancellationToken).ConfigureAwait(false)) > 0)
+        {
+            hasher.AppendData(buffer, 0, read);
+            await targetStream.WriteAsync(buffer.AsMemory(0, read), cancellationToken).ConfigureAwait(false);
+            bytesWritten += read;
+        }
+
+        await targetStream.FlushAsync(cancellationToken).ConfigureAwait(false);
+        string sha256Hash = Convert.ToHexStringLower(hasher.GetHashAndReset());
+        string directory = ExtractDirectory(targetLocation, context);
+        return (targetLocation, directory, sha256Hash, bytesWritten);
+    }
+
+    /// <inheritdoc />
     public abstract ValueTask<Stream> OpenWriteAsync(string location, CancellationToken cancellationToken = default);
 
     /// <inheritdoc />
@@ -125,62 +208,4 @@ public abstract class FileStorageServiceBase(TimeProvider timeProvider) : IFileS
     /// <param name="fileExtension">File extension including the leading dot.</param>
     /// <returns>A formatted timestamped file name.</returns>
     protected string GenerateTimebasedFileName(string fileExtension) => $"{TimeProvider.GetUtcNow():yyyy-MM-dd_HH-mm-ss.fff}{fileExtension}";
-
-    /// <summary>
-    /// Builds a standardized forward-slash delimited virtual directory prefix for cloud object storage providers.
-    /// </summary>
-    /// <param name="identifier">The unique identifier.</param>
-    /// <param name="context">The contextual domain or category.</param>
-    /// <param name="basePrefix">An optional root prefix configured for the storage account or bucket.</param>
-    /// <returns>A formatted directory prefix ending with a forward slash.</returns>
-    protected static string BuildDirectoryPrefix(string identifier, string context, string? basePrefix = null)
-    {
-        string relativePrefix = string.IsNullOrEmpty(context) ? identifier : Path.Combine(identifier, context);
-        return string.IsNullOrEmpty(basePrefix)
-            ? relativePrefix
-            : Path.Combine(basePrefix.Trim('/'), relativePrefix);
-    }
-
-    /// <summary>
-    /// Deconstructs a cloud object key or URI into its forward-slash delimited virtual directory path and file name.
-    /// Ensures consistent behavior across Windows and Unix platforms without backslash replacement.
-    /// </summary>
-    /// <param name="key">The cloud object key or URI.</param>
-    /// <returns>A tuple containing the virtual directory prefix (without trailing slash) and the file name (or <c>null</c> if the key represents a directory or ends with a slash).</returns>
-    protected static (string Directory, string? FileName) ExtractCloudPath(string key)
-    {
-        if (string.IsNullOrEmpty(key))
-            return (string.Empty, null);
-
-        if (key.EndsWith('/'))
-        {
-            string normalizedDir = key.TrimEnd('/');
-            int slashIndex = normalizedDir.LastIndexOf('/');
-            string parentDirectory = slashIndex >= 0 ? normalizedDir[..slashIndex] : string.Empty;
-            return (parentDirectory, null);
-        }
-
-        int lastSlash = key.LastIndexOf('/');
-        if (lastSlash < 0)
-            return (string.Empty, key);
-
-        string directory = key[..lastSlash];
-        string fileName = key[(lastSlash + 1)..];
-        return (directory, string.IsNullOrEmpty(fileName) ? null : fileName);
-    }
-
-    /// <summary>
-    /// Extracts the forward-slash delimited virtual directory path from a cloud object key or URI,
-    /// ensuring consistent behavior across Windows and Unix platforms without backslash replacement.
-    /// </summary>
-    /// <param name="key">The cloud object key or URI.</param>
-    /// <returns>The virtual directory prefix without a trailing slash, or an empty string if in root.</returns>
-    protected static string ExtractCloudDirectory(string key) => ExtractCloudPath(key).Directory;
-
-    /// <summary>
-    /// Extracts the file name and extension from a cloud object key or URI.
-    /// </summary>
-    /// <param name="key">The cloud object key or URI.</param>
-    /// <returns>The file name, or <c>null</c> if the key represents a directory or ends with a slash.</returns>
-    protected static string? ExtractCloudFileName(string key) => ExtractCloudPath(key).FileName;
 }

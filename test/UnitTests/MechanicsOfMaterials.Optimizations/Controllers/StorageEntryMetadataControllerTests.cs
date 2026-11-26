@@ -25,7 +25,7 @@ namespace UnitTests.MechanicsOfMaterials.Optimizations.Controllers;
 /// <summary>
 /// Unit tests for <see cref="StorageEntryMetadataController"/> and its CRUD/download commands.
 /// </summary>
-public sealed class StoredFilesControllerTests
+public sealed class StorageEntryMetadataControllerTests
 {
     private readonly Mock<IRepository> _repositoryMock = new();
     private readonly Mock<IFileStorageService> _fileStorageServiceMock = new();
@@ -44,7 +44,7 @@ public sealed class StoredFilesControllerTests
     public async Task DownloadByIdAsync_WhenEntityNotFound_ReturnsNotFound()
     {
         ServiceLocator serviceLocator = CreateServiceLocator();
-        DownloadStoredFileCommand command = new(_repositoryMock.Object, serviceLocator);
+        DownloadStorageEntryCommand command = new(_repositoryMock.Object, serviceLocator);
 
         _repositoryMock
             .Setup(r => r.GetAsync<StorageEntryMetadataEntity>(999L, It.IsAny<CancellationToken>()))
@@ -72,7 +72,7 @@ public sealed class StoredFilesControllerTests
         };
 
         ServiceLocator serviceLocator = CreateServiceLocator();
-        DownloadStoredFileCommand command = new(_repositoryMock.Object, serviceLocator);
+        DownloadStorageEntryCommand command = new(_repositoryMock.Object, serviceLocator);
 
         _repositoryMock
             .Setup(r => r.GetAsync<StorageEntryMetadataEntity>(1L, It.IsAny<CancellationToken>()))
@@ -101,7 +101,7 @@ public sealed class StoredFilesControllerTests
 
         ServiceLocator serviceLocator = CreateServiceLocator(services =>
             services.AddKeyedSingleton<IFileStorageService>(StorageProvider.Local, _fileStorageServiceMock.Object));
-        DownloadStoredFileCommand command = new(_repositoryMock.Object, serviceLocator);
+        DownloadStorageEntryCommand command = new(_repositoryMock.Object, serviceLocator);
 
         _repositoryMock
             .Setup(r => r.GetAsync<StorageEntryMetadataEntity>(42L, It.IsAny<CancellationToken>()))
@@ -136,7 +136,7 @@ public sealed class StoredFilesControllerTests
 
         ServiceLocator serviceLocator = CreateServiceLocator(services =>
             services.AddKeyedSingleton<IFileStorageService>(StorageProvider.Local, _fileStorageServiceMock.Object));
-        DownloadStoredFileCommand command = new(_repositoryMock.Object, serviceLocator);
+        DownloadStorageEntryCommand command = new(_repositoryMock.Object, serviceLocator);
 
         _repositoryMock
             .Setup(r => r.GetAsync<StorageEntryMetadataEntity>(42L, It.IsAny<CancellationToken>()))

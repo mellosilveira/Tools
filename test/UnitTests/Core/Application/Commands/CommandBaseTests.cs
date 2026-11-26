@@ -73,8 +73,8 @@ public class CommandBaseTests
     public async Task ExecuteAsync_WhenValidationFails_ShouldShortCircuitAndReturnValidationError()
     {
         Mock<IValidator<SampleRequest>> validatorMock = new();
-        validatorMock.Setup(v => v.Validate(It.IsAny<SampleRequest>()))
-            .Returns(Result.CreateBadRequest("Name is mandatory."));
+        validatorMock.Setup(v => v.ValidateAsync(It.IsAny<SampleRequest>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Result.CreateBadRequest("Name is mandatory."));
 
         SampleCommand command = new(validatorMock.Object);
         SampleRequest request = new(string.Empty);
@@ -91,8 +91,8 @@ public class CommandBaseTests
     public async Task ExecuteAsync_WhenValidationPasses_ShouldExecuteDomainLogic()
     {
         Mock<IValidator<SampleRequest>> validatorMock = new();
-        validatorMock.Setup(v => v.Validate(It.IsAny<SampleRequest>()))
-            .Returns(Result.CreateSuccessOk());
+        validatorMock.Setup(v => v.ValidateAsync(It.IsAny<SampleRequest>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Result.CreateSuccessOk());
 
         SampleCommand command = new(validatorMock.Object);
         SampleRequest request = new("Bruno");

@@ -59,17 +59,18 @@ namespace MelloSilveiraTools.Core.Files.Providers.BlobStorage;
 /// </remarks>
 /// <param name="logger">Logger instance for structured tracing of operations and transmission progress.</param>
 /// <param name="defaultStorage">The default file storage service used to buffer writes before streaming to Blob Storage. In this version, a local file storage is used.</param>
+/// <param name="timeProvider">The time provider instance used for temporal operations.</param>
 /// <param name="containerClient">Azure Blob container client instance shared across the application lifecycle.</param>
 /// <param name="settings">Azure Blob storage settings defining container, endpoints, and virtual prefixes.</param>
 /// <param name="resiliencePipeline">Resilience pipeline for Azure Blob Storage operations providing retry, backoff, and circuit-breaker strategies.</param>
-/// <param name="timeProvider">The time provider instance used for temporal operations.</param>
 public class BlobStorageFileStorageService(
     ILogger<BlobStorageFileStorageService> logger,
     IFileStorageService defaultStorage,
+    TimeProvider timeProvider,
     BlobContainerClient containerClient,
     BlobStorageSettings settings,
-    BlobStorageResiliencePipeline resiliencePipeline,
-    TimeProvider timeProvider) : FileStorageServiceBase(timeProvider)
+    BlobStorageResiliencePipeline resiliencePipeline)
+    : CloudFileStorageServiceBase(timeProvider, settings.BasePrefix)
 {
     private int _disposedState;
 
@@ -77,12 +78,9 @@ public class BlobStorageFileStorageService(
     public override StorageProvider Provider => StorageProvider.BlobStorage;
 
     /// <inheritdoc />
-    public override string ResolveLocation(string identifier, string context, string fileName) => BuildDirectoryPrefix(identifier, context) + fileName;
-
-    /// <inheritdoc />
     public override async ValueTask<Stream> OpenWriteAsync(string location, CancellationToken cancellationToken = default)
     {
-        string fileName = ExtractCloudFileName(location)!;
+        string fileName = ExtractCloudPath(location).FileName!;
         string uploadId = Guid.NewGuid().ToString("N");
         (Stream localStream, string tempLocation) = await defaultStorage.CreateWriteAsync(uploadId, "blob-uploads", fileName, cancellationToken).ConfigureAwait(false);
 
@@ -195,10 +193,7 @@ public class BlobStorageFileStorageService(
     }
 
     /// <inheritdoc />
-    public override async IAsyncEnumerable<StorageEntryMetadata> ListFilesAsync(
-        string identifier,
-        string context,
-        [EnumeratorCancellation] CancellationToken cancellationToken = default)
+    public override async IAsyncEnumerable<StorageEntryMetadata> ListFilesAsync(string identifier, string context, [EnumeratorCancellation] CancellationToken cancellationToken = default)
     {
         string prefix = BuildDirectoryPrefix(identifier, context);
         string? continuationToken = null;
@@ -290,7 +285,7 @@ public class BlobStorageFileStorageService(
 
                 if (item.IsPrefix)
                 {
-                    string directory = ExtractCloudDirectory(item.Prefix);
+                    string directory = ExtractCloudPath(item.Prefix).Directory;
                     yield return new StorageEntryMetadata(StorageProvider.BlobStorage, item.Prefix, directory, null, 0L, TimeProvider.GetUtcNow());
                 }
                 else if (item.IsBlob)
@@ -307,8 +302,6 @@ public class BlobStorageFileStorageService(
             continuationToken = page.ContinuationToken;
         } while (!string.IsNullOrEmpty(continuationToken));
     }
-
-    private string BuildDirectoryPrefix(string identifier, string context) => BuildDirectoryPrefix(identifier, context, settings.BasePrefix);
 
     private void LogBlobError(Exception ex, string operation, string location)
     {

@@ -1,5 +1,6 @@
 using MelloSilveiraTools.Database.Migrator;
 using Microsoft.Extensions.Logging;
+using Npgsql;
 using System.Globalization;
 
 namespace MelloSilveiraTools.Launcher.Infrastructure;
@@ -51,92 +52,33 @@ public sealed record LauncherInfrastructureOptions(
     /// </summary>
     public string BuildDockerConnectionString()
     {
-        string[] parts = ConnectionString.Split(';', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
-        List<string> updatedParts = new(parts.Length);
-
-        foreach (string part in parts)
+        NpgsqlConnectionStringBuilder builder = new(ConnectionString);
+        if (string.Equals(builder.Host, "localhost", StringComparison.OrdinalIgnoreCase) || string.Equals(builder.Host, "127.0.0.1", StringComparison.Ordinal))
         {
-            int separatorIndex = part.IndexOf('=');
-            if (separatorIndex > 0)
-            {
-                string key = part[..separatorIndex].Trim();
-                string value = part[(separatorIndex + 1)..].Trim();
-                if ((key.Equals("Host", StringComparison.OrdinalIgnoreCase) || key.Equals("Server", StringComparison.OrdinalIgnoreCase))
-                    && (value.Equals("localhost", StringComparison.OrdinalIgnoreCase) || value.Equals("127.0.0.1", StringComparison.Ordinal)))
-                {
-                    updatedParts.Add($"{key}=postgres");
-                    continue;
-                }
-            }
-
-            updatedParts.Add(part);
+            builder.Host = "postgres";
+            builder.Port = 5432;
         }
 
-        return string.Join(";", updatedParts) + ";";
+        return builder.ConnectionString;
     }
 
     /// <summary>
     /// Builds the application-level PostgreSQL connection string used by <c>MelloSilveiraTools.WebApi.Host</c>.
     /// When the configured user is the <c>postgres</c> superuser (which bypasses PostgreSQL Row-Level Security),
     /// swaps credentials to the non-superuser <c>tools_app</c> role provisioned by migrations so RLS is enforced.
-    /// Custom non-superuser roles supplied explicitly by the user are preserved untouched.
     /// </summary>
     /// <param name="forDocker">When <see langword="true"/>, maps <c>localhost</c>/<c>127.0.0.1</c> to the Docker <c>postgres</c> service.</param>
     /// <returns>The resolved application connection string.</returns>
     public string BuildApplicationConnectionString(bool forDocker = false)
     {
-        string source = forDocker ? BuildDockerConnectionString() : ConnectionString;
-        string[] parts = source.Split(';', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
-
-        bool usesPostgresSuperuser = false;
-        foreach (string part in parts)
+        NpgsqlConnectionStringBuilder builder = new(forDocker ? BuildDockerConnectionString() : ConnectionString);
+        if (string.Equals(builder.Username, "postgres", StringComparison.OrdinalIgnoreCase))
         {
-            int separatorIndex = part.IndexOf('=');
-            if (separatorIndex <= 0)
-                continue;
-
-            string key = part[..separatorIndex].Trim();
-            string value = part[(separatorIndex + 1)..].Trim();
-            if ((key.Equals("Username", StringComparison.OrdinalIgnoreCase)
-                 || key.Equals("User Id", StringComparison.OrdinalIgnoreCase)
-                 || key.Equals("UID", StringComparison.OrdinalIgnoreCase))
-                && value.Equals("postgres", StringComparison.OrdinalIgnoreCase))
-            {
-                usesPostgresSuperuser = true;
-                break;
-            }
+            builder.Username = "tools_app";
+            builder.Password = "tools_app_pass";
         }
 
-        if (!usesPostgresSuperuser)
-            return source;
-
-        List<string> updatedParts = new(parts.Length);
-        foreach (string part in parts)
-        {
-            int separatorIndex = part.IndexOf('=');
-            if (separatorIndex > 0)
-            {
-                string key = part[..separatorIndex].Trim();
-                if (key.Equals("Username", StringComparison.OrdinalIgnoreCase)
-                    || key.Equals("User Id", StringComparison.OrdinalIgnoreCase)
-                    || key.Equals("UID", StringComparison.OrdinalIgnoreCase))
-                {
-                    updatedParts.Add($"{key}=tools_app");
-                    continue;
-                }
-
-                if (key.Equals("Password", StringComparison.OrdinalIgnoreCase)
-                    || key.Equals("Pwd", StringComparison.OrdinalIgnoreCase))
-                {
-                    updatedParts.Add($"{key}=tools_app_pass");
-                    continue;
-                }
-            }
-
-            updatedParts.Add(part);
-        }
-
-        return string.Join(";", updatedParts) + ";";
+        return builder.ConnectionString;
     }
 
     /// <summary>
@@ -144,26 +86,9 @@ public sealed record LauncherInfrastructureOptions(
     /// </summary>
     public (string Host, int Port) ExtractHostAndPort()
     {
-        string host = "localhost";
-        int port = 5432;
-
-        foreach (string part in ConnectionString.Split(';', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
-        {
-            int separatorIndex = part.IndexOf('=');
-            if (separatorIndex <= 0)
-                continue;
-
-            string key = part[..separatorIndex].Trim();
-            string value = part[(separatorIndex + 1)..].Trim();
-            if (string.IsNullOrEmpty(value))
-                continue;
-
-            if (key.Equals("Host", StringComparison.OrdinalIgnoreCase) || key.Equals("Server", StringComparison.OrdinalIgnoreCase))
-                host = value;
-            else if (key.Equals("Port", StringComparison.OrdinalIgnoreCase) && int.TryParse(value, NumberStyles.Integer, CultureInfo.InvariantCulture, out int parsedPort) && parsedPort is > 0 and <= 65535)
-                port = parsedPort;
-        }
-
+        NpgsqlConnectionStringBuilder builder = new(ConnectionString);
+        string host = string.IsNullOrWhiteSpace(builder.Host) ? "localhost" : builder.Host;
+        int port = builder.Port is > 0 and <= 65535 ? builder.Port : 5432;
         return (host, port);
     }
 
@@ -173,22 +98,22 @@ public sealed record LauncherInfrastructureOptions(
     public string BuildMaskedConnectionString() => MaskConnectionString(ConnectionString);
 
     /// <summary>
-    /// Masks <c>Password</c> and <c>Pwd</c> segments in a PostgreSQL connection string.
+    /// Masks password segments in a PostgreSQL connection string.
     /// </summary>
     public static string MaskConnectionString(string connectionString)
     {
-        string[] parts = connectionString.Split(';', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
-        List<string> maskedParts = new(parts.Length);
-
-        foreach (string part in parts)
+        try
         {
-            maskedParts.Add(part.StartsWith("password=", StringComparison.OrdinalIgnoreCase)
-                            || part.StartsWith("pwd=", StringComparison.OrdinalIgnoreCase)
-                ? "Password=********"
-                : part);
-        }
+            NpgsqlConnectionStringBuilder builder = new(connectionString);
+            if (!string.IsNullOrEmpty(builder.Password))
+                builder.Password = "********";
 
-        return string.Join(";", maskedParts);
+            return builder.ConnectionString;
+        }
+        catch
+        {
+            return "********";
+        }
     }
 }
 
@@ -206,19 +131,8 @@ public static class LauncherInfrastructureResolver
     /// <summary>
     /// Checks whether help was requested in the command-line arguments.
     /// </summary>
-    public static bool IsHelpRequested(string[] args)
-    {
-        foreach (string arg in args)
-        {
-            if (arg.Equals("--help", StringComparison.OrdinalIgnoreCase)
-                || arg.Equals("-h", StringComparison.OrdinalIgnoreCase))
-            {
-                return true;
-            }
-        }
-
-        return false;
-    }
+    public static bool IsHelpRequested(string[] args) =>
+        args.Any(arg => arg.Equals("--help", StringComparison.OrdinalIgnoreCase) || arg.Equals("-h", StringComparison.OrdinalIgnoreCase));
 
     /// <summary>
     /// Prints CLI usage instructions to standard output.
@@ -267,104 +181,89 @@ public static class LauncherInfrastructureResolver
         for (int i = 0; i < args.Length; i++)
         {
             string arg = args[i];
+            switch (arg.ToLowerInvariant())
+            {
+                case "--non-interactive":
+                case "--yes":
+                case "-y":
+                    nonInteractive = true;
+                    break;
+                case "--docker":
+                    mode = ExecutionMode.Docker;
+                    modeSet = true;
+                    break;
+                case "--mode":
+                case "-m":
+                    if (!TryReadValue(args, ref i, out string modeRaw) || !Enum.TryParse(modeRaw, ignoreCase: true, out mode))
+                    {
+                        logger.LogError("Invalid or missing value for {Option}. Valid options are: Local, Docker.", arg);
+                        return null;
+                    }
 
-            if (arg.Equals("--non-interactive", StringComparison.OrdinalIgnoreCase)
-                || arg.Equals("--yes", StringComparison.OrdinalIgnoreCase)
-                || arg.Equals("-y", StringComparison.OrdinalIgnoreCase))
-            {
-                nonInteractive = true;
-            }
-            else if (arg.Equals("--docker", StringComparison.OrdinalIgnoreCase))
-            {
-                mode = ExecutionMode.Docker;
-                modeSet = true;
-            }
-            else if (arg.Equals("--mode", StringComparison.OrdinalIgnoreCase) || arg.Equals("-m", StringComparison.OrdinalIgnoreCase))
-            {
-                if (i + 1 >= args.Length || !Enum.TryParse(args[i + 1], ignoreCase: true, out mode))
-                {
-                    logger.LogError("Invalid or missing value for {Option}. Valid options are: Local, Docker.", arg);
-                    return null;
-                }
+                    modeSet = true;
+                    break;
+                case "--install-docker":
+                    allowDockerInstall = true;
+                    break;
+                case "--no-docker-install":
+                    allowDockerInstall = false;
+                    break;
+                case "--no-browser":
+                    openBrowser = false;
+                    break;
+                case "--connection-string":
+                case "-s":
+                    if (!TryReadValue(args, ref i, out connectionString))
+                    {
+                        logger.LogError("Invalid or missing value for {Option}: cannot be empty.", arg);
+                        return null;
+                    }
 
-                modeSet = true;
-                i++;
-            }
-            else if (arg.Equals("--install-docker", StringComparison.OrdinalIgnoreCase))
-            {
-                allowDockerInstall = true;
-            }
-            else if (arg.Equals("--no-docker-install", StringComparison.OrdinalIgnoreCase))
-            {
-                allowDockerInstall = false;
-            }
-            else if (arg.Equals("--no-browser", StringComparison.OrdinalIgnoreCase))
-            {
-                openBrowser = false;
-            }
-            else if (arg.Equals("--connection-string", StringComparison.OrdinalIgnoreCase) || arg.Equals("-s", StringComparison.OrdinalIgnoreCase))
-            {
-                if (i + 1 >= args.Length || string.IsNullOrWhiteSpace(args[i + 1]))
-                {
-                    logger.LogError("Invalid or missing value for {Option}: cannot be empty.", arg);
-                    return null;
-                }
+                    connectionStringSet = true;
+                    break;
+                case "--context":
+                case "-c":
+                    if (!TryReadValue(args, ref i, out string contextRaw) || !Enum.TryParse(contextRaw, ignoreCase: true, out migrationContext))
+                    {
+                        logger.LogError("Invalid or missing value for {Option}. Valid options are: All, Common, Optimizations, Plugins.", arg);
+                        return null;
+                    }
 
-                connectionString = args[++i];
-                connectionStringSet = true;
-            }
-            else if (arg.Equals("--context", StringComparison.OrdinalIgnoreCase) || arg.Equals("-c", StringComparison.OrdinalIgnoreCase))
-            {
-                if (i + 1 >= args.Length)
-                {
-                    logger.LogError("Missing value for {Option}. Valid options are: All, Common, Optimizations, Plugins.", arg);
-                    return null;
-                }
+                    break;
+                case "--timeout":
+                case "-t":
+                    if (!TryReadValue(args, ref i, out string timeoutRaw)
+                        || !int.TryParse(timeoutRaw, NumberStyles.Integer, CultureInfo.InvariantCulture, out migrationTimeoutSeconds)
+                        || migrationTimeoutSeconds <= 0)
+                    {
+                        logger.LogError("Invalid or missing value for {Option}. Expected a positive integer in seconds.", arg);
+                        return null;
+                    }
 
-                string contextValue = args[++i];
-                if (!Enum.TryParse(contextValue, ignoreCase: true, out migrationContext))
-                {
-                    logger.LogError("Invalid context '{Context}'. Valid options are: All, Common, Optimizations, Plugins.", contextValue);
-                    return null;
-                }
-            }
-            else if (arg.Equals("--timeout", StringComparison.OrdinalIgnoreCase) || arg.Equals("-t", StringComparison.OrdinalIgnoreCase))
-            {
-                if (i + 1 >= args.Length
-                    || !int.TryParse(args[i + 1], NumberStyles.Integer, CultureInfo.InvariantCulture, out migrationTimeoutSeconds)
-                    || migrationTimeoutSeconds <= 0)
-                {
-                    logger.LogError("Invalid or missing value for {Option}. Expected a positive integer in seconds.", arg);
-                    return null;
-                }
+                    break;
+                case "--port":
+                case "-p":
+                    if (!TryReadValue(args, ref i, out string portRaw) || !TryParseValidPort(portRaw, out webApiPort))
+                    {
+                        logger.LogError("Invalid or missing value for {Option}. Expected an integer between 1 and 65535.", arg);
+                        return null;
+                    }
 
-                i++;
-            }
-            else if (arg.Equals("--port", StringComparison.OrdinalIgnoreCase) || arg.Equals("-p", StringComparison.OrdinalIgnoreCase))
-            {
-                if (i + 1 >= args.Length || !TryParseValidPort(args[i + 1], out webApiPort))
-                {
-                    logger.LogError("Invalid or missing value for {Option}. Expected an integer between 1 and 65535.", arg);
-                    return null;
-                }
+                    webApiPortSet = true;
+                    break;
+                case "--repo-root":
+                case "-r":
+                    if (!TryReadValue(args, ref i, out string rootRaw))
+                    {
+                        logger.LogError("Missing or empty value for {Option}.", arg);
+                        return null;
+                    }
 
-                webApiPortSet = true;
-                i++;
-            }
-            else if (arg.Equals("--repo-root", StringComparison.OrdinalIgnoreCase) || arg.Equals("-r", StringComparison.OrdinalIgnoreCase))
-            {
-                if (i + 1 >= args.Length || string.IsNullOrWhiteSpace(args[i + 1]))
-                {
-                    logger.LogError("Missing or empty value for {Option}.", arg);
+                    repositoryRoot = rootRaw;
+                    break;
+                default:
+                    logger.LogError("Unknown argument '{Argument}'. Run with --help to see supported options.", arg);
                     return null;
-                }
-
-                repositoryRoot = args[++i];
-            }
-            else
-            {
-                logger.LogError("Unknown argument '{Argument}'. Run with --help to see supported options.", arg);
-                return null;
             }
         }
 
@@ -431,7 +330,7 @@ public static class LauncherInfrastructureResolver
             "git",
             $"clone --branch main --single-branch {GitHubRepositoryUrl} \"{targetDirectory}\"",
             Environment.CurrentDirectory,
-            cancellationToken).ConfigureAwait(false);
+            cancellationToken: cancellationToken).ConfigureAwait(false);
 
         if (exitCode != 0 || !File.Exists(Path.Combine(targetDirectory, "MelloSilveiraTools.sln")))
         {
@@ -441,6 +340,18 @@ public static class LauncherInfrastructureResolver
 
         logger.LogInformation("Repository cloned successfully at '{TargetDirectory}'.", targetDirectory);
         return targetDirectory;
+    }
+
+    private static bool TryReadValue(string[] args, ref int index, out string value)
+    {
+        if (index + 1 < args.Length && !string.IsNullOrWhiteSpace(args[index + 1]))
+        {
+            value = args[++index];
+            return true;
+        }
+
+        value = string.Empty;
+        return false;
     }
 
     private static ExecutionMode PromptExecutionMode(string label, ExecutionMode defaultValue)

@@ -8,8 +8,13 @@ namespace MelloSilveiraTools.Plugins.Application.Commands.Reload;
 
 /// <summary>
 /// Operation that reloads plugins into the runtime based on the supplied name/version filter and force flag.
+/// Access is restricted to superusers at the HTTP authorization boundary (<c>SuperuserOnly</c>).
 /// </summary>
-public class ReloadPlugins(IPluginService pluginService, PluginValidator<ReloadPluginsRequest> validator) : CommandBaseWithDefaultResponse<ReloadPluginsRequest>(validator)
+/// <param name="pluginService">Plugin management service.</param>
+/// <param name="validator">Validator for reload requests.</param>
+public class ReloadPlugins(
+    IPluginService pluginService,
+    PluginValidator<ReloadPluginsRequest> validator) : CommandBaseWithDefaultResponse<ReloadPluginsRequest>(validator)
 {
     /// <inheritdoc />
     protected override async Task<Result> ExecuteCommandAsync(ReloadPluginsRequest request, CancellationToken cancellationToken = default)

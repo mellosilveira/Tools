@@ -86,7 +86,9 @@ public sealed class PluginCacheAndDynamicDiAcceptanceTests : IAsyncLifetime
                 Directory = "plugins",
                 PollInterval = TimeSpan.FromMinutes(5),
                 PreviousVersionRetention = TimeSpan.FromMinutes(30),
-                DefaultCacheTarget = PluginCacheTargets.File
+                DefaultCacheTarget = PluginCacheTargets.File,
+                MaxPluginSizeBytes = 10L * 1024 * 1024,
+                MaxPendingSubmissionsPerUser = 5
             });
 
         _serviceProvider = services.BuildServiceProvider();

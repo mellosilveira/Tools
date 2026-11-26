@@ -1,13 +1,14 @@
-using Dapper;
+using MelloSilveiraTools.Core.ExtensionMethods;
+using MelloSilveiraTools.Core.ResiliencePipelines;
 using MelloSilveiraTools.Database.ExtensionMethods;
 using MelloSilveiraTools.Database.RelationalDatabase.Attributes;
 using MelloSilveiraTools.Database.RelationalDatabase.Models;
 using MelloSilveiraTools.Database.RelationalDatabase.Models.Filters;
+using Microsoft.Extensions.Logging.Abstractions;
 using Npgsql;
 using NpgsqlTypes;
+using Polly;
 using System.Collections;
-using System.Data;
-using System.Data.Common;
 using System.Reflection;
 
 namespace UnitTests.Database.ExtensionMethods;
@@ -60,43 +61,6 @@ public sealed class DatabaseExtensionsTests
         public string Title { get; set; } = string.Empty;
         public string Subtitle { get; set; } = string.Empty;
         public int ReadOnlyProp { get; } = 7;
-    }
-
-    private sealed class FakeDbDataReader(string[] columns, object[] values) : DbDataReader
-    {
-        private int _row = -1;
-
-        public override int FieldCount => columns.Length;
-        public override bool HasRows => true;
-        public override bool IsClosed => false;
-        public override int RecordsAffected => 0;
-        public override int Depth => 0;
-        public override object this[int ordinal] => values[ordinal];
-        public override object this[string name] => values[GetOrdinal(name)];
-        public override bool Read() => ++_row == 0;
-        public override string GetName(int ordinal) => columns[ordinal];
-        public override int GetOrdinal(string name) => Array.FindIndex(columns, c => string.Equals(c, name, StringComparison.OrdinalIgnoreCase));
-        public override object GetValue(int ordinal) => values[ordinal];
-        public override bool IsDBNull(int ordinal) => values[ordinal] is DBNull;
-        public override bool GetBoolean(int ordinal) => (bool)values[ordinal];
-        public override byte GetByte(int ordinal) => (byte)values[ordinal];
-        public override long GetBytes(int ordinal, long dataOffset, byte[]? buffer, int bufferOffset, int length) => 0;
-        public override char GetChar(int ordinal) => (char)values[ordinal];
-        public override long GetChars(int ordinal, long dataOffset, char[]? buffer, int bufferOffset, int length) => 0;
-        public override string GetDataTypeName(int ordinal) => values[ordinal].GetType().Name;
-        public override DateTime GetDateTime(int ordinal) => (DateTime)values[ordinal];
-        public override decimal GetDecimal(int ordinal) => (decimal)values[ordinal];
-        public override double GetDouble(int ordinal) => (double)values[ordinal];
-        public override IEnumerator GetEnumerator() => Array.Empty<object>().GetEnumerator();
-        public override Type GetFieldType(int ordinal) => values[ordinal].GetType();
-        public override float GetFloat(int ordinal) => (float)values[ordinal];
-        public override Guid GetGuid(int ordinal) => (Guid)values[ordinal];
-        public override short GetInt16(int ordinal) => (short)values[ordinal];
-        public override int GetInt32(int ordinal) => (int)values[ordinal];
-        public override long GetInt64(int ordinal) => (long)values[ordinal];
-        public override string GetString(int ordinal) => (string)values[ordinal];
-        public override int GetValues(object[] target) { values.CopyTo(target, 0); return values.Length; }
-        public override bool NextResult() => false;
     }
 
     public static TheoryData<Type, NpgsqlDbType> SupportedDbTypeMappings => new()
@@ -162,14 +126,12 @@ public sealed class DatabaseExtensionsTests
         Assert.Equal((int)SampleEnum.Second, allParams.Single(p => p.ParameterName == "Mode").Value);
         Assert.Equal(DBNull.Value, allParams.Single(p => p.ParameterName == "Notes").Value);
 
-        // Inherited property exclusion when useDeclaredProperties is true
         ProductEntity product = new() { Id = 5, CreationTimestamp = DateTimeOffset.UtcNow, Name = "ACL", Price = 100 };
         List<NpgsqlParameter> declaredOnly = [.. product.BuildParameters(useDeclaredProperties: true)];
         List<NpgsqlParameter> withInherited = [.. product.BuildParameters(useDeclaredProperties: false)];
         Assert.Equal(["Name", "Price"], declaredOnly.Select(p => p.ParameterName).ToArray());
         Assert.Equal(4, withInherited.Count);
 
-        // Collection parameters
         ICollection<EnumAndNullableEntity> emptyList = [];
         Assert.Empty(emptyList.BuildParametersFromCollection().ToList());
 
@@ -186,19 +148,22 @@ public sealed class DatabaseExtensionsTests
     }
 
     [Fact]
-    public void ClassExtensions_BuildWhereClauses_CoverNullsMissingAttrEmptyJoinedAndPatterns()
+    public void ClassExtensions_BuildWhereClauseAndNpgsqlParameters_CoverNullsMissingAttrEmptyJoinedAndPatterns()
     {
         OrderItemSearchFilter? nullFilter = null;
-        Assert.Equal((null, null), nullFilter.BuildWhereClauseAndParameters());
         (string? nullNpgSql, List<NpgsqlParameter> nullNpgParams) = nullFilter.BuildWhereClauseAndNpgsqlParameters();
         Assert.Null(nullNpgSql);
         Assert.Empty(nullNpgParams);
 
         UnattributedFilter noAttr = new() { Anything = "x" };
-        Assert.Equal((null, null), noAttr.BuildWhereClauseAndParameters());
+        (string? noAttrSql, List<NpgsqlParameter> noAttrParams) = noAttr.BuildWhereClauseAndNpgsqlParameters();
+        Assert.Null(noAttrSql);
+        Assert.Empty(noAttrParams);
 
         OrderItemSearchFilter blankFilter = new() { Quantity = null, ProductNamePattern = "   ", Name = null };
-        Assert.Equal((null, null), blankFilter.BuildWhereClauseAndParameters());
+        (string? blankSql, List<NpgsqlParameter> blankParams) = blankFilter.BuildWhereClauseAndNpgsqlParameters();
+        Assert.Null(blankSql);
+        Assert.Empty(blankParams);
 
         OrderItemSearchFilter active = new()
         {
@@ -208,21 +173,16 @@ public sealed class DatabaseExtensionsTests
             Status = SampleEnum.First
         };
 
-        (string? whereDapper, DynamicParameters? dapperParams) = active.BuildWhereClauseAndParameters();
-        Assert.NotNull(whereDapper);
-        Assert.NotNull(dapperParams);
-        Assert.Contains("WHERE ordi.quantity = @Quantity", whereDapper);
-        Assert.Contains("prd.name LIKE @ProductNamePattern", whereDapper);
-        Assert.Contains("prd.name ILIKE @Name", whereDapper);
-        Assert.Contains("ordi.status = @Status", whereDapper);
-        Assert.Equal("%lig%", dapperParams.Get<string>("ProductNamePattern"));
-        Assert.Equal("%knee%", dapperParams.Get<string>("Name"));
-        Assert.Equal((int)SampleEnum.First, dapperParams.Get<int>("Status"));
-
         (string? whereNpgsql, List<NpgsqlParameter> npgsqlParams) = active.BuildWhereClauseAndNpgsqlParameters();
-        Assert.Equal(whereDapper, whereNpgsql);
+        Assert.NotNull(whereNpgsql);
+        Assert.Contains("WHERE ordi.quantity = @Quantity", whereNpgsql);
+        Assert.Contains("prd.name LIKE @ProductNamePattern", whereNpgsql);
+        Assert.Contains("prd.name ILIKE @Name", whereNpgsql);
+        Assert.Contains("ordi.status = @Status", whereNpgsql);
         Assert.Equal(4, npgsqlParams.Count);
         Assert.Equal("%lig%", npgsqlParams.Single(p => p.ParameterName == "ProductNamePattern").Value);
+        Assert.Equal("%knee%", npgsqlParams.Single(p => p.ParameterName == "Name").Value);
+        Assert.Equal((int)SampleEnum.First, npgsqlParams.Single(p => p.ParameterName == "Status").Value);
         Assert.Equal(NpgsqlDbType.Integer, npgsqlParams.Single(p => p.ParameterName == "Status").NpgsqlDbType);
     }
 
@@ -245,30 +205,6 @@ public sealed class DatabaseExtensionsTests
     }
 
     [Fact]
-    public void DbDataReaderExtensions_ToObjectOverloads_MapWritableNonNullColumnsAndReuseCache()
-    {
-        using FakeDbDataReader reader = new(
-            ["Title", "Subtitle", "ReadOnlyProp", "UnknownColumn"],
-            ["Alpha", DBNull.Value, 99, "skip"]);
-
-#pragma warning disable CS0618
-        SetValuesTarget direct = reader.ToObject<SetValuesTarget>();
-        Assert.Equal("Alpha", direct.Title);
-        Assert.Equal(string.Empty, direct.Subtitle);
-        Assert.Equal(7, direct.ReadOnlyProp);
-
-        Dictionary<string, PropertyInfo?> cache = [];
-        SetValuesTarget cached1 = reader.ToObject<SetValuesTarget>(cache);
-        SetValuesTarget cached2 = reader.ToObject<SetValuesTarget>(cache);
-#pragma warning restore CS0618
-
-        Assert.Equal("Alpha", cached1.Title);
-        Assert.Equal("Alpha", cached2.Title);
-        Assert.True(cache.ContainsKey("UnknownColumn"));
-        Assert.Null(cache["UnknownColumn"]);
-    }
-
-    [Fact]
     public void NpgsqlCommandExtensions_SetCommandParametersFromEntityAndCollection_HandleEmptyAndPopulated()
     {
         using NpgsqlCommand cmd = new();
@@ -280,6 +216,7 @@ public sealed class DatabaseExtensionsTests
         EnumAndNullableEntity entity = new() { Id = 1, Mode = SampleEnum.Second, Notes = null };
         cmd.SetCommandParametersFromEntity(entity);
         Assert.Equal(3, cmd.Parameters.Count);
+        Assert.Equal((int)SampleEnum.Second, cmd.Parameters["Mode"].Value);
         Assert.Equal(DBNull.Value, cmd.Parameters["Notes"].Value);
 
         cmd.Parameters.Clear();
@@ -289,5 +226,120 @@ public sealed class DatabaseExtensionsTests
         cmd.SetCommandParameters([new NpgsqlParameter("P1", NpgsqlDbType.Text) { Value = "v" }]);
         Assert.Single(cmd.Parameters);
         Assert.Equal("v", cmd.Parameters["P1"].Value);
+    }
+
+    [Fact]
+    public void NpgsqlBatchCommandExtensions_SetCommandParameters_HandlesNullEmptyDirectAndClonedAcrossListAndEnumerable()
+    {
+        NpgsqlBatchCommand nullCmd = new("SELECT 1");
+        Assert.Same(nullCmd, nullCmd.SetCommandParameters(null));
+        Assert.Empty(nullCmd.Parameters);
+
+        NpgsqlBatchCommand emptyCmd = new("SELECT 1");
+        Assert.Same(emptyCmd, emptyCmd.SetCommandParameters([]));
+        Assert.Empty(emptyCmd.Parameters);
+
+        // IReadOnlyList fast path: direct bind (cloneParameters: false) then retry clone (cloneParameters: true)
+        NpgsqlParameter listParam = new("@Id", NpgsqlDbType.Bigint) { Value = 42L };
+        List<NpgsqlParameter> listSource = [listParam];
+
+        NpgsqlBatchCommand directListCmd = new NpgsqlBatchCommand("SELECT @Id").SetCommandParameters(listSource, cloneParameters: false);
+        Assert.Single(directListCmd.Parameters);
+        Assert.Same(listParam, directListCmd.Parameters[0]);
+
+        NpgsqlBatchCommand clonedListCmd = new NpgsqlBatchCommand("SELECT @Id").SetCommandParameters(listSource, cloneParameters: true);
+        Assert.Single(clonedListCmd.Parameters);
+        Assert.NotSame(listParam, clonedListCmd.Parameters[0]);
+        Assert.Equal("@Id", clonedListCmd.Parameters[0].ParameterName);
+        Assert.Equal(NpgsqlDbType.Bigint, clonedListCmd.Parameters[0].NpgsqlDbType);
+        Assert.Equal(42L, clonedListCmd.Parameters[0].Value);
+
+        // General IEnumerable (non-IReadOnlyList) path: direct bind and clone
+        NpgsqlParameter seqParam = new("@Code", NpgsqlDbType.Text) { Value = "ACL" };
+        IEnumerable<NpgsqlParameter> enumerableSource = YieldSingle(seqParam);
+
+        NpgsqlBatchCommand directSeqCmd = new NpgsqlBatchCommand("SELECT @Code").SetCommandParameters(enumerableSource, cloneParameters: false);
+        Assert.Single(directSeqCmd.Parameters);
+        Assert.Same(seqParam, directSeqCmd.Parameters[0]);
+
+        NpgsqlBatchCommand clonedSeqCmd = new NpgsqlBatchCommand("SELECT @Code").SetCommandParameters(YieldSingle(seqParam), cloneParameters: true);
+        Assert.Single(clonedSeqCmd.Parameters);
+        Assert.NotSame(seqParam, clonedSeqCmd.Parameters[0]);
+        Assert.Equal("@Code", clonedSeqCmd.Parameters[0].ParameterName);
+        Assert.Equal(NpgsqlDbType.Text, clonedSeqCmd.Parameters[0].NpgsqlDbType);
+        Assert.Equal("ACL", clonedSeqCmd.Parameters[0].Value);
+
+        static IEnumerable<NpgsqlParameter> YieldSingle(NpgsqlParameter p)
+        {
+            yield return p;
+        }
+    }
+
+    [Fact]
+    public async Task NpgsqlDataSourceAndBatchExtensions_ConfigureTimeoutContextAndCommands()
+    {
+        await using NpgsqlDataSource dataSource = new NpgsqlSlimDataSourceBuilder("Host=localhost;Database=test;Username=postgres").Build();
+
+        await using NpgsqlBatch defaultTimeoutBatch = dataSource.CreateBatch(null);
+        Assert.Equal(30, defaultTimeoutBatch.Timeout);
+
+        NpgsqlParameter originalParam = new("@Id", NpgsqlDbType.Bigint) { Value = 7L };
+
+        await using NpgsqlBatch configuredBatch = dataSource
+            .CreateBatch(15)
+            .AddUserContext(42L)
+            .AddCommand("SELECT @Id", [originalParam], cloneParameters: true);
+
+        Assert.Equal(15, configuredBatch.Timeout);
+        Assert.Equal(2, configuredBatch.BatchCommands.Count);
+        Assert.Contains("set_config('app.current_user_id'", configuredBatch.BatchCommands[0].CommandText);
+        Assert.Equal("42", configuredBatch.BatchCommands[0].Parameters["@UserId"].Value);
+        Assert.Equal("SELECT @Id", configuredBatch.BatchCommands[1].CommandText);
+        Assert.NotSame(originalParam, configuredBatch.BatchCommands[1].Parameters["@Id"]);
+        Assert.Equal(7L, configuredBatch.BatchCommands[1].Parameters["@Id"].Value);
+
+        await using NpgsqlBatch anonBatch = dataSource.CreateBatch(null).AddUserContext(null);
+        Assert.Equal(string.Empty, anonBatch.BatchCommands[0].Parameters["@UserId"].Value);
+    }
+
+    [Fact]
+    public async Task DefaultResiliencePipelineExtensions_ExecuteWithRetryFlagAsync_PassesFalseThenTrueOnRetry()
+    {
+        ResiliencePipelineSettings settings = new()
+        {
+            BackoffType = DelayBackoffType.Constant,
+            DelayInMilliseconds = 1,
+            MaxRetryAttempts = 2,
+            UseJitter = false
+        };
+        DefaultResiliencePipeline pipeline = new(
+            NullLogger<DefaultResiliencePipeline>.Instance,
+            settings,
+            new PredicateBuilder().Handle<InvalidOperationException>());
+
+        List<bool> genericFlags = [];
+        int result = await pipeline.ExecuteWithRetryFlagAsync(isRetry =>
+        {
+            genericFlags.Add(isRetry);
+            if (!isRetry)
+                throw new InvalidOperationException("transient");
+
+            return ValueTask.FromResult(99);
+        });
+
+        Assert.Equal(99, result);
+        Assert.Equal([false, true], genericFlags);
+
+        List<bool> voidFlags = [];
+        await pipeline.ExecuteWithRetryFlagAsync(isRetry =>
+        {
+            voidFlags.Add(isRetry);
+            if (!isRetry)
+                throw new InvalidOperationException("transient");
+
+            return ValueTask.CompletedTask;
+        });
+
+        Assert.Equal([false, true], voidFlags);
     }
 }

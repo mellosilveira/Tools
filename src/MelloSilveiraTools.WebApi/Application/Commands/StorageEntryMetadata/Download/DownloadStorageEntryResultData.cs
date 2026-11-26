@@ -1,9 +1,9 @@
 namespace MelloSilveiraTools.WebApi.Application.Commands.StorageEntryMetadata.Download;
 
 /// <summary>
-/// Stream and metadata payload for an HTTP file download response.
+/// Stream and metadata payload for an HTTP storage entry download response.
 /// </summary>
-public sealed record DownloadStoredFileResultData
+public sealed record DownloadStorageEntryResultData
 {
     /// <summary>
     /// Readable stream of the physical file.
@@ -20,5 +20,8 @@ public sealed record DownloadStoredFileResultData
     /// </summary>
     public required string FileName { get; init; }
 
+    /// <summary>
+    /// File size in bytes.
+    /// </summary>
     public required long SizeBytes { get; init; }
 }

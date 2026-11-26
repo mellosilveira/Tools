@@ -43,4 +43,20 @@ public record PluginSettings
     /// Must match a key registered with <c>AddKeyedSingleton&lt;IPluginCachePersistence&gt;(key, ...)</c>.
     /// </remarks>
     public required string DefaultCacheTarget { get; init; }
+
+    /// <summary>
+    /// Maximum allowed size in bytes for uploaded plugin assemblies.
+    /// </summary>
+    public required long MaxPluginSizeBytes { get; init; }
+
+    /// <summary>
+    /// Optional maximum number of simultaneous <c>Pending</c> community plugin submissions allowed per non-superuser account.
+    /// </summary>
+    public required int MaxPendingSubmissionsPerUser { get; init; }
+
+    /// <summary>
+    /// Optional flag enabling unmanaged (native) library resolution inside <see cref="PluginLoadContext"/>
+    /// and mixed-mode (non-IL-only) plugin binaries.
+    /// </summary>
+    public bool AllowUnmanagedDlls { get; init; }
 }

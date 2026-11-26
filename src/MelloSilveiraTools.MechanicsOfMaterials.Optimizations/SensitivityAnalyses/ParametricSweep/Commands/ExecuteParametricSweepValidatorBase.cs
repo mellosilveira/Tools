@@ -13,10 +13,10 @@ public abstract class ExecuteParametricSweepValidatorBase<TRequest> : IValidator
     where TRequest : ExecuteParametricSweepPipelineRequestBase
 {
     /// <inheritdoc/>
-    public Result Validate(TRequest value)
+    public ValueTask<Result> ValidateAsync(TRequest value, CancellationToken cancellationToken = default)
     {
         if (value is null)
-            return Result.CreateBadRequest("Parametric sweep request cannot be null.");
+            return ValueTask.FromResult(Result.CreateBadRequest("Parametric sweep request cannot be null."));
 
         List<string> errors = [];
 
@@ -90,9 +90,8 @@ public abstract class ExecuteParametricSweepValidatorBase<TRequest> : IValidator
 
         ValidateComplementary(value, errors);
 
-        return errors.Count == 0
-            ? Result.CreateSuccessOk()
-            : Result.CreateBadRequest<Result>(errors);
+        Result result = errors.Count == 0 ? Result.CreateSuccessOk() : Result.CreateBadRequest<Result>(errors);
+        return ValueTask.FromResult(result);
     }
 
     /// <summary>

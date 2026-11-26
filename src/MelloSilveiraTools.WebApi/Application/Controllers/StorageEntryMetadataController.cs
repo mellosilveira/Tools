@@ -81,11 +81,11 @@ public class StorageEntryMetadataController : ControllerBase
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> DownloadByIdAsync(
-        [FromServices] DownloadStoredFileCommand command,
+        [FromServices] DownloadStorageEntryCommand command,
         [FromRoute] long fileId,
         CancellationToken cancellationToken = default)
     {
-        Result<DownloadStoredFileResultData> result = await command.ExecuteAsync(new DownloadStoredFileRequest { FileId = fileId }, cancellationToken).ConfigureAwait(false);
+        Result<DownloadStorageEntryResultData> result = await command.ExecuteAsync(new DownloadStorageEntryRequest { FileId = fileId }, cancellationToken).ConfigureAwait(false);
         return result.Success
             ? File(result.Data!.FileStream, result.Data.ContentType, result.Data.FileName)
             : result.BuildHttpResponse();

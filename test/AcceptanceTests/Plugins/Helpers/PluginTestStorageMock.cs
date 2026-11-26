@@ -3,6 +3,7 @@ using MelloSilveiraTools.Core.Files.Providers;
 using Moq;
 using System.Collections.Concurrent;
 using System.Runtime.CompilerServices;
+using System.Security.Cryptography;
 
 namespace AcceptanceTests.Plugins.Helpers;
 
@@ -118,6 +119,9 @@ public sealed class PluginTestStorageMock
         Mock.Setup(s => s.ResolveLocation(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
             .Returns<string, string, string>((identifier, context, fileName) => ResolveLocationCore(identifier, context, fileName));
 
+        Mock.Setup(s => s.ExtractDirectory(It.IsAny<string>(), It.IsAny<string?>()))
+            .Returns<string, string?>((location, fallback) => ExtractDirectoryCore(location, fallback));
+
         Mock.Setup(s => s.OpenWriteAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
             .Returns<string, CancellationToken>((location, ct) =>
             {
@@ -225,6 +229,66 @@ public sealed class PluginTestStorageMock
         Mock.Setup(s => s.ListEntriesAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
             .Returns((string identifier, string context, CancellationToken ct) => ListFilesCore(identifier, context, ct));
 
+        Mock.Setup(s => s.MoveAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<bool>(), It.IsAny<CancellationToken>()))
+            .Returns<string, string, bool, CancellationToken>((sourceLocation, destinationLocation, overwrite, ct) =>
+            {
+                ct.ThrowIfCancellationRequested();
+                string normSource = NormalizeLocation(sourceLocation);
+                string normDest = NormalizeLocation(destinationLocation);
+                if (string.Equals(normSource, normDest, StringComparison.OrdinalIgnoreCase))
+                    return ValueTask.CompletedTask;
+
+                if (!overwrite && _files.ContainsKey(normDest))
+                    throw new IOException($"Destination storage location '{destinationLocation}' already exists.");
+
+                if (!_files.TryRemove(normSource, out (byte[] Data, DateTimeOffset CreatedAt) item))
+                    throw new FileNotFoundException($"Storage file '{sourceLocation}' was not found.");
+
+                _files[normDest] = item;
+                return ValueTask.CompletedTask;
+            });
+
+        Mock.Setup(s => s.MoveAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<bool>(), It.IsAny<CancellationToken>()))
+            .Returns<string, string, string, string, bool, CancellationToken>(async (sourceLocation, identifier, context, fileName, overwrite, ct) =>
+            {
+                string destinationLocation = ResolveLocationCore(identifier, context, fileName);
+                await Mock.Object.MoveAsync(sourceLocation, destinationLocation, overwrite, ct).ConfigureAwait(false);
+                return destinationLocation;
+            });
+
+        Mock.Setup(s => s.ComputeSha256Async(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .Returns<string, CancellationToken>((location, ct) =>
+            {
+                ct.ThrowIfCancellationRequested();
+                string normalized = NormalizeLocation(location);
+                if (!_files.TryGetValue(normalized, out (byte[] Data, DateTimeOffset CreatedAt) item))
+                    throw new FileNotFoundException($"Storage file '{location}' was not found.");
+
+                return ValueTask.FromResult(Convert.ToHexStringLower(SHA256.HashData(item.Data)));
+            });
+
+        Mock.Setup(s => s.ComputeSha256Async(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .Returns<string, string, string, CancellationToken>((identifier, context, fileName, ct) =>
+            {
+                string location = ResolveLocationCore(identifier, context, fileName);
+                return Mock.Object.ComputeSha256Async(location, ct);
+            });
+
+        Mock.Setup(s => s.WriteAndHashAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<Stream>(), It.IsAny<CancellationToken>()))
+            .Returns<string, string, string, Stream, CancellationToken>(async (identifier, context, fileName, sourceStream, ct) =>
+            {
+                ct.ThrowIfCancellationRequested();
+                string location = ResolveLocationCore(identifier, context, fileName);
+                string normalized = NormalizeLocation(location);
+                using MemoryStream buffer = new();
+                await sourceStream.CopyToAsync(buffer, ct).ConfigureAwait(false);
+                byte[] bytes = buffer.ToArray();
+                _files[normalized] = (bytes, DateTimeOffset.UtcNow);
+                string sha256Hash = Convert.ToHexStringLower(SHA256.HashData(bytes));
+                string directory = ExtractDirectoryCore(location, context);
+                return (location, directory, sha256Hash, (long)bytes.Length);
+            });
+
         Mock.Setup(s => s.Dispose());
         Mock.Setup(s => s.DisposeAsync()).Returns(ValueTask.CompletedTask);
     }
@@ -268,6 +332,13 @@ public sealed class PluginTestStorageMock
         string normIdentifier = identifier.Replace('\\', '/').Trim('/');
         string normContext = context.Replace('\\', '/').Trim('/');
         return $"{normIdentifier}/{normContext}/{fileName}";
+    }
+
+    private static string ExtractDirectoryCore(string location, string? fallbackDirectory)
+    {
+        string normalized = location.Replace('\\', '/');
+        int lastSlash = normalized.LastIndexOf('/');
+        return lastSlash > 0 ? normalized[..lastSlash] : fallbackDirectory ?? string.Empty;
     }
 
     private sealed class CommitOnFlushMemoryStream : MemoryStream

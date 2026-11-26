@@ -5,14 +5,19 @@ namespace MelloSilveiraTools.Core.Files.Providers.Local;
 
 /// <summary>
 /// Storage-agnostic file management implementation targeting the local file system.
-/// Implements canonical hierarchical directory structures partitioned by unique identifier and domain context ("storage/{identifier}/{context}/").
+/// Implements canonical hierarchical directory structures partitioned by
+/// unique identifier and domain context (<c>{identifier}/{context}/</c>).
 /// </summary>
 /// <param name="timeProvider">The time provider instance used for temporal operations.</param>
 /// <param name="settings">File storage settings defining the root base directory.</param>
-public class LocalFileStorageService(TimeProvider timeProvider, LocalFileStorageSettings settings) : FileStorageServiceBase(timeProvider)
+public class LocalFileStorageService(
+    TimeProvider timeProvider,
+    LocalFileStorageSettings settings) 
+    : FileStorageServiceBase(timeProvider)
 {
     private const FileOptions FileOptions = System.IO.FileOptions.SequentialScan | System.IO.FileOptions.Asynchronous;
     private const int BufferSize = 128 * 1024;
+    private static readonly char[] PathSeparators = [Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar];
 
     /// <inheritdoc />
     public override StorageProvider Provider => StorageProvider.Local;
@@ -31,13 +36,21 @@ public class LocalFileStorageService(TimeProvider timeProvider, LocalFileStorage
     public override string ResolveLocation(string identifier, string context, string fileName)
     {
         string directory = GetDirectory(identifier, context);
-        string resolvedPath = Path.GetFullPath(Path.Combine(directory, fileName));
-        string fullBasePath = Path.GetFullPath(settings.BaseDirectory);
+        return Path.GetFullPath(Path.Combine(directory, fileName));
+    }
 
-        string relative = Path.GetRelativePath(fullBasePath, resolvedPath);
-        return relative.StartsWith("..", StringComparison.Ordinal) || Path.IsPathRooted(relative)
-            ? throw new InvalidOperationException($"Access denied. Resolved path '{resolvedPath}' escapes base directory '{fullBasePath}'.")
-            : resolvedPath;
+    /// <inheritdoc />
+    public override (string Identifier, string Context, string FileName) ParseLocation(string location)
+    {
+        string relative = Path.GetRelativePath(settings.BaseDirectory, location);
+        if (relative.StartsWith("..", StringComparison.Ordinal) || Path.IsPathRooted(relative))
+            throw new FormatException($"Location '{location}' is outside the configured base directory.");
+
+        string[] segments = relative.Split(PathSeparators, StringSplitOptions.RemoveEmptyEntries);
+        if (segments.Length != 3)
+            throw new FormatException($"Location '{location}' does not match the canonical '{{identifier}}/{{context}}/{{fileName}}' layout.");
+
+        return (segments[0], segments[1], segments[2]);
     }
 
     /// <inheritdoc />

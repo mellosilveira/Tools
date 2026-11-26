@@ -18,9 +18,9 @@ public sealed record BlobStorageSettings
     public required string ContainerName { get; init; }
 
     /// <summary>
-    /// Gets an optional base prefix or virtual folder hierarchy within the container.
+    /// Gets the mandatory base prefix or virtual folder hierarchy within the container.
     /// </summary>
-    public string? BasePrefix { get; init; }
+    public required string BasePrefix { get; init; }
 
     /// <summary>
     /// Gets an optional custom service URL for local or Azure-compatible emulator endpoints (e.g. Azurite).

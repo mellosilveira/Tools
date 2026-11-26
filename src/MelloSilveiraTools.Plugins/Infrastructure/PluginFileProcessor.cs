@@ -3,6 +3,7 @@ using MelloSilveiraTools.Core.Files.Providers;
 using MelloSilveiraTools.Plugins.Infrastructure.Models;
 using Microsoft.Extensions.Logging;
 using System.Globalization;
+using System.Reflection.Metadata;
 using System.Reflection.PortableExecutable;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
@@ -11,15 +12,16 @@ using System.Text.RegularExpressions;
 namespace MelloSilveiraTools.Plugins.Infrastructure;
 
 /// <summary>
-/// Storage-level operations on plugin DLL assemblies: scanning storage partitions,
-/// validating managed .NET metadata and host architecture compatibility, shadow copying,
-/// moving assemblies across lifecycle partitions (incoming, loaded, archive, quarantine),
-/// and caching parsed <see cref="DiscoveredPlugin"/> instances.
+/// Plugin-specific storage operations on DLL assemblies: scanning plugin lifecycle partitions,
+/// validating managed .NET metadata and host architecture compatibility, local shadow copying for
+/// <see cref="System.Runtime.Loader.AssemblyLoadContext"/>, coordinating plugin partition transitions
+/// (incoming, loaded, archive, quarantine, pending, rejected), and caching parsed <see cref="DiscoveredPlugin"/> instances.
+/// Generic file/directory manipulation delegates to <see cref="IFileStorageService"/>.
 /// </summary>
 /// <param name="logger">The logger instance for diagnostics and tracing.</param>
-/// <param name="fileStorageService">Storage abstraction service used for file discovery, streaming, and lifecycle movements.</param>
+/// <param name="fileStorageService">Storage abstraction service used for file discovery, streaming, hashing, and generic file movements.</param>
 /// <param name="cache">Plugin cache used to memoize the parsed <see cref="DiscoveredPlugin"/> instances by name and version.</param>
-/// <param name="settings">Plugin settings providing the directory used to locate storage partitions.</param>
+/// <param name="settings">Plugin settings providing the directory and unmanaged assembly policy.</param>
 public class PluginFileProcessor(
     ILogger<PluginFileProcessor> logger,
     IFileStorageService fileStorageService,
@@ -29,14 +31,49 @@ public class PluginFileProcessor(
     private static readonly Regex PluginFileRegex = new(@"^(?<name>.+)\.v(?<major>\d+)\.(?<minor>\d+)\.(?<patch>\d+)$", RegexOptions.Compiled);
 
     /// <summary>
-    /// Enumeration options configured for case-insensitive file matching across platforms (such as Linux ext4).
+    /// Asynchronously lists raw <see cref="StorageEntryMetadata"/> entries in the specified plugin <paramref name="partition"/>
+    /// without mutating or quarantining any files.
     /// </summary>
-    protected static readonly EnumerationOptions CaseInsensitiveOptions = new()
+    /// <param name="partition">Canonical partition name from <see cref="PluginStoragePartitions"/>.</param>
+    /// <param name="cancellationToken">Cancellation token.</param>
+    /// <returns>An asynchronous stream of storage entries residing in <paramref name="partition"/>.</returns>
+    public IAsyncEnumerable<StorageEntryMetadata> ListPartitionFilesAsync(string partition, CancellationToken cancellationToken = default)
+        => fileStorageService.ListFilesAsync(settings.Directory, partition, cancellationToken);
+
+    /// <summary>
+    /// Performs read-only static PE/CLI metadata, IL-only policy, and host architecture validation on the file at
+    /// <paramref name="location"/> without executing code or moving the file to quarantine.
+    /// </summary>
+    /// <param name="location">Canonical storage location of the candidate assembly.</param>
+    /// <param name="fileName">Filename used in diagnostic messages.</param>
+    /// <param name="cancellationToken">Cancellation token.</param>
+    /// <returns><see langword="null"/> when valid; otherwise a human-readable validation failure reason.</returns>
+    public async Task<string?> ValidateAssemblyReadOnlyAsync(string location, string fileName, CancellationToken cancellationToken = default)
     {
-        MatchCasing = MatchCasing.CaseInsensitive,
-        RecurseSubdirectories = false,
-        IgnoreInaccessible = true
-    };
+        try
+        {
+            await using Stream stream = await fileStorageService.OpenReadAsync(location, cancellationToken).ConfigureAwait(false);
+            using MemoryStream? buffer = stream.CanSeek ? null : new();
+            if (buffer is not null)
+            {
+                await stream.CopyToAsync(buffer, cancellationToken).ConfigureAwait(false);
+                buffer.Position = 0;
+            }
+
+            using PEReader peReader = new(buffer ?? stream, PEStreamOptions.LeaveOpen);
+            if (!peReader.HasMetadata)
+                return $"Plugin candidate '{fileName}' is not a valid managed .NET assembly.";
+
+            return IsArchitectureCompatible(peReader, out string failureReason)
+                ? null
+                : $"Plugin candidate '{fileName}' is incompatible with the host process architecture '{RuntimeInformation.ProcessArchitecture}': {failureReason}.";
+        }
+        catch (Exception ex)
+        {
+            logger.LogWarning(ex, "Failed to inspect PE headers for plugin file '{FileName}'.", fileName);
+            return $"Failed to inspect PE headers for plugin file '{fileName}'.";
+        }
+    }
 
     /// <summary>
     /// Asynchronously scans the incoming storage partition for DLLs matching the given <paramref name="pluginName"/> and <paramref name="version"/> filters,
@@ -56,63 +93,20 @@ public class PluginFileProcessor(
             if (string.IsNullOrEmpty(entry.FileName) || !entry.FileName.EndsWith(".dll", StringComparison.OrdinalIgnoreCase))
                 continue;
 
-            string fileNameWithoutExtension = Path.GetFileNameWithoutExtension(entry.FileName);
-            Match match = PluginFileRegex.Match(fileNameWithoutExtension);
-            if (!match.Success)
+            if (!TryParsePluginFileName(entry.FileName, out string name, out PluginVersion pluginVersion))
             {
                 logger.LogWarning("Plugin candidate file '{FileName}' does not match expected pattern '{{name}}.v{{major}}.{{minor}}.{{patch}}.dll'. Moving to quarantine.", entry.FileName);
                 await MoveToQuarantineAsync(entry.Location, entry.FileName, cancellationToken).ConfigureAwait(false);
                 continue;
             }
 
-            bool isManaged;
-            bool isCompatible = false;
-            string failureReason = string.Empty;
-            try
+            string? invalidReason = await ValidateAssemblyReadOnlyAsync(entry.Location, entry.FileName, cancellationToken).ConfigureAwait(false);
+            if (invalidReason is not null)
             {
-                await using Stream stream = await fileStorageService.OpenReadAsync(entry.Location, cancellationToken).ConfigureAwait(false);
-                using MemoryStream? buffer = stream.CanSeek ? null : new();
-                if (buffer is not null)
-                {
-                    await stream.CopyToAsync(buffer, cancellationToken).ConfigureAwait(false);
-                    buffer.Position = 0;
-                }
-
-                using PEReader peReader = new(buffer ?? stream, PEStreamOptions.LeaveOpen);
-                isManaged = peReader.HasMetadata;
-                if (isManaged)
-                    isCompatible = IsArchitectureCompatible(peReader, out failureReason);
-            }
-            catch (Exception ex)
-            {
-                logger.LogWarning(ex, "Failed to inspect PE headers for plugin file '{FileName}'. Moving to quarantine.", entry.FileName);
+                logger.LogWarning("{Reason} Moving '{FileName}' to quarantine.", invalidReason, entry.FileName);
                 await MoveToQuarantineAsync(entry.Location, entry.FileName, cancellationToken).ConfigureAwait(false);
                 continue;
             }
-
-            if (!isManaged)
-            {
-                logger.LogWarning("Plugin candidate '{FileName}' is not a valid managed .NET assembly. Moving to quarantine.", entry.FileName);
-                await MoveToQuarantineAsync(entry.Location, entry.FileName, cancellationToken).ConfigureAwait(false);
-                continue;
-            }
-
-            if (!isCompatible)
-            {
-                logger.LogWarning(
-                    "Plugin candidate '{FileName}' is incompatible with the host process architecture '{Architecture}': {Reason}. Moving to quarantine.",
-                    entry.FileName,
-                    RuntimeInformation.ProcessArchitecture,
-                    failureReason);
-                await MoveToQuarantineAsync(entry.Location, entry.FileName, cancellationToken).ConfigureAwait(false);
-                continue;
-            }
-
-            string name = match.Groups["name"].Value;
-            PluginVersion pluginVersion = new(
-                int.Parse(match.Groups["major"].Value, CultureInfo.InvariantCulture),
-                int.Parse(match.Groups["minor"].Value, CultureInfo.InvariantCulture),
-                int.Parse(match.Groups["patch"].Value, CultureInfo.InvariantCulture));
 
             if (pluginName is not null && !name.Equals(pluginName, StringComparison.OrdinalIgnoreCase))
                 continue;
@@ -120,8 +114,7 @@ public class PluginFileProcessor(
             if (version is not null && pluginVersion != version.Value)
                 continue;
 
-            DiscoveredPlugin discovered = cache.GetOrAdd(name, pluginVersion, () => new(name, pluginVersion, entry.Location, entry.CreatedAt));
-            yield return discovered;
+            yield return cache.GetOrAdd(name, pluginVersion, () => new(name, pluginVersion, entry.Location, entry.CreatedAt));
         }
     }
 
@@ -139,19 +132,8 @@ public class PluginFileProcessor(
     {
         await foreach (StorageEntryMetadata entry in fileStorageService.ListFilesAsync(settings.Directory, PluginStoragePartitions.Loaded, cancellationToken).ConfigureAwait(false))
         {
-            if (string.IsNullOrEmpty(entry.FileName) || !entry.FileName.EndsWith(".dll", StringComparison.OrdinalIgnoreCase))
+            if (string.IsNullOrEmpty(entry.FileName) || !TryParsePluginFileName(entry.FileName, out string name, out PluginVersion pluginVersion))
                 continue;
-
-            string fileNameWithoutExtension = Path.GetFileNameWithoutExtension(entry.FileName);
-            Match match = PluginFileRegex.Match(fileNameWithoutExtension);
-            if (!match.Success)
-                continue;
-
-            string name = match.Groups["name"].Value;
-            PluginVersion pluginVersion = new(
-                int.Parse(match.Groups["major"].Value, CultureInfo.InvariantCulture),
-                int.Parse(match.Groups["minor"].Value, CultureInfo.InvariantCulture),
-                int.Parse(match.Groups["patch"].Value, CultureInfo.InvariantCulture));
 
             if (pluginName is not null && !name.Equals(pluginName, StringComparison.OrdinalIgnoreCase))
                 continue;
@@ -159,8 +141,7 @@ public class PluginFileProcessor(
             if (version is not null && pluginVersion != version.Value)
                 continue;
 
-            DiscoveredPlugin discovered = cache.GetOrAdd(name, pluginVersion, () => new(name, pluginVersion, entry.Location, entry.CreatedAt));
-            yield return discovered;
+            yield return cache.GetOrAdd(name, pluginVersion, () => new(name, pluginVersion, entry.Location, entry.CreatedAt));
         }
     }
 
@@ -244,10 +225,10 @@ public class PluginFileProcessor(
             string backupFileName = $"{fileName}.old";
             logger.LogWarning("Destination file already exists: {DestinationFileName}. Backing up existing file to: {BackupFileName}", fileName, backupFileName);
             string backupLocation = fileStorageService.ResolveLocation(settings.Directory, PluginStoragePartitions.Loaded, backupFileName);
-            await MoveFileAsync(destinationLocation, backupLocation, cancellationToken).ConfigureAwait(false);
+            await fileStorageService.MoveAsync(destinationLocation, backupLocation, overwrite: true, cancellationToken).ConfigureAwait(false);
         }
 
-        await MoveFileAsync(plugin.FullPath, destinationLocation, cancellationToken).ConfigureAwait(false);
+        await fileStorageService.MoveAsync(plugin.FullPath, destinationLocation, overwrite: true, cancellationToken).ConfigureAwait(false);
     }
 
     /// <summary>
@@ -259,8 +240,7 @@ public class PluginFileProcessor(
     public async Task<DiscoveredPlugin> MoveToMainFolderAsync(DiscoveredPlugin plugin, CancellationToken cancellationToken = default)
     {
         string fileName = Path.GetFileName(plugin.FullPath);
-        string destinationLocation = fileStorageService.ResolveLocation(settings.Directory, PluginStoragePartitions.Incoming, fileName);
-        await MoveFileAsync(plugin.FullPath, destinationLocation, cancellationToken).ConfigureAwait(false);
+        string destinationLocation = await MoveToPartitionAsync(plugin.FullPath, PluginStoragePartitions.Incoming, fileName, cancellationToken).ConfigureAwait(false);
         return new DiscoveredPlugin(plugin.Name, plugin.Version, destinationLocation, plugin.DiscoveredAt);
     }
 
@@ -277,7 +257,7 @@ public class PluginFileProcessor(
         if (await fileStorageService.ExistsAsync(destinationLocation, cancellationToken).ConfigureAwait(false))
             await fileStorageService.DeleteAsync(destinationLocation, cancellationToken).ConfigureAwait(false);
 
-        await MoveFileAsync(plugin.FullPath, destinationLocation, cancellationToken).ConfigureAwait(false);
+        await fileStorageService.MoveAsync(plugin.FullPath, destinationLocation, overwrite: true, cancellationToken).ConfigureAwait(false);
     }
 
     /// <summary>
@@ -301,22 +281,97 @@ public class PluginFileProcessor(
     public async Task MoveToArchiveFolderAsync(DiscoveredPlugin plugin, CancellationToken cancellationToken = default)
     {
         string fileName = Path.GetFileName(plugin.FullPath);
-        string destinationLocation = fileStorageService.ResolveLocation(settings.Directory, PluginStoragePartitions.Archive, fileName);
-        await MoveFileAsync(plugin.FullPath, destinationLocation, cancellationToken).ConfigureAwait(false);
+        await MoveToPartitionAsync(plugin.FullPath, PluginStoragePartitions.Archive, fileName, cancellationToken).ConfigureAwait(false);
     }
 
     /// <summary>
+    /// Attempts to parse a plugin assembly file name conforming to <c>{name}.v{major}.{minor}.{patch}.dll</c>.
+    /// </summary>
+    /// <param name="fileName">File name to parse (without directory components).</param>
+    /// <param name="pluginName">When valid, receives the logical plugin name.</param>
+    /// <param name="version">When valid, receives the parsed semantic version.</param>
+    /// <returns><see langword="true"/> when <paramref name="fileName"/> matches the required pattern; otherwise <see langword="false"/>.</returns>
+    public bool TryParsePluginFileName(string fileName, out string pluginName, out PluginVersion version)
+    {
+        pluginName = string.Empty;
+        version = PluginVersion.Default;
+
+        if (string.IsNullOrWhiteSpace(fileName) || !fileName.EndsWith(".dll", StringComparison.OrdinalIgnoreCase))
+            return false;
+
+        string fileNameWithoutExtension = Path.GetFileNameWithoutExtension(fileName);
+        Match match = PluginFileRegex.Match(fileNameWithoutExtension);
+        if (!match.Success)
+            return false;
+
+        pluginName = match.Groups["name"].Value;
+        version = new PluginVersion(
+            int.Parse(match.Groups["major"].Value, CultureInfo.InvariantCulture),
+            int.Parse(match.Groups["minor"].Value, CultureInfo.InvariantCulture),
+            int.Parse(match.Groups["patch"].Value, CultureInfo.InvariantCulture));
+        return true;
+    }
+
+    /// <summary>
+    /// Checks whether a plugin assembly with <paramref name="fileName"/> already exists in any active
+    /// lifecycle partition (<c>pending/</c>, <c>incoming/</c>, or <c>loaded/</c>).
+    /// </summary>
+    /// <param name="fileName">Sanitized assembly file name.</param>
+    /// <param name="cancellationToken">Cancellation token.</param>
+    /// <returns><see langword="true"/> if a binary with the same name/version already exists; otherwise <see langword="false"/>.</returns>
+    public async Task<bool> ExistsInActivePartitionsAsync(string fileName, CancellationToken cancellationToken = default)
+    {
+        string pendingLocation = ResolvePartitionLocation(PluginStoragePartitions.Pending, fileName);
+        if (await fileStorageService.ExistsAsync(pendingLocation, cancellationToken).ConfigureAwait(false))
+            return true;
+
+        string incomingLocation = ResolvePartitionLocation(PluginStoragePartitions.Incoming, fileName);
+        if (await fileStorageService.ExistsAsync(incomingLocation, cancellationToken).ConfigureAwait(false))
+            return true;
+
+        string loadedLocation = ResolvePartitionLocation(PluginStoragePartitions.Loaded, fileName);
+        return await fileStorageService.ExistsAsync(loadedLocation, cancellationToken).ConfigureAwait(false);
+    }
+
+    /// <summary>
+    /// Promotes an approved community plugin assembly from <c>pending/</c> into <c>incoming/</c>.
+    /// </summary>
+    /// <param name="pendingLocation">Current location of the binary in the <c>pending/</c> partition.</param>
+    /// <param name="fileName">Sanitized assembly file name.</param>
+    /// <param name="cancellationToken">Cancellation token.</param>
+    /// <returns>The resolved storage location inside <c>incoming/</c>.</returns>
+    public Task<string> MovePendingToIncomingAsync(string pendingLocation, string fileName, CancellationToken cancellationToken = default) =>
+        MoveToPartitionAsync(pendingLocation, PluginStoragePartitions.Incoming, fileName, cancellationToken);
+
+    /// <summary>
+    /// Moves a rejected community plugin assembly from <c>pending/</c> into <c>rejected/</c>.
+    /// </summary>
+    /// <param name="pendingLocation">Current location of the binary in the <c>pending/</c> partition.</param>
+    /// <param name="fileName">Sanitized assembly file name.</param>
+    /// <param name="cancellationToken">Cancellation token.</param>
+    /// <returns>The resolved storage location inside <c>rejected/</c>.</returns>
+    public Task<string> MovePendingToRejectedAsync(string pendingLocation, string fileName, CancellationToken cancellationToken = default) =>
+        MoveToPartitionAsync(pendingLocation, PluginStoragePartitions.Rejected, fileName, cancellationToken);
+
+    /// <summary>
     /// Validates that the portable executable (PE) reader represents a valid managed .NET assembly
-    /// compatible with the host operating system and process architecture.
+    /// compatible with the host operating system, process architecture, and configured <see cref="PluginSettings.AllowUnmanagedDlls"/> policy.
     /// </summary>
     /// <param name="peReader">The portable executable reader inspecting the candidate assembly.</param>
     /// <param name="failureReason">When incompatible, outputs a description of why the assembly was rejected.</param>
     /// <returns><c>true</c> if the assembly is compatible with the host architecture; otherwise, <c>false</c>.</returns>
-    public static bool IsArchitectureCompatible(PEReader peReader, out string failureReason)
+    public bool IsArchitectureCompatible(PEReader peReader, out string failureReason)
     {
         if (!peReader.HasMetadata)
         {
             failureReason = "Binary does not contain managed .NET metadata.";
+            return false;
+        }
+
+        MetadataReader metadataReader = peReader.GetMetadataReader();
+        if (!metadataReader.IsAssembly || metadataReader.TypeDefinitions.Count == 0)
+        {
+            failureReason = "Binary does not contain a valid .NET assembly definition.";
             return false;
         }
 
@@ -331,6 +386,12 @@ public class PluginFileProcessor(
         Architecture hostArch = RuntimeInformation.ProcessArchitecture;
         Machine machine = headers.CoffHeader.Machine;
         CorFlags flags = corHeader.Flags;
+
+        if (!settings.AllowUnmanagedDlls && !flags.HasFlag(CorFlags.ILOnly))
+        {
+            failureReason = "Assembly contains native/mixed-mode code, which is disallowed when AllowUnmanagedDlls is false.";
+            return false;
+        }
 
         // AnyCPU assembly: ILOnly is set and Requires32Bit is not set.
         if (flags.HasFlag(CorFlags.ILOnly) && !flags.HasFlag(CorFlags.Requires32Bit) && machine == Machine.I386)
@@ -372,24 +433,15 @@ public class PluginFileProcessor(
         return true;
     }
 
-    private async Task MoveFileAsync(string sourceLocation, string destinationLocation, CancellationToken cancellationToken = default)
+    private string ResolvePartitionLocation(string partition, string fileName) => fileStorageService.ResolveLocation(settings.Directory, partition, fileName);
+
+    private async Task<string> MoveToPartitionAsync(string sourceLocation, string partition, string fileName, CancellationToken cancellationToken)
     {
-        if (string.Equals(sourceLocation, destinationLocation, StringComparison.OrdinalIgnoreCase))
-            return;
-
-        await using (Stream sourceStream = await fileStorageService.OpenReadAsync(sourceLocation, cancellationToken).ConfigureAwait(false))
-        {
-            await using Stream destinationStream = await fileStorageService.OpenWriteAsync(destinationLocation, cancellationToken).ConfigureAwait(false);
-            await sourceStream.CopyToAsync(destinationStream, cancellationToken).ConfigureAwait(false);
-            await destinationStream.FlushAsync(cancellationToken).ConfigureAwait(false);
-        }
-
-        await fileStorageService.DeleteAsync(sourceLocation, cancellationToken).ConfigureAwait(false);
+        string destinationLocation = ResolvePartitionLocation(partition, fileName);
+        await fileStorageService.MoveAsync(sourceLocation, destinationLocation, overwrite: true, cancellationToken).ConfigureAwait(false);
+        return destinationLocation;
     }
 
-    private async Task MoveToQuarantineAsync(string sourceLocation, string fileName, CancellationToken cancellationToken = default)
-    {
-        string destinationLocation = fileStorageService.ResolveLocation(settings.Directory, PluginStoragePartitions.Quarantine, fileName);
-        await MoveFileAsync(sourceLocation, destinationLocation, cancellationToken).ConfigureAwait(false);
-    }
+    private Task MoveToQuarantineAsync(string sourceLocation, string fileName, CancellationToken cancellationToken = default) =>
+        MoveToPartitionAsync(sourceLocation, PluginStoragePartitions.Quarantine, fileName, cancellationToken);
 }

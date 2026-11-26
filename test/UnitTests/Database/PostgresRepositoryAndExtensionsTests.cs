@@ -1,7 +1,8 @@
-using Dapper;
 using MelloSilveiraTools.Core.Files.Models;
 using MelloSilveiraTools.Core.Models;
 using MelloSilveiraTools.Core.ResiliencePipelines;
+using MelloSilveiraTools.Core.Security;
+using MelloSilveiraTools.Database;
 using MelloSilveiraTools.Database.ExtensionMethods;
 using MelloSilveiraTools.Database.RelationalDatabase.Attributes;
 using MelloSilveiraTools.Database.RelationalDatabase.Models;
@@ -11,9 +12,9 @@ using MelloSilveiraTools.Database.RelationalDatabase.Repositories;
 using MelloSilveiraTools.Database.RelationalDatabase.Settings;
 using MelloSilveiraTools.Database.RelationalDatabase.Sql.Provider;
 using MelloSilveiraTools.Database.ResiliencePipelines;
-using MelloSilveiraTools.Database.Security;
 using Microsoft.Extensions.Logging.Abstractions;
 using Npgsql;
+using NpgsqlTypes;
 using Polly;
 using System.Buffers.Binary;
 using System.Collections.Concurrent;
@@ -47,6 +48,55 @@ public sealed class PostgresRepositoryAndExtensionsTests
         public string? Code { get; init; }
     }
 
+    [Table("simple_item", "si")]
+    public sealed class CountingItemEntity
+    {
+        private readonly string _code;
+
+        public CountingItemEntity() => _code = string.Empty;
+
+        public CountingItemEntity(long id, string code)
+        {
+            Id = id;
+            _code = code;
+        }
+
+        public int CodeGetterCalls { get; private set; }
+
+        [PrimaryKeyColumn]
+        public long Id { get; init; }
+
+        [UniqueColumn]
+        public string Code
+        {
+            get
+            {
+                CodeGetterCalls++;
+                return _code;
+            }
+        }
+    }
+
+    [Filter(typeof(SimpleItemEntity))]
+    public sealed record CountingItemFilter : FilterBase
+    {
+        private readonly string? _code;
+
+        public CountingItemFilter(string? code) => _code = code;
+
+        public int CodeGetterCalls { get; private set; }
+
+        [FilterColumn(FilterClause.Equal, nameof(SimpleItemEntity.Code))]
+        public string? Code
+        {
+            get
+            {
+                CodeGetterCalls++;
+                return _code;
+            }
+        }
+    }
+
     /// <summary>
     /// Verifies all <see cref="PostgresRepository"/> CRUD, streaming, bulk, and upsert operations,
     /// as well as <see cref="NpgsqlConnectionExtensions"/> helper overloads.
@@ -72,7 +122,8 @@ public sealed class PostgresRepositoryAndExtensionsTests
         };
         PostgresResiliencePipeline resiliencePipeline = new(NullLogger<PostgresResiliencePipeline>.Instance, resilienceSettings);
         ISqlProvider sqlProvider = new PostgresSqlProvider();
-        PostgresRepository repository = new(sqlProvider, new CurrentUserProvider(), resiliencePipeline, settings);
+        await using NpgsqlDataSource dataSource = DatabaseDependencyInjection.CreateDataSource(settings, NullLoggerFactory.Instance);
+        PostgresRepository repository = new(sqlProvider, new CurrentUserProvider(), dataSource, resiliencePipeline, settings);
 
         // 1. CountAsync
         server.EnqueueScalarLong(5L);
@@ -198,21 +249,29 @@ public sealed class PostgresRepositoryAndExtensionsTests
         Assert.False(await repository.TryUpdateAsync(new SimpleItemEntity { Id = 1L, Code = "UPD" }));
 
         Assert.True(server.SetConfigCallCount > 0);
-        server.EnqueueNonQuery(1);
-        await repository.EnsureUserPartitionsAsync(42L);
+        Assert.Equal(0, server.ExplicitTransactionCommandCount);
+        Assert.DoesNotContain(server.RecordedBoundQueries, q => q.Query.Contains("app.is_superuser", StringComparison.OrdinalIgnoreCase));
 
-        // 13. Direct NpgsqlConnectionExtensions overloads (QueryFirstOrDefaultAsync without timeout, QueryAsync)
-        await using NpgsqlConnection conn = new(server.ConnectionString);
-        await conn.OpenAsync();
+        // 13. Direct NpgsqlConnectionExtensions overloads (QueryFirstOrDefaultAsync, QueryAsync, ExecuteScalarAsync)
+        await using NpgsqlConnection conn = await dataSource.OpenConnectionAsync();
 
         server.EnqueueSimpleItems((77L, "EXT-77"));
-        SimpleItemEntity? qFirst = await conn.QueryFirstOrDefaultAsync<SimpleItemEntity>("SELECT id, code FROM simple_item", new DynamicParameters(), CancellationToken.None);
+        SimpleItemEntity? qFirst = await conn.QueryFirstOrDefaultAsync<SimpleItemEntity>(
+            "SELECT id, code FROM simple_item WHERE code = @Code",
+            [new NpgsqlParameter("@Code", NpgsqlDbType.Text) { Value = "EXT-77" }],
+            cancellationToken: CancellationToken.None);
         Assert.NotNull(qFirst);
         Assert.Equal(77L, qFirst.Id);
 
         server.EnqueueSimpleItems((88L, "EXT-88"));
-        IEnumerable<SimpleItemEntity> qAll = await conn.QueryAsync<SimpleItemEntity>("SELECT id, code FROM simple_item", new DynamicParameters(), CancellationToken.None);
+        List<SimpleItemEntity> qAll = await conn.QueryAsync<SimpleItemEntity>(
+            "SELECT id, code FROM simple_item",
+            cancellationToken: CancellationToken.None);
         Assert.Single(qAll);
+
+        server.EnqueueScalarLong(99L);
+        long scalarVal = await conn.ExecuteScalarAsync<long>("SELECT 99", cancellationToken: CancellationToken.None);
+        Assert.Equal(99L, scalarVal);
 
         // 14. Exception paths inside await-using blocks (triggers pendingExceptionState == 1 disposal branches)
         server.EnqueueError();
@@ -264,14 +323,14 @@ public sealed class PostgresRepositoryAndExtensionsTests
 
     /// <summary>
     /// Verifies over the PostgreSQL v3 wire protocol that <see cref="PostgresRepository"/>:
-    /// (1) sends <c>set_config('app.current_user_id', '', false)</c> when unauthenticated (fail-closed),
-    /// (2) sends <c>set_config('app.current_user_id', '&lt;userId&gt;', false)</c> when authenticated,
-    /// (3) automatically binds <c>@UserId</c> from <see cref="ICurrentUserProvider"/> when left as <c>0</c>
-    ///     for single insert, bulk insert, and update on <see cref="UserScopedEntityBase"/> entities, and
-    /// (4) preserves explicitly assigned non-zero <c>UserId</c> values.
+    /// (1) executes transaction-local <c>set_config('app.current_user_id', @UserId, true)</c> inside a transaction
+    ///     and never sends <c>app.is_superuser</c>,
+    /// (2) enforces <c>NULL</c> for anonymous callers (even if payload attempts to spoof <c>UserId</c>),
+    /// (3) enforces the authenticated user's <c>UserId</c> for non-superusers across single insert, bulk insert, and update, and
+    /// (4) preserves explicit <c>UserId</c> values (<c>null</c> for public or a tenant ID) for superusers.
     /// </summary>
     [Fact]
-    public async Task PostgresRepository_PropagatesRlsSessionConfig_And_AutoPopulatesUserIdOnWireProtocol()
+    public async Task PostgresRepository_PropagatesTransactionalRlsConfig_And_EnforcesUserIdOnWireProtocol()
     {
         await using FakePostgresWireServer server = new();
         server.Start();
@@ -292,63 +351,203 @@ public sealed class PostgresRepositoryAndExtensionsTests
         PostgresResiliencePipeline resiliencePipeline = new(NullLogger<PostgresResiliencePipeline>.Instance, resilienceSettings);
         ISqlProvider sqlProvider = new PostgresSqlProvider();
         CurrentUserProvider currentUserProvider = new();
-        PostgresRepository repository = new(sqlProvider, currentUserProvider, resiliencePipeline, settings);
+        await using NpgsqlDataSource dataSource = DatabaseDependencyInjection.CreateDataSource(settings, NullLoggerFactory.Instance);
+        PostgresRepository repository = new(sqlProvider, currentUserProvider, dataSource, resiliencePipeline, settings);
 
-        // 1. Unauthenticated call -> set_config must receive empty string "" (fail-closed)
-        server.EnqueueScalarLong(0L);
-        await repository.ExistAsync<StorageEntryMetadataEntity>(1L);
-        Assert.Equal([""], server.RecordedSetConfigUserIds);
-
-        // 2. Authenticated InsertAsync with UserId == 0 -> set_config receives "42" and @UserId parameter is auto-populated with 42L
         StorageEntryMetadata metadata = new(StorageProvider.Local, "loc/a.csv", "loc", "a.csv", 10, DateTimeOffset.UtcNow);
         StorageEntryMetadataEntity defaultUserEntity = StorageEntryMetadataEntity.Create(metadata, "EXP-1");
 
+        // 1. Anonymous call -> set_config receives "" and spoofed UserId (99L) is forced to NULL (DBNull)
+        server.EnqueueScalarLong(90L);
+        await repository.InsertAsync(defaultUserEntity with { UserId = 99L });
+        Assert.Equal([""], server.RecordedSetConfigUserIds);
+
+        // 2. Authenticated non-superuser (42L) -> set_config receives "42" and @UserId is forced to 42L
         using (currentUserProvider.BeginScope(42L))
         {
             server.EnqueueScalarLong(100L);
             long id = await repository.InsertAsync(defaultUserEntity);
             Assert.Equal(100L, id);
 
-            // 3. Explicit non-zero UserId == 99L is preserved on the wire (enforced by PostgreSQL RLS WITH CHECK)
             server.EnqueueScalarLong(101L);
-            StorageEntryMetadataEntity explicitUserEntity = defaultUserEntity with { UserId = 99L };
-            await repository.InsertAsync(explicitUserEntity);
+            StorageEntryMetadataEntity spoofedUserEntity = defaultUserEntity with { UserId = 99L };
+            await repository.InsertAsync(spoofedUserEntity);
 
-            // 4. Bulk InsertAsync with UserId == 0 auto-populates both @UserId_1 and @UserId_2 with 42L
             server.EnqueueLongRows(201L, 202L);
             await repository.InsertAsync([defaultUserEntity, defaultUserEntity]);
 
-            // 5. TryUpdateAsync with UserId == 0 auto-populates @UserId with 42L
             server.EnqueueNonQuery(1);
             Assert.True(await repository.TryUpdateAsync(defaultUserEntity with { Id = 100L }));
         }
 
-        // 6. Back outside scope -> set_config returns to "" (fail-closed)
+        // 3. Superuser (1L) -> preserves explicit NULL (public) and explicit tenant ID (20L) verbatim
+        using (currentUserProvider.BeginScope(1L, isSuperuser: true))
+        {
+            server.EnqueueScalarLong(300L);
+            await repository.InsertAsync(defaultUserEntity with { UserId = null });
+
+            server.EnqueueNonQuery(1);
+            Assert.True(await repository.TryUpdateAsync(defaultUserEntity with { Id = 100L, UserId = 20L }));
+        }
+
+        // 4. Back outside scope -> set_config returns to ""
         server.EnqueueScalarLong(0L);
         await repository.ExistAsync<StorageEntryMetadataEntity>(1L);
 
-        Assert.Equal(["", "42", "42", "42", "42", ""], server.RecordedSetConfigUserIds);
+        Assert.Equal(["", "42", "42", "42", "42", "1", "1", ""], server.RecordedSetConfigUserIds);
+        Assert.Equal(8, server.TransactionLocalSetConfigCount);
+        Assert.Equal(0, server.ExplicitTransactionCommandCount);
+        Assert.Equal(8, server.SyncMessageCount);
+        Assert.DoesNotContain(server.RecordedBoundQueries, q => q.Query.Contains("app.is_superuser", StringComparison.OrdinalIgnoreCase));
 
         List<(string Query, List<byte[]?> Params)> nonSetConfig = [.. server.RecordedBoundQueries
             .Where(q => !q.Query.Contains("set_config('app.current_user_id'", StringComparison.Ordinal))];
 
         List<(string Query, List<byte[]?> Params)> storedFileInserts = [.. nonSetConfig.Where(q =>
-            q.Query.Contains("INSERT INTO stored_files", StringComparison.Ordinal))];
-        Assert.Equal(3, storedFileInserts.Count);
+            q.Query.Contains("INSERT INTO storage_entry_metadata", StringComparison.Ordinal))];
+        Assert.Equal(5, storedFileInserts.Count);
 
-        // Single inserts: first parameter bound in BuildParameters(useDeclaredProperties: true) is UserId (index 0)
-        Assert.Equal(42L, DecodeInt64Param(storedFileInserts[0].Params[0]!));
-        Assert.Equal(99L, DecodeInt64Param(storedFileInserts[1].Params[0]!));
+        // Anonymous insert: first parameter (UserId) forced to SQL NULL
+        Assert.Null(storedFileInserts[0].Params[0]);
 
-        // Bulk insert with 2 entities: AllColumns has 10 cols (Id=0, CreationTimestamp=1, UserId=2, ...), so UserId_1 is index 2 and UserId_2 is index 12
-        List<byte[]?> bulkParams = storedFileInserts[2].Params;
-        Assert.Equal(20, bulkParams.Count);
-        Assert.Equal(42L, DecodeInt64Param(bulkParams[2]!));
-        Assert.Equal(42L, DecodeInt64Param(bulkParams[12]!));
+        // Authenticated non-superuser single inserts: UserId forced to 42L even when spoofing 99L
+        Assert.Equal(42L, DecodeInt64Param(storedFileInserts[1].Params[0]!));
+        Assert.Equal(42L, DecodeInt64Param(storedFileInserts[2].Params[0]!));
 
-        // TryUpdateAsync: AllColumns has UserId at index 2
-        (string _, List<byte[]?> updateParams) = nonSetConfig.First(q => q.Query.Contains("UPDATE stored_files", StringComparison.Ordinal));
-        Assert.Equal(42L, DecodeInt64Param(updateParams[2]!));
+        // Bulk insert with 2 entities: InsertColumns has 8 cols (UserId=0, StorageProvider=1, ..., ContentType=7), so UserId_1 is index 0 and UserId_2 is index 8
+        List<byte[]?> bulkParams = storedFileInserts[3].Params;
+        Assert.Equal(16, bulkParams.Count);
+        Assert.Equal(42L, DecodeInt64Param(bulkParams[0]!));
+        Assert.Equal(42L, DecodeInt64Param(bulkParams[8]!));
+
+        // Superuser public insert: explicit NULL preserved
+        Assert.Null(storedFileInserts[4].Params[0]);
+
+        // Updates: PK omitted from SET (CreationTimestamp=0, UserId=1, ...), so UserId is index 1 -> non-superuser forced to 42L; superuser preserves 20L
+        List<(string Query, List<byte[]?> Params)> storedFileUpdates = [.. nonSetConfig.Where(q =>
+            q.Query.Contains("UPDATE storage_entry_metadata", StringComparison.Ordinal))];
+        Assert.Equal(2, storedFileUpdates.Count);
+        Assert.Equal(42L, DecodeInt64Param(storedFileUpdates[0].Params[1]!));
+        Assert.Equal(20L, DecodeInt64Param(storedFileUpdates[1].Params[1]!));
+    }
+
+    /// <summary>
+    /// Verifies that Polly retries on transient PostgreSQL errors clone pre-built <see cref="NpgsqlParameter"/>
+    /// instances instead of re-running reflection on filters/entities, while preserving parameter values
+    /// across attempts and keeping every execution in a single-round-trip <see cref="NpgsqlBatch"/>.
+    /// </summary>
+    [Fact]
+    public async Task PostgresRepository_RetriesTransientFailure_ClonesParametersWithoutReReflecting()
+    {
+        await using FakePostgresWireServer server = new();
+        server.Start();
+
+        DatabaseSettings settings = new()
+        {
+            ConnectionString = server.ConnectionString,
+            UnitOperationTimeoutInMilliseconds = 5_000,
+            BulkOperationTimeoutInMilliseconds = 10_000
+        };
+        ResiliencePipelineSettings resilienceSettings = new()
+        {
+            BackoffType = DelayBackoffType.Constant,
+            MaxRetryAttempts = 2,
+            DelayInMilliseconds = 1,
+            UseJitter = false,
+            CircuitBreakerOptions = new()
+            {
+                FailureRatio = 1.0,
+                MinimumThroughput = 1_000,
+                SamplingDuration = TimeSpan.FromSeconds(30),
+                BreakDuration = TimeSpan.FromSeconds(1)
+            }
+        };
+        PostgresResiliencePipeline resiliencePipeline = new(NullLogger<PostgresResiliencePipeline>.Instance, resilienceSettings);
+        ISqlProvider sqlProvider = new PostgresSqlProvider();
+        await using NpgsqlDataSource dataSource = DatabaseDependencyInjection.CreateDataSource(settings, NullLoggerFactory.Instance);
+        PostgresRepository repository = new(sqlProvider, new CurrentUserProvider(), dataSource, resiliencePipeline, settings);
+
+        // 1. CountAsync retry (filter property read only once)
+        CountingItemFilter countFilter = new("RETRY-COUNT");
+        server.EnqueueTransientError();
+        server.EnqueueScalarLong(7L);
+        Assert.Equal(7L, await repository.CountAsync<SimpleItemEntity, CountingItemFilter>(countFilter));
+        Assert.Equal(1, countFilter.CodeGetterCalls);
+
+        // 2. ExistAsync(id) retry
+        server.EnqueueTransientError();
+        server.EnqueueScalarLong(1L);
+        Assert.True(await repository.ExistAsync<SimpleItemEntity>(10L));
+
+        // 3. ExistAsync(filter) retry (filter property read only once)
+        CountingItemFilter existFilter = new("RETRY-EXIST");
+        server.EnqueueTransientError();
+        server.EnqueueScalarLong(1L);
+        Assert.True(await repository.ExistAsync<SimpleItemEntity, CountingItemFilter>(existFilter));
+        Assert.Equal(1, existFilter.CodeGetterCalls);
+
+        // 4. DeleteAsync(id) and DeleteAsync(filter) retry
+        server.EnqueueTransientError();
+        server.EnqueueNonQuery(1);
+        await repository.DeleteAsync<SimpleItemEntity>(10L);
+
+        CountingItemFilter deleteFilter = new("RETRY-DEL");
+        server.EnqueueTransientError();
+        server.EnqueueNonQuery(1);
+        await repository.DeleteAsync<SimpleItemEntity, CountingItemFilter>(deleteFilter);
+        Assert.Equal(1, deleteFilter.CodeGetterCalls);
+
+        // 5. GetFirstOrDefaultAsync, GetAsync(id), GetByUniqueColumnAsync retry
+        CountingItemFilter firstFilter = new("RETRY-FIRST");
+        server.EnqueueTransientError();
+        server.EnqueueSimpleItems((11L, "RETRY-FIRST"));
+        SimpleItemEntity? first = await repository.GetFirstOrDefaultAsync<SimpleItemEntity, CountingItemFilter>(firstFilter);
+        Assert.NotNull(first);
+        Assert.Equal(11L, first.Id);
+        Assert.Equal(1, firstFilter.CodeGetterCalls);
+
+        server.EnqueueTransientError();
+        server.EnqueueSimpleItems((12L, "RETRY-ID"));
+        Assert.NotNull(await repository.GetAsync<SimpleItemEntity>(12L));
+
+        server.EnqueueTransientError();
+        server.EnqueueSimpleItems((13L, "RETRY-UNIQ"));
+        Assert.NotNull(await repository.GetByUniqueColumnAsync<SimpleItemEntity>("RETRY-UNIQ"));
+
+        // 6. InsertAsync(entity) retry (entity property read only once)
+        CountingItemEntity insertEntity = new(101L, "RETRY-INS");
+        server.EnqueueTransientError();
+        server.EnqueueScalarLong(101L);
+        Assert.Equal(101L, await repository.InsertAsync(insertEntity));
+        Assert.Equal(1, insertEntity.CodeGetterCalls);
+
+        // 7. UpsertAsync(entities[], filter) 3-command batch retry (DELETE fails transiently, then full batch retries)
+        CountingItemEntity upsertEntity = new(201L, "RETRY-UPS");
+        CountingItemFilter upsertFilter = new("RETRY-OLD");
+        server.EnqueueTransientError();
+        server.EnqueueNonQuery(1);
+        server.EnqueueLongRows(201L);
+        long[] upsertIds = await repository.UpsertAsync([upsertEntity], upsertFilter);
+        Assert.Equal([201L], upsertIds);
+        Assert.Equal(1, upsertEntity.CodeGetterCalls);
+        Assert.Equal(1, upsertFilter.CodeGetterCalls);
+
+        // 8. TryUpdateAsync(entity) retry (entity property read only once)
+        CountingItemEntity updateEntity = new(301L, "RETRY-UPD");
+        server.EnqueueTransientError();
+        server.EnqueueNonQuery(1);
+        Assert.True(await repository.TryUpdateAsync(updateEntity));
+        Assert.Equal(1, updateEntity.CodeGetterCalls);
+
+        // Zero explicit BEGIN/COMMIT commands; every attempt ran as a single-round-trip NpgsqlBatch
+        Assert.Equal(0, server.ExplicitTransactionCommandCount);
+
+        // Verify both attempts of CountAsync bound identical cloned parameter values ("RETRY-COUNT")
+        List<string> countBoundValues = [.. server.RecordedBoundQueries
+            .Where(q => q.Query.Contains("SELECT COUNT(1)", StringComparison.Ordinal) && q.Params.Count == 1)
+            .Select(q => Encoding.UTF8.GetString(q.Params[0]!))
+            .Where(v => v == "RETRY-COUNT")];
+        Assert.Equal(2, countBoundValues.Count);
     }
 
     private static long DecodeInt64Param(byte[] bytes)
@@ -436,14 +635,17 @@ public sealed class PostgresRepositoryAndExtensionsTests
                 Tag: $"SELECT {items.Length}"));
         }
 
-        public void EnqueueError()
+        public void EnqueueError(string sqlState = "23505")
         {
             _replies.Enqueue(new QueryReply(
                 Columns: [("id", 20, 8), ("inserted", 16, 1)],
                 Rows: [],
                 Tag: "ERROR",
-                ErrorOnExecute: true));
+                ErrorOnExecute: true,
+                ErrorSqlState: sqlState));
         }
+
+        public void EnqueueTransientError(string sqlState = "40001") => EnqueueError(sqlState);
 
         public void EnqueueNullLongRow()
         {
@@ -507,6 +709,8 @@ public sealed class PostgresRepositoryAndExtensionsTests
                 string currentParsedQuery = string.Empty;
                 QueryReply? activeReply = null;
                 bool rowDescSent = false;
+                bool ignoringUntilSync = false;
+                byte txStatus = (byte)'I';
 
                 byte[] msgHeader = new byte[5];
                 while (await ReadExactAsync(stream, msgHeader, ct))
@@ -517,13 +721,17 @@ public sealed class PostgresRepositoryAndExtensionsTests
                     if (payload.Length > 0 && !await ReadExactAsync(stream, payload, ct))
                         break;
 
+                    if (ignoringUntilSync && msgType is not ('S' or 'X'))
+                        continue;
+
                     switch (msgType)
                     {
                         case 'X':
                             return;
 
                         case 'Q':
-                            activeReply = IsRlsSetConfigQuery(payload) ? HandleRlsSetConfigQuery() : DequeueOrDefault();
+                            string simpleSql = Encoding.UTF8.GetString(payload).TrimEnd('\0').Trim();
+                            activeReply = TryHandleControlQuery(simpleSql, ref txStatus) ?? DequeueOrDefault();
                             if (activeReply.Columns.Count > 0)
                             {
                                 await WriteRowDescriptionAsync(stream, activeReply.Columns, [], ct);
@@ -531,14 +739,14 @@ public sealed class PostgresRepositoryAndExtensionsTests
                                     await WriteDataRowAsync(stream, activeReply.Columns, row, [], ct);
                             }
                             await WriteCommandCompleteAsync(stream, activeReply.Tag, ct);
-                            await WriteReadyForQueryAsync(stream, ct);
+                            await WriteReadyForQueryAsync(stream, txStatus, ct);
                             await stream.FlushAsync(ct);
                             activeReply = null;
                             break;
 
                         case 'P':
                             currentParsedQuery = ExtractParseQuery(payload);
-                            activeReply = IsRlsSetConfigQuery(payload) ? HandleRlsSetConfigQuery() : DequeueOrDefault();
+                            activeReply = TryHandleControlQuery(currentParsedQuery, ref txStatus) ?? DequeueOrDefault();
                             rowDescSent = false;
                             await WriteSimpleFrameAsync(stream, '1', [], ct);
                             break;
@@ -573,17 +781,20 @@ public sealed class PostgresRepositoryAndExtensionsTests
 
                         case 'E':
                             activeReply ??= DequeueOrDefault();
-                            if (activeReply.Columns.Count > 0 && !rowDescSent)
-                            {
-                                await WriteRowDescriptionAsync(stream, activeReply.Columns, currentFormatCodes, ct);
-                                rowDescSent = true;
-                            }
                             if (activeReply.ErrorOnExecute)
                             {
-                                await WriteErrorResponseAsync(stream, ct);
+                                if (txStatus == (byte)'T')
+                                    txStatus = (byte)'E';
+                                ignoringUntilSync = true;
+                                await WriteErrorResponseAsync(stream, activeReply.ErrorSqlState, ct);
                             }
                             else
                             {
+                                if (activeReply.Columns.Count > 0 && !rowDescSent)
+                                {
+                                    await WriteRowDescriptionAsync(stream, activeReply.Columns, currentFormatCodes, ct);
+                                    rowDescSent = true;
+                                }
                                 foreach (object?[] row in activeReply.Rows)
                                     await WriteDataRowAsync(stream, activeReply.Columns, row, currentFormatCodes, ct);
                                 await WriteCommandCompleteAsync(stream, activeReply.Tag, ct);
@@ -601,7 +812,9 @@ public sealed class PostgresRepositoryAndExtensionsTests
                             break;
 
                         case 'S':
-                            await WriteReadyForQueryAsync(stream, ct);
+                            ignoringUntilSync = false;
+                            Interlocked.Increment(ref _syncMessageCount);
+                            await WriteReadyForQueryAsync(stream, txStatus, ct);
                             await stream.FlushAsync(ct);
                             break;
                     }
@@ -610,6 +823,12 @@ public sealed class PostgresRepositoryAndExtensionsTests
         }
 
         public int SetConfigCallCount => _setConfigCallCount;
+
+        public int TransactionLocalSetConfigCount => _transactionLocalSetConfigCount;
+
+        public int ExplicitTransactionCommandCount => _explicitTransactionCommandCount;
+
+        public int SyncMessageCount => _syncMessageCount;
 
         public IReadOnlyList<string> RecordedSetConfigUserIds => [.. _setConfigUserIds];
 
@@ -626,14 +845,43 @@ public sealed class PostgresRepositoryAndExtensionsTests
         }
 
         private int _setConfigCallCount;
+        private int _transactionLocalSetConfigCount;
+        private int _explicitTransactionCommandCount;
+        private int _syncMessageCount;
 
-        private bool IsRlsSetConfigQuery(byte[] payload)
-            => Encoding.UTF8.GetString(payload).Contains("set_config('app.current_user_id'", StringComparison.Ordinal);
-
-        private QueryReply HandleRlsSetConfigQuery()
+        private QueryReply? TryHandleControlQuery(string sql, ref byte txStatus)
         {
-            Interlocked.Increment(ref _setConfigCallCount);
-            return new QueryReply([], [], "SELECT 1");
+            string trimmed = sql.Trim();
+            if (trimmed.StartsWith("BEGIN", StringComparison.OrdinalIgnoreCase))
+            {
+                Interlocked.Increment(ref _explicitTransactionCommandCount);
+                txStatus = (byte)'T';
+                return new QueryReply([], [], "BEGIN");
+            }
+
+            if (trimmed.StartsWith("COMMIT", StringComparison.OrdinalIgnoreCase))
+            {
+                Interlocked.Increment(ref _explicitTransactionCommandCount);
+                txStatus = (byte)'I';
+                return new QueryReply([], [], "COMMIT");
+            }
+
+            if (trimmed.StartsWith("ROLLBACK", StringComparison.OrdinalIgnoreCase))
+            {
+                Interlocked.Increment(ref _explicitTransactionCommandCount);
+                txStatus = (byte)'I';
+                return new QueryReply([], [], "ROLLBACK");
+            }
+
+            if (trimmed.Contains("set_config('app.current_user_id'", StringComparison.Ordinal))
+            {
+                Interlocked.Increment(ref _setConfigCallCount);
+                if (trimmed.Contains(", true)", StringComparison.OrdinalIgnoreCase))
+                    Interlocked.Increment(ref _transactionLocalSetConfigCount);
+                return new QueryReply([("set_config", 25, -1)], [[string.Empty]], "SELECT 1");
+            }
+
+            return null;
         }
 
         private QueryReply DequeueOrDefault()
@@ -855,8 +1103,11 @@ public sealed class PostgresRepositoryAndExtensionsTests
             await WriteSimpleFrameAsync(stream, 'K', payload, ct);
         }
 
+        private static async Task WriteReadyForQueryAsync(Stream stream, byte txStatus, CancellationToken ct)
+            => await WriteSimpleFrameAsync(stream, 'Z', [txStatus], ct);
+
         private static async Task WriteReadyForQueryAsync(Stream stream, CancellationToken ct)
-            => await WriteSimpleFrameAsync(stream, 'Z', [(byte)'I'], ct);
+            => await WriteReadyForQueryAsync(stream, (byte)'I', ct);
 
         private static async Task WriteCommandCompleteAsync(Stream stream, string tag, CancellationToken ct)
         {
@@ -864,7 +1115,7 @@ public sealed class PostgresRepositoryAndExtensionsTests
             await WriteSimpleFrameAsync(stream, 'C', tagBytes, ct);
         }
 
-        private static async Task WriteErrorResponseAsync(Stream stream, CancellationToken ct)
+        private static async Task WriteErrorResponseAsync(Stream stream, string sqlState, CancellationToken ct)
         {
             using MemoryStream ms = new();
             ms.WriteByte((byte)'S');
@@ -872,9 +1123,9 @@ public sealed class PostgresRepositoryAndExtensionsTests
             ms.WriteByte((byte)'V');
             ms.Write("ERROR\0"u8);
             ms.WriteByte((byte)'C');
-            ms.Write("23505\0"u8);
+            ms.Write(Encoding.UTF8.GetBytes(sqlState + "\0"));
             ms.WriteByte((byte)'M');
-            ms.Write("simulated constraint failure\0"u8);
+            ms.Write("simulated failure\0"u8);
             ms.WriteByte(0);
             await WriteSimpleFrameAsync(stream, 'E', ms.ToArray(), ct);
         }
@@ -923,6 +1174,7 @@ public sealed class PostgresRepositoryAndExtensionsTests
             IReadOnlyList<(string Name, int Oid, short Size)> Columns,
             IReadOnlyList<object?[]> Rows,
             string Tag,
-            bool ErrorOnExecute = false);
+            bool ErrorOnExecute = false,
+            string ErrorSqlState = "23505");
     }
 }

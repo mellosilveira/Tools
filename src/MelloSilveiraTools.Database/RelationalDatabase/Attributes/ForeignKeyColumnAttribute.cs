@@ -1,12 +1,15 @@
-﻿using MelloSilveiraTools.Database.RelationalDatabase.Models;
+using MelloSilveiraTools.Database.RelationalDatabase.Models;
+using System.Diagnostics.CodeAnalysis;
 
 namespace MelloSilveiraTools.Database.RelationalDatabase.Attributes;
 
 /// <summary>
-/// Specifies if the property correspond to foreign key column of table.
+/// Specifies if the property corresponds to a foreign key column of a table.
 /// </summary>
 [AttributeUsage(AttributeTargets.Property, AllowMultiple = false)]
-public class ForeignKeyColumnAttribute(Type referencedTableType, JoinType joinType = JoinType.Inner) : ColumnAttribute
+public class ForeignKeyColumnAttribute(
+    [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicProperties)] Type referencedTableType,
+    JoinType joinType = JoinType.Inner) : ColumnAttribute
 {
     /// <inheritdoc cref="Models.JoinType"/>
     public string JoinType { get; } = joinType.ToString().ToUpperInvariant();
@@ -14,5 +17,6 @@ public class ForeignKeyColumnAttribute(Type referencedTableType, JoinType joinTy
     /// <summary>
     /// Type of table which foreign key is referenced.
     /// </summary>
+    [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicProperties)]
     public Type ReferencedTableType { get; } = referencedTableType;
 }

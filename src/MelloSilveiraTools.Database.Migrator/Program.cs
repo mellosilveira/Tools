@@ -1,5 +1,6 @@
 using MelloSilveiraTools.Core.Models;
 using Microsoft.Extensions.Logging;
+using Npgsql;
 
 namespace MelloSilveiraTools.Database.Migrator;
 
@@ -126,20 +127,17 @@ public static class Program
 
     private static string MaskConnectionString(string connectionString)
     {
-        string[] parts = connectionString.Split(';');
-        List<string> maskedParts = new(parts.Length);
-
-        foreach (string part in parts)
+        try
         {
-            string trimmed = part.Trim();
-            if (string.IsNullOrEmpty(trimmed))
-                continue;
+            NpgsqlConnectionStringBuilder builder = new(connectionString);
+            if (!string.IsNullOrEmpty(builder.Password))
+                builder.Password = "********";
 
-            maskedParts.Add(trimmed.StartsWith("password", StringComparison.OrdinalIgnoreCase) || trimmed.StartsWith("pwd", StringComparison.OrdinalIgnoreCase)
-                ? "Password=********"
-                : trimmed);
+            return builder.ConnectionString;
         }
-
-        return string.Join(";", maskedParts);
+        catch
+        {
+            return "********";
+        }
     }
 }

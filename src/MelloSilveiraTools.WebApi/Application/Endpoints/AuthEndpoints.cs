@@ -1,5 +1,8 @@
 using MelloSilveiraTools.Core.ExtensionMethods;
 using MelloSilveiraTools.Core.Models;
+using MelloSilveiraTools.Core.Security;
+using MelloSilveiraTools.Database.RelationalDatabase.Models.Entities;
+using MelloSilveiraTools.Database.Repositories;
 using MelloSilveiraTools.WebApi.Application.Commands.Users.Login;
 using MelloSilveiraTools.WebApi.Application.Commands.Users.RefreshToken;
 using MelloSilveiraTools.WebApi.Application.Commands.Users.Register;
@@ -76,6 +79,24 @@ public static class AuthEndpoints
             .Produces<Result>(StatusCodes.Status401Unauthorized)
             .WithName("AuthValidate")
             .WithSummary("Validates whether a JWE token is authentic and active.");
+
+        group
+            .MapGet("/me", async (HttpContext httpContext, [FromServices] ICurrentUserProvider currentUserProvider, [FromServices] IRepository repository) =>
+            {
+                long? userId = currentUserProvider.GetCurrentUserId();
+                if (userId is null)
+                    return Result.CreateUnauthorized("Authentication required.").ToHttpResult();
+
+                UserEntity? user = await repository.GetAsync<UserEntity>(userId.Value, httpContext.RequestAborted).ConfigureAwait(false);
+                return user is null || !user.IsActive
+                    ? Result.CreateUnauthorized("User account not found or inactive.").ToHttpResult()
+                    : Result.CreateSuccessOk(new CurrentUserInfo(user.Id, user.Username, user.IsSuperuser)).ToHttpResult();
+            })
+            .RequireAuthorization()
+            .Produces<Result<CurrentUserInfo>>(StatusCodes.Status200OK)
+            .Produces<Result>(StatusCodes.Status401Unauthorized)
+            .WithName("AuthMe")
+            .WithSummary("Returns the authenticated user's profile and live superuser status.");
 
         return group;
     }

@@ -1,4 +1,5 @@
 using MelloSilveiraTools.Core.ExtensionMethods;
+using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 
 namespace MelloSilveiraTools.Database.RelationalDatabase.Attributes;
@@ -14,7 +15,7 @@ public class FilterAttribute : Attribute
     /// its JOIN dependencies from the foreign key columns declared on <paramref name="entityToBeFiltered"/>.
     /// </summary>
     /// <param name="entityToBeFiltered">Entity type that this filter targets.</param>
-    public FilterAttribute(Type entityToBeFiltered)
+    public FilterAttribute([DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicProperties)] Type entityToBeFiltered)
     {
         TableDefinition = entityToBeFiltered.GetCustomAttribute<TableAttribute>()!;
         JoinTablesDefinition = [];
@@ -27,7 +28,7 @@ public class FilterAttribute : Attribute
             {
                 TableAttribute? tableDefinitionAttribute = foreignKeyAttribute.ReferencedTableType.GetCustomAttribute<TableAttribute>();
                 if (tableDefinitionAttribute != null)
-                    JoinTablesDefinition.Add(tableDefinitionAttribute.Name, tableDefinitionAttribute);
+                    JoinTablesDefinition[tableDefinitionAttribute.Name] = tableDefinitionAttribute;
             }
         }
     }

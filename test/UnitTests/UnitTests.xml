@@ -149,6 +149,12 @@
             and FileStorageServiceBase cloud path/prefix helper methods.
             </summary>
         </member>
+        <member name="M:UnitTests.Core.Files.Providers.AwsS3FileStorageServiceTests.ParseLocation_InvertsResolveLocation_ForCloudKeys">
+            <summary>
+            Verifies that <see cref="M:MelloSilveiraTools.Core.Files.Providers.CloudFileStorageServiceBase.ParseLocation(System.String)"/> inverts <see cref="M:MelloSilveiraTools.Core.Files.Providers.CloudFileStorageServiceBase.ResolveLocation(System.String,System.String,System.String)"/>
+            for canonical 3-segment keys and rejects invalid layouts.
+            </summary>
+        </member>
         <member name="T:UnitTests.Core.Files.Providers.BlobStorageFileStorageServiceTests">
             <summary>
             Unit tests for <see cref="T:MelloSilveiraTools.Core.Files.Providers.BlobStorage.BlobStorageFileStorageService"/> verifying Azure Blob read/write disk spooling,
@@ -233,11 +239,6 @@
             Verifies Provider property and ResolveLocation partitioning with and without context.
             </summary>
         </member>
-        <member name="M:UnitTests.Core.Files.Providers.LocalFileStorageServiceTests.ResolveLocation_WhenPathEscapesBaseDirectory_ThrowsInvalidOperationException">
-            <summary>
-            Verifies that path traversal attempts escaping BaseDirectory throw InvalidOperationException.
-            </summary>
-        </member>
         <member name="M:UnitTests.Core.Files.Providers.LocalFileStorageServiceTests.WriteReadExistsMetadataDelete_RoundTrip_WorksCorrectly">
             <summary>
             Verifies CreateWriteAsync, OpenReadAsync, ExistsAsync, GetMetadataAsync, and DeleteAsync round-trip by context and location.
@@ -266,6 +267,18 @@
         <member name="M:UnitTests.Core.Files.Providers.LocalFileStorageServiceTests.EmptyContext_AndRelativeDirectoryName_BehaveCorrectly">
             <summary>
             Verifies empty-context path resolution and relative write paths in CreateWriteStream.
+            </summary>
+        </member>
+        <member name="M:UnitTests.Core.Files.Providers.LocalFileStorageServiceTests.ParseLocation_InvertsResolveLocation_ForLocalPaths">
+            <summary>
+            Verifies that <see cref="M:MelloSilveiraTools.Core.Files.Providers.Local.LocalFileStorageService.ParseLocation(System.String)"/> inverts <see cref="M:MelloSilveiraTools.Core.Files.Providers.Local.LocalFileStorageService.ResolveLocation(System.String,System.String,System.String)"/>
+            for canonical 3-segment paths and rejects invalid layouts.
+            </summary>
+        </member>
+        <member name="M:UnitTests.Core.Files.Providers.LocalFileStorageServiceTests.ExtractDirectory_MoveAsync_ComputeSha256Async_And_WriteAndHashAsync_WorkEndToEnd">
+            <summary>
+            Verifies <c>ExtractDirectory</c>, <c>MoveAsync</c>, <c>ComputeSha256Async</c>, and <c>WriteAndHashAsync</c>
+            inherited from <c>FileStorageServiceBase</c>.
             </summary>
         </member>
         <member name="T:UnitTests.Core.Logging.LoggerConfigurationExtensionsTests">
@@ -693,12 +706,17 @@
         <member name="T:UnitTests.Database.DatabaseDependencyInjectionTests">
             <summary>
             Unit tests for <see cref="M:MelloSilveiraTools.Database.DatabaseDependencyInjection.AddDatabaseServices(Microsoft.Extensions.DependencyInjection.IServiceCollection,MelloSilveiraTools.Core.ResiliencePipelines.ResiliencePipelineSettings,MelloSilveiraTools.Database.RelationalDatabase.Settings.DatabaseSettings)"/> verifying DI registration
-            of database settings, resilience pipelines, SQL provider, and repository.
+            of database settings, singleton <see cref="T:Npgsql.NpgsqlDataSource"/>, resilience pipelines, SQL provider, and repository.
             </summary>
         </member>
         <member name="M:UnitTests.Database.DatabaseDependencyInjectionTests.AddDatabaseServices_RegistersExpectedSingletons">
             <summary>
-            Verifies that AddDatabaseServices registers settings, resilience pipeline, SQL provider, and repository singletons.
+            Verifies that AddDatabaseServices registers settings, singleton NpgsqlDataSource, resilience pipeline, SQL provider, and repository singletons.
+            </summary>
+        </member>
+        <member name="M:UnitTests.Database.DatabaseDependencyInjectionTests.CreateDataSource_BuildsDataSource_WithAndWithoutLoggerFactory">
+            <summary>
+            Verifies that <see cref="M:MelloSilveiraTools.Database.DatabaseDependencyInjection.CreateDataSource(MelloSilveiraTools.Database.RelationalDatabase.Settings.DatabaseSettings,Microsoft.Extensions.Logging.ILoggerFactory)"/> builds valid data sources both with and without an explicit logger factory.
             </summary>
         </member>
         <member name="T:UnitTests.Database.PostgresRepositoryAndExtensionsTests">
@@ -713,14 +731,21 @@
             as well as <see cref="T:MelloSilveiraTools.Database.ExtensionMethods.NpgsqlConnectionExtensions"/> helper overloads.
             </summary>
         </member>
-        <member name="M:UnitTests.Database.PostgresRepositoryAndExtensionsTests.PostgresRepository_PropagatesRlsSessionConfig_And_AutoPopulatesUserIdOnWireProtocol">
+        <member name="M:UnitTests.Database.PostgresRepositoryAndExtensionsTests.PostgresRepository_PropagatesTransactionalRlsConfig_And_EnforcesUserIdOnWireProtocol">
             <summary>
             Verifies over the PostgreSQL v3 wire protocol that <see cref="T:MelloSilveiraTools.Database.RelationalDatabase.Repositories.PostgresRepository"/>:
-            (1) sends <c>set_config('app.current_user_id', '', false)</c> when unauthenticated (fail-closed),
-            (2) sends <c>set_config('app.current_user_id', '&lt;userId&gt;', false)</c> when authenticated,
-            (3) automatically binds <c>@UserId</c> from <see cref="T:MelloSilveiraTools.Database.Security.ICurrentUserProvider"/> when left as <c>0</c>
-                for single insert, bulk insert, and update on <see cref="T:MelloSilveiraTools.Database.RelationalDatabase.Models.Entities.UserScopedEntityBase"/> entities, and
-            (4) preserves explicitly assigned non-zero <c>UserId</c> values.
+            (1) executes transaction-local <c>set_config('app.current_user_id', @UserId, true)</c> inside a transaction
+                and never sends <c>app.is_superuser</c>,
+            (2) enforces <c>NULL</c> for anonymous callers (even if payload attempts to spoof <c>UserId</c>),
+            (3) enforces the authenticated user's <c>UserId</c> for non-superusers across single insert, bulk insert, and update, and
+            (4) preserves explicit <c>UserId</c> values (<c>null</c> for public or a tenant ID) for superusers.
+            </summary>
+        </member>
+        <member name="M:UnitTests.Database.PostgresRepositoryAndExtensionsTests.PostgresRepository_RetriesTransientFailure_ClonesParametersWithoutReReflecting">
+            <summary>
+            Verifies that Polly retries on transient PostgreSQL errors clone pre-built <see cref="T:Npgsql.NpgsqlParameter"/>
+            instances instead of re-running reflection on filters/entities, while preserving parameter values
+            across attempts and keeping every execution in a single-round-trip <see cref="T:Npgsql.NpgsqlBatch"/>.
             </summary>
         </member>
         <member name="T:UnitTests.Database.RelationalDatabase.Sql.Provider.DomainEntitySqlSmokeTests">
@@ -731,9 +756,10 @@
         </member>
         <member name="T:UnitTests.Database.RowLevelSecurityAndPartitioningTests">
             <summary>
-            Exhaustive unit tests covering PostgreSQL Row-Level Security (RLS), <c>PARTITION BY LIST (user_id)</c> SQL generation,
-            instance-scoped <see cref="T:MelloSilveiraTools.Database.Security.CurrentUserProvider"/> concurrency/isolation/idempotency, <see cref="T:MelloSilveiraTools.WebApi.Application.Middlewares.UserContextMiddleware"/>
-            claim extraction and exception safety, DI registration, and per-user partition provisioning during registration.
+            Exhaustive unit tests covering PostgreSQL Row-Level Security (RLS) without partitioning,
+            NULL-safe <c>IS NOT DISTINCT FROM</c> SQL generation, instance-scoped <see cref="T:MelloSilveiraTools.Core.Security.CurrentUserProvider"/>
+            concurrency/isolation/idempotency, DB-backed <see cref="T:MelloSilveiraTools.WebApi.Application.Middlewares.UserContextMiddleware"/> active/superuser resolution
+            and instant revocation, DI registration, user registration, and migration script invariants.
             </summary>
         </member>
         <member name="T:UnitTests.Mathematics.Converters.UnitConverterTests">
@@ -839,9 +865,9 @@
             ExecuteParametricSweepPipelineValidator, and ExecuteParametricSweepFromExperimentalDataValidator.
             </summary>
         </member>
-        <member name="T:UnitTests.MechanicsOfMaterials.Optimizations.Controllers.StoredFilesControllerTests">
+        <member name="T:UnitTests.MechanicsOfMaterials.Optimizations.Controllers.StorageEntryMetadataControllerTests">
             <summary>
-            Unit tests for <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Controllers.StorageEntryMetadataController"/> and its CRUD/download commands.
+            Unit tests for <see cref="T:MelloSilveiraTools.WebApi.Application.Controllers.StorageEntryMetadataController"/> and its CRUD/download commands.
             </summary>
         </member>
         <member name="T:UnitTests.MechanicsOfMaterials.Optimizations.CurveFitting.AdditionalCurveFittersTests">

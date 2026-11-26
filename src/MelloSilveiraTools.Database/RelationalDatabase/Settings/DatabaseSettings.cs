@@ -27,6 +27,13 @@ public record DatabaseSettings
     /// </summary>
     public ResiliencePipelineSettings? ResiliencePipelineSettings { get; init; }
 
-    internal int UnitOperationTimeoutInSeconds => UnitOperationTimeoutInMilliseconds / 1000;
-    internal int BulkOperationTimeoutInSeconds => BulkOperationTimeoutInMilliseconds / 1000;
+    /// <summary>
+    /// Explicit opt-out allowing startup when the PostgreSQL connection role has <c>SUPERUSER</c>
+    /// or <c>BYPASSRLS</c> privileges. Defaults to <see langword="false"/> so Row-Level Security
+    /// role enforcement is validated eagerly on startup.
+    /// </summary>
+    public bool AllowSuperuserDatabaseConnection { get; init; }
+
+    public int UnitOperationTimeoutInSeconds => UnitOperationTimeoutInMilliseconds / 1000;
+    public int BulkOperationTimeoutInSeconds => BulkOperationTimeoutInMilliseconds / 1000;
 }

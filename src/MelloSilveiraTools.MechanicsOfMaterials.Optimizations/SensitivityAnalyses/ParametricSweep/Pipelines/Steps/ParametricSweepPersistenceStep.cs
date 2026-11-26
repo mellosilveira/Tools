@@ -14,7 +14,7 @@ using System.Text;
 namespace MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.ParametricSweep.Pipelines.Steps;
 
 /// <summary>
-/// Terminal pipeline step that registers all generated partitioned CSV files into the <c>stored_files</c> table (<see cref="StorageEntryMetadataEntity"/>)
+/// Terminal pipeline step that registers all generated partitioned CSV files into the <c>storage_entry_metadata</c> table (<see cref="StorageEntryMetadataEntity"/>)
 /// and persists the parametric sweep metadata entity (<see cref="ParametricSweepEntity"/>) correlating each swept variable with its range and file metadata.
 /// </summary>
 /// <param name="logger">The structured logger instance.</param>

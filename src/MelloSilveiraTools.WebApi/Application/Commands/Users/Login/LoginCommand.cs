@@ -33,7 +33,6 @@ public sealed class LoginCommand(
         if (user is null || !encryptionService.IsPasswordValid(request.Password, user.PasswordHash))
             return Result.CreateUnauthorized("Invalid username or password.");
 
-        AuthenticationToken token = tokenService.Generate(user.Id);
-        return token;
+        return tokenService.Generate(user.Id);
     }
 }

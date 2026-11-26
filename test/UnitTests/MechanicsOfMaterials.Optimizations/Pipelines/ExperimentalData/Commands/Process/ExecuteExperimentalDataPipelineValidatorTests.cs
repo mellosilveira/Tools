@@ -9,16 +9,16 @@ public sealed class ExecuteExperimentalDataPipelineValidatorTests
     private readonly ExecuteExperimentalDataPipelineValidator _validator = new();
 
     [Fact]
-    public void Validate_NullRequest_ReturnsBadRequest()
+    public async Task Validate_NullRequest_ReturnsBadRequest()
     {
-        Result result = _validator.Validate(null!);
+        Result result = await _validator.ValidateAsync(null!);
 
         Assert.False(result.Success);
         Assert.Contains("Experimental data processing request cannot be null.", result.Messages);
     }
 
     [Fact]
-    public void Validate_ValidRequest_ReturnsSuccessOk()
+    public async Task Validate_ValidRequest_ReturnsSuccessOk()
     {
         ExecuteExperimentalDataPipelineRequest request = new()
         {
@@ -32,14 +32,14 @@ public sealed class ExecuteExperimentalDataPipelineValidatorTests
             }
         };
 
-        Result result = _validator.Validate(request);
+        Result result = await _validator.ValidateAsync(request);
 
         Assert.True(result.Success);
         Assert.Empty(result.Messages);
     }
 
     [Fact]
-    public void Validate_MissingModelAndFiles_ReturnsValidationErrors()
+    public async Task Validate_MissingModelAndFiles_ReturnsValidationErrors()
     {
         ExecuteExperimentalDataPipelineRequest request = new()
         {
@@ -53,7 +53,7 @@ public sealed class ExecuteExperimentalDataPipelineValidatorTests
             }
         };
 
-        Result result = _validator.Validate(request);
+        Result result = await _validator.ValidateAsync(request);
 
         Assert.False(result.Success);
         Assert.Contains("MechanicalModelName is required.", result.Messages);

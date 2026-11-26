@@ -1,4 +1,5 @@
 using MelloSilveiraTools.Database.RelationalDatabase.Repositories;
+using System.Diagnostics.CodeAnalysis;
 
 namespace MelloSilveiraTools.Database.RelationalDatabase.Sql.Provider;
 
@@ -31,32 +32,32 @@ public interface ISqlProvider
     /// <summary>
     /// Builds a bulk INSERT statement capable of inserting <paramref name="batchSize"/> rows in a single round-trip.
     /// </summary>
-    string GetBulkInsertSql<T>(int batchSize);
+    string GetBulkInsertSql<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicProperties)] T>(int batchSize);
 
     /// <summary>
     /// Builds a SELECT COUNT statement with a placeholder for the WHERE clause.
     /// </summary>
-    string GetCountSql<T>();
+    string GetCountSql<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicProperties)] T>();
 
     /// <summary>
     /// Builds a DELETE statement with a placeholder for the WHERE clause.
     /// </summary>
-    string GetDeleteSql<T>();
+    string GetDeleteSql<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicProperties)] T>();
 
     /// <summary>
     /// Builds a DELETE statement filtered by the entity's primary key.
     /// </summary>
-    string GetDeleteByPrimaryKeySql<T>();
+    string GetDeleteByPrimaryKeySql<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicProperties)] T>();
 
     /// <summary>
     /// Builds a statement that checks whether a row with the given primary key exists.
     /// </summary>
-    string GetExistByPrimaryKeySql<T>();
+    string GetExistByPrimaryKeySql<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicProperties)] T>();
 
     /// <summary>
     /// Builds an INSERT statement for a single entity.
     /// </summary>
-    string GetInsertSql<T>();
+    string GetInsertSql<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicProperties)] T>();
 
     /// <summary>
     /// Builds an INSERT statement that, on unique-key conflict, leaves the existing row intact and
@@ -65,22 +66,22 @@ public interface ISqlProvider
     /// <exception cref="InvalidOperationException">
     /// Thrown when <typeparamref name="T"/> has no <c>[UniqueColumn]</c>-annotated property.
     /// </exception>
-    string GetTryInsertSql<T>();
+    string GetTryInsertSql<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicProperties)] T>();
 
     /// <summary>
     /// Builds a SELECT statement with placeholders for WHERE, ORDER BY, LIMIT and OFFSET.
     /// </summary>
-    string GetSelectSql<T>();
+    string GetSelectSql<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicProperties)] T>();
 
     /// <summary>
     /// Builds a SELECT DISTINCT statement with placeholders for WHERE, ORDER BY, LIMIT and OFFSET.
     /// </summary>
-    string GetSelectDistinctSql<T>();
+    string GetSelectDistinctSql<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicProperties)] T>();
 
     /// <summary>
     /// Builds a SELECT statement filtered by the entity's primary key.
     /// </summary>
-    string GetSelectByPrimaryKeySql<T>();
+    string GetSelectByPrimaryKeySql<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicProperties)] T>();
 
     /// <summary>
     /// Builds a <c>SELECT … LIMIT 1</c> statement that filters by the entity's single
@@ -95,15 +96,15 @@ public interface ISqlProvider
     /// <exception cref="InvalidOperationException">
     /// Thrown when <typeparamref name="T"/> has zero or more than one <c>[UniqueColumn]</c>-annotated property.
     /// </exception>
-    string GetSelectByUniqueColumnSql<T>();
+    string GetSelectByUniqueColumnSql<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicProperties)] T>();
 
     /// <summary>
     /// Builds an UPDATE statement with a placeholder for the WHERE clause.
     /// </summary>
-    string GetUpdateSql<T>();
+    string GetUpdateSql<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicProperties)] T>();
 
     /// <summary>
     /// Builds an UPDATE statement filtered by the entity's primary key.
     /// </summary>
-    string GetUpdateByPrimaryKeySql<T>();
+    string GetUpdateByPrimaryKeySql<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicProperties)] T>();
 }

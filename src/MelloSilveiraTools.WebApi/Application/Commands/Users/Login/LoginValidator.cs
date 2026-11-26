@@ -9,14 +9,14 @@ namespace MelloSilveiraTools.WebApi.Application.Commands.Users.Login;
 public sealed class LoginValidator : IValidator<LoginRequest>
 {
     /// <inheritdoc/>
-    public Result Validate(LoginRequest value)
+    public ValueTask<Result> ValidateAsync(LoginRequest value, CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrWhiteSpace(value.Username))
-            return Result.CreateBadRequest("Username is required.");
+            return ValueTask.FromResult(Result.CreateBadRequest("Username is required."));
 
         if (string.IsNullOrWhiteSpace(value.Password))
-            return Result.CreateBadRequest("Password is required.");
+            return ValueTask.FromResult(Result.CreateBadRequest("Password is required."));
 
-        return Result.CreateSuccessOk();
+        return ValueTask.FromResult(Result.CreateSuccessOk());
     }
 }

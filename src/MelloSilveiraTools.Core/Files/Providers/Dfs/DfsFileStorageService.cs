@@ -10,8 +10,7 @@ namespace MelloSilveiraTools.Core.Files.Providers.Dfs;
 /// </summary>
 /// <param name="timeProvider">The time provider instance used for temporal operations.</param>
 /// <param name="settings">DFS storage settings defining the root network share path or mount point.</param>
-public class DfsFileStorageService(TimeProvider timeProvider, DfsStorageSettings settings)
-    : LocalFileStorageService(timeProvider, new LocalFileStorageSettings { BaseDirectory = settings.BaseDirectory })
+public class DfsFileStorageService(TimeProvider timeProvider, DfsStorageSettings settings) : LocalFileStorageService(timeProvider, new LocalFileStorageSettings { BaseDirectory = settings.BaseDirectory })
 {
     /// <inheritdoc />
     public override StorageProvider Provider => StorageProvider.Dfs;

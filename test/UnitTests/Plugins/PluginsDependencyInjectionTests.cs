@@ -145,7 +145,9 @@ public sealed class PluginsDependencyInjectionTests
             Directory = "plugins",
             DefaultCacheTarget = PluginCacheTargets.File,
             PollInterval = TimeSpan.FromSeconds(30),
-            PreviousVersionRetention = TimeSpan.FromHours(24)
+            PreviousVersionRetention = TimeSpan.FromHours(24),
+            MaxPluginSizeBytes = 10L * 1024 * 1024,
+            MaxPendingSubmissionsPerUser = 5
         };
 
         // Act
@@ -175,7 +177,9 @@ public sealed class PluginsDependencyInjectionTests
             Directory = "plugins",
             DefaultCacheTarget = PluginCacheTargets.File,
             PollInterval = TimeSpan.FromSeconds(30),
-            PreviousVersionRetention = TimeSpan.FromHours(24)
+            PreviousVersionRetention = TimeSpan.FromHours(24),
+            MaxPluginSizeBytes = 10L * 1024 * 1024,
+            MaxPendingSubmissionsPerUser = 5
         };
 
         // Act

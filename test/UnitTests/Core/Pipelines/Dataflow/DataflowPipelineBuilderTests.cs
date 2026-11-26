@@ -108,7 +108,7 @@ public sealed class DataflowPipelineBuilderTests
             FullMode = BoundedChannelFullMode.Wait,
             MaxChannels = 4
         };
-        await using ChannelPipelineProgressNotifier notifier = new(TimeProvider.System, notifierSettings);
+        await using ChannelPipelineProgressNotifier notifier = new(new MelloSilveiraTools.Core.Security.CurrentUserProvider(), TimeProvider.System, notifierSettings);
         PipelineFactory factory = CreateFactory(notifier);
 
         SyncDoubleStep syncStep = new();

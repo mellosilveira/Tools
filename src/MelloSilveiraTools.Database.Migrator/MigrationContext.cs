@@ -16,7 +16,7 @@ public enum MigrationContext
     All = 0,
 
     /// <summary>
-    /// Executes common baseline migrations only (e.g., stored_files).
+    /// Executes common baseline migrations only (e.g., users, storage_entry_metadata).
     /// </summary>
     Common = 1,
 

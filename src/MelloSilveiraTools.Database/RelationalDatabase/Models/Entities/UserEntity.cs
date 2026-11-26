@@ -36,4 +36,10 @@ public record UserEntity : EntityBase
     /// </summary>
     [Column]
     public bool IsActive { get; init; } = true;
+
+    /// <summary>
+    /// Indicates whether the user account has superuser privileges to view and manage resources across all tenants.
+    /// </summary>
+    [Column]
+    public bool IsSuperuser { get; init; }
 }

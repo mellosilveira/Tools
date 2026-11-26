@@ -50,10 +50,10 @@ public sealed class BlobStorageFileStorageServiceTests : IDisposable
         _service = new BlobStorageFileStorageService(
             NullLogger<BlobStorageFileStorageService>.Instance,
             _defaultStorage,
+            _timeProvider,
             _containerMock.Object,
             _settings,
-            _pipeline,
-            _timeProvider);
+            _pipeline);
     }
 
     public void Dispose()

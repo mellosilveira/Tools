@@ -26,37 +26,6 @@
             <param name="cancellationToken">Cancellation token to terminate the response stream.</param>
             <returns>A task representing the ongoing NDJSON response write operation.</returns>
         </member>
-        <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Controllers.StorageEntryMetadataController">
-            <summary>
-            Exposes unified HTTP CRUD and download endpoints for stored files (<see cref="T:MelloSilveiraTools.Database.RelationalDatabase.Models.Entities.StorageEntryMetadataEntity"/>)
-            and their underlying physical/cloud storage entries.
-            </summary>
-        </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Controllers.StorageEntryMetadataController.CreateAsync(MelloSilveiraTools.WebApi.Application.Commands.StorageEntryMetadata.Create.AddStorageEntryCommand,MelloSilveiraTools.WebApi.Application.Commands.StorageEntryMetadata.Create.AddStorageEntryRequest,System.Threading.CancellationToken)">
-            <summary>
-            Stores a file in the requested (or default) <see cref="T:MelloSilveiraTools.Core.Files.Providers.IFileStorageService"/> and persists its metadata.
-            </summary>
-        </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Controllers.StorageEntryMetadataController.ReadAsync(MelloSilveiraTools.WebApi.Application.Commands.StorageEntryMetadata.Read.ReadStorageEntriesCommand,MelloSilveiraTools.WebApi.Application.Commands.StorageEntryMetadata.Read.ReadStorageEntriesRequest,System.Threading.CancellationToken)">
-            <summary>
-            Reads stored file metadata from storage and database, grouped by identifier, context, and file extension.
-            </summary>
-        </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Controllers.StorageEntryMetadataController.UpdateAsync(MelloSilveiraTools.WebApi.Application.Commands.StorageEntryMetadata.Upload.UpdateStorageEntryFileCommand,System.Int64,Microsoft.AspNetCore.Http.IFormFile,System.Threading.CancellationToken)">
-            <summary>
-            Overwrites only the physical file for an existing entry, replacing the database metadata record.
-            </summary>
-        </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Controllers.StorageEntryMetadataController.DeleteAsync(MelloSilveiraTools.WebApi.Application.Commands.StorageEntryMetadata.Delete.DeleteStorageEntryCommand,MelloSilveiraTools.WebApi.Application.Commands.StorageEntryMetadata.Delete.DeleteStorageEntryRequest,System.Threading.CancellationToken)">
-            <summary>
-            Idempotently deletes a file from storage and/or database, failing only if absent from both.
-            </summary>
-        </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Controllers.StorageEntryMetadataController.DownloadByIdAsync(MelloSilveiraTools.WebApi.Application.Commands.StorageEntryMetadata.Download.DownloadStoredFileCommand,System.Int64,System.Threading.CancellationToken)">
-            <summary>
-            Streams a stored file by its metadata entity ID.
-            </summary>
-        </member>
         <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.CurveFitting.Algorithms.AlglibCurveFitter">
             <summary>
             Numerical curve fitting solver utilizing the ALGLIB mathematical library.
@@ -562,6 +531,75 @@
             </param>
             <returns>The same service collection so additional registrations can be chained.</returns>
         </member>
+        <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Endpoints.OptimizationsCrudEndpoints">
+            <summary>
+            Maps strongly-typed CRUD and NDJSON-streaming minimal API endpoints for the persisted entities of
+            <c>MelloSilveiraTools.MechanicsOfMaterials.Optimizations</c> without requiring hosts to hardcode
+            routes, resource names, or OpenAPI tags.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Endpoints.OptimizationsCrudEndpoints.MapCurveFitOutputEndpoints(Microsoft.AspNetCore.Routing.IEndpointRouteBuilder,System.String,System.Boolean)">
+            <summary>
+            Maps CRUD and NDJSON-streaming endpoints for <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Pipelines.Entities.MechanicalModelCurveFitOutputEntity"/>
+            under <paramref name="pattern"/>.
+            </summary>
+            <param name="builder">Endpoint route builder used to register the endpoints.</param>
+            <param name="pattern">Route prefix; defaults to <c>"/api/v1/curve-fit-outputs"</c>.</param>
+            <param name="requireAuthForMutations">
+            When <see langword="true"/> (default), requires authentication on <c>PUT</c> and <c>DELETE</c> routes.
+            </param>
+            <returns>The created <see cref="T:Microsoft.AspNetCore.Routing.RouteGroupBuilder"/> for additional metadata chaining.</returns>
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Endpoints.OptimizationsCrudEndpoints.MapMechanicalModelSimulationEndpoints(Microsoft.AspNetCore.Routing.IEndpointRouteBuilder,System.String,System.Boolean)">
+            <summary>
+            Maps CRUD and NDJSON-streaming endpoints for <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Pipelines.Entities.MechanicalModelSimulationEntity"/>
+            under <paramref name="pattern"/>.
+            </summary>
+            <param name="builder">Endpoint route builder used to register the endpoints.</param>
+            <param name="pattern">Route prefix; defaults to <c>"/api/v1/mechanical-model-simulations"</c>.</param>
+            <param name="requireAuthForMutations">
+            When <see langword="true"/> (default), requires authentication on <c>PUT</c> and <c>DELETE</c> routes.
+            </param>
+            <returns>The created <see cref="T:Microsoft.AspNetCore.Routing.RouteGroupBuilder"/> for additional metadata chaining.</returns>
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Endpoints.OptimizationsCrudEndpoints.MapParametricSweepCrudEndpoints(Microsoft.AspNetCore.Routing.IEndpointRouteBuilder,System.String,System.Boolean)">
+            <summary>
+            Maps CRUD and NDJSON-streaming endpoints for <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.ParametricSweep.Pipelines.Entities.ParametricSweepEntity"/>
+            under <paramref name="pattern"/>.
+            </summary>
+            <param name="builder">Endpoint route builder used to register the endpoints.</param>
+            <param name="pattern">Route prefix; defaults to <c>"/api/v1/parametric-sweeps"</c>.</param>
+            <param name="requireAuthForMutations">
+            When <see langword="true"/> (default), requires authentication on <c>PUT</c> and <c>DELETE</c> routes.
+            </param>
+            <returns>The created <see cref="T:Microsoft.AspNetCore.Routing.RouteGroupBuilder"/> for additional metadata chaining.</returns>
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Endpoints.OptimizationsCrudEndpoints.MapOptimizationsCrudEndpoints(Microsoft.AspNetCore.Routing.IEndpointRouteBuilder,System.Boolean)">
+            <summary>
+            Maps all persisted entity CRUD and NDJSON-streaming endpoints for
+            <c>MelloSilveiraTools.MechanicsOfMaterials.Optimizations</c> (curve fit outputs, mechanical model simulations,
+            and parametric sweeps) using their canonical routes and OpenAPI tags.
+            </summary>
+            <param name="builder">Endpoint route builder used to register the endpoints.</param>
+            <param name="requireAuthForMutations">
+            When <see langword="true"/> (default), requires authentication on <c>PUT</c> and <c>DELETE</c> routes.
+            </param>
+            <returns>The same <paramref name="builder"/> instance for call chaining.</returns>
+        </member>
+        <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Endpoints.PipelineProgressEndpoints">
+            <summary>
+            Maps the same real-time pipeline progress NDJSON streaming surface as
+            <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Controllers.PipelineProgressController"/> using minimal APIs.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Endpoints.PipelineProgressEndpoints.MapPipelineProgressEndpoints(Microsoft.AspNetCore.Routing.IEndpointRouteBuilder,System.String)">
+            <summary>
+            Maps pipeline progress streaming endpoints under <paramref name="pattern"/>.
+            </summary>
+            <param name="builder">Endpoint route builder used to register the endpoints.</param>
+            <param name="pattern">Route prefix; defaults to <c>"/api/v1/pipelines"</c>.</param>
+            <returns>The created <see cref="T:Microsoft.AspNetCore.Routing.RouteGroupBuilder"/> so callers can chain authorization or tags.</returns>
+        </member>
         <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Commands.Process.Batch.ExecuteBatchExperimentalDataPipeline">
             <summary>
             Executes the experimental data processing and optimization pipeline across multiple file groups either sequentially or in parallel.
@@ -675,7 +713,7 @@
             </summary>
             <typeparam name="TRequest">The request type to validate, deriving from <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Commands.Process.ExecuteExperimentalDataPipelineRequestBase"/>.</typeparam>
         </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Commands.Process.ExecuteExperimentalDataPipelineValidatorBase`1.Validate(`0)">
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Commands.Process.ExecuteExperimentalDataPipelineValidatorBase`1.ValidateAsync(`0,System.Threading.CancellationToken)">
             <inheritdoc/>
         </member>
         <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Commands.Process.ExecuteExperimentalDataPipelineValidatorBase`1.ValidateComplementary(`0,System.Collections.Generic.List{System.String})">
@@ -807,7 +845,7 @@
             </summary>
             <param name="experimentalDataSettings">Experimental data settings providing the maximum allowed CSV file size.</param>
         </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Commands.Upload.UploadExperimentalDataValidator.Validate(MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Commands.Upload.UploadExperimentalDataRequest)">
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Commands.Upload.UploadExperimentalDataValidator.ValidateAsync(MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Commands.Upload.UploadExperimentalDataRequest,System.Threading.CancellationToken)">
             <inheritdoc/>
         </member>
         <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Controllers.ExperimentalDataController">
@@ -831,6 +869,20 @@
             <param name="stressFile">Raw experimental stress CSV file.</param>
             <param name="cancellationToken">Cancellation token.</param>
             <returns>Storage locations and metadata IDs wrapped in <see cref="T:MelloSilveiraTools.Core.Models.Result`1"/>.</returns>
+        </member>
+        <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Endpoints.ExperimentalDataEndpoints">
+            <summary>
+            Maps the same experimental data upload, processing, and NDJSON batch streaming surface as
+            <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Controllers.ExperimentalDataController"/> using minimal APIs.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Endpoints.ExperimentalDataEndpoints.MapExperimentalDataEndpoints(Microsoft.AspNetCore.Routing.IEndpointRouteBuilder,System.String)">
+            <summary>
+            Maps all experimental data endpoints under <paramref name="pattern"/>.
+            </summary>
+            <param name="builder">Endpoint route builder used to register the endpoints.</param>
+            <param name="pattern">Route prefix; defaults to <c>"/api/v1/experimental-data"</c>.</param>
+            <returns>The created <see cref="T:Microsoft.AspNetCore.Routing.RouteGroupBuilder"/> so callers can chain authorization or tags.</returns>
         </member>
         <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.ExperimentalDataSettings">
             <summary>
@@ -1235,7 +1287,7 @@
             <param name="SimulationDeltaOutput">The boundary delta metrics between initial and final simulation outputs.</param>
             <param name="SimulationOutputFileMetadata">The storage entry metadata for the generated simulation output file.</param>
         </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Pipelines.Models.MechanicalModelOutputPersistenceInput.#ctor(System.String,System.String,System.Nullable{System.Double},MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Pipelines.Models.SimulationDeltaOutput,MelloSilveiraTools.Core.Files.Models.StorageEntryMetadata)">
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Pipelines.Models.MechanicalModelOutputPersistenceInput.#ctor(System.String,System.String,System.Nullable{System.Double},MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.SimulationDeltaOutput,MelloSilveiraTools.Core.Files.Models.StorageEntryMetadata)">
             <summary>
             Strongly-typed payload encapsulating the converging branches of a mechanical simulation.
             </summary>
@@ -1336,36 +1388,6 @@
         </member>
         <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Pipelines.Models.MechanicalModelSimulationOutput.AsymptoteTime">
             <summary>Time when asymptote convergence was reached, or null if not reached.</summary>
-        </member>
-        <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Pipelines.Models.SimulationDeltaOutput">
-            <summary>
-            Encapsulates the boundary values and comparative deltas between the initial and final simulation outputs.
-            </summary>
-            <param name="InitialOutput">The output produced at the initial simulation step.</param>
-            <param name="FinalOutput">The output produced at the final simulation step.</param>
-            <param name="AbsoluteDelta">The absolute difference between final and initial outputs.</param>
-            <param name="PercentageDelta">The relative percentage change between final and initial outputs.</param>
-        </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Pipelines.Models.SimulationDeltaOutput.#ctor(MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalModelOutput,MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalModelOutput,MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalModelOutput,MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalModelOutput)">
-            <summary>
-            Encapsulates the boundary values and comparative deltas between the initial and final simulation outputs.
-            </summary>
-            <param name="InitialOutput">The output produced at the initial simulation step.</param>
-            <param name="FinalOutput">The output produced at the final simulation step.</param>
-            <param name="AbsoluteDelta">The absolute difference between final and initial outputs.</param>
-            <param name="PercentageDelta">The relative percentage change between final and initial outputs.</param>
-        </member>
-        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Pipelines.Models.SimulationDeltaOutput.InitialOutput">
-            <summary>The output produced at the initial simulation step.</summary>
-        </member>
-        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Pipelines.Models.SimulationDeltaOutput.FinalOutput">
-            <summary>The output produced at the final simulation step.</summary>
-        </member>
-        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Pipelines.Models.SimulationDeltaOutput.AbsoluteDelta">
-            <summary>The absolute difference between final and initial outputs.</summary>
-        </member>
-        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Pipelines.Models.SimulationDeltaOutput.PercentageDelta">
-            <summary>The relative percentage change between final and initial outputs.</summary>
         </member>
         <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Pipelines.Steps.CurveFitOutputIdentifierBuilderStep">
             <summary>
@@ -2240,7 +2262,7 @@
             </summary>
             <typeparam name="TRequest">The request type to validate, deriving from <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.ParametricSweep.Commands.ExecuteParametricSweepPipelineRequestBase"/>.</typeparam>
         </member>
-        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.ParametricSweep.Commands.ExecuteParametricSweepValidatorBase`1.Validate(`0)">
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.ParametricSweep.Commands.ExecuteParametricSweepValidatorBase`1.ValidateAsync(`0,System.Threading.CancellationToken)">
             <inheritdoc/>
         </member>
         <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.ParametricSweep.Commands.ExecuteParametricSweepValidatorBase`1.ValidateComplementary(`0,System.Collections.Generic.List{System.String})">
@@ -2391,14 +2413,28 @@
         <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.ParametricSweep.Controllers.ParametricSweepController">
             <summary>
             Exposes HTTP endpoints for executing Parametric Sweep sensitivity analyses and streaming real-time pipeline progress.
-            File artifact queries and downloads are centralized in <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Controllers.StorageEntryMetadataController"/>.
+            File artifact queries and downloads are centralized in <see cref="T:MelloSilveiraTools.WebApi.Application.Controllers.StorageEntryMetadataController"/>.
             </summary>
         </member>
         <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.ParametricSweep.Controllers.ParametricSweepController.#ctor(Microsoft.Extensions.Logging.ILogger{MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.ParametricSweep.Controllers.ParametricSweepController})">
             <summary>
             Exposes HTTP endpoints for executing Parametric Sweep sensitivity analyses and streaming real-time pipeline progress.
-            File artifact queries and downloads are centralized in <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.Controllers.StorageEntryMetadataController"/>.
+            File artifact queries and downloads are centralized in <see cref="T:MelloSilveiraTools.WebApi.Application.Controllers.StorageEntryMetadataController"/>.
             </summary>
+        </member>
+        <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.ParametricSweep.Endpoints.ParametricSweepEndpoints">
+            <summary>
+            Maps the same Parametric Sweep execution and NDJSON progress streaming surface as
+            <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.ParametricSweep.Controllers.ParametricSweepController"/> using minimal APIs.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.ParametricSweep.Endpoints.ParametricSweepEndpoints.MapParametricSweepEndpoints(Microsoft.AspNetCore.Routing.IEndpointRouteBuilder,System.String)">
+            <summary>
+            Maps all Parametric Sweep endpoints under <paramref name="pattern"/>.
+            </summary>
+            <param name="builder">Endpoint route builder used to register the endpoints.</param>
+            <param name="pattern">Route prefix; defaults to <c>"/api/v1/parametric-sweeps"</c>.</param>
+            <returns>The created <see cref="T:Microsoft.AspNetCore.Routing.RouteGroupBuilder"/> so callers can chain authorization or tags.</returns>
         </member>
         <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.ParametricSweep.ParametricSweepSettings">
             <summary>
@@ -2744,7 +2780,7 @@
         </member>
         <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.ParametricSweep.Pipelines.Steps.ParametricSweepPersistenceStep">
             <summary>
-            Terminal pipeline step that registers all generated partitioned CSV files into the <c>stored_files</c> table (<see cref="T:MelloSilveiraTools.Database.RelationalDatabase.Models.Entities.StorageEntryMetadataEntity"/>)
+            Terminal pipeline step that registers all generated partitioned CSV files into the <c>storage_entry_metadata</c> table (<see cref="T:MelloSilveiraTools.Database.RelationalDatabase.Models.Entities.StorageEntryMetadataEntity"/>)
             and persists the parametric sweep metadata entity (<see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.ParametricSweep.Pipelines.Entities.ParametricSweepEntity"/>) correlating each swept variable with its range and file metadata.
             </summary>
             <param name="logger">The structured logger instance.</param>
@@ -2753,7 +2789,7 @@
         </member>
         <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.ParametricSweep.Pipelines.Steps.ParametricSweepPersistenceStep.#ctor(Microsoft.Extensions.Logging.ILogger{MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.ParametricSweep.Pipelines.Steps.ParametricSweepPersistenceStep},MelloSilveiraTools.Database.Repositories.IRepository,MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.ParametricSweep.Pipelines.Models.ParametricSweepPipelineInput)">
             <summary>
-            Terminal pipeline step that registers all generated partitioned CSV files into the <c>stored_files</c> table (<see cref="T:MelloSilveiraTools.Database.RelationalDatabase.Models.Entities.StorageEntryMetadataEntity"/>)
+            Terminal pipeline step that registers all generated partitioned CSV files into the <c>storage_entry_metadata</c> table (<see cref="T:MelloSilveiraTools.Database.RelationalDatabase.Models.Entities.StorageEntryMetadataEntity"/>)
             and persists the parametric sweep metadata entity (<see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.ParametricSweep.Pipelines.Entities.ParametricSweepEntity"/>) correlating each swept variable with its range and file metadata.
             </summary>
             <param name="logger">The structured logger instance.</param>

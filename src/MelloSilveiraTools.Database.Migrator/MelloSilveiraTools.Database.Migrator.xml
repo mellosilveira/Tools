@@ -21,7 +21,7 @@
         </member>
         <member name="F:MelloSilveiraTools.Database.Migrator.MigrationContext.Common">
             <summary>
-            Executes common baseline migrations only (e.g., stored_files).
+            Executes common baseline migrations only (e.g., users, storage_entry_metadata).
             </summary>
         </member>
         <member name="F:MelloSilveiraTools.Database.Migrator.MigrationContext.Optimizations">

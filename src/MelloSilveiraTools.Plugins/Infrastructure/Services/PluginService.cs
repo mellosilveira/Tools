@@ -1,3 +1,4 @@
+using MelloSilveiraTools.Core.Files.Models;
 using MelloSilveiraTools.Core.Providers.Dynamics;
 using MelloSilveiraTools.Plugins.Infrastructure.Models;
 using MelloSilveiraTools.Plugins.Infrastructure.Persistences;
@@ -33,17 +34,6 @@ public static class PluginServiceExtensions
     public static RegisteredPlugin RegisterTypes(this LoadedPlugin loaded, PluginAssemblyProcessor assemblyProcessor, PluginRegistrationContext context)
     {
         return assemblyProcessor.ProcessTypes(loaded, context);
-    }
-
-    /// <summary>
-    /// Retrieves registry information for a loaded plugin without registering its services.
-    /// </summary>
-    /// <param name="loaded">Plugin whose assembly has been loaded.</param>
-    /// <param name="assemblyProcessor">Processor responsible for extracting plugin metadata.</param>
-    /// <returns>The registry information for the plugin.</returns>
-    public static RegisteredPlugin GetRegistry(this LoadedPlugin loaded, PluginAssemblyProcessor assemblyProcessor)
-    {
-        return assemblyProcessor.GetInfo(loaded);
     }
 }
 
@@ -100,16 +90,122 @@ public class PluginService(
         PluginVersion? version = null,
         [EnumeratorCancellation] CancellationToken cancellationToken = default)
     {
-        await foreach (DiscoveredPlugin discovered in fileProcessor.ScanLoadedAsync(name, version, cancellationToken).ConfigureAwait(false))
+        // Read strictly from the in-memory PluginCache so public GET discovery never scans incoming/,
+        // never triggers disk shadow copies, and never loads unapproved assemblies on demand.
+        Dictionary<(string Name, PluginVersion Version), RegisteredPlugin> deduplicated = [];
+
+        await foreach (PluginCacheEntry entry in cache.Stream(name, version, cancellationToken).ConfigureAwait(false))
         {
-            LoadedPlugin loaded = await discovered.LoadAssemblyAsync(assemblyProcessor, cancellationToken).ConfigureAwait(false);
-            yield return loaded.GetRegistry(assemblyProcessor);
+            if (entry.State is not RegisteredPlugin registered)
+                continue;
+
+            (string, PluginVersion) key = (registered.Name, registered.Version);
+            if (!deduplicated.TryGetValue(key, out RegisteredPlugin? existing) || (!existing.IsFullyLoaded && registered.IsFullyLoaded))
+                deduplicated[key] = registered;
         }
 
-        await foreach (DiscoveredPlugin discovered in fileProcessor.ScanAsync(name, version, cancellationToken).ConfigureAwait(false))
+        foreach (RegisteredPlugin registered in deduplicated.Values)
+            yield return registered;
+    }
+
+    /// <inheritdoc/>
+    public async IAsyncEnumerable<PluginInfo> InspectPluginsAsync(string? name = null, PluginVersion? version = null, string? partition = null, [EnumeratorCancellation] CancellationToken cancellationToken = default)
+    {
+        IReadOnlyCollection<string> targetPartitions = string.IsNullOrWhiteSpace(partition) ? PluginStoragePartitions.MainPartitions : [PluginStoragePartitions.MainPartitions.First(p => p.Equals(partition, StringComparison.OrdinalIgnoreCase))];
+        foreach (string currentPartition in targetPartitions)
         {
-            LoadedPlugin loaded = await discovered.LoadAssemblyAsync(assemblyProcessor, cancellationToken).ConfigureAwait(false);
-            yield return loaded.GetRegistry(assemblyProcessor);
+            IAsyncEnumerable<StorageEntryMetadata>? entries = fileProcessor.ListPartitionFilesAsync(currentPartition, cancellationToken);
+            if (entries is null)
+                continue;
+
+            await foreach (StorageEntryMetadata entry in entries.ConfigureAwait(false))
+            {
+                if (!entry.IsFile || string.IsNullOrEmpty(entry.FileName) || !entry.FileName.EndsWith(".dll", StringComparison.OrdinalIgnoreCase))
+                    continue;
+
+                if (!fileProcessor.TryParsePluginFileName(entry.FileName, out string parsedName, out PluginVersion parsedVersion))
+                {
+                    if (!string.IsNullOrWhiteSpace(name) && !entry.FileName.Contains(name, StringComparison.OrdinalIgnoreCase))
+                        continue;
+
+                    if (version.HasValue)
+                        continue;
+
+                    yield return PluginInfo.FromInspection(
+                        currentPartition,
+                        Path.GetFileNameWithoutExtension(entry.FileName),
+                        null,
+                        entry,
+                        isValidAssembly: false,
+                        validationError: $"Plugin filename '{entry.FileName}' does not conform to required pattern '{{name}}.v{{major}}.{{minor}}.{{patch}}.dll'.");
+                    continue;
+                }
+
+                if (!string.IsNullOrWhiteSpace(name) && !parsedName.Equals(name, StringComparison.OrdinalIgnoreCase))
+                    continue;
+
+                if (version.HasValue && parsedVersion != version.Value)
+                    continue;
+
+                string? invalidReason = await fileProcessor.ValidateAssemblyReadOnlyAsync(entry.Location, entry.FileName, cancellationToken).ConfigureAwait(false);
+                if (invalidReason is not null)
+                {
+                    yield return PluginInfo.FromInspection(
+                        currentPartition,
+                        parsedName,
+                        parsedVersion,
+                        entry,
+                        isValidAssembly: false,
+                        validationError: invalidReason);
+                    continue;
+                }
+
+                bool isActivePartition = currentPartition.Equals(PluginStoragePartitions.Loaded, StringComparison.OrdinalIgnoreCase) || currentPartition.Equals(PluginStoragePartitions.Incoming, StringComparison.OrdinalIgnoreCase);
+                yield return isActivePartition
+                    ? await InspectActivePartitionAsync(currentPartition, parsedName, parsedVersion, entry, cancellationToken).ConfigureAwait(false)
+                    : PluginInfo.FromInspection(currentPartition, parsedName, parsedVersion, entry, isValidAssembly: true);
+            }
+        }
+    }
+
+    private async Task<PluginInfo> InspectActivePartitionAsync(
+        string partition,
+        string pluginName,
+        PluginVersion pluginVersion,
+        StorageEntryMetadata file,
+        CancellationToken cancellationToken)
+    {
+        try
+        {
+            DiscoveredPlugin discovered = new(pluginName, pluginVersion, file.Location, file.CreatedAt);
+            LoadedPlugin loaded = await assemblyProcessor.LoadAsync(discovered, cancellationToken).ConfigureAwait(false);
+            RegisteredPlugin registered = assemblyProcessor.GetInfo(loaded);
+
+            if (!registered.IsFullyLoaded
+                && cache.TryGet(pluginName, pluginVersion, out RegisteredPlugin? cachedRegistered)
+                && cachedRegistered is not null
+                && cachedRegistered.IsFullyLoaded)
+            {
+                registered = cachedRegistered;
+            }
+
+            return PluginInfo.FromInspection(
+                partition,
+                pluginName,
+                pluginVersion,
+                file,
+                isValidAssembly: true,
+                registered: registered);
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            return PluginInfo.FromInspection(
+                partition,
+                pluginName,
+                pluginVersion,
+                file,
+                isValidAssembly: false,
+                validationError: ex.Message);
         }
     }
 

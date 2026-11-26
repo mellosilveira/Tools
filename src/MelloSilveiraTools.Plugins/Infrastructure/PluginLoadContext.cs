@@ -5,24 +5,30 @@ namespace MelloSilveiraTools.Plugins.Infrastructure;
 
 /// <summary>
 /// An isolated <see cref="AssemblyLoadContext"/> that uses an <see cref="AssemblyDependencyResolver"/>
-/// to resolve assembly dependencies and host-architecture-compatible unmanaged native libraries according to the Runtime Identifier (RID).
+/// to resolve managed assembly dependencies and, only when explicitly enabled via <paramref name="allowUnmanagedDlls"/>,
+/// unmanaged native libraries according to the Runtime Identifier (RID).
 /// </summary>
 /// <param name="name">The descriptive name of the load context.</param>
 /// <param name="pluginPath">The physical file path to the plugin assembly on disk (typically a shadow-copied assembly).</param>
 /// <param name="isCollectible">Whether the context can be unloaded from memory dynamically.</param>
-public class PluginLoadContext(string name, string pluginPath, bool isCollectible = true) : AssemblyLoadContext(name, isCollectible)
+/// <param name="allowUnmanagedDlls">
+/// When <see langword="false"/> (default), blocks resolution of unmanaged native libraries as a defense-in-depth guardrail.
+/// </param>
+public class PluginLoadContext(string name, string pluginPath, bool isCollectible = true, bool allowUnmanagedDlls = false) : AssemblyLoadContext(name, isCollectible)
 {
     private readonly AssemblyDependencyResolver _resolver = new(pluginPath);
 
     /// <summary>
     /// Initializes a new instance of the <see cref="PluginLoadContext"/> class with a generated name derived from the assembly file name.
     /// </summary>
-    /// <param name="pluginPath">The physical file path to the plugin assembly on disk.</param>
+    /// <param name="pluginPath">The physical file path to the plugin assembly on disk (typically a shadow-copied assembly).</param>
     /// <param name="isCollectible">Whether the context can be unloaded from memory dynamically.</param>
-    public PluginLoadContext(string pluginPath, bool isCollectible = true)
-        : this($"PluginContext_{Path.GetFileNameWithoutExtension(pluginPath)}", pluginPath, isCollectible)
-    {
-    }
+    /// <param name="allowUnmanagedDlls">
+    /// When <see langword="false"/> (default), blocks resolution of unmanaged native libraries.
+    /// </param>
+    public PluginLoadContext(string pluginPath, bool isCollectible = true, bool allowUnmanagedDlls = false)
+        : this($"PluginContext_{Path.GetFileNameWithoutExtension(pluginPath)}", pluginPath, isCollectible, allowUnmanagedDlls) 
+    { }
 
     /// <summary>
     /// Resolves managed assembly dependencies using the plugin's dependency specification.
@@ -37,12 +43,16 @@ public class PluginLoadContext(string name, string pluginPath, bool isCollectibl
     }
 
     /// <summary>
-    /// Resolves unmanaged (native) libraries according to the host process Runtime Identifier (RID) using the plugin dependencies.
+    /// Resolves unmanaged (native) libraries according to the host process Runtime Identifier (RID)
+    /// only when <c>allowUnmanagedDlls</c> is enabled; otherwise returns <see cref="IntPtr.Zero"/>.
     /// </summary>
     /// <param name="unmanagedDllName">The name of the unmanaged native library (e.g. <c>myNativeLib.dll</c> or <c>libmyNativeLib.so</c>).</param>
-    /// <returns>A pointer to the loaded native library, or <see cref="IntPtr.Zero"/> if unresolved.</returns>
+    /// <returns>A pointer to the loaded native library, or <see cref="IntPtr.Zero"/> if blocked or unresolved.</returns>
     protected override IntPtr LoadUnmanagedDll(string unmanagedDllName)
     {
+        if (!allowUnmanagedDlls)
+            return IntPtr.Zero;
+
         string? libraryPath = _resolver.ResolveUnmanagedDllToPath(unmanagedDllName);
         return libraryPath is not null ? LoadUnmanagedDllFromPath(libraryPath) : IntPtr.Zero;
     }

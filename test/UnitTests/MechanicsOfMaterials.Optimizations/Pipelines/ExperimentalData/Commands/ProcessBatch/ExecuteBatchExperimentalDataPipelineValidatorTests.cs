@@ -10,16 +10,16 @@ public sealed class ExecuteBatchExperimentalDataPipelineValidatorTests
     private readonly ExecuteBatchExperimentalDataPipelineValidator _validator = new();
 
     [Fact]
-    public void Validate_NullRequest_ReturnsBadRequest()
+    public async Task Validate_NullRequest_ReturnsBadRequest()
     {
-        Result result = _validator.Validate(null!);
+        Result result = await _validator.ValidateAsync(null!);
 
         Assert.False(result.Success);
         Assert.Contains("Experimental data processing request cannot be null.", result.Messages);
     }
 
     [Fact]
-    public void Validate_ValidRequest_ReturnsSuccessOk()
+    public async Task Validate_ValidRequest_ReturnsSuccessOk()
     {
         ExecuteBatchExperimentalDataPipelineRequest request = new()
         {
@@ -38,14 +38,14 @@ public sealed class ExecuteBatchExperimentalDataPipelineValidatorTests
             ]
         };
 
-        Result result = _validator.Validate(request);
+        Result result = await _validator.ValidateAsync(request);
 
         Assert.True(result.Success);
         Assert.Empty(result.Messages);
     }
 
     [Fact]
-    public void Validate_EmptyGroups_ReturnsBadRequest()
+    public async Task Validate_EmptyGroups_ReturnsBadRequest()
     {
         ExecuteBatchExperimentalDataPipelineRequest request = new()
         {
@@ -53,14 +53,14 @@ public sealed class ExecuteBatchExperimentalDataPipelineValidatorTests
             Groups = []
         };
 
-        Result result = _validator.Validate(request);
+        Result result = await _validator.ValidateAsync(request);
 
         Assert.False(result.Success);
         Assert.Contains("Groups collection must not be null or empty.", result.Messages);
     }
 
     [Fact]
-    public void Validate_InvalidRSquaredAndConfidenceLevel_ReturnsMultipleErrors()
+    public async Task Validate_InvalidRSquaredAndConfidenceLevel_ReturnsMultipleErrors()
     {
         ExecuteBatchExperimentalDataPipelineRequest request = new()
         {
@@ -77,7 +77,7 @@ public sealed class ExecuteBatchExperimentalDataPipelineValidatorTests
             ]
         };
 
-        Result result = _validator.Validate(request);
+        Result result = await _validator.ValidateAsync(request);
 
         Assert.False(result.Success);
         Assert.Contains("MechanicalModelName is required.", result.Messages);

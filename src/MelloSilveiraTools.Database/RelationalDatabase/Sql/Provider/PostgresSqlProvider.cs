@@ -2,6 +2,7 @@ using MelloSilveiraTools.Core.ExtensionMethods;
 using MelloSilveiraTools.Database.RelationalDatabase.Attributes;
 using MelloSilveiraTools.Database.RelationalDatabase.Models.Entities;
 using System.Collections.Concurrent;
+using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using System.Text;
 
@@ -9,37 +10,41 @@ namespace MelloSilveiraTools.Database.RelationalDatabase.Sql.Provider;
 
 /// <inheritdoc cref="ISqlProvider"/>
 /// <summary>
-/// Registered as Singleton in DI. Thread-safe. Backed by ConcurrentDictionary.
+/// Registered as Singleton in DI. Thread-safe and Native AOT-compatible. Backed by per-type static generic caches.
 /// </summary>
 /// <remarks>
 /// <para>
-/// Generated SQL strings are memoized in a process-wide static <see cref="ConcurrentDictionary{TKey, TValue}"/>
-/// keyed by <c>(Type, Operation, BatchSize)</c>. Entries are never evicted: the cache lives for the entire
-/// application lifetime. Memory growth is therefore bounded by the number of entity types multiplied by the
-/// number of supported operations (and, for bulk inserts, by the number of distinct batch sizes used).
-/// </para>
-/// <para>
-/// Reads and writes to the cache are thread-safe via <see cref="ConcurrentDictionary{TKey, TValue}"/>;
-/// concurrent first-time generation of the same key may execute the factory more than once, but the result
-/// is deterministic for a given type and only one instance is retained.
+/// Generated SQL strings are memoized per entity type in static generic caches (and a <see cref="ConcurrentDictionary{TKey, TValue}"/>
+/// keyed by batch size for bulk inserts). Entries live for the lifetime of the application so reflection-based SQL
+/// generation runs at most once per entity type and operation without delegate reflection or AOT hazards.
 /// </para>
 /// <para>
 /// For entities inheriting from <see cref="UserScopedEntityBase"/> that declare one or more
 /// <see cref="UniqueColumnAttribute"/> properties, <c>user_id</c> is automatically appended to the
-/// <c>ON CONFLICT</c> unique key list so conflict resolution aligns with PostgreSQL partitioned table
-/// composite unique constraints (<c>UNIQUE (..., user_id)</c>).
+/// <c>ON CONFLICT</c> unique key list so conflict resolution aligns with PostgreSQL multi-tenant
+/// unique constraints (<c>UNIQUE NULLS NOT DISTINCT (..., user_id)</c>).
 /// </para>
 /// </remarks>
 public class PostgresSqlProvider : ISqlProvider
 {
-    // Metadados por tipo cacheados estaticamente — calculados uma vez por tipo por toda a vida da aplicação.
     private static readonly ConcurrentDictionary<Type, EntityMetadata> _metadataCache = [];
 
-    // Cache unificado de SQL: (Type, Operation, BatchSize) → SQL string.
-    // BatchSize é 0 para operações que não são bulk insert.
-    private static readonly ConcurrentDictionary<(Type Type, Operation Op, int BatchSize), string> _sqlCache = [];
-
-    private enum Operation { BulkInsert, Insert, TryInsert, Count, Delete, DeletePk, ExistPk, Select, SelectDistinct, SelectUniqueColumn, SelectPk, Update, UpdatePk }
+    private static class SqlCache<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicProperties)] T>
+    {
+        public static readonly Lazy<string> Count = new(() => CreateCountSql(typeof(T)), LazyThreadSafetyMode.PublicationOnly);
+        public static readonly Lazy<string> Delete = new(() => CreateDeleteSql(typeof(T)), LazyThreadSafetyMode.PublicationOnly);
+        public static readonly Lazy<string> DeletePk = new(() => CreateDeleteByPrimaryKeySql(typeof(T)), LazyThreadSafetyMode.PublicationOnly);
+        public static readonly Lazy<string> ExistPk = new(() => CreateExistByPrimaryKeySql(typeof(T)), LazyThreadSafetyMode.PublicationOnly);
+        public static readonly Lazy<string> Insert = new(() => CreateInsertSql(typeof(T)), LazyThreadSafetyMode.PublicationOnly);
+        public static readonly Lazy<string> TryInsert = new(() => CreateTryInsertSql(typeof(T)), LazyThreadSafetyMode.PublicationOnly);
+        public static readonly Lazy<string> Select = new(() => CreateSelectSql(typeof(T)), LazyThreadSafetyMode.PublicationOnly);
+        public static readonly Lazy<string> SelectDistinct = new(() => CreateDistinctSelectSql(typeof(T)), LazyThreadSafetyMode.PublicationOnly);
+        public static readonly Lazy<string> SelectPk = new(() => CreateSelectByPrimaryKeySql(typeof(T)), LazyThreadSafetyMode.PublicationOnly);
+        public static readonly Lazy<string> SelectUniqueColumn = new(() => CreateSelectByUniqueColumnSql(typeof(T)), LazyThreadSafetyMode.PublicationOnly);
+        public static readonly Lazy<string> Update = new(() => CreateUpdateSql(typeof(T)), LazyThreadSafetyMode.PublicationOnly);
+        public static readonly Lazy<string> UpdatePk = new(() => CreateUpdateByPrimaryKeySql(typeof(T)), LazyThreadSafetyMode.PublicationOnly);
+        public static readonly ConcurrentDictionary<int, string> BulkInserts = [];
+    }
 
     private record EntityMetadata(
         string TableName,
@@ -47,94 +52,105 @@ public class PostgresSqlProvider : ISqlProvider
         PropertyInfo PrimaryKey,
         string PrimaryKeyCol,
         List<(PropertyInfo Prop, string ColName)> AllColumns,
+        List<(PropertyInfo Prop, string ColName)> InsertColumns,
         List<(PropertyInfo Prop, string ColName)> UniqueColumns);
 
     #region ISqlProvider Implementation
 
     /// <inheritdoc/>
-    public string GetBulkInsertSql<T>(int batchSize)
-        => _sqlCache.GetOrAdd(
-            (typeof(T), Operation.BulkInsert, batchSize),
-            static key => CreateBatchInsertSql(key.Type, key.BatchSize));
+    public string GetBulkInsertSql<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicProperties)] T>(int batchSize)
+        => SqlCache<T>.BulkInserts.GetOrAdd(batchSize, static size => CreateBatchInsertSql(typeof(T), size));
 
     /// <inheritdoc/>
-    public string GetCountSql<T>() => GetSql<T>(Operation.Count, CreateCountSql);
+    public string GetCountSql<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicProperties)] T>() => SqlCache<T>.Count.Value;
 
     /// <inheritdoc/>
-    public string GetDeleteSql<T>() => GetSql<T>(Operation.Delete, CreateDeleteSql);
+    public string GetDeleteSql<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicProperties)] T>() => SqlCache<T>.Delete.Value;
 
     /// <inheritdoc/>
-    public string GetDeleteByPrimaryKeySql<T>() => GetSql<T>(Operation.DeletePk, CreateDeleteByPrimaryKeySql);
+    public string GetDeleteByPrimaryKeySql<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicProperties)] T>() => SqlCache<T>.DeletePk.Value;
 
     /// <inheritdoc/>
-    public string GetExistByPrimaryKeySql<T>() => GetSql<T>(Operation.ExistPk, CreateExistByPrimaryKeySql);
+    public string GetExistByPrimaryKeySql<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicProperties)] T>() => SqlCache<T>.ExistPk.Value;
 
     /// <inheritdoc/>
-    public string GetInsertSql<T>() => GetSql<T>(Operation.Insert, CreateInsertSql);
+    public string GetInsertSql<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicProperties)] T>() => SqlCache<T>.Insert.Value;
 
     /// <inheritdoc/>
-    public string GetTryInsertSql<T>() => GetSql<T>(Operation.TryInsert, CreateTryInsertSql);
+    public string GetTryInsertSql<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicProperties)] T>() => SqlCache<T>.TryInsert.Value;
 
     /// <inheritdoc/>
-    public string GetSelectSql<T>() => GetSql<T>(Operation.Select, CreateSelectSql);
+    public string GetSelectSql<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicProperties)] T>() => SqlCache<T>.Select.Value;
 
     /// <inheritdoc/>
-    public string GetSelectDistinctSql<T>() => GetSql<T>(Operation.SelectDistinct, CreateDistinctSelectSql);
+    public string GetSelectDistinctSql<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicProperties)] T>() => SqlCache<T>.SelectDistinct.Value;
 
     /// <inheritdoc/>
-    public string GetSelectByPrimaryKeySql<T>() => GetSql<T>(Operation.SelectPk, CreateSelectByPrimaryKeySql);
+    public string GetSelectByPrimaryKeySql<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicProperties)] T>() => SqlCache<T>.SelectPk.Value;
 
     /// <inheritdoc/>
-    public string GetSelectByUniqueColumnSql<T>() => GetSql<T>(Operation.SelectUniqueColumn, CreateSelectByUniqueColumnSql);
+    public string GetSelectByUniqueColumnSql<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicProperties)] T>() => SqlCache<T>.SelectUniqueColumn.Value;
 
     /// <inheritdoc/>
-    public string GetUpdateSql<T>() => GetSql<T>(Operation.Update, CreateUpdateSql);
+    public string GetUpdateSql<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicProperties)] T>() => SqlCache<T>.Update.Value;
 
     /// <inheritdoc/>
-    public string GetUpdateByPrimaryKeySql<T>() => GetSql<T>(Operation.UpdatePk, CreateUpdateByPrimaryKeySql);
+    public string GetUpdateByPrimaryKeySql<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicProperties)] T>() => SqlCache<T>.UpdatePk.Value;
 
     #endregion
 
     #region Core Logic
 
-    private static string GetSql<T>(Operation operation, Func<Type, string> factory, int batchSize = 0)
-        => _sqlCache.GetOrAdd((typeof(T), operation, batchSize), static (key, f) => f(key.Type), factory);
+    private static EntityMetadata GetMetadata([DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicProperties)] Type type)
+    {
+        if (_metadataCache.TryGetValue(type, out EntityMetadata? cached))
+            return cached;
 
-    private static EntityMetadata GetMetadata(Type type)
-        => _metadataCache.GetOrAdd(type, t =>
+        EntityMetadata created = BuildMetadata(type);
+        return _metadataCache.GetOrAdd(type, created);
+    }
+
+    private static EntityMetadata BuildMetadata([DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicProperties)] Type type)
+    {
+        TableAttribute tableAttr = type.GetCustomAttribute<TableAttribute>() ?? throw new InvalidOperationException($"O tipo {type.Name} não possui TableAttribute.");
+        PropertyInfo[] props = type.GetPropertiesInHierarchy<ColumnAttribute>();
+        PropertyInfo pk = props.FirstOrDefault(p => p.GetCustomAttribute<PrimaryKeyColumnAttribute>() != null) ?? throw new InvalidOperationException($"O tipo {type.Name} não possui uma PrimaryKey definida.");
+
+        List<(PropertyInfo Prop, string ColName)> allColumns = [.. props.Select(p => (p, p.Name.ToSnakeCase()))];
+        List<(PropertyInfo Prop, string ColName)> insertColumns =
+        [
+            .. allColumns.Where(c =>
+                c.Prop.GetCustomAttribute<PrimaryKeyColumnAttribute>() is null
+                && !string.Equals(c.Prop.Name, nameof(EntityBase.CreationTimestamp), StringComparison.Ordinal))
+        ];
+        List<(PropertyInfo Prop, string ColName)> uniqueColumns = [.. props.Where(p => p.GetCustomAttribute<UniqueColumnAttribute>() != null).Select(p => (p, p.Name.ToSnakeCase()))];
+
+        if (uniqueColumns.Count > 0 && typeof(UserScopedEntityBase).IsAssignableFrom(type))
         {
-            TableAttribute tableAttr = t.GetCustomAttribute<TableAttribute>() ?? throw new InvalidOperationException($"O tipo {t.Name} não possui TableAttribute.");
-            PropertyInfo[] props = t.GetPropertiesInHierarchy<ColumnAttribute>();
-            PropertyInfo pk = props.FirstOrDefault(p => p.GetCustomAttribute<PrimaryKeyColumnAttribute>() != null) ?? throw new InvalidOperationException($"O tipo {t.Name} não possui uma PrimaryKey definida.");
+            (PropertyInfo Prop, string ColName) userIdCol = allColumns.FirstOrDefault(c => c.Prop.Name == nameof(UserScopedEntityBase.UserId));
+            if (userIdCol.Prop is not null && !uniqueColumns.Any(c => c.Prop.Name == nameof(UserScopedEntityBase.UserId)))
+                uniqueColumns.Add(userIdCol);
+        }
 
-            List<(PropertyInfo Prop, string ColName)> allColumns = [.. props.Select(p => (p, p.Name.ToSnakeCase()))];
-            List<(PropertyInfo Prop, string ColName)> uniqueColumns = [.. props.Where(p => p.GetCustomAttribute<UniqueColumnAttribute>() != null).Select(p => (p, p.Name.ToSnakeCase()))];
-
-            if (uniqueColumns.Count > 0 && typeof(UserScopedEntityBase).IsAssignableFrom(t))
-            {
-                (PropertyInfo Prop, string ColName) userIdCol = allColumns.FirstOrDefault(c => c.Prop.Name == nameof(UserScopedEntityBase.UserId));
-                if (userIdCol.Prop is not null && !uniqueColumns.Any(c => c.Prop.Name == nameof(UserScopedEntityBase.UserId)))
-                    uniqueColumns.Add(userIdCol);
-            }
-
-            return new EntityMetadata(
-                tableAttr.Name,
-                tableAttr.Alias,
-                pk,
-                pk.Name.ToSnakeCase(),
-                allColumns,
-                uniqueColumns
-            );
-        });
+        return new EntityMetadata(
+            tableAttr.Name,
+            tableAttr.Alias,
+            pk,
+            pk.Name.ToSnakeCase(),
+            allColumns,
+            insertColumns,
+            uniqueColumns
+        );
+    }
 
     #endregion
 
     #region SQL Factories
 
-    private static string CreateBatchInsertSql(Type type, int batchSize)
+    private static string CreateBatchInsertSql([DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicProperties)] Type type, int batchSize)
     {
         EntityMetadata meta = GetMetadata(type);
-        string cols = string.Join(", ", meta.AllColumns.Select(c => c.ColName));
+        string cols = string.Join(", ", meta.InsertColumns.Select(c => c.ColName));
 
         // Os sufixos devem ser 1-based (_1, _2, ...) para coincidir com BuildParametersFromCollection.
         StringBuilder valueLines = new();
@@ -142,7 +158,7 @@ public class PostgresSqlProvider : ISqlProvider
         {
             string suffix = $"_{i + 1}";
             valueLines.Append('(')
-                      .Append(string.Join(", ", meta.AllColumns.Select(c => $"@{c.Prop.Name}{suffix}")))
+                      .Append(string.Join(", ", meta.InsertColumns.Select(c => $"@{c.Prop.Name}{suffix}")))
                       .Append(')');
             if (i < batchSize - 1) valueLines.Append(",\r\n\t");
         }
@@ -169,24 +185,25 @@ public class PostgresSqlProvider : ISqlProvider
         return sql;
     }
 
-    private static string CreateCountSql(Type type)
+    private static string CreateCountSql([DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicProperties)] Type type)
     {
         EntityMetadata meta = GetMetadata(type);
         return $"SELECT COUNT(1) FROM {meta.TableName} AS {meta.Alias}\r\n#WHERE";
     }
 
-    private static string CreateExistByPrimaryKeySql(Type type)
+    private static string CreateExistByPrimaryKeySql([DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicProperties)] Type type)
     {
         EntityMetadata meta = GetMetadata(type);
         return $"SELECT 1 FROM {meta.TableName} AS {meta.Alias}\r\nWHERE {meta.Alias}.{meta.PrimaryKeyCol} = @{meta.PrimaryKey.Name}\r\nLIMIT 1";
     }
 
-    private static string CreateBaseSelectSql(Type type, bool isDistinct = false)
+    private static string CreateBaseSelectSql([DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicProperties)] Type type, bool isDistinct = false)
     {
         EntityMetadata meta = GetMetadata(type);
         List<string> columns = [.. meta.AllColumns.Select(c => $"{meta.Alias}.{c.ColName} AS \"{c.Prop.Name}\"")];
 
         StringBuilder joins = new();
+        HashSet<string> usedAliases = new(StringComparer.OrdinalIgnoreCase) { meta.Alias };
         foreach ((PropertyInfo prop, string colName) in meta.AllColumns)
         {
             ForeignKeyColumnAttribute? fk = prop.GetCustomAttribute<ForeignKeyColumnAttribute>();
@@ -194,7 +211,8 @@ public class PostgresSqlProvider : ISqlProvider
                 continue;
 
             EntityMetadata refMeta = GetMetadata(fk.ReferencedTableType);
-            joins.AppendLine($"{fk.JoinType} JOIN {refMeta.TableName} AS {refMeta.Alias} ON {refMeta.Alias}.{refMeta.PrimaryKeyCol} = {meta.Alias}.{colName}");
+            string joinAlias = usedAliases.Add(refMeta.Alias) ? refMeta.Alias : $"{refMeta.Alias}_{colName}";
+            joins.AppendLine($"{fk.JoinType} JOIN {refMeta.TableName} AS {joinAlias} ON {joinAlias}.{refMeta.PrimaryKeyCol} = {meta.Alias}.{colName}");
         }
 
         string sql = SqlResource.SelectTemplate;
@@ -208,11 +226,11 @@ public class PostgresSqlProvider : ISqlProvider
             .Replace("#JOIN", joins.Length > 0 ? joins.ToString() : string.Empty);
     }
 
-    private static string CreateSelectSql(Type type) => CreateBaseSelectSql(type, false);
+    private static string CreateSelectSql([DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicProperties)] Type type) => CreateBaseSelectSql(type, false);
 
-    private static string CreateDistinctSelectSql(Type type) => CreateBaseSelectSql(type, true);
+    private static string CreateDistinctSelectSql([DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicProperties)] Type type) => CreateBaseSelectSql(type, true);
 
-    private static string CreateSelectByPrimaryKeySql(Type type)
+    private static string CreateSelectByPrimaryKeySql([DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicProperties)] Type type)
     {
         EntityMetadata meta = GetMetadata(type);
         return CreateSelectSql(type)
@@ -220,7 +238,7 @@ public class PostgresSqlProvider : ISqlProvider
             .Remove("#ORDERBY").Remove("#OFFSET").Remove("#LIMIT");
     }
 
-    private static string CreateSelectByUniqueColumnSql(Type type)
+    private static string CreateSelectByUniqueColumnSql([DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicProperties)] Type type)
     {
         EntityMetadata meta = GetMetadata(type);
         (_, string colName) = meta.UniqueColumns[0];
@@ -229,11 +247,11 @@ public class PostgresSqlProvider : ISqlProvider
             .Remove("#ORDERBY").Remove("#OFFSET").Remove("#LIMIT");
     }
 
-    private static string CreateInsertSql(Type type)
+    private static string CreateInsertSql([DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicProperties)] Type type)
     {
         EntityMetadata meta = GetMetadata(type);
-        string cols = string.Join(", ", meta.AllColumns.Select(c => c.ColName));
-        string pars = string.Join(", ", meta.AllColumns.Select(c => $"@{c.Prop.Name}"));
+        string cols = string.Join(", ", meta.InsertColumns.Select(c => c.ColName));
+        string pars = string.Join(", ", meta.InsertColumns.Select(c => $"@{c.Prop.Name}"));
 
         string sql = meta.UniqueColumns.Count == 0
             ? SqlResource.InsertTemplate
@@ -248,13 +266,17 @@ public class PostgresSqlProvider : ISqlProvider
             .Replace("#PRIMARY_KEY", meta.PrimaryKeyCol);
     }
 
-    private static string CreateTryInsertSql(Type type)
+    private static string CreateTryInsertSql([DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicProperties)] Type type)
     {
         EntityMetadata meta = GetMetadata(type);
-        string cols = string.Join(", ", meta.AllColumns.Select(c => c.ColName));
-        string pars = string.Join(", ", meta.AllColumns.Select(c => $"@{c.Prop.Name}"));
+        string cols = string.Join(", ", meta.InsertColumns.Select(c => c.ColName));
+        string pars = string.Join(", ", meta.InsertColumns.Select(c => $"@{c.Prop.Name}"));
+
+        if (meta.UniqueColumns.Count == 0)
+            return $"INSERT INTO {meta.TableName}\r\n(\r\n\t{cols}\r\n)\r\nVALUES\r\n(\r\n\t{pars}\r\n)\r\nRETURNING {meta.PrimaryKeyCol}, TRUE AS inserted;";
+
         string uniqueCols = string.Join(", ", meta.UniqueColumns.Select(c => c.ColName));
-        string uniqueWhere = string.Join(" AND ", meta.UniqueColumns.Select(c => $"{c.ColName} = @{c.Prop.Name}"));
+        string uniqueWhere = string.Join(" AND ", meta.UniqueColumns.Select(c => $"{c.ColName} IS NOT DISTINCT FROM @{c.Prop.Name}"));
 
         return SqlResource.TryInsertWithUniqueKeyTemplate
             .Replace("#TABLE_NAME", meta.TableName)
@@ -265,24 +287,26 @@ public class PostgresSqlProvider : ISqlProvider
             .Replace("#PRIMARY_KEY", meta.PrimaryKeyCol);
     }
 
-    private static string CreateUpdateSql(Type type)
+    private static string CreateUpdateSql([DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicProperties)] Type type)
     {
         EntityMetadata meta = GetMetadata(type);
-        string updates = string.Join(",\r\n\t", meta.AllColumns.Select(c => $"{c.ColName} = @{c.Prop.Name}"));
+        string updates = string.Join(",\r\n\t", meta.AllColumns
+            .Where(c => c.Prop.GetCustomAttribute<PrimaryKeyColumnAttribute>() is null)
+            .Select(c => $"{c.ColName} = @{c.Prop.Name}"));
 
         return SqlResource.UpdateTemplate
             .Replace("#TABLE_NAME", meta.TableName)
             .Replace("#VALUES_TO_UPDATE", updates);
     }
 
-    private static string CreateUpdateByPrimaryKeySql(Type type)
+    private static string CreateUpdateByPrimaryKeySql([DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicProperties)] Type type)
     {
         EntityMetadata meta = GetMetadata(type);
         return CreateUpdateSql(type)
             .Replace("#WHERE", $"WHERE {meta.PrimaryKeyCol} = @{meta.PrimaryKey.Name};");
     }
 
-    private static string CreateDeleteSql(Type type)
+    private static string CreateDeleteSql([DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicProperties)] Type type)
     {
         EntityMetadata meta = GetMetadata(type);
         return SqlResource.DeleteTemplate
@@ -290,7 +314,7 @@ public class PostgresSqlProvider : ISqlProvider
             .Replace("#TABLE_ALIAS", meta.Alias);
     }
 
-    private static string CreateDeleteByPrimaryKeySql(Type type)
+    private static string CreateDeleteByPrimaryKeySql([DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicProperties)] Type type)
     {
         EntityMetadata meta = GetMetadata(type);
         return CreateDeleteSql(type)
@@ -306,9 +330,7 @@ public class PostgresSqlProvider : ISqlProvider
         HashSet<string> uniquePropNames = [.. meta.UniqueColumns.Select(c => c.Prop.Name)];
         List<(PropertyInfo Prop, string ColName)> payloadCols =
         [
-            .. meta.AllColumns.Where(
-                c => c.Prop.GetCustomAttribute<PrimaryKeyColumnAttribute>() == null
-                && !uniquePropNames.Contains(c.Prop.Name))
+            .. meta.InsertColumns.Where(c => !uniquePropNames.Contains(c.Prop.Name))
         ];
 
         return payloadCols.Count > 0

@@ -1,7 +1,8 @@
 using MelloSilveiraTools.Launcher.Infrastructure;
 using Microsoft.Extensions.Logging;
+using Npgsql;
 using System.Diagnostics;
-using System.Net.Sockets;
+using System.Globalization;
 
 namespace MelloSilveiraTools.Launcher.Steps;
 
@@ -13,18 +14,19 @@ namespace MelloSilveiraTools.Launcher.Steps;
 /// <param name="currentStepNumber">Current 1-based step index.</param>
 /// <param name="numberOfSteps">Total number of launcher steps.</param>
 /// <param name="repositoryRoot">Root directory of the repository.</param>
-/// <param name="host">PostgreSQL target host.</param>
-/// <param name="port">PostgreSQL target port.</param>
+/// <param name="connectionString">Target PostgreSQL connection string used to extract host/port and probe protocol readiness.</param>
 /// <param name="allowDockerInstall">Optional override for automatic Docker installation (<c>true</c>/<c>false</c>), or <c>null</c> to prompt interactively.</param>
 public sealed class DatabaseInfrastructureStep(
     ILogger<DatabaseInfrastructureStep> logger,
     int currentStepNumber,
     int numberOfSteps,
     string repositoryRoot,
-    string host,
-    int port,
+    string connectionString,
     bool? allowDockerInstall)
 {
+    private readonly string _host = ExtractHost(connectionString);
+    private readonly int _port = ExtractPort(connectionString);
+
     /// <summary>
     /// Ensures PostgreSQL is running and accepting connections on the configured host and port.
     /// </summary>
@@ -35,7 +37,7 @@ public sealed class DatabaseInfrastructureStep(
         if (await IsDockerInstalledAsync(cancellationToken).ConfigureAwait(false))
         {
             logger.LogInformation("Docker detected.");
-            if (!await EnsureDockerDaemonRunningAsync(cancellationToken).ConfigureAwait(false))
+            if (!await EnsureDockerDaemonRunningAsync(logger, cancellationToken).ConfigureAwait(false))
             {
                 logger.LogError("Docker is installed, but the Docker daemon could not be started.");
                 return false;
@@ -81,7 +83,7 @@ public sealed class DatabaseInfrastructureStep(
                 return false;
             }
 
-            if (!await EnsureDockerDaemonRunningAsync(cancellationToken).ConfigureAwait(false))
+            if (!await EnsureDockerDaemonRunningAsync(logger, cancellationToken).ConfigureAwait(false))
             {
                 logger.LogInformation("Docker was installed, but may require starting Docker Desktop or rebooting/re-logging in before continuing.");
                 return false;
@@ -106,7 +108,7 @@ public sealed class DatabaseInfrastructureStep(
         return exitCode == 0;
     }
 
-    private async Task<bool> EnsureDockerDaemonRunningAsync(CancellationToken cancellationToken)
+    internal static async Task<bool> EnsureDockerDaemonRunningAsync(ILogger logger, CancellationToken cancellationToken)
     {
         if (await IsDockerDaemonRunningAsync(cancellationToken).ConfigureAwait(false))
         {
@@ -153,28 +155,35 @@ public sealed class DatabaseInfrastructureStep(
             "docker",
             "ps --filter \"name=tools_postgres\" --filter \"status=running\" --format \"{{.Names}}\"",
             repositoryRoot,
-            cancellationToken).ConfigureAwait(false);
+            cancellationToken: cancellationToken).ConfigureAwait(false);
 
         if (psExit == 0 && psOut.Contains("tools_postgres", StringComparison.OrdinalIgnoreCase))
         {
             logger.LogInformation("Container 'tools_postgres' is already running.");
-            return await WaitForTcpPortAsync(cancellationToken).ConfigureAwait(false);
+            return await WaitForPostgresReadyAsync(cancellationToken).ConfigureAwait(false);
         }
 
-        logger.LogInformation("Starting PostgreSQL container via docker compose...");
+        logger.LogInformation("Starting PostgreSQL container via docker compose (host port {Port})...", _port);
+        Dictionary<string, string> composeEnv = new()
+        {
+            ["TOOLS_POSTGRES_PORT"] = _port.ToString(CultureInfo.InvariantCulture)
+        };
         (int composeExit, string stdOut, string stdErr) = await ProcessRunner.RunCommandAsync(
             "docker",
-            "compose up -d postgres",
+            "compose up -d --wait postgres",
             repositoryRoot,
+            composeEnv,
             cancellationToken).ConfigureAwait(false);
 
         if (composeExit != 0)
         {
-            logger.LogError("'docker compose up -d postgres' failed: {StdErr} {StdOut}", stdErr, stdOut);
+            logger.LogError("'docker compose up -d --wait postgres' failed: {StdErr} {StdOut}", stdErr, stdOut);
+            if (stdErr.Contains("port is already allocated", StringComparison.OrdinalIgnoreCase))
+                logger.LogError("Host port {Port} is already in use. Re-run with an alternate port, e.g. --connection-string \"Host=localhost;Port={SuggestedPort};Database=tools_db;Username=postgres;Password=postgres\".", _port, _port + 1);
             return false;
         }
 
-        return await WaitForTcpPortAsync(cancellationToken).ConfigureAwait(false);
+        return await WaitForPostgresReadyAsync(cancellationToken).ConfigureAwait(false);
     }
 
     private static async Task<bool> IsLocalPostgresInstalledAsync(CancellationToken cancellationToken)
@@ -189,9 +198,9 @@ public sealed class DatabaseInfrastructureStep(
 
     private async Task<bool> EnsureLocalPostgresRunningAsync(CancellationToken cancellationToken)
     {
-        if (await IsTcpPortOpenAsync(cancellationToken).ConfigureAwait(false))
+        if (await CanQueryPostgresAsync(cancellationToken).ConfigureAwait(false))
         {
-            logger.LogInformation("Local PostgreSQL is already listening on {Host}:{Port}.", host, port);
+            logger.LogInformation("Local PostgreSQL is already accepting connections at {Host}:{Port}.", _host, _port);
             return true;
         }
 
@@ -205,11 +214,11 @@ public sealed class DatabaseInfrastructureStep(
         if (startExit != 0)
             logger.LogWarning("Failed to start local PostgreSQL service automatically: {Error}", startErr);
 
-        bool open = await WaitForTcpPortAsync(cancellationToken).ConfigureAwait(false);
-        if (!open)
-            logger.LogError("Could not connect to local PostgreSQL on {Host}:{Port}.", host, port);
+        bool ready = await WaitForPostgresReadyAsync(cancellationToken).ConfigureAwait(false);
+        if (!ready)
+            logger.LogError("Could not connect to local PostgreSQL on {Host}:{Port}.", _host, _port);
 
-        return open;
+        return ready;
     }
 
     private async Task<bool> TryInstallDockerAsync(CancellationToken cancellationToken)
@@ -238,36 +247,57 @@ public sealed class DatabaseInfrastructureStep(
         return false;
     }
 
-    private async Task<bool> WaitForTcpPortAsync(CancellationToken cancellationToken)
+    private async Task<bool> WaitForPostgresReadyAsync(CancellationToken cancellationToken)
     {
-        int maxAttempt = 30;
-        for (int attempt = 0; attempt < maxAttempt; attempt++)
+        const int maxAttempts = 30;
+        TimeSpan retryDelay = TimeSpan.FromSeconds(5);
+        for (int attempt = 1; attempt <= maxAttempts; attempt++)
         {
-            if (await IsTcpPortOpenAsync(cancellationToken).ConfigureAwait(false))
+            if (await CanQueryPostgresAsync(cancellationToken).ConfigureAwait(false))
             {
-                logger.LogInformation("PostgreSQL is accepting connections at {Host}:{Port}.", host, port);
+                logger.LogInformation("PostgreSQL is ready and accepting protocol queries at {Host}:{Port}.", _host, _port);
                 return true;
             }
 
-            TimeSpan delayTimeSpan = TimeSpan.FromSeconds(5);
-            logger.LogInformation("({CurrentAttemp}/{MaxAttempt}) PostgreSQL is still not accepting connections at {Host}:{Port}. Waiting {DailayTimeSpan} for next retry.", attempt + 1, maxAttempt, host, port, delayTimeSpan);
-            await Task.Delay(delayTimeSpan, cancellationToken).ConfigureAwait(false);
+            logger.LogInformation("({CurrentAttempt}/{MaxAttempt}) PostgreSQL is still initializing at {Host}:{Port}. Waiting {DelayTimeSpan} for next retry.", attempt, maxAttempts, _host, _port, retryDelay);
+            await Task.Delay(retryDelay, cancellationToken).ConfigureAwait(false);
         }
 
         return false;
     }
 
-    private async Task<bool> IsTcpPortOpenAsync(CancellationToken cancellationToken)
+    private async Task<bool> CanQueryPostgresAsync(CancellationToken cancellationToken)
     {
         try
         {
-            using TcpClient client = new();
-            await client.ConnectAsync(host, port, cancellationToken).ConfigureAwait(false);
-            return client.Connected;
+            NpgsqlConnectionStringBuilder builder = new(connectionString)
+            {
+                Database = "postgres",
+                Pooling = false,
+                Timeout = 30,
+                CommandTimeout = 30
+            };
+            await using NpgsqlConnection connection = new(builder.ConnectionString);
+            await connection.OpenAsync(cancellationToken).ConfigureAwait(false);
+            await using NpgsqlCommand command = new("SELECT 1;", connection);
+            await command.ExecuteScalarAsync(cancellationToken).ConfigureAwait(false);
+            return true;
         }
         catch
         {
             return false;
         }
+    }
+
+    private static string ExtractHost(string connStr)
+    {
+        NpgsqlConnectionStringBuilder builder = new(connStr);
+        return string.IsNullOrWhiteSpace(builder.Host) ? "localhost" : builder.Host;
+    }
+
+    private static int ExtractPort(string connStr)
+    {
+        NpgsqlConnectionStringBuilder builder = new(connStr);
+        return builder.Port is > 0 and <= 65535 ? builder.Port : 5432;
     }
 }

@@ -104,7 +104,9 @@ public sealed class PluginTestFixture : IAsyncDisposable, IDisposable
             Directory = directory,
             DefaultCacheTarget = PluginCacheTargets.File,
             PollInterval = pollInterval ?? TimeSpan.FromMilliseconds(50),
-            PreviousVersionRetention = retention ?? TimeSpan.FromHours(24)
+            PreviousVersionRetention = retention ?? TimeSpan.FromHours(24),
+            MaxPluginSizeBytes = 10L * 1024 * 1024,
+            MaxPendingSubmissionsPerUser = 5
         };
 
         Services = new ServiceCollection();
@@ -119,6 +121,7 @@ public sealed class PluginTestFixture : IAsyncDisposable, IDisposable
         Services.AddScoped<IFileStorageService>((IServiceProvider sp) => sp.GetRequiredKeyedService<IFileStorageService>(Settings.StorageProvider));
 
         Services.AddSingleton(Mock.Of<IRepository>());
+        Services.AddSingleton(Mock.Of<MelloSilveiraTools.Core.Security.ICurrentUserProvider>(u => u.IsSuperuser()));
 
         Services.AddPluginServices(Settings);
 

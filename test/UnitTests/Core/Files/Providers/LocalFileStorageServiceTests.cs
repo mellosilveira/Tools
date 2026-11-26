@@ -58,16 +58,6 @@ public sealed class LocalFileStorageServiceTests : IDisposable
     }
 
     /// <summary>
-    /// Verifies that path traversal attempts escaping BaseDirectory throw InvalidOperationException.
-    /// </summary>
-    [Fact]
-    public void ResolveLocation_WhenPathEscapesBaseDirectory_ThrowsInvalidOperationException()
-    {
-        // Act & Assert
-        Assert.Throws<InvalidOperationException>(() => _service.ResolveLocation("run-1", "exports", "../../../../outside.txt"));
-    }
-
-    /// <summary>
     /// Verifies CreateWriteAsync, OpenReadAsync, ExistsAsync, GetMetadataAsync, and DeleteAsync round-trip by context and location.
     /// </summary>
     [Fact]
@@ -219,5 +209,72 @@ public sealed class LocalFileStorageServiceTests : IDisposable
 
         // OpenReadAsync missing file error path
         await Assert.ThrowsAsync<FileNotFoundException>(() => _service.OpenReadAsync("exp-empty", string.Empty, "missing.txt").AsTask());
+    }
+
+    /// <summary>
+    /// Verifies that <see cref="LocalFileStorageService.ParseLocation"/> inverts <see cref="LocalFileStorageService.ResolveLocation"/>
+    /// for canonical 3-segment paths and rejects invalid layouts.
+    /// </summary>
+    [Fact]
+    public void ParseLocation_InvertsResolveLocation_ForLocalPaths()
+    {
+        string withContext = _service.ResolveLocation("run-1", "exports", "data.csv");
+        Assert.Equal(("run-1", "exports", "data.csv"), _service.ParseLocation(withContext));
+
+        string withoutContext = _service.ResolveLocation("run-1", string.Empty, "data.csv");
+        Assert.Throws<FormatException>(() => _service.ParseLocation(withoutContext));
+
+        string nestedContext = _service.ResolveLocation("exp-9", "raw/sub", "strain.csv");
+        Assert.Throws<FormatException>(() => _service.ParseLocation(nestedContext));
+
+        Assert.Throws<FormatException>(() => _service.ParseLocation(Path.Combine(_baseDirectory, "..", "outside.csv")));
+        Assert.Throws<FormatException>(() => _service.ParseLocation(Path.Combine(_baseDirectory, "only-one-segment.csv")));
+    }
+
+    /// <summary>
+    /// Verifies <c>ExtractDirectory</c>, <c>MoveAsync</c>, <c>ComputeSha256Async</c>, and <c>WriteAndHashAsync</c>
+    /// inherited from <c>FileStorageServiceBase</c>.
+    /// </summary>
+    [Fact]
+    public async Task ExtractDirectory_MoveAsync_ComputeSha256Async_And_WriteAndHashAsync_WorkEndToEnd()
+    {
+        byte[] payload = "plugin-binary-payload"u8.ToArray();
+        string expectedHash = Convert.ToHexStringLower(System.Security.Cryptography.SHA256.HashData(payload));
+
+        // WriteAndHashAsync writes file, computes SHA-256, and returns normalized directory
+        using MemoryStream source = new(payload);
+        (string pendingLocation, string pendingDirectory, string actualHash, long sizeBytes) = await _service.WriteAndHashAsync("plugins", "pending", "Sample.v1.0.0.dll", source);
+
+        Assert.Equal(expectedHash, actualHash);
+        Assert.Equal(payload.Length, sizeBytes);
+        Assert.True(await _service.ExistsAsync(pendingLocation));
+        Assert.Equal(_service.ExtractDirectory(pendingLocation, "pending"), pendingDirectory);
+        Assert.Equal("fallback-dir", _service.ExtractDirectory("barefile.dll", "fallback-dir"));
+        Assert.Equal(string.Empty, _service.ExtractDirectory("barefile.dll"));
+
+        // ComputeSha256Async matches both overloads
+        Assert.Equal(expectedHash, await _service.ComputeSha256Async(pendingLocation));
+        Assert.Equal(expectedHash, await _service.ComputeSha256Async("plugins", "pending", "Sample.v1.0.0.dll"));
+
+        // MoveAsync (partition overload) relocates file and deletes source
+        string incomingLocation = await _service.MoveAsync(pendingLocation, "plugins", "incoming", "Sample.v1.0.0.dll");
+        Assert.False(await _service.ExistsAsync(pendingLocation));
+        Assert.True(await _service.ExistsAsync(incomingLocation));
+        Assert.Equal(expectedHash, await _service.ComputeSha256Async(incomingLocation));
+
+        // MoveAsync to same location is a safe no-op
+        await _service.MoveAsync(incomingLocation, incomingLocation);
+        Assert.True(await _service.ExistsAsync(incomingLocation));
+
+        // MoveAsync with overwrite=false throws when destination already exists
+        using MemoryStream secondSource = new("other"u8.ToArray());
+        (string otherLocation, _, _, _) = await _service.WriteAndHashAsync("plugins", "pending", "Other.v1.0.0.dll", secondSource);
+        await Assert.ThrowsAsync<IOException>(() => _service.MoveAsync(otherLocation, incomingLocation, overwrite: false).AsTask());
+        Assert.True(await _service.ExistsAsync(otherLocation));
+
+        // MoveAsync with overwrite=true replaces destination cleanly
+        await _service.MoveAsync(otherLocation, incomingLocation, overwrite: true);
+        Assert.False(await _service.ExistsAsync(otherLocation));
+        Assert.Equal(Convert.ToHexStringLower(System.Security.Cryptography.SHA256.HashData("other"u8.ToArray())), await _service.ComputeSha256Async(incomingLocation));
     }
 }

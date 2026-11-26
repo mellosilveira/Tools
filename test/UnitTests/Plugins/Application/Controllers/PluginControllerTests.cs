@@ -1,16 +1,22 @@
+using MelloSilveiraTools.Core.Caching;
 using MelloSilveiraTools.Core.Files.Models;
 using MelloSilveiraTools.Core.Files.Providers;
 using MelloSilveiraTools.Core.Models;
+using MelloSilveiraTools.Core.Security;
+using MelloSilveiraTools.Database.Repositories;
 using MelloSilveiraTools.Plugins.Application.Commands;
 using MelloSilveiraTools.Plugins.Application.Commands.Cache;
 using MelloSilveiraTools.Plugins.Application.Commands.Get;
 using MelloSilveiraTools.Plugins.Application.Commands.Load;
 using MelloSilveiraTools.Plugins.Application.Commands.Reload;
+using MelloSilveiraTools.Plugins.Application.Commands.Submissions;
+using MelloSilveiraTools.Plugins.Application.Commands.Submissions.Get;
 using MelloSilveiraTools.Plugins.Application.Commands.Upload;
 using MelloSilveiraTools.Plugins.Application.Controllers;
 using MelloSilveiraTools.Plugins.Application.Validators;
 using MelloSilveiraTools.Plugins.Infrastructure;
 using MelloSilveiraTools.Plugins.Infrastructure.Models;
+using MelloSilveiraTools.Plugins.Infrastructure.Persistences;
 using MelloSilveiraTools.Plugins.Infrastructure.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -23,6 +29,8 @@ public sealed class PluginControllerTests
 {
     private readonly Mock<IPluginService> _serviceMock = new();
     private readonly Mock<IFileStorageService> _storageMock = new();
+    private readonly Mock<IRepository> _repositoryMock = new();
+    private readonly ICurrentUserProvider _superuserContext = Mock.Of<ICurrentUserProvider>(u => u.IsSuperuser());
     private readonly PluginValidator _validator = new();
     private readonly PluginSettings _settings = new()
     {
@@ -30,7 +38,9 @@ public sealed class PluginControllerTests
         Directory = "plugins",
         DefaultCacheTarget = "file",
         PollInterval = TimeSpan.FromSeconds(30),
-        PreviousVersionRetention = TimeSpan.FromHours(24)
+        PreviousVersionRetention = TimeSpan.FromHours(24),
+        MaxPluginSizeBytes = 10L * 1024 * 1024,
+        MaxPendingSubmissionsPerUser = 5
     };
 
     private static async IAsyncEnumerable<T> CreateAsyncEnumerable<T>(IEnumerable<T> items)
@@ -53,12 +63,32 @@ public sealed class PluginControllerTests
 
         GetPlugins command = new(_serviceMock.Object, new PluginValidator<GetPluginsRequest>());
 
-        ActionResult<ListedResult<RegisteredPlugin>> actionResult = await controller.Get(command, new GetPluginsRequest());
+        ActionResult<ListedResult<PluginInfo>> actionResult = await controller.Get(command, new GetPluginsRequest());
 
         Assert.NotNull(actionResult);
         JsonResult? jsonResult = actionResult.Result as JsonResult;
         Assert.NotNull(jsonResult);
-        ListedResult<RegisteredPlugin>? result = jsonResult.Value as ListedResult<RegisteredPlugin>;
+        ListedResult<PluginInfo>? result = jsonResult.Value as ListedResult<PluginInfo>;
+        Assert.NotNull(result);
+        Assert.True(result.Success);
+    }
+
+    [Fact]
+    public async Task Inspect_ExecutesCommandAndReturnsOk()
+    {
+        PluginController controller = new();
+        _serviceMock
+            .Setup(s => s.InspectPluginsAsync(null, null, null, It.IsAny<CancellationToken>()))
+            .Returns(CreateAsyncEnumerable<PluginInfo>([]));
+
+        InspectPlugins command = new(_serviceMock.Object, new PluginValidator<InspectPluginsRequest>());
+
+        ActionResult<ListedResult<PluginInfo>> actionResult = await controller.Inspect(command, new InspectPluginsRequest());
+
+        Assert.NotNull(actionResult);
+        JsonResult? jsonResult = actionResult.Result as JsonResult;
+        Assert.NotNull(jsonResult);
+        ListedResult<PluginInfo>? result = jsonResult.Value as ListedResult<PluginInfo>;
         Assert.NotNull(result);
         Assert.True(result.Success);
     }
@@ -137,22 +167,48 @@ public sealed class PluginControllerTests
     }
 
     [Fact]
-    public async Task Upload_ExecutesCommandAndReturnsResult()
+    public async Task Upload_Submit_And_GetSubmissions_ExecuteCommandsAndReturnResult()
     {
         PluginController controller = new();
-        UploadPluginValidator uploadValidator = new();
-        UploadPlugin uploadCommand = new(NullLogger<UploadPlugin>.Instance, _storageMock.Object, uploadValidator, _settings);
+        PluginFileProcessor fileProcessor = new(NullLogger<PluginFileProcessor>.Instance, _storageMock.Object, new PluginCache(new InMemoryTwoLevelCache()), _settings);
+        PluginSubmissionPersistence submissionPersistence = new(NullLogger<PluginSubmissionPersistence>.Instance, _storageMock.Object, _repositoryMock.Object, _settings);
+        UploadPluginValidator uploadValidator = new(fileProcessor, submissionPersistence, _settings);
+        UploadPlugin uploadCommand = new(
+            NullLogger<UploadPlugin>.Instance,
+            _superuserContext,
+            TimeProvider.System,
+            fileProcessor,
+            submissionPersistence,
+            uploadValidator);
+        SubmitPlugin submitCommand = new(
+            NullLogger<SubmitPlugin>.Instance,
+            _superuserContext,
+            _repositoryMock.Object,
+            TimeProvider.System,
+            fileProcessor,
+            submissionPersistence,
+            uploadValidator,
+            _settings);
 
         Mock<IFormFile> fileMock = new();
         fileMock.Setup(f => f.Length).Returns(0L);
 
-        ActionResult<Result<StorageEntryMetadata>> actionResult = await controller.Upload(uploadCommand, fileMock.Object);
-
+        ActionResult<Result<PluginInfo>> actionResult = await controller.Upload(uploadCommand, fileMock.Object);
         Assert.NotNull(actionResult.Result);
         JsonResult? jsonResult = actionResult.Result as JsonResult;
         Assert.NotNull(jsonResult);
-        Result<StorageEntryMetadata>? result = jsonResult.Value as Result<StorageEntryMetadata>;
+        Result<PluginInfo>? result = jsonResult.Value as Result<PluginInfo>;
         Assert.NotNull(result);
         Assert.False(result.Success);
+
+        ActionResult<Result<PluginInfo>> submitActionResult = await controller.Submit(submitCommand, fileMock.Object);
+        Assert.NotNull(submitActionResult.Result);
+
+        _repositoryMock
+            .Setup(r => r.GetAsync<PluginSubmissionEntity, PluginSubmissionFilter>(It.IsAny<PluginSubmissionFilter>(), null, It.IsAny<CancellationToken>()))
+            .Returns(CreateAsyncEnumerable<PluginSubmissionEntity>([]));
+        GetPluginSubmissions submissionsCommand = new(_repositoryMock.Object);
+        ActionResult<ListedResult<PluginInfo>> submissionsResult = await controller.GetSubmissions(submissionsCommand, new GetPluginSubmissionsRequest());
+        Assert.NotNull(submissionsResult.Result);
     }
 }

@@ -152,6 +152,13 @@ public record Result : ResultBase
     public static Result CreateUnauthorized(string message) => CreateError(StatusCode.Unauthorized, message);
 
     /// <summary>
+    /// Creates an outcome indicating that the caller does not have permission to perform the requested action.
+    /// </summary>
+    /// <param name="message">Optional explanation of the missing permission or ownership restriction.</param>
+    /// <returns>A forbidden outcome.</returns>
+    public static Result CreateForbidden(string? message = null) => CreateError(StatusCode.Forbidden, message);
+
+    /// <summary>
     /// Creates an outcome indicating that the requested information or record could not be found.
     /// </summary>
     /// <param name="message">Context describing the missing record.</param>
@@ -164,6 +171,13 @@ public record Result : ResultBase
     /// <param name="message">Explanation of the elapsed time limit.</param>
     /// <returns>A timeout outcome.</returns>
     public static Result CreateRequestTimeout(string message) => CreateError(StatusCode.RequestTimeout, message);
+
+    /// <summary>
+    /// Creates an outcome indicating that the action conflicts with existing records (e.g. duplicate key).
+    /// </summary>
+    /// <param name="message">Explanation of the conflict.</param>
+    /// <returns>A conflict outcome.</returns>
+    public static Result CreateConflict(string message) => CreateError(StatusCode.Conflict, message);
 
     /// <summary>
     /// Creates an outcome indicating that the request was understood but cannot be processed under current business rules.

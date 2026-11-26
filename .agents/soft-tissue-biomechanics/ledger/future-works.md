@@ -41,7 +41,7 @@ Este documento centraliza as oportunidades de melhoria, expansões e próximos p
     1. Migrar controllers ASP.NET Core MVC (`AddControllers()`, `AddApplicationPart`) para **Minimal APIs** sem reflexão;
     2. Substituir `Swashbuckle` (`AddSwaggerWithBearerSecurity`) por `Microsoft.AspNetCore.OpenApi` + UI estática;
     3. Registrar todos os DTOs de request/response em `JsonSerializerContext` (source generation);
-    4. Substituir `Dapper` (que gera IL em runtime via `Reflection.Emit`) por `Dapper.AOT` ou mapeamento estático com `NpgsqlDataReader`, e revisar `Expression.Compile()` em `MechanicalModelTypeCache`;
+    4. ~~Substituir `Dapper` por `Dapper.AOT` ou mapeamento estático com `NpgsqlDataReader`~~ *(Concluído: `Dapper` removido, `MelloSilveiraTools.Database` migrado para Npgsql puro + `NpgsqlSlimDataSourceBuilder` + `DictionaryExtensions` com fallback AOT e 0 avisos `IL2xxx`/`IL3xxx`)*; resta revisar `Expression.Compile()` em `MechanicalModelTypeCache`;
     5. Desacoplar ou isolar `MelloSilveiraTools.Plugins` do host NativeAOT, pois o carregamento dinâmico de assemblies externos em runtime (`AssemblyLoadContext`) não é suportado em binários NativeAOT fechados;
     6. Remover a supressão de avisos `IL2xxx`/`IL3xxx` do `Directory.Build.props`.
   - **Principais Benefícios do NativeAOT:**
@@ -49,8 +49,18 @@ Este documento centraliza as oportunidades de melhoria, expansões e próximos p
     - Inicialização (*cold-start*) praticamente instantânea e menor consumo base de memória RAM;
     - Eliminação do overhead de compilação JIT em runtime, entregando binário nativo único.
   - **Principais Malefícios e Custos do NativeAOT:**
-    - Complexidade arquitetural **alta** (refatoração ampla de MVC, Swagger, Dapper e serialização);
+    - Complexidade arquitetural **alta** (refatoração ampla de MVC, Swagger e serialização);
     - **Incompatibilidade estrutural com carregamento dinâmico de plugins** em runtime (`MelloSilveiraTools.Plugins`);
     - `Expression.Compile()` passa a executar em modo interpretado (potencial regressão de desempenho em avaliações repetidas se não convertido para source generation);
     - Exigência de **toolchain/linker C++ instalado na máquina** para compilação local (Visual Studio *Desktop Development with C++* no Windows, `clang`/headers no Linux, Xcode CLT no macOS), aumentando a fricção para revisores da JOSS.
-  - **Justificativa da Tomada de Decisão:** Para a entrega `v2.0.0` (submissão JOSS), optou-se por **`--self-contained` + `PublishReadyToRun=true` (AOT gerenciado / ReadyToRun)** nos containers Docker (`runtime-deps:10.0`) e no modo `Local` do `Launcher`, mantendo **NativeAOT (`PublishAot=true`) como trabalho futuro**. Essa decisão entrega pré-compilação AOT dos assemblies da aplicação e containers totalmente autocontidos sem exigir linker C++ na máquina do usuário/revisor e sem quebrar MVC, Swagger, Dapper ou o sistema de plugins dinâmicos.
+  - **Justificativa da Tomada de Decisão:** Para a entrega `v2.0.0` (submissão JOSS), optou-se por **`--self-contained` + `PublishReadyToRun=true` (AOT gerenciado / ReadyToRun)** nos containers Docker (`runtime-deps:10.0`) e no modo `Local` do `Launcher`, mantendo **NativeAOT (`PublishAot=true`) como trabalho futuro** para o host completo (embora a camada `MelloSilveiraTools.Database` já seja 100% compatível com NativeAOT). Essa decisão entrega pré-compilação AOT dos assemblies da aplicação e containers totalmente autocontidos sem exigir linker C++ na máquina do usuário/revisor e sem quebrar MVC, Swagger ou o sistema de plugins dinâmicos.
+
+- **Análise e Adaptação da Camada de Persistência para Uso de PgBouncer sob Alta Carga**
+  - **Contexto:** Camada de Persistência PostgreSQL (`MelloSilveiraTools.Database` / `PostgresRepository` / `PostgresResiliencePipeline`) em cenários futuros de escala horizontal elevada ou *serverless*.
+  - **Gatilho / Critério de Adoção:** Avaliar somente quando a soma total de conexões entre todas as réplicas/serviços (`réplicas × MaxPoolSize`) ultrapassar ~200–300 conexões simultâneas, ou em ambientes com *autoscaling* agressivo / funções *serverless* com alta rotatividade de conexões curtas.
+  - **Descrição das Adaptações a Analisar:**
+    1. **Fronteira explícita de transação em `pool_mode = transaction`:** Avaliar a substituição da transação implícita de `NpgsqlBatch` por transação explícita combinada com batch (`BeginTransactionAsync` + `NpgsqlBatch([set_config, query])` + `CommitAsync` em 2 round-trips), mitigando erros de dessincronização de protocolo (`08P01: server conn crashed?` e `Exception while reading from stream`) observados sob alta carga em *transaction pooling*;
+    2. **Parâmetros obrigatórios de connection string e pooler:** Validar `No Reset On Close=true`, `Connection Idle Lifetime` inferior aos timeouts do PgBouncer/firewall, `Keepalive`, proibição de `Multiplexing=true` e compatibilidade com PgBouncer 1.21+ (`max_prepared_statements` / `Max Auto Prepare`);
+    3. **Resiliência no início de streaming e idempotência de escritas:** Avaliar retry via Polly antes do primeiro `yield return` em `GetAsync`/`GetDistinctAsync` (para conexões ociosas derrubadas pelo proxy) e auditar idempotência de operações `InsertAsync` sem chave única em caso de queda durante a leitura da resposta após `COMMIT`;
+    4. **Benchmark e testes de estresse:** Executar testes de carga concorrente contra PgBouncer real em `pool_mode = transaction` validando ausência de vazamento de contexto RLS (`app.current_user_id`) e recuperação limpa em cenários de falha transiente.
+  - **Justificativa da Decisão Atual:** No estágio atual do projeto (poucas instâncias da API e baixo volume de conexões), o pool interno do `NpgsqlDataSource` Singleton conectado diretamente ao PostgreSQL via `NpgsqlBatch` (1 round-trip, sem `BEGIN`/`COMMIT` explícitos) oferece menor latência, menor complexidade operacional e elimina um ponto intermediário de falha.

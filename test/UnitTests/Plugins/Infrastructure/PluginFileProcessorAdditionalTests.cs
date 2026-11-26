@@ -24,7 +24,9 @@ public sealed class PluginFileProcessorAdditionalTests
         Directory = "plugins",
         DefaultCacheTarget = "file",
         PollInterval = TimeSpan.FromSeconds(30),
-        PreviousVersionRetention = TimeSpan.FromHours(24)
+        PreviousVersionRetention = TimeSpan.FromHours(24),
+        MaxPluginSizeBytes = 10L * 1024 * 1024,
+        MaxPendingSubmissionsPerUser = 5
     };
 
     [Fact]
@@ -161,24 +163,27 @@ public sealed class PluginFileProcessorAdditionalTests
         PluginFileProcessor processor = new(NullLogger<PluginFileProcessor>.Instance, storageMock.Object, new PluginCache(new InMemoryTwoLevelCache()), CreateSettings());
 
         await processor.MoveToLoadedFolderAsync(new DiscoveredPlugin("Mod", new PluginVersion(1, 0, 0), incomingLoc, DateTimeOffset.UtcNow));
-        storageMock.Verify(s => s.OpenWriteAsync(backupLoc, It.IsAny<CancellationToken>()), Times.Once);
+        storageMock.Verify(s => s.MoveAsync(loadedLoc, backupLoc, true, It.IsAny<CancellationToken>()), Times.Once);
+        storageMock.Verify(s => s.MoveAsync(incomingLoc, loadedLoc, true, It.IsAny<CancellationToken>()), Times.Once);
 
         await processor.ReplaceInLoadedFolderAsync(new DiscoveredPlugin("Mod", new PluginVersion(1, 0, 0), incomingLoc, DateTimeOffset.UtcNow));
         storageMock.Verify(s => s.DeleteAsync(loadedLoc, It.IsAny<CancellationToken>()), Times.AtLeastOnce);
 
-        // Moving to same partition location returns early without reading/deleting
+        // Archive partition delegates move to IFileStorageService
         storageMock.Setup(s => s.ResolveLocation("plugins", PluginStoragePartitions.Archive, "Mod.v1.0.0.dll")).Returns("archive/Mod.v1.0.0.dll");
         storageMock.Invocations.Clear();
         await processor.MoveToArchiveFolderAsync(new DiscoveredPlugin("Mod", new PluginVersion(1, 0, 0), "archive/Mod.v1.0.0.dll", DateTimeOffset.UtcNow));
-        storageMock.Verify(s => s.OpenReadAsync("archive/Mod.v1.0.0.dll", It.IsAny<CancellationToken>()), Times.Never);
+        storageMock.Verify(s => s.MoveAsync("archive/Mod.v1.0.0.dll", "archive/Mod.v1.0.0.dll", true, It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [Fact]
     public void IsArchitectureCompatible_ChecksManagedAndNativeBinaries()
     {
+        PluginFileProcessor processor = new(NullLogger<PluginFileProcessor>.Instance, Mock.Of<IFileStorageService>(), new PluginCache(new InMemoryTwoLevelCache()), CreateSettings());
+
         using FileStream managedStream = File.OpenRead(typeof(PluginFileProcessor).Assembly.Location);
         using PEReader managedReader = new(managedStream);
-        Assert.True(PluginFileProcessor.IsArchitectureCompatible(managedReader, out string okReason));
+        Assert.True(processor.IsArchitectureCompatible(managedReader, out string okReason));
         Assert.Equal(string.Empty, okReason);
 
         string nativeDllPath = Path.Combine(Environment.SystemDirectory, "kernel32.dll");
@@ -186,7 +191,7 @@ public sealed class PluginFileProcessorAdditionalTests
         {
             using FileStream nativeStream = File.OpenRead(nativeDllPath);
             using PEReader nativeReader = new(nativeStream);
-            Assert.False(PluginFileProcessor.IsArchitectureCompatible(nativeReader, out string failReason));
+            Assert.False(processor.IsArchitectureCompatible(nativeReader, out string failReason));
             Assert.False(string.IsNullOrEmpty(failReason));
         }
     }
@@ -194,6 +199,7 @@ public sealed class PluginFileProcessorAdditionalTests
     [Fact]
     public async Task ArchitectureChecks_Cover32BitFlagsMachineMismatchesMetadataAndQuarantine()
     {
+        PluginFileProcessor archProcessor = new(NullLogger<PluginFileProcessor>.Instance, Mock.Of<IFileStorageService>(), new PluginCache(new InMemoryTwoLevelCache()), CreateSettings());
         byte[] baseBytes = File.ReadAllBytes(typeof(PluginFileProcessor).Assembly.Location);
 
         byte[] requires32BitBytes = CreatePatchedPe(baseBytes, Machine.I386, CorFlags.ILOnly | CorFlags.Requires32Bit);
@@ -209,7 +215,7 @@ public sealed class PluginFileProcessorAdditionalTests
 
         // AnyCPU passes everywhere
         PluginAssemblyProcessor.ValidateAssemblyArchitecture(anyCpuReader, "AnyCpu");
-        Assert.True(PluginFileProcessor.IsArchitectureCompatible(anyCpuReader, out _));
+        Assert.True(archProcessor.IsArchitectureCompatible(anyCpuReader, out _));
 
         // Native binary (no managed metadata) throws BadImageFormatException
         string nativeDllPath = Path.Combine(Environment.SystemDirectory, "kernel32.dll");
@@ -223,20 +229,20 @@ public sealed class PluginFileProcessorAdditionalTests
         if (hostArch is Architecture.X64 or Architecture.Arm64)
         {
             Assert.Throws<BadImageFormatException>(() => PluginAssemblyProcessor.ValidateAssemblyArchitecture(req32Reader, "Req32"));
-            Assert.False(PluginFileProcessor.IsArchitectureCompatible(req32Reader, out string req32Reason));
+            Assert.False(archProcessor.IsArchitectureCompatible(req32Reader, out string req32Reason));
             Assert.Contains("32-bit", req32Reason, StringComparison.OrdinalIgnoreCase);
         }
 
         if (hostArch == Architecture.X64)
         {
             PluginAssemblyProcessor.ValidateAssemblyArchitecture(amd64Reader, "Amd64");
-            Assert.True(PluginFileProcessor.IsArchitectureCompatible(amd64Reader, out _));
+            Assert.True(archProcessor.IsArchitectureCompatible(amd64Reader, out _));
 
             Assert.Throws<BadImageFormatException>(() => PluginAssemblyProcessor.ValidateAssemblyArchitecture(arm64Reader, "Arm64"));
-            Assert.False(PluginFileProcessor.IsArchitectureCompatible(arm64Reader, out _));
+            Assert.False(archProcessor.IsArchitectureCompatible(arm64Reader, out _));
 
             Assert.Throws<BadImageFormatException>(() => PluginAssemblyProcessor.ValidateAssemblyArchitecture(i386NoIlReader, "I386NoIl"));
-            Assert.False(PluginFileProcessor.IsArchitectureCompatible(i386NoIlReader, out _));
+            Assert.False(archProcessor.IsArchitectureCompatible(i386NoIlReader, out _));
         }
 
         // ScanAsync quarantines an incoming binary rejected by IsArchitectureCompatible
@@ -251,16 +257,12 @@ public sealed class PluginFileProcessorAdditionalTests
             .ReturnsAsync(() => new MemoryStream(rejectedBytes));
         storageMock.Setup(s => s.ResolveLocation("plugins", PluginStoragePartitions.Quarantine, "WrongArch.v1.0.0.dll"))
             .Returns("quarantine/WrongArch.v1.0.0.dll");
-        storageMock.Setup(s => s.OpenWriteAsync("quarantine/WrongArch.v1.0.0.dll", It.IsAny<CancellationToken>()))
-            .ReturnsAsync(() => new MemoryStream());
-        storageMock.Setup(s => s.DeleteAsync(badEntryLocation, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(true);
 
         PluginFileProcessor processor = new(NullLogger<PluginFileProcessor>.Instance, storageMock.Object, new PluginCache(new InMemoryTwoLevelCache()), CreateSettings());
         List<DiscoveredPlugin> scanned = await processor.ScanAsync().ToListAsync();
 
         Assert.Empty(scanned);
-        storageMock.Verify(s => s.OpenWriteAsync("quarantine/WrongArch.v1.0.0.dll", It.IsAny<CancellationToken>()), Times.Once);
+        storageMock.Verify(s => s.MoveAsync(badEntryLocation, "quarantine/WrongArch.v1.0.0.dll", true, It.IsAny<CancellationToken>()), Times.Once);
     }
 
     private static byte[] CreatePatchedPe(byte[] sourceBytes, Machine machine, CorFlags corFlags)

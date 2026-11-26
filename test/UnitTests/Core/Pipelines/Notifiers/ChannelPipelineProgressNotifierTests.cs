@@ -1,5 +1,6 @@
 using MelloSilveiraTools.Core.Pipelines.Models;
 using MelloSilveiraTools.Core.Pipelines.Notifiers;
+using MelloSilveiraTools.Core.Security;
 using System.Threading.Channels;
 
 namespace UnitTests.Core.Pipelines.Notifiers;
@@ -39,7 +40,7 @@ public sealed class ChannelPipelineProgressNotifierTests
             FullMode = BoundedChannelFullMode.Wait,
             MaxChannels = 4
         };
-        await using ChannelPipelineProgressNotifier notifier = new(TimeProvider.System, settings);
+        await using ChannelPipelineProgressNotifier notifier = new(new CurrentUserProvider(), TimeProvider.System, settings);
 
         // Act
         await notifier.NotifyAsync(CreateEvent("run-1", "S1"));
@@ -78,7 +79,7 @@ public sealed class ChannelPipelineProgressNotifierTests
             FullMode = BoundedChannelFullMode.DropOldest,
             MaxChannels = 2
         };
-        await using ChannelPipelineProgressNotifier notifier = new(timeProvider, settings);
+        await using ChannelPipelineProgressNotifier notifier = new(new CurrentUserProvider(), timeProvider, settings);
 
         // Act: Create 2 channels, complete the first one (abandoned), then add a 3rd channel (should evict run-1)
         await notifier.NotifyAsync(CreateEvent("run-1"));
@@ -120,7 +121,7 @@ public sealed class ChannelPipelineProgressNotifierTests
             FullMode = BoundedChannelFullMode.Wait,
             MaxChannels = 4
         };
-        ChannelPipelineProgressNotifier notifier = new(TimeProvider.System, settings);
+        ChannelPipelineProgressNotifier notifier = new(new CurrentUserProvider(), TimeProvider.System, settings);
         await notifier.NotifyAsync(CreateEvent("run-x"));
 
         // Act

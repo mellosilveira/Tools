@@ -4,6 +4,38 @@
         <name>MelloSilveiraTools.Launcher</name>
     </assembly>
     <members>
+        <member name="T:MelloSilveiraTools.Launcher.Infrastructure.LauncherHostProbe">
+            <summary>
+            Shared health-check polling and browser-launch helper used by both Local and Docker launcher steps.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Launcher.Infrastructure.LauncherHostProbe.IsHealthyAsync(System.String,System.Threading.CancellationToken)">
+            <summary>
+            Probes <c>{baseUrl}/health</c> once and returns <see langword="true"/> when a 2xx response is received.
+            </summary>
+            <param name="baseUrl">Base URL of <c>MelloSilveiraTools.WebApi.Host</c>.</param>
+            <param name="cancellationToken">Cancellation token.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.Launcher.Infrastructure.LauncherHostProbe.WaitForHealthyAsync(Microsoft.Extensions.Logging.ILogger,System.String,System.Boolean,System.Func{System.Boolean},System.Int32,System.Threading.CancellationToken)">
+            <summary>
+            Polls <c>{baseUrl}/health</c> until the host becomes healthy, exits prematurely, or reaches <paramref name="maxAttempts"/>.
+            Optionally opens the default browser once healthy.
+            </summary>
+            <param name="logger">Logger for startup polling diagnostics.</param>
+            <param name="baseUrl">Base URL of <c>MelloSilveiraTools.WebApi.Host</c>.</param>
+            <param name="openBrowser">When <see langword="true"/>, launches the default browser upon readiness.</param>
+            <param name="hasExitedEarly">Optional callback returning <see langword="true"/> if the launched process terminated prematurely.</param>
+            <param name="maxAttempts">Maximum polling attempts (5 seconds apart).</param>
+            <param name="cancellationToken">Cancellation token.</param>
+            <returns><see langword="true"/> if the host became healthy (and browser launch succeeded when requested); otherwise <see langword="false"/>.</returns>
+        </member>
+        <member name="M:MelloSilveiraTools.Launcher.Infrastructure.LauncherHostProbe.TryOpenBrowser(Microsoft.Extensions.Logging.ILogger,System.String)">
+            <summary>
+            Attempts to open <paramref name="url"/> in the operating system's default browser.
+            </summary>
+            <param name="logger">Logger for browser launch diagnostics.</param>
+            <param name="url">Target URL to open.</param>
+        </member>
         <member name="T:MelloSilveiraTools.Launcher.Infrastructure.ExecutionMode">
             <summary>
             Defines where the application backend and database services are executed.
@@ -84,7 +116,6 @@
             Builds the application-level PostgreSQL connection string used by <c>MelloSilveiraTools.WebApi.Host</c>.
             When the configured user is the <c>postgres</c> superuser (which bypasses PostgreSQL Row-Level Security),
             swaps credentials to the non-superuser <c>tools_app</c> role provisioned by migrations so RLS is enforced.
-            Custom non-superuser roles supplied explicitly by the user are preserved untouched.
             </summary>
             <param name="forDocker">When <see langword="true"/>, maps <c>localhost</c>/<c>127.0.0.1</c> to the Docker <c>postgres</c> service.</param>
             <returns>The resolved application connection string.</returns>
@@ -101,7 +132,7 @@
         </member>
         <member name="M:MelloSilveiraTools.Launcher.Infrastructure.LauncherInfrastructureOptions.MaskConnectionString(System.String)">
             <summary>
-            Masks <c>Password</c> and <c>Pwd</c> segments in a PostgreSQL connection string.
+            Masks password segments in a PostgreSQL connection string.
             </summary>
         </member>
         <member name="T:MelloSilveiraTools.Launcher.Infrastructure.LauncherInfrastructureResolver">
@@ -136,12 +167,61 @@
             <param name="cancellationToken">Cancellation token.</param>
             <returns>The resolved repository root path, or <c>null</c> on failure.</returns>
         </member>
+        <member name="T:MelloSilveiraTools.Launcher.Infrastructure.LauncherRuntimeSecrets">
+            <summary>
+            Resolves non-placeholder runtime secrets (<c>Jwt:EncryptionKey</c>, <c>Jwt:SigningKey</c>, and <c>Superuser:Password</c>)
+            required by <c>MelloSilveiraTools.WebApi.Host</c> outside Development.
+            Prefers explicit host environment variables and persists auto-generated local quickstart secrets
+            under the current user's profile directory so credentials remain stable across restarts.
+            </summary>
+            <param name="JwtEncryptionKey">32-byte UTF-8 AES-256-KW encryption key.</param>
+            <param name="JwtSigningKey">HMAC-SHA256 signing key.</param>
+            <param name="SuperuserPassword">Bootstrap password for the configured superuser account.</param>
+            <param name="SourceDescription">Human-readable origin of the resolved secrets (environment or file path).</param>
+        </member>
+        <member name="M:MelloSilveiraTools.Launcher.Infrastructure.LauncherRuntimeSecrets.#ctor(System.String,System.String,System.String,System.String)">
+            <summary>
+            Resolves non-placeholder runtime secrets (<c>Jwt:EncryptionKey</c>, <c>Jwt:SigningKey</c>, and <c>Superuser:Password</c>)
+            required by <c>MelloSilveiraTools.WebApi.Host</c> outside Development.
+            Prefers explicit host environment variables and persists auto-generated local quickstart secrets
+            under the current user's profile directory so credentials remain stable across restarts.
+            </summary>
+            <param name="JwtEncryptionKey">32-byte UTF-8 AES-256-KW encryption key.</param>
+            <param name="JwtSigningKey">HMAC-SHA256 signing key.</param>
+            <param name="SuperuserPassword">Bootstrap password for the configured superuser account.</param>
+            <param name="SourceDescription">Human-readable origin of the resolved secrets (environment or file path).</param>
+        </member>
+        <member name="P:MelloSilveiraTools.Launcher.Infrastructure.LauncherRuntimeSecrets.JwtEncryptionKey">
+            <summary>32-byte UTF-8 AES-256-KW encryption key.</summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Launcher.Infrastructure.LauncherRuntimeSecrets.JwtSigningKey">
+            <summary>HMAC-SHA256 signing key.</summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Launcher.Infrastructure.LauncherRuntimeSecrets.SuperuserPassword">
+            <summary>Bootstrap password for the configured superuser account.</summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Launcher.Infrastructure.LauncherRuntimeSecrets.SourceDescription">
+            <summary>Human-readable origin of the resolved secrets (environment or file path).</summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Launcher.Infrastructure.LauncherRuntimeSecrets.ResolveOrCreate">
+            <summary>
+            Resolves secrets from host environment variables, falling back to a persistent per-user secrets file
+            (<c>~/.mellosilveiratools/launcher-secrets.json</c>) created with cryptographically random values on first run.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Launcher.Infrastructure.LauncherRuntimeSecrets.ApplyToEnvironment(System.Collections.Generic.IDictionary{System.String,System.String},System.Boolean)">
+            <summary>
+            Injects the resolved secrets into a child process environment dictionary.
+            </summary>
+            <param name="environment">Target <see cref="P:System.Diagnostics.ProcessStartInfo.Environment"/> dictionary.</param>
+            <param name="uppercaseKeys">When <see langword="true"/>, emits uppercase Compose interpolation keys (<c>JWT__ENCRYPTIONKEY</c>, etc.); otherwise emits ASP.NET Core configuration keys.</param>
+        </member>
         <member name="T:MelloSilveiraTools.Launcher.Infrastructure.ProcessRunner">
             <summary>
             Cross-platform helper for executing external CLI commands and probing TCP/HTTP readiness.
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.Launcher.Infrastructure.ProcessRunner.RunCommandAsync(System.String,System.String,System.String,System.Threading.CancellationToken)">
+        <member name="M:MelloSilveiraTools.Launcher.Infrastructure.ProcessRunner.RunCommandAsync(System.String,System.String,System.String,System.Collections.Generic.IReadOnlyDictionary{System.String,System.String},System.Threading.CancellationToken)">
             <summary>
             Executes a command synchronously with captured stdout/stderr and returns its exit code and output.
             </summary>
@@ -160,11 +240,10 @@
             <param name="currentStepNumber">Current 1-based step index.</param>
             <param name="numberOfSteps">Total number of launcher steps.</param>
             <param name="repositoryRoot">Root directory of the repository.</param>
-            <param name="host">PostgreSQL target host.</param>
-            <param name="port">PostgreSQL target port.</param>
+            <param name="connectionString">Target PostgreSQL connection string used to extract host/port and probe protocol readiness.</param>
             <param name="allowDockerInstall">Optional override for automatic Docker installation (<c>true</c>/<c>false</c>), or <c>null</c> to prompt interactively.</param>
         </member>
-        <member name="M:MelloSilveiraTools.Launcher.Steps.DatabaseInfrastructureStep.#ctor(Microsoft.Extensions.Logging.ILogger{MelloSilveiraTools.Launcher.Steps.DatabaseInfrastructureStep},System.Int32,System.Int32,System.String,System.String,System.Int32,System.Nullable{System.Boolean})">
+        <member name="M:MelloSilveiraTools.Launcher.Steps.DatabaseInfrastructureStep.#ctor(Microsoft.Extensions.Logging.ILogger{MelloSilveiraTools.Launcher.Steps.DatabaseInfrastructureStep},System.Int32,System.Int32,System.String,System.String,System.Nullable{System.Boolean})">
             <summary>
             Validates and bootstraps the database infrastructure following the exact precedence:
             Docker (start daemon + ensure containers) -&gt; local PostgreSQL (start + validate) -&gt; interactive or configured Docker installation.
@@ -173,8 +252,7 @@
             <param name="currentStepNumber">Current 1-based step index.</param>
             <param name="numberOfSteps">Total number of launcher steps.</param>
             <param name="repositoryRoot">Root directory of the repository.</param>
-            <param name="host">PostgreSQL target host.</param>
-            <param name="port">PostgreSQL target port.</param>
+            <param name="connectionString">Target PostgreSQL connection string used to extract host/port and probe protocol readiness.</param>
             <param name="allowDockerInstall">Optional override for automatic Docker installation (<c>true</c>/<c>false</c>), or <c>null</c> to prompt interactively.</param>
         </member>
         <member name="M:MelloSilveiraTools.Launcher.Steps.DatabaseInfrastructureStep.ExecuteAsync(System.Threading.CancellationToken)">
@@ -217,8 +295,9 @@
             <param name="logger">Logger for execution diagnostics.</param>
             <param name="repositoryRoot">Root directory containing <c>docker-compose.yml</c>.</param>
             <param name="options">Resolved launcher infrastructure options.</param>
+            <param name="secrets">Resolved runtime secrets passed to Docker Compose interpolation.</param>
         </member>
-        <member name="M:MelloSilveiraTools.Launcher.Steps.DockerComposeStep.#ctor(Microsoft.Extensions.Logging.ILogger{MelloSilveiraTools.Launcher.Steps.DockerComposeStep},System.String,MelloSilveiraTools.Launcher.Infrastructure.LauncherInfrastructureOptions)">
+        <member name="M:MelloSilveiraTools.Launcher.Steps.DockerComposeStep.#ctor(Microsoft.Extensions.Logging.ILogger{MelloSilveiraTools.Launcher.Steps.DockerComposeStep},System.String,MelloSilveiraTools.Launcher.Infrastructure.LauncherInfrastructureOptions,MelloSilveiraTools.Launcher.Infrastructure.LauncherRuntimeSecrets)">
             <summary>
             Builds and starts all self-contained Docker Compose services (<c>postgres</c>, <c>migrator</c>, and <c>webapi</c>)
             and waits for the Web API host to become healthy.
@@ -226,6 +305,7 @@
             <param name="logger">Logger for execution diagnostics.</param>
             <param name="repositoryRoot">Root directory containing <c>docker-compose.yml</c>.</param>
             <param name="options">Resolved launcher infrastructure options.</param>
+            <param name="secrets">Resolved runtime secrets passed to Docker Compose interpolation.</param>
         </member>
         <member name="M:MelloSilveiraTools.Launcher.Steps.DockerComposeStep.ExecuteAsync(System.Threading.CancellationToken)">
             <summary>
@@ -247,10 +327,11 @@
             <param name="numberOfSteps">Total number of launcher steps.</param>
             <param name="repositoryRoot">Root directory of the repository.</param>
             <param name="connectionString">PostgreSQL connection string passed to the host process.</param>
+            <param name="secrets">Resolved runtime secrets passed to the host process.</param>
             <param name="baseUrl">Base URL where the Web API host listens.</param>
             <param name="openBrowser">Whether to open the default browser automatically when ready.</param>
         </member>
-        <member name="M:MelloSilveiraTools.Launcher.Steps.WebApiHostStep.#ctor(Microsoft.Extensions.Logging.ILogger{MelloSilveiraTools.Launcher.Steps.WebApiHostStep},System.Int32,System.Int32,System.String,System.String,System.String,System.Boolean)">
+        <member name="M:MelloSilveiraTools.Launcher.Steps.WebApiHostStep.#ctor(Microsoft.Extensions.Logging.ILogger{MelloSilveiraTools.Launcher.Steps.WebApiHostStep},System.Int32,System.Int32,System.String,System.String,MelloSilveiraTools.Launcher.Infrastructure.LauncherRuntimeSecrets,System.String,System.Boolean)">
             <summary>
             Ensures <c>MelloSilveiraTools.WebApi.Host</c> (serving the API, Swagger, and Blazor WebAssembly UI)
             is published with ReadyToRun AOT enabled, running, healthy, and optionally opened in the user's default browser.
@@ -260,6 +341,7 @@
             <param name="numberOfSteps">Total number of launcher steps.</param>
             <param name="repositoryRoot">Root directory of the repository.</param>
             <param name="connectionString">PostgreSQL connection string passed to the host process.</param>
+            <param name="secrets">Resolved runtime secrets passed to the host process.</param>
             <param name="baseUrl">Base URL where the Web API host listens.</param>
             <param name="openBrowser">Whether to open the default browser automatically when ready.</param>
         </member>

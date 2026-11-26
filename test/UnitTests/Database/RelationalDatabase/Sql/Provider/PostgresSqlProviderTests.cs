@@ -34,15 +34,16 @@ public sealed class PostgresSqlProviderTests
     {
         string plainSql = _provider.GetInsertSql<ProductEntity>();
         Assert.Contains("INSERT INTO product", plainSql);
-        Assert.Contains("id, creation_timestamp, name, price", plainSql);
-        Assert.Contains("@Id, @CreationTimestamp, @Name, @Price", plainSql);
+        Assert.Contains("name, price", plainSql);
+        Assert.Contains("@Name, @Price", plainSql);
+        Assert.DoesNotContain("@Id", plainSql);
+        Assert.DoesNotContain("@CreationTimestamp", plainSql);
         Assert.Contains("RETURNING id", plainSql);
         Assert.DoesNotContain("ON CONFLICT", plainSql);
 
         string uniqueWithPayloadSql = _provider.GetInsertSql<CategoryEntity>();
         Assert.Contains("INSERT INTO category", uniqueWithPayloadSql);
         Assert.Contains("ON CONFLICT (code)", uniqueWithPayloadSql);
-        Assert.Contains("creation_timestamp = EXCLUDED.creation_timestamp", uniqueWithPayloadSql);
         Assert.Contains("description = EXCLUDED.description", uniqueWithPayloadSql);
 
         string uniqueOnlySql = _provider.GetInsertSql<UniqueOnlyEntity>();
@@ -50,7 +51,7 @@ public sealed class PostgresSqlProviderTests
         Assert.Contains("DO UPDATE SET code = EXCLUDED.code", uniqueOnlySql);
 
         string storedFileSql = _provider.GetInsertSql<StorageEntryMetadataEntity>();
-        Assert.Contains("INSERT INTO stored_files", storedFileSql);
+        Assert.Contains("INSERT INTO storage_entry_metadata", storedFileSql);
         Assert.Contains("external_identifier", storedFileSql);
         Assert.Contains("storage_provider", storedFileSql);
     }
@@ -62,18 +63,24 @@ public sealed class PostgresSqlProviderTests
 
         Assert.Contains("INSERT INTO category", sql);
         Assert.Contains("ON CONFLICT (code)", sql);
-        Assert.Contains("WHERE code = @Code", sql);
+        Assert.Contains("WHERE code IS NOT DISTINCT FROM @Code", sql);
         Assert.Contains("RETURNING", sql);
+
+        string noUniqueSql = _provider.GetTryInsertSql<StorageEntryMetadataEntity>();
+        Assert.Contains("INSERT INTO storage_entry_metadata", noUniqueSql);
+        Assert.DoesNotContain("ON CONFLICT", noUniqueSql);
+        Assert.Contains("RETURNING id, TRUE AS inserted;", noUniqueSql);
     }
 
     [Fact]
     public void GetBulkInsertSql_CoversSingleMultiUniqueWithAndWithoutPayloadAndCaching()
     {
         string batchTwoSql = _provider.GetBulkInsertSql<ProductEntity>(2);
-        Assert.Contains("@Id_1, @CreationTimestamp_1, @Name_1, @Price_1", batchTwoSql);
-        Assert.Contains("@Id_2, @CreationTimestamp_2, @Name_2, @Price_2", batchTwoSql);
-        Assert.DoesNotContain("@Id_0", batchTwoSql);
-        Assert.DoesNotContain("@Id_3", batchTwoSql);
+        Assert.Contains("@Name_1, @Price_1", batchTwoSql);
+        Assert.Contains("@Name_2, @Price_2", batchTwoSql);
+        Assert.DoesNotContain("@Id_1", batchTwoSql);
+        Assert.DoesNotContain("@Name_0", batchTwoSql);
+        Assert.DoesNotContain("@Name_3", batchTwoSql);
         Assert.DoesNotContain("ON CONFLICT", batchTwoSql);
 
         string uniqueBatchSql = _provider.GetBulkInsertSql<CategoryEntity>(1);

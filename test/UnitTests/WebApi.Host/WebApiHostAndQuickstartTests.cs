@@ -9,6 +9,7 @@ using MelloSilveiraTools.Core.Services.Encryption;
 using MelloSilveiraTools.Database.RelationalDatabase.Models.Entities;
 using MelloSilveiraTools.Database.RelationalDatabase.Models.Filters;
 using MelloSilveiraTools.Database.Repositories;
+using MelloSilveiraTools.Core.Security;
 using MelloSilveiraTools.Mathematics;
 using MelloSilveiraTools.MechanicsOfMaterials;
 using MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.TypeResolvers;
@@ -31,12 +32,15 @@ using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.ExperimentalData.Pip
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.ParametricSweep.Endpoints;
 using MelloSilveiraTools.MechanicsOfMaterials.Optimizations.SensitivityAnalyses.ParametricSweep.Pipelines.Entities;
 using MelloSilveiraTools.Plugins.Application.Endpoints;
+using MelloSilveiraTools.WebApi.Application.Commands.StorageEntryMetadata;
+using MelloSilveiraTools.WebApi.Application.Commands.StorageEntryMetadata.Read;
 using MelloSilveiraTools.WebApi.Application.Commands.Users.Login;
 using MelloSilveiraTools.WebApi.Application.Commands.Users.RefreshToken;
 using MelloSilveiraTools.WebApi.Application.Commands.Users.Register;
 using MelloSilveiraTools.WebApi.Application.Commands.Users.ValidateToken;
 using MelloSilveiraTools.WebApi.Application.Controllers;
 using MelloSilveiraTools.WebApi.Application.Endpoints;
+using MelloSilveiraTools.WebApi.Application.Middlewares;
 using MelloSilveiraTools.WebApi.Authentication;
 using MelloSilveiraTools.WebApi.Authentication.Services;
 using MelloSilveiraTools.WebApi.Host.Commands;
@@ -188,7 +192,7 @@ public class WebApiHostAndQuickstartTests
         Mock<IAuthenticationTokenService> tokenServiceMock = new();
         AuthController controller = new();
 
-        IActionResult actionResult = await controller.RefreshAsync(new RefreshAuthenticationTokenCommand(tokenServiceMock.Object), new RefreshTokenRequest { Token = "   " });
+        IActionResult actionResult = await controller.RefreshAsync(new RefreshAuthenticationTokenCommand(tokenServiceMock.Object, Mock.Of<IRepository>()), new RefreshTokenRequest { Token = "   " });
 
         JsonResult jsonResult = Assert.IsType<JsonResult>(actionResult);
         Assert.Equal(StatusCodes.Status400BadRequest, jsonResult.StatusCode);
@@ -199,10 +203,16 @@ public class WebApiHostAndQuickstartTests
     {
         AuthenticationToken refreshedToken = new("new-jwe-token", TimeProvider.System.GetUtcNow().AddHours(2));
         Mock<IAuthenticationTokenService> tokenServiceMock = new();
+        tokenServiceMock.Setup(s => s.GetValidatedSubjectAsync("old-jwe-token")).ReturnsAsync("42");
         tokenServiceMock.Setup(s => s.RefreshAsync("old-jwe-token")).ReturnsAsync(refreshedToken);
 
+        Mock<IRepository> repositoryMock = new();
+        repositoryMock
+            .Setup(r => r.GetAsync<UserEntity>(42L, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new UserEntity { Id = 42L, Username = "researcher", PasswordHash = "hash", IsActive = true });
+
         AuthController controller = new();
-        IActionResult actionResult = await controller.RefreshAsync(new RefreshAuthenticationTokenCommand(tokenServiceMock.Object), new RefreshTokenRequest { Token = "old-jwe-token" });
+        IActionResult actionResult = await controller.RefreshAsync(new RefreshAuthenticationTokenCommand(tokenServiceMock.Object, repositoryMock.Object), new RefreshTokenRequest { Token = "old-jwe-token" });
 
         JsonResult jsonResult = Assert.IsType<JsonResult>(actionResult);
         Assert.Equal(StatusCodes.Status200OK, jsonResult.StatusCode);
@@ -215,10 +225,10 @@ public class WebApiHostAndQuickstartTests
     public async Task AuthController_RefreshAsync_WhenTokenIsInvalid_ReturnsUnauthorized()
     {
         Mock<IAuthenticationTokenService> tokenServiceMock = new();
-        tokenServiceMock.Setup(s => s.RefreshAsync("bad-token")).ThrowsAsync(new SecurityTokenException("Expired"));
+        tokenServiceMock.Setup(s => s.GetValidatedSubjectAsync("bad-token")).ThrowsAsync(new SecurityTokenException("Expired"));
 
         AuthController controller = new();
-        IActionResult actionResult = await controller.RefreshAsync(new RefreshAuthenticationTokenCommand(tokenServiceMock.Object), new RefreshTokenRequest { Token = "bad-token" });
+        IActionResult actionResult = await controller.RefreshAsync(new RefreshAuthenticationTokenCommand(tokenServiceMock.Object, Mock.Of<IRepository>()), new RefreshTokenRequest { Token = "bad-token" });
 
         JsonResult jsonResult = Assert.IsType<JsonResult>(actionResult);
         Assert.Equal(StatusCodes.Status401Unauthorized, jsonResult.StatusCode);
@@ -387,21 +397,6 @@ public class WebApiHostAndQuickstartTests
     }
 
     [Fact]
-    public async Task SamplesController_GetSamples_ReturnsBundledAclSample()
-    {
-        SamplesController controller = new();
-        IActionResult actionResult = await controller.GetSamples(new GetSampleDatasetsCommand());
-
-        JsonResult jsonResult = Assert.IsType<JsonResult>(actionResult);
-        Assert.Equal(StatusCodes.Status200OK, jsonResult.StatusCode);
-        Result<List<SampleDatasetInfo>> payload =
-            Assert.IsType<Result<List<SampleDatasetInfo>>>(jsonResult.Value);
-        Assert.True(payload.Success);
-        Assert.NotNull(payload.Data);
-        Assert.NotEmpty(payload.Data);
-    }
-
-    [Fact]
     public void EntitiesAndFilters_ParameterlessConstructorsAndFilterProperties_AreValid()
     {
         MechanicalModelSimulationEntity simEntity = new();
@@ -499,9 +494,11 @@ public class WebApiHostAndQuickstartTests
 
         HostSettings? settings = configuration.Get<HostSettings>();
         Assert.NotNull(settings);
-        settings.Validate();
+        Result validationResult = settings.Validate();
+        Assert.True(validationResult.Success, validationResult.JoinedMessages);
 
         Assert.True(settings.AddMechanicalModels);
+        Assert.True(settings.UploadSampleDatasetsOnStartup);
         Assert.Equal(3, settings.DefaultResiliencePipeline.MaxRetryAttempts);
         Assert.Equal(100_000, settings.Encryption.Iterations);
         Assert.Equal(StorageProvider.Local, settings.FileStorage.DefaultStorageProvider);
@@ -514,11 +511,13 @@ public class WebApiHostAndQuickstartTests
         Assert.Equal(256, settings.ParametricSweep.IngestionBufferCapacity);
         Assert.Equal(512, settings.PipelineProgressNotifier.ChannelCapacity);
         Assert.Equal("MelloSilveiraTools.WebApi.Host", settings.Jwt.Issuer);
+        Assert.Equal("admin", settings.Superuser.Username);
+        Assert.Equal("SuperuserQuickstart2026!", settings.Superuser.Password);
         Assert.Equal("plugins", settings.Plugins.Directory);
     }
 
     [Fact]
-    public void WebApiHost_Settings_Validate_ThrowsWhenSecretsAreMissing()
+    public void WebApiHost_Settings_Validate_ReturnsFailureResultWhenSecretsAreMissing()
     {
         string hostDir = Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", "..", "src", "MelloSilveiraTools.WebApi.Host"));
         IConfigurationRoot configuration = new ConfigurationBuilder()
@@ -527,7 +526,11 @@ public class WebApiHostAndQuickstartTests
 
         HostSettings? settings = configuration.Get<HostSettings>();
         Assert.NotNull(settings);
-        Assert.Throws<InvalidOperationException>(() => settings.Validate());
+
+        Result validationResult = settings.Validate();
+        Assert.False(validationResult.Success);
+        Assert.Equal(MelloSilveiraTools.Core.Models.StatusCode.BadRequest, validationResult.StatusCode);
+        Assert.NotEmpty(validationResult.Messages);
     }
 
     [Fact]
@@ -579,13 +582,15 @@ public class WebApiHostAndQuickstartTests
         WebApplicationBuilder builder = WebApplication.CreateBuilder();
         using WebApplication app = builder.Build();
 
+        app.MapHealthEndpoint();
         app.MapAuthEndpoints();
         app.MapStorageEntryMetadataEndpoints();
         app.MapSamplesEndpoints();
         app.MapExperimentalDataEndpoints();
         app.MapParametricSweepEndpoints();
         app.MapPipelineProgressEndpoints();
-        app.MapPluginEndpoints("/api/v1/plugins");
+        app.MapOptimizationsCrudEndpoints();
+        app.MapPluginEndpoints();
         app.MapMechanicsOfMaterialsEndpoints();
 
         List<string> routes = ((IEndpointRouteBuilder)app).DataSources
@@ -594,10 +599,12 @@ public class WebApiHostAndQuickstartTests
             .Select(endpoint => endpoint.RoutePattern.RawText ?? string.Empty)
             .ToList();
 
+        Assert.Contains("/health", routes);
         Assert.Contains("/api/v1/auth/register", routes);
         Assert.Contains("/api/v1/auth/login", routes);
         Assert.Contains("/api/v1/auth/refresh", routes);
         Assert.Contains("/api/v1/auth/validate", routes);
+        Assert.Contains("/api/v1/auth/me", routes);
         Assert.Contains("/api/v1/storage-entry-metadata/{fileId:long}/download", routes);
         Assert.Contains("/api/v1/samples/", routes);
         Assert.Contains("/api/v1/experimental-data/upload", routes);
@@ -606,6 +613,10 @@ public class WebApiHostAndQuickstartTests
         Assert.Contains("/api/v1/parametric-sweeps/process", routes);
         Assert.Contains("/api/v1/parametric-sweeps/process/experimental-data", routes);
         Assert.Contains("/api/v1/pipelines/{pipelineId}/progress", routes);
+        Assert.Contains("/api/v1/curve-fit-outputs/", routes);
+        Assert.Contains("/api/v1/mechanical-model-simulations/", routes);
+        Assert.Contains("/api/v1/parametric-sweeps/", routes);
+        Assert.Contains("/api/v1/plugins/submissions", routes);
         Assert.Contains("/api/v1/plugins/upload", routes);
         Assert.Contains("/api/v1/mechanics/models", routes);
         Assert.Contains("/api/v1/mechanics/specimen-analysis/execute", routes);
@@ -614,7 +625,7 @@ public class WebApiHostAndQuickstartTests
     }
 
     [Fact]
-    public async Task ExecuteSpecimenAnalysisCommand_WithElasticModel_StreamsCsvAndDeletesFileAfterDownload()
+    public async Task ExecuteSpecimenAnalysisCommand_WithElasticModel_PersistsMetadataAndReturnsDeltaOutput()
     {
         MemoryStream captureStream = new();
         Mock<IFileStorageService> storageMock = new();
@@ -627,11 +638,13 @@ public class WebApiHostAndQuickstartTests
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync(() => ((Stream)captureStream, "/storage/spec-1/Elastic/Disregard.csv"));
         storageMock
-            .Setup(s => s.OpenReadAsync("/storage/spec-1/Elastic/Disregard.csv", It.IsAny<CancellationToken>()))
-            .ReturnsAsync(() => new MemoryStream(captureStream.ToArray()));
-        storageMock
-            .Setup(s => s.DeleteAsync("/storage/spec-1/Elastic/Disregard.csv", It.IsAny<CancellationToken>()))
-            .ReturnsAsync(true);
+            .Setup(s => s.GetMetadataAsync("/storage/spec-1/Elastic/Disregard.csv", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new StorageEntryMetadata(StorageProvider.Local, "/storage/spec-1/Elastic/Disregard.csv", "/storage/spec-1/Elastic", "Disregard.csv", 128, DateTimeOffset.UtcNow));
+
+        Mock<IRepository> repoMock = new();
+        repoMock
+            .Setup(r => r.InsertAsync(It.IsAny<StorageEntryMetadataEntity>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(77L);
 
         ServiceCollection services = new();
         services.AddLogging();
@@ -639,6 +652,7 @@ public class WebApiHostAndQuickstartTests
         services.AddSingleton<IDynamicServiceProvider, InMemoryDynamicServiceProvider>();
         services.AddSingleton<ServiceLocator>();
         services.AddSingleton(storageMock.Object);
+        services.AddSingleton(repoMock.Object);
         services.AddMathematicsServices();
         services.AddMechanicsOfMaterialsServices(addMechanicalModels: true);
 
@@ -665,22 +679,18 @@ public class WebApiHostAndQuickstartTests
             ConstitutiveParameters = constitutiveJson.RootElement.Clone()
         };
 
-        FileStreamResult fileResult = Assert.IsType<FileStreamResult>(await controller.ExecuteSpecimenAnalysisAsync(command, request));
-        Assert.Equal("text/csv", fileResult.ContentType);
-        Assert.Equal("Disregard.csv", fileResult.FileDownloadName);
+        JsonResult jsonResult = Assert.IsType<JsonResult>(await controller.ExecuteSpecimenAnalysisAsync(command, request));
+        Assert.Equal(StatusCodes.Status200OK, jsonResult.StatusCode);
 
-        using (StreamReader reader = new(fileResult.FileStream, Encoding.UTF8, leaveOpen: true))
-        {
-            string csvText = await reader.ReadToEndAsync();
-            Assert.Contains("Time", csvText);
-            Assert.True(csvText.Split('\n', StringSplitOptions.RemoveEmptyEntries).Length >= 4);
-        }
+        Result<ExecuteSpecimenAnalysisResultData> payload = Assert.IsType<Result<ExecuteSpecimenAnalysisResultData>>(jsonResult.Value);
+        Assert.True(payload.Success);
+        Assert.NotNull(payload.Data);
+        Assert.Equal(77L, payload.Data.OutputMetadataEntityId);
+        Assert.NotNull(payload.Data.DeltaOutput);
 
-        storageMock.Verify(s => s.DeleteAsync("/storage/spec-1/Elastic/Disregard.csv", It.IsAny<CancellationToken>()), Times.Never);
-
-        await fileResult.FileStream.DisposeAsync();
-
-        storageMock.Verify(s => s.DeleteAsync("/storage/spec-1/Elastic/Disregard.csv", It.IsAny<CancellationToken>()), Times.Once);
+        string csvText = Encoding.UTF8.GetString(captureStream.ToArray());
+        Assert.Contains("Time", csvText);
+        Assert.True(csvText.Split('\n', StringSplitOptions.RemoveEmptyEntries).Length >= 4);
     }
 
     [Fact]
@@ -692,6 +702,7 @@ public class WebApiHostAndQuickstartTests
         services.AddSingleton<IDynamicServiceProvider, InMemoryDynamicServiceProvider>();
         services.AddSingleton<ServiceLocator>();
         services.AddSingleton(Mock.Of<IFileStorageService>());
+        services.AddSingleton(Mock.Of<IRepository>());
         services.AddMathematicsServices();
         services.AddMechanicsOfMaterialsServices(addMechanicalModels: true);
 
@@ -718,5 +729,175 @@ public class WebApiHostAndQuickstartTests
         Result<ExecuteSpecimenAnalysisResultData> result = await command.ExecuteAsync(request);
         Assert.False(result.Success);
         Assert.Equal(MelloSilveiraTools.Core.Models.StatusCode.NotFound, result.StatusCode);
+    }
+
+    [Fact]
+    public async Task SamplesController_GetSamples_ReturnsStoredSampleEntries()
+    {
+        StorageEntryMetadataEntity storedEntity = new()
+        {
+            Id = 42,
+            ExternalIdentifier = GetSampleDatasetsCommand.SampleIdentifier,
+            StorageProvider = StorageProvider.Local,
+            Location = "/storage/strain/SamplesData/strain.csv",
+            Directory = "/storage/strain/SamplesData",
+            FileName = "strain.csv",
+            SizeBytes = 256,
+            ContentType = "text/csv"
+        };
+
+        Mock<IRepository> repoMock = new();
+        repoMock
+            .Setup(r => r.GetAsync<StorageEntryMetadataEntity, StorageEntryMetadataFilter>(
+                It.Is<StorageEntryMetadataFilter>(f => f.Context == GetSampleDatasetsCommand.SampleContext && f.Identifier == GetSampleDatasetsCommand.SampleIdentifier),
+                It.IsAny<Pagination?>(),
+                It.IsAny<CancellationToken>()))
+            .Returns(ToAsyncEnumerable(storedEntity));
+
+        Mock<IFileStorageService> storageMock = new();
+        storageMock
+            .Setup(s => s.GetMetadataAsync(storedEntity.Location, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new StorageEntryMetadata(StorageProvider.Local, storedEntity.Location, storedEntity.Directory, storedEntity.FileName!, storedEntity.SizeBytes, DateTimeOffset.UtcNow));
+
+        ServiceCollection services = new();
+        services.AddSingleton<IDynamicServiceProvider, InMemoryDynamicServiceProvider>();
+        services.AddSingleton<ServiceLocator>();
+        services.AddSingleton(storageMock.Object);
+        using ServiceProvider provider = services.BuildServiceProvider();
+
+        ReadStorageEntriesCommand readCommand = new(repoMock.Object, provider.GetRequiredService<ServiceLocator>());
+        GetSampleDatasetsCommand command = new(readCommand);
+        SamplesController controller = new();
+
+        JsonResult result = Assert.IsType<JsonResult>(await controller.GetSamples(command));
+        Assert.Equal(StatusCodes.Status200OK, result.StatusCode);
+
+        ListedResult<StorageEntryResultData> payload = Assert.IsType<ListedResult<StorageEntryResultData>>(result.Value);
+        Assert.True(payload.Success);
+        Assert.NotNull(payload.Data);
+        StorageEntryResultData item = Assert.Single(payload.Data);
+        Assert.Equal(42L, item.EntityId);
+        Assert.Equal("strain.csv", item.Metadata.FileName);
+    }
+
+    [Fact]
+    public async Task SuperuserAuth_JweTokenCarriesOnlySubject_AndMiddlewareResolvesLivePrivilegesFromDatabase()
+    {
+        JwtSettings jwtSettings = new()
+        {
+            Issuer = "MelloSilveiraTools.Tests",
+            Audience = "MelloSilveiraTools.Tests",
+            EncryptionKey = "MelloSilveiraToolsQuickstartKey!",
+            SigningKey = "MelloSilveiraToolsSigningKey2026!!",
+            ClockSkewInSeconds = 30,
+            SecurityKeyType = SecurityKeyType.Symmetric,
+            TokenExperitationTimeInMinutes = 60
+        };
+
+        AuthenticationJweTokenService tokenService = new(TimeProvider.System, jwtSettings);
+        AuthenticationToken token = tokenService.Generate(1L);
+        AuthenticationToken refreshedToken = await tokenService.RefreshAsync(token.Value);
+
+        Microsoft.IdentityModel.JsonWebTokens.JsonWebTokenHandler handler = new();
+        TokenValidationResult validation = await handler.ValidateTokenAsync(
+            refreshedToken.Value,
+            AuthenticationJweTokenService.BuildTokenValidationParameters(jwtSettings));
+
+        Assert.True(validation.IsValid);
+        System.Security.Claims.ClaimsPrincipal principal = new(validation.ClaimsIdentity);
+        // Zero privilege claims embedded inside the JWE token.
+        Assert.DoesNotContain(principal.Claims, c => string.Equals(c.Type, "is_superuser", StringComparison.OrdinalIgnoreCase));
+
+        Mock<IRepository> repoMock = new();
+        repoMock
+            .Setup(r => r.GetAsync<UserEntity>(1L, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new UserEntity { Id = 1L, Username = "admin", PasswordHash = "hash", IsActive = true, IsSuperuser = true });
+
+        CurrentUserProvider currentUserProvider = new();
+        long? capturedUserId = null;
+        bool capturedIsSuperuser = false;
+        UserContextMiddleware middleware = new(_ =>
+        {
+            capturedUserId = currentUserProvider.GetCurrentUserId();
+            capturedIsSuperuser = currentUserProvider.IsSuperuser();
+            return Task.CompletedTask;
+        });
+
+        DefaultHttpContext httpContext = new() { User = principal };
+        await middleware.InvokeAsync(httpContext, currentUserProvider, repoMock.Object);
+
+        Assert.Equal(1L, capturedUserId);
+        Assert.True(capturedIsSuperuser);
+        Assert.Null(currentUserProvider.GetCurrentUserId());
+        Assert.False(currentUserProvider.IsSuperuser());
+    }
+
+    [Fact]
+    public void WebUiAndHost_AuthAndPolymorphicContracts_RoundTripCleanly()
+    {
+        AuthenticationToken serverToken = new("encrypted-jwe-value", TimeProvider.System.GetUtcNow().AddHours(1));
+        string tokenJson = JsonSerializer.Serialize(Result.CreateSuccessOk(serverToken), _serverJsonOptions);
+        ApiResultDto<AuthTokenDto>? clientToken = JsonSerializer.Deserialize<ApiResultDto<AuthTokenDto>>(tokenJson, _serverJsonOptions);
+        Assert.NotNull(clientToken?.Data);
+        Assert.Equal("encrypted-jwe-value", clientToken.Data.Value);
+
+        CurrentUserInfo serverUser = new(7L, "admin", IsSuperuser: true);
+        string userJson = JsonSerializer.Serialize(Result.CreateSuccessOk(serverUser), _serverJsonOptions);
+        ApiResultDto<CurrentUserInfoDto>? clientUser = JsonSerializer.Deserialize<ApiResultDto<CurrentUserInfoDto>>(userJson, _serverJsonOptions);
+        Assert.NotNull(clientUser?.Data);
+        Assert.Equal("admin", clientUser.Data.Username);
+        Assert.True(clientUser.Data.IsSuperuser);
+
+        FatigueInputDto fatigueRequest = new()
+        {
+            MinimumAppliedStress = -50.0,
+            MaximumAppliedStress = 150.0,
+            TensileStress = 700.0,
+            FatigueLimit = 350.0,
+            FatigueLimitFraction = 0.85,
+            IsRotativeSection = true,
+            Reliability = "NinetyNine",
+            SurfaceFinish = "Machined",
+            LoadingType = "Bending",
+            Temperature = 25.0,
+            Profile = new FatigueProfileDto { Type = "Circular", Diameter = 25.0 }
+        };
+
+        string fatigueJson = JsonSerializer.Serialize(fatigueRequest, _serverJsonOptions);
+        MelloSilveiraTools.MechanicsOfMaterials.Models.Fatigue.FatigueInput? serverFatigue =
+            JsonSerializer.Deserialize<MelloSilveiraTools.MechanicsOfMaterials.Models.Fatigue.FatigueInput>(fatigueJson, _serverJsonOptions);
+        Assert.NotNull(serverFatigue);
+        MelloSilveiraTools.MechanicsOfMaterials.Models.Profiles.CircularProfile circular =
+            Assert.IsType<MelloSilveiraTools.MechanicsOfMaterials.Models.Profiles.CircularProfile>(serverFatigue.Profile);
+        Assert.Equal(25.0, circular.Diameter, precision: 6);
+
+        string baselineJson = """{"$type":"Elastic","youngModulus":123.5}""";
+        ConstitutiveParameters? parsedBaseline = JsonSerializer.Deserialize<ConstitutiveParameters>(baselineJson, _serverJsonOptions);
+        ElasticConstitutiveParameters elastic = Assert.IsType<ElasticConstitutiveParameters>(parsedBaseline);
+        Assert.Equal(123.5, elastic.YoungModulus, precision: 6);
+    }
+
+    [Fact]
+    public void LauncherRuntimeSecrets_ResolveOrCreate_ProducesValidNonPlaceholderSecrets()
+    {
+        MelloSilveiraTools.Launcher.Infrastructure.LauncherRuntimeSecrets secrets =
+            MelloSilveiraTools.Launcher.Infrastructure.LauncherRuntimeSecrets.ResolveOrCreate();
+
+        Assert.Equal(32, Encoding.UTF8.GetByteCount(secrets.JwtEncryptionKey));
+        Assert.False(string.IsNullOrWhiteSpace(secrets.JwtSigningKey));
+        Assert.True(secrets.SuperuserPassword.Length >= 8);
+        Assert.NotEqual("MelloSilveiraToolsQuickstartKey!", secrets.JwtEncryptionKey);
+        Assert.NotEqual("MelloSilveiraToolsSigningKey2026!!", secrets.JwtSigningKey);
+        Assert.NotEqual("SuperuserQuickstart2026!", secrets.SuperuserPassword);
+    }
+
+    private static async IAsyncEnumerable<T> ToAsyncEnumerable<T>(params T[] items)
+    {
+        foreach (T item in items)
+        {
+            yield return item;
+        }
+
+        await Task.CompletedTask;
     }
 }

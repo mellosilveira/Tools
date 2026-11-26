@@ -63,7 +63,9 @@ public sealed class PluginPhysicalDiskLifecycleAcceptanceTests : IAsyncLifetime
                 Directory = "plugins",
                 PollInterval = TimeSpan.FromMinutes(5),
                 PreviousVersionRetention = TimeSpan.FromMinutes(30),
-                DefaultCacheTarget = PluginCacheTargets.File
+                DefaultCacheTarget = PluginCacheTargets.File,
+                MaxPluginSizeBytes = 10L * 1024 * 1024,
+                MaxPendingSubmissionsPerUser = 5
             });
 
         _serviceProvider = services.BuildServiceProvider();
@@ -85,6 +87,7 @@ public sealed class PluginPhysicalDiskLifecycleAcceptanceTests : IAsyncLifetime
         string loadedFilePath = Path.Combine(_tempBasePath, "plugins", PluginStoragePartitions.Loaded, fileName);
 
         using IServiceScope scope = _serviceProvider.CreateScope();
+        MelloSilveiraTools.Core.Security.ICurrentUserProvider currentUser = scope.ServiceProvider.GetRequiredService<MelloSilveiraTools.Core.Security.ICurrentUserProvider>();
         UploadPlugin uploadCommand = scope.ServiceProvider.GetRequiredService<UploadPlugin>();
         IPluginService pluginService = scope.ServiceProvider.GetRequiredService<IPluginService>();
         PluginCache pluginCache = scope.ServiceProvider.GetRequiredService<PluginCache>();
@@ -92,12 +95,16 @@ public sealed class PluginPhysicalDiskLifecycleAcceptanceTests : IAsyncLifetime
         FormFile formFile = new(new MemoryStream(assemblyBytes), 0, assemblyBytes.Length, "file", fileName);
         UploadPluginRequest uploadRequest = new() { File = formFile };
 
-        // Act 1: Upload to physical disk incoming partition
-        Result<StorageEntryMetadata> uploadResult = await uploadCommand.ExecuteAsync(uploadRequest);
+        // Act 1: Superuser upload auto-approves directly into physical disk incoming/ partition
+        Result<PluginInfo> uploadResult;
+        using (currentUser.BeginScope(1L, isSuperuser: true))
+            uploadResult = await uploadCommand.ExecuteAsync(uploadRequest);
 
         // Assert 1: File written physically into incoming/
         Assert.True(uploadResult.Success, uploadResult.JoinedMessages);
         Assert.NotNull(uploadResult.Data);
+        Assert.Equal(PluginSubmissionStatus.Approved, uploadResult.Data.Status);
+        Assert.False(string.IsNullOrWhiteSpace(uploadResult.Data.Sha256Hash));
         Assert.True(File.Exists(incomingFilePath), $"Expected uploaded plugin DLL on disk at '{incomingFilePath}'.");
         Assert.Equal(assemblyBytes.Length, new FileInfo(incomingFilePath).Length);
 
@@ -211,7 +218,7 @@ public sealed class PluginPhysicalDiskLifecycleAcceptanceTests : IAsyncLifetime
         FormFile corruptedFormFile = new(new MemoryStream(corruptedBytes), 0, corruptedBytes.Length, "file", corruptedFileName);
 
         // Act 1: UploadPlugin rejects corrupted PE binary
-        Result<StorageEntryMetadata> uploadResult = await uploadCommand.ExecuteAsync(new UploadPluginRequest { File = corruptedFormFile });
+        Result<PluginInfo> uploadResult = await uploadCommand.ExecuteAsync(new UploadPluginRequest { File = corruptedFormFile });
 
         // Assert 1: Rejected and not written to disk
         Assert.False(uploadResult.Success);

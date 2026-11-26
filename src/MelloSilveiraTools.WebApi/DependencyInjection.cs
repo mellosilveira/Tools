@@ -1,6 +1,6 @@
 using MelloSilveiraTools.Core.ResiliencePipelines;
+using MelloSilveiraTools.Core.Security;
 using MelloSilveiraTools.Core.Validators;
-using MelloSilveiraTools.Database.Security;
 using MelloSilveiraTools.WebApi.Application.Commands.Crud.Add;
 using MelloSilveiraTools.WebApi.Application.Commands.Crud.Delete;
 using MelloSilveiraTools.WebApi.Application.Commands.Crud.Read;
@@ -19,6 +19,7 @@ using MelloSilveiraTools.WebApi.Authentication;
 using MelloSilveiraTools.WebApi.Authentication.Services;
 using MelloSilveiraTools.WebApi.Infrastructure.ResiliencePipelines;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -53,13 +54,12 @@ public static class WebApiDependencyInjection
         .AddSingleton<IValidator<UpdateStorageEntryFileRequest>, UpdateStorageEntryFileValidator>()
         .AddSingleton<AddStorageEntryCommand>()
         .AddSingleton<DeleteStorageEntryCommand>()
-        .AddSingleton<DownloadStoredFileCommand>()
+        .AddSingleton<DownloadStorageEntryCommand>()
         .AddSingleton<ReadStorageEntriesCommand>()
         .AddSingleton<UpdateStorageEntryFileCommand>();
 
     /// <summary>
-    /// Registers JWE authentication, authentication commands, and ensures <see cref="ICurrentUserProvider"/>
-    /// is registered for PostgreSQL Row-Level Security (RLS) propagation.
+    /// Registers JWE authentication, authentication commands, and the database-backed <see cref="AuthorizationPolicies.SuperuserOnly"/> authorization policy.
     /// </summary>
     /// <param name="services">Service collection that receives the registrations.</param>
     /// <param name="jwtSettings">Settings used to build and validate JWT tokens.</param>
@@ -68,6 +68,7 @@ public static class WebApiDependencyInjection
     {
         services
             .AddSingleton(jwtSettings)
+            .AddSingleton<IAuthorizationHandler, SuperuserAuthorizationHandler>()
             .AddScoped<IAuthenticationTokenService, AuthenticationJweTokenService>()
             .AddScoped<LoginCommand>()
             .AddScoped<RefreshAuthenticationTokenCommand>()
@@ -86,6 +87,12 @@ public static class WebApiDependencyInjection
                 options.SaveToken = true;
                 options.TokenValidationParameters = AuthenticationJweTokenService.BuildTokenValidationParameters(jwtSettings);
             });
+
+        services
+            .AddAuthorizationBuilder()
+            .AddPolicy(AuthorizationPolicies.SuperuserOnly, policy => policy
+                .RequireAuthenticatedUser()
+                .AddRequirements(new SuperuserRequirement()));
 
         return services;
     }
@@ -137,7 +144,7 @@ public static class WebApiDependencyInjection
         .UseSwaggerUI(c =>
         {
             (string assemblyTitle, _, _) = GetAssemblyAttributes();
-            c.SwaggerEndpoint($"/swagger/{assemblyTitle}/swagger.json", $"{assemblyTitle} API");
+            c.SwaggerEndpoint($"/swagger/{Uri.EscapeDataString(assemblyTitle)}/swagger.json", $"{assemblyTitle} API");
             c.EnableValidator(null);
         });
 

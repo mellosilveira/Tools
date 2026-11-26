@@ -15,6 +15,7 @@ using MelloSilveiraTools.Core.Pipelines.Notifiers;
 using MelloSilveiraTools.Core.Providers;
 using MelloSilveiraTools.Core.Providers.Dynamics;
 using MelloSilveiraTools.Core.ResiliencePipelines;
+using MelloSilveiraTools.Core.Security;
 using MelloSilveiraTools.Core.Services.Email;
 using MelloSilveiraTools.Core.Services.Encryption;
 using Microsoft.Extensions.DependencyInjection;
@@ -50,10 +51,6 @@ public static class CoreDependencyInjection
             LoggerSettings? loggerSettings = null,
             PipelineProgressNotifierSettings? pipelineProgressNotifierSettings = null)
         {
-            services
-                .AddSingleton(TimeProvider.System)
-                .AddSingleton<PipelineFactory>();
-
             if (pipelineProgressNotifierSettings is not null)
             {
                 services
@@ -70,7 +67,7 @@ public static class CoreDependencyInjection
             {
                 services
                     .AddSingleton(encryptionSettings)
-                    .AddScoped<IEncryptionService, EncryptionService>();
+                    .AddSingleton<IEncryptionService, EncryptionService>();
             }
 
             if (emailSettings is not null)
@@ -84,9 +81,11 @@ public static class CoreDependencyInjection
             LocalFileStorageSettings tempLocalFileStorageSettings = new() { BaseDirectory = Path.Combine(Path.GetTempPath(), "storage") };
             if (fileStorageSettings is not null)
             {
-                services.AddKeyedSingleton<IFileStorageService>(
-                    StorageProvider.Local,
-                    (provider, _) => new LocalFileStorageService(provider.GetRequiredService<TimeProvider>(), fileStorageSettings.Local ?? tempLocalFileStorageSettings));
+                services
+                    .AddSingleton(provider => provider.GetRequiredKeyedService<IFileStorageService>(fileStorageSettings.DefaultStorageProvider))
+                    .AddKeyedSingleton<IFileStorageService>(
+                        StorageProvider.Local,
+                        (provider, _) => new LocalFileStorageService(provider.GetRequiredService<TimeProvider>(), fileStorageSettings.Local ?? tempLocalFileStorageSettings));
 
                 if (fileStorageSettings.BlobStorage is not null)
                     services
@@ -96,10 +95,10 @@ public static class CoreDependencyInjection
                             (provider, _) => new BlobStorageFileStorageService(
                                 provider.GetRequiredService<ILogger<BlobStorageFileStorageService>>(),
                                 provider.GetRequiredKeyedService<IFileStorageService>(StorageProvider.Local),
+                                provider.GetRequiredService<TimeProvider>(),
                                 CreateBlobContainerClient(fileStorageSettings.BlobStorage),
                                 fileStorageSettings.BlobStorage,
-                                provider.GetRequiredService<BlobStorageResiliencePipeline>(),
-                                provider.GetRequiredService<TimeProvider>()));
+                                provider.GetRequiredService<BlobStorageResiliencePipeline>()));
 
                 if (fileStorageSettings.Dfs is not null)
                 {
@@ -118,9 +117,9 @@ public static class CoreDependencyInjection
                                 provider.GetRequiredService<ILogger<AwsS3FileStorageService>>(),
                                 provider.GetRequiredKeyedService<IFileStorageService>(StorageProvider.Local),
                                 CreateClient(fileStorageSettings.AwsS3),
+                                provider.GetRequiredService<TimeProvider>(),
                                 fileStorageSettings.AwsS3,
-                                provider.GetRequiredService<AwsS3ResiliencePipeline>(),
-                                provider.GetRequiredService<TimeProvider>()));
+                                provider.GetRequiredService<AwsS3ResiliencePipeline>()));
             }
             else
             {
@@ -131,6 +130,9 @@ public static class CoreDependencyInjection
 
             return services
                 .AddCoreLogging(loggerSettings)
+                .AddSingleton(TimeProvider.System)
+                .AddSingleton<ICurrentUserProvider, CurrentUserProvider>()
+                .AddSingleton<PipelineFactory>()
                 // Register caching pipelines.
                 .AddSingleton<ISingleLevelCache, InMemorySingleLevelCache>()
                 .AddSingleton<ITwoLevelCache, InMemoryTwoLevelCache>()

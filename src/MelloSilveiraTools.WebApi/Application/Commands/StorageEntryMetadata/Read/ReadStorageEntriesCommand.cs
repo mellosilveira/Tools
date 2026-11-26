@@ -37,8 +37,15 @@ public sealed class ReadStorageEntriesCommand(
         List<StorageEntryResultData> resultData = [];
         await foreach (StorageEntryMetadataEntity entity in repository.GetAsync<StorageEntryMetadataEntity, StorageEntryMetadataFilter>(filter, cancellationToken: cancellationToken))
         {
-            Core.Files.Models.StorageEntryMetadata metadata = await fileStorageService.GetMetadataAsync(entity.Location, cancellationToken).ConfigureAwait(false);
-            resultData.Add(new StorageEntryResultData(entity.Id, metadata));
+            try
+            {
+                Core.Files.Models.StorageEntryMetadata metadata = await fileStorageService.GetMetadataAsync(entity.Location, cancellationToken).ConfigureAwait(false);
+                resultData.Add(new StorageEntryResultData(entity.Id, metadata));
+            }
+            catch (Exception ex) when (ex is FileNotFoundException or DirectoryNotFoundException)
+            {
+                // Skip database entries whose physical file does not exist on the current host/container storage.
+            }
         }
 
         return resultData;

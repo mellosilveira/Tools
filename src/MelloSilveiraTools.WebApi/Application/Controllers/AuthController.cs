@@ -1,5 +1,8 @@
 using MelloSilveiraTools.Core.ExtensionMethods;
 using MelloSilveiraTools.Core.Models;
+using MelloSilveiraTools.Core.Security;
+using MelloSilveiraTools.Database.RelationalDatabase.Models.Entities;
+using MelloSilveiraTools.Database.Repositories;
 using MelloSilveiraTools.WebApi.Application.Commands.Users.Login;
 using MelloSilveiraTools.WebApi.Application.Commands.Users.RefreshToken;
 using MelloSilveiraTools.WebApi.Application.Commands.Users.Register;
@@ -89,4 +92,30 @@ public class AuthController : ControllerBase
         [FromBody] ValidateTokenRequest request,
         CancellationToken cancellationToken = default)
         => await command.ExecuteAsync(request, cancellationToken).BuildHttpResponseAsync().ConfigureAwait(false);
+
+    /// <summary>
+    /// Returns the authenticated user's profile and live superuser status.
+    /// </summary>
+    /// <param name="currentUserProvider">Provider holding the authenticated caller's context.</param>
+    /// <param name="repository">Repository querying <see cref="UserEntity"/> records.</param>
+    /// <param name="cancellationToken">Cancellation token.</param>
+    /// <returns>A <see cref="CurrentUserInfo"/> wrapped in <see cref="Result{T}"/>.</returns>
+    [Authorize]
+    [HttpGet("me")]
+    [ProducesResponseType(typeof(Result<CurrentUserInfo>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(Result), StatusCodes.Status401Unauthorized)]
+    public async Task<IActionResult> MeAsync(
+        [FromServices] ICurrentUserProvider currentUserProvider,
+        [FromServices] IRepository repository,
+        CancellationToken cancellationToken = default)
+    {
+        long? userId = currentUserProvider.GetCurrentUserId();
+        if (userId is null)
+            return Result.CreateUnauthorized("Authentication required.").BuildHttpResponse();
+
+        UserEntity? user = await repository.GetAsync<UserEntity>(userId.Value, cancellationToken).ConfigureAwait(false);
+        return user is null || !user.IsActive
+            ? Result.CreateUnauthorized("User account not found or inactive.").BuildHttpResponse()
+            : Result.CreateSuccessOk(new CurrentUserInfo(user.Id, user.Username, user.IsSuperuser)).BuildHttpResponse();
+    }
 }

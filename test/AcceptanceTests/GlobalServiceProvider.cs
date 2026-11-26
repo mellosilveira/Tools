@@ -76,7 +76,9 @@ public static class GlobalServiceProvider
                 Directory = pluginsDir,
                 DefaultCacheTarget = PluginCacheTargets.File,
                 PollInterval = TimeSpan.FromSeconds(30),
-                PreviousVersionRetention = TimeSpan.FromHours(24)
+                PreviousVersionRetention = TimeSpan.FromHours(24),
+                MaxPluginSizeBytes = 10L * 1024 * 1024,
+                MaxPendingSubmissionsPerUser = 5
             },
             fileStorageSettings: new FileStorageSettings
             {

@@ -11,22 +11,22 @@ public sealed class UploadExperimentalDataValidator(ExperimentalDataSettings exp
     : IValidator<UploadExperimentalDataRequest>
 {
     /// <inheritdoc/>
-    public Result Validate(UploadExperimentalDataRequest value)
+    public ValueTask<Result> ValidateAsync(UploadExperimentalDataRequest value, CancellationToken cancellationToken = default)
     {
         if (value.StrainFile is null || value.StressFile is null)
-            return Result.CreateBadRequest("Both 'strainFile' and 'stressFile' must be provided.");
+            return ValueTask.FromResult(Result.CreateBadRequest("Both 'strainFile' and 'stressFile' must be provided."));
 
         if (value.StrainFile.Length <= 0 || value.StressFile.Length <= 0)
-            return Result.CreateBadRequest("Uploaded CSV files cannot be empty.");
+            return ValueTask.FromResult(Result.CreateBadRequest("Uploaded CSV files cannot be empty."));
 
         long maxBytes = experimentalDataSettings.MaxCsvSizeBytes;
         if (maxBytes > 0 && (value.StrainFile.Length > maxBytes || value.StressFile.Length > maxBytes))
-            return Result.CreateBadRequest($"Each uploaded CSV file must not exceed {maxBytes / (1024 * 1024)} MB.");
+            return ValueTask.FromResult(Result.CreateBadRequest($"Each uploaded CSV file must not exceed {maxBytes / (1024 * 1024)} MB."));
 
         if (!value.StrainFile.FileName.EndsWith(".csv", StringComparison.OrdinalIgnoreCase)
             || !value.StressFile.FileName.EndsWith(".csv", StringComparison.OrdinalIgnoreCase))
-            return Result.CreateBadRequest("Only '.csv' files are supported.");
+            return ValueTask.FromResult(Result.CreateBadRequest("Only '.csv' files are supported."));
 
-        return Result.CreateSuccessOk();
+        return ValueTask.FromResult(Result.CreateSuccessOk());
     }
 }

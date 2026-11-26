@@ -51,9 +51,9 @@ public sealed class AwsS3FileStorageServiceTests : IDisposable
             NullLogger<AwsS3FileStorageService>.Instance,
             _defaultStorage,
             _s3Mock.Object,
+            _timeProvider,
             _settings,
-            _pipeline,
-            _timeProvider);
+            _pipeline);
     }
 
     public void Dispose()
@@ -387,19 +387,16 @@ public sealed class AwsS3FileStorageServiceTests : IDisposable
         ILogger<AwsS3FileStorageService> logger,
         IFileStorageService defaultStorage,
         IAmazonS3 s3Client,
+        TimeProvider timeProvider,
         AwsS3StorageSettings settings,
-        AwsS3ResiliencePipeline pipeline,
-        TimeProvider timeProvider)
-        : AwsS3FileStorageService(logger, defaultStorage, s3Client, settings, pipeline, timeProvider)
+        AwsS3ResiliencePipeline pipeline)
+        : AwsS3FileStorageService(logger, defaultStorage, s3Client, timeProvider, settings, pipeline)
     {
-        public static string ProbeBuildPrefix(string identifier, string context, string? basePrefix = null)
-            => BuildDirectoryPrefix(identifier, context, basePrefix);
+        public string ProbeBuildPrefix(string identifier, string context)
+            => BuildDirectoryPrefix(identifier, context);
 
         public static (string Directory, string? FileName) ProbeExtractCloudPath(string key)
             => ExtractCloudPath(key);
-
-        public static string? ProbeExtractCloudFileName(string key)
-            => ExtractCloudFileName(key);
     }
 
     /// <summary>
@@ -476,14 +473,48 @@ public sealed class AwsS3FileStorageServiceTests : IDisposable
         Assert.Single(listedEntries);
         Assert.Equal(0L, listedEntries[0].SizeBytes);
 
-        // FileStorageServiceBase helpers: empty/no-context/basePrefix & ExtractCloudPath edge cases
-        Assert.Equal("id1", CloudPathProbeService.ProbeBuildPrefix("id1", string.Empty, null));
-        Assert.Equal($"root{Path.DirectorySeparatorChar}id1{Path.DirectorySeparatorChar}ctx1", CloudPathProbeService.ProbeBuildPrefix("id1", "ctx1", "/root/"));
+        // CloudFileStorageServiceBase helpers: empty/context/basePrefix & ExtractCloudPath edge cases
+        CloudPathProbeService probeWithRoot = new(
+            NullLogger<AwsS3FileStorageService>.Instance,
+            _defaultStorage,
+            _s3Mock.Object,
+            _timeProvider,
+            _settings with { BasePrefix = "/root/" },
+            _pipeline);
+        CloudPathProbeService probeEmptyPrefix = new(
+            NullLogger<AwsS3FileStorageService>.Instance,
+            _defaultStorage,
+            _s3Mock.Object,
+            _timeProvider,
+            _settings with { BasePrefix = string.Empty },
+            _pipeline);
+
+        Assert.Equal("id1/", probeEmptyPrefix.ProbeBuildPrefix("id1", string.Empty));
+        Assert.Equal("root/id1/ctx1/", probeWithRoot.ProbeBuildPrefix("id1", "ctx1"));
         Assert.Equal((string.Empty, null), CloudPathProbeService.ProbeExtractCloudPath(string.Empty));
         Assert.Equal((string.Empty, null), CloudPathProbeService.ProbeExtractCloudPath("dir/"));
         Assert.Equal(("parent", null), CloudPathProbeService.ProbeExtractCloudPath("parent/child/"));
         Assert.Equal((string.Empty, "plain.txt"), CloudPathProbeService.ProbeExtractCloudPath("plain.txt"));
-        Assert.Null(CloudPathProbeService.ProbeExtractCloudFileName("dir/"));
-        Assert.Equal("plain.txt", CloudPathProbeService.ProbeExtractCloudFileName("plain.txt"));
+    }
+
+    /// <summary>
+    /// Verifies that <see cref="CloudFileStorageServiceBase.ParseLocation"/> inverts <see cref="CloudFileStorageServiceBase.ResolveLocation"/>
+    /// for canonical 3-segment keys and rejects invalid layouts.
+    /// </summary>
+    [Fact]
+    public void ParseLocation_InvertsResolveLocation_ForCloudKeys()
+    {
+        string withContext = _service.ResolveLocation("run-1", "exports", "data.csv");
+        Assert.Equal(("run-1", "exports", "data.csv"), _service.ParseLocation(withContext));
+
+        string withoutContext = _service.ResolveLocation("run-1", string.Empty, "data.csv");
+        Assert.Throws<FormatException>(() => _service.ParseLocation(withoutContext));
+
+        string nestedKey = _service.ResolveLocation("exp-2", "raw/nested", "stress.csv");
+        Assert.Throws<FormatException>(() => _service.ParseLocation(nestedKey));
+
+        Assert.Throws<FormatException>(() => _service.ParseLocation("other-prefix/run-1/exports/data.csv"));
+        Assert.Throws<FormatException>(() => _service.ParseLocation("prefix/run-1/exports/"));
+        Assert.Throws<FormatException>(() => _service.ParseLocation("prefix/only-one"));
     }
 }

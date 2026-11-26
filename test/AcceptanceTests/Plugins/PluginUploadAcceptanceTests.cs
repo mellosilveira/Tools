@@ -1,8 +1,8 @@
 using AcceptanceTests.Plugins.Helpers;
-using MelloSilveiraTools.Core.Files.Models;
 using MelloSilveiraTools.Core.Models;
 using MelloSilveiraTools.Plugins.Application.Commands.Upload;
 using MelloSilveiraTools.Plugins.Infrastructure;
+using MelloSilveiraTools.Plugins.Infrastructure.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Moq;
@@ -43,15 +43,16 @@ public sealed class PluginUploadAcceptanceTests
         UploadPluginRequest request = new() { File = fileMock.Object };
 
         // Act
-        Result<StorageEntryMetadata> result = await uploadCommand.ExecuteAsync(request);
+        Result<PluginInfo> result = await uploadCommand.ExecuteAsync(request);
 
         // Assert
         Assert.True(result.Success);
         Assert.Equal(StatusCode.OK, result.StatusCode);
         Assert.NotNull(result.Data);
-        Assert.Equal(fileName, result.Data.FileName);
-        Assert.Equal(assemblyBytes.Length, result.Data.SizeBytes);
-        Assert.Equal(StorageProvider.Local, result.Data.StorageProvider);
+        Assert.Equal("Contoso.Analytics", result.Data.Name);
+        Assert.Equal(new PluginVersion(1, 0, 0), result.Data.Version);
+        Assert.Equal(PluginSubmissionStatus.Approved, result.Data.Status);
+        Assert.False(string.IsNullOrWhiteSpace(result.Data.Sha256Hash));
 
         bool fileExistsInIncoming = fixture.LocalStorage.FileExists("plugins", PluginStoragePartitions.Incoming, fileName);
         Assert.True(fileExistsInIncoming);
@@ -79,7 +80,7 @@ public sealed class PluginUploadAcceptanceTests
         UploadPluginRequest request = new() { File = fileMock.Object };
 
         // Act
-        Result<StorageEntryMetadata> result = await uploadCommand.ExecuteAsync(request);
+        Result<PluginInfo> result = await uploadCommand.ExecuteAsync(request);
 
         // Assert
         Assert.False(result.Success);
@@ -107,7 +108,7 @@ public sealed class PluginUploadAcceptanceTests
         UploadPluginRequest request = new() { File = fileMock.Object };
 
         // Act
-        Result<StorageEntryMetadata> result = await uploadCommand.ExecuteAsync(request);
+        Result<PluginInfo> result = await uploadCommand.ExecuteAsync(request);
 
         // Assert
         Assert.False(result.Success);
@@ -135,7 +136,7 @@ public sealed class PluginUploadAcceptanceTests
         UploadPluginRequest request = new() { File = fileMock.Object };
 
         // Act
-        Result<StorageEntryMetadata> result = await uploadCommand.ExecuteAsync(request);
+        Result<PluginInfo> result = await uploadCommand.ExecuteAsync(request);
 
         // Assert
         Assert.False(result.Success);
@@ -161,7 +162,7 @@ public sealed class PluginUploadAcceptanceTests
         UploadPluginRequest request = new() { File = fileMock.Object };
 
         // Act
-        Result<StorageEntryMetadata> result = await uploadCommand.ExecuteAsync(request);
+        Result<PluginInfo> result = await uploadCommand.ExecuteAsync(request);
 
         // Assert
         Assert.False(result.Success);

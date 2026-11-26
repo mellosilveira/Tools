@@ -365,10 +365,10 @@ public sealed class OptimizationsControllersAndCommandsTests
     /// ExecuteParametricSweepPipelineValidator, and ExecuteParametricSweepFromExperimentalDataValidator.
     /// </summary>
     [Fact]
-    public void Validators_CoverAllCommonAndRangeBranches()
+    public async Task Validators_CoverAllCommonAndRangeBranches()
     {
         ExecuteExperimentalDataPipelineValidator singleExpValidator = new();
-        Result badSingleExp = singleExpValidator.Validate(new ExecuteExperimentalDataPipelineRequest
+        Result badSingleExp = await singleExpValidator.ValidateAsync(new ExecuteExperimentalDataPipelineRequest
         {
             ExperimentalDataGroupRequest = null!,
             MechanicalModelName = "",
@@ -383,7 +383,7 @@ public sealed class OptimizationsControllersAndCommandsTests
         });
         Assert.False(badSingleExp.Success);
 
-        Result badSingleExpNanBounds = singleExpValidator.Validate(new ExecuteExperimentalDataPipelineRequest
+        Result badSingleExpNanBounds = await singleExpValidator.ValidateAsync(new ExecuteExperimentalDataPipelineRequest
         {
             ExperimentalDataGroupRequest = new ExperimentalDataGroupRequest
             {
@@ -402,7 +402,7 @@ public sealed class OptimizationsControllersAndCommandsTests
         Assert.False(badSingleExpNanBounds.Success);
 
         ExecuteParametricSweepValidator sweepValidator = new();
-        Result badSweep1 = sweepValidator.Validate(new ExecuteParametricSweepPipelineRequest
+        Result badSweep1 = await sweepValidator.ValidateAsync(new ExecuteParametricSweepPipelineRequest
         {
             MechanicalModelName = "",
             Baseline = null!,
@@ -435,7 +435,7 @@ public sealed class OptimizationsControllersAndCommandsTests
         });
         Assert.False(badSweep1.Success);
 
-        Result badSweep2 = sweepValidator.Validate(new ExecuteParametricSweepPipelineRequest
+        Result badSweep2 = await sweepValidator.ValidateAsync(new ExecuteParametricSweepPipelineRequest
         {
             MechanicalModelName = "Fung",
             Baseline = new FungConstitutiveParameters(1.0, 1.0, new ReducedRelaxationFunction(0.5, 1.0, 10.0)),
@@ -450,7 +450,7 @@ public sealed class OptimizationsControllersAndCommandsTests
         });
         Assert.False(badSweep2.Success);
 
-        Result badSweep3 = sweepValidator.Validate(new ExecuteParametricSweepPipelineRequest
+        Result badSweep3 = await sweepValidator.ValidateAsync(new ExecuteParametricSweepPipelineRequest
         {
             MechanicalModelName = "Fung",
             Baseline = new FungConstitutiveParameters(1.0, 1.0, new ReducedRelaxationFunction(0.5, 1.0, 10.0)),
@@ -467,9 +467,11 @@ public sealed class OptimizationsControllersAndCommandsTests
         Assert.False(badSweep3.Success);
 
         ExecuteBatchExperimentalDataPipelineValidator batchExpValidator = new();
-        Assert.False(singleExpValidator.Validate(null!).Success);
-        Assert.False(batchExpValidator.Validate(null!).Success);
-        Result badBatchExp = batchExpValidator.Validate(new ExecuteBatchExperimentalDataPipelineRequest
+        Result nullSingle = await singleExpValidator.ValidateAsync(null!);
+        Result nullBatch = await batchExpValidator.ValidateAsync(null!);
+        Assert.False(nullSingle.Success);
+        Assert.False(nullBatch.Success);
+        Result badBatchExp = await batchExpValidator.ValidateAsync(new ExecuteBatchExperimentalDataPipelineRequest
         {
             Groups = [],
             MechanicalModelName = "Fung",
@@ -478,7 +480,7 @@ public sealed class OptimizationsControllersAndCommandsTests
         });
         Assert.False(badBatchExp.Success);
 
-        Result badBatchExpNullGroups = batchExpValidator.Validate(new ExecuteBatchExperimentalDataPipelineRequest
+        Result badBatchExpNullGroups = await batchExpValidator.ValidateAsync(new ExecuteBatchExperimentalDataPipelineRequest
         {
             Groups = null!,
             MechanicalModelName = "Fung",
@@ -487,7 +489,7 @@ public sealed class OptimizationsControllersAndCommandsTests
         });
         Assert.False(badBatchExpNullGroups.Success);
 
-        Result badBatchExpGroups = batchExpValidator.Validate(new ExecuteBatchExperimentalDataPipelineRequest
+        Result badBatchExpGroups = await batchExpValidator.ValidateAsync(new ExecuteBatchExperimentalDataPipelineRequest
         {
             Groups =
             [

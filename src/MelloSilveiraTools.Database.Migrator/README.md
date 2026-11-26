@@ -14,7 +14,7 @@ The `MelloSilveiraTools.Database.Migrator` project was developed as an independe
 1. **Dependency Isolation:** The production library `MelloSilveiraTools.Database` remains lightweight and clean, with zero runtime dependency on `DbUp`.
 2. **Domain-Contextual Migrations (`MigrationContext`):** Enables provisioning only the database tables required for a specific subsystem or operational scenario:
    * **`All`**: Applies all embedded migration scripts across the ecosystem (`Common`, `Optimizations`, and `Plugins`).
-   * **`Common`**: Applies essential cross-cutting tables, such as `stored_files` (partitioned file metadata audit).
+   * **`Common`**: Applies essential cross-cutting tables, such as `users` (with `tools_app` role and DB-backed RLS helpers) and `storage_entry_metadata` (file metadata audit with nullable `user_id` RLS).
    * **`Optimizations`**: Applies tables for the biomechanical constitutive model fitting and sensitivity analysis pipelines (`mechanical_model_curve_fit_outputs`, `mechanical_model_simulations`, and `parametric_sweeps`), automatically including the `Common` prerequisites.
    * **`Plugins`**: Applies persistence tables for dynamic plugin runtime caches (`plugin_cache`).
 3. **Declarative and Idiomatic SQL Scripts:**
@@ -70,13 +70,15 @@ All migration scripts reside in `Scripts/` and are compiled into the assembly as
 ```
 Scripts/
 ├── Common/
-│   └── 0001_create_stored_files.sql
+│   ├── 0001_create_users.sql
+│   └── 0002_create_storage_entry_metadata.sql
 ├── Optimizations/
 │   ├── 0001_create_mechanical_model_curve_fit_outputs.sql
 │   ├── 0002_create_mechanical_model_simulations.sql
 │   └── 0003_create_parametric_sweeps.sql
 └── Plugins/
-    └── 0001_create_plugin_cache.sql
+    ├── 0001_create_plugin_cache.sql
+    └── 0002_create_plugin_submissions.sql
 ```
 
 ---
@@ -84,10 +86,11 @@ Scripts/
 ## 5. Integration with `ISqlProvider` and `PostgresRepository`
 
 The generated database schema strictly mirrors the domain entities in the codebase:
-* `stored_files` $\leftrightarrow$ `StorageEntryMetadataEntity`
+* `storage_entry_metadata` $\leftrightarrow$ `StorageEntryMetadataEntity`
 * `mechanical_model_curve_fit_outputs` $\leftrightarrow$ `MechanicalModelCurveFitOutputEntity`
 * `mechanical_model_simulations` $\leftrightarrow$ `MechanicalModelSimulationEntity`
 * `parametric_sweeps` $\leftrightarrow$ `ParametricSweepEntity`
 * `plugin_cache` $\leftrightarrow$ `PluginCacheEntity`
+* `plugin_submissions` $\leftrightarrow$ `PluginSubmissionEntity`
 
 The `PostgresSqlProvider` in the `MelloSilveiraTools.Database` package dynamically generates parameterized `INSERT`, `SELECT`, `UPDATE`, and `DELETE` SQL statements that are 100% compatible with the schema provisioned by this migrator.

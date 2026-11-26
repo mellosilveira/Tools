@@ -1,4 +1,5 @@
 using MelloSilveiraTools.Core.Pipelines.Models;
+using MelloSilveiraTools.Core.Security;
 using System.Collections.Concurrent;
 using System.Runtime.CompilerServices;
 using System.Threading.Channels;
@@ -7,29 +8,33 @@ namespace MelloSilveiraTools.Core.Pipelines.Notifiers;
 
 /// <summary>
 /// High-performance, singleton implementation of <see cref="IPipelineProgressNotifier"/> backed by discrete bounded <see cref="Channel{T}"/>
-/// instances correlated by analysis identifier in an internal concurrent dictionary.
+/// instances correlated by <c>(userId, pipelineIdentifier)</c> in an internal concurrent dictionary for multi-tenant isolation.
 /// Channels are evicted deterministically upon the completion of reader consumption, with an upper bound on active channels.
 /// </summary>
+/// <param name="currentUserProvider">Mandatory current user provider used to isolate channels per authenticated user.</param>
 /// <param name="timeProvider">Mandatory time provider for recording creation timestamps to support LRU eviction if capacity is reached.</param>
 /// <param name="settings">Mandatory configuration settings defining buffer capacities, full mode policies, and maximum channel limits.</param>
 public sealed class ChannelPipelineProgressNotifier(
+    ICurrentUserProvider currentUserProvider,
     TimeProvider timeProvider,
     PipelineProgressNotifierSettings settings)
     : IPipelineProgressNotifier
 {
-    private readonly ConcurrentDictionary<string, ChannelEntry> _channels = new(StringComparer.Ordinal);
+    private readonly ConcurrentDictionary<ChannelKey, ChannelEntry> _channels = new();
 
     /// <inheritdoc/>
     public ValueTask NotifyAsync(PipelineProgressEvent progressEvent, CancellationToken cancellationToken = default)
     {
-        ChannelEntry entry = GetOrCreateEntry(progressEvent.PipelineIdentifier);
+        ChannelKey key = BuildKey(progressEvent.PipelineIdentifier);
+        ChannelEntry entry = GetOrCreateEntry(key);
         return entry.Channel.Writer.WriteAsync(progressEvent, cancellationToken);
     }
 
     /// <inheritdoc/>
     public async IAsyncEnumerable<PipelineProgressEvent> ReadAllAsync(string pipelineIdentifier, [EnumeratorCancellation] CancellationToken cancellationToken = default)
     {
-        if (!_channels.TryGetValue(pipelineIdentifier, out ChannelEntry? entry) || entry is null)
+        (ChannelKey resolvedKey, ChannelEntry? entry) = ResolveChannelForRead(pipelineIdentifier);
+        if (entry is null)
             throw new KeyNotFoundException($"Pipeline with identifier '{pipelineIdentifier}' not found.");
 
         try
@@ -42,14 +47,15 @@ public sealed class ChannelPipelineProgressNotifier(
         finally
         {
             if (entry.IsCompleted)
-                _channels.TryRemove(pipelineIdentifier, out _);
+                _channels.TryRemove(resolvedKey, out _);
         }
     }
 
     /// <inheritdoc/>
     public bool TryComplete(string pipelineIdentifier, Exception? error = null)
     {
-        if (_channels.TryGetValue(pipelineIdentifier, out ChannelEntry? entry))
+        ChannelKey key = BuildKey(pipelineIdentifier);
+        if (_channels.TryGetValue(key, out ChannelEntry? entry))
         {
             entry.IsCompleted = true;
             return entry.Channel.Writer.TryComplete(error);
@@ -61,7 +67,7 @@ public sealed class ChannelPipelineProgressNotifier(
     /// <inheritdoc/>
     public ValueTask DisposeAsync()
     {
-        foreach (KeyValuePair<string, ChannelEntry> pair in _channels)
+        foreach (KeyValuePair<ChannelKey, ChannelEntry> pair in _channels)
         {
             pair.Value.Channel.Writer.TryComplete();
         }
@@ -70,14 +76,32 @@ public sealed class ChannelPipelineProgressNotifier(
         return ValueTask.CompletedTask;
     }
 
-    private ChannelEntry GetOrCreateEntry(string pipelineIdentifier)
+    private ChannelKey BuildKey(string pipelineIdentifier) => new(currentUserProvider.GetCurrentUserId(), pipelineIdentifier);
+
+    private (ChannelKey Key, ChannelEntry? Entry) ResolveChannelForRead(string pipelineIdentifier)
     {
-        if (_channels.TryGetValue(pipelineIdentifier, out ChannelEntry? existing))
+        ChannelKey ownKey = BuildKey(pipelineIdentifier);
+        if (_channels.TryGetValue(ownKey, out ChannelEntry? ownEntry))
+            return (ownKey, ownEntry);
+
+        if (currentUserProvider.IsSuperuser())
+        {
+            KeyValuePair<ChannelKey, ChannelEntry>? latestMatch = _channels.FirstOrDefault(pair => string.Equals(pair.Key.PipelineIdentifier, pipelineIdentifier, StringComparison.Ordinal));
+            if (latestMatch.HasValue)
+                return (latestMatch.Value.Key, latestMatch.Value.Value);
+        }
+
+        return (ownKey, null);
+    }
+
+    private ChannelEntry GetOrCreateEntry(ChannelKey key)
+    {
+        if (_channels.TryGetValue(key, out ChannelEntry? existing))
             return existing;
 
         EnsureCapacityLimit();
 
-        return _channels.GetOrAdd(pipelineIdentifier, _ =>
+        return _channels.GetOrAdd(key, _ =>
         {
             Channel<PipelineProgressEvent> channel = Channel.CreateBounded<PipelineProgressEvent>(new BoundedChannelOptions(settings.ChannelCapacity)
             {
@@ -96,7 +120,7 @@ public sealed class ChannelPipelineProgressNotifier(
             return;
 
         // 1. Purge completed channels that were abandoned without reading.
-        foreach (KeyValuePair<string, ChannelEntry> pair in _channels.Where(pair => pair.Value.IsCompleted).OrderBy(pair => pair.Value.CreatedAt))
+        foreach (KeyValuePair<ChannelKey, ChannelEntry> pair in _channels.Where(pair => pair.Value.IsCompleted).OrderBy(pair => pair.Value.CreatedAt))
         {
             if (_channels.TryRemove(pair))
             {
@@ -106,7 +130,7 @@ public sealed class ChannelPipelineProgressNotifier(
         }
 
         // 2. If still over capacity, purge oldest channels to enforce bounded memory.
-        foreach (KeyValuePair<string, ChannelEntry> pair in _channels.OrderBy(pair => pair.Value.CreatedAt))
+        foreach (KeyValuePair<ChannelKey, ChannelEntry> pair in _channels.OrderBy(pair => pair.Value.CreatedAt))
         {
             if (_channels.TryRemove(pair))
             {
@@ -117,12 +141,12 @@ public sealed class ChannelPipelineProgressNotifier(
         }
     }
 
+    private readonly record struct ChannelKey(long? UserId, string PipelineIdentifier);
+
     private sealed class ChannelEntry(Channel<PipelineProgressEvent> channel, DateTimeOffset createdAt)
     {
         public Channel<PipelineProgressEvent> Channel { get; } = channel;
-
         public DateTimeOffset CreatedAt { get; } = createdAt;
-
-        public bool IsCompleted { get; set; }
+        public volatile bool IsCompleted;
     }
 }

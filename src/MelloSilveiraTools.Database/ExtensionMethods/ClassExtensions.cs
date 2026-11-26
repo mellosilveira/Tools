@@ -1,66 +1,56 @@
-using Dapper;
 using MelloSilveiraTools.Core.ExtensionMethods;
 using MelloSilveiraTools.Database.RelationalDatabase.Attributes;
 using MelloSilveiraTools.Database.RelationalDatabase.Models;
 using MelloSilveiraTools.Database.RelationalDatabase.Models.Entities;
 using Npgsql;
 using NpgsqlTypes;
-using System.Collections.Concurrent;
 using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 
 namespace MelloSilveiraTools.Database.ExtensionMethods;
 
 /// <summary>
-/// Contains extension methods for class.
+/// Contains Native AOT-compatible extension methods for mapping entities and filters to typed <see cref="NpgsqlParameter"/> collections.
 /// </summary>
 public static class ClassExtensions
 {
-    // (EntityType, declaredOnly) → (PropertyInfo, NpgsqlDbType)[] for [Column]-annotated props
-    private static readonly ConcurrentDictionary<(Type Type, bool DeclaredOnly), (PropertyInfo Prop, NpgsqlDbType DbType)[]> _columnMetaCache = new();
+    private static class ColumnMetaCache<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicProperties)] T>
+    {
+        public static readonly (PropertyInfo Prop, NpgsqlDbType DbType)[] DeclaredOnly = BuildColumnMeta(typeof(T), declaredOnly: true);
+        public static readonly (PropertyInfo Prop, NpgsqlDbType DbType)[] All = BuildColumnMeta(typeof(T), declaredOnly: false);
+    }
 
-    // FilterType → (PropertyInfo, FilterColumnAttribute)[] for [FilterColumn]-annotated props
-    private static readonly ConcurrentDictionary<Type, (PropertyInfo Prop, FilterColumnAttribute Attr)[]> _filterColumnMetaCache = new();
-
-    // FilterType → FilterAttribute? (class-level attribute, cached to avoid repeated GetCustomAttribute)
-    private static readonly ConcurrentDictionary<Type, FilterAttribute?> _filterAttributeCache = new();
+    private static class FilterMetaCache<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicProperties)] T>
+    {
+        public static readonly FilterAttribute? FilterAttribute = typeof(T).GetCustomAttribute<FilterAttribute>();
+        public static readonly (PropertyInfo Prop, FilterColumnAttribute Attr)[] Columns = BuildFilterColumnMeta(typeof(T));
+    }
 
     /// <summary>
     /// Contains extension methods for class instances.
     /// </summary>
     /// <typeparam name="T">The type of <paramref name="obj"/>.</typeparam>
-    /// <param name="obj"></param>
-    extension<T>(T obj)
+    /// <param name="obj">Target entity or filter instance.</param>
+    extension<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicProperties)] T>(T obj)
     {
         /// <summary>
-        /// Builds an enumerable with <see cref="NpgsqlParameter"/>.
+        /// Builds a sequence of strongly-typed <see cref="NpgsqlParameter"/> instances from <c>[Column]</c>-annotated properties.
         /// </summary>
-        /// <param name="useDeclaredProperties"></param>
-        /// <returns>A <see cref="IEnumerable{T}"/> with <see cref="NpgsqlParameter"/>.</returns>
+        /// <param name="useDeclaredProperties">When <see langword="true"/>, inspects only declared properties (plus <c>UserId</c> for user-scoped entities).</param>
+        /// <returns>An <see cref="IEnumerable{T}"/> of <see cref="NpgsqlParameter"/> instances.</returns>
         public IEnumerable<NpgsqlParameter> BuildParameters(bool useDeclaredProperties = false)
         {
             if (obj is null)
                 yield break;
 
-            foreach ((PropertyInfo? prop, NpgsqlDbType dbType) in GetColumnMeta<T>(useDeclaredProperties))
+            foreach ((PropertyInfo prop, NpgsqlDbType dbType) in GetColumnMeta<T>(useDeclaredProperties))
                 yield return new NpgsqlParameter(prop.Name, dbType) { Value = prop.GetCustomValue(obj) ?? DBNull.Value };
         }
 
         /// <summary>
-        /// Builds a SQL WHERE clause and a <see cref="DynamicParameters"/> based on filter.
+        /// Builds a parameterized SQL <c>WHERE</c> clause and its corresponding strongly-typed <see cref="NpgsqlParameter"/> list from a filter object.
         /// </summary>
-        /// <returns></returns>
-        public (string? SqlWhereClause, DynamicParameters? Parameters) BuildWhereClauseAndParameters()
-        {
-            DynamicParameters parameters = new();
-            string? whereClause = BuildWhereClauseCore(obj, (name, _, value) => parameters.Add(name, value));
-            return whereClause is null ? (null, null) : (whereClause, parameters);
-        }
-
-        /// <summary>
-        /// Builds a SQL WHERE clause and a list of <see cref="NpgsqlParameter"/> based on filter.
-        /// </summary>
-        /// <returns></returns>
+        /// <returns>A tuple containing the SQL <c>WHERE</c> clause (or <see langword="null"/> when empty) and the bound <see cref="NpgsqlParameter"/> list.</returns>
         public (string? SqlWhereClause, List<NpgsqlParameter> Parameters) BuildWhereClauseAndNpgsqlParameters()
         {
             List<NpgsqlParameter> parameters = [];
@@ -72,12 +62,12 @@ public static class ClassExtensions
     extension(object obj)
     {
         /// <summary>
-        /// Sets the values in objects using reflection.
+        /// Sets property values on <paramref name="obj"/> by property name.
         /// </summary>
-        /// <param name="type"></param>
-        /// <param name="valuesGroupedByPropertyName"></param>
-        public void SetValues<T>([DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicProperties)] Type type,
-            IDictionary<string, T> valuesGroupedByPropertyName)
+        /// <typeparam name="T">Value type stored in the dictionary.</typeparam>
+        /// <param name="type">Target runtime type whose public properties are preserved for trimming and Native AOT.</param>
+        /// <param name="valuesGroupedByPropertyName">Map of property names to values to assign.</param>
+        public void SetValues<T>([DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicProperties)] Type type, IDictionary<string, T> valuesGroupedByPropertyName)
         {
             foreach (KeyValuePair<string, T> propertyNameAndValue in valuesGroupedByPropertyName)
             {
@@ -87,12 +77,12 @@ public static class ClassExtensions
         }
     }
 
-    extension<T>(ICollection<T> collection)
+    extension<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicProperties)] T>(ICollection<T> collection)
     {
         /// <summary>
-        /// Builds an enumerable with <see cref="NpgsqlParameter"/>.
+        /// Builds a 1-based suffixed (<c>_1</c>, <c>_2</c>, ...) sequence of strongly-typed <see cref="NpgsqlParameter"/> instances for bulk operations.
         /// </summary>
-        /// <returns>A <see cref="IEnumerable{T}"/> with <see cref="NpgsqlParameter"/>.</returns>
+        /// <returns>An <see cref="IEnumerable{T}"/> of <see cref="NpgsqlParameter"/> instances.</returns>
         public IEnumerable<NpgsqlParameter> BuildParametersFromCollection()
         {
             if (collection.IsNullOrEmpty())
@@ -103,7 +93,7 @@ public static class ClassExtensions
             foreach (T obj in collection)
             {
                 index++;
-                foreach ((PropertyInfo? prop, NpgsqlDbType dbType) in colMeta)
+                foreach ((PropertyInfo prop, NpgsqlDbType dbType) in colMeta)
                     yield return new NpgsqlParameter($"{prop.Name}_{index}", dbType) { Value = prop.GetCustomValue(obj) ?? DBNull.Value };
             }
         }
@@ -123,44 +113,42 @@ public static class ClassExtensions
         }
     }
 
-    internal static (PropertyInfo Prop, NpgsqlDbType DbType)[] GetColumnMeta<T>(bool declaredOnly)
-        => _columnMetaCache.GetOrAdd(
-            (typeof(T), declaredOnly),
-            static key =>
-            {
-                PropertyInfo[] props = key.DeclaredOnly
-                    ? key.Type.GetDeclaredProperties<ColumnAttribute>()
-                    : key.Type.GetPropertiesInHierarchy<ColumnAttribute>();
+    internal static (PropertyInfo Prop, NpgsqlDbType DbType)[] GetColumnMeta<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicProperties)] T>(bool declaredOnly)
+        => declaredOnly ? ColumnMetaCache<T>.DeclaredOnly : ColumnMetaCache<T>.All;
 
-                if (key.DeclaredOnly
-                    && typeof(UserScopedEntityBase).IsAssignableFrom(key.Type)
-                    && !props.Any(p => p.Name == nameof(UserScopedEntityBase.UserId)))
-                {
-                    PropertyInfo? userIdProp = key.Type.GetPropertiesInHierarchy<ColumnAttribute>().FirstOrDefault(p => p.Name == nameof(UserScopedEntityBase.UserId));
-                    
-                    if (userIdProp is not null)
-                        props = [userIdProp, .. props];
-                }
+    private static (PropertyInfo Prop, NpgsqlDbType DbType)[] BuildColumnMeta([DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicProperties)] Type type, bool declaredOnly)
+    {
+        PropertyInfo[] props = declaredOnly
+            ? type.GetDeclaredProperties<ColumnAttribute>()
+            : type.GetPropertiesInHierarchy<ColumnAttribute>();
 
-                return [.. props.Select(p => (p, p.PropertyType.GetDbTypeFromPropertyType()))];
-            });
+        if (declaredOnly
+            && typeof(UserScopedEntityBase).IsAssignableFrom(type)
+            && !props.Any(p => p.Name == nameof(UserScopedEntityBase.UserId)))
+        {
+            PropertyInfo? userIdProp = type.GetPropertiesInHierarchy<ColumnAttribute>().FirstOrDefault(p => p.Name == nameof(UserScopedEntityBase.UserId));
+            if (userIdProp is not null)
+                props = [userIdProp, .. props];
+        }
 
-    private static (PropertyInfo Prop, FilterColumnAttribute Attr)[] GetFilterColumnMeta(Type type)
-        => _filterColumnMetaCache.GetOrAdd(
-            type,
-            static t => [.. t.GetPropertiesInHierarchy<FilterColumnAttribute>().Select(p => (p, p.GetCustomAttribute<FilterColumnAttribute>()!))]);
+        return [.. props.Select(p => (p, p.PropertyType.GetDbTypeFromPropertyType()))];
+    }
 
-    private static string? BuildWhereClauseCore<T>(T obj, Action<string, Type, object> addParam)
+    private static (PropertyInfo Prop, FilterColumnAttribute Attr)[] BuildFilterColumnMeta([DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicProperties)] Type type)
+        => [.. type.GetPropertiesInHierarchy<FilterColumnAttribute>().Select(p => (p, p.GetCustomAttribute<FilterColumnAttribute>()!))];
+
+    private static string? BuildWhereClauseCore<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicProperties)] T>(
+        T obj,
+        Action<string, Type, object> addParam)
     {
         if (obj is null) return null;
 
-        Type type = typeof(T);
-        FilterAttribute? filterAttribute = _filterAttributeCache.GetOrAdd(type, static t => t.GetCustomAttribute<FilterAttribute>());
+        FilterAttribute? filterAttribute = FilterMetaCache<T>.FilterAttribute;
         if (filterAttribute is null) return null;
 
         List<string> whereClauses = [];
 
-        foreach ((PropertyInfo? property, FilterColumnAttribute? filterColumnAttribute) in GetFilterColumnMeta(type))
+        foreach ((PropertyInfo property, FilterColumnAttribute filterColumnAttribute) in FilterMetaCache<T>.Columns)
         {
             object? propertyValue = property.GetCustomValue(obj);
             if (propertyValue is null || propertyValue is string str && string.IsNullOrWhiteSpace(str))

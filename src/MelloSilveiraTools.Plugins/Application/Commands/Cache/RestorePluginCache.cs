@@ -8,8 +8,13 @@ namespace MelloSilveiraTools.Plugins.Application.Commands.Cache;
 
 /// <summary>
 /// Operation that restores the plugin cache from the configured target (file, database, etc.) for the supplied plugin filter.
+/// Access is restricted to superusers at the HTTP authorization boundary (<c>SuperuserOnly</c>).
 /// </summary>
-public class RestorePluginCache(IPluginService pluginService, PluginValidator validator) : CommandBaseWithDefaultResponse<PluginsRequest>(validator)
+/// <param name="pluginService">Plugin management service.</param>
+/// <param name="validator">Validator for plugin requests.</param>
+public class RestorePluginCache(
+    IPluginService pluginService,
+    PluginValidator validator) : CommandBaseWithDefaultResponse<PluginsRequest>(validator)
 {
     /// <inheritdoc />
     protected override async Task<Result> ExecuteCommandAsync(PluginsRequest request, CancellationToken cancellationToken = default)

@@ -43,7 +43,9 @@ public sealed class PluginLifecycleAcceptanceTests
             Directory = "plugins",
             DefaultCacheTarget = PluginCacheTargets.File,
             PollInterval = TimeSpan.FromMilliseconds(50),
-            PreviousVersionRetention = TimeSpan.FromHours(24)
+            PreviousVersionRetention = TimeSpan.FromHours(24),
+            MaxPluginSizeBytes = 10L * 1024 * 1024,
+            MaxPendingSubmissionsPerUser = 5
         };
 
         ServiceCollection services = new();

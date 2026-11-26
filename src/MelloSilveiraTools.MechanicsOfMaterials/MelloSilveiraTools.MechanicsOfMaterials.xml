@@ -1318,6 +1318,346 @@
         <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.Viscoelasticity.QuasiLinear.SimplifiedFung.SimplifiedFungModelCalculator.CalculateReducedRelaxationFunctionDerivative(MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalModelInput{MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.QuasiLinear.SimplifiedFungConstitutiveParameters},System.Double)">
             <inheritdoc/>
         </member>
+        <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Commands.MechanicalModels.Get.GetMechanicalModelsCommand">
+            <summary>
+            Lists every <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.TypeResolvers.IMechanicalModelTypeResolver"/> registered in <see cref="T:MelloSilveiraTools.Core.Providers.ServiceLocator"/>
+            (both static and dynamically loaded plugin resolvers) along with its calculator type name
+            and JSON structures for constitutive parameters and output models.
+            </summary>
+            <param name="serviceLocator">Service locator resolving static and dynamic model type resolvers.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Commands.MechanicalModels.Get.GetMechanicalModelsCommand.#ctor(MelloSilveiraTools.Core.Providers.ServiceLocator)">
+            <summary>
+            Lists every <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.TypeResolvers.IMechanicalModelTypeResolver"/> registered in <see cref="T:MelloSilveiraTools.Core.Providers.ServiceLocator"/>
+            (both static and dynamically loaded plugin resolvers) along with its calculator type name
+            and JSON structures for constitutive parameters and output models.
+            </summary>
+            <param name="serviceLocator">Service locator resolving static and dynamic model type resolvers.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Commands.MechanicalModels.Get.GetMechanicalModelsCommand.ExecuteCommandAsync(System.Threading.CancellationToken)">
+            <inheritdoc/>
+        </member>
+        <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Commands.MechanicalModels.Get.MechanicalModelMetadata">
+            <summary>
+            Metadata describing a registered mechanical model, its calculator type,
+            and the JSON structures (schemas) of its constitutive parameters and output models.
+            </summary>
+            <param name="MechanicalModelName">Registered mechanical model name.</param>
+            <param name="CalculatorTypeName">Name of the calculator service type.</param>
+            <param name="ConstitutiveParameters">JSON structure (JSON Schema) of the constitutive parameters type.</param>
+            <param name="Output">JSON structure (JSON Schema) of the model output type.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Commands.MechanicalModels.Get.MechanicalModelMetadata.#ctor(System.String,System.String,System.Text.Json.Nodes.JsonNode,System.Text.Json.Nodes.JsonNode)">
+            <summary>
+            Metadata describing a registered mechanical model, its calculator type,
+            and the JSON structures (schemas) of its constitutive parameters and output models.
+            </summary>
+            <param name="MechanicalModelName">Registered mechanical model name.</param>
+            <param name="CalculatorTypeName">Name of the calculator service type.</param>
+            <param name="ConstitutiveParameters">JSON structure (JSON Schema) of the constitutive parameters type.</param>
+            <param name="Output">JSON structure (JSON Schema) of the model output type.</param>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Commands.MechanicalModels.Get.MechanicalModelMetadata.MechanicalModelName">
+            <summary>Registered mechanical model name.</summary>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Commands.MechanicalModels.Get.MechanicalModelMetadata.CalculatorTypeName">
+            <summary>Name of the calculator service type.</summary>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Commands.MechanicalModels.Get.MechanicalModelMetadata.ConstitutiveParameters">
+            <summary>JSON structure (JSON Schema) of the constitutive parameters type.</summary>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Commands.MechanicalModels.Get.MechanicalModelMetadata.Output">
+            <summary>JSON structure (JSON Schema) of the model output type.</summary>
+        </member>
+        <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Commands.SpecimenAnalysis.DeleteOnDisposeStream">
+            <summary>
+            Wraps a readable file <see cref="T:System.IO.Stream"/> and automatically deletes the underlying artifact from
+            <see cref="T:MelloSilveiraTools.Core.Files.Providers.IFileStorageService"/> immediately after the stream is closed/disposed (e.g., once an HTTP file download completes).
+            </summary>
+            <param name="logger">Logger used to report non-fatal cleanup failures.</param>
+            <param name="fileStorageService">Storage service managing the temporary artifact.</param>
+            <param name="innerStream">Readable stream of the generated file.</param>
+            <param name="location">Canonical storage location to delete upon disposal.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Commands.SpecimenAnalysis.DeleteOnDisposeStream.#ctor(Microsoft.Extensions.Logging.ILogger,MelloSilveiraTools.Core.Files.Providers.IFileStorageService,System.IO.Stream,System.String)">
+            <summary>
+            Wraps a readable file <see cref="T:System.IO.Stream"/> and automatically deletes the underlying artifact from
+            <see cref="T:MelloSilveiraTools.Core.Files.Providers.IFileStorageService"/> immediately after the stream is closed/disposed (e.g., once an HTTP file download completes).
+            </summary>
+            <param name="logger">Logger used to report non-fatal cleanup failures.</param>
+            <param name="fileStorageService">Storage service managing the temporary artifact.</param>
+            <param name="innerStream">Readable stream of the generated file.</param>
+            <param name="location">Canonical storage location to delete upon disposal.</param>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Commands.SpecimenAnalysis.DeleteOnDisposeStream.CanRead">
+            <inheritdoc/>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Commands.SpecimenAnalysis.DeleteOnDisposeStream.CanSeek">
+            <inheritdoc/>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Commands.SpecimenAnalysis.DeleteOnDisposeStream.CanWrite">
+            <inheritdoc/>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Commands.SpecimenAnalysis.DeleteOnDisposeStream.Length">
+            <inheritdoc/>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Commands.SpecimenAnalysis.DeleteOnDisposeStream.Position">
+            <inheritdoc/>
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Commands.SpecimenAnalysis.DeleteOnDisposeStream.Flush">
+            <inheritdoc/>
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Commands.SpecimenAnalysis.DeleteOnDisposeStream.FlushAsync(System.Threading.CancellationToken)">
+            <inheritdoc/>
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Commands.SpecimenAnalysis.DeleteOnDisposeStream.Read(System.Byte[],System.Int32,System.Int32)">
+            <inheritdoc/>
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Commands.SpecimenAnalysis.DeleteOnDisposeStream.Read(System.Span{System.Byte})">
+            <inheritdoc/>
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Commands.SpecimenAnalysis.DeleteOnDisposeStream.ReadAsync(System.Byte[],System.Int32,System.Int32,System.Threading.CancellationToken)">
+            <inheritdoc/>
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Commands.SpecimenAnalysis.DeleteOnDisposeStream.ReadAsync(System.Memory{System.Byte},System.Threading.CancellationToken)">
+            <inheritdoc/>
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Commands.SpecimenAnalysis.DeleteOnDisposeStream.Seek(System.Int64,System.IO.SeekOrigin)">
+            <inheritdoc/>
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Commands.SpecimenAnalysis.DeleteOnDisposeStream.SetLength(System.Int64)">
+            <inheritdoc/>
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Commands.SpecimenAnalysis.DeleteOnDisposeStream.Write(System.Byte[],System.Int32,System.Int32)">
+            <inheritdoc/>
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Commands.SpecimenAnalysis.DeleteOnDisposeStream.DisposeAsync">
+            <inheritdoc/>
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Commands.SpecimenAnalysis.DeleteOnDisposeStream.Dispose(System.Boolean)">
+            <inheritdoc/>
+        </member>
+        <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Commands.SpecimenAnalysis.ExecuteSpecimenAnalysisCommand">
+            <summary>
+            Executes a single deterministic specimen mechanical analysis for any statically registered or
+            dynamically loaded plugin constitutive model, persists the discretized time-history CSV through
+            <see cref="T:MelloSilveiraTools.Core.Files.Providers.IFileStorageService"/>, and returns initial/final boundary values and asymptotic convergence metadata.
+            </summary>
+            <param name="logger">Structured logger for specimen analysis execution.</param>
+            <param name="validator">Validator enforcing request invariants prior to numerical integration.</param>
+            <param name="calculatorFactory">Factory that constructs the compiled <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.IMechanicalModelCalculatorFacade"/> for the resolved model.</param>
+            <param name="fileStorageService">Default file storage service used to persist generated CSV outputs.</param>
+            <param name="repository">Repository for managing storage entry metadata.</param>
+            <param name="serviceLocator">Service locator used to resolve the keyed <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.TypeResolvers.IMechanicalModelTypeResolver"/> and <see cref="T:MelloSilveiraTools.Core.Files.Providers.IFileStorageService"/>.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Commands.SpecimenAnalysis.ExecuteSpecimenAnalysisCommand.#ctor(Microsoft.Extensions.Logging.ILogger{MelloSilveiraTools.MechanicsOfMaterials.Commands.SpecimenAnalysis.ExecuteSpecimenAnalysisCommand},MelloSilveiraTools.Core.Validators.IValidator{MelloSilveiraTools.MechanicsOfMaterials.Commands.SpecimenAnalysis.ExecuteSpecimenAnalysisRequest},MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.IMechanicalModelCalculatorFactory,MelloSilveiraTools.Core.Files.Providers.IFileStorageService,MelloSilveiraTools.Database.Repositories.IRepository,MelloSilveiraTools.Core.Providers.ServiceLocator)">
+            <summary>
+            Executes a single deterministic specimen mechanical analysis for any statically registered or
+            dynamically loaded plugin constitutive model, persists the discretized time-history CSV through
+            <see cref="T:MelloSilveiraTools.Core.Files.Providers.IFileStorageService"/>, and returns initial/final boundary values and asymptotic convergence metadata.
+            </summary>
+            <param name="logger">Structured logger for specimen analysis execution.</param>
+            <param name="validator">Validator enforcing request invariants prior to numerical integration.</param>
+            <param name="calculatorFactory">Factory that constructs the compiled <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.IMechanicalModelCalculatorFacade"/> for the resolved model.</param>
+            <param name="fileStorageService">Default file storage service used to persist generated CSV outputs.</param>
+            <param name="repository">Repository for managing storage entry metadata.</param>
+            <param name="serviceLocator">Service locator used to resolve the keyed <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.TypeResolvers.IMechanicalModelTypeResolver"/> and <see cref="T:MelloSilveiraTools.Core.Files.Providers.IFileStorageService"/>.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Commands.SpecimenAnalysis.ExecuteSpecimenAnalysisCommand.ExecuteCommandAsync(MelloSilveiraTools.MechanicsOfMaterials.Commands.SpecimenAnalysis.ExecuteSpecimenAnalysisRequest,System.Threading.CancellationToken)">
+            <inheritdoc/>
+        </member>
+        <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Commands.SpecimenAnalysis.ExecuteSpecimenAnalysisRequest">
+            <summary>
+            Unified request payload to execute a single deterministic specimen mechanical analysis
+            for any statically registered or dynamically loaded plugin constitutive model.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Commands.SpecimenAnalysis.ExecuteSpecimenAnalysisRequest.MechanicalModelName">
+            <summary>
+            The registered mechanical model name (e.g. <c>"Elastic"</c>, <c>"Maxwell"</c>, <c>"Fung"</c>,
+            <c>"SimplifiedFung"</c>, <c>"Schapery"</c>, <c>"ModifiedSuperpositionMethod"</c>, or a loaded plugin model name).
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Commands.SpecimenAnalysis.ExecuteSpecimenAnalysisRequest.AnalysisIdentifier">
+            <summary>
+            Optional correlational identifier for this execution; a GUID is generated when omitted.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Commands.SpecimenAnalysis.ExecuteSpecimenAnalysisRequest.AnalysisParameter">
+            <summary>
+            Primary control variable and initial dependent variable defining the boundary value problem.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Commands.SpecimenAnalysis.ExecuteSpecimenAnalysisRequest.Specimen">
+            <summary>
+            Optional reference geometry and initial kinematic state of the specimen (required for <see cref="F:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.LoadResponseRelationship.ForceDisplacement"/>).
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Commands.SpecimenAnalysis.ExecuteSpecimenAnalysisRequest.AcceptedRange">
+            <summary>
+            Optional validated strain bounds enforcing physical sanity checks.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Commands.SpecimenAnalysis.ExecuteSpecimenAnalysisRequest.LoadResponseRelationship">
+            <summary>
+            Defines the load-response relationship (<see cref="F:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.LoadResponseRelationship.StressStrain"/> or <see cref="F:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.LoadResponseRelationship.ForceDisplacement"/>).
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Commands.SpecimenAnalysis.ExecuteSpecimenAnalysisRequest.ViscoelasticEffect">
+            <summary>
+            Specifies the viscoelastic phenomenon to evaluate (<see cref="F:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.ViscoelasticEffect.Relaxation"/> or <see cref="F:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.ViscoelasticEffect.Creep"/>).
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Commands.SpecimenAnalysis.ExecuteSpecimenAnalysisRequest.RampTimeConsideration">
+            <summary>
+            Defines whether the initial loading phase is modeled as an instantaneous step or a finite-time linear ramp.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Commands.SpecimenAnalysis.ExecuteSpecimenAnalysisRequest.RampTime">
+            <summary>
+            Optional ramp duration in seconds (s) when using finite-time ramp loading.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Commands.SpecimenAnalysis.ExecuteSpecimenAnalysisRequest.InitialTime">
+            <summary>
+            Starting temporal boundary (t₀) in seconds (s); defaults to <c>0</c>.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Commands.SpecimenAnalysis.ExecuteSpecimenAnalysisRequest.TimeStep">
+            <summary>
+            Discrete temporal integration increment (Δt) in seconds (s).
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Commands.SpecimenAnalysis.ExecuteSpecimenAnalysisRequest.FinalTime">
+            <summary>
+            Terminating temporal boundary (tf) in seconds (s).
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Commands.SpecimenAnalysis.ExecuteSpecimenAnalysisRequest.AsymptoticConvergenceThreshold">
+            <summary>
+            Consecutive identical-output step count required to flag asymptotic convergence (defaults to <c>10</c>).
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Commands.SpecimenAnalysis.ExecuteSpecimenAnalysisRequest.ConstitutiveParameters">
+            <summary>
+            JSON object containing the constitutive parameters specific to <see cref="P:MelloSilveiraTools.MechanicsOfMaterials.Commands.SpecimenAnalysis.ExecuteSpecimenAnalysisRequest.MechanicalModelName"/>.
+            Deserialized dynamically using the registered <c>IMechanicalModelTypeResolver.ConstitutiveParameters</c> type.
+            </summary>
+        </member>
+        <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Commands.SpecimenAnalysis.ExecuteSpecimenAnalysisResultData">
+            <summary>
+            Encapsulates the downloadable CSV stream (which deletes the temporary file on disposal),
+            file download metadata, simulation delta outputs, and asymptotic convergence time.
+            </summary>
+            <param name="DeltaOutput">Initial, final, absolute delta, and percentage delta simulation outputs.</param>
+            <param name="AsymptoteTime">Time (in seconds) at which asymptotic convergence was detected, or <see langword="null"/> if not reached.</param>
+            <param name="OutputMetadataEntityId">The ID of the output metadata entity.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Commands.SpecimenAnalysis.ExecuteSpecimenAnalysisResultData.#ctor(MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.SimulationDeltaOutput,System.Nullable{System.Double},System.Int64)">
+            <summary>
+            Encapsulates the downloadable CSV stream (which deletes the temporary file on disposal),
+            file download metadata, simulation delta outputs, and asymptotic convergence time.
+            </summary>
+            <param name="DeltaOutput">Initial, final, absolute delta, and percentage delta simulation outputs.</param>
+            <param name="AsymptoteTime">Time (in seconds) at which asymptotic convergence was detected, or <see langword="null"/> if not reached.</param>
+            <param name="OutputMetadataEntityId">The ID of the output metadata entity.</param>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Commands.SpecimenAnalysis.ExecuteSpecimenAnalysisResultData.DeltaOutput">
+            <summary>Initial, final, absolute delta, and percentage delta simulation outputs.</summary>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Commands.SpecimenAnalysis.ExecuteSpecimenAnalysisResultData.AsymptoteTime">
+            <summary>Time (in seconds) at which asymptotic convergence was detected, or <see langword="null"/> if not reached.</summary>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Commands.SpecimenAnalysis.ExecuteSpecimenAnalysisResultData.OutputMetadataEntityId">
+            <summary>The ID of the output metadata entity.</summary>
+        </member>
+        <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Commands.SpecimenAnalysis.ExecuteSpecimenAnalysisValidator">
+            <summary>
+            Validates <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Commands.SpecimenAnalysis.ExecuteSpecimenAnalysisRequest"/> invariants before executing a specimen mechanical analysis.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Commands.SpecimenAnalysis.ExecuteSpecimenAnalysisValidator.ValidateAsync(MelloSilveiraTools.MechanicsOfMaterials.Commands.SpecimenAnalysis.ExecuteSpecimenAnalysisRequest,System.Threading.CancellationToken)">
+            <inheritdoc/>
+        </member>
+        <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Commands.SpecimenAnalysis.SpecimenRequest">
+            <summary>
+            Represents the reference geometry and initial kinematic boundary conditions for an isolated specimen
+            prior to executing a numerical loading protocol.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Commands.SpecimenAnalysis.SpecimenRequest.ConsiderLargeDisplacement">
+            <summary>
+            Indicates whether the numerical solver should bypass infinitesimal strain assumptions and employ
+            finite strain continuum mechanics.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Commands.SpecimenAnalysis.SpecimenRequest.ConsiderAngleVariation">
+            <summary>
+            Specifies if the integration scheme must dynamically update spatial orientation and account for
+            rotational kinematics of the load vector during deformation.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Commands.SpecimenAnalysis.SpecimenRequest.AreaInSquareMillimeters">
+            <summary>
+            The reference undeformed cross-sectional area (A₀) of the specimen in mm².
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Commands.SpecimenAnalysis.SpecimenRequest.InitialAngleAsString">
+            <summary>
+            The initial spatial orientation angle of the specimen formatted as a parseable 3D vector string (e.g. <c>"0;0;0"</c>).
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Commands.SpecimenAnalysis.SpecimenRequest.PreLoadStrain">
+            <summary>
+            The baseline pre-conditioning strain (ε₀) applied prior to the primary analytical step.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Commands.SpecimenAnalysis.SpecimenRequest.InitialLengthInMillimeters">
+            <summary>
+            The reference undeformed length (L₀) of the specimen in millimeters (mm).
+            </summary>
+        </member>
+        <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Controllers.MechanicsOfMaterialsController">
+            <summary>
+            Exposes <c>MelloSilveiraTools.MechanicsOfMaterials</c> capabilities via MVC controller endpoints,
+            providing full parity with <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Endpoints.MechanicsOfMaterialsEndpoints"/>.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Controllers.MechanicsOfMaterialsController.GetModelsAsync(MelloSilveiraTools.MechanicsOfMaterials.Commands.MechanicalModels.Get.GetMechanicalModelsCommand,System.Threading.CancellationToken)">
+            <summary>
+            Lists every registered mechanical model resolver with its calculator type
+            and JSON structures for constitutive parameters and output.
+            </summary>
+            <param name="command">Command that resolves registered mechanical model metadata.</param>
+            <param name="cancellationToken">Cancellation token.</param>
+            <returns>Registered model metadata wrapped in <see cref="T:MelloSilveiraTools.Core.Models.Result`1"/>.</returns>
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Controllers.MechanicsOfMaterialsController.ExecuteSpecimenAnalysisAsync(MelloSilveiraTools.MechanicsOfMaterials.Commands.SpecimenAnalysis.ExecuteSpecimenAnalysisCommand,MelloSilveiraTools.MechanicsOfMaterials.Commands.SpecimenAnalysis.ExecuteSpecimenAnalysisRequest,System.Threading.CancellationToken)">
+            <summary>
+            Executes a single deterministic specimen mechanical analysis for any registered or plugin-loaded constitutive model
+            and streams the generated CSV file for download, deleting the temporary artifact upon completion.
+            </summary>
+            <param name="command">Command that validates, runs time-marching integration, and opens the temporary CSV stream.</param>
+            <param name="request">Unified specimen analysis request with dynamic JSON constitutive parameters.</param>
+            <param name="cancellationToken">Cancellation token.</param>
+            <returns>Downloadable CSV file stream, or a <see cref="T:MelloSilveiraTools.Core.Models.Result"/> error payload.</returns>
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Controllers.MechanicsOfMaterialsController.CalculateFatigue(MelloSilveiraTools.MechanicsOfMaterials.Calculators.Fatigue.IFatigueCalculator,MelloSilveiraTools.MechanicsOfMaterials.Models.Fatigue.FatigueInput)">
+            <summary>
+            Runs a complete high-cycle Goodman/Marin fatigue analysis.
+            </summary>
+            <param name="calculator">Fatigue calculator service.</param>
+            <param name="input">Fatigue calculation input parameters.</param>
+            <returns>Fatigue analysis output wrapped in <see cref="T:MelloSilveiraTools.Core.Models.Result`1"/>.</returns>
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Controllers.MechanicsOfMaterialsController.CalculateEnduranceLimit(MelloSilveiraTools.MechanicsOfMaterials.Calculators.Fatigue.IFatigueCalculator,MelloSilveiraTools.MechanicsOfMaterials.Models.Fatigue.FatigueInput)">
+            <summary>
+            Calculates the Marin-corrected endurance limit Se (MPa).
+            </summary>
+            <param name="calculator">Fatigue calculator service.</param>
+            <param name="input">Fatigue calculation input parameters.</param>
+            <returns>Modified endurance limit wrapped in <see cref="T:MelloSilveiraTools.Core.Models.Result`1"/>.</returns>
+        </member>
         <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Converters.MechanicalParameter.IMechanicalParameterConverter">
             <summary>
             Converts mechanical parameters.
@@ -1466,6 +1806,20 @@
             geometric property calculators) as singletons into the dependency injection container.
             </summary>
             <returns>The same service collection so additional registrations can be chained.</returns>
+        </member>
+        <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Endpoints.MechanicsOfMaterialsEndpoints">
+            <summary>
+            Maps high-performance, low-allocation Minimal API endpoints exposing <c>MelloSilveiraTools.MechanicsOfMaterials</c>
+            capabilities (registered constitutive model discovery and Goodman/Marin fatigue analysis).
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Endpoints.MechanicsOfMaterialsEndpoints.MapMechanicsOfMaterialsEndpoints(Microsoft.AspNetCore.Routing.IEndpointRouteBuilder,System.String)">
+            <summary>
+            Registers all Mechanics of Materials Minimal API endpoints under <paramref name="pattern"/>.
+            </summary>
+            <param name="builder">Endpoint route builder.</param>
+            <param name="pattern">Route prefix; defaults to <c>"/api/v1/mechanics"</c>.</param>
+            <returns>The configured <see cref="T:Microsoft.AspNetCore.Routing.RouteGroupBuilder"/>.</returns>
         </member>
         <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Files.MechanicalModelOutputCsvFileWriter">
             <summary>
@@ -2117,6 +2471,46 @@
             <summary>
             Modified Superposition Method.
             </summary>
+        </member>
+        <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.SimulationDeltaOutput">
+            <summary>
+            Encapsulates the boundary values and comparative deltas between the initial and final simulation outputs.
+            </summary>
+            <param name="InitialOutput">The output produced at the initial simulation step.</param>
+            <param name="FinalOutput">The output produced at the final simulation step.</param>
+            <param name="AbsoluteDelta">The absolute difference between final and initial outputs.</param>
+            <param name="PercentageDelta">The relative percentage change between final and initial outputs.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.SimulationDeltaOutput.#ctor(MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalModelOutput,MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalModelOutput,MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalModelOutput,MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalModelOutput)">
+            <summary>
+            Encapsulates the boundary values and comparative deltas between the initial and final simulation outputs.
+            </summary>
+            <param name="InitialOutput">The output produced at the initial simulation step.</param>
+            <param name="FinalOutput">The output produced at the final simulation step.</param>
+            <param name="AbsoluteDelta">The absolute difference between final and initial outputs.</param>
+            <param name="PercentageDelta">The relative percentage change between final and initial outputs.</param>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.SimulationDeltaOutput.InitialOutput">
+            <summary>The output produced at the initial simulation step.</summary>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.SimulationDeltaOutput.FinalOutput">
+            <summary>The output produced at the final simulation step.</summary>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.SimulationDeltaOutput.AbsoluteDelta">
+            <summary>The absolute difference between final and initial outputs.</summary>
+        </member>
+        <member name="P:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.SimulationDeltaOutput.PercentageDelta">
+            <summary>The relative percentage change between final and initial outputs.</summary>
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.SimulationDeltaOutput.Calculate(MelloSilveiraTools.MechanicsOfMaterials.Calculators.MechanicalModels.TypeResolvers.IMechanicalModelTypeResolver,MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalModelOutput,MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalModelOutput)">
+            <summary>
+            Computes the absolute and percentage deltas across all writable numeric properties
+            of the resolved <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalModelOutput"/> hierarchy.
+            </summary>
+            <param name="mechanicalModelTypeResolver">Type resolver identifying the concrete <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.MechanicalModelOutput"/> type.</param>
+            <param name="initialOutput">The output produced at the initial simulation step.</param>
+            <param name="lastOutput">The output produced at the final simulation step.</param>
+            <returns>A <see cref="T:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.SimulationDeltaOutput"/> containing initial, final, absolute delta, and percentage delta outputs.</returns>
         </member>
         <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Models.MechanicalModels.Viscoelasticity.Linear.Maxwell.MaxwellConstitutiveParameters">
             <summary>
@@ -2783,6 +3177,37 @@
             <summary>
             Initial angle of the material with the system.
             Unit: rad (radians).
+            </summary>
+        </member>
+        <member name="T:MelloSilveiraTools.MechanicsOfMaterials.Serializers.Json.MechanicsOfMaterialsJsonOptions">
+            <summary>
+            Centralized JSON serialization and schema-export options for <c>MelloSilveiraTools.MechanicsOfMaterials</c>.
+            </summary>
+        </member>
+        <member name="F:MelloSilveiraTools.MechanicsOfMaterials.Serializers.Json.MechanicsOfMaterialsJsonOptions.Default">
+            <summary>
+            Shared web-default JSON serialization options configured with case-insensitive property matching,
+            <see cref="T:System.Text.Json.Serialization.Metadata.DefaultJsonTypeInfoResolver"/> (for JSON schema export), and <see cref="T:System.Text.Json.Serialization.JsonStringEnumConverter"/>.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Serializers.Json.MechanicsOfMaterialsJsonOptions.GetJsonSchemaAsNode(System.Type)">
+            <summary>
+            Exports the JSON Schema representation of <paramref name="type"/> using <see cref="F:MelloSilveiraTools.MechanicsOfMaterials.Serializers.Json.MechanicsOfMaterialsJsonOptions.Default"/> options.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Serializers.Json.MechanicsOfMaterialsJsonOptions.SafeDeserialize``1(Microsoft.Extensions.Logging.ILogger,System.Text.Json.JsonElement,System.Type)">
+            <summary>
+            Deserializes a <see cref="T:System.Text.Json.JsonElement"/> into the specified <paramref name="returnType"/> using <see cref="F:MelloSilveiraTools.MechanicsOfMaterials.Serializers.Json.MechanicsOfMaterialsJsonOptions.Default"/> options.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Serializers.Json.MechanicsOfMaterialsJsonOptions.Deserialize(System.Text.Json.JsonElement,System.Type)">
+            <summary>
+            Deserializes a <see cref="T:System.Text.Json.JsonElement"/> into the specified <paramref name="returnType"/> using <see cref="F:MelloSilveiraTools.MechanicsOfMaterials.Serializers.Json.MechanicsOfMaterialsJsonOptions.Default"/> options.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.MechanicsOfMaterials.Serializers.Json.MechanicsOfMaterialsJsonOptions.Deserialize``1(System.Text.Json.JsonElement)">
+            <summary>
+            Deserializes a <see cref="T:System.Text.Json.JsonElement"/> into the specified <typeparamref name="T"/> using <see cref="F:MelloSilveiraTools.MechanicsOfMaterials.Serializers.Json.MechanicsOfMaterialsJsonOptions.Default"/> options.
             </summary>
         </member>
     </members>

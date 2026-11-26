@@ -12,7 +12,12 @@ namespace MelloSilveiraTools.Launcher.Steps;
 /// <param name="logger">Logger for execution diagnostics.</param>
 /// <param name="repositoryRoot">Root directory containing <c>docker-compose.yml</c>.</param>
 /// <param name="options">Resolved launcher infrastructure options.</param>
-public sealed class DockerComposeStep(ILogger<DockerComposeStep> logger, string repositoryRoot, LauncherInfrastructureOptions options)
+/// <param name="secrets">Resolved runtime secrets passed to Docker Compose interpolation.</param>
+public sealed class DockerComposeStep(
+    ILogger<DockerComposeStep> logger,
+    string repositoryRoot,
+    LauncherInfrastructureOptions options,
+    LauncherRuntimeSecrets secrets)
 {
     /// <summary>
     /// Ensures Docker is available, builds/starts the Compose stack, and probes <c>/health</c>.
@@ -21,8 +26,7 @@ public sealed class DockerComposeStep(ILogger<DockerComposeStep> logger, string 
     {
         logger.LogInformation("[1/2] Checking Docker availability for self-contained container stack...");
 
-        (int dockerExit, _, _) = await ProcessRunner.RunCommandAsync("docker", "info", repositoryRoot, cancellationToken).ConfigureAwait(false);
-        if (dockerExit != 0)
+        if (!await DatabaseInfrastructureStep.EnsureDockerDaemonRunningAsync(logger, cancellationToken).ConfigureAwait(false))
         {
             logger.LogError("Docker daemon is not running or Docker is not installed. Start Docker and re-run with --docker.");
             return false;
@@ -45,25 +49,11 @@ public sealed class DockerComposeStep(ILogger<DockerComposeStep> logger, string 
             return false;
         }
 
-        string baseUrl = options.BuildWebApiBaseUrl();
-
-        int maxAttempts = 90;
-        for (int attempt = 0; attempt < maxAttempts; attempt++)
-        {
-            if (await IsHealthyAsync(baseUrl, cancellationToken).ConfigureAwait(false))
-            {
-                logger.LogInformation("Ready! Frontend: {BaseUrl} | Swagger: {BaseUrl}/swagger", baseUrl, baseUrl);
-                if (options.OpenBrowser)
-                    return WebApiHostStep.TryOpenBrowser(logger, baseUrl);
-            }
-
-            TimeSpan delayTimeSpan = TimeSpan.FromSeconds(5);
-            logger.LogInformation("({CurrentAttempt}/{MaxAttempts} Waiting {DelayTimeSpan} to check if WebApi.Host is health.", attempt, maxAttempts, delayTimeSpan);
-            await Task.Delay(delayTimeSpan, cancellationToken).ConfigureAwait(false);
-        }
-
-        logger.LogError("Timed out waiting for containerized WebApi.Host /health endpoint at {BaseUrl}.", baseUrl);
-        return false;
+        return await LauncherHostProbe.WaitForHealthyAsync(
+            logger,
+            options.BuildWebApiBaseUrl(),
+            options.OpenBrowser,
+            cancellationToken: cancellationToken).ConfigureAwait(false);
     }
 
     /// <summary>
@@ -97,25 +87,14 @@ public sealed class DockerComposeStep(ILogger<DockerComposeStep> logger, string 
             UseShellExecute = false
         };
 
+        (_, int postgresPort) = options.ExtractHostAndPort();
+        startInfo.Environment["TOOLS_POSTGRES_PORT"] = postgresPort.ToString(CultureInfo.InvariantCulture);
         startInfo.Environment["TOOLS_WEBAPI_PORT"] = options.WebApiPort.ToString(CultureInfo.InvariantCulture);
         startInfo.Environment["TOOLS_MIGRATION_CONTEXT"] = options.MigrationContext.ToString();
         startInfo.Environment["TOOLS_MIGRATION_TIMEOUT"] = options.MigrationTimeoutSeconds.ToString(CultureInfo.InvariantCulture);
         startInfo.Environment["TOOLS_DOCKER_MIGRATOR_CONNECTION_STRING"] = options.BuildDockerConnectionString();
         startInfo.Environment["TOOLS_DOCKER_APP_CONNECTION_STRING"] = options.BuildApplicationConnectionString(forDocker: true);
+        secrets.ApplyToEnvironment(startInfo.Environment, uppercaseKeys: true);
         return startInfo;
-    }
-
-    private static async Task<bool> IsHealthyAsync(string baseUrl, CancellationToken cancellationToken)
-    {
-        try
-        {
-            using HttpClient client = new() { Timeout = TimeSpan.FromSeconds(2) };
-            using HttpResponseMessage response = await client.GetAsync($"{baseUrl.TrimEnd('/')}/health", cancellationToken).ConfigureAwait(false);
-            return response.IsSuccessStatusCode;
-        }
-        catch
-        {
-            return false;
-        }
     }
 }

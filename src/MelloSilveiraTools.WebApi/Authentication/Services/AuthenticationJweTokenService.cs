@@ -7,7 +7,9 @@ using JwtRegisteredClaimNames = Microsoft.IdentityModel.JsonWebTokens.JwtRegiste
 namespace MelloSilveiraTools.WebApi.Authentication.Services;
 
 /// <summary>
-/// Service that handles an encrypted and signed JSON Web token for authentication.
+/// Service that handles an encrypted and signed JSON Web Token (JWE) carrying only user identity (<c>sub</c>).
+/// Authorization privileges (including superuser status and active-account checks) are never embedded in the token
+/// and are resolved live from PostgreSQL.
 /// </summary>
 /// <remarks>
 /// The configured <see cref="JwtSettings.EncryptionKey"/> is consumed as UTF-8 bytes and used to wrap the
@@ -15,8 +17,8 @@ namespace MelloSilveiraTools.WebApi.Authentication.Services;
 /// exactly 32 bytes (256 bits) in UTF-8. A shorter or longer encryption key will cause the constructor
 /// to throw when the underlying cryptographic provider rejects the key length.
 /// </remarks>
-/// <param name="settings">JWT settings carrying the signing key, encryption key, issuer, audience and lifetime configuration.</param>
 /// <param name="timeProvider">Mandatory time provider used for timestamping and token lifetime validation.</param>
+/// <param name="settings">JWT settings carrying the signing key, encryption key, issuer, audience and lifetime configuration.</param>
 public class AuthenticationJweTokenService(TimeProvider timeProvider, JwtSettings settings) : IAuthenticationTokenService
 {
     private static readonly JsonWebTokenHandler _handler = new();
@@ -73,6 +75,13 @@ public class AuthenticationJweTokenService(TimeProvider timeProvider, JwtSetting
     {
         TokenValidationResult result = await ValidateTokenAsync(token).ConfigureAwait(false);
         return result.IsValid;
+    }
+
+    /// <inheritdoc/>
+    public async Task<string?> GetValidatedSubjectAsync(string token)
+    {
+        TokenValidationResult result = await ValidateTokenAsync(token).ConfigureAwait(false);
+        return !result.IsValid || result.SecurityToken is not JsonWebToken jwt || string.IsNullOrWhiteSpace(jwt.Subject) ? null : jwt.Subject;
     }
 
     private Task<TokenValidationResult> ValidateTokenAsync(string token) => _handler.ValidateTokenAsync(token, _validationParameters);

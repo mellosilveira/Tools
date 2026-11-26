@@ -24,7 +24,9 @@ public sealed class PluginOrchestratorBackgroundServiceTests
         Directory = "plugins",
         DefaultCacheTarget = "file",
         PollInterval = TimeSpan.FromMilliseconds(15),
-        PreviousVersionRetention = TimeSpan.FromMinutes(30)
+        PreviousVersionRetention = TimeSpan.FromMinutes(30),
+        MaxPluginSizeBytes = 10L * 1024 * 1024,
+        MaxPendingSubmissionsPerUser = 5
     };
 
     public PluginOrchestratorBackgroundServiceTests()

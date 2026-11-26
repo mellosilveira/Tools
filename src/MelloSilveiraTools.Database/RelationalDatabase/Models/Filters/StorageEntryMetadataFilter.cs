@@ -5,7 +5,7 @@ using MelloSilveiraTools.Database.RelationalDatabase.Models.Entities;
 namespace MelloSilveiraTools.Database.RelationalDatabase.Models.Filters;
 
 /// <summary>
-/// Filter model used to query <see cref="StorageEntryMetadataEntity"/> records in the <c>stored_files</c> table.
+/// Filter model used to query <see cref="StorageEntryMetadataEntity"/> records in the <c>storage_entry_metadata</c> table.
 /// </summary>
 [Filter(typeof(StorageEntryMetadataEntity))]
 public record StorageEntryMetadataFilter : FilterBase

@@ -1,5 +1,6 @@
 using MelloSilveiraTools.Plugins.Infrastructure.Models;
 using System.Reflection;
+using System.Reflection.Metadata;
 using System.Reflection.PortableExecutable;
 using System.Runtime.InteropServices;
 
@@ -7,30 +8,32 @@ namespace MelloSilveiraTools.Plugins.Infrastructure;
 
 /// <summary>
 /// The system responsible for dynamically loading external modules ("plugins") into our application.
-/// It acts like a gatekeeper that inspects new functionalities, organizing them so our software can adopt these new capabilities on the fly without requiring a full system restart.
-/// Uses shadow copying and <see cref="PluginLoadContext"/> to isolate dependencies and prevent operating system file locking.
+/// Uses shadow copying, static PE/CLI metadata inspection, and <see cref="PluginLoadContext"/> to isolate dependencies,
+/// enforce IL-only managed constraints by default, and prevent operating system file locking.
 /// </summary>
 /// <param name="typeProcessors">Collection of type processors used to handle each <see cref="IPluginTypeProcessor.ProcessableType"/> discovered inside a plugin assembly.</param>
 /// <param name="timeProvider">The time provider used to record plugin load completion timestamps.</param>
 /// <param name="fileProcessor">File processor used for storage and shadow copy operations.</param>
 /// <param name="cache">Plugin cache used to memoize loaded and registered plugins by name and version.</param>
+/// <param name="settings">Plugin settings controlling security options such as native DLL loading.</param>
 public class PluginAssemblyProcessor(
     IEnumerable<IPluginTypeProcessor> typeProcessors,
     TimeProvider timeProvider,
     PluginFileProcessor fileProcessor,
-    PluginCache cache)
+    PluginCache cache,
+    PluginSettings settings)
 {
     private readonly IPluginTypeProcessor[] _typeProcessors = [.. typeProcessors];
 
     /// <summary>
-    /// Asynchronously loads the assembly described by <paramref name="discovered"/>, validating its PE architecture headers,
+    /// Asynchronously loads the assembly described by <paramref name="discovered"/>, validating its PE/CLI metadata and architecture headers,
     /// shadow-copying it to eliminate persistent OS file locks, and returning the set of processable types it contains.
     /// </summary>
     /// <param name="discovered">Discovered plugin metadata holding the assembly location.</param>
     /// <param name="cancellationToken">Cancellation token.</param>
     /// <returns>A loaded plugin representation holding the collectible assembly load context and discovered processable types.</returns>
     /// <exception cref="BadImageFormatException">
-    /// Thrown when the binary does not contain managed .NET metadata or its architecture is incompatible with the host process.
+    /// Thrown when the binary does not contain valid managed .NET metadata, violates IL-only policy, or has an incompatible architecture.
     /// </exception>
     public Task<LoadedPlugin> LoadAsync(DiscoveredPlugin discovered, CancellationToken cancellationToken = default) => cache.GetOrAddAsync(
         discovered.Name,
@@ -43,10 +46,10 @@ public class PluginAssemblyProcessor(
                 await using (FileStream inspectStream = new(shadowAssemblyPath, FileMode.Open, FileAccess.Read, FileShare.Read))
                 {
                     using PEReader peReader = new(inspectStream, PEStreamOptions.LeaveOpen);
-                    ValidateAssemblyArchitecture(peReader, discovered.Name);
+                    ValidateAssemblyArchitecture(peReader, discovered.Name, settings.AllowUnmanagedDlls);
                 }
 
-                PluginLoadContext pluginContext = new($"PluginContext_{discovered.Name}", shadowAssemblyPath, isCollectible: true);
+                PluginLoadContext pluginContext = new($"PluginContext_{discovered.Name}", shadowAssemblyPath, isCollectible: true, allowUnmanagedDlls: settings.AllowUnmanagedDlls);
                 Assembly assembly = pluginContext.LoadFromAssemblyPath(shadowAssemblyPath);
 
                 Type[] processableTypes = [.. assembly.GetTypes().Where(t =>
@@ -73,22 +76,30 @@ public class PluginAssemblyProcessor(
         });
 
     /// <summary>
-    /// Validates the portable executable (PE) headers using <see cref="PEReader"/> to ensure the assembly
-    /// has managed CLI metadata and is compatible with the host process architecture (preventing BadImageFormatException on Arm64/x86/x64).
+    /// Validates the portable executable (PE) and CLI metadata headers using <see cref="PEReader"/> without executing any code
+    /// to ensure the assembly is a valid managed .NET assembly compatible with the host process architecture.
     /// </summary>
     /// <param name="peReader">The portable executable reader inspecting the assembly.</param>
     /// <param name="assemblyName">The name of the assembly for error reporting.</param>
-    /// <exception cref="BadImageFormatException">Thrown when the assembly is not managed or has an incompatible machine architecture.</exception>
-    public static void ValidateAssemblyArchitecture(PEReader peReader, string assemblyName)
+    /// <param name="allowUnmanagedDlls">When <see langword="false"/>, rejects mixed-mode (non-IL-only) assemblies.</param>
+    /// <exception cref="BadImageFormatException">Thrown when the assembly is invalid, mixed-mode while disallowed, or architecture-incompatible.</exception>
+    public static void ValidateAssemblyArchitecture(PEReader peReader, string assemblyName, bool allowUnmanagedDlls = false)
     {
         if (!peReader.HasMetadata)
             throw new BadImageFormatException($"Assembly '{assemblyName}' does not contain valid managed .NET metadata.");
+
+        MetadataReader metadataReader = peReader.GetMetadataReader();
+        if (!metadataReader.IsAssembly || metadataReader.TypeDefinitions.Count == 0)
+            throw new BadImageFormatException($"Assembly '{assemblyName}' does not contain a valid .NET assembly definition.");
 
         PEHeaders headers = peReader.PEHeaders;
         Machine machine = headers.CoffHeader.Machine;
 
         CorHeader? corHeader = headers.CorHeader ?? throw new BadImageFormatException($"Assembly '{assemblyName}' does not contain a CLI CorHeader.");
         CorFlags flags = corHeader.Flags;
+
+        if (!allowUnmanagedDlls && !flags.HasFlag(CorFlags.ILOnly))
+            throw new BadImageFormatException($"Assembly '{assemblyName}' contains native/mixed-mode code, which is disallowed when AllowUnmanagedDlls is false.");
 
         // AnyCPU assembly: ILOnly is set and Requires32Bit is not set.
         if (flags.HasFlag(CorFlags.ILOnly) && !flags.HasFlag(CorFlags.Requires32Bit) && machine == Machine.I386)

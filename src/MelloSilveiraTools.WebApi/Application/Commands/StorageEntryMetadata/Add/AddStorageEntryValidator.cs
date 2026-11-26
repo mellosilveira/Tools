@@ -9,14 +9,33 @@ namespace MelloSilveiraTools.WebApi.Application.Commands.StorageEntryMetadata.Cr
 public sealed class AddStorageEntryValidator : IValidator<AddStorageEntryRequest>
 {
     /// <inheritdoc/>
-    public Result Validate(AddStorageEntryRequest value)
+    public ValueTask<Result> ValidateAsync(AddStorageEntryRequest value, CancellationToken cancellationToken = default)
     {
         if (value.File is null || value.File.Length <= 0)
-            return Result.CreateBadRequest("A non-empty file must be provided.");
+            return ValueTask.FromResult(Result.CreateBadRequest("A non-empty file must be provided."));
 
         if (string.IsNullOrWhiteSpace(value.File.FileName))
-            return Result.CreateBadRequest("File name must be provided.");
+            return ValueTask.FromResult(Result.CreateBadRequest("File name must be provided."));
 
-        return Result.CreateSuccessOk();
+        if (string.IsNullOrWhiteSpace(value.Identifier) || ContainsPathTraversal(value.Identifier))
+            return ValueTask.FromResult(Result.CreateBadRequest("A valid 'Identifier' without path traversal segments must be provided."));
+
+        if (string.IsNullOrWhiteSpace(value.Context) || ContainsPathTraversal(value.Context))
+            return ValueTask.FromResult(Result.CreateBadRequest("A valid 'Context' without path traversal segments must be provided."));
+
+        if (ContainsPathTraversal(value.File.FileName))
+            return ValueTask.FromResult(Result.CreateBadRequest("File name must not contain path traversal segments."));
+
+        return ValueTask.FromResult(Result.CreateSuccessOk());
+    }
+
+    private static bool ContainsPathTraversal(string input)
+    {
+        string normalized = input.Replace('\\', '/');
+        if (Path.IsPathRooted(input))
+            return true;
+
+        string[] segments = normalized.Split('/', StringSplitOptions.RemoveEmptyEntries);
+        return segments.Any(segment => segment is "." or "..");
     }
 }

@@ -7,16 +7,18 @@ using MelloSilveiraTools.Plugins.Infrastructure.Services;
 namespace MelloSilveiraTools.Plugins.Application.Commands.Get;
 
 /// <summary>
-/// Operation that retrieves registered plugins matching the supplied name, version and load-state filters.
+/// Operation that retrieves sanitized public summaries of registered runtime plugins from memory cache.
+/// Safe for anonymous and authenticated callers; never exposes internal storage paths or loads assemblies from disk.
 /// </summary>
-public class GetPlugins(IPluginService pluginService, PluginValidator<GetPluginsRequest> validator) : ListedCommandBase<GetPluginsRequest, RegisteredPlugin>(validator)
+public class GetPlugins(IPluginService pluginService, PluginValidator<GetPluginsRequest> validator) : ListedCommandBase<GetPluginsRequest, PluginInfo>(validator)
 {
     /// <inheritdoc />
-    protected override async Task<ListedResult<RegisteredPlugin>> ExecuteCommandAsync(GetPluginsRequest request, CancellationToken cancellationToken = default)
+    protected override async Task<ListedResult<PluginInfo>> ExecuteCommandAsync(GetPluginsRequest request, CancellationToken cancellationToken = default)
     {
-        List<RegisteredPlugin> plugins = await pluginService
+        List<PluginInfo> plugins = await pluginService
             .GetPluginsAsync(request.Name, PluginVersion.SafeParse(request.Version), cancellationToken)
             .Where(registered => request.FullyLoaded is null || registered.IsFullyLoaded == request.FullyLoaded)
+            .Select(PluginInfo.FromRegistered)
             .ToListAsync(cancellationToken)
             .ConfigureAwait(false);
 

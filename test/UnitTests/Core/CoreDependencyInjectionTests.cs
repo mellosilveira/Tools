@@ -179,6 +179,7 @@ public sealed class CoreDependencyInjectionTests : IDisposable
             {
                 ConnectionString = "UseDevelopmentStorage=true",
                 ContainerName = "test-container",
+                BasePrefix = "test-prefix",
                 ServiceUrl = "http://127.0.0.1:10000/devstoreaccount1",
                 ResiliencePipelineSettings = CreateResilienceSettings()
             },
@@ -186,6 +187,7 @@ public sealed class CoreDependencyInjectionTests : IDisposable
             {
                 BucketName = "test-bucket",
                 Region = "us-east-1",
+                BasePrefix = "test-prefix",
                 AccessKey = "test-key",
                 SecretKey = "test-secret",
                 ServiceUrl = "http://127.0.0.1:4566",
@@ -217,12 +219,14 @@ public sealed class CoreDependencyInjectionTests : IDisposable
             BlobStorage = new BlobStorageSettings
             {
                 ConnectionString = "UseDevelopmentStorage=true",
-                ContainerName = "test-container"
+                ContainerName = "test-container",
+                BasePrefix = "test-prefix"
             },
             AwsS3 = new AwsS3StorageSettings
             {
                 BucketName = "test-bucket",
                 Region = string.Empty,
+                BasePrefix = "test-prefix",
                 ServiceUrl = "http://127.0.0.1:4566"
             }
         };

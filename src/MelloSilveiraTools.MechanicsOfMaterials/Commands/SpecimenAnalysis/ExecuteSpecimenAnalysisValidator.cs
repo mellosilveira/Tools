@@ -13,10 +13,10 @@ namespace MelloSilveiraTools.MechanicsOfMaterials.Commands.SpecimenAnalysis;
 public sealed class ExecuteSpecimenAnalysisValidator : IValidator<ExecuteSpecimenAnalysisRequest>
 {
     /// <inheritdoc/>
-    public Result Validate(ExecuteSpecimenAnalysisRequest value)
+    public ValueTask<Result> ValidateAsync(ExecuteSpecimenAnalysisRequest value, CancellationToken cancellationToken = default)
     {
         if (value is null)
-            return Result.CreateBadRequest("Request cannot be null.");
+            return ValueTask.FromResult(Result.CreateBadRequest("Request cannot be null."));
 
         double initialTime = value.InitialTime ?? MathematicConstants.InitialTime;
 
@@ -53,6 +53,6 @@ public sealed class ExecuteSpecimenAnalysisValidator : IValidator<ExecuteSpecime
             }
         }
 
-        return result;
+        return ValueTask.FromResult(result);
     }
 }

@@ -4,7 +4,7 @@
     <PackageId>MelloSilveiraTools</PackageId>
     <AssemblyTitle>MelloSilveira Tools</AssemblyTitle>
     <Description>Meta-package that brings in every MelloSilveiraTools feature (Core, Database, WebApi, Plugins, Mathematics, MechanicsOfMaterials). Install only the contextual packages if you do not need everything.</Description>
-    <PackageTags>dotnet;aspnetcore;plugins;postgres;npgsql;jwt;jwe;resilience;polly;swagger;crud;repository;dapper;cache;mathematics;mechanics-of-materials;meta-package</PackageTags>
+    <PackageTags>dotnet;aspnetcore;plugins;postgres;npgsql;aot;jwt;jwe;resilience;polly;swagger;crud;repository;cache;mathematics;mechanics-of-materials;meta-package</PackageTags>
     <IsAotCompatible>true</IsAotCompatible>
   </PropertyGroup>
   <ItemGroup>

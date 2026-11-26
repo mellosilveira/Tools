@@ -1,8 +1,13 @@
 using MelloSilveiraTools.Core.Files.Providers;
+using MelloSilveiraTools.Core.Security;
+using MelloSilveiraTools.Database.Repositories;
 using MelloSilveiraTools.Plugins.Application.Commands.Cache;
 using MelloSilveiraTools.Plugins.Application.Commands.Get;
 using MelloSilveiraTools.Plugins.Application.Commands.Load;
 using MelloSilveiraTools.Plugins.Application.Commands.Reload;
+using MelloSilveiraTools.Plugins.Application.Commands.Submissions;
+using MelloSilveiraTools.Plugins.Application.Commands.Submissions.Cancel;
+using MelloSilveiraTools.Plugins.Application.Commands.Submissions.Get;
 using MelloSilveiraTools.Plugins.Application.Commands.Upload;
 using MelloSilveiraTools.Plugins.Application.Validators;
 using MelloSilveiraTools.Plugins.Infrastructure;
@@ -20,10 +25,10 @@ namespace MelloSilveiraTools.Plugins;
 public static class PluginsDependencyInjection
 {
     /// <summary>
-    /// Registers plugin infrastructure, caching, providers, and plugin operations.
+    /// Registers plugin infrastructure, caching, providers, community submission/moderation commands, and plugin operations.
     /// </summary>
     /// <param name="services">Service collection that receives the registrations.</param>
-    /// <param name="pluginSettings">Settings that describe plugin folders and behavior.</param>
+    /// <param name="pluginSettings">Settings that describe plugin folders, limits, and behavior.</param>
     /// <returns>The same <paramref name="services"/> instance to allow call chaining.</returns>
     public static IServiceCollection AddPluginServices(this IServiceCollection services, PluginSettings pluginSettings) => services
         // Register settings.
@@ -40,18 +45,21 @@ public static class PluginsDependencyInjection
             serviceProvider.GetServices<IPluginTypeProcessor>(),
             serviceProvider.GetRequiredService<TimeProvider>(),
             serviceProvider.GetRequiredService<PluginFileProcessor>(),
-            serviceProvider.GetRequiredService<PluginCache>()))
+            serviceProvider.GetRequiredService<PluginCache>(),
+            serviceProvider.GetRequiredService<PluginSettings>()))
         .AddSingleton<PluginCache>()
+        .AddSingleton(serviceProvider => new PluginSubmissionPersistence(
+            serviceProvider.GetRequiredService<ILogger<PluginSubmissionPersistence>>(),
+            serviceProvider.GetRequiredKeyedService<IFileStorageService>(pluginSettings.StorageProvider),
+            serviceProvider.GetRequiredService<IRepository>(),
+            serviceProvider.GetRequiredService<PluginSettings>()))
         // Register validators.
         .AddSingleton<PluginValidator<GetPluginsRequest>>()
+        .AddSingleton<PluginValidator<InspectPluginsRequest>>()
         .AddSingleton<PluginValidator<ReloadPluginsRequest>>()
         .AddSingleton<PluginValidator>()
         .AddSingleton<UploadPluginValidator>()
-        // Register plugin cache persistences as keyed services. The key matches
-        // the {target} route segment on cache-persist/restore endpoints. Consumers
-        // of this package can register additional implementations under their own
-        // keys (e.g. services.AddKeyedSingleton<IPluginCachePersistence, RedisPluginCachePersistence>("redis");)
-        // and the same endpoints will route to them without further changes.
+        // Register plugin cache persistences as keyed services.
         .AddKeyedSingleton<IPluginCachePersistence>(
             PluginCacheTargets.File,
             (serviceProvider, key) => new JsonFilePluginCachePersistence(
@@ -59,37 +67,48 @@ public static class PluginsDependencyInjection
                 serviceProvider.GetRequiredService<PluginSettings>()))
         .AddKeyedSingleton<IPluginCachePersistence, DatabasePluginCachePersistence>(PluginCacheTargets.Database)
         // Non-keyed IPluginCachePersistence resolves the correct keyed implementation
-        // per request, based on the {target} segment of the current route. This is
-        // what PluginService and any other consumer gets through normal constructor
-        // injection.
+        // per request, based on the {target} segment of the current route.
         .AddScoped((serviceProvider) =>
         {
             IHttpContextAccessor accessor = serviceProvider.GetRequiredService<IHttpContextAccessor>();
             PluginSettings settings = serviceProvider.GetRequiredService<PluginSettings>();
-            // Outside an HTTP request (e.g. inside the plugin orchestrator background service)
-            // there is no {target} route value; fall back to the configured default so that
-            // IPluginService can still be resolved and call LoadPluginsOnRuntime.
             object target = accessor.HttpContext?.Request.RouteValues["target"] ?? settings.DefaultCacheTarget;
             return serviceProvider.GetRequiredKeyedService<IPluginCachePersistence>(target);
         })
-        // Plugin cache operations run inside an HTTP request, so the scoped
-        // persistence factory above resolves to the right implementation.
-        // PluginService must be scoped as well to avoid capturing a scoped
-        // dependency from a wider lifetime.
         .AddScoped<IPluginService, PluginService>()
-        // Register plugin operations.
+        // Register plugin operations and community submission moderation commands.
         .AddScoped<GetPlugins>()
+        .AddScoped<InspectPlugins>()
         .AddScoped<LoadPlugins>()
         .AddScoped<ReloadPlugins>()
         .AddScoped<ClearPluginCache>()
         .AddScoped<PersistPluginCache>()
         .AddScoped<RestorePluginCache>()
-        .AddScoped<UploadPlugin>((IServiceProvider serviceProvider) => new UploadPlugin(
-            serviceProvider.GetRequiredService<ILogger<UploadPlugin>>(),
+        .AddScoped<GetPluginSubmissions>()
+        .AddScoped<SubmitPlugin>()
+        .AddScoped<UploadPlugin>()
+        .AddScoped(serviceProvider => new ApprovePluginSubmission(
+            serviceProvider.GetRequiredService<ILogger<ApprovePluginSubmission>>(),
             serviceProvider.GetRequiredKeyedService<IFileStorageService>(pluginSettings.StorageProvider),
-            serviceProvider.GetRequiredService<UploadPluginValidator>(),
-            serviceProvider.GetRequiredService<PluginSettings>()))
-        // Background orchestrator: polls the plugin folder, promotes newer versions at runtime
+            serviceProvider.GetRequiredService<ICurrentUserProvider>(),
+            serviceProvider.GetRequiredService<IRepository>(),
+            serviceProvider.GetRequiredService<IPluginService>(),
+            serviceProvider.GetRequiredService<TimeProvider>(),
+            serviceProvider.GetRequiredService<PluginFileProcessor>(),
+            serviceProvider.GetRequiredService<PluginSubmissionPersistence>()))
+        .AddScoped(serviceProvider => new RejectPluginSubmission(
+            serviceProvider.GetRequiredService<ILogger<RejectPluginSubmission>>(),
+            serviceProvider.GetRequiredKeyedService<IFileStorageService>(pluginSettings.StorageProvider),
+            serviceProvider.GetRequiredService<ICurrentUserProvider>(),
+            serviceProvider.GetRequiredService<IRepository>(),
+            serviceProvider.GetRequiredService<TimeProvider>(),
+            serviceProvider.GetRequiredService<PluginFileProcessor>()))
+        .AddScoped(serviceProvider => new CancelPluginSubmission(
+            serviceProvider.GetRequiredService<ILogger<CancelPluginSubmission>>(),
+            serviceProvider.GetRequiredKeyedService<IFileStorageService>(pluginSettings.StorageProvider),
+            serviceProvider.GetRequiredService<ICurrentUserProvider>(),
+            serviceProvider.GetRequiredService<IRepository>()))
+        // Background orchestrator: polls the incoming/ folder (never pending/), promotes newer versions at runtime,
         // and evicts obsolete cached versions according to the configured retention policy.
         .AddHostedService<PluginOrchestratorBackgroundService>();
 

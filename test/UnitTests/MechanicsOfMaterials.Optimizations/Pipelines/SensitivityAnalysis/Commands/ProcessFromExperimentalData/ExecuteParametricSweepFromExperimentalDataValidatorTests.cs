@@ -13,16 +13,16 @@ public sealed class ExecuteParametricSweepFromExperimentalDataValidatorTests
     private readonly ExecuteParametricSweepFromExperimentalDataValidator _validator = new();
 
     [Fact]
-    public void Validate_NullRequest_ReturnsBadRequest()
+    public async Task Validate_NullRequest_ReturnsBadRequest()
     {
-        Result result = _validator.Validate(null!);
+        Result result = await _validator.ValidateAsync(null!);
 
         Assert.False(result.Success);
         Assert.Contains("Parametric sweep request cannot be null.", result.Messages);
     }
 
     [Fact]
-    public void Validate_ValidRequest_ReturnsSuccessOk()
+    public async Task Validate_ValidRequest_ReturnsSuccessOk()
     {
         ExecuteParametricSweepFromExperimentalDataRequest request = new()
         {
@@ -42,14 +42,14 @@ public sealed class ExecuteParametricSweepFromExperimentalDataValidatorTests
             }
         };
 
-        Result result = _validator.Validate(request);
+        Result result = await _validator.ValidateAsync(request);
 
         Assert.True(result.Success);
         Assert.Empty(result.Messages);
     }
 
     [Fact]
-    public void Validate_MissingIdentifierAndInvalidTimes_ReturnsValidationErrors()
+    public async Task Validate_MissingIdentifierAndInvalidTimes_ReturnsValidationErrors()
     {
         ExecuteParametricSweepFromExperimentalDataRequest request = new()
         {
@@ -65,7 +65,7 @@ public sealed class ExecuteParametricSweepFromExperimentalDataValidatorTests
             BaseRootFindingInput = null!
         };
 
-        Result result = _validator.Validate(request);
+        Result result = await _validator.ValidateAsync(request);
 
         Assert.False(result.Success);
         Assert.Contains("ExperimentalDataIdentifier is required.", result.Messages);

@@ -112,6 +112,7 @@ public sealed class DataflowBackpressureDlqAndTelemetryAcceptanceTests
         Assert.True(groups.Count >= 5);
 
         await using ChannelPipelineProgressNotifier notifier = new(
+            new MelloSilveiraTools.Core.Security.CurrentUserProvider(),
             TimeProvider.System,
             new PipelineProgressNotifierSettings
             {
@@ -203,6 +204,7 @@ public sealed class DataflowBackpressureDlqAndTelemetryAcceptanceTests
         Assert.Contains(groups, g => g.GroupName == FailingGroupName);
 
         await using ChannelPipelineProgressNotifier notifier = new(
+            new MelloSilveiraTools.Core.Security.CurrentUserProvider(),
             TimeProvider.System,
             new PipelineProgressNotifierSettings
             {

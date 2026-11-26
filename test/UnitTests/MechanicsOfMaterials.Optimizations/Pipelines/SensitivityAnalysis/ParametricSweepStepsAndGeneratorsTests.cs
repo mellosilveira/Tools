@@ -287,7 +287,8 @@ public sealed class ParametricSweepStepsAndGeneratorsTests
     public async Task ExecuteParametricSweepValidatorAndCommand_ValidateAndExecute()
     {
         ExecuteParametricSweepValidator validator = new();
-        Assert.False(validator.Validate(null!).Success);
+        Result nullResult = await validator.ValidateAsync(null!);
+        Assert.False(nullResult.Success);
 
         ExecuteParametricSweepPipelineRequest invalid = new()
         {
@@ -301,7 +302,7 @@ public sealed class ParametricSweepStepsAndGeneratorsTests
             RootFindingAlgorithm = (RootFindingAlgorithm)999,
             BaseRootFindingInput = new RootFindingInput(10.0, 5.0, 0.0, 0)
         };
-        Result invalidResult = validator.Validate(invalid);
+        Result invalidResult = await validator.ValidateAsync(invalid);
         Assert.False(invalidResult.Success);
         Assert.True(invalidResult.Messages.Count >= 7);
 
@@ -319,7 +320,8 @@ public sealed class ParametricSweepStepsAndGeneratorsTests
             RootFindingAlgorithm = RootFindingAlgorithm.StepByStepMethod,
             BaseRootFindingInput = CreateRootFindingInput()
         };
-        Assert.True(validator.Validate(valid).Success);
+        Result validResult = await validator.ValidateAsync(valid);
+        Assert.True(validResult.Success);
 
         ParametricSweepPipelineInput? captured = null;
         TaskCompletionSource singleDone = new(TaskCreationOptions.RunContinuationsAsynchronously);

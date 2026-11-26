@@ -60,6 +60,7 @@ $secrets = [ordered]@{
     "DATABASE__CONNECTIONSTRING" = Get-SecretValue "DATABASE__CONNECTIONSTRING" ($secretsData.Database.ConnectionString)
     "JWT__ENCRYPTIONKEY"         = Get-SecretValue "JWT__ENCRYPTIONKEY" ($secretsData.Jwt.EncryptionKey)
     "JWT__SIGNINGKEY"            = Get-SecretValue "JWT__SIGNINGKEY" ($secretsData.Jwt.SigningKey)
+    "SUPERUSER__PASSWORD"        = Get-SecretValue "SUPERUSER__PASSWORD" ($secretsData.Superuser.Password)
 }
 
 if ([System.Text.Encoding]::UTF8.GetByteCount($secrets["JWT__ENCRYPTIONKEY"]) -ne 32) {

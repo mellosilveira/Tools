@@ -45,7 +45,7 @@ public sealed class ExecutePipelineTests
             });
 
         Mock<IValidator<TestRequest>> validatorMock = new();
-        validatorMock.Setup(v => v.Validate(It.IsAny<TestRequest>())).Returns(Result.CreateSuccessOk());
+        validatorMock.Setup(v => v.ValidateAsync(It.IsAny<TestRequest>(), It.IsAny<CancellationToken>())).ReturnsAsync(Result.CreateSuccessOk());
 
         TestExecutePipeline command = new(NullLogger<ExecutePipeline<TestRequest, TestInput, string>>.Instance, pipelineMock.Object, validatorMock.Object);
 
@@ -84,7 +84,7 @@ public sealed class ExecutePipelineTests
             .Callback(() => faultedTcs.TrySetResult(true));
 
         Mock<IValidator<TestRequest>> validatorMock = new();
-        validatorMock.Setup(v => v.Validate(It.IsAny<TestRequest>())).Returns(Result.CreateSuccessOk());
+        validatorMock.Setup(v => v.ValidateAsync(It.IsAny<TestRequest>(), It.IsAny<CancellationToken>())).ReturnsAsync(Result.CreateSuccessOk());
 
         TestExecutePipeline command = new(loggerMock.Object, pipelineMock.Object, validatorMock.Object);
 

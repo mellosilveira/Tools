@@ -34,15 +34,18 @@ string? repoRoot = await LauncherInfrastructureResolver.ResolveOrCloneRepository
 if (repoRoot is null)
     return 1;
 
+LauncherRuntimeSecrets secrets = LauncherRuntimeSecrets.ResolveOrCreate();
+
 logger.LogInformation("Execution Mode    : {Mode}", infrastructure.Mode);
 logger.LogInformation("Repository Root   : {RepoRoot}", repoRoot);
 logger.LogInformation("PostgreSQL Target : {ConnectionString}", infrastructure.BuildMaskedConnectionString());
 logger.LogInformation("Migration Context : {Context} (timeout: {TimeoutSeconds}s)", infrastructure.MigrationContext, infrastructure.MigrationTimeoutSeconds);
 logger.LogInformation("WebApi.Host URL   : {BaseUrl}", infrastructure.BuildWebApiBaseUrl());
+logger.LogInformation("Runtime Secrets   : {SecretsSource} (Superuser username: admin)", secrets.SourceDescription);
 
 if (infrastructure.Mode == ExecutionMode.Docker)
 {
-    DockerComposeStep dockerComposeStep = new(loggerFactory.CreateLogger<DockerComposeStep>(), repoRoot, infrastructure);
+    DockerComposeStep dockerComposeStep = new(loggerFactory.CreateLogger<DockerComposeStep>(), repoRoot, infrastructure, secrets);
     if (!await dockerComposeStep.ExecuteAsync(cts.Token).ConfigureAwait(false))
         return 1;
 
@@ -50,8 +53,7 @@ if (infrastructure.Mode == ExecutionMode.Docker)
     return 0;
 }
 
-(string host, int port) = infrastructure.ExtractHostAndPort();
-DatabaseInfrastructureStep dbInfraStep = new(loggerFactory.CreateLogger<DatabaseInfrastructureStep>(), 1, 3, repoRoot, host, port, infrastructure.AllowDockerInstall);
+DatabaseInfrastructureStep dbInfraStep = new(loggerFactory.CreateLogger<DatabaseInfrastructureStep>(), 1, 3, repoRoot, infrastructure.ConnectionString, infrastructure.AllowDockerInstall);
 if (!await dbInfraStep.ExecuteAsync(cts.Token).ConfigureAwait(false))
     return 1;
 
@@ -59,7 +61,7 @@ DatabaseMigrationStep migrationStep = new(loggerFactory, 2, 3, infrastructure.Co
 if (!migrationStep.Execute())
     return 1;
 
-WebApiHostStep webApiStep = new(loggerFactory.CreateLogger<WebApiHostStep>(), 3, 3, repoRoot, infrastructure.BuildApplicationConnectionString(), infrastructure.BuildWebApiBaseUrl(), infrastructure.OpenBrowser);
+WebApiHostStep webApiStep = new(loggerFactory.CreateLogger<WebApiHostStep>(), 3, 3, repoRoot, infrastructure.BuildApplicationConnectionString(), secrets, infrastructure.BuildWebApiBaseUrl(), infrastructure.OpenBrowser);
 if (!await webApiStep.ExecuteAsync(cts.Token).ConfigureAwait(false))
     return 1;
 

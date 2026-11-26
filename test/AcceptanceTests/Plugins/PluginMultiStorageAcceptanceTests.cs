@@ -50,11 +50,11 @@ public sealed class PluginMultiStorageAcceptanceTests
         UploadPluginRequest request = new() { File = fileMock.Object };
 
         // Act 1: Upload via command
-        Result<StorageEntryMetadata> uploadResult = await uploadCommand.ExecuteAsync(request);
+        Result<PluginInfo> uploadResult = await uploadCommand.ExecuteAsync(request);
 
         // Assert 1: Uploaded to AwsS3 incoming partition, Local storage empty
         Assert.True(uploadResult.Success);
-        Assert.Equal(StorageProvider.AwsS3, uploadResult.Data!.StorageProvider);
+        Assert.Equal(PluginSubmissionStatus.Approved, uploadResult.Data!.Status);
 
         bool inAwsIncoming = fixture.AwsS3Storage.FileExists("plugins", PluginStoragePartitions.Incoming, fileName);
         bool inLocalIncoming = fixture.LocalStorage.FileExists("plugins", PluginStoragePartitions.Incoming, fileName);

@@ -18,7 +18,9 @@ public sealed class PluginFileProcessorTests
         Directory = "plugins",
         DefaultCacheTarget = "file",
         PollInterval = TimeSpan.FromSeconds(30),
-        PreviousVersionRetention = TimeSpan.FromHours(24)
+        PreviousVersionRetention = TimeSpan.FromHours(24),
+        MaxPluginSizeBytes = 10L * 1024 * 1024,
+        MaxPendingSubmissionsPerUser = 5
     };
 
     [Fact]
@@ -103,7 +105,7 @@ public sealed class PluginFileProcessorTests
 
         // Assert
         Assert.Empty(discovered);
-        _storageMock.Verify(s => s.DeleteAsync(filePath, It.IsAny<CancellationToken>()), Times.Once);
+        _storageMock.Verify(s => s.MoveAsync(filePath, quarantinePath, true, It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [Fact]
@@ -150,7 +152,7 @@ public sealed class PluginFileProcessorTests
 
         // Assert
         Assert.Empty(discovered);
-        _storageMock.Verify(s => s.DeleteAsync(filePath, It.IsAny<CancellationToken>()), Times.Once);
+        _storageMock.Verify(s => s.MoveAsync(filePath, quarantinePath, true, It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [Fact]
@@ -171,22 +173,13 @@ public sealed class PluginFileProcessorTests
             .Setup(s => s.ExistsAsync(destinationPath, It.IsAny<CancellationToken>()))
             .ReturnsAsync(false);
 
-        _storageMock
-            .Setup(s => s.OpenReadAsync(sourcePath, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new MemoryStream([1, 2, 3]));
-
-        MemoryStream destinationStream = new();
-        _storageMock
-            .Setup(s => s.OpenWriteAsync(destinationPath, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(destinationStream);
-
         PluginFileProcessor processor = new(NullLogger<PluginFileProcessor>.Instance, _storageMock.Object, _cache, _settings);
 
         // Act
         await processor.MoveToLoadedFolderAsync(plugin);
 
         // Assert
-        _storageMock.Verify(s => s.DeleteAsync(sourcePath, It.IsAny<CancellationToken>()), Times.Once);
+        _storageMock.Verify(s => s.MoveAsync(sourcePath, destinationPath, true, It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [Fact]
@@ -203,15 +196,6 @@ public sealed class PluginFileProcessorTests
             .Setup(s => s.ResolveLocation("plugins", PluginStoragePartitions.Incoming, fileName))
             .Returns(incomingPath);
 
-        _storageMock
-            .Setup(s => s.OpenReadAsync(sourcePath, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new MemoryStream([1, 2, 3]));
-
-        MemoryStream incomingStream = new();
-        _storageMock
-            .Setup(s => s.OpenWriteAsync(incomingPath, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(incomingStream);
-
         PluginFileProcessor processor = new(NullLogger<PluginFileProcessor>.Instance, _storageMock.Object, _cache, _settings);
 
         // Act
@@ -219,7 +203,7 @@ public sealed class PluginFileProcessorTests
 
         // Assert
         _storageMock.Verify(s => s.ResolveLocation("plugins", PluginStoragePartitions.Incoming, fileName), Times.Once);
-        _storageMock.Verify(s => s.DeleteAsync(sourcePath, It.IsAny<CancellationToken>()), Times.Once);
+        _storageMock.Verify(s => s.MoveAsync(sourcePath, incomingPath, true, It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [Fact]
@@ -279,7 +263,7 @@ public sealed class PluginFileProcessorTests
 
         // Assert
         _storageMock.Verify(s => s.ResolveLocation("plugins", PluginStoragePartitions.Archive, fileName), Times.Once);
-        _storageMock.Verify(s => s.DeleteAsync(sourcePath, It.IsAny<CancellationToken>()), Times.Once);
+        _storageMock.Verify(s => s.MoveAsync(sourcePath, archivePath, true, It.IsAny<CancellationToken>()), Times.Once);
     }
 
     private static async IAsyncEnumerable<StorageEntryMetadata> CreateAsyncEnumerable(IEnumerable<StorageEntryMetadata> items)

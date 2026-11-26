@@ -33,6 +33,7 @@ using MelloSilveiraTools.Plugins.Infrastructure;
 using MelloSilveiraTools.Plugins.Infrastructure.Models;
 using MelloSilveiraTools.Plugins.Infrastructure.Persistences;
 using MelloSilveiraTools.WebApi;
+using MelloSilveiraTools.WebApi.Application.Controllers;
 using MelloSilveiraTools.WebApi.Application.Endpoints;
 using MelloSilveiraTools.WebApi.Application.Models;
 using MelloSilveiraTools.WebApi.Infrastructure.ResiliencePipelines;
@@ -218,18 +219,22 @@ public sealed class WebApiEndpointsAndStreamingAcceptanceTests : IAsyncLifetime
                 Directory = _pluginDirectoryPrefix,
                 PollInterval = TimeSpan.FromMinutes(5),
                 PreviousVersionRetention = TimeSpan.FromMinutes(30),
-                DefaultCacheTarget = PluginCacheTargets.File
+                DefaultCacheTarget = PluginCacheTargets.File,
+                MaxPluginSizeBytes = 10L * 1024 * 1024,
+                MaxPendingSubmissionsPerUser = 5
             })
             .AddSingleton(repositoryMock.Object)
+            .AddSingleton(Mock.Of<MelloSilveiraTools.Core.Security.ICurrentUserProvider>(u => u.IsSuperuser()))
             .ConfigureHttpJsonOptions(options => options.SerializerOptions.Converters.Add(new TypeJsonConverter()))
             .AddControllers()
             .AddJsonOptions(options => options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()))
-            .AddApplicationPart(typeof(ExperimentalDataController).Assembly);
+            .AddApplicationPart(typeof(ExperimentalDataController).Assembly)
+            .AddApplicationPart(typeof(StorageEntryMetadataController).Assembly);
 
         _app = builder.Build();
         _app.UseCustomMiddlewares();
         _app.MapControllers();
-        _app.MapPluginEndpoints("/api/v1/plugins");
+        _app.MapPluginEndpoints("/api/v1/plugins", managementAuthorizationPolicy: null, requireAuthForSubmissions: false);
         _app.MapCrud<StorageEntryMetadataEntity, StorageEntryMetadataFilter>("/api/v1/storage-metadata-minimal", "StorageMetadataMinimal");
         _app.MapGet("/api/v1/stream/fault-midstream", async (HttpContext httpContext, ILogger<WebApiEndpointsAndStreamingAcceptanceTests> logger) =>
         {
@@ -368,11 +373,12 @@ public sealed class WebApiEndpointsAndStreamingAcceptanceTests : IAsyncLifetime
         HttpResponseMessage restoreResponse = await client.PostAsync("/api/v1/plugins/cache/file/restore", null);
         Assert.Equal(HttpStatusCode.OK, restoreResponse.StatusCode);
 
-        // Assert GET plugins endpoint returns 200 OK with persisted plugin metadata
+        // Assert GET plugins endpoint returns 200 OK with sanitized public plugin metadata (no internal paths)
         HttpResponseMessage getResponse = await client.GetAsync("/api/v1/plugins");
         Assert.Equal(HttpStatusCode.OK, getResponse.StatusCode);
         string pluginsJson = await getResponse.Content.ReadAsStringAsync();
         Assert.Contains("RealKestrel.Analytics", pluginsJson);
+        Assert.DoesNotContain("FullPath", pluginsJson, StringComparison.OrdinalIgnoreCase);
     }
 
     /// <summary>

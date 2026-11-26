@@ -13,10 +13,10 @@ public abstract class ExecuteExperimentalDataPipelineValidatorBase<TRequest> : I
     where TRequest : ExecuteExperimentalDataPipelineRequestBase
 {
     /// <inheritdoc/>
-    public Result Validate(TRequest value)
+    public ValueTask<Result> ValidateAsync(TRequest value, CancellationToken cancellationToken = default)
     {
         if (value is null)
-            return Result.CreateBadRequest("Experimental data processing request cannot be null.");
+            return ValueTask.FromResult(Result.CreateBadRequest("Experimental data processing request cannot be null."));
 
         List<string> errors = [];
 
@@ -44,9 +44,8 @@ public abstract class ExecuteExperimentalDataPipelineValidatorBase<TRequest> : I
 
         ValidateComplementary(value, errors);
 
-        return errors.Count == 0
-            ? Result.CreateSuccessOk()
-            : Result.CreateBadRequest<Result>(errors);
+        Result result = errors.Count == 0 ? Result.CreateSuccessOk() : Result.CreateBadRequest<Result>(errors);
+        return ValueTask.FromResult(result);
     }
 
     /// <summary>

@@ -66,6 +66,28 @@ public class ResultTests
     }
 
     [Fact]
+    public void CreateForbidden_ShouldReturnFailureWithForbiddenStatus()
+    {
+        Result withMessage = Result.CreateForbidden("Access to this resource is restricted.");
+        Result withoutMessage = Result.CreateForbidden();
+        Result<string> typedForbidden = withMessage;
+
+        Assert.False(withMessage.Success);
+        Assert.Equal(StatusCode.Forbidden, withMessage.StatusCode);
+        Assert.Single(withMessage.Messages);
+        Assert.Contains("Access to this resource is restricted.", withMessage.Messages);
+
+        Assert.False(withoutMessage.Success);
+        Assert.Equal(StatusCode.Forbidden, withoutMessage.StatusCode);
+        Assert.Empty(withoutMessage.Messages);
+
+        Assert.False(typedForbidden.Success);
+        Assert.Equal(StatusCode.Forbidden, typedForbidden.StatusCode);
+        Assert.Null(typedForbidden.Data);
+        Assert.Equal(withMessage.Messages, typedForbidden.Messages);
+    }
+
+    [Fact]
     public void CreateNotFound_ShouldReturnFailureWithNotFoundStatus()
     {
         Result result = Result.CreateNotFound("Requested business entity does not exist.");
@@ -171,11 +193,15 @@ public class ResultTests
 
         Result<int> accepted = Result.CreateSuccessAccepted(7);
         Result<int> created = Result.CreateSuccessCreated(8);
-        Result<string> conflictNoMsg = Result.CreateConflict("dup");
+        Result<string> conflictNoMsg = Result.CreateConflict<string>("dup");
+        Result conflictWithMsg = Result.CreateConflict("dup");
         Assert.Equal(StatusCode.Accepted, accepted.StatusCode);
         Assert.Equal(StatusCode.Created, created.StatusCode);
         Assert.True(conflictNoMsg.IsConflict);
+        Assert.Equal("dup", conflictNoMsg.Data);
         Assert.Empty(conflictNoMsg.Messages);
+        Assert.True(conflictWithMsg.IsConflict);
+        Assert.Equal(["dup"], conflictWithMsg.Messages);
 
         Result convertedFromGeneric = Result.Create(accepted);
         Result<double> convertedToGeneric = Result.Create<Result<double>>(multiMessageBadRequest);

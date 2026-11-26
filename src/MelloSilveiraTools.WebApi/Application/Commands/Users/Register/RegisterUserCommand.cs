@@ -11,11 +11,10 @@ using MelloSilveiraTools.WebApi.Authentication.Services;
 namespace MelloSilveiraTools.WebApi.Application.Commands.Users.Register;
 
 /// <summary>
-/// Registers a new user in the database with a salted PBKDF2 password hash, provisions dedicated
-/// PostgreSQL partitions for the user's tenant-isolated tables, and issues a JWE token.
+/// Registers a new user in the database with a salted PBKDF2 password hash and issues a JWE token.
 /// </summary>
 /// <param name="validator">Validator for registration requests.</param>
-/// <param name="repository">Relational repository for persisting <see cref="UserEntity"/> records and provisioning user partitions.</param>
+/// <param name="repository">Relational repository for persisting <see cref="UserEntity"/> records.</param>
 /// <param name="encryptionService">Password hashing service.</param>
 /// <param name="tokenService">Authentication token service.</param>
 public sealed class RegisterUserCommand(
@@ -45,12 +44,8 @@ public sealed class RegisterUserCommand(
         };
 
         Result<long> insertResult = await repository.TryInsertAsync(newUser, cancellationToken).ConfigureAwait(false);
-        if (!insertResult.Success)
-            return Result.CreateError(insertResult.StatusCode, $"Failed to register user: {insertResult.JoinedMessages}");
-
-        await repository.EnsureUserPartitionsAsync(insertResult.Data, cancellationToken).ConfigureAwait(false);
-
-        AuthenticationToken token = tokenService.Generate(insertResult.Data);
-        return token;
+        return !insertResult.Success
+            ? Result.CreateError(insertResult.StatusCode, $"Failed to register user: {insertResult.JoinedMessages}")
+            : tokenService.Generate(insertResult.Data);
     }
 }

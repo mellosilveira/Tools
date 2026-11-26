@@ -26,10 +26,15 @@ public static class StorageEntryMetadataEndpoints
     /// </summary>
     /// <param name="builder">Endpoint route builder used to register the endpoints.</param>
     /// <param name="pattern">Route prefix; defaults to <c>"/api/v1/storage-entry-metadata"</c>.</param>
+    /// <param name="requireAuthForMutations">
+    /// When <see langword="true"/>, attaches <c>.RequireAuthorization()</c> to overwrite and delete routes
+    /// (<c>PUT</c> and <c>DELETE</c>) while leaving read, download, and append-only upload accessible to anonymous callers.
+    /// </param>
     /// <returns>The created <see cref="RouteGroupBuilder"/> so callers can chain authorization or tags.</returns>
     public static RouteGroupBuilder MapStorageEntryMetadataEndpoints(
         this IEndpointRouteBuilder builder,
-        string pattern = "/api/v1/storage-entry-metadata")
+        string pattern = "/api/v1/storage-entry-metadata",
+        bool requireAuthForMutations = false)
     {
         RouteGroupBuilder group = builder.MapGroup(pattern).WithTags("StorageEntryMetadata");
 
@@ -67,7 +72,7 @@ public static class StorageEntryMetadataEndpoints
             .WithName("ReadStorageEntryMetadata")
             .WithSummary("Reads stored file metadata from storage and database, grouped by identifier, context, and file extension.");
 
-        group
+        RouteHandlerBuilder updateEndpoint = group
             .MapPut("/{fileId:long}", async (HttpContext httpContext, [FromServices] UpdateStorageEntryFileCommand command, long fileId, IFormFile file) => await command
                 .ExecuteAsync(new UpdateStorageEntryFileRequest { FileId = fileId, File = file }, httpContext.RequestAborted)
                 .ToHttpResultAsync()
@@ -79,7 +84,7 @@ public static class StorageEntryMetadataEndpoints
             .WithName("UpdateStorageEntryFile")
             .WithSummary("Overwrites the physical file for an existing entry, replacing the database metadata record.");
 
-        group
+        RouteHandlerBuilder deleteEndpoint = group
             .MapDelete("/", async (HttpContext httpContext, [FromServices] DeleteStorageEntryCommand command, [FromBody] DeleteStorageEntryRequest request) => await command
                 .ExecuteAsync(request, httpContext.RequestAborted)
                 .ToHttpResultAsync()
@@ -90,8 +95,8 @@ public static class StorageEntryMetadataEndpoints
             .WithName("DeleteStorageEntry")
             .WithSummary("Idempotently deletes a file from storage and/or database using the request payload.");
 
-        group
-            .MapDelete("/{fileId:long}", async (HttpContext httpContext, [FromServices] DeleteStorageEntryCommand command, long fileId, [FromBody] DeleteStorageEntryRequest? request) =>
+        RouteHandlerBuilder deleteByIdEndpoint = group
+            .MapDelete("/{fileId:long}", async (HttpContext httpContext, [FromServices] DeleteStorageEntryCommand command, long fileId, [FromBody(EmptyBodyBehavior = Microsoft.AspNetCore.Mvc.ModelBinding.EmptyBodyBehavior.Allow)] DeleteStorageEntryRequest? request) =>
             {
                 DeleteStorageEntryRequest effectiveRequest = request is null
                     ? new DeleteStorageEntryRequest { FileId = fileId }
@@ -108,11 +113,18 @@ public static class StorageEntryMetadataEndpoints
             .WithName("DeleteStorageEntryById")
             .WithSummary("Idempotently deletes a file from storage and/or database by its metadata identifier.");
 
+        if (requireAuthForMutations)
+        {
+            updateEndpoint.RequireAuthorization();
+            deleteEndpoint.RequireAuthorization();
+            deleteByIdEndpoint.RequireAuthorization();
+        }
+
         group
-            .MapGet("/{fileId:long}/download", async (HttpContext httpContext, [FromServices] DownloadStoredFileCommand command, long fileId) =>
+            .MapGet("/{fileId:long}/download", async (HttpContext httpContext, [FromServices] DownloadStorageEntryCommand command, long fileId) =>
             {
-                Result<DownloadStoredFileResultData> result = await command
-                    .ExecuteAsync(new DownloadStoredFileRequest { FileId = fileId }, httpContext.RequestAborted)
+                Result<DownloadStorageEntryResultData> result = await command
+                    .ExecuteAsync(new DownloadStorageEntryRequest { FileId = fileId }, httpContext.RequestAborted)
                     .ConfigureAwait(false);
 
                 return result.Success

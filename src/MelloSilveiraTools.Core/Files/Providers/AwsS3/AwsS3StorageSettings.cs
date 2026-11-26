@@ -33,9 +33,9 @@ public sealed record AwsS3StorageSettings
     public string? ServiceUrl { get; init; }
 
     /// <summary>
-    /// Gets an optional base prefix or virtual folder hierarchy within the bucket.
+    /// Gets the mandatory base prefix or virtual folder hierarchy within the bucket.
     /// </summary>
-    public string? BasePrefix { get; init; }
+    public required string BasePrefix { get; init; }
 
     /// <summary>
     /// Gets the optional resilience pipeline settings governing retries, backoff, and circuit breaker for AWS S3 operations.

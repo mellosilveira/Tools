@@ -196,6 +196,10 @@ public sealed class SpecimenAnalysisDownloadAndDeleteAcceptanceTests
 
         public string ResolveLocation(string identifier, string context, string fileName) => inner.ResolveLocation(identifier, context, fileName);
 
+        public (string Identifier, string Context, string FileName) ParseLocation(string location) => inner.ParseLocation(location);
+
+        public string ExtractDirectory(string location, string? fallbackDirectory = null) => inner.ExtractDirectory(location, fallbackDirectory);
+
         public ValueTask<Stream> OpenWriteAsync(string location, CancellationToken cancellationToken = default) => inner.OpenWriteAsync(location, cancellationToken);
 
         public ValueTask<(Stream Stream, string Location)> CreateWriteAsync(string identifier, string context, string fileName, CancellationToken cancellationToken = default)
@@ -240,6 +244,21 @@ public sealed class SpecimenAnalysisDownloadAndDeleteAcceptanceTests
 
         public IAsyncEnumerable<StorageEntryMetadata> ListEntriesAsync(string identifier, string context, CancellationToken cancellationToken = default)
             => inner.ListEntriesAsync(identifier, context, cancellationToken);
+
+        public ValueTask MoveAsync(string sourceLocation, string destinationLocation, bool overwrite = true, CancellationToken cancellationToken = default)
+            => inner.MoveAsync(sourceLocation, destinationLocation, overwrite, cancellationToken);
+
+        public ValueTask<string> MoveAsync(string sourceLocation, string destinationIdentifier, string destinationContext, string destinationFileName, bool overwrite = true, CancellationToken cancellationToken = default)
+            => inner.MoveAsync(sourceLocation, destinationIdentifier, destinationContext, destinationFileName, overwrite, cancellationToken);
+
+        public ValueTask<string> ComputeSha256Async(string location, CancellationToken cancellationToken = default)
+            => inner.ComputeSha256Async(location, cancellationToken);
+
+        public ValueTask<string> ComputeSha256Async(string identifier, string context, string fileName, CancellationToken cancellationToken = default)
+            => inner.ComputeSha256Async(identifier, context, fileName, cancellationToken);
+
+        public ValueTask<(string Location, string Directory, string Sha256Hash, long SizeBytes)> WriteAndHashAsync(string identifier, string context, string fileName, Stream sourceStream, CancellationToken cancellationToken = default)
+            => inner.WriteAndHashAsync(identifier, context, fileName, sourceStream, cancellationToken);
 
         public void Dispose() => inner.Dispose();
 

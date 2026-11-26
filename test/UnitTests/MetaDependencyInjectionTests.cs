@@ -100,7 +100,9 @@ public sealed class MetaDependencyInjectionTests : IDisposable
             Directory = _tempDirectory,
             PollInterval = TimeSpan.FromMinutes(1),
             PreviousVersionRetention = TimeSpan.FromMinutes(5),
-            DefaultCacheTarget = "file"
+            DefaultCacheTarget = "file",
+            MaxPluginSizeBytes = 10L * 1024 * 1024,
+            MaxPendingSubmissionsPerUser = 5
         };
         FileStorageSettings fileStorageSettings = new()
         {

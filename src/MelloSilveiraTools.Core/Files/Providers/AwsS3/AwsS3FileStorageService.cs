@@ -59,16 +59,17 @@ namespace MelloSilveiraTools.Core.Files.Providers.AwsS3;
 /// <param name="logger">Logger instance for structured tracing of operations and transmission progress.</param>
 /// <param name="defaultStorage">The default file storage service used to buffer writes before streaming to S3. In this version, a local file storage is used.</param>
 /// <param name="amazonS3Client">Amazon S3 client instance shared across the application lifecycle.</param>
+/// <param name="timeProvider">The time provider instance used for temporal operations.</param>
 /// <param name="settings">AWS S3 storage settings defining bucket, region, credentials, and virtual prefixes.</param>
 /// <param name="resiliencePipeline">Resilience pipeline for AWS S3 operations providing retry, backoff, and circuit-breaker strategies.</param>
-/// <param name="timeProvider">The time provider instance used for temporal operations.</param>
 public class AwsS3FileStorageService(
     ILogger<AwsS3FileStorageService> logger,
     IFileStorageService defaultStorage,
     IAmazonS3 amazonS3Client,
+    TimeProvider timeProvider,
     AwsS3StorageSettings settings,
-    AwsS3ResiliencePipeline resiliencePipeline,
-    TimeProvider timeProvider) : FileStorageServiceBase(timeProvider)
+    AwsS3ResiliencePipeline resiliencePipeline)
+    : CloudFileStorageServiceBase(timeProvider, settings.BasePrefix)
 {
     private int _disposedState;
 
@@ -76,12 +77,9 @@ public class AwsS3FileStorageService(
     public override StorageProvider Provider => StorageProvider.AwsS3;
 
     /// <inheritdoc />
-    public override string ResolveLocation(string identifier, string context, string fileName) => BuildDirectoryPrefix(identifier, context) + fileName;
-
-    /// <inheritdoc />
     public override async ValueTask<Stream> OpenWriteAsync(string location, CancellationToken cancellationToken = default)
     {
-        string fileName = ExtractCloudFileName(location)!;
+        string fileName = ExtractCloudPath(location).FileName!;
         string uploadId = Guid.NewGuid().ToString("N");
         (Stream localStream, string tempLocation) = await defaultStorage.CreateWriteAsync(uploadId, "s3-uploads", fileName, cancellationToken).ConfigureAwait(false);
 
@@ -265,7 +263,7 @@ public class AwsS3FileStorageService(
             {
                 cancellationToken.ThrowIfCancellationRequested();
 
-                string directory = ExtractCloudDirectory(commonPrefix);
+                string directory = ExtractCloudPath(commonPrefix).Directory;
                 yield return new StorageEntryMetadata(StorageProvider.AwsS3, commonPrefix, directory, null, 0L, TimeProvider.GetUtcNow());
             }
 
@@ -286,8 +284,6 @@ public class AwsS3FileStorageService(
             request.ContinuationToken = response.NextContinuationToken;
         } while (response.IsTruncated == true);
     }
-
-    private string BuildDirectoryPrefix(string identifier, string context) => BuildDirectoryPrefix(identifier, context, settings.BasePrefix);
 
     private void LogS3Error(Exception ex, string operation, string location)
     {
