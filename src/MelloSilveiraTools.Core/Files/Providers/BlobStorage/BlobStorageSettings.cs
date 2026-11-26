@@ -28,11 +28,6 @@ public sealed record BlobStorageSettings
     public string? ServiceUrl { get; init; }
 
     /// <summary>
-    /// Gets an optional local staging directory used for buffering uploads. If omitted, the default file storage service temporary location is used.
-    /// </summary>
-    public string? StagingDirectory { get; init; }
-
-    /// <summary>
     /// Gets the optional resilience pipeline settings governing retries, backoff, and circuit breaker for Azure Blob Storage operations.
     /// </summary>
     public ResiliencePipelineSettings? ResiliencePipelineSettings { get; init; }

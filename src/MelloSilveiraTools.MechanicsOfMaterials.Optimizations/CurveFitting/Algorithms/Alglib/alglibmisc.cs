@@ -2786,8 +2786,8 @@ public partial class alglib
             rec1.i = rec1.i + 1;
             rec1.c.x = rec1.c.x + 2;
             rec1.c.y = rec1.c.y + 3;
-            apserv.rvectorresize(ref rec1.a, alglib.ap.len(rec1.a) + 1, _params);
-            rec1.a[alglib.ap.len(rec1.a) - 1] = rec1.a[alglib.ap.len(rec1.a) - 2] + 3;
+            apserv.rvectorresize(ref rec1.a, ap.len(rec1.a) + 1, _params);
+            rec1.a[ap.len(rec1.a) - 1] = rec1.a[ap.len(rec1.a) - 2] + 3;
         }
 
 
@@ -2807,7 +2807,7 @@ public partial class alglib
             int i = 0;
 
             result = 0;
-            for (i = 0; i <= alglib.ap.len(a) - 1; i++)
+            for (i = 0; i <= ap.len(a) - 1; i++)
             {
                 if (a[i])
                 {
@@ -2833,7 +2833,7 @@ public partial class alglib
         {
             int i = 0;
 
-            for (i = 0; i <= alglib.ap.len(a) - 1; i++)
+            for (i = 0; i <= ap.len(a) - 1; i++)
             {
                 a[i] = !a[i];
             }
@@ -2856,15 +2856,15 @@ public partial class alglib
             int i = 0;
             bool[] b = new bool[0];
 
-            b = new bool[alglib.ap.len(a)];
-            for (i = 0; i <= alglib.ap.len(b) - 1; i++)
+            b = new bool[ap.len(a)];
+            for (i = 0; i <= ap.len(b) - 1; i++)
             {
                 b[i] = a[i];
             }
-            a = new bool[2 * alglib.ap.len(b)];
-            for (i = 0; i <= alglib.ap.len(a) - 1; i++)
+            a = new bool[2 * ap.len(b)];
+            for (i = 0; i <= ap.len(a) - 1; i++)
             {
-                a[i] = b[i % alglib.ap.len(b)];
+                a[i] = b[i % ap.len(b)];
             }
         }
 
@@ -2888,7 +2888,7 @@ public partial class alglib
             a = new bool[0];
 
             a = new bool[n];
-            for (i = 0; i <= alglib.ap.len(a) - 1; i++)
+            for (i = 0; i <= ap.len(a) - 1; i++)
             {
                 a[i] = i % 2 == 0;
             }
@@ -2911,7 +2911,7 @@ public partial class alglib
             int i = 0;
 
             result = 0;
-            for (i = 0; i <= alglib.ap.len(a) - 1; i++)
+            for (i = 0; i <= ap.len(a) - 1; i++)
             {
                 result = result + a[i];
             }
@@ -2934,7 +2934,7 @@ public partial class alglib
         {
             int i = 0;
 
-            for (i = 0; i <= alglib.ap.len(a) - 1; i++)
+            for (i = 0; i <= ap.len(a) - 1; i++)
             {
                 a[i] = -a[i];
             }
@@ -2957,15 +2957,15 @@ public partial class alglib
             int i = 0;
             int[] b = new int[0];
 
-            b = new int[alglib.ap.len(a)];
-            for (i = 0; i <= alglib.ap.len(b) - 1; i++)
+            b = new int[ap.len(a)];
+            for (i = 0; i <= ap.len(b) - 1; i++)
             {
                 b[i] = a[i];
             }
-            a = new int[2 * alglib.ap.len(b)];
-            for (i = 0; i <= alglib.ap.len(a) - 1; i++)
+            a = new int[2 * ap.len(b)];
+            for (i = 0; i <= ap.len(a) - 1; i++)
             {
-                a[i] = b[i % alglib.ap.len(b)];
+                a[i] = b[i % ap.len(b)];
             }
         }
 
@@ -2991,7 +2991,7 @@ public partial class alglib
             a = new int[0];
 
             a = new int[n];
-            for (i = 0; i <= alglib.ap.len(a) - 1; i++)
+            for (i = 0; i <= ap.len(a) - 1; i++)
             {
                 if (i % 2 == 0)
                 {
@@ -3021,7 +3021,7 @@ public partial class alglib
             int i = 0;
 
             result = 0;
-            for (i = 0; i <= alglib.ap.len(a) - 1; i++)
+            for (i = 0; i <= ap.len(a) - 1; i++)
             {
                 result = result + a[i];
             }
@@ -3049,7 +3049,7 @@ public partial class alglib
             a = (double[])a.Clone();
 
             result = 0;
-            for (i = 0; i <= alglib.ap.len(a) - 1; i++)
+            for (i = 0; i <= ap.len(a) - 1; i++)
             {
                 result = result + a[i];
             }
@@ -3072,7 +3072,7 @@ public partial class alglib
         {
             int i = 0;
 
-            for (i = 0; i <= alglib.ap.len(a) - 1; i++)
+            for (i = 0; i <= ap.len(a) - 1; i++)
             {
                 a[i] = -a[i];
             }
@@ -3095,15 +3095,15 @@ public partial class alglib
             int i = 0;
             double[] b = new double[0];
 
-            b = new double[alglib.ap.len(a)];
-            for (i = 0; i <= alglib.ap.len(b) - 1; i++)
+            b = new double[ap.len(a)];
+            for (i = 0; i <= ap.len(b) - 1; i++)
             {
                 b[i] = a[i];
             }
-            a = new double[2 * alglib.ap.len(b)];
-            for (i = 0; i <= alglib.ap.len(a) - 1; i++)
+            a = new double[2 * ap.len(b)];
+            for (i = 0; i <= ap.len(a) - 1; i++)
             {
-                a[i] = b[i % alglib.ap.len(b)];
+                a[i] = b[i % ap.len(b)];
             }
         }
 
@@ -3129,7 +3129,7 @@ public partial class alglib
             a = new double[0];
 
             a = new double[n];
-            for (i = 0; i <= alglib.ap.len(a) - 1; i++)
+            for (i = 0; i <= ap.len(a) - 1; i++)
             {
                 if (i % 2 == 0)
                 {
@@ -3159,7 +3159,7 @@ public partial class alglib
             int i = 0;
 
             result = 0;
-            for (i = 0; i <= alglib.ap.len(a) - 1; i++)
+            for (i = 0; i <= ap.len(a) - 1; i++)
             {
                 result = result + a[i];
             }
@@ -3182,7 +3182,7 @@ public partial class alglib
         {
             int i = 0;
 
-            for (i = 0; i <= alglib.ap.len(a) - 1; i++)
+            for (i = 0; i <= ap.len(a) - 1; i++)
             {
                 a[i] = -a[i];
             }
@@ -3205,15 +3205,15 @@ public partial class alglib
             int i = 0;
             complex[] b = new complex[0];
 
-            b = new complex[alglib.ap.len(a)];
-            for (i = 0; i <= alglib.ap.len(b) - 1; i++)
+            b = new complex[ap.len(a)];
+            for (i = 0; i <= ap.len(b) - 1; i++)
             {
                 b[i] = a[i];
             }
-            a = new complex[2 * alglib.ap.len(b)];
-            for (i = 0; i <= alglib.ap.len(a) - 1; i++)
+            a = new complex[2 * ap.len(b)];
+            for (i = 0; i <= ap.len(a) - 1; i++)
             {
-                a[i] = b[i % alglib.ap.len(b)];
+                a[i] = b[i % ap.len(b)];
             }
         }
 
@@ -3239,7 +3239,7 @@ public partial class alglib
             a = new complex[0];
 
             a = new complex[n];
-            for (i = 0; i <= alglib.ap.len(a) - 1; i++)
+            for (i = 0; i <= ap.len(a) - 1; i++)
             {
                 if (i % 2 == 0)
                 {
@@ -3271,9 +3271,9 @@ public partial class alglib
             int j = 0;
 
             result = 0;
-            for (i = 0; i <= alglib.ap.rows(a) - 1; i++)
+            for (i = 0; i <= ap.rows(a) - 1; i++)
             {
-                for (j = 0; j <= alglib.ap.cols(a) - 1; j++)
+                for (j = 0; j <= ap.cols(a) - 1; j++)
                 {
                     if (a[i, j])
                     {
@@ -3301,9 +3301,9 @@ public partial class alglib
             int i = 0;
             int j = 0;
 
-            for (i = 0; i <= alglib.ap.rows(a) - 1; i++)
+            for (i = 0; i <= ap.rows(a) - 1; i++)
             {
-                for (j = 0; j <= alglib.ap.cols(a) - 1; j++)
+                for (j = 0; j <= ap.cols(a) - 1; j++)
                 {
                     a[i, j] = !a[i, j];
                 }
@@ -3328,18 +3328,18 @@ public partial class alglib
             int j = 0;
             bool[,] b = new bool[0, 0];
 
-            b = new bool[alglib.ap.rows(a), alglib.ap.cols(a)];
-            for (i = 0; i <= alglib.ap.rows(b) - 1; i++)
+            b = new bool[ap.rows(a), ap.cols(a)];
+            for (i = 0; i <= ap.rows(b) - 1; i++)
             {
-                for (j = 0; j <= alglib.ap.cols(b) - 1; j++)
+                for (j = 0; j <= ap.cols(b) - 1; j++)
                 {
                     b[i, j] = a[i, j];
                 }
             }
-            a = new bool[alglib.ap.cols(b), alglib.ap.rows(b)];
-            for (i = 0; i <= alglib.ap.rows(b) - 1; i++)
+            a = new bool[ap.cols(b), ap.rows(b)];
+            for (i = 0; i <= ap.rows(b) - 1; i++)
             {
-                for (j = 0; j <= alglib.ap.cols(b) - 1; j++)
+                for (j = 0; j <= ap.cols(b) - 1; j++)
                 {
                     a[j, i] = b[i, j];
                 }
@@ -3368,9 +3368,9 @@ public partial class alglib
             a = new bool[0, 0];
 
             a = new bool[m, n];
-            for (i = 0; i <= alglib.ap.rows(a) - 1; i++)
+            for (i = 0; i <= ap.rows(a) - 1; i++)
             {
-                for (j = 0; j <= alglib.ap.cols(a) - 1; j++)
+                for (j = 0; j <= ap.cols(a) - 1; j++)
                 {
                     a[i, j] = (double)(Math.Sin(3 * i + 5 * j)) > (double)(0);
                 }
@@ -3395,9 +3395,9 @@ public partial class alglib
             int j = 0;
 
             result = 0;
-            for (i = 0; i <= alglib.ap.rows(a) - 1; i++)
+            for (i = 0; i <= ap.rows(a) - 1; i++)
             {
-                for (j = 0; j <= alglib.ap.cols(a) - 1; j++)
+                for (j = 0; j <= ap.cols(a) - 1; j++)
                 {
                     result = result + a[i, j];
                 }
@@ -3422,9 +3422,9 @@ public partial class alglib
             int i = 0;
             int j = 0;
 
-            for (i = 0; i <= alglib.ap.rows(a) - 1; i++)
+            for (i = 0; i <= ap.rows(a) - 1; i++)
             {
-                for (j = 0; j <= alglib.ap.cols(a) - 1; j++)
+                for (j = 0; j <= ap.cols(a) - 1; j++)
                 {
                     a[i, j] = -a[i, j];
                 }
@@ -3449,18 +3449,18 @@ public partial class alglib
             int j = 0;
             int[,] b = new int[0, 0];
 
-            b = new int[alglib.ap.rows(a), alglib.ap.cols(a)];
-            for (i = 0; i <= alglib.ap.rows(b) - 1; i++)
+            b = new int[ap.rows(a), ap.cols(a)];
+            for (i = 0; i <= ap.rows(b) - 1; i++)
             {
-                for (j = 0; j <= alglib.ap.cols(b) - 1; j++)
+                for (j = 0; j <= ap.cols(b) - 1; j++)
                 {
                     b[i, j] = a[i, j];
                 }
             }
-            a = new int[alglib.ap.cols(b), alglib.ap.rows(b)];
-            for (i = 0; i <= alglib.ap.rows(b) - 1; i++)
+            a = new int[ap.cols(b), ap.rows(b)];
+            for (i = 0; i <= ap.rows(b) - 1; i++)
             {
-                for (j = 0; j <= alglib.ap.cols(b) - 1; j++)
+                for (j = 0; j <= ap.cols(b) - 1; j++)
                 {
                     a[j, i] = b[i, j];
                 }
@@ -3489,9 +3489,9 @@ public partial class alglib
             a = new int[0, 0];
 
             a = new int[m, n];
-            for (i = 0; i <= alglib.ap.rows(a) - 1; i++)
+            for (i = 0; i <= ap.rows(a) - 1; i++)
             {
-                for (j = 0; j <= alglib.ap.cols(a) - 1; j++)
+                for (j = 0; j <= ap.cols(a) - 1; j++)
                 {
                     a[i, j] = Math.Sign(Math.Sin(3 * i + 5 * j));
                 }
@@ -3516,9 +3516,9 @@ public partial class alglib
             int j = 0;
 
             result = 0;
-            for (i = 0; i <= alglib.ap.rows(a) - 1; i++)
+            for (i = 0; i <= ap.rows(a) - 1; i++)
             {
-                for (j = 0; j <= alglib.ap.cols(a) - 1; j++)
+                for (j = 0; j <= ap.cols(a) - 1; j++)
                 {
                     result = result + a[i, j];
                 }
@@ -3548,9 +3548,9 @@ public partial class alglib
             a = (double[,])a.Clone();
 
             result = 0;
-            for (i = 0; i <= alglib.ap.rows(a) - 1; i++)
+            for (i = 0; i <= ap.rows(a) - 1; i++)
             {
-                for (j = 0; j <= alglib.ap.cols(a) - 1; j++)
+                for (j = 0; j <= ap.cols(a) - 1; j++)
                 {
                     result = result + a[i, j];
                 }
@@ -3575,9 +3575,9 @@ public partial class alglib
             int i = 0;
             int j = 0;
 
-            for (i = 0; i <= alglib.ap.rows(a) - 1; i++)
+            for (i = 0; i <= ap.rows(a) - 1; i++)
             {
-                for (j = 0; j <= alglib.ap.cols(a) - 1; j++)
+                for (j = 0; j <= ap.cols(a) - 1; j++)
                 {
                     a[i, j] = -a[i, j];
                 }
@@ -3602,18 +3602,18 @@ public partial class alglib
             int j = 0;
             double[,] b = new double[0, 0];
 
-            b = new double[alglib.ap.rows(a), alglib.ap.cols(a)];
-            for (i = 0; i <= alglib.ap.rows(b) - 1; i++)
+            b = new double[ap.rows(a), ap.cols(a)];
+            for (i = 0; i <= ap.rows(b) - 1; i++)
             {
-                for (j = 0; j <= alglib.ap.cols(b) - 1; j++)
+                for (j = 0; j <= ap.cols(b) - 1; j++)
                 {
                     b[i, j] = a[i, j];
                 }
             }
-            a = new double[alglib.ap.cols(b), alglib.ap.rows(b)];
-            for (i = 0; i <= alglib.ap.rows(b) - 1; i++)
+            a = new double[ap.cols(b), ap.rows(b)];
+            for (i = 0; i <= ap.rows(b) - 1; i++)
             {
-                for (j = 0; j <= alglib.ap.cols(b) - 1; j++)
+                for (j = 0; j <= ap.cols(b) - 1; j++)
                 {
                     a[j, i] = b[i, j];
                 }
@@ -3642,9 +3642,9 @@ public partial class alglib
             a = new double[0, 0];
 
             a = new double[m, n];
-            for (i = 0; i <= alglib.ap.rows(a) - 1; i++)
+            for (i = 0; i <= ap.rows(a) - 1; i++)
             {
-                for (j = 0; j <= alglib.ap.cols(a) - 1; j++)
+                for (j = 0; j <= ap.cols(a) - 1; j++)
                 {
                     a[i, j] = Math.Sin(3 * i + 5 * j);
                 }
@@ -3669,9 +3669,9 @@ public partial class alglib
             int j = 0;
 
             result = 0;
-            for (i = 0; i <= alglib.ap.rows(a) - 1; i++)
+            for (i = 0; i <= ap.rows(a) - 1; i++)
             {
-                for (j = 0; j <= alglib.ap.cols(a) - 1; j++)
+                for (j = 0; j <= ap.cols(a) - 1; j++)
                 {
                     result = result + a[i, j];
                 }
@@ -3696,9 +3696,9 @@ public partial class alglib
             int i = 0;
             int j = 0;
 
-            for (i = 0; i <= alglib.ap.rows(a) - 1; i++)
+            for (i = 0; i <= ap.rows(a) - 1; i++)
             {
-                for (j = 0; j <= alglib.ap.cols(a) - 1; j++)
+                for (j = 0; j <= ap.cols(a) - 1; j++)
                 {
                     a[i, j] = -a[i, j];
                 }
@@ -3723,18 +3723,18 @@ public partial class alglib
             int j = 0;
             complex[,] b = new complex[0, 0];
 
-            b = new complex[alglib.ap.rows(a), alglib.ap.cols(a)];
-            for (i = 0; i <= alglib.ap.rows(b) - 1; i++)
+            b = new complex[ap.rows(a), ap.cols(a)];
+            for (i = 0; i <= ap.rows(b) - 1; i++)
             {
-                for (j = 0; j <= alglib.ap.cols(b) - 1; j++)
+                for (j = 0; j <= ap.cols(b) - 1; j++)
                 {
                     b[i, j] = a[i, j];
                 }
             }
-            a = new complex[alglib.ap.cols(b), alglib.ap.rows(b)];
-            for (i = 0; i <= alglib.ap.rows(b) - 1; i++)
+            a = new complex[ap.cols(b), ap.rows(b)];
+            for (i = 0; i <= ap.rows(b) - 1; i++)
             {
-                for (j = 0; j <= alglib.ap.cols(b) - 1; j++)
+                for (j = 0; j <= ap.cols(b) - 1; j++)
                 {
                     a[j, i] = b[i, j];
                 }
@@ -3763,9 +3763,9 @@ public partial class alglib
             a = new complex[0, 0];
 
             a = new complex[m, n];
-            for (i = 0; i <= alglib.ap.rows(a) - 1; i++)
+            for (i = 0; i <= ap.rows(a) - 1; i++)
             {
-                for (j = 0; j <= alglib.ap.cols(a) - 1; j++)
+                for (j = 0; j <= ap.cols(a) - 1; j++)
                 {
                     a[i, j].x = Math.Sin(3 * i + 5 * j);
                     a[i, j].y = Math.Cos(3 * i + 5 * j);
@@ -3794,12 +3794,12 @@ public partial class alglib
             int i = 0;
             int j = 0;
 
-            alglib.ap.assert(m >= alglib.ap.rows(a));
-            alglib.ap.assert(m >= alglib.ap.rows(b));
-            alglib.ap.assert(m >= alglib.ap.rows(c));
-            alglib.ap.assert(n >= alglib.ap.cols(a));
-            alglib.ap.assert(n >= alglib.ap.cols(b));
-            alglib.ap.assert(n >= alglib.ap.cols(c));
+            ap.assert(m >= ap.rows(a));
+            ap.assert(m >= ap.rows(b));
+            ap.assert(m >= ap.rows(c));
+            ap.assert(n >= ap.cols(a));
+            ap.assert(n >= ap.cols(b));
+            ap.assert(n >= ap.cols(c));
             result = 0.0;
             for (i = 0; i <= m - 1; i++)
             {
@@ -3955,7 +3955,7 @@ public partial class alglib
             int a = 0;
             int b = 0;
 
-            alglib.ap.assert(n > 0, "HQRNDUniformI: N<=0!");
+            ap.assert(n > 0, "HQRNDUniformI: N<=0!");
             maxcnt = hqrndmax + 1;
 
             //
@@ -3991,7 +3991,7 @@ public partial class alglib
                     //
                     // Result is equal to A+MaxCnt*B.
                     //
-                    alglib.ap.assert(n / maxcnt <= maxcnt, "HQRNDUniformI: N is too large");
+                    ap.assert(n / maxcnt <= maxcnt, "HQRNDUniformI: N is too large");
                     a = hqrnduniformi(state, maxcnt, _params);
                     b = hqrnduniformi(state, n / maxcnt, _params);
                     result = a + maxcnt * b;
@@ -4015,7 +4015,7 @@ public partial class alglib
                     //   This stage is essential in order to avoid bias in the result.
                     // * otherwise, we return A*MaxCnt+N
                     //
-                    alglib.ap.assert(n / maxcnt + 1 <= maxcnt, "HQRNDUniformI: N is too large");
+                    ap.assert(n / maxcnt + 1 <= maxcnt, "HQRNDUniformI: N is too large");
                     result = -1;
                     do
                     {
@@ -4248,7 +4248,7 @@ public partial class alglib
         {
             double result = 0;
 
-            alglib.ap.assert((double)(lambdav) > (double)(0), "HQRNDExponential: LambdaV<=0!");
+            ap.assert((double)(lambdav) > (double)(0), "HQRNDExponential: LambdaV<=0!");
             result = -(Math.Log(hqrnduniformr(state, _params)) / lambdav);
             return result;
         }
@@ -4282,7 +4282,7 @@ public partial class alglib
 
             if (state.magicv != hqrndmagic)
             {
-                alglib.ap.assert(false, "HQRNDIntegerBase: State is not correctly initialized!");
+                ap.assert(false, "HQRNDIntegerBase: State is not correctly initialized!");
             }
             k = state.s1 / 53668;
             state.s1 = 40014 * (state.s1 - k * 53668) - k * 12211;
@@ -4333,8 +4333,8 @@ public partial class alglib
         {
             double result = 0;
 
-            alglib.ap.assert(n > 0, "HQRNDDiscrete: N<=0");
-            alglib.ap.assert(n <= alglib.ap.len(x), "HQRNDDiscrete: Length(X)<N");
+            ap.assert(n > 0, "HQRNDDiscrete: N<=0");
+            ap.assert(n <= ap.len(x), "HQRNDDiscrete: Length(X)<N");
             result = x[hqrnduniformi(state, n, _params)];
             return result;
         }
@@ -4369,8 +4369,8 @@ public partial class alglib
             double mn = 0;
             int i = 0;
 
-            alglib.ap.assert(n > 0, "HQRNDContinuous: N<=0");
-            alglib.ap.assert(n <= alglib.ap.len(x), "HQRNDContinuous: Length(X)<N");
+            ap.assert(n > 0, "HQRNDContinuous: N<=0");
+            ap.assert(n <= ap.len(x), "HQRNDContinuous: Length(X)<N");
             if (n == 1)
             {
                 result = x[0];
@@ -4379,7 +4379,7 @@ public partial class alglib
             i = hqrnduniformi(state, n - 1, _params);
             mn = x[i];
             mx = x[i + 1];
-            alglib.ap.assert((double)(mx) >= (double)(mn), "HQRNDDiscrete: X is not sorted by ascending");
+            ap.assert((double)(mx) >= (double)(mn), "HQRNDDiscrete: X is not sorted by ascending");
             if ((double)(mx) != (double)(mn))
             {
                 result = (mx - mn) * hqrnduniformr(state, _params) + mn;
@@ -4560,13 +4560,13 @@ public partial class alglib
             int[] tags = new int[0];
             int i = 0;
 
-            alglib.ap.assert(n >= 0, "KDTreeBuild: N<0");
-            alglib.ap.assert(nx >= 1, "KDTreeBuild: NX<1");
-            alglib.ap.assert(ny >= 0, "KDTreeBuild: NY<0");
-            alglib.ap.assert(normtype >= 0 && normtype <= 2, "KDTreeBuild: incorrect NormType");
-            alglib.ap.assert(alglib.ap.rows(xy) >= n, "KDTreeBuild: rows(X)<N");
-            alglib.ap.assert(alglib.ap.cols(xy) >= nx + ny || n == 0, "KDTreeBuild: cols(X)<NX+NY");
-            alglib.ap.assert(apserv.apservisfinitematrix(xy, n, nx + ny, _params), "KDTreeBuild: XY contains infinite or NaN values");
+            ap.assert(n >= 0, "KDTreeBuild: N<0");
+            ap.assert(nx >= 1, "KDTreeBuild: NX<1");
+            ap.assert(ny >= 0, "KDTreeBuild: NY<0");
+            ap.assert(normtype >= 0 && normtype <= 2, "KDTreeBuild: incorrect NormType");
+            ap.assert(ap.rows(xy) >= n, "KDTreeBuild: rows(X)<N");
+            ap.assert(ap.cols(xy) >= nx + ny || n == 0, "KDTreeBuild: cols(X)<NX+NY");
+            ap.assert(apserv.apservisfinitematrix(xy, n, nx + ny, _params), "KDTreeBuild: XY contains infinite or NaN values");
             if (n > 0)
             {
                 tags = new int[n];
@@ -4632,13 +4632,13 @@ public partial class alglib
             int i_ = 0;
             int i1_ = 0;
 
-            alglib.ap.assert(n >= 0, "KDTreeBuildTagged: N<0");
-            alglib.ap.assert(nx >= 1, "KDTreeBuildTagged: NX<1");
-            alglib.ap.assert(ny >= 0, "KDTreeBuildTagged: NY<0");
-            alglib.ap.assert(normtype >= 0 && normtype <= 2, "KDTreeBuildTagged: incorrect NormType");
-            alglib.ap.assert(alglib.ap.rows(xy) >= n, "KDTreeBuildTagged: rows(X)<N");
-            alglib.ap.assert(alglib.ap.cols(xy) >= nx + ny || n == 0, "KDTreeBuildTagged: cols(X)<NX+NY");
-            alglib.ap.assert(apserv.apservisfinitematrix(xy, n, nx + ny, _params), "KDTreeBuildTagged: XY contains infinite or NaN values");
+            ap.assert(n >= 0, "KDTreeBuildTagged: N<0");
+            ap.assert(nx >= 1, "KDTreeBuildTagged: NX<1");
+            ap.assert(ny >= 0, "KDTreeBuildTagged: NY<0");
+            ap.assert(normtype >= 0 && normtype <= 2, "KDTreeBuildTagged: incorrect NormType");
+            ap.assert(ap.rows(xy) >= n, "KDTreeBuildTagged: rows(X)<N");
+            ap.assert(ap.cols(xy) >= nx + ny || n == 0, "KDTreeBuildTagged: cols(X)<NX+NY");
+            ap.assert(apserv.apservisfinitematrix(xy, n, nx + ny, _params), "KDTreeBuildTagged: XY contains infinite or NaN values");
 
             //
             // initialize
@@ -4805,9 +4805,9 @@ public partial class alglib
         {
             int result = 0;
 
-            alglib.ap.assert(k >= 1, "KDTreeQueryKNN: K<1!");
-            alglib.ap.assert(alglib.ap.len(x) >= kdt.nx, "KDTreeQueryKNN: Length(X)<NX!");
-            alglib.ap.assert(apserv.isfinitevector(x, kdt.nx, _params), "KDTreeQueryKNN: X contains infinite or NaN values!");
+            ap.assert(k >= 1, "KDTreeQueryKNN: K<1!");
+            ap.assert(ap.len(x) >= kdt.nx, "KDTreeQueryKNN: Length(X)<NX!");
+            ap.assert(apserv.isfinitevector(x, kdt.nx, _params), "KDTreeQueryKNN: X contains infinite or NaN values!");
             result = kdtreetsqueryaknn(kdt, kdt.innerbuf, x, k, selfmatch, 0.0, _params);
             return result;
         }
@@ -4863,9 +4863,9 @@ public partial class alglib
         {
             int result = 0;
 
-            alglib.ap.assert(k >= 1, "KDTreeTsQueryKNN: K<1!");
-            alglib.ap.assert(alglib.ap.len(x) >= kdt.nx, "KDTreeTsQueryKNN: Length(X)<NX!");
-            alglib.ap.assert(apserv.isfinitevector(x, kdt.nx, _params), "KDTreeTsQueryKNN: X contains infinite or NaN values!");
+            ap.assert(k >= 1, "KDTreeTsQueryKNN: K<1!");
+            ap.assert(ap.len(x) >= kdt.nx, "KDTreeTsQueryKNN: Length(X)<NX!");
+            ap.assert(apserv.isfinitevector(x, kdt.nx, _params), "KDTreeTsQueryKNN: X contains infinite or NaN values!");
             result = kdtreetsqueryaknn(kdt, buf, x, k, selfmatch, 0.0, _params);
             return result;
         }
@@ -4918,9 +4918,9 @@ public partial class alglib
         {
             int result = 0;
 
-            alglib.ap.assert((double)(r) > (double)(0), "KDTreeQueryRNN: incorrect R!");
-            alglib.ap.assert(alglib.ap.len(x) >= kdt.nx, "KDTreeQueryRNN: Length(X)<NX!");
-            alglib.ap.assert(apserv.isfinitevector(x, kdt.nx, _params), "KDTreeQueryRNN: X contains infinite or NaN values!");
+            ap.assert((double)(r) > (double)(0), "KDTreeQueryRNN: incorrect R!");
+            ap.assert(ap.len(x) >= kdt.nx, "KDTreeQueryRNN: Length(X)<NX!");
+            ap.assert(apserv.isfinitevector(x, kdt.nx, _params), "KDTreeQueryRNN: X contains infinite or NaN values!");
             result = kdtreetsqueryrnn(kdt, kdt.innerbuf, x, r, selfmatch, _params);
             return result;
         }
@@ -4972,9 +4972,9 @@ public partial class alglib
         {
             int result = 0;
 
-            alglib.ap.assert((double)(r) > (double)(0), "KDTreeQueryRNNU: incorrect R!");
-            alglib.ap.assert(alglib.ap.len(x) >= kdt.nx, "KDTreeQueryRNNU: Length(X)<NX!");
-            alglib.ap.assert(apserv.isfinitevector(x, kdt.nx, _params), "KDTreeQueryRNNU: X contains infinite or NaN values!");
+            ap.assert((double)(r) > (double)(0), "KDTreeQueryRNNU: incorrect R!");
+            ap.assert(ap.len(x) >= kdt.nx, "KDTreeQueryRNNU: Length(X)<NX!");
+            ap.assert(apserv.isfinitevector(x, kdt.nx, _params), "KDTreeQueryRNNU: X contains infinite or NaN values!");
             result = kdtreetsqueryrnnu(kdt, kdt.innerbuf, x, r, selfmatch, _params);
             return result;
         }
@@ -5035,9 +5035,9 @@ public partial class alglib
         {
             int result = 0;
 
-            alglib.ap.assert(math.isfinite(r) && (double)(r) > (double)(0), "KDTreeTsQueryRNN: incorrect R!");
-            alglib.ap.assert(alglib.ap.len(x) >= kdt.nx, "KDTreeTsQueryRNN: Length(X)<NX!");
-            alglib.ap.assert(apserv.isfinitevector(x, kdt.nx, _params), "KDTreeTsQueryRNN: X contains infinite or NaN values!");
+            ap.assert(math.isfinite(r) && (double)(r) > (double)(0), "KDTreeTsQueryRNN: incorrect R!");
+            ap.assert(ap.len(x) >= kdt.nx, "KDTreeTsQueryRNN: Length(X)<NX!");
+            ap.assert(apserv.isfinitevector(x, kdt.nx, _params), "KDTreeTsQueryRNN: X contains infinite or NaN values!");
             result = tsqueryrnn(kdt, buf, x, r, selfmatch, true, _params);
             return result;
         }
@@ -5097,9 +5097,9 @@ public partial class alglib
         {
             int result = 0;
 
-            alglib.ap.assert(math.isfinite(r) && (double)(r) > (double)(0), "KDTreeTsQueryRNNU: incorrect R!");
-            alglib.ap.assert(alglib.ap.len(x) >= kdt.nx, "KDTreeTsQueryRNNU: Length(X)<NX!");
-            alglib.ap.assert(apserv.isfinitevector(x, kdt.nx, _params), "KDTreeTsQueryRNNU: X contains infinite or NaN values!");
+            ap.assert(math.isfinite(r) && (double)(r) > (double)(0), "KDTreeTsQueryRNNU: incorrect R!");
+            ap.assert(ap.len(x) >= kdt.nx, "KDTreeTsQueryRNNU: Length(X)<NX!");
+            ap.assert(apserv.isfinitevector(x, kdt.nx, _params), "KDTreeTsQueryRNNU: X contains infinite or NaN values!");
             result = tsqueryrnn(kdt, buf, x, r, selfmatch, false, _params);
             return result;
         }
@@ -5220,10 +5220,10 @@ public partial class alglib
             int i = 0;
             int j = 0;
 
-            alglib.ap.assert(k > 0, "KDTreeTsQueryAKNN: incorrect K!");
-            alglib.ap.assert((double)(eps) >= (double)(0), "KDTreeTsQueryAKNN: incorrect Eps!");
-            alglib.ap.assert(alglib.ap.len(x) >= kdt.nx, "KDTreeTsQueryAKNN: Length(X)<NX!");
-            alglib.ap.assert(apserv.isfinitevector(x, kdt.nx, _params), "KDTreeTsQueryAKNN: X contains infinite or NaN values!");
+            ap.assert(k > 0, "KDTreeTsQueryAKNN: incorrect K!");
+            ap.assert((double)(eps) >= (double)(0), "KDTreeTsQueryAKNN: incorrect Eps!");
+            ap.assert(ap.len(x) >= kdt.nx, "KDTreeTsQueryAKNN: Length(X)<NX!");
+            ap.assert(apserv.isfinitevector(x, kdt.nx, _params), "KDTreeTsQueryAKNN: X contains infinite or NaN values!");
 
             //
             // Handle special case: KDT.N=0
@@ -5379,10 +5379,10 @@ public partial class alglib
             int result = 0;
             int j = 0;
 
-            alglib.ap.assert(alglib.ap.len(boxmin) >= kdt.nx, "KDTreeTsQueryBox: Length(BoxMin)<NX!");
-            alglib.ap.assert(alglib.ap.len(boxmax) >= kdt.nx, "KDTreeTsQueryBox: Length(BoxMax)<NX!");
-            alglib.ap.assert(apserv.isfinitevector(boxmin, kdt.nx, _params), "KDTreeTsQueryBox: BoxMin contains infinite or NaN values!");
-            alglib.ap.assert(apserv.isfinitevector(boxmax, kdt.nx, _params), "KDTreeTsQueryBox: BoxMax contains infinite or NaN values!");
+            ap.assert(ap.len(boxmin) >= kdt.nx, "KDTreeTsQueryBox: Length(BoxMin)<NX!");
+            ap.assert(ap.len(boxmax) >= kdt.nx, "KDTreeTsQueryBox: Length(BoxMax)<NX!");
+            ap.assert(apserv.isfinitevector(boxmin, kdt.nx, _params), "KDTreeTsQueryBox: BoxMin contains infinite or NaN values!");
+            ap.assert(apserv.isfinitevector(boxmax, kdt.nx, _params), "KDTreeTsQueryBox: BoxMax contains infinite or NaN values!");
 
             //
             // Check consistency of request buffer
@@ -5638,7 +5638,7 @@ public partial class alglib
             {
                 return;
             }
-            if (alglib.ap.rows(x) < buf.kcur || alglib.ap.cols(x) < kdt.nx)
+            if (ap.rows(x) < buf.kcur || ap.cols(x) < kdt.nx)
             {
                 x = new double[buf.kcur, kdt.nx];
             }
@@ -5700,7 +5700,7 @@ public partial class alglib
             {
                 return;
             }
-            if (alglib.ap.rows(xy) < buf.kcur || alglib.ap.cols(xy) < kdt.nx + kdt.ny)
+            if (ap.rows(xy) < buf.kcur || ap.cols(xy) < kdt.nx + kdt.ny)
             {
                 xy = new double[buf.kcur, kdt.nx + kdt.ny];
             }
@@ -5765,7 +5765,7 @@ public partial class alglib
             {
                 return;
             }
-            if (alglib.ap.len(tags) < buf.kcur)
+            if (ap.len(tags) < buf.kcur)
             {
                 tags = new int[buf.kcur];
             }
@@ -5825,7 +5825,7 @@ public partial class alglib
             {
                 return;
             }
-            if (alglib.ap.len(r) < buf.kcur)
+            if (ap.len(r) < buf.kcur)
             {
                 r = new double[buf.kcur];
             }
@@ -6002,8 +6002,8 @@ public partial class alglib
         {
             nodetype = 0;
 
-            alglib.ap.assert(node >= 0, "KDTreeExploreNodeType: incorrect node");
-            alglib.ap.assert(node < alglib.ap.len(kdt.nodes), "KDTreeExploreNodeType: incorrect node");
+            ap.assert(node >= 0, "KDTreeExploreNodeType: incorrect node");
+            ap.assert(node < ap.len(kdt.nodes), "KDTreeExploreNodeType: incorrect node");
             if (kdt.nodes[node] > 0)
             {
 
@@ -6022,7 +6022,7 @@ public partial class alglib
                 nodetype = 1;
                 return;
             }
-            alglib.ap.assert(false, "KDTreeExploreNodeType: integrity check failure");
+            ap.assert(false, "KDTreeExploreNodeType: integrity check failure");
         }
 
 
@@ -6055,13 +6055,13 @@ public partial class alglib
 
             k = 0;
 
-            alglib.ap.assert(node >= 0, "KDTreeExploreLeaf: incorrect node index");
-            alglib.ap.assert(node + 1 < alglib.ap.len(kdt.nodes), "KDTreeExploreLeaf: incorrect node index");
-            alglib.ap.assert(kdt.nodes[node] > 0, "KDTreeExploreLeaf: incorrect node index");
+            ap.assert(node >= 0, "KDTreeExploreLeaf: incorrect node index");
+            ap.assert(node + 1 < ap.len(kdt.nodes), "KDTreeExploreLeaf: incorrect node index");
+            ap.assert(kdt.nodes[node] > 0, "KDTreeExploreLeaf: incorrect node index");
             k = kdt.nodes[node];
             offs = kdt.nodes[node + 1];
-            alglib.ap.assert(offs >= 0, "KDTreeExploreLeaf: integrity error");
-            alglib.ap.assert(offs + k - 1 < alglib.ap.rows(kdt.xy), "KDTreeExploreLeaf: integrity error");
+            ap.assert(offs >= 0, "KDTreeExploreLeaf: integrity error");
+            ap.assert(offs + k - 1 < ap.rows(kdt.xy), "KDTreeExploreLeaf: integrity error");
             apserv.rmatrixsetlengthatleast(ref xy, k, kdt.nx + kdt.ny, _params);
             for (i = 0; i <= k - 1; i++)
             {
@@ -6108,20 +6108,20 @@ public partial class alglib
             nodele = 0;
             nodege = 0;
 
-            alglib.ap.assert(node >= 0, "KDTreeExploreSplit: incorrect node index");
-            alglib.ap.assert(node + 4 < alglib.ap.len(kdt.nodes), "KDTreeExploreSplit: incorrect node index");
-            alglib.ap.assert(kdt.nodes[node] == 0, "KDTreeExploreSplit: incorrect node index");
+            ap.assert(node >= 0, "KDTreeExploreSplit: incorrect node index");
+            ap.assert(node + 4 < ap.len(kdt.nodes), "KDTreeExploreSplit: incorrect node index");
+            ap.assert(kdt.nodes[node] == 0, "KDTreeExploreSplit: incorrect node index");
             d = kdt.nodes[node + 1];
             s = kdt.splits[kdt.nodes[node + 2]];
             nodele = kdt.nodes[node + 3];
             nodege = kdt.nodes[node + 4];
-            alglib.ap.assert(d >= 0, "KDTreeExploreSplit: integrity failure");
-            alglib.ap.assert(d < kdt.nx, "KDTreeExploreSplit: integrity failure");
-            alglib.ap.assert(math.isfinite(s), "KDTreeExploreSplit: integrity failure");
-            alglib.ap.assert(nodele >= 0, "KDTreeExploreSplit: integrity failure");
-            alglib.ap.assert(nodele < alglib.ap.len(kdt.nodes), "KDTreeExploreSplit: integrity failure");
-            alglib.ap.assert(nodege >= 0, "KDTreeExploreSplit: integrity failure");
-            alglib.ap.assert(nodege < alglib.ap.len(kdt.nodes), "KDTreeExploreSplit: integrity failure");
+            ap.assert(d >= 0, "KDTreeExploreSplit: integrity failure");
+            ap.assert(d < kdt.nx, "KDTreeExploreSplit: integrity failure");
+            ap.assert(math.isfinite(s), "KDTreeExploreSplit: integrity failure");
+            ap.assert(nodele >= 0, "KDTreeExploreSplit: integrity failure");
+            ap.assert(nodele < ap.len(kdt.nodes), "KDTreeExploreSplit: integrity failure");
+            ap.assert(nodege >= 0, "KDTreeExploreSplit: integrity failure");
+            ap.assert(nodege < ap.len(kdt.nodes), "KDTreeExploreSplit: integrity failure");
         }
 
 
@@ -6209,9 +6209,9 @@ public partial class alglib
             // check correctness of header
             //
             i0 = s.unserialize_int();
-            alglib.ap.assert(i0 == scodes.getkdtreeserializationcode(_params), "KDTreeUnserialize: stream header corrupted");
+            ap.assert(i0 == scodes.getkdtreeserializationcode(_params), "KDTreeUnserialize: stream header corrupted");
             i1 = s.unserialize_int();
-            alglib.ap.assert(i1 == kdtreefirstversion, "KDTreeUnserialize: stream header corrupted");
+            ap.assert(i1 == kdtreefirstversion, "KDTreeUnserialize: stream header corrupted");
 
             //
             // Unserialize data
@@ -6299,7 +6299,7 @@ public partial class alglib
             double avgrnn = 0;
             hqrnd.hqrndstate rs = new();
 
-            alglib.ap.assert(math.isfinite(r) && (double)(r) > (double)(0), "KDTreeApproxRNNQueryCost: incorrect R!");
+            ap.assert(math.isfinite(r) && (double)(r) > (double)(0), "KDTreeApproxRNNQueryCost: incorrect R!");
             hqrnd.hqrndseed(46532, 66356, rs, _params);
             nx = kdt.nx;
             cnt = Math.Min(50, kdt.n);
@@ -6462,7 +6462,7 @@ public partial class alglib
 
             i3 = 0;
 
-            alglib.ap.assert(kdt.n > 0, "KDTreeSplit: internal error");
+            ap.assert(kdt.n > 0, "KDTreeSplit: internal error");
 
             //
             // split XY/Tags in two parts:
@@ -6562,8 +6562,8 @@ public partial class alglib
             int i_ = 0;
             int i1_ = 0;
 
-            alglib.ap.assert(kdt.n > 0, "KDTreeGenerateTreeRec: internal error");
-            alglib.ap.assert(i2 > i1, "KDTreeGenerateTreeRec: internal error");
+            ap.assert(kdt.n > 0, "KDTreeGenerateTreeRec: internal error");
+            ap.assert(i2 > i1, "KDTreeGenerateTreeRec: internal error");
 
             //
             // Generate leaf if needed
@@ -6760,7 +6760,7 @@ public partial class alglib
             // Zero-fill unused portions of the node (avoid false warnings by Valgrind
             // about attempt to serialize uninitialized values)
             //
-            alglib.ap.assert(splitnodesize == 6, "KDTreeGenerateTreeRec: node size has unexpectedly changed");
+            ap.assert(splitnodesize == 6, "KDTreeGenerateTreeRec: node size has unexpectedly changed");
             kdt.nodes[oldoffs + 5] = 0;
         }
 
@@ -6794,7 +6794,7 @@ public partial class alglib
             bool bestisleft = new();
             bool updatemin = new();
 
-            alglib.ap.assert(kdt.n > 0, "KDTreeQueryNNRec: internal error");
+            ap.assert(kdt.n > 0, "KDTreeQueryNNRec: internal error");
 
             //
             // Leaf node.
@@ -7062,7 +7062,7 @@ public partial class alglib
             double s = 0;
             double v = 0;
 
-            alglib.ap.assert(kdt.n > 0, "KDTreeQueryBoxRec: internal error");
+            ap.assert(kdt.n > 0, "KDTreeQueryBoxRec: internal error");
             nx = kdt.nx;
 
             //
@@ -7177,7 +7177,7 @@ public partial class alglib
             double vmin = 0;
             double vmax = 0;
 
-            alglib.ap.assert(kdt.n > 0, "KDTreeInitBox: internal error");
+            ap.assert(kdt.n > 0, "KDTreeInitBox: internal error");
 
             //
             // calculate distance from point to current bounding box
@@ -7270,7 +7270,7 @@ public partial class alglib
             int ny,
             alglib.xparams _params)
         {
-            alglib.ap.assert(kdt.n > 0, "KDTreeAllocDatasetIndependent: internal error");
+            ap.assert(kdt.n > 0, "KDTreeAllocDatasetIndependent: internal error");
             kdt.boxmin = new double[nx];
             kdt.boxmax = new double[nx];
         }
@@ -7292,7 +7292,7 @@ public partial class alglib
             int ny,
             alglib.xparams _params)
         {
-            alglib.ap.assert(n > 0, "KDTreeAllocDatasetDependent: internal error");
+            ap.assert(n > 0, "KDTreeAllocDatasetDependent: internal error");
             kdt.xy = new double[n, 2 * nx + ny];
             kdt.tags = new int[n];
             kdt.nodes = new int[splitnodesize * 2 * n];
@@ -7311,12 +7311,12 @@ public partial class alglib
             kdtreerequestbuffer buf,
             alglib.xparams _params)
         {
-            alglib.ap.assert(alglib.ap.len(buf.x) >= kdt.nx, "KDTree: dimensions of kdtreerequestbuffer are inconsistent with kdtree structure");
-            alglib.ap.assert(alglib.ap.len(buf.idx) >= kdt.n, "KDTree: dimensions of kdtreerequestbuffer are inconsistent with kdtree structure");
-            alglib.ap.assert(alglib.ap.len(buf.r) >= kdt.n, "KDTree: dimensions of kdtreerequestbuffer are inconsistent with kdtree structure");
-            alglib.ap.assert(alglib.ap.len(buf.buf) >= Math.Max(kdt.n, kdt.nx), "KDTree: dimensions of kdtreerequestbuffer are inconsistent with kdtree structure");
-            alglib.ap.assert(alglib.ap.len(buf.curboxmin) >= kdt.nx, "KDTree: dimensions of kdtreerequestbuffer are inconsistent with kdtree structure");
-            alglib.ap.assert(alglib.ap.len(buf.curboxmax) >= kdt.nx, "KDTree: dimensions of kdtreerequestbuffer are inconsistent with kdtree structure");
+            ap.assert(ap.len(buf.x) >= kdt.nx, "KDTree: dimensions of kdtreerequestbuffer are inconsistent with kdtree structure");
+            ap.assert(ap.len(buf.idx) >= kdt.n, "KDTree: dimensions of kdtreerequestbuffer are inconsistent with kdtree structure");
+            ap.assert(ap.len(buf.r) >= kdt.n, "KDTree: dimensions of kdtreerequestbuffer are inconsistent with kdtree structure");
+            ap.assert(ap.len(buf.buf) >= Math.Max(kdt.n, kdt.nx), "KDTree: dimensions of kdtreerequestbuffer are inconsistent with kdtree structure");
+            ap.assert(ap.len(buf.curboxmin) >= kdt.nx, "KDTree: dimensions of kdtreerequestbuffer are inconsistent with kdtree structure");
+            ap.assert(ap.len(buf.curboxmax) >= kdt.nx, "KDTree: dimensions of kdtreerequestbuffer are inconsistent with kdtree structure");
         }
 
 

@@ -70,12 +70,19 @@ public class BlobStorageFileStorageService(
     BlobContainerClient containerClient,
     BlobStorageSettings settings,
     BlobStorageResiliencePipeline resiliencePipeline)
-    : CloudFileStorageServiceBase(timeProvider, settings.BasePrefix)
+    : CloudFileStorageServiceBase(logger, timeProvider, settings.BasePrefix)
 {
     private int _disposedState;
 
     /// <inheritdoc />
     public override StorageProvider Provider => StorageProvider.BlobStorage;
+
+    /// <inheritdoc />
+    public override ValueTask<bool> IsHealthAsync(CancellationToken cancellationToken = default)
+    {
+        ObjectDisposedException.ThrowIf(Volatile.Read(ref _disposedState) != 0, this);
+        return ProbeReadWriteDeleteAsync(cancellationToken);
+    }
 
     /// <inheritdoc />
     public override async ValueTask<Stream> OpenWriteAsync(string location, CancellationToken cancellationToken = default)

@@ -161,6 +161,9 @@ public abstract class FileStorageServiceBase(TimeProvider timeProvider) : IFileS
     }
 
     /// <inheritdoc />
+    public abstract ValueTask<bool> IsHealthAsync(CancellationToken cancellationToken = default);
+
+    /// <inheritdoc />
     public abstract ValueTask<Stream> OpenWriteAsync(string location, CancellationToken cancellationToken = default);
 
     /// <inheritdoc />

@@ -6,7 +6,6 @@ using MelloSilveiraTools.Core.Security;
 using MelloSilveiraTools.Core.Validators;
 using MelloSilveiraTools.Database.RelationalDatabase.Models.Entities;
 using MelloSilveiraTools.Database.Repositories;
-using MelloSilveiraTools.WebApi.Application.Commands.StorageEntryMetadata;
 using Microsoft.Extensions.Logging;
 
 namespace MelloSilveiraTools.WebApi.Application.Commands.StorageEntryMetadata.Upload;

@@ -3169,7 +3169,7 @@ public partial class alglib
         {
             double result = 0;
 
-            alglib.ap.assert(math.isfinite(x), "NormalPDF: X is infinite");
+            ap.assert(math.isfinite(x), "NormalPDF: X is infinite");
             result = Math.Exp(-(x * x / 2)) / Math.Sqrt(2 * Math.PI);
             return result;
         }
@@ -3414,10 +3414,10 @@ public partial class alglib
             double result = 0;
             double onerho2 = 0;
 
-            alglib.ap.assert(math.isfinite(x), "BivariateNormalCDF: X is infinite");
-            alglib.ap.assert(math.isfinite(y), "BivariateNormalCDF: Y is infinite");
-            alglib.ap.assert(math.isfinite(rho), "BivariateNormalCDF: Rho is infinite");
-            alglib.ap.assert((double)(-1) < (double)(rho) && (double)(rho) < (double)(1), "BivariateNormalCDF: Rho is not in (-1,+1) range");
+            ap.assert(math.isfinite(x), "BivariateNormalCDF: X is infinite");
+            ap.assert(math.isfinite(y), "BivariateNormalCDF: Y is infinite");
+            ap.assert(math.isfinite(rho), "BivariateNormalCDF: Rho is infinite");
+            ap.assert((double)(-1) < (double)(rho) && (double)(rho) < (double)(1), "BivariateNormalCDF: Rho is not in (-1,+1) range");
             onerho2 = (1 - rho) * (1 + rho);
             result = Math.Exp(-((x * x + y * y - 2 * rho * x * y) / (2 * onerho2))) / (2 * Math.PI * Math.Sqrt(onerho2));
             return result;
@@ -3476,10 +3476,10 @@ public partial class alglib
             double tb = 0;
             double tc = 0;
 
-            alglib.ap.assert(math.isfinite(x), "BivariateNormalCDF: X is infinite");
-            alglib.ap.assert(math.isfinite(y), "BivariateNormalCDF: Y is infinite");
-            alglib.ap.assert(math.isfinite(rho), "BivariateNormalCDF: Rho is infinite");
-            alglib.ap.assert((double)(-1) < (double)(rho) && (double)(rho) < (double)(1), "BivariateNormalCDF: Rho is not in (-1,+1) range");
+            ap.assert(math.isfinite(x), "BivariateNormalCDF: X is infinite");
+            ap.assert(math.isfinite(y), "BivariateNormalCDF: Y is infinite");
+            ap.assert(math.isfinite(rho), "BivariateNormalCDF: Rho is infinite");
+            ap.assert((double)(-1) < (double)(rho) && (double)(rho) < (double)(1), "BivariateNormalCDF: Rho is not in (-1,+1) range");
             if ((double)(rho) == (double)(0))
             {
                 result = normalcdf(x, _params) * normalcdf(y, _params);
@@ -4101,8 +4101,8 @@ public partial class alglib
             maxgam = 171.624376956302725;
             minlog = Math.Log(math.minrealnumber);
             maxlog = Math.Log(math.maxrealnumber);
-            alglib.ap.assert((double)(a) > (double)(0) && (double)(b) > (double)(0), "Domain error in IncompleteBeta");
-            alglib.ap.assert((double)(x) >= (double)(0) && (double)(x) <= (double)(1), "Domain error in IncompleteBeta");
+            ap.assert((double)(a) > (double)(0) && (double)(b) > (double)(0), "Domain error in IncompleteBeta");
+            ap.assert((double)(x) >= (double)(0) && (double)(x) <= (double)(1), "Domain error in IncompleteBeta");
             if ((double)(x) == (double)(0))
             {
                 result = 0;
@@ -4270,7 +4270,7 @@ public partial class alglib
             int breakihalvecycle = 0;
 
             i = 0;
-            alglib.ap.assert((double)(y) >= (double)(0) && (double)(y) <= (double)(1), "Domain error in InvIncompleteBeta");
+            ap.assert((double)(y) >= (double)(0) && (double)(y) <= (double)(1), "Domain error in InvIncompleteBeta");
 
             //
             // special cases
@@ -5039,7 +5039,7 @@ public partial class alglib
             double xsqk = 0;
             int j = 0;
 
-            alglib.ap.assert(k > 0, "Domain error in StudentTDistribution");
+            ap.assert(k > 0, "Domain error in StudentTDistribution");
             if ((double)(t) == (double)(0))
             {
                 result = 0.5;
@@ -5130,7 +5130,7 @@ public partial class alglib
             double z = 0;
             int rflg = 0;
 
-            alglib.ap.assert((k > 0 && (double)(p) > (double)(0)) && (double)(p) < (double)(1), "Domain error in InvStudentTDistribution");
+            ap.assert((k > 0 && (double)(p) > (double)(0)) && (double)(p) < (double)(1), "Domain error in InvStudentTDistribution");
             rk = k;
             if ((double)(p) > (double)(0.25) && (double)(p) < (double)(0.75))
             {
@@ -5210,8 +5210,8 @@ public partial class alglib
             double dk = 0;
             double dn = 0;
 
-            alglib.ap.assert((double)(p) >= (double)(0) && (double)(p) <= (double)(1), "Domain error in BinomialDistribution");
-            alglib.ap.assert(k >= -1 && k <= n, "Domain error in BinomialDistribution");
+            ap.assert((double)(p) >= (double)(0) && (double)(p) <= (double)(1), "Domain error in BinomialDistribution");
+            ap.assert(k >= -1 && k <= n, "Domain error in BinomialDistribution");
             if (k == -1)
             {
                 result = 0;
@@ -5279,8 +5279,8 @@ public partial class alglib
             double dk = 0;
             double dn = 0;
 
-            alglib.ap.assert((double)(p) >= (double)(0) && (double)(p) <= (double)(1), "Domain error in BinomialDistributionC");
-            alglib.ap.assert(k >= -1 && k <= n, "Domain error in BinomialDistributionC");
+            ap.assert((double)(p) >= (double)(0) && (double)(p) <= (double)(1), "Domain error in BinomialDistributionC");
+            ap.assert(k >= -1 && k <= n, "Domain error in BinomialDistributionC");
             if (k == -1)
             {
                 result = 1;
@@ -5351,7 +5351,7 @@ public partial class alglib
             double dn = 0;
             double p = 0;
 
-            alglib.ap.assert(k >= 0 && k < n, "Domain error in InvBinomialDistribution");
+            ap.assert(k >= 0 && k < n, "Domain error in InvBinomialDistribution");
             dn = n - k;
             if (k == 0)
             {
@@ -5425,7 +5425,7 @@ public partial class alglib
             double result = 0;
             double w = 0;
 
-            alglib.ap.assert((a >= 1 && b >= 1) && (double)(x) >= (double)(0), "Domain error in FDistribution");
+            ap.assert((a >= 1 && b >= 1) && (double)(x) >= (double)(0), "Domain error in FDistribution");
             w = a * x;
             w = w / (b + w);
             result = ibetaf.incompletebeta(0.5 * a, 0.5 * b, w, _params);
@@ -5477,7 +5477,7 @@ public partial class alglib
             double result = 0;
             double w = 0;
 
-            alglib.ap.assert((a >= 1 && b >= 1) && (double)(x) >= (double)(0), "Domain error in FCDistribution");
+            ap.assert((a >= 1 && b >= 1) && (double)(x) >= (double)(0), "Domain error in FCDistribution");
             w = b / (b + a * x);
             result = ibetaf.incompletebeta(0.5 * b, 0.5 * a, w, _params);
             return result;
@@ -5527,7 +5527,7 @@ public partial class alglib
             double result = 0;
             double w = 0;
 
-            alglib.ap.assert(((a >= 1 && b >= 1) && (double)(y) > (double)(0)) && (double)(y) <= (double)(1), "Domain error in InvFDistribution");
+            ap.assert(((a >= 1 && b >= 1) && (double)(y) > (double)(0)) && (double)(y) <= (double)(1), "Domain error in InvFDistribution");
 
             //
             // Compute probability for x = 0.5
@@ -5594,7 +5594,7 @@ public partial class alglib
         {
             double result = 0;
 
-            alglib.ap.assert((double)(x) >= (double)(0) && (double)(v) >= (double)(1), "Domain error in ChiSquareDistribution");
+            ap.assert((double)(x) >= (double)(0) && (double)(v) >= (double)(1), "Domain error in ChiSquareDistribution");
             result = igammaf.incompletegamma(v / 2.0, x / 2.0, _params);
             return result;
         }
@@ -5637,7 +5637,7 @@ public partial class alglib
         {
             double result = 0;
 
-            alglib.ap.assert((double)(x) >= (double)(0) && (double)(v) >= (double)(1), "Domain error in ChiSquareDistributionC");
+            ap.assert((double)(x) >= (double)(0) && (double)(v) >= (double)(1), "Domain error in ChiSquareDistributionC");
             result = igammaf.incompletegammac(v / 2.0, x / 2.0, _params);
             return result;
         }
@@ -5669,7 +5669,7 @@ public partial class alglib
         {
             double result = 0;
 
-            alglib.ap.assert(((double)(y) >= (double)(0) && (double)(y) <= (double)(1)) && (double)(v) >= (double)(1), "Domain error in InvChiSquareDistribution");
+            ap.assert(((double)(y) >= (double)(0) && (double)(y) <= (double)(1)) && (double)(v) >= (double)(1), "Domain error in InvChiSquareDistribution");
             result = 2 * igammaf.invincompletegammac(0.5 * v, y, _params);
             return result;
         }
@@ -5710,8 +5710,8 @@ public partial class alglib
             double s = 0;
 
             sg = 1;
-            alglib.ap.assert((double)(a) > (double)(0) || (double)(a) != (double)((int)Math.Floor(a)), "Overflow in Beta");
-            alglib.ap.assert((double)(b) > (double)(0) || (double)(b) != (double)((int)Math.Floor(b)), "Overflow in Beta");
+            ap.assert((double)(a) > (double)(0) || (double)(a) != (double)((int)Math.Floor(a)), "Overflow in Beta");
+            ap.assert((double)(b) > (double)(0) || (double)(b) != (double)((int)Math.Floor(b)), "Overflow in Beta");
             y = a + b;
             if ((double)(Math.Abs(y)) > (double)(171.624376956302725))
             {
@@ -5721,12 +5721,12 @@ public partial class alglib
                 sg = sg * s;
                 y = gammafunc.lngamma(a, ref s, _params) + y;
                 sg = sg * s;
-                alglib.ap.assert((double)(y) <= (double)(Math.Log(math.maxrealnumber)), "Overflow in Beta");
+                ap.assert((double)(y) <= (double)(Math.Log(math.maxrealnumber)), "Overflow in Beta");
                 result = sg * Math.Exp(y);
                 return result;
             }
             y = gammafunc.gammafunction(y, _params);
-            alglib.ap.assert((double)(y) != (double)(0), "Overflow in Beta");
+            ap.assert((double)(y) != (double)(0), "Overflow in Beta");
             if ((double)(a) > (double)(b))
             {
                 y = gammafunc.gammafunction(a, _params) / y;
@@ -5809,7 +5809,7 @@ public partial class alglib
                 p = (int)Math.Floor(q);
                 if ((double)(p) == (double)(q))
                 {
-                    alglib.ap.assert(false, "Singularity in Psi(x)");
+                    ap.assert(false, "Singularity in Psi(x)");
                     result = math.maxrealnumber;
                     return result;
                 }
@@ -6252,7 +6252,7 @@ public partial class alglib
         {
             double result = 0;
 
-            alglib.ap.assert(k >= 0 && (double)(m) > (double)(0), "Domain error in PoissonDistribution");
+            ap.assert(k >= 0 && (double)(m) > (double)(0), "Domain error in PoissonDistribution");
             result = igammaf.incompletegammac(k + 1, m, _params);
             return result;
         }
@@ -6290,7 +6290,7 @@ public partial class alglib
         {
             double result = 0;
 
-            alglib.ap.assert(k >= 0 && (double)(m) > (double)(0), "Domain error in PoissonDistributionC");
+            ap.assert(k >= 0 && (double)(m) > (double)(0), "Domain error in PoissonDistributionC");
             result = igammaf.incompletegamma(k + 1, m, _params);
             return result;
         }
@@ -6321,7 +6321,7 @@ public partial class alglib
         {
             double result = 0;
 
-            alglib.ap.assert((k >= 0 && (double)(y) >= (double)(0)) && (double)(y) < (double)(1), "Domain error in InvPoissonDistribution");
+            ap.assert((k >= 0 && (double)(y) >= (double)(0)) && (double)(y) < (double)(1), "Domain error in InvPoissonDistribution");
             result = igammaf.invincompletegammac(k + 1, y, _params);
             return result;
         }
@@ -7245,7 +7245,7 @@ public partial class alglib
             double p = 0;
             double q = 0;
 
-            alglib.ap.assert((double)(m) >= (double)(0) && (double)(m) <= (double)(1), "Domain error in EllipticIntegralE: m<0 or m>1");
+            ap.assert((double)(m) >= (double)(0) && (double)(m) <= (double)(1), "Domain error in EllipticIntegralE: m<0 or m>1");
             m = 1 - m;
             if ((double)(m) == (double)(0))
             {
@@ -8760,7 +8760,7 @@ public partial class alglib
             double b1 = 0;
             double b2 = 0;
 
-            alglib.ap.assert((double)(x) > (double)(0), "Domain error in BesselK0: x<=0");
+            ap.assert((double)(x) > (double)(0), "Domain error in BesselK0: x<=0");
             if ((double)(x) <= (double)(2))
             {
                 y = x * x - 2.0;
@@ -8844,7 +8844,7 @@ public partial class alglib
             double b2 = 0;
 
             z = 0.5 * x;
-            alglib.ap.assert((double)(z) > (double)(0), "Domain error in K1");
+            ap.assert((double)(z) > (double)(0), "Domain error in K1");
             if ((double)(x) <= (double)(2))
             {
                 y = x * x - 2.0;
@@ -8953,8 +8953,8 @@ public partial class alglib
             {
                 n = nn;
             }
-            alglib.ap.assert(n <= 31, "Overflow in BesselKN");
-            alglib.ap.assert((double)(x) > (double)(0), "Domain error in BesselKN");
+            ap.assert(n <= 31, "Overflow in BesselKN");
+            ap.assert((double)(x) > (double)(0), "Domain error in BesselKN");
             if ((double)(x) <= (double)(9.55))
             {
                 ans = 0.0;
@@ -8992,14 +8992,14 @@ public partial class alglib
                             zn = zn * z;
                             t = nk1f * zn / kf;
                             s = s + t;
-                            alglib.ap.assert((double)(math.maxrealnumber - Math.Abs(t)) > (double)(Math.Abs(s)), "Overflow in BesselKN");
-                            alglib.ap.assert(!((double)(tox) > (double)(1.0) && (double)(math.maxrealnumber / tox) < (double)(zmn)), "Overflow in BesselKN");
+                            ap.assert((double)(math.maxrealnumber - Math.Abs(t)) > (double)(Math.Abs(s)), "Overflow in BesselKN");
+                            ap.assert(!((double)(tox) > (double)(1.0) && (double)(math.maxrealnumber / tox) < (double)(zmn)), "Overflow in BesselKN");
                             zmn = zmn * tox;
                         }
                         s = s * 0.5;
                         t = Math.Abs(s);
-                        alglib.ap.assert(!((double)(zmn) > (double)(1.0) && (double)(math.maxrealnumber / zmn) < (double)(t)), "Overflow in BesselKN");
-                        alglib.ap.assert(!((double)(t) > (double)(1.0) && (double)(math.maxrealnumber / t) < (double)(zmn)), "Overflow in BesselKN");
+                        ap.assert(!((double)(zmn) > (double)(1.0) && (double)(math.maxrealnumber / zmn) < (double)(t)), "Overflow in BesselKN");
+                        ap.assert(!((double)(t) > (double)(1.0) && (double)(math.maxrealnumber / t) < (double)(zmn)), "Overflow in BesselKN");
                         ans = s * zmn;
                     }
                 }
@@ -9541,7 +9541,7 @@ public partial class alglib
             dn = 0;
             ph = 0;
 
-            alglib.ap.assert((double)(m) >= (double)(0) && (double)(m) <= (double)(1), "Domain error in JacobianEllipticFunctions: m<0 or m>1");
+            ap.assert((double)(m) >= (double)(0) && (double)(m) <= (double)(1), "Domain error in JacobianEllipticFunctions: m<0 or m>1");
             a = new double[8 + 1];
             c = new double[8 + 1];
             if ((double)(m) < (double)(1.0e-9))
@@ -9578,7 +9578,7 @@ public partial class alglib
             {
                 if (i > 7)
                 {
-                    alglib.ap.assert(false, "Overflow in JacobianEllipticFunctions");
+                    ap.assert(false, "Overflow in JacobianEllipticFunctions");
                     break;
                 }
                 ai = a[i];

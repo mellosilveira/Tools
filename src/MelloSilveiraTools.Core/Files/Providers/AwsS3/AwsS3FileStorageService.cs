@@ -69,12 +69,19 @@ public class AwsS3FileStorageService(
     TimeProvider timeProvider,
     AwsS3StorageSettings settings,
     AwsS3ResiliencePipeline resiliencePipeline)
-    : CloudFileStorageServiceBase(timeProvider, settings.BasePrefix)
+    : CloudFileStorageServiceBase(logger, timeProvider, settings.BasePrefix)
 {
     private int _disposedState;
 
     /// <inheritdoc />
     public override StorageProvider Provider => StorageProvider.AwsS3;
+
+    /// <inheritdoc />
+    public override ValueTask<bool> IsHealthAsync(CancellationToken cancellationToken = default)
+    {
+        ObjectDisposedException.ThrowIf(Volatile.Read(ref _disposedState) != 0, this);
+        return ProbeReadWriteDeleteAsync(cancellationToken);
+    }
 
     /// <inheritdoc />
     public override async ValueTask<Stream> OpenWriteAsync(string location, CancellationToken cancellationToken = default)

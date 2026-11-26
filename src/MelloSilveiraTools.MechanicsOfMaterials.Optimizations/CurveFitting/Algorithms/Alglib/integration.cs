@@ -853,7 +853,7 @@ public partial class alglib
     {
         if (func == null)
             throw new alglibexception("ALGLIB: error in 'autogkintegrate()' (func is null)");
-        while (alglib.autogkiteration(state, _params))
+        while (autogkiteration(state, _params))
         {
             if (state.needf)
             {
@@ -2208,7 +2208,7 @@ public partial class alglib
             //
             // Process
             //
-            alglib.ap.assert(((((n == 15 || n == 21) || n == 31) || n == 41) || n == 51) || n == 61, "GKQNodesTbl: incorrect N!");
+            ap.assert(((((n == 15 || n == 21) || n == 31) || n == 41) || n == 51) || n == 61, "GKQNodesTbl: incorrect N!");
             x = new double[n];
             wkronrod = new double[n];
             wgauss = new double[n];
@@ -2768,8 +2768,8 @@ public partial class alglib
             autogkstate state,
             alglib.xparams _params)
         {
-            alglib.ap.assert(math.isfinite(a), "AutoGKSmooth: A is not finite!");
-            alglib.ap.assert(math.isfinite(b), "AutoGKSmooth: B is not finite!");
+            ap.assert(math.isfinite(a), "AutoGKSmooth: A is not finite!");
+            ap.assert(math.isfinite(b), "AutoGKSmooth: B is not finite!");
             autogksmoothw(a, b, 0.0, state, _params);
         }
 
@@ -2803,9 +2803,9 @@ public partial class alglib
             autogkstate state,
             alglib.xparams _params)
         {
-            alglib.ap.assert(math.isfinite(a), "AutoGKSmoothW: A is not finite!");
-            alglib.ap.assert(math.isfinite(b), "AutoGKSmoothW: B is not finite!");
-            alglib.ap.assert(math.isfinite(xwidth), "AutoGKSmoothW: XWidth is not finite!");
+            ap.assert(math.isfinite(a), "AutoGKSmoothW: A is not finite!");
+            ap.assert(math.isfinite(b), "AutoGKSmoothW: B is not finite!");
+            ap.assert(math.isfinite(xwidth), "AutoGKSmoothW: XWidth is not finite!");
             state.wrappermode = 0;
             state.a = a;
             state.b = b;
@@ -2856,10 +2856,10 @@ public partial class alglib
             autogkstate state,
             alglib.xparams _params)
         {
-            alglib.ap.assert(math.isfinite(a), "AutoGKSingular: A is not finite!");
-            alglib.ap.assert(math.isfinite(b), "AutoGKSingular: B is not finite!");
-            alglib.ap.assert(math.isfinite(alpha), "AutoGKSingular: Alpha is not finite!");
-            alglib.ap.assert(math.isfinite(beta), "AutoGKSingular: Beta is not finite!");
+            ap.assert(math.isfinite(a), "AutoGKSingular: A is not finite!");
+            ap.assert(math.isfinite(b), "AutoGKSingular: B is not finite!");
+            ap.assert(math.isfinite(alpha), "AutoGKSingular: Alpha is not finite!");
+            ap.assert(math.isfinite(beta), "AutoGKSingular: Beta is not finite!");
             state.wrappermode = 1;
             state.a = a;
             state.b = b;

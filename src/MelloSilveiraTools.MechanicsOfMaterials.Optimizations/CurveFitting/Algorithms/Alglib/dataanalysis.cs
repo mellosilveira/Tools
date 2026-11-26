@@ -12560,7 +12560,7 @@ public partial class alglib
                     j = i;
                 }
             }
-            alglib.ap.assert(j > 0, "DSSplitK: internal error #1!");
+            ap.assert(j > 0, "DSSplitK: internal error #1!");
             bestk = 2;
             bestsizes[0] = ties[j];
             bestsizes[1] = n - j;
@@ -12645,7 +12645,7 @@ public partial class alglib
                         i = i + 1;
                     }
                 }
-                alglib.ap.assert(cursizes[k - 1] != 0 && j == tiecount, "DSSplitK: internal error #1");
+                ap.assert(cursizes[k - 1] != 0 && j == tiecount, "DSSplitK: internal error #1");
 
                 //
                 // Calculate CVE
@@ -12861,7 +12861,7 @@ public partial class alglib
                     koptimal = k;
                 }
             }
-            alglib.ap.assert(koptimal >= 0, "DSOptimalSplitK: internal error #1!");
+            ap.assert(koptimal >= 0, "DSOptimalSplitK: internal error #1!");
             if (koptimal == 0)
             {
 
@@ -12882,7 +12882,7 @@ public partial class alglib
                         j = i;
                     }
                 }
-                alglib.ap.assert(j > 0, "DSOptimalSplitK: internal error #2!");
+                ap.assert(j > 0, "DSOptimalSplitK: internal error #2!");
                 thresholds = new double[0 + 1];
                 thresholds[0] = 0.5 * (a[ties[j - 1]] + a[ties[j]]);
                 ni = 2;
@@ -13180,14 +13180,14 @@ public partial class alglib
             //
             // Test data
             //
-            alglib.ap.assert(!(npoints < 0), "FisherLDAN: NPoints<0");
-            alglib.ap.assert(!(nvars < 1), "FisherLDAN: NVars<1");
-            alglib.ap.assert(!(nclasses < 2), "FisherLDAN: NClasses<2");
+            ap.assert(!(npoints < 0), "FisherLDAN: NPoints<0");
+            ap.assert(!(nvars < 1), "FisherLDAN: NVars<1");
+            ap.assert(!(nclasses < 2), "FisherLDAN: NClasses<2");
             for (i = 0; i <= npoints - 1; i++)
             {
                 if ((int)Math.Round(xy[i, nvars]) < 0 || (int)Math.Round(xy[i, nvars]) >= nclasses)
                 {
-                    alglib.ap.assert(false, "FisherLDAN: class index is <0 or >NClasses-1");
+                    ap.assert(false, "FisherLDAN: class index is <0 or >NClasses-1");
                 }
             }
 
@@ -13341,7 +13341,7 @@ public partial class alglib
             //
             if (!evd.smatrixevd(st, nvars, 1, true, ref d, ref z, _params))
             {
-                alglib.ap.assert(false, "FisherLDAN: EVD solver failure");
+                ap.assert(false, "FisherLDAN: EVD solver failure");
             }
             w = new double[nvars, nvars];
             if ((double)(d[nvars - 1]) <= (double)(0) || (double)(d[0]) <= (double)(1000 * math.machineepsilon * d[nvars - 1]))
@@ -13391,7 +13391,7 @@ public partial class alglib
                         m = k + 1;
                     }
                 }
-                alglib.ap.assert(m != 0, "FisherLDAN: internal error #1");
+                ap.assert(m != 0, "FisherLDAN: internal error #1");
                 xyproj = new double[npoints, nvars - m + 1];
                 ablas.rmatrixgemm(npoints, nvars - m, nvars, 1.0, xy, 0, 0, 0, z, 0, m, 0, 0.0, xyproj, 0, 0, _params);
                 for (i = 0; i <= npoints - 1; i++)
@@ -13427,7 +13427,7 @@ public partial class alglib
                 }
                 if (!evd.smatrixevd(a, nvars, 1, true, ref d2, ref z2, _params))
                 {
-                    alglib.ap.assert(false, "FisherLDAN: EVD solver failure");
+                    ap.assert(false, "FisherLDAN: EVD solver failure");
                 }
                 for (i = 0; i <= nvars - 1; i++)
                 {
@@ -13767,12 +13767,12 @@ public partial class alglib
             //
             // Check parameters
             //
-            alglib.ap.assert(npoints >= 1, "knnbuildersetdatasetreg: npoints<1");
-            alglib.ap.assert(nvars >= 1, "knnbuildersetdatasetreg: nvars<1");
-            alglib.ap.assert(nout >= 1, "knnbuildersetdatasetreg: nout<1");
-            alglib.ap.assert(alglib.ap.rows(xy) >= npoints, "knnbuildersetdatasetreg: rows(xy)<npoints");
-            alglib.ap.assert(alglib.ap.cols(xy) >= nvars + nout, "knnbuildersetdatasetreg: cols(xy)<nvars+nout");
-            alglib.ap.assert(apserv.apservisfinitematrix(xy, npoints, nvars + nout, _params), "knnbuildersetdatasetreg: xy parameter contains INFs or NANs");
+            ap.assert(npoints >= 1, "knnbuildersetdatasetreg: npoints<1");
+            ap.assert(nvars >= 1, "knnbuildersetdatasetreg: nvars<1");
+            ap.assert(nout >= 1, "knnbuildersetdatasetreg: nout<1");
+            ap.assert(ap.rows(xy) >= npoints, "knnbuildersetdatasetreg: rows(xy)<npoints");
+            ap.assert(ap.cols(xy) >= nvars + nout, "knnbuildersetdatasetreg: cols(xy)<nvars+nout");
+            ap.assert(apserv.apservisfinitematrix(xy, npoints, nvars + nout, _params), "knnbuildersetdatasetreg: xy parameter contains INFs or NANs");
 
             //
             // Set dataset
@@ -13840,16 +13840,16 @@ public partial class alglib
             //
             // Check parameters
             //
-            alglib.ap.assert(npoints >= 1, "knnbuildersetdatasetcls: npoints<1");
-            alglib.ap.assert(nvars >= 1, "knnbuildersetdatasetcls: nvars<1");
-            alglib.ap.assert(nclasses >= 2, "knnbuildersetdatasetcls: nclasses<2");
-            alglib.ap.assert(alglib.ap.rows(xy) >= npoints, "knnbuildersetdatasetcls: rows(xy)<npoints");
-            alglib.ap.assert(alglib.ap.cols(xy) >= nvars + 1, "knnbuildersetdatasetcls: cols(xy)<nvars+1");
-            alglib.ap.assert(apserv.apservisfinitematrix(xy, npoints, nvars + 1, _params), "knnbuildersetdatasetcls: xy parameter contains INFs or NANs");
+            ap.assert(npoints >= 1, "knnbuildersetdatasetcls: npoints<1");
+            ap.assert(nvars >= 1, "knnbuildersetdatasetcls: nvars<1");
+            ap.assert(nclasses >= 2, "knnbuildersetdatasetcls: nclasses<2");
+            ap.assert(ap.rows(xy) >= npoints, "knnbuildersetdatasetcls: rows(xy)<npoints");
+            ap.assert(ap.cols(xy) >= nvars + 1, "knnbuildersetdatasetcls: cols(xy)<nvars+1");
+            ap.assert(apserv.apservisfinitematrix(xy, npoints, nvars + 1, _params), "knnbuildersetdatasetcls: xy parameter contains INFs or NANs");
             for (i = 0; i <= npoints - 1; i++)
             {
                 j = (int)Math.Round(xy[i, nvars]);
-                alglib.ap.assert(j >= 0 && j < nclasses, "knnbuildersetdatasetcls: last column of xy contains invalid class number");
+                ap.assert(j >= 0 && j < nclasses, "knnbuildersetdatasetcls: last column of xy contains invalid class number");
             }
 
             //
@@ -13896,7 +13896,7 @@ public partial class alglib
             int nrmtype,
             alglib.xparams _params)
         {
-            alglib.ap.assert((nrmtype == 0 || nrmtype == 1) || nrmtype == 2, "knnbuildersetnorm: unexpected norm type");
+            ap.assert((nrmtype == 0 || nrmtype == 1) || nrmtype == 2, "knnbuildersetnorm: unexpected norm type");
             s.knnnrm = nrmtype;
         }
 
@@ -13965,8 +13965,8 @@ public partial class alglib
             //
             // Check settings
             //
-            alglib.ap.assert(k >= 1, "knnbuilderbuildknnmodel: k<1");
-            alglib.ap.assert(math.isfinite(eps) && (double)(eps) >= (double)(0), "knnbuilderbuildknnmodel: eps<0");
+            ap.assert(k >= 1, "knnbuilderbuildknnmodel: k<1");
+            ap.assert(math.isfinite(eps) && (double)(eps) >= (double)(0), "knnbuilderbuildknnmodel: eps<0");
 
             //
             // Prepare output
@@ -14067,8 +14067,8 @@ public partial class alglib
             double eps,
             alglib.xparams _params)
         {
-            alglib.ap.assert(k >= 1, "knnrewritekeps: k<1");
-            alglib.ap.assert(math.isfinite(eps) && (double)(eps) >= (double)(0), "knnrewritekeps: eps<0");
+            ap.assert(k >= 1, "knnrewritekeps: k<1");
+            ap.assert(math.isfinite(eps) && (double)(eps) >= (double)(0), "knnrewritekeps: eps<0");
             model.k = k;
             model.eps = eps;
         }
@@ -14285,7 +14285,7 @@ public partial class alglib
                 buf.x[i] = x[i];
             }
             processinternal(model, buf, _params);
-            if (alglib.ap.len(y) < nout)
+            if (ap.len(y) < nout)
             {
                 y = new double[nout];
             }
@@ -14535,10 +14535,10 @@ public partial class alglib
             //
             // Check input
             //
-            alglib.ap.assert(npoints >= 0, "knnallerrors: npoints<0");
-            alglib.ap.assert(alglib.ap.rows(xy) >= npoints, "knnallerrors: rows(xy)<npoints");
-            alglib.ap.assert(alglib.ap.cols(xy) >= nvars + ny, "knnallerrors: cols(xy)<nvars+nout");
-            alglib.ap.assert(apserv.apservisfinitematrix(xy, npoints, nvars + ny, _params), "knnallerrors: xy parameter contains INFs or NANs");
+            ap.assert(npoints >= 0, "knnallerrors: npoints<0");
+            ap.assert(ap.rows(xy) >= npoints, "knnallerrors: rows(xy)<npoints");
+            ap.assert(ap.cols(xy) >= nvars + ny, "knnallerrors: cols(xy)<nvars+nout");
+            ap.assert(apserv.apservisfinitematrix(xy, npoints, nvars + ny, _params), "knnallerrors: xy parameter contains INFs or NANs");
 
             //
             // Clean up report
@@ -14575,7 +14575,7 @@ public partial class alglib
                 if (iscls)
                 {
                     j = (int)Math.Round(xy[i, nvars]);
-                    alglib.ap.assert(j >= 0 && j < nout, "knnallerrors: one of the class labels is not in [0,NClasses)");
+                    ap.assert(j >= 0 && j < nout, "knnallerrors: one of the class labels is not in [0,NClasses)");
                     desiredy[0] = j;
                 }
                 else
@@ -14672,9 +14672,9 @@ public partial class alglib
             // check correctness of header
             //
             i0 = s.unserialize_int();
-            alglib.ap.assert(i0 == scodes.getknnserializationcode(_params), "KNNUnserialize: stream header corrupted");
+            ap.assert(i0 == scodes.getknnserializationcode(_params), "KNNUnserialize: stream header corrupted");
             i1 = s.unserialize_int();
-            alglib.ap.assert(i1 == knnfirstversion, "KNNUnserialize: stream header corrupted");
+            ap.assert(i1 == knnfirstversion, "KNNUnserialize: stream header corrupted");
 
             //
             // Unserialize data
@@ -15467,18 +15467,18 @@ public partial class alglib
             //
             // Check parameters
             //
-            alglib.ap.assert(npoints >= 1, "dfbuildersetdataset: npoints<1");
-            alglib.ap.assert(nvars >= 1, "dfbuildersetdataset: nvars<1");
-            alglib.ap.assert(nclasses >= 1, "dfbuildersetdataset: nclasses<1");
-            alglib.ap.assert(alglib.ap.rows(xy) >= npoints, "dfbuildersetdataset: rows(xy)<npoints");
-            alglib.ap.assert(alglib.ap.cols(xy) >= nvars + 1, "dfbuildersetdataset: cols(xy)<nvars+1");
-            alglib.ap.assert(apserv.apservisfinitematrix(xy, npoints, nvars + 1, _params), "dfbuildersetdataset: xy parameter contains INFs or NANs");
+            ap.assert(npoints >= 1, "dfbuildersetdataset: npoints<1");
+            ap.assert(nvars >= 1, "dfbuildersetdataset: nvars<1");
+            ap.assert(nclasses >= 1, "dfbuildersetdataset: nclasses<1");
+            ap.assert(ap.rows(xy) >= npoints, "dfbuildersetdataset: rows(xy)<npoints");
+            ap.assert(ap.cols(xy) >= nvars + 1, "dfbuildersetdataset: cols(xy)<nvars+1");
+            ap.assert(apserv.apservisfinitematrix(xy, npoints, nvars + 1, _params), "dfbuildersetdataset: xy parameter contains INFs or NANs");
             if (nclasses > 1)
             {
                 for (i = 0; i <= npoints - 1; i++)
                 {
                     j = (int)Math.Round(xy[i, nvars]);
-                    alglib.ap.assert(j >= 0 && j < nclasses, "dfbuildersetdataset: last column of xy contains invalid class number");
+                    ap.assert(j >= 0 && j < nclasses, "dfbuildersetdataset: last column of xy contains invalid class number");
                 }
             }
 
@@ -15561,7 +15561,7 @@ public partial class alglib
             double f,
             alglib.xparams _params)
         {
-            alglib.ap.assert(math.isfinite(f), "dfbuildersetrndvarsratio: F is INF or NAN");
+            ap.assert(math.isfinite(f), "dfbuildersetrndvarsratio: F is INF or NAN");
             s.rdfvars = -Math.Max(f, math.machineepsilon);
         }
 
@@ -15613,7 +15613,7 @@ public partial class alglib
             double f,
             alglib.xparams _params)
         {
-            alglib.ap.assert(math.isfinite(f), "dfbuildersetrndvarsfraction: F is INF or NAN");
+            ap.assert(math.isfinite(f), "dfbuildersetrndvarsfraction: F is INF or NAN");
             s.rdfratio = Math.Max(f, math.machineepsilon);
         }
 
@@ -15673,7 +15673,7 @@ public partial class alglib
             int algotype,
             alglib.xparams _params)
         {
-            alglib.ap.assert(algotype == 0, "dfbuildersetrdfalgo: unexpected algotype");
+            ap.assert(algotype == 0, "dfbuildersetrdfalgo: unexpected algotype");
             s.rdfalgo = algotype;
         }
 
@@ -15700,7 +15700,7 @@ public partial class alglib
             int splitstrength,
             alglib.xparams _params)
         {
-            alglib.ap.assert((splitstrength == 0 || splitstrength == 1) || splitstrength == 2, "dfbuildersetrdfsplitstrength: unexpected split type");
+            ap.assert((splitstrength == 0 || splitstrength == 1) || splitstrength == 2, "dfbuildersetrdfsplitstrength: unexpected split type");
             s.rdfsplitstrength = splitstrength;
         }
 
@@ -16060,7 +16060,7 @@ public partial class alglib
             dfvotebuf votebufseed = new();
             dftreebuf treebufseed = new();
 
-            alglib.ap.assert(ntrees >= 1, "DFBuilderBuildRandomForest: ntrees<1");
+            ap.assert(ntrees >= 1, "DFBuilderBuildRandomForest: ntrees<1");
             cleanreport(s, rep, _params);
             npoints = s.npoints;
             nvars = s.nvars;
@@ -16081,7 +16081,7 @@ public partial class alglib
             //
             if (s.dstype == -1 || npoints == 0)
             {
-                alglib.ap.assert(leafnodewidth == 2, "DFBuilderBuildRandomForest: integrity check failed");
+                ap.assert(leafnodewidth == 2, "DFBuilderBuildRandomForest: integrity check failed");
                 df.forestformat = dfuncompressedv0;
                 df.nvars = s.nvars;
                 df.nclasses = s.nclasses;
@@ -16094,7 +16094,7 @@ public partial class alglib
                 dfcreatebuffer(df, df.buffer, _params);
                 return;
             }
-            alglib.ap.assert(npoints > 0, "DFBuilderBuildRandomForest: integrity check failed");
+            ap.assert(npoints > 0, "DFBuilderBuildRandomForest: integrity check failed");
 
             //
             // Analyze dataset statistics, perform preprocessing
@@ -16150,10 +16150,10 @@ public partial class alglib
                 votebufseed.giniimportances[i] = 0.0;
             }
             treebufseed.treeidx = -1;
-            alglib.smp.ae_shared_pool_set_seed(s.workpool, workbufseed);
-            alglib.smp.ae_shared_pool_set_seed(s.votepool, votebufseed);
-            alglib.smp.ae_shared_pool_set_seed(s.treepool, treebufseed);
-            alglib.smp.ae_shared_pool_set_seed(s.treefactory, treebufseed);
+            smp.ae_shared_pool_set_seed(s.workpool, workbufseed);
+            smp.ae_shared_pool_set_seed(s.votepool, votebufseed);
+            smp.ae_shared_pool_set_seed(s.treepool, treebufseed);
+            smp.ae_shared_pool_set_seed(s.treefactory, treebufseed);
 
             //
             // Select session seed (individual trees are constructed using
@@ -16327,7 +16327,7 @@ public partial class alglib
             // being used. It may disappear in the future versions of the DF
             // models, so you should NOT rely on it.
             //
-            if (alglib.ap.len(y) < df.nclasses)
+            if (ap.len(y) < df.nclasses)
             {
                 y = new double[df.nclasses];
             }
@@ -16365,7 +16365,7 @@ public partial class alglib
                 }
                 processed = true;
             }
-            alglib.ap.assert(processed, "DFProcess: integrity check failed (unexpected format?)");
+            ap.assert(processed, "DFProcess: integrity check failed (unexpected format?)");
             v = (double)1 / (double)df.ntrees;
             for (i_ = 0; i_ <= df.nclasses - 1; i_++)
             {
@@ -16926,7 +16926,7 @@ public partial class alglib
                 df2.nvars = df1.nvars;
                 df2.nclasses = df1.nclasses;
                 df2.ntrees = df1.ntrees;
-                bufsize = alglib.ap.len(df1.trees8);
+                bufsize = ap.len(df1.trees8);
                 df2.trees8 = new byte[bufsize];
                 for (i = 0; i <= bufsize - 1; i++)
                 {
@@ -16935,7 +16935,7 @@ public partial class alglib
                 dfcreatebuffer(df2, df2.buffer, _params);
                 return;
             }
-            alglib.ap.assert(false, "DFCopy: unexpected forest format");
+            ap.assert(false, "DFCopy: unexpected forest format");
         }
 
 
@@ -16971,7 +16971,7 @@ public partial class alglib
                 s.alloc_byte_array(forest.trees8);
                 return;
             }
-            alglib.ap.assert(false, "DFAlloc: unexpected forest format");
+            ap.assert(false, "DFAlloc: unexpected forest format");
         }
 
 
@@ -17007,7 +17007,7 @@ public partial class alglib
                 s.serialize_byte_array(forest.trees8);
                 return;
             }
-            alglib.ap.assert(false, "DFSerialize: unexpected forest format");
+            ap.assert(false, "DFSerialize: unexpected forest format");
         }
 
 
@@ -17030,7 +17030,7 @@ public partial class alglib
             // check correctness of header
             //
             i0 = s.unserialize_int();
-            alglib.ap.assert(i0 == scodes.getrdfserializationcode(_params), "DFUnserialize: stream header corrupted");
+            ap.assert(i0 == scodes.getrdfserializationcode(_params), "DFUnserialize: stream header corrupted");
 
             //
             // Read forest
@@ -17065,7 +17065,7 @@ public partial class alglib
                 forest.trees8 = s.unserialize_byte_array();
                 processed = true;
             }
-            alglib.ap.assert(processed, "DFUnserialize: unexpected forest format");
+            ap.assert(processed, "DFUnserialize: unexpected forest format");
 
             //
             // Prepare buffer
@@ -17237,7 +17237,7 @@ public partial class alglib
             }
             else
             {
-                alglib.ap.assert(treeidx1 - treeidx0 == 1, "RDF: integrity check failed");
+                ap.assert(treeidx1 - treeidx0 == 1, "RDF: integrity check failed");
                 treeidx = treeidx0;
             }
 
@@ -17259,15 +17259,15 @@ public partial class alglib
             //
             // Retrieve buffers.
             //
-            alglib.smp.ae_shared_pool_retrieve(s.workpool, ref workbuf);
-            alglib.smp.ae_shared_pool_retrieve(s.votepool, ref votebuf);
+            smp.ae_shared_pool_retrieve(s.workpool, ref workbuf);
+            smp.ae_shared_pool_retrieve(s.votepool, ref votebuf);
 
             //
             // Prepare everything for tree construction.
             //
-            alglib.ap.assert(workbuf.trnsize >= 1, "DForest: integrity check failed (34636)");
-            alglib.ap.assert(workbuf.oobsize >= 0, "DForest: integrity check failed (45745)");
-            alglib.ap.assert(workbuf.trnsize + workbuf.oobsize == npoints, "DForest: integrity check failed (89415)");
+            ap.assert(workbuf.trnsize >= 1, "DForest: integrity check failed (34636)");
+            ap.assert(workbuf.oobsize >= 0, "DForest: integrity check failed (45745)");
+            ap.assert(workbuf.trnsize + workbuf.oobsize == npoints, "DForest: integrity check failed (89415)");
             workingsetsize = -1;
             workbuf.varpoolsize = 0;
             for (i = 0; i <= nvars - 1; i++)
@@ -17279,7 +17279,7 @@ public partial class alglib
                 }
             }
             workingsetsize = workbuf.varpoolsize;
-            alglib.ap.assert(workingsetsize >= 0, "DForest: integrity check failed (73f5)");
+            ap.assert(workingsetsize >= 0, "DForest: integrity check failed (73f5)");
             for (i = 0; i <= npoints - 1; i++)
             {
                 workbuf.tmp0i[i] = i;
@@ -17345,20 +17345,20 @@ public partial class alglib
             //
             // Store tree
             //
-            alglib.smp.ae_shared_pool_retrieve(s.treefactory, ref treebuf);
+            smp.ae_shared_pool_retrieve(s.treefactory, ref treebuf);
             treebuf.treebuf = new double[treesize];
             for (i = 0; i <= treesize - 1; i++)
             {
                 treebuf.treebuf[i] = workbuf.treebuf[i];
             }
             treebuf.treeidx = treeidx;
-            alglib.smp.ae_shared_pool_recycle(s.treepool, ref treebuf);
+            smp.ae_shared_pool_recycle(s.treepool, ref treebuf);
 
             //
             // Return other buffers to appropriate pools
             //
-            alglib.smp.ae_shared_pool_recycle(s.workpool, ref workbuf);
-            alglib.smp.ae_shared_pool_recycle(s.votepool, ref votebuf);
+            smp.ae_shared_pool_recycle(s.workpool, ref workbuf);
+            smp.ae_shared_pool_recycle(s.votepool, ref votebuf);
 
             //
             // Update progress indicator
@@ -17431,9 +17431,9 @@ public partial class alglib
             double meanloss0 = 0;
             double meanloss1 = 0;
 
-            alglib.ap.assert(s.dstype == 0, "not supported skbdgfsi!");
-            alglib.ap.assert(idx0 < idx1, "BuildRandomTreeRec: integrity check failed (3445)");
-            alglib.ap.assert(oobidx0 <= oobidx1, "BuildRandomTreeRec: integrity check failed (7452)");
+            ap.assert(s.dstype == 0, "not supported skbdgfsi!");
+            ap.assert(idx0 < idx1, "BuildRandomTreeRec: integrity check failed (3445)");
+            ap.assert(oobidx0 <= oobidx1, "BuildRandomTreeRec: integrity check failed (7452)");
             npoints = s.npoints;
             nclasses = s.nclasses;
 
@@ -17480,7 +17480,7 @@ public partial class alglib
             // Non-leaf node.
             // Investigate possible splits.
             //
-            alglib.ap.assert(s.rdfalgo == 0, "BuildRandomForest: unexpected algo");
+            ap.assert(s.rdfalgo == 0, "BuildRandomForest: unexpected algo");
             choosecurrentsplitdense(s, workbuf, ref workingset, varstoselect, rs, idx0, idx1, ref varbest, ref splitbest, _params);
             if (varbest < 0)
             {
@@ -17505,7 +17505,7 @@ public partial class alglib
             // * first, we split training set
             // * then, we similarly split OOB set
             //
-            alglib.ap.assert(s.dstype == 0, "not supported 54bfdh");
+            ap.assert(s.dstype == 0, "not supported 54bfdh");
             offs = npoints * varbest;
             i1 = idx0;
             i2 = idx1 - 1;
@@ -17544,7 +17544,7 @@ public partial class alglib
                 i1 = i1 + 1;
                 i2 = i2 - 1;
             }
-            alglib.ap.assert(i1 == i2 + 1, "BuildRandomTreeRec: integrity check failed (45rds3)");
+            ap.assert(i1 == i2 + 1, "BuildRandomTreeRec: integrity check failed (45rds3)");
             idxtrn = i1;
             if (oobidx0 < oobidx1)
             {
@@ -17591,7 +17591,7 @@ public partial class alglib
                     i1 = i1 + 1;
                     i2 = i2 - 1;
                 }
-                alglib.ap.assert(i1 == i2 + 1, "BuildRandomTreeRec: integrity check failed (643fs3)");
+                ap.assert(i1 == i2 + 1, "BuildRandomTreeRec: integrity check failed (643fs3)");
                 idxoob = i1;
             }
             else
@@ -17685,14 +17685,14 @@ public partial class alglib
                 //
                 // Merge OOB Gini importances computed during tree generation
                 //
-                alglib.smp.ae_shared_pool_first_recycled(s.votepool, ref vote);
+                smp.ae_shared_pool_first_recycled(s.votepool, ref vote);
                 while (vote != null)
                 {
                     for (i = 0; i <= nvars - 1; i++)
                     {
                         rep.varimportances[i] = rep.varimportances[i] + vote.giniimportances[i] / ntrees;
                     }
-                    alglib.smp.ae_shared_pool_next_recycled(s.votepool, ref vote);
+                    smp.ae_shared_pool_next_recycled(s.votepool, ref vote);
                 }
                 for (i = 0; i <= nvars - 1; i++)
                 {
@@ -17717,8 +17717,8 @@ public partial class alglib
             //
             if (s.rdfimportance == needpermutation)
             {
-                alglib.ap.assert(df.forestformat == dfuncompressedv0, "EstimateVariableImportance: integrity check failed (ff)");
-                alglib.ap.assert(alglib.ap.rows(s.iobmatrix) >= ntrees && alglib.ap.cols(s.iobmatrix) >= npoints, "EstimateVariableImportance: integrity check failed (IOB)");
+                ap.assert(df.forestformat == dfuncompressedv0, "EstimateVariableImportance: integrity check failed (ff)");
+                ap.assert(ap.rows(s.iobmatrix) >= ntrees && ap.cols(s.iobmatrix) >= npoints, "EstimateVariableImportance: integrity check failed (IOB)");
 
                 //
                 // Generate packed representation of the shuffle which is applied to all variables
@@ -17765,7 +17765,7 @@ public partial class alglib
                 permseed.targety = new double[nclasses];
                 permseed.startnodes = new int[nvars];
                 permseed.y = new double[nclasses];
-                alglib.smp.ae_shared_pool_set_seed(permpool, permseed);
+                smp.ae_shared_pool_set_seed(permpool, permseed);
 
                 //
                 // Recursively split subset and process (using parallel capabilities, if possible)
@@ -17780,14 +17780,14 @@ public partial class alglib
                 {
                     losses[j] = 1.0e-20;
                 }
-                alglib.smp.ae_shared_pool_first_recycled(permpool, ref permresult);
+                smp.ae_shared_pool_first_recycled(permpool, ref permresult);
                 while (permresult != null)
                 {
                     for (j = 0; j <= nperm - 1; j++)
                     {
                         losses[j] = losses[j] + permresult.losses[j];
                     }
-                    alglib.smp.ae_shared_pool_next_recycled(permpool, ref permresult);
+                    smp.ae_shared_pool_next_recycled(permpool, ref permresult);
                 }
 
                 //
@@ -17813,7 +17813,7 @@ public partial class alglib
                 tsort.tagsortfasti(ref tmpr0, ref rep.topvars, ref tmpr1, ref tmpi0, nvars, _params);
                 return;
             }
-            alglib.ap.assert(false, "EstimateVariableImportance: unexpected importance type");
+            ap.assert(false, "EstimateVariableImportance: unexpected importance type");
         }
 
 
@@ -17868,9 +17868,9 @@ public partial class alglib
             npoints = s.npoints;
             nvars = s.nvars;
             nclasses = s.nclasses;
-            alglib.ap.assert(df.forestformat == dfuncompressedv0, "EstimateVariableImportance: integrity check failed (ff)");
-            alglib.ap.assert((idx0 >= 0 && idx0 <= idx1) && idx1 <= npoints, "EstimateVariableImportance: integrity check failed (idx)");
-            alglib.ap.assert(alglib.ap.rows(s.iobmatrix) >= ntrees && alglib.ap.cols(s.iobmatrix) >= npoints, "EstimateVariableImportance: integrity check failed (IOB)");
+            ap.assert(df.forestformat == dfuncompressedv0, "EstimateVariableImportance: integrity check failed (ff)");
+            ap.assert((idx0 >= 0 && idx0 <= idx1) && idx1 <= npoints, "EstimateVariableImportance: integrity check failed (idx)");
+            ap.assert(ap.rows(s.iobmatrix) >= ntrees && ap.cols(s.iobmatrix) >= npoints, "EstimateVariableImportance: integrity check failed (IOB)");
 
             //
             // Perform parallelization if batch is too large
@@ -17890,7 +17890,7 @@ public partial class alglib
             //
             // Retrieve buffer object from pool
             //
-            alglib.smp.ae_shared_pool_retrieve(permpool, ref permimpbuf);
+            smp.ae_shared_pool_retrieve(permpool, ref permimpbuf);
 
             //
             // Process range of points [idx0,idx1)
@@ -17898,7 +17898,7 @@ public partial class alglib
             nperm = nvars + 2;
             for (i = idx0; i <= idx1 - 1; i++)
             {
-                alglib.ap.assert(s.dstype == 0, "EstimateVariableImportance: unexpected dataset type");
+                ap.assert(s.dstype == 0, "EstimateVariableImportance: unexpected dataset type");
                 for (j = 0; j <= nvars - 1; j++)
                 {
                     permimpbuf.xraw[j] = s.dsdata[j * npoints + i];
@@ -17941,7 +17941,7 @@ public partial class alglib
                         // the first split on this variable. It allows us to quickly compute
                         // tree decision when perturbation does not change decision path.
                         //
-                        alglib.ap.assert(df.forestformat == dfuncompressedv0, "EstimateVariableImportance: integrity check failed (ff)");
+                        ap.assert(df.forestformat == dfuncompressedv0, "EstimateVariableImportance: integrity check failed (ff)");
                         nodeoffs = treeroot + 1;
                         for (j = 0; j <= nvars - 1; j++)
                         {
@@ -18018,7 +18018,7 @@ public partial class alglib
                                 // Path from tree root to the final leaf involves split on variable #VarIdx.
                                 // Restart computation from the position first split on #VarIdx.
                                 //
-                                alglib.ap.assert(df.forestformat == dfuncompressedv0, "EstimateVariableImportance: integrity check failed (ff)");
+                                ap.assert(df.forestformat == dfuncompressedv0, "EstimateVariableImportance: integrity check failed (ff)");
                                 permimpbuf.xcur[varidx] = permimpbuf.xdist[varidx];
                                 nodeoffs = permimpbuf.startnodes[varidx];
                                 while (true)
@@ -18102,7 +18102,7 @@ public partial class alglib
             //
             // Recycle buffer object with updated Losses[] field
             //
-            alglib.smp.ae_shared_pool_recycle(permpool, ref permimpbuf);
+            smp.ae_shared_pool_recycle(permpool, ref permimpbuf);
         }
 
 
@@ -18202,8 +18202,8 @@ public partial class alglib
             double pitrn = 0;
             double nitst = 0;
 
-            alglib.ap.assert(trnidx0 <= trnidx1, "MeanNRMS2: integrity check failed (8754)");
-            alglib.ap.assert(tstidx0 <= tstidx1, "MeanNRMS2: integrity check failed (8754)");
+            ap.assert(trnidx0 <= trnidx1, "MeanNRMS2: integrity check failed (8754)");
+            ap.assert(tstidx0 <= tstidx1, "MeanNRMS2: integrity check failed (8754)");
             result = 0;
             ntrn = trnidx1 - trnidx0;
             ntst = tstidx1 - tstidx0;
@@ -18301,9 +18301,9 @@ public partial class alglib
             varbest = 0;
             splitbest = 0;
 
-            alglib.ap.assert(s.dstype == 0, "sparsity is not supported 4terg!");
-            alglib.ap.assert(s.rdfalgo == 0, "BuildRandomTreeRec: integrity check failed (1657)");
-            alglib.ap.assert(idx0 < idx1, "BuildRandomTreeRec: integrity check failed (3445)");
+            ap.assert(s.dstype == 0, "sparsity is not supported 4terg!");
+            ap.assert(s.rdfalgo == 0, "BuildRandomTreeRec: integrity check failed (1657)");
+            ap.assert(idx0 < idx1, "BuildRandomTreeRec: integrity check failed (3445)");
             npoints = s.npoints;
 
             //
@@ -18327,7 +18327,7 @@ public partial class alglib
                 // If all variable values are same, variable is excluded from pool and we re-run variable selection.
                 //
                 valuesaresame = true;
-                alglib.ap.assert(s.dstype == 0, "not supported segsv34fs");
+                ap.assert(s.dstype == 0, "not supported segsv34fs");
                 offs = npoints * varcur;
                 v0 = s.dsdata[offs + workbuf.trnset[idx0]];
                 for (i = idx0; i <= idx1 - 1; i++)
@@ -18423,7 +18423,7 @@ public partial class alglib
             split = 0;
             rms = 0;
 
-            alglib.ap.assert(idx0 < idx1, "BuildRandomTreeRec: integrity check failed (8754)");
+            ap.assert(idx0 < idx1, "BuildRandomTreeRec: integrity check failed (8754)");
             nclasses = s.nclasses;
             if (s.dsbinary[splitvar])
             {
@@ -18455,7 +18455,7 @@ public partial class alglib
                         }
                     }
                     sr = idx1 - idx0 - sl;
-                    alglib.ap.assert(sl != 0 && sr != 0, "BuildRandomTreeRec: something strange, impossible failure!");
+                    ap.assert(sl != 0 && sr != 0, "BuildRandomTreeRec: something strange, impossible failure!");
                     v0 = (double)1 / (double)sl;
                     v1 = (double)1 / (double)sr;
                     rms = 0;
@@ -18490,7 +18490,7 @@ public partial class alglib
                             sr = sr + 1;
                         }
                     }
-                    alglib.ap.assert(sl != 0 && sr != 0, "BuildRandomTreeRec: something strange, impossible failure!");
+                    ap.assert(sl != 0 && sr != 0, "BuildRandomTreeRec: something strange, impossible failure!");
                     v1 = v1 / sl;
                     v2 = v2 / sr;
                     rms = 0;
@@ -18575,7 +18575,7 @@ public partial class alglib
             threshold = 0;
             e = 0;
 
-            alglib.ap.assert((s.rdfsplitstrength == 0 || s.rdfsplitstrength == 1) || s.rdfsplitstrength == 2, "RDF: unexpected split type at ClassifierSplit()");
+            ap.assert((s.rdfsplitstrength == 0 || s.rdfsplitstrength == 1) || s.rdfsplitstrength == 2, "RDF: unexpected split type at ClassifierSplit()");
             nclasses = s.nclasses;
             advanceby = 1;
             if (n >= 20)
@@ -18636,7 +18636,7 @@ public partial class alglib
                         n0 = n0 + 1;
                     }
                 }
-                alglib.ap.assert(n0 > 0 && n0 < n, "RDF: critical integrity check failed at ClassifierSplit()");
+                ap.assert(n0 > 0 && n0 < n, "RDF: critical integrity check failed at ClassifierSplit()");
                 v0 = (double)1 / (double)n0;
                 v1 = (double)1 / (double)(n - n0);
                 rms = 0;
@@ -18701,7 +18701,7 @@ public partial class alglib
                         n0 = n0 + 1;
                     }
                 }
-                alglib.ap.assert(n0 > 0 && n0 < n, "RDF: critical integrity check failed at ClassifierSplit()");
+                ap.assert(n0 > 0 && n0 < n, "RDF: critical integrity check failed at ClassifierSplit()");
                 v0 = (double)1 / (double)n0;
                 v1 = (double)1 / (double)(n - n0);
                 rms = 0;
@@ -18736,7 +18736,7 @@ public partial class alglib
                 {
                     n0 = n0 + 1;
                 }
-                alglib.ap.assert(n0 < n, "RDF: critical integrity check failed in ClassifierSplit()");
+                ap.assert(n0 < n, "RDF: critical integrity check failed in ClassifierSplit()");
                 for (i = 0; i <= n0 - 1; i++)
                 {
                     k = c[i];
@@ -18792,7 +18792,7 @@ public partial class alglib
                 }
                 return;
             }
-            alglib.ap.assert(false, "RDF: ClassifierSplit(), critical error");
+            ap.assert(false, "RDF: ClassifierSplit(), critical error");
         }
 
 
@@ -18915,7 +18915,7 @@ public partial class alglib
             {
                 n0 = n0 + 1;
             }
-            alglib.ap.assert(n0 < n, "RDF: critical integrity check failed in ClassifierSplit()");
+            ap.assert(n0 < n, "RDF: critical integrity check failed in ClassifierSplit()");
             cnt0 = 0;
             cnt1 = 0;
             cnt2 = 0;
@@ -19154,7 +19154,7 @@ public partial class alglib
             double v1 = 0;
             hqrnd.hqrndstate rs = new();
 
-            alglib.ap.assert(s.dstype == 0, "no sparsity");
+            ap.assert(s.dstype == 0, "no sparsity");
             npoints = s.npoints;
             nvars = s.nvars;
             nclasses = s.nclasses;
@@ -19174,7 +19174,7 @@ public partial class alglib
             //
             // Generic processing
             //
-            alglib.ap.assert(npoints >= 1, "BuildRandomForest: integrity check failed");
+            ap.assert(npoints >= 1, "BuildRandomForest: integrity check failed");
             apserv.rvectorsetlengthatleast(ref s.dsmin, nvars, _params);
             apserv.rvectorsetlengthatleast(ref s.dsmax, nvars, _params);
             apserv.bvectorsetlengthatleast(ref s.dsbinary, nvars, _params);
@@ -19196,7 +19196,7 @@ public partial class alglib
                 }
                 s.dsmin[i] = v0;
                 s.dsmax[i] = v1;
-                alglib.ap.assert((double)(v0) <= (double)(v1), "BuildRandomForest: strange integrity check failure");
+                ap.assert((double)(v0) <= (double)(v1), "BuildRandomForest: strange integrity check failure");
                 isbinary = true;
                 for (j = 0; j <= npoints - 1; j++)
                 {
@@ -19264,13 +19264,13 @@ public partial class alglib
             //
             // Determine trees count
             //
-            alglib.smp.ae_shared_pool_first_recycled(s.treepool, ref tree);
+            smp.ae_shared_pool_first_recycled(s.treepool, ref tree);
             while (tree != null)
             {
                 df.ntrees = df.ntrees + 1;
-                alglib.smp.ae_shared_pool_next_recycled(s.treepool, ref tree);
+                smp.ae_shared_pool_next_recycled(s.treepool, ref tree);
             }
-            alglib.ap.assert(df.ntrees > 0, "MergeTrees: integrity check failed, zero trees count");
+            ap.assert(df.ntrees > 0, "MergeTrees: integrity check failed, zero trees count");
 
             //
             // Determine individual tree sizes and total buffer size
@@ -19280,18 +19280,18 @@ public partial class alglib
             {
                 treesizes[i] = -1;
             }
-            alglib.smp.ae_shared_pool_first_recycled(s.treepool, ref tree);
+            smp.ae_shared_pool_first_recycled(s.treepool, ref tree);
             while (tree != null)
             {
-                alglib.ap.assert(tree.treeidx >= 0 && tree.treeidx < df.ntrees, "MergeTrees: integrity check failed (wrong TreeIdx)");
-                alglib.ap.assert(treesizes[tree.treeidx] < 0, "MergeTrees: integrity check failed (duplicate TreeIdx)");
+                ap.assert(tree.treeidx >= 0 && tree.treeidx < df.ntrees, "MergeTrees: integrity check failed (wrong TreeIdx)");
+                ap.assert(treesizes[tree.treeidx] < 0, "MergeTrees: integrity check failed (duplicate TreeIdx)");
                 df.bufsize = df.bufsize + (int)Math.Round(tree.treebuf[0]);
                 treesizes[tree.treeidx] = (int)Math.Round(tree.treebuf[0]);
-                alglib.smp.ae_shared_pool_next_recycled(s.treepool, ref tree);
+                smp.ae_shared_pool_next_recycled(s.treepool, ref tree);
             }
             for (i = 0; i <= df.ntrees - 1; i++)
             {
-                alglib.ap.assert(treesizes[i] > 0, "MergeTrees: integrity check failed (wrong TreeSize)");
+                ap.assert(treesizes[i] > 0, "MergeTrees: integrity check failed (wrong TreeSize)");
             }
 
             //
@@ -19312,7 +19312,7 @@ public partial class alglib
             //       why we need array of tree offsets
             //
             df.trees = new double[df.bufsize];
-            alglib.smp.ae_shared_pool_first_recycled(s.treepool, ref tree);
+            smp.ae_shared_pool_first_recycled(s.treepool, ref tree);
             while (tree != null)
             {
                 cursize = (int)Math.Round(tree.treebuf[0]);
@@ -19321,7 +19321,7 @@ public partial class alglib
                 {
                     df.trees[offs + i] = tree.treebuf[i];
                 }
-                alglib.smp.ae_shared_pool_next_recycled(s.treepool, ref tree);
+                smp.ae_shared_pool_next_recycled(s.treepool, ref tree);
             }
         }
 
@@ -19362,9 +19362,9 @@ public partial class alglib
             npoints = s.npoints;
             nvars = s.nvars;
             nclasses = s.nclasses;
-            alglib.ap.assert(npoints > 0, "DFOREST: integrity check failed");
-            alglib.ap.assert(nvars > 0, "DFOREST: integrity check failed");
-            alglib.ap.assert(nclasses > 0, "DFOREST: integrity check failed");
+            ap.assert(npoints > 0, "DFOREST: integrity check failed");
+            ap.assert(nvars > 0, "DFOREST: integrity check failed");
+            ap.assert(nclasses > 0, "DFOREST: integrity check failed");
 
             //
             // Prepare vote buffer
@@ -19387,7 +19387,7 @@ public partial class alglib
             //
             // Merge voting arrays
             //
-            alglib.smp.ae_shared_pool_first_recycled(s.votepool, ref vote);
+            smp.ae_shared_pool_first_recycled(s.votepool, ref vote);
             while (vote != null)
             {
                 for (i = 0; i <= npoints * nclasses - 1; i++)
@@ -19400,7 +19400,7 @@ public partial class alglib
                     buf.trncounts[i] = buf.trncounts[i] + vote.trncounts[i] + vote.oobcounts[i];
                     buf.oobcounts[i] = buf.oobcounts[i] + vote.oobcounts[i];
                 }
-                alglib.smp.ae_shared_pool_next_recycled(s.votepool, ref vote);
+                smp.ae_shared_pool_next_recycled(s.votepool, ref vote);
             }
             for (i = 0; i <= npoints - 1; i++)
             {
@@ -19574,7 +19574,7 @@ public partial class alglib
             //
             // Check that source format is supported
             //
-            alglib.ap.assert(df.forestformat == dfuncompressedv0, "BinaryCompression: unexpected forest format");
+            ap.assert(df.forestformat == dfuncompressedv0, "BinaryCompression: unexpected forest format");
 
             //
             // Compute sizes of uncompressed and compressed trees.
@@ -19589,7 +19589,7 @@ public partial class alglib
                 maxrawtreesize = Math.Max(maxrawtreesize, (int)Math.Round(df.trees[offssrc]));
                 offssrc = offssrc + (int)Math.Round(df.trees[offssrc]);
             }
-            result = (double)(8 * alglib.ap.len(df.trees)) / (double)(size8 + 1);
+            result = (double)(8 * ap.len(df.trees)) / (double)(size8 + 1);
 
             //
             // Allocate memory and perform compression
@@ -19621,7 +19621,7 @@ public partial class alglib
                 //
                 offssrc = offssrc + (int)Math.Round(df.trees[offssrc]);
             }
-            alglib.ap.assert(offsdst == size8, "BinaryCompression: integrity check failed (stream length)");
+            ap.assert(offsdst == size8, "BinaryCompression: integrity check failed (stream length)");
 
             //
             // Finalize forest conversion, clear previously allocated memory
@@ -19733,7 +19733,7 @@ public partial class alglib
             //
             if (savecompressedsizes)
             {
-                alglib.ap.assert(treepos - treeroot < alglib.ap.len(compressedsizes), "ComputeCompressedSizeRec: integrity check failed");
+                ap.assert(treepos - treeroot < ap.len(compressedsizes), "ComputeCompressedSizeRec: integrity check failed");
                 compressedsizes[treepos - treeroot] = result;
             }
             return result;
@@ -19853,7 +19853,7 @@ public partial class alglib
             //
             // Integrity check at the end
             //
-            alglib.ap.assert(dstoffs - dstoffsold == compressedsizes[treepos - treeroot], "CompressRec: integrity check failed (compressed size at leaf)");
+            ap.assert(dstoffs - dstoffsold == compressedsizes[treepos - treeroot], "CompressRec: integrity check failed (compressed size at leaf)");
         }
 
 
@@ -19870,7 +19870,7 @@ public partial class alglib
         {
             int result = 0;
 
-            alglib.ap.assert(v >= 0);
+            ap.assert(v >= 0);
             result = 1;
             while (v >= 128)
             {
@@ -19896,7 +19896,7 @@ public partial class alglib
         {
             int v0 = 0;
 
-            alglib.ap.assert(v >= 0);
+            ap.assert(v >= 0);
             while (true)
             {
 
@@ -19983,7 +19983,7 @@ public partial class alglib
             double twopow10 = 0;
             double twopowm10 = 0;
 
-            alglib.ap.assert(math.isfinite(v), "StreamFloat: V is not finite number");
+            ap.assert(math.isfinite(v), "StreamFloat: V is not finite number");
 
             //
             // Special case: zero
@@ -20054,7 +20054,7 @@ public partial class alglib
                 v = v * 2;
                 e = e - 1;
             }
-            alglib.ap.assert(v >= 0.5 && v < 1.0, "StreamFloat: integrity check failed");
+            ap.assert(v >= 0.5 && v < 1.0, "StreamFloat: integrity check failed");
 
             //
             // Handle exponent underflow/overflow
@@ -20220,7 +20220,7 @@ public partial class alglib
         {
             int idx = 0;
 
-            alglib.ap.assert(df.forestformat == dfuncompressedv0, "DFProcessInternal: unexpected forest format");
+            ap.assert(df.forestformat == dfuncompressedv0, "DFProcessInternal: unexpected forest format");
 
             //
             // Navigate through the tree
@@ -20270,7 +20270,7 @@ public partial class alglib
             double leafval = 0;
             int leafcls = 0;
 
-            alglib.ap.assert(df.forestformat == dfcompressedv0, "DFProcessInternal: unexpected forest format");
+            ap.assert(df.forestformat == dfcompressedv0, "DFProcessInternal: unexpected forest format");
 
             //
             // Navigate through the tree
@@ -21127,7 +21127,7 @@ public partial class alglib
             int layerscount = 0;
             int lastproc = 0;
 
-            alglib.ap.assert(nout >= 2, "MLPCreateC0: NOut<2!");
+            ap.assert(nout >= 2, "MLPCreateC0: NOut<2!");
             layerscount = 1 + 2 + 1;
 
             //
@@ -21172,7 +21172,7 @@ public partial class alglib
             int layerscount = 0;
             int lastproc = 0;
 
-            alglib.ap.assert(nout >= 2, "MLPCreateC1: NOut<2!");
+            ap.assert(nout >= 2, "MLPCreateC1: NOut<2!");
             layerscount = 1 + 3 + 2 + 1;
 
             //
@@ -21220,7 +21220,7 @@ public partial class alglib
             int layerscount = 0;
             int lastproc = 0;
 
-            alglib.ap.assert(nout >= 2, "MLPCreateC2: NOut<2!");
+            ap.assert(nout >= 2, "MLPCreateC2: NOut<2!");
             layerscount = 1 + 3 + 3 + 2 + 1;
 
             //
@@ -21316,14 +21316,14 @@ public partial class alglib
             // copy buffers
             //
             wcount = mlpgetweightscount(network1, _params);
-            alglib.smp.ae_shared_pool_set_seed(network2.buf, buf);
+            smp.ae_shared_pool_set_seed(network2.buf, buf);
             sgrad.g = new double[wcount];
             sgrad.f = 0.0;
             for (i = 0; i <= wcount - 1; i++)
             {
                 sgrad.g[i] = 0.0;
             }
-            alglib.smp.ae_shared_pool_set_seed(network2.gradbuf, sgrad);
+            smp.ae_shared_pool_set_seed(network2.gradbuf, sgrad);
         }
 
 
@@ -21342,8 +21342,8 @@ public partial class alglib
             int i = 0;
             int ninfo = 0;
 
-            alglib.ap.assert(alglib.ap.len(network1.structinfo) > 0 && alglib.ap.len(network1.structinfo) >= network1.structinfo[0], "MLPSameArchitecture: Network1 is uninitialized");
-            alglib.ap.assert(alglib.ap.len(network2.structinfo) > 0 && alglib.ap.len(network2.structinfo) >= network2.structinfo[0], "MLPSameArchitecture: Network2 is uninitialized");
+            ap.assert(ap.len(network1.structinfo) > 0 && ap.len(network1.structinfo) >= network1.structinfo[0], "MLPSameArchitecture: Network1 is uninitialized");
+            ap.assert(ap.len(network2.structinfo) > 0 && ap.len(network2.structinfo) >= network2.structinfo[0], "MLPSameArchitecture: Network2 is uninitialized");
             result = false;
             if (network1.structinfo[0] != network2.structinfo[0])
             {
@@ -21390,13 +21390,13 @@ public partial class alglib
             int nout = 0;
             int wcount = 0;
 
-            alglib.ap.assert(alglib.ap.len(network1.structinfo) > 0 && alglib.ap.len(network1.structinfo) >= network1.structinfo[0], "MLPCopyTunableParameters: Network1 is uninitialized");
-            alglib.ap.assert(alglib.ap.len(network2.structinfo) > 0 && alglib.ap.len(network2.structinfo) >= network2.structinfo[0], "MLPCopyTunableParameters: Network2 is uninitialized");
-            alglib.ap.assert(network1.structinfo[0] == network2.structinfo[0], "MLPCopyTunableParameters: Network1 geometry differs from that of Network2");
+            ap.assert(ap.len(network1.structinfo) > 0 && ap.len(network1.structinfo) >= network1.structinfo[0], "MLPCopyTunableParameters: Network1 is uninitialized");
+            ap.assert(ap.len(network2.structinfo) > 0 && ap.len(network2.structinfo) >= network2.structinfo[0], "MLPCopyTunableParameters: Network2 is uninitialized");
+            ap.assert(network1.structinfo[0] == network2.structinfo[0], "MLPCopyTunableParameters: Network1 geometry differs from that of Network2");
             ninfo = network1.structinfo[0];
             for (i = 0; i <= ninfo - 1; i++)
             {
-                alglib.ap.assert(network1.structinfo[i] == network2.structinfo[i], "MLPCopyTunableParameters: Network1 geometry differs from that of Network2");
+                ap.assert(network1.structinfo[i] == network2.structinfo[i], "MLPCopyTunableParameters: Network1 geometry differs from that of Network2");
             }
             mlpproperties(network1, ref nin, ref nout, ref wcount, _params);
             for (i = 0; i <= wcount - 1; i++)
@@ -21455,7 +21455,7 @@ public partial class alglib
 
             pcount = 0;
 
-            alglib.ap.assert(alglib.ap.len(network.structinfo) > 0 && alglib.ap.len(network.structinfo) >= network.structinfo[0], "MLPExportTunableParameters: Network is uninitialized");
+            ap.assert(ap.len(network.structinfo) > 0 && ap.len(network.structinfo) >= network.structinfo[0], "MLPExportTunableParameters: Network is uninitialized");
             mlpproperties(network, ref nin, ref nout, ref wcount, _params);
             if (mlpissoftmax(network, _params))
             {
@@ -21521,7 +21521,7 @@ public partial class alglib
             int nout = 0;
             int wcount = 0;
 
-            alglib.ap.assert(alglib.ap.len(network.structinfo) > 0 && alglib.ap.len(network.structinfo) >= network.structinfo[0], "MLPImportTunableParameters: Network is uninitialized");
+            ap.assert(ap.len(network.structinfo) > 0 && ap.len(network.structinfo) >= network.structinfo[0], "MLPImportTunableParameters: Network is uninitialized");
             mlpproperties(network, ref nin, ref nout, ref wcount, _params);
             if (mlpissoftmax(network, _params))
             {
@@ -21677,7 +21677,7 @@ public partial class alglib
             int i_ = 0;
             int i1_ = 0;
 
-            alglib.ap.assert((int)Math.Round(ra[1]) == mlpvnum, "MLPUnserialize: incorrect array!");
+            ap.assert((int)Math.Round(ra[1]) == mlpvnum, "MLPUnserialize: incorrect array!");
 
             //
             // Unload StructInfo from IA
@@ -21943,7 +21943,7 @@ public partial class alglib
                     network.rndbuf[entryoffs + 1] = Math.Max(ef2 - ef * ef, 0.0);
                     continue;
                 }
-                alglib.ap.assert(false, "MLPRandomize: unexpected neuron type");
+                ap.assert(false, "MLPRandomize: unexpected neuron type");
             }
 
             //
@@ -22340,18 +22340,18 @@ public partial class alglib
             int i = 0;
             int j = 0;
 
-            alglib.ap.assert(setsize >= 0, "MLPInitPreprocessorSubset: SetSize<0");
+            ap.assert(setsize >= 0, "MLPInitPreprocessorSubset: SetSize<0");
             if (subsetsize < 0)
             {
                 mlpinitpreprocessor(network, xy, setsize, _params);
                 return;
             }
-            alglib.ap.assert(subsetsize <= alglib.ap.len(idx), "MLPInitPreprocessorSubset: SubsetSize>Length(Idx)");
+            ap.assert(subsetsize <= ap.len(idx), "MLPInitPreprocessorSubset: SubsetSize>Length(Idx)");
             npoints = setsize;
             for (i = 0; i <= subsetsize - 1; i++)
             {
-                alglib.ap.assert(idx[i] >= 0, "MLPInitPreprocessorSubset: incorrect index of XY row(Idx[I]<0)");
-                alglib.ap.assert(idx[i] <= npoints - 1, "MLPInitPreprocessorSubset: incorrect index of XY row(Idx[I]>Rows(XY)-1)");
+                ap.assert(idx[i] >= 0, "MLPInitPreprocessorSubset: incorrect index of XY row(Idx[I]<0)");
+                ap.assert(idx[i] <= npoints - 1, "MLPInitPreprocessorSubset: incorrect index of XY row(Idx[I]>Rows(XY)-1)");
             }
             mlpproperties(network, ref nin, ref nout, ref wcount, _params);
             ntotal = network.structinfo[3];
@@ -22512,18 +22512,18 @@ public partial class alglib
             int i = 0;
             int j = 0;
 
-            alglib.ap.assert(setsize >= 0, "MLPInitPreprocessorSparseSubset: SetSize<0");
+            ap.assert(setsize >= 0, "MLPInitPreprocessorSparseSubset: SetSize<0");
             if (subsetsize < 0)
             {
                 mlpinitpreprocessorsparse(network, xy, setsize, _params);
                 return;
             }
-            alglib.ap.assert(subsetsize <= alglib.ap.len(idx), "MLPInitPreprocessorSparseSubset: SubsetSize>Length(Idx)");
+            ap.assert(subsetsize <= ap.len(idx), "MLPInitPreprocessorSparseSubset: SubsetSize>Length(Idx)");
             npoints = setsize;
             for (i = 0; i <= subsetsize - 1; i++)
             {
-                alglib.ap.assert(idx[i] >= 0, "MLPInitPreprocessorSparseSubset: incorrect index of XY row(Idx[I]<0)");
-                alglib.ap.assert(idx[i] <= npoints - 1, "MLPInitPreprocessorSparseSubset: incorrect index of XY row(Idx[I]>Rows(XY)-1)");
+                ap.assert(idx[i] >= 0, "MLPInitPreprocessorSparseSubset: incorrect index of XY row(Idx[I]<0)");
+                ap.assert(idx[i] <= npoints - 1, "MLPInitPreprocessorSparseSubset: incorrect index of XY row(Idx[I]>Rows(XY)-1)");
             }
             mlpproperties(network, ref nin, ref nout, ref wcount, _params);
             ntotal = network.structinfo[3];
@@ -22749,7 +22749,7 @@ public partial class alglib
         {
             int result = 0;
 
-            result = alglib.ap.len(network.hllayersizes);
+            result = ap.len(network.hllayersizes);
             return result;
         }
 
@@ -22772,7 +22772,7 @@ public partial class alglib
         {
             int result = 0;
 
-            alglib.ap.assert(k >= 0 && k < alglib.ap.len(network.hllayersizes), "MLPGetLayerSize: incorrect layer index");
+            ap.assert(k >= 0 && k < ap.len(network.hllayersizes), "MLPGetLayerSize: incorrect layer index");
             result = network.hllayersizes[k];
             return result;
         }
@@ -22806,7 +22806,7 @@ public partial class alglib
             mean = 0;
             sigma = 0;
 
-            alglib.ap.assert(i >= 0 && i < network.hllayersizes[0], "MLPGetInputScaling: incorrect (nonexistent) I");
+            ap.assert(i >= 0 && i < network.hllayersizes[0], "MLPGetInputScaling: incorrect (nonexistent) I");
             mean = network.columnmeans[i];
             sigma = network.columnsigmas[i];
             if ((double)(sigma) == (double)(0))
@@ -22845,7 +22845,7 @@ public partial class alglib
             mean = 0;
             sigma = 0;
 
-            alglib.ap.assert(i >= 0 && i < network.hllayersizes[alglib.ap.len(network.hllayersizes) - 1], "MLPGetOutputScaling: incorrect (nonexistent) I");
+            ap.assert(i >= 0 && i < network.hllayersizes[ap.len(network.hllayersizes) - 1], "MLPGetOutputScaling: incorrect (nonexistent) I");
             if (network.structinfo[6] == 1)
             {
                 mean = 0;
@@ -22951,9 +22951,9 @@ public partial class alglib
             double sigma,
             alglib.xparams _params)
         {
-            alglib.ap.assert(i >= 0 && i < network.hllayersizes[0], "MLPSetInputScaling: incorrect (nonexistent) I");
-            alglib.ap.assert(math.isfinite(mean), "MLPSetInputScaling: infinite or NAN Mean");
-            alglib.ap.assert(math.isfinite(sigma), "MLPSetInputScaling: infinite or NAN Sigma");
+            ap.assert(i >= 0 && i < network.hllayersizes[0], "MLPSetInputScaling: incorrect (nonexistent) I");
+            ap.assert(math.isfinite(mean), "MLPSetInputScaling: infinite or NAN Mean");
+            ap.assert(math.isfinite(sigma), "MLPSetInputScaling: infinite or NAN Sigma");
             if ((double)(sigma) == (double)(0))
             {
                 sigma = 1;
@@ -22990,13 +22990,13 @@ public partial class alglib
             double sigma,
             alglib.xparams _params)
         {
-            alglib.ap.assert(i >= 0 && i < network.hllayersizes[alglib.ap.len(network.hllayersizes) - 1], "MLPSetOutputScaling: incorrect (nonexistent) I");
-            alglib.ap.assert(math.isfinite(mean), "MLPSetOutputScaling: infinite or NAN Mean");
-            alglib.ap.assert(math.isfinite(sigma), "MLPSetOutputScaling: infinite or NAN Sigma");
+            ap.assert(i >= 0 && i < network.hllayersizes[ap.len(network.hllayersizes) - 1], "MLPSetOutputScaling: incorrect (nonexistent) I");
+            ap.assert(math.isfinite(mean), "MLPSetOutputScaling: infinite or NAN Mean");
+            ap.assert(math.isfinite(sigma), "MLPSetOutputScaling: infinite or NAN Sigma");
             if (network.structinfo[6] == 1)
             {
-                alglib.ap.assert((double)(mean) == (double)(0), "MLPSetOutputScaling: you can not set non-zero Mean term for classifier network");
-                alglib.ap.assert((double)(sigma) == (double)(1), "MLPSetOutputScaling: you can not set non-unit Sigma term for classifier network");
+                ap.assert((double)(mean) == (double)(0), "MLPSetOutputScaling: you can not set non-zero Mean term for classifier network");
+                ap.assert((double)(sigma) == (double)(1), "MLPSetOutputScaling: you can not set non-unit Sigma term for classifier network");
             }
             else
             {
@@ -23048,12 +23048,12 @@ public partial class alglib
             int highlevelidx = 0;
             int activationoffset = 0;
 
-            alglib.ap.assert(math.isfinite(threshold), "MLPSetNeuronInfo: infinite or NAN Threshold");
+            ap.assert(math.isfinite(threshold), "MLPSetNeuronInfo: infinite or NAN Threshold");
 
             //
             // convenience vars
             //
-            ncnt = alglib.ap.len(network.hlneurons) / hlnfieldwidth;
+            ncnt = ap.len(network.hlneurons) / hlnfieldwidth;
             istart = network.structinfo[5];
 
             //
@@ -23062,7 +23062,7 @@ public partial class alglib
             network.integerbuf[0] = k;
             network.integerbuf[1] = i;
             highlevelidx = apserv.recsearch(network.hlneurons, hlnfieldwidth, 2, 0, ncnt, network.integerbuf, _params);
-            alglib.ap.assert(highlevelidx >= 0, "MLPSetNeuronInfo: incorrect (nonexistent) layer or neuron index");
+            ap.assert(highlevelidx >= 0, "MLPSetNeuronInfo: incorrect (nonexistent) layer or neuron index");
 
             //
             // activation function
@@ -23074,7 +23074,7 @@ public partial class alglib
             }
             else
             {
-                alglib.ap.assert(fkind == 0, "MLPSetNeuronInfo: you try to set activation function for neuron which can not have one");
+                ap.assert(fkind == 0, "MLPSetNeuronInfo: you try to set activation function for neuron which can not have one");
             }
 
             //
@@ -23086,7 +23086,7 @@ public partial class alglib
             }
             else
             {
-                alglib.ap.assert((double)(threshold) == (double)(0), "MLPSetNeuronInfo: you try to set non-zero threshold for neuron which can not have one");
+                ap.assert((double)(threshold) == (double)(0), "MLPSetNeuronInfo: you try to set non-zero threshold for neuron which can not have one");
             }
         }
 
@@ -23123,16 +23123,16 @@ public partial class alglib
             int ccnt = 0;
             int highlevelidx = 0;
 
-            ccnt = alglib.ap.len(network.hlconnections) / hlconnfieldwidth;
+            ccnt = ap.len(network.hlconnections) / hlconnfieldwidth;
 
             //
             // check params
             //
-            alglib.ap.assert(k0 >= 0 && k0 < alglib.ap.len(network.hllayersizes), "MLPSetWeight: incorrect (nonexistent) K0");
-            alglib.ap.assert(i0 >= 0 && i0 < network.hllayersizes[k0], "MLPSetWeight: incorrect (nonexistent) I0");
-            alglib.ap.assert(k1 >= 0 && k1 < alglib.ap.len(network.hllayersizes), "MLPSetWeight: incorrect (nonexistent) K1");
-            alglib.ap.assert(i1 >= 0 && i1 < network.hllayersizes[k1], "MLPSetWeight: incorrect (nonexistent) I1");
-            alglib.ap.assert(math.isfinite(w), "MLPSetWeight: infinite or NAN weight");
+            ap.assert(k0 >= 0 && k0 < ap.len(network.hllayersizes), "MLPSetWeight: incorrect (nonexistent) K0");
+            ap.assert(i0 >= 0 && i0 < network.hllayersizes[k0], "MLPSetWeight: incorrect (nonexistent) I0");
+            ap.assert(k1 >= 0 && k1 < ap.len(network.hllayersizes), "MLPSetWeight: incorrect (nonexistent) K1");
+            ap.assert(i1 >= 0 && i1 < network.hllayersizes[k1], "MLPSetWeight: incorrect (nonexistent) I1");
+            ap.assert(math.isfinite(w), "MLPSetWeight: infinite or NAN weight");
 
             //
             // search
@@ -23148,7 +23148,7 @@ public partial class alglib
             }
             else
             {
-                alglib.ap.assert((double)(w) == (double)(0), "MLPSetWeight: you try to set non-zero weight for non-existent connection");
+                ap.assert((double)(w) == (double)(0), "MLPSetWeight: you try to set non-zero weight for non-existent connection");
             }
         }
 
@@ -23267,7 +23267,7 @@ public partial class alglib
             ref double[] y,
             alglib.xparams _params)
         {
-            if (alglib.ap.len(y) < network.structinfo[2])
+            if (ap.len(y) < network.structinfo[2])
             {
                 y = new double[network.structinfo[2]];
             }
@@ -23349,16 +23349,16 @@ public partial class alglib
         {
             double result = 0;
 
-            alglib.ap.assert(alglib.ap.rows(xy) >= npoints, "MLPError: XY has less than NPoints rows");
+            ap.assert(ap.rows(xy) >= npoints, "MLPError: XY has less than NPoints rows");
             if (npoints > 0)
             {
                 if (mlpissoftmax(network, _params))
                 {
-                    alglib.ap.assert(alglib.ap.cols(xy) >= mlpgetinputscount(network, _params) + 1, "MLPError: XY has less than NIn+1 columns");
+                    ap.assert(ap.cols(xy) >= mlpgetinputscount(network, _params) + 1, "MLPError: XY has less than NIn+1 columns");
                 }
                 else
                 {
-                    alglib.ap.assert(alglib.ap.cols(xy) >= mlpgetinputscount(network, _params) + mlpgetoutputscount(network, _params), "MLPError: XY has less than NIn+NOut columns");
+                    ap.assert(ap.cols(xy) >= mlpgetinputscount(network, _params) + mlpgetoutputscount(network, _params), "MLPError: XY has less than NIn+NOut columns");
                 }
             }
             mlpallerrorsx(network, xy, network.dummysxy, npoints, 0, network.dummyidx, 0, npoints, 0, network.buf, network.err, _params);
@@ -23422,17 +23422,17 @@ public partial class alglib
         {
             double result = 0;
 
-            alglib.ap.assert(sparse.sparseiscrs(xy, _params), "MLPErrorSparse: XY is not in CRS format.");
-            alglib.ap.assert(sparse.sparsegetnrows(xy, _params) >= npoints, "MLPErrorSparse: XY has less than NPoints rows");
+            ap.assert(sparse.sparseiscrs(xy, _params), "MLPErrorSparse: XY is not in CRS format.");
+            ap.assert(sparse.sparsegetnrows(xy, _params) >= npoints, "MLPErrorSparse: XY has less than NPoints rows");
             if (npoints > 0)
             {
                 if (mlpissoftmax(network, _params))
                 {
-                    alglib.ap.assert(sparse.sparsegetncols(xy, _params) >= mlpgetinputscount(network, _params) + 1, "MLPErrorSparse: XY has less than NIn+1 columns");
+                    ap.assert(sparse.sparsegetncols(xy, _params) >= mlpgetinputscount(network, _params) + 1, "MLPErrorSparse: XY has less than NIn+1 columns");
                 }
                 else
                 {
-                    alglib.ap.assert(sparse.sparsegetncols(xy, _params) >= mlpgetinputscount(network, _params) + mlpgetoutputscount(network, _params), "MLPErrorSparse: XY has less than NIn+NOut columns");
+                    ap.assert(sparse.sparsegetncols(xy, _params) >= mlpgetinputscount(network, _params) + mlpgetoutputscount(network, _params), "MLPErrorSparse: XY has less than NIn+NOut columns");
                 }
             }
             mlpallerrorsx(network, network.dummydxy, xy, npoints, 1, network.dummyidx, 0, npoints, 0, network.buf, network.err, _params);
@@ -23568,16 +23568,16 @@ public partial class alglib
         {
             int result = 0;
 
-            alglib.ap.assert(alglib.ap.rows(xy) >= npoints, "MLPClsError: XY has less than NPoints rows");
+            ap.assert(ap.rows(xy) >= npoints, "MLPClsError: XY has less than NPoints rows");
             if (npoints > 0)
             {
                 if (mlpissoftmax(network, _params))
                 {
-                    alglib.ap.assert(alglib.ap.cols(xy) >= mlpgetinputscount(network, _params) + 1, "MLPClsError: XY has less than NIn+1 columns");
+                    ap.assert(ap.cols(xy) >= mlpgetinputscount(network, _params) + 1, "MLPClsError: XY has less than NIn+1 columns");
                 }
                 else
                 {
-                    alglib.ap.assert(alglib.ap.cols(xy) >= mlpgetinputscount(network, _params) + mlpgetoutputscount(network, _params), "MLPClsError: XY has less than NIn+NOut columns");
+                    ap.assert(ap.cols(xy) >= mlpgetinputscount(network, _params) + mlpgetoutputscount(network, _params), "MLPClsError: XY has less than NIn+NOut columns");
                 }
             }
             mlpallerrorsx(network, xy, network.dummysxy, npoints, 0, network.dummyidx, 0, npoints, 0, network.buf, network.err, _params);
@@ -23638,16 +23638,16 @@ public partial class alglib
         {
             double result = 0;
 
-            alglib.ap.assert(alglib.ap.rows(xy) >= npoints, "MLPRelClsError: XY has less than NPoints rows");
+            ap.assert(ap.rows(xy) >= npoints, "MLPRelClsError: XY has less than NPoints rows");
             if (npoints > 0)
             {
                 if (mlpissoftmax(network, _params))
                 {
-                    alglib.ap.assert(alglib.ap.cols(xy) >= mlpgetinputscount(network, _params) + 1, "MLPRelClsError: XY has less than NIn+1 columns");
+                    ap.assert(ap.cols(xy) >= mlpgetinputscount(network, _params) + 1, "MLPRelClsError: XY has less than NIn+1 columns");
                 }
                 else
                 {
-                    alglib.ap.assert(alglib.ap.cols(xy) >= mlpgetinputscount(network, _params) + mlpgetoutputscount(network, _params), "MLPRelClsError: XY has less than NIn+NOut columns");
+                    ap.assert(ap.cols(xy) >= mlpgetinputscount(network, _params) + mlpgetoutputscount(network, _params), "MLPRelClsError: XY has less than NIn+NOut columns");
                 }
             }
             if (npoints > 0)
@@ -23715,17 +23715,17 @@ public partial class alglib
         {
             double result = 0;
 
-            alglib.ap.assert(sparse.sparseiscrs(xy, _params), "MLPRelClsErrorSparse: sparse matrix XY is not in CRS format.");
-            alglib.ap.assert(sparse.sparsegetnrows(xy, _params) >= npoints, "MLPRelClsErrorSparse: sparse matrix XY has less than NPoints rows");
+            ap.assert(sparse.sparseiscrs(xy, _params), "MLPRelClsErrorSparse: sparse matrix XY is not in CRS format.");
+            ap.assert(sparse.sparsegetnrows(xy, _params) >= npoints, "MLPRelClsErrorSparse: sparse matrix XY has less than NPoints rows");
             if (npoints > 0)
             {
                 if (mlpissoftmax(network, _params))
                 {
-                    alglib.ap.assert(sparse.sparsegetncols(xy, _params) >= mlpgetinputscount(network, _params) + 1, "MLPRelClsErrorSparse: sparse matrix XY has less than NIn+1 columns");
+                    ap.assert(sparse.sparsegetncols(xy, _params) >= mlpgetinputscount(network, _params) + 1, "MLPRelClsErrorSparse: sparse matrix XY has less than NIn+1 columns");
                 }
                 else
                 {
-                    alglib.ap.assert(sparse.sparsegetncols(xy, _params) >= mlpgetinputscount(network, _params) + mlpgetoutputscount(network, _params), "MLPRelClsErrorSparse: sparse matrix XY has less than NIn+NOut columns");
+                    ap.assert(sparse.sparsegetncols(xy, _params) >= mlpgetinputscount(network, _params) + mlpgetoutputscount(network, _params), "MLPRelClsErrorSparse: sparse matrix XY has less than NIn+NOut columns");
                 }
             }
             mlpallerrorsx(network, network.dummydxy, xy, npoints, 1, network.dummyidx, 0, npoints, 0, network.buf, network.err, _params);
@@ -23786,16 +23786,16 @@ public partial class alglib
         {
             double result = 0;
 
-            alglib.ap.assert(alglib.ap.rows(xy) >= npoints, "MLPAvgCE: XY has less than NPoints rows");
+            ap.assert(ap.rows(xy) >= npoints, "MLPAvgCE: XY has less than NPoints rows");
             if (npoints > 0)
             {
                 if (mlpissoftmax(network, _params))
                 {
-                    alglib.ap.assert(alglib.ap.cols(xy) >= mlpgetinputscount(network, _params) + 1, "MLPAvgCE: XY has less than NIn+1 columns");
+                    ap.assert(ap.cols(xy) >= mlpgetinputscount(network, _params) + 1, "MLPAvgCE: XY has less than NIn+1 columns");
                 }
                 else
                 {
-                    alglib.ap.assert(alglib.ap.cols(xy) >= mlpgetinputscount(network, _params) + mlpgetoutputscount(network, _params), "MLPAvgCE: XY has less than NIn+NOut columns");
+                    ap.assert(ap.cols(xy) >= mlpgetinputscount(network, _params) + mlpgetoutputscount(network, _params), "MLPAvgCE: XY has less than NIn+NOut columns");
                 }
             }
             mlpallerrorsx(network, xy, network.dummysxy, npoints, 0, network.dummyidx, 0, npoints, 0, network.buf, network.err, _params);
@@ -23861,17 +23861,17 @@ public partial class alglib
         {
             double result = 0;
 
-            alglib.ap.assert(sparse.sparseiscrs(xy, _params), "MLPAvgCESparse: sparse matrix XY is not in CRS format.");
-            alglib.ap.assert(sparse.sparsegetnrows(xy, _params) >= npoints, "MLPAvgCESparse: sparse matrix XY has less than NPoints rows");
+            ap.assert(sparse.sparseiscrs(xy, _params), "MLPAvgCESparse: sparse matrix XY is not in CRS format.");
+            ap.assert(sparse.sparsegetnrows(xy, _params) >= npoints, "MLPAvgCESparse: sparse matrix XY has less than NPoints rows");
             if (npoints > 0)
             {
                 if (mlpissoftmax(network, _params))
                 {
-                    alglib.ap.assert(sparse.sparsegetncols(xy, _params) >= mlpgetinputscount(network, _params) + 1, "MLPAvgCESparse: sparse matrix XY has less than NIn+1 columns");
+                    ap.assert(sparse.sparsegetncols(xy, _params) >= mlpgetinputscount(network, _params) + 1, "MLPAvgCESparse: sparse matrix XY has less than NIn+1 columns");
                 }
                 else
                 {
-                    alglib.ap.assert(sparse.sparsegetncols(xy, _params) >= mlpgetinputscount(network, _params) + mlpgetoutputscount(network, _params), "MLPAvgCESparse: sparse matrix XY has less than NIn+NOut columns");
+                    ap.assert(sparse.sparsegetncols(xy, _params) >= mlpgetinputscount(network, _params) + mlpgetoutputscount(network, _params), "MLPAvgCESparse: sparse matrix XY has less than NIn+NOut columns");
                 }
             }
             mlpallerrorsx(network, network.dummydxy, xy, npoints, 1, network.dummyidx, 0, npoints, 0, network.buf, network.err, _params);
@@ -23933,16 +23933,16 @@ public partial class alglib
         {
             double result = 0;
 
-            alglib.ap.assert(alglib.ap.rows(xy) >= npoints, "MLPRMSError: XY has less than NPoints rows");
+            ap.assert(ap.rows(xy) >= npoints, "MLPRMSError: XY has less than NPoints rows");
             if (npoints > 0)
             {
                 if (mlpissoftmax(network, _params))
                 {
-                    alglib.ap.assert(alglib.ap.cols(xy) >= mlpgetinputscount(network, _params) + 1, "MLPRMSError: XY has less than NIn+1 columns");
+                    ap.assert(ap.cols(xy) >= mlpgetinputscount(network, _params) + 1, "MLPRMSError: XY has less than NIn+1 columns");
                 }
                 else
                 {
-                    alglib.ap.assert(alglib.ap.cols(xy) >= mlpgetinputscount(network, _params) + mlpgetoutputscount(network, _params), "MLPRMSError: XY has less than NIn+NOut columns");
+                    ap.assert(ap.cols(xy) >= mlpgetinputscount(network, _params) + mlpgetoutputscount(network, _params), "MLPRMSError: XY has less than NIn+NOut columns");
                 }
             }
             mlpallerrorsx(network, xy, network.dummysxy, npoints, 0, network.dummyidx, 0, npoints, 0, network.buf, network.err, _params);
@@ -24008,17 +24008,17 @@ public partial class alglib
         {
             double result = 0;
 
-            alglib.ap.assert(sparse.sparseiscrs(xy, _params), "MLPRMSErrorSparse: sparse matrix XY is not in CRS format.");
-            alglib.ap.assert(sparse.sparsegetnrows(xy, _params) >= npoints, "MLPRMSErrorSparse: sparse matrix XY has less than NPoints rows");
+            ap.assert(sparse.sparseiscrs(xy, _params), "MLPRMSErrorSparse: sparse matrix XY is not in CRS format.");
+            ap.assert(sparse.sparsegetnrows(xy, _params) >= npoints, "MLPRMSErrorSparse: sparse matrix XY has less than NPoints rows");
             if (npoints > 0)
             {
                 if (mlpissoftmax(network, _params))
                 {
-                    alglib.ap.assert(sparse.sparsegetncols(xy, _params) >= mlpgetinputscount(network, _params) + 1, "MLPRMSErrorSparse: sparse matrix XY has less than NIn+1 columns");
+                    ap.assert(sparse.sparsegetncols(xy, _params) >= mlpgetinputscount(network, _params) + 1, "MLPRMSErrorSparse: sparse matrix XY has less than NIn+1 columns");
                 }
                 else
                 {
-                    alglib.ap.assert(sparse.sparsegetncols(xy, _params) >= mlpgetinputscount(network, _params) + mlpgetoutputscount(network, _params), "MLPRMSErrorSparse: sparse matrix XY has less than NIn+NOut columns");
+                    ap.assert(sparse.sparsegetncols(xy, _params) >= mlpgetinputscount(network, _params) + mlpgetoutputscount(network, _params), "MLPRMSErrorSparse: sparse matrix XY has less than NIn+NOut columns");
                 }
             }
             mlpallerrorsx(network, network.dummydxy, xy, npoints, 1, network.dummyidx, 0, npoints, 0, network.buf, network.err, _params);
@@ -24079,16 +24079,16 @@ public partial class alglib
         {
             double result = 0;
 
-            alglib.ap.assert(alglib.ap.rows(xy) >= npoints, "MLPAvgError: XY has less than NPoints rows");
+            ap.assert(ap.rows(xy) >= npoints, "MLPAvgError: XY has less than NPoints rows");
             if (npoints > 0)
             {
                 if (mlpissoftmax(network, _params))
                 {
-                    alglib.ap.assert(alglib.ap.cols(xy) >= mlpgetinputscount(network, _params) + 1, "MLPAvgError: XY has less than NIn+1 columns");
+                    ap.assert(ap.cols(xy) >= mlpgetinputscount(network, _params) + 1, "MLPAvgError: XY has less than NIn+1 columns");
                 }
                 else
                 {
-                    alglib.ap.assert(alglib.ap.cols(xy) >= mlpgetinputscount(network, _params) + mlpgetoutputscount(network, _params), "MLPAvgError: XY has less than NIn+NOut columns");
+                    ap.assert(ap.cols(xy) >= mlpgetinputscount(network, _params) + mlpgetoutputscount(network, _params), "MLPAvgError: XY has less than NIn+NOut columns");
                 }
             }
             mlpallerrorsx(network, xy, network.dummysxy, npoints, 0, network.dummyidx, 0, npoints, 0, network.buf, network.err, _params);
@@ -24153,17 +24153,17 @@ public partial class alglib
         {
             double result = 0;
 
-            alglib.ap.assert(sparse.sparseiscrs(xy, _params), "MLPAvgErrorSparse: XY is not in CRS format.");
-            alglib.ap.assert(sparse.sparsegetnrows(xy, _params) >= npoints, "MLPAvgErrorSparse: XY has less than NPoints rows");
+            ap.assert(sparse.sparseiscrs(xy, _params), "MLPAvgErrorSparse: XY is not in CRS format.");
+            ap.assert(sparse.sparsegetnrows(xy, _params) >= npoints, "MLPAvgErrorSparse: XY has less than NPoints rows");
             if (npoints > 0)
             {
                 if (mlpissoftmax(network, _params))
                 {
-                    alglib.ap.assert(sparse.sparsegetncols(xy, _params) >= mlpgetinputscount(network, _params) + 1, "MLPAvgErrorSparse: XY has less than NIn+1 columns");
+                    ap.assert(sparse.sparsegetncols(xy, _params) >= mlpgetinputscount(network, _params) + 1, "MLPAvgErrorSparse: XY has less than NIn+1 columns");
                 }
                 else
                 {
-                    alglib.ap.assert(sparse.sparsegetncols(xy, _params) >= mlpgetinputscount(network, _params) + mlpgetoutputscount(network, _params), "MLPAvgErrorSparse: XY has less than NIn+NOut columns");
+                    ap.assert(sparse.sparsegetncols(xy, _params) >= mlpgetinputscount(network, _params) + mlpgetoutputscount(network, _params), "MLPAvgErrorSparse: XY has less than NIn+NOut columns");
                 }
             }
             mlpallerrorsx(network, network.dummydxy, xy, npoints, 1, network.dummyidx, 0, npoints, 0, network.buf, network.err, _params);
@@ -24225,16 +24225,16 @@ public partial class alglib
         {
             double result = 0;
 
-            alglib.ap.assert(alglib.ap.rows(xy) >= npoints, "MLPAvgRelError: XY has less than NPoints rows");
+            ap.assert(ap.rows(xy) >= npoints, "MLPAvgRelError: XY has less than NPoints rows");
             if (npoints > 0)
             {
                 if (mlpissoftmax(network, _params))
                 {
-                    alglib.ap.assert(alglib.ap.cols(xy) >= mlpgetinputscount(network, _params) + 1, "MLPAvgRelError: XY has less than NIn+1 columns");
+                    ap.assert(ap.cols(xy) >= mlpgetinputscount(network, _params) + 1, "MLPAvgRelError: XY has less than NIn+1 columns");
                 }
                 else
                 {
-                    alglib.ap.assert(alglib.ap.cols(xy) >= mlpgetinputscount(network, _params) + mlpgetoutputscount(network, _params), "MLPAvgRelError: XY has less than NIn+NOut columns");
+                    ap.assert(ap.cols(xy) >= mlpgetinputscount(network, _params) + mlpgetoutputscount(network, _params), "MLPAvgRelError: XY has less than NIn+NOut columns");
                 }
             }
             mlpallerrorsx(network, xy, network.dummysxy, npoints, 0, network.dummyidx, 0, npoints, 0, network.buf, network.err, _params);
@@ -24300,17 +24300,17 @@ public partial class alglib
         {
             double result = 0;
 
-            alglib.ap.assert(sparse.sparseiscrs(xy, _params), "MLPAvgRelErrorSparse: XY is not in CRS format.");
-            alglib.ap.assert(sparse.sparsegetnrows(xy, _params) >= npoints, "MLPAvgRelErrorSparse: XY has less than NPoints rows");
+            ap.assert(sparse.sparseiscrs(xy, _params), "MLPAvgRelErrorSparse: XY is not in CRS format.");
+            ap.assert(sparse.sparsegetnrows(xy, _params) >= npoints, "MLPAvgRelErrorSparse: XY has less than NPoints rows");
             if (npoints > 0)
             {
                 if (mlpissoftmax(network, _params))
                 {
-                    alglib.ap.assert(sparse.sparsegetncols(xy, _params) >= mlpgetinputscount(network, _params) + 1, "MLPAvgRelErrorSparse: XY has less than NIn+1 columns");
+                    ap.assert(sparse.sparsegetncols(xy, _params) >= mlpgetinputscount(network, _params) + 1, "MLPAvgRelErrorSparse: XY has less than NIn+1 columns");
                 }
                 else
                 {
-                    alglib.ap.assert(sparse.sparsegetncols(xy, _params) >= mlpgetinputscount(network, _params) + mlpgetoutputscount(network, _params), "MLPAvgRelErrorSparse: XY has less than NIn+NOut columns");
+                    ap.assert(sparse.sparsegetncols(xy, _params) >= mlpgetinputscount(network, _params) + mlpgetoutputscount(network, _params), "MLPAvgRelErrorSparse: XY has less than NIn+NOut columns");
                 }
             }
             mlpallerrorsx(network, network.dummydxy, xy, npoints, 1, network.dummyidx, 0, npoints, 0, network.buf, network.err, _params);
@@ -24522,13 +24522,13 @@ public partial class alglib
 
             e = 0;
 
-            alglib.ap.assert(ssize >= 0, "MLPGradBatchSparse: SSize<0");
+            ap.assert(ssize >= 0, "MLPGradBatchSparse: SSize<0");
             subset0 = 0;
             subset1 = ssize;
             subsettype = 0;
             mlpproperties(network, ref nin, ref nout, ref wcount, _params);
             apserv.rvectorsetlengthatleast(ref grad, wcount, _params);
-            alglib.smp.ae_shared_pool_first_recycled(network.gradbuf, ref sgrad);
+            smp.ae_shared_pool_first_recycled(network.gradbuf, ref sgrad);
             while (sgrad != null)
             {
                 sgrad.f = 0.0;
@@ -24536,7 +24536,7 @@ public partial class alglib
                 {
                     sgrad.g[i] = 0.0;
                 }
-                alglib.smp.ae_shared_pool_next_recycled(network.gradbuf, ref sgrad);
+                smp.ae_shared_pool_next_recycled(network.gradbuf, ref sgrad);
             }
             mlpgradbatchx(network, xy, network.dummysxy, ssize, 0, network.dummyidx, subset0, subset1, subsettype, network.buf, network.gradbuf, _params);
             e = 0.0;
@@ -24544,7 +24544,7 @@ public partial class alglib
             {
                 grad[i] = 0.0;
             }
-            alglib.smp.ae_shared_pool_first_recycled(network.gradbuf, ref sgrad);
+            smp.ae_shared_pool_first_recycled(network.gradbuf, ref sgrad);
             while (sgrad != null)
             {
                 e = e + sgrad.f;
@@ -24552,7 +24552,7 @@ public partial class alglib
                 {
                     grad[i] = grad[i] + sgrad.g[i];
                 }
-                alglib.smp.ae_shared_pool_next_recycled(network.gradbuf, ref sgrad);
+                smp.ae_shared_pool_next_recycled(network.gradbuf, ref sgrad);
             }
         }
 
@@ -24612,14 +24612,14 @@ public partial class alglib
 
             e = 0;
 
-            alglib.ap.assert(ssize >= 0, "MLPGradBatchSparse: SSize<0");
-            alglib.ap.assert(sparse.sparseiscrs(xy, _params), "MLPGradBatchSparse: sparse matrix XY must be in CRS format.");
+            ap.assert(ssize >= 0, "MLPGradBatchSparse: SSize<0");
+            ap.assert(sparse.sparseiscrs(xy, _params), "MLPGradBatchSparse: sparse matrix XY must be in CRS format.");
             subset0 = 0;
             subset1 = ssize;
             subsettype = 0;
             mlpproperties(network, ref nin, ref nout, ref wcount, _params);
             apserv.rvectorsetlengthatleast(ref grad, wcount, _params);
-            alglib.smp.ae_shared_pool_first_recycled(network.gradbuf, ref sgrad);
+            smp.ae_shared_pool_first_recycled(network.gradbuf, ref sgrad);
             while (sgrad != null)
             {
                 sgrad.f = 0.0;
@@ -24627,7 +24627,7 @@ public partial class alglib
                 {
                     sgrad.g[i] = 0.0;
                 }
-                alglib.smp.ae_shared_pool_next_recycled(network.gradbuf, ref sgrad);
+                smp.ae_shared_pool_next_recycled(network.gradbuf, ref sgrad);
             }
             mlpgradbatchx(network, network.dummydxy, xy, ssize, 1, network.dummyidx, subset0, subset1, subsettype, network.buf, network.gradbuf, _params);
             e = 0.0;
@@ -24635,7 +24635,7 @@ public partial class alglib
             {
                 grad[i] = 0.0;
             }
-            alglib.smp.ae_shared_pool_first_recycled(network.gradbuf, ref sgrad);
+            smp.ae_shared_pool_first_recycled(network.gradbuf, ref sgrad);
             while (sgrad != null)
             {
                 e = e + sgrad.f;
@@ -24643,7 +24643,7 @@ public partial class alglib
                 {
                     grad[i] = grad[i] + sgrad.g[i];
                 }
-                alglib.smp.ae_shared_pool_next_recycled(network.gradbuf, ref sgrad);
+                smp.ae_shared_pool_next_recycled(network.gradbuf, ref sgrad);
             }
         }
 
@@ -24718,8 +24718,8 @@ public partial class alglib
 
             e = 0;
 
-            alglib.ap.assert(setsize >= 0, "MLPGradBatchSubset: SetSize<0");
-            alglib.ap.assert(subsetsize <= alglib.ap.len(idx), "MLPGradBatchSubset: SubsetSize>Length(Idx)");
+            ap.assert(setsize >= 0, "MLPGradBatchSubset: SetSize<0");
+            ap.assert(subsetsize <= ap.len(idx), "MLPGradBatchSubset: SubsetSize>Length(Idx)");
             npoints = setsize;
             if (subsetsize < 0)
             {
@@ -24734,13 +24734,13 @@ public partial class alglib
                 subsettype = 1;
                 for (i = 0; i <= subsetsize - 1; i++)
                 {
-                    alglib.ap.assert(idx[i] >= 0, "MLPGradBatchSubset: incorrect index of XY row(Idx[I]<0)");
-                    alglib.ap.assert(idx[i] <= npoints - 1, "MLPGradBatchSubset: incorrect index of XY row(Idx[I]>Rows(XY)-1)");
+                    ap.assert(idx[i] >= 0, "MLPGradBatchSubset: incorrect index of XY row(Idx[I]<0)");
+                    ap.assert(idx[i] <= npoints - 1, "MLPGradBatchSubset: incorrect index of XY row(Idx[I]>Rows(XY)-1)");
                 }
             }
             mlpproperties(network, ref nin, ref nout, ref wcount, _params);
             apserv.rvectorsetlengthatleast(ref grad, wcount, _params);
-            alglib.smp.ae_shared_pool_first_recycled(network.gradbuf, ref sgrad);
+            smp.ae_shared_pool_first_recycled(network.gradbuf, ref sgrad);
             while (sgrad != null)
             {
                 sgrad.f = 0.0;
@@ -24748,7 +24748,7 @@ public partial class alglib
                 {
                     sgrad.g[i] = 0.0;
                 }
-                alglib.smp.ae_shared_pool_next_recycled(network.gradbuf, ref sgrad);
+                smp.ae_shared_pool_next_recycled(network.gradbuf, ref sgrad);
             }
             mlpgradbatchx(network, xy, network.dummysxy, setsize, 0, idx, subset0, subset1, subsettype, network.buf, network.gradbuf, _params);
             e = 0.0;
@@ -24756,7 +24756,7 @@ public partial class alglib
             {
                 grad[i] = 0.0;
             }
-            alglib.smp.ae_shared_pool_first_recycled(network.gradbuf, ref sgrad);
+            smp.ae_shared_pool_first_recycled(network.gradbuf, ref sgrad);
             while (sgrad != null)
             {
                 e = e + sgrad.f;
@@ -24764,7 +24764,7 @@ public partial class alglib
                 {
                     grad[i] = grad[i] + sgrad.g[i];
                 }
-                alglib.smp.ae_shared_pool_next_recycled(network.gradbuf, ref sgrad);
+                smp.ae_shared_pool_next_recycled(network.gradbuf, ref sgrad);
             }
         }
 
@@ -24844,9 +24844,9 @@ public partial class alglib
 
             e = 0;
 
-            alglib.ap.assert(setsize >= 0, "MLPGradBatchSparseSubset: SetSize<0");
-            alglib.ap.assert(subsetsize <= alglib.ap.len(idx), "MLPGradBatchSparseSubset: SubsetSize>Length(Idx)");
-            alglib.ap.assert(sparse.sparseiscrs(xy, _params), "MLPGradBatchSparseSubset: sparse matrix XY must be in CRS format.");
+            ap.assert(setsize >= 0, "MLPGradBatchSparseSubset: SetSize<0");
+            ap.assert(subsetsize <= ap.len(idx), "MLPGradBatchSparseSubset: SubsetSize>Length(Idx)");
+            ap.assert(sparse.sparseiscrs(xy, _params), "MLPGradBatchSparseSubset: sparse matrix XY must be in CRS format.");
             npoints = setsize;
             if (subsetsize < 0)
             {
@@ -24861,13 +24861,13 @@ public partial class alglib
                 subsettype = 1;
                 for (i = 0; i <= subsetsize - 1; i++)
                 {
-                    alglib.ap.assert(idx[i] >= 0, "MLPGradBatchSparseSubset: incorrect index of XY row(Idx[I]<0)");
-                    alglib.ap.assert(idx[i] <= npoints - 1, "MLPGradBatchSparseSubset: incorrect index of XY row(Idx[I]>Rows(XY)-1)");
+                    ap.assert(idx[i] >= 0, "MLPGradBatchSparseSubset: incorrect index of XY row(Idx[I]<0)");
+                    ap.assert(idx[i] <= npoints - 1, "MLPGradBatchSparseSubset: incorrect index of XY row(Idx[I]>Rows(XY)-1)");
                 }
             }
             mlpproperties(network, ref nin, ref nout, ref wcount, _params);
             apserv.rvectorsetlengthatleast(ref grad, wcount, _params);
-            alglib.smp.ae_shared_pool_first_recycled(network.gradbuf, ref sgrad);
+            smp.ae_shared_pool_first_recycled(network.gradbuf, ref sgrad);
             while (sgrad != null)
             {
                 sgrad.f = 0.0;
@@ -24875,7 +24875,7 @@ public partial class alglib
                 {
                     sgrad.g[i] = 0.0;
                 }
-                alglib.smp.ae_shared_pool_next_recycled(network.gradbuf, ref sgrad);
+                smp.ae_shared_pool_next_recycled(network.gradbuf, ref sgrad);
             }
             mlpgradbatchx(network, network.dummydxy, xy, setsize, 1, idx, subset0, subset1, subsettype, network.buf, network.gradbuf, _params);
             e = 0.0;
@@ -24883,7 +24883,7 @@ public partial class alglib
             {
                 grad[i] = 0.0;
             }
-            alglib.smp.ae_shared_pool_first_recycled(network.gradbuf, ref sgrad);
+            smp.ae_shared_pool_first_recycled(network.gradbuf, ref sgrad);
             while (sgrad != null)
             {
                 e = e + sgrad.f;
@@ -24891,7 +24891,7 @@ public partial class alglib
                 {
                     grad[i] = grad[i] + sgrad.g[i];
                 }
-                alglib.smp.ae_shared_pool_next_recycled(network.gradbuf, ref sgrad);
+                smp.ae_shared_pool_next_recycled(network.gradbuf, ref sgrad);
             }
         }
 
@@ -24934,9 +24934,9 @@ public partial class alglib
             smlpgrad sgrad = null;
             int i_ = 0;
 
-            alglib.ap.assert(datasetsize >= 0, "MLPGradBatchX: SetSize<0");
-            alglib.ap.assert(datasettype == 0 || datasettype == 1, "MLPGradBatchX: DatasetType is incorrect");
-            alglib.ap.assert(subsettype == 0 || subsettype == 1, "MLPGradBatchX: SubsetType is incorrect");
+            ap.assert(datasetsize >= 0, "MLPGradBatchX: SetSize<0");
+            ap.assert(datasettype == 0 || datasettype == 1, "MLPGradBatchX: DatasetType is incorrect");
+            ap.assert(subsettype == 0 || subsettype == 1, "MLPGradBatchX: SubsetType is incorrect");
 
             //
             // Determine network and dataset properties
@@ -24985,8 +24985,8 @@ public partial class alglib
             //
             // Chunked processing
             //
-            alglib.smp.ae_shared_pool_retrieve(gradbuf, ref sgrad);
-            alglib.smp.ae_shared_pool_retrieve(buf, ref pbuf);
+            smp.ae_shared_pool_retrieve(gradbuf, ref sgrad);
+            smp.ae_shared_pool_retrieve(buf, ref pbuf);
             hpccores.hpcpreparechunkedgradient(network.weights, wcount, mlpntotal(network, _params), nin, nout, pbuf, _params);
             cstart = subset0;
             while (cstart < subset1)
@@ -25007,7 +25007,7 @@ public partial class alglib
                     {
                         srcidx = idx[cstart + j];
                     }
-                    alglib.ap.assert(srcidx >= 0, "MLPGradBatchX: internal error");
+                    ap.assert(srcidx >= 0, "MLPGradBatchX: internal error");
                     if (datasettype == 0)
                     {
                         for (i_ = 0; i_ <= rowsize - 1; i_++)
@@ -25032,8 +25032,8 @@ public partial class alglib
                 cstart = cstart + pbuf.chunksize;
             }
             hpccores.hpcfinalizechunkedgradient(pbuf, sgrad.g, _params);
-            alglib.smp.ae_shared_pool_recycle(buf, ref pbuf);
-            alglib.smp.ae_shared_pool_recycle(gradbuf, ref sgrad);
+            smp.ae_shared_pool_recycle(buf, ref pbuf);
+            smp.ae_shared_pool_recycle(gradbuf, ref sgrad);
         }
 
 
@@ -25099,7 +25099,7 @@ public partial class alglib
             // Alloc
             //
             mlpproperties(network, ref nin, ref nout, ref wcount, _params);
-            alglib.smp.ae_shared_pool_retrieve(network.buf, ref pbuf);
+            smp.ae_shared_pool_retrieve(network.buf, ref pbuf);
             hpccores.hpcpreparechunkedgradient(network.weights, wcount, mlpntotal(network, _params), nin, nout, pbuf, _params);
             apserv.rvectorsetlengthatleast(ref grad, wcount, _params);
             for (i = 0; i <= wcount - 1; i++)
@@ -25114,7 +25114,7 @@ public partial class alglib
                 i = i + pbuf.chunksize;
             }
             hpccores.hpcfinalizechunkedgradient(pbuf, grad, _params);
-            alglib.smp.ae_shared_pool_recycle(network.buf, ref pbuf);
+            smp.ae_shared_pool_recycle(network.buf, ref pbuf);
         }
 
 
@@ -25293,7 +25293,7 @@ public partial class alglib
                         neurons[i] = 0;
                         perr = false;
                     }
-                    alglib.ap.assert(!perr, "MLPInternalProcessVector: internal error - unknown neuron type!");
+                    ap.assert(!perr, "MLPInternalProcessVector: internal error - unknown neuron type!");
                     continue;
                 }
             }
@@ -25310,7 +25310,7 @@ public partial class alglib
             //
             // Softmax post-processing or standardisation if needed
             //
-            alglib.ap.assert(structinfo[6] == 0 || structinfo[6] == 1, "MLPInternalProcessVector: unknown normalization type!");
+            ap.assert(structinfo[6] == 0 || structinfo[6] == 1, "MLPInternalProcessVector: unknown normalization type!");
             if (structinfo[6] == 1)
             {
 
@@ -25369,12 +25369,12 @@ public partial class alglib
             int[] integerbuf = new int[0];
 
             nin = network.hllayersizes[0];
-            nout = network.hllayersizes[alglib.ap.len(network.hllayersizes) - 1];
+            nout = network.hllayersizes[ap.len(network.hllayersizes) - 1];
             s.alloc_entry();
             s.alloc_entry();
             s.alloc_entry();
             apserv.allocintegerarray(s, network.hllayersizes, -1, _params);
-            for (i = 1; i <= alglib.ap.len(network.hllayersizes) - 1; i++)
+            for (i = 1; i <= ap.len(network.hllayersizes) - 1; i++)
             {
                 for (j = 0; j <= network.hllayersizes[i] - 1; j++)
                 {
@@ -25424,12 +25424,12 @@ public partial class alglib
             int[] integerbuf = new int[0];
 
             nin = network.hllayersizes[0];
-            nout = network.hllayersizes[alglib.ap.len(network.hllayersizes) - 1];
+            nout = network.hllayersizes[ap.len(network.hllayersizes) - 1];
             s.serialize_int(scodes.getmlpserializationcode(_params));
             s.serialize_int(mlpfirstversion);
             s.serialize_bool(mlpissoftmax(network, _params));
             apserv.serializeintegerarray(s, network.hllayersizes, -1, _params);
-            for (i = 1; i <= alglib.ap.len(network.hllayersizes) - 1; i++)
+            for (i = 1; i <= ap.len(network.hllayersizes) - 1; i++)
             {
                 for (j = 0; j <= network.hllayersizes[i] - 1; j++)
                 {
@@ -25486,19 +25486,19 @@ public partial class alglib
             // check correctness of header
             //
             i0 = s.unserialize_int();
-            alglib.ap.assert(i0 == scodes.getmlpserializationcode(_params), "MLPUnserialize: stream header corrupted");
+            ap.assert(i0 == scodes.getmlpserializationcode(_params), "MLPUnserialize: stream header corrupted");
             i1 = s.unserialize_int();
-            alglib.ap.assert(i1 == mlpfirstversion, "MLPUnserialize: stream header corrupted");
+            ap.assert(i1 == mlpfirstversion, "MLPUnserialize: stream header corrupted");
 
             //
             // Create network
             //
             issoftmax = s.unserialize_bool();
             apserv.unserializeintegerarray(s, ref layersizes, _params);
-            alglib.ap.assert((alglib.ap.len(layersizes) == 2 || alglib.ap.len(layersizes) == 3) || alglib.ap.len(layersizes) == 4, "MLPUnserialize: too many hidden layers!");
+            ap.assert((ap.len(layersizes) == 2 || ap.len(layersizes) == 3) || ap.len(layersizes) == 4, "MLPUnserialize: too many hidden layers!");
             nin = layersizes[0];
-            nout = layersizes[alglib.ap.len(layersizes) - 1];
-            if (alglib.ap.len(layersizes) == 2)
+            nout = layersizes[ap.len(layersizes) - 1];
+            if (ap.len(layersizes) == 2)
             {
                 if (issoftmax)
                 {
@@ -25509,7 +25509,7 @@ public partial class alglib
                     mlpcreate0(layersizes[0], layersizes[1], network, _params);
                 }
             }
-            if (alglib.ap.len(layersizes) == 3)
+            if (ap.len(layersizes) == 3)
             {
                 if (issoftmax)
                 {
@@ -25520,7 +25520,7 @@ public partial class alglib
                     mlpcreate1(layersizes[0], layersizes[1], layersizes[2], network, _params);
                 }
             }
-            if (alglib.ap.len(layersizes) == 4)
+            if (ap.len(layersizes) == 4)
             {
                 if (issoftmax)
                 {
@@ -25535,7 +25535,7 @@ public partial class alglib
             //
             // Load neurons and weights
             //
-            for (i = 1; i <= alglib.ap.len(layersizes) - 1; i++)
+            for (i = 1; i <= ap.len(layersizes) - 1; i++)
             {
                 for (j = 0; j <= layersizes[i] - 1; j++)
                 {
@@ -25614,16 +25614,16 @@ public partial class alglib
             int idx1 = 0;
             int idxtype = 0;
 
-            alglib.ap.assert(alglib.ap.rows(xy) >= setsize, "MLPAllErrorsSubset: XY has less than SetSize rows");
+            ap.assert(ap.rows(xy) >= setsize, "MLPAllErrorsSubset: XY has less than SetSize rows");
             if (setsize > 0)
             {
                 if (mlpissoftmax(network, _params))
                 {
-                    alglib.ap.assert(alglib.ap.cols(xy) >= mlpgetinputscount(network, _params) + 1, "MLPAllErrorsSubset: XY has less than NIn+1 columns");
+                    ap.assert(ap.cols(xy) >= mlpgetinputscount(network, _params) + 1, "MLPAllErrorsSubset: XY has less than NIn+1 columns");
                 }
                 else
                 {
-                    alglib.ap.assert(alglib.ap.cols(xy) >= mlpgetinputscount(network, _params) + mlpgetoutputscount(network, _params), "MLPAllErrorsSubset: XY has less than NIn+NOut columns");
+                    ap.assert(ap.cols(xy) >= mlpgetinputscount(network, _params) + mlpgetoutputscount(network, _params), "MLPAllErrorsSubset: XY has less than NIn+NOut columns");
                 }
             }
             if (subsetsize >= 0)
@@ -25690,17 +25690,17 @@ public partial class alglib
             int idx1 = 0;
             int idxtype = 0;
 
-            alglib.ap.assert(sparse.sparseiscrs(xy, _params), "MLPAllErrorsSparseSubset: XY is not in CRS format.");
-            alglib.ap.assert(sparse.sparsegetnrows(xy, _params) >= setsize, "MLPAllErrorsSparseSubset: XY has less than SetSize rows");
+            ap.assert(sparse.sparseiscrs(xy, _params), "MLPAllErrorsSparseSubset: XY is not in CRS format.");
+            ap.assert(sparse.sparsegetnrows(xy, _params) >= setsize, "MLPAllErrorsSparseSubset: XY has less than SetSize rows");
             if (setsize > 0)
             {
                 if (mlpissoftmax(network, _params))
                 {
-                    alglib.ap.assert(sparse.sparsegetncols(xy, _params) >= mlpgetinputscount(network, _params) + 1, "MLPAllErrorsSparseSubset: XY has less than NIn+1 columns");
+                    ap.assert(sparse.sparsegetncols(xy, _params) >= mlpgetinputscount(network, _params) + 1, "MLPAllErrorsSparseSubset: XY has less than NIn+1 columns");
                 }
                 else
                 {
-                    alglib.ap.assert(sparse.sparsegetncols(xy, _params) >= mlpgetinputscount(network, _params) + mlpgetoutputscount(network, _params), "MLPAllErrorsSparseSubset: XY has less than NIn+NOut columns");
+                    ap.assert(sparse.sparsegetncols(xy, _params) >= mlpgetinputscount(network, _params) + mlpgetoutputscount(network, _params), "MLPAllErrorsSparseSubset: XY has less than NIn+NOut columns");
                 }
             }
             if (subsetsize >= 0)
@@ -25782,16 +25782,16 @@ public partial class alglib
             int idx1 = 0;
             int idxtype = 0;
 
-            alglib.ap.assert(alglib.ap.rows(xy) >= setsize, "MLPErrorSubset: XY has less than SetSize rows");
+            ap.assert(ap.rows(xy) >= setsize, "MLPErrorSubset: XY has less than SetSize rows");
             if (setsize > 0)
             {
                 if (mlpissoftmax(network, _params))
                 {
-                    alglib.ap.assert(alglib.ap.cols(xy) >= mlpgetinputscount(network, _params) + 1, "MLPErrorSubset: XY has less than NIn+1 columns");
+                    ap.assert(ap.cols(xy) >= mlpgetinputscount(network, _params) + 1, "MLPErrorSubset: XY has less than NIn+1 columns");
                 }
                 else
                 {
-                    alglib.ap.assert(alglib.ap.cols(xy) >= mlpgetinputscount(network, _params) + mlpgetoutputscount(network, _params), "MLPErrorSubset: XY has less than NIn+NOut columns");
+                    ap.assert(ap.cols(xy) >= mlpgetinputscount(network, _params) + mlpgetoutputscount(network, _params), "MLPErrorSubset: XY has less than NIn+NOut columns");
                 }
             }
             if (subsetsize >= 0)
@@ -25880,17 +25880,17 @@ public partial class alglib
             int idx1 = 0;
             int idxtype = 0;
 
-            alglib.ap.assert(sparse.sparseiscrs(xy, _params), "MLPErrorSparseSubset: XY is not in CRS format.");
-            alglib.ap.assert(sparse.sparsegetnrows(xy, _params) >= setsize, "MLPErrorSparseSubset: XY has less than SetSize rows");
+            ap.assert(sparse.sparseiscrs(xy, _params), "MLPErrorSparseSubset: XY is not in CRS format.");
+            ap.assert(sparse.sparsegetnrows(xy, _params) >= setsize, "MLPErrorSparseSubset: XY has less than SetSize rows");
             if (setsize > 0)
             {
                 if (mlpissoftmax(network, _params))
                 {
-                    alglib.ap.assert(sparse.sparsegetncols(xy, _params) >= mlpgetinputscount(network, _params) + 1, "MLPErrorSparseSubset: XY has less than NIn+1 columns");
+                    ap.assert(sparse.sparsegetncols(xy, _params) >= mlpgetinputscount(network, _params) + 1, "MLPErrorSparseSubset: XY has less than NIn+1 columns");
                 }
                 else
                 {
-                    alglib.ap.assert(sparse.sparsegetncols(xy, _params) >= mlpgetinputscount(network, _params) + mlpgetoutputscount(network, _params), "MLPErrorSparseSubset: XY has less than NIn+NOut columns");
+                    ap.assert(sparse.sparsegetncols(xy, _params) >= mlpgetinputscount(network, _params) + mlpgetoutputscount(network, _params), "MLPErrorSparseSubset: XY has less than NIn+NOut columns");
                 }
             }
             if (subsetsize >= 0)
@@ -25951,9 +25951,9 @@ public partial class alglib
             int i_ = 0;
             int i1_ = 0;
 
-            alglib.ap.assert(datasetsize >= 0, "MLPAllErrorsX: SetSize<0");
-            alglib.ap.assert(datasettype == 0 || datasettype == 1, "MLPAllErrorsX: DatasetType is incorrect");
-            alglib.ap.assert(subsettype == 0 || subsettype == 1, "MLPAllErrorsX: SubsetType is incorrect");
+            ap.assert(datasetsize >= 0, "MLPAllErrorsX: SetSize<0");
+            ap.assert(datasettype == 0 || datasettype == 1, "MLPAllErrorsX: DatasetType is incorrect");
+            ap.assert(subsettype == 0 || subsettype == 1, "MLPAllErrorsX: SubsetType is incorrect");
 
             //
             // Determine network properties
@@ -26000,7 +26000,7 @@ public partial class alglib
             //
             // Retrieve and prepare
             //
-            alglib.smp.ae_shared_pool_retrieve(buf, ref pbuf);
+            smp.ae_shared_pool_retrieve(buf, ref pbuf);
             if (iscls)
             {
                 rowsize = nin + 1;
@@ -26035,7 +26035,7 @@ public partial class alglib
                     {
                         srcidx = idx[cstart + j];
                     }
-                    alglib.ap.assert(srcidx >= 0, "MLPAllErrorsX: internal error");
+                    ap.assert(srcidx >= 0, "MLPAllErrorsX: internal error");
                     if (datasettype == 0)
                     {
                         for (i_ = 0; i_ <= rowsize - 1; i_++)
@@ -26105,7 +26105,7 @@ public partial class alglib
             //
             // Recycle
             //
-            alglib.smp.ae_shared_pool_recycle(buf, ref pbuf);
+            smp.ae_shared_pool_recycle(buf, ref pbuf);
         }
 
 
@@ -26181,7 +26181,7 @@ public partial class alglib
             ref int lastproc,
             alglib.xparams _params)
         {
-            alglib.ap.assert(functype > 0 || functype == -5, "AddActivationLayer: incorrect function type");
+            ap.assert(functype > 0 || functype == -5, "AddActivationLayer: incorrect function type");
             lsizes[lastproc + 1] = lsizes[lastproc];
             ltypes[lastproc + 1] = functype;
             lconnfirst[lastproc + 1] = lastproc;
@@ -26286,7 +26286,7 @@ public partial class alglib
             int neurooffs = 0;
             int connoffs = 0;
 
-            alglib.ap.assert((iscls && islinearout) || !iscls, "HLAddOutputLayer: internal error");
+            ap.assert((iscls && islinearout) || !iscls, "HLAddOutputLayer: internal error");
             neurooffs = hlnfieldwidth * neuroidx;
             connoffs = hlconnfieldwidth * connidx;
             if (!iscls)
@@ -26468,7 +26468,7 @@ public partial class alglib
             int idxneuro = 0;
             int idxconn = 0;
 
-            alglib.ap.assert((iscls && islinearout) || !iscls, "FillHighLevelInformation: internal error");
+            ap.assert((iscls && islinearout) || !iscls, "FillHighLevelInformation: internal error");
 
             //
             // Preparations common to all types of networks
@@ -26593,13 +26593,13 @@ public partial class alglib
             //
             // Check
             //
-            alglib.ap.assert(layerscount > 0, "MLPCreate: wrong parameters!");
-            alglib.ap.assert(ltypes[0] == -2, "MLPCreate: wrong LTypes[0] (must be -2)!");
+            ap.assert(layerscount > 0, "MLPCreate: wrong parameters!");
+            ap.assert(ltypes[0] == -2, "MLPCreate: wrong LTypes[0] (must be -2)!");
             for (i = 0; i <= layerscount - 1; i++)
             {
-                alglib.ap.assert(lsizes[i] > 0, "MLPCreate: wrong LSizes!");
-                alglib.ap.assert(lconnfirst[i] >= 0 && (lconnfirst[i] < i || i == 0), "MLPCreate: wrong LConnFirst!");
-                alglib.ap.assert(lconnlast[i] >= lconnfirst[i] && (lconnlast[i] < i || i == 0), "MLPCreate: wrong LConnLast!");
+                ap.assert(lsizes[i] > 0, "MLPCreate: wrong LSizes!");
+                ap.assert(lconnfirst[i] >= 0 && (lconnfirst[i] < i || i == 0), "MLPCreate: wrong LConnFirst!");
+                ap.assert(lconnlast[i] >= lconnfirst[i] && (lconnlast[i] < i || i == 0), "MLPCreate: wrong LConnLast!");
             }
 
             //
@@ -26632,7 +26632,7 @@ public partial class alglib
                         lnsyn[i] = 0;
                     }
                 }
-                alglib.ap.assert(lnsyn[i] >= 0, "MLPCreate: internal error #0!");
+                ap.assert(lnsyn[i] >= 0, "MLPCreate: internal error #0!");
 
                 //
                 // Other info
@@ -26736,8 +26736,8 @@ public partial class alglib
                     }
                 }
             }
-            alglib.ap.assert(wallocated == wcount, "MLPCreate: internal error #1!");
-            alglib.ap.assert(nprocessed == ntotal, "MLPCreate: internal error #2!");
+            ap.assert(wallocated == wcount, "MLPCreate: internal error #1!");
+            ap.assert(nprocessed == ntotal, "MLPCreate: internal error #2!");
 
             //
             // Fill weights by small random values
@@ -26761,14 +26761,14 @@ public partial class alglib
             //
             // Seed buffers
             //
-            alglib.smp.ae_shared_pool_set_seed(network.buf, buf);
+            smp.ae_shared_pool_set_seed(network.buf, buf);
             sgrad.g = new double[wcount];
             sgrad.f = 0.0;
             for (i = 0; i <= wcount - 1; i++)
             {
                 sgrad.g[i] = 0.0;
             }
-            alglib.smp.ae_shared_pool_set_seed(network.gradbuf, sgrad);
+            smp.ae_shared_pool_set_seed(network.gradbuf, sgrad);
         }
 
 
@@ -26795,7 +26795,7 @@ public partial class alglib
             threshold = 0;
 
             ablasf.iallocv(2, ref integerbuf, _params);
-            ncnt = alglib.ap.len(network.hlneurons) / hlnfieldwidth;
+            ncnt = ap.len(network.hlneurons) / hlnfieldwidth;
             istart = network.structinfo[5];
 
             //
@@ -26804,7 +26804,7 @@ public partial class alglib
             integerbuf[0] = k;
             integerbuf[1] = i;
             highlevelidx = apserv.recsearch(network.hlneurons, hlnfieldwidth, 2, 0, ncnt, integerbuf, _params);
-            alglib.ap.assert(highlevelidx >= 0, "MLPGetNeuronInfo: incorrect (nonexistent) layer or neuron index");
+            ap.assert(highlevelidx >= 0, "MLPGetNeuronInfo: incorrect (nonexistent) layer or neuron index");
 
             //
             // 1. find offset of the activation function record in the
@@ -26863,15 +26863,15 @@ public partial class alglib
             int highlevelidx = 0;
 
             ablasf.iallocv(4, ref integerbuf, _params);
-            ccnt = alglib.ap.len(network.hlconnections) / hlconnfieldwidth;
+            ccnt = ap.len(network.hlconnections) / hlconnfieldwidth;
 
             //
             // check params
             //
-            alglib.ap.assert(k0 >= 0 && k0 < alglib.ap.len(network.hllayersizes), "MLPGetWeight: incorrect (nonexistent) K0");
-            alglib.ap.assert(i0 >= 0 && i0 < network.hllayersizes[k0], "MLPGetWeight: incorrect (nonexistent) I0");
-            alglib.ap.assert(k1 >= 0 && k1 < alglib.ap.len(network.hllayersizes), "MLPGetWeight: incorrect (nonexistent) K1");
-            alglib.ap.assert(i1 >= 0 && i1 < network.hllayersizes[k1], "MLPGetWeight: incorrect (nonexistent) I1");
+            ap.assert(k0 >= 0 && k0 < ap.len(network.hllayersizes), "MLPGetWeight: incorrect (nonexistent) K0");
+            ap.assert(i0 >= 0 && i0 < network.hllayersizes[k0], "MLPGetWeight: incorrect (nonexistent) I0");
+            ap.assert(k1 >= 0 && k1 < ap.len(network.hllayersizes), "MLPGetWeight: incorrect (nonexistent) K1");
+            ap.assert(i1 >= 0 && i1 < network.hllayersizes[k1], "MLPGetWeight: incorrect (nonexistent) I1");
 
             //
             // search
@@ -27129,7 +27129,7 @@ public partial class alglib
                             //
                             bflag = false;
                         }
-                        alglib.ap.assert(!bflag, "MLPHessianNBatch: internal error - unknown neuron type!");
+                        ap.assert(!bflag, "MLPHessianNBatch: internal error - unknown neuron type!");
                         continue;
                     }
                 }
@@ -27430,7 +27430,7 @@ public partial class alglib
                             //
                             bflag = true;
                         }
-                        alglib.ap.assert(bflag, "MLPHessianNBatch: unknown neuron type!");
+                        ap.assert(bflag, "MLPHessianNBatch: unknown neuron type!");
                         continue;
                     }
                 }
@@ -27485,7 +27485,7 @@ public partial class alglib
             // Pre-processing of dError/dOut:
             // from dError/dOut(normalized) to dError/dOut(non-normalized)
             //
-            alglib.ap.assert(network.structinfo[6] == 0 || network.structinfo[6] == 1, "MLPInternalCalculateGradient: unknown normalization type!");
+            ap.assert(network.structinfo[6] == 0 || network.structinfo[6] == 1, "MLPInternalCalculateGradient: unknown normalization type!");
             if (network.structinfo[6] == 1)
             {
 
@@ -27592,7 +27592,7 @@ public partial class alglib
                         //
                         bflag = true;
                     }
-                    alglib.ap.assert(bflag, "MLPInternalCalculateGradient: unknown neuron type!");
+                    ap.assert(bflag, "MLPInternalCalculateGradient: unknown neuron type!");
                     continue;
                 }
             }
@@ -27651,7 +27651,7 @@ public partial class alglib
             int chunksize = 0;
 
             chunksize = 4;
-            alglib.ap.assert(csize <= chunksize, "MLPChunkedGradient: internal error (CSize>ChunkSize)");
+            ap.assert(csize <= chunksize, "MLPChunkedGradient: internal error (CSize>ChunkSize)");
 
             //
             // Try to use HPC core, if possible
@@ -27817,7 +27817,7 @@ public partial class alglib
                         batch4buf[entryoffs + 3 + dfoffs] = 0;
                         bflag = true;
                     }
-                    alglib.ap.assert(bflag, "MLPChunkedGradient: internal error - unknown neuron type!");
+                    ap.assert(bflag, "MLPChunkedGradient: internal error - unknown neuron type!");
                     continue;
                 }
             }
@@ -27841,7 +27841,7 @@ public partial class alglib
             //   * then,  we calculate derivative of error with respect to  values
             //     of outputs BEFORE normalization was applied to them
             //
-            alglib.ap.assert(network.structinfo[6] == 0 || network.structinfo[6] == 1, "MLPChunkedGradient: unknown normalization type!");
+            ap.assert(network.structinfo[6] == 0 || network.structinfo[6] == 1, "MLPChunkedGradient: unknown normalization type!");
             if (network.structinfo[6] == 1)
             {
 
@@ -28122,7 +28122,7 @@ public partial class alglib
                         //
                         bflag = true;
                     }
-                    alglib.ap.assert(bflag, "MLPInternalCalculateGradient: unknown neuron type!");
+                    ap.assert(bflag, "MLPInternalCalculateGradient: unknown neuron type!");
                     continue;
                 }
             }
@@ -28169,7 +28169,7 @@ public partial class alglib
             int chunksize = 0;
 
             chunksize = 4;
-            alglib.ap.assert(csize <= chunksize, "MLPChunkedProcess: internal error (CSize>ChunkSize)");
+            ap.assert(csize <= chunksize, "MLPChunkedProcess: internal error (CSize>ChunkSize)");
 
             //
             // Try to use HPC core, if possible
@@ -28315,7 +28315,7 @@ public partial class alglib
                         batch4buf[entryoffs + 3] = 0;
                         bflag = true;
                     }
-                    alglib.ap.assert(bflag, "MLPChunkedProcess: internal error - unknown neuron type!");
+                    ap.assert(bflag, "MLPChunkedProcess: internal error - unknown neuron type!");
                     continue;
                 }
             }
@@ -28323,7 +28323,7 @@ public partial class alglib
             //
             // SOFTMAX normalization or scaling.
             //
-            alglib.ap.assert(network.structinfo[6] == 0 || network.structinfo[6] == 1, "MLPChunkedProcess: unknown normalization type!");
+            ap.assert(network.structinfo[6] == 0 || network.structinfo[6] == 1, "MLPChunkedProcess: unknown normalization type!");
             if (network.structinfo[6] == 1)
             {
 
@@ -28599,7 +28599,7 @@ public partial class alglib
                 //
                 return;
             }
-            alglib.ap.assert(false, "RandomizeBackwardPass: unexpected neuron type");
+            ap.assert(false, "RandomizeBackwardPass: unexpected neuron type");
         }
 
 
@@ -29116,7 +29116,7 @@ public partial class alglib
             int i1 = 0;
             double s = 0;
 
-            alglib.ap.assert((double)(lm.w[1]) == (double)(logitvnum), "MNLProcess: unexpected model version");
+            ap.assert((double)(lm.w[1]) == (double)(logitvnum), "MNLProcess: unexpected model version");
             nvars = (int)Math.Round(lm.w[2]);
             nclasses = (int)Math.Round(lm.w[3]);
             offs = (int)Math.Round(lm.w[4]);
@@ -29127,7 +29127,7 @@ public partial class alglib
             {
                 s = s + lm.w[i];
             }
-            if (alglib.ap.len(y) < nclasses)
+            if (ap.len(y) < nclasses)
             {
                 y = new double[nclasses];
             }
@@ -29194,7 +29194,7 @@ public partial class alglib
             nvars = 0;
             nclasses = 0;
 
-            alglib.ap.assert((double)(lm.w[1]) == (double)(logitvnum), "MNLUnpack: unexpected model version");
+            ap.assert((double)(lm.w[1]) == (double)(logitvnum), "MNLUnpack: unexpected model version");
             nvars = (int)Math.Round(lm.w[2]);
             nclasses = (int)Math.Round(lm.w[3]);
             offs = (int)Math.Round(lm.w[4]);
@@ -29311,7 +29311,7 @@ public partial class alglib
             double[] worky = new double[0];
             int i_ = 0;
 
-            alglib.ap.assert((double)(lm.w[1]) == (double)(logitvnum), "MNLClsError: unexpected model version");
+            ap.assert((double)(lm.w[1]) == (double)(logitvnum), "MNLClsError: unexpected model version");
             nvars = (int)Math.Round(lm.w[2]);
             nclasses = (int)Math.Round(lm.w[3]);
             workx = new double[nvars - 1 + 1];
@@ -29319,7 +29319,7 @@ public partial class alglib
             result = 0;
             for (i = 0; i <= npoints - 1; i++)
             {
-                alglib.ap.assert((int)Math.Round(xy[i, nvars]) >= 0 && (int)Math.Round(xy[i, nvars]) < nclasses, "MNLAvgCE: incorrect class number!");
+                ap.assert((int)Math.Round(xy[i, nvars]) >= 0 && (int)Math.Round(xy[i, nvars]) < nclasses, "MNLAvgCE: incorrect class number!");
 
                 //
                 // Process
@@ -29395,7 +29395,7 @@ public partial class alglib
             double avg = 0;
             double avgrel = 0;
 
-            alglib.ap.assert((int)Math.Round(lm.w[1]) == logitvnum, "MNLRMSError: Incorrect MNL version!");
+            ap.assert((int)Math.Round(lm.w[1]) == logitvnum, "MNLRMSError: Incorrect MNL version!");
             mnlallerrors(lm, xy, npoints, ref relcls, ref avgce, ref rms, ref avg, ref avgrel, _params);
             result = rms;
             return result;
@@ -29428,7 +29428,7 @@ public partial class alglib
             double avg = 0;
             double avgrel = 0;
 
-            alglib.ap.assert((int)Math.Round(lm.w[1]) == logitvnum, "MNLRMSError: Incorrect MNL version!");
+            ap.assert((int)Math.Round(lm.w[1]) == logitvnum, "MNLRMSError: Incorrect MNL version!");
             mnlallerrors(lm, xy, npoints, ref relcls, ref avgce, ref rms, ref avg, ref avgrel, _params);
             result = avg;
             return result;
@@ -29461,7 +29461,7 @@ public partial class alglib
             double avg = 0;
             double avgrel = 0;
 
-            alglib.ap.assert((int)Math.Round(lm.w[1]) == logitvnum, "MNLRMSError: Incorrect MNL version!");
+            ap.assert((int)Math.Round(lm.w[1]) == logitvnum, "MNLRMSError: Incorrect MNL version!");
             mnlallerrors(lm, xy, ssize, ref relcls, ref avgce, ref rms, ref avg, ref avgrel, _params);
             result = avgrel;
             return result;
@@ -29489,7 +29489,7 @@ public partial class alglib
             int nmax = 0;
             int i_ = 0;
 
-            alglib.ap.assert((double)(lm.w[1]) == (double)(logitvnum), "MNLClsError: unexpected model version");
+            ap.assert((double)(lm.w[1]) == (double)(logitvnum), "MNLClsError: unexpected model version");
             nvars = (int)Math.Round(lm.w[2]);
             nclasses = (int)Math.Round(lm.w[3]);
             workx = new double[nvars - 1 + 1];
@@ -29549,7 +29549,7 @@ public partial class alglib
             int i_ = 0;
             int i1_ = 0;
 
-            alglib.ap.assert((double)(w[1]) == (double)(logitvnum), "LOGIT: unexpected model version");
+            ap.assert((double)(w[1]) == (double)(logitvnum), "LOGIT: unexpected model version");
             nvars = (int)Math.Round(w[2]);
             nclasses = (int)Math.Round(w[3]);
             offs = (int)Math.Round(w[4]);
@@ -29608,7 +29608,7 @@ public partial class alglib
             avg = 0;
             avgrel = 0;
 
-            alglib.ap.assert((int)Math.Round(lm.w[1]) == logitvnum, "MNL unit: Incorrect MNL version!");
+            ap.assert((int)Math.Round(lm.w[1]) == logitvnum, "MNL unit: Incorrect MNL version!");
             nvars = (int)Math.Round(lm.w[2]);
             nclasses = (int)Math.Round(lm.w[3]);
             workx = new double[nvars - 1 + 1];
@@ -30702,12 +30702,12 @@ public partial class alglib
             int i = 0;
             int i_ = 0;
 
-            alglib.ap.assert((((((((disttype == 0 || disttype == 1) || disttype == 2) || disttype == 10) || disttype == 11) || disttype == 12) || disttype == 13) || disttype == 20) || disttype == 21, "ClusterizerSetPoints: incorrect DistType");
-            alglib.ap.assert(npoints >= 0, "ClusterizerSetPoints: NPoints<0");
-            alglib.ap.assert(nfeatures >= 1, "ClusterizerSetPoints: NFeatures<1");
-            alglib.ap.assert(alglib.ap.rows(xy) >= npoints, "ClusterizerSetPoints: Rows(XY)<NPoints");
-            alglib.ap.assert(alglib.ap.cols(xy) >= nfeatures, "ClusterizerSetPoints: Cols(XY)<NFeatures");
-            alglib.ap.assert(apserv.apservisfinitematrix(xy, npoints, nfeatures, _params), "ClusterizerSetPoints: XY contains NAN/INF");
+            ap.assert((((((((disttype == 0 || disttype == 1) || disttype == 2) || disttype == 10) || disttype == 11) || disttype == 12) || disttype == 13) || disttype == 20) || disttype == 21, "ClusterizerSetPoints: incorrect DistType");
+            ap.assert(npoints >= 0, "ClusterizerSetPoints: NPoints<0");
+            ap.assert(nfeatures >= 1, "ClusterizerSetPoints: NFeatures<1");
+            ap.assert(ap.rows(xy) >= npoints, "ClusterizerSetPoints: Rows(XY)<NPoints");
+            ap.assert(ap.cols(xy) >= nfeatures, "ClusterizerSetPoints: Cols(XY)<NFeatures");
+            ap.assert(apserv.apservisfinitematrix(xy, npoints, nfeatures, _params), "ClusterizerSetPoints: XY contains NAN/INF");
             s.npoints = npoints;
             s.nfeatures = nfeatures;
             s.disttype = disttype;
@@ -30762,9 +30762,9 @@ public partial class alglib
             int j0 = 0;
             int j1 = 0;
 
-            alglib.ap.assert(npoints >= 0, "ClusterizerSetDistances: NPoints<0");
-            alglib.ap.assert(alglib.ap.rows(d) >= npoints, "ClusterizerSetDistances: Rows(D)<NPoints");
-            alglib.ap.assert(alglib.ap.cols(d) >= npoints, "ClusterizerSetDistances: Cols(D)<NPoints");
+            ap.assert(npoints >= 0, "ClusterizerSetDistances: NPoints<0");
+            ap.assert(ap.rows(d) >= npoints, "ClusterizerSetDistances: Rows(D)<NPoints");
+            ap.assert(ap.cols(d) >= npoints, "ClusterizerSetDistances: Cols(D)<NPoints");
             s.npoints = npoints;
             s.nfeatures = 0;
             s.disttype = -1;
@@ -30783,7 +30783,7 @@ public partial class alglib
                 }
                 for (j = j0; j <= j1; j++)
                 {
-                    alglib.ap.assert(math.isfinite(d[i, j]) && (double)(d[i, j]) >= (double)(0), "ClusterizerSetDistances: D contains infinite, NAN or negative elements");
+                    ap.assert(math.isfinite(d[i, j]) && (double)(d[i, j]) >= (double)(0), "ClusterizerSetDistances: D contains infinite, NAN or negative elements");
                     s.d[i, j] = d[i, j];
                     s.d[j, i] = d[i, j];
                 }
@@ -30819,7 +30819,7 @@ public partial class alglib
             int algo,
             alglib.xparams _params)
         {
-            alglib.ap.assert((((algo == 0 || algo == 1) || algo == 2) || algo == 3) || algo == 4, "ClusterizerSetHCAlgo: incorrect algorithm type");
+            ap.assert((((algo == 0 || algo == 1) || algo == 2) || algo == 3) || algo == 4, "ClusterizerSetHCAlgo: incorrect algorithm type");
             s.ahcalgo = algo;
         }
 
@@ -30845,8 +30845,8 @@ public partial class alglib
             int maxits,
             alglib.xparams _params)
         {
-            alglib.ap.assert(restarts >= 1, "ClusterizerSetKMeansLimits: Restarts<=0");
-            alglib.ap.assert(maxits >= 0, "ClusterizerSetKMeansLimits: MaxIts<0");
+            ap.assert(restarts >= 1, "ClusterizerSetKMeansLimits: Restarts<=0");
+            ap.assert(maxits >= 0, "ClusterizerSetKMeansLimits: MaxIts<0");
             s.kmeansrestarts = restarts;
             s.kmeansmaxits = maxits;
         }
@@ -30881,7 +30881,7 @@ public partial class alglib
             int initalgo,
             alglib.xparams _params)
         {
-            alglib.ap.assert(initalgo >= -1 && initalgo <= 3, "ClusterizerSetKMeansInit: InitAlgo is incorrect");
+            ap.assert(initalgo >= -1 && initalgo <= 3, "ClusterizerSetKMeansInit: InitAlgo is incorrect");
             s.kmeansinitalgo = initalgo;
         }
 
@@ -31118,7 +31118,7 @@ public partial class alglib
         {
             double[,] dummy = new double[0, 0];
 
-            alglib.ap.assert(k >= 0, "ClusterizerRunKMeans: K<0");
+            ap.assert(k >= 0, "ClusterizerRunKMeans: K<0");
 
             //
             // Incorrect distance type
@@ -31248,12 +31248,12 @@ public partial class alglib
 
             d = new double[0, 0];
 
-            alglib.ap.assert(nfeatures >= 1, "ClusterizerGetDistances: NFeatures<1");
-            alglib.ap.assert(npoints >= 0, "ClusterizerGetDistances: NPoints<1");
-            alglib.ap.assert((((((((disttype == 0 || disttype == 1) || disttype == 2) || disttype == 10) || disttype == 11) || disttype == 12) || disttype == 13) || disttype == 20) || disttype == 21, "ClusterizerGetDistances: incorrect DistType");
-            alglib.ap.assert(alglib.ap.rows(xy) >= npoints, "ClusterizerGetDistances: Rows(XY)<NPoints");
-            alglib.ap.assert(alglib.ap.cols(xy) >= nfeatures, "ClusterizerGetDistances: Cols(XY)<NFeatures");
-            alglib.ap.assert(apserv.apservisfinitematrix(xy, npoints, nfeatures, _params), "ClusterizerGetDistances: XY contains NAN/INF");
+            ap.assert(nfeatures >= 1, "ClusterizerGetDistances: NFeatures<1");
+            ap.assert(npoints >= 0, "ClusterizerGetDistances: NPoints<1");
+            ap.assert((((((((disttype == 0 || disttype == 1) || disttype == 2) || disttype == 10) || disttype == 11) || disttype == 12) || disttype == 13) || disttype == 20) || disttype == 21, "ClusterizerGetDistances: incorrect DistType");
+            ap.assert(ap.rows(xy) >= npoints, "ClusterizerGetDistances: Rows(XY)<NPoints");
+            ap.assert(ap.cols(xy) >= nfeatures, "ClusterizerGetDistances: Cols(XY)<NFeatures");
+            ap.assert(apserv.apservisfinitematrix(xy, npoints, nfeatures, _params), "ClusterizerGetDistances: XY contains NAN/INF");
             clusterizergetdistancesbuf(buf, xy, npoints, nfeatures, disttype, ref d, _params);
         }
 
@@ -31280,12 +31280,12 @@ public partial class alglib
             double vr = 0;
             int i_ = 0;
 
-            alglib.ap.assert(nfeatures >= 1, "ClusterizerGetDistancesBuf: NFeatures<1");
-            alglib.ap.assert(npoints >= 0, "ClusterizerGetDistancesBuf: NPoints<1");
-            alglib.ap.assert((((((((disttype == 0 || disttype == 1) || disttype == 2) || disttype == 10) || disttype == 11) || disttype == 12) || disttype == 13) || disttype == 20) || disttype == 21, "ClusterizerGetDistancesBuf: incorrect DistType");
-            alglib.ap.assert(alglib.ap.rows(xy) >= npoints, "ClusterizerGetDistancesBuf: Rows(XY)<NPoints");
-            alglib.ap.assert(alglib.ap.cols(xy) >= nfeatures, "ClusterizerGetDistancesBuf: Cols(XY)<NFeatures");
-            alglib.ap.assert(apserv.apservisfinitematrix(xy, npoints, nfeatures, _params), "ClusterizerGetDistancesBuf: XY contains NAN/INF");
+            ap.assert(nfeatures >= 1, "ClusterizerGetDistancesBuf: NFeatures<1");
+            ap.assert(npoints >= 0, "ClusterizerGetDistancesBuf: NPoints<1");
+            ap.assert((((((((disttype == 0 || disttype == 1) || disttype == 2) || disttype == 10) || disttype == 11) || disttype == 12) || disttype == 13) || disttype == 20) || disttype == 21, "ClusterizerGetDistancesBuf: incorrect DistType");
+            ap.assert(ap.rows(xy) >= npoints, "ClusterizerGetDistancesBuf: Rows(XY)<NPoints");
+            ap.assert(ap.cols(xy) >= nfeatures, "ClusterizerGetDistancesBuf: Cols(XY)<NFeatures");
+            ap.assert(apserv.apservisfinitematrix(xy, npoints, nfeatures, _params), "ClusterizerGetDistancesBuf: XY contains NAN/INF");
 
             //
             // Quick exit
@@ -31502,7 +31502,7 @@ public partial class alglib
                 ablas.rmatrixenforcesymmetricity(d, npoints, true, _params);
                 return;
             }
-            alglib.ap.assert(false);
+            ap.assert(false);
         }
 
 
@@ -31570,11 +31570,11 @@ public partial class alglib
             cz = new int[0];
 
             npoints = rep.npoints;
-            alglib.ap.assert(npoints >= 0, "ClusterizerGetKClusters: internal error in Rep integrity");
-            alglib.ap.assert(k >= 0, "ClusterizerGetKClusters: K<=0");
-            alglib.ap.assert(k <= npoints, "ClusterizerGetKClusters: K>NPoints");
-            alglib.ap.assert(k > 0 || npoints == 0, "ClusterizerGetKClusters: K<=0");
-            alglib.ap.assert(npoints == rep.npoints, "ClusterizerGetKClusters: NPoints<>Rep.NPoints");
+            ap.assert(npoints >= 0, "ClusterizerGetKClusters: internal error in Rep integrity");
+            ap.assert(k >= 0, "ClusterizerGetKClusters: K<=0");
+            ap.assert(k <= npoints, "ClusterizerGetKClusters: K>NPoints");
+            ap.assert(k > 0 || npoints == 0, "ClusterizerGetKClusters: K<=0");
+            ap.assert(npoints == rep.npoints, "ClusterizerGetKClusters: NPoints<>Rep.NPoints");
 
             //
             // Quick exit
@@ -31655,7 +31655,7 @@ public partial class alglib
                     t = t + 1;
                 }
             }
-            alglib.ap.assert(t == k, "ClusterizerGetKClusters: internal error");
+            ap.assert(t == k, "ClusterizerGetKClusters: internal error");
 
             //
             // Convert indexes stored in CIdx
@@ -31728,7 +31728,7 @@ public partial class alglib
             cidx = new int[0];
             cz = new int[0];
 
-            alglib.ap.assert(math.isfinite(r) && (double)(r) >= (double)(0), "ClusterizerSeparatedByDist: R is infinite or less than 0");
+            ap.assert(math.isfinite(r) && (double)(r) >= (double)(0), "ClusterizerSeparatedByDist: R is infinite or less than 0");
             k = 1;
             while (k < rep.npoints && (double)(rep.mergedist[rep.npoints - 1 - k]) >= (double)(r))
             {
@@ -31798,7 +31798,7 @@ public partial class alglib
             cidx = new int[0];
             cz = new int[0];
 
-            alglib.ap.assert((math.isfinite(r) && (double)(r) >= (double)(-1)) && (double)(r) <= (double)(1), "ClusterizerSeparatedByCorr: R is infinite or less than 0");
+            ap.assert((math.isfinite(r) && (double)(r) >= (double)(-1)) && (double)(r) <= (double)(1), "ClusterizerSeparatedByCorr: R is infinite or less than 0");
             k = 1;
             while (k < rep.npoints && (double)(rep.mergedist[rep.npoints - 1 - k]) >= (double)(1 - r))
             {
@@ -31828,7 +31828,7 @@ public partial class alglib
         {
             apserv.apbuffers updateseed = new();
 
-            alglib.smp.ae_shared_pool_set_seed(buf.updatepool, updateseed);
+            smp.ae_shared_pool_set_seed(buf.updatepool, updateseed);
         }
 
 
@@ -32280,8 +32280,8 @@ public partial class alglib
             // * for each chunk of dataset, iterate over centers, process them in KMeansBlockSize-ed chunks
             // * for each chunk of dataset/centerset, iterate over variables, process them in KMeansBlockSize-ed chunks
             //
-            alglib.ap.assert(kmeansblocksize % 2 == 0, "KMeansUpdateDistances: internal error");
-            alglib.smp.ae_shared_pool_retrieve(bufferpool, ref buf);
+            ap.assert(kmeansblocksize % 2 == 0, "KMeansUpdateDistances: internal error");
+            smp.ae_shared_pool_retrieve(bufferpool, ref buf);
             apserv.rvectorsetlengthatleast(ref buf.ra0, kmeansblocksize * kmeansblocksize, _params);
             apserv.rvectorsetlengthatleast(ref buf.ra1, kmeansblocksize * kmeansblocksize, _params);
             apserv.rvectorsetlengthatleast(ref buf.ra2, kmeansblocksize * kmeansblocksize, _params);
@@ -32342,8 +32342,8 @@ public partial class alglib
                     ccnt = c1 - c0;
                     ccntpadded = ccnt + ccnt % 2;
                     stride = kmeansblocksize;
-                    alglib.ap.assert(pcntpadded <= kmeansblocksize, "KMeansUpdateDistances: integrity error");
-                    alglib.ap.assert(ccntpadded <= kmeansblocksize, "KMeansUpdateDistances: integrity error");
+                    ap.assert(pcntpadded <= kmeansblocksize, "KMeansUpdateDistances: integrity error");
+                    ap.assert(ccntpadded <= kmeansblocksize, "KMeansUpdateDistances: integrity error");
                     for (i = 0; i <= pcntpadded - 1; i++)
                     {
                         for (j = 0; j <= ccntpadded - 1; j++)
@@ -32459,7 +32459,7 @@ public partial class alglib
                     xydist2[i] = buf.ra3[i - p0];
                 }
             }
-            alglib.smp.ae_shared_pool_recycle(bufferpool, ref buf);
+            smp.ae_shared_pool_recycle(bufferpool, ref buf);
         }
 
 
@@ -32553,9 +32553,9 @@ public partial class alglib
             //
             // Check parameters
             //
-            alglib.ap.assert(npoints > 0, "SelectInitialCenters: internal error");
-            alglib.ap.assert(nvars > 0, "SelectInitialCenters: internal error");
-            alglib.ap.assert(k > 0, "SelectInitialCenters: internal error");
+            ap.assert(npoints > 0, "SelectInitialCenters: internal error");
+            ap.assert(nvars > 0, "SelectInitialCenters: internal error");
+            ap.assert(k > 0, "SelectInitialCenters: internal error");
             if (initalgo == 0)
             {
                 initalgo = 3;
@@ -32682,7 +32682,7 @@ public partial class alglib
                             break;
                         }
                     }
-                    alglib.ap.assert(lastnz >= 0, "SelectInitialCenters: integrity error");
+                    ap.assert(lastnz >= 0, "SelectInitialCenters: integrity error");
                     if (ptidx < 0)
                     {
                         ptidx = lastnz;
@@ -32854,7 +32854,7 @@ public partial class alglib
             //
             // Internal error
             //
-            alglib.ap.assert(false, "SelectInitialCenters: internal error");
+            ap.assert(false, "SelectInitialCenters: internal error");
         }
 
 
@@ -32908,9 +32908,9 @@ public partial class alglib
             double v = 0;
             int i_ = 0;
 
-            alglib.ap.assert(npoints >= 1, "FixCenters: internal error");
-            alglib.ap.assert(nvars >= 1, "FixCenters: internal error");
-            alglib.ap.assert(k >= 1, "FixCenters: internal error");
+            ap.assert(npoints >= 1, "FixCenters: internal error");
+            ap.assert(nvars >= 1, "FixCenters: internal error");
+            ap.assert(k >= 1, "FixCenters: internal error");
 
             //
             // Calculate distances from points to best centers (RA0)
@@ -33098,7 +33098,7 @@ public partial class alglib
                         v = d[i, j];
                     }
                 }
-                alglib.ap.assert((double)(v) < (double)(math.maxrealnumber), "ClusterizerRunAHC: internal error");
+                ap.assert((double)(v) < (double)(math.maxrealnumber), "ClusterizerRunAHC: internal error");
                 nnidx[i] = k;
             }
 
@@ -33161,7 +33161,7 @@ public partial class alglib
                         }
                     }
                 }
-                alglib.ap.assert((double)(d01) < (double)(math.maxrealnumber), "ClusterizerRunAHC: internal error");
+                ap.assert((double)(d01) < (double)(math.maxrealnumber), "ClusterizerRunAHC: internal error");
                 if (cidx[c0] > cidx[c1])
                 {
                     i = c1;
@@ -33185,7 +33185,7 @@ public partial class alglib
                 // NOTE: it is important to update distance matrix BEFORE CIdx/CSizes
                 //       are updated.
                 //
-                alglib.ap.assert((((s.ahcalgo == 0 || s.ahcalgo == 1) || s.ahcalgo == 2) || s.ahcalgo == 3) || s.ahcalgo == 4, "ClusterizerRunAHC: internal error");
+                ap.assert((((s.ahcalgo == 0 || s.ahcalgo == 1) || s.ahcalgo == 2) || s.ahcalgo == 3) || s.ahcalgo == 4, "ClusterizerRunAHC: internal error");
                 for (i = 0; i <= npoints - 1; i++)
                 {
                     if (i != c0 && i != c1)
@@ -33268,7 +33268,7 @@ public partial class alglib
                                     v = d[i, j];
                                 }
                             }
-                            alglib.ap.assert((double)(v) < (double)(math.maxrealnumber) || mergeidx == npoints - 2, "ClusterizerRunAHC: internal error");
+                            ap.assert((double)(v) < (double)(math.maxrealnumber) || mergeidx == npoints - 2, "ClusterizerRunAHC: internal error");
                             nnidx[i] = k;
                         }
                     }
@@ -33283,7 +33283,7 @@ public partial class alglib
                         v = d[c0, j];
                     }
                 }
-                alglib.ap.assert((double)(v) < (double)(math.maxrealnumber) || mergeidx == npoints - 2, "ClusterizerRunAHC: internal error");
+                ap.assert((double)(v) < (double)(math.maxrealnumber) || mergeidx == npoints - 2, "ClusterizerRunAHC: internal error");
                 nnidx[c0] = k;
             }
 
@@ -33352,7 +33352,7 @@ public partial class alglib
             }
             for (i = 0; i <= npoints - 1; i++)
             {
-                alglib.ap.assert(cinfo[i, 1] == cinfo[i, 2]);
+                ap.assert(cinfo[i, 1] == cinfo[i, 2]);
                 rep.p[i] = cinfo[i, 1];
             }
 
@@ -33428,7 +33428,7 @@ public partial class alglib
             double v = 0;
             double vv = 0;
 
-            alglib.ap.assert(disttype == 0 || disttype == 1, "EvaluateDistanceMatrixRec: incorrect DistType");
+            ap.assert(disttype == 0 || disttype == 1, "EvaluateDistanceMatrixRec: incorrect DistType");
 
             //
             // Normalize J0/J1:
@@ -33669,11 +33669,11 @@ public partial class alglib
             double sigma2 = 0;
             int i_ = 0;
 
-            alglib.ap.assert(nvars >= 1, "LRBuild: NVars<1");
-            alglib.ap.assert(npoints > nvars + 1, "LRBuild: NPoints is less than NVars+1");
-            alglib.ap.assert(alglib.ap.rows(xy) >= npoints, "LRBuild: rows(XY)<NPoints");
-            alglib.ap.assert(alglib.ap.cols(xy) >= nvars + 1, "LRBuild: cols(XY)<NVars+1");
-            alglib.ap.assert(apserv.apservisfinitematrix(xy, npoints, nvars + 1, _params), "LRBuild: XY contains INF/NAN");
+            ap.assert(nvars >= 1, "LRBuild: NVars<1");
+            ap.assert(npoints > nvars + 1, "LRBuild: NPoints is less than NVars+1");
+            ap.assert(ap.rows(xy) >= npoints, "LRBuild: rows(XY)<NPoints");
+            ap.assert(ap.cols(xy) >= nvars + 1, "LRBuild: cols(XY)<NVars+1");
+            ap.assert(apserv.apservisfinitematrix(xy, npoints, nvars + 1, _params), "LRBuild: XY contains INF/NAN");
             ablasf.rsetallocv(npoints, 1.0, ref s, _params);
             lrbuilds(xy, s, npoints, nvars, lm, rep, _params);
             sigma2 = math.sqr(rep.rmserror) * npoints / (npoints - nvars - 1);
@@ -33732,16 +33732,16 @@ public partial class alglib
             double kurtosis = 0;
             int i_ = 0;
 
-            alglib.ap.assert(nvars >= 1, "LRBuildS: NVars<1");
-            alglib.ap.assert(npoints > nvars + 1, "LRBuildS: NPoints is less than NVars+1");
-            alglib.ap.assert(alglib.ap.rows(xy) >= npoints, "LRBuildS: rows(XY)<NPoints");
-            alglib.ap.assert(alglib.ap.cols(xy) >= nvars + 1, "LRBuildS: cols(XY)<NVars+1");
-            alglib.ap.assert(alglib.ap.len(s) >= npoints, "LRBuildS: length(S)<NPoints");
-            alglib.ap.assert(apserv.apservisfinitematrix(xy, npoints, nvars + 1, _params), "LRBuildS: XY contains INF/NAN");
-            alglib.ap.assert(apserv.isfinitevector(s, npoints, _params), "LRBuildS: S contains INF/NAN");
+            ap.assert(nvars >= 1, "LRBuildS: NVars<1");
+            ap.assert(npoints > nvars + 1, "LRBuildS: NPoints is less than NVars+1");
+            ap.assert(ap.rows(xy) >= npoints, "LRBuildS: rows(XY)<NPoints");
+            ap.assert(ap.cols(xy) >= nvars + 1, "LRBuildS: cols(XY)<NVars+1");
+            ap.assert(ap.len(s) >= npoints, "LRBuildS: length(S)<NPoints");
+            ap.assert(apserv.apservisfinitematrix(xy, npoints, nvars + 1, _params), "LRBuildS: XY contains INF/NAN");
+            ap.assert(apserv.isfinitevector(s, npoints, _params), "LRBuildS: S contains INF/NAN");
             for (i = 0; i <= npoints - 1; i++)
             {
-                alglib.ap.assert((double)(s[i]) > (double)(0), "LRBuildS: S[I]<=0");
+                ap.assert((double)(s[i]) > (double)(0), "LRBuildS: S[I]<=0");
             }
 
             //
@@ -33858,16 +33858,16 @@ public partial class alglib
             double kurtosis = 0;
             int i_ = 0;
 
-            alglib.ap.assert(nvars >= 1, "LRBuildZS: NVars<1");
-            alglib.ap.assert(npoints > nvars + 1, "LRBuildZS: NPoints is less than NVars+1");
-            alglib.ap.assert(alglib.ap.rows(xy) >= npoints, "LRBuildZS: rows(XY)<NPoints");
-            alglib.ap.assert(alglib.ap.cols(xy) >= nvars + 1, "LRBuildZS: cols(XY)<NVars+1");
-            alglib.ap.assert(alglib.ap.len(s) >= npoints, "LRBuildZS: length(S)<NPoints");
-            alglib.ap.assert(apserv.apservisfinitematrix(xy, npoints, nvars + 1, _params), "LRBuildZS: XY contains INF/NAN");
-            alglib.ap.assert(apserv.isfinitevector(s, npoints, _params), "LRBuildZS: S contains INF/NAN");
+            ap.assert(nvars >= 1, "LRBuildZS: NVars<1");
+            ap.assert(npoints > nvars + 1, "LRBuildZS: NPoints is less than NVars+1");
+            ap.assert(ap.rows(xy) >= npoints, "LRBuildZS: rows(XY)<NPoints");
+            ap.assert(ap.cols(xy) >= nvars + 1, "LRBuildZS: cols(XY)<NVars+1");
+            ap.assert(ap.len(s) >= npoints, "LRBuildZS: length(S)<NPoints");
+            ap.assert(apserv.apservisfinitematrix(xy, npoints, nvars + 1, _params), "LRBuildZS: XY contains INF/NAN");
+            ap.assert(apserv.isfinitevector(s, npoints, _params), "LRBuildZS: S contains INF/NAN");
             for (i = 0; i <= npoints - 1; i++)
             {
-                alglib.ap.assert((double)(s[i]) > (double)(0), "LRBuildZS: S[I]<=0");
+                ap.assert((double)(s[i]) > (double)(0), "LRBuildZS: S[I]<=0");
             }
 
             //
@@ -33974,11 +33974,11 @@ public partial class alglib
             double sigma2 = 0;
             int i_ = 0;
 
-            alglib.ap.assert(nvars >= 1, "LRBuildZ: NVars<1");
-            alglib.ap.assert(npoints > nvars + 1, "LRBuildZ: NPoints is less than NVars+1");
-            alglib.ap.assert(alglib.ap.rows(xy) >= npoints, "LRBuildZ: rows(XY)<NPoints");
-            alglib.ap.assert(alglib.ap.cols(xy) >= nvars + 1, "LRBuildZ: cols(XY)<NVars+1");
-            alglib.ap.assert(apserv.apservisfinitematrix(xy, npoints, nvars + 1, _params), "LRBuildZ: XY contains INF/NAN");
+            ap.assert(nvars >= 1, "LRBuildZ: NVars<1");
+            ap.assert(npoints > nvars + 1, "LRBuildZ: NPoints is less than NVars+1");
+            ap.assert(ap.rows(xy) >= npoints, "LRBuildZ: rows(XY)<NPoints");
+            ap.assert(ap.cols(xy) >= nvars + 1, "LRBuildZ: cols(XY)<NVars+1");
+            ap.assert(apserv.apservisfinitematrix(xy, npoints, nvars + 1, _params), "LRBuildZ: XY contains INF/NAN");
             s = new double[npoints - 1 + 1];
             for (i = 0; i <= npoints - 1; i++)
             {
@@ -34023,7 +34023,7 @@ public partial class alglib
             v = new double[0];
             nvars = 0;
 
-            alglib.ap.assert((int)Math.Round(lm.w[1]) == lrvnum, "LINREG: Incorrect LINREG version!");
+            ap.assert((int)Math.Round(lm.w[1]) == lrvnum, "LINREG: Incorrect LINREG version!");
             nvars = (int)Math.Round(lm.w[2]);
             offs = (int)Math.Round(lm.w[3]);
             v = new double[nvars + 1];
@@ -34058,8 +34058,8 @@ public partial class alglib
             int i_ = 0;
             int i1_ = 0;
 
-            alglib.ap.assert(alglib.ap.len(v) >= nvars + 1, "LRPack: length(V)<NVars+1");
-            alglib.ap.assert(apserv.isfinitevector(v, nvars + 1, _params), "LRPack: V contains INF/NAN");
+            ap.assert(ap.len(v) >= nvars + 1, "LRPack: length(V)<NVars+1");
+            ap.assert(apserv.isfinitevector(v, nvars + 1, _params), "LRPack: V contains INF/NAN");
             lm.w = new double[4 + nvars + 1];
             offs = 4;
             lm.w[0] = 4 + nvars + 1;
@@ -34098,7 +34098,7 @@ public partial class alglib
             int i_ = 0;
             int i1_ = 0;
 
-            alglib.ap.assert((int)Math.Round(lm.w[1]) == lrvnum, "LINREG: Incorrect LINREG version!");
+            ap.assert((int)Math.Round(lm.w[1]) == lrvnum, "LINREG: Incorrect LINREG version!");
             nvars = (int)Math.Round(lm.w[2]);
             offs = (int)Math.Round(lm.w[3]);
             i1_ = (offs) - (0);
@@ -34139,7 +34139,7 @@ public partial class alglib
             int i_ = 0;
             int i1_ = 0;
 
-            alglib.ap.assert((int)Math.Round(lm.w[1]) == lrvnum, "LINREG: Incorrect LINREG version!");
+            ap.assert((int)Math.Round(lm.w[1]) == lrvnum, "LINREG: Incorrect LINREG version!");
             nvars = (int)Math.Round(lm.w[2]);
             offs = (int)Math.Round(lm.w[3]);
             result = 0;
@@ -34186,7 +34186,7 @@ public partial class alglib
             int i_ = 0;
             int i1_ = 0;
 
-            alglib.ap.assert((int)Math.Round(lm.w[1]) == lrvnum, "LINREG: Incorrect LINREG version!");
+            ap.assert((int)Math.Round(lm.w[1]) == lrvnum, "LINREG: Incorrect LINREG version!");
             nvars = (int)Math.Round(lm.w[2]);
             offs = (int)Math.Round(lm.w[3]);
             result = 0;
@@ -34234,7 +34234,7 @@ public partial class alglib
             int i_ = 0;
             int i1_ = 0;
 
-            alglib.ap.assert((int)Math.Round(lm.w[1]) == lrvnum, "LINREG: Incorrect LINREG version!");
+            ap.assert((int)Math.Round(lm.w[1]) == lrvnum, "LINREG: Incorrect LINREG version!");
             nvars = (int)Math.Round(lm.w[2]);
             offs = (int)Math.Round(lm.w[3]);
             result = 0;
@@ -34323,14 +34323,14 @@ public partial class alglib
 
             if (n < 2)
             {
-                alglib.ap.assert(false, "LINREG: 7129");
+                ap.assert(false, "LINREG: 7129");
                 return;
             }
             for (i = 0; i <= n - 1; i++)
             {
                 if ((double)(s[i]) <= (double)(0))
                 {
-                    alglib.ap.assert(false, "LINREG: 7729");
+                    ap.assert(false, "LINREG: 7729");
                     return;
                 }
             }
@@ -34359,7 +34359,7 @@ public partial class alglib
             e2 = 0.5 * (ss + sxx - t);
             if ((double)(Math.Min(e1, e2)) <= (double)(1000 * math.machineepsilon * Math.Max(e1, e2)))
             {
-                alglib.ap.assert(false, "LINREG: 4929");
+                ap.assert(false, "LINREG: 4929");
                 return;
             }
 
@@ -34424,7 +34424,7 @@ public partial class alglib
 
             if (n < 2)
             {
-                alglib.ap.assert(false, "LINREG: 3329");
+                ap.assert(false, "LINREG: 3329");
                 return;
             }
             s = new double[n - 1 + 1];
@@ -34477,10 +34477,10 @@ public partial class alglib
             //
             // Check for errors in data
             //
-            alglib.ap.assert(!(npoints < nvars || nvars < 1), "LINREG: integrity check 3057 failed");
+            ap.assert(!(npoints < nvars || nvars < 1), "LINREG: integrity check 3057 failed");
             for (i = 0; i <= npoints - 1; i++)
             {
-                alglib.ap.assert((double)(s[i]) > (double)(0), "LINREG: integrity check 3057 failed");
+                ap.assert((double)(s[i]) > (double)(0), "LINREG: integrity check 3057 failed");
             }
 
             //
@@ -34529,7 +34529,7 @@ public partial class alglib
             vm = new double[nvars - 1 + 1, nvars - 1 + 1];
             if (!svd.rmatrixsvd(a, npoints, nvars, 1, 1, 2, ref sv, ref u, ref vt, _params))
             {
-                alglib.ap.assert(false, "LINREG: SVD solver failed");
+                ap.assert(false, "LINREG: SVD solver failed");
             }
             if ((double)(sv[0]) <= (double)(0))
             {
@@ -34641,7 +34641,7 @@ public partial class alglib
                         return;
                     }
                 }
-                alglib.ap.assert(false, "LINREG: integrity check 7801 failed");
+                ap.assert(false, "LINREG: integrity check 7801 failed");
             }
             for (i = 0; i <= nvars - 1; i++)
             {
@@ -34805,7 +34805,7 @@ public partial class alglib
                 // Something strange: ALL ui are degenerate.
                 // Unexpected...
                 //
-                alglib.ap.assert(false, "LINREG: integrity check 0301 failed");
+                ap.assert(false, "LINREG: integrity check 0301 failed");
             }
             ar.rmserror = Math.Sqrt(ar.rmserror / npoints);
             ar.avgerror = ar.avgerror / npoints;
@@ -35136,7 +35136,7 @@ public partial class alglib
             int i_ = 0;
             int i1_ = 0;
 
-            alglib.ap.assert(ensemblesize > 0, "MLPECreate: incorrect ensemble size!");
+            ap.assert(ensemblesize > 0, "MLPECreate: incorrect ensemble size!");
 
             //
             // Copy network
@@ -35337,7 +35337,7 @@ public partial class alglib
             int i_ = 0;
             int i1_ = 0;
 
-            if (alglib.ap.len(y) < mlpbase.mlpgetoutputscount(ensemble.network, _params))
+            if (ap.len(y) < mlpbase.mlpgetoutputscount(ensemble.network, _params))
             {
                 y = new double[mlpbase.mlpgetoutputscount(ensemble.network, _params)];
             }
@@ -35448,7 +35448,7 @@ public partial class alglib
             //
             // Retrieve buffer, prepare, process data, recycle buffer
             //
-            alglib.smp.ae_shared_pool_retrieve(buf, ref pbuf);
+            smp.ae_shared_pool_retrieve(buf, ref pbuf);
             if (iscls)
             {
                 bdss.dserrallocate(nout, ref pbuf.tmp0, _params);
@@ -35471,7 +35471,7 @@ public partial class alglib
                 {
                     srcidx = idx[i];
                 }
-                alglib.ap.assert(srcidx >= 0, "MLPEAllErrorsX: internal error");
+                ap.assert(srcidx >= 0, "MLPEAllErrorsX: internal error");
                 if (datasettype == 0)
                 {
                     for (i_ = 0; i_ <= nin - 1; i_++)
@@ -35521,7 +35521,7 @@ public partial class alglib
             rep.rmserror = pbuf.tmp0[2];
             rep.avgerror = pbuf.tmp0[3];
             rep.avgrelerror = pbuf.tmp0[4];
-            alglib.smp.ae_shared_pool_recycle(buf, ref pbuf);
+            smp.ae_shared_pool_recycle(buf, ref pbuf);
         }
 
 
@@ -35801,9 +35801,9 @@ public partial class alglib
             // check correctness of header
             //
             i0 = s.unserialize_int();
-            alglib.ap.assert(i0 == scodes.getmlpeserializationcode(_params), "MLPEUnserialize: stream header corrupted");
+            ap.assert(i0 == scodes.getmlpeserializationcode(_params), "MLPEUnserialize: stream header corrupted");
             i1 = s.unserialize_int();
-            alglib.ap.assert(i1 == mlpefirstversion, "MLPEUnserialize: stream header corrupted");
+            ap.assert(i1 == mlpefirstversion, "MLPEUnserialize: stream header corrupted");
 
             //
             // Create network
@@ -36051,7 +36051,7 @@ public partial class alglib
             int windowwidth,
             alglib.xparams _params)
         {
-            alglib.ap.assert(windowwidth >= 1, "SSASetWindow: WindowWidth<1");
+            ap.assert(windowwidth >= 1, "SSASetWindow: WindowWidth<1");
             if (windowwidth == s.windowwidth)
             {
                 return;
@@ -36119,7 +36119,7 @@ public partial class alglib
             int pwlen,
             alglib.xparams _params)
         {
-            alglib.ap.assert(pwlen >= 0, "SSASetPowerUpLength: PWLen<0");
+            ap.assert(pwlen >= 0, "SSASetPowerUpLength: PWLen<0");
             s.rtpowerup = Math.Max(pwlen, 1);
             s.arebasisandsolvervalid = false;
         }
@@ -36207,9 +36207,9 @@ public partial class alglib
             int i = 0;
             int offs = 0;
 
-            alglib.ap.assert(n >= 0, "SSAAddSequence: N<0");
-            alglib.ap.assert(alglib.ap.len(x) >= n, "SSAAddSequence: X is too short");
-            alglib.ap.assert(apserv.isfinitevector(x, n, _params), "SSAAddSequence: X contains infinities NANs");
+            ap.assert(n >= 0, "SSAAddSequence: N<0");
+            ap.assert(ap.len(x) >= n, "SSAAddSequence: X is too short");
+            ap.assert(apserv.isfinitevector(x, n, _params), "SSAAddSequence: X contains infinities NANs");
 
             //
             // Invalidate model
@@ -36295,10 +36295,10 @@ public partial class alglib
             double updateits,
             alglib.xparams _params)
         {
-            alglib.ap.assert(math.isfinite(x), "SSAAppendPointAndUpdate: X is not finite");
-            alglib.ap.assert(math.isfinite(updateits), "SSAAppendPointAndUpdate: UpdateIts is not finite");
-            alglib.ap.assert((double)(updateits) >= (double)(0), "SSAAppendPointAndUpdate: UpdateIts<0");
-            alglib.ap.assert(s.nsequences > 0, "SSAAppendPointAndUpdate: dataset is empty, no sequence to modify");
+            ap.assert(math.isfinite(x), "SSAAppendPointAndUpdate: X is not finite");
+            ap.assert(math.isfinite(updateits), "SSAAppendPointAndUpdate: UpdateIts is not finite");
+            ap.assert((double)(updateits) >= (double)(0), "SSAAppendPointAndUpdate: UpdateIts<0");
+            ap.assert(s.nsequences > 0, "SSAAppendPointAndUpdate: dataset is empty, no sequence to modify");
 
             //
             // Append point to dataset
@@ -36400,9 +36400,9 @@ public partial class alglib
             int i = 0;
             int offs = 0;
 
-            alglib.ap.assert(nticks >= 0, "SSAAppendSequenceAndUpdate: NTicks<0");
-            alglib.ap.assert(alglib.ap.len(x) >= nticks, "SSAAppendSequenceAndUpdate: X is too short");
-            alglib.ap.assert(apserv.isfinitevector(x, nticks, _params), "SSAAppendSequenceAndUpdate: X contains infinities NANs");
+            ap.assert(nticks >= 0, "SSAAppendSequenceAndUpdate: NTicks<0");
+            ap.assert(ap.len(x) >= nticks, "SSAAppendSequenceAndUpdate: X is too short");
+            ap.assert(apserv.isfinitevector(x, nticks, _params), "SSAAppendSequenceAndUpdate: X contains infinities NANs");
 
             //
             // Add sequence
@@ -36491,12 +36491,12 @@ public partial class alglib
             int i = 0;
             int j = 0;
 
-            alglib.ap.assert(windowwidth >= 1, "SSASetAlgoPrecomputed: WindowWidth<1");
-            alglib.ap.assert(nbasis >= 1, "SSASetAlgoPrecomputed: NBasis<1");
-            alglib.ap.assert(nbasis <= windowwidth, "SSASetAlgoPrecomputed: NBasis>WindowWidth");
-            alglib.ap.assert(alglib.ap.rows(a) >= windowwidth, "SSASetAlgoPrecomputed: Rows(A)<WindowWidth");
-            alglib.ap.assert(alglib.ap.cols(a) >= nbasis, "SSASetAlgoPrecomputed: Rows(A)<NBasis");
-            alglib.ap.assert(apserv.apservisfinitematrix(a, windowwidth, nbasis, _params), "SSASetAlgoPrecomputed: Rows(A)<NBasis");
+            ap.assert(windowwidth >= 1, "SSASetAlgoPrecomputed: WindowWidth<1");
+            ap.assert(nbasis >= 1, "SSASetAlgoPrecomputed: NBasis<1");
+            ap.assert(nbasis <= windowwidth, "SSASetAlgoPrecomputed: NBasis>WindowWidth");
+            ap.assert(ap.rows(a) >= windowwidth, "SSASetAlgoPrecomputed: Rows(A)<WindowWidth");
+            ap.assert(ap.cols(a) >= nbasis, "SSASetAlgoPrecomputed: Rows(A)<NBasis");
+            ap.assert(apserv.apservisfinitematrix(a, windowwidth, nbasis, _params), "SSASetAlgoPrecomputed: Rows(A)<NBasis");
             s.algotype = 1;
             s.precomputedwidth = windowwidth;
             s.precomputednbasis = nbasis;
@@ -36546,7 +36546,7 @@ public partial class alglib
             int topk,
             alglib.xparams _params)
         {
-            alglib.ap.assert(topk >= 1, "SSASetAlgoTopKDirect: TopK<1");
+            ap.assert(topk >= 1, "SSASetAlgoTopKDirect: TopK<1");
 
             //
             // Ignore calls which change nothing
@@ -36610,7 +36610,7 @@ public partial class alglib
             int topk,
             alglib.xparams _params)
         {
-            alglib.ap.assert(topk >= 1, "SSASetAlgoTopKRealTime: TopK<1");
+            ap.assert(topk >= 1, "SSASetAlgoTopKRealTime: TopK<1");
 
             //
             // Ignore calls which change nothing
@@ -36734,8 +36734,8 @@ public partial class alglib
             //
             // Output
             //
-            alglib.ap.assert(s.nbasis > 0, "SSAGetBasis: integrity check failed");
-            alglib.ap.assert(s.windowwidth > 0, "SSAGetBasis: integrity check failed");
+            ap.assert(s.nbasis > 0, "SSAGetBasis: integrity check failed");
+            ap.assert(s.windowwidth > 0, "SSAGetBasis: integrity check failed");
             nbasis = s.nbasis;
             windowwidth = s.windowwidth;
             a = new double[windowwidth, nbasis];
@@ -36796,7 +36796,7 @@ public partial class alglib
             a = new double[0];
             windowwidth = 0;
 
-            alglib.ap.assert(s.windowwidth > 0, "SSAGetLRR: integrity check failed");
+            ap.assert(s.windowwidth > 0, "SSAGetLRR: integrity check failed");
 
             //
             // Is it degenerate case?
@@ -36960,7 +36960,7 @@ public partial class alglib
             //
             // Perform analysis of the last window
             //
-            alglib.ap.assert(s.sequenceidx[s.nsequences] - s.windowwidth >= 0, "SSAAnalyzeLastWindow: integrity check failed");
+            ap.assert(s.sequenceidx[s.nsequences] - s.windowwidth >= 0, "SSAAnalyzeLastWindow: integrity check failed");
             apserv.rvectorsetlengthatleast(ref s.tmp0, s.nbasis, _params);
             ablas.rmatrixgemv(s.nbasis, s.windowwidth, 1.0, s.basist, 0, 0, 0, s.sequencedata, s.sequenceidx[s.nsequences] - s.windowwidth, 0.0, s.tmp0, 0, _params);
             ablas.rmatrixgemv(s.windowwidth, s.nbasis, 1.0, s.basis, 0, 0, 0, s.tmp0, 0, 0.0, trend, 0, _params);
@@ -37077,7 +37077,7 @@ public partial class alglib
             trend = new double[0];
             noise = new double[0];
 
-            alglib.ap.assert(nticks >= 1, "SSAAnalyzeLast: NTicks<1");
+            ap.assert(nticks >= 1, "SSAAnalyzeLast: NTicks<1");
 
             //
             // Init
@@ -37137,7 +37137,7 @@ public partial class alglib
             // * analyze the rest with AnalyzeSequence() which assumes that we
             //   already have basis
             //
-            alglib.ap.assert(s.sequenceidx[s.nsequences] - s.sequenceidx[s.nsequences - 1] >= s.windowwidth, "SSAAnalyzeLast: integrity check failed / 23vd4");
+            ap.assert(s.sequenceidx[s.nsequences] - s.sequenceidx[s.nsequences - 1] >= s.windowwidth, "SSAAnalyzeLast: integrity check failed / 23vd4");
             cntzeros = Math.Max(nticks - (s.sequenceidx[s.nsequences] - s.sequenceidx[s.nsequences - 1]), 0);
             for (i = 0; i <= cntzeros - 1; i++)
             {
@@ -37234,9 +37234,9 @@ public partial class alglib
             trend = new double[0];
             noise = new double[0];
 
-            alglib.ap.assert(nticks >= 1, "SSAAnalyzeSequence: NTicks<1");
-            alglib.ap.assert(alglib.ap.len(data) >= nticks, "SSAAnalyzeSequence: Data is too short");
-            alglib.ap.assert(apserv.isfinitevector(data, nticks, _params), "SSAAnalyzeSequence: Data contains infinities NANs");
+            ap.assert(nticks >= 1, "SSAAnalyzeSequence: NTicks<1");
+            ap.assert(ap.len(data) >= nticks, "SSAAnalyzeSequence: Data is too short");
+            ap.assert(apserv.isfinitevector(data, nticks, _params), "SSAAnalyzeSequence: Data contains infinities NANs");
 
             //
             // Init
@@ -37357,7 +37357,7 @@ public partial class alglib
 
             trend = new double[0];
 
-            alglib.ap.assert(nticks >= 1, "SSAForecast: NTicks<1");
+            ap.assert(nticks >= 1, "SSAForecast: NTicks<1");
 
             //
             // Init
@@ -37376,7 +37376,7 @@ public partial class alglib
                 }
                 return;
             }
-            alglib.ap.assert(s.nsequences > 0, "SSAForecastLast: integrity check failed");
+            ap.assert(s.nsequences > 0, "SSAForecastLast: integrity check failed");
             if (s.sequenceidx[s.nsequences] - s.sequenceidx[s.nsequences - 1] < winw)
             {
                 for (i = 0; i <= nticks - 1; i++)
@@ -37387,8 +37387,8 @@ public partial class alglib
             }
             if (winw == 1)
             {
-                alglib.ap.assert(s.nsequences > 0, "SSAForecast: integrity check failed / 2355");
-                alglib.ap.assert(s.sequenceidx[s.nsequences] - s.sequenceidx[s.nsequences - 1] > 0, "SSAForecast: integrity check failed");
+                ap.assert(s.nsequences > 0, "SSAForecast: integrity check failed / 2355");
+                ap.assert(s.sequenceidx[s.nsequences] - s.sequenceidx[s.nsequences - 1] > 0, "SSAForecast: integrity check failed");
                 for (i = 0; i <= nticks - 1; i++)
                 {
                     trend[i] = s.sequencedata[s.sequenceidx[s.nsequences] - 1];
@@ -37403,7 +37403,7 @@ public partial class alglib
             // that we perform initial basis evaluation.
             //
             updatebasis(s, 0, 0.0, _params);
-            alglib.ap.assert(s.nbasis <= winw && s.nbasis > 0, "SSAForecast: integrity check failed / 4f5et");
+            ap.assert(s.nbasis <= winw && s.nbasis > 0, "SSAForecast: integrity check failed / 4f5et");
             if (s.nbasis == winw)
             {
 
@@ -37411,8 +37411,8 @@ public partial class alglib
                 // Handle degenerate situation with basis whose size
                 // is equal to window length.
                 //
-                alglib.ap.assert(s.nsequences > 0, "SSAForecast: integrity check failed / 2355");
-                alglib.ap.assert(s.sequenceidx[s.nsequences] - s.sequenceidx[s.nsequences - 1] > 0, "SSAForecast: integrity check failed");
+                ap.assert(s.nsequences > 0, "SSAForecast: integrity check failed / 2355");
+                ap.assert(s.sequenceidx[s.nsequences] - s.sequenceidx[s.nsequences - 1] > 0, "SSAForecast: integrity check failed");
                 for (i = 0; i <= nticks - 1; i++)
                 {
                     trend[i] = s.sequencedata[s.sequenceidx[s.nsequences] - 1];
@@ -37425,8 +37425,8 @@ public partial class alglib
             // * first, perform smoothing of the last window
             // * second, perform analysis phase
             //
-            alglib.ap.assert(s.nsequences > 0, "SSAForecastLast: integrity check failed");
-            alglib.ap.assert(s.sequenceidx[s.nsequences] - s.sequenceidx[s.nsequences - 1] >= s.windowwidth, "SSAForecastLast: integrity check failed");
+            ap.assert(s.nsequences > 0, "SSAForecastLast: integrity check failed");
+            ap.assert(s.sequenceidx[s.nsequences] - s.sequenceidx[s.nsequences - 1] >= s.windowwidth, "SSAForecastLast: integrity check failed");
             apserv.rvectorsetlengthatleast(ref s.tmp0, s.nbasis, _params);
             apserv.rvectorsetlengthatleast(ref s.fctrend, s.windowwidth, _params);
             ablas.rmatrixgemv(s.nbasis, s.windowwidth, 1.0, s.basist, 0, 0, 0, s.sequencedata, s.sequenceidx[s.nsequences] - s.windowwidth, 0.0, s.tmp0, 0, _params);
@@ -37541,10 +37541,10 @@ public partial class alglib
 
             trend = new double[0];
 
-            alglib.ap.assert(datalen >= 1, "SSAForecastSequence: DataLen<1");
-            alglib.ap.assert(alglib.ap.len(data) >= datalen, "SSAForecastSequence: Data is too short");
-            alglib.ap.assert(apserv.isfinitevector(data, datalen, _params), "SSAForecastSequence: Data contains infinities NANs");
-            alglib.ap.assert(forecastlen >= 1, "SSAForecastSequence: ForecastLen<1");
+            ap.assert(datalen >= 1, "SSAForecastSequence: DataLen<1");
+            ap.assert(ap.len(data) >= datalen, "SSAForecastSequence: Data is too short");
+            ap.assert(apserv.isfinitevector(data, datalen, _params), "SSAForecastSequence: Data contains infinities NANs");
+            ap.assert(forecastlen >= 1, "SSAForecastSequence: ForecastLen<1");
 
             //
             // Init
@@ -37579,7 +37579,7 @@ public partial class alglib
             // that we perform initial basis evaluation.
             //
             updatebasis(s, 0, 0.0, _params);
-            alglib.ap.assert(s.nbasis <= winw && s.nbasis > 0, "SSAForecast: integrity check failed / 4f5et");
+            ap.assert(s.nbasis <= winw && s.nbasis > 0, "SSAForecast: integrity check failed / 4f5et");
             if (s.nbasis == winw)
             {
 
@@ -37600,7 +37600,7 @@ public partial class alglib
             apserv.rvectorsetlengthatleast(ref s.fctrend, s.windowwidth, _params);
             if (applysmoothing)
             {
-                alglib.ap.assert(datalen >= winw, "SSAForecastSequence: integrity check failed");
+                ap.assert(datalen >= winw, "SSAForecastSequence: integrity check failed");
                 apserv.rvectorsetlengthatleast(ref s.tmp0, s.nbasis, _params);
                 ablas.rmatrixgemv(s.nbasis, winw, 1.0, s.basist, 0, 0, 0, data, datalen - winw, 0.0, s.tmp0, 0, _params);
                 ablas.rmatrixgemv(winw, s.nbasis, 1.0, s.basis, 0, 0, 0, s.tmp0, 0, 0.0, s.fctrend, 0, _params);
@@ -37723,8 +37723,8 @@ public partial class alglib
 
             trend = new double[0];
 
-            alglib.ap.assert(nticks >= 1, "SSAForecastAvgLast: NTicks<1");
-            alglib.ap.assert(m >= 1, "SSAForecastAvgLast: M<1");
+            ap.assert(nticks >= 1, "SSAForecastAvgLast: NTicks<1");
+            ap.assert(m >= 1, "SSAForecastAvgLast: M<1");
 
             //
             // Init
@@ -37743,7 +37743,7 @@ public partial class alglib
                 }
                 return;
             }
-            alglib.ap.assert(s.nsequences > 0, "SSAForecastAvgLast: integrity check failed");
+            ap.assert(s.nsequences > 0, "SSAForecastAvgLast: integrity check failed");
             if (s.sequenceidx[s.nsequences] - s.sequenceidx[s.nsequences - 1] < winw)
             {
                 for (i = 0; i <= nticks - 1; i++)
@@ -37754,8 +37754,8 @@ public partial class alglib
             }
             if (winw == 1)
             {
-                alglib.ap.assert(s.nsequences > 0, "SSAForecastAvgLast: integrity check failed / 2355");
-                alglib.ap.assert(s.sequenceidx[s.nsequences] - s.sequenceidx[s.nsequences - 1] > 0, "SSAForecastAvgLast: integrity check failed");
+                ap.assert(s.nsequences > 0, "SSAForecastAvgLast: integrity check failed / 2355");
+                ap.assert(s.sequenceidx[s.nsequences] - s.sequenceidx[s.nsequences - 1] > 0, "SSAForecastAvgLast: integrity check failed");
                 for (i = 0; i <= nticks - 1; i++)
                 {
                     trend[i] = s.sequencedata[s.sequenceidx[s.nsequences] - 1];
@@ -37770,7 +37770,7 @@ public partial class alglib
             // that we perform initial basis evaluation.
             //
             updatebasis(s, 0, 0.0, _params);
-            alglib.ap.assert(s.nbasis <= winw && s.nbasis > 0, "SSAForecastAvgLast: integrity check failed / 4f5et");
+            ap.assert(s.nbasis <= winw && s.nbasis > 0, "SSAForecastAvgLast: integrity check failed / 4f5et");
             if (s.nbasis == winw)
             {
 
@@ -37778,8 +37778,8 @@ public partial class alglib
                 // Handle degenerate situation with basis whose size
                 // is equal to window length.
                 //
-                alglib.ap.assert(s.nsequences > 0, "SSAForecastAvgLast: integrity check failed / 2355");
-                alglib.ap.assert(s.sequenceidx[s.nsequences] - s.sequenceidx[s.nsequences - 1] > 0, "SSAForecastAvgLast: integrity check failed");
+                ap.assert(s.nsequences > 0, "SSAForecastAvgLast: integrity check failed / 2355");
+                ap.assert(s.sequenceidx[s.nsequences] - s.sequenceidx[s.nsequences - 1] > 0, "SSAForecastAvgLast: integrity check failed");
                 for (i = 0; i <= nticks - 1; i++)
                 {
                     trend[i] = s.sequencedata[s.sequenceidx[s.nsequences] - 1];
@@ -37792,7 +37792,7 @@ public partial class alglib
             // Forecast.
             //
             m = Math.Min(m, s.sequenceidx[s.nsequences] - s.sequenceidx[s.nsequences - 1] - winw + 1);
-            alglib.ap.assert(m >= 1, "SSAForecastAvgLast: integrity check failed");
+            ap.assert(m >= 1, "SSAForecastAvgLast: integrity check failed");
             forecastavgsequence(s, s.sequencedata, s.sequenceidx[s.nsequences - 1], s.sequenceidx[s.nsequences], m, nticks, true, trend, 0, _params);
         }
 
@@ -37890,11 +37890,11 @@ public partial class alglib
 
             trend = new double[0];
 
-            alglib.ap.assert(datalen >= 1, "SSAForecastAvgSequence: DataLen<1");
-            alglib.ap.assert(m >= 1, "SSAForecastAvgSequence: M<1");
-            alglib.ap.assert(alglib.ap.len(data) >= datalen, "SSAForecastAvgSequence: Data is too short");
-            alglib.ap.assert(apserv.isfinitevector(data, datalen, _params), "SSAForecastAvgSequence: Data contains infinities NANs");
-            alglib.ap.assert(forecastlen >= 1, "SSAForecastAvgSequence: ForecastLen<1");
+            ap.assert(datalen >= 1, "SSAForecastAvgSequence: DataLen<1");
+            ap.assert(m >= 1, "SSAForecastAvgSequence: M<1");
+            ap.assert(ap.len(data) >= datalen, "SSAForecastAvgSequence: Data is too short");
+            ap.assert(apserv.isfinitevector(data, datalen, _params), "SSAForecastAvgSequence: Data contains infinities NANs");
+            ap.assert(forecastlen >= 1, "SSAForecastAvgSequence: ForecastLen<1");
 
             //
             // Init
@@ -37929,7 +37929,7 @@ public partial class alglib
             // that we perform initial basis evaluation.
             //
             updatebasis(s, 0, 0.0, _params);
-            alglib.ap.assert(s.nbasis <= winw && s.nbasis > 0, "SSAForecast: integrity check failed / 4f5et");
+            ap.assert(s.nbasis <= winw && s.nbasis > 0, "SSAForecast: integrity check failed / 4f5et");
             if (s.nbasis == winw)
             {
 
@@ -37949,7 +37949,7 @@ public partial class alglib
             // Forecast.
             //
             m = Math.Min(m, datalen - winw + 1);
-            alglib.ap.assert(m >= 1, "SSAForecastAvgLast: integrity check failed");
+            ap.assert(m >= 1, "SSAForecastAvgLast: integrity check failed");
             forecastavgsequence(s, data, 0, datalen, m, forecastlen, applysmoothing, trend, 0, _params);
         }
 
@@ -38002,7 +38002,7 @@ public partial class alglib
         {
             bool result = new();
 
-            alglib.ap.assert(i >= -1 && i < s.nsequences);
+            ap.assert(i >= -1 && i < s.nsequences);
             result = false;
             if (s.nsequences == 0)
             {
@@ -38078,9 +38078,9 @@ public partial class alglib
             //
             // Critical checks
             //
-            alglib.ap.assert(appendlen >= 0, "SSA: incorrect parameters passed to UpdateBasis(), integrity check failed");
-            alglib.ap.assert(!(!s.arebasisandsolvervalid && appendlen != 0), "SSA: incorrect parameters passed to UpdateBasis(), integrity check failed");
-            alglib.ap.assert(!(appendlen == 0 && (double)(updateits) > (double)(0.0)), "SSA: incorrect parameters passed to UpdateBasis(), integrity check failed");
+            ap.assert(appendlen >= 0, "SSA: incorrect parameters passed to UpdateBasis(), integrity check failed");
+            ap.assert(!(!s.arebasisandsolvervalid && appendlen != 0), "SSA: incorrect parameters passed to UpdateBasis(), integrity check failed");
+            ap.assert(!(appendlen == 0 && (double)(updateits) > (double)(0.0)), "SSA: incorrect parameters passed to UpdateBasis(), integrity check failed");
 
             //
             // Everything is OK, nothing to do
@@ -38116,7 +38116,7 @@ public partial class alglib
             //
             if (!s.arebasisandsolvervalid)
             {
-                alglib.ap.assert(appendlen == 0, "SSA: integrity check failed / 34cx6");
+                ap.assert(appendlen == 0, "SSA: integrity check failed / 34cx6");
                 if (s.algotype == 2)
                 {
 
@@ -38130,7 +38130,7 @@ public partial class alglib
                     {
                         windowstotal = windowstotal + Math.Max(s.sequenceidx[i + 1] - s.sequenceidx[i] - winw + 1, 0);
                     }
-                    alglib.ap.assert(windowstotal > 0, "SSA: integrity check in UpdateBasis() failed / 76t34");
+                    ap.assert(windowstotal > 0, "SSA: integrity check in UpdateBasis() failed / 76t34");
                     for (i = 0; i <= winw - 1; i++)
                     {
                         for (j = 0; j <= winw - 1; j++)
@@ -38163,7 +38163,7 @@ public partial class alglib
                     {
                         windowstotal = windowstotal + Math.Max(s.sequenceidx[i + 1] - s.sequenceidx[i] - winw + 1, 0);
                     }
-                    alglib.ap.assert(windowstotal > 0, "SSA: integrity check in UpdateBasis() failed / 76t34");
+                    ap.assert(windowstotal > 0, "SSA: integrity check in UpdateBasis() failed / 76t34");
                     apserv.ivectorsetlengthatleast(ref s.rtqueue, windowstotal, _params);
                     dstoffs = 0;
                     for (i = 0; i <= s.nsequences - 1; i++)
@@ -38175,7 +38175,7 @@ public partial class alglib
                             apserv.inc(ref dstoffs, _params);
                         }
                     }
-                    alglib.ap.assert(dstoffs == windowstotal, "SSA: integrity check in UpdateBasis() failed / fh45f");
+                    ap.assert(dstoffs == windowstotal, "SSA: integrity check in UpdateBasis() failed / fh45f");
                     if (s.rtpowerup > 1)
                     {
 
@@ -38206,9 +38206,9 @@ public partial class alglib
             //
             if (appendlen > 0)
             {
-                alglib.ap.assert(s.arebasisandsolvervalid, "SSA: integrity check failed / 5gvz3");
-                alglib.ap.assert(s.nsequences >= 1, "SSA: integrity check failed / 658ev");
-                alglib.ap.assert(appendlen == 1 || appendlen == s.sequenceidx[s.nsequences] - s.sequenceidx[s.nsequences - 1] - winw + 1, "SSA: integrity check failed / sd3g7");
+                ap.assert(s.arebasisandsolvervalid, "SSA: integrity check failed / 5gvz3");
+                ap.assert(s.nsequences >= 1, "SSA: integrity check failed / 658ev");
+                ap.assert(appendlen == 1 || appendlen == s.sequenceidx[s.nsequences] - s.sequenceidx[s.nsequences - 1] - winw + 1, "SSA: integrity check failed / sd3g7");
                 if (s.sequenceidx[s.nsequences] - s.sequenceidx[s.nsequences - 1] < winw)
                 {
 
@@ -38311,7 +38311,7 @@ public partial class alglib
                         s.nbasis = Math.Min(winw, s.topk);
                         if (!evd.smatrixevd(s.xxt, winw, 1, true, ref s.sv, ref s.basis, _params))
                         {
-                            alglib.ap.assert(false, "SSA: SMatrixEVD failed");
+                            ap.assert(false, "SSA: SMatrixEVD failed");
                         }
                         for (i = 0; i <= winw - 1; i++)
                         {
@@ -38362,14 +38362,14 @@ public partial class alglib
                         }
                         if (appendlen > 0)
                         {
-                            alglib.ap.assert(s.arebasisandsolvervalid, "SSA: integrity check in UpdateBasis() failed / srg6f");
-                            alglib.ap.assert((double)(updateits) >= (double)(0), "SSA: integrity check in UpdateBasis() failed / srg4f");
+                            ap.assert(s.arebasisandsolvervalid, "SSA: integrity check in UpdateBasis() failed / srg6f");
+                            ap.assert((double)(updateits) >= (double)(0), "SSA: integrity check in UpdateBasis() failed / srg4f");
                             subspaceits = (int)Math.Floor(updateits);
                             if ((double)(hqrnd.hqrnduniformr(s.rs, _params)) < (double)(updateits - (int)Math.Floor(updateits)))
                             {
                                 apserv.inc(ref subspaceits, _params);
                             }
-                            alglib.ap.assert(subspaceits >= 0, "SSA: integrity check in UpdateBasis() failed / srg9f");
+                            ap.assert(subspaceits >= 0, "SSA: integrity check in UpdateBasis() failed / srg9f");
                         }
 
                         //
@@ -38407,7 +38407,7 @@ public partial class alglib
                             while (evd.eigsubspaceooccontinue(s.solver, _params))
                             {
                                 evd.eigsubspaceoocgetrequestinfo(s.solver, ref requesttype, ref requestsize, _params);
-                                alglib.ap.assert(requesttype == 0, "SSA: integrity check in UpdateBasis() failed / 346372");
+                                ap.assert(requesttype == 0, "SSA: integrity check in UpdateBasis() failed / 346372");
                                 ablas.rmatrixgemm(winw, requestsize, winw, 1.0, s.xxt, 0, 0, 0, s.solver.x, 0, 0, 0, 0.0, s.solver.ax, 0, 0, _params);
                             }
                             evd.eigsubspaceoocstop(s.solver, ref s.sv, ref s.basis, s.solverrep, _params);
@@ -38421,7 +38421,7 @@ public partial class alglib
                     }
                     else
                     {
-                        alglib.ap.assert(false, "SSA: integrity check in UpdateBasis() failed / dfgs34");
+                        ap.assert(false, "SSA: integrity check in UpdateBasis() failed / dfgs34");
                     }
                 }
             }
@@ -38515,9 +38515,9 @@ public partial class alglib
             int batchlimit = 0;
             int batchsize = 0;
 
-            alglib.ap.assert(s.arebasisandsolvervalid, "AnalyzeSequence: integrity check failed / d84sz0");
-            alglib.ap.assert(i1 - i0 >= s.windowwidth, "AnalyzeSequence: integrity check failed / d84sz1");
-            alglib.ap.assert(s.nbasis >= 1, "AnalyzeSequence: integrity check failed / d84sz2");
+            ap.assert(s.arebasisandsolvervalid, "AnalyzeSequence: integrity check failed / d84sz0");
+            ap.assert(i1 - i0 >= s.windowwidth, "AnalyzeSequence: integrity check failed / d84sz1");
+            ap.assert(s.nbasis >= 1, "AnalyzeSequence: integrity check failed / d84sz2");
             nwindows = i1 - i0 - s.windowwidth + 1;
             winw = s.windowwidth;
             batchlimit = Math.Max(nwindows, 1);
@@ -38540,11 +38540,11 @@ public partial class alglib
             //
             // Reset temporaries if algorithm settings changed since last round
             //
-            if (alglib.ap.cols(s.aseqtrajectory) != winw)
+            if (ap.cols(s.aseqtrajectory) != winw)
             {
                 s.aseqtrajectory = new double[0, 0];
             }
-            if (alglib.ap.cols(s.aseqtbproduct) != s.nbasis)
+            if (ap.cols(s.aseqtbproduct) != s.nbasis)
             {
                 s.aseqtbproduct = new double[0, 0];
             }
@@ -38658,11 +38658,11 @@ public partial class alglib
             int k = 0;
             int winw = 0;
 
-            alglib.ap.assert(s.arebasisandsolvervalid, "ForecastAvgSequence: integrity check failed / d84sz0");
-            alglib.ap.assert(i1 - i0 - s.windowwidth + 1 >= m, "ForecastAvgSequence: integrity check failed / d84sz1");
-            alglib.ap.assert(s.nbasis >= 1, "ForecastAvgSequence: integrity check failed / d84sz2");
-            alglib.ap.assert(s.windowwidth >= 2, "ForecastAvgSequence: integrity check failed / 5tgdg5");
-            alglib.ap.assert(s.windowwidth > s.nbasis, "ForecastAvgSequence: integrity check failed / d5g56w");
+            ap.assert(s.arebasisandsolvervalid, "ForecastAvgSequence: integrity check failed / d84sz0");
+            ap.assert(i1 - i0 - s.windowwidth + 1 >= m, "ForecastAvgSequence: integrity check failed / d84sz1");
+            ap.assert(s.nbasis >= 1, "ForecastAvgSequence: integrity check failed / d84sz2");
+            ap.assert(s.windowwidth >= 2, "ForecastAvgSequence: integrity check failed / 5tgdg5");
+            ap.assert(s.windowwidth > s.nbasis, "ForecastAvgSequence: integrity check failed / d5g56w");
             winw = s.windowwidth;
 
             //
@@ -38760,11 +38760,11 @@ public partial class alglib
             int j = 0;
             int winw = 0;
 
-            alglib.ap.assert(cnt > 0, "SSA: RealTimeDequeue() integrity check failed / 43tdv");
-            alglib.ap.assert(math.isfinite(beta) && (double)(beta) >= (double)(0), "SSA: RealTimeDequeue() integrity check failed / 5gdg6");
-            alglib.ap.assert(cnt <= s.rtqueuecnt, "SSA: RealTimeDequeue() integrity check failed / 547yh");
-            alglib.ap.assert(alglib.ap.cols(s.xxt) >= s.windowwidth, "SSA: RealTimeDequeue() integrity check failed / 54bf4");
-            alglib.ap.assert(alglib.ap.rows(s.xxt) >= s.windowwidth, "SSA: RealTimeDequeue() integrity check failed / 9gdfn");
+            ap.assert(cnt > 0, "SSA: RealTimeDequeue() integrity check failed / 43tdv");
+            ap.assert(math.isfinite(beta) && (double)(beta) >= (double)(0), "SSA: RealTimeDequeue() integrity check failed / 5gdg6");
+            ap.assert(cnt <= s.rtqueuecnt, "SSA: RealTimeDequeue() integrity check failed / 547yh");
+            ap.assert(ap.cols(s.xxt) >= s.windowwidth, "SSA: RealTimeDequeue() integrity check failed / 54bf4");
+            ap.assert(ap.rows(s.xxt) >= s.windowwidth, "SSA: RealTimeDequeue() integrity check failed / 9gdfn");
             winw = s.windowwidth;
 
             //
@@ -38834,7 +38834,7 @@ public partial class alglib
             int memorylimit,
             alglib.xparams _params)
         {
-            alglib.ap.assert(windowwidth > 0, "UpdateXXTPrepare: WinW<=0");
+            ap.assert(windowwidth > 0, "UpdateXXTPrepare: WinW<=0");
             s.uxbatchlimit = Math.Max(updatesize, 1);
             if (memorylimit > 0)
             {
@@ -38842,7 +38842,7 @@ public partial class alglib
             }
             s.uxbatchwidth = windowwidth;
             s.uxbatchsize = 0;
-            if (alglib.ap.cols(s.uxbatch) != windowwidth)
+            if (ap.cols(s.uxbatch) != windowwidth)
             {
                 s.uxbatch = new double[0, 0];
             }
@@ -38876,10 +38876,10 @@ public partial class alglib
             int i_ = 0;
             int i1_ = 0;
 
-            alglib.ap.assert(i0 + s.uxbatchwidth - 1 < alglib.ap.len(u), "UpdateXXTSend: incorrect U size");
-            alglib.ap.assert(s.uxbatchsize >= 0, "UpdateXXTSend: integrity check failure");
-            alglib.ap.assert(s.uxbatchsize <= s.uxbatchlimit, "UpdateXXTSend: integrity check failure");
-            alglib.ap.assert(s.uxbatchlimit >= 1, "UpdateXXTSend: integrity check failure");
+            ap.assert(i0 + s.uxbatchwidth - 1 < ap.len(u), "UpdateXXTSend: incorrect U size");
+            ap.assert(s.uxbatchsize >= 0, "UpdateXXTSend: integrity check failure");
+            ap.assert(s.uxbatchsize <= s.uxbatchlimit, "UpdateXXTSend: integrity check failure");
+            ap.assert(s.uxbatchlimit >= 1, "UpdateXXTSend: integrity check failure");
 
             //
             // Send pending batch if full
@@ -38921,9 +38921,9 @@ public partial class alglib
             double[,] xxt,
             alglib.xparams _params)
         {
-            alglib.ap.assert(s.uxbatchsize >= 0, "UpdateXXTFinalize: integrity check failure");
-            alglib.ap.assert(s.uxbatchsize <= s.uxbatchlimit, "UpdateXXTFinalize: integrity check failure");
-            alglib.ap.assert(s.uxbatchlimit >= 1, "UpdateXXTFinalize: integrity check failure");
+            ap.assert(s.uxbatchsize >= 0, "UpdateXXTFinalize: integrity check failure");
+            ap.assert(s.uxbatchsize <= s.uxbatchlimit, "UpdateXXTFinalize: integrity check failure");
+            ap.assert(s.uxbatchlimit >= 1, "UpdateXXTFinalize: integrity check failure");
             if (s.uxbatchsize > 0)
             {
                 ablas.rmatrixsyrk(s.uxbatchwidth, s.uxbatchsize, 1.0, s.uxbatch, 0, 0, 2, 1.0, s.xxt, 0, 0, true, _params);
@@ -38983,10 +38983,10 @@ public partial class alglib
             int zeroprefix = 0;
             double v = 0;
 
-            alglib.ap.assert(n >= 0, "FilterSMA: N<0");
-            alglib.ap.assert(alglib.ap.len(x) >= n, "FilterSMA: Length(X)<N");
-            alglib.ap.assert(apserv.isfinitevector(x, n, _params), "FilterSMA: X contains INF or NAN");
-            alglib.ap.assert(k >= 1, "FilterSMA: K<1");
+            ap.assert(n >= 0, "FilterSMA: N<0");
+            ap.assert(ap.len(x) >= n, "FilterSMA: Length(X)<N");
+            ap.assert(apserv.isfinitevector(x, n, _params), "FilterSMA: X contains INF or NAN");
+            ap.assert(k >= 1, "FilterSMA: K<1");
 
             //
             // Quick exit, if necessary
@@ -39117,11 +39117,11 @@ public partial class alglib
         {
             int i = 0;
 
-            alglib.ap.assert(n >= 0, "FilterEMA: N<0");
-            alglib.ap.assert(alglib.ap.len(x) >= n, "FilterEMA: Length(X)<N");
-            alglib.ap.assert(apserv.isfinitevector(x, n, _params), "FilterEMA: X contains INF or NAN");
-            alglib.ap.assert((double)(alpha) > (double)(0), "FilterEMA: Alpha<=0");
-            alglib.ap.assert((double)(alpha) <= (double)(1), "FilterEMA: Alpha>1");
+            ap.assert(n >= 0, "FilterEMA: N<0");
+            ap.assert(ap.len(x) >= n, "FilterEMA: Length(X)<N");
+            ap.assert(apserv.isfinitevector(x, n, _params), "FilterEMA: X contains INF or NAN");
+            ap.assert((double)(alpha) > (double)(0), "FilterEMA: Alpha<=0");
+            ap.assert((double)(alpha) <= (double)(1), "FilterEMA: Alpha>1");
 
             //
             // Quick exit, if necessary
@@ -39199,10 +39199,10 @@ public partial class alglib
             int i_ = 0;
             int i1_ = 0;
 
-            alglib.ap.assert(n >= 0, "FilterLRMA: N<0");
-            alglib.ap.assert(alglib.ap.len(x) >= n, "FilterLRMA: Length(X)<N");
-            alglib.ap.assert(apserv.isfinitevector(x, n, _params), "FilterLRMA: X contains INF or NAN");
-            alglib.ap.assert(k >= 1, "FilterLRMA: K<1");
+            ap.assert(n >= 0, "FilterLRMA: N<0");
+            ap.assert(ap.len(x) >= n, "FilterLRMA: Length(X)<N");
+            ap.assert(apserv.isfinitevector(x, n, _params), "FilterLRMA: X contains INF or NAN");
+            ap.assert(k >= 1, "FilterLRMA: K<1");
 
             //
             // Quick exit, if necessary:
@@ -40585,13 +40585,13 @@ public partial class alglib
             {
                 ttype = 1;
             }
-            alglib.ap.assert(ntype == ttype, "MLPKFoldCV: type of input network is not similar to network type in trainer object");
-            alglib.ap.assert(s.npoints >= 0, "MLPKFoldCV: possible trainer S is not initialized(S.NPoints<0)");
+            ap.assert(ntype == ttype, "MLPKFoldCV: type of input network is not similar to network type in trainer object");
+            ap.assert(s.npoints >= 0, "MLPKFoldCV: possible trainer S is not initialized(S.NPoints<0)");
             mlpbase.mlpproperties(network, ref nin, ref nout, ref wcount, _params);
-            alglib.ap.assert(s.nin == nin, "MLPKFoldCV:  number of inputs in trainer is not equal to number of inputs in network");
-            alglib.ap.assert(s.nout == nout, "MLPKFoldCV:  number of outputs in trainer is not equal to number of outputs in network");
-            alglib.ap.assert(nrestarts >= 0, "MLPKFoldCV: NRestarts<0");
-            alglib.ap.assert(foldscount >= 2, "MLPKFoldCV: FoldsCount<2");
+            ap.assert(s.nin == nin, "MLPKFoldCV:  number of inputs in trainer is not equal to number of inputs in network");
+            ap.assert(s.nout == nout, "MLPKFoldCV:  number of outputs in trainer is not equal to number of outputs in network");
+            ap.assert(nrestarts >= 0, "MLPKFoldCV: NRestarts<0");
+            ap.assert(foldscount >= 2, "MLPKFoldCV: FoldsCount<2");
             if (foldscount > s.npoints)
             {
                 foldscount = s.npoints;
@@ -40658,7 +40658,7 @@ public partial class alglib
             //
             // Create shared pool
             //
-            alglib.smp.ae_shared_pool_set_seed(pooldatacv, datacv);
+            smp.ae_shared_pool_set_seed(pooldatacv, datacv);
 
             //
             // Parallelization
@@ -40668,11 +40668,11 @@ public partial class alglib
             //
             // Calculate value for NGrad
             //
-            alglib.smp.ae_shared_pool_first_recycled(pooldatacv, ref sdatacv);
+            smp.ae_shared_pool_first_recycled(pooldatacv, ref sdatacv);
             while (sdatacv != null)
             {
                 rep.ngrad = rep.ngrad + sdatacv.ngrad;
-                alglib.smp.ae_shared_pool_next_recycled(pooldatacv, ref sdatacv);
+                smp.ae_shared_pool_next_recycled(pooldatacv, ref sdatacv);
             }
 
             //
@@ -40738,8 +40738,8 @@ public partial class alglib
             mlptrainer s,
             alglib.xparams _params)
         {
-            alglib.ap.assert(nin >= 1, "MLPCreateTrainer: NIn<1.");
-            alglib.ap.assert(nout >= 1, "MLPCreateTrainer: NOut<1.");
+            ap.assert(nin >= 1, "MLPCreateTrainer: NIn<1.");
+            ap.assert(nout >= 1, "MLPCreateTrainer: NOut<1.");
             s.nin = nin;
             s.nout = nout;
             s.rcpar = true;
@@ -40772,8 +40772,8 @@ public partial class alglib
             mlptrainer s,
             alglib.xparams _params)
         {
-            alglib.ap.assert(nin >= 1, "MLPCreateTrainerCls: NIn<1.");
-            alglib.ap.assert(nclasses >= 2, "MLPCreateTrainerCls: NClasses<2.");
+            ap.assert(nin >= 1, "MLPCreateTrainerCls: NIn<1.");
+            ap.assert(nclasses >= 2, "MLPCreateTrainerCls: NClasses<2.");
             s.nin = nin;
             s.nout = nclasses;
             s.rcpar = false;
@@ -40829,9 +40829,9 @@ public partial class alglib
             int i = 0;
             int j = 0;
 
-            alglib.ap.assert(s.nin >= 1, "MLPSetDataset: possible parameter S is not initialized or spoiled(S.NIn<=0).");
-            alglib.ap.assert(npoints >= 0, "MLPSetDataset: NPoint<0");
-            alglib.ap.assert(npoints <= alglib.ap.rows(xy), "MLPSetDataset: invalid size of matrix XY(NPoint more then rows of matrix XY)");
+            ap.assert(s.nin >= 1, "MLPSetDataset: possible parameter S is not initialized or spoiled(S.NIn<=0).");
+            ap.assert(npoints >= 0, "MLPSetDataset: NPoint<0");
+            ap.assert(npoints <= ap.rows(xy), "MLPSetDataset: invalid size of matrix XY(NPoint more then rows of matrix XY)");
             s.datatype = 0;
             s.npoints = npoints;
             if (npoints == 0)
@@ -40840,20 +40840,20 @@ public partial class alglib
             }
             if (s.rcpar)
             {
-                alglib.ap.assert(s.nout >= 1, "MLPSetDataset: possible parameter S is not initialized or is spoiled(NOut<1 for regression).");
+                ap.assert(s.nout >= 1, "MLPSetDataset: possible parameter S is not initialized or is spoiled(NOut<1 for regression).");
                 ndim = s.nin + s.nout;
-                alglib.ap.assert(ndim <= alglib.ap.cols(xy), "MLPSetDataset: invalid size of matrix XY(too few columns in matrix XY).");
-                alglib.ap.assert(apserv.apservisfinitematrix(xy, npoints, ndim, _params), "MLPSetDataset: parameter XY contains Infinite or NaN.");
+                ap.assert(ndim <= ap.cols(xy), "MLPSetDataset: invalid size of matrix XY(too few columns in matrix XY).");
+                ap.assert(apserv.apservisfinitematrix(xy, npoints, ndim, _params), "MLPSetDataset: parameter XY contains Infinite or NaN.");
             }
             else
             {
-                alglib.ap.assert(s.nout >= 2, "MLPSetDataset: possible parameter S is not initialized or is spoiled(NClasses<2 for classifier).");
+                ap.assert(s.nout >= 2, "MLPSetDataset: possible parameter S is not initialized or is spoiled(NClasses<2 for classifier).");
                 ndim = s.nin + 1;
-                alglib.ap.assert(ndim <= alglib.ap.cols(xy), "MLPSetDataset: invalid size of matrix XY(too few columns in matrix XY).");
-                alglib.ap.assert(apserv.apservisfinitematrix(xy, npoints, ndim, _params), "MLPSetDataset: parameter XY contains Infinite or NaN.");
+                ap.assert(ndim <= ap.cols(xy), "MLPSetDataset: invalid size of matrix XY(too few columns in matrix XY).");
+                ap.assert(apserv.apservisfinitematrix(xy, npoints, ndim, _params), "MLPSetDataset: parameter XY contains Infinite or NaN.");
                 for (i = 0; i <= npoints - 1; i++)
                 {
-                    alglib.ap.assert((int)Math.Round(xy[i, s.nin]) >= 0 && (int)Math.Round(xy[i, s.nin]) < s.nout, "MLPSetDataset: invalid parameter XY(in classifier used nonexistent class number: either XY[.,NIn]<0 or XY[.,NIn]>=NClasses).");
+                    ap.assert((int)Math.Round(xy[i, s.nin]) >= 0 && (int)Math.Round(xy[i, s.nin]) < s.nout, "MLPSetDataset: invalid parameter XY(in classifier used nonexistent class number: either XY[.,NIn]<0 or XY[.,NIn]>=NClasses).");
                 }
             }
             apserv.rmatrixsetlengthatleast(ref s.densexy, npoints, ndim, _params);
@@ -40917,40 +40917,40 @@ public partial class alglib
             //
             // Check correctness of the data
             //
-            alglib.ap.assert(s.nin > 0, "MLPSetSparseDataset: possible parameter S is not initialized or spoiled(S.NIn<=0).");
-            alglib.ap.assert(npoints >= 0, "MLPSetSparseDataset: NPoint<0");
-            alglib.ap.assert(npoints <= sparse.sparsegetnrows(xy, _params), "MLPSetSparseDataset: invalid size of sparse matrix XY(NPoint more then rows of matrix XY)");
+            ap.assert(s.nin > 0, "MLPSetSparseDataset: possible parameter S is not initialized or spoiled(S.NIn<=0).");
+            ap.assert(npoints >= 0, "MLPSetSparseDataset: NPoint<0");
+            ap.assert(npoints <= sparse.sparsegetnrows(xy, _params), "MLPSetSparseDataset: invalid size of sparse matrix XY(NPoint more then rows of matrix XY)");
             if (npoints > 0)
             {
                 t0 = 0;
                 t1 = 0;
                 if (s.rcpar)
                 {
-                    alglib.ap.assert(s.nout >= 1, "MLPSetSparseDataset: possible parameter S is not initialized or is spoiled(NOut<1 for regression).");
-                    alglib.ap.assert(s.nin + s.nout <= sparse.sparsegetncols(xy, _params), "MLPSetSparseDataset: invalid size of sparse matrix XY(too few columns in sparse matrix XY).");
+                    ap.assert(s.nout >= 1, "MLPSetSparseDataset: possible parameter S is not initialized or is spoiled(NOut<1 for regression).");
+                    ap.assert(s.nin + s.nout <= sparse.sparsegetncols(xy, _params), "MLPSetSparseDataset: invalid size of sparse matrix XY(too few columns in sparse matrix XY).");
                     while (sparse.sparseenumerate(xy, ref t0, ref t1, ref i, ref j, ref v, _params))
                     {
                         if (i < npoints && j < s.nin + s.nout)
                         {
-                            alglib.ap.assert(math.isfinite(v), "MLPSetSparseDataset: sparse matrix XY contains Infinite or NaN.");
+                            ap.assert(math.isfinite(v), "MLPSetSparseDataset: sparse matrix XY contains Infinite or NaN.");
                         }
                     }
                 }
                 else
                 {
-                    alglib.ap.assert(s.nout >= 2, "MLPSetSparseDataset: possible parameter S is not initialized or is spoiled(NClasses<2 for classifier).");
-                    alglib.ap.assert(s.nin + 1 <= sparse.sparsegetncols(xy, _params), "MLPSetSparseDataset: invalid size of sparse matrix XY(too few columns in sparse matrix XY).");
+                    ap.assert(s.nout >= 2, "MLPSetSparseDataset: possible parameter S is not initialized or is spoiled(NClasses<2 for classifier).");
+                    ap.assert(s.nin + 1 <= sparse.sparsegetncols(xy, _params), "MLPSetSparseDataset: invalid size of sparse matrix XY(too few columns in sparse matrix XY).");
                     while (sparse.sparseenumerate(xy, ref t0, ref t1, ref i, ref j, ref v, _params))
                     {
                         if (i < npoints && j <= s.nin)
                         {
                             if (j != s.nin)
                             {
-                                alglib.ap.assert(math.isfinite(v), "MLPSetSparseDataset: sparse matrix XY contains Infinite or NaN.");
+                                ap.assert(math.isfinite(v), "MLPSetSparseDataset: sparse matrix XY contains Infinite or NaN.");
                             }
                             else
                             {
-                                alglib.ap.assert((math.isfinite(v) && (int)Math.Round(v) >= 0) && (int)Math.Round(v) < s.nout, "MLPSetSparseDataset: invalid sparse matrix XY(in classifier used nonexistent class number: either XY[.,NIn]<0 or XY[.,NIn]>=NClasses).");
+                                ap.assert((math.isfinite(v) && (int)Math.Round(v) >= 0) && (int)Math.Round(v) < s.nout, "MLPSetSparseDataset: invalid sparse matrix XY(in classifier used nonexistent class number: either XY[.,NIn]<0 or XY[.,NIn]>=NClasses).");
                             }
                         }
                     }
@@ -40986,8 +40986,8 @@ public partial class alglib
             double decay,
             alglib.xparams _params)
         {
-            alglib.ap.assert(math.isfinite(decay), "MLPSetDecay: parameter Decay contains Infinite or NaN.");
-            alglib.ap.assert((double)(decay) >= (double)(0), "MLPSetDecay: Decay<0.");
+            ap.assert(math.isfinite(decay), "MLPSetDecay: parameter Decay contains Infinite or NaN.");
+            ap.assert((double)(decay) >= (double)(0), "MLPSetDecay: Decay<0.");
             s.decay = decay;
         }
 
@@ -41023,9 +41023,9 @@ public partial class alglib
             int maxits,
             alglib.xparams _params)
         {
-            alglib.ap.assert(math.isfinite(wstep), "MLPSetCond: parameter WStep contains Infinite or NaN.");
-            alglib.ap.assert((double)(wstep) >= (double)(0), "MLPSetCond: WStep<0.");
-            alglib.ap.assert(maxits >= 0, "MLPSetCond: MaxIts<0.");
+            ap.assert(math.isfinite(wstep), "MLPSetCond: parameter WStep contains Infinite or NaN.");
+            ap.assert((double)(wstep) >= (double)(0), "MLPSetCond: WStep<0.");
+            ap.assert(maxits >= 0, "MLPSetCond: MaxIts<0.");
             if ((double)(wstep) != (double)(0) || maxits != 0)
             {
                 s.wstep = wstep;
@@ -41119,7 +41119,7 @@ public partial class alglib
             int ttype = 0;
             alglib.smp.shared_pool trnpool = new();
 
-            alglib.ap.assert(s.npoints >= 0, "MLPTrainNetwork: parameter S is not initialized or is spoiled(S.NPoints<0)");
+            ap.assert(s.npoints >= 0, "MLPTrainNetwork: parameter S is not initialized or is spoiled(S.NPoints<0)");
             if (!mlpbase.mlpissoftmax(network, _params))
             {
                 ntype = 0;
@@ -41136,11 +41136,11 @@ public partial class alglib
             {
                 ttype = 1;
             }
-            alglib.ap.assert(ntype == ttype, "MLPTrainNetwork: type of input network is not similar to network type in trainer object");
+            ap.assert(ntype == ttype, "MLPTrainNetwork: type of input network is not similar to network type in trainer object");
             mlpbase.mlpproperties(network, ref nin, ref nout, ref wcount, _params);
-            alglib.ap.assert(s.nin == nin, "MLPTrainNetwork: number of inputs in trainer is not equal to number of inputs in network");
-            alglib.ap.assert(s.nout == nout, "MLPTrainNetwork: number of outputs in trainer is not equal to number of outputs in network");
-            alglib.ap.assert(nrestarts >= 0, "MLPTrainNetwork: NRestarts<0.");
+            ap.assert(s.nin == nin, "MLPTrainNetwork: number of inputs in trainer is not equal to number of inputs in network");
+            ap.assert(s.nout == nout, "MLPTrainNetwork: number of outputs in trainer is not equal to number of outputs in network");
+            ap.assert(nrestarts >= 0, "MLPTrainNetwork: NRestarts<0.");
 
             //
             // Train
@@ -41212,7 +41212,7 @@ public partial class alglib
             int ntype = 0;
             int ttype = 0;
 
-            alglib.ap.assert(s.npoints >= 0, "MLPStartTraining: parameter S is not initialized or is spoiled(S.NPoints<0)");
+            ap.assert(s.npoints >= 0, "MLPStartTraining: parameter S is not initialized or is spoiled(S.NPoints<0)");
             if (!mlpbase.mlpissoftmax(network, _params))
             {
                 ntype = 0;
@@ -41229,10 +41229,10 @@ public partial class alglib
             {
                 ttype = 1;
             }
-            alglib.ap.assert(ntype == ttype, "MLPStartTraining: type of input network is not similar to network type in trainer object");
+            ap.assert(ntype == ttype, "MLPStartTraining: type of input network is not similar to network type in trainer object");
             mlpbase.mlpproperties(network, ref nin, ref nout, ref wcount, _params);
-            alglib.ap.assert(s.nin == nin, "MLPStartTraining: number of inputs in trainer is not equal to number of inputs in the network.");
-            alglib.ap.assert(s.nout == nout, "MLPStartTraining: number of outputs in trainer is not equal to number of outputs in the network.");
+            ap.assert(s.nin == nin, "MLPStartTraining: number of inputs in trainer is not equal to number of inputs in the network.");
+            ap.assert(s.nout == nout, "MLPStartTraining: number of outputs in trainer is not equal to number of outputs in the network.");
 
             //
             // Initialize temporaries
@@ -41337,7 +41337,7 @@ public partial class alglib
             int ttype = 0;
             int i_ = 0;
 
-            alglib.ap.assert(s.npoints >= 0, "MLPContinueTraining: parameter S is not initialized or is spoiled(S.NPoints<0)");
+            ap.assert(s.npoints >= 0, "MLPContinueTraining: parameter S is not initialized or is spoiled(S.NPoints<0)");
             if (s.rcpar)
             {
                 ttype = 0;
@@ -41354,10 +41354,10 @@ public partial class alglib
             {
                 ntype = 1;
             }
-            alglib.ap.assert(ntype == ttype, "MLPContinueTraining: type of input network is not similar to network type in trainer object.");
+            ap.assert(ntype == ttype, "MLPContinueTraining: type of input network is not similar to network type in trainer object.");
             mlpbase.mlpproperties(network, ref nin, ref nout, ref wcount, _params);
-            alglib.ap.assert(s.nin == nin, "MLPContinueTraining: number of inputs in trainer is not equal to number of inputs in the network.");
-            alglib.ap.assert(s.nout == nout, "MLPContinueTraining: number of outputs in trainer is not equal to number of outputs in the network.");
+            ap.assert(s.nin == nin, "MLPContinueTraining: number of inputs in trainer is not equal to number of inputs in the network.");
+            ap.assert(s.nout == nout, "MLPContinueTraining: number of outputs in trainer is not equal to number of outputs in the network.");
             result = mlpcontinuetrainingx(s, s.subset, -1, ref s.ngradbatch, s.session, _params);
             if (result)
             {
@@ -41691,7 +41691,7 @@ public partial class alglib
             apserv.sinteger sgrad = new();
             mlpbase.modelerrors tmprep = new();
 
-            alglib.ap.assert(s.npoints >= 0, "MLPTrainEnsembleES: parameter S is not initialized or is spoiled(S.NPoints<0)");
+            ap.assert(s.npoints >= 0, "MLPTrainEnsembleES: parameter S is not initialized or is spoiled(S.NPoints<0)");
             if (!mlpe.mlpeissoftmax(ensemble, _params))
             {
                 ntype = 0;
@@ -41708,12 +41708,12 @@ public partial class alglib
             {
                 ttype = 1;
             }
-            alglib.ap.assert(ntype == ttype, "MLPTrainEnsembleES: internal error - type of input network is not similar to network type in trainer object");
+            ap.assert(ntype == ttype, "MLPTrainEnsembleES: internal error - type of input network is not similar to network type in trainer object");
             nin = mlpbase.mlpgetinputscount(ensemble.network, _params);
-            alglib.ap.assert(s.nin == nin, "MLPTrainEnsembleES: number of inputs in trainer is not equal to number of inputs in ensemble network");
+            ap.assert(s.nin == nin, "MLPTrainEnsembleES: number of inputs in trainer is not equal to number of inputs in ensemble network");
             nout = mlpbase.mlpgetoutputscount(ensemble.network, _params);
-            alglib.ap.assert(s.nout == nout, "MLPTrainEnsembleES: number of outputs in trainer is not equal to number of outputs in ensemble network");
-            alglib.ap.assert(nrestarts >= 0, "MLPTrainEnsembleES: NRestarts<0.");
+            ap.assert(s.nout == nout, "MLPTrainEnsembleES: number of outputs in trainer is not equal to number of outputs in ensemble network");
+            ap.assert(nrestarts >= 0, "MLPTrainEnsembleES: NRestarts<0.");
 
             //
             // Initialize parameter Rep
@@ -41996,10 +41996,10 @@ public partial class alglib
             //
             // test parameters
             //
-            alglib.ap.assert(npoints > 0, "MLPKFoldSplit: wrong NPoints!");
-            alglib.ap.assert(nclasses > 1 || nclasses < 0, "MLPKFoldSplit: wrong NClasses!");
-            alglib.ap.assert(foldscount >= 2 && foldscount <= npoints, "MLPKFoldSplit: wrong FoldsCount!");
-            alglib.ap.assert(!stratifiedsplits, "MLPKFoldSplit: stratified splits are not supported!");
+            ap.assert(npoints > 0, "MLPKFoldSplit: wrong NPoints!");
+            ap.assert(nclasses > 1 || nclasses < 0, "MLPKFoldSplit: wrong NClasses!");
+            ap.assert(foldscount >= 2 && foldscount <= npoints, "MLPKFoldSplit: wrong FoldsCount!");
+            ap.assert(!stratifiedsplits, "MLPKFoldSplit: stratified splits are not supported!");
 
             //
             // Folds
@@ -42067,7 +42067,7 @@ public partial class alglib
                 //
                 // Separate set
                 //
-                alglib.smp.ae_shared_pool_retrieve(pooldatacv, ref datacv);
+                smp.ae_shared_pool_retrieve(pooldatacv, ref datacv);
                 datacv.subsetsize = 0;
                 for (i = 0; i <= s.npoints - 1; i++)
                 {
@@ -42109,11 +42109,11 @@ public partial class alglib
                         }
                     }
                 }
-                alglib.smp.ae_shared_pool_recycle(pooldatacv, ref datacv);
+                smp.ae_shared_pool_recycle(pooldatacv, ref datacv);
             }
             else
             {
-                alglib.ap.assert(fold < dfold - 1, "MThreadCV: internal error(Fold>DFold-1).");
+                ap.assert(fold < dfold - 1, "MThreadCV: internal error(Fold>DFold-1).");
 
                 //
                 // We expect that minimum number of iterations before convergence is 100.
@@ -42232,8 +42232,8 @@ public partial class alglib
                 //
                 // Check correctness of parameters
                 //
-                alglib.ap.assert(algokind == 0 || algokind == -1, "MLPTrainNetworkX: unexpected AlgoKind");
-                alglib.ap.assert(s.npoints >= 0, "MLPTrainNetworkX: internal error - parameter S is not initialized or is spoiled(S.NPoints<0)");
+                ap.assert(algokind == 0 || algokind == -1, "MLPTrainNetworkX: unexpected AlgoKind");
+                ap.assert(s.npoints >= 0, "MLPTrainNetworkX: internal error - parameter S is not initialized or is spoiled(S.NPoints<0)");
                 if (s.rcpar)
                 {
                     ttype = 0;
@@ -42250,19 +42250,19 @@ public partial class alglib
                 {
                     ntype = 1;
                 }
-                alglib.ap.assert(ntype == ttype, "MLPTrainNetworkX: internal error - type of the training network is not similar to network type in trainer object");
-                alglib.ap.assert(s.nin == nin, "MLPTrainNetworkX: internal error - number of inputs in trainer is not equal to number of inputs in the training network.");
-                alglib.ap.assert(s.nout == nout, "MLPTrainNetworkX: internal error - number of outputs in trainer is not equal to number of outputs in the training network.");
-                alglib.ap.assert(nrestarts >= 0, "MLPTrainNetworkX: internal error - NRestarts<0.");
-                alglib.ap.assert(alglib.ap.len(trnsubset) >= trnsubsetsize, "MLPTrainNetworkX: internal error - parameter TrnSubsetSize more than input subset size(Length(TrnSubset)<TrnSubsetSize)");
+                ap.assert(ntype == ttype, "MLPTrainNetworkX: internal error - type of the training network is not similar to network type in trainer object");
+                ap.assert(s.nin == nin, "MLPTrainNetworkX: internal error - number of inputs in trainer is not equal to number of inputs in the training network.");
+                ap.assert(s.nout == nout, "MLPTrainNetworkX: internal error - number of outputs in trainer is not equal to number of outputs in the training network.");
+                ap.assert(nrestarts >= 0, "MLPTrainNetworkX: internal error - NRestarts<0.");
+                ap.assert(ap.len(trnsubset) >= trnsubsetsize, "MLPTrainNetworkX: internal error - parameter TrnSubsetSize more than input subset size(Length(TrnSubset)<TrnSubsetSize)");
                 for (i = 0; i <= trnsubsetsize - 1; i++)
                 {
-                    alglib.ap.assert(trnsubset[i] >= 0 && trnsubset[i] <= s.npoints - 1, "MLPTrainNetworkX: internal error - parameter TrnSubset contains incorrect index(TrnSubset[I]<0 or TrnSubset[I]>S.NPoints-1)");
+                    ap.assert(trnsubset[i] >= 0 && trnsubset[i] <= s.npoints - 1, "MLPTrainNetworkX: internal error - parameter TrnSubset contains incorrect index(TrnSubset[I]<0 or TrnSubset[I]>S.NPoints-1)");
                 }
-                alglib.ap.assert(alglib.ap.len(valsubset) >= valsubsetsize, "MLPTrainNetworkX: internal error - parameter ValSubsetSize more than input subset size(Length(ValSubset)<ValSubsetSize)");
+                ap.assert(ap.len(valsubset) >= valsubsetsize, "MLPTrainNetworkX: internal error - parameter ValSubsetSize more than input subset size(Length(ValSubset)<ValSubsetSize)");
                 for (i = 0; i <= valsubsetsize - 1; i++)
                 {
-                    alglib.ap.assert(valsubset[i] >= 0 && valsubset[i] <= s.npoints - 1, "MLPTrainNetworkX: internal error - parameter ValSubset contains incorrect index(ValSubset[I]<0 or ValSubset[I]>S.NPoints-1)");
+                    ap.assert(valsubset[i] >= 0 && valsubset[i] <= s.npoints - 1, "MLPTrainNetworkX: internal error - parameter ValSubset contains incorrect index(ValSubset[I]<0 or ValSubset[I]>S.NPoints-1)");
                 }
 
                 //
@@ -42276,7 +42276,7 @@ public partial class alglib
                 // Choose best network
                 //
                 bestrmserror = math.maxrealnumber;
-                alglib.smp.ae_shared_pool_first_recycled(sessions, ref psession);
+                smp.ae_shared_pool_first_recycled(sessions, ref psession);
                 while (psession != null)
                 {
                     if ((double)(psession.bestrmserror) < (double)(bestrmserror))
@@ -42284,7 +42284,7 @@ public partial class alglib
                         mlpbase.mlpimporttunableparameters(network, psession.bestparameters, _params);
                         bestrmserror = psession.bestrmserror;
                     }
-                    alglib.smp.ae_shared_pool_next_recycled(sessions, ref psession);
+                    smp.ae_shared_pool_next_recycled(sessions, ref psession);
                 }
 
                 //
@@ -42342,11 +42342,11 @@ public partial class alglib
             // * NRestarts=1 means that network is restarted from random position
             // * NRestarts=0 means that network is not randomized
             //
-            alglib.ap.assert(nrestarts == 0 || nrestarts == 1, "MLPTrainNetworkX: internal error");
+            ap.assert(nrestarts == 0 || nrestarts == 1, "MLPTrainNetworkX: internal error");
             rep.ngrad = 0;
             rep.nhess = 0;
             rep.ncholesky = 0;
-            alglib.smp.ae_shared_pool_retrieve(sessions, ref psession);
+            smp.ae_shared_pool_retrieve(sessions, ref psession);
             if (((s.datatype == 0 || s.datatype == 1) && s.npoints > 0) && trnsubsetsize != 0)
             {
 
@@ -42435,7 +42435,7 @@ public partial class alglib
             //
             // Move session back to pool
             //
-            alglib.smp.ae_shared_pool_recycle(sessions, ref psession);
+            smp.ae_shared_pool_recycle(sessions, ref psession);
         }
 
 
@@ -42594,7 +42594,7 @@ public partial class alglib
             //
             // Retrieve and prepare session
             //
-            alglib.smp.ae_shared_pool_retrieve(esessions, ref psession);
+            smp.ae_shared_pool_retrieve(esessions, ref psession);
 
             //
             // Train
@@ -42677,7 +42677,7 @@ public partial class alglib
             //
             // Recycle session
             //
-            alglib.smp.ae_shared_pool_recycle(esessions, ref psession);
+            smp.ae_shared_pool_recycle(esessions, ref psession);
         }
 
 
@@ -42732,8 +42732,8 @@ public partial class alglib
             //
             // Check parameters
             //
-            alglib.ap.assert(s.npoints >= 0, "MLPStartTrainingX: internal error - parameter S is not initialized or is spoiled(S.NPoints<0)");
-            alglib.ap.assert(algokind == 0 || algokind == -1, "MLPStartTrainingX: unexpected AlgoKind");
+            ap.assert(s.npoints >= 0, "MLPStartTrainingX: internal error - parameter S is not initialized or is spoiled(S.NPoints<0)");
+            ap.assert(algokind == 0 || algokind == -1, "MLPStartTrainingX: unexpected AlgoKind");
             if (s.rcpar)
             {
                 ttype = 0;
@@ -42750,14 +42750,14 @@ public partial class alglib
             {
                 ntype = 1;
             }
-            alglib.ap.assert(ntype == ttype, "MLPStartTrainingX: internal error - type of the resulting network is not similar to network type in trainer object");
+            ap.assert(ntype == ttype, "MLPStartTrainingX: internal error - type of the resulting network is not similar to network type in trainer object");
             mlpbase.mlpproperties(session.network, ref nin, ref nout, ref wcount, _params);
-            alglib.ap.assert(s.nin == nin, "MLPStartTrainingX: number of inputs in trainer is not equal to number of inputs in the network.");
-            alglib.ap.assert(s.nout == nout, "MLPStartTrainingX: number of outputs in trainer is not equal to number of outputs in the network.");
-            alglib.ap.assert(alglib.ap.len(subset) >= subsetsize, "MLPStartTrainingX: internal error - parameter SubsetSize more than input subset size(Length(Subset)<SubsetSize)");
+            ap.assert(s.nin == nin, "MLPStartTrainingX: number of inputs in trainer is not equal to number of inputs in the network.");
+            ap.assert(s.nout == nout, "MLPStartTrainingX: number of outputs in trainer is not equal to number of outputs in the network.");
+            ap.assert(ap.len(subset) >= subsetsize, "MLPStartTrainingX: internal error - parameter SubsetSize more than input subset size(Length(Subset)<SubsetSize)");
             for (i = 0; i <= subsetsize - 1; i++)
             {
-                alglib.ap.assert(subset[i] >= 0 && subset[i] <= s.npoints - 1, "MLPStartTrainingX: internal error - parameter Subset contains incorrect index(Subset[I]<0 or Subset[I]>S.NPoints-1)");
+                ap.assert(subset[i] >= 0 && subset[i] <= s.npoints - 1, "MLPStartTrainingX: internal error - parameter Subset contains incorrect index(Subset[I]<0 or Subset[I]>S.NPoints-1)");
             }
 
             //
@@ -42916,7 +42916,7 @@ public partial class alglib
             //
             // Check correctness of inputs
             //
-            alglib.ap.assert(s.npoints >= 0, "MLPContinueTrainingX: internal error - parameter S is not initialized or is spoiled(S.NPoints<0).");
+            ap.assert(s.npoints >= 0, "MLPContinueTrainingX: internal error - parameter S is not initialized or is spoiled(S.NPoints<0).");
             if (s.rcpar)
             {
                 ttype = 0;
@@ -42933,14 +42933,14 @@ public partial class alglib
             {
                 ntype = 1;
             }
-            alglib.ap.assert(ntype == ttype, "MLPContinueTrainingX: internal error - type of the resulting network is not similar to network type in trainer object.");
+            ap.assert(ntype == ttype, "MLPContinueTrainingX: internal error - type of the resulting network is not similar to network type in trainer object.");
             mlpbase.mlpproperties(session.network, ref nin, ref nout, ref wcount, _params);
-            alglib.ap.assert(s.nin == nin, "MLPContinueTrainingX: internal error - number of inputs in trainer is not equal to number of inputs in the network.");
-            alglib.ap.assert(s.nout == nout, "MLPContinueTrainingX: internal error - number of outputs in trainer is not equal to number of outputs in the network.");
-            alglib.ap.assert(alglib.ap.len(subset) >= subsetsize, "MLPContinueTrainingX: internal error - parameter SubsetSize more than input subset size(Length(Subset)<SubsetSize).");
+            ap.assert(s.nin == nin, "MLPContinueTrainingX: internal error - number of inputs in trainer is not equal to number of inputs in the network.");
+            ap.assert(s.nout == nout, "MLPContinueTrainingX: internal error - number of outputs in trainer is not equal to number of outputs in the network.");
+            ap.assert(ap.len(subset) >= subsetsize, "MLPContinueTrainingX: internal error - parameter SubsetSize more than input subset size(Length(Subset)<SubsetSize).");
             for (i = 0; i <= subsetsize - 1; i++)
             {
-                alglib.ap.assert(subset[i] >= 0 && subset[i] <= s.npoints - 1, "MLPContinueTrainingX: internal error - parameter Subset contains incorrect index(Subset[I]<0 or Subset[I]>S.NPoints-1).");
+                ap.assert(subset[i] >= 0 && subset[i] <= s.npoints - 1, "MLPContinueTrainingX: internal error - parameter Subset contains incorrect index(Subset[I]<0 or Subset[I]>S.NPoints-1).");
             }
 
             //
@@ -42957,7 +42957,7 @@ public partial class alglib
             //
             if (session.algoused == 1)
             {
-                alglib.ap.assert(false, "MINIBATCH TRAINING IS NOT IMPLEMENTED YET");
+                ap.assert(false, "MINIBATCH TRAINING IS NOT IMPLEMENTED YET");
             }
 
             //
@@ -43319,7 +43319,7 @@ public partial class alglib
             mlpbase.mlpcopy(networktrained, session.network, _params);
             if (randomizenetwork)
             {
-                alglib.ap.assert(trainer.datatype == 0 || trainer.datatype == 1, "InitTemporaries: unexpected Trainer.DataType");
+                ap.assert(trainer.datatype == 0 || trainer.datatype == 1, "InitTemporaries: unexpected Trainer.DataType");
                 if (trainer.datatype == 0)
                 {
                     mlpbase.mlpinitpreprocessorsubset(session.network, trainer.densexy, trainer.npoints, dummysubset, -1, _params);
@@ -43371,19 +43371,19 @@ public partial class alglib
             smlptrnsession t = new();
             smlptrnsession p = null;
 
-            if (alglib.smp.ae_shared_pool_is_initialized(sessions))
+            if (smp.ae_shared_pool_is_initialized(sessions))
             {
 
                 //
                 // Pool was already initialized.
                 // Clear sessions stored in the pool.
                 //
-                alglib.smp.ae_shared_pool_first_recycled(sessions, ref p);
+                smp.ae_shared_pool_first_recycled(sessions, ref p);
                 while (p != null)
                 {
-                    alglib.ap.assert(mlpbase.mlpsamearchitecture(p.network, networktrained, _params), "InitMLPTrnSessions: internal consistency error");
+                    ap.assert(mlpbase.mlpsamearchitecture(p.network, networktrained, _params), "InitMLPTrnSessions: internal consistency error");
                     p.bestrmserror = math.maxrealnumber;
-                    alglib.smp.ae_shared_pool_next_recycled(sessions, ref p);
+                    smp.ae_shared_pool_next_recycled(sessions, ref p);
                 }
             }
             else
@@ -43393,7 +43393,7 @@ public partial class alglib
                 // Prepare session and seed pool
                 //
                 initmlptrnsession(networktrained, randomizenetwork, trainer, t, _params);
-                alglib.smp.ae_shared_pool_set_seed(sessions, t);
+                smp.ae_shared_pool_set_seed(sessions, t);
             }
         }
 
@@ -43433,10 +43433,10 @@ public partial class alglib
         {
             mlpetrnsession t = new();
 
-            if (!alglib.smp.ae_shared_pool_is_initialized(sessions))
+            if (!smp.ae_shared_pool_is_initialized(sessions))
             {
                 initmlpetrnsession(individualnetwork, trainer, t, _params);
-                alglib.smp.ae_shared_pool_set_seed(sessions, t);
+                smp.ae_shared_pool_set_seed(sessions, t);
             }
         }
 
@@ -43647,7 +43647,7 @@ public partial class alglib
             mcpdstate s,
             alglib.xparams _params)
         {
-            alglib.ap.assert(n >= 1, "MCPDCreate: N<1");
+            ap.assert(n >= 1, "MCPDCreate: N<1");
             mcpdinit(n, -1, -1, s, _params);
         }
 
@@ -43703,9 +43703,9 @@ public partial class alglib
             mcpdstate s,
             alglib.xparams _params)
         {
-            alglib.ap.assert(n >= 2, "MCPDCreateEntry: N<2");
-            alglib.ap.assert(entrystate >= 0, "MCPDCreateEntry: EntryState<0");
-            alglib.ap.assert(entrystate < n, "MCPDCreateEntry: EntryState>=N");
+            ap.assert(n >= 2, "MCPDCreateEntry: N<2");
+            ap.assert(entrystate >= 0, "MCPDCreateEntry: EntryState<0");
+            ap.assert(entrystate < n, "MCPDCreateEntry: EntryState>=N");
             mcpdinit(n, entrystate, -1, s, _params);
         }
 
@@ -43761,9 +43761,9 @@ public partial class alglib
             mcpdstate s,
             alglib.xparams _params)
         {
-            alglib.ap.assert(n >= 2, "MCPDCreateExit: N<2");
-            alglib.ap.assert(exitstate >= 0, "MCPDCreateExit: ExitState<0");
-            alglib.ap.assert(exitstate < n, "MCPDCreateExit: ExitState>=N");
+            ap.assert(n >= 2, "MCPDCreateExit: N<2");
+            ap.assert(exitstate >= 0, "MCPDCreateExit: ExitState<0");
+            ap.assert(exitstate < n, "MCPDCreateExit: ExitState>=N");
             mcpdinit(n, -1, exitstate, s, _params);
         }
 
@@ -43831,12 +43831,12 @@ public partial class alglib
             mcpdstate s,
             alglib.xparams _params)
         {
-            alglib.ap.assert(n >= 2, "MCPDCreateEntryExit: N<2");
-            alglib.ap.assert(entrystate >= 0, "MCPDCreateEntryExit: EntryState<0");
-            alglib.ap.assert(entrystate < n, "MCPDCreateEntryExit: EntryState>=N");
-            alglib.ap.assert(exitstate >= 0, "MCPDCreateEntryExit: ExitState<0");
-            alglib.ap.assert(exitstate < n, "MCPDCreateEntryExit: ExitState>=N");
-            alglib.ap.assert(entrystate != exitstate, "MCPDCreateEntryExit: EntryState=ExitState");
+            ap.assert(n >= 2, "MCPDCreateEntryExit: N<2");
+            ap.assert(entrystate >= 0, "MCPDCreateEntryExit: EntryState<0");
+            ap.assert(entrystate < n, "MCPDCreateEntryExit: EntryState>=N");
+            ap.assert(exitstate >= 0, "MCPDCreateEntryExit: ExitState<0");
+            ap.assert(exitstate < n, "MCPDCreateEntryExit: ExitState>=N");
+            ap.assert(entrystate != exitstate, "MCPDCreateEntryExit: EntryState=ExitState");
             mcpdinit(n, entrystate, exitstate, s, _params);
         }
 
@@ -43885,24 +43885,24 @@ public partial class alglib
             double s1 = 0;
 
             n = s.n;
-            alglib.ap.assert(k >= 0, "MCPDAddTrack: K<0");
-            alglib.ap.assert(alglib.ap.cols(xy) >= n, "MCPDAddTrack: Cols(XY)<N");
-            alglib.ap.assert(alglib.ap.rows(xy) >= k, "MCPDAddTrack: Rows(XY)<K");
-            alglib.ap.assert(apserv.apservisfinitematrix(xy, k, n, _params), "MCPDAddTrack: XY contains infinite or NaN elements");
+            ap.assert(k >= 0, "MCPDAddTrack: K<0");
+            ap.assert(ap.cols(xy) >= n, "MCPDAddTrack: Cols(XY)<N");
+            ap.assert(ap.rows(xy) >= k, "MCPDAddTrack: Rows(XY)<K");
+            ap.assert(apserv.apservisfinitematrix(xy, k, n, _params), "MCPDAddTrack: XY contains infinite or NaN elements");
             for (i = 0; i <= k - 1; i++)
             {
                 for (j = 0; j <= n - 1; j++)
                 {
-                    alglib.ap.assert((double)(xy[i, j]) >= (double)(0), "MCPDAddTrack: XY contains negative elements");
+                    ap.assert((double)(xy[i, j]) >= (double)(0), "MCPDAddTrack: XY contains negative elements");
                 }
             }
             if (k < 2)
             {
                 return;
             }
-            if (alglib.ap.rows(s.data) < s.npairs + k - 1)
+            if (ap.rows(s.data) < s.npairs + k - 1)
             {
-                apserv.rmatrixresize(ref s.data, Math.Max(2 * alglib.ap.rows(s.data), s.npairs + k - 1), 2 * n, _params);
+                apserv.rmatrixresize(ref s.data, Math.Max(2 * ap.rows(s.data), s.npairs + k - 1), 2 * n, _params);
             }
             for (i = 0; i <= k - 2; i++)
             {
@@ -44011,13 +44011,13 @@ public partial class alglib
             int n = 0;
 
             n = s.n;
-            alglib.ap.assert(alglib.ap.cols(ec) >= n, "MCPDSetEC: Cols(EC)<N");
-            alglib.ap.assert(alglib.ap.rows(ec) >= n, "MCPDSetEC: Rows(EC)<N");
+            ap.assert(ap.cols(ec) >= n, "MCPDSetEC: Cols(EC)<N");
+            ap.assert(ap.rows(ec) >= n, "MCPDSetEC: Rows(EC)<N");
             for (i = 0; i <= n - 1; i++)
             {
                 for (j = 0; j <= n - 1; j++)
                 {
-                    alglib.ap.assert(math.isfinite(ec[i, j]) || Double.IsNaN(ec[i, j]), "MCPDSetEC: EC containts infinite elements");
+                    ap.assert(math.isfinite(ec[i, j]) || Double.IsNaN(ec[i, j]), "MCPDSetEC: EC containts infinite elements");
                     s.ec[i, j] = ec[i, j];
                 }
             }
@@ -44082,11 +44082,11 @@ public partial class alglib
             double c,
             alglib.xparams _params)
         {
-            alglib.ap.assert(i >= 0, "MCPDAddEC: I<0");
-            alglib.ap.assert(i < s.n, "MCPDAddEC: I>=N");
-            alglib.ap.assert(j >= 0, "MCPDAddEC: J<0");
-            alglib.ap.assert(j < s.n, "MCPDAddEC: J>=N");
-            alglib.ap.assert(Double.IsNaN(c) || math.isfinite(c), "MCPDAddEC: C is not finite number or NAN");
+            ap.assert(i >= 0, "MCPDAddEC: I<0");
+            ap.assert(i < s.n, "MCPDAddEC: I>=N");
+            ap.assert(j >= 0, "MCPDAddEC: J<0");
+            ap.assert(j < s.n, "MCPDAddEC: J>=N");
+            ap.assert(Double.IsNaN(c) || math.isfinite(c), "MCPDAddEC: C is not finite number or NAN");
             s.ec[i, j] = c;
         }
 
@@ -44149,16 +44149,16 @@ public partial class alglib
             int n = 0;
 
             n = s.n;
-            alglib.ap.assert(alglib.ap.cols(bndl) >= n, "MCPDSetBC: Cols(BndL)<N");
-            alglib.ap.assert(alglib.ap.rows(bndl) >= n, "MCPDSetBC: Rows(BndL)<N");
-            alglib.ap.assert(alglib.ap.cols(bndu) >= n, "MCPDSetBC: Cols(BndU)<N");
-            alglib.ap.assert(alglib.ap.rows(bndu) >= n, "MCPDSetBC: Rows(BndU)<N");
+            ap.assert(ap.cols(bndl) >= n, "MCPDSetBC: Cols(BndL)<N");
+            ap.assert(ap.rows(bndl) >= n, "MCPDSetBC: Rows(BndL)<N");
+            ap.assert(ap.cols(bndu) >= n, "MCPDSetBC: Cols(BndU)<N");
+            ap.assert(ap.rows(bndu) >= n, "MCPDSetBC: Rows(BndU)<N");
             for (i = 0; i <= n - 1; i++)
             {
                 for (j = 0; j <= n - 1; j++)
                 {
-                    alglib.ap.assert(math.isfinite(bndl[i, j]) || Double.IsNegativeInfinity(bndl[i, j]), "MCPDSetBC: BndL containts NAN or +INF");
-                    alglib.ap.assert(math.isfinite(bndu[i, j]) || Double.IsPositiveInfinity(bndu[i, j]), "MCPDSetBC: BndU containts NAN or -INF");
+                    ap.assert(math.isfinite(bndl[i, j]) || Double.IsNegativeInfinity(bndl[i, j]), "MCPDSetBC: BndL containts NAN or +INF");
+                    ap.assert(math.isfinite(bndu[i, j]) || Double.IsPositiveInfinity(bndu[i, j]), "MCPDSetBC: BndU containts NAN or -INF");
                     s.bndl[i, j] = bndl[i, j];
                     s.bndu[i, j] = bndu[i, j];
                 }
@@ -44221,12 +44221,12 @@ public partial class alglib
             double bndu,
             alglib.xparams _params)
         {
-            alglib.ap.assert(i >= 0, "MCPDAddBC: I<0");
-            alglib.ap.assert(i < s.n, "MCPDAddBC: I>=N");
-            alglib.ap.assert(j >= 0, "MCPDAddBC: J<0");
-            alglib.ap.assert(j < s.n, "MCPDAddBC: J>=N");
-            alglib.ap.assert(math.isfinite(bndl) || Double.IsNegativeInfinity(bndl), "MCPDAddBC: BndL is NAN or +INF");
-            alglib.ap.assert(math.isfinite(bndu) || Double.IsPositiveInfinity(bndu), "MCPDAddBC: BndU is NAN or -INF");
+            ap.assert(i >= 0, "MCPDAddBC: I<0");
+            ap.assert(i < s.n, "MCPDAddBC: I>=N");
+            ap.assert(j >= 0, "MCPDAddBC: J<0");
+            ap.assert(j < s.n, "MCPDAddBC: J>=N");
+            ap.assert(math.isfinite(bndl) || Double.IsNegativeInfinity(bndl), "MCPDAddBC: BndL is NAN or +INF");
+            ap.assert(math.isfinite(bndu) || Double.IsPositiveInfinity(bndu), "MCPDAddBC: BndU is NAN or -INF");
             s.bndl[i, j] = bndl;
             s.bndu[i, j] = bndu;
         }
@@ -44284,10 +44284,10 @@ public partial class alglib
             int n = 0;
 
             n = s.n;
-            alglib.ap.assert(alglib.ap.cols(c) >= n * n + 1, "MCPDSetLC: Cols(C)<N*N+1");
-            alglib.ap.assert(alglib.ap.rows(c) >= k, "MCPDSetLC: Rows(C)<K");
-            alglib.ap.assert(alglib.ap.len(ct) >= k, "MCPDSetLC: Len(CT)<K");
-            alglib.ap.assert(apserv.apservisfinitematrix(c, k, n * n + 1, _params), "MCPDSetLC: C contains infinite or NaN values!");
+            ap.assert(ap.cols(c) >= n * n + 1, "MCPDSetLC: Cols(C)<N*N+1");
+            ap.assert(ap.rows(c) >= k, "MCPDSetLC: Rows(C)<K");
+            ap.assert(ap.len(ct) >= k, "MCPDSetLC: Len(CT)<K");
+            ap.assert(apserv.apservisfinitematrix(c, k, n * n + 1, _params), "MCPDSetLC: C contains infinite or NaN values!");
             apserv.rmatrixsetlengthatleast(ref s.c, k, n * n + 1, _params);
             apserv.ivectorsetlengthatleast(ref s.ct, k, _params);
             for (i = 0; i <= k - 1; i++)
@@ -44326,8 +44326,8 @@ public partial class alglib
             double v,
             alglib.xparams _params)
         {
-            alglib.ap.assert(math.isfinite(v), "MCPDSetTikhonovRegularizer: V is infinite or NAN");
-            alglib.ap.assert((double)(v) >= (double)(0.0), "MCPDSetTikhonovRegularizer: V is less than zero");
+            ap.assert(math.isfinite(v), "MCPDSetTikhonovRegularizer: V is infinite or NAN");
+            ap.assert((double)(v) >= (double)(0.0), "MCPDSetTikhonovRegularizer: V is less than zero");
             s.regterm = v;
         }
 
@@ -44365,14 +44365,14 @@ public partial class alglib
             pp = (double[,])pp.Clone();
 
             n = s.n;
-            alglib.ap.assert(alglib.ap.cols(pp) >= n, "MCPDSetPrior: Cols(PP)<N");
-            alglib.ap.assert(alglib.ap.rows(pp) >= n, "MCPDSetPrior: Rows(PP)<K");
+            ap.assert(ap.cols(pp) >= n, "MCPDSetPrior: Cols(PP)<N");
+            ap.assert(ap.rows(pp) >= n, "MCPDSetPrior: Rows(PP)<K");
             for (i = 0; i <= n - 1; i++)
             {
                 for (j = 0; j <= n - 1; j++)
                 {
-                    alglib.ap.assert(math.isfinite(pp[i, j]), "MCPDSetPrior: PP containts infinite elements");
-                    alglib.ap.assert((double)(pp[i, j]) >= (double)(0.0) && (double)(pp[i, j]) <= (double)(1.0), "MCPDSetPrior: PP[i,j] is less than 0.0 or greater than 1.0");
+                    ap.assert(math.isfinite(pp[i, j]), "MCPDSetPrior: PP containts infinite elements");
+                    ap.assert((double)(pp[i, j]) >= (double)(0.0) && (double)(pp[i, j]) <= (double)(1.0), "MCPDSetPrior: PP[i,j] is less than 0.0 or greater than 1.0");
                     s.priorp[i, j] = pp[i, j];
                 }
             }
@@ -44412,11 +44412,11 @@ public partial class alglib
             int n = 0;
 
             n = s.n;
-            alglib.ap.assert(alglib.ap.len(pw) >= n, "MCPDSetPredictionWeights: Length(PW)<N");
+            ap.assert(ap.len(pw) >= n, "MCPDSetPredictionWeights: Length(PW)<N");
             for (i = 0; i <= n - 1; i++)
             {
-                alglib.ap.assert(math.isfinite(pw[i]), "MCPDSetPredictionWeights: PW containts infinite or NAN elements");
-                alglib.ap.assert((double)(pw[i]) >= (double)(0), "MCPDSetPredictionWeights: PW containts negative elements");
+                ap.assert(math.isfinite(pw[i]), "MCPDSetPredictionWeights: PW containts infinite or NAN elements");
+                ap.assert((double)(pw[i]) >= (double)(0), "MCPDSetPredictionWeights: PW containts negative elements");
                 s.pw[i] = pw[i];
             }
         }
@@ -44636,7 +44636,7 @@ public partial class alglib
             //
             while (minbleic.minbleiciteration(s.bs, _params))
             {
-                alglib.ap.assert(s.bs.needfg, "MCPDSolve: internal error");
+                ap.assert(s.bs.needfg, "MCPDSolve: internal error");
                 if (s.bs.needfg)
                 {
 
@@ -44756,7 +44756,7 @@ public partial class alglib
             int i = 0;
             int j = 0;
 
-            alglib.ap.assert(n >= 1, "MCPDCreate: N<1");
+            ap.assert(n >= 1, "MCPDCreate: N<1");
             s.n = n;
             s.states = new int[n];
             for (i = 0; i <= n - 1; i++)
@@ -44930,11 +44930,11 @@ public partial class alglib
             //
             // Check input data
             //
-            alglib.ap.assert(npoints >= 0, "PCABuildBasis: NPoints<0");
-            alglib.ap.assert(nvars >= 1, "PCABuildBasis: NVars<1");
-            alglib.ap.assert(alglib.ap.rows(x) >= npoints, "PCABuildBasis: rows(X)<NPoints");
-            alglib.ap.assert(alglib.ap.cols(x) >= nvars || npoints == 0, "PCABuildBasis: cols(X)<NVars");
-            alglib.ap.assert(apserv.apservisfinitematrix(x, npoints, nvars, _params), "PCABuildBasis: X contains INF/NAN");
+            ap.assert(npoints >= 0, "PCABuildBasis: NPoints<0");
+            ap.assert(nvars >= 1, "PCABuildBasis: NVars<1");
+            ap.assert(ap.rows(x) >= npoints, "PCABuildBasis: rows(X)<NPoints");
+            ap.assert(ap.cols(x) >= nvars || npoints == 0, "PCABuildBasis: cols(X)<NVars");
+            ap.assert(apserv.apservisfinitematrix(x, npoints, nvars, _params), "PCABuildBasis: X contains INF/NAN");
 
             //
             // Special case: NPoints=0
@@ -45003,7 +45003,7 @@ public partial class alglib
             }
             if (!svd.rmatrixsvd(a, Math.Max(npoints, nvars), nvars, 0, 1, 2, ref s2, ref u, ref vt, _params))
             {
-                alglib.ap.assert(false, "PCABuildBasis: internal SVD solver failure");
+                ap.assert(false, "PCABuildBasis: internal SVD solver failure");
                 return;
             }
             if (npoints != 1)
@@ -45111,15 +45111,15 @@ public partial class alglib
             s2 = new double[0];
             v = new double[0, 0];
 
-            alglib.ap.assert(npoints >= 0, "PCATruncatedSubspace: npoints<0");
-            alglib.ap.assert(nvars >= 1, "PCATruncatedSubspace: nvars<1");
-            alglib.ap.assert(nneeded > 0, "PCATruncatedSubspace: nneeded<1");
-            alglib.ap.assert(nneeded <= nvars, "PCATruncatedSubspace: nneeded>nvars");
-            alglib.ap.assert(maxits >= 0, "PCATruncatedSubspace: maxits<0");
-            alglib.ap.assert(math.isfinite(eps) && (double)(eps) >= (double)(0), "PCATruncatedSubspace: eps<0 or is not finite");
-            alglib.ap.assert(alglib.ap.rows(x) >= npoints, "PCATruncatedSubspace: rows(x)<npoints");
-            alglib.ap.assert(alglib.ap.cols(x) >= nvars || npoints == 0, "PCATruncatedSubspace: cols(x)<nvars");
-            alglib.ap.assert(apserv.apservisfinitematrix(x, npoints, nvars, _params), "PCATruncatedSubspace: X contains INF/NAN");
+            ap.assert(npoints >= 0, "PCATruncatedSubspace: npoints<0");
+            ap.assert(nvars >= 1, "PCATruncatedSubspace: nvars<1");
+            ap.assert(nneeded > 0, "PCATruncatedSubspace: nneeded<1");
+            ap.assert(nneeded <= nvars, "PCATruncatedSubspace: nneeded>nvars");
+            ap.assert(maxits >= 0, "PCATruncatedSubspace: maxits<0");
+            ap.assert(math.isfinite(eps) && (double)(eps) >= (double)(0), "PCATruncatedSubspace: eps<0 or is not finite");
+            ap.assert(ap.rows(x) >= npoints, "PCATruncatedSubspace: rows(x)<npoints");
+            ap.assert(ap.cols(x) >= nvars || npoints == 0, "PCATruncatedSubspace: cols(x)<nvars");
+            ap.assert(apserv.apservisfinitematrix(x, npoints, nvars, _params), "PCATruncatedSubspace: X contains INF/NAN");
 
             //
             // Special case: NPoints=0
@@ -45186,7 +45186,7 @@ public partial class alglib
             evd.eigsubspaceoocstart(solver, 0, _params);
             while (evd.eigsubspaceooccontinue(solver, _params))
             {
-                alglib.ap.assert(solver.requesttype == 0, "PCATruncatedSubspace: integrity check failed");
+                ap.assert(solver.requesttype == 0, "PCATruncatedSubspace: integrity check failed");
                 k = solver.requestsize;
                 apserv.rmatrixsetlengthatleast(ref b, npoints, k, _params);
                 ablas.rmatrixgemm(npoints, k, nvars, 1.0, a, 0, 0, 0, solver.x, 0, 0, 0, 0.0, b, 0, 0, _params);
@@ -45305,16 +45305,16 @@ public partial class alglib
             s2 = new double[0];
             v = new double[0, 0];
 
-            alglib.ap.assert(npoints >= 0, "PCATruncatedSubspaceSparse: npoints<0");
-            alglib.ap.assert(nvars >= 1, "PCATruncatedSubspaceSparse: nvars<1");
-            alglib.ap.assert(nneeded > 0, "PCATruncatedSubspaceSparse: nneeded<1");
-            alglib.ap.assert(nneeded <= nvars, "PCATruncatedSubspaceSparse: nneeded>nvars");
-            alglib.ap.assert(maxits >= 0, "PCATruncatedSubspaceSparse: maxits<0");
-            alglib.ap.assert(math.isfinite(eps) && (double)(eps) >= (double)(0), "PCATruncatedSubspaceSparse: eps<0 or is not finite");
+            ap.assert(npoints >= 0, "PCATruncatedSubspaceSparse: npoints<0");
+            ap.assert(nvars >= 1, "PCATruncatedSubspaceSparse: nvars<1");
+            ap.assert(nneeded > 0, "PCATruncatedSubspaceSparse: nneeded<1");
+            ap.assert(nneeded <= nvars, "PCATruncatedSubspaceSparse: nneeded>nvars");
+            ap.assert(maxits >= 0, "PCATruncatedSubspaceSparse: maxits<0");
+            ap.assert(math.isfinite(eps) && (double)(eps) >= (double)(0), "PCATruncatedSubspaceSparse: eps<0 or is not finite");
             if (npoints > 0)
             {
-                alglib.ap.assert(sparse.sparsegetnrows(x, _params) == npoints, "PCATruncatedSubspaceSparse: rows(x)!=npoints");
-                alglib.ap.assert(sparse.sparsegetncols(x, _params) == nvars, "PCATruncatedSubspaceSparse: cols(x)!=nvars");
+                ap.assert(sparse.sparsegetnrows(x, _params) == npoints, "PCATruncatedSubspaceSparse: rows(x)!=npoints");
+                ap.assert(sparse.sparsegetncols(x, _params) == nvars, "PCATruncatedSubspaceSparse: cols(x)!=nvars");
             }
 
             //
@@ -45387,7 +45387,7 @@ public partial class alglib
             evd.eigsubspaceoocstart(solver, 0, _params);
             while (evd.eigsubspaceooccontinue(solver, _params))
             {
-                alglib.ap.assert(solver.requesttype == 0, "PCATruncatedSubspace: integrity check failed");
+                ap.assert(solver.requesttype == 0, "PCATruncatedSubspace: integrity check failed");
                 for (k = 0; k <= solver.requestsize - 1; k++)
                 {
 

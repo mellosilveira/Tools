@@ -371,11 +371,26 @@
             Provides extension methods to register services from the MelloSilveiraTools.Core package.
             </summary>
         </member>
+        <member name="M:MelloSilveiraTools.Core.CoreDependencyInjection.AddFileStorageHealthCheck(Microsoft.Extensions.DependencyInjection.IHealthChecksBuilder,System.String,System.Collections.Generic.IEnumerable{System.String})">
+            <inheritdoc cref="M:MelloSilveiraTools.Core.CoreDependencyInjection.&lt;G&gt;$08C933CC3BEDFE68D0D1C058595CC45C.AddFileStorageHealthCheck(System.String,System.Collections.Generic.IEnumerable{System.String})"/>
+        </member>
         <member name="M:MelloSilveiraTools.Core.CoreDependencyInjection.AddCoreServices(Microsoft.Extensions.DependencyInjection.IServiceCollection,MelloSilveiraTools.Core.ResiliencePipelines.ResiliencePipelineSettings,MelloSilveiraTools.Core.Services.Encryption.EncryptionSettings,MelloSilveiraTools.Core.Services.Email.EmailSettings,MelloSilveiraTools.Core.Files.Providers.FileStorageSettings,MelloSilveiraTools.Core.Logging.LoggerSettings,MelloSilveiraTools.Core.Pipelines.Notifiers.PipelineProgressNotifierSettings)">
             <inheritdoc cref="M:MelloSilveiraTools.Core.CoreDependencyInjection.&lt;G&gt;$7B30185E57B8298C6754F16C0BCF4773.AddCoreServices(MelloSilveiraTools.Core.ResiliencePipelines.ResiliencePipelineSettings,MelloSilveiraTools.Core.Services.Encryption.EncryptionSettings,MelloSilveiraTools.Core.Services.Email.EmailSettings,MelloSilveiraTools.Core.Files.Providers.FileStorageSettings,MelloSilveiraTools.Core.Logging.LoggerSettings,MelloSilveiraTools.Core.Pipelines.Notifiers.PipelineProgressNotifierSettings)"/>
         </member>
+        <member name="M:MelloSilveiraTools.Core.CoreDependencyInjection.AddFileStorageHealthCheck(Microsoft.Extensions.DependencyInjection.IServiceCollection,System.String,System.Collections.Generic.IEnumerable{System.String})">
+            <inheritdoc cref="M:MelloSilveiraTools.Core.CoreDependencyInjection.&lt;G&gt;$7B30185E57B8298C6754F16C0BCF4773.AddFileStorageHealthCheck(System.String,System.Collections.Generic.IEnumerable{System.String})"/>
+        </member>
         <member name="M:MelloSilveiraTools.Core.CoreDependencyInjection.AddCoreLogging(Microsoft.Extensions.DependencyInjection.IServiceCollection,MelloSilveiraTools.Core.Logging.LoggerSettings)">
             <inheritdoc cref="M:MelloSilveiraTools.Core.CoreDependencyInjection.&lt;G&gt;$7B30185E57B8298C6754F16C0BCF4773.AddCoreLogging(MelloSilveiraTools.Core.Logging.LoggerSettings)"/>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.CoreDependencyInjection.&lt;G&gt;$08C933CC3BEDFE68D0D1C058595CC45C.AddFileStorageHealthCheck(System.String,System.Collections.Generic.IEnumerable{System.String})">
+            <summary>
+            Registers the native ASP.NET Core <see cref="T:MelloSilveiraTools.Core.Files.HealthChecks.FileStorageHealthCheck"/> validating every
+            <see cref="T:MelloSilveiraTools.Core.Files.Providers.IFileStorageService"/> registered across static (keyed and unkeyed) and dynamic plugin containers.
+            </summary>
+            <param name="name">Optional health-check registration name; defaults to <see cref="F:MelloSilveiraTools.Core.Files.HealthChecks.FileStorageHealthCheck.DefaultName"/>.</param>
+            <param name="tags">Optional health-check tags; defaults to <c>["storage", "ready"]</c>.</param>
+            <returns>The <see cref="T:Microsoft.Extensions.DependencyInjection.IHealthChecksBuilder"/> to allow chaining additional health checks.</returns>
         </member>
         <member name="M:MelloSilveiraTools.Core.CoreDependencyInjection.&lt;G&gt;$7B30185E57B8298C6754F16C0BCF4773.AddCoreServices(MelloSilveiraTools.Core.ResiliencePipelines.ResiliencePipelineSettings,MelloSilveiraTools.Core.Services.Encryption.EncryptionSettings,MelloSilveiraTools.Core.Services.Email.EmailSettings,MelloSilveiraTools.Core.Files.Providers.FileStorageSettings,MelloSilveiraTools.Core.Logging.LoggerSettings,MelloSilveiraTools.Core.Pipelines.Notifiers.PipelineProgressNotifierSettings)">
             <summary>
@@ -390,6 +405,15 @@
             <param name="loggerSettings">Settings used by the logging service.</param>
             <param name="pipelineProgressNotifierSettings">Mandatory configuration settings when real-time pipeline notifications are enabled.</param>
             <returns>The same <paramref name="services"/> instance to allow call chaining.</returns>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.CoreDependencyInjection.&lt;G&gt;$7B30185E57B8298C6754F16C0BCF4773.AddFileStorageHealthCheck(System.String,System.Collections.Generic.IEnumerable{System.String})">
+            <summary>
+            Registers the native ASP.NET Core <see cref="T:MelloSilveiraTools.Core.Files.HealthChecks.FileStorageHealthCheck"/> validating every
+            <see cref="T:MelloSilveiraTools.Core.Files.Providers.IFileStorageService"/> registered across static (keyed and unkeyed) and dynamic plugin containers.
+            </summary>
+            <param name="name">Optional health-check registration name; defaults to <see cref="F:MelloSilveiraTools.Core.Files.HealthChecks.FileStorageHealthCheck.DefaultName"/>.</param>
+            <param name="tags">Optional health-check tags; defaults to <c>["storage", "ready"]</c>.</param>
+            <returns>The <see cref="T:Microsoft.Extensions.DependencyInjection.IServiceCollection"/> to allow chaining additional services.</returns>
         </member>
         <member name="M:MelloSilveiraTools.Core.CoreDependencyInjection.&lt;G&gt;$7B30185E57B8298C6754F16C0BCF4773.AddCoreLogging(MelloSilveiraTools.Core.Logging.LoggerSettings)">
             <summary>
@@ -1282,6 +1306,32 @@
         <member name="M:MelloSilveiraTools.Core.Files.Csv.CsvStreamReader.DisposeAsync">
             <inheritdoc/>
         </member>
+        <member name="T:MelloSilveiraTools.Core.Files.HealthChecks.FileStorageHealthCheck">
+            <summary>
+            Native ASP.NET Core <see cref="T:Microsoft.Extensions.Diagnostics.HealthChecks.IHealthCheck"/> probing every registered <see cref="T:MelloSilveiraTools.Core.Files.Providers.IFileStorageService"/>
+            across static (keyed and unkeyed) and dynamic plugin containers via <see cref="T:MelloSilveiraTools.Core.Providers.ServiceLocator"/>.
+            Fails closed (<see cref="F:Microsoft.Extensions.Diagnostics.HealthChecks.HealthStatus.Unhealthy"/>) if any registered storage provider fails its probe.
+            </summary>
+            <param name="logger">Logger recording storage health-check failures.</param>
+            <param name="serviceLocator">Service locator resolving all unique registered <see cref="T:MelloSilveiraTools.Core.Files.Providers.IFileStorageService"/> instances.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Files.HealthChecks.FileStorageHealthCheck.#ctor(Microsoft.Extensions.Logging.ILogger{MelloSilveiraTools.Core.Files.HealthChecks.FileStorageHealthCheck},MelloSilveiraTools.Core.Providers.ServiceLocator)">
+            <summary>
+            Native ASP.NET Core <see cref="T:Microsoft.Extensions.Diagnostics.HealthChecks.IHealthCheck"/> probing every registered <see cref="T:MelloSilveiraTools.Core.Files.Providers.IFileStorageService"/>
+            across static (keyed and unkeyed) and dynamic plugin containers via <see cref="T:MelloSilveiraTools.Core.Providers.ServiceLocator"/>.
+            Fails closed (<see cref="F:Microsoft.Extensions.Diagnostics.HealthChecks.HealthStatus.Unhealthy"/>) if any registered storage provider fails its probe.
+            </summary>
+            <param name="logger">Logger recording storage health-check failures.</param>
+            <param name="serviceLocator">Service locator resolving all unique registered <see cref="T:MelloSilveiraTools.Core.Files.Providers.IFileStorageService"/> instances.</param>
+        </member>
+        <member name="F:MelloSilveiraTools.Core.Files.HealthChecks.FileStorageHealthCheck.DefaultName">
+            <summary>
+            Default registration name used when adding <see cref="T:MelloSilveiraTools.Core.Files.HealthChecks.FileStorageHealthCheck"/> to ASP.NET Core health checks.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Files.HealthChecks.FileStorageHealthCheck.CheckHealthAsync(Microsoft.Extensions.Diagnostics.HealthChecks.HealthCheckContext,System.Threading.CancellationToken)">
+            <inheritdoc/>
+        </member>
         <member name="T:MelloSilveiraTools.Core.Files.Models.StorageEntryMetadata">
             <summary>
             Immutable snapshot representing persistent storage entry (file or directory) metadata returned by <see cref="T:MelloSilveiraTools.Core.Files.Providers.IFileStorageService"/>.
@@ -1472,6 +1522,9 @@
             <param name="resiliencePipeline">Resilience pipeline for AWS S3 operations providing retry, backoff, and circuit-breaker strategies.</param>
         </member>
         <member name="P:MelloSilveiraTools.Core.Files.Providers.AwsS3.AwsS3FileStorageService.Provider">
+            <inheritdoc />
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Files.Providers.AwsS3.AwsS3FileStorageService.IsHealthAsync(System.Threading.CancellationToken)">
             <inheritdoc />
         </member>
         <member name="M:MelloSilveiraTools.Core.Files.Providers.AwsS3.AwsS3FileStorageService.OpenWriteAsync(System.String,System.Threading.CancellationToken)">
@@ -1666,6 +1719,9 @@
         <member name="P:MelloSilveiraTools.Core.Files.Providers.BlobStorage.BlobStorageFileStorageService.Provider">
             <inheritdoc />
         </member>
+        <member name="M:MelloSilveiraTools.Core.Files.Providers.BlobStorage.BlobStorageFileStorageService.IsHealthAsync(System.Threading.CancellationToken)">
+            <inheritdoc />
+        </member>
         <member name="M:MelloSilveiraTools.Core.Files.Providers.BlobStorage.BlobStorageFileStorageService.OpenWriteAsync(System.String,System.Threading.CancellationToken)">
             <inheritdoc />
         </member>
@@ -1730,11 +1786,6 @@
             Gets an optional custom service URL for local or Azure-compatible emulator endpoints (e.g. Azurite).
             </summary>
         </member>
-        <member name="P:MelloSilveiraTools.Core.Files.Providers.BlobStorage.BlobStorageSettings.StagingDirectory">
-            <summary>
-            Gets an optional local staging directory used for buffering uploads. If omitted, the default file storage service temporary location is used.
-            </summary>
-        </member>
         <member name="P:MelloSilveiraTools.Core.Files.Providers.BlobStorage.BlobStorageSettings.ResiliencePipelineSettings">
             <summary>
             Gets the optional resilience pipeline settings governing retries, backoff, and circuit breaker for Azure Blob Storage operations.
@@ -1745,14 +1796,16 @@
             Abstract base implementation for cloud object storage providers (such as Azure Blob Storage and AWS S3),
             providing forward-slash virtual directory prefix construction and cloud object key path extraction.
             </summary>
+            <param name="logger">Logger instance for tracing cloud storage operations and health probes.</param>
             <param name="timeProvider">The time provider instance used for temporal operations.</param>
             <param name="basePrefix">Mandatory root virtual prefix configured for the storage container or bucket.</param>
         </member>
-        <member name="M:MelloSilveiraTools.Core.Files.Providers.CloudFileStorageServiceBase.#ctor(System.TimeProvider,System.String)">
+        <member name="M:MelloSilveiraTools.Core.Files.Providers.CloudFileStorageServiceBase.#ctor(Microsoft.Extensions.Logging.ILogger,System.TimeProvider,System.String)">
             <summary>
             Abstract base implementation for cloud object storage providers (such as Azure Blob Storage and AWS S3),
             providing forward-slash virtual directory prefix construction and cloud object key path extraction.
             </summary>
+            <param name="logger">Logger instance for tracing cloud storage operations and health probes.</param>
             <param name="timeProvider">The time provider instance used for temporal operations.</param>
             <param name="basePrefix">Mandatory root virtual prefix configured for the storage container or bucket.</param>
         </member>
@@ -1761,6 +1814,14 @@
         </member>
         <member name="M:MelloSilveiraTools.Core.Files.Providers.CloudFileStorageServiceBase.ParseLocation(System.String)">
             <inheritdoc />
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Files.Providers.CloudFileStorageServiceBase.ProbeReadWriteDeleteAsync(System.Threading.CancellationToken)">
+            <summary>
+            Executes an end-to-end health probe performing write (including local spooling and cloud upload),
+            read with byte-for-byte payload verification, and deletion of a temporary probe object.
+            </summary>
+            <param name="cancellationToken">Cancellation token.</param>
+            <returns><see langword="true"/> when write, read verification, and deletion all succeed; otherwise, <see langword="false"/>.</returns>
         </member>
         <member name="M:MelloSilveiraTools.Core.Files.Providers.CloudFileStorageServiceBase.BuildDirectoryPrefix(System.String,System.String)">
             <summary>
@@ -1785,19 +1846,24 @@
             Inherits from <see cref="T:MelloSilveiraTools.Core.Files.Providers.Local.LocalFileStorageService"/> as DFS represents a network-mounted hierarchical file system,
             configured with <see cref="F:System.IO.FileShare.ReadWrite"/> to facilitate concurrent distributed access.
             </summary>
+            <param name="loggerFactory">Logger factory used to create the category logger for this service.</param>
             <param name="timeProvider">The time provider instance used for temporal operations.</param>
             <param name="settings">DFS storage settings defining the root network share path or mount point.</param>
         </member>
-        <member name="M:MelloSilveiraTools.Core.Files.Providers.Dfs.DfsFileStorageService.#ctor(System.TimeProvider,MelloSilveiraTools.Core.Files.Providers.Dfs.DfsStorageSettings)">
+        <member name="M:MelloSilveiraTools.Core.Files.Providers.Dfs.DfsFileStorageService.#ctor(Microsoft.Extensions.Logging.ILoggerFactory,System.TimeProvider,MelloSilveiraTools.Core.Files.Providers.Dfs.DfsStorageSettings)">
             <summary>
             Storage-agnostic file management implementation targeting distributed file systems (DFS) and network shares.
             Inherits from <see cref="T:MelloSilveiraTools.Core.Files.Providers.Local.LocalFileStorageService"/> as DFS represents a network-mounted hierarchical file system,
             configured with <see cref="F:System.IO.FileShare.ReadWrite"/> to facilitate concurrent distributed access.
             </summary>
+            <param name="loggerFactory">Logger factory used to create the category logger for this service.</param>
             <param name="timeProvider">The time provider instance used for temporal operations.</param>
             <param name="settings">DFS storage settings defining the root network share path or mount point.</param>
         </member>
         <member name="P:MelloSilveiraTools.Core.Files.Providers.Dfs.DfsFileStorageService.Provider">
+            <inheritdoc />
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Files.Providers.Dfs.DfsFileStorageService.IsHealthAsync(System.Threading.CancellationToken)">
             <inheritdoc />
         </member>
         <member name="P:MelloSilveiraTools.Core.Files.Providers.Dfs.DfsFileStorageService.WriteFileShare">
@@ -1814,6 +1880,12 @@
         <member name="P:MelloSilveiraTools.Core.Files.Providers.Dfs.DfsStorageSettings.BaseDirectory">
             <summary>
             Gets the base network share or root DFS path.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.Core.Files.Providers.Dfs.DfsStorageSettings.HealthMarkerFileName">
+            <summary>
+            Gets an optional sentinel file name expected to exist directly under <see cref="P:MelloSilveiraTools.Core.Files.Providers.Dfs.DfsStorageSettings.BaseDirectory"/>
+            to detect unmounted DFS or network volumes that leave an empty mount-point directory behind on Unix or container hosts.
             </summary>
         </member>
         <member name="T:MelloSilveiraTools.Core.Files.Providers.FileStorageServiceBase">
@@ -1881,6 +1953,9 @@
             <inheritdoc />
         </member>
         <member name="M:MelloSilveiraTools.Core.Files.Providers.FileStorageServiceBase.WriteAndHashAsync(System.String,System.String,System.String,System.IO.Stream,System.Threading.CancellationToken)">
+            <inheritdoc />
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Files.Providers.FileStorageServiceBase.IsHealthAsync(System.Threading.CancellationToken)">
             <inheritdoc />
         </member>
         <member name="M:MelloSilveiraTools.Core.Files.Providers.FileStorageServiceBase.OpenWriteAsync(System.String,System.Threading.CancellationToken)">
@@ -2175,25 +2250,48 @@
             <param name="cancellationToken">Cancellation token.</param>
             <returns>A tuple containing the resolved storage location, normalized directory, lowercase SHA-256 hash, and total written bytes.</returns>
         </member>
+        <member name="M:MelloSilveiraTools.Core.Files.Providers.IFileStorageService.IsHealthAsync(System.Threading.CancellationToken)">
+            <summary>
+            Asynchronously verifies that the underlying storage infrastructure (directory/mount, container, or bucket)
+            is reachable and supports write, read, and delete operations.
+            </summary>
+            <param name="cancellationToken">Cancellation token.</param>
+            <returns><see langword="true"/> when the storage provider is healthy and all probe operations succeeded; otherwise, <see langword="false"/>.</returns>
+        </member>
         <member name="T:MelloSilveiraTools.Core.Files.Providers.Local.LocalFileStorageService">
             <summary>
             Storage-agnostic file management implementation targeting the local file system.
             Implements canonical hierarchical directory structures partitioned by
             unique identifier and domain context (<c>{identifier}/{context}/</c>).
             </summary>
+            <param name="loggerFactory">Logger factory used to create the category logger for this service.</param>
             <param name="timeProvider">The time provider instance used for temporal operations.</param>
             <param name="settings">File storage settings defining the root base directory.</param>
         </member>
-        <member name="M:MelloSilveiraTools.Core.Files.Providers.Local.LocalFileStorageService.#ctor(System.TimeProvider,MelloSilveiraTools.Core.Files.Providers.Local.LocalFileStorageSettings)">
+        <member name="M:MelloSilveiraTools.Core.Files.Providers.Local.LocalFileStorageService.#ctor(Microsoft.Extensions.Logging.ILoggerFactory,System.TimeProvider,MelloSilveiraTools.Core.Files.Providers.Local.LocalFileStorageSettings)">
             <summary>
             Storage-agnostic file management implementation targeting the local file system.
             Implements canonical hierarchical directory structures partitioned by
             unique identifier and domain context (<c>{identifier}/{context}/</c>).
             </summary>
+            <param name="loggerFactory">Logger factory used to create the category logger for this service.</param>
             <param name="timeProvider">The time provider instance used for temporal operations.</param>
             <param name="settings">File storage settings defining the root base directory.</param>
         </member>
+        <member name="F:MelloSilveiraTools.Core.Files.Providers.Local.LocalFileStorageService.DefaultFileOptions">
+            <summary>
+            Default asynchronous sequential file options used for local and DFS file streams.
+            </summary>
+        </member>
+        <member name="F:MelloSilveiraTools.Core.Files.Providers.Local.LocalFileStorageService.DefaultBufferSize">
+            <summary>
+            Default stream buffer size in bytes (128 KiB) used for local and DFS file streams.
+            </summary>
+        </member>
         <member name="P:MelloSilveiraTools.Core.Files.Providers.Local.LocalFileStorageService.Provider">
+            <inheritdoc />
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Files.Providers.Local.LocalFileStorageService.IsHealthAsync(System.Threading.CancellationToken)">
             <inheritdoc />
         </member>
         <member name="P:MelloSilveiraTools.Core.Files.Providers.Local.LocalFileStorageService.WriteFileShare">
@@ -2871,6 +2969,14 @@
             <param name="data">The conflicting business item.</param>
             <param name="message">Explanation of the duplication or conflict.</param>
             <returns>A conflict outcome with descriptive messages.</returns>
+        </member>
+        <member name="M:MelloSilveiraTools.Core.Models.Result.CreateServiceUnavailable``1(``0)">
+            <summary>
+            Creates an outcome indicating temporary service unavailability while carrying structured diagnostic data.
+            </summary>
+            <typeparam name="TResultData">The type of diagnostic or business data payload.</typeparam>
+            <param name="data">The structured payload describing the unavailable state.</param>
+            <returns>A 503 Service Unavailable outcome carrying data.</returns>
         </member>
         <member name="M:MelloSilveiraTools.Core.Models.Result.CreateListedSuccess``1(MelloSilveiraTools.Core.Models.StatusCode,System.Collections.Generic.IEnumerable{``0})">
             <summary>

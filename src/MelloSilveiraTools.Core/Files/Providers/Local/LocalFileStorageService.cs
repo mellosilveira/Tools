@@ -1,4 +1,5 @@
 using MelloSilveiraTools.Core.Files.Models;
+using Microsoft.Extensions.Logging;
 using System.Runtime.CompilerServices;
 
 namespace MelloSilveiraTools.Core.Files.Providers.Local;
@@ -8,19 +9,88 @@ namespace MelloSilveiraTools.Core.Files.Providers.Local;
 /// Implements canonical hierarchical directory structures partitioned by
 /// unique identifier and domain context (<c>{identifier}/{context}/</c>).
 /// </summary>
+/// <param name="loggerFactory">Logger factory used to create the category logger for this service.</param>
 /// <param name="timeProvider">The time provider instance used for temporal operations.</param>
 /// <param name="settings">File storage settings defining the root base directory.</param>
 public class LocalFileStorageService(
+    ILoggerFactory loggerFactory,
     TimeProvider timeProvider,
-    LocalFileStorageSettings settings) 
+    LocalFileStorageSettings settings)
     : FileStorageServiceBase(timeProvider)
 {
-    private const FileOptions FileOptions = System.IO.FileOptions.SequentialScan | System.IO.FileOptions.Asynchronous;
-    private const int BufferSize = 128 * 1024;
+    private readonly ILogger<LocalFileStorageService> _logger = loggerFactory.CreateLogger<LocalFileStorageService>();
+
+    /// <summary>
+    /// Default asynchronous sequential file options used for local and DFS file streams.
+    /// </summary>
+    protected const FileOptions DefaultFileOptions = FileOptions.SequentialScan | FileOptions.Asynchronous;
+
+    /// <summary>
+    /// Default stream buffer size in bytes (128 KiB) used for local and DFS file streams.
+    /// </summary>
+    protected const int DefaultBufferSize = 128 * 1024;
+
     private static readonly char[] PathSeparators = [Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar];
 
     /// <inheritdoc />
     public override StorageProvider Provider => StorageProvider.Local;
+
+    /// <inheritdoc />
+    public override async ValueTask<bool> IsHealthAsync(CancellationToken cancellationToken = default)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+
+        string baseDirectory = Path.GetFullPath(settings.BaseDirectory);
+        if (!Directory.Exists(baseDirectory))
+            return false;
+
+        byte[] expectedPayload = Guid.NewGuid().ToByteArray();
+        string probeFilePath = Path.Combine(baseDirectory, $".health-probe-{Guid.NewGuid():N}.tmp");
+        bool fileCreated = false;
+        bool readMatched;
+        try
+        {
+            await using (FileStream writeStream = new(probeFilePath, FileMode.CreateNew, FileAccess.Write, WriteFileShare, DefaultBufferSize, DefaultFileOptions))
+            {
+                fileCreated = true;
+                await writeStream.WriteAsync(expectedPayload, cancellationToken).ConfigureAwait(false);
+                await writeStream.FlushAsync(cancellationToken).ConfigureAwait(false);
+            }
+
+            cancellationToken.ThrowIfCancellationRequested();
+
+            byte[] actualPayload;
+            await using (FileStream readStream = new(probeFilePath, FileMode.Open, FileAccess.Read, ReadFileShare, DefaultBufferSize, DefaultFileOptions))
+            {
+                using MemoryStream buffer = new(expectedPayload.Length);
+                await readStream.CopyToAsync(buffer, cancellationToken).ConfigureAwait(false);
+                actualPayload = buffer.ToArray();
+            }
+
+            readMatched = actualPayload.AsSpan().SequenceEqual(expectedPayload);
+        }
+        catch
+        {
+            if (fileCreated && File.Exists(probeFilePath))
+            {
+                try
+                {
+                    File.Delete(probeFilePath);
+                }
+                catch (Exception ex)
+                {
+                    // Best-effort cleanup so the original write or read failure is preserved.
+                    _logger.LogWarning(ex, "Failed to delete temporary health probe file '{ProbeFilePath}' during local file storage health check cleanup.", probeFilePath);
+                }
+            }
+
+            throw;
+        }
+
+        File.Delete(probeFilePath);
+        bool stillExists = File.Exists(probeFilePath);
+        return readMatched && !stillExists;
+    }
 
     /// <summary>
     /// Gets the file sharing mode used when creating write streams.
@@ -73,7 +143,7 @@ public class LocalFileStorageService(
     public override ValueTask<bool> ExistsAsync(string location, CancellationToken cancellationToken = default)
     {
         cancellationToken.ThrowIfCancellationRequested();
-        return ValueTask.FromResult(System.IO.File.Exists(location) || Directory.Exists(location));
+        return ValueTask.FromResult(File.Exists(location) || Directory.Exists(location));
     }
 
     /// <inheritdoc />
@@ -91,7 +161,7 @@ public class LocalFileStorageService(
             return ValueTask.FromResult(new StorageEntryMetadata(Provider, directoryInfo.FullName, directoryPath, null, directorySizeBytes, directoryInfo.CreationTimeUtc));
         }
 
-        if (System.IO.File.Exists(location))
+        if (File.Exists(location))
         {
             FileInfo fileInfo = new(location);
             fileInfo.Refresh();
@@ -109,9 +179,9 @@ public class LocalFileStorageService(
 
         try
         {
-            if (System.IO.File.Exists(location))
+            if (File.Exists(location))
             {
-                System.IO.File.Delete(location);
+                File.Delete(location);
                 return ValueTask.FromResult(true);
             }
 
@@ -200,8 +270,8 @@ public class LocalFileStorageService(
             Mode = FileMode.Create,
             Access = FileAccess.Write,
             Share = WriteFileShare,
-            Options = FileOptions,
-            BufferSize = BufferSize
+            Options = DefaultFileOptions,
+            BufferSize = DefaultBufferSize
         };
         return new FileStream(location, options);
     }
@@ -218,8 +288,8 @@ public class LocalFileStorageService(
             Mode = FileMode.Open,
             Access = FileAccess.Read,
             Share = ReadFileShare,
-            Options = FileOptions,
-            BufferSize = BufferSize
+            Options = DefaultFileOptions,
+            BufferSize = DefaultBufferSize
         };
 
         return new FileStream(location, options);

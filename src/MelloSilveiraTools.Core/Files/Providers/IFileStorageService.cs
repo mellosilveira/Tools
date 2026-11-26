@@ -225,4 +225,12 @@ public interface IFileStorageService : IDisposable, IAsyncDisposable
     /// <param name="cancellationToken">Cancellation token.</param>
     /// <returns>A tuple containing the resolved storage location, normalized directory, lowercase SHA-256 hash, and total written bytes.</returns>
     ValueTask<(string Location, string Directory, string Sha256Hash, long SizeBytes)> WriteAndHashAsync(string identifier, string context, string fileName, Stream sourceStream, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Asynchronously verifies that the underlying storage infrastructure (directory/mount, container, or bucket)
+    /// is reachable and supports write, read, and delete operations.
+    /// </summary>
+    /// <param name="cancellationToken">Cancellation token.</param>
+    /// <returns><see langword="true"/> when the storage provider is healthy and all probe operations succeeded; otherwise, <see langword="false"/>.</returns>
+    ValueTask<bool> IsHealthAsync(CancellationToken cancellationToken = default);
 }

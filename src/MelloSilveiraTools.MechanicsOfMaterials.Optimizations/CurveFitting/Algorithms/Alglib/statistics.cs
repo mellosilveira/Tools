@@ -2565,9 +2565,9 @@ public partial class alglib
         callbacks.rep = rep;
         callbacks.func = func;
 
-        alglib.mcmc.mcmcsetprotocolv2(state.innerobj, _params);
+        mcmc.mcmcsetprotocolv2(state.innerobj, _params);
         state.innerobj.rcommv2.assign_handler(ap.rcommv2_request_csharphandler, request, callbacks, null, null);
-        while (alglib.mcmciteration(state, _params))
+        while (mcmciteration(state, _params))
         {
             throw new alglibexception("ALGLIB: critical error in 'mcmcrun' (RCommV2 request escaped handler)");
         }
@@ -3055,9 +3055,9 @@ public partial class alglib
             skewness = 0;
             kurtosis = 0;
 
-            alglib.ap.assert(n >= 0, "SampleMoments: N<0");
-            alglib.ap.assert(alglib.ap.len(x) >= n, "SampleMoments: Length(X)<N!");
-            alglib.ap.assert(apserv.isfinitevector(x, n, _params), "SampleMoments: X is not finite vector");
+            ap.assert(n >= 0, "SampleMoments: N<0");
+            ap.assert(ap.len(x) >= n, "SampleMoments: Length(X)<N!");
+            ap.assert(apserv.isfinitevector(x, n, _params), "SampleMoments: X is not finite vector");
 
             //
             // Init, special case 'N=0'
@@ -3284,9 +3284,9 @@ public partial class alglib
 
             adev = 0;
 
-            alglib.ap.assert(n >= 0, "SampleADev: N<0");
-            alglib.ap.assert(alglib.ap.len(x) >= n, "SampleADev: Length(X)<N!");
-            alglib.ap.assert(apserv.isfinitevector(x, n, _params), "SampleADev: X is not finite vector");
+            ap.assert(n >= 0, "SampleADev: N<0");
+            ap.assert(ap.len(x) >= n, "SampleADev: Length(X)<N!");
+            ap.assert(apserv.isfinitevector(x, n, _params), "SampleADev: X is not finite vector");
 
             //
             // Init, handle N=0
@@ -3350,9 +3350,9 @@ public partial class alglib
             x = (double[])x.Clone();
             median = 0;
 
-            alglib.ap.assert(n >= 0, "SampleMedian: N<0");
-            alglib.ap.assert(alglib.ap.len(x) >= n, "SampleMedian: Length(X)<N!");
-            alglib.ap.assert(apserv.isfinitevector(x, n, _params), "SampleMedian: X is not finite vector");
+            ap.assert(n >= 0, "SampleMedian: N<0");
+            ap.assert(ap.len(x) >= n, "SampleMedian: Length(X)<N!");
+            ap.assert(apserv.isfinitevector(x, n, _params), "SampleMedian: X is not finite vector");
 
             //
             // Some degenerate cases
@@ -3505,11 +3505,11 @@ public partial class alglib
             x = (double[])x.Clone();
             v = 0;
 
-            alglib.ap.assert(n >= 0, "SamplePercentile: N<0");
-            alglib.ap.assert(alglib.ap.len(x) >= n, "SamplePercentile: Length(X)<N!");
-            alglib.ap.assert(apserv.isfinitevector(x, n, _params), "SamplePercentile: X is not finite vector");
-            alglib.ap.assert(math.isfinite(p), "SamplePercentile: incorrect P!");
-            alglib.ap.assert((double)(p) >= (double)(0) && (double)(p) <= (double)(1), "SamplePercentile: incorrect P!");
+            ap.assert(n >= 0, "SamplePercentile: N<0");
+            ap.assert(ap.len(x) >= n, "SamplePercentile: Length(X)<N!");
+            ap.assert(apserv.isfinitevector(x, n, _params), "SamplePercentile: X is not finite vector");
+            ap.assert(math.isfinite(p), "SamplePercentile: incorrect P!");
+            ap.assert((double)(p) >= (double)(0) && (double)(p) <= (double)(1), "SamplePercentile: incorrect P!");
             tsort.tagsortfast(ref x, ref rbuf, n, _params);
             if ((double)(p) == (double)(0))
             {
@@ -3560,11 +3560,11 @@ public partial class alglib
             bool samex = new();
             bool samey = new();
 
-            alglib.ap.assert(n >= 0, "Cov2: N<0");
-            alglib.ap.assert(alglib.ap.len(x) >= n, "Cov2: Length(X)<N!");
-            alglib.ap.assert(alglib.ap.len(y) >= n, "Cov2: Length(Y)<N!");
-            alglib.ap.assert(apserv.isfinitevector(x, n, _params), "Cov2: X is not finite vector");
-            alglib.ap.assert(apserv.isfinitevector(y, n, _params), "Cov2: Y is not finite vector");
+            ap.assert(n >= 0, "Cov2: N<0");
+            ap.assert(ap.len(x) >= n, "Cov2: Length(X)<N!");
+            ap.assert(ap.len(y) >= n, "Cov2: Length(Y)<N!");
+            ap.assert(apserv.isfinitevector(x, n, _params), "Cov2: X is not finite vector");
+            ap.assert(apserv.isfinitevector(y, n, _params), "Cov2: Y is not finite vector");
 
             //
             // Special case
@@ -3659,11 +3659,11 @@ public partial class alglib
             double t1 = 0;
             double t2 = 0;
 
-            alglib.ap.assert(n >= 0, "PearsonCorr2: N<0");
-            alglib.ap.assert(alglib.ap.len(x) >= n, "PearsonCorr2: Length(X)<N!");
-            alglib.ap.assert(alglib.ap.len(y) >= n, "PearsonCorr2: Length(Y)<N!");
-            alglib.ap.assert(apserv.isfinitevector(x, n, _params), "PearsonCorr2: X is not finite vector");
-            alglib.ap.assert(apserv.isfinitevector(y, n, _params), "PearsonCorr2: Y is not finite vector");
+            ap.assert(n >= 0, "PearsonCorr2: N<0");
+            ap.assert(ap.len(x) >= n, "PearsonCorr2: Length(X)<N!");
+            ap.assert(ap.len(y) >= n, "PearsonCorr2: Length(Y)<N!");
+            ap.assert(apserv.isfinitevector(x, n, _params), "PearsonCorr2: X is not finite vector");
+            ap.assert(apserv.isfinitevector(y, n, _params), "PearsonCorr2: Y is not finite vector");
 
             //
             // Special case
@@ -3762,11 +3762,11 @@ public partial class alglib
             x = (double[])x.Clone();
             y = (double[])y.Clone();
 
-            alglib.ap.assert(n >= 0, "SpearmanCorr2: N<0");
-            alglib.ap.assert(alglib.ap.len(x) >= n, "SpearmanCorr2: Length(X)<N!");
-            alglib.ap.assert(alglib.ap.len(y) >= n, "SpearmanCorr2: Length(Y)<N!");
-            alglib.ap.assert(apserv.isfinitevector(x, n, _params), "SpearmanCorr2: X is not finite vector");
-            alglib.ap.assert(apserv.isfinitevector(y, n, _params), "SpearmanCorr2: Y is not finite vector");
+            ap.assert(n >= 0, "SpearmanCorr2: N<0");
+            ap.assert(ap.len(x) >= n, "SpearmanCorr2: Length(X)<N!");
+            ap.assert(ap.len(y) >= n, "SpearmanCorr2: Length(Y)<N!");
+            ap.assert(apserv.isfinitevector(x, n, _params), "SpearmanCorr2: X is not finite vector");
+            ap.assert(apserv.isfinitevector(y, n, _params), "SpearmanCorr2: Y is not finite vector");
 
             //
             // Special case
@@ -3833,11 +3833,11 @@ public partial class alglib
             x = (double[,])x.Clone();
             c = new double[0, 0];
 
-            alglib.ap.assert(n >= 0, "CovM: N<0");
-            alglib.ap.assert(m >= 1, "CovM: M<1");
-            alglib.ap.assert(alglib.ap.rows(x) >= n, "CovM: Rows(X)<N!");
-            alglib.ap.assert(alglib.ap.cols(x) >= m || n == 0, "CovM: Cols(X)<M!");
-            alglib.ap.assert(apserv.apservisfinitematrix(x, n, m, _params), "CovM: X contains infinite/NAN elements");
+            ap.assert(n >= 0, "CovM: N<0");
+            ap.assert(m >= 1, "CovM: M<1");
+            ap.assert(ap.rows(x) >= n, "CovM: Rows(X)<N!");
+            ap.assert(ap.cols(x) >= m || n == 0, "CovM: Cols(X)<M!");
+            ap.assert(apserv.apservisfinitematrix(x, n, m, _params), "CovM: X contains infinite/NAN elements");
 
             //
             // N<=1, return zero
@@ -3957,11 +3957,11 @@ public partial class alglib
 
             c = new double[0, 0];
 
-            alglib.ap.assert(n >= 0, "PearsonCorrM: N<0");
-            alglib.ap.assert(m >= 1, "PearsonCorrM: M<1");
-            alglib.ap.assert(alglib.ap.rows(x) >= n, "PearsonCorrM: Rows(X)<N!");
-            alglib.ap.assert(alglib.ap.cols(x) >= m || n == 0, "PearsonCorrM: Cols(X)<M!");
-            alglib.ap.assert(apserv.apservisfinitematrix(x, n, m, _params), "PearsonCorrM: X contains infinite/NAN elements");
+            ap.assert(n >= 0, "PearsonCorrM: N<0");
+            ap.assert(m >= 1, "PearsonCorrM: M<1");
+            ap.assert(ap.rows(x) >= n, "PearsonCorrM: Rows(X)<N!");
+            ap.assert(ap.cols(x) >= m || n == 0, "PearsonCorrM: Cols(X)<M!");
+            ap.assert(apserv.apservisfinitematrix(x, n, m, _params), "PearsonCorrM: X contains infinite/NAN elements");
             t = new double[m];
             covm(x, n, m, ref c, _params);
             for (i = 0; i <= m - 1; i++)
@@ -4037,11 +4037,11 @@ public partial class alglib
 
             c = new double[0, 0];
 
-            alglib.ap.assert(n >= 0, "SpearmanCorrM: N<0");
-            alglib.ap.assert(m >= 1, "SpearmanCorrM: M<1");
-            alglib.ap.assert(alglib.ap.rows(x) >= n, "SpearmanCorrM: Rows(X)<N!");
-            alglib.ap.assert(alglib.ap.cols(x) >= m || n == 0, "SpearmanCorrM: Cols(X)<M!");
-            alglib.ap.assert(apserv.apservisfinitematrix(x, n, m, _params), "SpearmanCorrM: X contains infinite/NAN elements");
+            ap.assert(n >= 0, "SpearmanCorrM: N<0");
+            ap.assert(m >= 1, "SpearmanCorrM: M<1");
+            ap.assert(ap.rows(x) >= n, "SpearmanCorrM: Rows(X)<N!");
+            ap.assert(ap.cols(x) >= m || n == 0, "SpearmanCorrM: Cols(X)<M!");
+            ap.assert(apserv.apservisfinitematrix(x, n, m, _params), "SpearmanCorrM: X contains infinite/NAN elements");
 
             //
             // N<=1, return zero
@@ -4220,15 +4220,15 @@ public partial class alglib
             y = (double[,])y.Clone();
             c = new double[0, 0];
 
-            alglib.ap.assert(n >= 0, "CovM2: N<0");
-            alglib.ap.assert(m1 >= 1, "CovM2: M1<1");
-            alglib.ap.assert(m2 >= 1, "CovM2: M2<1");
-            alglib.ap.assert(alglib.ap.rows(x) >= n, "CovM2: Rows(X)<N!");
-            alglib.ap.assert(alglib.ap.cols(x) >= m1 || n == 0, "CovM2: Cols(X)<M1!");
-            alglib.ap.assert(apserv.apservisfinitematrix(x, n, m1, _params), "CovM2: X contains infinite/NAN elements");
-            alglib.ap.assert(alglib.ap.rows(y) >= n, "CovM2: Rows(Y)<N!");
-            alglib.ap.assert(alglib.ap.cols(y) >= m2 || n == 0, "CovM2: Cols(Y)<M2!");
-            alglib.ap.assert(apserv.apservisfinitematrix(y, n, m2, _params), "CovM2: X contains infinite/NAN elements");
+            ap.assert(n >= 0, "CovM2: N<0");
+            ap.assert(m1 >= 1, "CovM2: M1<1");
+            ap.assert(m2 >= 1, "CovM2: M2<1");
+            ap.assert(ap.rows(x) >= n, "CovM2: Rows(X)<N!");
+            ap.assert(ap.cols(x) >= m1 || n == 0, "CovM2: Cols(X)<M1!");
+            ap.assert(apserv.apservisfinitematrix(x, n, m1, _params), "CovM2: X contains infinite/NAN elements");
+            ap.assert(ap.rows(y) >= n, "CovM2: Rows(Y)<N!");
+            ap.assert(ap.cols(y) >= m2 || n == 0, "CovM2: Cols(Y)<M2!");
+            ap.assert(apserv.apservisfinitematrix(y, n, m2, _params), "CovM2: X contains infinite/NAN elements");
 
             //
             // N<=1, return zero
@@ -4408,15 +4408,15 @@ public partial class alglib
             y = (double[,])y.Clone();
             c = new double[0, 0];
 
-            alglib.ap.assert(n >= 0, "PearsonCorrM2: N<0");
-            alglib.ap.assert(m1 >= 1, "PearsonCorrM2: M1<1");
-            alglib.ap.assert(m2 >= 1, "PearsonCorrM2: M2<1");
-            alglib.ap.assert(alglib.ap.rows(x) >= n, "PearsonCorrM2: Rows(X)<N!");
-            alglib.ap.assert(alglib.ap.cols(x) >= m1 || n == 0, "PearsonCorrM2: Cols(X)<M1!");
-            alglib.ap.assert(apserv.apservisfinitematrix(x, n, m1, _params), "PearsonCorrM2: X contains infinite/NAN elements");
-            alglib.ap.assert(alglib.ap.rows(y) >= n, "PearsonCorrM2: Rows(Y)<N!");
-            alglib.ap.assert(alglib.ap.cols(y) >= m2 || n == 0, "PearsonCorrM2: Cols(Y)<M2!");
-            alglib.ap.assert(apserv.apservisfinitematrix(y, n, m2, _params), "PearsonCorrM2: X contains infinite/NAN elements");
+            ap.assert(n >= 0, "PearsonCorrM2: N<0");
+            ap.assert(m1 >= 1, "PearsonCorrM2: M1<1");
+            ap.assert(m2 >= 1, "PearsonCorrM2: M2<1");
+            ap.assert(ap.rows(x) >= n, "PearsonCorrM2: Rows(X)<N!");
+            ap.assert(ap.cols(x) >= m1 || n == 0, "PearsonCorrM2: Cols(X)<M1!");
+            ap.assert(apserv.apservisfinitematrix(x, n, m1, _params), "PearsonCorrM2: X contains infinite/NAN elements");
+            ap.assert(ap.rows(y) >= n, "PearsonCorrM2: Rows(Y)<N!");
+            ap.assert(ap.cols(y) >= m2 || n == 0, "PearsonCorrM2: Cols(Y)<M2!");
+            ap.assert(apserv.apservisfinitematrix(y, n, m2, _params), "PearsonCorrM2: X contains infinite/NAN elements");
 
             //
             // N<=1, return zero
@@ -4646,15 +4646,15 @@ public partial class alglib
 
             c = new double[0, 0];
 
-            alglib.ap.assert(n >= 0, "SpearmanCorrM2: N<0");
-            alglib.ap.assert(m1 >= 1, "SpearmanCorrM2: M1<1");
-            alglib.ap.assert(m2 >= 1, "SpearmanCorrM2: M2<1");
-            alglib.ap.assert(alglib.ap.rows(x) >= n, "SpearmanCorrM2: Rows(X)<N!");
-            alglib.ap.assert(alglib.ap.cols(x) >= m1 || n == 0, "SpearmanCorrM2: Cols(X)<M1!");
-            alglib.ap.assert(apserv.apservisfinitematrix(x, n, m1, _params), "SpearmanCorrM2: X contains infinite/NAN elements");
-            alglib.ap.assert(alglib.ap.rows(y) >= n, "SpearmanCorrM2: Rows(Y)<N!");
-            alglib.ap.assert(alglib.ap.cols(y) >= m2 || n == 0, "SpearmanCorrM2: Cols(Y)<M2!");
-            alglib.ap.assert(apserv.apservisfinitematrix(y, n, m2, _params), "SpearmanCorrM2: X contains infinite/NAN elements");
+            ap.assert(n >= 0, "SpearmanCorrM2: N<0");
+            ap.assert(m1 >= 1, "SpearmanCorrM2: M1<1");
+            ap.assert(m2 >= 1, "SpearmanCorrM2: M2<1");
+            ap.assert(ap.rows(x) >= n, "SpearmanCorrM2: Rows(X)<N!");
+            ap.assert(ap.cols(x) >= m1 || n == 0, "SpearmanCorrM2: Cols(X)<M1!");
+            ap.assert(apserv.apservisfinitematrix(x, n, m1, _params), "SpearmanCorrM2: X contains infinite/NAN elements");
+            ap.assert(ap.rows(y) >= n, "SpearmanCorrM2: Rows(Y)<N!");
+            ap.assert(ap.cols(y) >= m2 || n == 0, "SpearmanCorrM2: Cols(Y)<M2!");
+            ap.assert(apserv.apservisfinitematrix(y, n, m2, _params), "SpearmanCorrM2: X contains infinite/NAN elements");
 
             //
             // N<=1, return zero
@@ -4847,11 +4847,11 @@ public partial class alglib
             int basecasecost = 0;
             alglib.smp.shared_pool pool = new();
 
-            alglib.ap.assert(npoints >= 0, "RankData: NPoints<0");
-            alglib.ap.assert(nfeatures >= 1, "RankData: NFeatures<1");
-            alglib.ap.assert(alglib.ap.rows(xy) >= npoints, "RankData: Rows(XY)<NPoints");
-            alglib.ap.assert(alglib.ap.cols(xy) >= nfeatures || npoints == 0, "RankData: Cols(XY)<NFeatures");
-            alglib.ap.assert(apserv.apservisfinitematrix(xy, npoints, nfeatures, _params), "RankData: XY contains infinite/NAN elements");
+            ap.assert(npoints >= 0, "RankData: NPoints<0");
+            ap.assert(nfeatures >= 1, "RankData: NFeatures<1");
+            ap.assert(ap.rows(xy) >= npoints, "RankData: Rows(XY)<NPoints");
+            ap.assert(ap.cols(xy) >= nfeatures || npoints == 0, "RankData: Cols(XY)<NFeatures");
+            ap.assert(apserv.apservisfinitematrix(xy, npoints, nfeatures, _params), "RankData: XY contains infinite/NAN elements");
 
             //
             // Basecase cost is a maximum cost of basecase problems.
@@ -4873,7 +4873,7 @@ public partial class alglib
             //
             // Parallel code
             //
-            alglib.smp.ae_shared_pool_set_seed(pool, buf0);
+            smp.ae_shared_pool_set_seed(pool, buf0);
             rankdatarec(xy, 0, npoints, nfeatures, false, pool, basecasecost, _params);
         }
 
@@ -4932,11 +4932,11 @@ public partial class alglib
             int basecasecost = 0;
             alglib.smp.shared_pool pool = new();
 
-            alglib.ap.assert(npoints >= 0, "RankData: NPoints<0");
-            alglib.ap.assert(nfeatures >= 1, "RankData: NFeatures<1");
-            alglib.ap.assert(alglib.ap.rows(xy) >= npoints, "RankData: Rows(XY)<NPoints");
-            alglib.ap.assert(alglib.ap.cols(xy) >= nfeatures || npoints == 0, "RankData: Cols(XY)<NFeatures");
-            alglib.ap.assert(apserv.apservisfinitematrix(xy, npoints, nfeatures, _params), "RankData: XY contains infinite/NAN elements");
+            ap.assert(npoints >= 0, "RankData: NPoints<0");
+            ap.assert(nfeatures >= 1, "RankData: NFeatures<1");
+            ap.assert(ap.rows(xy) >= npoints, "RankData: Rows(XY)<NPoints");
+            ap.assert(ap.cols(xy) >= nfeatures || npoints == 0, "RankData: Cols(XY)<NFeatures");
+            ap.assert(apserv.apservisfinitematrix(xy, npoints, nfeatures, _params), "RankData: XY contains infinite/NAN elements");
 
             //
             // Basecase cost is a maximum cost of basecase problems.
@@ -4958,7 +4958,7 @@ public partial class alglib
             //
             // Parallel code
             //
-            alglib.smp.ae_shared_pool_set_seed(pool, buf0);
+            smp.ae_shared_pool_set_seed(pool, buf0);
             rankdatarec(xy, 0, npoints, nfeatures, true, pool, basecasecost, _params);
         }
 
@@ -5049,7 +5049,7 @@ public partial class alglib
             double problemcost = 0;
             int im = 0;
 
-            alglib.ap.assert(i1 >= i0, "RankDataRec: internal error");
+            ap.assert(i1 >= i0, "RankDataRec: internal error");
 
             //
             // Try to activate parallelism
@@ -5077,11 +5077,11 @@ public partial class alglib
             //
             // Retrieve buffers from pool, call serial code, return buffers to pool
             //
-            alglib.smp.ae_shared_pool_retrieve(pool, ref buf0);
-            alglib.smp.ae_shared_pool_retrieve(pool, ref buf1);
+            smp.ae_shared_pool_retrieve(pool, ref buf0);
+            smp.ae_shared_pool_retrieve(pool, ref buf1);
             rankdatabasecase(xy, i0, i1, nfeatures, iscentered, buf0, buf1, _params);
-            alglib.smp.ae_shared_pool_recycle(pool, ref buf0);
-            alglib.smp.ae_shared_pool_recycle(pool, ref buf1);
+            smp.ae_shared_pool_recycle(pool, ref buf0);
+            smp.ae_shared_pool_recycle(pool, ref buf1);
         }
 
 
@@ -5138,8 +5138,8 @@ public partial class alglib
             int i = 0;
             int i_ = 0;
 
-            alglib.ap.assert(i1 >= i0, "RankDataBasecase: internal error");
-            if (alglib.ap.len(buf1.ra0) < nfeatures)
+            ap.assert(i1 >= i0, "RankDataBasecase: internal error");
+            if (ap.len(buf1.ra0) < nfeatures)
             {
                 buf1.ra0 = new double[nfeatures];
             }
@@ -5255,7 +5255,7 @@ public partial class alglib
             skewness = 0;
             kurtosis = 0;
             stddev = 0;
-            alglib.ap.assert(n > 1);
+            ap.assert(n > 1);
 
             //
             // Mean
@@ -13544,10 +13544,10 @@ public partial class alglib
             mcmcstate state,
             alglib.xparams _params)
         {
-            alglib.ap.assert(n >= 1, "MCMCCreate1: N<1");
-            alglib.ap.assert(alglib.ap.len(x) >= n, "MCMCCreate1: Length(X)<N");
-            alglib.ap.assert(apserv.isfinitevector(x, n, _params), "MCMCCreate1: X contains infinite or NaN values");
-            alglib.ap.assert(math.isfinite(xstddev) && (double)(xstddev) > (double)(0), "MCMCCreate1: XStdDev<=0 or is not finite");
+            ap.assert(n >= 1, "MCMCCreate1: N<1");
+            ap.assert(ap.len(x) >= n, "MCMCCreate1: Length(X)<N");
+            ap.assert(apserv.isfinitevector(x, n, _params), "MCMCCreate1: X contains infinite or NaN values");
+            ap.assert(math.isfinite(xstddev) && (double)(xstddev) > (double)(0), "MCMCCreate1: XStdDev<=0 or is not finite");
             initinternal(state, n, _params);
             state.x0width = 1;
             state.x0height = 1;
@@ -13588,11 +13588,11 @@ public partial class alglib
             mcmcstate state,
             alglib.xparams _params)
         {
-            alglib.ap.assert(n >= 1, "MCMCCreateFromPopulation: N<1");
-            alglib.ap.assert(popsize >= 1, "MCMCCreateFromPopulation: PopSize<1");
-            alglib.ap.assert(alglib.ap.cols(p) >= n, "MCMCCreateFromPopulation: Cols(P)<N");
-            alglib.ap.assert(alglib.ap.rows(p) >= popsize, "MCMCCreateFromPopulation: Rows(P)<PopSize");
-            alglib.ap.assert(apserv.apservisfinitematrix(p, popsize, n, _params), "MCMCCreateFromPopulation: P contains infinite or NaN values");
+            ap.assert(n >= 1, "MCMCCreateFromPopulation: N<1");
+            ap.assert(popsize >= 1, "MCMCCreateFromPopulation: PopSize<1");
+            ap.assert(ap.cols(p) >= n, "MCMCCreateFromPopulation: Cols(P)<N");
+            ap.assert(ap.rows(p) >= popsize, "MCMCCreateFromPopulation: Rows(P)<PopSize");
+            ap.assert(apserv.apservisfinitematrix(p, popsize, n, _params), "MCMCCreateFromPopulation: P contains infinite or NaN values");
             initinternal(state, n, _params);
             state.x0width = popsize;
             state.x0height = 1;
@@ -13625,11 +13625,11 @@ public partial class alglib
         {
             int i = 0;
 
-            alglib.ap.assert(alglib.ap.len(s) >= state.n, "MCMCSetScale: Length(S)<N");
+            ap.assert(ap.len(s) >= state.n, "MCMCSetScale: Length(S)<N");
             for (i = 0; i <= state.n - 1; i++)
             {
-                alglib.ap.assert(math.isfinite(s[i]), "MCMCSetScale: S contains infinite or NAN elements");
-                alglib.ap.assert((double)(s[i]) != (double)(0), "MCMCSetScale: S contains zero elements");
+                ap.assert(math.isfinite(s[i]), "MCMCSetScale: S contains infinite or NAN elements");
+                ap.assert((double)(s[i]) != (double)(0), "MCMCSetScale: S contains zero elements");
                 state.s[i] = Math.Abs(s[i]);
             }
         }
@@ -13667,10 +13667,10 @@ public partial class alglib
             double tau,
             alglib.xparams _params)
         {
-            alglib.ap.assert(math.isfinite(nu0), "MCMCSetLadderAdaptationRate: Nu0 is not finite");
-            alglib.ap.assert(math.isfinite(tau), "MCMCSetLadderAdaptationRate: Tau is not finite");
-            alglib.ap.assert((double)(nu0) >= (double)(0), "MCMCSetLadderAdaptationRate: Nu0<0");
-            alglib.ap.assert((double)(tau) >= (double)(0), "MCMCSetLadderAdaptationRate: Tau<0");
+            ap.assert(math.isfinite(nu0), "MCMCSetLadderAdaptationRate: Nu0 is not finite");
+            ap.assert(math.isfinite(tau), "MCMCSetLadderAdaptationRate: Tau is not finite");
+            ap.assert((double)(nu0) >= (double)(0), "MCMCSetLadderAdaptationRate: Nu0<0");
+            ap.assert((double)(tau) >= (double)(0), "MCMCSetLadderAdaptationRate: Tau<0");
             state.laddernu0 = nu0;
             state.laddertau = tau;
         }
@@ -13709,13 +13709,13 @@ public partial class alglib
         {
             int i = 0;
 
-            alglib.ap.assert(ntemp >= 1, "MCMCSetFixedTemperatureLadder: NTemp<1");
-            alglib.ap.assert(alglib.ap.len(t) >= ntemp, "MCMCSetFixedTemperatureLadder: Length(T)<NTemp");
-            alglib.ap.assert(apserv.isfinitevector(t, ntemp, _params), "MCMCSetFixedTemperatureLadder: T contains INF/NAN");
-            alglib.ap.assert((double)(t[0]) == (double)(1), "MCMCSetFixedTemperatureLadder: T[0]<>1");
+            ap.assert(ntemp >= 1, "MCMCSetFixedTemperatureLadder: NTemp<1");
+            ap.assert(ap.len(t) >= ntemp, "MCMCSetFixedTemperatureLadder: Length(T)<NTemp");
+            ap.assert(apserv.isfinitevector(t, ntemp, _params), "MCMCSetFixedTemperatureLadder: T contains INF/NAN");
+            ap.assert((double)(t[0]) == (double)(1), "MCMCSetFixedTemperatureLadder: T[0]<>1");
             for (i = 0; i <= ntemp - 2; i++)
             {
-                alglib.ap.assert((double)(t[i + 1]) > (double)(t[i]), "MCMCSetFixedTemperatureLadder: T[I+1]<=T[I]");
+                ap.assert((double)(t[i + 1]) > (double)(t[i]), "MCMCSetFixedTemperatureLadder: T[I+1]<=T[I]");
             }
             state.ladderkind = 0;
             state.popheight = ntemp;
@@ -13765,9 +13765,9 @@ public partial class alglib
             int i = 0;
             double growth = 0;
 
-            alglib.ap.assert(ntemp >= 1, "MCMCSetSARTemperatureLadder: NTemp<1");
-            alglib.ap.assert(math.isfinite(tmax), "MCMCSetSARTemperatureLadder: TMax is INF/NAN");
-            alglib.ap.assert((double)(tmax) > (double)(1), "MCMCSetSARTemperatureLadder: TMax<=1");
+            ap.assert(ntemp >= 1, "MCMCSetSARTemperatureLadder: NTemp<1");
+            ap.assert(math.isfinite(tmax), "MCMCSetSARTemperatureLadder: TMax is INF/NAN");
+            ap.assert((double)(tmax) > (double)(1), "MCMCSetSARTemperatureLadder: TMax<=1");
             state.ladderkind = 1;
             state.popheight = ntemp;
             ablasf.rallocv(ntemp, ref state.initialladder, _params);
@@ -13828,8 +13828,8 @@ public partial class alglib
             int epochscnt,
             alglib.xparams _params)
         {
-            alglib.ap.assert(popsize >= state.n + 1, "MCMCSetAlgoStretch: PopSize<N+1");
-            alglib.ap.assert(epochscnt >= 1, "MCMCSetAlgoStretch: EpochsCnt<1");
+            ap.assert(popsize >= state.n + 1, "MCMCSetAlgoStretch: PopSize<N+1");
+            ap.assert(epochscnt >= 1, "MCMCSetAlgoStretch: EpochsCnt<1");
             state.popwidth = popsize;
             state.epochscnt = epochscnt;
             state.algokind = 0;
@@ -13890,9 +13890,9 @@ public partial class alglib
             int helperscnt,
             alglib.xparams _params)
         {
-            alglib.ap.assert(popsize >= state.n + 1, "MCMCSetAlgoWalk: PopSize<N+1");
-            alglib.ap.assert(epochscnt >= 1, "MCMCSetAlgoWalk: EpochsCnt<1");
-            alglib.ap.assert(helperscnt >= 2, "MCMCSetAlgoWalk: HelpersCnt<2");
+            ap.assert(popsize >= state.n + 1, "MCMCSetAlgoWalk: PopSize<N+1");
+            ap.assert(epochscnt >= 1, "MCMCSetAlgoWalk: EpochsCnt<1");
+            ap.assert(helperscnt >= 2, "MCMCSetAlgoWalk: HelpersCnt<2");
             if (popsize < 4)
             {
                 mcmcsetalgostretch(state, popsize, epochscnt, _params);
@@ -13968,12 +13968,12 @@ public partial class alglib
             double gamma0,
             alglib.xparams _params)
         {
-            alglib.ap.assert(popsize >= state.n + 1, "MCMCSetAlgoDE: PopSize<N+1");
-            alglib.ap.assert(epochscnt >= 1, "MCMCSetAlgoDE: EpochsCnt<1");
-            alglib.ap.assert(math.isfinite(sigma), "MCMCSetAlgoDE: Sigma is not finite value");
-            alglib.ap.assert(math.isfinite(gamma0), "MCMCSetAlgoDE: Gamma0 is not finite value");
-            alglib.ap.assert((double)(sigma) >= (double)(0), "MCMCSetAlgoDE: Sigma<0");
-            alglib.ap.assert((double)(gamma0) >= (double)(0), "MCMCSetAlgoDE: Gamma0<0");
+            ap.assert(popsize >= state.n + 1, "MCMCSetAlgoDE: PopSize<N+1");
+            ap.assert(epochscnt >= 1, "MCMCSetAlgoDE: EpochsCnt<1");
+            ap.assert(math.isfinite(sigma), "MCMCSetAlgoDE: Sigma is not finite value");
+            ap.assert(math.isfinite(gamma0), "MCMCSetAlgoDE: Gamma0 is not finite value");
+            ap.assert((double)(sigma) >= (double)(0), "MCMCSetAlgoDE: Sigma<0");
+            ap.assert((double)(gamma0) >= (double)(0), "MCMCSetAlgoDE: Gamma0<0");
             if (popsize < 4)
             {
                 mcmcsetalgostretch(state, popsize, epochscnt, _params);
@@ -14042,10 +14042,10 @@ public partial class alglib
             double gamma0,
             alglib.xparams _params)
         {
-            alglib.ap.assert(popsize >= state.n + 1, "MCMCSetAlgoDESnooker: PopSize<N+1");
-            alglib.ap.assert(epochscnt >= 1, "MCMCSetAlgoDESnooker: EpochsCnt<1");
-            alglib.ap.assert(math.isfinite(gamma0), "MCMCSetAlgoDESnooker: Gamma0 is not finite value");
-            alglib.ap.assert((double)(gamma0) >= (double)(0), "MCMCSetAlgoDESnooker: Gamma0<0");
+            ap.assert(popsize >= state.n + 1, "MCMCSetAlgoDESnooker: PopSize<N+1");
+            ap.assert(epochscnt >= 1, "MCMCSetAlgoDESnooker: EpochsCnt<1");
+            ap.assert(math.isfinite(gamma0), "MCMCSetAlgoDESnooker: Gamma0 is not finite value");
+            ap.assert((double)(gamma0) >= (double)(0), "MCMCSetAlgoDESnooker: Gamma0<0");
             if (popsize < 6)
             {
                 mcmcsetalgostretch(state, popsize, epochscnt, _params);
@@ -14110,11 +14110,11 @@ public partial class alglib
             bool isupper,
             alglib.xparams _params)
         {
-            alglib.ap.assert(popsize >= 1, "MCMCSetAlgoGaussian: PopSize<N+1");
-            alglib.ap.assert(epochscnt >= 1, "MCMCSetAlgoGaussian: EpochsCnt<1");
-            alglib.ap.assert(alglib.ap.rows(c) >= state.n, "MCMCSetAlgoGaussian: rows(C)<N");
-            alglib.ap.assert(alglib.ap.cols(c) >= state.n, "MCMCSetAlgoGaussian: cols(C)<N");
-            alglib.ap.assert(apserv.isfinitertrmatrix(c, state.n, isupper, _params), "MCMCSetAlgoGaussian: C contains infinite or NaN values!");
+            ap.assert(popsize >= 1, "MCMCSetAlgoGaussian: PopSize<N+1");
+            ap.assert(epochscnt >= 1, "MCMCSetAlgoGaussian: EpochsCnt<1");
+            ap.assert(ap.rows(c) >= state.n, "MCMCSetAlgoGaussian: rows(C)<N");
+            ap.assert(ap.cols(c) >= state.n, "MCMCSetAlgoGaussian: cols(C)<N");
+            ap.assert(apserv.isfinitertrmatrix(c, state.n, isupper, _params), "MCMCSetAlgoGaussian: C contains infinite or NaN values!");
             state.popwidth = popsize;
             state.epochscnt = epochscnt;
             state.algokind = 0;
@@ -14151,7 +14151,7 @@ public partial class alglib
             int burninlen,
             alglib.xparams _params)
         {
-            alglib.ap.assert(burninlen >= 0, "MCMCSetBurnInLength: BurnInLen<0");
+            ap.assert(burninlen >= 0, "MCMCSetBurnInLength: BurnInLen<0");
             state.burninlen = burninlen;
         }
 
@@ -14174,7 +14174,7 @@ public partial class alglib
             int thinby,
             alglib.xparams _params)
         {
-            alglib.ap.assert(thinby >= 1, "MCMCSetThinningFactor: ThinBy<1");
+            ap.assert(thinby >= 1, "MCMCSetThinningFactor: ThinBy<1");
             state.thinby = thinby;
         }
 
@@ -14295,21 +14295,21 @@ public partial class alglib
             state.dotimers = state.dotrace;
             if (state.dotrace)
             {
-                alglib.ap.trace("\n\n");
-                alglib.ap.trace("////////////////////////////////////////////////////////////////////////////////////////////////////\n");
-                alglib.ap.trace("//  MCMC SAMPLER STARTED                                                                          //\n");
-                alglib.ap.trace("////////////////////////////////////////////////////////////////////////////////////////////////////\n");
-                alglib.ap.trace(System.String.Format("N             = {0,6:d} (variables)\n", state.n));
-                alglib.ap.trace(System.String.Format("PopSize       = {0,6:d} (walkers)\n", state.popwidth));
+                ap.trace("\n\n");
+                ap.trace("////////////////////////////////////////////////////////////////////////////////////////////////////\n");
+                ap.trace("//  MCMC SAMPLER STARTED                                                                          //\n");
+                ap.trace("////////////////////////////////////////////////////////////////////////////////////////////////////\n");
+                ap.trace(System.String.Format("N             = {0,6:d} (variables)\n", state.n));
+                ap.trace(System.String.Format("PopSize       = {0,6:d} (walkers)\n", state.popwidth));
                 if (state.popheight > 1)
                 {
-                    alglib.ap.trace(System.String.Format("TemperLvls    = {0,6:d} (tempering levels)\n", state.popheight));
+                    ap.trace(System.String.Format("TemperLvls    = {0,6:d} (tempering levels)\n", state.popheight));
                 }
                 if (state.burninlen > 0 && state.initialstart)
                 {
-                    alglib.ap.trace(System.String.Format("BurnIn        = {0,6:d} (burn-in phase, not reported)\n", state.burninlen));
+                    ap.trace(System.String.Format("BurnIn        = {0,6:d} (burn-in phase, not reported)\n", state.burninlen));
                 }
-                alglib.ap.trace(System.String.Format("EpochsCnt     = {0,6:d} (sampling rounds count)\n", state.epochscnt));
+                ap.trace(System.String.Format("EpochsCnt     = {0,6:d} (sampling rounds count)\n", state.epochscnt));
             }
             apserv.stimerinit(state.timertotal, _params);
             apserv.stimerinit(state.timercallback, _params);
@@ -14338,7 +14338,7 @@ public partial class alglib
                     hqrnd.hqrndseed(state.rngseed, 856446, state.globalrs, _params);
                 }
             }
-            if (alglib.ap.cols(state.repsample) > n + 1)
+            if (ap.cols(state.repsample) > n + 1)
             {
                 state.repsample = new double[0, 0];
             }
@@ -14362,7 +14362,7 @@ public partial class alglib
             //
             // Initialize proposal generators
             //
-            alglib.ap.assert((state.algokind == 0 && state.proposalkind >= 0) && state.proposalkind <= 4, "MCMC: integrity check 795613 failed");
+            ap.assert((state.algokind == 0 && state.proposalkind >= 0) && state.proposalkind <= 4, "MCMC: integrity check 795613 failed");
             if (state.proposalkind == 4)
             {
                 v = 0;
@@ -14388,14 +14388,14 @@ public partial class alglib
             //
             // Initial temperature ladder
             //
-            alglib.ap.assert(state.ladderkind >= 0 && state.ladderkind <= 1, "MCMC: 915033 failed");
+            ap.assert(state.ladderkind >= 0 && state.ladderkind <= 1, "MCMC: 915033 failed");
             ablasf.rcopyallocv(state.popheight, state.initialladder, ref state.currentladder, _params);
 
             //
             // Allocate buffers, as mandated by the V2 protocol
             //
-            alglib.ap.assert(state.protocolversion == 2, "MCMC: integrity check 206333 failed");
-            alglib.ap.assert(state.algokind == 0, "MCMC: integrity check 207333 failed");
+            ap.assert(state.protocolversion == 2, "MCMC: integrity check 206333 failed");
+            ap.assert(state.algokind == 0, "MCMC: integrity check 207333 failed");
             ablasf.rallocv(n, ref state.rcommv2.querydata, _params);
             ablasf.rallocv(1, ref state.rcommv2.replyfi, _params);
             ablasf.rallocv(1, ref state.rcommv2.tmpf1, _params);
@@ -14408,7 +14408,7 @@ public partial class alglib
             //
             // Initial population and subdivision into groups
             //
-            alglib.ap.assert((state.x0type == 0 || state.x0type == 1) || state.x0type == 2, "MCMC: integrity check 221342 failed");
+            ap.assert((state.x0type == 0 || state.x0type == 1) || state.x0type == 2, "MCMC: integrity check 221342 failed");
             if (state.useparallelmoves)
             {
                 for (i = 0; i <= state.popwidth - 1; i++)
@@ -14417,7 +14417,7 @@ public partial class alglib
                 }
                 if (state.proposalkind != 4)
                 {
-                    alglib.ap.assert(state.popwidth >= 2, "MCMC: integrity check 294008 failed");
+                    ap.assert(state.popwidth >= 2, "MCMC: integrity check 294008 failed");
                     state.grpasize = state.popwidth / 2;
                 }
                 else
@@ -14427,8 +14427,8 @@ public partial class alglib
             }
             if (state.x0type == 0)
             {
-                alglib.ap.assert(state.x0width >= 1, "MCMC: integrity check 426148 failed");
-                alglib.ap.assert(state.x0height >= 1, "MCMC: integrity check 884204 failed");
+                ap.assert(state.x0width >= 1, "MCMC: integrity check 426148 failed");
+                ap.assert(state.x0height >= 1, "MCMC: integrity check 884204 failed");
                 ablasf.rallocm(state.popwidth * state.popheight, n + 1, ref state.population2d, _params);
                 for (i = 0; i <= state.popwidth * state.popheight - 1; i++)
                 {
@@ -14440,7 +14440,7 @@ public partial class alglib
             }
             if (state.x0type == 1)
             {
-                alglib.ap.assert(state.x0width >= 1, "MCMC: integrity check 487508 failed");
+                ap.assert(state.x0width >= 1, "MCMC: integrity check 487508 failed");
 
                 //
                 // Prepare for the case when we do not have enough points to seed the algorithm.
@@ -14475,7 +14475,7 @@ public partial class alglib
                 // Seed the algorithm using population in X0, when present; fill with random values when not present.
                 // The same population is used for all levels of the temperature ladder.
                 //
-                alglib.ap.assert(state.x0height == 1, "MCMC: integrity check 894205 failed");
+                ap.assert(state.x0height == 1, "MCMC: integrity check 894205 failed");
                 k = Math.Min(state.x0width, state.popwidth);
                 ablasf.rallocm(state.popwidth * state.popheight, n + 1, ref state.population2d, _params);
                 for (i = 0; i <= state.popwidth * state.popheight - 1; i++)
@@ -14498,7 +14498,7 @@ public partial class alglib
             }
             if (state.x0type == 2)
             {
-                alglib.ap.assert(state.haslastpopulation, "MCMC: integrity check 434149 failed");
+                ap.assert(state.haslastpopulation, "MCMC: integrity check 434149 failed");
 
                 //
                 // Reuse last population
@@ -14578,8 +14578,8 @@ public partial class alglib
             //
             // Subsequent moves
             //
-            alglib.ap.assert(state.algokind == 0, "MCMC: integrity check 238038 failed");
-            alglib.ap.assert(state.popwidth >= 2, "MCMC: integrity check 238039 failed");
+            ap.assert(state.algokind == 0, "MCMC: integrity check 238038 failed");
+            ap.assert(state.popwidth >= 2, "MCMC: integrity check 238039 failed");
             itmax = apserv.icase2(state.initialstart, state.burninlen, 0, _params) + state.epochscnt * state.thinby;
             ablasf.rallocm(state.epochscnt * state.popwidth * apserv.icase2(state.reportalllevels, state.popheight, 1, _params), n + 1, ref state.repsample, _params);
             itidx = 0;
@@ -14620,7 +14620,7 @@ public partial class alglib
             //
             if (grpdstsize == 0)
             {
-                alglib.ap.assert(i == groupscnt - 1, "MCMC: 018015 failed");
+                ap.assert(i == groupscnt - 1, "MCMC: 018015 failed");
                 goto lbl_14;
             }
 
@@ -14679,7 +14679,7 @@ public partial class alglib
             //
             if (state.useparallelmoves)
             {
-                alglib.ap.assert(i <= 1, "MCMC: 071013 failed");
+                ap.assert(i <= 1, "MCMC: 071013 failed");
                 if (i == 0)
                 {
                     ablasf.iallocv(state.popwidth, ref state.tmpi0, _params);
@@ -14691,7 +14691,7 @@ public partial class alglib
             }
             else
             {
-                alglib.ap.assert(grpdstsize == 1, "MCMC: 092019 failed");
+                ap.assert(grpdstsize == 1, "MCMC: 092019 failed");
                 if (i < state.popwidth - 1)
                 {
                     k = state.grpdsidx[0];
@@ -14749,8 +14749,8 @@ public partial class alglib
             {
                 goto lbl_18;
             }
-            alglib.ap.assert(alglib.ap.rows(state.repsample) >= state.repsamplesize + state.popwidth * apserv.icase2(state.reportalllevels, state.popheight, 1, _params) && alglib.ap.cols(state.repsample) >= n + 1, "MCMC: integrity check 497055 failed");
-            alglib.ap.assert(!state.reportalllevels, "$rep-all-lvl");
+            ap.assert(ap.rows(state.repsample) >= state.repsamplesize + state.popwidth * apserv.icase2(state.reportalllevels, state.popheight, 1, _params) && ap.cols(state.repsample) >= n + 1, "MCMC: integrity check 497055 failed");
+            ap.assert(!state.reportalllevels, "$rep-all-lvl");
             for (i = 0; i <= state.popwidth - 1; i++)
             {
                 ablasf.rcopyrr(n + 1, state.population2d, i, state.repsample, state.repsamplesize, _params);
@@ -14790,11 +14790,11 @@ public partial class alglib
             apserv.stimerstopcond(state.timertotal, state.dotimers, _params);
             if (state.dotrace)
             {
-                alglib.ap.trace("\n=== STOPPED ========================================================================================\n");
-                alglib.ap.trace(System.String.Format("total time:     {0,10:F1} ms, including\n", apserv.stimergetms(state.timertotal, _params)));
-                alglib.ap.trace(System.String.Format("* sampler       {0,10:F1} ms\n", apserv.stimergetms(state.timertotal, _params) - apserv.stimergetms(state.timercallback, _params) - apserv.stimergetms(state.timerreport, _params)));
-                alglib.ap.trace(System.String.Format("* callbacks     {0,10:F1} ms (computing log-likelihood)\n", apserv.stimergetms(state.timercallback, _params)));
-                alglib.ap.trace(System.String.Format("* reports       {0,10:F1} ms (reporting progress)\n", apserv.stimergetms(state.timerreport, _params)));
+                ap.trace("\n=== STOPPED ========================================================================================\n");
+                ap.trace(System.String.Format("total time:     {0,10:F1} ms, including\n", apserv.stimergetms(state.timertotal, _params)));
+                ap.trace(System.String.Format("* sampler       {0,10:F1} ms\n", apserv.stimergetms(state.timertotal, _params) - apserv.stimergetms(state.timercallback, _params) - apserv.stimergetms(state.timerreport, _params)));
+                ap.trace(System.String.Format("* callbacks     {0,10:F1} ms (computing log-likelihood)\n", apserv.stimergetms(state.timercallback, _params)));
+                ap.trace(System.String.Format("* reports       {0,10:F1} ms (reporting progress)\n", apserv.stimergetms(state.timerreport, _params)));
             }
             result = false;
             return result;
@@ -15055,7 +15055,7 @@ public partial class alglib
         {
             bool result = new();
 
-            alglib.ap.assert(epochscnt >= 0, "MCMCRestart: EpochsCnt<0");
+            ap.assert(epochscnt >= 0, "MCMCRestart: EpochsCnt<0");
             result = state.haslastpopulation;
             if (!result)
             {
@@ -15172,12 +15172,12 @@ public partial class alglib
             double llmean = 0;
             double llstddev = 0;
 
-            alglib.ap.assert(state.dotrace, "MCMC: DoLogging() is called with tracing disable; this function shall not be called when logging is turned off");
+            ap.assert(state.dotrace, "MCMC: DoLogging() is called with tracing disable; this function shall not be called when logging is turned off");
             n = state.n;
             popwidth = state.popwidth;
             if (state.dodetailedtrace)
             {
-                alglib.ap.trace(System.String.Format("=== ITERATION {0,5:d} ================================================================================\n", iteridx));
+                ap.trace(System.String.Format("=== ITERATION {0,5:d} ================================================================================\n", iteridx));
                 ablasf.rsetallocv(n, 0.0, ref popmean, _params);
                 ablasf.rsetallocv(n, 0.0, ref popstddev, _params);
                 for (i = 0; i <= popwidth - 1; i++)
@@ -15202,12 +15202,12 @@ public partial class alglib
                 {
                     popstddev[j] = Math.Sqrt(popstddev[j] / popwidth);
                 }
-                alglib.ap.trace("pop.mean   = ");
+                ap.trace("pop.mean   = ");
                 apserv.tracevectore3(popmean, 0, n, _params);
-                alglib.ap.trace("\n");
-                alglib.ap.trace("pop.stddev = ");
+                ap.trace("\n");
+                ap.trace("pop.stddev = ");
                 apserv.tracevectore3(popstddev, 0, n, _params);
-                alglib.ap.trace("\n");
+                ap.trace("\n");
                 llmean = 0;
                 for (i = 0; i <= popwidth - 1; i++)
                 {
@@ -15220,18 +15220,18 @@ public partial class alglib
                     llstddev = llstddev + math.sqr(state.population2d[i, n] - llmean);
                 }
                 llstddev = Math.Sqrt(llstddev / popwidth);
-                alglib.ap.trace(System.String.Format("loglik.mean   = {0,0:F3}\n", llmean));
-                alglib.ap.trace(System.String.Format("loglik.stddev = {0,0:F3}\n", llstddev));
-                alglib.ap.trace(System.String.Format("accept.rate   = {0,0:F3}\n", (double)accept1cnt / (double)popwidth));
+                ap.trace(System.String.Format("loglik.mean   = {0,0:F3}\n", llmean));
+                ap.trace(System.String.Format("loglik.stddev = {0,0:F3}\n", llstddev));
+                ap.trace(System.String.Format("accept.rate   = {0,0:F3}\n", (double)accept1cnt / (double)popwidth));
                 if (state.popheight > 1)
                 {
-                    alglib.ap.trace("> Temperature ladder:\n");
-                    alglib.ap.trace("temperatures  = [");
+                    ap.trace("> Temperature ladder:\n");
+                    ap.trace("temperatures  = [");
                     apserv.tracevectore3(state.currentladder, 0, state.popheight, _params);
-                    alglib.ap.trace("]\n");
-                    alglib.ap.trace("accept rates  = [");
+                    ap.trace("]\n");
+                    ap.trace("accept rates  = [");
                     apserv.tracevectore3(state.repavgswaprates, 0, state.popheight - 1, _params);
-                    alglib.ap.trace("]\n");
+                    ap.trace("]\n");
                 }
             }
             else
@@ -15348,7 +15348,7 @@ public partial class alglib
                     }
                     adaptationdone = true;
                 }
-                alglib.ap.assert(adaptationdone, "MCMC: 728137");
+                ap.assert(adaptationdone, "MCMC: 728137");
             }
         }
 
@@ -15410,21 +15410,21 @@ public partial class alglib
             n = state.n;
             popwidth = state.popwidth;
             popheight = state.popheight;
-            alglib.ap.assert(state.algokind == 0, "MCMC 188955 failed");
-            alglib.ap.assert((((state.proposalkind == 0 || state.proposalkind == 1) || state.proposalkind == 2) || state.proposalkind == 3) || state.proposalkind == 4, "MCMC 250131 failed");
+            ap.assert(state.algokind == 0, "MCMC 188955 failed");
+            ap.assert((((state.proposalkind == 0 || state.proposalkind == 1) || state.proposalkind == 2) || state.proposalkind == 3) || state.proposalkind == 4, "MCMC 250131 failed");
 
             //
             // Prepare group structure
             //
-            alglib.ap.assert(state.proposalkind != 0 || popwidth - dstgrpsize >= 1, "MCMC 564025 failed");
-            alglib.ap.assert(state.proposalkind != 1 || (popwidth - dstgrpsize >= 2 && state.helperscnt >= 2), "MCMC 272113 failed");
-            alglib.ap.assert(state.proposalkind != 2 || popwidth - dstgrpsize >= 2, "MCMC 367147 failed");
-            alglib.ap.assert(state.proposalkind != 3 || popwidth - dstgrpsize >= 3, "MCMC 432520 failed");
+            ap.assert(state.proposalkind != 0 || popwidth - dstgrpsize >= 1, "MCMC 564025 failed");
+            ap.assert(state.proposalkind != 1 || (popwidth - dstgrpsize >= 2 && state.helperscnt >= 2), "MCMC 272113 failed");
+            ap.assert(state.proposalkind != 2 || popwidth - dstgrpsize >= 2, "MCMC 367147 failed");
+            ap.assert(state.proposalkind != 3 || popwidth - dstgrpsize >= 3, "MCMC 432520 failed");
 
             //
             // Generate proposals
             //
-            alglib.ap.assert((((alglib.ap.len(propidx) >= dstgrpsize * popheight && alglib.ap.len(propz) >= dstgrpsize * popheight) && alglib.ap.len(propt) >= dstgrpsize * popheight) && alglib.ap.rows(propxf) >= dstgrpsize * popheight) && alglib.ap.cols(propxf) >= n + 1, "MCMC 188955 failed");
+            ap.assert((((ap.len(propidx) >= dstgrpsize * popheight && ap.len(propz) >= dstgrpsize * popheight) && ap.len(propt) >= dstgrpsize * popheight) && ap.rows(propxf) >= dstgrpsize * popheight) && ap.cols(propxf) >= n + 1, "MCMC 188955 failed");
             if (state.proposalkind == 0)
             {
 
@@ -15637,7 +15637,7 @@ public partial class alglib
                 }
                 return;
             }
-            alglib.ap.assert(false, "MCMC: 319132 failed");
+            ap.assert(false, "MCMC: 319132 failed");
         }
 
 
@@ -15663,8 +15663,8 @@ public partial class alglib
             n = state.n;
             epochscnt = state.repepochscnt;
             popwidth = state.reppopwidth;
-            alglib.ap.assert(!state.reportalllevels, "MCMC: 778552 failed");
-            alglib.ap.assert(epochscnt * popwidth == state.repsamplesize, "MCMC: integrity check 657126 failed");
+            ap.assert(!state.reportalllevels, "MCMC: 778552 failed");
+            ap.assert(epochscnt * popwidth == state.repsamplesize, "MCMC: integrity check 657126 failed");
             ablasf.rsetallocv(n, 0.0, ref autocorrtimes, _params);
 
             //
@@ -15717,8 +15717,8 @@ public partial class alglib
 
             epochscnt = state.repepochscnt;
             popwidth = state.reppopwidth;
-            alglib.ap.assert(!state.reportalllevels, "MCMC: 778552 failed");
-            alglib.ap.assert(epochscnt * popwidth == state.repsamplesize, "MCMC: integrity check 678132 failed");
+            ap.assert(!state.reportalllevels, "MCMC: 778552 failed");
+            ap.assert(epochscnt * popwidth == state.repsamplesize, "MCMC: integrity check 678132 failed");
             ex2 = 1;
             while (ex2 < epochscnt)
             {

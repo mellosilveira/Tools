@@ -4,7 +4,7 @@ using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Logging;
 using Npgsql;
 
-namespace MelloSilveiraTools.WebApi.Application.HealthChecks;
+namespace MelloSilveiraTools.Database.RelationalDatabase.HealthChecks;
 
 /// <summary>
 /// Native ASP.NET Core <see cref="IHealthCheck"/> probing PostgreSQL connectivity via

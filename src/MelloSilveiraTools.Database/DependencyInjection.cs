@@ -1,10 +1,12 @@
 using MelloSilveiraTools.Core.ResiliencePipelines;
+using MelloSilveiraTools.Database.RelationalDatabase.HealthChecks;
 using MelloSilveiraTools.Database.RelationalDatabase.Repositories;
 using MelloSilveiraTools.Database.RelationalDatabase.Settings;
 using MelloSilveiraTools.Database.RelationalDatabase.Sql.Provider;
 using MelloSilveiraTools.Database.Repositories;
 using MelloSilveiraTools.Database.ResiliencePipelines;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Logging;
 using Npgsql;
 
@@ -15,6 +17,26 @@ namespace MelloSilveiraTools.Database;
 /// </summary>
 public static class DatabaseDependencyInjection
 {
+    extension(IHealthChecksBuilder healthChecksBuilder)
+    {
+        /// <summary>
+        /// Registers ASP.NET Core native health checks with <see cref="PostgresHealthCheck"/> configured
+        /// using <see cref="DatabaseSettings.UnitOperationTimeoutInMilliseconds"/> as its execution timeout.
+        /// </summary>
+        /// <param name="databaseSettings">Database settings supplying the unit-operation timeout.</param>
+        /// <param name="name">Optional health-check registration name; defaults to <see cref="PostgresHealthCheck.DefaultName"/>.</param>
+        /// <param name="tags">Optional health-check tags; defaults to <c>["database", "ready"]</c>.</param>
+        /// <returns>The same <paramref name="healthChecksBuilder"/> instance to allow call chaining.</returns>
+        /// <exception cref="ArgumentNullException">Thrown when <paramref name="databaseSettings"/> is <see langword="null"/>.</exception>
+        /// <exception cref="ArgumentOutOfRangeException">Thrown when <see cref="DatabaseSettings.UnitOperationTimeoutInMilliseconds"/> is less than or equal to zero.</exception>
+        public IHealthChecksBuilder AddDatabaseHealthCheck(DatabaseSettings databaseSettings, string name = PostgresHealthCheck.DefaultName, IEnumerable<string>? tags = null) 
+            => healthChecksBuilder.AddCheck<PostgresHealthCheck>(
+                name,
+                failureStatus: HealthStatus.Unhealthy,
+                tags: tags ?? ["database", "ready"],
+                timeout: TimeSpan.FromMilliseconds(databaseSettings.UnitOperationTimeoutInMilliseconds));
+    }
+
     extension(IServiceCollection services)
     {
         /// <summary>
@@ -50,6 +72,23 @@ public static class DatabaseDependencyInjection
             .AddSingleton<ISqlProvider, PostgresSqlProvider>()
             // Register repositories.
             .AddSingleton<IRepository, PostgresRepository>();
+
+        /// <summary>
+        /// Registers ASP.NET Core native health checks with <see cref="PostgresHealthCheck"/> configured
+        /// using <see cref="DatabaseSettings.UnitOperationTimeoutInMilliseconds"/> as its execution timeout.
+        /// </summary>
+        /// <param name="databaseSettings">Database settings supplying the unit-operation timeout.</param>
+        /// <param name="name">Optional health-check registration name; defaults to <see cref="PostgresHealthCheck.DefaultName"/>.</param>
+        /// <param name="tags">Optional health-check tags; defaults to <c>["database", "ready"]</c>.</param>
+        /// <returns>The <see cref="IServiceCollection"/> so callers can chain additional services.</returns>
+        public IServiceCollection AddDatabaseHealthCheck(DatabaseSettings databaseSettings, string name = PostgresHealthCheck.DefaultName, IEnumerable<string>? tags = null)
+        {
+            services
+                .AddHealthChecks()
+                .AddDatabaseHealthCheck(databaseSettings, name, tags);
+
+            return services;
+        }
     }
 
     /// <summary>

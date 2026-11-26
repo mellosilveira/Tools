@@ -27,7 +27,7 @@ public class PluginLoadContext(string name, string pluginPath, bool isCollectibl
     /// When <see langword="false"/> (default), blocks resolution of unmanaged native libraries.
     /// </param>
     public PluginLoadContext(string pluginPath, bool isCollectible = true, bool allowUnmanagedDlls = false)
-        : this($"PluginContext_{Path.GetFileNameWithoutExtension(pluginPath)}", pluginPath, isCollectible, allowUnmanagedDlls) 
+        : this($"PluginContext_{Path.GetFileNameWithoutExtension(pluginPath)}", pluginPath, isCollectible, allowUnmanagedDlls)
     { }
 
     /// <summary>

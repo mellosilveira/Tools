@@ -11,14 +11,14 @@
         </member>
         <member name="M:MelloSilveiraTools.Launcher.Infrastructure.LauncherHostProbe.IsHealthyAsync(System.String,System.Threading.CancellationToken)">
             <summary>
-            Probes <c>{baseUrl}/health</c> once and returns <see langword="true"/> when a 2xx response is received.
+            Probes <c>{baseUrl}/api/health</c> once and returns <see langword="true"/> when a 2xx response is received.
             </summary>
             <param name="baseUrl">Base URL of <c>MelloSilveiraTools.WebApi.Host</c>.</param>
             <param name="cancellationToken">Cancellation token.</param>
         </member>
         <member name="M:MelloSilveiraTools.Launcher.Infrastructure.LauncherHostProbe.WaitForHealthyAsync(Microsoft.Extensions.Logging.ILogger,System.String,System.Boolean,System.Func{System.Boolean},System.Int32,System.Threading.CancellationToken)">
             <summary>
-            Polls <c>{baseUrl}/health</c> until the host becomes healthy, exits prematurely, or reaches <paramref name="maxAttempts"/>.
+            Polls <c>{baseUrl}/api/health</c> until the host becomes healthy, exits prematurely, or reaches <paramref name="maxAttempts"/>.
             Optionally opens the default browser once healthy.
             </summary>
             <param name="logger">Logger for startup polling diagnostics.</param>

@@ -8031,9 +8031,9 @@ public partial class alglib
         callbacks.rep = rep;
         callbacks.func_p = func;
 
-        alglib.lsfit.lsfitsetprotocolv2(state.innerobj, _params);
+        lsfit.lsfitsetprotocolv2(state.innerobj, _params);
         state.innerobj.rcommv2.assign_handler(ap.rcommv2_request_csharphandler, request, callbacks, null, null);
-        while (alglib.lsfititeration(state, _params))
+        while (lsfititeration(state, _params))
         {
             throw new alglibexception("ALGLIB: critical error in 'lsfitfit' (RCommV2 request escaped handler)");
         }
@@ -8056,9 +8056,9 @@ public partial class alglib
         callbacks.func_p = func;
         callbacks.grad_p = grad;
 
-        alglib.lsfit.lsfitsetprotocolv2(state.innerobj, _params);
+        lsfit.lsfitsetprotocolv2(state.innerobj, _params);
         state.innerobj.rcommv2.assign_handler(ap.rcommv2_request_csharphandler, request, callbacks, null, null);
-        while (alglib.lsfititeration(state, _params))
+        while (lsfititeration(state, _params))
         {
             throw new alglibexception("ALGLIB: critical error in 'lsfitfit' (RCommV2 request escaped handler)");
         }
@@ -13455,8 +13455,8 @@ public partial class alglib
             xoriginal = new double[0];
             yoriginal = new double[0];
 
-            alglib.ap.assert(n >= 1, "LSFitScaleXY: incorrect N");
-            alglib.ap.assert(k >= 0, "LSFitScaleXY: incorrect K");
+            ap.assert(n >= 1, "LSFitScaleXY: incorrect N");
+            ap.assert(k >= 0, "LSFitScaleXY: incorrect K");
             xmin = x[0];
             xmax = x[0];
             for (i = 1; i <= n - 1; i++)
@@ -13501,7 +13501,7 @@ public partial class alglib
             }
             for (i = 0; i <= k - 1; i++)
             {
-                alglib.ap.assert(dc[i] >= 0, "LSFitScaleXY: internal error!");
+                ap.assert(dc[i] >= 0, "LSFitScaleXY: internal error!");
                 xc[i] = 2 * (xc[i] - 0.5 * (xa + xb)) / (xb - xa);
                 yc[i] = yc[i] * Math.Pow(0.5 * (xb - xa), dc[i]);
             }
@@ -13583,13 +13583,13 @@ public partial class alglib
 
             v = new double[0, 0];
 
-            alglib.ap.assert(n >= 0, "BuildPriorTerm: N<0");
-            alglib.ap.assert(nx > 0, "BuildPriorTerm: NX<=0");
-            alglib.ap.assert(ny > 0, "BuildPriorTerm: NY<=0");
+            ap.assert(n >= 0, "BuildPriorTerm: N<0");
+            ap.assert(nx > 0, "BuildPriorTerm: NX<=0");
+            ap.assert(ny > 0, "BuildPriorTerm: NY<=0");
             v = new double[ny, nx + 1];
-            for (i = 0; i <= alglib.ap.rows(v) - 1; i++)
+            for (i = 0; i <= ap.rows(v) - 1; i++)
             {
-                for (j = 0; j <= alglib.ap.cols(v) - 1; j++)
+                for (j = 0; j <= ap.cols(v) - 1; j++)
                 {
                     v[i, j] = 0;
                 }
@@ -13616,7 +13616,7 @@ public partial class alglib
                 {
                     return;
                 }
-                alglib.ap.assert(false, "BuildPriorTerm: unexpected model type");
+                ap.assert(false, "BuildPriorTerm: unexpected model type");
             }
             if (modeltype == 0)
             {
@@ -13659,7 +13659,7 @@ public partial class alglib
             {
                 return;
             }
-            alglib.ap.assert(modeltype == 1, "BuildPriorTerm: unexpected model type");
+            ap.assert(modeltype == 1, "BuildPriorTerm: unexpected model type");
             lambdareg = 0.0;
             araw = new double[nx + 1, nx + 1];
             braw = new double[nx + 1, ny];
@@ -13786,14 +13786,14 @@ public partial class alglib
 
             v = new double[0, 0];
 
-            alglib.ap.assert(n >= 0, "BuildPriorTerm: N<0");
-            alglib.ap.assert(nx > 0, "BuildPriorTerm: NX<=0");
-            alglib.ap.assert(ny > 0, "BuildPriorTerm: NY<=0");
+            ap.assert(n >= 0, "BuildPriorTerm: N<0");
+            ap.assert(nx > 0, "BuildPriorTerm: NX<=0");
+            ap.assert(ny > 0, "BuildPriorTerm: NY<=0");
             ew = nx + ny;
             v = new double[ny, nx + 1];
-            for (i = 0; i <= alglib.ap.rows(v) - 1; i++)
+            for (i = 0; i <= ap.rows(v) - 1; i++)
             {
-                for (j = 0; j <= alglib.ap.cols(v) - 1; j++)
+                for (j = 0; j <= ap.cols(v) - 1; j++)
                 {
                     v[i, j] = 0;
                 }
@@ -13820,7 +13820,7 @@ public partial class alglib
                 {
                     return;
                 }
-                alglib.ap.assert(false, "BuildPriorTerm: unexpected model type");
+                ap.assert(false, "BuildPriorTerm: unexpected model type");
             }
             if (modeltype == 0)
             {
@@ -13863,7 +13863,7 @@ public partial class alglib
             {
                 return;
             }
-            alglib.ap.assert(modeltype == 1, "BuildPriorTerm: unexpected model type");
+            ap.assert(modeltype == 1, "BuildPriorTerm: unexpected model type");
             lambdareg = 0.0;
             araw = new double[nx + 1, nx + 1];
             braw = new double[nx + 1, ny];
@@ -14031,7 +14031,7 @@ public partial class alglib
             double v = 0;
             int i = 0;
 
-            alglib.ap.assert(!Double.IsInfinity(t), "BarycentricCalc: infinite T!");
+            ap.assert(!Double.IsInfinity(t), "BarycentricCalc: infinite T!");
 
             //
             // special case: NaN
@@ -14137,7 +14137,7 @@ public partial class alglib
             f = 0;
             df = 0;
 
-            alglib.ap.assert(!Double.IsInfinity(t), "BarycentricDiff1: infinite T!");
+            ap.assert(!Double.IsInfinity(t), "BarycentricDiff1: infinite T!");
 
             //
             // special case: NaN
@@ -14164,7 +14164,7 @@ public partial class alglib
                 df = 0;
                 return;
             }
-            alglib.ap.assert((double)(b.sy) > (double)(0), "BarycentricDiff1: internal error");
+            ap.assert((double)(b.sy) > (double)(0), "BarycentricDiff1: internal error");
 
             //
             // We assume than N>1 and B.SY>0. Find:
@@ -14210,7 +14210,7 @@ public partial class alglib
                 xi = b.x[i];
                 xi = xi * xscale1 + xoffs1;
                 xi = xi * xscale2 + xoffs2;
-                alglib.ap.assert((double)(xi) > (double)(xprev), "BarycentricDiff1: points are too close!");
+                ap.assert((double)(xi) > (double)(xprev), "BarycentricDiff1: points are too close!");
                 xprev = xi;
                 if (i != k)
                 {
@@ -14287,7 +14287,7 @@ public partial class alglib
             df = 0;
             d2f = 0;
 
-            alglib.ap.assert(!Double.IsInfinity(t), "BarycentricDiff1: infinite T!");
+            ap.assert(!Double.IsInfinity(t), "BarycentricDiff1: infinite T!");
 
             //
             // special case: NaN
@@ -14323,7 +14323,7 @@ public partial class alglib
             // 1. pivot point (X[i] closest to T)
             // 2. width of interval containing X[i]
             //
-            alglib.ap.assert((double)(b.sy) > (double)(0), "BarycentricDiff: internal error");
+            ap.assert((double)(b.sy) > (double)(0), "BarycentricDiff: internal error");
             f = 0;
             df = 0;
             d2f = 0;
@@ -14572,7 +14572,7 @@ public partial class alglib
         {
             int i_ = 0;
 
-            alglib.ap.assert(n > 0, "BarycentricBuildXYW: incorrect N!");
+            ap.assert(n > 0, "BarycentricBuildXYW: incorrect N!");
 
             //
             // fill X/Y/W
@@ -14647,8 +14647,8 @@ public partial class alglib
             double[] sortrbuf2 = new double[0];
             int i_ = 0;
 
-            alglib.ap.assert(n > 0, "BarycentricFloaterHormann: N<=0!");
-            alglib.ap.assert(d >= 0, "BarycentricFloaterHormann: incorrect D!");
+            ap.assert(n > 0, "BarycentricFloaterHormann: N<=0!");
+            ap.assert(d >= 0, "BarycentricFloaterHormann: incorrect D!");
 
             //
             // Prepare
@@ -14886,10 +14886,10 @@ public partial class alglib
 
             t = new double[0];
 
-            alglib.ap.assert(math.isfinite(a), "PolynomialBar2Cheb: A is not finite!");
-            alglib.ap.assert(math.isfinite(b), "PolynomialBar2Cheb: B is not finite!");
-            alglib.ap.assert((double)(a) != (double)(b), "PolynomialBar2Cheb: A=B!");
-            alglib.ap.assert(p.n > 0, "PolynomialBar2Cheb: P is not correctly initialized barycentric interpolant!");
+            ap.assert(math.isfinite(a), "PolynomialBar2Cheb: A is not finite!");
+            ap.assert(math.isfinite(b), "PolynomialBar2Cheb: B is not finite!");
+            ap.assert((double)(a) != (double)(b), "PolynomialBar2Cheb: A=B!");
+            ap.assert(p.n > 0, "PolynomialBar2Cheb: P is not correctly initialized barycentric interpolant!");
 
             //
             // Calculate function values on a Chebyshev grid
@@ -14995,12 +14995,12 @@ public partial class alglib
             double vy = 0;
             double v = 0;
 
-            alglib.ap.assert(math.isfinite(a), "PolynomialBar2Cheb: A is not finite!");
-            alglib.ap.assert(math.isfinite(b), "PolynomialBar2Cheb: B is not finite!");
-            alglib.ap.assert((double)(a) != (double)(b), "PolynomialBar2Cheb: A=B!");
-            alglib.ap.assert(n >= 1, "PolynomialBar2Cheb: N<1");
-            alglib.ap.assert(alglib.ap.len(t) >= n, "PolynomialBar2Cheb: Length(T)<N");
-            alglib.ap.assert(apserv.isfinitevector(t, n, _params), "PolynomialBar2Cheb: T[] contains INF or NAN");
+            ap.assert(math.isfinite(a), "PolynomialBar2Cheb: A is not finite!");
+            ap.assert(math.isfinite(b), "PolynomialBar2Cheb: B is not finite!");
+            ap.assert((double)(a) != (double)(b), "PolynomialBar2Cheb: A=B!");
+            ap.assert(n >= 1, "PolynomialBar2Cheb: N<1");
+            ap.assert(ap.len(t) >= n, "PolynomialBar2Cheb: Length(T)<N");
+            ap.assert(apserv.isfinitevector(t, n, _params), "PolynomialBar2Cheb: T[] contains INF or NAN");
 
             //
             // Calculate function values on a Chebyshev grid spanning [-1,+1]
@@ -15128,10 +15128,10 @@ public partial class alglib
             // problems when working with models built from dataset with non-unit
             // scale of abscissas).
             //
-            alglib.ap.assert(math.isfinite(c), "PolynomialBar2Pow: C is not finite!");
-            alglib.ap.assert(math.isfinite(s), "PolynomialBar2Pow: S is not finite!");
-            alglib.ap.assert((double)(s) != (double)(0), "PolynomialBar2Pow: S=0!");
-            alglib.ap.assert(p.n > 0, "PolynomialBar2Pow: P is not correctly initialized barycentric interpolant!");
+            ap.assert(math.isfinite(c), "PolynomialBar2Pow: C is not finite!");
+            ap.assert(math.isfinite(s), "PolynomialBar2Pow: S is not finite!");
+            ap.assert((double)(s) != (double)(0), "PolynomialBar2Pow: S=0!");
+            ap.assert(p.n > 0, "PolynomialBar2Pow: P is not correctly initialized barycentric interpolant!");
 
             //
             // Select intermediate center/scale
@@ -15271,8 +15271,8 @@ public partial class alglib
             // Because we have y=A*z+B, for A=s/s0 and B=c/s0-c0/s0, we can perform
             // substitution and get coefficients A_new[] in basis Fi(z).
             //
-            alglib.ap.assert(alglib.ap.len(vp) >= p.n + 1, "PolynomialBar2Pow: internal error");
-            alglib.ap.assert(alglib.ap.len(t) >= p.n, "PolynomialBar2Pow: internal error");
+            ap.assert(ap.len(vp) >= p.n + 1, "PolynomialBar2Pow: internal error");
+            ap.assert(ap.len(t) >= p.n, "PolynomialBar2Pow: internal error");
             for (i = 0; i <= p.n - 1; i++)
             {
                 t[i] = 0.0;
@@ -15373,12 +15373,12 @@ public partial class alglib
             double vy = 0;
             double px = 0;
 
-            alglib.ap.assert(math.isfinite(c), "PolynomialPow2Bar: C is not finite!");
-            alglib.ap.assert(math.isfinite(s), "PolynomialPow2Bar: S is not finite!");
-            alglib.ap.assert((double)(s) != (double)(0), "PolynomialPow2Bar: S is zero!");
-            alglib.ap.assert(n >= 1, "PolynomialPow2Bar: N<1");
-            alglib.ap.assert(alglib.ap.len(a) >= n, "PolynomialPow2Bar: Length(A)<N");
-            alglib.ap.assert(apserv.isfinitevector(a, n, _params), "PolynomialPow2Bar: A[] contains INF or NAN");
+            ap.assert(math.isfinite(c), "PolynomialPow2Bar: C is not finite!");
+            ap.assert(math.isfinite(s), "PolynomialPow2Bar: S is not finite!");
+            ap.assert((double)(s) != (double)(0), "PolynomialPow2Bar: S is zero!");
+            ap.assert(n >= 1, "PolynomialPow2Bar: N<1");
+            ap.assert(ap.len(a) >= n, "PolynomialPow2Bar: Length(A)<N");
+            ap.assert(apserv.isfinitevector(a, n, _params), "PolynomialPow2Bar: A[] contains INF or NAN");
 
             //
             // Calculate function values on a Chebyshev grid spanning [-1,+1]
@@ -15445,13 +15445,13 @@ public partial class alglib
             x = (double[])x.Clone();
             y = (double[])y.Clone();
 
-            alglib.ap.assert(n > 0, "PolynomialBuild: N<=0!");
-            alglib.ap.assert(alglib.ap.len(x) >= n, "PolynomialBuild: Length(X)<N!");
-            alglib.ap.assert(alglib.ap.len(y) >= n, "PolynomialBuild: Length(Y)<N!");
-            alglib.ap.assert(apserv.isfinitevector(x, n, _params), "PolynomialBuild: X contains infinite or NaN values!");
-            alglib.ap.assert(apserv.isfinitevector(y, n, _params), "PolynomialBuild: Y contains infinite or NaN values!");
+            ap.assert(n > 0, "PolynomialBuild: N<=0!");
+            ap.assert(ap.len(x) >= n, "PolynomialBuild: Length(X)<N!");
+            ap.assert(ap.len(y) >= n, "PolynomialBuild: Length(Y)<N!");
+            ap.assert(apserv.isfinitevector(x, n, _params), "PolynomialBuild: X contains infinite or NaN values!");
+            ap.assert(apserv.isfinitevector(y, n, _params), "PolynomialBuild: Y contains infinite or NaN values!");
             tsort.tagsortfastr(ref x, ref y, ref sortrbuf, ref sortrbuf2, n, _params);
-            alglib.ap.assert(apserv.aredistinct(x, n, _params), "PolynomialBuild: at least two consequent points are too close!");
+            ap.assert(apserv.aredistinct(x, n, _params), "PolynomialBuild: at least two consequent points are too close!");
 
             //
             // calculate W[j]
@@ -15532,13 +15532,13 @@ public partial class alglib
             double[] x = new double[0];
             double v = 0;
 
-            alglib.ap.assert(n > 0, "PolynomialBuildEqDist: N<=0!");
-            alglib.ap.assert(alglib.ap.len(y) >= n, "PolynomialBuildEqDist: Length(Y)<N!");
-            alglib.ap.assert(math.isfinite(a), "PolynomialBuildEqDist: A is infinite or NaN!");
-            alglib.ap.assert(math.isfinite(b), "PolynomialBuildEqDist: B is infinite or NaN!");
-            alglib.ap.assert(apserv.isfinitevector(y, n, _params), "PolynomialBuildEqDist: Y contains infinite or NaN values!");
-            alglib.ap.assert((double)(b) != (double)(a), "PolynomialBuildEqDist: B=A!");
-            alglib.ap.assert((double)(a + (b - a) / n) != (double)(a), "PolynomialBuildEqDist: B is too close to A!");
+            ap.assert(n > 0, "PolynomialBuildEqDist: N<=0!");
+            ap.assert(ap.len(y) >= n, "PolynomialBuildEqDist: Length(Y)<N!");
+            ap.assert(math.isfinite(a), "PolynomialBuildEqDist: A is infinite or NaN!");
+            ap.assert(math.isfinite(b), "PolynomialBuildEqDist: B is infinite or NaN!");
+            ap.assert(apserv.isfinitevector(y, n, _params), "PolynomialBuildEqDist: Y contains infinite or NaN values!");
+            ap.assert((double)(b) != (double)(a), "PolynomialBuildEqDist: B=A!");
+            ap.assert((double)(a + (b - a) / n) != (double)(a), "PolynomialBuildEqDist: B is too close to A!");
 
             //
             // Special case: N=1
@@ -15603,12 +15603,12 @@ public partial class alglib
             double v = 0;
             double t = 0;
 
-            alglib.ap.assert(n > 0, "PolynomialBuildCheb1: N<=0!");
-            alglib.ap.assert(alglib.ap.len(y) >= n, "PolynomialBuildCheb1: Length(Y)<N!");
-            alglib.ap.assert(math.isfinite(a), "PolynomialBuildCheb1: A is infinite or NaN!");
-            alglib.ap.assert(math.isfinite(b), "PolynomialBuildCheb1: B is infinite or NaN!");
-            alglib.ap.assert(apserv.isfinitevector(y, n, _params), "PolynomialBuildCheb1: Y contains infinite or NaN values!");
-            alglib.ap.assert((double)(b) != (double)(a), "PolynomialBuildCheb1: B=A!");
+            ap.assert(n > 0, "PolynomialBuildCheb1: N<=0!");
+            ap.assert(ap.len(y) >= n, "PolynomialBuildCheb1: Length(Y)<N!");
+            ap.assert(math.isfinite(a), "PolynomialBuildCheb1: A is infinite or NaN!");
+            ap.assert(math.isfinite(b), "PolynomialBuildCheb1: B is infinite or NaN!");
+            ap.assert(apserv.isfinitevector(y, n, _params), "PolynomialBuildCheb1: Y contains infinite or NaN values!");
+            ap.assert((double)(b) != (double)(a), "PolynomialBuildCheb1: B=A!");
 
             //
             // Special case: N=1
@@ -15672,12 +15672,12 @@ public partial class alglib
             double[] x = new double[0];
             double v = 0;
 
-            alglib.ap.assert(n > 0, "PolynomialBuildCheb2: N<=0!");
-            alglib.ap.assert(alglib.ap.len(y) >= n, "PolynomialBuildCheb2: Length(Y)<N!");
-            alglib.ap.assert(math.isfinite(a), "PolynomialBuildCheb2: A is infinite or NaN!");
-            alglib.ap.assert(math.isfinite(b), "PolynomialBuildCheb2: B is infinite or NaN!");
-            alglib.ap.assert((double)(b) != (double)(a), "PolynomialBuildCheb2: B=A!");
-            alglib.ap.assert(apserv.isfinitevector(y, n, _params), "PolynomialBuildCheb2: Y contains infinite or NaN values!");
+            ap.assert(n > 0, "PolynomialBuildCheb2: N<=0!");
+            ap.assert(ap.len(y) >= n, "PolynomialBuildCheb2: Length(Y)<N!");
+            ap.assert(math.isfinite(a), "PolynomialBuildCheb2: A is infinite or NaN!");
+            ap.assert(math.isfinite(b), "PolynomialBuildCheb2: B is infinite or NaN!");
+            ap.assert((double)(b) != (double)(a), "PolynomialBuildCheb2: B=A!");
+            ap.assert(apserv.isfinitevector(y, n, _params), "PolynomialBuildCheb2: Y contains infinite or NaN values!");
 
             //
             // Special case: N=1
@@ -15758,13 +15758,13 @@ public partial class alglib
             double w = 0;
             double x = 0;
 
-            alglib.ap.assert(n > 0, "PolynomialCalcEqDist: N<=0!");
-            alglib.ap.assert(alglib.ap.len(f) >= n, "PolynomialCalcEqDist: Length(F)<N!");
-            alglib.ap.assert(math.isfinite(a), "PolynomialCalcEqDist: A is infinite or NaN!");
-            alglib.ap.assert(math.isfinite(b), "PolynomialCalcEqDist: B is infinite or NaN!");
-            alglib.ap.assert(apserv.isfinitevector(f, n, _params), "PolynomialCalcEqDist: F contains infinite or NaN values!");
-            alglib.ap.assert((double)(b) != (double)(a), "PolynomialCalcEqDist: B=A!");
-            alglib.ap.assert(!Double.IsInfinity(t), "PolynomialCalcEqDist: T is infinite!");
+            ap.assert(n > 0, "PolynomialCalcEqDist: N<=0!");
+            ap.assert(ap.len(f) >= n, "PolynomialCalcEqDist: Length(F)<N!");
+            ap.assert(math.isfinite(a), "PolynomialCalcEqDist: A is infinite or NaN!");
+            ap.assert(math.isfinite(b), "PolynomialCalcEqDist: B is infinite or NaN!");
+            ap.assert(apserv.isfinitevector(f, n, _params), "PolynomialCalcEqDist: F contains infinite or NaN values!");
+            ap.assert((double)(b) != (double)(a), "PolynomialCalcEqDist: B=A!");
+            ap.assert(!Double.IsInfinity(t), "PolynomialCalcEqDist: T is infinite!");
 
             //
             // Special case: T is NAN
@@ -15897,13 +15897,13 @@ public partial class alglib
             double w = 0;
             double p1 = 0;
 
-            alglib.ap.assert(n > 0, "PolynomialCalcCheb1: N<=0!");
-            alglib.ap.assert(alglib.ap.len(f) >= n, "PolynomialCalcCheb1: Length(F)<N!");
-            alglib.ap.assert(math.isfinite(a), "PolynomialCalcCheb1: A is infinite or NaN!");
-            alglib.ap.assert(math.isfinite(b), "PolynomialCalcCheb1: B is infinite or NaN!");
-            alglib.ap.assert(apserv.isfinitevector(f, n, _params), "PolynomialCalcCheb1: F contains infinite or NaN values!");
-            alglib.ap.assert((double)(b) != (double)(a), "PolynomialCalcCheb1: B=A!");
-            alglib.ap.assert(!Double.IsInfinity(t), "PolynomialCalcCheb1: T is infinite!");
+            ap.assert(n > 0, "PolynomialCalcCheb1: N<=0!");
+            ap.assert(ap.len(f) >= n, "PolynomialCalcCheb1: Length(F)<N!");
+            ap.assert(math.isfinite(a), "PolynomialCalcCheb1: A is infinite or NaN!");
+            ap.assert(math.isfinite(b), "PolynomialCalcCheb1: B is infinite or NaN!");
+            ap.assert(apserv.isfinitevector(f, n, _params), "PolynomialCalcCheb1: F contains infinite or NaN values!");
+            ap.assert((double)(b) != (double)(a), "PolynomialCalcCheb1: B=A!");
+            ap.assert(!Double.IsInfinity(t), "PolynomialCalcCheb1: T is infinite!");
 
             //
             // Special case: T is NAN
@@ -16093,13 +16093,13 @@ public partial class alglib
             double w = 0;
             double p1 = 0;
 
-            alglib.ap.assert(n > 0, "PolynomialCalcCheb2: N<=0!");
-            alglib.ap.assert(alglib.ap.len(f) >= n, "PolynomialCalcCheb2: Length(F)<N!");
-            alglib.ap.assert(math.isfinite(a), "PolynomialCalcCheb2: A is infinite or NaN!");
-            alglib.ap.assert(math.isfinite(b), "PolynomialCalcCheb2: B is infinite or NaN!");
-            alglib.ap.assert((double)(b) != (double)(a), "PolynomialCalcCheb2: B=A!");
-            alglib.ap.assert(apserv.isfinitevector(f, n, _params), "PolynomialCalcCheb2: F contains infinite or NaN values!");
-            alglib.ap.assert(!Double.IsInfinity(t), "PolynomialCalcEqDist: T is infinite!");
+            ap.assert(n > 0, "PolynomialCalcCheb2: N<=0!");
+            ap.assert(ap.len(f) >= n, "PolynomialCalcCheb2: Length(F)<N!");
+            ap.assert(math.isfinite(a), "PolynomialCalcCheb2: A is infinite or NaN!");
+            ap.assert(math.isfinite(b), "PolynomialCalcCheb2: B is infinite or NaN!");
+            ap.assert((double)(b) != (double)(a), "PolynomialCalcCheb2: B=A!");
+            ap.assert(apserv.isfinitevector(f, n, _params), "PolynomialCalcCheb2: F contains infinite or NaN values!");
+            ap.assert(!Double.IsInfinity(t), "PolynomialCalcEqDist: T is infinite!");
 
             //
             // Special case: T is NAN
@@ -16428,17 +16428,17 @@ public partial class alglib
             x = (double[])x.Clone();
             y = (double[])y.Clone();
 
-            alglib.ap.assert(n > 1, "Spline1DBuildLinear: N<2!");
-            alglib.ap.assert(alglib.ap.len(x) >= n, "Spline1DBuildLinear: Length(X)<N!");
-            alglib.ap.assert(alglib.ap.len(y) >= n, "Spline1DBuildLinear: Length(Y)<N!");
+            ap.assert(n > 1, "Spline1DBuildLinear: N<2!");
+            ap.assert(ap.len(x) >= n, "Spline1DBuildLinear: Length(X)<N!");
+            ap.assert(ap.len(y) >= n, "Spline1DBuildLinear: Length(Y)<N!");
 
             //
             // check and sort points
             //
-            alglib.ap.assert(apserv.isfinitevector(x, n, _params), "Spline1DBuildLinear: X contains infinite or NAN values!");
-            alglib.ap.assert(apserv.isfinitevector(y, n, _params), "Spline1DBuildLinear: Y contains infinite or NAN values!");
+            ap.assert(apserv.isfinitevector(x, n, _params), "Spline1DBuildLinear: X contains infinite or NAN values!");
+            ap.assert(apserv.isfinitevector(y, n, _params), "Spline1DBuildLinear: Y contains infinite or NAN values!");
             heapsortpoints(ref x, ref y, n, _params);
-            alglib.ap.assert(apserv.aredistinct(x, n, _params), "Spline1DBuildLinear: at least two consequent points are too close!");
+            ap.assert(apserv.aredistinct(x, n, _params), "Spline1DBuildLinear: at least two consequent points are too close!");
 
             //
             // Build
@@ -16544,24 +16544,24 @@ public partial class alglib
             //
             // check correctness of boundary conditions
             //
-            alglib.ap.assert(((boundltype == -1 || boundltype == 0) || boundltype == 1) || boundltype == 2, "Spline1DBuildCubic: incorrect BoundLType!");
-            alglib.ap.assert(((boundrtype == -1 || boundrtype == 0) || boundrtype == 1) || boundrtype == 2, "Spline1DBuildCubic: incorrect BoundRType!");
-            alglib.ap.assert((boundrtype == -1 && boundltype == -1) || (boundrtype != -1 && boundltype != -1), "Spline1DBuildCubic: incorrect BoundLType/BoundRType!");
+            ap.assert(((boundltype == -1 || boundltype == 0) || boundltype == 1) || boundltype == 2, "Spline1DBuildCubic: incorrect BoundLType!");
+            ap.assert(((boundrtype == -1 || boundrtype == 0) || boundrtype == 1) || boundrtype == 2, "Spline1DBuildCubic: incorrect BoundRType!");
+            ap.assert((boundrtype == -1 && boundltype == -1) || (boundrtype != -1 && boundltype != -1), "Spline1DBuildCubic: incorrect BoundLType/BoundRType!");
             if (boundltype == 1 || boundltype == 2)
             {
-                alglib.ap.assert(math.isfinite(boundl), "Spline1DBuildCubic: BoundL is infinite or NAN!");
+                ap.assert(math.isfinite(boundl), "Spline1DBuildCubic: BoundL is infinite or NAN!");
             }
             if (boundrtype == 1 || boundrtype == 2)
             {
-                alglib.ap.assert(math.isfinite(boundr), "Spline1DBuildCubic: BoundR is infinite or NAN!");
+                ap.assert(math.isfinite(boundr), "Spline1DBuildCubic: BoundR is infinite or NAN!");
             }
 
             //
             // check lengths of arguments
             //
-            alglib.ap.assert(n >= 2, "Spline1DBuildCubic: N<2!");
-            alglib.ap.assert(alglib.ap.len(x) >= n, "Spline1DBuildCubic: Length(X)<N!");
-            alglib.ap.assert(alglib.ap.len(y) >= n, "Spline1DBuildCubic: Length(Y)<N!");
+            ap.assert(n >= 2, "Spline1DBuildCubic: N<2!");
+            ap.assert(ap.len(x) >= n, "Spline1DBuildCubic: Length(X)<N!");
+            ap.assert(ap.len(y) >= n, "Spline1DBuildCubic: Length(Y)<N!");
 
             //
             // check and sort points
@@ -16571,10 +16571,10 @@ public partial class alglib
             {
                 ylen = n - 1;
             }
-            alglib.ap.assert(apserv.isfinitevector(x, n, _params), "Spline1DBuildCubic: X contains infinite or NAN values!");
-            alglib.ap.assert(apserv.isfinitevector(y, ylen, _params), "Spline1DBuildCubic: Y contains infinite or NAN values!");
+            ap.assert(apserv.isfinitevector(x, n, _params), "Spline1DBuildCubic: X contains infinite or NAN values!");
+            ap.assert(apserv.isfinitevector(y, ylen, _params), "Spline1DBuildCubic: Y contains infinite or NAN values!");
             heapsortppoints(ref x, ref y, ref p, n, _params);
-            alglib.ap.assert(apserv.aredistinct(x, n, _params), "Spline1DBuildCubic: at least two consequent points are too close!");
+            ap.assert(apserv.aredistinct(x, n, _params), "Spline1DBuildCubic: at least two consequent points are too close!");
 
             //
             // Now we've checked and preordered everything,
@@ -16684,24 +16684,24 @@ public partial class alglib
             //
             // check correctness of boundary conditions
             //
-            alglib.ap.assert(((boundltype == -1 || boundltype == 0) || boundltype == 1) || boundltype == 2, "Spline1DGridDiffCubic: incorrect BoundLType!");
-            alglib.ap.assert(((boundrtype == -1 || boundrtype == 0) || boundrtype == 1) || boundrtype == 2, "Spline1DGridDiffCubic: incorrect BoundRType!");
-            alglib.ap.assert((boundrtype == -1 && boundltype == -1) || (boundrtype != -1 && boundltype != -1), "Spline1DGridDiffCubic: incorrect BoundLType/BoundRType!");
+            ap.assert(((boundltype == -1 || boundltype == 0) || boundltype == 1) || boundltype == 2, "Spline1DGridDiffCubic: incorrect BoundLType!");
+            ap.assert(((boundrtype == -1 || boundrtype == 0) || boundrtype == 1) || boundrtype == 2, "Spline1DGridDiffCubic: incorrect BoundRType!");
+            ap.assert((boundrtype == -1 && boundltype == -1) || (boundrtype != -1 && boundltype != -1), "Spline1DGridDiffCubic: incorrect BoundLType/BoundRType!");
             if (boundltype == 1 || boundltype == 2)
             {
-                alglib.ap.assert(math.isfinite(boundl), "Spline1DGridDiffCubic: BoundL is infinite or NAN!");
+                ap.assert(math.isfinite(boundl), "Spline1DGridDiffCubic: BoundL is infinite or NAN!");
             }
             if (boundrtype == 1 || boundrtype == 2)
             {
-                alglib.ap.assert(math.isfinite(boundr), "Spline1DGridDiffCubic: BoundR is infinite or NAN!");
+                ap.assert(math.isfinite(boundr), "Spline1DGridDiffCubic: BoundR is infinite or NAN!");
             }
 
             //
             // check lengths of arguments
             //
-            alglib.ap.assert(n >= 2, "Spline1DGridDiffCubic: N<2!");
-            alglib.ap.assert(alglib.ap.len(x) >= n, "Spline1DGridDiffCubic: Length(X)<N!");
-            alglib.ap.assert(alglib.ap.len(y) >= n, "Spline1DGridDiffCubic: Length(Y)<N!");
+            ap.assert(n >= 2, "Spline1DGridDiffCubic: N<2!");
+            ap.assert(ap.len(x) >= n, "Spline1DGridDiffCubic: Length(X)<N!");
+            ap.assert(ap.len(y) >= n, "Spline1DGridDiffCubic: Length(Y)<N!");
 
             //
             // check and sort points
@@ -16711,10 +16711,10 @@ public partial class alglib
             {
                 ylen = n - 1;
             }
-            alglib.ap.assert(apserv.isfinitevector(x, n, _params), "Spline1DGridDiffCubic: X contains infinite or NAN values!");
-            alglib.ap.assert(apserv.isfinitevector(y, ylen, _params), "Spline1DGridDiffCubic: Y contains infinite or NAN values!");
+            ap.assert(apserv.isfinitevector(x, n, _params), "Spline1DGridDiffCubic: X contains infinite or NAN values!");
+            ap.assert(apserv.isfinitevector(y, ylen, _params), "Spline1DGridDiffCubic: Y contains infinite or NAN values!");
             heapsortppoints(ref x, ref y, ref p, n, _params);
-            alglib.ap.assert(apserv.aredistinct(x, n, _params), "Spline1DGridDiffCubic: at least two consequent points are too close!");
+            ap.assert(apserv.aredistinct(x, n, _params), "Spline1DGridDiffCubic: at least two consequent points are too close!");
 
             //
             // Now we've checked and preordered everything,
@@ -16726,7 +16726,7 @@ public partial class alglib
             // Remember that HeapSortPPoints() call?
             // Now we have to reorder them back.
             //
-            if (alglib.ap.len(dt) < n)
+            if (ap.len(dt) < n)
             {
                 dt = new double[n];
             }
@@ -16842,24 +16842,24 @@ public partial class alglib
             //
             // check correctness of boundary conditions
             //
-            alglib.ap.assert(((boundltype == -1 || boundltype == 0) || boundltype == 1) || boundltype == 2, "Spline1DGridDiff2Cubic: incorrect BoundLType!");
-            alglib.ap.assert(((boundrtype == -1 || boundrtype == 0) || boundrtype == 1) || boundrtype == 2, "Spline1DGridDiff2Cubic: incorrect BoundRType!");
-            alglib.ap.assert((boundrtype == -1 && boundltype == -1) || (boundrtype != -1 && boundltype != -1), "Spline1DGridDiff2Cubic: incorrect BoundLType/BoundRType!");
+            ap.assert(((boundltype == -1 || boundltype == 0) || boundltype == 1) || boundltype == 2, "Spline1DGridDiff2Cubic: incorrect BoundLType!");
+            ap.assert(((boundrtype == -1 || boundrtype == 0) || boundrtype == 1) || boundrtype == 2, "Spline1DGridDiff2Cubic: incorrect BoundRType!");
+            ap.assert((boundrtype == -1 && boundltype == -1) || (boundrtype != -1 && boundltype != -1), "Spline1DGridDiff2Cubic: incorrect BoundLType/BoundRType!");
             if (boundltype == 1 || boundltype == 2)
             {
-                alglib.ap.assert(math.isfinite(boundl), "Spline1DGridDiff2Cubic: BoundL is infinite or NAN!");
+                ap.assert(math.isfinite(boundl), "Spline1DGridDiff2Cubic: BoundL is infinite or NAN!");
             }
             if (boundrtype == 1 || boundrtype == 2)
             {
-                alglib.ap.assert(math.isfinite(boundr), "Spline1DGridDiff2Cubic: BoundR is infinite or NAN!");
+                ap.assert(math.isfinite(boundr), "Spline1DGridDiff2Cubic: BoundR is infinite or NAN!");
             }
 
             //
             // check lengths of arguments
             //
-            alglib.ap.assert(n >= 2, "Spline1DGridDiff2Cubic: N<2!");
-            alglib.ap.assert(alglib.ap.len(x) >= n, "Spline1DGridDiff2Cubic: Length(X)<N!");
-            alglib.ap.assert(alglib.ap.len(y) >= n, "Spline1DGridDiff2Cubic: Length(Y)<N!");
+            ap.assert(n >= 2, "Spline1DGridDiff2Cubic: N<2!");
+            ap.assert(ap.len(x) >= n, "Spline1DGridDiff2Cubic: Length(X)<N!");
+            ap.assert(ap.len(y) >= n, "Spline1DGridDiff2Cubic: Length(Y)<N!");
 
             //
             // check and sort points
@@ -16869,10 +16869,10 @@ public partial class alglib
             {
                 ylen = n - 1;
             }
-            alglib.ap.assert(apserv.isfinitevector(x, n, _params), "Spline1DGridDiff2Cubic: X contains infinite or NAN values!");
-            alglib.ap.assert(apserv.isfinitevector(y, ylen, _params), "Spline1DGridDiff2Cubic: Y contains infinite or NAN values!");
+            ap.assert(apserv.isfinitevector(x, n, _params), "Spline1DGridDiff2Cubic: X contains infinite or NAN values!");
+            ap.assert(apserv.isfinitevector(y, ylen, _params), "Spline1DGridDiff2Cubic: Y contains infinite or NAN values!");
             heapsortppoints(ref x, ref y, ref p, n, _params);
-            alglib.ap.assert(apserv.aredistinct(x, n, _params), "Spline1DGridDiff2Cubic: at least two consequent points are too close!");
+            ap.assert(apserv.aredistinct(x, n, _params), "Spline1DGridDiff2Cubic: at least two consequent points are too close!");
 
             //
             // Now we've checked and preordered everything,
@@ -16912,7 +16912,7 @@ public partial class alglib
             // Remember that HeapSortPPoints() call?
             // Now we have to reorder them back.
             //
-            if (alglib.ap.len(dt) < n)
+            if (ap.len(dt) < n)
             {
                 dt = new double[n];
             }
@@ -17041,26 +17041,26 @@ public partial class alglib
             //
             // check correctness of boundary conditions
             //
-            alglib.ap.assert(((boundltype == -1 || boundltype == 0) || boundltype == 1) || boundltype == 2, "Spline1DConvCubic: incorrect BoundLType!");
-            alglib.ap.assert(((boundrtype == -1 || boundrtype == 0) || boundrtype == 1) || boundrtype == 2, "Spline1DConvCubic: incorrect BoundRType!");
-            alglib.ap.assert((boundrtype == -1 && boundltype == -1) || (boundrtype != -1 && boundltype != -1), "Spline1DConvCubic: incorrect BoundLType/BoundRType!");
+            ap.assert(((boundltype == -1 || boundltype == 0) || boundltype == 1) || boundltype == 2, "Spline1DConvCubic: incorrect BoundLType!");
+            ap.assert(((boundrtype == -1 || boundrtype == 0) || boundrtype == 1) || boundrtype == 2, "Spline1DConvCubic: incorrect BoundRType!");
+            ap.assert((boundrtype == -1 && boundltype == -1) || (boundrtype != -1 && boundltype != -1), "Spline1DConvCubic: incorrect BoundLType/BoundRType!");
             if (boundltype == 1 || boundltype == 2)
             {
-                alglib.ap.assert(math.isfinite(boundl), "Spline1DConvCubic: BoundL is infinite or NAN!");
+                ap.assert(math.isfinite(boundl), "Spline1DConvCubic: BoundL is infinite or NAN!");
             }
             if (boundrtype == 1 || boundrtype == 2)
             {
-                alglib.ap.assert(math.isfinite(boundr), "Spline1DConvCubic: BoundR is infinite or NAN!");
+                ap.assert(math.isfinite(boundr), "Spline1DConvCubic: BoundR is infinite or NAN!");
             }
 
             //
             // check lengths of arguments
             //
-            alglib.ap.assert(n >= 2, "Spline1DConvCubic: N<2!");
-            alglib.ap.assert(alglib.ap.len(x) >= n, "Spline1DConvCubic: Length(X)<N!");
-            alglib.ap.assert(alglib.ap.len(y) >= n, "Spline1DConvCubic: Length(Y)<N!");
-            alglib.ap.assert(n2 >= 2, "Spline1DConvCubic: N2<2!");
-            alglib.ap.assert(alglib.ap.len(x2) >= n2, "Spline1DConvCubic: Length(X2)<N2!");
+            ap.assert(n >= 2, "Spline1DConvCubic: N<2!");
+            ap.assert(ap.len(x) >= n, "Spline1DConvCubic: Length(X)<N!");
+            ap.assert(ap.len(y) >= n, "Spline1DConvCubic: Length(Y)<N!");
+            ap.assert(n2 >= 2, "Spline1DConvCubic: N2<2!");
+            ap.assert(ap.len(x2) >= n2, "Spline1DConvCubic: Length(X2)<N2!");
 
             //
             // check and sort X/Y
@@ -17070,11 +17070,11 @@ public partial class alglib
             {
                 ylen = n - 1;
             }
-            alglib.ap.assert(apserv.isfinitevector(x, n, _params), "Spline1DConvCubic: X contains infinite or NAN values!");
-            alglib.ap.assert(apserv.isfinitevector(y, ylen, _params), "Spline1DConvCubic: Y contains infinite or NAN values!");
-            alglib.ap.assert(apserv.isfinitevector(x2, n2, _params), "Spline1DConvCubic: X2 contains infinite or NAN values!");
+            ap.assert(apserv.isfinitevector(x, n, _params), "Spline1DConvCubic: X contains infinite or NAN values!");
+            ap.assert(apserv.isfinitevector(y, ylen, _params), "Spline1DConvCubic: Y contains infinite or NAN values!");
+            ap.assert(apserv.isfinitevector(x2, n2, _params), "Spline1DConvCubic: X2 contains infinite or NAN values!");
             heapsortppoints(ref x, ref y, ref p, n, _params);
-            alglib.ap.assert(apserv.aredistinct(x, n, _params), "Spline1DConvCubic: at least two consequent points are too close!");
+            ap.assert(apserv.aredistinct(x, n, _params), "Spline1DConvCubic: at least two consequent points are too close!");
 
             //
             // set up DT (we will need it below)
@@ -17106,7 +17106,7 @@ public partial class alglib
             //
             spline1dgriddiffcubicinternal(x, ref y, n, boundltype, boundl, boundrtype, boundr, ref d, ref a1, ref a2, ref a3, ref b, ref dt, _params);
             spline1dconvdiffinternal(x, y, d, n, x2, n2, ref y2, true, ref d1, false, ref d2, false, _params);
-            alglib.ap.assert(alglib.ap.len(dt) >= n2, "Spline1DConvCubic: internal error!");
+            ap.assert(ap.len(dt) >= n2, "Spline1DConvCubic: internal error!");
             for (i = 0; i <= n2 - 1; i++)
             {
                 dt[p2[i]] = y2[i];
@@ -17226,26 +17226,26 @@ public partial class alglib
             //
             // check correctness of boundary conditions
             //
-            alglib.ap.assert(((boundltype == -1 || boundltype == 0) || boundltype == 1) || boundltype == 2, "Spline1DConvDiffCubic: incorrect BoundLType!");
-            alglib.ap.assert(((boundrtype == -1 || boundrtype == 0) || boundrtype == 1) || boundrtype == 2, "Spline1DConvDiffCubic: incorrect BoundRType!");
-            alglib.ap.assert((boundrtype == -1 && boundltype == -1) || (boundrtype != -1 && boundltype != -1), "Spline1DConvDiffCubic: incorrect BoundLType/BoundRType!");
+            ap.assert(((boundltype == -1 || boundltype == 0) || boundltype == 1) || boundltype == 2, "Spline1DConvDiffCubic: incorrect BoundLType!");
+            ap.assert(((boundrtype == -1 || boundrtype == 0) || boundrtype == 1) || boundrtype == 2, "Spline1DConvDiffCubic: incorrect BoundRType!");
+            ap.assert((boundrtype == -1 && boundltype == -1) || (boundrtype != -1 && boundltype != -1), "Spline1DConvDiffCubic: incorrect BoundLType/BoundRType!");
             if (boundltype == 1 || boundltype == 2)
             {
-                alglib.ap.assert(math.isfinite(boundl), "Spline1DConvDiffCubic: BoundL is infinite or NAN!");
+                ap.assert(math.isfinite(boundl), "Spline1DConvDiffCubic: BoundL is infinite or NAN!");
             }
             if (boundrtype == 1 || boundrtype == 2)
             {
-                alglib.ap.assert(math.isfinite(boundr), "Spline1DConvDiffCubic: BoundR is infinite or NAN!");
+                ap.assert(math.isfinite(boundr), "Spline1DConvDiffCubic: BoundR is infinite or NAN!");
             }
 
             //
             // check lengths of arguments
             //
-            alglib.ap.assert(n >= 2, "Spline1DConvDiffCubic: N<2!");
-            alglib.ap.assert(alglib.ap.len(x) >= n, "Spline1DConvDiffCubic: Length(X)<N!");
-            alglib.ap.assert(alglib.ap.len(y) >= n, "Spline1DConvDiffCubic: Length(Y)<N!");
-            alglib.ap.assert(n2 >= 2, "Spline1DConvDiffCubic: N2<2!");
-            alglib.ap.assert(alglib.ap.len(x2) >= n2, "Spline1DConvDiffCubic: Length(X2)<N2!");
+            ap.assert(n >= 2, "Spline1DConvDiffCubic: N<2!");
+            ap.assert(ap.len(x) >= n, "Spline1DConvDiffCubic: Length(X)<N!");
+            ap.assert(ap.len(y) >= n, "Spline1DConvDiffCubic: Length(Y)<N!");
+            ap.assert(n2 >= 2, "Spline1DConvDiffCubic: N2<2!");
+            ap.assert(ap.len(x2) >= n2, "Spline1DConvDiffCubic: Length(X2)<N2!");
 
             //
             // check and sort X/Y
@@ -17255,11 +17255,11 @@ public partial class alglib
             {
                 ylen = n - 1;
             }
-            alglib.ap.assert(apserv.isfinitevector(x, n, _params), "Spline1DConvDiffCubic: X contains infinite or NAN values!");
-            alglib.ap.assert(apserv.isfinitevector(y, ylen, _params), "Spline1DConvDiffCubic: Y contains infinite or NAN values!");
-            alglib.ap.assert(apserv.isfinitevector(x2, n2, _params), "Spline1DConvDiffCubic: X2 contains infinite or NAN values!");
+            ap.assert(apserv.isfinitevector(x, n, _params), "Spline1DConvDiffCubic: X contains infinite or NAN values!");
+            ap.assert(apserv.isfinitevector(y, ylen, _params), "Spline1DConvDiffCubic: Y contains infinite or NAN values!");
+            ap.assert(apserv.isfinitevector(x2, n2, _params), "Spline1DConvDiffCubic: X2 contains infinite or NAN values!");
             heapsortppoints(ref x, ref y, ref p, n, _params);
-            alglib.ap.assert(apserv.aredistinct(x, n, _params), "Spline1DConvDiffCubic: at least two consequent points are too close!");
+            ap.assert(apserv.aredistinct(x, n, _params), "Spline1DConvDiffCubic: at least two consequent points are too close!");
 
             //
             // set up DT (we will need it below)
@@ -17291,7 +17291,7 @@ public partial class alglib
             //
             spline1dgriddiffcubicinternal(x, ref y, n, boundltype, boundl, boundrtype, boundr, ref d, ref a1, ref a2, ref a3, ref b, ref dt, _params);
             spline1dconvdiffinternal(x, y, d, n, x2, n2, ref y2, true, ref d2, true, ref rt1, false, _params);
-            alglib.ap.assert(alglib.ap.len(dt) >= n2, "Spline1DConvDiffCubic: internal error!");
+            ap.assert(ap.len(dt) >= n2, "Spline1DConvDiffCubic: internal error!");
             for (i = 0; i <= n2 - 1; i++)
             {
                 dt[p2[i]] = y2[i];
@@ -17422,26 +17422,26 @@ public partial class alglib
             //
             // check correctness of boundary conditions
             //
-            alglib.ap.assert(((boundltype == -1 || boundltype == 0) || boundltype == 1) || boundltype == 2, "Spline1DConvDiff2Cubic: incorrect BoundLType!");
-            alglib.ap.assert(((boundrtype == -1 || boundrtype == 0) || boundrtype == 1) || boundrtype == 2, "Spline1DConvDiff2Cubic: incorrect BoundRType!");
-            alglib.ap.assert((boundrtype == -1 && boundltype == -1) || (boundrtype != -1 && boundltype != -1), "Spline1DConvDiff2Cubic: incorrect BoundLType/BoundRType!");
+            ap.assert(((boundltype == -1 || boundltype == 0) || boundltype == 1) || boundltype == 2, "Spline1DConvDiff2Cubic: incorrect BoundLType!");
+            ap.assert(((boundrtype == -1 || boundrtype == 0) || boundrtype == 1) || boundrtype == 2, "Spline1DConvDiff2Cubic: incorrect BoundRType!");
+            ap.assert((boundrtype == -1 && boundltype == -1) || (boundrtype != -1 && boundltype != -1), "Spline1DConvDiff2Cubic: incorrect BoundLType/BoundRType!");
             if (boundltype == 1 || boundltype == 2)
             {
-                alglib.ap.assert(math.isfinite(boundl), "Spline1DConvDiff2Cubic: BoundL is infinite or NAN!");
+                ap.assert(math.isfinite(boundl), "Spline1DConvDiff2Cubic: BoundL is infinite or NAN!");
             }
             if (boundrtype == 1 || boundrtype == 2)
             {
-                alglib.ap.assert(math.isfinite(boundr), "Spline1DConvDiff2Cubic: BoundR is infinite or NAN!");
+                ap.assert(math.isfinite(boundr), "Spline1DConvDiff2Cubic: BoundR is infinite or NAN!");
             }
 
             //
             // check lengths of arguments
             //
-            alglib.ap.assert(n >= 2, "Spline1DConvDiff2Cubic: N<2!");
-            alglib.ap.assert(alglib.ap.len(x) >= n, "Spline1DConvDiff2Cubic: Length(X)<N!");
-            alglib.ap.assert(alglib.ap.len(y) >= n, "Spline1DConvDiff2Cubic: Length(Y)<N!");
-            alglib.ap.assert(n2 >= 2, "Spline1DConvDiff2Cubic: N2<2!");
-            alglib.ap.assert(alglib.ap.len(x2) >= n2, "Spline1DConvDiff2Cubic: Length(X2)<N2!");
+            ap.assert(n >= 2, "Spline1DConvDiff2Cubic: N<2!");
+            ap.assert(ap.len(x) >= n, "Spline1DConvDiff2Cubic: Length(X)<N!");
+            ap.assert(ap.len(y) >= n, "Spline1DConvDiff2Cubic: Length(Y)<N!");
+            ap.assert(n2 >= 2, "Spline1DConvDiff2Cubic: N2<2!");
+            ap.assert(ap.len(x2) >= n2, "Spline1DConvDiff2Cubic: Length(X2)<N2!");
 
             //
             // check and sort X/Y
@@ -17451,11 +17451,11 @@ public partial class alglib
             {
                 ylen = n - 1;
             }
-            alglib.ap.assert(apserv.isfinitevector(x, n, _params), "Spline1DConvDiff2Cubic: X contains infinite or NAN values!");
-            alglib.ap.assert(apserv.isfinitevector(y, ylen, _params), "Spline1DConvDiff2Cubic: Y contains infinite or NAN values!");
-            alglib.ap.assert(apserv.isfinitevector(x2, n2, _params), "Spline1DConvDiff2Cubic: X2 contains infinite or NAN values!");
+            ap.assert(apserv.isfinitevector(x, n, _params), "Spline1DConvDiff2Cubic: X contains infinite or NAN values!");
+            ap.assert(apserv.isfinitevector(y, ylen, _params), "Spline1DConvDiff2Cubic: Y contains infinite or NAN values!");
+            ap.assert(apserv.isfinitevector(x2, n2, _params), "Spline1DConvDiff2Cubic: X2 contains infinite or NAN values!");
             heapsortppoints(ref x, ref y, ref p, n, _params);
-            alglib.ap.assert(apserv.aredistinct(x, n, _params), "Spline1DConvDiff2Cubic: at least two consequent points are too close!");
+            ap.assert(apserv.aredistinct(x, n, _params), "Spline1DConvDiff2Cubic: at least two consequent points are too close!");
 
             //
             // set up DT (we will need it below)
@@ -17487,7 +17487,7 @@ public partial class alglib
             //
             spline1dgriddiffcubicinternal(x, ref y, n, boundltype, boundl, boundrtype, boundr, ref d, ref a1, ref a2, ref a3, ref b, ref dt, _params);
             spline1dconvdiffinternal(x, y, d, n, x2, n2, ref y2, true, ref d2, true, ref dd2, true, _params);
-            alglib.ap.assert(alglib.ap.len(dt) >= n2, "Spline1DConvDiff2Cubic: internal error!");
+            ap.assert(ap.len(dt) >= n2, "Spline1DConvDiff2Cubic: internal error!");
             for (i = 0; i <= n2 - 1; i++)
             {
                 dt[p2[i]] = y2[i];
@@ -17569,20 +17569,20 @@ public partial class alglib
             x = (double[])x.Clone();
             y = (double[])y.Clone();
 
-            alglib.ap.assert(n >= 2, "Spline1DBuildCatmullRom: N<2!");
-            alglib.ap.assert(boundtype == -1 || boundtype == 0, "Spline1DBuildCatmullRom: incorrect BoundType!");
-            alglib.ap.assert((double)(tension) >= (double)(0), "Spline1DBuildCatmullRom: Tension<0!");
-            alglib.ap.assert((double)(tension) <= (double)(1), "Spline1DBuildCatmullRom: Tension>1!");
-            alglib.ap.assert(alglib.ap.len(x) >= n, "Spline1DBuildCatmullRom: Length(X)<N!");
-            alglib.ap.assert(alglib.ap.len(y) >= n, "Spline1DBuildCatmullRom: Length(Y)<N!");
+            ap.assert(n >= 2, "Spline1DBuildCatmullRom: N<2!");
+            ap.assert(boundtype == -1 || boundtype == 0, "Spline1DBuildCatmullRom: incorrect BoundType!");
+            ap.assert((double)(tension) >= (double)(0), "Spline1DBuildCatmullRom: Tension<0!");
+            ap.assert((double)(tension) <= (double)(1), "Spline1DBuildCatmullRom: Tension>1!");
+            ap.assert(ap.len(x) >= n, "Spline1DBuildCatmullRom: Length(X)<N!");
+            ap.assert(ap.len(y) >= n, "Spline1DBuildCatmullRom: Length(Y)<N!");
 
             //
             // check and sort points
             //
-            alglib.ap.assert(apserv.isfinitevector(x, n, _params), "Spline1DBuildCatmullRom: X contains infinite or NAN values!");
-            alglib.ap.assert(apserv.isfinitevector(y, n, _params), "Spline1DBuildCatmullRom: Y contains infinite or NAN values!");
+            ap.assert(apserv.isfinitevector(x, n, _params), "Spline1DBuildCatmullRom: X contains infinite or NAN values!");
+            ap.assert(apserv.isfinitevector(y, n, _params), "Spline1DBuildCatmullRom: Y contains infinite or NAN values!");
             heapsortpoints(ref x, ref y, n, _params);
-            alglib.ap.assert(apserv.aredistinct(x, n, _params), "Spline1DBuildCatmullRom: at least two consequent points are too close!");
+            ap.assert(apserv.aredistinct(x, n, _params), "Spline1DBuildCatmullRom: at least two consequent points are too close!");
 
             //
             // Special cases:
@@ -17714,19 +17714,19 @@ public partial class alglib
             y = (double[])y.Clone();
             d = (double[])d.Clone();
 
-            alglib.ap.assert(n >= 2, "Spline1DBuildHermite: N<2!");
-            alglib.ap.assert(alglib.ap.len(x) >= n, "Spline1DBuildHermite: Length(X)<N!");
-            alglib.ap.assert(alglib.ap.len(y) >= n, "Spline1DBuildHermite: Length(Y)<N!");
-            alglib.ap.assert(alglib.ap.len(d) >= n, "Spline1DBuildHermite: Length(D)<N!");
+            ap.assert(n >= 2, "Spline1DBuildHermite: N<2!");
+            ap.assert(ap.len(x) >= n, "Spline1DBuildHermite: Length(X)<N!");
+            ap.assert(ap.len(y) >= n, "Spline1DBuildHermite: Length(Y)<N!");
+            ap.assert(ap.len(d) >= n, "Spline1DBuildHermite: Length(D)<N!");
 
             //
             // check and sort points
             //
-            alglib.ap.assert(apserv.isfinitevector(x, n, _params), "Spline1DBuildHermite: X contains infinite or NAN values!");
-            alglib.ap.assert(apserv.isfinitevector(y, n, _params), "Spline1DBuildHermite: Y contains infinite or NAN values!");
-            alglib.ap.assert(apserv.isfinitevector(d, n, _params), "Spline1DBuildHermite: D contains infinite or NAN values!");
+            ap.assert(apserv.isfinitevector(x, n, _params), "Spline1DBuildHermite: X contains infinite or NAN values!");
+            ap.assert(apserv.isfinitevector(y, n, _params), "Spline1DBuildHermite: Y contains infinite or NAN values!");
+            ap.assert(apserv.isfinitevector(d, n, _params), "Spline1DBuildHermite: D contains infinite or NAN values!");
             heapsortdpoints(ref x, ref y, ref d, n, _params);
-            alglib.ap.assert(apserv.aredistinct(x, n, _params), "Spline1DBuildHermite: at least two consequent points are too close!");
+            ap.assert(apserv.aredistinct(x, n, _params), "Spline1DBuildHermite: at least two consequent points are too close!");
 
             //
             // Build
@@ -17851,8 +17851,8 @@ public partial class alglib
             int m = 0;
             double t = 0;
 
-            alglib.ap.assert(c.k == 3, "Spline1DCalc: internal error");
-            alglib.ap.assert(!Double.IsInfinity(x), "Spline1DCalc: infinite X!");
+            ap.assert(c.k == 3, "Spline1DCalc: internal error");
+            ap.assert(!Double.IsInfinity(x), "Spline1DCalc: infinite X!");
 
             //
             // special case: NaN
@@ -17930,8 +17930,8 @@ public partial class alglib
             ds = 0;
             d2s = 0;
 
-            alglib.ap.assert(c.k == 3, "Spline1DDiff: internal error");
-            alglib.ap.assert(!Double.IsInfinity(x), "Spline1DDiff: infinite X!");
+            ap.assert(c.k == 3, "Spline1DDiff: internal error");
+            ap.assert(!Double.IsInfinity(x), "Spline1DDiff: infinite X!");
 
             //
             // special case: NaN
@@ -18009,7 +18009,7 @@ public partial class alglib
             {
                 cc.x[i_] = c.x[i_];
             }
-            s = alglib.ap.len(c.c);
+            s = ap.len(c.c);
             cc.c = new double[s];
             for (i_ = 0; i_ <= s - 1; i_++)
             {
@@ -18093,9 +18093,9 @@ public partial class alglib
             // Header
             //
             k = s.unserialize_int();
-            alglib.ap.assert(k == scodes.getspline1dserializationcode(_params), "Spline1DUnserialize: stream header corrupted or wrong data supplied to unserializer");
+            ap.assert(k == scodes.getspline1dserializationcode(_params), "Spline1DUnserialize: stream header corrupted or wrong data supplied to unserializer");
             k = s.unserialize_int();
-            alglib.ap.assert(k == 0, "Spline1DUnserialize: unsupported spline version");
+            ap.assert(k == 0, "Spline1DUnserialize: unsupported spline version");
 
             //
             // Data
@@ -18194,7 +18194,7 @@ public partial class alglib
             bool isperiodic = new();
             int contval = 0;
 
-            alglib.ap.assert(c.k == 3, "Spline1DLinTransX: internal error");
+            ap.assert(c.k == 3, "Spline1DLinTransX: internal error");
             n = c.n;
             x = new double[n];
             y = new double[n];
@@ -18269,7 +18269,7 @@ public partial class alglib
             int j = 0;
             int n = 0;
 
-            alglib.ap.assert(c.k == 3, "Spline1DLinTransX: internal error");
+            ap.assert(c.k == 3, "Spline1DLinTransX: internal error");
             n = c.n;
             for (i = 0; i <= n - 2; i++)
             {
@@ -18521,14 +18521,14 @@ public partial class alglib
             x = (double[])x.Clone();
             y = (double[])y.Clone();
 
-            alglib.ap.assert(n >= 1, "Spline1DFit: N<1!");
-            alglib.ap.assert(m >= 1, "Spline1DFit: M<1!");
-            alglib.ap.assert(alglib.ap.len(x) >= n, "Spline1DFit: Length(X)<N!");
-            alglib.ap.assert(alglib.ap.len(y) >= n, "Spline1DFit: Length(Y)<N!");
-            alglib.ap.assert(apserv.isfinitevector(x, n, _params), "Spline1DFit: X contains infinite or NAN values!");
-            alglib.ap.assert(apserv.isfinitevector(y, n, _params), "Spline1DFit: Y contains infinite or NAN values!");
-            alglib.ap.assert(math.isfinite(lambdans), "Spline1DFit: LambdaNS is infinite!");
-            alglib.ap.assert((double)(lambdans) >= (double)(0), "Spline1DFit: LambdaNS<0!");
+            ap.assert(n >= 1, "Spline1DFit: N<1!");
+            ap.assert(m >= 1, "Spline1DFit: M<1!");
+            ap.assert(ap.len(x) >= n, "Spline1DFit: Length(X)<N!");
+            ap.assert(ap.len(y) >= n, "Spline1DFit: Length(Y)<N!");
+            ap.assert(apserv.isfinitevector(x, n, _params), "Spline1DFit: X contains infinite or NAN values!");
+            ap.assert(apserv.isfinitevector(y, n, _params), "Spline1DFit: Y contains infinite or NAN values!");
+            ap.assert(math.isfinite(lambdans), "Spline1DFit: LambdaNS is infinite!");
+            ap.assert((double)(lambdans) >= (double)(0), "Spline1DFit: LambdaNS<0!");
             lsqrcnt = 10;
             m = Math.Max(m, 2);
             scaletargetsby = 1 / Math.Sqrt(n);
@@ -18538,7 +18538,7 @@ public partial class alglib
             t1 = 0;
             if (dotrace)
             {
-                tstart = unchecked((int)(System.DateTime.UtcNow.Ticks / 10000));
+                tstart = unchecked((int)(DateTime.UtcNow.Ticks / 10000));
             }
 
             //
@@ -18546,13 +18546,13 @@ public partial class alglib
             //
             if (dotrace)
             {
-                alglib.ap.trace("\n\n");
-                alglib.ap.trace("////////////////////////////////////////////////////////////////////////////////////////////////////\n");
-                alglib.ap.trace("//  SPLINE 1D FITTING STARTED                                                                     //\n");
-                alglib.ap.trace("////////////////////////////////////////////////////////////////////////////////////////////////////\n");
-                alglib.ap.trace(System.String.Format("N             = {0,9:d}    (points)\n", n));
-                alglib.ap.trace(System.String.Format("M             = {0,9:d}    (nodes)\n", m));
-                alglib.ap.trace(System.String.Format("LambdaNS      = {0,9:E3}  (penalty)\n", lambdans));
+                ap.trace("\n\n");
+                ap.trace("////////////////////////////////////////////////////////////////////////////////////////////////////\n");
+                ap.trace("//  SPLINE 1D FITTING STARTED                                                                     //\n");
+                ap.trace("////////////////////////////////////////////////////////////////////////////////////////////////////\n");
+                ap.trace(System.String.Format("N             = {0,9:d}    (points)\n", n));
+                ap.trace(System.String.Format("M             = {0,9:d}    (nodes)\n", m));
+                ap.trace(System.String.Format("LambdaNS      = {0,9:E3}  (penalty)\n", lambdans));
             }
 
             //
@@ -18560,7 +18560,7 @@ public partial class alglib
             //
             if (dotrace)
             {
-                t1 = unchecked((int)(System.DateTime.UtcNow.Ticks / 10000));
+                t1 = unchecked((int)(DateTime.UtcNow.Ticks / 10000));
             }
             xa = x[0];
             xb = x[0];
@@ -18583,10 +18583,10 @@ public partial class alglib
                     xb = v / 2 + 1;
                 }
             }
-            alglib.ap.assert((double)(xa) < (double)(xb), "Spline1DFit: integrity error");
+            ap.assert((double)(xa) < (double)(xb), "Spline1DFit: integrity error");
             if (dotrace)
             {
-                alglib.ap.trace(System.String.Format("> dataset sorted in {0,0:d} ms, interpolation interval determined to be [{1,0:E6},{2,0:E6}]\n", unchecked((int)(System.DateTime.UtcNow.Ticks / 10000)) - t1, xa, xb));
+                ap.trace(System.String.Format("> dataset sorted in {0,0:d} ms, interpolation interval determined to be [{1,0:E6},{2,0:E6}]\n", unchecked((int)(DateTime.UtcNow.Ticks / 10000)) - t1, xa, xb));
             }
 
             //
@@ -18626,7 +18626,7 @@ public partial class alglib
                 //
                 if (dotrace)
                 {
-                    t1 = unchecked((int)(System.DateTime.UtcNow.Ticks / 10000));
+                    t1 = unchecked((int)(DateTime.UtcNow.Ticks / 10000));
                 }
                 ablasf.rsetallocv(arows, 0.0, ref targets, _params);
                 bbasisinit(basis, m, _params);
@@ -18687,12 +18687,12 @@ public partial class alglib
                     av.ridx[outrow + 1] = offs;
                     outrow = outrow + 1;
                 }
-                alglib.ap.assert(outrow == av.m && offs <= nnz, "SPLINE1DFIT: integrity check 6606 failed");
+                ap.assert(outrow == av.m && offs <= nnz, "SPLINE1DFIT: integrity check 6606 failed");
                 sparse.sparsecreatecrsinplace(av, _params);
                 sparse.sparsecopytransposecrs(av, ah, _params);
                 if (dotrace)
                 {
-                    alglib.ap.trace(System.String.Format("> design matrix generated in {0,0:d} ms, {1,0:d} nonzeros\n", unchecked((int)(System.DateTime.UtcNow.Ticks / 10000)) - t1, av.ridx[av.m]));
+                    ap.trace(System.String.Format("> design matrix generated in {0,0:d} ms, {1,0:d} nonzeros\n", unchecked((int)(DateTime.UtcNow.Ticks / 10000)) - t1, av.ridx[av.m]));
                 }
 
                 //
@@ -18701,7 +18701,7 @@ public partial class alglib
                 //
                 if (dotrace)
                 {
-                    t1 = unchecked((int)(System.DateTime.UtcNow.Ticks / 10000));
+                    t1 = unchecked((int)(DateTime.UtcNow.Ticks / 10000));
                 }
                 bw = 2 * (basis.bfrad - 1);
                 sparse.sparsecreatesksband(m, m, bw, ata, _params);
@@ -18780,7 +18780,7 @@ public partial class alglib
                         creg = apserv.coalesce(10 * creg, 1.0E-12, _params);
                         if (dotrace)
                         {
-                            alglib.ap.trace(System.String.Format("> preconditioner factorization failed, increasing regularization to {0,0:E2}\n", creg));
+                            ap.trace(System.String.Format("> preconditioner factorization failed, increasing regularization to {0,0:E2}\n", creg));
                         }
                         continue;
                     }
@@ -18788,7 +18788,7 @@ public partial class alglib
                 }
                 if (dotrace)
                 {
-                    alglib.ap.trace(System.String.Format("> preconditioner generated in {0,0:d} ms\n", unchecked((int)(System.DateTime.UtcNow.Ticks / 10000)) - t1));
+                    ap.trace(System.String.Format("> preconditioner generated in {0,0:d} ms\n", unchecked((int)(DateTime.UtcNow.Ticks / 10000)) - t1));
                 }
 
                 //
@@ -18810,8 +18810,8 @@ public partial class alglib
                 linlsqr.linlsqrsetcond(solver, 1000 * math.machineepsilon, 1000 * math.machineepsilon, lsqrcnt, _params);
                 if (dotrace)
                 {
-                    t1 = unchecked((int)(System.DateTime.UtcNow.Ticks / 10000));
-                    alglib.ap.trace("> starting LSQR iterations:\n");
+                    t1 = unchecked((int)(DateTime.UtcNow.Ticks / 10000));
+                    ap.trace("> starting LSQR iterations:\n");
                     linlsqr.linlsqrsetxrep(solver, true, _params);
                 }
                 itidx = 0;
@@ -18876,18 +18876,18 @@ public partial class alglib
                             //
                             sparse.sparsemtv(av, tmp0, ref tmp1, _params);
                             sparse.sparsetrsv(ata, true, false, 1, tmp1, _params);
-                            alglib.ap.trace(System.String.Format(">> iteration {0,0:d},  |r|={1,0:E2},  |(A^T)*r|={2,0:E2}\n", itidx, Math.Sqrt(ablasf.rdotv2(arows, tmp0, _params)), Math.Sqrt(ablasf.rdotv2(m, tmp1, _params))));
+                            ap.trace(System.String.Format(">> iteration {0,0:d},  |r|={1,0:E2},  |(A^T)*r|={2,0:E2}\n", itidx, Math.Sqrt(ablasf.rdotv2(arows, tmp0, _params)), Math.Sqrt(ablasf.rdotv2(m, tmp1, _params))));
                         }
                         itidx = itidx + 1;
                         continue;
                     }
-                    alglib.ap.assert(false, "SPLINE1D: integrity check 6344 failed");
+                    ap.assert(false, "SPLINE1D: integrity check 6344 failed");
                 }
                 linlsqr.linlsqrresults(solver, ref tmp1, srep, _params);
                 sparse.sparsetrsv(ata, true, false, 0, tmp1, _params);
                 if (dotrace)
                 {
-                    alglib.ap.trace(System.String.Format(">> solved in {0,0:d} ms, solution norm is {1,0:E2}\n", unchecked((int)(System.DateTime.UtcNow.Ticks / 10000)) - t1, Math.Sqrt(ablasf.rdotv2(m, tmp1, _params))));
+                    ap.trace(System.String.Format(">> solved in {0,0:d} ms, solution norm is {1,0:E2}\n", unchecked((int)(DateTime.UtcNow.Ticks / 10000)) - t1, Math.Sqrt(ablasf.rdotv2(m, tmp1, _params))));
                 }
 
                 //
@@ -18948,7 +18948,7 @@ public partial class alglib
                 ortfac.rmatrixqr(densea, arows, m + 1, ref tau, _params);
                 if (dotrace)
                 {
-                    alglib.ap.trace(System.String.Format("> running low-dimensional QR-based algorithm, |r|={0,0:E2}\n", Math.Abs(densea[m, m])));
+                    ap.trace(System.String.Format("> running low-dimensional QR-based algorithm, |r|={0,0:E2}\n", Math.Abs(densea[m, m])));
                 }
                 ablasf.rallocv(m, ref sy, _params);
                 ablasf.rcopycv(m, densea, m, sy, _params);
@@ -18995,12 +18995,12 @@ public partial class alglib
             rep.avgrelerror = rep.avgrelerror / apserv.coalesce(nrel, 1.0, _params);
             if (dotrace)
             {
-                alglib.ap.trace("> printing fitting errors:\n");
-                alglib.ap.trace(System.String.Format("rms.err       = {0,9:E3}\n", rep.rmserror));
-                alglib.ap.trace(System.String.Format("max.err       = {0,9:E3}\n", rep.maxerror));
-                alglib.ap.trace(System.String.Format("avg.err       = {0,9:E3}\n", rep.avgerror));
-                alglib.ap.trace(System.String.Format("avg.rel.err   = {0,9:E3}\n", rep.avgrelerror));
-                alglib.ap.trace(System.String.Format("R2            = {0,0:F6}  (coefficient of determination)\n", 1.0 - rss / apserv.coalesce(tss, 1.0, _params)));
+                ap.trace("> printing fitting errors:\n");
+                ap.trace(System.String.Format("rms.err       = {0,9:E3}\n", rep.rmserror));
+                ap.trace(System.String.Format("max.err       = {0,9:E3}\n", rep.maxerror));
+                ap.trace(System.String.Format("avg.err       = {0,9:E3}\n", rep.avgerror));
+                ap.trace(System.String.Format("avg.rel.err   = {0,9:E3}\n", rep.avgrelerror));
+                ap.trace(System.String.Format("R2            = {0,0:F6}  (coefficient of determination)\n", 1.0 - rss / apserv.coalesce(tss, 1.0, _params)));
             }
 
             //
@@ -19025,7 +19025,7 @@ public partial class alglib
             //
             if (dotrace)
             {
-                alglib.ap.trace(System.String.Format("> done in {0,0:d} ms\n", unchecked((int)(System.DateTime.UtcNow.Ticks / 10000)) - tstart));
+                ap.trace(System.String.Format("> done in {0,0:d} ms\n", unchecked((int)(DateTime.UtcNow.Ticks / 10000)) - tstart));
             }
         }
 
@@ -19065,27 +19065,27 @@ public partial class alglib
             //
             // allocate arrays
             //
-            if (alglib.ap.len(d) < n)
+            if (ap.len(d) < n)
             {
                 d = new double[n];
             }
-            if (alglib.ap.len(a1) < n)
+            if (ap.len(a1) < n)
             {
                 a1 = new double[n];
             }
-            if (alglib.ap.len(a2) < n)
+            if (ap.len(a2) < n)
             {
                 a2 = new double[n];
             }
-            if (alglib.ap.len(a3) < n)
+            if (ap.len(a3) < n)
             {
                 a3 = new double[n];
             }
-            if (alglib.ap.len(b) < n)
+            if (ap.len(b) < n)
             {
                 b = new double[n];
             }
-            if (alglib.ap.len(dt) < n)
+            if (ap.len(dt) < n)
             {
                 dt = new double[n];
             }
@@ -19290,15 +19290,15 @@ public partial class alglib
             //
             // Prepare space
             //
-            if (needy && alglib.ap.len(y) < n2)
+            if (needy && ap.len(y) < n2)
             {
                 y = new double[n2];
             }
-            if (needd1 && alglib.ap.len(d1) < n2)
+            if (needd1 && ap.len(d1) < n2)
             {
                 d1 = new double[n2];
             }
-            if (needd2 && alglib.ap.len(d2) < n2)
+            if (needd2 && ap.len(d2) < n2)
             {
                 d2 = new double[n2];
             }
@@ -19472,8 +19472,8 @@ public partial class alglib
             //
             //exception handling
             //
-            alglib.ap.assert(c.k == 3, "Spline1DRootsAndExtrema : incorrect parameter C.K!");
-            alglib.ap.assert(c.continuity >= 0, "Spline1DRootsAndExtrema : parameter C.Continuity must not be less than 0!");
+            ap.assert(c.k == 3, "Spline1DRootsAndExtrema : incorrect parameter C.K!");
+            ap.assert(c.continuity >= 0, "Spline1DRootsAndExtrema : parameter C.Continuity must not be less than 0!");
 
             //
             //initialization of variable
@@ -20430,7 +20430,7 @@ public partial class alglib
             //
             //case, when A>B
             //
-            alglib.ap.assert((double)(a) < (double)(b), "\nSolveCubicPolinom: incorrect borders for [A;B]!\n");
+            ap.assert((double)(a) < (double)(b), "\nSolveCubicPolinom: incorrect borders for [A;B]!\n");
 
             //
             //case 1    
@@ -20899,17 +20899,17 @@ public partial class alglib
             //
             // Check lengths of arguments
             //
-            alglib.ap.assert(n >= 2, "Spline1DBuildMonotone: N<2");
-            alglib.ap.assert(alglib.ap.len(x) >= n, "Spline1DBuildMonotone: Length(X)<N");
-            alglib.ap.assert(alglib.ap.len(y) >= n, "Spline1DBuildMonotone: Length(Y)<N");
+            ap.assert(n >= 2, "Spline1DBuildMonotone: N<2");
+            ap.assert(ap.len(x) >= n, "Spline1DBuildMonotone: Length(X)<N");
+            ap.assert(ap.len(y) >= n, "Spline1DBuildMonotone: Length(Y)<N");
 
             //
             // Check and sort points
             //
-            alglib.ap.assert(apserv.isfinitevector(x, n, _params), "Spline1DBuildMonotone: X contains infinite or NAN values");
-            alglib.ap.assert(apserv.isfinitevector(y, n, _params), "Spline1DBuildMonotone: Y contains infinite or NAN values");
+            ap.assert(apserv.isfinitevector(x, n, _params), "Spline1DBuildMonotone: X contains infinite or NAN values");
+            ap.assert(apserv.isfinitevector(y, n, _params), "Spline1DBuildMonotone: Y contains infinite or NAN values");
             heapsortppoints(ref x, ref y, ref p, n, _params);
-            alglib.ap.assert(apserv.aredistinct(x, n, _params), "Spline1DBuildMonotone: at least two consequent points are too close");
+            ap.assert(apserv.aredistinct(x, n, _params), "Spline1DBuildMonotone: at least two consequent points are too close");
             epsilon = math.machineepsilon;
             n = n + 2;
             d = new double[n];
@@ -20962,7 +20962,7 @@ public partial class alglib
                     }
                 }
                 sn = i + tmpn;
-                alglib.ap.assert(tmpn >= 2, "Spline1DBuildMonotone: internal error");
+                ap.assert(tmpn >= 2, "Spline1DBuildMonotone: internal error");
 
                 //
                 // Calculate derivatives for current segment
@@ -21296,17 +21296,17 @@ public partial class alglib
             x = (double[])x.Clone();
             y = (double[])y.Clone();
 
-            alglib.ap.assert(n >= 2, "Spline1DBuildAkima(Mod): N<2!");
-            alglib.ap.assert(alglib.ap.len(x) >= n, "Spline1DBuildAkima(Mod): Length(X)<N!");
-            alglib.ap.assert(alglib.ap.len(y) >= n, "Spline1DBuildAkima(Mod): Length(Y)<N!");
+            ap.assert(n >= 2, "Spline1DBuildAkima(Mod): N<2!");
+            ap.assert(ap.len(x) >= n, "Spline1DBuildAkima(Mod): Length(X)<N!");
+            ap.assert(ap.len(y) >= n, "Spline1DBuildAkima(Mod): Length(Y)<N!");
 
             //
             // check and sort points
             //
-            alglib.ap.assert(apserv.isfinitevector(x, n, _params), "Spline1DBuildAkima(Mod): X contains infinite or NAN values!");
-            alglib.ap.assert(apserv.isfinitevector(y, n, _params), "Spline1DBuildAkima(Mod): Y contains infinite or NAN values!");
+            ap.assert(apserv.isfinitevector(x, n, _params), "Spline1DBuildAkima(Mod): X contains infinite or NAN values!");
+            ap.assert(apserv.isfinitevector(y, n, _params), "Spline1DBuildAkima(Mod): Y contains infinite or NAN values!");
             heapsortpoints(ref x, ref y, n, _params);
-            alglib.ap.assert(apserv.aredistinct(x, n, _params), "Spline1DBuildAkima(Mod): at least two consequent points are too close!");
+            ap.assert(apserv.aredistinct(x, n, _params), "Spline1DBuildAkima(Mod): at least two consequent points are too close!");
 
             //
             // Handle special cases: N=2, N=3, N=4
@@ -21397,7 +21397,7 @@ public partial class alglib
             int i = 0;
             int i_ = 0;
 
-            if (alglib.ap.len(p) < n)
+            if (ap.len(p) < n)
             {
                 p = new int[n];
             }
@@ -21444,7 +21444,7 @@ public partial class alglib
             b = (double[])b.Clone();
             d = (double[])d.Clone();
 
-            if (alglib.ap.len(x) < n)
+            if (ap.len(x) < n)
             {
                 x = new double[n];
             }
@@ -21491,7 +21491,7 @@ public partial class alglib
 
             b = (double[])b.Clone();
 
-            if (alglib.ap.len(x) < n)
+            if (ap.len(x) < n)
             {
                 x = new double[n];
             }
@@ -22012,8 +22012,8 @@ public partial class alglib
             double hu10 = 0;
             double hu11 = 0;
 
-            alglib.ap.assert(c.stype == -1 || c.stype == -3, "Spline2DCalc: incorrect C (incorrect parameter C.SType)");
-            alglib.ap.assert(math.isfinite(x) && math.isfinite(y), "Spline2DCalc: X or Y contains NaN or Infinite value");
+            ap.assert(c.stype == -1 || c.stype == -3, "Spline2DCalc: incorrect C (incorrect parameter C.SType)");
+            ap.assert(math.isfinite(x) && math.isfinite(y), "Spline2DCalc: X or Y contains NaN or Infinite value");
             if (c.d != 1)
             {
                 result = 0;
@@ -22088,7 +22088,7 @@ public partial class alglib
             // * after initial calculation, apply scaling by DT/DU to the basis
             // * calculate using stored table of second derivatives
             //
-            alglib.ap.assert(c.stype == -3, "Spline2DCalc: integrity check failed");
+            ap.assert(c.stype == -3, "Spline2DCalc: integrity check failed");
             sfx = c.n * c.m;
             sfy = 2 * c.n * c.m;
             sfxy = 3 * c.n * c.m;
@@ -22196,8 +22196,8 @@ public partial class alglib
             fx = 0;
             fy = 0;
 
-            alglib.ap.assert(c.stype == -1 || c.stype == -3, "Spline2DDiff: incorrect C (incorrect parameter C.SType)");
-            alglib.ap.assert(math.isfinite(x) && math.isfinite(y), "Spline2DDiff: X or Y contains NaN or Infinite value");
+            ap.assert(c.stype == -1 || c.stype == -3, "Spline2DDiff: incorrect C (incorrect parameter C.SType)");
+            ap.assert(math.isfinite(x) && math.isfinite(y), "Spline2DDiff: X or Y contains NaN or Infinite value");
 
             //
             // Prepare F, dF/dX, dF/dY, d2F/dXdY
@@ -22447,8 +22447,8 @@ public partial class alglib
             fxy = 0;
             fyy = 0;
 
-            alglib.ap.assert(c.stype == -1 || c.stype == -3, "Spline2DDiff: incorrect C (incorrect parameter C.SType)");
-            alglib.ap.assert(math.isfinite(x) && math.isfinite(y), "Spline2DDiff: X or Y contains NaN or Infinite value");
+            ap.assert(c.stype == -1 || c.stype == -3, "Spline2DDiff: incorrect C (incorrect parameter C.SType)");
+            ap.assert(math.isfinite(x) && math.isfinite(y), "Spline2DDiff: X or Y contains NaN or Infinite value");
 
             //
             // Prepare F, dF/dX, dF/dY, d2F/dXdY
@@ -22695,8 +22695,8 @@ public partial class alglib
             double hu10 = 0;
             double hu11 = 0;
 
-            alglib.ap.assert(c.stype == -1 || c.stype == -3, "Spline2DCalcVBuf: incorrect C (incorrect parameter C.SType)");
-            alglib.ap.assert(math.isfinite(x) && math.isfinite(y), "Spline2DCalcVBuf: X or Y contains NaN or Infinite value");
+            ap.assert(c.stype == -1 || c.stype == -3, "Spline2DCalcVBuf: incorrect C (incorrect parameter C.SType)");
+            ap.assert(math.isfinite(x) && math.isfinite(y), "Spline2DCalcVBuf: X or Y contains NaN or Infinite value");
 
             //
             // Allocate place for output
@@ -22774,7 +22774,7 @@ public partial class alglib
             // * after initial calculation, apply scaling by DT/DU to the basis
             // * calculate using stored table of second derivatives
             //
-            alglib.ap.assert(c.stype == -3, "Spline2DCalc: integrity check failed");
+            ap.assert(c.stype == -3, "Spline2DCalc: integrity check failed");
             sfx = c.n * c.m * c.d;
             sfy = 2 * c.n * c.m * c.d;
             sfxy = 3 * c.n * c.m * c.d;
@@ -22877,9 +22877,9 @@ public partial class alglib
             double hu10 = 0;
             double hu11 = 0;
 
-            alglib.ap.assert(c.stype == -1 || c.stype == -3, "Spline2DCalcVi: incorrect C (incorrect parameter C.SType)");
-            alglib.ap.assert(math.isfinite(x) && math.isfinite(y), "Spline2DCalcVi: X or Y contains NaN or Infinite value");
-            alglib.ap.assert(i >= 0 && i < c.d, "Spline2DCalcVi: incorrect I (I<0 or I>=D)");
+            ap.assert(c.stype == -1 || c.stype == -3, "Spline2DCalcVi: incorrect C (incorrect parameter C.SType)");
+            ap.assert(math.isfinite(x) && math.isfinite(y), "Spline2DCalcVi: X or Y contains NaN or Infinite value");
+            ap.assert(i >= 0 && i < c.d, "Spline2DCalcVi: incorrect I (I<0 or I>=D)");
 
             //
             // Determine evaluation interval
@@ -22949,7 +22949,7 @@ public partial class alglib
             // * after initial calculation, apply scaling by DT/DU to the basis
             // * calculate using stored table of second derivatives
             //
-            alglib.ap.assert(c.stype == -3, "Spline2DCalc: integrity check failed");
+            ap.assert(c.stype == -3, "Spline2DCalc: integrity check failed");
             sfx = c.n * c.m * c.d;
             sfy = 2 * c.n * c.m * c.d;
             sfxy = 3 * c.n * c.m * c.d;
@@ -23020,8 +23020,8 @@ public partial class alglib
         {
             f = new double[0];
 
-            alglib.ap.assert(c.stype == -1 || c.stype == -3, "Spline2DCalcV: incorrect C (incorrect parameter C.SType)");
-            alglib.ap.assert(math.isfinite(x) && math.isfinite(y), "Spline2DCalcV: either X=NaN/Infinite or Y=NaN/Infinite");
+            ap.assert(c.stype == -1 || c.stype == -3, "Spline2DCalcV: incorrect C (incorrect parameter C.SType)");
+            ap.assert(math.isfinite(x) && math.isfinite(y), "Spline2DCalcV: either X=NaN/Infinite or Y=NaN/Infinite");
             spline2dcalcvbuf(c, x, y, ref f, _params);
         }
 
@@ -23102,9 +23102,9 @@ public partial class alglib
             fx = 0;
             fy = 0;
 
-            alglib.ap.assert(c.stype == -1 || c.stype == -3, "Spline2DDiffVI: incorrect C (incorrect parameter C.SType)");
-            alglib.ap.assert(math.isfinite(x) && math.isfinite(y), "Spline2DDiffVI: X or Y contains NaN or Infinite value");
-            alglib.ap.assert(i >= 0 && i < c.d, "Spline2DDiffVI: I<0 or I>=D");
+            ap.assert(c.stype == -1 || c.stype == -3, "Spline2DDiffVI: incorrect C (incorrect parameter C.SType)");
+            ap.assert(math.isfinite(x) && math.isfinite(y), "Spline2DDiffVI: X or Y contains NaN or Infinite value");
+            ap.assert(i >= 0 && i < c.d, "Spline2DDiffVI: I<0 or I>=D");
 
             //
             // Prepare F, dF/dX, dF/dY, d2F/dXdY
@@ -23354,9 +23354,9 @@ public partial class alglib
             fxy = 0;
             fyy = 0;
 
-            alglib.ap.assert(c.stype == -1 || c.stype == -3, "Spline2DDiffVI: incorrect C (incorrect parameter C.SType)");
-            alglib.ap.assert(math.isfinite(x) && math.isfinite(y), "Spline2DDiffVI: X or Y contains NaN or Infinite value");
-            alglib.ap.assert(i >= 0 && i < c.d, "Spline2DDiffVI: I<0 or I>=D");
+            ap.assert(c.stype == -1 || c.stype == -3, "Spline2DDiffVI: incorrect C (incorrect parameter C.SType)");
+            ap.assert(math.isfinite(x) && math.isfinite(y), "Spline2DDiffVI: X or Y contains NaN or Infinite value");
+            ap.assert(i >= 0 && i < c.d, "Spline2DDiffVI: I<0 or I>=D");
 
             //
             // Prepare F, dF/dX, dF/dY, d2F/dXdY
@@ -23579,11 +23579,11 @@ public partial class alglib
             double d2sdxdy = 0;
             double d2sdy2 = 0;
 
-            alglib.ap.assert(c.stype == -3 || c.stype == -1, "Spline2DLinTransXY: incorrect C (incorrect parameter C.SType)");
-            alglib.ap.assert(math.isfinite(ax), "Spline2DLinTransXY: AX is infinite or NaN");
-            alglib.ap.assert(math.isfinite(bx), "Spline2DLinTransXY: BX is infinite or NaN");
-            alglib.ap.assert(math.isfinite(ay), "Spline2DLinTransXY: AY is infinite or NaN");
-            alglib.ap.assert(math.isfinite(by), "Spline2DLinTransXY: BY is infinite or NaN");
+            ap.assert(c.stype == -3 || c.stype == -1, "Spline2DLinTransXY: incorrect C (incorrect parameter C.SType)");
+            ap.assert(math.isfinite(ax), "Spline2DLinTransXY: AX is infinite or NaN");
+            ap.assert(math.isfinite(bx), "Spline2DLinTransXY: BX is infinite or NaN");
+            ap.assert(math.isfinite(ay), "Spline2DLinTransXY: AY is infinite or NaN");
+            ap.assert(math.isfinite(by), "Spline2DLinTransXY: BY is infinite or NaN");
             x = new double[c.n];
             y = new double[c.m];
             f = new double[c.m * c.n * c.d];
@@ -23761,7 +23761,7 @@ public partial class alglib
             int i = 0;
             int j = 0;
 
-            alglib.ap.assert(c.stype == -3 || c.stype == -1, "Spline2DLinTransF: incorrect C (incorrect parameter C.SType)");
+            ap.assert(c.stype == -3 || c.stype == -1, "Spline2DLinTransF: incorrect C (incorrect parameter C.SType)");
             if (c.stype == -1)
             {
 
@@ -23865,7 +23865,7 @@ public partial class alglib
             int tblsize = 0;
             int i_ = 0;
 
-            alglib.ap.assert(c.stype == -1 || c.stype == -3, "Spline2DCopy: incorrect C (incorrect parameter C.SType)");
+            ap.assert(c.stype == -1 || c.stype == -3, "Spline2DCopy: incorrect C (incorrect parameter C.SType)");
             cc.n = c.n;
             cc.m = c.m;
             cc.d = c.d;
@@ -23880,7 +23880,7 @@ public partial class alglib
             {
                 tblsize = c.n * c.m * c.d;
             }
-            alglib.ap.assert(tblsize > 0, "Spline2DCopy: internal error");
+            ap.assert(tblsize > 0, "Spline2DCopy: internal error");
             cc.x = new double[cc.n];
             cc.y = new double[cc.m];
             cc.f = new double[tblsize];
@@ -23942,8 +23942,8 @@ public partial class alglib
 
             b = new double[0, 0];
 
-            alglib.ap.assert(oldwidth > 1 && oldheight > 1, "Spline2DResampleBicubic: width/height less than 1");
-            alglib.ap.assert(newwidth > 1 && newheight > 1, "Spline2DResampleBicubic: width/height less than 1");
+            ap.assert(oldwidth > 1 && oldheight > 1, "Spline2DResampleBicubic: width/height less than 1");
+            ap.assert(newwidth > 1 && newheight > 1, "Spline2DResampleBicubic: width/height less than 1");
 
             //
             // Prepare
@@ -24043,8 +24043,8 @@ public partial class alglib
 
             b = new double[0, 0];
 
-            alglib.ap.assert(oldwidth > 1 && oldheight > 1, "Spline2DResampleBilinear: width/height less than 1");
-            alglib.ap.assert(newwidth > 1 && newheight > 1, "Spline2DResampleBilinear: width/height less than 1");
+            ap.assert(oldwidth > 1 && oldheight > 1, "Spline2DResampleBilinear: width/height less than 1");
+            ap.assert(newwidth > 1 && newheight > 1, "Spline2DResampleBilinear: width/height less than 1");
             b = new double[newheight, newwidth];
             for (i = 0; i <= newheight - 1; i++)
             {
@@ -24129,14 +24129,14 @@ public partial class alglib
             int k = 0;
             int i0 = 0;
 
-            alglib.ap.assert(n >= 2, "Spline2DBuildBilinearV: N is less then 2");
-            alglib.ap.assert(m >= 2, "Spline2DBuildBilinearV: M is less then 2");
-            alglib.ap.assert(d >= 1, "Spline2DBuildBilinearV: invalid argument D (D<1)");
-            alglib.ap.assert(alglib.ap.len(x) >= n && alglib.ap.len(y) >= m, "Spline2DBuildBilinearV: length of X or Y is too short (Length(X/Y)<N/M)");
-            alglib.ap.assert(apserv.isfinitevector(x, n, _params) && apserv.isfinitevector(y, m, _params), "Spline2DBuildBilinearV: X or Y contains NaN or Infinite value");
+            ap.assert(n >= 2, "Spline2DBuildBilinearV: N is less then 2");
+            ap.assert(m >= 2, "Spline2DBuildBilinearV: M is less then 2");
+            ap.assert(d >= 1, "Spline2DBuildBilinearV: invalid argument D (D<1)");
+            ap.assert(ap.len(x) >= n && ap.len(y) >= m, "Spline2DBuildBilinearV: length of X or Y is too short (Length(X/Y)<N/M)");
+            ap.assert(apserv.isfinitevector(x, n, _params) && apserv.isfinitevector(y, m, _params), "Spline2DBuildBilinearV: X or Y contains NaN or Infinite value");
             k = n * m * d;
-            alglib.ap.assert(alglib.ap.len(f) >= k, "Spline2DBuildBilinearV: length of F is too short (Length(F)<N*M*D)");
-            alglib.ap.assert(apserv.isfinitevector(f, k, _params), "Spline2DBuildBilinearV: F contains NaN or Infinite value");
+            ap.assert(ap.len(f) >= k, "Spline2DBuildBilinearV: length of F is too short (Length(F)<N*M*D)");
+            ap.assert(apserv.isfinitevector(f, k, _params), "Spline2DBuildBilinearV: F contains NaN or Infinite value");
 
             //
             // Fill interpolant
@@ -24308,19 +24308,19 @@ public partial class alglib
 
             f = (double[])f.Clone();
 
-            alglib.ap.assert(n >= 2, "Spline2DBuildBilinearMissing: N is less then 2");
-            alglib.ap.assert(m >= 2, "Spline2DBuildBilinearMissing: M is less then 2");
-            alglib.ap.assert(d >= 1, "Spline2DBuildBilinearMissing: invalid argument D (D<1)");
-            alglib.ap.assert(alglib.ap.len(x) >= n && alglib.ap.len(y) >= m, "Spline2DBuildBilinearMissing: length of X or Y is too short (Length(X/Y)<N/M)");
-            alglib.ap.assert(apserv.isfinitevector(x, n, _params) && apserv.isfinitevector(y, m, _params), "Spline2DBuildBilinearMissing: X or Y contains NaN or Infinite value");
+            ap.assert(n >= 2, "Spline2DBuildBilinearMissing: N is less then 2");
+            ap.assert(m >= 2, "Spline2DBuildBilinearMissing: M is less then 2");
+            ap.assert(d >= 1, "Spline2DBuildBilinearMissing: invalid argument D (D<1)");
+            ap.assert(ap.len(x) >= n && ap.len(y) >= m, "Spline2DBuildBilinearMissing: length of X or Y is too short (Length(X/Y)<N/M)");
+            ap.assert(apserv.isfinitevector(x, n, _params) && apserv.isfinitevector(y, m, _params), "Spline2DBuildBilinearMissing: X or Y contains NaN or Infinite value");
             k = n * m * d;
-            alglib.ap.assert(alglib.ap.len(f) >= k, "Spline2DBuildBilinearMissing: length of F is too short (Length(F)<N*M*D)");
-            alglib.ap.assert(alglib.ap.len(missing) >= n * m, "Spline2DBuildBilinearMissing: Missing[] is shorter than M*N");
+            ap.assert(ap.len(f) >= k, "Spline2DBuildBilinearMissing: length of F is too short (Length(F)<N*M*D)");
+            ap.assert(ap.len(missing) >= n * m, "Spline2DBuildBilinearMissing: Missing[] is shorter than M*N");
             for (i = 0; i <= k - 1; i++)
             {
                 if (!missing[i / d] && !math.isfinite(f[i]))
                 {
-                    alglib.ap.assert(false, "Spline2DBuildBilinearMissing: F[] contains NAN or INF in its non-missing entries");
+                    ap.assert(false, "Spline2DBuildBilinearMissing: F[] contains NAN or INF in its non-missing entries");
                 }
             }
 
@@ -24658,28 +24658,28 @@ public partial class alglib
             f = (double[])f.Clone();
 
             allzero = apserv.imin4(bndtypebtm, bndtypetop, bndtypelft, bndtypergt, _params) == 0 && apserv.imax4(bndtypebtm, bndtypetop, bndtypelft, bndtypergt, _params) == 0;
-            alglib.ap.assert(n >= 2, "Spline2DBuildClampedV: N is less than 2");
-            alglib.ap.assert(m >= 2, "Spline2DBuildClampedV: M is less than 2");
-            alglib.ap.assert(d >= 1, "Spline2DBuildClampedV: invalid argument D (D<1)");
-            alglib.ap.assert(alglib.ap.len(x) >= n && alglib.ap.len(y) >= m, "Spline2DBuildClampedV: length of X or Y is too short (Length(X/Y)<N/M)");
-            alglib.ap.assert(apserv.isfinitevector(x, n, _params) && apserv.isfinitevector(y, m, _params), "Spline2DBuildClampedV: X or Y contains NaN or Infinite value");
-            alglib.ap.assert(bndtypebtm == 0 || alglib.ap.len(bndbtm) >= n * d, "Spline2DBuildClampedV: length of BndBtm is less than N*D");
-            alglib.ap.assert(bndtypebtm == 0 || apserv.isfinitevector(bndbtm, n * d, _params), "Spline2DBuildClampedV: BndBtm contains NaN or Infinite value");
-            alglib.ap.assert(bndtypetop == 0 || alglib.ap.len(bndtop) >= n * d, "Spline2DBuildClampedV: length of BndTop is less than N*D");
-            alglib.ap.assert(bndtypetop == 0 || apserv.isfinitevector(bndtop, n * d, _params), "Spline2DBuildClampedV: BndTop contains NaN or Infinite value");
-            alglib.ap.assert(bndtypelft == 0 || alglib.ap.len(bndlft) >= m * d, "Spline2DBuildClampedV: length of BndLft is less than M*D");
-            alglib.ap.assert(bndtypelft == 0 || apserv.isfinitevector(bndlft, m * d, _params), "Spline2DBuildClampedV: BndLft contains NaN or Infinite value");
-            alglib.ap.assert(bndtypergt == 0 || alglib.ap.len(bndrgt) >= m * d, "Spline2DBuildClampedV: length of BndRgt is less than M*D");
-            alglib.ap.assert(bndtypergt == 0 || apserv.isfinitevector(bndrgt, m * d, _params), "Spline2DBuildClampedV: BndRgt contains NaN or Infinite value");
-            alglib.ap.assert(allzero || alglib.ap.len(mixedd) >= 4 * d, "Spline2DBuildClampedV: length of MixedD is less than 4*D");
-            alglib.ap.assert(allzero || apserv.isfinitevector(mixedd, 4 * d, _params), "Spline2DBuildClampedV: MixedD contains NaN or Infinite value");
-            alglib.ap.assert((bndtypebtm == 0 || bndtypebtm == 1) || bndtypebtm == 2, "Spline2DBuildClampedV: BndTypeBtm is neither 0, 1 or 2");
-            alglib.ap.assert((bndtypetop == 0 || bndtypetop == 1) || bndtypetop == 2, "Spline2DBuildClampedV: BndTypeTop is neither 0, 1 or 2");
-            alglib.ap.assert((bndtypelft == 0 || bndtypelft == 1) || bndtypelft == 2, "Spline2DBuildClampedV: BndTypeLft is neither 0, 1 or 2");
-            alglib.ap.assert((bndtypergt == 0 || bndtypergt == 1) || bndtypergt == 2, "Spline2DBuildClampedV: BndTypeRgt is neither 0, 1 or 2");
+            ap.assert(n >= 2, "Spline2DBuildClampedV: N is less than 2");
+            ap.assert(m >= 2, "Spline2DBuildClampedV: M is less than 2");
+            ap.assert(d >= 1, "Spline2DBuildClampedV: invalid argument D (D<1)");
+            ap.assert(ap.len(x) >= n && ap.len(y) >= m, "Spline2DBuildClampedV: length of X or Y is too short (Length(X/Y)<N/M)");
+            ap.assert(apserv.isfinitevector(x, n, _params) && apserv.isfinitevector(y, m, _params), "Spline2DBuildClampedV: X or Y contains NaN or Infinite value");
+            ap.assert(bndtypebtm == 0 || ap.len(bndbtm) >= n * d, "Spline2DBuildClampedV: length of BndBtm is less than N*D");
+            ap.assert(bndtypebtm == 0 || apserv.isfinitevector(bndbtm, n * d, _params), "Spline2DBuildClampedV: BndBtm contains NaN or Infinite value");
+            ap.assert(bndtypetop == 0 || ap.len(bndtop) >= n * d, "Spline2DBuildClampedV: length of BndTop is less than N*D");
+            ap.assert(bndtypetop == 0 || apserv.isfinitevector(bndtop, n * d, _params), "Spline2DBuildClampedV: BndTop contains NaN or Infinite value");
+            ap.assert(bndtypelft == 0 || ap.len(bndlft) >= m * d, "Spline2DBuildClampedV: length of BndLft is less than M*D");
+            ap.assert(bndtypelft == 0 || apserv.isfinitevector(bndlft, m * d, _params), "Spline2DBuildClampedV: BndLft contains NaN or Infinite value");
+            ap.assert(bndtypergt == 0 || ap.len(bndrgt) >= m * d, "Spline2DBuildClampedV: length of BndRgt is less than M*D");
+            ap.assert(bndtypergt == 0 || apserv.isfinitevector(bndrgt, m * d, _params), "Spline2DBuildClampedV: BndRgt contains NaN or Infinite value");
+            ap.assert(allzero || ap.len(mixedd) >= 4 * d, "Spline2DBuildClampedV: length of MixedD is less than 4*D");
+            ap.assert(allzero || apserv.isfinitevector(mixedd, 4 * d, _params), "Spline2DBuildClampedV: MixedD contains NaN or Infinite value");
+            ap.assert((bndtypebtm == 0 || bndtypebtm == 1) || bndtypebtm == 2, "Spline2DBuildClampedV: BndTypeBtm is neither 0, 1 or 2");
+            ap.assert((bndtypetop == 0 || bndtypetop == 1) || bndtypetop == 2, "Spline2DBuildClampedV: BndTypeTop is neither 0, 1 or 2");
+            ap.assert((bndtypelft == 0 || bndtypelft == 1) || bndtypelft == 2, "Spline2DBuildClampedV: BndTypeLft is neither 0, 1 or 2");
+            ap.assert((bndtypergt == 0 || bndtypergt == 1) || bndtypergt == 2, "Spline2DBuildClampedV: BndTypeRgt is neither 0, 1 or 2");
             k = n * m * d;
-            alglib.ap.assert(alglib.ap.len(f) >= k, "Spline2DBuildClampedV: length of F is too short (Length(F)<N*M*D)");
-            alglib.ap.assert(apserv.isfinitevector(f, k, _params), "Spline2DBuildClampedV: F contains NaN or Infinite value");
+            ap.assert(ap.len(f) >= k, "Spline2DBuildClampedV: length of F is too short (Length(F)<N*M*D)");
+            ap.assert(apserv.isfinitevector(f, k, _params), "Spline2DBuildClampedV: F contains NaN or Infinite value");
 
             //
             // Fill interpolant:
@@ -24840,20 +24840,20 @@ public partial class alglib
             dfdy = (double[])dfdy.Clone();
             d2fdxdy = (double[])d2fdxdy.Clone();
 
-            alglib.ap.assert(n >= 2, "Spline2DBuildHermiteV: N is less than 2");
-            alglib.ap.assert(m >= 2, "Spline2DBuildHermiteV: M is less than 2");
-            alglib.ap.assert(d >= 1, "Spline2DBuildHermiteV: invalid argument D (D<1)");
-            alglib.ap.assert(alglib.ap.len(x) >= n && alglib.ap.len(y) >= m, "Spline2DBuildHermiteV: X or Y is too short (Length(X/Y)<N/M)");
-            alglib.ap.assert(apserv.isfinitevector(x, n, _params) && apserv.isfinitevector(y, m, _params), "Spline2DBuildHermiteV: X or Y contains NaN or Infinite value");
+            ap.assert(n >= 2, "Spline2DBuildHermiteV: N is less than 2");
+            ap.assert(m >= 2, "Spline2DBuildHermiteV: M is less than 2");
+            ap.assert(d >= 1, "Spline2DBuildHermiteV: invalid argument D (D<1)");
+            ap.assert(ap.len(x) >= n && ap.len(y) >= m, "Spline2DBuildHermiteV: X or Y is too short (Length(X/Y)<N/M)");
+            ap.assert(apserv.isfinitevector(x, n, _params) && apserv.isfinitevector(y, m, _params), "Spline2DBuildHermiteV: X or Y contains NaN or Infinite value");
             k = n * m * d;
-            alglib.ap.assert(alglib.ap.len(f) >= k, "Spline2DBuildHermiteV: F is too short (Length(F)<N*M*D)");
-            alglib.ap.assert(apserv.isfinitevector(f, k, _params), "Spline2DBuildHermiteV: F contains NaN or Infinite value");
-            alglib.ap.assert(alglib.ap.len(dfdx) >= k, "Spline2DBuildHermiteV: dFdX is too short (Length(dFdX)<N*M*D)");
-            alglib.ap.assert(apserv.isfinitevector(dfdx, k, _params), "Spline2DBuildHermiteV: dFdX contains NaN or Infinite value");
-            alglib.ap.assert(alglib.ap.len(dfdy) >= k, "Spline2DBuildHermiteV: dFdY is too short (Length(dFdY)<N*M*D)");
-            alglib.ap.assert(apserv.isfinitevector(dfdy, k, _params), "Spline2DBuildHermiteV: dFdY contains NaN or Infinite value");
-            alglib.ap.assert(alglib.ap.len(d2fdxdy) >= k, "Spline2DBuildHermiteV: d2FdXdY is too short (Length(d2FdXdY)<N*M*D)");
-            alglib.ap.assert(apserv.isfinitevector(d2fdxdy, k, _params), "Spline2DBuildHermiteV: d2FdXdY contains NaN or Infinite value");
+            ap.assert(ap.len(f) >= k, "Spline2DBuildHermiteV: F is too short (Length(F)<N*M*D)");
+            ap.assert(apserv.isfinitevector(f, k, _params), "Spline2DBuildHermiteV: F contains NaN or Infinite value");
+            ap.assert(ap.len(dfdx) >= k, "Spline2DBuildHermiteV: dFdX is too short (Length(dFdX)<N*M*D)");
+            ap.assert(apserv.isfinitevector(dfdx, k, _params), "Spline2DBuildHermiteV: dFdX contains NaN or Infinite value");
+            ap.assert(ap.len(dfdy) >= k, "Spline2DBuildHermiteV: dFdY is too short (Length(dFdY)<N*M*D)");
+            ap.assert(apserv.isfinitevector(dfdy, k, _params), "Spline2DBuildHermiteV: dFdY contains NaN or Infinite value");
+            ap.assert(ap.len(d2fdxdy) >= k, "Spline2DBuildHermiteV: d2FdXdY is too short (Length(d2FdXdY)<N*M*D)");
+            ap.assert(apserv.isfinitevector(d2fdxdy, k, _params), "Spline2DBuildHermiteV: d2FdXdY contains NaN or Infinite value");
             spline2dbuildhermitevbuf(x, n, y, m, f, dfdx, dfdy, d2fdxdy, d, c, _params);
         }
 
@@ -24888,14 +24888,14 @@ public partial class alglib
 
             f = (double[])f.Clone();
 
-            alglib.ap.assert(n >= 2, "Spline2DBuildBicubicV: N is less than 2");
-            alglib.ap.assert(m >= 2, "Spline2DBuildBicubicV: M is less than 2");
-            alglib.ap.assert(d >= 1, "Spline2DBuildBicubicV: invalid argument D (D<1)");
-            alglib.ap.assert(alglib.ap.len(x) >= n && alglib.ap.len(y) >= m, "Spline2DBuildBicubicV: length of X or Y is too short (Length(X/Y)<N/M)");
-            alglib.ap.assert(apserv.isfinitevector(x, n, _params) && apserv.isfinitevector(y, m, _params), "Spline2DBuildBicubicV: X or Y contains NaN or Infinite value");
+            ap.assert(n >= 2, "Spline2DBuildBicubicV: N is less than 2");
+            ap.assert(m >= 2, "Spline2DBuildBicubicV: M is less than 2");
+            ap.assert(d >= 1, "Spline2DBuildBicubicV: invalid argument D (D<1)");
+            ap.assert(ap.len(x) >= n && ap.len(y) >= m, "Spline2DBuildBicubicV: length of X or Y is too short (Length(X/Y)<N/M)");
+            ap.assert(apserv.isfinitevector(x, n, _params) && apserv.isfinitevector(y, m, _params), "Spline2DBuildBicubicV: X or Y contains NaN or Infinite value");
             k = n * m * d;
-            alglib.ap.assert(alglib.ap.len(f) >= k, "Spline2DBuildBicubicV: length of F is too short (Length(F)<N*M*D)");
-            alglib.ap.assert(apserv.isfinitevector(f, k, _params), "Spline2DBuildBicubicV: F contains NaN or Infinite value");
+            ap.assert(ap.len(f) >= k, "Spline2DBuildBicubicV: length of F is too short (Length(F)<N*M*D)");
+            ap.assert(apserv.isfinitevector(f, k, _params), "Spline2DBuildBicubicV: F contains NaN or Infinite value");
 
             //
             // Fill interpolant:
@@ -25044,19 +25044,19 @@ public partial class alglib
 
             f = (double[])f.Clone();
 
-            alglib.ap.assert(n >= 2, "Spline2DBuildBicubicMissing: N is less than 2");
-            alglib.ap.assert(m >= 2, "Spline2DBuildBicubicMissing: M is less than 2");
-            alglib.ap.assert(d >= 1, "Spline2DBuildBicubicMissing: invalid argument D (D<1)");
-            alglib.ap.assert(alglib.ap.len(x) >= n && alglib.ap.len(y) >= m, "Spline2DBuildBicubicMissing: length of X or Y is too short (Length(X/Y)<N/M)");
-            alglib.ap.assert(apserv.isfinitevector(x, n, _params) && apserv.isfinitevector(y, m, _params), "Spline2DBuildBicubicMissing: X or Y contains NaN or Infinite value");
+            ap.assert(n >= 2, "Spline2DBuildBicubicMissing: N is less than 2");
+            ap.assert(m >= 2, "Spline2DBuildBicubicMissing: M is less than 2");
+            ap.assert(d >= 1, "Spline2DBuildBicubicMissing: invalid argument D (D<1)");
+            ap.assert(ap.len(x) >= n && ap.len(y) >= m, "Spline2DBuildBicubicMissing: length of X or Y is too short (Length(X/Y)<N/M)");
+            ap.assert(apserv.isfinitevector(x, n, _params) && apserv.isfinitevector(y, m, _params), "Spline2DBuildBicubicMissing: X or Y contains NaN or Infinite value");
             k = n * m * d;
-            alglib.ap.assert(alglib.ap.len(f) >= k, "Spline2DBuildBicubicMissing: length of F is too short (Length(F)<N*M*D)");
-            alglib.ap.assert(alglib.ap.len(missing) >= n * m, "Spline2DBuildBicubicMissing: Missing[] is shorter than M*N");
+            ap.assert(ap.len(f) >= k, "Spline2DBuildBicubicMissing: length of F is too short (Length(F)<N*M*D)");
+            ap.assert(ap.len(missing) >= n * m, "Spline2DBuildBicubicMissing: Missing[] is shorter than M*N");
             for (i = 0; i <= k - 1; i++)
             {
                 if (!missing[i / d] && !math.isfinite(f[i]))
                 {
-                    alglib.ap.assert(false, "Spline2DBuildBicubicMissing: F[] contains NAN or INF in its non-missing entries");
+                    ap.assert(false, "Spline2DBuildBicubicMissing: F[] contains NAN or INF in its non-missing entries");
                 }
             }
 
@@ -25288,7 +25288,7 @@ public partial class alglib
             d = 0;
             tbl = new double[0, 0];
 
-            alglib.ap.assert(c.stype == -3 || c.stype == -1, "Spline2DUnpackV: incorrect C (incorrect parameter C.SType)");
+            ap.assert(c.stype == -3 || c.stype == -1, "Spline2DUnpackV: incorrect C (incorrect parameter C.SType)");
             n = c.n;
             m = c.m;
             d = c.d;
@@ -25407,12 +25407,12 @@ public partial class alglib
             int j = 0;
             int k = 0;
 
-            alglib.ap.assert(n >= 2, "Spline2DBuildBilinear: N<2");
-            alglib.ap.assert(m >= 2, "Spline2DBuildBilinear: M<2");
-            alglib.ap.assert(alglib.ap.len(x) >= n && alglib.ap.len(y) >= m, "Spline2DBuildBilinear: length of X or Y is too short (Length(X/Y)<N/M)");
-            alglib.ap.assert(apserv.isfinitevector(x, n, _params) && apserv.isfinitevector(y, m, _params), "Spline2DBuildBilinear: X or Y contains NaN or Infinite value");
-            alglib.ap.assert(alglib.ap.rows(f) >= m && alglib.ap.cols(f) >= n, "Spline2DBuildBilinear: size of F is too small (rows(F)<M or cols(F)<N)");
-            alglib.ap.assert(apserv.apservisfinitematrix(f, m, n, _params), "Spline2DBuildBilinear: F contains NaN or Infinite value");
+            ap.assert(n >= 2, "Spline2DBuildBilinear: N<2");
+            ap.assert(m >= 2, "Spline2DBuildBilinear: M<2");
+            ap.assert(ap.len(x) >= n && ap.len(y) >= m, "Spline2DBuildBilinear: length of X or Y is too short (Length(X/Y)<N/M)");
+            ap.assert(apserv.isfinitevector(x, n, _params) && apserv.isfinitevector(y, m, _params), "Spline2DBuildBilinear: X or Y contains NaN or Infinite value");
+            ap.assert(ap.rows(f) >= m && ap.cols(f) >= n, "Spline2DBuildBilinear: size of F is too small (rows(F)<M or cols(F)<N)");
+            ap.assert(apserv.apservisfinitematrix(f, m, n, _params), "Spline2DBuildBilinear: F contains NaN or Infinite value");
 
             //
             // Fill interpolant
@@ -25524,12 +25524,12 @@ public partial class alglib
 
             f = (double[,])f.Clone();
 
-            alglib.ap.assert(n >= 2, "Spline2DBuildBicubicSpline: N<2");
-            alglib.ap.assert(m >= 2, "Spline2DBuildBicubicSpline: M<2");
-            alglib.ap.assert(alglib.ap.len(x) >= n && alglib.ap.len(y) >= m, "Spline2DBuildBicubic: length of X or Y is too short (Length(X/Y)<N/M)");
-            alglib.ap.assert(apserv.isfinitevector(x, n, _params) && apserv.isfinitevector(y, m, _params), "Spline2DBuildBicubic: X or Y contains NaN or Infinite value");
-            alglib.ap.assert(alglib.ap.rows(f) >= m && alglib.ap.cols(f) >= n, "Spline2DBuildBicubic: size of F is too small (rows(F)<M or cols(F)<N)");
-            alglib.ap.assert(apserv.apservisfinitematrix(f, m, n, _params), "Spline2DBuildBicubic: F contains NaN or Infinite value");
+            ap.assert(n >= 2, "Spline2DBuildBicubicSpline: N<2");
+            ap.assert(m >= 2, "Spline2DBuildBicubicSpline: M<2");
+            ap.assert(ap.len(x) >= n && ap.len(y) >= m, "Spline2DBuildBicubic: length of X or Y is too short (Length(X/Y)<N/M)");
+            ap.assert(apserv.isfinitevector(x, n, _params) && apserv.isfinitevector(y, m, _params), "Spline2DBuildBicubic: X or Y contains NaN or Infinite value");
+            ap.assert(ap.rows(f) >= m && ap.cols(f) >= n, "Spline2DBuildBicubic: size of F is too small (rows(F)<M or cols(F)<N)");
+            ap.assert(apserv.apservisfinitematrix(f, m, n, _params), "Spline2DBuildBicubic: F contains NaN or Infinite value");
 
             //
             // Fill interpolant:
@@ -25665,7 +25665,7 @@ public partial class alglib
             n = 0;
             tbl = new double[0, 0];
 
-            alglib.ap.assert(c.stype == -3 || c.stype == -1, "Spline2DUnpack: incorrect C (incorrect parameter C.SType)");
+            ap.assert(c.stype == -3 || c.stype == -1, "Spline2DUnpack: incorrect C (incorrect parameter C.SType)");
             if (c.d != 1)
             {
                 n = 0;
@@ -25810,7 +25810,7 @@ public partial class alglib
             spline2dbuilder state,
             alglib.xparams _params)
         {
-            alglib.ap.assert(d >= 1, "Spline2DBuilderCreate: D<=0");
+            ap.assert(d >= 1, "Spline2DBuilderCreate: D<=0");
 
             //
             // NOTES:
@@ -25859,7 +25859,7 @@ public partial class alglib
             double v,
             alglib.xparams _params)
         {
-            alglib.ap.assert(math.isfinite(v), "Spline2DBuilderSetUserTerm: infinite/NAN value passed");
+            ap.assert(math.isfinite(v), "Spline2DBuilderSetUserTerm: infinite/NAN value passed");
             state.priorterm = 0;
             state.priortermval = v;
         }
@@ -25950,10 +25950,10 @@ public partial class alglib
             int j = 0;
             int ew = 0;
 
-            alglib.ap.assert(n > 0, "Spline2DBuilderSetPoints: N<0");
-            alglib.ap.assert(alglib.ap.rows(xy) >= n, "Spline2DBuilderSetPoints: Rows(XY)<N");
-            alglib.ap.assert(alglib.ap.cols(xy) >= 2 + state.d, "Spline2DBuilderSetPoints: Cols(XY)<NX+NY");
-            alglib.ap.assert(apserv.apservisfinitematrix(xy, n, 2 + state.d, _params), "Spline2DBuilderSetPoints: XY contains infinite or NaN values!");
+            ap.assert(n > 0, "Spline2DBuilderSetPoints: N<0");
+            ap.assert(ap.rows(xy) >= n, "Spline2DBuilderSetPoints: Rows(XY)<N");
+            ap.assert(ap.cols(xy) >= 2 + state.d, "Spline2DBuilderSetPoints: Cols(XY)<NX+NY");
+            ap.assert(apserv.apservisfinitematrix(xy, n, 2 + state.d, _params), "Spline2DBuilderSetPoints: XY contains infinite or NaN values!");
             state.npoints = n;
             ew = 2 + state.d;
             apserv.rvectorsetlengthatleast(ref state.xy, n * ew, _params);
@@ -26003,12 +26003,12 @@ public partial class alglib
             double yb,
             alglib.xparams _params)
         {
-            alglib.ap.assert(math.isfinite(xa), "Spline2DBuilderSetArea: XA is not finite");
-            alglib.ap.assert(math.isfinite(xb), "Spline2DBuilderSetArea: XB is not finite");
-            alglib.ap.assert(math.isfinite(ya), "Spline2DBuilderSetArea: YA is not finite");
-            alglib.ap.assert(math.isfinite(yb), "Spline2DBuilderSetArea: YB is not finite");
-            alglib.ap.assert((double)(xa) < (double)(xb), "Spline2DBuilderSetArea: XA>=XB");
-            alglib.ap.assert((double)(ya) < (double)(yb), "Spline2DBuilderSetArea: YA>=YB");
+            ap.assert(math.isfinite(xa), "Spline2DBuilderSetArea: XA is not finite");
+            ap.assert(math.isfinite(xb), "Spline2DBuilderSetArea: XB is not finite");
+            ap.assert(math.isfinite(ya), "Spline2DBuilderSetArea: YA is not finite");
+            ap.assert(math.isfinite(yb), "Spline2DBuilderSetArea: YB is not finite");
+            ap.assert((double)(xa) < (double)(xb), "Spline2DBuilderSetArea: XA>=XB");
+            ap.assert((double)(ya) < (double)(yb), "Spline2DBuilderSetArea: YA>=YB");
             state.areatype = 1;
             state.xa = xa;
             state.xb = xb;
@@ -26042,8 +26042,8 @@ public partial class alglib
             int ky,
             alglib.xparams _params)
         {
-            alglib.ap.assert(kx > 0, "Spline2DBuilderSetGridSizePrecisely: KX<=0");
-            alglib.ap.assert(ky > 0, "Spline2DBuilderSetGridSizePrecisely: KY<=0");
+            ap.assert(kx > 0, "Spline2DBuilderSetGridSizePrecisely: KX<=0");
+            ap.assert(ky > 0, "Spline2DBuilderSetGridSizePrecisely: KY<=0");
             state.gridtype = 1;
             state.kx = Math.Max(kx, 4);
             state.ky = Math.Max(ky, 4);
@@ -26143,8 +26143,8 @@ public partial class alglib
             double lambdav,
             alglib.xparams _params)
         {
-            alglib.ap.assert(math.isfinite(lambdav), "Spline2DBuilderSetAlgoFastDDM: LambdaV is not finite value");
-            alglib.ap.assert((double)(lambdav) >= (double)(0), "Spline2DBuilderSetAlgoFastDDM: LambdaV<0");
+            ap.assert(math.isfinite(lambdav), "Spline2DBuilderSetAlgoFastDDM: LambdaV is not finite value");
+            ap.assert((double)(lambdav) >= (double)(0), "Spline2DBuilderSetAlgoFastDDM: LambdaV<0");
             state.solvertype = 3;
             state.nlayers = nlayers;
             state.smoothing = lambdav;
@@ -26210,8 +26210,8 @@ public partial class alglib
             double lambdans,
             alglib.xparams _params)
         {
-            alglib.ap.assert(math.isfinite(lambdans), "Spline2DBuilderSetAlgoBlockLLS: LambdaNS is not finite value");
-            alglib.ap.assert((double)(lambdans) >= (double)(0), "Spline2DBuilderSetAlgoBlockLLS: LambdaNS<0");
+            ap.assert(math.isfinite(lambdans), "Spline2DBuilderSetAlgoBlockLLS: LambdaNS is not finite value");
+            ap.assert((double)(lambdans) >= (double)(0), "Spline2DBuilderSetAlgoBlockLLS: LambdaNS<0");
             state.solvertype = 1;
             state.smoothing = lambdans;
         }
@@ -26247,8 +26247,8 @@ public partial class alglib
             double lambdans,
             alglib.xparams _params)
         {
-            alglib.ap.assert(math.isfinite(lambdans), "Spline2DBuilderSetAlgoBlockLLS: LambdaNS is not finite value");
-            alglib.ap.assert((double)(lambdans) >= (double)(0), "Spline2DBuilderSetAlgoBlockLLS: LambdaNS<0");
+            ap.assert(math.isfinite(lambdans), "Spline2DBuilderSetAlgoBlockLLS: LambdaNS is not finite value");
+            ap.assert((double)(lambdans) >= (double)(0), "Spline2DBuilderSetAlgoBlockLLS: LambdaNS<0");
             state.solvertype = 2;
             state.smoothing = lambdans;
         }
@@ -26350,8 +26350,8 @@ public partial class alglib
             //
             // Integrity checks
             //
-            alglib.ap.assert((double)(state.sx) == (double)(1), "Spline2DFit: integrity error");
-            alglib.ap.assert((double)(state.sy) == (double)(1), "Spline2DFit: integrity error");
+            ap.assert((double)(state.sx) == (double)(1), "Spline2DFit: integrity error");
+            ap.assert((double)(state.sy) == (double)(1), "Spline2DFit: integrity error");
 
             //
             // Determine actual area size and grid step
@@ -26398,7 +26398,7 @@ public partial class alglib
                 }
                 else
                 {
-                    alglib.ap.assert(false);
+                    ap.assert(false);
                 }
             }
             if ((double)(xa) == (double)(xb))
@@ -26429,8 +26429,8 @@ public partial class alglib
                     yb = v / 2 + 1;
                 }
             }
-            alglib.ap.assert((double)(xa) < (double)(xb), "Spline2DFit: integrity error");
-            alglib.ap.assert((double)(ya) < (double)(yb), "Spline2DFit: integrity error");
+            ap.assert((double)(xa) < (double)(xb), "Spline2DFit: integrity error");
+            ap.assert((double)(ya) < (double)(yb), "Spline2DFit: integrity error");
             kx = 0;
             ky = 0;
             if (state.gridtype == 0)
@@ -26447,11 +26447,11 @@ public partial class alglib
                 }
                 else
                 {
-                    alglib.ap.assert(false);
+                    ap.assert(false);
                 }
             }
-            alglib.ap.assert(kx > 0, "Spline2DFit: integrity error");
-            alglib.ap.assert(ky > 0, "Spline2DFit: integrity error");
+            ap.assert(kx > 0, "Spline2DFit: integrity error");
+            ap.assert(ky > 0, "Spline2DFit: integrity error");
             basecasex = -1;
             basecasey = -1;
             if (state.solvertype == 3)
@@ -26698,7 +26698,7 @@ public partial class alglib
             tmpy[4] = (double)1 / (double)12;
             tmpy[5] = 0;
             tmpy[6] = 0;
-            spline1d.spline1dbuildcubic(tmpx, tmpy, alglib.ap.len(tmpx), 2, 0.0, 2, 0.0, basis1, _params);
+            spline1d.spline1dbuildcubic(tmpx, tmpy, ap.len(tmpx), 2, 0.0, 2, 0.0, basis1, _params);
 
             //
             // Solve.
@@ -26735,13 +26735,13 @@ public partial class alglib
                         //
                         // FastDDM method
                         //
-                        alglib.ap.assert(basecasex > 0, "Spline2DFit: integrity error");
-                        alglib.ap.assert(basecasey > 0, "Spline2DFit: integrity error");
+                        ap.assert(basecasex > 0, "Spline2DFit: integrity error");
+                        ap.assert(basecasey > 0, "Spline2DFit: integrity error");
                         fastddmfit(xywork, npoints, d, kx, ky, basecasex, basecasey, state.maxcoresize, state.interfacesize, state.nlayers, state.smoothing, state.lsqrcnt, basis1, s, rep, tss, _params);
                     }
                     else
                     {
-                        alglib.ap.assert(false, "Spline2DFit: integrity error");
+                        ap.assert(false, "Spline2DFit: integrity error");
                     }
                 }
             }
@@ -26910,7 +26910,7 @@ public partial class alglib
             // Header
             //
             scode = s.unserialize_int();
-            alglib.ap.assert(scode == scodes.getspline2dserializationcode(_params) || scode == scodes.getspline2dwithmissingnodesserializationcode(_params), "Spline2DUnserialize: stream header corrupted");
+            ap.assert(scode == scodes.getspline2dserializationcode(_params) || scode == scodes.getspline2dwithmissingnodesserializationcode(_params), "Spline2DUnserialize: stream header corrupted");
 
             //
             // Data
@@ -26989,7 +26989,7 @@ public partial class alglib
             dy = new double[0, 0];
             dxy = new double[0, 0];
 
-            alglib.ap.assert(apserv.imax4(bndtypebtm, bndtypetop, bndtypelft, bndtypergt, _params) <= 2 && apserv.imin4(bndtypebtm, bndtypetop, bndtypelft, bndtypergt, _params) >= 0, "SPLINE2D: integrity check 9513 failed");
+            ap.assert(apserv.imax4(bndtypebtm, bndtypetop, bndtypelft, bndtypergt, _params) <= 2 && apserv.imin4(bndtypebtm, bndtypetop, bndtypelft, bndtypergt, _params) >= 0, "SPLINE2D: integrity check 9513 failed");
             dx = new double[m, n];
             dy = new double[m, n];
             dxy = new double[m, n];
@@ -27139,8 +27139,8 @@ public partial class alglib
             dy = new double[0, 0];
             dxy = new double[0, 0];
 
-            alglib.ap.assert(m >= 2, "BicubicCalcDerivativesMissing: internal error (M<2)");
-            alglib.ap.assert(n >= 2, "BicubicCalcDerivativesMissing: internal error (N<2)");
+            ap.assert(m >= 2, "BicubicCalcDerivativesMissing: internal error (M<2)");
+            ap.assert(n >= 2, "BicubicCalcDerivativesMissing: internal error (N<2)");
 
             //
             // Allocate DX/DY/DXY and make initial fill by zeros
@@ -27286,8 +27286,8 @@ public partial class alglib
             bool result = new();
             int i = 0;
 
-            alglib.ap.assert(n >= 2, "ScanForNonmissingSegment: internal error (N<2)");
-            alglib.ap.assert(i1 <= i2, "ScanForNonmissingSegment: internal error (I1>I2)");
+            ap.assert(n >= 2, "ScanForNonmissingSegment: internal error (N<2)");
+            ap.assert(i1 <= i2, "ScanForNonmissingSegment: internal error (I1>I2)");
             result = false;
 
             //
@@ -27343,7 +27343,7 @@ public partial class alglib
                     }
                     i = i + 1;
                 }
-                alglib.ap.assert(i2 > i1, "ScanForFiniteSegment: internal error (segment is too short)");
+                ap.assert(i2 > i1, "ScanForFiniteSegment: internal error (segment is too short)");
                 result = true;
             }
             return result;
@@ -27378,20 +27378,20 @@ public partial class alglib
             dfdy = (double[])dfdy.Clone();
             d2fdxdy = (double[])d2fdxdy.Clone();
 
-            alglib.ap.assert(n >= 2, "Spline2DBuildHermiteV: N is less than 2");
-            alglib.ap.assert(m >= 2, "Spline2DBuildHermiteV: M is less than 2");
-            alglib.ap.assert(d >= 1, "Spline2DBuildHermiteV: invalid argument D (D<1)");
-            alglib.ap.assert(alglib.ap.len(x) >= n && alglib.ap.len(y) >= m, "Spline2DBuildHermiteV: X or Y is too short (Length(X/Y)<N/M)");
-            alglib.ap.assert(apserv.isfinitevector(x, n, _params) && apserv.isfinitevector(y, m, _params), "Spline2DBuildHermiteV: X or Y contains NaN or Infinite value");
+            ap.assert(n >= 2, "Spline2DBuildHermiteV: N is less than 2");
+            ap.assert(m >= 2, "Spline2DBuildHermiteV: M is less than 2");
+            ap.assert(d >= 1, "Spline2DBuildHermiteV: invalid argument D (D<1)");
+            ap.assert(ap.len(x) >= n && ap.len(y) >= m, "Spline2DBuildHermiteV: X or Y is too short (Length(X/Y)<N/M)");
+            ap.assert(apserv.isfinitevector(x, n, _params) && apserv.isfinitevector(y, m, _params), "Spline2DBuildHermiteV: X or Y contains NaN or Infinite value");
             k = n * m * d;
-            alglib.ap.assert(alglib.ap.len(f) >= k, "Spline2DBuildHermiteV: F is too short (Length(F)<N*M*D)");
-            alglib.ap.assert(apserv.isfinitevector(f, k, _params), "Spline2DBuildHermiteV: F contains NaN or Infinite value");
-            alglib.ap.assert(alglib.ap.len(dfdx) >= k, "Spline2DBuildHermiteV: dFdX is too short (Length(dFdX)<N*M*D)");
-            alglib.ap.assert(apserv.isfinitevector(dfdx, k, _params), "Spline2DBuildHermiteV: dFdX contains NaN or Infinite value");
-            alglib.ap.assert(alglib.ap.len(dfdy) >= k, "Spline2DBuildHermiteV: dFdY is too short (Length(dFdY)<N*M*D)");
-            alglib.ap.assert(apserv.isfinitevector(dfdy, k, _params), "Spline2DBuildHermiteV: dFdY contains NaN or Infinite value");
-            alglib.ap.assert(alglib.ap.len(d2fdxdy) >= k, "Spline2DBuildHermiteV: d2FdXdY is too short (Length(d2FdXdY)<N*M*D)");
-            alglib.ap.assert(apserv.isfinitevector(d2fdxdy, k, _params), "Spline2DBuildHermiteV: d2FdXdY contains NaN or Infinite value");
+            ap.assert(ap.len(f) >= k, "Spline2DBuildHermiteV: F is too short (Length(F)<N*M*D)");
+            ap.assert(apserv.isfinitevector(f, k, _params), "Spline2DBuildHermiteV: F contains NaN or Infinite value");
+            ap.assert(ap.len(dfdx) >= k, "Spline2DBuildHermiteV: dFdX is too short (Length(dFdX)<N*M*D)");
+            ap.assert(apserv.isfinitevector(dfdx, k, _params), "Spline2DBuildHermiteV: dFdX contains NaN or Infinite value");
+            ap.assert(ap.len(dfdy) >= k, "Spline2DBuildHermiteV: dFdY is too short (Length(dFdY)<N*M*D)");
+            ap.assert(apserv.isfinitevector(dfdy, k, _params), "Spline2DBuildHermiteV: dFdY contains NaN or Infinite value");
+            ap.assert(ap.len(d2fdxdy) >= k, "Spline2DBuildHermiteV: d2FdXdY is too short (Length(d2FdXdY)<N*M*D)");
+            ap.assert(apserv.isfinitevector(d2fdxdy, k, _params), "Spline2DBuildHermiteV: d2FdXdY contains NaN or Infinite value");
 
             //
             // Fill interpolant:
@@ -27501,9 +27501,9 @@ public partial class alglib
 
             nzwidth = 4;
             nzshift = 1;
-            alglib.ap.assert(npoints > 0, "Spline2DFit: integrity check failed");
-            alglib.ap.assert(kx >= nzwidth, "Spline2DFit: integrity check failed");
-            alglib.ap.assert(ky >= nzwidth, "Spline2DFit: integrity check failed");
+            ap.assert(npoints > 0, "Spline2DFit: integrity check failed");
+            ap.assert(kx >= nzwidth, "Spline2DFit: integrity check failed");
+            ap.assert(ky >= nzwidth, "Spline2DFit: integrity check failed");
             ew = 2 + d;
 
             //
@@ -27529,7 +27529,7 @@ public partial class alglib
             arows = npoints + kx * ky;
             if ((double)(smoothing) != (double)(0.0))
             {
-                alglib.ap.assert((double)(smoothing) > (double)(0.0), "Spline2DFit: integrity check failed");
+                ap.assert((double)(smoothing) > (double)(0.0), "Spline2DFit: integrity check failed");
                 arows = arows + 3 * (kx - 2) * (ky - 2);
             }
             nrs = new int[arows];
@@ -27552,7 +27552,7 @@ public partial class alglib
                 }
                 dstidx = dstidx + 3 * (kx - 2) * (ky - 2);
             }
-            alglib.ap.assert(dstidx == arows, "Spline2DFit: integrity check failed");
+            ap.assert(dstidx == arows, "Spline2DFit: integrity check failed");
             sparse.sparsecreatecrs(arows, kx * ky, nrs, av, _params);
             dstidx = 0;
             for (i = 0; i <= npoints - 1; i++)
@@ -27654,7 +27654,7 @@ public partial class alglib
                     }
                 }
             }
-            alglib.ap.assert(dstidx == arows, "Spline2DFit: integrity check failed");
+            ap.assert(dstidx == arows, "Spline2DFit: integrity check failed");
             sparse.sparsecopy(av, ah, _params);
             sparse.sparsetransposecrs(ah, _params);
         }
@@ -27701,8 +27701,8 @@ public partial class alglib
             int sfxy = 0;
             double invscalexy = 0;
 
-            alglib.ap.assert(n == (kx - 1) * scalexy + 1, "Spline2DFit.UpdateSplineTable: integrity check failed");
-            alglib.ap.assert(m == (ky - 1) * scalexy + 1, "Spline2DFit.UpdateSplineTable: integrity check failed");
+            ap.assert(n == (kx - 1) * scalexy + 1, "Spline2DFit.UpdateSplineTable: integrity check failed");
+            ap.assert(m == (ky - 1) * scalexy + 1, "Spline2DFit.UpdateSplineTable: integrity check failed");
             invscalexy = (double)1 / (double)scalexy;
             sfx = n * m * d;
             sfy = 2 * n * m * d;
@@ -27825,34 +27825,34 @@ public partial class alglib
             //
             nzwidth = 4;
             xew = 2 + d;
-            alglib.ap.assert(maxcoresize >= 2, "Spline2DFit: integrity check failed");
-            alglib.ap.assert(interfacesize >= 1, "Spline2DFit: integrity check failed");
-            alglib.ap.assert(kx >= nzwidth, "Spline2DFit: integrity check failed");
-            alglib.ap.assert(ky >= nzwidth, "Spline2DFit: integrity check failed");
+            ap.assert(maxcoresize >= 2, "Spline2DFit: integrity check failed");
+            ap.assert(interfacesize >= 1, "Spline2DFit: integrity check failed");
+            ap.assert(kx >= nzwidth, "Spline2DFit: integrity check failed");
+            ap.assert(ky >= nzwidth, "Spline2DFit: integrity check failed");
 
             //
             // Verify consistency of the grid size (KX,KY) with basecase sizes.
             // Determine full number of layers.
             //
-            alglib.ap.assert(basecasex <= maxcoresize, "Spline2DFit: integrity error");
-            alglib.ap.assert(basecasey <= maxcoresize, "Spline2DFit: integrity error");
+            ap.assert(basecasex <= maxcoresize, "Spline2DFit: integrity error");
+            ap.assert(basecasey <= maxcoresize, "Spline2DFit: integrity error");
             ntotallayers = 1;
             scalexy = 1;
             kxcur = kx;
             kycur = ky;
             while (kxcur > basecasex + 1 && kycur > basecasey + 1)
             {
-                alglib.ap.assert(kxcur % 2 == 1, "Spline2DFit: integrity error");
-                alglib.ap.assert(kycur % 2 == 1, "Spline2DFit: integrity error");
+                ap.assert(kxcur % 2 == 1, "Spline2DFit: integrity error");
+                ap.assert(kycur % 2 == 1, "Spline2DFit: integrity error");
                 kxcur = (kxcur - 1) / 2 + 1;
                 kycur = (kycur - 1) / 2 + 1;
                 scalexy = scalexy * 2;
                 apserv.inc(ref ntotallayers, _params);
             }
             invscalexy = (double)1 / (double)scalexy;
-            alglib.ap.assert((kxcur <= maxcoresize + 1 && kxcur == basecasex + 1) || kxcur % basecasex == 1, "Spline2DFit: integrity error");
-            alglib.ap.assert((kycur <= maxcoresize + 1 && kycur == basecasey + 1) || kycur % basecasey == 1, "Spline2DFit: integrity error");
-            alglib.ap.assert(kxcur == basecasex + 1 || kycur == basecasey + 1, "Spline2DFit: integrity error");
+            ap.assert((kxcur <= maxcoresize + 1 && kxcur == basecasex + 1) || kxcur % basecasex == 1, "Spline2DFit: integrity error");
+            ap.assert((kycur <= maxcoresize + 1 && kycur == basecasey + 1) || kycur % basecasey == 1, "Spline2DFit: integrity error");
+            ap.assert(kxcur == basecasex + 1 || kycur == basecasey + 1, "Spline2DFit: integrity error");
 
             //
             // Initial scaling of dataset.
@@ -27876,7 +27876,7 @@ public partial class alglib
             // cells, with contiguous storage of points in the same cell.
             // Iterate over different scales
             //
-            alglib.smp.ae_shared_pool_set_seed(pool, seed);
+            smp.ae_shared_pool_set_seed(pool, seed);
             reorderdatasetandbuildindex(xy, npoints, d, yraw, d, kxcur, kycur, ref xyindex, ref bufi, _params);
             for (scaleidx = ntotallayers - 1; scaleidx >= 0; scaleidx--)
             {
@@ -27886,8 +27886,8 @@ public partial class alglib
                     //
                     // Fit current layer
                     //
-                    alglib.ap.assert(kxcur % basecasex == 1, "Spline2DFit: integrity error");
-                    alglib.ap.assert(kycur % basecasey == 1, "Spline2DFit: integrity error");
+                    ap.assert(kxcur % basecasex == 1, "Spline2DFit: integrity error");
+                    ap.assert(kycur % basecasey == 1, "Spline2DFit: integrity error");
                     tilescount0 = kxcur / basecasex;
                     tilescount1 = kycur / basecasey;
                     fastddmfitlayer(xy, d, scalexy, xyindex, basecasex, 0, tilescount0, tilescount0, basecasey, 0, tilescount1, tilescount1, maxcoresize, interfacesize, lsqrcnt, lambdaregfastddm + smoothing * Math.Pow(lambdadecay, scaleidx), basis1, pool, spline, _params);
@@ -27920,16 +27920,16 @@ public partial class alglib
                     // needs more memory then subsequent layers, and we want to free
                     // this memory as soon as possible.
                     //
-                    alglib.smp.ae_shared_pool_clear_recycled(pool);
+                    smp.ae_shared_pool_clear_recycled(pool);
                 }
             }
 
             //
             // Post-check
             //
-            alglib.ap.assert(kxcur == kx, "Spline2DFit: integrity check failed");
-            alglib.ap.assert(kycur == ky, "Spline2DFit: integrity check failed");
-            alglib.ap.assert(scalexy == 1, "Spline2DFit: integrity check failed");
+            ap.assert(kxcur == kx, "Spline2DFit: integrity check failed");
+            ap.assert(kycur == ky, "Spline2DFit: integrity check failed");
+            ap.assert(scalexy == 1, "Spline2DFit: integrity check failed");
 
             //
             // Report
@@ -28075,15 +28075,15 @@ public partial class alglib
                 }
                 return;
             }
-            alglib.ap.assert(tiley0 == tiley1 - 1, "Spline2DFit.FastDDMFitLayer: integrity check failed");
-            alglib.ap.assert(tilex0 == tilex1 - 1, "Spline2DFit.FastDDMFitLayer: integrity check failed");
+            ap.assert(tiley0 == tiley1 - 1, "Spline2DFit.FastDDMFitLayer: integrity check failed");
+            ap.assert(tilex0 == tilex1 - 1, "Spline2DFit.FastDDMFitLayer: integrity check failed");
             tile1 = tiley0;
             tile0 = tilex0;
 
             //
             // Retrieve temporaries
             //
-            alglib.smp.ae_shared_pool_retrieve(pool, ref buf);
+            smp.ae_shared_pool_retrieve(pool, ref buf);
 
             //
             // Analyze dataset
@@ -28154,7 +28154,7 @@ public partial class alglib
             // at least 1, so we can fill the missing rightmost/bottom elements of Z by the interface
             // values.
             //
-            alglib.ap.assert(interfacesize >= 1, "Spline2DFit: integrity check failed");
+            ap.assert(interfacesize >= 1, "Spline2DFit: integrity check failed");
             sfx = spline.n * spline.m * d;
             sfy = 2 * spline.n * spline.m * d;
             sfxy = 3 * spline.n * spline.m * d;
@@ -28187,7 +28187,7 @@ public partial class alglib
             //
             // Recycle temporaries
             //
-            alglib.smp.ae_shared_pool_recycle(pool, ref buf);
+            smp.ae_shared_pool_recycle(pool, ref buf);
         }
 
 
@@ -28290,7 +28290,7 @@ public partial class alglib
             int kx = 0;
             int ky = 0;
 
-            alglib.ap.assert(xdesign.blockwidth == 4, "Spline2DFit: integrity check failed");
+            ap.assert(xdesign.blockwidth == 4, "Spline2DFit: integrity check failed");
             blockbandwidth = 3;
             d = xdesign.d;
             arows = xdesign.nrows;
@@ -28373,7 +28373,7 @@ public partial class alglib
             rep.rmserror = 0;
             rep.avgerror = 0;
             rep.maxerror = 0;
-            alglib.ap.assert(lsqrcnt > 0, "Spline2DFit: integrity failure");
+            ap.assert(lsqrcnt > 0, "Spline2DFit: integrity failure");
             apserv.rvectorsetlengthatleast(ref buf.tmp0, arows, _params);
             apserv.rvectorsetlengthatleast(ref buf.tmp1, kx * ky, _params);
             linlsqr.linlsqrcreatebuf(arows, kx * ky, buf.solver, _params);
@@ -28664,7 +28664,7 @@ public partial class alglib
             }
             for (j = 0; j <= d - 1; j++)
             {
-                alglib.ap.assert(lsqrcnt != 0, "Spline2DFit: integrity failure");
+                ap.assert(lsqrcnt != 0, "Spline2DFit: integrity failure");
                 if (lsqrcnt > 0)
                 {
 
@@ -28840,9 +28840,9 @@ public partial class alglib
         {
             int result = 0;
 
-            alglib.ap.assert(i >= 0 && i < ky, "Spline2DFit: GetCellOffset() integrity error");
-            alglib.ap.assert(j >= 0 && j < ky, "Spline2DFit: GetCellOffset() integrity error");
-            alglib.ap.assert(j >= i && j <= i + blockbandwidth, "Spline2DFit: GetCellOffset() integrity error");
+            ap.assert(i >= 0 && i < ky, "Spline2DFit: GetCellOffset() integrity error");
+            ap.assert(j >= 0 && j < ky, "Spline2DFit: GetCellOffset() integrity error");
+            ap.assert(j >= i && j <= i + blockbandwidth, "Spline2DFit: GetCellOffset() integrity error");
             result = j * (blockbandwidth + 1) * kx;
             result = result + (blockbandwidth - (j - i)) * kx;
             return result;
@@ -29123,7 +29123,7 @@ public partial class alglib
                     return;
                 }
             }
-            alglib.smp.ae_shared_pool_set_seed(pool, seed);
+            smp.ae_shared_pool_set_seed(pool, seed);
 
             //
             // Call compute workhorse
@@ -29184,7 +29184,7 @@ public partial class alglib
             //
             // Serial execution
             //
-            alglib.smp.ae_shared_pool_retrieve(pool, ref pbuf);
+            smp.ae_shared_pool_retrieve(pool, ref pbuf);
             for (i = pt0; i <= pt1 - 1; i++)
             {
                 spline2dcalcvbuf(spline, xy[i * xew + 0] * scalexy, xy[i * xew + 1] * scalexy, ref pbuf.val, _params);
@@ -29193,7 +29193,7 @@ public partial class alglib
                     xy[i * xew + 2 + j] = yraw[i * d + j] - pbuf.val[j];
                 }
             }
-            alglib.smp.ae_shared_pool_recycle(pool, ref pbuf);
+            smp.ae_shared_pool_recycle(pool, ref pbuf);
         }
 
 
@@ -29259,8 +29259,8 @@ public partial class alglib
             //
             // Set up
             //
-            alglib.ap.assert(kx >= 2, "Spline2DFit.ReorderDatasetAndBuildIndex: integrity check failed");
-            alglib.ap.assert(ky >= 2, "Spline2DFit.ReorderDatasetAndBuildIndex: integrity check failed");
+            ap.assert(kx >= 2, "Spline2DFit.ReorderDatasetAndBuildIndex: integrity check failed");
+            ap.assert(ky >= 2, "Spline2DFit.ReorderDatasetAndBuildIndex: integrity check failed");
             entrywidth = 2 + d;
             apserv.ivectorsetlengthatleast(ref xyindex, (kx - 1) * (ky - 1) + 1, _params);
             apserv.ivectorsetlengthatleast(ref bufi, npoints, _params);
@@ -29318,11 +29318,11 @@ public partial class alglib
             //
             // Set up
             //
-            alglib.ap.assert(kx >= 2, "Spline2DFit.RescaleDataset2AndRefineIndex: integrity check failed");
-            alglib.ap.assert(ky >= 2, "Spline2DFit.RescaleDataset2AndRefineIndex: integrity check failed");
-            alglib.ap.assert((kx - 1) % 2 == 0, "Spline2DFit.RescaleDataset2AndRefineIndex: integrity check failed");
-            alglib.ap.assert((ky - 1) % 2 == 0, "Spline2DFit.RescaleDataset2AndRefineIndex: integrity check failed");
-            alglib.ap.swap(ref xyindex, ref xyindexprev);
+            ap.assert(kx >= 2, "Spline2DFit.RescaleDataset2AndRefineIndex: integrity check failed");
+            ap.assert(ky >= 2, "Spline2DFit.RescaleDataset2AndRefineIndex: integrity check failed");
+            ap.assert((kx - 1) % 2 == 0, "Spline2DFit.RescaleDataset2AndRefineIndex: integrity check failed");
+            ap.assert((ky - 1) % 2 == 0, "Spline2DFit.RescaleDataset2AndRefineIndex: integrity check failed");
+            ap.swap(ref xyindex, ref xyindexprev);
             apserv.ivectorsetlengthatleast(ref xyindex, (kx - 1) * (ky - 1) + 1, _params);
             apserv.ivectorsetlengthatleast(ref bufi, npoints, _params);
 
@@ -29374,8 +29374,8 @@ public partial class alglib
             entrywidth = 2 + d;
             efficiency = 0.1;
             cost = d * (pt1 - pt0 + 1) * (Math.Log(kxnew) / Math.Log(2)) / efficiency;
-            alglib.ap.assert(xyindexprev[row0 * (kxprev - 1) + 0] == pt0, "Spline2DFit.ExpandIndexRows: integrity check failed");
-            alglib.ap.assert(xyindexprev[row1 * (kxprev - 1) + 0] == pt1, "Spline2DFit.ExpandIndexRows: integrity check failed");
+            ap.assert(xyindexprev[row0 * (kxprev - 1) + 0] == pt0, "Spline2DFit.ExpandIndexRows: integrity check failed");
+            ap.assert(xyindexprev[row1 * (kxprev - 1) + 0] == pt1, "Spline2DFit.ExpandIndexRows: integrity check failed");
 
             //
             // Parallelism
@@ -29510,7 +29510,7 @@ public partial class alglib
             // Select middle element
             //
             idxmid = idx0 + (idx1 - idx0) / 2;
-            alglib.ap.assert(idx0 < idxmid && idxmid < idx1, "Spline2D: integrity check failed");
+            ap.assert(idx0 < idxmid && idxmid < idx1, "Spline2D: integrity check failed");
             wrk0 = pt0;
             wrk1 = pt1 - 1;
             while (true)
@@ -29655,7 +29655,7 @@ public partial class alglib
             }
             if ((double)(lambdans) != (double)(0))
             {
-                alglib.ap.assert((double)(lambdans) >= (double)(0), "Spline2DFit: integrity check failed");
+                ap.assert((double)(lambdans) >= (double)(0), "Spline2DFit: integrity check failed");
                 a.ndenserows = a.ndenserows + 3 * (kx - 2) * (ky - 2);
                 a.ndensebatches = a.ndensebatches + (kx - 2) * (ky - 2);
                 a.maxbatch = Math.Max(a.maxbatch, 3);
@@ -29674,8 +29674,8 @@ public partial class alglib
             //
             // Generate rows corresponding to dataset points
             //
-            alglib.ap.assert(kx >= nzwidth, "Spline2DFit: integrity check failed");
-            alglib.ap.assert(ky >= nzwidth, "Spline2DFit: integrity check failed");
+            ap.assert(kx >= nzwidth, "Spline2DFit: integrity check failed");
+            ap.assert(ky >= nzwidth, "Spline2DFit: integrity check failed");
             apserv.rvectorsetlengthatleast(ref a.tmp0, nzwidth, _params);
             apserv.rvectorsetlengthatleast(ref a.tmp1, nzwidth, _params);
             a.batches[batchesdone] = 0;
@@ -29823,8 +29823,8 @@ public partial class alglib
             //
             // Integrity post-check
             //
-            alglib.ap.assert(batchesdone == a.ndensebatches, "Spline2DFit: integrity check failed");
-            alglib.ap.assert(rowsdone == a.ndenserows, "Spline2DFit: integrity check failed");
+            ap.assert(batchesdone == a.ndensebatches, "Spline2DFit: integrity check failed");
+            ap.assert(rowsdone == a.ndenserows, "Spline2DFit: integrity check failed");
         }
 
 
@@ -29863,8 +29863,8 @@ public partial class alglib
             int nzwidth = 0;
 
             nzwidth = 4;
-            alglib.ap.assert(a.blockwidth == nzwidth, "Spline2DFit: integrity check failed");
-            alglib.ap.assert(alglib.ap.len(x) >= a.kx * a.ky, "Spline2DFit: integrity check failed");
+            ap.assert(a.blockwidth == nzwidth, "Spline2DFit: integrity check failed");
+            ap.assert(ap.len(x) >= a.kx * a.ky, "Spline2DFit: integrity check failed");
 
             //
             // Prepare
@@ -29899,7 +29899,7 @@ public partial class alglib
                     outidx = outidx + batchsize;
                 }
             }
-            alglib.ap.assert(outidx == a.ndenserows, "Spline2DFit: integrity check failed");
+            ap.assert(outidx == a.ndenserows, "Spline2DFit: integrity check failed");
 
             //
             // Process regularizer 
@@ -29915,7 +29915,7 @@ public partial class alglib
             //
             // Post-check
             //
-            alglib.ap.assert(outidx == a.nrows, "Spline2DFit: integrity check failed");
+            ap.assert(outidx == a.nrows, "Spline2DFit: integrity check failed");
         }
 
 
@@ -29954,8 +29954,8 @@ public partial class alglib
             int nzwidth = 0;
 
             nzwidth = 4;
-            alglib.ap.assert(a.blockwidth == nzwidth, "Spline2DFit: integrity check failed");
-            alglib.ap.assert(alglib.ap.len(x) >= a.nrows, "Spline2DFit: integrity check failed");
+            ap.assert(a.blockwidth == nzwidth, "Spline2DFit: integrity check failed");
+            ap.assert(ap.len(x) >= a.nrows, "Spline2DFit: integrity check failed");
 
             //
             // Prepare
@@ -29995,7 +29995,7 @@ public partial class alglib
                     inidx = inidx + batchsize;
                 }
             }
-            alglib.ap.assert(inidx == a.ndenserows, "Spline2DFit: integrity check failed");
+            ap.assert(inidx == a.ndenserows, "Spline2DFit: integrity check failed");
 
             //
             // Process regularizer 
@@ -30011,7 +30011,7 @@ public partial class alglib
             //
             // Post-check
             //
-            alglib.ap.assert(inidx == a.nrows, "Spline2DFit: integrity check failed");
+            ap.assert(inidx == a.nrows, "Spline2DFit: integrity check failed");
         }
 
 
@@ -30061,7 +30061,7 @@ public partial class alglib
             nzwidth = 4;
             kx = a.kx;
             ky = a.ky;
-            alglib.ap.assert(a.blockwidth == nzwidth, "Spline2DFit: integrity check failed");
+            ap.assert(a.blockwidth == nzwidth, "Spline2DFit: integrity check failed");
             apserv.rmatrixsetlengthatleast(ref a.tmp2, nzwidth * nzwidth, nzwidth * nzwidth, _params);
 
             //
@@ -30322,9 +30322,9 @@ public partial class alglib
             int k = 0;
             int di = 0;
 
-            alglib.ap.assert(n >= 2, "Spline2DSortGrid: N is less than 2");
-            alglib.ap.assert(m >= 2, "Spline2DSortGrid: M is less than 2");
-            alglib.ap.assert(d >= 1, "Spline2DSortGrid: invalid argument D (D<1)");
+            ap.assert(n >= 2, "Spline2DSortGrid: N is less than 2");
+            ap.assert(m >= 2, "Spline2DSortGrid: M is less than 2");
+            ap.assert(d >= 1, "Spline2DSortGrid: invalid argument D (D<1)");
             k = n * m * d;
             for (j = 0; j <= n - 1; j++)
             {
@@ -30518,8 +30518,8 @@ public partial class alglib
             double vy = 0;
             double vxy = 0;
 
-            alglib.ap.assert(c.stype == -1 || c.stype == -3, "Spline3DCalc: incorrect C (incorrect parameter C.SType)");
-            alglib.ap.assert((math.isfinite(x) && math.isfinite(y)) && math.isfinite(z), "Spline3DCalc: X=NaN/Infinite, Y=NaN/Infinite or Z=NaN/Infinite");
+            ap.assert(c.stype == -1 || c.stype == -3, "Spline3DCalc: incorrect C (incorrect parameter C.SType)");
+            ap.assert((math.isfinite(x) && math.isfinite(y)) && math.isfinite(z), "Spline3DCalc: X=NaN/Infinite, Y=NaN/Infinite or Z=NaN/Infinite");
             if (c.d != 1)
             {
                 result = 0;
@@ -30566,7 +30566,7 @@ public partial class alglib
             int di = 0;
             int i_ = 0;
 
-            alglib.ap.assert(c.stype == -3 || c.stype == -1, "Spline3DLinTransXYZ: incorrect C (incorrect parameter C.SType)");
+            ap.assert(c.stype == -3 || c.stype == -1, "Spline3DLinTransXYZ: incorrect C (incorrect parameter C.SType)");
             x = new double[c.n];
             y = new double[c.m];
             z = new double[c.l];
@@ -30786,7 +30786,7 @@ public partial class alglib
             int i = 0;
             int j = 0;
 
-            alglib.ap.assert(c.stype == -3 || c.stype == -1, "Spline3DLinTransF: incorrect C (incorrect parameter C.SType)");
+            ap.assert(c.stype == -3 || c.stype == -1, "Spline3DLinTransF: incorrect C (incorrect parameter C.SType)");
             x = new double[c.n];
             y = new double[c.m];
             z = new double[c.l];
@@ -30833,7 +30833,7 @@ public partial class alglib
             int tblsize = 0;
             int i_ = 0;
 
-            alglib.ap.assert(c.k == 1 || c.k == 3, "Spline3DCopy: incorrect C (incorrect parameter C.K)");
+            ap.assert(c.k == 1 || c.k == 3, "Spline3DCopy: incorrect C (incorrect parameter C.K)");
             cc.k = c.k;
             cc.n = c.n;
             cc.m = c.m;
@@ -30925,9 +30925,9 @@ public partial class alglib
 
             b = new double[0];
 
-            alglib.ap.assert((oldycount > 1 && oldzcount > 1) && oldxcount > 1, "Spline3DResampleTrilinear: length/width/height less than 1");
-            alglib.ap.assert((newycount > 1 && newzcount > 1) && newxcount > 1, "Spline3DResampleTrilinear: length/width/height less than 1");
-            alglib.ap.assert(alglib.ap.len(a) >= oldycount * oldzcount * oldxcount, "Spline3DResampleTrilinear: length/width/height less than 1");
+            ap.assert((oldycount > 1 && oldzcount > 1) && oldxcount > 1, "Spline3DResampleTrilinear: length/width/height less than 1");
+            ap.assert((newycount > 1 && newzcount > 1) && newxcount > 1, "Spline3DResampleTrilinear: length/width/height less than 1");
+            ap.assert(ap.len(a) >= oldycount * oldzcount * oldxcount, "Spline3DResampleTrilinear: length/width/height less than 1");
             b = new double[newxcount * newycount * newzcount];
             for (i = 0; i <= newxcount - 1; i++)
             {
@@ -31041,15 +31041,15 @@ public partial class alglib
             int i0 = 0;
             int j0 = 0;
 
-            alglib.ap.assert(m >= 2, "Spline3DBuildTrilinearV: M<2");
-            alglib.ap.assert(n >= 2, "Spline3DBuildTrilinearV: N<2");
-            alglib.ap.assert(l >= 2, "Spline3DBuildTrilinearV: L<2");
-            alglib.ap.assert(d >= 1, "Spline3DBuildTrilinearV: D<1");
-            alglib.ap.assert((alglib.ap.len(x) >= n && alglib.ap.len(y) >= m) && alglib.ap.len(z) >= l, "Spline3DBuildTrilinearV: length of X, Y or Z is too short (Length(X/Y/Z)<N/M/L)");
-            alglib.ap.assert((apserv.isfinitevector(x, n, _params) && apserv.isfinitevector(y, m, _params)) && apserv.isfinitevector(z, l, _params), "Spline3DBuildTrilinearV: X, Y or Z contains NaN or Infinite value");
+            ap.assert(m >= 2, "Spline3DBuildTrilinearV: M<2");
+            ap.assert(n >= 2, "Spline3DBuildTrilinearV: N<2");
+            ap.assert(l >= 2, "Spline3DBuildTrilinearV: L<2");
+            ap.assert(d >= 1, "Spline3DBuildTrilinearV: D<1");
+            ap.assert((ap.len(x) >= n && ap.len(y) >= m) && ap.len(z) >= l, "Spline3DBuildTrilinearV: length of X, Y or Z is too short (Length(X/Y/Z)<N/M/L)");
+            ap.assert((apserv.isfinitevector(x, n, _params) && apserv.isfinitevector(y, m, _params)) && apserv.isfinitevector(z, l, _params), "Spline3DBuildTrilinearV: X, Y or Z contains NaN or Infinite value");
             tblsize = n * m * l * d;
-            alglib.ap.assert(alglib.ap.len(f) >= tblsize, "Spline3DBuildTrilinearV: length of F is too short (Length(F)<N*M*L*D)");
-            alglib.ap.assert(apserv.isfinitevector(f, tblsize, _params), "Spline3DBuildTrilinearV: F contains NaN or Infinite value");
+            ap.assert(ap.len(f) >= tblsize, "Spline3DBuildTrilinearV: length of F is too short (Length(F)<N*M*L*D)");
+            ap.assert(apserv.isfinitevector(f, tblsize, _params), "Spline3DBuildTrilinearV: F contains NaN or Infinite value");
 
             //
             // Fill interpolant
@@ -31217,8 +31217,8 @@ public partial class alglib
             int h = 0;
             int i = 0;
 
-            alglib.ap.assert(c.stype == -1 || c.stype == -3, "Spline3DCalcVBuf: incorrect C (incorrect parameter C.SType)");
-            alglib.ap.assert((math.isfinite(x) && math.isfinite(y)) && math.isfinite(z), "Spline3DCalcVBuf: X, Y or Z contains NaN/Infinite");
+            ap.assert(c.stype == -1 || c.stype == -3, "Spline3DCalcVBuf: incorrect C (incorrect parameter C.SType)");
+            ap.assert((math.isfinite(x) && math.isfinite(y)) && math.isfinite(z), "Spline3DCalcVBuf: X, Y or Z contains NaN/Infinite");
             apserv.rvectorsetlengthatleast(ref f, c.d, _params);
 
             //
@@ -31328,8 +31328,8 @@ public partial class alglib
         {
             f = new double[0];
 
-            alglib.ap.assert(c.stype == -1 || c.stype == -3, "Spline3DCalcV: incorrect C (incorrect parameter C.SType)");
-            alglib.ap.assert((math.isfinite(x) && math.isfinite(y)) && math.isfinite(z), "Spline3DCalcV: X=NaN/Infinite, Y=NaN/Infinite or Z=NaN/Infinite");
+            ap.assert(c.stype == -1 || c.stype == -3, "Spline3DCalcV: incorrect C (incorrect parameter C.SType)");
+            ap.assert((math.isfinite(x) && math.isfinite(y)) && math.isfinite(z), "Spline3DCalcV: X=NaN/Infinite, Y=NaN/Infinite or Z=NaN/Infinite");
             f = new double[c.d];
             spline3dcalcvbuf(c, x, y, z, ref f, _params);
         }
@@ -31413,7 +31413,7 @@ public partial class alglib
             stype = 0;
             tbl = new double[0, 0];
 
-            alglib.ap.assert(c.stype == -1, "Spline3DUnpackV: incorrect C (incorrect parameter C.SType)");
+            ap.assert(c.stype == -1, "Spline3DUnpackV: incorrect C (incorrect parameter C.SType)");
             n = c.n;
             m = c.m;
             l = c.l;
@@ -31529,8 +31529,8 @@ public partial class alglib
             fy = 0;
             fxy = 0;
 
-            alglib.ap.assert(c.stype == -1 || c.stype == -3, "Spline3DDiff: incorrect C (incorrect parameter C.SType)");
-            alglib.ap.assert(math.isfinite(x) && math.isfinite(y), "Spline3DDiff: X or Y contains NaN or Infinite value");
+            ap.assert(c.stype == -1 || c.stype == -3, "Spline3DDiff: incorrect C (incorrect parameter C.SType)");
+            ap.assert(math.isfinite(x) && math.isfinite(y), "Spline3DDiff: X or Y contains NaN or Infinite value");
 
             //
             // Prepare F, dF/dX, dF/dY, d2F/dXdY
@@ -31800,7 +31800,7 @@ public partial class alglib
             complex cplxi = 0;
             complex cplxminusi = 0;
 
-            alglib.ap.assert(maxp >= 2, "BiharmonicEvaluatorInit: MaxP<2");
+            ap.assert(maxp >= 2, "BiharmonicEvaluatorInit: MaxP<2");
             eval.maxp = maxp;
 
             //
@@ -31839,7 +31839,7 @@ public partial class alglib
                 eval.tsqrtfactorial[i] = Math.Sqrt(eval.tfactorial[i]);
             }
             eval.tdoublefactorial = new double[eval.precomputedcount];
-            alglib.ap.assert(eval.precomputedcount >= 2, "BiharmonicEvaluatorInit: integrity check 8446 failed");
+            ap.assert(eval.precomputedcount >= 2, "BiharmonicEvaluatorInit: integrity check 8446 failed");
             eval.tdoublefactorial[0] = 1;
             eval.tdoublefactorial[1] = 1;
             for (i = 2; i <= eval.precomputedcount - 1; i++)
@@ -31985,7 +31985,7 @@ public partial class alglib
             complex fmult = 0;
             int stride2 = 0;
 
-            alglib.ap.assert(xidx1 - xidx0 >= 1, "bhPanelInit: XIdx1<=XIdx0");
+            ap.assert(xidx1 - xidx0 >= 1, "bhPanelInit: XIdx1<=XIdx0");
 
             //
             // Allocate space
@@ -32300,7 +32300,7 @@ public partial class alglib
             double errbnd = 0;
             double rcand = 0;
 
-            alglib.ap.assert(math.isfinite(tol) && (double)(tol) > (double)(0), "bhPanelSetPrec: Tol<=0 or infinite");
+            ap.assert(math.isfinite(tol) && (double)(tol) > (double)(0), "bhPanelSetPrec: Tol<=0 or infinite");
             rcand = panel.rmax;
             do
             {
@@ -32367,7 +32367,7 @@ public partial class alglib
             f = 0;
             errbnd = 0;
 
-            alglib.ap.assert(panel.ny == 1, "RBF3EVAL1: NY>1");
+            ap.assert(panel.ny == 1, "RBF3EVAL1: NY>1");
 
             //
             // Center evaluation point
@@ -32591,7 +32591,7 @@ public partial class alglib
             errbnd = 0;
 
             ny = panel.ny;
-            if (alglib.ap.len(f) < ny)
+            if (ap.len(f) < ny)
             {
                 f = new double[ny];
             }
@@ -33733,10 +33733,10 @@ public partial class alglib
             rbfv3model s,
             alglib.xparams _params)
         {
-            alglib.ap.assert(nx >= 1, "RBFCreate: NX<1");
-            alglib.ap.assert(ny >= 1, "RBFCreate: NY<1");
-            alglib.ap.assert(bf == 1 || bf == 2, "RBFCreate: unsupported basis function type");
-            alglib.ap.assert(math.isfinite(bfp) && (double)(bfp) >= (double)(0), "RBFCreate: infinite or negative basis function parameter");
+            ap.assert(nx >= 1, "RBFCreate: NX<1");
+            ap.assert(ny >= 1, "RBFCreate: NY<1");
+            ap.assert(bf == 1 || bf == 2, "RBFCreate: unsupported basis function type");
+            ap.assert(math.isfinite(bfp) && (double)(bfp) >= (double)(0), "RBFCreate: infinite or negative basis function parameter");
 
             //
             // Serializable parameters
@@ -33959,15 +33959,15 @@ public partial class alglib
             double debugdamping = 0;
 
             mergetol = 1000 * math.machineepsilon;
-            alglib.ap.assert(math.isfinite(tol), "RBFV3Build: incorrect TOL");
-            alglib.ap.assert(s.nx > 0, "RBFV3Build: incorrect NX");
-            alglib.ap.assert(s.ny > 0, "RBFV3Build: incorrect NY");
-            alglib.ap.assert((bftype == 1 || bftype == 2) || bftype == 3, "RBFV3Build: incorrect BFType");
-            alglib.ap.assert((aterm == 1 || aterm == 2) || aterm == 3, "RBFV3Build: incorrect ATerm");
-            alglib.ap.assert((rbfprofile == -2 || rbfprofile == -1) || rbfprofile == 0, "RBFV3Build: incorrect RBFProfile");
+            ap.assert(math.isfinite(tol), "RBFV3Build: incorrect TOL");
+            ap.assert(s.nx > 0, "RBFV3Build: incorrect NX");
+            ap.assert(s.ny > 0, "RBFV3Build: incorrect NY");
+            ap.assert((bftype == 1 || bftype == 2) || bftype == 3, "RBFV3Build: incorrect BFType");
+            ap.assert((aterm == 1 || aterm == 2) || aterm == 3, "RBFV3Build: incorrect ATerm");
+            ap.assert((rbfprofile == -2 || rbfprofile == -1) || rbfprofile == 0, "RBFV3Build: incorrect RBFProfile");
             for (j = 0; j <= s.nx - 1; j++)
             {
-                alglib.ap.assert((double)(scaleraw[j]) > (double)(0), "RBFV2BuildHierarchical: incorrect ScaleVec");
+                ap.assert((double)(scaleraw[j]) > (double)(0), "RBFV2BuildHierarchical: incorrect ScaleVec");
             }
             nx = s.nx;
             ny = s.ny;
@@ -33980,10 +33980,10 @@ public partial class alglib
             dodetailedtrace = dotrace && ap.istraceenabled("RBF.DETAILED", _params);
             if (dotrace)
             {
-                alglib.ap.trace("\n\n");
-                alglib.ap.trace("////////////////////////////////////////////////////////////////////////////////////////////////////\n");
-                alglib.ap.trace("// DDM-RBF builder started                                                                        //\n");
-                alglib.ap.trace("////////////////////////////////////////////////////////////////////////////////////////////////////\n");
+                ap.trace("\n\n");
+                ap.trace("////////////////////////////////////////////////////////////////////////////////////////////////////\n");
+                ap.trace("// DDM-RBF builder started                                                                        //\n");
+                ap.trace("////////////////////////////////////////////////////////////////////////////////////////////////////\n");
             }
 
             //
@@ -34000,7 +34000,7 @@ public partial class alglib
             timecorrinit = 0;
             timecorrsolve = 0;
             timereeval = 0;
-            timetotal = 0 - unchecked((int)(System.DateTime.UtcNow.Ticks / 10000));
+            timetotal = 0 - unchecked((int)(DateTime.UtcNow.Ticks / 10000));
             s.dbgregqrusedforddm = false;
             s.dbgworstfirstdecay = 0.0;
             apserv.savgcounterinit(dbgfarfieldspeedup, 0.0, _params);
@@ -34033,11 +34033,11 @@ public partial class alglib
             //
             // Set algorithm parameters according to the current profile
             //
-            alglib.ap.assert((rbfprofile == -2 || rbfprofile == -1) || rbfprofile == 0, "RBFV3Build: incorrect RBFProfile");
+            ap.assert((rbfprofile == -2 || rbfprofile == -1) || rbfprofile == 0, "RBFV3Build: incorrect RBFProfile");
             if (dotrace)
             {
-                alglib.ap.trace("=== PRINTING ALGORITHM SETTINGS ====================================================================\n");
-                alglib.ap.trace(System.String.Format("TOL         = {0,0:E2}\nPROFILE     = {1,0:d}\n", tol, rbfprofile));
+                ap.trace("=== PRINTING ALGORITHM SETTINGS ====================================================================\n");
+                ap.trace(System.String.Format("TOL         = {0,0:E2}\nPROFILE     = {1,0:d}\n", tol, rbfprofile));
             }
             tol = Math.Max(tol, 1.0E-6);
             acbfglobal = 0;
@@ -34058,7 +34058,7 @@ public partial class alglib
                 //
                 if (dotrace)
                 {
-                    alglib.ap.trace("> debug profile activated\n");
+                    ap.trace("> debug profile activated\n");
                 }
                 acbfbatch = 16;
                 ddmneighbors = 3;
@@ -34087,55 +34087,55 @@ public partial class alglib
             matrixformat = 1;
             if (dotrace)
             {
-                alglib.ap.trace("=== MODEL MATRIX INITIALIZATION STARTED ============================================================\n");
-                alglib.ap.trace(System.String.Format("N           = {0,0:d}\nNX          = {1,0:d}\nNY          = {2,0:d}\n", n, nx, ny));
-                alglib.ap.trace(System.String.Format("BFType      = {0,0:d}", bftype));
+                ap.trace("=== MODEL MATRIX INITIALIZATION STARTED ============================================================\n");
+                ap.trace(System.String.Format("N           = {0,0:d}\nNX          = {1,0:d}\nNY          = {2,0:d}\n", n, nx, ny));
+                ap.trace(System.String.Format("BFType      = {0,0:d}", bftype));
                 if (bftype == 1 && (double)(bfparamraw) > (double)(0))
                 {
-                    alglib.ap.trace(System.String.Format("  ( f=sqrt(r^2+alpha^2), alpha={0,0:F3}, multiquadric with manual radius)", bfparamraw));
+                    ap.trace(System.String.Format("  ( f=sqrt(r^2+alpha^2), alpha={0,0:F3}, multiquadric with manual radius)", bfparamraw));
                 }
                 if (bftype == 1 && (double)(bfparamraw) == (double)(0))
                 {
-                    alglib.ap.trace("  ( f=r, biharmonic spline )");
+                    ap.trace("  ( f=r, biharmonic spline )");
                 }
                 if (bftype == 1 && (double)(bfparamraw) < (double)(0))
                 {
-                    alglib.ap.trace(System.String.Format("  ( f=sqrt(r^2+alpha^2), alpha=AUTO*{0,0:F3}={1,0:E2}, multiquadric )", -bfparamraw, bfparamscaled));
+                    ap.trace(System.String.Format("  ( f=sqrt(r^2+alpha^2), alpha=AUTO*{0,0:F3}={1,0:E2}, multiquadric )", -bfparamraw, bfparamscaled));
                 }
                 if (bftype == 2)
                 {
-                    alglib.ap.trace("  ( f=log(r)*r^2, thin plate spline )");
+                    ap.trace("  ( f=log(r)*r^2, thin plate spline )");
                 }
                 if (bftype == 3)
                 {
-                    alglib.ap.trace("  ( f=r^3 )");
+                    ap.trace("  ( f=r^3 )");
                 }
-                alglib.ap.trace("\n");
-                alglib.ap.trace(System.String.Format("Polinom.term= {0,0:d} ", aterm));
+                ap.trace("\n");
+                ap.trace(System.String.Format("Polinom.term= {0,0:d} ", aterm));
                 if (aterm == 1)
                 {
-                    alglib.ap.trace("(linear term)");
+                    ap.trace("(linear term)");
                 }
                 if (aterm == 2)
                 {
-                    alglib.ap.trace("(constant term)");
+                    ap.trace("(constant term)");
                 }
                 if (aterm == 3)
                 {
-                    alglib.ap.trace("(zero term)");
+                    ap.trace("(zero term)");
                 }
-                alglib.ap.trace("\n");
-                alglib.ap.trace(System.String.Format("LambdaV     = {0,0:E2} (raw value of the smoothing parameter; effective value after adjusting for data spread is {1,0:E2})\n", lambdavraw, lambdavwrk));
-                alglib.ap.trace("VarScales   = ");
+                ap.trace("\n");
+                ap.trace(System.String.Format("LambdaV     = {0,0:E2} (raw value of the smoothing parameter; effective value after adjusting for data spread is {1,0:E2})\n", lambdavraw, lambdavwrk));
+                ap.trace("VarScales   = ");
                 apserv.tracevectore3(scaleraw, 0, nx, _params);
-                alglib.ap.trace(" (raw values of variable scales)\n");
+                ap.trace(" (raw values of variable scales)\n");
             }
-            timedesign = timedesign - unchecked((int)(System.DateTime.UtcNow.Ticks / 10000));
+            timedesign = timedesign - unchecked((int)(DateTime.UtcNow.Ticks / 10000));
             modelmatrixinit(xscaled, n, nx, bftype, bfparamscaled, matrixformat, bfmatrix, _params);
-            timedesign = timedesign + unchecked((int)(System.DateTime.UtcNow.Ticks / 10000));
+            timedesign = timedesign + unchecked((int)(DateTime.UtcNow.Ticks / 10000));
             if (dotrace)
             {
-                alglib.ap.trace(System.String.Format("> model matrix initialized in {0,0:d} ms\n", timedesign));
+                ap.trace(System.String.Format("> model matrix initialized in {0,0:d} ms\n", timedesign));
             }
 
             //
@@ -34167,15 +34167,15 @@ public partial class alglib
             //
             if (dotrace)
             {
-                alglib.ap.trace("=== PRECONDITIONER CONSTRUCTION STARTED ============================================================\n");
-                alglib.ap.trace(System.String.Format("nglobal     = {0,0:d}\nnlocal      = {1,0:d}\nncorrection = {2,0:d}\nnbatch      = {3,0:d}\n", acbfglobal, acbflocal, acbfcorrection, acbfbatch));
+                ap.trace("=== PRECONDITIONER CONSTRUCTION STARTED ============================================================\n");
+                ap.trace(System.String.Format("nglobal     = {0,0:d}\nnlocal      = {1,0:d}\nncorrection = {2,0:d}\nnbatch      = {3,0:d}\n", acbfglobal, acbflocal, acbfcorrection, acbfbatch));
             }
-            timeprec = timeprec - unchecked((int)(System.DateTime.UtcNow.Ticks / 10000));
+            timeprec = timeprec - unchecked((int)(DateTime.UtcNow.Ticks / 10000));
             computeacbfpreconditioner(xscaled, n, nx, bftype, bfparamscaled, aterm, acbfbatch, acbfglobal, acbflocal, acbfcorrection, 5, 2, lambdavwrk + debugdamping, sp, _params);
-            timeprec = timeprec + unchecked((int)(System.DateTime.UtcNow.Ticks / 10000));
+            timeprec = timeprec + unchecked((int)(DateTime.UtcNow.Ticks / 10000));
             if (dotrace)
             {
-                alglib.ap.trace(System.String.Format("> ACBF preconditioner computed in {0,0:d} ms\n", timeprec));
+                ap.trace(System.String.Format("> ACBF preconditioner computed in {0,0:d} ms\n", timeprec));
             }
 
             //
@@ -34183,20 +34183,20 @@ public partial class alglib
             //
             if (dotrace)
             {
-                alglib.ap.trace("=== DOMAIN DECOMPOSITION METHOD STARTED ============================================================\n");
+                ap.trace("=== DOMAIN DECOMPOSITION METHOD STARTED ============================================================\n");
             }
             ablasf.rsetallocm(n + nx + 1, ny, 0.0, ref c2, _params);
             if (dotrace)
             {
-                alglib.ap.trace("> problem metrics and settings\n");
-                alglib.ap.trace(System.String.Format("NNeighbors  = {0,0:d}\n", ddmneighbors));
-                alglib.ap.trace(System.String.Format("NBatch      = {0,0:d}\n", ddmbatch));
-                alglib.ap.trace(System.String.Format("NCoarse     = {0,0:d}\n", ddmcoarse));
+                ap.trace("> problem metrics and settings\n");
+                ap.trace(System.String.Format("NNeighbors  = {0,0:d}\n", ddmneighbors));
+                ap.trace(System.String.Format("NBatch      = {0,0:d}\n", ddmbatch));
+                ap.trace(System.String.Format("NCoarse     = {0,0:d}\n", ddmcoarse));
             }
             ddmsolverinit(xscaled, rescaledby, n, nx, bfmatrix, bftype, bfparamscaled, lambdavwrk, aterm, sp, ddmneighbors, ddmbatch, ddmcoarse, dotrace, dodetailedtrace, ddmsolver, ref timeddminit, ref timecorrinit, _params);
             if (dotrace)
             {
-                alglib.ap.trace(System.String.Format("> DDM initialization done in {0,0:d} ms, {1,0:d} subproblems solved ({2,0:d} well-conditioned, {3,0:d} ill-conditioned)\n", timeddminit, ddmsolver.subproblemscnt, ddmsolver.cntlu, ddmsolver.cntregqr));
+                ap.trace(System.String.Format("> DDM initialization done in {0,0:d} ms, {1,0:d} subproblems solved ({2,0:d} well-conditioned, {3,0:d} ill-conditioned)\n", timeddminit, ddmsolver.subproblemscnt, ddmsolver.cntlu, ddmsolver.cntregqr));
             }
 
             //
@@ -34209,7 +34209,7 @@ public partial class alglib
             {
                 if (dotrace)
                 {
-                    alglib.ap.trace(System.String.Format("> solving for component {0,2:d}:\n", yidx));
+                    ap.trace(System.String.Format("> solving for component {0,2:d}:\n", yidx));
                 }
                 ablasf.rsetallocv(n + nx + 1, 0.0, ref y0, _params);
                 ablasf.rsetallocv(n + nx + 1, 0.0, ref y1, _params);
@@ -34223,12 +34223,12 @@ public partial class alglib
                 {
                     if (dotrace)
                     {
-                        alglib.ap.trace(System.String.Format(">> DDM iteration {0,2:d}: {1,0:E2} relative residual\n", iteridx, gmressolver.reprelres));
+                        ap.trace(System.String.Format(">> DDM iteration {0,2:d}: {1,0:E2} relative residual\n", iteridx, gmressolver.reprelres));
                     }
                     ablasf.rallocv(n + nx + 1, ref y0, _params);
                     ablasf.rallocv(n + nx + 1, ref y1, _params);
                     ddmsolverrun1(ddmsolver, gmressolver.x, n, nx, sp, bfmatrix, fasteval, fastevaltol, ref y0, ref timeddmsolve, ref timecorrsolve, _params);
-                    timereeval = timereeval - unchecked((int)(System.DateTime.UtcNow.Ticks / 10000));
+                    timereeval = timereeval - unchecked((int)(DateTime.UtcNow.Ticks / 10000));
                     fastevaluatorloadcoeffs1(fasteval, y0, _params);
                     fastevaluatorpushtol(fasteval, fastevaltol * res0nrm, _params);
                     fastevaluatorcomputeall(fasteval, ref y1, _params);
@@ -34238,7 +34238,7 @@ public partial class alglib
                     {
                         y1[i] = y1[i] + lambdavwrk * y0[i];
                     }
-                    timereeval = timereeval + unchecked((int)(System.DateTime.UtcNow.Ticks / 10000));
+                    timereeval = timereeval + unchecked((int)(DateTime.UtcNow.Ticks / 10000));
                     ablasf.rcopyv(n, y1, gmressolver.ax, _params);
                     rep.iterationscount = rep.iterationscount + 1;
                     if (iteridx == 1)
@@ -34248,7 +34248,7 @@ public partial class alglib
                     iteridx = iteridx + 1;
                 }
                 ddmsolverrun1(ddmsolver, gmressolver.xs, n, nx, sp, bfmatrix, fasteval, fastevaltol, ref x1, ref timeddmsolve, ref timecorrsolve, _params);
-                alglib.ap.assert(math.isfinite(ablasf.rdotv2(n + nx + 1, x1, _params)), "RBF3: integrity check 4359 failed");
+                ap.assert(math.isfinite(ablasf.rdotv2(n + nx + 1, x1, _params)), "RBF3: integrity check 4359 failed");
                 ablasf.rcopyvc(n + nx + 1, x1, c2, yidx, _params);
 
                 //
@@ -34258,12 +34258,12 @@ public partial class alglib
                 //       to use raw-to-work mapping in order to be able to compute correct
                 //       error metrics.
                 //
-                timereeval = timereeval - unchecked((int)(System.DateTime.UtcNow.Ticks / 10000));
+                timereeval = timereeval - unchecked((int)(DateTime.UtcNow.Ticks / 10000));
                 fastevaluatorloadcoeffs1(fasteval, x1, _params);
                 fastevaluatorpushtol(fasteval, fastevaltol * res0nrm, _params);
                 fastevaluatorcomputeall(fasteval, ref y1, _params);
                 ablasf.rgemvx(n, nx + 1, 1.0, x1t, 0, 0, 1, x1, n, 1.0, y1, 0, _params);
-                timereeval = timereeval + unchecked((int)(System.DateTime.UtcNow.Ticks / 10000));
+                timereeval = timereeval + unchecked((int)(DateTime.UtcNow.Ticks / 10000));
                 resnrm = 0;
                 for (i = 0; i <= n - 1; i++)
                 {
@@ -34278,11 +34278,11 @@ public partial class alglib
                 }
                 if (dotrace)
                 {
-                    alglib.ap.trace(System.String.Format(">> done with {0,0:E2} relative residual, GMRES completion code {1,0:d}\n", resnrm / apserv.coalesce(res0nrm, 1, _params), gmressolver.retcode));
+                    ap.trace(System.String.Format(">> done with {0,0:E2} relative residual, GMRES completion code {1,0:d}\n", resnrm / apserv.coalesce(res0nrm, 1, _params), gmressolver.retcode));
                 }
             }
             rep.rmserror = Math.Sqrt(rep.rmserror / (nraw * ny));
-            timetotal = timetotal + unchecked((int)(System.DateTime.UtcNow.Ticks / 10000));
+            timetotal = timetotal + unchecked((int)(DateTime.UtcNow.Ticks / 10000));
             if (dotrace)
             {
                 ablasf.rallocv(n, ref y0, _params);
@@ -34302,27 +34302,27 @@ public partial class alglib
                         orterr = Math.Max(orterr, Math.Abs(ablasf.rdotvr(n, y0, ortbasis, i, _params)));
                     }
                 }
-                alglib.ap.trace("=== PRINTING RBF SOLVER RESULTS ====================================================================\n");
-                alglib.ap.trace("> errors\n");
-                alglib.ap.trace(System.String.Format("RMS.err     = {0,0:E2}\n", rep.rmserror));
-                alglib.ap.trace(System.String.Format("MAX.err     = {0,0:E2}\n", rep.maxerror));
-                alglib.ap.trace(System.String.Format("ORT.err     = {0,0:E2} (orthogonality condition)\n", orterr));
-                alglib.ap.trace("> solution statistics:\n");
-                alglib.ap.trace(System.String.Format("L1-norm     = {0,0:E2}\n", l1nrm));
-                alglib.ap.trace(System.String.Format("Linf-norm   = {0,0:E2}\n", linfnrm));
-                alglib.ap.trace("> DDM iterations\n");
-                alglib.ap.trace(System.String.Format("ItsCnt      = {0,0:d}\n", rep.iterationscount));
-                alglib.ap.trace("> speedup due to far field expansions (ok to be 1.0x for datasets below 100K):\n");
-                alglib.ap.trace(System.String.Format("reeval      = {0,0:F1}x (speed-up of the model reevaluation phase)\n", apserv.savgcounterget(dbgfarfieldspeedup, _params)));
-                alglib.ap.trace(System.String.Format("overall     = {0,0:F1}x (overall speed-up)\n", (timetotal + timereeval * (apserv.savgcounterget(dbgfarfieldspeedup, _params) - 1)) / (timetotal + math.machineepsilon)));
-                alglib.ap.trace(System.String.Format("> total running time is {0,0:d} ms, including:\n", timetotal));
-                alglib.ap.trace(System.String.Format(">> model matrix generation               {0,8:d} ms\n", timedesign));
-                alglib.ap.trace(System.String.Format(">> ACBF preconditioner construction      {0,8:d} ms\n", timeprec));
-                alglib.ap.trace(System.String.Format(">> DDM solver initialization             {0,8:d} ms\n", timeddminit));
-                alglib.ap.trace(System.String.Format(">> DDM corrector initialization          {0,8:d} ms\n", timecorrinit));
-                alglib.ap.trace(System.String.Format(">> DDM solution phase                    {0,8:d} ms\n", timeddmsolve));
-                alglib.ap.trace(System.String.Format(">> DDM correction phase                  {0,8:d} ms\n", timecorrsolve));
-                alglib.ap.trace(System.String.Format(">> DDM solver model reevaluation         {0,8:d} ms\n", timereeval));
+                ap.trace("=== PRINTING RBF SOLVER RESULTS ====================================================================\n");
+                ap.trace("> errors\n");
+                ap.trace(System.String.Format("RMS.err     = {0,0:E2}\n", rep.rmserror));
+                ap.trace(System.String.Format("MAX.err     = {0,0:E2}\n", rep.maxerror));
+                ap.trace(System.String.Format("ORT.err     = {0,0:E2} (orthogonality condition)\n", orterr));
+                ap.trace("> solution statistics:\n");
+                ap.trace(System.String.Format("L1-norm     = {0,0:E2}\n", l1nrm));
+                ap.trace(System.String.Format("Linf-norm   = {0,0:E2}\n", linfnrm));
+                ap.trace("> DDM iterations\n");
+                ap.trace(System.String.Format("ItsCnt      = {0,0:d}\n", rep.iterationscount));
+                ap.trace("> speedup due to far field expansions (ok to be 1.0x for datasets below 100K):\n");
+                ap.trace(System.String.Format("reeval      = {0,0:F1}x (speed-up of the model reevaluation phase)\n", apserv.savgcounterget(dbgfarfieldspeedup, _params)));
+                ap.trace(System.String.Format("overall     = {0,0:F1}x (overall speed-up)\n", (timetotal + timereeval * (apserv.savgcounterget(dbgfarfieldspeedup, _params) - 1)) / (timetotal + math.machineepsilon)));
+                ap.trace(System.String.Format("> total running time is {0,0:d} ms, including:\n", timetotal));
+                ap.trace(System.String.Format(">> model matrix generation               {0,8:d} ms\n", timedesign));
+                ap.trace(System.String.Format(">> ACBF preconditioner construction      {0,8:d} ms\n", timeprec));
+                ap.trace(System.String.Format(">> DDM solver initialization             {0,8:d} ms\n", timeddminit));
+                ap.trace(System.String.Format(">> DDM corrector initialization          {0,8:d} ms\n", timecorrinit));
+                ap.trace(System.String.Format(">> DDM solution phase                    {0,8:d} ms\n", timeddmsolve));
+                ap.trace(System.String.Format(">> DDM correction phase                  {0,8:d} ms\n", timecorrsolve));
+                ap.trace(System.String.Format(">> DDM solver model reevaluation         {0,8:d} ms\n", timereeval));
             }
             s.bftype = bftype;
             s.bfparam = bfparamscaled;
@@ -34465,7 +34465,7 @@ public partial class alglib
             // End of stream, check that no additional data is present
             //
             k = s.unserialize_int();
-            alglib.ap.assert(k == 117256, "RBFV3Unserialize: unexpected payload detected in the data stream. Integrity check failed");
+            ap.assert(k == 117256, "RBFV3Unserialize: unexpected payload detected in the data stream. Integrity check failed");
 
             //
             // Finalize construction
@@ -34501,7 +34501,7 @@ public partial class alglib
         {
             double result = 0;
 
-            alglib.ap.assert(math.isfinite(x0), "RBFCalc1: invalid value for X0 (X0 is Inf)!");
+            ap.assert(math.isfinite(x0), "RBFCalc1: invalid value for X0 (X0 is Inf)!");
             if (s.ny != 1 || s.nx != 1)
             {
                 result = 0;
@@ -34550,8 +34550,8 @@ public partial class alglib
         {
             double result = 0;
 
-            alglib.ap.assert(math.isfinite(x0), "RBFCalc2: invalid value for X0 (X0 is Inf)!");
-            alglib.ap.assert(math.isfinite(x1), "RBFCalc2: invalid value for X1 (X1 is Inf)!");
+            ap.assert(math.isfinite(x0), "RBFCalc2: invalid value for X0 (X0 is Inf)!");
+            ap.assert(math.isfinite(x1), "RBFCalc2: invalid value for X1 (X1 is Inf)!");
             if (s.ny != 1 || s.nx != 2)
             {
                 result = 0;
@@ -34603,9 +34603,9 @@ public partial class alglib
         {
             double result = 0;
 
-            alglib.ap.assert(math.isfinite(x0), "RBFCalc3: invalid value for X0 (X0 is Inf or NaN)!");
-            alglib.ap.assert(math.isfinite(x1), "RBFCalc3: invalid value for X1 (X1 is Inf or NaN)!");
-            alglib.ap.assert(math.isfinite(x2), "RBFCalc3: invalid value for X2 (X2 is Inf or NaN)!");
+            ap.assert(math.isfinite(x0), "RBFCalc3: invalid value for X0 (X0 is Inf or NaN)!");
+            ap.assert(math.isfinite(x1), "RBFCalc3: invalid value for X1 (X1 is Inf or NaN)!");
+            ap.assert(math.isfinite(x2), "RBFCalc3: invalid value for X2 (X2 is Inf or NaN)!");
             if (s.ny != 1 || s.nx != 3)
             {
                 result = 0;
@@ -34695,15 +34695,15 @@ public partial class alglib
             int widx = 0;
             int curchunk = 0;
 
-            alglib.ap.assert(alglib.ap.len(x) >= s.nx, "RBFV3TsCalcBuf: Length(X)<NX");
-            alglib.ap.assert(apserv.isfinitevector(x, s.nx, _params), "RBFV3TsCalcBuf: X contains infinite or NaN values");
+            ap.assert(ap.len(x) >= s.nx, "RBFV3TsCalcBuf: Length(X)<NX");
+            ap.assert(apserv.isfinitevector(x, s.nx, _params), "RBFV3TsCalcBuf: X contains infinite or NaN values");
             nx = s.nx;
             ny = s.ny;
 
             //
             // Handle linear term
             //
-            if (alglib.ap.len(y) < ny)
+            if (ap.len(y) < ny)
             {
                 y = new double[ny];
             }
@@ -34723,7 +34723,7 @@ public partial class alglib
             //
             // Handle RBF term
             //
-            alglib.ap.assert((s.bftype == 1 || s.bftype == 2) || s.bftype == 3, "RBFV3TsCalcBuf: unsupported basis function type");
+            ap.assert((s.bftype == 1 || s.bftype == 2) || s.bftype == 3, "RBFV3TsCalcBuf: unsupported basis function type");
             for (j = 0; j <= nx - 1; j++)
             {
                 buf.x[j] = x[j] / s.s[j];
@@ -34799,15 +34799,15 @@ public partial class alglib
             int i = 0;
             int j = 0;
 
-            alglib.ap.assert(alglib.ap.len(x) >= s.nx, "RBFV3TsCalcBuf: Length(X)<NX");
-            alglib.ap.assert(apserv.isfinitevector(x, s.nx, _params), "RBFV3TsCalcBuf: X contains infinite or NaN values");
+            ap.assert(ap.len(x) >= s.nx, "RBFV3TsCalcBuf: Length(X)<NX");
+            ap.assert(apserv.isfinitevector(x, s.nx, _params), "RBFV3TsCalcBuf: X contains infinite or NaN values");
             nx = s.nx;
             ny = s.ny;
 
             //
             // Handle linear term
             //
-            if (alglib.ap.len(y) < ny)
+            if (ap.len(y) < ny)
             {
                 y = new double[ny];
             }
@@ -34887,19 +34887,19 @@ public partial class alglib
             int maxchunksize = 0;
             double distance0 = 0;
 
-            alglib.ap.assert(alglib.ap.len(x) >= s.nx, "RBFV3TsCalcBuf: Length(X)<NX");
-            alglib.ap.assert(apserv.isfinitevector(x, s.nx, _params), "RBFV3TsCalcBuf: X contains infinite or NaN values");
+            ap.assert(ap.len(x) >= s.nx, "RBFV3TsCalcBuf: Length(X)<NX");
+            ap.assert(apserv.isfinitevector(x, s.nx, _params), "RBFV3TsCalcBuf: X contains infinite or NaN values");
             nx = s.nx;
             ny = s.ny;
 
             //
             // Handle linear term
             //
-            if (alglib.ap.len(y) < ny)
+            if (ap.len(y) < ny)
             {
                 y = new double[ny];
             }
-            if (alglib.ap.len(dy) < s.ny * s.nx)
+            if (ap.len(dy) < s.ny * s.nx)
             {
                 dy = new double[s.ny * s.nx];
             }
@@ -34941,8 +34941,8 @@ public partial class alglib
             //
             // Handle RBF term
             //
-            alglib.ap.assert((s.bftype == 1 || s.bftype == 2) || s.bftype == 3, "RBFV3TsDiffBuf: unsupported basis function type");
-            alglib.ap.assert(s.bftype != 1 || (double)(s.bfparam) >= (double)(0), "RBFV3TsDiffBuf: inconsistent BFType/BFParam");
+            ap.assert((s.bftype == 1 || s.bftype == 2) || s.bftype == 3, "RBFV3TsDiffBuf: unsupported basis function type");
+            ap.assert(s.bftype != 1 || (double)(s.bfparam) >= (double)(0), "RBFV3TsDiffBuf: inconsistent BFType/BFParam");
             maxchunksize = s.evaluator.chunksize;
             ablasf.rallocv(maxchunksize, ref buf.evalbuf.funcbuf, _params);
             ablasf.rallocv(maxchunksize, ref buf.evalbuf.wrkbuf, _params);
@@ -35073,23 +35073,23 @@ public partial class alglib
             int maxchunksize = 0;
             double distance0 = 0;
 
-            alglib.ap.assert(alglib.ap.len(x) >= s.nx, "RBFV3TsCalcBuf: Length(X)<NX");
-            alglib.ap.assert(apserv.isfinitevector(x, s.nx, _params), "RBFV3TsCalcBuf: X contains infinite or NaN values");
+            ap.assert(ap.len(x) >= s.nx, "RBFV3TsCalcBuf: Length(X)<NX");
+            ap.assert(apserv.isfinitevector(x, s.nx, _params), "RBFV3TsCalcBuf: X contains infinite or NaN values");
             nx = s.nx;
             ny = s.ny;
 
             //
             // Handle linear term
             //
-            if (alglib.ap.len(y) < ny)
+            if (ap.len(y) < ny)
             {
                 y = new double[ny];
             }
-            if (alglib.ap.len(dy) < s.ny * s.nx)
+            if (ap.len(dy) < s.ny * s.nx)
             {
                 dy = new double[s.ny * s.nx];
             }
-            if (alglib.ap.len(d2y) < ny * nx * nx)
+            if (ap.len(d2y) < ny * nx * nx)
             {
                 d2y = new double[ny * nx * nx];
             }
@@ -35134,8 +35134,8 @@ public partial class alglib
             //
             // Handle RBF term
             //
-            alglib.ap.assert(s.bftype == 1 || s.bftype == 2, "RBFV3TsHessBuf: unsupported basis function type");
-            alglib.ap.assert(s.bftype != 1 || (double)(s.bfparam) >= (double)(0), "RBFV3TsHessBuf: inconsistent BFType/BFParam");
+            ap.assert(s.bftype == 1 || s.bftype == 2, "RBFV3TsHessBuf: unsupported basis function type");
+            ap.assert(s.bftype != 1 || (double)(s.bfparam) >= (double)(0), "RBFV3TsHessBuf: inconsistent BFType/BFParam");
             maxchunksize = s.evaluator.chunksize;
             ablasf.rallocv(maxchunksize, ref buf.evalbuf.funcbuf, _params);
             ablasf.rallocv(maxchunksize, ref buf.evalbuf.wrkbuf, _params);
@@ -35279,18 +35279,18 @@ public partial class alglib
             //
             // Perform integrity checks
             //
-            alglib.ap.assert(s.nx == 2 || s.nx == 3, "RBFGridCalcVX: integrity check failed");
-            alglib.ap.assert(((n0 >= 1 && n1 >= 1) && n2 >= 1) && n3 >= 1, "RBFGridCalcVX: integrity check failed");
-            alglib.ap.assert(s.nx >= 4 || ((alglib.ap.len(x3) >= 1 && (double)(x3[0]) == (double)(0)) && n3 == 1), "RBFGridCalcVX: integrity check failed");
-            alglib.ap.assert(s.nx >= 3 || ((alglib.ap.len(x2) >= 1 && (double)(x2[0]) == (double)(0)) && n2 == 1), "RBFGridCalcVX: integrity check failed");
-            alglib.ap.assert(s.nx >= 2 || ((alglib.ap.len(x1) >= 1 && (double)(x1[0]) == (double)(0)) && n1 == 1), "RBFGridCalcVX: integrity check failed");
-            alglib.ap.assert(!sparsey || alglib.ap.len(flagy) >= n0 * n1 * n2 * n3, "RBFGridCalcVX: integrity check failed");
+            ap.assert(s.nx == 2 || s.nx == 3, "RBFGridCalcVX: integrity check failed");
+            ap.assert(((n0 >= 1 && n1 >= 1) && n2 >= 1) && n3 >= 1, "RBFGridCalcVX: integrity check failed");
+            ap.assert(s.nx >= 4 || ((ap.len(x3) >= 1 && (double)(x3[0]) == (double)(0)) && n3 == 1), "RBFGridCalcVX: integrity check failed");
+            ap.assert(s.nx >= 3 || ((ap.len(x2) >= 1 && (double)(x2[0]) == (double)(0)) && n2 == 1), "RBFGridCalcVX: integrity check failed");
+            ap.assert(s.nx >= 2 || ((ap.len(x1) >= 1 && (double)(x1[0]) == (double)(0)) && n1 == 1), "RBFGridCalcVX: integrity check failed");
+            ap.assert(!sparsey || ap.len(flagy) >= n0 * n1 * n2 * n3, "RBFGridCalcVX: integrity check failed");
 
             //
             // Prepare shared pool
             //
             rbfv3createcalcbuffer(s, bufseed, _params);
-            alglib.smp.ae_shared_pool_set_seed(bufpool, bufseed);
+            smp.ae_shared_pool_set_seed(bufpool, bufseed);
 
             //
             // Call worker function
@@ -35447,7 +35447,7 @@ public partial class alglib
                         xwr[i, nx + ny + nx + 1] = 0;
                         recognized = true;
                     }
-                    alglib.ap.assert(recognized, "RBFV3: integrity check 5342 failed");
+                    ap.assert(recognized, "RBFV3: integrity check 5342 failed");
 
                     //
                     // Output indexes
@@ -35515,7 +35515,7 @@ public partial class alglib
             double tolgrowth = 0;
             double maxtolgrowth = 0;
 
-            alglib.ap.assert((double)(tol) > (double)(0), "RBF3PushFastEvalTol: TOL<=0");
+            ap.assert((double)(tol) > (double)(0), "RBF3PushFastEvalTol: TOL<=0");
             if (s.nc == 0)
             {
                 return;
@@ -35625,7 +35625,7 @@ public partial class alglib
             int subset1 = 0;
             int largestdim = 0;
 
-            alglib.ap.assert(idx1 > idx0, "FastEvaluatorInitRec: Idx1<=Idx0");
+            ap.assert(idx1 > idx0, "FastEvaluatorInitRec: Idx1<=Idx0");
             subsetlength = idx1 - idx0;
 
             //
@@ -35741,7 +35741,7 @@ public partial class alglib
                 coordbuf[i] = xx[ptidx[i], largestdim];
             }
             tsort.tagsortmiddleri(coordbuf, ptidx, idx0, subsetlength, _params);
-            alglib.ap.assert(subsetlength > eval.maxpanelsize, "RBF3: integrity check 2955 failed");
+            ap.assert(subsetlength > eval.maxpanelsize, "RBF3: integrity check 2955 failed");
             apserv.tiledsplit(subsetlength, apserv.icase2(subsetlength > minfarfieldsize, minfarfieldsize, eval.maxpanelsize, _params), ref subset0, ref subset1, _params);
             idxmid = idx0 + subset0;
 
@@ -35777,7 +35777,7 @@ public partial class alglib
         {
             double[] coordbuf = new double[0];
             int rootidx = 0;
-            alglib.ap.nxpool nxpool = alglib.ap.nxpool.new_nrpool();
+            alglib.ap.nxpool nxpool = ap.nxpool.new_nrpool();
             int i = 0;
             rbf3evaluatorbuffer bufseed = new();
 
@@ -35798,7 +35798,7 @@ public partial class alglib
             ablasf.rsetallocm(ny, n, 0.0, ref eval.wstoredorig, _params);
             ablasf.rallocm(n, nx, ref eval.permx, _params);
             evalbufferinit(bufseed, eval.nx, eval.maxpanelsize, _params);
-            alglib.smp.ae_shared_pool_set_seed(eval.bufferpool, bufseed);
+            smp.ae_shared_pool_set_seed(eval.bufferpool, bufseed);
             eval.usedebugcounters = usedebugcounters;
             eval.dbgpanel2panelcnt = 0;
             eval.dbgfield2panelcnt = 0;
@@ -35816,7 +35816,7 @@ public partial class alglib
             ablasf.rallocv(n, ref coordbuf, _params);
             nxpool.alloc_double(nx);
             rootidx = fastevaluatorinitrec(eval, x, eval.origptidx, coordbuf, 0, n, nxpool, _params);
-            alglib.ap.assert(rootidx == 0, "FastEvaluatorInit: integrity check for RootIdx failed");
+            ap.assert(rootidx == 0, "FastEvaluatorInit: integrity check for RootIdx failed");
         }
 
 
@@ -35883,7 +35883,7 @@ public partial class alglib
             //
             // Leaf panel
             //
-            alglib.ap.assert(panel.paneltype == 0, "RBF3: integrity check 4594 failed");
+            ap.assert(panel.paneltype == 0, "RBF3: integrity check 4594 failed");
             for (i = 0; i <= eval.ny - 1; i++)
             {
                 for (j = 0; j <= npts - 1; j++)
@@ -35909,8 +35909,8 @@ public partial class alglib
             double[] w,
             alglib.xparams _params)
         {
-            alglib.ap.assert(eval.ny == 1, "FastEvaluatorLoadCoeffs1: Eval.NY<>1");
-            alglib.ap.assert(eval.panels.getlength() > 0, "FastEvaluatorLoadCoeffs1: Length(Panels)=0");
+            ap.assert(eval.ny == 1, "FastEvaluatorLoadCoeffs1: Eval.NY<>1");
+            ap.assert(eval.panels.getlength() > 0, "FastEvaluatorLoadCoeffs1: Length(Panels)=0");
 
             //
             // Prepare problem-specific evaluator, if any
@@ -35948,8 +35948,8 @@ public partial class alglib
             double[,] w,
             alglib.xparams _params)
         {
-            alglib.ap.assert(eval.ny <= alglib.ap.rows(w), "FastEvaluatorLoadCoeffs: Eval.NY>Rows(W)");
-            alglib.ap.assert(eval.panels.getlength() > 0, "FastEvaluatorLoadCoeffs: Length(Panels)=0");
+            ap.assert(eval.ny <= ap.rows(w), "FastEvaluatorLoadCoeffs: Eval.NY>Rows(W)");
+            ap.assert(eval.panels.getlength() > 0, "FastEvaluatorLoadCoeffs: Length(Panels)=0");
 
             //
             // Prepare problem-specific evaluator, if any
@@ -36010,14 +36010,14 @@ public partial class alglib
                     if (dotrace)
                     {
                         apserv.tracespaces(dbglevel, _params);
-                        alglib.ap.trace(System.String.Format("* n={0,0:d}, |c|={1,0:E1}, r/R={2,0:F1}\n", panel.idx1 - panel.idx0, panel.bhexpansion.maxsumabs, panel.bhexpansion.useatdistance / (panel.bhexpansion.rmax + 1.0E-50)));
+                        ap.trace(System.String.Format("* n={0,0:d}, |c|={1,0:E1}, r/R={2,0:F1}\n", panel.idx1 - panel.idx0, panel.bhexpansion.maxsumabs, panel.bhexpansion.useatdistance / (panel.bhexpansion.rmax + 1.0E-50)));
                     }
                 }
 
                 //
                 // Check that far field was recognized and processed
                 //
-                alglib.ap.assert(farfieldreconfigured, "RBF3: unexpected far field at PushTolRec()");
+                ap.assert(farfieldreconfigured, "RBF3: unexpected far field at PushTolRec()");
             }
 
             //
@@ -36066,14 +36066,14 @@ public partial class alglib
         {
             bool dotrace = new();
 
-            alglib.ap.assert(math.isfinite(maxcomputeerr), "FastEvaluatorPushTol: MaxComputeErr is not finite");
-            alglib.ap.assert((double)(maxcomputeerr) >= (double)(0), "FastEvaluatorPushTol: MaxComputeErr<0");
-            alglib.ap.assert(eval.isloaded, "FastEvaluatorPushTol: coefficients are not loaded");
+            ap.assert(math.isfinite(maxcomputeerr), "FastEvaluatorPushTol: MaxComputeErr is not finite");
+            ap.assert((double)(maxcomputeerr) >= (double)(0), "FastEvaluatorPushTol: MaxComputeErr<0");
+            ap.assert(eval.isloaded, "FastEvaluatorPushTol: coefficients are not loaded");
             dotrace = ap.istraceenabled("RBF.DETAILED", _params);
             if (dotrace)
             {
-                alglib.ap.trace("----- recomputing fast eval tolerances, printing far field info ------------------------------------\n");
-                alglib.ap.trace(System.String.Format("> new tolerance is {0,0:E3}\n", maxcomputeerr));
+                ap.trace("----- recomputing fast eval tolerances, printing far field info ------------------------------------\n");
+                ap.trace(System.String.Format("> new tolerance is {0,0:E3}\n", maxcomputeerr));
             }
             fastevaluatorpushtolrec(eval, 0, dotrace, 0, maxcomputeerr, _params);
         }
@@ -36096,9 +36096,9 @@ public partial class alglib
             double distance0 = 0;
             int srcsize = 0;
 
-            alglib.ap.assert(eval.ny == 1, "RBF3Panel2Panel: ny>1");
-            alglib.ap.assert(dstpanel.paneltype == 0 && dstpanel.idx1 - dstpanel.idx0 <= eval.maxpanelsize, "RBF3: integrity check 2735 failed");
-            alglib.ap.assert(srcpanel.paneltype == 0 && srcpanel.idx1 - srcpanel.idx0 <= eval.maxpanelsize, "RBF3: integrity check 2736 failed");
+            ap.assert(eval.ny == 1, "RBF3Panel2Panel: ny>1");
+            ap.assert(dstpanel.paneltype == 0 && dstpanel.idx1 - dstpanel.idx0 <= eval.maxpanelsize, "RBF3: integrity check 2735 failed");
+            ap.assert(srcpanel.paneltype == 0 && srcpanel.idx1 - srcpanel.idx0 <= eval.maxpanelsize, "RBF3: integrity check 2736 failed");
             ndstpts = dstpanel.idx1 - dstpanel.idx0;
             srcsize = srcpanel.idx1 - srcpanel.idx0;
             distance0 = 1.0E-50;
@@ -36106,7 +36106,7 @@ public partial class alglib
             {
                 distance0 = distance0 + math.sqr(eval.funcparam);
             }
-            alglib.ap.assert(eval.functype == 1 || eval.functype == 2, "RBF3: integrity check 9132 failed");
+            ap.assert(eval.functype == 1 || eval.functype == 2, "RBF3: integrity check 9132 failed");
             for (i0 = 0; i0 <= ndstpts - 1; i0++)
             {
                 ablasf.rsetv(srcsize, distance0, buf.funcbuf, _params);
@@ -36214,7 +36214,7 @@ public partial class alglib
                         }
                         farfieldprocessed = true;
                     }
-                    alglib.ap.assert(farfieldprocessed, "RBF3: integrity check 4832 failed");
+                    ap.assert(farfieldprocessed, "RBF3: integrity check 4832 failed");
                     if (eval.usedebugcounters)
                     {
                         apserv.threadunsafeinc(ref eval.dbgfield2panelcnt, _params);
@@ -36284,7 +36284,7 @@ public partial class alglib
                 fastevaluatorcomputeallrecurseontargets(eval, dstpanel.childb, y, _params);
                 return;
             }
-            alglib.ap.assert(dstpanel.paneltype == 0, "RBF3: integrity check 2735 failed");
+            ap.assert(dstpanel.paneltype == 0, "RBF3: integrity check 2735 failed");
 
             //
             // Recurse on sources.
@@ -36313,7 +36313,7 @@ public partial class alglib
             ref double[] y,
             alglib.xparams _params)
         {
-            alglib.ap.assert(eval.ny == 1, "FastEvaluatorComputeAll: Eval.NY<>1");
+            ap.assert(eval.ny == 1, "FastEvaluatorComputeAll: Eval.NY<>1");
             ablasf.rsetallocv(eval.n, 0.0, ref y, _params);
             eval.dbgpanel2panelcnt = 0;
             eval.dbgfield2panelcnt = 0;
@@ -36411,7 +36411,7 @@ public partial class alglib
                         }
                         farfieldprocessed = true;
                     }
-                    alglib.ap.assert(farfieldprocessed, "RBF3: integrity check 4832 failed");
+                    ap.assert(farfieldprocessed, "RBF3: integrity check 4832 failed");
                     if (eval.usedebugcounters)
                     {
                         apserv.threadunsafeinc(ref eval.dbgfield2panelcnt, _params);
@@ -36429,13 +36429,13 @@ public partial class alglib
                 fastevaluatorcomputebatchrecurseonsources(eval, x, tgtidx, srcpanel.childb, usefarfields, buf, y, _params);
                 return;
             }
-            alglib.ap.assert(srcpanel.paneltype == 0 && srcpanel.idx1 - srcpanel.idx0 <= eval.maxpanelsize, "RBF3: integrity check 2735 failed");
+            ap.assert(srcpanel.paneltype == 0 && srcpanel.idx1 - srcpanel.idx0 <= eval.maxpanelsize, "RBF3: integrity check 2735 failed");
 
             //
             // Obtain evaluation buffer and process panel.
             // Recycle the buffer later.
             //
-            alglib.ap.assert(eval.functype == 1 || eval.functype == 2, "RBF3: integrity check 1132 failed");
+            ap.assert(eval.functype == 1 || eval.functype == 2, "RBF3: integrity check 1132 failed");
             srcsize = srcpanel.idx1 - srcpanel.idx0;
             distance0 = 1.0E-50;
             if (eval.functype == 1)
@@ -36555,12 +36555,12 @@ public partial class alglib
             //
             // Run recursion on sources
             //
-            alglib.smp.ae_shared_pool_retrieve(eval.bufferpool, ref buf);
+            smp.ae_shared_pool_retrieve(eval.bufferpool, ref buf);
             for (i = idx0; i <= idx1 - 1; i++)
             {
                 fastevaluatorcomputebatchrecurseonsources(eval, x, i, 0, usefarfields, buf, y, _params);
             }
-            alglib.smp.ae_shared_pool_recycle(eval.bufferpool, ref buf);
+            smp.ae_shared_pool_recycle(eval.bufferpool, ref buf);
         }
 
 
@@ -36669,7 +36669,7 @@ public partial class alglib
             // Store model coefficients in the efficient chunked format (chunk size is aligned with that
             // of the Model.Evaluator).
             //
-            alglib.ap.assert(model.evaluator.chunksize >= 1, "RBFV3: integrity check 3535 failed");
+            ap.assert(model.evaluator.chunksize >= 1, "RBFV3: integrity check 3535 failed");
             nchunks = apserv.idivup(model.nc, model.evaluator.chunksize, _params);
             ablasf.rsetallocm(nchunks * model.ny, model.evaluator.chunksize, 0.0, ref model.wchunked, _params);
             srcoffs = 0;
@@ -36774,14 +36774,14 @@ public partial class alglib
             k2 = k % apserv.idivup(n2, simdwidth, _params);
             k = k / apserv.idivup(n2, simdwidth, _params);
             k = k / apserv.idivup(n3, simdwidth, _params);
-            alglib.ap.assert(k == 0, "RBFV3: integrity check 7350 failed");
+            ap.assert(k == 0, "RBFV3: integrity check 7350 failed");
             r0a = k0 * simdwidth;
             r0b = Math.Min(r0a + simdwidth, n0);
             r1a = k1 * simdwidth;
             r1b = Math.Min(r1a + simdwidth, n1);
             r2a = k2 * simdwidth;
             r2b = Math.Min(r2a + simdwidth, n2);
-            alglib.smp.ae_shared_pool_retrieve(calcpool, ref buf);
+            smp.ae_shared_pool_retrieve(calcpool, ref buf);
             for (i = r0a; i <= r0b - 1; i++)
             {
                 for (j = r1a; j <= r1b - 1; j++)
@@ -36808,7 +36808,7 @@ public partial class alglib
                     }
                 }
             }
-            alglib.smp.ae_shared_pool_recycle(calcpool, ref buf);
+            smp.ae_shared_pool_recycle(calcpool, ref buf);
         }
 
 
@@ -36867,23 +36867,23 @@ public partial class alglib
             rbfv3calcbuffer buf,
             alglib.xparams _params)
         {
-            if (alglib.ap.len(buf.x) < s.nx)
+            if (ap.len(buf.x) < s.nx)
             {
                 buf.x = new double[s.nx];
             }
-            if (alglib.ap.len(buf.x123) < s.nx)
+            if (ap.len(buf.x123) < s.nx)
             {
                 buf.x123 = new double[s.nx];
             }
-            if (alglib.ap.len(buf.y123) < s.ny)
+            if (ap.len(buf.y123) < s.ny)
             {
                 buf.y123 = new double[s.ny];
             }
-            if (alglib.ap.len(buf.xg) < 4)
+            if (ap.len(buf.xg) < 4)
             {
                 buf.xg = new double[4];
             }
-            if (alglib.ap.len(buf.yg) < s.ny)
+            if (ap.len(buf.yg) < s.ny)
             {
                 buf.yg = new double[s.ny];
             }
@@ -36996,8 +36996,8 @@ public partial class alglib
                     k0 = k0 + 1;
                     k1 = k1 - 1;
                 }
-                alglib.ap.assert(k0 > wrk0 && k1 < wrk1 - 1, "RBFV3: integrity check 5843 in the recursive subdivision code failed");
-                alglib.ap.assert(k0 == k1 + 1, "RBFV3: integrity check 5364 in the recursive subdivision code failed");
+                ap.assert(k0 > wrk0 && k1 < wrk1 - 1, "RBFV3: integrity check 5843 in the recursive subdivision code failed");
+                ap.assert(k0 == k1 + 1, "RBFV3: integrity check 5364 in the recursive subdivision code failed");
                 preprocessdatasetrec(xbuf, ybuf, initidx, wrk0, k0, nx, ny, mergetol, ref tmpboxmin, ref tmpboxmax, xout, yout, raw2wrkmap, wrk2rawmap, ref nout, _params);
                 preprocessdatasetrec(xbuf, ybuf, initidx, k0, wrk1, nx, ny, mergetol, ref tmpboxmin, ref tmpboxmax, xout, yout, raw2wrkmap, wrk2rawmap, ref nout, _params);
             }
@@ -37086,7 +37086,7 @@ public partial class alglib
             lambdavwrk = 0;
             addxrescaleaplied = 0;
 
-            alglib.ap.assert(nraw >= 1, "RBFV3: integrity check 7295 failed");
+            ap.assert(nraw >= 1, "RBFV3: integrity check 7295 failed");
 
             //
             // Scale dataset:
@@ -37147,7 +37147,7 @@ public partial class alglib
                 }
                 else
                 {
-                    alglib.ap.assert(false, "RBFV3: integrity check 0632 failed");
+                    ap.assert(false, "RBFV3: integrity check 0632 failed");
                 }
             }
             ablasf.rmulv(nx, addxrescaleaplied, xscalewrk, _params);
@@ -37209,7 +37209,7 @@ public partial class alglib
                 else
                 {
                     lambdavwrk = lambdavraw;
-                    alglib.ap.assert(false, "RBFV3: integrity check 7232 failed");
+                    ap.assert(false, "RBFV3: integrity check 7232 failed");
                 }
             }
             lambdavwrk = lambdavwrk / math.sqr(addxrescaleaplied);
@@ -37251,9 +37251,9 @@ public partial class alglib
             nchosen = 0;
             maxdist = 0;
 
-            alglib.ap.assert(n >= 1, "RBFV3: integrity check 6429 failed");
-            alglib.ap.assert(nexisting >= 0, "RBFV3: integrity check 6412 failed");
-            alglib.ap.assert(nspec >= 1, "RBFV3: integrity check 6430 failed");
+            ap.assert(n >= 1, "RBFV3: integrity check 6429 failed");
+            ap.assert(nexisting >= 0, "RBFV3: integrity check 6412 failed");
+            ap.assert(nspec >= 1, "RBFV3: integrity check 6430 failed");
             nspec = Math.Min(nspec, n);
             ablasf.rsetallocv(n, 1.0E50, ref d2, _params);
             ablasf.rsetallocv(nx, 0.0, ref x, _params);
@@ -37276,7 +37276,7 @@ public partial class alglib
                 //
                 //
                 //
-                alglib.ap.assert(false, "SelectGlobalNodes: NExisting<>0");
+                ap.assert(false, "SelectGlobalNodes: NExisting<>0");
             }
             ablasf.iallocv(nspec, ref nodes, _params);
             nchosen = 0;
@@ -37320,7 +37320,7 @@ public partial class alglib
                 nchosen = nchosen + 1;
             }
             maxdist = Math.Sqrt(maxdist);
-            alglib.ap.assert(nchosen >= 1 || nexisting > 0, "RBFV3: integrity check 6431 failed");
+            ap.assert(nchosen >= 1 || nexisting > 0, "RBFV3: integrity check 6431 failed");
         }
 
 
@@ -37351,9 +37351,9 @@ public partial class alglib
             int[] idx = new int[0];
             hqrnd.hqrndstate rs = new();
 
-            alglib.ap.assert(n >= 1, "BuildSimplifiedKDTree: N<1");
-            alglib.ap.assert(reducefactor >= 1, "BuildSimplifiedKDTree: ReduceFactor<1");
-            alglib.ap.assert(minsize >= 0, "BuildSimplifiedKDTree: ReduceFactor<1");
+            ap.assert(n >= 1, "BuildSimplifiedKDTree: N<1");
+            ap.assert(reducefactor >= 1, "BuildSimplifiedKDTree: ReduceFactor<1");
+            ap.assert(minsize >= 0, "BuildSimplifiedKDTree: ReduceFactor<1");
             hqrnd.hqrndseed(7674, 45775, rs, _params);
             ns = apserv.imax3((int)Math.Round((double)n / (double)reducefactor), minsize, 1, _params);
             ns = Math.Min(ns, n);
@@ -37417,7 +37417,7 @@ public partial class alglib
             // * for NWrk<=I<NWrk+NX    X[scatter[j]], coordinate #(i-NWrk)
             // * for I=NWrk+NX          1.0
             //
-            alglib.ap.assert((functype == 1 || functype == 2) || functype == 3, "ACBF: unexpected basis function type");
+            ap.assert((functype == 1 || functype == 2) || functype == 3, "ACBF: unexpected basis function type");
             alpha2 = funcparam * funcparam;
             ablasf.rallocm(nwrk + nx + 1, nwrk, ref atwrk, _params);
             for (i = 0; i <= nwrk - 1; i++)
@@ -37763,8 +37763,8 @@ public partial class alglib
             //
             if (builder.aterm != 1 || !iscpdfunction(builder.functype, builder.aterm, _params))
             {
-                alglib.ap.assert((double)(builder.lambdav) >= (double)(0), "RBF3: integrity check 8363 failed");
-                alglib.ap.assert((builder.aterm == 1 || builder.aterm == 2) || builder.aterm == 3, "RBF3: integrity check 8364 failed");
+                ap.assert((double)(builder.lambdav) >= (double)(0), "RBF3: integrity check 8363 failed");
+                ap.assert((builder.aterm == 1 || builder.aterm == 2) || builder.aterm == 3, "RBF3: integrity check 8364 failed");
 
                 //
                 // Basis function has no conditional positive definiteness guarantees (given the linear term type).
@@ -37843,8 +37843,8 @@ public partial class alglib
             }
             else
             {
-                alglib.ap.assert((double)(builder.lambdav) >= (double)(0), "RBF3: integrity check 8368 failed");
-                alglib.ap.assert(builder.aterm == 1, "RBF3: integrity check 7365 failed");
+                ap.assert((double)(builder.lambdav) >= (double)(0), "RBF3: integrity check 8368 failed");
+                ap.assert(builder.aterm == 1, "RBF3: integrity check 7365 failed");
                 ncoeff = ncenters + nx + 1;
 
                 //
@@ -37960,7 +37960,7 @@ public partial class alglib
                 //
                 if (!trfac.spdmatrixcholeskyrec(buf.q, 0, ncenters, false, ref buf.choltmp, _params))
                 {
-                    alglib.ap.assert(false, "RBFV3: ACBF solver failed due to extreme degeneracy");
+                    ap.assert(false, "RBFV3: ACBF solver failed due to extreme degeneracy");
                 }
                 ablas.rmatrixrighttrsm(batchsize, ncenters, buf.q, 0, 0, false, false, 1, buf.b, 0, 0, _params);
                 ablas.rmatrixrighttrsm(batchsize, ncenters, buf.q, 0, 0, false, false, 0, buf.b, 0, 0, _params);
@@ -38022,16 +38022,16 @@ public partial class alglib
                             dbgerrort = Math.Max(dbgerrort, Math.Abs(ablasf.rdotrr(ncenters, buf.b, i, buf.q1, j, _params)));
                         }
                     }
-                    alglib.ap.trace(System.String.Format("[ACBF_subprob]    BatchSize={0,3:d}    NCenters={1,4:d}    RadiusExpansions={2,0:d}    cond(Q)={3,0:E2}    max|C|={4,0:E2}    rmsErr={5,0:E2}    OrtErr={6,0:E2}\n", batchsize, ncenters, expansionscount, dbgcondq, dbgmaxc, dbgerrnodes, dbgerrort));
+                    ap.trace(System.String.Format("[ACBF_subprob]    BatchSize={0,3:d}    NCenters={1,4:d}    RadiusExpansions={2,0:d}    cond(Q)={3,0:E2}    max|C|={4,0:E2}    rmsErr={5,0:E2}    OrtErr={6,0:E2}\n", batchsize, ncenters, expansionscount, dbgcondq, dbgmaxc, dbgerrnodes, dbgerrort));
                 }
             }
 
             //
             // Solve and save solution to Builder.ChunksPool
             //
-            alglib.smp.ae_shared_pool_retrieve(builder.chunksproducer, ref precchunk);
-            alglib.ap.assert(precchunk.ntargetrows == -117, "RBFV3: integrity check 9724 failed");
-            alglib.ap.assert(precchunk.ntargetcols == -119, "RBFV3: integrity check 9725 failed");
+            smp.ae_shared_pool_retrieve(builder.chunksproducer, ref precchunk);
+            ap.assert(precchunk.ntargetrows == -117, "RBFV3: integrity check 9724 failed");
+            ap.assert(precchunk.ntargetcols == -119, "RBFV3: integrity check 9725 failed");
             precchunk.ntargetrows = batchsize;
             precchunk.ntargetcols = ncoeff;
             ablasf.iallocv(precchunk.ntargetrows, ref precchunk.targetrows, _params);
@@ -38062,7 +38062,7 @@ public partial class alglib
                     precchunk.s[widx, k] = buf.b[widx, buf.perm[k]];
                 }
             }
-            alglib.smp.ae_shared_pool_recycle(builder.chunkspool, ref precchunk);
+            smp.ae_shared_pool_recycle(builder.chunkspool, ref precchunk);
         }
 
 
@@ -38116,7 +38116,7 @@ public partial class alglib
             //
             // Retrieve temporary buffer
             //
-            alglib.smp.ae_shared_pool_retrieve(builder.bufferpool, ref buf);
+            smp.ae_shared_pool_retrieve(builder.bufferpool, ref buf);
 
             //
             // Analyze current working set
@@ -38157,7 +38157,7 @@ public partial class alglib
                 //
                 // Recycle temporary buffers
                 //
-                alglib.smp.ae_shared_pool_recycle(builder.bufferpool, ref buf);
+                smp.ae_shared_pool_recycle(builder.bufferpool, ref buf);
             }
             else
             {
@@ -38184,13 +38184,13 @@ public partial class alglib
                     k0 = k0 + 1;
                     k1 = k1 - 1;
                 }
-                alglib.ap.assert(k0 > wrk0 && k1 < wrk1 - 1, "ACBF: integrity check 2843 in the recursive subdivision code failed");
-                alglib.ap.assert(k0 == k1 + 1, "ACBF: integrity check 8364 in the recursive subdivision code failed");
+                ap.assert(k0 > wrk0 && k1 < wrk1 - 1, "ACBF: integrity check 2843 in the recursive subdivision code failed");
+                ap.assert(k0 == k1 + 1, "ACBF: integrity check 8364 in the recursive subdivision code failed");
 
                 //
                 // Recycle temporary buffer, perform recursive calls
                 //
-                alglib.smp.ae_shared_pool_recycle(builder.bufferpool, ref buf);
+                smp.ae_shared_pool_recycle(builder.bufferpool, ref buf);
                 computeacbfpreconditionerrecv2(builder, wrk0, k0, _params);
                 computeacbfpreconditionerrecv2(builder, k0, wrk1, _params);
             }
@@ -38252,7 +38252,7 @@ public partial class alglib
             double[] boxmin = new double[0];
             double[] boxmax = new double[0];
 
-            alglib.ap.assert(n >= 1, "RBFV3: integrity check 2524 failed");
+            ap.assert(n >= 1, "RBFV3: integrity check 2524 failed");
 
             //
             // Prepare builder
@@ -38306,26 +38306,26 @@ public partial class alglib
             nearestneighbor.kdtreecreaterequestbuffer(builder.kdt, bufferseed.kdtbuf, _params);
             nearestneighbor.kdtreecreaterequestbuffer(builder.kdt1, bufferseed.kdt1buf, _params);
             nearestneighbor.kdtreecreaterequestbuffer(builder.kdt2, bufferseed.kdt2buf, _params);
-            alglib.smp.ae_shared_pool_set_seed(builder.bufferpool, bufferseed);
+            smp.ae_shared_pool_set_seed(builder.bufferpool, bufferseed);
             chunkseed.ntargetrows = -117;
             chunkseed.ntargetcols = -119;
-            alglib.smp.ae_shared_pool_set_seed(builder.chunksproducer, chunkseed);
-            alglib.smp.ae_shared_pool_set_seed(builder.chunkspool, chunkseed);
+            smp.ae_shared_pool_set_seed(builder.chunksproducer, chunkseed);
+            smp.ae_shared_pool_set_seed(builder.chunkspool, chunkseed);
 
             //
             // Prepare preconditioner matrix
             //
             computeacbfpreconditionerrecv2(builder, 0, n, _params);
             ablasf.isetallocv(n, -1, ref rowsizes, _params);
-            alglib.smp.ae_shared_pool_first_recycled(builder.chunkspool, ref precchunk);
+            smp.ae_shared_pool_first_recycled(builder.chunkspool, ref precchunk);
             while (precchunk != null)
             {
                 for (i = 0; i <= precchunk.ntargetrows - 1; i++)
                 {
-                    alglib.ap.assert(rowsizes[precchunk.targetrows[i]] == -1, "RBFV3: integrity check 2568 failed");
+                    ap.assert(rowsizes[precchunk.targetrows[i]] == -1, "RBFV3: integrity check 2568 failed");
                     rowsizes[precchunk.targetrows[i]] = precchunk.ntargetcols;
                 }
-                alglib.smp.ae_shared_pool_next_recycled(builder.chunkspool, ref precchunk);
+                smp.ae_shared_pool_next_recycled(builder.chunkspool, ref precchunk);
             }
             sp.matrixtype = 1;
             sp.m = n + nx + 1;
@@ -38334,7 +38334,7 @@ public partial class alglib
             sp.ridx[0] = 0;
             for (i = 0; i <= n - 1; i++)
             {
-                alglib.ap.assert(rowsizes[i] > 0, "RBFV3: integrity check 2668 failed");
+                ap.assert(rowsizes[i] > 0, "RBFV3: integrity check 2668 failed");
                 sp.ridx[i + 1] = sp.ridx[i] + rowsizes[i];
             }
             for (i = n; i <= n + nx; i++)
@@ -38348,7 +38348,7 @@ public partial class alglib
                 sp.idx[sp.ridx[i]] = i;
                 sp.vals[sp.ridx[i]] = 1.0;
             }
-            alglib.smp.ae_shared_pool_first_recycled(builder.chunkspool, ref precchunk);
+            smp.ae_shared_pool_first_recycled(builder.chunkspool, ref precchunk);
             while (precchunk != null)
             {
                 for (i = 0; i <= precchunk.ntargetrows - 1; i++)
@@ -38360,7 +38360,7 @@ public partial class alglib
                         sp.vals[offs + j] = precchunk.s[i, j];
                     }
                 }
-                alglib.smp.ae_shared_pool_next_recycled(builder.chunkspool, ref precchunk);
+                smp.ae_shared_pool_next_recycled(builder.chunkspool, ref precchunk);
             }
             sp.ninitialized = sp.ridx[sp.m];
             sparse.sparseinitduidx(sp, _params);
@@ -38436,8 +38436,8 @@ public partial class alglib
             double[,] subsp = new double[0, 0];
             double[,] dbga = new double[0, 0];
 
-            alglib.ap.assert(tgt1 - tgt0 > 0, "RBFV3: integrity check 7364 failed");
-            alglib.ap.assert(nneighbors >= 0, "RBFV3: integrity check 7365 failed");
+            ap.assert(tgt1 - tgt0 > 0, "RBFV3: integrity check 7364 failed");
+            ap.assert(nneighbors >= 0, "RBFV3: integrity check 7365 failed");
             reg = (100 + Math.Sqrt(tgt1 - tgt0 + nneighbors)) * math.machineepsilon;
 
             //
@@ -38447,8 +38447,8 @@ public partial class alglib
             //
             // Start initialization
             //
-            alglib.smp.ae_shared_pool_retrieve(solver.subproblemsbuffer, ref subproblem);
-            alglib.ap.assert(!subproblem.isvalid, "RBFV3: SubproblemsBuffer integrity check failed");
+            smp.ae_shared_pool_retrieve(solver.subproblemsbuffer, ref subproblem);
+            ap.assert(!subproblem.isvalid, "RBFV3: SubproblemsBuffer integrity check failed");
             subproblem.isvalid = true;
             subproblem.ntarget = tgt1 - tgt0;
             ablasf.iallocv(tgt1 - tgt0, ref subproblem.targetnodes, _params);
@@ -38493,7 +38493,7 @@ public partial class alglib
             {
                 buf.bflags[workingnodes[i]] = false;
             }
-            alglib.ap.assert(nwrk > 0, "ACBF: integrity check for NWrk failed");
+            ap.assert(nwrk > 0, "ACBF: integrity check for NWrk failed");
             subproblem.nwork = nwrk;
             ablasf.icopyallocv(nwrk, workingnodes, ref subproblem.workingnodes, _params);
 
@@ -38525,7 +38525,7 @@ public partial class alglib
             }
             for (j = n; j <= n + nx; j++)
             {
-                alglib.ap.assert(!buf.bflags[j], "RBFV3: integrity check 9435 failed");
+                ap.assert(!buf.bflags[j], "RBFV3: integrity check 9435 failed");
                 buf.bflags[j] = true;
                 ablasf.igrowv(npreccol + 1, ref preccolumns, _params);
                 preccolumns[npreccol] = j;
@@ -38586,7 +38586,7 @@ public partial class alglib
                 lusuccess = true;
                 if (dodetailedtrace)
                 {
-                    alglib.ap.trace(System.String.Format(">> DDM subproblem:  LU success, |target|={0,4:d},  |wrk|={1,4:d},  |preccol|={2,4:d}, cond(LU)={3,0:E2}\n", tgt1 - tgt0, nwrk, npreccol, 1 / (lurcond + math.machineepsilon)));
+                    ap.trace(System.String.Format(">> DDM subproblem:  LU success, |target|={0,4:d},  |wrk|={1,4:d},  |preccol|={2,4:d}, cond(LU)={3,0:E2}\n", tgt1 - tgt0, nwrk, npreccol, 1 / (lurcond + math.machineepsilon)));
                 }
             }
             else
@@ -38611,7 +38611,7 @@ public partial class alglib
                 subproblem.decomposition = 1;
                 if (dodetailedtrace)
                 {
-                    alglib.ap.trace(System.String.Format(">> DDM subproblem:  LU failure, using reg-QR, |target|={0,4:d},  |wrk|={1,4:d},  |preccol|={2,4:d}, cond(R)={3,0:E2} (cond(LU)={4,0:E2})\n", tgt1 - tgt0, nwrk, npreccol, 1 / (rcond.rmatrixtrrcondinf(subproblem.wrkr, nwrk, true, false, _params) + math.machineepsilon), 1 / (lurcond + math.machineepsilon)));
+                    ap.trace(System.String.Format(">> DDM subproblem:  LU failure, using reg-QR, |target|={0,4:d},  |wrk|={1,4:d},  |preccol|={2,4:d}, cond(R)={3,0:E2} (cond(LU)={4,0:E2})\n", tgt1 - tgt0, nwrk, npreccol, 1 / (rcond.rmatrixtrrcondinf(subproblem.wrkr, nwrk, true, false, _params) + math.machineepsilon), 1 / (lurcond + math.machineepsilon)));
                 }
             }
 
@@ -38619,7 +38619,7 @@ public partial class alglib
             // Subproblem is ready.
             // Move it to the SubproblemsPool
             //
-            alglib.smp.ae_shared_pool_recycle(solver.subproblemspool, ref subproblem);
+            smp.ae_shared_pool_recycle(solver.subproblemspool, ref subproblem);
         }
 
 
@@ -38690,7 +38690,7 @@ public partial class alglib
             //
             // Retrieve temporary buffer
             //
-            alglib.smp.ae_shared_pool_retrieve(solver.bufferpool, ref buf);
+            smp.ae_shared_pool_retrieve(solver.bufferpool, ref buf);
 
             //
             // Analyze current working set
@@ -38731,7 +38731,7 @@ public partial class alglib
                 //
                 // Recycle temporary buffers
                 //
-                alglib.smp.ae_shared_pool_recycle(solver.bufferpool, ref buf);
+                smp.ae_shared_pool_recycle(solver.bufferpool, ref buf);
             }
             else
             {
@@ -38758,13 +38758,13 @@ public partial class alglib
                     k0 = k0 + 1;
                     k1 = k1 - 1;
                 }
-                alglib.ap.assert(k0 > wrk0 && k1 < wrk1 - 1, "ACBF: integrity check 2843 in the recursive subdivision code failed");
-                alglib.ap.assert(k0 == k1 + 1, "ACBF: integrity check 8364 in the recursive subdivision code failed");
+                ap.assert(k0 > wrk0 && k1 < wrk1 - 1, "ACBF: integrity check 2843 in the recursive subdivision code failed");
+                ap.assert(k0 == k1 + 1, "ACBF: integrity check 8364 in the recursive subdivision code failed");
 
                 //
                 // Recycle temporary buffer, perform recursive calls
                 //
-                alglib.smp.ae_shared_pool_recycle(solver.bufferpool, ref buf);
+                smp.ae_shared_pool_recycle(solver.bufferpool, ref buf);
                 ddmsolverinitrec(solver, x, n, nx, bfmatrix, lambdav, sp, wrkidx, wrk0, k0, nneighbors, nbatch, dodetailedtrace, _params);
                 ddmsolverinitrec(solver, x, n, nx, bfmatrix, lambdav, sp, wrkidx, k0, wrk1, nneighbors, nbatch, dodetailedtrace, _params);
             }
@@ -38866,12 +38866,12 @@ public partial class alglib
             timeddminit = 0;
             timecorrinit = 0;
 
-            alglib.ap.assert((aterm == 1 || aterm == 2) || aterm == 3, "RBF3: integrity check 3320 failed");
+            ap.assert((aterm == 1 || aterm == 2) || aterm == 3, "RBF3: integrity check 3320 failed");
 
             //
             // Start DDM part
             //
-            timeddminit = unchecked((int)(System.DateTime.UtcNow.Ticks / 10000));
+            timeddminit = unchecked((int)(DateTime.UtcNow.Ticks / 10000));
 
             //
             // Save problem info
@@ -38896,20 +38896,20 @@ public partial class alglib
             ablasf.rallocv(nx, ref bufferseed.tmpboxmin, _params);
             ablasf.rallocv(nx, ref bufferseed.tmpboxmax, _params);
             nearestneighbor.kdtreecreaterequestbuffer(solver.kdt, bufferseed.kdtbuf, _params);
-            alglib.smp.ae_shared_pool_set_seed(solver.bufferpool, bufferseed);
+            smp.ae_shared_pool_set_seed(solver.bufferpool, bufferseed);
 
             //
             // Prepare default subproblems buffer, run recursive procedure
             // and count subproblems in the buffer
             //
             subproblem.isvalid = false;
-            alglib.smp.ae_shared_pool_set_seed(solver.subproblemspool, subproblem);
-            alglib.smp.ae_shared_pool_set_seed(solver.subproblemsbuffer, subproblem);
+            smp.ae_shared_pool_set_seed(solver.subproblemspool, subproblem);
+            smp.ae_shared_pool_set_seed(solver.subproblemsbuffer, subproblem);
             ddmsolverinitrec(solver, x, n, nx, bfmatrix, solver.lambdav, sp, idx, 0, n, nneighbors, nbatch, dodetailedtrace, _params);
             solver.subproblemscnt = 0;
             solver.cntlu = 0;
             solver.cntregqr = 0;
-            alglib.smp.ae_shared_pool_first_recycled(solver.subproblemspool, ref p);
+            smp.ae_shared_pool_first_recycled(solver.subproblemspool, ref p);
             while (p != null)
             {
                 solver.subproblemscnt = solver.subproblemscnt + 1;
@@ -38921,27 +38921,27 @@ public partial class alglib
                 {
                     apserv.inc(ref solver.cntregqr, _params);
                 }
-                alglib.smp.ae_shared_pool_next_recycled(solver.subproblemspool, ref p);
+                smp.ae_shared_pool_next_recycled(solver.subproblemspool, ref p);
             }
-            alglib.ap.assert(solver.cntlu + solver.cntregqr == solver.subproblemscnt, "RBFV3: integrity check 5296 failed");
-            alglib.ap.assert(solver.subproblemscnt > 0, "RBFV3: subproblems pool is empty, critical integrity check failed");
+            ap.assert(solver.cntlu + solver.cntregqr == solver.subproblemscnt, "RBFV3: integrity check 5296 failed");
+            ap.assert(solver.subproblemscnt > 0, "RBFV3: subproblems pool is empty, critical integrity check failed");
 
             //
             // DDM part is done
             //
-            timeddminit = unchecked((int)(System.DateTime.UtcNow.Ticks / 10000)) - timeddminit;
+            timeddminit = unchecked((int)(DateTime.UtcNow.Ticks / 10000)) - timeddminit;
             if (dotrace)
             {
-                alglib.ap.trace(System.String.Format("> DDM part was prepared in {0,0:d} ms, {1,0:d} subproblems solved ({2,0:d} well-conditioned, {3,0:d} ill-conditioned)\n", timeddminit, solver.subproblemscnt, solver.cntlu, solver.cntregqr));
+                ap.trace(System.String.Format("> DDM part was prepared in {0,0:d} ms, {1,0:d} subproblems solved ({2,0:d} well-conditioned, {3,0:d} ill-conditioned)\n", timeddminit, solver.subproblemscnt, solver.cntlu, solver.cntregqr));
             }
 
             //
             // Prepare correction spline
             //
-            timecorrinit = unchecked((int)(System.DateTime.UtcNow.Ticks / 10000));
+            timecorrinit = unchecked((int)(DateTime.UtcNow.Ticks / 10000));
             selectglobalnodes(x, n, nx, idummy, 0, ncorrector, ref solver.corrnodes, ref solver.ncorrector, ref correctorgridseparation, _params);
             ncorrector = solver.ncorrector;
-            alglib.ap.assert(ncorrector > 0, "RBFV3: NCorrector=0");
+            ap.assert(ncorrector > 0, "RBFV3: NCorrector=0");
             nsys = ncorrector + nx + 1;
             ablasf.rsetallocm(2 * nsys, nsys, 0.0, ref corrsys, _params);
             ablasf.rallocm(ncorrector, nx, ref solver.corrx, _params);
@@ -39014,16 +39014,16 @@ public partial class alglib
             ortfac.rmatrixqr(corrsys, 2 * nsys, nsys, ref corrtau, _params);
             ortfac.rmatrixqrunpackq(corrsys, 2 * nsys, nsys, corrtau, nsys, ref solver.corrq, _params);
             ortfac.rmatrixqrunpackr(corrsys, 2 * nsys, nsys, ref solver.corrr, _params);
-            timecorrinit = unchecked((int)(System.DateTime.UtcNow.Ticks / 10000)) - timecorrinit;
+            timecorrinit = unchecked((int)(DateTime.UtcNow.Ticks / 10000)) - timecorrinit;
             if (dotrace)
             {
-                alglib.ap.trace(System.String.Format("> Corrector spline was prepared in {0,0:d} ms ({1,0:d} nodes, max distance from dataset points to nearest grid node is {2,0:E2})\n", timecorrinit, ncorrector, correctorgridseparation * rescaledby));
+                ap.trace(System.String.Format("> Corrector spline was prepared in {0,0:d} ms ({1,0:d} nodes, max distance from dataset points to nearest grid node is {2,0:E2})\n", timecorrinit, ncorrector, correctorgridseparation * rescaledby));
             }
             if (dodetailedtrace)
             {
-                alglib.ap.trace("> printing condition numbers for correction spline:\n");
-                alglib.ap.trace(System.String.Format("cond(A)     = {0,0:E2} (Linf norm, leading NCoarsexNCoarse block)\n", 1 / (rcond.rmatrixtrrcondinf(solver.corrr, ncorrector, true, false, _params) + math.machineepsilon)));
-                alglib.ap.trace(System.String.Format("cond(A)     = {0,0:E2} (Linf norm, full system)\n", 1 / (rcond.rmatrixtrrcondinf(solver.corrr, nsys, true, false, _params) + math.machineepsilon)));
+                ap.trace("> printing condition numbers for correction spline:\n");
+                ap.trace(System.String.Format("cond(A)     = {0,0:E2} (Linf norm, leading NCoarsexNCoarse block)\n", 1 / (rcond.rmatrixtrrcondinf(solver.corrr, ncorrector, true, false, _params) + math.machineepsilon)));
+                ap.trace(System.String.Format("cond(A)     = {0,0:E2} (Linf norm, full system)\n", 1 / (rcond.rmatrixtrrcondinf(solver.corrr, nsys, true, false, _params) + math.machineepsilon)));
             }
         }
 
@@ -39074,7 +39074,7 @@ public partial class alglib
             if (cnt > 1)
             {
                 k = cnt / 2;
-                alglib.ap.assert(k <= cnt - k, "RBFV3: integrity check 2733 failed");
+                ap.assert(k <= cnt - k, "RBFV3: integrity check 2733 failed");
                 ddmsolverrunrec(solver, res, n, nx, ny, c, cnt - k, _params);
                 ddmsolverrunrec(solver, res, n, nx, ny, c, k, _params);
                 return;
@@ -39083,8 +39083,8 @@ public partial class alglib
             //
             // Retrieve subproblem from the source pool, solve it
             //
-            alglib.smp.ae_shared_pool_retrieve(solver.subproblemspool, ref subproblem);
-            alglib.ap.assert(subproblem != null && subproblem.isvalid, "RBFV3: integrity check 1742 failed");
+            smp.ae_shared_pool_retrieve(solver.subproblemspool, ref subproblem);
+            ap.assert(subproblem != null && subproblem.isvalid, "RBFV3: integrity check 1742 failed");
             nwrk = subproblem.nwork;
             ntarget = subproblem.ntarget;
             if (subproblem.decomposition == 0)
@@ -39123,7 +39123,7 @@ public partial class alglib
                 //
                 // Solve using regularized QR (well, we tried LU but it failed)
                 //
-                alglib.ap.assert(subproblem.decomposition == 1, "RBFV3: integrity check 1743 failed");
+                ap.assert(subproblem.decomposition == 1, "RBFV3: integrity check 1743 failed");
                 ablasf.rallocm(nwrk, ny, ref subproblem.rhs, _params);
                 for (i = 0; i <= nwrk - 1; i++)
                 {
@@ -39148,7 +39148,7 @@ public partial class alglib
             //
             // Push to the destination pool
             //
-            alglib.smp.ae_shared_pool_recycle(solver.subproblemsbuffer, ref subproblem);
+            smp.ae_shared_pool_recycle(solver.subproblemsbuffer, ref subproblem);
         }
 
 
@@ -39223,15 +39223,15 @@ public partial class alglib
             // * clean-up: move processed subproblems from Solver.SubproblemsBuffer back to Solver.SubproblemsPool
             // * multiply solution by the preconditioner matrix
             //
-            timeddmsolve = timeddmsolve - unchecked((int)(System.DateTime.UtcNow.Ticks / 10000));
+            timeddmsolve = timeddmsolve - unchecked((int)(DateTime.UtcNow.Ticks / 10000));
             ddmsolverrunrec(solver, res, n, nx, ny, c, solver.subproblemscnt, _params);
             for (i = 0; i <= solver.subproblemscnt - 1; i++)
             {
-                alglib.smp.ae_shared_pool_retrieve(solver.subproblemsbuffer, ref subproblem);
-                alglib.ap.assert(subproblem != null && subproblem.isvalid, "RBFV3: integrity check 5223 failed");
-                alglib.smp.ae_shared_pool_recycle(solver.subproblemspool, ref subproblem);
+                smp.ae_shared_pool_retrieve(solver.subproblemsbuffer, ref subproblem);
+                ap.assert(subproblem != null && subproblem.isvalid, "RBFV3: integrity check 5223 failed");
+                smp.ae_shared_pool_recycle(solver.subproblemspool, ref subproblem);
             }
-            timeddmsolve = timeddmsolve + unchecked((int)(System.DateTime.UtcNow.Ticks / 10000));
+            timeddmsolve = timeddmsolve + unchecked((int)(DateTime.UtcNow.Ticks / 10000));
             ablasf.rallocv(n + nx + 1, ref x0, _params);
             ablasf.rallocv(n + nx + 1, ref x1, _params);
             for (j = 0; j <= ny - 1; j++)
@@ -39244,7 +39244,7 @@ public partial class alglib
             //
             // Compute correction spline that fixes oscillations introduced by the DDM part
             //
-            timecorrsolve = timecorrsolve - unchecked((int)(System.DateTime.UtcNow.Ticks / 10000));
+            timecorrsolve = timecorrsolve - unchecked((int)(DateTime.UtcNow.Ticks / 10000));
             ablasf.rallocv(solver.ncorrector + nx + 1, ref x0, _params);
             ablasf.rallocv(n + nx + 1, ref x1, _params);
             for (j = 0; j <= ny - 1; j++)
@@ -39284,7 +39284,7 @@ public partial class alglib
                     updt[j, n + i] = updt[j, n + i] + x0[solver.ncorrector + i];
                 }
             }
-            timecorrsolve = timecorrsolve + unchecked((int)(System.DateTime.UtcNow.Ticks / 10000));
+            timecorrsolve = timecorrsolve + unchecked((int)(DateTime.UtcNow.Ticks / 10000));
             ablasf.rallocm(n + nx + 1, ny, ref upd, _params);
             ablas.rmatrixtranspose(ny, n + nx + 1, updt, 0, 0, upd, 0, 0, _params);
         }
@@ -39346,7 +39346,7 @@ public partial class alglib
             double[] x = new double[0];
             double[] d = new double[0];
 
-            alglib.ap.assert(n >= 1, "RBFV3: integrity check 7624 failed");
+            ap.assert(n >= 1, "RBFV3: integrity check 7624 failed");
             ablasf.rallocv(nx, ref x, _params);
             nearestneighbor.kdtreebuild(xx, n, nx, 0, 2, kdt, _params);
             nlocal = (int)Math.Round(Math.Pow(2, nx) + 1);
@@ -39359,7 +39359,7 @@ public partial class alglib
                 //
                 ablasf.rcopyrv(nx, xx, i, x, _params);
                 nq = nearestneighbor.kdtreequeryknn(kdt, x, nlocal, true, _params);
-                alglib.ap.assert(nq >= 1, "RBFV3: integrity check 7625 failed");
+                ap.assert(nq >= 1, "RBFV3: integrity check 7625 failed");
                 nearestneighbor.kdtreequeryresultsdistances(kdt, ref d, _params);
 
                 //
@@ -39405,7 +39405,7 @@ public partial class alglib
             double elemcost = 0;
             double alpha2 = 0;
 
-            alglib.ap.assert((functype == 1 || functype == 2) || functype == 3, "RBFV3.ComputeTransposedDesignSystem: unexpected FuncType");
+            ap.assert((functype == 1 || functype == 2) || functype == 3, "RBFV3.ComputeTransposedDesignSystem: unexpected FuncType");
 
             //
             // Try to parallelize
@@ -39540,7 +39540,7 @@ public partial class alglib
             int curlen = 0;
             rbf3evaluatorbuffer bufseed = new();
 
-            alglib.ap.assert(storagetype == 0 || storagetype == 1, "RBFV3: unexpected StorageType for ModelMatrixInit()");
+            ap.assert(storagetype == 0 || storagetype == 1, "RBFV3: unexpected StorageType for ModelMatrixInit()");
             modelmatrix.n = n;
             modelmatrix.storagetype = storagetype;
             if (storagetype == 0)
@@ -39562,7 +39562,7 @@ public partial class alglib
                 //
                 // Prepare temporary buffers
                 //
-                alglib.smp.ae_shared_pool_set_seed(modelmatrix.bufferpool, bufseed);
+                smp.ae_shared_pool_set_seed(modelmatrix.bufferpool, bufseed);
                 ablasf.rsetallocv(modelmatrix.chunksize, 1.0, ref modelmatrix.chunk1, _params);
 
                 //
@@ -39593,7 +39593,7 @@ public partial class alglib
                 }
                 return;
             }
-            alglib.ap.assert(false, "ModelMatrixInit: integrity check failed");
+            ap.assert(false, "ModelMatrixInit: integrity check failed");
         }
 
 
@@ -39623,7 +39623,7 @@ public partial class alglib
             double v = 0;
             double vv = 0;
 
-            alglib.ap.assert(modelmatrix.storagetype == 0 || modelmatrix.storagetype == 1, "ModelMatrixComputePartial: unexpected StorageType");
+            ap.assert(modelmatrix.storagetype == 0 || modelmatrix.storagetype == 1, "ModelMatrixComputePartial: unexpected StorageType");
             ablasf.rallocm(m0, m1, ref r, _params);
             if (modelmatrix.storagetype == 0)
             {
@@ -39639,7 +39639,7 @@ public partial class alglib
             }
             if (modelmatrix.storagetype == 1)
             {
-                alglib.ap.assert(modelmatrix.functype == 1 || modelmatrix.functype == 2, "ModelMatrixComputePartial: unexpected FuncType");
+                ap.assert(modelmatrix.functype == 1 || modelmatrix.functype == 2, "ModelMatrixComputePartial: unexpected FuncType");
                 for (i = 0; i <= m0 - 1; i++)
                 {
                     ni = ridx[i];
@@ -39673,7 +39673,7 @@ public partial class alglib
                 }
                 return;
             }
-            alglib.ap.assert(false, "ModelMatrixComputePartial: integrity check failed");
+            ap.assert(false, "ModelMatrixComputePartial: integrity check failed");
         }
 
 
@@ -39887,7 +39887,7 @@ public partial class alglib
                 }
                 return;
             }
-            alglib.ap.assert(false, "RBFV3: unexpected FuncType in ComputeRowChunk()");
+            ap.assert(false, "RBFV3: unexpected FuncType in ComputeRowChunk()");
         }
 
 
@@ -39905,7 +39905,7 @@ public partial class alglib
         {
             bool result = new();
 
-            alglib.ap.assert((aterm == 1 || aterm == 2) || aterm == 3, "RBFV3: integrity check 3563 failed");
+            ap.assert((aterm == 1 || aterm == 2) || aterm == 3, "RBFV3: integrity check 3563 failed");
             result = false;
             if (functype == 1)
             {
@@ -39917,7 +39917,7 @@ public partial class alglib
                 result = aterm == 1;
                 return result;
             }
-            alglib.ap.assert(false, "IsCPDFunction: unexpected FuncType");
+            ap.assert(false, "IsCPDFunction: unexpected FuncType");
             return result;
         }
 
@@ -40331,10 +40331,10 @@ public partial class alglib
             y2 = new double[0];
             nsections = 0;
 
-            alglib.ap.assert(n >= 0, "LSTFitPiecewiseLinearRDPFixed: N<0");
-            alglib.ap.assert(m >= 1, "LSTFitPiecewiseLinearRDPFixed: M<1");
-            alglib.ap.assert(alglib.ap.len(x) >= n, "LSTFitPiecewiseLinearRDPFixed: Length(X)<N");
-            alglib.ap.assert(alglib.ap.len(y) >= n, "LSTFitPiecewiseLinearRDPFixed: Length(Y)<N");
+            ap.assert(n >= 0, "LSTFitPiecewiseLinearRDPFixed: N<0");
+            ap.assert(m >= 1, "LSTFitPiecewiseLinearRDPFixed: M<1");
+            ap.assert(ap.len(x) >= n, "LSTFitPiecewiseLinearRDPFixed: Length(X)<N");
+            ap.assert(ap.len(y) >= n, "LSTFitPiecewiseLinearRDPFixed: Length(Y)<N");
             if (n <= 1)
             {
                 nsections = 0;
@@ -40387,7 +40387,7 @@ public partial class alglib
             sections[0, 3] = worsterror;
             heaperrors[0] = worsterror;
             heaptags[0] = 0;
-            alglib.ap.assert((double)(sections[0, 1]) == (double)(n - 1), "RDP algorithm: integrity check failed");
+            ap.assert((double)(sections[0, 1]) == (double)(n - 1), "RDP algorithm: integrity check failed");
 
             //
             // Main loop.
@@ -40532,10 +40532,10 @@ public partial class alglib
             y2 = new double[0];
             nsections = 0;
 
-            alglib.ap.assert(n >= 0, "LSTFitPiecewiseLinearRDP: N<0");
-            alglib.ap.assert((double)(eps) > (double)(0), "LSTFitPiecewiseLinearRDP: Eps<=0");
-            alglib.ap.assert(alglib.ap.len(x) >= n, "LSTFitPiecewiseLinearRDP: Length(X)<N");
-            alglib.ap.assert(alglib.ap.len(y) >= n, "LSTFitPiecewiseLinearRDP: Length(Y)<N");
+            ap.assert(n >= 0, "LSTFitPiecewiseLinearRDP: N<0");
+            ap.assert((double)(eps) > (double)(0), "LSTFitPiecewiseLinearRDP: Eps<=0");
+            ap.assert(ap.len(x) >= n, "LSTFitPiecewiseLinearRDP: Length(X)<N");
+            ap.assert(ap.len(y) >= n, "LSTFitPiecewiseLinearRDP: Length(Y)<N");
             if (n <= 1)
             {
                 nsections = 0;
@@ -40682,12 +40682,12 @@ public partial class alglib
             double[] yc = new double[0];
             int[] dc = new int[0];
 
-            alglib.ap.assert(n > 0, "PolynomialFit: N<=0!");
-            alglib.ap.assert(m > 0, "PolynomialFit: M<=0!");
-            alglib.ap.assert(alglib.ap.len(x) >= n, "PolynomialFit: Length(X)<N!");
-            alglib.ap.assert(alglib.ap.len(y) >= n, "PolynomialFit: Length(Y)<N!");
-            alglib.ap.assert(apserv.isfinitevector(x, n, _params), "PolynomialFit: X contains infinite or NaN values!");
-            alglib.ap.assert(apserv.isfinitevector(y, n, _params), "PolynomialFit: Y contains infinite or NaN values!");
+            ap.assert(n > 0, "PolynomialFit: N<=0!");
+            ap.assert(m > 0, "PolynomialFit: M<=0!");
+            ap.assert(ap.len(x) >= n, "PolynomialFit: Length(X)<N!");
+            ap.assert(ap.len(y) >= n, "PolynomialFit: Length(Y)<N!");
+            ap.assert(apserv.isfinitevector(x, n, _params), "PolynomialFit: X contains infinite or NaN values!");
+            ap.assert(apserv.isfinitevector(y, n, _params), "PolynomialFit: Y contains infinite or NaN values!");
             w = new double[n];
             for (i = 0; i <= n - 1; i++)
             {
@@ -40840,24 +40840,24 @@ public partial class alglib
             xc = (double[])xc.Clone();
             yc = (double[])yc.Clone();
 
-            alglib.ap.assert(n > 0, "PolynomialFitWC: N<=0!");
-            alglib.ap.assert(m > 0, "PolynomialFitWC: M<=0!");
-            alglib.ap.assert(k >= 0, "PolynomialFitWC: K<0!");
-            alglib.ap.assert(k < m, "PolynomialFitWC: K>=M!");
-            alglib.ap.assert(alglib.ap.len(x) >= n, "PolynomialFitWC: Length(X)<N!");
-            alglib.ap.assert(alglib.ap.len(y) >= n, "PolynomialFitWC: Length(Y)<N!");
-            alglib.ap.assert(alglib.ap.len(w) >= n, "PolynomialFitWC: Length(W)<N!");
-            alglib.ap.assert(alglib.ap.len(xc) >= k, "PolynomialFitWC: Length(XC)<K!");
-            alglib.ap.assert(alglib.ap.len(yc) >= k, "PolynomialFitWC: Length(YC)<K!");
-            alglib.ap.assert(alglib.ap.len(dc) >= k, "PolynomialFitWC: Length(DC)<K!");
-            alglib.ap.assert(apserv.isfinitevector(x, n, _params), "PolynomialFitWC: X contains infinite or NaN values!");
-            alglib.ap.assert(apserv.isfinitevector(y, n, _params), "PolynomialFitWC: Y contains infinite or NaN values!");
-            alglib.ap.assert(apserv.isfinitevector(w, n, _params), "PolynomialFitWC: X contains infinite or NaN values!");
-            alglib.ap.assert(apserv.isfinitevector(xc, k, _params), "PolynomialFitWC: XC contains infinite or NaN values!");
-            alglib.ap.assert(apserv.isfinitevector(yc, k, _params), "PolynomialFitWC: YC contains infinite or NaN values!");
+            ap.assert(n > 0, "PolynomialFitWC: N<=0!");
+            ap.assert(m > 0, "PolynomialFitWC: M<=0!");
+            ap.assert(k >= 0, "PolynomialFitWC: K<0!");
+            ap.assert(k < m, "PolynomialFitWC: K>=M!");
+            ap.assert(ap.len(x) >= n, "PolynomialFitWC: Length(X)<N!");
+            ap.assert(ap.len(y) >= n, "PolynomialFitWC: Length(Y)<N!");
+            ap.assert(ap.len(w) >= n, "PolynomialFitWC: Length(W)<N!");
+            ap.assert(ap.len(xc) >= k, "PolynomialFitWC: Length(XC)<K!");
+            ap.assert(ap.len(yc) >= k, "PolynomialFitWC: Length(YC)<K!");
+            ap.assert(ap.len(dc) >= k, "PolynomialFitWC: Length(DC)<K!");
+            ap.assert(apserv.isfinitevector(x, n, _params), "PolynomialFitWC: X contains infinite or NaN values!");
+            ap.assert(apserv.isfinitevector(y, n, _params), "PolynomialFitWC: Y contains infinite or NaN values!");
+            ap.assert(apserv.isfinitevector(w, n, _params), "PolynomialFitWC: X contains infinite or NaN values!");
+            ap.assert(apserv.isfinitevector(xc, k, _params), "PolynomialFitWC: XC contains infinite or NaN values!");
+            ap.assert(apserv.isfinitevector(yc, k, _params), "PolynomialFitWC: YC contains infinite or NaN values!");
             for (i = 0; i <= k - 1; i++)
             {
-                alglib.ap.assert(dc[i] == 0 || dc[i] == 1, "PolynomialFitWC: one of DC[] is not 0 or 1!");
+                ap.assert(dc[i] == 0 || dc[i] == 1, "PolynomialFitWC: one of DC[] is not 0 or 1!");
             }
 
             //
@@ -40998,13 +40998,13 @@ public partial class alglib
         {
             double result = 0;
 
-            alglib.ap.assert(math.isfinite(x), "LogisticCalc4: X is not finite");
-            alglib.ap.assert(math.isfinite(a), "LogisticCalc4: A is not finite");
-            alglib.ap.assert(math.isfinite(b), "LogisticCalc4: B is not finite");
-            alglib.ap.assert(math.isfinite(c), "LogisticCalc4: C is not finite");
-            alglib.ap.assert(math.isfinite(d), "LogisticCalc4: D is not finite");
-            alglib.ap.assert((double)(x) >= (double)(0), "LogisticCalc4: X is negative");
-            alglib.ap.assert((double)(c) > (double)(0), "LogisticCalc4: C is non-positive");
+            ap.assert(math.isfinite(x), "LogisticCalc4: X is not finite");
+            ap.assert(math.isfinite(a), "LogisticCalc4: A is not finite");
+            ap.assert(math.isfinite(b), "LogisticCalc4: B is not finite");
+            ap.assert(math.isfinite(c), "LogisticCalc4: C is not finite");
+            ap.assert(math.isfinite(d), "LogisticCalc4: D is not finite");
+            ap.assert((double)(x) >= (double)(0), "LogisticCalc4: X is negative");
+            ap.assert((double)(c) > (double)(0), "LogisticCalc4: C is non-positive");
 
             //
             // Check for degenerate cases
@@ -41031,7 +41031,7 @@ public partial class alglib
             // General case
             //
             result = d + (a - d) / (1.0 + Math.Pow(x / c, b));
-            alglib.ap.assert(math.isfinite(result), "LogisticCalc4: overflow during calculations");
+            ap.assert(math.isfinite(result), "LogisticCalc4: overflow during calculations");
             return result;
         }
 
@@ -41081,15 +41081,15 @@ public partial class alglib
         {
             double result = 0;
 
-            alglib.ap.assert(math.isfinite(x), "LogisticCalc5: X is not finite");
-            alglib.ap.assert(math.isfinite(a), "LogisticCalc5: A is not finite");
-            alglib.ap.assert(math.isfinite(b), "LogisticCalc5: B is not finite");
-            alglib.ap.assert(math.isfinite(c), "LogisticCalc5: C is not finite");
-            alglib.ap.assert(math.isfinite(d), "LogisticCalc5: D is not finite");
-            alglib.ap.assert(math.isfinite(g), "LogisticCalc5: G is not finite");
-            alglib.ap.assert((double)(x) >= (double)(0), "LogisticCalc5: X is negative");
-            alglib.ap.assert((double)(c) > (double)(0), "LogisticCalc5: C is non-positive");
-            alglib.ap.assert((double)(g) > (double)(0), "LogisticCalc5: G is non-positive");
+            ap.assert(math.isfinite(x), "LogisticCalc5: X is not finite");
+            ap.assert(math.isfinite(a), "LogisticCalc5: A is not finite");
+            ap.assert(math.isfinite(b), "LogisticCalc5: B is not finite");
+            ap.assert(math.isfinite(c), "LogisticCalc5: C is not finite");
+            ap.assert(math.isfinite(d), "LogisticCalc5: D is not finite");
+            ap.assert(math.isfinite(g), "LogisticCalc5: G is not finite");
+            ap.assert((double)(x) >= (double)(0), "LogisticCalc5: X is negative");
+            ap.assert((double)(c) > (double)(0), "LogisticCalc5: C is non-positive");
+            ap.assert((double)(g) > (double)(0), "LogisticCalc5: G is non-positive");
 
             //
             // Check for degenerate cases
@@ -41116,7 +41116,7 @@ public partial class alglib
             // General case
             //
             result = d + (a - d) / Math.Pow(1.0 + Math.Pow(x / c, b), g);
-            alglib.ap.assert(math.isfinite(result), "LogisticCalc5: overflow during calculations");
+            ap.assert(math.isfinite(result), "LogisticCalc5: overflow during calculations");
             return result;
         }
 
@@ -41754,18 +41754,18 @@ public partial class alglib
             d = 0;
             g = 0;
 
-            alglib.ap.assert(math.isfinite(epsx), "LogisticFitX: EpsX is infinite/NAN");
-            alglib.ap.assert(math.isfinite(lambdav), "LogisticFitX: LambdaV is infinite/NAN");
-            alglib.ap.assert(math.isfinite(cnstrleft) || Double.IsNaN(cnstrleft), "LogisticFitX: CnstrLeft is NOT finite or NAN");
-            alglib.ap.assert(math.isfinite(cnstrright) || Double.IsNaN(cnstrright), "LogisticFitX: CnstrRight is NOT finite or NAN");
-            alglib.ap.assert((double)(lambdav) >= (double)(0), "LogisticFitX: negative LambdaV");
-            alglib.ap.assert(n > 0, "LogisticFitX: N<=0");
-            alglib.ap.assert(rscnt >= 0, "LogisticFitX: RsCnt<0");
-            alglib.ap.assert((double)(epsx) >= (double)(0), "LogisticFitX: EpsX<0");
-            alglib.ap.assert(alglib.ap.len(x) >= n, "LogisticFitX: Length(X)<N");
-            alglib.ap.assert(alglib.ap.len(y) >= n, "LogisticFitX: Length(Y)<N");
-            alglib.ap.assert(apserv.isfinitevector(x, n, _params), "LogisticFitX: X contains infinite/NAN values");
-            alglib.ap.assert(apserv.isfinitevector(y, n, _params), "LogisticFitX: X contains infinite/NAN values");
+            ap.assert(math.isfinite(epsx), "LogisticFitX: EpsX is infinite/NAN");
+            ap.assert(math.isfinite(lambdav), "LogisticFitX: LambdaV is infinite/NAN");
+            ap.assert(math.isfinite(cnstrleft) || Double.IsNaN(cnstrleft), "LogisticFitX: CnstrLeft is NOT finite or NAN");
+            ap.assert(math.isfinite(cnstrright) || Double.IsNaN(cnstrright), "LogisticFitX: CnstrRight is NOT finite or NAN");
+            ap.assert((double)(lambdav) >= (double)(0), "LogisticFitX: negative LambdaV");
+            ap.assert(n > 0, "LogisticFitX: N<=0");
+            ap.assert(rscnt >= 0, "LogisticFitX: RsCnt<0");
+            ap.assert((double)(epsx) >= (double)(0), "LogisticFitX: EpsX<0");
+            ap.assert(ap.len(x) >= n, "LogisticFitX: Length(X)<N");
+            ap.assert(ap.len(y) >= n, "LogisticFitX: Length(Y)<N");
+            ap.assert(apserv.isfinitevector(x, n, _params), "LogisticFitX: X contains infinite/NAN values");
+            ap.assert(apserv.isfinitevector(y, n, _params), "LogisticFitX: X contains infinite/NAN values");
             hqrnd.hqrndseed(2211, 1033044, rs, _params);
             clearreport(rep, _params);
             if ((double)(epsx) == (double)(0))
@@ -41783,7 +41783,7 @@ public partial class alglib
             // Determine number of zero and non-zero values.
             //
             tsort.tagsortfastr(ref x, ref y, ref bufx, ref bufy, n, _params);
-            alglib.ap.assert((double)(x[0]) >= (double)(0), "LogisticFitX: some X[] are negative");
+            ap.assert((double)(x[0]) >= (double)(0), "LogisticFitX: some X[] are negative");
             nz = n;
             for (i = 0; i <= n - 1; i++)
             {
@@ -41840,7 +41840,7 @@ public partial class alglib
             // Determine scale of data.
             //
             scalex = x[nz + (n - nz) / 2];
-            alglib.ap.assert((double)(scalex) > (double)(0), "LogisticFitX: internal error");
+            ap.assert((double)(scalex) > (double)(0), "LogisticFitX: internal error");
             v = 0.0;
             for (i = 0; i <= n - 1; i++)
             {
@@ -42314,24 +42314,24 @@ public partial class alglib
             barycentricfitreport locrep = new();
             int locinfo = 0;
 
-            alglib.ap.assert(n > 0, "BarycentricFitFloaterHormannWC: N<=0!");
-            alglib.ap.assert(m > 0, "BarycentricFitFloaterHormannWC: M<=0!");
-            alglib.ap.assert(k >= 0, "BarycentricFitFloaterHormannWC: K<0!");
-            alglib.ap.assert(k < m, "BarycentricFitFloaterHormannWC: K>=M!");
-            alglib.ap.assert(alglib.ap.len(x) >= n, "BarycentricFitFloaterHormannWC: Length(X)<N!");
-            alglib.ap.assert(alglib.ap.len(y) >= n, "BarycentricFitFloaterHormannWC: Length(Y)<N!");
-            alglib.ap.assert(alglib.ap.len(w) >= n, "BarycentricFitFloaterHormannWC: Length(W)<N!");
-            alglib.ap.assert(alglib.ap.len(xc) >= k, "BarycentricFitFloaterHormannWC: Length(XC)<K!");
-            alglib.ap.assert(alglib.ap.len(yc) >= k, "BarycentricFitFloaterHormannWC: Length(YC)<K!");
-            alglib.ap.assert(alglib.ap.len(dc) >= k, "BarycentricFitFloaterHormannWC: Length(DC)<K!");
-            alglib.ap.assert(apserv.isfinitevector(x, n, _params), "BarycentricFitFloaterHormannWC: X contains infinite or NaN values!");
-            alglib.ap.assert(apserv.isfinitevector(y, n, _params), "BarycentricFitFloaterHormannWC: Y contains infinite or NaN values!");
-            alglib.ap.assert(apserv.isfinitevector(w, n, _params), "BarycentricFitFloaterHormannWC: X contains infinite or NaN values!");
-            alglib.ap.assert(apserv.isfinitevector(xc, k, _params), "BarycentricFitFloaterHormannWC: XC contains infinite or NaN values!");
-            alglib.ap.assert(apserv.isfinitevector(yc, k, _params), "BarycentricFitFloaterHormannWC: YC contains infinite or NaN values!");
+            ap.assert(n > 0, "BarycentricFitFloaterHormannWC: N<=0!");
+            ap.assert(m > 0, "BarycentricFitFloaterHormannWC: M<=0!");
+            ap.assert(k >= 0, "BarycentricFitFloaterHormannWC: K<0!");
+            ap.assert(k < m, "BarycentricFitFloaterHormannWC: K>=M!");
+            ap.assert(ap.len(x) >= n, "BarycentricFitFloaterHormannWC: Length(X)<N!");
+            ap.assert(ap.len(y) >= n, "BarycentricFitFloaterHormannWC: Length(Y)<N!");
+            ap.assert(ap.len(w) >= n, "BarycentricFitFloaterHormannWC: Length(W)<N!");
+            ap.assert(ap.len(xc) >= k, "BarycentricFitFloaterHormannWC: Length(XC)<K!");
+            ap.assert(ap.len(yc) >= k, "BarycentricFitFloaterHormannWC: Length(YC)<K!");
+            ap.assert(ap.len(dc) >= k, "BarycentricFitFloaterHormannWC: Length(DC)<K!");
+            ap.assert(apserv.isfinitevector(x, n, _params), "BarycentricFitFloaterHormannWC: X contains infinite or NaN values!");
+            ap.assert(apserv.isfinitevector(y, n, _params), "BarycentricFitFloaterHormannWC: Y contains infinite or NaN values!");
+            ap.assert(apserv.isfinitevector(w, n, _params), "BarycentricFitFloaterHormannWC: X contains infinite or NaN values!");
+            ap.assert(apserv.isfinitevector(xc, k, _params), "BarycentricFitFloaterHormannWC: XC contains infinite or NaN values!");
+            ap.assert(apserv.isfinitevector(yc, k, _params), "BarycentricFitFloaterHormannWC: YC contains infinite or NaN values!");
             for (i = 0; i <= k - 1; i++)
             {
-                alglib.ap.assert(dc[i] == 0 || dc[i] == 1, "BarycentricFitFloaterHormannWC: one of DC[] is not 0 or 1!");
+                ap.assert(dc[i] == 0 || dc[i] == 1, "BarycentricFitFloaterHormannWC: one of DC[] is not 0 or 1!");
             }
 
             //
@@ -42347,7 +42347,7 @@ public partial class alglib
             for (d = 0; d <= Math.Min(9, n - 1); d++)
             {
                 barycentricfitwcfixedd(x, y, w, n, xc, yc, dc, k, m, d, ref locinfo, locb, locrep, _params);
-                alglib.ap.assert((locinfo == -4 || locinfo == -3) || locinfo > 0, "BarycentricFitFloaterHormannWC: unexpected result from BarycentricFitWCFixedD!");
+                ap.assert((locinfo == -4 || locinfo == -3) || locinfo > 0, "BarycentricFitFloaterHormannWC: unexpected result from BarycentricFitWCFixedD!");
                 if (locinfo > 0)
                 {
 
@@ -42452,12 +42452,12 @@ public partial class alglib
             int[] dc = new int[0];
             int i = 0;
 
-            alglib.ap.assert(n > 0, "BarycentricFitFloaterHormann: N<=0!");
-            alglib.ap.assert(m > 0, "BarycentricFitFloaterHormann: M<=0!");
-            alglib.ap.assert(alglib.ap.len(x) >= n, "BarycentricFitFloaterHormann: Length(X)<N!");
-            alglib.ap.assert(alglib.ap.len(y) >= n, "BarycentricFitFloaterHormann: Length(Y)<N!");
-            alglib.ap.assert(apserv.isfinitevector(x, n, _params), "BarycentricFitFloaterHormann: X contains infinite or NaN values!");
-            alglib.ap.assert(apserv.isfinitevector(y, n, _params), "BarycentricFitFloaterHormann: Y contains infinite or NaN values!");
+            ap.assert(n > 0, "BarycentricFitFloaterHormann: N<=0!");
+            ap.assert(m > 0, "BarycentricFitFloaterHormann: M<=0!");
+            ap.assert(ap.len(x) >= n, "BarycentricFitFloaterHormann: Length(X)<N!");
+            ap.assert(ap.len(y) >= n, "BarycentricFitFloaterHormann: Length(Y)<N!");
+            ap.assert(apserv.isfinitevector(x, n, _params), "BarycentricFitFloaterHormann: X contains infinite or NaN values!");
+            ap.assert(apserv.isfinitevector(y, n, _params), "BarycentricFitFloaterHormann: Y contains infinite or NaN values!");
             w = new double[n];
             for (i = 0; i <= n - 1; i++)
             {
@@ -42602,24 +42602,24 @@ public partial class alglib
         {
             int i = 0;
 
-            alglib.ap.assert(n >= 1, "Spline1DFitCubicWC: N<1!");
-            alglib.ap.assert(m >= 4, "Spline1DFitCubicWC: M<4!");
-            alglib.ap.assert(k >= 0, "Spline1DFitCubicWC: K<0!");
-            alglib.ap.assert(k < m, "Spline1DFitCubicWC: K>=M!");
-            alglib.ap.assert(alglib.ap.len(x) >= n, "Spline1DFitCubicWC: Length(X)<N!");
-            alglib.ap.assert(alglib.ap.len(y) >= n, "Spline1DFitCubicWC: Length(Y)<N!");
-            alglib.ap.assert(alglib.ap.len(w) >= n, "Spline1DFitCubicWC: Length(W)<N!");
-            alglib.ap.assert(alglib.ap.len(xc) >= k, "Spline1DFitCubicWC: Length(XC)<K!");
-            alglib.ap.assert(alglib.ap.len(yc) >= k, "Spline1DFitCubicWC: Length(YC)<K!");
-            alglib.ap.assert(alglib.ap.len(dc) >= k, "Spline1DFitCubicWC: Length(DC)<K!");
-            alglib.ap.assert(apserv.isfinitevector(x, n, _params), "Spline1DFitCubicWC: X contains infinite or NAN values!");
-            alglib.ap.assert(apserv.isfinitevector(y, n, _params), "Spline1DFitCubicWC: Y contains infinite or NAN values!");
-            alglib.ap.assert(apserv.isfinitevector(w, n, _params), "Spline1DFitCubicWC: Y contains infinite or NAN values!");
-            alglib.ap.assert(apserv.isfinitevector(xc, k, _params), "Spline1DFitCubicWC: X contains infinite or NAN values!");
-            alglib.ap.assert(apserv.isfinitevector(yc, k, _params), "Spline1DFitCubicWC: Y contains infinite or NAN values!");
+            ap.assert(n >= 1, "Spline1DFitCubicWC: N<1!");
+            ap.assert(m >= 4, "Spline1DFitCubicWC: M<4!");
+            ap.assert(k >= 0, "Spline1DFitCubicWC: K<0!");
+            ap.assert(k < m, "Spline1DFitCubicWC: K>=M!");
+            ap.assert(ap.len(x) >= n, "Spline1DFitCubicWC: Length(X)<N!");
+            ap.assert(ap.len(y) >= n, "Spline1DFitCubicWC: Length(Y)<N!");
+            ap.assert(ap.len(w) >= n, "Spline1DFitCubicWC: Length(W)<N!");
+            ap.assert(ap.len(xc) >= k, "Spline1DFitCubicWC: Length(XC)<K!");
+            ap.assert(ap.len(yc) >= k, "Spline1DFitCubicWC: Length(YC)<K!");
+            ap.assert(ap.len(dc) >= k, "Spline1DFitCubicWC: Length(DC)<K!");
+            ap.assert(apserv.isfinitevector(x, n, _params), "Spline1DFitCubicWC: X contains infinite or NAN values!");
+            ap.assert(apserv.isfinitevector(y, n, _params), "Spline1DFitCubicWC: Y contains infinite or NAN values!");
+            ap.assert(apserv.isfinitevector(w, n, _params), "Spline1DFitCubicWC: Y contains infinite or NAN values!");
+            ap.assert(apserv.isfinitevector(xc, k, _params), "Spline1DFitCubicWC: X contains infinite or NAN values!");
+            ap.assert(apserv.isfinitevector(yc, k, _params), "Spline1DFitCubicWC: Y contains infinite or NAN values!");
             for (i = 0; i <= k - 1; i++)
             {
-                alglib.ap.assert(dc[i] == 0 || dc[i] == 1, "Spline1DFitCubicWC: DC[i] is neither 0 or 1!");
+                ap.assert(dc[i] == 0 || dc[i] == 1, "Spline1DFitCubicWC: DC[i] is neither 0 or 1!");
             }
             spline1dfitinternal(0, x, y, w, n, xc, yc, dc, k, m, s, rep, _params);
         }
@@ -42763,25 +42763,25 @@ public partial class alglib
         {
             int i = 0;
 
-            alglib.ap.assert(n >= 1, "Spline1DFitHermiteWC: N<1!");
-            alglib.ap.assert(m >= 4, "Spline1DFitHermiteWC: M<4!");
-            alglib.ap.assert(m % 2 == 0, "Spline1DFitHermiteWC: M is odd!");
-            alglib.ap.assert(k >= 0, "Spline1DFitHermiteWC: K<0!");
-            alglib.ap.assert(k < m, "Spline1DFitHermiteWC: K>=M!");
-            alglib.ap.assert(alglib.ap.len(x) >= n, "Spline1DFitHermiteWC: Length(X)<N!");
-            alglib.ap.assert(alglib.ap.len(y) >= n, "Spline1DFitHermiteWC: Length(Y)<N!");
-            alglib.ap.assert(alglib.ap.len(w) >= n, "Spline1DFitHermiteWC: Length(W)<N!");
-            alglib.ap.assert(alglib.ap.len(xc) >= k, "Spline1DFitHermiteWC: Length(XC)<K!");
-            alglib.ap.assert(alglib.ap.len(yc) >= k, "Spline1DFitHermiteWC: Length(YC)<K!");
-            alglib.ap.assert(alglib.ap.len(dc) >= k, "Spline1DFitHermiteWC: Length(DC)<K!");
-            alglib.ap.assert(apserv.isfinitevector(x, n, _params), "Spline1DFitHermiteWC: X contains infinite or NAN values!");
-            alglib.ap.assert(apserv.isfinitevector(y, n, _params), "Spline1DFitHermiteWC: Y contains infinite or NAN values!");
-            alglib.ap.assert(apserv.isfinitevector(w, n, _params), "Spline1DFitHermiteWC: Y contains infinite or NAN values!");
-            alglib.ap.assert(apserv.isfinitevector(xc, k, _params), "Spline1DFitHermiteWC: X contains infinite or NAN values!");
-            alglib.ap.assert(apserv.isfinitevector(yc, k, _params), "Spline1DFitHermiteWC: Y contains infinite or NAN values!");
+            ap.assert(n >= 1, "Spline1DFitHermiteWC: N<1!");
+            ap.assert(m >= 4, "Spline1DFitHermiteWC: M<4!");
+            ap.assert(m % 2 == 0, "Spline1DFitHermiteWC: M is odd!");
+            ap.assert(k >= 0, "Spline1DFitHermiteWC: K<0!");
+            ap.assert(k < m, "Spline1DFitHermiteWC: K>=M!");
+            ap.assert(ap.len(x) >= n, "Spline1DFitHermiteWC: Length(X)<N!");
+            ap.assert(ap.len(y) >= n, "Spline1DFitHermiteWC: Length(Y)<N!");
+            ap.assert(ap.len(w) >= n, "Spline1DFitHermiteWC: Length(W)<N!");
+            ap.assert(ap.len(xc) >= k, "Spline1DFitHermiteWC: Length(XC)<K!");
+            ap.assert(ap.len(yc) >= k, "Spline1DFitHermiteWC: Length(YC)<K!");
+            ap.assert(ap.len(dc) >= k, "Spline1DFitHermiteWC: Length(DC)<K!");
+            ap.assert(apserv.isfinitevector(x, n, _params), "Spline1DFitHermiteWC: X contains infinite or NAN values!");
+            ap.assert(apserv.isfinitevector(y, n, _params), "Spline1DFitHermiteWC: Y contains infinite or NAN values!");
+            ap.assert(apserv.isfinitevector(w, n, _params), "Spline1DFitHermiteWC: Y contains infinite or NAN values!");
+            ap.assert(apserv.isfinitevector(xc, k, _params), "Spline1DFitHermiteWC: X contains infinite or NAN values!");
+            ap.assert(apserv.isfinitevector(yc, k, _params), "Spline1DFitHermiteWC: Y contains infinite or NAN values!");
             for (i = 0; i <= k - 1; i++)
             {
-                alglib.ap.assert(dc[i] == 0 || dc[i] == 1, "Spline1DFitHermiteWC: DC[i] is neither 0 or 1!");
+                ap.assert(dc[i] == 0 || dc[i] == 1, "Spline1DFitHermiteWC: DC[i] is neither 0 or 1!");
             }
             spline1dfitinternal(1, x, y, w, n, xc, yc, dc, k, m, s, rep, _params);
         }
@@ -42808,12 +42808,12 @@ public partial class alglib
             double[] yc = new double[0];
             int[] dc = new int[0];
 
-            alglib.ap.assert(n >= 1, "Spline1DFitCubic: N<1!");
-            alglib.ap.assert(m >= 4, "Spline1DFitCubic: M<4!");
-            alglib.ap.assert(alglib.ap.len(x) >= n, "Spline1DFitCubic: Length(X)<N!");
-            alglib.ap.assert(alglib.ap.len(y) >= n, "Spline1DFitCubic: Length(Y)<N!");
-            alglib.ap.assert(apserv.isfinitevector(x, n, _params), "Spline1DFitCubic: X contains infinite or NAN values!");
-            alglib.ap.assert(apserv.isfinitevector(y, n, _params), "Spline1DFitCubic: Y contains infinite or NAN values!");
+            ap.assert(n >= 1, "Spline1DFitCubic: N<1!");
+            ap.assert(m >= 4, "Spline1DFitCubic: M<4!");
+            ap.assert(ap.len(x) >= n, "Spline1DFitCubic: Length(X)<N!");
+            ap.assert(ap.len(y) >= n, "Spline1DFitCubic: Length(Y)<N!");
+            ap.assert(apserv.isfinitevector(x, n, _params), "Spline1DFitCubic: X contains infinite or NAN values!");
+            ap.assert(apserv.isfinitevector(y, n, _params), "Spline1DFitCubic: Y contains infinite or NAN values!");
             w = new double[n];
             for (i = 0; i <= n - 1; i++)
             {
@@ -42844,13 +42844,13 @@ public partial class alglib
             double[] yc = new double[0];
             int[] dc = new int[0];
 
-            alglib.ap.assert(n >= 1, "Spline1DFitHermite: N<1!");
-            alglib.ap.assert(m >= 4, "Spline1DFitHermite: M<4!");
-            alglib.ap.assert(m % 2 == 0, "Spline1DFitHermite: M is odd!");
-            alglib.ap.assert(alglib.ap.len(x) >= n, "Spline1DFitHermite: Length(X)<N!");
-            alglib.ap.assert(alglib.ap.len(y) >= n, "Spline1DFitHermite: Length(Y)<N!");
-            alglib.ap.assert(apserv.isfinitevector(x, n, _params), "Spline1DFitHermite: X contains infinite or NAN values!");
-            alglib.ap.assert(apserv.isfinitevector(y, n, _params), "Spline1DFitHermite: Y contains infinite or NAN values!");
+            ap.assert(n >= 1, "Spline1DFitHermite: N<1!");
+            ap.assert(m >= 4, "Spline1DFitHermite: M<4!");
+            ap.assert(m % 2 == 0, "Spline1DFitHermite: M is odd!");
+            ap.assert(ap.len(x) >= n, "Spline1DFitHermite: Length(X)<N!");
+            ap.assert(ap.len(y) >= n, "Spline1DFitHermite: Length(Y)<N!");
+            ap.assert(apserv.isfinitevector(x, n, _params), "Spline1DFitHermite: X contains infinite or NAN values!");
+            ap.assert(apserv.isfinitevector(y, n, _params), "Spline1DFitHermite: Y contains infinite or NAN values!");
             w = new double[n];
             for (i = 0; i <= n - 1; i++)
             {
@@ -42971,15 +42971,15 @@ public partial class alglib
         {
             c = new double[0];
 
-            alglib.ap.assert(n >= 1, "LSFitLinearW: N<1!");
-            alglib.ap.assert(m >= 1, "LSFitLinearW: M<1!");
-            alglib.ap.assert(alglib.ap.len(y) >= n, "LSFitLinearW: length(Y)<N!");
-            alglib.ap.assert(apserv.isfinitevector(y, n, _params), "LSFitLinearW: Y contains infinite or NaN values!");
-            alglib.ap.assert(alglib.ap.len(w) >= n, "LSFitLinearW: length(W)<N!");
-            alglib.ap.assert(apserv.isfinitevector(w, n, _params), "LSFitLinearW: W contains infinite or NaN values!");
-            alglib.ap.assert(alglib.ap.rows(fmatrix) >= n, "LSFitLinearW: rows(FMatrix)<N!");
-            alglib.ap.assert(alglib.ap.cols(fmatrix) >= m, "LSFitLinearW: cols(FMatrix)<M!");
-            alglib.ap.assert(apserv.apservisfinitematrix(fmatrix, n, m, _params), "LSFitLinearW: FMatrix contains infinite or NaN values!");
+            ap.assert(n >= 1, "LSFitLinearW: N<1!");
+            ap.assert(m >= 1, "LSFitLinearW: M<1!");
+            ap.assert(ap.len(y) >= n, "LSFitLinearW: length(Y)<N!");
+            ap.assert(apserv.isfinitevector(y, n, _params), "LSFitLinearW: Y contains infinite or NaN values!");
+            ap.assert(ap.len(w) >= n, "LSFitLinearW: length(W)<N!");
+            ap.assert(apserv.isfinitevector(w, n, _params), "LSFitLinearW: W contains infinite or NaN values!");
+            ap.assert(ap.rows(fmatrix) >= n, "LSFitLinearW: rows(FMatrix)<N!");
+            ap.assert(ap.cols(fmatrix) >= m, "LSFitLinearW: cols(FMatrix)<M!");
+            ap.assert(apserv.apservisfinitematrix(fmatrix, n, m, _params), "LSFitLinearW: FMatrix contains infinite or NaN values!");
             lsfitlinearinternal(y, w, fmatrix, n, m, ref c, rep, _params);
         }
 
@@ -43127,19 +43127,19 @@ public partial class alglib
             cmatrix = (double[,])cmatrix.Clone();
             c = new double[0];
 
-            alglib.ap.assert(n >= 1, "LSFitLinearWC: N<1!");
-            alglib.ap.assert(m >= 1, "LSFitLinearWC: M<1!");
-            alglib.ap.assert(k >= 0, "LSFitLinearWC: K<0!");
-            alglib.ap.assert(alglib.ap.len(y) >= n, "LSFitLinearWC: length(Y)<N!");
-            alglib.ap.assert(apserv.isfinitevector(y, n, _params), "LSFitLinearWC: Y contains infinite or NaN values!");
-            alglib.ap.assert(alglib.ap.len(w) >= n, "LSFitLinearWC: length(W)<N!");
-            alglib.ap.assert(apserv.isfinitevector(w, n, _params), "LSFitLinearWC: W contains infinite or NaN values!");
-            alglib.ap.assert(alglib.ap.rows(fmatrix) >= n, "LSFitLinearWC: rows(FMatrix)<N!");
-            alglib.ap.assert(alglib.ap.cols(fmatrix) >= m, "LSFitLinearWC: cols(FMatrix)<M!");
-            alglib.ap.assert(apserv.apservisfinitematrix(fmatrix, n, m, _params), "LSFitLinearWC: FMatrix contains infinite or NaN values!");
-            alglib.ap.assert(alglib.ap.rows(cmatrix) >= k, "LSFitLinearWC: rows(CMatrix)<K!");
-            alglib.ap.assert(alglib.ap.cols(cmatrix) >= m + 1 || k == 0, "LSFitLinearWC: cols(CMatrix)<M+1!");
-            alglib.ap.assert(apserv.apservisfinitematrix(cmatrix, k, m + 1, _params), "LSFitLinearWC: CMatrix contains infinite or NaN values!");
+            ap.assert(n >= 1, "LSFitLinearWC: N<1!");
+            ap.assert(m >= 1, "LSFitLinearWC: M<1!");
+            ap.assert(k >= 0, "LSFitLinearWC: K<0!");
+            ap.assert(ap.len(y) >= n, "LSFitLinearWC: length(Y)<N!");
+            ap.assert(apserv.isfinitevector(y, n, _params), "LSFitLinearWC: Y contains infinite or NaN values!");
+            ap.assert(ap.len(w) >= n, "LSFitLinearWC: length(W)<N!");
+            ap.assert(apserv.isfinitevector(w, n, _params), "LSFitLinearWC: W contains infinite or NaN values!");
+            ap.assert(ap.rows(fmatrix) >= n, "LSFitLinearWC: rows(FMatrix)<N!");
+            ap.assert(ap.cols(fmatrix) >= m, "LSFitLinearWC: cols(FMatrix)<M!");
+            ap.assert(apserv.apservisfinitematrix(fmatrix, n, m, _params), "LSFitLinearWC: FMatrix contains infinite or NaN values!");
+            ap.assert(ap.rows(cmatrix) >= k, "LSFitLinearWC: rows(CMatrix)<K!");
+            ap.assert(ap.cols(cmatrix) >= m + 1 || k == 0, "LSFitLinearWC: cols(CMatrix)<M+1!");
+            ap.assert(apserv.apservisfinitematrix(cmatrix, k, m + 1, _params), "LSFitLinearWC: CMatrix contains infinite or NaN values!");
             if (k >= m)
             {
                 rep.terminationtype = -3;
@@ -43350,13 +43350,13 @@ public partial class alglib
 
             c = new double[0];
 
-            alglib.ap.assert(n >= 1, "LSFitLinear: N<1!");
-            alglib.ap.assert(m >= 1, "LSFitLinear: M<1!");
-            alglib.ap.assert(alglib.ap.len(y) >= n, "LSFitLinear: length(Y)<N!");
-            alglib.ap.assert(apserv.isfinitevector(y, n, _params), "LSFitLinear: Y contains infinite or NaN values!");
-            alglib.ap.assert(alglib.ap.rows(fmatrix) >= n, "LSFitLinear: rows(FMatrix)<N!");
-            alglib.ap.assert(alglib.ap.cols(fmatrix) >= m, "LSFitLinear: cols(FMatrix)<M!");
-            alglib.ap.assert(apserv.apservisfinitematrix(fmatrix, n, m, _params), "LSFitLinear: FMatrix contains infinite or NaN values!");
+            ap.assert(n >= 1, "LSFitLinear: N<1!");
+            ap.assert(m >= 1, "LSFitLinear: M<1!");
+            ap.assert(ap.len(y) >= n, "LSFitLinear: length(Y)<N!");
+            ap.assert(apserv.isfinitevector(y, n, _params), "LSFitLinear: Y contains infinite or NaN values!");
+            ap.assert(ap.rows(fmatrix) >= n, "LSFitLinear: rows(FMatrix)<N!");
+            ap.assert(ap.cols(fmatrix) >= m, "LSFitLinear: cols(FMatrix)<M!");
+            ap.assert(apserv.apservisfinitematrix(fmatrix, n, m, _params), "LSFitLinear: FMatrix contains infinite or NaN values!");
             w = new double[n];
             for (i = 0; i <= n - 1; i++)
             {
@@ -43496,17 +43496,17 @@ public partial class alglib
             y = (double[])y.Clone();
             c = new double[0];
 
-            alglib.ap.assert(n >= 1, "LSFitLinearC: N<1!");
-            alglib.ap.assert(m >= 1, "LSFitLinearC: M<1!");
-            alglib.ap.assert(k >= 0, "LSFitLinearC: K<0!");
-            alglib.ap.assert(alglib.ap.len(y) >= n, "LSFitLinearC: length(Y)<N!");
-            alglib.ap.assert(apserv.isfinitevector(y, n, _params), "LSFitLinearC: Y contains infinite or NaN values!");
-            alglib.ap.assert(alglib.ap.rows(fmatrix) >= n, "LSFitLinearC: rows(FMatrix)<N!");
-            alglib.ap.assert(alglib.ap.cols(fmatrix) >= m, "LSFitLinearC: cols(FMatrix)<M!");
-            alglib.ap.assert(apserv.apservisfinitematrix(fmatrix, n, m, _params), "LSFitLinearC: FMatrix contains infinite or NaN values!");
-            alglib.ap.assert(alglib.ap.rows(cmatrix) >= k, "LSFitLinearC: rows(CMatrix)<K!");
-            alglib.ap.assert(alglib.ap.cols(cmatrix) >= m + 1 || k == 0, "LSFitLinearC: cols(CMatrix)<M+1!");
-            alglib.ap.assert(apserv.apservisfinitematrix(cmatrix, k, m + 1, _params), "LSFitLinearC: CMatrix contains infinite or NaN values!");
+            ap.assert(n >= 1, "LSFitLinearC: N<1!");
+            ap.assert(m >= 1, "LSFitLinearC: M<1!");
+            ap.assert(k >= 0, "LSFitLinearC: K<0!");
+            ap.assert(ap.len(y) >= n, "LSFitLinearC: length(Y)<N!");
+            ap.assert(apserv.isfinitevector(y, n, _params), "LSFitLinearC: Y contains infinite or NaN values!");
+            ap.assert(ap.rows(fmatrix) >= n, "LSFitLinearC: rows(FMatrix)<N!");
+            ap.assert(ap.cols(fmatrix) >= m, "LSFitLinearC: cols(FMatrix)<M!");
+            ap.assert(apserv.apservisfinitematrix(fmatrix, n, m, _params), "LSFitLinearC: FMatrix contains infinite or NaN values!");
+            ap.assert(ap.rows(cmatrix) >= k, "LSFitLinearC: rows(CMatrix)<K!");
+            ap.assert(ap.cols(cmatrix) >= m + 1 || k == 0, "LSFitLinearC: cols(CMatrix)<M+1!");
+            ap.assert(apserv.apservisfinitematrix(cmatrix, k, m + 1, _params), "LSFitLinearC: CMatrix contains infinite or NaN values!");
             w = new double[n];
             for (i = 0; i <= n - 1; i++)
             {
@@ -43587,20 +43587,20 @@ public partial class alglib
             int i = 0;
             int i_ = 0;
 
-            alglib.ap.assert(n >= 1, "LSFitCreateWF: N<1!");
-            alglib.ap.assert(m >= 1, "LSFitCreateWF: M<1!");
-            alglib.ap.assert(k >= 1, "LSFitCreateWF: K<1!");
-            alglib.ap.assert(alglib.ap.len(c) >= k, "LSFitCreateWF: length(C)<K!");
-            alglib.ap.assert(apserv.isfinitevector(c, k, _params), "LSFitCreateWF: C contains infinite or NaN values!");
-            alglib.ap.assert(alglib.ap.len(y) >= n, "LSFitCreateWF: length(Y)<N!");
-            alglib.ap.assert(apserv.isfinitevector(y, n, _params), "LSFitCreateWF: Y contains infinite or NaN values!");
-            alglib.ap.assert(alglib.ap.len(w) >= n, "LSFitCreateWF: length(W)<N!");
-            alglib.ap.assert(apserv.isfinitevector(w, n, _params), "LSFitCreateWF: W contains infinite or NaN values!");
-            alglib.ap.assert(alglib.ap.rows(x) >= n, "LSFitCreateWF: rows(X)<N!");
-            alglib.ap.assert(alglib.ap.cols(x) >= m, "LSFitCreateWF: cols(X)<M!");
-            alglib.ap.assert(apserv.apservisfinitematrix(x, n, m, _params), "LSFitCreateWF: X contains infinite or NaN values!");
-            alglib.ap.assert(math.isfinite(diffstep), "LSFitCreateWF: DiffStep is not finite!");
-            alglib.ap.assert((double)(diffstep) > (double)(0), "LSFitCreateWF: DiffStep<=0!");
+            ap.assert(n >= 1, "LSFitCreateWF: N<1!");
+            ap.assert(m >= 1, "LSFitCreateWF: M<1!");
+            ap.assert(k >= 1, "LSFitCreateWF: K<1!");
+            ap.assert(ap.len(c) >= k, "LSFitCreateWF: length(C)<K!");
+            ap.assert(apserv.isfinitevector(c, k, _params), "LSFitCreateWF: C contains infinite or NaN values!");
+            ap.assert(ap.len(y) >= n, "LSFitCreateWF: length(Y)<N!");
+            ap.assert(apserv.isfinitevector(y, n, _params), "LSFitCreateWF: Y contains infinite or NaN values!");
+            ap.assert(ap.len(w) >= n, "LSFitCreateWF: length(W)<N!");
+            ap.assert(apserv.isfinitevector(w, n, _params), "LSFitCreateWF: W contains infinite or NaN values!");
+            ap.assert(ap.rows(x) >= n, "LSFitCreateWF: rows(X)<N!");
+            ap.assert(ap.cols(x) >= m, "LSFitCreateWF: cols(X)<M!");
+            ap.assert(apserv.apservisfinitematrix(x, n, m, _params), "LSFitCreateWF: X contains infinite or NaN values!");
+            ap.assert(math.isfinite(diffstep), "LSFitCreateWF: DiffStep is not finite!");
+            ap.assert((double)(diffstep) > (double)(0), "LSFitCreateWF: DiffStep<=0!");
             state.protocolversion = 1;
             state.formulatype = 0;
             state.teststep = 0;
@@ -43732,21 +43732,21 @@ public partial class alglib
             int i = 0;
             int i_ = 0;
 
-            alglib.ap.assert(n >= 1, "LSFitCreateF: N<1!");
-            alglib.ap.assert(m >= 1, "LSFitCreateF: M<1!");
-            alglib.ap.assert(k >= 1, "LSFitCreateF: K<1!");
-            alglib.ap.assert(alglib.ap.len(c) >= k, "LSFitCreateF: length(C)<K!");
-            alglib.ap.assert(apserv.isfinitevector(c, k, _params), "LSFitCreateF: C contains infinite or NaN values!");
-            alglib.ap.assert(alglib.ap.len(y) >= n, "LSFitCreateF: length(Y)<N!");
-            alglib.ap.assert(apserv.isfinitevector(y, n, _params), "LSFitCreateF: Y contains infinite or NaN values!");
-            alglib.ap.assert(alglib.ap.rows(x) >= n, "LSFitCreateF: rows(X)<N!");
-            alglib.ap.assert(alglib.ap.cols(x) >= m, "LSFitCreateF: cols(X)<M!");
-            alglib.ap.assert(apserv.apservisfinitematrix(x, n, m, _params), "LSFitCreateF: X contains infinite or NaN values!");
-            alglib.ap.assert(alglib.ap.rows(x) >= n, "LSFitCreateF: rows(X)<N!");
-            alglib.ap.assert(alglib.ap.cols(x) >= m, "LSFitCreateF: cols(X)<M!");
-            alglib.ap.assert(apserv.apservisfinitematrix(x, n, m, _params), "LSFitCreateF: X contains infinite or NaN values!");
-            alglib.ap.assert(math.isfinite(diffstep), "LSFitCreateF: DiffStep is not finite!");
-            alglib.ap.assert((double)(diffstep) > (double)(0), "LSFitCreateF: DiffStep<=0!");
+            ap.assert(n >= 1, "LSFitCreateF: N<1!");
+            ap.assert(m >= 1, "LSFitCreateF: M<1!");
+            ap.assert(k >= 1, "LSFitCreateF: K<1!");
+            ap.assert(ap.len(c) >= k, "LSFitCreateF: length(C)<K!");
+            ap.assert(apserv.isfinitevector(c, k, _params), "LSFitCreateF: C contains infinite or NaN values!");
+            ap.assert(ap.len(y) >= n, "LSFitCreateF: length(Y)<N!");
+            ap.assert(apserv.isfinitevector(y, n, _params), "LSFitCreateF: Y contains infinite or NaN values!");
+            ap.assert(ap.rows(x) >= n, "LSFitCreateF: rows(X)<N!");
+            ap.assert(ap.cols(x) >= m, "LSFitCreateF: cols(X)<M!");
+            ap.assert(apserv.apservisfinitematrix(x, n, m, _params), "LSFitCreateF: X contains infinite or NaN values!");
+            ap.assert(ap.rows(x) >= n, "LSFitCreateF: rows(X)<N!");
+            ap.assert(ap.cols(x) >= m, "LSFitCreateF: cols(X)<M!");
+            ap.assert(apserv.apservisfinitematrix(x, n, m, _params), "LSFitCreateF: X contains infinite or NaN values!");
+            ap.assert(math.isfinite(diffstep), "LSFitCreateF: DiffStep is not finite!");
+            ap.assert((double)(diffstep) > (double)(0), "LSFitCreateF: DiffStep<=0!");
             state.protocolversion = 1;
             state.formulatype = 0;
             state.teststep = 0;
@@ -43867,18 +43867,18 @@ public partial class alglib
             int i = 0;
             int i_ = 0;
 
-            alglib.ap.assert(n >= 1, "LSFitCreateWFG: N<1!");
-            alglib.ap.assert(m >= 1, "LSFitCreateWFG: M<1!");
-            alglib.ap.assert(k >= 1, "LSFitCreateWFG: K<1!");
-            alglib.ap.assert(alglib.ap.len(c) >= k, "LSFitCreateWFG: length(C)<K!");
-            alglib.ap.assert(apserv.isfinitevector(c, k, _params), "LSFitCreateWFG: C contains infinite or NaN values!");
-            alglib.ap.assert(alglib.ap.len(y) >= n, "LSFitCreateWFG: length(Y)<N!");
-            alglib.ap.assert(apserv.isfinitevector(y, n, _params), "LSFitCreateWFG: Y contains infinite or NaN values!");
-            alglib.ap.assert(alglib.ap.len(w) >= n, "LSFitCreateWFG: length(W)<N!");
-            alglib.ap.assert(apserv.isfinitevector(w, n, _params), "LSFitCreateWFG: W contains infinite or NaN values!");
-            alglib.ap.assert(alglib.ap.rows(x) >= n, "LSFitCreateWFG: rows(X)<N!");
-            alglib.ap.assert(alglib.ap.cols(x) >= m, "LSFitCreateWFG: cols(X)<M!");
-            alglib.ap.assert(apserv.apservisfinitematrix(x, n, m, _params), "LSFitCreateWFG: X contains infinite or NaN values!");
+            ap.assert(n >= 1, "LSFitCreateWFG: N<1!");
+            ap.assert(m >= 1, "LSFitCreateWFG: M<1!");
+            ap.assert(k >= 1, "LSFitCreateWFG: K<1!");
+            ap.assert(ap.len(c) >= k, "LSFitCreateWFG: length(C)<K!");
+            ap.assert(apserv.isfinitevector(c, k, _params), "LSFitCreateWFG: C contains infinite or NaN values!");
+            ap.assert(ap.len(y) >= n, "LSFitCreateWFG: length(Y)<N!");
+            ap.assert(apserv.isfinitevector(y, n, _params), "LSFitCreateWFG: Y contains infinite or NaN values!");
+            ap.assert(ap.len(w) >= n, "LSFitCreateWFG: length(W)<N!");
+            ap.assert(apserv.isfinitevector(w, n, _params), "LSFitCreateWFG: W contains infinite or NaN values!");
+            ap.assert(ap.rows(x) >= n, "LSFitCreateWFG: rows(X)<N!");
+            ap.assert(ap.cols(x) >= m, "LSFitCreateWFG: cols(X)<M!");
+            ap.assert(apserv.apservisfinitematrix(x, n, m, _params), "LSFitCreateWFG: X contains infinite or NaN values!");
             state.protocolversion = 1;
             state.formulatype = 0;
             state.teststep = 0;
@@ -43999,19 +43999,19 @@ public partial class alglib
             int i = 0;
             int i_ = 0;
 
-            alglib.ap.assert(n >= 1, "LSFitCreateFG: N<1!");
-            alglib.ap.assert(m >= 1, "LSFitCreateFG: M<1!");
-            alglib.ap.assert(k >= 1, "LSFitCreateFG: K<1!");
-            alglib.ap.assert(alglib.ap.len(c) >= k, "LSFitCreateFG: length(C)<K!");
-            alglib.ap.assert(apserv.isfinitevector(c, k, _params), "LSFitCreateFG: C contains infinite or NaN values!");
-            alglib.ap.assert(alglib.ap.len(y) >= n, "LSFitCreateFG: length(Y)<N!");
-            alglib.ap.assert(apserv.isfinitevector(y, n, _params), "LSFitCreateFG: Y contains infinite or NaN values!");
-            alglib.ap.assert(alglib.ap.rows(x) >= n, "LSFitCreateFG: rows(X)<N!");
-            alglib.ap.assert(alglib.ap.cols(x) >= m, "LSFitCreateFG: cols(X)<M!");
-            alglib.ap.assert(apserv.apservisfinitematrix(x, n, m, _params), "LSFitCreateFG: X contains infinite or NaN values!");
-            alglib.ap.assert(alglib.ap.rows(x) >= n, "LSFitCreateFG: rows(X)<N!");
-            alglib.ap.assert(alglib.ap.cols(x) >= m, "LSFitCreateFG: cols(X)<M!");
-            alglib.ap.assert(apserv.apservisfinitematrix(x, n, m, _params), "LSFitCreateFG: X contains infinite or NaN values!");
+            ap.assert(n >= 1, "LSFitCreateFG: N<1!");
+            ap.assert(m >= 1, "LSFitCreateFG: M<1!");
+            ap.assert(k >= 1, "LSFitCreateFG: K<1!");
+            ap.assert(ap.len(c) >= k, "LSFitCreateFG: length(C)<K!");
+            ap.assert(apserv.isfinitevector(c, k, _params), "LSFitCreateFG: C contains infinite or NaN values!");
+            ap.assert(ap.len(y) >= n, "LSFitCreateFG: length(Y)<N!");
+            ap.assert(apserv.isfinitevector(y, n, _params), "LSFitCreateFG: Y contains infinite or NaN values!");
+            ap.assert(ap.rows(x) >= n, "LSFitCreateFG: rows(X)<N!");
+            ap.assert(ap.cols(x) >= m, "LSFitCreateFG: cols(X)<M!");
+            ap.assert(apserv.apservisfinitematrix(x, n, m, _params), "LSFitCreateFG: X contains infinite or NaN values!");
+            ap.assert(ap.rows(x) >= n, "LSFitCreateFG: rows(X)<N!");
+            ap.assert(ap.cols(x) >= m, "LSFitCreateFG: cols(X)<M!");
+            ap.assert(apserv.apservisfinitematrix(x, n, m, _params), "LSFitCreateFG: X contains infinite or NaN values!");
             state.protocolversion = 1;
             state.formulatype = 0;
             state.teststep = 0;
@@ -44107,7 +44107,7 @@ public partial class alglib
             int cnt,
             alglib.xparams _params)
         {
-            alglib.ap.assert(cnt >= 0, "LSFitSetNonmonotonicSteps: incorrect AccType!");
+            ap.assert(cnt >= 0, "LSFitSetNonmonotonicSteps: incorrect AccType!");
             state.nonmonotoniccnt = cnt;
         }
 
@@ -44143,7 +44143,7 @@ public partial class alglib
             int formulatype,
             alglib.xparams _params)
         {
-            alglib.ap.assert(formulatype == 2 || formulatype == 3, "LSFitSetNumDiff: unexpected formula type");
+            ap.assert(formulatype == 2 || formulatype == 3, "LSFitSetNumDiff: unexpected formula type");
             state.formulatype = formulatype;
         }
 
@@ -44180,9 +44180,9 @@ public partial class alglib
             int maxits,
             alglib.xparams _params)
         {
-            alglib.ap.assert(math.isfinite(epsx), "LSFitSetCond: EpsX is not finite!");
-            alglib.ap.assert((double)(epsx) >= (double)(0), "LSFitSetCond: negative EpsX!");
-            alglib.ap.assert(maxits >= 0, "LSFitSetCond: negative MaxIts!");
+            ap.assert(math.isfinite(epsx), "LSFitSetCond: EpsX is not finite!");
+            ap.assert((double)(epsx) >= (double)(0), "LSFitSetCond: negative EpsX!");
+            ap.assert(maxits >= 0, "LSFitSetCond: negative MaxIts!");
             state.epsx = epsx;
             state.maxits = maxits;
         }
@@ -44213,7 +44213,7 @@ public partial class alglib
             double stpmax,
             alglib.xparams _params)
         {
-            alglib.ap.assert((double)(stpmax) >= (double)(0), "LSFitSetStpMax: StpMax<0!");
+            ap.assert((double)(stpmax) >= (double)(0), "LSFitSetStpMax: StpMax<0!");
             state.stpmax = stpmax;
         }
 
@@ -44273,11 +44273,11 @@ public partial class alglib
         {
             int i = 0;
 
-            alglib.ap.assert(alglib.ap.len(s) >= state.k, "LSFitSetScale: Length(S)<K");
+            ap.assert(ap.len(s) >= state.k, "LSFitSetScale: Length(S)<K");
             for (i = 0; i <= state.k - 1; i++)
             {
-                alglib.ap.assert(math.isfinite(s[i]), "LSFitSetScale: S contains infinite or NAN elements");
-                alglib.ap.assert((double)(s[i]) != (double)(0), "LSFitSetScale: S contains infinite or NAN elements");
+                ap.assert(math.isfinite(s[i]), "LSFitSetScale: S contains infinite or NAN elements");
+                ap.assert((double)(s[i]) != (double)(0), "LSFitSetScale: S contains infinite or NAN elements");
                 state.s[i] = Math.Abs(s[i]);
             }
         }
@@ -44320,15 +44320,15 @@ public partial class alglib
             int k = 0;
 
             k = state.k;
-            alglib.ap.assert(alglib.ap.len(bndl) >= k, "LSFitSetBC: Length(BndL)<K");
-            alglib.ap.assert(alglib.ap.len(bndu) >= k, "LSFitSetBC: Length(BndU)<K");
+            ap.assert(ap.len(bndl) >= k, "LSFitSetBC: Length(BndL)<K");
+            ap.assert(ap.len(bndu) >= k, "LSFitSetBC: Length(BndU)<K");
             for (i = 0; i <= k - 1; i++)
             {
-                alglib.ap.assert(math.isfinite(bndl[i]) || Double.IsNegativeInfinity(bndl[i]), "LSFitSetBC: BndL contains NAN or +INF");
-                alglib.ap.assert(math.isfinite(bndu[i]) || Double.IsPositiveInfinity(bndu[i]), "LSFitSetBC: BndU contains NAN or -INF");
+                ap.assert(math.isfinite(bndl[i]) || Double.IsNegativeInfinity(bndl[i]), "LSFitSetBC: BndL contains NAN or +INF");
+                ap.assert(math.isfinite(bndu[i]) || Double.IsPositiveInfinity(bndu[i]), "LSFitSetBC: BndU contains NAN or -INF");
                 if (math.isfinite(bndl[i]) && math.isfinite(bndu[i]))
                 {
-                    alglib.ap.assert((double)(bndl[i]) <= (double)(bndu[i]), "LSFitSetBC: BndL[i]>BndU[i]");
+                    ap.assert((double)(bndl[i]) <= (double)(bndu[i]), "LSFitSetBC: BndL[i]>BndU[i]");
                 }
                 state.bndl[i] = bndl[i];
                 state.bndu[i] = bndu[i];
@@ -44393,11 +44393,11 @@ public partial class alglib
             //
             // First, check for errors in the inputs
             //
-            alglib.ap.assert(k >= 0, "LSFitSetLC: K<0");
-            alglib.ap.assert(alglib.ap.cols(c) >= n + 1 || k == 0, "LSFitSetLC: Cols(C)<N+1");
-            alglib.ap.assert(alglib.ap.rows(c) >= k, "LSFitSetLC: Rows(C)<K");
-            alglib.ap.assert(alglib.ap.len(ct) >= k, "LSFitSetLC: Length(CT)<K");
-            alglib.ap.assert(apserv.apservisfinitematrix(c, k, n + 1, _params), "LSFitSetLC: C contains infinite or NaN values!");
+            ap.assert(k >= 0, "LSFitSetLC: K<0");
+            ap.assert(ap.cols(c) >= n + 1 || k == 0, "LSFitSetLC: Cols(C)<N+1");
+            ap.assert(ap.rows(c) >= k, "LSFitSetLC: Rows(C)<K");
+            ap.assert(ap.len(ct) >= k, "LSFitSetLC: Length(CT)<K");
+            ap.assert(apserv.apservisfinitematrix(c, k, n + 1, _params), "LSFitSetLC: C contains infinite or NaN values!");
 
             //
             // Handle zero K
@@ -44674,7 +44674,7 @@ public partial class alglib
             //
             if (state.wkind == 1)
             {
-                alglib.ap.assert(state.npoints == state.nweights, "LSFitFit: number of points is not equal to the number of weights");
+                ap.assert(state.npoints == state.nweights, "LSFitFit: number of points is not equal to the number of weights");
             }
             state.repvaridx = -1;
             n = state.npoints;
@@ -44743,7 +44743,7 @@ public partial class alglib
             {
                 goto lbl_27;
             }
-            alglib.ap.assert((double)(state.bndl[i]) <= (double)(state.c[i]) && (double)(state.c[i]) <= (double)(state.bndu[i]), "LSFitIteration: internal error(State.C is out of bounds)");
+            ap.assert((double)(state.bndl[i]) <= (double)(state.c[i]) && (double)(state.c[i]) <= (double)(state.bndu[i]), "LSFitIteration: internal error(State.C is out of bounds)");
             if (state.protocolversion != 2)
             {
                 goto lbl_28;
@@ -44851,7 +44851,7 @@ public partial class alglib
         lbl_32:
             goto lbl_29;
         lbl_28:
-            alglib.ap.assert(state.protocolversion == 1, "LSFIT: integrity check 8428 failed");
+            ap.assert(state.protocolversion == 1, "LSFIT: integrity check 8428 failed");
             v = state.c[i];
             j = 0;
         lbl_33:
@@ -44958,7 +44958,7 @@ public partial class alglib
             }
             else
             {
-                alglib.ap.assert(state.protocolversion == 2, "LSFIT: integrity check 2839 failed");
+                ap.assert(state.protocolversion == 2, "LSFIT: integrity check 2839 failed");
                 minlm.minlmsetprotocolv2(state.optstate, _params);
             }
         lbl_36:
@@ -45199,10 +45199,10 @@ public partial class alglib
             // Request a batch of dense derivatives, repack request by MinLM (one query for N
             // functions) to the format used by LSFit (N single-function queries)
             //
-            alglib.ap.assert(state.optstate.rcommv2.querysize == 1, "LSFIT: integrity check 5248 failed");
-            alglib.ap.assert(state.optstate.rcommv2.queryfuncs == n, "LSFIT: integrity check 5249 failed");
-            alglib.ap.assert(state.optstate.rcommv2.queryvars == k, "LSFIT: integrity check 5250 failed");
-            alglib.ap.assert(state.optstate.rcommv2.querydim == 0, "LSFIT: integrity check 5251 failed");
+            ap.assert(state.optstate.rcommv2.querysize == 1, "LSFIT: integrity check 5248 failed");
+            ap.assert(state.optstate.rcommv2.queryfuncs == n, "LSFIT: integrity check 5249 failed");
+            ap.assert(state.optstate.rcommv2.queryvars == k, "LSFIT: integrity check 5250 failed");
+            ap.assert(state.optstate.rcommv2.querydim == 0, "LSFIT: integrity check 5251 failed");
             state.rcommv2.requesttype = 2;
             state.rcommv2.querysize = n;
             state.rcommv2.queryfuncs = 1;
@@ -45252,11 +45252,11 @@ public partial class alglib
             // Numerical differentiation request: repack request by MinLM (one query for N
             // functions) to the format used by LSFit (N single-function queries)
             //
-            alglib.ap.assert(state.optstate.rcommv2.querysize == 1, "LSFIT: integrity check 3348 failed");
-            alglib.ap.assert(state.optstate.rcommv2.queryfuncs == n, "LSFIT: integrity check 3349 failed");
-            alglib.ap.assert(state.optstate.rcommv2.queryvars == k, "LSFIT: integrity check 3350 failed");
-            alglib.ap.assert(state.optstate.rcommv2.querydim == 0, "LSFIT: integrity check 3351 failed");
-            alglib.ap.assert(state.optstate.rcommv2.queryformulasize >= 2, "LSFIT: integrity check 3352 failed");
+            ap.assert(state.optstate.rcommv2.querysize == 1, "LSFIT: integrity check 3348 failed");
+            ap.assert(state.optstate.rcommv2.queryfuncs == n, "LSFIT: integrity check 3349 failed");
+            ap.assert(state.optstate.rcommv2.queryvars == k, "LSFIT: integrity check 3350 failed");
+            ap.assert(state.optstate.rcommv2.querydim == 0, "LSFIT: integrity check 3351 failed");
+            ap.assert(state.optstate.rcommv2.queryformulasize >= 2, "LSFIT: integrity check 3352 failed");
             state.rcommv2.requesttype = 3;
             state.rcommv2.querysize = n;
             state.rcommv2.queryfuncs = 1;
@@ -45312,10 +45312,10 @@ public partial class alglib
             // Request a batch of target values, repack request by MinLM (one query for N
             // functions) to the format used by LSFit (N single-function queries)
             //
-            alglib.ap.assert(state.optstate.rcommv2.querysize == 1, "LSFIT: integrity check 5248 failed");
-            alglib.ap.assert(state.optstate.rcommv2.queryfuncs == n, "LSFIT: integrity check 5249 failed");
-            alglib.ap.assert(state.optstate.rcommv2.queryvars == k, "LSFIT: integrity check 5250 failed");
-            alglib.ap.assert(state.optstate.rcommv2.querydim == 0, "LSFIT: integrity check 5251 failed");
+            ap.assert(state.optstate.rcommv2.querysize == 1, "LSFIT: integrity check 5248 failed");
+            ap.assert(state.optstate.rcommv2.queryfuncs == n, "LSFIT: integrity check 5249 failed");
+            ap.assert(state.optstate.rcommv2.queryvars == k, "LSFIT: integrity check 5250 failed");
+            ap.assert(state.optstate.rcommv2.querydim == 0, "LSFIT: integrity check 5251 failed");
             state.rcommv2.requesttype = 4;
             state.rcommv2.querysize = n;
             state.rcommv2.queryfuncs = 1;
@@ -45350,7 +45350,7 @@ public partial class alglib
             goto lbl_36;
         lbl_70:
         lbl_62:
-            alglib.ap.assert(false, "LSFIT: integrity check 2012 failed (unexpected request)");
+            ap.assert(false, "LSFIT: integrity check 2012 failed (unexpected request)");
             goto lbl_36;
         lbl_37:
 
@@ -45425,7 +45425,7 @@ public partial class alglib
             //
             // Get target values using V2 protocol
             //
-            alglib.ap.assert(state.protocolversion == 2, "LSFIT: integrity check 7320 failed");
+            ap.assert(state.protocolversion == 2, "LSFIT: integrity check 7320 failed");
             state.rcommv2.requesttype = 4;
             state.rcommv2.querysize = n;
             state.rcommv2.queryfuncs = 1;
@@ -45689,7 +45689,7 @@ public partial class alglib
             //
             // Use V2 protocol
             //
-            alglib.ap.assert(state.protocolversion == 2, "LSFIT: integrity check 7321 failed");
+            ap.assert(state.protocolversion == 2, "LSFIT: integrity check 7321 failed");
             state.rcommv2.requesttype = 2;
             state.rcommv2.querysize = n;
             state.rcommv2.queryfuncs = 1;
@@ -45942,8 +45942,8 @@ public partial class alglib
             double teststep,
             alglib.xparams _params)
         {
-            alglib.ap.assert(math.isfinite(teststep), "LSFitSetGradientCheck: TestStep contains NaN or Infinite");
-            alglib.ap.assert((double)(teststep) >= (double)(0), "LSFitSetGradientCheck: invalid argument TestStep(TestStep<0)");
+            ap.assert(math.isfinite(teststep), "LSFitSetGradientCheck: TestStep contains NaN or Infinite");
+            ap.assert((double)(teststep) >= (double)(0), "LSFitSetGradientCheck: invalid argument TestStep(TestStep<0)");
             state.teststep = teststep;
         }
 
@@ -46075,7 +46075,7 @@ public partial class alglib
             int worstidx = 0;
             double worsterror = 0;
 
-            alglib.ap.assert((double)(eps) > (double)(0), "RDPRecursive: internal error, Eps<0");
+            ap.assert((double)(eps) > (double)(0), "RDPRecursive: internal error, Eps<0");
             rdpanalyzesection(x, y, i0, i1, ref worstidx, ref worsterror, _params);
             if ((double)(worsterror) <= (double)(eps))
             {
@@ -46152,7 +46152,7 @@ public partial class alglib
                     //
                     for (i = 0; i <= n - 1; i++)
                     {
-                        alglib.ap.assert((double)(x[i]) >= (double)(0), "LogisticFitInternal: integrity error");
+                        ap.assert((double)(x[i]) >= (double)(0), "LogisticFitInternal: integrity error");
 
                         //
                         // Handle zero X
@@ -46276,10 +46276,10 @@ public partial class alglib
                     //
                     continue;
                 }
-                alglib.ap.assert(false, "LogisticFitX: internal error");
+                ap.assert(false, "LogisticFitX: internal error");
             }
             minlm.minlmresultsbuf(state, ref p1, replm, _params);
-            alglib.ap.assert(replm.terminationtype > 0, "LogisticFitX: internal error");
+            ap.assert(replm.terminationtype > 0, "LogisticFitX: internal error");
         }
 
 
@@ -46438,31 +46438,31 @@ public partial class alglib
             xc = (double[])xc.Clone();
             yc = (double[])yc.Clone();
 
-            alglib.ap.assert(st == 0 || st == 1, "Spline1DFit: internal error!");
+            ap.assert(st == 0 || st == 1, "Spline1DFit: internal error!");
             if (st == 0 && m < 4)
             {
-                alglib.ap.assert(false, "LSFIT: integrity check 5729 failed");
+                ap.assert(false, "LSFIT: integrity check 5729 failed");
                 return;
             }
             if (st == 1 && m < 4)
             {
-                alglib.ap.assert(false, "LSFIT: integrity check 6229 failed");
+                ap.assert(false, "LSFIT: integrity check 6229 failed");
                 return;
             }
             if ((n < 1 || k < 0) || k >= m)
             {
-                alglib.ap.assert(false, "LSFIT: integrity check 6729 failed");
+                ap.assert(false, "LSFIT: integrity check 6729 failed");
                 return;
             }
             for (i = 0; i <= k - 1; i++)
             {
                 if (dc[i] < 0)
                 {
-                    alglib.ap.assert(false, "LSFIT: integrity check 7329 failed");
+                    ap.assert(false, "LSFIT: integrity check 7329 failed");
                 }
                 if (dc[i] > 1)
                 {
-                    alglib.ap.assert(false, "LSFIT: integrity check 7529 failed");
+                    ap.assert(false, "LSFIT: integrity check 7529 failed");
                 }
             }
             if (st == 1 && m % 2 != 0)
@@ -46471,7 +46471,7 @@ public partial class alglib
                 //
                 // Hermite fitter must have even number of basis functions
                 //
-                alglib.ap.assert(false, "LSFIT: integrity check 8229 failed");
+                ap.assert(false, "LSFIT: integrity check 8229 failed");
                 return;
             }
 
@@ -46599,7 +46599,7 @@ public partial class alglib
                 }
                 for (i = 0; i <= k - 1; i++)
                 {
-                    alglib.ap.assert(dc[i] >= 0 && dc[i] <= 2, "Spline1DFit: internal error!");
+                    ap.assert(dc[i] >= 0 && dc[i] <= 2, "Spline1DFit: internal error!");
                     spline1d.spline1ddiff(s2, xc[i], ref v0, ref v1, ref v2, _params);
                     if (dc[i] == 0)
                     {
@@ -46774,7 +46774,7 @@ public partial class alglib
             c = new double[0];
 
             clearreport(rep, _params);
-            alglib.ap.assert(!(n < 1 || m < 1), "LSFIT: integrity check 2508 failed");
+            ap.assert(!(n < 1 || m < 1), "LSFIT: integrity check 2508 failed");
             rep.terminationtype = 1;
             threshold = Math.Sqrt(math.machineepsilon);
 
@@ -46903,7 +46903,7 @@ public partial class alglib
                 //
                 if (!svd.rmatrixsvd(r, m, m, 1, 1, 2, ref sv, ref u, ref vt, _params))
                 {
-                    alglib.ap.assert(false, "LSFitLinearXX: critical failure - internal SVD solver failed");
+                    ap.assert(false, "LSFitLinearXX: critical failure - internal SVD solver failed");
                     return;
                 }
                 utb = new double[m];
@@ -47023,7 +47023,7 @@ public partial class alglib
         private static void lsfitclearrequestfields(lsfitstate state,
             alglib.xparams _params)
         {
-            alglib.ap.assert(state.protocolversion == 1, "LSFIT: unexpected protocol");
+            ap.assert(state.protocolversion == 1, "LSFIT: unexpected protocol");
             state.needf = false;
             state.needfg = false;
             state.xupdated = false;
@@ -47506,7 +47506,7 @@ public partial class alglib
                     ratint.barycentricbuildfloaterhormann(sx, sy, m, d, b2, _params);
                     for (i = 0; i <= k - 1; i++)
                     {
-                        alglib.ap.assert(dc[i] >= 0 && dc[i] <= 1, "BarycentricFit: internal error!");
+                        ap.assert(dc[i] >= 0 && dc[i] <= 1, "BarycentricFit: internal error!");
                         ratint.barycentricdiff1(b2, xc[i], ref v0, ref v1, _params);
                         if (dc[i] == 0)
                         {
@@ -47819,7 +47819,7 @@ public partial class alglib
                 //
                 // Normal situation: non-zero noise level
                 //
-                alglib.ap.assert(zkind == 0 || zkind == 1, "LSFit: internal error in EstimateErrors() function");
+                ap.assert(zkind == 0 || zkind == 1, "LSFit: internal error in EstimateErrors() function");
                 if (zkind == 0)
                 {
 
@@ -48233,8 +48233,8 @@ public partial class alglib
             int i = 0;
             int j = 0;
 
-            alglib.ap.assert(nx == 2 || nx == 3, "RBFCreate: NX<>2 and NX<>3");
-            alglib.ap.assert(ny >= 1, "RBFCreate: NY<1");
+            ap.assert(nx == 2 || nx == 3, "RBFCreate: NX<>2 and NX<>3");
+            ap.assert(ny >= 1, "RBFCreate: NY<1");
             s.nx = nx;
             s.ny = ny;
             s.nl = 0;
@@ -48375,7 +48375,7 @@ public partial class alglib
             int layerscnt = 0;
             bool modelstatus = new();
 
-            alglib.ap.assert(s.nx == 2 || s.nx == 3, "RBFBuildModel: S.NX<>2 or S.NX<>3!");
+            ap.assert(s.nx == 2 || s.nx == 3, "RBFBuildModel: S.NX<>2 or S.NX<>3!");
 
             //
             // Quick exit when we have no points
@@ -48578,7 +48578,7 @@ public partial class alglib
                 layerscnt = nlayers;
                 modelstatus = true;
             }
-            alglib.ap.assert(modelstatus, "RBFBuildModel: integrity error");
+            ap.assert(modelstatus, "RBFBuildModel: integrity error");
             if (rep.terminationtype <= 0)
             {
                 return;
@@ -48758,8 +48758,8 @@ public partial class alglib
             double bfcur = 0;
             double rcur = 0;
 
-            alglib.ap.assert(math.isfinite(x0), "RBFCalc2: invalid value for X0 (X0 is Inf)!");
-            alglib.ap.assert(math.isfinite(x1), "RBFCalc2: invalid value for X1 (X1 is Inf)!");
+            ap.assert(math.isfinite(x0), "RBFCalc2: invalid value for X0 (X0 is Inf)!");
+            ap.assert(math.isfinite(x1), "RBFCalc2: invalid value for X1 (X1 is Inf)!");
             if (s.ny != 1 || s.nx != 2)
             {
                 result = 0;
@@ -48838,9 +48838,9 @@ public partial class alglib
             double rcur = 0;
             double bf = 0;
 
-            alglib.ap.assert(math.isfinite(x0), "RBFCalc3: invalid value for X0 (X0 is Inf or NaN)!");
-            alglib.ap.assert(math.isfinite(x1), "RBFCalc3: invalid value for X1 (X1 is Inf or NaN)!");
-            alglib.ap.assert(math.isfinite(x2), "RBFCalc3: invalid value for X2 (X2 is Inf or NaN)!");
+            ap.assert(math.isfinite(x0), "RBFCalc3: invalid value for X0 (X0 is Inf or NaN)!");
+            ap.assert(math.isfinite(x1), "RBFCalc3: invalid value for X1 (X1 is Inf or NaN)!");
+            ap.assert(math.isfinite(x2), "RBFCalc3: invalid value for X2 (X2 is Inf or NaN)!");
             if (s.ny != 1 || s.nx != 3)
             {
                 result = 0;
@@ -48916,9 +48916,9 @@ public partial class alglib
             double rcur = 0;
             double bf = 0;
 
-            alglib.ap.assert(alglib.ap.len(x) >= s.nx, "RBFCalcBuf: Length(X)<NX");
-            alglib.ap.assert(apserv.isfinitevector(x, s.nx, _params), "RBFCalcBuf: X contains infinite or NaN values");
-            if (alglib.ap.len(y) < s.ny)
+            ap.assert(ap.len(x) >= s.nx, "RBFCalcBuf: Length(X)<NX");
+            ap.assert(apserv.isfinitevector(x, s.nx, _params), "RBFCalcBuf: X contains infinite or NaN values");
+            if (ap.len(y) < s.ny)
             {
                 y = new double[s.ny];
             }
@@ -49004,9 +49004,9 @@ public partial class alglib
             double rcur = 0;
             double bf = 0;
 
-            alglib.ap.assert(alglib.ap.len(x) >= s.nx, "RBFCalcBuf: Length(X)<NX");
-            alglib.ap.assert(apserv.isfinitevector(x, s.nx, _params), "RBFCalcBuf: X contains infinite or NaN values");
-            if (alglib.ap.len(y) < s.ny)
+            ap.assert(ap.len(x) >= s.nx, "RBFCalcBuf: Length(X)<NX");
+            ap.assert(apserv.isfinitevector(x, s.nx, _params), "RBFCalcBuf: X contains infinite or NaN values");
+            if (ap.len(y) < s.ny)
             {
                 y = new double[s.ny];
             }
@@ -49099,13 +49099,13 @@ public partial class alglib
             double df = 0;
             double w = 0;
 
-            alglib.ap.assert(alglib.ap.len(x) >= s.nx, "RBFDiffBuf: Length(X)<NX");
-            alglib.ap.assert(apserv.isfinitevector(x, s.nx, _params), "RBFDiffBuf: X contains infinite or NaN values");
-            if (alglib.ap.len(y) < s.ny)
+            ap.assert(ap.len(x) >= s.nx, "RBFDiffBuf: Length(X)<NX");
+            ap.assert(apserv.isfinitevector(x, s.nx, _params), "RBFDiffBuf: X contains infinite or NaN values");
+            if (ap.len(y) < s.ny)
             {
                 y = new double[s.ny];
             }
-            if (alglib.ap.len(dy) < s.ny * s.nx)
+            if (ap.len(dy) < s.ny * s.nx)
             {
                 dy = new double[s.ny * s.nx];
             }
@@ -49213,17 +49213,17 @@ public partial class alglib
             double d2f = 0;
             double w = 0;
 
-            alglib.ap.assert(alglib.ap.len(x) >= s.nx, "RBFDiffBuf: Length(X)<NX");
-            alglib.ap.assert(apserv.isfinitevector(x, s.nx, _params), "RBFDiffBuf: X contains infinite or NaN values");
-            if (alglib.ap.len(y) < s.ny)
+            ap.assert(ap.len(x) >= s.nx, "RBFDiffBuf: Length(X)<NX");
+            ap.assert(apserv.isfinitevector(x, s.nx, _params), "RBFDiffBuf: X contains infinite or NaN values");
+            if (ap.len(y) < s.ny)
             {
                 y = new double[s.ny];
             }
-            if (alglib.ap.len(dy) < s.ny * s.nx)
+            if (ap.len(dy) < s.ny * s.nx)
             {
                 dy = new double[s.ny * s.nx];
             }
-            if (alglib.ap.len(d2y) < s.ny * s.nx * s.nx)
+            if (ap.len(d2y) < s.ny * s.nx * s.nx)
             {
                 d2y = new double[s.ny * s.nx * s.nx];
             }
@@ -49361,12 +49361,12 @@ public partial class alglib
 
             y = new double[0, 0];
 
-            alglib.ap.assert(n0 > 0, "RBFGridCalc2: invalid value for N0 (N0<=0)!");
-            alglib.ap.assert(n1 > 0, "RBFGridCalc2: invalid value for N1 (N1<=0)!");
-            alglib.ap.assert(alglib.ap.len(x0) >= n0, "RBFGridCalc2: Length(X0)<N0");
-            alglib.ap.assert(alglib.ap.len(x1) >= n1, "RBFGridCalc2: Length(X1)<N1");
-            alglib.ap.assert(apserv.isfinitevector(x0, n0, _params), "RBFGridCalc2: X0 contains infinite or NaN values!");
-            alglib.ap.assert(apserv.isfinitevector(x1, n1, _params), "RBFGridCalc2: X1 contains infinite or NaN values!");
+            ap.assert(n0 > 0, "RBFGridCalc2: invalid value for N0 (N0<=0)!");
+            ap.assert(n1 > 0, "RBFGridCalc2: invalid value for N1 (N1<=0)!");
+            ap.assert(ap.len(x0) >= n0, "RBFGridCalc2: Length(X0)<N0");
+            ap.assert(ap.len(x1) >= n1, "RBFGridCalc2: Length(X1)<N1");
+            ap.assert(apserv.isfinitevector(x0, n0, _params), "RBFGridCalc2: X0 contains infinite or NaN values!");
+            ap.assert(apserv.isfinitevector(x1, n1, _params), "RBFGridCalc2: X1 contains infinite or NaN values!");
             y = new double[n0, n1];
             for (i = 0; i <= n0 - 1; i++)
             {
@@ -49540,7 +49540,7 @@ public partial class alglib
             //
             // Retrieve buffer object from pool (it will be returned later)
             //
-            alglib.smp.ae_shared_pool_retrieve(bufpool, ref pbuf);
+            smp.ae_shared_pool_retrieve(bufpool, ref pbuf);
 
             //
             // Calculate RBF model
@@ -49848,7 +49848,7 @@ public partial class alglib
             //
             // Recycle buffer object back to pool
             //
-            alglib.smp.ae_shared_pool_recycle(bufpool, ref pbuf);
+            smp.ae_shared_pool_recycle(bufpool, ref pbuf);
         }
 
 
@@ -49995,8 +49995,8 @@ public partial class alglib
 
             v = new double[0, 0];
 
-            alglib.ap.assert(n >= 0, "BuildLinearModel: N<0");
-            alglib.ap.assert(ny > 0, "BuildLinearModel: NY<=0");
+            ap.assert(n >= 0, "BuildLinearModel: N<0");
+            ap.assert(ny > 0, "BuildLinearModel: NY<=0");
 
             //
             // Handle degenerate case (N=0)
@@ -50136,7 +50136,7 @@ public partial class alglib
             //
             // Zero model
             //
-            alglib.ap.assert(modeltype == 3, "BuildLinearModel: unknown model type");
+            ap.assert(modeltype == 3, "BuildLinearModel: unknown model type");
             for (i = 0; i <= ny - 1; i++)
             {
                 for (j = 0; j <= mxnx; j++)
@@ -50291,7 +50291,7 @@ public partial class alglib
                 //
                 skipnearpointscnt[i] = nearestneighbor.kdtreequeryrnn(pointstree, xcx, 0.1 * r[i], true, _params);
                 nearpointscnt[i] = nearestneighbor.kdtreequeryrnn(pointstree, xcx, (r[i] + maxrad) * rbfnearradius, true, _params) - skipnearpointscnt[i];
-                alglib.ap.assert(nearpointscnt[i] >= 0, "BuildRBFModelLSQR: internal error");
+                ap.assert(nearpointscnt[i] >= 0, "BuildRBFModelLSQR: internal error");
 
                 //
                 // Determine number of far points
@@ -50301,7 +50301,7 @@ public partial class alglib
                 //
                 // calculate sum and max, make some basic checks
                 //
-                alglib.ap.assert(nearcenterscnt[i] > 0, "BuildRBFModelLSQR: internal error");
+                ap.assert(nearcenterscnt[i] > 0, "BuildRBFModelLSQR: internal error");
                 maxnearcenterscnt = Math.Max(maxnearcenterscnt, nearcenterscnt[i]);
                 maxnearpointscnt = Math.Max(maxnearpointscnt, nearpointscnt[i]);
                 maxfarpointscnt = Math.Max(maxfarpointscnt, farpointscnt[i]);
@@ -50311,7 +50311,7 @@ public partial class alglib
             }
             snnz = sumnearcenterscnt;
             gnnz = sumfarpointscnt;
-            alglib.ap.assert(maxnearcenterscnt > 0, "BuildRBFModelLSQR: internal error");
+            ap.assert(maxnearcenterscnt > 0, "BuildRBFModelLSQR: internal error");
 
             //
             // Allocate temporaries.
@@ -50349,7 +50349,7 @@ public partial class alglib
                 // center's tree
                 //
                 tmpi = nearestneighbor.kdtreequeryknn(centerstree, xcx, centerscnt, true, _params);
-                alglib.ap.assert(tmpi == centerscnt, "BuildRBFModelLSQR: internal error");
+                ap.assert(tmpi == centerscnt, "BuildRBFModelLSQR: internal error");
                 nearestneighbor.kdtreequeryresultsx(centerstree, ref cx, _params);
                 nearestneighbor.kdtreequeryresultstags(centerstree, ref centerstags, _params);
 
@@ -50380,7 +50380,7 @@ public partial class alglib
                     //
                     pointscnt = nearpointscnt[i];
                     tmpi = nearestneighbor.kdtreequeryknn(pointstree, xcx, skipnearpointscnt[i] + nearpointscnt[i], true, _params);
-                    alglib.ap.assert(tmpi == skipnearpointscnt[i] + nearpointscnt[i], "BuildRBFModelLSQR: internal error");
+                    ap.assert(tmpi == skipnearpointscnt[i] + nearpointscnt[i], "BuildRBFModelLSQR: internal error");
                     nearestneighbor.kdtreequeryresultsx(pointstree, ref xx, _params);
                     sind = skipnearpointscnt[i];
                     for (j = 0; j <= pointscnt - 1; j++)
@@ -50468,7 +50468,7 @@ public partial class alglib
                 //
                 pointscnt = farpointscnt[i];
                 tmpi = nearestneighbor.kdtreequeryknn(pointstree, xcx, pointscnt, true, _params);
-                alglib.ap.assert(tmpi == pointscnt, "BuildRBFModelLSQR: internal error");
+                ap.assert(tmpi == pointscnt, "BuildRBFModelLSQR: internal error");
                 nearestneighbor.kdtreequeryresultsx(pointstree, ref xx, _params);
                 nearestneighbor.kdtreequeryresultstags(pointstree, ref pointstags, _params);
 
@@ -50582,9 +50582,9 @@ public partial class alglib
             iterationscount = 0;
             nmv = 0;
 
-            alglib.ap.assert(nlayers >= 0, "BuildRBFMLayersModelLSQR: invalid argument(NLayers<0)");
-            alglib.ap.assert(n >= 0, "BuildRBFMLayersModelLSQR: invalid argument(N<0)");
-            alglib.ap.assert(mxnx > 0 && mxnx <= 3, "BuildRBFMLayersModelLSQR: internal error(invalid global const MxNX: either MxNX<=0 or MxNX>3)");
+            ap.assert(nlayers >= 0, "BuildRBFMLayersModelLSQR: invalid argument(NLayers<0)");
+            ap.assert(n >= 0, "BuildRBFMLayersModelLSQR: invalid argument(N<0)");
+            ap.assert(mxnx > 0 && mxnx <= 3, "BuildRBFMLayersModelLSQR: internal error(invalid global const MxNX: either MxNX<=0 or MxNX>3)");
             annz = 0;
             if (n == 0 || nlayers == 0)
             {
@@ -50869,15 +50869,15 @@ public partial class alglib
 
             xy = (double[,])xy.Clone();
 
-            alglib.ap.assert(st >= 0 && st <= 2, "PSpline2Build: incorrect spline type!");
-            alglib.ap.assert(pt >= 0 && pt <= 2, "PSpline2Build: incorrect parameterization type!");
+            ap.assert(st >= 0 && st <= 2, "PSpline2Build: incorrect spline type!");
+            ap.assert(pt >= 0 && pt <= 2, "PSpline2Build: incorrect parameterization type!");
             if (st == 0)
             {
-                alglib.ap.assert(n >= 5, "PSpline2Build: N<5 (minimum value for Akima splines)!");
+                ap.assert(n >= 5, "PSpline2Build: N<5 (minimum value for Akima splines)!");
             }
             else
             {
-                alglib.ap.assert(n >= 2, "PSpline2Build: N<2!");
+                ap.assert(n >= 2, "PSpline2Build: N<2!");
             }
 
             //
@@ -50891,7 +50891,7 @@ public partial class alglib
             // Build parameterization, check that all parameters are distinct
             //
             pspline2par(xy, n, pt, ref p.p, _params);
-            alglib.ap.assert(apserv.aredistinct(p.p, n, _params), "PSpline2Build: consequent points are too close!");
+            ap.assert(apserv.aredistinct(p.p, n, _params), "PSpline2Build: consequent points are too close!");
 
             //
             // Build splines
@@ -50960,15 +50960,15 @@ public partial class alglib
 
             xy = (double[,])xy.Clone();
 
-            alglib.ap.assert(st >= 0 && st <= 2, "PSpline3Build: incorrect spline type!");
-            alglib.ap.assert(pt >= 0 && pt <= 2, "PSpline3Build: incorrect parameterization type!");
+            ap.assert(st >= 0 && st <= 2, "PSpline3Build: incorrect spline type!");
+            ap.assert(pt >= 0 && pt <= 2, "PSpline3Build: incorrect parameterization type!");
             if (st == 0)
             {
-                alglib.ap.assert(n >= 5, "PSpline3Build: N<5 (minimum value for Akima splines)!");
+                ap.assert(n >= 5, "PSpline3Build: N<5 (minimum value for Akima splines)!");
             }
             else
             {
-                alglib.ap.assert(n >= 2, "PSpline3Build: N<2!");
+                ap.assert(n >= 2, "PSpline3Build: N<2!");
             }
 
             //
@@ -50982,7 +50982,7 @@ public partial class alglib
             // Build parameterization, check that all parameters are distinct
             //
             pspline3par(xy, n, pt, ref p.p, _params);
-            alglib.ap.assert(apserv.aredistinct(p.p, n, _params), "PSpline3Build: consequent points are too close!");
+            ap.assert(apserv.aredistinct(p.p, n, _params), "PSpline3Build: consequent points are too close!");
 
             //
             // Build splines
@@ -51091,9 +51091,9 @@ public partial class alglib
 
             xy = (double[,])xy.Clone();
 
-            alglib.ap.assert(st >= 1 && st <= 2, "PSpline2BuildPeriodic: incorrect spline type!");
-            alglib.ap.assert(pt >= 0 && pt <= 2, "PSpline2BuildPeriodic: incorrect parameterization type!");
-            alglib.ap.assert(n >= 3, "PSpline2BuildPeriodic: N<3!");
+            ap.assert(st >= 1 && st <= 2, "PSpline2BuildPeriodic: incorrect spline type!");
+            ap.assert(pt >= 0 && pt <= 2, "PSpline2BuildPeriodic: incorrect parameterization type!");
+            ap.assert(n >= 3, "PSpline2BuildPeriodic: N<3!");
 
             //
             // Prepare
@@ -51119,7 +51119,7 @@ public partial class alglib
             // Build parameterization, check that all parameters are distinct
             //
             pspline2par(xyp, n + 1, pt, ref p.p, _params);
-            alglib.ap.assert(apserv.aredistinct(p.p, n + 1, _params), "PSpline2BuildPeriodic: consequent (or first and last) points are too close!");
+            ap.assert(apserv.aredistinct(p.p, n + 1, _params), "PSpline2BuildPeriodic: consequent (or first and last) points are too close!");
 
             //
             // Build splines
@@ -51177,9 +51177,9 @@ public partial class alglib
 
             xy = (double[,])xy.Clone();
 
-            alglib.ap.assert(st >= 1 && st <= 2, "PSpline3BuildPeriodic: incorrect spline type!");
-            alglib.ap.assert(pt >= 0 && pt <= 2, "PSpline3BuildPeriodic: incorrect parameterization type!");
-            alglib.ap.assert(n >= 3, "PSpline3BuildPeriodic: N<3!");
+            ap.assert(st >= 1 && st <= 2, "PSpline3BuildPeriodic: incorrect spline type!");
+            ap.assert(pt >= 0 && pt <= 2, "PSpline3BuildPeriodic: incorrect parameterization type!");
+            ap.assert(n >= 3, "PSpline3BuildPeriodic: N<3!");
 
             //
             // Prepare
@@ -51209,7 +51209,7 @@ public partial class alglib
             // Build parameterization, check that all parameters are distinct
             //
             pspline3par(xyp, n + 1, pt, ref p.p, _params);
-            alglib.ap.assert(apserv.aredistinct(p.p, n + 1, _params), "PSplineBuild2Periodic: consequent (or first and last) points are too close!");
+            ap.assert(apserv.aredistinct(p.p, n + 1, _params), "PSplineBuild2Periodic: consequent (or first and last) points are too close!");
 
             //
             // Build splines
@@ -51288,7 +51288,7 @@ public partial class alglib
             n = 0;
             t = new double[0];
 
-            alglib.ap.assert(p.n >= 2, "PSpline2ParameterValues: internal error!");
+            ap.assert(p.n >= 2, "PSpline2ParameterValues: internal error!");
             n = p.n;
             t = new double[n];
             for (i_ = 0; i_ <= n - 1; i_++)
@@ -51321,7 +51321,7 @@ public partial class alglib
             n = 0;
             t = new double[0];
 
-            alglib.ap.assert(p.n >= 2, "PSpline3ParameterValues: internal error!");
+            ap.assert(p.n >= 2, "PSpline3ParameterValues: internal error!");
             n = p.n;
             t = new double[n];
             for (i_ = 0; i_ <= n - 1; i_++)
@@ -51777,7 +51777,7 @@ public partial class alglib
                 state.f = apserv.safepythag2(dsx, dsy, _params);
             }
             autogk.autogkresults(state, ref result, rep, _params);
-            alglib.ap.assert(rep.terminationtype > 0, "PSpline2ArcLength: internal error!");
+            ap.assert(rep.terminationtype > 0, "PSpline2ArcLength: internal error!");
             return result;
         }
 
@@ -51826,7 +51826,7 @@ public partial class alglib
                 state.f = apserv.safepythag3(dsx, dsy, dsz, _params);
             }
             autogk.autogkresults(state, ref result, rep, _params);
-            alglib.ap.assert(rep.terminationtype > 0, "PSpline3ArcLength: internal error!");
+            ap.assert(rep.terminationtype > 0, "PSpline3ArcLength: internal error!");
             return result;
         }
 
@@ -51924,13 +51924,13 @@ public partial class alglib
             idx2 = new int[0];
             nsections = 0;
 
-            alglib.ap.assert(n >= 0, "LSTFitPiecewiseLinearParametricRDP: N<0");
-            alglib.ap.assert(d >= 1, "LSTFitPiecewiseLinearParametricRDP: D<=0");
-            alglib.ap.assert(stopm >= 0, "LSTFitPiecewiseLinearParametricRDP: StopM<1");
-            alglib.ap.assert(math.isfinite(stopeps) && (double)(stopeps) >= (double)(0), "LSTFitPiecewiseLinearParametricRDP: StopEps<0 or is infinite");
-            alglib.ap.assert(alglib.ap.rows(x) >= n, "LSTFitPiecewiseLinearParametricRDP: Rows(X)<N");
-            alglib.ap.assert(alglib.ap.cols(x) >= d, "LSTFitPiecewiseLinearParametricRDP: Cols(X)<D");
-            alglib.ap.assert(apserv.apservisfinitematrix(x, n, d, _params), "LSTFitPiecewiseLinearParametricRDP: X contains infinite/NAN values");
+            ap.assert(n >= 0, "LSTFitPiecewiseLinearParametricRDP: N<0");
+            ap.assert(d >= 1, "LSTFitPiecewiseLinearParametricRDP: D<=0");
+            ap.assert(stopm >= 0, "LSTFitPiecewiseLinearParametricRDP: StopM<1");
+            ap.assert(math.isfinite(stopeps) && (double)(stopeps) >= (double)(0), "LSTFitPiecewiseLinearParametricRDP: StopEps<0 or is infinite");
+            ap.assert(ap.rows(x) >= n, "LSTFitPiecewiseLinearParametricRDP: Rows(X)<N");
+            ap.assert(ap.cols(x) >= d, "LSTFitPiecewiseLinearParametricRDP: Cols(X)<D");
+            ap.assert(apserv.apservisfinitematrix(x, n, d, _params), "LSTFitPiecewiseLinearParametricRDP: X contains infinite/NAN values");
 
             //
             // Handle degenerate cases
@@ -51968,7 +51968,7 @@ public partial class alglib
             sections[0, 3] = worsterror;
             heaperrors[0] = worsterror;
             heaptags[0] = 0;
-            alglib.ap.assert((double)(sections[0, 1]) == (double)(n - 1), "RDP algorithm: integrity check failed");
+            ap.assert((double)(sections[0, 1]) == (double)(n - 1), "RDP algorithm: integrity check failed");
 
             //
             // Main loop.
@@ -52036,8 +52036,8 @@ public partial class alglib
             {
                 idx2[i] = (int)Math.Round(buf0[i]);
             }
-            alglib.ap.assert(idx2[0] == 0, "RDP algorithm: integrity check failed");
-            alglib.ap.assert(idx2[nsections] == n - 1, "RDP algorithm: integrity check failed");
+            ap.assert(idx2[0] == 0, "RDP algorithm: integrity check failed");
+            ap.assert(idx2[nsections] == n - 1, "RDP algorithm: integrity check failed");
 
             //
             // Output sections:
@@ -52071,7 +52071,7 @@ public partial class alglib
 
             p = new double[0];
 
-            alglib.ap.assert(pt >= 0 && pt <= 2, "PSpline2Par: internal error!");
+            ap.assert(pt >= 0 && pt <= 2, "PSpline2Par: internal error!");
 
             //
             // Build parameterization:
@@ -52125,7 +52125,7 @@ public partial class alglib
 
             p = new double[0];
 
-            alglib.ap.assert(pt >= 0 && pt <= 2, "PSpline3Par: internal error!");
+            ap.assert(pt >= 0 && pt <= 2, "PSpline3Par: internal error!");
 
             //
             // Build parameterization:
@@ -52501,8 +52501,8 @@ public partial class alglib
             int i = 0;
             int j = 0;
 
-            alglib.ap.assert(nx >= 1, "RBFCreate: NX<1");
-            alglib.ap.assert(ny >= 1, "RBFCreate: NY<1");
+            ap.assert(nx >= 1, "RBFCreate: NX<1");
+            ap.assert(ny >= 1, "RBFCreate: NY<1");
 
             //
             // Serializable parameters
@@ -52708,17 +52708,17 @@ public partial class alglib
             double[] rowvals = new double[0];
             double penalty = 0;
 
-            alglib.ap.assert(s.nx > 0, "RBFV2BuildHierarchical: incorrect NX");
-            alglib.ap.assert(s.ny > 0, "RBFV2BuildHierarchical: incorrect NY");
-            alglib.ap.assert((double)(lambdans) >= (double)(0), "RBFV2BuildHierarchical: incorrect LambdaNS");
+            ap.assert(s.nx > 0, "RBFV2BuildHierarchical: incorrect NX");
+            ap.assert(s.ny > 0, "RBFV2BuildHierarchical: incorrect NY");
+            ap.assert((double)(lambdans) >= (double)(0), "RBFV2BuildHierarchical: incorrect LambdaNS");
             for (j = 0; j <= s.nx - 1; j++)
             {
-                alglib.ap.assert((double)(scalevec[j]) > (double)(0), "RBFV2BuildHierarchical: incorrect ScaleVec");
+                ap.assert((double)(scalevec[j]) > (double)(0), "RBFV2BuildHierarchical: incorrect ScaleVec");
             }
             nx = s.nx;
             ny = s.ny;
             bf = s.basisfunction;
-            alglib.ap.assert(bf == 0 || bf == 1, "RBFV2BuildHierarchical: incorrect BF");
+            ap.assert(bf == 0 || bf == 1, "RBFV2BuildHierarchical: incorrect BF");
 
             //
             // Clean up communication and report fields
@@ -52851,7 +52851,7 @@ public partial class alglib
             // Generate sequence of layer radii.
             // Prepare assignment of different levels to points.
             //
-            alglib.ap.assert(n > 0, "RBFV2BuildHierarchical: integrity check failed");
+            ap.assert(n > 0, "RBFV2BuildHierarchical: integrity check failed");
             ri = new double[nh];
             for (levelidx = 0; levelidx <= nh - 1; levelidx++)
             {
@@ -52863,7 +52863,7 @@ public partial class alglib
             {
                 hidx[i] = nh;
                 xr[i] = math.maxrealnumber;
-                alglib.ap.assert((double)(xr[i]) > (double)(ri[0]), "RBFV2BuildHierarchical: integrity check failed");
+                ap.assert((double)(xr[i]) > (double)(ri[0]), "RBFV2BuildHierarchical: integrity check failed");
             }
             for (levelidx = 0; levelidx <= nh - 1; levelidx++)
             {
@@ -52884,7 +52884,7 @@ public partial class alglib
                         //
                         // Mark point as support
                         //
-                        alglib.ap.assert(hidx[i] == nh, "RBFV2BuildHierarchical: integrity check failed");
+                        ap.assert(hidx[i] == nh, "RBFV2BuildHierarchical: integrity check failed");
                         hidx[i] = levelidx;
                         xr[i] = 0;
 
@@ -52929,7 +52929,7 @@ public partial class alglib
                 //
                 // Prepare radius and root offset
                 //
-                kdroots[levelidx] = alglib.ap.len(kdnodes);
+                kdroots[levelidx] = ap.len(kdnodes);
 
                 //
                 // Generate LevelIdx-th tree and append to multi-tree
@@ -52950,16 +52950,16 @@ public partial class alglib
                         apserv.inc(ref curn, _params);
                     }
                 }
-                alglib.ap.assert(curn > 0, "RBFV2BuildHierarchical: integrity check failed");
+                ap.assert(curn > 0, "RBFV2BuildHierarchical: integrity check failed");
                 nearestneighbor.kdtreebuild(curxy, curn, nx, ny, 2, curtree, _params);
                 convertandappendtree(curtree, curn, nx, ny, ref kdnodes, ref kdsplits, ref cw, _params);
 
                 //
                 // Fill entry of CWRange (we assume that length of CW exactly fits its actual size)
                 //
-                cwrange[levelidx + 1] = alglib.ap.len(cw);
+                cwrange[levelidx + 1] = ap.len(cw);
             }
-            kdroots[nh] = alglib.ap.len(kdnodes);
+            kdroots[nh] = ap.len(kdnodes);
 
             //
             // Prepare buffer and scaled dataset
@@ -53009,7 +53009,7 @@ public partial class alglib
                 //       coefficient.
                 //
                 nbasis = (cwrange[levelidx + 1] - cwrange[levelidx]) / (nx + ny);
-                alglib.ap.assert(cwrange[levelidx + 1] - cwrange[levelidx] == nbasis * (nx + ny));
+                ap.assert(cwrange[levelidx + 1] - cwrange[levelidx] == nbasis * (nx + ny));
                 for (i = 0; i <= n - 1; i++)
                 {
                     for (j = 0; j <= nx - 1; j++)
@@ -53043,7 +53043,7 @@ public partial class alglib
                         x0[j] = curxy[i, j];
                     }
                     designmatrixgeneraterow(kdnodes, kdsplits, cw, ri, kdroots, kdboxmin, kdboxmax, cwrange, nx, ny, nh, levelidx, bf, rbfv2nearradius(bf, _params), rowsperpoint, penalty, x0, calcbuf, vr2, voffs, rowindexes, rowvals, ref cnt, _params);
-                    alglib.ap.assert(cnt == nncnt[i], "RBFV2BuildHierarchical: integrity check failed");
+                    ap.assert(cnt == nncnt[i], "RBFV2BuildHierarchical: integrity check failed");
                     for (k = 0; k <= rowsperpoint - 1; k++)
                     {
                         for (j = 0; j <= cnt - 1; j++)
@@ -53137,14 +53137,14 @@ public partial class alglib
                             rprogress = 10000 * rprogress;
                             rprogress = Math.Max(rprogress, 0);
                             rprogress = Math.Min(rprogress, 10000);
-                            alglib.ap.assert(progress10000 <= (int)Math.Round(rprogress) + 1, "HRBF: integrity check failed (progress indicator) even after +1 safeguard correction");
+                            ap.assert(progress10000 <= (int)Math.Round(rprogress) + 1, "HRBF: integrity check failed (progress indicator) even after +1 safeguard correction");
                             progress10000 = (int)Math.Round(rprogress);
                             continue;
                         }
-                        alglib.ap.assert(false, "HRBF: unexpected request from LSQR solver");
+                        ap.assert(false, "HRBF: unexpected request from LSQR solver");
                     }
                     linlsqr.linlsqrresults(linstate, ref densew1, lsqrrep, _params);
-                    alglib.ap.assert(lsqrrep.terminationtype > 0, "RBFV2BuildHierarchical: integrity check failed");
+                    ap.assert(lsqrrep.terminationtype > 0, "RBFV2BuildHierarchical: integrity check failed");
                     for (i = 0; i <= nbasis - 1; i++)
                     {
                         densew1[i] = prec[i] * densew1[i];
@@ -53189,14 +53189,14 @@ public partial class alglib
             //
             s.bf = bf;
             s.nh = nh;
-            alglib.ap.swap(ref s.ri, ref ri);
-            alglib.ap.swap(ref s.kdroots, ref kdroots);
-            alglib.ap.swap(ref s.kdnodes, ref kdnodes);
-            alglib.ap.swap(ref s.kdsplits, ref kdsplits);
-            alglib.ap.swap(ref s.kdboxmin, ref kdboxmin);
-            alglib.ap.swap(ref s.kdboxmax, ref kdboxmax);
-            alglib.ap.swap(ref s.cw, ref cw);
-            alglib.ap.swap(ref s.v, ref v);
+            ap.swap(ref s.ri, ref ri);
+            ap.swap(ref s.kdroots, ref kdroots);
+            ap.swap(ref s.kdnodes, ref kdnodes);
+            ap.swap(ref s.kdsplits, ref kdsplits);
+            ap.swap(ref s.kdboxmin, ref kdboxmin);
+            ap.swap(ref s.kdboxmax, ref kdboxmax);
+            ap.swap(ref s.cw, ref cw);
+            ap.swap(ref s.v, ref v);
             s.s = new double[nx];
             for (i = 0; i <= nx - 1; i++)
             {
@@ -53400,7 +53400,7 @@ public partial class alglib
                 result = 2.718281828459045 * Math.Exp(-d2) * Math.Exp(-(1 / v));
                 return result;
             }
-            alglib.ap.assert(false, "RBFV2BasisFunc: unknown BF type");
+            ap.assert(false, "RBFV2BasisFunc: unknown BF type");
             return result;
         }
 
@@ -53453,7 +53453,7 @@ public partial class alglib
                 d2f = -(df * (1 / (9 * v * v) + 1)) - f * ((double)2 / (double)81) / (v * v * v);
                 return;
             }
-            alglib.ap.assert(false, "RBFV2BasisFuncDiff2: unknown BF type");
+            ap.assert(false, "RBFV2BasisFuncDiff2: unknown BF type");
         }
 
 
@@ -53484,7 +53484,7 @@ public partial class alglib
         {
             double result = 0;
 
-            alglib.ap.assert(math.isfinite(x0), "RBFCalc1: invalid value for X0 (X0 is Inf)!");
+            ap.assert(math.isfinite(x0), "RBFCalc1: invalid value for X0 (X0 is Inf)!");
             if (s.ny != 1 || s.nx != 1)
             {
                 result = 0;
@@ -53538,8 +53538,8 @@ public partial class alglib
         {
             double result = 0;
 
-            alglib.ap.assert(math.isfinite(x0), "RBFCalc2: invalid value for X0 (X0 is Inf)!");
-            alglib.ap.assert(math.isfinite(x1), "RBFCalc2: invalid value for X1 (X1 is Inf)!");
+            ap.assert(math.isfinite(x0), "RBFCalc2: invalid value for X0 (X0 is Inf)!");
+            ap.assert(math.isfinite(x1), "RBFCalc2: invalid value for X1 (X1 is Inf)!");
             if (s.ny != 1 || s.nx != 2)
             {
                 result = 0;
@@ -53592,9 +53592,9 @@ public partial class alglib
         {
             double result = 0;
 
-            alglib.ap.assert(math.isfinite(x0), "RBFCalc3: invalid value for X0 (X0 is Inf or NaN)!");
-            alglib.ap.assert(math.isfinite(x1), "RBFCalc3: invalid value for X1 (X1 is Inf or NaN)!");
-            alglib.ap.assert(math.isfinite(x2), "RBFCalc3: invalid value for X2 (X2 is Inf or NaN)!");
+            ap.assert(math.isfinite(x0), "RBFCalc3: invalid value for X0 (X0 is Inf or NaN)!");
+            ap.assert(math.isfinite(x1), "RBFCalc3: invalid value for X1 (X1 is Inf or NaN)!");
+            ap.assert(math.isfinite(x2), "RBFCalc3: invalid value for X2 (X2 is Inf or NaN)!");
             if (s.ny != 1 || s.nx != 3)
             {
                 result = 0;
@@ -53684,15 +53684,15 @@ public partial class alglib
             int nx = 0;
             int ny = 0;
 
-            alglib.ap.assert(alglib.ap.len(x) >= s.nx, "RBFCalcBuf: Length(X)<NX");
-            alglib.ap.assert(apserv.isfinitevector(x, s.nx, _params), "RBFCalcBuf: X contains infinite or NaN values");
+            ap.assert(ap.len(x) >= s.nx, "RBFCalcBuf: Length(X)<NX");
+            ap.assert(apserv.isfinitevector(x, s.nx, _params), "RBFCalcBuf: X contains infinite or NaN values");
             nx = s.nx;
             ny = s.ny;
 
             //
             // Handle linear term
             //
-            if (alglib.ap.len(y) < ny)
+            if (ap.len(y) < ny)
             {
                 y = new double[ny];
             }
@@ -53795,15 +53795,15 @@ public partial class alglib
             int nx = 0;
             int ny = 0;
 
-            alglib.ap.assert(alglib.ap.len(x) >= s.nx, "RBFDiffBuf: Length(X)<NX");
-            alglib.ap.assert(apserv.isfinitevector(x, s.nx, _params), "RBFDiffBuf: X contains infinite or NaN values");
+            ap.assert(ap.len(x) >= s.nx, "RBFDiffBuf: Length(X)<NX");
+            ap.assert(apserv.isfinitevector(x, s.nx, _params), "RBFDiffBuf: X contains infinite or NaN values");
             nx = s.nx;
             ny = s.ny;
-            if (alglib.ap.len(y) < s.ny)
+            if (ap.len(y) < s.ny)
             {
                 y = new double[s.ny];
             }
-            if (alglib.ap.len(dy) < s.ny * s.nx)
+            if (ap.len(dy) < s.ny * s.nx)
             {
                 dy = new double[s.ny * s.nx];
             }
@@ -53928,19 +53928,19 @@ public partial class alglib
             int nx = 0;
             int ny = 0;
 
-            alglib.ap.assert(alglib.ap.len(x) >= s.nx, "RBFDiffBuf: Length(X)<NX");
-            alglib.ap.assert(apserv.isfinitevector(x, s.nx, _params), "RBFDiffBuf: X contains infinite or NaN values");
+            ap.assert(ap.len(x) >= s.nx, "RBFDiffBuf: Length(X)<NX");
+            ap.assert(apserv.isfinitevector(x, s.nx, _params), "RBFDiffBuf: X contains infinite or NaN values");
             nx = s.nx;
             ny = s.ny;
-            if (alglib.ap.len(y) < s.ny)
+            if (ap.len(y) < s.ny)
             {
                 y = new double[s.ny];
             }
-            if (alglib.ap.len(dy) < s.ny * s.nx)
+            if (ap.len(dy) < s.ny * s.nx)
             {
                 dy = new double[s.ny * s.nx];
             }
-            if (alglib.ap.len(d2y) < ny * nx * nx)
+            if (ap.len(d2y) < ny * nx * nx)
             {
                 d2y = new double[ny * nx * nx];
             }
@@ -54080,12 +54080,12 @@ public partial class alglib
 
             y = new double[0, 0];
 
-            alglib.ap.assert(n0 > 0, "RBFGridCalc2: invalid value for N0 (N0<=0)!");
-            alglib.ap.assert(n1 > 0, "RBFGridCalc2: invalid value for N1 (N1<=0)!");
-            alglib.ap.assert(alglib.ap.len(x0) >= n0, "RBFGridCalc2: Length(X0)<N0");
-            alglib.ap.assert(alglib.ap.len(x1) >= n1, "RBFGridCalc2: Length(X1)<N1");
-            alglib.ap.assert(apserv.isfinitevector(x0, n0, _params), "RBFGridCalc2: X0 contains infinite or NaN values!");
-            alglib.ap.assert(apserv.isfinitevector(x1, n1, _params), "RBFGridCalc2: X1 contains infinite or NaN values!");
+            ap.assert(n0 > 0, "RBFGridCalc2: invalid value for N0 (N0<=0)!");
+            ap.assert(n1 > 0, "RBFGridCalc2: invalid value for N1 (N1<=0)!");
+            ap.assert(ap.len(x0) >= n0, "RBFGridCalc2: Length(X0)<N0");
+            ap.assert(ap.len(x1) >= n1, "RBFGridCalc2: Length(X1)<N1");
+            ap.assert(apserv.isfinitevector(x0, n0, _params), "RBFGridCalc2: X0 contains infinite or NaN values!");
+            ap.assert(apserv.isfinitevector(x1, n1, _params), "RBFGridCalc2: X1 contains infinite or NaN values!");
             y = new double[n0, n1];
             for (i = 0; i <= n0 - 1; i++)
             {
@@ -54197,15 +54197,15 @@ public partial class alglib
             //
             // Perform integrity checks
             //
-            alglib.ap.assert(s.nx == 2 || s.nx == 3, "RBFGridCalcVX: integrity check failed");
-            alglib.ap.assert(s.nx >= 4 || ((alglib.ap.len(x3) >= 1 && (double)(x3[0]) == (double)(0)) && n3 == 1), "RBFGridCalcVX: integrity check failed");
-            alglib.ap.assert(s.nx >= 3 || ((alglib.ap.len(x2) >= 1 && (double)(x2[0]) == (double)(0)) && n2 == 1), "RBFGridCalcVX: integrity check failed");
-            alglib.ap.assert(s.nx >= 2 || ((alglib.ap.len(x1) >= 1 && (double)(x1[0]) == (double)(0)) && n1 == 1), "RBFGridCalcVX: integrity check failed");
+            ap.assert(s.nx == 2 || s.nx == 3, "RBFGridCalcVX: integrity check failed");
+            ap.assert(s.nx >= 4 || ((ap.len(x3) >= 1 && (double)(x3[0]) == (double)(0)) && n3 == 1), "RBFGridCalcVX: integrity check failed");
+            ap.assert(s.nx >= 3 || ((ap.len(x2) >= 1 && (double)(x2[0]) == (double)(0)) && n2 == 1), "RBFGridCalcVX: integrity check failed");
+            ap.assert(s.nx >= 2 || ((ap.len(x1) >= 1 && (double)(x1[0]) == (double)(0)) && n1 == 1), "RBFGridCalcVX: integrity check failed");
 
             //
             // Allocate arrays
             //
-            alglib.ap.assert(s.nx <= 4, "RBFGridCalcVX: integrity check failed");
+            ap.assert(s.nx <= 4, "RBFGridCalcVX: integrity check failed");
             z = new double[ny];
             tx = new double[4];
             ty = new double[ny];
@@ -54228,7 +54228,7 @@ public partial class alglib
                 k = k / n2;
                 tx[3] = x3[k % n3];
                 k = k / n3;
-                alglib.ap.assert(k == 0, "RBFGridCalcVX: integrity check failed");
+                ap.assert(k == 0, "RBFGridCalcVX: integrity check failed");
                 for (j = 0; j <= ny - 1; j++)
                 {
                     v = s.v[j, nx];
@@ -54349,7 +54349,7 @@ public partial class alglib
                 // Prepare seed for shared pool
                 //
                 allocatecalcbuffer(s, bufseedv2.calcbuf, _params);
-                alglib.smp.ae_shared_pool_set_seed(bufpool, bufseedv2);
+                smp.ae_shared_pool_set_seed(bufpool, bufseedv2);
 
                 //
                 // Determine average number of neighbor per node
@@ -54443,7 +54443,7 @@ public partial class alglib
             //
             // Integrity checks
             //
-            alglib.ap.assert(s.nx == 2 || s.nx == 3, "RBFV2PartialGridCalcRec: integrity check failed");
+            ap.assert(s.nx == 2 || s.nx == 3, "RBFV2PartialGridCalcRec: integrity check failed");
 
             //
             // Try to split large problem
@@ -54495,18 +54495,18 @@ public partial class alglib
                     rbfv2partialgridcalcrec(s, x0, n0, x1, n1, x2, n2, x3, n3, blocks0, block0a, block0b, blocks1, block1a, block1b, blocks2, block2a, block2b, blocks3, midpoint, block3b, flagy, sparsey, levelidx, avgfuncpernode, bufpool, y, _params);
                     return;
                 }
-                alglib.ap.assert(false, "RBFV2PartialGridCalcRec: integrity check failed");
+                ap.assert(false, "RBFV2PartialGridCalcRec: integrity check failed");
             }
 
             //
             // Retrieve buffer object from pool (it will be returned later)
             //
-            alglib.smp.ae_shared_pool_retrieve(bufpool, ref buf);
+            smp.ae_shared_pool_retrieve(bufpool, ref buf);
 
             //
             // Calculate RBF model
             //
-            alglib.ap.assert(nx <= 4, "RBFV2PartialGridCalcRec: integrity check failed");
+            ap.assert(nx <= 4, "RBFV2PartialGridCalcRec: integrity check failed");
             buf.tx = new double[4];
             buf.cx = new double[4];
             buf.ty = new double[ny];
@@ -54530,7 +54530,7 @@ public partial class alglib
                 k = k / (block2b - block2a);
                 i3 = block3a + k % (block3b - block3a);
                 k = k / (block3b - block3a);
-                alglib.ap.assert(k == 0, "RBFV2PartialGridCalcRec: integrity check failed");
+                ap.assert(k == 0, "RBFV2PartialGridCalcRec: integrity check failed");
 
                 //
                 // We partitioned grid into blocks and selected block with
@@ -54562,7 +54562,7 @@ public partial class alglib
                     k = k / (blocks2[i2 + 1] - blocks2[i2]);
                     j3 = blocks3[i3] + k % (blocks3[i3 + 1] - blocks3[i3]);
                     k = k / (blocks3[i3 + 1] - blocks3[i3]);
-                    alglib.ap.assert(k == 0, "RBFV2PartialGridCalcRec: integrity check failed");
+                    ap.assert(k == 0, "RBFV2PartialGridCalcRec: integrity check failed");
 
                     //
                     // Analyze row, skip completely empty rows
@@ -54695,7 +54695,7 @@ public partial class alglib
             //
             // Recycle buffer object back to pool
             //
-            alglib.smp.ae_shared_pool_recycle(bufpool, ref buf);
+            smp.ae_shared_pool_recycle(bufpool, ref buf);
         }
 
 
@@ -54795,8 +54795,8 @@ public partial class alglib
             //
             // Fill XWR
             //
-            alglib.ap.assert(alglib.ap.len(s.cw) % (s.nx + s.ny) == 0, "RBFV2Unpack: integrity error");
-            nc = alglib.ap.len(s.cw) / (s.nx + s.ny);
+            ap.assert(ap.len(s.cw) % (s.nx + s.ny) == 0, "RBFV2Unpack: integrity error");
+            nc = ap.len(s.cw) / (s.nx + s.ny);
             ncactual = 0;
             if (nc > 0)
             {
@@ -54806,7 +54806,7 @@ public partial class alglib
                     partialunpackrec(s.kdnodes, s.kdsplits, s.cw, s.s, s.nx, s.ny, s.kdroots[i], s.ri[i], xwr, ref ncactual, _params);
                 }
             }
-            alglib.ap.assert(nc == ncactual, "RBFV2Unpack: integrity error");
+            ap.assert(nc == ncactual, "RBFV2Unpack: integrity error");
         }
 
 
@@ -54834,9 +54834,9 @@ public partial class alglib
 
             v = new double[0, 0];
 
-            alglib.ap.assert(n >= 0, "BuildLinearModel: N<0");
-            alglib.ap.assert(nx > 0, "BuildLinearModel: NX<=0");
-            alglib.ap.assert(ny > 0, "BuildLinearModel: NY<=0");
+            ap.assert(n >= 0, "BuildLinearModel: N<0");
+            ap.assert(nx > 0, "BuildLinearModel: NX<=0");
+            ap.assert(ny > 0, "BuildLinearModel: NY<=0");
 
             //
             // Handle degenerate case (N=0)
@@ -54976,7 +54976,7 @@ public partial class alglib
             //
             // Zero model
             //
-            alglib.ap.assert(modeltype == 3, "BuildLinearModel: unknown model type");
+            ap.assert(modeltype == 3, "BuildLinearModel: unknown model type");
             for (i = 0; i <= ny - 1; i++)
             {
                 for (j = 0; j <= nx; j++)
@@ -54999,23 +54999,23 @@ public partial class alglib
             rbfv2calcbuffer buf,
             alglib.xparams _params)
         {
-            if (alglib.ap.len(buf.x) < s.nx)
+            if (ap.len(buf.x) < s.nx)
             {
                 buf.x = new double[s.nx];
             }
-            if (alglib.ap.len(buf.curboxmin) < s.nx)
+            if (ap.len(buf.curboxmin) < s.nx)
             {
                 buf.curboxmin = new double[s.nx];
             }
-            if (alglib.ap.len(buf.curboxmax) < s.nx)
+            if (ap.len(buf.curboxmax) < s.nx)
             {
                 buf.curboxmax = new double[s.nx];
             }
-            if (alglib.ap.len(buf.x123) < s.nx)
+            if (ap.len(buf.x123) < s.nx)
             {
                 buf.x123 = new double[s.nx];
             }
-            if (alglib.ap.len(buf.y123) < s.ny)
+            if (ap.len(buf.y123) < s.ny)
             {
                 buf.y123 = new double[s.ny];
             }
@@ -55055,9 +55055,9 @@ public partial class alglib
             //
             // Calculate base offsets
             //
-            nodesbase = alglib.ap.len(kdnodes);
-            splitsbase = alglib.ap.len(kdsplits);
-            cwbase = alglib.ap.len(cw);
+            nodesbase = ap.len(kdnodes);
+            splitsbase = ap.len(kdsplits);
+            cwbase = ap.len(cw);
 
             //
             // Prepare local copy of tree
@@ -55073,9 +55073,9 @@ public partial class alglib
             //
             // Append to multi-tree
             //
-            apserv.ivectorresize(ref kdnodes, alglib.ap.len(kdnodes) + localnodessize, _params);
-            apserv.rvectorresize(ref kdsplits, alglib.ap.len(kdsplits) + localsplitssize, _params);
-            apserv.rvectorresize(ref cw, alglib.ap.len(cw) + localcwsize, _params);
+            apserv.ivectorresize(ref kdnodes, ap.len(kdnodes) + localnodessize, _params);
+            apserv.rvectorresize(ref kdsplits, ap.len(kdsplits) + localsplitssize, _params);
+            apserv.rvectorresize(ref cw, ap.len(cw) + localcwsize, _params);
             for (i = 0; i <= localnodessize - 1; i++)
             {
                 kdnodes[nodesbase + i] = localnodes[i];
@@ -55139,8 +55139,8 @@ public partial class alglib
             if (nodetype == 0)
             {
                 nearestneighbor.kdtreeexploreleaf(curtree, nodeoffset, ref xybuf, ref cnt, _params);
-                alglib.ap.assert(alglib.ap.len(localnodes) >= localnodessize + 2, "ConvertTreeRec: integrity check failed");
-                alglib.ap.assert(alglib.ap.len(localcw) >= localcwsize + cnt * (nx + ny), "ConvertTreeRec: integrity check failed");
+                ap.assert(ap.len(localnodes) >= localnodessize + 2, "ConvertTreeRec: integrity check failed");
+                ap.assert(ap.len(localcw) >= localcwsize + cnt * (nx + ny), "ConvertTreeRec: integrity check failed");
                 localnodes[localnodessize + 0] = cnt;
                 localnodes[localnodessize + 1] = cwbase + localcwsize;
                 localnodessize = localnodessize + 2;
@@ -55161,8 +55161,8 @@ public partial class alglib
             if (nodetype == 1)
             {
                 nearestneighbor.kdtreeexploresplit(curtree, nodeoffset, ref d, ref s, ref nodele, ref nodege, _params);
-                alglib.ap.assert(alglib.ap.len(localnodes) >= localnodessize + maxnodesize, "ConvertTreeRec: integrity check failed");
-                alglib.ap.assert(alglib.ap.len(localsplits) >= localsplitssize + 1, "ConvertTreeRec: integrity check failed");
+                ap.assert(ap.len(localnodes) >= localnodessize + maxnodesize, "ConvertTreeRec: integrity check failed");
+                ap.assert(ap.len(localsplits) >= localsplitssize + 1, "ConvertTreeRec: integrity check failed");
                 oldnodessize = localnodessize;
                 localnodes[localnodessize + 0] = 0;
                 localnodes[localnodessize + 1] = d;
@@ -55182,7 +55182,7 @@ public partial class alglib
             //
             // Integrity error
             //
-            alglib.ap.assert(false, "ConvertTreeRec: integrity check failed");
+            ap.assert(false, "ConvertTreeRec: integrity check failed");
         }
 
 
@@ -55318,7 +55318,7 @@ public partial class alglib
                             }
                             else
                             {
-                                alglib.ap.assert(false, "PartialCalcRec: integrity check failed");
+                                ap.assert(false, "PartialCalcRec: integrity check failed");
                             }
                         }
                         for (j = 0; j <= ny - 1; j++)
@@ -55366,7 +55366,7 @@ public partial class alglib
                             }
                             else
                             {
-                                alglib.ap.assert(false, "PartialCalcRec: integrity check failed");
+                                ap.assert(false, "PartialCalcRec: integrity check failed");
                             }
                         }
                         for (j = 0; j <= ny - 1; j++)
@@ -55393,7 +55393,7 @@ public partial class alglib
                             }
                             else
                             {
-                                alglib.ap.assert(false, "PartialCalcRec: integrity check failed");
+                                ap.assert(false, "PartialCalcRec: integrity check failed");
                             }
                         }
                         for (j = 0; j <= ny - 1; j++)
@@ -55507,7 +55507,7 @@ public partial class alglib
             //
             // Integrity failure
             //
-            alglib.ap.assert(false, "PartialCalcRec: integrity check failed");
+            ap.assert(false, "PartialCalcRec: integrity check failed");
         }
 
 
@@ -55752,7 +55752,7 @@ public partial class alglib
             //
             // Integrity failure
             //
-            alglib.ap.assert(false, "PartialCalcRec: integrity check failed");
+            ap.assert(false, "PartialCalcRec: integrity check failed");
         }
 
 
@@ -56003,7 +56003,7 @@ public partial class alglib
             //
             // Integrity failure
             //
-            alglib.ap.assert(false, "PartialQueryRec: integrity check failed");
+            ap.assert(false, "PartialQueryRec: integrity check failed");
         }
 
 
@@ -56192,7 +56192,7 @@ public partial class alglib
             //
             // Integrity failure
             //
-            alglib.ap.assert(false, "PartialCountRec: integrity check failed");
+            ap.assert(false, "PartialCountRec: integrity check failed");
             return result;
         }
 
@@ -56290,7 +56290,7 @@ public partial class alglib
             //
             // Integrity failure
             //
-            alglib.ap.assert(false, "PartialUnpackRec: integrity check failed");
+            ap.assert(false, "PartialUnpackRec: integrity check failed");
         }
 
 
@@ -56339,7 +56339,7 @@ public partial class alglib
             int level1 = 0;
             double curradius2 = 0;
 
-            alglib.ap.assert(nh > 0, "DesignMatrixRowSize: integrity failure");
+            ap.assert(nh > 0, "DesignMatrixRowSize: integrity failure");
             if (level >= 0)
             {
                 level0 = level;
@@ -56450,8 +56450,8 @@ public partial class alglib
 
             rowsize = 0;
 
-            alglib.ap.assert(nh > 0, "DesignMatrixGenerateRow: integrity failure (a)");
-            alglib.ap.assert(rowsperpoint == 1 || rowsperpoint == 1 + nx, "DesignMatrixGenerateRow: integrity failure (b)");
+            ap.assert(nh > 0, "DesignMatrixGenerateRow: integrity failure (a)");
+            ap.assert(rowsperpoint == 1 || rowsperpoint == 1 + nx, "DesignMatrixGenerateRow: integrity failure (b)");
             if (level >= 0)
             {
                 level0 = level;
@@ -56469,10 +56469,10 @@ public partial class alglib
                 invri2 = 1 / math.sqr(ri[levelidx]);
                 preparepartialquery(x0, kdboxmin, kdboxmax, nx, calcbuf, ref cnt, _params);
                 partialqueryrec(kdnodes, kdsplits, cw, nx, ny, calcbuf, kdroots[levelidx], curradius2, x0, tmpr2, tmpoffs, ref cnt, _params);
-                alglib.ap.assert(alglib.ap.len(tmpr2) >= cnt, "DesignMatrixRowSize: integrity failure (c)");
-                alglib.ap.assert(alglib.ap.len(tmpoffs) >= cnt, "DesignMatrixRowSize: integrity failure (d)");
-                alglib.ap.assert(alglib.ap.len(rowidx) >= rowsize + cnt, "DesignMatrixRowSize: integrity failure (e)");
-                alglib.ap.assert(alglib.ap.len(rowval) >= rowsperpoint * (rowsize + cnt), "DesignMatrixRowSize: integrity failure (f)");
+                ap.assert(ap.len(tmpr2) >= cnt, "DesignMatrixRowSize: integrity failure (c)");
+                ap.assert(ap.len(tmpoffs) >= cnt, "DesignMatrixRowSize: integrity failure (d)");
+                ap.assert(ap.len(rowidx) >= rowsize + cnt, "DesignMatrixRowSize: integrity failure (e)");
+                ap.assert(ap.len(rowval) >= rowsperpoint * (rowsize + cnt), "DesignMatrixRowSize: integrity failure (f)");
                 for (j = 0; j <= cnt - 1; j++)
                 {
 
@@ -56480,7 +56480,7 @@ public partial class alglib
                     // Generate element corresponding to fitting error.
                     // Store derivative information which may be required later.
                     //
-                    alglib.ap.assert((tmpoffs[j] - cwrange[level0]) % (nx + ny) == 0, "DesignMatrixRowSize: integrity failure (g)");
+                    ap.assert((tmpoffs[j] - cwrange[level0]) % (nx + ny) == 0, "DesignMatrixRowSize: integrity failure (g)");
                     rbfv2basisfuncdiff2(bf, tmpr2[j] * invri2, ref val, ref dval, ref d2val, _params);
                     rowidx[rowsize + j] = (tmpoffs[j] - cwrange[level0]) / (nx + ny);
                     rowval[(rowsize + j) * rowsperpoint + 0] = val;
@@ -56492,7 +56492,7 @@ public partial class alglib
                     //
                     // Generate elements corresponding to nonsmoothness penalty
                     //
-                    alglib.ap.assert(rowsperpoint == 1 + nx, "DesignMatrixRowSize: integrity failure (h)");
+                    ap.assert(rowsperpoint == 1 + nx, "DesignMatrixRowSize: integrity failure (h)");
                     for (k = 0; k <= nx - 1; k++)
                     {
                         rowval[(rowsize + j) * rowsperpoint + 1 + k] = penalty * (dval * 2 * invri2 + d2val * math.sqr(2 * (x0[k] - cw[tmpoffs[j] + k]) * invri2));
@@ -56784,8 +56784,8 @@ public partial class alglib
             rbfmodel s,
             alglib.xparams _params)
         {
-            alglib.ap.assert(nx >= 1, "RBFCreate: NX<1");
-            alglib.ap.assert(ny >= 1, "RBFCreate: NY<1");
+            ap.assert(nx >= 1, "RBFCreate: NX<1");
+            ap.assert(ny >= 1, "RBFCreate: NY<1");
             s.nx = nx;
             s.ny = ny;
             rbfpreparenonserializablefields(s, _params);
@@ -56899,7 +56899,7 @@ public partial class alglib
                 rbfv3.rbfv3createcalcbuffer(s.model3, buf.bufv3, _params);
                 return;
             }
-            alglib.ap.assert(false, "RBFCreateCalcBuffer: integrity check failed");
+            ap.assert(false, "RBFCreateCalcBuffer: integrity check failed");
         }
 
 
@@ -56952,10 +56952,10 @@ public partial class alglib
             int i = 0;
             int j = 0;
 
-            alglib.ap.assert(n > 0, "RBFSetPoints: N<=0");
-            alglib.ap.assert(alglib.ap.rows(xy) >= n, "RBFSetPoints: Rows(XY)<N");
-            alglib.ap.assert(alglib.ap.cols(xy) >= s.nx + s.ny, "RBFSetPoints: Cols(XY)<NX+NY");
-            alglib.ap.assert(apserv.apservisfinitematrix(xy, n, s.nx + s.ny, _params), "RBFSetPoints: XY contains infinite or NaN values!");
+            ap.assert(n > 0, "RBFSetPoints: N<=0");
+            ap.assert(ap.rows(xy) >= n, "RBFSetPoints: Rows(XY)<N");
+            ap.assert(ap.cols(xy) >= s.nx + s.ny, "RBFSetPoints: Cols(XY)<NX+NY");
+            ap.assert(apserv.apservisfinitematrix(xy, n, s.nx + s.ny, _params), "RBFSetPoints: XY contains infinite or NaN values!");
             s.n = n;
             s.hasscale = false;
             s.x = new double[s.n, s.nx];
@@ -57028,10 +57028,10 @@ public partial class alglib
             int i = 0;
             int j = 0;
 
-            alglib.ap.assert(n > 0, "RBFSetPointsAndScales: N<=0");
-            alglib.ap.assert(alglib.ap.rows(xy) >= n, "RBFSetPointsAndScales: Rows(XY)<N");
-            alglib.ap.assert(alglib.ap.cols(xy) >= r.nx + r.ny, "RBFSetPointsAndScales: Cols(XY)<NX+NY");
-            alglib.ap.assert(alglib.ap.len(s) >= r.nx, "RBFSetPointsAndScales: Length(S)<NX");
+            ap.assert(n > 0, "RBFSetPointsAndScales: N<=0");
+            ap.assert(ap.rows(xy) >= n, "RBFSetPointsAndScales: Rows(XY)<N");
+            ap.assert(ap.cols(xy) >= r.nx + r.ny, "RBFSetPointsAndScales: Cols(XY)<NX+NY");
+            ap.assert(ap.len(s) >= r.nx, "RBFSetPointsAndScales: Length(S)<NX");
             r.n = n;
             r.hasscale = true;
             r.x = new double[r.n, r.nx];
@@ -57050,8 +57050,8 @@ public partial class alglib
             r.s = new double[r.nx];
             for (i = 0; i <= r.nx - 1; i++)
             {
-                alglib.ap.assert(math.isfinite(s[i]), "RBFSetPointsAndScales: S[i] is not finite number");
-                alglib.ap.assert((double)(s[i]) > (double)(0), "RBFSetPointsAndScales: S[i]<=0");
+                ap.assert(math.isfinite(s[i]), "RBFSetPointsAndScales: S[i] is not finite number");
+                ap.assert((double)(s[i]) > (double)(0), "RBFSetPointsAndScales: S[i]<=0");
                 r.s[i] = s[i];
             }
         }
@@ -57070,10 +57070,10 @@ public partial class alglib
             double z,
             alglib.xparams _params)
         {
-            alglib.ap.assert(math.isfinite(q), "RBFSetAlgoQNN: Q is infinite or NAN");
-            alglib.ap.assert((double)(q) > (double)(0), "RBFSetAlgoQNN: Q<=0");
-            alglib.ap.assert(math.isfinite(z), "RBFSetAlgoQNN: Z is infinite or NAN");
-            alglib.ap.assert((double)(z) > (double)(0), "RBFSetAlgoQNN: Z<=0");
+            ap.assert(math.isfinite(q), "RBFSetAlgoQNN: Q is infinite or NAN");
+            ap.assert((double)(q) > (double)(0), "RBFSetAlgoQNN: Q<=0");
+            ap.assert(math.isfinite(z), "RBFSetAlgoQNN: Z is infinite or NAN");
+            ap.assert((double)(z) > (double)(0), "RBFSetAlgoQNN: Z<=0");
             s.radvalue = q;
             s.radzvalue = z;
             s.algorithmtype = 1;
@@ -57094,11 +57094,11 @@ public partial class alglib
             double lambdav,
             alglib.xparams _params)
         {
-            alglib.ap.assert(math.isfinite(rbase), "RBFSetAlgoMultiLayer: RBase is infinite or NaN");
-            alglib.ap.assert((double)(rbase) > (double)(0), "RBFSetAlgoMultiLayer: RBase<=0");
-            alglib.ap.assert(nlayers >= 0, "RBFSetAlgoMultiLayer: NLayers<0");
-            alglib.ap.assert(math.isfinite(lambdav), "RBFSetAlgoMultiLayer: LambdaV is infinite or NAN");
-            alglib.ap.assert((double)(lambdav) >= (double)(0), "RBFSetAlgoMultiLayer: LambdaV<0");
+            ap.assert(math.isfinite(rbase), "RBFSetAlgoMultiLayer: RBase is infinite or NaN");
+            ap.assert((double)(rbase) > (double)(0), "RBFSetAlgoMultiLayer: RBase<=0");
+            ap.assert(nlayers >= 0, "RBFSetAlgoMultiLayer: NLayers<0");
+            ap.assert(math.isfinite(lambdav), "RBFSetAlgoMultiLayer: LambdaV is infinite or NAN");
+            ap.assert((double)(lambdav) >= (double)(0), "RBFSetAlgoMultiLayer: LambdaV<0");
             s.radvalue = rbase;
             s.nlayers = nlayers;
             s.algorithmtype = 2;
@@ -57196,10 +57196,10 @@ public partial class alglib
             double lambdans,
             alglib.xparams _params)
         {
-            alglib.ap.assert(math.isfinite(rbase), "RBFSetAlgoHierarchical: RBase is infinite or NaN");
-            alglib.ap.assert((double)(rbase) > (double)(0), "RBFSetAlgoHierarchical: RBase<=0");
-            alglib.ap.assert(nlayers >= 0, "RBFSetAlgoHierarchical: NLayers<0");
-            alglib.ap.assert(math.isfinite(lambdans) && (double)(lambdans) >= (double)(0), "RBFSetAlgoHierarchical: LambdaNS<0 or infinite");
+            ap.assert(math.isfinite(rbase), "RBFSetAlgoHierarchical: RBase is infinite or NaN");
+            ap.assert((double)(rbase) > (double)(0), "RBFSetAlgoHierarchical: RBase<=0");
+            ap.assert(nlayers >= 0, "RBFSetAlgoHierarchical: NLayers<0");
+            ap.assert(math.isfinite(lambdans) && (double)(lambdans) >= (double)(0), "RBFSetAlgoHierarchical: LambdaNS<0 or infinite");
             s.radvalue = rbase;
             s.nlayers = nlayers;
             s.algorithmtype = 3;
@@ -57260,8 +57260,8 @@ public partial class alglib
             double lambdav,
             alglib.xparams _params)
         {
-            alglib.ap.assert(math.isfinite(lambdav), "RBFSetAlgoThinPlateSpline: LambdaV is not finite number");
-            alglib.ap.assert((double)(lambdav) >= (double)(0), "RBFSetAlgoThinPlateSpline: LambdaV is negative");
+            ap.assert(math.isfinite(lambdav), "RBFSetAlgoThinPlateSpline: LambdaV is not finite number");
+            ap.assert((double)(lambdav) >= (double)(0), "RBFSetAlgoThinPlateSpline: LambdaV is negative");
             s.algorithmtype = 4;
             s.bftype = 2;
             s.bfparam = 0;
@@ -57343,10 +57343,10 @@ public partial class alglib
             double lambdav,
             alglib.xparams _params)
         {
-            alglib.ap.assert(math.isfinite(alpha), "RBFSetAlgoMultiquadricManual: Alpha is infinite or NAN");
-            alglib.ap.assert((double)(alpha) >= (double)(0), "RBFSetAlgoMultiquadricManual: Alpha<0");
-            alglib.ap.assert(math.isfinite(lambdav), "RBFSetAlgoMultiquadricManual: LambdaV is not finite number");
-            alglib.ap.assert((double)(lambdav) >= (double)(0), "RBFSetAlgoMultiquadricManual: LambdaV is negative");
+            ap.assert(math.isfinite(alpha), "RBFSetAlgoMultiquadricManual: Alpha is infinite or NAN");
+            ap.assert((double)(alpha) >= (double)(0), "RBFSetAlgoMultiquadricManual: Alpha<0");
+            ap.assert(math.isfinite(lambdav), "RBFSetAlgoMultiquadricManual: LambdaV is not finite number");
+            ap.assert((double)(lambdav) >= (double)(0), "RBFSetAlgoMultiquadricManual: LambdaV is negative");
             s.algorithmtype = 4;
             s.bftype = 1;
             s.bfparam = alpha;
@@ -57410,8 +57410,8 @@ public partial class alglib
             double lambdav,
             alglib.xparams _params)
         {
-            alglib.ap.assert(math.isfinite(lambdav), "RBFSetAlgoMultiquadricAuto: LambdaV is not finite number");
-            alglib.ap.assert((double)(lambdav) >= (double)(0), "RBFSetAlgoMultiquadricAuto: LambdaV is negative");
+            ap.assert(math.isfinite(lambdav), "RBFSetAlgoMultiquadricAuto: LambdaV is not finite number");
+            ap.assert((double)(lambdav) >= (double)(0), "RBFSetAlgoMultiquadricAuto: LambdaV is negative");
             s.algorithmtype = 4;
             s.bftype = 1;
             s.bfparam = -1.0;
@@ -57474,8 +57474,8 @@ public partial class alglib
             double lambdav,
             alglib.xparams _params)
         {
-            alglib.ap.assert(math.isfinite(lambdav), "RBFSetAlgoBiharmonic: LambdaV is not finite number");
-            alglib.ap.assert((double)(lambdav) >= (double)(0), "RBFSetAlgoBiharmonic: LambdaV is negative");
+            ap.assert(math.isfinite(lambdav), "RBFSetAlgoBiharmonic: LambdaV is not finite number");
+            ap.assert((double)(lambdav) >= (double)(0), "RBFSetAlgoBiharmonic: LambdaV is negative");
             s.algorithmtype = 4;
             s.bftype = 1;
             s.bfparam = 0;
@@ -57582,7 +57582,7 @@ public partial class alglib
             int bf,
             alglib.xparams _params)
         {
-            alglib.ap.assert(bf == 0 || bf == 1, "RBFSetV2Its: BF<>0 and BF<>1");
+            ap.assert(bf == 0 || bf == 1, "RBFSetV2Its: BF<>0 and BF<>1");
             s.model2.basisfunction = bf;
         }
 
@@ -57605,7 +57605,7 @@ public partial class alglib
             int maxits,
             alglib.xparams _params)
         {
-            alglib.ap.assert(maxits >= 0, "RBFSetV2Its: MaxIts is negative");
+            ap.assert(maxits >= 0, "RBFSetV2Its: MaxIts is negative");
             s.model2.maxits = maxits;
         }
 
@@ -57638,8 +57638,8 @@ public partial class alglib
             double r,
             alglib.xparams _params)
         {
-            alglib.ap.assert(math.isfinite(r), "RBFSetV2SupportR: R is not finite");
-            alglib.ap.assert((double)(r) >= (double)(0), "RBFSetV2SupportR: R<0");
+            ap.assert(math.isfinite(r), "RBFSetV2SupportR: R is not finite");
+            ap.assert((double)(r) >= (double)(0), "RBFSetV2SupportR: R<0");
             s.model2.supportr = r;
         }
 
@@ -57674,7 +57674,7 @@ public partial class alglib
             double tol,
             alglib.xparams _params)
         {
-            alglib.ap.assert(math.isfinite(tol) && (double)(tol) >= (double)(0), "RBFSetV3TOL: TOL is negative or infinite");
+            ap.assert(math.isfinite(tol) && (double)(tol) >= (double)(0), "RBFSetV3TOL: TOL is negative or infinite");
             s.v3tol = tol;
         }
 
@@ -57723,9 +57723,9 @@ public partial class alglib
             int maxits,
             alglib.xparams _params)
         {
-            alglib.ap.assert(math.isfinite(epsort) && (double)(epsort) >= (double)(0), "RBFSetCond: EpsOrt is negative, INF or NAN");
-            alglib.ap.assert(math.isfinite(epserr) && (double)(epserr) >= (double)(0), "RBFSetCond: EpsB is negative, INF or NAN");
-            alglib.ap.assert(maxits >= 0, "RBFSetCond: MaxIts is negative");
+            ap.assert(math.isfinite(epsort) && (double)(epsort) >= (double)(0), "RBFSetCond: EpsOrt is negative, INF or NAN");
+            ap.assert(math.isfinite(epserr) && (double)(epserr) >= (double)(0), "RBFSetCond: EpsB is negative, INF or NAN");
+            ap.assert(maxits >= 0, "RBFSetCond: MaxIts is negative");
             if (((double)(epsort) == (double)(0) && (double)(epserr) == (double)(0)) && maxits == 0)
             {
                 s.epsort = eps;
@@ -57987,7 +57987,7 @@ public partial class alglib
             //
             // Critical error
             //
-            alglib.ap.assert(false, "RBFBuildModel: integrity check failure");
+            ap.assert(false, "RBFBuildModel: integrity check failure");
         }
 
 
@@ -58027,7 +58027,7 @@ public partial class alglib
         {
             double result = 0;
 
-            alglib.ap.assert(math.isfinite(x0), "RBFCalc1: invalid value for X0 (X0 is Inf)!");
+            ap.assert(math.isfinite(x0), "RBFCalc1: invalid value for X0 (X0 is Inf)!");
             result = 0;
             if (s.ny != 1 || s.nx != 1)
             {
@@ -58048,7 +58048,7 @@ public partial class alglib
                 result = rbfv3.rbfv3calc1(s.model3, x0, _params);
                 return result;
             }
-            alglib.ap.assert(false, "RBFCalc1: integrity check failed");
+            ap.assert(false, "RBFCalc1: integrity check failed");
             return result;
         }
 
@@ -58087,8 +58087,8 @@ public partial class alglib
         {
             double result = 0;
 
-            alglib.ap.assert(math.isfinite(x0), "RBFCalc2: invalid value for X0 (X0 is Inf)!");
-            alglib.ap.assert(math.isfinite(x1), "RBFCalc2: invalid value for X1 (X1 is Inf)!");
+            ap.assert(math.isfinite(x0), "RBFCalc2: invalid value for X0 (X0 is Inf)!");
+            ap.assert(math.isfinite(x1), "RBFCalc2: invalid value for X1 (X1 is Inf)!");
             result = 0;
             if (s.ny != 1 || s.nx != 2)
             {
@@ -58109,7 +58109,7 @@ public partial class alglib
                 result = rbfv3.rbfv3calc2(s.model3, x0, x1, _params);
                 return result;
             }
-            alglib.ap.assert(false, "RBFCalc2: integrity check failed");
+            ap.assert(false, "RBFCalc2: integrity check failed");
             return result;
         }
 
@@ -58150,9 +58150,9 @@ public partial class alglib
         {
             double result = 0;
 
-            alglib.ap.assert(math.isfinite(x0), "RBFCalc3: invalid value for X0 (X0 is Inf or NaN)!");
-            alglib.ap.assert(math.isfinite(x1), "RBFCalc3: invalid value for X1 (X1 is Inf or NaN)!");
-            alglib.ap.assert(math.isfinite(x2), "RBFCalc3: invalid value for X2 (X2 is Inf or NaN)!");
+            ap.assert(math.isfinite(x0), "RBFCalc3: invalid value for X0 (X0 is Inf or NaN)!");
+            ap.assert(math.isfinite(x1), "RBFCalc3: invalid value for X1 (X1 is Inf or NaN)!");
+            ap.assert(math.isfinite(x2), "RBFCalc3: invalid value for X2 (X2 is Inf or NaN)!");
             result = 0;
             if (s.ny != 1 || s.nx != 3)
             {
@@ -58173,7 +58173,7 @@ public partial class alglib
                 result = rbfv3.rbfv3calc3(s.model3, x0, x1, x2, _params);
                 return result;
             }
-            alglib.ap.assert(false, "RBFCalc3: integrity check failed");
+            ap.assert(false, "RBFCalc3: integrity check failed");
             return result;
         }
 
@@ -58217,7 +58217,7 @@ public partial class alglib
             y = 0;
             dy0 = 0;
 
-            alglib.ap.assert(math.isfinite(x0), "RBFDiff1: invalid value for X0 (X0 is Inf or NaN)!");
+            ap.assert(math.isfinite(x0), "RBFDiff1: invalid value for X0 (X0 is Inf or NaN)!");
             y = 0;
             dy0 = 0;
             if (s.ny != 1 || s.nx != 1)
@@ -58276,8 +58276,8 @@ public partial class alglib
             dy0 = 0;
             dy1 = 0;
 
-            alglib.ap.assert(math.isfinite(x0), "RBFDiff2: invalid value for X0 (X0 is Inf or NaN)!");
-            alglib.ap.assert(math.isfinite(x1), "RBFDiff2: invalid value for X1 (X1 is Inf or NaN)!");
+            ap.assert(math.isfinite(x0), "RBFDiff2: invalid value for X0 (X0 is Inf or NaN)!");
+            ap.assert(math.isfinite(x1), "RBFDiff2: invalid value for X1 (X1 is Inf or NaN)!");
             y = 0;
             dy0 = 0;
             dy1 = 0;
@@ -58344,9 +58344,9 @@ public partial class alglib
             dy1 = 0;
             dy2 = 0;
 
-            alglib.ap.assert(math.isfinite(x0), "RBFDiff3: invalid value for X0 (X0 is Inf or NaN)!");
-            alglib.ap.assert(math.isfinite(x1), "RBFDiff3: invalid value for X1 (X1 is Inf or NaN)!");
-            alglib.ap.assert(math.isfinite(x2), "RBFDiff3: invalid value for X2 (X2 is Inf or NaN)!");
+            ap.assert(math.isfinite(x0), "RBFDiff3: invalid value for X0 (X0 is Inf or NaN)!");
+            ap.assert(math.isfinite(x1), "RBFDiff3: invalid value for X1 (X1 is Inf or NaN)!");
+            ap.assert(math.isfinite(x2), "RBFDiff3: invalid value for X2 (X2 is Inf or NaN)!");
             y = 0;
             dy0 = 0;
             dy1 = 0;
@@ -58419,8 +58419,8 @@ public partial class alglib
             double tol,
             alglib.xparams _params)
         {
-            alglib.ap.assert(math.isfinite(tol), "RBFSetFastEvalTol: TOL is not a finite number");
-            alglib.ap.assert((double)(tol) > (double)(0), "RBFSetFastEvalTol: TOL<=0");
+            ap.assert(math.isfinite(tol), "RBFSetFastEvalTol: TOL is not a finite number");
+            ap.assert((double)(tol) > (double)(0), "RBFSetFastEvalTol: TOL<=0");
             s.fastevaltol = tol;
             pushfastevaltol(s, tol, _params);
         }
@@ -58469,9 +58469,9 @@ public partial class alglib
 
             y = new double[0];
 
-            alglib.ap.assert(alglib.ap.len(x) >= s.nx, "RBFCalc: Length(X)<NX");
-            alglib.ap.assert(apserv.isfinitevector(x, s.nx, _params), "RBFCalc: X contains infinite or NaN values");
-            if (alglib.ap.len(y) < s.ny)
+            ap.assert(ap.len(x) >= s.nx, "RBFCalc: Length(X)<NX");
+            ap.assert(apserv.isfinitevector(x, s.nx, _params), "RBFCalc: X contains infinite or NaN values");
+            if (ap.len(y) < s.ny)
             {
                 y = new double[s.ny];
             }
@@ -58494,7 +58494,7 @@ public partial class alglib
                 rbfv3.rbfv3tsfastcalcbuf(s.model3, s.model3.calcbuf, x, ref y, _params);
                 return;
             }
-            alglib.ap.assert(false, "RBFCalcBuf: integrity check failed");
+            ap.assert(false, "RBFCalcBuf: integrity check failed");
         }
 
 
@@ -58537,8 +58537,8 @@ public partial class alglib
         {
             y = new double[0];
 
-            alglib.ap.assert(alglib.ap.len(x) >= s.nx, "RBFCalc: Length(X)<NX");
-            alglib.ap.assert(apserv.isfinitevector(x, s.nx, _params), "RBFCalc: X contains infinite or NaN values");
+            ap.assert(ap.len(x) >= s.nx, "RBFCalc: Length(X)<NX");
+            ap.assert(apserv.isfinitevector(x, s.nx, _params), "RBFCalc: X contains infinite or NaN values");
             rbfcalcbuf(s, x, ref y, _params);
         }
 
@@ -58599,8 +58599,8 @@ public partial class alglib
             y = new double[0];
             dy = new double[0];
 
-            alglib.ap.assert(alglib.ap.len(x) >= s.nx, "RBFDiff: Length(X)<NX");
-            alglib.ap.assert(apserv.isfinitevector(x, s.nx, _params), "RBFDiff: X contains infinite or NaN values");
+            ap.assert(ap.len(x) >= s.nx, "RBFDiff: Length(X)<NX");
+            ap.assert(apserv.isfinitevector(x, s.nx, _params), "RBFDiff: X contains infinite or NaN values");
             rbfdiffbuf(s, x, ref y, ref dy, _params);
         }
 
@@ -58676,8 +58676,8 @@ public partial class alglib
             dy = new double[0];
             d2y = new double[0];
 
-            alglib.ap.assert(alglib.ap.len(x) >= s.nx, "RBFHess: Length(X)<NX");
-            alglib.ap.assert(apserv.isfinitevector(x, s.nx, _params), "RBFHess: X contains infinite or NaN values");
+            ap.assert(ap.len(x) >= s.nx, "RBFHess: Length(X)<NX");
+            ap.assert(apserv.isfinitevector(x, s.nx, _params), "RBFHess: X contains infinite or NaN values");
             rbftshessbuf(s, s.calcbuf, x, ref y, ref dy, ref d2y, _params);
         }
 
@@ -58716,9 +58716,9 @@ public partial class alglib
         {
             int i = 0;
 
-            alglib.ap.assert(alglib.ap.len(x) >= s.nx, "RBFCalcBuf: Length(X)<NX");
-            alglib.ap.assert(apserv.isfinitevector(x, s.nx, _params), "RBFCalcBuf: X contains infinite or NaN values");
-            if (alglib.ap.len(y) < s.ny)
+            ap.assert(ap.len(x) >= s.nx, "RBFCalcBuf: Length(X)<NX");
+            ap.assert(apserv.isfinitevector(x, s.nx, _params), "RBFCalcBuf: X contains infinite or NaN values");
+            if (ap.len(y) < s.ny)
             {
                 y = new double[s.ny];
             }
@@ -58741,7 +58741,7 @@ public partial class alglib
                 rbfv3.rbfv3calcbuf(s.model3, x, ref y, _params);
                 return;
             }
-            alglib.ap.assert(false, "RBFCalcBuf: integrity check failed");
+            ap.assert(false, "RBFCalcBuf: integrity check failed");
         }
 
 
@@ -58798,14 +58798,14 @@ public partial class alglib
         {
             int i = 0;
 
-            alglib.ap.assert(alglib.ap.len(x) >= s.nx, "RBFDiffBuf: Length(X)<NX");
-            alglib.ap.assert(apserv.isfinitevector(x, s.nx, _params), "RBFDiffBuf: X contains infinite or NaN values");
-            alglib.ap.assert(s.modelversion == s.calcbuf.modelversion, "RBF: integrity check 3945 failed");
-            if (alglib.ap.len(y) < s.ny)
+            ap.assert(ap.len(x) >= s.nx, "RBFDiffBuf: Length(X)<NX");
+            ap.assert(apserv.isfinitevector(x, s.nx, _params), "RBFDiffBuf: X contains infinite or NaN values");
+            ap.assert(s.modelversion == s.calcbuf.modelversion, "RBF: integrity check 3945 failed");
+            if (ap.len(y) < s.ny)
             {
                 y = new double[s.ny];
             }
-            if (alglib.ap.len(dy) < s.ny * s.nx)
+            if (ap.len(dy) < s.ny * s.nx)
             {
                 dy = new double[s.ny * s.nx];
             }
@@ -58832,7 +58832,7 @@ public partial class alglib
                 rbfv3.rbfv3tsdiffbuf(s.model3, s.calcbuf.bufv3, x, ref y, ref dy, _params);
                 return;
             }
-            alglib.ap.assert(false, "RBFDiffBuf: integrity check failed");
+            ap.assert(false, "RBFDiffBuf: integrity check failed");
         }
 
 
@@ -58897,8 +58897,8 @@ public partial class alglib
             ref double[] d2y,
             alglib.xparams _params)
         {
-            alglib.ap.assert(alglib.ap.len(x) >= s.nx, "RBFHess: Length(X)<NX");
-            alglib.ap.assert(apserv.isfinitevector(x, s.nx, _params), "RBFHess: X contains infinite or NaN values");
+            ap.assert(ap.len(x) >= s.nx, "RBFHess: Length(X)<NX");
+            ap.assert(apserv.isfinitevector(x, s.nx, _params), "RBFHess: X contains infinite or NaN values");
             rbftshessbuf(s, s.calcbuf, x, ref y, ref dy, ref d2y, _params);
         }
 
@@ -58936,10 +58936,10 @@ public partial class alglib
         {
             int i = 0;
 
-            alglib.ap.assert(alglib.ap.len(x) >= s.nx, "RBFCalcBuf: Length(X)<NX");
-            alglib.ap.assert(apserv.isfinitevector(x, s.nx, _params), "RBFCalcBuf: X contains infinite or NaN values");
-            alglib.ap.assert(s.modelversion == buf.modelversion, "RBFCalcBuf: buffer object is not compatible with RBF model");
-            if (alglib.ap.len(y) < s.ny)
+            ap.assert(ap.len(x) >= s.nx, "RBFCalcBuf: Length(X)<NX");
+            ap.assert(apserv.isfinitevector(x, s.nx, _params), "RBFCalcBuf: X contains infinite or NaN values");
+            ap.assert(s.modelversion == buf.modelversion, "RBFCalcBuf: buffer object is not compatible with RBF model");
+            if (ap.len(y) < s.ny)
             {
                 y = new double[s.ny];
             }
@@ -58962,7 +58962,7 @@ public partial class alglib
                 rbfv3.rbfv3tscalcbuf(s.model3, buf.bufv3, x, ref y, _params);
                 return;
             }
-            alglib.ap.assert(false, "RBFTsCalcBuf: integrity check failed");
+            ap.assert(false, "RBFTsCalcBuf: integrity check failed");
         }
 
 
@@ -59014,14 +59014,14 @@ public partial class alglib
         {
             int i = 0;
 
-            alglib.ap.assert(alglib.ap.len(x) >= s.nx, "RBFTsDiffBuf: Length(X)<NX");
-            alglib.ap.assert(apserv.isfinitevector(x, s.nx, _params), "RBFTsDiffBuf: X contains infinite or NaN values");
-            alglib.ap.assert(s.modelversion == buf.modelversion, "RBFTsDiffBuf: integrity check 3985 failed");
-            if (alglib.ap.len(y) < s.ny)
+            ap.assert(ap.len(x) >= s.nx, "RBFTsDiffBuf: Length(X)<NX");
+            ap.assert(apserv.isfinitevector(x, s.nx, _params), "RBFTsDiffBuf: X contains infinite or NaN values");
+            ap.assert(s.modelversion == buf.modelversion, "RBFTsDiffBuf: integrity check 3985 failed");
+            if (ap.len(y) < s.ny)
             {
                 y = new double[s.ny];
             }
-            if (alglib.ap.len(dy) < s.ny * s.nx)
+            if (ap.len(dy) < s.ny * s.nx)
             {
                 dy = new double[s.ny * s.nx];
             }
@@ -59048,7 +59048,7 @@ public partial class alglib
                 rbfv3.rbfv3tsdiffbuf(s.model3, buf.bufv3, x, ref y, ref dy, _params);
                 return;
             }
-            alglib.ap.assert(false, "RBFDiffBuf: integrity check failed");
+            ap.assert(false, "RBFDiffBuf: integrity check failed");
         }
 
 
@@ -59113,18 +59113,18 @@ public partial class alglib
         {
             int i = 0;
 
-            alglib.ap.assert(alglib.ap.len(x) >= s.nx, "RBFTsHessBuf: Length(X)<NX");
-            alglib.ap.assert(apserv.isfinitevector(x, s.nx, _params), "RBFTsHessBuf: X contains infinite or NaN values");
-            alglib.ap.assert(s.modelversion == buf.modelversion, "RBFTsHessBuf: integrity check 3953 failed");
-            if (alglib.ap.len(y) < s.ny)
+            ap.assert(ap.len(x) >= s.nx, "RBFTsHessBuf: Length(X)<NX");
+            ap.assert(apserv.isfinitevector(x, s.nx, _params), "RBFTsHessBuf: X contains infinite or NaN values");
+            ap.assert(s.modelversion == buf.modelversion, "RBFTsHessBuf: integrity check 3953 failed");
+            if (ap.len(y) < s.ny)
             {
                 y = new double[s.ny];
             }
-            if (alglib.ap.len(dy) < s.ny * s.nx)
+            if (ap.len(dy) < s.ny * s.nx)
             {
                 dy = new double[s.ny * s.nx];
             }
-            if (alglib.ap.len(d2y) < s.ny * s.nx * s.nx)
+            if (ap.len(d2y) < s.ny * s.nx * s.nx)
             {
                 d2y = new double[s.ny * s.nx * s.nx];
             }
@@ -59155,7 +59155,7 @@ public partial class alglib
                 rbfv3.rbfv3tshessbuf(s.model3, buf.bufv3, x, ref y, ref dy, ref d2y, _params);
                 return;
             }
-            alglib.ap.assert(false, "RBFDiffBuf: integrity check failed");
+            ap.assert(false, "RBFDiffBuf: integrity check failed");
         }
 
 
@@ -59181,12 +59181,12 @@ public partial class alglib
 
             y = new double[0, 0];
 
-            alglib.ap.assert(n0 > 0, "RBFGridCalc2: invalid value for N0 (N0<=0)!");
-            alglib.ap.assert(n1 > 0, "RBFGridCalc2: invalid value for N1 (N1<=0)!");
-            alglib.ap.assert(alglib.ap.len(x0) >= n0, "RBFGridCalc2: Length(X0)<N0");
-            alglib.ap.assert(alglib.ap.len(x1) >= n1, "RBFGridCalc2: Length(X1)<N1");
-            alglib.ap.assert(apserv.isfinitevector(x0, n0, _params), "RBFGridCalc2: X0 contains infinite or NaN values!");
-            alglib.ap.assert(apserv.isfinitevector(x1, n1, _params), "RBFGridCalc2: X1 contains infinite or NaN values!");
+            ap.assert(n0 > 0, "RBFGridCalc2: invalid value for N0 (N0<=0)!");
+            ap.assert(n1 > 0, "RBFGridCalc2: invalid value for N1 (N1<=0)!");
+            ap.assert(ap.len(x0) >= n0, "RBFGridCalc2: Length(X0)<N0");
+            ap.assert(ap.len(x1) >= n1, "RBFGridCalc2: Length(X1)<N1");
+            ap.assert(apserv.isfinitevector(x0, n0, _params), "RBFGridCalc2: X0 contains infinite or NaN values!");
+            ap.assert(apserv.isfinitevector(x1, n1, _params), "RBFGridCalc2: X1 contains infinite or NaN values!");
             if (s.modelversion == 1)
             {
                 rbfv1.rbfv1gridcalc2(s.model1, x0, n0, x1, n1, ref y, _params);
@@ -59215,7 +59215,7 @@ public partial class alglib
                 }
                 return;
             }
-            alglib.ap.assert(false, "RBFGridCalc2: integrity check failed");
+            ap.assert(false, "RBFGridCalc2: integrity check failed");
         }
 
 
@@ -59297,19 +59297,19 @@ public partial class alglib
 
             y = new double[0];
 
-            alglib.ap.assert(n0 > 0, "RBFGridCalc2V: invalid value for N0 (N0<=0)!");
-            alglib.ap.assert(n1 > 0, "RBFGridCalc2V: invalid value for N1 (N1<=0)!");
-            alglib.ap.assert(alglib.ap.len(x0) >= n0, "RBFGridCalc2V: Length(X0)<N0");
-            alglib.ap.assert(alglib.ap.len(x1) >= n1, "RBFGridCalc2V: Length(X1)<N1");
-            alglib.ap.assert(apserv.isfinitevector(x0, n0, _params), "RBFGridCalc2V: X0 contains infinite or NaN values!");
-            alglib.ap.assert(apserv.isfinitevector(x1, n1, _params), "RBFGridCalc2V: X1 contains infinite or NaN values!");
+            ap.assert(n0 > 0, "RBFGridCalc2V: invalid value for N0 (N0<=0)!");
+            ap.assert(n1 > 0, "RBFGridCalc2V: invalid value for N1 (N1<=0)!");
+            ap.assert(ap.len(x0) >= n0, "RBFGridCalc2V: Length(X0)<N0");
+            ap.assert(ap.len(x1) >= n1, "RBFGridCalc2V: Length(X1)<N1");
+            ap.assert(apserv.isfinitevector(x0, n0, _params), "RBFGridCalc2V: X0 contains infinite or NaN values!");
+            ap.assert(apserv.isfinitevector(x1, n1, _params), "RBFGridCalc2V: X1 contains infinite or NaN values!");
             for (i = 0; i <= n0 - 2; i++)
             {
-                alglib.ap.assert((double)(x0[i]) <= (double)(x0[i + 1]), "RBFGridCalc2V: X0 is not ordered by ascending");
+                ap.assert((double)(x0[i]) <= (double)(x0[i + 1]), "RBFGridCalc2V: X0 is not ordered by ascending");
             }
             for (i = 0; i <= n1 - 2; i++)
             {
-                alglib.ap.assert((double)(x1[i]) <= (double)(x1[i + 1]), "RBFGridCalc2V: X1 is not ordered by ascending");
+                ap.assert((double)(x1[i]) <= (double)(x1[i + 1]), "RBFGridCalc2V: X1 is not ordered by ascending");
             }
             rbfgridcalc2vx(s, x0, n0, x1, n1, dummy, false, ref y, _params);
         }
@@ -59403,20 +59403,20 @@ public partial class alglib
 
             y = new double[0];
 
-            alglib.ap.assert(n0 > 0, "RBFGridCalc2VSubset: invalid value for N0 (N0<=0)!");
-            alglib.ap.assert(n1 > 0, "RBFGridCalc2VSubset: invalid value for N1 (N1<=0)!");
-            alglib.ap.assert(alglib.ap.len(x0) >= n0, "RBFGridCalc2VSubset: Length(X0)<N0");
-            alglib.ap.assert(alglib.ap.len(x1) >= n1, "RBFGridCalc2VSubset: Length(X1)<N1");
-            alglib.ap.assert(alglib.ap.len(flagy) >= n0 * n1, "RBFGridCalc2VSubset: Length(FlagY)<N0*N1*N2");
-            alglib.ap.assert(apserv.isfinitevector(x0, n0, _params), "RBFGridCalc2VSubset: X0 contains infinite or NaN values!");
-            alglib.ap.assert(apserv.isfinitevector(x1, n1, _params), "RBFGridCalc2VSubset: X1 contains infinite or NaN values!");
+            ap.assert(n0 > 0, "RBFGridCalc2VSubset: invalid value for N0 (N0<=0)!");
+            ap.assert(n1 > 0, "RBFGridCalc2VSubset: invalid value for N1 (N1<=0)!");
+            ap.assert(ap.len(x0) >= n0, "RBFGridCalc2VSubset: Length(X0)<N0");
+            ap.assert(ap.len(x1) >= n1, "RBFGridCalc2VSubset: Length(X1)<N1");
+            ap.assert(ap.len(flagy) >= n0 * n1, "RBFGridCalc2VSubset: Length(FlagY)<N0*N1*N2");
+            ap.assert(apserv.isfinitevector(x0, n0, _params), "RBFGridCalc2VSubset: X0 contains infinite or NaN values!");
+            ap.assert(apserv.isfinitevector(x1, n1, _params), "RBFGridCalc2VSubset: X1 contains infinite or NaN values!");
             for (i = 0; i <= n0 - 2; i++)
             {
-                alglib.ap.assert((double)(x0[i]) <= (double)(x0[i + 1]), "RBFGridCalc2VSubset: X0 is not ordered by ascending");
+                ap.assert((double)(x0[i]) <= (double)(x0[i + 1]), "RBFGridCalc2VSubset: X0 is not ordered by ascending");
             }
             for (i = 0; i <= n1 - 2; i++)
             {
-                alglib.ap.assert((double)(x1[i]) <= (double)(x1[i + 1]), "RBFGridCalc2VSubset: X1 is not ordered by ascending");
+                ap.assert((double)(x1[i]) <= (double)(x1[i + 1]), "RBFGridCalc2VSubset: X1 is not ordered by ascending");
             }
             rbfgridcalc2vx(s, x0, n0, x1, n1, flagy, true, ref y, _params);
         }
@@ -59508,26 +59508,26 @@ public partial class alglib
 
             y = new double[0];
 
-            alglib.ap.assert(n0 > 0, "RBFGridCalc3V: invalid value for N0 (N0<=0)!");
-            alglib.ap.assert(n1 > 0, "RBFGridCalc3V: invalid value for N1 (N1<=0)!");
-            alglib.ap.assert(n2 > 0, "RBFGridCalc3V: invalid value for N2 (N2<=0)!");
-            alglib.ap.assert(alglib.ap.len(x0) >= n0, "RBFGridCalc3V: Length(X0)<N0");
-            alglib.ap.assert(alglib.ap.len(x1) >= n1, "RBFGridCalc3V: Length(X1)<N1");
-            alglib.ap.assert(alglib.ap.len(x2) >= n2, "RBFGridCalc3V: Length(X2)<N2");
-            alglib.ap.assert(apserv.isfinitevector(x0, n0, _params), "RBFGridCalc3V: X0 contains infinite or NaN values!");
-            alglib.ap.assert(apserv.isfinitevector(x1, n1, _params), "RBFGridCalc3V: X1 contains infinite or NaN values!");
-            alglib.ap.assert(apserv.isfinitevector(x2, n2, _params), "RBFGridCalc3V: X2 contains infinite or NaN values!");
+            ap.assert(n0 > 0, "RBFGridCalc3V: invalid value for N0 (N0<=0)!");
+            ap.assert(n1 > 0, "RBFGridCalc3V: invalid value for N1 (N1<=0)!");
+            ap.assert(n2 > 0, "RBFGridCalc3V: invalid value for N2 (N2<=0)!");
+            ap.assert(ap.len(x0) >= n0, "RBFGridCalc3V: Length(X0)<N0");
+            ap.assert(ap.len(x1) >= n1, "RBFGridCalc3V: Length(X1)<N1");
+            ap.assert(ap.len(x2) >= n2, "RBFGridCalc3V: Length(X2)<N2");
+            ap.assert(apserv.isfinitevector(x0, n0, _params), "RBFGridCalc3V: X0 contains infinite or NaN values!");
+            ap.assert(apserv.isfinitevector(x1, n1, _params), "RBFGridCalc3V: X1 contains infinite or NaN values!");
+            ap.assert(apserv.isfinitevector(x2, n2, _params), "RBFGridCalc3V: X2 contains infinite or NaN values!");
             for (i = 0; i <= n0 - 2; i++)
             {
-                alglib.ap.assert((double)(x0[i]) <= (double)(x0[i + 1]), "RBFGridCalc3V: X0 is not ordered by ascending");
+                ap.assert((double)(x0[i]) <= (double)(x0[i + 1]), "RBFGridCalc3V: X0 is not ordered by ascending");
             }
             for (i = 0; i <= n1 - 2; i++)
             {
-                alglib.ap.assert((double)(x1[i]) <= (double)(x1[i + 1]), "RBFGridCalc3V: X1 is not ordered by ascending");
+                ap.assert((double)(x1[i]) <= (double)(x1[i + 1]), "RBFGridCalc3V: X1 is not ordered by ascending");
             }
             for (i = 0; i <= n2 - 2; i++)
             {
-                alglib.ap.assert((double)(x2[i]) <= (double)(x2[i + 1]), "RBFGridCalc3V: X2 is not ordered by ascending");
+                ap.assert((double)(x2[i]) <= (double)(x2[i + 1]), "RBFGridCalc3V: X2 is not ordered by ascending");
             }
             rbfgridcalc3vx(s, x0, n0, x1, n1, x2, n2, dummy, false, ref y, _params);
         }
@@ -59628,27 +59628,27 @@ public partial class alglib
 
             y = new double[0];
 
-            alglib.ap.assert(n0 > 0, "RBFGridCalc3VSubset: invalid value for N0 (N0<=0)!");
-            alglib.ap.assert(n1 > 0, "RBFGridCalc3VSubset: invalid value for N1 (N1<=0)!");
-            alglib.ap.assert(n2 > 0, "RBFGridCalc3VSubset: invalid value for N2 (N2<=0)!");
-            alglib.ap.assert(alglib.ap.len(x0) >= n0, "RBFGridCalc3VSubset: Length(X0)<N0");
-            alglib.ap.assert(alglib.ap.len(x1) >= n1, "RBFGridCalc3VSubset: Length(X1)<N1");
-            alglib.ap.assert(alglib.ap.len(x2) >= n2, "RBFGridCalc3VSubset: Length(X2)<N2");
-            alglib.ap.assert(alglib.ap.len(flagy) >= n0 * n1 * n2, "RBFGridCalc3VSubset: Length(FlagY)<N0*N1*N2");
-            alglib.ap.assert(apserv.isfinitevector(x0, n0, _params), "RBFGridCalc3VSubset: X0 contains infinite or NaN values!");
-            alglib.ap.assert(apserv.isfinitevector(x1, n1, _params), "RBFGridCalc3VSubset: X1 contains infinite or NaN values!");
-            alglib.ap.assert(apserv.isfinitevector(x2, n2, _params), "RBFGridCalc3VSubset: X2 contains infinite or NaN values!");
+            ap.assert(n0 > 0, "RBFGridCalc3VSubset: invalid value for N0 (N0<=0)!");
+            ap.assert(n1 > 0, "RBFGridCalc3VSubset: invalid value for N1 (N1<=0)!");
+            ap.assert(n2 > 0, "RBFGridCalc3VSubset: invalid value for N2 (N2<=0)!");
+            ap.assert(ap.len(x0) >= n0, "RBFGridCalc3VSubset: Length(X0)<N0");
+            ap.assert(ap.len(x1) >= n1, "RBFGridCalc3VSubset: Length(X1)<N1");
+            ap.assert(ap.len(x2) >= n2, "RBFGridCalc3VSubset: Length(X2)<N2");
+            ap.assert(ap.len(flagy) >= n0 * n1 * n2, "RBFGridCalc3VSubset: Length(FlagY)<N0*N1*N2");
+            ap.assert(apserv.isfinitevector(x0, n0, _params), "RBFGridCalc3VSubset: X0 contains infinite or NaN values!");
+            ap.assert(apserv.isfinitevector(x1, n1, _params), "RBFGridCalc3VSubset: X1 contains infinite or NaN values!");
+            ap.assert(apserv.isfinitevector(x2, n2, _params), "RBFGridCalc3VSubset: X2 contains infinite or NaN values!");
             for (i = 0; i <= n0 - 2; i++)
             {
-                alglib.ap.assert((double)(x0[i]) <= (double)(x0[i + 1]), "RBFGridCalc3VSubset: X0 is not ordered by ascending");
+                ap.assert((double)(x0[i]) <= (double)(x0[i + 1]), "RBFGridCalc3VSubset: X0 is not ordered by ascending");
             }
             for (i = 0; i <= n1 - 2; i++)
             {
-                alglib.ap.assert((double)(x1[i]) <= (double)(x1[i + 1]), "RBFGridCalc3VSubset: X1 is not ordered by ascending");
+                ap.assert((double)(x1[i]) <= (double)(x1[i + 1]), "RBFGridCalc3VSubset: X1 is not ordered by ascending");
             }
             for (i = 0; i <= n2 - 2; i++)
             {
-                alglib.ap.assert((double)(x2[i]) <= (double)(x2[i + 1]), "RBFGridCalc3VSubset: X2 is not ordered by ascending");
+                ap.assert((double)(x2[i]) <= (double)(x2[i + 1]), "RBFGridCalc3VSubset: X2 is not ordered by ascending");
             }
             rbfgridcalc3vx(s, x0, n0, x1, n1, x2, n2, flagy, true, ref y, _params);
         }
@@ -59687,19 +59687,19 @@ public partial class alglib
             int dstoffs = 0;
             rbfcalcbuffer calcbuf = new();
 
-            alglib.ap.assert(n0 > 0, "RBFGridCalc2VX: invalid value for N0 (N0<=0)!");
-            alglib.ap.assert(n1 > 0, "RBFGridCalc2VX: invalid value for N1 (N1<=0)!");
-            alglib.ap.assert(alglib.ap.len(x0) >= n0, "RBFGridCalc2VX: Length(X0)<N0");
-            alglib.ap.assert(alglib.ap.len(x1) >= n1, "RBFGridCalc2VX: Length(X1)<N1");
-            alglib.ap.assert(apserv.isfinitevector(x0, n0, _params), "RBFGridCalc2VX: X0 contains infinite or NaN values!");
-            alglib.ap.assert(apserv.isfinitevector(x1, n1, _params), "RBFGridCalc2VX: X1 contains infinite or NaN values!");
+            ap.assert(n0 > 0, "RBFGridCalc2VX: invalid value for N0 (N0<=0)!");
+            ap.assert(n1 > 0, "RBFGridCalc2VX: invalid value for N1 (N1<=0)!");
+            ap.assert(ap.len(x0) >= n0, "RBFGridCalc2VX: Length(X0)<N0");
+            ap.assert(ap.len(x1) >= n1, "RBFGridCalc2VX: Length(X1)<N1");
+            ap.assert(apserv.isfinitevector(x0, n0, _params), "RBFGridCalc2VX: X0 contains infinite or NaN values!");
+            ap.assert(apserv.isfinitevector(x1, n1, _params), "RBFGridCalc2VX: X1 contains infinite or NaN values!");
             for (i = 0; i <= n0 - 2; i++)
             {
-                alglib.ap.assert((double)(x0[i]) <= (double)(x0[i + 1]), "RBFGridCalc2VX: X0 is not ordered by ascending");
+                ap.assert((double)(x0[i]) <= (double)(x0[i + 1]), "RBFGridCalc2VX: X0 is not ordered by ascending");
             }
             for (i = 0; i <= n1 - 2; i++)
             {
-                alglib.ap.assert((double)(x1[i]) <= (double)(x1[i + 1]), "RBFGridCalc2VX: X1 is not ordered by ascending");
+                ap.assert((double)(x1[i]) <= (double)(x1[i + 1]), "RBFGridCalc2VX: X1 is not ordered by ascending");
             }
 
             //
@@ -59785,7 +59785,7 @@ public partial class alglib
             //
             // Unknown model
             //
-            alglib.ap.assert(false, "RBFGridCalc2VX: integrity check failed");
+            ap.assert(false, "RBFGridCalc2VX: integrity check failed");
         }
 
 
@@ -59830,26 +59830,26 @@ public partial class alglib
             hqrnd.hqrndstate rs = new();
             double[] dummyx3 = new double[0];
 
-            alglib.ap.assert(n0 > 0, "RBFGridCalc3V: invalid value for N0 (N0<=0)!");
-            alglib.ap.assert(n1 > 0, "RBFGridCalc3V: invalid value for N1 (N1<=0)!");
-            alglib.ap.assert(n2 > 0, "RBFGridCalc3V: invalid value for N2 (N2<=0)!");
-            alglib.ap.assert(alglib.ap.len(x0) >= n0, "RBFGridCalc3V: Length(X0)<N0");
-            alglib.ap.assert(alglib.ap.len(x1) >= n1, "RBFGridCalc3V: Length(X1)<N1");
-            alglib.ap.assert(alglib.ap.len(x2) >= n2, "RBFGridCalc3V: Length(X2)<N2");
-            alglib.ap.assert(apserv.isfinitevector(x0, n0, _params), "RBFGridCalc3V: X0 contains infinite or NaN values!");
-            alglib.ap.assert(apserv.isfinitevector(x1, n1, _params), "RBFGridCalc3V: X1 contains infinite or NaN values!");
-            alglib.ap.assert(apserv.isfinitevector(x2, n2, _params), "RBFGridCalc3V: X2 contains infinite or NaN values!");
+            ap.assert(n0 > 0, "RBFGridCalc3V: invalid value for N0 (N0<=0)!");
+            ap.assert(n1 > 0, "RBFGridCalc3V: invalid value for N1 (N1<=0)!");
+            ap.assert(n2 > 0, "RBFGridCalc3V: invalid value for N2 (N2<=0)!");
+            ap.assert(ap.len(x0) >= n0, "RBFGridCalc3V: Length(X0)<N0");
+            ap.assert(ap.len(x1) >= n1, "RBFGridCalc3V: Length(X1)<N1");
+            ap.assert(ap.len(x2) >= n2, "RBFGridCalc3V: Length(X2)<N2");
+            ap.assert(apserv.isfinitevector(x0, n0, _params), "RBFGridCalc3V: X0 contains infinite or NaN values!");
+            ap.assert(apserv.isfinitevector(x1, n1, _params), "RBFGridCalc3V: X1 contains infinite or NaN values!");
+            ap.assert(apserv.isfinitevector(x2, n2, _params), "RBFGridCalc3V: X2 contains infinite or NaN values!");
             for (i = 0; i <= n0 - 2; i++)
             {
-                alglib.ap.assert((double)(x0[i]) <= (double)(x0[i + 1]), "RBFGridCalc3V: X0 is not ordered by ascending");
+                ap.assert((double)(x0[i]) <= (double)(x0[i + 1]), "RBFGridCalc3V: X0 is not ordered by ascending");
             }
             for (i = 0; i <= n1 - 2; i++)
             {
-                alglib.ap.assert((double)(x1[i]) <= (double)(x1[i + 1]), "RBFGridCalc3V: X1 is not ordered by ascending");
+                ap.assert((double)(x1[i]) <= (double)(x1[i + 1]), "RBFGridCalc3V: X1 is not ordered by ascending");
             }
             for (i = 0; i <= n2 - 2; i++)
             {
-                alglib.ap.assert((double)(x2[i]) <= (double)(x2[i + 1]), "RBFGridCalc3V: X2 is not ordered by ascending");
+                ap.assert((double)(x2[i]) <= (double)(x2[i + 1]), "RBFGridCalc3V: X2 is not ordered by ascending");
             }
 
             //
@@ -59897,7 +59897,7 @@ public partial class alglib
                 bufseedv1.expbuf1 = new double[n1];
                 bufseedv1.expbuf2 = new double[n2];
                 nearestneighbor.kdtreecreaterequestbuffer(s.model1.tree, bufseedv1.requestbuf, _params);
-                alglib.smp.ae_shared_pool_set_seed(bufpool, bufseedv1);
+                smp.ae_shared_pool_set_seed(bufpool, bufseedv1);
 
                 //
                 // Analyze input grid:
@@ -59993,7 +59993,7 @@ public partial class alglib
             //
             // Unknown model
             //
-            alglib.ap.assert(false, "RBFGridCalc3VX: integrity check failed");
+            ap.assert(false, "RBFGridCalc3VX: integrity check failed");
         }
 
 
@@ -60092,7 +60092,7 @@ public partial class alglib
                 rbfv3.rbfv3unpack(s.model3, ref nx, ref ny, ref xwr, ref nc, ref v, _params);
                 return;
             }
-            alglib.ap.assert(false, "RBFUnpack: integrity check failure");
+            ap.assert(false, "RBFUnpack: integrity check failure");
         }
 
 
@@ -60198,7 +60198,7 @@ public partial class alglib
             int p,
             alglib.xparams _params)
         {
-            alglib.ap.assert((p == -2 || p == -1) || p == 0, "RBFSetProfile: incorrect P");
+            ap.assert((p == -2 || p == -1) || p == 0, "RBFSetProfile: incorrect P");
             s.rbfprofile = p;
         }
 
@@ -60286,7 +60286,7 @@ public partial class alglib
                 rbfv3.rbfv3alloc(s, model.model3, _params);
                 return;
             }
-            alglib.ap.assert(false);
+            ap.assert(false);
         }
 
 
@@ -60343,7 +60343,7 @@ public partial class alglib
                 rbfv3.rbfv3serialize(s, model.model3, _params);
                 return;
             }
-            alglib.ap.assert(false);
+            ap.assert(false);
         }
 
 
@@ -60366,9 +60366,9 @@ public partial class alglib
             // Header
             //
             i0 = s.unserialize_int();
-            alglib.ap.assert(i0 == scodes.getrbfserializationcode(_params), "RBFUnserialize: stream header corrupted");
+            ap.assert(i0 == scodes.getrbfserializationcode(_params), "RBFUnserialize: stream header corrupted");
             i1 = s.unserialize_int();
-            alglib.ap.assert((i1 == rbffirstversion || i1 == rbfversion2) || i1 == rbfversion3, "RBFUnserialize: stream header corrupted");
+            ap.assert((i1 == rbffirstversion || i1 == rbfversion2) || i1 == rbfversion3, "RBFUnserialize: stream header corrupted");
 
             //
             // V1 model
@@ -60417,7 +60417,7 @@ public partial class alglib
                 pushfastevaltol(model, model.fastevaltol, _params);
                 return;
             }
-            alglib.ap.assert(false, "RBF: unserialiation error (unexpected model type)");
+            ap.assert(false, "RBF: unserialiation error (unexpected model type)");
         }
 
 
@@ -60816,10 +60816,10 @@ public partial class alglib
             idwcalcbuffer buf,
             alglib.xparams _params)
         {
-            alglib.ap.assert(s.nx >= 1, "IDWCreateCalcBuffer: integrity check failed");
-            alglib.ap.assert(s.ny >= 1, "IDWCreateCalcBuffer: integrity check failed");
-            alglib.ap.assert(s.nlayers >= 0, "IDWCreateCalcBuffer: integrity check failed");
-            alglib.ap.assert(s.algotype >= 0, "IDWCreateCalcBuffer: integrity check failed");
+            ap.assert(s.nx >= 1, "IDWCreateCalcBuffer: integrity check failed");
+            ap.assert(s.ny >= 1, "IDWCreateCalcBuffer: integrity check failed");
+            ap.assert(s.nlayers >= 0, "IDWCreateCalcBuffer: integrity check failed");
+            ap.assert(s.algotype >= 0, "IDWCreateCalcBuffer: integrity check failed");
             if (s.nlayers >= 1 && s.algotype != 0)
             {
                 nearestneighbor.kdtreecreaterequestbuffer(s.tree, buf.requestbuffer, _params);
@@ -60874,8 +60874,8 @@ public partial class alglib
             idwbuilder state,
             alglib.xparams _params)
         {
-            alglib.ap.assert(nx >= 1, "IDWBuilderCreate: NX<=0");
-            alglib.ap.assert(ny >= 1, "IDWBuilderCreate: NY<=0");
+            ap.assert(nx >= 1, "IDWBuilderCreate: NX<=0");
+            ap.assert(ny >= 1, "IDWBuilderCreate: NY<=0");
 
             //
             // We choose reasonable defaults for the algorithm:
@@ -60938,7 +60938,7 @@ public partial class alglib
             int nlayers,
             alglib.xparams _params)
         {
-            alglib.ap.assert(nlayers >= 1, "IDWBuilderSetNLayers: N<1");
+            ap.assert(nlayers >= 1, "IDWBuilderSetNLayers: N<1");
             state.nlayers = nlayers;
         }
 
@@ -60970,10 +60970,10 @@ public partial class alglib
             int j = 0;
             int ew = 0;
 
-            alglib.ap.assert(n >= 0, "IDWBuilderSetPoints: N<0");
-            alglib.ap.assert(alglib.ap.rows(xy) >= n, "IDWBuilderSetPoints: Rows(XY)<N");
-            alglib.ap.assert(n == 0 || alglib.ap.cols(xy) >= state.nx + state.ny, "IDWBuilderSetPoints: Cols(XY)<NX+NY");
-            alglib.ap.assert(apserv.apservisfinitematrix(xy, n, state.nx + state.ny, _params), "IDWBuilderSetPoints: XY contains infinite or NaN values!");
+            ap.assert(n >= 0, "IDWBuilderSetPoints: N<0");
+            ap.assert(ap.rows(xy) >= n, "IDWBuilderSetPoints: Rows(XY)<N");
+            ap.assert(n == 0 || ap.cols(xy) >= state.nx + state.ny, "IDWBuilderSetPoints: Cols(XY)<NX+NY");
+            ap.assert(apserv.apservisfinitematrix(xy, n, state.nx + state.ny, _params), "IDWBuilderSetPoints: XY contains infinite or NaN values!");
             state.npoints = n;
             ew = state.nx + state.ny;
             apserv.rvectorsetlengthatleast(ref state.xy, n * ew, _params);
@@ -61082,8 +61082,8 @@ public partial class alglib
             double srad,
             alglib.xparams _params)
         {
-            alglib.ap.assert(math.isfinite(srad), "IDWBuilderSetAlgoMSTAB: SRad is not finite");
-            alglib.ap.assert((double)(srad) > (double)(0), "IDWBuilderSetAlgoMSTAB: SRad<=0");
+            ap.assert(math.isfinite(srad), "IDWBuilderSetAlgoMSTAB: SRad is not finite");
+            ap.assert((double)(srad) > (double)(0), "IDWBuilderSetAlgoMSTAB: SRad<=0");
 
             //
             // Set algorithm
@@ -61123,8 +61123,8 @@ public partial class alglib
             double p,
             alglib.xparams _params)
         {
-            alglib.ap.assert(math.isfinite(p), "IDWBuilderSetAlgoShepard: P is not finite");
-            alglib.ap.assert((double)(p) > (double)(0), "IDWBuilderSetAlgoShepard: P<=0");
+            ap.assert(math.isfinite(p), "IDWBuilderSetAlgoShepard: P is not finite");
+            ap.assert((double)(p) > (double)(0), "IDWBuilderSetAlgoShepard: P<=0");
 
             //
             // Set algorithm and options
@@ -61156,8 +61156,8 @@ public partial class alglib
             double r,
             alglib.xparams _params)
         {
-            alglib.ap.assert(math.isfinite(r), "IDWBuilderSetAlgoModShepard: R is not finite");
-            alglib.ap.assert((double)(r) > (double)(0), "IDWBuilderSetAlgoModShepard: R<=0");
+            ap.assert(math.isfinite(r), "IDWBuilderSetAlgoModShepard: R is not finite");
+            ap.assert((double)(r) > (double)(0), "IDWBuilderSetAlgoModShepard: R<=0");
 
             //
             // Set algorithm and options
@@ -61187,7 +61187,7 @@ public partial class alglib
         {
             int j = 0;
 
-            alglib.ap.assert(math.isfinite(v), "IDWBuilderSetUserTerm: infinite/NAN value passed");
+            ap.assert(math.isfinite(v), "IDWBuilderSetUserTerm: infinite/NAN value passed");
             state.priortermtype = 0;
             for (j = 0; j <= state.ny - 1; j++)
             {
@@ -61254,9 +61254,9 @@ public partial class alglib
         {
             double result = 0;
 
-            alglib.ap.assert(s.nx == 1, "IDWCalc1: S.NX<>1");
-            alglib.ap.assert(s.ny == 1, "IDWCalc1: S.NY<>1");
-            alglib.ap.assert(math.isfinite(x0), "IDWCalc1: X0 is INF or NAN");
+            ap.assert(s.nx == 1, "IDWCalc1: S.NX<>1");
+            ap.assert(s.ny == 1, "IDWCalc1: S.NY<>1");
+            ap.assert(math.isfinite(x0), "IDWCalc1: X0 is INF or NAN");
             s.buffer.x[0] = x0;
             idwtscalcbuf(s, s.buffer, s.buffer.x, ref s.buffer.y, _params);
             result = s.buffer.y[0];
@@ -61289,10 +61289,10 @@ public partial class alglib
         {
             double result = 0;
 
-            alglib.ap.assert(s.nx == 2, "IDWCalc2: S.NX<>2");
-            alglib.ap.assert(s.ny == 1, "IDWCalc2: S.NY<>1");
-            alglib.ap.assert(math.isfinite(x0), "IDWCalc2: X0 is INF or NAN");
-            alglib.ap.assert(math.isfinite(x1), "IDWCalc2: X1 is INF or NAN");
+            ap.assert(s.nx == 2, "IDWCalc2: S.NX<>2");
+            ap.assert(s.ny == 1, "IDWCalc2: S.NY<>1");
+            ap.assert(math.isfinite(x0), "IDWCalc2: X0 is INF or NAN");
+            ap.assert(math.isfinite(x1), "IDWCalc2: X1 is INF or NAN");
             s.buffer.x[0] = x0;
             s.buffer.x[1] = x1;
             idwtscalcbuf(s, s.buffer, s.buffer.x, ref s.buffer.y, _params);
@@ -61327,11 +61327,11 @@ public partial class alglib
         {
             double result = 0;
 
-            alglib.ap.assert(s.nx == 3, "IDWCalc3: S.NX<>3");
-            alglib.ap.assert(s.ny == 1, "IDWCalc3: S.NY<>1");
-            alglib.ap.assert(math.isfinite(x0), "IDWCalc3: X0 is INF or NAN");
-            alglib.ap.assert(math.isfinite(x1), "IDWCalc3: X1 is INF or NAN");
-            alglib.ap.assert(math.isfinite(x2), "IDWCalc3: X2 is INF or NAN");
+            ap.assert(s.nx == 3, "IDWCalc3: S.NX<>3");
+            ap.assert(s.ny == 1, "IDWCalc3: S.NY<>1");
+            ap.assert(math.isfinite(x0), "IDWCalc3: X0 is INF or NAN");
+            ap.assert(math.isfinite(x1), "IDWCalc3: X1 is INF or NAN");
+            ap.assert(math.isfinite(x2), "IDWCalc3: X2 is INF or NAN");
             s.buffer.x[0] = x0;
             s.buffer.x[1] = x1;
             s.buffer.x[2] = x2;
@@ -61468,8 +61468,8 @@ public partial class alglib
 
             nx = s.nx;
             ny = s.ny;
-            alglib.ap.assert(alglib.ap.len(x) >= nx, "IDWTsCalcBuf: Length(X)<NX");
-            alglib.ap.assert(apserv.isfinitevector(x, nx, _params), "IDWTsCalcBuf: X contains infinite or NaN values");
+            ap.assert(ap.len(x) >= nx, "IDWTsCalcBuf: Length(X)<NX");
+            ap.assert(apserv.isfinitevector(x, nx, _params), "IDWTsCalcBuf: X contains infinite or NaN values");
 
             //
             // Avoid spurious compiler warnings
@@ -61482,7 +61482,7 @@ public partial class alglib
             //
             // Allocate output
             //
-            if (alglib.ap.len(y) < ny)
+            if (ap.len(y) < ny)
             {
                 y = new double[ny];
             }
@@ -61505,7 +61505,7 @@ public partial class alglib
             if (s.algotype == 0)
             {
                 npoints = s.npoints;
-                alglib.ap.assert(npoints > 0, "IDWTsCalcBuf: integrity check failed");
+                ap.assert(npoints > 0, "IDWTsCalcBuf: integrity check failed");
                 eps = 1.0E-50;
                 ew = nx + ny;
                 p = s.shepardp;
@@ -61587,7 +61587,7 @@ public partial class alglib
             //
             if (s.algotype == 2)
             {
-                alglib.ap.assert((double)(w0) == (double)(1), "IDWTsCalcBuf: unexpected W0, integrity check failed");
+                ap.assert((double)(w0) == (double)(1), "IDWTsCalcBuf: unexpected W0, integrity check failed");
                 invrdecay = 1 / s.rdecay;
                 invr = 1 / s.r0;
                 lambdadecay = s.lambdadecay;
@@ -61732,7 +61732,7 @@ public partial class alglib
             //
             //
             //
-            alglib.ap.assert(false, "IDWTsCalcBuf: unexpected AlgoType");
+            ap.assert(false, "IDWTsCalcBuf: unexpected AlgoType");
         }
 
 
@@ -61832,7 +61832,7 @@ public partial class alglib
             // Compute temporaries which will be required later:
             // * global mean
             //
-            alglib.ap.assert(state.npoints > 0, "IDWFit: integrity check failed");
+            ap.assert(state.npoints > 0, "IDWFit: integrity check failed");
             apserv.rvectorsetlengthatleast(ref state.tmpmean, ny, _params);
             for (j = 0; j <= ny - 1; j++)
             {
@@ -61992,7 +61992,7 @@ public partial class alglib
             //
             if (state.algotype == 2)
             {
-                alglib.ap.assert(state.nlayers >= 1, "IDWFit: integrity check failed");
+                ap.assert(state.nlayers >= 1, "IDWFit: integrity check failed");
 
                 //
                 // Initialize model
@@ -62095,7 +62095,7 @@ public partial class alglib
                     //
                     if (npoints > state.mbatchsize && ((double)(npoints * querycosts[layeridx]) > (double)(apserv.smpactivationlevel(_params)) || state.debugprofile))
                     {
-                        alglib.smp.ae_shared_pool_set_seed(mbpool, mbuffer);
+                        smp.ae_shared_pool_set_seed(mbpool, mbuffer);
                         mstabrec(state, layerrad[layeridx], layerlambda[layeridx], layeridx, mbpool, 0, npoints, true, querycosts[layeridx], totalcost, state.tmplayers, _params);
                     }
                     else
@@ -62140,7 +62140,7 @@ public partial class alglib
             //
             // Unknown algorithm
             //
-            alglib.ap.assert(false, "IDWFit: integrity check failed, unexpected algorithm");
+            ap.assert(false, "IDWFit: integrity check failed, unexpected algorithm");
         }
 
 
@@ -62247,19 +62247,19 @@ public partial class alglib
 
             y = new double[0];
 
-            alglib.ap.assert(n0 > 0, "IDWGridCalc2V: invalid value for N0 (N0<=0)!");
-            alglib.ap.assert(n1 > 0, "IDWGridCalc2V: invalid value for N1 (N1<=0)!");
-            alglib.ap.assert(alglib.ap.len(x0) >= n0, "IDWGridCalc2V: Length(X0)<N0");
-            alglib.ap.assert(alglib.ap.len(x1) >= n1, "IDWGridCalc2V: Length(X1)<N1");
-            alglib.ap.assert(apserv.isfinitevector(x0, n0, _params), "IDWGridCalc2V: X0 contains infinite or NaN values!");
-            alglib.ap.assert(apserv.isfinitevector(x1, n1, _params), "IDWGridCalc2V: X1 contains infinite or NaN values!");
+            ap.assert(n0 > 0, "IDWGridCalc2V: invalid value for N0 (N0<=0)!");
+            ap.assert(n1 > 0, "IDWGridCalc2V: invalid value for N1 (N1<=0)!");
+            ap.assert(ap.len(x0) >= n0, "IDWGridCalc2V: Length(X0)<N0");
+            ap.assert(ap.len(x1) >= n1, "IDWGridCalc2V: Length(X1)<N1");
+            ap.assert(apserv.isfinitevector(x0, n0, _params), "IDWGridCalc2V: X0 contains infinite or NaN values!");
+            ap.assert(apserv.isfinitevector(x1, n1, _params), "IDWGridCalc2V: X1 contains infinite or NaN values!");
             for (i = 0; i <= n0 - 2; i++)
             {
-                alglib.ap.assert((double)(x0[i]) <= (double)(x0[i + 1]), "IDWGridCalc2V: X0 is not ordered by ascending");
+                ap.assert((double)(x0[i]) <= (double)(x0[i + 1]), "IDWGridCalc2V: X0 is not ordered by ascending");
             }
             for (i = 0; i <= n1 - 2; i++)
             {
-                alglib.ap.assert((double)(x1[i]) <= (double)(x1[i + 1]), "IDWGridCalc2V: X1 is not ordered by ascending");
+                ap.assert((double)(x1[i]) <= (double)(x1[i + 1]), "IDWGridCalc2V: X1 is not ordered by ascending");
             }
             idwgridcalc2vx(s, x0, n0, x1, n1, dummy, false, ref y, _params);
         }
@@ -62349,20 +62349,20 @@ public partial class alglib
 
             y = new double[0];
 
-            alglib.ap.assert(n0 > 0, "IDWGridCalc2VSubset: invalid value for N0 (N0<=0)!");
-            alglib.ap.assert(n1 > 0, "IDWGridCalc2VSubset: invalid value for N1 (N1<=0)!");
-            alglib.ap.assert(alglib.ap.len(x0) >= n0, "IDWGridCalc2VSubset: Length(X0)<N0");
-            alglib.ap.assert(alglib.ap.len(x1) >= n1, "IDWGridCalc2VSubset: Length(X1)<N1");
-            alglib.ap.assert(alglib.ap.len(flagy) >= n0 * n1, "IDWGridCalc2VSubset: Length(FlagY)<N0*N1*N2");
-            alglib.ap.assert(apserv.isfinitevector(x0, n0, _params), "IDWGridCalc2VSubset: X0 contains infinite or NaN values!");
-            alglib.ap.assert(apserv.isfinitevector(x1, n1, _params), "IDWGridCalc2VSubset: X1 contains infinite or NaN values!");
+            ap.assert(n0 > 0, "IDWGridCalc2VSubset: invalid value for N0 (N0<=0)!");
+            ap.assert(n1 > 0, "IDWGridCalc2VSubset: invalid value for N1 (N1<=0)!");
+            ap.assert(ap.len(x0) >= n0, "IDWGridCalc2VSubset: Length(X0)<N0");
+            ap.assert(ap.len(x1) >= n1, "IDWGridCalc2VSubset: Length(X1)<N1");
+            ap.assert(ap.len(flagy) >= n0 * n1, "IDWGridCalc2VSubset: Length(FlagY)<N0*N1*N2");
+            ap.assert(apserv.isfinitevector(x0, n0, _params), "IDWGridCalc2VSubset: X0 contains infinite or NaN values!");
+            ap.assert(apserv.isfinitevector(x1, n1, _params), "IDWGridCalc2VSubset: X1 contains infinite or NaN values!");
             for (i = 0; i <= n0 - 2; i++)
             {
-                alglib.ap.assert((double)(x0[i]) <= (double)(x0[i + 1]), "IDWGridCalc2VSubset: X0 is not ordered by ascending");
+                ap.assert((double)(x0[i]) <= (double)(x0[i + 1]), "IDWGridCalc2VSubset: X0 is not ordered by ascending");
             }
             for (i = 0; i <= n1 - 2; i++)
             {
-                alglib.ap.assert((double)(x1[i]) <= (double)(x1[i + 1]), "IDWGridCalc2VSubset: X1 is not ordered by ascending");
+                ap.assert((double)(x1[i]) <= (double)(x1[i + 1]), "IDWGridCalc2VSubset: X1 is not ordered by ascending");
             }
             idwgridcalc2vx(s, x0, n0, x1, n1, flagy, true, ref y, _params);
         }
@@ -62396,19 +62396,19 @@ public partial class alglib
             alglib.smp.shared_pool cbpool = new();
             idwcalcbuffer calcbuf = null;
 
-            alglib.ap.assert(n0 > 0, "IDWGridCalc2VX: invalid value for N0 (N0<=0)!");
-            alglib.ap.assert(n1 > 0, "IDWGridCalc2VX: invalid value for N1 (N1<=0)!");
-            alglib.ap.assert(alglib.ap.len(x0) >= n0, "IDWGridCalc2VX: Length(X0)<N0");
-            alglib.ap.assert(alglib.ap.len(x1) >= n1, "IDWGridCalc2VX: Length(X1)<N1");
-            alglib.ap.assert(apserv.isfinitevector(x0, n0, _params), "IDWGridCalc2VX: X0 contains infinite or NaN values!");
-            alglib.ap.assert(apserv.isfinitevector(x1, n1, _params), "IDWGridCalc2VX: X1 contains infinite or NaN values!");
+            ap.assert(n0 > 0, "IDWGridCalc2VX: invalid value for N0 (N0<=0)!");
+            ap.assert(n1 > 0, "IDWGridCalc2VX: invalid value for N1 (N1<=0)!");
+            ap.assert(ap.len(x0) >= n0, "IDWGridCalc2VX: Length(X0)<N0");
+            ap.assert(ap.len(x1) >= n1, "IDWGridCalc2VX: Length(X1)<N1");
+            ap.assert(apserv.isfinitevector(x0, n0, _params), "IDWGridCalc2VX: X0 contains infinite or NaN values!");
+            ap.assert(apserv.isfinitevector(x1, n1, _params), "IDWGridCalc2VX: X1 contains infinite or NaN values!");
             for (i = 0; i <= n0 - 2; i++)
             {
-                alglib.ap.assert((double)(x0[i]) <= (double)(x0[i + 1]), "IDWGridCalc2VX: X0 is not ordered by ascending");
+                ap.assert((double)(x0[i]) <= (double)(x0[i + 1]), "IDWGridCalc2VX: X0 is not ordered by ascending");
             }
             for (i = 0; i <= n1 - 2; i++)
             {
-                alglib.ap.assert((double)(x1[i]) <= (double)(x1[i + 1]), "IDWGridCalc2VX: X1 is not ordered by ascending");
+                ap.assert((double)(x1[i]) <= (double)(x1[i + 1]), "IDWGridCalc2VX: X1 is not ordered by ascending");
             }
 
             //
@@ -62416,7 +62416,7 @@ public partial class alglib
             //
             nx = s.nx;
             ny = s.ny;
-            alglib.smp.ae_shared_pool_set_seed(cbpool, s.buffer);
+            smp.ae_shared_pool_set_seed(cbpool, s.buffer);
 
             //
             // Prepare output array
@@ -62434,7 +62434,7 @@ public partial class alglib
             // Very crude approximation is used.
             //
             evalcost = 0;
-            alglib.ap.assert((s.algotype == 0 || s.algotype == 1) || s.algotype == 2, "IDW: integrity check 9144 failed");
+            ap.assert((s.algotype == 0 || s.algotype == 1) || s.algotype == 2, "IDW: integrity check 9144 failed");
             if (s.algotype == 0)
             {
 
@@ -62449,9 +62449,9 @@ public partial class alglib
                 //
                 // Modified Shepard: single evaluation cost is mostly kd-tree request
                 //
-                alglib.smp.ae_shared_pool_retrieve(cbpool, ref calcbuf);
+                smp.ae_shared_pool_retrieve(cbpool, ref calcbuf);
                 evalcost = evalcost + nearestneighbor.kdtreetsapproxrnnquerycost(s.tree, calcbuf.requestbuffer, s.r0, _params);
-                alglib.smp.ae_shared_pool_recycle(cbpool, ref calcbuf);
+                smp.ae_shared_pool_recycle(cbpool, ref calcbuf);
             }
             if (s.algotype == 2)
             {
@@ -62459,14 +62459,14 @@ public partial class alglib
                 //
                 // MSTAB: single evaluation cost is a sum of per-layer costs
                 //
-                alglib.smp.ae_shared_pool_retrieve(cbpool, ref calcbuf);
+                smp.ae_shared_pool_retrieve(cbpool, ref calcbuf);
                 rcur = s.r0;
                 for (k = 0; k <= s.nlayers - 1; k++)
                 {
                     evalcost = evalcost + (nearestneighbor.kdtreetsapproxrnnquerycost(s.tree, calcbuf.requestbuffer, rcur, _params) + 50);
                     rcur = rcur * s.rdecay;
                 }
-                alglib.smp.ae_shared_pool_recycle(cbpool, ref calcbuf);
+                smp.ae_shared_pool_recycle(cbpool, ref calcbuf);
             }
             evalcost = apserv.coalesce(evalcost, 50, _params);
 
@@ -62525,7 +62525,7 @@ public partial class alglib
                 nearestneighbor.kdtreealloc(s, model.tree, _params);
                 processed = true;
             }
-            alglib.ap.assert(processed, "IDW: integrity check failed during serialization");
+            ap.assert(processed, "IDW: integrity check failed during serialization");
         }
 
 
@@ -62577,7 +62577,7 @@ public partial class alglib
                 nearestneighbor.kdtreeserialize(s, model.tree, _params);
                 processed = true;
             }
-            alglib.ap.assert(processed, "IDW: integrity check failed during serialization");
+            ap.assert(processed, "IDW: integrity check failed during serialization");
         }
 
 
@@ -62599,7 +62599,7 @@ public partial class alglib
             // Header
             //
             scode = s.unserialize_int();
-            alglib.ap.assert(scode == scodes.getidwserializationcode(_params), "IDWUnserialize: stream header corrupted");
+            ap.assert(scode == scodes.getidwserializationcode(_params), "IDWUnserialize: stream header corrupted");
 
             //
             // Algorithm type and fields which are set for all algorithms
@@ -62632,7 +62632,7 @@ public partial class alglib
                 nearestneighbor.kdtreeunserialize(s, model.tree, _params);
                 processed = true;
             }
-            alglib.ap.assert(processed, "IDW: integrity check failed during serialization");
+            ap.assert(processed, "IDW: integrity check failed during serialization");
 
             //
             // Temporary buffers
@@ -62681,7 +62681,7 @@ public partial class alglib
             ny = s.ny;
             batchsize = apserv.icase2(s.debugprofile, 1, idwbatchsize, _params);
             chunksize = (end0 - begin0) * (end1 - begin1);
-            alglib.ap.assert(nx == 2, "IDW: integrity check 5621 failed");
+            ap.assert(nx == 2, "IDW: integrity check 5621 failed");
 
             //
             // Perform parallel execution if needed
@@ -62705,7 +62705,7 @@ public partial class alglib
                 //
                 // Subdivision
                 //
-                alglib.ap.assert(Math.Max(end0 - begin0, end1 - begin1) > 1, "IDW: integrity check 6712 failed");
+                ap.assert(Math.Max(end0 - begin0, end1 - begin1) > 1, "IDW: integrity check 6712 failed");
                 if (end0 - begin0 > end1 - begin1)
                 {
 
@@ -62728,7 +62728,7 @@ public partial class alglib
             //
             // Basecase code
             //
-            alglib.smp.ae_shared_pool_retrieve(cbpool, ref calcbuf);
+            smp.ae_shared_pool_retrieve(cbpool, ref calcbuf);
             ablasf.rallocv(nx, ref calcbuf.x, _params);
             for (i = begin0; i <= end0 - 1; i++)
             {
@@ -62746,7 +62746,7 @@ public partial class alglib
                     }
                 }
             }
-            alglib.smp.ae_shared_pool_recycle(cbpool, ref calcbuf);
+            smp.ae_shared_pool_recycle(cbpool, ref calcbuf);
         }
 
 
@@ -62902,9 +62902,9 @@ public partial class alglib
             //
             // Basecase
             //
-            alglib.smp.ae_shared_pool_retrieve(mbpool, ref mbuffer);
+            smp.ae_shared_pool_retrieve(mbpool, ref mbuffer);
             mstabbasecase(state, rcur, lambdacur, layeridx, mbuffer, idx0, idx1, querycost, totalcost, layers, _params);
-            alglib.smp.ae_shared_pool_recycle(mbpool, ref mbuffer);
+            smp.ae_shared_pool_recycle(mbpool, ref mbuffer);
         }
 
 
@@ -63365,8 +63365,8 @@ public partial class alglib
             rlo = 0;
             rhi = 0;
 
-            alglib.ap.assert(math.isfinite(epsx) && (double)(epsx) >= (double)(0), "FitSphereX: EpsX<0 or is not finite");
-            alglib.ap.assert(aulits >= 0, "FitSphereX: AULIts<0");
+            ap.assert(math.isfinite(epsx) && (double)(epsx) >= (double)(0), "FitSphereX: EpsX<0 or is not finite");
+            ap.assert(aulits >= 0, "FitSphereX: AULIts<0");
             fitsphereinternal(xy, npoints, nx, problemtype, 0, epsx, aulits, ref cx, ref rlo, ref rhi, rep, _params);
         }
 
@@ -63486,13 +63486,13 @@ public partial class alglib
             //
             // Check input parameters
             //
-            alglib.ap.assert(npoints > 0, "FitSphereX: NPoints<=0");
-            alglib.ap.assert(nx > 0, "FitSphereX: NX<=0");
-            alglib.ap.assert(apserv.apservisfinitematrix(xy, npoints, nx, _params), "FitSphereX: XY contains infinite or NAN values");
-            alglib.ap.assert(problemtype >= 0 && problemtype <= 3, "FitSphereX: ProblemType is neither 0, 1, 2 or 3");
-            alglib.ap.assert(solvertype >= 0 && solvertype <= 3, "FitSphereX: ProblemType is neither 1, 2 or 3");
-            alglib.ap.assert(math.isfinite(epsx) && (double)(epsx) >= (double)(0), "FitSphereX: EpsX<0 or is not finite");
-            alglib.ap.assert(aulits >= 0, "FitSphereX: AULIts<0");
+            ap.assert(npoints > 0, "FitSphereX: NPoints<=0");
+            ap.assert(nx > 0, "FitSphereX: NX<=0");
+            ap.assert(apserv.apservisfinitematrix(xy, npoints, nx, _params), "FitSphereX: XY contains infinite or NAN values");
+            ap.assert(problemtype >= 0 && problemtype <= 3, "FitSphereX: ProblemType is neither 0, 1, 2 or 3");
+            ap.assert(solvertype >= 0 && solvertype <= 3, "FitSphereX: ProblemType is neither 1, 2 or 3");
+            ap.assert(math.isfinite(epsx) && (double)(epsx) >= (double)(0), "FitSphereX: EpsX<0 or is not finite");
+            ap.assert(aulits >= 0, "FitSphereX: AULIts<0");
             if (solvertype == 0)
             {
                 solvertype = 1;
@@ -63627,10 +63627,10 @@ public partial class alglib
                         }
                         continue;
                     }
-                    alglib.ap.assert(false);
+                    ap.assert(false);
                 }
                 minlm.minlmresults(lmstate, ref pcr, lmrep, _params);
-                alglib.ap.assert(lmrep.terminationtype > 0, "FitSphereX: unexpected failure of LM solver");
+                ap.assert(lmrep.terminationtype > 0, "FitSphereX: unexpected failure of LM solver");
                 rep.iterationscount = rep.iterationscount + lmrep.iterationscount;
 
                 //
@@ -63760,14 +63760,14 @@ public partial class alglib
                                     nlcstate.fi[dstrow] = v;
                                     apserv.inc(ref suboffset, _params);
                                 }
-                                alglib.ap.assert(suboffset == cpr);
+                                ap.assert(suboffset == cpr);
                             }
                             continue;
                         }
-                        alglib.ap.assert(false);
+                        ap.assert(false);
                     }
                     minnlc.minnlcresults(nlcstate, ref pcr, nlcrep, _params);
-                    alglib.ap.assert(nlcrep.terminationtype > 0, "FitSphereX: unexpected failure of NLC solver");
+                    ap.assert(nlcrep.terminationtype > 0, "FitSphereX: unexpected failure of NLC solver");
                     rep.iterationscount = rep.iterationscount + nlcrep.iterationscount;
 
                     //
@@ -63881,7 +63881,7 @@ public partial class alglib
                                 ct[dstrow] = -1;
                                 apserv.inc(ref suboffset, _params);
                             }
-                            alglib.ap.assert(suboffset == cpr);
+                            ap.assert(suboffset == cpr);
                         }
 
                         //
@@ -63909,7 +63909,7 @@ public partial class alglib
                             }
                         }
                         minbleic.minbleicresults(blcstate, ref pcr, blcrep, _params);
-                        alglib.ap.assert(blcrep.terminationtype > 0, "FitSphereX: unexpected failure of BLEIC solver");
+                        ap.assert(blcrep.terminationtype > 0, "FitSphereX: unexpected failure of BLEIC solver");
                         rep.iterationscount = rep.iterationscount + blcrep.iterationscount;
 
                         //
@@ -63962,7 +63962,7 @@ public partial class alglib
                 //
                 // Oooops...!
                 //
-                alglib.ap.assert(false, "FitSphereX: integrity check failed");
+                ap.assert(false, "FitSphereX: integrity check failed");
             }
         }
 
@@ -64096,13 +64096,13 @@ public partial class alglib
             y = (double[])y.Clone();
             info = 0;
 
-            alglib.ap.assert(n >= 1, "Spline1DFitPenalized: N<1!");
-            alglib.ap.assert(m >= 4, "Spline1DFitPenalized: M<4!");
-            alglib.ap.assert(alglib.ap.len(x) >= n, "Spline1DFitPenalized: Length(X)<N!");
-            alglib.ap.assert(alglib.ap.len(y) >= n, "Spline1DFitPenalized: Length(Y)<N!");
-            alglib.ap.assert(apserv.isfinitevector(x, n, _params), "Spline1DFitPenalized: X contains infinite or NAN values!");
-            alglib.ap.assert(apserv.isfinitevector(y, n, _params), "Spline1DFitPenalized: Y contains infinite or NAN values!");
-            alglib.ap.assert(math.isfinite(rho), "Spline1DFitPenalized: Rho is infinite!");
+            ap.assert(n >= 1, "Spline1DFitPenalized: N<1!");
+            ap.assert(m >= 4, "Spline1DFitPenalized: M<4!");
+            ap.assert(ap.len(x) >= n, "Spline1DFitPenalized: Length(X)<N!");
+            ap.assert(ap.len(y) >= n, "Spline1DFitPenalized: Length(Y)<N!");
+            ap.assert(apserv.isfinitevector(x, n, _params), "Spline1DFitPenalized: X contains infinite or NAN values!");
+            ap.assert(apserv.isfinitevector(y, n, _params), "Spline1DFitPenalized: Y contains infinite or NAN values!");
+            ap.assert(math.isfinite(rho), "Spline1DFitPenalized: Rho is infinite!");
             w = new double[n];
             for (i = 0; i <= n - 1; i++)
             {
@@ -64185,15 +64185,15 @@ public partial class alglib
             w = (double[])w.Clone();
             info = 0;
 
-            alglib.ap.assert(n >= 1, "Spline1DFitPenalizedW: N<1!");
-            alglib.ap.assert(m >= 4, "Spline1DFitPenalizedW: M<4!");
-            alglib.ap.assert(alglib.ap.len(x) >= n, "Spline1DFitPenalizedW: Length(X)<N!");
-            alglib.ap.assert(alglib.ap.len(y) >= n, "Spline1DFitPenalizedW: Length(Y)<N!");
-            alglib.ap.assert(alglib.ap.len(w) >= n, "Spline1DFitPenalizedW: Length(W)<N!");
-            alglib.ap.assert(apserv.isfinitevector(x, n, _params), "Spline1DFitPenalizedW: X contains infinite or NAN values!");
-            alglib.ap.assert(apserv.isfinitevector(y, n, _params), "Spline1DFitPenalizedW: Y contains infinite or NAN values!");
-            alglib.ap.assert(apserv.isfinitevector(w, n, _params), "Spline1DFitPenalizedW: Y contains infinite or NAN values!");
-            alglib.ap.assert(math.isfinite(rho), "Spline1DFitPenalizedW: Rho is infinite!");
+            ap.assert(n >= 1, "Spline1DFitPenalizedW: N<1!");
+            ap.assert(m >= 4, "Spline1DFitPenalizedW: M<4!");
+            ap.assert(ap.len(x) >= n, "Spline1DFitPenalizedW: Length(X)<N!");
+            ap.assert(ap.len(y) >= n, "Spline1DFitPenalizedW: Length(Y)<N!");
+            ap.assert(ap.len(w) >= n, "Spline1DFitPenalizedW: Length(W)<N!");
+            ap.assert(apserv.isfinitevector(x, n, _params), "Spline1DFitPenalizedW: X contains infinite or NAN values!");
+            ap.assert(apserv.isfinitevector(y, n, _params), "Spline1DFitPenalizedW: Y contains infinite or NAN values!");
+            ap.assert(apserv.isfinitevector(w, n, _params), "Spline1DFitPenalizedW: Y contains infinite or NAN values!");
+            ap.assert(math.isfinite(rho), "Spline1DFitPenalizedW: Rho is infinite!");
 
             //
             // Prepare LambdaV

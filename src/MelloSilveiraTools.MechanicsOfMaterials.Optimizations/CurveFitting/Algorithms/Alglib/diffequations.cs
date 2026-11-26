@@ -218,7 +218,7 @@ public partial class alglib
     {
         if (diff == null)
             throw new alglibexception("ALGLIB: error in 'odesolversolve()' (diff is null)");
-        while (alglib.odesolveriteration(state, _params))
+        while (odesolveriteration(state, _params))
         {
             if (state.needdy)
             {
@@ -442,15 +442,15 @@ public partial class alglib
             odesolverstate state,
             alglib.xparams _params)
         {
-            alglib.ap.assert(n >= 1, "ODESolverRKCK: N<1!");
-            alglib.ap.assert(m >= 1, "ODESolverRKCK: M<1!");
-            alglib.ap.assert(alglib.ap.len(y) >= n, "ODESolverRKCK: Length(Y)<N!");
-            alglib.ap.assert(alglib.ap.len(x) >= m, "ODESolverRKCK: Length(X)<M!");
-            alglib.ap.assert(apserv.isfinitevector(y, n, _params), "ODESolverRKCK: Y contains infinite or NaN values!");
-            alglib.ap.assert(apserv.isfinitevector(x, m, _params), "ODESolverRKCK: Y contains infinite or NaN values!");
-            alglib.ap.assert(math.isfinite(eps), "ODESolverRKCK: Eps is not finite!");
-            alglib.ap.assert((double)(eps) != (double)(0), "ODESolverRKCK: Eps is zero!");
-            alglib.ap.assert(math.isfinite(h), "ODESolverRKCK: H is not finite!");
+            ap.assert(n >= 1, "ODESolverRKCK: N<1!");
+            ap.assert(m >= 1, "ODESolverRKCK: M<1!");
+            ap.assert(ap.len(y) >= n, "ODESolverRKCK: Length(Y)<N!");
+            ap.assert(ap.len(x) >= m, "ODESolverRKCK: Length(X)<M!");
+            ap.assert(apserv.isfinitevector(y, n, _params), "ODESolverRKCK: Y contains infinite or NaN values!");
+            ap.assert(apserv.isfinitevector(x, m, _params), "ODESolverRKCK: Y contains infinite or NaN values!");
+            ap.assert(math.isfinite(eps), "ODESolverRKCK: Eps is not finite!");
+            ap.assert((double)(eps) != (double)(0), "ODESolverRKCK: Eps is zero!");
+            ap.assert(math.isfinite(h), "ODESolverRKCK: H is not finite!");
             odesolverinit(0, y, n, x, m, eps, h, state, _params);
         }
 
@@ -547,8 +547,8 @@ public partial class alglib
             // some preliminary checks for internal errors
             // after this we assume that H>0 and M>1
             //
-            alglib.ap.assert((double)(state.h) > (double)(0), "ODESolver: internal error");
-            alglib.ap.assert(m > 1, "ODESolverIteration: internal error");
+            ap.assert((double)(state.h) > (double)(0), "ODESolver: internal error");
+            ap.assert(m > 1, "ODESolverIteration: internal error");
 
             //
             // choose solver

@@ -192,6 +192,27 @@
         <member name="P:MelloSilveiraTools.WebApi.Application.Commands.Crud.Update.UpdateEntityRequest`1.ResourceName">
             <summary>Human-readable resource name used to build localized error messages.</summary>
         </member>
+        <member name="T:MelloSilveiraTools.WebApi.Application.Commands.Health.CheckHealthCommand">
+            <summary>
+            Evaluates all registered ASP.NET Core <see cref="T:Microsoft.Extensions.Diagnostics.HealthChecks.IHealthCheck"/> dependencies (aggregated across
+            <c>Core</c>, <c>Database</c>, and host-registered checks) via <see cref="T:Microsoft.Extensions.Diagnostics.HealthChecks.HealthCheckService"/> and maps
+            the resulting <see cref="T:Microsoft.Extensions.Diagnostics.HealthChecks.HealthReport"/> into a structured <see cref="T:MelloSilveiraTools.Core.Models.Result`1"/> carrying
+            <see cref="T:MelloSilveiraTools.WebApi.Application.Models.HealthCheckResultData"/> (<c>200 OK</c> for Healthy/Degraded; <c>503 Service Unavailable</c> for Unhealthy).
+            </summary>
+            <param name="healthCheckService">Native ASP.NET Core health-check orchestrator aggregating every package's checks.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.WebApi.Application.Commands.Health.CheckHealthCommand.#ctor(Microsoft.Extensions.Diagnostics.HealthChecks.HealthCheckService)">
+            <summary>
+            Evaluates all registered ASP.NET Core <see cref="T:Microsoft.Extensions.Diagnostics.HealthChecks.IHealthCheck"/> dependencies (aggregated across
+            <c>Core</c>, <c>Database</c>, and host-registered checks) via <see cref="T:Microsoft.Extensions.Diagnostics.HealthChecks.HealthCheckService"/> and maps
+            the resulting <see cref="T:Microsoft.Extensions.Diagnostics.HealthChecks.HealthReport"/> into a structured <see cref="T:MelloSilveiraTools.Core.Models.Result`1"/> carrying
+            <see cref="T:MelloSilveiraTools.WebApi.Application.Models.HealthCheckResultData"/> (<c>200 OK</c> for Healthy/Degraded; <c>503 Service Unavailable</c> for Unhealthy).
+            </summary>
+            <param name="healthCheckService">Native ASP.NET Core health-check orchestrator aggregating every package's checks.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.WebApi.Application.Commands.Health.CheckHealthCommand.ExecuteCommandAsync(System.Threading.CancellationToken)">
+            <inheritdoc/>
+        </member>
         <member name="T:MelloSilveiraTools.WebApi.Application.Commands.StorageEntryMetadata.Create.AddStorageEntryCommand">
             <summary>
             Stores a file in the resolved <see cref="T:MelloSilveiraTools.Core.Files.Providers.IFileStorageService"/> and persists its <see cref="T:MelloSilveiraTools.Database.RelationalDatabase.Models.Entities.StorageEntryMetadataEntity"/> record.
@@ -746,6 +767,21 @@
             <param name="resourceName">Human-readable resource name used when reporting streaming failures.</param>
             <param name="cancellationToken"></param>
         </member>
+        <member name="T:MelloSilveiraTools.WebApi.Application.Controllers.HealthController">
+            <summary>
+            Exposes the aggregated native ASP.NET Core health-check endpoint under <c>api/health</c>
+            for Controller-based hosts, delegating execution to <see cref="T:MelloSilveiraTools.WebApi.Application.Commands.Health.CheckHealthCommand"/>.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.WebApi.Application.Controllers.HealthController.GetAsync(MelloSilveiraTools.WebApi.Application.Commands.Health.CheckHealthCommand,System.Threading.CancellationToken)">
+            <summary>
+            Evaluates all registered ASP.NET Core health checks and returns a structured
+            <see cref="T:MelloSilveiraTools.WebApi.Application.Models.HealthCheckResultData"/> wrapped in <see cref="T:MelloSilveiraTools.Core.Models.Result`1"/>.
+            </summary>
+            <param name="command">Command executing the registered health checks.</param>
+            <param name="cancellationToken">Cancellation token.</param>
+            <returns><c>200 OK</c> when Healthy/Degraded or <c>503 Service Unavailable</c> when Unhealthy.</returns>
+        </member>
         <member name="T:MelloSilveiraTools.WebApi.Application.Controllers.StorageEntryMetadataController">
             <summary>
             Exposes unified HTTP CRUD and download endpoints for stored files (<see cref="T:MelloSilveiraTools.Database.RelationalDatabase.Models.Entities.StorageEntryMetadataEntity"/>)
@@ -810,27 +846,55 @@
             <summary>
             Maps the same CRUD + NDJSON-streaming surface as <see cref="T:MelloSilveiraTools.WebApi.Application.Controllers.CrudController`2"/>
             onto a minimal-API <see cref="T:Microsoft.AspNetCore.Routing.RouteGroupBuilder"/>. Hosts can choose between inheriting from the controller
-            and calling <see cref="M:MelloSilveiraTools.WebApi.Application.Endpoints.CrudEndpoints.MapCrud``2(Microsoft.AspNetCore.Routing.IEndpointRouteBuilder,System.String,System.String,System.Boolean)"/> — both delegate to the same operations under
-            <c>MelloSilveiraTools.WebApi.Application.Operations.Add</c> and <c>...Operations.Crud</c>.
+            and calling <see cref="M:MelloSilveiraTools.WebApi.Application.Endpoints.CrudEndpoints.MapCrud``2(Microsoft.AspNetCore.Routing.IEndpointRouteBuilder,System.String,System.String,System.Boolean,System.String)"/> — both delegate to the same operations under
+            <c>MelloSilveiraTools.WebApi.Application.Commands.Crud</c>.
             </summary>
         </member>
-        <member name="M:MelloSilveiraTools.WebApi.Application.Endpoints.CrudEndpoints.MapCrud``2(Microsoft.AspNetCore.Routing.IEndpointRouteBuilder,System.String,System.String,System.Boolean)">
+        <member name="M:MelloSilveiraTools.WebApi.Application.Endpoints.CrudEndpoints.MapCrud``2(Microsoft.AspNetCore.Routing.IEndpointRouteBuilder,System.String,System.String,System.Boolean,System.String)">
             <summary>
             Maps the standard CRUD endpoints (add, read by id, paged read, update, delete and NDJSON stream)
-            for the supplied entity / filter pair under <paramref name="pattern"/>. The add and stream endpoints
-            are delegated to <see cref="M:MelloSilveiraTools.WebApi.Application.Endpoints.AddEndpoints.MapAdd``1(Microsoft.AspNetCore.Routing.IEndpointRouteBuilder,System.String,System.String)"/> and <see cref="M:MelloSilveiraTools.WebApi.Application.Endpoints.StreamEndpoints.MapStream``2(Microsoft.AspNetCore.Routing.IEndpointRouteBuilder,System.String,System.String)"/>
-            so hosts can also use those individually.
+            for the supplied entity / filter pair under <paramref name="pattern"/>. When <paramref name="pattern"/>,
+            <paramref name="resourceName"/>, or <paramref name="tag"/> are omitted, they are inferred automatically
+            from <typeparamref name="TEntity"/>'s <see cref="T:MelloSilveiraTools.Database.RelationalDatabase.Attributes.TableAttribute"/> and CLR type name.
             </summary>
             <typeparam name="TEntity">The entity type handled by the endpoints.</typeparam>
             <typeparam name="TFilter">The filter type used to query the entity.</typeparam>
             <param name="builder">Endpoint route builder used to register the endpoints.</param>
-            <param name="pattern">Route prefix (e.g. <c>"/api/v1/things"</c>).</param>
-            <param name="resourceName">Human-readable resource name used when building log and error messages.</param>
+            <param name="pattern">
+            Optional route prefix (e.g. <c>"/api/v1/things"</c>). When <see langword="null"/> or whitespace,
+            inferred as <c>"/api/v1/{kebab-case-table-or-entity-name}"</c>.
+            </param>
+            <param name="resourceName">
+            Optional human-readable resource name used in log, summary, and error messages. When <see langword="null"/>
+            or whitespace, inferred from <typeparamref name="TEntity"/> without the <c>Entity</c> suffix.
+            </param>
             <param name="requireAuthForMutations">
             When <see langword="true"/>, attaches <c>.RequireAuthorization()</c> to destructive mutation routes
             (<c>PUT</c> and <c>DELETE</c>) while leaving read, stream, and append-only creation accessible to anonymous callers.
             </param>
-            <returns>The created <see cref="T:Microsoft.AspNetCore.Routing.RouteGroupBuilder"/> so callers can chain <c>.RequireAuthorization(...)</c>, <c>.WithTags(...)</c>, etc.</returns>
+            <param name="tag">
+            Optional OpenAPI tag attached to the route group. When <see langword="null"/> or whitespace,
+            inferred in PascalCase from <typeparamref name="TEntity"/>'s <see cref="T:MelloSilveiraTools.Database.RelationalDatabase.Attributes.TableAttribute"/> or CLR type name.
+            </param>
+            <returns>The created <see cref="T:Microsoft.AspNetCore.Routing.RouteGroupBuilder"/> so callers can chain <c>.RequireAuthorization(...)</c>, <c>.RequireRateLimiting(...)</c>, etc.</returns>
+        </member>
+        <member name="T:MelloSilveiraTools.WebApi.Application.Endpoints.HealthEndpoints">
+            <summary>
+            Maps the same aggregated native ASP.NET Core health-check surface as <see cref="T:MelloSilveiraTools.WebApi.Application.Controllers.HealthController"/>
+            using minimal APIs, delegating execution to <see cref="T:MelloSilveiraTools.WebApi.Application.Commands.Health.CheckHealthCommand"/>.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.WebApi.Application.Endpoints.HealthEndpoints.MapHealthEndpoint(Microsoft.AspNetCore.Routing.IEndpointRouteBuilder,System.String,System.String)">
+            <summary>
+            Maps an anonymous health-check endpoint at <paramref name="pattern"/> backed by <see cref="T:MelloSilveiraTools.WebApi.Application.Commands.Health.CheckHealthCommand"/>
+            and ASP.NET Core's native <see cref="T:Microsoft.Extensions.Diagnostics.HealthChecks.HealthCheckService"/>. Returns <c>200 OK</c> for
+            <see cref="F:Microsoft.Extensions.Diagnostics.HealthChecks.HealthStatus.Healthy"/> / <see cref="F:Microsoft.Extensions.Diagnostics.HealthChecks.HealthStatus.Degraded"/> and <c>503 Service Unavailable</c>
+            for <see cref="F:Microsoft.Extensions.Diagnostics.HealthChecks.HealthStatus.Unhealthy"/>.
+            </summary>
+            <param name="builder">Endpoint route builder used to register the endpoint.</param>
+            <param name="pattern">Route path; defaults to <c>"/api/health"</c>.</param>
+            <param name="endpointName">Optional unique OpenAPI/routing endpoint name. Derived automatically from <paramref name="pattern"/> when omitted.</param>
+            <returns>The created <see cref="T:Microsoft.AspNetCore.Builder.RouteHandlerBuilder"/> for optional metadata chaining.</returns>
         </member>
         <member name="T:MelloSilveiraTools.WebApi.Application.Endpoints.StorageEntryMetadataEndpoints">
             <summary>
@@ -990,6 +1054,56 @@
             Value written to the stream status trailer when streaming completes successfully.
             </summary>
         </member>
+        <member name="T:MelloSilveiraTools.WebApi.Application.Models.HealthCheckResultData">
+            <summary>
+            Structured HTTP payload returned by the native ASP.NET Core health-check endpoint.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.WebApi.Application.Models.HealthCheckResultData.Status">
+            <summary>
+            Aggregate health status across all evaluated checks (<c>Healthy</c>, <c>Degraded</c>, or <c>Unhealthy</c>).
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.WebApi.Application.Models.HealthCheckResultData.TotalDurationMs">
+            <summary>
+            Total elapsed execution time in milliseconds across all evaluated checks.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.WebApi.Application.Models.HealthCheckResultData.Checks">
+            <summary>
+            Individual health-check outcomes keyed by registration name.
+            </summary>
+        </member>
+        <member name="T:MelloSilveiraTools.WebApi.Application.Models.HealthCheckEntryResultData">
+            <summary>
+            Individual health-check entry included in <see cref="P:MelloSilveiraTools.WebApi.Application.Models.HealthCheckResultData.Checks"/>.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.WebApi.Application.Models.HealthCheckEntryResultData.Status">
+            <summary>
+            Health status reported by this check (<c>Healthy</c>, <c>Degraded</c>, or <c>Unhealthy</c>).
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.WebApi.Application.Models.HealthCheckEntryResultData.DurationMs">
+            <summary>
+            Execution duration of this check in milliseconds.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.WebApi.Application.Models.HealthCheckEntryResultData.Description">
+            <summary>
+            Optional human-readable description returned by the health check.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.WebApi.Application.Models.HealthCheckEntryResultData.Error">
+            <summary>
+            Optional error message populated when the health check fails with an exception.
+            </summary>
+        </member>
+        <member name="P:MelloSilveiraTools.WebApi.Application.Models.HealthCheckEntryResultData.Data">
+            <summary>
+            Optional structured status metadata reported by the health check (such as individual storage provider statuses).
+            </summary>
+        </member>
         <member name="T:MelloSilveiraTools.WebApi.Application.Models.NdjsonException">
             <summary>
             Exception raised when an error occurs while writing a newline-delimited JSON stream.
@@ -1030,6 +1144,26 @@
             Executes the result, writing each item of the source sequence as an NDJSON line to the response body.
             </summary>
             <param name="httpContext">The HTTP context to which the NDJSON payload will be written.</param>
+        </member>
+        <member name="T:MelloSilveiraTools.WebApi.Application.RateLimiting.RateLimitPolicies">
+            <summary>
+            Canonical ASP.NET Core rate-limiting policy names shared across Web API hosts, controllers, and minimal APIs.
+            </summary>
+        </member>
+        <member name="F:MelloSilveiraTools.WebApi.Application.RateLimiting.RateLimitPolicies.Auth">
+            <summary>
+            Per-IP fixed-window policy protecting authentication and user registration endpoints.
+            </summary>
+        </member>
+        <member name="F:MelloSilveiraTools.WebApi.Application.RateLimiting.RateLimitPolicies.AnonymousCompute">
+            <summary>
+            Per-IP fixed-window policy throttling anonymous compute and storage endpoints while allowing authenticated callers full throughput.
+            </summary>
+        </member>
+        <member name="F:MelloSilveiraTools.WebApi.Application.RateLimiting.RateLimitPolicies.PluginUpload">
+            <summary>
+            Per-user (or per-IP fallback) fixed-window policy throttling plugin assembly uploads and community submissions.
+            </summary>
         </member>
         <member name="T:MelloSilveiraTools.WebApi.Authentication.AuthenticationToken">
             <summary>
@@ -1261,26 +1395,25 @@
             </summary>
         </member>
         <member name="M:MelloSilveiraTools.WebApi.WebApiDependencyInjection.AddWebApiServices(Microsoft.Extensions.DependencyInjection.IServiceCollection,MelloSilveiraTools.Core.ResiliencePipelines.ResiliencePipelineSettings)">
-            <summary>
-            Registers Web API services: API service agent resilience pipeline.
-            </summary>
-            <param name="services">Service collection that receives the registrations.</param>
-            <param name="defaultResiliencePipelineSettings">Settings that parameterize the default resilience pipelines.</param>
-            <returns>The same <paramref name="services"/> instance to allow call chaining.</returns>
+            <inheritdoc cref="M:MelloSilveiraTools.WebApi.WebApiDependencyInjection.&lt;G&gt;$7B30185E57B8298C6754F16C0BCF4773.AddWebApiServices(MelloSilveiraTools.Core.ResiliencePipelines.ResiliencePipelineSettings)"/>
+        </member>
+        <member name="M:MelloSilveiraTools.WebApi.WebApiDependencyInjection.AddWebApiHealthChecks(Microsoft.Extensions.DependencyInjection.IServiceCollection,MelloSilveiraTools.Database.RelationalDatabase.Settings.DatabaseSettings)">
+            <inheritdoc cref="M:MelloSilveiraTools.WebApi.WebApiDependencyInjection.&lt;G&gt;$7B30185E57B8298C6754F16C0BCF4773.AddWebApiHealthChecks(MelloSilveiraTools.Database.RelationalDatabase.Settings.DatabaseSettings)"/>
         </member>
         <member name="M:MelloSilveiraTools.WebApi.WebApiDependencyInjection.AddJweAuthentication(Microsoft.Extensions.DependencyInjection.IServiceCollection,MelloSilveiraTools.WebApi.Authentication.JwtSettings)">
-            <summary>
-            Registers JWE authentication, authentication commands, and the database-backed
-            <see cref="F:MelloSilveiraTools.WebApi.Authentication.AuthorizationPolicies.SuperuserOnly"/> authorization policy.
-            </summary>
-            <param name="services">Service collection that receives the registrations.</param>
-            <param name="jwtSettings">Settings used to build and validate JWT tokens.</param>
-            <returns>The same <paramref name="services"/> instance to allow call chaining.</returns>
+            <inheritdoc cref="M:MelloSilveiraTools.WebApi.WebApiDependencyInjection.&lt;G&gt;$7B30185E57B8298C6754F16C0BCF4773.AddJweAuthentication(MelloSilveiraTools.WebApi.Authentication.JwtSettings)"/>
         </member>
         <member name="M:MelloSilveiraTools.WebApi.WebApiDependencyInjection.AddSwaggerWithBearerSecurity(Microsoft.Extensions.DependencyInjection.IServiceCollection)">
-            <summary>
-            Configures the documentation file for Swagger User Interface using bearer authentication.
-            </summary>
+            <inheritdoc cref="M:MelloSilveiraTools.WebApi.WebApiDependencyInjection.&lt;G&gt;$7B30185E57B8298C6754F16C0BCF4773.AddSwaggerWithBearerSecurity"/>
+        </member>
+        <member name="M:MelloSilveiraTools.WebApi.WebApiDependencyInjection.AddDefaultRateLimiting(Microsoft.Extensions.DependencyInjection.IServiceCollection)">
+            <inheritdoc cref="M:MelloSilveiraTools.WebApi.WebApiDependencyInjection.&lt;G&gt;$7B30185E57B8298C6754F16C0BCF4773.AddDefaultRateLimiting"/>
+        </member>
+        <member name="M:MelloSilveiraTools.WebApi.WebApiDependencyInjection.AddDefaultCors(Microsoft.Extensions.DependencyInjection.IServiceCollection,System.String[],System.Boolean)">
+            <inheritdoc cref="M:MelloSilveiraTools.WebApi.WebApiDependencyInjection.&lt;G&gt;$7B30185E57B8298C6754F16C0BCF4773.AddDefaultCors(System.String[],System.Boolean)"/>
+        </member>
+        <member name="M:MelloSilveiraTools.WebApi.WebApiDependencyInjection.ConfigureToolsHttpJsonOptions(Microsoft.Extensions.DependencyInjection.IServiceCollection)">
+            <inheritdoc cref="M:MelloSilveiraTools.WebApi.WebApiDependencyInjection.&lt;G&gt;$7B30185E57B8298C6754F16C0BCF4773.ConfigureToolsHttpJsonOptions"/>
         </member>
         <member name="M:MelloSilveiraTools.WebApi.WebApiDependencyInjection.UseSwaggerDocs(Microsoft.AspNetCore.Builder.IApplicationBuilder)">
             <summary>
@@ -1292,6 +1425,46 @@
             Registers custom HTTP exception handling middleware.
             </summary>
         </member>
+        <member name="M:MelloSilveiraTools.WebApi.WebApiDependencyInjection.ConfigureRequestBodyLimits(Microsoft.AspNetCore.Builder.WebApplicationBuilder,System.Int64)">
+            <summary>
+            Configures Kestrel <c>MaxRequestBodySize</c> and ASP.NET Core multipart <see cref="P:Microsoft.AspNetCore.Http.Features.FormOptions.MultipartBodyLengthLimit"/>
+            consistently to <paramref name="maxRequestBodySizeBytes"/>.
+            </summary>
+            <param name="builder">Web application builder to configure.</param>
+            <param name="maxRequestBodySizeBytes">Maximum permitted request and multipart body size in bytes (must be positive).</param>
+            <returns>The same <paramref name="builder"/> instance to allow call chaining.</returns>
+            <exception cref="T:System.ArgumentOutOfRangeException">Thrown when <paramref name="maxRequestBodySizeBytes"/> is less than or equal to zero.</exception>
+        </member>
+        <member name="M:MelloSilveiraTools.WebApi.WebApiDependencyInjection.UseWebApiSecurityPipeline(Microsoft.AspNetCore.Builder.IApplicationBuilder,System.Boolean)">
+            <summary>
+            Registers the mandatory ordered security middleware pipeline:
+            <c>UseAuthentication()</c> → <c>UseUserContext()</c> → <c>UseAuthorization()</c> (and optionally <c>UseRateLimiter()</c>).
+            Preserving this sequence guarantees that database-backed user/superuser resolution runs before authorization
+            and that authenticated callers bypass anonymous rate limits.
+            </summary>
+            <param name="app">Application builder.</param>
+            <param name="useRateLimiter">When <see langword="true"/> (default), appends <c>UseRateLimiter()</c> after <c>UseAuthorization()</c>.</param>
+            <returns>The same <paramref name="app"/> instance for chaining.</returns>
+        </member>
+        <member name="M:MelloSilveiraTools.WebApi.WebApiDependencyInjection.EnsureDatabaseRlsSafetyAsync(Microsoft.AspNetCore.Builder.WebApplication,System.Threading.CancellationToken)">
+            <summary>
+            Verifies eagerly at startup that the configured PostgreSQL connection role does not possess
+            <c>SUPERUSER</c> or <c>BYPASSRLS</c> privileges unless <see cref="P:MelloSilveiraTools.Database.RelationalDatabase.Settings.DatabaseSettings.AllowSuperuserDatabaseConnection"/>
+            is explicitly set to <see langword="true"/>. Transient connectivity errors are ignored only in Development.
+            </summary>
+            <param name="app">Built web application whose DI container holds <see cref="T:Npgsql.NpgsqlDataSource"/> and <see cref="T:MelloSilveiraTools.Database.RelationalDatabase.Settings.DatabaseSettings"/>.</param>
+            <param name="cancellationToken">Token used to cancel the startup verification query.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.WebApi.WebApiDependencyInjection.EnsureDatabaseRlsSafetyAsync(Microsoft.AspNetCore.Builder.WebApplication,System.Boolean,System.Threading.CancellationToken)">
+            <summary>
+            Verifies eagerly at startup that the configured PostgreSQL connection role does not possess
+            <c>SUPERUSER</c> or <c>BYPASSRLS</c> privileges unless <paramref name="allowSuperuserDatabaseConnection"/>
+            is <see langword="true"/>. Transient connectivity errors are ignored only in Development.
+            </summary>
+            <param name="app">Built web application whose DI container holds <see cref="T:Npgsql.NpgsqlDataSource"/>.</param>
+            <param name="allowSuperuserDatabaseConnection">Explicit opt-out permitting superuser/bypassrls roles.</param>
+            <param name="cancellationToken">Token used to cancel the startup verification query.</param>
+        </member>
         <member name="M:MelloSilveiraTools.WebApi.WebApiDependencyInjection.UseUserContext(Microsoft.AspNetCore.Builder.IApplicationBuilder)">
             <summary>
             Registers <see cref="T:MelloSilveiraTools.WebApi.Application.Middlewares.UserContextMiddleware"/> to propagate the authenticated user's identifier into
@@ -1300,6 +1473,60 @@
             </summary>
             <param name="app">Application builder.</param>
             <returns>The same <paramref name="app"/> instance for chaining.</returns>
+        </member>
+        <member name="M:MelloSilveiraTools.WebApi.WebApiDependencyInjection.&lt;G&gt;$7B30185E57B8298C6754F16C0BCF4773.AddWebApiServices(MelloSilveiraTools.Core.ResiliencePipelines.ResiliencePipelineSettings)">
+            <summary>
+            Registers Web API services: API service agent resilience pipeline.
+            </summary>
+            <param name="defaultResiliencePipelineSettings">Settings that parameterize the default resilience pipelines.</param>
+            <returns>The same <paramref name="services"/> instance to allow call chaining.</returns>
+        </member>
+        <member name="M:MelloSilveiraTools.WebApi.WebApiDependencyInjection.&lt;G&gt;$7B30185E57B8298C6754F16C0BCF4773.AddWebApiHealthChecks(MelloSilveiraTools.Database.RelationalDatabase.Settings.DatabaseSettings)">
+            <summary>
+            Registers ASP.NET Core native health checks for MelloSilveiraTools Web API hosts,
+            aggregating file storage health checks and, when <paramref name="databaseSettings"/> is provided,
+            PostgreSQL database health checks.
+            </summary>
+            <param name="databaseSettings">Optional database settings; when provided, registers PostgreSQL health checks with the configured operation timeout.</param>
+            <returns>The same <paramref name="services"/> instance to allow call chaining.</returns>
+        </member>
+        <member name="M:MelloSilveiraTools.WebApi.WebApiDependencyInjection.&lt;G&gt;$7B30185E57B8298C6754F16C0BCF4773.AddJweAuthentication(MelloSilveiraTools.WebApi.Authentication.JwtSettings)">
+            <summary>
+            Registers JWE authentication, authentication commands, and the database-backed <see cref="F:MelloSilveiraTools.WebApi.Authentication.AuthorizationPolicies.SuperuserOnly"/> authorization policy.
+            </summary>
+            <param name="jwtSettings">Settings used to build and validate JWT tokens.</param>
+            <returns>The same <paramref name="services"/> instance to allow call chaining.</returns>
+        </member>
+        <member name="M:MelloSilveiraTools.WebApi.WebApiDependencyInjection.&lt;G&gt;$7B30185E57B8298C6754F16C0BCF4773.AddSwaggerWithBearerSecurity">
+            <summary>
+            Configures the documentation file for Swagger User Interface using bearer authentication.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.WebApi.WebApiDependencyInjection.&lt;G&gt;$7B30185E57B8298C6754F16C0BCF4773.AddDefaultRateLimiting">
+            <summary>
+            Registers the default fixed-window ASP.NET Core rate-limiting policies defined in <see cref="T:MelloSilveiraTools.WebApi.Application.RateLimiting.RateLimitPolicies"/>:
+            <see cref="F:MelloSilveiraTools.WebApi.Application.RateLimiting.RateLimitPolicies.Auth"/>, <see cref="F:MelloSilveiraTools.WebApi.Application.RateLimiting.RateLimitPolicies.AnonymousCompute"/>, and
+            <see cref="F:MelloSilveiraTools.WebApi.Application.RateLimiting.RateLimitPolicies.PluginUpload"/> (returning <c>429 Too Many Requests</c> when exceeded).
+            </summary>
+            <returns>The same <paramref name="services"/> instance to allow call chaining.</returns>
+        </member>
+        <member name="M:MelloSilveiraTools.WebApi.WebApiDependencyInjection.&lt;G&gt;$7B30185E57B8298C6754F16C0BCF4773.AddDefaultCors(System.String[],System.Boolean)">
+            <summary>
+            Configures the default ASP.NET Core CORS policy using explicit <paramref name="allowedOrigins"/>,
+            falling back to <c>AllowAnyOrigin()</c> only when <paramref name="allowedOrigins"/> is empty and
+            <paramref name="allowAnyOriginWhenEmpty"/> is <see langword="true"/> (typically in Development).
+            </summary>
+            <param name="allowedOrigins">Explicitly allowed origins; when empty, requests are allowed from any origin only if <paramref name="allowAnyOriginWhenEmpty"/> is <see langword="true"/>.</param>
+            <param name="allowAnyOriginWhenEmpty">When <see langword="true"/> and no origins are specified, permits any origin.</param>
+            <returns>The same <paramref name="services"/> instance to allow call chaining.</returns>
+        </member>
+        <member name="M:MelloSilveiraTools.WebApi.WebApiDependencyInjection.&lt;G&gt;$7B30185E57B8298C6754F16C0BCF4773.ConfigureToolsHttpJsonOptions">
+            <summary>
+            Configures ASP.NET Core minimal API HTTP JSON serialization options required by MelloSilveiraTools
+            polymorphic contracts (<see cref="P:System.Text.Json.JsonSerializerOptions.AllowOutOfOrderMetadataProperties"/>)
+            and string-based enum serialization (<see cref="T:System.Text.Json.Serialization.JsonStringEnumConverter"/>).
+            </summary>
+            <returns>The same <paramref name="services"/> instance to allow call chaining.</returns>
         </member>
         <member name="T:MelloSilveiraTools.WebApi.ExtensionMethods.FormFileExtensions">
             <summary>

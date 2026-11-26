@@ -263,6 +263,15 @@ public record Result : ResultBase
         => new() { Data = data, Messages = [message], StatusCode = StatusCode.Conflict, Success = false };
 
     /// <summary>
+    /// Creates an outcome indicating temporary service unavailability while carrying structured diagnostic data.
+    /// </summary>
+    /// <typeparam name="TResultData">The type of diagnostic or business data payload.</typeparam>
+    /// <param name="data">The structured payload describing the unavailable state.</param>
+    /// <returns>A 503 Service Unavailable outcome carrying data.</returns>
+    public static Result<TResultData> CreateServiceUnavailable<TResultData>(TResultData data)
+        => new() { Data = data, StatusCode = StatusCode.ServiceUnavailable, Success = false };
+
+    /// <summary>
     /// Creates a successful outcome delivering a list of business records.
     /// </summary>
     /// <typeparam name="TResultData">The type of items in the list.</typeparam>

@@ -3,6 +3,7 @@ using Amazon.Runtime;
 using Amazon.S3;
 using Azure.Storage.Blobs;
 using MelloSilveiraTools.Core.Caching;
+using MelloSilveiraTools.Core.Files.HealthChecks;
 using MelloSilveiraTools.Core.Files.Models;
 using MelloSilveiraTools.Core.Files.Providers;
 using MelloSilveiraTools.Core.Files.Providers.AwsS3;
@@ -19,6 +20,7 @@ using MelloSilveiraTools.Core.Security;
 using MelloSilveiraTools.Core.Services.Email;
 using MelloSilveiraTools.Core.Services.Encryption;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Logging;
 using Serilog;
 
@@ -29,6 +31,19 @@ namespace MelloSilveiraTools.Core;
 /// </summary>
 public static class CoreDependencyInjection
 {
+    extension(IHealthChecksBuilder healthChecksBuilder)
+    {
+        /// <summary>
+        /// Registers the native ASP.NET Core <see cref="FileStorageHealthCheck"/> validating every
+        /// <see cref="IFileStorageService"/> registered across static (keyed and unkeyed) and dynamic plugin containers.
+        /// </summary>
+        /// <param name="name">Optional health-check registration name; defaults to <see cref="FileStorageHealthCheck.DefaultName"/>.</param>
+        /// <param name="tags">Optional health-check tags; defaults to <c>["storage", "ready"]</c>.</param>
+        /// <returns>The <see cref="IHealthChecksBuilder"/> to allow chaining additional health checks.</returns>
+        public IHealthChecksBuilder AddFileStorageHealthCheck(string name = FileStorageHealthCheck.DefaultName, IEnumerable<string>? tags = null)
+            => healthChecksBuilder.AddCheck<FileStorageHealthCheck>(name, failureStatus: HealthStatus.Unhealthy, tags: tags ?? ["storage", "ready"]);
+    }
+
     extension(IServiceCollection services)
     {
         /// <summary>
@@ -78,16 +93,24 @@ public static class CoreDependencyInjection
                     .AddScoped<IEmailService, SmtpEmailService>();
             }
 
-            LocalFileStorageSettings tempLocalFileStorageSettings = new() { BaseDirectory = Path.Combine(Path.GetTempPath(), "storage") };
+            LocalFileStorageSettings? effectiveLocalSettings = fileStorageSettings?.Local;
+            if (effectiveLocalSettings is null)
+            {
+                string tempBaseDirectory = Path.Combine(Path.GetTempPath(), "storage");
+                Directory.CreateDirectory(tempBaseDirectory);
+                effectiveLocalSettings = new LocalFileStorageSettings { BaseDirectory = tempBaseDirectory };
+            }
+
             if (fileStorageSettings is not null)
             {
                 services
                     .AddSingleton(provider => provider.GetRequiredKeyedService<IFileStorageService>(fileStorageSettings.DefaultStorageProvider))
                     .AddKeyedSingleton<IFileStorageService>(
                         StorageProvider.Local,
-                        (provider, _) => new LocalFileStorageService(provider.GetRequiredService<TimeProvider>(), fileStorageSettings.Local ?? tempLocalFileStorageSettings));
+                        (provider, _) => new LocalFileStorageService(provider.GetRequiredService<ILoggerFactory>(), provider.GetRequiredService<TimeProvider>(), effectiveLocalSettings));
 
                 if (fileStorageSettings.BlobStorage is not null)
+                {
                     services
                         .AddSingleton(provider => new BlobStorageResiliencePipeline(provider.GetRequiredService<ILogger<BlobStorageResiliencePipeline>>(), fileStorageSettings.BlobStorage.ResiliencePipelineSettings ?? defaultResiliencePipelineSettings))
                         .AddKeyedSingleton<IFileStorageService>(
@@ -99,16 +122,18 @@ public static class CoreDependencyInjection
                                 CreateBlobContainerClient(fileStorageSettings.BlobStorage),
                                 fileStorageSettings.BlobStorage,
                                 provider.GetRequiredService<BlobStorageResiliencePipeline>()));
+                }
 
                 if (fileStorageSettings.Dfs is not null)
                 {
                     ValidateDfsStorageSettings(fileStorageSettings.Dfs);
                     services.AddKeyedSingleton<IFileStorageService>(
                         StorageProvider.Dfs,
-                        (provider, _) => new DfsFileStorageService(provider.GetRequiredService<TimeProvider>(), fileStorageSettings.Dfs));
+                        (provider, _) => new DfsFileStorageService(provider.GetRequiredService<ILoggerFactory>(), provider.GetRequiredService<TimeProvider>(), fileStorageSettings.Dfs));
                 }
 
                 if (fileStorageSettings.AwsS3 is not null)
+                {
                     services
                         .AddSingleton(provider => new AwsS3ResiliencePipeline(provider.GetRequiredService<ILogger<AwsS3ResiliencePipeline>>(), fileStorageSettings.AwsS3.ResiliencePipelineSettings ?? defaultResiliencePipelineSettings))
                         .AddKeyedSingleton<IFileStorageService>(
@@ -120,11 +145,12 @@ public static class CoreDependencyInjection
                                 provider.GetRequiredService<TimeProvider>(),
                                 fileStorageSettings.AwsS3,
                                 provider.GetRequiredService<AwsS3ResiliencePipeline>()));
+                }
             }
             else
             {
                 services
-                    .AddKeyedSingleton<IFileStorageService>(StorageProvider.Local, (provider, _) => new LocalFileStorageService(provider.GetRequiredService<TimeProvider>(), tempLocalFileStorageSettings))
+                    .AddKeyedSingleton<IFileStorageService>(StorageProvider.Local, (provider, _) => new LocalFileStorageService(provider.GetRequiredService<ILoggerFactory>(), provider.GetRequiredService<TimeProvider>(), effectiveLocalSettings))
                     .AddSingleton(provider => provider.GetRequiredKeyedService<IFileStorageService>(StorageProvider.Local));
             }
 
@@ -139,6 +165,22 @@ public static class CoreDependencyInjection
                 // Register providers.
                 .AddSingleton<ServiceLocator>()
                 .AddSingleton<IDynamicServiceProvider, InMemoryDynamicServiceProvider>();
+        }
+
+        /// <summary>
+        /// Registers the native ASP.NET Core <see cref="FileStorageHealthCheck"/> validating every
+        /// <see cref="IFileStorageService"/> registered across static (keyed and unkeyed) and dynamic plugin containers.
+        /// </summary>
+        /// <param name="name">Optional health-check registration name; defaults to <see cref="FileStorageHealthCheck.DefaultName"/>.</param>
+        /// <param name="tags">Optional health-check tags; defaults to <c>["storage", "ready"]</c>.</param>
+        /// <returns>The <see cref="IServiceCollection"/> to allow chaining additional services.</returns>
+        public IServiceCollection AddFileStorageHealthCheck(string name = FileStorageHealthCheck.DefaultName, IEnumerable<string>? tags = null)
+        {
+            services
+                .AddHealthChecks()
+                .AddFileStorageHealthCheck(name, tags);
+
+            return services;
         }
 
         /// <summary>
@@ -204,6 +246,17 @@ public static class CoreDependencyInjection
         {
             ArgumentNullException.ThrowIfNull(settings);
             ArgumentException.ThrowIfNullOrWhiteSpace(settings.BaseDirectory);
+
+            if (!string.IsNullOrWhiteSpace(settings.HealthMarkerFileName))
+            {
+                string markerName = settings.HealthMarkerFileName;
+                if (markerName.Contains(Path.DirectorySeparatorChar)
+                    || markerName.Contains(Path.AltDirectorySeparatorChar)
+                    || markerName.Contains("..", StringComparison.Ordinal))
+                {
+                    throw new ArgumentException("DFS HealthMarkerFileName must be a simple file name directly under BaseDirectory without path separators or traversal segments.", nameof(settings));
+                }
+            }
 
             string baseDirectory = settings.BaseDirectory.Trim();
 

@@ -1,4 +1,3 @@
-using MelloSilveiraTools.Core.ExtensionMethods;
 using MelloSilveiraTools.Core.Files.Models;
 using MelloSilveiraTools.Core.Files.Providers;
 using MelloSilveiraTools.Core.Pipelines.Steps;

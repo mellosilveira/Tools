@@ -61,8 +61,12 @@ public static class OptimizationsCrudEndpoints
     /// When <see langword="true"/> (default), requires authentication on <c>PUT</c> and <c>DELETE</c> routes.
     /// </param>
     /// <returns>The same <paramref name="builder"/> instance for call chaining.</returns>
-    public static IEndpointRouteBuilder MapOptimizationsCrudEndpoints(this IEndpointRouteBuilder builder, bool requireAuthForMutations = true) => builder
-        .MapCurveFitOutputEndpoints(requireAuthForMutations: requireAuthForMutations)
-        .MapMechanicalModelSimulationEndpoints(requireAuthForMutations: requireAuthForMutations)
-        .MapParametricSweepCrudEndpoints(requireAuthForMutations: requireAuthForMutations);
+    public static IEndpointRouteBuilder MapOptimizationsCrudEndpoints(this IEndpointRouteBuilder builder, bool requireAuthForMutations = true)
+    {
+        // Do not chain these calls: each Map* returns a prefixed RouteGroupBuilder, so chaining would nest the route prefixes.
+        builder.MapCurveFitOutputEndpoints(requireAuthForMutations: requireAuthForMutations);
+        builder.MapMechanicalModelSimulationEndpoints(requireAuthForMutations: requireAuthForMutations);
+        builder.MapParametricSweepCrudEndpoints(requireAuthForMutations: requireAuthForMutations);
+        return builder;
+    }
 }

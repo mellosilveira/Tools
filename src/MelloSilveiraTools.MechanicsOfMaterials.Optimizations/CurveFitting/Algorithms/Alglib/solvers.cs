@@ -5949,8 +5949,8 @@ public partial class alglib
             throw new alglibexception("ALGLIB: error in 'nleqsolve()' (func is null)");
         if (jac == null)
             throw new alglibexception("ALGLIB: error in 'nleqsolve()' (jac is null)");
-        alglib.nleq.nleqsetprotocolv1(state.innerobj, _params);
-        while (alglib.nleqiteration(state, _params))
+        nleq.nleqsetprotocolv1(state.innerobj, _params);
+        while (nleqiteration(state, _params))
         {
             if (state.needf)
             {
@@ -6204,12 +6204,12 @@ public partial class alglib
 
             x = new double[0];
 
-            alglib.ap.assert(n > 0, "RMatrixSolve: N<=0");
-            alglib.ap.assert(alglib.ap.rows(a) >= n, "RMatrixSolve: rows(A)<N");
-            alglib.ap.assert(alglib.ap.cols(a) >= n, "RMatrixSolve: cols(A)<N");
-            alglib.ap.assert(alglib.ap.len(b) >= n, "RMatrixSolve: length(B)<N");
-            alglib.ap.assert(apserv.apservisfinitematrix(a, n, n, _params), "RMatrixSolve: A contains infinite or NaN values!");
-            alglib.ap.assert(apserv.isfinitevector(b, n, _params), "RMatrixSolve: B contains infinite or NaN values!");
+            ap.assert(n > 0, "RMatrixSolve: N<=0");
+            ap.assert(ap.rows(a) >= n, "RMatrixSolve: rows(A)<N");
+            ap.assert(ap.cols(a) >= n, "RMatrixSolve: cols(A)<N");
+            ap.assert(ap.len(b) >= n, "RMatrixSolve: length(B)<N");
+            ap.assert(apserv.apservisfinitematrix(a, n, n, _params), "RMatrixSolve: A contains infinite or NaN values!");
+            ap.assert(apserv.isfinitevector(b, n, _params), "RMatrixSolve: B contains infinite or NaN values!");
             bm = new double[n, 1];
             ablasf.rcopyvc(n, b, bm, 0, _params);
             rmatrixsolvem(a, n, bm, 1, true, ref xm, rep, _params);
@@ -6286,12 +6286,12 @@ public partial class alglib
 
             a = (double[,])a.Clone();
 
-            alglib.ap.assert(n > 0, "RMatrixSolveFast: N<=0");
-            alglib.ap.assert(alglib.ap.rows(a) >= n, "RMatrixSolveFast: rows(A)<N");
-            alglib.ap.assert(alglib.ap.cols(a) >= n, "RMatrixSolveFast: cols(A)<N");
-            alglib.ap.assert(alglib.ap.len(b) >= n, "RMatrixSolveFast: length(B)<N");
-            alglib.ap.assert(apserv.apservisfinitematrix(a, n, n, _params), "RMatrixSolveFast: A contains infinite or NaN values!");
-            alglib.ap.assert(apserv.isfinitevector(b, n, _params), "RMatrixSolveFast: B contains infinite or NaN values!");
+            ap.assert(n > 0, "RMatrixSolveFast: N<=0");
+            ap.assert(ap.rows(a) >= n, "RMatrixSolveFast: rows(A)<N");
+            ap.assert(ap.cols(a) >= n, "RMatrixSolveFast: cols(A)<N");
+            ap.assert(ap.len(b) >= n, "RMatrixSolveFast: length(B)<N");
+            ap.assert(apserv.apservisfinitematrix(a, n, n, _params), "RMatrixSolveFast: A contains infinite or NaN values!");
+            ap.assert(apserv.isfinitevector(b, n, _params), "RMatrixSolveFast: B contains infinite or NaN values!");
             result = true;
             trfac.rmatrixlu(a, n, n, ref p, _params);
             for (i = 0; i <= n - 1; i++)
@@ -6406,14 +6406,14 @@ public partial class alglib
 
             x = new double[0, 0];
 
-            alglib.ap.assert(n > 0, "RMatrixSolveM: N<=0");
-            alglib.ap.assert(m > 0, "RMatrixSolveM: M<=0");
-            alglib.ap.assert(alglib.ap.rows(a) >= n, "RMatrixSolveM: rows(A)<N");
-            alglib.ap.assert(alglib.ap.cols(a) >= n, "RMatrixSolveM: cols(A)<N");
-            alglib.ap.assert(alglib.ap.rows(b) >= n, "RMatrixSolveM: rows(B)<N");
-            alglib.ap.assert(alglib.ap.cols(b) >= m, "RMatrixSolveM: cols(B)<M");
-            alglib.ap.assert(apserv.apservisfinitematrix(a, n, n, _params), "RMatrixSolveM: A contains infinite or NaN values!");
-            alglib.ap.assert(apserv.apservisfinitematrix(b, n, m, _params), "RMatrixSolveM: B contains infinite or NaN values!");
+            ap.assert(n > 0, "RMatrixSolveM: N<=0");
+            ap.assert(m > 0, "RMatrixSolveM: M<=0");
+            ap.assert(ap.rows(a) >= n, "RMatrixSolveM: rows(A)<N");
+            ap.assert(ap.cols(a) >= n, "RMatrixSolveM: cols(A)<N");
+            ap.assert(ap.rows(b) >= n, "RMatrixSolveM: rows(B)<N");
+            ap.assert(ap.cols(b) >= m, "RMatrixSolveM: cols(B)<M");
+            ap.assert(apserv.apservisfinitematrix(a, n, n, _params), "RMatrixSolveM: A contains infinite or NaN values!");
+            ap.assert(apserv.apservisfinitematrix(b, n, m, _params), "RMatrixSolveM: B contains infinite or NaN values!");
             da = new double[n, n];
 
             //
@@ -6516,14 +6516,14 @@ public partial class alglib
 
             a = (double[,])a.Clone();
 
-            alglib.ap.assert(n > 0, "RMatrixSolveMFast: N<=0");
-            alglib.ap.assert(m > 0, "RMatrixSolveMFast: M<=0");
-            alglib.ap.assert(alglib.ap.rows(a) >= n, "RMatrixSolveMFast: rows(A)<N");
-            alglib.ap.assert(alglib.ap.cols(a) >= n, "RMatrixSolveMFast: cols(A)<N");
-            alglib.ap.assert(alglib.ap.rows(b) >= n, "RMatrixSolveMFast: rows(B)<N");
-            alglib.ap.assert(alglib.ap.cols(b) >= m, "RMatrixSolveMFast: cols(B)<M");
-            alglib.ap.assert(apserv.apservisfinitematrix(a, n, n, _params), "RMatrixSolveMFast: A contains infinite or NaN values!");
-            alglib.ap.assert(apserv.apservisfinitematrix(b, n, m, _params), "RMatrixSolveMFast: B contains infinite or NaN values!");
+            ap.assert(n > 0, "RMatrixSolveMFast: N<=0");
+            ap.assert(m > 0, "RMatrixSolveMFast: M<=0");
+            ap.assert(ap.rows(a) >= n, "RMatrixSolveMFast: rows(A)<N");
+            ap.assert(ap.cols(a) >= n, "RMatrixSolveMFast: cols(A)<N");
+            ap.assert(ap.rows(b) >= n, "RMatrixSolveMFast: rows(B)<N");
+            ap.assert(ap.cols(b) >= m, "RMatrixSolveMFast: cols(B)<M");
+            ap.assert(apserv.apservisfinitematrix(a, n, n, _params), "RMatrixSolveMFast: A contains infinite or NaN values!");
+            ap.assert(apserv.apservisfinitematrix(b, n, m, _params), "RMatrixSolveMFast: B contains infinite or NaN values!");
             result = true;
             trfac.rmatrixlu(a, n, n, ref p, _params);
             for (i = 0; i <= n - 1; i++)
@@ -6628,16 +6628,16 @@ public partial class alglib
 
             x = new double[0];
 
-            alglib.ap.assert(n > 0, "RMatrixLUSolve: N<=0");
-            alglib.ap.assert(alglib.ap.rows(lua) >= n, "RMatrixLUSolve: rows(LUA)<N");
-            alglib.ap.assert(alglib.ap.cols(lua) >= n, "RMatrixLUSolve: cols(LUA)<N");
-            alglib.ap.assert(alglib.ap.len(p) >= n, "RMatrixLUSolve: length(P)<N");
-            alglib.ap.assert(alglib.ap.len(b) >= n, "RMatrixLUSolve: length(B)<N");
-            alglib.ap.assert(apserv.apservisfinitematrix(lua, n, n, _params), "RMatrixLUSolve: LUA contains infinite or NaN values!");
-            alglib.ap.assert(apserv.isfinitevector(b, n, _params), "RMatrixLUSolve: B contains infinite or NaN values!");
+            ap.assert(n > 0, "RMatrixLUSolve: N<=0");
+            ap.assert(ap.rows(lua) >= n, "RMatrixLUSolve: rows(LUA)<N");
+            ap.assert(ap.cols(lua) >= n, "RMatrixLUSolve: cols(LUA)<N");
+            ap.assert(ap.len(p) >= n, "RMatrixLUSolve: length(P)<N");
+            ap.assert(ap.len(b) >= n, "RMatrixLUSolve: length(B)<N");
+            ap.assert(apserv.apservisfinitematrix(lua, n, n, _params), "RMatrixLUSolve: LUA contains infinite or NaN values!");
+            ap.assert(apserv.isfinitevector(b, n, _params), "RMatrixLUSolve: B contains infinite or NaN values!");
             for (i = 0; i <= n - 1; i++)
             {
-                alglib.ap.assert(p[i] >= 0 && p[i] < n, "RMatrixLUSolve: P contains values outside of [0,N)");
+                ap.assert(p[i] >= 0 && p[i] < n, "RMatrixLUSolve: P contains values outside of [0,N)");
             }
             bm = new double[n, 1];
             ablasf.rcopyvc(n, b, bm, 0, _params);
@@ -6688,16 +6688,16 @@ public partial class alglib
             int i = 0;
             int j = 0;
 
-            alglib.ap.assert(n > 0, "RMatrixLUSolveFast: N<=0");
-            alglib.ap.assert(alglib.ap.rows(lua) >= n, "RMatrixLUSolveFast: rows(LUA)<N");
-            alglib.ap.assert(alglib.ap.cols(lua) >= n, "RMatrixLUSolveFast: cols(LUA)<N");
-            alglib.ap.assert(alglib.ap.len(p) >= n, "RMatrixLUSolveFast: length(P)<N");
-            alglib.ap.assert(alglib.ap.len(b) >= n, "RMatrixLUSolveFast: length(B)<N");
-            alglib.ap.assert(apserv.apservisfinitematrix(lua, n, n, _params), "RMatrixLUSolveFast: LUA contains infinite or NaN values!");
-            alglib.ap.assert(apserv.isfinitevector(b, n, _params), "RMatrixLUSolveFast: B contains infinite or NaN values!");
+            ap.assert(n > 0, "RMatrixLUSolveFast: N<=0");
+            ap.assert(ap.rows(lua) >= n, "RMatrixLUSolveFast: rows(LUA)<N");
+            ap.assert(ap.cols(lua) >= n, "RMatrixLUSolveFast: cols(LUA)<N");
+            ap.assert(ap.len(p) >= n, "RMatrixLUSolveFast: length(P)<N");
+            ap.assert(ap.len(b) >= n, "RMatrixLUSolveFast: length(B)<N");
+            ap.assert(apserv.apservisfinitematrix(lua, n, n, _params), "RMatrixLUSolveFast: LUA contains infinite or NaN values!");
+            ap.assert(apserv.isfinitevector(b, n, _params), "RMatrixLUSolveFast: B contains infinite or NaN values!");
             for (i = 0; i <= n - 1; i++)
             {
-                alglib.ap.assert(p[i] >= 0 && p[i] < n, "RMatrixLUSolve: P contains values outside of [0,N)");
+                ap.assert(p[i] >= 0 && p[i] < n, "RMatrixLUSolve: P contains values outside of [0,N)");
             }
             for (i = 0; i <= n - 1; i++)
             {
@@ -6807,18 +6807,18 @@ public partial class alglib
 
             x = new double[0, 0];
 
-            alglib.ap.assert(n > 0, "RMatrixLUSolveM: N<=0");
-            alglib.ap.assert(m > 0, "RMatrixLUSolveM: M<=0");
-            alglib.ap.assert(alglib.ap.rows(lua) >= n, "RMatrixLUSolveM: rows(LUA)<N");
-            alglib.ap.assert(alglib.ap.cols(lua) >= n, "RMatrixLUSolveM: cols(LUA)<N");
-            alglib.ap.assert(alglib.ap.len(p) >= n, "RMatrixLUSolveM: length(P)<N");
-            alglib.ap.assert(alglib.ap.rows(b) >= n, "RMatrixLUSolveM: rows(B)<N");
-            alglib.ap.assert(alglib.ap.cols(b) >= m, "RMatrixLUSolveM: cols(B)<M");
-            alglib.ap.assert(apserv.apservisfinitematrix(lua, n, n, _params), "RMatrixLUSolveM: LUA contains infinite or NaN values!");
-            alglib.ap.assert(apserv.apservisfinitematrix(b, n, m, _params), "RMatrixLUSolveM: LUA contains infinite or NaN values!");
+            ap.assert(n > 0, "RMatrixLUSolveM: N<=0");
+            ap.assert(m > 0, "RMatrixLUSolveM: M<=0");
+            ap.assert(ap.rows(lua) >= n, "RMatrixLUSolveM: rows(LUA)<N");
+            ap.assert(ap.cols(lua) >= n, "RMatrixLUSolveM: cols(LUA)<N");
+            ap.assert(ap.len(p) >= n, "RMatrixLUSolveM: length(P)<N");
+            ap.assert(ap.rows(b) >= n, "RMatrixLUSolveM: rows(B)<N");
+            ap.assert(ap.cols(b) >= m, "RMatrixLUSolveM: cols(B)<M");
+            ap.assert(apserv.apservisfinitematrix(lua, n, n, _params), "RMatrixLUSolveM: LUA contains infinite or NaN values!");
+            ap.assert(apserv.apservisfinitematrix(b, n, m, _params), "RMatrixLUSolveM: LUA contains infinite or NaN values!");
             for (i = 0; i <= n - 1; i++)
             {
-                alglib.ap.assert(p[i] >= 0 && p[i] < n, "RMatrixLUSolve: P contains values outside of [0,N)");
+                ap.assert(p[i] >= 0 && p[i] < n, "RMatrixLUSolve: P contains values outside of [0,N)");
             }
             rmatrixlusolveinternal(lua, p, n, emptya, false, b, m, ref x, rep, _params);
         }
@@ -6897,18 +6897,18 @@ public partial class alglib
             //
             // Check for exact degeneracy
             //
-            alglib.ap.assert(n > 0, "RMatrixLUSolveMFast: N<=0");
-            alglib.ap.assert(m > 0, "RMatrixLUSolveMFast: M<=0");
-            alglib.ap.assert(alglib.ap.rows(lua) >= n, "RMatrixLUSolveMFast: rows(LUA)<N");
-            alglib.ap.assert(alglib.ap.cols(lua) >= n, "RMatrixLUSolveMFast: cols(LUA)<N");
-            alglib.ap.assert(alglib.ap.len(p) >= n, "RMatrixLUSolveMFast: length(P)<N");
-            alglib.ap.assert(alglib.ap.rows(b) >= n, "RMatrixLUSolveMFast: rows(B)<N");
-            alglib.ap.assert(alglib.ap.cols(b) >= m, "RMatrixLUSolveMFast: cols(B)<M");
-            alglib.ap.assert(apserv.apservisfinitematrix(lua, n, n, _params), "RMatrixLUSolveMFast: LUA contains infinite or NaN values!");
-            alglib.ap.assert(apserv.apservisfinitematrix(b, n, m, _params), "RMatrixLUSolveMFast: LUA contains infinite or NaN values!");
+            ap.assert(n > 0, "RMatrixLUSolveMFast: N<=0");
+            ap.assert(m > 0, "RMatrixLUSolveMFast: M<=0");
+            ap.assert(ap.rows(lua) >= n, "RMatrixLUSolveMFast: rows(LUA)<N");
+            ap.assert(ap.cols(lua) >= n, "RMatrixLUSolveMFast: cols(LUA)<N");
+            ap.assert(ap.len(p) >= n, "RMatrixLUSolveMFast: length(P)<N");
+            ap.assert(ap.rows(b) >= n, "RMatrixLUSolveMFast: rows(B)<N");
+            ap.assert(ap.cols(b) >= m, "RMatrixLUSolveMFast: cols(B)<M");
+            ap.assert(apserv.apservisfinitematrix(lua, n, n, _params), "RMatrixLUSolveMFast: LUA contains infinite or NaN values!");
+            ap.assert(apserv.apservisfinitematrix(b, n, m, _params), "RMatrixLUSolveMFast: LUA contains infinite or NaN values!");
             for (i = 0; i <= n - 1; i++)
             {
-                alglib.ap.assert(p[i] >= 0 && p[i] < n, "RMatrixLUSolve: P contains values outside of [0,N)");
+                ap.assert(p[i] >= 0 && p[i] < n, "RMatrixLUSolve: P contains values outside of [0,N)");
             }
             for (i = 0; i <= n - 1; i++)
             {
@@ -6996,19 +6996,19 @@ public partial class alglib
 
             x = new double[0];
 
-            alglib.ap.assert(n > 0, "RMatrixMixedSolve: N<=0");
-            alglib.ap.assert(alglib.ap.rows(a) >= n, "RMatrixMixedSolve: rows(A)<N");
-            alglib.ap.assert(alglib.ap.cols(a) >= n, "RMatrixMixedSolve: cols(A)<N");
-            alglib.ap.assert(alglib.ap.rows(lua) >= n, "RMatrixMixedSolve: rows(LUA)<N");
-            alglib.ap.assert(alglib.ap.cols(lua) >= n, "RMatrixMixedSolve: cols(LUA)<N");
-            alglib.ap.assert(alglib.ap.len(p) >= n, "RMatrixMixedSolve: length(P)<N");
-            alglib.ap.assert(alglib.ap.len(b) >= n, "RMatrixMixedSolve: length(B)<N");
-            alglib.ap.assert(apserv.apservisfinitematrix(a, n, n, _params), "RMatrixMixedSolve: A contains infinite or NaN values!");
-            alglib.ap.assert(apserv.apservisfinitematrix(lua, n, n, _params), "RMatrixMixedSolve: LUA contains infinite or NaN values!");
-            alglib.ap.assert(apserv.isfinitevector(b, n, _params), "RMatrixMixedSolve: B contains infinite or NaN values!");
+            ap.assert(n > 0, "RMatrixMixedSolve: N<=0");
+            ap.assert(ap.rows(a) >= n, "RMatrixMixedSolve: rows(A)<N");
+            ap.assert(ap.cols(a) >= n, "RMatrixMixedSolve: cols(A)<N");
+            ap.assert(ap.rows(lua) >= n, "RMatrixMixedSolve: rows(LUA)<N");
+            ap.assert(ap.cols(lua) >= n, "RMatrixMixedSolve: cols(LUA)<N");
+            ap.assert(ap.len(p) >= n, "RMatrixMixedSolve: length(P)<N");
+            ap.assert(ap.len(b) >= n, "RMatrixMixedSolve: length(B)<N");
+            ap.assert(apserv.apservisfinitematrix(a, n, n, _params), "RMatrixMixedSolve: A contains infinite or NaN values!");
+            ap.assert(apserv.apservisfinitematrix(lua, n, n, _params), "RMatrixMixedSolve: LUA contains infinite or NaN values!");
+            ap.assert(apserv.isfinitevector(b, n, _params), "RMatrixMixedSolve: B contains infinite or NaN values!");
             for (i = 0; i <= n - 1; i++)
             {
-                alglib.ap.assert(p[i] >= 0 && p[i] < n, "RMatrixLUSolve: P contains values outside of [0,N)");
+                ap.assert(p[i] >= 0 && p[i] < n, "RMatrixLUSolve: P contains values outside of [0,N)");
             }
             bm = new double[n, 1];
             ablasf.rcopyvc(n, b, bm, 0, _params);
@@ -7065,21 +7065,21 @@ public partial class alglib
 
             x = new double[0, 0];
 
-            alglib.ap.assert(n > 0, "RMatrixMixedSolveM: N<=0");
-            alglib.ap.assert(m > 0, "RMatrixMixedSolveM: M<=0");
-            alglib.ap.assert(alglib.ap.rows(a) >= n, "RMatrixMixedSolve: rows(A)<N");
-            alglib.ap.assert(alglib.ap.cols(a) >= n, "RMatrixMixedSolve: cols(A)<N");
-            alglib.ap.assert(alglib.ap.rows(lua) >= n, "RMatrixMixedSolve: rows(LUA)<N");
-            alglib.ap.assert(alglib.ap.cols(lua) >= n, "RMatrixMixedSolve: cols(LUA)<N");
-            alglib.ap.assert(alglib.ap.len(p) >= n, "RMatrixMixedSolve: length(P)<N");
-            alglib.ap.assert(alglib.ap.rows(b) >= n, "RMatrixMixedSolve: rows(B)<N");
-            alglib.ap.assert(alglib.ap.cols(b) >= m, "RMatrixMixedSolve: cols(B)<M");
-            alglib.ap.assert(apserv.apservisfinitematrix(a, n, n, _params), "RMatrixMixedSolve: A contains infinite or NaN values!");
-            alglib.ap.assert(apserv.apservisfinitematrix(lua, n, n, _params), "RMatrixMixedSolve: LUA contains infinite or NaN values!");
-            alglib.ap.assert(apserv.apservisfinitematrix(b, n, m, _params), "RMatrixMixedSolve: B contains infinite or NaN values!");
+            ap.assert(n > 0, "RMatrixMixedSolveM: N<=0");
+            ap.assert(m > 0, "RMatrixMixedSolveM: M<=0");
+            ap.assert(ap.rows(a) >= n, "RMatrixMixedSolve: rows(A)<N");
+            ap.assert(ap.cols(a) >= n, "RMatrixMixedSolve: cols(A)<N");
+            ap.assert(ap.rows(lua) >= n, "RMatrixMixedSolve: rows(LUA)<N");
+            ap.assert(ap.cols(lua) >= n, "RMatrixMixedSolve: cols(LUA)<N");
+            ap.assert(ap.len(p) >= n, "RMatrixMixedSolve: length(P)<N");
+            ap.assert(ap.rows(b) >= n, "RMatrixMixedSolve: rows(B)<N");
+            ap.assert(ap.cols(b) >= m, "RMatrixMixedSolve: cols(B)<M");
+            ap.assert(apserv.apservisfinitematrix(a, n, n, _params), "RMatrixMixedSolve: A contains infinite or NaN values!");
+            ap.assert(apserv.apservisfinitematrix(lua, n, n, _params), "RMatrixMixedSolve: LUA contains infinite or NaN values!");
+            ap.assert(apserv.apservisfinitematrix(b, n, m, _params), "RMatrixMixedSolve: B contains infinite or NaN values!");
             for (i = 0; i <= n - 1; i++)
             {
-                alglib.ap.assert(p[i] >= 0 && p[i] < n, "RMatrixLUSolve: P contains values outside of [0,N)");
+                ap.assert(p[i] >= 0 && p[i] < n, "RMatrixLUSolve: P contains values outside of [0,N)");
             }
             rmatrixlusolveinternal(lua, p, n, a, true, b, m, ref x, rep, _params);
         }
@@ -7178,14 +7178,14 @@ public partial class alglib
 
             x = new complex[0, 0];
 
-            alglib.ap.assert(n > 0, "CMatrixSolveM: N<=0");
-            alglib.ap.assert(m > 0, "CMatrixSolveM: M<=0");
-            alglib.ap.assert(alglib.ap.rows(a) >= n, "CMatrixSolveM: rows(A)<N");
-            alglib.ap.assert(alglib.ap.cols(a) >= n, "CMatrixSolveM: cols(A)<N");
-            alglib.ap.assert(alglib.ap.rows(b) >= n, "CMatrixSolveM: rows(B)<N");
-            alglib.ap.assert(alglib.ap.cols(b) >= m, "CMatrixSolveM: cols(B)<M");
-            alglib.ap.assert(apserv.isfinitecmatrix(a, n, n, _params), "CMatrixSolveM: A contains infinite or NaN values!");
-            alglib.ap.assert(apserv.isfinitecmatrix(b, n, m, _params), "CMatrixSolveM: B contains infinite or NaN values!");
+            ap.assert(n > 0, "CMatrixSolveM: N<=0");
+            ap.assert(m > 0, "CMatrixSolveM: M<=0");
+            ap.assert(ap.rows(a) >= n, "CMatrixSolveM: rows(A)<N");
+            ap.assert(ap.cols(a) >= n, "CMatrixSolveM: cols(A)<N");
+            ap.assert(ap.rows(b) >= n, "CMatrixSolveM: rows(B)<N");
+            ap.assert(ap.cols(b) >= m, "CMatrixSolveM: cols(B)<M");
+            ap.assert(apserv.isfinitecmatrix(a, n, n, _params), "CMatrixSolveM: A contains infinite or NaN values!");
+            ap.assert(apserv.isfinitecmatrix(b, n, m, _params), "CMatrixSolveM: B contains infinite or NaN values!");
             da = new complex[n, n];
 
             //
@@ -7277,14 +7277,14 @@ public partial class alglib
 
             a = (complex[,])a.Clone();
 
-            alglib.ap.assert(n > 0, "CMatrixSolveMFast: N<=0");
-            alglib.ap.assert(m > 0, "CMatrixSolveMFast: M<=0");
-            alglib.ap.assert(alglib.ap.rows(a) >= n, "CMatrixSolveMFast: rows(A)<N");
-            alglib.ap.assert(alglib.ap.cols(a) >= n, "CMatrixSolveMFast: cols(A)<N");
-            alglib.ap.assert(alglib.ap.rows(b) >= n, "CMatrixSolveMFast: rows(B)<N");
-            alglib.ap.assert(alglib.ap.cols(b) >= m, "CMatrixSolveMFast: cols(B)<M");
-            alglib.ap.assert(apserv.isfinitecmatrix(a, n, n, _params), "CMatrixSolveMFast: A contains infinite or NaN values!");
-            alglib.ap.assert(apserv.isfinitecmatrix(b, n, m, _params), "CMatrixSolveMFast: B contains infinite or NaN values!");
+            ap.assert(n > 0, "CMatrixSolveMFast: N<=0");
+            ap.assert(m > 0, "CMatrixSolveMFast: M<=0");
+            ap.assert(ap.rows(a) >= n, "CMatrixSolveMFast: rows(A)<N");
+            ap.assert(ap.cols(a) >= n, "CMatrixSolveMFast: cols(A)<N");
+            ap.assert(ap.rows(b) >= n, "CMatrixSolveMFast: rows(B)<N");
+            ap.assert(ap.cols(b) >= m, "CMatrixSolveMFast: cols(B)<M");
+            ap.assert(apserv.isfinitecmatrix(a, n, n, _params), "CMatrixSolveMFast: A contains infinite or NaN values!");
+            ap.assert(apserv.isfinitecmatrix(b, n, m, _params), "CMatrixSolveMFast: B contains infinite or NaN values!");
 
             //
             // Check for exact degeneracy
@@ -7409,12 +7409,12 @@ public partial class alglib
 
             x = new complex[0];
 
-            alglib.ap.assert(n > 0, "CMatrixSolve: N<=0");
-            alglib.ap.assert(alglib.ap.rows(a) >= n, "CMatrixSolve: rows(A)<N");
-            alglib.ap.assert(alglib.ap.cols(a) >= n, "CMatrixSolve: cols(A)<N");
-            alglib.ap.assert(alglib.ap.len(b) >= n, "CMatrixSolve: length(B)<N");
-            alglib.ap.assert(apserv.isfinitecmatrix(a, n, n, _params), "CMatrixSolve: A contains infinite or NaN values!");
-            alglib.ap.assert(apserv.isfinitecvector(b, n, _params), "CMatrixSolve: B contains infinite or NaN values!");
+            ap.assert(n > 0, "CMatrixSolve: N<=0");
+            ap.assert(ap.rows(a) >= n, "CMatrixSolve: rows(A)<N");
+            ap.assert(ap.cols(a) >= n, "CMatrixSolve: cols(A)<N");
+            ap.assert(ap.len(b) >= n, "CMatrixSolve: length(B)<N");
+            ap.assert(apserv.isfinitecmatrix(a, n, n, _params), "CMatrixSolve: A contains infinite or NaN values!");
+            ap.assert(apserv.isfinitecvector(b, n, _params), "CMatrixSolve: B contains infinite or NaN values!");
             bm = new complex[n, 1];
             for (i_ = 0; i_ <= n - 1; i_++)
             {
@@ -7490,12 +7490,12 @@ public partial class alglib
 
             a = (complex[,])a.Clone();
 
-            alglib.ap.assert(n > 0, "CMatrixSolveFast: N<=0");
-            alglib.ap.assert(alglib.ap.rows(a) >= n, "CMatrixSolveFast: rows(A)<N");
-            alglib.ap.assert(alglib.ap.cols(a) >= n, "CMatrixSolveFast: cols(A)<N");
-            alglib.ap.assert(alglib.ap.len(b) >= n, "CMatrixSolveFast: length(B)<N");
-            alglib.ap.assert(apserv.isfinitecmatrix(a, n, n, _params), "CMatrixSolveFast: A contains infinite or NaN values!");
-            alglib.ap.assert(apserv.isfinitecvector(b, n, _params), "CMatrixSolveFast: B contains infinite or NaN values!");
+            ap.assert(n > 0, "CMatrixSolveFast: N<=0");
+            ap.assert(ap.rows(a) >= n, "CMatrixSolveFast: rows(A)<N");
+            ap.assert(ap.cols(a) >= n, "CMatrixSolveFast: cols(A)<N");
+            ap.assert(ap.len(b) >= n, "CMatrixSolveFast: length(B)<N");
+            ap.assert(apserv.isfinitecmatrix(a, n, n, _params), "CMatrixSolveFast: A contains infinite or NaN values!");
+            ap.assert(apserv.isfinitecvector(b, n, _params), "CMatrixSolveFast: B contains infinite or NaN values!");
             trfac.cmatrixlu(a, n, n, ref p, _params);
             for (i = 0; i <= n - 1; i++)
             {
@@ -7601,18 +7601,18 @@ public partial class alglib
 
             x = new complex[0, 0];
 
-            alglib.ap.assert(n > 0, "CMatrixLUSolveM: N<=0");
-            alglib.ap.assert(m > 0, "CMatrixLUSolveM: M<=0");
-            alglib.ap.assert(alglib.ap.rows(lua) >= n, "CMatrixLUSolveM: rows(LUA)<N");
-            alglib.ap.assert(alglib.ap.cols(lua) >= n, "CMatrixLUSolveM: cols(LUA)<N");
-            alglib.ap.assert(alglib.ap.len(p) >= n, "CMatrixLUSolveM: length(P)<N");
-            alglib.ap.assert(alglib.ap.rows(b) >= n, "CMatrixLUSolveM: rows(B)<N");
-            alglib.ap.assert(alglib.ap.cols(b) >= m, "CMatrixLUSolveM: cols(B)<M");
-            alglib.ap.assert(apserv.isfinitecmatrix(lua, n, n, _params), "CMatrixLUSolveM: LUA contains infinite or NaN values!");
-            alglib.ap.assert(apserv.isfinitecmatrix(b, n, m, _params), "CMatrixLUSolveM: LUA contains infinite or NaN values!");
+            ap.assert(n > 0, "CMatrixLUSolveM: N<=0");
+            ap.assert(m > 0, "CMatrixLUSolveM: M<=0");
+            ap.assert(ap.rows(lua) >= n, "CMatrixLUSolveM: rows(LUA)<N");
+            ap.assert(ap.cols(lua) >= n, "CMatrixLUSolveM: cols(LUA)<N");
+            ap.assert(ap.len(p) >= n, "CMatrixLUSolveM: length(P)<N");
+            ap.assert(ap.rows(b) >= n, "CMatrixLUSolveM: rows(B)<N");
+            ap.assert(ap.cols(b) >= m, "CMatrixLUSolveM: cols(B)<M");
+            ap.assert(apserv.isfinitecmatrix(lua, n, n, _params), "CMatrixLUSolveM: LUA contains infinite or NaN values!");
+            ap.assert(apserv.isfinitecmatrix(b, n, m, _params), "CMatrixLUSolveM: LUA contains infinite or NaN values!");
             for (i = 0; i <= n - 1; i++)
             {
-                alglib.ap.assert(p[i] >= 0 && p[i] < n, "CMatrixLUSolveM: P contains values outside of [0,N)");
+                ap.assert(p[i] >= 0 && p[i] < n, "CMatrixLUSolveM: P contains values outside of [0,N)");
             }
             cmatrixlusolveinternal(lua, p, n, emptya, false, b, m, ref x, rep, _params);
         }
@@ -7683,18 +7683,18 @@ public partial class alglib
             int j = 0;
             int k = 0;
 
-            alglib.ap.assert(n > 0, "CMatrixLUSolveMFast: N<=0");
-            alglib.ap.assert(m > 0, "CMatrixLUSolveMFast: M<=0");
-            alglib.ap.assert(alglib.ap.rows(lua) >= n, "CMatrixLUSolveMFast: rows(LUA)<N");
-            alglib.ap.assert(alglib.ap.cols(lua) >= n, "CMatrixLUSolveMFast: cols(LUA)<N");
-            alglib.ap.assert(alglib.ap.len(p) >= n, "CMatrixLUSolveMFast: length(P)<N");
-            alglib.ap.assert(alglib.ap.rows(b) >= n, "CMatrixLUSolveMFast: rows(B)<N");
-            alglib.ap.assert(alglib.ap.cols(b) >= m, "CMatrixLUSolveMFast: cols(B)<M");
-            alglib.ap.assert(apserv.isfinitecmatrix(lua, n, n, _params), "CMatrixLUSolveMFast: LUA contains infinite or NaN values!");
-            alglib.ap.assert(apserv.isfinitecmatrix(b, n, m, _params), "CMatrixLUSolveMFast: LUA contains infinite or NaN values!");
+            ap.assert(n > 0, "CMatrixLUSolveMFast: N<=0");
+            ap.assert(m > 0, "CMatrixLUSolveMFast: M<=0");
+            ap.assert(ap.rows(lua) >= n, "CMatrixLUSolveMFast: rows(LUA)<N");
+            ap.assert(ap.cols(lua) >= n, "CMatrixLUSolveMFast: cols(LUA)<N");
+            ap.assert(ap.len(p) >= n, "CMatrixLUSolveMFast: length(P)<N");
+            ap.assert(ap.rows(b) >= n, "CMatrixLUSolveMFast: rows(B)<N");
+            ap.assert(ap.cols(b) >= m, "CMatrixLUSolveMFast: cols(B)<M");
+            ap.assert(apserv.isfinitecmatrix(lua, n, n, _params), "CMatrixLUSolveMFast: LUA contains infinite or NaN values!");
+            ap.assert(apserv.isfinitecmatrix(b, n, m, _params), "CMatrixLUSolveMFast: LUA contains infinite or NaN values!");
             for (i = 0; i <= n - 1; i++)
             {
-                alglib.ap.assert(p[i] >= 0 && p[i] < n, "RMatrixLUSolve: P contains values outside of [0,N)");
+                ap.assert(p[i] >= 0 && p[i] < n, "RMatrixLUSolve: P contains values outside of [0,N)");
             }
 
             //
@@ -7802,16 +7802,16 @@ public partial class alglib
 
             x = new complex[0];
 
-            alglib.ap.assert(n > 0, "CMatrixLUSolve: N<=0");
-            alglib.ap.assert(alglib.ap.rows(lua) >= n, "CMatrixLUSolve: rows(LUA)<N");
-            alglib.ap.assert(alglib.ap.cols(lua) >= n, "CMatrixLUSolve: cols(LUA)<N");
-            alglib.ap.assert(alglib.ap.len(p) >= n, "CMatrixLUSolve: length(P)<N");
-            alglib.ap.assert(alglib.ap.len(b) >= n, "CMatrixLUSolve: length(B)<N");
-            alglib.ap.assert(apserv.isfinitecmatrix(lua, n, n, _params), "CMatrixLUSolve: LUA contains infinite or NaN values!");
-            alglib.ap.assert(apserv.isfinitecvector(b, n, _params), "CMatrixLUSolve: B contains infinite or NaN values!");
+            ap.assert(n > 0, "CMatrixLUSolve: N<=0");
+            ap.assert(ap.rows(lua) >= n, "CMatrixLUSolve: rows(LUA)<N");
+            ap.assert(ap.cols(lua) >= n, "CMatrixLUSolve: cols(LUA)<N");
+            ap.assert(ap.len(p) >= n, "CMatrixLUSolve: length(P)<N");
+            ap.assert(ap.len(b) >= n, "CMatrixLUSolve: length(B)<N");
+            ap.assert(apserv.isfinitecmatrix(lua, n, n, _params), "CMatrixLUSolve: LUA contains infinite or NaN values!");
+            ap.assert(apserv.isfinitecvector(b, n, _params), "CMatrixLUSolve: B contains infinite or NaN values!");
             for (i = 0; i <= n - 1; i++)
             {
-                alglib.ap.assert(p[i] >= 0 && p[i] < n, "CMatrixLUSolve: P contains values outside of [0,N)");
+                ap.assert(p[i] >= 0 && p[i] < n, "CMatrixLUSolve: P contains values outside of [0,N)");
             }
             bm = new complex[n, 1];
             for (i_ = 0; i_ <= n - 1; i_++)
@@ -7867,16 +7867,16 @@ public partial class alglib
             int i = 0;
             int j = 0;
 
-            alglib.ap.assert(n > 0, "CMatrixLUSolveFast: N<=0");
-            alglib.ap.assert(alglib.ap.rows(lua) >= n, "CMatrixLUSolveFast: rows(LUA)<N");
-            alglib.ap.assert(alglib.ap.cols(lua) >= n, "CMatrixLUSolveFast: cols(LUA)<N");
-            alglib.ap.assert(alglib.ap.len(p) >= n, "CMatrixLUSolveFast: length(P)<N");
-            alglib.ap.assert(alglib.ap.len(b) >= n, "CMatrixLUSolveFast: length(B)<N");
-            alglib.ap.assert(apserv.isfinitecmatrix(lua, n, n, _params), "CMatrixLUSolveFast: LUA contains infinite or NaN values!");
-            alglib.ap.assert(apserv.isfinitecvector(b, n, _params), "CMatrixLUSolveFast: B contains infinite or NaN values!");
+            ap.assert(n > 0, "CMatrixLUSolveFast: N<=0");
+            ap.assert(ap.rows(lua) >= n, "CMatrixLUSolveFast: rows(LUA)<N");
+            ap.assert(ap.cols(lua) >= n, "CMatrixLUSolveFast: cols(LUA)<N");
+            ap.assert(ap.len(p) >= n, "CMatrixLUSolveFast: length(P)<N");
+            ap.assert(ap.len(b) >= n, "CMatrixLUSolveFast: length(B)<N");
+            ap.assert(apserv.isfinitecmatrix(lua, n, n, _params), "CMatrixLUSolveFast: LUA contains infinite or NaN values!");
+            ap.assert(apserv.isfinitecvector(b, n, _params), "CMatrixLUSolveFast: B contains infinite or NaN values!");
             for (i = 0; i <= n - 1; i++)
             {
-                alglib.ap.assert(p[i] >= 0 && p[i] < n, "CMatrixLUSolveFast: P contains values outside of [0,N)");
+                ap.assert(p[i] >= 0 && p[i] < n, "CMatrixLUSolveFast: P contains values outside of [0,N)");
             }
             for (i = 0; i <= n - 1; i++)
             {
@@ -7940,21 +7940,21 @@ public partial class alglib
 
             x = new complex[0, 0];
 
-            alglib.ap.assert(n > 0, "CMatrixMixedSolveM: N<=0");
-            alglib.ap.assert(m > 0, "CMatrixMixedSolveM: M<=0");
-            alglib.ap.assert(alglib.ap.rows(a) >= n, "CMatrixMixedSolveM: rows(A)<N");
-            alglib.ap.assert(alglib.ap.cols(a) >= n, "CMatrixMixedSolveM: cols(A)<N");
-            alglib.ap.assert(alglib.ap.rows(lua) >= n, "CMatrixMixedSolveM: rows(LUA)<N");
-            alglib.ap.assert(alglib.ap.cols(lua) >= n, "CMatrixMixedSolveM: cols(LUA)<N");
-            alglib.ap.assert(alglib.ap.len(p) >= n, "CMatrixMixedSolveM: length(P)<N");
-            alglib.ap.assert(alglib.ap.rows(b) >= n, "CMatrixMixedSolveM: rows(B)<N");
-            alglib.ap.assert(alglib.ap.cols(b) >= m, "CMatrixMixedSolveM: cols(B)<M");
-            alglib.ap.assert(apserv.isfinitecmatrix(a, n, n, _params), "CMatrixMixedSolveM: A contains infinite or NaN values!");
-            alglib.ap.assert(apserv.isfinitecmatrix(lua, n, n, _params), "CMatrixMixedSolveM: LUA contains infinite or NaN values!");
-            alglib.ap.assert(apserv.isfinitecmatrix(b, n, m, _params), "CMatrixMixedSolveM: B contains infinite or NaN values!");
+            ap.assert(n > 0, "CMatrixMixedSolveM: N<=0");
+            ap.assert(m > 0, "CMatrixMixedSolveM: M<=0");
+            ap.assert(ap.rows(a) >= n, "CMatrixMixedSolveM: rows(A)<N");
+            ap.assert(ap.cols(a) >= n, "CMatrixMixedSolveM: cols(A)<N");
+            ap.assert(ap.rows(lua) >= n, "CMatrixMixedSolveM: rows(LUA)<N");
+            ap.assert(ap.cols(lua) >= n, "CMatrixMixedSolveM: cols(LUA)<N");
+            ap.assert(ap.len(p) >= n, "CMatrixMixedSolveM: length(P)<N");
+            ap.assert(ap.rows(b) >= n, "CMatrixMixedSolveM: rows(B)<N");
+            ap.assert(ap.cols(b) >= m, "CMatrixMixedSolveM: cols(B)<M");
+            ap.assert(apserv.isfinitecmatrix(a, n, n, _params), "CMatrixMixedSolveM: A contains infinite or NaN values!");
+            ap.assert(apserv.isfinitecmatrix(lua, n, n, _params), "CMatrixMixedSolveM: LUA contains infinite or NaN values!");
+            ap.assert(apserv.isfinitecmatrix(b, n, m, _params), "CMatrixMixedSolveM: B contains infinite or NaN values!");
             for (i = 0; i <= n - 1; i++)
             {
-                alglib.ap.assert(p[i] >= 0 && p[i] < n, "CMatrixMixedSolveM: P contains values outside of [0,N)");
+                ap.assert(p[i] >= 0 && p[i] < n, "CMatrixMixedSolveM: P contains values outside of [0,N)");
             }
             cmatrixlusolveinternal(lua, p, n, a, true, b, m, ref x, rep, _params);
         }
@@ -8005,19 +8005,19 @@ public partial class alglib
 
             x = new complex[0];
 
-            alglib.ap.assert(n > 0, "CMatrixMixedSolve: N<=0");
-            alglib.ap.assert(alglib.ap.rows(a) >= n, "CMatrixMixedSolve: rows(A)<N");
-            alglib.ap.assert(alglib.ap.cols(a) >= n, "CMatrixMixedSolve: cols(A)<N");
-            alglib.ap.assert(alglib.ap.rows(lua) >= n, "CMatrixMixedSolve: rows(LUA)<N");
-            alglib.ap.assert(alglib.ap.cols(lua) >= n, "CMatrixMixedSolve: cols(LUA)<N");
-            alglib.ap.assert(alglib.ap.len(p) >= n, "CMatrixMixedSolve: length(P)<N");
-            alglib.ap.assert(alglib.ap.len(b) >= n, "CMatrixMixedSolve: length(B)<N");
-            alglib.ap.assert(apserv.isfinitecmatrix(a, n, n, _params), "CMatrixMixedSolve: A contains infinite or NaN values!");
-            alglib.ap.assert(apserv.isfinitecmatrix(lua, n, n, _params), "CMatrixMixedSolve: LUA contains infinite or NaN values!");
-            alglib.ap.assert(apserv.isfinitecvector(b, n, _params), "CMatrixMixedSolve: B contains infinite or NaN values!");
+            ap.assert(n > 0, "CMatrixMixedSolve: N<=0");
+            ap.assert(ap.rows(a) >= n, "CMatrixMixedSolve: rows(A)<N");
+            ap.assert(ap.cols(a) >= n, "CMatrixMixedSolve: cols(A)<N");
+            ap.assert(ap.rows(lua) >= n, "CMatrixMixedSolve: rows(LUA)<N");
+            ap.assert(ap.cols(lua) >= n, "CMatrixMixedSolve: cols(LUA)<N");
+            ap.assert(ap.len(p) >= n, "CMatrixMixedSolve: length(P)<N");
+            ap.assert(ap.len(b) >= n, "CMatrixMixedSolve: length(B)<N");
+            ap.assert(apserv.isfinitecmatrix(a, n, n, _params), "CMatrixMixedSolve: A contains infinite or NaN values!");
+            ap.assert(apserv.isfinitecmatrix(lua, n, n, _params), "CMatrixMixedSolve: LUA contains infinite or NaN values!");
+            ap.assert(apserv.isfinitecvector(b, n, _params), "CMatrixMixedSolve: B contains infinite or NaN values!");
             for (i = 0; i <= n - 1; i++)
             {
-                alglib.ap.assert(p[i] >= 0 && p[i] < n, "CMatrixMixedSolve: P contains values outside of [0,N)");
+                ap.assert(p[i] >= 0 && p[i] < n, "CMatrixMixedSolve: P contains values outside of [0,N)");
             }
             bm = new complex[n, 1];
             for (i_ = 0; i_ <= n - 1; i_++)
@@ -8125,14 +8125,14 @@ public partial class alglib
 
             x = new double[0, 0];
 
-            alglib.ap.assert(n > 0, "SPDMatrixSolveM: N<=0");
-            alglib.ap.assert(m > 0, "SPDMatrixSolveM: M<=0");
-            alglib.ap.assert(alglib.ap.rows(a) >= n, "SPDMatrixSolveM: rows(A)<N");
-            alglib.ap.assert(alglib.ap.cols(a) >= n, "SPDMatrixSolveM: cols(A)<N");
-            alglib.ap.assert(alglib.ap.rows(b) >= n, "SPDMatrixSolveM: rows(B)<N");
-            alglib.ap.assert(alglib.ap.cols(b) >= m, "SPDMatrixSolveM: cols(B)<M");
-            alglib.ap.assert(apserv.isfinitertrmatrix(a, n, isupper, _params), "SPDMatrixSolveM: A contains infinite or NaN values!");
-            alglib.ap.assert(apserv.apservisfinitematrix(b, n, m, _params), "SPDMatrixSolveM: B contains infinite or NaN values!");
+            ap.assert(n > 0, "SPDMatrixSolveM: N<=0");
+            ap.assert(m > 0, "SPDMatrixSolveM: M<=0");
+            ap.assert(ap.rows(a) >= n, "SPDMatrixSolveM: rows(A)<N");
+            ap.assert(ap.cols(a) >= n, "SPDMatrixSolveM: cols(A)<N");
+            ap.assert(ap.rows(b) >= n, "SPDMatrixSolveM: rows(B)<N");
+            ap.assert(ap.cols(b) >= m, "SPDMatrixSolveM: cols(B)<M");
+            ap.assert(apserv.isfinitertrmatrix(a, n, isupper, _params), "SPDMatrixSolveM: A contains infinite or NaN values!");
+            ap.assert(apserv.apservisfinitematrix(b, n, m, _params), "SPDMatrixSolveM: B contains infinite or NaN values!");
             da = new double[n, n];
 
             //
@@ -8241,13 +8241,13 @@ public partial class alglib
 
             a = (double[,])a.Clone();
 
-            alglib.ap.assert(n > 0, "SPDMatrixSolveMFast: N<=0");
-            alglib.ap.assert(alglib.ap.rows(a) >= n, "SPDMatrixSolveMFast: rows(A)<N");
-            alglib.ap.assert(alglib.ap.cols(a) >= n, "SPDMatrixSolveMFast: cols(A)<N");
-            alglib.ap.assert(alglib.ap.rows(b) >= n, "SPDMatrixSolveMFast: rows(B)<N");
-            alglib.ap.assert(alglib.ap.cols(b) >= m, "SPDMatrixSolveMFast: cols(B)<M");
-            alglib.ap.assert(apserv.isfinitertrmatrix(a, n, isupper, _params), "SPDMatrixSolveMFast: A contains infinite or NaN values!");
-            alglib.ap.assert(apserv.apservisfinitematrix(b, n, m, _params), "SPDMatrixSolveMFast: B contains infinite or NaN values!");
+            ap.assert(n > 0, "SPDMatrixSolveMFast: N<=0");
+            ap.assert(ap.rows(a) >= n, "SPDMatrixSolveMFast: rows(A)<N");
+            ap.assert(ap.cols(a) >= n, "SPDMatrixSolveMFast: cols(A)<N");
+            ap.assert(ap.rows(b) >= n, "SPDMatrixSolveMFast: rows(B)<N");
+            ap.assert(ap.cols(b) >= m, "SPDMatrixSolveMFast: cols(B)<M");
+            ap.assert(apserv.isfinitertrmatrix(a, n, isupper, _params), "SPDMatrixSolveMFast: A contains infinite or NaN values!");
+            ap.assert(apserv.apservisfinitematrix(b, n, m, _params), "SPDMatrixSolveMFast: B contains infinite or NaN values!");
             result = true;
             if (!trfac.spdmatrixcholesky(a, n, isupper, _params))
             {
@@ -8363,12 +8363,12 @@ public partial class alglib
 
             x = new double[0];
 
-            alglib.ap.assert(n > 0, "SPDMatrixSolve: N<=0");
-            alglib.ap.assert(alglib.ap.rows(a) >= n, "SPDMatrixSolve: rows(A)<N");
-            alglib.ap.assert(alglib.ap.cols(a) >= n, "SPDMatrixSolve: cols(A)<N");
-            alglib.ap.assert(alglib.ap.len(b) >= n, "SPDMatrixSolve: length(B)<N");
-            alglib.ap.assert(apserv.isfinitertrmatrix(a, n, isupper, _params), "SPDMatrixSolve: A contains infinite or NaN values!");
-            alglib.ap.assert(apserv.isfinitevector(b, n, _params), "SPDMatrixSolve: B contains infinite or NaN values!");
+            ap.assert(n > 0, "SPDMatrixSolve: N<=0");
+            ap.assert(ap.rows(a) >= n, "SPDMatrixSolve: rows(A)<N");
+            ap.assert(ap.cols(a) >= n, "SPDMatrixSolve: cols(A)<N");
+            ap.assert(ap.len(b) >= n, "SPDMatrixSolve: length(B)<N");
+            ap.assert(apserv.isfinitertrmatrix(a, n, isupper, _params), "SPDMatrixSolve: A contains infinite or NaN values!");
+            ap.assert(apserv.isfinitevector(b, n, _params), "SPDMatrixSolve: B contains infinite or NaN values!");
             bm = new double[n, 1];
             for (i_ = 0; i_ <= n - 1; i_++)
             {
@@ -8446,12 +8446,12 @@ public partial class alglib
 
             a = (double[,])a.Clone();
 
-            alglib.ap.assert(n > 0, "SPDMatrixSolveFast: N<=0");
-            alglib.ap.assert(alglib.ap.rows(a) >= n, "SPDMatrixSolveFast: rows(A)<N");
-            alglib.ap.assert(alglib.ap.cols(a) >= n, "SPDMatrixSolveFast: cols(A)<N");
-            alglib.ap.assert(alglib.ap.len(b) >= n, "SPDMatrixSolveFast: length(B)<N");
-            alglib.ap.assert(apserv.isfinitertrmatrix(a, n, isupper, _params), "SPDMatrixSolveFast: A contains infinite or NaN values!");
-            alglib.ap.assert(apserv.isfinitevector(b, n, _params), "SPDMatrixSolveFast: B contains infinite or NaN values!");
+            ap.assert(n > 0, "SPDMatrixSolveFast: N<=0");
+            ap.assert(ap.rows(a) >= n, "SPDMatrixSolveFast: rows(A)<N");
+            ap.assert(ap.cols(a) >= n, "SPDMatrixSolveFast: cols(A)<N");
+            ap.assert(ap.len(b) >= n, "SPDMatrixSolveFast: length(B)<N");
+            ap.assert(apserv.isfinitertrmatrix(a, n, isupper, _params), "SPDMatrixSolveFast: A contains infinite or NaN values!");
+            ap.assert(apserv.isfinitevector(b, n, _params), "SPDMatrixSolveFast: B contains infinite or NaN values!");
             result = true;
             if (!trfac.spdmatrixcholesky(a, n, isupper, _params))
             {
@@ -8534,14 +8534,14 @@ public partial class alglib
 
             x = new double[0, 0];
 
-            alglib.ap.assert(n > 0, "SPDMatrixCholeskySolveM: N<=0");
-            alglib.ap.assert(m > 0, "SPDMatrixCholeskySolveM: M<=0");
-            alglib.ap.assert(alglib.ap.rows(cha) >= n, "SPDMatrixCholeskySolveM: rows(CHA)<N");
-            alglib.ap.assert(alglib.ap.cols(cha) >= n, "SPDMatrixCholeskySolveM: cols(CHA)<N");
-            alglib.ap.assert(alglib.ap.rows(b) >= n, "SPDMatrixCholeskySolveM: rows(B)<N");
-            alglib.ap.assert(alglib.ap.cols(b) >= m, "SPDMatrixCholeskySolveM: cols(B)<M");
-            alglib.ap.assert(apserv.isfinitertrmatrix(cha, n, isupper, _params), "SPDMatrixCholeskySolveM: LUA contains infinite or NaN values!");
-            alglib.ap.assert(apserv.apservisfinitematrix(b, n, m, _params), "SPDMatrixCholeskySolveM: LUA contains infinite or NaN values!");
+            ap.assert(n > 0, "SPDMatrixCholeskySolveM: N<=0");
+            ap.assert(m > 0, "SPDMatrixCholeskySolveM: M<=0");
+            ap.assert(ap.rows(cha) >= n, "SPDMatrixCholeskySolveM: rows(CHA)<N");
+            ap.assert(ap.cols(cha) >= n, "SPDMatrixCholeskySolveM: cols(CHA)<N");
+            ap.assert(ap.rows(b) >= n, "SPDMatrixCholeskySolveM: rows(B)<N");
+            ap.assert(ap.cols(b) >= m, "SPDMatrixCholeskySolveM: cols(B)<M");
+            ap.assert(apserv.isfinitertrmatrix(cha, n, isupper, _params), "SPDMatrixCholeskySolveM: LUA contains infinite or NaN values!");
+            ap.assert(apserv.apservisfinitematrix(b, n, m, _params), "SPDMatrixCholeskySolveM: LUA contains infinite or NaN values!");
             spdmatrixcholeskysolveinternal(cha, n, isupper, emptya, false, b, m, ref x, rep, _params);
         }
 
@@ -8589,14 +8589,14 @@ public partial class alglib
             int j = 0;
             int k = 0;
 
-            alglib.ap.assert(n > 0, "SPDMatrixCholeskySolveMFast: N<=0");
-            alglib.ap.assert(m > 0, "SPDMatrixCholeskySolveMFast: M<=0");
-            alglib.ap.assert(alglib.ap.rows(cha) >= n, "SPDMatrixCholeskySolveMFast: rows(CHA)<N");
-            alglib.ap.assert(alglib.ap.cols(cha) >= n, "SPDMatrixCholeskySolveMFast: cols(CHA)<N");
-            alglib.ap.assert(alglib.ap.rows(b) >= n, "SPDMatrixCholeskySolveMFast: rows(B)<N");
-            alglib.ap.assert(alglib.ap.cols(b) >= m, "SPDMatrixCholeskySolveMFast: cols(B)<M");
-            alglib.ap.assert(apserv.isfinitertrmatrix(cha, n, isupper, _params), "SPDMatrixCholeskySolveMFast: LUA contains infinite or NaN values!");
-            alglib.ap.assert(apserv.apservisfinitematrix(b, n, m, _params), "SPDMatrixCholeskySolveMFast: LUA contains infinite or NaN values!");
+            ap.assert(n > 0, "SPDMatrixCholeskySolveMFast: N<=0");
+            ap.assert(m > 0, "SPDMatrixCholeskySolveMFast: M<=0");
+            ap.assert(ap.rows(cha) >= n, "SPDMatrixCholeskySolveMFast: rows(CHA)<N");
+            ap.assert(ap.cols(cha) >= n, "SPDMatrixCholeskySolveMFast: cols(CHA)<N");
+            ap.assert(ap.rows(b) >= n, "SPDMatrixCholeskySolveMFast: rows(B)<N");
+            ap.assert(ap.cols(b) >= m, "SPDMatrixCholeskySolveMFast: cols(B)<M");
+            ap.assert(apserv.isfinitertrmatrix(cha, n, isupper, _params), "SPDMatrixCholeskySolveMFast: LUA contains infinite or NaN values!");
+            ap.assert(apserv.apservisfinitematrix(b, n, m, _params), "SPDMatrixCholeskySolveMFast: LUA contains infinite or NaN values!");
             result = true;
             for (k = 0; k <= n - 1; k++)
             {
@@ -8692,12 +8692,12 @@ public partial class alglib
 
             x = new double[0];
 
-            alglib.ap.assert(n > 0, "SPDMatrixCholeskySolve: N<=0");
-            alglib.ap.assert(alglib.ap.rows(cha) >= n, "SPDMatrixCholeskySolve: rows(CHA)<N");
-            alglib.ap.assert(alglib.ap.cols(cha) >= n, "SPDMatrixCholeskySolve: cols(CHA)<N");
-            alglib.ap.assert(alglib.ap.len(b) >= n, "SPDMatrixCholeskySolve: length(B)<N");
-            alglib.ap.assert(apserv.isfinitertrmatrix(cha, n, isupper, _params), "SPDMatrixCholeskySolve: LUA contains infinite or NaN values!");
-            alglib.ap.assert(apserv.isfinitevector(b, n, _params), "SPDMatrixCholeskySolve: B contains infinite or NaN values!");
+            ap.assert(n > 0, "SPDMatrixCholeskySolve: N<=0");
+            ap.assert(ap.rows(cha) >= n, "SPDMatrixCholeskySolve: rows(CHA)<N");
+            ap.assert(ap.cols(cha) >= n, "SPDMatrixCholeskySolve: cols(CHA)<N");
+            ap.assert(ap.len(b) >= n, "SPDMatrixCholeskySolve: length(B)<N");
+            ap.assert(apserv.isfinitertrmatrix(cha, n, isupper, _params), "SPDMatrixCholeskySolve: LUA contains infinite or NaN values!");
+            ap.assert(apserv.isfinitevector(b, n, _params), "SPDMatrixCholeskySolve: B contains infinite or NaN values!");
             bm = new double[n, 1];
             for (i_ = 0; i_ <= n - 1; i_++)
             {
@@ -8751,12 +8751,12 @@ public partial class alglib
             int i = 0;
             int k = 0;
 
-            alglib.ap.assert(n > 0, "SPDMatrixCholeskySolveFast: N<=0");
-            alglib.ap.assert(alglib.ap.rows(cha) >= n, "SPDMatrixCholeskySolveFast: rows(CHA)<N");
-            alglib.ap.assert(alglib.ap.cols(cha) >= n, "SPDMatrixCholeskySolveFast: cols(CHA)<N");
-            alglib.ap.assert(alglib.ap.len(b) >= n, "SPDMatrixCholeskySolveFast: length(B)<N");
-            alglib.ap.assert(apserv.isfinitertrmatrix(cha, n, isupper, _params), "SPDMatrixCholeskySolveFast: LUA contains infinite or NaN values!");
-            alglib.ap.assert(apserv.isfinitevector(b, n, _params), "SPDMatrixCholeskySolveFast: B contains infinite or NaN values!");
+            ap.assert(n > 0, "SPDMatrixCholeskySolveFast: N<=0");
+            ap.assert(ap.rows(cha) >= n, "SPDMatrixCholeskySolveFast: rows(CHA)<N");
+            ap.assert(ap.cols(cha) >= n, "SPDMatrixCholeskySolveFast: cols(CHA)<N");
+            ap.assert(ap.len(b) >= n, "SPDMatrixCholeskySolveFast: length(B)<N");
+            ap.assert(apserv.isfinitertrmatrix(cha, n, isupper, _params), "SPDMatrixCholeskySolveFast: LUA contains infinite or NaN values!");
+            ap.assert(apserv.isfinitevector(b, n, _params), "SPDMatrixCholeskySolveFast: B contains infinite or NaN values!");
             result = true;
             for (k = 0; k <= n - 1; k++)
             {
@@ -8861,14 +8861,14 @@ public partial class alglib
 
             x = new complex[0, 0];
 
-            alglib.ap.assert(n > 0, "HPDMatrixSolveM: N<=0");
-            alglib.ap.assert(m > 0, "HPDMatrixSolveM: M<=0");
-            alglib.ap.assert(alglib.ap.rows(a) >= n, "HPDMatrixSolveM: rows(A)<N");
-            alglib.ap.assert(alglib.ap.cols(a) >= n, "HPDMatrixSolveM: cols(A)<N");
-            alglib.ap.assert(alglib.ap.rows(b) >= n, "HPDMatrixSolveM: rows(B)<N");
-            alglib.ap.assert(alglib.ap.cols(b) >= m, "HPDMatrixSolveM: cols(B)<M");
-            alglib.ap.assert(apserv.isfinitectrmatrix(a, n, isupper, _params), "HPDMatrixSolveM: A contains infinite or NaN values!");
-            alglib.ap.assert(apserv.isfinitecmatrix(b, n, m, _params), "HPDMatrixSolveM: B contains infinite or NaN values!");
+            ap.assert(n > 0, "HPDMatrixSolveM: N<=0");
+            ap.assert(m > 0, "HPDMatrixSolveM: M<=0");
+            ap.assert(ap.rows(a) >= n, "HPDMatrixSolveM: rows(A)<N");
+            ap.assert(ap.cols(a) >= n, "HPDMatrixSolveM: cols(A)<N");
+            ap.assert(ap.rows(b) >= n, "HPDMatrixSolveM: rows(B)<N");
+            ap.assert(ap.cols(b) >= m, "HPDMatrixSolveM: cols(B)<M");
+            ap.assert(apserv.isfinitectrmatrix(a, n, isupper, _params), "HPDMatrixSolveM: A contains infinite or NaN values!");
+            ap.assert(apserv.isfinitecmatrix(b, n, m, _params), "HPDMatrixSolveM: B contains infinite or NaN values!");
             da = new complex[n, n];
 
             //
@@ -8976,13 +8976,13 @@ public partial class alglib
 
             a = (complex[,])a.Clone();
 
-            alglib.ap.assert(n > 0, "HPDMatrixSolveMFast: N<=0");
-            alglib.ap.assert(alglib.ap.rows(a) >= n, "HPDMatrixSolveMFast: rows(A)<N");
-            alglib.ap.assert(alglib.ap.cols(a) >= n, "HPDMatrixSolveMFast: cols(A)<N");
-            alglib.ap.assert(alglib.ap.rows(b) >= n, "HPDMatrixSolveMFast: rows(B)<N");
-            alglib.ap.assert(alglib.ap.cols(b) >= m, "HPDMatrixSolveMFast: cols(B)<M");
-            alglib.ap.assert(apserv.isfinitectrmatrix(a, n, isupper, _params), "HPDMatrixSolveMFast: A contains infinite or NaN values!");
-            alglib.ap.assert(apserv.isfinitecmatrix(b, n, m, _params), "HPDMatrixSolveMFast: B contains infinite or NaN values!");
+            ap.assert(n > 0, "HPDMatrixSolveMFast: N<=0");
+            ap.assert(ap.rows(a) >= n, "HPDMatrixSolveMFast: rows(A)<N");
+            ap.assert(ap.cols(a) >= n, "HPDMatrixSolveMFast: cols(A)<N");
+            ap.assert(ap.rows(b) >= n, "HPDMatrixSolveMFast: rows(B)<N");
+            ap.assert(ap.cols(b) >= m, "HPDMatrixSolveMFast: cols(B)<M");
+            ap.assert(apserv.isfinitectrmatrix(a, n, isupper, _params), "HPDMatrixSolveMFast: A contains infinite or NaN values!");
+            ap.assert(apserv.isfinitecmatrix(b, n, m, _params), "HPDMatrixSolveMFast: B contains infinite or NaN values!");
             result = true;
             if (!trfac.hpdmatrixcholesky(a, n, isupper, _params))
             {
@@ -9092,12 +9092,12 @@ public partial class alglib
 
             x = new complex[0];
 
-            alglib.ap.assert(n > 0, "HPDMatrixSolve: N<=0");
-            alglib.ap.assert(alglib.ap.rows(a) >= n, "HPDMatrixSolve: rows(A)<N");
-            alglib.ap.assert(alglib.ap.cols(a) >= n, "HPDMatrixSolve: cols(A)<N");
-            alglib.ap.assert(alglib.ap.len(b) >= n, "HPDMatrixSolve: length(B)<N");
-            alglib.ap.assert(apserv.isfinitectrmatrix(a, n, isupper, _params), "HPDMatrixSolve: A contains infinite or NaN values!");
-            alglib.ap.assert(apserv.isfinitecvector(b, n, _params), "HPDMatrixSolve: B contains infinite or NaN values!");
+            ap.assert(n > 0, "HPDMatrixSolve: N<=0");
+            ap.assert(ap.rows(a) >= n, "HPDMatrixSolve: rows(A)<N");
+            ap.assert(ap.cols(a) >= n, "HPDMatrixSolve: cols(A)<N");
+            ap.assert(ap.len(b) >= n, "HPDMatrixSolve: length(B)<N");
+            ap.assert(apserv.isfinitectrmatrix(a, n, isupper, _params), "HPDMatrixSolve: A contains infinite or NaN values!");
+            ap.assert(apserv.isfinitecvector(b, n, _params), "HPDMatrixSolve: B contains infinite or NaN values!");
             bm = new complex[n, 1];
             for (i_ = 0; i_ <= n - 1; i_++)
             {
@@ -9175,12 +9175,12 @@ public partial class alglib
 
             a = (complex[,])a.Clone();
 
-            alglib.ap.assert(n > 0, "HPDMatrixSolveFast: N<=0");
-            alglib.ap.assert(alglib.ap.rows(a) >= n, "HPDMatrixSolveFast: rows(A)<N");
-            alglib.ap.assert(alglib.ap.cols(a) >= n, "HPDMatrixSolveFast: cols(A)<N");
-            alglib.ap.assert(alglib.ap.len(b) >= n, "HPDMatrixSolveFast: length(B)<N");
-            alglib.ap.assert(apserv.isfinitectrmatrix(a, n, isupper, _params), "HPDMatrixSolveFast: A contains infinite or NaN values!");
-            alglib.ap.assert(apserv.isfinitecvector(b, n, _params), "HPDMatrixSolveFast: B contains infinite or NaN values!");
+            ap.assert(n > 0, "HPDMatrixSolveFast: N<=0");
+            ap.assert(ap.rows(a) >= n, "HPDMatrixSolveFast: rows(A)<N");
+            ap.assert(ap.cols(a) >= n, "HPDMatrixSolveFast: cols(A)<N");
+            ap.assert(ap.len(b) >= n, "HPDMatrixSolveFast: length(B)<N");
+            ap.assert(apserv.isfinitectrmatrix(a, n, isupper, _params), "HPDMatrixSolveFast: A contains infinite or NaN values!");
+            ap.assert(apserv.isfinitecvector(b, n, _params), "HPDMatrixSolveFast: B contains infinite or NaN values!");
             result = true;
             if (!trfac.hpdmatrixcholesky(a, n, isupper, _params))
             {
@@ -9264,14 +9264,14 @@ public partial class alglib
 
             x = new complex[0, 0];
 
-            alglib.ap.assert(n > 0, "HPDMatrixCholeskySolveM: N<=0");
-            alglib.ap.assert(m > 0, "HPDMatrixCholeskySolveM: M<=0");
-            alglib.ap.assert(alglib.ap.rows(cha) >= n, "HPDMatrixCholeskySolveM: rows(CHA)<N");
-            alglib.ap.assert(alglib.ap.cols(cha) >= n, "HPDMatrixCholeskySolveM: cols(CHA)<N");
-            alglib.ap.assert(alglib.ap.rows(b) >= n, "HPDMatrixCholeskySolveM: rows(B)<N");
-            alglib.ap.assert(alglib.ap.cols(b) >= m, "HPDMatrixCholeskySolveM: cols(B)<M");
-            alglib.ap.assert(apserv.isfinitectrmatrix(cha, n, isupper, _params), "HPDMatrixCholeskySolveM: LUA contains infinite or NaN values!");
-            alglib.ap.assert(apserv.isfinitecmatrix(b, n, m, _params), "HPDMatrixCholeskySolveM: LUA contains infinite or NaN values!");
+            ap.assert(n > 0, "HPDMatrixCholeskySolveM: N<=0");
+            ap.assert(m > 0, "HPDMatrixCholeskySolveM: M<=0");
+            ap.assert(ap.rows(cha) >= n, "HPDMatrixCholeskySolveM: rows(CHA)<N");
+            ap.assert(ap.cols(cha) >= n, "HPDMatrixCholeskySolveM: cols(CHA)<N");
+            ap.assert(ap.rows(b) >= n, "HPDMatrixCholeskySolveM: rows(B)<N");
+            ap.assert(ap.cols(b) >= m, "HPDMatrixCholeskySolveM: cols(B)<M");
+            ap.assert(apserv.isfinitectrmatrix(cha, n, isupper, _params), "HPDMatrixCholeskySolveM: LUA contains infinite or NaN values!");
+            ap.assert(apserv.isfinitecmatrix(b, n, m, _params), "HPDMatrixCholeskySolveM: LUA contains infinite or NaN values!");
             hpdmatrixcholeskysolveinternal(cha, n, isupper, emptya, false, b, m, ref x, rep, _params);
         }
 
@@ -9318,14 +9318,14 @@ public partial class alglib
             int j = 0;
             int k = 0;
 
-            alglib.ap.assert(n > 0, "HPDMatrixCholeskySolveMFast: N<=0");
-            alglib.ap.assert(m > 0, "HPDMatrixCholeskySolveMFast: M<=0");
-            alglib.ap.assert(alglib.ap.rows(cha) >= n, "HPDMatrixCholeskySolveMFast: rows(CHA)<N");
-            alglib.ap.assert(alglib.ap.cols(cha) >= n, "HPDMatrixCholeskySolveMFast: cols(CHA)<N");
-            alglib.ap.assert(alglib.ap.rows(b) >= n, "HPDMatrixCholeskySolveMFast: rows(B)<N");
-            alglib.ap.assert(alglib.ap.cols(b) >= m, "HPDMatrixCholeskySolveMFast: cols(B)<M");
-            alglib.ap.assert(apserv.isfinitectrmatrix(cha, n, isupper, _params), "HPDMatrixCholeskySolveMFast: LUA contains infinite or NaN values!");
-            alglib.ap.assert(apserv.isfinitecmatrix(b, n, m, _params), "HPDMatrixCholeskySolveMFast: LUA contains infinite or NaN values!");
+            ap.assert(n > 0, "HPDMatrixCholeskySolveMFast: N<=0");
+            ap.assert(m > 0, "HPDMatrixCholeskySolveMFast: M<=0");
+            ap.assert(ap.rows(cha) >= n, "HPDMatrixCholeskySolveMFast: rows(CHA)<N");
+            ap.assert(ap.cols(cha) >= n, "HPDMatrixCholeskySolveMFast: cols(CHA)<N");
+            ap.assert(ap.rows(b) >= n, "HPDMatrixCholeskySolveMFast: rows(B)<N");
+            ap.assert(ap.cols(b) >= m, "HPDMatrixCholeskySolveMFast: cols(B)<M");
+            ap.assert(apserv.isfinitectrmatrix(cha, n, isupper, _params), "HPDMatrixCholeskySolveMFast: LUA contains infinite or NaN values!");
+            ap.assert(apserv.isfinitecmatrix(b, n, m, _params), "HPDMatrixCholeskySolveMFast: LUA contains infinite or NaN values!");
             result = true;
             for (k = 0; k <= n - 1; k++)
             {
@@ -9421,12 +9421,12 @@ public partial class alglib
 
             x = new complex[0];
 
-            alglib.ap.assert(n > 0, "HPDMatrixCholeskySolve: N<=0");
-            alglib.ap.assert(alglib.ap.rows(cha) >= n, "HPDMatrixCholeskySolve: rows(CHA)<N");
-            alglib.ap.assert(alglib.ap.cols(cha) >= n, "HPDMatrixCholeskySolve: cols(CHA)<N");
-            alglib.ap.assert(alglib.ap.len(b) >= n, "HPDMatrixCholeskySolve: length(B)<N");
-            alglib.ap.assert(apserv.isfinitectrmatrix(cha, n, isupper, _params), "HPDMatrixCholeskySolve: LUA contains infinite or NaN values!");
-            alglib.ap.assert(apserv.isfinitecvector(b, n, _params), "HPDMatrixCholeskySolve: B contains infinite or NaN values!");
+            ap.assert(n > 0, "HPDMatrixCholeskySolve: N<=0");
+            ap.assert(ap.rows(cha) >= n, "HPDMatrixCholeskySolve: rows(CHA)<N");
+            ap.assert(ap.cols(cha) >= n, "HPDMatrixCholeskySolve: cols(CHA)<N");
+            ap.assert(ap.len(b) >= n, "HPDMatrixCholeskySolve: length(B)<N");
+            ap.assert(apserv.isfinitectrmatrix(cha, n, isupper, _params), "HPDMatrixCholeskySolve: LUA contains infinite or NaN values!");
+            ap.assert(apserv.isfinitecvector(b, n, _params), "HPDMatrixCholeskySolve: B contains infinite or NaN values!");
             bm = new complex[n, 1];
             for (i_ = 0; i_ <= n - 1; i_++)
             {
@@ -9480,12 +9480,12 @@ public partial class alglib
             int i = 0;
             int k = 0;
 
-            alglib.ap.assert(n > 0, "HPDMatrixCholeskySolveFast: N<=0");
-            alglib.ap.assert(alglib.ap.rows(cha) >= n, "HPDMatrixCholeskySolveFast: rows(CHA)<N");
-            alglib.ap.assert(alglib.ap.cols(cha) >= n, "HPDMatrixCholeskySolveFast: cols(CHA)<N");
-            alglib.ap.assert(alglib.ap.len(b) >= n, "HPDMatrixCholeskySolveFast: length(B)<N");
-            alglib.ap.assert(apserv.isfinitectrmatrix(cha, n, isupper, _params), "HPDMatrixCholeskySolveFast: LUA contains infinite or NaN values!");
-            alglib.ap.assert(apserv.isfinitecvector(b, n, _params), "HPDMatrixCholeskySolveFast: B contains infinite or NaN values!");
+            ap.assert(n > 0, "HPDMatrixCholeskySolveFast: N<=0");
+            ap.assert(ap.rows(cha) >= n, "HPDMatrixCholeskySolveFast: rows(CHA)<N");
+            ap.assert(ap.cols(cha) >= n, "HPDMatrixCholeskySolveFast: cols(CHA)<N");
+            ap.assert(ap.len(b) >= n, "HPDMatrixCholeskySolveFast: length(B)<N");
+            ap.assert(apserv.isfinitectrmatrix(cha, n, isupper, _params), "HPDMatrixCholeskySolveFast: LUA contains infinite or NaN values!");
+            ap.assert(apserv.isfinitecvector(b, n, _params), "HPDMatrixCholeskySolveFast: B contains infinite or NaN values!");
             result = true;
             for (k = 0; k <= n - 1; k++)
             {
@@ -9608,14 +9608,14 @@ public partial class alglib
 
             x = new double[0];
 
-            alglib.ap.assert(nrows > 0, "RMatrixSolveLS: NRows<=0");
-            alglib.ap.assert(ncols > 0, "RMatrixSolveLS: NCols<=0");
-            alglib.ap.assert(math.isfinite(threshold) && (double)(threshold) >= (double)(0), "RMatrixSolveLS: Threshold<0 or is infinite");
-            alglib.ap.assert(alglib.ap.rows(a) >= nrows, "RMatrixSolveLS: rows(A)<NRows");
-            alglib.ap.assert(alglib.ap.cols(a) >= ncols, "RMatrixSolveLS: cols(A)<NCols");
-            alglib.ap.assert(alglib.ap.len(b) >= nrows, "RMatrixSolveLS: length(B)<NRows");
-            alglib.ap.assert(apserv.apservisfinitematrix(a, nrows, ncols, _params), "RMatrixSolveLS: A contains infinite or NaN values!");
-            alglib.ap.assert(apserv.isfinitevector(b, nrows, _params), "RMatrixSolveLS: B contains infinite or NaN values!");
+            ap.assert(nrows > 0, "RMatrixSolveLS: NRows<=0");
+            ap.assert(ncols > 0, "RMatrixSolveLS: NCols<=0");
+            ap.assert(math.isfinite(threshold) && (double)(threshold) >= (double)(0), "RMatrixSolveLS: Threshold<0 or is infinite");
+            ap.assert(ap.rows(a) >= nrows, "RMatrixSolveLS: rows(A)<NRows");
+            ap.assert(ap.cols(a) >= ncols, "RMatrixSolveLS: cols(A)<NCols");
+            ap.assert(ap.len(b) >= nrows, "RMatrixSolveLS: length(B)<NRows");
+            ap.assert(apserv.apservisfinitematrix(a, nrows, ncols, _params), "RMatrixSolveLS: A contains infinite or NaN values!");
+            ap.assert(apserv.isfinitevector(b, nrows, _params), "RMatrixSolveLS: B contains infinite or NaN values!");
             if ((double)(threshold) == (double)(0))
             {
                 threshold = 1000 * math.machineepsilon;
@@ -9857,10 +9857,10 @@ public partial class alglib
             //
             // prepare: check inputs, allocate space...
             //
-            alglib.ap.assert(n > 0 && m > 0, "RMatrixLUSolveInternal: integrity check 7656 failed");
+            ap.assert(n > 0 && m > 0, "RMatrixLUSolveInternal: integrity check 7656 failed");
             for (i = 0; i <= n - 1; i++)
             {
-                alglib.ap.assert(p[i] <= n - 1 && p[i] >= i, "RMatrixLUSolveInternal: incorrect pivot, P[i]<i or P[i]>=N");
+                ap.assert(p[i] <= n - 1 && p[i] >= i, "RMatrixLUSolveInternal: incorrect pivot, P[i]<i or P[i]>=N");
             }
             x = new double[n, m];
             y = new double[n];
@@ -10000,7 +10000,7 @@ public partial class alglib
             //
             // prepare: check inputs, allocate space...
             //
-            alglib.ap.assert(n > 0 && m > 0, "SPDMatrixCholeskySolveInternal: integrity check 9858 failed");
+            ap.assert(n > 0 && m > 0, "SPDMatrixCholeskySolveInternal: integrity check 9858 failed");
             x = new double[n, m];
 
             //
@@ -10088,10 +10088,10 @@ public partial class alglib
             //
             // prepare: check inputs, allocate space...
             //
-            alglib.ap.assert(n > 0 && m > 0, "CMatrixLUSolveInternal: integrity check 9302 failed");
+            ap.assert(n > 0 && m > 0, "CMatrixLUSolveInternal: integrity check 9302 failed");
             for (i = 0; i <= n - 1; i++)
             {
-                alglib.ap.assert(p[i] <= n - 1 && p[i] >= i, "CMatrixLUSolveInternal: incorrect pivot P[i]<i or P[I]>=N");
+                ap.assert(p[i] <= n - 1 && p[i] >= i, "CMatrixLUSolveInternal: incorrect pivot P[i]<i or P[I]>=N");
             }
             x = new complex[n, m];
             y = new complex[n];
@@ -10866,8 +10866,8 @@ public partial class alglib
             linlsqrstate state,
             alglib.xparams _params)
         {
-            alglib.ap.assert(m > 0, "LinLSQRCreate: M<=0");
-            alglib.ap.assert(n > 0, "LinLSQRCreate: N<=0");
+            ap.assert(m > 0, "LinLSQRCreate: M<=0");
+            ap.assert(n > 0, "LinLSQRCreate: N<=0");
             linlsqrcreatebuf(m, n, state, _params);
         }
 
@@ -10894,8 +10894,8 @@ public partial class alglib
         {
             int i = 0;
 
-            alglib.ap.assert(m > 0, "LinLSQRCreateBuf: M<=0");
-            alglib.ap.assert(n > 0, "LinLSQRCreateBuf: N<=0");
+            ap.assert(m > 0, "LinLSQRCreateBuf: M<=0");
+            ap.assert(n > 0, "LinLSQRCreateBuf: N<=0");
             state.m = m;
             state.n = n;
             state.prectype = 0;
@@ -10960,9 +10960,9 @@ public partial class alglib
         {
             int i = 0;
 
-            alglib.ap.assert(!state.running, "LinLSQRSetB: you can not change B when LinLSQRIteration is running");
-            alglib.ap.assert(state.m <= alglib.ap.len(b), "LinLSQRSetB: Length(B)<M");
-            alglib.ap.assert(apserv.isfinitevector(b, state.m, _params), "LinLSQRSetB: B contains infinite or NaN values");
+            ap.assert(!state.running, "LinLSQRSetB: you can not change B when LinLSQRIteration is running");
+            ap.assert(state.m <= ap.len(b), "LinLSQRSetB: Length(B)<M");
+            ap.assert(apserv.isfinitevector(b, state.m, _params), "LinLSQRSetB: B contains infinite or NaN values");
             state.bnorm2 = 0;
             for (i = 0; i <= state.m - 1; i++)
             {
@@ -10987,7 +10987,7 @@ public partial class alglib
         public static void linlsqrsetprecunit(linlsqrstate state,
             alglib.xparams _params)
         {
-            alglib.ap.assert(!state.running, "LinLSQRSetPrecUnit: you can not change preconditioner, because function LinLSQRIteration is running!");
+            ap.assert(!state.running, "LinLSQRSetPrecUnit: you can not change preconditioner, because function LinLSQRIteration is running!");
             state.prectype = -1;
         }
 
@@ -11006,7 +11006,7 @@ public partial class alglib
         public static void linlsqrsetprecdiag(linlsqrstate state,
             alglib.xparams _params)
         {
-            alglib.ap.assert(!state.running, "LinLSQRSetPrecDiag: you can not change preconditioner, because function LinCGIteration is running!");
+            ap.assert(!state.running, "LinLSQRSetPrecDiag: you can not change preconditioner, because function LinCGIteration is running!");
             state.prectype = 0;
         }
 
@@ -11028,8 +11028,8 @@ public partial class alglib
             double lambdai,
             alglib.xparams _params)
         {
-            alglib.ap.assert(!state.running, "LinLSQRSetLambdaI: you can not set LambdaI, because function LinLSQRIteration is running");
-            alglib.ap.assert(math.isfinite(lambdai) && (double)(lambdai) >= (double)(0), "LinLSQRSetLambdaI: LambdaI is infinite or NaN");
+            ap.assert(!state.running, "LinLSQRSetLambdaI: you can not set LambdaI, because function LinLSQRIteration is running");
+            ap.assert(math.isfinite(lambdai) && (double)(lambdai) >= (double)(0), "LinLSQRSetLambdaI: LambdaI is infinite or NaN");
             state.lambdai = lambdai;
         }
 
@@ -11101,7 +11101,7 @@ public partial class alglib
             //
             // Routine body
             //
-            alglib.ap.assert(alglib.ap.len(state.b) > 0, "LinLSQRIteration: using non-allocated array B");
+            ap.assert(ap.len(state.b) > 0, "LinLSQRIteration: using non-allocated array B");
             summn = state.m + state.n;
             bnorm = Math.Sqrt(state.bnorm2);
             state.userterminationneeded = false;
@@ -11595,9 +11595,9 @@ public partial class alglib
             double v = 0;
 
             n = state.n;
-            alglib.ap.assert(!state.running, "LinLSQRSolveSparse: you can not call this function when LinLSQRIteration is running");
-            alglib.ap.assert(alglib.ap.len(b) >= state.m, "LinLSQRSolveSparse: Length(B)<M");
-            alglib.ap.assert(apserv.isfinitevector(b, state.m, _params), "LinLSQRSolveSparse: B contains infinite or NaN values");
+            ap.assert(!state.running, "LinLSQRSolveSparse: you can not call this function when LinLSQRIteration is running");
+            ap.assert(ap.len(b) >= state.m, "LinLSQRSolveSparse: Length(B)<M");
+            ap.assert(apserv.isfinitevector(b, state.m, _params), "LinLSQRSolveSparse: B contains infinite or NaN values");
 
             //
             // Allocate temporaries
@@ -11708,10 +11708,10 @@ public partial class alglib
             int maxits,
             alglib.xparams _params)
         {
-            alglib.ap.assert(!state.running, "LinLSQRSetCond: you can not call this function when LinLSQRIteration is running");
-            alglib.ap.assert(math.isfinite(epsa) && (double)(epsa) >= (double)(0), "LinLSQRSetCond: EpsA is negative, INF or NAN");
-            alglib.ap.assert(math.isfinite(epsb) && (double)(epsb) >= (double)(0), "LinLSQRSetCond: EpsB is negative, INF or NAN");
-            alglib.ap.assert(maxits >= 0, "LinLSQRSetCond: MaxIts is negative");
+            ap.assert(!state.running, "LinLSQRSetCond: you can not call this function when LinLSQRIteration is running");
+            ap.assert(math.isfinite(epsa) && (double)(epsa) >= (double)(0), "LinLSQRSetCond: EpsA is negative, INF or NAN");
+            ap.assert(math.isfinite(epsb) && (double)(epsb) >= (double)(0), "LinLSQRSetCond: EpsB is negative, INF or NAN");
+            ap.assert(maxits >= 0, "LinLSQRSetCond: MaxIts is negative");
             if (((double)(epsa) == (double)(0) && (double)(epsb) == (double)(0)) && maxits == 0)
             {
                 state.epsa = atol;
@@ -11762,8 +11762,8 @@ public partial class alglib
 
             x = new double[0];
 
-            alglib.ap.assert(!state.running, "LinLSQRResult: you can not call this function when LinLSQRIteration is running");
-            if (alglib.ap.len(x) < state.n)
+            ap.assert(!state.running, "LinLSQRResult: you can not call this function when LinLSQRIteration is running");
+            if (ap.len(x) < state.n)
             {
                 x = new double[state.n];
             }
@@ -11974,10 +11974,10 @@ public partial class alglib
             a = (double[])a.Clone();
             x = new complex[0];
 
-            alglib.ap.assert(n > 0, "PolynomialSolve: N<=0");
-            alglib.ap.assert(alglib.ap.len(a) >= n + 1, "PolynomialSolve: Length(A)<N+1");
-            alglib.ap.assert(apserv.isfinitevector(a, n + 1, _params), "PolynomialSolve: A contains infitite numbers");
-            alglib.ap.assert((double)(a[n]) != (double)(0), "PolynomialSolve: A[N]=0");
+            ap.assert(n > 0, "PolynomialSolve: N<=0");
+            ap.assert(ap.len(a) >= n + 1, "PolynomialSolve: Length(A)<N+1");
+            ap.assert(apserv.isfinitevector(a, n + 1, _params), "PolynomialSolve: A contains infitite numbers");
+            ap.assert((double)(a[n]) != (double)(0), "PolynomialSolve: A[N]=0");
 
             //
             // Prepare
@@ -12022,7 +12022,7 @@ public partial class alglib
                     c[i, ne - 1] = -a[i];
                 }
                 status = evd.rmatrixevd(c, ne, 0, ref wr, ref wi, ref vl, ref vr, _params);
-                alglib.ap.assert(status, "PolynomialSolve: inernal error - EVD solver failed");
+                ap.assert(status, "PolynomialSolve: inernal error - EVD solver failed");
                 for (i = 0; i <= ne - 1; i++)
                 {
                     x[i].x = wr[i];
@@ -12254,13 +12254,13 @@ public partial class alglib
             //
             // Test inputs
             //
-            alglib.ap.assert(n >= 1, "SparseSolveSymmetricGMRES: tried to automatically detect N from sizeof(A), got nonpositive size");
-            alglib.ap.assert(sparse.sparsegetnrows(a, _params) == n, "SparseSolveSymmetricGMRES: rows(A)!=N");
-            alglib.ap.assert(sparse.sparsegetncols(a, _params) == n, "SparseSolveSymmetricGMRES: cols(A)!=N");
-            alglib.ap.assert(alglib.ap.len(b) >= n, "SparseSolveSymmetricGMRES: length(B)<N");
-            alglib.ap.assert(apserv.isfinitevector(b, n, _params), "SparseSolveSymmetricGMRES: B contains NAN/INF");
-            alglib.ap.assert(math.isfinite(epsf) && (double)(epsf) >= (double)(0), "SparseSolveSymmetricGMRES: EpsF<0 or infinite");
-            alglib.ap.assert(maxits >= 0, "SparseSolveSymmetricGMRES: MaxIts<0");
+            ap.assert(n >= 1, "SparseSolveSymmetricGMRES: tried to automatically detect N from sizeof(A), got nonpositive size");
+            ap.assert(sparse.sparsegetnrows(a, _params) == n, "SparseSolveSymmetricGMRES: rows(A)!=N");
+            ap.assert(sparse.sparsegetncols(a, _params) == n, "SparseSolveSymmetricGMRES: cols(A)!=N");
+            ap.assert(ap.len(b) >= n, "SparseSolveSymmetricGMRES: length(B)<N");
+            ap.assert(apserv.isfinitevector(b, n, _params), "SparseSolveSymmetricGMRES: B contains NAN/INF");
+            ap.assert(math.isfinite(epsf) && (double)(epsf) >= (double)(0), "SparseSolveSymmetricGMRES: EpsF<0 or infinite");
+            ap.assert(maxits >= 0, "SparseSolveSymmetricGMRES: MaxIts<0");
             if ((double)(epsf) == (double)(0) && maxits == 0)
             {
                 epsf = 1.0E-6;
@@ -12356,13 +12356,13 @@ public partial class alglib
             //
             // Test inputs
             //
-            alglib.ap.assert(n >= 1, "SparseSolveGMRES: tried to automatically detect N from sizeof(A), got nonpositive size");
-            alglib.ap.assert(sparse.sparsegetnrows(a, _params) == n, "SparseSolveGMRES: rows(A)!=N");
-            alglib.ap.assert(sparse.sparsegetncols(a, _params) == n, "SparseSolveGMRES: cols(A)!=N");
-            alglib.ap.assert(alglib.ap.len(b) >= n, "SparseSolveGMRES: length(B)<N");
-            alglib.ap.assert(apserv.isfinitevector(b, n, _params), "SparseSolveGMRES: B contains NAN/INF");
-            alglib.ap.assert(math.isfinite(epsf) && (double)(epsf) >= (double)(0), "SparseSolveGMRES: EpsF<0 or infinite");
-            alglib.ap.assert(maxits >= 0, "SparseSolveGMRES: MaxIts<0");
+            ap.assert(n >= 1, "SparseSolveGMRES: tried to automatically detect N from sizeof(A), got nonpositive size");
+            ap.assert(sparse.sparsegetnrows(a, _params) == n, "SparseSolveGMRES: rows(A)!=N");
+            ap.assert(sparse.sparsegetncols(a, _params) == n, "SparseSolveGMRES: cols(A)!=N");
+            ap.assert(ap.len(b) >= n, "SparseSolveGMRES: length(B)<N");
+            ap.assert(apserv.isfinitevector(b, n, _params), "SparseSolveGMRES: B contains NAN/INF");
+            ap.assert(math.isfinite(epsf) && (double)(epsf) >= (double)(0), "SparseSolveGMRES: EpsF<0 or infinite");
+            ap.assert(maxits >= 0, "SparseSolveGMRES: MaxIts<0");
             if ((double)(epsf) == (double)(0) && maxits == 0)
             {
                 epsf = 1.0E-6;
@@ -12455,7 +12455,7 @@ public partial class alglib
             sparsesolverstate state,
             alglib.xparams _params)
         {
-            alglib.ap.assert(n >= 1, "SparseSolverCreate: N<=0");
+            ap.assert(n >= 1, "SparseSolverCreate: N<=0");
             state.n = n;
             state.running = false;
             state.userterminationneeded = false;
@@ -12499,7 +12499,7 @@ public partial class alglib
             int k,
             alglib.xparams _params)
         {
-            alglib.ap.assert(k >= 0, "SparseSolverSetAlgoGMRESK: K<0");
+            ap.assert(k >= 0, "SparseSolverSetAlgoGMRESK: K<0");
             state.algotype = 0;
             if (k == 0)
             {
@@ -12527,8 +12527,8 @@ public partial class alglib
             double[] x,
             alglib.xparams _params)
         {
-            alglib.ap.assert(state.n <= alglib.ap.len(x), "SparseSolverSetStartingPoint: Length(X)<N");
-            alglib.ap.assert(apserv.isfinitevector(x, state.n, _params), "SparseSolverSetStartingPoint: X contains infinite or NaN values!");
+            ap.assert(state.n <= ap.len(x), "SparseSolverSetStartingPoint: Length(X)<N");
+            ap.assert(apserv.isfinitevector(x, state.n, _params), "SparseSolverSetStartingPoint: X contains infinite or NaN values!");
             ablasf.rcopyv(state.n, x, state.x0, _params);
         }
 
@@ -12557,8 +12557,8 @@ public partial class alglib
             int maxits,
             alglib.xparams _params)
         {
-            alglib.ap.assert(math.isfinite(epsf) && (double)(epsf) >= (double)(0), "SparseSolverSetCond: EpsF is negative or contains infinite or NaN values");
-            alglib.ap.assert(maxits >= 0, "SparseSolverSetCond: MaxIts is negative");
+            ap.assert(math.isfinite(epsf) && (double)(epsf) >= (double)(0), "SparseSolverSetCond: EpsF is negative or contains infinite or NaN values");
+            ap.assert(maxits >= 0, "SparseSolverSetCond: MaxIts is negative");
             if ((double)(epsf) == (double)(0) && maxits == 0)
             {
                 state.epsf = 1.0E-6;
@@ -12620,10 +12620,10 @@ public partial class alglib
             //
             // Test inputs
             //
-            alglib.ap.assert(sparse.sparsegetnrows(a, _params) == n, "SparseSolverSolveSymmetric: rows(A)!=N");
-            alglib.ap.assert(sparse.sparsegetncols(a, _params) == n, "SparseSolverSolveSymmetric: cols(A)!=N");
-            alglib.ap.assert(alglib.ap.len(b) >= n, "SparseSolverSolveSymmetric: length(B)<N");
-            alglib.ap.assert(apserv.isfinitevector(b, n, _params), "SparseSolverSolveSymmetric: B contains NAN/INF");
+            ap.assert(sparse.sparsegetnrows(a, _params) == n, "SparseSolverSolveSymmetric: rows(A)!=N");
+            ap.assert(sparse.sparsegetncols(a, _params) == n, "SparseSolverSolveSymmetric: cols(A)!=N");
+            ap.assert(ap.len(b) >= n, "SparseSolverSolveSymmetric: length(B)<N");
+            ap.assert(apserv.isfinitevector(b, n, _params), "SparseSolverSolveSymmetric: B contains NAN/INF");
 
             //
             // If A is non-CRS, perform conversion
@@ -12649,7 +12649,7 @@ public partial class alglib
                     //
                     continue;
                 }
-                alglib.ap.assert(state.requesttype == 0, "SparseSolverSolveSymmetric: integrity check 7372 failed");
+                ap.assert(state.requesttype == 0, "SparseSolverSolveSymmetric: integrity check 7372 failed");
                 sparse.sparsesmv(a, isupper, state.x, ref state.ax, _params);
             }
         }
@@ -12694,10 +12694,10 @@ public partial class alglib
             //
             // Test inputs
             //
-            alglib.ap.assert(sparse.sparsegetnrows(a, _params) == n, "SparseSolverSolve: rows(A)!=N");
-            alglib.ap.assert(sparse.sparsegetncols(a, _params) == n, "SparseSolverSolve: cols(A)!=N");
-            alglib.ap.assert(alglib.ap.len(b) >= n, "SparseSolverSolve: length(B)<N");
-            alglib.ap.assert(apserv.isfinitevector(b, n, _params), "SparseSolverSolve: B contains NAN/INF");
+            ap.assert(sparse.sparsegetnrows(a, _params) == n, "SparseSolverSolve: rows(A)!=N");
+            ap.assert(sparse.sparsegetncols(a, _params) == n, "SparseSolverSolve: cols(A)!=N");
+            ap.assert(ap.len(b) >= n, "SparseSolverSolve: length(B)<N");
+            ap.assert(apserv.isfinitevector(b, n, _params), "SparseSolverSolve: B contains NAN/INF");
 
             //
             // If A is non-CRS, perform conversion
@@ -12723,7 +12723,7 @@ public partial class alglib
                     //
                     continue;
                 }
-                alglib.ap.assert(state.requesttype == 0, "SparseSolverSolve: integrity check 7372 failed");
+                ap.assert(state.requesttype == 0, "SparseSolverSolve: integrity check 7372 failed");
                 sparse.sparsemv(a, state.x, ref state.ax, _params);
             }
         }
@@ -12861,7 +12861,7 @@ public partial class alglib
         {
             bool result = new();
 
-            alglib.ap.assert(state.running, "SparseSolverContinue: the solver is not running");
+            ap.assert(state.running, "SparseSolverContinue: the solver is not running");
             result = sparsesolveriteration(state, _params);
             state.running = result;
             return result;
@@ -12910,7 +12910,7 @@ public partial class alglib
         {
             requesttype = 0;
 
-            alglib.ap.assert(state.running, "SparseSolverOOCGetRequestInfo: the solver is not running");
+            ap.assert(state.running, "SparseSolverOOCGetRequestInfo: the solver is not running");
             requesttype = state.requesttype;
         }
 
@@ -12951,7 +12951,7 @@ public partial class alglib
             ref double[] x,
             alglib.xparams _params)
         {
-            alglib.ap.assert(state.running, "SparseSolverOOCGetRequestInfo: the solver is not running");
+            ap.assert(state.running, "SparseSolverOOCGetRequestInfo: the solver is not running");
             ablasf.rcopyallocv(state.n, state.x, ref x, _params);
         }
 
@@ -12978,7 +12978,7 @@ public partial class alglib
         {
             v = 0;
 
-            alglib.ap.assert(state.running, "SparseSolverOOCGetRequestInfo: the solver is not running");
+            ap.assert(state.running, "SparseSolverOOCGetRequestInfo: the solver is not running");
             v = state.reply1;
         }
 
@@ -13011,8 +13011,8 @@ public partial class alglib
             double[] ax,
             alglib.xparams _params)
         {
-            alglib.ap.assert(state.running, "SparseSolverOOCSendResult: the solver is not running");
-            alglib.ap.assert(state.requesttype == 0, "SparseSolverOOCSendResult: this request type does not accept replies");
+            ap.assert(state.running, "SparseSolverOOCSendResult: the solver is not running");
+            ap.assert(state.requesttype == 0, "SparseSolverOOCSendResult: this request type does not accept replies");
             ablasf.rcopyv(state.n, ax, state.ax, _params);
         }
 
@@ -13064,7 +13064,7 @@ public partial class alglib
         {
             x = new double[0];
 
-            alglib.ap.assert(!state.running, "SparseSolverOOCStop: the solver is still running");
+            ap.assert(!state.running, "SparseSolverOOCStop: the solver is still running");
             x = new double[state.n];
             ablasf.rcopyv(state.n, state.xf, x, _params);
             initsparsesolverreport(rep, _params);
@@ -13373,7 +13373,7 @@ public partial class alglib
             result = false;
             return result;
         lbl_5:
-            alglib.ap.assert(false, "SparseSolverIteration: integrity check failed (unexpected algo)");
+            ap.assert(false, "SparseSolverIteration: integrity check failed (unexpected algo)");
             result = false;
             return result;
 
@@ -13462,11 +13462,11 @@ public partial class alglib
             x = new double[0];
 
             n = sparse.sparsegetnrows(a, _params);
-            alglib.ap.assert(n > 0, "SparseSPDSolveSKS: N<=0");
-            alglib.ap.assert(sparse.sparsegetnrows(a, _params) == n, "SparseSPDSolveSKS: rows(A)!=N");
-            alglib.ap.assert(sparse.sparsegetncols(a, _params) == n, "SparseSPDSolveSKS: cols(A)!=N");
-            alglib.ap.assert(alglib.ap.len(b) >= n, "SparseSPDSolveSKS: length(B)<N");
-            alglib.ap.assert(apserv.isfinitevector(b, n, _params), "SparseSPDSolveSKS: B contains infinities or NANs");
+            ap.assert(n > 0, "SparseSPDSolveSKS: N<=0");
+            ap.assert(sparse.sparsegetnrows(a, _params) == n, "SparseSPDSolveSKS: rows(A)!=N");
+            ap.assert(sparse.sparsegetncols(a, _params) == n, "SparseSPDSolveSKS: cols(A)!=N");
+            ap.assert(ap.len(b) >= n, "SparseSPDSolveSKS: length(B)<N");
+            ap.assert(apserv.isfinitevector(b, n, _params), "SparseSPDSolveSKS: B contains infinities or NANs");
             iterativesparse.initsparsesolverreport(rep, _params);
             x = new double[n];
             sparse.sparsecopytosks(a, a2, _params);
@@ -13562,11 +13562,11 @@ public partial class alglib
             x = new double[0];
 
             n = sparse.sparsegetnrows(a, _params);
-            alglib.ap.assert(n > 0, "SparseSPDSolve: N<=0");
-            alglib.ap.assert(sparse.sparsegetnrows(a, _params) == n, "SparseSPDSolve: rows(A)!=N");
-            alglib.ap.assert(sparse.sparsegetncols(a, _params) == n, "SparseSPDSolve: cols(A)!=N");
-            alglib.ap.assert(alglib.ap.len(b) >= n, "SparseSPDSolve: length(B)<N");
-            alglib.ap.assert(apserv.isfinitevector(b, n, _params), "SparseSPDSolve: B contains infinities or NANs");
+            ap.assert(n > 0, "SparseSPDSolve: N<=0");
+            ap.assert(sparse.sparsegetnrows(a, _params) == n, "SparseSPDSolve: rows(A)!=N");
+            ap.assert(sparse.sparsegetncols(a, _params) == n, "SparseSPDSolve: cols(A)!=N");
+            ap.assert(ap.len(b) >= n, "SparseSPDSolve: length(B)<N");
+            ap.assert(apserv.isfinitevector(b, n, _params), "SparseSPDSolve: B contains infinities or NANs");
             iterativesparse.initsparsesolverreport(rep, _params);
 
             //
@@ -13671,12 +13671,12 @@ public partial class alglib
             x = new double[0];
 
             n = sparse.sparsegetnrows(a, _params);
-            alglib.ap.assert(n > 0, "SparseSPDCholeskySolve: N<=0");
-            alglib.ap.assert(sparse.sparsegetnrows(a, _params) == n, "SparseSPDCholeskySolve: rows(A)!=N");
-            alglib.ap.assert(sparse.sparsegetncols(a, _params) == n, "SparseSPDCholeskySolve: cols(A)!=N");
-            alglib.ap.assert(sparse.sparseissks(a, _params) || sparse.sparseiscrs(a, _params), "SparseSPDCholeskySolve: A is not an SKS/CRS matrix");
-            alglib.ap.assert(alglib.ap.len(b) >= n, "SparseSPDCholeskySolve: length(B)<N");
-            alglib.ap.assert(apserv.isfinitevector(b, n, _params), "SparseSPDCholeskySolve: B contains infinities or NANs");
+            ap.assert(n > 0, "SparseSPDCholeskySolve: N<=0");
+            ap.assert(sparse.sparsegetnrows(a, _params) == n, "SparseSPDCholeskySolve: rows(A)!=N");
+            ap.assert(sparse.sparsegetncols(a, _params) == n, "SparseSPDCholeskySolve: cols(A)!=N");
+            ap.assert(sparse.sparseissks(a, _params) || sparse.sparseiscrs(a, _params), "SparseSPDCholeskySolve: A is not an SKS/CRS matrix");
+            ap.assert(ap.len(b) >= n, "SparseSPDCholeskySolve: length(B)<N");
+            ap.assert(apserv.isfinitevector(b, n, _params), "SparseSPDCholeskySolve: B contains infinities or NANs");
             iterativesparse.initsparsesolverreport(rep, _params);
             x = new double[n];
             for (i = 0; i <= n - 1; i++)
@@ -13789,12 +13789,12 @@ public partial class alglib
             x = new double[0];
 
             n = sparse.sparsegetnrows(a, _params);
-            alglib.ap.assert(n > 0, "SparseSolve: N<=0");
-            alglib.ap.assert((((solvertype == 0 || solvertype == -19) || solvertype == 10) || solvertype == 11) || solvertype == 20, "SparseSolve: unexpected SolverType");
-            alglib.ap.assert(sparse.sparsegetnrows(a, _params) == n, "SparseSolve: rows(A)!=N");
-            alglib.ap.assert(sparse.sparsegetncols(a, _params) == n, "SparseSolve: cols(A)!=N");
-            alglib.ap.assert(alglib.ap.len(b) >= n, "SparseSolve: length(B)<N");
-            alglib.ap.assert(apserv.isfinitevector(b, n, _params), "SparseSolve: B contains infinities or NANs");
+            ap.assert(n > 0, "SparseSolve: N<=0");
+            ap.assert((((solvertype == 0 || solvertype == -19) || solvertype == 10) || solvertype == 11) || solvertype == 20, "SparseSolve: unexpected SolverType");
+            ap.assert(sparse.sparsegetnrows(a, _params) == n, "SparseSolve: rows(A)!=N");
+            ap.assert(sparse.sparsegetncols(a, _params) == n, "SparseSolve: cols(A)!=N");
+            ap.assert(ap.len(b) >= n, "SparseSolve: length(B)<N");
+            ap.assert(apserv.isfinitevector(b, n, _params), "SparseSolve: B contains infinities or NANs");
 
             //
             // Default solver
@@ -13890,7 +13890,7 @@ public partial class alglib
             //
             // unexpected solver type
             //
-            alglib.ap.assert(false, "DIRECTSPARSESOLVERS: integrity check 1038 failed");
+            ap.assert(false, "DIRECTSPARSESOLVERS: integrity check 1038 failed");
         }
 
 
@@ -13981,12 +13981,12 @@ public partial class alglib
 
             m = sparse.sparsegetnrows(a, _params);
             n = sparse.sparsegetncols(a, _params);
-            alglib.ap.assert(m > 0, "SparseSolveLS: M<=0");
-            alglib.ap.assert(n > 0, "SparseSolveLS: N<=0");
-            alglib.ap.assert(math.isfinite(reg) && (double)(reg) > (double)(0), "SparseSolveLS: Reg is not finite or non-positive");
-            alglib.ap.assert(((solvertype == 0 || solvertype == -19) || solvertype == 10) || solvertype == 11, "SparseSolveLS: unexpected SolverType");
-            alglib.ap.assert(alglib.ap.len(b) >= m, "SparseSolveLS: length(B)<M");
-            alglib.ap.assert(apserv.isfinitevector(b, m, _params), "SparseSolveLS: B contains infinities or NANs");
+            ap.assert(m > 0, "SparseSolveLS: M<=0");
+            ap.assert(n > 0, "SparseSolveLS: N<=0");
+            ap.assert(math.isfinite(reg) && (double)(reg) > (double)(0), "SparseSolveLS: Reg is not finite or non-positive");
+            ap.assert(((solvertype == 0 || solvertype == -19) || solvertype == 10) || solvertype == 11, "SparseSolveLS: unexpected SolverType");
+            ap.assert(ap.len(b) >= m, "SparseSolveLS: length(B)<M");
+            ap.assert(apserv.isfinitevector(b, m, _params), "SparseSolveLS: B contains infinities or NANs");
 
             //
             // Default solver
@@ -14046,7 +14046,7 @@ public partial class alglib
             //
             // unexpected solver type
             //
-            alglib.ap.assert(false, "DIRECTSPARSESOLVERS: integrity check 1622 failed");
+            ap.assert(false, "DIRECTSPARSESOLVERS: integrity check 1622 failed");
         }
 
 
@@ -14092,18 +14092,18 @@ public partial class alglib
             x = new double[0];
 
             n = sparse.sparsegetnrows(a, _params);
-            alglib.ap.assert(n > 0, "SparseLUSolve: N<=0");
-            alglib.ap.assert(sparse.sparsegetnrows(a, _params) == n, "SparseLUSolve: rows(A)!=N");
-            alglib.ap.assert(sparse.sparsegetncols(a, _params) == n, "SparseLUSolve: cols(A)!=N");
-            alglib.ap.assert(sparse.sparseiscrs(a, _params), "SparseLUSolve: A is not an SKS matrix");
-            alglib.ap.assert(alglib.ap.len(b) >= n, "SparseLUSolve: length(B)<N");
-            alglib.ap.assert(apserv.isfinitevector(b, n, _params), "SparseLUSolve: B contains infinities or NANs");
-            alglib.ap.assert(alglib.ap.len(p) >= n, "SparseLUSolve: length(P)<N");
-            alglib.ap.assert(alglib.ap.len(q) >= n, "SparseLUSolve: length(Q)<N");
+            ap.assert(n > 0, "SparseLUSolve: N<=0");
+            ap.assert(sparse.sparsegetnrows(a, _params) == n, "SparseLUSolve: rows(A)!=N");
+            ap.assert(sparse.sparsegetncols(a, _params) == n, "SparseLUSolve: cols(A)!=N");
+            ap.assert(sparse.sparseiscrs(a, _params), "SparseLUSolve: A is not an SKS matrix");
+            ap.assert(ap.len(b) >= n, "SparseLUSolve: length(B)<N");
+            ap.assert(apserv.isfinitevector(b, n, _params), "SparseLUSolve: B contains infinities or NANs");
+            ap.assert(ap.len(p) >= n, "SparseLUSolve: length(P)<N");
+            ap.assert(ap.len(q) >= n, "SparseLUSolve: length(Q)<N");
             for (i = 0; i <= n - 1; i++)
             {
-                alglib.ap.assert(p[i] >= i && p[i] < n, "SparseLUSolve: P is corrupted");
-                alglib.ap.assert(q[i] >= i && q[i] < n, "SparseLUSolve: Q is corrupted");
+                ap.assert(p[i] >= i && p[i] < n, "SparseLUSolve: P is corrupted");
+                ap.assert(q[i] >= i && q[i] < n, "SparseLUSolve: Q is corrupted");
             }
             iterativesparse.initsparsesolverreport(rep, _params);
             x = new double[n];
@@ -14218,16 +14218,16 @@ public partial class alglib
             int donotreusememory = 0;
             int facttype = 0;
 
-            alglib.ap.assert(sparse.sparseiscrs(a, _params), "SparseSolveAug: A is not stored in the CRS format");
+            ap.assert(sparse.sparseiscrs(a, _params), "SparseSolveAug: A is not stored in the CRS format");
             m = sparse.sparsegetnrows(a, _params);
             n = sparse.sparsegetncols(a, _params);
-            alglib.ap.assert(math.isfinite(reg1f) && (double)(reg1f) > (double)(0), "SparseSolveAug: Reg1F is non-positive");
-            alglib.ap.assert(math.isfinite(reg2f) && (double)(reg2f) > (double)(0), "SparseSolveAug: Reg2F is non-positive");
-            alglib.ap.assert(math.isfinite(reg1r) && (double)(reg1r) >= (double)(0), "SparseSolveAug: Reg1R is non-positive");
-            alglib.ap.assert(math.isfinite(reg2r) && (double)(reg2r) >= (double)(0), "SparseSolveAug: Reg2R is non-positive");
-            alglib.ap.assert(alglib.ap.len(b) >= m, "SparseSolveAug: length(B)<N");
-            alglib.ap.assert(apserv.isfinitevector(b, m, _params), "SparseSolveAug: B contains infinities or NANs");
-            alglib.ap.assert(alglib.ap.len(x) >= n, "SparseSolveAug: length(X)<N");
+            ap.assert(math.isfinite(reg1f) && (double)(reg1f) > (double)(0), "SparseSolveAug: Reg1F is non-positive");
+            ap.assert(math.isfinite(reg2f) && (double)(reg2f) > (double)(0), "SparseSolveAug: Reg2F is non-positive");
+            ap.assert(math.isfinite(reg1r) && (double)(reg1r) >= (double)(0), "SparseSolveAug: Reg1R is non-positive");
+            ap.assert(math.isfinite(reg2r) && (double)(reg2r) >= (double)(0), "SparseSolveAug: Reg2R is non-positive");
+            ap.assert(ap.len(b) >= m, "SparseSolveAug: length(B)<N");
+            ap.assert(apserv.isfinitevector(b, m, _params), "SparseSolveAug: B contains infinities or NANs");
+            ap.assert(ap.len(x) >= n, "SparseSolveAug: length(X)<N");
 
             //
             // Generate augmented matrix
@@ -14265,7 +14265,7 @@ public partial class alglib
                 k = k + 1;
                 aug.ridx[n + i + 1] = k;
             }
-            alglib.ap.assert(aug.ridx[n + m] == nzaug, "SparseSolveAug: integrity check 2141 failed");
+            ap.assert(aug.ridx[n + m] == nzaug, "SparseSolveAug: integrity check 2141 failed");
             sparse.sparsecreatecrsinplace(aug, _params);
 
             //
@@ -14278,7 +14278,7 @@ public partial class alglib
             ablasf.isetv(n, 0, priorities, _params);
             if (!spchol.spsymmanalyze(aug, priorities, 0.0, 0, facttype, priorityordering, donotreusememory, analysis, _params))
             {
-                alglib.ap.assert(false, "SparseSolveAug: integrity check 4141 failed");
+                ap.assert(false, "SparseSolveAug: integrity check 4141 failed");
             }
             while (!spchol.spsymmfactorize(analysis, _params))
             {
@@ -14306,7 +14306,7 @@ public partial class alglib
             while (iterativesparse.sparsesolverooccontinue(solver, _params))
             {
                 iterativesparse.sparsesolveroocgetrequestinfo(solver, ref requesttype, _params);
-                alglib.ap.assert(requesttype == 0, "SPARSESOLVE: integrity check 8618 failed");
+                ap.assert(requesttype == 0, "SPARSESOLVE: integrity check 8618 failed");
                 iterativesparse.sparsesolveroocgetrequestdata(solver, ref q, _params);
                 spchol.spsymmsolve(analysis, q, _params);
                 sparse.sparsegemv(a, 1.0, 0, q, 0, 0.0, y, n, _params);
@@ -14501,7 +14501,7 @@ public partial class alglib
         {
             int i = 0;
 
-            alglib.ap.assert(n > 0, "LinCGCreate: N<=0");
+            ap.assert(n > 0, "LinCGCreate: N<=0");
             state.n = n;
             state.prectype = 0;
             state.itsbeforerestart = n;
@@ -14565,9 +14565,9 @@ public partial class alglib
         {
             int i_ = 0;
 
-            alglib.ap.assert(!state.running, "LinCGSetStartingPoint: you can not change starting point because LinCGIteration() function is running");
-            alglib.ap.assert(state.n <= alglib.ap.len(x), "LinCGSetStartingPoint: Length(X)<N");
-            alglib.ap.assert(apserv.isfinitevector(x, state.n, _params), "LinCGSetStartingPoint: X contains infinite or NaN values!");
+            ap.assert(!state.running, "LinCGSetStartingPoint: you can not change starting point because LinCGIteration() function is running");
+            ap.assert(state.n <= ap.len(x), "LinCGSetStartingPoint: Length(X)<N");
+            ap.assert(apserv.isfinitevector(x, state.n, _params), "LinCGSetStartingPoint: X contains infinite or NaN values!");
             for (i_ = 0; i_ <= state.n - 1; i_++)
             {
                 state.startx[i_] = x[i_];
@@ -14593,9 +14593,9 @@ public partial class alglib
         {
             int i_ = 0;
 
-            alglib.ap.assert(!state.running, "LinCGSetB: you can not set B, because function LinCGIteration is running!");
-            alglib.ap.assert(alglib.ap.len(b) >= state.n, "LinCGSetB: Length(B)<N");
-            alglib.ap.assert(apserv.isfinitevector(b, state.n, _params), "LinCGSetB: B contains infinite or NaN values!");
+            ap.assert(!state.running, "LinCGSetB: you can not set B, because function LinCGIteration is running!");
+            ap.assert(ap.len(b) >= state.n, "LinCGSetB: Length(B)<N");
+            ap.assert(apserv.isfinitevector(b, state.n, _params), "LinCGSetB: B contains infinite or NaN values!");
             for (i_ = 0; i_ <= state.n - 1; i_++)
             {
                 state.b[i_] = b[i_];
@@ -14618,7 +14618,7 @@ public partial class alglib
         public static void lincgsetprecunit(lincgstate state,
             alglib.xparams _params)
         {
-            alglib.ap.assert(!state.running, "LinCGSetPrecUnit: you can not change preconditioner, because function LinCGIteration is running!");
+            ap.assert(!state.running, "LinCGSetPrecUnit: you can not change preconditioner, because function LinCGIteration is running!");
             state.prectype = -1;
         }
 
@@ -14637,7 +14637,7 @@ public partial class alglib
         public static void lincgsetprecdiag(lincgstate state,
             alglib.xparams _params)
         {
-            alglib.ap.assert(!state.running, "LinCGSetPrecDiag: you can not change preconditioner, because function LinCGIteration is running!");
+            ap.assert(!state.running, "LinCGSetPrecDiag: you can not change preconditioner, because function LinCGIteration is running!");
             state.prectype = 0;
         }
 
@@ -14666,9 +14666,9 @@ public partial class alglib
             int maxits,
             alglib.xparams _params)
         {
-            alglib.ap.assert(!state.running, "LinCGSetCond: you can not change stopping criteria when LinCGIteration() is running");
-            alglib.ap.assert(math.isfinite(epsf) && (double)(epsf) >= (double)(0), "LinCGSetCond: EpsF is negative or contains infinite or NaN values");
-            alglib.ap.assert(maxits >= 0, "LinCGSetCond: MaxIts is negative");
+            ap.assert(!state.running, "LinCGSetCond: you can not change stopping criteria when LinCGIteration() is running");
+            ap.assert(math.isfinite(epsf) && (double)(epsf) >= (double)(0), "LinCGSetCond: EpsF is negative or contains infinite or NaN values");
+            ap.assert(maxits >= 0, "LinCGSetCond: MaxIts is negative");
             if ((double)(epsf) == (double)(0) && maxits == 0)
             {
                 state.epsf = defaultprecision;
@@ -14757,7 +14757,7 @@ public partial class alglib
             //
             // Routine body
             //
-            alglib.ap.assert(alglib.ap.len(state.b) > 0, "LinCGIteration: B is not initialized (you must initialize B by LinCGSetB() call");
+            ap.assert(ap.len(state.b) > 0, "LinCGIteration: B is not initialized (you must initialize B by LinCGSetB() call");
             state.running = true;
             state.repnmv = 0;
             clearrfields(state, _params);
@@ -15247,8 +15247,8 @@ public partial class alglib
             int i_ = 0;
 
             n = state.n;
-            alglib.ap.assert(alglib.ap.len(b) >= state.n, "LinCGSetB: Length(B)<N");
-            alglib.ap.assert(apserv.isfinitevector(b, state.n, _params), "LinCGSetB: B contains infinite or NaN values!");
+            ap.assert(ap.len(b) >= state.n, "LinCGSetB: Length(B)<N");
+            ap.assert(apserv.isfinitevector(b, state.n, _params), "LinCGSetB: B contains infinite or NaN values!");
 
             //
             // Allocate temporaries
@@ -15360,8 +15360,8 @@ public partial class alglib
 
             x = new double[0];
 
-            alglib.ap.assert(!state.running, "LinCGResult: you can not get result, because function LinCGIteration has been launched!");
-            if (alglib.ap.len(x) < state.n)
+            ap.assert(!state.running, "LinCGResult: you can not get result, because function LinCGIteration has been launched!");
+            if (ap.len(x) < state.n)
             {
                 x = new double[state.n];
             }
@@ -15387,8 +15387,8 @@ public partial class alglib
             int srf,
             alglib.xparams _params)
         {
-            alglib.ap.assert(!state.running, "LinCGSetRestartFreq: you can not change restart frequency when LinCGIteration() is running");
-            alglib.ap.assert(srf > 0, "LinCGSetRestartFreq: non-positive SRF");
+            ap.assert(!state.running, "LinCGSetRestartFreq: you can not change restart frequency when LinCGIteration() is running");
+            ap.assert(srf > 0, "LinCGSetRestartFreq: non-positive SRF");
             state.itsbeforerestart = srf;
         }
 
@@ -15415,8 +15415,8 @@ public partial class alglib
             int freq,
             alglib.xparams _params)
         {
-            alglib.ap.assert(!state.running, "LinCGSetRUpdateFreq: you can not change update frequency when LinCGIteration() is running");
-            alglib.ap.assert(freq >= 0, "LinCGSetRUpdateFreq: non-positive Freq");
+            ap.assert(!state.running, "LinCGSetRUpdateFreq: you can not change update frequency when LinCGIteration() is running");
+            ap.assert(freq >= 0, "LinCGSetRUpdateFreq: non-positive Freq");
             state.itsbeforerupdate = freq;
         }
 
@@ -15665,10 +15665,10 @@ public partial class alglib
             nleqstate state,
             alglib.xparams _params)
         {
-            alglib.ap.assert(n >= 1, "NLEQCreateLM: N<1!");
-            alglib.ap.assert(m >= 1, "NLEQCreateLM: M<1!");
-            alglib.ap.assert(alglib.ap.len(x) >= n, "NLEQCreateLM: Length(X)<N!");
-            alglib.ap.assert(apserv.isfinitevector(x, n, _params), "NLEQCreateLM: X contains infinite or NaN values!");
+            ap.assert(n >= 1, "NLEQCreateLM: N<1!");
+            ap.assert(m >= 1, "NLEQCreateLM: M<1!");
+            ap.assert(ap.len(x) >= n, "NLEQCreateLM: Length(X)<N!");
+            ap.assert(apserv.isfinitevector(x, n, _params), "NLEQCreateLM: X contains infinite or NaN values!");
 
             //
             // Initialize
@@ -15712,9 +15712,9 @@ public partial class alglib
             int maxits,
             alglib.xparams _params)
         {
-            alglib.ap.assert(math.isfinite(epsf), "NLEQSetCond: EpsF is not finite number!");
-            alglib.ap.assert((double)(epsf) >= (double)(0), "NLEQSetCond: negative EpsF!");
-            alglib.ap.assert(maxits >= 0, "NLEQSetCond: negative MaxIts!");
+            ap.assert(math.isfinite(epsf), "NLEQSetCond: EpsF is not finite number!");
+            ap.assert((double)(epsf) >= (double)(0), "NLEQSetCond: negative EpsF!");
+            ap.assert(maxits >= 0, "NLEQSetCond: negative MaxIts!");
             if ((double)(epsf) == (double)(0) && maxits == 0)
             {
                 epsf = 1.0E-6;
@@ -15766,8 +15766,8 @@ public partial class alglib
             double stpmax,
             alglib.xparams _params)
         {
-            alglib.ap.assert(math.isfinite(stpmax), "NLEQSetStpMax: StpMax is not finite!");
-            alglib.ap.assert((double)(stpmax) >= (double)(0), "NLEQSetStpMax: StpMax<0!");
+            ap.assert(math.isfinite(stpmax), "NLEQSetStpMax: StpMax is not finite!");
+            ap.assert((double)(stpmax) >= (double)(0), "NLEQSetStpMax: StpMax<0!");
             state.stpmax = stpmax;
         }
 
@@ -16200,7 +16200,7 @@ public partial class alglib
         {
             int i_ = 0;
 
-            if (alglib.ap.len(x) < state.n)
+            if (ap.len(x) < state.n)
             {
                 x = new double[state.n];
             }
@@ -16238,8 +16238,8 @@ public partial class alglib
         {
             int i_ = 0;
 
-            alglib.ap.assert(alglib.ap.len(x) >= state.n, "NLEQRestartFrom: Length(X)<N!");
-            alglib.ap.assert(apserv.isfinitevector(x, state.n, _params), "NLEQRestartFrom: X contains infinite or NaN values!");
+            ap.assert(ap.len(x) >= state.n, "NLEQRestartFrom: Length(X)<N!");
+            ap.assert(apserv.isfinitevector(x, state.n, _params), "NLEQRestartFrom: X contains infinite or NaN values!");
             for (i_ = 0; i_ <= state.n - 1; i_++)
             {
                 state.x[i_] = x[i_];

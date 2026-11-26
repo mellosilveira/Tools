@@ -12,7 +12,7 @@ public static class LauncherHostProbe
     private static readonly TimeSpan RetryDelay = TimeSpan.FromSeconds(5);
 
     /// <summary>
-    /// Probes <c>{baseUrl}/health</c> once and returns <see langword="true"/> when a 2xx response is received.
+    /// Probes <c>{baseUrl}/api/health</c> once and returns <see langword="true"/> when a 2xx response is received.
     /// </summary>
     /// <param name="baseUrl">Base URL of <c>MelloSilveiraTools.WebApi.Host</c>.</param>
     /// <param name="cancellationToken">Cancellation token.</param>
@@ -21,7 +21,7 @@ public static class LauncherHostProbe
         try
         {
             using HttpClient client = new() { Timeout = HealthRequestTimeout };
-            using HttpResponseMessage response = await client.GetAsync($"{baseUrl}/health", cancellationToken).ConfigureAwait(false);
+            using HttpResponseMessage response = await client.GetAsync($"{baseUrl}/api/health", cancellationToken).ConfigureAwait(false);
             return response.IsSuccessStatusCode;
         }
         catch
@@ -31,7 +31,7 @@ public static class LauncherHostProbe
     }
 
     /// <summary>
-    /// Polls <c>{baseUrl}/health</c> until the host becomes healthy, exits prematurely, or reaches <paramref name="maxAttempts"/>.
+    /// Polls <c>{baseUrl}/api/health</c> until the host becomes healthy, exits prematurely, or reaches <paramref name="maxAttempts"/>.
     /// Optionally opens the default browser once healthy.
     /// </summary>
     /// <param name="logger">Logger for startup polling diagnostics.</param>
@@ -60,11 +60,11 @@ public static class LauncherHostProbe
                 return !openBrowser || TryOpenBrowser(logger, baseUrl);
             }
 
-            logger.LogInformation("({CurrentAttempt}/{MaxAttempts}) Waiting {DelayTimeSpan} for WebApi.Host /health...", attempt, maxAttempts, RetryDelay);
+            logger.LogInformation("({CurrentAttempt}/{MaxAttempts}) Waiting {DelayTimeSpan} for WebApi.Host /api/health...", attempt, maxAttempts, RetryDelay);
             await Task.Delay(RetryDelay, cancellationToken).ConfigureAwait(false);
         }
 
-        logger.LogError("Timed out waiting for WebApi.Host /health endpoint at {BaseUrl}.", baseUrl);
+        logger.LogError("Timed out waiting for WebApi.Host /api/health endpoint at {BaseUrl}.", baseUrl);
         return false;
     }
 

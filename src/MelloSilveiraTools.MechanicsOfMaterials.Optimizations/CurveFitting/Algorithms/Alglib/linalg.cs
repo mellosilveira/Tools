@@ -12626,7 +12626,7 @@ public partial class alglib
                 }
                 return;
             }
-            alglib.ap.assert(false, "RMatrixTRSV: unexpected operation type");
+            ap.assert(false, "RMatrixTRSV: unexpected operation type");
         }
 
 
@@ -12707,7 +12707,7 @@ public partial class alglib
             {
                 tscur = tsa;
             }
-            alglib.ap.assert(tscur >= 1, "CMatrixRightTRSM: integrity check failed");
+            ap.assert(tscur >= 1, "CMatrixRightTRSM: integrity check failed");
 
             //
             // Upper level parallelization:
@@ -12923,7 +12923,7 @@ public partial class alglib
             {
                 tscur = tsa;
             }
-            alglib.ap.assert(tscur >= 1, "CMatrixLeftTRSM: integrity check failed");
+            ap.assert(tscur >= 1, "CMatrixLeftTRSM: integrity check failed");
 
             //
             // Upper level parallelization:
@@ -13128,7 +13128,7 @@ public partial class alglib
             {
                 tscur = tsa;
             }
-            alglib.ap.assert(tscur >= 1, "RMatrixRightTRSM: integrity check failed");
+            ap.assert(tscur >= 1, "RMatrixRightTRSM: integrity check failed");
 
             //
             // Upper level parallelization:
@@ -13343,7 +13343,7 @@ public partial class alglib
             {
                 tscur = tsa;
             }
-            alglib.ap.assert(tscur >= 1, "RMatrixLeftTRSMRec: integrity check failed");
+            ap.assert(tscur >= 1, "RMatrixLeftTRSMRec: integrity check failed");
 
             //
             // Upper level parallelization:
@@ -13557,7 +13557,7 @@ public partial class alglib
             {
                 tscur = tsa;
             }
-            alglib.ap.assert(tscur >= 1, "CMatrixHERK: integrity check failed");
+            ap.assert(tscur >= 1, "CMatrixHERK: integrity check failed");
 
             //
             // Decide whether it is feasible to activate multithreading
@@ -13745,7 +13745,7 @@ public partial class alglib
             {
                 tscur = tsa;
             }
-            alglib.ap.assert(tscur >= 1, "RMatrixSYRK: integrity check failed");
+            ap.assert(tscur >= 1, "RMatrixSYRK: integrity check failed");
 
             //
             // Decide whether it is feasible to activate multithreading
@@ -13947,10 +13947,10 @@ public partial class alglib
             //
             // Check input sizes for correctness
             //
-            alglib.ap.assert((optypea == 0 || optypea == 1) || optypea == 2, "CMatrixGEMM: incorrect OpTypeA (must be 0 or 1 or 2)");
-            alglib.ap.assert((optypeb == 0 || optypeb == 1) || optypeb == 2, "CMatrixGEMM: incorrect OpTypeB (must be 0 or 1 or 2)");
-            alglib.ap.assert(ic + m <= alglib.ap.rows(c), "CMatrixGEMM: incorect size of output matrix C");
-            alglib.ap.assert(jc + n <= alglib.ap.cols(c), "CMatrixGEMM: incorect size of output matrix C");
+            ap.assert((optypea == 0 || optypea == 1) || optypea == 2, "CMatrixGEMM: incorrect OpTypeA (must be 0 or 1 or 2)");
+            ap.assert((optypeb == 0 || optypeb == 1) || optypeb == 2, "CMatrixGEMM: incorrect OpTypeB (must be 0 or 1 or 2)");
+            ap.assert(ic + m <= ap.rows(c), "CMatrixGEMM: incorect size of output matrix C");
+            ap.assert(jc + n <= ap.cols(c), "CMatrixGEMM: incorect size of output matrix C");
 
             //
             // Decide whether it is feasible to activate multithreading
@@ -14089,10 +14089,10 @@ public partial class alglib
             //
             // Check input sizes for correctness
             //
-            alglib.ap.assert(optypea == 0 || optypea == 1, "RMatrixGEMM: incorrect OpTypeA (must be 0 or 1)");
-            alglib.ap.assert(optypeb == 0 || optypeb == 1, "RMatrixGEMM: incorrect OpTypeB (must be 0 or 1)");
-            alglib.ap.assert(ic + m <= alglib.ap.rows(c), "RMatrixGEMM: incorect size of output matrix C");
-            alglib.ap.assert(jc + n <= alglib.ap.cols(c), "RMatrixGEMM: incorect size of output matrix C");
+            ap.assert(optypea == 0 || optypea == 1, "RMatrixGEMM: incorrect OpTypeA (must be 0 or 1)");
+            ap.assert(optypeb == 0 || optypeb == 1, "RMatrixGEMM: incorrect OpTypeB (must be 0 or 1)");
+            ap.assert(ic + m <= ap.rows(c), "RMatrixGEMM: incorect size of output matrix C");
+            ap.assert(jc + n <= ap.cols(c), "RMatrixGEMM: incorect size of output matrix C");
 
             //
             // Decide whether it is feasible to activate multithreading
@@ -15478,7 +15478,7 @@ public partial class alglib
             {
                 tscur = tsa;
             }
-            alglib.ap.assert(tscur >= 1, "CMatrixGEMMRec: integrity check failed");
+            ap.assert(tscur >= 1, "CMatrixGEMMRec: integrity check failed");
 
             //
             // Use PBL or ALGLIB basecase code
@@ -15633,7 +15633,7 @@ public partial class alglib
             {
                 tscur = tsa;
             }
-            alglib.ap.assert(tscur >= 1, "RMatrixGEMMRec: integrity check failed");
+            ap.assert(tscur >= 1, "RMatrixGEMMRec: integrity check failed");
 
             //
             // Use PBL or ALGLIB basecase code
@@ -17234,8 +17234,8 @@ public partial class alglib
             double vt = 0;
             int i_ = 0;
 
-            alglib.ap.assert(updrow >= 0 && updrow < n, "RMatrixInvUpdateSimple: incorrect UpdRow!");
-            alglib.ap.assert(updcolumn >= 0 && updcolumn < n, "RMatrixInvUpdateSimple: incorrect UpdColumn!");
+            ap.assert(updrow >= 0 && updrow < n, "RMatrixInvUpdateSimple: incorrect UpdRow!");
+            ap.assert(updcolumn >= 0 && updcolumn < n, "RMatrixInvUpdateSimple: incorrect UpdColumn!");
             t1 = new double[n - 1 + 1];
             t2 = new double[n - 1 + 1];
 
@@ -17658,9 +17658,9 @@ public partial class alglib
         {
             int i = 0;
 
-            alglib.ap.assert(m > 0, "SparseCreateBuf: M<=0");
-            alglib.ap.assert(n > 0, "SparseCreateBuf: N<=0");
-            alglib.ap.assert(k >= 0, "SparseCreateBuf: K<0");
+            ap.assert(m > 0, "SparseCreateBuf: M<=0");
+            ap.assert(n > 0, "SparseCreateBuf: N<=0");
+            ap.assert(k >= 0, "SparseCreateBuf: K<0");
 
             //
             // Hash-table size is max(existing_size,requested_size)
@@ -17674,7 +17674,7 @@ public partial class alglib
             //
             s.tablesize = (int)Math.Round(k / desiredloadfactor + additional);
             ablasf.rallocv(s.tablesize, ref s.vals, _params);
-            s.tablesize = alglib.ap.len(s.vals);
+            s.tablesize = ap.len(s.vals);
 
             //
             // Initialize other fields
@@ -17733,12 +17733,12 @@ public partial class alglib
         {
             int i = 0;
 
-            alglib.ap.assert(m > 0, "SparseCreateCRS: M<=0");
-            alglib.ap.assert(n > 0, "SparseCreateCRS: N<=0");
-            alglib.ap.assert(alglib.ap.len(ner) >= m, "SparseCreateCRS: Length(NER)<M");
+            ap.assert(m > 0, "SparseCreateCRS: M<=0");
+            ap.assert(n > 0, "SparseCreateCRS: N<=0");
+            ap.assert(ap.len(ner) >= m, "SparseCreateCRS: Length(NER)<M");
             for (i = 0; i <= m - 1; i++)
             {
-                alglib.ap.assert(ner[i] >= 0, "SparseCreateCRS: NER[] contains negative elements");
+                ap.assert(ner[i] >= 0, "SparseCreateCRS: NER[] contains negative elements");
             }
             sparsecreatecrsbuf(m, n, ner, s, _params);
         }
@@ -17786,9 +17786,9 @@ public partial class alglib
             int i = 0;
             int noe = 0;
 
-            alglib.ap.assert(m > 0, "SparseCreateCRSBuf: M<=0");
-            alglib.ap.assert(n > 0, "SparseCreateCRSBuf: N<=0");
-            alglib.ap.assert(alglib.ap.len(ner) >= m, "SparseCreateCRSBuf: Length(NER)<M");
+            ap.assert(m > 0, "SparseCreateCRSBuf: M<=0");
+            ap.assert(n > 0, "SparseCreateCRSBuf: N<=0");
+            ap.assert(ap.len(ner) >= m, "SparseCreateCRSBuf: Length(NER)<M");
             noe = 0;
             s.matrixtype = 1;
             s.ninitialized = 0;
@@ -17798,7 +17798,7 @@ public partial class alglib
             s.ridx[0] = 0;
             for (i = 0; i <= s.m - 1; i++)
             {
-                alglib.ap.assert(ner[i] >= 0, "SparseCreateCRSBuf: NER[] contains negative elements");
+                ap.assert(ner[i] >= 0, "SparseCreateCRSBuf: NER[] contains negative elements");
                 noe = noe + ner[i];
                 s.ridx[i + 1] = s.ridx[i] + ner[i];
             }
@@ -17841,7 +17841,7 @@ public partial class alglib
             sparsematrix s,
             alglib.xparams _params)
         {
-            alglib.ap.assert(n > 0, "SparseCreateCRSEmpty: N<=0");
+            ap.assert(n > 0, "SparseCreateCRSEmpty: N<=0");
             sparsecreatecrsemptybuf(n, s, _params);
         }
 
@@ -17864,7 +17864,7 @@ public partial class alglib
             sparsematrix s,
             alglib.xparams _params)
         {
-            alglib.ap.assert(n > 0, "SparseCreateCRSEmptyBuf: N<=0");
+            ap.assert(n > 0, "SparseCreateCRSEmptyBuf: N<=0");
             s.matrixtype = -10083;
             s.ninitialized = 0;
             s.m = 0;
@@ -17901,11 +17901,11 @@ public partial class alglib
             sparsematrix s,
             alglib.xparams _params)
         {
-            alglib.ap.assert(m > 0, "SparseCreateCRSFromDense: M<=0");
-            alglib.ap.assert(n > 0, "SparseCreateCRSFromDense: N<=0");
-            alglib.ap.assert(alglib.ap.rows(a) >= m, "SparseCreateCRSFromDense: rows(A)<M");
-            alglib.ap.assert(alglib.ap.cols(a) >= n, "SparseCreateCRSFromDense: cols(A)<N");
-            alglib.ap.assert(apserv.apservisfinitematrix(a, m, n, _params), "SparseCreateCRSFromDense: A contains NAN/INF");
+            ap.assert(m > 0, "SparseCreateCRSFromDense: M<=0");
+            ap.assert(n > 0, "SparseCreateCRSFromDense: N<=0");
+            ap.assert(ap.rows(a) >= m, "SparseCreateCRSFromDense: rows(A)<M");
+            ap.assert(ap.cols(a) >= n, "SparseCreateCRSFromDense: cols(A)<N");
+            ap.assert(apserv.apservisfinitematrix(a, m, n, _params), "SparseCreateCRSFromDense: A contains NAN/INF");
             sparsecreatecrsfromdensebuf(a, m, n, s, _params);
         }
 
@@ -17944,11 +17944,11 @@ public partial class alglib
             int nnz = 0;
             int offs = 0;
 
-            alglib.ap.assert(m > 0, "SparseCreateCRSFromDenseBuf: M<=0");
-            alglib.ap.assert(n > 0, "SparseCreateCRSFromDenseBuf: N<=0");
-            alglib.ap.assert(alglib.ap.rows(a) >= m, "SparseCreateCRSFromDenseBuf: rows(A)<M");
-            alglib.ap.assert(alglib.ap.cols(a) >= n, "SparseCreateCRSFromDenseBuf: cols(A)<N");
-            alglib.ap.assert(apserv.apservisfinitematrix(a, m, n, _params), "SparseCreateCRSFromDenseBuf: A contains NAN/INF");
+            ap.assert(m > 0, "SparseCreateCRSFromDenseBuf: M<=0");
+            ap.assert(n > 0, "SparseCreateCRSFromDenseBuf: N<=0");
+            ap.assert(ap.rows(a) >= m, "SparseCreateCRSFromDenseBuf: rows(A)<M");
+            ap.assert(ap.cols(a) >= n, "SparseCreateCRSFromDenseBuf: cols(A)<N");
+            ap.assert(apserv.apservisfinitematrix(a, m, n, _params), "SparseCreateCRSFromDenseBuf: A contains NAN/INF");
             nnz = 0;
             for (i = 0; i <= m - 1; i++)
             {
@@ -17982,7 +17982,7 @@ public partial class alglib
                 }
                 s.ridx[i + 1] = offs;
             }
-            alglib.ap.assert(offs == nnz, "SparseCreateCRSFromDenseBuf: integrity check 6447 failed");
+            ap.assert(offs == nnz, "SparseCreateCRSFromDenseBuf: integrity check 6447 failed");
             sparseinitduidx(s, _params);
         }
 
@@ -18016,10 +18016,10 @@ public partial class alglib
             sparsematrix s,
             alglib.xparams _params)
         {
-            alglib.ap.assert(m > 0, "SparseCreateCRSFromDenseV: M<=0");
-            alglib.ap.assert(n > 0, "SparseCreateCRSFromDenseV: N<=0");
-            alglib.ap.assert(alglib.ap.len(a) >= m * n, "SparseCreateCRSFromDenseV: length(A)<M*N");
-            alglib.ap.assert(apserv.isfinitevector(a, m * n, _params), "SparseCreateCRSFromDenseV: A contains NAN/INF");
+            ap.assert(m > 0, "SparseCreateCRSFromDenseV: M<=0");
+            ap.assert(n > 0, "SparseCreateCRSFromDenseV: N<=0");
+            ap.assert(ap.len(a) >= m * n, "SparseCreateCRSFromDenseV: length(A)<M*N");
+            ap.assert(apserv.isfinitevector(a, m * n, _params), "SparseCreateCRSFromDenseV: A contains NAN/INF");
             sparsecreatecrsfromdensevbuf(a, m, n, s, _params);
         }
 
@@ -18059,10 +18059,10 @@ public partial class alglib
             int nnz = 0;
             int offs = 0;
 
-            alglib.ap.assert(m > 0, "SparseCreateCRSFromDenseVBuf: M<=0");
-            alglib.ap.assert(n > 0, "SparseCreateCRSFromDenseVBuf: N<=0");
-            alglib.ap.assert(alglib.ap.len(a) >= m * n, "SparseCreateCRSFromDenseVBuf: length(A)<M*N");
-            alglib.ap.assert(apserv.isfinitevector(a, m * n, _params), "SparseCreateCRSFromDenseVBuf: A contains NAN/INF");
+            ap.assert(m > 0, "SparseCreateCRSFromDenseVBuf: M<=0");
+            ap.assert(n > 0, "SparseCreateCRSFromDenseVBuf: N<=0");
+            ap.assert(ap.len(a) >= m * n, "SparseCreateCRSFromDenseVBuf: length(A)<M*N");
+            ap.assert(apserv.isfinitevector(a, m * n, _params), "SparseCreateCRSFromDenseVBuf: A contains NAN/INF");
             nnz = 0;
             for (i = 0; i <= m - 1; i++)
             {
@@ -18096,7 +18096,7 @@ public partial class alglib
                 }
                 s.ridx[i + 1] = offs;
             }
-            alglib.ap.assert(offs == nnz, "SparseCreateCRSFromDenseVBuf: integrity check 6447 failed");
+            ap.assert(offs == nnz, "SparseCreateCRSFromDenseVBuf: integrity check 6447 failed");
             sparseinitduidx(s, _params);
         }
 
@@ -18125,10 +18125,10 @@ public partial class alglib
             int m = 0;
             int i = 0;
 
-            alglib.ap.assert(src.matrixtype == 1, "SparseCreateCRSFromCRSRangeBuf: Src must be CRS-based matrix");
-            alglib.ap.assert(src.ninitialized == src.ridx[src.m], "SparseCreateCRSFromCRSRangeBuf: Src is not completely initialized");
-            alglib.ap.assert(r0 < r1, "SparseCreateCRSFromCRSRangeBuf: R0 must be strictly less than R1 (no zero or negative ranges)");
-            alglib.ap.assert((r0 >= 0 && r0 < r1) && r1 <= src.m, "SparseCreateCRSFromCRSRangeBuf: half-range [R0,R1) is not a subset of [0,Src.M)");
+            ap.assert(src.matrixtype == 1, "SparseCreateCRSFromCRSRangeBuf: Src must be CRS-based matrix");
+            ap.assert(src.ninitialized == src.ridx[src.m], "SparseCreateCRSFromCRSRangeBuf: Src is not completely initialized");
+            ap.assert(r0 < r1, "SparseCreateCRSFromCRSRangeBuf: R0 must be strictly less than R1 (no zero or negative ranges)");
+            ap.assert((r0 >= 0 && r0 < r1) && r1 <= src.m, "SparseCreateCRSFromCRSRangeBuf: half-range [R0,R1) is not a subset of [0,Src.M)");
 
             //
             // Append the source
@@ -18197,20 +18197,20 @@ public partial class alglib
         {
             int i = 0;
 
-            alglib.ap.assert(m > 0, "SparseCreateSKS: M<=0");
-            alglib.ap.assert(n > 0, "SparseCreateSKS: N<=0");
-            alglib.ap.assert(m == n, "SparseCreateSKS: M<>N");
-            alglib.ap.assert(alglib.ap.len(d) >= m, "SparseCreateSKS: Length(D)<M");
-            alglib.ap.assert(alglib.ap.len(u) >= n, "SparseCreateSKS: Length(U)<N");
+            ap.assert(m > 0, "SparseCreateSKS: M<=0");
+            ap.assert(n > 0, "SparseCreateSKS: N<=0");
+            ap.assert(m == n, "SparseCreateSKS: M<>N");
+            ap.assert(ap.len(d) >= m, "SparseCreateSKS: Length(D)<M");
+            ap.assert(ap.len(u) >= n, "SparseCreateSKS: Length(U)<N");
             for (i = 0; i <= m - 1; i++)
             {
-                alglib.ap.assert(d[i] >= 0, "SparseCreateSKS: D[] contains negative elements");
-                alglib.ap.assert(d[i] <= i, "SparseCreateSKS: D[I]>I for some I");
+                ap.assert(d[i] >= 0, "SparseCreateSKS: D[] contains negative elements");
+                ap.assert(d[i] <= i, "SparseCreateSKS: D[I]>I for some I");
             }
             for (i = 0; i <= n - 1; i++)
             {
-                alglib.ap.assert(u[i] >= 0, "SparseCreateSKS: U[] contains negative elements");
-                alglib.ap.assert(u[i] <= i, "SparseCreateSKS: U[I]>I for some I");
+                ap.assert(u[i] >= 0, "SparseCreateSKS: U[] contains negative elements");
+                ap.assert(u[i] <= i, "SparseCreateSKS: U[I]>I for some I");
             }
             sparsecreatesksbuf(m, n, d, u, s, _params);
         }
@@ -18257,20 +18257,20 @@ public partial class alglib
             int mxd = 0;
             int mxu = 0;
 
-            alglib.ap.assert(m > 0, "SparseCreateSKSBuf: M<=0");
-            alglib.ap.assert(n > 0, "SparseCreateSKSBuf: N<=0");
-            alglib.ap.assert(m == n, "SparseCreateSKSBuf: M<>N");
-            alglib.ap.assert(alglib.ap.len(d) >= m, "SparseCreateSKSBuf: Length(D)<M");
-            alglib.ap.assert(alglib.ap.len(u) >= n, "SparseCreateSKSBuf: Length(U)<N");
+            ap.assert(m > 0, "SparseCreateSKSBuf: M<=0");
+            ap.assert(n > 0, "SparseCreateSKSBuf: N<=0");
+            ap.assert(m == n, "SparseCreateSKSBuf: M<>N");
+            ap.assert(ap.len(d) >= m, "SparseCreateSKSBuf: Length(D)<M");
+            ap.assert(ap.len(u) >= n, "SparseCreateSKSBuf: Length(U)<N");
             for (i = 0; i <= m - 1; i++)
             {
-                alglib.ap.assert(d[i] >= 0, "SparseCreateSKSBuf: D[] contains negative elements");
-                alglib.ap.assert(d[i] <= i, "SparseCreateSKSBuf: D[I]>I for some I");
+                ap.assert(d[i] >= 0, "SparseCreateSKSBuf: D[] contains negative elements");
+                ap.assert(d[i] <= i, "SparseCreateSKSBuf: D[I]>I for some I");
             }
             for (i = 0; i <= n - 1; i++)
             {
-                alglib.ap.assert(u[i] >= 0, "SparseCreateSKSBuf: U[] contains negative elements");
-                alglib.ap.assert(u[i] <= i, "SparseCreateSKSBuf: U[I]>I for some I");
+                ap.assert(u[i] >= 0, "SparseCreateSKSBuf: U[] contains negative elements");
+                ap.assert(u[i] <= i, "SparseCreateSKSBuf: U[I]>I for some I");
             }
             minmn = Math.Min(m, n);
             s.matrixtype = 2;
@@ -18343,10 +18343,10 @@ public partial class alglib
             sparsematrix s,
             alglib.xparams _params)
         {
-            alglib.ap.assert(m > 0, "SparseCreateSKSBand: M<=0");
-            alglib.ap.assert(n > 0, "SparseCreateSKSBand: N<=0");
-            alglib.ap.assert(bw >= 0, "SparseCreateSKSBand: BW<0");
-            alglib.ap.assert(m == n, "SparseCreateSKSBand: M!=N");
+            ap.assert(m > 0, "SparseCreateSKSBand: M<=0");
+            ap.assert(n > 0, "SparseCreateSKSBand: N<=0");
+            ap.assert(bw >= 0, "SparseCreateSKSBand: BW<0");
+            ap.assert(m == n, "SparseCreateSKSBand: M!=N");
             sparsecreatesksbandbuf(m, n, bw, s, _params);
         }
 
@@ -18387,10 +18387,10 @@ public partial class alglib
             int mxu = 0;
             int dui = 0;
 
-            alglib.ap.assert(m > 0, "SparseCreateSKSBandBuf: M<=0");
-            alglib.ap.assert(n > 0, "SparseCreateSKSBandBuf: N<=0");
-            alglib.ap.assert(m == n, "SparseCreateSKSBandBuf: M!=N");
-            alglib.ap.assert(bw >= 0, "SparseCreateSKSBandBuf: BW<0");
+            ap.assert(m > 0, "SparseCreateSKSBandBuf: M<=0");
+            ap.assert(n > 0, "SparseCreateSKSBandBuf: N<=0");
+            ap.assert(m == n, "SparseCreateSKSBandBuf: M!=N");
+            ap.assert(bw >= 0, "SparseCreateSKSBandBuf: BW<0");
             minmn = Math.Min(m, n);
             s.matrixtype = 2;
             s.ninitialized = 0;
@@ -18474,15 +18474,15 @@ public partial class alglib
             //
             // Initialization for arrays
             //
-            ablasf.icopyallocv(alglib.ap.len(s0.ridx), s0.ridx, ref s1.ridx, _params);
-            ablasf.icopyallocv(alglib.ap.len(s0.idx), s0.idx, ref s1.idx, _params);
-            ablasf.rcopyallocv(alglib.ap.len(s0.vals), s0.vals, ref s1.vals, _params);
+            ablasf.icopyallocv(ap.len(s0.ridx), s0.ridx, ref s1.ridx, _params);
+            ablasf.icopyallocv(ap.len(s0.idx), s0.idx, ref s1.idx, _params);
+            ablasf.rcopyallocv(ap.len(s0.vals), s0.vals, ref s1.vals, _params);
 
             //
             // Initalization for CRS-parameters
             //
-            ablasf.icopyallocv(alglib.ap.len(s0.didx), s0.didx, ref s1.didx, _params);
-            ablasf.icopyallocv(alglib.ap.len(s0.uidx), s0.uidx, ref s1.uidx, _params);
+            ablasf.icopyallocv(ap.len(s0.didx), s0.didx, ref s1.didx, _params);
+            ablasf.icopyallocv(ap.len(s0.uidx), s0.uidx, ref s1.uidx, _params);
         }
 
 
@@ -18502,11 +18502,11 @@ public partial class alglib
             apserv.swapi(ref s1.nfree, ref s0.nfree, _params);
             apserv.swapi(ref s1.ninitialized, ref s0.ninitialized, _params);
             apserv.swapi(ref s1.tablesize, ref s0.tablesize, _params);
-            alglib.ap.swap(ref s1.vals, ref s0.vals);
-            alglib.ap.swap(ref s1.ridx, ref s0.ridx);
-            alglib.ap.swap(ref s1.idx, ref s0.idx);
-            alglib.ap.swap(ref s1.uidx, ref s0.uidx);
-            alglib.ap.swap(ref s1.didx, ref s0.didx);
+            ap.swap(ref s1.vals, ref s0.vals);
+            ap.swap(ref s1.ridx, ref s0.ridx);
+            ap.swap(ref s1.idx, ref s0.idx);
+            ap.swap(ref s1.uidx, ref s0.uidx);
+            ap.swap(ref s1.didx, ref s0.didx);
         }
 
 
@@ -18544,12 +18544,12 @@ public partial class alglib
             int tcode = 0;
             int k = 0;
 
-            alglib.ap.assert(s.matrixtype == 0, "SparseAdd: matrix must be in the Hash-Table mode to do this operation");
-            alglib.ap.assert(i >= 0, "SparseAdd: I<0");
-            alglib.ap.assert(i < s.m, "SparseAdd: I>=M");
-            alglib.ap.assert(j >= 0, "SparseAdd: J<0");
-            alglib.ap.assert(j < s.n, "SparseAdd: J>=N");
-            alglib.ap.assert(math.isfinite(v), "SparseAdd: V is not finite number");
+            ap.assert(s.matrixtype == 0, "SparseAdd: matrix must be in the Hash-Table mode to do this operation");
+            ap.assert(i >= 0, "SparseAdd: I<0");
+            ap.assert(i < s.m, "SparseAdd: I>=M");
+            ap.assert(j >= 0, "SparseAdd: J<0");
+            ap.assert(j < s.n, "SparseAdd: J>=N");
+            ap.assert(math.isfinite(v), "SparseAdd: V is not finite number");
             if ((double)(v) == (double)(0))
             {
                 return;
@@ -18657,12 +18657,12 @@ public partial class alglib
             int k = 0;
             bool b = new();
 
-            alglib.ap.assert((s.matrixtype == 0 || s.matrixtype == 1) || s.matrixtype == 2, "SparseSet: unsupported matrix storage format");
-            alglib.ap.assert(i >= 0, "SparseSet: I<0");
-            alglib.ap.assert(i < s.m, "SparseSet: I>=M");
-            alglib.ap.assert(j >= 0, "SparseSet: J<0");
-            alglib.ap.assert(j < s.n, "SparseSet: J>=N");
-            alglib.ap.assert(math.isfinite(v), "SparseSet: V is not finite number");
+            ap.assert((s.matrixtype == 0 || s.matrixtype == 1) || s.matrixtype == 2, "SparseSet: unsupported matrix storage format");
+            ap.assert(i >= 0, "SparseSet: I<0");
+            ap.assert(i < s.m, "SparseSet: I>=M");
+            ap.assert(j >= 0, "SparseSet: J<0");
+            ap.assert(j < s.n, "SparseSet: J>=N");
+            ap.assert(math.isfinite(v), "SparseSet: V is not finite number");
 
             //
             // Hash-table matrix
@@ -18729,9 +18729,9 @@ public partial class alglib
             //
             if (s.matrixtype == 1)
             {
-                alglib.ap.assert(s.ridx[i] <= s.ninitialized, "SparseSet: too few initialized elements at some row (you have promised more when called SparceCreateCRS)");
-                alglib.ap.assert(s.ridx[i + 1] > s.ninitialized, "SparseSet: too many initialized elements at some row (you have promised less when called SparceCreateCRS)");
-                alglib.ap.assert(s.ninitialized == s.ridx[i] || s.idx[s.ninitialized - 1] < j, "SparseSet: incorrect column order (you must fill every row from left to right)");
+                ap.assert(s.ridx[i] <= s.ninitialized, "SparseSet: too few initialized elements at some row (you have promised more when called SparceCreateCRS)");
+                ap.assert(s.ridx[i + 1] > s.ninitialized, "SparseSet: too many initialized elements at some row (you have promised less when called SparceCreateCRS)");
+                ap.assert(s.ninitialized == s.ridx[i] || s.idx[s.ninitialized - 1] < j, "SparseSet: incorrect column order (you must fill every row from left to right)");
                 s.vals[s.ninitialized] = v;
                 s.idx[s.ninitialized] = j;
                 s.ninitialized = s.ninitialized + 1;
@@ -18753,7 +18753,7 @@ public partial class alglib
             if (s.matrixtype == 2)
             {
                 b = sparserewriteexisting(s, i, j, v, _params);
-                alglib.ap.assert(b, "SparseSet: an attempt to initialize out-of-band element of the SKS matrix");
+                ap.assert(b, "SparseSet: an attempt to initialize out-of-band element of the SKS matrix");
                 return;
             }
         }
@@ -18788,10 +18788,10 @@ public partial class alglib
             int k0 = 0;
             int k1 = 0;
 
-            alglib.ap.assert(i >= 0, "SparseGet: I<0");
-            alglib.ap.assert(i < s.m, "SparseGet: I>=M");
-            alglib.ap.assert(j >= 0, "SparseGet: J<0");
-            alglib.ap.assert(j < s.n, "SparseGet: J>=N");
+            ap.assert(i >= 0, "SparseGet: I<0");
+            ap.assert(i < s.m, "SparseGet: I>=M");
+            ap.assert(j >= 0, "SparseGet: J<0");
+            ap.assert(j < s.n, "SparseGet: J>=N");
             result = 0.0;
             if (s.matrixtype == 0)
             {
@@ -18822,7 +18822,7 @@ public partial class alglib
                 //
                 // CRS
                 //
-                alglib.ap.assert(s.ninitialized == s.ridx[s.m], "SparseGet: some rows/elements of the CRS matrix were not initialized (you must initialize everything you promised to SparseCreateCRS)");
+                ap.assert(s.ninitialized == s.ridx[s.m], "SparseGet: some rows/elements of the CRS matrix were not initialized (you must initialize everything you promised to SparseCreateCRS)");
                 k0 = s.ridx[i];
                 k1 = s.ridx[i + 1] - 1;
                 result = 0;
@@ -18851,7 +18851,7 @@ public partial class alglib
                 //
                 // SKS
                 //
-                alglib.ap.assert(s.m == s.n, "SparseGet: non-square SKS matrix not supported");
+                ap.assert(s.m == s.n, "SparseGet: non-square SKS matrix not supported");
                 result = 0;
                 if (i == j)
                 {
@@ -18889,7 +18889,7 @@ public partial class alglib
                 }
                 return result;
             }
-            alglib.ap.assert(false, "SparseGet: unexpected matrix type");
+            ap.assert(false, "SparseGet: unexpected matrix type");
             return result;
         }
 
@@ -18926,10 +18926,10 @@ public partial class alglib
             int k0 = 0;
             int k1 = 0;
 
-            alglib.ap.assert(i >= 0, "SparseExists: I<0");
-            alglib.ap.assert(i < s.m, "SparseExists: I>=M");
-            alglib.ap.assert(j >= 0, "SparseExists: J<0");
-            alglib.ap.assert(j < s.n, "SparseExists: J>=N");
+            ap.assert(i >= 0, "SparseExists: I<0");
+            ap.assert(i < s.m, "SparseExists: I>=M");
+            ap.assert(j >= 0, "SparseExists: J<0");
+            ap.assert(j < s.n, "SparseExists: J>=N");
             result = false;
             if (s.matrixtype == 0)
             {
@@ -18959,7 +18959,7 @@ public partial class alglib
                 //
                 // CRS
                 //
-                alglib.ap.assert(s.ninitialized == s.ridx[s.m], "SparseExists: some rows/elements of the CRS matrix were not initialized (you must initialize everything you promised to SparseCreateCRS)");
+                ap.assert(s.ninitialized == s.ridx[s.m], "SparseExists: some rows/elements of the CRS matrix were not initialized (you must initialize everything you promised to SparseCreateCRS)");
                 k0 = s.ridx[i];
                 k1 = s.ridx[i + 1] - 1;
                 while (k0 <= k1)
@@ -18987,7 +18987,7 @@ public partial class alglib
                 //
                 // SKS
                 //
-                alglib.ap.assert(s.m == s.n, "SparseExists: non-square SKS matrix not supported");
+                ap.assert(s.m == s.n, "SparseExists: non-square SKS matrix not supported");
                 if (i == j)
                 {
 
@@ -19022,7 +19022,7 @@ public partial class alglib
                 }
                 return result;
             }
-            alglib.ap.assert(false, "SparseExists: unexpected matrix type");
+            ap.assert(false, "SparseExists: unexpected matrix type");
             return result;
         }
 
@@ -19052,9 +19052,9 @@ public partial class alglib
         {
             double result = 0;
 
-            alglib.ap.assert(i >= 0, "SparseGetDiagonal: I<0");
-            alglib.ap.assert(i < s.m, "SparseGetDiagonal: I>=M");
-            alglib.ap.assert(i < s.n, "SparseGetDiagonal: I>=N");
+            ap.assert(i >= 0, "SparseGetDiagonal: I<0");
+            ap.assert(i < s.m, "SparseGetDiagonal: I>=M");
+            ap.assert(i < s.n, "SparseGetDiagonal: I>=N");
             result = 0;
             if (s.matrixtype == 0)
             {
@@ -19071,11 +19071,11 @@ public partial class alglib
             }
             if (s.matrixtype == 2)
             {
-                alglib.ap.assert(s.m == s.n, "SparseGetDiagonal: non-square SKS matrix not supported");
+                ap.assert(s.m == s.n, "SparseGetDiagonal: non-square SKS matrix not supported");
                 result = s.vals[s.ridx[i] + s.didx[i]];
                 return result;
             }
-            alglib.ap.assert(false, "SparseGetDiagonal: unexpected matrix type");
+            ap.assert(false, "SparseGetDiagonal: unexpected matrix type");
             return result;
         }
 
@@ -19126,8 +19126,8 @@ public partial class alglib
             int i_ = 0;
             int i1_ = 0;
 
-            alglib.ap.assert(alglib.ap.len(x) >= s.n, "SparseMV: length(X)<N");
-            alglib.ap.assert(s.matrixtype == 1 || s.matrixtype == 2, "SparseMV: incorrect matrix type (convert your matrix to CRS/SKS)");
+            ap.assert(ap.len(x) >= s.n, "SparseMV: length(X)<N");
+            ap.assert(s.matrixtype == 1 || s.matrixtype == 2, "SparseMV: incorrect matrix type (convert your matrix to CRS/SKS)");
             apserv.rvectorsetlengthatleast(ref y, s.m, _params);
             n = s.n;
             m = s.m;
@@ -19138,7 +19138,7 @@ public partial class alglib
                 // CRS format.
                 // Perform integrity check.
                 //
-                alglib.ap.assert(s.ninitialized == s.ridx[s.m], "SparseMV: some rows/elements of the CRS matrix were not initialized (you must initialize everything you promised to SparseCreateCRS)");
+                ap.assert(s.ninitialized == s.ridx[s.m], "SparseMV: some rows/elements of the CRS matrix were not initialized (you must initialize everything you promised to SparseCreateCRS)");
 
                 //
                 // Try vendor kernels
@@ -19170,7 +19170,7 @@ public partial class alglib
                 //
                 // SKS format
                 //
-                alglib.ap.assert(s.m == s.n, "SparseMV: non-square SKS matrices are not supported");
+                ap.assert(s.m == s.n, "SparseMV: non-square SKS matrices are not supported");
                 for (i = 0; i <= n - 1; i++)
                 {
                     ri = s.ridx[i];
@@ -19250,8 +19250,8 @@ public partial class alglib
             int i_ = 0;
             int i1_ = 0;
 
-            alglib.ap.assert(s.matrixtype == 1 || s.matrixtype == 2, "SparseMTV: incorrect matrix type (convert your matrix to CRS/SKS)");
-            alglib.ap.assert(alglib.ap.len(x) >= s.m, "SparseMTV: Length(X)<M");
+            ap.assert(s.matrixtype == 1 || s.matrixtype == 2, "SparseMTV: incorrect matrix type (convert your matrix to CRS/SKS)");
+            ap.assert(ap.len(x) >= s.m, "SparseMTV: Length(X)<M");
             n = s.n;
             m = s.m;
             apserv.rvectorsetlengthatleast(ref y, n, _params);
@@ -19266,7 +19266,7 @@ public partial class alglib
                 // CRS format
                 // Perform integrity check.
                 //
-                alglib.ap.assert(s.ninitialized == s.ridx[m], "SparseMTV: some rows/elements of the CRS matrix were not initialized (you must initialize everything you promised to SparseCreateCRS)");
+                ap.assert(s.ninitialized == s.ridx[m], "SparseMTV: some rows/elements of the CRS matrix were not initialized (you must initialize everything you promised to SparseCreateCRS)");
 
                 //
                 // Try vendor kernels
@@ -19298,7 +19298,7 @@ public partial class alglib
                 //
                 // SKS format
                 //
-                alglib.ap.assert(s.m == s.n, "SparseMV: non-square SKS matrices are not supported");
+                ap.assert(s.m == s.n, "SparseMV: non-square SKS matrices are not supported");
                 for (i = 0; i <= n - 1; i++)
                 {
                     ri = s.ridx[i];
@@ -19415,8 +19415,8 @@ public partial class alglib
             int i_ = 0;
             int i1_ = 0;
 
-            alglib.ap.assert(ops == 0 || ops == 1, "SparseGEMV: incorrect OpS");
-            alglib.ap.assert(s.matrixtype == 1 || s.matrixtype == 2, "SparseGEMV: incorrect matrix type (convert your matrix to CRS/SKS)");
+            ap.assert(ops == 0 || ops == 1, "SparseGEMV: incorrect OpS");
+            ap.assert(s.matrixtype == 1 || s.matrixtype == 2, "SparseGEMV: incorrect matrix type (convert your matrix to CRS/SKS)");
             if (ops == 0)
             {
                 opm = s.m;
@@ -19427,9 +19427,9 @@ public partial class alglib
                 opm = s.n;
                 opn = s.m;
             }
-            alglib.ap.assert(opm >= 0 && opn >= 0, "SparseGEMV: op(S) has negative size");
-            alglib.ap.assert(opn == 0 || alglib.ap.len(x) + ix >= opn, "SparseGEMV: X is too short");
-            alglib.ap.assert(opm == 0 || alglib.ap.len(y) + iy >= opm, "SparseGEMV: X is too short");
+            ap.assert(opm >= 0 && opn >= 0, "SparseGEMV: op(S) has negative size");
+            ap.assert(opn == 0 || ap.len(x) + ix >= opn, "SparseGEMV: X is too short");
+            ap.assert(opm == 0 || ap.len(y) + iy >= opm, "SparseGEMV: X is too short");
             rawm = s.m;
             rawn = s.n;
 
@@ -19476,7 +19476,7 @@ public partial class alglib
                     // CRS format.
                     // Perform integrity check.
                     //
-                    alglib.ap.assert(s.ninitialized == s.ridx[s.m], "SparseGEMV: some rows/elements of the CRS matrix were not initialized (you must initialize everything you promised to SparseCreateCRS)");
+                    ap.assert(s.ninitialized == s.ridx[s.m], "SparseGEMV: some rows/elements of the CRS matrix were not initialized (you must initialize everything you promised to SparseCreateCRS)");
 
                     //
                     // Try vendor kernels
@@ -19508,7 +19508,7 @@ public partial class alglib
                     //
                     // SKS format
                     //
-                    alglib.ap.assert(s.m == s.n, "SparseMV: non-square SKS matrices are not supported");
+                    ap.assert(s.m == s.n, "SparseMV: non-square SKS matrices are not supported");
                     for (i = 0; i <= rawn - 1; i++)
                     {
                         ri = s.ridx[i];
@@ -19554,7 +19554,7 @@ public partial class alglib
                     // CRS format
                     // Perform integrity check.
                     //
-                    alglib.ap.assert(s.ninitialized == s.ridx[s.m], "SparseGEMV: some rows/elements of the CRS matrix were not initialized (you must initialize everything you promised to SparseCreateCRS)");
+                    ap.assert(s.ninitialized == s.ridx[s.m], "SparseGEMV: some rows/elements of the CRS matrix were not initialized (you must initialize everything you promised to SparseCreateCRS)");
 
                     //
                     // Try vendor kernels
@@ -19586,7 +19586,7 @@ public partial class alglib
                     //
                     // SKS format
                     //
-                    alglib.ap.assert(s.m == s.n, "SparseGEMV: non-square SKS matrices are not supported");
+                    ap.assert(s.m == s.n, "SparseGEMV: non-square SKS matrices are not supported");
                     for (i = 0; i <= rawn - 1; i++)
                     {
                         ri = s.ridx[i];
@@ -19681,10 +19681,10 @@ public partial class alglib
             int i_ = 0;
             int i1_ = 0;
 
-            alglib.ap.assert(s.matrixtype == 1 || s.matrixtype == 2, "SparseMV2: incorrect matrix type (convert your matrix to CRS/SKS)");
-            alglib.ap.assert(s.m == s.n, "SparseMV2: matrix is non-square");
-            l = alglib.ap.len(x);
-            alglib.ap.assert(l >= s.n, "SparseMV2: Length(X)<N");
+            ap.assert(s.matrixtype == 1 || s.matrixtype == 2, "SparseMV2: incorrect matrix type (convert your matrix to CRS/SKS)");
+            ap.assert(s.m == s.n, "SparseMV2: matrix is non-square");
+            l = ap.len(x);
+            ap.assert(l >= s.n, "SparseMV2: Length(X)<N");
             n = s.n;
             apserv.rvectorsetlengthatleast(ref y0, l, _params);
             apserv.rvectorsetlengthatleast(ref y1, l, _params);
@@ -19699,7 +19699,7 @@ public partial class alglib
                 //
                 // CRS format
                 //
-                alglib.ap.assert(s.ninitialized == s.ridx[s.m], "SparseMV2: some rows/elements of the CRS matrix were not initialized (you must initialize everything you promised to SparseCreateCRS)");
+                ap.assert(s.ninitialized == s.ridx[s.m], "SparseMV2: some rows/elements of the CRS matrix were not initialized (you must initialize everything you promised to SparseCreateCRS)");
                 for (i = 0; i <= s.m - 1; i++)
                 {
                     tval = 0;
@@ -19835,9 +19835,9 @@ public partial class alglib
             int i_ = 0;
             int i1_ = 0;
 
-            alglib.ap.assert(s.matrixtype == 1 || s.matrixtype == 2, "SparseSMV: incorrect matrix type (convert your matrix to CRS/SKS)");
-            alglib.ap.assert(alglib.ap.len(x) >= s.n, "SparseSMV: length(X)<N");
-            alglib.ap.assert(s.m == s.n, "SparseSMV: non-square matrix");
+            ap.assert(s.matrixtype == 1 || s.matrixtype == 2, "SparseSMV: incorrect matrix type (convert your matrix to CRS/SKS)");
+            ap.assert(ap.len(x) >= s.n, "SparseSMV: length(X)<N");
+            ap.assert(s.m == s.n, "SparseSMV: non-square matrix");
             n = s.n;
             apserv.rvectorsetlengthatleast(ref y, n, _params);
             for (i = 0; i <= n - 1; i++)
@@ -19850,7 +19850,7 @@ public partial class alglib
                 //
                 // CRS format
                 //
-                alglib.ap.assert(s.ninitialized == s.ridx[s.m], "SparseSMV: some rows/elements of the CRS matrix were not initialized (you must initialize everything you promised to SparseCreateCRS)");
+                ap.assert(s.ninitialized == s.ridx[s.m], "SparseSMV: some rows/elements of the CRS matrix were not initialized (you must initialize everything you promised to SparseCreateCRS)");
                 for (i = 0; i <= n - 1; i++)
                 {
                     if (s.didx[i] != s.uidx[i])
@@ -19977,9 +19977,9 @@ public partial class alglib
             int j1 = 0;
             int jj = 0;
 
-            alglib.ap.assert(s.matrixtype == 1, "SparseMultiplyColsBy: incorrect matrix type (convert your matrix to CRS/SKS)");
-            alglib.ap.assert(alglib.ap.len(x) >= s.n, "SparseMultiplyColsBy: length(X)<N");
-            alglib.ap.assert(s.ninitialized == s.ridx[s.m], "SparseMultiplyColsBy: some rows/elements of the CRS matrix were not initialized (you must initialize everything you promised to SparseCreateCRS)");
+            ap.assert(s.matrixtype == 1, "SparseMultiplyColsBy: incorrect matrix type (convert your matrix to CRS/SKS)");
+            ap.assert(ap.len(x) >= s.n, "SparseMultiplyColsBy: length(X)<N");
+            ap.assert(s.ninitialized == s.ridx[s.m], "SparseMultiplyColsBy: some rows/elements of the CRS matrix were not initialized (you must initialize everything you promised to SparseCreateCRS)");
             for (i = 0; i <= s.m - 1; i++)
             {
                 j0 = s.ridx[i];
@@ -20019,9 +20019,9 @@ public partial class alglib
             int j1 = 0;
             int jj = 0;
 
-            alglib.ap.assert(s.matrixtype == 1, "SparseMultiplyColsBy: incorrect matrix type (convert your matrix to CRS/SKS)");
-            alglib.ap.assert(alglib.ap.len(x) >= s.m, "SparseMultiplyColsBy: length(X)<M");
-            alglib.ap.assert(s.ninitialized == s.ridx[s.m], "SparseMultiplyColsBy: some rows/elements of the CRS matrix were not initialized (you must initialize everything you promised to SparseCreateCRS)");
+            ap.assert(s.matrixtype == 1, "SparseMultiplyColsBy: incorrect matrix type (convert your matrix to CRS/SKS)");
+            ap.assert(ap.len(x) >= s.m, "SparseMultiplyColsBy: length(X)<M");
+            ap.assert(s.ninitialized == s.ridx[s.m], "SparseMultiplyColsBy: some rows/elements of the CRS matrix were not initialized (you must initialize everything you promised to SparseCreateCRS)");
             for (i = 0; i <= s.m - 1; i++)
             {
                 j0 = s.ridx[i];
@@ -20065,10 +20065,10 @@ public partial class alglib
             int jj = 0;
             double v = 0;
 
-            alglib.ap.assert(s.matrixtype == 1, "SparseMultiplyRowsColsBy: incorrect matrix type (convert your matrix to CRS/SKS)");
-            alglib.ap.assert(alglib.ap.len(x) >= s.m, "SparseMultiplyRowsColsBy: length(X)<M");
-            alglib.ap.assert(alglib.ap.len(y) >= s.n, "SparseMultiplyRowsColsBy: length(Y)<N");
-            alglib.ap.assert(s.ninitialized == s.ridx[s.m], "SparseMultiplyRowsColsBy: some rows/elements of the CRS matrix were not initialized (you must initialize everything you promised to SparseCreateCRS)");
+            ap.assert(s.matrixtype == 1, "SparseMultiplyRowsColsBy: incorrect matrix type (convert your matrix to CRS/SKS)");
+            ap.assert(ap.len(x) >= s.m, "SparseMultiplyRowsColsBy: length(X)<M");
+            ap.assert(ap.len(y) >= s.n, "SparseMultiplyRowsColsBy: length(Y)<N");
+            ap.assert(s.ninitialized == s.ridx[s.m], "SparseMultiplyRowsColsBy: some rows/elements of the CRS matrix were not initialized (you must initialize everything you promised to SparseCreateCRS)");
             for (i = 0; i <= s.m - 1; i++)
             {
                 j0 = s.ridx[i];
@@ -20131,9 +20131,9 @@ public partial class alglib
             int u = 0;
             int lt1 = 0;
 
-            alglib.ap.assert(s.matrixtype == 1 || s.matrixtype == 2, "SparseVSMV: incorrect matrix type (convert your matrix to CRS/SKS)");
-            alglib.ap.assert(alglib.ap.len(x) >= s.n, "SparseVSMV: length(X)<N");
-            alglib.ap.assert(s.m == s.n, "SparseVSMV: non-square matrix");
+            ap.assert(s.matrixtype == 1 || s.matrixtype == 2, "SparseVSMV: incorrect matrix type (convert your matrix to CRS/SKS)");
+            ap.assert(ap.len(x) >= s.n, "SparseVSMV: length(X)<N");
+            ap.assert(s.m == s.n, "SparseVSMV: non-square matrix");
             n = s.n;
             result = 0.0;
             if (s.matrixtype == 1)
@@ -20142,7 +20142,7 @@ public partial class alglib
                 //
                 // CRS format
                 //
-                alglib.ap.assert(s.ninitialized == s.ridx[s.m], "SparseVSMV: some rows/elements of the CRS matrix were not initialized (you must initialize everything you promised to SparseCreateCRS)");
+                ap.assert(s.ninitialized == s.ridx[s.m], "SparseVSMV: some rows/elements of the CRS matrix were not initialized (you must initialize everything you promised to SparseCreateCRS)");
                 for (i = 0; i <= n - 1; i++)
                 {
                     if (s.didx[i] != s.uidx[i])
@@ -20268,9 +20268,9 @@ public partial class alglib
             double vd = 0;
             int i_ = 0;
 
-            alglib.ap.assert(s.matrixtype == 1 || s.matrixtype == 2, "SparseMM: incorrect matrix type (convert your matrix to CRS/SKS)");
-            alglib.ap.assert(alglib.ap.rows(a) >= s.n, "SparseMM: Rows(A)<N");
-            alglib.ap.assert(k > 0, "SparseMM: K<=0");
+            ap.assert(s.matrixtype == 1 || s.matrixtype == 2, "SparseMM: incorrect matrix type (convert your matrix to CRS/SKS)");
+            ap.assert(ap.rows(a) >= s.n, "SparseMM: Rows(A)<N");
+            ap.assert(k > 0, "SparseMM: K<=0");
             m = s.m;
             n = s.n;
             k1 = k - 1;
@@ -20288,7 +20288,7 @@ public partial class alglib
                 //
                 // CRS format
                 //
-                alglib.ap.assert(s.ninitialized == s.ridx[m], "SparseMM: some rows/elements of the CRS matrix were not initialized (you must initialize everything you promised to SparseCreateCRS)");
+                ap.assert(s.ninitialized == s.ridx[m], "SparseMM: some rows/elements of the CRS matrix were not initialized (you must initialize everything you promised to SparseCreateCRS)");
                 if (k < linalgswitch)
                 {
                     for (i = 0; i <= m - 1; i++)
@@ -20331,7 +20331,7 @@ public partial class alglib
                 //
                 // SKS format
                 //
-                alglib.ap.assert(m == n, "SparseMM: non-square SKS matrices are not supported");
+                ap.assert(m == n, "SparseMM: non-square SKS matrices are not supported");
                 for (i = 0; i <= n - 1; i++)
                 {
                     ri = s.ridx[i];
@@ -20461,9 +20461,9 @@ public partial class alglib
             int u = 0;
             int i_ = 0;
 
-            alglib.ap.assert(s.matrixtype == 1 || s.matrixtype == 2, "SparseMTM: incorrect matrix type (convert your matrix to CRS/SKS)");
-            alglib.ap.assert(alglib.ap.rows(a) >= s.m, "SparseMTM: Rows(A)<M");
-            alglib.ap.assert(k > 0, "SparseMTM: K<=0");
+            ap.assert(s.matrixtype == 1 || s.matrixtype == 2, "SparseMTM: incorrect matrix type (convert your matrix to CRS/SKS)");
+            ap.assert(ap.rows(a) >= s.m, "SparseMTM: Rows(A)<M");
+            ap.assert(k > 0, "SparseMTM: K<=0");
             m = s.m;
             n = s.n;
             k1 = k - 1;
@@ -20481,7 +20481,7 @@ public partial class alglib
                 //
                 // CRS format
                 //
-                alglib.ap.assert(s.ninitialized == s.ridx[m], "SparseMTM: some rows/elements of the CRS matrix were not initialized (you must initialize everything you promised to SparseCreateCRS)");
+                ap.assert(s.ninitialized == s.ridx[m], "SparseMTM: some rows/elements of the CRS matrix were not initialized (you must initialize everything you promised to SparseCreateCRS)");
                 if (k < linalgswitch)
                 {
                     for (i = 0; i <= m - 1; i++)
@@ -20524,7 +20524,7 @@ public partial class alglib
                 //
                 // SKS format
                 //
-                alglib.ap.assert(m == n, "SparseMTM: non-square SKS matrices are not supported");
+                ap.assert(m == n, "SparseMTM: non-square SKS matrices are not supported");
                 for (i = 0; i <= n - 1; i++)
                 {
                     ri = s.ridx[i];
@@ -20661,10 +20661,10 @@ public partial class alglib
             int u = 0;
             int i_ = 0;
 
-            alglib.ap.assert(s.matrixtype == 1 || s.matrixtype == 2, "SparseMM2: incorrect matrix type (convert your matrix to CRS/SKS)");
-            alglib.ap.assert(s.m == s.n, "SparseMM2: matrix is non-square");
-            alglib.ap.assert(alglib.ap.rows(a) >= s.n, "SparseMM2: Rows(A)<N");
-            alglib.ap.assert(k > 0, "SparseMM2: K<=0");
+            ap.assert(s.matrixtype == 1 || s.matrixtype == 2, "SparseMM2: incorrect matrix type (convert your matrix to CRS/SKS)");
+            ap.assert(s.m == s.n, "SparseMM2: matrix is non-square");
+            ap.assert(ap.rows(a) >= s.n, "SparseMM2: Rows(A)<N");
+            ap.assert(k > 0, "SparseMM2: K<=0");
             n = s.n;
             k1 = k - 1;
             apserv.rmatrixsetlengthatleast(ref b0, n, k, _params);
@@ -20683,7 +20683,7 @@ public partial class alglib
                 //
                 // CRS format
                 //
-                alglib.ap.assert(s.ninitialized == s.ridx[s.m], "SparseMM2: some rows/elements of the CRS matrix were not initialized (you must initialize everything you promised to SparseCreateCRS)");
+                ap.assert(s.ninitialized == s.ridx[s.m], "SparseMM2: some rows/elements of the CRS matrix were not initialized (you must initialize everything you promised to SparseCreateCRS)");
                 if (k < linalgswitch)
                 {
                     for (i = 0; i <= n - 1; i++)
@@ -20733,7 +20733,7 @@ public partial class alglib
                 //
                 // SKS format
                 //
-                alglib.ap.assert(s.m == s.n, "SparseMM2: non-square SKS matrices are not supported");
+                ap.assert(s.m == s.n, "SparseMM2: non-square SKS matrices are not supported");
                 for (i = 0; i <= n - 1; i++)
                 {
                     ri = s.ridx[i];
@@ -20886,9 +20886,9 @@ public partial class alglib
             int u = 0;
             int i_ = 0;
 
-            alglib.ap.assert(s.matrixtype == 1 || s.matrixtype == 2, "SparseSMM: incorrect matrix type (convert your matrix to CRS/SKS)");
-            alglib.ap.assert(alglib.ap.rows(a) >= s.n, "SparseSMM: Rows(X)<N");
-            alglib.ap.assert(s.m == s.n, "SparseSMM: matrix is non-square");
+            ap.assert(s.matrixtype == 1 || s.matrixtype == 2, "SparseSMM: incorrect matrix type (convert your matrix to CRS/SKS)");
+            ap.assert(ap.rows(a) >= s.n, "SparseSMM: Rows(X)<N");
+            ap.assert(s.m == s.n, "SparseSMM: matrix is non-square");
             n = s.n;
             k1 = k - 1;
             apserv.rmatrixsetlengthatleast(ref b, n, k, _params);
@@ -20905,7 +20905,7 @@ public partial class alglib
                 //
                 // CRS format
                 //
-                alglib.ap.assert(s.ninitialized == s.ridx[s.m], "SparseSMM: some rows/elements of the CRS matrix were not initialized (you must initialize everything you promised to SparseCreateCRS)");
+                ap.assert(s.ninitialized == s.ridx[s.m], "SparseSMM: some rows/elements of the CRS matrix were not initialized (you must initialize everything you promised to SparseCreateCRS)");
                 if (k > linalgswitch)
                 {
                     for (i = 0; i <= n - 1; i++)
@@ -21009,7 +21009,7 @@ public partial class alglib
                 //
                 // SKS format
                 //
-                alglib.ap.assert(s.m == s.n, "SparseMM2: non-square SKS matrices are not supported");
+                ap.assert(s.m == s.n, "SparseMM2: non-square SKS matrices are not supported");
                 for (i = 0; i <= n - 1; i++)
                 {
                     ri = s.ridx[i];
@@ -21166,10 +21166,10 @@ public partial class alglib
             int i_ = 0;
             int i1_ = 0;
 
-            alglib.ap.assert(s.matrixtype == 1 || s.matrixtype == 2, "SparseTRMV: incorrect matrix type (convert your matrix to CRS/SKS)");
-            alglib.ap.assert(optype == 0 || optype == 1, "SparseTRMV: incorrect operation type (must be 0 or 1)");
-            alglib.ap.assert(alglib.ap.len(x) >= s.n, "SparseTRMV: Length(X)<N");
-            alglib.ap.assert(s.m == s.n, "SparseTRMV: matrix is non-square");
+            ap.assert(s.matrixtype == 1 || s.matrixtype == 2, "SparseTRMV: incorrect matrix type (convert your matrix to CRS/SKS)");
+            ap.assert(optype == 0 || optype == 1, "SparseTRMV: incorrect operation type (must be 0 or 1)");
+            ap.assert(ap.len(x) >= s.n, "SparseTRMV: Length(X)<N");
+            ap.assert(s.m == s.n, "SparseTRMV: matrix is non-square");
             n = s.n;
             apserv.rvectorsetlengthatleast(ref y, n, _params);
             if (isunit)
@@ -21200,7 +21200,7 @@ public partial class alglib
                 //
                 // CRS format
                 //
-                alglib.ap.assert(s.ninitialized == s.ridx[s.m], "SparseTRMV: some rows/elements of the CRS matrix were not initialized (you must initialize everything you promised to SparseCreateCRS)");
+                ap.assert(s.ninitialized == s.ridx[s.m], "SparseTRMV: some rows/elements of the CRS matrix were not initialized (you must initialize everything you promised to SparseCreateCRS)");
                 for (i = 0; i <= n - 1; i++)
                 {
 
@@ -21262,7 +21262,7 @@ public partial class alglib
                 //
                 // SKS format
                 //
-                alglib.ap.assert(s.m == s.n, "SparseTRMV: non-square SKS matrices are not supported");
+                ap.assert(s.m == s.n, "SparseTRMV: non-square SKS matrices are not supported");
                 for (i = 0; i <= n - 1; i++)
                 {
                     ri = s.ridx[i];
@@ -21399,10 +21399,10 @@ public partial class alglib
             int lt = 0;
             int lt1 = 0;
 
-            alglib.ap.assert(s.matrixtype == 1 || s.matrixtype == 2, "SparseTRSV: incorrect matrix type (convert your matrix to CRS/SKS)");
-            alglib.ap.assert(optype == 0 || optype == 1, "SparseTRSV: incorrect operation type (must be 0 or 1)");
-            alglib.ap.assert(alglib.ap.len(x) >= s.n, "SparseTRSV: Length(X)<N");
-            alglib.ap.assert(s.m == s.n, "SparseTRSV: matrix is non-square");
+            ap.assert(s.matrixtype == 1 || s.matrixtype == 2, "SparseTRSV: incorrect matrix type (convert your matrix to CRS/SKS)");
+            ap.assert(optype == 0 || optype == 1, "SparseTRSV: incorrect operation type (must be 0 or 1)");
+            ap.assert(ap.len(x) >= s.n, "SparseTRSV: Length(X)<N");
+            ap.assert(s.m == s.n, "SparseTRSV: matrix is non-square");
             n = s.n;
             if (s.matrixtype == 1)
             {
@@ -21412,7 +21412,7 @@ public partial class alglib
                 //
                 // Several branches for different combinations of IsUpper and OpType
                 //
-                alglib.ap.assert(s.ninitialized == s.ridx[s.m], "SparseTRSV: some rows/elements of the CRS matrix were not initialized (you must initialize everything you promised to SparseCreateCRS)");
+                ap.assert(s.ninitialized == s.ridx[s.m], "SparseTRSV: some rows/elements of the CRS matrix were not initialized (you must initialize everything you promised to SparseCreateCRS)");
                 if (optype == 0)
                 {
 
@@ -21484,7 +21484,7 @@ public partial class alglib
                         //
                         i = i + stp;
                     }
-                    alglib.ap.assert(math.isfinite(v0), "SparseTRSV: overflow or division by exact zero");
+                    ap.assert(math.isfinite(v0), "SparseTRSV: overflow or division by exact zero");
                     return;
                 }
                 if (optype == 1)
@@ -21569,10 +21569,10 @@ public partial class alglib
                         //
                         i = i + stp;
                     }
-                    alglib.ap.assert(math.isfinite(v0), "SparseTRSV: overflow or division by exact zero");
+                    ap.assert(math.isfinite(v0), "SparseTRSV: overflow or division by exact zero");
                     return;
                 }
-                alglib.ap.assert(false, "SparseTRSV: internal error");
+                ap.assert(false, "SparseTRSV: internal error");
             }
             if (s.matrixtype == 2)
             {
@@ -21580,7 +21580,7 @@ public partial class alglib
                 //
                 // SKS format
                 //
-                alglib.ap.assert(s.m == s.n, "SparseTRSV: non-square SKS matrices are not supported");
+                ap.assert(s.m == s.n, "SparseTRSV: non-square SKS matrices are not supported");
                 if ((optype == 0 && !isupper) || (optype == 1 && isupper))
                 {
 
@@ -21631,7 +21631,7 @@ public partial class alglib
                         x[i] = v;
                         v0 = 0.25 * v0 + v;
                     }
-                    alglib.ap.assert(math.isfinite(v0), "SparseTRSV: overflow or division by exact zero");
+                    ap.assert(math.isfinite(v0), "SparseTRSV: overflow or division by exact zero");
                     return;
                 }
                 if ((optype == 1 && !isupper) || (optype == 0 && isupper))
@@ -21686,12 +21686,12 @@ public partial class alglib
                             x[lt + j] = x[lt + j] - v * s.vals[lt1 + j];
                         }
                     }
-                    alglib.ap.assert(math.isfinite(v0), "SparseTRSV: overflow or division by exact zero");
+                    ap.assert(math.isfinite(v0), "SparseTRSV: overflow or division by exact zero");
                     return;
                 }
-                alglib.ap.assert(false, "SparseTRSV: internal error");
+                ap.assert(false, "SparseTRSV: internal error");
             }
-            alglib.ap.assert(false, "SparseTRSV: internal error");
+            ap.assert(false, "SparseTRSV: internal error");
         }
 
 
@@ -21846,21 +21846,21 @@ public partial class alglib
             int dst = 0;
             bool bflag = new();
 
-            alglib.ap.assert(a.matrixtype == 1, "SparseSymmPermTblBuf: incorrect matrix type (convert your matrix to CRS)");
-            alglib.ap.assert(alglib.ap.len(p) >= a.n, "SparseSymmPermTblBuf: Length(P)<N");
-            alglib.ap.assert(a.m == a.n, "SparseSymmPermTblBuf: matrix is non-square");
+            ap.assert(a.matrixtype == 1, "SparseSymmPermTblBuf: incorrect matrix type (convert your matrix to CRS)");
+            ap.assert(ap.len(p) >= a.n, "SparseSymmPermTblBuf: Length(P)<N");
+            ap.assert(a.m == a.n, "SparseSymmPermTblBuf: matrix is non-square");
             bflag = true;
             for (i = 0; i <= a.n - 1; i++)
             {
                 bflag = (bflag && p[i] >= 0) && p[i] < a.n;
             }
-            alglib.ap.assert(bflag, "SparseSymmPermTblBuf: P[] contains values outside of [0,N) range");
+            ap.assert(bflag, "SparseSymmPermTblBuf: P[] contains values outside of [0,N) range");
             n = a.n;
 
             //
             // Prepare output
             //
-            alglib.ap.assert(a.ninitialized == a.ridx[n], "SparseSymmPermTblBuf: integrity check failed");
+            ap.assert(a.ninitialized == a.ridx[n], "SparseSymmPermTblBuf: integrity check failed");
             b.matrixtype = 1;
             b.n = n;
             b.m = n;
@@ -22043,21 +22043,21 @@ public partial class alglib
             int dst = 0;
             bool bflag = new();
 
-            alglib.ap.assert(a.matrixtype == 1, "SparseSymmPermTblBuf: incorrect matrix type (convert your matrix to CRS)");
-            alglib.ap.assert(alglib.ap.len(p) >= a.n, "SparseSymmPermTblBuf: Length(P)<N");
-            alglib.ap.assert(a.m == a.n, "SparseSymmPermTblBuf: matrix is non-square");
+            ap.assert(a.matrixtype == 1, "SparseSymmPermTblBuf: incorrect matrix type (convert your matrix to CRS)");
+            ap.assert(ap.len(p) >= a.n, "SparseSymmPermTblBuf: Length(P)<N");
+            ap.assert(a.m == a.n, "SparseSymmPermTblBuf: matrix is non-square");
             bflag = true;
             for (i = 0; i <= a.n - 1; i++)
             {
                 bflag = (bflag && p[i] >= 0) && p[i] < a.n;
             }
-            alglib.ap.assert(bflag, "SparseSymmPermTblBuf: P[] contains values outside of [0,N) range");
+            ap.assert(bflag, "SparseSymmPermTblBuf: P[] contains values outside of [0,N) range");
             n = a.n;
 
             //
             // Prepare output
             //
-            alglib.ap.assert(a.ninitialized == a.ridx[n], "SparseSymmPermTblBuf: integrity check failed");
+            ap.assert(a.ninitialized == a.ridx[n], "SparseSymmPermTblBuf: integrity check failed");
             b.matrixtype = 1;
             b.n = n;
             b.m = n;
@@ -22198,7 +22198,7 @@ public partial class alglib
             double[] tvals = new double[0];
             int[] tidx = new int[0];
 
-            alglib.ap.assert(s.matrixtype == 0, "SparseResizeMatrix: incorrect matrix type");
+            ap.assert(s.matrixtype == 0, "SparseResizeMatrix: incorrect matrix type");
 
             //
             // Initialization for length and number of non-null elementd
@@ -22224,8 +22224,8 @@ public partial class alglib
             s.nfree = s.tablesize - k1;
             tvals = new double[s.tablesize];
             tidx = new int[2 * s.tablesize];
-            alglib.ap.swap(ref s.vals, ref tvals);
-            alglib.ap.swap(ref s.idx, ref tidx);
+            ap.swap(ref s.vals, ref tvals);
+            ap.swap(ref s.idx, ref tidx);
             for (i = 0; i <= s.tablesize - 1; i++)
             {
                 s.idx[2 * i] = -1;
@@ -22256,7 +22256,7 @@ public partial class alglib
             int lt = 0;
             int rt = 0;
 
-            alglib.ap.assert(s.matrixtype == 1, "SparseInitDUIdx: internal error, incorrect matrix type");
+            ap.assert(s.matrixtype == 1, "SparseInitDUIdx: internal error, incorrect matrix type");
             ablasf.iallocv(s.m, ref s.didx, _params);
             ablasf.iallocv(s.m, ref s.uidx, _params);
             for (i = 0; i <= s.m - 1; i++)
@@ -22454,7 +22454,7 @@ public partial class alglib
                 //
                 // CRS matrix
                 //
-                alglib.ap.assert(s.ninitialized == s.ridx[s.m], "SparseEnumerate: some rows/elements of the CRS matrix were not initialized (you must initialize everything you promised to SparseCreateCRS)");
+                ap.assert(s.ninitialized == s.ridx[s.m], "SparseEnumerate: some rows/elements of the CRS matrix were not initialized (you must initialize everything you promised to SparseCreateCRS)");
                 if (t0 >= s.ninitialized)
                 {
                     t0 = 0;
@@ -22481,7 +22481,7 @@ public partial class alglib
                 // * T0 stores current offset in Vals[] array
                 // * T1 stores index of the diagonal block
                 //
-                alglib.ap.assert(s.m == s.n, "SparseEnumerate: non-square SKS matrices are not supported");
+                ap.assert(s.m == s.n, "SparseEnumerate: non-square SKS matrices are not supported");
                 if (t0 >= s.ridx[s.m])
                 {
                     t0 = 0;
@@ -22517,7 +22517,7 @@ public partial class alglib
                 result = true;
                 return result;
             }
-            alglib.ap.assert(false, "SparseEnumerate: unexpected matrix type");
+            ap.assert(false, "SparseEnumerate: unexpected matrix type");
             return result;
         }
 
@@ -22562,9 +22562,9 @@ public partial class alglib
             int k0 = 0;
             int k1 = 0;
 
-            alglib.ap.assert(0 <= i && i < s.m, "SparseRewriteExisting: invalid argument I(either I<0 or I>=S.M)");
-            alglib.ap.assert(0 <= j && j < s.n, "SparseRewriteExisting: invalid argument J(either J<0 or J>=S.N)");
-            alglib.ap.assert(math.isfinite(v), "SparseRewriteExisting: invalid argument V(either V is infinite or V is NaN)");
+            ap.assert(0 <= i && i < s.m, "SparseRewriteExisting: invalid argument I(either I<0 or I>=S.M)");
+            ap.assert(0 <= j && j < s.n, "SparseRewriteExisting: invalid argument J(either J<0 or J>=S.N)");
+            ap.assert(math.isfinite(v), "SparseRewriteExisting: invalid argument V(either V is infinite or V is NaN)");
             result = false;
 
             //
@@ -22595,7 +22595,7 @@ public partial class alglib
             //
             if (s.matrixtype == 1)
             {
-                alglib.ap.assert(s.ninitialized == s.ridx[s.m], "SparseRewriteExisting: some rows/elements of the CRS matrix were not initialized (you must initialize everything you promised to SparseCreateCRS)");
+                ap.assert(s.ninitialized == s.ridx[s.m], "SparseRewriteExisting: some rows/elements of the CRS matrix were not initialized (you must initialize everything you promised to SparseCreateCRS)");
                 k0 = s.ridx[i];
                 k1 = s.ridx[i + 1] - 1;
                 while (k0 <= k1)
@@ -22623,7 +22623,7 @@ public partial class alglib
             //
             if (s.matrixtype == 2)
             {
-                alglib.ap.assert(s.m == s.n, "SparseRewriteExisting: non-square SKS matrix not supported");
+                ap.assert(s.m == s.n, "SparseRewriteExisting: non-square SKS matrix not supported");
                 if (i == j)
                 {
 
@@ -22705,8 +22705,8 @@ public partial class alglib
             int j = 0;
             int upperprofile = 0;
 
-            alglib.ap.assert(s.matrixtype == 1 || s.matrixtype == 2, "SparseGetRow: S must be CRS/SKS-based matrix");
-            alglib.ap.assert(i >= 0 && i < s.m, "SparseGetRow: I<0 or I>=M");
+            ap.assert(s.matrixtype == 1 || s.matrixtype == 2, "SparseGetRow: S must be CRS/SKS-based matrix");
+            ap.assert(i >= 0 && i < s.m, "SparseGetRow: I<0 or I>=M");
 
             //
             // Prepare output buffer
@@ -22734,7 +22734,7 @@ public partial class alglib
                 //
                 // Copy subdiagonal and diagonal parts
                 //
-                alglib.ap.assert(s.n == s.m, "SparseGetRow: non-square SKS matrices are not supported");
+                ap.assert(s.n == s.m, "SparseGetRow: non-square SKS matrices are not supported");
                 j0 = i - s.didx[i];
                 i0 = -j0 + s.ridx[i];
                 for (j = j0; j <= i; j++)
@@ -22816,8 +22816,8 @@ public partial class alglib
 
             nzcnt = 0;
 
-            alglib.ap.assert(s.matrixtype == 1 || s.matrixtype == 2, "SparseGetRow: S must be CRS/SKS-based matrix");
-            alglib.ap.assert(i >= 0 && i < s.m, "SparseGetRow: I<0 or I>=M");
+            ap.assert(s.matrixtype == 1 || s.matrixtype == 2, "SparseGetRow: S must be CRS/SKS-based matrix");
+            ap.assert(i >= 0 && i < s.m, "SparseGetRow: I<0 or I>=M");
 
             //
             // Initialize NZCnt
@@ -22846,7 +22846,7 @@ public partial class alglib
             //
             if (s.matrixtype == 2)
             {
-                alglib.ap.assert(s.n == s.m, "SparseGetCompressedRow: non-square SKS matrices are not supported");
+                ap.assert(s.n == s.m, "SparseGetCompressedRow: non-square SKS matrices are not supported");
 
                 //
                 // Allocate enough place for storage
@@ -22925,9 +22925,9 @@ public partial class alglib
             int didx = 0;
             int uidx = 0;
 
-            alglib.ap.assert(s.matrixtype == 1 || s.matrixtype == -10083, "SparseAppendCompressedRow: S must be CRS-based matrix");
-            alglib.ap.assert(nz >= 0, "SparseAppendCompressedRow: NZ<0");
-            alglib.ap.assert(s.ninitialized == s.ridx[s.m], "SparseAppendCompressedRow: the CRS matrix is not completely initialized");
+            ap.assert(s.matrixtype == 1 || s.matrixtype == -10083, "SparseAppendCompressedRow: S must be CRS-based matrix");
+            ap.assert(nz >= 0, "SparseAppendCompressedRow: NZ<0");
+            ap.assert(s.ninitialized == s.ridx[s.m], "SparseAppendCompressedRow: the CRS matrix is not completely initialized");
             s.matrixtype = 1;
             m = s.m;
             offs = s.ridx[m];
@@ -22948,7 +22948,7 @@ public partial class alglib
             {
                 if (colidx[i] < 0 || colidx[i] >= s.n)
                 {
-                    alglib.ap.assert(false, "SparseAppendCompressedRow: ColIdx[] contains elements outside of [0,N-1] range");
+                    ap.assert(false, "SparseAppendCompressedRow: ColIdx[] contains elements outside of [0,N-1] range");
                 }
                 s.idx[offs + i] = colidx[i];
                 s.vals[offs + i] = vals[i];
@@ -23024,8 +23024,8 @@ public partial class alglib
             int m = 0;
             int offs = 0;
 
-            alglib.ap.assert(s.matrixtype == 1 || s.matrixtype == -10083, "SparseAppendEmptyRow: S must be CRS-based matrix");
-            alglib.ap.assert(s.ninitialized == s.ridx[s.m], "SparseAppendEmptyRow: the CRS matrix is not completely initialized");
+            ap.assert(s.matrixtype == 1 || s.matrixtype == -10083, "SparseAppendEmptyRow: S must be CRS-based matrix");
+            ap.assert(s.ninitialized == s.ridx[s.m], "SparseAppendEmptyRow: the CRS matrix is not completely initialized");
             m = s.m;
             offs = s.ridx[m];
             s.matrixtype = 1;
@@ -23065,11 +23065,11 @@ public partial class alglib
             int m = 0;
             int offs = 0;
 
-            alglib.ap.assert(s.matrixtype == 1, "SparseAppendElement: S must be CRS-based matrix");
-            alglib.ap.assert(s.ninitialized == s.ridx[s.m], "SparseAppendElement: the CRS matrix is not completely initialized");
-            alglib.ap.assert(k >= 0 && k < s.n, "SparseAppendElement: K is outside of [0,N) range");
-            alglib.ap.assert(s.ridx[s.m] == s.ridx[s.m - 1] || k > s.idx[s.ridx[s.m] - 1], "SparseAppendElement: elements must be added from left to right (column indexes must increase)");
-            alglib.ap.assert(math.isfinite(v), "SparseAppendElement: V is not a finite number");
+            ap.assert(s.matrixtype == 1, "SparseAppendElement: S must be CRS-based matrix");
+            ap.assert(s.ninitialized == s.ridx[s.m], "SparseAppendElement: the CRS matrix is not completely initialized");
+            ap.assert(k >= 0 && k < s.n, "SparseAppendElement: K is outside of [0,N) range");
+            ap.assert(s.ridx[s.m] == s.ridx[s.m - 1] || k > s.idx[s.ridx[s.m] - 1], "SparseAppendElement: elements must be added from left to right (column indexes must increase)");
+            ap.assert(math.isfinite(v), "SparseAppendElement: V is not a finite number");
             m = s.m;
             offs = s.ridx[m];
             ablasf.igrowv(offs + 1, ref s.idx, _params);
@@ -23124,10 +23124,10 @@ public partial class alglib
             int mdst = 0;
             int i = 0;
 
-            alglib.ap.assert(sdst.matrixtype == 1 || sdst.matrixtype == -10083, "SparseAppendMatrix: SDst must be CRS-based matrix");
-            alglib.ap.assert(sdst.ninitialized == sdst.ridx[sdst.m], "SparseAppendMatrix: SDst is not completely initialized");
-            alglib.ap.assert(ssrc.matrixtype == 1, "SparseAppendMatrix: SSrc must be CRS-based matrix");
-            alglib.ap.assert(ssrc.ninitialized == ssrc.ridx[ssrc.m], "SparseAppendMatrix: SSrc is not completely initialized");
+            ap.assert(sdst.matrixtype == 1 || sdst.matrixtype == -10083, "SparseAppendMatrix: SDst must be CRS-based matrix");
+            ap.assert(sdst.ninitialized == sdst.ridx[sdst.m], "SparseAppendMatrix: SDst is not completely initialized");
+            ap.assert(ssrc.matrixtype == 1, "SparseAppendMatrix: SSrc must be CRS-based matrix");
+            ap.assert(ssrc.ninitialized == ssrc.ridx[ssrc.m], "SparseAppendMatrix: SSrc is not completely initialized");
 
             //
             // Append the source
@@ -23184,8 +23184,8 @@ public partial class alglib
             int t1 = 0;
             double v = 0;
 
-            alglib.ap.assert(s.matrixtype == 2, "SparseTransposeSKS: only SKS matrices are supported");
-            alglib.ap.assert(s.m == s.n, "SparseTransposeSKS: non-square SKS matrices are not supported");
+            ap.assert(s.matrixtype == 2, "SparseTransposeSKS: only SKS matrices are supported");
+            ap.assert(s.m == s.n, "SparseTransposeSKS: non-square SKS matrices are not supported");
             n = s.n;
             for (i = 1; i <= n - 1; i++)
             {
@@ -23357,10 +23357,10 @@ public partial class alglib
             int nonne = 0;
             int[] counts = new int[0];
 
-            alglib.ap.assert(s.matrixtype == 1, "SparseTransposeCRS: only CRS matrices are supported");
-            alglib.ap.swap(ref s.vals, ref oldvals);
-            alglib.ap.swap(ref s.idx, ref oldidx);
-            alglib.ap.swap(ref s.ridx, ref oldridx);
+            ap.assert(s.matrixtype == 1, "SparseTransposeCRS: only CRS matrices are supported");
+            ap.swap(ref s.vals, ref oldvals);
+            ap.swap(ref s.idx, ref oldidx);
+            ap.swap(ref s.ridx, ref oldridx);
             oldn = s.n;
             oldm = s.m;
             newn = oldm;
@@ -23480,7 +23480,7 @@ public partial class alglib
             int j0 = 0;
             int j1 = 0;
 
-            alglib.ap.assert(s0.matrixtype == 1, "SparseCopyTransposeCRSBuf: only CRS matrices are supported");
+            ap.assert(s0.matrixtype == 1, "SparseCopyTransposeCRSBuf: only CRS matrices are supported");
             oldn = s0.n;
             oldm = s0.m;
             newn = oldm;
@@ -23588,8 +23588,8 @@ public partial class alglib
             int j0 = 0;
             int j1 = 0;
 
-            alglib.ap.assert(s0.matrixtype == 1, "SparseCopyTransposeCRSXBuf: only CRS matrices are supported");
-            alglib.ap.assert((triangle == -1 || triangle == 0) || triangle == 1, "SparseCopyTransposeCRSXBuf: Triangle parameter must be -1, 0 or +1");
+            ap.assert(s0.matrixtype == 1, "SparseCopyTransposeCRSXBuf: only CRS matrices are supported");
+            ap.assert((triangle == -1 || triangle == 0) || triangle == 1, "SparseCopyTransposeCRSXBuf: Triangle parameter must be -1, 0 or +1");
             if (triangle == 0)
             {
                 sparsecopytransposecrsbuf(s0, s1, _params);
@@ -23705,7 +23705,7 @@ public partial class alglib
             int fmt,
             alglib.xparams _params)
         {
-            alglib.ap.assert((fmt == 0 || fmt == 1) || fmt == 2, "SparseConvertTo: invalid fmt parameter");
+            ap.assert((fmt == 0 || fmt == 1) || fmt == 2, "SparseConvertTo: invalid fmt parameter");
             if (fmt == 0)
             {
                 sparseconverttohash(s0, _params);
@@ -23721,7 +23721,7 @@ public partial class alglib
                 sparseconverttosks(s0, _params);
                 return;
             }
-            alglib.ap.assert(false, "SparseConvertTo: invalid matrix type");
+            ap.assert(false, "SparseConvertTo: invalid matrix type");
         }
 
 
@@ -23749,7 +23749,7 @@ public partial class alglib
             sparsematrix s1,
             alglib.xparams _params)
         {
-            alglib.ap.assert((fmt == 0 || fmt == 1) || fmt == 2, "SparseCopyToBuf: invalid fmt parameter");
+            ap.assert((fmt == 0 || fmt == 1) || fmt == 2, "SparseCopyToBuf: invalid fmt parameter");
             if (fmt == 0)
             {
                 sparsecopytohashbuf(s0, s1, _params);
@@ -23765,7 +23765,7 @@ public partial class alglib
                 sparsecopytosksbuf(s0, s1, _params);
                 return;
             }
-            alglib.ap.assert(false, "SparseCopyToBuf: invalid matrix type");
+            ap.assert(false, "SparseCopyToBuf: invalid matrix type");
         }
 
 
@@ -23804,7 +23804,7 @@ public partial class alglib
             int j = 0;
             int k = 0;
 
-            alglib.ap.assert((s.matrixtype == 0 || s.matrixtype == 1) || s.matrixtype == 2, "SparseConvertToHash: invalid matrix type");
+            ap.assert((s.matrixtype == 0 || s.matrixtype == 1) || s.matrixtype == 2, "SparseConvertToHash: invalid matrix type");
             if (s.matrixtype == 0)
             {
 
@@ -23822,9 +23822,9 @@ public partial class alglib
                 s.matrixtype = 0;
                 m = s.m;
                 n = s.n;
-                alglib.ap.swap(ref s.idx, ref tidx);
-                alglib.ap.swap(ref s.ridx, ref tridx);
-                alglib.ap.swap(ref s.vals, ref tvals);
+                ap.swap(ref s.idx, ref tidx);
+                ap.swap(ref s.ridx, ref tridx);
+                ap.swap(ref s.vals, ref tvals);
                 sparsecreatebuf(m, n, tridx[m], s, _params);
                 for (i = 0; i <= m - 1; i++)
                 {
@@ -23844,10 +23844,10 @@ public partial class alglib
                 s.matrixtype = 0;
                 m = s.m;
                 n = s.n;
-                alglib.ap.swap(ref s.ridx, ref tridx);
-                alglib.ap.swap(ref s.didx, ref tdidx);
-                alglib.ap.swap(ref s.uidx, ref tuidx);
-                alglib.ap.swap(ref s.vals, ref tvals);
+                ap.swap(ref s.ridx, ref tridx);
+                ap.swap(ref s.didx, ref tdidx);
+                ap.swap(ref s.uidx, ref tuidx);
+                ap.swap(ref s.vals, ref tvals);
                 sparsecreatebuf(m, n, tridx[m], s, _params);
                 for (i = 0; i <= m - 1; i++)
                 {
@@ -23874,7 +23874,7 @@ public partial class alglib
                 }
                 return;
             }
-            alglib.ap.assert(false, "SparseConvertToHash: invalid matrix type");
+            ap.assert(false, "SparseConvertToHash: invalid matrix type");
         }
 
 
@@ -23903,7 +23903,7 @@ public partial class alglib
             sparsematrix s1,
             alglib.xparams _params)
         {
-            alglib.ap.assert((s0.matrixtype == 0 || s0.matrixtype == 1) || s0.matrixtype == 2, "SparseCopyToHash: invalid matrix type");
+            ap.assert((s0.matrixtype == 0 || s0.matrixtype == 1) || s0.matrixtype == 2, "SparseCopyToHash: invalid matrix type");
             sparsecopytohashbuf(s0, s1, _params);
         }
 
@@ -23934,7 +23934,7 @@ public partial class alglib
             int i = 0;
             int j = 0;
 
-            alglib.ap.assert((s0.matrixtype == 0 || s0.matrixtype == 1) || s0.matrixtype == 2, "SparseCopyToHashBuf: invalid matrix type");
+            ap.assert((s0.matrixtype == 0 || s0.matrixtype == 1) || s0.matrixtype == 2, "SparseCopyToHashBuf: invalid matrix type");
             if (s0.matrixtype == 0)
             {
 
@@ -23974,7 +23974,7 @@ public partial class alglib
                 }
                 return;
             }
-            alglib.ap.assert(false, "SparseCopyToHashBuf: invalid matrix type");
+            ap.assert(false, "SparseCopyToHashBuf: invalid matrix type");
         }
 
 
@@ -24026,8 +24026,8 @@ public partial class alglib
                 //
                 s.matrixtype = 1;
                 k = s.tablesize;
-                alglib.ap.swap(ref s.vals, ref tvals);
-                alglib.ap.swap(ref s.idx, ref tidx);
+                ap.swap(ref s.vals, ref tvals);
+                ap.swap(ref s.idx, ref tidx);
 
                 //
                 // Fill RIdx by number of elements per row:
@@ -24094,7 +24094,7 @@ public partial class alglib
             }
             if (s.matrixtype == 2)
             {
-                alglib.ap.assert(s.m == s.n, "SparseConvertToCRS: non-square SKS matrices are not supported");
+                ap.assert(s.m == s.n, "SparseConvertToCRS: non-square SKS matrices are not supported");
 
                 //
                 // From SKS to CRS.
@@ -24104,9 +24104,9 @@ public partial class alglib
                 // left in the SparseMatrix structure).
                 //
                 s.matrixtype = 1;
-                alglib.ap.swap(ref s.vals, ref tvals);
-                alglib.ap.swap(ref s.idx, ref tidx);
-                alglib.ap.swap(ref s.ridx, ref tridx);
+                ap.swap(ref s.vals, ref tvals);
+                ap.swap(ref s.idx, ref tidx);
+                ap.swap(ref s.ridx, ref tridx);
 
                 //
                 // Fill RIdx by number of elements per row:
@@ -24181,7 +24181,7 @@ public partial class alglib
                 sparseinitduidx(s, _params);
                 return;
             }
-            alglib.ap.assert(false, "SparseConvertToCRS: invalid matrix type");
+            ap.assert(false, "SparseConvertToCRS: invalid matrix type");
         }
 
 
@@ -24210,7 +24210,7 @@ public partial class alglib
             sparsematrix s1,
             alglib.xparams _params)
         {
-            alglib.ap.assert((s0.matrixtype == 0 || s0.matrixtype == 1) || s0.matrixtype == 2, "SparseCopyToCRS: invalid matrix type");
+            ap.assert((s0.matrixtype == 0 || s0.matrixtype == 1) || s0.matrixtype == 2, "SparseCopyToCRS: invalid matrix type");
             sparsecopytocrsbuf(s0, s1, _params);
         }
 
@@ -24246,7 +24246,7 @@ public partial class alglib
             int offs1 = 0;
             int m = 0;
 
-            alglib.ap.assert((s0.matrixtype == 0 || s0.matrixtype == 1) || s0.matrixtype == 2, "SparseCopyToCRSBuf: invalid matrix type");
+            ap.assert((s0.matrixtype == 0 || s0.matrixtype == 1) || s0.matrixtype == 2, "SparseCopyToCRSBuf: invalid matrix type");
             m = s0.m;
             if (s0.matrixtype == 0)
             {
@@ -24329,7 +24329,7 @@ public partial class alglib
             }
             if (s0.matrixtype == 2)
             {
-                alglib.ap.assert(s0.m == s0.n, "SparseCopyToCRS: non-square SKS matrices are not supported");
+                ap.assert(s0.m == s0.n, "SparseCopyToCRS: non-square SKS matrices are not supported");
 
                 //
                 // From SKS to CRS.
@@ -24415,7 +24415,7 @@ public partial class alglib
                 sparseinitduidx(s1, _params);
                 return;
             }
-            alglib.ap.assert(false, "SparseCopyToCRSBuf: unexpected matrix type");
+            ap.assert(false, "SparseCopyToCRSBuf: unexpected matrix type");
         }
 
 
@@ -24454,8 +24454,8 @@ public partial class alglib
             int k = 0;
             double v = 0;
 
-            alglib.ap.assert((s.matrixtype == 0 || s.matrixtype == 1) || s.matrixtype == 2, "SparseConvertToSKS: invalid matrix type");
-            alglib.ap.assert(s.m == s.n, "SparseConvertToSKS: rectangular matrices are not supported");
+            ap.assert((s.matrixtype == 0 || s.matrixtype == 1) || s.matrixtype == 2, "SparseConvertToSKS: invalid matrix type");
+            ap.assert(s.m == s.n, "SparseConvertToSKS: rectangular matrices are not supported");
             n = s.n;
             if (s.matrixtype == 2)
             {
@@ -24524,10 +24524,10 @@ public partial class alglib
             s.nfree = 0;
             s.m = n;
             s.n = n;
-            alglib.ap.swap(ref s.didx, ref tdidx);
-            alglib.ap.swap(ref s.uidx, ref tuidx);
-            alglib.ap.swap(ref s.ridx, ref tridx);
-            alglib.ap.swap(ref s.vals, ref tvals);
+            ap.swap(ref s.didx, ref tdidx);
+            ap.swap(ref s.uidx, ref tuidx);
+            ap.swap(ref s.ridx, ref tridx);
+            ap.swap(ref s.vals, ref tvals);
         }
 
 
@@ -24556,7 +24556,7 @@ public partial class alglib
             sparsematrix s1,
             alglib.xparams _params)
         {
-            alglib.ap.assert((s0.matrixtype == 0 || s0.matrixtype == 1) || s0.matrixtype == 2, "SparseCopyToSKS: invalid matrix type");
+            ap.assert((s0.matrixtype == 0 || s0.matrixtype == 1) || s0.matrixtype == 2, "SparseCopyToSKS: invalid matrix type");
             sparsecopytosksbuf(s0, s1, _params);
         }
 
@@ -24589,8 +24589,8 @@ public partial class alglib
             int j = 0;
             int k = 0;
 
-            alglib.ap.assert((s0.matrixtype == 0 || s0.matrixtype == 1) || s0.matrixtype == 2, "SparseCopyToSKSBuf: invalid matrix type");
-            alglib.ap.assert(s0.m == s0.n, "SparseCopyToSKSBuf: rectangular matrices are not supported");
+            ap.assert((s0.matrixtype == 0 || s0.matrixtype == 1) || s0.matrixtype == 2, "SparseCopyToSKSBuf: invalid matrix type");
+            ap.assert(s0.m == s0.n, "SparseCopyToSKSBuf: rectangular matrices are not supported");
             n = s0.n;
             if (s0.matrixtype == 2)
             {
@@ -24705,8 +24705,8 @@ public partial class alglib
             //
             // Quick exit for M=0 or N=0
             //
-            alglib.ap.assert(s.m >= 0, "SparseCreateCRSInplace: integrity check failed");
-            alglib.ap.assert(s.n >= 0, "SparseCreateCRSInplace: integrity check failed");
+            ap.assert(s.m >= 0, "SparseCreateCRSInplace: integrity check failed");
+            ap.assert(s.n >= 0, "SparseCreateCRSInplace: integrity check failed");
             if (m == 0 || n == 0)
             {
                 s.matrixtype = 1;
@@ -24727,15 +24727,15 @@ public partial class alglib
             //
             // Perform integrity check
             //
-            alglib.ap.assert(s.m > 0, "SparseCreateCRSInplace: integrity check failed");
-            alglib.ap.assert(s.n > 0, "SparseCreateCRSInplace: integrity check failed");
-            alglib.ap.assert(alglib.ap.len(s.ridx) >= m + 1, "SparseCreateCRSInplace: integrity check failed");
+            ap.assert(s.m > 0, "SparseCreateCRSInplace: integrity check failed");
+            ap.assert(s.n > 0, "SparseCreateCRSInplace: integrity check failed");
+            ap.assert(ap.len(s.ridx) >= m + 1, "SparseCreateCRSInplace: integrity check failed");
             for (i = 0; i <= m - 1; i++)
             {
-                alglib.ap.assert(s.ridx[i] >= 0 && s.ridx[i] <= s.ridx[i + 1], "SparseCreateCRSInplace: integrity check failed");
+                ap.assert(s.ridx[i] >= 0 && s.ridx[i] <= s.ridx[i + 1], "SparseCreateCRSInplace: integrity check failed");
             }
-            alglib.ap.assert(s.ridx[m] <= alglib.ap.len(s.idx), "SparseCreateCRSInplace: integrity check failed");
-            alglib.ap.assert(s.ridx[m] <= alglib.ap.len(s.vals), "SparseCreateCRSInplace: integrity check failed");
+            ap.assert(s.ridx[m] <= ap.len(s.idx), "SparseCreateCRSInplace: integrity check failed");
+            ap.assert(s.ridx[m] <= ap.len(s.vals), "SparseCreateCRSInplace: integrity check failed");
 
             //
             // Initialize
@@ -24760,7 +24760,7 @@ public partial class alglib
                 }
                 if (j1 > j0)
                 {
-                    alglib.ap.assert(s.idx[j0] >= 0 && s.idx[j1 - 1] < n, "SparseCreateCRSInplace: integrity check 655132 failed");
+                    ap.assert(s.idx[j0] >= 0 && s.idx[j1 - 1] < n, "SparseCreateCRSInplace: integrity check 655132 failed");
                 }
             }
             sparseinitduidx(s, _params);
@@ -24791,7 +24791,7 @@ public partial class alglib
         {
             int result = 0;
 
-            alglib.ap.assert((((s.matrixtype == 0 || s.matrixtype == 1) || s.matrixtype == 2) || s.matrixtype == -10081) || s.matrixtype == -10082, "SparseGetMatrixType: invalid matrix type");
+            ap.assert((((s.matrixtype == 0 || s.matrixtype == 1) || s.matrixtype == 2) || s.matrixtype == -10081) || s.matrixtype == -10082, "SparseGetMatrixType: invalid matrix type");
             result = s.matrixtype;
             return result;
         }
@@ -24816,7 +24816,7 @@ public partial class alglib
         {
             bool result = new();
 
-            alglib.ap.assert((((s.matrixtype == 0 || s.matrixtype == 1) || s.matrixtype == 2) || s.matrixtype == -10081) || s.matrixtype == -10082, "SparseIsHash: invalid matrix type");
+            ap.assert((((s.matrixtype == 0 || s.matrixtype == 1) || s.matrixtype == 2) || s.matrixtype == -10081) || s.matrixtype == -10082, "SparseIsHash: invalid matrix type");
             result = s.matrixtype == 0;
             return result;
         }
@@ -24841,7 +24841,7 @@ public partial class alglib
         {
             bool result = new();
 
-            alglib.ap.assert((((s.matrixtype == 0 || s.matrixtype == 1) || s.matrixtype == 2) || s.matrixtype == -10081) || s.matrixtype == -10082, "SparseIsCRS: invalid matrix type");
+            ap.assert((((s.matrixtype == 0 || s.matrixtype == 1) || s.matrixtype == 2) || s.matrixtype == -10081) || s.matrixtype == -10082, "SparseIsCRS: invalid matrix type");
             result = s.matrixtype == 1;
             return result;
         }
@@ -24866,7 +24866,7 @@ public partial class alglib
         {
             bool result = new();
 
-            alglib.ap.assert((((s.matrixtype == 0 || s.matrixtype == 1) || s.matrixtype == 2) || s.matrixtype == -10081) || s.matrixtype == -10082, "SparseIsSKS: invalid matrix type");
+            ap.assert((((s.matrixtype == 0 || s.matrixtype == 1) || s.matrixtype == 2) || s.matrixtype == -10081) || s.matrixtype == -10082, "SparseIsSKS: invalid matrix type");
             result = s.matrixtype == 2;
             return result;
         }
@@ -24979,7 +24979,7 @@ public partial class alglib
                 //
                 // CRS matrix
                 //
-                alglib.ap.assert(s.ninitialized == s.ridx[s.m], "SparseGetUpperCount: some rows/elements of the CRS matrix were not initialized (you must initialize everything you promised to SparseCreateCRS)");
+                ap.assert(s.ninitialized == s.ridx[s.m], "SparseGetUpperCount: some rows/elements of the CRS matrix were not initialized (you must initialize everything you promised to SparseCreateCRS)");
                 result = 0;
                 sz = s.m;
                 for (i = 0; i <= sz - 1; i++)
@@ -24994,7 +24994,7 @@ public partial class alglib
                 //
                 // SKS matrix
                 //
-                alglib.ap.assert(s.m == s.n, "SparseGetUpperCount: non-square SKS matrices are not supported");
+                ap.assert(s.m == s.n, "SparseGetUpperCount: non-square SKS matrices are not supported");
                 result = 0;
                 sz = s.m;
                 for (i = 0; i <= sz - 1; i++)
@@ -25003,7 +25003,7 @@ public partial class alglib
                 }
                 return result;
             }
-            alglib.ap.assert(false, "SparseGetUpperCount: internal error");
+            ap.assert(false, "SparseGetUpperCount: internal error");
             return result;
         }
 
@@ -25057,7 +25057,7 @@ public partial class alglib
                 //
                 // CRS matrix
                 //
-                alglib.ap.assert(s.ninitialized == s.ridx[s.m], "SparseGetUpperCount: some rows/elements of the CRS matrix were not initialized (you must initialize everything you promised to SparseCreateCRS)");
+                ap.assert(s.ninitialized == s.ridx[s.m], "SparseGetUpperCount: some rows/elements of the CRS matrix were not initialized (you must initialize everything you promised to SparseCreateCRS)");
                 result = 0;
                 sz = s.m;
                 for (i = 0; i <= sz - 1; i++)
@@ -25072,7 +25072,7 @@ public partial class alglib
                 //
                 // SKS matrix
                 //
-                alglib.ap.assert(s.m == s.n, "SparseGetUpperCount: non-square SKS matrices are not supported");
+                ap.assert(s.m == s.n, "SparseGetUpperCount: non-square SKS matrices are not supported");
                 result = 0;
                 sz = s.m;
                 for (i = 0; i <= sz - 1; i++)
@@ -25081,7 +25081,7 @@ public partial class alglib
                 }
                 return result;
             }
-            alglib.ap.assert(false, "SparseGetUpperCount: internal error");
+            ap.assert(false, "SparseGetUpperCount: internal error");
             return result;
         }
 
@@ -25148,8 +25148,8 @@ public partial class alglib
             r = new double[0];
             c = new double[0];
 
-            alglib.ap.assert(s.matrixtype == 1, "SparseScale: incorrect matrix type (convert your matrix to CRS)");
-            alglib.ap.assert(scltype == 0 || scltype == 1, "SparseScale: incorrect matrix type (convert your matrix to CRS)");
+            ap.assert(s.matrixtype == 1, "SparseScale: incorrect matrix type (convert your matrix to CRS)");
+            ap.assert(scltype == 0 || scltype == 1, "SparseScale: incorrect matrix type (convert your matrix to CRS)");
 
             //
             // Initialization and quick exit
@@ -25259,7 +25259,7 @@ public partial class alglib
         public static void sparseappendcoltocrs(sparsematrix s,
             alglib.xparams _params)
         {
-            alglib.ap.assert(s.matrixtype == 1, "SparseScale: incorrect matrix type (convert your matrix to CRS)");
+            ap.assert(s.matrixtype == 1, "SparseScale: incorrect matrix type (convert your matrix to CRS)");
             s.n = s.n + 1;
         }
 
@@ -25309,10 +25309,10 @@ public partial class alglib
             int j1 = 0;
             int k1 = 0;
 
-            alglib.ap.assert(dst.matrixtype == 1, "SparseTryGatherClear: Dst has incorrect matrix type (convert your matrix to CRS)");
-            alglib.ap.assert(src.matrixtype == 1, "SparseTryGatherClear: Src has incorrect matrix type (convert your matrix to CRS)");
-            alglib.ap.assert(dst.m == src.m, "SparseTryGatherClear: Dst and Src have different row counts");
-            alglib.ap.assert(dst.n == src.n, "SparseTryGatherClear: Dst and Src have different column counts");
+            ap.assert(dst.matrixtype == 1, "SparseTryGatherClear: Dst has incorrect matrix type (convert your matrix to CRS)");
+            ap.assert(src.matrixtype == 1, "SparseTryGatherClear: Src has incorrect matrix type (convert your matrix to CRS)");
+            ap.assert(dst.m == src.m, "SparseTryGatherClear: Dst and Src have different row counts");
+            ap.assert(dst.n == src.n, "SparseTryGatherClear: Dst and Src have different column counts");
 
             //
             // Analyze and gather
@@ -25397,10 +25397,10 @@ public partial class alglib
             int k1 = 0;
             int offs = 0;
 
-            alglib.ap.assert(s1.matrixtype == 1, "SparseMergePatterns: S1 has incorrect matrix type (convert your matrix to CRS)");
-            alglib.ap.assert(s2.matrixtype == 1, "SparseMergePatterns: S2 has incorrect matrix type (convert your matrix to CRS)");
-            alglib.ap.assert(s1.m == s2.m, "SparseMergePatterns: S1 and S2 have different row counts");
-            alglib.ap.assert(s1.n == s2.n, "SparseMergePatterns: S1 and S2 have different column counts");
+            ap.assert(s1.matrixtype == 1, "SparseMergePatterns: S1 has incorrect matrix type (convert your matrix to CRS)");
+            ap.assert(s2.matrixtype == 1, "SparseMergePatterns: S2 has incorrect matrix type (convert your matrix to CRS)");
+            ap.assert(s1.m == s2.m, "SparseMergePatterns: S1 and S2 have different row counts");
+            ap.assert(s1.n == s2.n, "SparseMergePatterns: S1 and S2 have different column counts");
 
             //
             // Combine
@@ -25480,7 +25480,7 @@ public partial class alglib
             int i = 0;
             int nused = 0;
 
-            alglib.ap.assert((a.matrixtype == 0 || a.matrixtype == 1) || a.matrixtype == 2, "SparseAlloc: only CRS/SKS matrices are supported");
+            ap.assert((a.matrixtype == 0 || a.matrixtype == 1) || a.matrixtype == 2, "SparseAlloc: only CRS/SKS matrices are supported");
 
             //
             // Header
@@ -25538,7 +25538,7 @@ public partial class alglib
                 //
                 // Alloc SKS
                 //
-                alglib.ap.assert(a.m == a.n, "SparseAlloc: rectangular SKS serialization is not supported");
+                ap.assert(a.m == a.n, "SparseAlloc: rectangular SKS serialization is not supported");
                 s.alloc_entry();
                 s.alloc_entry();
                 apserv.allocintegerarray(s, a.ridx, a.m + 1, _params);
@@ -25569,7 +25569,7 @@ public partial class alglib
             int i = 0;
             int nused = 0;
 
-            alglib.ap.assert((a.matrixtype == 0 || a.matrixtype == 1) || a.matrixtype == 2, "SparseSerialize: only CRS/SKS matrices are supported");
+            ap.assert((a.matrixtype == 0 || a.matrixtype == 1) || a.matrixtype == 2, "SparseSerialize: only CRS/SKS matrices are supported");
 
             //
             // Header
@@ -25627,7 +25627,7 @@ public partial class alglib
                 //
                 // Serialize SKS
                 //
-                alglib.ap.assert(a.m == a.n, "SparseSerialize: rectangular SKS serialization is not supported");
+                ap.assert(a.m == a.n, "SparseSerialize: rectangular SKS serialization is not supported");
                 s.serialize_int(a.m);
                 s.serialize_int(a.n);
                 apserv.serializeintegerarray(s, a.ridx, a.m + 1, _params);
@@ -25667,11 +25667,11 @@ public partial class alglib
             // Check stream header: scode, matrix type, version type
             //
             k = s.unserialize_int();
-            alglib.ap.assert(k == scodes.getsparsematrixserializationcode(_params), "SparseUnserialize: stream header corrupted");
+            ap.assert(k == scodes.getsparsematrixserializationcode(_params), "SparseUnserialize: stream header corrupted");
             a.matrixtype = s.unserialize_int();
-            alglib.ap.assert((a.matrixtype == 0 || a.matrixtype == 1) || a.matrixtype == 2, "SparseUnserialize: unexpected matrix type");
+            ap.assert((a.matrixtype == 0 || a.matrixtype == 1) || a.matrixtype == 2, "SparseUnserialize: unexpected matrix type");
             k = s.unserialize_int();
-            alglib.ap.assert(k == 0, "SparseUnserialize: stream header corrupted");
+            ap.assert(k == 0, "SparseUnserialize: stream header corrupted");
 
             //
             // Unserialize other parameters
@@ -25716,7 +25716,7 @@ public partial class alglib
                 //
                 a.m = s.unserialize_int();
                 a.n = s.unserialize_int();
-                alglib.ap.assert(a.m == a.n, "SparseUnserialize: rectangular SKS unserialization is not supported");
+                ap.assert(a.m == a.n, "SparseUnserialize: rectangular SKS unserialization is not supported");
                 apserv.unserializeintegerarray(s, ref a.ridx, _params);
                 apserv.unserializeintegerarray(s, ref a.didx, _params);
                 apserv.unserializeintegerarray(s, ref a.uidx, _params);
@@ -25727,7 +25727,7 @@ public partial class alglib
             // End of stream
             //
             k = s.unserialize_int();
-            alglib.ap.assert(k == 117, "SparseMatrixUnserialize: end-of-stream marker not found");
+            ap.assert(k == 117, "SparseMatrixUnserialize: end-of-stream marker not found");
         }
 
 
@@ -25744,7 +25744,7 @@ public partial class alglib
             int j0 = 0;
             int j1 = 0;
 
-            alglib.ap.assert((s.matrixtype == 1 && s.m >= 1) && s.n >= 1, "SQP: integrity check 5541 failed");
+            ap.assert((s.matrixtype == 1 && s.m >= 1) && s.n >= 1, "SQP: integrity check 5541 failed");
             result = 0.0;
             j0 = s.ridx[r];
             j1 = s.ridx[r + 1] - 1;
@@ -25768,7 +25768,7 @@ public partial class alglib
             int j0 = 0;
             int j1 = 0;
 
-            alglib.ap.assert((s.matrixtype == 1 && s.m >= 1) && s.n >= 1, "SQP: integrity check 5541 failed");
+            ap.assert((s.matrixtype == 1 && s.m >= 1) && s.n >= 1, "SQP: integrity check 5541 failed");
             result = 0.0;
             j0 = s.ridx[r];
             j1 = s.ridx[r + 1] - 1;
@@ -25794,7 +25794,7 @@ public partial class alglib
             int j0 = 0;
             int j1 = 0;
 
-            alglib.ap.assert((s.matrixtype == 1 && s.m >= 1) && s.n >= 1, "SQP: integrity check 5541 failed");
+            ap.assert((s.matrixtype == 1 && s.m >= 1) && s.n >= 1, "SQP: integrity check 5541 failed");
             result = 0.0;
             j0 = s.ridx[r];
             j1 = s.ridx[r + 1] - 1;
@@ -25897,38 +25897,38 @@ public partial class alglib
 
             if (s.matrixtype != 1)
             {
-                alglib.ap.trace("<non-CRS matrix>");
+                ap.trace("<non-CRS matrix>");
                 if (newlineatend)
                 {
-                    alglib.ap.trace("\n");
+                    ap.trace("\n");
                 }
                 return;
             }
             isfirst = true;
-            alglib.ap.trace("[");
+            ap.trace("[");
             for (i = 0; i <= s.m - 1; i++)
             {
                 for (jj = s.ridx[i]; jj <= s.ridx[i + 1] - 1; jj++)
                 {
                     if (!isfirst)
                     {
-                        alglib.ap.trace(",");
+                        ap.trace(",");
                     }
                     if (usee15)
                     {
-                        alglib.ap.trace(System.String.Format("({0,0:d},{1,0:d},{2,23:E15})", i, s.idx[jj], s.vals[jj]));
+                        ap.trace(System.String.Format("({0,0:d},{1,0:d},{2,23:E15})", i, s.idx[jj], s.vals[jj]));
                     }
                     else
                     {
-                        alglib.ap.trace(System.String.Format("({0,0:d},{1,0:d},{2,14:E6})", i, s.idx[jj], s.vals[jj]));
+                        ap.trace(System.String.Format("({0,0:d},{1,0:d},{2,14:E6})", i, s.idx[jj], s.vals[jj]));
                     }
                     isfirst = false;
                 }
             }
-            alglib.ap.trace("]");
+            ap.trace("]");
             if (newlineatend)
             {
-                alglib.ap.trace("\n");
+                ap.trace("\n");
             }
         }
 
@@ -27020,9 +27020,9 @@ public partial class alglib
             bool densificationsupported = new();
             int densifyabove = 0;
 
-            alglib.ap.assert(sparse.sparseiscrs(a, _params), "SparseLU: A is not stored in CRS format");
-            alglib.ap.assert(sparse.sparsegetnrows(a, _params) == sparse.sparsegetncols(a, _params), "SparseLU: non-square A");
-            alglib.ap.assert((pivottype == 0 || pivottype == 1) || pivottype == 2, "SparseLU: unexpected pivot type");
+            ap.assert(sparse.sparseiscrs(a, _params), "SparseLU: A is not stored in CRS format");
+            ap.assert(sparse.sparsegetnrows(a, _params) == sparse.sparsegetncols(a, _params), "SparseLU: non-square A");
+            ap.assert((pivottype == 0 || pivottype == 1) || pivottype == 2, "SparseLU: unexpected pivot type");
             result = true;
             n = sparse.sparsegetnrows(a, _params);
             if (pivottype == 0)
@@ -27108,7 +27108,7 @@ public partial class alglib
                     //
                     // Only densified columns are left, break sparse iteration
                     //
-                    alglib.ap.assert(buf.dtrail.ndense + k == n, "SPTRF: integrity check failed (35741)");
+                    ap.assert(buf.dtrail.ndense + k == n, "SPTRF: integrity check failed (35741)");
                     break;
                 }
                 pc[k] = jbest;
@@ -27210,7 +27210,7 @@ public partial class alglib
                             break;
                         }
                     }
-                    alglib.ap.assert(jp >= 0, "SPTRF: integrity check failed during reordering");
+                    ap.assert(jp >= 0, "SPTRF: integrity check failed during reordering");
                     k = buf.strail.colid[i];
                     buf.strail.colid[i] = buf.strail.colid[jp];
                     buf.strail.colid[jp] = k;
@@ -27403,7 +27403,7 @@ public partial class alglib
         {
             int i = 0;
 
-            alglib.ap.assert(n >= 1, "SLUV2List1Init: N<1");
+            ap.assert(n >= 1, "SLUV2List1Init: N<1");
             a.nfixed = n;
             a.ndynamic = 0;
             a.nallocated = n;
@@ -27553,7 +27553,7 @@ public partial class alglib
             // Fetch matrix size, increase
             //
             k = a.ndynamic;
-            alglib.ap.assert(k < a.nfixed);
+            ap.assert(k < a.nfixed);
             a.ndynamic = k + 1;
 
             //
@@ -27604,7 +27604,7 @@ public partial class alglib
             d.n = n;
             d.ndense = 0;
             apserv.ivectorsetlengthatleast(ref d.did, n, _params);
-            if (alglib.ap.rows(d.d) <= excessivesize)
+            if (ap.rows(d.d) <= excessivesize)
             {
                 apserv.rmatrixsetlengthatleast(ref d.d, n, 1, _params);
             }
@@ -27677,8 +27677,8 @@ public partial class alglib
             int p = 0;
             int slsused = 0;
 
-            alglib.ap.assert(s.m == s.n, "SparseTrailInit: M<>N");
-            alglib.ap.assert(s.matrixtype == 1, "SparseTrailInit: non-CRS input");
+            ap.assert(s.m == s.n, "SparseTrailInit: M<>N");
+            ap.assert(s.matrixtype == 1, "SparseTrailInit: non-CRS input");
             n = s.n;
             a.n = s.n;
             a.k = 0;
@@ -27825,7 +27825,7 @@ public partial class alglib
                 //
                 // No column pivoting
                 //
-                alglib.ap.assert(!a.isdensified[k], "SparseTrailFindPivot: integrity check failed");
+                ap.assert(!a.isdensified[k], "SparseTrailFindPivot: integrity check failed");
                 jpiv = k;
             }
             else
@@ -28002,7 +28002,7 @@ public partial class alglib
 
             n = a.n;
             k = a.k;
-            alglib.ap.assert(k < n, "SparseTrailPivotOut: integrity check failed");
+            ap.assert(k < n, "SparseTrailPivotOut: integrity check failed");
 
             //
             // Pivot out column JPiv from the sparse linked storage:
@@ -28342,9 +28342,9 @@ public partial class alglib
 
             n = a.n;
             k = a.k;
-            alglib.ap.assert(k < n, "SparseTrailDensify: integrity check failed");
-            alglib.ap.assert(k <= i1, "SparseTrailDensify: integrity check failed");
-            alglib.ap.assert(!a.isdensified[i1], "SparseTrailDensify: integrity check failed");
+            ap.assert(k < n, "SparseTrailDensify: integrity check failed");
+            ap.assert(k <= i1, "SparseTrailDensify: integrity check failed");
+            ap.assert(!a.isdensified[i1], "SparseTrailDensify: integrity check failed");
 
             //
             // Offload items [0,K) of densified column from BUpper
@@ -28463,10 +28463,10 @@ public partial class alglib
 
             n = a.n;
             k = a.k;
-            alglib.ap.assert(k < n, "SparseTrailPivotOut: integrity check failed");
+            ap.assert(k < n, "SparseTrailPivotOut: integrity check failed");
             densifyabove = (int)Math.Round(densebnd * (n - k)) + 1;
-            alglib.ap.assert(alglib.ap.len(v0i) >= nz0 + 1, "SparseTrailUpdate: integrity check failed");
-            alglib.ap.assert(alglib.ap.len(v0r) >= nz0 + 1, "SparseTrailUpdate: integrity check failed");
+            ap.assert(ap.len(v0i) >= nz0 + 1, "SparseTrailUpdate: integrity check failed");
+            ap.assert(ap.len(v0r) >= nz0 + 1, "SparseTrailUpdate: integrity check failed");
             v0i[nz0] = -1;
             v0r[nz0] = 0;
 
@@ -28887,7 +28887,7 @@ public partial class alglib
             bool[] dummy = new bool[0];
 
             r = generateamdpermutationx(a, dummy, n, 0.0, ref perm, ref invperm, 0, buf, _params);
-            alglib.ap.assert(r == n, "GenerateAMDPermutation: integrity check failed, the matrix is only partially processed");
+            ap.assert(r == n, "GenerateAMDPermutation: integrity check failed, the matrix is only partially processed");
         }
 
 
@@ -28971,8 +28971,8 @@ public partial class alglib
             int neligible = 0;
             int d = 0;
 
-            alglib.ap.assert(amdtype == 0 || amdtype == 1, "GenerateAMDPermutationX: unexpected ordering type");
-            alglib.ap.assert(amdtype == 0 || (math.isfinite(promoteabove) && (double)(promoteabove) >= (double)(0)), "GenerateAMDPermutationX: unexpected PromoteAbove - infinite or negative");
+            ap.assert(amdtype == 0 || amdtype == 1, "GenerateAMDPermutationX: unexpected ordering type");
+            ap.assert(amdtype == 0 || (math.isfinite(promoteabove) && (double)(promoteabove) >= (double)(0)), "GenerateAMDPermutationX: unexpected PromoteAbove - infinite or negative");
             setprealloc = 3;
             inithashbucketsize = 16;
             extendeddebug = ap.istraceenabled("DEBUG.SLOW", _params) && n <= 100;
@@ -29044,7 +29044,7 @@ public partial class alglib
             tau = 0;
             if (amdtype == 1)
             {
-                alglib.ap.assert(alglib.ap.len(eligible) >= n, "GenerateAMDPermutationX: length(Eligible)<N");
+                ap.assert(ap.len(eligible) >= n, "GenerateAMDPermutationX: length(Eligible)<N");
                 meand = 0.0;
                 neligible = 0;
                 for (i = 0; i <= n - 1; i++)
@@ -29082,7 +29082,7 @@ public partial class alglib
                 amddetectsupernodes(buf, _params);
                 if (extendeddebug)
                 {
-                    alglib.ap.assert(buf.checkexactdegrees, "AMD: extended debug needs exact degrees");
+                    ap.assert(buf.checkexactdegrees, "AMD: extended debug needs exact degrees");
                     for (i = k; i <= k + nodesize - 1; i++)
                     {
                         if (buf.columnswaps[i] != i)
@@ -29104,12 +29104,12 @@ public partial class alglib
                             apserv.inc(ref cnt1, _params);
                         }
                     }
-                    alglib.ap.assert(cnt0 + nodesize - 1 == cnt1, "AMD: integrity check 7344 failed");
-                    alglib.ap.assert(vtxgetapprox(buf.vertexdegrees, p, _params) >= vtxgetexact(buf.vertexdegrees, p, _params), "AMD: integrity check for ApproxD failed");
-                    alglib.ap.assert(vtxgetexact(buf.vertexdegrees, p, _params) == cnt0, "AMD: integrity check for ExactD failed");
+                    ap.assert(cnt0 + nodesize - 1 == cnt1, "AMD: integrity check 7344 failed");
+                    ap.assert(vtxgetapprox(buf.vertexdegrees, p, _params) >= vtxgetexact(buf.vertexdegrees, p, _params), "AMD: integrity check for ApproxD failed");
+                    ap.assert(vtxgetexact(buf.vertexdegrees, p, _params) == cnt0, "AMD: integrity check for ExactD failed");
                 }
-                alglib.ap.assert(vtxgetapprox(buf.vertexdegrees, p, _params) >= apstruct.niscount(buf.lp, _params), "AMD: integrity check 7956 failed");
-                alglib.ap.assert((knscountkth(buf.sete, p, _params) > 2 || apstruct.niscount(buf.setq, _params) > 0) || vtxgetapprox(buf.vertexdegrees, p, _params) == apstruct.niscount(buf.lp, _params), "AMD: integrity check 7295 failed");
+                ap.assert(vtxgetapprox(buf.vertexdegrees, p, _params) >= apstruct.niscount(buf.lp, _params), "AMD: integrity check 7956 failed");
+                ap.assert((knscountkth(buf.sete, p, _params) > 2 || apstruct.niscount(buf.setq, _params) > 0) || vtxgetapprox(buf.vertexdegrees, p, _params) == apstruct.niscount(buf.lp, _params), "AMD: integrity check 7295 failed");
                 knsstartenumeration(buf.sete, p, _params);
                 while (knsenumerate(buf.sete, ref j, _params))
                 {
@@ -29127,7 +29127,7 @@ public partial class alglib
                 vtxremovevertex(buf.vertexdegrees, p, _params);
                 k = k + nodesize;
             }
-            alglib.ap.assert(k > 0 || amdtype == 1, "AMD: integrity check 9463 failed");
+            ap.assert(k > 0 || amdtype == 1, "AMD: integrity check 9463 failed");
             result = k;
             apserv.ivectorsetlengthatleast(ref perm, n, _params);
             apserv.ivectorsetlengthatleast(ref invperm, n, _params);
@@ -29328,7 +29328,7 @@ public partial class alglib
             {
                 blocklen = sa.data[srcoffs + 0];
                 setidx = sa.data[srcoffs + 1];
-                alglib.ap.assert(blocklen >= knsheadersize, "knsCompressStorage: integrity check 6385 failed");
+                ap.assert(blocklen >= knsheadersize, "knsCompressStorage: integrity check 6385 failed");
                 if (setidx < 0)
                 {
                     srcoffs = srcoffs + blocklen;
@@ -29345,7 +29345,7 @@ public partial class alglib
                 dstoffs = dstoffs + blocklen;
                 srcoffs = srcoffs + blocklen;
             }
-            alglib.ap.assert(srcoffs == sa.dataused, "knsCompressStorage: integrity check 9464 failed");
+            ap.assert(srcoffs == sa.dataused, "knsCompressStorage: integrity check 9464 failed");
             sa.dataused = dstoffs;
         }
 
@@ -29375,10 +29375,10 @@ public partial class alglib
             int newbegin = 0;
             int j = 0;
 
-            if (alglib.ap.len(sa.data) < sa.dataused + knsheadersize + newallocated)
+            if (ap.len(sa.data) < sa.dataused + knsheadersize + newallocated)
             {
                 knscompressstorage(sa, _params);
-                if (alglib.ap.len(sa.data) < sa.dataused + knsheadersize + newallocated)
+                if (ap.len(sa.data) < sa.dataused + knsheadersize + newallocated)
                 {
                     apserv.ivectorgrowto(ref sa.data, sa.dataused + knsheadersize + newallocated, _params);
                 }
@@ -29475,7 +29475,7 @@ public partial class alglib
             apserv.ivectorsetlengthatleast(ref sa.vallocated, n, _params);
             for (i = 0; i <= n - 1; i++)
             {
-                alglib.ap.assert(a.didx[i] < a.uidx[i], "knsInitFromA: integrity check for diagonal of A failed");
+                ap.assert(a.didx[i] < a.uidx[i], "knsInitFromA: integrity check for diagonal of A failed");
                 j0 = a.ridx[i];
                 j1 = a.didx[i] - 1;
                 sa.vallocated[i] = j1 - j0 + 1;
@@ -30423,7 +30423,7 @@ public partial class alglib
             int idxprev = 0;
             int idxnext = 0;
 
-            alglib.ap.assert(s.isvertex[p], "AMD: trying to remove already removed vertex");
+            ap.assert(s.isvertex[p], "AMD: trying to remove already removed vertex");
             if (s.eligible[p])
             {
                 d = s.approxd[p];
@@ -30474,7 +30474,7 @@ public partial class alglib
         {
             int result = 0;
 
-            alglib.ap.assert(s.isvertex[p], "AMD: trying to call vtxGetApprox() for removed vertex");
+            ap.assert(s.isvertex[p], "AMD: trying to call vtxGetApprox() for removed vertex");
             result = s.approxd[p];
             return result;
         }
@@ -30574,7 +30574,7 @@ public partial class alglib
             int idxnext = 0;
             int oldbegin = 0;
 
-            alglib.ap.assert(s.isvertex[p], "AMD: trying to call vtxUpdateApproximateDegree() for removed vertex");
+            ap.assert(s.isvertex[p], "AMD: trying to call vtxUpdateApproximateDegree() for removed vertex");
             dold = s.approxd[p];
             if (dold == dnew)
             {
@@ -30684,7 +30684,7 @@ public partial class alglib
             {
                 return;
             }
-            alglib.ap.assert(vtxgetapprox(buf.vertexdegrees, p, _params) >= 0, "integrity check RDFD2 failed");
+            ap.assert(vtxgetapprox(buf.vertexdegrees, p, _params) >= 0, "integrity check RDFD2 failed");
             nodesize = 0;
             knsstartenumeration(buf.setsuper, p, _params);
             while (knsenumerate(buf.setsuper, ref j, _params))
@@ -30697,7 +30697,7 @@ public partial class alglib
                 buf.perm[buf.invperm[k + nodesize]] = k + nodesize;
                 apserv.inc(ref nodesize, _params);
             }
-            alglib.ap.assert(vtxgetapprox(buf.vertexdegrees, p, _params) >= 0 && (!buf.checkexactdegrees || vtxgetexact(buf.vertexdegrees, p, _params) >= 0), "AMD: integrity check RDFD failed");
+            ap.assert(vtxgetapprox(buf.vertexdegrees, p, _params) >= 0 && (!buf.checkexactdegrees || vtxgetexact(buf.vertexdegrees, p, _params) >= 0), "AMD: integrity check RDFD failed");
         }
 
 
@@ -30743,7 +30743,7 @@ public partial class alglib
             apstruct.nisstartenumeration(buf.lp, _params);
             while (apstruct.nisenumerate(buf.lp, ref i, _params))
             {
-                alglib.ap.assert(!buf.iseliminated[i], "AMD: integrity check 0740 failed");
+                ap.assert(!buf.iseliminated[i], "AMD: integrity check 0740 failed");
                 mtxinsertnewelement(buf.mtxl, i, p, _params);
                 if (buf.issupernode[i])
                 {
@@ -30840,9 +30840,9 @@ public partial class alglib
                     knsaddnewelement(buf.sete, lpi, p, _params);
                     if (buf.extendeddebug)
                     {
-                        alglib.ap.assert(knscountnotkth(buf.seta, lpi, buf.setsuper, lpi, _params) == knscountkth(buf.seta, lpi, _params), "AMD: integrity check 454F failed");
-                        alglib.ap.assert(knscountandkth(buf.seta, lpi, buf.setsuper, lpi, _params) == 0, "AMD: integrity check kl5nv failed");
-                        alglib.ap.assert(nscountandkth(buf.lp, buf.setsuper, lpi, _params) == knscountkth(buf.setsuper, lpi, _params), "AMD: integrity check 8463 failed");
+                        ap.assert(knscountnotkth(buf.seta, lpi, buf.setsuper, lpi, _params) == knscountkth(buf.seta, lpi, _params), "AMD: integrity check 454F failed");
+                        ap.assert(knscountandkth(buf.seta, lpi, buf.setsuper, lpi, _params) == 0, "AMD: integrity check kl5nv failed");
+                        ap.assert(nscountandkth(buf.lp, buf.setsuper, lpi, _params) == knscountkth(buf.setsuper, lpi, _params), "AMD: integrity check 8463 failed");
                     }
                     cntq = apstruct.niscount(buf.setq, _params);
                     cntsuperi = knscountkth(buf.setsuper, lpi, _params);
@@ -30898,8 +30898,8 @@ public partial class alglib
                             mtxaddcolumnto(buf.mtxl, j, buf.exactdegreetmp0, _params);
                         }
                         vtxupdateexactdegree(buf.vertexdegrees, lpi, cntainoti + nscountnotkth(buf.exactdegreetmp0, buf.setsuper, lpi, _params), _params);
-                        alglib.ap.assert((knscountkth(buf.sete, lpi, _params) > 2 || cntq > 0) || vtxgetapprox(buf.vertexdegrees, lpi, _params) == vtxgetexact(buf.vertexdegrees, lpi, _params), "AMD: integrity check 7206 failed");
-                        alglib.ap.assert(vtxgetapprox(buf.vertexdegrees, lpi, _params) >= vtxgetexact(buf.vertexdegrees, lpi, _params), "AMD: integrity check 8206 failed");
+                        ap.assert((knscountkth(buf.sete, lpi, _params) > 2 || cntq > 0) || vtxgetapprox(buf.vertexdegrees, lpi, _params) == vtxgetexact(buf.vertexdegrees, lpi, _params), "AMD: integrity check 7206 failed");
+                        ap.assert(vtxgetapprox(buf.vertexdegrees, lpi, _params) >= vtxgetexact(buf.vertexdegrees, lpi, _params), "AMD: integrity check 8206 failed");
                     }
                 }
             }
@@ -31001,9 +31001,9 @@ public partial class alglib
                                 }
                                 if (buf.extendeddebug)
                                 {
-                                    alglib.ap.assert(vtxgetapprox(buf.vertexdegrees, lpi, _params) >= 1 && (!buf.checkexactdegrees || vtxgetexact(buf.vertexdegrees, lpi, _params) >= 1), "AMD: integrity check &GBFF1 failed");
-                                    alglib.ap.assert(vtxgetapprox(buf.vertexdegrees, lpj, _params) >= 1 && (!buf.checkexactdegrees || vtxgetexact(buf.vertexdegrees, lpj, _params) >= 1), "AMD: integrity check &GBFF2 failed");
-                                    alglib.ap.assert(knscountandkth(buf.setsuper, lpi, buf.setsuper, lpj, _params) == 0, "AMD: integrity check &GBFF3 failed");
+                                    ap.assert(vtxgetapprox(buf.vertexdegrees, lpi, _params) >= 1 && (!buf.checkexactdegrees || vtxgetexact(buf.vertexdegrees, lpi, _params) >= 1), "AMD: integrity check &GBFF1 failed");
+                                    ap.assert(vtxgetapprox(buf.vertexdegrees, lpj, _params) >= 1 && (!buf.checkexactdegrees || vtxgetexact(buf.vertexdegrees, lpj, _params) >= 1), "AMD: integrity check &GBFF2 failed");
+                                    ap.assert(knscountandkth(buf.setsuper, lpi, buf.setsuper, lpj, _params) == 0, "AMD: integrity check &GBFF3 failed");
                                 }
                                 nj = knscountkth(buf.setsuper, lpj, _params);
                                 knsaddkthdistinct(buf.setsuper, lpi, buf.setsuper, lpj, _params);
@@ -31056,9 +31056,9 @@ public partial class alglib
             apstruct.nisstartenumeration(cand, _params);
             while (apstruct.nisenumerate(cand, ref j, _params))
             {
-                alglib.ap.assert(j != p, "AMD: integrity check 9464 failed");
-                alglib.ap.assert(buf.issupernode[j], "AMD: integrity check 6284 failed");
-                alglib.ap.assert(!buf.iseliminated[j], "AMD: integrity check 3858 failed");
+                ap.assert(j != p, "AMD: integrity check 9464 failed");
+                ap.assert(buf.issupernode[j], "AMD: integrity check 6284 failed");
+                ap.assert(!buf.iseliminated[j], "AMD: integrity check 3858 failed");
                 knsstartenumeration(buf.setsuper, j, _params);
                 while (knsenumerate(buf.setsuper, ref i, _params))
                 {
@@ -31292,12 +31292,12 @@ public partial class alglib
                 rowstrides = new int[0];
                 rowoffsets = new int[0];
                 diagd = new double[0];
-                n1booleanpool = alglib.ap.nxpool.new_nbpool();
-                ns1booleanpool = alglib.ap.nxpool.new_nbpool();
-                n1integerpool = alglib.ap.nxpool.new_nipool();
-                ns1integerpool = alglib.ap.nxpool.new_nipool();
-                nrealpool = alglib.ap.nxpool.new_nrpool();
-                ns1realpool = alglib.ap.nxpool.new_nrpool();
+                n1booleanpool = ap.nxpool.new_nbpool();
+                ns1booleanpool = ap.nxpool.new_nbpool();
+                n1integerpool = ap.nxpool.new_nipool();
+                ns1integerpool = ap.nxpool.new_nipool();
+                nrealpool = ap.nxpool.new_nrpool();
+                ns1realpool = ap.nxpool.new_nrpool();
                 curladjrowbegin = new int[0];
                 flagarray = new bool[0];
                 curpriorities = new int[0];
@@ -31575,14 +31575,14 @@ public partial class alglib
             int k = 0;
             bool permready = new();
 
-            alglib.ap.assert(math.isfinite(promoteabove) && (double)(promoteabove) >= (double)(0), "SPSymmAnalyze: PromoteAbove is negative or infinite");
-            alglib.ap.assert(promoteto >= 0, "SPSymmAnalyze: PromoteTo is negative");
-            alglib.ap.assert(sparse.sparseiscrs(a, _params), "SPSymmAnalyze: A is not stored in CRS format");
-            alglib.ap.assert(sparse.sparsegetnrows(a, _params) == sparse.sparsegetncols(a, _params), "SPSymmAnalyze: non-square A");
-            alglib.ap.assert(((facttype == 0 || facttype == 1) || facttype == 20) || facttype == 21, "SPSymmAnalyze: unexpected FactType");
-            alglib.ap.assert(((((((permtype == 0 || permtype == 1) || permtype == 2) || permtype == 3) || permtype == -1) || permtype == -2) || permtype == -3) || permtype == -4, "SPSymmAnalyze: unexpected PermType");
-            alglib.ap.assert(memreuse == -1 || memreuse == 1, "SPSymmAnalyze: unexpected MemType");
-            alglib.ap.assert((permtype != 3 && permtype != -3) || (math.isfinite(promoteabove) && (double)(promoteabove) >= (double)(0)), "SPSymmAnalyze: unexpected PromoteAbove - infinite or negative");
+            ap.assert(math.isfinite(promoteabove) && (double)(promoteabove) >= (double)(0), "SPSymmAnalyze: PromoteAbove is negative or infinite");
+            ap.assert(promoteto >= 0, "SPSymmAnalyze: PromoteTo is negative");
+            ap.assert(sparse.sparseiscrs(a, _params), "SPSymmAnalyze: A is not stored in CRS format");
+            ap.assert(sparse.sparsegetnrows(a, _params) == sparse.sparsegetncols(a, _params), "SPSymmAnalyze: non-square A");
+            ap.assert(((facttype == 0 || facttype == 1) || facttype == 20) || facttype == 21, "SPSymmAnalyze: unexpected FactType");
+            ap.assert(((((((permtype == 0 || permtype == 1) || permtype == 2) || permtype == 3) || permtype == -1) || permtype == -2) || permtype == -3) || permtype == -4, "SPSymmAnalyze: unexpected PermType");
+            ap.assert(memreuse == -1 || memreuse == 1, "SPSymmAnalyze: unexpected MemType");
+            ap.assert((permtype != 3 && permtype != -3) || (math.isfinite(promoteabove) && (double)(promoteabove) >= (double)(0)), "SPSymmAnalyze: unexpected PromoteAbove - infinite or negative");
             n = sparse.sparsegetnrows(a, _params);
             result = true;
 
@@ -31599,10 +31599,10 @@ public partial class alglib
             analysis.dotracesupernodalstructure = analysis.dotrace && ap.istraceenabled("SCHOLESKY.SS", _params);
             if (analysis.dotrace)
             {
-                alglib.ap.trace("\n\n");
-                alglib.ap.trace("////////////////////////////////////////////////////////////////////////////////////////////////////\n");
-                alglib.ap.trace("//  SPARSE CHOLESKY ANALYSIS STARTED                                                              //\n");
-                alglib.ap.trace("////////////////////////////////////////////////////////////////////////////////////////////////////\n");
+                ap.trace("\n\n");
+                ap.trace("////////////////////////////////////////////////////////////////////////////////////////////////////\n");
+                ap.trace("//  SPARSE CHOLESKY ANALYSIS STARTED                                                              //\n");
+                ap.trace("////////////////////////////////////////////////////////////////////////////////////////////////////\n");
             }
 
             //
@@ -31618,7 +31618,7 @@ public partial class alglib
             //
             if (permtype == -3 || permtype == 3)
             {
-                alglib.ap.assert(alglib.ap.len(priorities) >= n, "SPSymmAnalyze: length(Priorities)<N");
+                ap.assert(ap.len(priorities) >= n, "SPSymmAnalyze: length(Priorities)<N");
                 ablasf.icopyallocv(n, priorities, ref analysis.curpriorities, _params);
             }
             if (permtype == 0)
@@ -31668,13 +31668,13 @@ public partial class alglib
                 {
                     k = k + (a.didx[i] - a.ridx[i]) + 1;
                 }
-                alglib.ap.trace(System.String.Format("NZ(A) = {0,0:d}\n", k));
+                ap.trace(System.String.Format("NZ(A) = {0,0:d}\n", k));
 
                 //
                 // Analyze row statistics
                 //
-                alglib.ap.trace("=== ANALYZING ROW STATISTICS =======================================================================\n");
-                alglib.ap.trace("row size is:\n");
+                ap.trace("=== ANALYZING ROW STATISTICS =======================================================================\n");
+                ap.trace("row size is:\n");
                 ablasf.isetv(n, 1, analysis.tmp0, _params);
                 for (i = 0; i <= n - 1; i++)
                 {
@@ -31696,7 +31696,7 @@ public partial class alglib
                             j = j + 1;
                         }
                     }
-                    alglib.ap.trace(System.String.Format("* [{0,6:d}..{1,6:d}) elements: {2,6:d} rows\n", k, 2 * k, j));
+                    ap.trace(System.String.Format("* [{0,6:d}..{1,6:d}) elements: {2,6:d} rows\n", k, 2 * k, j));
                     k = k * 2;
                 }
             }
@@ -31710,7 +31710,7 @@ public partial class alglib
                 {
                     if (analysis.dotrace)
                     {
-                        alglib.ap.trace("> the matrix diagonal is symbolically zero, stopping");
+                        ap.trace("> the matrix diagonal is symbolically zero, stopping");
                     }
                     result = false;
                     return result;
@@ -31722,7 +31722,7 @@ public partial class alglib
             //
             if (analysis.istopologicalordering)
             {
-                alglib.ap.assert(permtype == -1 || permtype == 1, "SPSymmAnalyze: integrity check failed (ihebd)");
+                ap.assert(permtype == -1 || permtype == 1, "SPSymmAnalyze: integrity check failed (ihebd)");
 
                 //
                 // Build topologically ordered elimination tree
@@ -31795,17 +31795,17 @@ public partial class alglib
                         j = analysis.fillinperm[i];
                         if (j < 0 || j >= n)
                         {
-                            alglib.ap.assert(false, "SPSymmAnalyze: input permutation has indexes outside of [0,N) range");
+                            ap.assert(false, "SPSymmAnalyze: input permutation has indexes outside of [0,N) range");
                         }
                         if (analysis.invfillinperm[j] >= 0)
                         {
-                            alglib.ap.assert(false, "SPSymmAnalyze: input permutation has non-distinct indexes");
+                            ap.assert(false, "SPSymmAnalyze: input permutation has non-distinct indexes");
                         }
                         analysis.invfillinperm[j] = i;
                     }
                     permready = true;
                 }
-                alglib.ap.assert(permready, "SPSymmAnalyze: integrity check failed (pp4td)");
+                ap.assert(permready, "SPSymmAnalyze: integrity check failed (pp4td)");
 
                 //
                 // Apply permutation to the matrix, perform analysis on the initially reordered matrix
@@ -31896,11 +31896,11 @@ public partial class alglib
             double p3,
             alglib.xparams _params)
         {
-            alglib.ap.assert((modstrategy == 0 || modstrategy == 1) || modstrategy == 2, "SPSymmSetModificationStrategy: unexpected ModStrategy");
-            alglib.ap.assert(math.isfinite(p0) && (double)(p0) >= (double)(0), "SPSymmSetModificationStrategy: bad P0");
-            alglib.ap.assert(math.isfinite(p1), "SPSymmSetModificationStrategy: bad P1");
-            alglib.ap.assert(math.isfinite(p2), "SPSymmSetModificationStrategy: bad P2");
-            alglib.ap.assert(math.isfinite(p3), "SPSymmSetModificationStrategy: bad P3");
+            ap.assert((modstrategy == 0 || modstrategy == 1) || modstrategy == 2, "SPSymmSetModificationStrategy: unexpected ModStrategy");
+            ap.assert(math.isfinite(p0) && (double)(p0) >= (double)(0), "SPSymmSetModificationStrategy: bad P0");
+            ap.assert(math.isfinite(p1), "SPSymmSetModificationStrategy: bad P1");
+            ap.assert(math.isfinite(p2), "SPSymmSetModificationStrategy: bad P2");
+            ap.assert(math.isfinite(p3), "SPSymmSetModificationStrategy: bad P3");
             analysis.modtype = modstrategy;
             analysis.modparam0 = p0;
             analysis.modparam1 = p1;
@@ -31936,8 +31936,8 @@ public partial class alglib
         {
             int i = 0;
 
-            alglib.ap.assert(alglib.ap.len(ispositive) >= analysis.n, "SPSymmControlSign: len(IsPositive)<N");
-            alglib.ap.assert(math.isfinite(eps) && (double)(eps) >= (double)(0), "SPSymmControlSign: bad Eps");
+            ap.assert(ap.len(ispositive) >= analysis.n, "SPSymmControlSign: len(IsPositive)<N");
+            ap.assert(math.isfinite(eps) && (double)(eps) >= (double)(0), "SPSymmControlSign: bad Eps");
             analysis.modtype = 3;
             analysis.modparam0 = eps;
             ablasf.ballocv(analysis.n, ref analysis.bsigns, _params);
@@ -31981,8 +31981,8 @@ public partial class alglib
             sparse.sparsematrix a,
             alglib.xparams _params)
         {
-            alglib.ap.assert(sparse.sparseiscrs(a, _params), "SPSymmReload: A is not stored in CRS format");
-            alglib.ap.assert(sparse.sparsegetnrows(a, _params) == sparse.sparsegetncols(a, _params), "SPSymmReload: non-square A");
+            ap.assert(sparse.sparseiscrs(a, _params), "SPSymmReload: A is not stored in CRS format");
+            ap.assert(sparse.sparsegetnrows(a, _params) == sparse.sparsegetncols(a, _params), "SPSymmReload: non-square A");
             if (analysis.pblused)
             {
                 if (analysis.pblneedsl)
@@ -32058,14 +32058,14 @@ public partial class alglib
             int sstride = 0;
             int j = 0;
 
-            alglib.ap.assert(alglib.ap.len(d) >= analysis.n, "SPSymmReloadDiagonal: length(D)<N");
+            ap.assert(ap.len(d) >= analysis.n, "SPSymmReloadDiagonal: length(D)<N");
             if (analysis.pblused)
             {
                 for (j = 0; j <= analysis.n - 1; j++)
                 {
                     if (analysis.pbla.uidx[j] != analysis.pbla.didx[j] + 1)
                     {
-                        alglib.ap.assert(false, "SPSymmReloadDiagonal: integrity check 031154 failed");
+                        ap.assert(false, "SPSymmReloadDiagonal: integrity check 031154 failed");
                     }
                     analysis.pbla.vals[analysis.pbla.didx[j]] = d[j];
                 }
@@ -32139,7 +32139,7 @@ public partial class alglib
             int n = 0;
             int[] raw2smap = new int[0];
 
-            alglib.ap.assert(analysis.tasktype == 0, "SPCholFactorize: Analysis type does not match current task");
+            ap.assert(analysis.tasktype == 0, "SPCholFactorize: Analysis type does not match current task");
             n = analysis.n;
 
             //
@@ -32181,7 +32181,7 @@ public partial class alglib
             //
             if (analysis.modtype != 0 && !analysis.unitd)
             {
-                alglib.ap.assert((analysis.modtype == 1 || analysis.modtype == 2) || analysis.modtype == 3, "SPSymmFactorize: integrity check 957417 failed");
+                ap.assert((analysis.modtype == 1 || analysis.modtype == 2) || analysis.modtype == 3, "SPSymmFactorize: integrity check 957417 failed");
                 if (analysis.modtype == 1 || analysis.modtype == 2)
                 {
                     ablasf.rallocv(n, ref analysis.rpivotsigns, _params);
@@ -32304,7 +32304,7 @@ public partial class alglib
             ref int[] p,
             alglib.xparams _params)
         {
-            alglib.ap.assert(!analysis.pblrequested, "SPSymmExtract: not supported when Performance Backend was requested");
+            ap.assert(!analysis.pblrequested, "SPSymmExtract: not supported when Performance Backend was requested");
             extractmatrix(analysis, analysis.rowoffsets, analysis.rowstrides, analysis.outputstorage, analysis.diagd, analysis.n, a, ref d, ref p, analysis.tmp0, _params);
         }
 
@@ -32358,7 +32358,7 @@ public partial class alglib
             {
                 if (!spsymmpblsolve(analysis.pbl, analysis.pbla, b, _params))
                 {
-                    alglib.ap.assert(false, "SPSymmSolve: Performance Backend solve unexpectedly failed");
+                    ap.assert(false, "SPSymmSolve: Performance Backend solve unexpectedly failed");
                 }
                 return;
             }
@@ -32904,8 +32904,8 @@ public partial class alglib
             int j = 0;
             int n = 0;
 
-            alglib.ap.assert(((((((permtype == 0 || permtype == 1) || permtype == 2) || permtype == 3) || permtype == -1) || permtype == -2) || permtype == -3) || permtype == -4, "SPSymmPBLSetup: unexpected PermType");
-            alglib.ap.assert(facttype == 20 || facttype == 21, "SPSymmPBLSetup: unexpected FactType");
+            ap.assert(((((((permtype == 0 || permtype == 1) || permtype == 2) || permtype == 3) || permtype == -1) || permtype == -2) || permtype == -3) || permtype == -4, "SPSymmPBLSetup: unexpected PermType");
+            ap.assert(facttype == 20 || facttype == 21, "SPSymmPBLSetup: unexpected FactType");
             n = analysis.n;
             analysis.pblused = false;
             result = false;
@@ -32913,7 +32913,7 @@ public partial class alglib
             {
                 if (analysis.dotrace)
                 {
-                    alglib.ap.trace("> detected support for DSS in a Performance Backend Library, trying to initialize the library\n");
+                    ap.trace("> detected support for DSS in a Performance Backend Library, trying to initialize the library\n");
                 }
                 sparse.sparsecopytransposecrsxbuf(a, -1, analysis.pbla, _params);
                 if ((permtype == -4 || permtype == -3) || permtype == 3)
@@ -32935,11 +32935,11 @@ public partial class alglib
                     j = analysis.fillinperm[i];
                     if (j < 0 || j >= n)
                     {
-                        alglib.ap.assert(false, "SPSymmAnalyze: permutation passed to / returned by PBL has indexes outside of [0,N) range");
+                        ap.assert(false, "SPSymmAnalyze: permutation passed to / returned by PBL has indexes outside of [0,N) range");
                     }
                     if (analysis.invfillinperm[j] >= 0)
                     {
-                        alglib.ap.assert(false, "SPSymmAnalyze: permutation passed to / returned by PBL has non-distinct indexes");
+                        ap.assert(false, "SPSymmAnalyze: permutation passed to / returned by PBL has non-distinct indexes");
                     }
                     analysis.invfillinperm[j] = i;
                 }
@@ -33034,7 +33034,7 @@ public partial class alglib
         {
             bool result = new();
 
-            alglib.ap.assert(false, "SPSymmPBLFactorize: no PBL support is enabled, but stub was called");
+            ap.assert(false, "SPSymmPBLFactorize: no PBL support is enabled, but stub was called");
             result = false;
             return result;
         }
@@ -33055,7 +33055,7 @@ public partial class alglib
             bool result = new();
 
             result = false;
-            alglib.ap.assert(false, "SPSymmPBLSolve: no PBL support is enabled, but stub was called");
+            ap.assert(false, "SPSymmPBLSolve: no PBL support is enabled, but stub was called");
             return result;
         }
 
@@ -33077,7 +33077,7 @@ public partial class alglib
 
             sumsq = 0;
             errsq = 0;
-            alglib.ap.assert(false, "SPSymmPBLDiagErr: no PBL support is enabled, but stub was called");
+            ap.assert(false, "SPSymmPBLDiagErr: no PBL support is enabled, but stub was called");
         }
 
 
@@ -33225,8 +33225,8 @@ public partial class alglib
             int j1 = 0;
             int jj = 0;
 
-            alglib.ap.assert(alglib.ap.len(parent) >= n + 1, "BuildUnorderedETree: input buffer Parent is too short");
-            alglib.ap.assert(alglib.ap.len(tabove) >= n + 1, "BuildUnorderedETree: input buffer tAbove is too short");
+            ap.assert(ap.len(parent) >= n + 1, "BuildUnorderedETree: input buffer Parent is too short");
+            ap.assert(ap.len(tabove) >= n + 1, "BuildUnorderedETree: input buffer tAbove is too short");
 
             //
             // Build elimination tree using Liu's algorithm with path compression
@@ -33299,9 +33299,9 @@ public partial class alglib
             int k = 0;
             int nodeidx = 0;
 
-            alglib.ap.assert(alglib.ap.len(ttmp0) >= n + 1, "FromParentToChildren: input buffer tTmp0 is too short");
-            alglib.ap.assert(alglib.ap.len(childrenr) >= n + 1, "FromParentToChildren: input buffer ChildrenR is too short");
-            alglib.ap.assert(alglib.ap.len(childreni) >= n + 1, "FromParentToChildren: input buffer ChildrenI is too short");
+            ap.assert(ap.len(ttmp0) >= n + 1, "FromParentToChildren: input buffer tTmp0 is too short");
+            ap.assert(ap.len(childrenr) >= n + 1, "FromParentToChildren: input buffer ChildrenR is too short");
+            ap.assert(ap.len(childreni) >= n + 1, "FromParentToChildren: input buffer ChildrenI is too short");
 
             //
             // Convert etree from per-column parent array to per-column children list
@@ -33375,10 +33375,10 @@ public partial class alglib
             int sidx = 0;
             int unprocessedchildrencnt = 0;
 
-            alglib.ap.assert(alglib.ap.len(trawparentofrawnode) >= n + 1, "BuildOrderedETree: input buffer tRawParentOfRawNode is too short");
-            alglib.ap.assert(alglib.ap.len(ttmp) >= n + 1, "BuildOrderedETree: input buffer tTmp is too short");
-            alglib.ap.assert(alglib.ap.len(trawparentofreorderednode) >= n + 1, "BuildOrderedETree: input buffer tRawParentOfReorderedNode is too short");
-            alglib.ap.assert(alglib.ap.len(tflagarray) >= n + 1, "BuildOrderedETree: input buffer tFlagArray is too short");
+            ap.assert(ap.len(trawparentofrawnode) >= n + 1, "BuildOrderedETree: input buffer tRawParentOfRawNode is too short");
+            ap.assert(ap.len(ttmp) >= n + 1, "BuildOrderedETree: input buffer tTmp is too short");
+            ap.assert(ap.len(trawparentofreorderednode) >= n + 1, "BuildOrderedETree: input buffer tRawParentOfReorderedNode is too short");
+            ap.assert(ap.len(tflagarray) >= n + 1, "BuildOrderedETree: input buffer tFlagArray is too short");
 
             //
             // Avoid spurious compiler warnings
@@ -33532,19 +33532,19 @@ public partial class alglib
             double mergeinefficiency = 0;
             bool hastheonlychild = new();
 
-            alglib.ap.assert(alglib.ap.len(ttmp0) >= n + 1, "CreateSupernodalStructure: input buffer tTmp0 is too short");
-            alglib.ap.assert(alglib.ap.len(tchildrenr) >= n + 1, "CreateSupernodalStructure: input buffer ChildrenR is too short");
-            alglib.ap.assert(alglib.ap.len(tchildreni) >= n + 1, "CreateSupernodalStructure: input buffer ChildrenI is too short");
-            alglib.ap.assert(alglib.ap.len(tparentnodeofsupernode) >= n + 1, "CreateSupernodalStructure: input buffer tParentNodeOfSupernode is too short");
-            alglib.ap.assert(alglib.ap.len(tfakenonzeros) >= n + 1, "CreateSupernodalStructure: input buffer tFakeNonzeros is too short");
-            alglib.ap.assert(alglib.ap.len(tflagarray) >= n + 1, "CreateSupernodalStructure: input buffer tFlagArray is too short");
+            ap.assert(ap.len(ttmp0) >= n + 1, "CreateSupernodalStructure: input buffer tTmp0 is too short");
+            ap.assert(ap.len(tchildrenr) >= n + 1, "CreateSupernodalStructure: input buffer ChildrenR is too short");
+            ap.assert(ap.len(tchildreni) >= n + 1, "CreateSupernodalStructure: input buffer ChildrenI is too short");
+            ap.assert(ap.len(tparentnodeofsupernode) >= n + 1, "CreateSupernodalStructure: input buffer tParentNodeOfSupernode is too short");
+            ap.assert(ap.len(tfakenonzeros) >= n + 1, "CreateSupernodalStructure: input buffer tFakeNonzeros is too short");
+            ap.assert(ap.len(tflagarray) >= n + 1, "CreateSupernodalStructure: input buffer tFlagArray is too short");
 
             //
             // Trace
             //
             if (analysis.dotracesupernodalstructure)
             {
-                alglib.ap.trace("=== GENERATING SUPERNODAL STRUCTURE ================================================================\n");
+                ap.trace("=== GENERATING SUPERNODAL STRUCTURE ================================================================\n");
             }
 
             //
@@ -33588,14 +33588,14 @@ public partial class alglib
                 nsuper = nsuper + 1;
                 if (analysis.dotracesupernodalstructure)
                 {
-                    alglib.ap.trace(System.String.Format("> incoming column {0,0:d}\n", columnidx));
-                    alglib.ap.trace(System.String.Format("offdiagnnz = {0,0:d}\n", rlast - rfirst));
-                    alglib.ap.trace("children   = [ ");
+                    ap.trace(System.String.Format("> incoming column {0,0:d}\n", columnidx));
+                    ap.trace(System.String.Format("offdiagnnz = {0,0:d}\n", rlast - rfirst));
+                    ap.trace("children   = [ ");
                     for (i = tchildrenr[columnidx]; i <= tchildrenr[columnidx + 1] - 1; i++)
                     {
-                        alglib.ap.trace(System.String.Format("S{0,0:d} ", node2supernode[tchildreni[i]]));
+                        ap.trace(System.String.Format("S{0,0:d} ", node2supernode[tchildreni[i]]));
                     }
-                    alglib.ap.trace("]\n");
+                    ap.trace("]\n");
                 }
 
                 //
@@ -33640,7 +33640,7 @@ public partial class alglib
                     // Because these nodes are in the child-parent relation, we can simply
                     // copy nonzero pattern from NSuper-1.
                     //
-                    alglib.ap.assert(tparentnodeofsupernode[nsuper - 2] == columnidx, "CreateSupernodalStructure: integrity check 9472 failed");
+                    ap.assert(tparentnodeofsupernode[nsuper - 2] == columnidx, "CreateSupernodalStructure: integrity check 9472 failed");
                     i0 = analysis.superrowridx[nsuper - 1];
                     ii = analysis.superrowridx[nsuper] - analysis.superrowridx[nsuper - 1];
                     rfirst = analysis.superrowridx[nsuper - 2];
@@ -33661,12 +33661,12 @@ public partial class alglib
                     //
                     if (analysis.dotracesupernodalstructure)
                     {
-                        alglib.ap.trace(System.String.Format("> merged with supernode S{0,0:d}", nsuper - 1));
+                        ap.trace(System.String.Format("> merged with supernode S{0,0:d}", nsuper - 1));
                         if ((double)(mergeinefficiency) != (double)(0))
                         {
-                            alglib.ap.trace(System.String.Format(" ({0,2:F0}% inefficiency)", mergeinefficiency * 100));
+                            ap.trace(System.String.Format(" ({0,2:F0}% inefficiency)", mergeinefficiency * 100));
                         }
-                        alglib.ap.trace("\n*\n");
+                        ap.trace("\n*\n");
                     }
                 }
                 else
@@ -33677,14 +33677,14 @@ public partial class alglib
                     //
                     if (analysis.dotracesupernodalstructure)
                     {
-                        alglib.ap.trace(System.String.Format("> standalone node S{0,0:d} created\n*\n", nsuper - 1));
+                        ap.trace(System.String.Format("> standalone node S{0,0:d} created\n*\n", nsuper - 1));
                     }
                 }
             }
             analysis.nsuper = nsuper;
-            alglib.ap.assert(analysis.nsuper >= 1, "SPSymmAnalyze: integrity check failed (95mgd)");
-            alglib.ap.assert(analysis.supercolrange[0] == 0, "SPCholFactorize: integrity check failed (f446s)");
-            alglib.ap.assert(analysis.supercolrange[nsuper] == n, "SPSymmAnalyze: integrity check failed (04ut4)");
+            ap.assert(analysis.nsuper >= 1, "SPSymmAnalyze: integrity check failed (95mgd)");
+            ap.assert(analysis.supercolrange[0] == 0, "SPCholFactorize: integrity check failed (f446s)");
+            ap.assert(analysis.supercolrange[nsuper] == n, "SPSymmAnalyze: integrity check failed (04ut4)");
             ablasf.isetallocv(nsuper, -1, ref analysis.parentsupernode, _params);
             for (sidx = 0; sidx <= nsuper - 1; sidx++)
             {
@@ -33708,7 +33708,7 @@ public partial class alglib
                     i = i + 1;
                 }
             }
-            alglib.ap.assert(i == nsuper, "SPSymmAnalyze: integrity check 4dr5 failed");
+            ap.assert(i == nsuper, "SPSymmAnalyze: integrity check 4dr5 failed");
             analysis.childsupernodesridx[nsuper + 1] = i;
 
             //
@@ -33833,10 +33833,10 @@ public partial class alglib
             double[] dbgfastestpath = new double[0];
             double[] criticalpath = new double[0];
 
-            alglib.ap.assert(alglib.ap.len(ttmp0) >= n + 1, "AnalyzeSupernodalDependencies: input buffer tTmp0 is too short");
-            alglib.ap.assert(alglib.ap.len(ttmp1) >= n + 1, "AnalyzeSupernodalDependencies: input buffer tTmp1 is too short");
-            alglib.ap.assert(alglib.ap.len(tflagarray) >= n + 1, "AnalyzeSupernodalDependencies: input buffer tTmp0 is too short");
-            alglib.ap.assert(sparse.sparseiscrs(rawa, _params), "AnalyzeSupernodalDependencies: RawA must be CRS matrix");
+            ap.assert(ap.len(ttmp0) >= n + 1, "AnalyzeSupernodalDependencies: input buffer tTmp0 is too short");
+            ap.assert(ap.len(ttmp1) >= n + 1, "AnalyzeSupernodalDependencies: input buffer tTmp1 is too short");
+            ap.assert(ap.len(tflagarray) >= n + 1, "AnalyzeSupernodalDependencies: input buffer tTmp0 is too short");
+            ap.assert(sparse.sparseiscrs(rawa, _params), "AnalyzeSupernodalDependencies: RawA must be CRS matrix");
 
             //
             // Determine LAdj - supernodes feeding updates to the SIdx-th one.
@@ -33970,7 +33970,7 @@ public partial class alglib
             //
             if (analysis.dotrace)
             {
-                alglib.ap.trace("=== ANALYZING SUPERNODAL DEPENDENCIES ==============================================================\n");
+                ap.trace("=== ANALYZING SUPERNODAL DEPENDENCIES ==============================================================\n");
                 dbgnzl = 0;
                 dbgrank1nodes = 0;
                 dbgrank2nodes = 0;
@@ -34082,40 +34082,40 @@ public partial class alglib
                 //
                 // Output
                 //
-                alglib.ap.trace("> factor size:\n");
-                alglib.ap.trace(System.String.Format("nz(L)        = {0,6:d}\n", dbgnzl));
-                alglib.ap.trace("> node size statistics:\n");
-                alglib.ap.trace(System.String.Format("rank1        = {0,6:d}\n", dbgrank1nodes));
-                alglib.ap.trace(System.String.Format("rank2        = {0,6:d}\n", dbgrank2nodes));
-                alglib.ap.trace(System.String.Format("rank3        = {0,6:d}\n", dbgrank3nodes));
-                alglib.ap.trace(System.String.Format("rank4        = {0,6:d}\n", dbgrank4nodes));
-                alglib.ap.trace(System.String.Format("big nodes    = {0,6:d}\n", dbgbignodes));
-                alglib.ap.trace("> Total FLOP count (fused multiply-adds):\n");
-                alglib.ap.trace(System.String.Format("total        = {0,9:F1} MFLOP\n", 1.0E-6 * dbgtotalflop));
-                alglib.ap.trace("> Analyzing potential parallelism speed-up (assuming infinite parallel resources):\n");
-                alglib.ap.trace(System.String.Format("etree        = {0,6:F1}x (elimination tree parallelism, no internal parallelism)\n", dbgtotalflop / ablasf.rmaxv(analysis.nsuper, dbgfastestpath, _params)));
-                alglib.ap.trace(System.String.Format("supernodal   = {0,6:F1}x (parallel supernodal algo, no threading overhead)\n", totalflop / (1 + longestpath)));
-                alglib.ap.trace(System.String.Format("supernodal.c = {0,6:F1}x (parallel supernodal algo, corrected for threading overhead)\n", totalflop / (1 + longestpath + apserv.smpactivationlevel(_params))));
-                alglib.ap.trace("> Parallelism: ");
+                ap.trace("> factor size:\n");
+                ap.trace(System.String.Format("nz(L)        = {0,6:d}\n", dbgnzl));
+                ap.trace("> node size statistics:\n");
+                ap.trace(System.String.Format("rank1        = {0,6:d}\n", dbgrank1nodes));
+                ap.trace(System.String.Format("rank2        = {0,6:d}\n", dbgrank2nodes));
+                ap.trace(System.String.Format("rank3        = {0,6:d}\n", dbgrank3nodes));
+                ap.trace(System.String.Format("rank4        = {0,6:d}\n", dbgrank4nodes));
+                ap.trace(System.String.Format("big nodes    = {0,6:d}\n", dbgbignodes));
+                ap.trace("> Total FLOP count (fused multiply-adds):\n");
+                ap.trace(System.String.Format("total        = {0,9:F1} MFLOP\n", 1.0E-6 * dbgtotalflop));
+                ap.trace("> Analyzing potential parallelism speed-up (assuming infinite parallel resources):\n");
+                ap.trace(System.String.Format("etree        = {0,6:F1}x (elimination tree parallelism, no internal parallelism)\n", dbgtotalflop / ablasf.rmaxv(analysis.nsuper, dbgfastestpath, _params)));
+                ap.trace(System.String.Format("supernodal   = {0,6:F1}x (parallel supernodal algo, no threading overhead)\n", totalflop / (1 + longestpath)));
+                ap.trace(System.String.Format("supernodal.c = {0,6:F1}x (parallel supernodal algo, corrected for threading overhead)\n", totalflop / (1 + longestpath + apserv.smpactivationlevel(_params))));
+                ap.trace("> Parallelism: ");
                 if (analysis.useparallelism)
                 {
-                    alglib.ap.trace("YES\n");
+                    ap.trace("YES\n");
                 }
                 else
                 {
-                    alglib.ap.trace("no\n");
+                    ap.trace("no\n");
                 }
-                alglib.ap.trace("> FLOP counts for updates:\n");
-                alglib.ap.trace(System.String.Format("no-sctr      = {0,9:F1} MFLOP    (no row scatter, no col scatter, best case)\n", 1.0E-6 * dbgnoscatterflop));
-                alglib.ap.trace(System.String.Format("M4*44->N4    = {0,9:F1} MFLOP    (no col scatter, big blocks, good case)\n", 1.0E-6 * dbg444flop));
-                alglib.ap.trace(System.String.Format("no-row-sctr  = {0,9:F1} MFLOP    (no row scatter, good case for col-wise storage)\n", 1.0E-6 * dbgnorowscatterflop));
-                alglib.ap.trace(System.String.Format("no-col-sctr  = {0,9:F1} MFLOP    (no col scatter, good case for row-wise storage)\n", 1.0E-6 * dbgnocolscatterflop));
-                alglib.ap.trace(System.String.Format("XX*XX->N4    = {0,9:F1} MFLOP\n", 1.0E-6 * dbgxx4flop));
-                alglib.ap.trace(System.String.Format("rank1        = {0,9:F1} MFLOP\n", 1.0E-6 * dbgrank1flop));
-                alglib.ap.trace(System.String.Format("rank4+       = {0,9:F1} MFLOP\n", 1.0E-6 * dbgrank4plusflop));
-                alglib.ap.trace("> FLOP counts for Cholesky:\n");
-                alglib.ap.trace(System.String.Format("cholesky     = {0,9:F1} MFLOP\n", 1.0E-6 * dbgcholeskyflop));
-                alglib.ap.trace(System.String.Format("cholesky4    = {0,9:F1} MFLOP\n", 1.0E-6 * dbgcholesky4flop));
+                ap.trace("> FLOP counts for updates:\n");
+                ap.trace(System.String.Format("no-sctr      = {0,9:F1} MFLOP    (no row scatter, no col scatter, best case)\n", 1.0E-6 * dbgnoscatterflop));
+                ap.trace(System.String.Format("M4*44->N4    = {0,9:F1} MFLOP    (no col scatter, big blocks, good case)\n", 1.0E-6 * dbg444flop));
+                ap.trace(System.String.Format("no-row-sctr  = {0,9:F1} MFLOP    (no row scatter, good case for col-wise storage)\n", 1.0E-6 * dbgnorowscatterflop));
+                ap.trace(System.String.Format("no-col-sctr  = {0,9:F1} MFLOP    (no col scatter, good case for row-wise storage)\n", 1.0E-6 * dbgnocolscatterflop));
+                ap.trace(System.String.Format("XX*XX->N4    = {0,9:F1} MFLOP\n", 1.0E-6 * dbgxx4flop));
+                ap.trace(System.String.Format("rank1        = {0,9:F1} MFLOP\n", 1.0E-6 * dbgrank1flop));
+                ap.trace(System.String.Format("rank4+       = {0,9:F1} MFLOP\n", 1.0E-6 * dbgrank4plusflop));
+                ap.trace("> FLOP counts for Cholesky:\n");
+                ap.trace(System.String.Format("cholesky     = {0,9:F1} MFLOP\n", 1.0E-6 * dbgcholeskyflop));
+                ap.trace(System.String.Format("cholesky4    = {0,9:F1} MFLOP\n", 1.0E-6 * dbgcholesky4flop));
             }
 
             //
@@ -34166,7 +34166,7 @@ public partial class alglib
             {
                 rowsizesmatch = rowsizesmatch && analysis.referenceridx[i] == at.ridx[i];
             }
-            alglib.ap.assert(rowsizesmatch, "LoadMatrix: sparsity patterns do not match");
+            ap.assert(rowsizesmatch, "LoadMatrix: sparsity patterns do not match");
 
             //
             // Load
@@ -34261,7 +34261,7 @@ public partial class alglib
             int offdiagsize = 0;
             int offssdiag = 0;
 
-            alglib.ap.assert(alglib.ap.len(tmpp) >= n + 1, "ExtractMatrix: preallocated temporary TmpP is too short");
+            ap.assert(ap.len(tmpp) >= n + 1, "ExtractMatrix: preallocated temporary TmpP is too short");
 
             //
             // Basic initialization
@@ -34275,7 +34275,7 @@ public partial class alglib
             //
             if (analysis.applypermutationtooutput)
             {
-                alglib.ap.assert(analysis.istopologicalordering, "ExtractMatrix: critical integrity check failed (attempt to merge in nontopological permutation)");
+                ap.assert(analysis.istopologicalordering, "ExtractMatrix: critical integrity check failed (attempt to merge in nontopological permutation)");
 
                 //
                 // Output matrix is topologically permuted, so we return A=L*L' instead of A=P*L*L'*P'.
@@ -34332,9 +34332,9 @@ public partial class alglib
                 }
                 for (i = 0; i <= n - 1; i++)
                 {
-                    alglib.ap.assert(a.didx[i] == a.ridx[i + 1], "ExtractMatrix: integrity check failed (9473t)");
+                    ap.assert(a.didx[i] == a.ridx[i + 1], "ExtractMatrix: integrity check failed (9473t)");
                     tsort.tagsortmiddleir(ref a.idx, ref a.vals, a.ridx[i], a.ridx[i + 1] - a.ridx[i], _params);
-                    alglib.ap.assert(a.idx[a.ridx[i + 1] - 1] == i, "ExtractMatrix: integrity check failed (e4tfd)");
+                    ap.assert(a.idx[a.ridx[i + 1] - 1] == i, "ExtractMatrix: integrity check failed (e4tfd)");
                 }
                 sparse.sparseinitduidx(a, _params);
 
@@ -34407,8 +34407,8 @@ public partial class alglib
                 }
                 for (i = 0; i <= n - 1; i++)
                 {
-                    alglib.ap.assert(a.didx[i] == a.ridx[i + 1], "ExtractMatrix: integrity check failed (34e43)");
-                    alglib.ap.assert(a.idx[a.ridx[i + 1] - 1] == i, "ExtractMatrix: integrity check failed (k4df5)");
+                    ap.assert(a.didx[i] == a.ridx[i + 1], "ExtractMatrix: integrity check failed (34e43)");
+                    ap.assert(a.idx[a.ridx[i + 1] - 1] == i, "ExtractMatrix: integrity check failed (k4df5)");
                 }
                 sparse.sparseinitduidx(a, _params);
 
@@ -34526,8 +34526,8 @@ public partial class alglib
             int[] tmp1 = new int[0];
             bool[] flagarray = new bool[0];
 
-            alglib.ap.assert(a.m == head + tail, "PartialCholeskyPattern: rows(A)!=Head+Tail");
-            alglib.ap.assert(a.n == head + tail, "PartialCholeskyPattern: cols(A)!=Head+Tail");
+            ap.assert(a.m == head + tail, "PartialCholeskyPattern: rows(A)!=Head+Tail");
+            ap.assert(a.n == head + tail, "PartialCholeskyPattern: cols(A)!=Head+Tail");
 
             //
             // Initialize and retrieve temporary arrays
@@ -34539,11 +34539,11 @@ public partial class alglib
             n1bpool.retrieve(ref flagarray);
             cursize = head + tail;
             v = (double)1 / (double)cursize;
-            alglib.ap.assert(alglib.ap.len(tmpparent) >= head + tail + 1, "PartialCholeskyPattern: Length(tmpParent)<Head+Tail+1");
-            alglib.ap.assert(alglib.ap.len(tmpchildrenr) >= head + tail + 1, "PartialCholeskyPattern: Length(tmpChildrenR)<Head+Tail+1");
-            alglib.ap.assert(alglib.ap.len(tmpchildreni) >= head + tail + 1, "PartialCholeskyPattern: Length(tmpChildrenI)<Head+Tail+1");
-            alglib.ap.assert(alglib.ap.len(tmp1) >= head + tail + 1, "PartialCholeskyPattern: Length(tmp1)<Head+Tail+1");
-            alglib.ap.assert(alglib.ap.len(flagarray) >= head + tail + 1, "PartialCholeskyPattern: Length(tmp1)<Head+Tail+1");
+            ap.assert(ap.len(tmpparent) >= head + tail + 1, "PartialCholeskyPattern: Length(tmpParent)<Head+Tail+1");
+            ap.assert(ap.len(tmpchildrenr) >= head + tail + 1, "PartialCholeskyPattern: Length(tmpChildrenR)<Head+Tail+1");
+            ap.assert(ap.len(tmpchildreni) >= head + tail + 1, "PartialCholeskyPattern: Length(tmpChildrenI)<Head+Tail+1");
+            ap.assert(ap.len(tmp1) >= head + tail + 1, "PartialCholeskyPattern: Length(tmp1)<Head+Tail+1");
+            ap.assert(ap.len(flagarray) >= head + tail + 1, "PartialCholeskyPattern: Length(tmp1)<Head+Tail+1");
 
             //
             // Compute leading Head columns of the Cholesky decomposition of A.
@@ -34817,10 +34817,10 @@ public partial class alglib
             int n = 0;
             bool bflag = new();
 
-            alglib.ap.assert(a.matrixtype == 1, "TopologicalPermutation: incorrect matrix type (convert your matrix to CRS)");
-            alglib.ap.assert(alglib.ap.len(p) >= a.n, "TopologicalPermutation: Length(P)<N");
-            alglib.ap.assert(a.m == a.n, "TopologicalPermutation: matrix is non-square");
-            alglib.ap.assert(a.ninitialized == a.ridx[a.n], "TopologicalPermutation: integrity check failed");
+            ap.assert(a.matrixtype == 1, "TopologicalPermutation: incorrect matrix type (convert your matrix to CRS)");
+            ap.assert(ap.len(p) >= a.n, "TopologicalPermutation: Length(P)<N");
+            ap.assert(a.m == a.n, "TopologicalPermutation: matrix is non-square");
+            ap.assert(a.ninitialized == a.ridx[a.n], "TopologicalPermutation: integrity check failed");
             bflag = true;
             n = a.n;
             for (i = 0; i <= n - 1; i++)
@@ -34828,7 +34828,7 @@ public partial class alglib
                 j = p[i];
                 bflag = (bflag && j >= 0) && j < n;
             }
-            alglib.ap.assert(bflag, "TopologicalPermutation: P[] contains values outside of [0,N) range");
+            ap.assert(bflag, "TopologicalPermutation: P[] contains values outside of [0,N) range");
 
             //
             // Prepare output
@@ -34946,8 +34946,8 @@ public partial class alglib
             int tlast = 0;
             int supernodalchildrencount = 0;
 
-            alglib.ap.assert(alglib.ap.len(truearray) >= n, "ComputeNonzeroPattern: input temporary is too short");
-            alglib.ap.assert(alglib.ap.len(tmp0) >= n, "ComputeNonzeroPattern: input temporary is too short");
+            ap.assert(ap.len(truearray) >= n, "ComputeNonzeroPattern: input temporary is too short");
+            ap.assert(ap.len(tmp0) >= n, "ComputeNonzeroPattern: input temporary is too short");
 
             //
             // Determine supernodal children in Tmp0
@@ -35222,12 +35222,12 @@ public partial class alglib
                     //
                     // Extended integrity check (if requested)
                     //
-                    alglib.ap.assert(uwidth > 0, "SPCholFactorize: integrity check failed (44trg1)");
-                    alglib.ap.assert(analysis.superrowidx[wrkrow] >= cols0, "SPCholFactorize: integrity check 6378 failed");
-                    alglib.ap.assert(analysis.superrowidx[wrkrow] < cols1, "SPCholFactorize: integrity check 6729 failed");
+                    ap.assert(uwidth > 0, "SPCholFactorize: integrity check failed (44trg1)");
+                    ap.assert(analysis.superrowidx[wrkrow] >= cols0, "SPCholFactorize: integrity check 6378 failed");
+                    ap.assert(analysis.superrowidx[wrkrow] < cols1, "SPCholFactorize: integrity check 6729 failed");
                     for (i = wrkrow; i <= urlast - 1; i++)
                     {
-                        alglib.ap.assert(raw2smap[analysis.superrowidx[i]] >= 0, "SPCholFactorize: integrity check failed (43t63)");
+                        ap.assert(raw2smap[analysis.superrowidx[i]] >= 0, "SPCholFactorize: integrity check failed (43t63)");
                     }
                 }
 
@@ -36567,7 +36567,7 @@ public partial class alglib
             // Initialize
             //
             n = wrka.n;
-            alglib.ap.assert(alglib.ap.len(wrkpriorities) >= n, "SPSymmAnalyze: integrity check failed (4653)");
+            ap.assert(ap.len(wrkpriorities) >= n, "SPSymmAnalyze: integrity check failed (4653)");
 
             //
             // Retrieve temporary arrays
@@ -36620,7 +36620,7 @@ public partial class alglib
                 }
                 if (dotrace)
                 {
-                    alglib.ap.trace(System.String.Format("> multiround AMD, column_range=[{0,7:d},{1,7:d}] ({2,7:d} out of {3,7:d}), {4,5:F1}% eligible", range0, range1, range1 - range0, n, (double)(100 * eligiblecnt) / (double)m));
+                    ap.trace(System.String.Format("> multiround AMD, column_range=[{0,7:d},{1,7:d}] ({2,7:d} out of {3,7:d}), {4,5:F1}% eligible", range0, range1, range1 - range0, n, (double)(100 * eligiblecnt) / (double)m));
                 }
                 newrange0 = range0 + amdordering.generateamdpermutationx(wrka, eligible, range1 - range0, promoteabove, ref buf.tmpperm, ref buf.invtmpperm, 1, buf.amdtmp, _params);
                 if (debugordering)
@@ -36655,9 +36655,9 @@ public partial class alglib
                 {
                     if (npostponed > 0)
                     {
-                        alglib.ap.trace(System.String.Format(", {0,5:F1}% postponed (promoted to elimination group {1,0:d})", (double)(100 * npostponed) / (double)m, promoteoffset + promoteto));
+                        ap.trace(System.String.Format(", {0,5:F1}% postponed (promoted to elimination group {1,0:d})", (double)(100 * npostponed) / (double)m, promoteoffset + promoteto));
                     }
-                    alglib.ap.trace("\n");
+                    ap.trace("\n");
                 }
 
                 //
@@ -36697,7 +36697,7 @@ public partial class alglib
                 //
                 if (m > 0)
                 {
-                    alglib.ap.assert((wrka.m == m && wrka.n == m) && wrka.ninitialized == wrka.ridx[m], "SPSymmAnalyze: integrity check failed (0572)");
+                    ap.assert((wrka.m == m && wrka.n == m) && wrka.ninitialized == wrka.ridx[m], "SPSymmAnalyze: integrity check failed (0572)");
                     ablasf.isetv(m, 1, tmp0, _params);
                     for (i = 0; i <= m - 1; i++)
                     {
@@ -36733,7 +36733,7 @@ public partial class alglib
                     {
                         buf.tmpperm[buf.invtmpperm[i]] = i;
                     }
-                    alglib.ap.assert(j == m, "SPSymmAnalyze: integrity check failed (6432)");
+                    ap.assert(j == m, "SPSymmAnalyze: integrity check failed (6432)");
                     if (k > 0)
                     {
 
@@ -36767,7 +36767,7 @@ public partial class alglib
             }
             if (dotrace)
             {
-                alglib.ap.trace(System.String.Format("> multiround AMD, column_range=[{0,7:d},{1,7:d}], stopped\n", range0, range1));
+                ap.trace(System.String.Format("> multiround AMD, column_range=[{0,7:d},{1,7:d}], stopped\n", range0, range1));
             }
 
             //
@@ -36935,7 +36935,7 @@ public partial class alglib
 
             a = new double[0, 0];
 
-            alglib.ap.assert(n >= 1, "RMatrixRndOrthogonal: N<1!");
+            ap.assert(n >= 1, "RMatrixRndOrthogonal: N<1!");
             a = new double[n, n];
             for (i = 0; i <= n - 1; i++)
             {
@@ -36982,7 +36982,7 @@ public partial class alglib
 
             a = new double[0, 0];
 
-            alglib.ap.assert(n >= 1 && (double)(c) >= (double)(1), "RMatrixRndCond: N<1 or C<1!");
+            ap.assert(n >= 1 && (double)(c) >= (double)(1), "RMatrixRndCond: N<1 or C<1!");
             a = new double[n, n];
             if (n == 1)
             {
@@ -37047,7 +37047,7 @@ public partial class alglib
 
             a = new complex[0, 0];
 
-            alglib.ap.assert(n >= 1, "CMatrixRndOrthogonal: N<1!");
+            ap.assert(n >= 1, "CMatrixRndOrthogonal: N<1!");
             a = new complex[n, n];
             for (i = 0; i <= n - 1; i++)
             {
@@ -37096,7 +37096,7 @@ public partial class alglib
 
             a = new complex[0, 0];
 
-            alglib.ap.assert(n >= 1 && (double)(c) >= (double)(1), "CMatrixRndCond: N<1 or C<1!");
+            ap.assert(n >= 1 && (double)(c) >= (double)(1), "CMatrixRndCond: N<1 or C<1!");
             a = new complex[n, n];
             if (n == 1)
             {
@@ -37158,7 +37158,7 @@ public partial class alglib
 
             a = new double[0, 0];
 
-            alglib.ap.assert(n >= 1 && (double)(c) >= (double)(1), "SMatrixRndCond: N<1 or C<1!");
+            ap.assert(n >= 1 && (double)(c) >= (double)(1), "SMatrixRndCond: N<1 or C<1!");
             a = new double[n, n];
             if (n == 1)
             {
@@ -37295,7 +37295,7 @@ public partial class alglib
 
             a = new complex[0, 0];
 
-            alglib.ap.assert(n >= 1 && (double)(c) >= (double)(1), "HMatrixRndCond: N<1 or C<1!");
+            ap.assert(n >= 1 && (double)(c) >= (double)(1), "HMatrixRndCond: N<1 or C<1!");
             a = new complex[n, n];
             if (n == 1)
             {
@@ -37450,7 +37450,7 @@ public partial class alglib
             hqrnd.hqrndstate state = new();
             int i_ = 0;
 
-            alglib.ap.assert(n >= 1 && m >= 1, "RMatrixRndOrthogonalFromTheRight: N<1 or M<1!");
+            ap.assert(n >= 1 && m >= 1, "RMatrixRndOrthogonalFromTheRight: N<1 or M<1!");
             if (n == 1)
             {
 
@@ -37552,7 +37552,7 @@ public partial class alglib
             hqrnd.hqrndstate state = new();
             int i_ = 0;
 
-            alglib.ap.assert(n >= 1 && m >= 1, "RMatrixRndOrthogonalFromTheRight: N<1 or M<1!");
+            ap.assert(n >= 1 && m >= 1, "RMatrixRndOrthogonalFromTheRight: N<1 or M<1!");
             if (m == 1)
             {
 
@@ -37652,7 +37652,7 @@ public partial class alglib
             hqrnd.hqrndstate state = new();
             int i_ = 0;
 
-            alglib.ap.assert(n >= 1 && m >= 1, "CMatrixRndOrthogonalFromTheRight: N<1 or M<1!");
+            ap.assert(n >= 1 && m >= 1, "CMatrixRndOrthogonalFromTheRight: N<1 or M<1!");
             if (n == 1)
             {
 
@@ -37748,7 +37748,7 @@ public partial class alglib
             hqrnd.hqrndstate state = new();
             int i_ = 0;
 
-            alglib.ap.assert(n >= 1 && m >= 1, "CMatrixRndOrthogonalFromTheRight: N<1 or M<1!");
+            ap.assert(n >= 1 && m >= 1, "CMatrixRndOrthogonalFromTheRight: N<1 or M<1!");
             if (m == 1)
             {
 
@@ -38125,11 +38125,11 @@ public partial class alglib
         {
             pivots = new int[0];
 
-            alglib.ap.assert(m > 0, "RMatrixLU: incorrect M!");
-            alglib.ap.assert(n > 0, "RMatrixLU: incorrect N!");
-            alglib.ap.assert(alglib.ap.rows(a) >= m, "RMatrixLU: rows(A)<M");
-            alglib.ap.assert(alglib.ap.cols(a) >= n, "RMatrixLU: cols(A)<N");
-            alglib.ap.assert(apserv.apservisfinitematrix(a, m, n, _params), "RMatrixLU: A contains infinite or NaN values!");
+            ap.assert(m > 0, "RMatrixLU: incorrect M!");
+            ap.assert(n > 0, "RMatrixLU: incorrect N!");
+            ap.assert(ap.rows(a) >= m, "RMatrixLU: rows(A)<M");
+            ap.assert(ap.cols(a) >= n, "RMatrixLU: cols(A)<N");
+            ap.assert(apserv.apservisfinitematrix(a, m, n, _params), "RMatrixLU: A contains infinite or NaN values!");
             rmatrixplu(a, m, n, ref pivots, _params);
         }
 
@@ -38192,11 +38192,11 @@ public partial class alglib
         {
             pivots = new int[0];
 
-            alglib.ap.assert(m > 0, "CMatrixLU: incorrect M!");
-            alglib.ap.assert(n > 0, "CMatrixLU: incorrect N!");
-            alglib.ap.assert(alglib.ap.rows(a) >= m, "CMatrixLU: rows(A)<M");
-            alglib.ap.assert(alglib.ap.cols(a) >= n, "CMatrixLU: cols(A)<N");
-            alglib.ap.assert(apserv.isfinitecmatrix(a, m, n, _params), "CMatrixLU: A contains infinite or NaN values!");
+            ap.assert(m > 0, "CMatrixLU: incorrect M!");
+            ap.assert(n > 0, "CMatrixLU: incorrect N!");
+            ap.assert(ap.rows(a) >= m, "CMatrixLU: rows(A)<M");
+            ap.assert(ap.cols(a) >= n, "CMatrixLU: cols(A)<N");
+            ap.assert(apserv.isfinitecmatrix(a, m, n, _params), "CMatrixLU: A contains infinite or NaN values!");
             cmatrixplu(a, m, n, ref pivots, _params);
         }
 
@@ -38262,10 +38262,10 @@ public partial class alglib
             bool result = new();
             complex[] tmp = new complex[0];
 
-            alglib.ap.assert(n > 0, "HPDMatrixCholesky: incorrect N!");
-            alglib.ap.assert(alglib.ap.rows(a) >= n, "HPDMatrixCholesky: rows(A)<N");
-            alglib.ap.assert(alglib.ap.cols(a) >= n, "HPDMatrixCholesky: cols(A)<N");
-            alglib.ap.assert(apserv.isfinitectrmatrix(a, n, isupper, _params), "HPDMatrixCholesky: A contains infinite or NaN values!");
+            ap.assert(n > 0, "HPDMatrixCholesky: incorrect N!");
+            ap.assert(ap.rows(a) >= n, "HPDMatrixCholesky: rows(A)<N");
+            ap.assert(ap.cols(a) >= n, "HPDMatrixCholesky: cols(A)<N");
+            ap.assert(apserv.isfinitectrmatrix(a, n, isupper, _params), "HPDMatrixCholesky: A contains infinite or NaN values!");
             result = hpdmatrixcholeskyrec(a, 0, n, isupper, ref tmp, _params);
             return result;
         }
@@ -38332,10 +38332,10 @@ public partial class alglib
             bool result = new();
             double[] tmp = new double[0];
 
-            alglib.ap.assert(n > 0, "SPDMatrixCholesky: incorrect N!");
-            alglib.ap.assert(alglib.ap.rows(a) >= n, "SPDMatrixCholesky: rows(A)<N");
-            alglib.ap.assert(alglib.ap.cols(a) >= n, "SPDMatrixCholesky: cols(A)<N");
-            alglib.ap.assert(apserv.isfinitertrmatrix(a, n, isupper, _params), "SPDMatrixCholesky: A contains infinite or NaN values!");
+            ap.assert(n > 0, "SPDMatrixCholesky: incorrect N!");
+            ap.assert(ap.rows(a) >= n, "SPDMatrixCholesky: rows(A)<N");
+            ap.assert(ap.cols(a) >= n, "SPDMatrixCholesky: cols(A)<N");
+            ap.assert(apserv.isfinitertrmatrix(a, n, isupper, _params), "SPDMatrixCholesky: A contains infinite or NaN values!");
             result = spdmatrixcholeskyrec(a, 0, n, isupper, ref tmp, _params);
             return result;
         }
@@ -38383,10 +38383,10 @@ public partial class alglib
         {
             double[] bufr = new double[0];
 
-            alglib.ap.assert(n > 0, "SPDMatrixCholeskyUpdateAdd1: N<=0");
-            alglib.ap.assert(alglib.ap.rows(a) >= n, "SPDMatrixCholeskyUpdateAdd1: Rows(A)<N");
-            alglib.ap.assert(alglib.ap.cols(a) >= n, "SPDMatrixCholeskyUpdateAdd1: Cols(A)<N");
-            alglib.ap.assert(alglib.ap.len(u) >= n, "SPDMatrixCholeskyUpdateAdd1: Length(U)<N");
+            ap.assert(n > 0, "SPDMatrixCholeskyUpdateAdd1: N<=0");
+            ap.assert(ap.rows(a) >= n, "SPDMatrixCholeskyUpdateAdd1: Rows(A)<N");
+            ap.assert(ap.cols(a) >= n, "SPDMatrixCholeskyUpdateAdd1: Cols(A)<N");
+            ap.assert(ap.len(u) >= n, "SPDMatrixCholeskyUpdateAdd1: Length(U)<N");
             spdmatrixcholeskyupdateadd1buf(a, n, isupper, u, ref bufr, _params);
         }
 
@@ -38457,10 +38457,10 @@ public partial class alglib
         {
             double[] bufr = new double[0];
 
-            alglib.ap.assert(n > 0, "SPDMatrixCholeskyUpdateFix: N<=0");
-            alglib.ap.assert(alglib.ap.rows(a) >= n, "SPDMatrixCholeskyUpdateFix: Rows(A)<N");
-            alglib.ap.assert(alglib.ap.cols(a) >= n, "SPDMatrixCholeskyUpdateFix: Cols(A)<N");
-            alglib.ap.assert(alglib.ap.len(fix) >= n, "SPDMatrixCholeskyUpdateFix: Length(Fix)<N");
+            ap.assert(n > 0, "SPDMatrixCholeskyUpdateFix: N<=0");
+            ap.assert(ap.rows(a) >= n, "SPDMatrixCholeskyUpdateFix: Rows(A)<N");
+            ap.assert(ap.cols(a) >= n, "SPDMatrixCholeskyUpdateFix: Cols(A)<N");
+            ap.assert(ap.len(fix) >= n, "SPDMatrixCholeskyUpdateFix: Length(Fix)<N");
             spdmatrixcholeskyupdatefixbuf(a, n, isupper, fix, ref bufr, _params);
         }
 
@@ -38509,12 +38509,12 @@ public partial class alglib
             double v = 0;
             double vv = 0;
 
-            alglib.ap.assert(n > 0, "SPDMatrixCholeskyUpdateAdd1Buf: N<=0");
-            alglib.ap.assert(alglib.ap.rows(a) >= n, "SPDMatrixCholeskyUpdateAdd1Buf: Rows(A)<N");
-            alglib.ap.assert(alglib.ap.cols(a) >= n, "SPDMatrixCholeskyUpdateAdd1Buf: Cols(A)<N");
-            alglib.ap.assert(alglib.ap.len(u) >= n, "SPDMatrixCholeskyUpdateAdd1Buf: Length(U)<N");
-            alglib.ap.assert(apserv.isfinitertrmatrix(a, n, isupper, _params), "SPDMatrixCholeskyUpdateAdd1Buf: A contains infinite/NAN values");
-            alglib.ap.assert(apserv.isfinitevector(u, n, _params), "SPDMatrixCholeskyUpdateAdd1Buf: A contains infinite/NAN values");
+            ap.assert(n > 0, "SPDMatrixCholeskyUpdateAdd1Buf: N<=0");
+            ap.assert(ap.rows(a) >= n, "SPDMatrixCholeskyUpdateAdd1Buf: Rows(A)<N");
+            ap.assert(ap.cols(a) >= n, "SPDMatrixCholeskyUpdateAdd1Buf: Cols(A)<N");
+            ap.assert(ap.len(u) >= n, "SPDMatrixCholeskyUpdateAdd1Buf: Length(U)<N");
+            ap.assert(apserv.isfinitertrmatrix(a, n, isupper, _params), "SPDMatrixCholeskyUpdateAdd1Buf: A contains infinite/NAN values");
+            ap.assert(apserv.isfinitevector(u, n, _params), "SPDMatrixCholeskyUpdateAdd1Buf: A contains infinite/NAN values");
 
             //
             // Find index of first non-zero entry in U
@@ -38657,11 +38657,11 @@ public partial class alglib
             double v = 0;
             double vv = 0;
 
-            alglib.ap.assert(n > 0, "SPDMatrixCholeskyUpdateFixBuf: N<=0");
-            alglib.ap.assert(alglib.ap.rows(a) >= n, "SPDMatrixCholeskyUpdateFixBuf: Rows(A)<N");
-            alglib.ap.assert(alglib.ap.cols(a) >= n, "SPDMatrixCholeskyUpdateFixBuf: Cols(A)<N");
-            alglib.ap.assert(alglib.ap.len(fix) >= n, "SPDMatrixCholeskyUpdateFixBuf: Length(Fix)<N");
-            alglib.ap.assert(apserv.isfinitertrmatrix(a, n, isupper, _params), "SPDMatrixCholeskyUpdateAdd1Buf: A contains infinite/NAN values");
+            ap.assert(n > 0, "SPDMatrixCholeskyUpdateFixBuf: N<=0");
+            ap.assert(ap.rows(a) >= n, "SPDMatrixCholeskyUpdateFixBuf: Rows(A)<N");
+            ap.assert(ap.cols(a) >= n, "SPDMatrixCholeskyUpdateFixBuf: Cols(A)<N");
+            ap.assert(ap.len(fix) >= n, "SPDMatrixCholeskyUpdateFixBuf: Length(Fix)<N");
+            ap.assert(apserv.isfinitertrmatrix(a, n, isupper, _params), "SPDMatrixCholeskyUpdateAdd1Buf: A contains infinite/NAN values");
 
             //
             // Count number of variables to fix.
@@ -38937,9 +38937,9 @@ public partial class alglib
             p = new int[0];
             q = new int[0];
 
-            alglib.ap.assert((pivottype == 0 || pivottype == 1) || pivottype == 2, "SparseLU: unexpected pivot type");
-            alglib.ap.assert(sparse.sparseiscrs(a, _params), "SparseLU: A is not stored in CRS format");
-            alglib.ap.assert(sparse.sparsegetnrows(a, _params) == sparse.sparsegetncols(a, _params), "SparseLU: non-square A");
+            ap.assert((pivottype == 0 || pivottype == 1) || pivottype == 2, "SparseLU: unexpected pivot type");
+            ap.assert(sparse.sparseiscrs(a, _params), "SparseLU: A is not stored in CRS format");
+            ap.assert(sparse.sparsegetnrows(a, _params) == sparse.sparsegetncols(a, _params), "SparseLU: non-square A");
             result = sptrf.sptrflu(a, pivottype, ref p, ref q, buf2, _params);
             return result;
         }
@@ -39009,10 +39009,10 @@ public partial class alglib
             int offsa = 0;
             int offsl = 0;
 
-            alglib.ap.assert(n >= 0, "SparseCholeskySkyline: N<0");
-            alglib.ap.assert(sparse.sparsegetnrows(a, _params) >= n, "SparseCholeskySkyline: rows(A)<N");
-            alglib.ap.assert(sparse.sparsegetncols(a, _params) >= n, "SparseCholeskySkyline: cols(A)<N");
-            alglib.ap.assert(sparse.sparseissks(a, _params), "SparseCholeskySkyline: A is not stored in SKS format");
+            ap.assert(n >= 0, "SparseCholeskySkyline: N<0");
+            ap.assert(sparse.sparsegetnrows(a, _params) >= n, "SparseCholeskySkyline: rows(A)<N");
+            ap.assert(sparse.sparsegetncols(a, _params) >= n, "SparseCholeskySkyline: cols(A)<N");
+            ap.assert(sparse.sparseissks(a, _params), "SparseCholeskySkyline: A is not stored in SKS format");
             result = false;
 
             //
@@ -39052,7 +39052,7 @@ public partial class alglib
             nadd = 1;
             while (nready < n)
             {
-                alglib.ap.assert(nadd == 1, "SkylineCholesky: internal error");
+                ap.assert(nadd == 1, "SkylineCholesky: internal error");
 
                 //
                 // Calculate A1:=(inv(L)*A')'
@@ -39237,7 +39237,7 @@ public partial class alglib
             double[] dummyd = new double[0];
             int[] dummyp = new int[0];
 
-            alglib.ap.assert(sparse.sparsegetnrows(a, _params) == sparse.sparsegetncols(a, _params), "SparseCholesky: A is not square");
+            ap.assert(sparse.sparsegetnrows(a, _params) == sparse.sparsegetncols(a, _params), "SparseCholesky: A is not square");
 
             //
             // Quick exit
@@ -39398,7 +39398,7 @@ public partial class alglib
 
             p = new int[0];
 
-            alglib.ap.assert(sparse.sparsegetnrows(a, _params) == sparse.sparsegetncols(a, _params), "SparseCholeskyP: A is not square");
+            ap.assert(sparse.sparsegetnrows(a, _params) == sparse.sparsegetncols(a, _params), "SparseCholeskyP: A is not square");
 
             //
             // Quick exit
@@ -39562,9 +39562,9 @@ public partial class alglib
             int[] priorities = new int[0];
             int reusemem = 0;
 
-            alglib.ap.assert(sparse.sparsegetnrows(a, _params) == sparse.sparsegetncols(a, _params), "SparseCholeskyAnalyze: A is not square");
-            alglib.ap.assert(facttype == 0 || facttype == 1, "SparseCholeskyAnalyze: unexpected FactType");
-            alglib.ap.assert((((((permtype == 0 || permtype == 1) || permtype == 2) || permtype == 3) || permtype == -1) || permtype == -2) || permtype == -3, "SparseCholeskyAnalyze: unexpected PermType");
+            ap.assert(sparse.sparsegetnrows(a, _params) == sparse.sparsegetncols(a, _params), "SparseCholeskyAnalyze: A is not square");
+            ap.assert(facttype == 0 || facttype == 1, "SparseCholeskyAnalyze: unexpected FactType");
+            ap.assert((((((permtype == 0 || permtype == 1) || permtype == 2) || permtype == 3) || permtype == -1) || permtype == -2) || permtype == -3, "SparseCholeskyAnalyze: unexpected PermType");
 
             //
             // Prepare wrapper object
@@ -39856,8 +39856,8 @@ public partial class alglib
             bool isupper,
             alglib.xparams _params)
         {
-            alglib.ap.assert(sparse.sparsegetnrows(a, _params) == sparse.sparsegetncols(a, _params), "SparseCholeskyReload: A is not square");
-            alglib.ap.assert(sparse.sparsegetnrows(a, _params) == analysis.n, "SparseCholeskyReload: size of A does not match that stored in Analysis");
+            ap.assert(sparse.sparsegetnrows(a, _params) == sparse.sparsegetncols(a, _params), "SparseCholeskyReload: A is not square");
+            ap.assert(sparse.sparsegetnrows(a, _params) == analysis.n, "SparseCholeskyReload: size of A does not match that stored in Analysis");
             if (!sparse.sparseiscrs(a, _params))
             {
 
@@ -39918,8 +39918,8 @@ public partial class alglib
             // Internal LU decomposition subroutine.
             // Never call it directly.
             //
-            alglib.ap.assert(m > 0, "RMatrixLUP: incorrect M!");
-            alglib.ap.assert(n > 0, "RMatrixLUP: incorrect N!");
+            ap.assert(m > 0, "RMatrixLUP: incorrect M!");
+            ap.assert(n > 0, "RMatrixLUP: incorrect N!");
 
             //
             // Scale matrix to avoid overflows,
@@ -39981,8 +39981,8 @@ public partial class alglib
             // Internal LU decomposition subroutine.
             // Never call it directly.
             //
-            alglib.ap.assert(m > 0, "CMatrixLUP: incorrect M!");
-            alglib.ap.assert(n > 0, "CMatrixLUP: incorrect N!");
+            ap.assert(m > 0, "CMatrixLUP: incorrect M!");
+            ap.assert(n > 0, "CMatrixLUP: incorrect N!");
 
             //
             // Scale matrix to avoid overflows,
@@ -40044,8 +40044,8 @@ public partial class alglib
             // Internal LU decomposition subroutine.
             // Never call it directly.
             //
-            alglib.ap.assert(m > 0, "RMatrixPLU: incorrect M!");
-            alglib.ap.assert(n > 0, "RMatrixPLU: incorrect N!");
+            ap.assert(m > 0, "RMatrixPLU: incorrect M!");
+            ap.assert(n > 0, "RMatrixPLU: incorrect N!");
             tmp = new double[2 * Math.Max(m, n)];
             pivots = new int[Math.Min(m, n)];
 
@@ -40107,8 +40107,8 @@ public partial class alglib
             // Internal LU decomposition subroutine.
             // Never call it directly.
             //
-            alglib.ap.assert(m > 0, "CMatrixPLU: incorrect M!");
-            alglib.ap.assert(n > 0, "CMatrixPLU: incorrect N!");
+            ap.assert(m > 0, "CMatrixPLU: incorrect M!");
+            ap.assert(n > 0, "CMatrixPLU: incorrect N!");
             tmp = new complex[2 * Math.Max(m, n)];
             pivots = new int[Math.Min(m, n)];
 
@@ -40191,7 +40191,7 @@ public partial class alglib
             //
             // Allocate temporaries
             //
-            if (alglib.ap.len(tmp) < 2 * n)
+            if (ap.len(tmp) < 2 * n)
             {
                 tmp = new double[2 * n];
             }
@@ -40312,7 +40312,7 @@ public partial class alglib
             //
             // Prepare buffer
             //
-            if (alglib.ap.len(tmp) < 2 * n)
+            if (ap.len(tmp) < 2 * n)
             {
                 tmp = new complex[2 * n];
             }
@@ -40725,11 +40725,11 @@ public partial class alglib
             int i = 0;
             int s = 0;
 
-            alglib.ap.assert(n >= 1, "RMatrixLUDet: N<1!");
-            alglib.ap.assert(alglib.ap.len(pivots) >= n, "RMatrixLUDet: Pivots array is too short!");
-            alglib.ap.assert(alglib.ap.rows(a) >= n, "RMatrixLUDet: rows(A)<N!");
-            alglib.ap.assert(alglib.ap.cols(a) >= n, "RMatrixLUDet: cols(A)<N!");
-            alglib.ap.assert(apserv.apservisfinitematrix(a, n, n, _params), "RMatrixLUDet: A contains infinite or NaN values!");
+            ap.assert(n >= 1, "RMatrixLUDet: N<1!");
+            ap.assert(ap.len(pivots) >= n, "RMatrixLUDet: Pivots array is too short!");
+            ap.assert(ap.rows(a) >= n, "RMatrixLUDet: rows(A)<N!");
+            ap.assert(ap.cols(a) >= n, "RMatrixLUDet: cols(A)<N!");
+            ap.assert(apserv.apservisfinitematrix(a, n, n, _params), "RMatrixLUDet: A contains infinite or NaN values!");
             result = 1;
             s = 1;
             for (i = 0; i <= n - 1; i++)
@@ -40770,10 +40770,10 @@ public partial class alglib
 
             a = (double[,])a.Clone();
 
-            alglib.ap.assert(n >= 1, "RMatrixDet: N<1!");
-            alglib.ap.assert(alglib.ap.rows(a) >= n, "RMatrixDet: rows(A)<N!");
-            alglib.ap.assert(alglib.ap.cols(a) >= n, "RMatrixDet: cols(A)<N!");
-            alglib.ap.assert(apserv.apservisfinitematrix(a, n, n, _params), "RMatrixDet: A contains infinite or NaN values!");
+            ap.assert(n >= 1, "RMatrixDet: N<1!");
+            ap.assert(ap.rows(a) >= n, "RMatrixDet: rows(A)<N!");
+            ap.assert(ap.cols(a) >= n, "RMatrixDet: cols(A)<N!");
+            ap.assert(apserv.apservisfinitematrix(a, n, n, _params), "RMatrixDet: A contains infinite or NaN values!");
             trfac.rmatrixlu(a, n, n, ref pivots, _params);
             result = rmatrixludet(a, pivots, n, _params);
             return result;
@@ -40809,11 +40809,11 @@ public partial class alglib
             int i = 0;
             int s = 0;
 
-            alglib.ap.assert(n >= 1, "CMatrixLUDet: N<1!");
-            alglib.ap.assert(alglib.ap.len(pivots) >= n, "CMatrixLUDet: Pivots array is too short!");
-            alglib.ap.assert(alglib.ap.rows(a) >= n, "CMatrixLUDet: rows(A)<N!");
-            alglib.ap.assert(alglib.ap.cols(a) >= n, "CMatrixLUDet: cols(A)<N!");
-            alglib.ap.assert(apserv.apservisfinitecmatrix(a, n, n, _params), "CMatrixLUDet: A contains infinite or NaN values!");
+            ap.assert(n >= 1, "CMatrixLUDet: N<1!");
+            ap.assert(ap.len(pivots) >= n, "CMatrixLUDet: Pivots array is too short!");
+            ap.assert(ap.rows(a) >= n, "CMatrixLUDet: rows(A)<N!");
+            ap.assert(ap.cols(a) >= n, "CMatrixLUDet: cols(A)<N!");
+            ap.assert(apserv.apservisfinitecmatrix(a, n, n, _params), "CMatrixLUDet: A contains infinite or NaN values!");
             result = 1;
             s = 1;
             for (i = 0; i <= n - 1; i++)
@@ -40854,10 +40854,10 @@ public partial class alglib
 
             a = (complex[,])a.Clone();
 
-            alglib.ap.assert(n >= 1, "CMatrixDet: N<1!");
-            alglib.ap.assert(alglib.ap.rows(a) >= n, "CMatrixDet: rows(A)<N!");
-            alglib.ap.assert(alglib.ap.cols(a) >= n, "CMatrixDet: cols(A)<N!");
-            alglib.ap.assert(apserv.apservisfinitecmatrix(a, n, n, _params), "CMatrixDet: A contains infinite or NaN values!");
+            ap.assert(n >= 1, "CMatrixDet: N<1!");
+            ap.assert(ap.rows(a) >= n, "CMatrixDet: rows(A)<N!");
+            ap.assert(ap.cols(a) >= n, "CMatrixDet: cols(A)<N!");
+            ap.assert(apserv.apservisfinitecmatrix(a, n, n, _params), "CMatrixDet: A contains infinite or NaN values!");
             trfac.cmatrixlu(a, n, n, ref pivots, _params);
             result = cmatrixludet(a, pivots, n, _params);
             return result;
@@ -40894,15 +40894,15 @@ public partial class alglib
             int i = 0;
             bool f = new();
 
-            alglib.ap.assert(n >= 1, "SPDMatrixCholeskyDet: N<1!");
-            alglib.ap.assert(alglib.ap.rows(a) >= n, "SPDMatrixCholeskyDet: rows(A)<N!");
-            alglib.ap.assert(alglib.ap.cols(a) >= n, "SPDMatrixCholeskyDet: cols(A)<N!");
+            ap.assert(n >= 1, "SPDMatrixCholeskyDet: N<1!");
+            ap.assert(ap.rows(a) >= n, "SPDMatrixCholeskyDet: rows(A)<N!");
+            ap.assert(ap.cols(a) >= n, "SPDMatrixCholeskyDet: cols(A)<N!");
             f = true;
             for (i = 0; i <= n - 1; i++)
             {
                 f = f && math.isfinite(a[i, i]);
             }
-            alglib.ap.assert(f, "SPDMatrixCholeskyDet: A contains infinite or NaN values!");
+            ap.assert(f, "SPDMatrixCholeskyDet: A contains infinite or NaN values!");
             result = 1;
             for (i = 0; i <= n - 1; i++)
             {
@@ -40947,12 +40947,12 @@ public partial class alglib
 
             a = (double[,])a.Clone();
 
-            alglib.ap.assert(n >= 1, "SPDMatrixDet: N<1!");
-            alglib.ap.assert(alglib.ap.rows(a) >= n, "SPDMatrixDet: rows(A)<N!");
-            alglib.ap.assert(alglib.ap.cols(a) >= n, "SPDMatrixDet: cols(A)<N!");
-            alglib.ap.assert(apserv.isfinitertrmatrix(a, n, isupper, _params), "SPDMatrixDet: A contains infinite or NaN values!");
+            ap.assert(n >= 1, "SPDMatrixDet: N<1!");
+            ap.assert(ap.rows(a) >= n, "SPDMatrixDet: rows(A)<N!");
+            ap.assert(ap.cols(a) >= n, "SPDMatrixDet: cols(A)<N!");
+            ap.assert(apserv.isfinitertrmatrix(a, n, isupper, _params), "SPDMatrixDet: A contains infinite or NaN values!");
             b = trfac.spdmatrixcholesky(a, n, isupper, _params);
-            alglib.ap.assert(b, "SPDMatrixDet: A is not SPD!");
+            ap.assert(b, "SPDMatrixDet: A is not SPD!");
             result = spdmatrixcholeskydet(a, n, _params);
             return result;
         }
@@ -41731,7 +41731,7 @@ public partial class alglib
 
             q = new double[0, 0];
 
-            alglib.ap.assert(qcolumns <= m, "UnpackQFromQR: QColumns>M!");
+            ap.assert(qcolumns <= m, "UnpackQFromQR: QColumns>M!");
             if ((m <= 0 || n <= 0) || qcolumns <= 0)
             {
                 return;
@@ -41965,7 +41965,7 @@ public partial class alglib
 
             q = new double[0, 0];
 
-            alglib.ap.assert(qrows <= n, "RMatrixLQUnpackQ: QRows>N!");
+            ap.assert(qrows <= n, "RMatrixLQUnpackQ: QRows>N!");
             if ((m <= 0 || n <= 0) || qrows <= 0)
             {
                 return;
@@ -42199,7 +42199,7 @@ public partial class alglib
 
             q = new complex[0, 0];
 
-            alglib.ap.assert(qcolumns <= m, "UnpackQFromQR: QColumns>M!");
+            ap.assert(qcolumns <= m, "UnpackQFromQR: QColumns>M!");
             if (m <= 0 || n <= 0)
             {
                 return;
@@ -43025,8 +43025,8 @@ public partial class alglib
 
             q = new double[0, 0];
 
-            alglib.ap.assert(qcolumns <= m, "RMatrixBDUnpackQ: QColumns>M!");
-            alglib.ap.assert(qcolumns >= 0, "RMatrixBDUnpackQ: QColumns<0!");
+            ap.assert(qcolumns <= m, "RMatrixBDUnpackQ: QColumns>M!");
+            ap.assert(qcolumns >= 0, "RMatrixBDUnpackQ: QColumns<0!");
             if ((m == 0 || n == 0) || qcolumns == 0)
             {
                 return;
@@ -43126,7 +43126,7 @@ public partial class alglib
             {
                 return;
             }
-            alglib.ap.assert((fromtheright && zcolumns == m) || (!fromtheright && zrows == m), "RMatrixBDMultiplyByQ: incorrect Z size!");
+            ap.assert((fromtheright && zcolumns == m) || (!fromtheright && zrows == m), "RMatrixBDMultiplyByQ: incorrect Z size!");
 
             //
             // Try to use PBL code
@@ -43285,8 +43285,8 @@ public partial class alglib
 
             pt = new double[0, 0];
 
-            alglib.ap.assert(ptrows <= n, "RMatrixBDUnpackPT: PTRows>N!");
-            alglib.ap.assert(ptrows >= 0, "RMatrixBDUnpackPT: PTRows<0!");
+            ap.assert(ptrows <= n, "RMatrixBDUnpackPT: PTRows>N!");
+            ap.assert(ptrows >= 0, "RMatrixBDUnpackPT: PTRows<0!");
             if ((m == 0 || n == 0) || ptrows == 0)
             {
                 return;
@@ -43374,7 +43374,7 @@ public partial class alglib
             {
                 return;
             }
-            alglib.ap.assert((fromtheright && zcolumns == n) || (!fromtheright && zrows == n), "RMatrixBDMultiplyByP: incorrect Z size!");
+            ap.assert((fromtheright && zcolumns == n) || (!fromtheright && zrows == n), "RMatrixBDMultiplyByP: incorrect Z size!");
 
             //
             // init
@@ -43617,7 +43617,7 @@ public partial class alglib
 
             tau = new double[0];
 
-            alglib.ap.assert(n >= 0, "RMatrixHessenberg: incorrect N!");
+            ap.assert(n >= 0, "RMatrixHessenberg: incorrect N!");
 
             //
             // Quick return if possible
@@ -44366,7 +44366,7 @@ public partial class alglib
             }
             for (i = 0; i <= n - 1; i++)
             {
-                alglib.ap.assert((double)(a[i, i].y) == (double)(0));
+                ap.assert((double)(a[i, i].y) == (double)(0));
             }
             if (n > 1)
             {
@@ -45303,7 +45303,7 @@ public partial class alglib
             {
                 return;
             }
-            if (alglib.ap.len(tmp) < n)
+            if (ap.len(tmp) < n)
             {
                 tmp = new double[n];
             }
@@ -45449,7 +45449,7 @@ public partial class alglib
             offstmp1 = offspk1 + n;
             offstmp2 = offstmp1 + m;
             bs = offstmp2 + n;
-            if (alglib.ap.len(buf) < bs)
+            if (ap.len(buf) < bs)
             {
                 buf = new double[bs];
             }
@@ -45697,43 +45697,43 @@ public partial class alglib
         {
             int i_ = 0;
 
-            if (alglib.ap.len(state.b) < n)
+            if (ap.len(state.b) < n)
             {
                 state.b = new double[n];
             }
-            if (alglib.ap.len(state.rk) < n)
+            if (ap.len(state.rk) < n)
             {
                 state.rk = new double[n];
             }
-            if (alglib.ap.len(state.rk1) < n)
+            if (ap.len(state.rk1) < n)
             {
                 state.rk1 = new double[n];
             }
-            if (alglib.ap.len(state.xk) < n)
+            if (ap.len(state.xk) < n)
             {
                 state.xk = new double[n];
             }
-            if (alglib.ap.len(state.xk1) < n)
+            if (ap.len(state.xk1) < n)
             {
                 state.xk1 = new double[n];
             }
-            if (alglib.ap.len(state.pk) < n)
+            if (ap.len(state.pk) < n)
             {
                 state.pk = new double[n];
             }
-            if (alglib.ap.len(state.pk1) < n)
+            if (ap.len(state.pk1) < n)
             {
                 state.pk1 = new double[n];
             }
-            if (alglib.ap.len(state.tmp2) < n)
+            if (ap.len(state.tmp2) < n)
             {
                 state.tmp2 = new double[n];
             }
-            if (alglib.ap.len(state.x) < n)
+            if (ap.len(state.x) < n)
             {
                 state.x = new double[n];
             }
-            if (alglib.ap.len(state.ax) < n)
+            if (ap.len(state.ax) < n)
             {
                 state.ax = new double[n];
             }
@@ -46095,7 +46095,7 @@ public partial class alglib
             fblsgmresstate state,
             alglib.xparams _params)
         {
-            alglib.ap.assert((n > 0 && k > 0) && k <= n, "FBLSGMRESCreate: incorrect params");
+            ap.assert((n > 0 && k > 0) && k <= n, "FBLSGMRESCreate: incorrect params");
             state.n = n;
             state.itscnt = k;
             state.epsort = (1000 + Math.Sqrt(n)) * math.machineepsilon;
@@ -46420,11 +46420,11 @@ public partial class alglib
             double v = 0;
             int i_ = 0;
 
-            alglib.ap.assert(n > 0, "FBLSSolveLS: N<=0");
-            alglib.ap.assert(m >= n, "FBLSSolveLS: M<N");
-            alglib.ap.assert(alglib.ap.rows(a) >= m, "FBLSSolveLS: Rows(A)<M");
-            alglib.ap.assert(alglib.ap.cols(a) >= n, "FBLSSolveLS: Cols(A)<N");
-            alglib.ap.assert(alglib.ap.len(b) >= m, "FBLSSolveLS: Length(B)<M");
+            ap.assert(n > 0, "FBLSSolveLS: N<=0");
+            ap.assert(m >= n, "FBLSSolveLS: M<N");
+            ap.assert(ap.rows(a) >= m, "FBLSSolveLS: Rows(A)<M");
+            ap.assert(ap.cols(a) >= n, "FBLSSolveLS: Cols(A)<N");
+            ap.assert(ap.len(b) >= m, "FBLSSolveLS: Length(B)<M");
 
             //
             // Allocate temporaries
@@ -46725,9 +46725,9 @@ public partial class alglib
             workv3 = new double[3 + 1];
             tmpwr = new double[Math.Max(n, 1) + 1];
             tmpwi = new double[Math.Max(n, 1) + 1];
-            alglib.ap.assert(n >= 0, "InternalSchurDecomposition: incorrect N!");
-            alglib.ap.assert(tneeded == 0 || tneeded == 1, "InternalSchurDecomposition: incorrect TNeeded!");
-            alglib.ap.assert((zneeded == 0 || zneeded == 1) || zneeded == 2, "InternalSchurDecomposition: incorrect ZNeeded!");
+            ap.assert(n >= 0, "InternalSchurDecomposition: incorrect N!");
+            ap.assert(tneeded == 0 || tneeded == 1, "InternalSchurDecomposition: incorrect TNeeded!");
+            ap.assert((zneeded == 0 || zneeded == 1) || zneeded == 2, "InternalSchurDecomposition: incorrect ZNeeded!");
             wantt = tneeded == 1;
             initz = zneeded == 2;
             wantz = zneeded != 0;
@@ -47154,7 +47154,7 @@ public partial class alglib
                 //
                 if (apserv.alwaysfalse(_params))
                 {
-                    alglib.ap.assert(false);
+                    ap.assert(false);
                     break;
                 }
             }
@@ -48160,9 +48160,9 @@ public partial class alglib
             eigsubspacestate state,
             alglib.xparams _params)
         {
-            alglib.ap.assert(n > 0, "EigSubspaceCreate: N<=0");
-            alglib.ap.assert(k > 0, "EigSubspaceCreate: K<=0");
-            alglib.ap.assert(k <= n, "EigSubspaceCreate: K>N");
+            ap.assert(n > 0, "EigSubspaceCreate: N<=0");
+            ap.assert(k > 0, "EigSubspaceCreate: K<=0");
+            ap.assert(k <= n, "EigSubspaceCreate: K>N");
             eigsubspacecreatebuf(n, k, state, _params);
         }
 
@@ -48179,9 +48179,9 @@ public partial class alglib
             eigsubspacestate state,
             alglib.xparams _params)
         {
-            alglib.ap.assert(n > 0, "EigSubspaceCreate: N<=0");
-            alglib.ap.assert(k > 0, "EigSubspaceCreate: K<=0");
-            alglib.ap.assert(k <= n, "EigSubspaceCreate: K>N");
+            ap.assert(n > 0, "EigSubspaceCreate: N<=0");
+            ap.assert(k > 0, "EigSubspaceCreate: K<=0");
+            ap.assert(k <= n, "EigSubspaceCreate: K>N");
 
             //
             // Initialize algorithm parameters
@@ -48249,9 +48249,9 @@ public partial class alglib
             int maxits,
             alglib.xparams _params)
         {
-            alglib.ap.assert(!state.running, "EigSubspaceSetCond: solver is already running");
-            alglib.ap.assert(math.isfinite(eps) && (double)(eps) >= (double)(0), "EigSubspaceSetCond: Eps<0 or NAN/INF");
-            alglib.ap.assert(maxits >= 0, "EigSubspaceSetCond: MaxIts<0");
+            ap.assert(!state.running, "EigSubspaceSetCond: solver is already running");
+            ap.assert(math.isfinite(eps) && (double)(eps) >= (double)(0), "EigSubspaceSetCond: Eps<0 or NAN/INF");
+            ap.assert(maxits >= 0, "EigSubspaceSetCond: MaxIts<0");
             if ((double)(eps) == (double)(0) && maxits == 0)
             {
                 eps = 1.0E-6;
@@ -48277,7 +48277,7 @@ public partial class alglib
             bool usewarmstart,
             alglib.xparams _params)
         {
-            alglib.ap.assert(!state.running, "EigSubspaceSetWarmStart: solver is already running");
+            ap.assert(!state.running, "EigSubspaceSetWarmStart: solver is already running");
             state.usewarmstart = usewarmstart;
         }
 
@@ -48331,8 +48331,8 @@ public partial class alglib
             int mtype,
             alglib.xparams _params)
         {
-            alglib.ap.assert(!state.running, "EigSubspaceStart: solver is already running");
-            alglib.ap.assert(mtype == 0 || mtype == 1, "EigSubspaceStart: incorrect mtype parameter");
+            ap.assert(!state.running, "EigSubspaceStart: solver is already running");
+            ap.assert(mtype == 0 || mtype == 1, "EigSubspaceStart: incorrect mtype parameter");
             state.rstate.ia = new int[8 + 1];
             state.rstate.ra = new double[1 + 1];
             state.rstate.stage = -1;
@@ -48365,7 +48365,7 @@ public partial class alglib
         {
             bool result = new();
 
-            alglib.ap.assert(state.running, "EigSubspaceContinue: solver is not running");
+            ap.assert(state.running, "EigSubspaceContinue: solver is not running");
             result = eigsubspaceiteration(state, _params);
             state.running = result;
             return result;
@@ -48417,7 +48417,7 @@ public partial class alglib
             requesttype = 0;
             requestsize = 0;
 
-            alglib.ap.assert(state.running, "EigSubspaceOOCGetRequestInfo: solver is not running");
+            ap.assert(state.running, "EigSubspaceOOCGetRequestInfo: solver is not running");
             requesttype = state.requesttype;
             requestsize = state.requestsize;
         }
@@ -48463,7 +48463,7 @@ public partial class alglib
             int i = 0;
             int j = 0;
 
-            alglib.ap.assert(state.running, "EigSubspaceOOCGetRequestInfo: solver is not running");
+            ap.assert(state.running, "EigSubspaceOOCGetRequestInfo: solver is not running");
             apserv.rmatrixsetlengthatleast(ref x, state.n, state.requestsize, _params);
             for (i = 0; i <= state.n - 1; i++)
             {
@@ -48506,7 +48506,7 @@ public partial class alglib
             int i = 0;
             int j = 0;
 
-            alglib.ap.assert(state.running, "EigSubspaceOOCGetRequestInfo: solver is not running");
+            ap.assert(state.running, "EigSubspaceOOCGetRequestInfo: solver is not running");
             for (i = 0; i <= state.n - 1; i++)
             {
                 for (j = 0; j <= state.requestsize - 1; j++)
@@ -48560,7 +48560,7 @@ public partial class alglib
             w = new double[0];
             z = new double[0, 0];
 
-            alglib.ap.assert(!state.running, "EigSubspaceStop: solver is still running");
+            ap.assert(!state.running, "EigSubspaceStop: solver is still running");
             n = state.n;
             k = state.k;
             w = new double[k];
@@ -48650,7 +48650,7 @@ public partial class alglib
             w = new double[0];
             z = new double[0, 0];
 
-            alglib.ap.assert(!state.running, "EigSubspaceSolveDenseS: solver is still running");
+            ap.assert(!state.running, "EigSubspaceSolveDenseS: solver is still running");
             n = state.n;
 
             //
@@ -48690,8 +48690,8 @@ public partial class alglib
                 //
                 // Calculate A*X with RMatrixGEMM
                 //
-                alglib.ap.assert(state.requesttype == 0, "EigSubspaceSolveDense: integrity check failed");
-                alglib.ap.assert(state.requestsize > 0, "EigSubspaceSolveDense: integrity check failed");
+                ap.assert(state.requesttype == 0, "EigSubspaceSolveDense: integrity check failed");
+                ap.assert(state.requestsize > 0, "EigSubspaceSolveDense: integrity check failed");
                 m = state.requestsize;
                 ablas.rmatrixgemm(n, m, n, 1.0, acopy, 0, 0, 0, state.x, 0, 0, 0, 0.0, state.ax, 0, 0, _params);
             }
@@ -48752,7 +48752,7 @@ public partial class alglib
             w = new double[0];
             z = new double[0, 0];
 
-            alglib.ap.assert(!state.running, "EigSubspaceSolveSparseS: solver is still running");
+            ap.assert(!state.running, "EigSubspaceSolveSparseS: solver is still running");
             n = state.n;
             prevmode = state.solvermode;
             state.solvermode = 0;
@@ -48763,8 +48763,8 @@ public partial class alglib
             clearrfields(state, _params);
             while (eigsubspaceiteration(state, _params))
             {
-                alglib.ap.assert(state.requesttype == 0, "EigSubspaceSolveDense: integrity check failed");
-                alglib.ap.assert(state.requestsize > 0, "EigSubspaceSolveDense: integrity check failed");
+                ap.assert(state.requesttype == 0, "EigSubspaceSolveDense: integrity check failed");
+                ap.assert(state.requestsize > 0, "EigSubspaceSolveDense: integrity check failed");
                 sparse.sparsesmm(a, isupper, state.x, state.requestsize, ref state.ax, _params);
             }
             state.solvermode = prevmode;
@@ -48879,7 +48879,7 @@ public partial class alglib
             // * 0 for LQ-based reorthogonalization with checks
             // * 1 for a quick algo without checks or reorthogonalizations
             //
-            alglib.ap.assert(state.solvermode == 0 || state.solvermode == 1, "EigSubspaceIteration: unexpected MatrixType");
+            ap.assert(state.solvermode == 0 || state.solvermode == 1, "EigSubspaceIteration: unexpected MatrixType");
             iterationtype = 0;
             if (state.solvermode == 1)
             {
@@ -48976,12 +48976,12 @@ public partial class alglib
             //
             if ((double)(state.eps) > (double)(0))
             {
-                alglib.ap.assert(state.solvermode == 0, "EigSubspace: integrity check failed");
+                ap.assert(state.solvermode == 0, "EigSubspace: integrity check failed");
                 apserv.rmatrixsetlengthatleast(ref state.r, nwork, nwork, _params);
                 ablas.rmatrixgemm(nwork, nwork, n, 1.0, state.qcur, 0, 0, 0, state.ax, 0, 0, 0, 0.0, state.r, 0, 0, _params);
                 if (!smatrixevd(state.r, nwork, 0, true, ref state.wcur, ref state.dummy, _params))
                 {
-                    alglib.ap.assert(false, "EigSubspace: direct eigensolver failed to converge");
+                    ap.assert(false, "EigSubspace: direct eigensolver failed to converge");
                 }
                 for (j = 0; j <= nwork - 1; j++)
                 {
@@ -49107,11 +49107,11 @@ public partial class alglib
             // Perform Rayleigh-Ritz step: find true eigenpairs in NWork-dimensional
             // subspace.
             //
-            alglib.ap.assert(state.eigenvectorsneeded == 1);
+            ap.assert(state.eigenvectorsneeded == 1);
             ablas.rmatrixgemm(nwork, nwork, n, 1.0, state.qcur, 0, 0, 0, state.ax, 0, 0, 0, 0.0, state.r, 0, 0, _params);
             if (!smatrixevd(state.r, nwork, 1, true, ref state.tw, ref state.tz, _params))
             {
-                alglib.ap.assert(false, "EigSubspace: direct eigensolver failed to converge");
+                ap.assert(false, "EigSubspace: direct eigensolver failed to converge");
             }
 
             //
@@ -49135,7 +49135,7 @@ public partial class alglib
                 {
                     if ((double)(state.wrank[i1]) == (double)(i))
                     {
-                        alglib.ap.assert(cnt < k, "EigSubspace: integrity check failed");
+                        ap.assert(cnt < k, "EigSubspace: integrity check failed");
                         state.rw[cnt] = state.tw[i1];
                         for (j = 0; j <= nwork - 1; j++)
                         {
@@ -49145,7 +49145,7 @@ public partial class alglib
                     }
                 }
             }
-            alglib.ap.assert(cnt == k, "EigSubspace: integrity check failed");
+            ap.assert(cnt == k, "EigSubspace: integrity check failed");
             ablas.rmatrixgemm(n, k, nwork, 1.0, state.qcur, 0, 0, 1, state.rz, 0, 0, 0, 0.0, state.rq, 0, 0, _params);
             result = false;
             return result;
@@ -49231,7 +49231,7 @@ public partial class alglib
             d = new double[0];
             z = new double[0, 0];
 
-            alglib.ap.assert(zneeded == 0 || zneeded == 1, "SMatrixEVD: incorrect ZNeeded");
+            ap.assert(zneeded == 0 || zneeded == 1, "SMatrixEVD: incorrect ZNeeded");
             ortfac.smatrixtd(a, n, isupper, ref tau, ref d, ref e, _params);
             if (zneeded == 1)
             {
@@ -49314,7 +49314,7 @@ public partial class alglib
             w = new double[0];
             z = new double[0, 0];
 
-            alglib.ap.assert(zneeded == 0 || zneeded == 1, "SMatrixTDEVDR: incorrect ZNeeded");
+            ap.assert(zneeded == 0 || zneeded == 1, "SMatrixTDEVDR: incorrect ZNeeded");
             ortfac.smatrixtd(a, n, isupper, ref tau, ref w, ref e, _params);
             if (zneeded == 1)
             {
@@ -49380,7 +49380,7 @@ public partial class alglib
             w = new double[0];
             z = new double[0, 0];
 
-            alglib.ap.assert(zneeded == 0 || zneeded == 1, "SMatrixEVDI: incorrect ZNeeded");
+            ap.assert(zneeded == 0 || zneeded == 1, "SMatrixEVDI: incorrect ZNeeded");
             ortfac.smatrixtd(a, n, isupper, ref tau, ref w, ref e, _params);
             if (zneeded == 1)
             {
@@ -49461,7 +49461,7 @@ public partial class alglib
             d = new double[0];
             z = new complex[0, 0];
 
-            alglib.ap.assert(zneeded == 0 || zneeded == 1, "HermitianEVD: incorrect ZNeeded");
+            ap.assert(zneeded == 0 || zneeded == 1, "HermitianEVD: incorrect ZNeeded");
 
             //
             // Reduce to tridiagonal form
@@ -49601,7 +49601,7 @@ public partial class alglib
             w = new double[0];
             z = new complex[0, 0];
 
-            alglib.ap.assert(zneeded == 0 || zneeded == 1, "HermitianEigenValuesAndVectorsInInterval: incorrect ZNeeded");
+            ap.assert(zneeded == 0 || zneeded == 1, "HermitianEigenValuesAndVectorsInInterval: incorrect ZNeeded");
 
             //
             // Reduce to tridiagonal form
@@ -49743,7 +49743,7 @@ public partial class alglib
             w = new double[0];
             z = new complex[0, 0];
 
-            alglib.ap.assert(zneeded == 0 || zneeded == 1, "HermitianEigenValuesAndVectorsByIndexes: incorrect ZNeeded");
+            ap.assert(zneeded == 0 || zneeded == 1, "HermitianEigenValuesAndVectorsByIndexes: incorrect ZNeeded");
 
             //
             // Reduce to tridiagonal form
@@ -49897,8 +49897,8 @@ public partial class alglib
 
             e = (double[])e.Clone();
 
-            alglib.ap.assert(n >= 1, "SMatrixTDEVD: N<=0");
-            alglib.ap.assert(zneeded >= 0 && zneeded <= 3, "SMatrixTDEVD: incorrect ZNeeded");
+            ap.assert(n >= 1, "SMatrixTDEVD: N<=0");
+            ap.assert(zneeded >= 0 && zneeded <= 3, "SMatrixTDEVD: incorrect ZNeeded");
             result = false;
 
             //
@@ -50016,7 +50016,7 @@ public partial class alglib
                     }
                     return result;
                 }
-                alglib.ap.assert(false, "SMatrixTDEVD: Incorrect ZNeeded!");
+                ap.assert(false, "SMatrixTDEVD: Incorrect ZNeeded!");
             }
             return result;
         }
@@ -50106,7 +50106,7 @@ public partial class alglib
 
             m = 0;
 
-            alglib.ap.assert(zneeded >= 0 && zneeded <= 2, "SMatrixTDEVDR: incorrect ZNeeded!");
+            ap.assert(zneeded >= 0 && zneeded <= 2, "SMatrixTDEVDR: incorrect ZNeeded!");
 
             //
             // Special cases
@@ -50408,7 +50408,7 @@ public partial class alglib
             int i_ = 0;
             int i1_ = 0;
 
-            alglib.ap.assert((0 <= i1 && i1 <= i2) && i2 < n, "SMatrixTDEVDI: incorrect I1/I2!");
+            ap.assert((0 <= i1 && i1 <= i2) && i2 < n, "SMatrixTDEVDI: incorrect I1/I2!");
 
             //
             // Copy D,E to D1, E1
@@ -50735,7 +50735,7 @@ public partial class alglib
             vl = new double[0, 0];
             vr = new double[0, 0];
 
-            alglib.ap.assert(vneeded >= 0 && vneeded <= 3, "RMatrixEVD: incorrect VNeeded!");
+            ap.assert(vneeded >= 0 && vneeded <= 3, "RMatrixEVD: incorrect VNeeded!");
             if (vneeded == 0)
             {
 
@@ -50857,7 +50857,7 @@ public partial class alglib
 
             e = (double[])e.Clone();
 
-            alglib.ap.assert(zneeded >= 0 && zneeded <= 3, "TridiagonalEVD: Incorrent ZNeeded");
+            ap.assert(zneeded >= 0 && zneeded <= 3, "TridiagonalEVD: Incorrent ZNeeded");
 
             //
             // Quick return if possible
@@ -55735,9 +55735,9 @@ public partial class alglib
             {
                 return result;
             }
-            alglib.ap.assert(uneeded >= 0 && uneeded <= 2, "SVDDecomposition: wrong parameters!");
-            alglib.ap.assert(vtneeded >= 0 && vtneeded <= 2, "SVDDecomposition: wrong parameters!");
-            alglib.ap.assert(additionalmemory >= 0 && additionalmemory <= 2, "SVDDecomposition: wrong parameters!");
+            ap.assert(uneeded >= 0 && uneeded <= 2, "SVDDecomposition: wrong parameters!");
+            ap.assert(vtneeded >= 0 && vtneeded <= 2, "SVDDecomposition: wrong parameters!");
+            ap.assert(additionalmemory >= 0 && additionalmemory <= 2, "SVDDecomposition: wrong parameters!");
 
             //
             // initialize
@@ -55998,7 +55998,7 @@ public partial class alglib
 
             a = (double[,])a.Clone();
 
-            alglib.ap.assert(n >= 1, "RMatrixRCond1: N<1!");
+            ap.assert(n >= 1, "RMatrixRCond1: N<1!");
             t = new double[n];
             for (i = 0; i <= n - 1; i++)
             {
@@ -56047,10 +56047,10 @@ public partial class alglib
             double[,] u = new double[0, 0];
             double[,] vt = new double[0, 0];
 
-            alglib.ap.assert(n >= 1, "RMatrixRCond2: N<1!");
+            ap.assert(n >= 1, "RMatrixRCond2: N<1!");
             if (!svd.rmatrixsvd(a, n, n, 0, 0, 0, ref w, ref u, ref vt, _params))
             {
-                alglib.ap.assert(false, "RMatrixRCond2: SVD solver failure");
+                ap.assert(false, "RMatrixRCond2: SVD solver failure");
             }
             result = 0;
             if ((double)(w[0]) != (double)(0))
@@ -56090,11 +56090,11 @@ public partial class alglib
             double[,] u = new double[0, 0];
             double[,] vt = new double[0, 0];
 
-            alglib.ap.assert(m >= 1, "RMatrixRCond2Rect: M<1!");
-            alglib.ap.assert(n >= 1, "RMatrixRCond2Rect: N<1!");
+            ap.assert(m >= 1, "RMatrixRCond2Rect: M<1!");
+            ap.assert(n >= 1, "RMatrixRCond2Rect: N<1!");
             if (!svd.rmatrixsvd(a, m, n, 0, 0, 0, ref w, ref u, ref vt, _params))
             {
-                alglib.ap.assert(false, "RMatrixRCond2Rect: SVD solver failure");
+                ap.assert(false, "RMatrixRCond2Rect: SVD solver failure");
             }
             result = 0;
             if ((double)(w[0]) != (double)(0))
@@ -56139,7 +56139,7 @@ public partial class alglib
 
             a = (double[,])a.Clone();
 
-            alglib.ap.assert(n >= 1, "RMatrixRCondInf: N<1!");
+            ap.assert(n >= 1, "RMatrixRCondInf: N<1!");
             nrm = 0;
             for (i = 0; i <= n - 1; i++)
             {
@@ -56279,7 +56279,7 @@ public partial class alglib
 
             if (!evd.smatrixevd(a, n, 0, isupper, ref d, ref z, _params))
             {
-                alglib.ap.assert(false, "SPDMatrixRCond2: EVD solver failure");
+                ap.assert(false, "SPDMatrixRCond2: EVD solver failure");
             }
             result = 0;
             if ((double)(d[n - 1]) > (double)(0))
@@ -56329,7 +56329,7 @@ public partial class alglib
             int j1 = 0;
             int j2 = 0;
 
-            alglib.ap.assert(n >= 1, "RMatrixTRRCond1: N<1!");
+            ap.assert(n >= 1, "RMatrixTRRCond1: N<1!");
             t = new double[n];
             for (i = 0; i <= n - 1; i++)
             {
@@ -56402,7 +56402,7 @@ public partial class alglib
 
             a = (double[,])a.Clone();
 
-            alglib.ap.assert(n >= 1, "RMatrixTRRCond2: N<1!");
+            ap.assert(n >= 1, "RMatrixTRRCond2: N<1!");
             for (i = 0; i <= n - 1; i++)
             {
                 if (isupper)
@@ -56463,7 +56463,7 @@ public partial class alglib
             int j1 = 0;
             int j2 = 0;
 
-            alglib.ap.assert(n >= 1, "RMatrixTRRCondInf: N<1!");
+            ap.assert(n >= 1, "RMatrixTRRCondInf: N<1!");
             nrm = 0;
             for (i = 0; i <= n - 1; i++)
             {
@@ -56620,7 +56620,7 @@ public partial class alglib
 
             a = (complex[,])a.Clone();
 
-            alglib.ap.assert(n >= 1, "CMatrixRCond1: N<1!");
+            ap.assert(n >= 1, "CMatrixRCond1: N<1!");
             t = new double[n];
             for (i = 0; i <= n - 1; i++)
             {
@@ -56675,7 +56675,7 @@ public partial class alglib
 
             a = (complex[,])a.Clone();
 
-            alglib.ap.assert(n >= 1, "CMatrixRCondInf: N<1!");
+            ap.assert(n >= 1, "CMatrixRCondInf: N<1!");
             nrm = 0;
             for (i = 0; i <= n - 1; i++)
             {
@@ -56855,7 +56855,7 @@ public partial class alglib
             double result = 0;
             double v = 0;
 
-            alglib.ap.assert(n >= 1, "CMatrixLURCond1: N<1!");
+            ap.assert(n >= 1, "CMatrixLURCond1: N<1!");
             cmatrixrcondluinternal(lua, n, true, false, 0.0, ref v, _params);
             result = v;
             return result;
@@ -56888,7 +56888,7 @@ public partial class alglib
             double result = 0;
             double v = 0;
 
-            alglib.ap.assert(n >= 1, "CMatrixLURCondInf: N<1!");
+            ap.assert(n >= 1, "CMatrixLURCondInf: N<1!");
             cmatrixrcondluinternal(lua, n, false, false, 0.0, ref v, _params);
             result = v;
             return result;
@@ -56930,7 +56930,7 @@ public partial class alglib
             int j1 = 0;
             int j2 = 0;
 
-            alglib.ap.assert(n >= 1, "RMatrixTRRCond1: N<1!");
+            ap.assert(n >= 1, "RMatrixTRRCond1: N<1!");
             t = new double[n];
             for (i = 0; i <= n - 1; i++)
             {
@@ -57006,7 +57006,7 @@ public partial class alglib
             int j1 = 0;
             int j2 = 0;
 
-            alglib.ap.assert(n >= 1, "RMatrixTRRCondInf: N<1!");
+            ap.assert(n >= 1, "RMatrixTRRCondInf: N<1!");
             nrm = 0;
             for (i = 0; i <= n - 1; i++)
             {
@@ -57451,7 +57451,7 @@ public partial class alglib
 
             rc = 0;
 
-            alglib.ap.assert(n >= 1);
+            ap.assert(n >= 1);
             tmp = new double[n];
 
             //
@@ -57719,7 +57719,7 @@ public partial class alglib
 
             rc = 0;
 
-            alglib.ap.assert(n >= 1);
+            ap.assert(n >= 1);
             tmp = new complex[n];
 
             //
@@ -59194,16 +59194,16 @@ public partial class alglib
             int k = 0;
             double v = 0;
 
-            alglib.ap.assert(n > 0, "RMatrixLUInverse: N<=0!");
-            alglib.ap.assert(alglib.ap.cols(a) >= n, "RMatrixLUInverse: cols(A)<N!");
-            alglib.ap.assert(alglib.ap.rows(a) >= n, "RMatrixLUInverse: rows(A)<N!");
-            alglib.ap.assert(alglib.ap.len(pivots) >= n, "RMatrixLUInverse: len(Pivots)<N!");
-            alglib.ap.assert(apserv.apservisfinitematrix(a, n, n, _params), "RMatrixLUInverse: A contains infinite or NaN values!");
+            ap.assert(n > 0, "RMatrixLUInverse: N<=0!");
+            ap.assert(ap.cols(a) >= n, "RMatrixLUInverse: cols(A)<N!");
+            ap.assert(ap.rows(a) >= n, "RMatrixLUInverse: rows(A)<N!");
+            ap.assert(ap.len(pivots) >= n, "RMatrixLUInverse: len(Pivots)<N!");
+            ap.assert(apserv.apservisfinitematrix(a, n, n, _params), "RMatrixLUInverse: A contains infinite or NaN values!");
             for (i = 0; i <= n - 1; i++)
             {
                 if (pivots[i] > n - 1 || pivots[i] < 0)
                 {
-                    alglib.ap.assert(false, "RMatrixLUInverse: incorrect Pivots array!");
+                    ap.assert(false, "RMatrixLUInverse: incorrect Pivots array!");
                 }
             }
 
@@ -59312,10 +59312,10 @@ public partial class alglib
         {
             int[] pivots = new int[0];
 
-            alglib.ap.assert(n > 0, "RMatrixInverse: N<=0!");
-            alglib.ap.assert(alglib.ap.cols(a) >= n, "RMatrixInverse: cols(A)<N!");
-            alglib.ap.assert(alglib.ap.rows(a) >= n, "RMatrixInverse: rows(A)<N!");
-            alglib.ap.assert(apserv.apservisfinitematrix(a, n, n, _params), "RMatrixInverse: A contains infinite or NaN values!");
+            ap.assert(n > 0, "RMatrixInverse: N<=0!");
+            ap.assert(ap.cols(a) >= n, "RMatrixInverse: cols(A)<N!");
+            ap.assert(ap.rows(a) >= n, "RMatrixInverse: rows(A)<N!");
+            ap.assert(apserv.apservisfinitematrix(a, n, n, _params), "RMatrixInverse: A contains infinite or NaN values!");
             trfac.rmatrixlu(a, n, n, ref pivots, _params);
             rmatrixluinverse(a, pivots, n, rep, _params);
         }
@@ -59392,16 +59392,16 @@ public partial class alglib
             int k = 0;
             complex v = 0;
 
-            alglib.ap.assert(n > 0, "CMatrixLUInverse: N<=0!");
-            alglib.ap.assert(alglib.ap.cols(a) >= n, "CMatrixLUInverse: cols(A)<N!");
-            alglib.ap.assert(alglib.ap.rows(a) >= n, "CMatrixLUInverse: rows(A)<N!");
-            alglib.ap.assert(alglib.ap.len(pivots) >= n, "CMatrixLUInverse: len(Pivots)<N!");
-            alglib.ap.assert(apserv.apservisfinitecmatrix(a, n, n, _params), "CMatrixLUInverse: A contains infinite or NaN values!");
+            ap.assert(n > 0, "CMatrixLUInverse: N<=0!");
+            ap.assert(ap.cols(a) >= n, "CMatrixLUInverse: cols(A)<N!");
+            ap.assert(ap.rows(a) >= n, "CMatrixLUInverse: rows(A)<N!");
+            ap.assert(ap.len(pivots) >= n, "CMatrixLUInverse: len(Pivots)<N!");
+            ap.assert(apserv.apservisfinitecmatrix(a, n, n, _params), "CMatrixLUInverse: A contains infinite or NaN values!");
             for (i = 0; i <= n - 1; i++)
             {
                 if (pivots[i] > n - 1 || pivots[i] < 0)
                 {
-                    alglib.ap.assert(false, "CMatrixLUInverse: incorrect Pivots array!");
+                    ap.assert(false, "CMatrixLUInverse: incorrect Pivots array!");
                 }
             }
 
@@ -59510,10 +59510,10 @@ public partial class alglib
         {
             int[] pivots = new int[0];
 
-            alglib.ap.assert(n > 0, "CRMatrixInverse: N<=0!");
-            alglib.ap.assert(alglib.ap.cols(a) >= n, "CRMatrixInverse: cols(A)<N!");
-            alglib.ap.assert(alglib.ap.rows(a) >= n, "CRMatrixInverse: rows(A)<N!");
-            alglib.ap.assert(apserv.apservisfinitecmatrix(a, n, n, _params), "CMatrixInverse: A contains infinite or NaN values!");
+            ap.assert(n > 0, "CRMatrixInverse: N<=0!");
+            ap.assert(ap.cols(a) >= n, "CRMatrixInverse: cols(A)<N!");
+            ap.assert(ap.rows(a) >= n, "CRMatrixInverse: rows(A)<N!");
+            ap.assert(apserv.apservisfinitecmatrix(a, n, n, _params), "CMatrixInverse: A contains infinite or NaN values!");
             trfac.cmatrixlu(a, n, n, ref pivots, _params);
             cmatrixluinverse(a, pivots, n, rep, _params);
         }
@@ -59598,10 +59598,10 @@ public partial class alglib
             int j = 0;
             double[] tmp = new double[0];
 
-            alglib.ap.assert(n > 0, "SPDMatrixCholeskyInverse: N<=0!");
-            alglib.ap.assert(alglib.ap.cols(a) >= n, "SPDMatrixCholeskyInverse: cols(A)<N!");
-            alglib.ap.assert(alglib.ap.rows(a) >= n, "SPDMatrixCholeskyInverse: rows(A)<N!");
-            alglib.ap.assert(apserv.isfinitertrmatrix(a, n, isupper, _params), "SPDMatrixCholeskyInverse: A contains infinite or NaN values!");
+            ap.assert(n > 0, "SPDMatrixCholeskyInverse: N<=0!");
+            ap.assert(ap.cols(a) >= n, "SPDMatrixCholeskyInverse: cols(A)<N!");
+            ap.assert(ap.rows(a) >= n, "SPDMatrixCholeskyInverse: rows(A)<N!");
+            ap.assert(apserv.isfinitertrmatrix(a, n, isupper, _params), "SPDMatrixCholeskyInverse: A contains infinite or NaN values!");
 
             //
             // calculate condition numbers
@@ -59718,10 +59718,10 @@ public partial class alglib
             matinvreport rep,
             alglib.xparams _params)
         {
-            alglib.ap.assert(n > 0, "SPDMatrixInverse: N<=0!");
-            alglib.ap.assert(alglib.ap.cols(a) >= n, "SPDMatrixInverse: cols(A)<N!");
-            alglib.ap.assert(alglib.ap.rows(a) >= n, "SPDMatrixInverse: rows(A)<N!");
-            alglib.ap.assert(apserv.isfinitertrmatrix(a, n, isupper, _params), "SPDMatrixInverse: A contains infinite or NaN values!");
+            ap.assert(n > 0, "SPDMatrixInverse: N<=0!");
+            ap.assert(ap.cols(a) >= n, "SPDMatrixInverse: cols(A)<N!");
+            ap.assert(ap.rows(a) >= n, "SPDMatrixInverse: rows(A)<N!");
+            ap.assert(apserv.isfinitertrmatrix(a, n, isupper, _params), "SPDMatrixInverse: A contains infinite or NaN values!");
             rep.r1 = 0;
             rep.rinf = 0;
             rep.terminationtype = -3;
@@ -59809,10 +59809,10 @@ public partial class alglib
             int j = 0;
             complex[] tmp = new complex[0];
 
-            alglib.ap.assert(n > 0, "HPDMatrixCholeskyInverse: N<=0!");
-            alglib.ap.assert(alglib.ap.cols(a) >= n, "HPDMatrixCholeskyInverse: cols(A)<N!");
-            alglib.ap.assert(alglib.ap.rows(a) >= n, "HPDMatrixCholeskyInverse: rows(A)<N!");
-            alglib.ap.assert(apserv.isfinitectrmatrix(a, n, isupper, _params), "HPDMatrixCholeskyInverse: A contains infinite/NAN values!");
+            ap.assert(n > 0, "HPDMatrixCholeskyInverse: N<=0!");
+            ap.assert(ap.cols(a) >= n, "HPDMatrixCholeskyInverse: cols(A)<N!");
+            ap.assert(ap.rows(a) >= n, "HPDMatrixCholeskyInverse: rows(A)<N!");
+            ap.assert(apserv.isfinitectrmatrix(a, n, isupper, _params), "HPDMatrixCholeskyInverse: A contains infinite/NAN values!");
 
             //
             // calculate condition numbers
@@ -59929,10 +59929,10 @@ public partial class alglib
             matinvreport rep,
             alglib.xparams _params)
         {
-            alglib.ap.assert(n > 0, "HPDMatrixInverse: N<=0!");
-            alglib.ap.assert(alglib.ap.cols(a) >= n, "HPDMatrixInverse: cols(A)<N!");
-            alglib.ap.assert(alglib.ap.rows(a) >= n, "HPDMatrixInverse: rows(A)<N!");
-            alglib.ap.assert(apserv.apservisfinitectrmatrix(a, n, isupper, _params), "HPDMatrixInverse: A contains infinite or NaN values!");
+            ap.assert(n > 0, "HPDMatrixInverse: N<=0!");
+            ap.assert(ap.cols(a) >= n, "HPDMatrixInverse: cols(A)<N!");
+            ap.assert(ap.rows(a) >= n, "HPDMatrixInverse: rows(A)<N!");
+            ap.assert(apserv.apservisfinitectrmatrix(a, n, isupper, _params), "HPDMatrixInverse: A contains infinite or NaN values!");
             rep.r1 = 0;
             rep.rinf = 0;
             rep.terminationtype = -3;
@@ -60029,10 +60029,10 @@ public partial class alglib
             int j = 0;
             double[] tmp = new double[0];
 
-            alglib.ap.assert(n > 0, "RMatrixTRInverse: N<=0!");
-            alglib.ap.assert(alglib.ap.cols(a) >= n, "RMatrixTRInverse: cols(A)<N!");
-            alglib.ap.assert(alglib.ap.rows(a) >= n, "RMatrixTRInverse: rows(A)<N!");
-            alglib.ap.assert(apserv.isfinitertrmatrix(a, n, isupper, _params), "RMatrixTRInverse: A contains infinite or NaN values!");
+            ap.assert(n > 0, "RMatrixTRInverse: N<=0!");
+            ap.assert(ap.cols(a) >= n, "RMatrixTRInverse: cols(A)<N!");
+            ap.assert(ap.rows(a) >= n, "RMatrixTRInverse: rows(A)<N!");
+            ap.assert(apserv.isfinitertrmatrix(a, n, isupper, _params), "RMatrixTRInverse: A contains infinite or NaN values!");
 
             //
             // calculate condition numbers
@@ -60148,10 +60148,10 @@ public partial class alglib
             int j = 0;
             complex[] tmp = new complex[0];
 
-            alglib.ap.assert(n > 0, "CMatrixTRInverse: N<=0!");
-            alglib.ap.assert(alglib.ap.cols(a) >= n, "CMatrixTRInverse: cols(A)<N!");
-            alglib.ap.assert(alglib.ap.rows(a) >= n, "CMatrixTRInverse: rows(A)<N!");
-            alglib.ap.assert(apserv.apservisfinitectrmatrix(a, n, isupper, _params), "CMatrixTRInverse: A contains infinite or NaN values!");
+            ap.assert(n > 0, "CMatrixTRInverse: N<=0!");
+            ap.assert(ap.cols(a) >= n, "CMatrixTRInverse: cols(A)<N!");
+            ap.assert(ap.rows(a) >= n, "CMatrixTRInverse: rows(A)<N!");
+            ap.assert(apserv.apservisfinitectrmatrix(a, n, isupper, _params), "CMatrixTRInverse: A contains infinite or NaN values!");
 
             //
             // calculate condition numbers
@@ -60228,7 +60228,7 @@ public partial class alglib
             if (n <= tsa)
             {
                 rmatrixtrinverserec(a, offs, n, isupper, false, tmp, rep, _params);
-                alglib.ap.assert(rep.terminationtype > 0, "SPDMatrixCholeskyInverseRec: integrity check failed");
+                ap.assert(rep.terminationtype > 0, "SPDMatrixCholeskyInverseRec: integrity check failed");
                 if (isupper)
                 {
 
@@ -60445,7 +60445,7 @@ public partial class alglib
             int tscur = 0;
             int i_ = 0;
 
-            alglib.ap.assert(n >= 1, "MATINV: integrity check 6755 failed");
+            ap.assert(n >= 1, "MATINV: integrity check 6755 failed");
             tsa = apserv.matrixtilesizea(_params);
             tsb = apserv.matrixtilesizeb(_params);
             tscur = tsb;
@@ -60907,7 +60907,7 @@ public partial class alglib
             int i_ = 0;
             int i1_ = 0;
 
-            alglib.ap.assert(n >= 1, "MATINV: integrity check 2553 failed");
+            ap.assert(n >= 1, "MATINV: integrity check 2553 failed");
             tsa = apserv.matrixtilesizea(_params);
             tsb = apserv.matrixtilesizeb(_params);
             tscur = tsb;
@@ -61011,7 +61011,7 @@ public partial class alglib
             apserv.tiledsplit(n, tscur, ref n1, ref n2, _params);
             mn = apserv.imin2(n1, n2, _params);
             apserv.touchint(ref mn, _params);
-            alglib.ap.assert(n2 > 0, "LUInverseRec: internal error!");
+            ap.assert(n2 > 0, "LUInverseRec: internal error!");
 
             //
             // X := inv(U1)*U12
@@ -61205,7 +61205,7 @@ public partial class alglib
             apserv.tiledsplit(n, tscur, ref n1, ref n2, _params);
             mn = apserv.imin2(n1, n2, _params);
             apserv.touchint(ref mn, _params);
-            alglib.ap.assert(n2 > 0, "LUInverseRec: internal error!");
+            ap.assert(n2 > 0, "LUInverseRec: internal error!");
 
             //
             // X := inv(U1)*U12
@@ -61317,7 +61317,7 @@ public partial class alglib
             if (n <= tsa)
             {
                 cmatrixtrinverserec(a, offs, n, isupper, false, tmp, rep, _params);
-                alglib.ap.assert(rep.terminationtype > 0, "HPDMatrixCholeskyInverseRec: integrity check failed");
+                ap.assert(rep.terminationtype > 0, "HPDMatrixCholeskyInverseRec: integrity check failed");
                 if (isupper)
                 {
 
@@ -61720,8 +61720,8 @@ public partial class alglib
             r = new double[0, 0];
             isupperr = new bool();
 
-            alglib.ap.assert(n > 0, "SMatrixGEVDReduce: N<=0!");
-            alglib.ap.assert((problemtype == 1 || problemtype == 2) || problemtype == 3, "SMatrixGEVDReduce: incorrect ProblemType!");
+            ap.assert(n > 0, "SMatrixGEVDReduce: N<=0!");
+            ap.assert((problemtype == 1 || problemtype == 2) || problemtype == 3, "SMatrixGEVDReduce: incorrect ProblemType!");
             result = true;
 
             //
@@ -62122,10 +62122,10 @@ public partial class alglib
             normestimatorstate state,
             alglib.xparams _params)
         {
-            alglib.ap.assert(m > 0, "NormEstimatorCreate: M<=0");
-            alglib.ap.assert(n > 0, "NormEstimatorCreate: N<=0");
-            alglib.ap.assert(nstart > 0, "NormEstimatorCreate: NStart<=0");
-            alglib.ap.assert(nits > 0, "NormEstimatorCreate: NIts<=0");
+            ap.assert(m > 0, "NormEstimatorCreate: M<=0");
+            ap.assert(n > 0, "NormEstimatorCreate: N<=0");
+            ap.assert(nstart > 0, "NormEstimatorCreate: NStart<=0");
+            ap.assert(nits > 0, "NormEstimatorCreate: NIts<=0");
             state.m = m;
             state.n = n;
             state.nstart = nstart;
@@ -62167,7 +62167,7 @@ public partial class alglib
             int seedval,
             alglib.xparams _params)
         {
-            alglib.ap.assert(seedval >= 0, "NormEstimatorSetSeed: SeedVal<0");
+            ap.assert(seedval >= 0, "NormEstimatorSetSeed: SeedVal<0");
             state.seedval = seedval;
         }
 

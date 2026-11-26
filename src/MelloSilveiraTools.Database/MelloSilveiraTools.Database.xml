@@ -9,8 +9,14 @@
             Provides extension methods to register services from the MelloSilveiraTools.Database package.
             </summary>
         </member>
+        <member name="M:MelloSilveiraTools.Database.DatabaseDependencyInjection.AddDatabaseHealthCheck(Microsoft.Extensions.DependencyInjection.IHealthChecksBuilder,MelloSilveiraTools.Database.RelationalDatabase.Settings.DatabaseSettings,System.String,System.Collections.Generic.IEnumerable{System.String})">
+            <inheritdoc cref="M:MelloSilveiraTools.Database.DatabaseDependencyInjection.&lt;G&gt;$08C933CC3BEDFE68D0D1C058595CC45C.AddDatabaseHealthCheck(MelloSilveiraTools.Database.RelationalDatabase.Settings.DatabaseSettings,System.String,System.Collections.Generic.IEnumerable{System.String})"/>
+        </member>
         <member name="M:MelloSilveiraTools.Database.DatabaseDependencyInjection.AddDatabaseServices(Microsoft.Extensions.DependencyInjection.IServiceCollection,MelloSilveiraTools.Core.ResiliencePipelines.ResiliencePipelineSettings,MelloSilveiraTools.Database.RelationalDatabase.Settings.DatabaseSettings)">
             <inheritdoc cref="M:MelloSilveiraTools.Database.DatabaseDependencyInjection.&lt;G&gt;$7B30185E57B8298C6754F16C0BCF4773.AddDatabaseServices(MelloSilveiraTools.Core.ResiliencePipelines.ResiliencePipelineSettings,MelloSilveiraTools.Database.RelationalDatabase.Settings.DatabaseSettings)"/>
+        </member>
+        <member name="M:MelloSilveiraTools.Database.DatabaseDependencyInjection.AddDatabaseHealthCheck(Microsoft.Extensions.DependencyInjection.IServiceCollection,MelloSilveiraTools.Database.RelationalDatabase.Settings.DatabaseSettings,System.String,System.Collections.Generic.IEnumerable{System.String})">
+            <inheritdoc cref="M:MelloSilveiraTools.Database.DatabaseDependencyInjection.&lt;G&gt;$7B30185E57B8298C6754F16C0BCF4773.AddDatabaseHealthCheck(MelloSilveiraTools.Database.RelationalDatabase.Settings.DatabaseSettings,System.String,System.Collections.Generic.IEnumerable{System.String})"/>
         </member>
         <member name="M:MelloSilveiraTools.Database.DatabaseDependencyInjection.CreateDataSource(MelloSilveiraTools.Database.RelationalDatabase.Settings.DatabaseSettings,Microsoft.Extensions.Logging.ILoggerFactory)">
             <summary>
@@ -21,6 +27,18 @@
             <param name="databaseSettings">Database settings containing the PostgreSQL connection string.</param>
             <param name="loggerFactory">Optional logger factory for Npgsql connection and pool diagnostics.</param>
             <returns>A configured <see cref="T:Npgsql.NpgsqlDataSource"/> instance.</returns>
+        </member>
+        <member name="M:MelloSilveiraTools.Database.DatabaseDependencyInjection.&lt;G&gt;$08C933CC3BEDFE68D0D1C058595CC45C.AddDatabaseHealthCheck(MelloSilveiraTools.Database.RelationalDatabase.Settings.DatabaseSettings,System.String,System.Collections.Generic.IEnumerable{System.String})">
+            <summary>
+            Registers ASP.NET Core native health checks with <see cref="T:MelloSilveiraTools.Database.RelationalDatabase.HealthChecks.PostgresHealthCheck"/> configured
+            using <see cref="P:MelloSilveiraTools.Database.RelationalDatabase.Settings.DatabaseSettings.UnitOperationTimeoutInMilliseconds"/> as its execution timeout.
+            </summary>
+            <param name="databaseSettings">Database settings supplying the unit-operation timeout.</param>
+            <param name="name">Optional health-check registration name; defaults to <see cref="F:MelloSilveiraTools.Database.RelationalDatabase.HealthChecks.PostgresHealthCheck.DefaultName"/>.</param>
+            <param name="tags">Optional health-check tags; defaults to <c>["database", "ready"]</c>.</param>
+            <returns>The same <paramref name="healthChecksBuilder"/> instance to allow call chaining.</returns>
+            <exception cref="T:System.ArgumentNullException">Thrown when <paramref name="databaseSettings"/> is <see langword="null"/>.</exception>
+            <exception cref="T:System.ArgumentOutOfRangeException">Thrown when <see cref="P:MelloSilveiraTools.Database.RelationalDatabase.Settings.DatabaseSettings.UnitOperationTimeoutInMilliseconds"/> is less than or equal to zero.</exception>
         </member>
         <member name="M:MelloSilveiraTools.Database.DatabaseDependencyInjection.&lt;G&gt;$7B30185E57B8298C6754F16C0BCF4773.AddDatabaseServices(MelloSilveiraTools.Core.ResiliencePipelines.ResiliencePipelineSettings,MelloSilveiraTools.Database.RelationalDatabase.Settings.DatabaseSettings)">
             <summary>
@@ -42,6 +60,16 @@
             <param name="defaultResiliencePipelineSettings">Settings that parameterize the default resilience pipelines.</param>
             <param name="databaseSettings">Database connection and behavior settings.</param>
             <returns>The same <paramref name="services"/> instance to allow call chaining.</returns>
+        </member>
+        <member name="M:MelloSilveiraTools.Database.DatabaseDependencyInjection.&lt;G&gt;$7B30185E57B8298C6754F16C0BCF4773.AddDatabaseHealthCheck(MelloSilveiraTools.Database.RelationalDatabase.Settings.DatabaseSettings,System.String,System.Collections.Generic.IEnumerable{System.String})">
+            <summary>
+            Registers ASP.NET Core native health checks with <see cref="T:MelloSilveiraTools.Database.RelationalDatabase.HealthChecks.PostgresHealthCheck"/> configured
+            using <see cref="P:MelloSilveiraTools.Database.RelationalDatabase.Settings.DatabaseSettings.UnitOperationTimeoutInMilliseconds"/> as its execution timeout.
+            </summary>
+            <param name="databaseSettings">Database settings supplying the unit-operation timeout.</param>
+            <param name="name">Optional health-check registration name; defaults to <see cref="F:MelloSilveiraTools.Database.RelationalDatabase.HealthChecks.PostgresHealthCheck.DefaultName"/>.</param>
+            <param name="tags">Optional health-check tags; defaults to <c>["database", "ready"]</c>.</param>
+            <returns>The <see cref="T:Microsoft.Extensions.DependencyInjection.IServiceCollection"/> so callers can chain additional services.</returns>
         </member>
         <member name="T:MelloSilveiraTools.Database.ExtensionMethods.ClassExtensions">
             <summary>
@@ -386,8 +414,8 @@
         <member name="M:MelloSilveiraTools.Database.ExtensionMethods.NpgsqlDataSourceExtensions.EnsureNonSuperuserRoleAsync(Npgsql.NpgsqlDataSource,Microsoft.Extensions.Logging.ILogger,System.Boolean,System.Boolean,System.Threading.CancellationToken)">
             <inheritdoc cref="M:MelloSilveiraTools.Database.ExtensionMethods.NpgsqlDataSourceExtensions.&lt;G&gt;$44B4238A072CB21E67F45D087CE9941F.EnsureNonSuperuserRoleAsync(Microsoft.Extensions.Logging.ILogger,System.Boolean,System.Boolean,System.Threading.CancellationToken)"/>
         </member>
-        <member name="M:MelloSilveiraTools.Database.ExtensionMethods.NpgsqlDataSourceExtensions.PingAsync(Npgsql.NpgsqlDataSource,System.Nullable{System.Int32},System.Threading.CancellationToken)">
-            <inheritdoc cref="M:MelloSilveiraTools.Database.ExtensionMethods.NpgsqlDataSourceExtensions.&lt;G&gt;$44B4238A072CB21E67F45D087CE9941F.PingAsync(System.Nullable{System.Int32},System.Threading.CancellationToken)"/>
+        <member name="M:MelloSilveiraTools.Database.ExtensionMethods.NpgsqlDataSourceExtensions.PingAsync(Npgsql.NpgsqlDataSource,System.Int32,System.Threading.CancellationToken)">
+            <inheritdoc cref="M:MelloSilveiraTools.Database.ExtensionMethods.NpgsqlDataSourceExtensions.&lt;G&gt;$44B4238A072CB21E67F45D087CE9941F.PingAsync(System.Int32,System.Threading.CancellationToken)"/>
         </member>
         <member name="M:MelloSilveiraTools.Database.ExtensionMethods.NpgsqlDataSourceExtensions.&lt;G&gt;$44B4238A072CB21E67F45D087CE9941F.CreateBatch(System.Nullable{System.Int32})">
             <summary>
@@ -416,7 +444,7 @@
             <c>SUPERUSER</c> or <c>BYPASSRLS</c> privileges.
             </exception>
         </member>
-        <member name="M:MelloSilveiraTools.Database.ExtensionMethods.NpgsqlDataSourceExtensions.&lt;G&gt;$44B4238A072CB21E67F45D087CE9941F.PingAsync(System.Nullable{System.Int32},System.Threading.CancellationToken)">
+        <member name="M:MelloSilveiraTools.Database.ExtensionMethods.NpgsqlDataSourceExtensions.&lt;G&gt;$44B4238A072CB21E67F45D087CE9941F.PingAsync(System.Int32,System.Threading.CancellationToken)">
             <summary>
             Executes a lightweight <c>SELECT 1</c> connectivity probe against PostgreSQL.
             </summary>
@@ -551,6 +579,32 @@
             <summary>
             Specifies that a column has a unique constraint, used for ON CONFLICT upserts and typed lookups via GetByUniqueColumnAsync.
             </summary>
+        </member>
+        <member name="T:MelloSilveiraTools.Database.RelationalDatabase.HealthChecks.PostgresHealthCheck">
+            <summary>
+            Native ASP.NET Core <see cref="T:Microsoft.Extensions.Diagnostics.HealthChecks.IHealthCheck"/> probing PostgreSQL connectivity via
+            <see cref="T:Npgsql.NpgsqlDataSource"/> using the configured <see cref="P:MelloSilveiraTools.Database.RelationalDatabase.Settings.DatabaseSettings.UnitOperationTimeoutInSeconds"/>.
+            </summary>
+            <param name="logger">Logger recording connectivity failures.</param>
+            <param name="dataSource">Shared PostgreSQL data source probed with <c>SELECT 1</c>.</param>
+            <param name="databaseSettings">Database settings supplying the unit-operation command timeout.</param>
+        </member>
+        <member name="M:MelloSilveiraTools.Database.RelationalDatabase.HealthChecks.PostgresHealthCheck.#ctor(Microsoft.Extensions.Logging.ILogger{MelloSilveiraTools.Database.RelationalDatabase.HealthChecks.PostgresHealthCheck},Npgsql.NpgsqlDataSource,MelloSilveiraTools.Database.RelationalDatabase.Settings.DatabaseSettings)">
+            <summary>
+            Native ASP.NET Core <see cref="T:Microsoft.Extensions.Diagnostics.HealthChecks.IHealthCheck"/> probing PostgreSQL connectivity via
+            <see cref="T:Npgsql.NpgsqlDataSource"/> using the configured <see cref="P:MelloSilveiraTools.Database.RelationalDatabase.Settings.DatabaseSettings.UnitOperationTimeoutInSeconds"/>.
+            </summary>
+            <param name="logger">Logger recording connectivity failures.</param>
+            <param name="dataSource">Shared PostgreSQL data source probed with <c>SELECT 1</c>.</param>
+            <param name="databaseSettings">Database settings supplying the unit-operation command timeout.</param>
+        </member>
+        <member name="F:MelloSilveiraTools.Database.RelationalDatabase.HealthChecks.PostgresHealthCheck.DefaultName">
+            <summary>
+            Default registration name used when adding <see cref="T:MelloSilveiraTools.Database.RelationalDatabase.HealthChecks.PostgresHealthCheck"/> to ASP.NET Core health checks.
+            </summary>
+        </member>
+        <member name="M:MelloSilveiraTools.Database.RelationalDatabase.HealthChecks.PostgresHealthCheck.CheckHealthAsync(Microsoft.Extensions.Diagnostics.HealthChecks.HealthCheckContext,System.Threading.CancellationToken)">
+            <inheritdoc/>
         </member>
         <member name="T:MelloSilveiraTools.Database.RelationalDatabase.Models.DatabaseConstants">
             <summary>
