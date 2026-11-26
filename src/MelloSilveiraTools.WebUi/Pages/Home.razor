@@ -1,0 +1,183 @@
+@page "/"
+@inject ApiClientService ApiClient
+
+<div class="container">
+    <header class="header">
+        <div>
+            <h1>MelloSilveiraTools Workbench</h1>
+            <p>Viscoelastic Constitutive Modeling, Experimental Optimization, Mechanics, Storage &amp; Plugins</p>
+        </div>
+
+        <div class="auth-bar">
+            @if (ApiClient.IsAuthenticated)
+            {
+                <span class="badge @(ApiClient.IsSuperuser ? "badge-info" : "badge-ok")">
+                    @(ApiClient.IsSuperuser ? $"Superuser: {ApiClient.CurrentUser?.Username}" : $"Account: {ApiClient.CurrentUser?.Username ?? "Authenticated"}")
+                </span>
+                <span class="muted" style="font-size: 0.78rem;">
+                    Exp: @ApiClient.TokenExpiresOn?.ToLocalTime().ToString("HH:mm:ss")
+                </span>
+                <button class="btn btn-sm btn-secondary" @onclick="ValidateAuthAsync" disabled="@_isAuthBusy">Validate</button>
+                <button class="btn btn-sm btn-secondary" @onclick="RefreshAuthAsync" disabled="@_isAuthBusy">Refresh JWE</button>
+                <button class="btn btn-sm btn-secondary" @onclick="Logout">Logout</button>
+            }
+            else
+            {
+                <span class="badge badge-warn">Public Mode</span>
+                <input type="text" class="form-control" style="width: 130px;" placeholder="Username" aria-label="Username" @bind="_authUsername" disabled="@_isAuthBusy" />
+                <input type="password" class="form-control" style="width: 130px;" placeholder="Password" aria-label="Password" @bind="_authPassword" disabled="@_isAuthBusy" />
+                <button class="btn btn-sm btn-primary" @onclick="LoginAsync" disabled="@_isAuthBusy">Login</button>
+                <button class="btn btn-sm btn-secondary" @onclick="RegisterAsync" disabled="@_isAuthBusy">Register</button>
+            }
+            <a href="/swagger" target="_blank" class="btn btn-sm btn-secondary">Swagger API</a>
+        </div>
+    </header>
+
+    @if (!string.IsNullOrWhiteSpace(_statusMessage))
+    {
+        <div class="alert @(_isError ? "alert-error" : "alert-info")" role="status">@_statusMessage</div>
+    }
+
+    <nav class="tabs" aria-label="Workbench Sections">
+        <button class="tab-btn @(_activeTab == TabExperimental ? "active" : string.Empty)" @onclick="@(() => SelectTab(TabExperimental))">
+            Experimental &amp; Sweeps
+        </button>
+        <button class="tab-btn @(_activeTab == TabMechanics ? "active" : string.Empty)" @onclick="@(() => SelectTab(TabMechanics))">
+            Mechanics &amp; Fatigue
+        </button>
+        <button class="tab-btn @(_activeTab == TabStorage ? "active" : string.Empty)" @onclick="@(() => SelectTab(TabStorage))">
+            Storage Explorer
+        </button>
+        <button class="tab-btn @(_activeTab == TabPlugins ? "active" : string.Empty)" @onclick="@(() => SelectTab(TabPlugins))">
+            Plugins &amp; Moderation
+        </button>
+    </nav>
+
+    @if (_activeTab == TabExperimental)
+    {
+        <ExperimentalWorkbenchTab OnStatus="HandleStatus" AuthVersion="@_authVersion" />
+    }
+    else if (_activeTab == TabMechanics)
+    {
+        <MechanicsWorkbenchTab OnStatus="HandleStatus" />
+    }
+    else if (_activeTab == TabStorage)
+    {
+        <StorageWorkbenchTab OnStatus="HandleStatus" AuthVersion="@_authVersion" />
+    }
+    else if (_activeTab == TabPlugins)
+    {
+        <PluginsWorkbenchTab OnStatus="HandleStatus" AuthVersion="@_authVersion" />
+    }
+</div>
+
+@code {
+    private const string TabExperimental = "experimental";
+    private const string TabMechanics = "mechanics";
+    private const string TabStorage = "storage";
+    private const string TabPlugins = "plugins";
+
+    private string _activeTab = TabExperimental;
+    private int _authVersion;
+    private string _authUsername = string.Empty;
+    private string _authPassword = string.Empty;
+    private bool _isAuthBusy;
+    private string? _statusMessage;
+    private bool _isError;
+
+    private void SelectTab(string tab) => _activeTab = tab;
+
+    private void HandleStatus((string Message, bool IsError) status)
+    {
+        _statusMessage = status.Message;
+        _isError = status.IsError;
+    }
+
+    private Task LoginAsync() => AuthenticateAsync(isRegister: false);
+
+    private Task RegisterAsync() => AuthenticateAsync(isRegister: true);
+
+    private void Logout()
+    {
+        ApiClient.Logout();
+        _authVersion++;
+        _statusMessage = "Signed out. Switched to public anonymous mode.";
+        _isError = false;
+    }
+
+    private async Task AuthenticateAsync(bool isRegister)
+    {
+        _isAuthBusy = true;
+        _isError = false;
+        _statusMessage = null;
+        try
+        {
+            ApiResultDto<AuthTokenDto> result = isRegister
+                ? await ApiClient.RegisterAsync(_authUsername, _authPassword)
+                : await ApiClient.LoginAsync(_authUsername, _authPassword);
+
+            if (!result.Success || result.Data is null || string.IsNullOrWhiteSpace(result.Data.Value))
+            {
+                _isError = true;
+                _statusMessage = !string.IsNullOrWhiteSpace(result.JoinedMessages)
+                    ? result.JoinedMessages
+                    : (isRegister ? "Registration failed." : "Invalid username or password.");
+                return;
+            }
+
+            _authPassword = string.Empty;
+            _authVersion++;
+            string roleLabel = ApiClient.IsSuperuser ? "superuser" : "authenticated user";
+            _statusMessage = $"Signed in as '{ApiClient.CurrentUser?.Username ?? _authUsername}' ({roleLabel}).";
+        }
+        catch (Exception ex)
+        {
+            _isError = true;
+            _statusMessage = $"Authentication error: {ex.Message}";
+        }
+        finally
+        {
+            _isAuthBusy = false;
+        }
+    }
+
+    private async Task RefreshAuthAsync()
+    {
+        _isAuthBusy = true;
+        try
+        {
+            ApiResultDto<AuthTokenDto> refreshed = await ApiClient.RefreshTokenAsync();
+            _isError = !refreshed.Success;
+            _statusMessage = refreshed.Success ? "JWE token refreshed." : (string.IsNullOrWhiteSpace(refreshed.JoinedMessages) ? "Token refresh failed." : refreshed.JoinedMessages);
+        }
+        catch (Exception ex)
+        {
+            _isError = true;
+            _statusMessage = $"Token refresh error: {ex.Message}";
+        }
+        finally
+        {
+            _isAuthBusy = false;
+        }
+    }
+
+    private async Task ValidateAuthAsync()
+    {
+        _isAuthBusy = true;
+        try
+        {
+            ApiResultDto<object> result = await ApiClient.ValidateTokenAsync();
+            _isError = !result.Success;
+            _statusMessage = result.Success ? "Active JWE token is valid." : (string.IsNullOrWhiteSpace(result.JoinedMessages) ? "Token is invalid or expired." : result.JoinedMessages);
+        }
+        catch (Exception ex)
+        {
+            _isError = true;
+            _statusMessage = $"Token validation error: {ex.Message}";
+        }
+        finally
+        {
+            _isAuthBusy = false;
+        }
+    }
+}
